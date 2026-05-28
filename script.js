@@ -124,4 +124,23 @@
       if(n===25) hint.textContent='alright, you win. you really like buttons.';
     });
   }
+
+  /* ---------- hero peek chat bubble ---------- */
+  const messages = [
+    'Hey! 👋',
+    'Let\'s build something! 🚀',
+    'Design nerd here 🎨',
+    'Coffee + Code = Magic ☕',
+    'Ready to create? 💪',
+    'Let\'s go! 🎯',
+    'Something awesome incoming ⚡',
+    'You found me! 😄'
+  ];
+  const chatBubble = document.querySelector('.hero__chat-bubble');
+  if(chatBubble){
+    setInterval(()=>{
+      const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+      chatBubble.textContent = randomMsg;
+    }, 2000);
+  }
 })();

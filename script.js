@@ -147,18 +147,18 @@
   /* ---------- marquee tap-to-slowmo + icon morphing ---------- */
   const iconNames = {
     'articulate.png': 'Articulate',
-    'synthesia.png': 'Synthesia',
+    'canva.png': 'Synthesia',
     'adobe.png': 'Adobe',
     'html5.png': 'html5',
-    'gemini.png': 'Gemini',
-    'claude.png': 'Claude',
+    'google-fonts.png': 'Gemini',
+    'miro.png': 'Claude',
     'python.png': 'Python',
     'javascript.png': 'Javascript',
     'blender.png': 'Blender',
-    'tailwind-css.png': 'Tailwind CSS',
-    'ollama.png': 'Ollama'
+    'adobe-audition.png': 'Tailwind CSS',
+    'figma.png': 'Ollama'
   };
-  const iconSequence = ['articulate.png','synthesia.png','adobe.png','html5.png','gemini.png','claude.png','python.png','javascript.png','blender.png','tailwind-css.png','ollama.png'];
+  const iconSequence = ['articulate.png','canva.png','adobe.png','html5.png','google-fonts.png','miro.png','python.png','javascript.png','blender.png','adobe-audition.png','figma.png'];
   let activeLabelTimeout = null;
   let slowmoActive = false;
 
@@ -176,7 +176,6 @@
       const label = document.createElement('div');
       label.className = 'marquee__icon-label';
       label.textContent = name;
-      label.style.position = 'fixed';
       const rect = img.getBoundingClientRect();
       label.style.top = (rect.top - 40) + 'px';
       label.style.left = (rect.left + rect.width/2) + 'px';

@@ -33,7 +33,7 @@
     x: 0,
     w: 0
   }));
-  function measure(){ tracks.forEach(t=>{ t.w = t.el.firstElementChild.getBoundingClientRect().width; }); }
+  function measure(){ tracks.forEach(t=>{ t.w = t.el.getBoundingClientRect().width / 2; }); }
   measure(); addEventListener('resize', measure);
 
   let boost = 0, lastY = scrollY;

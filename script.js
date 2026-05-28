@@ -124,4 +124,97 @@
       if(n===25) hint.textContent='alright, you win. you really like buttons.';
     });
   }
+
+  /* ---------- hero peek chat bubble ---------- */
+  const messages = [
+    'Hey! 👋',
+    'Let\'s build something! 🚀',
+    'Design nerd here 🎨',
+    'Coffee + Code = Magic ☕',
+    'Ready to create? 💪',
+    'Let\'s go! 🎯',
+    'Something awesome incoming ⚡',
+    'You found me! 😄'
+  ];
+  const chatBubble = document.querySelector('.hero__chat-bubble');
+  if(chatBubble){
+    setInterval(()=>{
+      const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+      chatBubble.textContent = randomMsg;
+    }, 2000);
+  }
+
+  /* ---------- marquee tap-to-slowmo + icon morphing ---------- */
+  const iconNames = {
+    'articulate.png': 'Articulate',
+    'synthesia.png': 'Synthesia',
+    'adobe.png': 'Adobe',
+    'html5.png': 'html5',
+    'gemini.png': 'Gemini',
+    'claude.png': 'Claude',
+    'python.png': 'Python',
+    'javascript.png': 'Javascript',
+    'blender.png': 'Blender',
+    'tailwind-css.png': 'Tailwind CSS',
+    'ollama.png': 'Ollama'
+  };
+  const iconSequence = ['articulate.png','synthesia.png','adobe.png','html5.png','gemini.png','claude.png','python.png','javascript.png','blender.png','tailwind-css.png','ollama.png'];
+  let activeLabelTimeout = null;
+  let slowmoActive = false;
+
+  document.querySelectorAll('.marquee__track img').forEach(img=>{
+    img.addEventListener('click', (e)=>{
+      slowmoActive = true;
+      const track = img.closest('.marquee__track');
+      const allImgs = track.querySelectorAll('img');
+
+      allImgs.forEach(i=>{
+        i.style.animationPlayState = 'paused';
+      });
+
+      const name = img.dataset.name || 'Icon';
+      const label = document.createElement('div');
+      label.className = 'marquee__icon-label';
+      label.textContent = name;
+      label.style.position = 'fixed';
+      const rect = img.getBoundingClientRect();
+      label.style.top = (rect.top - 40) + 'px';
+      label.style.left = (rect.left + rect.width/2) + 'px';
+      label.style.transform = 'translateX(-50%)';
+      document.body.appendChild(label);
+
+      clearTimeout(activeLabelTimeout);
+      activeLabelTimeout = setTimeout(()=>{
+        allImgs.forEach(i=>{
+          i.style.animationPlayState = 'running';
+        });
+        label.remove();
+        slowmoActive = false;
+      }, 2500);
+
+      e.stopPropagation();
+    });
+
+    setInterval(()=>{
+      if(slowmoActive) return;
+      if(Math.random() < 0.15){
+        const newIcon = iconSequence[Math.floor(Math.random() * iconSequence.length)];
+        img.src = 'images/icons/' + newIcon;
+        img.dataset.name = iconNames[newIcon];
+      }
+    }, 2000 + Math.random() * 6000);
+  });
+
+  document.addEventListener('click', ()=>{
+    if(slowmoActive && activeLabelTimeout){
+      clearTimeout(activeLabelTimeout);
+      const track = document.querySelector('.marquee__track');
+      const allImgs = track.querySelectorAll('img');
+      allImgs.forEach(i=>{
+        i.style.animationPlayState = 'running';
+      });
+      document.querySelectorAll('.marquee__icon-label').forEach(l=>l.remove());
+      slowmoActive = false;
+    }
+  });
 })();

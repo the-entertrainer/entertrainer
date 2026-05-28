@@ -180,21 +180,58 @@ section{position:relative}
 .marquee__row{overflow:hidden;white-space:nowrap;padding:8px 0}
 .marquee__row--alt{border-top:1px solid var(--line-soft)}
 .marquee__track{display:inline-flex;gap:3px;align-items:center;will-change:transform}
-.marquee__track img{height:60px;width:auto;object-fit:contain;display:block;animation:icon-flip 0.8s ease-in-out infinite}
+.marquee__track img{height:60px;width:auto;object-fit:contain;display:block;animation:icon-flip 0.8s ease-in-out infinite,float 4s ease-in-out infinite,drift 6s ease-in-out infinite;position:relative}
 
 @keyframes icon-flip{
   0%,100%{transform:scaleX(1) rotateY(0deg);opacity:1}
   50%{transform:scaleX(0.95) rotateY(5deg);opacity:0.9}
 }
 
+@keyframes float{
+  0%,100%{transform:translateY(0px)}
+  50%{transform:translateY(-8px)}
+}
+
+@keyframes drift{
+  0%,100%{transform:translateX(0px)}
+  25%{transform:translateX(2px)}
+  75%{transform:translateX(-2px)}
+}
+
+.marquee__track img[src*="javascript"]{
+  filter:invert(1)
+}
+
+.marquee__icon-label{
+  position:absolute;
+  font-size:0.7em;
+  background:white;
+  border:1px solid var(--text);
+  padding:4px 8px;
+  border-radius:6px;
+  white-space:nowrap;
+  pointer-events:none;
+  animation:label-fade 2.5s ease-in-out forwards;
+  font-weight:500;
+  color:var(--black);
+  z-index:10
+}
+
+@keyframes label-fade{
+  0%{opacity:0;transform:translateY(-10px)}
+  10%{opacity:1;transform:translateY(0)}
+  90%{opacity:1;transform:translateY(0)}
+  100%{opacity:0;transform:translateY(-10px)}
+}
+
 /* ---------- HERO PEEK GIF ---------- */
 .hero__name-wrapper{display:inline-flex;align-items:center;gap:0;position:relative}
-.hero__peek{width:1em;height:1em;object-fit:contain;object-position:center;margin-left:-0.35em;animation:peek-emphasis 2s ease-in-out infinite}
+.hero__peek{width:1em;height:1em;object-fit:contain;object-position:center;margin-left:-0.8em;vertical-align:bottom;animation:peek-emphasis 2s ease-in-out infinite}
 @keyframes peek-emphasis{
-  0%,100%{transform:translateX(-1.5em) translateY(0) scaleX(1);opacity:0}
-  25%{transform:translateX(0) translateY(0) scaleX(1);opacity:1}
-  50%{transform:translateX(0) translateY(-3px) scaleX(1.08);opacity:0.95}
-  75%{transform:translateX(0) translateY(0) scaleX(1);opacity:1}
+  0%{transform:translateX(-2em);opacity:0}
+  15%{transform:translateX(0);opacity:1}
+  50%,85%{transform:translateX(0);opacity:1}
+  100%{transform:translateX(-2em);opacity:0}
 }
 
 /* ---------- RANT + MASHER ---------- */

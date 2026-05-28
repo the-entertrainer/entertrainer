@@ -36,7 +36,7 @@
   function measure(){ tracks.forEach(t=>{ t.w = t.el.getBoundingClientRect().width / 2; }); }
   measure(); addEventListener('resize', measure);
 
-  let boost = 0, lastY = scrollY;
+  let boost = 0, lastY = scrollY, pauseMarquee = false;
   addEventListener('scroll', ()=>{
     const dy = Math.abs(scrollY - lastY); lastY = scrollY;
     boost = Math.min(boost + dy*0.6, 60);
@@ -47,7 +47,7 @@
       const speed = 0.9 + boost*0.08;
       boost *= 0.9;
       tracks.forEach(t=>{
-        if(!t.w) return;
+        if(!t.w || pauseMarquee) return;
         t.x += t.dir*speed;
         if (t.x <= -t.w) t.x += t.w;
         if (t.x >= 0)    t.x -= t.w;
@@ -127,14 +127,14 @@
 
   /* ---------- hero peek chat bubble ---------- */
   const messages = [
-    'Hey! 👋',
-    'Let\'s build something! 🚀',
-    'Design nerd here 🎨',
-    'Coffee + Code = Magic ☕',
-    'Ready to create? 💪',
-    'Let\'s go! 🎯',
-    'Something awesome incoming ⚡',
-    'You found me! 😄'
+    'Hey!',
+    'Let\'s build something!',
+    'Design nerd here',
+    'Coffee + Code = Magic',
+    'Ready to create?',
+    'Let\'s go!',
+    'Something awesome incoming',
+    'You found me!'
   ];
   const chatBubble = document.querySelector('.hero__chat-bubble');
   if(chatBubble){
@@ -165,6 +165,7 @@
   document.querySelectorAll('.marquee__track img').forEach(img=>{
     img.addEventListener('click', (e)=>{
       slowmoActive = true;
+      pauseMarquee = true;
       const track = img.closest('.marquee__track');
       const allImgs = track.querySelectorAll('img');
 
@@ -176,19 +177,27 @@
       const label = document.createElement('div');
       label.className = 'marquee__icon-label';
       label.textContent = name;
-      const rect = img.getBoundingClientRect();
-      label.style.top = (rect.top - 40) + 'px';
-      label.style.left = (rect.left + rect.width/2) + 'px';
-      label.style.transform = 'translateX(-50%)';
       document.body.appendChild(label);
+
+      let labelAnimationId = null;
+      function updateLabelPos(){
+        const rect = img.getBoundingClientRect();
+        label.style.top = (rect.top - 40) + 'px';
+        label.style.left = (rect.left + rect.width/2) + 'px';
+        label.style.transform = 'translateX(-50%)';
+        labelAnimationId = requestAnimationFrame(updateLabelPos);
+      }
+      updateLabelPos();
 
       clearTimeout(activeLabelTimeout);
       activeLabelTimeout = setTimeout(()=>{
+        cancelAnimationFrame(labelAnimationId);
         allImgs.forEach(i=>{
           i.style.animationPlayState = 'running';
         });
         label.remove();
         slowmoActive = false;
+        pauseMarquee = false;
       }, 2500);
 
       e.stopPropagation();

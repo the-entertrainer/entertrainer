@@ -226,14 +226,14 @@ section{position:relative}
 
 /* ---------- HERO PEEK GIF ---------- */
 .hero__name-wrapper{display:inline-flex;align-items:center;gap:0;position:relative}
-.hero__peek{width:1em;height:1em;object-fit:contain;object-position:center;margin-left:-0.8em;vertical-align:bottom;position:relative;z-index:-1;animation:peek-emphasis 2s ease-in-out infinite}
+.hero__peek{width:1em;height:1em;object-fit:contain;object-position:center;margin-left:-0.95em;vertical-align:bottom;position:relative;z-index:-1;animation:peek-emphasis 2s ease-in-out infinite}
 @keyframes peek-emphasis{
   0%{transform:translateX(-0.8em);opacity:0}
   25%{transform:translateX(0);opacity:1}
   50%,80%{transform:translateX(0);opacity:1}
   100%{transform:translateX(-0.8em);opacity:0}
 }
-.hero__chat-bubble{position:absolute;top:-50px;left:50%;transform:translateX(-50%);background:white;border:2px solid var(--text);border-radius:12px;padding:6px 10px;font-size:0.5em;white-space:nowrap;opacity:0;pointer-events:none;animation:chat-bubble-pop 2s ease-in-out infinite;font-weight:500}
+.hero__chat-bubble{position:absolute;top:-50px;left:50%;transform:translateX(-50%);background:white;border:2px solid var(--text);border-radius:12px;padding:4px 8px;font-size:0.35em;white-space:nowrap;opacity:0;pointer-events:none;animation:chat-bubble-pop 2s ease-in-out infinite;font-weight:500}
 .hero__chat-bubble::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:8px solid white}
 @keyframes chat-bubble-pop{
   0%,12%{opacity:0;transform:translateX(-50%) scale(0.8)}

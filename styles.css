@@ -730,3 +730,167 @@ section{position:relative}
     display: none;
   }
 }
+
+/* ---------- CUBE NAVIGATION ---------- */
+.cube-nav {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 800;
+  pointer-events: none;
+}
+
+.cube-nav__cube {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  pointer-events: auto;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  perspective: 1000px;
+  transition: transform 0.3s ease;
+}
+
+.cube-nav__cube:hover {
+  transform: scale(1.1);
+}
+
+.cube-nav__cube--active .cube-nav__cube-inner {
+  animation: cube-pulse 0.6s ease;
+}
+
+.cube-nav__cube-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: cube-rotate 8s linear infinite;
+  transition: transform 0.3s ease;
+}
+
+.cube-nav__cube:hover .cube-nav__cube-inner {
+  animation-play-state: paused;
+  transform: rotateX(15deg) rotateY(-15deg);
+}
+
+.cube-nav__face {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  font-size: 10px;
+  font-family: var(--mono);
+  font-weight: bold;
+  color: var(--black);
+  backface-visibility: hidden;
+}
+
+.cube-nav__face--front {
+  transform: translateZ(30px);
+}
+
+.cube-nav__face--back {
+  transform: translateZ(-30px) rotateY(180deg);
+  background: var(--off-black);
+}
+
+.cube-nav__face--right {
+  transform: rotateY(90deg) translateZ(30px);
+}
+
+.cube-nav__face--left {
+  transform: rotateY(-90deg) translateZ(30px);
+}
+
+.cube-nav__face--top {
+  transform: rotateX(90deg) translateZ(30px);
+}
+
+.cube-nav__face--bottom {
+  transform: rotateX(-90deg) translateZ(30px);
+}
+
+@keyframes cube-rotate {
+  0% { transform: rotateX(0) rotateY(0) rotateZ(0); }
+  25% { transform: rotateX(0) rotateY(90deg) rotateZ(0); }
+  50% { transform: rotateX(0) rotateY(180deg) rotateZ(0); }
+  75% { transform: rotateX(0) rotateY(270deg) rotateZ(0); }
+  100% { transform: rotateX(0) rotateY(360deg) rotateZ(0); }
+}
+
+@keyframes cube-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+@media (max-width: 1000px) {
+  .cube-nav {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cube-nav {
+    display: none;
+  }
+}
+
+/* ---------- NEURAL NETWORK VISUALIZATION ---------- */
+.neural-network-canvas {
+  width: 100%;
+  max-width: 800px;
+  height: 450px;
+  margin: 0 auto 40px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: linear-gradient(135deg, rgba(255, 140, 0, 0.02) 0%, rgba(0, 0, 0, 0.02) 100%);
+}
+
+.neural-edge {
+  stroke-linecap: round;
+  will-change: opacity;
+}
+
+.neural-node {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  will-change: opacity, filter;
+}
+
+.neural-node:hover {
+  r: 25;
+  opacity: 1;
+}
+
+.neural-label {
+  pointer-events: none;
+  will-change: transform;
+  transition: all 0.3s ease;
+}
+
+.neural-node:hover + text,
+.neural-node:hover ~ text {
+  font-weight: bold;
+  fill: var(--orange);
+}
+
+@media (max-width: 840px) {
+  .neural-network-canvas {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neural-network-canvas {
+    display: none;
+  }
+}

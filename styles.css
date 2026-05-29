@@ -115,23 +115,22 @@ body{
 .darkmode__checkbox:checked+.darkmode__toggle::before{left:26px}
 
 /* dark mode filters */
-body[data-darkmode]{filter:saturate(0) hue-rotate(200deg) brightness(0.9)}
+body[data-darkmode]{filter:saturate(0) brightness(1.1) contrast(1.2)}
 
-/* hanging gif animation */
-@keyframes hang{
-  0%{transform:translateX(-50%) translateY(0);opacity:1}
-  20%{transform:translateX(-50%) translateY(0);opacity:1}
-  40%{transform:translateX(-50%) translateY(80vh);opacity:1}
-  55%{transform:translateX(-50%) translateY(80vh);opacity:1}
-  75%{transform:translateX(-50%) translateY(0);opacity:1}
-  100%{transform:translateX(-50%) translateY(0);opacity:1}
+/* hanging gif animation - peek and hide (like hero peek) */
+@keyframes peek-bat{
+  0%{transform:translateX(-50%) translateY(0);opacity:0}
+  10%{transform:translateX(-50%) translateY(0);opacity:1}
+  50%{transform:translateX(-50%) translateY(2em);opacity:1}
+  90%{transform:translateX(-50%) translateY(0);opacity:1}
+  100%{transform:translateX(-50%) translateY(0);opacity:0}
 }
 .darkmode__hanging-gif{
   position:fixed;top:0;left:50%;width:clamp(200px,30vw,400px);height:auto;
   aspect-ratio:1/1;background:url('gifs/BatNaveen.gif') center/contain no-repeat;
   pointer-events:none;z-index:8500;opacity:0;animation:none;will-change:transform;
 }
-body[data-darkmode] #hangingGif{animation:hang 5s var(--ease-inout) infinite;opacity:1}
+body[data-darkmode] #hangingGif{animation:peek-bat 1.5s var(--ease-inout) 1 forwards;opacity:1}
 
 /* ---------- layout ---------- */
 .wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--gut)}
@@ -394,4 +393,5 @@ section{position:relative}
   display: inline-block;
   white-space: nowrap;
   will-change: transform, opacity;
+  min-width: 12ch;
 }

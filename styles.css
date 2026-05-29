@@ -58,33 +58,28 @@ body{
 
 /* ---------- digital mosquito cursor ---------- */
 .cursor{
-  position:fixed;top:0;left:0;width:16px;height:20px;
+  position:fixed;top:0;left:0;width:24px;height:32px;
   background:transparent;z-index:10000;pointer-events:none;
-  transform:translate(-50%,-50%);mix-blend-mode:normal;
+  mix-blend-mode:difference;
   transition:width .15s var(--ease-expo),height .15s var(--ease-expo);
 }
 .cursor::before{
-  content:'';position:absolute;top:2px;left:50%;transform:translateX(-50%);
-  width:3px;height:3px;border-radius:50%;background:var(--orange);
+  content:'';position:absolute;top:3px;left:50%;transform:translateX(-50%);
+  width:6px;height:6px;border-radius:50%;background:var(--orange);
 }
 .cursor::after{
-  content:'';position:absolute;top:6px;left:50%;transform:translateX(-50%);
-  width:2px;height:8px;background:var(--orange);
+  content:'';position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  width:3px;height:12px;background:var(--orange);
 }
-.cursor .wing{position:absolute;top:4px;width:1px;height:6px;background:var(--orange);opacity:0.9}
-.cursor .wing--left{left:4px;transform:rotate(-25deg);transform-origin:0 0;transform:translateY(var(--wing-left)) rotate(-25deg)}
-.cursor .wing--right{right:4px;transform:rotate(25deg);transform-origin:100% 0;transform:translateY(var(--wing-right)) rotate(25deg)}
-.cursor .tail{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:1px;height:4px;background:var(--orange)}
-.cursor.big{width:24px;height:28px}
-.cursor.big::before{width:4px;height:4px}
-.cursor.big::after{width:3px;height:10px}
-.cursor.big .wing{height:8px}
-.cursor.big .tail{height:5px}
-.cursor.big::before{background:var(--yellow)}
-.cursor.big::after{background:var(--orange)}
-.cursor.big .wing{background:var(--orange)}
-.cursor.big .tail{background:var(--orange)}
-/* Label element added via JavaScript - see .cursor-label below */
+.cursor .wing{position:absolute;top:6px;width:4px;height:10px;background:var(--orange);opacity:0.9}
+.cursor .wing--left{left:3px;transform-origin:0 0;transform:translateY(var(--wing-left,0px)) rotate(-25deg)}
+.cursor .wing--right{right:3px;transform-origin:100% 0;transform:translateY(var(--wing-right,0px)) rotate(25deg)}
+.cursor .tail{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:2px;height:6px;background:var(--orange)}
+.cursor.big{width:32px;height:40px}
+.cursor.big::before{width:8px;height:8px;background:var(--yellow)}
+.cursor.big::after{width:4px;height:16px;background:var(--orange)}
+.cursor.big .wing{width:6px;height:14px;background:var(--orange)}
+.cursor.big .tail{width:3px;height:8px;background:var(--orange)}
 .cursor-label{
   position:fixed;font-family:var(--mono);font-size:9px;font-weight:700;
   letter-spacing:.12em;text-transform:uppercase;color:var(--paper);
@@ -251,7 +246,7 @@ section{position:relative}
 
 /* ---------- HERO PEEK GIF ---------- */
 .hero__name-wrapper{display:inline-flex;align-items:center;gap:0;position:relative}
-.hero__peek{width:1em;height:1em;object-fit:contain;object-position:center;margin-left:-0.95em;vertical-align:bottom;position:relative;z-index:-1;left:40px;animation:peek-emphasis 6s ease-in-out infinite}
+.hero__peek{width:1em;height:1em;object-fit:contain;object-position:center;margin-left:-0.95em;vertical-align:bottom;position:relative;z-index:-1;left:0.625em;animation:peek-emphasis 6s ease-in-out infinite}
 @keyframes peek-emphasis{
   0%{transform:translateX(-0.8em);opacity:0}
   25%{transform:translateX(0);opacity:1}

@@ -1,20 +1,12 @@
 (() => {
-  // Goldfish Cursor - Phase 2: Matter.js Physics Integration
+  // Realistic Mouse Cursor - Phase 2B: Photorealistic Top-Down Design
 
-  class GoldfishCursor {
+  class MouseCursor {
     constructor() {
-      // Disable only if reduced motion is enabled (but allow on mobile)
+      // Disable only if reduced motion is enabled
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         return;
       }
-
-      // Matter.js modules
-      this.Engine = Matter.Engine;
-      this.World = Matter.World;
-      this.Bodies = Matter.Bodies;
-      this.Body = Matter.Body;
-      this.Constraint = Matter.Constraint;
-      this.Events = Matter.Events;
 
       this.canvas = null;
       this.ctx = null;
@@ -22,31 +14,32 @@
       this.my = window.innerHeight / 2;
       this.cx = this.mx;  // current x
       this.cy = this.my;  // current y
-      this.friction = 0.18; // lerp factor (matches existing cursor)
+      this.friction = 0.13; // Slower, more leisurely following (was 0.18 for goldfish)
       this.velocity = { x: 0, y: 0 };
       this.lastX = this.cx;
       this.lastY = this.cy;
 
       // Detect if mobile and set scale accordingly
       this.isMobile = window.matchMedia('(pointer: coarse)').matches;
-      this.scale = this.isMobile ? 0.8 : 1; // 80% size on mobile, 100% on desktop
+      this.scale = this.isMobile ? 0.8 : 1; // 80% size on mobile
 
-      // Physics setup
-      this.engine = this.Engine.create();
-      this.engine.world.gravity.y = 0; // No gravity for floating effect
-      this.engine.world.gravity.x = 0;
+      // Position history for fluid tail ribbon
+      this.positionHistory = [];
+      this.maxHistoryLength = 18; // Number of points to track for tail
+      this.historyInterval = 2; // Add position every N frames
 
-      // Tail bodies and constraints
-      this.tailBodies = [];
-      this.tailConstraints = [];
-      this.tailSegments = 4; // Number of tail segments
-
-      this.goldfish = {
-        body: { x: 0, y: 0, width: 16, height: 12 }, // body blob
-        head: { x: 8, y: 0, radius: 5 }, // rounded head
-        tail: { length: 12, segmentCount: 3 }, // tail segments for undulation
-        fins: { left: 0, right: 0 } // fin rotation angles
+      // Mouse colors
+      this.colors = {
+        bodyBase: '#D4A574',
+        bodyLight: '#E8C9A8',
+        bodyDark: '#A68968',
+        tailDark: '#8B7355',
+        earInner: '#E8B4B4',
+        eye: '#000000',
+        nose: '#E8B4B4'
       };
+
+      this.frameCount = 0;
 
       this.init();
     }
@@ -76,9 +69,6 @@
         oldCursor.style.display = 'none';
       }
 
-      // Initialize tail bodies with constraints
-      this.initTailPhysics();
-
       // Event listeners
       window.addEventListener('mousemove', (e) => this.onMouseMove(e));
       window.addEventListener('touchmove', (e) => this.onTouchMove(e));
@@ -88,41 +78,6 @@
 
       // Start animation loop
       this.animate();
-    }
-
-    initTailPhysics() {
-      // Create tail segment bodies
-      const segmentRadius = 2.5;
-      const segmentSpacing = 3;
-
-      for (let i = 0; i < this.tailSegments; i++) {
-        const x = this.cx - (segmentSpacing * (i + 1));
-        const y = this.cy;
-
-        const body = this.Bodies.circle(x, y, segmentRadius, {
-          friction: 0.5,
-          restitution: 0.1,
-          density: 0.001,
-          label: `tail-${i}`
-        });
-
-        this.tailBodies.push(body);
-        this.World.add(this.engine.world, body);
-      }
-
-      // Create distance constraints between segments
-      for (let i = 0; i < this.tailBodies.length - 1; i++) {
-        const constraint = this.Constraint.create({
-          bodyA: this.tailBodies[i],
-          bodyB: this.tailBodies[i + 1],
-          length: segmentSpacing,
-          stiffness: 0.95,
-          damping: 0.01
-        });
-
-        this.tailConstraints.push(constraint);
-        this.World.add(this.engine.world, constraint);
-      }
     }
 
     resizeCanvas() {
@@ -144,152 +99,246 @@
     }
 
     onTouchEnd() {
-      // Optional: Could reset goldfish to center or make it follow slower
-      // For now, just keep current behavior
-    }
-
-    updateTailPhysics() {
-      // Move head body to follow cursor (with lerp)
-      if (this.tailBodies.length > 0) {
-        // Lerp position (smooth following)
-        this.lastX = this.cx;
-        this.lastY = this.cy;
-        this.cx += (this.mx - this.cx) * this.friction;
-        this.cy += (this.my - this.cy) * this.friction;
-
-        // Calculate velocity for animation feedback
-        this.velocity.x = this.cx - this.lastX;
-        this.velocity.y = this.cy - this.lastY;
-
-        // Move first tail segment toward cursor (simulates "head" of tail chain)
-        const headSegment = this.tailBodies[0];
-        const targetX = this.cx - 10; // Offset from cursor
-        const targetY = this.cy;
-
-        // Apply force to first segment to pull it toward cursor
-        this.Body.setPosition(headSegment, {
-          x: targetX,
-          y: targetY
-        });
-      }
+      // Keep current behavior
     }
 
     animate() {
-      // Update physics
-      this.Engine.update(this.engine);
-      this.updateTailPhysics();
-
       // Clear canvas
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+      // Lerp position (smooth following)
+      this.lastX = this.cx;
+      this.lastY = this.cy;
+      this.cx += (this.mx - this.cx) * this.friction;
+      this.cy += (this.my - this.cy) * this.friction;
+
       // Calculate velocity for animation feedback
+      this.velocity.x = this.cx - this.lastX;
+      this.velocity.y = this.cy - this.lastY;
       const speed = Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2);
 
-      // Determine direction (angle) goldfish is facing
+      // Determine direction (angle) mouse is facing
       const angle = Math.atan2(this.velocity.y, this.velocity.x);
 
-      // Draw goldfish
-      this.drawGoldfish(angle, speed);
+      // Add current position to history for tail (every N frames)
+      this.frameCount++;
+      if (this.frameCount % this.historyInterval === 0) {
+        this.positionHistory.push({ x: this.cx, y: this.cy });
+        if (this.positionHistory.length > this.maxHistoryLength) {
+          this.positionHistory.shift();
+        }
+      }
+
+      // Draw mouse
+      this.drawMouse(angle, speed);
 
       requestAnimationFrame(() => this.animate());
     }
 
-    drawGoldfish(angle, speed) {
+    drawMouse(angle, speed) {
       this.ctx.save();
       this.ctx.translate(this.cx, this.cy);
       this.ctx.rotate(angle);
       this.ctx.scale(this.scale, this.scale);
 
-      // Draw body (rounded blob shape)
-      this.ctx.fillStyle = '#FF6B35'; // Orange
+      // Draw tail first (so it appears behind body)
+      this.drawTail();
+
+      // Draw body (main rounded shape)
+      this.ctx.fillStyle = this.colors.bodyBase;
       this.ctx.beginPath();
-      this.ctx.ellipse(0, 0, 10, 7, 0, 0, Math.PI * 2);
+      this.ctx.ellipse(0, 0, 10, 13, 0, 0, Math.PI * 2);
       this.ctx.fill();
 
-      // Draw head (rounded)
-      this.ctx.fillStyle = '#FF8A50';
+      // Body shading (darker edges for depth)
+      const bodyGradient = this.ctx.createRadialGradient(0, 0, 3, 0, 0, 13);
+      bodyGradient.addColorStop(0, this.colors.bodyLight);
+      bodyGradient.addColorStop(1, this.colors.bodyDark);
+      this.ctx.fillStyle = bodyGradient;
       this.ctx.beginPath();
-      this.ctx.arc(8, 0, 5, 0, Math.PI * 2);
+      this.ctx.ellipse(0, 0, 10, 13, 0, 0, Math.PI * 2);
       this.ctx.fill();
 
-      // Draw eye
+      // Draw head (egg-shaped, slightly offset forward)
+      this.ctx.fillStyle = this.colors.bodyBase;
+      this.ctx.beginPath();
+      this.ctx.ellipse(6, -1, 7, 9, 0.2, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Head shading
+      const headGradient = this.ctx.createRadialGradient(6, -1, 2, 6, -1, 9);
+      headGradient.addColorStop(0, this.colors.bodyLight);
+      headGradient.addColorStop(1, this.colors.bodyDark);
+      this.ctx.fillStyle = headGradient;
+      this.ctx.beginPath();
+      this.ctx.ellipse(6, -1, 7, 9, 0.2, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Draw ears
+      this.drawEar(-3, -10, -0.3); // Left ear
+      this.drawEar(3, -10, 0.3);   // Right ear
+
+      // Draw eyes (small black dots)
+      this.ctx.fillStyle = this.colors.eye;
+      this.ctx.beginPath();
+      this.ctx.arc(3, -4, 1.2, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      this.ctx.beginPath();
+      this.ctx.arc(9, -3, 1.2, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Draw eye shine (tiny white dots)
       this.ctx.fillStyle = '#FFFFFF';
       this.ctx.beginPath();
-      this.ctx.arc(10, -1.5, 2, 0, Math.PI * 2);
+      this.ctx.arc(3.5, -4.3, 0.4, 0, Math.PI * 2);
       this.ctx.fill();
 
-      this.ctx.fillStyle = '#000000';
       this.ctx.beginPath();
-      this.ctx.arc(11, -1.5, 1, 0, Math.PI * 2);
+      this.ctx.arc(9.5, -3.3, 0.4, 0, Math.PI * 2);
       this.ctx.fill();
 
-      // Draw tail (physics-driven)
-      this.drawTail(speed);
+      // Draw nose (small pink shape)
+      this.ctx.fillStyle = this.colors.nose;
+      this.ctx.beginPath();
+      this.ctx.arc(11, -0.5, 0.8, 0, Math.PI * 2);
+      this.ctx.fill();
 
-      // Draw fins (animate based on speed)
-      this.drawFins(speed);
+      // Draw whiskers (subtle fine lines)
+      this.ctx.strokeStyle = this.colors.bodyDark;
+      this.ctx.lineWidth = 0.5;
+      this.ctx.lineCap = 'round';
+
+      // Left whiskers
+      this.ctx.beginPath();
+      this.ctx.moveTo(10, -2);
+      this.ctx.lineTo(16, -3);
+      this.ctx.stroke();
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(10, 0);
+      this.ctx.lineTo(16, 0);
+      this.ctx.stroke();
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(10, 2);
+      this.ctx.lineTo(16, 3);
+      this.ctx.stroke();
+
+      // Right whiskers
+      this.ctx.beginPath();
+      this.ctx.moveTo(10, -2);
+      this.ctx.lineTo(16, -3);
+      this.ctx.stroke();
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(10, 0);
+      this.ctx.lineTo(16, 0);
+      this.ctx.stroke();
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(10, 2);
+      this.ctx.lineTo(16, 3);
+      this.ctx.stroke();
 
       this.ctx.restore();
     }
 
-    drawTail(speed) {
-      // Draw lines connecting tail bodies from head to tail end
-      this.ctx.strokeStyle = '#FF6B35';
+    drawEar(x, y, rotation) {
+      this.ctx.save();
+      this.ctx.translate(x, y);
+      this.ctx.rotate(rotation);
+
+      // Outer ear (warm beige)
+      this.ctx.fillStyle = this.colors.bodyBase;
+      this.ctx.beginPath();
+      this.ctx.ellipse(0, 0, 2.5, 5, 0, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Inner ear (pink)
+      this.ctx.fillStyle = this.colors.earInner;
+      this.ctx.beginPath();
+      this.ctx.ellipse(0, 0, 1.2, 3.5, 0, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      this.ctx.restore();
+    }
+
+    drawTail() {
+      if (this.positionHistory.length < 2) {
+        return;
+      }
+
+      // Create smooth Bézier curve through historical positions
+      this.ctx.strokeStyle = this.colors.bodyBase;
       this.ctx.lineWidth = 3;
       this.ctx.lineCap = 'round';
       this.ctx.lineJoin = 'round';
 
-      // Start from head
+      // Start from back of body
       this.ctx.beginPath();
-      this.ctx.moveTo(8, 0); // Head position
+      this.ctx.moveTo(-10, 0);
 
-      // Draw line through each tail segment
-      for (let i = 0; i < this.tailBodies.length; i++) {
-        const body = this.tailBodies[i];
-        const x = body.position.x - this.cx; // Relative to goldfish center
-        const y = body.position.y - this.cy;
-        this.ctx.lineTo(x / this.scale, y / this.scale); // Account for scale
+      // Draw curve through position history
+      for (let i = 0; i < this.positionHistory.length; i++) {
+        const pos = this.positionHistory[i];
+        // Convert from world coords to local coords (relative to mouse center)
+        const localX = pos.x - this.cx;
+        const localY = pos.y - this.cy;
+
+        if (i === 0) {
+          this.ctx.lineTo(localX, localY);
+        } else {
+          // Use quadratic curve for smooth connections
+          const prevPos = this.positionHistory[i - 1];
+          const prevX = prevPos.x - this.cx;
+          const prevY = prevPos.y - this.cy;
+          const ctrlX = (prevX + localX) / 2;
+          const ctrlY = (prevY + localY) / 2;
+          this.ctx.quadraticCurveTo(ctrlX, ctrlY, localX, localY);
+        }
       }
 
       this.ctx.stroke();
 
-      // Draw tail fluke at the end
-      if (this.tailBodies.length > 0) {
-        const lastSegment = this.tailBodies[this.tailBodies.length - 1];
-        const flukeX = lastSegment.position.x - this.cx;
-        const flukeY = lastSegment.position.y - this.cy;
+      // Draw tail with tapered width using shadow effect
+      // Darker underside of tail for depth
+      this.ctx.strokeStyle = this.colors.tailDark;
+      this.ctx.lineWidth = 2;
+      this.ctx.globalAlpha = 0.4;
 
-        this.ctx.fillStyle = '#FF8A50';
-        this.ctx.beginPath();
-        this.ctx.ellipse(flukeX / this.scale, flukeY / this.scale, 4, 6, 0, 0, Math.PI * 2);
-        this.ctx.fill();
+      this.ctx.beginPath();
+      this.ctx.moveTo(-8, 1);
+
+      for (let i = 0; i < this.positionHistory.length; i++) {
+        const pos = this.positionHistory[i];
+        const localX = pos.x - this.cx;
+        const localY = pos.y - this.cy + 1;
+
+        if (i === 0) {
+          this.ctx.lineTo(localX, localY);
+        } else {
+          const prevPos = this.positionHistory[i - 1];
+          const prevX = prevPos.x - this.cx;
+          const prevY = prevPos.y - this.cy + 1;
+          const ctrlX = (prevX + localX) / 2;
+          const ctrlY = (prevY + localY) / 2;
+          this.ctx.quadraticCurveTo(ctrlX, ctrlY, localX, localY);
+        }
       }
-    }
 
-    drawFins(speed) {
-      const finSize = 3 + speed * 0.3;
-      const finDistance = 5;
-      const finWave = Math.sin(Date.now() * 0.003) * 0.3;
+      this.ctx.stroke();
 
-      // Left fin
-      this.ctx.fillStyle = 'rgba(255, 107, 53, 0.7)';
-      this.ctx.beginPath();
-      this.ctx.ellipse(-finDistance, -4, finSize, finSize * 1.5, -Math.PI / 4 + finWave, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Right fin
-      this.ctx.beginPath();
-      this.ctx.ellipse(-finDistance, 4, finSize, finSize * 1.5, Math.PI / 4 - finWave, 0, Math.PI * 2);
-      this.ctx.fill();
+      this.ctx.globalAlpha = 1;
     }
   }
 
   // Initialize when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-      new GoldfishCursor();
+      new MouseCursor();
     });
   } else {
-    new GoldfishCursor();
+    new MouseCursor();
   }
 })();

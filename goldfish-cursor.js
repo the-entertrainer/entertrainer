@@ -3,9 +3,8 @@
 
   class GoldfishCursor {
     constructor() {
-      // Prevent initialization on mobile or if reduced motion is enabled
-      if (window.matchMedia('(pointer: coarse)').matches ||
-          window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      // Disable only if reduced motion is enabled (but allow on mobile)
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         return;
       }
 
@@ -19,6 +18,10 @@
       this.velocity = { x: 0, y: 0 };
       this.lastX = this.cx;
       this.lastY = this.cy;
+
+      // Detect if mobile and set scale accordingly
+      this.isMobile = window.matchMedia('(pointer: coarse)').matches;
+      this.scale = this.isMobile ? 0.8 : 1; // 80% size on mobile, 100% on desktop
 
       this.goldfish = {
         body: { x: 0, y: 0, width: 16, height: 12 }, // body blob
@@ -55,6 +58,9 @@
 
       // Event listeners
       window.addEventListener('mousemove', (e) => this.onMouseMove(e));
+      window.addEventListener('touchmove', (e) => this.onTouchMove(e));
+      window.addEventListener('touchstart', (e) => this.onTouchMove(e));
+      window.addEventListener('touchend', () => this.onTouchEnd());
       window.addEventListener('resize', () => this.resizeCanvas());
 
       // Start animation loop
@@ -69,6 +75,19 @@
     onMouseMove(e) {
       this.mx = e.clientX;
       this.my = e.clientY;
+    }
+
+    onTouchMove(e) {
+      // Track only the first touch (single touch only)
+      if (e.touches && e.touches.length > 0) {
+        this.mx = e.touches[0].clientX;
+        this.my = e.touches[0].clientY;
+      }
+    }
+
+    onTouchEnd() {
+      // Optional: Could reset goldfish to center or make it follow slower
+      // For now, just keep current behavior
     }
 
     animate() {
@@ -99,6 +118,7 @@
       this.ctx.save();
       this.ctx.translate(this.cx, this.cy);
       this.ctx.rotate(angle);
+      this.ctx.scale(this.scale, this.scale);
 
       // Draw body (rounded blob shape)
       this.ctx.fillStyle = '#FF6B35'; // Orange

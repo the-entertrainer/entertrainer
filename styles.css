@@ -96,8 +96,12 @@ body{
 .cursor.down .wing{opacity:0.4}
 @media (pointer:coarse){.cursor{display:none}}
 
-/* goldfish cursor canvas */
-#goldfish-cursor{cursor:none !important}
+/* goldfish cursor canvas — visible on all devices (desktop and mobile) */
+#goldfish-cursor{
+  cursor:none !important;
+  display:block !important;
+  visibility:visible !important;
+}
 /* hide old mosquito cursor when goldfish is active */
 #goldfish-cursor~.cursor{display:none !important}
 

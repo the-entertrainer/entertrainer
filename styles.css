@@ -60,18 +60,19 @@ body{
 .cursor{
   position:fixed;top:0;left:0;width:24px;height:32px;
   background:transparent;z-index:10000;pointer-events:none;
-  filter:drop-shadow(0 0 2px rgba(0,0,0,0.85));
   transition:width .15s var(--ease-expo),height .15s var(--ease-expo);
 }
 .cursor::before{
   content:'';position:absolute;top:3px;left:50%;transform:translateX(-50%);
   width:6px;height:6px;border-radius:50%;background:var(--orange);
+  box-shadow:0 0 0 1.5px rgba(0,0,0,0.55);
 }
 .cursor::after{
   content:'';position:absolute;top:10px;left:50%;transform:translateX(-50%);
   width:3px;height:12px;background:var(--orange);
+  box-shadow:0 0 0 1px rgba(0,0,0,0.45);
 }
-.cursor .wing{position:absolute;top:6px;width:4px;height:10px;background:var(--orange);opacity:0.9}
+.cursor .wing{position:absolute;top:6px;width:4px;height:10px;background:var(--orange);opacity:0.9;box-shadow:0 0 0 0.5px rgba(0,0,0,0.35)}
 .cursor .wing--left{left:3px;transform-origin:0 0;transform:translateY(var(--wing-left,0px)) rotate(-25deg)}
 .cursor .wing--right{right:3px;transform-origin:100% 0;transform:translateY(var(--wing-right,0px)) rotate(25deg)}
 .cursor .tail{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:2px;height:6px;background:var(--orange)}
@@ -248,10 +249,10 @@ section{position:relative}
 .hero__name-wrapper{display:inline-flex;align-items:center;gap:0;position:relative}
 .hero__peek{width:1em;height:1em;object-fit:contain;object-position:center;margin-left:-0.95em;vertical-align:bottom;position:relative;z-index:-1;left:0.625em;animation:peek-emphasis 6s ease-in-out infinite}
 @keyframes peek-emphasis{
-  0%{transform:translateX(-0.15em);opacity:0}
+  0%{transform:translateX(-0.08em);opacity:0}
   25%{transform:translateX(0);opacity:1}
   50%,80%{transform:translateX(0);opacity:1}
-  100%{transform:translateX(-0.15em);opacity:0}
+  100%{transform:translateX(-0.08em);opacity:0}
 }
 
 /* ---------- RANT + MASHER ---------- */

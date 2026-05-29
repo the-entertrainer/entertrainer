@@ -27,9 +27,8 @@
 
 <!-- ============ HERO ============ -->
 <section id="top" class="hero" data-screen-label="hero">
-  <div class="hero__status mono"><span class="dot"></span>Available for work</div>
   <div class="wrap hero__inner">
-    <p class="eyebrow hero__eye">Instructional Designer — builder of digital sandboxes</p>
+    <p class="eyebrow hero__eye">Certified Instructional Design Specialist</p>
     <h1 class="stomp hero__title">
       <span class="l">HEY, I'M</span>
       <span class="l hero__name-wrapper">
@@ -73,13 +72,13 @@
       <p class="eyebrow rev">01 / The honest part</p>
       <h2 class="stomp rant__head rev">
         YOU KNOW THOSE<br>
-        MANDATORY MODULES<br>
-        WHERE YOU JUST<br>
-        <span class="orange">MASH “NEXT”?</span>
+        MANDATORY TRAINING MODULES<br>
+        WHERE YOU JUST...<br>
+        <span class="orange">UHH.. MASH “NEXT”?</span>
       </h2>
       <p class="rant__p rev">
-        …as fast as humanly possible so you can get back to your actual job?
-        <strong>Yeah — I hate those too.</strong> So I went and built the opposite.
+        …so you can get back to your actual job?
+        <strong>Well, I hate those too.</strong> So I went and built the opposite.
       </p>
     </div>
 
@@ -89,7 +88,7 @@
       <button class="masher__btn stomp" id="mashBtn" data-cursor>
         <span class="masher__txt" id="mashTxt">NEXT →</span>
       </button>
-      <p class="masher__hint mono" id="mashHint">go on. mash it. you know you want to.</p>
+      <p class="masher__hint mono" id="mashHint">go on. mash it. you know you want to :p</p>
     </div>
   </div>
 </section>
@@ -98,7 +97,10 @@
 <section id="sandbox" class="block sandbox" data-screen-label="sandbox">
   <div class="wrap">
     <p class="eyebrow rev">02 / What I actually do</p>
-    <h2 class="stomp sandbox__head rev">I BUILD<br>DIGITAL <span class="orange">SANDBOXES.</span></h2>
+<h2 class="stomp sandbox__head rev">
+  I BUILD<br>
+  DIGITAL <span class="orange" id="word-rotate">EXPERIENCES.</span>
+</h2>
     <div class="sandbox__grid">
       <p class="sandbox__lead rev">
         “Instructional designer” is a fancy way of saying I figure out how to teach
@@ -196,8 +198,92 @@
   </footer>
 </section>
 
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+<!-- Scramble Plugin (removed — using local fallback instead) -->
+
 <script src="image-slot.js"></script>
 <script src="script.js"></script>
+
+<script>
+// ✅ Ensure plugin is available
+if (typeof ScrambleTextPlugin === "undefined") {
+  console.error("ScrambleTextPlugin NOT loaded");
+} else {
+  gsap.registerPlugin(ScrambleTextPlugin);
+}
+
+// =====================
+// WORD POOL
+// =====================
+const words = [
+  "EXPERIENCES.",
+  "SYSTEMS.",
+  "JOURNEYS.",
+  "SIMULATIONS.",
+  "WORKFLOWS.",
+  "INTERFACES.",
+  "PLATFORMS.",
+  "SOLUTIONS."
+];
+
+const el = document.getElementById("word-rotate");
+
+let lastWord = el.textContent;
+let isAnimating = false;
+
+// =====================
+// RANDOM WORD
+// =====================
+function getRandomWord() {
+  return words[Math.floor(Math.random() * words.length)];
+}
+
+// =====================
+// FORCE SCRAMBLE TEST (IMPORTANT)
+// =====================
+function changeWord() {
+  if (isAnimating) return;
+  isAnimating = true;
+
+  let newWord;
+  do {
+    newWord = getRandomWord();
+  } while (newWord === lastWord);
+
+  lastWord = newWord;
+
+  // Local fallback scramble (works without ScrambleTextPlugin)
+  (function(){
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    function rand(){ return chars[Math.floor(Math.random()*chars.length)]; }
+    const obj = {p:0};
+    gsap.to(obj, {
+      p: 1,
+      duration: 0.8,
+      ease: "none",
+      onUpdate: function(){
+        const p = obj.p;
+        const reveal = Math.floor(p * newWord.length);
+        let out = '';
+        for(let i=0;i<newWord.length;i++) out += (i < reveal) ? newWord[i] : rand();
+        el.textContent = out;
+      },
+      onComplete: function(){ el.textContent = newWord; isAnimating = false; }
+    });
+  })();
+}
+
+// =====================
+// TRIGGER
+// =====================
+setInterval(changeWord, 2000);
+
+// Initial run
+window.addEventListener("DOMContentLoaded", changeWord);
+</script>
+
 <div class="darkmode__hanging-gif" id="hangingGif"></div>
 </body>
 </html>

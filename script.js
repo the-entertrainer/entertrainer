@@ -37,17 +37,42 @@
   measure(); addEventListener('resize', measure);
 
   let boost = 0, lastY = scrollY, pauseMarquee = false;
+  let pausedPositions = {};
   addEventListener('scroll', ()=>{
     const dy = Math.abs(scrollY - lastY); lastY = scrollY;
-    boost = Math.min(boost + dy*0.6, 60);
+    if(!pauseMarquee){
+      boost = Math.min(boost + dy*0.6, 60);
+    }
   }, {passive:true});
 
   if (!reduce){
     (function tick(){
+      // If pausing, save current positions
+      if(pauseMarquee && Object.keys(pausedPositions).length === 0) {
+        tracks.forEach((t, idx) => {
+          pausedPositions[idx] = t.x;
+        });
+      }
+
+      // If paused, restore saved positions (hold steady)
+      if(pauseMarquee) {
+        tracks.forEach((t, idx) => {
+          t.x = pausedPositions[idx];
+          t.el.style.transform = `translateX(${t.x}px)`;
+        });
+        requestAnimationFrame(tick);
+        return;
+      }
+
+      // Clear pause state when resuming
+      if(!pauseMarquee && Object.keys(pausedPositions).length > 0) {
+        pausedPositions = {};
+      }
+
       const speed = 0.9 + boost*0.08;
       boost *= 0.9;
       tracks.forEach(t=>{
-        if(!t.w || pauseMarquee) return;
+        if(!t.w) return;
         t.x += t.dir*speed;
         if (t.x <= -t.w) t.x += t.w;
         if (t.x >= 0)    t.x -= t.w;
@@ -161,9 +186,20 @@
   const iconSequence = ['articulate.png','canva.png','adobe.png','html5.png','google-fonts.png','miro.png','python.png','javascript.png','blender.png','adobe-audition.png','figma.png'];
   let activeLabelTimeout = null;
   let slowmoActive = false;
+  let currentLabelAnimationId = null;
+  const iconIntervals = [];
 
   document.querySelectorAll('.marquee__track img').forEach(img=>{
     img.addEventListener('click', (e)=>{
+      // Cancel any existing label animation
+      if(currentLabelAnimationId !== null) {
+        cancelAnimationFrame(currentLabelAnimationId);
+        currentLabelAnimationId = null;
+      }
+
+      // Remove any existing labels
+      document.querySelectorAll('.marquee__icon-label').forEach(l=>l.remove());
+
       slowmoActive = true;
       pauseMarquee = true;
       const track = img.closest('.marquee__track');
@@ -179,21 +215,27 @@
       label.textContent = name;
       document.body.appendChild(label);
 
-      let labelAnimationId = null;
       function updateLabelPos(){
         const rect = img.getBoundingClientRect();
         label.style.top = (rect.top - 40) + 'px';
         label.style.left = (rect.left + rect.width/2) + 'px';
         label.style.transform = 'translateX(-50%)';
-        labelAnimationId = requestAnimationFrame(updateLabelPos);
+        currentLabelAnimationId = requestAnimationFrame(updateLabelPos);
       }
       updateLabelPos();
 
       clearTimeout(activeLabelTimeout);
       activeLabelTimeout = setTimeout(()=>{
-        cancelAnimationFrame(labelAnimationId);
+        if(currentLabelAnimationId !== null) {
+          cancelAnimationFrame(currentLabelAnimationId);
+          currentLabelAnimationId = null;
+        }
         allImgs.forEach(i=>{
           i.style.animationPlayState = 'running';
+          // Force animation restart to fix desync
+          i.style.animation = 'none';
+          void i.offsetWidth; // Trigger reflow
+          i.style.animation = '';
         });
         label.remove();
         slowmoActive = false;
@@ -203,7 +245,7 @@
       e.stopPropagation();
     });
 
-    setInterval(()=>{
+    const intervalId = setInterval(()=>{
       if(slowmoActive) return;
       if(Math.random() < 0.15){
         const newIcon = iconSequence[Math.floor(Math.random() * iconSequence.length)];
@@ -211,11 +253,22 @@
         img.dataset.name = iconNames[newIcon];
       }
     }, 2000 + Math.random() * 6000);
+
+    iconIntervals.push(intervalId);
+  });
+
+  // Clean up intervals on page unload
+  window.addEventListener('beforeunload', ()=>{
+    iconIntervals.forEach(id => clearInterval(id));
   });
 
   document.addEventListener('click', ()=>{
     if(slowmoActive && activeLabelTimeout){
       clearTimeout(activeLabelTimeout);
+      if(currentLabelAnimationId !== null) {
+        cancelAnimationFrame(currentLabelAnimationId);
+        currentLabelAnimationId = null;
+      }
       const track = document.querySelector('.marquee__track');
       const allImgs = track.querySelectorAll('img');
       allImgs.forEach(i=>{
@@ -223,6 +276,7 @@
       });
       document.querySelectorAll('.marquee__icon-label').forEach(l=>l.remove());
       slowmoActive = false;
+      pauseMarquee = false;
     }
   });
 })();

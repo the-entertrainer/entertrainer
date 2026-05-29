@@ -395,3 +395,183 @@ section{position:relative}
   will-change: transform, opacity;
   min-width: 12ch;
 }
+/* ---------- MORPHING CANVAS ---------- */
+.morphing-canvas {
+  will-change: transform;
+  touch-action: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .morphing-canvas {
+    display: none;
+  }
+}
+
+/* ---------- CONTRAST ILLUSION ---------- */
+.contrast-block {
+  border-top: 1px solid var(--line);
+  background: var(--off-black);
+  padding: clamp(60px, 10vw, 120px) 0;
+}
+
+.contrast-illusion {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+
+.contrast-illusion[role="button"]:hover {
+  opacity: 0.8;
+}
+
+.contrast-illusion[role="button"]:focus {
+  outline: 2px solid var(--orange);
+  outline-offset: 8px;
+}
+
+.contrast-illusion__header {
+  margin-bottom: clamp(24px, 3vw, 48px);
+}
+
+.contrast-illusion__title {
+  font-size: clamp(28px, 5vw, 64px);
+  margin: 8px 0;
+}
+
+.contrast-illusion__hint {
+  font-size: 11px;
+  color: var(--orange);
+  margin-top: 16px;
+}
+
+.contrast-illusion__demo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(16px, 3vw, 32px);
+  margin-bottom: clamp(32px, 5vw, 64px);
+}
+
+.contrast-illusion__box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: clamp(24px, 4vw, 48px);
+  border: 1px solid var(--line);
+  transition: all 0.3s ease;
+}
+
+.contrast-illusion__box:hover {
+  transform: scale(1.02);
+}
+
+.contrast-illusion__swatch {
+  width: clamp(80px, 12vw, 140px);
+  aspect-ratio: 1;
+  background: rgb(255, 140, 0);
+  border: 1px solid rgba(245, 240, 235, 0.2);
+}
+
+.contrast-illusion__box .mono {
+  font-size: 11px;
+  color: rgba(245, 240, 235, 0.6);
+}
+
+.contrast-illusion__explanation {
+  max-width: 60ch;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.contrast-illusion__explanation h4 {
+  font-size: 14px;
+  color: var(--orange);
+  margin-bottom: 12px;
+}
+
+.contrast-illusion__explanation p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(245, 240, 235, 0.8);
+  margin-bottom: 12px;
+}
+
+.contrast-illusion__explanation em {
+  font-style: italic;
+  color: rgba(245, 240, 235, 0.6);
+}
+
+.contrast-illusion--revealed .contrast-illusion__explanation {
+  opacity: 1;
+  max-height: 500px;
+  pointer-events: auto;
+  margin-top: clamp(24px, 3vw, 48px);
+  padding: clamp(16px, 2vw, 32px);
+  background: rgba(255, 140, 0, 0.05);
+  border: 1px solid var(--orange);
+}
+
+.contrast-illusion--revealed .contrast-illusion__hint {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .contrast-illusion__demo {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- AUDIO REACTIVITY ---------- */
+.audio-toggle {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: rgba(245, 240, 235, 0.6);
+  padding: 8px 16px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 16px;
+  border-radius: 2px;
+  font-family: var(--mono);
+  letter-spacing: 0.05em;
+}
+
+.audio-toggle:hover {
+  color: var(--orange);
+  border-color: var(--orange);
+}
+
+.audio-toggle:focus {
+  outline: 2px solid var(--orange);
+  outline-offset: 4px;
+}
+
+.audio-toggle--active {
+  background: var(--orange);
+  color: var(--black);
+  border-color: var(--orange);
+  animation: pulse-audio 0.5s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+@keyframes pulse-audio {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* CSS variables for audio reactivity */
+:root {
+  --audio-bass: 0;
+  --audio-mid: 0;
+  --audio-treble: 0;
+  --audio-energy: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audio-toggle {
+    display: none;
+  }
+}

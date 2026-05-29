@@ -181,6 +181,36 @@
   </div>
 </section>
 
+<!-- ============ CONTRAST ILLUSION ============ -->
+<section class="contrast-block" data-screen-label="illusion">
+  <div class="wrap">
+    <div id="contrast-illusion" class="contrast-illusion" data-revealed="false">
+      <div class="contrast-illusion__header">
+        <p class="eyebrow rev">Visual Brain Trick</p>
+        <h3 class="stomp contrast-illusion__title rev">Same color, different shade?</h3>
+        <p class="contrast-illusion__hint mono rev">Click to reveal the illusion</p>
+      </div>
+
+      <div class="contrast-illusion__demo" aria-hidden="true">
+        <div class="contrast-illusion__box" style="background: #1a1a1a;">
+          <div class="contrast-illusion__swatch"></div>
+          <p class="mono">Dark bg</p>
+        </div>
+        <div class="contrast-illusion__box" style="background: #f5f0eb;">
+          <div class="contrast-illusion__swatch"></div>
+          <p class="mono">Light bg</p>
+        </div>
+      </div>
+
+      <div class="contrast-illusion__explanation">
+        <h4 class="mono">Simultaneous Contrast Illusion</h4>
+        <p>Both orange squares are <strong>identical RGB values</strong> (rgb(255, 140, 0)). Your brain perceives them differently because it's comparing each color to its background. This is how our visual system detects edges and creates depth perception. Neat, right?</p>
+        <p><em>This demonstrates the Gestalt principle of "simultaneous contrast" — the same color appears lighter or darker depending on surrounding context.</em></p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ============ CONTACT / FOOTER ============ -->
 <section id="contact" class="contact" data-screen-label="contact">
   <div class="wrap contact__inner">
@@ -205,6 +235,8 @@
 
 <script src="image-slot.js"></script>
 <script src="script.js"></script>
+<script src="contrast-illusion.js"></script>
+<script src="audio-reactivity.js"></script>
 
 <script>
 // ✅ Ensure plugin is available
@@ -285,6 +317,8 @@ window.addEventListener("DOMContentLoaded", changeWord);
 </script>
 
 <div class="darkmode__hanging-gif" id="hangingGif"></div>
+
+<script src="morphing-canvas.js"></script>
 
 <script>
 const toggle = document.getElementById('darkmode-toggle');

@@ -169,7 +169,7 @@
       chatBubble.textContent = randomMsg;
       chatBubble.style.animation = 'none';
       void chatBubble.offsetWidth;
-      chatBubble.style.animation = '';
+      chatBubble.style.animation = 'chat-bubble-pop 2s ease-in-out forwards';
       e.stopPropagation();
     });
   }

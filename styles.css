@@ -45,7 +45,7 @@ body{
   line-height:1.55;
   font-weight:400;
   overflow-x:hidden;
-/*  cursor:none;
+/*  cursor:none; */
 }
 @media (pointer:coarse){body{cursor:auto}}
 

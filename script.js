@@ -5,6 +5,7 @@
   'use strict';
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine   = matchMedia('(pointer: fine)').matches;
+  let boost = 0, lastY = scrollY, pauseMarquee = false;
 
   /* ---------- digital mosquito cursor ---------- */
   const cur = document.getElementById('cursor');
@@ -122,7 +123,6 @@
   function measure(){ tracks.forEach(t=>{ t.w = t.el.getBoundingClientRect().width / 2; }); }
   measure(); addEventListener('resize', measure);
 
-  let boost = 0, lastY = scrollY, pauseMarquee = false;
   let pausedPositions = {};
   addEventListener('scroll', ()=>{
     const dy = Math.abs(scrollY - lastY); lastY = scrollY;

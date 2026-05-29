@@ -117,20 +117,20 @@ body{
 /* dark mode filters */
 body[data-darkmode]{filter:saturate(0) brightness(1.1) contrast(1.2)}
 
-/* hanging gif animation - peek and hide (like hero peek) */
-@keyframes peek-bat{
-  0%{transform:translateX(-50%) translateY(0);opacity:0}
-  10%{transform:translateX(-50%) translateY(0);opacity:1}
-  50%{transform:translateX(-50%) translateY(2em);opacity:1}
-  90%{transform:translateX(-50%) translateY(0);opacity:1}
-  100%{transform:translateX(-50%) translateY(0);opacity:0}
+/* hanging gif animation - drop in and stay */
+@keyframes drop-hang{
+  0%{transform:translateX(-50%) translateY(-110%);opacity:0}
+  55%{transform:translateX(-50%) translateY(0);opacity:1}
+  70%{transform:translateX(-50%) translateY(-0.35em);opacity:1}
+  85%{transform:translateX(-50%) translateY(0.15em);opacity:1}
+  100%{transform:translateX(-50%) translateY(0);opacity:1}
 }
 .darkmode__hanging-gif{
   position:fixed;top:0;left:50%;width:clamp(200px,30vw,400px);height:auto;
   aspect-ratio:1/1;background:url('gifs/BatNaveen.gif') center/contain no-repeat;
   pointer-events:none;z-index:8500;opacity:0;animation:none;will-change:transform;
 }
-body[data-darkmode] #hangingGif{animation:peek-bat 1.5s var(--ease-inout) 1 forwards;opacity:1}
+body[data-darkmode] #hangingGif{animation:drop-hang 0.7s var(--ease-inout) 1 forwards;opacity:1}
 
 /* ---------- layout ---------- */
 .wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--gut)}

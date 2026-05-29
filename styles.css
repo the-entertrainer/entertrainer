@@ -96,6 +96,11 @@ body{
 .cursor.down .wing{opacity:0.4}
 @media (pointer:coarse){.cursor{display:none}}
 
+/* goldfish cursor canvas */
+#goldfish-cursor{cursor:none !important}
+/* hide old mosquito cursor when goldfish is active */
+#goldfish-cursor~.cursor{display:none !important}
+
 /* ---------- dark mode toggle ---------- */
 .darkmode__checkbox{display:none}
 .darkmode__toggle{

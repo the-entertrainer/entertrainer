@@ -126,7 +126,7 @@ body[data-darkmode]>*:not(#hangingGif):not(#cursor){filter:saturate(0) brightnes
   100%{transform:translateX(-50%) translateY(0);opacity:1}
 }
 .darkmode__hanging-gif{
-  position:fixed;top:0;left:50%;width:clamp(200px,30vw,400px);height:auto;
+  position:fixed;top:-30px;left:50%;width:clamp(200px,30vw,400px);height:auto;
   aspect-ratio:1/1;background:url('gifs/BatNaveen.gif') center/contain no-repeat;
   pointer-events:none;z-index:8500;opacity:0;animation:none;will-change:transform;
 }

@@ -226,7 +226,7 @@ section{position:relative}
 
 /* ---------- HERO PEEK GIF ---------- */
 .hero__name-wrapper{display:inline-flex;align-items:center;gap:0;position:relative}
-.hero__peek{width:1em;height:1em;object-fit:contain;object-position:center;margin-left:-0.95em;vertical-align:bottom;position:relative;z-index:-1;left:80px;animation:peek-emphasis 2s ease-in-out infinite}
+.hero__peek{width:1em;height:1em;object-fit:contain;object-position:center;margin-left:-0.95em;vertical-align:bottom;position:relative;z-index:-1;left:40px;animation:peek-emphasis 6s ease-in-out infinite}
 @keyframes peek-emphasis{
   0%{transform:translateX(-0.8em);opacity:0}
   25%{transform:translateX(0);opacity:1}

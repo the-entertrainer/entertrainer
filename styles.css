@@ -56,19 +56,44 @@ body{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* ---------- custom cursor ---------- */
+/* ---------- digital mosquito cursor ---------- */
 .cursor{
-  position:fixed;top:0;left:0;width:14px;height:14px;border-radius:50%;
-  background:var(--orange);z-index:10000;pointer-events:none;
-  transform:translate(-50%,-50%);mix-blend-mode:difference;
-  transition:width .2s var(--ease-expo),height .2s var(--ease-expo),background .2s;
+  position:fixed;top:0;left:0;width:16px;height:20px;
+  background:transparent;z-index:10000;pointer-events:none;
+  transform:translate(-50%,-50%);mix-blend-mode:normal;
+  transition:width .15s var(--ease-expo),height .15s var(--ease-expo);
 }
-.cursor.big{width:84px;height:84px;background:var(--yellow)}
-.cursor.big::after{
-  content:attr(data-label);position:absolute;inset:0;display:grid;place-items:center;
-  font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--black);mix-blend-mode:normal;
+.cursor::before{
+  content:'';position:absolute;top:2px;left:50%;transform:translateX(-50%);
+  width:3px;height:3px;border-radius:50%;background:var(--orange);
 }
+.cursor::after{
+  content:'';position:absolute;top:6px;left:50%;transform:translateX(-50%);
+  width:2px;height:8px;background:var(--orange);
+}
+.cursor .wing{position:absolute;top:4px;width:1px;height:6px;background:var(--orange);opacity:0.9}
+.cursor .wing--left{left:4px;transform:rotate(-25deg);transform-origin:0 0;transform:translateY(var(--wing-left)) rotate(-25deg)}
+.cursor .wing--right{right:4px;transform:rotate(25deg);transform-origin:100% 0;transform:translateY(var(--wing-right)) rotate(25deg)}
+.cursor .tail{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:1px;height:4px;background:var(--orange)}
+.cursor.big{width:24px;height:28px}
+.cursor.big::before{width:4px;height:4px}
+.cursor.big::after{width:3px;height:10px}
+.cursor.big .wing{height:8px}
+.cursor.big .tail{height:5px}
+.cursor.big::before{background:var(--yellow)}
+.cursor.big::after{background:var(--orange)}
+.cursor.big .wing{background:var(--orange)}
+.cursor.big .tail{background:var(--orange)}
+/* Label element added via JavaScript - see .cursor-label below */
+.cursor-label{
+  position:fixed;font-family:var(--mono);font-size:9px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--paper);
+  white-space:nowrap;pointer-events:none;z-index:9999;display:none;
+}
+.cursor.scrolling::before{background:var(--yellow)}
+.cursor.scrolling .wing{background:var(--yellow);opacity:1}
+.cursor.down::before{opacity:0.6}
+.cursor.down .wing{opacity:0.4}
 @media (pointer:coarse){.cursor{display:none}}
 
 /* ---------- layout ---------- */
@@ -232,23 +257,6 @@ section{position:relative}
   25%{transform:translateX(0);opacity:1}
   50%,80%{transform:translateX(0);opacity:1}
   100%{transform:translateX(-0.8em);opacity:0}
-}
-.hero__chat-bubble{position:absolute;top:-50px;left:50%;transform:translateX(-50%);background:white;border:2px solid var(--text);border-radius:12px;padding:4px 8px;font-size:0.35em;white-space:nowrap;opacity:0;pointer-events:none;animation:chat-bubble-pop 2s ease-in-out infinite;font-weight:500}
-.hero__chat-bubble::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:8px solid white}
-@keyframes chat-bubble-pop{
-  0%,12%{opacity:0;transform:translateX(-50%) scale(0.8)}
-  15%{opacity:1;transform:translateX(-50%) scale(1)}
-  50%{opacity:1;transform:translateX(-50%) scale(1)}
-  85%{opacity:1;transform:translateX(-50%) scale(1)}
-  100%{opacity:0;transform:translateX(-50%) scale(0.8)}
-}
-.hero__chat-bubble{position:absolute;top:0;left:100%;margin-left:8px;transform:none;background:var(--orange);border:none;border-radius:12px;padding:4px 8px;font-size:0.35em;font-family:inherit;color:white;white-space:nowrap;opacity:0;pointer-events:none;font-weight:500}
-.hero__chat-bubble::after{content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:8px solid var(--orange)}
-@keyframes chat-bubble-pop{
-  0%{opacity:0;transform:scale(0.8)}
-  10%{opacity:1;transform:scale(1)}
-  90%{opacity:1;transform:scale(1)}
-  100%{opacity:0;transform:scale(0.8)}
 }
 
 /* ---------- RANT + MASHER ---------- */

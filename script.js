@@ -6,18 +6,104 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine   = matchMedia('(pointer: fine)').matches;
 
-  /* ---------- custom cursor (lerp follow) ---------- */
+  /* ---------- digital mosquito cursor ---------- */
   const cur = document.getElementById('cursor');
   if (cur && fine && !reduce){
-    let mx=innerWidth/2, my=innerHeight/2, cx=mx, cy=my;
-    addEventListener('mousemove', e=>{ mx=e.clientX; my=e.clientY; }, {passive:true});
+    const leftWing = document.createElement('div');
+    leftWing.className = 'wing wing--left';
+    const rightWing = document.createElement('div');
+    rightWing.className = 'wing wing--right';
+    const tail = document.createElement('div');
+    tail.className = 'tail';
+    cur.appendChild(leftWing);
+    cur.appendChild(rightWing);
+    cur.appendChild(tail);
+
+    let mx=innerWidth/2, my=innerHeight/2, cx=mx, cy=my, targetX=mx, targetY=my;
+    let lastMoveTime = Date.now(), lastMoveX = mx, lastMoveY = my;
+    let wingAngle = 0, wingFreq = 8, isIdle = false;
+    let bodyOffsetX = 0, bodyOffsetY = 0;
+
+    addEventListener('mousemove', e=>{
+      mx=e.clientX; my=e.clientY;
+      lastMoveTime = Date.now();
+      if(isIdle) isIdle = false;
+    }, {passive:true});
+
     (function loop(){
-      cx += (mx-cx)*0.18; cy += (my-cy)*0.18;
+      const now = Date.now();
+      const timeSinceMove = now - lastMoveTime;
+      isIdle = timeSinceMove > 2000;
+
+      targetX = mx; targetY = my;
+
+      if(!isIdle && Math.random() < 0.02) {
+        bodyOffsetX = (Math.random() - 0.5) * 4;
+        bodyOffsetY = (Math.random() - 0.5) * 4;
+      }
+
+      if(isIdle) {
+        bodyOffsetX *= 0.8;
+        bodyOffsetY *= 0.8;
+      }
+
+      let erraticX = targetX + bodyOffsetX;
+      let erraticY = targetY + bodyOffsetY;
+
+      const repelRadius = 40;
+      document.querySelectorAll('[data-cursor]').forEach(el=>{
+        const rect = el.getBoundingClientRect();
+        const elCenterX = rect.left + rect.width / 2;
+        const elCenterY = rect.top + rect.height / 2;
+        const dist = Math.hypot(erraticX - elCenterX, erraticY - elCenterY);
+        if(dist < repelRadius) {
+          const angle = Math.atan2(erraticY - elCenterY, erraticX - elCenterX);
+          erraticX = elCenterX + Math.cos(angle) * repelRadius * 1.2;
+          erraticY = elCenterY + Math.sin(angle) * repelRadius * 1.2;
+        }
+      });
+
+      cx += (erraticX - cx) * 0.12;
+      cy += (erraticY - cy) * 0.12;
+
+      wingFreq = 8 + (boost/60) * 4;
+      wingAngle += (wingFreq * 360 / 1000) * (1000/16);
+
+      const wingAmplitude = isIdle ? 6 : 12;
+      const leftWingY = Math.sin((wingAngle * Math.PI / 180)) * wingAmplitude;
+      const rightWingY = Math.sin((wingAngle * Math.PI / 180 + Math.PI)) * wingAmplitude;
+
+      cur.style.setProperty('--wing-left', `${leftWingY}px`);
+      cur.style.setProperty('--wing-right', `${rightWingY}px`);
+      cur.style.setProperty('--wing-freq', wingFreq);
+
+      if(boost > 30) cur.classList.add('scrolling');
+      else cur.classList.remove('scrolling');
+
       cur.style.transform = `translate(${cx}px,${cy}px) translate(-50%,-50%)`;
       requestAnimationFrame(loop);
     })();
-    const grow = (e)=>{ cur.classList.add('big'); cur.dataset.label = e.currentTarget.dataset.label||''; };
-    const shrink = ()=>{ cur.classList.remove('big'); };
+
+    let labelEl = null;
+    const grow = (e)=>{
+      cur.classList.add('big');
+      const label = e.currentTarget.dataset.label||'';
+      if(label) {
+        if(!labelEl) {
+          labelEl = document.createElement('div');
+          labelEl.className = 'cursor-label';
+          document.body.appendChild(labelEl);
+        }
+        labelEl.textContent = label;
+        labelEl.style.display = 'block';
+        labelEl.style.left = (cx - labelEl.offsetWidth/2) + 'px';
+        labelEl.style.top = (cy - 24) + 'px';
+      }
+    };
+    const shrink = ()=>{
+      cur.classList.remove('big');
+      if(labelEl) labelEl.style.display = 'none';
+    };
     document.querySelectorAll('[data-cursor]').forEach(el=>{
       el.addEventListener('mouseenter', grow);
       el.addEventListener('mouseleave', shrink);
@@ -150,29 +236,6 @@
     });
   }
 
-  /* ---------- hero peek chat bubble ---------- */
-  const messages = [
-    'Hey!',
-    'Let\'s build something!',
-    'Design nerd here',
-    'Coffee + Code = Magic',
-    'Ready to create?',
-    'Let\'s go!',
-    'Something awesome incoming',
-    'You found me!'
-  ];
-  const chatBubble = document.querySelector('.hero__chat-bubble');
-  const gifPeek = document.querySelector('.hero__peek');
-  if(chatBubble && gifPeek) {
-    gifPeek.addEventListener('click', (e) => {
-      const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-      chatBubble.textContent = randomMsg;
-      chatBubble.style.animation = 'none';
-      void chatBubble.offsetWidth;
-      chatBubble.style.animation = 'chat-bubble-pop 2s ease-in-out forwards';
-      e.stopPropagation();
-    });
-  }
 
   /* ---------- marquee tap-to-slowmo + icon morphing ---------- */
   const iconNames = {

@@ -92,6 +92,47 @@ body{
 .cursor.down .wing{opacity:0.4}
 @media (pointer:coarse){.cursor{display:none}}
 
+/* ---------- dark mode toggle ---------- */
+.darkmode__checkbox{display:none}
+.darkmode__toggle{
+  position:relative;display:inline-block;width:50px;height:28px;
+  background:rgba(240,78,15,.2);border:1.5px solid var(--orange);border-radius:14px;
+  cursor:pointer;transition:background .3s var(--ease-expo),box-shadow .3s var(--ease-expo);
+  margin:0 10px;z-index:1;
+}
+.darkmode__toggle::before{
+  content:'';position:absolute;width:22px;height:22px;border-radius:50%;
+  background:var(--orange);top:2px;left:2px;
+  transition:left .3s var(--ease-expo);box-shadow:0 2px 4px rgba(0,0,0,.3);
+}
+.darkmode__checkbox:checked+.darkmode__toggle{
+  background:rgba(240,78,15,.4);box-shadow:0 0 12px rgba(240,78,15,.5);
+}
+.darkmode__checkbox:checked+.darkmode__toggle::before{left:26px}
+
+/* dark mode filters */
+.darkmode__checkbox:checked~*{filter:saturate(0) hue-rotate(200deg) brightness(0.9)}
+.darkmode__checkbox:checked~*>*>img,
+.darkmode__checkbox:checked~*>*>video,
+.darkmode__checkbox:checked~* img,
+.darkmode__checkbox:checked~* video{filter:saturate(0) hue-rotate(200deg)}
+
+/* hanging gif animation */
+@keyframes hang{
+  0%{transform:translateX(-50%) translateY(0);opacity:1}
+  20%{transform:translateX(-50%) translateY(0);opacity:1}
+  40%{transform:translateX(-50%) translateY(80vh);opacity:1}
+  55%{transform:translateX(-50%) translateY(80vh);opacity:1}
+  75%{transform:translateX(-50%) translateY(0);opacity:1}
+  100%{transform:translateX(-50%) translateY(0);opacity:1}
+}
+.darkmode__hanging-gif{
+  position:fixed;top:0;left:50%;width:clamp(200px,30vw,400px);height:auto;
+  aspect-ratio:1/1;background:url('gifs/NaveenPeek.gif') center/contain no-repeat;
+  pointer-events:none;z-index:8500;opacity:0;animation:none;will-change:transform;
+}
+.darkmode__checkbox:checked~#hangingGif{animation:hang 5s var(--ease-inout) infinite;opacity:1}
+
 /* ---------- layout ---------- */
 .wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--gut)}
 section{position:relative}

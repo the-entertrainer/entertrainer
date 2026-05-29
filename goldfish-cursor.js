@@ -1,5 +1,5 @@
 (() => {
-  // Goldfish Cursor - Phase 1: Canvas Rendering Foundation
+  // Goldfish Cursor - Phase 2: Matter.js Physics Integration
 
   class GoldfishCursor {
     constructor() {
@@ -7,6 +7,14 @@
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         return;
       }
+
+      // Matter.js modules
+      this.Engine = Matter.Engine;
+      this.World = Matter.World;
+      this.Bodies = Matter.Bodies;
+      this.Body = Matter.Body;
+      this.Constraint = Matter.Constraint;
+      this.Events = Matter.Events;
 
       this.canvas = null;
       this.ctx = null;
@@ -22,6 +30,16 @@
       // Detect if mobile and set scale accordingly
       this.isMobile = window.matchMedia('(pointer: coarse)').matches;
       this.scale = this.isMobile ? 0.8 : 1; // 80% size on mobile, 100% on desktop
+
+      // Physics setup
+      this.engine = this.Engine.create();
+      this.engine.world.gravity.y = 0; // No gravity for floating effect
+      this.engine.world.gravity.x = 0;
+
+      // Tail bodies and constraints
+      this.tailBodies = [];
+      this.tailConstraints = [];
+      this.tailSegments = 4; // Number of tail segments
 
       this.goldfish = {
         body: { x: 0, y: 0, width: 16, height: 12 }, // body blob
@@ -43,6 +61,8 @@
       this.canvas.style.pointerEvents = 'none';
       this.canvas.style.zIndex = '9999';
       this.canvas.style.cursor = 'none';
+      this.canvas.style.display = 'block';
+      this.canvas.style.visibility = 'visible';
 
       document.body.appendChild(this.canvas);
       this.ctx = this.canvas.getContext('2d');
@@ -56,6 +76,9 @@
         oldCursor.style.display = 'none';
       }
 
+      // Initialize tail bodies with constraints
+      this.initTailPhysics();
+
       // Event listeners
       window.addEventListener('mousemove', (e) => this.onMouseMove(e));
       window.addEventListener('touchmove', (e) => this.onTouchMove(e));
@@ -65,6 +88,41 @@
 
       // Start animation loop
       this.animate();
+    }
+
+    initTailPhysics() {
+      // Create tail segment bodies
+      const segmentRadius = 2.5;
+      const segmentSpacing = 3;
+
+      for (let i = 0; i < this.tailSegments; i++) {
+        const x = this.cx - (segmentSpacing * (i + 1));
+        const y = this.cy;
+
+        const body = this.Bodies.circle(x, y, segmentRadius, {
+          friction: 0.5,
+          restitution: 0.1,
+          density: 0.001,
+          label: `tail-${i}`
+        });
+
+        this.tailBodies.push(body);
+        this.World.add(this.engine.world, body);
+      }
+
+      // Create distance constraints between segments
+      for (let i = 0; i < this.tailBodies.length - 1; i++) {
+        const constraint = this.Constraint.create({
+          bodyA: this.tailBodies[i],
+          bodyB: this.tailBodies[i + 1],
+          length: segmentSpacing,
+          stiffness: 0.95,
+          damping: 0.01
+        });
+
+        this.tailConstraints.push(constraint);
+        this.World.add(this.engine.world, constraint);
+      }
     }
 
     resizeCanvas() {
@@ -90,19 +148,41 @@
       // For now, just keep current behavior
     }
 
+    updateTailPhysics() {
+      // Move head body to follow cursor (with lerp)
+      if (this.tailBodies.length > 0) {
+        // Lerp position (smooth following)
+        this.lastX = this.cx;
+        this.lastY = this.cy;
+        this.cx += (this.mx - this.cx) * this.friction;
+        this.cy += (this.my - this.cy) * this.friction;
+
+        // Calculate velocity for animation feedback
+        this.velocity.x = this.cx - this.lastX;
+        this.velocity.y = this.cy - this.lastY;
+
+        // Move first tail segment toward cursor (simulates "head" of tail chain)
+        const headSegment = this.tailBodies[0];
+        const targetX = this.cx - 10; // Offset from cursor
+        const targetY = this.cy;
+
+        // Apply force to first segment to pull it toward cursor
+        this.Body.setPosition(headSegment, {
+          x: targetX,
+          y: targetY
+        });
+      }
+    }
+
     animate() {
+      // Update physics
+      this.Engine.update(this.engine);
+      this.updateTailPhysics();
+
       // Clear canvas
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-      // Lerp position (smooth following)
-      this.lastX = this.cx;
-      this.lastY = this.cy;
-      this.cx += (this.mx - this.cx) * this.friction;
-      this.cy += (this.my - this.cy) * this.friction;
-
       // Calculate velocity for animation feedback
-      this.velocity.x = this.cx - this.lastX;
-      this.velocity.y = this.cy - this.lastY;
       const speed = Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2);
 
       // Determine direction (angle) goldfish is facing
@@ -143,7 +223,7 @@
       this.ctx.arc(11, -1.5, 1, 0, Math.PI * 2);
       this.ctx.fill();
 
-      // Draw tail (undulating based on speed)
+      // Draw tail (physics-driven)
       this.drawTail(speed);
 
       // Draw fins (animate based on speed)
@@ -153,34 +233,37 @@
     }
 
     drawTail(speed) {
-      const tailStartX = -10;
-      const tailLength = 12;
-      const undulationAmount = 2 + speed * 0.5;
-      const undulationFreq = 0.15 + speed * 0.02;
-
+      // Draw lines connecting tail bodies from head to tail end
       this.ctx.strokeStyle = '#FF6B35';
       this.ctx.lineWidth = 3;
       this.ctx.lineCap = 'round';
+      this.ctx.lineJoin = 'round';
 
-      // Draw tail as a curved path
+      // Start from head
       this.ctx.beginPath();
-      this.ctx.moveTo(tailStartX, 0);
+      this.ctx.moveTo(8, 0); // Head position
 
-      for (let i = 0; i <= tailLength; i++) {
-        const t = i / tailLength;
-        const x = tailStartX - t * tailLength;
-        const y = Math.sin(t * Math.PI + Date.now() * undulationFreq * 0.001) * undulationAmount;
-        this.ctx.lineTo(x, y);
+      // Draw line through each tail segment
+      for (let i = 0; i < this.tailBodies.length; i++) {
+        const body = this.tailBodies[i];
+        const x = body.position.x - this.cx; // Relative to goldfish center
+        const y = body.position.y - this.cy;
+        this.ctx.lineTo(x / this.scale, y / this.scale); // Account for scale
       }
 
       this.ctx.stroke();
 
-      // Tail fin (fluke)
-      this.ctx.fillStyle = '#FF8A50';
-      const flukePosX = tailStartX - tailLength;
-      this.ctx.beginPath();
-      this.ctx.ellipse(flukePosX, 0, 4, 6, 0, 0, Math.PI * 2);
-      this.ctx.fill();
+      // Draw tail fluke at the end
+      if (this.tailBodies.length > 0) {
+        const lastSegment = this.tailBodies[this.tailBodies.length - 1];
+        const flukeX = lastSegment.position.x - this.cx;
+        const flukeY = lastSegment.position.y - this.cy;
+
+        this.ctx.fillStyle = '#FF8A50';
+        this.ctx.beginPath();
+        this.ctx.ellipse(flukeX / this.scale, flukeY / this.scale, 4, 6, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
     }
 
     drawFins(speed) {

@@ -285,5 +285,20 @@ window.addEventListener("DOMContentLoaded", changeWord);
 </script>
 
 <div class="darkmode__hanging-gif" id="hangingGif"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const toggle = document.getElementById('darkmode-toggle');
+  if(toggle) {
+    toggle.addEventListener('change', function(e) {
+      if(e.target.checked) {
+        document.body.setAttribute('data-darkmode', '');
+      } else {
+        document.body.removeAttribute('data-darkmode');
+      }
+    });
+  }
+});
+</script>
 </body>
 </html>

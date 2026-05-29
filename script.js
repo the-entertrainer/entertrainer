@@ -347,4 +347,16 @@
       pauseMarquee = false;
     }
   });
+
+  /* ---------- dark mode toggle ---------- */
+  const toggle = document.getElementById('darkmode-toggle');
+  if(toggle) {
+    toggle.addEventListener('change', (e) => {
+      if(e.target.checked) {
+        document.body.setAttribute('data-darkmode', '');
+      } else {
+        document.body.removeAttribute('data-darkmode');
+      }
+    });
+  }
 })();

@@ -115,11 +115,8 @@ body{
 .darkmode__checkbox:checked+.darkmode__toggle::before{left:26px}
 
 /* dark mode filters */
-.darkmode__checkbox:checked~*{filter:saturate(0) hue-rotate(200deg) brightness(0.9)}
-.darkmode__checkbox:checked~*>*>img,
-.darkmode__checkbox:checked~*>*>video,
-.darkmode__checkbox:checked~* img,
-.darkmode__checkbox:checked~* video{filter:saturate(0) hue-rotate(200deg)}
+body:has(#darkmode-toggle:checked){filter:saturate(0) hue-rotate(200deg) brightness(0.9)}
+#darkmode-toggle:checked~.cursor,#darkmode-toggle:checked~.fx-grain{filter:none}
 
 /* hanging gif animation */
 @keyframes hang{

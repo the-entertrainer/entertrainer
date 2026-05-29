@@ -127,14 +127,14 @@
 
   /* ---------- hero peek chat bubble ---------- */
   const messages = [
-    'Hey! 👋',
-    'Let\'s build something! 🚀',
-    'Design nerd here 🎨',
-    'Coffee + Code = Magic ☕',
-    'Ready to create? 💪',
-    'Let\'s go! 🎯',
-    'Something awesome incoming ⚡',
-    'You found me! 😄'
+    'Hey!',
+    'Let\'s build something!',
+    'Design nerd here',
+    'Coffee + Code = Magic',
+    'Ready to create?',
+    'Let\'s go!',
+    'Something awesome incoming',
+    'You found me!'
   ];
   const chatBubble = document.querySelector('.hero__chat-bubble');
   const gifPeek = document.querySelector('.hero__peek');
@@ -144,7 +144,7 @@
       chatBubble.textContent = randomMsg;
       chatBubble.style.animation = 'none';
       void chatBubble.offsetWidth;
-      chatBubble.style.animation = '';
+      chatBubble.style.animation = 'chat-bubble-pop 2s ease-in-out forwards';
       e.stopPropagation();
     });
   }

@@ -233,6 +233,15 @@ section{position:relative}
   50%,85%{transform:translateX(0);opacity:1}
   100%{transform:translateX(-2em);opacity:0}
 }
+.hero__chat-bubble{position:absolute;top:0;left:100%;margin-left:8px;transform:none;background:var(--orange);border:none;border-radius:12px;padding:4px 8px;font-size:0.35em;font-family:inherit;color:white;white-space:nowrap;opacity:0;pointer-events:none;font-weight:500}
+.hero__chat-bubble::after{content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:8px solid var(--orange)}
+@keyframes chat-bubble-pop{
+  0%{opacity:0;transform:scale(0.8)}
+  10%{opacity:1;transform:scale(1)}
+  90%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(0.8)}
+}
+}
 
 /* ---------- RANT + MASHER ---------- */
 .rant__grid{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(36px,5vw,80px);align-items:center}

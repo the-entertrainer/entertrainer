@@ -137,11 +137,16 @@
     'You found me! 😄'
   ];
   const chatBubble = document.querySelector('.hero__chat-bubble');
-  if(chatBubble){
-    setInterval(()=>{
+  const gifPeek = document.querySelector('.hero__peek');
+  if(chatBubble && gifPeek) {
+    gifPeek.addEventListener('click', (e) => {
       const randomMsg = messages[Math.floor(Math.random() * messages.length)];
       chatBubble.textContent = randomMsg;
-    }, 2000);
+      chatBubble.style.animation = 'none';
+      void chatBubble.offsetWidth;
+      chatBubble.style.animation = '';
+      e.stopPropagation();
+    });
   }
 
   /* ---------- marquee tap-to-slowmo + icon morphing ---------- */

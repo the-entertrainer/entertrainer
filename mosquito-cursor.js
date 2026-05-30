@@ -100,6 +100,15 @@
       this.startleX = 0; this.startleY = 0;      // current decaying dart offset
       this.lastStartleTime = 0;
 
+      // ---- Mobile smoothness: never interfere with scroll/zoom ----
+      // During a scroll gesture or a pinch (multi-touch), the mosquito is
+      // hidden and the render loop drops to a cheap no-op so the browser's
+      // scroll/zoom stays butter smooth. It resumes pinned to the finger.
+      this.isScrolling = false;
+      this.multiTouch = false;
+      this._scrollTimer = null;
+      this.scrollHideMs = 200;  // stay hidden this long after the last scroll tick
+
       // GIF image
       this.gifImg = null;
       this.gifLoaded = false;
@@ -141,11 +150,24 @@
         this.lastMoveTime = performance.now();  // real pointer move resets idle timer
       };
       this._onTouchMove = (e) => {
-        if (e.touches && e.touches.length > 0) {
-          this.mx = e.touches[0].clientX;
-          this.my = e.touches[0].clientY + this.touchOffsetY;  // Hover above finger
-          this.lastMoveTime = performance.now();  // real pointer move resets idle timer
-        }
+        if (!e.touches || e.touches.length === 0) return;
+        // Pinch-zoom (2+ fingers): freeze and hide so we never stagger the gesture.
+        this.multiTouch = e.touches.length > 1;
+        if (this.multiTouch) return;
+        this.mx = e.touches[0].clientX;
+        this.my = e.touches[0].clientY + this.touchOffsetY;  // Hover above finger
+        this.lastMoveTime = performance.now();  // real pointer move resets idle timer
+      };
+      this._onTouchEnd = (e) => {
+        // Reset the pinch flag once we're back to a single finger / no fingers.
+        this.multiTouch = !!(e.touches && e.touches.length > 1);
+      };
+      // Passive scroll listener: while the page is scrolling, hide the mosquito
+      // and let the render loop idle so scrolling stays perfectly smooth.
+      this._onScroll = () => {
+        this.isScrolling = true;
+        if (this._scrollTimer) clearTimeout(this._scrollTimer);
+        this._scrollTimer = setTimeout(() => { this.isScrolling = false; }, this.scrollHideMs);
       };
       this._onResize = () => this.resizeCanvas();
       this._onHoverEnter = (e) => {
@@ -162,6 +184,8 @@
       window.addEventListener('mousemove', this._onMouseMove);
       window.addEventListener('touchmove', this._onTouchMove, { passive: true });
       window.addEventListener('touchstart', this._onTouchMove, { passive: true });
+      window.addEventListener('touchend', this._onTouchEnd, { passive: true });
+      window.addEventListener('scroll', this._onScroll, { passive: true });
       window.addEventListener('resize', this._onResize);
       document.addEventListener('mouseover', this._onHoverEnter);
       document.addEventListener('mouseout', this._onHoverExit);
@@ -189,6 +213,20 @@
 
     animate() {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      // Mobile: while scrolling or pinch-zooming, drop to a cheap no-op so the
+      // gesture stays butter smooth. Pin state to the finger and zero out motion
+      // so the mosquito resumes cleanly (no catch-up lurch or false startle dart).
+      if (this.isMobile && (this.isScrolling || this.multiTouch)) {
+        this.cx = this.mx; this.cy = this.my;
+        this.vx = 0; this.vy = 0;
+        this.pmx = this.mx; this.pmy = this.my;
+        this.pvx = 0; this.pvy = 0;
+        this.startleX = 0; this.startleY = 0;
+        this.lastMoveTime = performance.now();
+        requestAnimationFrame(() => this.animate());
+        return;
+      }
 
       // Orbital behavior: hunt interactive elements with [data-cursor] attribute
       if (this.orbitTarget) {
@@ -379,7 +417,10 @@
       window.removeEventListener('mousemove', this._onMouseMove);
       window.removeEventListener('touchmove', this._onTouchMove);
       window.removeEventListener('touchstart', this._onTouchMove);
+      window.removeEventListener('touchend', this._onTouchEnd);
+      window.removeEventListener('scroll', this._onScroll);
       window.removeEventListener('resize', this._onResize);
+      if (this._scrollTimer) clearTimeout(this._scrollTimer);
       if (this.canvas) this.canvas.remove();
     }
   }

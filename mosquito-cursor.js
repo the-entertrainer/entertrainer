@@ -131,7 +131,7 @@
       const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
 
       // Track previous speed for acceleration detection
-      const acceleration = Math.abs(speed - (this.lastSpeed || 0));
+      this.acceleration = Math.abs(speed - (this.lastSpeed || 0));
       this.lastSpeed = speed;
 
       // Detect behavioral state based on movement speed
@@ -158,7 +158,7 @@
         wobbleSpeedMult = 2.5;  // Fast, erratic
         wobbleAmpMult = 2.0;
         // Add random phase jump on high acceleration for erratic feel
-        if (acceleration > 2) {
+        if (this.acceleration > 2) {
           this.wobblePhase += Math.random() * Math.PI * 0.5;
         }
       }
@@ -187,9 +187,11 @@
       const w = this.gifW * this.scale;
       const h = this.gifH * this.scale;
 
-      // Gentle lean into direction of travel (max ~15°)
-      // Use smoothed velocity for smoother tilting transitions
-      const tiltAngle = Math.atan2(this.smoothVy, Math.abs(this.smoothVx)) * 0.3;
+      // Tilt into direction of travel + intensity of acceleration
+      // Use smoothed velocity for smooth transitions, add acceleration component for dynamic response
+      const velocityTilt = Math.atan2(this.smoothVy, Math.abs(this.smoothVx));
+      const accelerationTilt = Math.min((this.acceleration || 0) * 0.1, 0.3);  // Cap at ~17°
+      const tiltAngle = (velocityTilt + accelerationTilt) * 0.3;
       const effectiveTilt = this.facingRight ? tiltAngle : -tiltAngle;
 
       this.ctx.save();

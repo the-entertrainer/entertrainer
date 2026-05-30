@@ -44,7 +44,8 @@
 
   if (!reduce){
     (function tick(){
-      const speed = 0.9 + boost*0.08;
+      const baseSpeed = window.innerWidth > 1200 ? 1.2 : 0.9;  // Larger screens move faster
+      const speed = baseSpeed + boost*0.08;
       boost *= 0.9;
       tracks.forEach(t=>{
         if(!t.w) return;

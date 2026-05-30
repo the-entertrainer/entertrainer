@@ -41,6 +41,9 @@
       // Wing micro-oscillations (figure-eight pattern during hovering)
       this.wingPhase = 0;
 
+      // Shine animation (pulsing glow and highlight)
+      this.shinePhase = 0;
+
       // Orbital behavior (hunting interactive elements)
       this.orbitTarget = null;
       this.orbitAngle = 0;
@@ -77,7 +80,7 @@
         'position:fixed', 'top:0', 'left:0',
         'pointer-events:none', 'z-index:9999',
         'cursor:none', 'display:block', 'visibility:visible',
-        'mix-blend-mode:difference'
+        'mix-blend-mode:screen'
       ].join(';');
 
       document.body.appendChild(this.canvas);
@@ -204,6 +207,9 @@
       // Wobble phase advances with behavioral multiplier (faster at higher speeds)
       this.wobblePhase += (this.wobbleSpeed * wobbleSpeedMult) + (speed * 0.04 * wobbleSpeedMult);
 
+      // Shine phase for pulsing glow effect
+      this.shinePhase += 0.03;
+
       // Micro-oscillations during hovering (figure-eight wing pattern)
       if (behaviorMode === 'hovering') {
         this.wingPhase += 0.1;  // Slow wing oscillation
@@ -248,6 +254,16 @@
       this.ctx.save();
       this.ctx.translate(x, y);
 
+      // Canvas glow effect (warm orange shadow halo)
+      this.ctx.shadowBlur = 12;
+      this.ctx.shadowColor = 'rgba(240, 78, 15, 0.6)';
+      this.ctx.shadowOffsetX = 0;
+      this.ctx.shadowOffsetY = 0;
+
+      // Pulsing shine effect (opacity varies 0.8–1.0)
+      const shineIntensity = 0.9 + Math.sin(this.shinePhase) * 0.1;
+      this.ctx.globalAlpha = shineIntensity;
+
       // Flip horizontally when facing left
       if (!this.facingRight) {
         this.ctx.scale(-1, 1);
@@ -255,6 +271,23 @@
 
       this.ctx.rotate(effectiveTilt);
       this.ctx.drawImage(this.gifImg, -w / 2, -h / 2, w, h);
+
+      // Animated glossy highlight spot (moves with rotation)
+      this.ctx.globalAlpha = 0.3 + Math.sin(this.shinePhase * 0.8) * 0.2;
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+
+      // Position highlight slightly off-center (moves with mosquito direction)
+      const highlightX = -w * 0.2 + Math.cos(this.shinePhase) * 5;
+      const highlightY = -h * 0.3 + Math.sin(this.shinePhase * 0.7) * 5;
+      const highlightRadius = w * 0.15;
+
+      this.ctx.beginPath();
+      this.ctx.arc(highlightX, highlightY, highlightRadius, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Reset globalAlpha
+      this.ctx.globalAlpha = 1.0;
+
       this.ctx.restore();
     }
 

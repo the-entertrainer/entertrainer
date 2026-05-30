@@ -41,9 +41,6 @@
       // Wing micro-oscillations (figure-eight pattern during hovering)
       this.wingPhase = 0;
 
-      // Shine animation (pulsing glow and highlight)
-      this.shinePhase = 0;
-
       // Orbital behavior (hunting interactive elements)
       this.orbitTarget = null;
       this.orbitAngle = 0;
@@ -54,7 +51,54 @@
       this.scale = this.isMobile ? 0.175 : 0.225;
 
       // Mobile touch offset (hover above finger instead of directly on it)
-      this.touchOffsetY = -60;  // pixels above touch point (well clear of finger)
+      this.touchOffsetY = -90;  // pixels above touch point (well clear of finger)
+
+      // ---- Mini intelligence: life-like instincts (tuning) ----
+      // All instincts produce a single bounded offset added to the spring's
+      // target each frame; the spring stays the only integrator of cx/cy.
+      this.instinctMax = 1.0;
+      this.instinctEaseRate = 0.02;                  // how slowly intensity ramps (organic)
+      this.instinctScale = this.isMobile ? 0.6 : 1;  // smaller mosquito darts shorter
+
+      // Anticipation / lead (intercept the pointer instead of chasing)
+      this.pointerVelSmooth = 0.15;  // EMA factor for measured pointer velocity
+      this.leadFactor = 6.0;         // how many smoothed-velocity steps to lead ahead
+      this.leadMax = 90;             // px hard cap on anticipation distance
+
+      // Idle wandering / curiosity
+      this.idleEnterMs = 900;        // pointer still this long before wandering eases in
+      this.wanderAmp = 34;           // px radius of exploratory drift
+      this.wanderEaseRate = 0.035;   // envelope ease in/out (no pop)
+      this.wanderSpeedA = 0.013;     // layered angular speeds (irrational-ish ratios)
+      this.wanderSpeedB = 0.022;
+      this.wanderSpeedC = 0.007;
+
+      // Standoff (never sit perfectly dead-center)
+      this.standoffAmp = 6;          // px of permanent living offset
+      this.standoffSpeed = 0.006;    // very slow orbit of the standoff point
+
+      // Startle / evasive reflex (dart away from a swat)
+      this.startleAccelThresh = 4.5; // pointer jerk magnitude that triggers a dart
+      this.startleImpulse = 70;      // px peak perpendicular dart offset
+      this.startleDecay = 0.86;      // per-frame decay (~15 frames to near-zero)
+      this.startleRefractoryMs = 350;// min time between startles
+
+      // Settling (instinct intensity ebbs after long idle)
+      this.calmAfterIdleMs = 4000;
+      this.calmFloor = 0.35;
+
+      // ---- Mini intelligence: per-frame state ----
+      this.instinct = 1.0;                       // master eased intensity (0..1)
+      this.pmx = this.mx; this.pmy = this.my;    // previous raw pointer position
+      this.pvx = 0; this.pvy = 0;                // smoothed pointer velocity (EMA)
+      this.lastMoveTime = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+      this.wanderPhaseA = Math.random() * 6.28;
+      this.wanderPhaseB = Math.random() * 6.28;
+      this.wanderPhaseC = Math.random() * 6.28;
+      this.wanderEnv = 0;                        // eased 0..1 wandering envelope
+      this.standoffPhase = Math.random() * 6.28;
+      this.startleX = 0; this.startleY = 0;      // current decaying dart offset
+      this.lastStartleTime = 0;
 
       // GIF image
       this.gifImg = null;
@@ -79,8 +123,7 @@
       this.canvas.style.cssText = [
         'position:fixed', 'top:0', 'left:0',
         'pointer-events:none', 'z-index:9999',
-        'cursor:none', 'display:block', 'visibility:visible',
-        'mix-blend-mode:screen'
+        'cursor:none', 'display:block', 'visibility:visible'
       ].join(';');
 
       document.body.appendChild(this.canvas);
@@ -93,11 +136,15 @@
 
       this.loadGif();
 
-      this._onMouseMove = (e) => { this.mx = e.clientX; this.my = e.clientY; };
+      this._onMouseMove = (e) => {
+        this.mx = e.clientX; this.my = e.clientY;
+        this.lastMoveTime = performance.now();  // real pointer move resets idle timer
+      };
       this._onTouchMove = (e) => {
         if (e.touches && e.touches.length > 0) {
           this.mx = e.touches[0].clientX;
           this.my = e.touches[0].clientY + this.touchOffsetY;  // Hover above finger
+          this.lastMoveTime = performance.now();  // real pointer move resets idle timer
         }
       };
       this._onResize = () => this.resizeCanvas();
@@ -157,9 +204,76 @@
         this.my = targetY + Math.sin(this.orbitAngle) * this.orbitRadius;
       }
 
-      // Spring physics toward target
-      this.vx += (this.mx - this.cx) * this.spring;
-      this.vy += (this.my - this.cy) * this.spring;
+      // ---- Mini intelligence: compute a single bounded target offset ----
+      // Instincts only re-aim the spring's target; they never touch cx/cy/vx/vy,
+      // so this can never explode or double-integrate.
+      const now = performance.now();
+      const idleMs = now - this.lastMoveTime;
+      const inOrbit = !!this.orbitTarget;
+
+      // A. Measure pointer velocity (separate from spring velocity), EMA-smoothed.
+      const rawDx = this.mx - this.pmx;
+      const rawDy = this.my - this.pmy;
+      this.pmx = this.mx; this.pmy = this.my;
+      this.pvx += (rawDx - this.pvx) * this.pointerVelSmooth;
+      this.pvy += (rawDy - this.pvy) * this.pointerVelSmooth;
+
+      // B. Ease the master instinct intensity (settling after long idle).
+      const instinctTarget = (idleMs > this.calmAfterIdleMs) ? this.calmFloor : this.instinctMax;
+      this.instinct += (instinctTarget - this.instinct) * this.instinctEaseRate;
+
+      // C. Anticipation / lead: aim ahead of where the pointer is heading.
+      let leadX = this.pvx * this.leadFactor;
+      let leadY = this.pvy * this.leadFactor;
+      const leadLen = Math.hypot(leadX, leadY);
+      if (leadLen > this.leadMax) {
+        const k = this.leadMax / leadLen;
+        leadX *= k; leadY *= k;
+      }
+
+      // D. Idle wandering / curiosity: drift on an organic path when pointer is still.
+      const wantWander = (!inOrbit && idleMs > this.idleEnterMs) ? 1 : 0;
+      this.wanderEnv += (wantWander - this.wanderEnv) * this.wanderEaseRate;
+      this.wanderPhaseA += this.wanderSpeedA;
+      this.wanderPhaseB += this.wanderSpeedB;
+      this.wanderPhaseC += this.wanderSpeedC;
+      const wRawX = Math.sin(this.wanderPhaseA) * 0.6
+                  + Math.sin(this.wanderPhaseB * 1.3) * 0.3
+                  + Math.cos(this.wanderPhaseC) * 0.4;
+      const wRawY = Math.cos(this.wanderPhaseA * 0.9) * 0.6
+                  + Math.sin(this.wanderPhaseB) * 0.3
+                  + Math.sin(this.wanderPhaseC * 1.1) * 0.4;
+      const wanderX = wRawX * this.wanderAmp * this.wanderEnv;
+      const wanderY = wRawY * this.wanderAmp * this.wanderEnv;
+
+      // E. Standoff: a permanent tiny living offset so it never sits dead-center.
+      this.standoffPhase += this.standoffSpeed;
+      const standoffX = Math.cos(this.standoffPhase) * this.standoffAmp;
+      const standoffY = Math.sin(this.standoffPhase * 1.3) * this.standoffAmp;
+
+      // F. Startle reflex: dart perpendicular on a sudden swat, then recover.
+      const pointerAccel = Math.hypot(rawDx - this.pvx, rawDy - this.pvy);
+      if (pointerAccel > this.startleAccelThresh &&
+          (now - this.lastStartleTime) > this.startleRefractoryMs) {
+        this.lastStartleTime = now;
+        const ang = Math.atan2(this.pvy, this.pvx) + Math.PI / 2;
+        const side = Math.random() < 0.5 ? 1 : -1;
+        this.startleX = Math.cos(ang) * this.startleImpulse * side;
+        this.startleY = Math.sin(ang) * this.startleImpulse * side;
+      }
+      this.startleX *= this.startleDecay;
+      this.startleY *= this.startleDecay;
+
+      // G. Compose the single offset. Lead/wander/standoff scale by eased instinct;
+      // the startle reflex fires even when settled (added outside the multiply).
+      const offX = (leadX + wanderX + standoffX) * this.instinct * this.instinctScale + this.startleX;
+      const offY = (leadY + wanderY + standoffY) * this.instinct * this.instinctScale + this.startleY;
+      const tx = this.mx + offX;
+      const ty = this.my + offY;
+
+      // Spring physics toward the instinct-adjusted target
+      this.vx += (tx - this.cx) * this.spring;
+      this.vy += (ty - this.cy) * this.spring;
       this.vx *= this.damping;
       this.vy *= this.damping;
       this.cx += this.vx;
@@ -207,9 +321,6 @@
       // Wobble phase advances with behavioral multiplier (faster at higher speeds)
       this.wobblePhase += (this.wobbleSpeed * wobbleSpeedMult) + (speed * 0.04 * wobbleSpeedMult);
 
-      // Shine phase for pulsing glow effect
-      this.shinePhase += 0.03;
-
       // Micro-oscillations during hovering (figure-eight wing pattern)
       if (behaviorMode === 'hovering') {
         this.wingPhase += 0.1;  // Slow wing oscillation
@@ -254,16 +365,6 @@
       this.ctx.save();
       this.ctx.translate(x, y);
 
-      // Canvas glow effect (warm orange shadow halo)
-      this.ctx.shadowBlur = 12;
-      this.ctx.shadowColor = 'rgba(240, 78, 15, 0.6)';
-      this.ctx.shadowOffsetX = 0;
-      this.ctx.shadowOffsetY = 0;
-
-      // Pulsing shine effect (opacity varies 0.8–1.0)
-      const shineIntensity = 0.9 + Math.sin(this.shinePhase) * 0.1;
-      this.ctx.globalAlpha = shineIntensity;
-
       // Flip horizontally when facing left
       if (!this.facingRight) {
         this.ctx.scale(-1, 1);
@@ -271,23 +372,6 @@
 
       this.ctx.rotate(effectiveTilt);
       this.ctx.drawImage(this.gifImg, -w / 2, -h / 2, w, h);
-
-      // Animated glossy highlight spot (moves with rotation)
-      this.ctx.globalAlpha = 0.3 + Math.sin(this.shinePhase * 0.8) * 0.2;
-      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-
-      // Position highlight slightly off-center (moves with mosquito direction)
-      const highlightX = -w * 0.2 + Math.cos(this.shinePhase) * 5;
-      const highlightY = -h * 0.3 + Math.sin(this.shinePhase * 0.7) * 5;
-      const highlightRadius = w * 0.15;
-
-      this.ctx.beginPath();
-      this.ctx.arc(highlightX, highlightY, highlightRadius, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Reset globalAlpha
-      this.ctx.globalAlpha = 1.0;
-
       this.ctx.restore();
     }
 

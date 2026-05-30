@@ -25,6 +25,11 @@
       this.spring = 0.055;
       this.damping = 0.78;
 
+      // Smoothed velocity for tilting (tilt lags behind actual velocity)
+      this.smoothVx = 0;
+      this.smoothVy = 0;
+      this.tiltSmoothingFactor = 0.15;  // 0-1; lower = smoother, slower response
+
       // Sinusoidal buzz wobble
       this.wobblePhase = 0;
       this.wobbleAmp = 2;     // max pixels of perpendicular wobble
@@ -119,6 +124,10 @@
       this.cx += this.vx;
       this.cy += this.vy;
 
+      // Smooth velocity for tilting only (does not affect position)
+      this.smoothVx += (this.vx - this.smoothVx) * this.tiltSmoothingFactor;
+      this.smoothVy += (this.vy - this.smoothVy) * this.tiltSmoothingFactor;
+
       const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
 
       // Update facing direction only when moving meaningfully
@@ -151,7 +160,8 @@
       const h = this.gifH * this.scale;
 
       // Gentle lean into direction of travel (max ~15°)
-      const tiltAngle = Math.atan2(this.vy, Math.abs(this.vx)) * 0.3;
+      // Use smoothed velocity for smoother tilting transitions
+      const tiltAngle = Math.atan2(this.smoothVy, Math.abs(this.smoothVx)) * 0.3;
       const effectiveTilt = this.facingRight ? tiltAngle : -tiltAngle;
 
       this.ctx.save();

@@ -146,7 +146,7 @@
       requestAnimationFrame(() => this.animate());
     }
 
-    draw(x, y, speed) {
+    draw(x, y) {
       const w = this.gifW * this.scale;
       const h = this.gifH * this.scale;
 

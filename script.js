@@ -152,18 +152,18 @@
   /* ---------- marquee tap-to-slowmo + icon morphing ---------- */
   const iconNames = {
     'articulate.png': 'Articulate',
-    'synthesia.png': 'Synthesia',
+    'canva.png': 'Canva',
     'adobe.png': 'Adobe',
-    'html5.png': 'html5',
-    'gemini.png': 'Gemini',
-    'claude.png': 'Claude',
+    'html5.png': 'HTML5',
+    'google-fonts.png': 'Google Fonts',
+    'miro.png': 'Miro',
     'python.png': 'Python',
     'javascript.png': 'Javascript',
     'blender.png': 'Blender',
-    'tailwind-css.png': 'Tailwind CSS',
-    'ollama.png': 'Ollama'
+    'adobe-audition.png': 'Adobe Audition',
+    'figma.png': 'Figma'
   };
-  const iconSequence = ['articulate.png','synthesia.png','adobe.png','html5.png','gemini.png','claude.png','python.png','javascript.png','blender.png','tailwind-css.png','ollama.png'];
+  const iconSequence = ['articulate.png','canva.png','adobe.png','html5.png','google-fonts.png','miro.png','python.png','javascript.png','blender.png','adobe-audition.png','figma.png'];
   let activeLabelTimeout = null;
   let slowmoActive = false;
 

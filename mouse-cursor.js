@@ -5,6 +5,10 @@
     constructor() {
       // Disable only if reduced motion is enabled
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const oldCursor = document.getElementById('cursor');
+        if (oldCursor) {
+          oldCursor.style.display = 'none';
+        }
         return;
       }
 
@@ -14,7 +18,7 @@
       this.my = window.innerHeight / 2;
       this.cx = this.mx;  // current x
       this.cy = this.my;  // current y
-      this.friction = 0.08;
+      this.friction = 0.04;
       this.velocity = { x: 0, y: 0 };
       this.lastX = this.cx;
       this.lastY = this.cy;
@@ -31,7 +35,7 @@
       this.totalFrames = 8; // Default, will adjust based on sprite analysis
       this.frameWidth = 64; // Default, will adjust based on sprite dimensions
       this.frameHeight = 64; // Default, will adjust based on sprite dimensions
-      this.animationSpeed = 0.08; // Frame advancement per unit velocity (slower movement)
+      this.animationSpeed = 0.04; // Frame advancement per unit velocity (very slow, deliberate movement)
 
       // Track which sprite is currently active
       this.currentSprite = 'northeast';
@@ -88,6 +92,11 @@
         this.calculateSpriteDimensions(this.spriteNortheast);
         this.checkSpritesReady();
       };
+      this.spriteNortheast.onerror = () => {
+        console.error('Failed to load northeast sprite: ./spritesheets/MrMouse-iso_walk_northeast.png');
+        this.spriteNortheast.complete = true;
+        this.checkSpritesReady();
+      };
       this.spriteNortheast.src = './spritesheets/MrMouse-iso_walk_northeast.png';
 
       // Load southeast sprite (downward movement)
@@ -95,6 +104,11 @@
       this.spriteSoutheast.crossOrigin = 'anonymous';
       this.spriteSoutheast.onload = () => {
         this.calculateSpriteDimensions(this.spriteSoutheast);
+        this.checkSpritesReady();
+      };
+      this.spriteSoutheast.onerror = () => {
+        console.error('Failed to load southeast sprite: ./spritesheets/MrMouse-iso_walk_southeast.png');
+        this.spriteSoutheast.complete = true;
         this.checkSpritesReady();
       };
       this.spriteSoutheast.src = './spritesheets/MrMouse-iso_walk_southeast.png';
@@ -190,6 +204,11 @@
 
       // Draw mouse sprite
       if (this.spritesLoaded) {
+        // Clamp cursor position to prevent edge clipping
+        const maxOffset = Math.max(this.frameWidth, this.frameHeight) * this.scale / 2;
+        this.cx = Math.max(maxOffset, Math.min(this.canvas.width - maxOffset, this.cx));
+        this.cy = Math.max(maxOffset, Math.min(this.canvas.height - maxOffset, this.cy));
+
         this.drawSprite(angle, speed);
       }
 
@@ -198,15 +217,20 @@
 
     drawSprite(angle, speed) {
       // Determine which sprite to use based on angle
-      // Northeast: moving upward (angle between -180° to 0°)
-      // Southeast: moving downward (angle between 0° to 180°)
+      // Southeast: moving rightward (-45° to 45°)
+      // Northeast: moving leftward/upward (else)
       let spriteToUse = this.spriteNortheast;
+      let newSprite = 'northeast';
 
-      if (angle > 0) {
+      if (angle >= -Math.PI / 4 && angle <= Math.PI / 4) {
         spriteToUse = this.spriteSoutheast;
-        this.currentSprite = 'southeast';
-      } else {
-        this.currentSprite = 'northeast';
+        newSprite = 'southeast';
+      }
+
+      // Synchronize frame counter when sprite switches
+      if (newSprite !== this.currentSprite) {
+        this.frameCounter = 0;
+        this.currentSprite = newSprite;
       }
 
       // Update frame counter based on speed

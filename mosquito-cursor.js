@@ -51,7 +51,7 @@
       this.scale = this.isMobile ? 0.175 : 0.225;
 
       // Mobile touch offset (hover above finger instead of directly on it)
-      this.touchOffsetY = -20;  // pixels above touch point
+      this.touchOffsetY = -60;  // pixels above touch point (well clear of finger)
 
       // GIF image
       this.gifImg = null;

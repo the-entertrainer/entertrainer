@@ -47,6 +47,9 @@
       this.orbitAngle = 0;
       this.orbitRadius = 60;  // pixels from target center
 
+      // Belt spotlight: slow organic circling around a spotlighted (spinning) icon
+      this.spotAngle = Math.random() * 6.28;
+
       // Scale
       this.isMobile = window.matchMedia('(pointer: coarse)').matches;
       this.scale = this.isMobile ? 0.175 : 0.225;
@@ -245,12 +248,31 @@
         this.my = targetY + Math.sin(this.orbitAngle) * this.orbitRadius;
       }
 
+      // Belt spotlight: while an icon is spotlighted, the mosquito leaves the
+      // pointer and slowly, organically circles the spinning icon. The clone is
+      // position:fixed so its rect is already in viewport coords (matching cx/cy).
+      // Runs after the hover-orbit block so the spotlight always wins.
+      const spotIcon = retreating ? null : document.querySelector('.belt-spotlight__icon');
+      if (spotIcon) {
+        const r0 = spotIcon.getBoundingClientRect();
+        const scx = r0.left + r0.width / 2;
+        const scy = r0.top + r0.height / 2;
+        // Height stays steady while the icon 3D-spins (width does not) → stable radius.
+        const baseR = r0.height / 2 + 46;
+        this.spotAngle += 0.012;                              // slow sweep (~9s per lap)
+        const breathe = Math.sin(this.spotAngle * 1.7) * 7;  // gentle radius breathing
+        const rr = baseR + breathe;
+        this.mx = scx + Math.cos(this.spotAngle) * rr;
+        this.my = scy + Math.sin(this.spotAngle) * rr * 0.82; // a touch elliptical
+        this.lastMoveTime = performance.now();               // stay "active": no idle wander
+      }
+
       // ---- Mini intelligence: compute a single bounded target offset ----
       // Instincts only re-aim the spring's target; they never touch cx/cy/vx/vy,
       // so this can never explode or double-integrate.
       const now = performance.now();
       const idleMs = now - this.lastMoveTime;
-      const inOrbit = !!this.orbitTarget;
+      const inOrbit = !!this.orbitTarget || !!spotIcon;
 
       // A. Measure pointer velocity (separate from spring velocity), EMA-smoothed.
       const rawDx = this.mx - this.pmx;

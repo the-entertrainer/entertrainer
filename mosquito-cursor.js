@@ -38,6 +38,9 @@
       // Direction
       this.facingRight = true;
 
+      // Wing micro-oscillations (figure-eight pattern during hovering)
+      this.wingPhase = 0;
+
       // Scale
       this.isMobile = window.matchMedia('(pointer: coarse)').matches;
       this.scale = this.isMobile ? 0.175 : 0.225;
@@ -166,9 +169,22 @@
       // Wobble phase advances with behavioral multiplier (faster at higher speeds)
       this.wobblePhase += (this.wobbleSpeed * wobbleSpeedMult) + (speed * 0.04 * wobbleSpeedMult);
 
+      // Micro-oscillations during hovering (figure-eight wing pattern)
+      if (behaviorMode === 'hovering') {
+        this.wingPhase += 0.1;  // Slow wing oscillation
+      }
+
       // Perpendicular wobble offset (relative to travel direction)
       const travelAngle = Math.atan2(this.vy, this.vx);
-      const wobbleMag = Math.sin(this.wobblePhase) * this.wobbleAmp * wobbleAmpMult * Math.min(speed / 4, 1.0);
+      let wobbleMag = Math.sin(this.wobblePhase) * this.wobbleAmp * wobbleAmpMult * Math.min(speed / 4, 1.0);
+
+      // Add wing micro-oscillations during hovering
+      if (behaviorMode === 'hovering') {
+        const wingFigureEight = Math.sin(this.wingPhase) * 0.5;
+        const wingWobble = Math.cos(this.wingPhase * 2) * 0.3;
+        wobbleMag += wingFigureEight + wingWobble;
+      }
+
       const drawX = this.cx + Math.cos(travelAngle + Math.PI / 2) * wobbleMag;
       const drawY = this.cy + Math.sin(travelAngle + Math.PI / 2) * wobbleMag;
 

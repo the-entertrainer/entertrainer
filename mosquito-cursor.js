@@ -27,15 +27,15 @@
 
       // Sinusoidal buzz wobble
       this.wobblePhase = 0;
-      this.wobbleAmp = 4;     // max pixels of perpendicular wobble
-      this.wobbleSpeed = 0.18; // phase advancement per frame at rest
+      this.wobbleAmp = 2;     // max pixels of perpendicular wobble
+      this.wobbleSpeed = 0.09; // phase advancement per frame at rest
 
       // Direction
       this.facingRight = true;
 
       // Scale
       this.isMobile = window.matchMedia('(pointer: coarse)').matches;
-      this.scale = this.isMobile ? 0.35 : 0.45;
+      this.scale = this.isMobile ? 0.175 : 0.225;
 
       // GIF image
       this.gifImg = null;
@@ -98,9 +98,9 @@
         this.gifLoaded = true;
       };
       this.gifImg.onerror = () => {
-        console.error('MosquitoCursor: failed to load ./gifs/Mosquito.gif');
+        console.error('MosquitoCursor: failed to load ./gifs/IMG_9426.gif');
       };
-      this.gifImg.src = './gifs/Mosquito.gif';
+      this.gifImg.src = './gifs/IMG_9426.gif';
     }
 
     resizeCanvas() {

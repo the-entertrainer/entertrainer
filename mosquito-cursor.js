@@ -130,17 +130,45 @@
 
       const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
 
+      // Track previous speed for acceleration detection
+      const acceleration = Math.abs(speed - (this.lastSpeed || 0));
+      this.lastSpeed = speed;
+
+      // Detect behavioral state based on movement speed
+      let behaviorMode = 'hovering';
+      if (speed > 0.5) behaviorMode = 'approach';
+      if (speed > 3) behaviorMode = 'evasive';
+
       // Update facing direction only when moving meaningfully
       if (Math.abs(this.vx) > 0.15) {
         this.facingRight = this.vx > 0;
       }
 
-      // Wobble phase advances faster at higher speeds (buzzing effect)
-      this.wobblePhase += this.wobbleSpeed + speed * 0.04;
+      // Apply behavioral wobble multipliers
+      let wobbleSpeedMult = 1.0;
+      let wobbleAmpMult = 1.0;
+
+      if (behaviorMode === 'hovering') {
+        wobbleSpeedMult = 0.4;  // Slow, subtle wobble
+        wobbleAmpMult = 0.3;
+      } else if (behaviorMode === 'approach') {
+        wobbleSpeedMult = 1.0;  // Normal
+        wobbleAmpMult = 1.0;
+      } else if (behaviorMode === 'evasive') {
+        wobbleSpeedMult = 2.5;  // Fast, erratic
+        wobbleAmpMult = 2.0;
+        // Add random phase jump on high acceleration for erratic feel
+        if (acceleration > 2) {
+          this.wobblePhase += Math.random() * Math.PI * 0.5;
+        }
+      }
+
+      // Wobble phase advances with behavioral multiplier (faster at higher speeds)
+      this.wobblePhase += (this.wobbleSpeed * wobbleSpeedMult) + (speed * 0.04 * wobbleSpeedMult);
 
       // Perpendicular wobble offset (relative to travel direction)
       const travelAngle = Math.atan2(this.vy, this.vx);
-      const wobbleMag = Math.sin(this.wobblePhase) * this.wobbleAmp * Math.min(speed / 4, 1.0);
+      const wobbleMag = Math.sin(this.wobblePhase) * this.wobbleAmp * wobbleAmpMult * Math.min(speed / 4, 1.0);
       const drawX = this.cx + Math.cos(travelAngle + Math.PI / 2) * wobbleMag;
       const drawY = this.cy + Math.sin(travelAngle + Math.PI / 2) * wobbleMag;
 

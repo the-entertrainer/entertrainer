@@ -217,8 +217,14 @@
       const currentFrame = Math.floor(this.frameCounter) % this.totalFrames;
 
       // Calculate source rectangle (frame slicing)
-      const sx = currentFrame * this.frameWidth;
-      const sy = 0;
+      // Support both horizontal strips and grid layouts
+      let sx, sy;
+      const framesPerRow = Math.round(spriteToUse.width / this.frameWidth);
+      const row = Math.floor(currentFrame / framesPerRow);
+      const col = currentFrame % framesPerRow;
+
+      sx = col * this.frameWidth;
+      sy = row * this.frameHeight;
       const sw = this.frameWidth;
       const sh = this.frameHeight;
 

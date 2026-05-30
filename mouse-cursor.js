@@ -14,14 +14,14 @@
       this.my = window.innerHeight / 2;
       this.cx = this.mx;  // current x
       this.cy = this.my;  // current y
-      this.friction = 0.13;
+      this.friction = 0.08;
       this.velocity = { x: 0, y: 0 };
       this.lastX = this.cx;
       this.lastY = this.cy;
 
-      // Detect if mobile and set scale accordingly
+      // Detect if mobile and set scale accordingly (50% size reduction)
       this.isMobile = window.matchMedia('(pointer: coarse)').matches;
-      this.scale = this.isMobile ? 0.8 : 1;
+      this.scale = this.isMobile ? 0.4 : 0.5;
 
       // Sprite sheet loading
       this.spriteNortheast = null;
@@ -31,7 +31,7 @@
       this.totalFrames = 8; // Default, will adjust based on sprite analysis
       this.frameWidth = 64; // Default, will adjust based on sprite dimensions
       this.frameHeight = 64; // Default, will adjust based on sprite dimensions
-      this.animationSpeed = 0.15; // Frame advancement per unit velocity
+      this.animationSpeed = 0.08; // Frame advancement per unit velocity (slower movement)
 
       // Track which sprite is currently active
       this.currentSprite = 'northeast';
@@ -44,7 +44,7 @@
     init() {
       // Create canvas element
       this.canvas = document.createElement('canvas');
-      this.canvas.id = 'goldfish-cursor';
+      this.canvas.id = 'mouse-cursor';
       this.canvas.style.position = 'fixed';
       this.canvas.style.top = '0';
       this.canvas.style.left = '0';

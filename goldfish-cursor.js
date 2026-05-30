@@ -107,9 +107,14 @@
 
         // Isometric sprites typically arranged horizontally in a strip
         // If width is much larger than height, it's a horizontal strip
-        // Otherwise assume 8-frame grid or horizontal arrangement
+        // Otherwise assume grid layout
 
-        if (ratio > 2) {
+        if (Math.abs(ratio - 1.0) < 0.05) {
+          // Square sprite (512x512): 4x4 grid = 16 frames
+          this.totalFrames = 16;
+          this.frameWidth = sprite.width / 4;   // 128
+          this.frameHeight = sprite.height / 4; // 128
+        } else if (ratio > 2) {
           // Horizontal strip: width >> height
           // Likely 8 or more frames in a row
           this.totalFrames = 8; // Standard walk cycle
@@ -120,11 +125,11 @@
           this.totalFrames = 6;
           this.frameWidth = sprite.width / this.totalFrames;
           this.frameHeight = sprite.height;
-        } else if (ratio < 1.2) {
-          // Square-ish or taller: might be grid layout (4x2)
-          this.totalFrames = 8;
+        } else if (ratio > 1.2) {
+          // Slightly wider than tall: might be grid layout (4x3)
+          this.totalFrames = 12;
           this.frameWidth = sprite.width / 4;
-          this.frameHeight = sprite.height / 2;
+          this.frameHeight = sprite.height / 3;
         } else {
           // Default to 8-frame horizontal strip
           this.totalFrames = 8;

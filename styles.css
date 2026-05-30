@@ -126,11 +126,8 @@ body{
 
 /* dark mode filters — applied per direct child so body filter doesn't break position:fixed */
 body[data-darkmode]>*:not(#hangingGif):not(#cursor){filter:saturate(0) brightness(1.1) contrast(1.2)}
-/* in dark mode (toggle on) the mosquito goes fully inverted AND blends with the
-   'difference' effect against the page. !important on filter overrides the
-   desaturate rule above (which carries ID-level specificity via :not()).
-   mix-blend-mode isn't set inline or elsewhere, so it applies as-is. */
-body[data-darkmode] #mosquito-cursor{filter:invert(1) !important;mix-blend-mode:difference}
+/* in dark mode (toggle on) the mosquito blends with the 'difference' effect against the page */
+body[data-darkmode] #mosquito-cursor{mix-blend-mode:difference}
 
 /* hanging gif animation - drop, hold, bouncy exit */
 @keyframes drop-and-exit{

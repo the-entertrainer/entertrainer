@@ -37,6 +37,7 @@
   measure(); addEventListener('resize', measure);
 
   let boost = 0, lastY = scrollY;
+  let beltPaused = false;  // frozen while an icon is spotlighted
   addEventListener('scroll', ()=>{
     const dy = Math.abs(scrollY - lastY); lastY = scrollY;
     boost = Math.min(boost + dy*0.6, 60);
@@ -44,6 +45,7 @@
 
   if (!reduce){
     (function tick(){
+      if (beltPaused){ requestAnimationFrame(tick); return; }  // hold position during spotlight
       const baseSpeed = window.innerWidth > 1200 ? 1.2 : 0.9;  // Larger screens move faster
       const speed = baseSpeed + boost*0.08;
       boost *= 0.9;
@@ -150,77 +152,135 @@
     });
   }
 
-  /* ---------- marquee tap-to-slowmo + icon morphing ---------- */
-  const iconNames = {
-    'articulate.png': 'Articulate Storyline',
-    'canva.png': 'Synthesia',
-    'adobe.png': 'Adobe Creative Suite',
-    'html5.png': 'HTML5',
-    'google-fonts.png': 'Google Gemini',
-    'miro.png': 'Claude',
-    'python.png': 'Python',
-    'javascript.png': 'Javascript',
-    'blender.png': 'Blender',
-    'adobe-audition.png': 'Tailwind CSS',
-    'figma.png': 'Ollama'
+  /* ---------- marquee tap-to-spotlight ---------- */
+  // Source of truth for the spotlight caption, keyed by icon filename.
+  const iconInfo = {
+    'articulate.png':     { name:'Articulate Storyline', desc:'Builds branching, interactive e-learning courses and simulations.' },
+    'canva.png':          { name:'Synthesia',            desc:'Generates lifelike AI presenter videos straight from a text script.' },
+    'adobe.png':          { name:'Adobe Creative Suite', desc:'Industry-standard apps for design, video, and image editing.' },
+    'html5.png':          { name:'HTML5',                desc:'The markup language that structures every modern web page.' },
+    'google-fonts.png':   { name:'Google Gemini',        desc:'Google’s multimodal AI for reasoning across text, images, and code.' },
+    'miro.png':           { name:'Claude',               desc:'Anthropic’s AI assistant for writing, analysis, and coding.' },
+    'python.png':         { name:'Python',               desc:'A versatile language for scripting, data work, and automation.' },
+    'javascript.png':     { name:'Javascript',           desc:'The language that makes web pages interactive and dynamic.' },
+    'blender.png':        { name:'Blender',              desc:'Free 3D software for modeling, animation, and rendering.' },
+    'adobe-audition.png': { name:'Tailwind CSS',         desc:'A utility-first CSS framework for styling UIs fast.' },
+    'figma.png':          { name:'Ollama',               desc:'Runs open-source large language models locally on your machine.' }
   };
-  const iconSequence = ['articulate.png','canva.png','adobe.png','html5.png','google-fonts.png','miro.png','python.png','javascript.png','blender.png','adobe-audition.png','figma.png'];
-  let activeLabelTimeout = null;
-  let slowmoActive = false;
+  const fileOf = (src)=> (src.split('/').pop()||'').split('?')[0];
 
-  document.querySelectorAll('.marquee__track img').forEach(img=>{
-    img.addEventListener('click', (e)=>{
-      slowmoActive = true;
-      const track = img.closest('.marquee__track');
-      const allImgs = track.querySelectorAll('img');
+  let spotlight = null;        // active overlay root, or null
+  let spotlightTimer = null;   // auto-dismiss timer
+  const beltImgs = [...document.querySelectorAll('.marquee__track img')];
 
-      allImgs.forEach(i=>{
-        i.style.animationPlayState = 'paused';
-      });
+  function freezeBelt(){
+    beltPaused = true;
+    beltImgs.forEach(i=> i.style.animationPlayState = 'paused');
+  }
+  function resumeBelt(){
+    beltPaused = false;
+    beltImgs.forEach(i=> i.style.animationPlayState = 'running');
+  }
 
-      const name = img.dataset.name || 'Icon';
-      const label = document.createElement('div');
-      label.className = 'marquee__icon-label';
-      label.textContent = name;
-      label.style.position = 'fixed';
-      const rect = img.getBoundingClientRect();
-      label.style.top = (rect.top - 40) + 'px';
-      label.style.left = (rect.left + rect.width/2) + 'px';
-      label.style.transform = 'translateX(-50%)';
-      document.body.appendChild(label);
+  function openSpotlight(img){
+    if (spotlight) return;
+    const info = iconInfo[fileOf(img.src)] || { name: img.dataset.name || 'Tool', desc:'' };
+    freezeBelt();
 
-      clearTimeout(activeLabelTimeout);
-      activeLabelTimeout = setTimeout(()=>{
-        allImgs.forEach(i=>{
-          i.style.animationPlayState = 'running';
-        });
-        label.remove();
-        slowmoActive = false;
-      }, 2500);
+    const rect = img.getBoundingClientRect();
+    const vw = window.innerWidth, vh = window.innerHeight;
 
-      e.stopPropagation();
+    // overlay root
+    const root = document.createElement('div');
+    root.className = 'belt-spotlight';
+
+    // glassy blur backdrop
+    const backdrop = document.createElement('div');
+    backdrop.className = 'belt-spotlight__backdrop';
+    root.appendChild(backdrop);
+
+    // lift wrapper holds position+scale; inner clone handles the Y-axis spin
+    const lift = document.createElement('div');
+    lift.className = 'belt-spotlight__lift';
+    lift.style.left = rect.left + 'px';
+    lift.style.top  = rect.top  + 'px';
+    lift.style.width  = rect.width  + 'px';
+    lift.style.height = rect.height + 'px';
+
+    const clone = document.createElement('img');
+    clone.className = 'belt-spotlight__icon';
+    clone.src = img.src;
+    clone.alt = info.name;
+    lift.appendChild(clone);
+    root.appendChild(lift);
+
+    // caption card
+    const card = document.createElement('div');
+    card.className = 'belt-spotlight__card';
+    const h = document.createElement('div');
+    h.className = 'belt-spotlight__name';
+    h.textContent = info.name;
+    const p = document.createElement('div');
+    p.className = 'belt-spotlight__desc';
+    p.textContent = info.desc;
+    card.appendChild(h); card.appendChild(p);
+    root.appendChild(card);
+
+    document.body.appendChild(root);
+    spotlight = root;
+
+    // target: lift the icon toward screen center-top, scaled up
+    const scale = 2;
+    const targetX = vw/2 - (rect.left + rect.width/2);
+    const targetY = Math.min(vh*0.34, vh/2) - (rect.top + rect.height/2);
+
+    // place caption under the lifted icon
+    const liftedCenterY = rect.top + rect.height/2 + targetY;
+    const liftedH = rect.height * scale;
+    card.style.top = (liftedCenterY + liftedH/2 + 18) + 'px';
+
+    // next frame -> animate in
+    requestAnimationFrame(()=>{
+      backdrop.classList.add('in');
+      card.classList.add('in');
+      lift.style.transform = `translate(${targetX}px, ${targetY}px) scale(${scale})`;
+      if (!reduce) clone.classList.add('is-spinning');
     });
 
-    setInterval(()=>{
-      if(slowmoActive) return;
-      if(Math.random() < 0.15){
-        const newIcon = iconSequence[Math.floor(Math.random() * iconSequence.length)];
-        img.src = 'images/icons/' + newIcon;
-        img.dataset.name = iconNames[newIcon];
-      }
-    }, 2000 + Math.random() * 6000);
+    clearTimeout(spotlightTimer);
+    spotlightTimer = setTimeout(closeSpotlight, 2000);
+  }
+
+  function closeSpotlight(){
+    if (!spotlight) return;
+    clearTimeout(spotlightTimer); spotlightTimer = null;
+    const root = spotlight;
+    spotlight = null;
+
+    const lift  = root.querySelector('.belt-spotlight__lift');
+    const clone = root.querySelector('.belt-spotlight__icon');
+    const backdrop = root.querySelector('.belt-spotlight__backdrop');
+    const card = root.querySelector('.belt-spotlight__card');
+
+    if (clone) clone.classList.remove('is-spinning');  // spin rotateY back to 0
+    if (lift)  lift.style.transform = 'translate(0,0) scale(1)';  // land back in place
+    if (backdrop) backdrop.classList.remove('in');
+    if (card) card.classList.remove('in');
+
+    setTimeout(()=>{
+      root.remove();
+      resumeBelt();
+    }, 520);
+  }
+
+  beltImgs.forEach(img=>{
+    img.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if (spotlight){ closeSpotlight(); return; }
+      openSpotlight(img);
+    });
   });
 
-  document.addEventListener('click', ()=>{
-    if(slowmoActive && activeLabelTimeout){
-      clearTimeout(activeLabelTimeout);
-      const track = document.querySelector('.marquee__track');
-      const allImgs = track.querySelectorAll('img');
-      allImgs.forEach(i=>{
-        i.style.animationPlayState = 'running';
-      });
-      document.querySelectorAll('.marquee__icon-label').forEach(l=>l.remove());
-      slowmoActive = false;
-    }
-  });
+  // tap anywhere else closes the spotlight
+  document.addEventListener('click', ()=>{ if (spotlight) closeSpotlight(); });
 })();

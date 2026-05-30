@@ -28,7 +28,7 @@
       // Smoothed velocity for tilting (tilt lags behind actual velocity)
       this.smoothVx = 0;
       this.smoothVy = 0;
-      this.tiltSmoothingFactor = 0.15;  // 0-1; lower = smoother, slower response
+      this.tiltSmoothingFactor = 0.04;  // 0-1; lower = smoother, slower response (ultra-subtle)
 
       // Sinusoidal buzz wobble
       this.wobblePhase = 0;
@@ -49,6 +49,9 @@
       // Scale
       this.isMobile = window.matchMedia('(pointer: coarse)').matches;
       this.scale = this.isMobile ? 0.175 : 0.225;
+
+      // Mobile touch offset (hover above finger instead of directly on it)
+      this.touchOffsetY = -20;  // pixels above touch point
 
       // GIF image
       this.gifImg = null;
@@ -90,7 +93,7 @@
       this._onTouchMove = (e) => {
         if (e.touches && e.touches.length > 0) {
           this.mx = e.touches[0].clientX;
-          this.my = e.touches[0].clientY;
+          this.my = e.touches[0].clientY + this.touchOffsetY;  // Hover above finger
         }
       };
       this._onResize = () => this.resizeCanvas();
@@ -235,10 +238,10 @@
       const h = this.gifH * this.scale;
 
       // Tilt into direction of travel + intensity of acceleration
-      // Use smoothed velocity for smooth transitions, add acceleration component for dynamic response
+      // Use smoothed velocity for smooth transitions, add subtle acceleration component
       const velocityTilt = Math.atan2(this.smoothVy, Math.abs(this.smoothVx));
-      const accelerationTilt = Math.min((this.acceleration || 0) * 0.1, 0.3);  // Cap at ~17°
-      const tiltAngle = (velocityTilt + accelerationTilt) * 0.3;
+      const accelerationTilt = Math.min((this.acceleration || 0) * 0.02, 0.1);  // Minimal acceleration impact
+      const tiltAngle = (velocityTilt + accelerationTilt) * 0.08;  // Ultra-subtle tilt (3.75x reduction)
       const effectiveTilt = this.facingRight ? tiltAngle : -tiltAngle;
 
       this.ctx.save();

@@ -101,13 +101,18 @@
       this.lastStartleTime = 0;
 
       // ---- Mobile smoothness: never interfere with scroll/zoom ----
-      // During a scroll gesture or a pinch (multi-touch), the mosquito is
-      // hidden and the render loop drops to a cheap no-op so the browser's
-      // scroll/zoom stays butter smooth. It resumes pinned to the finger.
+      // During a scroll gesture or a pinch (multi-touch), the mosquito stops
+      // tracking the finger and smoothly flies out through the nearest side,
+      // then flies back in once the gesture ends. Listeners stay passive so the
+      // browser's scroll/zoom is never blocked.
       this.isScrolling = false;
       this.multiTouch = false;
       this._scrollTimer = null;
-      this.scrollHideMs = 200;  // stay hidden this long after the last scroll tick
+      this.scrollHideMs = 200;   // time after the last scroll tick to consider it over
+      this._retreating = false;  // currently flying out / staying out
+      this.exitSide = 1;         // -1 = left edge, +1 = right edge (nearest at retreat start)
+      this.allowOffscreen = false; // bypass the on-screen clamp while exiting / re-entering
+      this.retreatMargin = 60;   // px past the edge the exit target sits (fully clears screen)
 
       // GIF image
       this.gifImg = null;
@@ -214,22 +219,18 @@
     animate() {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-      // Mobile: while scrolling or pinch-zooming, drop to a cheap no-op so the
-      // gesture stays butter smooth. Pin state to the finger and zero out motion
-      // so the mosquito resumes cleanly (no catch-up lurch or false startle dart).
-      if (this.isMobile && (this.isScrolling || this.multiTouch)) {
-        this.cx = this.mx; this.cy = this.my;
-        this.vx = 0; this.vy = 0;
-        this.pmx = this.mx; this.pmy = this.my;
-        this.pvx = 0; this.pvy = 0;
-        this.startleX = 0; this.startleY = 0;
-        this.lastMoveTime = performance.now();
-        requestAnimationFrame(() => this.animate());
-        return;
+      // Mobile: while scrolling or pinch-zooming, the mosquito retreats off the
+      // nearest horizontal edge instead of tracking the finger. Lock in the exit
+      // side (and allow off-screen drawing) on the transition into retreat.
+      const retreating = this.isMobile && (this.isScrolling || this.multiTouch);
+      if (retreating && !this._retreating) {
+        this.exitSide = (this.cx < this.canvas.width / 2) ? -1 : 1;
+        this.allowOffscreen = true;
       }
+      this._retreating = retreating;
 
       // Orbital behavior: hunt interactive elements with [data-cursor] attribute
-      if (this.orbitTarget) {
+      if (this.orbitTarget && !retreating) {
         const rect = this.orbitTarget.getBoundingClientRect();
         const targetX = window.scrollX + rect.left + rect.width / 2;
         const targetY = window.scrollY + rect.top + rect.height / 2;
@@ -306,10 +307,21 @@
       // the startle reflex fires even when settled (added outside the multiply).
       const offX = (leadX + wanderX + standoffX) * this.instinct * this.instinctScale + this.startleX;
       const offY = (leadY + wanderY + standoffY) * this.instinct * this.instinctScale + this.startleY;
-      const tx = this.mx + offX;
-      const ty = this.my + offY;
+      let tx = this.mx + offX;
+      let ty = this.my + offY;
 
-      // Spring physics toward the instinct-adjusted target
+      // Retreat override: glide straight off the nearest side. The same spring
+      // carries it out (and, once the gesture ends, back to the finger) so both
+      // the exit and the re-entry are smooth. Suppress instincts while leaving.
+      if (retreating) {
+        const margin = (this.gifW * this.scale) / 2 + this.retreatMargin;
+        tx = this.exitSide < 0 ? -margin : this.canvas.width + margin;
+        ty = this.cy;                          // sideways exit, no vertical lurch
+        this.startleX = 0; this.startleY = 0;  // no reflex while flying out
+        this.pvx = 0; this.pvy = 0;            // clean slate for a calm re-entry
+      }
+
+      // Spring physics toward the (instinct- or retreat-) target
       this.vx += (tx - this.cx) * this.spring;
       this.vy += (ty - this.cy) * this.spring;
       this.vx *= this.damping;
@@ -381,9 +393,21 @@
       if (this.gifLoaded) {
         const halfW = (this.gifW * this.scale) / 2;
         const halfH = (this.gifH * this.scale) / 2;
-        const clampedX = Math.max(halfW, Math.min(this.canvas.width - halfW, drawX));
-        const clampedY = Math.max(halfH, Math.min(this.canvas.height - halfH, drawY));
-        this.draw(clampedX, clampedY, speed);
+        // While exiting or re-entering, let it cross the edge freely; otherwise
+        // keep normal flight inside the viewport.
+        let outX = drawX, outY = drawY;
+        if (!this.allowOffscreen) {
+          outX = Math.max(halfW, Math.min(this.canvas.width - halfW, drawX));
+          outY = Math.max(halfH, Math.min(this.canvas.height - halfH, drawY));
+        }
+        this.draw(outX, outY, speed);
+
+        // Gesture over and fully back on-screen → resume clamping.
+        if (this.allowOffscreen && !retreating &&
+            drawX > halfW && drawX < this.canvas.width - halfW &&
+            drawY > halfH && drawY < this.canvas.height - halfH) {
+          this.allowOffscreen = false;
+        }
       }
 
       requestAnimationFrame(() => this.animate());

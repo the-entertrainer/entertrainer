@@ -246,9 +246,7 @@
       lift.style.transform = `translate(${targetX}px, ${targetY}px) scale(${scale})`;
       if (!reduce) clone.classList.add('is-spinning');
     });
-
-    clearTimeout(spotlightTimer);
-    spotlightTimer = setTimeout(closeSpotlight, 2000);
+    // stays open until the user taps elsewhere or taps another icon (no auto-dismiss)
   }
 
   function closeSpotlight(){

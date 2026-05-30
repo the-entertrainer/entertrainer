@@ -109,20 +109,18 @@ body{
 /* ---------- dark mode toggle ---------- */
 .darkmode__checkbox{display:none}
 .darkmode__toggle{
-  position:relative;display:inline-block;width:50px;height:28px;
-  background:rgba(240,78,15,.2);border:1.5px solid var(--orange);border-radius:14px;
+  position:absolute;top:50%;right:var(--gut);transform:translateY(-50%);
+  display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;
+  background:transparent;border:1.5px solid var(--orange);border-radius:50%;
   cursor:pointer;transition:background .3s var(--ease-expo),box-shadow .3s var(--ease-expo);
-  margin:0 10px;z-index:1;
+  z-index:501;color:var(--orange);
 }
-.darkmode__toggle::before{
-  content:'';position:absolute;width:22px;height:22px;border-radius:50%;
-  background:var(--orange);top:2px;left:2px;
-  transition:left .3s var(--ease-expo);box-shadow:0 2px 4px rgba(0,0,0,.3);
-}
+.eye-icon{width:18px;height:18px;stroke:currentColor;transition:stroke .3s var(--ease-expo)}
+.darkmode__toggle:hover{background:rgba(240,78,15,.15);box-shadow:0 0 12px rgba(240,78,15,.3)}
 .darkmode__checkbox:checked+.darkmode__toggle{
-  background:rgba(240,78,15,.4);box-shadow:0 0 12px rgba(240,78,15,.5);
+  background:rgba(240,78,15,.3);box-shadow:0 0 12px rgba(240,78,15,.5);
 }
-.darkmode__checkbox:checked+.darkmode__toggle::before{left:26px}
+.darkmode__toggle::before{display:none}
 
 /* dark mode filters — applied per direct child so body filter doesn't break position:fixed */
 body[data-darkmode]>*:not(#hangingGif):not(#cursor){filter:saturate(0) brightness(1.1) contrast(1.2)}
@@ -141,7 +139,7 @@ body[data-darkmode] #mosquito-cursor{mix-blend-mode:difference}
   100%{transform:translateX(-50%) translateY(-150%);opacity:0}
 }
 .darkmode__hanging-gif{
-  position:fixed;top:-30px;left:calc(50% - 10px);width:clamp(200px,30vw,400px);height:auto;
+  position:fixed;top:-30px;left:50%;transform:translateX(-50%);width:clamp(200px,30vw,400px);height:auto;
   aspect-ratio:1/1;background:url('gifs/BatNaveen.gif') center/contain no-repeat;
   pointer-events:none;z-index:8500;opacity:0;animation:none;will-change:transform;
 }

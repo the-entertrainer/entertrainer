@@ -23,6 +23,7 @@
 
       // Spring physics: lower stiffness = looser lag, lower damping = more overshoot
       this.spring = 0.055;
+      this.mobileSpring = 0.015;  // Much softer for touch tracking (organic, not snappy)
       this.damping = 0.78;
 
       // Smoothed velocity for tilting (tilt lags behind actual velocity)
@@ -113,6 +114,7 @@
       this.exitSide = 1;         // -1 = left edge, +1 = right edge (nearest at retreat start)
       this.allowOffscreen = false; // bypass the on-screen clamp while exiting / re-entering
       this.retreatMargin = 60;   // px past the edge the exit target sits (fully clears screen)
+      this.retreatPhase = 0;     // sinusoid phase for organic curved exit motion
 
       // GIF image
       this.gifImg = null;
@@ -310,20 +312,27 @@
       let tx = this.mx + offX;
       let ty = this.my + offY;
 
-      // Retreat override: glide straight off the nearest side. The same spring
+      // Retreat override: glide off the nearest side with organic flutter. The same spring
       // carries it out (and, once the gesture ends, back to the finger) so both
       // the exit and the re-entry are smooth. Suppress instincts while leaving.
       if (retreating) {
         const margin = (this.gifW * this.scale) / 2 + this.retreatMargin;
         tx = this.exitSide < 0 ? -margin : this.canvas.width + margin;
-        ty = this.cy;                          // sideways exit, no vertical lurch
+        // Organic flutter during exit: gentle sinusoidal wobble as it leaves
+        this.retreatPhase += 0.08;
+        const flutterAmp = 12;  // px of vertical flutter during retreat
+        ty = this.my + Math.sin(this.retreatPhase) * flutterAmp;
         this.startleX = 0; this.startleY = 0;  // no reflex while flying out
         this.pvx = 0; this.pvy = 0;            // clean slate for a calm re-entry
+      } else {
+        this.retreatPhase = 0;  // reset retreat phase when gesture ends
       }
 
       // Spring physics toward the (instinct- or retreat-) target
-      this.vx += (tx - this.cx) * this.spring;
-      this.vy += (ty - this.cy) * this.spring;
+      // Use softer spring on mobile touch tracking for smooth, organic following
+      const activeSpring = (this.isMobile && !retreating) ? this.mobileSpring : this.spring;
+      this.vx += (tx - this.cx) * activeSpring;
+      this.vy += (ty - this.cy) * activeSpring;
       this.vx *= this.damping;
       this.vy *= this.damping;
       this.cx += this.vx;

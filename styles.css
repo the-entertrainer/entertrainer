@@ -101,6 +101,7 @@ body{
   cursor:none !important;
   display:block !important;
   visibility:visible !important;
+  transition:filter .35s var(--ease-expo);
 }
 /* hide old DOM cursor when mosquito canvas is active */
 #mosquito-cursor~.cursor{display:none !important}
@@ -125,6 +126,9 @@ body{
 
 /* dark mode filters — applied per direct child so body filter doesn't break position:fixed */
 body[data-darkmode]>*:not(#hangingGif):not(#cursor){filter:saturate(0) brightness(1.1) contrast(1.2)}
+/* the mosquito goes fully inverted in dark mode (overrides the desaturate above;
+   !important needed because the rule above carries ID-level specificity via :not()) */
+body[data-darkmode] #mosquito-cursor{filter:invert(1) !important}
 
 /* hanging gif animation - drop, hold, bouncy exit */
 @keyframes drop-and-exit{

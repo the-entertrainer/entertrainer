@@ -41,6 +41,11 @@
       // Wing micro-oscillations (figure-eight pattern during hovering)
       this.wingPhase = 0;
 
+      // Orbital behavior (hunting interactive elements)
+      this.orbitTarget = null;
+      this.orbitAngle = 0;
+      this.orbitRadius = 60;  // pixels from target center
+
       // Scale
       this.isMobile = window.matchMedia('(pointer: coarse)').matches;
       this.scale = this.isMobile ? 0.175 : 0.225;
@@ -89,11 +94,23 @@
         }
       };
       this._onResize = () => this.resizeCanvas();
+      this._onHoverEnter = (e) => {
+        if (e.target.hasAttribute('data-cursor')) {
+          this.orbitTarget = e.target;
+        }
+      };
+      this._onHoverExit = (e) => {
+        if (e.target.hasAttribute('data-cursor')) {
+          this.orbitTarget = null;
+        }
+      };
 
       window.addEventListener('mousemove', this._onMouseMove);
       window.addEventListener('touchmove', this._onTouchMove, { passive: true });
       window.addEventListener('touchstart', this._onTouchMove, { passive: true });
       window.addEventListener('resize', this._onResize);
+      document.addEventListener('mouseover', this._onHoverEnter);
+      document.addEventListener('mouseout', this._onHoverExit);
 
       this.animate();
     }
@@ -118,6 +135,20 @@
 
     animate() {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      // Orbital behavior: hunt interactive elements with [data-cursor] attribute
+      if (this.orbitTarget) {
+        const rect = this.orbitTarget.getBoundingClientRect();
+        const targetX = window.scrollX + rect.left + rect.width / 2;
+        const targetY = window.scrollY + rect.top + rect.height / 2;
+
+        // Increment orbit angle for circular motion
+        this.orbitAngle += 0.05;
+
+        // Calculate orbital position around target (will be smoothed by spring physics)
+        this.mx = targetX + Math.cos(this.orbitAngle) * this.orbitRadius;
+        this.my = targetY + Math.sin(this.orbitAngle) * this.orbitRadius;
+      }
 
       // Spring physics toward target
       this.vx += (this.mx - this.cx) * this.spring;

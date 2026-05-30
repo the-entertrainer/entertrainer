@@ -453,13 +453,13 @@
       const velocityTilt = Math.atan2(this.smoothVy, Math.abs(this.smoothVx));
       const accelerationTilt = Math.min((this.acceleration || 0) * 0.02, 0.1);  // Minimal acceleration impact
       const tiltAngle = (velocityTilt + accelerationTilt) * 0.08;  // Ultra-subtle tilt (3.75x reduction)
-      const effectiveTilt = this.facingRight ? tiltAngle : -tiltAngle;
+      const effectiveTilt = this.facingRight ? -tiltAngle : tiltAngle;
 
       this.ctx.save();
       this.ctx.translate(x, y);
 
-      // Flip horizontally when facing left
-      if (!this.facingRight) {
+      // Sprite art faces left by default, so mirror it when travelling right.
+      if (this.facingRight) {
         this.ctx.scale(-1, 1);
       }
 

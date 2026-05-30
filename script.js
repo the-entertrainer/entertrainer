@@ -33,8 +33,21 @@
     x: 0,
     w: 0
   }));
-  function measure(){ tracks.forEach(t=>{ t.w = t.el.getBoundingClientRect().width / 2; }); }
+  // Period = the exact distance from copy 1 to copy 2 (the markup duplicates the
+  // icon run, so child[half] starts the second copy). offsetLeft ignores the
+  // CSS transform and any flex gap, so wrapping by this loops seamlessly — unlike
+  // width/2, which is short by half a gap and drifts into a visible jump.
+  function measure(){
+    tracks.forEach(t=>{
+      const kids = t.el.children;
+      const half = kids.length >> 1;
+      const period = (half && kids[half]) ? (kids[half].offsetLeft - kids[0].offsetLeft) : 0;
+      t.w = period || (t.el.getBoundingClientRect().width / 2);  // fallback before images size
+    });
+  }
   measure(); addEventListener('resize', measure);
+  addEventListener('load', measure);            // re-measure once icons have loaded/sized
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
 
   let boost = 0, lastY = scrollY;
   let beltPaused = false;  // frozen while an icon is spotlighted

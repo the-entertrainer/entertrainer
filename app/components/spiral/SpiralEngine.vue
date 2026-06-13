@@ -23,11 +23,11 @@ function setPanelRef(el: Element | null, i: number) {
   if (el) panelEls.value[i] = el as HTMLElement
 }
 
-// Responsive spiral config — tuned for better separation on mobile.
+// Responsive spiral config — even more breathing room on mobile
 const responsiveConfig = computed<Partial<SpiralConfig>>(() => {
-  if (width.value < 640) return { coilSpacing: 78, arcSpan: 2.05 }
-  if (width.value < 1024) return { coilSpacing: 84, arcSpan: 2.2 }
-  return { coilSpacing: 94, arcSpan: 2.5 }
+  if (width.value < 640) return { coilSpacing: 95, arcSpan: 2.1 }
+  if (width.value < 1024) return { coilSpacing: 86, arcSpan: 2.25 }
+  return { coilSpacing: 96, arcSpan: 2.55 }
 })
 
 const snapMode = computed(() => motion.isTouch.value && width.value < 1024)
@@ -193,7 +193,7 @@ function onKey(e: KeyboardEvent) {
 
 /* ── SPIRAL ── absolutely positioned, transforms applied by JS ── */
 .stage.is-spiral {
-  height: min(62vh, 560px);
+  height: min(64vh, 580px);
   touch-action: pan-y;
   overflow: hidden;
   cursor: grab;
@@ -204,8 +204,8 @@ function onKey(e: KeyboardEvent) {
   position: absolute;
   top: 0;
   left: 0;
-  width: clamp(168px, 38vw, 245px);
-  height: clamp(195px, 44vw, 275px);
+  width: clamp(142px, 36vw, 205px);
+  height: clamp(175px, 42vw, 245px);
   will-change: transform, opacity;
 }
 
@@ -260,7 +260,7 @@ function onKey(e: KeyboardEvent) {
 /* Extra mobile breathing room */
 @media (max-width: 640px) {
   .stage.is-spiral {
-    height: min(58vh, 480px);
+    height: min(60vh, 500px);
   }
 }
 </style>

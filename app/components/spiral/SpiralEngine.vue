@@ -4,7 +4,7 @@ import { useWindowSize } from '@vueuse/core'
 import { useContent } from '~/composables/useContent'
 import { useViewMode } from '~/composables/useViewMode'
 import { useGsap } from '~/composables/useGsap'
-
+import { createApp, h } from 'vue'
 import type { SectionContent } from '~/content/site'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -121,16 +121,16 @@ async function createVerticalStaircase(CSS3DObject: any) {
     wrapper.style.border = '1px solid rgba(255,255,255,0.04)'
     wrapper.style.backdropFilter = 'blur(24px) saturate(190%)'
 
-    const { createApp, h } = await import('vue')
     const PanelComponent = (await import('./Panel.vue')).default
 
     const app = createApp({
       render: () => h(PanelComponent, { 
         section, 
         index: i,
-        compact: isMobile   // Pass compact mode for mobile spiral
+        compact: isMobile
       })
     })
+
     app.mount(wrapper)
     mountedApps.push(app)
 
@@ -241,11 +241,20 @@ onBeforeUnmount(() => {
   if (snapTimeout) clearTimeout(snapTimeout)
   window.removeEventListener('resize', handleResize)
 
-  mountedApps.forEach(app => { try { app.unmount() } catch {} })
+  // Improved cleanup
+  mountedApps.forEach(app => {
+    try {
+      app.unmount()
+    } catch (e) {
+      console.warn('Error unmounting panel app', e)
+    }
+  })
   mountedApps.length = 0
 
   panelObjects.forEach(obj => {
-    if (obj.element?.parentNode) obj.element.parentNode.removeChild(obj.element)
+    if (obj.element?.parentNode) {
+      obj.element.parentNode.removeChild(obj.element)
+    }
   })
   panelObjects.length = 0
 })

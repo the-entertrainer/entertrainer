@@ -1,0 +1,23 @@
+# Nuxt / Nitro
+.nuxt
+.output
+.data
+dist
+
+# Dependencies
+node_modules
+
+# Logs
+*.log
+npm-debug.log*
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
+# Misc
+.DS_Store

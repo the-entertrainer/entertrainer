@@ -147,7 +147,7 @@ async function createVerticalStaircase(CSS3DObject: any) {
     object.rotation.y = (progress - 0.5) * 0.2
 
     wrapper.addEventListener('click', () => {
-      focusPanel(object, i)
+      focusPanel(object, i, wrapper)
     })
 
     staircaseGroup.add(object)
@@ -155,24 +155,54 @@ async function createVerticalStaircase(CSS3DObject: any) {
   }
 }
 
-function focusPanel(object: any, index: number) {
+function focusPanel(object: any, index: number, wrapper?: HTMLElement) {
   if (!staircaseGroup) return
 
   const { gsap } = useGsap()
 
+  // Nice pop + scale feedback
+  gsap.to(object.scale, {
+    x: 1.08,
+    y: 1.08,
+    z: 1.08,
+    duration: 0.15,
+    ease: 'back.out(2)',
+    onComplete: () => {
+      gsap.to(object.scale, {
+        x: 1,
+        y: 1,
+        z: 1,
+        duration: 0.35,
+        ease: 'power2.out'
+      })
+    }
+  })
+
+  // Bring forward in depth
   gsap.to(object.position, {
-    z: object.position.z + 65,
-    duration: 0.22,
+    z: object.position.z + 70,
+    duration: 0.25,
     ease: 'back.out(1.8)'
   })
 
+  // Snap staircase
   const targetY = -index * 52
 
   gsap.to(staircaseGroup.position, {
     y: targetY,
-    duration: 0.8,
+    duration: 0.85,
     ease: 'power3.out'
   })
+
+  // Optional subtle glow on the DOM element
+  if (wrapper) {
+    wrapper.style.boxShadow = '0 0 30px rgba(0, 240, 255, 0.6)'
+    setTimeout(() => {
+      if (wrapper) {
+        wrapper.style.boxShadow = '0 4px 16px rgba(0,0,0,0.6)'
+      }
+    }, 600)
+  }
 }
 
 function setupMobileOptimizedDrag() {
@@ -241,7 +271,6 @@ onBeforeUnmount(() => {
   if (snapTimeout) clearTimeout(snapTimeout)
   window.removeEventListener('resize', handleResize)
 
-  // Improved cleanup
   mountedApps.forEach(app => {
     try {
       app.unmount()

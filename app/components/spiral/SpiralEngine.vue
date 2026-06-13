@@ -104,29 +104,32 @@ async function createVerticalStaircase(CSS3DObject: any) {
 
   const isMobile = width.value < 640
 
-  // Much smaller panels on mobile
-  const horizontalSpread = isMobile ? 32 : 48
-  const verticalStep = isMobile ? 85 : 65
-  const depthStep = isMobile ? 24 : 30
+  const horizontalSpread = isMobile ? 30 : 46
+  const verticalStep = isMobile ? 82 : 62
+  const depthStep = isMobile ? 22 : 28
 
   for (let i = 0; i < sections.length; i++) {
     const section = sections[i]
 
     const wrapper = document.createElement('div')
-    wrapper.style.width = isMobile ? '118px' : '155px'
-    wrapper.style.height = isMobile ? '138px' : '175px'
+    wrapper.style.width = isMobile ? '115px' : '152px'
+    wrapper.style.height = isMobile ? '135px' : '172px'
     wrapper.style.pointerEvents = 'auto'
-    wrapper.style.borderRadius = '10px'
+    wrapper.style.borderRadius = '9px'
     wrapper.style.overflow = 'hidden'
-    wrapper.style.boxShadow = '0 5px 20px rgba(0,0,0,0.6)'
-    wrapper.style.border = '1px solid rgba(255,255,255,0.05)'
-    wrapper.style.backdropFilter = 'blur(26px) saturate(190%)'
+    wrapper.style.boxShadow = '0 4px 16px rgba(0,0,0,0.6)'
+    wrapper.style.border = '1px solid rgba(255,255,255,0.04)'
+    wrapper.style.backdropFilter = 'blur(24px) saturate(190%)'
 
     const { createApp, h } = await import('vue')
     const PanelComponent = (await import('./Panel.vue')).default
 
     const app = createApp({
-      render: () => h(PanelComponent, { section, index: i })
+      render: () => h(PanelComponent, { 
+        section, 
+        index: i,
+        compact: isMobile   // Pass compact mode for mobile spiral
+      })
     })
     app.mount(wrapper)
     mountedApps.push(app)
@@ -136,12 +139,12 @@ async function createVerticalStaircase(CSS3DObject: any) {
     const progress = i / (sections.length - 1)
 
     const x = (progress - 0.5) * horizontalSpread
-    const y = -progress * sections.length * verticalStep * 0.6
-    const z = -progress * sections.length * depthStep * 0.7
+    const y = -progress * sections.length * verticalStep * 0.58
+    const z = -progress * sections.length * depthStep * 0.65
 
     object.position.set(x, y, z)
-    object.rotation.x = 0.05 + progress * 0.025
-    object.rotation.y = (progress - 0.5) * 0.22
+    object.rotation.x = 0.04 + progress * 0.02
+    object.rotation.y = (progress - 0.5) * 0.2
 
     wrapper.addEventListener('click', () => {
       focusPanel(object, i)
@@ -158,16 +161,16 @@ function focusPanel(object: any, index: number) {
   const { gsap } = useGsap()
 
   gsap.to(object.position, {
-    z: object.position.z + 70,
-    duration: 0.25,
-    ease: 'back.out(1.7)'
+    z: object.position.z + 65,
+    duration: 0.22,
+    ease: 'back.out(1.8)'
   })
 
-  const targetY = -index * 55
+  const targetY = -index * 52
 
   gsap.to(staircaseGroup.position, {
     y: targetY,
-    duration: 0.85,
+    duration: 0.8,
     ease: 'power3.out'
   })
 }
@@ -197,7 +200,7 @@ function setupMobileOptimizedDrag() {
     const deltaY = e.clientY - lastPointerY
     lastPointerY = e.clientY
 
-    const speed = isMobile ? 2.4 : 1.5
+    const speed = isMobile ? 2.5 : 1.4
     velocity = deltaY * speed
   }
 

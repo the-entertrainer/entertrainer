@@ -120,9 +120,9 @@ async function createVerticalStaircase(CSS3DObject: any) {
     wrapper.style.pointerEvents = 'auto'
     wrapper.style.borderRadius = '9px'
     wrapper.style.overflow = 'hidden'
-    wrapper.style.boxShadow = '0 4px 16px rgba(0,0,0,0.6)'
-    wrapper.style.border = '1px solid rgba(255,255,255,0.04)'
-    wrapper.style.backdropFilter = 'blur(24px) saturate(190%)'
+    wrapper.style.boxShadow = '0 6px 22px rgba(0,0,0,0.65)'
+    wrapper.style.border = '1px solid rgba(255,255,255,0.06)'
+    wrapper.style.backdropFilter = 'blur(28px) saturate(200%)'
 
     const PanelComponent = (await import('./Panel.vue')).default
 
@@ -220,7 +220,6 @@ function setupDragControls() {
     const deltaY = e.clientY - lastPointerY
     lastPointerY = e.clientY
 
-    // Different sensitivity for mobile vs desktop
     const speed = isMobile ? 2.4 : 1.3
     velocity = deltaY * speed
   }

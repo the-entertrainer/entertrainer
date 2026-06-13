@@ -73,11 +73,22 @@ onMounted(async () => {
 
   const { gsap } = useGsap()
 
+  // Improved elegant entrance
   gsap.from(staircaseGroup.position, {
-    y: staircaseGroup.position.y + 90,
-    duration: 1.6,
+    y: staircaseGroup.position.y + 140,
+    duration: 1.9,
     ease: 'power3.out',
-    delay: 0.3
+    delay: 0.25
+  })
+
+  // Subtle scale in for the whole group
+  gsap.from(staircaseGroup.scale, {
+    x: 0.92,
+    y: 0.92,
+    z: 0.92,
+    duration: 1.6,
+    ease: 'power2.out',
+    delay: 0.35
   })
 
   const renderLoop = () => {

@@ -16,13 +16,12 @@ let camera: any = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let cssRenderer: any = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let helixGroup: any = null
+let staircaseGroup: any = null
 
 let velocity = 0
 let isActiveDrag = false
 let lastPointerY = 0
 let dragCleanup: (() => void) | null = null
-let snapTimeout: any = null
 
 const panelObjects: any[] = []
 const mountedApps: any[] = []
@@ -53,9 +52,10 @@ onMounted(async () => {
 
   scene = new THREE.Scene()
 
-  camera = new THREE.PerspectiveCamera(36, container.clientWidth / container.clientHeight, 0.1, 2000)
-  camera.position.set(0, 35, 720)
-  camera.lookAt(0, 0, 0)
+  // Elegant camera looking down the staircase
+  camera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 2000)
+  camera.position.set(0, 25, 520)
+  camera.lookAt(0, -30, 0)
 
   cssRenderer = new CSS3DRenderer()
   cssRenderer.setSize(container.clientWidth, container.clientHeight)
@@ -65,35 +65,40 @@ onMounted(async () => {
   cssRenderer.domElement.style.pointerEvents = 'none'
   container.appendChild(cssRenderer.domElement)
 
-  helixGroup = new THREE.Group()
-  scene.add(helixGroup)
+  staircaseGroup = new THREE.Group()
+  scene.add(staircaseGroup)
 
-  await createElegantHelix(CSS3DObject)
+  await createVerticalStaircase(CSS3DObject)
 
-  setupMomentumDragWithSnap()
+  setupVerticalDrag()
 
   const { gsap } = useGsap()
 
-  gsap.from(helixGroup.rotation, {
-    y: helixGroup.rotation.y - 0.6,
-    duration: 1.9,
+  gsap.from(staircaseGroup.position, {
+    y: staircaseGroup.position.y + 120,
+    duration: 1.8,
     ease: 'power3.out',
-    delay: 0.5
+    delay: 0.3
   })
 
   const renderLoop = () => {
-    if (!helixGroup || !cssRenderer || !camera) return
+    if (!staircaseGroup || !cssRenderer || !camera) return
 
     if (!isActiveDrag) {
-      velocity *= 0.95
-      helixGroup.rotation.y += velocity * 0.0009
+      velocity *= 0.94
+      staircaseGroup.position.y += velocity * 0.8
 
-      if (Math.abs(velocity) < 0.35 && !snapTimeout) {
-        snapToNearestPanel()
+      // Gentle bounds
+      if (staircaseGroup.position.y > 80) {
+        staircaseGroup.position.y = 80
+        velocity = 0
+      }
+      if (staircaseGroup.position.y < -120) {
+        staircaseGroup.position.y = -120
+        velocity = 0
       }
     }
 
-    updateCardFacing()
     cssRenderer.render(scene, camera)
   }
   gsap.ticker.add(renderLoop)
@@ -101,29 +106,29 @@ onMounted(async () => {
   window.addEventListener('resize', handleResize)
 })
 
-async function createElegantHelix(CSS3DObject: any) {
+async function createVerticalStaircase(CSS3DObject: any) {
   const container = containerRef.value
   if (!container) return
 
   const isMobile = width.value < 640
 
-  // Much less dense for mobile readability
-  const radius = isMobile ? 72 : 70
-  const verticalStep = isMobile ? 55 : 42
-  const totalTurns = isMobile ? 1.25 : 1.55
+  // Clean vertical staircase parameters
+  const horizontalSpread = isMobile ? 45 : 55
+  const verticalStep = isMobile ? 95 : 72
+  const depthStep = isMobile ? 28 : 35
 
   for (let i = 0; i < sections.length; i++) {
     const section = sections[i]
 
     const wrapper = document.createElement('div')
-    wrapper.style.width = isMobile ? '118px' : '142px'
-    wrapper.style.height = isMobile ? '138px' : '165px'
+    wrapper.style.width = isMobile ? '155px' : '175px'
+    wrapper.style.height = isMobile ? '175px' : '195px'
     wrapper.style.pointerEvents = 'auto'
-    wrapper.style.borderRadius = '10px'
+    wrapper.style.borderRadius = '14px'
     wrapper.style.overflow = 'hidden'
-    wrapper.style.boxShadow = '0 4px 18px rgba(0,0,0,0.65)'
-    wrapper.style.border = '1px solid rgba(255,255,255,0.05)'
-    wrapper.style.backdropFilter = 'blur(30px) saturate(200%)'
+    wrapper.style.boxShadow = '0 8px 32px rgba(0,0,0,0.6)'
+    wrapper.style.border = '1px solid rgba(255,255,255,0.08)'
+    wrapper.style.backdropFilter = 'blur(26px) saturate(180%)'
 
     const { createApp, h } = await import('vue')
     const PanelComponent = (await import('./Panel.vue')).default
@@ -136,80 +141,54 @@ async function createElegantHelix(CSS3DObject: any) {
 
     const object = new CSS3DObject(wrapper)
 
-    const t = i / sections.length
-    const angle = t * totalTurns * Math.PI * 2
+    // Vertical staircase positioning
+    const progress = i / (sections.length - 1)
 
-    const x = Math.cos(angle) * radius
-    const z = Math.sin(angle) * radius * 0.32
-    const y = (t - 0.5) * sections.length * verticalStep * 0.45
+    const x = (progress - 0.5) * horizontalSpread
+    const y = -progress * sections.length * verticalStep * 0.65
+    const z = -progress * sections.length * depthStep * 0.8
 
     object.position.set(x, y, z)
 
-    // Limit rotation so text never goes upside down
-    object.rotation.y = angle + 1.1
-    object.rotation.x = -0.02
+    // Gentle tilt following the staircase
+    object.rotation.x = 0.08 + progress * 0.04
+    object.rotation.y = (progress - 0.5) * 0.3
 
+    // Click to focus
     wrapper.addEventListener('click', () => {
       focusPanel(object, i)
     })
 
-    helixGroup.add(object)
+    staircaseGroup.add(object)
     panelObjects.push(object)
   }
 }
 
 function focusPanel(object: any, index: number) {
-  if (!helixGroup) return
+  if (!staircaseGroup) return
 
   const { gsap } = useGsap()
 
+  // Bring panel forward
   gsap.to(object.position, {
-    z: object.position.z + 55,
-    duration: 0.22,
-    ease: 'back.out(2)'
+    z: object.position.z + 80,
+    duration: 0.3,
+    ease: 'back.out(1.8)'
   })
 
-  const step = (1.55 * Math.PI * 2) / sections.length
-  const targetY = -(index * step) + 0.55
+  // Move staircase so this panel is well positioned
+  const targetY = -index * 65
 
-  gsap.to(helixGroup.rotation, {
+  gsap.to(staircaseGroup.position, {
     y: targetY,
-    duration: 0.95,
+    duration: 0.9,
     ease: 'power3.out'
   })
 }
 
-function updateCardFacing() {
-  if (!helixGroup || panelObjects.length === 0) return
-  const baseRotation = helixGroup.rotation.y
-
-  panelObjects.forEach((obj, index) => {
-    const baseAngle = (index / sections.length) * 1.55 * Math.PI * 2
-    obj.rotation.y = baseAngle + 1.1 + baseRotation * 0.03
-  })
-}
-
-function snapToNearestPanel() {
-  if (!helixGroup || panelObjects.length === 0) return
-
-  const current = helixGroup.rotation.y
-  const step = (1.55 * Math.PI * 2) / sections.length
-  const nearest = Math.round(current / step) * step
-
-  const { gsap } = useGsap()
-  gsap.to(helixGroup.rotation, {
-    y: nearest,
-    duration: 0.45,
-    ease: 'power3.out',
-    onComplete: () => { velocity = 0 }
-  })
-
-  snapTimeout = setTimeout(() => { snapTimeout = null }, 450)
-}
-
-function setupMomentumDragWithSnap() {
+function setupVerticalDrag() {
   const container = containerRef.value
-  if (!container || !helixGroup) return
+  if (!container || !staircaseGroup) return
 
   const onDown = (e: PointerEvent) => {
     if ((e.target as HTMLElement).closest('.stage__panel')) return
@@ -225,14 +204,13 @@ function setupMomentumDragWithSnap() {
   }
 
   const onMove = (e: PointerEvent) => {
-    if (!isActiveDrag || !helixGroup) return
+    if (!isActiveDrag || !staircaseGroup) return
 
     const deltaY = e.clientY - lastPointerY
     lastPointerY = e.clientY
 
-    const speed = width.value < 640 ? 0.0018 : 0.0016
-    helixGroup.rotation.y += deltaY * speed
-    velocity = deltaY * 0.72
+    const speed = width.value < 640 ? 1.8 : 1.4
+    velocity = deltaY * speed
   }
 
   const onUp = () => {

@@ -24,9 +24,9 @@ export interface PanelTransform {
 }
 
 export const DEFAULT_CONFIG: SpiralConfig = {
-  coilSpacing: 94,
-  arcSpan: 2.5,
-  yFlatten: 0.5,
+  coilSpacing: 96,
+  arcSpan: 2.55,
+  yFlatten: 0.75,
   depthBase: 0.7,
   depthAmp: 0.3,
   scaleMin: 0.62,

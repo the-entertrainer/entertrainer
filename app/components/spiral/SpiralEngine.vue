@@ -52,8 +52,7 @@ onMounted(async () => {
 
   scene = new THREE.Scene()
 
-  // Elegant camera looking down the staircase
-  camera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 2000)
+  camera = new THREE.PerspectiveCamera(36, container.clientWidth / container.clientHeight, 0.1, 2000)
   camera.position.set(0, 25, 520)
   camera.lookAt(0, -30, 0)
 
@@ -70,32 +69,32 @@ onMounted(async () => {
 
   await createVerticalStaircase(CSS3DObject)
 
-  setupVerticalDrag()
+  setupMobileOptimizedDrag()
 
   const { gsap } = useGsap()
 
   gsap.from(staircaseGroup.position, {
-    y: staircaseGroup.position.y + 120,
-    duration: 1.8,
+    y: staircaseGroup.position.y + 100,
+    duration: 1.7,
     ease: 'power3.out',
-    delay: 0.3
+    delay: 0.35
   })
 
   const renderLoop = () => {
     if (!staircaseGroup || !cssRenderer || !camera) return
 
     if (!isActiveDrag) {
-      velocity *= 0.94
-      staircaseGroup.position.y += velocity * 0.8
+      velocity *= 0.935
+      staircaseGroup.position.y += velocity * 0.75
 
-      // Gentle bounds
-      if (staircaseGroup.position.y > 80) {
-        staircaseGroup.position.y = 80
-        velocity = 0
+      // Soft bounds
+      if (staircaseGroup.position.y > 70) {
+        staircaseGroup.position.y = 70
+        velocity *= 0.5
       }
-      if (staircaseGroup.position.y < -120) {
-        staircaseGroup.position.y = -120
-        velocity = 0
+      if (staircaseGroup.position.y < -140) {
+        staircaseGroup.position.y = -140
+        velocity *= 0.5
       }
     }
 
@@ -112,23 +111,22 @@ async function createVerticalStaircase(CSS3DObject: any) {
 
   const isMobile = width.value < 640
 
-  // Clean vertical staircase parameters
-  const horizontalSpread = isMobile ? 45 : 55
-  const verticalStep = isMobile ? 95 : 72
-  const depthStep = isMobile ? 28 : 35
+  const horizontalSpread = isMobile ? 38 : 48
+  const verticalStep = isMobile ? 92 : 68
+  const depthStep = isMobile ? 26 : 32
 
   for (let i = 0; i < sections.length; i++) {
     const section = sections[i]
 
     const wrapper = document.createElement('div')
-    wrapper.style.width = isMobile ? '155px' : '175px'
-    wrapper.style.height = isMobile ? '175px' : '195px'
+    wrapper.style.width = isMobile ? '152px' : '168px'
+    wrapper.style.height = isMobile ? '172px' : '188px'
     wrapper.style.pointerEvents = 'auto'
-    wrapper.style.borderRadius = '14px'
+    wrapper.style.borderRadius = '12px'
     wrapper.style.overflow = 'hidden'
-    wrapper.style.boxShadow = '0 8px 32px rgba(0,0,0,0.6)'
-    wrapper.style.border = '1px solid rgba(255,255,255,0.08)'
-    wrapper.style.backdropFilter = 'blur(26px) saturate(180%)'
+    wrapper.style.boxShadow = '0 6px 24px rgba(0,0,0,0.6)'
+    wrapper.style.border = '1px solid rgba(255,255,255,0.06)'
+    wrapper.style.backdropFilter = 'blur(24px) saturate(180%)'
 
     const { createApp, h } = await import('vue')
     const PanelComponent = (await import('./Panel.vue')).default
@@ -141,20 +139,16 @@ async function createVerticalStaircase(CSS3DObject: any) {
 
     const object = new CSS3DObject(wrapper)
 
-    // Vertical staircase positioning
     const progress = i / (sections.length - 1)
 
     const x = (progress - 0.5) * horizontalSpread
-    const y = -progress * sections.length * verticalStep * 0.65
-    const z = -progress * sections.length * depthStep * 0.8
+    const y = -progress * sections.length * verticalStep * 0.62
+    const z = -progress * sections.length * depthStep * 0.75
 
     object.position.set(x, y, z)
+    object.rotation.x = 0.06 + progress * 0.03
+    object.rotation.y = (progress - 0.5) * 0.25
 
-    // Gentle tilt following the staircase
-    object.rotation.x = 0.08 + progress * 0.04
-    object.rotation.y = (progress - 0.5) * 0.3
-
-    // Click to focus
     wrapper.addEventListener('click', () => {
       focusPanel(object, i)
     })
@@ -169,26 +163,26 @@ function focusPanel(object: any, index: number) {
 
   const { gsap } = useGsap()
 
-  // Bring panel forward
   gsap.to(object.position, {
-    z: object.position.z + 80,
-    duration: 0.3,
-    ease: 'back.out(1.8)'
+    z: object.position.z + 75,
+    duration: 0.25,
+    ease: 'back.out(1.6)'
   })
 
-  // Move staircase so this panel is well positioned
-  const targetY = -index * 65
+  const targetY = -index * 60
 
   gsap.to(staircaseGroup.position, {
     y: targetY,
-    duration: 0.9,
+    duration: 0.85,
     ease: 'power3.out'
   })
 }
 
-function setupVerticalDrag() {
+function setupMobileOptimizedDrag() {
   const container = containerRef.value
   if (!container || !staircaseGroup) return
+
+  const isMobile = width.value < 640
 
   const onDown = (e: PointerEvent) => {
     if ((e.target as HTMLElement).closest('.stage__panel')) return
@@ -209,7 +203,8 @@ function setupVerticalDrag() {
     const deltaY = e.clientY - lastPointerY
     lastPointerY = e.clientY
 
-    const speed = width.value < 640 ? 1.8 : 1.4
+    // Mobile-optimized sensitivity
+    const speed = isMobile ? 2.2 : 1.5
     velocity = deltaY * speed
   }
 

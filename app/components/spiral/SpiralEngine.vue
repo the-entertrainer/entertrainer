@@ -49,9 +49,9 @@ onMounted(async () => {
 
   scene = new THREE.Scene()
 
-  camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 2000)
-  camera.position.set(-12, 55, 580)
-  camera.lookAt(0, 12, 0)
+  camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 2000)
+  camera.position.set(-8, 48, 620)
+  camera.lookAt(0, 8, 0)
 
   cssRenderer = new CSS3DRenderer()
   cssRenderer.setSize(container.clientWidth, container.clientHeight)
@@ -71,20 +71,20 @@ onMounted(async () => {
   const { gsap } = useGsap()
 
   gsap.from(helixGroup.rotation, {
-    y: helixGroup.rotation.y - 0.75,
-    duration: 1.6,
+    y: helixGroup.rotation.y - 0.7,
+    duration: 1.7,
     ease: 'power3.out',
-    delay: 0.35
+    delay: 0.4
   })
 
   const renderLoop = () => {
     if (!helixGroup || !cssRenderer || !camera) return
 
     if (!isActiveDrag) {
-      velocity *= 0.935
-      helixGroup.rotation.y += velocity * 0.0012
+      velocity *= 0.94
+      helixGroup.rotation.y += velocity * 0.0011
 
-      if (Math.abs(velocity) < 0.5 && !snapTimeout) {
+      if (Math.abs(velocity) < 0.45 && !snapTimeout) {
         snapToNearestPanel()
       }
     }
@@ -103,25 +103,24 @@ async function createElegantHelix(CSS3DObject: any) {
 
   const isMobile = width.value < 640
 
-  // Accurate & elegant helix parameters
-  const radius = isMobile ? 88 : 85
-  const verticalStep = isMobile ? 65 : 48
-  const totalTurns = isMobile ? 1.5 : 1.75
-  const tilt = -0.04
+  // More accurate & elegant helix
+  const radius = isMobile ? 82 : 78
+  const verticalStep = isMobile ? 62 : 46
+  const totalTurns = isMobile ? 1.45 : 1.7
+  const tilt = -0.035
 
   for (let i = 0; i < sections.length; i++) {
     const section = sections[i]
 
     const wrapper = document.createElement('div')
-    // Much smaller, correctly scaled panels
-    wrapper.style.width = isMobile ? '132px' : '158px'
-    wrapper.style.height = isMobile ? '158px' : '185px'
+    wrapper.style.width = isMobile ? '128px' : '152px'
+    wrapper.style.height = isMobile ? '152px' : '178px'
     wrapper.style.pointerEvents = 'auto'
-    wrapper.style.borderRadius = '14px'
+    wrapper.style.borderRadius = '12px'
     wrapper.style.overflow = 'hidden'
-    wrapper.style.boxShadow = '0 8px 30px rgba(0,0,0,0.5)'
-    wrapper.style.border = '1px solid rgba(255,255,255,0.1)'
-    wrapper.style.backdropFilter = 'blur(24px) saturate(170%)'
+    wrapper.style.boxShadow = '0 6px 25px rgba(0,0,0,0.55)'
+    wrapper.style.border = '1px solid rgba(255,255,255,0.08)'
+    wrapper.style.backdropFilter = 'blur(26px) saturate(180%)'
 
     const { createApp, h } = await import('vue')
     const PanelComponent = (await import('./Panel.vue')).default
@@ -137,16 +136,20 @@ async function createElegantHelix(CSS3DObject: any) {
     const t = i / sections.length
     const angle = t * totalTurns * Math.PI * 2
 
-    // Clean parametric helix
+    // Clean parametric helix positioning
     const x = Math.cos(angle) * radius
-    const z = Math.sin(angle) * radius * 0.42
-    const y = (t - 0.5) * sections.length * verticalStep * 0.55
+    const z = Math.sin(angle) * radius * 0.38
+    const y = (t - 0.5) * sections.length * verticalStep * 0.5
 
     object.position.set(x, y, z)
-    object.rotation.y = angle + 1.25
+    object.rotation.y = angle + 1.2
     object.rotation.x = tilt
 
-    // View-only: clicking focuses the panel (can later open dedicated pages)
+    // Scale based on approximate depth for visual hierarchy
+    const depthScale = 0.85 + (Math.sin(angle) * 0.15)
+    object.scale.setScalar(depthScale)
+
+    // Click to focus (can open dedicated page)
     wrapper.addEventListener('click', () => {
       focusPanel(object, i)
     })
@@ -161,24 +164,24 @@ function focusPanel(object: any, index: number) {
 
   const { gsap } = useGsap()
 
-  // Bring panel forward
+  // Bring forward with nice pop
   gsap.to(object.position, {
-    z: object.position.z + 60,
-    duration: 0.3,
-    ease: 'power2.out'
+    z: object.position.z + 70,
+    duration: 0.28,
+    ease: 'back.out(1.4)'
   })
 
-  // Snap helix so this panel is prominent
-  const step = (1.75 * Math.PI * 2) / sections.length
-  const targetY = -(index * step) + 0.7
+  // Snap helix elegantly
+  const step = (1.7 * Math.PI * 2) / sections.length
+  const targetY = -(index * step) + 0.65
 
   gsap.to(helixGroup.rotation, {
     y: targetY,
-    duration: 0.8,
+    duration: 0.85,
     ease: 'power3.out',
     onComplete: () => {
-      // Here we can later navigate to dedicated page
-      console.log('Panel clicked - open dedicated page for index:', index)
+      // TODO: Navigate to dedicated page for this section
+      console.log(`Open dedicated page for section index: ${index}`)
     }
   })
 }
@@ -188,8 +191,8 @@ function updateCardFacing() {
   const baseRotation = helixGroup.rotation.y
 
   panelObjects.forEach((obj, index) => {
-    const baseAngle = (index / sections.length) * 1.75 * Math.PI * 2
-    obj.rotation.y = baseAngle + 1.25 + baseRotation * 0.06
+    const baseAngle = (index / sections.length) * 1.7 * Math.PI * 2
+    obj.rotation.y = baseAngle + 1.2 + baseRotation * 0.05
   })
 }
 
@@ -197,18 +200,18 @@ function snapToNearestPanel() {
   if (!helixGroup || panelObjects.length === 0) return
 
   const current = helixGroup.rotation.y
-  const step = (1.75 * Math.PI * 2) / sections.length
+  const step = (1.7 * Math.PI * 2) / sections.length
   const nearest = Math.round(current / step) * step
 
   const { gsap } = useGsap()
   gsap.to(helixGroup.rotation, {
     y: nearest,
-    duration: 0.55,
+    duration: 0.5,
     ease: 'power3.out',
     onComplete: () => { velocity = 0 }
   })
 
-  snapTimeout = setTimeout(() => { snapTimeout = null }, 600)
+  snapTimeout = setTimeout(() => { snapTimeout = null }, 500)
 }
 
 function setupMomentumDragWithSnap() {
@@ -234,9 +237,9 @@ function setupMomentumDragWithSnap() {
     const deltaY = e.clientY - lastPointerY
     lastPointerY = e.clientY
 
-    const speed = width.value < 640 ? 0.0024 : 0.0021
+    const speed = width.value < 640 ? 0.0022 : 0.002
     helixGroup.rotation.y += deltaY * speed
-    velocity = deltaY * 0.8
+    velocity = deltaY * 0.78
   }
 
   const onUp = () => {

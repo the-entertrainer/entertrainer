@@ -1,29 +1,25 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import { useContent } from '~/composables/useContent'
 import { useViewMode } from '~/composables/useViewMode'
-import { useReducedMotion } from '~/composables/useReducedMotion'
 import { useGsap } from '~/composables/useGsap'
-import { useDrag } from '~/composables/useDrag'
 
 import type { SectionContent } from '~/content/site'
 
-// Three.js + CSS3D types
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const THREE: any
 
 const site = useContent()
 const sections = site.sections
 
-const { mode, isAnimating } = useViewMode()
-const motion = useReducedMotion()
+const { mode } = useViewMode()
 const { width } = useWindowSize()
 
 const containerRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 
-// Three.js objects
+// Three.js + CSS3D
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let THREE: any = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,18 +30,18 @@ let camera: any = null
 let cssRenderer: any = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let helixGroup: any = null
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let renderer: any = null
-let animationFrame: number | null = null
+
+// Interaction state
+let velocity = 0
+let isActiveDrag = false
+let lastPointerY = 0
 let dragCleanup: (() => void) | null = null
 
-// Store panel objects for later manipulation
 const panelObjects: any[] = []
 
 onMounted(async () => {
   if (mode.value !== 'spiral') return
 
-  // Lazy load Three.js
   const threeModule = await import('three')
   THREE = threeModule
 
@@ -57,18 +53,12 @@ onMounted(async () => {
   // Scene
   scene = new THREE.Scene()
 
-  // Camera - elegant angled view of the helix
-  camera = new THREE.PerspectiveCamera(
-    55,
-    container.clientWidth / container.clientHeight,
-    0.1,
-    2000
-  )
-  // Position camera for nice front/side helix view
-  camera.position.set(0, 80, 420)
-  camera.lookAt(0, 40, 0)
+  // Camera - elegant angled view
+  camera = new THREE.PerspectiveCamera(52, container.clientWidth / container.clientHeight, 0.1, 2000)
+  camera.position.set(-35, 95, 380)
+  camera.lookAt(12, 35, 0)
 
-  // CSS3D Renderer (for real Vue panels in 3D)
+  // CSS3D Renderer
   cssRenderer = new CSS3DRenderer()
   cssRenderer.setSize(container.clientWidth, container.clientHeight)
   cssRenderer.domElement.style.position = 'absolute'
@@ -77,47 +67,48 @@ onMounted(async () => {
   cssRenderer.domElement.style.pointerEvents = 'none'
   container.appendChild(cssRenderer.domElement)
 
-  // Helix group
   helixGroup = new THREE.Group()
   scene.add(helixGroup)
 
-  // Create panels as CSS3DObjects
-  await createHelixPanels(CSS3DObject)
+  await createElegantHelix(CSS3DObject)
 
-  // Setup interaction
-  setupDragControls()
+  setupMomentumDrag()
 
-  // Start render loop
   const { gsap } = useGsap()
-  const render = () => {
-    if (!cssRenderer || !camera || !helixGroup) return
+  const renderLoop = () => {
+    if (!helixGroup || !cssRenderer || !camera) return
+
+    // Apply momentum
+    if (!isActiveDrag) {
+      velocity *= 0.92 // friction
+      helixGroup.rotation.y += velocity * 0.0018
+    }
+
     cssRenderer.render(scene, camera)
   }
-  gsap.ticker.add(render)
+  gsap.ticker.add(renderLoop)
 
-  // Resize handler
   window.addEventListener('resize', handleResize)
 })
 
-async function createHelixPanels(CSS3DObject: any) {
+async function createElegantHelix(CSS3DObject: any) {
   const container = containerRef.value
   if (!container) return
 
-  const radius = width.value < 640 ? 95 : 115
-  const verticalStep = width.value < 640 ? 48 : 55
-  const totalTurns = 1.6
+  const isMobile = width.value < 640
+  const radius = isMobile ? 88 : 105
+  const verticalStep = isMobile ? 52 : 58
+  const totalTurns = 1.75
 
   for (let i = 0; i < sections.length; i++) {
     const section = sections[i]
 
-    // Create wrapper div
     const wrapper = document.createElement('div')
-    wrapper.style.width = width.value < 640 ? '168px' : '195px'
-    wrapper.style.height = width.value < 640 ? '205px' : '235px'
+    wrapper.style.width = isMobile ? '162px' : '188px'
+    wrapper.style.height = isMobile ? '198px' : '228px'
     wrapper.style.pointerEvents = 'auto'
+    wrapper.style.backdropFilter = 'blur(18px) saturate(140%)'
 
-    // Mount Panel component into the wrapper
-    // We use a temporary Vue app to render the panel
     const { createApp, h } = await import('vue')
     const PanelComponent = (await import('./Panel.vue')).default
 
@@ -128,59 +119,62 @@ async function createHelixPanels(CSS3DObject: any) {
 
     const object = new CSS3DObject(wrapper)
 
-    // Helix positioning (elegant angled staircase)
     const angle = (i / sections.length) * totalTurns * Math.PI * 2
+
+    // Elegant helix positioning
     const x = Math.cos(angle) * radius
-    const z = Math.sin(angle) * radius * 0.6
-    const y = i * verticalStep - (sections.length * verticalStep) / 2
+    const z = Math.sin(angle) * radius * 0.55
+    const y = i * verticalStep - (sections.length * verticalStep) / 2.1
 
     object.position.set(x, y, z)
-    object.rotation.y = angle + Math.PI * 0.5
+
+    // Cards gently face the camera direction
+    object.rotation.y = angle + 1.35
+    object.rotation.x = -0.12
 
     helixGroup.add(object)
     panelObjects.push(object)
   }
 }
 
-function setupDragControls() {
+function setupMomentumDrag() {
   const container = containerRef.value
   if (!container || !helixGroup) return
 
-  let isActive = false
-  let lastY = 0
-
-  const onPointerDown = (e: PointerEvent) => {
+  const onDown = (e: PointerEvent) => {
     if ((e.target as HTMLElement).closest('.stage__panel')) return
-    isActive = true
-    lastY = e.clientY
+    isActiveDrag = true
+    lastPointerY = e.clientY
+    velocity = 0
     isDragging.value = true
   }
 
-  const onPointerMove = (e: PointerEvent) => {
-    if (!isActive || !helixGroup) return
+  const onMove = (e: PointerEvent) => {
+    if (!isActiveDrag || !helixGroup) return
 
-    const deltaY = e.clientY - lastY
-    lastY = e.clientY
+    const deltaY = e.clientY - lastPointerY
+    lastPointerY = e.clientY
 
-    // Rotate helix on Y axis (feels like turning a staircase)
-    helixGroup.rotation.y += deltaY * 0.0025
+    const rotationSpeed = width.value < 640 ? 0.0032 : 0.0026
+    helixGroup.rotation.y += deltaY * rotationSpeed
+    velocity = deltaY * 0.85
   }
 
-  const onPointerUp = () => {
-    isActive = false
+  const onUp = () => {
+    isActiveDrag = false
     isDragging.value = false
   }
 
-  container.addEventListener('pointerdown', onPointerDown)
-  window.addEventListener('pointermove', onPointerMove)
-  window.addEventListener('pointerup', onPointerUp)
-  window.addEventListener('pointercancel', onPointerUp)
+  container.addEventListener('pointerdown', onDown)
+  window.addEventListener('pointermove', onMove)
+  window.addEventListener('pointerup', onUp)
+  window.addEventListener('pointercancel', onUp)
 
   dragCleanup = () => {
-    container.removeEventListener('pointerdown', onPointerDown)
-    window.removeEventListener('pointermove', onPointerMove)
-    window.removeEventListener('pointerup', onPointerUp)
-    window.removeEventListener('pointercancel', onPointerUp)
+    container.removeEventListener('pointerdown', onDown)
+    window.removeEventListener('pointermove', onMove)
+    window.removeEventListener('pointerup', onUp)
+    window.removeEventListener('pointercancel', onUp)
   }
 }
 
@@ -198,22 +192,10 @@ onBeforeUnmount(() => {
   if (dragCleanup) dragCleanup()
   window.removeEventListener('resize', handleResize)
 
-  // Cleanup Three.js objects
-  if (helixGroup) {
-    helixGroup.children.forEach((child: any) => {
-      if (child.element) child.element.remove()
-    })
-  }
-
+  panelObjects.forEach(obj => {
+    if (obj.element?.parentNode) obj.element.parentNode.removeChild(obj.element)
+  })
   panelObjects.length = 0
-})
-
-// Keep Grid/List working as before
-watch(mode, async (next) => {
-  if (next !== 'spiral' && helixGroup) {
-    // Hide 3D when switching away
-    helixGroup.visible = false
-  }
 })
 </script>
 
@@ -223,7 +205,6 @@ watch(mode, async (next) => {
     class="spiral-3d"
     :class="{ 'is-dragging': isDragging }"
   >
-    <!-- Three.js + CSS3D canvas will be appended here -->
   </div>
 </template>
 
@@ -231,7 +212,7 @@ watch(mode, async (next) => {
 .spiral-3d {
   position: relative;
   width: 100%;
-  height: min(72vh, 680px);
+  height: min(74vh, 720px);
   overflow: hidden;
   cursor: grab;
   background: transparent;

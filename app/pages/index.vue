@@ -14,7 +14,6 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
 })
 
-// JSON-LD for the person/brand.
 useHead({
   script: [
     {
@@ -36,41 +35,30 @@ useHead({
 
 <template>
   <div class="page">
-    <div class="page__head container">
-      <p class="eyebrow">{{ site.brand }} · spiral edition</p>
-      <h1 class="page__title">
-        <span class="gradient-text">Explore</span> the spiral.
-      </h1>
+    <!-- Floating View Toggle -->
+    <div class="floating-toggle">
       <ClientOnly>
         <ViewToggle />
       </ClientOnly>
     </div>
 
-    <div class="container">
-      <SpiralEngine />
-    </div>
+    <!-- The spiral is now the entire experience -->
+    <SpiralEngine />
   </div>
 </template>
 
 <style scoped>
 .page {
-  padding-top: calc(var(--nav-h) + var(--sz-8));
-  padding-bottom: var(--sz-16);
+  position: relative;
+  min-height: 100dvh;
+  padding-top: var(--nav-h);
+  overflow: hidden;
 }
 
-.page__head {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--sz-4);
-  text-align: center;
-  margin-bottom: var(--sz-8);
-}
-
-.page__title {
-  font-family: var(--font-display);
-  font-size: clamp(2.2rem, 7vw, 4.5rem);
-  font-weight: 800;
-  letter-spacing: -0.04em;
+.floating-toggle {
+  position: absolute;
+  top: calc(var(--nav-h) + var(--sz-4));
+  right: var(--sz-4);
+  z-index: 100;
 }
 </style>

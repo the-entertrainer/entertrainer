@@ -17,19 +17,20 @@ const { width } = useWindowSize()
 
 const stageRef = ref<HTMLElement | null>(null)
 const panelEls = ref<HTMLElement[]>([])
+const isDragging = ref(false)
 
 // Collect panel elements in order (function ref keeps array dense & ordered).
 function setPanelRef(el: Element | null, i: number) {
   if (el) panelEls.value[i] = el as HTMLElement
 }
 
-// Responsive spiral config — looser, more vertical spread on mobile (inspired by premium spiral portfolios)
+// Responsive spiral config — looser, more vertical spread on mobile
 const responsiveConfig = computed<Partial<SpiralConfig>>(() => {
   if (width.value < 640) {
     return { 
       coilSpacing: 120, 
       arcSpan: 2.2,
-      yFlatten: 0.85   // less vertical squash = spreads more from top to bottom
+      yFlatten: 0.85
     }
   }
   if (width.value < 1024) return { coilSpacing: 90, arcSpan: 2.3 }
@@ -48,7 +49,6 @@ onMounted(async () => {
   gsapRef = gsap
   FlipRef = Flip
 
-  // Avoid Flip mis-measuring before web fonts settle.
   if (document.fonts?.ready) await document.fonts.ready
 
   spiral = useSpiral({
@@ -62,11 +62,18 @@ onMounted(async () => {
     gsap,
   })
 
-  // Drag-to-rotate on the stage (ignored on interactive children).
+  // Mobile-optimized drag with threshold
   drag = useDrag(stageRef, {
-    onStart: () => spiral?.dragStart(),
+    threshold: width.value < 1024 ? 12 : 6,
+    onStart: () => {
+      isDragging.value = true
+      spiral?.dragStart()
+    },
     onDelta: (dx) => spiral?.dragDelta(dx),
-    onEnd: () => spiral?.dragEnd(),
+    onEnd: (vel) => {
+      isDragging.value = false
+      spiral?.dragEnd()
+    },
   })
   drag.attach()
 
@@ -85,14 +92,13 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', onResize)
 })
 
-// Re-measure when config changes (breakpoint crossing).
 watch(responsiveConfig, () => {
   Object.assign(spiral?.config ?? {}, DEFAULT_CONFIG, responsiveConfig.value)
   spiral?.measure()
   spiral?.applyTransforms()
 })
 
-// ── View-mode transitions ──
+// View-mode transitions
 watch(mode, async (next, prev) => {
   if (!gsapRef || !FlipRef) return
   const panels = panelEls.value.filter(Boolean)
@@ -102,7 +108,6 @@ watch(mode, async (next, prev) => {
   const enteringSpiral = next === 'spiral'
 
   if (leavingSpiral) {
-    // Fade/scale out of the JS-driven spiral, then hand off to CSS layout.
     await gsapRef.to(panels, {
       opacity: 0,
       scale: 0.85,
@@ -111,7 +116,6 @@ watch(mode, async (next, prev) => {
       ease: 'power2.in',
     })
     spiral?.pause()
-    // Clear inline spiral styles so the CSS grid/list layout takes over.
     panels.forEach((p) => {
       p.style.transform = ''
       p.style.zIndex = ''
@@ -122,7 +126,6 @@ watch(mode, async (next, prev) => {
   await nextTick()
 
   if (enteringSpiral) {
-    // Resume the ticker → applyTransforms positions panels, then fade in.
     gsapRef.set(panels, { opacity: 0 })
     spiral?.resume()
     spiral?.measure()
@@ -134,7 +137,6 @@ watch(mode, async (next, prev) => {
     )
     spiral?.armIdle()
   } else {
-    // grid or list: Flip-morph between the two CSS layouts, or simple reveal.
     const state = prev === 'spiral' ? null : FlipRef.getState(panels)
     await nextTick()
     if (state) {
@@ -153,11 +155,9 @@ watch(mode, async (next, prev) => {
     }
   }
 
-  // Release the lock after the longest tween.
   gsapRef.delayedCall(0.65, () => { isAnimating.value = false })
 })
 
-// ── Keyboard navigation (arrow keys rotate the spiral) ──
 function onKey(e: KeyboardEvent) {
   if (mode.value !== 'spiral') return
   if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { spiral?.next(); e.preventDefault() }
@@ -169,7 +169,7 @@ function onKey(e: KeyboardEvent) {
   <div
     ref="stageRef"
     class="stage"
-    :class="`is-${mode}`"
+    :class="[`is-${mode}`, { 'is-dragging': isDragging }]"
     tabindex="0"
     role="application"
     :aria-label="`Project spiral — ${mode} view. Use arrow keys to rotate, or switch layout with the toggle.`"
@@ -185,7 +185,7 @@ function onKey(e: KeyboardEvent) {
     />
 
     <p v-if="mode === 'spiral'" class="stage__hint" aria-hidden="true">
-      {{ snapMode ? 'Swipe to explore' : 'Drag to rotate · arrow keys too' }}
+      {{ snapMode ? 'Swipe horizontally to explore' : 'Drag to rotate · arrow keys too' }}
     </p>
   </div>
 </template>
@@ -195,9 +195,20 @@ function onKey(e: KeyboardEvent) {
   position: relative;
   width: 100%;
   outline: none;
+  transition: transform 0.1s ease-out;
 }
 
-/* ── SPIRAL ── absolutely positioned, transforms applied by JS ── */
+/* Micro-interaction: subtle lift + stronger glow while dragging on mobile */
+.stage.is-dragging {
+  transform: scale(0.985);
+}
+
+.stage.is-dragging .stage__panel {
+  box-shadow: 0 0 40px rgba(0, 240, 255, 0.25);
+  transition: box-shadow 0.1s ease-out;
+}
+
+/* SPIRAL */
 .stage.is-spiral {
   height: min(66vh, 620px);
   touch-action: pan-y;
@@ -213,9 +224,10 @@ function onKey(e: KeyboardEvent) {
   width: clamp(138px, 35vw, 195px);
   height: clamp(168px, 40vw, 235px);
   will-change: transform, opacity;
+  transition: box-shadow 0.2s ease;
 }
 
-/* ── GRID ── */
+/* GRID */
 .stage.is-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -228,7 +240,7 @@ function onKey(e: KeyboardEvent) {
   will-change: auto;
 }
 
-/* ── LIST ── */
+/* LIST */
 .stage.is-list {
   display: flex;
   flex-direction: column;
@@ -257,13 +269,11 @@ function onKey(e: KeyboardEvent) {
   pointer-events: none;
 }
 
-/* When JS hasn't hydrated yet (or reduced motion), panels stack readably. */
 @media (prefers-reduced-motion: reduce) {
   .stage.is-spiral { height: auto; display: flex; flex-direction: column; gap: var(--sz-4); }
   .stage.is-spiral .stage__panel { position: relative; width: 100%; height: auto; min-height: 200px; }
 }
 
-/* Extra mobile breathing room */
 @media (max-width: 640px) {
   .stage.is-spiral {
     height: min(62vh, 520px);

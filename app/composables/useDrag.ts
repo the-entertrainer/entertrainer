@@ -1,18 +1,12 @@
 import { onBeforeUnmount, type Ref } from 'vue'
 
 interface DragOptions {
-  /** Called on every horizontal pointer delta while dragging. */
   onDelta: (dx: number, dy: number) => void
   onStart?: () => void
   onEnd?: (velocityX: number) => void
-  /** Minimum pixels to move before drag is considered active (prevents jitter on tap) */
   threshold?: number
 }
 
-/**
- * Unified pointer/touch drag using Pointer Events.
- * Mobile-optimized: has drag threshold + better velocity for touch.
- */
 export function useDrag(target: Ref<HTMLElement | null>, opts: DragOptions) {
   let dragging = false
   let lastX = 0
@@ -20,17 +14,17 @@ export function useDrag(target: Ref<HTMLElement | null>, opts: DragOptions) {
   let velocityX = 0
   let pointerId: number | null = null
   let startX = 0
-  const threshold = opts.threshold ?? 10 // good default for mobile
+  let startY = 0
+  const threshold = opts.threshold ?? 12
 
   function down(e: PointerEvent) {
     const el = e.target as HTMLElement
     if (el.closest('a, button, input, textarea, select, [data-no-drag]')) return
 
-    dragging = false // not yet active until threshold crossed
+    dragging = false
     pointerId = e.pointerId
-    lastX = e.clientX
-    lastY = e.clientY
-    startX = e.clientX
+    lastX = startX = e.clientX
+    lastY = startY = e.clientY
     velocityX = 0
     target.value?.setPointerCapture?.(e.pointerId)
   }
@@ -45,12 +39,15 @@ export function useDrag(target: Ref<HTMLElement | null>, opts: DragOptions) {
     lastY = e.clientY
 
     if (!dragging) {
-      // Only start real dragging after threshold
-      if (Math.abs(e.clientX - startX) > threshold) {
+      const distX = Math.abs(e.clientX - startX)
+      const distY = Math.abs(e.clientY - startY)
+
+      // Only start drag if movement exceeds threshold
+      if (distX > threshold || distY > threshold) {
         dragging = true
         opts.onStart?.()
       } else {
-        return // ignore tiny movements
+        return
       }
     }
 
@@ -74,7 +71,7 @@ export function useDrag(target: Ref<HTMLElement | null>, opts: DragOptions) {
     const el = target.value
     if (!el) return
     el.addEventListener('pointerdown', down, { passive: true })
-    el.addEventListener('pointermove', move, { passive: true })
+    el.addEventListener('pointermove', move, { passive: false }) // needed to preventDefault when claiming gesture
     el.addEventListener('pointerup', up)
     el.addEventListener('pointercancel', up)
     el.addEventListener('pointerleave', up)

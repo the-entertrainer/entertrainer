@@ -24,14 +24,14 @@ function setPanelRef(el: Element | null, i: number) {
   if (el) panelEls.value[i] = el as HTMLElement
 }
 
-// Mobile-optimized responsive config
+// Mobile staircase config
 const responsiveConfig = computed<Partial<SpiralConfig>>(() => {
   if (width.value < 640) {
     return {
       coilSpacing: 85,
       arcSpan: 2.4,
       yFlatten: 0.6,
-      verticalProgress: 38, // gives staircase ascending feel
+      verticalProgress: 38,
     }
   }
   if (width.value < 1024) return { coilSpacing: 88, arcSpan: 2.35 }
@@ -63,7 +63,6 @@ onMounted(async () => {
     gsap,
   })
 
-  // Drag only starts on the stage background (not on cards/panels)
   drag = useDrag(stageRef, {
     threshold: width.value < 1024 ? 14 : 8,
     onStart: () => {
@@ -71,9 +70,11 @@ onMounted(async () => {
       spiral?.dragStart()
     },
     onDelta: (dx, dy) => {
-      // On mobile use vertical movement to control the spiral
       if (width.value < 1024) {
-        spiral?.dragDelta(0, dy)
+        // Only claim vertical gesture for spiral if movement is clearly vertical
+        if (Math.abs(dy) > Math.abs(dx) * 1.3) {
+          spiral?.dragDelta(0, dy)
+        }
       } else {
         spiral?.dragDelta(dx)
       }
@@ -111,10 +112,7 @@ watch(mode, async (next, prev) => {
   const panels = panelEls.value.filter(Boolean)
   isAnimating.value = true
 
-  const leavingSpiral = prev === 'spiral'
-  const enteringSpiral = next === 'spiral'
-
-  if (leavingSpiral) {
+  if (prev === 'spiral') {
     await gsapRef.to(panels, { opacity: 0, scale: 0.85, duration: 0.28, stagger: 0.02, ease: 'power2.in' })
     spiral?.pause()
     panels.forEach(p => { p.style.transform = ''; p.style.zIndex = ''; p.style.opacity = '' })
@@ -122,7 +120,7 @@ watch(mode, async (next, prev) => {
 
   await nextTick()
 
-  if (enteringSpiral) {
+  if (next === 'spiral') {
     gsapRef.set(panels, { opacity: 0 })
     spiral?.resume()
     spiral?.measure()
@@ -188,10 +186,9 @@ function onKey(e: KeyboardEvent) {
   box-shadow: 0 0 40px rgba(0, 240, 255, 0.25);
 }
 
-/* SPIRAL - full width on mobile */
 .stage.is-spiral {
   height: min(68vh, 620px);
-  touch-action: pan-y;
+  touch-action: none; /* full ownership of touch on mobile for clean control */
   overflow: hidden;
   cursor: grab;
   width: 100%;
@@ -207,7 +204,6 @@ function onKey(e: KeyboardEvent) {
   will-change: transform, opacity;
 }
 
-/* GRID & LIST remain unchanged */
 .stage.is-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

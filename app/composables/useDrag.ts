@@ -19,7 +19,11 @@ export function useDrag(target: Ref<HTMLElement | null>, opts: DragOptions) {
 
   function down(e: PointerEvent) {
     const el = e.target as HTMLElement
-    if (el.closest('a, button, input, textarea, select, [data-no-drag]')) return
+
+    // Never start drag if it begins on a panel or interactive element
+    if (el.closest('.stage__panel') || el.closest('a, button, input, textarea, select, [data-no-drag]')) {
+      return
+    }
 
     dragging = false
     pointerId = e.pointerId
@@ -42,7 +46,6 @@ export function useDrag(target: Ref<HTMLElement | null>, opts: DragOptions) {
       const distX = Math.abs(e.clientX - startX)
       const distY = Math.abs(e.clientY - startY)
 
-      // Only start drag if movement exceeds threshold
       if (distX > threshold || distY > threshold) {
         dragging = true
         opts.onStart?.()
@@ -71,7 +74,7 @@ export function useDrag(target: Ref<HTMLElement | null>, opts: DragOptions) {
     const el = target.value
     if (!el) return
     el.addEventListener('pointerdown', down, { passive: true })
-    el.addEventListener('pointermove', move, { passive: false }) // needed to preventDefault when claiming gesture
+    el.addEventListener('pointermove', move, { passive: false })
     el.addEventListener('pointerup', up)
     el.addEventListener('pointercancel', up)
     el.addEventListener('pointerleave', up)

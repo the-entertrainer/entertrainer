@@ -19,19 +19,17 @@ const stageRef = ref<HTMLElement | null>(null)
 const panelEls = ref<HTMLElement[]>([])
 const isDragging = ref(false)
 
-// Collect panel elements in order
 function setPanelRef(el: Element | null, i: number) {
   if (el) panelEls.value[i] = el as HTMLElement
 }
 
-// Mobile staircase config
 const responsiveConfig = computed<Partial<SpiralConfig>>(() => {
   if (width.value < 640) {
     return {
-      coilSpacing: 85,
-      arcSpan: 2.4,
-      yFlatten: 0.6,
-      verticalProgress: 38,
+      coilSpacing: 92,
+      arcSpan: 2.35,
+      yFlatten: 0.65,
+      verticalProgress: 42,
     }
   }
   if (width.value < 1024) return { coilSpacing: 88, arcSpan: 2.35 }
@@ -64,15 +62,14 @@ onMounted(async () => {
   })
 
   drag = useDrag(stageRef, {
-    threshold: width.value < 1024 ? 14 : 8,
+    threshold: width.value < 1024 ? 16 : 8,
     onStart: () => {
       isDragging.value = true
       spiral?.dragStart()
     },
     onDelta: (dx, dy) => {
       if (width.value < 1024) {
-        // Only claim vertical gesture for spiral if movement is clearly vertical
-        if (Math.abs(dy) > Math.abs(dx) * 1.3) {
+        if (Math.abs(dy) > Math.abs(dx) * 1.4) {
           spiral?.dragDelta(0, dy)
         }
       } else {
@@ -166,7 +163,7 @@ function onKey(e: KeyboardEvent) {
     />
 
     <p v-if="mode === 'spiral'" class="stage__hint" aria-hidden="true">
-      {{ snapMode ? 'Swipe up / down to explore the staircase' : 'Drag to rotate · arrow keys too' }}
+      {{ snapMode ? 'Swipe up / down on background to explore' : 'Drag to rotate · arrow keys too' }}
     </p>
   </div>
 </template>
@@ -188,7 +185,7 @@ function onKey(e: KeyboardEvent) {
 
 .stage.is-spiral {
   height: min(68vh, 620px);
-  touch-action: none; /* full ownership of touch on mobile for clean control */
+  touch-action: none;
   overflow: hidden;
   cursor: grab;
   width: 100%;
@@ -199,9 +196,12 @@ function onKey(e: KeyboardEvent) {
   position: absolute;
   top: 0;
   left: 0;
-  width: clamp(132px, 34vw, 185px);
-  height: clamp(162px, 39vw, 225px);
+  width: clamp(145px, 36vw, 200px);
+  height: clamp(175px, 42vw, 240px);
   will-change: transform, opacity;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 
 .stage.is-grid {

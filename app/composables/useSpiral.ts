@@ -1,10 +1,9 @@
 import { ref, readonly, type Ref } from 'vue'
 
-// ─────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────────────────────────
 //  Pure Archimedean-spiral math (no DOM, SSR-safe at import time).
 //  Ported & generalised from the original vanilla js/spiral.js.
-// ─────────────────────────────────────────────────────────────
-
+// ───────────────────────────────────────────────────────────────
 export interface SpiralConfig {
   coilSpacing: number // b — px between coils
   arcSpan: number // total angular span across panels, in turns·π
@@ -25,8 +24,8 @@ export interface PanelTransform {
 }
 
 export const DEFAULT_CONFIG: SpiralConfig = {
-  coilSpacing: 90,
-  arcSpan: 2.4,
+  coilSpacing: 94,
+  arcSpan: 2.5,
   yFlatten: 0.5,
   depthBase: 0.7,
   depthAmp: 0.3,
@@ -113,6 +112,15 @@ export function useSpiral(opts: UseSpiralOptions) {
       const t = spiralTransform(i, n, rotation.value, cfg)
       const el = panels[i]
       if (!el) continue
+
+      // Hide very distant / low-opacity panels to reduce visual clutter
+      if (t.opacity < 0.28) {
+        el.style.visibility = 'hidden'
+        continue
+      } else {
+        el.style.visibility = ''
+      }
+
       el.style.transform =
         `translate(-50%, -50%) translate(${(centerX + t.x).toFixed(2)}px, ${(centerY + t.y).toFixed(2)}px) scale(${t.scale.toFixed(3)})`
       el.style.opacity = t.opacity.toFixed(3)
@@ -196,6 +204,16 @@ export function useSpiral(opts: UseSpiralOptions) {
   // ── Lifecycle ──
   function start() {
     measure()
+
+    // Nice initial rotation: put roughly the middle panel near the front (good first impression)
+    const n = opts.count()
+    if (n > 0) {
+      const thetaStep = (Math.PI * cfg.arcSpan) / Math.max(1, n)
+      const startIdx = Math.floor(n / 2)
+      target.value = Math.PI / 2 - startIdx * thetaStep
+      rotation.value = target.value
+    }
+
     running = true
     opts.gsap.ticker.add(update)
     armIdle()

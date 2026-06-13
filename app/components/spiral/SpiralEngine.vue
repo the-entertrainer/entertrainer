@@ -19,21 +19,22 @@ const stageRef = ref<HTMLElement | null>(null)
 const panelEls = ref<HTMLElement[]>([])
 const isDragging = ref(false)
 
-// Collect panel elements in order (function ref keeps array dense & ordered).
+// Collect panel elements in order
 function setPanelRef(el: Element | null, i: number) {
   if (el) panelEls.value[i] = el as HTMLElement
 }
 
-// Responsive spiral config — looser, more vertical spread on mobile
+// Mobile-optimized responsive config
 const responsiveConfig = computed<Partial<SpiralConfig>>(() => {
   if (width.value < 640) {
-    return { 
-      coilSpacing: 120, 
-      arcSpan: 2.2,
-      yFlatten: 0.85
+    return {
+      coilSpacing: 85,
+      arcSpan: 2.4,
+      yFlatten: 0.6,
+      verticalProgress: 38, // gives staircase ascending feel
     }
   }
-  if (width.value < 1024) return { coilSpacing: 90, arcSpan: 2.3 }
+  if (width.value < 1024) return { coilSpacing: 88, arcSpan: 2.35 }
   return { coilSpacing: 98, arcSpan: 2.6 }
 })
 
@@ -62,15 +63,22 @@ onMounted(async () => {
     gsap,
   })
 
-  // Mobile-optimized drag with threshold
+  // Drag only starts on the stage background (not on cards/panels)
   drag = useDrag(stageRef, {
-    threshold: width.value < 1024 ? 12 : 6,
+    threshold: width.value < 1024 ? 14 : 8,
     onStart: () => {
       isDragging.value = true
       spiral?.dragStart()
     },
-    onDelta: (dx) => spiral?.dragDelta(dx),
-    onEnd: (vel) => {
+    onDelta: (dx, dy) => {
+      // On mobile use vertical movement to control the spiral
+      if (width.value < 1024) {
+        spiral?.dragDelta(0, dy)
+      } else {
+        spiral?.dragDelta(dx)
+      }
+    },
+    onEnd: () => {
       isDragging.value = false
       spiral?.dragEnd()
     },
@@ -98,7 +106,6 @@ watch(responsiveConfig, () => {
   spiral?.applyTransforms()
 })
 
-// View-mode transitions
 watch(mode, async (next, prev) => {
   if (!gsapRef || !FlipRef) return
   const panels = panelEls.value.filter(Boolean)
@@ -108,19 +115,9 @@ watch(mode, async (next, prev) => {
   const enteringSpiral = next === 'spiral'
 
   if (leavingSpiral) {
-    await gsapRef.to(panels, {
-      opacity: 0,
-      scale: 0.85,
-      duration: 0.28,
-      stagger: 0.02,
-      ease: 'power2.in',
-    })
+    await gsapRef.to(panels, { opacity: 0, scale: 0.85, duration: 0.28, stagger: 0.02, ease: 'power2.in' })
     spiral?.pause()
-    panels.forEach((p) => {
-      p.style.transform = ''
-      p.style.zIndex = ''
-      p.style.opacity = ''
-    })
+    panels.forEach(p => { p.style.transform = ''; p.style.zIndex = ''; p.style.opacity = '' })
   }
 
   await nextTick()
@@ -130,31 +127,17 @@ watch(mode, async (next, prev) => {
     spiral?.resume()
     spiral?.measure()
     spiral?.applyTransforms()
-    gsapRef.fromTo(
-      panels,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.4, stagger: 0.03, ease: 'power2.out', clearProps: 'opacity' },
-    )
+    gsapRef.fromTo(panels, { opacity: 0 }, { opacity: 1, duration: 0.4, stagger: 0.03, ease: 'power2.out', clearProps: 'opacity' })
     spiral?.armIdle()
   } else {
     const state = prev === 'spiral' ? null : FlipRef.getState(panels)
     await nextTick()
     if (state) {
-      FlipRef.from(state, {
-        duration: 0.6,
-        ease: 'power3.inOut',
-        stagger: 0.02,
-        absolute: true,
-      })
+      FlipRef.from(state, { duration: 0.6, ease: 'power3.inOut', stagger: 0.02, absolute: true })
     } else {
-      gsapRef.fromTo(
-        panels,
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.5, stagger: 0.04, ease: 'power2.out', clearProps: 'all' },
-      )
+      gsapRef.fromTo(panels, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.04, ease: 'power2.out', clearProps: 'all' })
     }
   }
-
   gsapRef.delayedCall(0.65, () => { isAnimating.value = false })
 })
 
@@ -185,7 +168,7 @@ function onKey(e: KeyboardEvent) {
     />
 
     <p v-if="mode === 'spiral'" class="stage__hint" aria-hidden="true">
-      {{ snapMode ? 'Swipe horizontally to explore' : 'Drag to rotate · arrow keys too' }}
+      {{ snapMode ? 'Swipe up / down to explore the staircase' : 'Drag to rotate · arrow keys too' }}
     </p>
   </div>
 </template>
@@ -198,22 +181,20 @@ function onKey(e: KeyboardEvent) {
   transition: transform 0.1s ease-out;
 }
 
-/* Micro-interaction: subtle lift + stronger glow while dragging on mobile */
 .stage.is-dragging {
   transform: scale(0.985);
 }
-
 .stage.is-dragging .stage__panel {
   box-shadow: 0 0 40px rgba(0, 240, 255, 0.25);
-  transition: box-shadow 0.1s ease-out;
 }
 
-/* SPIRAL */
+/* SPIRAL - full width on mobile */
 .stage.is-spiral {
-  height: min(66vh, 620px);
+  height: min(68vh, 620px);
   touch-action: pan-y;
   overflow: hidden;
   cursor: grab;
+  width: 100%;
 }
 .stage.is-spiral:active { cursor: grabbing; }
 
@@ -221,26 +202,20 @@ function onKey(e: KeyboardEvent) {
   position: absolute;
   top: 0;
   left: 0;
-  width: clamp(138px, 35vw, 195px);
-  height: clamp(168px, 40vw, 235px);
+  width: clamp(132px, 34vw, 185px);
+  height: clamp(162px, 39vw, 225px);
   will-change: transform, opacity;
-  transition: box-shadow 0.2s ease;
 }
 
-/* GRID */
+/* GRID & LIST remain unchanged */
 .stage.is-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--sz-6);
   padding-block: var(--sz-8);
 }
-.stage.is-grid .stage__panel {
-  position: relative;
-  height: 340px;
-  will-change: auto;
-}
+.stage.is-grid .stage__panel { position: relative; height: 340px; will-change: auto; }
 
-/* LIST */
 .stage.is-list {
   display: flex;
   flex-direction: column;
@@ -249,11 +224,7 @@ function onKey(e: KeyboardEvent) {
   max-width: 860px;
   margin-inline: auto;
 }
-.stage.is-list .stage__panel {
-  position: relative;
-  min-height: 160px;
-  will-change: auto;
-}
+.stage.is-list .stage__panel { position: relative; min-height: 160px; will-change: auto; }
 
 .stage__hint {
   position: absolute;
@@ -261,11 +232,11 @@ function onKey(e: KeyboardEvent) {
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-muted);
-  opacity: 0.7;
+  opacity: 0.75;
   pointer-events: none;
 }
 
@@ -275,8 +246,6 @@ function onKey(e: KeyboardEvent) {
 }
 
 @media (max-width: 640px) {
-  .stage.is-spiral {
-    height: min(62vh, 520px);
-  }
+  .stage.is-spiral { height: min(64vh, 540px); }
 }
 </style>

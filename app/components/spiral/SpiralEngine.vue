@@ -69,7 +69,7 @@ onMounted(async () => {
 
   await createVerticalStaircase(CSS3DObject)
 
-  setupMobileOptimizedDrag()
+  setupDragControls()
 
   const { gsap } = useGsap()
 
@@ -84,8 +84,8 @@ onMounted(async () => {
     if (!staircaseGroup || !cssRenderer || !camera) return
 
     if (!isActiveDrag) {
-      velocity *= 0.94
-      staircaseGroup.position.y += velocity * 0.7
+      velocity *= isDesktop ? 0.96 : 0.935
+      staircaseGroup.position.y += velocity * (isDesktop ? 0.65 : 0.7)
 
       if (staircaseGroup.position.y > 60) staircaseGroup.position.y = 60
       if (staircaseGroup.position.y < -150) staircaseGroup.position.y = -150
@@ -97,6 +97,9 @@ onMounted(async () => {
 
   window.addEventListener('resize', handleResize)
 })
+
+// Simple desktop detection
+const isDesktop = typeof window !== 'undefined' && !('ontouchstart' in window)
 
 async function createVerticalStaircase(CSS3DObject: any) {
   const container = containerRef.value
@@ -147,7 +150,7 @@ async function createVerticalStaircase(CSS3DObject: any) {
     object.rotation.y = (progress - 0.5) * 0.2
 
     wrapper.addEventListener('click', () => {
-      focusPanel(object, i, wrapper)
+      focusPanel(object, i)
     })
 
     staircaseGroup.add(object)
@@ -155,12 +158,11 @@ async function createVerticalStaircase(CSS3DObject: any) {
   }
 }
 
-function focusPanel(object: any, index: number, wrapper?: HTMLElement) {
+function focusPanel(object: any, index: number) {
   if (!staircaseGroup) return
 
   const { gsap } = useGsap()
 
-  // Nice pop + scale feedback
   gsap.to(object.scale, {
     x: 1.08,
     y: 1.08,
@@ -178,14 +180,12 @@ function focusPanel(object: any, index: number, wrapper?: HTMLElement) {
     }
   })
 
-  // Bring forward in depth
   gsap.to(object.position, {
     z: object.position.z + 70,
     duration: 0.25,
     ease: 'back.out(1.8)'
   })
 
-  // Snap staircase
   const targetY = -index * 52
 
   gsap.to(staircaseGroup.position, {
@@ -193,19 +193,9 @@ function focusPanel(object: any, index: number, wrapper?: HTMLElement) {
     duration: 0.85,
     ease: 'power3.out'
   })
-
-  // Optional subtle glow on the DOM element
-  if (wrapper) {
-    wrapper.style.boxShadow = '0 0 30px rgba(0, 240, 255, 0.6)'
-    setTimeout(() => {
-      if (wrapper) {
-        wrapper.style.boxShadow = '0 4px 16px rgba(0,0,0,0.6)'
-      }
-    }, 600)
-  }
 }
 
-function setupMobileOptimizedDrag() {
+function setupDragControls() {
   const container = containerRef.value
   if (!container || !staircaseGroup) return
 
@@ -230,7 +220,8 @@ function setupMobileOptimizedDrag() {
     const deltaY = e.clientY - lastPointerY
     lastPointerY = e.clientY
 
-    const speed = isMobile ? 2.5 : 1.4
+    // Different sensitivity for mobile vs desktop
+    const speed = isMobile ? 2.4 : 1.3
     velocity = deltaY * speed
   }
 

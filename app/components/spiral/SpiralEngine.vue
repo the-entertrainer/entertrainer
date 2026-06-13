@@ -31,11 +31,12 @@ let cssRenderer: any = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let helixGroup: any = null
 
-// Interaction state
+// Interaction
 let velocity = 0
 let isActiveDrag = false
 let lastPointerY = 0
 let dragCleanup: (() => void) | null = null
+let snapTimeout: any = null
 
 const panelObjects: any[] = []
 
@@ -50,15 +51,12 @@ onMounted(async () => {
   const container = containerRef.value
   if (!container) return
 
-  // Scene
   scene = new THREE.Scene()
 
-  // Camera - elegant angled view
-  camera = new THREE.PerspectiveCamera(52, container.clientWidth / container.clientHeight, 0.1, 2000)
-  camera.position.set(-35, 95, 380)
-  camera.lookAt(12, 35, 0)
+  camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 2000)
+  camera.position.set(-28, 88, 395)
+  camera.lookAt(8, 32, 0)
 
-  // CSS3D Renderer
   cssRenderer = new CSS3DRenderer()
   cssRenderer.setSize(container.clientWidth, container.clientHeight)
   cssRenderer.domElement.style.position = 'absolute'
@@ -72,17 +70,33 @@ onMounted(async () => {
 
   await createElegantHelix(CSS3DObject)
 
-  setupMomentumDrag()
+  setupMomentumDragWithSnap()
 
   const { gsap } = useGsap()
+
+  // Subtle entrance animation
+  gsap.from(helixGroup.rotation, {
+    y: helixGroup.rotation.y - 0.8,
+    duration: 1.4,
+    ease: 'power3.out',
+    delay: 0.15
+  })
+
   const renderLoop = () => {
     if (!helixGroup || !cssRenderer || !camera) return
 
-    // Apply momentum
     if (!isActiveDrag) {
-      velocity *= 0.92 // friction
-      helixGroup.rotation.y += velocity * 0.0018
+      velocity *= 0.915
+      helixGroup.rotation.y += velocity * 0.0016
+
+      // Magnetic snap when slow
+      if (Math.abs(velocity) < 0.8 && !snapTimeout) {
+        snapToNearestPanel()
+      }
     }
+
+    // Keep cards facing camera nicely
+    updateCardFacing()
 
     cssRenderer.render(scene, camera)
   }
@@ -96,18 +110,17 @@ async function createElegantHelix(CSS3DObject: any) {
   if (!container) return
 
   const isMobile = width.value < 640
-  const radius = isMobile ? 88 : 105
-  const verticalStep = isMobile ? 52 : 58
-  const totalTurns = 1.75
+  const radius = isMobile ? 85 : 102
+  const verticalStep = isMobile ? 50 : 56
+  const totalTurns = 1.8
 
   for (let i = 0; i < sections.length; i++) {
     const section = sections[i]
 
     const wrapper = document.createElement('div')
-    wrapper.style.width = isMobile ? '162px' : '188px'
-    wrapper.style.height = isMobile ? '198px' : '228px'
+    wrapper.style.width = isMobile ? '158px' : '185px'
+    wrapper.style.height = isMobile ? '192px' : '222px'
     wrapper.style.pointerEvents = 'auto'
-    wrapper.style.backdropFilter = 'blur(18px) saturate(140%)'
 
     const { createApp, h } = await import('vue')
     const PanelComponent = (await import('./Panel.vue')).default
@@ -121,32 +134,71 @@ async function createElegantHelix(CSS3DObject: any) {
 
     const angle = (i / sections.length) * totalTurns * Math.PI * 2
 
-    // Elegant helix positioning
     const x = Math.cos(angle) * radius
-    const z = Math.sin(angle) * radius * 0.55
-    const y = i * verticalStep - (sections.length * verticalStep) / 2.1
+    const z = Math.sin(angle) * radius * 0.52
+    const y = i * verticalStep - (sections.length * verticalStep) / 2.15
 
     object.position.set(x, y, z)
-
-    // Cards gently face the camera direction
-    object.rotation.y = angle + 1.35
-    object.rotation.x = -0.12
+    object.rotation.y = angle + 1.4
+    object.rotation.x = -0.09
 
     helixGroup.add(object)
     panelObjects.push(object)
   }
 }
 
-function setupMomentumDrag() {
+function updateCardFacing() {
+  if (!helixGroup || panelObjects.length === 0) return
+
+  const baseRotation = helixGroup.rotation.y
+
+  panelObjects.forEach((obj, index) => {
+    const baseAngle = (index / sections.length) * 1.8 * Math.PI * 2
+    // Keep cards gently facing toward camera as helix rotates
+    obj.rotation.y = baseAngle + 1.4 + baseRotation * 0.15
+  })
+}
+
+function snapToNearestPanel() {
+  if (!helixGroup || panelObjects.length === 0) return
+
+  const currentRotation = helixGroup.rotation.y
+  const step = (1.8 * Math.PI * 2) / sections.length
+
+  // Find nearest snap point
+  let nearest = Math.round(currentRotation / step) * step
+
+  const { gsap } = useGsap()
+  gsap.to(helixGroup.rotation, {
+    y: nearest,
+    duration: 0.65,
+    ease: 'power3.out',
+    onComplete: () => {
+      velocity = 0
+    }
+  })
+
+  snapTimeout = setTimeout(() => {
+    snapTimeout = null
+  }, 800)
+}
+
+function setupMomentumDragWithSnap() {
   const container = containerRef.value
   if (!container || !helixGroup) return
 
   const onDown = (e: PointerEvent) => {
     if ((e.target as HTMLElement).closest('.stage__panel')) return
+
     isActiveDrag = true
     lastPointerY = e.clientY
     velocity = 0
     isDragging.value = true
+
+    if (snapTimeout) {
+      clearTimeout(snapTimeout)
+      snapTimeout = null
+    }
   }
 
   const onMove = (e: PointerEvent) => {
@@ -155,9 +207,9 @@ function setupMomentumDrag() {
     const deltaY = e.clientY - lastPointerY
     lastPointerY = e.clientY
 
-    const rotationSpeed = width.value < 640 ? 0.0032 : 0.0026
-    helixGroup.rotation.y += deltaY * rotationSpeed
-    velocity = deltaY * 0.85
+    const speed = width.value < 640 ? 0.0035 : 0.0028
+    helixGroup.rotation.y += deltaY * speed
+    velocity = deltaY * 0.9
   }
 
   const onUp = () => {
@@ -190,6 +242,7 @@ function handleResize() {
 
 onBeforeUnmount(() => {
   if (dragCleanup) dragCleanup()
+  if (snapTimeout) clearTimeout(snapTimeout)
   window.removeEventListener('resize', handleResize)
 
   panelObjects.forEach(obj => {

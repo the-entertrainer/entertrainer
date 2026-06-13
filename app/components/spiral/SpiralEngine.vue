@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { ref, watch, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import { useContent } from '~/composables/useContent'
 import { useViewMode } from '~/composables/useViewMode'
 import { useReducedMotion } from '~/composables/useReducedMotion'
 import { useGsap } from '~/composables/useGsap'
 import { useDrag } from '~/composables/useDrag'
-import { useSpiral, DEFAULT_CONFIG, type SpiralConfig } from '~/composables/useSpiral'
+
+import type { SectionContent } from '~/content/site'
+
+// Three.js + CSS3D types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const THREE: any
 
 const site = useContent()
 const sections = site.sections
@@ -15,233 +20,228 @@ const { mode, isAnimating } = useViewMode()
 const motion = useReducedMotion()
 const { width } = useWindowSize()
 
-const stageRef = ref<HTMLElement | null>(null)
-const panelEls = ref<HTMLElement[]>([])
+const containerRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 
-function setPanelRef(el: Element | null, i: number) {
-  if (el) panelEls.value[i] = el as HTMLElement
-}
+// Three.js objects
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let THREE: any = null
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let scene: any = null
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let camera: any = null
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let cssRenderer: any = null
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let helixGroup: any = null
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let renderer: any = null
+let animationFrame: number | null = null
+let dragCleanup: (() => void) | null = null
 
-const responsiveConfig = computed<Partial<SpiralConfig>>(() => {
-  if (width.value < 640) {
-    return {
-      coilSpacing: 92,
-      arcSpan: 2.35,
-      yFlatten: 0.65,
-      verticalProgress: 42,
-    }
-  }
-  if (width.value < 1024) return { coilSpacing: 88, arcSpan: 2.35 }
-  return { coilSpacing: 98, arcSpan: 2.6 }
-})
-
-const snapMode = computed(() => motion.isTouch.value && width.value < 1024)
-
-let spiral: ReturnType<typeof useSpiral> | null = null
-let drag: ReturnType<typeof useDrag> | null = null
-let gsapRef: ReturnType<typeof useGsap>['gsap'] | null = null
-let FlipRef: ReturnType<typeof useGsap>['Flip'] | null = null
+// Store panel objects for later manipulation
+const panelObjects: any[] = []
 
 onMounted(async () => {
-  const { gsap, Flip } = useGsap()
-  gsapRef = gsap
-  FlipRef = Flip
+  if (mode.value !== 'spiral') return
 
-  if (document.fonts?.ready) await document.fonts.ready
+  // Lazy load Three.js
+  const threeModule = await import('three')
+  THREE = threeModule
 
-  spiral = useSpiral({
-    count: () => sections.length,
-    containerRef: stageRef,
-    panelRefs: panelEls,
-    enabled: () => mode.value === 'spiral',
-    reducedMotion: () => motion.prefersReducedMotion.value,
-    snapMode: () => snapMode.value,
-    config: responsiveConfig.value,
-    gsap,
-  })
+  const { CSS3DRenderer, CSS3DObject } = await import('three/examples/jsm/renderers/CSS3DRenderer.js')
 
-  drag = useDrag(stageRef, {
-    threshold: width.value < 1024 ? 16 : 8,
-    onStart: () => {
-      isDragging.value = true
-      spiral?.dragStart()
-    },
-    onDelta: (dx, dy) => {
-      if (width.value < 1024) {
-        if (Math.abs(dy) > Math.abs(dx) * 1.4) {
-          spiral?.dragDelta(0, dy)
-        }
-      } else {
-        spiral?.dragDelta(dx)
-      }
-    },
-    onEnd: () => {
-      isDragging.value = false
-      spiral?.dragEnd()
-    },
-  })
-  drag.attach()
+  const container = containerRef.value
+  if (!container) return
 
-  spiral.start()
+  // Scene
+  scene = new THREE.Scene()
 
-  window.addEventListener('resize', onResize, { passive: true })
+  // Camera - elegant angled view of the helix
+  camera = new THREE.PerspectiveCamera(
+    55,
+    container.clientWidth / container.clientHeight,
+    0.1,
+    2000
+  )
+  // Position camera for nice front/side helix view
+  camera.position.set(0, 80, 420)
+  camera.lookAt(0, 40, 0)
+
+  // CSS3D Renderer (for real Vue panels in 3D)
+  cssRenderer = new CSS3DRenderer()
+  cssRenderer.setSize(container.clientWidth, container.clientHeight)
+  cssRenderer.domElement.style.position = 'absolute'
+  cssRenderer.domElement.style.top = '0'
+  cssRenderer.domElement.style.left = '0'
+  cssRenderer.domElement.style.pointerEvents = 'none'
+  container.appendChild(cssRenderer.domElement)
+
+  // Helix group
+  helixGroup = new THREE.Group()
+  scene.add(helixGroup)
+
+  // Create panels as CSS3DObjects
+  await createHelixPanels(CSS3DObject)
+
+  // Setup interaction
+  setupDragControls()
+
+  // Start render loop
+  const { gsap } = useGsap()
+  const render = () => {
+    if (!cssRenderer || !camera || !helixGroup) return
+    cssRenderer.render(scene, camera)
+  }
+  gsap.ticker.add(render)
+
+  // Resize handler
+  window.addEventListener('resize', handleResize)
 })
 
-function onResize() {
-  spiral?.measure()
-  spiral?.applyTransforms()
+async function createHelixPanels(CSS3DObject: any) {
+  const container = containerRef.value
+  if (!container) return
+
+  const radius = width.value < 640 ? 95 : 115
+  const verticalStep = width.value < 640 ? 48 : 55
+  const totalTurns = 1.6
+
+  for (let i = 0; i < sections.length; i++) {
+    const section = sections[i]
+
+    // Create wrapper div
+    const wrapper = document.createElement('div')
+    wrapper.style.width = width.value < 640 ? '168px' : '195px'
+    wrapper.style.height = width.value < 640 ? '205px' : '235px'
+    wrapper.style.pointerEvents = 'auto'
+
+    // Mount Panel component into the wrapper
+    // We use a temporary Vue app to render the panel
+    const { createApp, h } = await import('vue')
+    const PanelComponent = (await import('./Panel.vue')).default
+
+    const app = createApp({
+      render: () => h(PanelComponent, { section, index: i })
+    })
+    app.mount(wrapper)
+
+    const object = new CSS3DObject(wrapper)
+
+    // Helix positioning (elegant angled staircase)
+    const angle = (i / sections.length) * totalTurns * Math.PI * 2
+    const x = Math.cos(angle) * radius
+    const z = Math.sin(angle) * radius * 0.6
+    const y = i * verticalStep - (sections.length * verticalStep) / 2
+
+    object.position.set(x, y, z)
+    object.rotation.y = angle + Math.PI * 0.5
+
+    helixGroup.add(object)
+    panelObjects.push(object)
+  }
+}
+
+function setupDragControls() {
+  const container = containerRef.value
+  if (!container || !helixGroup) return
+
+  let isActive = false
+  let lastY = 0
+
+  const onPointerDown = (e: PointerEvent) => {
+    if ((e.target as HTMLElement).closest('.stage__panel')) return
+    isActive = true
+    lastY = e.clientY
+    isDragging.value = true
+  }
+
+  const onPointerMove = (e: PointerEvent) => {
+    if (!isActive || !helixGroup) return
+
+    const deltaY = e.clientY - lastY
+    lastY = e.clientY
+
+    // Rotate helix on Y axis (feels like turning a staircase)
+    helixGroup.rotation.y += deltaY * 0.0025
+  }
+
+  const onPointerUp = () => {
+    isActive = false
+    isDragging.value = false
+  }
+
+  container.addEventListener('pointerdown', onPointerDown)
+  window.addEventListener('pointermove', onPointerMove)
+  window.addEventListener('pointerup', onPointerUp)
+  window.addEventListener('pointercancel', onPointerUp)
+
+  dragCleanup = () => {
+    container.removeEventListener('pointerdown', onPointerDown)
+    window.removeEventListener('pointermove', onPointerMove)
+    window.removeEventListener('pointerup', onPointerUp)
+    window.removeEventListener('pointercancel', onPointerUp)
+  }
+}
+
+function handleResize() {
+  if (!containerRef.value || !cssRenderer || !camera) return
+  const w = containerRef.value.clientWidth
+  const h = containerRef.value.clientHeight
+
+  camera.aspect = w / h
+  camera.updateProjectionMatrix()
+  cssRenderer.setSize(w, h)
 }
 
 onBeforeUnmount(() => {
-  spiral?.destroy()
-  window.removeEventListener('resize', onResize)
-})
+  if (dragCleanup) dragCleanup()
+  window.removeEventListener('resize', handleResize)
 
-watch(responsiveConfig, () => {
-  Object.assign(spiral?.config ?? {}, DEFAULT_CONFIG, responsiveConfig.value)
-  spiral?.measure()
-  spiral?.applyTransforms()
-})
-
-watch(mode, async (next, prev) => {
-  if (!gsapRef || !FlipRef) return
-  const panels = panelEls.value.filter(Boolean)
-  isAnimating.value = true
-
-  if (prev === 'spiral') {
-    await gsapRef.to(panels, { opacity: 0, scale: 0.85, duration: 0.28, stagger: 0.02, ease: 'power2.in' })
-    spiral?.pause()
-    panels.forEach(p => { p.style.transform = ''; p.style.zIndex = ''; p.style.opacity = '' })
+  // Cleanup Three.js objects
+  if (helixGroup) {
+    helixGroup.children.forEach((child: any) => {
+      if (child.element) child.element.remove()
+    })
   }
 
-  await nextTick()
-
-  if (next === 'spiral') {
-    gsapRef.set(panels, { opacity: 0 })
-    spiral?.resume()
-    spiral?.measure()
-    spiral?.applyTransforms()
-    gsapRef.fromTo(panels, { opacity: 0 }, { opacity: 1, duration: 0.4, stagger: 0.03, ease: 'power2.out', clearProps: 'opacity' })
-    spiral?.armIdle()
-  } else {
-    const state = prev === 'spiral' ? null : FlipRef.getState(panels)
-    await nextTick()
-    if (state) {
-      FlipRef.from(state, { duration: 0.6, ease: 'power3.inOut', stagger: 0.02, absolute: true })
-    } else {
-      gsapRef.fromTo(panels, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.04, ease: 'power2.out', clearProps: 'all' })
-    }
-  }
-  gsapRef.delayedCall(0.65, () => { isAnimating.value = false })
+  panelObjects.length = 0
 })
 
-function onKey(e: KeyboardEvent) {
-  if (mode.value !== 'spiral') return
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { spiral?.next(); e.preventDefault() }
-  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { spiral?.prev(); e.preventDefault() }
-}
+// Keep Grid/List working as before
+watch(mode, async (next) => {
+  if (next !== 'spiral' && helixGroup) {
+    // Hide 3D when switching away
+    helixGroup.visible = false
+  }
+})
 </script>
 
 <template>
   <div
-    ref="stageRef"
-    class="stage"
-    :class="[`is-${mode}`, { 'is-dragging': isDragging }]"
-    tabindex="0"
-    role="application"
-    :aria-label="`Project spiral — ${mode} view. Use arrow keys to rotate, or switch layout with the toggle.`"
-    @keydown="onKey"
+    ref="containerRef"
+    class="spiral-3d"
+    :class="{ 'is-dragging': isDragging }"
   >
-    <Panel
-      v-for="(section, i) in sections"
-      :key="section.id"
-      :ref="(el) => setPanelRef((el as any)?.$el ?? el, i)"
-      class="stage__panel"
-      :section="section"
-      :index="i"
-    />
-
-    <p v-if="mode === 'spiral'" class="stage__hint" aria-hidden="true">
-      {{ snapMode ? 'Swipe up / down on background to explore' : 'Drag to rotate · arrow keys too' }}
-    </p>
+    <!-- Three.js + CSS3D canvas will be appended here -->
   </div>
 </template>
 
 <style scoped>
-.stage {
+.spiral-3d {
   position: relative;
   width: 100%;
-  outline: none;
-  transition: transform 0.1s ease-out;
-}
-
-.stage.is-dragging {
-  transform: scale(0.985);
-}
-.stage.is-dragging .stage__panel {
-  box-shadow: 0 0 40px rgba(0, 240, 255, 0.25);
-}
-
-.stage.is-spiral {
-  height: min(68vh, 620px);
-  touch-action: none;
+  height: min(72vh, 680px);
   overflow: hidden;
   cursor: grab;
-  width: 100%;
-}
-.stage.is-spiral:active { cursor: grabbing; }
-
-.stage.is-spiral .stage__panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: clamp(145px, 36vw, 200px);
-  height: clamp(175px, 42vw, 240px);
-  will-change: transform, opacity;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
+  background: transparent;
 }
 
-.stage.is-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--sz-6);
-  padding-block: var(--sz-8);
-}
-.stage.is-grid .stage__panel { position: relative; height: 340px; will-change: auto; }
-
-.stage.is-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sz-4);
-  padding-block: var(--sz-8);
-  max-width: 860px;
-  margin-inline: auto;
-}
-.stage.is-list .stage__panel { position: relative; min-height: 160px; will-change: auto; }
-
-.stage__hint {
-  position: absolute;
-  bottom: var(--sz-4);
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  opacity: 0.75;
-  pointer-events: none;
+.spiral-3d.is-dragging {
+  cursor: grabbing;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .stage.is-spiral { height: auto; display: flex; flex-direction: column; gap: var(--sz-4); }
-  .stage.is-spiral .stage__panel { position: relative; width: 100%; height: auto; min-height: 200px; }
-}
-
-@media (max-width: 640px) {
-  .stage.is-spiral { height: min(64vh, 540px); }
+.spiral-3d :deep(.stage__panel) {
+  pointer-events: auto;
 }
 </style>

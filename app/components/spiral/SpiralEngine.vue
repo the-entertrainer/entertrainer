@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import { useContent } from '~/composables/useContent'
 import { useViewMode } from '~/composables/useViewMode'
@@ -18,7 +18,6 @@ let cssRenderer: any = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let helixGroup: any = null
 
-// Interaction
 let velocity = 0
 let isActiveDrag = false
 let lastPointerY = 0
@@ -26,6 +25,7 @@ let dragCleanup: (() => void) | null = null
 let snapTimeout: any = null
 
 const panelObjects: any[] = []
+const mountedApps: any[] = []
 
 const site = useContent()
 const sections = site.sections
@@ -49,9 +49,9 @@ onMounted(async () => {
 
   scene = new THREE.Scene()
 
-  camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 2000)
-  camera.position.set(-28, 88, 395)
-  camera.lookAt(8, 32, 0)
+  camera = new THREE.PerspectiveCamera(48, container.clientWidth / container.clientHeight, 0.1, 2000)
+  camera.position.set(-22, 82, 410)
+  camera.lookAt(5, 28, 0)
 
   cssRenderer = new CSS3DRenderer()
   cssRenderer.setSize(container.clientWidth, container.clientHeight)
@@ -70,28 +70,27 @@ onMounted(async () => {
 
   const { gsap } = useGsap()
 
-  // Subtle entrance animation
+  // Gentle entrance
   gsap.from(helixGroup.rotation, {
-    y: helixGroup.rotation.y - 0.8,
-    duration: 1.4,
+    y: helixGroup.rotation.y - 0.9,
+    duration: 1.6,
     ease: 'power3.out',
-    delay: 0.15
+    delay: 0.2
   })
 
   const renderLoop = () => {
     if (!helixGroup || !cssRenderer || !camera) return
 
     if (!isActiveDrag) {
-      velocity *= 0.915
-      helixGroup.rotation.y += velocity * 0.0016
+      velocity *= 0.92
+      helixGroup.rotation.y += velocity * 0.0015
 
-      if (Math.abs(velocity) < 0.8 && !snapTimeout) {
+      if (Math.abs(velocity) < 0.7 && !snapTimeout) {
         snapToNearestPanel()
       }
     }
 
     updateCardFacing()
-
     cssRenderer.render(scene, camera)
   }
   gsap.ticker.add(renderLoop)
@@ -104,37 +103,44 @@ async function createElegantHelix(CSS3DObject: any) {
   if (!container) return
 
   const isMobile = width.value < 640
-  const radius = isMobile ? 85 : 102
-  const verticalStep = isMobile ? 50 : 56
-  const totalTurns = 1.8
+  const radius = isMobile ? 82 : 98
+  const verticalStep = isMobile ? 48 : 54
+  const totalTurns = 1.85
 
   for (let i = 0; i < sections.length; i++) {
     const section = sections[i]
 
     const wrapper = document.createElement('div')
-    wrapper.style.width = isMobile ? '158px' : '185px'
-    wrapper.style.height = isMobile ? '192px' : '222px'
+    wrapper.style.width = isMobile ? '155px' : '182px'
+    wrapper.style.height = isMobile ? '188px' : '218px'
     wrapper.style.pointerEvents = 'auto'
+    wrapper.style.borderRadius = '20px'
+    wrapper.style.overflow = 'hidden'
+    wrapper.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.35)'
+    wrapper.style.border = '1px solid rgba(255,255,255,0.08)'
 
+    // Use existing Panel component
     const { createApp, h } = await import('vue')
     const PanelComponent = (await import('./Panel.vue')).default
 
     const app = createApp({
       render: () => h(PanelComponent, { section, index: i })
     })
+
     app.mount(wrapper)
+    mountedApps.push(app)
 
     const object = new CSS3DObject(wrapper)
 
     const angle = (i / sections.length) * totalTurns * Math.PI * 2
 
     const x = Math.cos(angle) * radius
-    const z = Math.sin(angle) * radius * 0.52
-    const y = i * verticalStep - (sections.length * verticalStep) / 2.15
+    const z = Math.sin(angle) * radius * 0.5
+    const y = i * verticalStep - (sections.length * verticalStep) / 2.2
 
     object.position.set(x, y, z)
-    object.rotation.y = angle + 1.4
-    object.rotation.x = -0.09
+    object.rotation.y = angle + 1.42
+    object.rotation.x = -0.08
 
     helixGroup.add(object)
     panelObjects.push(object)
@@ -143,31 +149,30 @@ async function createElegantHelix(CSS3DObject: any) {
 
 function updateCardFacing() {
   if (!helixGroup || panelObjects.length === 0) return
-
   const baseRotation = helixGroup.rotation.y
 
   panelObjects.forEach((obj, index) => {
-    const baseAngle = (index / sections.length) * 1.8 * Math.PI * 2
-    obj.rotation.y = baseAngle + 1.4 + baseRotation * 0.15
+    const baseAngle = (index / sections.length) * 1.85 * Math.PI * 2
+    obj.rotation.y = baseAngle + 1.42 + baseRotation * 0.12
   })
 }
 
 function snapToNearestPanel() {
   if (!helixGroup || panelObjects.length === 0) return
 
-  const currentRotation = helixGroup.rotation.y
-  const step = (1.8 * Math.PI * 2) / sections.length
-  let nearest = Math.round(currentRotation / step) * step
+  const current = helixGroup.rotation.y
+  const step = (1.85 * Math.PI * 2) / sections.length
+  const nearest = Math.round(current / step) * step
 
   const { gsap } = useGsap()
   gsap.to(helixGroup.rotation, {
     y: nearest,
-    duration: 0.65,
+    duration: 0.7,
     ease: 'power3.out',
     onComplete: () => { velocity = 0 }
   })
 
-  snapTimeout = setTimeout(() => { snapTimeout = null }, 800)
+  snapTimeout = setTimeout(() => { snapTimeout = null }, 900)
 }
 
 function setupMomentumDragWithSnap() {
@@ -176,7 +181,6 @@ function setupMomentumDragWithSnap() {
 
   const onDown = (e: PointerEvent) => {
     if ((e.target as HTMLElement).closest('.stage__panel')) return
-
     isActiveDrag = true
     lastPointerY = e.clientY
     velocity = 0
@@ -194,9 +198,9 @@ function setupMomentumDragWithSnap() {
     const deltaY = e.clientY - lastPointerY
     lastPointerY = e.clientY
 
-    const speed = width.value < 640 ? 0.0035 : 0.0028
+    const speed = width.value < 640 ? 0.0032 : 0.0026
     helixGroup.rotation.y += deltaY * speed
-    velocity = deltaY * 0.9
+    velocity = deltaY * 0.88
   }
 
   const onUp = () => {
@@ -231,6 +235,12 @@ onBeforeUnmount(() => {
   if (dragCleanup) dragCleanup()
   if (snapTimeout) clearTimeout(snapTimeout)
   window.removeEventListener('resize', handleResize)
+
+  // Proper cleanup
+  mountedApps.forEach(app => {
+    try { app.unmount() } catch {}
+  })
+  mountedApps.length = 0
 
   panelObjects.forEach(obj => {
     if (obj.element?.parentNode) obj.element.parentNode.removeChild(obj.element)

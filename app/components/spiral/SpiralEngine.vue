@@ -8,19 +8,6 @@ import { useGsap } from '~/composables/useGsap'
 import type { SectionContent } from '~/content/site'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare const THREE: any
-
-const site = useContent()
-const sections = site.sections
-
-const { mode } = useViewMode()
-const { width } = useWindowSize()
-
-const containerRef = ref<HTMLElement | null>(null)
-const isDragging = ref(false)
-
-// Three.js + CSS3D
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let THREE: any = null
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let scene: any = null
@@ -39,6 +26,15 @@ let dragCleanup: (() => void) | null = null
 let snapTimeout: any = null
 
 const panelObjects: any[] = []
+
+const site = useContent()
+const sections = site.sections
+
+const { mode } = useViewMode()
+const { width } = useWindowSize()
+
+const containerRef = ref<HTMLElement | null>(null)
+const isDragging = ref(false)
 
 onMounted(async () => {
   if (mode.value !== 'spiral') return
@@ -89,13 +85,11 @@ onMounted(async () => {
       velocity *= 0.915
       helixGroup.rotation.y += velocity * 0.0016
 
-      // Magnetic snap when slow
       if (Math.abs(velocity) < 0.8 && !snapTimeout) {
         snapToNearestPanel()
       }
     }
 
-    // Keep cards facing camera nicely
     updateCardFacing()
 
     cssRenderer.render(scene, camera)
@@ -154,7 +148,6 @@ function updateCardFacing() {
 
   panelObjects.forEach((obj, index) => {
     const baseAngle = (index / sections.length) * 1.8 * Math.PI * 2
-    // Keep cards gently facing toward camera as helix rotates
     obj.rotation.y = baseAngle + 1.4 + baseRotation * 0.15
   })
 }
@@ -164,8 +157,6 @@ function snapToNearestPanel() {
 
   const currentRotation = helixGroup.rotation.y
   const step = (1.8 * Math.PI * 2) / sections.length
-
-  // Find nearest snap point
   let nearest = Math.round(currentRotation / step) * step
 
   const { gsap } = useGsap()
@@ -173,14 +164,10 @@ function snapToNearestPanel() {
     y: nearest,
     duration: 0.65,
     ease: 'power3.out',
-    onComplete: () => {
-      velocity = 0
-    }
+    onComplete: () => { velocity = 0 }
   })
 
-  snapTimeout = setTimeout(() => {
-    snapTimeout = null
-  }, 800)
+  snapTimeout = setTimeout(() => { snapTimeout = null }, 800)
 }
 
 function setupMomentumDragWithSnap() {

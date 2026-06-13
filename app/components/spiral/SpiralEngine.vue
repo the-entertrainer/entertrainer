@@ -53,8 +53,8 @@ onMounted(async () => {
   scene = new THREE.Scene()
 
   camera = new THREE.PerspectiveCamera(36, container.clientWidth / container.clientHeight, 0.1, 2000)
-  camera.position.set(0, 25, 520)
-  camera.lookAt(0, -30, 0)
+  camera.position.set(0, 22, 540)
+  camera.lookAt(0, -35, 0)
 
   cssRenderer = new CSS3DRenderer()
   cssRenderer.setSize(container.clientWidth, container.clientHeight)
@@ -74,28 +74,21 @@ onMounted(async () => {
   const { gsap } = useGsap()
 
   gsap.from(staircaseGroup.position, {
-    y: staircaseGroup.position.y + 100,
-    duration: 1.7,
+    y: staircaseGroup.position.y + 90,
+    duration: 1.6,
     ease: 'power3.out',
-    delay: 0.35
+    delay: 0.3
   })
 
   const renderLoop = () => {
     if (!staircaseGroup || !cssRenderer || !camera) return
 
     if (!isActiveDrag) {
-      velocity *= 0.935
-      staircaseGroup.position.y += velocity * 0.75
+      velocity *= 0.94
+      staircaseGroup.position.y += velocity * 0.7
 
-      // Soft bounds
-      if (staircaseGroup.position.y > 70) {
-        staircaseGroup.position.y = 70
-        velocity *= 0.5
-      }
-      if (staircaseGroup.position.y < -140) {
-        staircaseGroup.position.y = -140
-        velocity *= 0.5
-      }
+      if (staircaseGroup.position.y > 60) staircaseGroup.position.y = 60
+      if (staircaseGroup.position.y < -150) staircaseGroup.position.y = -150
     }
 
     cssRenderer.render(scene, camera)
@@ -111,22 +104,23 @@ async function createVerticalStaircase(CSS3DObject: any) {
 
   const isMobile = width.value < 640
 
-  const horizontalSpread = isMobile ? 38 : 48
-  const verticalStep = isMobile ? 92 : 68
-  const depthStep = isMobile ? 26 : 32
+  // Much smaller panels on mobile
+  const horizontalSpread = isMobile ? 32 : 48
+  const verticalStep = isMobile ? 85 : 65
+  const depthStep = isMobile ? 24 : 30
 
   for (let i = 0; i < sections.length; i++) {
     const section = sections[i]
 
     const wrapper = document.createElement('div')
-    wrapper.style.width = isMobile ? '152px' : '168px'
-    wrapper.style.height = isMobile ? '172px' : '188px'
+    wrapper.style.width = isMobile ? '118px' : '155px'
+    wrapper.style.height = isMobile ? '138px' : '175px'
     wrapper.style.pointerEvents = 'auto'
-    wrapper.style.borderRadius = '12px'
+    wrapper.style.borderRadius = '10px'
     wrapper.style.overflow = 'hidden'
-    wrapper.style.boxShadow = '0 6px 24px rgba(0,0,0,0.6)'
-    wrapper.style.border = '1px solid rgba(255,255,255,0.06)'
-    wrapper.style.backdropFilter = 'blur(24px) saturate(180%)'
+    wrapper.style.boxShadow = '0 5px 20px rgba(0,0,0,0.6)'
+    wrapper.style.border = '1px solid rgba(255,255,255,0.05)'
+    wrapper.style.backdropFilter = 'blur(26px) saturate(190%)'
 
     const { createApp, h } = await import('vue')
     const PanelComponent = (await import('./Panel.vue')).default
@@ -142,12 +136,12 @@ async function createVerticalStaircase(CSS3DObject: any) {
     const progress = i / (sections.length - 1)
 
     const x = (progress - 0.5) * horizontalSpread
-    const y = -progress * sections.length * verticalStep * 0.62
-    const z = -progress * sections.length * depthStep * 0.75
+    const y = -progress * sections.length * verticalStep * 0.6
+    const z = -progress * sections.length * depthStep * 0.7
 
     object.position.set(x, y, z)
-    object.rotation.x = 0.06 + progress * 0.03
-    object.rotation.y = (progress - 0.5) * 0.25
+    object.rotation.x = 0.05 + progress * 0.025
+    object.rotation.y = (progress - 0.5) * 0.22
 
     wrapper.addEventListener('click', () => {
       focusPanel(object, i)
@@ -164,12 +158,12 @@ function focusPanel(object: any, index: number) {
   const { gsap } = useGsap()
 
   gsap.to(object.position, {
-    z: object.position.z + 75,
+    z: object.position.z + 70,
     duration: 0.25,
-    ease: 'back.out(1.6)'
+    ease: 'back.out(1.7)'
   })
 
-  const targetY = -index * 60
+  const targetY = -index * 55
 
   gsap.to(staircaseGroup.position, {
     y: targetY,
@@ -203,8 +197,7 @@ function setupMobileOptimizedDrag() {
     const deltaY = e.clientY - lastPointerY
     lastPointerY = e.clientY
 
-    // Mobile-optimized sensitivity
-    const speed = isMobile ? 2.2 : 1.5
+    const speed = isMobile ? 2.4 : 1.5
     velocity = deltaY * speed
   }
 

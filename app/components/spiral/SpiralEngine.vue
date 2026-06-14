@@ -22,6 +22,7 @@ let velocity = 0
 let isActiveDrag = false
 let lastPointerY = 0
 let dragCleanup: (() => void) | null = null
+let resizeTimeout: ReturnType<typeof setTimeout> | null = null
 
 const panelObjects: any[] = []
 const mountedApps: any[] = []
@@ -73,22 +74,11 @@ onMounted(async () => {
 
   const { gsap } = useGsap()
 
-  // Improved elegant entrance
   gsap.from(staircaseGroup.position, {
-    y: staircaseGroup.position.y + 140,
-    duration: 1.9,
-    ease: 'power3.out',
-    delay: 0.25
-  })
-
-  // Subtle scale in for the whole group
-  gsap.from(staircaseGroup.scale, {
-    x: 0.92,
-    y: 0.92,
-    z: 0.92,
+    y: staircaseGroup.position.y + 90,
     duration: 1.6,
-    ease: 'power2.out',
-    delay: 0.35
+    ease: 'power3.out',
+    delay: 0.3
   })
 
   const renderLoop = () => {
@@ -254,13 +244,18 @@ function setupDragControls() {
 }
 
 function handleResize() {
-  if (!containerRef.value || !cssRenderer || !camera) return
-  const w = containerRef.value.clientWidth
-  const h = containerRef.value.clientHeight
+  if (resizeTimeout) clearTimeout(resizeTimeout)
 
-  camera.aspect = w / h
-  camera.updateProjectionMatrix()
-  cssRenderer.setSize(w, h)
+  resizeTimeout = setTimeout(() => {
+    if (!containerRef.value || !cssRenderer || !camera) return
+
+    const w = containerRef.value.clientWidth
+    const h = containerRef.value.clientHeight
+
+    camera.aspect = w / h
+    camera.updateProjectionMatrix()
+    cssRenderer.setSize(w, h)
+  }, 150) // Debounced
 }
 
 onBeforeUnmount(() => {
@@ -270,6 +265,7 @@ onBeforeUnmount(() => {
 
   if (dragCleanup) dragCleanup()
   if (snapTimeout) clearTimeout(snapTimeout)
+  if (resizeTimeout) clearTimeout(resizeTimeout)
   window.removeEventListener('resize', handleResize)
 
   mountedApps.forEach(app => {

@@ -4,14 +4,14 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   app: {
     head: {
-      title: 'Portfolio',
+      title: 'Entertrainer — Naveen Jose',
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         { name: 'theme-color', content: '#0a0a0a' },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
-        { name: 'apple-mobile-web-app-title', content: 'Portfolio' },
+        { name: 'apple-mobile-web-app-title', content: 'Entertrainer' },
         { name: 'msapplication-TileColor', content: '#0a0a0a' }
       ],
       link: [
@@ -28,8 +28,8 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Portfolio',
-      short_name: 'Portfolio',
+      name: 'Entertrainer',
+      short_name: 'Entertrainer',
       description: 'Motion designer & creative developer',
       theme_color: '#0a0a0a',
       background_color: '#0a0a0a',

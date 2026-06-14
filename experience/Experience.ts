@@ -1,15 +1,15 @@
 import { Scene } from 'three'
+import EventEmitter from './EventEmitter'
 import Sizes from './Sizes'
 import Time from './Time'
 import Camera from './Camera'
 import Renderer from './Renderer'
 import PostProcessing from './PostProcessing'
 import Controls from './Controls'
-import Raycaster from './Raycaster'
 import World from './World'
-import type { Project } from '~/stores/content'
+import Raycaster from './Raycaster'
 
-export default class Experience {
+export default class Experience extends EventEmitter {
   canvas: HTMLCanvasElement
   scene: Scene
   sizes: Sizes
@@ -18,40 +18,29 @@ export default class Experience {
   renderer: Renderer
   postProcessing: PostProcessing
   controls: Controls
-  raycaster: Raycaster
   world: World
+  raycaster: Raycaster
 
   private static _instance: Experience | null = null
 
   constructor(canvas: HTMLCanvasElement) {
-    if (Experience._instance) {
-      return Experience._instance
-    }
-
+    super()
+    if (Experience._instance) return Experience._instance
     Experience._instance = this
-    this.canvas = canvas
 
-    // Order: Controls → Time → Sizes → Scene → Camera → Raycaster → Renderer → PostProcessing → World
-    this.sizes = new Sizes()
-    this.scene = new Scene()
-    this.controls = new Controls(this)
-    this.time = new Time()
-    this.camera = new Camera(this)
-    this.raycaster = new Raycaster(this)
-    this.renderer = new Renderer(this)
+    this.canvas       = canvas
+    this.scene        = new Scene()
+    this.sizes        = new Sizes()
+    this.time         = new Time()
+    this.camera       = new Camera(this)
+    this.renderer     = new Renderer(this)
     this.postProcessing = new PostProcessing(this)
-    this.world = new World(this)
+    this.controls     = new Controls(this)
+    this.world        = new World(this)
+    this.raycaster    = new Raycaster(this)
 
     this.sizes.on('resize', () => this._onResize())
     this.time.on('tick', () => this._update())
-  }
-
-  static get instance(): Experience | null {
-    return Experience._instance
-  }
-
-  setProjects(projects: Project[]) {
-    this.world.setProjects(projects)
   }
 
   private _onResize() {
@@ -62,9 +51,7 @@ export default class Experience {
 
   private _update() {
     this.controls.update()
-    this.raycaster.update()
     this.world.update(this.time.delta)
-    // Post-processing composer drives the final render
     this.postProcessing.render()
   }
 
@@ -72,8 +59,8 @@ export default class Experience {
     this.sizes.destroy()
     this.time.destroy()
     this.controls.destroy()
-    this.raycaster.destroy()
     this.world.destroy()
+    this.raycaster.destroy()
     this.renderer.destroy()
     this.postProcessing.destroy()
     this.scene.clear()

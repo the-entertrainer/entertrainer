@@ -1,0 +1,24 @@
+{
+  "home": [
+    { "id": "about",     "label": "About Me",   "description": "The story behind Entertrainer",                "href": "/about",     "color": "#0d1b2a" },
+    { "id": "tools",     "label": "Tools",       "description": "The toolkit that powers impactful learning",   "href": "/tools",     "color": "#101e30" },
+    { "id": "downloads", "label": "Downloads",   "description": "Resources & templates for L&D professionals", "href": "/downloads", "color": "#0c1825" }
+  ],
+  "about": [
+    { "id": "story",          "label": "My Story",       "description": "From hospitality to high-impact learning",   "href": "/about/story",          "color": "#0d1b2a" },
+    { "id": "skills",         "label": "Skills & Tools", "description": "The toolkit I bring to every engagement",    "href": "/about/skills",         "color": "#101e30" },
+    { "id": "philosophy",     "label": "Philosophy",     "description": "My approach to instructional design",        "href": "/about/philosophy",     "color": "#0c1825" },
+    { "id": "certifications", "label": "Certifications", "description": "Certified Instructional Design Specialist",  "href": "/about/certifications", "color": "#111f31" },
+    { "id": "contact",        "label": "Contact",        "description": "Let's build something together",             "href": "/about/contact",        "color": "#0e1c2c" }
+  ],
+  "tools": [
+    { "id": "authoring", "label": "Authoring Tools", "description": "Articulate Storyline 360, Rise & SCORM",  "href": "/tools/authoring", "color": "#0d1b2a" },
+    { "id": "design",    "label": "Design Suite",    "description": "Adobe Suite, Canva & visual storytelling", "href": "/tools/design",    "color": "#101e30" },
+    { "id": "video-ai",  "label": "Video & AI",      "description": "After Effects, Vyond, Redcraft.AI",        "href": "/tools/video-ai",  "color": "#0c1825" }
+  ],
+  "downloads": [
+    { "id": "templates",  "label": "Templates",  "description": "Ready-to-use L&D templates",       "href": "/downloads/templates",  "color": "#0d1b2a" },
+    { "id": "frameworks", "label": "Frameworks", "description": "ID frameworks & storyboard guides", "href": "/downloads/frameworks", "color": "#101e30" },
+    { "id": "resources",  "label": "Resources",  "description": "Curated L&D resources",            "href": "/downloads/resources",  "color": "#0c1825" }
+  ]
+}

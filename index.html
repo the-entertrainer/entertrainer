@@ -27,13 +27,15 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 32px;
     }
 
     .logo {
       display: flex;
       flex-direction: column;
       gap: 16px;
-      width: min(480px, 85vw);
+      width: 100%;
+      max-width: 520px;
     }
 
     .bar {
@@ -43,16 +45,13 @@
       gap: 20px;
       padding: 0 28px;
       height: 100px;
+      width: 100%;
       cursor: pointer;
       transition: background 0.2s ease;
     }
 
     .bar:hover {
       background: #111111;
-    }
-
-    .bar--mid {
-      width: 75%;
     }
 
     .bar lord-icon {
@@ -68,6 +67,10 @@
     }
 
     @media (max-width: 480px) {
+      body {
+        padding: 24px;
+      }
+
       .bar {
         height: 80px;
         padding: 0 20px;
@@ -92,7 +95,7 @@
       <span class="bar__label">Home</span>
     </div>
 
-    <div class="bar bar--mid">
+    <div class="bar">
       <lord-icon
         src="https://cdn.lordicon.com/dqxvhztu.json"
         trigger="hover"

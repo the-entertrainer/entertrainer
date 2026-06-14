@@ -60,6 +60,10 @@ export default class Experience extends EventEmitter {
     if (this.scene.fog) (this.scene.fog as FogExp2).color.set(hex)
   }
 
+  setDofFocus(distance: number) {
+    this.postProcessing.setDofFocus(distance)
+  }
+
   destroy() {
     this.sizes.destroy()
     this.time.destroy()

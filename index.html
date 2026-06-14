@@ -7,18 +7,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <script>document.documentElement.classList.add('js');</script>
   <style>
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
+      width: 100%; height: 100%; overflow: hidden;
       background: #fff;
       font-family: 'Space Mono', monospace;
     }
@@ -30,16 +23,35 @@
       padding: 32px;
     }
 
+    /* Particle canvas */
+    #gl {
+      position: fixed;
+      inset: 0;
+      width: 100%; height: 100%;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    /* Flash overlay */
+    #flash {
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      opacity: 0;
+      z-index: 99;
+      pointer-events: none;
+    }
+
     .logo {
       display: flex;
       flex-direction: column;
       gap: 16px;
       width: 100%;
       max-width: 520px;
+      opacity: 0;
     }
 
     .bar {
-      position: relative;
       background: #000;
       display: flex;
       align-items: center;
@@ -49,56 +61,20 @@
       width: 100%;
       cursor: pointer;
       transition: background 0.15s ease;
-      will-change: transform;
-      transform-origin: 50% 50%;
-      overflow: hidden;
     }
 
-    /* Hidden until GSAP positions it (JS only) */
-    .js .bar { opacity: 0; }
-
-    .bar:hover {
-      background: #1a1a1a;
-    }
-
-    .bar:hover .icon svg {
-      filter: drop-shadow(0 0 6px rgba(255,255,255,0.6));
-    }
-
-    /* The racing dash stream that lives on top of the bar during the run phase */
-    .bar__stream {
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(90deg, #000 0 16px, #fff 16px 30px);
-      background-size: 30px 100%;
-      animation: run 0.45s linear infinite;
-      pointer-events: none;
-    }
-
-    @keyframes run {
-      to { background-position-x: 30px; }
-    }
+    .bar:hover { background: #1a1a1a; }
+    .bar:hover .icon svg { filter: drop-shadow(0 0 6px rgba(255,255,255,0.65)); }
 
     .icon {
       flex-shrink: 0;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 2;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
     }
 
-    .icon svg {
-      width: 100%;
-      height: 100%;
-      transition: filter 0.15s ease;
-    }
+    .icon svg { width: 100%; height: 100%; transition: filter 0.15s ease; }
 
     .bar__label {
-      position: relative;
-      z-index: 2;
       color: #fff;
       font-size: 18px;
       font-weight: 700;
@@ -115,16 +91,19 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .js .bar { opacity: 1; transform: none !important; }
-      .bar__stream { display: none; }
+      #gl, #flash { display: none; }
+      .logo { opacity: 1 !important; }
     }
   </style>
 </head>
 <body>
-  <div class="logo">
+
+  <canvas id="gl"></canvas>
+  <div id="flash"></div>
+
+  <div class="logo" id="logo">
 
     <div class="bar">
-      <div class="bar__stream"></div>
       <div class="icon">
         <svg viewBox="0 0 32 32" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter">
           <polyline points="2,16 16,4 30,16"/>
@@ -135,29 +114,19 @@
     </div>
 
     <div class="bar">
-      <div class="bar__stream"></div>
       <div class="icon">
         <svg viewBox="0 0 32 32" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter">
           <rect x="9" y="9" width="14" height="14"/>
-          <line x1="9" y1="12" x2="4" y2="12"/>
-          <line x1="9" y1="16" x2="4" y2="16"/>
-          <line x1="9" y1="20" x2="4" y2="20"/>
-          <line x1="23" y1="12" x2="28" y2="12"/>
-          <line x1="23" y1="16" x2="28" y2="16"/>
-          <line x1="23" y1="20" x2="28" y2="20"/>
-          <line x1="12" y1="9" x2="12" y2="4"/>
-          <line x1="16" y1="9" x2="16" y2="4"/>
-          <line x1="20" y1="9" x2="20" y2="4"/>
-          <line x1="12" y1="23" x2="12" y2="28"/>
-          <line x1="16" y1="23" x2="16" y2="28"/>
-          <line x1="20" y1="23" x2="20" y2="28"/>
+          <line x1="9" y1="12" x2="4" y2="12"/> <line x1="9" y1="16" x2="4" y2="16"/> <line x1="9" y1="20" x2="4" y2="20"/>
+          <line x1="23" y1="12" x2="28" y2="12"/> <line x1="23" y1="16" x2="28" y2="16"/> <line x1="23" y1="20" x2="28" y2="20"/>
+          <line x1="12" y1="9" x2="12" y2="4"/> <line x1="16" y1="9" x2="16" y2="4"/> <line x1="20" y1="9" x2="20" y2="4"/>
+          <line x1="12" y1="23" x2="12" y2="28"/> <line x1="16" y1="23" x2="16" y2="28"/> <line x1="20" y1="23" x2="20" y2="28"/>
         </svg>
       </div>
       <span class="bar__label">Tools</span>
     </div>
 
     <div class="bar">
-      <div class="bar__stream"></div>
       <div class="icon">
         <svg viewBox="0 0 32 32" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter">
           <line x1="16" y1="4" x2="16" y2="20"/>
@@ -170,51 +139,223 @@
 
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script>
-    (function () {
-      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var bars = Array.prototype.slice.call(document.querySelectorAll('.bar'));
+  (function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (typeof THREE === 'undefined' || typeof gsap === 'undefined') return;
 
-      // Graceful fallback: just show the final bars
-      if (typeof gsap === 'undefined' || reduce) {
-        bars.forEach(function (b) {
-          b.style.opacity = 1;
-          var s = b.querySelector('.bar__stream');
-          if (s) s.style.display = 'none';
+    var IS_MOBILE = window.innerWidth < 768;
+    var COUNT = IS_MOBILE ? 1800 : 4500;
+    var W = window.innerWidth, H = window.innerHeight;
+
+    // ── Renderer ──────────────────────────────────────────────────
+    var canvas = document.getElementById('gl');
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(W, H);
+    renderer.setClearColor(0x000000, 1);
+
+    var scene = new THREE.Scene();
+    var cam = new THREE.OrthographicCamera(-W/2, W/2, H/2, -H/2, -200, 200);
+    cam.position.z = 10;
+
+    // ── Geometry buffers ──────────────────────────────────────────
+    var geo      = new THREE.BufferGeometry();
+    var pos      = new Float32Array(COUNT * 3);
+    var startP   = new Float32Array(COUNT * 3);
+    var targetP  = new Float32Array(COUNT * 3);
+    var sizes    = new Float32Array(COUNT);
+    var alphas   = new Float32Array(COUNT);
+    var delays   = new Float32Array(COUNT);
+    var dPhase   = new Float32Array(COUNT);
+    var dFreq    = new Float32Array(COUNT);
+    var dAmp     = new Float32Array(COUNT);
+    var baseSz   = new Float32Array(COUNT);
+
+    // ── Custom shader — circular particles, per-particle size/alpha
+    var mat = new THREE.ShaderMaterial({
+      uniforms: { uAlpha: { value: 1.0 } },
+      vertexShader: [
+        'attribute float pSize;',
+        'attribute float pAlpha;',
+        'varying float vAlpha;',
+        'void main() {',
+        '  vAlpha = pAlpha;',
+        '  gl_PointSize = pSize;',
+        '  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
+        '}'
+      ].join('\n'),
+      fragmentShader: [
+        'uniform float uAlpha;',
+        'varying float vAlpha;',
+        'void main() {',
+        '  vec2 c = gl_PointCoord - 0.5;',
+        '  float r = length(c);',
+        '  if (r > 0.5) discard;',
+        '  float edge = 1.0 - smoothstep(0.28, 0.5, r);',
+        '  gl_FragColor = vec4(1.0, 1.0, 1.0, vAlpha * uAlpha * edge);',
+        '}'
+      ].join('\n'),
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+
+    // ── Init particle targets from real DOM bar rects ─────────────
+    var bars = document.querySelectorAll('.bar');
+    var rects = Array.prototype.map.call(bars, function(b) {
+      return b.getBoundingClientRect();
+    });
+
+    for (var i = 0; i < COUNT; i++) {
+      var bi = i % 3;
+      var r = rects[bi];
+
+      // Target inside bar rect → Three.js ortho coords (flip Y)
+      var tx = (r.left + r.width  * Math.random()) - W / 2;
+      var ty = H / 2 - (r.top  + r.height * Math.random());
+      targetP[i*3] = tx; targetP[i*3+1] = ty; targetP[i*3+2] = 0;
+
+      // Scatter start — spread 2× viewport, with z depth
+      var sx = (Math.random() - 0.5) * W * 2.2;
+      var sy = (Math.random() - 0.5) * H * 2.2;
+      var sz = (Math.random() - 0.5) * 120;
+      startP[i*3] = sx; startP[i*3+1] = sy; startP[i*3+2] = sz;
+      pos[i*3]    = sx; pos[i*3+1]    = sy; pos[i*3+2]    = sz;
+
+      // Size & alpha variation
+      baseSz[i] = IS_MOBILE ? 1.2 + Math.random() * 2.0 : 1.5 + Math.random() * 2.8;
+      sizes[i]  = baseSz[i];
+      alphas[i] = 0.35 + Math.random() * 0.65;
+
+      // Bar stagger + per-particle random delay
+      delays[i] = bi * 0.16 + Math.random() * 0.32;
+
+      // Drift animation params
+      dPhase[i] = Math.random() * Math.PI * 2;
+      dFreq[i]  = 0.3 + Math.random() * 0.9;
+      dAmp[i]   = IS_MOBILE ? 20 + Math.random() * 50 : 30 + Math.random() * 90;
+    }
+
+    geo.setAttribute('position', new THREE.BufferAttribute(pos,    3));
+    geo.setAttribute('pSize',    new THREE.BufferAttribute(sizes,  1));
+    geo.setAttribute('pAlpha',   new THREE.BufferAttribute(alphas, 1));
+    scene.add(new THREE.Points(geo, mat));
+
+    // ── State ─────────────────────────────────────────────────────
+    var DRIFT_HOLD  = 0.7;    // seconds of drift before converge
+    var CONV_DUR    = 1.5;    // particle convergence window
+    var MAX_DELAY   = 0.48;   // max per-particle delay offset
+    var converging  = false;
+    var convStart   = 0;
+    var clearAlpha  = 1;
+    var assemblyT   = CONV_DUR + MAX_DELAY; // time when last particle lands
+
+    // ── Macro timeline via GSAP ───────────────────────────────────
+    var logo  = document.getElementById('logo');
+    var flash = document.getElementById('flash');
+    var barEls = logo.querySelectorAll('.bar');
+
+    gsap.timeline({ delay: DRIFT_HOLD })
+      // kick convergence
+      .add(function () {
+        converging = true;
+        convStart  = performance.now() / 1000;
+      })
+      // fade black bg away as last particle lands
+      .to({ v: 1 }, {
+        v: 0,
+        delay: assemblyT - 0.2,
+        duration: 0.7,
+        ease: 'power2.in',
+        onUpdate: function () { clearAlpha = this.targets()[0].v; }
+      })
+      // white flash pulse at assembly moment
+      .to(flash, {
+        opacity: 0.9,
+        delay: assemblyT - 0.2,
+        duration: 0.07,
+        yoyo: true,
+        repeat: 1,
+        ease: 'none'
+      }, '<')
+      // particle size spike at lock moment
+      .to({ v: 1 }, {
+        v: 2.6,
+        delay: assemblyT - 0.2,
+        duration: 0.09,
+        yoyo: true,
+        repeat: 1,
+        ease: 'power2.out',
+        onUpdate: function () {
+          var m = this.targets()[0].v;
+          for (var j = 0; j < COUNT; j++) sizes[j] = baseSz[j] * m;
+          geo.attributes.pSize.needsUpdate = true;
+        }
+      }, '<')
+      // reveal logo container
+      .add(function () {
+        gsap.set(logo, { opacity: 1 });
+        Array.prototype.forEach.call(barEls, function (bar, i) {
+          var icon  = bar.querySelector('.icon');
+          var label = bar.querySelector('.bar__label');
+          gsap.from(bar,           { opacity: 0, y: 10,  duration: 0.55, delay: i * 0.11, ease: 'power2.out' });
+          gsap.from([icon, label], { opacity: 0, x: -14, duration: 0.5,  delay: i * 0.11 + 0.2, stagger: 0.08, ease: 'power2.out' });
         });
-        return;
+      }, '+=' + (assemblyT - 0.05).toString())
+      // fade particles/canvas out
+      .to(mat.uniforms.uAlpha, {
+        value: 0,
+        duration: 0.55,
+        ease: 'power2.in'
+      }, '-=0.35')
+      // remove canvas from flow once invisible
+      .add(function () { canvas.style.display = 'none'; });
+
+    // ── Render loop ───────────────────────────────────────────────
+    (function tick() {
+      requestAnimationFrame(tick);
+      var now = performance.now() / 1000;
+
+      for (var i = 0; i < COUNT; i++) {
+        var sx = startP[i*3], sy = startP[i*3+1], sz = startP[i*3+2];
+        var tx = targetP[i*3], ty = targetP[i*3+1];
+        var ph = dPhase[i], fr = dFreq[i], am = dAmp[i];
+        var px, py, pz;
+
+        if (!converging) {
+          // Sinusoidal drift around start positions
+          px = sx + Math.sin(now * fr + ph) * am * 0.22;
+          py = sy + Math.cos(now * fr * 0.72 + ph) * am * 0.18;
+          pz = sz;
+        } else {
+          var ct   = now - convStart;
+          var d    = delays[i];
+          var raw  = Math.max(0, ct - d) / CONV_DUR;
+          var t    = Math.min(1, raw);
+          // easeInOutCubic
+          var eased = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+          var fade  = 1 - eased;
+
+          var dx = Math.sin(now * fr + ph) * am * 0.22 * fade;
+          var dy = Math.cos(now * fr * 0.72 + ph) * am * 0.18 * fade;
+
+          px = (sx + dx) * (1 - eased) + tx * eased;
+          py = (sy + dy) * (1 - eased) + ty * eased;
+          pz = sz * (1 - eased);
+        }
+
+        pos[i*3] = px; pos[i*3+1] = py; pos[i*3+2] = pz;
       }
 
-      // How far each bar must stretch to bleed past the viewport edges
-      function vwRatio(bar) {
-        var w = bar.getBoundingClientRect().width || 1;
-        return (window.innerWidth / w) * 1.15;
-      }
-
-      var tl = gsap.timeline({ defaults: { ease: 'power3.inOut' }, delay: 0.25 });
-
-      bars.forEach(function (bar, i) {
-        var stream = bar.querySelector('.bar__stream');
-        var icon = bar.querySelector('.icon');
-        var label = bar.querySelector('.bar__label');
-        var at = i * 0.14;
-
-        // Start state: full-bleed thin line, content + solid fill hidden behind stream
-        gsap.set(bar, { opacity: 1, scaleX: vwRatio(bar), scaleY: 0.022 });
-        gsap.set([icon, label], { opacity: 0, x: -14 });
-        gsap.set(stream, { opacity: 1 });
-
-        // Run phase holds (CSS loop plays), then retract width in
-        tl.to(bar, { scaleX: 1, duration: 0.95, ease: 'power3.inOut' }, 0.6 + at)
-          // Bloom thickness into the solid bar
-          .to(bar, { scaleY: 1, duration: 0.7, ease: 'power4.out' }, 1.15 + at)
-          // Crossfade the racing stream away to reveal solid black
-          .to(stream, { opacity: 0, duration: 0.5, ease: 'power2.out' }, 1.25 + at)
-          // Settle the icon + label
-          .to([icon, label], { opacity: 1, x: 0, duration: 0.55, stagger: 0.07, ease: 'power2.out' }, 1.55 + at);
-      });
+      geo.attributes.position.needsUpdate = true;
+      renderer.setClearColor(0x000000, clearAlpha);
+      renderer.render(scene, cam);
     })();
+
+  })();
   </script>
 </body>
 </html>

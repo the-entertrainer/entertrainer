@@ -8,21 +8,16 @@ const site = useContent()
   <div class="app-shell">
     <a href="#main" class="skip-link">Skip to content</a>
 
-    <!-- Lazy, client-only neon depth field behind everything -->
-    <ClientOnly>
-      <ThreeBackground />
-    </ClientOnly>
-
-    <!-- Custom cursor (desktop fine-pointer only; component self-guards) -->
+    <!-- Custom cursor (desktop only) -->
     <ClientOnly>
       <CustomCursor />
     </ClientOnly>
 
     <header class="topbar">
-      <a href="#hero" class="topbar__logo">
-        Enter<span class="gradient-text">trainer</span>
+      <a href="/" class="topbar__logo" aria-label="Entertrainer — home">
+        Enter<span class="logo-accent">trainer</span>
       </a>
-      <p class="topbar__tag">{{ site.tagline }}</p>
+      <p class="topbar__tag" aria-hidden="true">{{ site.tagline }}</p>
     </header>
 
     <main id="main">
@@ -55,18 +50,23 @@ const site = useContent()
 
 .topbar__logo {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 800;
   letter-spacing: -0.03em;
+  color: #f0f0f0;
   pointer-events: auto;
+}
+
+.logo-accent {
+  color: #555;
 }
 
 .topbar__tag {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: #282828;
   max-width: 40ch;
   text-align: right;
 }

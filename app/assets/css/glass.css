@@ -1,48 +1,15 @@
-/* Glassmorphism + neon glow utilities shared by panels & chrome */
+/* Clean utility classes — replaces old glassmorphism / neon utilities */
 
-.glass {
+.surface {
   background: var(--surface);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--glow-soft);
-}
-
-.glass-strong {
-  background: rgba(12, 14, 30, 0.78);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
   border: 1px solid var(--border);
 }
 
-/* Animated neon gradient border via mask trick */
-.neon-border {
-  position: relative;
+.surface-solid {
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
 }
-.neon-border::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: var(--grad-primary);
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0.55;
-  transition: opacity 0.3s var(--ease-out);
-  pointer-events: none;
-}
-.neon-border:hover::before { opacity: 1; }
 
-.glow-cyan { box-shadow: var(--glow-cyan); }
-.glow-magenta { box-shadow: var(--glow-magenta); }
-.glow-violet { box-shadow: var(--glow-violet); }
-
-/* Floating accent chip */
 .chip {
   display: inline-flex;
   align-items: center;
@@ -53,7 +20,11 @@
   font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: rgba(0, 240, 255, 0.08);
-  border: 1px solid rgba(0, 240, 255, 0.25);
-  color: var(--accent);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+}
+
+.border-line {
+  border: 1px solid var(--border);
 }

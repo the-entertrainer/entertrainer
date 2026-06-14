@@ -33,7 +33,7 @@ export default defineNuxtConfig({
           content:
             'Entertrainer — a home for instructional designers. Sleek micro-learnings, free Storyline examples, and tools for the modern learning designer.',
         },
-        { name: 'theme-color', content: '#05060f' },
+        { name: 'theme-color', content: '#0a0a0a' },
         { property: 'og:title', content: 'Entertrainer' },
         { property: 'og:description', content: 'Interesting is the Mother of All Inventions.' },
         { property: 'og:type', content: 'website' },

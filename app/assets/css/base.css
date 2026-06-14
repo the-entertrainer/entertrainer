@@ -11,12 +11,6 @@ body {
   background: var(--bg);
   color: var(--text);
   overflow-x: hidden;
-  /* Ambient aurora wash behind everything */
-  background-image:
-    radial-gradient(ellipse 60% 50% at 15% 10%, rgba(43, 107, 255, 0.12), transparent 60%),
-    radial-gradient(ellipse 50% 50% at 85% 20%, rgba(255, 43, 214, 0.10), transparent 60%),
-    radial-gradient(ellipse 60% 60% at 50% 100%, rgba(155, 92, 255, 0.12), transparent 65%);
-  background-attachment: fixed;
 }
 
 img, video, svg, canvas { display: block; max-width: 100%; }
@@ -27,14 +21,14 @@ ul, ol { list-style: none; }
 h1, h2, h3, h4, h5, h6 { font-weight: inherit; line-height: 1.05; }
 
 ::selection {
-  background: rgba(0, 240, 255, 0.25);
+  background: rgba(255, 255, 255, 0.15);
   color: #fff;
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-2); }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
 ::-webkit-scrollbar-thumb {
-  background: var(--grad-primary);
+  background: #2a2a2a;
   border-radius: var(--radius-full);
 }
 
@@ -49,19 +43,14 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; line-height: 1.05; }
   left: var(--sz-4);
   z-index: 1000;
   padding: var(--sz-2) var(--sz-4);
-  background: var(--surface-solid);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius-sm);
+  background: #111;
+  border: 1px solid rgba(255,255,255,0.2);
   transition: top 0.2s var(--ease-out);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
 }
 .skip-link:focus { top: var(--sz-4); }
-
-.gradient-text {
-  background: var(--grad-primary);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
 
 .eyebrow {
   font-family: var(--font-mono);
@@ -69,7 +58,7 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; line-height: 1.05; }
   font-weight: 500;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--text-dim);
 }
 
 /* Respect reduced motion globally */

@@ -7,7 +7,7 @@ useSeoMeta({
   title: () => `${site.brand} — ${site.tagline}`,
   ogTitle: site.brand,
   description:
-    'A spiral of ideas from Naveen — instructional design that refuses to be boring. Free Storyline examples, micro-learnings, and more.',
+    'Explore Naveen\'s work in instructional design through an immersive 3D room experience. Free Storyline examples, micro-learnings, and more.',
   ogDescription: site.tagline,
   ogType: 'website',
   ogUrl: `https://${site.domain}`,
@@ -34,30 +34,5 @@ useHead({
 </script>
 
 <template>
-  <div class="page">
-    <!-- Floating View Toggle -->
-    <div class="floating-toggle">
-      <ClientOnly>
-        <ViewToggle />
-      </ClientOnly>
-    </div>
-
-    <!-- The spiral is now the entire experience -->
-    <SpiralEngine />
-  </div>
+  <WorldExperience />
 </template>
-
-<style scoped>
-.page {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-}
-
-.floating-toggle {
-  position: fixed;
-  top: calc(var(--nav-h) + var(--sz-4));
-  right: var(--sz-4);
-  z-index: 100;
-}
-</style>

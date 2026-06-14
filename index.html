@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entertrainer - Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            flex-direction: column;
+        }
+
+        .box {
+            width: 100px;
+            height: 100px;
+            background: #000000;
+            border-radius: 0;
+        }
+
+        @media (max-width: 768px) {
+            .box {
+                width: 80px;
+                height: 80px;
+            }
+
+            .container {
+                gap: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .box {
+                width: 60px;
+                height: 60px;
+            }
+
+            .container {
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+    </div>
+</body>
+</html>

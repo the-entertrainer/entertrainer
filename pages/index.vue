@@ -9,6 +9,7 @@ const contentStore = useContentStore()
   <SpiralView
     :items="contentStore.homeNav"
     :show-loader="true"
+    :show-view-switch="true"
     title="Select a section"
   />
 </template>

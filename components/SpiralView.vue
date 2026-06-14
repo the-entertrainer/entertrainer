@@ -251,28 +251,38 @@ function onLoaderEntered() {
   pointer-events: none;
 }
 
-/* Back button — sits below the logo */
+/* Back button — ghost pill, right of the N logo, same center-line as menu */
 .spiral-back {
   position: absolute;
-  top: calc(110rem + var(--safe-top));
-  left: calc(30rem + var(--safe-left));
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+  top: calc(38rem + var(--safe-top));
+  left: calc(106rem + var(--safe-left));
+  height: 48rem;
+  display: flex;
+  align-items: center;
+  padding: 0 20rem;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--color-white);
   font-family: var(--main-font);
   font-size: 14rem;
   font-weight: 500;
   letter-spacing: 0.01em;
-  color: var(--color-white);
-  opacity: 0.5;
   pointer-events: all;
-  transition: opacity 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6rem;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  animation: back-slide-in 0.35s ease 0.05s both;
 }
-.spiral-back:hover { opacity: 1; }
+.spiral-back:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+@keyframes back-slide-in {
+  from { opacity: 0; transform: translateX(-10rem); }
+  to   { opacity: 1; transform: translateX(0); }
+}
 
 .spiral-title {
   position: absolute;

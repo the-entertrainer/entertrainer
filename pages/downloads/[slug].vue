@@ -33,16 +33,29 @@ if (!item.value) throw createError({ statusCode: 404 })
   padding: calc(var(--safe-top) + 120rem) var(--grid-margin) calc(var(--safe-bottom) + 80rem);
 }
 .back-btn {
-  display: inline-block;
-  font-size: 16rem;
-  font-weight: 500;
+  position: fixed;
+  top: calc(38rem + var(--safe-top));
+  left: calc(106rem + var(--safe-left));
+  height: 48rem;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  padding: 0 20rem;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   color: var(--color-white);
-  opacity: 0.5;
+  font-size: 14rem;
+  font-weight: 500;
   text-decoration: none;
-  margin-bottom: 60rem;
-  transition: opacity 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
-.back-btn:hover { opacity: 1; }
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.32);
+}
 .detail-title {
   font-size: clamp(60rem, 8vw, 120rem);
   font-weight: 700;

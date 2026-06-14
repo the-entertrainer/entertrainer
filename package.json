@@ -1,0 +1,22 @@
+{
+  "name": "portfolio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview"
+  },
+  "dependencies": {
+    "@pinia/nuxt": "^0.5.1",
+    "@studio-freight/lenis": "^1.0.42",
+    "gsap": "^3.12.5",
+    "pinia": "^2.1.7",
+    "three": "^0.163.0"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "nuxt": "^3.11.0"
+  }
+}

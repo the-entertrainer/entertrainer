@@ -1,8 +1,5 @@
 {
-  "name": "entertrainer",
-  "version": 2,
-  "public": true,
-  "buildCommand": "echo 'No build needed'",
-  "outputDirectory": ".",
-  "env": {}
+  "buildCommand": "npm run generate",
+  "outputDirectory": ".output/public",
+  "framework": "nuxtjs"
 }

@@ -41,6 +41,7 @@ export default class PostProcessing {
   experience: Experience
   composer: EffectComposer
   bokehPass: BokehPass
+  vignettePass: ShaderPass
 
   constructor(experience: Experience) {
     this.experience = experience
@@ -51,19 +52,23 @@ export default class PostProcessing {
     // DoF: focus at ~7 world units — sharpest near the front of the spiral
     // front cards ≈6u (slight blur), center ≈8u (mild), far back ≈10u (most blur)
     this.bokehPass = new BokehPass(experience.scene, experience.camera.instance, {
-      focus:    7.0,
-      aperture: 0.003,
-      maxblur:  0.006
+      focus:    6.0,
+      aperture: 0.02,
+      maxblur:  0.025
     })
     this.composer.addPass(this.bokehPass)
 
-    const vignettePass = new ShaderPass(VignetteShader)
-    vignettePass.material.uniforms.uFillColor.value = new Color('#444444')
-    this.composer.addPass(vignettePass)
+    this.vignettePass = new ShaderPass(VignetteShader)
+    this.vignettePass.material.uniforms.uFillColor.value = new Color('#0D0C0A')
+    this.composer.addPass(this.vignettePass)
   }
 
   setDofFocus(distance: number) {
     this.bokehPass.uniforms['focus'].value = distance
+  }
+
+  setVignetteColor(hex: number) {
+    this.vignettePass.material.uniforms.uFillColor.value.set(hex)
   }
 
   resize() {

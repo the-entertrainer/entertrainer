@@ -4,7 +4,9 @@ import {
   DoubleSide,
   CanvasTexture,
   Vector2,
-  PlaneGeometry
+  PlaneGeometry,
+  UniformsLib,
+  UniformsUtils
 } from 'three'
 import type Experience from './Experience'
 import type { NavItem } from '~/types/nav'
@@ -165,15 +167,18 @@ export default class NavPlane {
     texture.needsUpdate = true
 
     const material = new ShaderMaterial({
-      uniforms: {
-        uTexture:        { value: texture },
-        uColorStrength:  { value: 0 },
-        uZoom:           { value: 1 },
-        uPlaneSizes:     { value: new Vector2(1.7, 1.0) },
-        uImageSizes:     { value: new Vector2(1700, 1000) },
-        uRevealProgress: { value: 0 },
-        uScrollSpeed:    { value: 0 }
-      },
+      uniforms: UniformsUtils.merge([
+        UniformsLib.fog,
+        {
+          uTexture:        { value: texture },
+          uColorStrength:  { value: 0 },
+          uZoom:           { value: 1 },
+          uPlaneSizes:     { value: new Vector2(1.7, 1.0) },
+          uImageSizes:     { value: new Vector2(1700, 1000) },
+          uRevealProgress: { value: 0 },
+          uScrollSpeed:    { value: 0 }
+        }
+      ]),
       vertexShader,
       fragmentShader,
       transparent: true,

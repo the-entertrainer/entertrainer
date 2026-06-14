@@ -60,25 +60,31 @@
 
     .bar__label {
       color: #ffffff;
-      font-size: clamp(14px, 2vw, 18px);
+      font-size: 18px;
       font-weight: 700;
       letter-spacing: 0.12em;
       text-transform: uppercase;
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 768px) {
       body {
-        padding: 24px;
-      }
-
-      .bar {
-        height: 80px;
-        padding: 0 20px;
-        gap: 16px;
+        padding: 48px;
       }
 
       .logo {
-        gap: 12px;
+        max-width: 320px;
+        gap: 10px;
+      }
+
+      .bar {
+        height: 64px;
+        padding: 0 18px;
+        gap: 14px;
+      }
+
+      .bar__label {
+        font-size: 13px;
+        letter-spacing: 0.1em;
       }
     }
   </style>
@@ -90,7 +96,7 @@
         src="https://cdn.lordicon.com/wmwqvixz.json"
         trigger="hover"
         colors="primary:#ffffff,secondary:#ffffff"
-        size="40">
+        size="32">
       </lord-icon>
       <span class="bar__label">Home</span>
     </div>
@@ -100,7 +106,7 @@
         src="https://cdn.lordicon.com/dqxvhztu.json"
         trigger="hover"
         colors="primary:#ffffff,secondary:#ffffff"
-        size="40">
+        size="32">
       </lord-icon>
       <span class="bar__label">Tools</span>
     </div>
@@ -110,7 +116,7 @@
         src="https://cdn.lordicon.com/bdxnbber.json"
         trigger="hover"
         colors="primary:#ffffff,secondary:#ffffff"
-        size="40">
+        size="32">
       </lord-icon>
       <span class="bar__label">Downloads</span>
     </div>

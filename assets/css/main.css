@@ -1,0 +1,818 @@
+/* ============================================================
+   Design Tokens — from REPLICATION_GUIDE.md Section 2
+   ============================================================ */
+:root {
+  /* Colors */
+  --color-black: #0a0a0a;
+  --color-white: #fafafa;
+  --color-bg-dark: #0a0a0a;
+  --color-bg-dark20: #0a0a0a20;
+  --color-bg-dark40: #0a0a0a40;
+  --color-bg-dark60: #0a0a0a60;
+  --color-bg-dark-transparent: #0a0a0a00;
+  --color-bg-grey: #171717;
+  --color-pop-green: #21ffc0;
+  --color-grey: #e6e6e6;
+  --color-white20: #fafafa20;
+
+  /* Typography */
+  --main-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
+  --display-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
+
+  /* Spacing scale */
+  --gap-xs: 10px;
+  --gap-s: 15px;
+  --gap-m: 30px;
+  --gap-l: 60px;
+  --gap-xl: 90px;
+  --gap-xxl: 120px;
+  --gap-xxxl: 180px;
+  --gap-20: 20px;
+  --gap-45: 45px;
+
+  /* Border radius */
+  --radius-xs: 4px;
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Grid system (desktop, 12 cols) */
+  --grid-margin: 30px;
+  --grid-gutter: 16px;
+  --grid-column: calc(100vw / 12 - 16px * 11 / 12 - 30px * 2 / 12);
+
+  /* Easing */
+  --ease-spring: linear(
+    0, .0014, .0055 1.03%, .0239, .053 3.44%,
+    .0961 4.81%, .1957 7.39%, .4354 12.88%,
+    .5484, .6494, .7362, .8083 23.88%,
+    .8696, .9168 29.72%, .9368, .9536 32.81%,
+    .9793 35.9%, .997 39.17%, 1.0084 42.77%,
+    1.0142 47.07%, 1.0144 53.43%, 1.0054 68.37%,
+    1.0019 77.3%, .9998 99.98%
+  );
+  --ease-quad-in-out: cubic-bezier(.455, .03, .515, .955);
+  --ease-expo-out: cubic-bezier(.19, 1, .22, 1);
+}
+
+@media (max-width: 900px) {
+  :root {
+    --grid-margin: 20px;
+    --grid-gutter: 15px;
+    --grid-column: calc(100vw / 6 - 15px * 5 / 6 - 20px * 2 / 6);
+  }
+}
+@media (max-width: 420px) {
+  :root {
+    --grid-margin: 15px;
+    --grid-gutter: 10px;
+  }
+}
+
+/* ============================================================
+   Base reset — 1rem = 1px sizing system
+   ============================================================ */
+html {
+  font-size: 1px;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: var(--main-font);
+  font-size: 18rem;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--color-white);
+  background: var(--color-black);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font-family: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+canvas {
+  display: block;
+}
+
+/* ============================================================
+   WebGL canvas layout — Section 10
+   ============================================================ */
+.webgl {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  transition: opacity 0.5s ease-out;
+}
+.webgl.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Post-processing gradient vignette (CSS alternative — Section 4 / note 7) */
+.pp-gradient {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    #444 0%,
+    rgba(68, 68, 68, 0) 20%,
+    rgba(68, 68, 68, 0) 80%,
+    #444 100%
+  );
+}
+
+/* ============================================================
+   Page transitions — Section 8
+   ============================================================ */
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.35s ease;
+}
+
+.project-enter-from {
+  opacity: 0;
+  transform: translateY(80px) scale(0.96);
+}
+.project-enter-to {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.project-enter-active {
+  transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: 0.2s;
+}
+.project-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.project-leave-to {
+  opacity: 0;
+  transform: translateY(0) scale(0.985);
+}
+.project-leave-active {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.project-fade-enter-from {
+  opacity: 0;
+  transform: translateY(18px) scale(0.96);
+}
+.project-fade-enter-active {
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.project-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-12px) scale(0.96);
+}
+.project-fade-leave-active {
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.video-fade-enter-from,
+.video-fade-leave-to {
+  opacity: 0;
+  transform: scaleY(0.95) scaleX(0.95);
+  border-top-left-radius: 16rem;
+  border-top-right-radius: 16rem;
+}
+.video-fade-enter-active,
+.video-fade-leave-active {
+  transform-origin: bottom center;
+  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out,
+    border-radius 0.4s ease-in-out;
+}
+.video-fade-enter-active {
+  transition-delay: 0.1s;
+}
+
+.iconfade-leave-from {
+  filter: blur(0);
+  opacity: 1;
+  transform: scale(1) rotate(0);
+}
+.iconfade-leave-to {
+  filter: blur(2px);
+  opacity: 0;
+  transform: scale(0.8) rotate(15deg);
+}
+.iconfade-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+}
+.iconfade-enter-from {
+  filter: blur(2px);
+  opacity: 0;
+  transform: scale(0.8) rotate(-15deg);
+}
+.iconfade-enter-to {
+  filter: blur(0);
+  opacity: 1;
+  transform: scale(1) rotate(0);
+}
+.iconfade-enter-active {
+  transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+}
+
+/* ============================================================
+   Loader — Section 7.1
+   ============================================================ */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40rem;
+  background: var(--color-black);
+  transition: opacity 0.6s ease;
+}
+.loader.entered {
+  opacity: 0;
+  pointer-events: none;
+}
+.loader-ring {
+  width: 48rem;
+  height: 48rem;
+  border: 3rem solid var(--color-white20);
+  border-top-color: var(--color-pop-green);
+  border-radius: 50%;
+  animation: loader-spin 1s linear infinite;
+}
+@keyframes loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.loader-text {
+  overflow: hidden;
+  font-size: 24rem;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+.loader-text .line {
+  display: block;
+}
+.loader-progress {
+  width: 240rem;
+  height: 4rem;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-grey);
+  overflow: hidden;
+}
+.loader-progress .bar {
+  height: 100%;
+  width: 0;
+  background: var(--color-pop-green);
+  border-radius: var(--radius-full);
+}
+.loader-enter-btn {
+  opacity: 0;
+  pointer-events: none;
+  padding: 12rem 32rem;
+  border-radius: var(--radius-full);
+  background: var(--color-white);
+  color: var(--color-black);
+  font-size: 18rem;
+  font-weight: 600;
+  transition: opacity 0.4s ease, transform 0.3s var(--ease-spring);
+}
+.loader-enter-btn.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+.loader-enter-btn:hover {
+  transform: scale(1.05);
+}
+
+/* ============================================================
+   Logo — Section 7.11
+   ============================================================ */
+.logo-wrapper {
+  position: fixed;
+  left: 30rem;
+  top: 30rem;
+  width: 64rem;
+  height: 64rem;
+  z-index: 20;
+  cursor: pointer;
+}
+.logo {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-white);
+  color: var(--color-black);
+  font-size: 24rem;
+  font-weight: 700;
+  transition: transform 0.2s ease;
+}
+.logo:active {
+  transform: scale(0.9);
+}
+.logo-tag-wrapper {
+  position: absolute;
+  left: 72rem;
+  top: 50%;
+  white-space: nowrap;
+  padding: 6rem 14rem;
+  border-radius: var(--radius-full);
+  background: var(--color-pop-green);
+  color: var(--color-black);
+  font-size: 14rem;
+  font-weight: 600;
+  opacity: 0;
+  transform: scale(0.5) translate(-10%);
+  transform-origin: left center;
+  transition: opacity 0.2s ease-out, transform 0.5s var(--ease-spring);
+}
+.logo-wrapper:hover .logo-tag-wrapper {
+  opacity: 1;
+  transform: scale(1) rotate(-5deg) translateY(-12rem);
+}
+
+/* ============================================================
+   Sound button (stub) — bottom-right
+   ============================================================ */
+.sound-button {
+  position: fixed;
+  right: 30rem;
+  bottom: 30rem;
+  z-index: 20;
+  width: 48rem;
+  height: 48rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  border-radius: var(--radius-full);
+  background: var(--color-white);
+  color: var(--color-black);
+  transition: transform 0.3s var(--ease-spring);
+}
+.sound-button:hover {
+  transform: scale(1.08);
+}
+.sound-button .b {
+  width: 3rem;
+  height: 14rem;
+  border-radius: 2rem;
+  background: var(--color-black);
+  animation: sound-bounce 1s ease-in-out infinite;
+}
+.sound-button .b:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.sound-button .b:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.sound-button.muted .b {
+  animation-play-state: paused;
+  height: 6rem;
+}
+@keyframes sound-bounce {
+  0%, 100% {
+    height: 8rem;
+  }
+  50% {
+    height: 18rem;
+  }
+}
+
+/* ============================================================
+   View Switch — Section 7.5
+   ============================================================ */
+.view-switch {
+  position: fixed;
+  top: 30rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8rem;
+  padding: 8rem 16rem;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-grey);
+  font-size: 18rem;
+  font-weight: 500;
+}
+.view-switch .sep {
+  opacity: 0.4;
+}
+.view-switch .button {
+  position: relative;
+  overflow: hidden;
+  height: 22rem;
+  opacity: 0.4;
+  transition: opacity 0.3s ease;
+}
+.view-switch .button.active {
+  opacity: 1;
+}
+.view-switch .button span {
+  display: block;
+  transition: transform 0.3s var(--ease-spring), opacity 0.3s ease;
+}
+.view-switch .button span:nth-child(2) {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(-100%);
+  opacity: 0;
+}
+.view-switch .button:hover span:first-child,
+.view-switch .button.active span:first-child {
+  transform: translateY(100%);
+  opacity: 0;
+}
+.view-switch .button:hover span:nth-child(2),
+.view-switch .button.active span:nth-child(2) {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ============================================================
+   Menu — Sections 7.2 / 7.3
+   ============================================================ */
+.menu {
+  position: fixed;
+  top: 30rem;
+  right: 30rem;
+  z-index: 40;
+}
+.menu-subwrapper {
+  position: relative;
+  width: 86.8rem;
+  height: 48rem;
+  border-radius: 24rem;
+  background: var(--color-white);
+  overflow: hidden;
+  transition: width 0.9s var(--ease-spring), height 1s var(--ease-spring),
+    border-radius 0.9s ease;
+}
+.menu-subwrapper.opened {
+  width: calc(var(--grid-column) * 4 + var(--grid-gutter) * 3);
+  min-width: 340rem;
+  height: calc(100dvh - 60rem);
+  border-radius: 16rem;
+}
+
+.menu-button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 86.8rem;
+  height: 48rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-black);
+  font-size: 18rem;
+  font-weight: 500;
+  z-index: 2;
+}
+.menu-button .letter {
+  display: inline-block;
+  transform-origin: center;
+}
+.menu-subwrapper.opened .menu-button {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.menu-close {
+  position: absolute;
+  top: 16rem;
+  right: 16rem;
+  width: 40rem;
+  height: 40rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-pop-green);
+  color: var(--color-black);
+  font-size: 22rem;
+  transform-origin: top right;
+  transform: scale(0.125);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.8s var(--ease-spring), opacity 0.4s ease;
+  z-index: 3;
+}
+.menu-subwrapper.opened .menu-close {
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.menu-links {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4rem;
+  padding: 60rem 40rem;
+  color: var(--color-black);
+}
+.menu-link {
+  position: relative;
+  display: inline-block;
+  width: max-content;
+  font-size: 80rem;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 100%;
+  padding-left: 0;
+  transition: padding-left 0.5s var(--ease-spring);
+}
+.menu-link::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 16rem;
+  height: 16rem;
+  border-radius: 50%;
+  background: var(--color-black);
+  transform: translateY(-50%) scale(0);
+  opacity: 0;
+  transition: transform 0.5s var(--ease-spring), opacity 0.5s var(--ease-spring);
+}
+.menu-link:hover {
+  padding-left: 40rem;
+}
+.menu-link:hover::before {
+  transform: translateY(-50%) scale(1);
+  opacity: 1;
+}
+
+/* ============================================================
+   CursorTag — Section 7.6
+   ============================================================ */
+.cursor-tag {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  pointer-events: none;
+  background: var(--color-pop-green);
+  color: var(--color-bg-dark);
+  border-radius: 50rem;
+  font-size: 24rem;
+  font-weight: 500;
+  padding: 8rem 16rem;
+  transform-origin: center;
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.2s ease;
+  will-change: transform, opacity;
+}
+.cursor-tag.show {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* ============================================================
+   Project List — Section 7.8
+   ============================================================ */
+.project-list {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 120rem 30rem;
+  gap: 4rem;
+}
+.project-list .project {
+  display: flex;
+  align-items: baseline;
+  gap: 24rem;
+  padding: 18rem 0;
+  border-bottom: 1rem solid var(--color-white20);
+  cursor: pointer;
+  transform-origin: center top;
+  transition: padding-left 0.4s var(--ease-spring), opacity 0.3s ease;
+}
+.project-list .project:hover {
+  padding-left: 24rem;
+}
+.project-list .project .title {
+  font-size: 48rem;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+}
+.project-list .project .year {
+  font-size: 18rem;
+  opacity: 0.5;
+}
+.project-list .project .desc {
+  margin-left: auto;
+  max-width: 360rem;
+  font-size: 16rem;
+  opacity: 0.6;
+  text-align: right;
+}
+
+/* ============================================================
+   Showreel Thumbnail — Section 7.9
+   ============================================================ */
+.showreel-thumbnail {
+  position: fixed;
+  bottom: 30rem;
+  left: 30rem;
+  z-index: 10;
+}
+.thumbnail-wrapper {
+  position: relative;
+  width: 280rem;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-m);
+  background: var(--color-bg-grey);
+  color: var(--color-white);
+  font-size: 20rem;
+  font-weight: 600;
+  transform: rotate(-15deg);
+  transition: transform 0.3s var(--ease-spring);
+  box-shadow: 0 4rem 8rem rgba(0, 0, 0, 0.2);
+}
+.thumbnail-wrapper:hover {
+  transform: rotate(-13deg) scale(1.05);
+}
+.showreel-marquee {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.showreel-marquee .marquee-text {
+  position: absolute;
+  font-size: 14rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-pop-green);
+  animation: moveAlong 12s linear infinite;
+  offset-path: path(
+    "M29.5684 182H274.432C290.14 182 304 169 304 152.286V29.7143 C304 13 291.064 0 274.432 0H29.5684C12.9362 0 0 13 0 29.7143V152.286 C0 169 13.8602 182 29.5684 182Z"
+  );
+  offset-rotate: auto 180deg;
+}
+@keyframes moveAlong {
+  from {
+    offset-distance: -100%;
+  }
+  to {
+    offset-distance: 0%;
+  }
+}
+
+/* ============================================================
+   About page
+   ============================================================ */
+.about {
+  position: relative;
+  z-index: 5;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120rem 30rem;
+}
+.about .bio {
+  max-width: 720rem;
+  font-size: 40rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+}
+.about .bio .emoji {
+  font-size: 44rem;
+}
+.image-trail {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  overflow: hidden;
+}
+.image-trail .trail-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 150rem;
+  height: 100rem;
+  border-radius: var(--radius-s);
+  opacity: 0;
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+.image-trail .trail-inner {
+  width: 100%;
+  height: 100%;
+}
+@media (max-width: 900px) {
+  .image-trail .trail-img {
+    width: 100rem;
+    height: 66rem;
+  }
+}
+
+/* ============================================================
+   Project detail page
+   ============================================================ */
+.project-page {
+  position: relative;
+  z-index: 5;
+  min-height: 100dvh;
+  padding: 120rem 30rem 60rem;
+}
+.project-page .back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rem;
+  padding: 10rem 20rem;
+  border-radius: var(--radius-full);
+  background: var(--color-white);
+  color: var(--color-black);
+  font-size: 16rem;
+  font-weight: 600;
+  transition: transform 0.3s var(--ease-spring);
+}
+.project-page .back-btn:hover {
+  transform: scale(1.05);
+}
+.project-page .header {
+  display: flex;
+  align-items: baseline;
+  gap: 24rem;
+  margin-top: 60rem;
+}
+.project-page .header .title {
+  font-size: 120rem;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+}
+.project-page .header .year {
+  font-size: 24rem;
+  opacity: 0.5;
+}
+.project-page .desc {
+  margin-top: 30rem;
+  max-width: 640rem;
+  font-size: 20rem;
+  font-weight: 500;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+.project-page .video-placeholder {
+  margin-top: 60rem;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-l);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rem;
+  font-weight: 600;
+  color: var(--color-white);
+}

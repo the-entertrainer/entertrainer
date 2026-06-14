@@ -100,7 +100,7 @@ export function useSpiral(opts: UseSpiralOptions) {
     const el = opts.containerRef.value
     if (!el) return
     centerX = el.offsetWidth / 2
-    centerY = el.offsetHeight / 2
+    centerY = el.offsetHeight / 2 + el.offsetHeight * 0.15
   }
 
   function applyTransforms() {

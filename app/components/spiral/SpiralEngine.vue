@@ -198,7 +198,7 @@ function onKey(e: KeyboardEvent) {
 
 /* ── SPIRAL ── absolutely positioned, transforms applied by JS ── */
 .stage.is-spiral {
-  height: min(78vh, 720px);
+  height: 100dvh;
   touch-action: none;
   overflow: hidden;
   cursor: grab;

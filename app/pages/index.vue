@@ -49,14 +49,13 @@ useHead({
 
 <style scoped>
 .page {
-  position: relative;
-  min-height: 100dvh;
-  padding-top: var(--nav-h);
+  position: fixed;
+  inset: 0;
   overflow: hidden;
 }
 
 .floating-toggle {
-  position: absolute;
+  position: fixed;
   top: calc(var(--nav-h) + var(--sz-4));
   right: var(--sz-4);
   z-index: 100;

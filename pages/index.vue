@@ -4,6 +4,8 @@ import { useHomeViewStore } from '~/stores/homeview'
 import { useContentStore } from '~/stores/content'
 import Experience from '~/experience/Experience'
 
+const { $lenis } = useNuxtApp()
+
 const experienceStore = useExperienceStore()
 const homeViewStore = useHomeViewStore()
 const contentStore = useContentStore()
@@ -16,6 +18,9 @@ const isLoaderDone = ref(false)
 let experience: Experience | null = null
 
 onMounted(() => {
+  // Disable Lenis on the home page — Three.js controls handle all scrolling
+  ;($lenis as any)?.stop()
+
   // Simulate resource loading progress
   let p = 0
   const interval = setInterval(() => {
@@ -58,6 +63,7 @@ watch(mode, (newMode) => {
 
 onUnmounted(() => {
   experience?.destroy()
+  ;($lenis as any)?.start()
 })
 
 function onLoaderEntered() {
@@ -117,6 +123,7 @@ function onLoaderEntered() {
   width: 100% !important;
   height: 100% !important;
   transition: opacity 0.5s ease;
+  touch-action: none;
 }
 .webgl-canvas.hidden {
   opacity: 0;

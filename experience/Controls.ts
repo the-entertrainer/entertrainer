@@ -13,6 +13,8 @@ export default class Controls {
   targetWheelDeltaY = 0
 
   private _touchStartY = 0
+  private _lastTouchY = 0
+  private _lastTouchTime = 0
   private _isTouching = false
 
   constructor(experience: Experience) {
@@ -24,9 +26,10 @@ export default class Controls {
     this._onTouchEnd = this._onTouchEnd.bind(this)
 
     window.addEventListener('wheel', this._onWheel, { passive: true })
-    window.addEventListener('touchstart', this._onTouchStart, { passive: true })
-    window.addEventListener('touchmove', this._onTouchMove, { passive: true })
-    window.addEventListener('touchend', this._onTouchEnd, { passive: true })
+    // Non-passive so we can prevent browser scroll/bounce on the canvas
+    experience.canvas.addEventListener('touchstart', this._onTouchStart, { passive: false })
+    experience.canvas.addEventListener('touchmove', this._onTouchMove, { passive: false })
+    experience.canvas.addEventListener('touchend', this._onTouchEnd, { passive: true })
   }
 
   private _onWheel(event: WheelEvent) {
@@ -35,16 +38,21 @@ export default class Controls {
   }
 
   private _onTouchStart(event: TouchEvent) {
+    event.preventDefault()
     this._isTouching = true
     this._touchStartY = event.touches[0].clientY
+    this._lastTouchY = this._touchStartY
+    this._lastTouchTime = performance.now()
   }
 
   private _onTouchMove(event: TouchEvent) {
+    event.preventDefault()
     if (!this._isTouching) return
     const y = event.touches[0].clientY
-    const delta = this._touchStartY - y
-    this._touchStartY = y
-    this.targetWheelDeltaY += delta * 0.00006
+    const delta = this._lastTouchY - y
+    this._lastTouchY = y
+    this._lastTouchTime = performance.now()
+    this.targetWheelDeltaY += delta * 0.00009
     this.targetWheelDeltaY = clamp(this.targetWheelDeltaY, -2, 2)
   }
 
@@ -68,8 +76,8 @@ export default class Controls {
 
   destroy() {
     window.removeEventListener('wheel', this._onWheel)
-    window.removeEventListener('touchstart', this._onTouchStart)
-    window.removeEventListener('touchmove', this._onTouchMove)
-    window.removeEventListener('touchend', this._onTouchEnd)
+    this.experience.canvas.removeEventListener('touchstart', this._onTouchStart)
+    this.experience.canvas.removeEventListener('touchmove', this._onTouchMove)
+    this.experience.canvas.removeEventListener('touchend', this._onTouchEnd)
   }
 }

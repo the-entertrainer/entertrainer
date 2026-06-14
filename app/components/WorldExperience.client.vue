@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useWindowSize } from '@vueuse/core'
 import { useContent } from '~/composables/useContent'
 import { useGsap } from '~/composables/useGsap'
 
@@ -10,26 +11,35 @@ const isTransitioning = ref(false)
 
 let gsap: any
 
-// Grid: 4 cols × 2 rows, each portal has (x, y) position in 3D scene (px)
-const COL_GAP = 340   // distance between portal centers, horizontally
-const ROW_GAP = 220   // distance between rows, vertically
-const COLS = 4
-const ROOM_Z = -2800  // rooms live at this z depth in the scene
+const { width } = useWindowSize()
 
-function getPortalXY(index: number) {
-  const col = index % COLS
-  const row = Math.floor(index / COLS)
-  const x = (col - (COLS - 1) / 2) * COL_GAP  // centered on 0
-  const y = (row - 0.5) * ROW_GAP              // row 0 = negative, row 1 = positive
-  return { x, y }
-}
+// Responsive grid config
+const gridCfg = computed(() => {
+  if (width.value < 640) {
+    // Mobile: 2 columns × 4 rows; shift portals down so hub title has room
+    return { cols: 2, colGap: Math.min(160, width.value * 0.4), rowGap: 140, roomZ: -2200, yOffset: 90 }
+  }
+  if (width.value < 1024) {
+    // Tablet: 4 columns, tighter spacing
+    return { cols: 4, colGap: 210, rowGap: 185, roomZ: -2600, yOffset: 30 }
+  }
+  // Desktop: 4 columns, full spacing
+  return { cols: 4, colGap: 340, rowGap: 220, roomZ: -2800, yOffset: 0 }
+})
 
-const portalLayout = computed(() =>
-  site.sections.map((section, i) => ({
-    section,
-    ...getPortalXY(i),
-  }))
-)
+const ROOM_Z = computed(() => gridCfg.value.roomZ)
+
+const portalLayout = computed(() => {
+  const { cols, colGap, rowGap, yOffset } = gridCfg.value
+  const totalRows = Math.ceil(site.sections.length / cols)
+  return site.sections.map((section, i) => {
+    const col = i % cols
+    const row = Math.floor(i / cols)
+    const x = (col - (cols - 1) / 2) * colGap
+    const y = (row - (totalRows - 1) / 2) * rowGap + yOffset
+    return { section, x, y }
+  })
+})
 
 // CSS transform for each room's 3D position
 function portalVars(x: number, y: number): Record<string, string> {
@@ -37,7 +47,7 @@ function portalVars(x: number, y: number): Record<string, string> {
 }
 
 function roomVars(x: number, y: number): Record<string, string> {
-  return { '--rx': `${x}px`, '--ry': `${y}px`, '--rz': `${ROOM_Z}px` }
+  return { '--rx': `${x}px`, '--ry': `${y}px`, '--rz': `${ROOM_Z.value}px` }
 }
 
 // Scene CSS transform: moves scene to place the current room in front of camera
@@ -46,7 +56,7 @@ const sceneStyle = computed(() => {
   const item = portalLayout.value.find(p => p.section.id === currentRoom.value)
   if (!item) return {}
   return {
-    transform: `translate3d(${-item.x}px, ${-item.y}px, ${-ROOM_Z}px)`,
+    transform: `translate3d(${-item.x}px, ${-item.y}px, ${-ROOM_Z.value}px)`,
   }
 })
 
@@ -98,17 +108,19 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     <!-- Fade overlay — starts opaque, GSAP clears it -->
     <div ref="fadeRef" class="world-fade" aria-hidden="true" />
 
+    <!-- Hub title overlay — lives outside 3D scene so it's always readable -->
+    <Transition name="hub-title">
+      <div v-if="currentRoom === 'hub'" class="hub-hero" aria-label="Site title">
+        <p class="hub-eyebrow">Instructional Designer · Learning Architect</p>
+        <h1 class="hub-heading">Interesting is the<br>Mother of All Inventions.</h1>
+        <p class="hub-sub">Click a room to explore</p>
+      </div>
+    </Transition>
+
     <!-- Perspective container -->
     <div class="world-perspective" aria-hidden="true">
       <!-- 3D scene: translate this to "move camera" -->
       <div class="world-scene" :style="sceneStyle">
-
-        <!-- Hub title (sits above portal grid at z=0) -->
-        <div class="hub-hero">
-          <p class="hub-eyebrow">Instructional Designer · Learning Architect</p>
-          <h1 class="hub-heading">Interesting is the<br>Mother of All Inventions.</h1>
-          <p class="hub-sub">Click a room to explore</p>
-        </div>
 
         <!-- Portal cards (hub navigation) -->
         <button
@@ -257,43 +269,50 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   will-change: transform;
 }
 
-/* ─── Hub hero ─── */
+/* ─── Hub hero (fixed overlay, outside 3D scene) ─── */
 .hub-hero {
-  position: absolute;
+  position: fixed;
+  top: calc(var(--nav-h) + 2rem);
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, calc(-50% - 290px));
-  width: min(680px, 90vw);
+  transform: translateX(-50%);
+  width: min(640px, 90vw);
   text-align: center;
   pointer-events: none;
   user-select: none;
+  z-index: 10;
 }
 
 .hub-eyebrow {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #3a3a3a;
-  margin-bottom: 1.1rem;
+  color: #333;
+  margin-bottom: 1rem;
 }
 
 .hub-heading {
   font-family: var(--font-display);
-  font-size: clamp(1.9rem, 4vw, 3.2rem);
+  font-size: clamp(1.6rem, 4vw, 3rem);
   font-weight: 800;
   line-height: 1.08;
   letter-spacing: -0.04em;
   color: #f0f0f0;
-  margin: 0 0 1.1rem;
+  margin: 0 0 0.9rem;
 }
 
 .hub-sub {
   font-family: var(--font-body);
-  font-size: 0.8rem;
-  color: #333;
+  font-size: 0.75rem;
+  color: #2a2a2a;
   letter-spacing: 0.06em;
 }
+
+/* hub title enter/leave */
+.hub-title-enter-active,
+.hub-title-leave-active { transition: opacity 0.3s ease; }
+.hub-title-enter-from,
+.hub-title-leave-to { opacity: 0; }
 
 /* ─── Portal cards ─── */
 .world-portal {
@@ -633,13 +652,28 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .world-fade { transition: none; }
 }
 
+/* ─── Tablet ─── */
+@media (max-width: 1024px) {
+  .world-portal { width: 165px; padding: 0.85rem 1rem; }
+  .p-hint { font-size: 0.62rem; }
+}
+
 /* ─── Mobile ─── */
-@media (max-width: 880px) {
-  .hub-heading { font-size: clamp(1.55rem, 5.5vw, 2.2rem); }
-  .world-portal { width: 145px; padding: 0.75rem 0.9rem; }
+@media (max-width: 640px) {
+  .hub-heading { font-size: 1.65rem; }
+  .hub-sub { display: none; }
+
+  .world-portal { width: 140px; padding: 0.7rem 0.85rem; }
   .p-hint { display: none; }
-  .room-inner { padding: 1.75rem 1.4rem; }
-  .r-title { font-size: 1.45rem; }
+
+  .world-room { width: 92vw; }
+  .room-inner { padding: 1.5rem 1.25rem; max-height: 65vh; overflow-y: auto; }
+  .r-title { font-size: 1.3rem; }
   .r-projects { grid-template-columns: 1fr; }
+  .sk-row { grid-template-columns: 1fr 100px 28px; }
+  .sk-bar { width: 100px; }
+
+  .world-hud { bottom: 1.5rem; }
+  .hud-room { display: none; }
 }
 </style>

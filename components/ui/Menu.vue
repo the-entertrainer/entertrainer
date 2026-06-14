@@ -69,10 +69,6 @@ function onBtnEnter() {
   btnTl?.restart()
 }
 
-function onLinkClick(link: typeof links[0]) {
-  if (!link.external) menuStore.close()
-}
-
 function setLinkEl(el: any, i: number) {
   if (!el) return
   linkEls.value[i] = el.$el ?? el
@@ -98,17 +94,27 @@ function setLinkEl(el: any, i: number) {
 
       <!-- Nav links -->
       <nav class="menu-links">
-        <a
-          v-for="(link, i) in links"
-          :key="link.label"
-          :href="link.to"
-          :target="link.external ? '_blank' : undefined"
-          :rel="link.external ? 'noopener noreferrer' : undefined"
-          class="menu-link"
-          :ref="(el: any) => setLinkEl(el, i)"
-          @click="onLinkClick(link)"
-          >{{ link.label }}</a
-        >
+        <template v-for="(link, i) in links" :key="link.label">
+          <!-- External links: plain <a> with new tab -->
+          <a
+            v-if="link.external"
+            :href="link.to"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="menu-link"
+            :ref="(el: any) => setLinkEl(el, i)"
+            >{{ link.label }}</a
+          >
+          <!-- Internal links: NuxtLink for SPA navigation (no full reload) -->
+          <NuxtLink
+            v-else
+            :to="link.to"
+            class="menu-link"
+            :ref="(el: any) => setLinkEl(el, i)"
+            @click="menuStore.close()"
+            >{{ link.label }}</NuxtLink
+          >
+        </template>
       </nav>
     </div>
   </div>

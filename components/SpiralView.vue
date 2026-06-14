@@ -135,19 +135,19 @@ function onLoaderEntered() {
       :class="{ hidden: !hasEntered || isListMode }"
     />
 
-    <!-- List mode -->
+    <!-- List mode — emit cardClick so the parent applies accordion vs router logic -->
     <Transition name="fade">
       <div v-if="hasEntered && isListMode" ref="listRef" class="spiral-list">
-        <NuxtLink
+        <button
           v-for="item in items"
           :key="item.id"
-          :to="item.href"
           class="nav-row"
+          @click="emit('cardClick', item.href)"
         >
           <span class="nav-row__label">{{ item.label }}</span>
           <span class="nav-row__desc">{{ item.description }}</span>
           <span class="nav-row__arrow">→</span>
-        </NuxtLink>
+        </button>
       </div>
     </Transition>
 
@@ -209,9 +209,16 @@ function onLoaderEntered() {
   align-items: center;
   gap: 24rem;
   padding: 28rem 0;
+  border: none;
   border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-radius: 0;
+  background: none;
+  text-align: left;
   text-decoration: none;
   color: var(--color-white);
+  width: 100%;
+  cursor: pointer;
+  font-family: var(--main-font);
   transition: padding-left 0.3s var(--ease-spring);
 }
 .nav-row:first-child { border-top: 1px solid rgba(255,255,255,0.1); }

@@ -137,7 +137,7 @@ function onLoaderEntered() {
 }
 .view-switch-wrap {
   position: absolute;
-  top: 30rem;
+  top: calc(30rem + var(--safe-top));
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
@@ -161,7 +161,7 @@ function onLoaderEntered() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20rem 30rem;
+  padding: 20rem 30rem calc(20rem + var(--safe-bottom));
   pointer-events: none;
 }
 .bottom-bar__copy,

@@ -52,7 +52,7 @@ export default class Controls {
     const delta = this._lastTouchY - y
     this._lastTouchY = y
     this._lastTouchTime = performance.now()
-    this.targetWheelDeltaY += delta * 0.00009
+    this.targetWheelDeltaY += delta * 0.00012
     this.targetWheelDeltaY = clamp(this.targetWheelDeltaY, -2, 2)
   }
 

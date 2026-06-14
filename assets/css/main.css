@@ -30,6 +30,12 @@
   --gap-20: 20px;
   --gap-45: 45px;
 
+  /* Safe area insets (notched phones, Dynamic Island) */
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+
   /* Border radius */
   --radius-xs: 4px;
   --radius-s: 8px;
@@ -76,11 +82,15 @@
    ============================================================ */
 html {
   font-size: 1px;
+  /* Disable overscroll bounce globally — native app feel */
+  overscroll-behavior: none;
 }
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  /* Remove tap flash on mobile */
+  -webkit-tap-highlight-color: transparent;
 }
 body {
   font-family: var(--main-font);
@@ -92,6 +102,10 @@ body {
   background: var(--color-black);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  /* Disable iOS callout on long-press */
+  -webkit-touch-callout: none;
+  /* Prevent pull-to-refresh */
+  overscroll-behavior-y: none;
   -moz-osx-font-smoothing: grayscale;
 }
 a {
@@ -465,8 +479,8 @@ canvas {
    ============================================================ */
 .menu {
   position: fixed;
-  top: 30rem;
-  right: 30rem;
+  top: calc(30rem + var(--safe-top));
+  right: calc(30rem + var(--safe-right));
   z-index: 40;
 }
 .menu-subwrapper {

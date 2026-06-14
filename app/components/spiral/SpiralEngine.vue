@@ -59,7 +59,7 @@ onMounted(async () => {
   // Drag-to-rotate on the stage (ignored on interactive children).
   drag = useDrag(stageRef, {
     onStart: () => spiral?.dragStart(),
-    onDelta: (dx) => spiral?.dragDelta(dx),
+    onDelta: (dx, dy) => spiral?.dragDelta(dx, dy),
     onEnd: () => spiral?.dragEnd(),
   })
   drag.attach()

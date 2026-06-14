@@ -18,8 +18,9 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #fff;
+      background: #0a0a0a;
       font-family: 'Space Mono', monospace;
+      color: #fafafa;
     }
 
     body {
@@ -29,16 +30,52 @@
       padding: 32px;
     }
 
+    /* Canvas for 3D entrance */
+    #canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    /* Scan line loader */
+    #scan {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 100vh;
+      background: linear-gradient(90deg, rgba(250,250,250,0) 0%, rgba(250,250,250,0.3) 50%, rgba(250,250,250,0) 100%);
+      z-index: 11;
+      pointer-events: none;
+    }
+
+    /* Mouse trail dots */
+    .trail-dot {
+      position: fixed;
+      width: 2px;
+      height: 2px;
+      background: #fafafa;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
     .logo {
       display: flex;
       flex-direction: column;
       gap: 16px;
       width: 100%;
       max-width: 520px;
+      opacity: 0;
+      z-index: 20;
     }
 
     .bar {
-      background: #000;
+      background: #fafafa;
       display: flex;
       align-items: center;
       gap: 20px;
@@ -50,11 +87,11 @@
     }
 
     .bar:hover {
-      background: #1a1a1a;
+      background: #e0e0e0;
     }
 
     .bar:hover .icon svg {
-      filter: drop-shadow(0 0 6px rgba(255,255,255,0.6));
+      filter: drop-shadow(0 0 6px rgba(250,250,250,0.5));
     }
 
     .icon {
@@ -69,11 +106,12 @@
     .icon svg {
       width: 100%;
       height: 100%;
+      stroke: #0a0a0a;
       transition: filter 0.15s ease;
     }
 
     .bar__label {
-      color: #fff;
+      color: #0a0a0a;
       font-size: 18px;
       font-weight: 700;
       letter-spacing: 0.14em;
@@ -87,14 +125,23 @@
       .icon { width: 26px; height: 26px; }
       .bar__label { font-size: 13px; letter-spacing: 0.1em; }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      #scan, #canvas, .trail-dot { display: none; }
+      .logo { opacity: 1; }
+    }
   </style>
 </head>
 <body>
-  <div class="logo">
+
+  <div id="scan"></div>
+  <canvas id="canvas"></canvas>
+
+  <div class="logo" id="logo">
 
     <div class="bar">
       <div class="icon">
-        <svg viewBox="0 0 32 32" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter">
+        <svg viewBox="0 0 32 32" fill="none" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter">
           <polyline points="2,16 16,4 30,16"/>
           <polyline points="6,14 6,28 13,28 13,20 19,20 19,28 26,28 26,14"/>
         </svg>
@@ -104,20 +151,12 @@
 
     <div class="bar">
       <div class="icon">
-        <svg viewBox="0 0 32 32" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter">
+        <svg viewBox="0 0 32 32" fill="none" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter">
           <rect x="9" y="9" width="14" height="14"/>
-          <line x1="9" y1="12" x2="4" y2="12"/>
-          <line x1="9" y1="16" x2="4" y2="16"/>
-          <line x1="9" y1="20" x2="4" y2="20"/>
-          <line x1="23" y1="12" x2="28" y2="12"/>
-          <line x1="23" y1="16" x2="28" y2="16"/>
-          <line x1="23" y1="20" x2="28" y2="20"/>
-          <line x1="12" y1="9" x2="12" y2="4"/>
-          <line x1="16" y1="9" x2="16" y2="4"/>
-          <line x1="20" y1="9" x2="20" y2="4"/>
-          <line x1="12" y1="23" x2="12" y2="28"/>
-          <line x1="16" y1="23" x2="16" y2="28"/>
-          <line x1="20" y1="23" x2="20" y2="28"/>
+          <line x1="9" y1="12" x2="4" y2="12"/> <line x1="9" y1="16" x2="4" y2="16"/> <line x1="9" y1="20" x2="4" y2="20"/>
+          <line x1="23" y1="12" x2="28" y2="12"/> <line x1="23" y1="16" x2="28" y2="16"/> <line x1="23" y1="20" x2="28" y2="20"/>
+          <line x1="12" y1="9" x2="12" y2="4"/> <line x1="16" y1="9" x2="16" y2="4"/> <line x1="20" y1="9" x2="20" y2="4"/>
+          <line x1="12" y1="23" x2="12" y2="28"/> <line x1="16" y1="23" x2="16" y2="28"/> <line x1="20" y1="23" x2="20" y2="28"/>
         </svg>
       </div>
       <span class="bar__label">Tools</span>
@@ -125,7 +164,7 @@
 
     <div class="bar">
       <div class="icon">
-        <svg viewBox="0 0 32 32" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter">
+        <svg viewBox="0 0 32 32" fill="none" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter">
           <line x1="16" y1="4" x2="16" y2="20"/>
           <polyline points="9,14 16,21 23,14"/>
           <polyline points="4,24 4,28 28,28 28,24"/>
@@ -135,5 +174,184 @@
     </div>
 
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script>
+  (function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (typeof THREE === 'undefined' || typeof gsap === 'undefined') {
+      document.getElementById('logo').style.opacity = '1';
+      return;
+    }
+
+    var W = window.innerWidth, H = window.innerHeight;
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // SETUP: THREE.JS FOR 3D BARS
+    // ═══════════════════════════════════════════════════════════════════════════════
+    var canvas = document.getElementById('canvas');
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(W, H);
+    renderer.setClearColor(0x0a0a0a, 1);
+
+    var scene = new THREE.Scene();
+    var cam = new THREE.PerspectiveCamera(50, W / H, 0.1, 1000);
+    cam.position.z = 120;
+
+    var light = new THREE.DirectionalLight(0xffffff, 0.8);
+    light.position.set(200, 200, 300);
+    scene.add(light);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+    // Bars in 3D space
+    var bars3d = [];
+    var barH = 50, barW = 260, barD = 8;
+    var barGap = 58;
+
+    var positions = [
+      { x: 0, y: barGap },
+      { x: 0, y: 0 },
+      { x: 0, y: -barGap }
+    ];
+
+    positions.forEach(function(pos, i) {
+      var geom = new THREE.BoxGeometry(barW, barH, barD);
+      var mat = new THREE.MeshPhongMaterial({ color: 0xfafafa, emissive: 0xfafafa, emissiveIntensity: 0.15 });
+      var mesh = new THREE.Mesh(geom, mat);
+      mesh.position.set(pos.x, pos.y, 0);
+      mesh.scale.z = 0.3;
+      mesh.rotation.x = (Math.random() - 0.5) * 0.6;
+      mesh.rotation.y = (Math.random() - 0.5) * 0.4;
+      scene.add(mesh);
+      bars3d.push(mesh);
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // MOUSE TRAIL
+    // ═══════════════════════════════════════════════════════════════════════════════
+    var trails = [];
+    var trailX = 0, trailY = 0;
+    document.addEventListener('mousemove', function(e) {
+      trailX = e.clientX;
+      trailY = e.clientY;
+    });
+
+    function createTrailDot() {
+      var dot = document.createElement('div');
+      dot.className = 'trail-dot';
+      dot.style.left = (trailX - 1) + 'px';
+      dot.style.top = (trailY - 1) + 'px';
+      document.body.appendChild(dot);
+      trails.push({ el: dot, age: 0 });
+      if (trails.length > 24) {
+        trails[0].el.remove();
+        trails.shift();
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // TIMELINE: ENTRANCE SEQUENCE
+    // ═══════════════════════════════════════════════════════════════════════════════
+    var logo = document.getElementById('logo');
+    var scan = document.getElementById('scan');
+    var barEls = logo.querySelectorAll('.bar');
+
+    var tl = gsap.timeline();
+
+    // PHASE 1: Scan line sweep (0-0.8s)
+    tl.to(scan, {
+      width: '100vw',
+      duration: 0.8,
+      ease: 'power2.inOut'
+    }, 0)
+    // Canvas fades in during scan
+    .to(canvas, {
+      opacity: 1,
+      duration: 0.8,
+      ease: 'none'
+    }, 0);
+
+    // PHASE 2: 3D bar choreography (0.6-2.0s) — stagger entrance with rotation settle
+    bars3d.forEach(function(mesh, i) {
+      tl.to(mesh.rotation, {
+        x: 0,
+        y: 0,
+        duration: 0.7,
+        ease: 'power3.out',
+        delay: i * 0.18
+      }, 0.6)
+      .to(mesh.scale, {
+        z: 1,
+        duration: 0.7,
+        ease: 'back.out',
+        delay: i * 0.18
+      }, 0.6, '<');
+    });
+
+    // PHASE 3: Mouse trail kicks in (post-scan, during 3D sequence)
+    tl.add(function() {
+      var trailInterval = setInterval(createTrailDot, 16);
+      // stop trail creation after 1s
+      setTimeout(function() { clearInterval(trailInterval); }, 1200);
+    }, 0.75);
+
+    // PHASE 4: Canvas fade out + DOM bars fade in (1.8-2.6s)
+    tl.to(canvas, {
+      opacity: 0,
+      duration: 0.6,
+      ease: 'power2.in'
+    }, 1.8)
+    .to(logo, {
+      opacity: 1,
+      duration: 0.5,
+      ease: 'power2.out'
+    }, 1.85);
+
+    // PHASE 5: Bar elements stagger in
+    Array.prototype.forEach.call(barEls, function(bar, i) {
+      var icon = bar.querySelector('.icon');
+      var label = bar.querySelector('.bar__label');
+      tl.from(bar, {
+        opacity: 0,
+        y: 12,
+        duration: 0.55,
+        ease: 'power2.out',
+        delay: i * 0.12
+      }, 1.95)
+      .from([icon, label], {
+        opacity: 0,
+        x: -16,
+        duration: 0.5,
+        ease: 'power2.out',
+        stagger: 0.1,
+        delay: i * 0.12
+      }, 2.05, '<');
+    });
+
+    // PHASE 6: Fade trail dots out
+    tl.add(function() {
+      trails.forEach(function(t) {
+        gsap.to(t.el, { opacity: 0, duration: 1.2, ease: 'power2.out' });
+      });
+    }, 2.4);
+
+    // Clean up canvas
+    tl.add(function() {
+      canvas.style.display = 'none';
+      renderer.dispose();
+    }, 3.0);
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // RENDER LOOP
+    // ═══════════════════════════════════════════════════════════════════════════════
+    (function tick() {
+      requestAnimationFrame(tick);
+      renderer.render(scene, cam);
+    })();
+
+  })();
+  </script>
 </body>
 </html>

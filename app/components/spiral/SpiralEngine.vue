@@ -22,7 +22,6 @@ let velocity = 0
 let isActiveDrag = false
 let lastPointerY = 0
 let dragCleanup: (() => void) | null = null
-let resizeTimeout: ReturnType<typeof setTimeout> | null = null
 
 const panelObjects: any[] = []
 const mountedApps: any[] = []
@@ -53,9 +52,10 @@ onMounted(async () => {
 
   scene = new THREE.Scene()
 
-  camera = new THREE.PerspectiveCamera(36, container.clientWidth / container.clientHeight, 0.1, 2000)
-  camera.position.set(0, 22, 540)
-  camera.lookAt(0, -35, 0)
+  // Clean, balanced camera for vertical staircase
+  camera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 2000)
+  camera.position.set(0, 18, 480)
+  camera.lookAt(0, -20, 0)
 
   cssRenderer = new CSS3DRenderer()
   cssRenderer.setSize(container.clientWidth, container.clientHeight)
@@ -68,28 +68,30 @@ onMounted(async () => {
   staircaseGroup = new THREE.Group()
   scene.add(staircaseGroup)
 
-  await createVerticalStaircase(CSS3DObject)
+  await createCleanStaircase(CSS3DObject)
 
   setupDragControls()
 
   const { gsap } = useGsap()
 
+  // Clean elegant entrance
   gsap.from(staircaseGroup.position, {
-    y: staircaseGroup.position.y + 90,
-    duration: 1.6,
+    y: staircaseGroup.position.y + 80,
+    duration: 1.7,
     ease: 'power3.out',
-    delay: 0.3
+    delay: 0.4
   })
 
   const renderLoop = () => {
     if (!staircaseGroup || !cssRenderer || !camera) return
 
     if (!isActiveDrag) {
-      velocity *= isDesktop ? 0.96 : 0.935
-      staircaseGroup.position.y += velocity * (isDesktop ? 0.65 : 0.7)
+      velocity *= 0.94
+      staircaseGroup.position.y += velocity * 0.65
 
-      if (staircaseGroup.position.y > 60) staircaseGroup.position.y = 60
-      if (staircaseGroup.position.y < -150) staircaseGroup.position.y = -150
+      // Soft bounds
+      if (staircaseGroup.position.y > 50) staircaseGroup.position.y = 50
+      if (staircaseGroup.position.y < -160) staircaseGroup.position.y = -160
     }
 
     cssRenderer.render(scene, camera)
@@ -99,31 +101,29 @@ onMounted(async () => {
   window.addEventListener('resize', handleResize)
 })
 
-// Simple desktop detection
-const isDesktop = typeof window !== 'undefined' && !('ontouchstart' in window)
-
-async function createVerticalStaircase(CSS3DObject: any) {
+async function createCleanStaircase(CSS3DObject: any) {
   const container = containerRef.value
   if (!container) return
 
   const isMobile = width.value < 640
 
-  const horizontalSpread = isMobile ? 30 : 46
-  const verticalStep = isMobile ? 82 : 62
-  const depthStep = isMobile ? 22 : 28
+  // Balanced, stable parameters
+  const horizontalSpread = isMobile ? 28 : 42
+  const verticalStep = isMobile ? 78 : 58
+  const depthStep = isMobile ? 20 : 26
 
   for (let i = 0; i < sections.length; i++) {
     const section = sections[i]
 
     const wrapper = document.createElement('div')
-    wrapper.style.width = isMobile ? '115px' : '152px'
-    wrapper.style.height = isMobile ? '135px' : '172px'
+    wrapper.style.width = isMobile ? '128px' : '148px'
+    wrapper.style.height = isMobile ? '148px' : '168px'
     wrapper.style.pointerEvents = 'auto'
-    wrapper.style.borderRadius = '9px'
+    wrapper.style.borderRadius = '10px'
     wrapper.style.overflow = 'hidden'
-    wrapper.style.boxShadow = '0 6px 22px rgba(0,0,0,0.65)'
-    wrapper.style.border = '1px solid rgba(255,255,255,0.06)'
-    wrapper.style.backdropFilter = 'blur(28px) saturate(200%)'
+    wrapper.style.boxShadow = '0 5px 18px rgba(0,0,0,0.6)'
+    wrapper.style.border = '1px solid rgba(255,255,255,0.05)'
+    wrapper.style.backdropFilter = 'blur(26px) saturate(190%)'
 
     const PanelComponent = (await import('./Panel.vue')).default
 
@@ -142,13 +142,14 @@ async function createVerticalStaircase(CSS3DObject: any) {
 
     const progress = i / (sections.length - 1)
 
+    // Clean vertical staircase positioning
     const x = (progress - 0.5) * horizontalSpread
-    const y = -progress * sections.length * verticalStep * 0.58
-    const z = -progress * sections.length * depthStep * 0.65
+    const y = -progress * sections.length * verticalStep * 0.52
+    const z = -progress * sections.length * depthStep * 0.6
 
     object.position.set(x, y, z)
-    object.rotation.x = 0.04 + progress * 0.02
-    object.rotation.y = (progress - 0.5) * 0.2
+    object.rotation.x = 0.05 + progress * 0.015
+    object.rotation.y = (progress - 0.5) * 0.18
 
     wrapper.addEventListener('click', () => {
       focusPanel(object, i)
@@ -165,33 +166,33 @@ function focusPanel(object: any, index: number) {
   const { gsap } = useGsap()
 
   gsap.to(object.scale, {
-    x: 1.08,
-    y: 1.08,
-    z: 1.08,
-    duration: 0.15,
+    x: 1.06,
+    y: 1.06,
+    z: 1.06,
+    duration: 0.12,
     ease: 'back.out(2)',
     onComplete: () => {
       gsap.to(object.scale, {
         x: 1,
         y: 1,
         z: 1,
-        duration: 0.35,
+        duration: 0.3,
         ease: 'power2.out'
       })
     }
   })
 
   gsap.to(object.position, {
-    z: object.position.z + 70,
-    duration: 0.25,
-    ease: 'back.out(1.8)'
+    z: object.position.z + 60,
+    duration: 0.22,
+    ease: 'back.out(1.6)'
   })
 
-  const targetY = -index * 52
+  const targetY = -index * 48
 
   gsap.to(staircaseGroup.position, {
     y: targetY,
-    duration: 0.85,
+    duration: 0.8,
     ease: 'power3.out'
   })
 }
@@ -221,7 +222,7 @@ function setupDragControls() {
     const deltaY = e.clientY - lastPointerY
     lastPointerY = e.clientY
 
-    const speed = isMobile ? 2.4 : 1.3
+    const speed = isMobile ? 2.2 : 1.25
     velocity = deltaY * speed
   }
 
@@ -244,18 +245,13 @@ function setupDragControls() {
 }
 
 function handleResize() {
-  if (resizeTimeout) clearTimeout(resizeTimeout)
+  if (!containerRef.value || !cssRenderer || !camera) return
+  const w = containerRef.value.clientWidth
+  const h = containerRef.value.clientHeight
 
-  resizeTimeout = setTimeout(() => {
-    if (!containerRef.value || !cssRenderer || !camera) return
-
-    const w = containerRef.value.clientWidth
-    const h = containerRef.value.clientHeight
-
-    camera.aspect = w / h
-    camera.updateProjectionMatrix()
-    cssRenderer.setSize(w, h)
-  }, 150) // Debounced
+  camera.aspect = w / h
+  camera.updateProjectionMatrix()
+  cssRenderer.setSize(w, h)
 }
 
 onBeforeUnmount(() => {
@@ -265,22 +261,15 @@ onBeforeUnmount(() => {
 
   if (dragCleanup) dragCleanup()
   if (snapTimeout) clearTimeout(snapTimeout)
-  if (resizeTimeout) clearTimeout(resizeTimeout)
   window.removeEventListener('resize', handleResize)
 
   mountedApps.forEach(app => {
-    try {
-      app.unmount()
-    } catch (e) {
-      console.warn('Error unmounting panel app', e)
-    }
+    try { app.unmount() } catch {}
   })
   mountedApps.length = 0
 
   panelObjects.forEach(obj => {
-    if (obj.element?.parentNode) {
-      obj.element.parentNode.removeChild(obj.element)
-    }
+    if (obj.element?.parentNode) obj.element.parentNode.removeChild(obj.element)
   })
   panelObjects.length = 0
 })

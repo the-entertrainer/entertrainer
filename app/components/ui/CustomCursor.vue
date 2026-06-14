@@ -65,30 +65,29 @@ onBeforeUnmount(() => {
 .cursor-dot {
   position: fixed;
   top: 0; left: 0;
-  width: 8px; height: 8px;
+  width: 7px; height: 7px;
   border-radius: 50%;
-  background: var(--neon-cyan);
-  box-shadow: var(--glow-cyan);
+  background: #000;
   will-change: transform;
-  transition: width 0.2s, height 0.2s;
+  transition: width 0.2s, height 0.2s, background 0.2s;
 }
 
 .cursor-ring {
   position: fixed;
   top: 0; left: 0;
-  width: 38px; height: 38px;
-  border: 1.5px solid rgba(0, 240, 255, 0.5);
+  width: 34px; height: 34px;
+  border: 1.5px solid rgba(0, 0, 0, 0.35);
   border-radius: 50%;
   will-change: transform;
   transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out), border-color 0.2s;
 }
 
 .cursor-ring.is-hover {
-  width: 56px; height: 56px;
-  border-color: var(--neon-magenta);
+  width: 52px; height: 52px;
+  border-color: rgba(0, 0, 0, 0.6);
 }
 .cursor-dot.is-hover {
   width: 5px; height: 5px;
-  background: var(--neon-magenta);
+  background: #555;
 }
 </style>

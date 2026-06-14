@@ -2,29 +2,36 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import { useContent } from '~/composables/useContent'
-import { useGsap } from '~/composables/useGsap'
 
 const site = useContent()
-const fadeRef = ref<HTMLElement | null>(null)
 const currentRoom = ref('hub')
 const isTransitioning = ref(false)
+// Fade overlay opacity is driven by reactive state + CSS transition
+// (no GSAP dependency — guarantees the intro fade always clears).
+const fadeOpacity = ref(1)
 
-let gsap: any
+let fadeTimers: ReturnType<typeof setTimeout>[] = []
 
 const { width } = useWindowSize()
 
-// Responsive grid config
+// Responsive grid config.
+// colGap is width-derived so the outermost cards always fit on screen:
+//   max gap = (viewport - cardWidth - 2*margin) / (cols - 1)
 const gridCfg = computed(() => {
-  if (width.value < 640) {
-    // Mobile: 2 columns × 4 rows; shift portals down so hub title has room
-    return { cols: 2, colGap: Math.min(160, width.value * 0.4), rowGap: 140, roomZ: -2200, yOffset: 90 }
+  const w = width.value
+  if (w < 640) {
+    // Mobile: 2 columns × 4 rows; card ~140px, shift down for hub title
+    const colGap = Math.min(170, (w - 140 - 32) / 1)
+    return { cols: 2, colGap, rowGap: 140, roomZ: -2200, yOffset: 90 }
   }
-  if (width.value < 1024) {
-    // Tablet: 4 columns, tighter spacing
-    return { cols: 4, colGap: 210, rowGap: 185, roomZ: -2600, yOffset: 30 }
+  if (w < 1024) {
+    // Tablet: 4 columns; card ~165px
+    const colGap = Math.min(210, (w - 165 - 56) / 3)
+    return { cols: 4, colGap, rowGap: 185, roomZ: -2600, yOffset: 30 }
   }
-  // Desktop: 4 columns, full spacing
-  return { cols: 4, colGap: 340, rowGap: 220, roomZ: -2800, yOffset: 0 }
+  // Desktop: 4 columns; card ~200px
+  const colGap = Math.min(340, (w - 200 - 80) / 3)
+  return { cols: 4, colGap, rowGap: 220, roomZ: -2800, yOffset: 0 }
 })
 
 const ROOM_Z = computed(() => gridCfg.value.roomZ)
@@ -60,34 +67,26 @@ const sceneStyle = computed(() => {
   }
 })
 
-function goToRoom(id: string) {
+// Fade to white, swap room, fade back in — driven by CSS transition.
+function transitionTo(id: string) {
   if (isTransitioning.value || currentRoom.value === id) return
   isTransitioning.value = true
-  gsap.to(fadeRef.value, {
-    opacity: 1, duration: 0.4, ease: 'power2.in',
-    onComplete: () => {
-      currentRoom.value = id
-      gsap.to(fadeRef.value, {
-        opacity: 0, duration: 0.5, ease: 'power2.out', delay: 0.08,
-        onComplete: () => { isTransitioning.value = false }
-      })
-    }
-  })
+  fadeOpacity.value = 1 // fade up
+  fadeTimers.push(setTimeout(() => {
+    currentRoom.value = id // swap behind the white veil
+    fadeTimers.push(setTimeout(() => {
+      fadeOpacity.value = 0 // fade back in
+      fadeTimers.push(setTimeout(() => {
+        isTransitioning.value = false
+      }, 450))
+    }, 80))
+  }, 400))
 }
 
+function goToRoom(id: string) { transitionTo(id) }
 function goToHub() {
-  if (isTransitioning.value || currentRoom.value === 'hub') return
-  isTransitioning.value = true
-  gsap.to(fadeRef.value, {
-    opacity: 1, duration: 0.4, ease: 'power2.in',
-    onComplete: () => {
-      currentRoom.value = 'hub'
-      gsap.to(fadeRef.value, {
-        opacity: 0, duration: 0.5, ease: 'power2.out', delay: 0.08,
-        onComplete: () => { isTransitioning.value = false }
-      })
-    }
-  })
+  if (currentRoom.value === 'hub') return
+  transitionTo('hub')
 }
 
 function onKey(e: KeyboardEvent) {
@@ -95,24 +94,21 @@ function onKey(e: KeyboardEvent) {
 }
 
 onMounted(() => {
-  try {
-    gsap = useGsap().gsap
-    gsap.fromTo(fadeRef.value, { opacity: 1 }, { opacity: 0, duration: 0.9, delay: 0.15 })
-  } catch (e) {
-    // Fallback: if GSAP fails, clear fade immediately
-    if (fadeRef.value) fadeRef.value.style.opacity = '0'
-    console.warn('[WorldExperience] GSAP init failed:', e)
-  }
+  // Clear the intro veil on next frame so the CSS transition runs.
+  requestAnimationFrame(() => { fadeOpacity.value = 0 })
   window.addEventListener('keydown', onKey)
 })
 
-onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKey)
+  fadeTimers.forEach(clearTimeout)
+})
 </script>
 
 <template>
   <div class="world-stage" role="main">
-    <!-- Fade overlay — starts opaque, GSAP clears it -->
-    <div ref="fadeRef" class="world-fade" aria-hidden="true" />
+    <!-- Fade overlay — starts opaque, CSS transition clears it on mount -->
+    <div class="world-fade" :style="{ opacity: fadeOpacity }" aria-hidden="true" />
 
     <!-- No-JS fallback message -->
     <noscript>
@@ -267,6 +263,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   background: #fff;
   pointer-events: none;
   z-index: 200;
+  transition: opacity 0.5s ease;
 }
 
 /* ─── Perspective ─── */
@@ -338,6 +335,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   /* CSS vars --px / --py set by portalVars() */
   transform: translate3d(calc(-50% + var(--px)), calc(-50% + var(--py)), 0px);
   width: 200px;
+  min-height: 86px;
   padding: 1rem 1.2rem;
   background: rgba(250, 250, 250, 0.95);
   border: 1px solid rgba(0, 0, 0, 0.12);
@@ -346,6 +344,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   text-align: left;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   gap: 0.4rem;
   transition: border-color 0.22s ease, background 0.22s ease, transform 0.22s ease;
   backface-visibility: hidden;
@@ -684,7 +683,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .hub-heading { font-size: 1.65rem; }
   .hub-sub { display: none; }
 
-  .world-portal { width: 140px; padding: 0.7rem 0.85rem; }
+  .world-portal { width: 140px; min-height: 0; padding: 0.7rem 0.85rem; }
   .p-hint { display: none; }
 
   .world-room { width: 92vw; max-height: 80vh; overflow-y: auto; }

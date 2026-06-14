@@ -7,7 +7,7 @@ useSeoMeta({
   title: () => `${site.brand} — ${site.tagline}`,
   ogTitle: site.brand,
   description:
-    'Explore Naveen\'s work in instructional design through an immersive 3D room experience. Free Storyline examples, micro-learnings, and more.',
+    'Explore Naveen\'s work in instructional design through an immersive 3D scroll-driven journey. Free Storyline examples, micro-learnings, and more.',
   ogDescription: site.tagline,
   ogType: 'website',
   ogUrl: `https://${site.domain}`,
@@ -34,5 +34,6 @@ useHead({
 </script>
 
 <template>
-  <WorldExperience />
+  <Journey3D />
+  <JourneyContent />
 </template>

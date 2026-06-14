@@ -16,7 +16,7 @@ if (!item.value) throw createError({ statusCode: 404 })
 
 <template>
   <div v-if="item" class="detail-page">
-    <NuxtLink to="/tools" class="back-btn">← back</NuxtLink>
+    <NuxtLink to="/" class="back-btn">← back</NuxtLink>
     <h1 class="detail-title">{{ item.label }}</h1>
     <p class="detail-desc">{{ item.description }}</p>
     <div class="detail-content">

@@ -12,9 +12,9 @@ const letters = ref<HTMLElement[]>([])
 let btnTl: gsap.core.Timeline | null = null
 
 const links = [
-  { label: 'works', to: '/' },
-  { label: 'about', to: '/about' },
-  { label: 'contact', to: `mailto:${contentStore.email}` }
+  { label: 'home',     to: '/',                                            external: false },
+  { label: 'linkedin', to: 'https://www.linkedin.com/in/entertrainer/',    external: true  },
+  { label: 'contact',  to: `mailto:${contentStore.email}`,                 external: true  }
 ]
 const linkEls = ref<HTMLElement[]>([])
 
@@ -69,8 +69,8 @@ function onBtnEnter() {
   btnTl?.restart()
 }
 
-function onLinkClick(to: string) {
-  if (!to.startsWith('mailto:')) menuStore.close()
+function onLinkClick(link: typeof links[0]) {
+  if (!link.external) menuStore.close()
 }
 
 function setLinkEl(el: any, i: number) {
@@ -98,16 +98,16 @@ function setLinkEl(el: any, i: number) {
 
       <!-- Nav links -->
       <nav class="menu-links">
-        <component
-          :is="link.to.startsWith('mailto:') ? 'a' : 'NuxtLink'"
+        <a
           v-for="(link, i) in links"
           :key="link.label"
-          :to="link.to.startsWith('mailto:') ? undefined : link.to"
-          :href="link.to.startsWith('mailto:') ? link.to : undefined"
+          :href="link.to"
+          :target="link.external ? '_blank' : undefined"
+          :rel="link.external ? 'noopener noreferrer' : undefined"
           class="menu-link"
           :ref="(el: any) => setLinkEl(el, i)"
-          @click="onLinkClick(link.to)"
-          >{{ link.label }}</component
+          @click="onLinkClick(link)"
+          >{{ link.label }}</a
         >
       </nav>
     </div>

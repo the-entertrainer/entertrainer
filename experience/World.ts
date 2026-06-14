@@ -7,6 +7,7 @@ export default class World {
   experience: Experience
   geometry: PlaneGeometry
   navPlanes: NavPlane[] = []
+  private _destroyed = false
 
   constructor(experience: Experience) {
     this.experience = experience
@@ -32,12 +33,29 @@ export default class World {
     this.navPlanes.forEach((p, i) => setTimeout(() => p.hide(), (i % 4) * 30))
   }
 
+  // Accordion transition: hide → swap items → reveal
+  async transitionTo(items: NavItem[]) {
+    this.hide()
+
+    await new Promise<void>(r => setTimeout(r, 520))
+    if (this._destroyed) return
+
+    this.experience.controls.reset()
+    this.setNavItems(items)
+
+    await new Promise<void>(r => setTimeout(r, 80))
+    if (this._destroyed) return
+
+    this.reveal()
+  }
+
   update(delta: number) {
     const { wheelDeltaY, scrollOffset } = this.experience.controls
     this.navPlanes.forEach((p) => p.update(delta, scrollOffset, wheelDeltaY))
   }
 
   destroy() {
+    this._destroyed = true
     this.navPlanes.forEach((p) => p.destroy())
     this.geometry.dispose()
   }

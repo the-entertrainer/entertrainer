@@ -1,14 +1,4 @@
 <script setup lang="ts">
-import { useContentStore } from '~/stores/content'
-
-definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
-const contentStore = useContentStore()
+// /about is now an accordion section on the home spiral — redirect there
+await navigateTo('/', { replace: true })
 </script>
-
-<template>
-  <SpiralView
-    :items="contentStore.aboutNav"
-    back-href="/"
-    title="About Me"
-  />
-</template>

@@ -60,18 +60,21 @@ const fragmentShader = /* glsl */`
       color = texture2D(uTexture, zoomedUv);
       color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), uColorStrength);
     } else {
-      float offset = 40.0 / 1024.0;
+      // Heavy blur + darken on back-face so text is unreadable
+      float o1 = 70.0 / 1024.0;
+      float o2 = 140.0 / 1024.0;
       vec4 c = vec4(0.0);
-      c += texture2D(uTexture, uv + vec2(-offset, -offset)) * 1.0;
-      c += texture2D(uTexture, uv + vec2( 0.0,   -offset)) * 2.0;
-      c += texture2D(uTexture, uv + vec2( offset, -offset)) * 1.0;
-      c += texture2D(uTexture, uv + vec2(-offset,  0.0))   * 2.0;
-      c += texture2D(uTexture, uv)                         * 4.0;
-      c += texture2D(uTexture, uv + vec2( offset,  0.0))   * 2.0;
-      c += texture2D(uTexture, uv + vec2(-offset,  offset)) * 1.0;
-      c += texture2D(uTexture, uv + vec2( 0.0,    offset)) * 2.0;
-      c += texture2D(uTexture, uv + vec2( offset,  offset)) * 1.0;
+      c += texture2D(uTexture, uv + vec2(-o2, -o2)) * 1.0;
+      c += texture2D(uTexture, uv + vec2(0.0, -o2)) * 2.0;
+      c += texture2D(uTexture, uv + vec2( o2, -o2)) * 1.0;
+      c += texture2D(uTexture, uv + vec2(-o2, 0.0)) * 2.0;
+      c += texture2D(uTexture, uv               )   * 4.0;
+      c += texture2D(uTexture, uv + vec2( o2, 0.0)) * 2.0;
+      c += texture2D(uTexture, uv + vec2(-o2,  o2)) * 1.0;
+      c += texture2D(uTexture, uv + vec2(0.0,  o2)) * 2.0;
+      c += texture2D(uTexture, uv + vec2( o2,  o2)) * 1.0;
       c /= 16.0;
+      c.rgb *= 0.2;
       color = c;
     }
 

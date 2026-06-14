@@ -1,11 +1,10 @@
 <script setup lang="ts">
-// Logo — Section 7.11. Navigates home on click.
+// Logo — navigates home on click.
 </script>
 
 <template>
-  <NuxtLink to="/" class="logo-wrapper">
-    <div class="logo">P</div>
-    <div class="logo-tag-wrapper">back to works</div>
+  <NuxtLink to="/" class="logo-wrapper" aria-label="Entertrainer — home">
+    <div class="logo">N</div>
   </NuxtLink>
 </template>
 
@@ -34,25 +33,5 @@
 }
 .logo:active {
   transform: scale(0.9);
-}
-.logo-tag-wrapper {
-  position: absolute;
-  left: 72rem;
-  top: 50%;
-  white-space: nowrap;
-  padding: 6rem 14rem;
-  border-radius: var(--radius-full);
-  background: var(--color-pop-green);
-  color: var(--color-black);
-  font-size: 14rem;
-  font-weight: 600;
-  opacity: 0;
-  transform: scale(0.5) translate(-10%);
-  transform-origin: left center;
-  transition: opacity 0.2s ease-out, transform 0.5s var(--ease-spring);
-}
-.logo-wrapper:hover .logo-tag-wrapper {
-  opacity: 1;
-  transform: scale(1) rotate(-5deg) translateY(-12rem);
 }
 </style>

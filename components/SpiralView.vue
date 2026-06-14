@@ -8,12 +8,16 @@ import type { NavItem } from '~/types/nav'
 const props = defineProps<{
   items: NavItem[]
   showLoader?: boolean
-  backHref?: string
+  showBack?: boolean
   title?: string
   showViewSwitch?: boolean
 }>()
 
-const router          = useRouter()
+const emit = defineEmits<{
+  cardClick: [href: string]
+  back: []
+}>()
+
 const experienceStore = useExperienceStore()
 const homeViewStore   = useHomeViewStore()
 const canvasRef       = ref<HTMLCanvasElement | null>(null)
@@ -24,6 +28,7 @@ const isListMode      = computed(() => props.showViewSwitch && homeViewStore.mod
 const { $lenis }      = useNuxtApp()
 
 let experience: Experience | null = null
+let transitioning = false
 
 function mountExperience() {
   if (!canvasRef.value) return
@@ -32,8 +37,7 @@ function mountExperience() {
   setTimeout(() => experience!.world.reveal(), 200)
 
   experience.on('planeClick', (href: string) => {
-    experience!.world.hide()
-    setTimeout(() => router.push(href), 150)
+    emit('cardClick', href)
   })
 }
 
@@ -46,14 +50,13 @@ onMounted(() => {
   ;($lenis as any)?.stop()
 
   if (props.showLoader) {
-    // If user already entered in this session, skip loader and mount directly
+    // If user already entered this session, skip loader
     if (experienceStore.hasEntered) {
       isLoaderDone.value = true
       mountExperience()
       return
     }
 
-    // Simulate resource loading — drives the progress bar in UiLoader
     let p = 0
     const interval = setInterval(() => {
       p = Math.min(p + Math.random() * 8 + 2, 99)
@@ -78,8 +81,15 @@ watch(hasEntered, async (entered) => {
   }
 })
 
-// When switching to list mode, destroy Three.js to free GPU resources.
-// When switching back, recreate it.
+// Accordion: when items prop changes, transition to new items in-place
+watch(() => props.items, async (newItems) => {
+  if (!experience || !newItems.length || transitioning || isListMode.value) return
+  transitioning = true
+  await experience.world.transitionTo(newItems)
+  transitioning = false
+}, { deep: false })
+
+// List mode toggle — destroy/recreate Three.js
 watch(isListMode, async (listMode) => {
   if (listMode) {
     destroyExperience()
@@ -118,14 +128,14 @@ function onLoaderEntered() {
       <UiLoader v-if="showLoader && !isLoaderDone" @entered="onLoaderEntered" />
     </Transition>
 
-    <!-- WebGL canvas (hidden in list mode) -->
+    <!-- WebGL canvas -->
     <canvas
       ref="canvasRef"
       class="spiral-canvas"
       :class="{ hidden: !hasEntered || isListMode }"
     />
 
-    <!-- List mode nav -->
+    <!-- List mode -->
     <Transition name="fade">
       <div v-if="hasEntered && isListMode" ref="listRef" class="spiral-list">
         <NuxtLink
@@ -141,13 +151,13 @@ function onLoaderEntered() {
       </div>
     </Transition>
 
-    <!-- UI chrome (only after entered) -->
+    <!-- UI chrome -->
     <Transition name="fade">
       <div v-if="hasEntered" class="spiral-ui">
-        <!-- Back button (sub-spiral pages) -->
-        <NuxtLink v-if="backHref" :to="backHref" class="spiral-back">← back</NuxtLink>
+        <!-- Back button (accordion sub-sections) -->
+        <button v-if="showBack" class="spiral-back" @click="emit('back')">← back</button>
 
-        <!-- Page title (sub-spirals) -->
+        <!-- Section title -->
         <p v-if="title" class="spiral-title">{{ title }}</p>
 
         <!-- View switch (home only) -->
@@ -155,7 +165,7 @@ function onLoaderEntered() {
           <UiViewSwitch />
         </div>
 
-        <!-- Bottom hint (spiral mode only) -->
+        <!-- Hint -->
         <p v-if="!isListMode" class="spiral-hint">scroll to spin · tap to explore</p>
       </div>
     </Transition>
@@ -204,12 +214,8 @@ function onLoaderEntered() {
   color: var(--color-white);
   transition: padding-left 0.3s var(--ease-spring);
 }
-.nav-row:first-child {
-  border-top: 1px solid rgba(255,255,255,0.1);
-}
-.nav-row:hover {
-  padding-left: 16rem;
-}
+.nav-row:first-child { border-top: 1px solid rgba(255,255,255,0.1); }
+.nav-row:hover { padding-left: 16rem; }
 .nav-row__label {
   font-size: 40rem;
   font-weight: 600;
@@ -233,17 +239,9 @@ function onLoaderEntered() {
   .spiral-list {
     padding: calc(80rem + var(--safe-top)) 24rem calc(60rem + var(--safe-bottom));
   }
-  .nav-row {
-    flex-wrap: wrap;
-    gap: 8rem;
-    padding: 22rem 0;
-  }
-  .nav-row__label {
-    font-size: 28rem;
-    min-width: unset;
-    flex: 1;
-  }
-  .nav-row__desc { display: none; }
+  .nav-row { flex-wrap: wrap; gap: 8rem; padding: 22rem 0; }
+  .nav-row__label { font-size: 28rem; min-width: unset; flex: 1; }
+  .nav-row__desc  { display: none; }
 }
 
 .spiral-ui {
@@ -252,19 +250,30 @@ function onLoaderEntered() {
   z-index: 10;
   pointer-events: none;
 }
+
+/* Back button — sits below the logo */
 .spiral-back {
   position: absolute;
-  top: calc(24rem + var(--safe-top));
-  left: calc(var(--grid-margin) + 80rem);
-  font-size: 16rem;
+  top: calc(110rem + var(--safe-top));
+  left: calc(30rem + var(--safe-left));
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--main-font);
+  font-size: 14rem;
   font-weight: 500;
+  letter-spacing: 0.01em;
   color: var(--color-white);
   opacity: 0.5;
-  text-decoration: none;
   pointer-events: all;
   transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6rem;
 }
 .spiral-back:hover { opacity: 1; }
+
 .spiral-title {
   position: absolute;
   bottom: calc(52rem + var(--safe-bottom));

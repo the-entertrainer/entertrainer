@@ -33,7 +33,7 @@ export default class Controls {
   }
 
   private _onWheel(event: WheelEvent) {
-    this.targetWheelDeltaY += event.deltaY * 0.000015
+    this.targetWheelDeltaY += event.deltaY * 0.00002
     this.targetWheelDeltaY = clamp(this.targetWheelDeltaY, -2, 2)
   }
 
@@ -52,7 +52,8 @@ export default class Controls {
     const delta = this._lastTouchY - y
     this._lastTouchY = y
     this._lastTouchTime = performance.now()
-    this.targetWheelDeltaY += delta * 0.00012
+    // Inverted: swipe-up scrolls forward (natural mobile direction)
+    this.targetWheelDeltaY -= delta * 0.0002
     this.targetWheelDeltaY = clamp(this.targetWheelDeltaY, -2, 2)
   }
 
@@ -72,6 +73,12 @@ export default class Controls {
     if (Math.abs(this.targetWheelDeltaY) < this.minWheelSpeed) {
       this.targetWheelDeltaY = this.wheelDirection * this.minWheelSpeed
     }
+  }
+
+  reset() {
+    this.scrollOffset = 0
+    this.wheelDeltaY = 0
+    this.targetWheelDeltaY = this.wheelDirection * this.minWheelSpeed
   }
 
   destroy() {

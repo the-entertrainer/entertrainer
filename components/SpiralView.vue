@@ -33,7 +33,24 @@ function mountExperience() {
 
 onMounted(() => {
   ;($lenis as any)?.stop()
-  if (!props.showLoader) mountExperience()
+
+  if (props.showLoader) {
+    // Simulate resource loading — drives the progress bar in UiLoader
+    let p = 0
+    const interval = setInterval(() => {
+      p = Math.min(p + Math.random() * 8 + 2, 99)
+      experienceStore.setProgress(p)
+      if (p >= 99) {
+        clearInterval(interval)
+        setTimeout(() => {
+          experienceStore.setProgress(100)
+          experienceStore.setReady()
+        }, 300)
+      }
+    }, 80)
+  } else {
+    mountExperience()
+  }
 })
 
 watch(hasEntered, async (entered) => {

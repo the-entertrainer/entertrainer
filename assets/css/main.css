@@ -1,20 +1,66 @@
 /* ============================================================
-   Design Tokens — from REPLICATION_GUIDE.md Section 2
+   Design Tokens
    ============================================================ */
-:root {
-  /* Colors */
-  --color-black: #0a0a0a;
-  --color-white: #fafafa;
-  --color-bg-dark: #0a0a0a;
-  --color-bg-dark20: #0a0a0a20;
-  --color-bg-dark40: #0a0a0a40;
-  --color-bg-dark60: #0a0a0a60;
-  --color-bg-dark-transparent: #0a0a0a00;
-  --color-bg-grey: #171717;
-  --color-pop-green: #21ffc0;
-  --color-grey: #e6e6e6;
-  --color-white20: #fafafa20;
 
+/* ─── Dark theme (default) ─── */
+[data-theme="dark"] {
+  --color-bg: #0D0C0A;
+  --color-text: #F4F1EC;
+  --color-accent: #F59E0B;
+
+  /* Glass UI — white tint on dark surfaces */
+  --color-glass-bg: rgba(255,255,255,0.07);
+  --color-glass-border: rgba(255,255,255,0.18);
+  --color-glass-bg-hover: rgba(255,255,255,0.13);
+  --color-glass-border-hover: rgba(255,255,255,0.32);
+  --color-spinner-track: rgba(244,241,236,0.15);
+  --color-divider: rgba(244,241,236,0.1);
+  --color-panel-bg: #1a1917;
+
+  /* Legacy aliases — existing CSS selectors keep working */
+  --color-black: #0D0C0A;
+  --color-white: #F4F1EC;
+  --color-pop-green: #F59E0B;
+  --color-white20: rgba(244,241,236,0.2);
+  --color-bg-grey: #1a1917;
+  --color-grey: #e6e6e6;
+  --color-bg-dark: #0D0C0A;
+  --color-bg-dark20: rgba(13,12,10,0.2);
+  --color-bg-dark40: rgba(13,12,10,0.4);
+  --color-bg-dark60: rgba(13,12,10,0.6);
+  --color-bg-dark-transparent: rgba(13,12,10,0);
+}
+
+/* ─── Light theme ─── */
+[data-theme="light"] {
+  --color-bg: #F4F1EC;
+  --color-text: #0D0C0A;
+  --color-accent: #B45309;
+
+  /* Glass UI — dark tint on light surfaces */
+  --color-glass-bg: rgba(0,0,0,0.06);
+  --color-glass-border: rgba(0,0,0,0.14);
+  --color-glass-bg-hover: rgba(0,0,0,0.11);
+  --color-glass-border-hover: rgba(0,0,0,0.26);
+  --color-spinner-track: rgba(13,12,10,0.12);
+  --color-divider: rgba(13,12,10,0.1);
+  --color-panel-bg: #E5E2DC;
+
+  /* Legacy aliases — FLIPPED so existing CSS inverts correctly */
+  --color-black: #F4F1EC;
+  --color-white: #0D0C0A;
+  --color-pop-green: #B45309;
+  --color-white20: rgba(13,12,10,0.15);
+  --color-bg-grey: #E5E2DC;
+  --color-grey: #3a3836;
+  --color-bg-dark: #0D0C0A;
+  --color-bg-dark20: rgba(13,12,10,0.2);
+  --color-bg-dark40: rgba(13,12,10,0.4);
+  --color-bg-dark60: rgba(13,12,10,0.6);
+  --color-bg-dark-transparent: rgba(13,12,10,0);
+}
+
+:root {
   /* Typography */
   --main-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
   --display-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
@@ -98,15 +144,14 @@ body {
   font-weight: 400;
   letter-spacing: -0.04em;
   line-height: 1;
-  color: var(--color-white);
-  background: var(--color-black);
+  color: var(--color-text);
+  background: var(--color-bg);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  /* Disable iOS callout on long-press */
   -webkit-touch-callout: none;
-  /* Prevent pull-to-refresh */
   overscroll-behavior-y: none;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 a {
   color: inherit;
@@ -273,8 +318,8 @@ canvas {
 .loader-ring {
   width: 48rem;
   height: 48rem;
-  border: 3rem solid var(--color-white20);
-  border-top-color: var(--color-pop-green);
+  border: 3rem solid var(--color-spinner-track);
+  border-top-color: var(--color-accent);
   border-radius: 50%;
   animation: loader-spin 1s linear infinite;
 }
@@ -302,7 +347,7 @@ canvas {
 .loader-progress .bar {
   height: 100%;
   width: 0;
-  background: var(--color-pop-green);
+  background: var(--color-accent);
   border-radius: var(--radius-full);
 }
 .loader-enter-btn {

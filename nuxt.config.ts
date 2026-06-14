@@ -5,14 +5,19 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'Entertrainer — Naveen Jose',
+      script: [
+        {
+          innerHTML: `(function(){var t=localStorage.getItem('et-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.dataset.theme=t;})();`
+        }
+      ],
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
-        { name: 'theme-color', content: '#0a0a0a' },
+        { name: 'theme-color', content: '#0D0C0A' },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'Entertrainer' },
-        { name: 'msapplication-TileColor', content: '#0a0a0a' }
+        { name: 'msapplication-TileColor', content: '#0D0C0A' }
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
@@ -30,9 +35,9 @@ export default defineNuxtConfig({
     manifest: {
       name: 'Entertrainer',
       short_name: 'Entertrainer',
-      description: 'Motion designer & creative developer',
-      theme_color: '#0a0a0a',
-      background_color: '#0a0a0a',
+      description: 'Instructional Design & E-Learning by Naveen Jose',
+      theme_color: '#0D0C0A',
+      background_color: '#0D0C0A',
       display: 'standalone',
       orientation: 'any',
       scope: '/',

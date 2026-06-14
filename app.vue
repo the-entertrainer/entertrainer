@@ -1,8 +1,15 @@
 <script setup lang="ts">
-const route = useRoute()
+import { useThemeStore } from '~/stores/theme'
+
+const route      = useRoute()
+const themeStore = useThemeStore()
 const transition = computed(() =>
   route.path === '/' ? false : { name: 'fade', mode: 'out-in' as const }
 )
+
+onMounted(() => {
+  themeStore.init()
+})
 </script>
 
 <template>
@@ -11,11 +18,12 @@ const transition = computed(() =>
     <UiLogo />
     <UiMenu />
     <UiSoundButton />
+    <UiThemeToggle />
   </div>
 </template>
 
 <style>
-#app-root { min-height: 100dvh; background: var(--color-black); }
+#app-root { min-height: 100dvh; background: var(--color-bg); }
 
 .fade-enter-active, .fade-leave-active { transition: opacity 0.35s ease; }
 .fade-enter-from,   .fade-leave-to     { opacity: 0; }

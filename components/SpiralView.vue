@@ -178,7 +178,7 @@ function onLoaderEntered() {
   width: 100vw;
   height: 100dvh;
   overflow: hidden;
-  background: var(--color-black);
+  background: var(--color-bg);
 }
 .spiral-canvas {
   position: fixed;
@@ -210,18 +210,18 @@ function onLoaderEntered() {
   gap: 24rem;
   padding: 28rem 0;
   border: none;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid var(--color-divider);
   border-radius: 0;
   background: none;
   text-align: left;
   text-decoration: none;
-  color: var(--color-white);
+  color: var(--color-text);
   width: 100%;
   cursor: pointer;
   font-family: var(--main-font);
   transition: padding-left 0.3s var(--ease-spring);
 }
-.nav-row:first-child { border-top: 1px solid rgba(255,255,255,0.1); }
+.nav-row:first-child { border-top: 1px solid var(--color-divider); }
 .nav-row:hover { padding-left: 16rem; }
 .nav-row__label {
   font-size: 40rem;
@@ -268,23 +268,23 @@ function onLoaderEntered() {
   align-items: center;
   padding: 0 20rem;
   border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  color: var(--color-white);
+  color: var(--color-text);
   font-family: var(--main-font);
   font-size: 14rem;
   font-weight: 500;
   letter-spacing: 0.01em;
   pointer-events: all;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.25s ease;
   animation: back-slide-in 0.35s ease 0.05s both;
 }
 .spiral-back:hover {
-  background: rgba(255, 255, 255, 0.13);
-  border-color: rgba(255, 255, 255, 0.32);
+  background: var(--color-glass-bg-hover);
+  border-color: var(--color-glass-border-hover);
 }
 @keyframes back-slide-in {
   from { opacity: 0; transform: translateX(-10rem); }
@@ -300,7 +300,7 @@ function onLoaderEntered() {
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-white);
+  color: var(--color-text);
   opacity: 0.3;
   white-space: nowrap;
 }
@@ -319,7 +319,7 @@ function onLoaderEntered() {
   font-size: 13rem;
   font-weight: 500;
   letter-spacing: 0.06em;
-  color: var(--color-white);
+  color: var(--color-text);
   opacity: 0.2;
   white-space: nowrap;
 }

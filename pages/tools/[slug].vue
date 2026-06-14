@@ -28,8 +28,8 @@ if (!item.value) throw createError({ statusCode: 404 })
 <style scoped>
 .detail-page {
   min-height: 100dvh;
-  background: var(--color-black);
-  color: var(--color-white);
+  background: var(--color-bg);
+  color: var(--color-text);
   padding: calc(var(--safe-top) + 120rem) var(--grid-margin) calc(var(--safe-bottom) + 80rem);
 }
 .back-btn {
@@ -42,19 +42,19 @@ if (!item.value) throw createError({ statusCode: 404 })
   align-items: center;
   padding: 0 20rem;
   border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  color: var(--color-white);
+  color: var(--color-text);
   font-size: 14rem;
   font-weight: 500;
   text-decoration: none;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.25s ease;
 }
 .back-btn:hover {
-  background: rgba(255, 255, 255, 0.13);
-  border-color: rgba(255, 255, 255, 0.32);
+  background: var(--color-glass-bg-hover);
+  border-color: var(--color-glass-border-hover);
 }
 .detail-title {
   font-size: clamp(60rem, 8vw, 120rem);

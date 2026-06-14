@@ -106,8 +106,8 @@ function makeNavTexture(color: string, label: string, description: string): Canv
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, 1700, 1000)
 
-  // Accent line (#21ffc0)
-  ctx.fillStyle = '#21ffc0'
+  // Accent line
+  ctx.fillStyle = '#F59E0B'
   ctx.fillRect(100, 820, 140, 6)
 
   // Main label

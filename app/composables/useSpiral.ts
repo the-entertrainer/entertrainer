@@ -11,6 +11,7 @@ export interface SpiralConfig {
   scaleMin: number
   scaleRange: number
   verticalProgress?: number // extra vertical advance per turn (for staircase feel)
+  opacityThreshold?: number // panels below this are hidden (default 0.28)
 }
 
 export interface PanelTransform {
@@ -23,7 +24,7 @@ export interface PanelTransform {
 }
 
 export const DEFAULT_CONFIG: SpiralConfig = {
-  coilSpacing: 96,
+  coilSpacing: 560,
   arcSpan: 2.55,
   yFlatten: 0.75,
   depthBase: 0.7,
@@ -115,7 +116,7 @@ export function useSpiral(opts: UseSpiralOptions) {
       const el = panels[i]
       if (!el) continue
 
-      if (t.opacity < 0.28) {
+      if (t.opacity < (cfg.opacityThreshold ?? 0.28)) {
         el.style.visibility = 'hidden'
         continue
       } else {

@@ -25,9 +25,14 @@ function setPanelRef(el: Element | null, i: number) {
 
 // Responsive spiral config — recomputed reactively from viewport width.
 const responsiveConfig = computed<Partial<SpiralConfig>>(() => {
-  if (width.value < 640) return { coilSpacing: 58, arcSpan: 1.8 }
-  if (width.value < 1024) return { coilSpacing: 72, arcSpan: 2.1 }
-  return { coilSpacing: 90, arcSpan: 2.4 }
+  if (width.value < 640) return {
+    coilSpacing: 320, arcSpan: 2.2,
+    depthAmp: 0.8, depthBase: 0.2,
+    scaleMin: 0.55, scaleRange: 0.45,
+    opacityThreshold: 0.55,
+  }
+  if (width.value < 1024) return { coilSpacing: 380, arcSpan: 2.1 }
+  return { coilSpacing: 560, arcSpan: 2.4 }
 })
 
 const snapMode = computed(() => motion.isTouch.value && width.value < 1024)
@@ -204,8 +209,8 @@ function onKey(e: KeyboardEvent) {
   position: absolute;
   top: 0;
   left: 0;
-  width: clamp(210px, 24vw, 300px);
-  height: clamp(230px, 30vw, 320px);
+  width: clamp(170px, 45vw, 300px);
+  height: clamp(190px, 52vw, 320px);
   will-change: transform, opacity;
 }
 

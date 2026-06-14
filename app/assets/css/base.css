@@ -26,9 +26,9 @@ h1, h2, h3, h4, h5, h6 { font-weight: inherit; line-height: 1.05; }
 }
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-track { background: #f5f5f5; }
 ::-webkit-scrollbar-thumb {
-  background: #2a2a2a;
+  background: #ccc;
   border-radius: var(--radius-full);
 }
 

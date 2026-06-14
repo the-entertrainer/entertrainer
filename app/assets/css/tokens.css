@@ -1,28 +1,28 @@
 :root {
-  /* ── Monochromatic cinematic palette ── */
-  --bg: #0a0a0a;
-  --bg-2: #111111;
-  --surface: rgba(14, 14, 14, 0.92);
-  --surface-solid: #0d0d0d;
+  /* ── Monochromatic light palette ── */
+  --bg: #ffffff;
+  --bg-2: #f8f8f8;
+  --surface: rgba(250, 250, 250, 0.95);
+  --surface-solid: #fafafa;
 
-  --text: #f0f0f0;
-  --text-muted: #666666;
-  --text-dim: #333333;
+  --text: #000000;
+  --text-muted: #555555;
+  --text-dim: #999999;
 
-  --border: rgba(255, 255, 255, 0.08);
-  --border-mid: rgba(255, 255, 255, 0.14);
+  --border: rgba(0, 0, 0, 0.08);
+  --border-mid: rgba(0, 0, 0, 0.14);
 
   /* Shadows (depth, not glow) */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.7);
-  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.85);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
 
   /* Gray scale */
   --gray-100: #f0f0f0;
-  --gray-300: #cccccc;
-  --gray-500: #888888;
-  --gray-700: #444444;
-  --gray-900: #1a1a1a;
+  --gray-300: #d0d0d0;
+  --gray-500: #777777;
+  --gray-700: #333333;
+  --gray-900: #000000;
 
   /* Typography */
   --font-display: 'Syne', system-ui, sans-serif;

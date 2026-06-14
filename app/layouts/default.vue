@@ -53,12 +53,12 @@ const site = useContent()
   font-size: 1.2rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: #f0f0f0;
+  color: #000000;
   pointer-events: auto;
 }
 
 .logo-accent {
-  color: #555;
+  color: #999;
 }
 
 .topbar__tag {
@@ -66,7 +66,7 @@ const site = useContent()
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #282828;
+  color: #888;
   max-width: 40ch;
   text-align: right;
 }

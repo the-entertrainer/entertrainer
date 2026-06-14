@@ -2,3 +2,7 @@ node_modules/
 .DS_Store
 *.log
 .vercel/
+.nuxt/
+.output/
+dist/
+dist

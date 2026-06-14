@@ -39,6 +39,7 @@
     }
 
     .bar {
+      position: relative;
       background: #000;
       display: flex;
       align-items: center;
@@ -48,11 +49,12 @@
       width: 100%;
       cursor: pointer;
       transition: background 0.15s ease;
-      will-change: transform, opacity, filter;
-      transform-origin: 0 50%;
+      will-change: transform;
+      transform-origin: 50% 50%;
+      overflow: hidden;
     }
 
-    /* Hide before GSAP takes over (only when JS is on) */
+    /* Hidden until GSAP positions it (JS only) */
     .js .bar { opacity: 0; }
 
     .bar:hover {
@@ -63,6 +65,20 @@
       filter: drop-shadow(0 0 6px rgba(255,255,255,0.6));
     }
 
+    /* The racing dash stream that lives on top of the bar during the run phase */
+    .bar__stream {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(90deg, #000 0 16px, #fff 16px 30px);
+      background-size: 30px 100%;
+      animation: run 0.45s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes run {
+      to { background-position-x: 30px; }
+    }
+
     .icon {
       flex-shrink: 0;
       width: 36px;
@@ -70,6 +86,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
+      z-index: 2;
     }
 
     .icon svg {
@@ -79,18 +97,13 @@
     }
 
     .bar__label {
+      position: relative;
+      z-index: 2;
       color: #fff;
       font-size: 18px;
       font-weight: 700;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-    }
-
-    .filters {
-      position: absolute;
-      width: 0;
-      height: 0;
-      pointer-events: none;
     }
 
     @media (max-width: 768px) {
@@ -102,33 +115,16 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .js .bar { opacity: 1; filter: none !important; }
+      .js .bar { opacity: 1; transform: none !important; }
+      .bar__stream { display: none; }
     }
   </style>
 </head>
 <body>
-
-  <!-- Liquid displacement filters (one per bar for independent stagger) -->
-  <svg class="filters" aria-hidden="true" focusable="false">
-    <defs>
-      <filter id="liquid0" x="-40%" y="-40%" width="180%" height="180%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="2" result="n"/>
-        <feDisplacementMap in="SourceGraphic" in2="n" scale="160" xChannelSelector="R" yChannelSelector="G"/>
-      </filter>
-      <filter id="liquid1" x="-40%" y="-40%" width="180%" height="180%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="9" result="n"/>
-        <feDisplacementMap in="SourceGraphic" in2="n" scale="160" xChannelSelector="R" yChannelSelector="G"/>
-      </filter>
-      <filter id="liquid2" x="-40%" y="-40%" width="180%" height="180%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="17" result="n"/>
-        <feDisplacementMap in="SourceGraphic" in2="n" scale="160" xChannelSelector="R" yChannelSelector="G"/>
-      </filter>
-    </defs>
-  </svg>
-
   <div class="logo">
 
-    <div class="bar" style="filter: url(#liquid0)">
+    <div class="bar">
+      <div class="bar__stream"></div>
       <div class="icon">
         <svg viewBox="0 0 32 32" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter">
           <polyline points="2,16 16,4 30,16"/>
@@ -138,7 +134,8 @@
       <span class="bar__label">Home</span>
     </div>
 
-    <div class="bar" style="filter: url(#liquid1)">
+    <div class="bar">
+      <div class="bar__stream"></div>
       <div class="icon">
         <svg viewBox="0 0 32 32" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter">
           <rect x="9" y="9" width="14" height="14"/>
@@ -159,7 +156,8 @@
       <span class="bar__label">Tools</span>
     </div>
 
-    <div class="bar" style="filter: url(#liquid2)">
+    <div class="bar">
+      <div class="bar__stream"></div>
       <div class="icon">
         <svg viewBox="0 0 32 32" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter">
           <line x1="16" y1="4" x2="16" y2="20"/>
@@ -178,30 +176,43 @@
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var bars = Array.prototype.slice.call(document.querySelectorAll('.bar'));
 
-      // Graceful fallback if GSAP fails to load or motion is reduced
+      // Graceful fallback: just show the final bars
       if (typeof gsap === 'undefined' || reduce) {
-        bars.forEach(function (b) { b.style.opacity = 1; b.style.filter = 'none'; });
+        bars.forEach(function (b) {
+          b.style.opacity = 1;
+          var s = b.querySelector('.bar__stream');
+          if (s) s.style.display = 'none';
+        });
         return;
       }
 
-      var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      // How far each bar must stretch to bleed past the viewport edges
+      function vwRatio(bar) {
+        var w = bar.getBoundingClientRect().width || 1;
+        return (window.innerWidth / w) * 1.15;
+      }
+
+      var tl = gsap.timeline({ defaults: { ease: 'power3.inOut' }, delay: 0.25 });
 
       bars.forEach(function (bar, i) {
-        var disp = document.querySelector('#liquid' + i + ' feDisplacementMap');
-        var turb = document.querySelector('#liquid' + i + ' feTurbulence');
+        var stream = bar.querySelector('.bar__stream');
         var icon = bar.querySelector('.icon');
         var label = bar.querySelector('.bar__label');
-        var at = i * 0.22;
+        var at = i * 0.14;
 
-        gsap.set(bar, { opacity: 0, scaleY: 1.7, transformOrigin: '0% 50%' });
+        // Start state: full-bleed thin line, content + solid fill hidden behind stream
+        gsap.set(bar, { opacity: 1, scaleX: vwRatio(bar), scaleY: 0.022 });
         gsap.set([icon, label], { opacity: 0, x: -14 });
+        gsap.set(stream, { opacity: 1 });
 
-        tl.to(bar, { opacity: 1, scaleY: 1, duration: 1.2, ease: 'power2.out' }, at)
-          .to(disp, { attr: { scale: 0 }, duration: 1.35, ease: 'power3.out' }, at)
-          .to(turb, { attr: { baseFrequency: 0.001 }, duration: 1.35, ease: 'power3.out' }, at)
-          .to([icon, label], { opacity: 1, x: 0, duration: 0.6, stagger: 0.08, ease: 'power2.out' }, at + 0.55)
-          // drop the filter once resolved so hover/render stay crisp
-          .add(function () { bar.style.filter = 'none'; }, at + 1.4);
+        // Run phase holds (CSS loop plays), then retract width in
+        tl.to(bar, { scaleX: 1, duration: 0.95, ease: 'power3.inOut' }, 0.6 + at)
+          // Bloom thickness into the solid bar
+          .to(bar, { scaleY: 1, duration: 0.7, ease: 'power4.out' }, 1.15 + at)
+          // Crossfade the racing stream away to reveal solid black
+          .to(stream, { opacity: 0, duration: 0.5, ease: 'power2.out' }, 1.25 + at)
+          // Settle the icon + label
+          .to([icon, label], { opacity: 1, x: 0, duration: 0.55, stagger: 0.07, ease: 'power2.out' }, 1.55 + at);
       });
     })();
   </script>

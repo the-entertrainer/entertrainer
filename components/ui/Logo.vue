@@ -12,8 +12,8 @@
 <style scoped>
 .logo-wrapper {
   position: fixed;
-  left: 30rem;
-  top: 30rem;
+  left: calc(30rem + var(--safe-left));
+  top: calc(30rem + var(--safe-top));
   width: 64rem;
   height: 64rem;
   z-index: 30;

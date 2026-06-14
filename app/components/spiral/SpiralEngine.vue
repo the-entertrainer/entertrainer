@@ -1,306 +1,259 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import { useContent } from '~/composables/useContent'
 import { useViewMode } from '~/composables/useViewMode'
+import { useReducedMotion } from '~/composables/useReducedMotion'
 import { useGsap } from '~/composables/useGsap'
-import { createApp, h } from 'vue'
-import type { SectionContent } from '~/content/site'
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let THREE: any = null
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let scene: any = null
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let camera: any = null
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let cssRenderer: any = null
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let staircaseGroup: any = null
-
-let velocity = 0
-let isActiveDrag = false
-let lastPointerY = 0
-let dragCleanup: (() => void) | null = null
-
-const panelObjects: any[] = []
-const mountedApps: any[] = []
+import { useDrag } from '~/composables/useDrag'
+import { useSpiral, DEFAULT_CONFIG, type SpiralConfig } from '~/composables/useSpiral'
 
 const site = useContent()
 const sections = site.sections
 
-const { mode } = useViewMode()
+const { mode, isAnimating } = useViewMode()
+const motion = useReducedMotion()
 const { width } = useWindowSize()
 
-const containerRef = ref<HTMLElement | null>(null)
-const isDragging = ref(false)
+const stageRef = ref<HTMLElement | null>(null)
+const panelEls = ref<HTMLElement[]>([])
 
-onMounted(async () => {
-  if (mode.value !== 'spiral') return
+// Collect panel elements in order (function ref keeps array dense & ordered).
+function setPanelRef(el: Element | null, i: number) {
+  if (el) panelEls.value[i] = el as HTMLElement
+}
 
-  document.documentElement.style.overflow = 'hidden'
-  document.body.style.overflow = 'hidden'
-  document.body.style.touchAction = 'none'
-
-  const threeModule = await import('three')
-  THREE = threeModule
-
-  const { CSS3DRenderer, CSS3DObject } = await import('three/examples/jsm/renderers/CSS3DRenderer.js')
-
-  const container = containerRef.value
-  if (!container) return
-
-  scene = new THREE.Scene()
-
-  // Clean, balanced camera for vertical staircase
-  camera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 2000)
-  camera.position.set(0, 18, 480)
-  camera.lookAt(0, -20, 0)
-
-  cssRenderer = new CSS3DRenderer()
-  cssRenderer.setSize(container.clientWidth, container.clientHeight)
-  cssRenderer.domElement.style.position = 'absolute'
-  cssRenderer.domElement.style.top = '0'
-  cssRenderer.domElement.style.left = '0'
-  cssRenderer.domElement.style.pointerEvents = 'none'
-  container.appendChild(cssRenderer.domElement)
-
-  staircaseGroup = new THREE.Group()
-  scene.add(staircaseGroup)
-
-  await createCleanStaircase(CSS3DObject)
-
-  setupDragControls()
-
-  const { gsap } = useGsap()
-
-  // Clean elegant entrance
-  gsap.from(staircaseGroup.position, {
-    y: staircaseGroup.position.y + 80,
-    duration: 1.7,
-    ease: 'power3.out',
-    delay: 0.4
-  })
-
-  const renderLoop = () => {
-    if (!staircaseGroup || !cssRenderer || !camera) return
-
-    if (!isActiveDrag) {
-      velocity *= 0.94
-      staircaseGroup.position.y += velocity * 0.65
-
-      // Soft bounds
-      if (staircaseGroup.position.y > 50) staircaseGroup.position.y = 50
-      if (staircaseGroup.position.y < -160) staircaseGroup.position.y = -160
-    }
-
-    cssRenderer.render(scene, camera)
-  }
-  gsap.ticker.add(renderLoop)
-
-  window.addEventListener('resize', handleResize)
+// Responsive spiral config — recomputed reactively from viewport width.
+const responsiveConfig = computed<Partial<SpiralConfig>>(() => {
+  if (width.value < 640) return { coilSpacing: 58, arcSpan: 1.8 }
+  if (width.value < 1024) return { coilSpacing: 72, arcSpan: 2.1 }
+  return { coilSpacing: 90, arcSpan: 2.4 }
 })
 
-async function createCleanStaircase(CSS3DObject: any) {
-  const container = containerRef.value
-  if (!container) return
+const snapMode = computed(() => motion.isTouch.value && width.value < 1024)
 
-  const isMobile = width.value < 640
+let spiral: ReturnType<typeof useSpiral> | null = null
+let drag: ReturnType<typeof useDrag> | null = null
+let gsapRef: ReturnType<typeof useGsap>['gsap'] | null = null
+let FlipRef: ReturnType<typeof useGsap>['Flip'] | null = null
 
-  // Balanced, stable parameters
-  const horizontalSpread = isMobile ? 28 : 42
-  const verticalStep = isMobile ? 78 : 58
-  const depthStep = isMobile ? 20 : 26
+onMounted(async () => {
+  const { gsap, Flip } = useGsap()
+  gsapRef = gsap
+  FlipRef = Flip
 
-  for (let i = 0; i < sections.length; i++) {
-    const section = sections[i]
+  // Avoid Flip mis-measuring before web fonts settle.
+  if (document.fonts?.ready) await document.fonts.ready
 
-    const wrapper = document.createElement('div')
-    wrapper.style.width = isMobile ? '128px' : '148px'
-    wrapper.style.height = isMobile ? '148px' : '168px'
-    wrapper.style.pointerEvents = 'auto'
-    wrapper.style.borderRadius = '10px'
-    wrapper.style.overflow = 'hidden'
-    wrapper.style.boxShadow = '0 5px 18px rgba(0,0,0,0.6)'
-    wrapper.style.border = '1px solid rgba(255,255,255,0.05)'
-    wrapper.style.backdropFilter = 'blur(26px) saturate(190%)'
-
-    const PanelComponent = (await import('./Panel.vue')).default
-
-    const app = createApp({
-      render: () => h(PanelComponent, { 
-        section, 
-        index: i,
-        compact: isMobile
-      })
-    })
-
-    app.mount(wrapper)
-    mountedApps.push(app)
-
-    const object = new CSS3DObject(wrapper)
-
-    const progress = i / (sections.length - 1)
-
-    // Clean vertical staircase positioning
-    const x = (progress - 0.5) * horizontalSpread
-    const y = -progress * sections.length * verticalStep * 0.52
-    const z = -progress * sections.length * depthStep * 0.6
-
-    object.position.set(x, y, z)
-    object.rotation.x = 0.05 + progress * 0.015
-    object.rotation.y = (progress - 0.5) * 0.18
-
-    wrapper.addEventListener('click', () => {
-      focusPanel(object, i)
-    })
-
-    staircaseGroup.add(object)
-    panelObjects.push(object)
-  }
-}
-
-function focusPanel(object: any, index: number) {
-  if (!staircaseGroup) return
-
-  const { gsap } = useGsap()
-
-  gsap.to(object.scale, {
-    x: 1.06,
-    y: 1.06,
-    z: 1.06,
-    duration: 0.12,
-    ease: 'back.out(2)',
-    onComplete: () => {
-      gsap.to(object.scale, {
-        x: 1,
-        y: 1,
-        z: 1,
-        duration: 0.3,
-        ease: 'power2.out'
-      })
-    }
+  spiral = useSpiral({
+    count: () => sections.length,
+    containerRef: stageRef,
+    panelRefs: panelEls,
+    enabled: () => mode.value === 'spiral',
+    reducedMotion: () => motion.prefersReducedMotion.value,
+    snapMode: () => snapMode.value,
+    config: responsiveConfig.value,
+    gsap,
   })
 
-  gsap.to(object.position, {
-    z: object.position.z + 60,
-    duration: 0.22,
-    ease: 'back.out(1.6)'
+  // Drag-to-rotate on the stage (ignored on interactive children).
+  drag = useDrag(stageRef, {
+    onStart: () => spiral?.dragStart(),
+    onDelta: (dx) => spiral?.dragDelta(dx),
+    onEnd: () => spiral?.dragEnd(),
   })
+  drag.attach()
 
-  const targetY = -index * 48
+  spiral.start()
 
-  gsap.to(staircaseGroup.position, {
-    y: targetY,
-    duration: 0.8,
-    ease: 'power3.out'
-  })
-}
+  window.addEventListener('resize', onResize, { passive: true })
+})
 
-function setupDragControls() {
-  const container = containerRef.value
-  if (!container || !staircaseGroup) return
-
-  const isMobile = width.value < 640
-
-  const onDown = (e: PointerEvent) => {
-    if ((e.target as HTMLElement).closest('.stage__panel')) return
-    isActiveDrag = true
-    lastPointerY = e.clientY
-    velocity = 0
-    isDragging.value = true
-
-    if (snapTimeout) {
-      clearTimeout(snapTimeout)
-      snapTimeout = null
-    }
-  }
-
-  const onMove = (e: PointerEvent) => {
-    if (!isActiveDrag || !staircaseGroup) return
-
-    const deltaY = e.clientY - lastPointerY
-    lastPointerY = e.clientY
-
-    const speed = isMobile ? 2.2 : 1.25
-    velocity = deltaY * speed
-  }
-
-  const onUp = () => {
-    isActiveDrag = false
-    isDragging.value = false
-  }
-
-  container.addEventListener('pointerdown', onDown)
-  window.addEventListener('pointermove', onMove)
-  window.addEventListener('pointerup', onUp)
-  window.addEventListener('pointercancel', onUp)
-
-  dragCleanup = () => {
-    container.removeEventListener('pointerdown', onDown)
-    window.removeEventListener('pointermove', onMove)
-    window.removeEventListener('pointerup', onUp)
-    window.removeEventListener('pointercancel', onUp)
-  }
-}
-
-function handleResize() {
-  if (!containerRef.value || !cssRenderer || !camera) return
-  const w = containerRef.value.clientWidth
-  const h = containerRef.value.clientHeight
-
-  camera.aspect = w / h
-  camera.updateProjectionMatrix()
-  cssRenderer.setSize(w, h)
+function onResize() {
+  spiral?.measure()
+  spiral?.applyTransforms()
 }
 
 onBeforeUnmount(() => {
-  document.documentElement.style.overflow = ''
-  document.body.style.overflow = ''
-  document.body.style.touchAction = ''
-
-  if (dragCleanup) dragCleanup()
-  if (snapTimeout) clearTimeout(snapTimeout)
-  window.removeEventListener('resize', handleResize)
-
-  mountedApps.forEach(app => {
-    try { app.unmount() } catch {}
-  })
-  mountedApps.length = 0
-
-  panelObjects.forEach(obj => {
-    if (obj.element?.parentNode) obj.element.parentNode.removeChild(obj.element)
-  })
-  panelObjects.length = 0
+  spiral?.destroy()
+  window.removeEventListener('resize', onResize)
 })
+
+// Re-measure when config changes (breakpoint crossing).
+watch(responsiveConfig, () => {
+  Object.assign(spiral?.config ?? {}, DEFAULT_CONFIG, responsiveConfig.value)
+  spiral?.measure()
+  spiral?.applyTransforms()
+})
+
+// ── View-mode transitions ──
+watch(mode, async (next, prev) => {
+  if (!gsapRef || !FlipRef) return
+  const panels = panelEls.value.filter(Boolean)
+  isAnimating.value = true
+
+  const leavingSpiral = prev === 'spiral'
+  const enteringSpiral = next === 'spiral'
+
+  if (leavingSpiral) {
+    // Fade/scale out of the JS-driven spiral, then hand off to CSS layout.
+    await gsapRef.to(panels, {
+      opacity: 0,
+      scale: 0.85,
+      duration: 0.28,
+      stagger: 0.02,
+      ease: 'power2.in',
+    })
+    spiral?.pause()
+    // Clear inline spiral styles so the CSS grid/list layout takes over.
+    panels.forEach((p) => {
+      p.style.transform = ''
+      p.style.zIndex = ''
+      p.style.opacity = ''
+    })
+  }
+
+  await nextTick()
+
+  if (enteringSpiral) {
+    // Resume the ticker → applyTransforms positions panels, then fade in.
+    gsapRef.set(panels, { opacity: 0 })
+    spiral?.resume()
+    spiral?.measure()
+    spiral?.applyTransforms()
+    gsapRef.fromTo(
+      panels,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.4, stagger: 0.03, ease: 'power2.out', clearProps: 'opacity' },
+    )
+    spiral?.armIdle()
+  } else {
+    // grid or list: Flip-morph between the two CSS layouts, or simple reveal.
+    const state = prev === 'spiral' ? null : FlipRef.getState(panels)
+    await nextTick()
+    if (state) {
+      FlipRef.from(state, {
+        duration: 0.6,
+        ease: 'power3.inOut',
+        stagger: 0.02,
+        absolute: true,
+      })
+    } else {
+      gsapRef.fromTo(
+        panels,
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.5, stagger: 0.04, ease: 'power2.out', clearProps: 'all' },
+      )
+    }
+  }
+
+  // Release the lock after the longest tween.
+  gsapRef.delayedCall(0.65, () => { isAnimating.value = false })
+})
+
+// ── Keyboard navigation (arrow keys rotate the spiral) ──
+function onKey(e: KeyboardEvent) {
+  if (mode.value !== 'spiral') return
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { spiral?.next(); e.preventDefault() }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { spiral?.prev(); e.preventDefault() }
+}
 </script>
 
 <template>
   <div
-    ref="containerRef"
-    class="spiral-3d"
-    :class="{ 'is-dragging': isDragging }"
+    ref="stageRef"
+    class="stage"
+    :class="`is-${mode}`"
+    tabindex="0"
+    role="application"
+    :aria-label="`Project spiral — ${mode} view. Use arrow keys to rotate, or switch layout with the toggle.`"
+    @keydown="onKey"
   >
+    <Panel
+      v-for="(section, i) in sections"
+      :key="section.id"
+      :ref="(el) => setPanelRef((el as any)?.$el ?? el, i)"
+      class="stage__panel"
+      :section="section"
+      :index="i"
+    />
+
+    <p v-if="mode === 'spiral'" class="stage__hint" aria-hidden="true">
+      {{ snapMode ? 'Swipe to explore' : 'Drag to rotate · arrow keys too' }}
+    </p>
   </div>
 </template>
 
 <style scoped>
-.spiral-3d {
+.stage {
   position: relative;
   width: 100%;
-  height: 100dvh;
-  overflow: hidden;
+  outline: none;
+}
+
+/* ── SPIRAL ── absolutely positioned, transforms applied by JS ── */
+.stage.is-spiral {
+  height: min(78vh, 720px);
   touch-action: none;
-  overscroll-behavior: none;
+  overflow: hidden;
   cursor: grab;
-  background: transparent;
+}
+.stage.is-spiral:active { cursor: grabbing; }
+
+.stage.is-spiral .stage__panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: clamp(210px, 24vw, 300px);
+  height: clamp(230px, 30vw, 320px);
+  will-change: transform, opacity;
 }
 
-.spiral-3d.is-dragging {
-  cursor: grabbing;
+/* ── GRID ── */
+.stage.is-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--sz-6);
+  padding-block: var(--sz-8);
+}
+.stage.is-grid .stage__panel {
+  position: relative;
+  height: 340px;
+  will-change: auto;
 }
 
-.spiral-3d :deep(.stage__panel) {
-  pointer-events: auto;
+/* ── LIST ── */
+.stage.is-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sz-4);
+  padding-block: var(--sz-8);
+  max-width: 860px;
+  margin-inline: auto;
+}
+.stage.is-list .stage__panel {
+  position: relative;
+  min-height: 160px;
+  will-change: auto;
+}
+
+.stage__hint {
+  position: absolute;
+  bottom: var(--sz-4);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* When JS hasn't hydrated yet (or reduced motion), panels stack readably. */
+@media (prefers-reduced-motion: reduce) {
+  .stage.is-spiral { height: auto; display: flex; flex-direction: column; gap: var(--sz-4); }
+  .stage.is-spiral .stage__panel { position: relative; width: 100%; height: auto; min-height: 200px; }
 }
 </style>

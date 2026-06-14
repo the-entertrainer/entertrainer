@@ -289,7 +289,7 @@ function onLoaderEntered() {
 }
 .spiral-switch {
   position: absolute;
-  top: calc(28rem + var(--safe-top));
+  top: calc(44rem + var(--safe-top));
   left: 50%;
   transform: translateX(-50%);
   pointer-events: all;

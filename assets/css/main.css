@@ -479,7 +479,7 @@ canvas {
    ============================================================ */
 .menu {
   position: fixed;
-  top: calc(30rem + var(--safe-top));
+  top: calc(38rem + var(--safe-top));
   right: calc(30rem + var(--safe-right));
   z-index: 40;
 }

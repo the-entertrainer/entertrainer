@@ -90,6 +90,7 @@ export function useSpiral(opts: UseSpiralOptions) {
   const velocity = ref(0)
   const activeIndex = ref(0)
   const isDragging = ref(false)
+  const dragVelocityMagnitude = ref(0)
 
   let centerX = 0
   let centerY = 0

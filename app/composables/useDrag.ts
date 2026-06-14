@@ -4,6 +4,7 @@ interface DragOptions {
   onDelta: (dx: number, dy: number) => void
   onStart?: () => void
   onEnd?: (velocityX: number) => void
+  onVelocity?: (magnitude: number) => void
   threshold?: number
 }
 
@@ -12,6 +13,7 @@ export function useDrag(target: Ref<HTMLElement | null>, opts: DragOptions) {
   let lastX = 0
   let lastY = 0
   let velocityX = 0
+  let velocityY = 0
   let pointerId: number | null = null
   let startX = 0
   let startY = 0
@@ -30,6 +32,7 @@ export function useDrag(target: Ref<HTMLElement | null>, opts: DragOptions) {
     lastX = startX = e.clientX
     lastY = startY = e.clientY
     velocityX = 0
+    velocityY = 0
     target.value?.setPointerCapture?.(e.pointerId)
   }
 
@@ -39,6 +42,7 @@ export function useDrag(target: Ref<HTMLElement | null>, opts: DragOptions) {
     const dx = e.clientX - lastX
     const dy = e.clientY - lastY
     velocityX = dx
+    velocityY = dy
     lastX = e.clientX
     lastY = e.clientY
 
@@ -55,6 +59,10 @@ export function useDrag(target: Ref<HTMLElement | null>, opts: DragOptions) {
     }
 
     opts.onDelta(dx, dy)
+
+    // Calculate velocity magnitude for glow responsiveness
+    const magnitude = Math.sqrt(velocityX * velocityX + velocityY * velocityY)
+    opts.onVelocity?.(magnitude)
   }
 
   function up(e: PointerEvent) {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, nextTick } from 'vue'
 import { useReducedMotion } from '~/composables/useReducedMotion'
 import { useGsap } from '~/composables/useGsap'
 import { useScrollProgress } from '~/composables/useScrollProgress'
@@ -22,6 +22,8 @@ let font: any = null
 const canRender = computed(() => webglOK() && !motion.prefersReducedMotion.value)
 
 onMounted(async () => {
+  await nextTick()
+
   if (!canRender.value) return
 
   const el = canvas.value
@@ -45,6 +47,10 @@ onMounted(async () => {
   const w = window.innerWidth
   const h = window.innerHeight
   const dpr = Math.min(window.devicePixelRatio || 1, 2)
+
+  // Set canvas dimensions before scene setup
+  el.width = w * dpr
+  el.height = h * dpr
 
   // Scene setup
   scene = new THREE.Scene()

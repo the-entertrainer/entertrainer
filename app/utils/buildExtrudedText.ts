@@ -17,7 +17,7 @@ export async function buildExtrudedText(
   font: Font,
   options: TextGeometryOptions = {},
 ) {
-  const THREE = await import('three')
+  const { TextGeometry } = await import('three/examples/jsm/geometries/TextGeometry')
 
   const {
     size = 1,
@@ -30,7 +30,7 @@ export async function buildExtrudedText(
     bevelSegments = 3,
   } = options
 
-  const geometry = new THREE.TextGeometry(text, {
+  const geometry = new TextGeometry(text, {
     font,
     size,
     height,

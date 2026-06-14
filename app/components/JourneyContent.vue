@@ -6,12 +6,12 @@ interface Props {
   visible?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   visible: true,
 })
 
 const visibleClass = computed(() => ({
-  'journey-content--hidden': !visible,
+  'journey-content--hidden': !props.visible,
 }))
 </script>
 

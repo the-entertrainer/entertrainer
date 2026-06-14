@@ -1,4 +1,4 @@
-import { Scene } from 'three'
+import { Scene, FogExp2 } from 'three'
 import EventEmitter from './EventEmitter'
 import Sizes from './Sizes'
 import Time from './Time'
@@ -30,6 +30,7 @@ export default class Experience extends EventEmitter {
 
     this.canvas       = canvas
     this.scene        = new Scene()
+    this.scene.fog    = new FogExp2(0x0D0C0A, 0.06)
     this.sizes        = new Sizes()
     this.time         = new Time()
     this.camera       = new Camera(this)
@@ -53,6 +54,10 @@ export default class Experience extends EventEmitter {
     this.controls.update()
     this.world.update(this.time.delta)
     this.postProcessing.render()
+  }
+
+  setFogColor(hex: number) {
+    if (this.scene.fog) (this.scene.fog as FogExp2).color.set(hex)
   }
 
   destroy() {

@@ -12,6 +12,7 @@ import type { NavItem } from '~/types/nav'
 const vertexShader = /* glsl */`
   varying vec2 vUv;
   varying vec3 vWorldPosition;
+  #include <fog_pars_vertex>
   #define PI 3.14159265359
   uniform float uScrollSpeed;
 
@@ -19,13 +20,14 @@ const vertexShader = /* glsl */`
     vec3 worldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
     vec3 newPosition = position;
     newPosition.z = sin(uv.x * PI) * 0.2;
-    vec4 modelPosition  = modelMatrix * vec4(newPosition, 1.0);
-    vec4 viewPosition   = viewMatrix * modelPosition;
-    viewPosition.x += pow(worldPosition.y, 2.0) * 0.1;
-    viewPosition.x += sin(uv.y * PI) * uScrollSpeed * 2.0;
-    gl_Position = projectionMatrix * viewPosition;
+    vec4 modelPosition = modelMatrix * vec4(newPosition, 1.0);
+    vec4 mvPosition    = viewMatrix * modelPosition;
+    mvPosition.x += pow(worldPosition.y, 2.0) * 0.1;
+    mvPosition.x += sin(uv.y * PI) * uScrollSpeed * 2.0;
+    gl_Position = projectionMatrix * mvPosition;
     vUv = uv;
     vWorldPosition = worldPosition;
+    #include <fog_vertex>
   }
 `
 
@@ -38,6 +40,7 @@ const fragmentShader = /* glsl */`
   uniform float uRevealProgress;
 
   varying vec2 vUv;
+  #include <fog_pars_fragment>
 
   float roundedRectSDF(vec2 uv, vec2 size, float radius) {
     vec2 d = abs(uv - 0.5) - size * 0.5 + radius;
@@ -86,6 +89,7 @@ const fragmentShader = /* glsl */`
     alpha          *= smoothstep(0.1, 1.0, uRevealProgress);
 
     gl_FragColor = vec4(color.rgb, alpha);
+    #include <fog_fragment>
   }
 `
 
@@ -173,6 +177,7 @@ export default class NavPlane {
       vertexShader,
       fragmentShader,
       transparent: true,
+      fog: true,
       side: DoubleSide
     })
 

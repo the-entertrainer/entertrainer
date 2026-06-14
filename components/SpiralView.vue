@@ -2,6 +2,7 @@
 import gsap from 'gsap'
 import { useExperienceStore } from '~/stores/experience'
 import { useHomeViewStore } from '~/stores/homeview'
+import { useThemeStore } from '~/stores/theme'
 import Experience from '~/experience/Experience'
 import type { NavItem } from '~/types/nav'
 
@@ -20,12 +21,16 @@ const emit = defineEmits<{
 
 const experienceStore = useExperienceStore()
 const homeViewStore   = useHomeViewStore()
+const themeStore      = useThemeStore()
 const canvasRef       = ref<HTMLCanvasElement | null>(null)
 const listRef         = ref<HTMLElement | null>(null)
 const isLoaderDone    = ref(!props.showLoader)
 const hasEntered      = computed(() => props.showLoader ? experienceStore.hasEntered : true)
 const isListMode      = computed(() => props.showViewSwitch && homeViewStore.mode === 'list')
 const { $lenis }      = useNuxtApp()
+
+const FOG_DARK  = 0x0D0C0A
+const FOG_LIGHT = 0xF4F1EC
 
 let experience: Experience | null = null
 let transitioning = false
@@ -34,6 +39,7 @@ function mountExperience() {
   if (!canvasRef.value) return
   experience = new Experience(canvasRef.value)
   experience.world.setNavItems(props.items)
+  experience.setFogColor(themeStore.isDark ? FOG_DARK : FOG_LIGHT)
   setTimeout(() => experience!.world.reveal(), 200)
 
   experience.on('planeClick', (href: string) => {
@@ -88,6 +94,11 @@ watch(() => props.items, async (newItems) => {
   await experience.world.transitionTo(newItems)
   transitioning = false
 }, { deep: false })
+
+// Sync fog color when theme changes
+watch(() => themeStore.isDark, (isDark) => {
+  experience?.setFogColor(isDark ? FOG_DARK : FOG_LIGHT)
+})
 
 // List mode toggle — destroy/recreate Three.js
 watch(isListMode, async (listMode) => {

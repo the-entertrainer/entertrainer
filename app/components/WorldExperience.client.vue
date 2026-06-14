@@ -95,8 +95,14 @@ function onKey(e: KeyboardEvent) {
 }
 
 onMounted(() => {
-  gsap = useGsap().gsap
-  gsap.fromTo(fadeRef.value, { opacity: 1 }, { opacity: 0, duration: 0.9, delay: 0.15 })
+  try {
+    gsap = useGsap().gsap
+    gsap.fromTo(fadeRef.value, { opacity: 1 }, { opacity: 0, duration: 0.9, delay: 0.15 })
+  } catch (e) {
+    // Fallback: if GSAP fails, clear fade immediately
+    if (fadeRef.value) fadeRef.value.style.opacity = '0'
+    console.warn('[WorldExperience] GSAP init failed:', e)
+  }
   window.addEventListener('keydown', onKey)
 })
 
@@ -107,6 +113,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   <div class="world-stage" role="main">
     <!-- Fade overlay — starts opaque, GSAP clears it -->
     <div ref="fadeRef" class="world-fade" aria-hidden="true" />
+
+    <!-- No-JS fallback message -->
+    <noscript>
+      <div style="position: fixed; inset: 0; background: #0a0a0a; display: flex; align-items: center; justify-content: center; z-index: 100;">
+        <div style="text-align: center; color: #f0f0f0;">
+          <h1 style="font-size: 2rem; margin-bottom: 1rem;">JavaScript Required</h1>
+          <p style="font-size: 1rem; color: #888;">This interactive experience requires JavaScript to be enabled.</p>
+        </div>
+      </div>
+    </noscript>
 
     <!-- Hub title overlay — lives outside 3D scene so it's always readable -->
     <Transition name="hub-title">

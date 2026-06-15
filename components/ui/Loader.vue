@@ -32,7 +32,7 @@ function enter(theme: 'dark' | 'light') {
       <div class="spinner"></div>
       <div class="loader-progress">{{ progress }}<span class="pct">%</span></div>
       <div class="loader-brand">
-        <p class="brand-name">Naveen Jose</p>
+        <p class="brand-name">Entertrainer</p>
         <p class="brand-role">Instructional Design &amp; E-Learning</p>
       </div>
       <div class="loader-buttons" :class="{ show: showButtons }">

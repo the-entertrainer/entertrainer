@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   app: {
     head: {
-      title: 'Entertrainer — Naveen Jose',
+      title: 'Entertrainer',
       script: [
         {
           innerHTML: `(function(){var t=localStorage.getItem('et-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.dataset.theme=t;})();`
@@ -35,7 +35,7 @@ export default defineNuxtConfig({
     manifest: {
       name: 'Entertrainer',
       short_name: 'Entertrainer',
-      description: 'Instructional Design & E-Learning by Naveen Jose',
+      description: 'Instructional Design & E-Learning',
       theme_color: '#0D0C0A',
       background_color: '#0D0C0A',
       display: 'standalone',

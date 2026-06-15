@@ -4,13 +4,7 @@
     { "id": "tools",     "label": "Tools",       "description": "The toolkit that powers impactful learning",   "href": "/tools",     "color": "#0D0C0A" },
     { "id": "downloads", "label": "Downloads",   "description": "Resources & templates for L&D professionals", "href": "/downloads", "color": "#0D0C0A" }
   ],
-  "about": [
-    { "id": "story",          "label": "My Story",       "description": "From hospitality to high-impact learning",   "href": "/about/story",          "color": "#0D0C0A" },
-    { "id": "skills",         "label": "Skills & Tools", "description": "The toolkit I bring to every engagement",    "href": "/about/skills",         "color": "#0D0C0A" },
-    { "id": "philosophy",     "label": "Philosophy",     "description": "My approach to instructional design",        "href": "/about/philosophy",     "color": "#0D0C0A" },
-    { "id": "certifications", "label": "Certifications", "description": "Certified Instructional Design Specialist",  "href": "/about/certifications", "color": "#0D0C0A" },
-    { "id": "contact",        "label": "Contact",        "description": "Let's build something together",             "href": "/about/contact",        "color": "#0D0C0A" }
-  ],
+  "about": [],
   "tools": [
     { "id": "authoring", "label": "Authoring Tools", "description": "Articulate Storyline 360, Rise & SCORM",  "href": "/tools/authoring", "color": "#0D0C0A" },
     { "id": "design",    "label": "Design Suite",    "description": "Adobe Suite, Canva & visual storytelling", "href": "/tools/design",    "color": "#0D0C0A" },

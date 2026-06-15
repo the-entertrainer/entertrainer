@@ -6,14 +6,13 @@ definePageMeta({ layout: 'default' })
 const contentStore = useContentStore()
 const router = useRouter()
 
-type Section = 'home' | 'about' | 'tools' | 'downloads'
+type Section = 'home' | 'tools' | 'downloads'
 
 const sectionStack = ref<Section[]>(['home'])
 const currentSection = computed(() => sectionStack.value[sectionStack.value.length - 1])
 
 const sectionItems = computed(() => {
   switch (currentSection.value) {
-    case 'about':     return contentStore.aboutNav
     case 'tools':     return contentStore.toolsNav
     case 'downloads': return contentStore.downloadsNav
     default:          return contentStore.homeNav
@@ -21,11 +20,11 @@ const sectionItems = computed(() => {
 })
 
 const sectionTitles: Record<Section, string> = {
-  home: '', about: 'About Me', tools: 'Tools', downloads: 'Downloads'
+  home: '', tools: 'Tools', downloads: 'Downloads'
 }
 
 const sectionRoutes: Record<string, Section> = {
-  '/about': 'about', '/tools': 'tools', '/downloads': 'downloads'
+  '/tools': 'tools', '/downloads': 'downloads'
 }
 
 function handleCardClick(href: string) {

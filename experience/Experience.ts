@@ -58,6 +58,7 @@ export default class Experience extends EventEmitter {
 
   setFogColor(hex: number) {
     if (this.scene.fog) (this.scene.fog as FogExp2).color.set(hex)
+    this.renderer.setClearColor(hex)
     this.postProcessing.setVignetteColor(hex)
   }
 

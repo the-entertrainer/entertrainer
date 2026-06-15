@@ -16,9 +16,13 @@ export default class Renderer {
     })
     this.instance.toneMapping = NoToneMapping
     this.instance.shadowMap.enabled = false
-    this.instance.setClearColor(0x0e0f0e, 0)
+    this.instance.setClearColor(0x0D0C0A, 1)
     this.instance.setPixelRatio(experience.sizes.pixelRatio)
     this.instance.setSize(experience.sizes.width, experience.sizes.height)
+  }
+
+  setClearColor(hex: number) {
+    this.instance.setClearColor(hex, 1)
   }
 
   resize() {

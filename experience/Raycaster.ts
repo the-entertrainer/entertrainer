@@ -1,6 +1,7 @@
 import { Raycaster as ThreeRaycaster, Vector2 } from 'three'
 import type Experience from './Experience'
 import type NavPlane from './NavPlane'
+import SoundEngine from './SoundEngine'
 
 export default class Raycaster {
   experience: Experience
@@ -48,6 +49,8 @@ export default class Raycaster {
       this.hoveredPlane = hit
       this.experience.trigger('hoverChange', [hit?.navItem ?? null])
       document.body.style.cursor = hit ? 'pointer' : ''
+      const ha = hit ? Math.PI / 2 - hit.mesh.rotation.y : null
+      SoundEngine.getInstance()?.onHoverChange(hit?.index ?? null, ha)
     }
   }
 
@@ -58,7 +61,10 @@ export default class Raycaster {
 
   private _onClick() {
     const hit = this._intersect()
-    if (hit) this.experience.trigger('planeClick', [hit.navItem.href])
+    if (hit) {
+      this.experience.trigger('planeClick', [hit.navItem.href])
+      SoundEngine.getInstance()?.onCardClick(Math.PI / 2 - hit.mesh.rotation.y)
+    }
   }
 
   private _onTouchStart(e: TouchEvent) {
@@ -75,7 +81,10 @@ export default class Raycaster {
 
     this.pointer = this._toNDC(t.clientX, t.clientY)
     const hit = this._intersect()
-    if (hit) this.experience.trigger('planeClick', [hit.navItem.href])
+    if (hit) {
+      this.experience.trigger('planeClick', [hit.navItem.href])
+      SoundEngine.getInstance()?.onCardClick(Math.PI / 2 - hit.mesh.rotation.y)
+    }
   }
 
   destroy() {

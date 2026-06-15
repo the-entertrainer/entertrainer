@@ -4,6 +4,7 @@ import { useExperienceStore } from '~/stores/experience'
 import { useHomeViewStore } from '~/stores/homeview'
 import { useThemeStore } from '~/stores/theme'
 import Experience from '~/experience/Experience'
+import SoundEngine from '~/experience/SoundEngine'
 import type { NavItem } from '~/types/nav'
 
 const props = defineProps<{
@@ -60,6 +61,7 @@ onMounted(() => {
     if (experienceStore.hasEntered) {
       isLoaderDone.value = true
       mountExperience()
+      SoundEngine.init()
       return
     }
 
@@ -84,6 +86,7 @@ watch(hasEntered, async (entered) => {
   if (entered && props.showLoader) {
     await nextTick()
     mountExperience()
+    SoundEngine.init()
   }
 })
 

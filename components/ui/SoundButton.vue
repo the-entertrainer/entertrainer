@@ -1,10 +1,14 @@
 <script setup lang="ts">
-// Sound button — audio is stubbed (no Howler). Toggle is purely visual.
+import SoundEngine from '~/experience/SoundEngine'
+
 const muted = ref(true)
 
 function toggle() {
-  muted.value = !muted.value
-  // audio: toggle ambient mute (no-op)
+  const engine = SoundEngine.getInstance()
+  if (!engine) return
+  const next = !muted.value
+  muted.value = next
+  engine.setMuted(next)
 }
 </script>
 

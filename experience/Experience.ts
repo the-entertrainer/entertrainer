@@ -8,6 +8,7 @@ import PostProcessing from './PostProcessing'
 import Controls from './Controls'
 import World from './World'
 import Raycaster from './Raycaster'
+import SoundEngine from './SoundEngine'
 
 export default class Experience extends EventEmitter {
   canvas: HTMLCanvasElement
@@ -80,6 +81,7 @@ export default class Experience extends EventEmitter {
     this.renderer.destroy()
     this.postProcessing.destroy()
     this.scene.clear()
+    SoundEngine.getInstance()?.destroy()
     Experience._instance = null
   }
 }

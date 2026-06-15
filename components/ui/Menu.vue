@@ -3,6 +3,7 @@ import gsap from 'gsap'
 import { useMenuStore } from '~/stores/menu'
 import { useContentStore } from '~/stores/content'
 import { useThemeStore } from '~/stores/theme'
+import SoundEngine from '~/experience/SoundEngine'
 
 const menuStore    = useMenuStore()
 const contentStore = useContentStore()
@@ -21,6 +22,7 @@ onMounted(() => {
 })
 
 watch(isOpened, (open) => {
+  SoundEngine.getInstance()?.onMenuChange(open)
   gsap.killTweensOf(linkEls.value)
   if (open) {
     gsap.to(linkEls.value, {

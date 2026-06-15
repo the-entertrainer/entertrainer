@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { useThemeStore } from '~/stores/theme'
+import SoundEngine from '~/experience/SoundEngine'
 const themeStore = useThemeStore()
+
+function onToggle() {
+  const next = !themeStore.isDark
+  SoundEngine.getInstance()?.onThemeChange(next)
+  themeStore.set(next ? 'dark' : 'light')
+}
 </script>
 
 <template>
   <button
     class="theme-circle"
-    @click="themeStore.set(themeStore.isDark ? 'light' : 'dark')"
+    @click="onToggle"
     :aria-label="`Switch to ${themeStore.isDark ? 'light' : 'dark'} mode`"
   >
     <span class="tc-dot" :class="{ filled: themeStore.isDark }"></span>

@@ -1,4 +1,5 @@
 import type Experience from './Experience'
+import SoundEngine from './SoundEngine'
 
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v))
 
@@ -73,6 +74,8 @@ export default class Controls {
     if (Math.abs(this.targetWheelDeltaY) < this.minWheelSpeed) {
       this.targetWheelDeltaY = this.wheelDirection * this.minWheelSpeed
     }
+
+    SoundEngine.getInstance()?.updateScroll(this.wheelDeltaY)
   }
 
   reset() {

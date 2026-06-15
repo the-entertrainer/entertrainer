@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useContentStore } from '~/stores/content'
+import { useHomeViewStore } from '~/stores/homeview'
 
 definePageMeta({ layout: 'default' })
 
-const contentStore = useContentStore()
-const router = useRouter()
+const contentStore   = useContentStore()
+const homeViewStore  = useHomeViewStore()
+const router         = useRouter()
 
 type Section = 'home' | 'tools' | 'downloads'
 
@@ -26,6 +28,8 @@ const sectionTitles: Record<Section, string> = {
 const sectionRoutes: Record<string, Section> = {
   '/tools': 'tools', '/downloads': 'downloads'
 }
+
+watch(currentSection, (s) => homeViewStore.setIsHome(s === 'home'), { immediate: true })
 
 function handleCardClick(href: string) {
   if (href in sectionRoutes) {

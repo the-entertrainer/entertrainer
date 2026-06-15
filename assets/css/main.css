@@ -624,6 +624,25 @@ canvas {
   transform: translateY(-50%) scale(1);
   opacity: 1;
 }
+.menu-theme {
+  display: inline-block;
+  font-size: 40rem;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 100%;
+  color: var(--color-black);
+  background: none;
+  border: none;
+  font-family: var(--main-font);
+  cursor: pointer;
+  opacity: 0.4;
+  padding-left: 0;
+  transition: opacity 0.2s ease;
+  text-align: left;
+}
+.menu-theme:hover {
+  opacity: 0.7;
+}
 
 /* ============================================================
    CursorTag — Section 7.6

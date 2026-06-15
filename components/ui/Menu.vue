@@ -2,10 +2,12 @@
 import gsap from 'gsap'
 import { useMenuStore } from '~/stores/menu'
 import { useContentStore } from '~/stores/content'
+import { useThemeStore } from '~/stores/theme'
 
-const menuStore = useMenuStore()
+const menuStore    = useMenuStore()
 const contentStore = useContentStore()
-const isOpened = computed(() => menuStore.isOpened)
+const themeStore   = useThemeStore()
+const isOpened     = computed(() => menuStore.isOpened)
 
 const links = [
   { label: 'home',     to: '/',                                            external: false },
@@ -55,7 +57,6 @@ function setLinkEl(el: any, i: number) {
       <!-- Nav links -->
       <nav class="menu-links">
         <template v-for="(link, i) in links" :key="link.label">
-          <!-- External links: plain <a> with new tab -->
           <a
             v-if="link.external"
             :href="link.to"
@@ -65,7 +66,6 @@ function setLinkEl(el: any, i: number) {
             :ref="(el: any) => setLinkEl(el, i)"
             >{{ link.label }}</a
           >
-          <!-- Internal links: NuxtLink for SPA navigation (no full reload) -->
           <NuxtLink
             v-else
             :to="link.to"
@@ -75,6 +75,10 @@ function setLinkEl(el: any, i: number) {
             >{{ link.label }}</NuxtLink
           >
         </template>
+        <!-- Theme toggle inside menu -->
+        <button class="menu-theme" :ref="(el: any) => setLinkEl(el, links.length)" @click="themeStore.set(themeStore.isDark ? 'light' : 'dark')">
+          {{ themeStore.isDark ? 'light' : 'dark' }}
+        </button>
       </nav>
     </div>
   </div>

@@ -4,7 +4,8 @@ export type HomeViewMode = 'spiral' | 'list'
 
 export const useHomeViewStore = defineStore('homeview', {
   state: () => ({
-    mode: 'spiral' as HomeViewMode
+    mode: 'spiral' as HomeViewMode,
+    isHome: true
   }),
   actions: {
     setMode(mode: HomeViewMode) {
@@ -12,6 +13,9 @@ export const useHomeViewStore = defineStore('homeview', {
     },
     toggle() {
       this.mode = this.mode === 'spiral' ? 'list' : 'spiral'
+    },
+    setIsHome(v: boolean) {
+      this.isHome = v
     }
   }
 })

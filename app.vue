@@ -13,7 +13,7 @@ const transition = computed(() =>
 )
 
 const showViewSwitch = computed(() =>
-  route.path === '/' && experienceStore.hasEntered && homeViewStore.mode !== null
+  route.path === '/' && experienceStore.hasEntered && homeViewStore.isHome
 )
 
 onMounted(() => {
@@ -27,7 +27,7 @@ onMounted(() => {
     <UiLogo />
     <UiMenu />
     <UiSoundButton />
-    <UiThemeToggle />
+    <UiThemeCircle />
     <Transition name="fade">
       <UiViewSwitch v-if="showViewSwitch" class="global-view-switch" />
     </Transition>

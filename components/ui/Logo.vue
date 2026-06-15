@@ -4,7 +4,7 @@
 
 <template>
   <NuxtLink to="/" class="logo-wrapper" aria-label="Entertrainer — home">
-    <div class="logo">N</div>
+    <div class="logo">E</div>
   </NuxtLink>
 </template>
 

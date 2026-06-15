@@ -318,14 +318,13 @@ function onLoaderEntered() {
 }
 .spiral-switch {
   position: absolute;
-  top: calc(44rem + var(--safe-top));
-  left: 50%;
-  transform: translateX(-50%);
+  top: calc(98rem + var(--safe-top));
+  right: calc(30rem + var(--safe-right));
   pointer-events: all;
 }
 .spiral-hint {
   position: absolute;
-  bottom: calc(28rem + var(--safe-bottom));
+  bottom: calc(36rem + var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%);
   font-size: 13rem;

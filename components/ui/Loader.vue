@@ -64,7 +64,7 @@ function enter(theme: 'dark' | 'light') {
   width: 48rem;
   height: 48rem;
   border: 2px solid rgba(244,241,236,0.15);
-  border-top-color: #F59E0B;
+  border-top-color: #8B5CF6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -97,7 +97,7 @@ function enter(theme: 'dark' | 'light') {
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #F59E0B;
+  color: #8B5CF6;
 }
 .loader-buttons {
   display: flex;

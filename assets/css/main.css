@@ -6,7 +6,7 @@
 [data-theme="dark"] {
   --color-bg: #0D0C0A;
   --color-text: #F4F1EC;
-  --color-accent: #F59E0B;
+  --color-accent: #8B5CF6;
 
   /* Glass UI — white tint on dark surfaces */
   --color-glass-bg: rgba(255,255,255,0.07);
@@ -19,7 +19,7 @@
   /* Legacy aliases — existing CSS selectors keep working */
   --color-black: #0D0C0A;
   --color-white: #F4F1EC;
-  --color-pop-green: #F59E0B;
+  --color-pop-green: #8B5CF6;
   --color-white20: rgba(244,241,236,0.2);
   --color-bg-dark: #0D0C0A;
   --color-bg-dark20: rgba(13,12,10,0.2);
@@ -32,7 +32,7 @@
 [data-theme="light"] {
   --color-bg: #F4F1EC;
   --color-text: #0D0C0A;
-  --color-accent: #B45309;
+  --color-accent: #6D28D9;
 
   /* Glass UI — dark tint on light surfaces */
   --color-glass-bg: rgba(0,0,0,0.06);
@@ -45,7 +45,7 @@
   /* Legacy aliases — FLIPPED so existing CSS inverts correctly */
   --color-black: #F4F1EC;
   --color-white: #0D0C0A;
-  --color-pop-green: #B45309;
+  --color-pop-green: #6D28D9;
   --color-white20: rgba(13,12,10,0.15);
   --color-bg-dark: #0D0C0A;
   --color-bg-dark20: rgba(13,12,10,0.2);

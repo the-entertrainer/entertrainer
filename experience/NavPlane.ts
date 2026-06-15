@@ -40,6 +40,7 @@ const fragmentShader = /* glsl */`
   uniform vec2  uPlaneSizes;
   uniform vec2  uImageSizes;
   uniform float uRevealProgress;
+  uniform float uOpacity;
 
   varying vec2 vUv;
   #include <fog_pars_fragment>
@@ -90,7 +91,7 @@ const fragmentShader = /* glsl */`
     float alpha     = 1.0 - smoothstep(0.0, 0.002, sdf);
     alpha          *= smoothstep(0.1, 1.0, uRevealProgress);
 
-    gl_FragColor = vec4(color.rgb, alpha);
+    gl_FragColor = vec4(color.rgb, alpha * uOpacity);
     #include <fog_fragment>
   }
 `
@@ -113,7 +114,7 @@ function makeNavTexture(color: string, label: string, description: string): Canv
   ctx.fillRect(0, 0, 1700, 1000)
 
   // Accent line
-  ctx.fillStyle = '#F59E0B'
+  ctx.fillStyle = '#8B5CF6'
   ctx.fillRect(100, 820, 140, 6)
 
   // Main label
@@ -144,6 +145,9 @@ export default class NavPlane {
   hoverTarget    = 0
   revealProgress = 0
   revealTarget   = 0
+
+  private prevBa: number | null = null
+  private wrapFade = 1
 
   readonly baseScaleX  = 1.7
   readonly baseScaleY  = 1.0
@@ -176,7 +180,8 @@ export default class NavPlane {
           uPlaneSizes:     { value: new Vector2(1.7, 1.0) },
           uImageSizes:     { value: new Vector2(1700, 1000) },
           uRevealProgress: { value: 0 },
-          uScrollSpeed:    { value: 0 }
+          uScrollSpeed:    { value: 0 },
+          uOpacity:        { value: 1 }
         }
       ]),
       vertexShader,
@@ -201,6 +206,13 @@ export default class NavPlane {
     ws = ((ws % this.totalCount) + this.totalCount) % this.totalCount
     const Ba = ws - centerIndex
 
+    if (this.prevBa !== null && Math.abs(Ba - this.prevBa) > this.totalCount / 2) {
+      this.wrapFade = 0
+    }
+    this.prevBa = Ba
+    const wFactor = 1 - Math.pow(1 - 0.008, delta)
+    this.wrapFade += (1 - this.wrapFade) * wFactor
+
     const hFactor = 1 - Math.pow(1 - 0.05, delta * 0.15)
     const hvFactor = 1 - Math.pow(1 - (this.hoverTarget > 0.5 ? 0.09 : 0.07), delta * 0.2)
 
@@ -221,6 +233,7 @@ export default class NavPlane {
     mat.uniforms.uColorStrength.value  = 0.55 * this.hoverProgress
     mat.uniforms.uZoom.value           = 1 + 0.05 * this.hoverProgress
     mat.uniforms.uRevealProgress.value = this.revealProgress * (1 - this.hoverProgress * 0.05)
+    mat.uniforms.uOpacity.value        = this.wrapFade
   }
 
   destroy() {

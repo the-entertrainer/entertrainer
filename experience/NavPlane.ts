@@ -117,14 +117,14 @@ function makeNavTexture(color: string, label: string, description: string): Canv
   ctx.fillRect(100, 820, 140, 6)
 
   // Main label
-  ctx.fillStyle = '#fafafa'
+  ctx.fillStyle = '#F4F1EC'
   ctx.font = '700 180px system-ui, -apple-system, Arial, sans-serif'
   ctx.textAlign = 'left'
   ctx.textBaseline = 'alphabetic'
   ctx.fillText(label, 100, 550)
 
   // Description
-  ctx.fillStyle = 'rgba(250,250,250,0.45)'
+  ctx.fillStyle = 'rgba(244,241,236,0.45)'
   ctx.font = '400 64px system-ui, -apple-system, Arial, sans-serif'
   ctx.fillText(description, 100, 650)
 

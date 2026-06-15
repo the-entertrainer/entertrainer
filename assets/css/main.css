@@ -15,15 +15,12 @@
   --color-glass-border-hover: rgba(255,255,255,0.32);
   --color-spinner-track: rgba(244,241,236,0.15);
   --color-divider: rgba(244,241,236,0.1);
-  --color-panel-bg: #1a1917;
 
   /* Legacy aliases — existing CSS selectors keep working */
   --color-black: #0D0C0A;
   --color-white: #F4F1EC;
   --color-pop-green: #F59E0B;
   --color-white20: rgba(244,241,236,0.2);
-  --color-bg-grey: #1a1917;
-  --color-grey: #e6e6e6;
   --color-bg-dark: #0D0C0A;
   --color-bg-dark20: rgba(13,12,10,0.2);
   --color-bg-dark40: rgba(13,12,10,0.4);
@@ -44,15 +41,12 @@
   --color-glass-border-hover: rgba(0,0,0,0.26);
   --color-spinner-track: rgba(13,12,10,0.12);
   --color-divider: rgba(13,12,10,0.1);
-  --color-panel-bg: #E5E2DC;
 
   /* Legacy aliases — FLIPPED so existing CSS inverts correctly */
   --color-black: #F4F1EC;
   --color-white: #0D0C0A;
   --color-pop-green: #B45309;
   --color-white20: rgba(13,12,10,0.15);
-  --color-bg-grey: #E5E2DC;
-  --color-grey: #3a3836;
   --color-bg-dark: #0D0C0A;
   --color-bg-dark20: rgba(13,12,10,0.2);
   --color-bg-dark40: rgba(13,12,10,0.4);
@@ -184,20 +178,6 @@ canvas {
   pointer-events: none;
 }
 
-/* Post-processing gradient vignette (CSS alternative — Section 4 / note 7) */
-.pp-gradient {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    #444 0%,
-    rgba(68, 68, 68, 0) 20%,
-    rgba(68, 68, 68, 0) 80%,
-    #444 100%
-  );
-}
 
 /* ============================================================
    Page transitions — Section 8
@@ -341,7 +321,7 @@ canvas {
   width: 240rem;
   height: 4rem;
   border-radius: var(--radius-full);
-  background: var(--color-bg-grey);
+  background: var(--color-spinner-track);
   overflow: hidden;
 }
 .loader-progress .bar {
@@ -480,7 +460,8 @@ canvas {
   gap: 8rem;
   padding: 8rem 16rem;
   border-radius: var(--radius-full);
-  background: var(--color-bg-grey);
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
   font-size: 18rem;
   font-weight: 500;
 }
@@ -727,7 +708,7 @@ canvas {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-m);
-  background: var(--color-bg-grey);
+  background: var(--color-glass-bg);
   color: var(--color-white);
   font-size: 20rem;
   font-weight: 600;

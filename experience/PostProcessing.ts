@@ -8,7 +8,7 @@ import type Experience from './Experience'
 const VignetteShader = {
   uniforms: {
     tDiffuse: { value: null },
-    uFillColor: { value: new Color(0x444444) }
+    uFillColor: { value: new Color(0x0D0C0A) }
   },
   vertexShader: /* glsl */`
     varying vec2 vUv;

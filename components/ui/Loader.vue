@@ -123,7 +123,7 @@ function enter(theme: 'dark' | 'light') {
 }
 .enter-btn:hover { transform: scale(1.06); }
 .dark-btn {
-  background: #1a1917;
+  background: rgba(244,241,236,0.1);
   color: #F4F1EC;
   border-color: rgba(244,241,236,0.2);
 }

@@ -14,15 +14,19 @@ export default class World {
     this.geometry = new PlaneGeometry(1, 1, 8, 8)
   }
 
-  setNavItems(items: NavItem[]) {
+  setNavItems(items: NavItem[], isDark = true) {
     this.navPlanes.forEach((p) => p.destroy())
     this.navPlanes = []
 
     // Duplicate ×2 for infinite loop
     const doubled = [...items, ...items]
     doubled.forEach((item, i) => {
-      this.navPlanes.push(new NavPlane(this.experience, i, item, doubled.length, this.geometry))
+      this.navPlanes.push(new NavPlane(this.experience, i, item, doubled.length, this.geometry, isDark))
     })
+  }
+
+  updateTheme(isDark: boolean) {
+    this.navPlanes.forEach((p) => p.updateTexture(isDark))
   }
 
   reveal() {

@@ -96,36 +96,41 @@ const fragmentShader = /* glsl */`
   }
 `
 
-function makeNavTexture(color: string, label: string, description: string): CanvasTexture {
+function makeNavTexture(isDark: boolean, label: string, description: string): CanvasTexture {
   const canvas = document.createElement('canvas')
   canvas.width = 1700
   canvas.height = 1000
   const ctx = canvas.getContext('2d')!
 
   // Background
-  ctx.fillStyle = color
+  ctx.fillStyle = isDark ? '#0D0C0A' : '#6D28D9'
   ctx.fillRect(0, 0, 1700, 1000)
 
-  // Subtle gradient
+  // Subtle gradient overlay
   const grad = ctx.createLinearGradient(0, 0, 1700, 1000)
-  grad.addColorStop(0, 'rgba(255,255,255,0.05)')
-  grad.addColorStop(1, 'rgba(0,0,0,0.3)')
+  if (isDark) {
+    grad.addColorStop(0, 'rgba(255,255,255,0.05)')
+    grad.addColorStop(1, 'rgba(0,0,0,0.3)')
+  } else {
+    grad.addColorStop(0, 'rgba(255,255,255,0.08)')
+    grad.addColorStop(1, 'rgba(0,0,0,0.22)')
+  }
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, 1700, 1000)
 
   // Accent line
-  ctx.fillStyle = '#8B5CF6'
+  ctx.fillStyle = isDark ? '#8B5CF6' : 'rgba(244,241,236,0.5)'
   ctx.fillRect(100, 820, 140, 6)
 
-  // Main label
-  ctx.fillStyle = '#F4F1EC'
+  // Main label — accent in dark, white in light
+  ctx.fillStyle = isDark ? '#8B5CF6' : '#F4F1EC'
   ctx.font = '700 180px system-ui, -apple-system, Arial, sans-serif'
   ctx.textAlign = 'left'
   ctx.textBaseline = 'alphabetic'
   ctx.fillText(label, 100, 550)
 
   // Description
-  ctx.fillStyle = 'rgba(244,241,236,0.45)'
+  ctx.fillStyle = isDark ? 'rgba(244,241,236,0.45)' : 'rgba(244,241,236,0.65)'
   ctx.font = '400 64px system-ui, -apple-system, Arial, sans-serif'
   ctx.fillText(description, 100, 650)
 
@@ -148,6 +153,7 @@ export default class NavPlane {
 
   private prevBa: number | null = null
   private wrapFade = 1
+  private _isDark = true
 
   readonly baseScaleX  = 1.7
   readonly baseScaleY  = 1.0
@@ -160,14 +166,16 @@ export default class NavPlane {
     index: number,
     navItem: NavItem,
     totalCount: number,
-    geometry: PlaneGeometry
+    geometry: PlaneGeometry,
+    isDark = true
   ) {
     this.experience = experience
     this.index      = index
     this.navItem    = navItem
     this.totalCount = totalCount
+    this._isDark    = isDark
 
-    const texture = makeNavTexture(navItem.color, navItem.label, navItem.description)
+    const texture = makeNavTexture(isDark, navItem.label, navItem.description)
     texture.needsUpdate = true
 
     const material = new ShaderMaterial({
@@ -199,6 +207,17 @@ export default class NavPlane {
   reveal() { this.hiddenTarget = 0; this.revealTarget = 1 }
   hide()   { this.hiddenTarget = 1; this.revealTarget = 0 }
   setHovered(hovered: boolean) { this.hoverTarget = hovered ? 1 : 0 }
+
+  updateTexture(isDark: boolean) {
+    if (isDark === this._isDark) return
+    this._isDark = isDark
+    const mat = this.mesh.material as ShaderMaterial
+    const oldTex = mat.uniforms.uTexture.value
+    const newTex = makeNavTexture(isDark, this.navItem.label, this.navItem.description)
+    newTex.needsUpdate = true
+    mat.uniforms.uTexture.value = newTex
+    oldTex.dispose()
+  }
 
   update(delta: number, scrollOffset: number, scrollSpeed: number) {
     const centerIndex = Math.floor(this.totalCount / 2)

@@ -38,7 +38,7 @@ let transitioning = false
 function mountExperience() {
   if (!canvasRef.value) return
   experience = new Experience(canvasRef.value)
-  experience.world.setNavItems(props.items)
+  experience.world.setNavItems(props.items, themeStore.isDark)
   experience.setFogColor(themeStore.isDark ? FOG_DARK : FOG_LIGHT)
   setTimeout(() => experience!.world.reveal(), 200)
 
@@ -95,9 +95,9 @@ watch(() => props.items, async (newItems) => {
   transitioning = false
 }, { deep: false })
 
-// Sync fog color when theme changes
+// Sync theme (fog + card textures) when theme changes
 watch(() => themeStore.isDark, (isDark) => {
-  experience?.setFogColor(isDark ? FOG_DARK : FOG_LIGHT)
+  experience?.setTheme(isDark)
 })
 
 // List mode toggle — destroy/recreate Three.js

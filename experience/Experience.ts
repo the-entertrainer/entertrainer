@@ -62,6 +62,11 @@ export default class Experience extends EventEmitter {
     this.postProcessing.setVignetteColor(hex)
   }
 
+  setTheme(isDark: boolean) {
+    this.setFogColor(isDark ? 0x0D0C0A : 0xF4F1EC)
+    this.world.updateTheme(isDark)
+  }
+
   setDofFocus(distance: number) {
     this.postProcessing.setDofFocus(distance)
   }

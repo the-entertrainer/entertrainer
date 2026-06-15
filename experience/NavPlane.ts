@@ -86,9 +86,10 @@ const fragmentShader = /* glsl */`
 
     float reveal    = clamp(uRevealProgress, 0.0, 1.0);
     vec2 revealSize = vec2(reveal);
-    float radius    = 0.05 * reveal;
+    float radius    = 0.10 * reveal;
     float sdf       = roundedRectSDF(vUv, revealSize, radius);
-    float alpha     = 1.0 - smoothstep(0.0, 0.002, sdf);
+    float aa        = fwidth(sdf);
+    float alpha     = 1.0 - smoothstep(-aa, aa, sdf);
     alpha          *= smoothstep(0.1, 1.0, uRevealProgress);
 
     gl_FragColor = vec4(color.rgb, alpha * uOpacity);

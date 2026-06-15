@@ -133,7 +133,7 @@ definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 .back-btn {
   position: fixed;
   top: calc(38rem + var(--safe-top));
-  left: calc(106rem + var(--safe-left));
+  left: calc(88rem + var(--safe-left));
   height: 48rem;
   z-index: 30;
   display: flex;

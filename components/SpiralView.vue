@@ -274,7 +274,7 @@ function onLoaderEntered() {
 .spiral-back {
   position: absolute;
   top: calc(38rem + var(--safe-top));
-  left: calc(106rem + var(--safe-left));
+  left: calc(88rem + var(--safe-left));
   height: 48rem;
   display: flex;
   align-items: center;
@@ -318,9 +318,13 @@ function onLoaderEntered() {
 }
 .spiral-switch {
   position: absolute;
-  top: calc(98rem + var(--safe-top));
-  right: calc(30rem + var(--safe-right));
+  top: calc(38rem + var(--safe-top));
+  left: 50%;
+  transform: translateX(-50%);
   pointer-events: all;
+  display: flex;
+  align-items: center;
+  height: 48rem;
 }
 .spiral-hint {
   position: absolute;

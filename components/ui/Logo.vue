@@ -12,9 +12,9 @@
 .logo-wrapper {
   position: fixed;
   left: calc(30rem + var(--safe-left));
-  top: calc(30rem + var(--safe-top));
-  width: 64rem;
-  height: 64rem;
+  top: calc(38rem + var(--safe-top));
+  width: 48rem;
+  height: 48rem;
   z-index: 30;
   cursor: pointer;
 }
@@ -27,7 +27,7 @@
   border-radius: var(--radius-full);
   background: var(--color-white);
   color: var(--color-black);
-  font-size: 24rem;
+  font-size: 20rem;
   font-weight: 700;
   transition: transform 0.2s ease;
 }

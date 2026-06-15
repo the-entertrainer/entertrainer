@@ -511,9 +511,9 @@ canvas {
 }
 .menu-subwrapper {
   position: relative;
-  width: 86.8rem;
+  width: 48rem;
   height: 48rem;
-  border-radius: 24rem;
+  border-radius: var(--radius-full);
   background: var(--color-white);
   overflow: hidden;
   transition: width 0.9s var(--ease-spring), height 1s var(--ease-spring),
@@ -530,20 +530,24 @@ canvas {
   position: absolute;
   top: 0;
   left: 0;
-  width: 86.8rem;
+  width: 48rem;
   height: 48rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: var(--color-black);
-  font-size: 18rem;
-  font-weight: 500;
+  gap: 5rem;
   z-index: 2;
 }
-.menu-button .letter {
-  display: inline-block;
-  transform-origin: center;
+.bar {
+  width: 18rem;
+  height: 2rem;
+  border-radius: 1rem;
+  background: var(--color-black);
+  transition: transform 0.25s ease, opacity 0.2s ease;
 }
+.menu-button:hover .bar:nth-child(1) { transform: translateY(-1rem); }
+.menu-button:hover .bar:nth-child(3) { transform: translateY(1rem); }
 .menu-subwrapper.opened .menu-button {
   opacity: 0;
   pointer-events: none;

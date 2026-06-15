@@ -317,7 +317,7 @@ function onLoaderEntered() {
   white-space: nowrap;
 }
 .spiral-switch {
-  position: absolute;
+  position: fixed;
   top: calc(38rem + var(--safe-top));
   left: 50%;
   transform: translateX(-50%);
@@ -325,6 +325,7 @@ function onLoaderEntered() {
   display: flex;
   align-items: center;
   height: 48rem;
+  z-index: 10;
 }
 .spiral-hint {
   position: absolute;

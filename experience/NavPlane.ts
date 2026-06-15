@@ -252,7 +252,12 @@ export default class NavPlane {
     mat.uniforms.uColorStrength.value  = 0.55 * this.hoverProgress
     mat.uniforms.uZoom.value           = 1 + 0.05 * this.hoverProgress
     mat.uniforms.uRevealProgress.value = this.revealProgress * (1 - this.hoverProgress * 0.05)
-    mat.uniforms.uOpacity.value        = this.wrapFade
+
+    // Fade cards out as they approach the wrap boundary so the discrete
+    // position snap is invisible by the time they teleport
+    const halfCount  = this.totalCount / 2
+    const edgeFade   = Math.max(0, Math.min(1, (halfCount - Math.abs(Ba)) / 0.5))
+    mat.uniforms.uOpacity.value = this.wrapFade * edgeFade
   }
 
   destroy() {

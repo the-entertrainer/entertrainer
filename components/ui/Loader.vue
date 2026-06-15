@@ -64,8 +64,8 @@ function enter(theme: 'dark' | 'light') {
 .spinner {
   width: 48rem;
   height: 48rem;
-  border: 2px solid rgba(244,241,236,0.15);
-  border-top-color: #8B5CF6;
+  border: 2px solid var(--color-divider);
+  border-top-color: var(--color-accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -77,7 +77,7 @@ function enter(theme: 'dark' | 'light') {
   font-weight: 600;
   letter-spacing: -0.05em;
   font-style: italic;
-  color: #F4F1EC;
+  color: var(--color-text);
   min-width: 3ch;
   text-align: center;
 }
@@ -91,14 +91,14 @@ function enter(theme: 'dark' | 'light') {
   font-size: 18rem;
   font-weight: 600;
   letter-spacing: -0.03em;
-  color: #F4F1EC;
+  color: var(--color-text);
 }
 .brand-role {
   font-size: 11rem;
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #8B5CF6;
+  color: var(--color-accent);
 }
 .loader-buttons {
   display: flex;
@@ -124,12 +124,12 @@ function enter(theme: 'dark' | 'light') {
 }
 .enter-btn:hover { transform: scale(1.06); }
 .dark-btn {
-  background: rgba(244,241,236,0.1);
-  color: #F4F1EC;
-  border-color: rgba(244,241,236,0.2);
+  background: var(--color-glass-bg);
+  color: var(--color-text);
+  border-color: var(--color-glass-border);
 }
 .light-btn {
-  background: #F4F1EC;
-  color: #0D0C0A;
+  background: var(--color-text);
+  color: var(--color-bg);
 }
 </style>

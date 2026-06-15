@@ -7,12 +7,19 @@ definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
     <NuxtLink to="/" class="back-btn">← back</NuxtLink>
 
     <header class="about-header">
-      <p class="about-eyebrow">Naveen Jose &middot; CIDS Certified</p>
-      <h1 class="about-title">I make learning<br><em>impossible to ignore.</em></h1>
-      <p class="about-lead">
-        Born in hospitality. Hardwired for storytelling. Certified in instructional design.
-        I build experiences that don't feel like training at all.
-      </p>
+      <div class="about-hero">
+        <div class="about-hero-text">
+          <p class="about-eyebrow">Naveen Jose &middot; CIDS Certified</p>
+          <h1 class="about-title">I make learning<br><em>impossible to ignore.</em></h1>
+          <p class="about-lead">
+            Born in hospitality. Hardwired for storytelling. Certified in instructional design.
+            I build experiences that don't feel like training at all.
+          </p>
+        </div>
+        <div class="about-portrait-wrap">
+          <img src="/naveen.jpeg" alt="Naveen Jose" class="about-portrait" />
+        </div>
+      </div>
     </header>
 
     <section class="about-section">
@@ -158,6 +165,41 @@ definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 /* ── Header ── */
 .about-header {
   margin-bottom: 80rem;
+}
+.about-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 48rem;
+}
+.about-hero-text {
+  flex: 1;
+  min-width: 0;
+}
+.about-portrait-wrap {
+  flex: 0 0 220rem;
+  width: 220rem;
+  aspect-ratio: 1;
+  border-radius: 20rem;
+  overflow: hidden;
+  background: var(--color-glass-bg);
+}
+.about-portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+@media (max-width: 640px) {
+  .about-hero {
+    flex-direction: column-reverse;
+    gap: 32rem;
+  }
+  .about-portrait-wrap {
+    flex: none;
+    width: 140rem;
+    border-radius: 14rem;
+  }
 }
 .about-eyebrow {
   font-size: 13rem;

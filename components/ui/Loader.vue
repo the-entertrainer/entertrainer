@@ -58,6 +58,7 @@ const DESTS: Dest[] = [
   { corner: 3, sx: 6,  sy: 0, shape: BAR_V }
 ]
 
+let assemblyTl: gsap.core.Timeline | null = null
 let idleTween: gsap.core.Tween | null = null
 
 // Once the experience is ready, let the "E" breathe briefly, then auto-enter.
@@ -66,19 +67,38 @@ watch(isReady, (ready) => {
 })
 
 onMounted(() => {
-  // Seed the E formation and a gentle breathing pulse while loading.
+  const rng = (a: number, b: number) => a + Math.random() * (b - a)
+
+  // Seed dots at random scatter positions, invisible and scaled to zero.
   dotEls.value.forEach((el, i) => {
+    const angle  = rng(0, Math.PI * 2)
+    const radius = rng(100, 200)
     gsap.set(el, {
       xPercent: -50, yPercent: -50,
-      x: FORMATION[i].x, y: FORMATION[i].y,
+      x: Math.cos(angle) * radius,
+      y: Math.sin(angle) * radius,
       width: DOT_ROUND.w, height: DOT_ROUND.h, borderRadius: '50%',
-      opacity: 0
+      scale: 0, opacity: 0
     })
   })
-  gsap.to(dotEls.value, { opacity: 1, duration: 0.5, stagger: 0.04, ease: 'power2.out' })
-  idleTween = gsap.to(dotEls.value, {
-    scale: 1.18, duration: 0.9, ease: 'sine.inOut',
-    stagger: { each: 0.08, repeat: -1, yoyo: true }
+
+  // Staggered spring-convergence into the E formation.
+  assemblyTl = gsap.timeline({
+    onComplete: () => {
+      assemblyTl = null
+      idleTween = gsap.to(dotEls.value, {
+        scale: 1.18, duration: 0.9, ease: 'sine.inOut',
+        stagger: { each: 0.08, repeat: -1, yoyo: true }
+      })
+    }
+  })
+
+  dotEls.value.forEach((el, i) => {
+    assemblyTl!.to(el, {
+      x: FORMATION[i].x, y: FORMATION[i].y,
+      scale: 1, opacity: 1,
+      duration: 0.85, ease: 'back.out(1.6)'
+    }, 0.08 + i * 0.055)
   })
 })
 
@@ -102,6 +122,16 @@ function enter() {
   SoundEngine.init()
   SoundEngine.getInstance()?.unlock()
 
+  // Kill any in-progress assembly and snap dots to their final E positions.
+  assemblyTl?.kill()
+  assemblyTl = null
+  dotEls.value.forEach((el, i) => {
+    gsap.set(el, {
+      x: FORMATION[i].x, y: FORMATION[i].y,
+      scale: 1, opacity: 1,
+      width: DOT_ROUND.w, height: DOT_ROUND.h, borderRadius: '50%'
+    })
+  })
   idleTween?.kill()
 
   // Resolve the icon colour for the active theme — dots darken into the icon

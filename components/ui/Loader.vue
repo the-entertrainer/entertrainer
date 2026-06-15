@@ -36,8 +36,8 @@ function enter(theme: 'dark' | 'light') {
         <p class="brand-role">Instructional Design &amp; E-Learning</p>
       </div>
       <div class="loader-buttons" :class="{ show: showButtons }">
-        <button class="enter-btn dark-btn" @click="enter('dark')">dark</button>
-        <button class="enter-btn light-btn" @click="enter('light')">light</button>
+        <button class="enter-btn dark-btn" @click.stop="enter('dark')">dark</button>
+        <button class="enter-btn light-btn" @click.stop="enter('light')">light</button>
       </div>
     </div>
   </div>

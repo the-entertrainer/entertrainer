@@ -171,11 +171,6 @@ function onLoaderEntered() {
         <!-- Section title -->
         <p v-if="title" class="spiral-title">{{ title }}</p>
 
-        <!-- View switch (home only) -->
-        <div v-if="showViewSwitch" class="spiral-switch">
-          <UiViewSwitch />
-        </div>
-
         <!-- Hint -->
         <p v-if="!isListMode" class="spiral-hint">scroll to spin · tap to explore</p>
       </div>
@@ -315,17 +310,6 @@ function onLoaderEntered() {
   color: var(--color-text);
   opacity: 0.3;
   white-space: nowrap;
-}
-.spiral-switch {
-  position: fixed;
-  top: calc(38rem + var(--safe-top));
-  left: 50%;
-  transform: translateX(-50%);
-  pointer-events: all;
-  display: flex;
-  align-items: center;
-  height: 48rem;
-  z-index: 10;
 }
 .spiral-hint {
   position: absolute;

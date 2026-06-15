@@ -197,6 +197,7 @@ function onLoaderEntered() {
   width: 100% !important;
   height: 100% !important;
   touch-action: none;
+  background: var(--color-bg);
   transition: opacity 0.5s ease;
 }
 .spiral-canvas.hidden {

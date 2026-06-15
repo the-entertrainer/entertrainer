@@ -48,10 +48,11 @@ function enter(theme: 'dark' | 'light') {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: #0D0C0A;
+  background: var(--color-bg);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.15s ease;
 }
 .loader-inner {
   display: flex;

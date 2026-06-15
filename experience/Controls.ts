@@ -7,7 +7,7 @@ export default class Controls {
   easing = 0.1
   minWheelSpeed = 0.002
   wheelDirection = 1
-  scrollOffset = 0
+  scrollOffset = 0.5
 
   wheelDeltaY = 0
   targetWheelDeltaY = 0

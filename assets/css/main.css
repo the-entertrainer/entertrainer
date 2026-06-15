@@ -513,7 +513,7 @@ canvas {
   position: relative;
   width: 48rem;
   height: 48rem;
-  border-radius: var(--radius-full);
+  border-radius: 24rem;
   background: var(--color-white);
   overflow: hidden;
   transition: width 0.9s var(--ease-spring), height 1s var(--ease-spring),

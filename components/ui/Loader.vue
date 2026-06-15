@@ -1,16 +1,12 @@
 <script setup lang="ts">
 import gsap from 'gsap'
 import { useExperienceStore } from '~/stores/experience'
-import { useThemeStore } from '~/stores/theme'
 import SoundEngine from '~/experience/SoundEngine'
 
 const emit = defineEmits<{ (e: 'entered'): void }>()
 
 const experienceStore = useExperienceStore()
-const themeStore      = useThemeStore()
-const progress        = computed(() => Math.round(experienceStore.progress))
 const isReady         = computed(() => experienceStore.isReady)
-const showButtons     = ref(false)
 const entering        = ref(false)
 
 const loaderEl  = ref<HTMLElement | null>(null)
@@ -64,8 +60,9 @@ const DESTS: Dest[] = [
 
 let idleTween: gsap.core.Tween | null = null
 
+// Once the experience is ready, let the "E" breathe briefly, then auto-enter.
 watch(isReady, (ready) => {
-  if (ready) setTimeout(() => { showButtons.value = true }, 600)
+  if (ready) setTimeout(() => enter(), 700)
 })
 
 onMounted(() => {
@@ -97,26 +94,23 @@ function cornerCentre(i: number) {
   }
 }
 
-function enter(theme: 'dark' | 'light') {
+function enter() {
   if (entering.value) return
   entering.value = true
 
-  // Set theme + unlock audio SYNCHRONOUSLY inside this gesture (iOS).
-  themeStore.set(theme)
+  // Init audio + arm the iOS unlock listeners (resume happens on first touch).
   SoundEngine.init()
   SoundEngine.getInstance()?.unlock()
 
   idleTween?.kill()
 
-  // Resolve the icon colour for the chosen theme — dots darken into the icon
+  // Resolve the icon colour for the active theme — dots darken into the icon
   // as they land on the white pads.
   const iconColor = getComputedStyle(document.documentElement)
     .getPropertyValue('--color-black').trim() || '#0D0C0A'
 
   const tl = gsap.timeline({ onComplete: () => emit('entered') })
 
-  // Fade out the text chrome.
-  tl.to('.eloader-meta', { opacity: 0, y: 14, duration: 0.3, ease: 'power2.out' }, 0)
   // Clear any idle scale so width/height drives the final shape cleanly.
   tl.to(dotEls.value, { scale: 1, duration: 0.2 }, 0)
 
@@ -178,19 +172,6 @@ function enter(theme: 'dark' | 'light') {
     <span class="anchor anchor-tr" :ref="(el: any) => setAnchorEl(el, 1)"></span>
     <span class="anchor anchor-bl" :ref="(el: any) => setAnchorEl(el, 2)"></span>
     <span class="anchor anchor-br" :ref="(el: any) => setAnchorEl(el, 3)"></span>
-
-    <!-- Text chrome -->
-    <div class="eloader-meta">
-      <div class="eloader-pct">{{ progress }}<span class="pct">%</span></div>
-      <div class="loader-brand">
-        <p class="brand-name">Entertrainer</p>
-        <p class="brand-role">Instructional Design &amp; E-Learning</p>
-      </div>
-      <div class="loader-buttons" :class="{ show: showButtons }">
-        <button class="enter-btn dark-btn" @click.stop="enter('dark')">dark</button>
-        <button class="enter-btn light-btn" @click.stop="enter('light')">light</button>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -239,77 +220,4 @@ function enter(theme: 'dark' | 'light') {
 .anchor-tr { right: calc(30rem + var(--safe-right)); top: calc(38rem + var(--safe-top)); }
 .anchor-bl { left: calc(30rem + var(--safe-left));  bottom: calc(30rem + var(--safe-bottom)); }
 .anchor-br { right: calc(30rem + var(--safe-right)); bottom: calc(30rem + var(--safe-bottom)); }
-
-/* Text */
-.eloader-meta {
-  position: absolute;
-  left: 50%;
-  top: calc(50% + 92rem);
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 22rem;
-  text-align: center;
-}
-.eloader-pct {
-  font-size: 56rem;
-  font-weight: 600;
-  letter-spacing: -0.05em;
-  font-style: italic;
-  color: var(--color-text);
-  min-width: 3ch;
-  text-align: center;
-}
-.pct { font-size: 28rem; }
-.loader-brand {
-  display: flex;
-  flex-direction: column;
-  gap: 6rem;
-}
-.brand-name {
-  font-size: 18rem;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  color: var(--color-text);
-}
-.brand-role {
-  font-size: 11rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-accent);
-}
-.loader-buttons {
-  display: flex;
-  gap: 10rem;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-}
-.loader-buttons.show {
-  opacity: 1;
-  pointer-events: auto;
-}
-.enter-btn {
-  padding: 12rem 28rem;
-  border-radius: var(--radius-full);
-  font-family: var(--main-font);
-  font-size: 14rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: transform 0.3s var(--ease-spring), opacity 0.2s ease;
-}
-.enter-btn:hover { transform: scale(1.06); }
-.dark-btn {
-  background: var(--color-glass-bg);
-  color: var(--color-text);
-  border-color: var(--color-glass-border);
-}
-.light-btn {
-  background: var(--color-text);
-  color: var(--color-bg);
-}
 </style>

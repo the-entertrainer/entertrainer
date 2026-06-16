@@ -41,6 +41,8 @@ const fragmentShader = /* glsl */`
   uniform vec2  uImageSizes;
   uniform float uRevealProgress;
   uniform float uOpacity;
+  uniform float uRimAngle;
+  uniform float uGlowStrength;
 
   varying vec2 vUv;
   #include <fog_pars_fragment>
@@ -62,7 +64,6 @@ const fragmentShader = /* glsl */`
       color.rgb = mix(color.rgb, vec3(0.0), uColorStrength);
     } else {
       // Heavy blur + darken on back-face so text is unreadable
-      float o1 = 70.0 / 1024.0;
       float o2 = 140.0 / 1024.0;
       vec4 c = vec4(0.0);
       c += texture2D(uTexture, uv + vec2(-o2, -o2)) * 1.0;
@@ -90,68 +91,21 @@ const fragmentShader = /* glsl */`
     float alpha     = 1.0 - smoothstep(-aa, aa, sdf);
     alpha          *= smoothstep(0.1, 1.0, uRevealProgress);
 
+    // Orbiting rim glow — cream spotlight tracing the card edge
+    if (gl_FrontFacing) {
+      vec2  cp       = vec2((vUv.x - 0.5) * aspect, vUv.y - 0.5);
+      float pAngle   = atan(cp.y, cp.x);
+      float angDelta = abs(mod(pAngle - uRimAngle + 3.14159, 6.28318) - 3.14159);
+      float rimFade  = exp(-sdf * sdf * 300.0);
+      float arcFade  = exp(-angDelta * angDelta * 1.2);
+      float glowMask = rimFade * arcFade * uGlowStrength;
+      color.rgb     += vec3(0.96, 0.95, 0.93) * glowMask * 0.50;
+    }
+
     gl_FragColor = vec4(color.rgb, alpha * color.a * uOpacity);
     #include <fog_fragment>
   }
 `
-
-// Glass card material — same design tokens as the spiral/list toggle (ViewSwitch.vue):
-// transparent body, --color-glass-border hairline, --color-white text.
-// Cards read as ghost planes floating in 3D space, rhyming with the UI chrome.
-function makeNavTexture(isDark: boolean, label: string, description: string): CanvasTexture {
-  const W = 1700, H = 1000
-  const canvas = document.createElement('canvas')
-  canvas.width  = W
-  canvas.height = H
-  const ctx = canvas.getContext('2d')!
-
-  // ── 1. Glass body — matches --color-glass-bg token ───────────
-  // Subtle frosted tint so hover darkening has something to work with.
-  ctx.fillStyle = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'
-  ctx.fillRect(0, 0, W, H)
-
-  // ── 2. Diagonal ambient sweep — barely-there depth ───────────
-  const sweep = ctx.createLinearGradient(0, 0, W * 0.6, H * 0.6)
-  sweep.addColorStop(0, 'rgba(255,255,255,0.04)')
-  sweep.addColorStop(1, 'rgba(255,255,255,0)')
-  ctx.fillStyle = sweep
-  ctx.fillRect(0, 0, W, H)
-
-  // ── 3. Border stroke — matches --color-glass-border token ────
-  // strokeRect corners fall within the SDF clip so only the straight
-  // runs are visible, reading as a clean hairline border.
-  ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)'
-  ctx.lineWidth   = 5
-  ctx.strokeRect(6, 6, W - 12, H - 12)
-
-  // ── 4. Accent tick ───────────────────────────────────────────
-  ctx.fillStyle = isDark ? 'rgba(244,241,236,0.40)' : 'rgba(13,12,10,0.25)'
-  ctx.fillRect(100, 820, 140, 4)
-
-  // ── 5. Label — matches --color-white token per mode ──────────
-  ctx.fillStyle    = isDark ? '#F4F1EC' : '#0D0C0A'
-  ctx.textAlign    = 'left'
-  ctx.textBaseline = 'alphabetic'
-  let labelPx = 180
-  ctx.font = `700 ${labelPx}px system-ui, -apple-system, Arial, sans-serif`
-  while (ctx.measureText(label).width > 1480 && labelPx > 72) {
-    labelPx -= 6
-    ctx.font = `700 ${labelPx}px system-ui, -apple-system, Arial, sans-serif`
-  }
-  ctx.fillText(label, 100, 550)
-
-  // ── 6. Description ────────────────────────────────────────────
-  ctx.fillStyle = isDark ? 'rgba(244,241,236,0.60)' : 'rgba(13,12,10,0.50)'
-  let descPx = 64
-  ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
-  while (ctx.measureText(description).width > 1480 && descPx > 38) {
-    descPx -= 4
-    ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
-  }
-  ctx.fillText(description, 100, 650)
-
-  return new CanvasTexture(canvas)
-}
 
 export default class NavPlane {
   experience: Experience
@@ -170,6 +124,21 @@ export default class NavPlane {
   private prevBa: number | null = null
   private wrapFade = 1
   private _isDark  = true
+
+  // Canvas-texture refs (mutable for typewriter animation)
+  private _canvas!: HTMLCanvasElement
+  private _ctx!:    CanvasRenderingContext2D
+  private _tex!:    CanvasTexture
+
+  // Typewriter state
+  private _labelProgress = 0
+  private _descProgress  = 0
+  private _prevCharCount = -1
+  private _cursorFading  = 0
+
+  // Rim glow state
+  private _rimAngle    = 0
+  private _glowStrength = 0
 
   readonly baseScaleX  = 1.7
   readonly baseScaleY  = 1.0
@@ -191,21 +160,27 @@ export default class NavPlane {
     this.totalCount = totalCount
     this._isDark    = isDark
 
-    const texture = makeNavTexture(isDark, navItem.label, navItem.description)
-    texture.needsUpdate = true
+    this._canvas        = document.createElement('canvas')
+    this._canvas.width  = 1700
+    this._canvas.height = 1000
+    this._ctx = this._canvas.getContext('2d')!
+    this._tex = new CanvasTexture(this._canvas)
+    this._drawTexture(isDark)
 
     const material = new ShaderMaterial({
       uniforms: UniformsUtils.merge([
         UniformsLib.fog,
         {
-          uTexture:        { value: texture },
+          uTexture:        { value: this._tex },
           uColorStrength:  { value: 0 },
           uZoom:           { value: 1 },
           uPlaneSizes:     { value: new Vector2(1.7, 1.0) },
           uImageSizes:     { value: new Vector2(1700, 1000) },
           uRevealProgress: { value: 0 },
           uScrollSpeed:    { value: 0 },
-          uOpacity:        { value: 1 }
+          uOpacity:        { value: 1 },
+          uRimAngle:       { value: 0 },
+          uGlowStrength:   { value: 0 }
         }
       ]),
       vertexShader,
@@ -220,19 +195,99 @@ export default class NavPlane {
     experience.scene.add(this.mesh)
   }
 
+  private _drawTexture(isDark: boolean) {
+    const W = 1700, H = 1000
+    const ctx = this._ctx
+    ctx.clearRect(0, 0, W, H)
+
+    // Glass body — matches --color-glass-bg token
+    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'
+    ctx.fillRect(0, 0, W, H)
+
+    // Diagonal ambient sweep
+    const sweep = ctx.createLinearGradient(0, 0, W * 0.6, H * 0.6)
+    sweep.addColorStop(0, 'rgba(255,255,255,0.04)')
+    sweep.addColorStop(1, 'rgba(255,255,255,0)')
+    ctx.fillStyle = sweep
+    ctx.fillRect(0, 0, W, H)
+
+    // Border — matches --color-glass-border token
+    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)'
+    ctx.lineWidth   = 5
+    ctx.strokeRect(6, 6, W - 12, H - 12)
+
+    // Accent tick
+    ctx.fillStyle = isDark ? 'rgba(244,241,236,0.40)' : 'rgba(13,12,10,0.25)'
+    ctx.fillRect(100, 820, 140, 4)
+
+    // ── Label (typewriter) ────────────────────────────────────────
+    const label     = this.navItem.label
+    const charCount = Math.min(label.length, Math.ceil(this._labelProgress * label.length))
+    const textColor = isDark ? '#F4F1EC' : '#0D0C0A'
+    ctx.fillStyle    = textColor
+    ctx.textAlign    = 'left'
+    ctx.textBaseline = 'alphabetic'
+    let labelPx = 180
+    ctx.font = `700 ${labelPx}px system-ui, -apple-system, Arial, sans-serif`
+    while (ctx.measureText(label).width > 1480 && labelPx > 72) {
+      labelPx -= 6
+      ctx.font = `700 ${labelPx}px system-ui, -apple-system, Arial, sans-serif`
+    }
+    ctx.fillText(label.substring(0, charCount), 100, 550)
+
+    // ── Cursor ────────────────────────────────────────────────────
+    const cursorOpacity = (1 - this._cursorFading) *
+      Math.max(0, 0.5 + 0.5 * Math.sin(Date.now() / 380))
+    if (cursorOpacity > 0.01 && charCount > 0) {
+      const typedWidth = ctx.measureText(label.substring(0, charCount)).width
+      const cursorH   = labelPx * 0.82
+      const cursorX   = 100 + typedWidth + 10
+      const cursorY   = 550 - cursorH
+      ctx.globalAlpha = cursorOpacity
+      ctx.fillStyle   = textColor
+      ctx.fillRect(cursorX, cursorY, Math.max(3, labelPx * 0.06), cursorH)
+      ctx.globalAlpha = 1
+    }
+
+    // ── Description (fades in after label) ───────────────────────
+    if (this._descProgress > 0) {
+      const desc      = this.navItem.description
+      const descAlpha = this._descProgress * (isDark ? 0.60 : 0.50)
+      ctx.fillStyle   = isDark
+        ? `rgba(244,241,236,${descAlpha.toFixed(3)})`
+        : `rgba(13,12,10,${descAlpha.toFixed(3)})`
+      let descPx = 64
+      ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
+      while (ctx.measureText(desc).width > 1480 && descPx > 38) {
+        descPx -= 4
+        ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
+      }
+      ctx.fillText(desc, 100, 650)
+    }
+
+    this._tex.needsUpdate = true
+  }
+
   reveal() { this.hiddenTarget = 0; this.revealTarget = 1 }
-  hide()   { this.hiddenTarget = 1; this.revealTarget = 0 }
+
+  hide() {
+    this.hiddenTarget   = 1
+    this.revealTarget   = 0
+    this._labelProgress = 0
+    this._descProgress  = 0
+    this._cursorFading  = 0
+    this._prevCharCount = -1
+  }
+
   setHovered(hovered: boolean) { this.hoverTarget = hovered ? 1 : 0 }
 
   updateTexture(isDark: boolean) {
     if (isDark === this._isDark) return
     this._isDark = isDark
+    this._prevCharCount = -1
+    this._drawTexture(isDark)
     const mat = this.mesh.material as ShaderMaterial
-    const oldTex = mat.uniforms.uTexture.value
-    const newTex = makeNavTexture(isDark, this.navItem.label, this.navItem.description)
-    newTex.needsUpdate = true
-    mat.uniforms.uTexture.value = newTex
-    oldTex.dispose()
+    mat.uniforms.uTexture.value = this._tex
   }
 
   update(delta: number, scrollOffset: number, scrollSpeed: number) {
@@ -248,7 +303,7 @@ export default class NavPlane {
     const wFactor = 1 - Math.pow(1 - 0.008, delta)
     this.wrapFade += (1 - this.wrapFade) * wFactor
 
-    const hFactor = 1 - Math.pow(1 - 0.05, delta * 0.15)
+    const hFactor  = 1 - Math.pow(1 - 0.05, delta * 0.15)
     const hvFactor = 1 - Math.pow(1 - (this.hoverTarget > 0.5 ? 0.09 : 0.07), delta * 0.2)
 
     this.hiddenProgress += (this.hiddenTarget - this.hiddenProgress) * hFactor
@@ -269,15 +324,47 @@ export default class NavPlane {
     mat.uniforms.uZoom.value           = 1 + 0.05 * this.hoverProgress
     mat.uniforms.uRevealProgress.value = this.revealProgress * (1 - this.hoverProgress * 0.05)
 
-    // Fade cards out as they approach the wrap boundary so the discrete
-    // position snap is invisible by the time they teleport
-    const halfCount  = this.totalCount / 2
-    const edgeFade   = Math.max(0, Math.min(1, (halfCount - Math.abs(Ba)) / 0.5))
+    const halfCount = this.totalCount / 2
+    const edgeFade  = Math.max(0, Math.min(1, (halfCount - Math.abs(Ba)) / 0.5))
     mat.uniforms.uOpacity.value = this.wrapFade * edgeFade
+
+    // ── Typewriter ──────────────────────────────────────────────
+    const LABEL_DURATION = 1200
+    const DESC_DELAY     = 0.70
+    const DESC_DURATION  = 600
+
+    if (this.revealProgress > 0.5 && this._labelProgress < 1) {
+      this._labelProgress = Math.min(1, this._labelProgress + delta / LABEL_DURATION)
+    }
+    if (this._labelProgress >= DESC_DELAY) {
+      this._descProgress = Math.min(1, this._descProgress + delta / DESC_DURATION)
+    }
+    if (this._labelProgress >= 1 && this._cursorFading < 1) {
+      this._cursorFading = Math.min(1, this._cursorFading + delta / 1200)
+    }
+
+    const charCount    = Math.min(
+      this.navItem.label.length,
+      Math.ceil(this._labelProgress * this.navItem.label.length)
+    )
+    const cursorActive = this._labelProgress > 0 && this._cursorFading < 1
+    if (charCount !== this._prevCharCount || cursorActive) {
+      this._prevCharCount = charCount
+      this._drawTexture(this._isDark)
+    }
+
+    // ── Rim glow ─────────────────────────────────────────────────
+    this._rimAngle     = (this._rimAngle + delta * 0.0007) % (Math.PI * 2)
+    const glowFactor   = 1 - Math.pow(1 - 0.004, delta)
+    this._glowStrength += (this.revealProgress - this._glowStrength) * glowFactor
+
+    mat.uniforms.uRimAngle.value     = this._rimAngle
+    mat.uniforms.uGlowStrength.value = this._glowStrength
   }
 
   destroy() {
     this.experience.scene.remove(this.mesh)
     ;(this.mesh.material as ShaderMaterial).dispose()
+    this._tex.dispose()
   }
 }

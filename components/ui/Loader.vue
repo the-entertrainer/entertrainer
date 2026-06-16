@@ -33,19 +33,20 @@ const FORMATION: { x: number; y: number }[] = [
 // that corner's centre) + the final icon-piece shape.
 interface Shape { w: number; h: number; r: string }
 const DOT_ROUND: Shape = { w: 12, h: 12, r: '50%' }
-const E_DOT:     Shape = { w: 5.2, h: 5.2, r: '50%' }   // matches Logo.vue mark
+const E_DOT:     Shape = { w: 3.3, h: 3.3, r: '50%' }   // matches 12-dot Logo.vue mark (r=2.2 at scale 0.75)
 const BAR_H:     Shape = { w: 18, h: 2, r: '1px' }      // hamburger bar
 const BAR_V:     Shape = { w: 3, h: 14, r: '2px' }      // sound bar
 const THEME_DOT: Shape = { w: 14, h: 14, r: '50%' }     // ThemeCircle tc-dot
 
 interface Dest { corner: number; sx: number; sy: number; shape: Shape }
 const DESTS: Dest[] = [
-  // 0-4 → top-left, the 5-dot "E" (offsets from Logo.vue viewBox, centred)
-  { corner: 0, sx: -5, sy: -6, shape: E_DOT },
-  { corner: 0, sx: -5, sy: 0,  shape: E_DOT },
-  { corner: 0, sx: -5, sy: 6,  shape: E_DOT },
-  { corner: 0, sx: 5,  sy: -6, shape: E_DOT },
-  { corner: 0, sx: 5,  sy: 6,  shape: E_DOT },
+  // 0-4 → top-left logo: 3 spine dots + 2 arm endpoints matching new 12-dot Logo.vue
+  // (Logo: viewBox 0 0 24 32, mark 18×24px, scale 0.75; offsets relative to wrapper centre)
+  { corner: 0, sx: -6.75, sy: -9, shape: E_DOT },   // d0 spine top   (cx=3,  cy=4)
+  { corner: 0, sx: -6.75, sy:  0, shape: E_DOT },   // d2 spine mid   (cx=3,  cy=16)
+  { corner: 0, sx: -6.75, sy:  9, shape: E_DOT },   // d4 spine bot   (cx=3,  cy=28)
+  { corner: 0, sx:  6.75, sy: -9, shape: E_DOT },   // d7 top arm end (cx=21, cy=4)
+  { corner: 0, sx:  6.75, sy:  9, shape: E_DOT },   // d11 bot arm end(cx=21, cy=28)
   // 5-7 → top-right hamburger (3 horizontal bars)
   { corner: 1, sx: 0, sy: -7, shape: BAR_H },
   { corner: 1, sx: 0, sy: 0,  shape: BAR_H },

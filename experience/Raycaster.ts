@@ -11,6 +11,7 @@ export default class Raycaster {
 
   private _touchStartX = 0
   private _touchStartY = 0
+  private _lastTouchEndMs = 0
 
   constructor(experience: Experience) {
     this.experience = experience
@@ -22,7 +23,7 @@ export default class Raycaster {
     this._onTouchEnd   = this._onTouchEnd.bind(this)
 
     window.addEventListener('mousemove', this._onMouseMove)
-    window.addEventListener('click', this._onClick)
+    experience.canvas.addEventListener('click', this._onClick)
     experience.canvas.addEventListener('touchstart', this._onTouchStart, { passive: true })
     experience.canvas.addEventListener('touchend', this._onTouchEnd, { passive: true })
   }
@@ -60,6 +61,7 @@ export default class Raycaster {
   }
 
   private _onClick() {
+    if (Date.now() - this._lastTouchEndMs < 500) return
     const hit = this._intersect()
     if (hit) {
       this.experience.trigger('planeClick', [hit.navItem.href])
@@ -81,7 +83,9 @@ export default class Raycaster {
 
     this.pointer = this._toNDC(t.clientX, t.clientY)
     const hit = this._intersect()
+    this.pointer = new Vector2(-999, -999)
     if (hit) {
+      this._lastTouchEndMs = Date.now()
       this.experience.trigger('planeClick', [hit.navItem.href])
       SoundEngine.getInstance()?.onCardClick(Math.PI / 2 - hit.mesh.rotation.y)
     }
@@ -89,7 +93,7 @@ export default class Raycaster {
 
   destroy() {
     window.removeEventListener('mousemove', this._onMouseMove)
-    window.removeEventListener('click', this._onClick)
+    this.experience.canvas.removeEventListener('click', this._onClick)
     this.experience.canvas.removeEventListener('touchstart', this._onTouchStart)
     this.experience.canvas.removeEventListener('touchend', this._onTouchEnd)
     document.body.style.cursor = ''

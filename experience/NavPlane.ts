@@ -45,11 +45,6 @@ const fragmentShader = /* glsl */`
   varying vec2 vUv;
   #include <fog_pars_fragment>
 
-  float roundedRectSDF(vec2 uv, vec2 size, float radius) {
-    vec2 d = abs(uv - 0.5) - size * 0.5 + radius;
-    return length(max(d, 0.0)) - radius;
-  }
-
   void main() {
     vec2 ratio = vec2(
       min((uPlaneSizes.x / uPlaneSizes.y) / (uImageSizes.x / uImageSizes.y), 1.0),
@@ -84,10 +79,15 @@ const fragmentShader = /* glsl */`
       color = c;
     }
 
+    // Aspect-corrected rounded rect — compute SDF in world-proportional space
+    // so corner arcs are circular (not elliptical) on the 1.7:1 card.
+    float aspect    = uPlaneSizes.x / uPlaneSizes.y;
     float reveal    = clamp(uRevealProgress, 0.0, 1.0);
-    vec2 revealSize = vec2(reveal);
-    float radius    = 0.10 * reveal;
-    float sdf       = roundedRectSDF(vUv, revealSize, radius);
+    vec2  p         = vec2((vUv.x - 0.5) * aspect, vUv.y - 0.5);
+    vec2  halfSize  = vec2(aspect, 1.0) * 0.5 * reveal;
+    float radius    = 0.08 * reveal;
+    vec2  d         = abs(p) - halfSize + radius;
+    float sdf       = length(max(d, 0.0)) - radius;
     float aa        = fwidth(sdf);
     float alpha     = 1.0 - smoothstep(-aa, aa, sdf);
     alpha          *= smoothstep(0.1, 1.0, uRevealProgress);

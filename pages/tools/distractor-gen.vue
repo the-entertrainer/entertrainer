@@ -40,8 +40,6 @@ async function copy(text: string, i: number) {
 
 <template>
   <div class="detail-page dg-page">
-    <NuxtLink to="/" class="back-btn">← back</NuxtLink>
-
     <h1 class="detail-title">Distractor Generator</h1>
     <p class="detail-desc">Turn correct answers into brilliant wrong ones.</p>
 

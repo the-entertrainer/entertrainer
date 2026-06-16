@@ -4,8 +4,6 @@ definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 
 <template>
   <div class="about-page">
-    <NuxtLink to="/" class="back-btn">← back</NuxtLink>
-
     <header class="about-header">
       <div class="about-hero">
         <div class="about-hero-text">
@@ -135,31 +133,6 @@ definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
   color: var(--color-text);
   padding: calc(var(--safe-top) + 120rem) var(--grid-margin) calc(var(--safe-bottom) + 100rem);
   max-width: 900rem;
-}
-
-.back-btn {
-  position: fixed;
-  top: calc(38rem + var(--safe-top));
-  left: calc(88rem + var(--safe-left));
-  height: 48rem;
-  z-index: 30;
-  display: flex;
-  align-items: center;
-  padding: 0 20rem;
-  border-radius: var(--radius-full);
-  background: var(--color-glass-bg);
-  border: 1px solid var(--color-glass-border);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: var(--color-text);
-  font-size: 14rem;
-  font-weight: 500;
-  text-decoration: none;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.25s ease;
-}
-.back-btn:hover {
-  background: var(--color-glass-bg-hover);
-  border-color: var(--color-glass-border-hover);
 }
 
 /* ── Header ── */

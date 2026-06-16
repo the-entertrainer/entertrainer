@@ -624,8 +624,15 @@ canvas {
   transform: translateY(-50%) scale(1);
   opacity: 1;
 }
-.menu-theme {
+.menu-theme-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.mt-opt {
+  position: relative;
   display: inline-block;
+  padding-left: 0;
   font-size: 40rem;
   font-weight: 500;
   letter-spacing: -0.05em;
@@ -635,13 +642,28 @@ canvas {
   border: none;
   font-family: var(--main-font);
   cursor: pointer;
-  opacity: 0.4;
-  padding-left: 0;
-  transition: opacity 0.2s ease;
+  opacity: 0.28;
   text-align: left;
+  transition: padding-left 0.5s var(--ease-spring), opacity 0.35s ease;
 }
-.menu-theme:hover {
-  opacity: 0.7;
+.mt-opt::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 50%;
+  background: var(--color-black);
+  transform: translateY(-50%) scale(0);
+  transition: transform 0.45s var(--ease-spring);
+}
+.mt-opt.active {
+  opacity: 1;
+  padding-left: 28rem;
+}
+.mt-opt.active::before {
+  transform: translateY(-50%) scale(1);
 }
 
 /* ============================================================

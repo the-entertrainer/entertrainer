@@ -41,6 +41,11 @@ function setLinkEl(el: any, i: number) {
   if (!el) return
   linkEls.value[i] = el.$el ?? el
 }
+
+function setTheme(dark: boolean) {
+  SoundEngine.getInstance()?.onThemeChange(dark)
+  themeStore.set(dark ? 'dark' : 'light')
+}
 </script>
 
 <template>
@@ -77,10 +82,11 @@ function setLinkEl(el: any, i: number) {
             >{{ link.label }}</NuxtLink
           >
         </template>
-        <!-- Theme toggle inside menu -->
-        <button class="menu-theme" :ref="(el: any) => setLinkEl(el, links.length)" @click="themeStore.set(themeStore.isDark ? 'light' : 'dark')">
-          {{ themeStore.isDark ? 'light' : 'dark' }}
-        </button>
+        <!-- Theme toggle — dot-bullet slides to the active mode -->
+        <div class="menu-theme-toggle" :ref="(el: any) => setLinkEl(el, links.length)">
+          <button class="mt-opt" :class="{ active: themeStore.isDark }"  @click="setTheme(true)">dark</button>
+          <button class="mt-opt" :class="{ active: !themeStore.isDark }" @click="setTheme(false)">light</button>
+        </div>
       </nav>
     </div>
   </div>

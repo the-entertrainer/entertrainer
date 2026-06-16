@@ -27,7 +27,7 @@ onMounted(() => {
     <UiLogo />
     <UiMenu />
     <UiSoundButton />
-    <UiThemeCircle />
+    <UiBackButton />
     <Transition name="fade">
       <UiViewSwitch v-if="showViewSwitch" class="global-view-switch" />
     </Transition>

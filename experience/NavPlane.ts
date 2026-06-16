@@ -59,7 +59,7 @@ const fragmentShader = /* glsl */`
     vec4 color;
     if (gl_FrontFacing) {
       color = texture2D(uTexture, zoomedUv);
-      color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), uColorStrength);
+      color.rgb = mix(color.rgb, vec3(0.0), uColorStrength);
     } else {
       // Heavy blur + darken on back-face so text is unreadable
       float o1 = 70.0 / 1024.0;
@@ -90,18 +90,14 @@ const fragmentShader = /* glsl */`
     float alpha     = 1.0 - smoothstep(-aa, aa, sdf);
     alpha          *= smoothstep(0.1, 1.0, uRevealProgress);
 
-    gl_FragColor = vec4(color.rgb, alpha * uOpacity);
+    gl_FragColor = vec4(color.rgb, alpha * color.a * uOpacity);
     #include <fog_fragment>
   }
 `
 
-// The single accent — #243F6A. Every card is rendered in this navy so the
-// rotating stack reads as one material, not a deck of colors. Dark mode deepens
-// the navy into a panel that floats off the near-black stage; light mode uses
-// the navy at full strength against cream. Type stays cream for legibility.
-const NAVY_DARK  = 'rgb(20,35,58)'   // #243F6A multiplied toward black (~0.55)
-const NAVY_LIGHT = 'rgb(36,63,106)'  // #243F6A at full strength
-
+// Glass card material — same design tokens as the spiral/list toggle (ViewSwitch.vue):
+// transparent body, --color-glass-border hairline, --color-white text.
+// Cards read as ghost planes floating in 3D space, rhyming with the UI chrome.
 function makeNavTexture(isDark: boolean, label: string, description: string): CanvasTexture {
   const W = 1700, H = 1000
   const canvas = document.createElement('canvas')
@@ -109,64 +105,31 @@ function makeNavTexture(isDark: boolean, label: string, description: string): Ca
   canvas.height = H
   const ctx = canvas.getContext('2d')!
 
-  // ── 1. Solid navy panel ──────────────────────────────────────
-  ctx.fillStyle = isDark ? NAVY_DARK : NAVY_LIGHT
+  // ── 1. Glass body — matches --color-glass-bg token ───────────
+  // Subtle frosted tint so hover darkening has something to work with.
+  ctx.fillStyle = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'
   ctx.fillRect(0, 0, W, H)
 
-  // ── 2. Diagonal gradient overlay — adds depth to the flat navy ─
-  const grad = ctx.createLinearGradient(0, 0, W, H)
-  if (isDark) {
-    grad.addColorStop(0, 'rgba(255,255,255,0.06)')
-    grad.addColorStop(1, 'rgba(0,0,0,0.35)')
-  } else {
-    grad.addColorStop(0, 'rgba(255,255,255,0.10)')
-    grad.addColorStop(1, 'rgba(0,0,0,0.28)')
-  }
-  ctx.fillStyle = grad
+  // ── 2. Diagonal ambient sweep — barely-there depth ───────────
+  const sweep = ctx.createLinearGradient(0, 0, W * 0.6, H * 0.6)
+  sweep.addColorStop(0, 'rgba(255,255,255,0.04)')
+  sweep.addColorStop(1, 'rgba(255,255,255,0)')
+  ctx.fillStyle = sweep
   ctx.fillRect(0, 0, W, H)
 
-  // ── 3. Radial cream sheen from top-right ─────────────────────
-  const spot = ctx.createRadialGradient(W * 0.82, H * 0.18, 0, W * 0.82, H * 0.18, W * 0.72)
-  if (isDark) {
-    spot.addColorStop(0,   'rgba(244,241,236,0.10)')
-    spot.addColorStop(0.5, 'rgba(244,241,236,0.03)')
-    spot.addColorStop(1,   'rgba(0,0,0,0)')
-  } else {
-    spot.addColorStop(0,   'rgba(255,255,255,0.20)')
-    spot.addColorStop(0.5, 'rgba(255,255,255,0.05)')
-    spot.addColorStop(1,   'rgba(0,0,0,0)')
-  }
-  ctx.fillStyle = spot
-  ctx.fillRect(0, 0, W, H)
+  // ── 3. Border stroke — matches --color-glass-border token ────
+  // strokeRect corners fall within the SDF clip so only the straight
+  // runs are visible, reading as a clean hairline border.
+  ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)'
+  ctx.lineWidth   = 5
+  ctx.strokeRect(6, 6, W - 12, H - 12)
 
-  // ── 4. Film grain noise ──────────────────────────────────────
-  const noiseSize = 256
-  const noiseCanvas = document.createElement('canvas')
-  noiseCanvas.width = noiseCanvas.height = noiseSize
-  const nCtx = noiseCanvas.getContext('2d')!
-  const imgData = nCtx.createImageData(noiseSize, noiseSize)
-  for (let i = 0; i < imgData.data.length; i += 4) {
-    const v = Math.random() * 255 | 0
-    imgData.data[i]     = v
-    imgData.data[i + 1] = v
-    imgData.data[i + 2] = v
-    imgData.data[i + 3] = 255
-  }
-  nCtx.putImageData(imgData, 0, 0)
-  ctx.globalAlpha = 0.055
-  ctx.globalCompositeOperation = 'screen'
-  const nPat = ctx.createPattern(noiseCanvas, 'repeat')!
-  ctx.fillStyle = nPat
-  ctx.fillRect(0, 0, W, H)
-  ctx.globalAlpha = 1
-  ctx.globalCompositeOperation = 'source-over'
+  // ── 4. Accent tick ───────────────────────────────────────────
+  ctx.fillStyle = isDark ? 'rgba(244,241,236,0.40)' : 'rgba(13,12,10,0.25)'
+  ctx.fillRect(100, 820, 140, 4)
 
-  // ── 5. Accent line — cream tick in both modes ────────────────
-  ctx.fillStyle = 'rgba(244,241,236,0.7)'
-  ctx.fillRect(100, 820, 140, 6)
-
-  // ── 6. Main label — cream in both modes, scale down to fit ───
-  ctx.fillStyle    = '#F4F1EC'
+  // ── 5. Label — matches --color-white token per mode ──────────
+  ctx.fillStyle    = isDark ? '#F4F1EC' : '#0D0C0A'
   ctx.textAlign    = 'left'
   ctx.textBaseline = 'alphabetic'
   let labelPx = 180
@@ -177,8 +140,8 @@ function makeNavTexture(isDark: boolean, label: string, description: string): Ca
   }
   ctx.fillText(label, 100, 550)
 
-  // ── 7. Description — scale down if needed ────────────────────
-  ctx.fillStyle = isDark ? 'rgba(244,241,236,0.55)' : 'rgba(244,241,236,0.7)'
+  // ── 6. Description ────────────────────────────────────────────
+  ctx.fillStyle = isDark ? 'rgba(244,241,236,0.60)' : 'rgba(13,12,10,0.50)'
   let descPx = 64
   ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
   while (ctx.measureText(description).width > 1480 && descPx > 38) {

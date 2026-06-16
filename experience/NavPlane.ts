@@ -97,7 +97,7 @@ const fragmentShader = /* glsl */`
   }
 `
 
-function makeNavTexture(isDark: boolean, label: string, description: string, cardNum = 0): CanvasTexture {
+function makeNavTexture(isDark: boolean, label: string, description: string): CanvasTexture {
   const W = 1700, H = 1000
   const canvas = document.createElement('canvas')
   canvas.width  = W
@@ -111,58 +111,56 @@ function makeNavTexture(isDark: boolean, label: string, description: string, car
   // ── 2. Diagonal gradient overlay ────────────────────────────
   const grad = ctx.createLinearGradient(0, 0, W, H)
   if (isDark) {
-    grad.addColorStop(0, 'rgba(255,255,255,0.04)')
-    grad.addColorStop(1, 'rgba(0,0,0,0.38)')
+    grad.addColorStop(0, 'rgba(255,255,255,0.05)')
+    grad.addColorStop(1, 'rgba(0,0,0,0.3)')
   } else {
     grad.addColorStop(0, 'rgba(255,255,255,0.08)')
-    grad.addColorStop(1, 'rgba(0,0,0,0.25)')
+    grad.addColorStop(1, 'rgba(0,0,0,0.22)')
   }
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, W, H)
 
-  // ── 3. Film-grain noise ──────────────────────────────────────
-  const nSz = 256
-  const nc   = document.createElement('canvas')
-  nc.width   = nSz
-  nc.height  = nSz
-  const nCtx = nc.getContext('2d')!
-  const id   = nCtx.createImageData(nSz, nSz)
-  const px   = id.data
-  for (let i = 0; i < px.length; i += 4) {
-    const v = (Math.random() * 255) | 0
-    px[i] = px[i + 1] = px[i + 2] = v
-    px[i + 3] = (Math.random() * 30) | 0   // 0–12 % opacity per pixel
+  // ── 3. Radial spotlight from top-right ──────────────────────
+  const spot = ctx.createRadialGradient(W * 0.82, H * 0.18, 0, W * 0.82, H * 0.18, W * 0.72)
+  if (isDark) {
+    spot.addColorStop(0,   'rgba(139,92,246,0.18)')
+    spot.addColorStop(0.5, 'rgba(139,92,246,0.04)')
+    spot.addColorStop(1,   'rgba(0,0,0,0)')
+  } else {
+    spot.addColorStop(0,   'rgba(255,255,255,0.22)')
+    spot.addColorStop(0.5, 'rgba(255,255,255,0.06)')
+    spot.addColorStop(1,   'rgba(0,0,0,0)')
   }
-  nCtx.putImageData(id, 0, 0)
-  const pattern = ctx.createPattern(nc, 'repeat')!
-  ctx.globalAlpha = 0.55
-  ctx.fillStyle   = pattern
-  ctx.fillRect(0, 0, W, H)
-  ctx.globalAlpha = 1
-
-  // ── 4. Radial spotlight from top-right ──────────────────────
-  const sx = W - 80, sy = 80
-  const spot = ctx.createRadialGradient(sx, sy, 0, sx, sy, 950)
-  spot.addColorStop(0,   isDark ? 'rgba(255,255,255,0.11)' : 'rgba(255,255,255,0.18)')
-  spot.addColorStop(0.4, isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.06)')
-  spot.addColorStop(1,   'rgba(0,0,0,0)')
   ctx.fillStyle = spot
   ctx.fillRect(0, 0, W, H)
 
-  // ── 5. Card index (large, faint, top-right) ─────────────────
-  if (cardNum > 0) {
-    ctx.fillStyle     = isDark ? 'rgba(255,255,255,0.055)' : 'rgba(255,255,255,0.22)'
-    ctx.font          = '800 300px system-ui, -apple-system, Arial, sans-serif'
-    ctx.textAlign     = 'right'
-    ctx.textBaseline  = 'top'
-    ctx.fillText(String(cardNum).padStart(2, '0'), W - 80, 50)
+  // ── 4. Film grain noise ──────────────────────────────────────
+  const noiseSize = 256
+  const noiseCanvas = document.createElement('canvas')
+  noiseCanvas.width = noiseCanvas.height = noiseSize
+  const nCtx = noiseCanvas.getContext('2d')!
+  const imgData = nCtx.createImageData(noiseSize, noiseSize)
+  for (let i = 0; i < imgData.data.length; i += 4) {
+    const v = Math.random() * 255 | 0
+    imgData.data[i]     = v
+    imgData.data[i + 1] = v
+    imgData.data[i + 2] = v
+    imgData.data[i + 3] = 255
   }
+  nCtx.putImageData(imgData, 0, 0)
+  ctx.globalAlpha = 0.055
+  ctx.globalCompositeOperation = 'screen'
+  const nPat = ctx.createPattern(noiseCanvas, 'repeat')!
+  ctx.fillStyle = nPat
+  ctx.fillRect(0, 0, W, H)
+  ctx.globalAlpha = 1
+  ctx.globalCompositeOperation = 'source-over'
 
-  // ── 6. Accent line ───────────────────────────────────────────
+  // ── 5. Accent line ───────────────────────────────────────────
   ctx.fillStyle = isDark ? '#8B5CF6' : 'rgba(244,241,236,0.5)'
   ctx.fillRect(100, 820, 140, 6)
 
-  // ── 7. Main label — scale down until it fits ─────────────────
+  // ── 6. Main label — scale down until it fits ─────────────────
   ctx.fillStyle    = isDark ? '#8B5CF6' : '#F4F1EC'
   ctx.textAlign    = 'left'
   ctx.textBaseline = 'alphabetic'
@@ -174,7 +172,7 @@ function makeNavTexture(isDark: boolean, label: string, description: string, car
   }
   ctx.fillText(label, 100, 550)
 
-  // ── 8. Description — scale down if needed ────────────────────
+  // ── 7. Description — scale down if needed ────────────────────
   ctx.fillStyle = isDark ? 'rgba(244,241,236,0.45)' : 'rgba(244,241,236,0.65)'
   let descPx = 64
   ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
@@ -204,7 +202,6 @@ export default class NavPlane {
   private prevBa: number | null = null
   private wrapFade = 1
   private _isDark  = true
-  private _cardNum = 0
 
   readonly baseScaleX  = 1.7
   readonly baseScaleY  = 1.0
@@ -225,9 +222,8 @@ export default class NavPlane {
     this.navItem    = navItem
     this.totalCount = totalCount
     this._isDark    = isDark
-    this._cardNum   = (index % Math.floor(totalCount / 2)) + 1
 
-    const texture = makeNavTexture(isDark, navItem.label, navItem.description, this._cardNum)
+    const texture = makeNavTexture(isDark, navItem.label, navItem.description)
     texture.needsUpdate = true
 
     const material = new ShaderMaterial({
@@ -265,7 +261,7 @@ export default class NavPlane {
     this._isDark = isDark
     const mat = this.mesh.material as ShaderMaterial
     const oldTex = mat.uniforms.uTexture.value
-    const newTex = makeNavTexture(isDark, this.navItem.label, this.navItem.description, this._cardNum)
+    const newTex = makeNavTexture(isDark, this.navItem.label, this.navItem.description)
     newTex.needsUpdate = true
     mat.uniforms.uTexture.value = newTex
     oldTex.dispose()

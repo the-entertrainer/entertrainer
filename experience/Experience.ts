@@ -68,10 +68,6 @@ export default class Experience extends EventEmitter {
     this.world.updateTheme(isDark)
   }
 
-  setDofFocus(distance: number) {
-    this.postProcessing.setDofFocus(distance)
-  }
-
   destroy() {
     this.sizes.destroy()
     this.time.destroy()

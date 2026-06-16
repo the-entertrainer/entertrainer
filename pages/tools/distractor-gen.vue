@@ -104,7 +104,10 @@ async function copy(text: string, i: number) {
 
 <style scoped>
 .dg-page {
+  min-height: 100dvh;
+  background: var(--color-bg);
   color: var(--color-text);
+  padding: calc(var(--safe-top) + 100rem) var(--grid-margin) calc(var(--safe-bottom) + 100rem);
 }
 
 .dg-body {

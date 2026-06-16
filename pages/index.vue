@@ -32,6 +32,13 @@ const sectionRoutes: Record<string, Section> = {
 
 watch(currentSection, (s) => homeViewStore.setIsHome(s === 'home'), { immediate: true })
 
+watch(() => homeViewStore.pendingBack, (pending) => {
+  if (pending) {
+    handleBack()
+    homeViewStore.ackBack()
+  }
+})
+
 function handleCardClick(href: string) {
   if (href in sectionRoutes) {
     sectionStack.value = [...sectionStack.value, sectionRoutes[href]]
@@ -53,8 +60,6 @@ function handleBack() {
     :show-loader="true"
     :show-view-switch="currentSection === 'home'"
     :title="sectionTitles[currentSection]"
-    :show-back="currentSection !== 'home'"
     @card-click="handleCardClick"
-    @back="handleBack"
   />
 </template>

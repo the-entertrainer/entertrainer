@@ -49,6 +49,9 @@ function setTheme(dark: boolean) {
 </script>
 
 <template>
+  <Teleport to="body">
+    <div v-if="isOpened" class="menu-backdrop" @click="menuStore.close()" />
+  </Teleport>
   <div class="menu">
     <div class="menu-subwrapper" :class="{ opened: isOpened }">
       <!-- Menu circle button (closed state) -->

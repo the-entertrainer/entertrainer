@@ -10,14 +10,12 @@ import type { NavItem } from '~/types/nav'
 const props = defineProps<{
   items: NavItem[]
   showLoader?: boolean
-  showBack?: boolean
   title?: string
   showViewSwitch?: boolean
 }>()
 
 const emit = defineEmits<{
   cardClick: [href: string]
-  back: []
 }>()
 
 const experienceStore = useExperienceStore()
@@ -168,9 +166,6 @@ function onLoaderEntered() {
     <!-- UI chrome -->
     <Transition name="fade">
       <div v-if="hasEntered" class="spiral-ui">
-        <!-- Back button (accordion sub-sections) -->
-        <button v-if="showBack" class="spiral-back" @click="emit('back')">← back</button>
-
         <!-- Section title -->
         <p v-if="title" class="spiral-title">{{ title }}</p>
 
@@ -266,39 +261,6 @@ function onLoaderEntered() {
   inset: 0;
   z-index: 10;
   pointer-events: none;
-}
-
-/* Back button — ghost pill, right of the N logo, same center-line as menu */
-.spiral-back {
-  position: absolute;
-  top: calc(38rem + var(--safe-top));
-  left: calc(88rem + var(--safe-left));
-  height: 48rem;
-  display: flex;
-  align-items: center;
-  padding: 0 20rem;
-  border-radius: var(--radius-full);
-  background: var(--color-glass-bg);
-  border: 1px solid var(--color-glass-border);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: var(--color-text);
-  font-family: var(--main-font);
-  font-size: 14rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  pointer-events: all;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.25s ease;
-  animation: back-slide-in 0.35s ease 0.05s both;
-}
-.spiral-back:hover {
-  background: var(--color-glass-bg-hover);
-  border-color: var(--color-glass-border-hover);
-}
-@keyframes back-slide-in {
-  from { opacity: 0; transform: translateX(-10rem); }
-  to   { opacity: 1; transform: translateX(0); }
 }
 
 .spiral-title {

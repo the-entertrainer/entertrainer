@@ -665,6 +665,12 @@ canvas {
 .mt-opt.active::before {
   transform: translateY(-50%) scale(1);
 }
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  background: transparent;
+}
 
 /* ============================================================
    CursorTag — Section 7.6
@@ -842,62 +848,3 @@ canvas {
   }
 }
 
-/* ============================================================
-   Project detail page
-   ============================================================ */
-.project-page {
-  position: relative;
-  z-index: 5;
-  min-height: 100dvh;
-  padding: 120rem 30rem 60rem;
-}
-.project-page .back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8rem;
-  padding: 10rem 20rem;
-  border-radius: var(--radius-full);
-  background: var(--color-white);
-  color: var(--color-black);
-  font-size: 16rem;
-  font-weight: 600;
-  transition: transform 0.3s var(--ease-spring);
-}
-.project-page .back-btn:hover {
-  transform: scale(1.05);
-}
-.project-page .header {
-  display: flex;
-  align-items: baseline;
-  gap: 24rem;
-  margin-top: 60rem;
-}
-.project-page .header .title {
-  font-size: 120rem;
-  font-weight: 600;
-  letter-spacing: -0.05em;
-}
-.project-page .header .year {
-  font-size: 24rem;
-  opacity: 0.5;
-}
-.project-page .desc {
-  margin-top: 30rem;
-  max-width: 640rem;
-  font-size: 20rem;
-  font-weight: 500;
-  line-height: 1.4;
-  opacity: 0.8;
-}
-.project-page .video-placeholder {
-  margin-top: 60rem;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: var(--radius-l);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24rem;
-  font-weight: 600;
-  color: var(--color-white);
-}

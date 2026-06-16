@@ -29,7 +29,7 @@ if (!item.value) throw createError({ statusCode: 404 })
   min-height: 100dvh;
   background: var(--color-bg);
   color: var(--color-text);
-  padding: calc(var(--safe-top) + 120rem) var(--grid-margin) calc(var(--safe-bottom) + 80rem);
+  padding: calc(var(--safe-top) + 120rem) var(--grid-margin) calc(var(--safe-bottom) + 100rem);
 }
 .detail-title {
   font-size: clamp(60rem, 8vw, 120rem);

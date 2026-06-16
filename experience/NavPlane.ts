@@ -79,8 +79,6 @@ const fragmentShader = /* glsl */`
       color = c;
     }
 
-    // Aspect-corrected rounded rect — compute SDF in world-proportional space
-    // so corner arcs are circular (not elliptical) on the 1.7:1 card.
     float aspect    = uPlaneSizes.x / uPlaneSizes.y;
     float reveal    = clamp(uRevealProgress, 0.0, 1.0);
     vec2  p         = vec2((vUv.x - 0.5) * aspect, vUv.y - 0.5);

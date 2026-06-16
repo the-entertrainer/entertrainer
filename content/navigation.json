@@ -14,9 +14,9 @@
     { "id": "work-03", "label": "Project 03", "description": "From messy brief to measurable outcome", "href": "/my-work/03", "color": "#0D0C0A", "image": "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=1700&h=1000&fit=crop" }
   ],
   "tools": [
-    { "id": "authoring", "label": "Authoring Tools", "description": "Articulate Storyline 360, Rise & SCORM",  "href": "/tools/authoring", "color": "#0D0C0A" },
-    { "id": "design",    "label": "Design Suite",    "description": "Adobe Suite, Canva & visual storytelling", "href": "/tools/design",    "color": "#0D0C0A" },
-    { "id": "video-ai",  "label": "Video & AI",      "description": "After Effects, Vyond, Redcraft.AI",       "href": "/tools/video-ai",  "color": "#0D0C0A" }
+    { "id": "distractor-gen",  "label": "Distractor Generator", "description": "Turn correct answers into brilliant wrong ones.", "href": "/tools/distractor-gen",  "color": "#0D0C0A" },
+    { "id": "objective-boost", "label": "Bloom's Booster",       "description": "From fuzzy intentions to measurable goals.",     "href": "/tools/objective-boost", "color": "#0D0C0A" },
+    { "id": "course-check",    "label": "Is It Training?",       "description": "Because sometimes the answer is no.",           "href": "/tools/course-check",    "color": "#0D0C0A" }
   ],
   "downloads": [
     { "id": "templates",  "label": "Templates",  "description": "Ready-to-use L&D templates",       "href": "/downloads/templates",  "color": "#0D0C0A" },

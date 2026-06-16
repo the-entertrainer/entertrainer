@@ -58,6 +58,25 @@ definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
     </section>
 
     <section class="about-section">
+      <p class="section-label">The Color</p>
+      <div class="section-body">
+        <p>
+          Everything here is painted in a single blue &mdash; <em>#243F6A</em>. It isn't a brand
+          guideline. It's <em>&pi;</em>. Written in hexadecimal, pi reads
+          <em>3.243F6A88&hellip;</em>, and the six digits after the point are the exact colour
+          you're looking at.
+        </p>
+        <p>
+          I like what that hides in plain sight. The further you follow a number, the thinner the
+          line between reasoning and mathematics becomes &mdash; until you realise they were never
+          two things at all. Every sum, every difference, every proof is just one idea reasoning
+          with another. That's how I think learning works too: not facts to be stored, but ideas
+          left in conversation.
+        </p>
+      </div>
+    </section>
+
+    <section class="about-section">
       <p class="section-label">The Timeline</p>
       <div class="timeline">
         <div class="timeline-item">

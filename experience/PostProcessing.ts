@@ -7,7 +7,7 @@ import type Experience from './Experience'
 const VignetteShader = {
   uniforms: {
     tDiffuse: { value: null },
-    uFillColor: { value: new Color(0x444444) }
+    uFillColor: { value: new Color(0x0D0C0A) }
   },
   vertexShader: /* glsl */`
     varying vec2 vUv;
@@ -39,6 +39,7 @@ const VignetteShader = {
 export default class PostProcessing {
   experience: Experience
   composer: EffectComposer
+  vignettePass: ShaderPass
 
   constructor(experience: Experience) {
     this.experience = experience
@@ -46,9 +47,13 @@ export default class PostProcessing {
     this.composer = new EffectComposer(experience.renderer.instance)
     this.composer.addPass(new RenderPass(experience.scene, experience.camera.instance))
 
-    const vignettePass = new ShaderPass(VignetteShader)
-    vignettePass.material.uniforms.uFillColor.value = new Color('#444444')
-    this.composer.addPass(vignettePass)
+    this.vignettePass = new ShaderPass(VignetteShader)
+    this.vignettePass.material.uniforms.uFillColor.value = new Color('#0D0C0A')
+    this.composer.addPass(this.vignettePass)
+  }
+
+  setVignetteColor(hex: number) {
+    this.vignettePass.material.uniforms.uFillColor.value.set(hex)
   }
 
   resize() {

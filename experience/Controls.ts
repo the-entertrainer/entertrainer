@@ -1,4 +1,5 @@
 import type Experience from './Experience'
+import SoundEngine from './SoundEngine'
 
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v))
 
@@ -7,7 +8,7 @@ export default class Controls {
   easing = 0.1
   minWheelSpeed = 0.002
   wheelDirection = 1
-  scrollOffset = 0
+  scrollOffset = 0.5
 
   wheelDeltaY = 0
   targetWheelDeltaY = 0
@@ -33,7 +34,7 @@ export default class Controls {
   }
 
   private _onWheel(event: WheelEvent) {
-    this.targetWheelDeltaY += event.deltaY * 0.000015
+    this.targetWheelDeltaY += event.deltaY * 0.00002
     this.targetWheelDeltaY = clamp(this.targetWheelDeltaY, -2, 2)
   }
 
@@ -52,7 +53,8 @@ export default class Controls {
     const delta = this._lastTouchY - y
     this._lastTouchY = y
     this._lastTouchTime = performance.now()
-    this.targetWheelDeltaY += delta * 0.00012
+    // Inverted: swipe-up scrolls forward (natural mobile direction)
+    this.targetWheelDeltaY -= delta * 0.0002
     this.targetWheelDeltaY = clamp(this.targetWheelDeltaY, -2, 2)
   }
 
@@ -72,6 +74,14 @@ export default class Controls {
     if (Math.abs(this.targetWheelDeltaY) < this.minWheelSpeed) {
       this.targetWheelDeltaY = this.wheelDirection * this.minWheelSpeed
     }
+
+    SoundEngine.getInstance()?.updateScroll(this.wheelDeltaY)
+  }
+
+  reset() {
+    this.scrollOffset = 0
+    this.wheelDeltaY = 0
+    this.targetWheelDeltaY = this.wheelDirection * this.minWheelSpeed
   }
 
   destroy() {

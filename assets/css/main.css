@@ -1,20 +1,60 @@
 /* ============================================================
-   Design Tokens — from REPLICATION_GUIDE.md Section 2
+   Design Tokens
    ============================================================ */
-:root {
-  /* Colors */
-  --color-black: #0a0a0a;
-  --color-white: #fafafa;
-  --color-bg-dark: #0a0a0a;
-  --color-bg-dark20: #0a0a0a20;
-  --color-bg-dark40: #0a0a0a40;
-  --color-bg-dark60: #0a0a0a60;
-  --color-bg-dark-transparent: #0a0a0a00;
-  --color-bg-grey: #171717;
-  --color-pop-green: #21ffc0;
-  --color-grey: #e6e6e6;
-  --color-white20: #fafafa20;
 
+/* ─── Dark theme (default) ─── */
+[data-theme="dark"] {
+  --color-bg: #0D0C0A;
+  --color-text: #F4F1EC;
+  --color-accent: #243F6A;
+
+  /* Glass UI — white tint on dark surfaces */
+  --color-glass-bg: rgba(255,255,255,0.07);
+  --color-glass-border: rgba(255,255,255,0.18);
+  --color-glass-bg-hover: rgba(255,255,255,0.13);
+  --color-glass-border-hover: rgba(255,255,255,0.32);
+  --color-spinner-track: rgba(244,241,236,0.15);
+  --color-divider: rgba(244,241,236,0.1);
+
+  /* Legacy aliases — existing CSS selectors keep working */
+  --color-black: #0D0C0A;
+  --color-white: #F4F1EC;
+  --color-pop-green: #243F6A;
+  --color-white20: rgba(244,241,236,0.2);
+  --color-bg-dark: #0D0C0A;
+  --color-bg-dark20: rgba(13,12,10,0.2);
+  --color-bg-dark40: rgba(13,12,10,0.4);
+  --color-bg-dark60: rgba(13,12,10,0.6);
+  --color-bg-dark-transparent: rgba(13,12,10,0);
+}
+
+/* ─── Light theme ─── */
+[data-theme="light"] {
+  --color-bg: #F4F1EC;
+  --color-text: #0D0C0A;
+  --color-accent: #243F6A;
+
+  /* Glass UI — dark tint on light surfaces */
+  --color-glass-bg: rgba(0,0,0,0.06);
+  --color-glass-border: rgba(0,0,0,0.14);
+  --color-glass-bg-hover: rgba(0,0,0,0.11);
+  --color-glass-border-hover: rgba(0,0,0,0.26);
+  --color-spinner-track: rgba(13,12,10,0.12);
+  --color-divider: rgba(13,12,10,0.1);
+
+  /* Legacy aliases — FLIPPED so existing CSS inverts correctly */
+  --color-black: #F4F1EC;
+  --color-white: #0D0C0A;
+  --color-pop-green: #243F6A;
+  --color-white20: rgba(13,12,10,0.15);
+  --color-bg-dark: #0D0C0A;
+  --color-bg-dark20: rgba(13,12,10,0.2);
+  --color-bg-dark40: rgba(13,12,10,0.4);
+  --color-bg-dark60: rgba(13,12,10,0.6);
+  --color-bg-dark-transparent: rgba(13,12,10,0);
+}
+
+:root {
   /* Typography */
   --main-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
   --display-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
@@ -98,15 +138,14 @@ body {
   font-weight: 400;
   letter-spacing: -0.04em;
   line-height: 1;
-  color: var(--color-white);
-  background: var(--color-black);
+  color: var(--color-text);
+  background: var(--color-bg);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  /* Disable iOS callout on long-press */
   -webkit-touch-callout: none;
-  /* Prevent pull-to-refresh */
   overscroll-behavior-y: none;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 a {
   color: inherit;
@@ -139,20 +178,6 @@ canvas {
   pointer-events: none;
 }
 
-/* Post-processing gradient vignette (CSS alternative — Section 4 / note 7) */
-.pp-gradient {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    #444 0%,
-    rgba(68, 68, 68, 0) 20%,
-    rgba(68, 68, 68, 0) 80%,
-    #444 100%
-  );
-}
 
 /* ============================================================
    Page transitions — Section 8
@@ -273,8 +298,8 @@ canvas {
 .loader-ring {
   width: 48rem;
   height: 48rem;
-  border: 3rem solid var(--color-white20);
-  border-top-color: var(--color-pop-green);
+  border: 3rem solid var(--color-spinner-track);
+  border-top-color: var(--color-accent);
   border-radius: 50%;
   animation: loader-spin 1s linear infinite;
 }
@@ -296,13 +321,13 @@ canvas {
   width: 240rem;
   height: 4rem;
   border-radius: var(--radius-full);
-  background: var(--color-bg-grey);
+  background: var(--color-spinner-track);
   overflow: hidden;
 }
 .loader-progress .bar {
   height: 100%;
   width: 0;
-  background: var(--color-pop-green);
+  background: var(--color-accent);
   border-radius: var(--radius-full);
 }
 .loader-enter-btn {
@@ -435,7 +460,8 @@ canvas {
   gap: 8rem;
   padding: 8rem 16rem;
   border-radius: var(--radius-full);
-  background: var(--color-bg-grey);
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
   font-size: 18rem;
   font-weight: 500;
 }
@@ -479,13 +505,13 @@ canvas {
    ============================================================ */
 .menu {
   position: fixed;
-  top: calc(30rem + var(--safe-top));
+  top: calc(38rem + var(--safe-top));
   right: calc(30rem + var(--safe-right));
   z-index: 40;
 }
 .menu-subwrapper {
   position: relative;
-  width: 86.8rem;
+  width: 48rem;
   height: 48rem;
   border-radius: 24rem;
   background: var(--color-white);
@@ -504,20 +530,24 @@ canvas {
   position: absolute;
   top: 0;
   left: 0;
-  width: 86.8rem;
+  width: 48rem;
   height: 48rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: var(--color-black);
-  font-size: 18rem;
-  font-weight: 500;
+  gap: 5rem;
   z-index: 2;
 }
-.menu-button .letter {
-  display: inline-block;
-  transform-origin: center;
+.bar {
+  width: 18rem;
+  height: 2rem;
+  border-radius: 1rem;
+  background: var(--color-black);
+  transition: transform 0.25s ease, opacity 0.2s ease;
 }
+.menu-button:hover .bar:nth-child(1) { transform: translateY(-1rem); }
+.menu-button:hover .bar:nth-child(3) { transform: translateY(1rem); }
 .menu-subwrapper.opened .menu-button {
   opacity: 0;
   pointer-events: none;
@@ -593,6 +623,53 @@ canvas {
 .menu-link:hover::before {
   transform: translateY(-50%) scale(1);
   opacity: 1;
+}
+.menu-theme-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.mt-opt {
+  position: relative;
+  display: inline-block;
+  padding-left: 0;
+  font-size: 40rem;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 100%;
+  color: var(--color-black);
+  background: none;
+  border: none;
+  font-family: var(--main-font);
+  cursor: pointer;
+  opacity: 0.28;
+  text-align: left;
+  transition: padding-left 0.5s var(--ease-spring), opacity 0.35s ease;
+}
+.mt-opt::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 50%;
+  background: var(--color-black);
+  transform: translateY(-50%) scale(0);
+  transition: transform 0.45s var(--ease-spring);
+}
+.mt-opt.active {
+  opacity: 1;
+  padding-left: 28rem;
+}
+.mt-opt.active::before {
+  transform: translateY(-50%) scale(1);
+}
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  background: transparent;
 }
 
 /* ============================================================
@@ -682,7 +759,7 @@ canvas {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-m);
-  background: var(--color-bg-grey);
+  background: var(--color-glass-bg);
   color: var(--color-white);
   font-size: 20rem;
   font-weight: 600;
@@ -771,62 +848,3 @@ canvas {
   }
 }
 
-/* ============================================================
-   Project detail page
-   ============================================================ */
-.project-page {
-  position: relative;
-  z-index: 5;
-  min-height: 100dvh;
-  padding: 120rem 30rem 60rem;
-}
-.project-page .back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8rem;
-  padding: 10rem 20rem;
-  border-radius: var(--radius-full);
-  background: var(--color-white);
-  color: var(--color-black);
-  font-size: 16rem;
-  font-weight: 600;
-  transition: transform 0.3s var(--ease-spring);
-}
-.project-page .back-btn:hover {
-  transform: scale(1.05);
-}
-.project-page .header {
-  display: flex;
-  align-items: baseline;
-  gap: 24rem;
-  margin-top: 60rem;
-}
-.project-page .header .title {
-  font-size: 120rem;
-  font-weight: 600;
-  letter-spacing: -0.05em;
-}
-.project-page .header .year {
-  font-size: 24rem;
-  opacity: 0.5;
-}
-.project-page .desc {
-  margin-top: 30rem;
-  max-width: 640rem;
-  font-size: 20rem;
-  font-weight: 500;
-  line-height: 1.4;
-  opacity: 0.8;
-}
-.project-page .video-placeholder {
-  margin-top: 60rem;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: var(--radius-l);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24rem;
-  font-weight: 600;
-  color: var(--color-white);
-}

@@ -1,6 +1,7 @@
 import { Raycaster as ThreeRaycaster, Vector2 } from 'three'
 import type Experience from './Experience'
 import type NavPlane from './NavPlane'
+import SoundEngine from './SoundEngine'
 
 export default class Raycaster {
   experience: Experience
@@ -10,6 +11,7 @@ export default class Raycaster {
 
   private _touchStartX = 0
   private _touchStartY = 0
+  private _lastTouchEndMs = 0
 
   constructor(experience: Experience) {
     this.experience = experience
@@ -21,7 +23,7 @@ export default class Raycaster {
     this._onTouchEnd   = this._onTouchEnd.bind(this)
 
     window.addEventListener('mousemove', this._onMouseMove)
-    window.addEventListener('click', this._onClick)
+    experience.canvas.addEventListener('click', this._onClick)
     experience.canvas.addEventListener('touchstart', this._onTouchStart, { passive: true })
     experience.canvas.addEventListener('touchend', this._onTouchEnd, { passive: true })
   }
@@ -48,6 +50,8 @@ export default class Raycaster {
       this.hoveredPlane = hit
       this.experience.trigger('hoverChange', [hit?.navItem ?? null])
       document.body.style.cursor = hit ? 'pointer' : ''
+      const ha = hit ? Math.PI / 2 - hit.mesh.rotation.y : null
+      SoundEngine.getInstance()?.onHoverChange(hit?.index ?? null, ha)
     }
   }
 
@@ -57,8 +61,12 @@ export default class Raycaster {
   }
 
   private _onClick() {
+    if (Date.now() - this._lastTouchEndMs < 500) return
     const hit = this._intersect()
-    if (hit) this.experience.trigger('planeClick', [hit.navItem.href])
+    if (hit) {
+      this.experience.trigger('planeClick', [hit.navItem.href])
+      SoundEngine.getInstance()?.onCardClick(Math.PI / 2 - hit.mesh.rotation.y)
+    }
   }
 
   private _onTouchStart(e: TouchEvent) {
@@ -75,12 +83,17 @@ export default class Raycaster {
 
     this.pointer = this._toNDC(t.clientX, t.clientY)
     const hit = this._intersect()
-    if (hit) this.experience.trigger('planeClick', [hit.navItem.href])
+    this.pointer = new Vector2(-999, -999)
+    if (hit) {
+      this._lastTouchEndMs = Date.now()
+      this.experience.trigger('planeClick', [hit.navItem.href])
+      SoundEngine.getInstance()?.onCardClick(Math.PI / 2 - hit.mesh.rotation.y)
+    }
   }
 
   destroy() {
     window.removeEventListener('mousemove', this._onMouseMove)
-    window.removeEventListener('click', this._onClick)
+    this.experience.canvas.removeEventListener('click', this._onClick)
     this.experience.canvas.removeEventListener('touchstart', this._onTouchStart)
     this.experience.canvas.removeEventListener('touchend', this._onTouchEnd)
     document.body.style.cursor = ''

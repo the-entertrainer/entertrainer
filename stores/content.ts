@@ -18,9 +18,11 @@ export const useContentStore = defineStore('content', {
     ]
   }),
   getters: {
-    homeNav:      (state): NavItem[] => state.nav.home      ?? [],
-    aboutNav:     (state): NavItem[] => state.nav.about     ?? [],
-    toolsNav:     (state): NavItem[] => state.nav.tools     ?? [],
-    downloadsNav: (state): NavItem[] => state.nav.downloads ?? []
+    homeNav:                 (state): NavItem[] => state.nav.home                    ?? [],
+    aboutNav:                (state): NavItem[] => state.nav.about                   ?? [],
+    toolsNav:                (state): NavItem[] => state.nav.tools                   ?? [],
+    downloadsNav:            (state): NavItem[] => state.nav.downloads               ?? [],
+    myWorkNav:               (state): NavItem[] => state.nav['my-work']              ?? [],
+    instructionalDesignNav:  (state): NavItem[] => state.nav['instructional-design'] ?? []
   }
 })

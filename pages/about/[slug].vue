@@ -16,7 +16,6 @@ if (!item.value) throw createError({ statusCode: 404 })
 
 <template>
   <div v-if="item" class="detail-page">
-    <NuxtLink to="/about" class="back-btn">← back</NuxtLink>
     <h1 class="detail-title">{{ item.label }}</h1>
     <p class="detail-desc">{{ item.description }}</p>
     <div class="detail-content">
@@ -28,21 +27,10 @@ if (!item.value) throw createError({ statusCode: 404 })
 <style scoped>
 .detail-page {
   min-height: 100dvh;
-  background: var(--color-black);
-  color: var(--color-white);
-  padding: calc(var(--safe-top) + 80rem) var(--grid-margin) calc(var(--safe-bottom) + 80rem);
+  background: var(--color-bg);
+  color: var(--color-text);
+  padding: calc(var(--safe-top) + 120rem) var(--grid-margin) calc(var(--safe-bottom) + 100rem);
 }
-.back-btn {
-  display: inline-block;
-  font-size: 16rem;
-  font-weight: 500;
-  color: var(--color-white);
-  opacity: 0.5;
-  text-decoration: none;
-  margin-bottom: 60rem;
-  transition: opacity 0.2s ease;
-}
-.back-btn:hover { opacity: 1; }
 .detail-title {
   font-size: clamp(60rem, 8vw, 120rem);
   font-weight: 700;

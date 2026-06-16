@@ -4,7 +4,9 @@ import {
   DoubleSide,
   CanvasTexture,
   Vector2,
-  PlaneGeometry
+  PlaneGeometry,
+  UniformsLib,
+  UniformsUtils
 } from 'three'
 import type Experience from './Experience'
 import type { NavItem } from '~/types/nav'
@@ -12,6 +14,7 @@ import type { NavItem } from '~/types/nav'
 const vertexShader = /* glsl */`
   varying vec2 vUv;
   varying vec3 vWorldPosition;
+  #include <fog_pars_vertex>
   #define PI 3.14159265359
   uniform float uScrollSpeed;
 
@@ -19,13 +22,14 @@ const vertexShader = /* glsl */`
     vec3 worldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
     vec3 newPosition = position;
     newPosition.z = sin(uv.x * PI) * 0.2;
-    vec4 modelPosition  = modelMatrix * vec4(newPosition, 1.0);
-    vec4 viewPosition   = viewMatrix * modelPosition;
-    viewPosition.x += pow(worldPosition.y, 2.0) * 0.1;
-    viewPosition.x += sin(uv.y * PI) * uScrollSpeed * 2.0;
-    gl_Position = projectionMatrix * viewPosition;
+    vec4 modelPosition = modelMatrix * vec4(newPosition, 1.0);
+    vec4 mvPosition    = viewMatrix * modelPosition;
+    mvPosition.x += pow(worldPosition.y, 2.0) * 0.1;
+    mvPosition.x += sin(uv.y * PI) * uScrollSpeed * 2.0;
+    gl_Position = projectionMatrix * mvPosition;
     vUv = uv;
     vWorldPosition = worldPosition;
+    #include <fog_vertex>
   }
 `
 
@@ -36,8 +40,10 @@ const fragmentShader = /* glsl */`
   uniform vec2  uPlaneSizes;
   uniform vec2  uImageSizes;
   uniform float uRevealProgress;
+  uniform float uOpacity;
 
   varying vec2 vUv;
+  #include <fog_pars_fragment>
 
   float roundedRectSDF(vec2 uv, vec2 size, float radius) {
     vec2 d = abs(uv - 0.5) - size * 0.5 + radius;
@@ -60,63 +66,132 @@ const fragmentShader = /* glsl */`
       color = texture2D(uTexture, zoomedUv);
       color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), uColorStrength);
     } else {
-      float offset = 40.0 / 1024.0;
+      // Heavy blur + darken on back-face so text is unreadable
+      float o1 = 70.0 / 1024.0;
+      float o2 = 140.0 / 1024.0;
       vec4 c = vec4(0.0);
-      c += texture2D(uTexture, uv + vec2(-offset, -offset)) * 1.0;
-      c += texture2D(uTexture, uv + vec2( 0.0,   -offset)) * 2.0;
-      c += texture2D(uTexture, uv + vec2( offset, -offset)) * 1.0;
-      c += texture2D(uTexture, uv + vec2(-offset,  0.0))   * 2.0;
-      c += texture2D(uTexture, uv)                         * 4.0;
-      c += texture2D(uTexture, uv + vec2( offset,  0.0))   * 2.0;
-      c += texture2D(uTexture, uv + vec2(-offset,  offset)) * 1.0;
-      c += texture2D(uTexture, uv + vec2( 0.0,    offset)) * 2.0;
-      c += texture2D(uTexture, uv + vec2( offset,  offset)) * 1.0;
+      c += texture2D(uTexture, uv + vec2(-o2, -o2)) * 1.0;
+      c += texture2D(uTexture, uv + vec2(0.0, -o2)) * 2.0;
+      c += texture2D(uTexture, uv + vec2( o2, -o2)) * 1.0;
+      c += texture2D(uTexture, uv + vec2(-o2, 0.0)) * 2.0;
+      c += texture2D(uTexture, uv               )   * 4.0;
+      c += texture2D(uTexture, uv + vec2( o2, 0.0)) * 2.0;
+      c += texture2D(uTexture, uv + vec2(-o2,  o2)) * 1.0;
+      c += texture2D(uTexture, uv + vec2(0.0,  o2)) * 2.0;
+      c += texture2D(uTexture, uv + vec2( o2,  o2)) * 1.0;
       c /= 16.0;
+      c.rgb *= 0.2;
       color = c;
     }
 
     float reveal    = clamp(uRevealProgress, 0.0, 1.0);
     vec2 revealSize = vec2(reveal);
-    float radius    = 0.05 * reveal;
+    float radius    = 0.10 * reveal;
     float sdf       = roundedRectSDF(vUv, revealSize, radius);
-    float alpha     = 1.0 - smoothstep(0.0, 0.002, sdf);
+    float aa        = fwidth(sdf);
+    float alpha     = 1.0 - smoothstep(-aa, aa, sdf);
     alpha          *= smoothstep(0.1, 1.0, uRevealProgress);
 
-    gl_FragColor = vec4(color.rgb, alpha);
+    gl_FragColor = vec4(color.rgb, alpha * uOpacity);
+    #include <fog_fragment>
   }
 `
 
-function makeNavTexture(color: string, label: string, description: string): CanvasTexture {
+function hexToRgb(hex: string) {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return { r, g, b }
+}
+
+function makeNavTexture(isDark: boolean, label: string, description: string, cardColor = '#F97316'): CanvasTexture {
+  const W = 1700, H = 1000
   const canvas = document.createElement('canvas')
-  canvas.width = 1700
-  canvas.height = 1000
+  canvas.width  = W
+  canvas.height = H
   const ctx = canvas.getContext('2d')!
 
-  // Background
-  ctx.fillStyle = color
-  ctx.fillRect(0, 0, 1700, 1000)
+  const { r, g, b } = hexToRgb(cardColor)
 
-  // Subtle gradient
-  const grad = ctx.createLinearGradient(0, 0, 1700, 1000)
-  grad.addColorStop(0, 'rgba(255,255,255,0.05)')
-  grad.addColorStop(1, 'rgba(0,0,0,0.3)')
+  // ── 1. Solid background ──────────────────────────────────────
+  // Dark: near-black canvas. Light: very dark tint of the card hue.
+  ctx.fillStyle = isDark
+    ? '#0D0C0A'
+    : `rgb(${Math.round(r * 0.18)},${Math.round(g * 0.18)},${Math.round(b * 0.18)})`
+  ctx.fillRect(0, 0, W, H)
+
+  // ── 2. Diagonal gradient overlay ────────────────────────────
+  const grad = ctx.createLinearGradient(0, 0, W, H)
+  if (isDark) {
+    grad.addColorStop(0, 'rgba(255,255,255,0.05)')
+    grad.addColorStop(1, 'rgba(0,0,0,0.3)')
+  } else {
+    grad.addColorStop(0, 'rgba(255,255,255,0.08)')
+    grad.addColorStop(1, 'rgba(0,0,0,0.22)')
+  }
   ctx.fillStyle = grad
-  ctx.fillRect(0, 0, 1700, 1000)
+  ctx.fillRect(0, 0, W, H)
 
-  // Accent line (#21ffc0)
-  ctx.fillStyle = '#21ffc0'
+  // ── 3. Radial spotlight from top-right (card-hue in dark, white in light)
+  const spot = ctx.createRadialGradient(W * 0.82, H * 0.18, 0, W * 0.82, H * 0.18, W * 0.72)
+  if (isDark) {
+    spot.addColorStop(0,   `rgba(${r},${g},${b},0.22)`)
+    spot.addColorStop(0.5, `rgba(${r},${g},${b},0.05)`)
+    spot.addColorStop(1,   'rgba(0,0,0,0)')
+  } else {
+    spot.addColorStop(0,   'rgba(255,255,255,0.22)')
+    spot.addColorStop(0.5, 'rgba(255,255,255,0.06)')
+    spot.addColorStop(1,   'rgba(0,0,0,0)')
+  }
+  ctx.fillStyle = spot
+  ctx.fillRect(0, 0, W, H)
+
+  // ── 4. Film grain noise ──────────────────────────────────────
+  const noiseSize = 256
+  const noiseCanvas = document.createElement('canvas')
+  noiseCanvas.width = noiseCanvas.height = noiseSize
+  const nCtx = noiseCanvas.getContext('2d')!
+  const imgData = nCtx.createImageData(noiseSize, noiseSize)
+  for (let i = 0; i < imgData.data.length; i += 4) {
+    const v = Math.random() * 255 | 0
+    imgData.data[i]     = v
+    imgData.data[i + 1] = v
+    imgData.data[i + 2] = v
+    imgData.data[i + 3] = 255
+  }
+  nCtx.putImageData(imgData, 0, 0)
+  ctx.globalAlpha = 0.055
+  ctx.globalCompositeOperation = 'screen'
+  const nPat = ctx.createPattern(noiseCanvas, 'repeat')!
+  ctx.fillStyle = nPat
+  ctx.fillRect(0, 0, W, H)
+  ctx.globalAlpha = 1
+  ctx.globalCompositeOperation = 'source-over'
+
+  // ── 5. Accent line (card hue in dark, cream in light) ────────
+  ctx.fillStyle = isDark ? cardColor : 'rgba(244,241,236,0.5)'
   ctx.fillRect(100, 820, 140, 6)
 
-  // Main label
-  ctx.fillStyle = '#fafafa'
-  ctx.font = '700 180px system-ui, -apple-system, Arial, sans-serif'
-  ctx.textAlign = 'left'
+  // ── 6. Main label — scale down until it fits ─────────────────
+  ctx.fillStyle    = isDark ? cardColor : '#F4F1EC'
+  ctx.textAlign    = 'left'
   ctx.textBaseline = 'alphabetic'
+  let labelPx = 180
+  ctx.font = `700 ${labelPx}px system-ui, -apple-system, Arial, sans-serif`
+  while (ctx.measureText(label).width > 1480 && labelPx > 72) {
+    labelPx -= 6
+    ctx.font = `700 ${labelPx}px system-ui, -apple-system, Arial, sans-serif`
+  }
   ctx.fillText(label, 100, 550)
 
-  // Description
-  ctx.fillStyle = 'rgba(250,250,250,0.45)'
-  ctx.font = '400 64px system-ui, -apple-system, Arial, sans-serif'
+  // ── 7. Description — scale down if needed ────────────────────
+  ctx.fillStyle = isDark ? 'rgba(244,241,236,0.45)' : 'rgba(244,241,236,0.65)'
+  let descPx = 64
+  ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
+  while (ctx.measureText(description).width > 1480 && descPx > 38) {
+    descPx -= 4
+    ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
+  }
   ctx.fillText(description, 100, 650)
 
   return new CanvasTexture(canvas)
@@ -136,6 +211,10 @@ export default class NavPlane {
   revealProgress = 0
   revealTarget   = 0
 
+  private prevBa: number | null = null
+  private wrapFade = 1
+  private _isDark  = true
+
   readonly baseScaleX  = 1.7
   readonly baseScaleY  = 1.0
   readonly verticalGap = 0.5
@@ -147,29 +226,36 @@ export default class NavPlane {
     index: number,
     navItem: NavItem,
     totalCount: number,
-    geometry: PlaneGeometry
+    geometry: PlaneGeometry,
+    isDark = true
   ) {
     this.experience = experience
     this.index      = index
     this.navItem    = navItem
     this.totalCount = totalCount
+    this._isDark    = isDark
 
-    const texture = makeNavTexture(navItem.color, navItem.label, navItem.description)
+    const texture = makeNavTexture(isDark, navItem.label, navItem.description, navItem.color)
     texture.needsUpdate = true
 
     const material = new ShaderMaterial({
-      uniforms: {
-        uTexture:        { value: texture },
-        uColorStrength:  { value: 0 },
-        uZoom:           { value: 1 },
-        uPlaneSizes:     { value: new Vector2(1.7, 1.0) },
-        uImageSizes:     { value: new Vector2(1700, 1000) },
-        uRevealProgress: { value: 0 },
-        uScrollSpeed:    { value: 0 }
-      },
+      uniforms: UniformsUtils.merge([
+        UniformsLib.fog,
+        {
+          uTexture:        { value: texture },
+          uColorStrength:  { value: 0 },
+          uZoom:           { value: 1 },
+          uPlaneSizes:     { value: new Vector2(1.7, 1.0) },
+          uImageSizes:     { value: new Vector2(1700, 1000) },
+          uRevealProgress: { value: 0 },
+          uScrollSpeed:    { value: 0 },
+          uOpacity:        { value: 1 }
+        }
+      ]),
       vertexShader,
       fragmentShader,
       transparent: true,
+      fog: true,
       side: DoubleSide
     })
 
@@ -182,11 +268,29 @@ export default class NavPlane {
   hide()   { this.hiddenTarget = 1; this.revealTarget = 0 }
   setHovered(hovered: boolean) { this.hoverTarget = hovered ? 1 : 0 }
 
+  updateTexture(isDark: boolean) {
+    if (isDark === this._isDark) return
+    this._isDark = isDark
+    const mat = this.mesh.material as ShaderMaterial
+    const oldTex = mat.uniforms.uTexture.value
+    const newTex = makeNavTexture(isDark, this.navItem.label, this.navItem.description, this.navItem.color)
+    newTex.needsUpdate = true
+    mat.uniforms.uTexture.value = newTex
+    oldTex.dispose()
+  }
+
   update(delta: number, scrollOffset: number, scrollSpeed: number) {
     const centerIndex = Math.floor(this.totalCount / 2)
     let ws = (this.index - scrollOffset) % this.totalCount
     ws = ((ws % this.totalCount) + this.totalCount) % this.totalCount
     const Ba = ws - centerIndex
+
+    if (this.prevBa !== null && Math.abs(Ba - this.prevBa) > this.totalCount / 2) {
+      this.wrapFade = 0
+    }
+    this.prevBa = Ba
+    const wFactor = 1 - Math.pow(1 - 0.008, delta)
+    this.wrapFade += (1 - this.wrapFade) * wFactor
 
     const hFactor = 1 - Math.pow(1 - 0.05, delta * 0.15)
     const hvFactor = 1 - Math.pow(1 - (this.hoverTarget > 0.5 ? 0.09 : 0.07), delta * 0.2)
@@ -208,6 +312,12 @@ export default class NavPlane {
     mat.uniforms.uColorStrength.value  = 0.55 * this.hoverProgress
     mat.uniforms.uZoom.value           = 1 + 0.05 * this.hoverProgress
     mat.uniforms.uRevealProgress.value = this.revealProgress * (1 - this.hoverProgress * 0.05)
+
+    // Fade cards out as they approach the wrap boundary so the discrete
+    // position snap is invisible by the time they teleport
+    const halfCount  = this.totalCount / 2
+    const edgeFade   = Math.max(0, Math.min(1, (halfCount - Math.abs(Ba)) / 0.5))
+    mat.uniforms.uOpacity.value = this.wrapFade * edgeFade
   }
 
   destroy() {

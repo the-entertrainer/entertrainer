@@ -97,15 +97,27 @@ const fragmentShader = /* glsl */`
   }
 `
 
-function makeNavTexture(isDark: boolean, label: string, description: string): CanvasTexture {
+function hexToRgb(hex: string) {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return { r, g, b }
+}
+
+function makeNavTexture(isDark: boolean, label: string, description: string, cardColor = '#F97316'): CanvasTexture {
   const W = 1700, H = 1000
   const canvas = document.createElement('canvas')
   canvas.width  = W
   canvas.height = H
   const ctx = canvas.getContext('2d')!
 
+  const { r, g, b } = hexToRgb(cardColor)
+
   // ── 1. Solid background ──────────────────────────────────────
-  ctx.fillStyle = isDark ? '#0D0C0A' : '#6D28D9'
+  // Dark: near-black canvas. Light: very dark tint of the card hue.
+  ctx.fillStyle = isDark
+    ? '#0D0C0A'
+    : `rgb(${Math.round(r * 0.18)},${Math.round(g * 0.18)},${Math.round(b * 0.18)})`
   ctx.fillRect(0, 0, W, H)
 
   // ── 2. Diagonal gradient overlay ────────────────────────────
@@ -120,11 +132,11 @@ function makeNavTexture(isDark: boolean, label: string, description: string): Ca
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, W, H)
 
-  // ── 3. Radial spotlight from top-right ──────────────────────
+  // ── 3. Radial spotlight from top-right (card-hue in dark, white in light)
   const spot = ctx.createRadialGradient(W * 0.82, H * 0.18, 0, W * 0.82, H * 0.18, W * 0.72)
   if (isDark) {
-    spot.addColorStop(0,   'rgba(139,92,246,0.18)')
-    spot.addColorStop(0.5, 'rgba(139,92,246,0.04)')
+    spot.addColorStop(0,   `rgba(${r},${g},${b},0.22)`)
+    spot.addColorStop(0.5, `rgba(${r},${g},${b},0.05)`)
     spot.addColorStop(1,   'rgba(0,0,0,0)')
   } else {
     spot.addColorStop(0,   'rgba(255,255,255,0.22)')
@@ -156,12 +168,12 @@ function makeNavTexture(isDark: boolean, label: string, description: string): Ca
   ctx.globalAlpha = 1
   ctx.globalCompositeOperation = 'source-over'
 
-  // ── 5. Accent line ───────────────────────────────────────────
-  ctx.fillStyle = isDark ? '#8B5CF6' : 'rgba(244,241,236,0.5)'
+  // ── 5. Accent line (card hue in dark, cream in light) ────────
+  ctx.fillStyle = isDark ? cardColor : 'rgba(244,241,236,0.5)'
   ctx.fillRect(100, 820, 140, 6)
 
   // ── 6. Main label — scale down until it fits ─────────────────
-  ctx.fillStyle    = isDark ? '#8B5CF6' : '#F4F1EC'
+  ctx.fillStyle    = isDark ? cardColor : '#F4F1EC'
   ctx.textAlign    = 'left'
   ctx.textBaseline = 'alphabetic'
   let labelPx = 180
@@ -223,7 +235,7 @@ export default class NavPlane {
     this.totalCount = totalCount
     this._isDark    = isDark
 
-    const texture = makeNavTexture(isDark, navItem.label, navItem.description)
+    const texture = makeNavTexture(isDark, navItem.label, navItem.description, navItem.color)
     texture.needsUpdate = true
 
     const material = new ShaderMaterial({
@@ -261,7 +273,7 @@ export default class NavPlane {
     this._isDark = isDark
     const mat = this.mesh.material as ShaderMaterial
     const oldTex = mat.uniforms.uTexture.value
-    const newTex = makeNavTexture(isDark, this.navItem.label, this.navItem.description)
+    const newTex = makeNavTexture(isDark, this.navItem.label, this.navItem.description, this.navItem.color)
     newTex.needsUpdate = true
     mat.uniforms.uTexture.value = newTex
     oldTex.dispose()

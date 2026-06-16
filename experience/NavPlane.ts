@@ -95,50 +95,45 @@ const fragmentShader = /* glsl */`
   }
 `
 
-function hexToRgb(hex: string) {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return { r, g, b }
-}
+// The single accent — #243F6A. Every card is rendered in this navy so the
+// rotating stack reads as one material, not a deck of colors. Dark mode deepens
+// the navy into a panel that floats off the near-black stage; light mode uses
+// the navy at full strength against cream. Type stays cream for legibility.
+const NAVY_DARK  = 'rgb(20,35,58)'   // #243F6A multiplied toward black (~0.55)
+const NAVY_LIGHT = 'rgb(36,63,106)'  // #243F6A at full strength
 
-function makeNavTexture(isDark: boolean, label: string, description: string, cardColor = '#F97316'): CanvasTexture {
+function makeNavTexture(isDark: boolean, label: string, description: string): CanvasTexture {
   const W = 1700, H = 1000
   const canvas = document.createElement('canvas')
   canvas.width  = W
   canvas.height = H
   const ctx = canvas.getContext('2d')!
 
-  const { r, g, b } = hexToRgb(cardColor)
-
-  // ── 1. Solid background ──────────────────────────────────────
-  // Dark: near-black canvas. Light: very dark tint of the card hue.
-  ctx.fillStyle = isDark
-    ? '#0D0C0A'
-    : `rgb(${Math.round(r * 0.18)},${Math.round(g * 0.18)},${Math.round(b * 0.18)})`
+  // ── 1. Solid navy panel ──────────────────────────────────────
+  ctx.fillStyle = isDark ? NAVY_DARK : NAVY_LIGHT
   ctx.fillRect(0, 0, W, H)
 
-  // ── 2. Diagonal gradient overlay ────────────────────────────
+  // ── 2. Diagonal gradient overlay — adds depth to the flat navy ─
   const grad = ctx.createLinearGradient(0, 0, W, H)
   if (isDark) {
-    grad.addColorStop(0, 'rgba(255,255,255,0.05)')
-    grad.addColorStop(1, 'rgba(0,0,0,0.3)')
+    grad.addColorStop(0, 'rgba(255,255,255,0.06)')
+    grad.addColorStop(1, 'rgba(0,0,0,0.35)')
   } else {
-    grad.addColorStop(0, 'rgba(255,255,255,0.08)')
-    grad.addColorStop(1, 'rgba(0,0,0,0.22)')
+    grad.addColorStop(0, 'rgba(255,255,255,0.10)')
+    grad.addColorStop(1, 'rgba(0,0,0,0.28)')
   }
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, W, H)
 
-  // ── 3. Radial spotlight from top-right (card-hue in dark, white in light)
+  // ── 3. Radial cream sheen from top-right ─────────────────────
   const spot = ctx.createRadialGradient(W * 0.82, H * 0.18, 0, W * 0.82, H * 0.18, W * 0.72)
   if (isDark) {
-    spot.addColorStop(0,   `rgba(${r},${g},${b},0.22)`)
-    spot.addColorStop(0.5, `rgba(${r},${g},${b},0.05)`)
+    spot.addColorStop(0,   'rgba(244,241,236,0.10)')
+    spot.addColorStop(0.5, 'rgba(244,241,236,0.03)')
     spot.addColorStop(1,   'rgba(0,0,0,0)')
   } else {
-    spot.addColorStop(0,   'rgba(255,255,255,0.22)')
-    spot.addColorStop(0.5, 'rgba(255,255,255,0.06)')
+    spot.addColorStop(0,   'rgba(255,255,255,0.20)')
+    spot.addColorStop(0.5, 'rgba(255,255,255,0.05)')
     spot.addColorStop(1,   'rgba(0,0,0,0)')
   }
   ctx.fillStyle = spot
@@ -166,12 +161,12 @@ function makeNavTexture(isDark: boolean, label: string, description: string, car
   ctx.globalAlpha = 1
   ctx.globalCompositeOperation = 'source-over'
 
-  // ── 5. Accent line (card hue in dark, cream in light) ────────
-  ctx.fillStyle = isDark ? cardColor : 'rgba(244,241,236,0.5)'
+  // ── 5. Accent line — cream tick in both modes ────────────────
+  ctx.fillStyle = 'rgba(244,241,236,0.7)'
   ctx.fillRect(100, 820, 140, 6)
 
-  // ── 6. Main label — scale down until it fits ─────────────────
-  ctx.fillStyle    = isDark ? cardColor : '#F4F1EC'
+  // ── 6. Main label — cream in both modes, scale down to fit ───
+  ctx.fillStyle    = '#F4F1EC'
   ctx.textAlign    = 'left'
   ctx.textBaseline = 'alphabetic'
   let labelPx = 180
@@ -183,7 +178,7 @@ function makeNavTexture(isDark: boolean, label: string, description: string, car
   ctx.fillText(label, 100, 550)
 
   // ── 7. Description — scale down if needed ────────────────────
-  ctx.fillStyle = isDark ? 'rgba(244,241,236,0.45)' : 'rgba(244,241,236,0.65)'
+  ctx.fillStyle = isDark ? 'rgba(244,241,236,0.55)' : 'rgba(244,241,236,0.7)'
   let descPx = 64
   ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
   while (ctx.measureText(description).width > 1480 && descPx > 38) {
@@ -233,7 +228,7 @@ export default class NavPlane {
     this.totalCount = totalCount
     this._isDark    = isDark
 
-    const texture = makeNavTexture(isDark, navItem.label, navItem.description, navItem.color)
+    const texture = makeNavTexture(isDark, navItem.label, navItem.description)
     texture.needsUpdate = true
 
     const material = new ShaderMaterial({
@@ -271,7 +266,7 @@ export default class NavPlane {
     this._isDark = isDark
     const mat = this.mesh.material as ShaderMaterial
     const oldTex = mat.uniforms.uTexture.value
-    const newTex = makeNavTexture(isDark, this.navItem.label, this.navItem.description, this.navItem.color)
+    const newTex = makeNavTexture(isDark, this.navItem.label, this.navItem.description)
     newTex.needsUpdate = true
     mat.uniforms.uTexture.value = newTex
     oldTex.dispose()

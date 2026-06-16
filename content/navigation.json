@@ -1,26 +1,26 @@
 {
   "home": [
-    { "id": "about",                "label": "About Me",             "description": "The story behind Entertrainer",               "href": "/about",                "color": "#F97316" },
-    { "id": "instructional-design", "label": "Instructional Design", "description": "What gets designed when no one's watching?",  "href": "/instructional-design", "color": "#14B8A6" },
-    { "id": "my-work",              "label": "My Work",              "description": "Proof it wasn't all talk.",                   "href": "/my-work",              "color": "#EC4899" },
-    { "id": "tools",                "label": "Tools",                "description": "The toolkit that powers impactful learning",  "href": "/tools",                "color": "#84CC16" },
-    { "id": "downloads",            "label": "Downloads",            "description": "Resources & templates for L&D professionals", "href": "/downloads",            "color": "#F59E0B" }
+    { "id": "about",                "label": "About Me",             "description": "The story behind Entertrainer",               "href": "/about",                "color": "#243F6A" },
+    { "id": "instructional-design", "label": "Instructional Design", "description": "What gets designed when no one's watching?",  "href": "/instructional-design", "color": "#243F6A" },
+    { "id": "my-work",              "label": "My Work",              "description": "Proof it wasn't all talk.",                   "href": "/my-work",              "color": "#243F6A" },
+    { "id": "tools",                "label": "Tools",                "description": "The toolkit that powers impactful learning",  "href": "/tools",                "color": "#243F6A" },
+    { "id": "downloads",            "label": "Downloads",            "description": "Resources & templates for L&D professionals", "href": "/downloads",            "color": "#243F6A" }
   ],
   "about": [],
   "instructional-design": [],
   "my-work": [
-    { "id": "work-01", "label": "Project 01", "description": "A learning experience worth remembering", "href": "/my-work/01", "color": "#F43F5E" },
-    { "id": "work-02", "label": "Project 02", "description": "Where strategy meets storytelling",      "href": "/my-work/02", "color": "#FB923C" },
-    { "id": "work-03", "label": "Project 03", "description": "From messy brief to measurable outcome", "href": "/my-work/03", "color": "#A78BFA" }
+    { "id": "work-01", "label": "Project 01", "description": "A learning experience worth remembering", "href": "/my-work/01", "color": "#243F6A" },
+    { "id": "work-02", "label": "Project 02", "description": "Where strategy meets storytelling",      "href": "/my-work/02", "color": "#243F6A" },
+    { "id": "work-03", "label": "Project 03", "description": "From messy brief to measurable outcome", "href": "/my-work/03", "color": "#243F6A" }
   ],
   "tools": [
-    { "id": "distractor-gen",  "label": "Distractor Generator", "description": "Turn correct answers into brilliant wrong ones.", "href": "/tools/distractor-gen",  "color": "#06B6D4" },
-    { "id": "objective-boost", "label": "Bloom's Booster",       "description": "From fuzzy intentions to measurable goals.",     "href": "/tools/objective-boost", "color": "#10B981" },
-    { "id": "course-check",    "label": "Is It Training?",       "description": "Because sometimes the answer is no.",           "href": "/tools/course-check",    "color": "#6366F1" }
+    { "id": "distractor-gen",  "label": "Distractor Generator", "description": "Turn correct answers into brilliant wrong ones.", "href": "/tools/distractor-gen",  "color": "#243F6A" },
+    { "id": "objective-boost", "label": "Bloom's Booster",       "description": "From fuzzy intentions to measurable goals.",     "href": "/tools/objective-boost", "color": "#243F6A" },
+    { "id": "course-check",    "label": "Is It Training?",       "description": "Because sometimes the answer is no.",           "href": "/tools/course-check",    "color": "#243F6A" }
   ],
   "downloads": [
-    { "id": "templates",  "label": "Templates",  "description": "Ready-to-use L&D templates",       "href": "/downloads/templates",  "color": "#FBBF24" },
-    { "id": "frameworks", "label": "Frameworks", "description": "ID frameworks & storyboard guides", "href": "/downloads/frameworks", "color": "#34D399" },
-    { "id": "resources",  "label": "Resources",  "description": "Curated L&D resources",            "href": "/downloads/resources",  "color": "#60A5FA" }
+    { "id": "templates",  "label": "Templates",  "description": "Ready-to-use L&D templates",       "href": "/downloads/templates",  "color": "#243F6A" },
+    { "id": "frameworks", "label": "Frameworks", "description": "ID frameworks & storyboard guides", "href": "/downloads/frameworks", "color": "#243F6A" },
+    { "id": "resources",  "label": "Resources",  "description": "Curated L&D resources",            "href": "/downloads/resources",  "color": "#243F6A" }
   ]
 }

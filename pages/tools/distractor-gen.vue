@@ -193,9 +193,9 @@ async function copy(text: string, i: number) {
 /* ── Error ── */
 .dg-error {
   font-size: 14rem;
-  color: #ef4444;
-  background: color-mix(in srgb, #ef4444 10%, transparent);
-  border: 1px solid color-mix(in srgb, #ef4444 25%, transparent);
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-text) 22%, transparent);
   border-radius: 10rem;
   padding: 12rem 16rem;
   margin: 0;

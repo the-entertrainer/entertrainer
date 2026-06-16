@@ -290,13 +290,13 @@ const scoreLabel = computed(() => {
 
 /* Option states */
 .id-option--correct {
-  border-color: #22c55e !important;
-  background: color-mix(in srgb, #22c55e 10%, transparent) !important;
+  border-color: var(--color-accent) !important;
+  background: color-mix(in srgb, var(--color-accent) 16%, transparent) !important;
   opacity: 1 !important;
 }
 .id-option--wrong {
-  border-color: #ef4444 !important;
-  background: color-mix(in srgb, #ef4444 10%, transparent) !important;
+  border-color: color-mix(in srgb, var(--color-text) 32%, transparent) !important;
+  background: color-mix(in srgb, var(--color-text) 6%, transparent) !important;
   opacity: 1 !important;
 }
 .id-option--dimmed {
@@ -313,12 +313,12 @@ const scoreLabel = computed(() => {
   border-left: 3px solid transparent;
 }
 .id-feedback--right {
-  background: color-mix(in srgb, #22c55e 8%, transparent);
-  border-left-color: #22c55e;
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  border-left-color: var(--color-accent);
 }
 .id-feedback--wrong {
-  background: color-mix(in srgb, #ef4444 8%, transparent);
-  border-left-color: #ef4444;
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+  border-left-color: color-mix(in srgb, var(--color-text) 38%, transparent);
 }
 .id-feedback-tag {
   font-size: 11rem;

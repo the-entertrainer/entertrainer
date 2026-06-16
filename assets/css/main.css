@@ -447,60 +447,6 @@ canvas {
 }
 
 /* ============================================================
-   View Switch — Section 7.5
-   ============================================================ */
-.view-switch {
-  position: fixed;
-  top: 30rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  gap: 8rem;
-  padding: 8rem 16rem;
-  border-radius: var(--radius-full);
-  background: var(--color-glass-bg);
-  border: 1px solid var(--color-glass-border);
-  font-size: 18rem;
-  font-weight: 500;
-}
-.view-switch .sep {
-  opacity: 0.4;
-}
-.view-switch .button {
-  position: relative;
-  overflow: hidden;
-  height: 22rem;
-  opacity: 0.4;
-  transition: opacity 0.3s ease;
-}
-.view-switch .button.active {
-  opacity: 1;
-}
-.view-switch .button span {
-  display: block;
-  transition: transform 0.3s var(--ease-spring), opacity 0.3s ease;
-}
-.view-switch .button span:nth-child(2) {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: translateY(-100%);
-  opacity: 0;
-}
-.view-switch .button:hover span:first-child,
-.view-switch .button.active span:first-child {
-  transform: translateY(100%);
-  opacity: 0;
-}
-.view-switch .button:hover span:nth-child(2),
-.view-switch .button.active span:nth-child(2) {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-/* ============================================================
    Menu — Sections 7.2 / 7.3
    ============================================================ */
 .menu {

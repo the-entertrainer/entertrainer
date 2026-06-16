@@ -4,5 +4,4 @@ export interface NavItem {
   description: string
   href: string
   color: string
-  image?: string
 }

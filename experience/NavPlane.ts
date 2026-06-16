@@ -97,69 +97,52 @@ const fragmentShader = /* glsl */`
   }
 `
 
-function makeNavTexture(
-  isDark: boolean,
-  label: string,
-  description: string,
-  bgImage?: HTMLImageElement
-): CanvasTexture {
+function makeNavTexture(isDark: boolean, label: string, description: string): CanvasTexture {
   const canvas = document.createElement('canvas')
   canvas.width = 1700
   canvas.height = 1000
   const ctx = canvas.getContext('2d')!
 
-  if (bgImage) {
-    // Cover-fit the background image
-    const scale = Math.max(1700 / bgImage.width, 1000 / bgImage.height)
-    const w = bgImage.width * scale
-    const h = bgImage.height * scale
-    ctx.drawImage(bgImage, (1700 - w) / 2, (1000 - h) / 2, w, h)
+  // Background
+  ctx.fillStyle = isDark ? '#0D0C0A' : '#6D28D9'
+  ctx.fillRect(0, 0, 1700, 1000)
 
-    // Dark scrim so text remains legible regardless of theme
-    const scrim = ctx.createLinearGradient(0, 0, 0, 1000)
-    scrim.addColorStop(0,   'rgba(0,0,0,0.25)')
-    scrim.addColorStop(0.5, 'rgba(0,0,0,0.1)')
-    scrim.addColorStop(1,   'rgba(0,0,0,0.72)')
-    ctx.fillStyle = scrim
-    ctx.fillRect(0, 0, 1700, 1000)
+  // Subtle gradient overlay
+  const grad = ctx.createLinearGradient(0, 0, 1700, 1000)
+  if (isDark) {
+    grad.addColorStop(0, 'rgba(255,255,255,0.05)')
+    grad.addColorStop(1, 'rgba(0,0,0,0.3)')
   } else {
-    // Solid background
-    ctx.fillStyle = isDark ? '#0D0C0A' : '#6D28D9'
-    ctx.fillRect(0, 0, 1700, 1000)
-
-    // Subtle gradient overlay
-    const grad = ctx.createLinearGradient(0, 0, 1700, 1000)
-    if (isDark) {
-      grad.addColorStop(0, 'rgba(255,255,255,0.05)')
-      grad.addColorStop(1, 'rgba(0,0,0,0.3)')
-    } else {
-      grad.addColorStop(0, 'rgba(255,255,255,0.08)')
-      grad.addColorStop(1, 'rgba(0,0,0,0.22)')
-    }
-    ctx.fillStyle = grad
-    ctx.fillRect(0, 0, 1700, 1000)
+    grad.addColorStop(0, 'rgba(255,255,255,0.08)')
+    grad.addColorStop(1, 'rgba(0,0,0,0.22)')
   }
+  ctx.fillStyle = grad
+  ctx.fillRect(0, 0, 1700, 1000)
 
   // Accent line
-  ctx.fillStyle = bgImage
-    ? 'rgba(244,241,236,0.55)'
-    : (isDark ? '#8B5CF6' : 'rgba(244,241,236,0.5)')
+  ctx.fillStyle = isDark ? '#8B5CF6' : 'rgba(244,241,236,0.5)'
   ctx.fillRect(100, 820, 140, 6)
 
-  // Main label
-  ctx.fillStyle = bgImage
-    ? '#F4F1EC'
-    : (isDark ? '#8B5CF6' : '#F4F1EC')
-  ctx.font = '700 180px system-ui, -apple-system, Arial, sans-serif'
+  // Main label — scale down until it fits within the card
+  ctx.fillStyle = isDark ? '#8B5CF6' : '#F4F1EC'
   ctx.textAlign = 'left'
   ctx.textBaseline = 'alphabetic'
+  let labelPx = 180
+  ctx.font = `700 ${labelPx}px system-ui, -apple-system, Arial, sans-serif`
+  while (ctx.measureText(label).width > 1480 && labelPx > 72) {
+    labelPx -= 6
+    ctx.font = `700 ${labelPx}px system-ui, -apple-system, Arial, sans-serif`
+  }
   ctx.fillText(label, 100, 550)
 
-  // Description
-  ctx.fillStyle = bgImage
-    ? 'rgba(244,241,236,0.72)'
-    : (isDark ? 'rgba(244,241,236,0.45)' : 'rgba(244,241,236,0.65)')
-  ctx.font = '400 64px system-ui, -apple-system, Arial, sans-serif'
+  // Description — scale down if needed
+  ctx.fillStyle = isDark ? 'rgba(244,241,236,0.45)' : 'rgba(244,241,236,0.65)'
+  let descPx = 64
+  ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
+  while (ctx.measureText(description).width > 1480 && descPx > 38) {
+    descPx -= 4
+    ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
+  }
   ctx.fillText(description, 100, 650)
 
   return new CanvasTexture(canvas)
@@ -182,7 +165,6 @@ export default class NavPlane {
   private prevBa: number | null = null
   private wrapFade = 1
   private _isDark = true
-  private _bgImage: HTMLImageElement | null = null
 
   readonly baseScaleX  = 1.7
   readonly baseScaleY  = 1.0
@@ -206,8 +188,6 @@ export default class NavPlane {
 
     const texture = makeNavTexture(isDark, navItem.label, navItem.description)
     texture.needsUpdate = true
-    // If the item ships a background image, load it and redraw asynchronously.
-    if (navItem.image) this._loadImage(navItem.image)
 
     const material = new ShaderMaterial({
       uniforms: UniformsUtils.merge([
@@ -239,31 +219,15 @@ export default class NavPlane {
   hide()   { this.hiddenTarget = 1; this.revealTarget = 0 }
   setHovered(hovered: boolean) { this.hoverTarget = hovered ? 1 : 0 }
 
-  private _loadImage(url: string) {
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.onload = () => {
-      this._bgImage = img
-      this._applyTexture()
-    }
-    img.src = url
-  }
-
-  private _applyTexture() {
-    const mat = this.mesh.material as ShaderMaterial
-    const oldTex = mat.uniforms.uTexture.value
-    const newTex = makeNavTexture(
-      this._isDark, this.navItem.label, this.navItem.description, this._bgImage ?? undefined
-    )
-    newTex.needsUpdate = true
-    mat.uniforms.uTexture.value = newTex
-    oldTex.dispose()
-  }
-
   updateTexture(isDark: boolean) {
     if (isDark === this._isDark) return
     this._isDark = isDark
-    this._applyTexture()
+    const mat = this.mesh.material as ShaderMaterial
+    const oldTex = mat.uniforms.uTexture.value
+    const newTex = makeNavTexture(isDark, this.navItem.label, this.navItem.description)
+    newTex.needsUpdate = true
+    mat.uniforms.uTexture.value = newTex
+    oldTex.dispose()
   }
 
   update(delta: number, scrollOffset: number, scrollSpeed: number) {

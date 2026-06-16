@@ -1,17 +1,17 @@
 {
   "home": [
-    { "id": "about",                "label": "About Me",             "description": "The story behind Entertrainer",               "href": "/about",                "color": "#0D0C0A", "image": "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=1700&h=1000&fit=crop" },
-    { "id": "instructional-design", "label": "Instructional Design", "description": "What gets designed when no one's watching?",  "href": "/instructional-design", "color": "#0D0C0A", "image": "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=1700&h=1000&fit=crop" },
-    { "id": "my-work",              "label": "My Work",              "description": "Proof it wasn't all talk.",                   "href": "/my-work",              "color": "#0D0C0A", "image": "https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=1700&h=1000&fit=crop"  },
-    { "id": "tools",                "label": "Tools",                "description": "The toolkit that powers impactful learning",  "href": "/tools",                "color": "#0D0C0A", "image": "https://images.pexels.com/photos/574069/pexels-photo-574069.jpeg?auto=compress&cs=tinysrgb&w=1700&h=1000&fit=crop"  },
-    { "id": "downloads",            "label": "Downloads",            "description": "Resources & templates for L&D professionals","href": "/downloads",            "color": "#0D0C0A", "image": "https://images.pexels.com/photos/590016/pexels-photo-590016.jpeg?auto=compress&cs=tinysrgb&w=1700&h=1000&fit=crop"  }
+    { "id": "about",                "label": "About Me",             "description": "The story behind Entertrainer",               "href": "/about",                "color": "#0D0C0A" },
+    { "id": "instructional-design", "label": "Instructional Design", "description": "What gets designed when no one's watching?",  "href": "/instructional-design", "color": "#0D0C0A" },
+    { "id": "my-work",              "label": "My Work",              "description": "Proof it wasn't all talk.",                   "href": "/my-work",              "color": "#0D0C0A" },
+    { "id": "tools",                "label": "Tools",                "description": "The toolkit that powers impactful learning",  "href": "/tools",                "color": "#0D0C0A" },
+    { "id": "downloads",            "label": "Downloads",            "description": "Resources & templates for L&D professionals", "href": "/downloads",            "color": "#0D0C0A" }
   ],
   "about": [],
   "instructional-design": [],
   "my-work": [
-    { "id": "work-01", "label": "Project 01", "description": "A learning experience worth remembering", "href": "/my-work/01", "color": "#0D0C0A", "image": "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=1700&h=1000&fit=crop" },
-    { "id": "work-02", "label": "Project 02", "description": "Where strategy meets storytelling",      "href": "/my-work/02", "color": "#0D0C0A", "image": "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1700&h=1000&fit=crop" },
-    { "id": "work-03", "label": "Project 03", "description": "From messy brief to measurable outcome", "href": "/my-work/03", "color": "#0D0C0A", "image": "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=1700&h=1000&fit=crop" }
+    { "id": "work-01", "label": "Project 01", "description": "A learning experience worth remembering", "href": "/my-work/01", "color": "#0D0C0A" },
+    { "id": "work-02", "label": "Project 02", "description": "Where strategy meets storytelling",      "href": "/my-work/02", "color": "#0D0C0A" },
+    { "id": "work-03", "label": "Project 03", "description": "From messy brief to measurable outcome", "href": "/my-work/03", "color": "#0D0C0A" }
   ],
   "tools": [
     { "id": "distractor-gen",  "label": "Distractor Generator", "description": "Turn correct answers into brilliant wrong ones.", "href": "/tools/distractor-gen",  "color": "#0D0C0A" },

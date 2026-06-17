@@ -140,6 +140,9 @@ export default class NavPlane {
   private _rimAngle    = 0
   private _glowStrength = 0
 
+  // Custom background image (replaces canvas texture for specific cards)
+  private _bgImage: HTMLImageElement | null = null
+
   readonly baseScaleX  = 1.7
   readonly baseScaleY  = 1.0
   readonly verticalGap = 0.5
@@ -166,6 +169,18 @@ export default class NavPlane {
     this._ctx = this._canvas.getContext('2d')!
     this._tex = new CanvasTexture(this._canvas)
     this._drawTexture(isDark)
+
+    const imageMap: Record<string, string> = {
+      'about': '/about-me.png',
+    }
+    if (imageMap[navItem.id]) {
+      const img = document.createElement('img')
+      img.onload = () => {
+        this._bgImage = img
+        this._drawTexture(this._isDark)
+      }
+      img.src = imageMap[navItem.id]
+    }
 
     const material = new ShaderMaterial({
       uniforms: UniformsUtils.merge([
@@ -199,6 +214,13 @@ export default class NavPlane {
     const W = 1700, H = 1000
     const ctx = this._ctx
     ctx.clearRect(0, 0, W, H)
+
+    // Image-backed card — draw photo, skip all text
+    if (this._bgImage) {
+      ctx.drawImage(this._bgImage, 0, 0, W, H)
+      this._tex.needsUpdate = true
+      return
+    }
 
     // Glass body — matches --color-glass-bg token
     ctx.fillStyle = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.15)'

@@ -201,15 +201,17 @@ export default class NavPlane {
     ctx.clearRect(0, 0, W, H)
 
     // Glass body — matches --color-glass-bg token
-    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'
+    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.15)'
     ctx.fillRect(0, 0, W, H)
 
-    // Diagonal ambient sweep
-    const sweep = ctx.createLinearGradient(0, 0, W * 0.6, H * 0.6)
-    sweep.addColorStop(0, 'rgba(255,255,255,0.04)')
-    sweep.addColorStop(1, 'rgba(255,255,255,0)')
-    ctx.fillStyle = sweep
-    ctx.fillRect(0, 0, W, H)
+    // Diagonal ambient sweep — dark mode only; on light it washes out dark text
+    if (isDark) {
+      const sweep = ctx.createLinearGradient(0, 0, W * 0.6, H * 0.6)
+      sweep.addColorStop(0, 'rgba(255,255,255,0.04)')
+      sweep.addColorStop(1, 'rgba(255,255,255,0)')
+      ctx.fillStyle = sweep
+      ctx.fillRect(0, 0, W, H)
+    }
 
     // Border — matches --color-glass-border token
     ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)'

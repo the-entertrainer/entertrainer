@@ -171,7 +171,8 @@ export default class NavPlane {
     this._drawTexture(isDark)
 
     const imageMap: Record<string, string> = {
-      'about': '/about-me.png',
+      'about':                '/about-me.png',
+      'instructional-design': '/instructional-design.png',
     }
     if (imageMap[navItem.id]) {
       const img = document.createElement('img')

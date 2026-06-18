@@ -43,6 +43,7 @@ const fragmentShader = /* glsl */`
   uniform float uOpacity;
   uniform float uRimAngle;
   uniform float uGlowStrength;
+  uniform float uIsImage;
 
   varying vec2 vUv;
   #include <fog_pars_fragment>
@@ -76,7 +77,7 @@ const fragmentShader = /* glsl */`
       c += texture2D(uTexture, uv + vec2(0.0,  o2)) * 2.0;
       c += texture2D(uTexture, uv + vec2( o2,  o2)) * 1.0;
       c /= 16.0;
-      c.rgb *= 0.2;
+      if (uIsImage < 0.5) c.rgb *= 0.2;
       color = c;
     }
 
@@ -179,6 +180,7 @@ export default class NavPlane {
       img.onload = () => {
         this._bgImage = img
         this._drawTexture(this._isDark)
+        ;(this.mesh.material as ShaderMaterial).uniforms.uIsImage.value = 1.0
       }
       img.src = imageMap[navItem.id]
     }
@@ -196,7 +198,8 @@ export default class NavPlane {
           uScrollSpeed:    { value: 0 },
           uOpacity:        { value: 1 },
           uRimAngle:       { value: 0 },
-          uGlowStrength:   { value: 0 }
+          uGlowStrength:   { value: 0 },
+          uIsImage:        { value: 0 }
         }
       ]),
       vertexShader,

@@ -11,6 +11,20 @@ import {
 import type Experience from './Experience'
 import type { NavItem } from '~/types/nav'
 
+// Start fetching card images immediately at module load — before any NavPlane is constructed
+const CARD_IMAGE_MAP: Record<string, string> = {
+  'about':                '/about-me.png',
+  'instructional-design': '/instructional-design.png',
+}
+const _imageCache = new Map<string, HTMLImageElement>()
+if (typeof document !== 'undefined') {
+  for (const [id, src] of Object.entries(CARD_IMAGE_MAP)) {
+    const img = new Image()
+    img.src = src
+    _imageCache.set(id, img)
+  }
+}
+
 const vertexShader = /* glsl */`
   varying vec2 vUv;
   varying vec3 vWorldPosition;
@@ -171,18 +185,19 @@ export default class NavPlane {
     this._tex = new CanvasTexture(this._canvas)
     this._drawTexture(isDark)
 
-    const imageMap: Record<string, string> = {
-      'about':                '/about-me.png',
-      'instructional-design': '/instructional-design.png',
-    }
-    if (imageMap[navItem.id]) {
-      const img = document.createElement('img')
-      img.onload = () => {
-        this._bgImage = img
-        this._drawTexture(this._isDark)
-        ;(this.mesh.material as ShaderMaterial).uniforms.uIsImage.value = 1.0
+    const cached = _imageCache.get(navItem.id)
+    if (cached) {
+      if (cached.complete && cached.naturalWidth > 0) {
+        // Already in browser cache — use immediately
+        this._bgImage = cached
+        this._drawTexture(isDark)
+      } else {
+        cached.addEventListener('load', () => {
+          this._bgImage = cached
+          this._drawTexture(this._isDark)
+          ;(this.mesh.material as ShaderMaterial).uniforms.uIsImage.value = 1.0
+        }, { once: true })
       }
-      img.src = imageMap[navItem.id]
     }
 
     const material = new ShaderMaterial({
@@ -199,7 +214,7 @@ export default class NavPlane {
           uOpacity:        { value: 1 },
           uRimAngle:       { value: 0 },
           uGlowStrength:   { value: 0 },
-          uIsImage:        { value: 0 }
+          uIsImage:        { value: this._bgImage ? 1.0 : 0.0 }
         }
       ]),
       vertexShader,

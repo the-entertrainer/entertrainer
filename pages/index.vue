@@ -23,7 +23,7 @@ const sectionItems = computed(() => {
 })
 
 const sectionTitles: Record<Section, string> = {
-  home: '', tools: 'Tools', downloads: 'Downloads', 'my-work': 'My Work'
+  home: '', tools: 'Web Apps', downloads: 'Downloads', 'my-work': 'My Work'
 }
 
 const sectionRoutes: Record<string, Section> = {

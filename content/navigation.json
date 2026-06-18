@@ -3,7 +3,7 @@
     { "id": "about",                "label": "About Me",             "description": "The story behind Entertrainer",               "href": "/about",                "color": "#243F6A" },
     { "id": "instructional-design", "label": "Instructional Design", "description": "What gets designed when no one's watching?",  "href": "/instructional-design", "color": "#243F6A" },
     { "id": "my-work",              "label": "My Work",              "description": "Proof it wasn't all talk.",                   "href": "/my-work",              "color": "#243F6A" },
-    { "id": "tools",                "label": "Tools",                "description": "The toolkit that powers impactful learning",  "href": "/tools",                "color": "#243F6A" },
+    { "id": "tools",                "label": "Web Apps",             "description": "The toolkit that powers impactful learning",  "href": "/tools",                "color": "#243F6A" },
     { "id": "downloads",            "label": "Downloads",            "description": "Resources & templates for L&D professionals", "href": "/downloads",            "color": "#243F6A" }
   ],
   "about": [],

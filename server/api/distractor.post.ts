@@ -1,24 +1,31 @@
 export default defineEventHandler(async (event) => {
+  const log: string[] = ['handler-start']
+
   try {
     let body: any
     try {
       body = await readBody(event)
-    } catch {
-      throw createError({ statusCode: 400, message: 'Could not read request body.' })
+      log.push('readBody-ok:' + JSON.stringify(body).slice(0, 80))
+    } catch (e: any) {
+      return { ok: false, step: 'readBody', error: String(e?.message ?? e), log }
     }
 
     const question = String(body?.question ?? '').trim()
     const answer   = String(body?.answer   ?? '').trim()
+    log.push(`validation: q=${!!question} a=${!!answer}`)
 
     if (!question || !answer) {
-      throw createError({ statusCode: 400, message: 'Question and answer are required.' })
+      return { ok: false, step: 'validation', error: 'Question and answer are required.', log }
     }
 
-    const apiKey = process.env.GROQ_API_KEY
+    const apiKey = process.env.GROQ_API_KEY ?? ''
+    log.push(`key: ${apiKey.slice(0, 4)}... len=${apiKey.length}`)
+
     if (!apiKey) {
-      throw createError({ statusCode: 422, message: 'API key not configured on the server.' })
+      return { ok: false, step: 'key-check', error: 'API key not configured.', log }
     }
 
+    log.push('fetch-start')
     let res: Response
     try {
       res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -49,41 +56,48 @@ export default defineEventHandler(async (event) => {
           max_tokens: 400
         })
       })
-    } catch (fetchErr: any) {
-      throw createError({ statusCode: 422, message: `Could not reach AI service: ${fetchErr?.message ?? 'network error'}` })
+      log.push(`fetch-done: status=${res.status}`)
+    } catch (e: any) {
+      return { ok: false, step: 'fetch', error: String(e?.message ?? e), log }
     }
 
     if (!res.ok) {
-      const errBody = await res.text().catch(() => '')
-      throw createError({ statusCode: 422, message: `AI service returned ${res.status}: ${errBody.slice(0, 120)}` })
+      const errText = await res.text().catch(() => '')
+      log.push(`groq-error: ${errText.slice(0, 100)}`)
+      return { ok: false, step: 'groq-status', error: `Groq returned ${res.status}: ${errText.slice(0, 120)}`, log }
     }
 
     let data: any
     try {
       data = await res.json()
-    } catch {
-      throw createError({ statusCode: 422, message: 'Could not parse the AI response. Try again.' })
+      log.push('res-json-ok')
+    } catch (e: any) {
+      return { ok: false, step: 'res-json', error: String(e?.message ?? e), log }
     }
 
     const content = data.choices?.[0]?.message?.content ?? ''
+    log.push(`content-len=${content.length} preview=${content.slice(0, 40)}`)
+
     if (!content) {
-      throw createError({ statusCode: 422, message: 'AI returned an empty response. Try again.' })
+      return { ok: false, step: 'content-empty', error: 'AI returned empty response.', log }
     }
 
     let parsed: any
     try {
       parsed = JSON.parse(content)
-    } catch {
-      throw createError({ statusCode: 422, message: 'AI response was not valid JSON. Try again.' })
+      log.push(`parsed-ok keys=${Object.keys(parsed).join(',')}`)
+    } catch (e: any) {
+      return { ok: false, step: 'parse', error: `JSON parse failed: ${e?.message}`, log, raw: content.slice(0, 200) }
     }
 
     if (!Array.isArray(parsed.distractors) || parsed.distractors.length < 3) {
-      throw createError({ statusCode: 422, message: `Unexpected AI response shape. Try again.` })
+      return { ok: false, step: 'shape', error: 'Unexpected AI response shape.', log, raw: JSON.stringify(parsed).slice(0, 200) }
     }
 
-    return { distractors: parsed.distractors.slice(0, 3) as string[] }
+    log.push('success')
+    return { ok: true, distractors: parsed.distractors.slice(0, 3) as string[], log }
   } catch (err: any) {
-    if (err?.statusCode) throw err
-    throw createError({ statusCode: 422, message: `Unexpected error: ${err?.message ?? String(err)}` })
+    log.push(`outer-catch: ${err?.message ?? String(err)}`)
+    return { ok: false, step: 'outer-catch', error: String(err?.message ?? err), log }
   }
 })

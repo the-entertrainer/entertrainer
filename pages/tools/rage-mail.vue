@@ -13,6 +13,7 @@ interface RawResult {
   aggressiveness: number
   sarcasm:        number
   offensiveness:  number
+  authenticity:   number
   rageTaunt:      string
   rageVerdict:    string
 }
@@ -21,18 +22,21 @@ const raw = ref<RawResult | null>(null)
 
 // ── Rage Complexity Score ──────────────────────────────────────────────────
 // Linear weights: π-inspired (aggressiveness), e-inspired (sarcasm), prime (offensiveness)
-// Complexity multiplier: 1 + (A/100 × S/100 × O/100) — rewards multi-dimensional rage
+// Synergy multiplier: rewards multi-dimensional rage (all three axes firing together)
+// Authenticity factor: raw personal emotion beats polished templates
 const W_AGGR = 3_141
 const W_SARC = 2_718
 const W_OFF  = 2_981
-const MAX_SCORE = 100 * (W_AGGR + W_SARC + W_OFF) * 2  // 1,768,000
+// Max = 884,000 linear × 2 synergy × 1.5 authenticity = 2,652,000
+const MAX_SCORE = 100 * (W_AGGR + W_SARC + W_OFF) * 2 * 1.5
 
 const rageScore = computed(() => {
   if (!raw.value) return 0
-  const { aggressiveness: a, sarcasm: s, offensiveness: o } = raw.value
-  const linear  = a * W_AGGR + s * W_SARC + o * W_OFF
-  const synergy = (a / 100) * (s / 100) * (o / 100)
-  return Math.round(linear * (1 + synergy))
+  const { aggressiveness: a, sarcasm: s, offensiveness: o, authenticity: auth } = raw.value
+  const linear      = a * W_AGGR + s * W_SARC + o * W_OFF
+  const synergy     = (a / 100) * (s / 100) * (o / 100)
+  const authFactor  = 0.5 + (auth / 100)   // 0.5 → 1.5; low authenticity caps the score
+  return Math.round(linear * (1 + synergy) * authFactor)
 })
 
 // ── Rage level thresholds ──────────────────────────────────────────────────
@@ -52,6 +56,24 @@ const rageLevel = computed(() => {
 })
 
 function fmt(n: number) { return n.toLocaleString() }
+
+// ── Authenticity hint ──────────────────────────────────────────────────────
+const authenticityHint = computed(() => {
+  if (!raw.value) return ''
+  const a = raw.value.authenticity
+  if (a < 35) return 'Reads a little polished — add real names, specific incidents, raw details to max your score.'
+  if (a < 55) return 'Good start. More personal specifics will push your score higher.'
+  return ''
+})
+
+// ── Word count hint ────────────────────────────────────────────────────────
+const wordCount = computed(() => body.value.trim() ? body.value.trim().split(/\s+/).length : 0)
+const wordHint  = computed(() => {
+  if (wordCount.value === 0) return ''
+  if (wordCount.value < 20)  return `${wordCount.value} words — write more to maximise your score`
+  if (wordCount.value < 50)  return `${wordCount.value} words — getting there`
+  return ''
+})
 
 // ── Personal best ──────────────────────────────────────────────────────────
 interface PersonalBest { score: number; level: string }
@@ -79,7 +101,7 @@ function updatePersonalBest() {
 }
 
 // ── Validation ─────────────────────────────────────────────────────────────
-const canSubmit = computed(() => body.value.trim().length > 0)
+const canSubmit = computed(() => wordCount.value >= 5)
 
 // ── Submit ─────────────────────────────────────────────────────────────────
 async function send() {
@@ -136,7 +158,7 @@ function reset() {
 
 // ── Share ──────────────────────────────────────────────────────────────────
 async function shareResult() {
-  const text = `I just scored ${fmt(rageScore.value)} on the Rage Complexity Index — ${rageLevel.value}. Beat me: entertrainer.com/tools/rage-mail`
+  const text = `I just scored ${fmt(rageScore.value)} on the Rage Complexity Index — ${rageLevel.value}.\nMy manager won't be seeing this one. 🔥 entertrainer.com/tools/rage-mail`
   if (navigator.share) {
     try { await navigator.share({ title: 'Rage Mail', text }) } catch {}
     return
@@ -156,7 +178,7 @@ async function shareResult() {
     <Transition name="fade" mode="out-in">
       <div v-if="phase === 'compose'" key="compose" class="rm-compose">
         <h1 class="rm-title">Rage Mail</h1>
-        <p class="rm-subtitle">Type the email you were never allowed to send.</p>
+        <p class="rm-subtitle">Write the email you'd never dare send from your work inbox.</p>
 
         <Transition name="fade">
           <div v-if="personalBest" class="rm-personal-best">
@@ -178,13 +200,14 @@ async function shareResult() {
             <textarea
               v-model="body"
               class="rm-body-textarea"
-              placeholder="Dear [name], I have been silent long enough and I think it's time you understand exactly what I think about the way you…"
+              placeholder="Dear [name], I've been biting my tongue for months and I think it's finally time you understand exactly what I think about the way you handled…"
               rows="10"
               autofocus
             />
           </div>
 
           <div class="rm-email-footer">
+            <span v-if="wordHint" class="rm-word-hint">{{ wordHint }}</span>
             <button class="rm-send-btn" :disabled="!canSubmit" @click="send">
               SEND IT →
             </button>
@@ -262,9 +285,27 @@ async function shareResult() {
               </div>
               <span class="rm-bar-val">{{ raw.offensiveness }}</span>
             </div>
+            <div class="rm-bar-row">
+              <span class="rm-bar-key">AUTHENTICITY</span>
+              <div class="rm-bar-track">
+                <div class="rm-bar-fill rm-bar-fill--auth" :style="{ width: raw.authenticity + '%' }" />
+              </div>
+              <span class="rm-bar-val">{{ raw.authenticity }}</span>
+            </div>
           </div>
 
+          <!-- Authenticity hint (shown only when low) -->
+          <Transition name="fade">
+            <p v-if="authenticityHint" class="rm-auth-hint">{{ authenticityHint }}</p>
+          </Transition>
+
           <div class="rm-watermark">entertrainer.com · Rage Mail</div>
+        </div>
+
+        <!-- Safe not-sent message — the cathartic moment -->
+        <div class="rm-safe-msg">
+          <span class="rm-safe-icon">😮‍💨</span>
+          <span>This email has been safely <strong>not sent</strong>. Your job is safe.</span>
         </div>
 
         <p v-if="rageScore < MAX_SCORE * 0.95" class="rm-cta">
@@ -392,9 +433,17 @@ async function shareResult() {
   border-top: 1px solid var(--color-glass-border);
   padding: 14rem 18rem;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rem;
+}
+.rm-word-hint {
+  font-size: 11rem;
+  opacity: 0.35;
+  font-weight: 500;
 }
 .rm-send-btn {
+  flex-shrink: 0;
   padding: 12rem 28rem;
   border-radius: var(--radius-full);
   background: var(--color-text);
@@ -508,7 +557,7 @@ async function shareResult() {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 24rem;
+  gap: 20rem;
   max-width: 560rem;
 }
 
@@ -660,12 +709,26 @@ async function shareResult() {
   background: linear-gradient(90deg, #FF9500, #FF3B3B);
   transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
+.rm-bar-fill--auth {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-text) 30%, transparent), var(--color-text));
+}
 .rm-bar-val {
   font-size: 11rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   opacity: 0.7;
   text-align: right;
+}
+
+/* Authenticity hint */
+.rm-auth-hint {
+  font-size: 12rem;
+  opacity: 0.5;
+  line-height: 1.5;
+  margin: -8rem 0 0;
+  padding: 10rem 14rem;
+  border-radius: 8rem;
+  background: color-mix(in srgb, var(--color-text) 5%, transparent);
 }
 
 /* Watermark */
@@ -677,6 +740,18 @@ async function shareResult() {
   text-transform: uppercase;
   margin-top: -8rem;
 }
+
+/* Safe not-sent message */
+.rm-safe-msg {
+  display: flex;
+  align-items: center;
+  gap: 10rem;
+  font-size: 14rem;
+  opacity: 0.6;
+  font-weight: 500;
+}
+.rm-safe-icon { font-size: 20rem; }
+.rm-safe-msg strong { opacity: 1; color: var(--color-text); }
 
 /* Competitive CTA */
 .rm-cta {

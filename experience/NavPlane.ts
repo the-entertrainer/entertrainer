@@ -40,7 +40,9 @@ const vertexShader = /* glsl */`
     vec4 modelPosition = modelMatrix * vec4(newPosition, 1.0);
     vec4 mvPosition    = viewMatrix * modelPosition;
     mvPosition.x += pow(worldPosition.y, 2.0) * 0.1;
-    mvPosition.x += sin(uv.y * PI) * uScrollSpeed * 2.0;
+    // Permanent base arch (physical fan shape) + small velocity nudge
+    float arch = 0.025 + uScrollSpeed * 0.12;
+    mvPosition.x += sin(uv.y * PI) * arch * 2.0;
     gl_Position = projectionMatrix * mvPosition;
     vUv = uv;
     vWorldPosition = worldPosition;

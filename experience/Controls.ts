@@ -22,15 +22,15 @@ export default class Controls {
   wheelDirection = 1
 
   // ── Tunables ──────────────────────────────────────────────────────────────
-  private PX_PER_CARD   = 80      // finger pixels to advance one card (smaller = faster)
+  private PX_PER_CARD   = 180     // finger pixels to advance one card (larger = less sensitive)
   private WHEEL_PER_CARD = 480    // wheel deltaY pixels to advance one card
   private FRICTION_FRAME = 0.95   // momentum decay per 60fps frame
-  private MAX_V          = 0.02   // max velocity (cards/ms) — clamps wild flings
-  private SNAP_V         = 0.0009 // below this velocity, momentum hands off to snap
-  private FLICK_V        = 0.0018 // release velocity that counts as a flick (→ whoosh)
-  private SNAP_EASE      = 0.18   // snap ease strength per 60fps frame
-  private IDLE_DELAY     = 2500   // ms at rest before the gentle drift resumes
-  private IDLE_DRIFT     = 0.00005 // cards/ms — gentle ambient rotation
+  private MAX_V          = 0.005  // max velocity (cards/ms) — clamps wild flings
+  private SNAP_V         = 0.0006 // below this velocity, momentum hands off to snap
+  private FLICK_V        = 0.0015 // release velocity that counts as a flick (→ whoosh)
+  private SNAP_EASE      = 0.06   // snap ease strength per 60fps frame (lower = slower)
+  private IDLE_DELAY     = 600    // ms at rest before the gentle drift resumes
+  private IDLE_DRIFT     = 0.0002 // cards/ms — gentle ambient rotation
 
   private _phase: Phase = 'rest'
   private _velocity = 0          // cards/ms
@@ -49,6 +49,7 @@ export default class Controls {
 
   constructor(experience: Experience) {
     this.experience = experience
+    this._phase = 'drift'
     this._lastInteraction = performance.now()
     this._lastFloor = Math.floor(this.scrollOffset)
 
@@ -191,7 +192,7 @@ export default class Controls {
     this.scrollOffset = 0.5
     this._prevOffset = 0.5
     this._velocity = 0
-    this._phase = 'rest'
+    this._phase = 'drift'
     this._lastFloor = Math.floor(this.scrollOffset)
     this._lastInteraction = performance.now()
   }

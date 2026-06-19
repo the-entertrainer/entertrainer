@@ -16,7 +16,8 @@
   "tools": [
     { "id": "distractor-gen",  "label": "Distractor Generator", "description": "Turn correct answers into brilliant wrong ones.", "href": "/tools/distractor-gen",  "color": "#243F6A" },
     { "id": "objective-boost", "label": "Bloom's Booster",       "description": "From fuzzy intentions to measurable goals.",     "href": "/tools/objective-boost", "color": "#243F6A" },
-    { "id": "course-check",    "label": "Is It Training?",       "description": "Because sometimes the answer is no.",           "href": "/tools/course-check",    "color": "#243F6A" }
+    { "id": "course-check",    "label": "Is It Training?",       "description": "Because sometimes the answer is no.",           "href": "/tools/course-check",    "color": "#243F6A" },
+    { "id": "rage-mail",       "label": "Rage Mail",             "description": "Send the email you were never allowed to send.", "href": "/tools/rage-mail",       "color": "#243F6A" }
   ],
   "downloads": [
     { "id": "templates",  "label": "Templates",  "description": "Ready-to-use L&D templates",       "href": "/downloads/templates",  "color": "#243F6A" },

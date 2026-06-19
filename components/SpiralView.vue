@@ -23,7 +23,7 @@ const homeViewStore   = useHomeViewStore()
 const themeStore      = useThemeStore()
 const canvasRef       = ref<HTMLCanvasElement | null>(null)
 const listRef         = ref<HTMLElement | null>(null)
-const isLoaderDone    = ref(!props.showLoader)
+const isLoaderDone    = ref(!props.showLoader || experienceStore.hasEntered)
 const hasEntered      = computed(() => props.showLoader ? experienceStore.hasEntered : true)
 const isListMode      = computed(() => props.showViewSwitch && homeViewStore.mode === 'list')
 const { $lenis }      = useNuxtApp()
@@ -90,7 +90,8 @@ watch(hasEntered, async (entered) => {
 
 // Accordion: when items prop changes, transition to new items in-place
 watch(() => props.items, async (newItems) => {
-  if (!experience || !newItems.length || transitioning || isListMode.value) return
+  if (isListMode.value) { await nextTick(); animateListIn(); return }
+  if (!experience || !newItems.length || transitioning) return
   transitioning = true
   await experience.world.transitionTo(newItems)
   transitioning = false

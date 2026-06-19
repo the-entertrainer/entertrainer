@@ -58,7 +58,7 @@ function handleBack() {
   <SpiralView
     :items="sectionItems"
     :show-loader="true"
-    :show-view-switch="currentSection === 'home'"
+    :show-view-switch="true"
     :title="sectionTitles[currentSection]"
     @card-click="handleCardClick"
   />

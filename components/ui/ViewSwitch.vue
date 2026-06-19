@@ -2,74 +2,79 @@
 import { useHomeViewStore } from '~/stores/homeview'
 
 const homeViewStore = useHomeViewStore()
-const mode = computed(() => homeViewStore.mode)
+const isList = computed(() => homeViewStore.mode === 'list')
 </script>
 
 <template>
-  <div class="view-switch">
-    <button
-      class="btn"
-      :class="{ active: mode === 'spiral' }"
-      @click="homeViewStore.setMode('spiral')"
-    >
-      <span>spiral</span>
-      <span>spiral</span>
-    </button>
-    <button
-      class="btn"
-      :class="{ active: mode === 'list' }"
-      @click="homeViewStore.setMode('list')"
-    >
-      <span>list</span>
-      <span>list</span>
-    </button>
-  </div>
+  <button
+    class="view-pill"
+    :aria-label="isList ? 'Switch to spiral view' : 'Switch to list view'"
+    @click="homeViewStore.toggle()"
+  >
+    <span class="view-pill__inner" :class="{ flipped: isList }">
+      <span class="face face--front">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M11 12a1 1 0 1 1 2 0 2 2 0 1 1-4 0 3 3 0 1 1 6 0 4 4 0 1 1-8 0"/>
+        </svg>
+        <span>Spiral</span>
+      </span>
+      <span class="face face--back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="7"  x2="20" y2="7"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="17" x2="20" y2="17"/>
+        </svg>
+        <span>List</span>
+      </span>
+    </span>
+  </button>
 </template>
 
 <style scoped>
-.view-switch {
-  display: flex;
-  gap: 8rem;
-}
-.btn {
+.view-pill {
   position: relative;
-  overflow: hidden;
+  width: 116rem;
+  height: 40rem;
+  padding: 0;
   background: none;
-  border: 1px solid var(--color-white20);
+  border: none;
+  cursor: pointer;
+  font-family: var(--main-font);
+  perspective: 600rem;
+}
+.view-pill__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s var(--ease-spring);
+}
+.view-pill__inner.flipped {
+  transform: rotateX(180deg);
+}
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rem;
+  border: 1px solid var(--color-white);
   border-radius: var(--radius-full);
   color: var(--color-white);
-  font-family: var(--main-font);
   font-size: 14rem;
   font-weight: 500;
   letter-spacing: -0.04em;
-  padding: 8rem 16rem;
-  cursor: pointer;
-  opacity: 0.4;
-  transition: opacity 0.3s ease, border-color 0.3s ease;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
-.btn.active {
-  opacity: 1;
-  border-color: var(--color-white);
+.face--back {
+  transform: rotateX(180deg);
 }
-.btn span {
-  display: block;
-  transition: transform 0.3s var(--ease-spring), opacity 0.3s ease;
-}
-.btn span:nth-child(2) {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, calc(-50% - 100%));
-  opacity: 0;
-}
-.btn:hover span:first-child,
-.btn.active span:first-child {
-  transform: translateY(100%);
-  opacity: 0;
-}
-.btn:hover span:nth-child(2),
-.btn.active span:nth-child(2) {
-  transform: translate(-50%, -50%);
-  opacity: 1;
+.face svg {
+  width: 16rem;
+  height: 16rem;
 }
 </style>

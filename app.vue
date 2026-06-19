@@ -1,19 +1,17 @@
 <script setup lang="ts">
 import { useThemeStore } from '~/stores/theme'
 import { useExperienceStore } from '~/stores/experience'
-import { useHomeViewStore } from '~/stores/homeview'
 
 const route           = useRoute()
 const themeStore      = useThemeStore()
 const experienceStore = useExperienceStore()
-const homeViewStore   = useHomeViewStore()
 
 const transition = computed(() =>
   route.path === '/' ? false : { name: 'fade', mode: 'out-in' as const }
 )
 
 const showViewSwitch = computed(() =>
-  route.path === '/' && experienceStore.hasEntered && homeViewStore.isHome
+  route.path === '/' && experienceStore.hasEntered
 )
 
 onMounted(() => {

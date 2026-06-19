@@ -103,6 +103,11 @@ onMounted(() => {
   })
 })
 
+onUnmounted(() => {
+  assemblyTl?.kill()
+  idleTween?.kill()
+})
+
 function setDotEl(el: any, i: number)    { if (el) dotEls.value[i] = el }
 function setPadEl(el: any, i: number)    { if (el) padEls.value[i] = el }
 function setAnchorEl(el: any, i: number) { if (el) anchorEls.value[i] = el }

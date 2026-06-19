@@ -13,37 +13,42 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, message: 'API key not configured on the server.' })
   }
 
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a RAGE analyst. Analyse the email body provided and return a JSON object with:\n' +
-            '- "aggressiveness" (integer 0–100)\n' +
-            '- "sarcasm" (integer 0–100)\n' +
-            '- "offensiveness" (integer 0–100)\n' +
-            '- "rageTaunt" (one punchy, funny, sympathetic sentence — never judgmental)\n' +
-            '- "imaginaryReply" (2–4 sentences — a fictional reply from the recipient that is absurd, ' +
-            'deflating, or weirdly polite in a way that gives the sender total cathartic satisfaction)\n' +
-            'Return only valid JSON.'
-        },
-        {
-          role: 'user',
-          content: `Email body:\n${body.trim()}`
-        }
-      ],
-      response_format: { type: 'json_object' },
-      temperature: 0.85,
-      max_tokens: 500
+  let res: Response
+  try {
+    res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a RAGE analyst. Analyse the email body provided and return a JSON object with:\n' +
+              '- "aggressiveness" (integer 0–100)\n' +
+              '- "sarcasm" (integer 0–100)\n' +
+              '- "offensiveness" (integer 0–100)\n' +
+              '- "rageTaunt" (one punchy, funny, sympathetic sentence — never judgmental)\n' +
+              '- "imaginaryReply" (2–4 sentences — a fictional reply from the recipient that is absurd, ' +
+              'deflating, or weirdly polite in a way that gives the sender total cathartic satisfaction)\n' +
+              'Return only valid JSON.'
+          },
+          {
+            role: 'user',
+            content: `Email body:\n${body.trim()}`
+          }
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.85,
+        max_tokens: 600
+      })
     })
-  })
+  } catch {
+    throw createError({ statusCode: 502, message: 'Could not reach AI service. Check your connection.' })
+  }
 
   if (!res.ok) {
     throw createError({ statusCode: 502, message: 'AI service unavailable. Please try again.' })

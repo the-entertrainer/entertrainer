@@ -68,5 +68,6 @@ export default defineNuxtConfig({
     client: { installPrompt: false },
     devOptions: { enabled: false }
   },
-  ssr: false
+  ssr: false,
+  nitro: { preset: 'vercel' }
 })

@@ -22,15 +22,15 @@ export default class Controls {
   wheelDirection = 1
 
   // ── Tunables ──────────────────────────────────────────────────────────────
-  private PX_PER_CARD   = 180     // finger pixels to advance one card (larger = less sensitive)
-  private WHEEL_PER_CARD = 480    // wheel deltaY pixels to advance one card
-  private FRICTION_FRAME = 0.95   // momentum decay per 60fps frame
-  private MAX_V          = 0.005  // max velocity (cards/ms) — clamps wild flings
-  private SNAP_V         = 0.0006 // below this velocity, momentum hands off to snap
-  private FLICK_V        = 0.0015 // release velocity that counts as a flick (→ whoosh)
+  private PX_PER_CARD   = 300     // finger pixels to advance one card (larger = less sensitive)
+  private WHEEL_PER_CARD = 600    // wheel deltaY pixels to advance one card
+  private FRICTION_FRAME = 0.91   // momentum decay per 60fps frame (lower = quicker decay)
+  private MAX_V          = 0.002  // max velocity (cards/ms) — keeps distortion minimal
+  private SNAP_V         = 0.0004 // below this velocity, momentum hands off to snap
+  private FLICK_V        = 0.001  // release velocity that counts as a flick (→ whoosh)
   private SNAP_EASE      = 0.06   // snap ease strength per 60fps frame (lower = slower)
   private IDLE_DELAY     = 600    // ms at rest before the gentle drift resumes
-  private IDLE_DRIFT     = 0.0002 // cards/ms — gentle ambient rotation
+  private IDLE_DRIFT     = 0.00025 // cards/ms — gentle ambient rotation
 
   private _phase: Phase = 'rest'
   private _velocity = 0          // cards/ms

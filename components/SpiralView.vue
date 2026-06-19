@@ -34,12 +34,15 @@ const FOG_LIGHT = 0xF4F1EC
 let experience: Experience | null = null
 let transitioning = false
 
-function mountExperience() {
+async function mountExperience() {
+  await nextTick()
   if (!canvasRef.value) return
   experience = new Experience(canvasRef.value)
   experience.world.setNavItems(props.items, themeStore.isDark)
   experience.setFogColor(themeStore.isDark ? FOG_DARK : FOG_LIGHT)
-  setTimeout(() => experience!.world.reveal(), 200)
+  // Capture reference so the timeout is safe even if component unmounts before it fires
+  const exp = experience
+  setTimeout(() => exp.world.reveal(), 150)
 
   experience.on('planeClick', (href: string) => {
     emit('cardClick', href)

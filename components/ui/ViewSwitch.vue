@@ -61,9 +61,9 @@ const isList = computed(() => homeViewStore.mode === 'list')
   align-items: center;
   justify-content: center;
   gap: 8rem;
-  border: 1px solid var(--color-white);
   border-radius: var(--radius-full);
-  color: var(--color-white);
+  background: var(--color-white);
+  color: var(--color-black);
   font-size: 14rem;
   font-weight: 500;
   letter-spacing: -0.04em;

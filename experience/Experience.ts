@@ -54,6 +54,7 @@ export default class Experience extends EventEmitter {
   private _update() {
     this.controls.update()
     this.world.update(this.time.delta)
+    SoundEngine.getInstance()?.setListenerFromCamera(this.camera.instance)
     this.postProcessing.render()
   }
 
@@ -77,7 +78,9 @@ export default class Experience extends EventEmitter {
     this.renderer.destroy()
     this.postProcessing.destroy()
     this.scene.clear()
-    SoundEngine.getInstance()?.destroy()
+    // NOTE: SoundEngine is a persistent singleton — it must survive Experience
+    // teardown (list-mode toggle, section change, navigation). Do NOT destroy it
+    // here, or the AudioContext closes and audio dies until the next gesture.
     Experience._instance = null
   }
 }

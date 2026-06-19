@@ -50,8 +50,7 @@ export default class Raycaster {
       this.hoveredPlane = hit
       this.experience.trigger('hoverChange', [hit?.navItem ?? null])
       document.body.style.cursor = hit ? 'pointer' : ''
-      const ha = hit ? Math.PI / 2 - hit.mesh.rotation.y : null
-      SoundEngine.getInstance()?.onHoverChange(hit?.index ?? null, ha)
+      SoundEngine.getInstance()?.onHoverChange(hit?.index ?? null, hit ? hit.mesh.position : null)
     }
   }
 
@@ -65,7 +64,7 @@ export default class Raycaster {
     const hit = this._intersect()
     if (hit) {
       this.experience.trigger('planeClick', [hit.navItem.href])
-      SoundEngine.getInstance()?.onCardClick(Math.PI / 2 - hit.mesh.rotation.y)
+      SoundEngine.getInstance()?.onCardClick(hit.mesh.position)
     }
   }
 
@@ -87,7 +86,7 @@ export default class Raycaster {
     if (hit) {
       this._lastTouchEndMs = Date.now()
       this.experience.trigger('planeClick', [hit.navItem.href])
-      SoundEngine.getInstance()?.onCardClick(Math.PI / 2 - hit.mesh.rotation.y)
+      SoundEngine.getInstance()?.onCardClick(hit.mesh.position)
     }
   }
 

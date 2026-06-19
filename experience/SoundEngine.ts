@@ -24,6 +24,33 @@ function makeNoiseBuffer(ctx: AudioContext): AudioBuffer {
 // Am7 arpeggio — each card gets a note so hovering between them plays a chord
 const CARD_NOTES = [220, 261.63, 329.63, 392]
 
+type Vec3 = { x: number; y: number; z: number }
+
+// Set a 3D position on either a PannerNode or the AudioListener, supporting both
+// the modern AudioParam API and the deprecated setPosition() (older Safari).
+function setPos(target: any, x: number, y: number, z: number) {
+  if (target.positionX) {
+    target.positionX.value = x
+    target.positionY.value = y
+    target.positionZ.value = z
+  } else if (target.setPosition) {
+    target.setPosition(x, y, z)
+  }
+}
+
+function setOrient(
+  listener: any,
+  fx: number, fy: number, fz: number,
+  ux: number, uy: number, uz: number
+) {
+  if (listener.forwardX) {
+    listener.forwardX.value = fx; listener.forwardY.value = fy; listener.forwardZ.value = fz
+    listener.upX.value = ux; listener.upY.value = uy; listener.upZ.value = uz
+  } else if (listener.setOrientation) {
+    listener.setOrientation(fx, fy, fz, ux, uy, uz)
+  }
+}
+
 export default class SoundEngine {
   private static _inst: SoundEngine | null = null
 
@@ -47,7 +74,13 @@ export default class SoundEngine {
 
   private _hoverOsc: OscillatorNode | null = null
   private _hoverEnv: GainNode | null = null
-  private _hoverPan: StereoPannerNode | null = null
+  private _hoverPan: PannerNode | null = null
+
+  private _noiseBuf: AudioBuffer | null = null
+
+  // Representative world position of the card sitting at spiral centre/front —
+  // used to spatialise the riffle ticks and swipe whoosh.
+  private static FRONT: Vec3 = { x: 2, y: -0.6, z: 0 }
 
   private _muted = true
   private _entryPlayed = false
@@ -240,18 +273,53 @@ export default class SoundEngine {
     this._scrollFilter.frequency.linearRampToValueAtTime(220 + abs * 70, t + 0.08)
   }
 
-  // Called by Raycaster when hover changes; ha = card's horizontal angle in radians
-  onHoverChange(cardIndex: number | null, ha: number | null) {
+  // ── Spatial mechanism ───────────────────────────────────
+  // Update the Web Audio listener to match the Three.js camera each frame, so
+  // sounds positioned at card world-coordinates pan + attenuate realistically.
+  setListenerFromCamera(cam: any) {
+    if (this.ctx.state !== 'running' || !cam?.matrixWorld) return
+    const e = cam.matrixWorld.elements
+    setPos(this.ctx.listener, e[12], e[13], e[14])
+    // Camera looks down its local -Z; columns of matrixWorld give world axes.
+    setOrient(this.ctx.listener, -e[8], -e[9], -e[10], e[4], e[5], e[6])
+  }
+
+  // An HRTF panner at a world position, pre-wired to the dry + reverb buses.
+  private _spatial(pos: Vec3): PannerNode {
+    const p = this.ctx.createPanner()
+    p.panningModel  = 'HRTF'
+    p.distanceModel = 'inverse'
+    p.refDistance   = 1.5
+    p.maxDistance   = 40
+    p.rolloffFactor = 0.5
+    setPos(p, pos.x, pos.y, pos.z)
+    p.connect(this._dry); p.connect(this._reverb)
+    return p
+  }
+
+  private _noise(): AudioBuffer {
+    if (!this._noiseBuf) {
+      const len = Math.floor(this.ctx.sampleRate * 0.4)
+      const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate)
+      const d = buf.getChannelData(0)
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1
+      this._noiseBuf = buf
+    }
+    return this._noiseBuf
+  }
+
+  // Called by Raycaster when hover changes; pos = card's world position
+  onHoverChange(cardIndex: number | null, pos: Vec3 | null) {
     this._killHover()
-    if (cardIndex === null || ha === null) return
+    if (cardIndex === null || !pos) return
     if (this.ctx.state !== 'running') return
 
     const ctx = this.ctx
     const freq = CARD_NOTES[((cardIndex % 4) + 4) % 4]
 
-    const osc  = ctx.createOscillator()
-    const env  = ctx.createGain()
-    const pan  = ctx.createStereoPanner()
+    const osc = ctx.createOscillator()
+    const env = ctx.createGain()
+    const pan = this._spatial(pos)
 
     osc.type = 'sine'
     osc.frequency.value = freq
@@ -259,10 +327,7 @@ export default class SoundEngine {
     env.gain.setValueAtTime(0, ctx.currentTime)
     env.gain.linearRampToValueAtTime(0.065, ctx.currentTime + 0.14)
 
-    pan.pan.value = Math.max(-0.85, Math.min(0.85, Math.cos(ha) * 0.75))
-
     osc.connect(env); env.connect(pan)
-    pan.connect(this._dry); pan.connect(this._reverb)
     osc.start()
 
     this._hoverOsc = osc; this._hoverEnv = env; this._hoverPan = pan
@@ -277,13 +342,13 @@ export default class SoundEngine {
     this._hoverOsc = null; this._hoverEnv = null; this._hoverPan = null
   }
 
-  // Called by Raycaster on card click
-  onCardClick(ha: number) {
+  // Called by Raycaster on card click; pos = card's world position
+  onCardClick(pos: Vec3) {
     if (this.ctx.state !== 'running') return
     const ctx = this.ctx; const t = ctx.currentTime
     const osc = ctx.createOscillator()
     const env = ctx.createGain()
-    const pan = ctx.createStereoPanner()
+    const pan = this._spatial(pos)
 
     osc.type = 'sine'
     osc.frequency.setValueAtTime(240, t)
@@ -292,11 +357,62 @@ export default class SoundEngine {
     env.gain.setValueAtTime(0.24, t)
     env.gain.exponentialRampToValueAtTime(0.001, t + 0.48)
 
-    pan.pan.value = Math.max(-0.85, Math.min(0.85, Math.cos(ha) * 0.55))
-
     osc.connect(env); env.connect(pan)
-    pan.connect(this._dry); pan.connect(this._reverb)
     osc.start(t); osc.stop(t + 0.55)
+    setTimeout(() => { try { pan.disconnect() } catch {} }, 700)
+  }
+
+  // Soft tick as a card crosses centre — fired rapidly during a fast flick to
+  // produce a "riffling cards" sound. (Called by Controls.)
+  onCardTick(intensity: number) {
+    if (this.ctx.state !== 'running') return
+    const ctx = this.ctx; const t = ctx.currentTime
+    const src = ctx.createBufferSource()
+    src.buffer = this._noise()
+    const bp = ctx.createBiquadFilter()
+    bp.type = 'bandpass'
+    bp.frequency.value = 1800 + Math.random() * 700
+    bp.Q.value = 0.9
+    const env = ctx.createGain()
+    const vol = 0.045 + intensity * 0.07
+    env.gain.setValueAtTime(0, t)
+    env.gain.linearRampToValueAtTime(vol, t + 0.004)
+    env.gain.exponentialRampToValueAtTime(0.0005, t + 0.05)
+    const pan = this._spatial(SoundEngine.FRONT)
+    src.connect(bp); bp.connect(env); env.connect(pan)
+    src.start(t); src.stop(t + 0.07)
+    setTimeout(() => { try { pan.disconnect() } catch {} }, 130)
+  }
+
+  // Card-flip whoosh on swipe; dir = +1 (down) / -1 (up). (Called by Controls.)
+  onSwipeWhoosh(intensity: number, dir: number) {
+    if (this.ctx.state !== 'running') return
+    const ctx = this.ctx; const t = ctx.currentTime
+    const dur = 0.32
+    const src = ctx.createBufferSource()
+    src.buffer = this._noise()
+    src.loop = true
+    const bp = ctx.createBiquadFilter()
+    bp.type = 'bandpass'
+    bp.Q.value = 0.8
+    // sweep direction follows the swipe
+    const f0 = dir >= 0 ? 520 : 1400
+    const f1 = dir >= 0 ? 1500 : 460
+    bp.frequency.setValueAtTime(f0, t)
+    bp.frequency.exponentialRampToValueAtTime(f1, t + dur)
+    const env = ctx.createGain()
+    const vol = 0.08 + intensity * 0.16
+    env.gain.setValueAtTime(0, t)
+    env.gain.linearRampToValueAtTime(vol, t + 0.05)
+    env.gain.exponentialRampToValueAtTime(0.0005, t + dur)
+    const pan = this._spatial({
+      x: SoundEngine.FRONT.x,
+      y: SoundEngine.FRONT.y + dir * 0.6,
+      z: SoundEngine.FRONT.z
+    })
+    src.connect(bp); bp.connect(env); env.connect(pan)
+    src.start(t); src.stop(t + dur + 0.05)
+    setTimeout(() => { try { pan.disconnect() } catch {} }, (dur + 0.25) * 1000)
   }
 
   // Called by Menu.vue

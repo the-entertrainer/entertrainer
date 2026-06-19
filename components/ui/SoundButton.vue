@@ -1,14 +1,24 @@
 <script setup lang="ts">
 import SoundEngine from '~/experience/SoundEngine'
 
+const STORAGE_KEY = 'et-muted'
 const muted = ref(true)
 
+onMounted(() => {
+  // Restore the user's last preference (default muted — autoplay-safe).
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored !== null) muted.value = stored === '1'
+  } catch {}
+})
+
 function toggle() {
-  const engine = SoundEngine.getInstance()
-  if (!engine) return
+  // Ensure an engine exists; init is idempotent and safe inside this gesture.
+  const engine = SoundEngine.getInstance() ?? SoundEngine.init()
   const next = !muted.value
   muted.value = next
   engine.setMuted(next)
+  try { localStorage.setItem(STORAGE_KEY, next ? '1' : '0') } catch {}
 }
 </script>
 

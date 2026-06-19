@@ -29,14 +29,10 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Could not read request body.' })
     }
 
-    const to       = String(body?.to   ?? '').trim()
     const mailBody = String(body?.body ?? '').trim()
 
-    if (!to || !mailBody) {
-      throw createError({ statusCode: 400, message: 'Recipient and email body are required.' })
-    }
-    if (!to.includes('@')) {
-      throw createError({ statusCode: 400, message: 'Please enter a valid email address.' })
+    if (!mailBody) {
+      throw createError({ statusCode: 400, message: 'Email body is required.' })
     }
 
     const apiKey = process.env.GROQ_API_KEY
@@ -63,8 +59,9 @@ export default defineEventHandler(async (event) => {
                 '- "sarcasm" (integer 0–100)\n' +
                 '- "offensiveness" (integer 0–100)\n' +
                 '- "rageTaunt" (one punchy, funny, sympathetic sentence — never judgmental)\n' +
-                '- "imaginaryReply" (2–4 sentences — a fictional reply from the recipient that is absurd, ' +
-                'deflating, or weirdly polite in a way that gives the sender total cathartic satisfaction)\n' +
+                '- "rageVerdict" (1–2 sentences — a poetic, dramatic expert critique of this email as a piece of fury writing. ' +
+                'Speak like a sharp literary critic of anger: evocative, vivid, never generic. ' +
+                'e.g. "This email radiates enough heat to melt the polar caps and the HR department simultaneously.")\n' +
                 'Return only valid JSON.'
             },
             {
@@ -105,12 +102,12 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 422, message: 'AI response was not valid JSON. Try again.' })
     }
 
-    const { aggressiveness, sarcasm, offensiveness, rageTaunt, imaginaryReply } = parsed
+    const { aggressiveness, sarcasm, offensiveness, rageTaunt, rageVerdict } = parsed
     if (
       typeof aggressiveness !== 'number' ||
       typeof sarcasm        !== 'number' ||
       typeof offensiveness  !== 'number' ||
-      !rageTaunt || !imaginaryReply
+      !rageTaunt || !rageVerdict
     ) {
       throw createError({ statusCode: 422, message: 'Unexpected AI response shape. Try again.' })
     }
@@ -120,7 +117,7 @@ export default defineEventHandler(async (event) => {
       sarcasm:        Math.min(100, Math.max(0, Math.round(sarcasm))),
       offensiveness:  Math.min(100, Math.max(0, Math.round(offensiveness))),
       rageTaunt:      String(rageTaunt),
-      imaginaryReply: String(imaginaryReply)
+      rageVerdict:    String(rageVerdict)
     }
   } catch (err: any) {
     if (err?.statusCode) throw err

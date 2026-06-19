@@ -158,7 +158,7 @@ function reset() {
 
 // ── Share ──────────────────────────────────────────────────────────────────
 async function shareResult() {
-  const text = `I just scored ${fmt(rageScore.value)} on the Rage Complexity Index — ${rageLevel.value}.\nMy manager won't be seeing this one. 🔥 entertrainer.com/tools/rage-mail`
+  const text = `I scored ${fmt(rageScore.value)} on the Rage Complexity Index — ${rageLevel.value}. Think you can beat me? entertrainer.com/tools/rage-mail`
   if (navigator.share) {
     try { await navigator.share({ title: 'Rage Mail', text }) } catch {}
     return

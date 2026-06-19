@@ -3,10 +3,25 @@ import { animate, inView, stagger } from 'motion'
 
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 
-const pageRef = ref<HTMLElement | null>(null)
+useHead({
+  link: [
+    {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap'
+    }
+  ]
+})
+
+const pageRef      = ref<HTMLElement | null>(null)
+const verseRootRef = ref<HTMLElement | null>(null)
+const scrollCueRef = ref<HTMLElement | null>(null)
+const lineRefs     = ref<(HTMLElement | null)[]>([null, null, null, null])
 const cleanups: Array<() => void> = []
 
-// ── Text-splitting helpers ──────────────────────────────────────────────
+const EXPO:   [number, number, number, number] = [0.22, 1, 0.36, 1]
+const SPRING: [number, number, number, number] = [0.16, 1, 0.3, 1]
+
+// ── Text helpers ───────────────────────────────────────────────────────
 function splitChars(el: HTMLElement) {
   const chars: HTMLElement[] = []
   el.innerHTML = [...(el.textContent ?? '')].map((ch, i) =>
@@ -24,30 +39,174 @@ function splitWords(el: HTMLElement) {
   return words
 }
 
-// ── Fire once on viewport entry ─────────────────────────────────────────
+// ── Scroll-once helper for content sections ────────────────────────────
 function once(target: Element, cb: () => void, margin = '0px 0px -80px 0px') {
   let stop: () => void
   stop = inView(target, () => { cb(); stop() }, { margin, amount: 0 } as any)
   cleanups.push(stop)
 }
-
 function onceEach(selector: string, cb: (el: HTMLElement) => void, margin = '0px 0px -80px 0px') {
-  pageRef.value!.querySelectorAll<HTMLElement>(selector)
-    .forEach(el => once(el, () => cb(el), margin))
+  pageRef.value!.querySelectorAll<HTMLElement>(selector).forEach(el => once(el, () => cb(el), margin))
 }
 
-// ── Easing curves ───────────────────────────────────────────────────────
-const EXPO: [number, number, number, number]   = [0.22, 1, 0.36, 1]
-const SPRING: [number, number, number, number] = [0.16, 1, 0.3, 1]
+// ══════════════════════════════════════════════════════════════════════
+// VERSE LINE ANIMATIONS — one unique reveal per line, tied to meaning
+// ══════════════════════════════════════════════════════════════════════
+function revealLine(idx: number) {
+  const el = lineRefs.value[idx]
+  if (!el) return
+  el.style.opacity = '1' // unhide parent before animating children
+
+  if (idx === 0) {
+    // ── असतो मा सद्गमय  (Unreal → Real) ─────────────────────────────
+    // The text swims in a deep blur — formless, uncertain, unreal.
+    // Slowly, it sharpens into absolute clarity: truth resolving from fog.
+    const hindi = el.querySelector<HTMLElement>('.vhindi')
+    const eng   = el.querySelector<HTMLElement>('.veng')
+    if (hindi) animate(hindi,
+      { opacity: [0, 1], filter: ['blur(28px)', 'blur(0px)'] },
+      { duration: 2.0, ease: SPRING }
+    )
+    if (eng) animate(eng,
+      { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0px)'] },
+      { duration: 0.9, delay: 1.6, ease: EXPO }
+    )
+    // Scroll cue appears after line settles
+    const cue = scrollCueRef.value
+    if (cue) animate(cue,
+      { opacity: [0, 1] },
+      { duration: 0.8, delay: 2.4, ease: EXPO }
+    )
+  }
+
+  else if (idx === 1) {
+    // ── तमसो मा ज्योतिर्गमय  (Darkness → Light) ──────────────────────
+    // Each character ignites from left to right — a lamp being lit,
+    // blazing bright for a moment, then settling into steady light.
+    // The stage itself brightens as the verse fills with meaning.
+    const hindi = el.querySelector<HTMLElement>('.vhindi')
+    const eng   = el.querySelector<HTMLElement>('.veng')
+    const cue   = scrollCueRef.value
+
+    // Scroll cue fades before new line
+    if (cue) animate(cue, { opacity: 0 }, { duration: 0.3, ease: EXPO })
+
+    if (hindi) {
+      const chars = splitChars(hindi)
+      animate(chars,
+        { opacity: [0, 1], filter: ['brightness(6)', 'brightness(1)'] },
+        { duration: 0.8, delay: stagger(0.055), ease: EXPO }
+      )
+    }
+    // Background brightens — a room being filled with light
+    verseRootRef.value?.classList.add('verse-lit')
+    if (eng) animate(eng,
+      { opacity: [0, 1] },
+      { duration: 0.8, delay: 1.0, ease: EXPO }
+    )
+  }
+
+  else if (idx === 2) {
+    // ── मृत्योर्माऽमृतं गमय  (Death → Immortality) ────────────────────
+    // Characters scatter to chaos — dissolution, death, falling apart.
+    // Then, pulled by an invisible force, they spring back to their place.
+    // Order restored from entropy. Immortality is pattern that persists.
+    const hindi = el.querySelector<HTMLElement>('.vhindi')
+    const eng   = el.querySelector<HTMLElement>('.veng')
+    if (hindi) {
+      const chars  = splitChars(hindi)
+      const spread = Math.min(window.innerWidth * 0.42, 280)
+
+      // Scatter — death
+      chars.forEach(c => {
+        c.style.transform = `translate(${(Math.random() - 0.5) * spread * 2}px, ${(Math.random() - 0.5) * spread}px)`
+        c.style.opacity = '0'
+      })
+
+      // Materialise at chaotic positions (scattered, ghostly)
+      animate(chars,
+        { opacity: [0, 0.55] },
+        { duration: 0.55, delay: stagger(0.03), ease: EXPO }
+      )
+
+      // Reform — immortality springs back with precision
+      const t = setTimeout(() => {
+        chars.forEach((c, i) => {
+          animate(c,
+            { transform: 'translate(0px, 0px)', opacity: 1 },
+            { duration: 1.15, delay: i * 0.022, ease: SPRING }
+          )
+        })
+        if (eng) animate(eng,
+          { opacity: [0, 1] },
+          { duration: 0.9, delay: 0.6, ease: EXPO }
+        )
+      }, 700)
+      cleanups.push(() => clearTimeout(t))
+    }
+  }
+
+  else if (idx === 3) {
+    // ── ॐ शान्तिः शान्तिः शान्तिः  (Peace) ───────────────────────────
+    // The three lines that came before — striving, reaching, becoming —
+    // they dim. Their purpose is complete.
+    // OM appears oversized and slowly contracts to its rightful place.
+    // PEACE unfolds three times, each breath slower than the last.
+    // No movement. Just light. Just silence.
+    lineRefs.value.slice(0, 3).forEach((prev, i) => {
+      if (prev) animate(prev,
+        { opacity: 0.14 },
+        { duration: 2.2, delay: i * 0.1, ease: EXPO }
+      )
+    })
+
+    const om     = el.querySelector<HTMLElement>('.om-glyph')
+    const shanti = el.querySelector<HTMLElement>('.shanti-text')
+    const eng    = el.querySelector<HTMLElement>('.veng')
+
+    if (om) animate(om,
+      { opacity: [0, 1], transform: ['scale(1.6)', 'scale(1)'] },
+      { duration: 3.2, ease: [0.16, 1, 0.3, 1] }
+    )
+    if (shanti) animate(shanti,
+      { opacity: [0, 1] },
+      { duration: 4.5, delay: 0.9, ease: [0.16, 1, 0.3, 1] }
+    )
+    if (eng) animate(eng,
+      { opacity: [0, 1] },
+      { duration: 2.0, delay: 3.2, ease: EXPO }
+    )
+  }
+}
+
+// ── Scroll listener — triggers lines 1-3 ──────────────────────────────
+let lastRevealedLine = -1
+
+function onScroll() {
+  const root = verseRootRef.value
+  if (!root) return
+  const scrolled = Math.max(0, -root.getBoundingClientRect().top)
+  const vh = window.innerHeight
+  if (scrolled >= vh * 1 && lastRevealedLine < 1) { revealLine(1); lastRevealedLine = 1 }
+  if (scrolled >= vh * 2 && lastRevealedLine < 2) { revealLine(2); lastRevealedLine = 2 }
+  if (scrolled >= vh * 3 && lastRevealedLine < 3) { revealLine(3); lastRevealedLine = 3 }
+}
 
 onMounted(() => {
-  const page = pageRef.value!
+  // Line 0 fires on load
+  const t0 = setTimeout(() => { revealLine(0); lastRevealedLine = 0 }, 500)
+  cleanups.push(() => clearTimeout(t0))
 
-  // ── Split key headline elements ─────────────────────────────────────
-  const pqEl = page.querySelector<HTMLElement>('.prayer-quote')
-  const ptEl = page.querySelector<HTMLElement>('.prayer-trans')
-  const clEl = page.querySelector<HTMLElement>('.closing-line')
+  window.addEventListener('scroll', onScroll, { passive: true })
+  cleanups.push(() => window.removeEventListener('scroll', onScroll))
 
+  // ── Content section animations ───────────────────────────────────────
+  const page = pageRef.value
+  if (!page) return
+
+  const pqEl       = page.querySelector<HTMLElement>('.prayer-quote')
+  const ptEl       = page.querySelector<HTMLElement>('.prayer-trans')
+  const clEl       = page.querySelector<HTMLElement>('.closing-line')
   const pqChars    = pqEl ? splitChars(pqEl) : []
   const ptWords    = ptEl ? splitWords(ptEl)  : []
   const clWords    = clEl ? splitWords(clEl)  : []
@@ -55,35 +214,29 @@ onMounted(() => {
   const momOpenEl  = page.querySelector<HTMLElement>('.mom-open')
   const momBodyEls = [...page.querySelectorAll<HTMLElement>('.mom-line:not(.mom-open)')]
 
-  // ── HERO: entire cascade fires as hero enters viewport ──────────────
   const heroEl = page.querySelector<HTMLElement>('.hero-section')
   if (heroEl) {
     once(heroEl, () => {
-      // 1. Prayer quote — char by char with lateral skew
       if (pqChars.length)
         animate(pqChars,
           { opacity: [0, 1], transform: ['translateY(0.9em) skewX(-14deg)', 'translateY(0em) skewX(0deg)'] },
           { duration: 0.5, delay: stagger(0.028, { start: 0.1 }), ease: EXPO }
         )
-      // 2. Prayer translation — word cascade
       if (ptWords.length)
         animate(ptWords,
           { opacity: [0, 1], transform: ['translateY(18px)', 'translateY(0px)'] },
           { duration: 0.6, delay: stagger(0.07, { start: 0.55 }), ease: EXPO }
         )
-      // 3. Prayer context lines
       if (pcEls.length)
         animate(pcEls,
           { opacity: [0, 1], transform: ['translateY(14px)', 'translateY(0px)'] },
           { duration: 0.55, delay: stagger(0.14, { start: 0.9 }), ease: EXPO }
         )
-      // 4. Mom opening — large bold rise
       if (momOpenEl)
         animate(momOpenEl,
           { opacity: [0, 1], transform: ['translateY(32px)', 'translateY(0px)'] },
           { duration: 0.85, delay: 1.25, ease: SPRING }
         )
-      // 5. Mom body paragraphs
       if (momBodyEls.length)
         animate(momBodyEls,
           { opacity: [0, 1], transform: ['translateY(22px)', 'translateY(0px)'] },
@@ -92,17 +245,12 @@ onMounted(() => {
     }, '0px')
   }
 
-  // ── Portrait — curtain clip-path reveal ─────────────────────────────
   const portraitEl = page.querySelector<HTMLElement>('.portrait-wrap')
   if (portraitEl)
     once(portraitEl, () => {
-      animate(portraitEl,
-        { clipPath: ['inset(100% 0 0 0)', 'inset(0% 0 0 0)'] },
-        { duration: 1.1, ease: SPRING }
-      )
+      animate(portraitEl, { clipPath: ['inset(100% 0 0 0)', 'inset(0% 0 0 0)'] }, { duration: 1.1, ease: SPRING })
     }, '0px 0px -100px 0px')
 
-  // ── Portrait identity ────────────────────────────────────────────────
   const identityEl = page.querySelector<HTMLElement>('.portrait-identity')
   if (identityEl)
     once(identityEl, () => {
@@ -112,7 +260,6 @@ onMounted(() => {
       )
     }, '0px 0px -40px 0px')
 
-  // ── Section labels ───────────────────────────────────────────────────
   onceEach('.section-label', el => {
     animate(el,
       { opacity: [0, 1], transform: ['translateY(10px)', 'translateY(0px)'] },
@@ -120,7 +267,6 @@ onMounted(() => {
     )
   }, '0px 0px -60px 0px')
 
-  // ── Section body paragraphs (stagger per section) ───────────────────
   page.querySelectorAll<HTMLElement>('.section-body').forEach(body => {
     const paras = [...body.querySelectorAll<HTMLElement>('p')]
     if (paras.length)
@@ -132,7 +278,6 @@ onMounted(() => {
       }, '0px 0px -60px 0px')
   })
 
-  // ── Closing line — word-by-word with skew (most dramatic) ───────────
   if (clEl && clWords.length)
     once(clEl, () => {
       animate(clWords,
@@ -141,7 +286,6 @@ onMounted(() => {
       )
     }, '0px 0px -40px 0px')
 
-  // ── Timeline — slide from left ────────────────────────────────────────
   const timelineEl = page.querySelector<HTMLElement>('.timeline')
   if (timelineEl) {
     const items = [...timelineEl.querySelectorAll<HTMLElement>('.timeline-item')]
@@ -153,7 +297,6 @@ onMounted(() => {
     }, '0px 0px -60px 0px')
   }
 
-  // ── Contact links ────────────────────────────────────────────────────
   onceEach('.contact-link', el => {
     animate(el,
       { opacity: [0, 1], transform: ['translateY(18px)', 'translateY(0px)'] },
@@ -169,11 +312,48 @@ onUnmounted(() => {
 </script>
 
 <template>
+
+  <!-- ═══ VERSE INTRO ════════════════════════════════════════════════════ -->
+  <div class="verse-root" ref="verseRootRef">
+    <div class="verse-stage">
+
+      <!-- Line 0: असतो मा सद्गमय — Unreal → Real -->
+      <div class="verse-line" style="opacity:0" :ref="el => (lineRefs[0] = el as HTMLElement)">
+        <p class="vhindi">असतो मा सद्गमय</p>
+        <p class="veng">(Lead me from the unreal to the Real)</p>
+      </div>
+
+      <!-- Line 1: तमसो मा ज्योतिर्गमय — Darkness → Light -->
+      <div class="verse-line" style="opacity:0" :ref="el => (lineRefs[1] = el as HTMLElement)">
+        <p class="vhindi">तमसो मा ज्योतिर्गमय</p>
+        <p class="veng">(Lead me from darkness to Light)</p>
+      </div>
+
+      <!-- Line 2: मृत्योर्माऽमृतं गमय — Death → Immortality -->
+      <div class="verse-line" style="opacity:0" :ref="el => (lineRefs[2] = el as HTMLElement)">
+        <p class="vhindi">मृत्योर्माऽमृतं गमय</p>
+        <p class="veng">(Lead me from death to Immortality)</p>
+      </div>
+
+      <!-- Line 3: ॐ शान्तिः शान्तिः शान्तिः — Peace -->
+      <div class="verse-line" style="opacity:0" :ref="el => (lineRefs[3] = el as HTMLElement)">
+        <p class="vhindi">
+          <span class="om-glyph">ॐ</span><span class="shanti-text"> शान्तिः शान्तिः शान्तिः</span>
+        </p>
+        <p class="veng">(Om. Peace. Peace. Peace.)</p>
+      </div>
+
+      <!-- Scroll hint — appears after line 0 settles -->
+      <p class="scroll-cue" ref="scrollCueRef" style="opacity:0">scroll ↓</p>
+
+    </div>
+  </div>
+
+  <!-- ═══ ABOUT CONTENT ══════════════════════════════════════════════════ -->
   <div ref="pageRef" class="about-page">
 
     <!-- HERO -->
     <section class="hero-section">
-
       <div class="hero-prayer">
         <p class="prayer-quote">"Asatoma Sadgamaya."</p>
         <p class="prayer-trans">Lead me from ignorance to light.</p>
@@ -196,7 +376,6 @@ onUnmounted(() => {
         <span class="identity-sep">·</span>
         <span class="identity-cred">CIDS Certified Instructional Designer</span>
       </div>
-
     </section>
 
     <!-- ORIGIN -->
@@ -265,12 +444,7 @@ onUnmounted(() => {
       <p class="section-label">Say hello.</p>
       <div class="contact-links">
         <a href="mailto:iamnaveenjose@outlook.com" class="contact-link">iamnaveenjose@outlook.com</a>
-        <a
-          href="https://linkedin.com/in/entertrainer"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="contact-link"
-        >linkedin.com/in/entertrainer</a>
+        <a href="https://linkedin.com/in/entertrainer" target="_blank" rel="noopener noreferrer" class="contact-link">linkedin.com/in/entertrainer</a>
       </div>
     </section>
 
@@ -278,6 +452,105 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* ══════════════════════════════════════════════════════════════════════
+   VERSE INTRO
+══════════════════════════════════════════════════════════════════════ */
+.verse-root {
+  height: 500vh;
+  background: var(--color-bg);
+}
+
+.verse-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40rem;
+  padding: 60rem 40rem;
+  background: var(--color-bg);
+  overflow: hidden;
+  transition: background 3s ease;
+}
+
+/* Subtle brightening when "Light" line appears */
+[data-theme="dark"] .verse-stage.verse-lit {
+  background: #111110;
+}
+[data-theme="light"] .verse-stage.verse-lit {
+  background: #f8f5ef;
+}
+
+.verse-line {
+  text-align: center;
+  will-change: opacity;
+}
+
+.vhindi {
+  font-family: 'Noto Sans Devanagari', 'Mangal', 'Aparajita', sans-serif;
+  font-size: clamp(28rem, 3.8vw, 52rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+  color: var(--color-text);
+  margin-bottom: 10rem;
+}
+
+.veng {
+  font-size: clamp(12rem, 1.3vw, 15rem);
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  color: var(--color-text);
+  opacity: 0.38;
+}
+
+/* OM glyph — appears larger, settles to normal */
+.om-glyph {
+  display: inline-block;
+  font-size: 1.35em;
+  will-change: transform, opacity;
+}
+
+.shanti-text {
+  will-change: opacity;
+}
+
+/* Split char/word spans */
+:deep(.sc),
+:deep(.sw) {
+  display: inline-block;
+  will-change: opacity, transform, filter;
+}
+
+/* Scroll hint */
+.scroll-cue {
+  position: absolute;
+  bottom: 40rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  opacity: 0;
+  animation: cue-bob 2.4s ease-in-out infinite;
+  animation-play-state: paused;
+}
+/* Only animate when visible */
+.scroll-cue[style*="opacity: 1"] { animation-play-state: running; }
+
+@keyframes cue-bob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(6px); }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ABOUT PAGE CONTENT
+══════════════════════════════════════════════════════════════════════ */
 .about-page {
   min-height: 100dvh;
   background: var(--color-bg);
@@ -287,20 +560,10 @@ onUnmounted(() => {
   max-width: 800rem;
 }
 
-/* ── Split char / word spans ─────────────────────────────────────────── */
-:deep(.sc),
-:deep(.sw) {
-  display: inline-block;
-}
-
 /* ── Hero ── */
-.hero-section {
-  margin-bottom: 100rem;
-}
+.hero-section { margin-bottom: 100rem; }
 
-.hero-prayer {
-  margin-bottom: 80rem;
-}
+.hero-prayer { margin-bottom: 80rem; }
 
 .prayer-quote {
   font-size: clamp(44rem, 6vw, 80rem);
@@ -319,9 +582,7 @@ onUnmounted(() => {
   opacity: 0.4;
 }
 
-.prayer-pause {
-  height: 44rem;
-}
+.prayer-pause { height: 44rem; }
 
 .prayer-context {
   font-size: clamp(15rem, 1.6vw, 17rem);
@@ -352,9 +613,7 @@ onUnmounted(() => {
   opacity: 0.7;
 }
 
-.mom-line.mom-open {
-  opacity: 1;
-}
+.mom-line.mom-open { opacity: 1; }
 
 /* Portrait */
 .portrait-wrap {
@@ -387,10 +646,7 @@ onUnmounted(() => {
   letter-spacing: -0.02em;
 }
 
-.identity-sep {
-  opacity: 0.25;
-  font-size: 13rem;
-}
+.identity-sep { opacity: 0.25; font-size: 13rem; }
 
 .identity-cred {
   font-size: 13rem;
@@ -435,7 +691,6 @@ onUnmounted(() => {
   color: var(--color-text);
 }
 
-/* Closing line */
 .closing-line {
   margin-top: 52rem;
   font-size: clamp(28rem, 4vw, 48rem);
@@ -446,10 +701,7 @@ onUnmounted(() => {
 }
 
 /* ── Timeline ── */
-.timeline {
-  display: flex;
-  flex-direction: column;
-}
+.timeline { display: flex; flex-direction: column; }
 
 .timeline-item {
   display: grid;
@@ -459,9 +711,7 @@ onUnmounted(() => {
   border-bottom: 1px solid var(--color-divider);
 }
 
-.timeline-item:last-child {
-  border-bottom: none;
-}
+.timeline-item:last-child { border-bottom: none; }
 
 .t-period {
   font-size: 11rem;
@@ -472,11 +722,7 @@ onUnmounted(() => {
   line-height: 1.4;
 }
 
-.t-content {
-  display: flex;
-  flex-direction: column;
-  gap: 4rem;
-}
+.t-content { display: flex; flex-direction: column; gap: 4rem; }
 
 .t-content strong {
   font-size: 16rem;
@@ -484,24 +730,12 @@ onUnmounted(() => {
   letter-spacing: -0.02em;
 }
 
-.t-company {
-  font-size: 13rem;
-  opacity: 0.35;
-}
+.t-company { font-size: 13rem; opacity: 0.35; }
 
-.t-context {
-  font-size: 13rem;
-  font-style: italic;
-  opacity: 0.5;
-  margin-top: 2rem;
-}
+.t-context { font-size: 13rem; font-style: italic; opacity: 0.5; margin-top: 2rem; }
 
 /* ── Contact ── */
-.contact-links {
-  display: flex;
-  flex-direction: column;
-  gap: 14rem;
-}
+.contact-links { display: flex; flex-direction: column; gap: 14rem; }
 
 .contact-link {
   font-size: clamp(18rem, 2.2vw, 26rem);
@@ -513,32 +747,15 @@ onUnmounted(() => {
   transition: opacity 0.2s ease;
 }
 
-.contact-link:hover {
-  opacity: 1;
-}
+.contact-link:hover { opacity: 1; }
 
 /* ── Mobile ── */
 @media (max-width: 640px) {
-  .about-page {
-    max-width: 100%;
-  }
-
-  .hero-prayer {
-    margin-bottom: 56rem;
-  }
-
-  .hero-mom {
-    margin-bottom: 52rem;
-  }
-
-  .portrait-wrap {
-    max-width: 100%;
-    border-radius: 12rem;
-  }
-
-  .timeline-item {
-    grid-template-columns: 1fr;
-    gap: 4rem 0;
-  }
+  .about-page { max-width: 100%; }
+  .verse-stage { gap: 28rem; padding: 48rem 24rem; }
+  .hero-prayer { margin-bottom: 56rem; }
+  .hero-mom { margin-bottom: 52rem; }
+  .portrait-wrap { max-width: 100%; border-radius: 12rem; }
+  .timeline-item { grid-template-columns: 1fr; gap: 4rem 0; }
 }
 </style>

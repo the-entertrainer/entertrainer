@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { animate, inView, stagger } from 'motion'
+import gsap from 'gsap'
 
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 
@@ -18,168 +19,197 @@ const scrollCueRef = ref<HTMLElement | null>(null)
 const lineRefs     = ref<(HTMLElement | null)[]>([null, null, null, null])
 const cleanups: Array<() => void> = []
 
-const EXPO:   [number, number, number, number] = [0.22, 1, 0.36, 1]
-const SPRING: [number, number, number, number] = [0.16, 1, 0.3, 1]
+const EXPO:   [number, number, number, number] = [0.16, 1, 0.3, 1]
+const SPRING: [number, number, number, number] = [0.34, 1.2, 0.4, 1]
 
-// ── Text helpers ───────────────────────────────────────────────────────
-function splitChars(el: HTMLElement) {
-  const chars: HTMLElement[] = []
-  el.innerHTML = [...(el.textContent ?? '')].map((ch, i) =>
-    ch === ' ' ? ' ' : `<span class="sc" style="--ci:${i}">${ch}</span>`
-  ).join('')
-  el.querySelectorAll<HTMLElement>('.sc').forEach(s => chars.push(s))
-  return chars
+// ── Word masking ───────────────────────────────────────────────────────
+// CRITICAL: Devanagari is a complex script — its vowel signs (मात्रा) and
+// conjuncts (e.g. द्ग, ्य) are shaped together by the text engine. Splitting it
+// per code-point into inline-block spans shatters that shaping (the old bug).
+// So we only ever split on WORD boundaries, which keeps every grapheme cluster
+// intact inside its span. The splitter also preserves inline children such as
+// <span class="hl"> so accent highlights survive the rewrite.
+function maskWords(el: HTMLElement): HTMLElement[] {
+  const fills: HTMLElement[] = []
+  const frag  = document.createDocumentFragment()
+
+  const wrap = (html: string, extraClass = '') => {
+    const mask = document.createElement('span')
+    mask.className = 'wmask'
+    const fill = document.createElement('span')
+    fill.className = ('wfill ' + extraClass).trim()
+    fill.innerHTML = html
+    mask.appendChild(fill)
+    frag.appendChild(mask)
+    fills.push(fill)
+  }
+
+  el.childNodes.forEach((node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      ;(node.textContent ?? '').split(/(\s+)/).forEach((part) => {
+        if (part === '') return
+        if (part.trim() === '') frag.appendChild(document.createTextNode(part))
+        else wrap(part)
+      })
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const en = node as HTMLElement
+      wrap(en.innerHTML, en.className) // e.g. keep the .hl class on the fill
+    }
+  })
+
+  el.innerHTML = ''
+  el.appendChild(frag)
+  // Pre-hide so there is never a flash before the reveal fires.
+  fills.forEach((f) => {
+    f.style.opacity = '0'
+    f.style.transform = 'translateY(130%)'
+  })
+  return fills
 }
 
-function splitWords(el: HTMLElement) {
-  const words: HTMLElement[] = []
-  el.innerHTML = (el.textContent ?? '').split(' ').filter(Boolean)
-    .map((w, i) => `<span class="sw" style="--wi:${i}">${w}</span>`).join(' ')
-  el.querySelectorAll<HTMLElement>('.sw').forEach(s => words.push(s))
-  return words
+// Words rise out of their mask, de-blurring as they settle. The signature
+// modern reveal used across the whole page.
+function rise(
+  fills: HTMLElement[],
+  { d = 0.85, st = 0.05, start = 0, ease = EXPO, blur = true } = {}
+) {
+  if (!fills.length) return
+  animate(
+    fills,
+    {
+      y: ['130%', '0%'],
+      opacity: [0, 1],
+      ...(blur ? { filter: ['blur(7px)', 'blur(0px)'] } : {})
+    },
+    { duration: d, delay: stagger(st, { start }), ease }
+  )
+}
+
+// Whole-block reveal — used for long body copy where per-word would be noisy.
+// Preserves inline highlight spans.
+function blockRise(el: HTMLElement, { d = 0.9, delay = 0, ease = EXPO } = {}) {
+  el.style.opacity = '0'
+  animate(
+    el,
+    { opacity: [0, 1], y: [26, 0], filter: ['blur(7px)', 'blur(0px)'] },
+    { duration: d, delay, ease }
+  )
+}
+
+// A luminous accent beam sweeping across a line — built on the fly, removed
+// after it passes. Used for the Light + Immortality transformations.
+function sweepBeam(host: HTMLElement, delay = 0.15) {
+  const beam = document.createElement('span')
+  beam.className = 'vbeam'
+  host.appendChild(beam)
+  animate(beam, { x: ['-120%', '380%'], opacity: [0, 1, 0] }, { duration: 1.25, delay, ease: EXPO })
+  const t = setTimeout(() => beam.remove(), 1800)
+  cleanups.push(() => { clearTimeout(t); beam.remove() })
 }
 
 // ── Scroll-once helper for content sections ────────────────────────────
 function once(target: Element, cb: () => void, margin = '0px 0px -80px 0px') {
   let stop: () => void
-  stop = inView(target, () => { cb(); stop() }, { margin, amount: 0 } as any)
+  stop = inView(target, () => { cb(); stop() }, { margin } as any)
   cleanups.push(stop)
 }
 function onceEach(selector: string, cb: (el: HTMLElement) => void, margin = '0px 0px -80px 0px') {
-  pageRef.value!.querySelectorAll<HTMLElement>(selector).forEach(el => once(el, () => cb(el), margin))
+  pageRef.value!.querySelectorAll<HTMLElement>(selector).forEach((el) => once(el, () => cb(el), margin))
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// VERSE LINE ANIMATIONS — one unique reveal per line, tied to meaning
+// VERSE LINE ANIMATIONS — one unique, meaning-tied reveal per line.
+// Modern, bold, minimal: mask-rise + light beams + a peace ripple. No
+// per-character flicker, no PowerPoint scatter.
 // ══════════════════════════════════════════════════════════════════════
 function revealLine(idx: number) {
   const el = lineRefs.value[idx]
   if (!el) return
   el.style.opacity = '1' // unhide parent before animating children
 
+  const hindi = el.querySelector<HTMLElement>('.vhindi')
+  const eng   = el.querySelector<HTMLElement>('.veng')
+  const cue   = scrollCueRef.value
+
   if (idx === 0) {
-    // ── असतो मा सद्गमय  (Unreal → Real) ─────────────────────────────
-    // The text swims in a deep blur — formless, uncertain, unreal.
-    // Slowly, it sharpens into absolute clarity: truth resolving from fog.
-    const hindi = el.querySelector<HTMLElement>('.vhindi')
-    const eng   = el.querySelector<HTMLElement>('.veng')
-    if (hindi) animate(hindi,
-      { opacity: [0, 1], filter: ['blur(28px)', 'blur(0px)'] },
-      { duration: 2.0, ease: SPRING }
-    )
-    if (eng) animate(eng,
-      { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0px)'] },
-      { duration: 0.9, delay: 1.6, ease: EXPO }
-    )
-    // Scroll cue appears after line settles
-    const cue = scrollCueRef.value
-    if (cue) animate(cue,
-      { opacity: [0, 1] },
-      { duration: 0.8, delay: 2.4, ease: EXPO }
-    )
+    // असतो मा सद्गमय (Unreal → Real)
+    // Formless words rise out of a deep blur and resolve into clarity:
+    // truth emerging from the unreal.
+    if (hindi) rise(maskWords(hindi), { d: 1.5, st: 0.16, ease: SPRING })
+    if (eng)   blockRise(eng, { d: 0.9, delay: 1.4 })
+    if (cue)   animate(cue, { opacity: [0, 1] }, { duration: 0.8, delay: 2.4, ease: EXPO })
   }
 
   else if (idx === 1) {
-    // ── तमसो मा ज्योतिर्गमय  (Darkness → Light) ──────────────────────
-    // Each character ignites from left to right — a lamp being lit,
-    // blazing bright for a moment, then settling into steady light.
-    // The stage itself brightens as the verse fills with meaning.
-    const hindi = el.querySelector<HTMLElement>('.vhindi')
-    const eng   = el.querySelector<HTMLElement>('.veng')
-    const cue   = scrollCueRef.value
-
-    // Scroll cue fades before new line
+    // तमसो मा ज्योतिर्गमय (Darkness → Light)
+    // Words emerge OUT of darkness — born dim, then lit — while a luminous
+    // accent beam sweeps the line and the whole stage brightens.
     if (cue) animate(cue, { opacity: 0 }, { duration: 0.3, ease: EXPO })
-
     if (hindi) {
-      const chars = splitChars(hindi)
-      animate(chars,
-        { opacity: [0, 1], filter: ['brightness(6)', 'brightness(1)'] },
-        { duration: 0.8, delay: stagger(0.055), ease: EXPO }
+      const fills = maskWords(hindi)
+      animate(
+        fills,
+        { y: ['130%', '0%'], opacity: [0, 1], filter: ['brightness(0.15)', 'brightness(1)'] },
+        { duration: 1.3, delay: stagger(0.13), ease: EXPO }
       )
+      sweepBeam(el, 0.45)
     }
-    // Background brightens — a room being filled with light
     verseRootRef.value?.classList.add('verse-lit')
-    if (eng) animate(eng,
-      { opacity: [0, 1] },
-      { duration: 0.8, delay: 1.0, ease: EXPO }
-    )
+    if (eng) blockRise(eng, { d: 0.9, delay: 1.1 })
   }
 
   else if (idx === 2) {
-    // ── मृत्योर्माऽमृतं गमय  (Death → Immortality) ────────────────────
-    // Characters scatter to chaos — dissolution, death, falling apart.
-    // Then, pulled by an invisible force, they spring back to their place.
-    // Order restored from entropy. Immortality is pattern that persists.
-    const hindi = el.querySelector<HTMLElement>('.vhindi')
-    const eng   = el.querySelector<HTMLElement>('.veng')
+    // मृत्योर्माऽमृतं गमय (Death → Immortality)
+    // The line is reborn: words rise and spring into being, larger-than-life,
+    // and an accent beam passes like a charge of life through them.
     if (hindi) {
-      const chars  = splitChars(hindi)
-      const spread = Math.min(window.innerWidth * 0.42, 280)
-
-      // Scatter — death
-      chars.forEach(c => {
-        c.style.transform = `translate(${(Math.random() - 0.5) * spread * 2}px, ${(Math.random() - 0.5) * spread}px)`
-        c.style.opacity = '0'
-      })
-
-      // Materialise at chaotic positions (scattered, ghostly)
-      animate(chars,
-        { opacity: [0, 0.55] },
-        { duration: 0.55, delay: stagger(0.03), ease: EXPO }
+      const fills = maskWords(hindi)
+      animate(
+        fills,
+        { y: ['140%', '0%'], opacity: [0, 1], scale: [0.86, 1] },
+        { duration: 1.4, delay: stagger(0.12), ease: SPRING }
       )
-
-      // Reform — immortality springs back with precision
-      const t = setTimeout(() => {
-        chars.forEach((c, i) => {
-          animate(c,
-            { transform: 'translate(0px, 0px)', opacity: 1 },
-            { duration: 1.15, delay: i * 0.022, ease: SPRING }
-          )
-        })
-        if (eng) animate(eng,
-          { opacity: [0, 1] },
-          { duration: 0.9, delay: 0.6, ease: EXPO }
-        )
-      }, 700)
-      cleanups.push(() => clearTimeout(t))
+      sweepBeam(el, 0.6)
     }
+    if (eng) blockRise(eng, { d: 0.9, delay: 1.1 })
   }
 
   else if (idx === 3) {
-    // ── ॐ शान्तिः शान्तिः शान्तिः  (Peace) ───────────────────────────
-    // The three lines that came before — striving, reaching, becoming —
-    // they dim. Their purpose is complete.
-    // OM appears oversized and slowly contracts to its rightful place.
-    // PEACE unfolds three times, each breath slower than the last.
-    // No movement. Just light. Just silence.
+    // ॐ शान्तिः शान्तिः शान्तिः (Peace)
+    // The striving lines settle to rest. ॐ contracts from oversized to its
+    // rightful size while concentric ripples of peace pulse outward, three
+    // times — one for each shanti.
     lineRefs.value.slice(0, 3).forEach((prev, i) => {
-      if (prev) animate(prev,
-        { opacity: 0.14 },
-        { duration: 2.2, delay: i * 0.1, ease: EXPO }
-      )
+      if (prev) animate(prev, { opacity: 0.12 }, { duration: 2.2, delay: i * 0.1, ease: EXPO })
     })
 
     const om     = el.querySelector<HTMLElement>('.om-glyph')
     const shanti = el.querySelector<HTMLElement>('.shanti-text')
-    const eng    = el.querySelector<HTMLElement>('.veng')
+    const rings  = el.querySelectorAll<HTMLElement>('.om-rings i')
 
-    if (om) animate(om,
-      { opacity: [0, 1], transform: ['scale(1.6)', 'scale(1)'] },
-      { duration: 3.2, ease: [0.16, 1, 0.3, 1] }
-    )
-    if (shanti) animate(shanti,
-      { opacity: [0, 1] },
-      { duration: 4.5, delay: 0.9, ease: [0.16, 1, 0.3, 1] }
-    )
-    if (eng) animate(eng,
-      { opacity: [0, 1] },
-      { duration: 2.0, delay: 3.2, ease: EXPO }
-    )
+    if (om) animate(om, { opacity: [0, 1], scale: [1.7, 1] }, { duration: 2.8, ease: SPRING })
+    if (shanti) rise(maskWords(shanti), { d: 1.6, st: 0.22, start: 0.7, ease: EXPO, blur: false })
+    if (eng) blockRise(eng, { d: 2.0, delay: 2.4 })
+
+    // GSAP drives the looping ripple — a different engine for a continuous,
+    // breath-paced pulse layered under the Motion One reveals.
+    if (rings.length) {
+      gsap.set(rings, { scale: 0, opacity: 0 })
+      const tl = gsap.timeline({ delay: 0.4, repeat: 1, repeatDelay: 0.7 })
+      rings.forEach((r, i) =>
+        tl.fromTo(
+          r,
+          { scale: 0, opacity: 0.45 },
+          { scale: 3.4, opacity: 0, duration: 2.6, ease: 'power2.out' },
+          i * 0.55
+        )
+      )
+      cleanups.push(() => tl.kill())
+    }
   }
 }
 
-// ── Scroll listener — triggers lines 1-3 ──────────────────────────────
+// ── Scroll listener — triggers lines 1-3 by viewport depth ─────────────
 let lastRevealedLine = -1
 
 function onScroll() {
@@ -204,109 +234,87 @@ onMounted(() => {
   const page = pageRef.value
   if (!page) return
 
-  const pqEl       = page.querySelector<HTMLElement>('.prayer-quote')
-  const ptEl       = page.querySelector<HTMLElement>('.prayer-trans')
-  const clEl       = page.querySelector<HTMLElement>('.closing-line')
-  const pqChars    = pqEl ? splitChars(pqEl) : []
-  const ptWords    = ptEl ? splitWords(ptEl)  : []
-  const clWords    = clEl ? splitWords(clEl)  : []
+  // Pre-split the big display lines so they're hidden from first paint.
+  const pqEl = page.querySelector<HTMLElement>('.prayer-quote')
+  const ptEl = page.querySelector<HTMLElement>('.prayer-trans')
+  const moEl = page.querySelector<HTMLElement>('.mom-open')
+  const clEl = page.querySelector<HTMLElement>('.closing-line')
+  const pqFills = pqEl ? maskWords(pqEl) : []
+  const ptFills = ptEl ? maskWords(ptEl) : []
+  const moFills = moEl ? maskWords(moEl) : []
+  const clFills = clEl ? maskWords(clEl) : []
+
   const pcEls      = [...page.querySelectorAll<HTMLElement>('.prayer-context')]
-  const momOpenEl  = page.querySelector<HTMLElement>('.mom-open')
   const momBodyEls = [...page.querySelectorAll<HTMLElement>('.mom-line:not(.mom-open)')]
+  pcEls.forEach((e) => (e.style.opacity = '0'))
+  momBodyEls.forEach((e) => (e.style.opacity = '0'))
 
   const heroEl = page.querySelector<HTMLElement>('.hero-section')
   if (heroEl) {
     once(heroEl, () => {
-      if (pqChars.length)
-        animate(pqChars,
-          { opacity: [0, 1], transform: ['translateY(0.9em) skewX(-14deg)', 'translateY(0em) skewX(0deg)'] },
-          { duration: 0.5, delay: stagger(0.028, { start: 0.1 }), ease: EXPO }
-        )
-      if (ptWords.length)
-        animate(ptWords,
-          { opacity: [0, 1], transform: ['translateY(18px)', 'translateY(0px)'] },
-          { duration: 0.6, delay: stagger(0.07, { start: 0.55 }), ease: EXPO }
-        )
-      if (pcEls.length)
-        animate(pcEls,
-          { opacity: [0, 1], transform: ['translateY(14px)', 'translateY(0px)'] },
-          { duration: 0.55, delay: stagger(0.14, { start: 0.9 }), ease: EXPO }
-        )
-      if (momOpenEl)
-        animate(momOpenEl,
-          { opacity: [0, 1], transform: ['translateY(32px)', 'translateY(0px)'] },
-          { duration: 0.85, delay: 1.25, ease: SPRING }
-        )
-      if (momBodyEls.length)
-        animate(momBodyEls,
-          { opacity: [0, 1], transform: ['translateY(22px)', 'translateY(0px)'] },
-          { duration: 0.7, delay: stagger(0.18, { start: 1.75 }), ease: EXPO }
-        )
+      rise(pqFills, { d: 1.0, st: 0.06, start: 0.1, ease: SPRING })
+      rise(ptFills, { d: 0.7, st: 0.05, start: 0.55 })
+      pcEls.forEach((e, i) => blockRise(e, { d: 0.6, delay: 0.95 + i * 0.14 }))
+      rise(moFills, { d: 0.9, st: 0.05, start: 1.35, ease: SPRING })
+      momBodyEls.forEach((e, i) => blockRise(e, { d: 0.75, delay: 1.85 + i * 0.18 }))
     }, '0px')
   }
 
-  const portraitEl = page.querySelector<HTMLElement>('.portrait-wrap')
+  // Portrait — clip reveal, then a continuous GSAP parallax tied to scroll
+  // (a second engine layered over the Motion One entrance).
+  const portraitEl  = page.querySelector<HTMLElement>('.portrait-wrap')
+  const portraitImg = page.querySelector<HTMLElement>('.portrait-img')
   if (portraitEl)
     once(portraitEl, () => {
       animate(portraitEl, { clipPath: ['inset(100% 0 0 0)', 'inset(0% 0 0 0)'] }, { duration: 1.1, ease: SPRING })
     }, '0px 0px -100px 0px')
 
+  if (portraitEl && portraitImg) {
+    const setY = gsap.quickTo(portraitImg, 'yPercent', { duration: 0.6, ease: 'power3' })
+    const onParallax = () => {
+      const r = portraitEl.getBoundingClientRect()
+      const prog = (window.innerHeight - r.top) / (window.innerHeight + r.height)
+      setY((Math.min(1, Math.max(0, prog)) - 0.5) * -10)
+    }
+    onParallax()
+    window.addEventListener('scroll', onParallax, { passive: true })
+    cleanups.push(() => window.removeEventListener('scroll', onParallax))
+  }
+
   const identityEl = page.querySelector<HTMLElement>('.portrait-identity')
-  if (identityEl)
-    once(identityEl, () => {
-      animate(identityEl,
-        { opacity: [0, 1], transform: ['translateY(12px)', 'translateY(0px)'] },
-        { duration: 0.65, delay: 0.25, ease: EXPO }
-      )
-    }, '0px 0px -40px 0px')
+  if (identityEl) {
+    identityEl.style.opacity = '0'
+    once(identityEl, () => blockRise(identityEl, { d: 0.65, delay: 0.25 }), '0px 0px -40px 0px')
+  }
 
-  onceEach('.section-label', el => {
-    animate(el,
-      { opacity: [0, 1], transform: ['translateY(10px)', 'translateY(0px)'] },
-      { duration: 0.5, ease: EXPO }
-    )
-  }, '0px 0px -60px 0px')
+  onceEach('.section-label', (el) => rise(maskWords(el), { d: 0.6, st: 0.025, blur: false }), '0px 0px -60px 0px')
 
-  page.querySelectorAll<HTMLElement>('.section-body').forEach(body => {
+  page.querySelectorAll<HTMLElement>('.section-body').forEach((body) => {
     const paras = [...body.querySelectorAll<HTMLElement>('p')]
+    paras.forEach((p) => (p.style.opacity = '0'))
     if (paras.length)
-      once(body, () => {
-        animate(paras,
-          { opacity: [0, 1], transform: ['translateY(22px)', 'translateY(0px)'] },
-          { duration: 0.65, delay: stagger(0.1), ease: EXPO }
-        )
-      }, '0px 0px -60px 0px')
+      once(body, () => paras.forEach((p, i) => blockRise(p, { d: 0.8, delay: i * 0.12 })), '0px 0px -60px 0px')
   })
 
-  if (clEl && clWords.length)
-    once(clEl, () => {
-      animate(clWords,
-        { opacity: [0, 1], transform: ['translateY(48px) skewY(5deg)', 'translateY(0px) skewY(0deg)'] },
-        { duration: 0.75, delay: stagger(0.1), ease: SPRING }
-      )
-    }, '0px 0px -40px 0px')
+  if (clEl && clFills.length)
+    once(clEl, () => rise(clFills, { d: 1.0, st: 0.06, ease: SPRING }), '0px 0px -40px 0px')
 
   const timelineEl = page.querySelector<HTMLElement>('.timeline')
   if (timelineEl) {
     const items = [...timelineEl.querySelectorAll<HTMLElement>('.timeline-item')]
+    const tline = timelineEl.querySelector<HTMLElement>('.t-axis')
+    items.forEach((i) => (i.style.opacity = '0'))
     once(timelineEl, () => {
-      animate(items,
-        { opacity: [0, 1], transform: ['translateX(-32px)', 'translateX(0px)'] },
-        { duration: 0.6, delay: stagger(0.1), ease: EXPO }
-      )
+      if (tline) animate(tline, { scaleY: [0, 1] }, { duration: 1.1, ease: EXPO })
+      animate(items, { opacity: [0, 1], x: [-28, 0] }, { duration: 0.6, delay: stagger(0.1, { start: 0.15 }), ease: EXPO })
     }, '0px 0px -60px 0px')
   }
 
-  onceEach('.contact-link', el => {
-    animate(el,
-      { opacity: [0, 1], transform: ['translateY(18px)', 'translateY(0px)'] },
-      { duration: 0.6, ease: EXPO }
-    )
-  }, '0px 0px -40px 0px')
+  onceEach('.contact-link', (el) => rise(maskWords(el), { d: 0.7, st: 0.03 }), '0px 0px -40px 0px')
 })
 
 onUnmounted(() => {
-  cleanups.forEach(fn => fn())
+  cleanups.forEach((fn) => fn())
   cleanups.length = 0
 })
 </script>
@@ -320,27 +328,28 @@ onUnmounted(() => {
       <!-- Line 0: असतो मा सद्गमय — Unreal → Real -->
       <div class="verse-line" style="opacity:0" :ref="el => (lineRefs[0] = el as HTMLElement)">
         <p class="vhindi">असतो मा सद्गमय</p>
-        <p class="veng">(Lead me from the unreal to the Real)</p>
+        <p class="veng">Lead me from the unreal to the <span class="hl">Real</span></p>
       </div>
 
       <!-- Line 1: तमसो मा ज्योतिर्गमय — Darkness → Light -->
       <div class="verse-line" style="opacity:0" :ref="el => (lineRefs[1] = el as HTMLElement)">
         <p class="vhindi">तमसो मा ज्योतिर्गमय</p>
-        <p class="veng">(Lead me from darkness to Light)</p>
+        <p class="veng">Lead me from darkness to <span class="hl">Light</span></p>
       </div>
 
       <!-- Line 2: मृत्योर्माऽमृतं गमय — Death → Immortality -->
       <div class="verse-line" style="opacity:0" :ref="el => (lineRefs[2] = el as HTMLElement)">
         <p class="vhindi">मृत्योर्माऽमृतं गमय</p>
-        <p class="veng">(Lead me from death to Immortality)</p>
+        <p class="veng">Lead me from death to <span class="hl">Immortality</span></p>
       </div>
 
       <!-- Line 3: ॐ शान्तिः शान्तिः शान्तिः — Peace -->
-      <div class="verse-line" style="opacity:0" :ref="el => (lineRefs[3] = el as HTMLElement)">
+      <div class="verse-line verse-peace" style="opacity:0" :ref="el => (lineRefs[3] = el as HTMLElement)">
+        <span class="om-rings"><i></i><i></i><i></i></span>
         <p class="vhindi">
           <span class="om-glyph">ॐ</span><span class="shanti-text"> शान्तिः शान्तिः शान्तिः</span>
         </p>
-        <p class="veng">(Om. Peace. Peace. Peace.)</p>
+        <p class="veng">Om. <span class="hl">Peace. Peace. Peace.</span></p>
       </div>
 
       <!-- Scroll hint — appears after line 0 settles -->
@@ -356,16 +365,16 @@ onUnmounted(() => {
     <section class="hero-section">
       <div class="hero-prayer">
         <p class="prayer-quote">"Asatoma Sadgamaya."</p>
-        <p class="prayer-trans">Lead me from ignorance to light.</p>
+        <p class="prayer-trans">Lead me from ignorance to <span class="hl">light</span>.</p>
         <div class="prayer-pause"></div>
         <p class="prayer-context">Somebody wrote that three thousand years ago.</p>
         <p class="prayer-context">It still describes everything I do.</p>
       </div>
 
       <div class="hero-mom">
-        <p class="mom-line mom-open">My mother was a teacher.<br>I was her worst student.</p>
+        <p class="mom-line mom-open">My mother was a teacher.<br>I was her <span class="hl">worst student</span>.</p>
         <p class="mom-line">She marked my papers last — hoping the rest of the class would give her enough patience for mine.</p>
-        <p class="mom-line">But what she accidentally gave me was worth more than any grade: I know exactly what it feels like when the explanation fails. I've sat in that room. I've been that student. The worst students always know where things broke down.</p>
+        <p class="mom-line">But what she accidentally gave me was worth more than any grade: I know exactly what it feels like <span class="hl">when the explanation fails</span>. I've sat in that room. I've been that student. The worst students always know where things broke down.</p>
       </div>
 
       <div class="portrait-wrap">
@@ -383,7 +392,7 @@ onUnmounted(() => {
       <p class="section-label">Origin</p>
       <div class="section-body">
         <p>At Mahindra Holidays, I was handed a standard brief: compliance training. Slide decks. Sign-off sheets. The usual.</p>
-        <p>Instead, I made a comic book.</p>
+        <p>Instead, I made a <span class="hl">comic book</span>.</p>
         <p><em>"The SEWA Chronicles"</em> turned service values into characters, scenes, and stakes. Not because I had a clever strategy. Because I refused to design something I'd have walked out of as a student.</p>
       </div>
     </section>
@@ -392,18 +401,19 @@ onUnmounted(() => {
     <section class="about-section">
       <p class="section-label">Philosophy</p>
       <div class="section-body">
-        <p>You can start a fire with two rocks. You can also use a clipper lighter.</p>
+        <p>You can start a <span class="hl">fire</span> with two rocks. You can also use a clipper lighter.</p>
         <p>We live in a world that invents better lighters every year. Yet somehow, training departments are still handing employees two rocks and calling it learning.</p>
         <p>Asatoma Sadgamaya isn't about discarding the lighter. It's about understanding the fire — what it is, what it needs, what happens when it goes out — so you can light it with whatever you have.</p>
         <p>That's what I design. Not content. Not courses. Learning that survives the moment the lighter isn't there.</p>
       </div>
-      <p class="closing-line">Entertrainer isn't a typo. It's an argument.</p>
+      <p class="closing-line">Entertrainer isn't a typo. It's an <span class="hl">argument</span>.</p>
     </section>
 
     <!-- TIMELINE -->
     <section class="about-section">
       <p class="section-label">Timeline</p>
       <div class="timeline">
+        <span class="t-axis"></span>
         <div class="timeline-item">
           <span class="t-period">2026 – Now</span>
           <div class="t-content">
@@ -452,6 +462,37 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* Accent "pi" highlight — the brand navy reads too dark on the dark canvas,
+   so dark theme uses a luminous lift of it; light theme uses the true brand. */
+.verse-root,
+.about-page {
+  --hl: #6E92CE;
+}
+[data-theme="light"] .verse-root,
+[data-theme="light"] .about-page {
+  --hl: #243F6A;
+}
+
+.hl {
+  color: var(--hl);
+  font-weight: 600;
+  font-style: inherit;
+}
+
+/* Word-mask reveal scaffolding. Padding+negative-margin gives Devanagari
+   matras vertical room so the mask never clips them. */
+:deep(.wmask) {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding: 0.16em 0.07em;
+  margin: -0.16em -0.07em;
+}
+:deep(.wfill) {
+  display: inline-block;
+  will-change: transform, opacity, filter;
+}
+
 /* ══════════════════════════════════════════════════════════════════════
    VERSE INTRO
 ══════════════════════════════════════════════════════════════════════ */
@@ -475,27 +516,25 @@ onUnmounted(() => {
   transition: background 3s ease;
 }
 
-/* Subtle brightening when "Light" line appears */
-[data-theme="dark"] .verse-stage.verse-lit {
-  background: #111110;
-}
-[data-theme="light"] .verse-stage.verse-lit {
-  background: #f8f5ef;
-}
+[data-theme="dark"] .verse-stage.verse-lit { background: #14130F; }
+[data-theme="light"] .verse-stage.verse-lit { background: #FBF8F2; }
 
 .verse-line {
+  position: relative;
   text-align: center;
   will-change: opacity;
 }
 
 .vhindi {
+  position: relative;
+  z-index: 1;
   font-family: 'Noto Sans Devanagari', 'Mangal', 'Aparajita', sans-serif;
-  font-size: clamp(28rem, 3.8vw, 52rem);
+  font-size: clamp(30rem, 4vw, 56rem);
   font-weight: 600;
   letter-spacing: 0.01em;
-  line-height: 1.35;
+  line-height: 1.4;
   color: var(--color-text);
-  margin-bottom: 10rem;
+  margin-bottom: 12rem;
 }
 
 .veng {
@@ -504,25 +543,48 @@ onUnmounted(() => {
   font-style: italic;
   letter-spacing: 0.04em;
   color: var(--color-text);
-  opacity: 0.38;
+  opacity: 0.4;
+}
+.veng .hl { opacity: 1; font-style: normal; letter-spacing: 0.06em; }
+
+/* Sweeping accent light beam */
+:deep(.vbeam) {
+  position: absolute;
+  top: -20%;
+  left: 0;
+  width: 26%;
+  height: 140%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--hl), transparent);
+  filter: blur(20px);
+  opacity: 0;
+  mix-blend-mode: screen;
+  z-index: 0;
 }
 
-/* OM glyph — appears larger, settles to normal */
+/* OM peace ripples */
+.verse-peace { isolation: isolate; }
+.om-rings {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  width: 80rem;
+  height: 80rem;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+}
+.om-rings i {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5rem solid var(--hl);
+}
+
 .om-glyph {
   display: inline-block;
-  font-size: 1.35em;
+  font-size: 1.4em;
   will-change: transform, opacity;
-}
-
-.shanti-text {
-  will-change: opacity;
-}
-
-/* Split char/word spans */
-:deep(.sc),
-:deep(.sw) {
-  display: inline-block;
-  will-change: opacity, transform, filter;
 }
 
 /* Scroll hint */
@@ -540,12 +602,11 @@ onUnmounted(() => {
   animation: cue-bob 2.4s ease-in-out infinite;
   animation-play-state: paused;
 }
-/* Only animate when visible */
 .scroll-cue[style*="opacity: 1"] { animation-play-state: running; }
 
 @keyframes cue-bob {
   0%, 100% { transform: translateX(-50%) translateY(0); }
-  50%       { transform: translateX(-50%) translateY(6px); }
+  50%      { transform: translateX(-50%) translateY(6px); }
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -579,8 +640,9 @@ onUnmounted(() => {
   font-weight: 400;
   letter-spacing: -0.01em;
   line-height: 1.5;
-  opacity: 0.4;
+  opacity: 0.55;
 }
+.prayer-trans .hl { opacity: 1; }
 
 .prayer-pause { height: 44rem; }
 
@@ -612,7 +674,6 @@ onUnmounted(() => {
   line-height: 1.8;
   opacity: 0.7;
 }
-
 .mom-line.mom-open { opacity: 1; }
 
 /* Portrait */
@@ -631,6 +692,8 @@ onUnmounted(() => {
   object-fit: cover;
   object-position: center top;
   display: block;
+  transform: scale(1.12); /* headroom for the scroll parallax */
+  will-change: transform;
 }
 
 .portrait-identity {
@@ -640,20 +703,9 @@ onUnmounted(() => {
   flex-wrap: wrap;
 }
 
-.identity-name {
-  font-size: 15rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.identity-sep { opacity: 0.25; font-size: 13rem; }
-
-.identity-cred {
-  font-size: 13rem;
-  font-weight: 400;
-  opacity: 0.4;
-  letter-spacing: -0.01em;
-}
+.identity-name { font-size: 15rem; font-weight: 600; letter-spacing: -0.02em; }
+.identity-sep  { opacity: 0.25; font-size: 13rem; }
+.identity-cred { font-size: 13rem; font-weight: 400; opacity: 0.4; letter-spacing: -0.01em; }
 
 /* ── Sections ── */
 .about-section {
@@ -672,11 +724,7 @@ onUnmounted(() => {
   margin-bottom: 32rem;
 }
 
-.section-body {
-  display: flex;
-  flex-direction: column;
-  gap: 22rem;
-}
+.section-body { display: flex; flex-direction: column; gap: 22rem; }
 
 .section-body p {
   font-size: clamp(16rem, 1.8vw, 19rem);
@@ -684,12 +732,8 @@ onUnmounted(() => {
   line-height: 1.8;
   opacity: 0.75;
 }
-
-.section-body em {
-  font-style: italic;
-  opacity: 1;
-  color: var(--color-text);
-}
+.section-body em { font-style: italic; opacity: 1; color: var(--color-text); }
+.section-body .hl { opacity: 1; }
 
 .closing-line {
   margin-top: 52rem;
@@ -701,16 +745,27 @@ onUnmounted(() => {
 }
 
 /* ── Timeline ── */
-.timeline { display: flex; flex-direction: column; }
+.timeline { position: relative; display: flex; flex-direction: column; }
+
+.t-axis {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: var(--hl);
+  opacity: 0.4;
+  transform: scaleY(0);
+  transform-origin: top;
+}
 
 .timeline-item {
   display: grid;
   grid-template-columns: 130rem 1fr;
   gap: 0 28rem;
-  padding: 24rem 0;
+  padding: 24rem 0 24rem 22rem;
   border-bottom: 1px solid var(--color-divider);
 }
-
 .timeline-item:last-child { border-bottom: none; }
 
 .t-period {
@@ -721,17 +776,11 @@ onUnmounted(() => {
   padding-top: 3rem;
   line-height: 1.4;
 }
+[data-theme="dark"] .t-period { color: var(--hl); }
 
 .t-content { display: flex; flex-direction: column; gap: 4rem; }
-
-.t-content strong {
-  font-size: 16rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
+.t-content strong { font-size: 16rem; font-weight: 600; letter-spacing: -0.02em; }
 .t-company { font-size: 13rem; opacity: 0.35; }
-
 .t-context { font-size: 13rem; font-style: italic; opacity: 0.5; margin-top: 2rem; }
 
 /* ── Contact ── */
@@ -744,10 +793,9 @@ onUnmounted(() => {
   text-decoration: none;
   letter-spacing: -0.02em;
   opacity: 0.6;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, color 0.2s ease;
 }
-
-.contact-link:hover { opacity: 1; }
+.contact-link:hover { opacity: 1; color: var(--hl); }
 
 /* ── Mobile ── */
 @media (max-width: 640px) {

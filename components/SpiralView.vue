@@ -36,7 +36,10 @@ let transitioning = false
 
 async function mountExperience() {
   await nextTick()
-  if (!canvasRef.value) return
+  // Guard against a double mount: on a return visit onMounted calls this
+  // directly, and we never want the hasEntered watcher to spin up a second
+  // Experience over the top of a live one.
+  if (!canvasRef.value || experience) return
   experience = new Experience(canvasRef.value)
   experience.world.setNavItems(props.items, themeStore.isDark)
   experience.setFogColor(themeStore.isDark ? FOG_DARK : FOG_LIGHT)
@@ -47,6 +50,12 @@ async function mountExperience() {
   experience.on('planeClick', (href: string) => {
     emit('cardClick', href)
   })
+
+  // Whenever the spiral is actually on screen, guarantee the global view-switch
+  // is shown. The loader normally sets this at the end of its enter animation,
+  // but on return visits (loader skipped) we rely on this so the toggle never
+  // gets stuck invisible. setHasEntered is idempotent.
+  if (!experienceStore.hasEntered) experienceStore.setHasEntered()
 }
 
 function destroyExperience() {

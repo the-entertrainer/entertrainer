@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
   const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) {
-    throw createError({ statusCode: 503, data: { message: 'API key not configured on the server.' } })
+    throw createError({ statusCode: 422, message: 'API key not configured on the server.' })
   }
 
   let res: Response
@@ -41,18 +41,18 @@ export default defineEventHandler(async (event) => {
       })
     })
   } catch {
-    throw createError({ statusCode: 502, data: { message: 'Could not reach AI service. Check your connection.' } })
+    throw createError({ statusCode: 422, message: 'Could not reach AI service. Check your connection.' })
   }
 
   if (!res.ok) {
-    throw createError({ statusCode: 502, data: { message: 'AI service unavailable. Please try again.' } })
+    throw createError({ statusCode: 422, message: 'AI service unavailable. Please try again.' })
   }
 
   let data: any
   try {
     data = await res.json()
   } catch {
-    throw createError({ statusCode: 502, data: { message: 'Could not parse the AI response. Try again.' } })
+    throw createError({ statusCode: 422, message: 'Could not parse the AI response. Try again.' })
   }
 
   const content = data.choices?.[0]?.message?.content ?? ''
@@ -64,6 +64,6 @@ export default defineEventHandler(async (event) => {
     }
     return { distractors: parsed.distractors.slice(0, 3) as string[] }
   } catch {
-    throw createError({ statusCode: 502, data: { message: 'Could not parse the AI response. Try again.' } })
+    throw createError({ statusCode: 422, message: 'Could not parse the AI response. Try again.' })
   }
 })

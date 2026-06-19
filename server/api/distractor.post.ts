@@ -7,43 +7,54 @@ export default defineEventHandler(async (event) => {
 
   const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) {
-    throw createError({ statusCode: 500, message: 'API key not configured on the server.' })
+    throw createError({ statusCode: 503, message: 'API key not configured on the server.' })
   }
 
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are an expert instructional designer specialising in multiple-choice question design. ' +
-            'Given a question and its correct answer, generate exactly 3 plausible but clearly incorrect distractors. ' +
-            'Each distractor must be distinct, grammatically parallel to the correct answer, and believable to ' +
-            'someone who has not fully mastered the topic. ' +
-            'Return only valid JSON in this exact format: {"distractors": ["...", "...", "..."]}'
-        },
-        {
-          role: 'user',
-          content: `Question: ${question.trim()}\nCorrect answer: ${answer.trim()}`
-        }
-      ],
-      response_format: { type: 'json_object' },
-      temperature: 0.8,
-      max_tokens: 400
+  let res: Response
+  try {
+    res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are an expert instructional designer specialising in multiple-choice question design. ' +
+              'Given a question and its correct answer, generate exactly 3 plausible but clearly incorrect distractors. ' +
+              'Each distractor must be distinct, grammatically parallel to the correct answer, and believable to ' +
+              'someone who has not fully mastered the topic. ' +
+              'Return only valid JSON in this exact format: {"distractors": ["...", "...", "..."]}'
+          },
+          {
+            role: 'user',
+            content: `Question: ${question.trim()}\nCorrect answer: ${answer.trim()}`
+          }
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.8,
+        max_tokens: 400
+      })
     })
-  })
+  } catch {
+    throw createError({ statusCode: 502, message: 'Could not reach AI service. Check your connection.' })
+  }
 
   if (!res.ok) {
     throw createError({ statusCode: 502, message: 'AI service unavailable. Please try again.' })
   }
 
-  const data = await res.json()
+  let data: any
+  try {
+    data = await res.json()
+  } catch {
+    throw createError({ statusCode: 502, message: 'Could not parse the AI response. Try again.' })
+  }
+
   const content = data.choices?.[0]?.message?.content ?? ''
 
   try {

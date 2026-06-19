@@ -1,105 +1,170 @@
 <script setup lang="ts">
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { animate, inView, stagger } from 'motion'
 
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 
 const pageRef = ref<HTMLElement | null>(null)
-let ctx: gsap.Context | null = null
+const cleanups: Array<() => void> = []
+
+// ── Text-splitting helpers ──────────────────────────────────────────────
+function splitChars(el: HTMLElement) {
+  const chars: HTMLElement[] = []
+  el.innerHTML = [...(el.textContent ?? '')].map((ch, i) =>
+    ch === ' ' ? ' ' : `<span class="sc" style="--ci:${i}">${ch}</span>`
+  ).join('')
+  el.querySelectorAll<HTMLElement>('.sc').forEach(s => chars.push(s))
+  return chars
+}
+
+function splitWords(el: HTMLElement) {
+  const words: HTMLElement[] = []
+  el.innerHTML = (el.textContent ?? '').split(' ').filter(Boolean)
+    .map((w, i) => `<span class="sw" style="--wi:${i}">${w}</span>`).join(' ')
+  el.querySelectorAll<HTMLElement>('.sw').forEach(s => words.push(s))
+  return words
+}
+
+// ── Fire once on viewport entry ─────────────────────────────────────────
+function once(target: Element, cb: () => void, margin = '0px 0px -80px 0px') {
+  let stop: () => void
+  stop = inView(target, () => { cb(); stop() }, { margin, amount: 0 } as any)
+  cleanups.push(stop)
+}
+
+function onceEach(selector: string, cb: (el: HTMLElement) => void, margin = '0px 0px -80px 0px') {
+  pageRef.value!.querySelectorAll<HTMLElement>(selector)
+    .forEach(el => once(el, () => cb(el), margin))
+}
+
+// ── Easing curves ───────────────────────────────────────────────────────
+const EXPO: [number, number, number, number]   = [0.22, 1, 0.36, 1]
+const SPRING: [number, number, number, number] = [0.16, 1, 0.3, 1]
 
 onMounted(() => {
-  gsap.registerPlugin(ScrollTrigger)
+  const page = pageRef.value!
 
-  ctx = gsap.context(() => {
-    gsap.from('.prayer-line', {
-      y: 32,
-      autoAlpha: 0,
-      duration: 0.85,
-      ease: 'power3.out',
-      stagger: 0.15,
-      delay: 0.15
-    })
+  // ── Split key headline elements ─────────────────────────────────────
+  const pqEl = page.querySelector<HTMLElement>('.prayer-quote')
+  const ptEl = page.querySelector<HTMLElement>('.prayer-trans')
+  const clEl = page.querySelector<HTMLElement>('.closing-line')
 
-    gsap.from('.mom-line', {
-      y: 24,
-      autoAlpha: 0,
-      duration: 0.75,
-      ease: 'power3.out',
-      stagger: 0.13,
-      delay: 0.7
-    })
+  const pqChars    = pqEl ? splitChars(pqEl) : []
+  const ptWords    = ptEl ? splitWords(ptEl)  : []
+  const clWords    = clEl ? splitWords(clEl)  : []
+  const pcEls      = [...page.querySelectorAll<HTMLElement>('.prayer-context')]
+  const momOpenEl  = page.querySelector<HTMLElement>('.mom-open')
+  const momBodyEls = [...page.querySelectorAll<HTMLElement>('.mom-line:not(.mom-open)')]
 
-    gsap.fromTo(
-      '.portrait-wrap',
-      { clipPath: 'inset(100% 0 0 0)' },
-      {
-        clipPath: 'inset(0% 0 0 0)',
-        duration: 1.0,
-        ease: 'power3.out',
-        scrollTrigger: { trigger: '.portrait-wrap', start: 'top 85%' }
-      }
+  // ── HERO: entire cascade fires as hero enters viewport ──────────────
+  const heroEl = page.querySelector<HTMLElement>('.hero-section')
+  if (heroEl) {
+    once(heroEl, () => {
+      // 1. Prayer quote — char by char with lateral skew
+      if (pqChars.length)
+        animate(pqChars,
+          { opacity: [0, 1], transform: ['translateY(0.9em) skewX(-14deg)', 'translateY(0em) skewX(0deg)'] },
+          { duration: 0.5, delay: stagger(0.028, { start: 0.1 }), ease: EXPO }
+        )
+      // 2. Prayer translation — word cascade
+      if (ptWords.length)
+        animate(ptWords,
+          { opacity: [0, 1], transform: ['translateY(18px)', 'translateY(0px)'] },
+          { duration: 0.6, delay: stagger(0.07, { start: 0.55 }), ease: EXPO }
+        )
+      // 3. Prayer context lines
+      if (pcEls.length)
+        animate(pcEls,
+          { opacity: [0, 1], transform: ['translateY(14px)', 'translateY(0px)'] },
+          { duration: 0.55, delay: stagger(0.14, { start: 0.9 }), ease: EXPO }
+        )
+      // 4. Mom opening — large bold rise
+      if (momOpenEl)
+        animate(momOpenEl,
+          { opacity: [0, 1], transform: ['translateY(32px)', 'translateY(0px)'] },
+          { duration: 0.85, delay: 1.25, ease: SPRING }
+        )
+      // 5. Mom body paragraphs
+      if (momBodyEls.length)
+        animate(momBodyEls,
+          { opacity: [0, 1], transform: ['translateY(22px)', 'translateY(0px)'] },
+          { duration: 0.7, delay: stagger(0.18, { start: 1.75 }), ease: EXPO }
+        )
+    }, '0px')
+  }
+
+  // ── Portrait — curtain clip-path reveal ─────────────────────────────
+  const portraitEl = page.querySelector<HTMLElement>('.portrait-wrap')
+  if (portraitEl)
+    once(portraitEl, () => {
+      animate(portraitEl,
+        { clipPath: ['inset(100% 0 0 0)', 'inset(0% 0 0 0)'] },
+        { duration: 1.1, ease: SPRING }
+      )
+    }, '0px 0px -100px 0px')
+
+  // ── Portrait identity ────────────────────────────────────────────────
+  const identityEl = page.querySelector<HTMLElement>('.portrait-identity')
+  if (identityEl)
+    once(identityEl, () => {
+      animate(identityEl,
+        { opacity: [0, 1], transform: ['translateY(12px)', 'translateY(0px)'] },
+        { duration: 0.65, delay: 0.25, ease: EXPO }
+      )
+    }, '0px 0px -40px 0px')
+
+  // ── Section labels ───────────────────────────────────────────────────
+  onceEach('.section-label', el => {
+    animate(el,
+      { opacity: [0, 1], transform: ['translateY(10px)', 'translateY(0px)'] },
+      { duration: 0.5, ease: EXPO }
     )
+  }, '0px 0px -60px 0px')
 
-    gsap.from('.portrait-identity', {
-      y: 16,
-      autoAlpha: 0,
-      duration: 0.65,
-      ease: 'power3.out',
-      delay: 0.25,
-      scrollTrigger: { trigger: '.portrait-identity', start: 'top 90%' }
-    })
+  // ── Section body paragraphs (stagger per section) ───────────────────
+  page.querySelectorAll<HTMLElement>('.section-body').forEach(body => {
+    const paras = [...body.querySelectorAll<HTMLElement>('p')]
+    if (paras.length)
+      once(body, () => {
+        animate(paras,
+          { opacity: [0, 1], transform: ['translateY(22px)', 'translateY(0px)'] },
+          { duration: 0.65, delay: stagger(0.1), ease: EXPO }
+        )
+      }, '0px 0px -60px 0px')
+  })
 
-    gsap.utils.toArray<HTMLElement>('.section-label').forEach(el => {
-      gsap.from(el, {
-        y: 12,
-        autoAlpha: 0,
-        duration: 0.55,
-        ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 88%' }
-      })
-    })
+  // ── Closing line — word-by-word with skew (most dramatic) ───────────
+  if (clEl && clWords.length)
+    once(clEl, () => {
+      animate(clWords,
+        { opacity: [0, 1], transform: ['translateY(48px) skewY(5deg)', 'translateY(0px) skewY(0deg)'] },
+        { duration: 0.75, delay: stagger(0.1), ease: SPRING }
+      )
+    }, '0px 0px -40px 0px')
 
-    gsap.utils.toArray<HTMLElement>('.section-body').forEach(body => {
-      gsap.from(body.querySelectorAll('p'), {
-        y: 20,
-        autoAlpha: 0,
-        duration: 0.65,
-        ease: 'power3.out',
-        stagger: 0.1,
-        scrollTrigger: { trigger: body, start: 'top 82%' }
-      })
-    })
+  // ── Timeline — slide from left ────────────────────────────────────────
+  const timelineEl = page.querySelector<HTMLElement>('.timeline')
+  if (timelineEl) {
+    const items = [...timelineEl.querySelectorAll<HTMLElement>('.timeline-item')]
+    once(timelineEl, () => {
+      animate(items,
+        { opacity: [0, 1], transform: ['translateX(-32px)', 'translateX(0px)'] },
+        { duration: 0.6, delay: stagger(0.1), ease: EXPO }
+      )
+    }, '0px 0px -60px 0px')
+  }
 
-    gsap.from('.closing-line', {
-      y: 24,
-      autoAlpha: 0,
-      duration: 0.8,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: '.closing-line', start: 'top 85%' }
-    })
-
-    gsap.from('.timeline-item', {
-      x: -32,
-      autoAlpha: 0,
-      duration: 0.6,
-      ease: 'power3.out',
-      stagger: 0.1,
-      scrollTrigger: { trigger: '.timeline', start: 'top 82%' }
-    })
-
-    gsap.from('.contact-links > *', {
-      y: 20,
-      autoAlpha: 0,
-      duration: 0.6,
-      ease: 'power3.out',
-      stagger: 0.12,
-      scrollTrigger: { trigger: '.contact-links', start: 'top 85%' }
-    })
-  }, pageRef.value!)
+  // ── Contact links ────────────────────────────────────────────────────
+  onceEach('.contact-link', el => {
+    animate(el,
+      { opacity: [0, 1], transform: ['translateY(18px)', 'translateY(0px)'] },
+      { duration: 0.6, ease: EXPO }
+    )
+  }, '0px 0px -40px 0px')
 })
 
 onUnmounted(() => {
-  ctx?.revert()
+  cleanups.forEach(fn => fn())
+  cleanups.length = 0
 })
 </script>
 
@@ -110,11 +175,11 @@ onUnmounted(() => {
     <section class="hero-section">
 
       <div class="hero-prayer">
-        <p class="prayer-line prayer-quote">"Asatoma Sadgamaya."</p>
-        <p class="prayer-line prayer-trans">Lead me from ignorance to light.</p>
+        <p class="prayer-quote">"Asatoma Sadgamaya."</p>
+        <p class="prayer-trans">Lead me from ignorance to light.</p>
         <div class="prayer-pause"></div>
-        <p class="prayer-line prayer-context">Somebody wrote that three thousand years ago.</p>
-        <p class="prayer-line prayer-context">It still describes everything I do.</p>
+        <p class="prayer-context">Somebody wrote that three thousand years ago.</p>
+        <p class="prayer-context">It still describes everything I do.</p>
       </div>
 
       <div class="hero-mom">
@@ -220,6 +285,12 @@ onUnmounted(() => {
   font-family: var(--main-font);
   padding: calc(var(--safe-top) + 120rem) var(--grid-margin) calc(var(--safe-bottom) + 120rem);
   max-width: 800rem;
+}
+
+/* ── Split char / word spans ─────────────────────────────────────────── */
+:deep(.sc),
+:deep(.sw) {
+  display: inline-block;
 }
 
 /* ── Hero ── */

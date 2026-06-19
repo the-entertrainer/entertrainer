@@ -12,6 +12,7 @@
     "@pinia/nuxt": "^0.5.1",
     "@studio-freight/lenis": "^1.0.42",
     "gsap": "^3.12.5",
+    "motion": "^12.40.0",
     "pinia": "^2.1.7",
     "three": "^0.163.0"
   },

@@ -16,7 +16,6 @@ interface RawResult {
   aggressiveness: number
   sarcasm: number
   offensiveness: number
-  rageLevel: string
   rageTaunt: string
   imaginaryReply: string
 }
@@ -24,7 +23,17 @@ interface RawResult {
 const raw = ref<RawResult | null>(null)
 
 // ── Benchmark conversion ───────────────────────────────────────────────────
-const WEIGHTS = { aggressiveness: 7_124, sarcasm: 4_893, offensiveness: 6_541 }
+const WEIGHTS    = { aggressiveness: 7_124, sarcasm: 4_893, offensiveness: 6_541 }
+const MAX_SCORE  = 100 * (WEIGHTS.aggressiveness + WEIGHTS.sarcasm + WEIGHTS.offensiveness)
+
+const RAGE_THRESHOLDS = [
+  { below: 0.15, label: 'Mildly Miffed' },
+  { below: 0.30, label: 'Properly Peeved' },
+  { below: 0.50, label: 'Simmering Fury' },
+  { below: 0.65, label: 'Full Rage Mode' },
+  { below: 0.80, label: 'Red Mist Rising' },
+  { below: 0.95, label: 'Nuclear Meltdown' },
+]
 
 const bench = computed(() => {
   if (!raw.value) return null
@@ -32,6 +41,12 @@ const bench = computed(() => {
   const sarc = Math.round(raw.value.sarcasm        * WEIGHTS.sarcasm)
   const off  = Math.round(raw.value.offensiveness  * WEIGHTS.offensiveness)
   return { aggr, sarc, off, total: aggr + sarc + off }
+})
+
+const rageLevel = computed(() => {
+  if (!bench.value) return ''
+  const ratio = bench.value.total / MAX_SCORE
+  return RAGE_THRESHOLDS.find(t => ratio < t.below)?.label ?? 'LEGENDARY RAGE'
 })
 
 // ── Validation ─────────────────────────────────────────────────────────────
@@ -116,7 +131,7 @@ function reset() {
 // ── Share ──────────────────────────────────────────────────────────────────
 async function shareResult() {
   const node = document.getElementById('rage-result-card')
-  if (!node || sharing.value) return
+  if (!node || !bench.value || sharing.value) return
   sharing.value = true
   try {
     const dataUrl = await toPng(node, { pixelRatio: 2, cacheBust: true })
@@ -225,7 +240,7 @@ async function shareResult() {
           <div class="rm-score-section">
             <span class="rm-score-label">RAGE BENCHMARK</span>
             <span class="rm-score-number">{{ fmt(displayTotal) }}</span>
-            <span class="rm-rage-level">{{ raw.rageLevel }}</span>
+            <span class="rm-rage-level">{{ rageLevel }}</span>
           </div>
 
           <p class="rm-taunt">{{ raw.rageTaunt }}</p>

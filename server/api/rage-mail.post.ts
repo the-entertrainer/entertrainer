@@ -29,7 +29,6 @@ export default defineEventHandler(async (event) => {
             '- "aggressiveness" (integer 0–100)\n' +
             '- "sarcasm" (integer 0–100)\n' +
             '- "offensiveness" (integer 0–100)\n' +
-            '- "rageLevel" (string — pick exactly one: "Mildly Miffed", "Properly Peeved", "Simmering Fury", "Full Rage Mode", "Red Mist Rising", "Nuclear Meltdown", "LEGENDARY RAGE")\n' +
             '- "rageTaunt" (one punchy, funny, sympathetic sentence — never judgmental)\n' +
             '- "imaginaryReply" (2–4 sentences — a fictional reply from the recipient that is absurd, ' +
             'deflating, or weirdly polite in a way that gives the sender total cathartic satisfaction)\n' +
@@ -55,12 +54,12 @@ export default defineEventHandler(async (event) => {
 
   try {
     const parsed = JSON.parse(content)
-    const { aggressiveness, sarcasm, offensiveness, rageLevel, rageTaunt, imaginaryReply } = parsed
+    const { aggressiveness, sarcasm, offensiveness, rageTaunt, imaginaryReply } = parsed
     if (
       typeof aggressiveness !== 'number' ||
       typeof sarcasm        !== 'number' ||
       typeof offensiveness  !== 'number' ||
-      !rageLevel || !rageTaunt || !imaginaryReply
+      !rageTaunt || !imaginaryReply
     ) {
       throw new Error('Unexpected response shape')
     }
@@ -68,7 +67,6 @@ export default defineEventHandler(async (event) => {
       aggressiveness: Math.min(100, Math.max(0, Math.round(aggressiveness))),
       sarcasm:        Math.min(100, Math.max(0, Math.round(sarcasm))),
       offensiveness:  Math.min(100, Math.max(0, Math.round(offensiveness))),
-      rageLevel:      String(rageLevel),
       rageTaunt:      String(rageTaunt),
       imaginaryReply: String(imaginaryReply)
     }

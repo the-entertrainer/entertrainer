@@ -51,8 +51,13 @@ export default defineNuxtConfig({
     workbox: {
       globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
       navigateFallback: '/',
+      navigateFallbackDenylist: [/^\/api\//],
       maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       runtimeCaching: [
+        {
+          urlPattern: /^\/api\/.*/,
+          handler: 'NetworkOnly',
+        },
         {
           urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
           handler: 'CacheFirst',

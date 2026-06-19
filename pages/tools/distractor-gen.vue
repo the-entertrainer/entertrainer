@@ -23,7 +23,7 @@ async function generate() {
     })
     results.value = data.distractors
   } catch (e: any) {
-    error.value = e?.data?.message ?? 'Something went wrong. Please try again.'
+    error.value = e?.data?.data?.message ?? e?.data?.message ?? 'Something went wrong. Please try again.'
   } finally {
     pending.value = false
   }

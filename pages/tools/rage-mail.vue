@@ -76,7 +76,7 @@ async function send() {
     phase.value = 'results'
     nextTick(startCountUp)
   } catch (e: any) {
-    error.value  = e?.data?.message ?? e?.data?.statusMessage ?? e?.message ?? 'Something went wrong. Please try again.'
+    error.value  = e?.data?.data?.message ?? e?.data?.message ?? e?.message ?? 'Something went wrong. Please try again.'
     phase.value  = 'compose'
   }
 }

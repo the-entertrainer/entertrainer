@@ -1,13 +1,21 @@
+// Nitro's Vercel preset stores the body as a string on event.req.text instead
+// of a callable method, which breaks H3's readBody. Read it directly.
+async function parseBody(event: any): Promise<any> {
+  const t = event.req?.text
+  if (typeof t === 'string') return t ? JSON.parse(t) : {}
+  return await readBody(event)
+}
+
 export default defineEventHandler(async (event) => {
   try {
     let body: any
     try {
-      body = await readBody(event)
+      body = await parseBody(event)
     } catch {
       throw createError({ statusCode: 400, message: 'Could not read request body.' })
     }
 
-    const to      = String(body?.to   ?? '').trim()
+    const to       = String(body?.to   ?? '').trim()
     const mailBody = String(body?.body ?? '').trim()
 
     if (!to || !mailBody) {
@@ -55,13 +63,13 @@ export default defineEventHandler(async (event) => {
           max_tokens: 600
         })
       })
-    } catch (fetchErr: any) {
-      throw createError({ statusCode: 422, message: `Could not reach AI service: ${fetchErr?.message ?? 'network error'}` })
+    } catch (e: any) {
+      throw createError({ statusCode: 422, message: `Could not reach AI service: ${e?.message ?? 'network error'}` })
     }
 
     if (!res.ok) {
-      const errBody = await res.text().catch(() => '')
-      throw createError({ statusCode: 422, message: `AI service returned ${res.status}: ${errBody.slice(0, 120)}` })
+      const errText = await res.text().catch(() => '')
+      throw createError({ statusCode: 422, message: `AI service returned ${res.status}: ${errText.slice(0, 120)}` })
     }
 
     let data: any

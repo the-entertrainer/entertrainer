@@ -17,17 +17,13 @@ async function generate() {
   results.value = []
 
   try {
-    const data = await $fetch<any>('/api/distractor', {
+    const data = await $fetch<{ distractors: string[] }>('/api/distractor', {
       method: 'POST',
       body: { question: question.value.trim(), answer: answer.value.trim() }
     })
-    if (data.ok === false) {
-      error.value = `[${data.step}] ${data.error}${data.log ? ' | ' + data.log.join(' → ') : ''}`
-    } else {
-      results.value = data.distractors
-    }
+    results.value = data.distractors
   } catch (e: any) {
-    error.value = e?.data?.message ?? e?.message ?? 'Something went wrong. Please try again.'
+    error.value = e?.data?.message ?? 'Something went wrong. Please try again.'
   } finally {
     pending.value = false
   }

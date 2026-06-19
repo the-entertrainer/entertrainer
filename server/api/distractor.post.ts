@@ -1,31 +1,32 @@
-export default defineEventHandler(async (event) => {
-  const log: string[] = ['handler-start']
+// Nitro's Vercel preset stores the body as a string on event.req.text instead
+// of a callable method, which breaks H3's readBody. Read it directly.
+async function parseBody(event: any): Promise<any> {
+  const t = event.req?.text
+  if (typeof t === 'string') return t ? JSON.parse(t) : {}
+  return await readBody(event)
+}
 
+export default defineEventHandler(async (event) => {
   try {
     let body: any
     try {
-      body = await readBody(event)
-      log.push('readBody-ok:' + JSON.stringify(body).slice(0, 80))
+      body = await parseBody(event)
     } catch (e: any) {
-      return { ok: false, step: 'readBody', error: String(e?.message ?? e), log }
+      throw createError({ statusCode: 400, message: 'Could not read request body.' })
     }
 
     const question = String(body?.question ?? '').trim()
     const answer   = String(body?.answer   ?? '').trim()
-    log.push(`validation: q=${!!question} a=${!!answer}`)
 
     if (!question || !answer) {
-      return { ok: false, step: 'validation', error: 'Question and answer are required.', log }
+      throw createError({ statusCode: 400, message: 'Question and answer are required.' })
     }
 
-    const apiKey = process.env.GROQ_API_KEY ?? ''
-    log.push(`key: ${apiKey.slice(0, 4)}... len=${apiKey.length}`)
-
+    const apiKey = process.env.GROQ_API_KEY
     if (!apiKey) {
-      return { ok: false, step: 'key-check', error: 'API key not configured.', log }
+      throw createError({ statusCode: 422, message: 'API key not configured on the server.' })
     }
 
-    log.push('fetch-start')
     let res: Response
     try {
       res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -56,48 +57,41 @@ export default defineEventHandler(async (event) => {
           max_tokens: 400
         })
       })
-      log.push(`fetch-done: status=${res.status}`)
     } catch (e: any) {
-      return { ok: false, step: 'fetch', error: String(e?.message ?? e), log }
+      throw createError({ statusCode: 422, message: `Could not reach AI service: ${e?.message ?? 'network error'}` })
     }
 
     if (!res.ok) {
       const errText = await res.text().catch(() => '')
-      log.push(`groq-error: ${errText.slice(0, 100)}`)
-      return { ok: false, step: 'groq-status', error: `Groq returned ${res.status}: ${errText.slice(0, 120)}`, log }
+      throw createError({ statusCode: 422, message: `AI service returned ${res.status}: ${errText.slice(0, 120)}` })
     }
 
     let data: any
     try {
       data = await res.json()
-      log.push('res-json-ok')
-    } catch (e: any) {
-      return { ok: false, step: 'res-json', error: String(e?.message ?? e), log }
+    } catch {
+      throw createError({ statusCode: 422, message: 'Could not parse the AI response. Try again.' })
     }
 
     const content = data.choices?.[0]?.message?.content ?? ''
-    log.push(`content-len=${content.length} preview=${content.slice(0, 40)}`)
-
     if (!content) {
-      return { ok: false, step: 'content-empty', error: 'AI returned empty response.', log }
+      throw createError({ statusCode: 422, message: 'AI returned an empty response. Try again.' })
     }
 
     let parsed: any
     try {
       parsed = JSON.parse(content)
-      log.push(`parsed-ok keys=${Object.keys(parsed).join(',')}`)
-    } catch (e: any) {
-      return { ok: false, step: 'parse', error: `JSON parse failed: ${e?.message}`, log, raw: content.slice(0, 200) }
+    } catch {
+      throw createError({ statusCode: 422, message: 'AI response was not valid JSON. Try again.' })
     }
 
     if (!Array.isArray(parsed.distractors) || parsed.distractors.length < 3) {
-      return { ok: false, step: 'shape', error: 'Unexpected AI response shape.', log, raw: JSON.stringify(parsed).slice(0, 200) }
+      throw createError({ statusCode: 422, message: 'Unexpected AI response shape. Try again.' })
     }
 
-    log.push('success')
-    return { ok: true, distractors: parsed.distractors.slice(0, 3) as string[], log }
+    return { distractors: parsed.distractors.slice(0, 3) as string[] }
   } catch (err: any) {
-    log.push(`outer-catch: ${err?.message ?? String(err)}`)
-    return { ok: false, step: 'outer-catch', error: String(err?.message ?? err), log }
+    if (err?.statusCode) throw err
+    throw createError({ statusCode: 422, message: `Unexpected error: ${err?.message ?? String(err)}` })
   }
 })

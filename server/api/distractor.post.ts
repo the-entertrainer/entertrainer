@@ -1,9 +1,23 @@
-// Nitro's Vercel preset stores the body as a string on event.req.text instead
-// of a callable method, which breaks H3's readBody. Read it directly.
-async function parseBody(event: any): Promise<any> {
-  const t = event.req?.text
-  if (typeof t === 'string') return t ? JSON.parse(t) : {}
-  return await readBody(event)
+// H3 v2 (Nuxt auto-imports) calls event.req.text() in readBody,
+// but Nitro 2.x creates H3 v1.x events where event.req is a Node.js
+// IncomingMessage — not a Web Request — so .text() doesn't exist.
+// Read directly from the Node.js stream to bypass this version mismatch.
+function parseBody(event: any): Promise<any> {
+  const req = event.node?.req ?? event.req
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = []
+    req.on('data', (c: any) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(String(c))))
+    req.on('end', () => {
+      try {
+        const text = Buffer.concat(chunks).toString('utf8').trim()
+        resolve(text ? JSON.parse(text) : {})
+      } catch (e: any) {
+        reject(new Error(`Body parse failed: ${e?.message}`))
+      }
+    })
+    req.on('error', reject)
+    if (req.readableEnded) resolve({})
+  })
 }
 
 export default defineEventHandler(async (event) => {

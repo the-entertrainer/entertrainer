@@ -79,21 +79,41 @@ const fragmentShader = /* glsl */`
       color = texture2D(uTexture, zoomedUv);
       color.rgb = mix(color.rgb, vec3(0.0), uColorStrength);
     } else {
-      // Heavy blur + darken on back-face so text is unreadable
-      float o2 = 140.0 / 1024.0;
-      vec4 c = vec4(0.0);
-      c += texture2D(uTexture, uv + vec2(-o2, -o2)) * 1.0;
-      c += texture2D(uTexture, uv + vec2(0.0, -o2)) * 2.0;
-      c += texture2D(uTexture, uv + vec2( o2, -o2)) * 1.0;
-      c += texture2D(uTexture, uv + vec2(-o2, 0.0)) * 2.0;
-      c += texture2D(uTexture, uv               )   * 4.0;
-      c += texture2D(uTexture, uv + vec2( o2, 0.0)) * 2.0;
-      c += texture2D(uTexture, uv + vec2(-o2,  o2)) * 1.0;
-      c += texture2D(uTexture, uv + vec2(0.0,  o2)) * 2.0;
-      c += texture2D(uTexture, uv + vec2( o2,  o2)) * 1.0;
-      c /= 16.0;
-      if (uIsImage < 0.5) c.rgb *= 0.2;
-      color = c;
+      // Solid glass back face — mirrors front card aesthetics, no bleed-through
+      float luma = dot(fogColor, vec3(0.299, 0.587, 0.114));
+      float dark = step(luma, 0.5); // 1.0 dark mode, 0.0 light mode
+
+      // Glass body — matches --color-glass-bg token
+      vec3 glass = mix(
+        mix(fogColor, vec3(0.0), 0.12),  // light: rgba(0,0,0,0.12)
+        mix(fogColor, vec3(1.0), 0.07),  // dark:  rgba(255,255,255,0.07)
+        dark
+      );
+
+      // Diagonal ambient sweep (dark mode only — mirrors front card)
+      float sweep = max(0.0, 0.6 - vUv.x * 0.5 - vUv.y * 0.5) * 0.04 * dark;
+      glass += vec3(sweep);
+
+      // Border using rounded-rect SDF — matches --color-glass-border
+      float bAspect = uPlaneSizes.x / uPlaneSizes.y;
+      vec2  bP      = vec2((vUv.x - 0.5) * bAspect, vUv.y - 0.5);
+      vec2  bD      = abs(bP) - vec2(bAspect * 0.5, 0.5) + 0.08;
+      float bSdf    = length(max(bD, 0.0)) - 0.08;
+      float bStr    = mix(0.14, 0.18, dark);
+      vec3  bCol    = mix(
+        mix(fogColor, vec3(0.0), bStr),
+        mix(fogColor, vec3(1.0), bStr),
+        dark
+      );
+      glass = mix(glass, bCol, smoothstep(-0.008, -0.001, bSdf));
+
+      // Accent tick — mirrors bottom-left marker on front face
+      float tX = step(100.0/1700.0, vUv.x) - step(240.0/1700.0, vUv.x);
+      float tY = step(820.0/1000.0, vUv.y) - step(824.0/1000.0, vUv.y);
+      vec3  tCol = mix(vec3(0.051, 0.047, 0.039), vec3(0.957, 0.945, 0.925), dark);
+      glass = mix(glass, tCol, clamp(tX * tY, 0.0, 1.0) * mix(0.25, 0.40, dark));
+
+      color = vec4(glass, 1.0);
     }
 
     float aspect    = uPlaneSizes.x / uPlaneSizes.y;

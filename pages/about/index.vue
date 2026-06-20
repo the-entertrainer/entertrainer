@@ -36,16 +36,19 @@ function toneClass(tone?: string) {
 // Deterministic-ish placement for a scene's thought (GIF) cluster.
 function thoughtStyle(scene: Scene, i: number) {
   const a = scene.gif!.anchor
-  const spread = 130
+  const density = scene.gif!.density
+  // big cinematic plates: one wide plate, or two slightly smaller side-by-side
+  const vw = density > 1 ? 30 : 42
   const seed = (scene.id * 31 + i * 17) % 100 / 100
-  const dx = (seed - 0.5) * spread + (i - (scene.gif!.density - 1) / 2) * 86
-  const dy = ((scene.id * 13 + i * 29) % 100 / 100 - 0.5) * spread
-  const rot = ((scene.id + i) % 2 === 0 ? 1 : -1) * (3 + i * 2)
+  const dx = (i - (density - 1) / 2) * (density > 1 ? 220 : 0) + (seed - 0.5) * 40
+  const dy = (((scene.id * 13 + i * 29) % 100 / 100) - 0.5) * 70
+  const rot = ((scene.id + i) % 2 === 0 ? 1 : -1) * (1.5 + i * 1.5)
   return {
     left: `calc(${a.x * 100}% + ${dx}rem)`,
     top: `calc(${a.y * 100}% + ${dy}rem)`,
     transform: `translate(-50%, -50%) rotate(${rot}deg)`,
-    '--scale': String(scene.gif!.scale ?? 1),
+    '--w': `clamp(300rem, ${vw}vw, ${density > 1 ? 520 : 760}rem)`,
+    '--rot': `${rot}deg`,
   }
 }
 
@@ -68,14 +71,26 @@ onMounted(async () => {
     cleanups.push(() => atmos?.dispose())
   }
 
-  // ── GIF engine — resolve each scene's "thoughts" ───────────────────────────
-  SCENES.forEach(scene => {
-    if (!scene.gif) return
-    const density = isMobile.value ? Math.min(scene.gif.density, 1) : scene.gif.density
-    fetchPool(scene.gif.keywords, Math.max(1, Math.ceil(density / scene.gif.keywords.length)))
-      .then(res => { gifs.value[scene.id] = { items: res.items.slice(0, density), fallback: res.fallback } })
-      .catch(() => { gifs.value[scene.id] = { items: [], fallback: true } })
-  })
+  // ── GIF engine — prefer the prebuilt static manifest (no per-visit API) ─────
+  // public/about/gifs/manifest.json is generated at author/deploy time by
+  // scripts/prefetch-gifs.mjs. We only hit the live /api/giphy proxy as a dev
+  // fallback when the manifest hasn't been generated yet.
+  try {
+    const manifest = await $fetch<Record<string, GifResult['items']>>('/about/gifs/manifest.json', { responseType: 'json' })
+    SCENES.forEach(scene => {
+      if (!scene.gif) return
+      const items = manifest?.[String(scene.id)] ?? []
+      gifs.value[scene.id] = { items, fallback: items.length === 0 }
+    })
+  } catch {
+    SCENES.forEach(scene => {
+      if (!scene.gif) return
+      const density = isMobile.value ? Math.min(scene.gif.density, 1) : scene.gif.density
+      fetchPool(scene.gif.keywords, Math.max(1, Math.ceil(density / scene.gif.keywords.length)))
+        .then(res => { gifs.value[scene.id] = { items: res.items.slice(0, density), fallback: res.fallback } })
+        .catch(() => { gifs.value[scene.id] = { items: [], fallback: true } })
+    })
+  }
 
   // ── Reduced motion: static, legible, no pinning ────────────────────────────
   if (reduceMotion.value) {
@@ -95,6 +110,7 @@ onMounted(async () => {
   void SplitType
   const { ScrollTrigger } = await import('gsap/ScrollTrigger')
   gsap.registerPlugin(ScrollTrigger)
+  ScrollTrigger.config({ ignoreMobileResize: true })
 
   const lenis = (useNuxtApp().$lenis) as any
   if (lenis?.on) {
@@ -139,7 +155,9 @@ onMounted(async () => {
         start: 'top top',
         end: `+=${scrollLen}`,
         pin: true,
-        scrub: true,
+        pinSpacing: true,
+        scrub: 1.1,
+        anticipatePin: 1,
         onEnter: () => gsap.to(beatEls, { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: 'power3.out' }),
         onUpdate: self => {
           cut.setProgress(self.progress)
@@ -163,29 +181,37 @@ onMounted(async () => {
         duration: 1.0, ease: 'power3.out', delay: 0.25,
         stagger: { each: 0.024, from: 'start' },
       })
+      // first scene is active on load — reveal its thought cluster explicitly
+      const firstCluster = sceneEl.querySelector<HTMLElement>('.fn-thoughts')
+      if (firstCluster) gsap.to(firstCluster.children, { opacity: 1, duration: 1.1, delay: 0.5, stagger: 0.1, ease: 'power2.out' })
     }
+
+    const cluster = sceneEl.querySelector<HTMLElement>('.fn-thoughts')
 
     ScrollTrigger.create({
       trigger: sceneEl,
       start: 'top top',
       end: `+=${scrollLen}`,
       pin: true,
-      scrub: true,
+      pinSpacing: true,
+      scrub: 1.1,
+      anticipatePin: 1,
       animation: tl,
       onUpdate: self => {
         if (intro && self.progress > 0.002) { intro.kill(); intro = null }
         const anchor = scene.gif?.anchor
         atmos?.setIntensity(0.3 + self.progress * 0.45)
         atmos?.setFocus(anchor?.x ?? 0.5, anchor?.y ?? 0.5)
+        // cinematic parallax — the thought cluster drifts as you move through
+        if (cluster) cluster.style.setProperty('--py', `${(0.5 - self.progress) * 180}rem`)
       },
       onToggle: self => {
-        const cluster = sceneEl.querySelector<HTMLElement>('.fn-thoughts')
         if (cluster) {
+          // opacity only — figures keep their inline translate/rotate transform
           gsap.to(cluster.children, {
             opacity: self.isActive ? 1 : 0,
-            scale: self.isActive ? 1 : 0.86,
-            duration: 0.7,
-            stagger: 0.06,
+            duration: 0.9,
+            stagger: 0.08,
             ease: 'power2.out',
           })
         }
@@ -241,26 +267,25 @@ onBeforeUnmount(() => {
     >
       <span class="fn-eyebrow">{{ scene.label }}</span>
 
-      <!-- thought cluster (GIFs) -->
+      <!-- thought cluster (GIFs) — big cinematic plates -->
       <div v-if="scene.gif" class="fn-thoughts" aria-hidden="true">
         <template v-if="gifs[scene.id] && !gifs[scene.id].fallback">
-          <img
+          <figure
             v-for="(g, gi) in gifs[scene.id].items"
             :key="g.id"
             class="fn-thought"
-            :src="g.url"
-            :alt="''"
             :style="thoughtStyle(scene, gi)"
-            loading="lazy"
-          />
+          >
+            <img class="fn-thought-media" :src="g.url" :alt="''" loading="lazy" />
+          </figure>
         </template>
         <template v-else-if="gifs[scene.id]">
-          <span
+          <figure
             v-for="(kw, gi) in scene.gif.keywords.slice(0, scene.gif.density)"
             :key="gi"
             class="fn-thought fn-thought--placeholder"
             :style="thoughtStyle(scene, gi)"
-          >{{ kw }}</span>
+          ><span>{{ kw }}</span></figure>
         </template>
       </div>
 
@@ -413,33 +438,58 @@ onBeforeUnmount(() => {
 }
 .fn-beat-text :deep(.word) { display: inline-block; }
 
-/* ── Thought cluster (GIFs) ───────────────────────────────────────────────── */
+/* ── Thought cluster (GIFs) — big cinematic plates ────────────────────────── */
 .fn-thoughts {
   position: absolute;
   inset: 0;
   z-index: 4;
   pointer-events: none;
+  /* parallax drift, set per-frame from scroll progress */
+  --py: 0rem;
+  transform: translateY(var(--py));
+  will-change: transform;
 }
 .fn-thought {
   position: absolute;
-  width: calc(190rem * var(--scale, 1));
-  height: auto;
-  border-radius: 10rem;
+  width: var(--w, 420rem);
+  aspect-ratio: 16 / 10;
+  margin: 0;
+  border-radius: 14rem;
+  overflow: hidden;
   opacity: 0;
-  box-shadow: 0 24rem 60rem rgba(0, 0, 0, 0.5);
-  filter: grayscale(0.15) contrast(1.05);
-  outline: 2rem solid rgba(36, 63, 106, 0.5);
+  box-shadow:
+    0 40rem 120rem rgba(0, 0, 0, 0.6),
+    0 8rem 30rem rgba(36, 63, 106, 0.35);
+  outline: 1.5rem solid rgba(36, 63, 106, 0.45);
+  outline-offset: -1.5rem;
+  will-change: transform, opacity;
+}
+/* Ken Burns — slow continuous drift/zoom inside the clip */
+.fn-thought-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(0.12) contrast(1.06) brightness(0.98);
+  transform: scale(1.08);
+  animation: fn-kenburns 18s ease-in-out infinite alternate;
+}
+@keyframes fn-kenburns {
+  0%   { transform: scale(1.06) translate3d(-1.5%, -1%, 0); }
+  100% { transform: scale(1.16) translate3d(1.5%, 1.5%, 0); }
 }
 .fn-thought--placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: calc(190rem * var(--scale, 1));
-  height: calc(130rem * var(--scale, 1));
+  aspect-ratio: 16 / 10;
   background: rgba(36, 63, 106, 0.12);
   border: 1.5rem dashed rgba(36, 63, 106, 0.6);
+  outline: none;
+}
+.fn-thought--placeholder span {
   color: #8C8C8C;
-  font-size: 15rem;
+  font-size: 18rem;
   font-weight: 500;
   letter-spacing: 0.04em;
   text-transform: lowercase;

@@ -67,7 +67,7 @@ export const SCENES: Scene[] = [
     title: 'Not supposed to be here',
     align: 'left',
     special: 'reveal',
-    gif: { keywords: ['towel animal', 'towel monkey', 'hotel housekeeping'], anchor: { x: 0.74, y: 0.32 }, density: 3, scale: 1.1 },
+    gif: { keywords: ['towel animal', 'towel monkey', 'hotel housekeeping'], anchor: { x: 0.70, y: 0.36 }, density: 1, scale: 1 },
     beats: [
       { text: 'I wasn’t supposed to end up here.', tone: 'xl' },
       { text: 'I studied hotel management.', tone: 'lg' },
@@ -87,7 +87,7 @@ export const SCENES: Scene[] = [
     title: 'Fascinated by people',
     align: 'left',
     special: 'reveal',
-    gif: { keywords: ['curious mind', 'thinking brain', 'human psychology'], anchor: { x: 0.72, y: 0.6 }, density: 2 },
+    gif: { keywords: ['curious mind', 'thinking brain', 'human psychology'], anchor: { x: 0.71, y: 0.58 }, density: 1 },
     beats: [
       { text: 'I wasn’t fascinated by rooms.', tone: 'lg' },
       { text: 'I was fascinated by people.', tone: 'xl' },
@@ -104,7 +104,7 @@ export const SCENES: Scene[] = [
     title: 'L&D found me',
     align: 'left',
     special: 'reveal',
-    gif: { keywords: ['comic book', 'storytelling', 'illustration'], anchor: { x: 0.75, y: 0.35 }, density: 3 },
+    gif: { keywords: ['comic book', 'storytelling', 'illustration'], anchor: { x: 0.72, y: 0.4 }, density: 2 },
     beats: [
       { text: 'I didn’t choose Learning & Development.', tone: 'lg' },
       { text: 'It found me.', tone: 'xl' },
@@ -136,7 +136,7 @@ export const SCENES: Scene[] = [
     title: 'Raising my hand',
     align: 'left',
     special: 'reveal',
-    gif: { keywords: ['brilliant idea', 'teamwork', 'lightbulb moment'], anchor: { x: 0.74, y: 0.5 }, density: 2 },
+    gif: { keywords: ['brilliant idea', 'teamwork', 'lightbulb moment'], anchor: { x: 0.71, y: 0.52 }, density: 1 },
     beats: [
       { text: 'I kept raising my hand.', tone: 'lg' },
       { text: 'Taking on bigger challenges.', tone: 'lg' },
@@ -154,7 +154,7 @@ export const SCENES: Scene[] = [
     title: 'Clarity',
     align: 'left',
     special: 'reveal',
-    gif: { keywords: ['organized', 'clean design', 'aha moment'], anchor: { x: 0.76, y: 0.28 }, density: 2 },
+    gif: { keywords: ['organized', 'clean design', 'aha moment'], anchor: { x: 0.72, y: 0.32 }, density: 1 },
     beats: [
       { text: 'Instructional Design.', tone: 'xl' },
       { text: 'At first…', tone: 'md' },
@@ -175,7 +175,7 @@ export const SCENES: Scene[] = [
     title: 'The work',
     align: 'left',
     special: 'reveal',
-    gif: { keywords: ['movie director', 'clapperboard', 'film editing'], anchor: { x: 0.73, y: 0.62 }, density: 3 },
+    gif: { keywords: ['movie director', 'clapperboard', 'film editing'], anchor: { x: 0.72, y: 0.6 }, density: 2 },
     beats: [
       { text: 'Imagine someone hands you this.', tone: 'lg' },
       { text: 'And expects a new employee to understand it on Day One.', tone: 'md' },

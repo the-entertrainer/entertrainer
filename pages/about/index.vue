@@ -53,6 +53,7 @@ function thoughtStyle(scene: Scene, i: number) {
 }
 
 onMounted(async () => {
+  document.documentElement.setAttribute('data-about', '')
   reduceMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   isMobile.value = window.innerWidth < 768
   await nextTick()
@@ -247,6 +248,7 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  document.documentElement.removeAttribute('data-about')
   cleanups.forEach(fn => { try { fn() } catch {} })
   cleanups.length = 0
 })

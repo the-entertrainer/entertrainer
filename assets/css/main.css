@@ -794,3 +794,49 @@ canvas {
   }
 }
 
+/* ============================================================
+   About page — ghost chrome while reading narrative
+   Set by pages/about/index.vue via data-about on <html>.
+   Elements fade to near-invisible so they don't compete with
+   the story; hover fully restores them.
+   ============================================================ */
+html[data-about] .logo-wrapper {
+  opacity: 0.14;
+  transition: opacity 0.7s ease;
+}
+html[data-about] .logo-wrapper:hover {
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+
+html[data-about] .menu {
+  opacity: 0.14;
+  transition: opacity 0.7s ease;
+}
+html[data-about] .menu:hover {
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+/* Never ghost an open menu panel */
+html[data-about] .menu:has(.menu-subwrapper.opened) {
+  opacity: 1;
+}
+
+html[data-about] .back-btn-circle {
+  opacity: 0.14;
+  transition: transform 0.2s ease, opacity 0.7s ease;
+}
+html[data-about] .back-btn-circle:hover {
+  opacity: 1;
+  transition: transform 0.2s ease, opacity 0.15s ease;
+}
+
+html[data-about] .sound-button {
+  opacity: 0.14;
+  transition: opacity 0.7s ease;
+}
+html[data-about] .sound-button:hover {
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+

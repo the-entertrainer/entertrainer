@@ -11,11 +11,8 @@
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",
     "@studio-freight/lenis": "^1.0.42",
-    "@theatre/core": "^0.7.2",
     "gsap": "^3.12.5",
-    "lottie-web": "^5.13.0",
     "matter-js": "^0.20.0",
-    "motion": "^12.40.0",
     "pinia": "^2.1.7",
     "rough-notation": "^0.5.1",
     "split-type": "^0.3.4",

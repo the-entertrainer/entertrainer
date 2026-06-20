@@ -30,25 +30,39 @@ const REST = { yPercent: 0, rotateX: 0, opacity: 1, filter: 'blur(0px)' }
 
 // Build one scene's scrubbed teleprompter timeline. Beats occupy the same space;
 // the timeline sequences enter → hold → exit so exactly one beat reads at a time.
-export function buildSceneTimeline(beats: SplitBeat[]): gsap.core.Timeline {
+// `introFirst` keeps the first beat already at rest at progress 0 so it can be
+// revealed by a separate on-mount intro (avoids a blank hero before any scroll).
+export function buildSceneTimeline(
+  beats: SplitBeat[],
+  opts: { introFirst?: boolean } = {}
+): gsap.core.Timeline {
   const tl = gsap.timeline({ paused: true })
 
   beats.forEach((b, i) => {
-    // initial hidden state
+    const presentAtStart = opts.introFirst && i === 0
+
+    // initial state — first beat may start visible so the intro can animate it
     gsap.set(b.el, { opacity: 1 })
-    gsap.set(b.chars, { ...ENTER_FROM, transformOrigin: '50% 100% -20px' })
+    gsap.set(b.chars, {
+      ...(presentAtStart ? REST : ENTER_FROM),
+      transformOrigin: '50% 100% -20px',
+    })
 
     const enterDur = 0.5
     const holdDur = 0.7
     const exitDur = 0.45
 
-    // ENTER — character 3D rise
-    tl.to(b.chars, {
-      ...REST,
-      duration: enterDur,
-      ease: 'power3.out',
-      stagger: { each: 0.018, from: 'start' },
-    }, i === 0 ? 0 : '>-0.05')
+    // ENTER — character 3D rise (skipped for an intro-revealed first beat)
+    if (!presentAtStart) {
+      tl.to(b.chars, {
+        ...REST,
+        duration: enterDur,
+        ease: 'power3.out',
+        stagger: { each: 0.018, from: 'start' },
+      }, i === 0 ? 0 : '>-0.05')
+    } else {
+      tl.set(b.chars, { ...REST }, 0)
+    }
 
     // IDLE — hold (a tiny settle keeps it alive without "breathing" jitter)
     tl.to(b.chars, { duration: holdDur }, '>')

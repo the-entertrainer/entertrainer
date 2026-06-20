@@ -150,8 +150,20 @@ onMounted(async () => {
       continue
     }
 
-    // Generic / converge / antithesis / signature — scrubbed teleprompter
-    const tl = buildSceneTimeline(splits)
+    // Generic / converge / antithesis / signature — scrubbed teleprompter.
+    // The first scene's opening beat is revealed by an on-mount intro so the
+    // hero line is alive on load rather than blank until first scroll.
+    const isFirst = i === 0
+    const tl = buildSceneTimeline(splits, { introFirst: isFirst })
+
+    let intro: gsap.core.Tween | null = null
+    if (isFirst && splits[0]) {
+      intro = gsap.from(splits[0].chars, {
+        yPercent: 120, rotateX: -88, opacity: 0, filter: 'blur(10px)',
+        duration: 1.0, ease: 'power3.out', delay: 0.25,
+        stagger: { each: 0.024, from: 'start' },
+      })
+    }
 
     ScrollTrigger.create({
       trigger: sceneEl,
@@ -161,6 +173,7 @@ onMounted(async () => {
       scrub: true,
       animation: tl,
       onUpdate: self => {
+        if (intro && self.progress > 0.002) { intro.kill(); intro = null }
         const anchor = scene.gif?.anchor
         atmos?.setIntensity(0.3 + self.progress * 0.45)
         atmos?.setFocus(anchor?.x ?? 0.5, anchor?.y ?? 0.5)

@@ -15,6 +15,7 @@
     "matter-js": "^0.20.0",
     "pinia": "^2.1.7",
     "rough-notation": "^0.5.1",
+    "split-type": "^0.3.4",
     "three": "^0.163.0"
   },
   "devDependencies": {

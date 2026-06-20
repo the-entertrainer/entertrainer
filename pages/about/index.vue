@@ -2,8 +2,6 @@
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import lottie, { type AnimationItem } from 'lottie-web'
-import { getProject, onChange } from '@theatre/core'
-
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 
 useHead({
@@ -21,9 +19,6 @@ const { $lenis } = useNuxtApp()
 const stickerAnims: AnimationItem[] = []
 const stickerMap = new Map<HTMLElement, AnimationItem>()
 const cleanups: Array<() => void> = []
-
-// Theatre.js project — one per page mount
-const theatreProject = getProject('About Me')
 
 // ── Word masking ───────────────────────────────────────────────────────
 function maskWords(el: HTMLElement): HTMLElement[] {
@@ -97,24 +92,10 @@ function stickerIn(tl: gsap.core.Timeline, s: HTMLElement | null, at: number | s
   tl.call(() => anim?.play(), undefined, at)
 }
 
-// ── Theatre.js: attach sheet as animation clock for a GSAP timeline ──
-// Theatre.js position drives GSAP.seek() — no scrubbing needed.
-function attachTheatre(sheetId: string, tl: gsap.core.Timeline) {
-  const sheet = theatreProject.sheet(sheetId)
-  const duration = tl.totalDuration()
-
-  const unsub = onChange(sheet.sequence.pointer.position, (pos) => {
-    tl.seek(Math.min(pos, duration))
-  })
-  cleanups.push(unsub)
-
+function attachTheatre(_sheetId: string, tl: gsap.core.Timeline) {
   return {
-    play() {
-      // Reset Theatre.js clock to 0 → onChange fires → GSAP resets → then plays
-      try { sheet.sequence.position = 0 } catch (_) { tl.seek(0) }
-      return sheet.sequence.play({ range: [0, duration], rate: 1 })
-    },
-    pause() { sheet.sequence.pause() }
+    play() { tl.restart() },
+    pause() { tl.pause() }
   }
 }
 
@@ -123,20 +104,11 @@ onMounted(() => {
   const root = rootRef.value
   if (!root) return
 
-  // Stop Lenis — let CSS scroll-snap take over on this page
+  // Wire Lenis scroll events to ScrollTrigger for position sync
   const lenisInst = $lenis as any
-  lenisInst?.stop?.()
-
-  // Inject scroll-snap on document root
-  const html = document.documentElement
-  html.style.setProperty('scroll-snap-type', 'y mandatory')
-  html.style.setProperty('overflow-y', 'scroll')
-
-  cleanups.push(() => {
-    html.style.removeProperty('scroll-snap-type')
-    html.style.removeProperty('overflow-y')
-    lenisInst?.start?.()
-  })
+  const syncST = () => ScrollTrigger.update()
+  lenisInst?.on?.('scroll', syncST)
+  cleanups.push(() => lenisInst?.off?.('scroll', syncST))
 
   // ── Load Lottie stickers ───────────────────────────────────────────
   root.querySelectorAll<HTMLElement>('.sticker').forEach((wrapper) => {
@@ -149,8 +121,29 @@ onMounted(() => {
     stickerMap.set(wrapper, anim)
   })
 
+  // ── Wheel snap: one gesture → snap to next/prev scene ─────────────
+  const snapSections = Array.from(root.querySelectorAll<HTMLElement>('.scene, .coda'))
+  let snapIdx = 0
+  let snapping = false
+
+  const onWheel = (e: WheelEvent) => {
+    if (snapping) { e.preventDefault(); return }
+    const dir = e.deltaY > 0 ? 1 : -1
+    const next = Math.max(0, Math.min(snapSections.length - 1, snapIdx + dir))
+    if (next === snapIdx) return
+    e.preventDefault()
+    snapping = true
+    snapIdx = next
+    lenisInst?.scrollTo?.(snapSections[next], {
+      duration: 0.9,
+      easing: (t: number) => 1 - Math.pow(1 - t, 3),
+      onComplete: () => { snapping = false }
+    })
+  }
+  document.addEventListener('wheel', onWheel, { passive: false })
+  cleanups.push(() => document.removeEventListener('wheel', onWheel))
+
   // ── Scene timeline builders ────────────────────────────────────────
-  // Each returns a paused GSAP timeline. Theatre.js drives seek().
 
   function buildIntroTl(el: HTMLElement) {
     const fills   = collectFills(el)
@@ -343,7 +336,7 @@ onMounted(() => {
     return tl
   }
 
-  // ── Register scenes: Theatre.js sheet + IntersectionObserver ──────
+  // ── Register scenes: build timelines + IntersectionObserver ──────
   const scenes = [
     { sel: '.scene-intro',   id: 'intro',   build: buildIntroTl },
     { sel: '.scene-fate',    id: 'fate',    build: buildFateTl },

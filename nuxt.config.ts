@@ -2,6 +2,11 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   modules: ['@pinia/nuxt', '@vite-pwa/nuxt'],
   css: ['~/assets/css/main.css'],
+  runtimeConfig: {
+    // Server-only — set via GIPHY_API_KEY env var (Vercel project settings).
+    // When absent, /api/giphy serves a curated fallback manifest.
+    giphyApiKey: process.env.GIPHY_API_KEY || ''
+  },
   app: {
     head: {
       title: 'Entertrainer',

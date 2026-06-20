@@ -165,33 +165,26 @@ onMounted(() => {
   // ── Scene 1: INTRO — immediate entrance, scrub only the exit ──────
   const introEl = root.querySelector<HTMLElement>('.scene-intro')
   if (introEl) {
-    const fills = collectFills(introEl)
-    const s = introEl.querySelector<HTMLElement>('.sticker')
+    const fills   = collectFills(introEl)
+    const gifWrap = introEl.querySelector<HTMLElement>('.intro-gif-wrap')!
     gsap.set(fills, RISE)
-    if (s) {
-      const rot = parseFloat(s.dataset.rot ?? '8')
-      gsap.set(s, { opacity: 0, scale: 0.3, rotation: rot - 22, y: 24 })
-    }
+    gsap.set(gifWrap, { opacity: 0, scale: 0.65, rotation: -12, y: 30 })
 
+    // GIF card springs in first — immediate on load, no scrub
+    gsap.to(gifWrap, {
+      opacity: 1, scale: 1, rotation: -3, y: 0,
+      duration: 0.85, ease: 'back.out(1.5)', delay: 0.15
+    })
+    // Text words rise up after the card has landed
     gsap.to(fills, {
       yPercent: 0, opacity: 1, filter: 'blur(0px)',
-      duration: 0.9, ease: 'power3.out', stagger: 0.06, delay: 0.25
+      duration: 0.9, ease: 'power3.out', stagger: 0.06, delay: 0.55
     })
-    if (s) {
-      const rot = parseFloat(s.dataset.rot ?? '8')
-      const anim = stickerMap.get(s)
-      gsap.to(s, {
-        opacity: 1, scale: 1, rotation: rot, y: 0,
-        duration: 0.7, ease: 'back.out(1.7)', delay: 0.65,
-        onComplete: () => anim?.play()
-      })
-    }
 
+    // Pin + scrub only the EXIT
     const tl = pinned(introEl, '+=90%')
-    tl.to(fills, { yPercent: -26, opacity: 0, filter: 'blur(8px)', duration: 1, ease: 'power2.in', stagger: 0.02 })
-    if (s) {
-      stickerOut(tl, s, '<0.05')
-    }
+    tl.to(fills,   { yPercent: -26, opacity: 0, filter: 'blur(8px)', duration: 1, ease: 'power2.in', stagger: 0.02 })
+    tl.to(gifWrap, { opacity: 0, scale: 0.8, y: -50, duration: 0.7, ease: 'power2.in' }, '<0.1')
   }
 
   // ── Scenes 2–6 ───────────────────────────────────────────────────
@@ -314,14 +307,21 @@ onUnmounted(() => {
 
     <!-- 1 · INTRO -->
     <section class="scene scene-intro">
-      <div class="sticker sticker-tr s-intro" data-rot="8">
-        <div class="sticker-lottie" data-src="/lottie/stickers/star.json"></div>
-      </div>
-      <div class="scene-inner">
-        <p class="line l-xl">Hey. I'm <span class="hl">Naveen Jose.</span></p>
-        <p class="line l-md dim">I'm an Instructional Designer with a very particular, borderline obsessive need for two things:</p>
-        <p class="line l-lg">making things look <span class="hl">simple</span>,</p>
-        <p class="line l-lg">and making things look <span class="hl">good</span>.</p>
+      <div class="scene-inner intro-inner">
+
+        <!-- GIF card — left column -->
+        <div class="intro-gif-wrap">
+          <img class="intro-gif" src="/hi.gif" alt="Hi" />
+        </div>
+
+        <!-- Text — right column -->
+        <div class="intro-text">
+          <p class="line l-xl">Hey. I'm <span class="hl">Naveen Jose.</span></p>
+          <p class="line l-md dim">I'm an Instructional Designer with a very particular, borderline obsessive need for two things:</p>
+          <p class="line l-lg">making things look <span class="hl">simple</span>,</p>
+          <p class="line l-lg">and making things look <span class="hl">good</span>.</p>
+        </div>
+
       </div>
     </section>
 
@@ -490,6 +490,38 @@ onUnmounted(() => {
 }
 .scene-inner.center { align-items: center; text-align: center; }
 
+/* ── Intro two-column layout ── */
+.intro-inner {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 60rem;
+}
+.intro-gif-wrap {
+  flex: 0 0 auto;
+  background: #FDFCF8;
+  border-radius: 20rem;
+  padding: 24rem;
+  box-shadow:
+    0 12rem 40rem rgba(0,0,0,0.38),
+    0 2rem 8rem rgba(0,0,0,0.18);
+  will-change: transform, opacity;
+}
+.intro-gif {
+  display: block;
+  width: clamp(140rem, 20vw, 260rem);
+  height: auto;
+}
+.intro-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28em;
+}
+@media (max-width: 768px) {
+  .intro-inner { flex-direction: column !important; align-items: flex-start; gap: 36rem; }
+  .intro-gif { width: clamp(110rem, 38vw, 180rem); }
+}
+
 /* ── Scrapbook sticker badges ── */
 .sticker {
   position: absolute;
@@ -519,7 +551,6 @@ onUnmounted(() => {
   pointer-events: none;
 }
 /* Per-scene badge colours */
-.s-intro   { background: #FFD700; }
 .s-fate    { background: #FF6B6B; }
 .s-leap    { background: #4FC3F7; }
 .s-myth    { background: #CE93D8; }

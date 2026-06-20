@@ -188,7 +188,35 @@ onMounted(() => {
   }
 
   // ── Scenes 2–6 ───────────────────────────────────────────────────
-  sceneWithSticker('.scene-fate')
+
+  // Scene 2: Fate — polaroid drops in, then text rises (custom)
+  const fateEl = root.querySelector<HTMLElement>('.scene-fate')
+  if (fateEl) {
+    const fills    = collectFills(fateEl)
+    const sticker  = fateEl.querySelector<HTMLElement>('.sticker')
+    const polaroid = fateEl.querySelector<HTMLElement>('.fate-polaroid')!
+
+    gsap.set(fills, RISE)
+    gsap.set(polaroid, { opacity: 0, y: -180, rotation: -28, scale: 0.72 })
+    if (sticker) {
+      const rot = parseFloat(sticker.dataset.rot ?? '-11')
+      gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: rot - 22, y: 24 })
+    }
+
+    const tl = pinned(fateEl, '+=125%')
+
+    // Polaroid slams down first — dramatic entrance
+    tl.to(polaroid, { opacity: 1, y: 0, rotation: -10, scale: 1, duration: 0.75, ease: 'back.out(1.35)' }, 0)
+    // Text rises up word-by-word while polaroid settles
+    tl.to(fills, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out', stagger: 0.04 }, 0.18)
+    stickerIn(tl, sticker, 0.28)
+    tl.to({}, { duration: 0.45 })
+    // Exit: polaroid flips and flies out, text dissolves
+    tl.to(fills,    { yPercent: -26, opacity: 0, filter: 'blur(8px)', duration: 0.7, ease: 'power2.in', stagger: 0.02 })
+    tl.to(polaroid, { opacity: 0, y: -100, rotation: 18, scale: 0.5, duration: 0.5, ease: 'power3.in' }, '<0.05')
+    stickerOut(tl, sticker, '<0.05')
+  }
+
   sceneWithSticker('.scene-leap')
   sceneWithSticker('.scene-myth')
   sceneWithSticker('.scene-mentors')
@@ -330,11 +358,22 @@ onUnmounted(() => {
       <div class="sticker sticker-bl s-fate" data-rot="-11">
         <div class="sticker-lottie" data-src="/lottie/stickers/explore.json"></div>
       </div>
-      <div class="scene-inner">
-        <p class="line l-md">Honestly, doing what I do today feels like a highly specific twist of fate.</p>
-        <p class="line l-md">I walked out of college with a degree in hospitality, fully expecting to spend the rest of my life worrying about room inventory.</p>
-        <p class="line l-md">I definitely didn't plan on Learning &amp; Development becoming my life's work.</p>
-        <p class="line l-md">But Club Mahindra handed me an opportunity to step up — a responsibility passed down by my <span class="hl">first mentor</span>.</p>
+      <div class="scene-inner fate-inner">
+
+        <!-- Text — left column -->
+        <div class="fate-text">
+          <p class="line l-md">Honestly, doing what I do today feels like a highly specific twist of fate.</p>
+          <p class="line l-md">I walked out of college with a degree in hospitality, fully expecting to spend the rest of my life worrying about room inventory.</p>
+          <p class="line l-md">I definitely didn't plan on Learning &amp; Development becoming my life's work.</p>
+          <p class="line l-md">But Club Mahindra handed me an opportunity to step up — a responsibility passed down by my <span class="hl">first mentor</span>.</p>
+        </div>
+
+        <!-- Polaroid — right column -->
+        <div class="fate-polaroid">
+          <img class="fate-polaroid__img" src="/graduation.gif" alt="College graduation" />
+          <p class="fate-polaroid__caption">Not the plan.</p>
+        </div>
+
       </div>
     </section>
 
@@ -520,6 +559,52 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .intro-inner { flex-direction: column !important; align-items: flex-start; gap: 36rem; }
   .intro-gif { width: clamp(110rem, 38vw, 180rem); }
+}
+
+/* ── Scene 2: Fate — two-column + polaroid ── */
+.fate-inner {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 64rem;
+}
+.fate-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+.fate-polaroid {
+  flex: 0 0 auto;
+  width: clamp(160rem, 20vw, 270rem);
+  background: #FDFCF8;
+  padding: 14rem 14rem 52rem;
+  box-shadow:
+    0 16rem 48rem rgba(0,0,0,0.45),
+    0 3rem 10rem rgba(0,0,0,0.22);
+  will-change: transform, opacity;
+  z-index: 3;
+}
+.fate-polaroid__img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.fate-polaroid__caption {
+  text-align: center;
+  font-size: 13rem;
+  font-weight: 500;
+  font-style: italic;
+  color: #666;
+  margin-top: 10rem;
+  letter-spacing: 0.01em;
+}
+@media (max-width: 768px) {
+  .fate-inner {
+    flex-direction: column-reverse !important;
+    align-items: flex-start;
+    gap: 32rem;
+  }
+  .fate-polaroid { width: 150rem; align-self: center; }
 }
 
 /* ── Scrapbook sticker badges ── */

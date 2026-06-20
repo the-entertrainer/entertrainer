@@ -187,9 +187,7 @@ onMounted(() => {
     tl.to(gifWrap, { opacity: 0, scale: 0.8, y: -50, duration: 0.7, ease: 'power2.in' }, '<0.1')
   }
 
-  // ── Scenes 2–6 ───────────────────────────────────────────────────
-
-  // Scene 2: Fate — polaroid drops in, then text rises (custom)
+  // ── Scene 2: Fate — polaroid slams in ────────────────────────────
   const fateEl = root.querySelector<HTMLElement>('.scene-fate')
   if (fateEl) {
     const fills    = collectFills(fateEl)
@@ -204,31 +202,120 @@ onMounted(() => {
     }
 
     const tl = pinned(fateEl, '+=125%')
-
-    // Polaroid slams down first — dramatic entrance
     tl.to(polaroid, { opacity: 1, y: 0, rotation: -10, scale: 1, duration: 0.75, ease: 'back.out(1.35)' }, 0)
-    // Text rises up word-by-word while polaroid settles
     tl.to(fills, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out', stagger: 0.04 }, 0.18)
     stickerIn(tl, sticker, 0.28)
     tl.to({}, { duration: 0.45 })
-    // Exit: polaroid flips and flies out, text dissolves
     tl.to(fills,    { yPercent: -26, opacity: 0, filter: 'blur(8px)', duration: 0.7, ease: 'power2.in', stagger: 0.02 })
     tl.to(polaroid, { opacity: 0, y: -100, rotation: 18, scale: 0.5, duration: 0.5, ease: 'power3.in' }, '<0.05')
     stickerOut(tl, sticker, '<0.05')
   }
 
-  sceneWithSticker('.scene-leap')
-  sceneWithSticker('.scene-myth')
-  sceneWithSticker('.scene-mentors')
-  sceneWithSticker('.scene-psych', '+=130%')
+  // ── Scene 3: Leap — GIF bounces up from below ─────────────────────
+  const leapEl = root.querySelector<HTMLElement>('.scene-leap')
+  if (leapEl) {
+    const fills   = collectFills(leapEl)
+    const sticker = leapEl.querySelector<HTMLElement>('.sticker')
+    const gifWrap = leapEl.querySelector<HTMLElement>('.leap-gif-wrap')
 
-  // ── Scene 7: Thesis + decode ──────────────────────────────────────
+    gsap.set(fills, RISE)
+    if (gifWrap) gsap.set(gifWrap, { opacity: 0, y: 80, rotation: 12, scale: 0.65 })
+    if (sticker) {
+      const rot = parseFloat(sticker.dataset.rot ?? '14')
+      gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: rot - 22, y: 24 })
+    }
+
+    const tl = pinned(leapEl, '+=110%')
+    tl.to(fills, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out', stagger: 0.045 })
+    if (gifWrap) tl.to(gifWrap, { opacity: 1, y: 0, rotation: 6, scale: 1, duration: 0.75, ease: 'back.out(1.6)' }, 0.25)
+    stickerIn(tl, sticker, 0.2)
+    tl.to({}, { duration: 0.5 })
+    tl.to(fills, { yPercent: -26, opacity: 0, filter: 'blur(8px)', duration: 0.7, ease: 'power2.in', stagger: 0.02 })
+    if (gifWrap) tl.to(gifWrap, { opacity: 0, y: -80, scale: 0.7, duration: 0.5, ease: 'power2.in' }, '<0.05')
+    stickerOut(tl, sticker)
+  }
+
+  // ── Scene 4: Myth — reality-check GIF drops in top-right ──────────
+  const mythEl = root.querySelector<HTMLElement>('.scene-myth')
+  if (mythEl) {
+    const fills    = collectFills(mythEl)
+    const sticker  = mythEl.querySelector<HTMLElement>('.sticker')
+    const gifFloat = mythEl.querySelector<HTMLElement>('.myth-gif-float')
+
+    gsap.set(fills, RISE)
+    if (gifFloat) gsap.set(gifFloat, { opacity: 0, y: -60, rotation: 20, scale: 0.6 })
+    if (sticker) {
+      const rot = parseFloat(sticker.dataset.rot ?? '-9')
+      gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: rot - 22, y: 24 })
+    }
+
+    const tl = pinned(mythEl, '+=110%')
+    tl.to(fills, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out', stagger: 0.045 })
+    if (gifFloat) tl.to(gifFloat, { opacity: 1, y: 0, rotation: -8, scale: 1, duration: 0.6, ease: 'back.out(1.5)' }, 0.3)
+    stickerIn(tl, sticker, 0.2)
+    tl.to({}, { duration: 0.5 })
+    tl.to(fills, { yPercent: -26, opacity: 0, filter: 'blur(8px)', duration: 0.7, ease: 'power2.in', stagger: 0.02 })
+    if (gifFloat) tl.to(gifFloat, { opacity: 0, scale: 0.5, y: -80, duration: 0.4, ease: 'power3.in' }, '<0.05')
+    stickerOut(tl, sticker)
+  }
+
+  // ── Scene 5: Mentors — mind-blown GIF slides in from left ─────────
+  const mentorEl = root.querySelector<HTMLElement>('.scene-mentors')
+  if (mentorEl) {
+    const fills   = collectFills(mentorEl)
+    const sticker = mentorEl.querySelector<HTMLElement>('.sticker')
+    const gifWrap = mentorEl.querySelector<HTMLElement>('.mentor-gif-wrap')
+
+    gsap.set(fills, RISE)
+    if (gifWrap) gsap.set(gifWrap, { opacity: 0, x: -80, rotation: -18, scale: 0.65 })
+    if (sticker) {
+      const rot = parseFloat(sticker.dataset.rot ?? '7')
+      gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: rot - 22, y: 24 })
+    }
+
+    const tl = pinned(mentorEl, '+=120%')
+    if (gifWrap) tl.to(gifWrap, { opacity: 1, x: 0, rotation: -6, scale: 1, duration: 0.8, ease: 'back.out(1.4)' }, 0)
+    tl.to(fills, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out', stagger: 0.05 }, 0.2)
+    stickerIn(tl, sticker, 0.3)
+    tl.to({}, { duration: 0.4 })
+    tl.to(fills, { yPercent: -26, opacity: 0, filter: 'blur(8px)', duration: 0.7, ease: 'power2.in', stagger: 0.02 })
+    if (gifWrap) tl.to(gifWrap, { opacity: 0, x: -80, scale: 0.7, duration: 0.5, ease: 'power2.in' }, '<0.05')
+    stickerOut(tl, sticker)
+  }
+
+  // ── Scene 6: Psych — big brain GIF floats up ──────────────────────
+  const psychEl = root.querySelector<HTMLElement>('.scene-psych')
+  if (psychEl) {
+    const fills    = collectFills(psychEl)
+    const sticker  = psychEl.querySelector<HTMLElement>('.sticker')
+    const gifFloat = psychEl.querySelector<HTMLElement>('.psych-gif-float')
+
+    gsap.set(fills, RISE)
+    if (gifFloat) gsap.set(gifFloat, { opacity: 0, scale: 0.5, rotation: 15, y: 40 })
+    if (sticker) {
+      const rot = parseFloat(sticker.dataset.rot ?? '-13')
+      gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: rot - 22, y: 24 })
+    }
+
+    const tl = pinned(psychEl, '+=130%')
+    tl.to(fills, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out', stagger: 0.045 })
+    if (gifFloat) tl.to(gifFloat, { opacity: 1, scale: 1, rotation: -5, y: 0, duration: 0.7, ease: 'back.out(1.5)' }, 0.35)
+    stickerIn(tl, sticker, 0.25)
+    tl.to({}, { duration: 0.5 })
+    tl.to(fills, { yPercent: -26, opacity: 0, filter: 'blur(8px)', duration: 0.7, ease: 'power2.in', stagger: 0.02 })
+    if (gifFloat) tl.to(gifFloat, { opacity: 0, scale: 0.6, y: -50, duration: 0.45, ease: 'power2.in' }, '<0.05')
+    stickerOut(tl, sticker)
+  }
+
+  // ── Scene 7: Thesis + decode + hacker GIF ─────────────────────────
   const s7 = root.querySelector<HTMLElement>('.scene-thesis')
   if (s7) {
-    const sticker = s7.querySelector<HTMLElement>('.sticker')
+    const sticker  = s7.querySelector<HTMLElement>('.sticker')
+    const gifFloat = s7.querySelector<HTMLElement>('.thesis-gif-float')
     const f7: HTMLElement[] = []
     s7.querySelectorAll<HTMLElement>('.line:not(.decode-line)').forEach((l) => f7.push(...maskWords(l)))
     gsap.set(f7, RISE)
+    if (gifFloat) gsap.set(gifFloat, { opacity: 0, scale: 0.8, x: 60 })
     if (sticker) {
       const rot = parseFloat(sticker.dataset.rot ?? '-8')
       gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: rot - 22, y: 24 })
@@ -240,6 +327,7 @@ onMounted(() => {
     gsap.set(decodeEl, { opacity: 0, yPercent: 40 })
 
     const tl = pinned(s7, '+=160%')
+    if (gifFloat) tl.to(gifFloat, { opacity: 0.2, scale: 1, x: 0, duration: 1.0, ease: 'power2.out' }, 0)
     tl.to(f7, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out', stagger: 0.05 })
     stickerIn(tl, sticker, 0.25)
     tl.to(decodeEl, { opacity: 1, yPercent: 0, duration: 0.4, ease: 'power3.out' }, '>0.1')
@@ -251,13 +339,15 @@ onMounted(() => {
     tl.to({}, { duration: 0.4 })
   }
 
-  // ── Scene 8: Strip the noise ──────────────────────────────────────
+  // ── Scene 8: Strip + scissors GIF spins in ────────────────────────
   const s8 = root.querySelector<HTMLElement>('.scene-strip')
   if (s8) {
-    const sticker = s8.querySelector<HTMLElement>('.sticker')
+    const sticker   = s8.querySelector<HTMLElement>('.sticker')
+    const gifFloat  = s8.querySelector<HTMLElement>('.strip-gif-float')
     const stripLine = s8.querySelector<HTMLElement>('.strip-line')!
     const f8 = maskWords(stripLine)
     gsap.set(f8, RISE)
+    if (gifFloat) gsap.set(gifFloat, { opacity: 0, rotation: -30, scale: 0.4, y: -40 })
     if (sticker) {
       const rot = parseFloat(sticker.dataset.rot ?? '12')
       gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: rot - 22, y: 24 })
@@ -265,19 +355,22 @@ onMounted(() => {
 
     const tl = pinned(s8, '+=150%')
     tl.to(f8, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out', stagger: 0.035 })
+    if (gifFloat) tl.to(gifFloat, { opacity: 1, rotation: 8, scale: 1, y: 0, duration: 0.55, ease: 'back.out(2)' }, 0.2)
     stickerIn(tl, sticker, 0.2)
     tl.to({}, { duration: 0.3 })
     const jargon = s8.querySelectorAll<HTMLElement>('.wfill.jargon')
     tl.set(jargon, { textDecoration: 'line-through' })
     tl.to(jargon, { opacity: 0.1, filter: 'blur(3px)', duration: 0.9, ease: 'power2.inOut', stagger: 0.06 })
     tl.to(s8.querySelectorAll('.wfill.crisp'), { scale: 1.06, duration: 0.9, ease: 'power2.out' }, '<')
+    if (gifFloat) tl.to(gifFloat, { rotation: '+=40', scale: 1.2, duration: 0.8, ease: 'power1.inOut' }, '<')
     if (sticker) tl.to(sticker, { rotation: `+=${12}`, duration: 0.8, ease: 'power1.inOut' }, '<')
   }
 
-  // ── Scene 9: Mantra (climax) ──────────────────────────────────────
+  // ── Scene 9: Mantra + zen sticker GIF ────────────────────────────
   const s9 = root.querySelector<HTMLElement>('.scene-verse')
   if (s9) {
-    const sticker = s9.querySelector<HTMLElement>('.sticker')
+    const sticker  = s9.querySelector<HTMLElement>('.sticker')
+    const gifFloat = s9.querySelector<HTMLElement>('.verse-gif-float')
     const vhindi   = s9.querySelector<HTMLElement>('.vhindi')!
     const beam     = s9.querySelector<HTMLElement>('.vbeam')!
     const translit = maskWords(s9.querySelector<HTMLElement>('.translit')!)
@@ -286,6 +379,7 @@ onMounted(() => {
     gsap.set(vhindi, { opacity: 0, filter: 'blur(26px)', scale: 1.05 })
     gsap.set([...translit, ...veng], { yPercent: 130, opacity: 0 })
     gsap.set(beam, { xPercent: -160, opacity: 0 })
+    if (gifFloat) gsap.set(gifFloat, { opacity: 0, scale: 0.4, rotation: 25 })
     if (sticker) {
       const rot = parseFloat(sticker.dataset.rot ?? '-6')
       gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: rot - 22, y: 24 })
@@ -295,14 +389,33 @@ onMounted(() => {
     tl.to(vhindi, { opacity: 1, filter: 'blur(0px)', scale: 1, duration: 1.2, ease: 'power3.out' })
     tl.to(beam, { xPercent: 360, opacity: 1, duration: 1.0, ease: 'power1.inOut' }, 0.2)
     tl.to(beam, { opacity: 0, duration: 0.3 }, '>-0.15')
+    if (gifFloat) tl.to(gifFloat, { opacity: 1, scale: 1, rotation: -10, duration: 0.6, ease: 'back.out(1.8)' }, 0.3)
     stickerIn(tl, sticker, 0.35)
     tl.to(translit, { yPercent: 0, opacity: 1, duration: 0.7, ease: 'power3.out', stagger: 0.05 }, '>-0.2')
     tl.to(veng, { yPercent: 0, opacity: 1, duration: 0.8, ease: 'power3.out', stagger: 0.06 }, '>')
     tl.to({}, { duration: 0.4 })
   }
 
-  // ── Scene 10: Closer ─────────────────────────────────────────────
-  sceneWithSticker('.scene-closer', '+=120%', false)
+  // ── Scene 10: Closer — celebration GIF floats in ──────────────────
+  const closerEl = root.querySelector<HTMLElement>('.scene-closer')
+  if (closerEl) {
+    const fills    = collectFills(closerEl)
+    const sticker  = closerEl.querySelector<HTMLElement>('.sticker')
+    const gifFloat = closerEl.querySelector<HTMLElement>('.closer-gif-float')
+
+    gsap.set(fills, RISE)
+    if (gifFloat) gsap.set(gifFloat, { opacity: 0, y: 80, scale: 0.6, rotation: -15 })
+    if (sticker) {
+      const rot = parseFloat(sticker.dataset.rot ?? '5')
+      gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: rot - 22, y: 24 })
+    }
+
+    const tl = pinned(closerEl, '+=120%')
+    tl.to(fills, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out', stagger: 0.045 })
+    if (gifFloat) tl.to(gifFloat, { opacity: 1, y: 0, scale: 1, rotation: 8, duration: 0.8, ease: 'back.out(1.4)' }, 0.3)
+    stickerIn(tl, sticker, 0.2)
+    tl.to({}, { duration: 0.6 })
+  }
 
   // ── Coda: scroll-triggered reveal ────────────────────────────────
   const coda = root.querySelector<HTMLElement>('.coda')
@@ -359,21 +472,16 @@ onUnmounted(() => {
         <div class="sticker-lottie" data-src="/lottie/stickers/explore.json"></div>
       </div>
       <div class="scene-inner fate-inner">
-
-        <!-- Text — left column -->
         <div class="fate-text">
-          <p class="line l-md">Honestly, doing what I do today feels like a highly specific twist of fate.</p>
-          <p class="line l-md">I walked out of college with a degree in hospitality, fully expecting to spend the rest of my life worrying about room inventory.</p>
-          <p class="line l-md">I definitely didn't plan on Learning &amp; Development becoming my life's work.</p>
-          <p class="line l-md">But Club Mahindra handed me an opportunity to step up — a responsibility passed down by my <span class="hl">first mentor</span>.</p>
+          <p class="line l-md">Walked out of college with a hospitality degree.</p>
+          <p class="line l-lg"><span class="hl">Hotel career.</span> Full stop.</p>
+          <p class="line l-md dim">That was the entire plan.</p>
+          <p class="line l-xl">Then L&amp;D happened.</p>
         </div>
-
-        <!-- Polaroid — right column -->
         <div class="fate-polaroid">
           <img class="fate-polaroid__img" src="/graduation.gif" alt="College graduation" />
           <p class="fate-polaroid__caption">Not the plan.</p>
         </div>
-
       </div>
     </section>
 
@@ -382,12 +490,16 @@ onUnmounted(() => {
       <div class="sticker sticker-tl s-leap" data-rot="14">
         <div class="sticker-lottie" data-src="/lottie/stickers/heart.json"></div>
       </div>
-      <div class="scene-inner">
-        <p class="line l-md">Taking the leap from there to Marriott International was a massive shift.</p>
-        <p class="line l-md dim">People still ask how I managed the switch.</p>
-        <p class="line l-lg">The answer is honestly just that L&amp;D is in my <span class="hl">blood</span>.</p>
-        <p class="line l-md">It's a passion, a very specific kind of headache I actually enjoy, and the exact reason I get out of bed every day.</p>
-        <p class="line l-md">So, I gave an interview, and I got the job. <span class="hl">Miraculous, I know.</span></p>
+      <div class="scene-inner leap-inner">
+        <div class="leap-text">
+          <p class="line l-md">Then Marriott called.</p>
+          <p class="line l-md dim">I said yes before they finished the sentence.</p>
+          <p class="line l-xl">L&amp;D is just — <span class="hl">in my blood.</span></p>
+          <p class="line l-md">A passion. A very specific kind of headache I actually enjoy.</p>
+        </div>
+        <div class="leap-gif-wrap gif-card">
+          <img src="/gifs/leap.gif" alt="" />
+        </div>
       </div>
     </section>
 
@@ -396,12 +508,14 @@ onUnmounted(() => {
       <div class="sticker sticker-tr s-myth" data-rot="-9">
         <div class="sticker-lottie" data-src="/lottie/stickers/calendar.json"></div>
       </div>
+      <div class="myth-gif-float gif-float">
+        <img src="/gifs/myth.gif" alt="" />
+      </div>
       <div class="scene-inner">
-        <p class="line l-md">But let's clear something up.</p>
-        <p class="line l-md">Switching to L&amp;D might look like the ultimate life hack for an easy paycheck.</p>
-        <p class="line l-sm quote">I've literally heard people say, "I wanted a 9-to-6 job, so I figured training would be better."</p>
-        <p class="line l-md">Right. You decided to tackle the complex psychology of adult learning because you wanted to beat the evening traffic. Makes total sense.</p>
-        <p class="line l-lg">What this job actually demands will <span class="hl">humble you real fast.</span></p>
+        <p class="line l-md">But let's be real for a second.</p>
+        <p class="line l-sm quote">"I wanted a chill job, so I figured training would be easier."</p>
+        <p class="line l-lg">Hard. Nope.</p>
+        <p class="line l-xl">This job will <span class="hl">humble you.</span> Fast.</p>
       </div>
     </section>
 
@@ -410,10 +524,16 @@ onUnmounted(() => {
       <div class="sticker sticker-br s-mentors" data-rot="7">
         <div class="sticker-lottie" data-src="/lottie/stickers/visibility2.json"></div>
       </div>
-      <div class="scene-inner">
-        <p class="line l-md">Thankfully, I had mentors who showed me the other side. The stellar ones.</p>
-        <p class="line l-lg">The actual <span class="hl">geniuses</span> who didn't just treat training like an HR hostage situation —</p>
-        <p class="line l-md">but knew how to quietly rewire a room full of people.</p>
+      <div class="scene-inner mentor-inner">
+        <div class="mentor-gif-wrap gif-card">
+          <img src="/gifs/mentor.gif" alt="" />
+          <p class="gif-card__caption">mind = blown</p>
+        </div>
+        <div class="mentor-text">
+          <p class="line l-md">Thankfully, I found the actual geniuses.</p>
+          <p class="line l-lg">The ones who walked into any room —</p>
+          <p class="line l-xl">and quietly <span class="hl">rewired every brain</span> in it.</p>
+        </div>
       </div>
     </section>
 
@@ -422,12 +542,15 @@ onUnmounted(() => {
       <div class="sticker sticker-tr s-psych" data-rot="-13">
         <div class="sticker-lottie" data-src="/lottie/stickers/activity.json"></div>
       </div>
+      <div class="psych-gif-float gif-float">
+        <img src="/gifs/psych.gif" alt="" />
+      </div>
       <div class="scene-inner">
-        <p class="line l-lg">That psychological side is what hooks me.</p>
-        <p class="line l-lg">The human brain is hilarious.</p>
-        <p class="line l-md">It constantly picks up new accents, habits, and completely useless trivia just by existing.</p>
-        <p class="line l-md">Yet, it often actively resists learning what it actually needs to know.</p>
-        <p class="line l-md">So how do you bypass that? What's the exact <span class="hl">seasoning</span> you have to hide in a module so the brain decides to keep it? What is the <span class="hl">hack</span> that opens up someone's mind without them even realizing it?</p>
+        <p class="line l-lg">The brain is hilarious.</p>
+        <p class="line l-md">It'll pick up a new accent just by being near one.</p>
+        <p class="line l-md">But actively resist anything it actually needs to know.</p>
+        <p class="line l-xl">So what's the <span class="hl">hack?</span></p>
+        <p class="line l-md dim">That question keeps me up at night.</p>
       </div>
     </section>
 
@@ -436,10 +559,13 @@ onUnmounted(() => {
       <div class="sticker sticker-bl s-thesis" data-rot="-8">
         <div class="sticker-lottie" data-src="/lottie/stickers/edit.json"></div>
       </div>
+      <div class="thesis-gif-float gif-float">
+        <img src="/gifs/hacker.gif" alt="" />
+      </div>
       <div class="scene-inner center">
-        <p class="line l-md dim">That's the part of this industry that changes your perspective entirely.</p>
-        <p class="line l-lg">We aren't just building training material.</p>
-        <p class="line l-xl">We are <span class="hl">hackers</span>.</p>
+        <p class="line l-md dim">That's what this job really is.</p>
+        <p class="line l-lg">We aren't just building training.</p>
+        <p class="line l-xl">We are <span class="hl">hackers.</span></p>
         <p class="line l-xl decode-line mono" data-final="We hack brains."></p>
       </div>
     </section>
@@ -449,8 +575,11 @@ onUnmounted(() => {
       <div class="sticker sticker-tl s-strip" data-rot="12">
         <div class="sticker-lottie" data-src="/lottie/stickers/trash2.json"></div>
       </div>
+      <div class="strip-gif-float gif-float">
+        <img src="/gifs/strip.gif" alt="" />
+      </div>
       <div class="scene-inner center">
-        <p class="line l-lg strip-line">We cancel out <span class="jargon">the noise,</span> <span class="jargon">the corporate jargon,</span> <span class="jargon">the absolute fluff,</span> and keep only <span class="crisp">the crisp, shiny details</span> the mind actually needs to absorb.</p>
+        <p class="line l-lg strip-line">We cancel <span class="jargon">the noise,</span> <span class="jargon">the corporate jargon,</span> <span class="jargon">the absolute fluff</span> — and keep only <span class="crisp">the crisp, shiny details</span> the mind needs.</p>
       </div>
     </section>
 
@@ -459,11 +588,14 @@ onUnmounted(() => {
       <div class="sticker sticker-br s-verse" data-rot="-6">
         <div class="sticker-lottie" data-src="/lottie/stickers/infinity.json"></div>
       </div>
+      <div class="verse-gif-float gif-float">
+        <img src="/gifs/verse.gif" alt="" />
+      </div>
       <div class="scene-inner center">
         <span class="vbeam"></span>
         <p class="line vhindi no-split">असतो मा सद्गमय</p>
         <p class="line l-md translit">Asatoma sadgamaya.</p>
-        <p class="line l-xl verse-eng">From the unreal, to the <span class="hl">real</span>.</p>
+        <p class="line l-xl verse-eng">From the unreal, to the <span class="hl">real.</span></p>
       </div>
     </section>
 
@@ -472,11 +604,13 @@ onUnmounted(() => {
       <div class="sticker sticker-tr s-closer" data-rot="5">
         <div class="sticker-lottie" data-src="/lottie/stickers/arrowUpCircle.json"></div>
       </div>
+      <div class="closer-gif-float gif-float">
+        <img src="/gifs/closer.gif" alt="" />
+      </div>
       <div class="scene-inner center">
         <p class="line l-lg">That's the whole job.</p>
-        <p class="line l-md">Stripping away the unreal to lead people to the concepts that actually matter.</p>
-        <p class="line l-md">We change perspectives. We influence. We move the immovable.</p>
-        <p class="line l-xl">And we make the <span class="hl">impossible, possible.</span></p>
+        <p class="line l-md">Strip the unreal. Lead people to what matters.</p>
+        <p class="line l-xl">We make the <span class="hl">impossible, possible.</span></p>
       </div>
     </section>
 
@@ -768,5 +902,100 @@ onUnmounted(() => {
 @media (max-width: 640px) {
   .scene { padding: 64rem 24rem; }
   .scene-inner { gap: 0.34em; }
+}
+
+/* ── Shared GIF card (Polaroid-style, in-flow) ── */
+.gif-card {
+  flex: 0 0 auto;
+  background: #FDFCF8;
+  border-radius: 12rem;
+  padding: 12rem 12rem 44rem;
+  box-shadow:
+    0 16rem 48rem rgba(0,0,0,0.42),
+    0 3rem 10rem rgba(0,0,0,0.2);
+  will-change: transform, opacity;
+  opacity: 0;
+}
+.gif-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4rem;
+}
+.gif-card__caption {
+  text-align: center;
+  font-size: 12rem;
+  font-weight: 500;
+  font-style: italic;
+  color: #666;
+  margin-top: 10rem;
+}
+
+/* ── Shared floating GIF (absolute, out of flow) ── */
+.gif-float {
+  position: absolute;
+  will-change: transform, opacity;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.gif-float img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10rem;
+}
+
+/* ── Scene-specific float positions & sizes ── */
+.myth-gif-float  { top: 8%;    right: 6%;   width: clamp(110rem, 13vw, 200rem); }
+.psych-gif-float { bottom: 12%; right: 5%;  width: clamp(120rem, 14vw, 210rem); }
+.thesis-gif-float {
+  right: -2%; top: 0; bottom: 0;
+  width: clamp(200rem, 26vw, 380rem);
+  display: flex; align-items: center;
+}
+.thesis-gif-float img { border-radius: 0; }
+.strip-gif-float { top: 10%;    right: 6%;   width: clamp(90rem, 10vw, 150rem); }
+.verse-gif-float { bottom: 10%; left: 6%;    width: clamp(80rem, 9vw, 130rem); }
+.closer-gif-float { bottom: 8%; right: 6%;   width: clamp(130rem, 15vw, 220rem); }
+
+/* ── Scene 3: Leap two-column ── */
+.leap-inner {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 56rem;
+}
+.leap-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28em;
+}
+.leap-gif-wrap { width: clamp(130rem, 16vw, 220rem); }
+
+/* ── Scene 5: Mentors two-column ── */
+.mentor-inner {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 60rem;
+}
+.mentor-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28em;
+}
+.mentor-gif-wrap { width: clamp(150rem, 18vw, 240rem); }
+
+@media (max-width: 768px) {
+  .leap-inner   { flex-direction: column !important; align-items: flex-start; gap: 32rem; }
+  .leap-gif-wrap { width: clamp(110rem, 32vw, 170rem); align-self: center; }
+  .mentor-inner { flex-direction: column-reverse !important; align-items: flex-start; gap: 28rem; }
+  .mentor-gif-wrap { width: 140rem; align-self: center; }
+  .myth-gif-float, .psych-gif-float, .strip-gif-float, .closer-gif-float {
+    width: clamp(80rem, 22vw, 130rem);
+  }
+  .thesis-gif-float { display: none; }
+  .verse-gif-float  { width: 80rem; }
 }
 </style>

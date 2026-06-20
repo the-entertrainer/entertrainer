@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import lottie, { type AnimationItem } from 'lottie-web'
 
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 
@@ -17,6 +18,8 @@ const rootRef = ref<HTMLElement | null>(null)
 const { $lenis } = useNuxtApp()
 
 const tls: gsap.core.Timeline[] = []
+const stickerAnims: AnimationItem[] = []
+const stickerMap = new Map<HTMLElement, AnimationItem>()
 const cleanups: Array<() => void> = []
 
 // ── Word masking ───────────────────────────────────────────────────────
@@ -100,17 +103,19 @@ function collectFills(sceneEl: Element): HTMLElement[] {
 
 const RISE = { yPercent: 130, opacity: 0, filter: 'blur(8px)' }
 
-// Animate a sticker in at position `at` in the timeline
 function stickerIn(tl: gsap.core.Timeline, s: HTMLElement | null, at: number | string = 0.15) {
   if (!s) return
   const rot = parseFloat(s.dataset.rot ?? '6')
+  const anim = stickerMap.get(s)
   tl.to(s, { opacity: 1, scale: 1, rotation: rot, y: 0, duration: 0.55, ease: 'back.out(1.9)' }, at)
+  tl.call(() => anim?.play(), undefined, at)
 }
 
-// Animate a sticker out
 function stickerOut(tl: gsap.core.Timeline, s: HTMLElement | null, at: number | string = '>-0.1') {
   if (!s) return
+  const anim = stickerMap.get(s)
   tl.to(s, { opacity: 0, scale: 0.5, y: -40, duration: 0.3, ease: 'power2.in' }, at)
+  tl.call(() => anim?.stop(), undefined, at)
 }
 
 onMounted(() => {
@@ -118,10 +123,25 @@ onMounted(() => {
   const root = rootRef.value
   if (!root) return
 
-  const lenis = $lenis as any
-  lenis?.on?.('scroll', ScrollTrigger.update)
+  const lenisInst = $lenis as any
+  lenisInst?.on?.('scroll', ScrollTrigger.update)
 
-  // Helper for standard narrative scenes with sticker
+  // ── Load all Lottie stickers ────────────────────────────────────────
+  root.querySelectorAll<HTMLElement>('.sticker').forEach((wrapper) => {
+    const inner = wrapper.querySelector<HTMLElement>('.sticker-lottie')
+    if (!inner?.dataset.src) return
+    const anim = lottie.loadAnimation({
+      container: inner,
+      renderer: 'svg',
+      loop: true,
+      autoplay: false,
+      path: inner.dataset.src
+    })
+    stickerAnims.push(anim)
+    stickerMap.set(wrapper, anim)
+  })
+
+  // Helper for standard narrative scenes
   function sceneWithSticker(sel: string, end = '+=110%', out = true) {
     const el = root.querySelector<HTMLElement>(sel)
     if (!el) return
@@ -142,38 +162,46 @@ onMounted(() => {
     }
   }
 
-  // ── Scene 1: INTRO — immediate entrance tween, scrub only the exit ──
+  // ── Scene 1: INTRO — immediate entrance, scrub only the exit ──────
   const introEl = root.querySelector<HTMLElement>('.scene-intro')
   if (introEl) {
     const fills = collectFills(introEl)
     const s = introEl.querySelector<HTMLElement>('.sticker')
     gsap.set(fills, RISE)
-    if (s) gsap.set(s, { opacity: 0, scale: 0.3, rotation: -18, y: 24 })
+    if (s) {
+      const rot = parseFloat(s.dataset.rot ?? '8')
+      gsap.set(s, { opacity: 0, scale: 0.3, rotation: rot - 22, y: 24 })
+    }
 
-    // Immediate entrance — no scrub needed; page should be alive on load
     gsap.to(fills, {
       yPercent: 0, opacity: 1, filter: 'blur(0px)',
       duration: 0.9, ease: 'power3.out', stagger: 0.06, delay: 0.25
     })
     if (s) {
       const rot = parseFloat(s.dataset.rot ?? '8')
-      gsap.to(s, { opacity: 1, scale: 1, rotation: rot, y: 0, duration: 0.7, ease: 'back.out(1.7)', delay: 0.65 })
+      const anim = stickerMap.get(s)
+      gsap.to(s, {
+        opacity: 1, scale: 1, rotation: rot, y: 0,
+        duration: 0.7, ease: 'back.out(1.7)', delay: 0.65,
+        onComplete: () => anim?.play()
+      })
     }
 
-    // Pin + scrub only the EXIT
     const tl = pinned(introEl, '+=90%')
     tl.to(fills, { yPercent: -26, opacity: 0, filter: 'blur(8px)', duration: 1, ease: 'power2.in', stagger: 0.02 })
-    if (s) tl.to(s, { opacity: 0, scale: 0.4, y: -50, duration: 0.5 }, '<0.05')
+    if (s) {
+      stickerOut(tl, s, '<0.05')
+    }
   }
 
-  // ── Scenes 2–6: plain narrative beats ─────────────────────────────
+  // ── Scenes 2–6 ───────────────────────────────────────────────────
   sceneWithSticker('.scene-fate')
   sceneWithSticker('.scene-leap')
   sceneWithSticker('.scene-myth')
   sceneWithSticker('.scene-mentors')
   sceneWithSticker('.scene-psych', '+=130%')
 
-  // ── Scene 7: Thesis + decode ("We hack brains.") ──────────────────
+  // ── Scene 7: Thesis + decode ──────────────────────────────────────
   const s7 = root.querySelector<HTMLElement>('.scene-thesis')
   if (s7) {
     const sticker = s7.querySelector<HTMLElement>('.sticker')
@@ -202,7 +230,7 @@ onMounted(() => {
     tl.to({}, { duration: 0.4 })
   }
 
-  // ── Scene 8: Strip the noise ───────────────────────────────────────
+  // ── Scene 8: Strip the noise ──────────────────────────────────────
   const s8 = root.querySelector<HTMLElement>('.scene-strip')
   if (s8) {
     const sticker = s8.querySelector<HTMLElement>('.sticker')
@@ -225,7 +253,7 @@ onMounted(() => {
     if (sticker) tl.to(sticker, { rotation: `+=${12}`, duration: 0.8, ease: 'power1.inOut' }, '<')
   }
 
-  // ── Scene 9: Mantra (climax) — blur → sharp + accent beam ─────────
+  // ── Scene 9: Mantra (climax) ──────────────────────────────────────
   const s9 = root.querySelector<HTMLElement>('.scene-verse')
   if (s9) {
     const sticker = s9.querySelector<HTMLElement>('.sticker')
@@ -252,10 +280,10 @@ onMounted(() => {
     tl.to({}, { duration: 0.4 })
   }
 
-  // ── Scene 10: Closer — holds (no out) so it hands to the coda ─────
+  // ── Scene 10: Closer ─────────────────────────────────────────────
   sceneWithSticker('.scene-closer', '+=120%', false)
 
-  // ── Coda: identity + contact (normal flow, simple reveal) ──────────
+  // ── Coda: scroll-triggered reveal ────────────────────────────────
   const coda = root.querySelector<HTMLElement>('.coda')
   if (coda) {
     const items = coda.querySelectorAll<HTMLElement>('.coda-reveal')
@@ -266,10 +294,13 @@ onMounted(() => {
   }
 
   ScrollTrigger.refresh()
-  cleanups.push(() => lenis?.off?.('scroll', ScrollTrigger.update))
+  cleanups.push(() => lenisInst?.off?.('scroll', ScrollTrigger.update))
 })
 
 onUnmounted(() => {
+  stickerAnims.forEach((a) => a.destroy())
+  stickerAnims.length = 0
+  stickerMap.clear()
   tls.forEach((tl) => { tl.scrollTrigger?.kill(); tl.kill() })
   tls.length = 0
   ScrollTrigger.getAll().forEach((t) => t.kill())
@@ -283,7 +314,9 @@ onUnmounted(() => {
 
     <!-- 1 · INTRO -->
     <section class="scene scene-intro">
-      <span class="sticker sticker-tr" data-rot="8">✨</span>
+      <div class="sticker sticker-tr s-intro" data-rot="8">
+        <div class="sticker-lottie" data-src="/lottie/stickers/star.json"></div>
+      </div>
       <div class="scene-inner">
         <p class="line l-xl">Hey. I'm <span class="hl">Naveen Jose.</span></p>
         <p class="line l-md dim">I'm an Instructional Designer with a very particular, borderline obsessive need for two things:</p>
@@ -294,7 +327,9 @@ onUnmounted(() => {
 
     <!-- 2 · TWIST OF FATE -->
     <section class="scene scene-fate">
-      <span class="sticker sticker-bl" data-rot="-11">🎲</span>
+      <div class="sticker sticker-bl s-fate" data-rot="-11">
+        <div class="sticker-lottie" data-src="/lottie/stickers/explore.json"></div>
+      </div>
       <div class="scene-inner">
         <p class="line l-md">Honestly, doing what I do today feels like a highly specific twist of fate.</p>
         <p class="line l-md">I walked out of college with a degree in hospitality, fully expecting to spend the rest of my life worrying about room inventory.</p>
@@ -305,7 +340,9 @@ onUnmounted(() => {
 
     <!-- 3 · THE LEAP -->
     <section class="scene scene-leap">
-      <span class="sticker sticker-tl" data-rot="14">⚡</span>
+      <div class="sticker sticker-tl s-leap" data-rot="14">
+        <div class="sticker-lottie" data-src="/lottie/stickers/heart.json"></div>
+      </div>
       <div class="scene-inner">
         <p class="line l-md">Taking the leap from there to Marriott International was a massive shift.</p>
         <p class="line l-md dim">People still ask how I managed the switch.</p>
@@ -317,7 +354,9 @@ onUnmounted(() => {
 
     <!-- 4 · MYTH-BUST -->
     <section class="scene scene-myth">
-      <span class="sticker sticker-tr" data-rot="-9">⏰</span>
+      <div class="sticker sticker-tr s-myth" data-rot="-9">
+        <div class="sticker-lottie" data-src="/lottie/stickers/calendar.json"></div>
+      </div>
       <div class="scene-inner">
         <p class="line l-md">But let's clear something up.</p>
         <p class="line l-md">Switching to L&amp;D might look like the ultimate life hack for an easy paycheck.</p>
@@ -329,7 +368,9 @@ onUnmounted(() => {
 
     <!-- 5 · MENTORS -->
     <section class="scene scene-mentors">
-      <span class="sticker sticker-br" data-rot="7">💡</span>
+      <div class="sticker sticker-br s-mentors" data-rot="7">
+        <div class="sticker-lottie" data-src="/lottie/stickers/visibility2.json"></div>
+      </div>
       <div class="scene-inner">
         <p class="line l-md">Thankfully, I had mentors who showed me the other side. The stellar ones.</p>
         <p class="line l-lg">The actual <span class="hl">geniuses</span> who didn't just treat training like an HR hostage situation —</p>
@@ -339,7 +380,9 @@ onUnmounted(() => {
 
     <!-- 6 · PSYCHOLOGY -->
     <section class="scene scene-psych">
-      <span class="sticker sticker-tr" data-rot="-13">🧠</span>
+      <div class="sticker sticker-tr s-psych" data-rot="-13">
+        <div class="sticker-lottie" data-src="/lottie/stickers/activity.json"></div>
+      </div>
       <div class="scene-inner">
         <p class="line l-lg">That psychological side is what hooks me.</p>
         <p class="line l-lg">The human brain is hilarious.</p>
@@ -351,7 +394,9 @@ onUnmounted(() => {
 
     <!-- 7 · THESIS + DECODE -->
     <section class="scene scene-thesis">
-      <span class="sticker sticker-bl" data-rot="-8">👾</span>
+      <div class="sticker sticker-bl s-thesis" data-rot="-8">
+        <div class="sticker-lottie" data-src="/lottie/stickers/edit.json"></div>
+      </div>
       <div class="scene-inner center">
         <p class="line l-md dim">That's the part of this industry that changes your perspective entirely.</p>
         <p class="line l-lg">We aren't just building training material.</p>
@@ -362,7 +407,9 @@ onUnmounted(() => {
 
     <!-- 8 · STRIP THE NOISE -->
     <section class="scene scene-strip">
-      <span class="sticker sticker-tl" data-rot="12">✂️</span>
+      <div class="sticker sticker-tl s-strip" data-rot="12">
+        <div class="sticker-lottie" data-src="/lottie/stickers/trash2.json"></div>
+      </div>
       <div class="scene-inner center">
         <p class="line l-lg strip-line">We cancel out <span class="jargon">the noise,</span> <span class="jargon">the corporate jargon,</span> <span class="jargon">the absolute fluff,</span> and keep only <span class="crisp">the crisp, shiny details</span> the mind actually needs to absorb.</p>
       </div>
@@ -370,7 +417,9 @@ onUnmounted(() => {
 
     <!-- 9 · MANTRA (CLIMAX) -->
     <section class="scene scene-verse">
-      <span class="sticker sticker-br" data-rot="-6">🪷</span>
+      <div class="sticker sticker-br s-verse" data-rot="-6">
+        <div class="sticker-lottie" data-src="/lottie/stickers/infinity.json"></div>
+      </div>
       <div class="scene-inner center">
         <span class="vbeam"></span>
         <p class="line vhindi no-split">असतो मा सद्गमय</p>
@@ -381,7 +430,9 @@ onUnmounted(() => {
 
     <!-- 10 · CLOSER -->
     <section class="scene scene-closer">
-      <span class="sticker sticker-tr" data-rot="5">🏔️</span>
+      <div class="sticker sticker-tr s-closer" data-rot="5">
+        <div class="sticker-lottie" data-src="/lottie/stickers/arrowUpCircle.json"></div>
+      </div>
       <div class="scene-inner center">
         <p class="line l-lg">That's the whole job.</p>
         <p class="line l-md">Stripping away the unreal to lead people to the concepts that actually matter.</p>
@@ -439,29 +490,65 @@ onUnmounted(() => {
 }
 .scene-inner.center { align-items: center; text-align: center; }
 
-/* ── Scrapbook stickers ── */
+/* ── Scrapbook sticker badges ── */
 .sticker {
   position: absolute;
-  font-size: 72rem;
-  line-height: 1;
-  user-select: none;
+  width: 84rem;
+  height: 84rem;
+  border-radius: 50%;
+  padding: 16rem;
+  box-shadow:
+    0 6rem 20rem rgba(0,0,0,0.35),
+    inset 0 1rem 0 rgba(255,255,255,0.3);
+  opacity: 0;
+  will-change: transform, opacity;
   pointer-events: none;
   z-index: 6;
-  filter: drop-shadow(0 4rem 10rem rgba(0,0,0,0.28));
-  will-change: transform, opacity;
-  opacity: 0;
 }
+/* Tape strip across the top */
+.sticker::before {
+  content: '';
+  position: absolute;
+  top: -10rem;
+  left: 50%;
+  transform: translateX(-50%) rotate(-3deg);
+  width: 38rem;
+  height: 14rem;
+  background: rgba(255,255,255,0.55);
+  border-radius: 2rem;
+  pointer-events: none;
+}
+/* Per-scene badge colours */
+.s-intro   { background: #FFD700; }
+.s-fate    { background: #FF6B6B; }
+.s-leap    { background: #4FC3F7; }
+.s-myth    { background: #CE93D8; }
+.s-mentors { background: #F9A825; }
+.s-psych   { background: #06D6A0; }
+.s-thesis  { background: #EF5350; }
+.s-strip   { background: #FF9800; }
+.s-verse   { background: #7E57C2; }
+.s-closer  { background: #26C6DA; }
+
+/* Corner positions */
 .sticker-tl { top: 10%; left: 5%; }
 .sticker-tr { top: 10%; right: 5%; }
 .sticker-bl { bottom: 14%; left: 5%; }
 .sticker-br { bottom: 14%; right: 5%; }
 
+/* Lottie icon container — fill badge, render icon as white */
+.sticker-lottie {
+  width: 100%;
+  height: 100%;
+  filter: brightness(0) invert(1);
+}
+
 @media (max-width: 640px) {
-  .sticker { font-size: 48rem; }
-  .sticker-tl { top: 8%;  left: 3%; }
-  .sticker-tr { top: 8%;  right: 3%; }
-  .sticker-bl { bottom: 10%; left: 3%; }
-  .sticker-br { bottom: 10%; right: 3%; }
+  .sticker { width: 60rem; height: 60rem; padding: 10rem; }
+  .sticker-tl { top: 6%;  left: 3%; }
+  .sticker-tr { top: 6%;  right: 3%; }
+  .sticker-bl { bottom: 8%; left: 3%; }
+  .sticker-br { bottom: 8%; right: 3%; }
 }
 
 /* ── Line scale system ── */
@@ -470,9 +557,9 @@ onUnmounted(() => {
 .l-lg { font-size: clamp(30rem, 5vw, 74rem); font-weight: 650; }
 .l-md { font-size: clamp(21rem, 2.9vw, 40rem); font-weight: 500; line-height: 1.24; letter-spacing: -0.025em; }
 .l-sm { font-size: clamp(15rem, 1.7vw, 21rem); font-weight: 400; line-height: 1.4; letter-spacing: -0.01em; }
-.dim  { opacity: 0.45; }
+.dim   { opacity: 0.45; }
 .quote { font-style: italic; opacity: 0.6; }
-.mono { font-family: "SFMono-Regular", "JetBrains Mono", "Menlo", monospace; letter-spacing: 0; }
+.mono  { font-family: "SFMono-Regular", "JetBrains Mono", "Menlo", monospace; letter-spacing: 0; }
 
 .hl { color: var(--hl); font-weight: 700; }
 

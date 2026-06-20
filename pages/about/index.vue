@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import lottie, { type AnimationItem } from 'lottie-web'
+import { AboutExperience } from '~/experience/about/AboutExperience'
+import { useThemeStore } from '~/stores/theme'
+
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 
 useHead({
@@ -13,850 +14,524 @@ useHead({
   ]
 })
 
-const rootRef = ref<HTMLElement | null>(null)
+const canvasRef = ref<HTMLCanvasElement | null>(null)
 const { $lenis } = useNuxtApp()
-
-const stickerAnims: AnimationItem[] = []
-const stickerMap = new Map<HTMLElement, AnimationItem>()
+const themeStore = useThemeStore()
 const cleanups: Array<() => void> = []
 
-// ── Word masking ───────────────────────────────────────────────────────
-function maskWords(el: HTMLElement): HTMLElement[] {
-  const fills: HTMLElement[] = []
-  const frag = document.createDocumentFragment()
+let exp: AboutExperience | null = null
 
-  const wrap = (html: string, extraClass = '') => {
-    const mask = document.createElement('span')
-    mask.className = 'wmask'
-    const fill = document.createElement('span')
-    fill.className = ('wfill ' + extraClass).trim()
-    fill.innerHTML = html
-    mask.appendChild(fill)
-    frag.appendChild(mask)
-    fills.push(fill)
+// ── 12 scenes: indices 0–11 ─────────────────────────────────────────────────
+const SCENE_COUNT = 12
+
+// Per-scene GIF src (null = no GIF for that scene)
+const GIF_MAP: Record<number, string> = {
+  1:  '/graduation.gif',
+  2:  '/gifs/leap.gif',
+  3:  '/gifs/myth.gif',
+  4:  '/gifs/mentor.gif',
+  5:  '/gifs/psych.gif',
+  6:  '/gifs/hacker.gif',
+  7:  '/gifs/strip.gif',
+  8:  '/hi.gif',
+  9:  '/gifs/verse.gif',
+  10: '/gifs/closer.gif',
+}
+
+// GIF screen position per scene [left%, top%, width-vw]
+const GIF_POS: Record<number, [string, string, string]> = {
+  1:  ['64%', '22%', '20vw'],
+  2:  ['12%', '55%', '16vw'],
+  3:  ['60%', '58%', '14vw'],
+  4:  ['62%', '24%', '17vw'],
+  5:  ['10%', '22%', '18vw'],
+  6:  ['60%', '50%', '15vw'],
+  7:  ['62%', '30%', '20vw'],
+  8:  ['52%', '60%', '14vw'],
+  9:  ['10%', '60%', '12vw'],
+  10: ['58%', '55%', '16vw'],
+}
+
+onMounted(async () => {
+  if (!canvasRef.value) return
+
+  // ── Boot Three.js experience ───────────────────────────────
+  exp = new AboutExperience(canvasRef.value)
+  exp.setTheme(themeStore.isDark)
+
+  // ── Theme sync ─────────────────────────────────────────────
+  const stopThemeWatch = watch(() => themeStore.isDark, (dark) => exp?.setTheme(dark))
+  cleanups.push(stopThemeWatch)
+
+  // ── Wire Lenis scroll → experience progress ────────────────
+  const lenis = $lenis as any
+  const onScroll = ({ scroll, limit }: { scroll: number; limit: number }) => {
+    const p = limit > 0 ? scroll / limit : 0
+    exp?.setProgress(p)
+    updateOverlays(p)
   }
+  lenis.on('scroll', onScroll)
+  cleanups.push(() => lenis.off('scroll', onScroll))
 
-  el.childNodes.forEach((node) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      ;(node.textContent ?? '').split(/(\s+)/).forEach((part) => {
-        if (part === '') return
-        if (part.trim() === '') frag.appendChild(document.createTextNode(part))
-        else wrap(part)
-      })
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      const en = node as HTMLElement
-      wrap(en.innerHTML, en.className)
-    }
-  })
-
-  el.innerHTML = ''
-  el.appendChild(frag)
-  return fills
-}
-
-// ── Decode / scramble ─────────────────────────────────────────────────
-const GLYPHS = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#%&/<>*+=?'
-const randGlyph = () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)]
-function randGlyphs(n: number) {
-  let s = ''
-  for (let i = 0; i < n; i++) s += randGlyph()
-  return s
-}
-function decodeText(final: string, p: number) {
-  const reveal = Math.floor(p * final.length)
-  let out = ''
-  for (let i = 0; i < final.length; i++) {
-    const c = final[i]
-    if (c === ' ') { out += ' '; continue }
-    out += i < reveal ? c : randGlyph()
-  }
-  return out
-}
-
-function collectFills(sceneEl: Element): HTMLElement[] {
-  const fills: HTMLElement[] = []
-  sceneEl.querySelectorAll<HTMLElement>('.line').forEach((line) => {
-    if (line.classList.contains('no-split')) return
-    fills.push(...maskWords(line))
-  })
-  return fills
-}
-
-const RISE = { yPercent: 130, opacity: 0, filter: 'blur(8px)' }
-
-function stickerIn(tl: gsap.core.Timeline, s: HTMLElement | null, at: number | string = 0.15) {
-  if (!s) return
-  const rot = parseFloat(s.dataset.rot ?? '6')
-  const anim = stickerMap.get(s)
-  tl.to(s, { opacity: 1, scale: 1, rotation: rot, y: 0, duration: 0.55, ease: 'back.out(1.9)' }, at)
-  tl.call(() => anim?.play(), undefined, at)
-}
-
-function attachTheatre(_sheetId: string, tl: gsap.core.Timeline) {
-  return {
-    play() { tl.restart() },
-    pause() { tl.pause() }
-  }
-}
-
-onMounted(() => {
-  gsap.registerPlugin(ScrollTrigger)
-  const root = rootRef.value
-  if (!root) return
-
-  // Wire Lenis scroll events to ScrollTrigger for position sync
-  const lenisInst = $lenis as any
-  const syncST = () => ScrollTrigger.update()
-  lenisInst?.on?.('scroll', syncST)
-  cleanups.push(() => lenisInst?.off?.('scroll', syncST))
-
-  // ── Load Lottie stickers ───────────────────────────────────────────
-  root.querySelectorAll<HTMLElement>('.sticker').forEach((wrapper) => {
-    const inner = wrapper.querySelector<HTMLElement>('.sticker-lottie')
-    if (!inner?.dataset.src) return
-    const anim = lottie.loadAnimation({
-      container: inner, renderer: 'svg', loop: true, autoplay: false, path: inner.dataset.src
-    })
-    stickerAnims.push(anim)
-    stickerMap.set(wrapper, anim)
-  })
-
-  // ── Wheel snap: one gesture → snap to next/prev scene ─────────────
-  const snapSections = Array.from(root.querySelectorAll<HTMLElement>('.scene, .coda'))
-  let snapIdx = 0
-  let snapping = false
-
-  const onWheel = (e: WheelEvent) => {
-    if (snapping) { e.preventDefault(); return }
-    const dir = e.deltaY > 0 ? 1 : -1
-    const next = Math.max(0, Math.min(snapSections.length - 1, snapIdx + dir))
-    if (next === snapIdx) return
-    e.preventDefault()
-    snapping = true
-    snapIdx = next
-    lenisInst?.scrollTo?.(snapSections[next], {
-      duration: 0.9,
-      easing: (t: number) => 1 - Math.pow(1 - t, 3),
-      onComplete: () => { snapping = false }
+  // ── Mouse parallax for GIF overlays ────────────────────────
+  const gifEls = document.querySelectorAll<HTMLElement>('.gif-overlay')
+  const onMouseMove = (e: MouseEvent) => {
+    const dx = (e.clientX / window.innerWidth  - 0.5) * 2
+    const dy = (e.clientY / window.innerHeight - 0.5) * 2
+    gifEls.forEach((el) => {
+      el.style.transform = `
+        translateX(${dx * -16}px) translateY(${dy * -10}px)
+        rotateY(${dx * 5}deg) rotateX(${-dy * 3}deg)
+      `
     })
   }
-  document.addEventListener('wheel', onWheel, { passive: false })
-  cleanups.push(() => document.removeEventListener('wheel', onWheel))
-
-  // ── Scene timeline builders ────────────────────────────────────────
-
-  function buildIntroTl(el: HTMLElement) {
-    const fills   = collectFills(el)
-    const gifWrap = el.querySelector<HTMLElement>('.intro-gif-wrap')!
-    gsap.set(fills, RISE)
-    gsap.set(gifWrap, { opacity: 0, scale: 0.65, rotation: -12, y: 30 })
-    const tl = gsap.timeline({ paused: true })
-    tl.to(gifWrap, { opacity: 1, scale: 1, rotation: -3, y: 0, duration: 0.85, ease: 'back.out(1.5)' })
-    tl.to(fills, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.9, ease: 'power3.out', stagger: 0.055 }, 0.3)
-    tl.to({}, { duration: 0.5 })
-    return tl
+  if (window.innerWidth > 768) {
+    window.addEventListener('mousemove', onMouseMove, { passive: true })
+    cleanups.push(() => window.removeEventListener('mousemove', onMouseMove))
   }
 
-  function buildFateTl(el: HTMLElement) {
-    const fills   = collectFills(el)
-    const sticker = el.querySelector<HTMLElement>('.sticker')
-    const gifEl   = el.querySelector<HTMLElement>('.scene-gif')
-    gsap.set(fills, RISE)
-    if (gifEl) gsap.set(gifEl, { opacity: 0, y: -110, rotation: -24, scale: 0.72 })
-    if (sticker) gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: parseFloat(sticker.dataset.rot ?? '-11') - 22, y: 24 })
-    const mid = Math.ceil(fills.length * 0.42)
-    const tl = gsap.timeline({ paused: true })
-    tl.to(fills.slice(0, mid), { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.75, ease: 'power3.out', stagger: 0.038 })
-    if (gifEl) tl.to(gifEl, { opacity: 1, y: 0, rotation: -8, scale: 1, duration: 0.65, ease: 'back.out(1.4)' }, '>')
-    tl.to(fills.slice(mid), { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.78, ease: 'power3.out', stagger: 0.038 }, '>0.08')
-    stickerIn(tl, sticker, '>-0.2')
-    tl.to({}, { duration: 0.4 })
-    return tl
-  }
-
-  function buildLeapTl(el: HTMLElement) {
-    const fills   = collectFills(el)
-    const sticker = el.querySelector<HTMLElement>('.sticker')
-    const gifEl   = el.querySelector<HTMLElement>('.scene-gif')
-    gsap.set(fills, RISE)
-    if (gifEl) gsap.set(gifEl, { opacity: 0, y: 60, rotation: 18, scale: 0.65 })
-    if (sticker) gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: parseFloat(sticker.dataset.rot ?? '14') - 22, y: 24 })
-    const mid = Math.ceil(fills.length * 0.28)
-    const tl = gsap.timeline({ paused: true })
-    tl.to(fills.slice(0, mid), { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.72, ease: 'power3.out', stagger: 0.04 })
-    if (gifEl) tl.to(gifEl, { opacity: 1, y: 0, rotation: 6, scale: 1, duration: 0.72, ease: 'back.out(1.7)' }, '>')
-    tl.to(fills.slice(mid), { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.82, ease: 'power3.out', stagger: 0.038 }, '>0.06')
-    stickerIn(tl, sticker, '>-0.3')
-    tl.to({}, { duration: 0.4 })
-    return tl
-  }
-
-  function buildMythTl(el: HTMLElement) {
-    const fills   = collectFills(el)
-    const sticker = el.querySelector<HTMLElement>('.sticker')
-    const gifEl   = el.querySelector<HTMLElement>('.scene-gif')
-    gsap.set(fills, RISE)
-    if (gifEl) gsap.set(gifEl, { opacity: 0, y: -50, rotation: 15, scale: 0.6 })
-    if (sticker) gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: parseFloat(sticker.dataset.rot ?? '-9') - 22, y: 24 })
-    const mid = Math.ceil(fills.length * 0.38)
-    const tl = gsap.timeline({ paused: true })
-    tl.to(fills.slice(0, mid), { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.78, ease: 'power3.out', stagger: 0.035 })
-    if (gifEl) tl.to(gifEl, { opacity: 1, y: 0, rotation: -6, scale: 1, duration: 0.62, ease: 'back.out(1.5)' }, '>')
-    tl.to(fills.slice(mid), { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.82, ease: 'power3.out', stagger: 0.035 }, '>0.08')
-    stickerIn(tl, sticker, '>-0.2')
-    tl.to({}, { duration: 0.4 })
-    return tl
-  }
-
-  function buildMentorTl(el: HTMLElement) {
-    const fills   = collectFills(el)
-    const sticker = el.querySelector<HTMLElement>('.sticker')
-    const gifEl   = el.querySelector<HTMLElement>('.scene-gif')
-    gsap.set(fills, RISE)
-    if (gifEl) gsap.set(gifEl, { opacity: 0, x: -60, rotation: -14, scale: 0.65 })
-    if (sticker) gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: parseFloat(sticker.dataset.rot ?? '7') - 22, y: 24 })
-    const mid = Math.ceil(fills.length * 0.3)
-    const tl = gsap.timeline({ paused: true })
-    tl.to(fills.slice(0, mid), { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.72, ease: 'power3.out', stagger: 0.04 })
-    if (gifEl) tl.to(gifEl, { opacity: 1, x: 0, rotation: -4, scale: 1, duration: 0.75, ease: 'back.out(1.5)' }, '>')
-    tl.to(fills.slice(mid), { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.85, ease: 'power3.out', stagger: 0.04 }, '>0.08')
-    stickerIn(tl, sticker, '>-0.25')
-    tl.to({}, { duration: 0.4 })
-    return tl
-  }
-
-  function buildPsychTl(el: HTMLElement) {
-    const fills   = collectFills(el)
-    const sticker = el.querySelector<HTMLElement>('.sticker')
-    const gifEl   = el.querySelector<HTMLElement>('.scene-gif')
-    gsap.set(fills, RISE)
-    if (gifEl) gsap.set(gifEl, { opacity: 0, scale: 0.5, rotation: 12, y: 30 })
-    if (sticker) gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: parseFloat(sticker.dataset.rot ?? '-13') - 22, y: 24 })
-    const mid = Math.ceil(fills.length * 0.5)
-    const tl = gsap.timeline({ paused: true })
-    tl.to(fills.slice(0, mid), { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.8, ease: 'power3.out', stagger: 0.04 })
-    if (gifEl) tl.to(gifEl, { opacity: 1, scale: 1, rotation: -4, y: 0, duration: 0.65, ease: 'back.out(1.6)' }, '>')
-    tl.to(fills.slice(mid), { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.85, ease: 'power3.out', stagger: 0.04 }, '>0.08')
-    stickerIn(tl, sticker, '>-0.3')
-    tl.to({}, { duration: 0.4 })
-    return tl
-  }
-
-  function buildThesisTl(el: HTMLElement) {
-    const sticker = el.querySelector<HTMLElement>('.sticker')
-    const gifEl   = el.querySelector<HTMLElement>('.scene-gif')
-    const f7: HTMLElement[] = []
-    el.querySelectorAll<HTMLElement>('.line:not(.decode-line)').forEach((l) => f7.push(...maskWords(l)))
-    gsap.set(f7, RISE)
-    if (gifEl) gsap.set(gifEl, { opacity: 0, scale: 0.8 })
-    if (sticker) gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: parseFloat(sticker.dataset.rot ?? '-8') - 22, y: 24 })
-
-    const decodeEl = el.querySelector<HTMLElement>('.decode-line')!
-    const finalText = decodeEl.dataset.final ?? decodeEl.textContent ?? ''
-    decodeEl.textContent = randGlyphs(finalText.length)
-    gsap.set(decodeEl, { opacity: 0, yPercent: 40 })
-
-    const tl = gsap.timeline({ paused: true })
-    if (gifEl) tl.to(gifEl, { opacity: 0.18, scale: 1, duration: 1.0, ease: 'power2.out' }, 0)
-    tl.to(f7, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out', stagger: 0.05 })
-    stickerIn(tl, sticker, '>-0.4')
-    tl.to(decodeEl, { opacity: 1, yPercent: 0, duration: 0.4, ease: 'power3.out' }, '>0.1')
-    const ds = { p: 0 }
-    tl.to(ds, {
-      p: 1, duration: 1.4, ease: 'none',
-      onUpdate: () => { decodeEl.textContent = decodeText(finalText, ds.p) }
-    }, '>')
-    tl.to({}, { duration: 0.4 })
-    return tl
-  }
-
-  function buildStripTl(el: HTMLElement) {
-    const sticker   = el.querySelector<HTMLElement>('.sticker')
-    const gifEl     = el.querySelector<HTMLElement>('.scene-gif')
-    const stripLine = el.querySelector<HTMLElement>('.strip-line')!
-    const f8 = maskWords(stripLine)
-    gsap.set(f8, RISE)
-    if (gifEl) gsap.set(gifEl, { opacity: 0, rotation: -28, scale: 0.5, y: -30 })
-    if (sticker) gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: parseFloat(sticker.dataset.rot ?? '12') - 22, y: 24 })
-
-    const tl = gsap.timeline({ paused: true })
-    if (gifEl) tl.to(gifEl, { opacity: 1, rotation: 6, scale: 1, y: 0, duration: 0.55, ease: 'back.out(2)' }, 0)
-    tl.to(f8, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 1, ease: 'power3.out', stagger: 0.035 }, 0.2)
-    stickerIn(tl, sticker, 0.3)
-    tl.to({}, { duration: 0.35 })
-    const jargon = el.querySelectorAll<HTMLElement>('.wfill.jargon')
-    tl.set(jargon, { textDecoration: 'line-through' })
-    tl.to(jargon, { opacity: 0.1, filter: 'blur(3px)', duration: 0.9, ease: 'power2.inOut', stagger: 0.06 })
-    tl.to(el.querySelectorAll('.wfill.crisp'), { scale: 1.06, duration: 0.9, ease: 'power2.out' }, '<')
-    if (gifEl) tl.to(gifEl, { rotation: '+=38', scale: 1.18, duration: 0.8, ease: 'power1.inOut' }, '<')
-    if (sticker) tl.to(sticker, { rotation: '+=12', duration: 0.8, ease: 'power1.inOut' }, '<')
-    tl.to({}, { duration: 0.3 })
-    return tl
-  }
-
-  function buildVerseTl(el: HTMLElement) {
-    const sticker  = el.querySelector<HTMLElement>('.sticker')
-    const gifEl    = el.querySelector<HTMLElement>('.scene-gif')
-    const vhindi   = el.querySelector<HTMLElement>('.vhindi')!
-    const beam     = el.querySelector<HTMLElement>('.vbeam')!
-    const translit = maskWords(el.querySelector<HTMLElement>('.translit')!)
-    const veng     = maskWords(el.querySelector<HTMLElement>('.verse-eng')!)
-    gsap.set(vhindi, { opacity: 0, filter: 'blur(26px)', scale: 1.05 })
-    gsap.set([...translit, ...veng], { yPercent: 130, opacity: 0 })
-    gsap.set(beam, { xPercent: -160, opacity: 0 })
-    if (gifEl) gsap.set(gifEl, { opacity: 0, scale: 0.4, rotation: 22 })
-    if (sticker) gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: parseFloat(sticker.dataset.rot ?? '-6') - 22, y: 24 })
-
-    const tl = gsap.timeline({ paused: true })
-    if (gifEl) tl.to(gifEl, { opacity: 1, scale: 1, rotation: -10, duration: 0.65, ease: 'back.out(1.8)' }, 0)
-    tl.to(vhindi, { opacity: 1, filter: 'blur(0px)', scale: 1, duration: 1.2, ease: 'power3.out' }, 0.12)
-    tl.to(beam, { xPercent: 360, opacity: 1, duration: 1.0, ease: 'power1.inOut' }, 0.3)
-    tl.to(beam, { opacity: 0, duration: 0.3 }, '>-0.15')
-    stickerIn(tl, sticker, '>-0.3')
-    tl.to(translit, { yPercent: 0, opacity: 1, duration: 0.7, ease: 'power3.out', stagger: 0.05 }, '>-0.2')
-    tl.to(veng, { yPercent: 0, opacity: 1, duration: 0.8, ease: 'power3.out', stagger: 0.06 }, '>')
-    tl.to({}, { duration: 0.4 })
-    return tl
-  }
-
-  function buildCloserTl(el: HTMLElement) {
-    const fills   = collectFills(el)
-    const sticker = el.querySelector<HTMLElement>('.sticker')
-    const gifEl   = el.querySelector<HTMLElement>('.scene-gif')
-    gsap.set(fills, RISE)
-    if (gifEl) gsap.set(gifEl, { opacity: 0, y: 60, scale: 0.65, rotation: -14 })
-    if (sticker) gsap.set(sticker, { opacity: 0, scale: 0.3, rotation: parseFloat(sticker.dataset.rot ?? '5') - 22, y: 24 })
-    const mid = Math.ceil(fills.length * 0.32)
-    const tl = gsap.timeline({ paused: true })
-    tl.to(fills.slice(0, mid), { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.8, ease: 'power3.out', stagger: 0.04 })
-    if (gifEl) tl.to(gifEl, { opacity: 1, y: 0, scale: 1, rotation: 7, duration: 0.7, ease: 'back.out(1.4)' }, '>')
-    tl.to(fills.slice(mid), { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.85, ease: 'power3.out', stagger: 0.04 }, '>0.08')
-    stickerIn(tl, sticker, '>-0.3')
-    tl.to({}, { duration: 0.5 })
-    return tl
-  }
-
-  // ── Register scenes: build timelines + IntersectionObserver ──────
-  const scenes = [
-    { sel: '.scene-intro',   id: 'intro',   build: buildIntroTl },
-    { sel: '.scene-fate',    id: 'fate',    build: buildFateTl },
-    { sel: '.scene-leap',    id: 'leap',    build: buildLeapTl },
-    { sel: '.scene-myth',    id: 'myth',    build: buildMythTl },
-    { sel: '.scene-mentors', id: 'mentors', build: buildMentorTl },
-    { sel: '.scene-psych',   id: 'psych',   build: buildPsychTl },
-    { sel: '.scene-thesis',  id: 'thesis',  build: buildThesisTl },
-    { sel: '.scene-strip',   id: 'strip',   build: buildStripTl },
-    { sel: '.scene-verse',   id: 'verse',   build: buildVerseTl },
-    { sel: '.scene-closer',  id: 'closer',  build: buildCloserTl },
-  ]
-
-  scenes.forEach(({ sel, id, build }) => {
-    const el = root.querySelector<HTMLElement>(sel)
-    if (!el) return
-    const tl = build(el)
-    const scene = attachTheatre(id, tl)
-
-    const io = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) scene.play()
-      else scene.pause()
-    }, { threshold: 0.52 })
-
-    io.observe(el)
-    cleanups.push(() => io.disconnect())
-  })
-
-  // ── Coda ──────────────────────────────────────────────────────────
-  const coda = root.querySelector<HTMLElement>('.coda')
-  if (coda) {
-    const items = coda.querySelectorAll<HTMLElement>('.coda-reveal')
-    const io = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        gsap.fromTo(items,
-          { opacity: 0, y: 36 },
-          { opacity: 1, y: 0, duration: 0.85, ease: 'power3.out', stagger: 0.1 }
-        )
-      }
-    }, { threshold: 0.4 })
-    io.observe(coda)
-    cleanups.push(() => io.disconnect())
-  }
+  // ── Initial overlay state ──────────────────────────────────
+  await nextTick()
+  updateOverlays(0)
 })
 
 onUnmounted(() => {
-  stickerAnims.forEach((a) => a.destroy())
-  stickerAnims.length = 0
-  stickerMap.clear()
-  cleanups.forEach((fn) => fn())
+  exp?.destroy()
+  exp = null
+  cleanups.forEach(fn => fn())
   cleanups.length = 0
 })
+
+let _lastScene = -1
+
+function updateOverlays(p: number) {
+  const rawScene = p * SCENE_COUNT
+  const sceneIdx  = Math.min(Math.floor(rawScene), SCENE_COUNT - 1)
+  const sceneLocal = rawScene - sceneIdx
+
+  if (sceneIdx === _lastScene) return
+  _lastScene = sceneIdx
+
+  // Text overlays
+  for (let i = 0; i < SCENE_COUNT; i++) {
+    const el = document.querySelector<HTMLElement>(`.scene-text[data-scene="${i}"]`)
+    if (!el) continue
+    const show = i === sceneIdx
+    gsap.to(el, { opacity: show ? 1 : 0, y: show ? 0 : 28, duration: 0.55, ease: 'power3.out' })
+  }
+
+  // GIF overlays — show current ± 0 (current only)
+  document.querySelectorAll<HTMLElement>('.gif-overlay').forEach((el) => {
+    const s = parseInt(el.dataset.scene ?? '-1')
+    const show = s === sceneIdx
+    gsap.to(el, { opacity: show ? 1 : 0, scale: show ? 1 : 0.88, duration: 0.5, ease: 'power2.out' })
+  })
+
+  // Coda
+  const coda = document.querySelector<HTMLElement>('.coda-overlay')
+  if (coda) {
+    const show = sceneIdx >= SCENE_COUNT - 1 && sceneLocal > 0.5
+    gsap.to(coda, { opacity: show ? 1 : 0, y: show ? 0 : 36, duration: 0.7, ease: 'power3.out' })
+  }
+}
 </script>
 
 <template>
-  <div ref="rootRef" class="about-cine">
+  <div class="about-root">
+    <!-- Three.js canvas — fixed fullscreen -->
+    <canvas ref="canvasRef" class="about-canvas" />
 
-    <!-- 1 · INTRO -->
-    <section class="scene scene-intro">
-      <div class="scene-inner intro-inner">
-        <div class="intro-gif-wrap">
-          <img class="intro-gif" src="/hi.gif" alt="Hi" />
-        </div>
-        <div class="intro-text">
-          <p class="line l-xl">Hey. I'm <span class="hl">Naveen Jose.</span></p>
-          <p class="line l-md dim">Instructional Designer. Obsessed with two things:</p>
-          <p class="line l-lg">making things look <span class="hl">simple</span>,</p>
-          <p class="line l-lg">and making them look <span class="hl">good</span>.</p>
-        </div>
-      </div>
-    </section>
+    <!-- Scroll driver — gives the page height so Lenis has something to scroll -->
+    <div class="scroll-driver" />
 
-    <!-- 2 · TWIST OF FATE -->
-    <section class="scene scene-fate">
-      <div class="sticker sticker-bl s-fate" data-rot="-11">
-        <div class="sticker-lottie" data-src="/lottie/stickers/explore.json"></div>
-      </div>
-      <div class="scene-inner">
-        <p class="line l-md">Walked out of college with a hospitality degree.</p>
-        <p class="line l-lg"><span class="hl">Hotel career.</span> Full stop.</p>
-        <div class="scene-gif fate-gif gif-polaroid">
-          <img src="/graduation.gif" alt="" />
-          <p class="gif-caption">Not the plan.</p>
-        </div>
-        <p class="line l-md dim">That was the entire plan.</p>
-        <p class="line l-xl">Then L&amp;D happened.</p>
-      </div>
-    </section>
+    <!-- ── 12 text overlays ───────────────────────────────────────── -->
 
-    <!-- 3 · THE LEAP -->
-    <section class="scene scene-leap">
-      <div class="sticker sticker-tl s-leap" data-rot="14">
-        <div class="sticker-lottie" data-src="/lottie/stickers/heart.json"></div>
-      </div>
-      <div class="scene-inner">
-        <p class="line l-md">Then Marriott called.</p>
-        <div class="scene-gif leap-gif gif-card">
-          <img src="/gifs/leap.gif" alt="" />
-        </div>
-        <p class="line l-md dim">I said yes before they finished the sentence.</p>
-        <p class="line l-xl">L&amp;D is just — <span class="hl">in my blood.</span></p>
-      </div>
-    </section>
+    <!-- 01 · WHO AM I -->
+    <div class="scene-text" data-scene="0">
+      <p class="st-eyebrow">01 / Who I Am</p>
+      <h1 class="st-name">Naveen Jose</h1>
+      <p class="st-title">Certified Instructional Design Specialist</p>
+      <p class="st-body">Architecting learning experiences<br>that transform complexity<br>into clarity.</p>
+    </div>
 
-    <!-- 4 · MYTH-BUST -->
-    <section class="scene scene-myth">
-      <div class="sticker sticker-tr s-myth" data-rot="-9">
-        <div class="sticker-lottie" data-src="/lottie/stickers/calendar.json"></div>
-      </div>
-      <div class="scene-inner">
-        <p class="line l-md">But let's be real for a second.</p>
-        <p class="line l-sm quote">"I wanted a chill job, so I figured training would be easier."</p>
-        <div class="scene-gif myth-gif gif-card">
-          <img src="/gifs/myth.gif" alt="" />
-        </div>
-        <p class="line l-lg">Hard. Nope.</p>
-        <p class="line l-xl">This job will <span class="hl">humble you.</span> Fast.</p>
-      </div>
-    </section>
+    <!-- 02 · THE PLAN -->
+    <div class="scene-text" data-scene="1">
+      <p class="st-eyebrow">02 / The Plan</p>
+      <p class="st-lg">I graduated with a<br>hospitality degree.</p>
+      <p class="st-body muted">The plan seemed simple.<br>Work in hotels. Learn operations.<br>Grow steadily. Keep moving forward.</p>
+      <p class="st-lg hl">Then something unexpected happened.</p>
+    </div>
 
-    <!-- 5 · MENTORS -->
-    <section class="scene scene-mentors">
-      <div class="sticker sticker-br s-mentors" data-rot="7">
-        <div class="sticker-lottie" data-src="/lottie/stickers/visibility2.json"></div>
-      </div>
-      <div class="scene-inner">
-        <p class="line l-md">Thankfully, I found the actual geniuses.</p>
-        <div class="scene-gif mentor-gif gif-polaroid">
-          <img src="/gifs/mentor.gif" alt="" />
-          <p class="gif-caption">mind = blown</p>
-        </div>
-        <p class="line l-lg">The ones who walked into any room —</p>
-        <p class="line l-xl">and quietly <span class="hl">rewired every brain</span> in it.</p>
-      </div>
-    </section>
+    <!-- 03 · THE DETOUR -->
+    <div class="scene-text" data-scene="2">
+      <p class="st-eyebrow">03 / The Detour</p>
+      <p class="st-body muted">Learning &amp; Development appeared.</p>
+      <p class="st-body muted">Not as a dream.<br>Not as a master plan.</p>
+      <p class="st-lg">Just <span class="hl">a door.</span></p>
+      <p class="st-body muted">One I decided to walk through.</p>
+    </div>
 
-    <!-- 6 · PSYCHOLOGY -->
-    <section class="scene scene-psych">
-      <div class="sticker sticker-tr s-psych" data-rot="-13">
-        <div class="sticker-lottie" data-src="/lottie/stickers/activity.json"></div>
-      </div>
-      <div class="scene-inner">
-        <p class="line l-lg">The brain is hilarious.</p>
-        <p class="line l-md">It'll pick up a new accent just by being near one.</p>
-        <div class="scene-gif psych-gif gif-card">
-          <img src="/gifs/psych.gif" alt="" />
-        </div>
-        <p class="line l-md">But actively resist anything it actually needs to know.</p>
-        <p class="line l-xl">So what's the <span class="hl">hack?</span></p>
-      </div>
-    </section>
+    <!-- 04 · THE FIRST REALIZATION -->
+    <div class="scene-text" data-scene="3">
+      <p class="st-eyebrow">04 / The First Realization</p>
+      <p class="st-lg">I thought training<br>was simple.</p>
+      <p class="st-body muted">Share information. People learn.<br>Problem solved.</p>
+      <p class="st-lg">I was <span class="hl">wrong.</span></p>
+      <p class="st-body muted">Knowledge is easy.<br><span class="hl-dim">Behavior change is hard.</span></p>
+    </div>
 
-    <!-- 7 · THESIS + DECODE -->
-    <section class="scene scene-thesis">
-      <div class="sticker sticker-bl s-thesis" data-rot="-8">
-        <div class="sticker-lottie" data-src="/lottie/stickers/edit.json"></div>
-      </div>
-      <!-- hacker GIF as faint background ghost -->
-      <div class="scene-gif thesis-gif">
-        <img src="/gifs/hacker.gif" alt="" />
-      </div>
-      <div class="scene-inner center">
-        <p class="line l-md dim">That's what this job really is.</p>
-        <p class="line l-lg">We aren't just building training.</p>
-        <p class="line l-xl">We are <span class="hl">hackers.</span></p>
-        <p class="line l-xl decode-line mono" data-final="We hack brains."></p>
-      </div>
-    </section>
+    <!-- 05 · MENTORS -->
+    <div class="scene-text" data-scene="4">
+      <p class="st-eyebrow">05 / The Mentors</p>
+      <p class="st-body muted">Then I met people who could make<br>learning feel effortless.</p>
+      <p class="st-body muted">Not louder. Not flashier.<br>Not smarter.</p>
+      <p class="st-lg">Just <span class="hl">better</span> at helping<br>people understand.</p>
+      <p class="st-body muted">That changed everything.</p>
+    </div>
 
-    <!-- 8 · STRIP THE NOISE -->
-    <section class="scene scene-strip">
-      <div class="sticker sticker-tl s-strip" data-rot="12">
-        <div class="sticker-lottie" data-src="/lottie/stickers/trash2.json"></div>
-      </div>
-      <div class="scene-inner center">
-        <div class="scene-gif strip-gif gif-card">
-          <img src="/gifs/strip.gif" alt="" />
-        </div>
-        <p class="line l-lg strip-line">We cancel <span class="jargon">the noise,</span> <span class="jargon">the corporate jargon,</span> <span class="jargon">the absolute fluff</span> — and keep only <span class="crisp">the crisp, shiny details</span> the mind needs.</p>
-      </div>
-    </section>
+    <!-- 06 · THE OBSESSION -->
+    <div class="scene-text" data-scene="5">
+      <p class="st-eyebrow">06 / The Obsession</p>
+      <p class="st-lg">That curiosity became<br>an <span class="hl">obsession.</span></p>
+      <p class="st-body muted">Memory. Attention. Motivation.</p>
+      <p class="st-body muted">Why do people remember<br>some things forever…</p>
+      <p class="st-lg">and forget others<br>by <span class="hl">lunch?</span></p>
+    </div>
 
-    <!-- 9 · MANTRA (CLIMAX) -->
-    <section class="scene scene-verse">
-      <div class="sticker sticker-br s-verse" data-rot="-6">
-        <div class="sticker-lottie" data-src="/lottie/stickers/infinity.json"></div>
-      </div>
-      <div class="scene-inner center">
-        <div class="scene-gif verse-gif">
-          <img src="/gifs/verse.gif" alt="" />
-        </div>
-        <span class="vbeam"></span>
-        <p class="line vhindi no-split">असतो मा सद्गमय</p>
-        <p class="line l-md translit">Asatoma sadgamaya.</p>
-        <p class="line l-xl verse-eng">From the unreal, to the <span class="hl">real.</span></p>
-      </div>
-    </section>
+    <!-- 07 · THE DISCOVERY -->
+    <div class="scene-text" data-scene="6">
+      <p class="st-eyebrow">07 / The Discovery</p>
+      <p class="st-body muted">Instructional Design isn't slides.</p>
+      <p class="st-body muted">It isn't courses.<br>It isn't training calendars.</p>
+      <p class="st-lg">It's understanding<br>how people <span class="hl">learn</span>…</p>
+      <p class="st-lg">and designing<br><span class="hl">for that.</span></p>
+    </div>
 
-    <!-- 10 · CLOSER -->
-    <section class="scene scene-closer">
-      <div class="sticker sticker-tr s-closer" data-rot="5">
-        <div class="sticker-lottie" data-src="/lottie/stickers/arrowUpCircle.json"></div>
-      </div>
-      <div class="scene-inner center">
-        <p class="line l-lg">That's the whole job.</p>
-        <div class="scene-gif closer-gif gif-card">
-          <img src="/gifs/closer.gif" alt="" />
-        </div>
-        <p class="line l-md">Strip the unreal. Lead people to what matters.</p>
-        <p class="line l-xl">We make the <span class="hl">impossible, possible.</span></p>
-      </div>
-    </section>
+    <!-- 08 · STRIP THE NOISE -->
+    <div class="scene-text" data-scene="7">
+      <p class="st-eyebrow">08 / Strip the Noise</p>
+      <p class="st-body muted">Every project starts the same way.</p>
+      <p class="st-lg">Remove jargon.<br>Remove clutter.<br>Remove complexity.</p>
+      <p class="st-body muted">Remove everything<br>that doesn't help people learn.</p>
+      <p class="st-lg hl">Keep only what matters.</p>
+    </div>
 
-    <!-- CODA · IDENTITY + CONTACT -->
-    <section class="coda">
-      <div class="coda-portrait coda-reveal">
+    <!-- 09 · SEWA CHRONICLES -->
+    <div class="scene-text" data-scene="8">
+      <p class="st-eyebrow">09 / SEWA Chronicles</p>
+      <p class="st-body muted">My first mentor had an idea.</p>
+      <p class="st-lg">A <span class="hl">comic book.</span></p>
+      <p class="st-body muted">10 stories of service excellence.<br>Hand-drawn. Inked. Printed.</p>
+      <p class="st-body muted">Distributed to every<br>Club Mahindra resort in the country.</p>
+      <p class="st-lg hl">SEWA Chronicles.</p>
+      <p class="st-body muted">It taught me:<br><span class="hl-dim">People don't remember information.<br>They remember stories.</span></p>
+    </div>
+
+    <!-- 10 · THE MANTRA -->
+    <div class="scene-text scene-text--center" data-scene="9">
+      <p class="st-eyebrow">10 / The Mantra</p>
+      <p class="st-devanagari">असतो मा सद्गमय</p>
+      <p class="st-translit">Asatoma sadgamaya.</p>
+      <p class="st-lg">From the unreal<br>to the <span class="hl">real.</span></p>
+      <p class="st-body muted">For me…<br>that is learning.</p>
+    </div>
+
+    <!-- 11 · TODAY -->
+    <div class="scene-text" data-scene="10">
+      <p class="st-eyebrow">11 / Today</p>
+      <p class="st-lg">Today I design<br>learning experiences.</p>
+      <p class="st-body muted">Digital. Interactive.<br>Human-centered.</p>
+      <p class="st-lg">Built to be <span class="hl">remembered.</span><br>Built to create <span class="hl">change.</span></p>
+    </div>
+
+    <!-- 12 · ENDING -->
+    <div class="scene-text scene-text--center" data-scene="11">
+      <p class="st-eyebrow">12 / The Work</p>
+      <p class="st-lg">I turn complexity<br>into <span class="hl">clarity.</span></p>
+      <p class="st-body muted">And build learning experiences<br>people actually remember.</p>
+      <p class="st-name-sm">— Naveen Jose</p>
+    </div>
+
+    <!-- ── GIF overlays ───────────────────────────────────────────── -->
+    <img v-for="(src, idx) in GIF_MAP" :key="idx"
+      class="gif-overlay"
+      :data-scene="idx"
+      :src="src"
+      :style="{
+        left:  GIF_POS[idx]?.[0] ?? '62%',
+        top:   GIF_POS[idx]?.[1] ?? '30%',
+        width: GIF_POS[idx]?.[2] ?? '18vw',
+      }"
+      alt=""
+    />
+
+    <!-- ── Coda ───────────────────────────────────────────────────── -->
+    <div class="coda-overlay">
+      <div class="coda-portrait">
         <img src="/naveen.jpeg" alt="Naveen Jose" />
       </div>
-      <p class="coda-name coda-reveal">Naveen Jose</p>
-      <p class="coda-cred coda-reveal">CIDS Certified Instructional Designer</p>
-      <div class="coda-contact">
-        <a class="coda-reveal" href="mailto:iamnaveenjose@outlook.com">iamnaveenjose@outlook.com</a>
-        <a class="coda-reveal" href="https://linkedin.com/in/entertrainer" target="_blank" rel="noopener noreferrer">linkedin.com/in/entertrainer</a>
+      <p class="coda-name">Naveen Jose</p>
+      <p class="coda-cred">CIDS Certified Instructional Design Specialist</p>
+      <div class="coda-links">
+        <a href="mailto:iamnaveenjose@outlook.com">iamnaveenjose@outlook.com</a>
+        <a href="https://linkedin.com/in/entertrainer" target="_blank" rel="noopener noreferrer">linkedin.com/in/entertrainer</a>
       </div>
-    </section>
-
+      <div class="coda-cta">
+        <a class="btn-cta" href="mailto:iamnaveenjose@outlook.com">Let's build something meaningful</a>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
-/* Accent highlight */
-.about-cine { --hl: #6E92CE; }
-[data-theme="light"] .about-cine { --hl: #243F6A; }
+/* ── Layout ── */
+.about-root {
+  position: relative;
+  width: 100%;
+}
 
-.about-cine {
-  background: var(--color-bg);
+.about-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* 13 viewport heights: 12 scenes + coda */
+.scroll-driver {
+  position: relative;
+  height: 1300vh;
+  width: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Scene text overlays ── */
+.scene-text {
+  position: fixed;
+  left: var(--grid-margin, 30px);
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: min(540px, 44vw);
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+}
+
+.scene-text--center {
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  max-width: min(600px, 60vw);
+  align-items: center;
+}
+
+/* Typography */
+.st-eyebrow {
+  font-size: clamp(10px, 1.1vw, 13px);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.35;
+  font-family: var(--main-font);
+  margin-bottom: 0.6em;
+}
+
+.st-name {
+  font-size: clamp(48px, 7vw, 100px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.0;
   color: var(--color-text);
   font-family: var(--main-font);
 }
 
-/* ── Scenes — full-viewport snap targets ── */
-.scene {
-  position: relative;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 80rem var(--grid-margin);
-  background: var(--color-bg);
-  overflow: hidden;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-}
-.scene-inner {
-  width: 100%;
-  max-width: 900rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4em;
-  position: relative;
-  z-index: 2;
-}
-.scene-inner.center { align-items: center; text-align: center; }
-
-/* ── Inline GIF elements (in normal text flow) ── */
-.scene-gif {
-  opacity: 0;
-  will-change: transform, opacity;
-  align-self: flex-start;
-  margin: 0.35em 0;
-}
-.scene-gif img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 8rem;
+.st-name-sm {
+  font-size: clamp(20px, 2.5vw, 32px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  opacity: 0.6;
 }
 
-/* Polaroid-style card (white surround) */
-.gif-polaroid {
-  background: #FDFCF8;
-  padding: 12rem 12rem 46rem;
-  box-shadow: 0 16rem 48rem rgba(0,0,0,0.42), 0 3rem 10rem rgba(0,0,0,0.2);
-  border-radius: 4rem;
-}
-.gif-polaroid img { border-radius: 2rem; }
-.gif-caption {
-  text-align: center;
-  font-size: 12rem;
-  font-weight: 500;
-  font-style: italic;
-  color: #666;
-  margin-top: 10rem;
+.st-title {
+  font-size: clamp(13px, 1.5vw, 18px);
+  font-weight: 400;
+  opacity: 0.5;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.4em;
 }
 
-/* Rounded card */
-.gif-card {
-  border-radius: 12rem;
-  overflow: hidden;
-  box-shadow: 0 10rem 32rem rgba(0,0,0,0.35), 0 2rem 6rem rgba(0,0,0,0.16);
+.st-lg {
+  font-size: clamp(28px, 4vw, 62px);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  color: var(--color-text);
+  font-family: var(--main-font);
 }
 
-/* Per-scene sizes & alignment */
-.fate-gif    { width: clamp(140rem, 16vw, 230rem); align-self: flex-end; }
-.leap-gif    { width: clamp(130rem, 15vw, 210rem); align-self: flex-start; }
-.myth-gif    { width: clamp(130rem, 14vw, 200rem); align-self: center; }
-.mentor-gif  { width: clamp(150rem, 17vw, 240rem); align-self: flex-end; }
-.psych-gif   { width: clamp(130rem, 15vw, 210rem); align-self: flex-start; }
-
-/* Thesis: hacker GIF as faint absolute background */
-.thesis-gif  {
-  position: absolute !important;
-  right: -4%;
-  top: 0;
-  bottom: 0;
-  width: clamp(200rem, 26vw, 380rem);
-  display: flex;
-  align-items: center;
-  pointer-events: none;
-  z-index: 1;
-  margin: 0;
-  align-self: unset;
-}
-.thesis-gif img { border-radius: 0; }
-
-.strip-gif   { width: clamp(90rem, 10vw, 150rem); align-self: center; margin-bottom: 0.5em; }
-.verse-gif   { width: clamp(80rem, 9vw, 130rem);  align-self: center; margin-bottom: 0.3em; }
-.closer-gif  { width: clamp(140rem, 16vw, 220rem); align-self: center; }
-
-@media (max-width: 768px) {
-  .fate-gif, .leap-gif, .myth-gif, .mentor-gif, .psych-gif, .closer-gif {
-    width: clamp(110rem, 30vw, 175rem);
-    align-self: center;
-  }
-  .thesis-gif { display: none; }
-  .verse-gif  { width: 90rem; }
-  .strip-gif  { width: 88rem; }
+.st-body {
+  font-size: clamp(14px, 1.6vw, 22px);
+  font-weight: 400;
+  line-height: 1.55;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  font-family: var(--main-font);
 }
 
-/* ── Intro two-column layout ── */
-.intro-inner {
-  flex-direction: row !important;
-  align-items: center;
-  gap: 60rem;
-}
-.intro-gif-wrap {
-  flex: 0 0 auto;
-  background: #FDFCF8;
-  border-radius: 20rem;
-  padding: 24rem;
-  box-shadow: 0 12rem 40rem rgba(0,0,0,0.38), 0 2rem 8rem rgba(0,0,0,0.18);
-  will-change: transform, opacity;
-}
-.intro-gif {
-  display: block;
-  width: clamp(140rem, 20vw, 260rem);
-  height: auto;
-}
-.intro-text {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.28em;
-}
-@media (max-width: 768px) {
-  .intro-inner { flex-direction: column !important; align-items: flex-start; gap: 36rem; }
-  .intro-gif { width: clamp(110rem, 38vw, 180rem); }
-}
+.muted { opacity: 0.5; }
 
-/* ── Scrapbook sticker badges ── */
-.sticker {
-  position: absolute;
-  width: 84rem;
-  height: 84rem;
-  border-radius: 50%;
-  padding: 16rem;
-  box-shadow: 0 6rem 20rem rgba(0,0,0,0.35), inset 0 1rem 0 rgba(255,255,255,0.3);
-  opacity: 0;
-  will-change: transform, opacity;
-  pointer-events: none;
-  z-index: 6;
-}
-.sticker::before {
-  content: '';
-  position: absolute;
-  top: -10rem;
-  left: 50%;
-  transform: translateX(-50%) rotate(-3deg);
-  width: 38rem;
-  height: 14rem;
-  background: rgba(255,255,255,0.55);
-  border-radius: 2rem;
-  pointer-events: none;
-}
-.s-fate    { background: #FF6B6B; }
-.s-leap    { background: #4FC3F7; }
-.s-myth    { background: #CE93D8; }
-.s-mentors { background: #F9A825; }
-.s-psych   { background: #06D6A0; }
-.s-thesis  { background: #EF5350; }
-.s-strip   { background: #FF9800; }
-.s-verse   { background: #7E57C2; }
-.s-closer  { background: #26C6DA; }
-.sticker-tl { top: 10%; left: 5%; }
-.sticker-tr { top: 10%; right: 5%; }
-.sticker-bl { bottom: 14%; left: 5%; }
-.sticker-br { bottom: 14%; right: 5%; }
-.sticker-lottie {
-  width: 100%;
-  height: 100%;
-  filter: brightness(0) invert(1);
-}
-@media (max-width: 640px) {
-  .sticker { width: 60rem; height: 60rem; padding: 10rem; }
-  .sticker-tl { top: 6%; left: 3%; }
-  .sticker-tr { top: 6%; right: 3%; }
-  .sticker-bl { bottom: 8%; left: 3%; }
-  .sticker-br { bottom: 8%; right: 3%; }
-}
+.hl     { color: #6E92CE; font-weight: 700; }
+.hl-dim { color: #6E92CE; opacity: 0.85; }
 
-/* ── Line scale system ── */
-.line { letter-spacing: -0.035em; line-height: 1.08; font-weight: 600; }
-.l-xl { font-size: clamp(44rem, 8.4vw, 132rem); font-weight: 700; line-height: 1.0; }
-.l-lg { font-size: clamp(30rem, 5vw, 74rem); font-weight: 650; }
-.l-md { font-size: clamp(21rem, 2.9vw, 40rem); font-weight: 500; line-height: 1.24; letter-spacing: -0.025em; }
-.l-sm { font-size: clamp(15rem, 1.7vw, 21rem); font-weight: 400; line-height: 1.4; letter-spacing: -0.01em; }
-.dim   { opacity: 0.45; }
-.quote { font-style: italic; opacity: 0.6; }
-.mono  { font-family: "SFMono-Regular", "JetBrains Mono", "Menlo", monospace; letter-spacing: 0; }
-.hl    { color: var(--hl); font-weight: 700; }
+[data-theme="light"] .hl     { color: #243F6A; }
+[data-theme="light"] .hl-dim { color: #243F6A; }
 
-/* ── Word-mask scaffolding ── */
-:deep(.wmask) {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: top;
-  padding: 0.16em 0.07em;
-  margin: -0.16em -0.07em;
-}
-:deep(.wfill) {
-  display: inline-block;
-  will-change: transform, opacity, filter;
-}
-
-/* Strip effect */
-:deep(.wfill.jargon) { color: var(--color-text); }
-:deep(.wfill.crisp)  { color: var(--hl); font-weight: 700; transform-origin: left center; }
-
-/* ── Mantra / verse ── */
-.vhindi {
-  font-family: 'Noto Sans Devanagari', 'Mangal', 'Aparajita', sans-serif;
-  font-size: clamp(38rem, 7vw, 104rem);
+/* Devanagari */
+.st-devanagari {
+  font-family: 'Noto Sans Devanagari', 'Mangal', sans-serif;
+  font-size: clamp(32px, 5.5vw, 82px);
   font-weight: 600;
   letter-spacing: 0.01em;
   line-height: 1.4;
-  margin-bottom: 0.18em;
-  will-change: transform, opacity, filter;
-}
-.translit {
-  font-style: italic;
-  opacity: 0.5;
-  letter-spacing: 0.02em;
+  color: var(--color-text);
   margin-bottom: 0.1em;
 }
-.verse-eng { margin-top: 0.1em; }
-.vbeam {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 24%;
-  height: 42%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, var(--hl), transparent);
-  filter: blur(26px);
-  opacity: 0;
-  mix-blend-mode: screen;
-}
-.scene-verse .scene-inner { position: relative; }
 
-/* ── Coda ── */
-.coda {
-  min-height: 100vh;
+.st-translit {
+  font-style: italic;
+  font-size: clamp(13px, 1.5vw, 20px);
+  opacity: 0.45;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.5em;
+}
+
+/* ── GIF overlays ── */
+.gif-overlay {
+  position: fixed;
+  z-index: 8;
+  pointer-events: none;
+  border-radius: 10px;
+  box-shadow: 0 18px 54px rgba(0,0,0,0.48), 0 4px 12px rgba(0,0,0,0.24);
+  opacity: 0;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  transform: scale(0.88);
+}
+
+/* ── Coda overlay ── */
+.coda-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18rem;
-  padding: 120rem var(--grid-margin);
-  background: var(--color-bg);
-  scroll-snap-align: start;
+  gap: 16px;
+  opacity: 0;
+  pointer-events: none;
+  padding: 80px var(--grid-margin, 30px);
 }
+
+.coda-overlay[style*="opacity: 1"],
+.coda-overlay.visible {
+  pointer-events: auto;
+}
+
 .coda-portrait {
-  width: 200rem;
-  height: 200rem;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   overflow: hidden;
-  margin-bottom: 16rem;
+  margin-bottom: 12px;
 }
-.coda-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
-.coda-name { font-size: clamp(28rem, 4vw, 44rem); font-weight: 700; letter-spacing: -0.04em; }
-.coda-cred { font-size: 14rem; opacity: 0.45; letter-spacing: -0.01em; }
-.coda-contact {
+.coda-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.coda-name {
+  font-size: clamp(26px, 3.5vw, 42px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--color-text);
+}
+
+.coda-cred {
+  font-size: 13px;
+  opacity: 0.4;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.coda-links {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8rem;
-  margin-top: 28rem;
+  gap: 6px;
+  margin-top: 20px;
 }
-.coda-contact a {
-  font-size: clamp(16rem, 2vw, 22rem);
+.coda-links a {
+  font-size: clamp(14px, 1.6vw, 19px);
   font-weight: 500;
+  opacity: 0.55;
   letter-spacing: -0.02em;
-  opacity: 0.65;
-  transition: opacity 0.2s ease, color 0.2s ease;
+  transition: opacity 0.2s;
 }
-.coda-contact a:hover { opacity: 1; color: var(--hl); }
+.coda-links a:hover { opacity: 1; color: #6E92CE; }
 
-@media (max-width: 640px) {
-  .scene { padding: 64rem 24rem; }
-  .scene-inner { gap: 0.5em; }
+.coda-cta {
+  margin-top: 32px;
+}
+.btn-cta {
+  display: inline-block;
+  padding: 14px 32px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 999px;
+  font-size: clamp(13px, 1.4vw, 17px);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+  opacity: 0.8;
+  transition: opacity 0.2s, border-color 0.2s, background 0.2s;
+}
+.btn-cta:hover {
+  opacity: 1;
+  background: rgba(110,146,206,0.12);
+  border-color: #6E92CE;
+}
+
+[data-theme="light"] .btn-cta {
+  border-color: rgba(0,0,0,0.18);
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .scene-text {
+    left: 18px;
+    right: 18px;
+    max-width: none;
+    top: auto;
+    bottom: 80px;
+    transform: none;
+  }
+  .scene-text--center {
+    left: 18px;
+    right: 18px;
+    bottom: 80px;
+    top: auto;
+    transform: none;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .gif-overlay { display: none; }
+  .st-lg { font-size: clamp(24px, 6.5vw, 40px); }
 }
 </style>

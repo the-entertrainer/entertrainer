@@ -111,10 +111,12 @@ onBeforeUnmount(() => {
 
 /* ─── Intro ─── */
 .about-intro {
-  font-size: clamp(32rem, 4vw, 50rem);
-  font-weight: 700;
+  font-family: var(--display-font);
+  font-size: clamp(32rem, 4vw, 54rem);
+  font-weight: 400;
+  font-style: italic;
   line-height: 1.2;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
   color: var(--color-text);
   margin-bottom: 32rem;
 }
@@ -135,10 +137,12 @@ onBeforeUnmount(() => {
 
 /* ─── Lead ─── */
 .about-lead {
-  font-size: clamp(18rem, 2.1vw, 23rem);
-  font-weight: 500;
-  line-height: 1.6;
-  letter-spacing: -0.025em;
+  font-family: var(--display-font);
+  font-size: clamp(18rem, 2.1vw, 26rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.5;
+  letter-spacing: -0.015em;
   color: var(--color-text);
   margin-bottom: 52rem;
 }
@@ -172,10 +176,12 @@ onBeforeUnmount(() => {
 
 /* ─── Pull ─── */
 .about-pull {
-  font-size: clamp(22rem, 2.6vw, 30rem);
-  font-weight: 600;
+  font-family: var(--display-font);
+  font-size: clamp(22rem, 2.6vw, 34rem);
+  font-weight: 400;
+  font-style: italic;
   line-height: 1.3;
-  letter-spacing: -0.032em;
+  letter-spacing: -0.015em;
   color: var(--color-text);
   margin: 48rem 0 40rem;
 }

@@ -264,21 +264,19 @@ export default class NavPlane {
       return
     }
 
-    // Glass body — matches --color-glass-bg token
-    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.15)'
+    // Retro panel body
+    ctx.fillStyle = isDark ? 'rgba(12,10,7,0.82)' : 'rgba(234,228,212,0.90)'
     ctx.fillRect(0, 0, W, H)
 
-    // Diagonal ambient sweep — dark mode only; on light it washes out dark text
-    if (isDark) {
-      const sweep = ctx.createLinearGradient(0, 0, W * 0.6, H * 0.6)
-      sweep.addColorStop(0, 'rgba(255,255,255,0.04)')
-      sweep.addColorStop(1, 'rgba(255,255,255,0)')
-      ctx.fillStyle = sweep
-      ctx.fillRect(0, 0, W, H)
-    }
+    // Subtle top highlight (old paper / terminal glow)
+    const highlight = ctx.createLinearGradient(0, 0, 0, H * 0.28)
+    highlight.addColorStop(0, isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.22)')
+    highlight.addColorStop(1, 'rgba(255,255,255,0)')
+    ctx.fillStyle = highlight
+    ctx.fillRect(0, 0, W, H)
 
-    // Border — matches --color-glass-border token
-    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)'
+    // Border — more defined, retro rule
+    ctx.strokeStyle = isDark ? 'rgba(244,241,236,0.28)' : 'rgba(13,12,10,0.32)'
     ctx.lineWidth   = 5
     ctx.strokeRect(6, 6, W - 12, H - 12)
 
@@ -293,11 +291,11 @@ export default class NavPlane {
     ctx.fillStyle    = textColor
     ctx.textAlign    = 'left'
     ctx.textBaseline = 'alphabetic'
-    let labelPx = 180
-    ctx.font = `700 ${labelPx}px system-ui, -apple-system, Arial, sans-serif`
+    let labelPx = 160
+    ctx.font = `700 ${labelPx}px Georgia, "Times New Roman", Times, serif`
     while (ctx.measureText(label).width > 1480 && labelPx > 72) {
       labelPx -= 6
-      ctx.font = `700 ${labelPx}px system-ui, -apple-system, Arial, sans-serif`
+      ctx.font = `700 ${labelPx}px Georgia, "Times New Roman", Times, serif`
     }
     ctx.fillText(label.substring(0, charCount), 100, 550)
 
@@ -322,11 +320,11 @@ export default class NavPlane {
       ctx.fillStyle   = isDark
         ? `rgba(244,241,236,${descAlpha.toFixed(3)})`
         : `rgba(13,12,10,${descAlpha.toFixed(3)})`
-      let descPx = 64
-      ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
+      let descPx = 58
+      ctx.font = `italic 400 ${descPx}px Georgia, "Times New Roman", Times, serif`
       while (ctx.measureText(desc).width > 1480 && descPx > 38) {
         descPx -= 4
-        ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
+        ctx.font = `italic 400 ${descPx}px Georgia, "Times New Roman", Times, serif`
       }
       ctx.fillText(desc, 100, 650)
     }

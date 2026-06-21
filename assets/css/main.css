@@ -57,7 +57,7 @@
 :root {
   /* Typography */
   --main-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
-  --display-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
+  --display-font: "DM Serif Display", Georgia, "Times New Roman", Times, serif;
 
   /* Spacing scale */
   --gap-xs: 10px;
@@ -543,10 +543,12 @@ canvas {
   position: relative;
   display: inline-block;
   width: max-content;
-  font-size: 80rem;
-  font-weight: 500;
-  letter-spacing: -0.05em;
-  line-height: 100%;
+  font-family: var(--display-font);
+  font-size: 76rem;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  line-height: 105%;
   padding-left: 0;
   transition: padding-left 0.5s var(--ease-spring);
 }
@@ -579,14 +581,15 @@ canvas {
   position: relative;
   display: inline-block;
   padding-left: 0;
-  font-size: 40rem;
-  font-weight: 500;
-  letter-spacing: -0.05em;
+  font-size: 38rem;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.01em;
   line-height: 100%;
   color: var(--color-black);
   background: none;
   border: none;
-  font-family: var(--main-font);
+  font-family: var(--display-font);
   cursor: pointer;
   opacity: 0.28;
   text-align: left;

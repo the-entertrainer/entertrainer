@@ -242,9 +242,11 @@ function onLoaderEntered() {
 .nav-row:first-child { border-top: 1px solid var(--color-divider); }
 .nav-row:hover { padding-left: 16rem; }
 .nav-row__label {
-  font-size: 40rem;
-  font-weight: 600;
-  letter-spacing: -0.04em;
+  font-family: var(--display-font);
+  font-size: 44rem;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.02em;
   flex: 0 0 auto;
   min-width: 220rem;
 }
@@ -294,9 +296,10 @@ function onLoaderEntered() {
   bottom: calc(36rem + var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%);
-  font-size: 13rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
   color: var(--color-text);
   opacity: 0.2;
   white-space: nowrap;

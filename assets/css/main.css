@@ -795,22 +795,8 @@ canvas {
 }
 
 /* ============================================================
-   About page — body background + ghost chrome
+   About page — body bg follows the global theme token.
    data-about is set on <html> by pages/about/index.vue.
+   Corner chrome stays fully functional (no opacity override).
    ============================================================ */
-
-/* Body background matches current theme — no flash on edges */
-html[data-about][data-theme="dark"] body  { background: #080808; }
-html[data-about][data-theme="light"] body { background: #F8F8F6; }
-html[data-about]:not([data-theme]) body   { background: #080808; }
-
-/* Dim nav chrome on the About page — editorial long-scroll doesn't hide them */
-html[data-about] .logo-wrapper,
-html[data-about] .menu,
-html[data-about] .back-btn-circle,
-html[data-about] .sound-button {
-  opacity: 0.12;
-  pointer-events: none;
-  transition: opacity 0.6s ease;
-}
 

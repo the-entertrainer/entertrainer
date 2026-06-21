@@ -91,10 +91,10 @@ export class Atmosphere {
     this.last = now
     this.t += dt
 
-    // ease state toward targets
-    this.intensity += (this.intensityTarget - this.intensity) * Math.min(dt * 2.4, 1)
-    this.focus.x += (this.focusTarget.x - this.focus.x) * Math.min(dt * 1.8, 1)
-    this.focus.y += (this.focusTarget.y - this.focus.y) * Math.min(dt * 1.8, 1)
+    // ease state toward targets — tighter factors so glow tracks scroll closely
+    this.intensity += (this.intensityTarget - this.intensity) * Math.min(dt * 4.0, 1)
+    this.focus.x += (this.focusTarget.x - this.focus.x) * Math.min(dt * 3.2, 1)
+    this.focus.y += (this.focusTarget.y - this.focus.y) * Math.min(dt * 3.2, 1)
 
     this._draw()
   }

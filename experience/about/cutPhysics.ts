@@ -5,6 +5,7 @@
 // survivor: "We keep what helps people understand." Driven by the scene's scroll
 // progress so the editing happens as you move through it.
 
+import gsap from 'gsap'
 import { annotate } from 'rough-notation'
 
 interface CutLine {
@@ -24,6 +25,7 @@ export class CutPhysics {
   private running = false
   private started = false
   private thresholds: number[] = []
+  private _survivorTriggered = false
 
   async init(removeEls: HTMLElement[], keepEl: HTMLElement) {
     this.keepEl = keepEl
@@ -115,16 +117,16 @@ export class CutPhysics {
     this.lines.forEach((line, i) => {
       if (!line.released && p >= this.thresholds[i]) this._release(line)
     })
-    // survivor emphasis
-    if (this.keepEl) {
-      const k = Math.max(0, Math.min(1, (p - 0.78) / 0.22))
-      this.keepEl.style.transform = `scale(${1 + k * 0.12})`
-      this.keepEl.style.opacity = String(0.5 + k * 0.5)
+    // survivor emphasis — one-shot eased tween fires once when cutting is done
+    if (this.keepEl && !this._survivorTriggered && p >= 0.78) {
+      this._survivorTriggered = true
+      gsap.to(this.keepEl, { scale: 1.12, opacity: 1, duration: 0.55, ease: 'power3.out' })
     }
   }
 
   dispose() {
     this.running = false
+    this._survivorTriggered = false
     cancelAnimationFrame(this.raf)
     if (this.Matter && this.engine) this.Matter.Engine.clear(this.engine)
     this.Matter = null

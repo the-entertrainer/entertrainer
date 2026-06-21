@@ -157,7 +157,7 @@ onMounted(async () => {
         end: `+=${scrollLen}`,
         pin: true,
         pinSpacing: true,
-        scrub: 1.1,
+        scrub: 1.5,
         anticipatePin: 1,
         onEnter: () => gsap.to(beatEls, { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: 'power3.out' }),
         onUpdate: self => {
@@ -177,14 +177,21 @@ onMounted(async () => {
 
     let intro: gsap.core.Tween | null = null
     if (isFirst && splits[0]) {
+      // Scene 01 beat 0 is 'xl' tone — match TONE_WEIGHTS.xl: enterY:20, enterScale:0.95, enterBlur:10
+      gsap.set(splits[0].chars, { transformOrigin: '50% 80%' })
       intro = gsap.from(splits[0].chars, {
-        yPercent: 120, rotateX: -88, opacity: 0, filter: 'blur(10px)',
-        duration: 1.0, ease: 'power3.out', delay: 0.25,
+        yPercent: 20, scale: 0.95, opacity: 0, filter: 'blur(10px)',
+        duration: 1.1, ease: 'power3.out', delay: 0.25,
         stagger: { each: 0.024, from: 'start' },
       })
-      // first scene is active on load — reveal its thought cluster explicitly
+      // first scene active on load — focus-rack its thought cluster in
       const firstCluster = sceneEl.querySelector<HTMLElement>('.fn-thoughts')
-      if (firstCluster) gsap.to(firstCluster.children, { opacity: 1, duration: 1.1, delay: 0.5, stagger: 0.1, ease: 'power2.out' })
+      if (firstCluster) {
+        gsap.fromTo([...firstCluster.children],
+          { opacity: 0, filter: 'blur(14px)' },
+          { opacity: 1, filter: 'blur(0px)', duration: 1.2, delay: 0.5, stagger: 0.1, ease: 'power2.out' }
+        )
+      }
     }
 
     const cluster = sceneEl.querySelector<HTMLElement>('.fn-thoughts')
@@ -195,7 +202,7 @@ onMounted(async () => {
       end: `+=${scrollLen}`,
       pin: true,
       pinSpacing: true,
-      scrub: 1.1,
+      scrub: 1.5,
       anticipatePin: 1,
       animation: tl,
       onUpdate: self => {
@@ -208,13 +215,17 @@ onMounted(async () => {
       },
       onToggle: self => {
         if (cluster) {
-          // opacity only — figures keep their inline translate/rotate transform
-          gsap.to(cluster.children, {
-            opacity: self.isActive ? 1 : 0,
-            duration: 0.9,
-            stagger: 0.08,
-            ease: 'power2.out',
-          })
+          const kids = [...cluster.children] as HTMLElement[]
+          if (self.isActive) {
+            // Focus-rack in — filter:blur only, never x/scale which would clobber
+            // the inline transform:translate+rotate positioning from thoughtStyle()
+            gsap.fromTo(kids,
+              { opacity: 0, filter: 'blur(14px)' },
+              { opacity: 1, filter: 'blur(0px)', duration: 1.1, stagger: { each: 0.10, from: 'start' }, ease: 'power2.out', overwrite: true }
+            )
+          } else {
+            gsap.to(kids, { opacity: 0, filter: 'blur(10px)', duration: 0.65, stagger: { each: 0.06, from: 'end' }, ease: 'power2.in', overwrite: true })
+          }
         }
       },
     })
@@ -382,6 +393,9 @@ onBeforeUnmount(() => {
   min-height: 40vh;
   display: grid;
   place-items: inherit;
+  /* shared perspective so all stacked beats share the same depth origin */
+  perspective: 1400rem;
+  perspective-origin: 50% 40%;
 }
 .fn-scene.align-center .fn-stage { place-items: center; }
 .fn-scene.align-left   .fn-stage { place-items: center start; }
@@ -393,7 +407,7 @@ onBeforeUnmount(() => {
   line-height: 1.02;
   letter-spacing: -0.04em;
   max-width: 22ch;
-  perspective: 800rem;
+  /* perspective removed — now on .fn-stage for consistent depth across beats */
 }
 .special-cut .fn-beat { max-width: none; }
 
@@ -432,7 +446,8 @@ onBeforeUnmount(() => {
 .fn-beat-text :deep(.char) {
   display: inline-block;
   will-change: transform, opacity, filter;
-  backface-visibility: hidden;
+  transform-origin: 50% 80%;
+  /* backface-visibility removed — was only needed for rotateX 3D flips */
 }
 .fn-beat-text :deep(.word) { display: inline-block; }
 

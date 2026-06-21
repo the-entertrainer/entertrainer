@@ -230,9 +230,14 @@ function buildBeatSequence(
 onMounted(async () => {
   document.documentElement.setAttribute('data-about', '')
 
-  // Disable Lenis — CSS scroll-snap handles scene navigation
+  // Disable Lenis and restore native scroll so CSS scroll-snap works.
+  // lenis.stop() halts the animation tick but leaves overflow:hidden on <html>;
+  // we force overflow-y back so the browser's native snap can take over.
   const lenis = (useNuxtApp().$lenis) as any
   lenis?.stop?.()
+  document.documentElement.style.overflowY = 'scroll'
+  document.documentElement.style.scrollSnapType = 'y mandatory'
+  document.documentElement.style.scrollBehavior = 'auto'
 
   await nextTick()
 
@@ -489,6 +494,10 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   document.documentElement.removeAttribute('data-about')
+  // Restore Lenis and undo the html overrides applied on mount
+  document.documentElement.style.overflowY = ''
+  document.documentElement.style.scrollSnapType = ''
+  document.documentElement.style.scrollBehavior = ''
   const lenis = (useNuxtApp().$lenis) as any
   lenis?.start?.()
   cleanups.forEach(fn => { try { fn() } catch {} })
@@ -729,15 +738,9 @@ function addTransformPair(
   width: 100%;
   background: var(--bg);
   color: var(--text);
-  /* CSS scroll-snap: each scene locks to full viewport */
-  height: 100svh;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: auto;
-  /* Hide scrollbar visually */
-  scrollbar-width: none;
+  /* Scenes live in normal document flow — scroll-snap is applied to <html>
+     via JS on mount so it works with the global Lenis setup. */
 }
-.fn::-webkit-scrollbar { display: none; }
 
 [data-theme="light"] .fn {
   --bg: #FAFAF8;

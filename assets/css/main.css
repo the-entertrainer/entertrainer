@@ -803,6 +803,10 @@ canvas {
 html[data-about][data-theme="dark"] body  { background: #0C0E14; }
 html[data-about][data-theme="light"] body { background: #FAFAF8; }
 html[data-about]:not([data-theme]) body   { background: #0C0E14; }
+
+/* Hide scrollbar while scroll-snap is active on the About page */
+html[data-about] { scrollbar-width: none; }
+html[data-about]::-webkit-scrollbar { display: none; }
 html[data-about] .logo-wrapper {
   opacity: 0.14;
   transition: opacity 0.7s ease;

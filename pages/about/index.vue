@@ -3,10 +3,10 @@
     <div class="grain" aria-hidden="true" />
 
     <!-- OPENING -->
-    <section ref="openingEl" class="opening">
+    <section ref="openingEl" class="s-opening">
       <div class="opening-inner">
-        <p ref="opening1El" class="opening-text">I used to check people in.</p>
-        <p ref="opening2El" class="opening-text opening-text--b">Now I get <span ref="insideEl" class="inside-word">inside</span> their heads.</p>
+        <p ref="opening1El" class="opening-line">This wasn't planned.</p>
+        <p ref="opening2El" class="opening-line opening-line--b">It was a <span ref="discoveryWordEl" class="discovery-word">discovery</span>.</p>
       </div>
     </section>
 
@@ -17,12 +17,12 @@
         <div ref="nameCaptionAEl" class="name-caption">
           <span>Instructional Designer.</span>
           <span>Learning Architect.</span>
-          <span>Storyteller.</span>
+          <span>Entertrainer.</span>
         </div>
         <div ref="nameCaptionBEl" class="name-caption name-caption--b">
-          <span>Former hotelier.</span>
-          <span>Certified overthinker.</span>
-          <span>Accidental eLearning evangelist.</span>
+          <span>Former housekeeper.</span>
+          <span>Towel art enthusiast.</span>
+          <span>Accidental L&amp;D convert.</span>
         </div>
       </div>
     </section>
@@ -31,80 +31,71 @@
     <section ref="originEl" class="s-origin">
       <div class="origin-inner">
         <div class="origin-left">
-          <h2 ref="originHeadEl" class="display-lg origin-head">It started<br>in hotels.</h2>
-          <p ref="originBody1El" class="body-lg origin-body">Years of rooms, rosters, and guests with strong opinions about pillow firmness. What I actually learned: people don't follow procedures because they're written. They follow them because someone made it <em>feel worth following</em>.</p>
-          <p ref="originBody2El" class="body-lg origin-body">I took that obsession into learning design. Not content. Not compliance. Behavior change.</p>
+          <h2 ref="originHeadEl" class="display-lg origin-head">I used to<br>make beds.</h2>
+          <p ref="originBody1El" class="body-lg origin-body">Clean rooms. Make towel art. <em>(Fun stuff, eh.)</em> Make them look decorative, arranged, and beautiful. At Marriott International and Club Mahindra. That was the start.</p>
+          <p ref="originBody2El" class="body-lg origin-body">What I didn't know yet: learning how people move through beautiful spaces was quietly teaching me something much bigger. Environment is instruction. Every detail is a decision.</p>
         </div>
         <div class="origin-right">
           <div ref="originGifEl" class="gif-frame gif-frame--hotel">
-            <img src="/about/gifs/s2-0.gif" alt="A hotel scene" class="gif-img" />
-            <span class="gif-caption">circa hotel era</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- DISCOVERY BEAT -->
-      <div ref="discoveryEl" class="discovery-inner">
-        <p ref="discoveryLine1El" class="discovery-line">At Mahindra Holidays, someone handed me a SCORM file.</p>
-        <p ref="discoveryLine2El" class="discovery-line discovery-line--muted">I had absolutely no idea what it was.</p>
-        <div ref="discoveryGifEl" class="gif-frame gif-frame--brain">
-          <img src="/about/gifs/s4-0.gif" alt="Brain expanding" class="gif-img" />
-          <span class="gif-caption">approximately what happened next</span>
-        </div>
-        <p ref="discoveryLine3El" class="discovery-line">Six months later, I was building one.</p>
-      </div>
-    </section>
-
-    <!-- THE PROBLEM -->
-    <section ref="problemEl" class="s-problem">
-      <div class="problem-inner">
-        <h2 ref="problemHeadEl" class="display-lg problem-head">Then I looked<br>around at how<br>everyone else<br>was doing it.</h2>
-        <div ref="problemGifEl" class="gif-frame gif-frame--problem">
-          <img src="/about/gifs/s6-1.gif" alt="Flipping a table in frustration" class="gif-img" />
-          <span class="gif-caption">a completely measured response</span>
-        </div>
-        <div ref="statsEl" class="problem-stats">
-          <p class="stat-line">Click through.</p>
-          <p class="stat-line">Pass the quiz.</p>
-          <p class="stat-line">Forget by Tuesday.</p>
-        </div>
-        <div class="problem-mask-wrap">
-          <p ref="problemConclusionEl" class="body-lg problem-conclusion">Learning was never supposed to feel like paperwork.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- SEWA CHRONICLES -->
-    <section ref="sewaEl" class="s-sewa">
-      <div class="sewa-inner">
-        <div class="sewa-left">
-          <span class="label sewa-label">The Spark</span>
-          <h2 ref="sewaHeadEl" class="display-lg sewa-head">So I drew<br>a comic book.</h2>
-          <p ref="sewaBodyEl" class="body-lg sewa-body">At Mahindra, I hand-drew 10 real guest experience stories from our frontline teams. Retro-comic panels. Real people. Genuinely unexpected moments. We called it <em>The SEWA Chronicles</em>. It ended up at a Great Place to Work event.</p>
-          <div class="sewa-punch-wrap">
-            <p ref="sewaPunchEl" class="sewa-punch">Apparently hand-drawn comics about hotel guests hit different.</p>
-          </div>
-        </div>
-        <div class="sewa-right">
-          <div ref="sewaGifEl" class="gif-frame gif-frame--sewa">
-            <img src="/about/gifs/s9-0.gif" alt="Team storytelling" class="gif-img" />
-            <span class="gif-caption">the energy in that room</span>
+            <img src="/about/gifs/s3-0.gif" alt="A hotel room scene" class="gif-img" />
+            <span class="gif-caption">circa Marriott era</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- PHILOSOPHY (pinned) -->
-    <section ref="philoEl" class="s-philosophy">
-      <div class="philo-inner">
+    <!-- THE TURN -->
+    <section ref="turnEl" class="s-turn">
+      <div class="turn-inner">
+        <div class="turn-left">
+          <div ref="turnGifEl" class="gif-frame gif-frame--struggle">
+            <img src="/about/gifs/s7-0.gif" alt="Sleepless nights studying" class="gif-img" />
+            <span class="gif-caption">a conservative count of nights not spent sleeping</span>
+          </div>
+        </div>
+        <div class="turn-right">
+          <span class="label turn-label">The Turn</span>
+          <h2 ref="turnHeadEl" class="display-lg turn-head">Then the right<br>people<br>found me.</h2>
+          <p ref="turnBodyEl" class="body-lg turn-body">The mentors I met along the way redirected my mind toward the path of learning and development. The transition took me countless sleepless nights and tiring daylight — introducing myself to concepts that once I believed never even existed.</p>
+          <p ref="turnBody2El" class="body-lg turn-body">Instructional theory. Learning science. Cognitive load. SCORM. All of it. Absorbed at a pace that was probably unsustainable. And absolutely necessary.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE OBSERVATION -->
+    <section ref="observeEl" class="s-observe">
+      <div class="observe-inner">
+        <blockquote ref="observeQuoteEl" class="observe-quote">
+          It was the interaction and observation of people around me — how they responded to changes and their motives — that drove me toward L&amp;D.
+        </blockquote>
+        <p ref="observeBodyEl" class="observe-body">That thirst for understanding — not certification — is what got me chasing the core.</p>
+      </div>
+    </section>
+
+    <!-- MANIFESTO (pinned) -->
+    <section ref="philoEl" class="s-manifesto">
+      <div class="manifesto-inner">
         <div ref="philoSlotEl" class="philo-slot">
+          <p class="philo-line philo-ghost display-lg" aria-hidden="true">We instructional designers decide what is taught and how.</p>
           <p
-            v-for="(s, i) in philosophySentences"
+            v-for="(s, i) in manifestoLines"
             :key="s"
             :ref="(el) => { if (el) philoRefs[i] = el as HTMLElement }"
             class="philo-line display-lg"
           >{{ s }}</p>
         </div>
+      </div>
+      <div ref="brainGifEl" class="gif-frame gif-frame--brain">
+        <img src="/about/gifs/s4-0.gif" alt="Brain neurons firing" class="gif-img" />
+        <span class="gif-caption">solid reality unlocking</span>
+      </div>
+    </section>
+
+    <!-- ASATOMA -->
+    <section ref="asatomaEl" class="s-asatoma">
+      <div class="asatoma-inner">
+        <p ref="asatomaTextEl" class="asatoma-text">Asatoma Sadgamaya.</p>
+        <p ref="asatomaTranslEl" class="asatoma-transl">Lead me from untruth to truth.</p>
       </div>
     </section>
 
@@ -117,7 +108,7 @@
             <h2 ref="nowHeadEl" class="display-lg now-head">Building learning<br>at Concentrix.</h2>
           </div>
           <div class="now-body-wrap">
-            <p ref="nowBodyEl" class="body-lg now-body">Turning complex operational knowledge into digital learning experiences for global teams. Applying adult learning science to data that otherwise just lives in a spreadsheet, going nowhere.</p>
+            <p ref="nowBodyEl" class="body-lg now-body">Turning complex operational knowledge into digital learning experiences for global teams. Because knowledge locked in a spreadsheet helps nobody.</p>
           </div>
         </div>
         <div class="now-right">
@@ -138,7 +129,7 @@
         </div>
         <div ref="finalSigEl" class="final-sig">
           <span>Naveen Jose</span>
-          <span>Instructional Designer · Learning Architect · Narrative Builder</span>
+          <span>Instructional Designer · Learning Architect · Entertrainer</span>
         </div>
         <div ref="finalCtaEl" class="final-cta-wrap">
           <NuxtLink to="/contact" class="final-cta">Let's build something worth remembering →</NuxtLink>
@@ -155,53 +146,50 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 gsap.registerPlugin(ScrollTrigger)
 
 // ── Refs ──────────────────────────────────────────────────────────────────
-const openingEl           = ref<HTMLElement>()
-const opening1El          = ref<HTMLElement>()
-const opening2El          = ref<HTMLElement>()
-const insideEl            = ref<HTMLElement>()
-const nameEl              = ref<HTMLElement>()
-const nameTextEl          = ref<HTMLElement>()
-const nameCaptionAEl      = ref<HTMLElement>()
-const nameCaptionBEl      = ref<HTMLElement>()
-const originEl            = ref<HTMLElement>()
-const originHeadEl        = ref<HTMLElement>()
-const originBody1El       = ref<HTMLElement>()
-const originBody2El       = ref<HTMLElement>()
-const originGifEl         = ref<HTMLElement>()
-const discoveryEl         = ref<HTMLElement>()
-const discoveryLine1El    = ref<HTMLElement>()
-const discoveryLine2El    = ref<HTMLElement>()
-const discoveryLine3El    = ref<HTMLElement>()
-const discoveryGifEl      = ref<HTMLElement>()
-const problemEl           = ref<HTMLElement>()
-const problemHeadEl       = ref<HTMLElement>()
-const statsEl             = ref<HTMLElement>()
-const problemConclusionEl = ref<HTMLElement>()
-const problemGifEl        = ref<HTMLElement>()
-const sewaEl              = ref<HTMLElement>()
-const sewaHeadEl          = ref<HTMLElement>()
-const sewaBodyEl          = ref<HTMLElement>()
-const sewaPunchEl         = ref<HTMLElement>()
-const sewaGifEl           = ref<HTMLElement>()
-const philoEl             = ref<HTMLElement>()
-const philoSlotEl         = ref<HTMLElement>()
-const philoRefs           = ref<HTMLElement[]>([])
-const nowEl               = ref<HTMLElement>()
-const nowHeadEl           = ref<HTMLElement>()
-const nowBodyEl           = ref<HTMLElement>()
-const finalEl             = ref<HTMLElement>()
-const finalLine1El        = ref<HTMLElement>()
-const finalLine2El        = ref<HTMLElement>()
-const finalBodyEl         = ref<HTMLElement>()
-const finalSigEl          = ref<HTMLElement>()
-const finalCtaEl          = ref<HTMLElement>()
+const openingEl       = ref<HTMLElement>()
+const opening1El      = ref<HTMLElement>()
+const opening2El      = ref<HTMLElement>()
+const discoveryWordEl = ref<HTMLElement>()
+const nameEl          = ref<HTMLElement>()
+const nameTextEl      = ref<HTMLElement>()
+const nameCaptionAEl  = ref<HTMLElement>()
+const nameCaptionBEl  = ref<HTMLElement>()
+const originEl        = ref<HTMLElement>()
+const originHeadEl    = ref<HTMLElement>()
+const originBody1El   = ref<HTMLElement>()
+const originBody2El   = ref<HTMLElement>()
+const originGifEl     = ref<HTMLElement>()
+const turnEl          = ref<HTMLElement>()
+const turnHeadEl      = ref<HTMLElement>()
+const turnBodyEl      = ref<HTMLElement>()
+const turnBody2El     = ref<HTMLElement>()
+const turnGifEl       = ref<HTMLElement>()
+const observeEl       = ref<HTMLElement>()
+const observeQuoteEl  = ref<HTMLElement>()
+const observeBodyEl   = ref<HTMLElement>()
+const philoEl         = ref<HTMLElement>()
+const philoSlotEl     = ref<HTMLElement>()
+const philoRefs       = ref<HTMLElement[]>([])
+const brainGifEl      = ref<HTMLElement>()
+const asatomaEl       = ref<HTMLElement>()
+const asatomaTextEl   = ref<HTMLElement>()
+const asatomaTranslEl = ref<HTMLElement>()
+const nowEl           = ref<HTMLElement>()
+const nowHeadEl       = ref<HTMLElement>()
+const nowBodyEl       = ref<HTMLElement>()
+const finalEl         = ref<HTMLElement>()
+const finalLine1El    = ref<HTMLElement>()
+const finalLine2El    = ref<HTMLElement>()
+const finalBodyEl     = ref<HTMLElement>()
+const finalSigEl      = ref<HTMLElement>()
+const finalCtaEl      = ref<HTMLElement>()
 
-const philosophySentences = [
-  'Learning is not information.',
-  'Learning is emotion.',
-  'Learning is memory.',
-  'Learning is behavior.',
-  'Learning is change.',
+const manifestoLines = [
+  'Trainers train.',
+  'We instructional designers decide what is taught and how.',
+  'We are entertrainers.',
+  'We remove the noise.',
+  'And bring out the solid reality for your brain to understand.',
 ]
 
 let onLenisScroll: () => void
@@ -219,10 +207,10 @@ onMounted(async () => {
   setupOpening(SplitType)
   setupName(SplitType)
   setupOrigin()
-  setupDiscovery(SplitType)
-  setupProblem(SplitType)
-  setupSewa()
-  setupPhilosophy(SplitType)
+  setupTurn()
+  setupObserve()
+  setupManifesto(SplitType)
+  setupAsatoma(SplitType)
   setupNow()
   setupFinal(SplitType)
 
@@ -262,21 +250,12 @@ function setupOpening(SplitType: any) {
   tl.to(split1.chars, { opacity: 0, y: -12, stagger: 0.015, ease: 'power2.in' }, 0.5)
   tl.to(split2.chars, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: 0.025, ease: 'power2.out' }, 0.55)
 
-  const insideNode = insideEl.value
-  if (insideNode && split2.chars) {
-    const insideChars = split2.chars.filter((c: HTMLElement) => insideNode.contains(c))
-    if (insideChars.length) {
-      tl.to(insideChars, {
-        x: (i: number) => (i - insideChars.length / 2) * 5,
-        scaleY: 1.06, filter: 'blur(1px)',
-        textShadow: '0 0 18px rgba(240,240,238,0.6)',
-        stagger: 0.035, ease: 'power1.out',
-      }, 0.82)
-      tl.to(insideChars, {
-        x: 0, scaleY: 1, filter: 'blur(0px)',
-        textShadow: '0 0 0px rgba(240,240,238,0)',
-        stagger: 0.02, ease: 'power2.inOut',
-      }, 0.92)
+  const discoveryNode = discoveryWordEl.value
+  if (discoveryNode && split2.chars) {
+    const dChars = split2.chars.filter((c: HTMLElement) => discoveryNode.contains(c))
+    if (dChars.length) {
+      tl.to(dChars, { textShadow: '0 0 24px rgba(240,240,238,0.75)', letterSpacing: '0.06em', stagger: 0.03, ease: 'power1.out' }, 0.82)
+      tl.to(dChars, { textShadow: '0 0 0px rgba(240,240,238,0)', letterSpacing: '0em', stagger: 0.02, ease: 'power2.inOut' }, 0.93)
     }
   }
 }
@@ -317,7 +296,7 @@ function setupOrigin() {
   gsap.set(originHeadEl.value, { opacity: 0, y: 40 })
   if (originBody1El.value) gsap.set(originBody1El.value, { opacity: 0, y: 28 })
   if (originBody2El.value) gsap.set(originBody2El.value, { opacity: 0, y: 28 })
-  if (originGifEl.value)   gsap.set(originGifEl.value,   { opacity: 0, y: 40, rotate: 3 })
+  if (originGifEl.value)   gsap.set(originGifEl.value,   { opacity: 0, y: 40, rotate: -2 })
 
   ScrollTrigger.create({
     trigger: originEl.value,
@@ -327,96 +306,50 @@ function setupOrigin() {
       gsap.to(originHeadEl.value!, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' })
       if (originBody1El.value) gsap.to(originBody1El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.2 })
       if (originBody2El.value) gsap.to(originBody2El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.35 })
-      if (originGifEl.value)   gsap.to(originGifEl.value,   { opacity: 1, y: 0, rotate: 3,   duration: 1.3, ease: 'power3.out', delay: 0.5 })
+      if (originGifEl.value)   gsap.to(originGifEl.value,   { opacity: 1, y: 0, rotate: -2, duration: 1.3, ease: 'power3.out', delay: 0.5 })
     }
   })
 }
 
-function setupDiscovery(SplitType: any) {
-  if (!discoveryEl.value) return
+function setupTurn() {
+  if (!turnEl.value) return
 
-  if (discoveryLine1El.value) gsap.set(discoveryLine1El.value, { opacity: 0, y: 24 })
-  if (discoveryLine2El.value) gsap.set(discoveryLine2El.value, { opacity: 0, y: 24 })
-  if (discoveryLine3El.value) gsap.set(discoveryLine3El.value, { opacity: 0, y: 24 })
-  if (discoveryGifEl.value)   gsap.set(discoveryGifEl.value,   { opacity: 0, scale: 0.88, rotate: -2 })
+  if (turnGifEl.value)   gsap.set(turnGifEl.value,   { opacity: 0, y: 40, rotate: 3 })
+  if (turnHeadEl.value)  gsap.set(turnHeadEl.value,  { opacity: 0, y: 40 })
+  if (turnBodyEl.value)  gsap.set(turnBodyEl.value,  { opacity: 0, y: 28 })
+  if (turnBody2El.value) gsap.set(turnBody2El.value, { opacity: 0, y: 28 })
 
   ScrollTrigger.create({
-    trigger: discoveryEl.value,
-    start: 'top 65%',
+    trigger: turnEl.value,
+    start: 'top 60%',
     once: true,
     onEnter: () => {
-      if (discoveryLine1El.value) gsap.to(discoveryLine1El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' })
-      if (discoveryLine2El.value) gsap.to(discoveryLine2El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.2 })
-      if (discoveryGifEl.value)   gsap.to(discoveryGifEl.value,   { opacity: 1, scale: 1, rotate: -2, duration: 1.1, ease: 'power3.out', delay: 0.5 })
-      if (discoveryLine3El.value) gsap.to(discoveryLine3El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 1.1 })
+      if (turnGifEl.value)   gsap.to(turnGifEl.value,   { opacity: 1, y: 0, rotate: 3,  duration: 1.3, ease: 'power3.out' })
+      if (turnHeadEl.value)  gsap.to(turnHeadEl.value,  { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out', delay: 0.15 })
+      if (turnBodyEl.value)  gsap.to(turnBodyEl.value,  { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.3 })
+      if (turnBody2El.value) gsap.to(turnBody2El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.45 })
     }
   })
 }
 
-function setupProblem(SplitType: any) {
-  if (!problemEl.value || !problemHeadEl.value || !statsEl.value) return
+function setupObserve() {
+  if (!observeEl.value) return
 
-  if (problemGifEl.value) gsap.set(problemGifEl.value, { opacity: 0, y: 20, rotate: -3 })
-
-  const splitHead = new SplitType(problemHeadEl.value, { types: 'words' })
-  gsap.set(splitHead.words, { opacity: 0, y: 50 })
+  if (observeQuoteEl.value) gsap.set(observeQuoteEl.value, { opacity: 0, y: 32 })
+  if (observeBodyEl.value)  gsap.set(observeBodyEl.value,  { opacity: 0, y: 20 })
 
   ScrollTrigger.create({
-    trigger: problemEl.value,
+    trigger: observeEl.value,
     start: 'top 65%',
     once: true,
     onEnter: () => {
-      gsap.to(splitHead.words, { opacity: 1, y: 0, stagger: 0.06, duration: 0.85, ease: 'power3.out' })
-      if (problemGifEl.value) gsap.to(problemGifEl.value, { opacity: 1, y: 0, rotate: -3, duration: 1.0, ease: 'power3.out', delay: 0.2 })
-    }
-  })
-
-  const statLines = statsEl.value.querySelectorAll('.stat-line')
-  gsap.set(statLines, { opacity: 0, x: -36 })
-  ScrollTrigger.create({
-    trigger: statsEl.value,
-    start: 'top 65%',
-    once: true,
-    onEnter: () => {
-      gsap.to(statLines, { opacity: 1, x: 0, stagger: 0.12, duration: 0.7, ease: 'power3.out' })
-    }
-  })
-
-  if (problemConclusionEl.value) {
-    gsap.set(problemConclusionEl.value, { y: '100%' })
-    ScrollTrigger.create({
-      trigger: problemConclusionEl.value,
-      start: 'top 70%',
-      once: true,
-      onEnter: () => {
-        gsap.to(problemConclusionEl.value!, { y: '0%', duration: 1.0, ease: 'power3.out' })
-      }
-    })
-  }
-}
-
-function setupSewa() {
-  if (!sewaEl.value) return
-
-  if (sewaHeadEl.value) gsap.set(sewaHeadEl.value, { opacity: 0, y: 40 })
-  if (sewaBodyEl.value) gsap.set(sewaBodyEl.value, { opacity: 0, y: 28 })
-  if (sewaPunchEl.value) gsap.set(sewaPunchEl.value, { y: '100%' })
-  if (sewaGifEl.value) gsap.set(sewaGifEl.value, { opacity: 0, y: 48, rotate: 4 })
-
-  ScrollTrigger.create({
-    trigger: sewaEl.value,
-    start: 'top 65%',
-    once: true,
-    onEnter: () => {
-      if (sewaHeadEl.value) gsap.to(sewaHeadEl.value, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' })
-      if (sewaBodyEl.value) gsap.to(sewaBodyEl.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.2 })
-      if (sewaPunchEl.value) gsap.to(sewaPunchEl.value, { y: '0%', duration: 1.0, ease: 'power3.out', delay: 0.4 })
-      if (sewaGifEl.value) gsap.to(sewaGifEl.value, { opacity: 1, y: 0, rotate: 4, duration: 1.3, ease: 'power3.out', delay: 0.5 })
+      if (observeQuoteEl.value) gsap.to(observeQuoteEl.value, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' })
+      if (observeBodyEl.value)  gsap.to(observeBodyEl.value,  { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.3 })
     }
   })
 }
 
-function setupPhilosophy(SplitType: any) {
+function setupManifesto(SplitType: any) {
   if (!philoEl.value || !philoRefs.value.length) return
 
   const splits = philoRefs.value.map((el: HTMLElement) => new SplitType(el, { types: 'chars' }))
@@ -424,26 +357,48 @@ function setupPhilosophy(SplitType: any) {
     if (s.chars) gsap.set(s.chars, { opacity: 0, filter: 'blur(8px)', y: -10 })
   })
 
+  if (brainGifEl.value) gsap.set(brainGifEl.value, { opacity: 0, y: 20, rotate: 3 })
+
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: philoEl.value,
       start: 'top top',
-      end: '+=450%',
+      end: '+=500%',
       pin: true,
       scrub: 1.5,
       invalidateOnRefresh: true,
     }
   })
 
-  const step = 1 / philosophySentences.length
-  philosophySentences.forEach((_, i) => {
-    const inStart = i * step
+  if (brainGifEl.value) tl.to(brainGifEl.value, { opacity: 1, y: 0, duration: 0.12 }, 0.02)
+
+  const step = 0.88 / manifestoLines.length
+  manifestoLines.forEach((_, i) => {
+    const inStart = 0.05 + i * step
     const holdEnd = inStart + step * 0.65
 
     tl.to(splits[i].chars!, { opacity: 1, filter: 'blur(0px)', y: 0, stagger: 0.02, ease: 'power2.out' }, inStart)
 
-    if (i < philosophySentences.length - 1) {
+    if (i < manifestoLines.length - 1) {
       tl.to(splits[i].chars!, { opacity: 0, filter: 'blur(8px)', y: -10, stagger: 0.015, ease: 'power2.in' }, holdEnd)
+    }
+  })
+}
+
+function setupAsatoma(SplitType: any) {
+  if (!asatomaEl.value || !asatomaTextEl.value) return
+
+  const split = new SplitType(asatomaTextEl.value, { types: 'chars' })
+  gsap.set(split.chars, { opacity: 0, y: 24, filter: 'blur(6px)' })
+  if (asatomaTranslEl.value) gsap.set(asatomaTranslEl.value, { opacity: 0 })
+
+  ScrollTrigger.create({
+    trigger: asatomaEl.value,
+    start: 'top 65%',
+    once: true,
+    onEnter: () => {
+      gsap.to(split.chars!, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: 0.055, duration: 1.0, ease: 'power3.out' })
+      if (asatomaTranslEl.value) gsap.to(asatomaTranslEl.value, { opacity: 1, duration: 0.8, ease: 'power2.out', delay: 1.0 })
     }
   })
 }
@@ -579,19 +534,18 @@ function setupFinal(SplitType: any) {
   color: #888;
   letter-spacing: 0.02em;
 }
-.gif-frame--hotel  { max-width: 280rem; }
-.gif-frame--brain  { max-width: 220rem; }
-.gif-frame--sewa   { max-width: 300rem; }
-.gif-frame--problem {
+.gif-frame--hotel   { max-width: 260rem; }
+.gif-frame--struggle { max-width: 260rem; }
+.gif-frame--brain {
   position: absolute;
-  top: clamp(32rem, 4vw, 64rem);
-  right: clamp(40rem, 6vw, 120rem);
-  max-width: 200rem;
+  bottom: clamp(40rem, 6vw, 80rem);
+  right: clamp(40rem, 6vw, 100rem);
+  max-width: 190rem;
   z-index: 2;
 }
 
 /* ─── OPENING ─── */
-.opening {
+.s-opening {
   min-height: 100svh;
   display: flex;
   align-items: center;
@@ -599,19 +553,19 @@ function setupFinal(SplitType: any) {
   padding: clamp(60rem, 10vw, 160rem);
 }
 .opening-inner { text-align: center; }
-.opening-text {
+.opening-line {
   font-size: clamp(18rem, 2.4vw, 34rem);
   font-weight: 400;
   line-height: 1.5;
   letter-spacing: 0.01em;
-  color: rgba(240,240,238,0.7);
+  color: rgba(240,240,238,0.65);
 }
-.opening-text--b {
+.opening-line--b {
   margin-top: 0.4em;
   color: #F0F0EE;
   font-weight: 600;
 }
-.inside-word { color: #F0F0EE; }
+.discovery-word { color: #F0F0EE; }
 
 /* ─── NAME ─── */
 .s-name {
@@ -660,61 +614,19 @@ function setupFinal(SplitType: any) {
   grid-template-columns: 1fr 1fr;
   gap: clamp(60rem, 8vw, 120rem);
   align-items: center;
-  margin-bottom: clamp(80rem, 10vw, 140rem);
 }
-.origin-head   { margin-bottom: clamp(28rem, 3.5vw, 52rem); }
-.origin-body   { margin-bottom: clamp(18rem, 2.2vw, 28rem); }
+.origin-head  { margin-bottom: clamp(28rem, 3.5vw, 52rem); }
+.origin-body  { margin-bottom: clamp(18rem, 2.2vw, 28rem); }
 .origin-body:last-child { margin-bottom: 0; }
 .origin-body em { font-style: italic; }
-.origin-right  { display: flex; justify-content: center; align-items: center; }
+.origin-right { display: flex; justify-content: center; align-items: center; }
 
-/* Discovery beat — centered interstitial */
-.discovery-inner {
-  max-width: 760rem;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(24rem, 3vw, 40rem);
-  text-align: center;
-}
-.discovery-line {
-  font-size: clamp(18rem, 2.2vw, 32rem);
-  font-weight: 600;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-}
-.discovery-line--muted { opacity: 0.45; font-weight: 400; font-style: italic; }
-
-/* ─── PROBLEM ─── */
-.s-problem {
-  position: relative;
-  padding: clamp(120rem, 14vw, 220rem) clamp(40rem, 8vw, 140rem);
-}
-.problem-inner { max-width: 820rem; }
-.problem-head  { margin-bottom: clamp(56rem, 7vw, 110rem); }
-.problem-stats { margin-bottom: clamp(72rem, 9vw, 130rem); }
-.stat-line {
-  font-size: clamp(28rem, 4vw, 72rem);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  border-bottom: 1rem solid rgba(240,240,238,0.1);
-  padding: 14rem 0;
-}
-.problem-mask-wrap { overflow: hidden; }
-.problem-conclusion {
-  max-width: 640rem;
-  font-style: italic;
-  opacity: 0.72;
-}
-
-/* ─── SEWA ─── */
-.s-sewa {
+/* ─── THE TURN ─── */
+.s-turn {
   padding: clamp(100rem, 12vw, 200rem) clamp(40rem, 8vw, 140rem);
-  background: rgba(240,240,238,0.016);
+  background: rgba(240,240,238,0.014);
 }
-.sewa-inner {
+.turn-inner {
   max-width: 1360rem;
   margin: 0 auto;
   display: grid;
@@ -722,31 +634,46 @@ function setupFinal(SplitType: any) {
   gap: clamp(60rem, 8vw, 120rem);
   align-items: center;
 }
-.sewa-label    { display: block; margin-bottom: 18rem; }
-.sewa-head     { margin-bottom: clamp(24rem, 3vw, 44rem); }
-.sewa-body     { margin-bottom: clamp(24rem, 3vw, 44rem); max-width: 560rem; }
-.sewa-body em  { font-style: italic; }
-.sewa-punch-wrap { overflow: hidden; }
-.sewa-punch {
-  font-size: clamp(16rem, 1.8vw, 24rem);
+.turn-label { display: block; margin-bottom: 18rem; }
+.turn-head  { margin-bottom: clamp(24rem, 3vw, 44rem); }
+.turn-body  { margin-bottom: clamp(16rem, 2vw, 26rem); }
+.turn-body:last-child { margin-bottom: 0; }
+.turn-left  { display: flex; justify-content: center; align-items: center; }
+
+/* ─── OBSERVATION ─── */
+.s-observe {
+  padding: clamp(100rem, 12vw, 180rem) clamp(40rem, 8vw, 140rem);
+}
+.observe-inner {
+  max-width: 900rem;
+  margin: 0 auto;
+  text-align: center;
+}
+.observe-quote {
+  font-size: clamp(20rem, 2.8vw, 40rem);
   font-weight: 600;
   font-style: italic;
-  opacity: 0.68;
-  border-left: 3rem solid rgba(240,240,238,0.3);
-  padding-left: 18rem;
-  line-height: 1.5;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  margin: 0 0 clamp(24rem, 3vw, 40rem);
 }
-.sewa-right { display: flex; justify-content: center; align-items: center; }
+.observe-body {
+  font-size: clamp(15rem, 1.6vw, 20rem);
+  opacity: 0.5;
+  font-weight: 400;
+}
 
-/* ─── PHILOSOPHY ─── */
-.s-philosophy {
+/* ─── MANIFESTO ─── */
+.s-manifesto {
+  position: relative;
   min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: clamp(60rem, 8vw, 120rem);
+  overflow: hidden;
 }
-.philo-inner {
+.manifesto-inner {
   width: 100%;
   max-width: 1060rem;
   margin: 0 auto;
@@ -765,9 +692,34 @@ function setupFinal(SplitType: any) {
   text-align: center;
   width: 100%;
 }
-.philo-line:first-child {
-  position: relative;
+.philo-ghost {
+  position: relative !important;
   visibility: hidden;
+}
+
+/* ─── ASATOMA ─── */
+.s-asatoma {
+  padding: clamp(80rem, 10vw, 160rem) clamp(40rem, 8vw, 140rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50svh;
+  background: rgba(240,240,238,0.02);
+}
+.asatoma-inner { text-align: center; }
+.asatoma-text {
+  font-size: clamp(44rem, 7vw, 140rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin-bottom: clamp(16rem, 2vw, 26rem);
+}
+.asatoma-transl {
+  font-size: clamp(12rem, 1.3vw, 17rem);
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.4;
 }
 
 /* ─── NOW ─── */
@@ -847,19 +799,19 @@ function setupFinal(SplitType: any) {
 
 /* ─── Mobile ─── */
 @media (max-width: 768px) {
-  .origin-inner   { grid-template-columns: 1fr; gap: clamp(48rem, 8vw, 80rem); margin-bottom: clamp(60rem, 8vw, 100rem); }
-  .sewa-inner     { grid-template-columns: 1fr; }
-  .now-inner      { grid-template-columns: 1fr; }
-  .now-right      { order: -1; }
-  .now-photo      { aspect-ratio: 4/3; }
-  .name-display   { font-size: clamp(40rem, 12vw, 90rem); }
-  .name-caption   { white-space: normal; text-align: center; }
-  .philo-line     { white-space: normal; }
-  .gif-frame--problem {
+  .origin-inner  { grid-template-columns: 1fr; gap: clamp(48rem, 8vw, 80rem); }
+  .turn-inner    { grid-template-columns: 1fr; }
+  .turn-left     { order: 2; }
+  .now-inner     { grid-template-columns: 1fr; }
+  .now-right     { order: -1; }
+  .now-photo     { aspect-ratio: 4/3; }
+  .name-display  { font-size: clamp(40rem, 12vw, 90rem); }
+  .name-caption  { white-space: normal; text-align: center; }
+  .philo-line    { white-space: normal; }
+  .gif-frame--brain {
     position: static;
-    margin-bottom: clamp(28rem, 5vw, 48rem);
     display: inline-flex;
+    margin-top: clamp(28rem, 5vw, 48rem);
   }
-  .discovery-inner { padding: 0 clamp(16rem, 4vw, 32rem); }
 }
 </style>

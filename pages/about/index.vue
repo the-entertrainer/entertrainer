@@ -230,11 +230,15 @@ function buildBeatSequence(
 onMounted(async () => {
   document.documentElement.setAttribute('data-about', '')
 
-  // Disable Lenis and restore native scroll so CSS scroll-snap works.
-  // lenis.stop() halts the animation tick but leaves overflow:hidden on <html>;
-  // we force overflow-y back so the browser's native snap can take over.
-  const lenis = (useNuxtApp().$lenis) as any
-  lenis?.stop?.()
+  // Hand scroll control back to the browser so CSS scroll-snap works.
+  //
+  // NOTE: we must NOT call lenis.stop() here. In @studio-freight/lenis v1,
+  // stop() sets isStopped=true, and the virtual-scroll handler then calls
+  // preventDefault() on EVERY wheel/touch event while stopped — which swallows
+  // all scroll input and locks the page on the first scene. Instead, the .fn
+  // root carries `data-lenis-prevent`, which makes Lenis ignore scroll events
+  // originating inside the About page (it returns before preventDefault), so
+  // native scrolling + scroll-snap take over cleanly with Lenis left running.
   document.documentElement.style.overflowY = 'scroll'
   document.documentElement.style.scrollSnapType = 'y mandatory'
   document.documentElement.style.scrollBehavior = 'auto'
@@ -494,12 +498,11 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   document.documentElement.removeAttribute('data-about')
-  // Restore Lenis and undo the html overrides applied on mount
+  // Undo the html overrides applied on mount. Lenis was never stopped, so it
+  // keeps handling scroll normally on other routes once this page unmounts.
   document.documentElement.style.overflowY = ''
   document.documentElement.style.scrollSnapType = ''
   document.documentElement.style.scrollBehavior = ''
-  const lenis = (useNuxtApp().$lenis) as any
-  lenis?.start?.()
   cleanups.forEach(fn => { try { fn() } catch {} })
   cleanups.length = 0
 })
@@ -527,7 +530,7 @@ function addTransformPair(
 </script>
 
 <template>
-  <div class="fn">
+  <div class="fn" data-lenis-prevent>
     <canvas ref="atmosRef" class="fn-atmos" aria-hidden="true" />
 
     <section

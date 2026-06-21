@@ -805,10 +805,7 @@ html[data-about][data-theme="light"] body { background: #F8F8F6; }
 html[data-about]:not([data-theme]) body   { background: #080808; }
 
 /* Dim nav chrome on the About page — editorial long-scroll doesn't hide them */
-html[data-about] .logo-wrapper,
-html[data-about] .menu,
-html[data-about] .back-btn-circle,
-html[data-about] .sound-button {
+html[data-about] .e-nav {
   opacity: 0.12;
   pointer-events: none;
   transition: opacity 0.6s ease;

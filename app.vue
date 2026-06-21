@@ -22,10 +22,7 @@ onMounted(() => {
 <template>
   <div id="app-root">
     <NuxtPage :transition="transition" />
-    <UiLogo />
     <UiMenu />
-    <UiSoundButton />
-    <UiBackButton />
     <Transition name="fade">
       <UiViewSwitch v-if="showViewSwitch" class="global-view-switch" />
     </Transition>
@@ -40,12 +37,12 @@ onMounted(() => {
 
 .global-view-switch {
   position: fixed;
-  top: calc(38rem + var(--safe-top));
+  top: calc(22rem + var(--safe-top));
   left: 50%;
   transform: translateX(-50%);
   z-index: 30;
   display: flex;
   align-items: center;
-  height: 48rem;
+  height: 44rem;
 }
 </style>

@@ -4,98 +4,101 @@
 
     <!-- OPENING -->
     <section ref="openingEl" class="s-opening">
-      <div class="opening-inner">
-        <p ref="opening1El" class="opening-line">Finding Instructional design as a career was not planned.</p>
-        <p ref="opening2El" class="opening-line opening-line--b">It was a <span ref="discoveryWordEl" class="discovery-word">discovery</span>.</p>
+      <p ref="opening1El" class="opening-premise">FINDING INSTRUCTIONAL DESIGN AS A CAREER WAS NOT PLANNED.</p>
+      <div class="opening-stack">
+        <p ref="opening2El" class="opening-small">IT WAS A</p>
+        <p ref="opening3El" class="opening-word">DISCOVERY.</p>
       </div>
     </section>
 
     <!-- NAME -->
     <section ref="nameEl" class="s-name">
-      <div class="name-inner">
-        <h1 ref="nameTextEl" class="name-display">NAVEEN JOSE</h1>
-        <div ref="nameCaptionAEl" class="name-caption">
-          I am Naveen.
-        </div>
-        <div ref="nameCaptionBEl" class="name-caption name-caption--b">
-          I'm an instructional designer.
-        </div>
+      <div class="h-rule" />
+      <span class="ghost-num" aria-hidden="true">01</span>
+      <div class="name-block">
+        <h1 ref="nameLineAEl" class="name-line">NAVEEN</h1>
+        <h1 ref="nameLineBEl" class="name-line name-line--b">JOSE</h1>
+      </div>
+      <div class="name-meta">
+        <p ref="nameCaptionAEl" class="name-caption">I AM NAVEEN.</p>
+        <p ref="nameCaptionBEl" class="name-caption">I'M AN INSTRUCTIONAL DESIGNER.</p>
       </div>
     </section>
 
     <!-- ORIGIN -->
     <section ref="originEl" class="s-origin">
-      <div class="origin-inner">
-        <div class="origin-left">
-          <h2 ref="originHeadEl" class="display-lg origin-head">I started my career<br>in the hotel industry.</h2>
-          <p ref="originBody1El" class="body-lg origin-body">I've worked with great brands such as Marriott International and Club Mahindra.</p>
-          <p ref="originBody2El" class="body-lg origin-body">I started my first job as a housekeeper — yes I used to make beds, clean rooms, make towel art <em>(fun stuff eh)</em> and make rooms look decorative, arranged and beautiful.</p>
+      <div class="h-rule" />
+      <span class="ghost-num" aria-hidden="true">02</span>
+      <div class="two-col">
+        <div class="col-text">
+          <h2 ref="originHeadEl" class="section-head">I STARTED MY CAREER<br>IN THE HOTEL INDUSTRY.</h2>
+          <p ref="originBody1El" class="body-text">I've worked with great brands such as Marriott International and Club Mahindra.</p>
+          <p ref="originBody2El" class="body-text">I started my first job as a housekeeper — yes I used to make beds, clean rooms, make towel art <em>(fun stuff eh)</em> and make rooms look decorative, arranged and beautiful.</p>
         </div>
-        <div class="origin-right">
-          <div ref="originGifEl" class="gif-frame gif-frame--hotel">
-            <img src="/about/gifs/s3-0.gif" alt="A hotel room scene" class="gif-img" />
-            <span class="gif-caption">circa Marriott era</span>
-          </div>
+        <div ref="originGifEl" class="gif-wrap">
+          <img src="/about/gifs/s3-0.gif" alt="Hotel room scene" class="gif-img" />
+          <span class="gif-label">CIRCA MARRIOTT ERA</span>
         </div>
       </div>
     </section>
 
     <!-- THE TURN -->
     <section ref="turnEl" class="s-turn">
-      <div class="turn-inner">
-        <div class="turn-left">
-          <div ref="turnGifEl" class="gif-frame gif-frame--struggle">
-            <img src="/about/gifs/s7-0.gif" alt="Sleepless nights studying" class="gif-img" />
-            <span class="gif-caption">a conservative count of nights not spent sleeping</span>
-          </div>
+      <div class="h-rule" />
+      <span class="ghost-num" aria-hidden="true">03</span>
+      <div class="two-col two-col--flip">
+        <div ref="turnGifEl" class="gif-wrap">
+          <img src="/about/gifs/s7-0.gif" alt="Sleepless nights studying" class="gif-img" />
+          <span class="gif-label">A CONSERVATIVE COUNT OF NIGHTS NOT SPENT SLEEPING</span>
         </div>
-        <div class="turn-right">
-          <h2 ref="turnHeadEl" class="display-lg turn-head">It was the mentors<br>that I met<br>along the way.</h2>
-          <p ref="turnBodyEl" class="body-lg turn-body">That redirected my mind towards the path of learning and development.</p>
-          <p ref="turnBody2El" class="body-lg turn-body">The transition took me countless, sleepless nights and tiring daylight where I kept on learning and introducing myself to concepts that once I believed never even existed.</p>
+        <div class="col-text">
+          <h2 ref="turnHeadEl" class="section-head">IT WAS THE MENTORS<br>THAT I MET<br>ALONG THE WAY.</h2>
+          <p ref="turnBodyEl" class="body-text">That redirected my mind towards the path of learning and development.</p>
+          <p ref="turnBody2El" class="body-text">The transition took me countless, sleepless nights and tiring daylight where I kept on learning and introducing myself to concepts that once I believed never even existed.</p>
         </div>
       </div>
     </section>
 
     <!-- THE CORE -->
     <section ref="observeEl" class="s-observe">
+      <div class="h-rule" />
+      <span class="ghost-num" aria-hidden="true">04</span>
       <div class="observe-inner">
-        <blockquote ref="observeQuoteEl" class="observe-quote">
-          It was the interaction and observation of people around me — how they responded to changes and their motives was what drove me towards L&amp;D and that thirst for knowledge was what got me to chase down the core —
-        </blockquote>
+        <p ref="observeQuoteEl" class="observe-quote">IT WAS THE INTERACTION AND OBSERVATION OF PEOPLE AROUND ME — HOW THEY RESPONDED TO CHANGES AND THEIR MOTIVES WAS WHAT DROVE ME TOWARDS L&amp;D AND THAT THIRST FOR KNOWLEDGE WAS WHAT GOT ME TO CHASE DOWN THE CORE —</p>
       </div>
     </section>
 
     <!-- MANIFESTO (pinned) -->
     <section ref="philoEl" class="s-manifesto">
+      <div class="h-rule" />
+      <span class="ghost-num" aria-hidden="true">05</span>
       <div class="manifesto-inner">
         <div ref="philoSlotEl" class="philo-slot">
-          <p class="philo-line philo-ghost display-lg" aria-hidden="true">The ones that removes the noise and brings out the solid reality for your brain to understand.</p>
+          <p class="philo-ghost section-head" aria-hidden="true">THE ONES THAT REMOVES THE NOISE AND BRINGS OUT THE SOLID REALITY FOR YOUR BRAIN TO UNDERSTAND.</p>
           <p
             v-for="(s, i) in manifestoLines"
             :key="s"
             :ref="(el) => { if (el) philoRefs[i] = el as HTMLElement }"
-            class="philo-line display-lg"
+            class="philo-line section-head"
           >{{ s }}</p>
         </div>
-      </div>
-      <div ref="brainGifEl" class="gif-frame gif-frame--brain">
-        <img src="/about/gifs/s4-0.gif" alt="Brain neurons firing" class="gif-img" />
-        <span class="gif-caption">solid reality unlocking</span>
+        <div ref="brainGifEl" class="manifesto-gif">
+          <img src="/about/gifs/s4-0.gif" alt="" class="gif-img gif-img--brain" />
+          <span class="gif-label">SOLID REALITY UNLOCKING</span>
+        </div>
       </div>
     </section>
 
     <!-- ASATOMA -->
     <section ref="asatomaEl" class="s-asatoma">
+      <div class="h-rule" />
+      <span class="ghost-num" aria-hidden="true">06</span>
       <div class="asatoma-inner">
-        <p ref="asatomaTextEl" class="asatoma-text">Asatoma Sadgamaya.</p>
-        <p ref="asatomaTranslEl" class="asatoma-transl">Lead me from untruth to truth.</p>
-        <div ref="finalSigEl" class="final-sig">
-          <span>Naveen Jose</span>
-          <span>Instructional Designer · Learning Architect · Entertrainer</span>
-        </div>
+        <p ref="asatomaTextEl" class="asatoma-text">ASATOMA<br>SADGAMAYA.</p>
+        <p ref="asatomaTranslEl" class="asatoma-transl">LEAD ME FROM UNTRUTH TO TRUTH.</p>
+        <div ref="finalSigEl" class="final-sig">NAVEEN JOSE · INSTRUCTIONAL DESIGNER · ENTERTRAINER</div>
         <div ref="finalCtaEl" class="final-cta-wrap">
-          <NuxtLink to="/contact" class="final-cta">Let's build something worth remembering →</NuxtLink>
+          <NuxtLink to="/contact" class="final-cta">LET'S BUILD SOMETHING WORTH REMEMBERING →</NuxtLink>
         </div>
       </div>
     </section>
@@ -109,41 +112,42 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 gsap.registerPlugin(ScrollTrigger)
 
 // ── Refs ──────────────────────────────────────────────────────────────────
-const openingEl       = ref<HTMLElement>()
-const opening1El      = ref<HTMLElement>()
-const opening2El      = ref<HTMLElement>()
-const discoveryWordEl = ref<HTMLElement>()
-const nameEl          = ref<HTMLElement>()
-const nameTextEl      = ref<HTMLElement>()
-const nameCaptionAEl  = ref<HTMLElement>()
-const nameCaptionBEl  = ref<HTMLElement>()
-const originEl        = ref<HTMLElement>()
-const originHeadEl    = ref<HTMLElement>()
-const originBody1El   = ref<HTMLElement>()
-const originBody2El   = ref<HTMLElement>()
-const originGifEl     = ref<HTMLElement>()
-const turnEl          = ref<HTMLElement>()
-const turnHeadEl      = ref<HTMLElement>()
-const turnBodyEl      = ref<HTMLElement>()
-const turnBody2El     = ref<HTMLElement>()
-const turnGifEl       = ref<HTMLElement>()
-const observeEl       = ref<HTMLElement>()
-const observeQuoteEl  = ref<HTMLElement>()
-const philoEl         = ref<HTMLElement>()
-const philoSlotEl     = ref<HTMLElement>()
-const philoRefs       = ref<HTMLElement[]>([])
-const brainGifEl      = ref<HTMLElement>()
-const asatomaEl       = ref<HTMLElement>()
-const asatomaTextEl   = ref<HTMLElement>()
+const openingEl      = ref<HTMLElement>()
+const opening1El     = ref<HTMLElement>()
+const opening2El     = ref<HTMLElement>()
+const opening3El     = ref<HTMLElement>()
+const nameEl         = ref<HTMLElement>()
+const nameLineAEl    = ref<HTMLElement>()
+const nameLineBEl    = ref<HTMLElement>()
+const nameCaptionAEl = ref<HTMLElement>()
+const nameCaptionBEl = ref<HTMLElement>()
+const originEl       = ref<HTMLElement>()
+const originHeadEl   = ref<HTMLElement>()
+const originBody1El  = ref<HTMLElement>()
+const originBody2El  = ref<HTMLElement>()
+const originGifEl    = ref<HTMLElement>()
+const turnEl         = ref<HTMLElement>()
+const turnHeadEl     = ref<HTMLElement>()
+const turnBodyEl     = ref<HTMLElement>()
+const turnBody2El    = ref<HTMLElement>()
+const turnGifEl      = ref<HTMLElement>()
+const observeEl      = ref<HTMLElement>()
+const observeQuoteEl = ref<HTMLElement>()
+const philoEl        = ref<HTMLElement>()
+const philoSlotEl    = ref<HTMLElement>()
+const philoRefs      = ref<HTMLElement[]>([])
+const brainGifEl     = ref<HTMLElement>()
+const asatomaEl      = ref<HTMLElement>()
+const asatomaTextEl  = ref<HTMLElement>()
 const asatomaTranslEl = ref<HTMLElement>()
-const finalSigEl      = ref<HTMLElement>()
-const finalCtaEl      = ref<HTMLElement>()
+const finalSigEl     = ref<HTMLElement>()
+const finalCtaEl     = ref<HTMLElement>()
 
 const manifestoLines = [
-  'trainers train.',
-  'We instructional designers decide what is taught and how.',
-  'We are entertrainers.',
-  'The ones that removes the noise and brings out the solid reality for your brain to understand.',
+  'TRAINERS TRAIN.',
+  'WE INSTRUCTIONAL DESIGNERS DECIDE WHAT IS TAUGHT AND HOW.',
+  'WE ARE ENTERTRAINERS.',
+  'THE ONES THAT REMOVES THE NOISE AND BRINGS OUT THE SOLID REALITY FOR YOUR BRAIN TO UNDERSTAND.',
 ]
 
 let onLenisScroll: () => void
@@ -156,15 +160,13 @@ onMounted(async () => {
   onLenisScroll = () => ScrollTrigger.update()
   lenis.on('scroll', onLenisScroll)
 
-  const { default: SplitType } = await import('split-type')
-
-  setupOpening(SplitType)
-  setupName(SplitType)
+  setupOpening()
+  setupName()
   setupOrigin()
   setupTurn()
   setupObserve()
-  setupManifesto(SplitType)
-  setupAsatoma(SplitType)
+  setupManifesto()
+  setupAsatoma()
 
   await nextTick()
   ScrollTrigger.refresh()
@@ -178,87 +180,75 @@ onBeforeUnmount(() => {
   document.documentElement.removeAttribute('data-about')
 })
 
-function setupOpening(SplitType: any) {
-  if (!openingEl.value || !opening1El.value || !opening2El.value) return
-
-  const split1 = new SplitType(opening1El.value, { types: 'chars' })
-  const split2 = new SplitType(opening2El.value, { types: 'chars,words' })
-
-  gsap.set(split1.chars, { opacity: 0, y: 20, filter: 'blur(4px)' })
-  gsap.set(split2.chars, { opacity: 0, y: 20, filter: 'blur(4px)' })
-
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: openingEl.value,
-      start: 'top top',
-      end: '+=320%',
-      pin: true,
-      scrub: 1.2,
-      invalidateOnRefresh: true,
-    }
-  })
-
-  tl.to(split1.chars, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: 0.025, ease: 'power2.out' }, 0)
-  tl.to(split1.chars, { opacity: 0, y: -12, stagger: 0.012, ease: 'power2.in' }, 0.52)
-  tl.to(split2.chars, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: 0.03, ease: 'power2.out' }, 0.57)
-
-  const discoveryNode = discoveryWordEl.value
-  if (discoveryNode && split2.chars) {
-    const dChars = split2.chars.filter((c: HTMLElement) => discoveryNode.contains(c))
-    if (dChars.length) {
-      tl.to(dChars, { textShadow: '0 0 24px rgba(240,240,238,0.75)', letterSpacing: '0.06em', stagger: 0.03, ease: 'power1.out' }, 0.84)
-      tl.to(dChars, { textShadow: '0 0 0px rgba(240,240,238,0)', letterSpacing: '0em', stagger: 0.02, ease: 'power2.inOut' }, 0.94)
-    }
+function slam(targets: (HTMLElement | undefined | null)[], from: gsap.TweenVars, delay = 0) {
+  targets.forEach(el => { if (el) gsap.set(el, from) })
+  return (tl: gsap.core.Timeline, at: number | string = '>') => {
+    targets.forEach((el, i) => {
+      if (el) tl.to(el, { x: 0, y: 0, opacity: 1, duration: 0.28, ease: 'power4.out', delay: i * delay }, at)
+    })
   }
 }
 
-function setupName(SplitType: any) {
-  if (!nameEl.value || !nameTextEl.value) return
+function setupOpening() {
+  if (!openingEl.value) return
 
-  const split = new SplitType(nameTextEl.value, { types: 'chars' })
+  gsap.set(opening1El.value!, { y: -24, opacity: 0 })
+  gsap.set(opening2El.value!, { opacity: 0 })
+  gsap.set(opening3El.value!, { y: 80,  opacity: 0 })
 
-  gsap.set(split.chars, { opacity: 1 })
-  gsap.set(nameCaptionAEl.value!, { opacity: 0, y: 20 })
-  gsap.set(nameCaptionBEl.value!, { opacity: 0, y: 20 })
-
-  const xs = split.chars!.map((_: HTMLElement, i: number) =>
-    gsap.utils.random(-280, 280) * (i % 2 === 0 ? 1 : -1)
-  )
-
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: nameEl.value,
-      start: 'top top',
-      end: '+=200%',
-      pin: true,
-      scrub: 1.2,
-      invalidateOnRefresh: true,
+  ScrollTrigger.create({
+    trigger: openingEl.value,
+    start: 'top 80%',
+    once: true,
+    onEnter: () => {
+      const tl = gsap.timeline()
+      tl.to(opening1El.value!, { y: 0, opacity: 1, duration: 0.22, ease: 'power4.out' }, 0)
+      tl.to(opening2El.value!, { opacity: 1, duration: 0.15, ease: 'none' }, 0.12)
+      tl.to(opening3El.value!, { y: 0, opacity: 1, duration: 0.35, ease: 'power4.out' }, 0.18)
     }
   })
+}
 
-  tl.to(split.chars, { x: (i: number) => xs[i], opacity: 0.08, stagger: 0.04, ease: 'power2.inOut' }, 0)
-  tl.to(nameCaptionAEl.value!, { opacity: 1, y: 0, ease: 'power2.out' }, 0.45)
-  tl.to(nameCaptionAEl.value!, { opacity: 0, y: -10, ease: 'power2.in' }, 0.7)
-  tl.to(nameCaptionBEl.value!, { opacity: 1, y: 0, ease: 'power2.out' }, 0.72)
+function setupName() {
+  if (!nameEl.value) return
+
+  gsap.set(nameLineAEl.value!, { y: -50, opacity: 0 })
+  gsap.set(nameLineBEl.value!, { y: 50,  opacity: 0 })
+  gsap.set(nameCaptionAEl.value!, { x: -30, opacity: 0 })
+  gsap.set(nameCaptionBEl.value!, { x: -30, opacity: 0 })
+
+  ScrollTrigger.create({
+    trigger: nameEl.value,
+    start: 'top 65%',
+    once: true,
+    onEnter: () => {
+      const tl = gsap.timeline()
+      tl.to(nameLineAEl.value!, { y: 0, opacity: 1, duration: 0.3, ease: 'power4.out' }, 0)
+      tl.to(nameLineBEl.value!, { y: 0, opacity: 1, duration: 0.3, ease: 'power4.out' }, 0.04)
+      tl.to(nameCaptionAEl.value!, { x: 0, opacity: 1, duration: 0.22, ease: 'power4.out' }, 0.22)
+      tl.to(nameCaptionBEl.value!, { x: 0, opacity: 1, duration: 0.22, ease: 'power4.out' }, 0.3)
+    }
+  })
 }
 
 function setupOrigin() {
-  if (!originEl.value || !originHeadEl.value) return
+  if (!originEl.value) return
 
-  gsap.set(originHeadEl.value, { opacity: 0, y: 40 })
-  if (originBody1El.value) gsap.set(originBody1El.value, { opacity: 0, y: 28 })
-  if (originBody2El.value) gsap.set(originBody2El.value, { opacity: 0, y: 28 })
-  if (originGifEl.value)   gsap.set(originGifEl.value,   { opacity: 0, y: 40, rotate: -2 })
+  gsap.set(originHeadEl.value!,  { x: -60, opacity: 0 })
+  gsap.set(originBody1El.value!, { y: 36, opacity: 0 })
+  gsap.set(originBody2El.value!, { y: 36, opacity: 0 })
+  gsap.set(originGifEl.value!,   { x: 60, opacity: 0 })
 
   ScrollTrigger.create({
     trigger: originEl.value,
-    start: 'top 60%',
+    start: 'top 65%',
     once: true,
     onEnter: () => {
-      gsap.to(originHeadEl.value!, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' })
-      if (originBody1El.value) gsap.to(originBody1El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.2 })
-      if (originBody2El.value) gsap.to(originBody2El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.36 })
-      if (originGifEl.value)   gsap.to(originGifEl.value,   { opacity: 1, y: 0, rotate: -2, duration: 1.3, ease: 'power3.out', delay: 0.5 })
+      const tl = gsap.timeline()
+      tl.to(originHeadEl.value!,  { x: 0, opacity: 1, duration: 0.28, ease: 'power4.out' }, 0)
+      tl.to(originGifEl.value!,   { x: 0, opacity: 1, duration: 0.28, ease: 'power4.out' }, 0.04)
+      tl.to(originBody1El.value!, { y: 0, opacity: 1, duration: 0.24, ease: 'power4.out' }, 0.16)
+      tl.to(originBody2El.value!, { y: 0, opacity: 1, duration: 0.24, ease: 'power4.out' }, 0.23)
     }
   })
 }
@@ -266,20 +256,21 @@ function setupOrigin() {
 function setupTurn() {
   if (!turnEl.value) return
 
-  if (turnGifEl.value)   gsap.set(turnGifEl.value,   { opacity: 0, y: 40, rotate: 3 })
-  if (turnHeadEl.value)  gsap.set(turnHeadEl.value,  { opacity: 0, y: 40 })
-  if (turnBodyEl.value)  gsap.set(turnBodyEl.value,  { opacity: 0, y: 28 })
-  if (turnBody2El.value) gsap.set(turnBody2El.value, { opacity: 0, y: 28 })
+  gsap.set(turnGifEl.value!,   { x: -60, opacity: 0 })
+  gsap.set(turnHeadEl.value!,  { x: 60,  opacity: 0 })
+  gsap.set(turnBodyEl.value!,  { y: 36,  opacity: 0 })
+  gsap.set(turnBody2El.value!, { y: 36,  opacity: 0 })
 
   ScrollTrigger.create({
     trigger: turnEl.value,
-    start: 'top 60%',
+    start: 'top 65%',
     once: true,
     onEnter: () => {
-      if (turnGifEl.value)   gsap.to(turnGifEl.value,   { opacity: 1, y: 0, rotate: 3,  duration: 1.3, ease: 'power3.out' })
-      if (turnHeadEl.value)  gsap.to(turnHeadEl.value,  { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out', delay: 0.15 })
-      if (turnBodyEl.value)  gsap.to(turnBodyEl.value,  { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.3 })
-      if (turnBody2El.value) gsap.to(turnBody2El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.45 })
+      const tl = gsap.timeline()
+      tl.to(turnGifEl.value!,   { x: 0, opacity: 1, duration: 0.28, ease: 'power4.out' }, 0)
+      tl.to(turnHeadEl.value!,  { x: 0, opacity: 1, duration: 0.28, ease: 'power4.out' }, 0.04)
+      tl.to(turnBodyEl.value!,  { y: 0, opacity: 1, duration: 0.24, ease: 'power4.out' }, 0.18)
+      tl.to(turnBody2El.value!, { y: 0, opacity: 1, duration: 0.24, ease: 'power4.out' }, 0.26)
     }
   })
 }
@@ -287,62 +278,57 @@ function setupTurn() {
 function setupObserve() {
   if (!observeEl.value || !observeQuoteEl.value) return
 
-  gsap.set(observeQuoteEl.value, { opacity: 0, y: 32 })
+  gsap.set(observeQuoteEl.value, { y: 50, opacity: 0 })
 
   ScrollTrigger.create({
     trigger: observeEl.value,
     start: 'top 65%',
     once: true,
     onEnter: () => {
-      gsap.to(observeQuoteEl.value!, { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' })
+      gsap.to(observeQuoteEl.value!, { y: 0, opacity: 1, duration: 0.35, ease: 'power4.out' })
     }
   })
 }
 
-function setupManifesto(SplitType: any) {
+function setupManifesto() {
   if (!philoEl.value || !philoRefs.value.length) return
 
-  const splits = philoRefs.value.map((el: HTMLElement) => new SplitType(el, { types: 'chars' }))
-  splits.forEach((s: any) => {
-    if (s.chars) gsap.set(s.chars, { opacity: 0, filter: 'blur(8px)', y: -10 })
-  })
-
-  if (brainGifEl.value) gsap.set(brainGifEl.value, { opacity: 0, y: 20, rotate: 3 })
+  philoRefs.value.forEach(el => gsap.set(el, { opacity: 0, y: 40 }))
+  if (brainGifEl.value) gsap.set(brainGifEl.value, { opacity: 0 })
 
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: philoEl.value,
       start: 'top top',
-      end: '+=500%',
+      end: '+=400%',
       pin: true,
-      scrub: 1.5,
+      scrub: 0.4,
       invalidateOnRefresh: true,
     }
   })
 
-  if (brainGifEl.value) tl.to(brainGifEl.value, { opacity: 1, y: 0, duration: 0.12 }, 0.02)
+  if (brainGifEl.value) tl.to(brainGifEl.value, { opacity: 1, duration: 0.04 }, 0.01)
 
-  const step = 0.88 / manifestoLines.length
+  const step = 0.9 / manifestoLines.length
   manifestoLines.forEach((_, i) => {
-    const inStart = 0.05 + i * step
-    const holdEnd = inStart + step * 0.65
+    const inStart = 0.04 + i * step
+    const holdEnd = inStart + step * 0.58
 
-    tl.to(splits[i].chars!, { opacity: 1, filter: 'blur(0px)', y: 0, stagger: 0.018, ease: 'power2.out' }, inStart)
+    tl.to(philoRefs.value[i], { opacity: 1, y: 0, duration: 0.06, ease: 'none' }, inStart)
 
     if (i < manifestoLines.length - 1) {
-      tl.to(splits[i].chars!, { opacity: 0, filter: 'blur(8px)', y: -10, stagger: 0.012, ease: 'power2.in' }, holdEnd)
+      tl.to(philoRefs.value[i], { opacity: 0, y: -40, duration: 0.06, ease: 'none' }, holdEnd)
     }
   })
 }
 
-function setupAsatoma(SplitType: any) {
+function setupAsatoma() {
   if (!asatomaEl.value || !asatomaTextEl.value) return
 
-  const split = new SplitType(asatomaTextEl.value, { types: 'chars' })
-  gsap.set(split.chars, { opacity: 0, y: 24, filter: 'blur(6px)' })
-  if (asatomaTranslEl.value) gsap.set(asatomaTranslEl.value, { opacity: 0 })
-  if (finalSigEl.value)      gsap.set(finalSigEl.value,      { opacity: 0 })
-  if (finalCtaEl.value)      gsap.set(finalCtaEl.value,      { opacity: 0, y: 20 })
+  gsap.set(asatomaTextEl.value,   { y: 60, opacity: 0 })
+  gsap.set(asatomaTranslEl.value!, { opacity: 0 })
+  gsap.set(finalSigEl.value!,     { opacity: 0 })
+  gsap.set(finalCtaEl.value!,     { y: 20, opacity: 0 })
 
   ScrollTrigger.create({
     trigger: asatomaEl.value,
@@ -350,20 +336,20 @@ function setupAsatoma(SplitType: any) {
     once: true,
     onEnter: () => {
       const tl = gsap.timeline()
-      tl.to(split.chars!, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: 0.055, duration: 1.0, ease: 'power3.out' })
-      if (asatomaTranslEl.value) tl.to(asatomaTranslEl.value, { opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.2')
-      if (finalSigEl.value)      tl.to(finalSigEl.value,      { opacity: 1, duration: 0.7, ease: 'power2.out' }, '-=0.1')
-      if (finalCtaEl.value)      tl.to(finalCtaEl.value,      { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.7)' }, '-=0.1')
+      tl.to(asatomaTextEl.value!,   { y: 0, opacity: 1, duration: 0.38, ease: 'power4.out' })
+      tl.to(asatomaTranslEl.value!, { opacity: 1, duration: 0.18, ease: 'none' }, '-=0.1')
+      tl.to(finalSigEl.value!,      { opacity: 1, duration: 0.18, ease: 'none' }, '-=0.05')
+      tl.to(finalCtaEl.value!,      { y: 0, opacity: 1, duration: 0.26, ease: 'power4.out' }, '-=0.05')
     }
   })
 }
 </script>
 
 <style scoped>
-/* ─── Page base ─── */
+/* ─── Base ─── */
 .about-page {
-  background: #0A0A0A;
-  color: #F0F0EE;
+  background: #050505;
+  color: #FFFFFF;
   font-family: var(--main-font);
   overflow-x: hidden;
 }
@@ -376,181 +362,200 @@ function setupAsatoma(SplitType: any) {
   height: 400%;
   z-index: 999;
   pointer-events: none;
-  opacity: 0.032;
+  opacity: 0.028;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
   animation: grain 0.2s steps(1) infinite;
 }
 @keyframes grain {
-  0%   { transform: translate(0, 0); }
-  10%  { transform: translate(-5%, -10%); }
-  20%  { transform: translate(-15%, 5%); }
-  30%  { transform: translate(7%, -25%); }
-  40%  { transform: translate(-5%, 25%); }
-  50%  { transform: translate(-15%, 10%); }
-  60%  { transform: translate(15%, 0%); }
-  70%  { transform: translate(0%, 15%); }
-  80%  { transform: translate(3%, 35%); }
-  90%  { transform: translate(-10%, 10%); }
-  100% { transform: translate(9%, 0%); }
+  0%   { transform: translate(0,0); }
+  10%  { transform: translate(-5%,-10%); }
+  20%  { transform: translate(-15%,5%); }
+  30%  { transform: translate(7%,-25%); }
+  40%  { transform: translate(-5%,25%); }
+  50%  { transform: translate(-15%,10%); }
+  60%  { transform: translate(15%,0%); }
+  70%  { transform: translate(0%,15%); }
+  80%  { transform: translate(3%,35%); }
+  90%  { transform: translate(-10%,10%); }
+  100% { transform: translate(9%,0%); }
+}
+
+/* ─── Rules & Ghost Numbers ─── */
+.h-rule {
+  width: 100%;
+  height: 3rem;
+  background: #FFFFFF;
+}
+.ghost-num {
+  position: absolute;
+  right: clamp(20rem, 3vw, 60rem);
+  bottom: clamp(10rem, 2vw, 40rem);
+  font-size: clamp(160rem, 28vw, 500rem);
+  font-weight: 900;
+  line-height: 1;
+  color: #FFFFFF;
+  opacity: 0.045;
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: -0.06em;
+  z-index: 0;
 }
 
 /* ─── Typography ─── */
-.display-lg {
-  font-size: clamp(44rem, 6.5vw, 130rem);
-  font-weight: 800;
-  line-height: 0.93;
-  letter-spacing: -0.025em;
+.section-head {
+  font-size: clamp(32rem, 5vw, 96rem);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
 }
-.body-lg {
-  font-size: clamp(16rem, 1.8vw, 22rem);
+.body-text {
+  font-size: clamp(15rem, 1.7vw, 21rem);
   font-weight: 400;
-  line-height: 1.7;
+  line-height: 1.68;
+  color: rgba(255,255,255,0.7);
 }
+.body-text em { font-style: italic; }
 
-/* ─── GIF FRAMES ─── */
-.gif-frame {
-  display: inline-flex;
-  flex-direction: column;
-  background: #f3ede4;
-  padding: 10rem 10rem 36rem;
-  box-shadow: 0 24px 72px rgba(0,0,0,0.65), 0 4px 16px rgba(0,0,0,0.3);
-  position: relative;
-  will-change: transform, opacity;
-}
+/* ─── GIF ─── */
+.gif-wrap { position: relative; max-width: 280rem; }
 .gif-img {
   display: block;
   width: 100%;
   height: auto;
+  filter: grayscale(1) contrast(1.08);
 }
-.gif-caption {
-  position: absolute;
-  bottom: 9rem;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-size: 10rem;
+.gif-label {
+  display: block;
+  margin-top: 8rem;
+  font-size: 9rem;
   font-family: 'Courier New', monospace;
-  color: #888;
-  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.3);
 }
-.gif-frame--hotel   { max-width: 260rem; }
-.gif-frame--struggle { max-width: 260rem; }
-.gif-frame--brain {
-  position: absolute;
-  bottom: clamp(40rem, 6vw, 80rem);
-  right: clamp(40rem, 6vw, 100rem);
-  max-width: 190rem;
-  z-index: 2;
+
+/* ─── Two-col layout ─── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(60rem, 8vw, 130rem);
+  align-items: start;
+  position: relative;
+  z-index: 1;
 }
+.two-col--flip .gif-wrap { order: -1; }
+.col-text .section-head { margin-bottom: clamp(28rem, 3.5vw, 52rem); }
+.col-text .body-text     { margin-bottom: clamp(14rem, 1.8vw, 22rem); }
+.col-text .body-text:last-child { margin-bottom: 0; }
 
 /* ─── OPENING ─── */
 .s-opening {
   min-height: 100svh;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  padding: clamp(60rem, 10vw, 160rem);
+  padding: clamp(60rem, 8vw, 140rem) clamp(40rem, 5vw, 100rem);
+  gap: clamp(40rem, 6vw, 100rem);
 }
-.opening-inner { text-align: center; }
-.opening-line {
-  font-size: clamp(16rem, 2vw, 28rem);
-  font-weight: 400;
-  line-height: 1.5;
-  letter-spacing: 0.005em;
-  color: rgba(240,240,238,0.65);
-}
-.opening-line--b {
-  margin-top: 0.45em;
-  color: #F0F0EE;
+.opening-premise {
+  font-size: clamp(10rem, 1.3vw, 15rem);
   font-weight: 600;
-  font-size: clamp(18rem, 2.4vw, 34rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.38);
+  max-width: 600rem;
+  line-height: 1.8;
 }
-.discovery-word { color: #F0F0EE; }
+.opening-stack {
+  display: flex;
+  flex-direction: column;
+}
+.opening-small {
+  font-size: clamp(18rem, 2.8vw, 52rem);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.3;
+}
+.opening-word {
+  font-size: clamp(60rem, 14vw, 240rem);
+  font-weight: 900;
+  line-height: 0.84;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+}
 
 /* ─── NAME ─── */
 .s-name {
-  min-height: 100svh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(40rem, 6vw, 120rem);
+  padding: clamp(60rem, 8vw, 120rem) clamp(40rem, 5vw, 100rem);
+  position: relative;
   overflow: hidden;
 }
-.name-inner { text-align: center; position: relative; }
-.name-display {
-  font-size: clamp(56rem, 12vw, 210rem);
+.name-block { margin: clamp(20rem, 3vw, 52rem) 0; }
+.name-line {
+  font-size: clamp(80rem, 14vw, 260rem);
   font-weight: 900;
-  line-height: 0.85;
+  line-height: 0.88;
   letter-spacing: -0.04em;
-  white-space: nowrap;
+  text-transform: uppercase;
+  display: block;
+}
+.name-line--b {
+  text-align: right;
+  margin-right: -0.04em;
+}
+.name-meta {
+  border-top: 1rem solid rgba(255,255,255,0.18);
+  padding-top: clamp(16rem, 2vw, 28rem);
+  position: relative;
+  z-index: 1;
 }
 .name-caption {
-  margin-top: 28rem;
-  font-size: clamp(12rem, 1.3vw, 18rem);
+  font-size: clamp(11rem, 1.3vw, 17rem);
   font-weight: 400;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  opacity: 0.55;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  width: max-content;
-  max-width: 90vw;
+  color: rgba(255,255,255,0.45);
+  line-height: 2.1;
 }
-.name-caption--b { margin-top: 58rem; }
 
 /* ─── ORIGIN ─── */
 .s-origin {
-  padding: clamp(100rem, 12vw, 200rem) clamp(40rem, 8vw, 140rem);
+  padding: clamp(80rem, 10vw, 160rem) clamp(40rem, 5vw, 100rem);
+  position: relative;
+  overflow: hidden;
 }
-.origin-inner {
-  max-width: 1360rem;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(60rem, 8vw, 120rem);
-  align-items: center;
-}
-.origin-head  { margin-bottom: clamp(28rem, 3.5vw, 52rem); }
-.origin-body  { margin-bottom: clamp(18rem, 2.2vw, 28rem); }
-.origin-body:last-child { margin-bottom: 0; }
-.origin-body em { font-style: italic; }
-.origin-right { display: flex; justify-content: center; align-items: center; }
 
-/* ─── THE TURN ─── */
+/* ─── TURN ─── */
 .s-turn {
-  padding: clamp(100rem, 12vw, 200rem) clamp(40rem, 8vw, 140rem);
-  background: rgba(240,240,238,0.014);
+  padding: clamp(80rem, 10vw, 160rem) clamp(40rem, 5vw, 100rem);
+  position: relative;
+  overflow: hidden;
+  background: rgba(255,255,255,0.018);
 }
-.turn-inner {
-  max-width: 1360rem;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(60rem, 8vw, 120rem);
-  align-items: center;
-}
-.turn-head  { margin-bottom: clamp(24rem, 3vw, 44rem); }
-.turn-body  { margin-bottom: clamp(16rem, 2vw, 26rem); }
-.turn-body:last-child { margin-bottom: 0; }
-.turn-left  { display: flex; justify-content: center; align-items: center; }
 
-/* ─── THE CORE ─── */
+/* ─── OBSERVE ─── */
 .s-observe {
-  padding: clamp(100rem, 12vw, 180rem) clamp(40rem, 8vw, 140rem);
+  padding: clamp(80rem, 10vw, 160rem) clamp(40rem, 5vw, 100rem);
+  position: relative;
+  overflow: hidden;
 }
 .observe-inner {
-  max-width: 960rem;
-  margin: 0 auto;
-  text-align: center;
+  max-width: 1200rem;
+  position: relative;
+  z-index: 1;
 }
 .observe-quote {
-  font-size: clamp(20rem, 2.8vw, 40rem);
-  font-weight: 600;
-  font-style: italic;
-  line-height: 1.45;
-  letter-spacing: -0.01em;
+  font-size: clamp(22rem, 3vw, 52rem);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  border-left: 6rem solid #FFFFFF;
+  padding-left: clamp(24rem, 3vw, 48rem);
   margin: 0;
 }
 
@@ -559,99 +564,99 @@ function setupAsatoma(SplitType: any) {
   position: relative;
   min-height: 100svh;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  padding: clamp(60rem, 8vw, 120rem);
+  padding: clamp(60rem, 8vw, 120rem) clamp(40rem, 5vw, 100rem);
   overflow: hidden;
 }
 .manifesto-inner {
-  width: 100%;
-  max-width: 1060rem;
-  margin: 0 auto;
-  overflow: hidden;
-}
-.philo-slot {
   position: relative;
-  text-align: center;
+  z-index: 1;
 }
+.philo-slot { position: relative; }
 .philo-line {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  width: 100%;
+  text-align: left;
 }
 .philo-ghost {
   position: relative !important;
   visibility: hidden;
 }
+.manifesto-gif {
+  position: absolute;
+  bottom: clamp(40rem, 5vw, 80rem);
+  right: clamp(40rem, 5vw, 80rem);
+  max-width: 180rem;
+  z-index: 2;
+}
+.gif-img--brain { filter: grayscale(1) contrast(1.2); }
 
 /* ─── ASATOMA ─── */
 .s-asatoma {
-  min-height: 100svh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(80rem, 10vw, 160rem) clamp(40rem, 8vw, 140rem);
-}
-.asatoma-inner { text-align: center; }
-.asatoma-text {
-  font-size: clamp(44rem, 7vw, 140rem);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  margin-bottom: clamp(16rem, 2vw, 26rem);
-}
-.asatoma-transl {
-  font-size: clamp(12rem, 1.3vw, 17rem);
-  font-weight: 400;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  opacity: 0.4;
-  margin-bottom: clamp(60rem, 8vw, 110rem);
-}
-.final-sig {
+  padding: clamp(80rem, 10vw, 160rem) clamp(40rem, 5vw, 100rem);
+  min-height: 90svh;
   display: flex;
   flex-direction: column;
-  gap: 5rem;
-  margin-bottom: clamp(36rem, 4.5vw, 60rem);
-  font-size: clamp(12rem, 1.3vw, 16rem);
-  opacity: 0.35;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.asatoma-inner { position: relative; z-index: 1; }
+.asatoma-text {
+  font-size: clamp(60rem, 10vw, 180rem);
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  margin-bottom: clamp(20rem, 2.5vw, 36rem);
+}
+.asatoma-transl {
+  font-size: clamp(11rem, 1.3vw, 16rem);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: clamp(60rem, 8vw, 120rem);
+}
+.final-sig {
+  font-size: clamp(10rem, 1.1vw, 13rem);
   font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: clamp(32rem, 4vw, 56rem);
 }
 .final-cta-wrap { display: inline-block; }
 .final-cta {
   display: inline-block;
-  font-size: clamp(13rem, 1.4vw, 19rem);
-  font-weight: 500;
-  border: 1rem solid rgba(240,240,238,0.32);
-  padding: 14rem 32rem;
-  border-radius: 999rem;
+  font-size: clamp(11rem, 1.3vw, 16rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   text-decoration: none;
-  color: inherit;
-  letter-spacing: 0.02em;
-  transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  color: #050505;
+  background: #FFFFFF;
+  padding: 14rem 32rem;
+  transition: background 0.12s ease, color 0.12s ease, outline-offset 0.12s ease;
+  outline: 2rem solid transparent;
 }
 .final-cta:hover {
-  background: rgba(240,240,238,0.08);
-  border-color: rgba(240,240,238,0.6);
-  transform: scale(1.04);
+  background: transparent;
+  color: #FFFFFF;
+  outline-color: #FFFFFF;
+  outline-offset: 0rem;
 }
 
 /* ─── Mobile ─── */
 @media (max-width: 768px) {
-  .origin-inner  { grid-template-columns: 1fr; gap: clamp(48rem, 8vw, 80rem); }
-  .turn-inner    { grid-template-columns: 1fr; }
-  .turn-left     { order: 2; }
-  .name-display  { font-size: clamp(40rem, 12vw, 90rem); }
-  .name-caption  { white-space: normal; text-align: center; }
-  .philo-line    { white-space: normal; }
-  .gif-frame--brain {
-    position: static;
-    display: inline-flex;
-    margin-top: clamp(28rem, 5vw, 48rem);
-  }
+  .two-col { grid-template-columns: 1fr; gap: clamp(48rem, 8vw, 80rem); }
+  .two-col--flip .gif-wrap { order: 0; }
+  .opening-word { font-size: clamp(52rem, 18vw, 140rem); }
+  .name-line    { font-size: clamp(60rem, 18vw, 180rem); }
+  .philo-line   { white-space: normal; }
+  .manifesto-gif { position: static; margin-top: 32rem; }
 }
 </style>

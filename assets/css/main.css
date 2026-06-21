@@ -800,50 +800,42 @@ canvas {
    ============================================================ */
 
 /* Body background matches current theme — no flash on edges */
-html[data-about][data-theme="dark"] body  { background: #0C0E14; }
-html[data-about][data-theme="light"] body { background: #FAFAF8; }
-html[data-about]:not([data-theme]) body   { background: #0C0E14; }
+html[data-about][data-theme="dark"] body  { background: #080808; }
+html[data-about][data-theme="light"] body { background: #F8F8F6; }
+html[data-about]:not([data-theme]) body   { background: #080808; }
 
 /* Hide scrollbar while scroll-snap is active on the About page */
 html[data-about] { scrollbar-width: none; }
 html[data-about]::-webkit-scrollbar { display: none; }
+/* Slide each button off to its respective corner when the About page is active.
+   Staggered delays ensure they exit after the route fade (0.35 s) completes.
+   CSS transitions reverse automatically when data-about is removed on unmount. */
 html[data-about] .logo-wrapper {
-  opacity: 0.14;
-  transition: opacity 0.7s ease;
+  transform: translate(-140%, -140%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 1.0s cubic-bezier(0.16,1,0.3,1) 0.20s,
+              opacity   0.6s ease 0.20s;
 }
-html[data-about] .logo-wrapper:hover {
-  opacity: 1;
-  transition: opacity 0.15s ease;
-}
-
 html[data-about] .menu {
-  opacity: 0.14;
-  transition: opacity 0.7s ease;
+  transform: translate(140%, -140%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 1.0s cubic-bezier(0.16,1,0.3,1) 0.32s,
+              opacity   0.6s ease 0.32s;
 }
-html[data-about] .menu:hover {
-  opacity: 1;
-  transition: opacity 0.15s ease;
-}
-/* Never ghost an open menu panel */
-html[data-about] .menu:has(.menu-subwrapper.opened) {
-  opacity: 1;
-}
-
 html[data-about] .back-btn-circle {
-  opacity: 0.14;
-  transition: transform 0.2s ease, opacity 0.7s ease;
+  transform: translate(-140%, 140%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 1.0s cubic-bezier(0.16,1,0.3,1) 0.44s,
+              opacity   0.6s ease 0.44s;
 }
-html[data-about] .back-btn-circle:hover {
-  opacity: 1;
-  transition: transform 0.2s ease, opacity 0.15s ease;
-}
-
 html[data-about] .sound-button {
-  opacity: 0.14;
-  transition: opacity 0.7s ease;
-}
-html[data-about] .sound-button:hover {
-  opacity: 1;
-  transition: opacity 0.15s ease;
+  transform: translate(140%, 140%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 1.0s cubic-bezier(0.16,1,0.3,1) 0.56s,
+              opacity   0.6s ease 0.56s;
 }
 

@@ -21,6 +21,10 @@ const atmosRef   = ref<HTMLCanvasElement | null>(null)
 const sceneRefs  = ref<(HTMLElement | null)[]>([])
 const cleanups: Array<() => void> = []
 
+const isAnimating = ref(false)
+const progress    = ref(0)
+let   currentTl: gsap.core.Timeline | null = null
+
 type GifEntry = { id: string; url: string; width: number; height: number; title: string }
 const manifest = ref<Record<string, GifEntry[]>>({})
 
@@ -227,21 +231,34 @@ function buildBeatSequence(
   })
 }
 
+function advanceToScene(idx: number) {
+  const next = sceneRefs.value[idx]
+  if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+function onScrollAttempt(e: WheelEvent | TouchEvent) {
+  if (!isAnimating.value) return
+  e.preventDefault()
+  e.stopPropagation()
+  if (currentTl?.isActive()) {
+    currentTl.timeScale(Math.min((currentTl.timeScale() || 1) + 2, 10))
+  }
+}
+
 onMounted(async () => {
   document.documentElement.setAttribute('data-about', '')
+  isAnimating.value = true  // lock immediately; first scene IO releases once it plays
 
   // Hand scroll control back to the browser so CSS scroll-snap works.
-  //
-  // NOTE: we must NOT call lenis.stop() here. In @studio-freight/lenis v1,
-  // stop() sets isStopped=true, and the virtual-scroll handler then calls
-  // preventDefault() on EVERY wheel/touch event while stopped — which swallows
-  // all scroll input and locks the page on the first scene. Instead, the .fn
-  // root carries `data-lenis-prevent`, which makes Lenis ignore scroll events
-  // originating inside the About page (it returns before preventDefault), so
-  // native scrolling + scroll-snap take over cleanly with Lenis left running.
+  // data-lenis-prevent on .fn makes Lenis skip preventDefault, allowing
+  // native scroll. We add our OWN passive:false listeners that block scroll
+  // during animations and accelerate the current GSAP timeline instead.
   document.documentElement.style.overflowY = 'scroll'
   document.documentElement.style.scrollSnapType = 'y mandatory'
-  document.documentElement.style.scrollBehavior = 'auto'
+  document.documentElement.style.scrollBehavior = 'smooth'
+
+  window.addEventListener('wheel',     onScrollAttempt as EventListener, { passive: false })
+  window.addEventListener('touchmove', onScrollAttempt as EventListener, { passive: false })
 
   await nextTick()
 
@@ -460,7 +477,8 @@ onMounted(async () => {
     timelines.set(scene.id, tl ?? null)
   }
 
-  // IntersectionObserver — play scene when ≥55% visible
+  // IntersectionObserver — play scene when ≥88% visible (fires after smooth
+  // scroll has nearly settled, so the animation starts on a stable frame).
   const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
       const idx = Number((entry.target as HTMLElement).dataset.si)
@@ -474,11 +492,34 @@ onMounted(async () => {
         const gifOverlay = (entry.target as HTMLElement).querySelector<HTMLElement>('.scene-bg-overlay')
         if (gifOverlay) gsap.to(gifOverlay, { opacity: 1, duration: 1.2, ease: 'power2.out' })
 
+        isAnimating.value = true
+        progress.value = ((idx + 1) / SCENES.length) * 100
+
         if (scene.special === 'glitch') {
+          currentTl = null
           playGlitch(entry.target as HTMLElement)
+          // Glitch runs 2.6 s then clears; advance 600 ms after clarity appears
+          setTimeout(() => {
+            isAnimating.value = false
+            if (idx < SCENES.length - 1) advanceToScene(idx + 1)
+          }, 3200)
+        } else if (scene.special === 'cta') {
+          currentTl = null
+          isAnimating.value = false  // last scene — let user rest here
         } else {
-          const tl = timelines.get(scene.id)
-          if (tl) tl.seek(0).play()
+          const tl = timelines.get(scene.id) ?? null
+          currentTl = tl
+          if (tl) {
+            tl.eventCallback('onComplete', () => {
+              setTimeout(() => {
+                isAnimating.value = false
+                if (idx < SCENES.length - 1) advanceToScene(idx + 1)
+              }, 480)
+            })
+            tl.seek(0).timeScale(1).play()
+          } else {
+            isAnimating.value = false
+          }
         }
       } else {
         const gifOverlay = (entry.target as HTMLElement).querySelector<HTMLElement>('.scene-bg-overlay')
@@ -490,7 +531,7 @@ onMounted(async () => {
         }
       }
     }
-  }, { threshold: 0.55 })
+  }, { threshold: 0.88 })
 
   sceneRefs.value.forEach(el => { if (el) observer.observe(el) })
   cleanups.push(() => observer.disconnect())
@@ -498,11 +539,13 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   document.documentElement.removeAttribute('data-about')
-  // Undo the html overrides applied on mount. Lenis was never stopped, so it
-  // keeps handling scroll normally on other routes once this page unmounts.
   document.documentElement.style.overflowY = ''
   document.documentElement.style.scrollSnapType = ''
   document.documentElement.style.scrollBehavior = ''
+  window.removeEventListener('wheel',     onScrollAttempt as EventListener)
+  window.removeEventListener('touchmove', onScrollAttempt as EventListener)
+  isAnimating.value = false
+  currentTl = null
   cleanups.forEach(fn => { try { fn() } catch {} })
   cleanups.length = 0
 })
@@ -532,6 +575,7 @@ function addTransformPair(
 <template>
   <div class="fn" data-lenis-prevent>
     <canvas ref="atmosRef" class="fn-atmos" aria-hidden="true" />
+    <div class="fn-progress" :style="{ width: `${progress}%` }" aria-hidden="true" />
 
     <section
       v-for="(scene, si) in SCENES"
@@ -542,9 +586,6 @@ function addTransformPair(
       :ref="el => sceneRefs[si] = el as HTMLElement"
       :aria-label="`${scene.label} — ${scene.title}`"
     >
-      <!-- Scene label -->
-      <span class="scene-label">{{ scene.label }}</span>
-
       <!-- ── GIF / photo backgrounds ─────────────────────────────────────── -->
 
       <!-- Montage: multiple cycling backgrounds -->
@@ -731,26 +772,24 @@ function addTransformPair(
 <style scoped>
 /* ── Root ──────────────────────────────────────────────────────────────────── */
 .fn {
-  --bg: #0C0E14;
-  --text: #FAFAF8;
-  --text-dim: rgba(250, 250, 248, 0.4);
+  --bg: #080808;
+  --text: #F2F2F0;
+  --text-dim: rgba(242, 242, 240, 0.32);
   --accent: #243F6A;
-  --scrim-dark: rgba(12, 14, 20, 0.60);
-  --scrim-light: rgba(12, 14, 20, 0.42);
+  --scrim-dark: rgba(8, 8, 8, 0.64);
+  --scrim-light: rgba(8, 8, 8, 0.46);
   position: relative;
   width: 100%;
   background: var(--bg);
   color: var(--text);
-  /* Scenes live in normal document flow — scroll-snap is applied to <html>
-     via JS on mount so it works with the global Lenis setup. */
 }
 
 [data-theme="light"] .fn {
-  --bg: #FAFAF8;
-  --text: #111111;
-  --text-dim: rgba(17, 17, 17, 0.45);
-  --scrim-dark: rgba(250, 250, 248, 0.72);
-  --scrim-light: rgba(250, 250, 248, 0.60);
+  --bg: #F8F8F6;
+  --text: #0E0E0E;
+  --text-dim: rgba(14, 14, 14, 0.38);
+  --scrim-dark: rgba(248, 248, 246, 0.74);
+  --scrim-light: rgba(248, 248, 246, 0.60);
 }
 
 .fn-atmos {
@@ -761,6 +800,18 @@ function addTransformPair(
   z-index: 0;
   pointer-events: none;
 }
+
+/* Thin progress bar — bottom edge, fills as scenes advance */
+.fn-progress {
+  position: fixed;
+  bottom: 0; left: 0;
+  height: 2rem;
+  background: rgba(242, 242, 240, 0.30);
+  z-index: 100;
+  pointer-events: none;
+  transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-theme="light"] .fn-progress { background: rgba(14, 14, 14, 0.20); }
 
 /* ── Scene ─────────────────────────────────────────────────────────────────── */
 .scene {
@@ -773,27 +824,11 @@ function addTransformPair(
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 clamp(24rem, 7vw, 140rem);
+  padding: 80rem clamp(40rem, 8vw, 160rem);
   overflow: hidden;
 }
 .scene--center { align-items: center; text-align: center; }
 .scene--left   { align-items: flex-start; }
-
-.scene-label {
-  position: absolute;
-  top: clamp(80rem, 10vh, 120rem);
-  left: clamp(24rem, 7vw, 140rem);
-  font-size: 13rem;
-  font-weight: 600;
-  letter-spacing: 0.32em;
-  color: var(--text-dim);
-  z-index: 8;
-  pointer-events: none;
-}
-.scene--center .scene-label {
-  left: 50%;
-  transform: translateX(-50%);
-}
 
 /* ── GIF / photo backgrounds ───────────────────────────────────────────────── */
 .scene-bg {
@@ -885,9 +920,9 @@ function addTransformPair(
   grid-area: 1 / 1;
   margin: 0;
   font-weight: 600;
-  line-height: 1.02;
+  line-height: 1.05;
   letter-spacing: -0.04em;
-  max-width: 22ch;
+  max-width: min(100%, 760rem);
   will-change: transform, opacity, filter;
 }
 .scene--center .beat, .scene-stage--center .beat { max-width: none; text-align: center; }
@@ -901,13 +936,13 @@ function addTransformPair(
 .beat-text :deep(.word) { display: inline-block; }
 
 /* ── Tone scale ────────────────────────────────────────────────────────────── */
-.t-sm   { font-size: clamp(20rem, 3vw, 30rem);   font-weight: 500; letter-spacing: -0.02em; opacity: 0.72; }
-.t-md   { font-size: clamp(26rem, 4.2vw, 46rem);  font-weight: 500; letter-spacing: -0.03em; }
-.t-lg   { font-size: clamp(34rem, 6.2vw, 78rem);  font-weight: 600; }
-.t-xl   { font-size: clamp(46rem, 9vw, 132rem);   font-weight: 700; letter-spacing: -0.05em; }
-.t-hero { font-size: clamp(60rem, 14vw, 220rem);  font-weight: 800; letter-spacing: -0.06em; line-height: 0.92; }
-.t-deva { font-family: 'Noto Sans Devanagari', serif; font-size: clamp(40rem, 8vw, 112rem); font-weight: 600; letter-spacing: 0; line-height: 1.3; }
-.t-sig  { font-size: clamp(24rem, 3.4vw, 46rem);  font-weight: 500; font-style: italic; opacity: 0.78; }
+.t-sm   { font-size: clamp(18rem, 2.6vw, 28rem);  font-weight: 400; letter-spacing: -0.01em; opacity: 0.60; }
+.t-md   { font-size: clamp(24rem, 4vw, 44rem);    font-weight: 500; letter-spacing: -0.03em; }
+.t-lg   { font-size: clamp(32rem, 5.8vw, 72rem);  font-weight: 600; }
+.t-xl   { font-size: clamp(44rem, 8.5vw, 124rem); font-weight: 700; letter-spacing: -0.05em; }
+.t-hero { font-size: clamp(58rem, 13vw, 200rem);  font-weight: 800; letter-spacing: -0.06em; line-height: 0.90; }
+.t-deva { font-family: 'Noto Sans Devanagari', serif; font-size: clamp(38rem, 7.5vw, 108rem); font-weight: 600; letter-spacing: 0; line-height: 1.3; }
+.t-sig  { font-size: clamp(22rem, 3.2vw, 44rem);  font-weight: 400; font-style: italic; opacity: 0.72; }
 
 /* ── Accent ────────────────────────────────────────────────────────────────── */
 .is-accent { position: relative; }
@@ -931,19 +966,16 @@ function addTransformPair(
 .t-hero.is-accent::after, .t-deva.is-accent::after { display: none; }
 .t-hero.is-accent .beat-text { text-shadow: 0 0 120rem rgba(36, 63, 106, 0.80); }
 
-/* ── Scene 01 — scaleUp: vast whitespace, centered tiny text ──────────────── */
-.scene--scaleUp {
-  background: var(--bg);
-}
+/* ── Scene 01 — scaleUp ────────────────────────────────────────────────────── */
 .scene--scaleUp .beat { max-width: none; }
 .scene--scaleUp .scene-stage { min-height: 0; }
 
 /* ── Scene 11 — glitch + CLARITY ──────────────────────────────────────────── */
 .scene--glitch {
-  background: #0C0E14;
+  background: #080808;
   overflow: hidden;
 }
-[data-theme="light"] .scene--glitch { background: #0C0E14; }
+[data-theme="light"] .scene--glitch { background: #080808; }
 
 .glitch-chaos {
   position: absolute;
@@ -1005,6 +1037,11 @@ function addTransformPair(
 
 /* ── Scene 12 — diagram ────────────────────────────────────────────────────── */
 .scene--diagram { padding-top: 0; padding-bottom: 0; }
+.scene-stage--diagram {
+  bottom: clamp(40rem, 8vh, 100rem);
+  left: clamp(40rem, 8vw, 160rem);
+  right: clamp(40rem, 8vw, 160rem);
+}
 .scene-diagram {
   position: absolute;
   inset: 0;
@@ -1019,9 +1056,9 @@ function addTransformPair(
   height: 100%;
   max-height: 100vh;
   color: var(--text);
-  opacity: 0.45;
+  opacity: 0.40;
 }
-[data-theme="light"] .diagram-svg { opacity: 0.35; }
+[data-theme="light"] .diagram-svg { opacity: 0.28; }
 
 /* ── Canvas scenes ─────────────────────────────────────────────────────────── */
 .scene-converge-canvas,
@@ -1063,10 +1100,15 @@ function addTransformPair(
 
 /* ── Mobile ────────────────────────────────────────────────────────────────── */
 @media (max-width: 767px) {
-  .beat { max-width: 100%; }
-  .t-hero { font-size: clamp(36rem, 10vw, 80rem); letter-spacing: -0.05em; }
-  .t-xl   { font-size: clamp(36rem, 8vw, 100rem); }
-  .scene-label { top: 80rem; }
+  .scene { padding: 60rem clamp(24rem, 6vw, 56rem); }
+  .beat  { max-width: 100%; }
+  .t-sm   { font-size: clamp(16rem, 4vw, 22rem); }
+  .t-md   { font-size: clamp(20rem, 5.2vw, 34rem); }
+  .t-lg   { font-size: clamp(26rem, 6.8vw, 52rem); }
+  .t-xl   { font-size: clamp(34rem, 8.5vw, 68rem); }
+  .t-hero { font-size: clamp(44rem, 11vw, 80rem); letter-spacing: -0.05em; }
+  .t-deva { font-size: clamp(32rem, 8vw, 64rem); }
+  .t-sig  { font-size: clamp(18rem, 4.5vw, 34rem); }
   .scene-diagram { display: none; }
   .scene-stage--diagram { position: relative; bottom: auto; left: auto; right: auto; }
 }

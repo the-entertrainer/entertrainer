@@ -13,7 +13,7 @@
 //   2. Copy winning IDs into the pinId field of the PLAN entry
 //   3. Re-run without GIPHY_DRY_RUN to download the pinned GIFs deterministically
 
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, writeFile, rm } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -24,52 +24,63 @@ const OUT_DIR   = resolve(ROOT, 'public/about/gifs')
 const KEY      = process.env.GIPHY_API_KEY || ''
 const DRY_RUN  = process.env.GIPHY_DRY_RUN === '1'
 const RATING   = 'pg-13'
-const LIMIT    = 24   // more results = better landscape candidates
+const LIMIT    = 24
 
-// Each entry can optionally carry a pinId — if set, the script fetches that
-// specific GIF directly (deterministic, bypasses keyword search).
-// minAspect: minimum width/height ratio for the "landscape" filter.
+// GIF scenes in the 25-scene About narrative.
+// Scene 20 (montage) reuses GIFs from the scenes listed in montageSceneIds.
+// Each entry can carry an optional pinId for deterministic, curated downloads.
 const PLAN = [
   {
-    scene: 1, count: 1,
-    keywords: ['hotel housekeeping funny', 'towel art hotel', 'maid hotel room service'],
-    minAspect: 1.4,
-    // pinId: 'SET_AFTER_DRY_RUN',
-  },
-  {
-    scene: 2, count: 1,
-    keywords: ['brain animation science', 'neuroscience visualization', 'mind thinking 3d'],
-    minAspect: 1.3,
-    // pinId: 'SET_AFTER_DRY_RUN',
+    scene: 2, count: 2,
+    keywords: ['hotel corridor animated', 'hotel hallway cinematographic', 'hotel housekeeping maid animated', 'hotel room service animated'],
+    minAspect: 1.5,
+    // pinId: '',
   },
   {
     scene: 3, count: 2,
-    keywords: ['comic book animation pages', 'graphic novel illustration', 'manga animation panels'],
-    minAspect: 1.2,
-    // pinId: 'SET_AFTER_DRY_RUN',  // only pins the first; use pinIds[] for multiple
+    keywords: ['towel animal art hotel', 'towel origami bathroom', 'hotel towel art folding', 'origami towel swan'],
+    minAspect: 1.25,
+    // pinId: '',
   },
   {
-    scene: 5, count: 1,
-    keywords: ['lightbulb idea animation', 'innovation creativity eureka', 'aha moment animation'],
+    scene: 4, count: 1,
+    keywords: ['thinking brain animated', 'detective thinking conspiracy board', 'scientist research animated thinking'],
     minAspect: 1.4,
-    // pinId: 'SET_AFTER_DRY_RUN',
+    // pinId: '',
   },
   {
-    scene: 6, count: 1,
-    keywords: ['minimalist design animation clean', 'organized workflow system', 'clarity focus animation'],
+    scene: 6, count: 2,
+    keywords: ['comic book pages animation', 'sketch drawing art animated', 'ink illustration drawing animated', 'comic panel flip'],
+    minAspect: 1.3,
+    // pinId: '',
+  },
+  {
+    scene: 7, count: 1,
+    keywords: ['neuron firing brain animation', 'brain neural network visualization', 'neuroscience brain scan animated'],
     minAspect: 1.4,
-    // pinId: 'SET_AFTER_DRY_RUN',
+    // pinId: '',
   },
   {
-    scene: 7, count: 2,
-    keywords: ['film director clapperboard movie', 'behind the scenes filmmaking', 'cinematography camera operator'],
+    scene: 8, count: 1,
+    keywords: ['climbing upward growth animation', 'raise hand achievement animated', 'growth ambition progress animated'],
+    minAspect: 1.4,
+    // pinId: '',
+  },
+  {
+    scene: 9, count: 1,
+    keywords: ['team collaboration whiteboard animated', 'brainstorming group animated', 'mentoring discussion meeting animated'],
+    minAspect: 1.4,
+    // pinId: '',
+  },
+  {
+    scene: 14, count: 2,
+    keywords: ['film director clapperboard animated', 'movie production cinema animated', 'behind scenes filming animated'],
     minAspect: 1.5,
-    // pinId: 'SET_AFTER_DRY_RUN',
+    // pinId: '',
   },
 ]
 
-// Rendition preference: pinned IDs get 'original' (we want the best); search
-// results use 'downsized_large' (good quality without massive file sizes).
+// Rendition preference: pinned IDs get 'original'; search results use 'downsized_large'.
 function pickRendition(images, preferOriginal = false) {
   const order = preferOriginal
     ? ['original', 'downsized_large', 'downsized_medium', 'fixed_width']
@@ -81,7 +92,6 @@ function pickRendition(images, preferOriginal = false) {
   return null
 }
 
-// Search and return raw Giphy results.
 async function search(keyword) {
   const url = `https://api.giphy.com/v1/gifs/search?api_key=${encodeURIComponent(KEY)}`
     + `&q=${encodeURIComponent(keyword)}&limit=${LIMIT}&rating=${RATING}&lang=en`
@@ -91,7 +101,6 @@ async function search(keyword) {
   return json?.data ?? []
 }
 
-// Fetch a single GIF by ID (for pinned entries).
 async function fetchById(id) {
   const url = `https://api.giphy.com/v1/gifs/${encodeURIComponent(id)}?api_key=${encodeURIComponent(KEY)}`
   const res = await fetch(url)
@@ -100,9 +109,6 @@ async function fetchById(id) {
   return json?.data ? [json.data] : []
 }
 
-// From a pool of raw Giphy results, pick the single best landscape candidate.
-// "Best" = widest aspect ratio >= minAspect. Falls back to any orientation if
-// no landscape GIF is found.
 function pickBest(results, minAspect = 1.0, preferOriginal = false) {
   const withRenditions = results
     .map(g => {
@@ -116,7 +122,6 @@ function pickBest(results, minAspect = 1.0, preferOriginal = false) {
   const landscape = withRenditions.filter(({ r }) => r.width > 0 && r.height > 0 && r.width / r.height >= minAspect)
   const pool = landscape.length > 0 ? landscape : withRenditions
 
-  // Sort widest-first so the most cinematic result wins
   pool.sort((a, b) => (b.r.width / b.r.height) - (a.r.width / a.r.height))
   return pool[0]
 }
@@ -139,6 +144,14 @@ async function main() {
     console.log('── DRY RUN — no files will be written ──────────────────────────────\n')
   } else {
     await mkdir(OUT_DIR, { recursive: true })
+    // Remove old GIFs before downloading fresh set
+    const { readdir } = await import('node:fs/promises')
+    try {
+      const existing = await readdir(OUT_DIR)
+      for (const f of existing) {
+        if (f.endsWith('.gif')) await rm(resolve(OUT_DIR, f))
+      }
+    } catch {}
   }
 
   const manifest = {}
@@ -147,7 +160,6 @@ async function main() {
   for (const entry of PLAN) {
     console.log(`\nScene ${entry.scene} (need ${entry.count}):`)
 
-    // Collect all raw results — from pinId or keyword search
     let allResults = []
     if (entry.pinId) {
       console.log(`  pinId: ${entry.pinId}`)
@@ -161,13 +173,11 @@ async function main() {
       }
     }
 
-    // Deduplicate by Giphy ID
     const seen = new Set()
     const unique = allResults.filter(g => g?.id && !seen.has(g.id) && seen.add(g.id))
     const preferOriginal = !!entry.pinId
 
     if (DRY_RUN) {
-      // Show all landscape candidates so the developer can pick a pinId
       const candidates = unique
         .map(g => {
           const r = pickRendition(g.images, preferOriginal)
@@ -189,7 +199,6 @@ async function main() {
       continue
     }
 
-    // Pick best N GIFs (for entries with count > 1, pick sequentially, excluding already-picked)
     manifest[entry.scene] = []
     const picked = []
 

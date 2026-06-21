@@ -1,70 +1,102 @@
 {
-  "1": [
-    {
-      "id": "9EuktPkUYo57WrMeXN",
-      "url": "/about/gifs/s1-0.gif",
-      "width": 480,
-      "height": 270,
-      "title": "Valentines Day Love GIF by PES"
-    }
-  ],
   "2": [
     {
-      "id": "cj2PFrOzMppR60dZKT",
+      "id": "8ZkiRQrCKRqIVjN4GU",
       "url": "/about/gifs/s2-0.gif",
-      "width": 470,
-      "height": 496,
-      "title": "human mind"
+      "width": 480,
+      "height": 270,
+      "title": "fort garry hotel halloween GIF by REALTOR.ca"
+    },
+    {
+      "id": "YL6bgGZ9uApFM5imYK",
+      "url": "/about/gifs/s2-1.gif",
+      "width": 480,
+      "height": 270,
+      "title": "Music Video Smile GIF by Crash Adams"
     }
   ],
   "3": [
     {
-      "id": "dxpvft5yfdC3YaxPWU",
+      "id": "vwSlMip5f2Z30BH47r",
       "url": "/about/gifs/s3-0.gif",
-      "width": 500,
-      "height": 500,
-      "title": "Cookie Run Stars GIF"
+      "width": 480,
+      "height": 200,
+      "title": "Bathroom Bedroom GIF by Sony Pictures"
     },
     {
-      "id": "HqCMFLDjVfZeUfaSqa",
+      "id": "s3hZZwFRki8r6",
       "url": "/about/gifs/s3-1.gif",
-      "width": 480,
-      "height": 480,
-      "title": "Power Inspiring GIF by VeeFriends"
+      "width": 500,
+      "height": 271,
+      "title": "Throw The Towel GIF"
     }
   ],
-  "5": [
+  "4": [
     {
-      "id": "MBxYX5HEvi0svTHNgV",
-      "url": "/about/gifs/s5-0.gif",
+      "id": "9N2UvCx7wXLnG",
+      "url": "/about/gifs/s4-0.gif",
       "width": 480,
-      "height": 480,
-      "title": "Schitts Creek Comedy GIF by CBC"
+      "height": 270,
+      "title": "Brain Neuron GIF by Harvard University"
     }
   ],
   "6": [
     {
-      "id": "ZFpE4LgArE70J4BIvE",
+      "id": "R7GV4dmgFrHYxzoC1e",
       "url": "/about/gifs/s6-0.gif",
       "width": 480,
-      "height": 480,
-      "title": "Focus See GIF by thedoveinity"
+      "height": 266,
+      "title": "Yelling Moon Knight GIF"
+    },
+    {
+      "id": "uKT0MWezNGewE",
+      "url": "/about/gifs/s6-1.gif",
+      "width": 500,
+      "height": 281,
+      "title": "Flip The Table GIF"
     }
   ],
   "7": [
     {
-      "id": "dxgEz5tWSRMk1tsyrt",
+      "id": "l41lUwmxlGIBsGKqI",
       "url": "/about/gifs/s7-0.gif",
-      "width": 360,
-      "height": 240,
-      "title": "Inspire Do It GIF by Buyout Footage"
+      "width": 500,
+      "height": 281,
+      "title": "uc berkeley pain GIF by University of California"
+    }
+  ],
+  "8": [
+    {
+      "id": "1zlD9XCluIQLeBjIgd",
+      "url": "/about/gifs/s8-0.gif",
+      "width": 400,
+      "height": 224,
+      "title": "Growth GIF"
+    }
+  ],
+  "9": [
+    {
+      "id": "KoETU8r4V2eSu60kkb",
+      "url": "/about/gifs/s9-0.gif",
+      "width": 480,
+      "height": 251,
+      "title": "Team History GIF by ClickUp"
+    }
+  ],
+  "14": [
+    {
+      "id": "26n7a2M89kruK8IrC",
+      "url": "/about/gifs/s14-0.gif",
+      "width": 313,
+      "height": 176,
+      "title": " "
     },
     {
-      "id": "oXAdmf11TBqbOW7vOD",
-      "url": "/about/gifs/s7-1.gif",
-      "width": 480,
-      "height": 270,
-      "title": "Film Director GIF by Kinter Media"
+      "id": "3ohhwlogl19lmQKlMY",
+      "url": "/about/gifs/s14-1.gif",
+      "width": 313,
+      "height": 176,
+      "title": " "
     }
   ]
 }

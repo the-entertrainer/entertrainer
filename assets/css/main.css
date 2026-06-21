@@ -804,38 +804,13 @@ html[data-about][data-theme="dark"] body  { background: #080808; }
 html[data-about][data-theme="light"] body { background: #F8F8F6; }
 html[data-about]:not([data-theme]) body   { background: #080808; }
 
-/* Hide scrollbar while scroll-snap is active on the About page */
-html[data-about] { scrollbar-width: none; }
-html[data-about]::-webkit-scrollbar { display: none; }
-/* Slide each button off to its respective corner when the About page is active.
-   Staggered delays ensure they exit after the route fade (0.35 s) completes.
-   CSS transitions reverse automatically when data-about is removed on unmount. */
-html[data-about] .logo-wrapper {
-  transform: translate(-140%, -140%);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 1.0s cubic-bezier(0.16,1,0.3,1) 0.20s,
-              opacity   0.6s ease 0.20s;
-}
-html[data-about] .menu {
-  transform: translate(140%, -140%);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 1.0s cubic-bezier(0.16,1,0.3,1) 0.32s,
-              opacity   0.6s ease 0.32s;
-}
-html[data-about] .back-btn-circle {
-  transform: translate(-140%, 140%);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 1.0s cubic-bezier(0.16,1,0.3,1) 0.44s,
-              opacity   0.6s ease 0.44s;
-}
+/* Dim nav chrome on the About page — editorial long-scroll doesn't hide them */
+html[data-about] .logo-wrapper,
+html[data-about] .menu,
+html[data-about] .back-btn-circle,
 html[data-about] .sound-button {
-  transform: translate(140%, 140%);
-  opacity: 0;
+  opacity: 0.12;
   pointer-events: none;
-  transition: transform 1.0s cubic-bezier(0.16,1,0.3,1) 0.56s,
-              opacity   0.6s ease 0.56s;
+  transition: opacity 0.6s ease;
 }
 

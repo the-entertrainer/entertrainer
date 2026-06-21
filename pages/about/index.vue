@@ -5,8 +5,8 @@
     <!-- OPENING -->
     <section ref="openingEl" class="opening">
       <div class="opening-inner">
-        <p ref="opening1El" class="opening-text">Most training is forgotten.</p>
-        <p ref="opening2El" class="opening-text opening-text--b">I build the part that <span ref="sticksEl" class="sticks-word">sticks</span>.</p>
+        <p ref="opening1El" class="opening-text">I used to check people in.</p>
+        <p ref="opening2El" class="opening-text opening-text--b">Now I get <span ref="insideEl" class="inside-word">inside</span> their heads.</p>
       </div>
     </section>
 
@@ -21,8 +21,8 @@
         </div>
         <div ref="nameCaptionBEl" class="name-caption name-caption--b">
           <span>Former hotelier.</span>
-          <span>Accidental educator.</span>
-          <span>Definitely knows where the extra towels are.</span>
+          <span>Certified overthinker.</span>
+          <span>Accidental eLearning evangelist.</span>
         </div>
       </div>
     </section>
@@ -32,31 +32,41 @@
       <div class="origin-inner">
         <div class="origin-left">
           <h2 ref="originHeadEl" class="display-lg origin-head">It started<br>in hotels.</h2>
-          <p ref="originBody1El" class="body-lg origin-body">Years of rooms, rosters, and guests with very specific opinions about pillow firmness. What I learned: people don't perform because they're told to. They perform because they <em>understand why</em>.</p>
-          <p ref="originBody2El" class="body-lg origin-body">When I moved into learning design, I brought that obsession with me. Not content. Not compliance. Behavior change.</p>
+          <p ref="originBody1El" class="body-lg origin-body">Years of rooms, rosters, and guests with strong opinions about pillow firmness. What I actually learned: people don't follow procedures because they're written. They follow them because someone made it <em>feel worth following</em>.</p>
+          <p ref="originBody2El" class="body-lg origin-body">I took that obsession into learning design. Not content. Not compliance. Behavior change.</p>
         </div>
         <div class="origin-right">
-          <div v-if="hotelGif" ref="originGifEl" class="gif-frame">
-            <img :src="hotelGif.url" :alt="hotelGif.title" class="gif-img" loading="lazy" />
+          <div ref="originGifEl" class="gif-frame gif-frame--hotel">
+            <img src="/about/gifs/s2-0.gif" alt="A hotel scene" class="gif-img" />
             <span class="gif-caption">circa hotel era</span>
           </div>
         </div>
+      </div>
+
+      <!-- DISCOVERY BEAT -->
+      <div ref="discoveryEl" class="discovery-inner">
+        <p ref="discoveryLine1El" class="discovery-line">At Mahindra Holidays, someone handed me a SCORM file.</p>
+        <p ref="discoveryLine2El" class="discovery-line discovery-line--muted">I had absolutely no idea what it was.</p>
+        <div ref="discoveryGifEl" class="gif-frame gif-frame--brain">
+          <img src="/about/gifs/s4-0.gif" alt="Brain expanding" class="gif-img" />
+          <span class="gif-caption">approximately what happened next</span>
+        </div>
+        <p ref="discoveryLine3El" class="discovery-line">Six months later, I was building one.</p>
       </div>
     </section>
 
     <!-- THE PROBLEM -->
     <section ref="problemEl" class="s-problem">
       <div class="problem-inner">
-        <div v-if="trainingGif" ref="problemGifEl" class="gif-frame gif-frame--problem">
-          <img :src="trainingGif.url" :alt="trainingGif.title" class="gif-img" loading="lazy" />
-          <span class="gif-caption">most corporate training, actually</span>
+        <h2 ref="problemHeadEl" class="display-lg problem-head">Then I looked<br>around at how<br>everyone else<br>was doing it.</h2>
+        <div ref="problemGifEl" class="gif-frame gif-frame--problem">
+          <img src="/about/gifs/s6-1.gif" alt="Flipping a table in frustration" class="gif-img" />
+          <span class="gif-caption">a completely measured response</span>
         </div>
-        <h2 ref="problemHeadEl" class="display-lg problem-head">Then I saw<br>how companies<br>train people.</h2>
         <div ref="statsEl" class="problem-stats">
-          <p class="stat-line">Slides.</p>
-          <p class="stat-line">Clicks.</p>
-          <p class="stat-line">Sign here.</p>
-          <p class="stat-line stat-line--whisper">You're certified. Good luck.</p>
+          <p class="stat-line">Click through.</p>
+          <p class="stat-line">Pass the quiz.</p>
+          <p class="stat-line">Forget by Tuesday.</p>
         </div>
         <div class="problem-mask-wrap">
           <p ref="problemConclusionEl" class="body-lg problem-conclusion">Learning was never supposed to feel like paperwork.</p>
@@ -64,21 +74,21 @@
       </div>
     </section>
 
-    <!-- THE SPARK — SEWA CHRONICLES -->
+    <!-- SEWA CHRONICLES -->
     <section ref="sewaEl" class="s-sewa">
       <div class="sewa-inner">
         <div class="sewa-left">
           <span class="label sewa-label">The Spark</span>
           <h2 ref="sewaHeadEl" class="display-lg sewa-head">So I drew<br>a comic book.</h2>
-          <p ref="sewaBodyEl" class="body-lg sewa-body">At Mahindra Holidays, I hand-drew 10 real guest experience stories from our frontline teams — retro-comic panels, real people, real moments. We called it <em>The SEWA Chronicles</em>. It was highlighted at our Great Place to Work event.</p>
+          <p ref="sewaBodyEl" class="body-lg sewa-body">At Mahindra, I hand-drew 10 real guest experience stories from our frontline teams. Retro-comic panels. Real people. Genuinely unexpected moments. We called it <em>The SEWA Chronicles</em>. It ended up at a Great Place to Work event.</p>
           <div class="sewa-punch-wrap">
-            <p ref="sewaPunchEl" class="sewa-punch">Because stories land where manuals don't.</p>
+            <p ref="sewaPunchEl" class="sewa-punch">Apparently hand-drawn comics about hotel guests hit different.</p>
           </div>
         </div>
         <div class="sewa-right">
-          <div v-if="comicGif" ref="sewaGifEl" class="gif-frame gif-frame--lg">
-            <img :src="comicGif.url" :alt="comicGif.title" class="gif-img" loading="lazy" />
-            <span class="gif-caption">the sewa chronicles, energy-wise</span>
+          <div ref="sewaGifEl" class="gif-frame gif-frame--sewa">
+            <img src="/about/gifs/s9-0.gif" alt="Team storytelling" class="gif-img" />
+            <span class="gif-caption">the energy in that room</span>
           </div>
         </div>
       </div>
@@ -104,10 +114,10 @@
         <div class="now-left">
           <span class="label now-label">Currently</span>
           <div class="now-head-wrap">
-            <h2 ref="nowHeadEl" class="display-lg now-head">Building learning at Concentrix.</h2>
+            <h2 ref="nowHeadEl" class="display-lg now-head">Building learning<br>at Concentrix.</h2>
           </div>
           <div class="now-body-wrap">
-            <p ref="nowBodyEl" class="body-lg now-body">Converting complex operational knowledge into digital learning experiences for global teams. Applying adult learning science to data that otherwise just sits in a spreadsheet.</p>
+            <p ref="nowBodyEl" class="body-lg now-body">Turning complex operational knowledge into digital learning experiences for global teams. Applying adult learning science to data that otherwise just lives in a spreadsheet, going nowhere.</p>
           </div>
         </div>
         <div class="now-right">
@@ -144,26 +154,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// ── GIF data via server-side Giphy proxy ──────────────────────────────────
-const FALLBACK_GIFS = {
-  hotel:    { url: 'https://media.giphy.com/media/3o7qDERaa7T4UoLJnO/giphy.gif', title: 'Hotel receptionist' },
-  training: { url: 'https://media.giphy.com/media/cLGlV1RGONxKa71QDY/giphy.gif', title: 'Boring office training' },
-  comic:    { url: 'https://media.giphy.com/media/xT9DPErFASWkKCaAJW/giphy.gif', title: 'Vintage comic book' },
-}
-
-const { data: hotelData }    = useFetch('/api/giphy', { query: { q: 'hotel receptionist funny vintage', limit: 1 }, server: false })
-const { data: trainingData } = useFetch('/api/giphy', { query: { q: 'boring presentation office sleep', limit: 1 }, server: false })
-const { data: comicData }    = useFetch('/api/giphy', { query: { q: 'vintage comic book retro pow', limit: 1 }, server: false })
-
-const hotelGif    = computed(() => (hotelData.value?.items?.length    ? hotelData.value.items[0]    : FALLBACK_GIFS.hotel))
-const trainingGif = computed(() => (trainingData.value?.items?.length ? trainingData.value.items[0] : FALLBACK_GIFS.training))
-const comicGif    = computed(() => (comicData.value?.items?.length    ? comicData.value.items[0]    : FALLBACK_GIFS.comic))
-
 // ── Refs ──────────────────────────────────────────────────────────────────
 const openingEl           = ref<HTMLElement>()
 const opening1El          = ref<HTMLElement>()
 const opening2El          = ref<HTMLElement>()
-const sticksEl            = ref<HTMLElement>()
+const insideEl            = ref<HTMLElement>()
 const nameEl              = ref<HTMLElement>()
 const nameTextEl          = ref<HTMLElement>()
 const nameCaptionAEl      = ref<HTMLElement>()
@@ -173,6 +168,11 @@ const originHeadEl        = ref<HTMLElement>()
 const originBody1El       = ref<HTMLElement>()
 const originBody2El       = ref<HTMLElement>()
 const originGifEl         = ref<HTMLElement>()
+const discoveryEl         = ref<HTMLElement>()
+const discoveryLine1El    = ref<HTMLElement>()
+const discoveryLine2El    = ref<HTMLElement>()
+const discoveryLine3El    = ref<HTMLElement>()
+const discoveryGifEl      = ref<HTMLElement>()
 const problemEl           = ref<HTMLElement>()
 const problemHeadEl       = ref<HTMLElement>()
 const statsEl             = ref<HTMLElement>()
@@ -219,6 +219,7 @@ onMounted(async () => {
   setupOpening(SplitType)
   setupName(SplitType)
   setupOrigin()
+  setupDiscovery(SplitType)
   setupProblem(SplitType)
   setupSewa()
   setupPhilosophy(SplitType)
@@ -253,6 +254,7 @@ function setupOpening(SplitType: any) {
       end: '+=280%',
       pin: true,
       scrub: 1.2,
+      invalidateOnRefresh: true,
     }
   })
 
@@ -260,17 +262,17 @@ function setupOpening(SplitType: any) {
   tl.to(split1.chars, { opacity: 0, y: -12, stagger: 0.015, ease: 'power2.in' }, 0.5)
   tl.to(split2.chars, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: 0.025, ease: 'power2.out' }, 0.55)
 
-  const sticksNode = sticksEl.value
-  if (sticksNode && split2.chars) {
-    const sticksChars = split2.chars.filter((c: HTMLElement) => sticksNode.contains(c))
-    if (sticksChars.length) {
-      tl.to(sticksChars, {
-        x: (i: number) => (i - sticksChars.length / 2) * 6,
-        scaleY: 1.08, filter: 'blur(1px)',
-        textShadow: '0 0 18px rgba(240,240,238,0.55)',
-        stagger: 0.04, ease: 'power1.out',
+  const insideNode = insideEl.value
+  if (insideNode && split2.chars) {
+    const insideChars = split2.chars.filter((c: HTMLElement) => insideNode.contains(c))
+    if (insideChars.length) {
+      tl.to(insideChars, {
+        x: (i: number) => (i - insideChars.length / 2) * 5,
+        scaleY: 1.06, filter: 'blur(1px)',
+        textShadow: '0 0 18px rgba(240,240,238,0.6)',
+        stagger: 0.035, ease: 'power1.out',
       }, 0.82)
-      tl.to(sticksChars, {
+      tl.to(insideChars, {
         x: 0, scaleY: 1, filter: 'blur(0px)',
         textShadow: '0 0 0px rgba(240,240,238,0)',
         stagger: 0.02, ease: 'power2.inOut',
@@ -299,6 +301,7 @@ function setupName(SplitType: any) {
       end: '+=200%',
       pin: true,
       scrub: 1.2,
+      invalidateOnRefresh: true,
     }
   })
 
@@ -312,9 +315,9 @@ function setupOrigin() {
   if (!originEl.value || !originHeadEl.value) return
 
   gsap.set(originHeadEl.value, { opacity: 0, y: 40 })
-  if (originBody1El.value) gsap.set(originBody1El.value, { opacity: 0, y: 30 })
-  if (originBody2El.value) gsap.set(originBody2El.value, { opacity: 0, y: 30 })
-  if (originGifEl.value) gsap.set(originGifEl.value, { opacity: 0, y: 40, rotate: 3 })
+  if (originBody1El.value) gsap.set(originBody1El.value, { opacity: 0, y: 28 })
+  if (originBody2El.value) gsap.set(originBody2El.value, { opacity: 0, y: 28 })
+  if (originGifEl.value)   gsap.set(originGifEl.value,   { opacity: 0, y: 40, rotate: 3 })
 
   ScrollTrigger.create({
     trigger: originEl.value,
@@ -324,7 +327,28 @@ function setupOrigin() {
       gsap.to(originHeadEl.value!, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' })
       if (originBody1El.value) gsap.to(originBody1El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.2 })
       if (originBody2El.value) gsap.to(originBody2El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.35 })
-      if (originGifEl.value) gsap.to(originGifEl.value, { opacity: 1, y: 0, rotate: 3, duration: 1.3, ease: 'power3.out', delay: 0.5 })
+      if (originGifEl.value)   gsap.to(originGifEl.value,   { opacity: 1, y: 0, rotate: 3,   duration: 1.3, ease: 'power3.out', delay: 0.5 })
+    }
+  })
+}
+
+function setupDiscovery(SplitType: any) {
+  if (!discoveryEl.value) return
+
+  if (discoveryLine1El.value) gsap.set(discoveryLine1El.value, { opacity: 0, y: 24 })
+  if (discoveryLine2El.value) gsap.set(discoveryLine2El.value, { opacity: 0, y: 24 })
+  if (discoveryLine3El.value) gsap.set(discoveryLine3El.value, { opacity: 0, y: 24 })
+  if (discoveryGifEl.value)   gsap.set(discoveryGifEl.value,   { opacity: 0, scale: 0.88, rotate: -2 })
+
+  ScrollTrigger.create({
+    trigger: discoveryEl.value,
+    start: 'top 65%',
+    once: true,
+    onEnter: () => {
+      if (discoveryLine1El.value) gsap.to(discoveryLine1El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' })
+      if (discoveryLine2El.value) gsap.to(discoveryLine2El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.2 })
+      if (discoveryGifEl.value)   gsap.to(discoveryGifEl.value,   { opacity: 1, scale: 1, rotate: -2, duration: 1.1, ease: 'power3.out', delay: 0.5 })
+      if (discoveryLine3El.value) gsap.to(discoveryLine3El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 1.1 })
     }
   })
 }
@@ -335,20 +359,20 @@ function setupProblem(SplitType: any) {
   if (problemGifEl.value) gsap.set(problemGifEl.value, { opacity: 0, y: 20, rotate: -3 })
 
   const splitHead = new SplitType(problemHeadEl.value, { types: 'words' })
-  gsap.set(splitHead.words, { opacity: 0, y: 60 })
+  gsap.set(splitHead.words, { opacity: 0, y: 50 })
 
   ScrollTrigger.create({
     trigger: problemEl.value,
     start: 'top 65%',
     once: true,
     onEnter: () => {
-      if (problemGifEl.value) gsap.to(problemGifEl.value, { opacity: 1, y: 0, rotate: -3, duration: 1.1, ease: 'power3.out' })
-      gsap.to(splitHead.words, { opacity: 1, y: 0, stagger: 0.07, duration: 0.9, ease: 'power3.out', delay: 0.15 })
+      gsap.to(splitHead.words, { opacity: 1, y: 0, stagger: 0.06, duration: 0.85, ease: 'power3.out' })
+      if (problemGifEl.value) gsap.to(problemGifEl.value, { opacity: 1, y: 0, rotate: -3, duration: 1.0, ease: 'power3.out', delay: 0.2 })
     }
   })
 
   const statLines = statsEl.value.querySelectorAll('.stat-line')
-  gsap.set(statLines, { opacity: 0, x: -40 })
+  gsap.set(statLines, { opacity: 0, x: -36 })
   ScrollTrigger.create({
     trigger: statsEl.value,
     start: 'top 65%',
@@ -375,9 +399,9 @@ function setupSewa() {
   if (!sewaEl.value) return
 
   if (sewaHeadEl.value) gsap.set(sewaHeadEl.value, { opacity: 0, y: 40 })
-  if (sewaBodyEl.value) gsap.set(sewaBodyEl.value, { opacity: 0, y: 30 })
+  if (sewaBodyEl.value) gsap.set(sewaBodyEl.value, { opacity: 0, y: 28 })
   if (sewaPunchEl.value) gsap.set(sewaPunchEl.value, { y: '100%' })
-  if (sewaGifEl.value) gsap.set(sewaGifEl.value, { opacity: 0, y: 50, rotate: 4 })
+  if (sewaGifEl.value) gsap.set(sewaGifEl.value, { opacity: 0, y: 48, rotate: 4 })
 
   ScrollTrigger.create({
     trigger: sewaEl.value,
@@ -387,7 +411,7 @@ function setupSewa() {
       if (sewaHeadEl.value) gsap.to(sewaHeadEl.value, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' })
       if (sewaBodyEl.value) gsap.to(sewaBodyEl.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.2 })
       if (sewaPunchEl.value) gsap.to(sewaPunchEl.value, { y: '0%', duration: 1.0, ease: 'power3.out', delay: 0.4 })
-      if (sewaGifEl.value) gsap.to(sewaGifEl.value, { opacity: 1, y: 0, rotate: 4, duration: 1.4, ease: 'power3.out', delay: 0.55 })
+      if (sewaGifEl.value) gsap.to(sewaGifEl.value, { opacity: 1, y: 0, rotate: 4, duration: 1.3, ease: 'power3.out', delay: 0.5 })
     }
   })
 }
@@ -407,6 +431,7 @@ function setupPhilosophy(SplitType: any) {
       end: '+=450%',
       pin: true,
       scrub: 1.5,
+      invalidateOnRefresh: true,
     }
   })
 
@@ -448,8 +473,8 @@ function setupFinal(SplitType: any) {
 
   gsap.set([...(split1.chars ?? []), ...(split2.chars ?? [])], { opacity: 0, scale: 0.7, filter: 'blur(16px)' })
   if (finalBodyEl.value) gsap.set(finalBodyEl.value, { opacity: 0, y: 30 })
-  if (finalSigEl.value) gsap.set(finalSigEl.value, { opacity: 0 })
-  if (finalCtaEl.value) gsap.set(finalCtaEl.value, { opacity: 0, y: 20 })
+  if (finalSigEl.value)  gsap.set(finalSigEl.value,  { opacity: 0 })
+  if (finalCtaEl.value)  gsap.set(finalCtaEl.value,  { opacity: 0, y: 20 })
 
   ScrollTrigger.create({
     trigger: finalEl.value,
@@ -460,8 +485,8 @@ function setupFinal(SplitType: any) {
       tl.to(split1.chars!, { opacity: 1, scale: 1, filter: 'blur(0px)', stagger: 0.04, duration: 0.8, ease: 'power3.out' })
       tl.to(split2.chars!, { opacity: 1, scale: 1, filter: 'blur(0px)', textShadow: '0 0 30px rgba(240,240,238,0.3)', stagger: 0.04, duration: 0.8, ease: 'power3.out' }, '-=0.4')
       if (finalBodyEl.value) tl.to(finalBodyEl.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, '-=0.2')
-      if (finalSigEl.value) tl.to(finalSigEl.value, { opacity: 1, duration: 0.7, ease: 'power2.out' }, '-=0.2')
-      if (finalCtaEl.value) tl.to(finalCtaEl.value, { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.7)' }, '-=0.1')
+      if (finalSigEl.value)  tl.to(finalSigEl.value,  { opacity: 1, duration: 0.7, ease: 'power2.out' }, '-=0.2')
+      if (finalCtaEl.value)  tl.to(finalCtaEl.value,  { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.7)' }, '-=0.1')
     }
   })
 }
@@ -504,21 +529,21 @@ function setupFinal(SplitType: any) {
 
 /* ─── Typography ─── */
 .display-xl {
-  font-size: clamp(80rem, 12vw, 240rem);
+  font-size: clamp(72rem, 11vw, 220rem);
   font-weight: 800;
   line-height: 0.9;
   letter-spacing: -0.03em;
 }
 .display-lg {
-  font-size: clamp(48rem, 7vw, 140rem);
+  font-size: clamp(44rem, 6.5vw, 130rem);
   font-weight: 800;
-  line-height: 0.92;
+  line-height: 0.93;
   letter-spacing: -0.025em;
 }
 .body-lg {
-  font-size: clamp(16rem, 1.8vw, 24rem);
+  font-size: clamp(16rem, 1.8vw, 22rem);
   font-weight: 400;
-  line-height: 1.65;
+  line-height: 1.7;
 }
 .label {
   font-size: 11rem;
@@ -528,27 +553,24 @@ function setupFinal(SplitType: any) {
   opacity: 0.45;
 }
 
-/* ─── GIF FRAMES — polaroid-style ─── */
+/* ─── GIF FRAMES ─── */
 .gif-frame {
   display: inline-flex;
   flex-direction: column;
-  gap: 0;
-  background: #f5f0e8;
-  padding: 10rem 10rem 38rem;
-  box-shadow: 0 28px 80px rgba(0,0,0,0.7), 0 6px 20px rgba(0,0,0,0.35);
+  background: #f3ede4;
+  padding: 10rem 10rem 36rem;
+  box-shadow: 0 24px 72px rgba(0,0,0,0.65), 0 4px 16px rgba(0,0,0,0.3);
   position: relative;
-  will-change: transform;
+  will-change: transform, opacity;
 }
 .gif-img {
   display: block;
   width: 100%;
   height: auto;
-  max-width: 260rem;
 }
-.gif-frame--lg .gif-img { max-width: 320rem; }
 .gif-caption {
   position: absolute;
-  bottom: 10rem;
+  bottom: 9rem;
   left: 0;
   right: 0;
   text-align: center;
@@ -557,15 +579,16 @@ function setupFinal(SplitType: any) {
   color: #888;
   letter-spacing: 0.02em;
 }
-
-/* Problem GIF is absolutely positioned top-right */
+.gif-frame--hotel  { max-width: 280rem; }
+.gif-frame--brain  { max-width: 220rem; }
+.gif-frame--sewa   { max-width: 300rem; }
 .gif-frame--problem {
   position: absolute;
-  top: clamp(40rem, 5vw, 80rem);
+  top: clamp(32rem, 4vw, 64rem);
   right: clamp(40rem, 6vw, 120rem);
+  max-width: 200rem;
   z-index: 2;
 }
-.gif-frame--problem .gif-img { max-width: 220rem; }
 
 /* ─── OPENING ─── */
 .opening {
@@ -574,11 +597,10 @@ function setupFinal(SplitType: any) {
   align-items: center;
   justify-content: center;
   padding: clamp(60rem, 10vw, 160rem);
-  background: #0A0A0A;
 }
 .opening-inner { text-align: center; }
 .opening-text {
-  font-size: clamp(18rem, 2.2vw, 32rem);
+  font-size: clamp(18rem, 2.4vw, 34rem);
   font-weight: 400;
   line-height: 1.5;
   letter-spacing: 0.01em;
@@ -589,7 +611,7 @@ function setupFinal(SplitType: any) {
   color: #F0F0EE;
   font-weight: 600;
 }
-.sticks-word { color: #F0F0EE; }
+.inside-word { color: #F0F0EE; }
 
 /* ─── NAME ─── */
 .s-name {
@@ -602,121 +624,119 @@ function setupFinal(SplitType: any) {
 }
 .name-inner { text-align: center; position: relative; }
 .name-display {
-  font-size: clamp(64rem, 13vw, 220rem);
+  font-size: clamp(56rem, 12vw, 210rem);
   font-weight: 900;
   line-height: 0.85;
   letter-spacing: -0.04em;
   white-space: nowrap;
 }
 .name-caption {
-  margin-top: 32rem;
+  margin-top: 28rem;
   display: flex;
   flex-direction: column;
   gap: 4rem;
-  font-size: clamp(12rem, 1.3vw, 18rem);
+  font-size: clamp(11rem, 1.2vw, 17rem);
   font-weight: 400;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   opacity: 0.55;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
+  width: max-content;
+  max-width: 90vw;
 }
-.name-caption--b { margin-top: 80rem; }
+.name-caption--b { margin-top: 76rem; }
 
 /* ─── ORIGIN ─── */
 .s-origin {
-  padding: clamp(100rem, 12vw, 200rem) clamp(40rem, 8vw, 160rem);
+  padding: clamp(100rem, 12vw, 200rem) clamp(40rem, 8vw, 140rem);
 }
 .origin-inner {
-  max-width: 1400rem;
+  max-width: 1360rem;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(60rem, 8vw, 120rem);
   align-items: center;
+  margin-bottom: clamp(80rem, 10vw, 140rem);
 }
-.origin-head {
-  margin-bottom: clamp(32rem, 4vw, 56rem);
-}
-.origin-body {
-  margin-bottom: clamp(20rem, 2.5vw, 32rem);
-}
+.origin-head   { margin-bottom: clamp(28rem, 3.5vw, 52rem); }
+.origin-body   { margin-bottom: clamp(18rem, 2.2vw, 28rem); }
 .origin-body:last-child { margin-bottom: 0; }
 .origin-body em { font-style: italic; }
-.origin-right {
+.origin-right  { display: flex; justify-content: center; align-items: center; }
+
+/* Discovery beat — centered interstitial */
+.discovery-inner {
+  max-width: 760rem;
+  margin: 0 auto;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  gap: clamp(24rem, 3vw, 40rem);
+  text-align: center;
 }
+.discovery-line {
+  font-size: clamp(18rem, 2.2vw, 32rem);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+.discovery-line--muted { opacity: 0.45; font-weight: 400; font-style: italic; }
 
 /* ─── PROBLEM ─── */
 .s-problem {
   position: relative;
-  padding: clamp(120rem, 15vw, 240rem) clamp(40rem, 8vw, 160rem);
+  padding: clamp(120rem, 14vw, 220rem) clamp(40rem, 8vw, 140rem);
 }
-.problem-inner {
-  max-width: 900rem;
-}
-.problem-head { margin-bottom: clamp(60rem, 8vw, 120rem); }
-.problem-stats { margin-bottom: clamp(80rem, 10vw, 140rem); }
+.problem-inner { max-width: 820rem; }
+.problem-head  { margin-bottom: clamp(56rem, 7vw, 110rem); }
+.problem-stats { margin-bottom: clamp(72rem, 9vw, 130rem); }
 .stat-line {
-  font-size: clamp(32rem, 4.5vw, 80rem);
+  font-size: clamp(28rem, 4vw, 72rem);
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.2;
   letter-spacing: -0.02em;
   border-bottom: 1rem solid rgba(240,240,238,0.1);
-  padding: 16rem 0;
-}
-.stat-line--whisper {
-  opacity: 0.35;
-  font-weight: 400;
-  font-size: clamp(18rem, 2.2vw, 36rem);
-  font-style: italic;
+  padding: 14rem 0;
 }
 .problem-mask-wrap { overflow: hidden; }
 .problem-conclusion {
-  max-width: 680rem;
+  max-width: 640rem;
   font-style: italic;
-  opacity: 0.75;
+  opacity: 0.72;
 }
 
 /* ─── SEWA ─── */
 .s-sewa {
-  padding: clamp(100rem, 12vw, 200rem) clamp(40rem, 8vw, 160rem);
-  background: rgba(240,240,238,0.018);
+  padding: clamp(100rem, 12vw, 200rem) clamp(40rem, 8vw, 140rem);
+  background: rgba(240,240,238,0.016);
 }
 .sewa-inner {
-  max-width: 1400rem;
+  max-width: 1360rem;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(60rem, 8vw, 120rem);
   align-items: center;
 }
-.sewa-label { display: block; margin-bottom: 20rem; }
-.sewa-head { margin-bottom: clamp(28rem, 3.5vw, 48rem); }
-.sewa-body {
-  margin-bottom: clamp(28rem, 3.5vw, 48rem);
-  max-width: 580rem;
-}
-.sewa-body em { font-style: italic; }
+.sewa-label    { display: block; margin-bottom: 18rem; }
+.sewa-head     { margin-bottom: clamp(24rem, 3vw, 44rem); }
+.sewa-body     { margin-bottom: clamp(24rem, 3vw, 44rem); max-width: 560rem; }
+.sewa-body em  { font-style: italic; }
 .sewa-punch-wrap { overflow: hidden; }
 .sewa-punch {
-  font-size: clamp(17rem, 1.9vw, 26rem);
+  font-size: clamp(16rem, 1.8vw, 24rem);
   font-weight: 600;
   font-style: italic;
-  opacity: 0.7;
-  border-left: 3rem solid rgba(240,240,238,0.35);
-  padding-left: 20rem;
-  line-height: 1.45;
+  opacity: 0.68;
+  border-left: 3rem solid rgba(240,240,238,0.3);
+  padding-left: 18rem;
+  line-height: 1.5;
 }
-.sewa-right {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+.sewa-right { display: flex; justify-content: center; align-items: center; }
 
 /* ─── PHILOSOPHY ─── */
 .s-philosophy {
@@ -728,13 +748,13 @@ function setupFinal(SplitType: any) {
 }
 .philo-inner {
   width: 100%;
-  max-width: 1100rem;
+  max-width: 1060rem;
   margin: 0 auto;
+  overflow: hidden;
 }
 .philo-slot {
   position: relative;
   text-align: center;
-  min-height: 1.2em;
 }
 .philo-line {
   position: absolute;
@@ -752,18 +772,18 @@ function setupFinal(SplitType: any) {
 
 /* ─── NOW ─── */
 .s-now {
-  padding: clamp(100rem, 12vw, 200rem) clamp(40rem, 8vw, 160rem);
+  padding: clamp(100rem, 12vw, 200rem) clamp(40rem, 8vw, 140rem);
 }
 .now-inner {
-  max-width: 1400rem;
+  max-width: 1360rem;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: clamp(60rem, 8vw, 140rem);
+  gap: clamp(60rem, 8vw, 130rem);
   align-items: center;
 }
-.now-label { display: block; margin-bottom: 24rem; }
-.now-head-wrap { overflow: hidden; margin-bottom: clamp(24rem, 3vw, 40rem); }
+.now-label     { display: block; margin-bottom: 22rem; }
+.now-head-wrap { overflow: hidden; margin-bottom: clamp(22rem, 2.8vw, 38rem); }
 .now-body-wrap { overflow: hidden; }
 .now-photo {
   width: 100%;
@@ -783,36 +803,36 @@ function setupFinal(SplitType: any) {
   padding: clamp(60rem, 8vw, 120rem);
 }
 .final-inner {
-  max-width: 1200rem;
+  max-width: 1160rem;
   width: 100%;
   margin: 0 auto;
 }
-.final-head-block { margin-bottom: clamp(48rem, 6vw, 100rem); }
+.final-head-block { margin-bottom: clamp(44rem, 5.5vw, 92rem); }
 .final-line { display: block; }
 .final-care {
   color: transparent;
   -webkit-text-stroke: 2rem rgba(240,240,238,0.85);
 }
 .final-body {
-  margin-bottom: clamp(48rem, 6vw, 80rem);
+  margin-bottom: clamp(44rem, 5.5vw, 76rem);
   opacity: 0.7;
 }
 .final-sig {
   display: flex;
   flex-direction: column;
-  gap: 6rem;
-  margin-bottom: clamp(48rem, 6vw, 80rem);
-  font-size: clamp(13rem, 1.4vw, 17rem);
-  opacity: 0.4;
+  gap: 5rem;
+  margin-bottom: clamp(44rem, 5.5vw, 76rem);
+  font-size: clamp(12rem, 1.3vw, 16rem);
+  opacity: 0.38;
   font-weight: 400;
 }
 .final-cta-wrap { display: inline-block; }
 .final-cta {
   display: inline-block;
-  font-size: clamp(14rem, 1.5vw, 20rem);
+  font-size: clamp(13rem, 1.4vw, 19rem);
   font-weight: 500;
-  border: 1rem solid rgba(240,240,238,0.35);
-  padding: 16rem 36rem;
+  border: 1rem solid rgba(240,240,238,0.32);
+  padding: 14rem 32rem;
   border-radius: 999rem;
   text-decoration: none;
   color: inherit;
@@ -827,18 +847,19 @@ function setupFinal(SplitType: any) {
 
 /* ─── Mobile ─── */
 @media (max-width: 768px) {
-  .origin-inner  { grid-template-columns: 1fr; gap: clamp(48rem, 8vw, 80rem); }
-  .sewa-inner    { grid-template-columns: 1fr; }
-  .now-inner     { grid-template-columns: 1fr; }
-  .now-right     { order: -1; }
-  .now-photo     { aspect-ratio: 4/3; }
-  .name-display  { font-size: clamp(44rem, 13vw, 100rem); }
-  .philo-line    { white-space: normal; }
+  .origin-inner   { grid-template-columns: 1fr; gap: clamp(48rem, 8vw, 80rem); margin-bottom: clamp(60rem, 8vw, 100rem); }
+  .sewa-inner     { grid-template-columns: 1fr; }
+  .now-inner      { grid-template-columns: 1fr; }
+  .now-right      { order: -1; }
+  .now-photo      { aspect-ratio: 4/3; }
+  .name-display   { font-size: clamp(40rem, 12vw, 90rem); }
+  .name-caption   { white-space: normal; text-align: center; }
+  .philo-line     { white-space: normal; }
   .gif-frame--problem {
     position: static;
-    margin-bottom: clamp(32rem, 5vw, 56rem);
-    display: flex;
+    margin-bottom: clamp(28rem, 5vw, 48rem);
+    display: inline-flex;
   }
-  .gif-frame--problem .gif-img { max-width: 200rem; }
+  .discovery-inner { padding: 0 clamp(16rem, 4vw, 32rem); }
 }
 </style>

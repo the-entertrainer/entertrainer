@@ -88,7 +88,7 @@ onBeforeUnmount(() => {
 .about-wrap {
   min-height: 100dvh;
   background: var(--color-bg);
-  padding: calc(110rem + var(--safe-top)) 0 100rem;
+  padding: calc(96rem + var(--safe-top)) 0 80rem;
 }
 
 /* ─── Container ─── */
@@ -222,7 +222,7 @@ onBeforeUnmount(() => {
 
 /* ─── Mobile ─── */
 @media (max-width: 600px) {
-  .about-wrap { padding-top: calc(88rem + var(--safe-top)); }
+  .about-wrap { padding-top: calc(80rem + var(--safe-top)); }
   .about-container { padding: 0 20rem; }
 }
 </style>

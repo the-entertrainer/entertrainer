@@ -5,8 +5,8 @@
     <!-- OPENING -->
     <section ref="openingEl" class="opening">
       <div class="opening-inner">
-        <p ref="opening1El" class="opening-text">Most people teach information.</p>
-        <p ref="opening2El" class="opening-text opening-text--b">I teach what people <span ref="rememberEl" class="remember-word">remember</span>.</p>
+        <p ref="opening1El" class="opening-text">Most training is forgotten.</p>
+        <p ref="opening2El" class="opening-text opening-text--b">I build the part that <span ref="sticksEl" class="sticks-word">sticks</span>.</p>
       </div>
     </section>
 
@@ -22,7 +22,24 @@
         <div ref="nameCaptionBEl" class="name-caption name-caption--b">
           <span>Former hotelier.</span>
           <span>Accidental educator.</span>
-          <span>Professional curiosity collector.</span>
+          <span>Definitely knows where the extra towels are.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ORIGIN -->
+    <section ref="originEl" class="s-origin">
+      <div class="origin-inner">
+        <div class="origin-left">
+          <h2 ref="originHeadEl" class="display-lg origin-head">It started<br>in hotels.</h2>
+          <p ref="originBody1El" class="body-lg origin-body">Years of rooms, rosters, and guests with very specific opinions about pillow firmness. What I learned: people don't perform because they're told to. They perform because they <em>understand why</em>.</p>
+          <p ref="originBody2El" class="body-lg origin-body">When I moved into learning design, I brought that obsession with me. Not content. Not compliance. Behavior change.</p>
+        </div>
+        <div class="origin-right">
+          <div v-if="hotelGif" ref="originGifEl" class="gif-frame">
+            <img :src="hotelGif.url" :alt="hotelGif.title" class="gif-img" loading="lazy" />
+            <span class="gif-caption">circa hotel era</span>
+          </div>
         </div>
       </div>
     </section>
@@ -30,112 +47,44 @@
     <!-- THE PROBLEM -->
     <section ref="problemEl" class="s-problem">
       <div class="problem-inner">
-        <h2 ref="problemHeadEl" class="problem-head display-lg">Most training<br>is forgotten.</h2>
+        <div v-if="trainingGif" ref="problemGifEl" class="gif-frame gif-frame--problem">
+          <img :src="trainingGif.url" :alt="trainingGif.title" class="gif-img" loading="lazy" />
+          <span class="gif-caption">most corporate training, actually</span>
+        </div>
+        <h2 ref="problemHeadEl" class="display-lg problem-head">Then I saw<br>how companies<br>train people.</h2>
         <div ref="statsEl" class="problem-stats">
-          <p class="stat-line">People click.</p>
-          <p class="stat-line">People pass.</p>
-          <p class="stat-line">People forget.</p>
+          <p class="stat-line">Slides.</p>
+          <p class="stat-line">Clicks.</p>
+          <p class="stat-line">Sign here.</p>
+          <p class="stat-line stat-line--whisper">You're certified. Good luck.</p>
         </div>
         <div class="problem-mask-wrap">
-          <p ref="problemConclusionEl" class="problem-conclusion body-lg">But learning was never supposed to feel like paperwork.</p>
+          <p ref="problemConclusionEl" class="body-lg problem-conclusion">Learning was never supposed to feel like paperwork.</p>
         </div>
       </div>
     </section>
 
-    <!-- ORIGIN STORY -->
-    <section ref="originEl" class="s-origin">
-      <div class="origin-inner">
-        <div class="origin-left">
-          <h2 ref="originHeadEl" class="display-lg origin-head">It started in<br>hospitality.</h2>
-        </div>
-        <div class="origin-right">
-          <p ref="originBodyEl" class="body-lg origin-body">I spent years managing hotels — rooms, teams, guests, crises. Every day was a masterclass in human behavior. I learned that people don't follow procedures because they're told to. They follow them because they understand why.</p>
-          <p ref="originBody2El" class="body-lg origin-body">When I moved into learning design, I brought that obsession with me. Not content. Not compliance. Behavior change.</p>
-          <p ref="originBody3El" class="body-lg origin-body">That's the thread that runs through everything I build.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- TRANSFORMATION — horizontal scroll -->
-    <section ref="transformEl" class="s-transform">
-      <div ref="transformRailEl" class="transform-rail">
-        <div class="transform-panel tp-from">
-          <span class="tp-label label">The shift</span>
-          <span class="tp-word display-xl">FROM</span>
-        </div>
-        <div class="transform-panel tp-middle">
-          <span class="tp-service display-xl">SERVICE</span>
-          <span class="tp-arrow display-xl">→</span>
-          <span class="tp-to display-xl">TO</span>
-        </div>
-        <div class="transform-panel tp-stories">
-          <span class="tp-word display-xl">STORIES</span>
-        </div>
-        <div class="transform-panel tp-list">
-          <span class="label">Transforming</span>
-          <ul class="transform-list">
-            <li ref="tl1El">Policies</li>
-            <li ref="tl2El">Processes</li>
-            <li ref="tl3El">Systems</li>
-            <li ref="tl4El">Data</li>
-          </ul>
-          <span class="transform-list-tail body-lg">into experiences people actually remember.</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- THE WORK -->
-    <section ref="workEl" class="s-work">
-      <div class="work-morph">
-        <p ref="morphAEl" class="morph-text display-xl">I DON'T BUILD<br>COURSES.</p>
-        <p ref="morphBEl" class="morph-text display-xl">I BUILD<br>BEHAVIOR.</p>
-      </div>
-    </section>
-
-    <!-- KEYWORDS -->
-    <section class="s-keywords">
-      <div ref="keywordsEl" class="keywords-field">
-        <span
-          v-for="(kw, i) in keywords"
-          :key="kw.label"
-          :ref="(el) => { if (el) kwRefs[i] = el as HTMLElement }"
-          class="kw-pill"
-          :style="`--kx: ${kw.x}%; --ky: ${kw.y}%; --kr: ${kw.rot}deg; --kd: ${kw.dur}s;`"
-        >{{ kw.label }}</span>
-      </div>
-    </section>
-
-    <!-- SEWA CHRONICLES -->
+    <!-- THE SPARK — SEWA CHRONICLES -->
     <section ref="sewaEl" class="s-sewa">
       <div class="sewa-inner">
-        <div class="sewa-header">
-          <h2 class="display-lg sewa-title">The Sewa Chronicles</h2>
-          <p class="body-lg sewa-sub">A passion project. A life lesson in disguise.</p>
-        </div>
-        <div class="sewa-panels">
-          <div ref="sewaP1El" class="sewa-panel">
-            <span class="sp-issue label">Chapter 01</span>
-            <p class="sp-head">The School That Forgot to Teach</p>
-            <p class="sp-body">When NGO training became a design challenge.</p>
-          </div>
-          <div ref="sewaP2El" class="sewa-panel">
-            <span class="sp-issue label">Chapter 02</span>
-            <p class="sp-head">500 Volunteers. Zero Manuals.</p>
-            <p class="sp-body">Building learning from the ground up — in the field.</p>
-          </div>
-          <div ref="sewaP3El" class="sewa-panel">
-            <span class="sp-issue label">Chapter 03</span>
-            <p class="sp-head">What Stories Can Do</p>
-            <p class="sp-body">When the curriculum became the community.</p>
+        <div class="sewa-left">
+          <span class="label sewa-label">The Spark</span>
+          <h2 ref="sewaHeadEl" class="display-lg sewa-head">So I drew<br>a comic book.</h2>
+          <p ref="sewaBodyEl" class="body-lg sewa-body">At Mahindra Holidays, I hand-drew 10 real guest experience stories from our frontline teams — retro-comic panels, real people, real moments. We called it <em>The SEWA Chronicles</em>. It was highlighted at our Great Place to Work event.</p>
+          <div class="sewa-punch-wrap">
+            <p ref="sewaPunchEl" class="sewa-punch">Because stories land where manuals don't.</p>
           </div>
         </div>
-        <div class="sewa-caption-wrap">
-          <p ref="sewaCaptionEl" class="body-lg sewa-caption">Because stories teach better than manuals.</p>
+        <div class="sewa-right">
+          <div v-if="comicGif" ref="sewaGifEl" class="gif-frame gif-frame--lg">
+            <img :src="comicGif.url" :alt="comicGif.title" class="gif-img" loading="lazy" />
+            <span class="gif-caption">the sewa chronicles, energy-wise</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- PHILOSOPHY -->
+    <!-- PHILOSOPHY (pinned) -->
     <section ref="philoEl" class="s-philosophy">
       <div class="philo-inner">
         <div ref="philoSlotEl" class="philo-slot">
@@ -155,10 +104,10 @@
         <div class="now-left">
           <span class="label now-label">Currently</span>
           <div class="now-head-wrap">
-            <h2 ref="nowHeadEl" class="display-lg now-head">Building learning experiences at Concentrix.</h2>
+            <h2 ref="nowHeadEl" class="display-lg now-head">Building learning at Concentrix.</h2>
           </div>
           <div class="now-body-wrap">
-            <p ref="nowBodyEl" class="body-lg now-body">Transforming complex operational knowledge into interactive digital learning experiences for global teams.</p>
+            <p ref="nowBodyEl" class="body-lg now-body">Converting complex operational knowledge into digital learning experiences for global teams. Applying adult learning science to data that otherwise just sits in a spreadsheet.</p>
           </div>
         </div>
         <div class="now-right">
@@ -179,9 +128,7 @@
         </div>
         <div ref="finalSigEl" class="final-sig">
           <span>Naveen Jose</span>
-          <span>Instructional Designer</span>
-          <span>Learning Architect</span>
-          <span>Narrative Builder</span>
+          <span>Instructional Designer · Learning Architect · Narrative Builder</span>
         </div>
         <div ref="finalCtaEl" class="final-cta-wrap">
           <NuxtLink to="/contact" class="final-cta">Let's build something worth remembering →</NuxtLink>
@@ -197,63 +144,57 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const openingEl = ref<HTMLElement>()
-const opening1El = ref<HTMLElement>()
-const opening2El = ref<HTMLElement>()
-const rememberEl = ref<HTMLElement>()
-const nameEl = ref<HTMLElement>()
-const nameTextEl = ref<HTMLElement>()
-const nameCaptionAEl = ref<HTMLElement>()
-const nameCaptionBEl = ref<HTMLElement>()
-const problemEl = ref<HTMLElement>()
-const problemHeadEl = ref<HTMLElement>()
-const statsEl = ref<HTMLElement>()
-const problemConclusionEl = ref<HTMLElement>()
-const originEl = ref<HTMLElement>()
-const originHeadEl = ref<HTMLElement>()
-const originBodyEl = ref<HTMLElement>()
-const originBody2El = ref<HTMLElement>()
-const originBody3El = ref<HTMLElement>()
-const transformEl = ref<HTMLElement>()
-const transformRailEl = ref<HTMLElement>()
-const tl1El = ref<HTMLElement>()
-const tl2El = ref<HTMLElement>()
-const tl3El = ref<HTMLElement>()
-const tl4El = ref<HTMLElement>()
-const workEl = ref<HTMLElement>()
-const morphAEl = ref<HTMLElement>()
-const morphBEl = ref<HTMLElement>()
-const keywordsEl = ref<HTMLElement>()
-const kwRefs = ref<HTMLElement[]>([])
-const sewaEl = ref<HTMLElement>()
-const sewaP1El = ref<HTMLElement>()
-const sewaP2El = ref<HTMLElement>()
-const sewaP3El = ref<HTMLElement>()
-const sewaCaptionEl = ref<HTMLElement>()
-const philoEl = ref<HTMLElement>()
-const philoSlotEl = ref<HTMLElement>()
-const philoRefs = ref<HTMLElement[]>([])
-const nowEl = ref<HTMLElement>()
-const nowHeadEl = ref<HTMLElement>()
-const nowBodyEl = ref<HTMLElement>()
-const finalEl = ref<HTMLElement>()
-const finalLine1El = ref<HTMLElement>()
-const finalLine2El = ref<HTMLElement>()
-const finalBodyEl = ref<HTMLElement>()
-const finalSigEl = ref<HTMLElement>()
-const finalCtaEl = ref<HTMLElement>()
+// ── GIF data via server-side Giphy proxy ──────────────────────────────────
+const FALLBACK_GIFS = {
+  hotel:    { url: 'https://media.giphy.com/media/3o7qDERaa7T4UoLJnO/giphy.gif', title: 'Hotel receptionist' },
+  training: { url: 'https://media.giphy.com/media/cLGlV1RGONxKa71QDY/giphy.gif', title: 'Boring office training' },
+  comic:    { url: 'https://media.giphy.com/media/xT9DPErFASWkKCaAJW/giphy.gif', title: 'Vintage comic book' },
+}
 
-const keywords = [
-  { label: 'Storyline 360', x: 8,  y: 12, rot: -3,  dur: 6.2 },
-  { label: 'SCORM',         x: 28, y: 6,  rot: 2,   dur: 5.1 },
-  { label: 'Vyond',         x: 55, y: 18, rot: -1,  dur: 7.0 },
-  { label: 'After Effects', x: 72, y: 8,  rot: 3,   dur: 5.8 },
-  { label: 'Canva',         x: 88, y: 22, rot: -2,  dur: 6.5 },
-  { label: 'Adult Learning', x: 15, y: 55, rot: 1,  dur: 4.9 },
-  { label: 'Storyboarding', x: 42, y: 62, rot: -4,  dur: 7.3 },
-  { label: 'Microlearning', x: 65, y: 50, rot: 2,   dur: 5.5 },
-  { label: 'Exp. Design',   x: 82, y: 68, rot: -1,  dur: 6.8 },
-]
+const { data: hotelData }    = useFetch('/api/giphy', { query: { q: 'hotel receptionist funny vintage', limit: 1 }, server: false })
+const { data: trainingData } = useFetch('/api/giphy', { query: { q: 'boring presentation office sleep', limit: 1 }, server: false })
+const { data: comicData }    = useFetch('/api/giphy', { query: { q: 'vintage comic book retro pow', limit: 1 }, server: false })
+
+const hotelGif    = computed(() => (hotelData.value?.items?.length    ? hotelData.value.items[0]    : FALLBACK_GIFS.hotel))
+const trainingGif = computed(() => (trainingData.value?.items?.length ? trainingData.value.items[0] : FALLBACK_GIFS.training))
+const comicGif    = computed(() => (comicData.value?.items?.length    ? comicData.value.items[0]    : FALLBACK_GIFS.comic))
+
+// ── Refs ──────────────────────────────────────────────────────────────────
+const openingEl           = ref<HTMLElement>()
+const opening1El          = ref<HTMLElement>()
+const opening2El          = ref<HTMLElement>()
+const sticksEl            = ref<HTMLElement>()
+const nameEl              = ref<HTMLElement>()
+const nameTextEl          = ref<HTMLElement>()
+const nameCaptionAEl      = ref<HTMLElement>()
+const nameCaptionBEl      = ref<HTMLElement>()
+const originEl            = ref<HTMLElement>()
+const originHeadEl        = ref<HTMLElement>()
+const originBody1El       = ref<HTMLElement>()
+const originBody2El       = ref<HTMLElement>()
+const originGifEl         = ref<HTMLElement>()
+const problemEl           = ref<HTMLElement>()
+const problemHeadEl       = ref<HTMLElement>()
+const statsEl             = ref<HTMLElement>()
+const problemConclusionEl = ref<HTMLElement>()
+const problemGifEl        = ref<HTMLElement>()
+const sewaEl              = ref<HTMLElement>()
+const sewaHeadEl          = ref<HTMLElement>()
+const sewaBodyEl          = ref<HTMLElement>()
+const sewaPunchEl         = ref<HTMLElement>()
+const sewaGifEl           = ref<HTMLElement>()
+const philoEl             = ref<HTMLElement>()
+const philoSlotEl         = ref<HTMLElement>()
+const philoRefs           = ref<HTMLElement[]>([])
+const nowEl               = ref<HTMLElement>()
+const nowHeadEl           = ref<HTMLElement>()
+const nowBodyEl           = ref<HTMLElement>()
+const finalEl             = ref<HTMLElement>()
+const finalLine1El        = ref<HTMLElement>()
+const finalLine2El        = ref<HTMLElement>()
+const finalBodyEl         = ref<HTMLElement>()
+const finalSigEl          = ref<HTMLElement>()
+const finalCtaEl          = ref<HTMLElement>()
 
 const philosophySentences = [
   'Learning is not information.',
@@ -277,11 +218,8 @@ onMounted(async () => {
 
   setupOpening(SplitType)
   setupName(SplitType)
-  setupProblem(SplitType)
   setupOrigin()
-  setupTransform()
-  setupWork(SplitType)
-  setupKeywords()
+  setupProblem(SplitType)
   setupSewa()
   setupPhilosophy(SplitType)
   setupNow()
@@ -318,34 +256,21 @@ function setupOpening(SplitType: any) {
     }
   })
 
-  tl.to(split1.chars, {
-    opacity: 1, y: 0, filter: 'blur(0px)',
-    stagger: 0.03, ease: 'power2.out',
-  }, 0)
+  tl.to(split1.chars, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: 0.03, ease: 'power2.out' }, 0)
+  tl.to(split1.chars, { opacity: 0, y: -12, stagger: 0.015, ease: 'power2.in' }, 0.5)
+  tl.to(split2.chars, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: 0.025, ease: 'power2.out' }, 0.55)
 
-  tl.to(split1.chars, {
-    opacity: 0, y: -12,
-    stagger: 0.015, ease: 'power2.in',
-  }, 0.5)
-
-  tl.to(split2.chars, {
-    opacity: 1, y: 0, filter: 'blur(0px)',
-    stagger: 0.025, ease: 'power2.out',
-  }, 0.55)
-
-  const rememberNode = rememberEl.value
-  if (rememberNode && split2.chars) {
-    const rememberChars = split2.chars.filter((c: HTMLElement) => rememberNode.contains(c))
-    if (rememberChars.length) {
-      tl.to(rememberChars, {
-        x: (i: number) => (i - rememberChars.length / 2) * 6,
-        scaleY: 1.08,
-        filter: 'blur(1px)',
+  const sticksNode = sticksEl.value
+  if (sticksNode && split2.chars) {
+    const sticksChars = split2.chars.filter((c: HTMLElement) => sticksNode.contains(c))
+    if (sticksChars.length) {
+      tl.to(sticksChars, {
+        x: (i: number) => (i - sticksChars.length / 2) * 6,
+        scaleY: 1.08, filter: 'blur(1px)',
         textShadow: '0 0 18px rgba(240,240,238,0.55)',
-        stagger: 0.04,
-        ease: 'power1.out',
+        stagger: 0.04, ease: 'power1.out',
       }, 0.82)
-      tl.to(rememberChars, {
+      tl.to(sticksChars, {
         x: 0, scaleY: 1, filter: 'blur(0px)',
         textShadow: '0 0 0px rgba(240,240,238,0)',
         stagger: 0.02, ease: 'power2.inOut',
@@ -377,20 +302,37 @@ function setupName(SplitType: any) {
     }
   })
 
-  tl.to(split.chars, {
-    x: (i: number) => xs[i],
-    opacity: 0.08,
-    stagger: 0.04,
-    ease: 'power2.inOut',
-  }, 0)
-
+  tl.to(split.chars, { x: (i: number) => xs[i], opacity: 0.08, stagger: 0.04, ease: 'power2.inOut' }, 0)
   tl.to(nameCaptionAEl.value!, { opacity: 1, y: 0, ease: 'power2.out' }, 0.45)
   tl.to(nameCaptionAEl.value!, { opacity: 0, y: -10, ease: 'power2.in' }, 0.7)
   tl.to(nameCaptionBEl.value!, { opacity: 1, y: 0, ease: 'power2.out' }, 0.72)
 }
 
+function setupOrigin() {
+  if (!originEl.value || !originHeadEl.value) return
+
+  gsap.set(originHeadEl.value, { opacity: 0, y: 40 })
+  if (originBody1El.value) gsap.set(originBody1El.value, { opacity: 0, y: 30 })
+  if (originBody2El.value) gsap.set(originBody2El.value, { opacity: 0, y: 30 })
+  if (originGifEl.value) gsap.set(originGifEl.value, { opacity: 0, y: 40, rotate: 3 })
+
+  ScrollTrigger.create({
+    trigger: originEl.value,
+    start: 'top 60%',
+    once: true,
+    onEnter: () => {
+      gsap.to(originHeadEl.value!, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' })
+      if (originBody1El.value) gsap.to(originBody1El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.2 })
+      if (originBody2El.value) gsap.to(originBody2El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.35 })
+      if (originGifEl.value) gsap.to(originGifEl.value, { opacity: 1, y: 0, rotate: 3, duration: 1.3, ease: 'power3.out', delay: 0.5 })
+    }
+  })
+}
+
 function setupProblem(SplitType: any) {
   if (!problemEl.value || !problemHeadEl.value || !statsEl.value) return
+
+  if (problemGifEl.value) gsap.set(problemGifEl.value, { opacity: 0, y: 20, rotate: -3 })
 
   const splitHead = new SplitType(problemHeadEl.value, { types: 'words' })
   gsap.set(splitHead.words, { opacity: 0, y: 60 })
@@ -400,10 +342,8 @@ function setupProblem(SplitType: any) {
     start: 'top 65%',
     once: true,
     onEnter: () => {
-      gsap.to(splitHead.words, {
-        opacity: 1, y: 0,
-        stagger: 0.07, duration: 0.9, ease: 'power3.out',
-      })
+      if (problemGifEl.value) gsap.to(problemGifEl.value, { opacity: 1, y: 0, rotate: -3, duration: 1.1, ease: 'power3.out' })
+      gsap.to(splitHead.words, { opacity: 1, y: 0, stagger: 0.07, duration: 0.9, ease: 'power3.out', delay: 0.15 })
     }
   })
 
@@ -414,10 +354,7 @@ function setupProblem(SplitType: any) {
     start: 'top 65%',
     once: true,
     onEnter: () => {
-      gsap.to(statLines, {
-        opacity: 1, x: 0,
-        stagger: 0.12, duration: 0.7, ease: 'power3.out',
-      })
+      gsap.to(statLines, { opacity: 1, x: 0, stagger: 0.12, duration: 0.7, ease: 'power3.out' })
     }
   })
 
@@ -428,180 +365,37 @@ function setupProblem(SplitType: any) {
       start: 'top 70%',
       once: true,
       onEnter: () => {
-        gsap.to(problemConclusionEl.value!, {
-          y: '0%', duration: 1.0, ease: 'power3.out',
-        })
+        gsap.to(problemConclusionEl.value!, { y: '0%', duration: 1.0, ease: 'power3.out' })
       }
     })
   }
 }
 
-function setupOrigin() {
-  if (!originEl.value || !originHeadEl.value) return
-
-  const lines = originEl.value.querySelectorAll('.origin-body')
-  gsap.set(originHeadEl.value, { opacity: 0, y: 40 })
-  gsap.set(lines, { opacity: 0, y: 30 })
-
-  ScrollTrigger.create({
-    trigger: originEl.value,
-    start: 'top 60%',
-    once: true,
-    onEnter: () => {
-      gsap.to(originHeadEl.value!, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' })
-      gsap.to(lines, { opacity: 1, y: 0, stagger: 0.15, duration: 0.9, ease: 'power3.out', delay: 0.2 })
-    }
-  })
-}
-
-function setupTransform() {
-  if (!transformEl.value || !transformRailEl.value) return
-
-  const rail = transformRailEl.value
-
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: transformEl.value,
-      start: 'top top',
-      end: () => `+=${rail.scrollWidth - window.innerWidth + 200}`,
-      pin: true,
-      scrub: 1.2,
-      anticipatePin: 1,
-      invalidateOnRefresh: true,
-    }
-  })
-
-  tl.to(rail, {
-    x: () => -(rail.scrollWidth - window.innerWidth),
-    ease: 'none',
-  })
-
-  const listItems = [tl1El.value, tl2El.value, tl3El.value, tl4El.value].filter(Boolean) as HTMLElement[]
-  gsap.set(listItems, { opacity: 0, y: 30 })
-  ScrollTrigger.create({
-    trigger: tl4El.value,
-    containerAnimation: tl,
-    start: 'left 80%',
-    once: true,
-    onEnter: () => {
-      gsap.to(listItems, { opacity: 1, y: 0, stagger: 0.12, duration: 0.7, ease: 'power3.out' })
-    }
-  })
-}
-
-function setupWork(SplitType: any) {
-  if (!workEl.value || !morphAEl.value || !morphBEl.value) return
-
-  const splitA = new SplitType(morphAEl.value, { types: 'chars' })
-  const splitB = new SplitType(morphBEl.value, { types: 'chars' })
-
-  gsap.set(splitB.chars, { opacity: 0, filter: 'blur(12px)', y: 10 })
-
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: workEl.value,
-      start: 'top top',
-      end: '+=200%',
-      pin: true,
-      scrub: 1.2,
-    }
-  })
-
-  tl.to(splitA.chars, {
-    opacity: 0, filter: 'blur(12px)', y: -10,
-    stagger: 0.02, ease: 'power2.in',
-  }, 0.35)
-
-  tl.to(splitB.chars, {
-    opacity: 1, filter: 'blur(0px)', y: 0,
-    stagger: 0.025, ease: 'power2.out',
-  }, 0.5)
-}
-
-function setupKeywords() {
-  if (!kwRefs.value.length) return
-
-  kwRefs.value.forEach((el) => {
-    if (!el) return
-    const xTo = gsap.quickTo(el, 'x', { duration: 0.4, ease: 'power3.out' })
-    const yTo = gsap.quickTo(el, 'y', { duration: 0.4, ease: 'power3.out' })
-
-    el.addEventListener('mousemove', (e: MouseEvent) => {
-      const rect = el.getBoundingClientRect()
-      xTo((e.clientX - (rect.left + rect.width / 2)) * 0.35)
-      yTo((e.clientY - (rect.top + rect.height / 2)) * 0.35)
-    })
-    el.addEventListener('mouseleave', () => {
-      xTo(0)
-      yTo(0)
-    })
-
-    gsap.set(el, { opacity: 0, scale: 0.85 })
-  })
-
-  if (!keywordsEl.value) return
-  ScrollTrigger.create({
-    trigger: keywordsEl.value,
-    start: 'top 70%',
-    once: true,
-    onEnter: () => {
-      gsap.to(kwRefs.value, {
-        opacity: 1, scale: 1,
-        stagger: 0.07, duration: 0.8, ease: 'power3.out',
-      })
-    }
-  })
-}
-
 function setupSewa() {
   if (!sewaEl.value) return
 
-  const panels = [sewaP1El.value, sewaP2El.value, sewaP3El.value]
-  const froms = [
-    { x: -60, y: 0, opacity: 0 },
-    { x: 0, y: 40, opacity: 0 },
-    { x: 60, y: 0, opacity: 0 },
-  ]
-
-  panels.forEach((p, i) => {
-    if (!p) return
-    gsap.set(p, froms[i])
-  })
+  if (sewaHeadEl.value) gsap.set(sewaHeadEl.value, { opacity: 0, y: 40 })
+  if (sewaBodyEl.value) gsap.set(sewaBodyEl.value, { opacity: 0, y: 30 })
+  if (sewaPunchEl.value) gsap.set(sewaPunchEl.value, { y: '100%' })
+  if (sewaGifEl.value) gsap.set(sewaGifEl.value, { opacity: 0, y: 50, rotate: 4 })
 
   ScrollTrigger.create({
     trigger: sewaEl.value,
     start: 'top 65%',
     once: true,
     onEnter: () => {
-      panels.forEach((p, i) => {
-        if (!p) return
-        gsap.to(p, {
-          x: 0, y: 0, opacity: 1,
-          duration: 1.0, ease: 'power3.out',
-          delay: i * 0.15,
-        })
-      })
+      if (sewaHeadEl.value) gsap.to(sewaHeadEl.value, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' })
+      if (sewaBodyEl.value) gsap.to(sewaBodyEl.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.2 })
+      if (sewaPunchEl.value) gsap.to(sewaPunchEl.value, { y: '0%', duration: 1.0, ease: 'power3.out', delay: 0.4 })
+      if (sewaGifEl.value) gsap.to(sewaGifEl.value, { opacity: 1, y: 0, rotate: 4, duration: 1.4, ease: 'power3.out', delay: 0.55 })
     }
   })
-
-  if (sewaCaptionEl.value) {
-    gsap.set(sewaCaptionEl.value, { y: '100%' })
-    ScrollTrigger.create({
-      trigger: sewaCaptionEl.value,
-      start: 'top 80%',
-      once: true,
-      onEnter: () => {
-        gsap.to(sewaCaptionEl.value!, { y: '0%', duration: 1.0, ease: 'power3.out' })
-      }
-    })
-  }
 }
 
 function setupPhilosophy(SplitType: any) {
   if (!philoEl.value || !philoRefs.value.length) return
 
   const splits = philoRefs.value.map((el: HTMLElement) => new SplitType(el, { types: 'chars' }))
-
   splits.forEach((s: any) => {
     if (s.chars) gsap.set(s.chars, { opacity: 0, filter: 'blur(8px)', y: -10 })
   })
@@ -617,21 +411,14 @@ function setupPhilosophy(SplitType: any) {
   })
 
   const step = 1 / philosophySentences.length
-
   philosophySentences.forEach((_, i) => {
     const inStart = i * step
     const holdEnd = inStart + step * 0.65
 
-    tl.to(splits[i].chars!, {
-      opacity: 1, filter: 'blur(0px)', y: 0,
-      stagger: 0.02, ease: 'power2.out',
-    }, inStart)
+    tl.to(splits[i].chars!, { opacity: 1, filter: 'blur(0px)', y: 0, stagger: 0.02, ease: 'power2.out' }, inStart)
 
     if (i < philosophySentences.length - 1) {
-      tl.to(splits[i].chars!, {
-        opacity: 0, filter: 'blur(8px)', y: -10,
-        stagger: 0.015, ease: 'power2.in',
-      }, holdEnd)
+      tl.to(splits[i].chars!, { opacity: 0, filter: 'blur(8px)', y: -10, stagger: 0.015, ease: 'power2.in' }, holdEnd)
     }
   })
 }
@@ -670,15 +457,8 @@ function setupFinal(SplitType: any) {
     once: true,
     onEnter: () => {
       const tl = gsap.timeline()
-      tl.to(split1.chars!, {
-        opacity: 1, scale: 1, filter: 'blur(0px)',
-        stagger: 0.04, duration: 0.8, ease: 'power3.out',
-      })
-      tl.to(split2.chars!, {
-        opacity: 1, scale: 1, filter: 'blur(0px)',
-        textShadow: '0 0 30px rgba(240,240,238,0.3)',
-        stagger: 0.04, duration: 0.8, ease: 'power3.out',
-      }, '-=0.4')
+      tl.to(split1.chars!, { opacity: 1, scale: 1, filter: 'blur(0px)', stagger: 0.04, duration: 0.8, ease: 'power3.out' })
+      tl.to(split2.chars!, { opacity: 1, scale: 1, filter: 'blur(0px)', textShadow: '0 0 30px rgba(240,240,238,0.3)', stagger: 0.04, duration: 0.8, ease: 'power3.out' }, '-=0.4')
       if (finalBodyEl.value) tl.to(finalBodyEl.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, '-=0.2')
       if (finalSigEl.value) tl.to(finalSigEl.value, { opacity: 1, duration: 0.7, ease: 'power2.out' }, '-=0.2')
       if (finalCtaEl.value) tl.to(finalCtaEl.value, { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.7)' }, '-=0.1')
@@ -748,6 +528,45 @@ function setupFinal(SplitType: any) {
   opacity: 0.45;
 }
 
+/* ─── GIF FRAMES — polaroid-style ─── */
+.gif-frame {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0;
+  background: #f5f0e8;
+  padding: 10rem 10rem 38rem;
+  box-shadow: 0 28px 80px rgba(0,0,0,0.7), 0 6px 20px rgba(0,0,0,0.35);
+  position: relative;
+  will-change: transform;
+}
+.gif-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 260rem;
+}
+.gif-frame--lg .gif-img { max-width: 320rem; }
+.gif-caption {
+  position: absolute;
+  bottom: 10rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 10rem;
+  font-family: 'Courier New', monospace;
+  color: #888;
+  letter-spacing: 0.02em;
+}
+
+/* Problem GIF is absolutely positioned top-right */
+.gif-frame--problem {
+  position: absolute;
+  top: clamp(40rem, 5vw, 80rem);
+  right: clamp(40rem, 6vw, 120rem);
+  z-index: 2;
+}
+.gif-frame--problem .gif-img { max-width: 220rem; }
+
 /* ─── OPENING ─── */
 .opening {
   min-height: 100svh;
@@ -770,7 +589,7 @@ function setupFinal(SplitType: any) {
   color: #F0F0EE;
   font-weight: 600;
 }
-.remember-word { color: #F0F0EE; }
+.sticks-word { color: #F0F0EE; }
 
 /* ─── NAME ─── */
 .s-name {
@@ -806,24 +625,6 @@ function setupFinal(SplitType: any) {
 }
 .name-caption--b { margin-top: 80rem; }
 
-/* ─── PROBLEM ─── */
-.s-problem {
-  padding: clamp(120rem, 15vw, 240rem) clamp(40rem, 8vw, 160rem);
-}
-.problem-inner { max-width: 1200rem; margin: 0 auto; }
-.problem-head { margin-bottom: clamp(60rem, 8vw, 120rem); }
-.problem-stats { margin-bottom: clamp(80rem, 10vw, 160rem); }
-.stat-line {
-  font-size: clamp(32rem, 4.5vw, 80rem);
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  border-bottom: 1rem solid rgba(240,240,238,0.1);
-  padding: 16rem 0;
-}
-.problem-mask-wrap { overflow: hidden; }
-.problem-conclusion { max-width: 720rem; }
-
 /* ─── ORIGIN ─── */
 .s-origin {
   padding: clamp(100rem, 12vw, 200rem) clamp(40rem, 8vw, 160rem);
@@ -833,164 +634,89 @@ function setupFinal(SplitType: any) {
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: clamp(60rem, 8vw, 160rem);
-  align-items: start;
+  gap: clamp(60rem, 8vw, 120rem);
+  align-items: center;
 }
-.origin-head { position: sticky; top: clamp(80rem, 10vw, 160rem); }
-.origin-body { margin-bottom: clamp(24rem, 3vw, 40rem); }
+.origin-head {
+  margin-bottom: clamp(32rem, 4vw, 56rem);
+}
+.origin-body {
+  margin-bottom: clamp(20rem, 2.5vw, 32rem);
+}
 .origin-body:last-child { margin-bottom: 0; }
-
-/* ─── TRANSFORM ─── */
-.s-transform {
-  min-height: 100svh;
-  overflow: hidden;
-}
-.transform-rail {
+.origin-body em { font-style: italic; }
+.origin-right {
   display: flex;
-  align-items: center;
-  width: max-content;
-  height: 100svh;
-}
-.transform-panel {
-  width: 100vw;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  padding: clamp(40rem, 6vw, 100rem);
-}
-.tp-label { margin-bottom: 32rem; }
-.tp-word, .tp-service, .tp-to {
-  font-size: clamp(72rem, 12vw, 220rem);
-  font-weight: 900;
-  line-height: 0.85;
-  letter-spacing: -0.04em;
-}
-.tp-middle {
-  flex-direction: row;
-  gap: clamp(28rem, 3.5vw, 70rem);
   align-items: center;
-}
-.tp-arrow {
-  font-size: clamp(40rem, 6vw, 100rem);
-  font-weight: 300;
-  opacity: 0.4;
-}
-.transform-list {
-  list-style: none;
-  padding: 0;
-  margin: 24rem 0 32rem;
-}
-.transform-list li {
-  font-size: clamp(36rem, 5vw, 90rem);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  border-bottom: 1rem solid rgba(240,240,238,0.12);
-  padding: 12rem 0;
-}
-.transform-list-tail {
-  opacity: 0.5;
-  max-width: 480rem;
-}
-.tp-list { align-items: flex-start; }
-
-/* ─── WORK ─── */
-.s-work {
-  min-height: 100svh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(60rem, 8vw, 120rem);
-}
-.work-morph {
-  position: relative;
-  text-align: center;
-  width: 100%;
-}
-.morph-text {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  width: 100%;
-}
-.morph-text:last-child {
-  position: absolute;
-  inset: 0;
 }
 
-/* ─── KEYWORDS ─── */
-.s-keywords {
-  min-height: 80svh;
+/* ─── PROBLEM ─── */
+.s-problem {
   position: relative;
-  padding: clamp(60rem, 8vw, 120rem) clamp(40rem, 6vw, 100rem);
+  padding: clamp(120rem, 15vw, 240rem) clamp(40rem, 8vw, 160rem);
 }
-.keywords-field {
-  position: relative;
-  height: 60svh;
-  min-height: 400rem;
+.problem-inner {
+  max-width: 900rem;
 }
-.kw-pill {
-  position: absolute;
-  left: var(--kx);
-  top: var(--ky);
-  transform: rotate(var(--kr)) translate(-50%, -50%);
-  font-size: clamp(13rem, 1.4vw, 19rem);
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  border: 1rem solid rgba(240,240,238,0.22);
-  padding: 10rem 20rem;
-  border-radius: 999rem;
-  cursor: default;
-  white-space: nowrap;
-  animation: float var(--kd) ease-in-out infinite alternate;
-  user-select: none;
+.problem-head { margin-bottom: clamp(60rem, 8vw, 120rem); }
+.problem-stats { margin-bottom: clamp(80rem, 10vw, 140rem); }
+.stat-line {
+  font-size: clamp(32rem, 4.5vw, 80rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  border-bottom: 1rem solid rgba(240,240,238,0.1);
+  padding: 16rem 0;
 }
-@keyframes float {
-  from { transform: rotate(var(--kr)) translate(-50%, -50%) translateY(0); }
-  to   { transform: rotate(var(--kr)) translate(-50%, -50%) translateY(-12rem); }
+.stat-line--whisper {
+  opacity: 0.35;
+  font-weight: 400;
+  font-size: clamp(18rem, 2.2vw, 36rem);
+  font-style: italic;
+}
+.problem-mask-wrap { overflow: hidden; }
+.problem-conclusion {
+  max-width: 680rem;
+  font-style: italic;
+  opacity: 0.75;
 }
 
 /* ─── SEWA ─── */
 .s-sewa {
   padding: clamp(100rem, 12vw, 200rem) clamp(40rem, 8vw, 160rem);
+  background: rgba(240,240,238,0.018);
 }
-.sewa-inner { max-width: 1400rem; margin: 0 auto; }
-.sewa-header { margin-bottom: clamp(60rem, 8vw, 120rem); }
-.sewa-title { margin-bottom: 16rem; }
-.sewa-sub { opacity: 0.55; }
-.sewa-panels {
+.sewa-inner {
+  max-width: 1400rem;
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(16rem, 2vw, 32rem);
-  margin-bottom: clamp(60rem, 8vw, 100rem);
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(60rem, 8vw, 120rem);
+  align-items: center;
 }
-.sewa-panel {
-  border: 2rem solid rgba(240,240,238,0.2);
-  padding: clamp(32rem, 4vw, 60rem);
-  aspect-ratio: 3/4;
+.sewa-label { display: block; margin-bottom: 20rem; }
+.sewa-head { margin-bottom: clamp(28rem, 3.5vw, 48rem); }
+.sewa-body {
+  margin-bottom: clamp(28rem, 3.5vw, 48rem);
+  max-width: 580rem;
+}
+.sewa-body em { font-style: italic; }
+.sewa-punch-wrap { overflow: hidden; }
+.sewa-punch {
+  font-size: clamp(17rem, 1.9vw, 26rem);
+  font-weight: 600;
+  font-style: italic;
+  opacity: 0.7;
+  border-left: 3rem solid rgba(240,240,238,0.35);
+  padding-left: 20rem;
+  line-height: 1.45;
+}
+.sewa-right {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  background: rgba(240,240,238,0.02);
+  justify-content: center;
+  align-items: center;
 }
-.sp-issue { margin-bottom: 24rem; display: block; }
-.sp-head {
-  font-size: clamp(18rem, 2vw, 28rem);
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 12rem;
-}
-.sp-body {
-  font-size: clamp(13rem, 1.3vw, 16rem);
-  opacity: 0.55;
-  line-height: 1.55;
-}
-.sewa-caption-wrap { overflow: hidden; }
-.sewa-caption { font-style: italic; opacity: 0.65; }
 
 /* ─── PHILOSOPHY ─── */
 .s-philosophy {
@@ -1074,10 +800,10 @@ function setupFinal(SplitType: any) {
 .final-sig {
   display: flex;
   flex-direction: column;
-  gap: 4rem;
+  gap: 6rem;
   margin-bottom: clamp(48rem, 6vw, 80rem);
   font-size: clamp(13rem, 1.4vw, 17rem);
-  opacity: 0.45;
+  opacity: 0.4;
   font-weight: 400;
 }
 .final-cta-wrap { display: inline-block; }
@@ -1101,15 +827,18 @@ function setupFinal(SplitType: any) {
 
 /* ─── Mobile ─── */
 @media (max-width: 768px) {
-  .origin-inner { grid-template-columns: 1fr; gap: clamp(40rem, 8vw, 80rem); }
-  .origin-head { position: static; }
-  .now-inner { grid-template-columns: 1fr; }
-  .now-right { order: -1; }
-  .now-photo { aspect-ratio: 4/3; }
-  .sewa-panels { grid-template-columns: 1fr; }
-  .sewa-panel { aspect-ratio: auto; min-height: 280rem; }
-  .name-display { font-size: clamp(44rem, 13vw, 100rem); }
-  .philo-line { white-space: normal; }
-  .tp-middle { flex-wrap: wrap; justify-content: center; }
+  .origin-inner  { grid-template-columns: 1fr; gap: clamp(48rem, 8vw, 80rem); }
+  .sewa-inner    { grid-template-columns: 1fr; }
+  .now-inner     { grid-template-columns: 1fr; }
+  .now-right     { order: -1; }
+  .now-photo     { aspect-ratio: 4/3; }
+  .name-display  { font-size: clamp(44rem, 13vw, 100rem); }
+  .philo-line    { white-space: normal; }
+  .gif-frame--problem {
+    position: static;
+    margin-bottom: clamp(32rem, 5vw, 56rem);
+    display: flex;
+  }
+  .gif-frame--problem .gif-img { max-width: 200rem; }
 }
 </style>

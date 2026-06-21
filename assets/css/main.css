@@ -795,11 +795,14 @@ canvas {
 }
 
 /* ============================================================
-   About page — ghost chrome while reading narrative
-   Set by pages/about/index.vue via data-about on <html>.
-   Elements fade to near-invisible so they don't compete with
-   the story; hover fully restores them.
+   About page — body background + ghost chrome
+   data-about is set on <html> by pages/about/index.vue.
    ============================================================ */
+
+/* Force dark body so there's no light flash around the edges */
+html[data-about] body {
+  background: #0C0E14;
+}
 html[data-about] .logo-wrapper {
   opacity: 0.14;
   transition: opacity 0.7s ease;

@@ -313,14 +313,13 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* ── Root ─────────────────────────────────────────────────────────────────── */
+/* ── Root — always dark regardless of system theme ─────────────────────── */
 .fn {
   position: relative;
   width: 100%;
   background: #0C0E14;
   color: #FAFAF8;
 }
-[data-theme="light"] .fn { background: #FAFAF8; color: #111111; }
 
 .fn-atmos {
   position: fixed;
@@ -407,9 +406,8 @@ onBeforeUnmount(() => {
 .t-deva { font-family: 'Noto Sans Devanagari', serif; font-size: clamp(40rem, 8vw, 112rem); font-weight: 600; letter-spacing: 0; line-height: 1.3; }
 .t-sig  { font-size: clamp(24rem, 3.4vw, 46rem);  font-weight: 500; font-style: italic; opacity: 0.78; }
 
-/* accent — Pi Blue brand signal (legible per theme) */
+/* accent — Pi Blue brand signal; page is always dark so white text + blue glow */
 .is-accent { position: relative; }
-[data-theme="light"] .is-accent { color: #243F6A; }
 .fn .is-accent .fn-beat-text {
   text-shadow: 0 0 60rem rgba(36, 63, 106, 0.55);
 }
@@ -428,8 +426,6 @@ onBeforeUnmount(() => {
 
 /* antithesis pairing */
 .fx-from { opacity: 0.5; color: #8C8C8C; }
-.fx-to   { }
-[data-theme="light"] .fx-to { color: #243F6A; }
 .fn .fx-to .fn-beat-text { text-shadow: 0 0 50rem rgba(36, 63, 106, 0.5); }
 
 /* split-type chars must be inline-block to transform */
@@ -531,9 +527,17 @@ onBeforeUnmount(() => {
 
 /* ── Mobile tuning ────────────────────────────────────────────────────────── */
 @media (max-width: 767px) {
-  .fn-beat { max-width: 16ch; }
-  .fn-thought, .fn-thought--placeholder { width: calc(120rem * var(--scale, 1)); }
-  .fn-thought--placeholder { height: calc(84rem * var(--scale, 1)); font-size: 12rem; }
+  /* GIFs use desktop anchor coords that overlap mobile text — hide them */
+  .fn-thoughts { display: none; }
+
+  /* Let beat text fill the available width naturally */
+  .fn-beat { max-width: 100%; }
+
+  /* Hero beats like "HOUSEKEEPER." need to fit a ~340px content column */
+  .t-hero { font-size: clamp(34rem, 8.5vw, 64rem); letter-spacing: -0.05em; }
+  /* xl beats also tighten so they don't crowd */
+  .t-xl   { font-size: clamp(36rem, 7.5vw, 96rem); }
+
   .fn-eyebrow { top: 90rem; }
 }
 

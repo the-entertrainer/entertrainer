@@ -5,7 +5,7 @@
     <!-- OPENING -->
     <section ref="openingEl" class="s-opening">
       <div class="opening-inner">
-        <p ref="opening1El" class="opening-line">This wasn't planned.</p>
+        <p ref="opening1El" class="opening-line">Finding Instructional design as a career was not planned.</p>
         <p ref="opening2El" class="opening-line opening-line--b">It was a <span ref="discoveryWordEl" class="discovery-word">discovery</span>.</p>
       </div>
     </section>
@@ -15,14 +15,10 @@
       <div class="name-inner">
         <h1 ref="nameTextEl" class="name-display">NAVEEN JOSE</h1>
         <div ref="nameCaptionAEl" class="name-caption">
-          <span>Instructional Designer.</span>
-          <span>Learning Architect.</span>
-          <span>Entertrainer.</span>
+          I am Naveen.
         </div>
         <div ref="nameCaptionBEl" class="name-caption name-caption--b">
-          <span>Former housekeeper.</span>
-          <span>Towel art enthusiast.</span>
-          <span>Accidental L&amp;D convert.</span>
+          I'm an instructional designer.
         </div>
       </div>
     </section>
@@ -31,9 +27,9 @@
     <section ref="originEl" class="s-origin">
       <div class="origin-inner">
         <div class="origin-left">
-          <h2 ref="originHeadEl" class="display-lg origin-head">I used to<br>make beds.</h2>
-          <p ref="originBody1El" class="body-lg origin-body">Clean rooms. Make towel art. <em>(Fun stuff, eh.)</em> Make them look decorative, arranged, and beautiful. At Marriott International and Club Mahindra. That was the start.</p>
-          <p ref="originBody2El" class="body-lg origin-body">What I didn't know yet: learning how people move through beautiful spaces was quietly teaching me something much bigger. Environment is instruction. Every detail is a decision.</p>
+          <h2 ref="originHeadEl" class="display-lg origin-head">I started my career<br>in the hotel industry.</h2>
+          <p ref="originBody1El" class="body-lg origin-body">I've worked with great brands such as Marriott International and Club Mahindra.</p>
+          <p ref="originBody2El" class="body-lg origin-body">I started my first job as a housekeeper — yes I used to make beds, clean rooms, make towel art <em>(fun stuff eh)</em> and make rooms look decorative, arranged and beautiful.</p>
         </div>
         <div class="origin-right">
           <div ref="originGifEl" class="gif-frame gif-frame--hotel">
@@ -54,21 +50,19 @@
           </div>
         </div>
         <div class="turn-right">
-          <span class="label turn-label">The Turn</span>
-          <h2 ref="turnHeadEl" class="display-lg turn-head">Then the right<br>people<br>found me.</h2>
-          <p ref="turnBodyEl" class="body-lg turn-body">The mentors I met along the way redirected my mind toward the path of learning and development. The transition took me countless sleepless nights and tiring daylight — introducing myself to concepts that once I believed never even existed.</p>
-          <p ref="turnBody2El" class="body-lg turn-body">Instructional theory. Learning science. Cognitive load. SCORM. All of it. Absorbed at a pace that was probably unsustainable. And absolutely necessary.</p>
+          <h2 ref="turnHeadEl" class="display-lg turn-head">It was the mentors<br>that I met<br>along the way.</h2>
+          <p ref="turnBodyEl" class="body-lg turn-body">That redirected my mind towards the path of learning and development.</p>
+          <p ref="turnBody2El" class="body-lg turn-body">The transition took me countless, sleepless nights and tiring daylight where I kept on learning and introducing myself to concepts that once I believed never even existed.</p>
         </div>
       </div>
     </section>
 
-    <!-- THE OBSERVATION -->
+    <!-- THE CORE -->
     <section ref="observeEl" class="s-observe">
       <div class="observe-inner">
         <blockquote ref="observeQuoteEl" class="observe-quote">
-          It was the interaction and observation of people around me — how they responded to changes and their motives — that drove me toward L&amp;D.
+          It was the interaction and observation of people around me — how they responded to changes and their motives was what drove me towards L&amp;D and that thirst for knowledge was what got me to chase down the core —
         </blockquote>
-        <p ref="observeBodyEl" class="observe-body">That thirst for understanding — not certification — is what got me chasing the core.</p>
       </div>
     </section>
 
@@ -76,7 +70,7 @@
     <section ref="philoEl" class="s-manifesto">
       <div class="manifesto-inner">
         <div ref="philoSlotEl" class="philo-slot">
-          <p class="philo-line philo-ghost display-lg" aria-hidden="true">We instructional designers decide what is taught and how.</p>
+          <p class="philo-line philo-ghost display-lg" aria-hidden="true">The ones that removes the noise and brings out the solid reality for your brain to understand.</p>
           <p
             v-for="(s, i) in manifestoLines"
             :key="s"
@@ -96,37 +90,6 @@
       <div class="asatoma-inner">
         <p ref="asatomaTextEl" class="asatoma-text">Asatoma Sadgamaya.</p>
         <p ref="asatomaTranslEl" class="asatoma-transl">Lead me from untruth to truth.</p>
-      </div>
-    </section>
-
-    <!-- NOW -->
-    <section ref="nowEl" class="s-now">
-      <div class="now-inner">
-        <div class="now-left">
-          <span class="label now-label">Currently</span>
-          <div class="now-head-wrap">
-            <h2 ref="nowHeadEl" class="display-lg now-head">Building learning<br>at Concentrix.</h2>
-          </div>
-          <div class="now-body-wrap">
-            <p ref="nowBodyEl" class="body-lg now-body">Turning complex operational knowledge into digital learning experiences for global teams. Because knowledge locked in a spreadsheet helps nobody.</p>
-          </div>
-        </div>
-        <div class="now-right">
-          <img src="/naveen.jpeg" alt="Naveen Jose" class="now-photo" />
-        </div>
-      </div>
-    </section>
-
-    <!-- FINAL -->
-    <section ref="finalEl" class="s-final">
-      <div class="final-inner">
-        <div class="final-head-block">
-          <h2 ref="finalLine1El" class="display-xl final-line">MAKE PEOPLE</h2>
-          <h2 ref="finalLine2El" class="display-xl final-line final-care">CARE.</h2>
-        </div>
-        <div class="final-body-wrap">
-          <p ref="finalBodyEl" class="body-lg final-body">Because if nobody remembers it,<br>nobody learned it.</p>
-        </div>
         <div ref="finalSigEl" class="final-sig">
           <span>Naveen Jose</span>
           <span>Instructional Designer · Learning Architect · Entertrainer</span>
@@ -166,7 +129,6 @@ const turnBody2El     = ref<HTMLElement>()
 const turnGifEl       = ref<HTMLElement>()
 const observeEl       = ref<HTMLElement>()
 const observeQuoteEl  = ref<HTMLElement>()
-const observeBodyEl   = ref<HTMLElement>()
 const philoEl         = ref<HTMLElement>()
 const philoSlotEl     = ref<HTMLElement>()
 const philoRefs       = ref<HTMLElement[]>([])
@@ -174,22 +136,14 @@ const brainGifEl      = ref<HTMLElement>()
 const asatomaEl       = ref<HTMLElement>()
 const asatomaTextEl   = ref<HTMLElement>()
 const asatomaTranslEl = ref<HTMLElement>()
-const nowEl           = ref<HTMLElement>()
-const nowHeadEl       = ref<HTMLElement>()
-const nowBodyEl       = ref<HTMLElement>()
-const finalEl         = ref<HTMLElement>()
-const finalLine1El    = ref<HTMLElement>()
-const finalLine2El    = ref<HTMLElement>()
-const finalBodyEl     = ref<HTMLElement>()
 const finalSigEl      = ref<HTMLElement>()
 const finalCtaEl      = ref<HTMLElement>()
 
 const manifestoLines = [
-  'Trainers train.',
+  'trainers train.',
   'We instructional designers decide what is taught and how.',
   'We are entertrainers.',
-  'We remove the noise.',
-  'And bring out the solid reality for your brain to understand.',
+  'The ones that removes the noise and brings out the solid reality for your brain to understand.',
 ]
 
 let onLenisScroll: () => void
@@ -211,8 +165,6 @@ onMounted(async () => {
   setupObserve()
   setupManifesto(SplitType)
   setupAsatoma(SplitType)
-  setupNow()
-  setupFinal(SplitType)
 
   await nextTick()
   ScrollTrigger.refresh()
@@ -239,23 +191,23 @@ function setupOpening(SplitType: any) {
     scrollTrigger: {
       trigger: openingEl.value,
       start: 'top top',
-      end: '+=280%',
+      end: '+=320%',
       pin: true,
       scrub: 1.2,
       invalidateOnRefresh: true,
     }
   })
 
-  tl.to(split1.chars, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: 0.03, ease: 'power2.out' }, 0)
-  tl.to(split1.chars, { opacity: 0, y: -12, stagger: 0.015, ease: 'power2.in' }, 0.5)
-  tl.to(split2.chars, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: 0.025, ease: 'power2.out' }, 0.55)
+  tl.to(split1.chars, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: 0.025, ease: 'power2.out' }, 0)
+  tl.to(split1.chars, { opacity: 0, y: -12, stagger: 0.012, ease: 'power2.in' }, 0.52)
+  tl.to(split2.chars, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: 0.03, ease: 'power2.out' }, 0.57)
 
   const discoveryNode = discoveryWordEl.value
   if (discoveryNode && split2.chars) {
     const dChars = split2.chars.filter((c: HTMLElement) => discoveryNode.contains(c))
     if (dChars.length) {
-      tl.to(dChars, { textShadow: '0 0 24px rgba(240,240,238,0.75)', letterSpacing: '0.06em', stagger: 0.03, ease: 'power1.out' }, 0.82)
-      tl.to(dChars, { textShadow: '0 0 0px rgba(240,240,238,0)', letterSpacing: '0em', stagger: 0.02, ease: 'power2.inOut' }, 0.93)
+      tl.to(dChars, { textShadow: '0 0 24px rgba(240,240,238,0.75)', letterSpacing: '0.06em', stagger: 0.03, ease: 'power1.out' }, 0.84)
+      tl.to(dChars, { textShadow: '0 0 0px rgba(240,240,238,0)', letterSpacing: '0em', stagger: 0.02, ease: 'power2.inOut' }, 0.94)
     }
   }
 }
@@ -305,7 +257,7 @@ function setupOrigin() {
     onEnter: () => {
       gsap.to(originHeadEl.value!, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' })
       if (originBody1El.value) gsap.to(originBody1El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.2 })
-      if (originBody2El.value) gsap.to(originBody2El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.35 })
+      if (originBody2El.value) gsap.to(originBody2El.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.36 })
       if (originGifEl.value)   gsap.to(originGifEl.value,   { opacity: 1, y: 0, rotate: -2, duration: 1.3, ease: 'power3.out', delay: 0.5 })
     }
   })
@@ -333,18 +285,16 @@ function setupTurn() {
 }
 
 function setupObserve() {
-  if (!observeEl.value) return
+  if (!observeEl.value || !observeQuoteEl.value) return
 
-  if (observeQuoteEl.value) gsap.set(observeQuoteEl.value, { opacity: 0, y: 32 })
-  if (observeBodyEl.value)  gsap.set(observeBodyEl.value,  { opacity: 0, y: 20 })
+  gsap.set(observeQuoteEl.value, { opacity: 0, y: 32 })
 
   ScrollTrigger.create({
     trigger: observeEl.value,
     start: 'top 65%',
     once: true,
     onEnter: () => {
-      if (observeQuoteEl.value) gsap.to(observeQuoteEl.value, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' })
-      if (observeBodyEl.value)  gsap.to(observeBodyEl.value,  { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.3 })
+      gsap.to(observeQuoteEl.value!, { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' })
     }
   })
 }
@@ -377,10 +327,10 @@ function setupManifesto(SplitType: any) {
     const inStart = 0.05 + i * step
     const holdEnd = inStart + step * 0.65
 
-    tl.to(splits[i].chars!, { opacity: 1, filter: 'blur(0px)', y: 0, stagger: 0.02, ease: 'power2.out' }, inStart)
+    tl.to(splits[i].chars!, { opacity: 1, filter: 'blur(0px)', y: 0, stagger: 0.018, ease: 'power2.out' }, inStart)
 
     if (i < manifestoLines.length - 1) {
-      tl.to(splits[i].chars!, { opacity: 0, filter: 'blur(8px)', y: -10, stagger: 0.015, ease: 'power2.in' }, holdEnd)
+      tl.to(splits[i].chars!, { opacity: 0, filter: 'blur(8px)', y: -10, stagger: 0.012, ease: 'power2.in' }, holdEnd)
     }
   })
 }
@@ -391,57 +341,19 @@ function setupAsatoma(SplitType: any) {
   const split = new SplitType(asatomaTextEl.value, { types: 'chars' })
   gsap.set(split.chars, { opacity: 0, y: 24, filter: 'blur(6px)' })
   if (asatomaTranslEl.value) gsap.set(asatomaTranslEl.value, { opacity: 0 })
+  if (finalSigEl.value)      gsap.set(finalSigEl.value,      { opacity: 0 })
+  if (finalCtaEl.value)      gsap.set(finalCtaEl.value,      { opacity: 0, y: 20 })
 
   ScrollTrigger.create({
     trigger: asatomaEl.value,
     start: 'top 65%',
     once: true,
     onEnter: () => {
-      gsap.to(split.chars!, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: 0.055, duration: 1.0, ease: 'power3.out' })
-      if (asatomaTranslEl.value) gsap.to(asatomaTranslEl.value, { opacity: 1, duration: 0.8, ease: 'power2.out', delay: 1.0 })
-    }
-  })
-}
-
-function setupNow() {
-  if (!nowEl.value) return
-
-  if (nowHeadEl.value) gsap.set(nowHeadEl.value, { y: '100%' })
-  if (nowBodyEl.value) gsap.set(nowBodyEl.value, { y: '100%' })
-
-  ScrollTrigger.create({
-    trigger: nowEl.value,
-    start: 'top 65%',
-    once: true,
-    onEnter: () => {
-      if (nowHeadEl.value) gsap.to(nowHeadEl.value, { y: '0%', duration: 1.1, ease: 'power3.out' })
-      if (nowBodyEl.value) gsap.to(nowBodyEl.value, { y: '0%', duration: 1.0, ease: 'power3.out', delay: 0.15 })
-    }
-  })
-}
-
-function setupFinal(SplitType: any) {
-  if (!finalEl.value || !finalLine1El.value || !finalLine2El.value) return
-
-  const split1 = new SplitType(finalLine1El.value, { types: 'chars' })
-  const split2 = new SplitType(finalLine2El.value, { types: 'chars' })
-
-  gsap.set([...(split1.chars ?? []), ...(split2.chars ?? [])], { opacity: 0, scale: 0.7, filter: 'blur(16px)' })
-  if (finalBodyEl.value) gsap.set(finalBodyEl.value, { opacity: 0, y: 30 })
-  if (finalSigEl.value)  gsap.set(finalSigEl.value,  { opacity: 0 })
-  if (finalCtaEl.value)  gsap.set(finalCtaEl.value,  { opacity: 0, y: 20 })
-
-  ScrollTrigger.create({
-    trigger: finalEl.value,
-    start: 'top 65%',
-    once: true,
-    onEnter: () => {
       const tl = gsap.timeline()
-      tl.to(split1.chars!, { opacity: 1, scale: 1, filter: 'blur(0px)', stagger: 0.04, duration: 0.8, ease: 'power3.out' })
-      tl.to(split2.chars!, { opacity: 1, scale: 1, filter: 'blur(0px)', textShadow: '0 0 30px rgba(240,240,238,0.3)', stagger: 0.04, duration: 0.8, ease: 'power3.out' }, '-=0.4')
-      if (finalBodyEl.value) tl.to(finalBodyEl.value, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, '-=0.2')
-      if (finalSigEl.value)  tl.to(finalSigEl.value,  { opacity: 1, duration: 0.7, ease: 'power2.out' }, '-=0.2')
-      if (finalCtaEl.value)  tl.to(finalCtaEl.value,  { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.7)' }, '-=0.1')
+      tl.to(split.chars!, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: 0.055, duration: 1.0, ease: 'power3.out' })
+      if (asatomaTranslEl.value) tl.to(asatomaTranslEl.value, { opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.2')
+      if (finalSigEl.value)      tl.to(finalSigEl.value,      { opacity: 1, duration: 0.7, ease: 'power2.out' }, '-=0.1')
+      if (finalCtaEl.value)      tl.to(finalCtaEl.value,      { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.7)' }, '-=0.1')
     }
   })
 }
@@ -483,12 +395,6 @@ function setupFinal(SplitType: any) {
 }
 
 /* ─── Typography ─── */
-.display-xl {
-  font-size: clamp(72rem, 11vw, 220rem);
-  font-weight: 800;
-  line-height: 0.9;
-  letter-spacing: -0.03em;
-}
 .display-lg {
   font-size: clamp(44rem, 6.5vw, 130rem);
   font-weight: 800;
@@ -499,13 +405,6 @@ function setupFinal(SplitType: any) {
   font-size: clamp(16rem, 1.8vw, 22rem);
   font-weight: 400;
   line-height: 1.7;
-}
-.label {
-  font-size: 11rem;
-  font-weight: 600;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  opacity: 0.45;
 }
 
 /* ─── GIF FRAMES ─── */
@@ -554,16 +453,17 @@ function setupFinal(SplitType: any) {
 }
 .opening-inner { text-align: center; }
 .opening-line {
-  font-size: clamp(18rem, 2.4vw, 34rem);
+  font-size: clamp(16rem, 2vw, 28rem);
   font-weight: 400;
   line-height: 1.5;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.005em;
   color: rgba(240,240,238,0.65);
 }
 .opening-line--b {
-  margin-top: 0.4em;
+  margin-top: 0.45em;
   color: #F0F0EE;
   font-weight: 600;
+  font-size: clamp(18rem, 2.4vw, 34rem);
 }
 .discovery-word { color: #F0F0EE; }
 
@@ -586,12 +486,9 @@ function setupFinal(SplitType: any) {
 }
 .name-caption {
   margin-top: 28rem;
-  display: flex;
-  flex-direction: column;
-  gap: 4rem;
-  font-size: clamp(11rem, 1.2vw, 17rem);
+  font-size: clamp(12rem, 1.3vw, 18rem);
   font-weight: 400;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   opacity: 0.55;
   position: absolute;
@@ -601,7 +498,7 @@ function setupFinal(SplitType: any) {
   width: max-content;
   max-width: 90vw;
 }
-.name-caption--b { margin-top: 76rem; }
+.name-caption--b { margin-top: 58rem; }
 
 /* ─── ORIGIN ─── */
 .s-origin {
@@ -634,18 +531,17 @@ function setupFinal(SplitType: any) {
   gap: clamp(60rem, 8vw, 120rem);
   align-items: center;
 }
-.turn-label { display: block; margin-bottom: 18rem; }
 .turn-head  { margin-bottom: clamp(24rem, 3vw, 44rem); }
 .turn-body  { margin-bottom: clamp(16rem, 2vw, 26rem); }
 .turn-body:last-child { margin-bottom: 0; }
 .turn-left  { display: flex; justify-content: center; align-items: center; }
 
-/* ─── OBSERVATION ─── */
+/* ─── THE CORE ─── */
 .s-observe {
   padding: clamp(100rem, 12vw, 180rem) clamp(40rem, 8vw, 140rem);
 }
 .observe-inner {
-  max-width: 900rem;
+  max-width: 960rem;
   margin: 0 auto;
   text-align: center;
 }
@@ -655,12 +551,7 @@ function setupFinal(SplitType: any) {
   font-style: italic;
   line-height: 1.45;
   letter-spacing: -0.01em;
-  margin: 0 0 clamp(24rem, 3vw, 40rem);
-}
-.observe-body {
-  font-size: clamp(15rem, 1.6vw, 20rem);
-  opacity: 0.5;
-  font-weight: 400;
+  margin: 0;
 }
 
 /* ─── MANIFESTO ─── */
@@ -699,12 +590,11 @@ function setupFinal(SplitType: any) {
 
 /* ─── ASATOMA ─── */
 .s-asatoma {
-  padding: clamp(80rem, 10vw, 160rem) clamp(40rem, 8vw, 140rem);
+  min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 50svh;
-  background: rgba(240,240,238,0.02);
+  padding: clamp(80rem, 10vw, 160rem) clamp(40rem, 8vw, 140rem);
 }
 .asatoma-inner { text-align: center; }
 .asatoma-text {
@@ -720,62 +610,15 @@ function setupFinal(SplitType: any) {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   opacity: 0.4;
-}
-
-/* ─── NOW ─── */
-.s-now {
-  padding: clamp(100rem, 12vw, 200rem) clamp(40rem, 8vw, 140rem);
-}
-.now-inner {
-  max-width: 1360rem;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(60rem, 8vw, 130rem);
-  align-items: center;
-}
-.now-label     { display: block; margin-bottom: 22rem; }
-.now-head-wrap { overflow: hidden; margin-bottom: clamp(22rem, 2.8vw, 38rem); }
-.now-body-wrap { overflow: hidden; }
-.now-photo {
-  width: 100%;
-  aspect-ratio: 3/4;
-  object-fit: cover;
-  object-position: top center;
-  filter: grayscale(1) contrast(1.05);
-  display: block;
-}
-
-/* ─── FINAL ─── */
-.s-final {
-  min-height: 100svh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(60rem, 8vw, 120rem);
-}
-.final-inner {
-  max-width: 1160rem;
-  width: 100%;
-  margin: 0 auto;
-}
-.final-head-block { margin-bottom: clamp(44rem, 5.5vw, 92rem); }
-.final-line { display: block; }
-.final-care {
-  color: transparent;
-  -webkit-text-stroke: 2rem rgba(240,240,238,0.85);
-}
-.final-body {
-  margin-bottom: clamp(44rem, 5.5vw, 76rem);
-  opacity: 0.7;
+  margin-bottom: clamp(60rem, 8vw, 110rem);
 }
 .final-sig {
   display: flex;
   flex-direction: column;
   gap: 5rem;
-  margin-bottom: clamp(44rem, 5.5vw, 76rem);
+  margin-bottom: clamp(36rem, 4.5vw, 60rem);
   font-size: clamp(12rem, 1.3vw, 16rem);
-  opacity: 0.38;
+  opacity: 0.35;
   font-weight: 400;
 }
 .final-cta-wrap { display: inline-block; }
@@ -802,9 +645,6 @@ function setupFinal(SplitType: any) {
   .origin-inner  { grid-template-columns: 1fr; gap: clamp(48rem, 8vw, 80rem); }
   .turn-inner    { grid-template-columns: 1fr; }
   .turn-left     { order: 2; }
-  .now-inner     { grid-template-columns: 1fr; }
-  .now-right     { order: -1; }
-  .now-photo     { aspect-ratio: 4/3; }
   .name-display  { font-size: clamp(40rem, 12vw, 90rem); }
   .name-caption  { white-space: normal; text-align: center; }
   .philo-line    { white-space: normal; }

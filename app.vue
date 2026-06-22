@@ -40,7 +40,7 @@ onMounted(() => {
   top: calc(22rem + var(--safe-top));
   left: 50%;
   transform: translateX(-50%);
-  z-index: 30;
+  z-index: var(--z-chrome);
   display: flex;
   align-items: center;
   height: 44rem;

@@ -132,7 +132,7 @@ function enter() {
 .eloader {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: var(--z-loader);
   background: var(--color-bg);
   overflow: hidden;
 }
@@ -147,10 +147,10 @@ function enter() {
 }
 .eanchor {
   position: fixed;
-  left: calc(18rem + var(--safe-left));
-  top: calc(18rem + var(--safe-top));
-  width: 48rem;
-  height: 48rem;
+  left: calc(var(--chrome-offset) + var(--safe-left));
+  top: calc(var(--chrome-offset) + var(--safe-top));
+  width: var(--chrome-size);
+  height: var(--chrome-size);
   opacity: 0;
   pointer-events: none;
 }

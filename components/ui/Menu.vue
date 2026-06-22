@@ -157,9 +157,9 @@ function handleBack() {
 /* ── Wrapper ── */
 .e-nav {
   position: fixed;
-  top: calc(18rem + var(--safe-top));
-  left: calc(18rem + var(--safe-left));
-  z-index: 40;
+  top: calc(var(--chrome-offset) + var(--safe-top));
+  left: calc(var(--chrome-offset) + var(--safe-left));
+  z-index: var(--z-menu);
 }
 
 /* ── E button ── */
@@ -167,8 +167,8 @@ function handleBack() {
   position: absolute;
   top: 0;
   left: 0;
-  width: 48rem;
-  height: 48rem;
+  width: var(--chrome-size);
+  height: var(--chrome-size);
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -201,9 +201,9 @@ function handleBack() {
   position: absolute;
   top: 0;
   left: 0;
-  width: 48rem;
-  height: 48rem;
-  border-radius: 24rem;
+  width: var(--chrome-size);
+  height: var(--chrome-size);
+  border-radius: calc(var(--chrome-size) / 2);
   background: var(--color-white);
   overflow: hidden;
   transition:
@@ -214,7 +214,7 @@ function handleBack() {
 .e-panel.open {
   width: calc(var(--grid-column) * 4 + var(--grid-gutter) * 3);
   min-width: 340rem;
-  height: calc(100dvh - 36rem);
+  height: calc(100dvh - var(--chrome-offset) * 2);
   border-radius: 16rem;
 }
 

@@ -34,6 +34,70 @@ const FOG_LIGHT = 0xF4F1EC
 let experience: Experience | null = null
 let transitioning = false
 
+// ── Film grain overlay ─────────────────────────────────────────────────────
+const grainRef = ref<HTMLCanvasElement | null>(null)
+let _grainTile: HTMLCanvasElement | null = null
+let _grainCtx: CanvasRenderingContext2D | null = null
+let _grainRaf = 0
+let _grainRunning = false
+
+function _bakeGrain(): HTMLCanvasElement {
+  const size = 160
+  const g = document.createElement('canvas')
+  g.width = size; g.height = size
+  const gc = g.getContext('2d')!
+  const img = gc.createImageData(size, size)
+  const d = img.data
+  for (let i = 0; i < d.length; i += 4) {
+    const v = Math.random() * 255
+    d[i] = d[i + 1] = d[i + 2] = v
+    d[i + 3] = 13
+  }
+  gc.putImageData(img, 0, 0)
+  return g
+}
+
+function _resizeGrain() {
+  const cv = grainRef.value
+  if (!cv) return
+  cv.width = window.innerWidth
+  cv.height = window.innerHeight
+  _grainCtx = cv.getContext('2d')
+}
+
+function _grainFrame() {
+  if (!_grainRunning) return
+  _grainRaf = requestAnimationFrame(_grainFrame)
+  const ctx = _grainCtx, tile = _grainTile
+  if (!ctx || !tile) return
+  const w = window.innerWidth, h = window.innerHeight
+  const ox = Math.random() * tile.width
+  const oy = Math.random() * tile.height
+  const pat = ctx.createPattern(tile, 'repeat')
+  if (!pat) return
+  ctx.clearRect(0, 0, w, h)
+  ctx.save()
+  ctx.globalAlpha = themeStore.isDark ? 0.55 : 0.35
+  ctx.translate(-ox, -oy)
+  ctx.fillStyle = pat
+  ctx.fillRect(ox, oy, w, h)
+  ctx.restore()
+}
+
+function startGrain() {
+  if (_grainRunning) return
+  _grainTile = _bakeGrain()
+  _resizeGrain()
+  _grainRunning = true
+  _grainRaf = requestAnimationFrame(_grainFrame)
+}
+
+function stopGrain() {
+  _grainRunning = false
+  cancelAnimationFrame(_grainRaf)
+}
+// ──────────────────────────────────────────────────────────────────────────
+
 async function mountExperience() {
   await nextTick()
   // Guard against a double mount: on a return visit onMounted calls this
@@ -64,6 +128,8 @@ function destroyExperience() {
 }
 
 onMounted(() => {
+  startGrain()
+  window.addEventListener('resize', _resizeGrain)
   ;($lenis as any)?.stop()
 
   if (props.showLoader) {
@@ -137,6 +203,8 @@ function animateListIn() {
 }
 
 onUnmounted(() => {
+  stopGrain()
+  window.removeEventListener('resize', _resizeGrain)
   destroyExperience()
   ;($lenis as any)?.start()
 })
@@ -159,6 +227,12 @@ function onLoaderEntered() {
       class="spiral-canvas"
       :class="{ hidden: !hasEntered || isListMode }"
     />
+
+    <!-- Atmosphere: radial vignette + Pi Blue ambient glow -->
+    <div class="spiral-atmo" :class="{ dark: themeStore.isDark }" />
+
+    <!-- Film grain overlay -->
+    <canvas ref="grainRef" class="spiral-grain" />
 
     <!-- List mode — emit cardClick so the parent applies accordion vs router logic -->
     <Transition name="fade">
@@ -210,6 +284,29 @@ function onLoaderEntered() {
   opacity: 0;
   pointer-events: none;
 }
+
+/* Atmospheric vignette + glow ──────────────────────────────────────────── */
+.spiral-atmo {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  /* light mode: warm edge darkening */
+  background: radial-gradient(ellipse at 50% 50%, transparent 20%, rgba(180,170,155,0.38) 100%);
+}
+.spiral-atmo.dark {
+  /* dark mode: Pi Blue glow at centre-top + dark edge vignette */
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(36,63,106,0.22) 0%, transparent 54%),
+    radial-gradient(ellipse at 50% 50%, transparent 22%, rgba(0,0,0,0.54) 100%);
+}
+.spiral-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+/* ────────────────────────────────────────────────────────────────────────── */
 
 /* List mode — matches the E-menu panel: white pill background, black foreground */
 .spiral-list {

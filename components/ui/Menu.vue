@@ -223,7 +223,9 @@ function handleBack() {
 .e-panel.open {
   width: calc(var(--grid-column) * 4 + var(--grid-gutter) * 3);
   min-width: 340rem;
-  height: calc(100dvh - var(--chrome-offset) * 2);
+  /* Panel top is (offset + safe-top); leave a matching (offset + safe-bottom)
+     gap below so the panel never runs under a notch or home indicator. */
+  height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - var(--chrome-offset) * 2);
   border-radius: 16rem;
 }
 
@@ -367,7 +369,8 @@ function handleBack() {
 
 @media (max-width: 600px) {
   .e-panel.open {
-    width: calc(100vw - 36rem);
+    /* Symmetric (offset + safe-left/right) gutters either side. */
+    width: calc(100vw - var(--safe-left) - var(--safe-right) - var(--chrome-offset) * 2);
     min-width: unset;
   }
   .e-link { font-size: 58rem; }

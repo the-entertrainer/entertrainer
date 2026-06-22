@@ -161,16 +161,14 @@ function handleBack() {
       </div>
     </div>
 
-    <!-- E button — sits on top of the panel -->
+    <!-- ET mark button — sits on top of the panel -->
     <button
       class="e-btn"
       :class="{ open: isOpened }"
       @click="menuStore.toggle"
       aria-label="menu"
     >
-      <span class="e-bar e-bar-t"></span>
-      <span class="e-bar e-bar-m"></span>
-      <span class="e-bar e-bar-b"></span>
+      <img src="/et-mark.svg" class="et-mark" alt="" aria-hidden="true" />
     </button>
   </div>
 </template>
@@ -192,7 +190,7 @@ function handleBack() {
   z-index: var(--z-menu);
 }
 
-/* ── E button ── */
+/* ── ET mark button ── */
 .e-btn {
   position: absolute;
   top: 0;
@@ -201,36 +199,27 @@ function handleBack() {
   height: var(--chrome-size);
   z-index: 2;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  align-items: flex-start;
-  gap: 6rem;
-  padding: 0 13rem;
+  padding: 0;
   background: none;
   border: none;
   cursor: pointer;
+  border-radius: 50%;
 }
-.e-bar {
+.et-mark {
+  width: 100%;
+  height: 100%;
   display: block;
-  height: 2.5rem;
-  border-radius: 1.5rem;
-  /* Closed: match page text — cream on dark, dark on light. Always readable
-     against the page background without needing a solid pill behind it. */
-  background: var(--color-text);
-  transition: transform 0.4s var(--ease-spring), width 0.3s ease, opacity 0.2s ease, background 0.3s ease;
+  border-radius: 50%;
+  /* Adapt to theme: invert makes the black SVG white on dark bg / dark panel */
+  filter: var(--et-mark-filter, none);
+  transition: filter 0.3s ease, transform 0.4s var(--ease-spring);
 }
-/* When panel is open the bars sit on the white panel — switch to panel foreground */
-.panel-open .e-bar {
-  background: var(--color-black);
+/* When panel is open, un-invert so the mark reads correctly on the panel surface */
+.panel-open .et-mark {
+  filter: var(--et-mark-filter-on-panel, none);
 }
-.e-bar-t { width: 22rem; }
-.e-bar-m { width: 14rem; }
-.e-bar-b { width: 22rem; }
-
-/* Open → X */
-.e-btn.open .e-bar-t { transform: translateY(8.5rem) rotate(45deg); }
-.e-btn.open .e-bar-m { opacity: 0; transform: scaleX(0); }
-.e-btn.open .e-bar-b { transform: translateY(-8.5rem) rotate(-45deg); }
 
 /* ── Panel ── */
 .e-panel {

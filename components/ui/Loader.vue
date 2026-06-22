@@ -9,24 +9,26 @@ const experienceStore = useExperienceStore()
 const isReady         = computed(() => experienceStore.isReady)
 
 const loaderEl = ref<HTMLElement | null>(null)
-const textEl   = ref<HTMLElement | null>(null)  // "entertrainer" wordmark (clip-revealed)
-const dotEl    = ref<HTMLElement | null>(null)  // the hero period — also morphs into the mid E-bar
-const barTopEl = ref<HTMLElement | null>(null)  // sprouts above the dot during the corner morph
-const barBotEl = ref<HTMLElement | null>(null)  // sprouts below
-const anchorEl = ref<HTMLElement | null>(null)  // mirrors the live e-btn corner for landing
+const textEl   = ref<HTMLElement | null>(null)
+const dotEl    = ref<HTMLElement | null>(null)
+const anchorEl = ref<HTMLElement | null>(null)
 
-// Wordmark reveal clip. Negative top/bottom/left keep italic overhang and
-// ascenders/descenders from being shaved; the right inset is what animates.
+// Clip path sweeps the wordmark text in/out (right edge moves).
+// Negative top/bottom/left preserves italic overhang and descenders.
 const CLIP_HIDDEN = 'inset(-25% 100% -25% -3%)'
 const CLIP_SHOWN  = 'inset(-25% 0% -25% -3%)'
+
+// The dot is always 48px × 48px (= --chrome-size).
+// PERIOD_SCALE shrinks it down to look like a trailing period in the wordmark.
+const DOT_PX       = 48
+const PERIOD_SCALE = 0.44   // 48 × 0.44 ≈ 21px visual period size
 
 const reduceMotion = import.meta.client &&
   window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
-// Dot's natural (resting) screen-centre, measured once before any transform.
-let dotNatCX = 0
-let dotNatCY = 0
-let startX   = 0          // x offset that parks the dot at screen centre for the pop
+// Saved period position (screen-centre-relative) for use in the exit phase.
+let periodX = 0
+let periodY = 0
 
 let introTl:    gsap.core.Timeline | null = null
 let introDone   = false
@@ -35,7 +37,6 @@ let exitQueued  = false
 let exiting     = false
 
 onMounted(async () => {
-  // Wait for the variable font so the wordmark is measured at its true width.
   if (import.meta.client && (document as any).fonts?.ready) {
     try { await (document as any).fonts.ready } catch {}
   }
@@ -48,44 +49,44 @@ onUnmounted(() => { introTl?.kill() })
 function startIntro() {
   if (!dotEl.value || !textEl.value) return
 
-  // Measure the dot's resting position (it sits as the trailing period) before
-  // we apply any transform, then work out the offset back to screen centre.
-  const dr  = dotEl.value.getBoundingClientRect()
-  dotNatCX  = dr.left + dr.width  / 2
-  dotNatCY  = dr.top  + dr.height / 2
-  startX    = window.innerWidth / 2 - dotNatCX
+  // Where should the dot land as the trailing period?
+  // Measure after font load so the text width is accurate.
+  const tr     = textEl.value.getBoundingClientRect()
+  const winCX  = window.innerWidth  / 2
+  const winCY  = window.innerHeight / 2
+  const dotVis = DOT_PX * PERIOD_SCALE        // visual size at period scale
+  // Centre of the dot when acting as the period: right after text + small gap
+  periodX = tr.right + 4 + dotVis / 2 - winCX
+  periodY = tr.top + tr.height / 2 - winCY
 
-  gsap.set([barTopEl.value, barBotEl.value], { xPercent: -50, yPercent: -50, opacity: 0, width: 0 })
+  // Place dot at screen centre, hidden. GSAP xPercent/yPercent centre it on the fixed point.
+  gsap.set(dotEl.value,  { xPercent: -50, yPercent: -50, scale: 0, opacity: 0 })
+  gsap.set(textEl.value, { clipPath: CLIP_HIDDEN })
 
   if (reduceMotion) {
+    gsap.set(dotEl.value,  { x: periodX, y: periodY, scale: PERIOD_SCALE, opacity: 1 })
     gsap.set(textEl.value, { clipPath: CLIP_SHOWN })
-    gsap.set(dotEl.value,  { opacity: 1, scale: 1 })
     introDone = true
     if (pendingExit) queueExit()
     return
   }
-
-  // Seed hidden state (CSS already hides them to avoid a first-frame flash).
-  gsap.set(textEl.value, { clipPath: CLIP_HIDDEN })
-  gsap.set(dotEl.value,  { x: startX, scale: 0, opacity: 0, transformOrigin: '50% 50%' })
 
   introTl = gsap.timeline({
     onComplete: () => { introDone = true; if (pendingExit) queueExit() }
   })
 
   introTl
-    // 1) the dot pops up at centre
+    // 1) ET mark pops at screen centre
     .to(dotEl.value, { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(2.4)' }, 0)
-    // 2) it flows to the right, settling as the period…
-    .to(dotEl.value, { x: 0, duration: 0.85, ease: 'power3.inOut' }, 0.5)
-    // …while "entertrainer" writes itself in behind it
+    // 2) flows right, shrinking to period size as "entertrainer" writes in behind it
+    .to(dotEl.value, { x: periodX, y: periodY, scale: PERIOD_SCALE, duration: 0.85, ease: 'power3.inOut' }, 0.5)
     .to(textEl.value, { clipPath: CLIP_SHOWN, duration: 0.8, ease: 'power2.out' }, 0.62)
 }
 
 watch(isReady, (ready) => { if (ready) queueExit() })
 
-// Hold the finished wordmark for a beat, then run the exit. Guarded so a fast
-// ready signal still gets the full intro plus a moment of stillness.
+// Hold the wordmark for a beat before exiting.
+// Guarded so a fast-ready signal still waits for the intro to finish.
 function queueExit() {
   if (exitQueued || exiting) return
   if (!introDone) { pendingExit = true; return }
@@ -103,80 +104,57 @@ function runExit() {
   const winCX = window.innerWidth  / 2
   const winCY = window.innerHeight / 2
   const a     = anchorEl.value.getBoundingClientRect()
-  const acx   = a.left + a.width  / 2
-  const acy   = a.top  + a.height / 2
+  // Corner: centre of the anchor element, expressed as offset from screen centre
+  const cornerX = a.left + a.width  / 2 - winCX
+  const cornerY = a.top  + a.height / 2 - winCY
 
-  // Targets. Centred bar elements use offsets from screen centre; the in-flow
-  // dot uses offsets from its own natural centre. Both resolve to the same
-  // left-aligned E formation as the live button (mid bar shifted left by 4).
-  const coX   = acx - winCX
-  const coY   = acy - winCY
-  const dotTX = (acx - 4) - dotNatCX
-  const dotTY = acy - dotNatCY
-
-  const root     = getComputedStyle(document.documentElement)
-  const barColor = root.getPropertyValue('--color-text').trim() || '#F4F1EC'
-
-  // Reduced motion: no fly. Wipe the wordmark, reveal the experience, cross-fade.
   if (reduceMotion) {
     experienceStore.setHasEntered()
     gsap.timeline({ onComplete: () => emit('entered') })
-      .to(textEl.value, { clipPath: CLIP_HIDDEN, duration: 0.35, ease: 'power2.in' }, 0)
-      .to(dotEl.value,  { opacity: 0, duration: 0.3 }, 0.15)
+      .to(textEl.value,   { clipPath: CLIP_HIDDEN, duration: 0.35, ease: 'power2.in' }, 0)
+      .to(dotEl.value,    { opacity: 0, duration: 0.3 }, 0.15)
       .to(loaderEl.value, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.4 }, 0.1)
     return
   }
 
   const tl = gsap.timeline({ onComplete: () => emit('entered') })
 
-  // 1) the dot retreats to centre, wiping the wordmark back as it goes
-  tl.to(dotEl.value,  { x: startX, duration: 0.7, ease: 'power3.inOut' }, 0)
+  // 1) dot retreats to centre at full size; wordmark wipes back
+  tl.to(dotEl.value,  { x: 0, y: 0, scale: 1, duration: 0.7, ease: 'power3.inOut' }, 0)
     .to(textEl.value, { clipPath: CLIP_HIDDEN, duration: 0.55, ease: 'power2.in' }, 0.05)
 
-  // 2) a heartbeat of emphasis at centre
-    .to(dotEl.value, { scale: 1.4, duration: 0.2,  ease: 'power2.out'   }, 0.8)
-    .to(dotEl.value, { scale: 1,   duration: 0.24, ease: 'power2.inOut' }, 1.0)
+  // 2) heartbeat emphasis at centre
+    .to(dotEl.value, { scale: 1.38, duration: 0.2,  ease: 'power2.out'   }, 0.8)
+    .to(dotEl.value, { scale: 1,    duration: 0.24, ease: 'power2.inOut' }, 1.0)
 
-  // 3) the dot flies to the corner and flattens into the middle E-bar
-    .to(dotEl.value, { x: dotTX, y: dotTY, duration: 0.72, ease: 'power3.inOut' }, 1.3)
-    .to(dotEl.value, {
-      width: '14rem', height: '2.5rem', borderRadius: '1.5rem',
-      backgroundColor: barColor, duration: 0.36, ease: 'power2.inOut'
-    }, 1.78)
+  // 3) flies to the corner at its natural 48px size (= the real menu button)
+    .to(dotEl.value, { x: cornerX, y: cornerY, duration: 0.72, ease: 'power3.inOut' }, 1.3)
 
-  // 4) the top and bottom bars sprout from the dot to complete the E
-    .add(() => {
-      gsap.set([barTopEl.value, barBotEl.value], {
-        x: coX, y: coY, width: 0, height: '2.5rem', opacity: 1, backgroundColor: barColor
-      })
-    }, 1.8)
-    .to(barTopEl.value, { x: coX, y: coY - 8.5, width: '22rem', duration: 0.36, ease: 'power2.out' }, 1.82)
-    .to(barBotEl.value, { x: coX, y: coY + 8.5, width: '22rem', duration: 0.36, ease: 'power2.out' }, 1.82)
-
-  // 5) reveal the WebGL experience beneath, fade the loader background away
+  // 4) reveal experience beneath the loader
     .add(() => {
       experienceStore.setHasEntered()
       gsap.to(loaderEl.value, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.55, ease: 'power2.out' })
-    }, 2.16)
+    }, 2.0)
 
-  // 6) cross-fade the morph overlay out — the identical live button remains
-    .to([dotEl.value, barTopEl.value, barBotEl.value], { opacity: 0, duration: 0.35, ease: 'power2.in' }, 2.55)
+  // 5) fade the overlay dot out — the identical real button takes over
+    .to(dotEl.value, { opacity: 0, duration: 0.35, ease: 'power2.in' }, 2.35)
 }
 </script>
 
 <template>
   <div ref="loaderEl" class="eloader">
-    <!-- entertrainer wordmark: "enter" italic + "trainer" bold + the hero dot -->
+    <!-- "entertrainer" wordmark: "enter" italic + "trainer" bold -->
     <div class="wm">
       <span ref="textEl" class="wm-text"><em>enter</em><b>trainer</b></span>
-      <span ref="dotEl" class="wm-dot"></span>
     </div>
 
-    <!-- bars that sprout when the dot morphs into the corner E -->
-    <span ref="barTopEl" class="ebar"></span>
-    <span ref="barBotEl" class="ebar"></span>
+    <!-- ET mark — the hero dot. Starts at screen centre, flows to period
+         position, retreats, pulses, then flies to become the corner button. -->
+    <span ref="dotEl" class="wm-dot">
+      <img src="/et-mark.svg" class="et-img" alt="" aria-hidden="true" />
+    </span>
 
-    <!-- invisible anchor mirroring the e-btn corner for the landing calc -->
+    <!-- Invisible anchor mirroring the corner button for landing calculation -->
     <span ref="anchorEl" class="eanchor"></span>
   </div>
 </template>
@@ -195,10 +173,8 @@ function runExit() {
 
 /* ── Wordmark ── */
 .wm {
-  position: relative;
   display: inline-flex;
   align-items: baseline;
-  gap: 0.05em;
   font-size: clamp(40px, 11vw, 84px);
   font-weight: 400;
   letter-spacing: -0.045em;
@@ -208,34 +184,32 @@ function runExit() {
 }
 .wm-text {
   display: inline-block;
-  /* Hidden on the first frame to avoid a flash before GSAP takes over */
   clip-path: inset(-25% 100% -25% -3%);
 }
 .wm-text em { font-style: italic; font-weight: 400; }
 .wm-text b  { font-style: normal; font-weight: 700; }
-.wm-dot {
-  display: inline-block;
-  width: 0.2em;
-  height: 0.2em;
-  border-radius: 50%;
-  background: var(--color-text);
-  opacity: 0;
-  will-change: transform, width, height;
-}
 
-/* ── Morph bars (top/bottom of the corner E) ── */
-.ebar {
-  position: absolute;
+/* ── ET mark hero dot ── */
+.wm-dot {
+  position: fixed;
   left: 50%;
   top: 50%;
-  height: 2.5rem;
-  border-radius: 1.5rem;
-  background: var(--color-text);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
   opacity: 0;
-  will-change: transform, width;
   pointer-events: none;
+  will-change: transform, opacity;
+}
+.et-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: var(--et-mark-filter, none);
 }
 
+/* ── Corner anchor ── */
 .eanchor {
   position: fixed;
   right: calc(var(--chrome-offset) + var(--safe-right));

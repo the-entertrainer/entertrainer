@@ -16,6 +16,10 @@
   --color-spinner-track: rgba(244,241,236,0.15);
   --color-divider: rgba(244,241,236,0.1);
 
+  /* ET mark — black SVG, invert to white on dark surfaces; un-invert on open cream panel */
+  --et-mark-filter: invert(1);
+  --et-mark-filter-on-panel: invert(0);
+
   /* Legacy aliases — existing CSS selectors keep working */
   --color-black: #0D0C0A;
   --color-white: #F4F1EC;
@@ -41,6 +45,10 @@
   --color-glass-border-hover: rgba(0,0,0,0.26);
   --color-spinner-track: rgba(13,12,10,0.12);
   --color-divider: rgba(13,12,10,0.1);
+
+  /* ET mark — black SVG already readable on cream bg; invert on open dark panel */
+  --et-mark-filter: invert(0);
+  --et-mark-filter-on-panel: invert(1);
 
   /* Legacy aliases — FLIPPED so existing CSS inverts correctly */
   --color-black: #F4F1EC;

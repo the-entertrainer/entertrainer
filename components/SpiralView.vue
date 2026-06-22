@@ -34,12 +34,16 @@ const FOG_LIGHT = 0xF4F1EC
 let experience: Experience | null = null
 let transitioning = false
 
-// ── Film grain overlay ─────────────────────────────────────────────────────
-const grainRef = ref<HTMLCanvasElement | null>(null)
-let _grainTile: HTMLCanvasElement | null = null
-let _grainCtx: CanvasRenderingContext2D | null = null
-let _grainRaf = 0
-let _grainRunning = false
+// ── Unified atmosphere canvas (animated glow + vignette + grain) ───────────
+const atmoRef   = ref<HTMLCanvasElement | null>(null)
+let _atmoCtx:   CanvasRenderingContext2D | null = null
+let _atmoTile:  HTMLCanvasElement | null = null
+let _atmoRaf  = 0
+let _atmoRunning = false
+let _atmoT    = 0
+let _atmoLast = 0
+let _atmoW    = 0
+let _atmoH    = 0
 
 function _bakeGrain(): HTMLCanvasElement {
   const size = 160
@@ -51,50 +55,95 @@ function _bakeGrain(): HTMLCanvasElement {
   for (let i = 0; i < d.length; i += 4) {
     const v = Math.random() * 255
     d[i] = d[i + 1] = d[i + 2] = v
-    d[i + 3] = 13
+    d[i + 3] = 20 // heavier grain
   }
   gc.putImageData(img, 0, 0)
   return g
 }
 
-function _resizeGrain() {
-  const cv = grainRef.value
+function _resizeAtmo() {
+  const cv = atmoRef.value
   if (!cv) return
-  cv.width = window.innerWidth
-  cv.height = window.innerHeight
-  _grainCtx = cv.getContext('2d')
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
+  _atmoW = window.innerWidth
+  _atmoH = window.innerHeight
+  cv.width  = Math.floor(_atmoW * dpr)
+  cv.height = Math.floor(_atmoH * dpr)
+  cv.style.width  = _atmoW + 'px'
+  cv.style.height = _atmoH + 'px'
+  _atmoCtx = cv.getContext('2d')!
+  _atmoCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
 }
 
-function _grainFrame() {
-  if (!_grainRunning) return
-  _grainRaf = requestAnimationFrame(_grainFrame)
-  const ctx = _grainCtx, tile = _grainTile
+function _atmoFrame(now: number) {
+  if (!_atmoRunning) return
+  _atmoRaf = requestAnimationFrame(_atmoFrame)
+  const dt = Math.min((now - _atmoLast) / 1000, 0.05)
+  _atmoLast = now
+  _atmoT += dt
+
+  const ctx  = _atmoCtx
+  const tile = _atmoTile
   if (!ctx || !tile) return
-  const w = window.innerWidth, h = window.innerHeight
-  const ox = Math.random() * tile.width
-  const oy = Math.random() * tile.height
-  const pat = ctx.createPattern(tile, 'repeat')
-  if (!pat) return
+
+  const w    = _atmoW
+  const h    = _atmoH
+  const dark = themeStore.isDark
+
   ctx.clearRect(0, 0, w, h)
-  ctx.save()
-  ctx.globalAlpha = themeStore.isDark ? 0.55 : 0.35
-  ctx.translate(-ox, -oy)
-  ctx.fillStyle = pat
-  ctx.fillRect(ox, oy, w, h)
-  ctx.restore()
+
+  // drifting Pi Blue glow — slow sin/cos path, breathing alpha
+  const driftX = Math.sin(_atmoT * 0.13) * 0.06
+  const driftY = Math.cos(_atmoT * 0.09) * 0.04
+  const cx     = (0.5 + driftX) * w
+  const cy     = (0.38 + driftY) * h
+  const radius = Math.max(w, h) * 0.68
+  const breath = 0.5 + Math.sin(_atmoT * 0.48) * 0.5  // 0 → 1 cycle ~13 s
+  const baseA  = dark ? 0.30 : 0.13
+  const glowA  = baseA * (0.60 + breath * 0.40)
+  const glow   = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius)
+  glow.addColorStop(0,    `rgba(36,63,106,${glowA})`)
+  glow.addColorStop(0.50, `rgba(36,63,106,${glowA * 0.30})`)
+  glow.addColorStop(1,    'rgba(0,0,0,0)')
+  ctx.fillStyle = glow
+  ctx.fillRect(0, 0, w, h)
+
+  // radial vignette — edges pull toward bg
+  const vig = ctx.createRadialGradient(
+    w / 2, h / 2, Math.min(w, h) * 0.28,
+    w / 2, h / 2, Math.max(w, h) * 0.74
+  )
+  vig.addColorStop(0, 'rgba(0,0,0,0)')
+  vig.addColorStop(1, dark ? 'rgba(0,0,0,0.60)' : 'rgba(168,158,142,0.44)')
+  ctx.fillStyle = vig
+  ctx.fillRect(0, 0, w, h)
+
+  // grain — tiled, jittered each frame
+  const ox  = Math.random() * tile.width
+  const oy  = Math.random() * tile.height
+  const pat = ctx.createPattern(tile, 'repeat')
+  if (pat) {
+    ctx.save()
+    ctx.globalAlpha = dark ? 0.72 : 0.48
+    ctx.translate(-ox, -oy)
+    ctx.fillStyle = pat
+    ctx.fillRect(ox, oy, w, h)
+    ctx.restore()
+  }
 }
 
-function startGrain() {
-  if (_grainRunning) return
-  _grainTile = _bakeGrain()
-  _resizeGrain()
-  _grainRunning = true
-  _grainRaf = requestAnimationFrame(_grainFrame)
+function startAtmo() {
+  if (_atmoRunning) return
+  _atmoTile = _bakeGrain()
+  _resizeAtmo()
+  _atmoRunning = true
+  _atmoLast = performance.now()
+  _atmoRaf  = requestAnimationFrame(_atmoFrame)
 }
 
-function stopGrain() {
-  _grainRunning = false
-  cancelAnimationFrame(_grainRaf)
+function stopAtmo() {
+  _atmoRunning = false
+  cancelAnimationFrame(_atmoRaf)
 }
 // ──────────────────────────────────────────────────────────────────────────
 
@@ -107,6 +156,7 @@ async function mountExperience() {
   experience = new Experience(canvasRef.value)
   experience.world.setNavItems(props.items, themeStore.isDark)
   experience.setFogColor(themeStore.isDark ? FOG_DARK : FOG_LIGHT)
+  experience.postProcessing.setColorGrade(themeStore.isDark)
   // Capture reference so the timeout is safe even if component unmounts before it fires
   const exp = experience
   setTimeout(() => exp.world.reveal(), 150)
@@ -128,8 +178,8 @@ function destroyExperience() {
 }
 
 onMounted(() => {
-  startGrain()
-  window.addEventListener('resize', _resizeGrain)
+  startAtmo()
+  window.addEventListener('resize', _resizeAtmo)
   ;($lenis as any)?.stop()
 
   if (props.showLoader) {
@@ -203,8 +253,8 @@ function animateListIn() {
 }
 
 onUnmounted(() => {
-  stopGrain()
-  window.removeEventListener('resize', _resizeGrain)
+  stopAtmo()
+  window.removeEventListener('resize', _resizeAtmo)
   destroyExperience()
   ;($lenis as any)?.start()
 })
@@ -228,11 +278,8 @@ function onLoaderEntered() {
       :class="{ hidden: !hasEntered || isListMode }"
     />
 
-    <!-- Atmosphere: radial vignette + Pi Blue ambient glow -->
-    <div class="spiral-atmo" :class="{ dark: themeStore.isDark }" />
-
-    <!-- Film grain overlay -->
-    <canvas ref="grainRef" class="spiral-grain" />
+    <!-- Unified atmosphere: animated glow + vignette + film grain -->
+    <canvas ref="atmoRef" class="spiral-atmo" />
 
     <!-- List mode — emit cardClick so the parent applies accordion vs router logic -->
     <Transition name="fade">
@@ -285,25 +332,11 @@ function onLoaderEntered() {
   pointer-events: none;
 }
 
-/* Atmospheric vignette + glow ──────────────────────────────────────────── */
+/* Unified atmosphere canvas ─────────────────────────────────────────────── */
 .spiral-atmo {
   position: fixed;
   inset: 0;
   z-index: 2;
-  pointer-events: none;
-  /* light mode: warm edge darkening */
-  background: radial-gradient(ellipse at 50% 50%, transparent 20%, rgba(180,170,155,0.38) 100%);
-}
-.spiral-atmo.dark {
-  /* dark mode: Pi Blue glow at centre-top + dark edge vignette */
-  background:
-    radial-gradient(ellipse at 50% 38%, rgba(36,63,106,0.22) 0%, transparent 54%),
-    radial-gradient(ellipse at 50% 50%, transparent 22%, rgba(0,0,0,0.54) 100%);
-}
-.spiral-grain {
-  position: fixed;
-  inset: 0;
-  z-index: 3;
   pointer-events: none;
 }
 /* ────────────────────────────────────────────────────────────────────────── */

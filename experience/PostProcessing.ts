@@ -36,10 +36,45 @@ const VignetteShader = {
   `
 }
 
+const ColorGradeShader = {
+  uniforms: {
+    tDiffuse:      { value: null },
+    uContrast:     { value: 1.06 },
+    uShadowTint:   { value: new Color(0.06, 0.08, 0.14) },
+    uTintStrength: { value: 0.08 },
+  },
+  vertexShader: /* glsl */`
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: /* glsl */`
+    uniform sampler2D tDiffuse;
+    uniform float uContrast;
+    uniform vec3 uShadowTint;
+    uniform float uTintStrength;
+    varying vec2 vUv;
+
+    void main() {
+      vec4 tex = texture2D(tDiffuse, vUv);
+      vec3 col = tex.rgb;
+      // subtle contrast lift
+      col = clamp((col - 0.5) * uContrast + 0.5, 0.0, 1.0);
+      // shadow tint: darkest areas receive most colour push
+      float luma = dot(col, vec3(0.2126, 0.7152, 0.0722));
+      col = clamp(col + uShadowTint * (1.0 - luma) * uTintStrength, 0.0, 1.0);
+      gl_FragColor = vec4(col, tex.a);
+    }
+  `
+}
+
 export default class PostProcessing {
   experience: Experience
   composer: EffectComposer
   vignettePass: ShaderPass
+  colorGradePass: ShaderPass
 
   constructor(experience: Experience) {
     this.experience = experience
@@ -50,10 +85,26 @@ export default class PostProcessing {
     this.vignettePass = new ShaderPass(VignetteShader)
     this.vignettePass.material.uniforms.uFillColor.value = new Color('#0D0C0A')
     this.composer.addPass(this.vignettePass)
+
+    this.colorGradePass = new ShaderPass(ColorGradeShader)
+    this.composer.addPass(this.colorGradePass)
   }
 
   setVignetteColor(hex: number) {
     this.vignettePass.material.uniforms.uFillColor.value.set(hex)
+  }
+
+  setColorGrade(isDark: boolean) {
+    const u = this.colorGradePass.material.uniforms
+    if (isDark) {
+      u.uContrast.value = 1.06
+      u.uShadowTint.value.setRGB(0.06, 0.08, 0.14)   // cool blue-grey shadows
+      u.uTintStrength.value = 0.08
+    } else {
+      u.uContrast.value = 1.04
+      u.uShadowTint.value.setRGB(0.12, 0.08, 0.04)   // warm amber shadows
+      u.uTintStrength.value = 0.05
+    }
   }
 
   resize() {

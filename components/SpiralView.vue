@@ -44,6 +44,9 @@ let _atmoT    = 0
 let _atmoLast = 0
 let _atmoW    = 0
 let _atmoH    = 0
+let _atmoIntensity    = 0   // smoothed scroll energy 0..1
+let _atmoIntensityTgt = 0   // set by wheel/touch, decays each frame
+let _lastTouchY       = 0
 
 function _bakeGrain(): HTMLCanvasElement {
   const size = 160
@@ -82,6 +85,10 @@ function _atmoFrame(now: number) {
   _atmoLast = now
   _atmoT += dt
 
+  // decay scroll energy — target fades fast, current follows smoothly
+  _atmoIntensityTgt *= Math.pow(0.18, dt)             // ~0.5 s half-life
+  _atmoIntensity    += (_atmoIntensityTgt - _atmoIntensity) * Math.min(dt * 6, 1)
+
   const ctx  = _atmoCtx
   const tile = _atmoTile
   if (!ctx || !tile) return
@@ -89,21 +96,22 @@ function _atmoFrame(now: number) {
   const w    = _atmoW
   const h    = _atmoH
   const dark = themeStore.isDark
+  const kick = _atmoIntensity              // 0..1 scroll-reactive boost
 
   ctx.clearRect(0, 0, w, h)
 
-  // drifting Pi Blue glow — slow sin/cos path, breathing alpha
+  // drifting Pi Blue glow — slow sin/cos path, breathing alpha, scroll flare
   const driftX = Math.sin(_atmoT * 0.13) * 0.06
   const driftY = Math.cos(_atmoT * 0.09) * 0.04
   const cx     = (0.5 + driftX) * w
   const cy     = (0.38 + driftY) * h
-  const radius = Math.max(w, h) * 0.68
-  const breath = 0.5 + Math.sin(_atmoT * 0.48) * 0.5  // 0 → 1 cycle ~13 s
+  const radius = Math.max(w, h) * (0.68 + kick * 0.14)  // glow expands on scroll
+  const breath = 0.5 + Math.sin(_atmoT * 0.48) * 0.5    // 0 → 1 cycle ~13 s
   const baseA  = dark ? 0.30 : 0.13
-  const glowA  = baseA * (0.60 + breath * 0.40)
+  const glowA  = baseA * (0.60 + breath * 0.40 + kick * 0.70)
   const glow   = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius)
-  glow.addColorStop(0,    `rgba(36,63,106,${glowA})`)
-  glow.addColorStop(0.50, `rgba(36,63,106,${glowA * 0.30})`)
+  glow.addColorStop(0,    `rgba(36,63,106,${Math.min(glowA, 0.82)})`)
+  glow.addColorStop(0.50, `rgba(36,63,106,${Math.min(glowA * 0.30, 0.30)})`)
   glow.addColorStop(1,    'rgba(0,0,0,0)')
   ctx.fillStyle = glow
   ctx.fillRect(0, 0, w, h)
@@ -118,13 +126,13 @@ function _atmoFrame(now: number) {
   ctx.fillStyle = vig
   ctx.fillRect(0, 0, w, h)
 
-  // grain — tiled, jittered each frame
+  // grain — tiled, jittered each frame; heavier while scrolling
   const ox  = Math.random() * tile.width
   const oy  = Math.random() * tile.height
   const pat = ctx.createPattern(tile, 'repeat')
   if (pat) {
     ctx.save()
-    ctx.globalAlpha = dark ? 0.72 : 0.48
+    ctx.globalAlpha = Math.min((dark ? 0.72 : 0.48) * (1 + kick * 0.50), 0.95)
     ctx.translate(-ox, -oy)
     ctx.fillStyle = pat
     ctx.fillRect(ox, oy, w, h)
@@ -144,6 +152,18 @@ function startAtmo() {
 function stopAtmo() {
   _atmoRunning = false
   cancelAnimationFrame(_atmoRaf)
+}
+
+function _onWheel(e: WheelEvent) {
+  _atmoIntensityTgt = Math.min(1, Math.abs(e.deltaY) / 280)
+}
+function _onTouchStart(e: TouchEvent) {
+  _lastTouchY = e.touches[0]?.clientY ?? 0
+}
+function _onTouchMove(e: TouchEvent) {
+  const dy = Math.abs((e.touches[0]?.clientY ?? _lastTouchY) - _lastTouchY)
+  _lastTouchY = e.touches[0]?.clientY ?? _lastTouchY
+  _atmoIntensityTgt = Math.min(1, dy / 35)
 }
 // ──────────────────────────────────────────────────────────────────────────
 
@@ -180,6 +200,9 @@ function destroyExperience() {
 onMounted(() => {
   startAtmo()
   window.addEventListener('resize', _resizeAtmo)
+  window.addEventListener('wheel',      _onWheel,      { passive: true })
+  window.addEventListener('touchstart', _onTouchStart, { passive: true })
+  window.addEventListener('touchmove',  _onTouchMove,  { passive: true })
   ;($lenis as any)?.stop()
 
   if (props.showLoader) {
@@ -254,7 +277,10 @@ function animateListIn() {
 
 onUnmounted(() => {
   stopAtmo()
-  window.removeEventListener('resize', _resizeAtmo)
+  window.removeEventListener('resize',     _resizeAtmo)
+  window.removeEventListener('wheel',      _onWheel)
+  window.removeEventListener('touchstart', _onTouchStart)
+  window.removeEventListener('touchmove',  _onTouchMove)
   destroyExperience()
   ;($lenis as any)?.start()
 })

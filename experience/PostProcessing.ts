@@ -1,7 +1,8 @@
-import { Color } from 'three'
+import { Color, Vector2 } from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import type Experience from './Experience'
 
 const VignetteShader = {
@@ -32,6 +33,36 @@ const VignetteShader = {
 
       vec4 tex = texture2D(tDiffuse, vUv);
       gl_FragColor = vec4(mix(tex.rgb, uFillColor, strength), tex.a);
+    }
+  `
+}
+
+const ChromaticAberrationShader = {
+  uniforms: {
+    tDiffuse:  { value: null },
+    uStrength: { value: 0.0007 },
+  },
+  vertexShader: /* glsl */`
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: /* glsl */`
+    uniform sampler2D tDiffuse;
+    uniform float uStrength;
+    varying vec2 vUv;
+
+    void main() {
+      vec2 fromCenter = vUv - 0.5;
+      float dist = length(fromCenter);
+      vec2 aberration = normalize(fromCenter) * dist * dist * uStrength * 10.0;
+      float r = texture2D(tDiffuse, vUv - aberration).r;
+      float g = texture2D(tDiffuse, vUv).g;
+      float b = texture2D(tDiffuse, vUv + aberration).b;
+      float a = texture2D(tDiffuse, vUv).a;
+      gl_FragColor = vec4(r, g, b, a);
     }
   `
 }
@@ -73,7 +104,9 @@ const ColorGradeShader = {
 export default class PostProcessing {
   experience: Experience
   composer: EffectComposer
+  bloomPass: UnrealBloomPass
   vignettePass: ShaderPass
+  chromaPass: ShaderPass
   colorGradePass: ShaderPass
 
   constructor(experience: Experience) {
@@ -82,9 +115,22 @@ export default class PostProcessing {
     this.composer = new EffectComposer(experience.renderer.instance)
     this.composer.addPass(new RenderPass(experience.scene, experience.camera.instance))
 
+    // bloom — subtle halo on bright card surfaces
+    this.bloomPass = new UnrealBloomPass(
+      new Vector2(experience.sizes.width, experience.sizes.height),
+      0.32,   // strength
+      0.55,   // radius
+      0.80    // threshold — only highlights bloom
+    )
+    this.composer.addPass(this.bloomPass)
+
     this.vignettePass = new ShaderPass(VignetteShader)
     this.vignettePass.material.uniforms.uFillColor.value = new Color('#0D0C0A')
     this.composer.addPass(this.vignettePass)
+
+    // chromatic aberration — subtle radial RGB fringe at screen edges
+    this.chromaPass = new ShaderPass(ChromaticAberrationShader)
+    this.composer.addPass(this.chromaPass)
 
     this.colorGradePass = new ShaderPass(ColorGradeShader)
     this.composer.addPass(this.colorGradePass)
@@ -108,8 +154,10 @@ export default class PostProcessing {
   }
 
   resize() {
-    this.composer.setSize(this.experience.sizes.width, this.experience.sizes.height)
-    this.composer.setPixelRatio(this.experience.sizes.pixelRatio)
+    const { width, height, pixelRatio } = this.experience.sizes
+    this.composer.setSize(width, height)
+    this.composer.setPixelRatio(pixelRatio)
+    this.bloomPass.resolution.set(width, height)
   }
 
   render() {

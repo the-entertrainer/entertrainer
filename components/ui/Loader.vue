@@ -196,7 +196,7 @@ function enter() {
 }
 .eanchor {
   position: fixed;
-  left: calc(var(--chrome-offset) + var(--safe-left));
+  right: calc(var(--chrome-offset) + var(--safe-right));
   top: calc(var(--chrome-offset) + var(--safe-top));
   width: var(--chrome-size);
   height: var(--chrome-size);

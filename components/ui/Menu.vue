@@ -165,7 +165,7 @@ function handleBack() {
 .e-nav {
   position: fixed;
   top: calc(var(--chrome-offset) + var(--safe-top));
-  left: calc(var(--chrome-offset) + var(--safe-left));
+  right: calc(var(--chrome-offset) + var(--safe-right));
   z-index: var(--z-menu);
 }
 
@@ -173,7 +173,7 @@ function handleBack() {
 .e-btn {
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0;
   width: var(--chrome-size);
   height: var(--chrome-size);
   z-index: 2;
@@ -209,7 +209,7 @@ function handleBack() {
 .e-panel {
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0;
   width: var(--chrome-size);
   height: var(--chrome-size);
   border-radius: calc(var(--chrome-size) / 2);

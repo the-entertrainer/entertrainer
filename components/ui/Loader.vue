@@ -25,19 +25,29 @@ const BARS = [
 let idleTween:   gsap.core.Tween    | null = null
 let assemblyTl:  gsap.core.Timeline | null = null
 
+const reduceMotion = import.meta.client &&
+  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
 function setBarEl(el: any, i: number) { if (el) barEls.value[i] = el }
 
 onMounted(() => {
+  // Seed the E formation at screen centre.
   barEls.value.forEach((el, i) => {
     gsap.set(el, {
       xPercent: -50, yPercent: -50,
-      x: -160,
+      x: reduceMotion ? 0 : -160,
       y: BARS[i].cy,
       width: BARS[i].cw, height: BARS[i].ch,
       borderRadius: '3rem',
       opacity: 0
     })
   })
+
+  // Reduced motion: a calm fade-in, no slide, no idle pulse.
+  if (reduceMotion) {
+    gsap.to(barEls.value, { opacity: 1, duration: 0.4, ease: 'power1.out' })
+    return
+  }
 
   assemblyTl = gsap.timeline({
     onComplete: () => {
@@ -93,6 +103,15 @@ function enter() {
   // The bar colour on the live button (dark foreground on the white pill).
   const root = getComputedStyle(document.documentElement)
   const barColor = root.getPropertyValue('--color-black').trim() || '#0D0C0A'
+
+  // Reduced motion: no fly. Reveal the experience and cross-fade the overlay.
+  if (reduceMotion) {
+    experienceStore.setHasEntered()
+    gsap.timeline({ onComplete: () => emit('entered') })
+      .to(loaderEl.value, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.4 }, 0)
+      .to(barEls.value, { opacity: 0, duration: 0.3 }, 0.1)
+    return
+  }
 
   const tl = gsap.timeline({ onComplete: () => emit('entered') })
 

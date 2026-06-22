@@ -18,12 +18,15 @@ const isOpened      = computed(() => menuStore.isOpened)
 const MUTE_KEY = 'et-muted'
 const muted = ref(true)
 
+const reduceMotion = import.meta.client &&
+  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
 onMounted(() => {
   try {
     const s = localStorage.getItem(MUTE_KEY)
     if (s !== null) muted.value = s === '1'
   } catch {}
-  gsap.set(itemEls.value, { y: -20, x: 20, opacity: 0 })
+  gsap.set(itemEls.value, reduceMotion ? { opacity: 0 } : { y: -20, x: 20, opacity: 0 })
 })
 
 function toggleSound() {
@@ -45,6 +48,10 @@ const itemEls = ref<HTMLElement[]>([])
 watch(isOpened, (open) => {
   SoundEngine.getInstance()?.onMenuChange(open)
   gsap.killTweensOf(itemEls.value)
+  if (reduceMotion) {
+    gsap.to(itemEls.value, { opacity: open ? 1 : 0, duration: 0.2, delay: open ? 0.2 : 0 })
+    return
+  }
   if (open) {
     gsap.to(itemEls.value, {
       y: 0, x: 0, opacity: 1,

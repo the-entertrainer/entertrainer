@@ -63,27 +63,9 @@ const fragmentShader = /* glsl */`
   uniform float uRimAngle;
   uniform float uGlowStrength;
   uniform float uIsImage;
-  uniform float uScrollSpeed;
-  uniform float uTime;
-  uniform float uFacing;
-  uniform float uHoloPhase;
 
   varying vec2 vUv;
   #include <fog_pars_fragment>
-
-  // ── Value noise / fbm for the aurora field ────────────────────────────
-  float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-  float vnoise(vec2 p) {
-    vec2 i = floor(p), f = fract(p);
-    vec2 u = f * f * (3.0 - 2.0 * f);
-    return mix(mix(hash(i + vec2(0.0, 0.0)), hash(i + vec2(1.0, 0.0)), u.x),
-               mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
-  }
-  float fbm(vec2 p) {
-    float v = 0.0, a = 0.5;
-    for (int i = 0; i < 4; i++) { v += a * vnoise(p); p *= 2.0; a *= 0.5; }
-    return v;
-  }
 
   void main() {
     vec2 ratio = vec2(
@@ -100,32 +82,6 @@ const fragmentShader = /* glsl */`
     if (gl_FrontFacing) {
       color = texture2D(uTexture, zoomedUv);
       color.rgb = mix(color.rgb, vec3(0.0), uColorStrength);
-
-      // ── Living aurora — slow drifting Pi Blue ↔ amber field ───────────
-      float n1 = fbm(vUv * 2.2 + vec2(uTime * 0.05,  uTime * 0.03));
-      float n2 = fbm(vUv * 3.1 - vec2(uTime * 0.04,  uTime * 0.06));
-      vec3  piBlue = vec3(0.141, 0.247, 0.416);
-      vec3  amber  = vec3(0.85,  0.55,  0.28);
-      vec3  aurora = mix(piBlue, amber, smoothstep(0.30, 0.70, n1));
-      float auroraMask = smoothstep(0.40, 0.92, n2);
-      // On photo cards keep the centre clean — let the field breathe at the margins.
-      vec2  ec   = abs(vUv - 0.5) * 2.0;
-      float edge = smoothstep(0.55, 1.0, max(ec.x, ec.y));
-      float region = mix(1.0, edge, uIsImage);          // glass: full · image: edges
-      float auroraAmt = mix(0.22, 0.12, uIsImage);
-      color.rgb += aurora * auroraMask * region * auroraAmt * (0.35 + 0.65 * uFacing);
-
-      // ── Holographic foil — iridescent band that sweeps as the card turns ─
-      vec2  dir     = normalize(vec2(0.82, 0.58));
-      float proj    = dot(vUv - 0.5, dir);
-      float bandPos = sin(uHoloPhase) * 0.62;
-      float dBand   = proj - bandPos;
-      // Band widens into a streak when the spiral spins fast.
-      float sharp   = mix(20.0, 7.0, clamp(abs(uScrollSpeed) * 3.0, 0.0, 1.0));
-      float band    = exp(-dBand * dBand * sharp);
-      float hue     = proj * 2.0 + uHoloPhase * 0.5;
-      vec3  holo    = 0.5 + 0.5 * cos(6.28318 * (hue + vec3(0.0, 0.33, 0.67)));
-      color.rgb    += holo * band * uFacing * 0.30;
     } else {
       // Solid glass back face — mirrors front card aesthetics, no bleed-through
       float luma = dot(fogColor, vec3(0.299, 0.587, 0.114));
@@ -224,9 +180,6 @@ export default class NavPlane {
   private _rimAngle    = 0
   private _glowStrength = 0
 
-  // Aurora + holo foil state
-  private _time = 0
-
   // Custom background image (replaces canvas texture for specific cards)
   private _bgImage: HTMLImageElement | null = null
 
@@ -286,10 +239,7 @@ export default class NavPlane {
           uOpacity:        { value: 1 },
           uRimAngle:       { value: 0 },
           uGlowStrength:   { value: 0 },
-          uIsImage:        { value: this._bgImage ? 1.0 : 0.0 },
-          uTime:           { value: 0 },
-          uFacing:         { value: 0 },
-          uHoloPhase:      { value: 0 }
+          uIsImage:        { value: this._bgImage ? 1.0 : 0.0 }
         }
       ]),
       vertexShader,
@@ -478,16 +428,6 @@ export default class NavPlane {
 
     mat.uniforms.uRimAngle.value     = this._rimAngle
     mat.uniforms.uGlowStrength.value = this._glowStrength
-
-    // ── Aurora + holographic foil ────────────────────────────────
-    // Facing peaks at the centre card and falls off as cards turn away,
-    // so the shimmer concentrates on whatever you're looking at.
-    this._time += delta / 1000
-    const facing = Math.exp(-Ba * Ba * 0.55)
-    mat.uniforms.uTime.value      = this._time
-    mat.uniforms.uFacing.value    = facing
-    // Phase tracks the card's world angle (sweeps as you scroll) plus a slow idle drift.
-    mat.uniforms.uHoloPhase.value = Ha * 1.6 + this._time * 0.35
   }
 
   destroy() {

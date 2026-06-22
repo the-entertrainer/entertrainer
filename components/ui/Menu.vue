@@ -238,6 +238,9 @@ function handleBack() {
   padding: 72rem 40rem 52rem;
   color: var(--color-black);
 }
+/* Panel sits on the white pill — the global cream focus ring would vanish,
+   so keyboard focus inside the panel uses the dark foreground instead. */
+.e-panel-inner :focus-visible { outline-color: var(--color-black); }
 
 /* ── Items ── */
 .e-item {

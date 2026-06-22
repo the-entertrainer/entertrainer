@@ -341,8 +341,8 @@ const scoreLabel = computed(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12rem 24rem;
-  border-radius: 100rem;
+  padding: var(--btn-pad-y) var(--btn-pad-x);
+  border-radius: var(--radius-full);
   font-size: 14rem;
   font-weight: 600;
   cursor: pointer;
@@ -350,7 +350,7 @@ const scoreLabel = computed(() => {
   text-decoration: none;
   align-self: flex-start;
 }
-.id-btn:active { transform: scale(0.95); }
+.id-btn:active { transform: scale(var(--btn-press)); }
 .id-btn-primary {
   background: var(--color-text);
   color: var(--color-bg);

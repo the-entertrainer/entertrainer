@@ -164,7 +164,7 @@ async function copy(text: string, i: number) {
   gap: 10rem;
   align-self: flex-start;
   margin-top: 4rem;
-  padding: 14rem 28rem;
+  padding: var(--btn-pad-y) var(--btn-pad-x);
   border-radius: var(--radius-full);
   background: var(--color-text);
   color: var(--color-bg);
@@ -176,7 +176,7 @@ async function copy(text: string, i: number) {
   transition: opacity 0.15s ease, transform 0.1s ease;
 }
 .dg-submit:disabled { opacity: 0.4; cursor: not-allowed; }
-.dg-submit:not(:disabled):active { transform: scale(0.96); }
+.dg-submit:not(:disabled):active { transform: scale(var(--btn-press)); }
 
 /* Spinner */
 .dg-spinner {

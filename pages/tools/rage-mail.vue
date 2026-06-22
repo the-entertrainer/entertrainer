@@ -444,20 +444,20 @@ async function shareResult() {
 }
 .rm-send-btn {
   flex-shrink: 0;
-  padding: 12rem 28rem;
+  padding: var(--btn-pad-y) var(--btn-pad-x);
   border-radius: var(--radius-full);
   background: var(--color-text);
   color: var(--color-bg);
   font-family: inherit;
   font-size: 13rem;
-  font-weight: 800;
+  font-weight: 800;   /* louder than the calm CTAs — rage-mail's deliberate voice */
   letter-spacing: 0.06em;
   border: none;
   cursor: pointer;
   transition: opacity 0.15s ease, transform 0.1s ease;
 }
 .rm-send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.rm-send-btn:not(:disabled):active { transform: scale(0.95); }
+.rm-send-btn:not(:disabled):active { transform: scale(var(--btn-press)); }
 
 .rm-error {
   margin-top: 20rem;

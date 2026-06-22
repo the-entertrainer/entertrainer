@@ -237,14 +237,14 @@ const scoreLabel = computed(() => {
 
 /* Context + Question */
 .id-context {
-  font-size: 15rem;
+  font-size: var(--text-sm);
   line-height: 1.6;
   color: var(--color-text);
   opacity: 0.6;
   margin: 0;
 }
 .id-question {
-  font-size: 24rem;
+  font-size: var(--text-h2);
   font-weight: 700;
   line-height: 1.35;
   color: var(--color-text);
@@ -367,7 +367,7 @@ const scoreLabel = computed(() => {
 /* Done screen */
 .id-done { gap: 20rem; }
 .id-done-title {
-  font-size: 36rem;
+  font-size: var(--text-h1);
   font-weight: 800;
   line-height: 1.2;
   color: var(--color-text);

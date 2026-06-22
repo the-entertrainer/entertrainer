@@ -104,6 +104,17 @@
   --btn-pad-x: 26px;
   --btn-press: 0.95;          /* :active scale */
 
+  /* Type scale — the canonical ramp for shared surfaces. Per-page heroes may
+     still tune their own clamp() for character; these name the common rungs. */
+  --text-display: clamp(60px, 8vw, 120px);  /* page hero titles */
+  --text-h1: 36px;
+  --text-h2: 24px;
+  --text-lead: 20px;          /* deck / sub-title */
+  --text-body: 17px;
+  --text-sm: 15px;
+  --text-label: 11px;         /* uppercase eyebrows */
+  --tracking-label: 0.1em;
+
   /* Grid system (desktop, 12 cols) */
   --grid-margin: 30px;
   --grid-gutter: 16px;
@@ -317,14 +328,14 @@ canvas {
   padding: var(--page-top) var(--grid-margin) calc(100rem + var(--safe-bottom));
 }
 .detail-title {
-  font-size: clamp(60rem, 8vw, 120rem);
+  font-size: var(--text-display);
   font-weight: 700;
   letter-spacing: -0.05em;
   line-height: 1;
   margin-bottom: 24rem;
 }
 .detail-desc {
-  font-size: 20rem;
+  font-size: var(--text-lead);
   font-weight: 500;
   opacity: 0.5;
   margin-bottom: 60rem;
@@ -336,7 +347,7 @@ canvas {
   padding-top: 60rem;
 }
 .placeholder-text {
-  font-size: 18rem;
+  font-size: var(--text-body);
   opacity: 0.3;
   font-style: italic;
 }

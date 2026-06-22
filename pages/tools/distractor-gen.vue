@@ -127,9 +127,9 @@ async function copy(text: string, i: number) {
 }
 
 .dg-label {
-  font-size: 11rem;
+  font-size: var(--text-label);
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   opacity: 0.45;
   padding-bottom: 2rem;
@@ -209,9 +209,9 @@ async function copy(text: string, i: number) {
 }
 
 .dg-results-label {
-  font-size: 11rem;
+  font-size: var(--text-label);
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   opacity: 0.4;
   margin: 0 0 4rem;

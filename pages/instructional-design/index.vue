@@ -182,7 +182,7 @@ const scoreLabel = computed(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: calc(100rem + var(--safe-top)) 24rem calc(100rem + var(--safe-bottom));
+  padding: var(--page-top) 24rem calc(100rem + var(--safe-bottom));
   overflow-y: auto;
 }
 

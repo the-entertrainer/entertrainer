@@ -333,7 +333,7 @@ async function shareResult() {
   min-height: 100dvh;
   background: var(--color-bg);
   color: var(--color-text);
-  padding: calc(var(--safe-top) + 100rem) var(--grid-margin) calc(var(--safe-bottom) + 100rem);
+  padding: var(--page-top) var(--grid-margin) calc(100rem + var(--safe-bottom));
   display: flex;
   flex-direction: column;
 }

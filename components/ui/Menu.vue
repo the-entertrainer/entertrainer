@@ -98,66 +98,70 @@ function handleBack() {
     <!-- Panel renders behind the button (DOM order = visual z-order) -->
     <div class="e-panel" :class="{ open: isOpened }">
       <div class="e-panel-inner">
-        <button
-          class="e-item e-back"
-          :ref="(el: any) => setItemEl(el, 0)"
-          @click="handleBack"
-        >← back</button>
+        <div class="e-nav-group">
+          <button
+            class="e-item e-back"
+            :ref="(el: any) => setItemEl(el, 0)"
+            @click="handleBack"
+          >← back</button>
 
-        <template v-for="(link, i) in links" :key="link.label">
-          <a
-            v-if="link.external"
-            :href="link.to"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="e-item e-link"
-            :ref="(el: any) => setItemEl(el, i + 1)"
-          >{{ link.label }}</a>
-          <NuxtLink
-            v-else
-            :to="link.to"
-            class="e-item e-link"
-            :ref="(el: any) => setItemEl(el, i + 1)"
-            @click="menuStore.close()"
-          >{{ link.label }}</NuxtLink>
-        </template>
-
-        <!-- View mode toggle — home page only, after loader completes -->
-        <button
-          v-if="showViewToggle"
-          class="e-item e-view"
-          :ref="(el: any) => setItemEl(el, links.length + 1)"
-          @click="homeViewStore.toggle(); menuStore.close()"
-          :aria-label="homeViewStore.mode === 'spiral' ? 'Switch to list view' : 'Switch to spiral view'"
-        >
-          <svg v-if="homeViewStore.mode === 'spiral'" class="ev-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-            <line x1="4" y1="7"  x2="20" y2="7"/>
-            <line x1="4" y1="12" x2="20" y2="12"/>
-            <line x1="4" y1="17" x2="20" y2="17"/>
-          </svg>
-          <svg v-else class="ev-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M11 12a1 1 0 1 1 2 0 2 2 0 1 1-4 0 3 3 0 1 1 6 0 4 4 0 1 1-8 0"/>
-          </svg>
-          {{ homeViewStore.mode === 'spiral' ? 'list' : 'spiral' }}
-        </button>
-
-        <div class="e-item e-theme" :ref="(el: any) => setItemEl(el, links.length + 2)">
-          <button class="et-opt" :class="{ active: themeStore.isDark }"  @click="setTheme(true)">dark</button>
-          <button class="et-opt" :class="{ active: !themeStore.isDark }" @click="setTheme(false)">light</button>
+          <template v-for="(link, i) in links" :key="link.label">
+            <a
+              v-if="link.external"
+              :href="link.to"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="e-item e-link"
+              :ref="(el: any) => setItemEl(el, i + 1)"
+            >{{ link.label }}</a>
+            <NuxtLink
+              v-else
+              :to="link.to"
+              class="e-item e-link"
+              :ref="(el: any) => setItemEl(el, i + 1)"
+              @click="menuStore.close()"
+            >{{ link.label }}</NuxtLink>
+          </template>
         </div>
 
-        <button
-          class="e-item e-sound"
-          :ref="(el: any) => setItemEl(el, links.length + 3)"
-          @click="toggleSound"
-        >
-          <span class="es-icon" :class="{ muted }">
-            <span class="es-bar"></span>
-            <span class="es-bar"></span>
-            <span class="es-bar"></span>
-          </span>
-          {{ muted ? 'sound off' : 'sound on' }}
-        </button>
+        <div class="e-controls">
+          <!-- View mode toggle — home page only, after loader completes -->
+          <button
+            v-if="showViewToggle"
+            class="e-item e-view"
+            :ref="(el: any) => setItemEl(el, links.length + 1)"
+            @click="homeViewStore.toggle(); menuStore.close()"
+            :aria-label="homeViewStore.mode === 'spiral' ? 'Switch to list view' : 'Switch to spiral view'"
+          >
+            <svg v-if="homeViewStore.mode === 'spiral'" class="ev-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <line x1="4" y1="7"  x2="20" y2="7"/>
+              <line x1="4" y1="12" x2="20" y2="12"/>
+              <line x1="4" y1="17" x2="20" y2="17"/>
+            </svg>
+            <svg v-else class="ev-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M11 12a1 1 0 1 1 2 0 2 2 0 1 1-4 0 3 3 0 1 1 6 0 4 4 0 1 1-8 0"/>
+            </svg>
+            {{ homeViewStore.mode === 'spiral' ? 'list' : 'spiral' }}
+          </button>
+
+          <div class="e-item e-theme" :ref="(el: any) => setItemEl(el, links.length + 2)">
+            <button class="et-opt" :class="{ active: themeStore.isDark }"  @click="setTheme(true)">dark</button>
+            <button class="et-opt" :class="{ active: !themeStore.isDark }" @click="setTheme(false)">light</button>
+          </div>
+
+          <button
+            class="e-item e-sound"
+            :ref="(el: any) => setItemEl(el, links.length + 3)"
+            @click="toggleSound"
+          >
+            <span class="es-icon" :class="{ muted }">
+              <span class="es-bar"></span>
+              <span class="es-bar"></span>
+              <span class="es-bar"></span>
+            </span>
+            {{ muted ? 'sound off' : 'sound on' }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -259,13 +263,19 @@ function handleBack() {
   inset: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 4rem;
-  padding: 72rem 40rem 52rem;
+  justify-content: flex-start;
+  gap: 0;
+  padding: 72rem 40rem 48rem;
   color: var(--color-black);
 }
-/* Panel sits on the white pill — the global cream focus ring would vanish,
-   so keyboard focus inside the panel uses the dark foreground instead. */
+
+/* ── Nav group (back + links) — fills remaining space, centres content ── */
+.e-nav-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 .e-panel-inner :focus-visible { outline-color: var(--color-black); }
 
 /* ── Items ── */
@@ -279,24 +289,24 @@ function handleBack() {
 }
 
 .e-back {
-  font-size: 17rem;
+  font-size: 13rem;
   font-weight: 500;
-  letter-spacing: -0.02em;
-  opacity: 0.4;
+  letter-spacing: -0.01em;
+  opacity: 0.38;
   padding-left: 0;
-  margin-bottom: 10rem;
+  margin-bottom: 32rem;
   transition: padding-left 0.4s var(--ease-spring), opacity 0.2s ease;
 }
-.e-back:hover { opacity: 1; padding-left: 8rem; }
+.e-back:hover { opacity: 1; padding-left: 6rem; }
 
 .e-link {
   position: relative;
   display: inline-block;
   width: max-content;
-  font-size: 80rem;
+  font-size: 54rem;
   font-weight: 500;
   letter-spacing: -0.05em;
-  line-height: 100%;
+  line-height: 1.05;
   padding-left: 0;
   transition: padding-left 0.5s var(--ease-spring);
 }
@@ -305,36 +315,66 @@ function handleBack() {
   position: absolute;
   left: 0;
   top: 50%;
-  width: 16rem;
-  height: 16rem;
+  width: 12rem;
+  height: 12rem;
   border-radius: 50%;
   background: var(--color-black);
   transform: translateY(-50%) scale(0);
   opacity: 0;
   transition: transform 0.5s var(--ease-spring), opacity 0.5s var(--ease-spring);
 }
-.e-link:hover { padding-left: 40rem; }
+.e-link:hover { padding-left: 30rem; }
 .e-link:hover::before { transform: translateY(-50%) scale(1); opacity: 1; }
+
+/* ── Controls — anchored to bottom ── */
+.e-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-top: 20rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-black) 10%, transparent);
+}
+
+/* ── View mode toggle ── */
+.e-view {
+  display: flex;
+  align-items: center;
+  gap: 10rem;
+  font-size: 16rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  padding-left: 0;
+  opacity: 0.4;
+  margin-bottom: 16rem;
+  transition: padding-left 0.5s var(--ease-spring), opacity 0.2s ease;
+}
+.e-view:hover { opacity: 1; padding-left: 10rem; }
+.ev-icon {
+  width: 16rem;
+  height: 16rem;
+  flex-shrink: 0;
+}
 
 .e-theme {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  margin-top: 10rem;
+  gap: 1rem;
+  margin-bottom: 16rem;
 }
 .et-opt {
   position: relative;
   padding-left: 0;
-  font-size: 40rem;
+  font-size: 24rem;
   font-weight: 500;
-  letter-spacing: -0.05em;
-  line-height: 100%;
+  letter-spacing: -0.04em;
+  line-height: 1.2;
   color: var(--color-black);
   background: none;
   border: none;
   font-family: var(--main-font);
   cursor: pointer;
-  opacity: 0.28;
+  opacity: 0.25;
   text-align: left;
   transition: padding-left 0.5s var(--ease-spring), opacity 0.35s ease;
 }
@@ -343,25 +383,24 @@ function handleBack() {
   position: absolute;
   left: 0;
   top: 50%;
-  width: 14rem;
-  height: 14rem;
+  width: 10rem;
+  height: 10rem;
   border-radius: 50%;
   background: var(--color-black);
   transform: translateY(-50%) scale(0);
   transition: transform 0.45s var(--ease-spring);
 }
-.et-opt.active { opacity: 1; padding-left: 28rem; }
+.et-opt.active { opacity: 1; padding-left: 22rem; }
 .et-opt.active::before { transform: translateY(-50%) scale(1); }
 
 .e-sound {
   display: flex;
   align-items: center;
-  gap: 12rem;
-  font-size: 17rem;
+  gap: 10rem;
+  font-size: 13rem;
   font-weight: 500;
-  letter-spacing: -0.02em;
-  opacity: 0.5;
-  margin-top: 14rem;
+  letter-spacing: -0.01em;
+  opacity: 0.4;
   transition: opacity 0.2s ease;
   color: var(--color-black);
   background: none;
@@ -371,27 +410,6 @@ function handleBack() {
   text-align: left;
 }
 .e-sound:hover { opacity: 1; }
-/* ── View mode toggle ── */
-.e-view {
-  display: flex;
-  align-items: center;
-  gap: 14rem;
-  font-size: 30rem;
-  font-weight: 500;
-  letter-spacing: -0.04em;
-  line-height: 1;
-  padding-left: 0;
-  opacity: 0.45;
-  margin-top: 6rem;
-  transition: padding-left 0.5s var(--ease-spring), opacity 0.2s ease;
-}
-.e-view:hover { opacity: 1; padding-left: 16rem; }
-.ev-icon {
-  width: 20rem;
-  height: 20rem;
-  flex-shrink: 0;
-  opacity: 0.7;
-}
 
 .es-icon {
   display: flex;
@@ -415,12 +433,11 @@ function handleBack() {
 
 @media (max-width: 600px) {
   .e-panel.open {
-    /* Symmetric (offset + safe-left/right) gutters either side. */
     width: calc(100vw - var(--safe-left) - var(--safe-right) - var(--chrome-offset) * 2);
     min-width: unset;
   }
-  .e-link { font-size: 58rem; }
-  .et-opt { font-size: 30rem; }
-  .e-panel-inner { padding: 72rem 28rem 52rem; }
+  .e-link { font-size: 44rem; }
+  .et-opt { font-size: 20rem; }
+  .e-panel-inner { padding: 72rem 28rem 44rem; }
 }
 </style>

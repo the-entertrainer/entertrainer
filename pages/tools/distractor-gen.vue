@@ -111,7 +111,7 @@ async function copy(text: string, i: number) {
 }
 
 .dg-body {
-  border-top: 1px solid var(--color-white20);
+  border-top: 1px solid var(--color-divider);
   padding-top: 48rem;
   display: flex;
   flex-direction: column;

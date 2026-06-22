@@ -362,10 +362,15 @@ html[data-about][data-theme="dark"] body  { background: #080808; }
 html[data-about][data-theme="light"] body { background: #F8F8F6; }
 html[data-about]:not([data-theme]) body   { background: #080808; }
 
-/* Dim nav chrome on the About page — editorial long-scroll doesn't hide them */
+/* Dim nav chrome on the About page — unobtrusive during long-scroll reading.
+   Pointer events stay active so the menu is still reachable; hovering or
+   focusing into the nav restores full opacity. */
 html[data-about] .e-nav {
   opacity: 0.12;
-  pointer-events: none;
   transition: opacity 0.6s ease;
+}
+html[data-about] .e-nav:hover,
+html[data-about] .e-nav:focus-within {
+  opacity: 1;
 }
 

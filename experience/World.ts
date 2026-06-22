@@ -1,5 +1,6 @@
 import { PlaneGeometry } from 'three'
 import NavPlane from './NavPlane'
+import Particles from './Particles'
 import type Experience from './Experience'
 import type { NavItem } from '~/types/nav'
 
@@ -7,11 +8,13 @@ export default class World {
   experience: Experience
   geometry: PlaneGeometry
   navPlanes: NavPlane[] = []
+  particles: Particles
   private _destroyed = false
 
   constructor(experience: Experience) {
     this.experience = experience
     this.geometry = new PlaneGeometry(1, 1, 8, 8)
+    this.particles = new Particles(experience)
   }
 
   setNavItems(items: NavItem[], isDark = true) {
@@ -23,10 +26,12 @@ export default class World {
     doubled.forEach((item, i) => {
       this.navPlanes.push(new NavPlane(this.experience, i, item, doubled.length, this.geometry, isDark))
     })
+    this.particles.setTheme(isDark)
   }
 
   updateTheme(isDark: boolean) {
     this.navPlanes.forEach((p) => p.updateTexture(isDark))
+    this.particles.setTheme(isDark)
   }
 
   reveal() {
@@ -56,11 +61,13 @@ export default class World {
   update(delta: number) {
     const { wheelDeltaY, scrollOffset } = this.experience.controls
     this.navPlanes.forEach((p) => p.update(delta, scrollOffset, wheelDeltaY))
+    this.particles.update(delta)
   }
 
   destroy() {
     this._destroyed = true
     this.navPlanes.forEach((p) => p.destroy())
+    this.particles.destroy()
     this.geometry.dispose()
   }
 }

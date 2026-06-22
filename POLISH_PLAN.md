@@ -27,6 +27,19 @@ surfaced the following:
 
 ---
 
+### Progress
+
+- [x] **Phase 1** — dead chrome removed, chrome/z-index tokens added
+- [x] **Phase 2** — E-button bar contrast fixed, seamless loader handoff
+- [x] **Phase 3** — reduced-motion paths (loader + menu)
+- [x] **Phase 4** — detail-page shell consolidated, inner-page padding unified
+- [ ] **Phase 5** — button & control system
+- [ ] **Phase 6** — typography & spacing scale
+- [ ] **Phase 7** — responsive & safe-area sweep
+- [ ] **Phase 8** — final QA
+
+---
+
 ## Phase 1 — Remove dead chrome & establish chrome tokens  *(foundational)*
 
 **Goal:** delete everything the overhaul orphaned, and replace scattered

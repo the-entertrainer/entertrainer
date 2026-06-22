@@ -15,7 +15,9 @@ import type { NavItem } from '~/types/nav'
 const CARD_IMAGE_MAP: Record<string, string> = {
   'about':                '/about-me.png',
   'instructional-design': '/instructional-design.png',
+  'my-work':              '/my-work.png',
   'tools':                '/web-apps.png',
+  'downloads':            '/downloads.png',
 }
 const _imageCache = new Map<string, HTMLImageElement>()
 if (typeof document !== 'undefined') {

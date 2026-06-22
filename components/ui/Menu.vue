@@ -1,18 +1,21 @@
 <script setup lang="ts">
 import gsap from 'gsap'
-import { useMenuStore }     from '~/stores/menu'
-import { useContentStore }  from '~/stores/content'
-import { useThemeStore }    from '~/stores/theme'
-import { useHomeViewStore } from '~/stores/homeview'
+import { useMenuStore }       from '~/stores/menu'
+import { useContentStore }    from '~/stores/content'
+import { useThemeStore }      from '~/stores/theme'
+import { useHomeViewStore }   from '~/stores/homeview'
+import { useExperienceStore } from '~/stores/experience'
 import SoundEngine from '~/experience/SoundEngine'
 
-const route         = useRoute()
-const router        = useRouter()
-const menuStore     = useMenuStore()
-const contentStore  = useContentStore()
-const themeStore    = useThemeStore()
-const homeViewStore = useHomeViewStore()
-const isOpened      = computed(() => menuStore.isOpened)
+const route           = useRoute()
+const router          = useRouter()
+const menuStore       = useMenuStore()
+const contentStore    = useContentStore()
+const themeStore      = useThemeStore()
+const homeViewStore   = useHomeViewStore()
+const experienceStore = useExperienceStore()
+const isOpened        = computed(() => menuStore.isOpened)
+const showViewToggle  = computed(() => homeViewStore.isHome && experienceStore.hasEntered)
 
 // ── Sound ─────────────────────────────────────────────────────
 const MUTE_KEY = 'et-muted'
@@ -26,7 +29,7 @@ onMounted(() => {
     const s = localStorage.getItem(MUTE_KEY)
     if (s !== null) muted.value = s === '1'
   } catch {}
-  gsap.set(itemEls.value, reduceMotion ? { opacity: 0 } : { y: -20, x: 20, opacity: 0 })
+  gsap.set(itemEls.value.filter(Boolean), reduceMotion ? { opacity: 0 } : { y: -20, x: 20, opacity: 0 })
 })
 
 function toggleSound() {
@@ -47,18 +50,19 @@ const itemEls = ref<HTMLElement[]>([])
 
 watch(isOpened, (open) => {
   SoundEngine.getInstance()?.onMenuChange(open)
-  gsap.killTweensOf(itemEls.value)
+  const items = itemEls.value.filter(Boolean)
+  gsap.killTweensOf(items)
   if (reduceMotion) {
-    gsap.to(itemEls.value, { opacity: open ? 1 : 0, duration: 0.2, delay: open ? 0.2 : 0 })
+    gsap.to(items, { opacity: open ? 1 : 0, duration: 0.2, delay: open ? 0.2 : 0 })
     return
   }
   if (open) {
-    gsap.to(itemEls.value, {
+    gsap.to(items, {
       y: 0, x: 0, opacity: 1,
       duration: 0.5, delay: 0.2, ease: 'power2.out', stagger: 0.08
     })
   } else {
-    gsap.to(itemEls.value, {
+    gsap.to(items, {
       y: -20, x: 20, opacity: 0,
       duration: 0.2, ease: 'power4.out', stagger: -0.05
     })
@@ -90,7 +94,7 @@ function handleBack() {
     <div v-if="isOpened" class="e-backdrop" @click="menuStore.close()" />
   </Teleport>
 
-  <div class="e-nav">
+  <div class="e-nav" :class="{ 'panel-open': isOpened }">
     <!-- Panel renders behind the button (DOM order = visual z-order) -->
     <div class="e-panel" :class="{ open: isOpened }">
       <div class="e-panel-inner">
@@ -118,14 +122,33 @@ function handleBack() {
           >{{ link.label }}</NuxtLink>
         </template>
 
-        <div class="e-item e-theme" :ref="(el: any) => setItemEl(el, links.length + 1)">
+        <!-- View mode toggle — home page only, after loader completes -->
+        <button
+          v-if="showViewToggle"
+          class="e-item e-view"
+          :ref="(el: any) => setItemEl(el, links.length + 1)"
+          @click="homeViewStore.toggle(); menuStore.close()"
+          :aria-label="homeViewStore.mode === 'spiral' ? 'Switch to list view' : 'Switch to spiral view'"
+        >
+          <svg v-if="homeViewStore.mode === 'spiral'" class="ev-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="4" y1="7"  x2="20" y2="7"/>
+            <line x1="4" y1="12" x2="20" y2="12"/>
+            <line x1="4" y1="17" x2="20" y2="17"/>
+          </svg>
+          <svg v-else class="ev-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M11 12a1 1 0 1 1 2 0 2 2 0 1 1-4 0 3 3 0 1 1 6 0 4 4 0 1 1-8 0"/>
+          </svg>
+          {{ homeViewStore.mode === 'spiral' ? 'list' : 'spiral' }}
+        </button>
+
+        <div class="e-item e-theme" :ref="(el: any) => setItemEl(el, links.length + 2)">
           <button class="et-opt" :class="{ active: themeStore.isDark }"  @click="setTheme(true)">dark</button>
           <button class="et-opt" :class="{ active: !themeStore.isDark }" @click="setTheme(false)">light</button>
         </div>
 
         <button
           class="e-item e-sound"
-          :ref="(el: any) => setItemEl(el, links.length + 2)"
+          :ref="(el: any) => setItemEl(el, links.length + 3)"
           @click="toggleSound"
         >
           <span class="es-icon" :class="{ muted }">
@@ -191,10 +214,14 @@ function handleBack() {
   display: block;
   height: 2.5rem;
   border-radius: 1.5rem;
-  /* Dark bar on the white pill — contrasts in both themes (--color-black is
-     the flipped alias, so it's always the pill's foreground). */
+  /* Closed: match page text — cream on dark, dark on light. Always readable
+     against the page background without needing a solid pill behind it. */
+  background: var(--color-text);
+  transition: transform 0.4s var(--ease-spring), width 0.3s ease, opacity 0.2s ease, background 0.3s ease;
+}
+/* When panel is open the bars sit on the white panel — switch to panel foreground */
+.panel-open .e-bar {
   background: var(--color-black);
-  transition: transform 0.4s var(--ease-spring), width 0.3s ease, opacity 0.2s ease;
 }
 .e-bar-t { width: 22rem; }
 .e-bar-m { width: 14rem; }
@@ -213,12 +240,16 @@ function handleBack() {
   width: var(--chrome-size);
   height: var(--chrome-size);
   border-radius: calc(var(--chrome-size) / 2);
-  background: var(--color-white);
+  /* Closed: glass pill — present but unobtrusive over any background */
+  background: color-mix(in srgb, var(--color-white) 22%, transparent);
+  backdrop-filter: blur(10px) saturate(1.4);
+  -webkit-backdrop-filter: blur(10px) saturate(1.4);
   overflow: hidden;
   transition:
     width 0.9s var(--ease-spring),
     height 1s var(--ease-spring),
-    border-radius 0.9s ease;
+    border-radius 0.9s ease,
+    background 0.4s ease;
 }
 .e-panel.open {
   width: calc(var(--grid-column) * 4 + var(--grid-gutter) * 3);
@@ -227,6 +258,10 @@ function handleBack() {
      gap below so the panel never runs under a notch or home indicator. */
   height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - var(--chrome-offset) * 2);
   border-radius: 16rem;
+  /* Open: fully opaque solid panel */
+  background: var(--color-white);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* ── Panel inner ── */
@@ -347,6 +382,28 @@ function handleBack() {
   text-align: left;
 }
 .e-sound:hover { opacity: 1; }
+/* ── View mode toggle ── */
+.e-view {
+  display: flex;
+  align-items: center;
+  gap: 14rem;
+  font-size: 30rem;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  padding-left: 0;
+  opacity: 0.45;
+  margin-top: 6rem;
+  transition: padding-left 0.5s var(--ease-spring), opacity 0.2s ease;
+}
+.e-view:hover { opacity: 1; padding-left: 16rem; }
+.ev-icon {
+  width: 20rem;
+  height: 20rem;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
 .es-icon {
   display: flex;
   align-items: center;

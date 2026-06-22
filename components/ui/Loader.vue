@@ -100,9 +100,11 @@ function enter() {
   const cx = rect.left + rect.width  / 2 - window.innerWidth  / 2
   const cy = rect.top  + rect.height / 2 - window.innerHeight / 2
 
-  // The bar colour on the live button (dark foreground on the white pill).
+  // Match the real button's closed-state bar color: --color-text adapts to
+  // the current theme (cream in dark mode, dark in light mode) so the
+  // handoff from loader bars to live button bars is seamless.
   const root = getComputedStyle(document.documentElement)
-  const barColor = root.getPropertyValue('--color-black').trim() || '#0D0C0A'
+  const barColor = root.getPropertyValue('--color-text').trim() || '#F4F1EC'
 
   // Reduced motion: no fly. Reveal the experience and cross-fade the overlay.
   if (reduceMotion) {
@@ -127,13 +129,7 @@ function enter() {
     }, 0.1 + i * 0.04)
   })
 
-  // Bloom the white pill behind the bars as they land — this IS the button's
-  // visual, so the handoff to the real Menu component is seamless.
-  if (padEl.value) {
-    gsap.set(padEl.value, { xPercent: -50, yPercent: -50, x: cx, y: cy, scale: 0, opacity: 0 })
-    tl.to(padEl.value, { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(1.6)' }, 0.6)
-  }
-  // Bars darken from cream-on-bg to dark-on-pill to match the live button.
+  // Settle bars to their landing colour — matches the live button's closed state.
   tl.to(barEls.value, { backgroundColor: barColor, duration: 0.35, ease: 'power2.out' }, 0.62)
 
   // Fade the loader background, reveal the WebGL canvas beneath

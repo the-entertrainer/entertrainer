@@ -276,7 +276,7 @@ const scoreLabel = computed(() => {
   background: color-mix(in srgb, var(--color-text) 6%, transparent);
 }
 .id-option-letter {
-  font-size: 11rem;
+  font-size: var(--text-label);
   font-weight: 700;
   letter-spacing: 0.06em;
   opacity: 0.5;
@@ -284,7 +284,7 @@ const scoreLabel = computed(() => {
   padding-top: 2rem;
 }
 .id-option-text {
-  font-size: 15rem;
+  font-size: var(--text-sm);
   line-height: 1.5;
 }
 
@@ -321,7 +321,7 @@ const scoreLabel = computed(() => {
   border-left-color: color-mix(in srgb, var(--color-text) 38%, transparent);
 }
 .id-feedback-tag {
-  font-size: 11rem;
+  font-size: var(--text-label);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -329,7 +329,7 @@ const scoreLabel = computed(() => {
   color: var(--color-text);
 }
 .id-feedback-text {
-  font-size: 14rem;
+  font-size: var(--text-sm);
   line-height: 1.65;
   color: var(--color-text);
   opacity: 0.8;
@@ -374,7 +374,7 @@ const scoreLabel = computed(() => {
   margin: 0;
 }
 .id-done-body {
-  font-size: 16rem;
+  font-size: var(--text-body);
   line-height: 1.7;
   color: var(--color-text);
   opacity: 0.65;

@@ -151,7 +151,7 @@ onBeforeUnmount(() => {
   gap: 18rem;
 }
 .about-section p:not(.about-callout) {
-  font-size: 17rem;
+  font-size: var(--text-body);
   font-weight: 400;
   line-height: 1.8;
   letter-spacing: -0.018em;
@@ -161,7 +161,7 @@ onBeforeUnmount(() => {
 
 /* ─── Callout ─── */
 .about-callout {
-  font-size: 17rem;
+  font-size: var(--text-body);
   font-weight: 500;
   line-height: 1.7;
   letter-spacing: -0.02em;
@@ -185,7 +185,7 @@ onBeforeUnmount(() => {
   margin-bottom: 32rem;
 }
 .about-questions p {
-  font-size: 17rem;
+  font-size: var(--text-body);
   font-weight: 400;
   font-style: italic;
   line-height: 2.1;
@@ -202,7 +202,7 @@ onBeforeUnmount(() => {
 
 /* ─── Asatoma ─── */
 .about-asatoma {
-  font-size: 17rem;
+  font-size: var(--text-body);
   font-weight: 500;
   font-style: italic;
   letter-spacing: -0.018em;

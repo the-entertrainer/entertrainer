@@ -142,7 +142,7 @@ async function copy(text: string, i: number) {
   border-radius: 12rem;
   color: var(--color-text);
   font-family: inherit;
-  font-size: 15rem;
+  font-size: var(--text-sm);
   line-height: 1.55;
   padding: 14rem 16rem;
   resize: vertical;
@@ -192,7 +192,7 @@ async function copy(text: string, i: number) {
 
 /* ── Error ── */
 .dg-error {
-  font-size: 14rem;
+  font-size: var(--text-sm);
   color: var(--color-text);
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
   border: 1px solid color-mix(in srgb, var(--color-text) 22%, transparent);
@@ -238,7 +238,7 @@ async function copy(text: string, i: number) {
 }
 
 .dg-result-text {
-  font-size: 15rem;
+  font-size: var(--text-sm);
   line-height: 1.5;
   flex: 1;
   color: var(--color-text);

@@ -211,7 +211,7 @@ function onLoaderEntered() {
   pointer-events: none;
 }
 
-/* List mode */
+/* List mode — matches the E-menu panel: white pill background, black foreground */
 .spiral-list {
   position: fixed;
   inset: 0;
@@ -221,25 +221,29 @@ function onLoaderEntered() {
   justify-content: center;
   padding: calc(80rem + var(--safe-top)) calc(var(--grid-margin) + 80rem) calc(60rem + var(--safe-bottom));
   overflow-y: auto;
+  background: var(--color-white);
+  color: var(--color-black);
 }
+/* Inside the white panel, keyboard focus ring uses the panel foreground */
+.spiral-list :focus-visible { outline-color: var(--color-black); }
 .nav-row {
   display: flex;
   align-items: center;
   gap: 24rem;
   padding: 28rem 0;
   border: none;
-  border-bottom: 1px solid var(--color-divider);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-black) 12%, transparent);
   border-radius: 0;
   background: none;
   text-align: left;
   text-decoration: none;
-  color: var(--color-text);
+  color: var(--color-black);
   width: 100%;
   cursor: pointer;
   font-family: var(--main-font);
   transition: padding-left 0.3s var(--ease-spring);
 }
-.nav-row:first-child { border-top: 1px solid var(--color-divider); }
+.nav-row:first-child { border-top: 1px solid color-mix(in srgb, var(--color-black) 12%, transparent); }
 .nav-row:hover { padding-left: 16rem; }
 .nav-row__label {
   font-size: 40rem;
@@ -249,7 +253,7 @@ function onLoaderEntered() {
   min-width: 220rem;
 }
 .nav-row__desc {
-  font-size: 14rem;
+  font-size: var(--text-sm);
   opacity: 0.4;
   flex: 1;
 }

@@ -347,7 +347,7 @@ async function shareResult() {
   margin-bottom: 12rem;
 }
 .rm-subtitle {
-  font-size: 16rem;
+  font-size: var(--text-body);
   opacity: 0.45;
   margin-bottom: 24rem;
   font-weight: 500;
@@ -421,7 +421,7 @@ async function shareResult() {
   border: none;
   color: var(--color-text);
   font-family: inherit;
-  font-size: 15rem;
+  font-size: var(--text-sm);
   line-height: 1.6;
   padding: 16rem 0;
   resize: none;
@@ -438,7 +438,7 @@ async function shareResult() {
   gap: 12rem;
 }
 .rm-word-hint {
-  font-size: 11rem;
+  font-size: var(--text-label);
   opacity: 0.35;
   font-weight: 500;
 }
@@ -461,7 +461,7 @@ async function shareResult() {
 
 .rm-error {
   margin-top: 20rem;
-  font-size: 14rem;
+  font-size: var(--text-sm);
   color: var(--color-text);
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
   border: 1px solid color-mix(in srgb, var(--color-text) 22%, transparent);
@@ -651,7 +651,7 @@ async function shareResult() {
   opacity: 0.7;
 }
 .rm-verdict-text {
-  font-size: 15rem;
+  font-size: var(--text-sm);
   line-height: 1.65;
   opacity: 0.9;
   font-style: italic;
@@ -660,7 +660,7 @@ async function shareResult() {
 
 /* Taunt */
 .rm-taunt {
-  font-size: 15rem;
+  font-size: var(--text-sm);
   line-height: 1.55;
   opacity: 0.7;
   font-style: italic;
@@ -746,7 +746,7 @@ async function shareResult() {
   display: flex;
   align-items: center;
   gap: 10rem;
-  font-size: 14rem;
+  font-size: var(--text-sm);
   opacity: 0.6;
   font-weight: 500;
 }
@@ -755,7 +755,7 @@ async function shareResult() {
 
 /* Competitive CTA */
 .rm-cta {
-  font-size: 14rem;
+  font-size: var(--text-sm);
   opacity: 0.55;
   font-weight: 500;
   margin: 0;
@@ -778,7 +778,7 @@ async function shareResult() {
   background: linear-gradient(135deg, #FF3B3B, #FF9500);
   color: #fff;
   font-family: inherit;
-  font-size: 14rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
   border: none;
@@ -792,7 +792,7 @@ async function shareResult() {
   border: none;
   color: var(--color-text);
   font-family: inherit;
-  font-size: 14rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   opacity: 0.45;
   cursor: pointer;

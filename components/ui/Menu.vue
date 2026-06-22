@@ -184,7 +184,9 @@ function handleBack() {
   display: block;
   height: 2.5rem;
   border-radius: 1.5rem;
-  background: var(--color-text);
+  /* Dark bar on the white pill — contrasts in both themes (--color-black is
+     the flipped alias, so it's always the pill's foreground). */
+  background: var(--color-black);
   transition: transform 0.4s var(--ease-spring), width 0.3s ease, opacity 0.2s ease;
 }
 .e-bar-t { width: 22rem; }

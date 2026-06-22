@@ -11,6 +11,7 @@ const entering        = ref(false)
 
 const loaderEl = ref<HTMLElement | null>(null)
 const anchorEl = ref<HTMLElement | null>(null)
+const padEl    = ref<HTMLElement | null>(null)
 const barEls   = ref<HTMLElement[]>([])
 
 // [centerWidth, centerHeight, btnWidth, btnHeight, centerY, btnYOffset, btnXOffset]
@@ -89,6 +90,10 @@ function enter() {
   const cx = rect.left + rect.width  / 2 - window.innerWidth  / 2
   const cy = rect.top  + rect.height / 2 - window.innerHeight / 2
 
+  // The bar colour on the live button (dark foreground on the white pill).
+  const root = getComputedStyle(document.documentElement)
+  const barColor = root.getPropertyValue('--color-black').trim() || '#0D0C0A'
+
   const tl = gsap.timeline({ onComplete: () => emit('entered') })
 
   // Fly each bar to its slot inside the button
@@ -103,19 +108,31 @@ function enter() {
     }, 0.1 + i * 0.04)
   })
 
+  // Bloom the white pill behind the bars as they land — this IS the button's
+  // visual, so the handoff to the real Menu component is seamless.
+  if (padEl.value) {
+    gsap.set(padEl.value, { xPercent: -50, yPercent: -50, x: cx, y: cy, scale: 0, opacity: 0 })
+    tl.to(padEl.value, { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(1.6)' }, 0.6)
+  }
+  // Bars darken from cream-on-bg to dark-on-pill to match the live button.
+  tl.to(barEls.value, { backgroundColor: barColor, duration: 0.35, ease: 'power2.out' }, 0.62)
+
   // Fade the loader background, reveal the WebGL canvas beneath
   tl.add(() => {
     experienceStore.setHasEntered()
     gsap.to(loaderEl.value, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.55, ease: 'power2.out' })
-  }, 0.7)
+  }, 0.95)
 
-  // Fade bars out — the real button takes over
-  tl.to(barEls.value, { opacity: 0, duration: 0.35, ease: 'power2.in' }, 1.1)
+  // Cross-fade the morph overlay out, leaving the identical real button.
+  tl.to([padEl.value, ...barEls.value], { opacity: 0, duration: 0.35, ease: 'power2.in' }, 1.35)
 }
 </script>
 
 <template>
   <div ref="loaderEl" class="eloader">
+    <!-- White pill that blooms in behind the bars as they land -->
+    <span ref="padEl" class="epad"></span>
+
     <span
       v-for="i in 3"
       :key="'bar-' + i"
@@ -140,9 +157,22 @@ function enter() {
   position: absolute;
   left: 50%;
   top: 50%;
+  z-index: 2;
   background: var(--color-text);
   border-radius: 3rem;
   will-change: transform, width, height;
+  pointer-events: none;
+}
+.epad {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: var(--chrome-size);
+  height: var(--chrome-size);
+  border-radius: 50%;
+  background: var(--color-white);
+  opacity: 0;
   pointer-events: none;
 }
 .eanchor {

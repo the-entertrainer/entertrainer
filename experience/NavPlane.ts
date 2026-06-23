@@ -87,23 +87,19 @@ const fragmentShader = /* glsl */`
       float luma = dot(fogColor, vec3(0.299, 0.587, 0.114));
       float dark = step(luma, 0.5); // 1.0 dark mode, 0.0 light mode
 
-      // Pi Blue — used to tint the light-theme back so it complements the cream scene
-      vec3 piBlue = vec3(0.141, 0.247, 0.416);
-
       // Glass body
-      //  light: soft Pi-Blue frosted glass (cool, brand-tinted) with a gentle
-      //         top-lit sheen so it sits well against the warm cream backdrop
+      //  light: warm frosted cream — picks up fogColor so backs blend with the scene
       //  dark:  faint white glass (unchanged)
-      vec3 lightBack = mix(vec3(0.86, 0.89, 0.94), piBlue, 0.10);
-      lightBack += (vUv.y - 0.5) * 0.04;
+      vec3 lightBack = mix(fogColor, vec3(1.0), 0.12);  // slightly lighter than backdrop
+      lightBack += (vUv.y - 0.5) * 0.03;               // subtle top-lit sheen
       vec3 glass = mix(
         lightBack,
         mix(fogColor, vec3(1.0), 0.07),
         dark
       );
 
-      // Diagonal ambient sheen — both modes now (mirrors front card)
-      float sweep = max(0.0, 0.6 - vUv.x * 0.5 - vUv.y * 0.5) * mix(0.06, 0.04, dark);
+      // Diagonal ambient sheen — both modes
+      float sweep = max(0.0, 0.6 - vUv.x * 0.5 - vUv.y * 0.5) * mix(0.05, 0.04, dark);
       glass += vec3(sweep);
 
       // Border using rounded-rect SDF — matches --color-glass-border
@@ -113,7 +109,7 @@ const fragmentShader = /* glsl */`
       float bSdf    = length(max(bD, 0.0)) - 0.08;
       float bStr    = mix(0.14, 0.18, dark);
       vec3  bCol    = mix(
-        mix(lightBack, piBlue, 0.32),    // light: deeper Pi-Blue edge
+        fogColor * 0.84,                 // light: slightly darker warm edge
         mix(fogColor, vec3(1.0), bStr),  // dark:  faint white edge
         dark
       );
@@ -122,8 +118,8 @@ const fragmentShader = /* glsl */`
       // Accent tick — mirrors bottom-left marker on front face
       float tX = step(100.0/1700.0, vUv.x) - step(240.0/1700.0, vUv.x);
       float tY = step(820.0/1000.0, vUv.y) - step(824.0/1000.0, vUv.y);
-      vec3  tCol = mix(vec3(0.051, 0.047, 0.039), vec3(0.957, 0.945, 0.925), dark);
-      glass = mix(glass, tCol, clamp(tX * tY, 0.0, 1.0) * mix(0.25, 0.40, dark));
+      vec3  tCol = mix(fogColor * 0.70, vec3(0.957, 0.945, 0.925), dark);
+      glass = mix(glass, tCol, clamp(tX * tY, 0.0, 1.0) * mix(0.30, 0.40, dark));
 
       color = vec4(glass, 1.0);
     }

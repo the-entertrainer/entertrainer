@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import gsap from 'gsap'
 import { useExperienceStore } from '~/stores/experience'
-import SoundEngine from '~/experience/SoundEngine'
 
 const emit = defineEmits<{ (e: 'entered'): void }>()
 
@@ -97,9 +96,6 @@ function queueExit() {
 function runExit() {
   if (exiting || !anchorEl.value || !dotEl.value) return
   exiting = true
-
-  SoundEngine.init()
-  SoundEngine.getInstance()?.unlock()
 
   const winCX = window.innerWidth  / 2
   const winCY = window.innerHeight / 2

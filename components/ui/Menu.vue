@@ -5,7 +5,6 @@ import { useContentStore }    from '~/stores/content'
 import { useThemeStore }      from '~/stores/theme'
 import { useHomeViewStore }   from '~/stores/homeview'
 import { useExperienceStore } from '~/stores/experience'
-import SoundEngine from '~/experience/SoundEngine'
 
 const route           = useRoute()
 const router          = useRouter()
@@ -17,28 +16,12 @@ const experienceStore = useExperienceStore()
 const isOpened        = computed(() => menuStore.isOpened)
 const showViewToggle  = computed(() => homeViewStore.isHome && experienceStore.hasEntered)
 
-// ── Sound ─────────────────────────────────────────────────────
-const MUTE_KEY = 'et-muted'
-const muted = ref(true)
-
 const reduceMotion = import.meta.client &&
   window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
 onMounted(() => {
-  try {
-    const s = localStorage.getItem(MUTE_KEY)
-    if (s !== null) muted.value = s === '1'
-  } catch {}
   gsap.set(itemEls.value.filter(Boolean), reduceMotion ? { opacity: 0 } : { y: -20, x: 20, opacity: 0 })
 })
-
-function toggleSound() {
-  const engine = SoundEngine.getInstance() ?? SoundEngine.init()
-  const next = !muted.value
-  muted.value = next
-  engine.setMuted(next)
-  try { localStorage.setItem(MUTE_KEY, next ? '1' : '0') } catch {}
-}
 
 // ── Links ─────────────────────────────────────────────────────
 const links = [
@@ -49,7 +32,6 @@ const links = [
 const itemEls = ref<HTMLElement[]>([])
 
 watch(isOpened, (open) => {
-  SoundEngine.getInstance()?.onMenuChange(open)
   const items = itemEls.value.filter(Boolean)
   gsap.killTweensOf(items)
   if (reduceMotion) {
@@ -75,7 +57,6 @@ function setItemEl(el: any, i: number) {
 }
 
 function setTheme(dark: boolean) {
-  SoundEngine.getInstance()?.onThemeChange(dark)
   themeStore.set(dark ? 'dark' : 'light')
 }
 
@@ -148,19 +129,6 @@ function handleBack() {
             <button class="et-opt" :class="{ active: themeStore.isDark }"  @click="setTheme(true)">dark</button>
             <button class="et-opt" :class="{ active: !themeStore.isDark }" @click="setTheme(false)">light</button>
           </div>
-
-          <button
-            class="e-item e-sound"
-            :ref="(el: any) => setItemEl(el, links.length + 3)"
-            @click="toggleSound"
-          >
-            <span class="es-icon" :class="{ muted }">
-              <span class="es-bar"></span>
-              <span class="es-bar"></span>
-              <span class="es-bar"></span>
-            </span>
-            {{ muted ? 'sound off' : 'sound on' }}
-          </button>
         </div>
       </div>
     </div>
@@ -392,44 +360,6 @@ function handleBack() {
 }
 .et-opt.active { opacity: 1; padding-left: 22rem; }
 .et-opt.active::before { transform: translateY(-50%) scale(1); }
-
-.e-sound {
-  display: flex;
-  align-items: center;
-  gap: 10rem;
-  font-size: 13rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  opacity: 0.4;
-  transition: opacity 0.2s ease;
-  color: var(--color-black);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: var(--main-font);
-  text-align: left;
-}
-.e-sound:hover { opacity: 1; }
-
-.es-icon {
-  display: flex;
-  align-items: center;
-  gap: 2.5rem;
-}
-.es-bar {
-  width: 3rem;
-  height: 12rem;
-  border-radius: 2rem;
-  background: var(--color-black);
-  animation: es-bounce 1s ease-in-out infinite;
-}
-.es-bar:nth-child(2) { animation-delay: 0.15s; }
-.es-bar:nth-child(3) { animation-delay: 0.3s; }
-.es-icon.muted .es-bar { animation-play-state: paused; height: 4rem; }
-@keyframes es-bounce {
-  0%, 100% { height: 6rem; }
-  50% { height: 14rem; }
-}
 
 @media (max-width: 600px) {
   .e-panel.open {

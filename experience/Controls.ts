@@ -1,5 +1,4 @@
 import type Experience from './Experience'
-import SoundEngine from './SoundEngine'
 
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v))
 
@@ -37,21 +36,16 @@ export default class Controls {
   private _snapTarget = 0
   private _lastInteraction = 0   // performance.now() of last user input
   private _prevOffset = 0.5
-  private _lastFloor = 0
 
   // touch tracking
   private _isTouching = false
   private _lastTouchY = 0
   private _lastTouchTime = 0
 
-  // wheel whoosh throttle
-  private _lastWheelWhoosh = 0
-
   constructor(experience: Experience) {
     this.experience = experience
     this._phase = 'drift'
     this._lastInteraction = performance.now()
-    this._lastFloor = Math.floor(this.scrollOffset)
 
     this._onWheel = this._onWheel.bind(this)
     this._onTouchStart = this._onTouchStart.bind(this)
@@ -70,15 +64,6 @@ export default class Controls {
     this._velocity = clamp(this._velocity + impulse, -this.MAX_V, this.MAX_V)
     this._phase = 'fling'
     this._lastInteraction = performance.now()
-
-    const now = this._lastInteraction
-    if (Math.abs(impulse) > this.FLICK_V * 0.5 && now - this._lastWheelWhoosh > 220) {
-      this._lastWheelWhoosh = now
-      SoundEngine.getInstance()?.onSwipeWhoosh(
-        Math.min(1, Math.abs(this._velocity) / this.MAX_V),
-        Math.sign(this._velocity) || 1
-      )
-    }
   }
 
   // ── Touch: 1:1 finger tracking + velocity capture ──────────────────────────
@@ -118,10 +103,6 @@ export default class Controls {
 
     if (Math.abs(this._velocity) > this.FLICK_V) {
       this._phase = 'fling'
-      SoundEngine.getInstance()?.onSwipeWhoosh(
-        Math.min(1, Math.abs(this._velocity) / this.MAX_V),
-        Math.sign(this._velocity) || 1
-      )
     } else {
       this._beginSnap()
     }
@@ -174,18 +155,6 @@ export default class Controls {
     // Per-frame offset delta — consumed by NavPlane's uScrollSpeed + scroll wind
     this.wheelDeltaY = this.scrollOffset - this._prevOffset
     this._prevOffset = this.scrollOffset
-
-    // Riffle: a soft tick each time a card crosses centre (rate scales with speed)
-    const floor = Math.floor(this.scrollOffset)
-    if (floor !== this._lastFloor && (this._phase === 'fling' || this._phase === 'drift')) {
-      const intensity = Math.min(1, Math.abs(this.wheelDeltaY) / 0.08)
-      if (intensity > 0.05) SoundEngine.getInstance()?.onCardTick(intensity)
-      this._lastFloor = floor
-    } else if (this._phase !== 'fling' && this._phase !== 'drift') {
-      this._lastFloor = floor
-    }
-
-    SoundEngine.getInstance()?.updateScroll(this.wheelDeltaY)
   }
 
   reset() {
@@ -193,7 +162,6 @@ export default class Controls {
     this._prevOffset = 0.5
     this._velocity = 0
     this._phase = 'drift'
-    this._lastFloor = Math.floor(this.scrollOffset)
     this._lastInteraction = performance.now()
   }
 

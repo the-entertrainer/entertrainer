@@ -70,6 +70,12 @@ function startIntro() {
     return
   }
 
+  // Rolling degrees: distance / circumference × 360
+  // Rightward → clockwise (+deg).
+  const CIRCUMFERENCE = Math.PI * DOT_PX
+  const introDist = Math.sqrt(periodX * periodX + periodY * periodY)
+  const introRoll  = (introDist / CIRCUMFERENCE) * 360  // always positive
+
   introTl = gsap.timeline({
     onComplete: () => { introDone = true; if (pendingExit) queueExit() }
   })
@@ -77,8 +83,8 @@ function startIntro() {
   introTl
     // 1) ET mark pops at screen centre
     .to(dotEl.value, { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(2.4)' }, 0)
-    // 2) flows right, shrinking to period size as "entertrainer" writes in behind it
-    .to(dotEl.value, { x: periodX, y: periodY, scale: PERIOD_SCALE, duration: 0.85, ease: 'power3.inOut' }, 0.5)
+    // 2) rolls right, shrinking to period size as "entertrainer" writes in behind it
+    .to(dotEl.value, { x: periodX, y: periodY, scale: PERIOD_SCALE, rotation: introRoll, duration: 0.85, ease: 'power3.inOut' }, 0.5)
     .to(textEl.value, { clipPath: CLIP_SHOWN, duration: 0.8, ease: 'power2.out' }, 0.62)
 }
 
@@ -113,18 +119,23 @@ function runExit() {
     return
   }
 
+  const CIRCUMFERENCE = Math.PI * DOT_PX
+  // Corner flight distance and roll — rolls clockwise (same direction as intro)
+  const cornerDist = Math.sqrt(cornerX * cornerX + cornerY * cornerY)
+  const cornerRoll = (cornerDist / CIRCUMFERENCE) * 360
+
   const tl = gsap.timeline({ onComplete: () => emit('entered') })
 
-  // 1) dot retreats to centre at full size; wordmark wipes back
-  tl.to(dotEl.value,  { x: 0, y: 0, scale: 1, duration: 0.7, ease: 'power3.inOut' }, 0)
+  // 1) dot rolls back to centre; wordmark wipes away
+  tl.to(dotEl.value,  { x: 0, y: 0, scale: 1, rotation: 0, duration: 0.7, ease: 'power3.inOut' }, 0)
     .to(textEl.value, { clipPath: CLIP_HIDDEN, duration: 0.55, ease: 'power2.in' }, 0.05)
 
   // 2) heartbeat emphasis at centre
     .to(dotEl.value, { scale: 1.38, duration: 0.2,  ease: 'power2.out'   }, 0.8)
     .to(dotEl.value, { scale: 1,    duration: 0.24, ease: 'power2.inOut' }, 1.0)
 
-  // 3) flies to the corner at its natural 48px size (= the real menu button)
-    .to(dotEl.value, { x: cornerX, y: cornerY, duration: 0.72, ease: 'power3.inOut' }, 1.3)
+  // 3) rolls to the corner at its natural 48px size (= the real menu button)
+    .to(dotEl.value, { x: cornerX, y: cornerY, rotation: cornerRoll, duration: 0.72, ease: 'power3.inOut' }, 1.3)
 
   // 4) reveal experience beneath the loader
     .add(() => {

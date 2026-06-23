@@ -200,11 +200,10 @@ async function mountExperience() {
     }, 80)
   })
 
-  // Whenever the spiral is actually on screen, guarantee the global view-switch
-  // is shown. The loader normally sets this at the end of its enter animation,
-  // but on return visits (loader skipped) we rely on this so the toggle never
-  // gets stuck invisible. setHasEntered is idempotent.
-  if (!experienceStore.hasEntered) experienceStore.setHasEntered()
+  // For return visits (no loader, or loader already played): ensure the menu
+  // switch is visible. In the first-load path the loader's exit calls
+  // setHasEntered at the right moment — don't jump the gun here.
+  if (!props.showLoader && !experienceStore.hasEntered) experienceStore.setHasEntered()
 }
 
 function destroyExperience() {
@@ -221,25 +220,35 @@ onMounted(() => {
   ;($lenis as any)?.stop()
 
   if (props.showLoader) {
-    // If user already entered this session, skip loader
+    // Return visit — skip loader, show experience directly
     if (experienceStore.hasEntered) {
       isLoaderDone.value = true
       mountExperience()
       return
     }
 
-    let p = 0
-    const interval = setInterval(() => {
-      p = Math.min(p + Math.random() * 8 + 2, 99)
-      experienceStore.setProgress(p)
-      if (p >= 99) {
-        clearInterval(interval)
-        setTimeout(() => {
-          experienceStore.setProgress(100)
-          experienceStore.setReady()
-        }, 300)
+    // First visit: start the experience loading in the background immediately so
+    // that by the time the loader's exit animation completes, the canvas is
+    // already rendered and there is no blank frame.
+    mountExperience().then(() => {
+      if (!experience) { experienceStore.setReady(); return }
+
+      const MIN_DISPLAY_MS = 700  // keep the wordmark visible at least this long
+      const tStart = Date.now()
+      let readyFired = false
+
+      const markReady = () => {
+        if (readyFired) return
+        readyFired = true
+        const wait = Math.max(0, MIN_DISPLAY_MS - (Date.now() - tStart))
+        setTimeout(() => experienceStore.setReady(), wait)
       }
-    }, 80)
+
+      // Primary signal: backdrop image baked and first render happened
+      experience!.on('backdropReady', markReady)
+      // Fallback: if backdrop never loads (network error etc.), give up after 6s
+      setTimeout(markReady, 6000)
+    })
   } else {
     mountExperience()
   }

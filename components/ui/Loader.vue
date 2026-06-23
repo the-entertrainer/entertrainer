@@ -10,7 +10,6 @@ const isReady         = computed(() => experienceStore.isReady)
 const loaderEl = ref<HTMLElement | null>(null)
 const textEl   = ref<HTMLElement | null>(null)
 const dotEl    = ref<HTMLElement | null>(null)
-const anchorEl = ref<HTMLElement | null>(null)
 
 // Clip path sweeps the wordmark text in/out (right edge moves).
 // Negative top/bottom/left preserves italic overhang and descenders.
@@ -100,33 +99,21 @@ function queueExit() {
 }
 
 function runExit() {
-  if (exiting || !anchorEl.value || !dotEl.value) return
+  if (exiting || !dotEl.value) return
   exiting = true
-
-  const winCX = window.innerWidth  / 2
-  const winCY = window.innerHeight / 2
-  const a     = anchorEl.value.getBoundingClientRect()
-  // Corner: centre of the anchor element, expressed as offset from screen centre
-  const cornerX = a.left + a.width  / 2 - winCX
-  const cornerY = a.top  + a.height / 2 - winCY
 
   if (reduceMotion) {
     experienceStore.setHasEntered()
     gsap.timeline({ onComplete: () => emit('entered') })
       .to(textEl.value,   { clipPath: CLIP_HIDDEN, duration: 0.35, ease: 'power2.in' }, 0)
-      .to(dotEl.value,    { opacity: 0, duration: 0.3 }, 0.15)
+      .to(dotEl.value,    { scale: 0, opacity: 0, duration: 0.3 }, 0.1)
       .to(loaderEl.value, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.4 }, 0.1)
     return
   }
 
-  const CIRCUMFERENCE = Math.PI * DOT_PX
-  // Corner flight distance and roll — rolls clockwise (same direction as intro)
-  const cornerDist = Math.sqrt(cornerX * cornerX + cornerY * cornerY)
-  const cornerRoll = (cornerDist / CIRCUMFERENCE) * 360
-
   const tl = gsap.timeline({ onComplete: () => emit('entered') })
 
-  // 1) dot rolls back to centre; wordmark wipes away
+  // 1) dot retreats to centre; wordmark wipes away
   tl.to(dotEl.value,  { x: 0, y: 0, scale: 1, rotation: 0, duration: 0.7, ease: 'power3.inOut' }, 0)
     .to(textEl.value, { clipPath: CLIP_HIDDEN, duration: 0.55, ease: 'power2.in' }, 0.05)
 
@@ -134,17 +121,14 @@ function runExit() {
     .to(dotEl.value, { scale: 1.38, duration: 0.2,  ease: 'power2.out'   }, 0.8)
     .to(dotEl.value, { scale: 1,    duration: 0.24, ease: 'power2.inOut' }, 1.0)
 
-  // 3) rolls to the corner at its natural 48px size (= the real menu button)
-    .to(dotEl.value, { x: cornerX, y: cornerY, rotation: cornerRoll, duration: 0.72, ease: 'power3.inOut' }, 1.3)
+  // 3) ET mark implodes — scales to nothing
+    .to(dotEl.value, { scale: 0, opacity: 0, duration: 0.42, ease: 'back.in(1.8)' }, 1.35)
 
   // 4) reveal experience beneath the loader
     .add(() => {
       experienceStore.setHasEntered()
       gsap.to(loaderEl.value, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.55, ease: 'power2.out' })
-    }, 2.0)
-
-  // 5) fade the overlay dot out — the identical real button takes over
-    .to(dotEl.value, { opacity: 0, duration: 0.35, ease: 'power2.in' }, 2.35)
+    }, 1.45)
 }
 </script>
 
@@ -155,14 +139,12 @@ function runExit() {
       <span ref="textEl" class="wm-text"><em>enter</em><b>trainer</b></span>
     </div>
 
-    <!-- ET mark — the hero dot. Starts at screen centre, flows to period
-         position, retreats, pulses, then flies to become the corner button. -->
+    <!-- ET mark — the hero dot. Starts at screen centre, rolls to period
+         position as wordmark writes in, retreats, pulses, then implodes. -->
     <span ref="dotEl" class="wm-dot">
       <img src="/et-mark.svg" class="et-img" alt="" aria-hidden="true" />
     </span>
 
-    <!-- Invisible anchor mirroring the corner button for landing calculation -->
-    <span ref="anchorEl" class="eanchor"></span>
   </div>
 </template>
 
@@ -216,14 +198,4 @@ function runExit() {
   filter: var(--et-mark-filter, none);
 }
 
-/* ── Corner anchor ── */
-.eanchor {
-  position: fixed;
-  right: calc(var(--chrome-offset) + var(--safe-right));
-  top: calc(var(--chrome-offset) + var(--safe-top));
-  width: var(--chrome-size);
-  height: var(--chrome-size);
-  opacity: 0;
-  pointer-events: none;
-}
 </style>

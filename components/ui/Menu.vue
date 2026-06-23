@@ -161,14 +161,24 @@ function handleBack() {
       </div>
     </div>
 
-    <!-- ET mark button — sits on top of the panel -->
+    <!-- Menu button — hamburger ↔ close icon -->
     <button
       class="e-btn"
       :class="{ open: isOpened }"
       @click="menuStore.toggle"
       aria-label="menu"
     >
-      <img src="/et-mark.svg" class="et-mark" alt="" aria-hidden="true" />
+      <span class="ic-wrap hb-wrap">
+        <svg class="ic ic-hb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <line x1="4" y1="7.5" x2="20" y2="7.5" />
+          <line x1="4" y1="12" x2="20" y2="12" />
+          <line x1="4" y1="16.5" x2="20" y2="16.5" />
+        </svg>
+        <svg class="ic ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" />
+          <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" />
+        </svg>
+      </span>
     </button>
   </div>
 </template>
@@ -190,7 +200,7 @@ function handleBack() {
   z-index: var(--z-menu);
 }
 
-/* ── ET mark button ── */
+/* ── Menu button ── */
 .e-btn {
   position: absolute;
   top: 0;
@@ -205,21 +215,20 @@ function handleBack() {
   background: none;
   border: none;
   cursor: pointer;
-  border-radius: 50%;
+  color: var(--color-text);
+  transition: color 0.3s ease;
 }
-.et-mark {
-  width: 100%;
-  height: 100%;
-  display: block;
-  border-radius: 50%;
-  /* Adapt to theme: invert makes the black SVG white on dark bg / dark panel */
-  filter: var(--et-mark-filter, none);
-  transition: filter 0.3s ease, transform 0.4s var(--ease-spring);
+.panel-open .e-btn { color: var(--color-black); }
+
+/* ── Hamburger / close icon ── */
+.hb-wrap {
+  width: 22rem;
+  height: 22rem;
 }
-/* When panel is open, un-invert so the mark reads correctly on the panel surface */
-.panel-open .et-mark {
-  filter: var(--et-mark-filter-on-panel, none);
-}
+.ic-hb { opacity: 1; transform: rotate(0deg) scale(1); }
+.ic-x  { opacity: 0; transform: rotate(-45deg) scale(0.6); }
+.e-btn.open .ic-hb { opacity: 0; transform: rotate(45deg) scale(0.6); }
+.e-btn.open .ic-x  { opacity: 1; transform: rotate(0deg) scale(1); }
 
 /* ── Panel ── */
 .e-panel {

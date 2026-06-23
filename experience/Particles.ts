@@ -20,6 +20,7 @@ const COUNT = 260
 const vertexShader = /* glsl */`
   uniform float uTime;
   uniform float uPixelRatio;
+  uniform float uSizeScale;
   attribute float aSize;
   attribute float aPhase;
   #include <fog_pars_vertex>
@@ -34,7 +35,7 @@ const vertexShader = /* glsl */`
     gl_Position = projectionMatrix * mvPosition;
     // size attenuates with distance; clamped so nothing balloons near the camera
     gl_PointSize = clamp(
-      aSize * uPixelRatio * (8.0 / -mvPosition.z),
+      aSize * uSizeScale * uPixelRatio * (8.0 / -mvPosition.z),
       1.0,
       34.0 * uPixelRatio
     );
@@ -89,6 +90,7 @@ export default class Particles {
         {
           uTime:       { value: 0 },
           uPixelRatio: { value: experience.sizes.pixelRatio },
+          uSizeScale:  { value: 1.0 },
           uColor:      { value: new Color(0.55, 0.68, 0.92) },
           uOpacity:    { value: 0.5 }
         }
@@ -110,9 +112,11 @@ export default class Particles {
     if (isDark) {
       u.uColor.value.setRGB(0.55, 0.68, 0.92) // soft blue-white over the dark wash
       u.uOpacity.value = 0.50
+      u.uSizeScale.value = 1.0
     } else {
-      u.uColor.value.setRGB(0.22, 0.32, 0.52) // mid Pi Blue on cream
-      u.uOpacity.value = 0.22
+      u.uColor.value.setRGB(1.0, 1.0, 1.0)    // fine white dust catching the light
+      u.uOpacity.value = 0.38
+      u.uSizeScale.value = 0.5                // smaller, dustier specks
     }
   }
 

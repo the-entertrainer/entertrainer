@@ -24,6 +24,9 @@ export default class Experience extends EventEmitter {
 
   private static _instance: Experience | null = null
   private _backdropTex: CanvasTexture | null = null
+  private _backdropImg: HTMLImageElement | null = null
+  private _backdropSrc = ''
+  private _backdropDark = true
 
   constructor(canvas: HTMLCanvasElement) {
     super()
@@ -50,6 +53,8 @@ export default class Experience extends EventEmitter {
     this.camera.resize()
     this.renderer.resize()
     this.postProcessing.resize()
+    // re-pick / re-bake the backdrop so it tracks portrait↔landscape and never stretches
+    if (this.scene.background) this.setBackdrop(this._backdropDark)
   }
 
   private _update() {
@@ -66,30 +71,62 @@ export default class Experience extends EventEmitter {
     this.postProcessing.setVignetteColor(hex)
   }
 
-  setBackdrop(src: string | null) {
-    if (!src) {
-      this.scene.background = null
-      this._backdropTex?.dispose()
-      this._backdropTex = null
+  // Picks the workshop backdrop for the current theme + viewport orientation
+  // (9:16 portrait on phones, 16:9 landscape on wide screens) and bakes it into
+  // a blurred, cover-fit CanvasTexture used as scene.background.
+  setBackdrop(isDark: boolean) {
+    this._backdropDark = isDark
+    const landscape = this.sizes.width >= this.sizes.height
+    const src = `/backdrop-${isDark ? 'dark' : 'light'}-${landscape ? 'landscape' : 'portrait'}.png`
+
+    // same image already loaded → just re-bake at the new viewport size
+    if (src === this._backdropSrc && this._backdropImg?.complete) {
+      this._bakeBackdrop(this._backdropImg)
       return
     }
+    this._backdropSrc = src
+
     const img = new Image()
-    const apply = () => {
-      const W = 720, H = 1280
-      const m = 28 // bleed margin to avoid dark edges from blur
-      const c = document.createElement('canvas')
-      c.width = W; c.height = H
-      const ctx = c.getContext('2d')!
-      ctx.filter = 'blur(12px)'
-      ctx.drawImage(img, -m, -m, W + m * 2, H + m * 2)
-      ctx.filter = 'none'
-      this._backdropTex?.dispose()
-      this._backdropTex = new CanvasTexture(c)
-      this.scene.background = this._backdropTex
+    const ready = () => {
+      if (this._backdropSrc !== src) return // theme/orientation changed mid-load
+      this._backdropImg = img
+      this._bakeBackdrop(img)
     }
-    img.onload = apply
+    img.onload = ready
     img.src = src
-    if (img.complete && img.naturalWidth > 0) apply()
+    if (img.complete && img.naturalWidth > 0) ready()
+  }
+
+  private _bakeBackdrop(img: HTMLImageElement) {
+    // canvas matches the viewport aspect so the background never stretches;
+    // capped on the longest side to keep texture memory sane
+    const cap = 1600
+    let cw = this.sizes.width
+    let ch = this.sizes.height
+    const longest = Math.max(cw, ch)
+    if (longest > cap) { const k = cap / longest; cw *= k; ch *= k }
+    cw = Math.max(2, Math.round(cw))
+    ch = Math.max(2, Math.round(ch))
+
+    const c = document.createElement('canvas')
+    c.width = cw; c.height = ch
+    const ctx = c.getContext('2d')!
+
+    // cover-fit (like CSS background-size: cover) with a small bleed so the
+    // blur falloff lands outside the canvas instead of leaving dark edges
+    const bleed = 1.06
+    const ir = img.naturalWidth / img.naturalHeight
+    const cr = cw / ch
+    let dw: number, dh: number
+    if (ir > cr) { dh = ch * bleed; dw = dh * ir }
+    else         { dw = cw * bleed; dh = dw / ir }
+    ctx.filter = 'blur(12px)'
+    ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh)
+    ctx.filter = 'none'
+
+    this._backdropTex?.dispose()
+    this._backdropTex = new CanvasTexture(c)
+    this.scene.background = this._backdropTex
   }
 
   setTheme(isDark: boolean) {
@@ -97,7 +134,7 @@ export default class Experience extends EventEmitter {
     this.world.updateTheme(isDark)
     this.postProcessing.setColorGrade(isDark)
     this.postProcessing.setLightRays(!isDark)
-    this.setBackdrop(isDark ? null : '/backdrop-light.png')
+    this.setBackdrop(isDark)
   }
 
   destroy() {

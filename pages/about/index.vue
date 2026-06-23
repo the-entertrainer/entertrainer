@@ -16,7 +16,7 @@
       <p class="about-chapter anim"><span class="about-chapter__no">01</span> The Floor</p>
 
       <div class="about-section anim">
-        <p>I started my career in the hotel industry and had the opportunity to work with brands such as Marriott International and Club Mahindra. My first job was as a housekeeper. Yes, I made beds, cleaned rooms, folded towel art (the fun stuff), and learned how to make spaces feel welcoming, organized, and beautiful.</p>
+        <p>I started my career in the hotel industry and had the opportunity to work with brands such as Marriott International and Club Mahindra. My first job was as a housekeeper - with Club Mahindra. Yes, I made beds, cleaned rooms, folded towel art (the fun stuff), and learned how to make spaces feel welcoming, organized, and beautiful. Housekeeping is an art backed by science. You can still see the way I keep my toilet rolls in my place - nicely folded into a rose 😂 and my bedsheets are always wrinkle free 😉</p>
       </div>
 
       <figure class="shot shot--duo anim">
@@ -30,7 +30,7 @@
         </div>
         <figcaption class="shot__cap">
           <span class="shot__cap-rule" />
-          <span>Where it started — the floor of a Marriott hotel. Long before I ever designed a lesson, I was learning that a space, like a story, has to make people <em>feel</em> something.</span>
+          <span>Where it started — the floors of Club Mahindra Udaipur. Long before I ever designed a lesson, I was learning that a space, like a story, has to make people <em>feel</em> something.</span>
         </figcaption>
       </figure>
 

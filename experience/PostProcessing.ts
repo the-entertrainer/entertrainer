@@ -151,6 +151,9 @@ export default class PostProcessing {
       u.uShadowTint.value.setRGB(0.12, 0.08, 0.04)   // warm amber shadows
       u.uTintStrength.value = 0.05
     }
+    // bloom destroys light mode (cream surfaces blow out); disable it there
+    this.bloomPass.strength  = isDark ? 0.32 : 0.0
+    this.bloomPass.threshold = isDark ? 0.80 : 1.00
   }
 
   resize() {

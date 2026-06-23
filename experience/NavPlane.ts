@@ -407,9 +407,7 @@ export default class NavPlane {
     mat.uniforms.uZoom.value           = 1 + 0.05 * this.hoverProgress
     mat.uniforms.uRevealProgress.value = this.revealProgress * (1 - this.hoverProgress * 0.05)
 
-    const halfCount = this.totalCount / 2
-    const edgeFade  = Math.max(0, Math.min(1, (halfCount - Math.abs(Ba)) / 0.5))
-    mat.uniforms.uOpacity.value = this.wrapFade * edgeFade
+    mat.uniforms.uOpacity.value = this.wrapFade
 
     // ── Typewriter ──────────────────────────────────────────────
     const LABEL_DURATION = 1200

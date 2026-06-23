@@ -101,6 +101,74 @@ const ColorGradeShader = {
   `
 }
 
+const LightRaysShader = {
+  uniforms: {
+    tDiffuse:   { value: null },
+    uTime:      { value: 0.0 },
+    uOpacity:   { value: 0.0 },
+    // screen-space origin of the rays (UV). Upper-left matches the workshop window.
+    uOrigin:    { value: new Vector2(0.18, 0.88) }
+  },
+  vertexShader: /* glsl */`
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: /* glsl */`
+    uniform sampler2D tDiffuse;
+    uniform float uTime;
+    uniform float uOpacity;
+    uniform vec2  uOrigin;
+    varying vec2  vUv;
+
+    float ray(vec2 uv, vec2 origin, float angle, float width) {
+      vec2 dir = uv - origin;
+      float a = atan(dir.y, dir.x);
+      float dist = length(dir);
+      float diff = mod(a - angle + 3.14159, 6.28318) - 3.14159;
+      float beam = smoothstep(width, 0.0, abs(diff));
+      // fade with distance and bias toward the source
+      float fade = smoothstep(0.0, 0.08, dist) * smoothstep(1.4, 0.1, dist);
+      return beam * fade;
+    }
+
+    void main() {
+      vec4 tex = texture2D(tDiffuse, vUv);
+      if (uOpacity <= 0.001) { gl_FragColor = tex; return; }
+
+      // five beams spread in a fan from upper-left, each with own breathe offset
+      float angles[5];
+      angles[0] = -0.45;
+      angles[1] = -0.25;
+      angles[2] = -0.08;
+      angles[3] =  0.12;
+      angles[4] =  0.30;
+
+      float breathe[5];
+      breathe[0] = sin(uTime * 0.41 + 0.0) * 0.5 + 0.5;
+      breathe[1] = sin(uTime * 0.37 + 1.1) * 0.5 + 0.5;
+      breathe[2] = sin(uTime * 0.29 + 2.3) * 0.5 + 0.5;
+      breathe[3] = sin(uTime * 0.44 + 3.7) * 0.5 + 0.5;
+      breathe[4] = sin(uTime * 0.33 + 0.8) * 0.5 + 0.5;
+
+      float raysSum = 0.0;
+      for (int i = 0; i < 5; i++) {
+        float width = mix(0.04, 0.10, breathe[i]);
+        float strength = mix(0.55, 1.0, breathe[i]);
+        raysSum += ray(vUv, uOrigin, angles[i], width) * strength;
+      }
+      raysSum = clamp(raysSum, 0.0, 1.0);
+
+      // warm golden tint for sunlight
+      vec3 rayColor = vec3(1.0, 0.93, 0.72);
+      vec3 composite = tex.rgb + rayColor * raysSum * uOpacity;
+      gl_FragColor = vec4(composite, tex.a);
+    }
+  `
+}
+
 export default class PostProcessing {
   experience: Experience
   composer: EffectComposer
@@ -108,6 +176,7 @@ export default class PostProcessing {
   vignettePass: ShaderPass
   chromaPass: ShaderPass
   colorGradePass: ShaderPass
+  lightRaysPass: ShaderPass
 
   constructor(experience: Experience) {
     this.experience = experience
@@ -134,6 +203,18 @@ export default class PostProcessing {
 
     this.colorGradePass = new ShaderPass(ColorGradeShader)
     this.composer.addPass(this.colorGradePass)
+
+    // light rays — warm sunbeams in light mode only
+    this.lightRaysPass = new ShaderPass(LightRaysShader)
+    this.composer.addPass(this.lightRaysPass)
+  }
+
+  tick(delta: number) {
+    this.lightRaysPass.material.uniforms.uTime.value += delta / 1000
+  }
+
+  setLightRays(enabled: boolean) {
+    this.lightRaysPass.material.uniforms.uOpacity.value = enabled ? 0.28 : 0.0
   }
 
   setVignetteColor(hex: number) {

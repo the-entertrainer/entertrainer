@@ -378,8 +378,7 @@ export default class NavPlane {
     this.revealProgress += (this.revealTarget  - this.revealProgress) * hFactor
     this.hoverProgress  += (this.hoverTarget   - this.hoverProgress)  * hvFactor
 
-    const ss = Ba > 0 ? -1.5 : 1.5
-    const Va = Ba * this.verticalGap - 0.8 - this.hiddenProgress * ss
+    const Va = Ba * this.verticalGap - 0.8 + this.hiddenProgress * 9.0
     const Ga = this.baseRadius * (1 - this.hiddenProgress / 2)
     const Ha = Ba * this.angleGap
 

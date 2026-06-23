@@ -33,6 +33,8 @@ const FOG_LIGHT = 0xF4F1EC
 let experience: Experience | null = null
 let transitioning = false
 
+const dollyOverlayRef = ref<HTMLDivElement | null>(null)
+
 // ── Unified atmosphere canvas (animated glow + vignette + grain) ───────────
 const atmoRef   = ref<HTMLCanvasElement | null>(null)
 let _atmoCtx:   CanvasRenderingContext2D | null = null
@@ -181,8 +183,21 @@ async function mountExperience() {
   const exp = experience
   setTimeout(() => exp.world.reveal(), 150)
 
+  experience.on('dollyMid', () => {
+    if (dollyOverlayRef.value) {
+      gsap.to(dollyOverlayRef.value, { opacity: 1, duration: 0.45, ease: 'power2.in' })
+    }
+  })
+
   experience.on('planeClick', (href: string) => {
     emit('cardClick', href)
+    // Reset camera and fade overlay out after nav (covers both accordion and route cases)
+    setTimeout(() => {
+      experience?.resetCamera()
+      if (dollyOverlayRef.value) {
+        gsap.to(dollyOverlayRef.value, { opacity: 0, duration: 0.5, ease: 'power2.out', delay: 0.15 })
+      }
+    }, 80)
   })
 
   // Whenever the spiral is actually on screen, guarantee the global view-switch
@@ -304,6 +319,9 @@ function onLoaderEntered() {
 
     <!-- Unified atmosphere: animated glow + vignette + film grain -->
     <canvas ref="atmoRef" class="spiral-atmo" />
+
+    <!-- Dolly transition overlay — fades in as camera rushes toward card -->
+    <div ref="dollyOverlayRef" class="dolly-overlay" />
 
     <!-- List mode — emit cardClick so the parent applies accordion vs router logic -->
     <Transition name="fade">
@@ -458,6 +476,15 @@ function onLoaderEntered() {
   color: var(--color-text);
   opacity: 0.2;
   white-space: nowrap;
+}
+
+.dolly-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: var(--color-bg);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .fade-enter-active, .fade-leave-active { transition: opacity 0.35s ease; }

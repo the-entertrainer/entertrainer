@@ -31,6 +31,8 @@ export default class Controls {
   private IDLE_DELAY     = 600    // ms at rest before the gentle drift resumes
   private IDLE_DRIFT     = 0.00025 // cards/ms — gentle ambient rotation
 
+  locked = false
+
   private _phase: Phase = 'rest'
   private _velocity = 0          // cards/ms
   private _snapTarget = 0
@@ -60,6 +62,7 @@ export default class Controls {
 
   // ── Wheel: add a velocity impulse ──────────────────────────────────────────
   private _onWheel(event: WheelEvent) {
+    if (this.locked) return
     const impulse = (event.deltaY / this.WHEEL_PER_CARD) / 16.67 // cards/ms
     this._velocity = clamp(this._velocity + impulse, -this.MAX_V, this.MAX_V)
     this._phase = 'fling'
@@ -68,7 +71,7 @@ export default class Controls {
 
   // ── Touch: 1:1 finger tracking + velocity capture ──────────────────────────
   private _onTouchStart(event: TouchEvent) {
-    event.preventDefault()
+    if (this.locked) { event.preventDefault(); return }
     this._isTouching = true
     this._phase = 'drag'
     this._velocity = 0
@@ -79,7 +82,7 @@ export default class Controls {
 
   private _onTouchMove(event: TouchEvent) {
     event.preventDefault()
-    if (!this._isTouching) return
+    if (this.locked || !this._isTouching) return
     const y = event.touches[0].clientY
     const now = performance.now()
     const dt = Math.max(now - this._lastTouchTime, 1)
@@ -115,6 +118,7 @@ export default class Controls {
 
   // ── Per-frame integration ──────────────────────────────────────────────────
   update() {
+    if (this.locked) { this.wheelDeltaY = 0; return }
     const dt = Math.min(this.experience.time.delta, 64)
     const frames = dt / 16.67
     const now = performance.now()

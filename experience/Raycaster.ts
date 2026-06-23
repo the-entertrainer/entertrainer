@@ -61,7 +61,7 @@ export default class Raycaster {
     if (Date.now() - this._lastTouchEndMs < 500) return
     const hit = this._intersect()
     if (hit) {
-      this.experience.trigger('planeClick', [hit.navItem.href])
+      this.experience.startDolly(hit, hit.navItem.href)
     }
   }
 
@@ -82,7 +82,7 @@ export default class Raycaster {
     this.pointer = new Vector2(-999, -999)
     if (hit) {
       this._lastTouchEndMs = Date.now()
-      this.experience.trigger('planeClick', [hit.navItem.href])
+      this.experience.startDolly(hit, hit.navItem.href)
     }
   }
 

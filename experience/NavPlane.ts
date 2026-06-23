@@ -383,7 +383,9 @@ export default class NavPlane {
     // bottom — instead of dissolving in mid-screen at the wrap point.
     const half = this.totalCount / 2
     const edge = Math.max(0, Math.abs(Ba) - (half - 2.2))
-    const edgePush = Math.sign(Ba) * edge * edge * 0.9
+    // ~0.4 lifts a card just past the top/bottom edge as it fades; higher
+    // values fling it far above the viewport and read as a violent jump.
+    const edgePush = Math.sign(Ba) * edge * edge * 0.4
     const Va = Ba * this.verticalGap - 0.8 + this.hiddenProgress * 9.0 + edgePush
     const Ga = this.baseRadius * (1 - this.hiddenProgress / 2)
     const Ha = Ba * this.angleGap

@@ -179,9 +179,12 @@ async function mountExperience() {
   experience.setFogColor(themeStore.isDark ? FOG_DARK : FOG_LIGHT)
   experience.postProcessing.setColorGrade(themeStore.isDark)
   experience.setBackdrop(themeStore.isDark)
-  // Capture reference so the timeout is safe even if component unmounts before it fires
+  // Capture reference so the timeout is safe even if component unmounts before it fires.
+  // On first visit the loader covers the 150ms settle time; on return visits reveal immediately
+  // so the canvas never shows a blank frame before cards appear.
   const exp = experience
-  setTimeout(() => exp.world.reveal(), 150)
+  const revealDelay = (props.showLoader && !experienceStore.hasEntered) ? 150 : 0
+  setTimeout(() => exp.world.reveal(), revealDelay)
 
   experience.on('dollyMid', () => {
     if (dollyOverlayRef.value) {
@@ -218,6 +221,8 @@ onMounted(() => {
   window.addEventListener('touchstart', _onTouchStart, { passive: true })
   window.addEventListener('touchmove',  _onTouchMove,  { passive: true })
   ;($lenis as any)?.stop()
+  // Always start overlay hidden — guards against stale GSAP inline style on remount
+  nextTick(() => { if (dollyOverlayRef.value) gsap.set(dollyOverlayRef.value, { opacity: 0 }) })
 
   if (props.showLoader) {
     // Return visit — skip loader, show experience directly

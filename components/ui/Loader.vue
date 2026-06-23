@@ -107,7 +107,7 @@ function runExit() {
     gsap.timeline({ onComplete: () => emit('entered') })
       .to(textEl.value,   { clipPath: CLIP_HIDDEN, duration: 0.35, ease: 'power2.in' }, 0)
       .to(dotEl.value,    { scale: 0, opacity: 0, duration: 0.3 }, 0.1)
-      .to(loaderEl.value, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.4 }, 0.1)
+      .to(loaderEl.value, { clipPath: 'circle(0% at 50% 50%)', duration: 0.25 }, 0.2)
     return
   }
 
@@ -121,14 +121,12 @@ function runExit() {
     .to(dotEl.value, { scale: 1.38, duration: 0.2,  ease: 'power2.out'   }, 0.8)
     .to(dotEl.value, { scale: 1,    duration: 0.24, ease: 'power2.inOut' }, 1.0)
 
-  // 3) ET mark implodes — scales to nothing
-    .to(dotEl.value, { scale: 0, opacity: 0, duration: 0.42, ease: 'back.in(1.8)' }, 1.35)
+  // 3) ET mark implodes + backdrop circle iris-closes simultaneously
+    .to(dotEl.value,    { scale: 0, opacity: 0, duration: 0.42, ease: 'back.in(1.8)' }, 1.35)
+    .to(loaderEl.value, { clipPath: 'circle(0% at 50% 50%)', duration: 0.48, ease: 'power2.in' }, 1.27)
 
-  // 4) reveal experience beneath the loader
-    .add(() => {
-      experienceStore.setHasEntered()
-      gsap.to(loaderEl.value, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.55, ease: 'power2.out' })
-    }, 1.45)
+  // 4) reveal experience just before the iris finishes closing
+    .add(() => { experienceStore.setHasEntered() }, 1.55)
 }
 </script>
 
@@ -158,6 +156,8 @@ function runExit() {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* circle(100%) always covers the viewport; GSAP shrinks it to circle(0%) on exit */
+  clip-path: circle(100% at 50% 50%);
 }
 
 /* ── Wordmark ── */

@@ -56,8 +56,13 @@ function setItemEl(el: any, i: number) {
   itemEls.value[i] = el.$el ?? el
 }
 
-function setTheme(dark: boolean) {
-  themeStore.set(dark ? 'dark' : 'light')
+function toggleTheme() {
+  themeStore.set(themeStore.isDark ? 'light' : 'dark')
+}
+
+function toggleView() {
+  homeViewStore.toggle()
+  menuStore.close()
 }
 
 function handleBack() {
@@ -105,30 +110,53 @@ function handleBack() {
           </template>
         </div>
 
-        <div class="e-controls">
-          <!-- View mode toggle — home page only, after loader completes -->
+        <div class="e-controls" :ref="(el: any) => setItemEl(el, links.length + 1)">
+          <!-- Theme toggle — sun ↔ moon morph -->
           <button
-            v-if="showViewToggle"
-            class="e-item e-view"
-            :ref="(el: any) => setItemEl(el, links.length + 1)"
-            @click="homeViewStore.toggle(); menuStore.close()"
-            :aria-label="homeViewStore.mode === 'spiral' ? 'Switch to list view' : 'Switch to spiral view'"
+            class="e-ctl"
+            :class="{ alt: themeStore.isDark }"
+            @click="toggleTheme"
+            :aria-label="themeStore.isDark ? 'Switch to light theme' : 'Switch to dark theme'"
           >
-            <svg v-if="homeViewStore.mode === 'spiral'" class="ev-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-              <line x1="4" y1="7"  x2="20" y2="7"/>
-              <line x1="4" y1="12" x2="20" y2="12"/>
-              <line x1="4" y1="17" x2="20" y2="17"/>
-            </svg>
-            <svg v-else class="ev-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M11 12a1 1 0 1 1 2 0 2 2 0 1 1-4 0 3 3 0 1 1 6 0 4 4 0 1 1-8 0"/>
-            </svg>
-            {{ homeViewStore.mode === 'spiral' ? 'list' : 'spiral' }}
+            <span class="ic-wrap">
+              <svg class="ic ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4.2" />
+                <line x1="12" y1="1.6" x2="12" y2="3.6" />
+                <line x1="12" y1="20.4" x2="12" y2="22.4" />
+                <line x1="1.6" y1="12" x2="3.6" y2="12" />
+                <line x1="20.4" y1="12" x2="22.4" y2="12" />
+                <line x1="4.6" y1="4.6" x2="6" y2="6" />
+                <line x1="18" y1="18" x2="19.4" y2="19.4" />
+                <line x1="4.6" y1="19.4" x2="6" y2="18" />
+                <line x1="18" y1="6" x2="19.4" y2="4.6" />
+              </svg>
+              <svg class="ic ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            </span>
+            <span class="e-ctl-label">{{ themeStore.isDark ? 'dark' : 'light' }}</span>
           </button>
 
-          <div class="e-item e-theme" :ref="(el: any) => setItemEl(el, links.length + 2)">
-            <button class="et-opt" :class="{ active: themeStore.isDark }"  @click="setTheme(true)">dark</button>
-            <button class="et-opt" :class="{ active: !themeStore.isDark }" @click="setTheme(false)">light</button>
-          </div>
+          <!-- View mode toggle — list ↔ spiral (home only, after loader) -->
+          <button
+            v-if="showViewToggle"
+            class="e-ctl e-view-ctl"
+            :class="{ alt: homeViewStore.mode === 'list' }"
+            @click="toggleView"
+            :aria-label="homeViewStore.mode === 'spiral' ? 'Switch to list view' : 'Switch to spiral view'"
+          >
+            <span class="ic-wrap">
+              <svg class="ic ic-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <line x1="4" y1="7" x2="20" y2="7" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="17" x2="20" y2="17" />
+              </svg>
+              <svg class="ic ic-spiral" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M11 12a1 1 0 1 1 2 0 2 2 0 1 1-4 0 3 3 0 1 1 6 0 4 4 0 1 1-8 0" />
+              </svg>
+            </span>
+            <span class="e-ctl-label">{{ homeViewStore.mode === 'spiral' ? 'list' : 'spiral' }}</span>
+          </button>
         </div>
       </div>
     </div>
@@ -213,16 +241,21 @@ function handleBack() {
     background 0.4s ease;
 }
 .e-panel.open {
-  width: calc(var(--grid-column) * 4 + var(--grid-gutter) * 3);
-  min-width: 340rem;
-  /* Panel top is (offset + safe-top); leave a matching (offset + safe-bottom)
-     gap below so the panel never runs under a notch or home indicator. */
-  height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - var(--chrome-offset) * 2);
-  border-radius: 16rem;
+  /* Compact dropdown card — anchored under the ET button */
+  width: 264rem;
+  height: 326rem;
+  border-radius: 22rem;
   /* Open: fully opaque solid panel */
   background: var(--color-white);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+  box-shadow: 0 24rem 60rem -20rem rgba(0, 0, 0, 0.28);
+  transition:
+    width 0.55s var(--ease-spring),
+    height 0.6s var(--ease-spring),
+    border-radius 0.5s ease,
+    background 0.35s ease,
+    box-shadow 0.5s ease;
 }
 
 /* ── Panel inner ── */
@@ -233,16 +266,15 @@ function handleBack() {
   flex-direction: column;
   justify-content: flex-start;
   gap: 0;
-  padding: 72rem 40rem 48rem;
+  padding: 58rem 26rem 22rem;
   color: var(--color-black);
 }
 
-/* ── Nav group (back + links) — fills remaining space, centres content ── */
+/* ── Nav group (back + links) — fills space so controls sit at the bottom ── */
 .e-nav-group {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 .e-panel-inner :focus-visible { outline-color: var(--color-black); }
 
@@ -257,12 +289,12 @@ function handleBack() {
 }
 
 .e-back {
-  font-size: 13rem;
+  font-size: 12rem;
   font-weight: 500;
   letter-spacing: -0.01em;
   opacity: 0.38;
   padding-left: 0;
-  margin-bottom: 32rem;
+  margin-bottom: 14rem;
   transition: padding-left 0.4s var(--ease-spring), opacity 0.2s ease;
 }
 .e-back:hover { opacity: 1; padding-left: 6rem; }
@@ -271,10 +303,10 @@ function handleBack() {
   position: relative;
   display: inline-block;
   width: max-content;
-  font-size: 54rem;
+  font-size: 28rem;
   font-weight: 500;
-  letter-spacing: -0.05em;
-  line-height: 1.05;
+  letter-spacing: -0.04em;
+  line-height: 1.32;
   padding-left: 0;
   transition: padding-left 0.5s var(--ease-spring);
 }
@@ -283,91 +315,88 @@ function handleBack() {
   position: absolute;
   left: 0;
   top: 50%;
-  width: 12rem;
-  height: 12rem;
+  width: 8rem;
+  height: 8rem;
   border-radius: 50%;
   background: var(--color-black);
   transform: translateY(-50%) scale(0);
   opacity: 0;
   transition: transform 0.5s var(--ease-spring), opacity 0.5s var(--ease-spring);
 }
-.e-link:hover { padding-left: 30rem; }
+.e-link:hover { padding-left: 20rem; }
 .e-link:hover::before { transform: translateY(-50%) scale(1); opacity: 1; }
 
-/* ── Controls — anchored to bottom ── */
+/* ── Controls — compact icon toggle row ── */
 .e-controls {
   display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding-top: 20rem;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 10rem;
+  margin-top: 18rem;
+  padding-top: 16rem;
   border-top: 1px solid color-mix(in srgb, var(--color-black) 10%, transparent);
 }
 
-/* ── View mode toggle ── */
-.e-view {
-  display: flex;
-  align-items: center;
-  gap: 10rem;
-  font-size: 16rem;
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  padding-left: 0;
-  opacity: 0.4;
-  margin-bottom: 16rem;
-  transition: padding-left 0.5s var(--ease-spring), opacity 0.2s ease;
-}
-.e-view:hover { opacity: 1; padding-left: 10rem; }
-.ev-icon {
-  width: 16rem;
-  height: 16rem;
-  flex-shrink: 0;
-}
-
-.e-theme {
+.e-ctl {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 16rem;
-}
-.et-opt {
-  position: relative;
-  padding-left: 0;
-  font-size: 24rem;
-  font-weight: 500;
-  letter-spacing: -0.04em;
-  line-height: 1.2;
+  align-items: center;
+  gap: 7rem;
+  padding: 12rem 6rem 10rem;
+  border: 1px solid color-mix(in srgb, var(--color-black) 12%, transparent);
+  border-radius: 13rem;
+  background: color-mix(in srgb, var(--color-black) 3%, transparent);
   color: var(--color-black);
-  background: none;
-  border: none;
   font-family: var(--main-font);
   cursor: pointer;
-  opacity: 0.25;
-  text-align: left;
-  transition: padding-left 0.5s var(--ease-spring), opacity 0.35s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s var(--ease-spring);
 }
-.et-opt::before {
-  content: "";
+.e-ctl:hover { background: color-mix(in srgb, var(--color-black) 7%, transparent); }
+.e-ctl:active { transform: scale(0.96); }
+
+.e-ctl .ic {
+  width: 22rem;
+  height: 22rem;
+  display: block;
+}
+.e-ctl-label {
+  font-size: 11rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  opacity: 0.55;
+}
+
+/* ── Stacked icons that cross-fade + rotate between two states ── */
+.ic-wrap {
+  position: relative;
+  width: 22rem;
+  height: 22rem;
+  transform-origin: 50% 50%;
+}
+.ic-wrap .ic {
   position: absolute;
-  left: 0;
-  top: 50%;
-  width: 10rem;
-  height: 10rem;
-  border-radius: 50%;
-  background: var(--color-black);
-  transform: translateY(-50%) scale(0);
-  transition: transform 0.45s var(--ease-spring);
+  inset: 0;
+  transform-origin: 50% 50%;
+  transition: opacity 0.35s ease, transform 0.45s var(--ease-spring);
 }
-.et-opt.active { opacity: 1; padding-left: 22rem; }
-.et-opt.active::before { transform: translateY(-50%) scale(1); }
+
+/* Theme: sun (light) ↔ moon (dark, .alt) */
+.ic-sun  { opacity: 1; transform: rotate(0deg) scale(1); }
+.ic-moon { opacity: 0; transform: rotate(80deg) scale(0.6); }
+.e-ctl.alt .ic-sun  { opacity: 0; transform: rotate(-80deg) scale(0.6); }
+.e-ctl.alt .ic-moon { opacity: 1; transform: rotate(0deg) scale(1); }
+
+/* View: list (spiral mode) ↔ spiral (list mode, .alt) */
+.ic-list   { opacity: 1; transform: rotate(0deg); }
+.ic-spiral { opacity: 0; transform: rotate(90deg); }
+.e-view-ctl.alt .ic-list   { opacity: 0; transform: rotate(-90deg); }
+.e-view-ctl.alt .ic-spiral { opacity: 1; transform: rotate(0deg); }
 
 @media (max-width: 600px) {
   .e-panel.open {
-    width: calc(100vw - var(--safe-left) - var(--safe-right) - var(--chrome-offset) * 2);
-    min-width: unset;
+    width: min(264rem, calc(100vw - var(--safe-left) - var(--safe-right) - var(--chrome-offset) * 2));
   }
-  .e-link { font-size: 44rem; }
-  .et-opt { font-size: 20rem; }
-  .e-panel-inner { padding: 72rem 28rem 44rem; }
 }
 </style>

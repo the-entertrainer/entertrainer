@@ -10,8 +10,8 @@ import type Experience from './Experience'
 const BACK_Z      = -6      // sits behind the cards (which orbit z ∈ [-2, 2])
 const OVERSCAN    = 0.92    // sample 92% of the texture, leaving margin to pan within
 const CANVAS_CAP  = 1600    // longest baked side — keeps texture memory sane
-const REST_BLUR   = 0.0035  // gentle softness when idle (fraction of screen)
-const MAX_BLUR    = 0.05    // cap during a fast fling
+const REST_BLUR   = 0.0025  // gentle softness when idle (fraction of screen)
+const MAX_BLUR    = 0.011   // very subtle cap during a fast fling
 
 const vertexShader = /* glsl */`
   varying vec2 vUv;
@@ -168,7 +168,7 @@ export default class Backdrop {
     )
 
     // Dynamic DOF — rest softness + scroll velocity, eased so it racks smoothly
-    const target = Math.min(MAX_BLUR, REST_BLUR + Math.abs(scrollSpeed) * 0.9)
+    const target = Math.min(MAX_BLUR, REST_BLUR + Math.abs(scrollSpeed) * 0.28)
     this._blur += (target - this._blur) * 0.08
     this.material.uniforms.uBlur.value = this._blur
   }

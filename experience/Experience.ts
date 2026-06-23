@@ -75,7 +75,6 @@ export default class Experience extends EventEmitter {
     }
     const img = new Image()
     const apply = () => {
-      // Bake a subtle blur + cream wash into the texture so the image reads ambient, not dominant
       const W = 720, H = 1280
       const m = 28 // bleed margin to avoid dark edges from blur
       const c = document.createElement('canvas')
@@ -84,8 +83,6 @@ export default class Experience extends EventEmitter {
       ctx.filter = 'blur(12px)'
       ctx.drawImage(img, -m, -m, W + m * 2, H + m * 2)
       ctx.filter = 'none'
-      ctx.fillStyle = 'rgba(244,241,236,0.52)'
-      ctx.fillRect(0, 0, W, H)
       this._backdropTex?.dispose()
       this._backdropTex = new CanvasTexture(c)
       this.scene.background = this._backdropTex

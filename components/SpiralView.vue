@@ -177,6 +177,7 @@ async function mountExperience() {
   experience.world.setNavItems(props.items, themeStore.isDark)
   experience.setFogColor(themeStore.isDark ? FOG_DARK : FOG_LIGHT)
   experience.postProcessing.setColorGrade(themeStore.isDark)
+  experience.setBackdrop(themeStore.isDark ? null : '/backdrop-light.png')
   // Capture reference so the timeout is safe even if component unmounts before it fires
   const exp = experience
   setTimeout(() => exp.world.reveal(), 150)

@@ -1,4 +1,4 @@
-import { Scene, FogExp2 } from 'three'
+import { Scene, FogExp2, CanvasTexture } from 'three'
 import EventEmitter from './EventEmitter'
 import Sizes from './Sizes'
 import Time from './Time'
@@ -23,6 +23,7 @@ export default class Experience extends EventEmitter {
   raycaster: Raycaster
 
   private static _instance: Experience | null = null
+  private _backdropTex: CanvasTexture | null = null
 
   constructor(canvas: HTMLCanvasElement) {
     super()
@@ -64,10 +65,37 @@ export default class Experience extends EventEmitter {
     this.postProcessing.setVignetteColor(hex)
   }
 
+  setBackdrop(src: string | null) {
+    if (!src) {
+      this.scene.background = null
+      this._backdropTex?.dispose()
+      this._backdropTex = null
+      return
+    }
+    const img = new Image()
+    const apply = () => {
+      // Bake a cream wash into the texture so the image reads ambient, not dominant
+      const W = 720, H = 1280
+      const c = document.createElement('canvas')
+      c.width = W; c.height = H
+      const ctx = c.getContext('2d')!
+      ctx.drawImage(img, 0, 0, W, H)
+      ctx.fillStyle = 'rgba(244,241,236,0.58)'
+      ctx.fillRect(0, 0, W, H)
+      this._backdropTex?.dispose()
+      this._backdropTex = new CanvasTexture(c)
+      this.scene.background = this._backdropTex
+    }
+    img.onload = apply
+    img.src = src
+    if (img.complete && img.naturalWidth > 0) apply()
+  }
+
   setTheme(isDark: boolean) {
     this.setFogColor(isDark ? 0x0D0C0A : 0xF4F1EC)
     this.world.updateTheme(isDark)
     this.postProcessing.setColorGrade(isDark)
+    this.setBackdrop(isDark ? null : '/backdrop-light.png')
   }
 
   destroy() {
@@ -82,6 +110,8 @@ export default class Experience extends EventEmitter {
     // NOTE: SoundEngine is a persistent singleton — it must survive Experience
     // teardown (list-mode toggle, section change, navigation). Do NOT destroy it
     // here, or the AudioContext closes and audio dies until the next gesture.
+    this._backdropTex?.dispose()
+    this._backdropTex = null
     Experience._instance = null
   }
 }

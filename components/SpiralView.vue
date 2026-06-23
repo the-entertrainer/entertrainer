@@ -107,7 +107,7 @@ function _atmoFrame(now: number) {
   const cy     = (0.38 + driftY) * h
   const radius = Math.max(w, h) * (0.68 + kick * 0.14)  // glow expands on scroll
   const breath = 0.5 + Math.sin(_atmoT * 0.48) * 0.5    // 0 → 1 cycle ~13 s
-  const baseA  = dark ? 0.30 : 0.13
+  const baseA  = dark ? 0.30 : 0.05                        // glow nearly off in light mode
   const glowA  = baseA * (0.60 + breath * 0.40 + kick * 0.70)
   const glow   = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius)
   glow.addColorStop(0,    `rgba(36,63,106,${Math.min(glowA, 0.82)})`)
@@ -122,7 +122,7 @@ function _atmoFrame(now: number) {
     w / 2, h / 2, Math.max(w, h) * 0.74
   )
   vig.addColorStop(0, 'rgba(0,0,0,0)')
-  vig.addColorStop(1, dark ? 'rgba(0,0,0,0.60)' : 'rgba(168,158,142,0.44)')
+  vig.addColorStop(1, dark ? 'rgba(0,0,0,0.60)' : 'rgba(140,130,115,0.18)')
   ctx.fillStyle = vig
   ctx.fillRect(0, 0, w, h)
 
@@ -132,7 +132,7 @@ function _atmoFrame(now: number) {
   const pat = ctx.createPattern(tile, 'repeat')
   if (pat) {
     ctx.save()
-    ctx.globalAlpha = Math.min((dark ? 0.72 : 0.48) * (1 + kick * 0.50), 0.95)
+    ctx.globalAlpha = Math.min((dark ? 0.72 : 0.20) * (1 + kick * 0.50), 0.95)
     ctx.translate(-ox, -oy)
     ctx.fillStyle = pat
     ctx.fillRect(ox, oy, w, h)

@@ -111,8 +111,8 @@ export default class Particles {
       u.uColor.value.setRGB(0.55, 0.68, 0.92) // soft blue-white over the dark wash
       u.uOpacity.value = 0.50
     } else {
-      u.uColor.value.setRGB(0.18, 0.27, 0.44) // deep Pi Blue, readable on cream
-      u.uOpacity.value = 0.38
+      u.uColor.value.setRGB(0.22, 0.32, 0.52) // mid Pi Blue on cream
+      u.uOpacity.value = 0.22
     }
   }
 

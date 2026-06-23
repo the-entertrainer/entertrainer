@@ -1,4 +1,4 @@
-import { Scene, FogExp2, CanvasTexture } from 'three'
+import { Scene, FogExp2, CanvasTexture, Vector2 } from 'three'
 import EventEmitter from './EventEmitter'
 import Sizes from './Sizes'
 import Time from './Time'
@@ -27,6 +27,18 @@ export default class Experience extends EventEmitter {
   private _backdropImg: HTMLImageElement | null = null
   private _backdropSrc = ''
   private _backdropDark = true
+  // Parallax: the backdrop is sampled slightly zoomed-in (OVERSCAN) so it can be
+  // panned within the spare margin in response to pointer + a slow ambient drift,
+  // giving the flat background a subtle sense of 3D depth.
+  private static readonly _OVERSCAN = 0.92
+  private _parallaxTarget = new Vector2(0, 0)
+  private _parallaxCurrent = new Vector2(0, 0)
+  private _onPointerMove = (e: PointerEvent) => {
+    this._parallaxTarget.set(
+      (e.clientX / this.sizes.width) * 2 - 1,
+      (e.clientY / this.sizes.height) * 2 - 1
+    )
+  }
 
   constructor(canvas: HTMLCanvasElement) {
     super()
@@ -47,6 +59,9 @@ export default class Experience extends EventEmitter {
 
     this.sizes.on('resize', () => this._onResize())
     this.time.on('tick', () => this._update())
+    if (typeof window !== 'undefined') {
+      window.addEventListener('pointermove', this._onPointerMove, { passive: true })
+    }
   }
 
   private _onResize() {
@@ -60,9 +75,26 @@ export default class Experience extends EventEmitter {
   private _update() {
     this.controls.update()
     this.world.update(this.time.delta)
+    this._updateParallax()
     SoundEngine.getInstance()?.setListenerFromCamera(this.camera.instance)
-    this.postProcessing.tick(this.time.delta)
     this.postProcessing.render()
+  }
+
+  private _updateParallax() {
+    const tex = this._backdropTex
+    if (!tex) return
+    const t = this.time.elapsed / 1000
+    // pointer-driven pan + slow ambient drift, both kept within the overscan margin
+    const margin = (1 - Experience._OVERSCAN) / 2
+    const tx = this._parallaxTarget.x * 0.7 + Math.sin(t * 0.06) * 0.35
+    const ty = this._parallaxTarget.y * 0.7 + Math.cos(t * 0.05) * 0.35
+    this._parallaxCurrent.x += (tx - this._parallaxCurrent.x) * 0.04
+    this._parallaxCurrent.y += (ty - this._parallaxCurrent.y) * 0.04
+    // base offset centres the zoomed sample; pan stays inside the spare margin
+    tex.offset.set(
+      margin * (1 + this._parallaxCurrent.x),
+      margin * (1 - this._parallaxCurrent.y)
+    )
   }
 
   setFogColor(hex: number) {
@@ -125,19 +157,24 @@ export default class Experience extends EventEmitter {
     ctx.filter = 'none'
 
     this._backdropTex?.dispose()
-    this._backdropTex = new CanvasTexture(c)
-    this.scene.background = this._backdropTex
+    const tex = new CanvasTexture(c)
+    // sample slightly zoomed-in so _updateParallax has margin to pan within
+    tex.repeat.set(Experience._OVERSCAN, Experience._OVERSCAN)
+    this._backdropTex = tex
+    this.scene.background = tex
   }
 
   setTheme(isDark: boolean) {
     this.setFogColor(isDark ? 0x0D0C0A : 0xF4F1EC)
     this.world.updateTheme(isDark)
     this.postProcessing.setColorGrade(isDark)
-    this.postProcessing.setLightRays(!isDark)
     this.setBackdrop(isDark)
   }
 
   destroy() {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('pointermove', this._onPointerMove)
+    }
     this.sizes.destroy()
     this.time.destroy()
     this.controls.destroy()

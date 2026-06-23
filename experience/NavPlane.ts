@@ -378,7 +378,13 @@ export default class NavPlane {
     this.revealProgress += (this.revealTarget  - this.revealProgress) * hFactor
     this.hoverProgress  += (this.hoverTarget   - this.hoverProgress)  * hvFactor
 
-    const Va = Ba * this.verticalGap - 0.8 + this.hiddenProgress * 9.0
+    // Edge push: ramp a card sharply up (top) / down (bottom) once it passes the
+    // visible fan, so it flies in from above the viewport and out below the
+    // bottom — instead of dissolving in mid-screen at the wrap point.
+    const half = this.totalCount / 2
+    const edge = Math.max(0, Math.abs(Ba) - (half - 2.2))
+    const edgePush = Math.sign(Ba) * edge * edge * 0.9
+    const Va = Ba * this.verticalGap - 0.8 + this.hiddenProgress * 9.0 + edgePush
     const Ga = this.baseRadius * (1 - this.hiddenProgress / 2)
     const Ha = Ba * this.angleGap
 

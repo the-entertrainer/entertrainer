@@ -125,20 +125,17 @@ function assignSessions(days: CalDay[], orderedTopics: string[]) {
   const available = days.filter(
     d => d.inMonth && !d.holiday && preferredDays.value.includes(d.weekday)
   )
-  const slots = timeSlots.value
+  const slots  = timeSlots.value
+  const total  = orderedTopics.length
+  if (!total || !available.length) return
 
-  // Build slot pool: [day, slot] pairs up to maxPerDay per day
-  const pool: { day: CalDay; slot: string }[] = []
-  for (const day of available) {
-    for (let s = 0; s < Math.min(slots.length, maxPerDay.value); s++) {
-      pool.push({ day, slot: slots[s] })
-    }
-  }
+  // Spread evenly: step through available days so topics land across the whole month
+  const step = Math.max(1, Math.floor(available.length / total))
 
   orderedTopics.forEach((topic, i) => {
-    if (i >= pool.length) return
-    const { day, slot } = pool[i]
-    day.sessions.push({
+    const dayIdx = Math.min(i * step, available.length - 1)
+    const slot   = slots[i % slots.length]
+    available[dayIdx].sessions.push({
       id:    uid(),
       topic,
       slot,
@@ -204,17 +201,14 @@ function onDrop(toDay: CalDay) {
   if (!draggedSession.value) return
   const { session, fromDay } = draggedSession.value
 
-  if (toDay.date === fromDay.date) { draggedSession.value = null; return }
+  if (toDay.date === fromDay.date && toDay.inMonth === fromDay.inMonth) {
+    draggedSession.value = null; return
+  }
 
   if (toDay.holiday) {
     if (!confirm(`${toDay.holiday} is a public holiday. Schedule here anyway?`)) {
       draggedSession.value = null; return
     }
-  }
-
-  if (toDay.sessions.length >= maxPerDay.value) {
-    alert(`This day already has ${maxPerDay.value} session(s) — the maximum.`)
-    draggedSession.value = null; return
   }
 
   fromDay.sessions = fromDay.sessions.filter(s => s.id !== session.id)
@@ -263,23 +257,36 @@ const stats = computed(() => {
 // ─── Export ───────────────────────────────────────────────────────────────────
 async function exportPNG() {
   if (!import.meta.client || !calendarEl.value) return
-  const { default: html2canvas } = await import('html2canvas')
-  const canvas = await html2canvas(calendarEl.value, { scale: 2, useCORS: true })
-  const a = document.createElement('a')
-  a.download = `training-calendar-${selectedYear.value}-${String(selectedMonth.value).padStart(2,'0')}.png`
-  a.href = canvas.toDataURL('image/png')
-  a.click()
+  try {
+    const { default: html2canvas } = await import('html2canvas')
+    const canvas = await html2canvas(calendarEl.value, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
+    const a = document.createElement('a')
+    a.download = `training-calendar-${selectedYear.value}-${String(selectedMonth.value).padStart(2,'0')}.png`
+    a.href = canvas.toDataURL('image/png')
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  } catch {
+    alert('PNG export failed. Please try again.')
+  }
 }
 
 async function exportPDF() {
   if (!import.meta.client || !calendarEl.value) return
-  const { default: html2canvas } = await import('html2canvas')
-  const { jsPDF } = await import('jspdf')
-  const canvas = await html2canvas(calendarEl.value, { scale: 2, useCORS: true })
-  const imgData = canvas.toDataURL('image/png')
-  const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [canvas.width / 2, canvas.height / 2] })
-  pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2)
-  pdf.save(`training-calendar-${selectedYear.value}-${String(selectedMonth.value).padStart(2,'0')}.pdf`)
+  try {
+    const { default: html2canvas } = await import('html2canvas')
+    const jspdfMod = await import('jspdf')
+    const jsPDF = (jspdfMod as any).jsPDF ?? (jspdfMod as any).default?.jsPDF
+    const canvas  = await html2canvas(calendarEl.value, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
+    const imgData = canvas.toDataURL('image/png')
+    const w = canvas.width  / 2
+    const h = canvas.height / 2
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [w, h] })
+    pdf.addImage(imgData, 'PNG', 0, 0, w, h)
+    pdf.save(`training-calendar-${selectedYear.value}-${String(selectedMonth.value).padStart(2,'0')}.pdf`)
+  } catch {
+    alert('PDF export failed. Please try again.')
+  }
 }
 
 function backToInput() {
@@ -453,7 +460,8 @@ function backToInput() {
                     class="tcg-session"
                     :style="{ background: session.color }"
                     draggable="true"
-                    @dragstart="onDragStart(session, day)"
+                    @dragstart.stop="onDragStart(session, day)"
+                    @dragover.prevent.stop
                   >
                     <span class="tcg-session-topic">{{ session.topic }}</span>
                     <span class="tcg-session-slot">{{ session.slot }}</span>

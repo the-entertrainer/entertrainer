@@ -75,10 +75,6 @@ function reset() {
     <h1 class="detail-title">Better Emails</h1>
     <p class="detail-desc">Paste your messy draft. Get a polished email back.</p>
 
-    <div class="be-hero-wrap">
-      <img src="/better-emails.png" alt="Better Emails" class="be-hero" />
-    </div>
-
     <div class="be-body">
 
       <!-- Compose / form -->
@@ -167,19 +163,6 @@ function reset() {
   background: var(--color-bg);
   color: var(--color-text);
   padding: var(--page-top) var(--grid-margin) calc(100rem + var(--safe-bottom));
-}
-
-/* ── Hero image ── */
-.be-hero-wrap {
-  margin-bottom: 48rem;
-  border-radius: 16rem;
-  overflow: hidden;
-  max-width: 720rem;
-}
-.be-hero {
-  display: block;
-  width: 100%;
-  height: auto;
 }
 
 .be-body {

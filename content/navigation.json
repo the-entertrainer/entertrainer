@@ -14,10 +14,9 @@
     { "id": "work-03", "label": "Project 03", "description": "From messy brief to measurable outcome", "href": "/my-work/03", "color": "#243F6A" }
   ],
   "tools": [
-    { "id": "distractor-gen",  "label": "Distractor Generator", "description": "Turn correct answers into brilliant wrong ones.", "href": "/tools/distractor-gen",  "color": "#243F6A" },
-    { "id": "objective-boost", "label": "Bloom's Booster",       "description": "From fuzzy intentions to measurable goals.",     "href": "/tools/objective-boost", "color": "#243F6A" },
-    { "id": "course-check",    "label": "Is It Training?",       "description": "Because sometimes the answer is no.",           "href": "/tools/course-check",    "color": "#243F6A" },
-    { "id": "better-emails",   "label": "Better Emails",         "description": "Turn messy drafts into polished, professional emails.", "href": "/tools/better-emails",   "color": "#243F6A" }
+    { "id": "distractor-gen",    "label": "Distractor Generator", "description": "Turn correct answers into brilliant wrong ones.",          "href": "/tools/distractor-gen",    "color": "#243F6A" },
+    { "id": "training-cal-gen", "label": "Training Calendar",    "description": "Turn a list of topics into a ready-to-present monthly schedule.", "href": "/tools/training-cal-gen", "color": "#243F6A" },
+    { "id": "better-emails",    "label": "Better Emails",        "description": "Turn messy drafts into polished, professional emails.",          "href": "/tools/better-emails",    "color": "#243F6A" }
   ],
   "downloads": [
     { "id": "templates",  "label": "Templates",  "description": "Ready-to-use L&D templates",       "href": "/downloads/templates",  "color": "#243F6A" },

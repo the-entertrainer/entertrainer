@@ -13,6 +13,8 @@
     "@pinia/nuxt": "^0.5.1",
     "@studio-freight/lenis": "^1.0.42",
     "gsap": "^3.12.5",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
     "matter-js": "^0.20.0",
     "pinia": "^2.1.7",
     "rough-notation": "^0.5.1",

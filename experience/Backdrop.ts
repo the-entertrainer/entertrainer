@@ -85,9 +85,6 @@ const fragmentShader = /* glsl */`
       // Chalk stars — brighter, more visible
       float stars = starField(uv);
       col = mix(col, vec3(0.88, 0.85, 0.80), stars * 0.55);
-      // Soft luminous centre (light source above)
-      float centreLum = 1.0 - smoothstep(0.0, 0.85, length(uv - vec2(0.5, 0.55)) * 1.2);
-      col += vec3(0.04, 0.05, 0.08) * centreLum;
     } else {
       // ── Pencil on warm cream paper ───────────────────────────────────────
       vec3 paper = vec3(0.961, 0.937, 0.910);
@@ -105,10 +102,6 @@ const fragmentShader = /* glsl */`
       // Pencil stars
       float stars = starField(uv);
       col = mix(col, vec3(0.22, 0.19, 0.14), stars * 0.30);
-      // Warm sun patch — top-left corner, natural window light
-      float sunDist = length((uv - vec2(0.08, 0.92)) * vec2(1.0, 0.7));
-      float sun = exp(-sunDist * 3.2) * 0.10;
-      col += vec3(sun * 0.14, sun * 0.09, 0.0);
     }
     return col;
   }

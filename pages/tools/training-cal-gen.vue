@@ -811,12 +811,9 @@ function backToTable() {
               <button
                 class="tcg-pptx-mode"
                 :class="{ light: !pptxDark }"
-                :title="pptxDark ? 'Switch to light mode export' : 'Switch to dark mode export'"
+                :title="pptxDark ? 'Switch to light mode' : 'Switch to dark mode'"
                 @click="pptxDark = !pptxDark"
-              >
-                <span class="tcg-pptx-mode-icon">{{ pptxDark ? '☾' : '☀' }}</span>
-                {{ pptxDark ? 'Dark' : 'Light' }}
-              </button>
+              >{{ pptxDark ? 'Dark' : 'Light' }}</button>
               <button class="tcg-export" :disabled="exporting" @click="exportPPTX">
                 {{ exporting ? 'Building…' : 'Export PPTX' }}
               </button>
@@ -827,7 +824,7 @@ function backToTable() {
 
             <!-- Calendar grid -->
             <div class="tcg-cal-scroll">
-            <div ref="calendarEl" class="tcg-cal">
+            <div ref="calendarEl" class="tcg-cal" :class="{ 'tcg-cal--light': !pptxDark }">
 
               <!-- Editable header -->
               <div class="tcg-cal-header">
@@ -1473,7 +1470,6 @@ function backToTable() {
 }
 .tcg-pptx-mode:hover { background: var(--color-glass-bg-hover); color: var(--color-text); }
 .tcg-pptx-mode.light { background: rgba(255,255,255,0.12); color: var(--color-text); }
-.tcg-pptx-mode-icon { font-size: 13rem; line-height: 1; }
 
 
 .tcg-layout {
@@ -1504,6 +1500,24 @@ function backToTable() {
   padding: 20rem;
   overflow: hidden;
   min-width: 560rem;
+  transition: background 0.22s, border-color 0.22s, color 0.22s;
+}
+
+/* Light-mode preview — override CSS variables so all child colours cascade */
+.tcg-cal--light {
+  --color-glass-bg:          rgba(0, 0, 0, 0.04);
+  --color-glass-bg-hover:    rgba(0, 0, 0, 0.07);
+  --color-glass-border:      rgba(0, 0, 0, 0.1);
+  --color-glass-border-hover:rgba(0, 0, 0, 0.2);
+  --color-text:              #1A1916;
+  --color-bg:                #FFFFFF;
+  --color-divider:           rgba(0, 0, 0, 0.12);
+  background: #F7F5F1;
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #1A1916;
+}
+.tcg-cal--light .tcg-session--selected {
+  box-shadow: 0 0 0 2px #1A1916, 0 0 0 4px rgba(255, 255, 255, 0.6);
 }
 
 /* Editable calendar header */

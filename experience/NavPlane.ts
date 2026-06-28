@@ -70,34 +70,6 @@ const fragmentShader = /* glsl */`
   varying vec2 vUv;
   #include <fog_pars_fragment>
 
-  // Comic effect: posterize + edge detection + saturation boost
-  vec3 comicEffect(vec3 col, vec2 uv) {
-    // Posterize: reduce colors to distinct levels (comic book style)
-    float levels = 6.0;
-    vec3 posterized = floor(col * levels) / levels;
-
-    // Edge detection via simple Sobel-like approach using texture neighbors
-    float pixelSize = 0.004;
-    float e1 = texture2D(uTexture, uv + vec2(pixelSize, 0.0)).r;
-    float e2 = texture2D(uTexture, uv - vec2(pixelSize, 0.0)).r;
-    float e3 = texture2D(uTexture, uv + vec2(0.0, pixelSize)).r;
-    float e4 = texture2D(uTexture, uv - vec2(0.0, pixelSize)).r;
-    float edge = abs(e1 - e2) + abs(e3 - e4);
-    edge = smoothstep(0.1, 0.3, edge);
-
-    // Boost saturation for more vibrant comic look
-    float luma = dot(posterized, vec3(0.299, 0.587, 0.114));
-    vec3 saturable = mix(vec3(luma), posterized, 1.3);
-
-    // Darken edges for comic outline effect
-    vec3 withEdges = mix(saturable, vec3(0.15), edge * 0.6);
-
-    // Increase overall contrast
-    withEdges = mix(vec3(0.5), withEdges, 1.3);
-
-    return withEdges;
-  }
-
   void main() {
     vec2 ratio = vec2(
       min((uPlaneSizes.x / uPlaneSizes.y) / (uImageSizes.x / uImageSizes.y), 1.0),
@@ -112,10 +84,6 @@ const fragmentShader = /* glsl */`
     vec4 color;
     if (gl_FrontFacing) {
       color = texture2D(uTexture, zoomedUv);
-      // Apply comic effect to image-backed cards
-      if (uIsImage > 0.5) {
-        color.rgb = comicEffect(color.rgb, zoomedUv);
-      }
       color.rgb = mix(color.rgb, vec3(0.0), uColorStrength);
     } else {
       // Solid glass back face — mirrors front card aesthetics, no bleed-through

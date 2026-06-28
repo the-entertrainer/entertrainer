@@ -29,6 +29,22 @@ const fragmentShader = /* glsl */`
 
   #define SAMPLES 28
 
+  // Comic effect: posterize + edge detection + saturation boost
+  vec3 comicEffect(vec3 col) {
+    // Posterize: reduce colors to distinct levels (comic book style)
+    float levels = 6.0;
+    vec3 posterized = floor(col * levels) / levels;
+
+    // Boost saturation for vibrant comic look
+    float luma = dot(posterized, vec3(0.299, 0.587, 0.114));
+    vec3 saturated = mix(vec3(luma), posterized, 1.4);
+
+    // Increase contrast for bold impact
+    saturated = mix(vec3(0.5), saturated, 1.4);
+
+    return saturated;
+  }
+
   void main() {
     vec2 baseUv = vUv * uRepeat + uOffset;
     vec3 sumA = texture2D(uTexture,  baseUv).rgb;
@@ -45,7 +61,9 @@ const fragmentShader = /* glsl */`
       sumB += texture2D(uTextureB, baseUv + off).rgb;
       total += 1.0;
     }
-    gl_FragColor = vec4(mix(sumA / total, sumB / total, uCrossFade), 1.0);
+    vec3 blurred = mix(sumA / total, sumB / total, uCrossFade);
+    vec3 comic = comicEffect(blurred);
+    gl_FragColor = vec4(comic, 1.0);
   }
 `
 

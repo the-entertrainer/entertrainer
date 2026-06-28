@@ -68,6 +68,7 @@ const fragmentShader = /* glsl */`
   uniform float uRimAngle;
   uniform float uGlowStrength;
   uniform float uIsImage;
+  uniform float uCenterDist;
 
   varying vec2 vUv;
   varying float vDepth;
@@ -210,14 +211,20 @@ const fragmentShader = /* glsl */`
       vec3 paperFill   = mix(vec3(0.96, 0.93, 0.86), vec3(0.05, 0.04, 0.03), isDarkMode);
       vec3 strokeColor = mix(vec3(0.12, 0.10, 0.07), vec3(0.90, 0.87, 0.82), isDarkMode);
       float roughSdf   = roughBorderSdf(vUv, aspect);
-      float strokeW    = 0.013 + noise(vUv * 110.0) * 0.009;
+      float strokeW    = 0.014 + noise(vUv * 110.0) * 0.010;
       float stroke     = 1.0 - smoothstep(0.0, strokeW, abs(roughSdf));
-      stroke          *= (0.45 + 0.55 * noise(vUv * 70.0));
-      float distFade   = smoothstep(5.5, 11.0, vDepth);
-      float interiorOp = mix(0.88, 0.04, distFade);
-      color.rgb = mix(color.rgb, paperFill, 0.22 + distFade * 0.55);
-      color.rgb = mix(color.rgb, strokeColor, stroke * 0.75);
-      color.a   = min(color.a, interiorOp + stroke * 0.82);
+      stroke          *= (0.50 + 0.50 * noise(vUv * 70.0));
+      // Use uCenterDist (0=center, 1=adjacent, 2...) for the interior fade
+      float distFade   = smoothstep(0.2, 3.5, uCenterDist);
+      float interiorOp = mix(0.93, 0.04, distFade);
+      // Subtle yellow accent highlight on center card bottom edge
+      float yellowAccent = (1.0 - distFade) * (1.0 - modeLuma) *
+                           smoothstep(-0.05, 0.02, roughSdf) *
+                           smoothstep(-0.25, -0.15, vUv.y - 0.5);
+      color.rgb = mix(color.rgb, paperFill, 0.18 + distFade * 0.60);
+      color.rgb = mix(color.rgb, strokeColor, stroke * 0.80);
+      color.rgb = mix(color.rgb, vec3(0.965, 0.784, 0.157), yellowAccent * 0.55);
+      color.a   = min(color.a, interiorOp + stroke * 0.85);
     }
     // ────────────────────────────────────────────────────────────────────
 
@@ -318,7 +325,8 @@ export default class NavPlane {
           uOpacity:        { value: 1 },
           uRimAngle:       { value: 0 },
           uGlowStrength:   { value: 0 },
-          uIsImage:        { value: this._bgImage ? 1.0 : 0.0 }
+          uIsImage:        { value: this._bgImage ? 1.0 : 0.0 },
+          uCenterDist:     { value: 0.0 }
         }
       ]),
       vertexShader,
@@ -482,12 +490,16 @@ export default class NavPlane {
 
     this.mesh.position.set(Math.cos(Ha) * Ga, Va, Math.sin(Ha) * Ga)
     this.mesh.rotation.y = -Ha + Math.PI / 2
+    // Per-card scatter tilt — paper scattered on desk feel
+    const tiltAmt = Math.abs(Ba) > 0.5 ? 0.055 : 0.008
+    this.mesh.rotation.z = Math.sin(this.index * 2.3 + 1.1) * tiltAmt * (1 - this.hoverProgress)
 
     const mat = this.mesh.material as ShaderMaterial
     mat.uniforms.uScrollSpeed.value    = scrollSpeed
     mat.uniforms.uColorStrength.value  = 0.55 * this.hoverProgress
     mat.uniforms.uZoom.value           = 1 + 0.05 * this.hoverProgress
     mat.uniforms.uRevealProgress.value = this.revealProgress * (1 - this.hoverProgress * 0.05)
+    mat.uniforms.uCenterDist.value     = Math.abs(Ba)
 
     mat.uniforms.uOpacity.value = this.wrapFade
 

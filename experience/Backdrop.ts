@@ -44,32 +44,63 @@ const fragmentShader = /* glsl */`
     return v;
   }
 
+  // Scattered 4-pointed sketch stars decorating the paper/board
+  float starField(vec2 uv) {
+    vec2 g0 = floor(uv * 7.0);
+    vec2 fr = fract(uv * 7.0) - 0.5;
+    float v = 0.0;
+    for (int i = -1; i <= 1; i++) {
+      for (int j = -1; j <= 1; j++) {
+        vec2 g = g0 + vec2(float(i), float(j));
+        float active = smoothstep(0.58, 0.63, noise(g * 0.47));
+        float jx = (noise(g + 5.3) - 0.5) * 0.6;
+        float jy = (noise(g + 13.7) - 0.5) * 0.6;
+        vec2 d = fr - vec2(jx + float(i), jy + float(j));
+        float r = length(d) * 7.0;
+        float a = atan(d.y, d.x);
+        float spikes = abs(cos(a * 2.0));
+        float sz = 0.06 + noise(g + 99.1) * 0.04;
+        float star = smoothstep(sz * (0.2 + 0.8 * spikes), 0.0, r);
+        v = max(v, star * active);
+      }
+    }
+    return v;
+  }
+
   vec3 sketchEffect(vec3 col, vec2 uv) {
     if (uIsDark > 0.5) {
-      // Chalk on blackboard
+      // ── Chalk on blackboard ──────────────────────────────────────────────
       float luma = dot(col, vec3(0.299, 0.587, 0.114));
-      col = mix(vec3(luma * 0.55), col * 0.35, 0.3);
-      float chalk = fbm(uv * 450.0) * 0.12;
-      col += chalk * 0.55;
+      col = mix(vec3(luma * 0.50), col * 0.30, 0.25);
+      float chalk = fbm(uv * 450.0) * 0.14;
+      col += chalk * 0.60;
       float lineFreq  = 90.0;
       float lineVal   = fract(uv.y * lineFreq);
       float lineNoise = noise(vec2(uv.x * 60.0, uv.y * lineFreq)) * 0.3;
       float line = smoothstep(0.0, 0.04 + lineNoise, lineVal) *
                    (1.0 - smoothstep(0.82 - lineNoise, 0.95, lineVal));
-      col = mix(col * 0.9, col, line);
+      col = mix(col * 0.88, col, line);
+      // Chalk stars
+      float stars = starField(uv);
+      col = mix(col, vec3(0.82, 0.79, 0.74), stars * 0.45);
     } else {
-      // Pencil on cream paper
-      vec3 paper = vec3(0.941, 0.918, 0.851);
+      // ── Pencil on warm cream paper ───────────────────────────────────────
+      // Warm cream-ivory paper tone (#F5EFE8 ≈ 0.961, 0.937, 0.910)
+      vec3 paper = vec3(0.961, 0.937, 0.910);
       float luma = dot(col, vec3(0.299, 0.587, 0.114));
-      col = mix(vec3(luma), col, 0.5);
-      col = mix(col, paper, 0.45);
+      col = mix(vec3(luma), col, 0.40);   // partial desaturate
+      col = mix(col, paper, 0.68);        // strong pull to warm paper
       float grain = fbm(uv * 550.0) * 0.07;
-      col += grain * vec3(0.80, 0.72, 0.55);
+      col += grain * vec3(0.82, 0.74, 0.56);
+      // Pencil hatching — very faint diagonal
       float hatch      = fract((uv.x + uv.y) * 140.0);
       float hatchNoise = noise(uv * 90.0) * 0.25;
       float hatchLine  = smoothstep(0.0, 0.04 + hatchNoise, hatch) *
                          (1.0 - smoothstep(0.94 - hatchNoise, 1.0, hatch));
-      col = mix(col, col * 0.93, (1.0 - hatchLine) * 0.08);
+      col = mix(col, col * 0.92, (1.0 - hatchLine) * 0.07);
+      // Pencil stars
+      float stars = starField(uv);
+      col = mix(col, vec3(0.22, 0.19, 0.14), stars * 0.30);
     }
     return col;
   }

@@ -144,7 +144,7 @@ export default class Experience extends EventEmitter {
   }
 
   setTheme(isDark: boolean) {
-    this.setFogColor(isDark ? 0x0D0C0A : 0xF4F1EC)
+    this.setFogColor(isDark ? 0x0D0C0A : 0xF5EFE8)
     this.world.updateTheme(isDark)
     this.postProcessing.setColorGrade(isDark)
     this.backdrop.setTheme(isDark)

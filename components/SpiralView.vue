@@ -28,7 +28,7 @@ const isListMode      = computed(() => props.showViewSwitch && homeViewStore.mod
 const { $lenis }      = useNuxtApp()
 
 const FOG_DARK  = 0x0D0C0A
-const FOG_LIGHT = 0xF4F1EC
+const FOG_LIGHT = 0xF5EFE8
 
 let experience: Experience | null = null
 let transitioning = false

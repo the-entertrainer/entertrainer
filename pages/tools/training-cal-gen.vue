@@ -391,58 +391,56 @@ function isMobileOrIOS(): boolean {
   return /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(navigator.userAgent)
 }
 
-async function exportPNG() {
+async function exportCanvas(purpose: 'png' | 'pdf') {
   if (!import.meta.client || !calendarEl.value) return
+  const mobile = isMobileOrIOS()
+  const stem   = `training-calendar-${selectedYear.value}-${String(selectedMonth.value).padStart(2,'0')}`
+
+  // window.open must be called synchronously — iOS revokes the gesture after any await
+  let win: Window | null = null
+  if (mobile) {
+    win = window.open('', '_blank')
+    if (win) {
+      win.document.write('<!doctype html><html><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh"><p style="color:#fff;font-family:sans-serif;opacity:.5">Loading…</p></body></html>')
+      win.document.close()
+    }
+  }
+
   try {
     const { default: html2canvas } = await import('html2canvas')
-    const canvas  = await html2canvas(calendarEl.value, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
+    const canvas  = await html2canvas(calendarEl.value, { scale: mobile ? 1.5 : 2, useCORS: true, backgroundColor: '#ffffff' })
     const dataURL = canvas.toDataURL('image/png')
-    const name    = `training-calendar-${selectedYear.value}-${String(selectedMonth.value).padStart(2,'0')}.png`
 
-    if (isMobileOrIOS()) {
-      const w = window.open('', '_blank')
-      if (w) {
-        w.document.write(`<!doctype html><html><head><title>${name}</title></head><body style="margin:0;background:#000"><img src="${dataURL}" style="max-width:100%;height:auto;display:block"></body></html>`)
-        w.document.close()
+    if (mobile) {
+      if (win) {
+        win.document.open()
+        win.document.write(`<!doctype html><html><head><title>${stem}</title></head><body style="margin:0;background:#000"><img src="${dataURL}" style="width:100%;height:auto;display:block"></body></html>`)
+        win.document.close()
       }
-    } else {
+    } else if (purpose === 'png') {
       const a = document.createElement('a')
-      a.download = name
+      a.download = `${stem}.png`
       a.href     = dataURL
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
-    }
-  } catch {
-    alert('PNG export failed. Please try again.')
-  }
-}
-
-async function exportPDF() {
-  if (!import.meta.client || !calendarEl.value) return
-  try {
-    const { default: html2canvas } = await import('html2canvas')
-    const jspdfMod = await import('jspdf')
-    const jsPDF    = (jspdfMod as any).jsPDF ?? (jspdfMod as any).default?.jsPDF
-    const canvas   = await html2canvas(calendarEl.value, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
-    const imgData  = canvas.toDataURL('image/png')
-    const w = canvas.width  / 2
-    const h = canvas.height / 2
-    const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [w, h] })
-    pdf.addImage(imgData, 'PNG', 0, 0, w, h)
-    const name = `training-calendar-${selectedYear.value}-${String(selectedMonth.value).padStart(2,'0')}.pdf`
-
-    if (isMobileOrIOS()) {
-      const uri = pdf.output('datauristring')
-      const win = window.open('', '_blank')
-      if (win) { win.location.href = uri }
     } else {
-      pdf.save(name)
+      const jspdfMod = await import('jspdf')
+      const jsPDF    = (jspdfMod as any).jsPDF ?? (jspdfMod as any).default?.jsPDF
+      const w = canvas.width  / 2
+      const h = canvas.height / 2
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [w, h] })
+      pdf.addImage(dataURL, 'PNG', 0, 0, w, h)
+      pdf.save(`${stem}.pdf`)
     }
   } catch {
-    alert('PDF export failed. Please try again.')
+    if (win) win.close()
+    alert('Export failed. Please try again.')
   }
 }
+
+function exportPNG() { exportCanvas('png') }
+function exportPDF() { exportCanvas('pdf') }
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 function backToInput() {
@@ -711,6 +709,7 @@ function backToTable() {
           <div class="tcg-layout" @click.self="selectedSession = null">
 
             <!-- Calendar grid -->
+            <div class="tcg-cal-scroll">
             <div ref="calendarEl" class="tcg-cal">
 
               <!-- Editable header -->
@@ -766,6 +765,7 @@ function backToTable() {
                   </div>
                 </div>
               </div>
+            </div>
             </div>
 
             <!-- Sidebar -->
@@ -1370,6 +1370,13 @@ function backToTable() {
   .tcg-row { flex-direction: column; }
 }
 
+/* Calendar scroll shell — allows horizontal swipe on narrow screens */
+.tcg-cal-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 16rem;
+}
+
 /* Calendar grid */
 .tcg-cal {
   background: var(--color-glass-bg);
@@ -1377,6 +1384,7 @@ function backToTable() {
   border-radius: 16rem;
   padding: 20rem;
   overflow: hidden;
+  min-width: 560rem;
 }
 
 /* Editable calendar header */

@@ -68,7 +68,6 @@ const fragmentShader = /* glsl */`
   uniform float uRimAngle;
   uniform float uGlowStrength;
   uniform float uIsImage;
-  uniform float uCenterDist;
   varying vec2 vUv;
   varying float vDepth;
   #include <fog_pars_fragment>
@@ -189,12 +188,6 @@ const fragmentShader = /* glsl */`
       color.rgb     += vec3(0.96, 0.95, 0.93) * glowMask * 0.50;
     }
 
-    // Depth hierarchy: cards far from center fade cleanly — no sketch, just transparency
-    if (gl_FrontFacing) {
-      float distFade = smoothstep(0.2, 2.8, uCenterDist);
-      color.a = min(color.a, 1.0 - distFade * 0.72);
-    }
-
     gl_FragColor = vec4(color.rgb, alpha * color.a * uOpacity);
     #include <fog_fragment>
   }
@@ -293,8 +286,7 @@ export default class NavPlane {
           uOpacity:        { value: 1 },
           uRimAngle:       { value: 0 },
           uGlowStrength:   { value: 0 },
-          uIsImage:        { value: this._bgImage ? 1.0 : 0.0 },
-          uCenterDist:     { value: 0.0 }
+          uIsImage:        { value: this._bgImage ? 1.0 : 0.0 }
         }
       ]),
       vertexShader,
@@ -322,7 +314,7 @@ export default class NavPlane {
     }
 
     // Glass body
-    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.04)'
+    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.72)'
     ctx.fillRect(0, 0, W, H)
 
     // Diagonal ambient sweep — dark mode only; on light it washes out dark text
@@ -335,7 +327,7 @@ export default class NavPlane {
     }
 
     // Border
-    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.09)'
+    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.12)'
     ctx.lineWidth   = 5
     ctx.strokeRect(6, 6, W - 12, H - 12)
 
@@ -464,8 +456,6 @@ export default class NavPlane {
     mat.uniforms.uColorStrength.value  = 0.55 * this.hoverProgress
     mat.uniforms.uZoom.value           = 1 + 0.05 * this.hoverProgress
     mat.uniforms.uRevealProgress.value = this.revealProgress * (1 - this.hoverProgress * 0.05)
-    mat.uniforms.uCenterDist.value     = Math.abs(Ba)
-
     mat.uniforms.uOpacity.value = this.wrapFade
 
     // ── Typewriter ──────────────────────────────────────────────

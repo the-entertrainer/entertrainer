@@ -357,8 +357,7 @@ const stats = computed(() => {
 })
 
 // ─── Export ───────────────────────────────────────────────────────────────────
-const exporting  = ref(false)
-const pptxDark   = ref(true)
+const exporting = ref(false)
 
 async function exportPPTX() {
   if (exporting.value) return
@@ -418,21 +417,8 @@ async function exportPPTX() {
       }
     } catch { /* system font fallback */ }
 
-    // ── Theme palette ────────────────────────────────────────────────────────
-    const T = pptxDark.value ? {
-      slide:       '0D0C0A',
-      card:        '252320',
-      cardBorder:  { color: 'FFFFFF', transparency: 60, width: 0.75 },
-      title:       'F5F3EF',
-      meta:        'A09D98',
-      dayName:     'A09D98',
-      dateNum:     'C8C5BF',
-      cellFill:    { color: 'FFFFFF', transparency: 90 },
-      holidayFill: { color: 'EF4444', transparency: 85 },
-      cellBorder:  { color: 'FFFFFF', transparency: 70, width: 0.5 },
-      holiday:     'EF4444',
-      sessionText: 'FFFFFF',
-    } : {
+    // ── Theme palette (light only) ───────────────────────────────────────────
+    const T = {
       slide:       'F5F3EF',
       card:        'FFFFFF',
       cardBorder:  { color: '000000', transparency: 88, width: 0.75 },
@@ -808,12 +794,6 @@ function backToTable() {
             </div>
 
             <div class="tcg-export-btns">
-              <button
-                class="tcg-pptx-mode"
-                :class="{ light: !pptxDark }"
-                :title="pptxDark ? 'Switch to light mode' : 'Switch to dark mode'"
-                @click="pptxDark = !pptxDark"
-              >{{ pptxDark ? 'Dark' : 'Light' }}</button>
               <button class="tcg-export" :disabled="exporting" @click="exportPPTX">
                 {{ exporting ? 'Building…' : 'Export PPTX' }}
               </button>
@@ -824,7 +804,7 @@ function backToTable() {
 
             <!-- Calendar grid -->
             <div class="tcg-cal-scroll">
-            <div ref="calendarEl" class="tcg-cal" :class="{ 'tcg-cal--light': !pptxDark }">
+            <div ref="calendarEl" class="tcg-cal">
 
               <!-- Editable header -->
               <div class="tcg-cal-header">
@@ -1453,23 +1433,6 @@ function backToTable() {
 .tcg-export:hover:not(:disabled) { background: var(--color-glass-bg-hover); }
 .tcg-export:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.tcg-pptx-mode {
-  display: flex;
-  align-items: center;
-  gap: 5rem;
-  padding: 5rem 12rem;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-glass-border);
-  background: rgba(255,255,255,0.04);
-  color: var(--color-text-secondary);
-  font-family: inherit;
-  font-size: 11rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-.tcg-pptx-mode:hover { background: var(--color-glass-bg-hover); color: var(--color-text); }
-.tcg-pptx-mode.light { background: rgba(255,255,255,0.12); color: var(--color-text); }
 
 
 .tcg-layout {
@@ -1492,32 +1455,22 @@ function backToTable() {
   border-radius: 16rem;
 }
 
-/* Calendar grid */
+/* Calendar grid — fixed light palette, isolated from the site theme */
 .tcg-cal {
-  background: var(--color-glass-bg);
-  border: 1px solid var(--color-glass-border);
+  --color-glass-bg:           rgba(0, 0, 0, 0.04);
+  --color-glass-bg-hover:     rgba(0, 0, 0, 0.07);
+  --color-glass-border:       rgba(0, 0, 0, 0.1);
+  --color-glass-border-hover: rgba(0, 0, 0, 0.2);
+  --color-text:               #1A1916;
+  --color-bg:                 #FFFFFF;
+  --color-divider:            rgba(0, 0, 0, 0.12);
+  background: #F7F5F1;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 16rem;
   padding: 20rem;
   overflow: hidden;
   min-width: 560rem;
-  transition: background 0.22s, border-color 0.22s, color 0.22s;
-}
-
-/* Light-mode preview — override CSS variables so all child colours cascade */
-.tcg-cal--light {
-  --color-glass-bg:          rgba(0, 0, 0, 0.04);
-  --color-glass-bg-hover:    rgba(0, 0, 0, 0.07);
-  --color-glass-border:      rgba(0, 0, 0, 0.1);
-  --color-glass-border-hover:rgba(0, 0, 0, 0.2);
-  --color-text:              #1A1916;
-  --color-bg:                #FFFFFF;
-  --color-divider:           rgba(0, 0, 0, 0.12);
-  background: #F7F5F1;
-  border-color: rgba(0, 0, 0, 0.1);
   color: #1A1916;
-}
-.tcg-cal--light .tcg-session--selected {
-  box-shadow: 0 0 0 2px #1A1916, 0 0 0 4px rgba(255, 255, 255, 0.6);
 }
 
 /* Editable calendar header */
@@ -1644,7 +1597,7 @@ function backToTable() {
 .tcg-session[draggable="true"] { cursor: grab; }
 .tcg-session[draggable="true"]:active { cursor: grabbing; opacity: 0.7; transform: scale(0.97); }
 .tcg-session--selected {
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(0,0,0,0.5);
+  box-shadow: 0 0 0 2px #1A1916, 0 0 0 4px rgba(255, 255, 255, 0.6);
 }
 
 .tcg-session-topic {

@@ -379,10 +379,10 @@ export default class NavPlane {
     this.hoverProgress  += (this.hoverTarget   - this.hoverProgress)  * hvFactor
 
     const half = this.totalCount / 2
-    const visibleRange = Math.max(half - 1.8, 3.2)
+    const visibleRange = Math.max(half - 0.5, 3.0)
     const edge = Math.max(0, Math.abs(Ba) - visibleRange)
-    const edgePush = Math.sign(Ba) * edge * edge * edge * 0.12
-    const edgeOpacity = Math.max(0, 1 - edge * 0.45)
+    const edgePush = Math.sign(Ba) * edge * edge * 0.2
+    const edgeOpacity = Math.max(0, 1 - edge * 0.25)
     const Va = Ba * this.verticalGap - 0.8 + this.hiddenProgress * 9.0 + edgePush
     const Ga = this.baseRadius * (1 - this.hiddenProgress / 2)
 

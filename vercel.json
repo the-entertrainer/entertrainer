@@ -1,4 +1,10 @@
 {
   "buildCommand": "npm run build",
-  "framework": "nuxtjs"
+  "framework": "nuxtjs",
+  "functions": {
+    "server/api/calendar-screenshot.post.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  }
 }

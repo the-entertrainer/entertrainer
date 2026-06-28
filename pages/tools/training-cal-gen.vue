@@ -386,91 +386,41 @@ const stats = computed(() => {
 })
 
 // ─── Export ───────────────────────────────────────────────────────────────────
-function isMobileOrIOS(): boolean {
-  if (!import.meta.client) return false
-  return /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(navigator.userAgent)
-}
+const exporting = ref<'png' | 'pdf' | null>(null)
 
-const isMobileDevice = ref(false)
-
-// ─── Print export (mobile / iOS) ──────────────────────────────────────────────
-// html2canvas has an unresolved SecurityError on iOS Safari when any stylesheet
-// in the document contains data: URI backgrounds — even outside the capture
-// target. html-to-image uses SVG foreignObject which Safari restricts similarly.
-// The only reliable cross-platform approach on iOS is window.print():
-// the native print dialog lets users save as PDF at full vector quality.
-function printCalendar() {
-  if (!calendarEl.value) return
-
-  // Sync v-model input values to HTML attributes so cloneNode preserves them
-  calendarEl.value.querySelectorAll('input').forEach((el: HTMLInputElement) => {
-    el.setAttribute('value', el.value)
-  })
-
-  const container = document.createElement('div')
-  container.id = 'tcg-print-root'
-  container.appendChild(calendarEl.value.cloneNode(true))
-  document.body.appendChild(container)
-  document.body.classList.add('tcg-is-printing')
-
-  const cleanup = () => {
-    document.body.classList.remove('tcg-is-printing')
-    if (document.body.contains(container)) document.body.removeChild(container)
-    window.removeEventListener('afterprint', cleanup)
-    clearTimeout(fallbackTimer)
-  }
-  // afterprint may not fire on all iOS versions — clean up after 20s anyway
-  const fallbackTimer = setTimeout(cleanup, 20_000)
-  window.addEventListener('afterprint', cleanup)
-  window.print()
-}
-
-// ─── Canvas export (desktop) ──────────────────────────────────────────────────
-async function exportCanvas(purpose: 'png' | 'pdf') {
-  if (!import.meta.client || !calendarEl.value) return
-  const stem = `training-calendar-${selectedYear.value}-${String(selectedMonth.value).padStart(2,'0')}`
-
+async function exportFile(format: 'png' | 'pdf') {
+  if (exporting.value) return
+  exporting.value = format
+  const stem = `training-calendar-${selectedYear.value}-${String(selectedMonth.value).padStart(2, '0')}`
   try {
-    const { default: html2canvas } = await import('html2canvas')
-    const canvas = await html2canvas(calendarEl.value, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#ffffff',
+    const blob = await $fetch<Blob>('/api/calendar-screenshot', {
+      method:       'POST',
+      responseType: 'blob',
+      body: {
+        calTitle:      calTitle.value,
+        calOrg:        calOrg.value,
+        calDept:       calDept.value,
+        selectedMonth: selectedMonth.value,
+        selectedYear:  selectedYear.value,
+        calDays:       calDays.value,
+        activeTheme:   activeTheme.value,
+        format,
+      },
     })
-
-    if (purpose === 'pdf') {
-      const jspdfMod = await import('jspdf')
-      const jsPDF    = (jspdfMod as any).jsPDF ?? (jspdfMod as any).default?.jsPDF
-      const dataURL  = canvas.toDataURL('image/png')
-      const w = canvas.width  / 2
-      const h = canvas.height / 2
-      const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [w, h] })
-      pdf.addImage(dataURL, 'PNG', 0, 0, w, h)
-      pdf.save(`${stem}.pdf`)
-    } else {
-      const blob = await new Promise<Blob>(resolve =>
-        canvas.toBlob(b => resolve(b!), 'image/png')
-      )
-      const url = URL.createObjectURL(blob)
-      const a   = document.createElement('a')
-      a.href     = url
-      a.download = `${stem}.png`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-    }
+    const url = URL.createObjectURL(blob)
+    const a   = document.createElement('a')
+    a.href     = url
+    a.download = `${stem}.${format}`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   } catch {
-    // Canvas capture failed on this browser — fall back to print
-    printCalendar()
+    alert('Export failed. Please try again.')
+  } finally {
+    exporting.value = null
   }
 }
-
-function exportPNG() { isMobileDevice.value ? printCalendar() : exportCanvas('png') }
-function exportPDF() { isMobileDevice.value ? printCalendar() : exportCanvas('pdf') }
-
-onMounted(() => { isMobileDevice.value = isMobileOrIOS() })
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 function backToInput() {
@@ -716,13 +666,12 @@ function backToTable() {
             </div>
 
             <div class="tcg-export-btns">
-              <template v-if="isMobileDevice">
-                <button class="tcg-export" @click="printCalendar">Print / Save PDF</button>
-              </template>
-              <template v-else>
-                <button class="tcg-export" @click="exportPNG">Export PNG</button>
-                <button class="tcg-export" @click="exportPDF">Export PDF</button>
-              </template>
+              <button class="tcg-export" :disabled="!!exporting" @click="exportFile('png')">
+                {{ exporting === 'png' ? 'Generating…' : 'Export PNG' }}
+              </button>
+              <button class="tcg-export" :disabled="!!exporting" @click="exportFile('pdf')">
+                {{ exporting === 'pdf' ? 'Generating…' : 'Export PDF' }}
+              </button>
             </div>
           </div>
 
@@ -1369,7 +1318,8 @@ function backToTable() {
   cursor: pointer;
   transition: background 0.15s;
 }
-.tcg-export:hover { background: var(--color-glass-bg-hover); }
+.tcg-export:hover:not(:disabled) { background: var(--color-glass-bg-hover); }
+.tcg-export:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .tcg-banner {
   font-size: 12rem;
@@ -1716,38 +1666,3 @@ function backToTable() {
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>
 
-<!-- Print styles must be global (not scoped) so they apply to the cloned
-     #tcg-print-root appended directly to <body>. The calendar content inside
-     the clone retains its scoped data-v-* attributes so scoped styles still
-     apply. -->
-<style>
-@media print {
-  /* Hide everything on the page while printing the calendar clone */
-  body.tcg-is-printing { visibility: hidden !important; }
-
-  /* Show only the cloned calendar container */
-  #tcg-print-root {
-    visibility: visible !important;
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100% !important;
-    background: #ffffff !important;
-  }
-  #tcg-print-root * { visibility: visible !important; }
-
-  /* Reset the calendar card so it fills the print page edge-to-edge */
-  #tcg-print-root .tcg-cal {
-    min-width: 0 !important;
-    width: 100% !important;
-    border-radius: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-
-  /* Force backgrounds and colours to print (no browser auto-stripping) */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-}
-</style>

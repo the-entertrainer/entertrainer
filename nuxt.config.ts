@@ -79,5 +79,10 @@ export default defineNuxtConfig({
     devOptions: { enabled: false }
   },
   ssr: false,
-  nitro: { preset: 'vercel' }
+  nitro: {
+    preset: 'vercel',
+    externals: {
+      external: ['playwright-core', '@sparticuz/chromium'],
+    },
+  }
 })

@@ -357,39 +357,164 @@ const stats = computed(() => {
 })
 
 // ─── Export ───────────────────────────────────────────────────────────────────
-const exporting = ref<'png' | 'pdf' | null>(null)
+const exporting = ref(false)
 
-async function exportFile(format: 'png' | 'pdf') {
+async function exportPPTX() {
   if (exporting.value) return
-  exporting.value = format
-  const stem = `training-calendar-${selectedYear.value}-${String(selectedMonth.value).padStart(2, '0')}`
+  exporting.value = true
+
   try {
-    const blob = await $fetch<Blob>('/api/calendar-screenshot', {
-      method:       'POST',
-      responseType: 'blob',
-      body: {
-        calTitle:      calTitle.value,
-        calOrg:        calOrg.value,
-        calDept:       calDept.value,
-        selectedMonth: selectedMonth.value,
-        selectedYear:  selectedYear.value,
-        calDays:       calDays.value,
-        activeTheme:   activeTheme.value,
-        format,
-      },
+    const { default: PptxGenJS } = await import('pptxgenjs')
+    const pptx = new PptxGenJS()
+
+    const stem      = `training-calendar-${selectedYear.value}-${String(selectedMonth.value).padStart(2, '0')}`
+    const monthName = MONTH_NAMES[selectedMonth.value - 1]
+
+    // Pad calDays to complete 7-col grid
+    const padded = [...calDays.value]
+    while (padded.length % 7) padded.push({ date: 0, weekday: 0, inMonth: false, holiday: null, sessions: [] })
+    const rows: CalDay[][] = []
+    for (let i = 0; i < padded.length; i += 7) rows.push(padded.slice(i, i + 7))
+
+    // ── Dimensions (all in inches) ──────────────────────────────────────────
+    const SW    = 20          // slide width
+    const M     = 0.25        // outer margin
+    const CX    = M, CY = M   // card origin
+    const CW    = SW - M * 2  // 19.5
+    const PAD   = 0.3         // card inner padding
+    const GX    = CX + PAD    // grid left = 0.55
+    const GW    = CW - PAD * 2 // 18.9
+    const COLW  = GW / 7      // ≈ 2.7
+    const GAP   = 0.03        // inter-cell gap
+    const CELLW = COLW - GAP  // ≈ 2.67
+    const CELLH = 1.48        // cell height (rows are always the same height)
+    const RGAP  = 0.03        // row gap
+
+    const TY   = CY + PAD           // title top
+    const METY = TY  + 0.44         // meta top
+    const DNY  = METY + 0.28 + 0.06 // day-names top
+    const GRY  = DNY  + 0.26 + 0.06 // grid top
+    const GRH  = rows.length * CELLH + (rows.length - 1) * RGAP
+    const CH   = GRY - CY + GRH + PAD  // card height
+    const SH   = CH + M               // slide height
+
+    pptx.defineLayout({ name: 'CAL', width: SW, height: SH })
+    pptx.layout = 'CAL'
+
+    // ── Slide ───────────────────────────────────────────────────────────────
+    const slide = pptx.addSlide()
+    slide.background = { color: '0D0C0A' }
+
+    // Card background
+    slide.addShape('roundRect' as any, {
+      x: CX, y: CY, w: CW, h: CH,
+      fill: { color: '1C1B18' },
+      line: { color: 'FFFFFF', transparency: 82, width: 0.5 },
+      rectRadius: 0.05,
+    } as any)
+
+    // Title
+    slide.addText(calTitle.value || 'Training Calendar', {
+      x: GX, y: TY, w: GW * 0.7, h: 0.42,
+      fontSize: 22, bold: true, color: 'F5F3EF',
+      fontFace: 'Calibri', charSpacing: -0.5,
+      valign: 'middle',
     })
-    const url = URL.createObjectURL(blob)
-    const a   = document.createElement('a')
-    a.href     = url
-    a.download = `${stem}.${format}`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+
+    // Meta line: org · dept · month year
+    slide.addText(`${calOrg.value}  ·  ${calDept.value}  ·  ${monthName} ${selectedYear.value}`, {
+      x: GX, y: METY, w: GW, h: 0.26,
+      fontSize: 10, color: '898683',
+      fontFace: 'Calibri', valign: 'middle',
+    })
+
+    // ── Day-name header row ──────────────────────────────────────────────────
+    DAY_NAMES.forEach((name, i) => {
+      slide.addText(name, {
+        x: GX + i * COLW, y: DNY, w: CELLW, h: 0.24,
+        fontSize: 8, bold: true, color: '555351',
+        fontFace: 'Calibri', align: 'center', charSpacing: 0.6,
+      })
+    })
+
+    // ── Day cells ────────────────────────────────────────────────────────────
+    rows.forEach((week, ri) => {
+      week.forEach((day, ci) => {
+        if (!day.inMonth) return
+
+        const cx = GX + ci * COLW
+        const cy = GRY + ri * (CELLH + RGAP)
+
+        // Cell background
+        slide.addShape('roundRect' as any, {
+          x: cx, y: cy, w: CELLW, h: CELLH,
+          fill: { color: day.holiday ? 'EF4444' : 'FFFFFF',
+                  transparency: day.holiday ? 90 : 96 },
+          line: { color: 'FFFFFF', transparency: 83, width: 0.3 },
+          rectRadius: 0.04,
+        } as any)
+
+        // Date number
+        slide.addText(String(day.date), {
+          x: cx + 0.07, y: cy + 0.06, w: 0.32, h: 0.2,
+          fontSize: 9, bold: true, color: '78766F',
+          fontFace: 'Calibri', valign: 'top',
+        })
+
+        let sy = cy + 0.29
+
+        // Holiday label
+        if (day.holiday) {
+          slide.addText(day.holiday, {
+            x: cx + 0.07, y: sy, w: CELLW - 0.14, h: 0.18,
+            fontSize: 7, bold: true, color: 'EF4444',
+            fontFace: 'Calibri', valign: 'top', shrinkText: true,
+          })
+          sy += 0.2
+        }
+
+        // Session blocks
+        day.sessions.forEach(s => {
+          const hex = s.color.replace('#', '')
+
+          // Coloured pill
+          slide.addShape('roundRect' as any, {
+            x: cx + 0.07, y: sy, w: CELLW - 0.14, h: 0.4,
+            fill: { color: hex },
+            line: { transparency: 100, width: 0 },
+            rectRadius: 0.04,
+          } as any)
+
+          // Text: topic (bold) + newline + slot · duration
+          const parts: any[] = [
+            { text: s.topic.length > 28 ? s.topic.slice(0, 27) + '…' : s.topic,
+              options: { bold: true, fontSize: 8, breakLine: true } },
+            { text: s.duration ? `${s.slot}  ·  ${s.duration}` : s.slot,
+              options: { fontSize: 6.5 } },
+          ]
+          slide.addText(parts, {
+            x: cx + 0.1, y: sy + 0.02, w: CELLW - 0.21, h: 0.36,
+            color: 'FFFFFF', fontFace: 'Calibri',
+            valign: 'top', wrap: true, shrinkText: true,
+          })
+
+          sy += 0.44
+        })
+      })
+    })
+
+    // ── Trigger download ─────────────────────────────────────────────────────
+    const blob = await pptx.write({ outputType: 'blob' }) as unknown as Blob
+    const url  = URL.createObjectURL(blob)
+    const a    = document.createElement('a')
+    a.href = url; a.download = `${stem}.pptx`
+    document.body.appendChild(a); a.click()
+    document.body.removeChild(a); URL.revokeObjectURL(url)
+
   } catch {
     alert('Export failed. Please try again.')
   } finally {
-    exporting.value = null
+    exporting.value = false
   }
 }
 
@@ -637,11 +762,8 @@ function backToTable() {
             </div>
 
             <div class="tcg-export-btns">
-              <button class="tcg-export" :disabled="!!exporting" @click="exportFile('png')">
-                {{ exporting === 'png' ? 'Generating…' : 'Export PNG' }}
-              </button>
-              <button class="tcg-export" :disabled="!!exporting" @click="exportFile('pdf')">
-                {{ exporting === 'pdf' ? 'Generating…' : 'Export PDF' }}
+              <button class="tcg-export" :disabled="exporting" @click="exportPPTX">
+                {{ exporting ? 'Building…' : 'Export PPTX' }}
               </button>
             </div>
           </div>

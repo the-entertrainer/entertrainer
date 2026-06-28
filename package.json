@@ -21,6 +21,7 @@
     "pdf-lib": "^1.17.1",
     "pinia": "^2.1.7",
     "playwright-core": "^1.61.1",
+    "pptxgenjs": "^4.0.1",
     "rough-notation": "^0.5.1",
     "satori": "^0.26.0",
     "split-type": "^0.3.4",

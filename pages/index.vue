@@ -39,9 +39,25 @@ watch(() => homeViewStore.pendingBack, (pending) => {
   }
 })
 
+// Reset to home when navigating to '/' from a sub-section (e.g. menu home link)
+watch(() => homeViewStore.pendingHome, (pending) => {
+  if (pending) {
+    if (sectionStack.value.length > 1) {
+      sectionStack.value = ['home']
+    }
+    homeViewStore.ackHome()
+  }
+})
+
+let _pushingState = false
+
 function handleCardClick(href: string) {
   if (href in sectionRoutes) {
-    sectionStack.value = [...sectionStack.value, sectionRoutes[href]]
+    const section = sectionRoutes[href]
+    sectionStack.value = [...sectionStack.value, section]
+    _pushingState = true
+    history.pushState({ section }, '', '/')
+    _pushingState = false
   } else {
     router.push(href)
   }
@@ -52,6 +68,21 @@ function handleBack() {
     sectionStack.value = sectionStack.value.slice(0, -1)
   }
 }
+
+function onPopState() {
+  if (_pushingState) return
+  if (sectionStack.value.length > 1) {
+    sectionStack.value = sectionStack.value.slice(0, -1)
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('popstate', onPopState)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('popstate', onPopState)
+})
 </script>
 
 <template>

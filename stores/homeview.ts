@@ -6,7 +6,8 @@ export const useHomeViewStore = defineStore('homeview', {
   state: () => ({
     mode: 'spiral' as HomeViewMode,
     isHome: true,
-    pendingBack: false
+    pendingBack: false,
+    pendingHome: false
   }),
   actions: {
     setMode(mode: HomeViewMode) {
@@ -23,6 +24,12 @@ export const useHomeViewStore = defineStore('homeview', {
     },
     ackBack() {
       this.pendingBack = false
+    },
+    triggerHome() {
+      this.pendingHome = true
+    },
+    ackHome() {
+      this.pendingHome = false
     }
   }
 })

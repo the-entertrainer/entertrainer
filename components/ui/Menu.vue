@@ -67,6 +67,13 @@ function handleBack() {
     router.back()
   }
 }
+
+function handleHomeClick() {
+  menuStore.close()
+  if (route.path === '/') {
+    homeViewStore.triggerHome()
+  }
+}
 </script>
 
 <template>
@@ -99,7 +106,7 @@ function handleBack() {
               :to="link.to"
               class="e-item e-link"
               :ref="(el: any) => setItemEl(el, i + 1)"
-              @click="menuStore.close()"
+              @click="link.to === '/' ? handleHomeClick() : menuStore.close()"
             >{{ link.label }}</NuxtLink>
           </template>
         </div>

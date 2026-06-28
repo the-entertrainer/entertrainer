@@ -132,10 +132,10 @@ const fragmentShader = /* glsl */`
       float dark = step(luma, 0.5); // 1.0 dark mode, 0.0 light mode
 
       // Glass body
-      //  light: warm frosted cream — picks up fogColor so backs blend with the scene
+      //  light: warm tinted card — darker than bg so it reads as a card
       //  dark:  faint white glass (unchanged)
-      vec3 lightBack = mix(fogColor, vec3(1.0), 0.12);  // slightly lighter than backdrop
-      lightBack += (vUv.y - 0.5) * 0.03;               // subtle top-lit sheen
+      vec3 lightBack = fogColor * 0.91;                  // ~9% darker than backdrop
+      lightBack += (vUv.y - 0.5) * 0.025;               // subtle top-lit sheen
       vec3 glass = mix(
         lightBack,
         mix(fogColor, vec3(1.0), 0.07),
@@ -153,7 +153,7 @@ const fragmentShader = /* glsl */`
       float bSdf    = length(max(bD, 0.0)) - 0.08;
       float bStr    = mix(0.14, 0.18, dark);
       vec3  bCol    = mix(
-        fogColor * 0.84,                 // light: slightly darker warm edge
+        fogColor * 0.78,                 // light: visible warm edge
         mix(fogColor, vec3(1.0), bStr),  // dark:  faint white edge
         dark
       );
@@ -331,7 +331,7 @@ export default class NavPlane {
     }
 
     // Glass body
-    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.72)'
+    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(210,195,175,0.45)'
     ctx.fillRect(0, 0, W, H)
 
     // Diagonal ambient sweep — dark mode only; on light it washes out dark text
@@ -455,8 +455,11 @@ export default class NavPlane {
     // Edge push: ramp a card sharply up (top) / down (bottom) once it passes the
     // visible fan, so it flies in from above the viewport and out below the
     // bottom — instead of dissolving in mid-screen at the wrap point.
+    // Use a fixed visible window (min 2.8) so spirals with fewer items
+    // don't push cards off-screen more aggressively than larger ones.
     const half = this.totalCount / 2
-    const edge = Math.max(0, Math.abs(Ba) - (half - 2.2))
+    const visibleRange = Math.max(half - 2.2, 2.8)
+    const edge = Math.max(0, Math.abs(Ba) - visibleRange)
     // ~0.4 lifts a card just past the top/bottom edge as it fades; higher
     // values fling it far above the viewport and read as a violent jump.
     const edgePush = Math.sign(Ba) * edge * edge * 0.4

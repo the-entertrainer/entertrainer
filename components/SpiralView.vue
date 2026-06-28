@@ -187,8 +187,17 @@ async function mountExperience() {
   // On first visit the loader covers the 150ms settle time; on return visits reveal immediately
   // so the canvas never shows a blank frame before cards appear.
   const exp = experience
-  const revealDelay = (props.showLoader && !experienceStore.hasEntered) ? 150 : 0
-  setTimeout(() => exp.world.reveal(), revealDelay)
+  const isFirstVisit = props.showLoader && !experienceStore.hasEntered
+
+  if (isFirstVisit) {
+    // First visit: polish entrance animation after loader exits
+    setTimeout(() => {
+      exp.world.revealWithEntrance()
+    }, 150)
+  } else {
+    // Return visit: quick reveal
+    exp.world.reveal()
+  }
 
   experience.on('dollyMid', () => {
     if (dollyOverlayRef.value) {

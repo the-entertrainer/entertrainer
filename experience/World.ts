@@ -48,7 +48,46 @@ export default class World {
   }
 
   reveal() {
+    // Simple staggered reveal (for return visits)
     this.navPlanes.forEach((p, i) => setTimeout(() => p.reveal(), (i % 4) * 60))
+  }
+
+  // Polished entrance animation for home page — smooth spiral bloom from center
+  async revealWithEntrance() {
+    const startTime = performance.now()
+    const duration = 1200  // ms — smooth, unhurried entrance
+
+    // Start cards fully hidden
+    this.navPlanes.forEach(p => { p.entranceFade = 0 })
+
+    return new Promise<void>(r => {
+      const animate = () => {
+        if (this._destroyed) {
+          r()
+          return
+        }
+
+        const elapsed = performance.now() - startTime
+        const progress = Math.min(elapsed / duration, 1)
+
+        // Gentle ease-out for smooth reveal
+        const easeProgress = 1 - Math.pow(1 - progress, 3)
+
+        // Cards bloom in with entrance fade
+        this.navPlanes.forEach(p => {
+          p.entranceFade = easeProgress
+          p.reveal()  // Start individual reveal animations
+        })
+
+        if (progress < 1) {
+          requestAnimationFrame(animate)
+        } else {
+          this.navPlanes.forEach(p => { p.entranceFade = 1 })
+          r()
+        }
+      }
+      animate()
+    })
   }
 
   hide() {

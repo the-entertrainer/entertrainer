@@ -38,7 +38,7 @@ const VignetteShader = {
 const ChromaticAberrationShader = {
   uniforms: {
     tDiffuse:  { value: null },
-    uStrength: { value: 0.0007 },
+    uStrength: { value: 0.0003 },
   },
   vertexShader: /* glsl */`
     varying vec2 vUv;
@@ -116,9 +116,9 @@ export default class PostProcessing {
     // bloom — subtle halo on bright card surfaces
     this.bloomPass = new UnrealBloomPass(
       new Vector2(experience.sizes.width, experience.sizes.height),
-      0.32,   // strength
-      0.55,   // radius
-      0.80    // threshold — only highlights bloom
+      0.18,   // strength
+      0.45,   // radius
+      0.86    // threshold — only bright highlights bloom
     )
     this.composer.addPass(this.bloomPass)
 
@@ -142,19 +142,19 @@ export default class PostProcessing {
     const u  = this.colorGradePass.material.uniforms
     const vu = this.vignettePass.material.uniforms
     if (isDark) {
-      u.uContrast.value = 1.10
-      u.uShadowTint.value.setRGB(0.04, 0.06, 0.13)   // deeper cool blue
-      u.uTintStrength.value = 0.12
-      vu.uStrength.value = 0.76                        // strong cinematic vignette
+      u.uContrast.value = 1.08
+      u.uShadowTint.value.setRGB(0.04, 0.06, 0.13)
+      u.uTintStrength.value = 0.10
+      vu.uStrength.value = 0.52
     } else {
-      u.uContrast.value = 1.07
-      u.uShadowTint.value.setRGB(0.15, 0.09, 0.04)   // warm amber
-      u.uTintStrength.value = 0.08
-      vu.uStrength.value = 0.48                        // softer vignette in light mode
+      u.uContrast.value = 1.06
+      u.uShadowTint.value.setRGB(0.15, 0.09, 0.04)
+      u.uTintStrength.value = 0.07
+      vu.uStrength.value = 0.38
     }
-    this.bloomPass.strength  = isDark ? 0.38 : 0.18
-    this.bloomPass.threshold = isDark ? 0.78 : 0.82
-    this.bloomPass.radius    = isDark ? 0.60 : 0.45
+    this.bloomPass.strength  = isDark ? 0.20 : 0.16
+    this.bloomPass.threshold = isDark ? 0.85 : 0.88
+    this.bloomPass.radius    = isDark ? 0.50 : 0.40
   }
 
   resize() {

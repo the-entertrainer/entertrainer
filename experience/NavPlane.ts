@@ -306,9 +306,12 @@ export default class NavPlane {
     const ctx = this._ctx
     ctx.clearRect(0, 0, W, H)
 
-    // Image-backed card — draw photo, skip all text
+    // Image-backed card — draw photo, add border on top
     if (this._bgImage) {
       ctx.drawImage(this._bgImage, 0, 0, W, H)
+      ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.22)'
+      ctx.lineWidth   = 6
+      ctx.strokeRect(6, 6, W - 12, H - 12)
       this._tex.needsUpdate = true
       return
     }
@@ -327,8 +330,8 @@ export default class NavPlane {
     }
 
     // Border
-    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.12)'
-    ctx.lineWidth   = 5
+    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.22)'
+    ctx.lineWidth   = 6
     ctx.strokeRect(6, 6, W - 12, H - 12)
 
     // Accent tick

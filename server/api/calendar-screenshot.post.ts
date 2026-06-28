@@ -1,249 +1,215 @@
+// Export calendar as PNG or PDF using Satori (pure-JS SVG renderer).
+// No Chromium binary — works on Vercel with zero cold-start penalty.
+//
+// Option B (external screenshot API) scaffold lives in
+// server/api/_calendar-screenshot-pw.post.ts — swap the endpoint URL in
+// the client and POST the same JSON body to Screenshotone / Browserless
+// if this approach needs replacing.
+
 import { defineEventHandler, readBody, setResponseHeader } from 'h3'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Session {
-  id: string
-  topic: string
-  slot: string
-  color: string
-  duration: string
-  method: string
-  audiences: string[]
-  facilitator: string
-  priority: string
+  id: string; topic: string; slot: string; color: string
+  duration: string; method: string; audiences: string[]; facilitator: string; priority: string
 }
-
 interface CalDay {
-  date: number
-  weekday: number
-  inMonth: boolean
-  holiday: string | null
-  sessions: Session[]
+  date: number; weekday: number; inMonth: boolean; holiday: string | null; sessions: Session[]
 }
 
-const MONTH_NAMES = ['January','February','March','April','May','June',
-                     'July','August','September','October','November','December']
-const DAY_NAMES   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+const MONTH_NAMES = [
+  'January','February','March','April','May','June',
+  'July','August','September','October','November','December',
+]
+const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
 
-// ─── HTML builder ─────────────────────────────────────────────────────────────
-function buildHtml(body: {
-  calTitle: string
-  calOrg: string
-  calDept: string
-  selectedMonth: number
-  selectedYear: number
-  calDays: CalDay[]
-  activeTheme: number
-  format: 'png' | 'pdf'
-}): string {
+// ─── Font loading — cached across warm invocations ────────────────────────────
+const fontCache = new Map<string, ArrayBuffer>()
+
+async function loadFont(weight: 400 | 700): Promise<ArrayBuffer> {
+  const key = `dmsans-${weight}`
+  if (fontCache.has(key)) return fontCache.get(key)!
+  const css = await fetch(
+    `https://fonts.googleapis.com/css2?family=DM+Sans:wght@${weight}&display=swap`,
+    { headers: { 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36' } }
+  ).then(r => r.text())
+  // Last match = latin subset (no unicode-range restriction)
+  const urls = [...css.matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/g)]
+  const url  = urls.at(-1)?.[1]
+  if (!url) throw new Error(`DM Sans ${weight}: font URL not found`)
+  const buf = await fetch(url).then(r => r.arrayBuffer())
+  fontCache.set(key, buf)
+  return buf
+}
+
+// ─── Satori element builder ───────────────────────────────────────────────────
+// Satori requires display:'flex' on every container — CSS grid isn't supported.
+type SEl = { type: string; props: Record<string, any> }
+type Child = SEl | string | null | undefined | false
+
+function e(tag: string, style: Record<string, any>, ...children: Child[]): SEl {
+  const kids = (children as any[]).flat().filter((c: any) => c != null && c !== false)
+  return {
+    type: tag,
+    props: {
+      style: { display: 'flex', ...style },
+      children: kids.length === 0 ? undefined : kids.length === 1 ? kids[0] : kids,
+    },
+  }
+}
+
+// ─── Element tree ─────────────────────────────────────────────────────────────
+function buildTree(body: {
+  calTitle: string; calOrg: string; calDept: string
+  selectedMonth: number; selectedYear: number; calDays: CalDay[]
+}) {
   const { calTitle, calOrg, calDept, selectedMonth, selectedYear, calDays } = body
-
   const monthName = MONTH_NAMES[(selectedMonth - 1) % 12]
 
-  // Build day-header cells
-  const dayHeaders = DAY_NAMES.map(n =>
-    `<div class="col-head">${n}</div>`
-  ).join('')
+  // Pad to a complete 7-column grid
+  const padded = [...calDays]
+  while (padded.length % 7) {
+    padded.push({ date: 0, weekday: 0, inMonth: false, holiday: null, sessions: [] })
+  }
+  const rows: CalDay[][] = []
+  for (let i = 0; i < padded.length; i += 7) rows.push(padded.slice(i, i + 7))
 
-  // Build day cells
-  const dayCells = calDays.map(day => {
-    if (!day.inMonth) return `<div class="day day--empty"></div>`
+  const W      = 1240
+  const CELL_H = 92
+  const H      = 40 + 72 + 20 + 26 + rows.length * (CELL_H + 3) + 40
 
-    const holidayBadge = day.holiday
-      ? `<span class="holiday-badge">${escHtml(day.holiday)}</span>`
-      : ''
+  // Day-name header row
+  const dayHeaders = e('div', { gap: '2px', marginBottom: '8px' },
+    ...DAY_NAMES.map(n =>
+      e('div', {
+        flex: 1, justifyContent: 'center',
+        fontSize: '10px', fontWeight: 700,
+        textTransform: 'uppercase', opacity: 0.35, letterSpacing: '0.08em',
+      }, n)
+    )
+  )
 
-    const sessions = day.sessions.map(s => `
-      <div class="session" style="background:${s.color}">
-        <span class="session-topic">${escHtml(s.topic)}</span>
-        <span class="session-slot">${escHtml(s.slot)}</span>
-        ${s.duration ? `<span class="session-dur">${escHtml(s.duration)}</span>` : ''}
-      </div>
-    `).join('')
+  // Week rows
+  const weekEls = rows.map(week =>
+    e('div', { gap: '2px', marginBottom: '2px' },
+      ...week.map(day => {
+        if (!day.inMonth) return e('div', { flex: 1, minHeight: CELL_H })
 
-    const holidayCls = day.holiday ? ' day--holiday' : ''
+        return e('div', {
+          flex: 1, flexDirection: 'column', minHeight: CELL_H,
+          border: '1px solid rgba(255,255,255,0.08)', borderRadius: 5,
+          padding: 4, gap: 2, overflow: 'hidden',
+          backgroundColor: day.holiday ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.025)',
+        },
+          // Date number
+          e('span', { fontSize: 10, fontWeight: 600, opacity: 0.5, flexShrink: 0 },
+            String(day.date)
+          ),
+          // Holiday label
+          day.holiday
+            ? e('span', {
+                fontSize: 8, fontWeight: 600, color: '#ef4444',
+                lineHeight: 1.2, flexShrink: 0,
+              }, day.holiday.length > 17 ? day.holiday.slice(0, 16) + '…' : day.holiday)
+            : undefined,
+          // Session blocks
+          ...day.sessions.map(s =>
+            e('div', {
+              flexDirection: 'column', flexShrink: 0,
+              backgroundColor: s.color, borderRadius: 3,
+              padding: '2px 4px', gap: 1,
+            },
+              e('span', { fontSize: 8, fontWeight: 700, color: '#fff', lineHeight: 1.2 },
+                s.topic.length > 26 ? s.topic.slice(0, 25) + '…' : s.topic
+              ),
+              e('span', { fontSize: 7, color: 'rgba(255,255,255,0.75)' }, s.slot),
+              s.duration
+                ? e('span', { fontSize: 7, color: 'rgba(255,255,255,0.6)' }, s.duration)
+                : undefined
+            )
+          )
+        )
+      })
+    )
+  )
 
-    return `
-      <div class="day${holidayCls}">
-        <span class="date-num">${day.date}</span>
-        ${holidayBadge}
-        ${sessions}
-      </div>`
-  }).join('')
+  const tree = e('div', {
+    flexDirection: 'column',
+    backgroundColor: '#0D0C0A', color: '#F5F3EF',
+    padding: 32, width: W, height: H,
+    fontFamily: '"DM Sans", sans-serif',
+  },
+    e('div', {
+      flexDirection: 'column', flex: 1,
+      backgroundColor: 'rgba(255,255,255,0.055)',
+      border: '1px solid rgba(255,255,255,0.10)',
+      borderRadius: 16, padding: '20px 22px',
+    },
+      // Calendar header
+      e('div', { flexDirection: 'column', marginBottom: 18 },
+        e('div', {
+          fontSize: 20, fontWeight: 700,
+          letterSpacing: '-0.6px', marginBottom: 4,
+        }, calTitle),
+        e('div', { fontSize: 12, opacity: 0.5, gap: 4, alignItems: 'center' },
+          e('span', {}, calOrg),
+          e('span', { opacity: 0.4 }, '·'),
+          e('span', {}, calDept),
+          e('span', { opacity: 0.4 }, '·'),
+          e('span', {}, `${monthName} ${selectedYear}`)
+        )
+      ),
+      dayHeaders,
+      ...weekEls
+    )
+  )
 
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: #0D0C0A;
-  color: #F5F3EF;
-  padding: 32px;
-  min-width: 900px;
-}
-#cal {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 16px;
-  padding: 24px;
-  overflow: hidden;
-}
-.cal-header { margin-bottom: 20px; }
-.cal-title {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  margin-bottom: 4px;
-}
-.cal-meta {
-  font-size: 12px;
-  opacity: 0.5;
-}
-.cal-meta span + span::before { content: ' · '; opacity: 0.5; }
-.col-head {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.35;
-  text-align: center;
-  padding-bottom: 8px;
-}
-.grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0;
-}
-.header-row { margin-bottom: 4px; }
-.day {
-  min-height: 80px;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px;
-  padding: 5px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  position: relative;
-}
-.day--empty { background: transparent; border-color: transparent; }
-.day--holiday { background: rgba(239,68,68,0.08); }
-.date-num {
-  font-size: 11px;
-  font-weight: 600;
-  opacity: 0.55;
-  line-height: 1;
-}
-.holiday-badge {
-  font-size: 9px;
-  font-weight: 600;
-  color: #ef4444;
-  line-height: 1.2;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-.session {
-  border-radius: 4px;
-  padding: 3px 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.session-topic {
-  font-size: 9px;
-  font-weight: 700;
-  color: #fff;
-  line-height: 1.2;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-.session-slot {
-  font-size: 8px;
-  color: rgba(255,255,255,0.75);
-  font-weight: 500;
-}
-.session-dur {
-  font-size: 8px;
-  color: rgba(255,255,255,0.6);
-  font-weight: 500;
-}
-</style>
-</head>
-<body>
-<div id="cal">
-  <div class="cal-header">
-    <div class="cal-title">${escHtml(calTitle)}</div>
-    <div class="cal-meta">
-      <span>${escHtml(calOrg)}</span>
-      <span>${escHtml(calDept)}</span>
-      <span>${monthName} ${selectedYear}</span>
-    </div>
-  </div>
-  <div class="grid header-row">${dayHeaders}</div>
-  <div class="grid">${dayCells}</div>
-</div>
-</body>
-</html>`
-}
-
-function escHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
+  return { tree, W, H }
 }
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
 export default defineEventHandler(async (event) => {
   const body   = await readBody(event)
-  const format = (body.format as string) === 'pdf' ? 'pdf' : 'png'
+  const format = body.format === 'pdf' ? 'pdf' : 'png'
   const stem   = `training-calendar-${body.selectedYear}-${String(body.selectedMonth).padStart(2, '0')}`
 
-  const html = buildHtml(body)
+  // Load in parallel — fonts are cached after the first cold-start
+  const [{ default: satori }, { Resvg }, fontRegular, fontBold] = await Promise.all([
+    import('satori'),
+    import('@resvg/resvg-js'),
+    loadFont(400),
+    loadFont(700),
+  ])
 
-  // Dynamic imports — playwright-core and @sparticuz/chromium are marked as
-  // externals in nitro config so they're never bundled by Rollup. Chromium
-  // downloads its binary to /tmp on first cold-start and caches it there.
-  const { chromium }  = await import('playwright-core')
-  const sparticuz     = await import('@sparticuz/chromium').then((m: any) => m.default ?? m)
+  const { tree, W, H } = buildTree(body)
 
-  const browser = await chromium.launch({
-    args:             sparticuz.args,
-    executablePath:   await sparticuz.executablePath(),
-    headless:         sparticuz.headless,
+  const svg = await satori(tree, {
+    width:  W,
+    height: H,
+    fonts: [
+      { name: 'DM Sans', data: fontRegular, weight: 400, style: 'normal' },
+      { name: 'DM Sans', data: fontBold,    weight: 700, style: 'normal' },
+    ],
   })
 
-  try {
-    const page = await browser.newPage()
-    await page.setViewportSize({ width: 1280, height: 900 })
-    await page.setContent(html, { waitUntil: 'networkidle', timeout: 30_000 })
+  // Render at 2× for crisp screens
+  const png = Buffer.from(
+    new Resvg(svg, { fitTo: { mode: 'width', value: W * 2 } }).render().asPng()
+  )
 
-    if (format === 'pdf') {
-      const pdf = await page.pdf({ format: 'A4', landscape: true, printBackground: true })
-      setResponseHeader(event, 'Content-Type', 'application/pdf')
-      setResponseHeader(event, 'Content-Disposition', `attachment; filename="${stem}.pdf"`)
-      return pdf
-    } else {
-      const el  = await page.$('#cal')
-      if (!el) throw new Error('Calendar element not found')
-      const png = await el.screenshot({ type: 'png' })
-      setResponseHeader(event, 'Content-Type', 'image/png')
-      setResponseHeader(event, 'Content-Disposition', `attachment; filename="${stem}.png"`)
-      return png
-    }
-  } finally {
-    await browser.close()
+  if (format === 'pdf') {
+    const { PDFDocument } = await import('pdf-lib')
+    const pdfDoc = await PDFDocument.create()
+    const img    = await pdfDoc.embedPng(png)
+    const page   = pdfDoc.addPage([img.width, img.height])
+    page.drawImage(img, { x: 0, y: 0, width: img.width, height: img.height })
+    const pdf = Buffer.from(await pdfDoc.save())
+    setResponseHeader(event, 'Content-Type', 'application/pdf')
+    setResponseHeader(event, 'Content-Disposition', `attachment; filename="${stem}.pdf"`)
+    return pdf
   }
+
+  setResponseHeader(event, 'Content-Type', 'image/png')
+  setResponseHeader(event, 'Content-Disposition', `attachment; filename="${stem}.png"`)
+  return png
 })

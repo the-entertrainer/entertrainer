@@ -82,7 +82,8 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'vercel',
     externals: {
-      external: ['playwright-core', '@sparticuz/chromium'],
+      // Keep Playwright deps external in case the pw backup is ever re-enabled
+      external: ['playwright-core', '@sparticuz/chromium', 'satori', '@resvg/resvg-js', 'pdf-lib'],
     },
     vercel: {
       functions: {

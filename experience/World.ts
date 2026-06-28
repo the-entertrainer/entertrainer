@@ -13,10 +13,7 @@ export default class World {
   private _currentItems: NavItem[] = []
   private _isDark = true
 
-  // Transition state
-  spiralRotationSpeedMultiplier = 1.0  // Controls spiral spin speed during transitions
-  private _transitionStartTime = 0
-  private _transitionDuration = 600  // ms
+  spiralRotationSpeedMultiplier = 1.0
 
   constructor(experience: Experience) {
     this.experience = experience

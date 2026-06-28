@@ -20,6 +20,13 @@ const CARD_IMAGE_MAP: Record<string, string> = {
   'better-emails':        '/better-emails.png',
   'training-cal-gen':     '/training-cal-gen.png',
   'easymcq':              '/easymcq.png',
+  'work-01':              '/placeholder-work-01.png',
+  'work-02':              '/placeholder-work-02.png',
+  'work-03':              '/placeholder-work-03.png',
+  'scribeflow':           '/placeholder-scribeflow.png',
+  'templates':            '/placeholder-templates.png',
+  'frameworks':           '/placeholder-frameworks.png',
+  'resources':            '/placeholder-resources.png',
 }
 const _imageReady = new Map<string, Promise<HTMLImageElement>>()
 if (typeof document !== 'undefined') {
@@ -222,17 +229,10 @@ export default class NavPlane {
   private wrapFade = 1
   private _isDark  = true
 
-  // Canvas-texture refs (mutable for typewriter animation)
+  // Canvas-texture refs
   private _canvas!: HTMLCanvasElement
   private _ctx!:    CanvasRenderingContext2D
   private _tex!:    CanvasTexture
-
-  // Typewriter state
-  private _labelProgress = 0
-  private _descProgress  = 0
-  private _prevCharCount = -1
-  private _cursorFading  = 0
-  private _cursorVisible = false
 
   // Rim glow state
   private _rimAngle    = 0
@@ -314,7 +314,6 @@ export default class NavPlane {
     const ctx = this._ctx
     ctx.clearRect(0, 0, W, H)
 
-    // Image-backed card — draw photo, add border on top
     if (this._bgImage) {
       ctx.drawImage(this._bgImage, 0, 0, W, H)
       ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.22)'
@@ -324,71 +323,12 @@ export default class NavPlane {
       return
     }
 
-    // Glass body
+    // Glass fallback while image loads
     ctx.fillStyle = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(210,195,175,0.45)'
     ctx.fillRect(0, 0, W, H)
-
-    // Diagonal ambient sweep — dark mode only; on light it washes out dark text
-    if (isDark) {
-      const sweep = ctx.createLinearGradient(0, 0, W * 0.6, H * 0.6)
-      sweep.addColorStop(0, 'rgba(255,255,255,0.04)')
-      sweep.addColorStop(1, 'rgba(255,255,255,0)')
-      ctx.fillStyle = sweep
-      ctx.fillRect(0, 0, W, H)
-    }
-
-    // Border
     ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.22)'
     ctx.lineWidth   = 6
     ctx.strokeRect(6, 6, W - 12, H - 12)
-
-    // Accent tick
-    ctx.fillStyle = isDark ? 'rgba(244,241,236,0.40)' : 'rgba(13,12,10,0.25)'
-    ctx.fillRect(100, 820, 140, 4)
-
-    // ── Label (typewriter) ────────────────────────────────────────
-    const label     = this.navItem.label
-    const charCount = Math.min(label.length, Math.ceil(this._labelProgress * label.length))
-    const textColor = isDark ? '#F4F1EC' : '#0D0C0A'
-    ctx.fillStyle    = textColor
-    ctx.textAlign    = 'left'
-    ctx.textBaseline = 'alphabetic'
-    let labelPx = 180
-    ctx.font = `700 ${labelPx}px system-ui, -apple-system, Arial, sans-serif`
-    while (ctx.measureText(label).width > 1480 && labelPx > 72) {
-      labelPx -= 6
-      ctx.font = `700 ${labelPx}px system-ui, -apple-system, Arial, sans-serif`
-    }
-    ctx.fillText(label.substring(0, charCount), 100, 550)
-
-    // ── Cursor ────────────────────────────────────────────────────
-    const cursorOpacity = this._cursorVisible ? (1 - this._cursorFading) : 0
-    if (cursorOpacity > 0.01 && charCount > 0) {
-      const typedWidth = ctx.measureText(label.substring(0, charCount)).width
-      const cursorH   = labelPx * 0.82
-      const cursorX   = 100 + typedWidth + 10
-      const cursorY   = 550 - cursorH
-      ctx.globalAlpha = cursorOpacity
-      ctx.fillStyle   = textColor
-      ctx.fillRect(cursorX, cursorY, Math.max(3, labelPx * 0.06), cursorH)
-      ctx.globalAlpha = 1
-    }
-
-    // ── Description (fades in after label) ───────────────────────
-    if (this._descProgress > 0) {
-      const desc      = this.navItem.description
-      const descAlpha = this._descProgress * (isDark ? 0.60 : 0.50)
-      ctx.fillStyle   = isDark
-        ? `rgba(244,241,236,${descAlpha.toFixed(3)})`
-        : `rgba(13,12,10,${descAlpha.toFixed(3)})`
-      let descPx = 64
-      ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
-      while (ctx.measureText(desc).width > 1480 && descPx > 38) {
-        descPx -= 4
-        ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
-      }
-      ctx.fillText(desc, 100, 650)
-    }
 
     this._tex.needsUpdate = true
   }
@@ -401,18 +341,11 @@ export default class NavPlane {
     this.revealProgress = 1
     this.revealTarget   = 1
     this.wrapFade       = 1
-    this._labelProgress = 1
-    this._descProgress  = 1
-    this._cursorFading  = 1
   }
 
   hide() {
     this.hiddenTarget   = 1
     this.revealTarget   = 0
-    this._labelProgress = 0
-    this._descProgress  = 0
-    this._cursorFading  = 0
-    this._prevCharCount = -1
   }
 
   setHovered(hovered: boolean) { this.hoverTarget = hovered ? 1 : 0 }
@@ -420,7 +353,6 @@ export default class NavPlane {
   updateTexture(isDark: boolean) {
     if (isDark === this._isDark) return
     this._isDark = isDark
-    this._prevCharCount = -1
     this._drawTexture(isDark)
     const mat = this.mesh.material as ShaderMaterial
     mat.uniforms.uTexture.value = this._tex
@@ -446,17 +378,11 @@ export default class NavPlane {
     this.revealProgress += (this.revealTarget  - this.revealProgress) * hFactor
     this.hoverProgress  += (this.hoverTarget   - this.hoverProgress)  * hvFactor
 
-    // Edge push: ramp a card sharply up (top) / down (bottom) once it passes the
-    // visible fan, so it flies in from above the viewport and out below the
-    // bottom — instead of dissolving in mid-screen at the wrap point.
-    // Use a fixed visible window (min 2.8) so spirals with fewer items
-    // don't push cards off-screen more aggressively than larger ones.
     const half = this.totalCount / 2
-    const visibleRange = Math.max(half - 2.2, 2.8)
+    const visibleRange = Math.max(half - 1.8, 3.2)
     const edge = Math.max(0, Math.abs(Ba) - visibleRange)
-    // ~0.4 lifts a card just past the top/bottom edge as it fades; higher
-    // values fling it far above the viewport and read as a violent jump.
-    const edgePush = Math.sign(Ba) * edge * edge * 0.4
+    const edgePush = Math.sign(Ba) * edge * edge * edge * 0.12
+    const edgeOpacity = Math.max(0, 1 - edge * 0.45)
     const Va = Ba * this.verticalGap - 0.8 + this.hiddenProgress * 9.0 + edgePush
     const Ga = this.baseRadius * (1 - this.hiddenProgress / 2)
 
@@ -472,37 +398,9 @@ export default class NavPlane {
     mat.uniforms.uColorStrength.value  = 0.55 * this.hoverProgress
     mat.uniforms.uZoom.value           = 1 + 0.05 * this.hoverProgress
     mat.uniforms.uRevealProgress.value = this.revealProgress * (1 - this.hoverProgress * 0.05)
-    mat.uniforms.uOpacity.value = this.wrapFade
+    mat.uniforms.uOpacity.value = this.wrapFade * edgeOpacity
     mat.uniforms.uExitFade.value = this.exitFade
     mat.uniforms.uEntranceFade.value = this.entranceFade
-
-    // ── Typewriter ──────────────────────────────────────────────
-    const LABEL_DURATION = 1200
-    const DESC_DELAY     = 0.70
-    const DESC_DURATION  = 600
-
-    if (this.revealProgress > 0.5 && this._labelProgress < 1) {
-      this._labelProgress = Math.min(1, this._labelProgress + delta / LABEL_DURATION)
-    }
-    if (this._labelProgress >= DESC_DELAY) {
-      this._descProgress = Math.min(1, this._descProgress + delta / DESC_DURATION)
-    }
-    if (this._labelProgress >= 1 && this._cursorFading < 1) {
-      this._cursorFading = Math.min(1, this._cursorFading + delta / 1200)
-    }
-
-    const charCount   = Math.min(
-      this.navItem.label.length,
-      Math.ceil(this._labelProgress * this.navItem.label.length)
-    )
-    const blinkOn     = this._labelProgress > 0 && this._cursorFading < 1 &&
-                        (Math.floor(performance.now() / 380) % 2 === 0)
-    const needsRedraw = charCount !== this._prevCharCount || blinkOn !== this._cursorVisible
-    if (needsRedraw) {
-      this._prevCharCount = charCount
-      this._cursorVisible = blinkOn
-      this._drawTexture(this._isDark)
-    }
 
     // ── Rim glow ─────────────────────────────────────────────────
     this._rimAngle     = (this._rimAngle + delta * 0.0007) % (Math.PI * 2)

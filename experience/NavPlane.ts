@@ -19,6 +19,8 @@ const CARD_IMAGE_MAP: Record<string, string> = {
   'tools':                '/web-apps.png',
   'downloads':            '/downloads.png',
   'better-emails':        '/better-emails.png',
+  'training-cal-gen':     '/training-cal-gen.png',
+  'easymcq':              '/easymcq.png',
 }
 const _imageCache = new Map<string, HTMLImageElement>()
 if (typeof document !== 'undefined') {

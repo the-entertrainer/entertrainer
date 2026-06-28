@@ -85,8 +85,6 @@ type Phase = 'input' | 'parsing' | 'table' | 'loading' | 'calendar'
 const now   = new Date()
 const phase = ref<Phase>('input')
 const error = ref('')
-const usedFallback = ref(false)
-const aiReasoning  = ref('')
 
 // Calendar metadata (also used in editable header)
 const calTitle = ref('Q3 Training Calendar')
@@ -262,50 +260,13 @@ async function parseTable() {
 // ─── Generate calendar (table → calendar phase) ──────────────────────────────
 async function generateCalendar() {
   if (!canSubmitTable.value || phase.value === 'loading') return
-  phase.value        = 'loading'
-  error.value        = ''
-  usedFallback.value = false
-  aiReasoning.value  = ''
+  phase.value = 'loading'
+  error.value = ''
   selectedSession.value = null
 
   const validModules = modules.value.filter(m => m.topic.trim())
-  const topics       = validModules.map(m => m.topic.trim())
-  let   orderedModules = [...validModules]
-
-  try {
-    const data = await $fetch<any>('/api/training-cal-gen', {
-      method: 'POST',
-      body: {
-        month:         selectedMonth.value,
-        year:          selectedYear.value,
-        topics,
-        preferredDays: preferredDays.value,
-        timeSlots:     timeSlots.value,
-        maxPerDay:     1,
-        audience:      audiences.value.join(', ')
-      }
-    })
-
-    if (data.fallback) {
-      usedFallback.value = true
-    } else {
-      aiReasoning.value = data.reasoning ?? ''
-      const topicOrder  = new Map((data.orderedTopics as string[]).map((t: string, i: number) => [t.toLowerCase(), i]))
-      orderedModules    = [...validModules].sort((a, b) =>
-        (topicOrder.get(a.topic.toLowerCase()) ?? 999) - (topicOrder.get(b.topic.toLowerCase()) ?? 999)
-      )
-    }
-  } catch (e: any) {
-    if (e?.response?.status === 429 || e?.data?.statusCode === 429) {
-      error.value  = 'Wow! Seems like there is a lot of traffic here today! Please grab a cup of coffee meanwhile and try again in a moment.'
-      phase.value  = 'table'
-      return
-    }
-    usedFallback.value = true
-  }
-
   const days = buildCalendarGrid(selectedYear.value, selectedMonth.value)
-  assignSessions(days, orderedModules)
+  assignSessions(days, validModules)
   calDays.value = days
   phase.value   = 'calendar'
 }
@@ -331,6 +292,16 @@ function onDrop(toDay: CalDay) {
   fromDay.sessions = fromDay.sessions.filter(s => s.id !== session.id)
   toDay.sessions.push({ ...session })
   draggedSession.value = null
+}
+
+function onDayClick(day: CalDay) {
+  if (!selectedSession.value) { selectedSession.value = null; return }
+  const { session, day: fromDay } = selectedSession.value
+  if (day === fromDay || !day.inMonth) { selectedSession.value = null; return }
+  if (day.holiday && !confirm(`${day.holiday} is a public holiday. Schedule here anyway?`)) return
+  fromDay.sessions = fromDay.sessions.filter(s => s.id !== session.id)
+  day.sessions.push({ ...session })
+  selectedSession.value = null
 }
 
 // ─── Session sidebar editor ───────────────────────────────────────────────────
@@ -675,21 +646,6 @@ function backToTable() {
             </div>
           </div>
 
-          <!-- Fallback banner -->
-          <Transition name="fade">
-            <p v-if="usedFallback" class="tcg-banner">
-              Smart scheduling unavailable — using rule-based scheduler.
-            </p>
-          </Transition>
-
-          <!-- AI reasoning -->
-          <Transition name="fade">
-            <details v-if="aiReasoning" class="tcg-reasoning">
-              <summary>AI scheduling notes</summary>
-              <p>{{ aiReasoning }}</p>
-            </details>
-          </Transition>
-
           <div class="tcg-layout" @click.self="selectedSession = null">
 
             <!-- Calendar grid -->
@@ -725,11 +681,12 @@ function backToTable() {
                   :class="{
                     'tcg-day--empty':   !day.inMonth,
                     'tcg-day--holiday': day.inMonth && day.holiday,
-                    'tcg-day--today':   day.inMonth && day.date === now.getDate() && selectedMonth === now.getMonth() + 1 && selectedYear === now.getFullYear()
+                    'tcg-day--today':   day.inMonth && day.date === now.getDate() && selectedMonth === now.getMonth() + 1 && selectedYear === now.getFullYear(),
+                    'tcg-day--receive': day.inMonth && !!selectedSession && selectedSession.day !== day,
                   }"
                   @dragover.prevent
                   @drop="onDrop(day)"
-                  @click="selectedSession = null"
+                  @click="onDayClick(day)"
                 >
                   <span v-if="day.inMonth" class="tcg-date-num">{{ day.date }}</span>
                   <span v-if="day.holiday" class="tcg-holiday-badge" :title="day.holiday">{{ day.holiday }}</span>
@@ -811,6 +768,7 @@ function backToTable() {
                   <button class="tcg-remove-session" @click="removeSelectedSession">
                     Remove from calendar
                   </button>
+                  <p class="tcg-move-hint">Tap any date on the calendar to move this session there</p>
                 </div>
 
                 <!-- Stats + legend -->
@@ -842,7 +800,7 @@ function backToTable() {
                     </div>
                   </div>
 
-                  <p class="tcg-sidebar-hint">Tap a session to edit it</p>
+                  <p class="tcg-sidebar-hint">Tap a session to select it, then tap any date to move it</p>
                 </div>
               </Transition>
 
@@ -1321,26 +1279,6 @@ function backToTable() {
 .tcg-export:hover:not(:disabled) { background: var(--color-glass-bg-hover); }
 .tcg-export:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.tcg-banner {
-  font-size: 12rem;
-  opacity: 0.5;
-  font-style: italic;
-  margin: 0;
-  padding: 8rem 14rem;
-  background: color-mix(in srgb, var(--color-text) 5%, transparent);
-  border-radius: 8rem;
-}
-
-.tcg-reasoning {
-  font-size: var(--text-sm);
-  opacity: 0.7;
-  background: var(--color-glass-bg);
-  border: 1px solid var(--color-glass-border);
-  border-radius: 10rem;
-  padding: 12rem 16rem;
-}
-.tcg-reasoning summary { cursor: pointer; font-weight: 600; }
-.tcg-reasoning p { margin-top: 8rem; line-height: 1.55; }
 
 .tcg-layout {
   display: grid;
@@ -1446,6 +1384,12 @@ function backToTable() {
 .tcg-day:hover { background: color-mix(in srgb, var(--color-text) 3%, transparent); }
 .tcg-day--empty { background: transparent; border-color: transparent; pointer-events: none; }
 .tcg-day--holiday { background: color-mix(in srgb, #ef4444 8%, transparent); }
+.tcg-day--receive {
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+  border-color: color-mix(in srgb, var(--color-text) 35%, transparent);
+  cursor: pointer;
+}
+.tcg-day--receive:hover { background: color-mix(in srgb, var(--color-text) 11%, transparent); }
 .tcg-day--today .tcg-date-num {
   background: var(--color-text);
   color: var(--color-bg);
@@ -1660,6 +1604,15 @@ function backToTable() {
   transition: background 0.15s;
 }
 .tcg-remove-session:hover { background: color-mix(in srgb, #ef4444 15%, transparent); }
+
+.tcg-move-hint {
+  font-size: 11rem;
+  opacity: 0.35;
+  text-align: center;
+  margin: 4rem 0 0;
+  font-style: italic;
+  line-height: 1.4;
+}
 
 /* ── Transitions ── */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.22s ease; }

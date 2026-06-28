@@ -16,8 +16,7 @@
   "tools": [
     { "id": "easymcq",           "label": "EasyMCQ",              "description": "Give a question and answer — AI generates the wrong options.",        "href": "/tools/easymcq",           "color": "#243F6A" },
     { "id": "training-cal-gen", "label": "Training Calendar",    "description": "Turn a list of topics into a ready-to-present monthly schedule.",     "href": "/tools/training-cal-gen", "color": "#243F6A" },
-    { "id": "better-emails",    "label": "Better Emails",        "description": "Turn messy drafts into polished, professional emails.",               "href": "/tools/better-emails",    "color": "#243F6A" },
-    { "id": "youniverse",       "label": "YOUniverse",           "description": "A projective mirror for your inner emotional weather.",               "href": "/tools/youniverse",       "color": "#243F6A" }
+    { "id": "better-emails",    "label": "Better Emails",        "description": "Turn messy drafts into polished, professional emails.",               "href": "/tools/better-emails",    "color": "#243F6A" }
   ],
   "downloads": [
     { "id": "templates",  "label": "Templates",  "description": "Ready-to-use L&D templates",       "href": "/downloads/templates",  "color": "#243F6A" },

@@ -10,6 +10,8 @@ export default class World {
   navPlanes: NavPlane[] = []
   particles: Particles
   private _destroyed = false
+  private _currentItems: NavItem[] = []
+  private _isDark = true
 
   constructor(experience: Experience) {
     this.experience = experience
@@ -17,9 +19,15 @@ export default class World {
     this.particles = new Particles(experience)
   }
 
+  get currentItemCount(): number {
+    return this._currentItems.length * 2
+  }
+
   setNavItems(items: NavItem[], isDark = true) {
     this.navPlanes.forEach((p) => p.destroy())
     this.navPlanes = []
+    this._currentItems = items
+    this._isDark = isDark
 
     // Duplicate ×2 for infinite loop
     const doubled = [...items, ...items]
@@ -56,6 +64,39 @@ export default class World {
     if (this._destroyed) return
 
     this.reveal()
+  }
+
+  // Accordion expand: hide planes after clicked, rebuild, reveal in-place
+  async expandAt(newItems: NavItem[], clickedItemIndex: number) {
+    // Hide planes after the clicked item (stagger 40ms)
+    for (let i = 0; i < this.navPlanes.length; i++) {
+      if (this.navPlanes[i].index > clickedItemIndex) {
+        setTimeout(() => { this.navPlanes[i]?.hide() }, (i - clickedItemIndex) * 40)
+      }
+    }
+
+    await new Promise<void>(r => setTimeout(r, 380))
+    if (this._destroyed) return
+
+    this.setNavItems(newItems, this._isDark)
+
+    await new Promise<void>(r => setTimeout(r, 30))
+    if (this._destroyed) return
+
+    // Reveal: immediate for items ≤ clicked, staggered for new/shifted items
+    const oldCount = this._currentItems.length
+    for (let i = 0; i < this.navPlanes.length; i++) {
+      const itemIdx = i % newItems.length
+      const plane = this.navPlanes[i]
+      if (!plane) continue
+
+      if (itemIdx <= clickedItemIndex) {
+        plane.revealImmediate()
+      } else {
+        const staggerMs = (itemIdx - clickedItemIndex - 1) * 80
+        setTimeout(() => { plane.reveal() }, staggerMs)
+      }
+    }
   }
 
   update(delta: number) {

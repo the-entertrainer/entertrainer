@@ -345,6 +345,17 @@ export default class NavPlane {
 
   reveal() { this.hiddenTarget = 0; this.revealTarget = 1 }
 
+  revealImmediate() {
+    this.hiddenProgress = 0
+    this.hiddenTarget   = 0
+    this.revealProgress = 1
+    this.revealTarget   = 1
+    this.wrapFade       = 1
+    this._labelProgress = 1
+    this._descProgress  = 1
+    this._cursorFading  = 1
+  }
+
   hide() {
     this.hiddenTarget   = 1
     this.revealTarget   = 0

@@ -42,6 +42,7 @@ export default class Experience extends EventEmitter {
   private _dollyHref      = ''
   private _dollyMidFired  = false
   private _dollyTmpVec    = new Vector3()
+  private _dollyNavItemIndex = 0
 
   constructor(canvas: HTMLCanvasElement) {
     super()
@@ -77,6 +78,11 @@ export default class Experience extends EventEmitter {
     this._dollyHref       = href
     this._dollyTargetPos.copy(plane.mesh.position)
     this._dollyCamStart.copy(this.camera.instance.position)
+    this._dollyNavItemIndex = plane.index % this.world.currentItemCount
+  }
+
+  get lastClickedItemIndex(): number {
+    return this._dollyNavItemIndex
   }
 
   resetCamera() {

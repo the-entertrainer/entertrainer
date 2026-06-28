@@ -169,6 +169,15 @@ export default class Controls {
     this._lastInteraction = performance.now()
   }
 
+  jumpTo(offset: number) {
+    this.scrollOffset = offset
+    this._prevOffset = offset
+    this._snapTarget = offset
+    this._velocity = 0
+    this._phase = 'drift'
+    this._lastInteraction = performance.now()
+  }
+
   destroy() {
     window.removeEventListener('wheel', this._onWheel)
     this.experience.canvas.removeEventListener('touchstart', this._onTouchStart)

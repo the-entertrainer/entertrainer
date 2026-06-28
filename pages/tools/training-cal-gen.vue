@@ -357,7 +357,8 @@ const stats = computed(() => {
 })
 
 // ─── Export ───────────────────────────────────────────────────────────────────
-const exporting = ref(false)
+const exporting  = ref(false)
+const pptxDark   = ref(true)
 
 async function exportPPTX() {
   if (exporting.value) return
@@ -401,22 +402,51 @@ async function exportPPTX() {
     pptx.defineLayout({ name: 'CAL', width: SW, height: SH })
     pptx.layout = 'CAL'
 
+    // ── Theme palette ────────────────────────────────────────────────────────
+    const T = pptxDark.value ? {
+      slide:       '0D0C0A',
+      card:        '252320',
+      cardBorder:  { color: 'FFFFFF', transparency: 60, width: 0.75 },
+      title:       'F5F3EF',
+      meta:        'A09D98',
+      dayName:     'A09D98',
+      dateNum:     'C8C5BF',
+      cellFill:    { color: 'FFFFFF', transparency: 90 },
+      holidayFill: { color: 'EF4444', transparency: 85 },
+      cellBorder:  { color: 'FFFFFF', transparency: 70, width: 0.5 },
+      holiday:     'EF4444',
+      sessionText: 'FFFFFF',
+    } : {
+      slide:       'F5F3EF',
+      card:        'FFFFFF',
+      cardBorder:  { color: '000000', transparency: 88, width: 0.75 },
+      title:       '1A1916',
+      meta:        '6B6864',
+      dayName:     '6B6864',
+      dateNum:     '3A3835',
+      cellFill:    { color: '000000', transparency: 94 },
+      holidayFill: { color: 'EF4444', transparency: 88 },
+      cellBorder:  { color: '000000', transparency: 82, width: 0.5 },
+      holiday:     'DC2626',
+      sessionText: 'FFFFFF',
+    }
+
     // ── Slide ───────────────────────────────────────────────────────────────
     const slide = pptx.addSlide()
-    slide.background = { color: '0D0C0A' }
+    slide.background = { color: T.slide }
 
     // Card background
     slide.addShape('roundRect' as any, {
       x: CX, y: CY, w: CW, h: CH,
-      fill: { color: '252320' },
-      line: { color: 'FFFFFF', transparency: 60, width: 0.75 },
+      fill: { color: T.card },
+      line: T.cardBorder,
       rectRadius: 0.05,
     } as any)
 
     // Title
     slide.addText(calTitle.value || 'Training Calendar', {
       x: GX, y: TY, w: GW * 0.7, h: 0.50,
-      fontSize: 30, bold: true, color: 'F5F3EF',
+      fontSize: 30, bold: true, color: T.title,
       fontFace: 'Calibri', charSpacing: -0.5,
       valign: 'middle',
     })
@@ -424,7 +454,7 @@ async function exportPPTX() {
     // Meta line: org · dept · month year
     slide.addText(`${calOrg.value}  ·  ${calDept.value}  ·  ${monthName} ${selectedYear.value}`, {
       x: GX, y: METY, w: GW, h: 0.30,
-      fontSize: 13, color: 'A09D98',
+      fontSize: 13, color: T.meta,
       fontFace: 'Calibri', valign: 'middle',
     })
 
@@ -432,7 +462,7 @@ async function exportPPTX() {
     DAY_NAMES.forEach((name, i) => {
       slide.addText(name, {
         x: GX + i * COLW, y: DNY, w: CELLW, h: 0.28,
-        fontSize: 11, bold: true, color: 'A09D98',
+        fontSize: 11, bold: true, color: T.dayName,
         fontFace: 'Calibri', align: 'center', charSpacing: 0.8,
       })
     })
@@ -448,16 +478,15 @@ async function exportPPTX() {
         // Cell background
         slide.addShape('roundRect' as any, {
           x: cx, y: cy, w: CELLW, h: CELLH,
-          fill: { color: day.holiday ? 'EF4444' : 'FFFFFF',
-                  transparency: day.holiday ? 85 : 90 },
-          line: { color: 'FFFFFF', transparency: 70, width: 0.5 },
+          fill: day.holiday ? T.holidayFill : T.cellFill,
+          line: T.cellBorder,
           rectRadius: 0.04,
         } as any)
 
         // Date number
         slide.addText(String(day.date), {
           x: cx + 0.09, y: cy + 0.08, w: 0.42, h: 0.26,
-          fontSize: 12, bold: true, color: 'C8C5BF',
+          fontSize: 12, bold: true, color: T.dateNum,
           fontFace: 'Calibri', valign: 'top',
         })
 
@@ -467,7 +496,7 @@ async function exportPPTX() {
         if (day.holiday) {
           slide.addText(day.holiday, {
             x: cx + 0.09, y: sy, w: CELLW - 0.18, h: 0.22,
-            fontSize: 9, bold: true, color: 'EF4444',
+            fontSize: 9, bold: true, color: T.holiday,
             fontFace: 'Calibri', valign: 'top', shrinkText: true,
           })
           sy += 0.25
@@ -494,7 +523,7 @@ async function exportPPTX() {
           ]
           slide.addText(parts, {
             x: cx + 0.13, y: sy + 0.03, w: CELLW - 0.28, h: 0.42,
-            color: 'FFFFFF', fontFace: 'Calibri',
+            color: T.sessionText, fontFace: 'Calibri',
             valign: 'top', wrap: true, shrinkText: true,
           })
 
@@ -503,9 +532,10 @@ async function exportPPTX() {
       })
     })
 
-    // ── Trigger download ─────────────────────────────────────────────────────
-    const blob = await pptx.write({ outputType: 'blob' }) as unknown as Blob
-    const url  = URL.createObjectURL(blob)
+    // ── Trigger download — use arraybuffer + explicit MIME to avoid .zip suffix
+    const buffer = await pptx.write({ outputType: 'arraybuffer' }) as unknown as ArrayBuffer
+    const blob   = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' })
+    const url    = URL.createObjectURL(blob)
     const a    = document.createElement('a')
     a.href = url; a.download = `${stem}.pptx`
     document.body.appendChild(a); a.click()
@@ -762,6 +792,15 @@ function backToTable() {
             </div>
 
             <div class="tcg-export-btns">
+              <button
+                class="tcg-pptx-mode"
+                :class="{ light: !pptxDark }"
+                :title="pptxDark ? 'Switch to light mode export' : 'Switch to dark mode export'"
+                @click="pptxDark = !pptxDark"
+              >
+                <span class="tcg-pptx-mode-icon">{{ pptxDark ? '☾' : '☀' }}</span>
+                {{ pptxDark ? 'Dark' : 'Light' }}
+              </button>
               <button class="tcg-export" :disabled="exporting" @click="exportPPTX">
                 {{ exporting ? 'Building…' : 'Export PPTX' }}
               </button>
@@ -1385,7 +1424,7 @@ function backToTable() {
 .tcg-theme-btn.active { border-color: var(--color-text); transform: scale(1.2); }
 .tcg-theme-btn:hover  { transform: scale(1.15); }
 
-.tcg-export-btns { display: flex; gap: 8rem; margin-left: auto; }
+.tcg-export-btns { display: flex; align-items: center; gap: 8rem; margin-left: auto; }
 .tcg-export {
   padding: 7rem 16rem;
   border-radius: var(--radius-full);
@@ -1400,6 +1439,25 @@ function backToTable() {
 }
 .tcg-export:hover:not(:disabled) { background: var(--color-glass-bg-hover); }
 .tcg-export:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.tcg-pptx-mode {
+  display: flex;
+  align-items: center;
+  gap: 5rem;
+  padding: 5rem 12rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-glass-border);
+  background: rgba(255,255,255,0.04);
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: 11rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tcg-pptx-mode:hover { background: var(--color-glass-bg-hover); color: var(--color-text); }
+.tcg-pptx-mode.light { background: rgba(255,255,255,0.12); color: var(--color-text); }
+.tcg-pptx-mode-icon { font-size: 13rem; line-height: 1; }
 
 
 .tcg-layout {

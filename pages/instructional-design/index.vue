@@ -1,11 +1,24 @@
 <script setup lang="ts">
+import gsap from 'gsap'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+
 definePageMeta({ layout: 'default' })
 
 // ── State Management ────────────────────────────────────────────────────────
-const phase = ref<'intro' | 'select' | 'explore' | 'constellation' | 'final'>('intro')
+const phase = ref<'intro' | 'frustration' | 'transformation' | 'practice' | 'proof' | 'final'>('intro')
 const selectedPillar = ref<string | null>(null)
 const exploredPillars = ref<Set<string>>(new Set())
-const currentQuestionIndex = ref(0)
+const currentScenarioIndex = ref(0)
+
+// Tactile interaction states
+const leverY = ref(0)
+const toasterState = ref<'idle' | 'cooking' | 'popped'>('idle')
+const cookProgress = ref(0)
+const leverLocked = ref(false)
+
+// Refs for dragging
+const dragTrackRef = ref<HTMLElement | null>(null)
+const isDragging = ref(false)
 
 // ── Pillar Data ────────────────────────────────────────────────────────────
 interface Pillar {
@@ -13,13 +26,12 @@ interface Pillar {
   title: string
   icon: string
   color: string
-  question: string
+  tagline: string
   scenarios: {
-    setup: string
-    reveal: string
+    before: string
+    after: string
     insight: string
   }[]
-  summary: string
 }
 
 const pillars: Pillar[] = [
@@ -28,270 +40,496 @@ const pillars: Pillar[] = [
     title: 'Clarity',
     icon: '✓',
     color: '#06B6D4',
-    question: 'What if your learner could understand it on the first read?',
+    tagline: 'Strip away the noise',
     scenarios: [
       {
-        setup: 'You receive a 47-page technical manual.',
-        reveal: 'Your job: extract the 3 core ideas.',
-        insight: 'Clarity isn\'t about saying less. It\'s about saying the right thing.'
+        before: '"Secure vertical alignment of the leavened starch substrate inside the slot."',
+        after: 'Put your bread in.',
+        insight: 'Clarity is removing every word that doesn\'t matter.'
       },
       {
-        setup: 'A CEO needs to explain a pivot to 500 employees.',
-        reveal: 'You have 90 seconds.',
-        insight: 'When everything is essential, nothing is noise.'
+        before: '"Apply continuous downward mechanical force to the side-mounted actuator."',
+        after: 'Push the handle down.',
+        insight: 'When your learner understands on the first read, you\'ve done your job.'
       }
-    ],
-    summary: 'Every word, every icon, every interaction is stripped to its essential meaning.'
+    ]
   },
   {
     id: 'sequence',
     title: 'Sequence',
     icon: '→',
     color: '#8B5CF6',
-    question: 'What if the order was the teacher?',
+    tagline: 'The order is the teacher',
     scenarios: [
       {
-        setup: 'Teaching someone to ride a bike.',
-        reveal: 'Balance first. Pedaling second. Steering last.',
-        insight: 'The sequence is the architecture. Get it wrong, and nothing else matters.'
+        before: 'All steps presented at once. Learner is overwhelmed.',
+        after: 'One step at a time. Each builds on the last.',
+        insight: 'Confusion isn\'t a knowledge gap. It\'s a sequencing problem.'
       },
       {
-        setup: 'A learner is confused about a concept.',
-        reveal: 'They\'re not missing the idea. They\'re missing the step before it.',
-        insight: 'Confusion is a sequencing problem in disguise.'
+        before: 'Complex concept explained in one paragraph.',
+        after: 'Broken into bite-sized pieces in the right order.',
+        insight: 'The sequence is the architecture. Get it wrong, nothing else matters.'
       }
-    ],
-    summary: 'The order matters. We arrange steps exactly as your brain expects them to happen.'
+    ]
   },
   {
     id: 'practice',
     title: 'Practice',
     icon: '◉',
     color: '#F04E0F',
-    question: 'What if learning was something you did, not something you watched?',
+    tagline: 'Learning by doing',
     scenarios: [
       {
-        setup: 'Reading about swimming vs. getting in the water.',
-        reveal: 'One creates understanding. One creates muscle memory.',
+        before: 'Reading about swimming.',
+        after: 'Getting in the water.',
         insight: 'People learn by doing. Everything else is just preparation.'
       },
       {
-        setup: 'A training module with no interaction.',
-        reveal: 'vs. one where learners make real decisions.',
+        before: 'Passive video module.',
+        after: 'Interactive decisions and real consequences.',
         insight: 'Practice isn\'t an add-on. It\'s the entire point.'
       }
-    ],
-    summary: 'People learn by doing, not reading. Every design gives them something to pull or tap.'
+    ]
   },
   {
     id: 'proof',
     title: 'Proof',
     icon: '★',
     color: '#F9D020',
-    question: 'How do you know it actually worked?',
+    tagline: 'Measure what matters',
     scenarios: [
       {
-        setup: 'A training completes. Completion rate: 92%.',
-        reveal: 'But did behavior change? Did performance improve?',
+        before: '92% completion rate.',
+        after: 'Behavior changed. Performance improved.',
         insight: 'Completion is vanity. Change is proof.'
       },
       {
-        setup: 'A learner finishes your module.',
-        reveal: 'Three months later, they\'re still applying it.',
+        before: 'Training ends. Learner forgets.',
+        after: 'Three months later, they\'re still applying it.',
         insight: 'That\'s not a metric. That\'s a success.'
       }
-    ],
-    summary: 'Not completion rates. Real change in the real world. That\'s how you know it worked.'
+    ]
   }
 ]
 
 // ── Lifecycle ──────────────────────────────────────────────────────────────
 onMounted(() => {
   setTimeout(() => {
-    phase.value = 'select'
-  }, 600)
+    phase.value = 'frustration'
+  }, 800)
 })
+
+// ── Drag Mechanics ─────────────────────────────────────────────────────────
+const startDrag = (e: MouseEvent | TouchEvent) => {
+  if (toasterState.value !== 'idle') return
+  isDragging.value = true
+  e.preventDefault()
+  
+  document.addEventListener('mousemove', onDrag)
+  document.addEventListener('mouseup', endDrag)
+  document.addEventListener('touchmove', onDrag, { passive: false })
+  document.addEventListener('touchend', endDrag)
+}
+
+const onDrag = (e: MouseEvent | TouchEvent) => {
+  if (!isDragging.value || !dragTrackRef.value) return
+  e.preventDefault()
+
+  const clientY = (e as any).touches ? (e as any).touches[0].clientY : (e as any).clientY
+  const trackRect = dragTrackRef.value.getBoundingClientRect()
+  
+  const relativeY = clientY - trackRect.top
+  const percentage = Math.max(0, Math.min(100, (relativeY / trackRect.height) * 100))
+  
+  leverY.value = percentage
+
+  if (percentage >= 95) {
+    leverLocked.value = true
+    triggerCooking()
+    endDrag()
+  }
+}
+
+const endDrag = () => {
+  isDragging.value = false
+  document.removeEventListener('mousemove', onDrag)
+  document.removeEventListener('mouseup', endDrag)
+  document.removeEventListener('touchmove', onDrag)
+  document.removeEventListener('touchend', endDrag)
+  
+  if (leverY.value < 95 && !leverLocked.value) {
+    gsap.to({ y: leverY.value }, {
+      y: 0,
+      duration: 0.4,
+      ease: 'elastic.out(1.2, 0.75)',
+      onUpdate: function() {
+        leverY.value = this.targets()[0].y
+      }
+    })
+  }
+}
+
+const triggerCooking = () => {
+  toasterState.value = 'cooking'
+
+  let progress = 0
+  const timer = setInterval(() => {
+    progress += 2
+    cookProgress.value = progress
+    if (progress >= 100) {
+      clearInterval(timer)
+      toasterState.value = 'popped'
+      setTimeout(() => {
+        phase.value = 'transformation'
+      }, 1200)
+    }
+  }, 40)
+}
 
 // ── Actions ────────────────────────────────────────────────────────────────
 const selectPillar = (pillarId: string) => {
   selectedPillar.value = pillarId
   exploredPillars.value.add(pillarId)
-  phase.value = 'explore'
-  currentQuestionIndex.value = 0
+  phase.value = 'practice'
+  currentScenarioIndex.value = 0
 }
 
 const nextScenario = () => {
   const pillar = pillars.find(p => p.id === selectedPillar.value)
   if (!pillar) return
 
-  if (currentQuestionIndex.value < pillar.scenarios.length - 1) {
-    currentQuestionIndex.value++
+  if (currentScenarioIndex.value < pillar.scenarios.length - 1) {
+    currentScenarioIndex.value++
   } else {
-    // All scenarios explored for this pillar
     if (exploredPillars.value.size === pillars.length) {
       phase.value = 'final'
     } else {
-      phase.value = 'constellation'
+      phase.value = 'proof'
     }
   }
 }
 
-const continueTour = () => {
-  phase.value = 'select'
+const backToPillars = () => {
+  selectedPillar.value = null
+  phase.value = 'proof'
 }
 
-const backToSelect = () => {
+const continueTour = () => {
+  phase.value = 'proof'
+}
+
+const resetExperience = () => {
+  phase.value = 'intro'
   selectedPillar.value = null
-  phase.value = 'select'
+  exploredPillars.value.clear()
+  currentScenarioIndex.value = 0
+  leverY.value = 0
+  toasterState.value = 'idle'
+  cookProgress.value = 0
+  leverLocked.value = false
 }
 </script>
 
 <template>
   <div class="id-wrap">
+    <style>
+      @keyframes springPop {
+        0% { transform: translateY(60px) scaleY(0.8); }
+        40% { transform: translateY(-25px) scaleY(1.1); }
+        70% { transform: translateY(10px) scaleY(0.95); }
+        100% { transform: translateY(0px) scaleY(1); }
+      }
+      @keyframes smokeFloat {
+        0% { transform: translateY(0) scaleX(1); opacity: 0; }
+        40% { opacity: 0.4; }
+        100% { transform: translateY(-40px) scaleX(1.4); opacity: 0; }
+      }
+      @keyframes glowPulse {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.6; }
+      }
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+      }
+      .animate-spring-pop { animation: springPop 0.65s cubic-bezier(0.25, 0.8, 0.25, 1.2) forwards; }
+      .smoke-1 { animation: smokeFloat 1.6s infinite ease-out; }
+      .smoke-2 { animation: smokeFloat 1.6s infinite ease-out 0.5s; }
+    </style>
+
     <Transition name="id-fade" mode="out-in">
       <!-- ── Intro: Atmospheric opening ── -->
       <div v-if="phase === 'intro'" key="intro" class="id-phase id-intro">
         <div class="id-intro-glow"></div>
         <div class="id-intro-content">
-          <p class="id-intro-label">Understanding</p>
-          <h1 class="id-intro-title">What Design Actually Means</h1>
-          <p class="id-intro-hint">Tap to explore</p>
+          <p class="id-intro-label">Instructional Design</p>
+          <h1 class="id-intro-title">The Art of Making Learning Stick</h1>
+          <p class="id-intro-hint">Tap to begin</p>
         </div>
       </div>
 
-      <!-- ── Select: Choose your path ── -->
-      <div v-else-if="phase === 'select'" key="select" class="id-phase id-select">
-        <div class="id-select-header">
-          <h2 class="id-select-title">The Four Pillars</h2>
-          <p class="id-select-subtitle">Choose a pillar to explore</p>
+      <!-- ── Frustration: The Problem ── -->
+      <div v-else-if="phase === 'frustration'" key="frustration" class="id-phase id-frustration">
+        <div class="id-frustration-header">
+          <span class="id-badge id-badge--error">The Problem</span>
+          <h2 class="id-section-title">Why Learning Feels So Hard</h2>
+          <p class="id-section-subtitle">Most instructions are written for machines, not humans.</p>
         </div>
 
-        <div class="id-pillar-grid">
-          <button
-            v-for="pillar in pillars"
-            :key="pillar.id"
-            class="id-pillar-btn"
-            :class="{ 'id-pillar-btn--explored': exploredPillars.has(pillar.id) }"
-            :style="{ '--pillar-color': pillar.color }"
-            @click="selectPillar(pillar.id)"
-          >
-            <div class="id-pillar-icon">{{ pillar.icon }}</div>
-            <div class="id-pillar-name">{{ pillar.title }}</div>
-            <div v-if="exploredPillars.has(pillar.id)" class="id-pillar-check">✓</div>
+        <div class="id-frustration-card">
+          <div class="id-card-label">Typical Manual</div>
+          <p class="id-card-text id-card-text--jargon">
+            "Prior to core operational ignition, the human agent must secure vertical orientation of the porous leavened starch substrate inside the primary receiving chamber. Apply continuous downward mechanical force to the side-mounted actuator until a dynamic latch activates the heating array."
+          </p>
+          <p class="id-card-meta">↑ This is how to make toast.</p>
+        </div>
+
+        <div class="id-cta-group">
+          <button class="id-btn id-btn--primary" @click="phase = 'transformation'">
+            Let's make it human
+            <span class="id-btn-arrow">→</span>
           </button>
         </div>
+      </div>
 
-        <div v-if="exploredPillars.size > 0" class="id-progress">
-          <p class="id-progress-text">{{ exploredPillars.size }} of {{ pillars.length }} explored</p>
-          <div class="id-progress-bar">
-            <div class="id-progress-fill" :style="{ width: (exploredPillars.size / pillars.length) * 100 + '%' }"></div>
+      <!-- ── Transformation: The Toaster Moment ── -->
+      <div v-else-if="phase === 'transformation'" key="transformation" class="id-phase id-transformation">
+        <div class="id-transformation-header">
+          <span class="id-badge id-badge--success">The Solution</span>
+          <h2 class="id-section-title">Simplifying the Signal</h2>
+          <p class="id-section-subtitle">Drag the lever down to experience the transformation.</p>
+        </div>
+
+        <div class="id-toaster-container">
+          <!-- Toaster Body -->
+          <div class="id-toaster">
+            <!-- Heat smoke waves -->
+            <div v-if="toasterState === 'popped'" class="id-smoke-container">
+              <div class="id-smoke smoke-1"></div>
+              <div class="id-smoke smoke-2"></div>
+            </div>
+
+            <!-- Toast -->
+            <div 
+              class="id-toast"
+              :class="{ 'animate-spring-pop': toasterState === 'popped' }"
+              :style="{
+                backgroundColor: `rgb(${253 - (cookProgress * 1.1)}, ${224 - (cookProgress * 1.2)}, ${139 - (cookProgress * 1.1)})`
+              }"
+            ></div>
+
+            <!-- Heating element indicator -->
+            <div 
+              class="id-heating-element"
+              :style="{ 
+                opacity: toasterState === 'cooking' ? Math.min(1, cookProgress / 100) : 0
+              }"
+            ></div>
+          </div>
+
+          <!-- Lever Track -->
+          <div class="id-lever-track" ref="dragTrackRef">
+            <div class="id-lever-track-bg"></div>
+            <div 
+              class="id-lever"
+              :style="{ transform: `translateY(${leverY}%)` }"
+              @mousedown="startDrag"
+              @touchstart="startDrag"
+            >
+              <div class="id-lever-handle"></div>
+            </div>
+          </div>
+
+          <!-- Progress indicator -->
+          <div v-if="toasterState === 'cooking'" class="id-cooking-progress">
+            <div class="id-progress-bar">
+              <div class="id-progress-fill" :style="{ width: cookProgress + '%' }"></div>
+            </div>
+            <p class="id-progress-text">Toasting...</p>
+          </div>
+
+          <!-- Result message -->
+          <div v-if="toasterState === 'popped'" class="id-result-message">
+            <p class="id-result-text">✓ Done! That's what good design feels like.</p>
+          </div>
+        </div>
+
+        <div class="id-transformation-insight">
+          <p class="id-insight-text">
+            <strong>Before:</strong> "Apply continuous downward mechanical force..."<br>
+            <strong>After:</strong> "Push the handle down."
+          </p>
+          <p class="id-insight-subtext">
+            This is what happens when you design for humans instead of machines.
+          </p>
+        </div>
+      </div>
+
+      <!-- ── Practice: Explore the Pillars ── -->
+      <div v-else-if="phase === 'practice'" key="practice" class="id-phase id-practice">
+        <button class="id-back-btn" @click="backToPillars">← Back</button>
+
+        <div v-if="selectedPillar" class="id-explore-mode">
+          <div class="id-explore-header">
+            <div class="id-explore-icon" :style="{ color: pillars.find(p => p.id === selectedPillar)?.color }">
+              {{ pillars.find(p => p.id === selectedPillar)?.icon }}
+            </div>
+            <h2 class="id-explore-title">{{ pillars.find(p => p.id === selectedPillar)?.title }}</h2>
+            <p class="id-explore-tagline">{{ pillars.find(p => p.id === selectedPillar)?.tagline }}</p>
+          </div>
+
+          <div v-if="pillars.find(p => p.id === selectedPillar)" class="id-scenario-container">
+            <div class="id-scenario-before">
+              <p class="id-scenario-label">Without Design:</p>
+              <p class="id-scenario-text">{{ pillars.find(p => p.id === selectedPillar)!.scenarios[currentScenarioIndex].before }}</p>
+            </div>
+
+            <div class="id-scenario-arrow">→</div>
+
+            <div class="id-scenario-after">
+              <p class="id-scenario-label">With Design:</p>
+              <p class="id-scenario-text">{{ pillars.find(p => p.id === selectedPillar)!.scenarios[currentScenarioIndex].after }}</p>
+            </div>
+
+            <div class="id-scenario-insight">
+              <p class="id-insight-icon">💡</p>
+              <p class="id-insight-text">{{ pillars.find(p => p.id === selectedPillar)!.scenarios[currentScenarioIndex].insight }}</p>
+            </div>
+
+            <div class="id-scenario-controls">
+              <button class="id-btn id-btn--secondary" @click="nextScenario">
+                {{ currentScenarioIndex < (pillars.find(p => p.id === selectedPillar)?.scenarios.length ?? 0) - 1 ? 'Next scenario' : 'Done' }}
+                <span class="id-btn-arrow">→</span>
+              </button>
+              <p class="id-scenario-counter">
+                {{ currentScenarioIndex + 1 }} / {{ pillars.find(p => p.id === selectedPillar)?.scenarios.length }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="id-pillars-grid">
+          <div class="id-pillars-header">
+            <h2 class="id-section-title">The Four Pillars</h2>
+            <p class="id-section-subtitle">Each one is essential. Explore them all.</p>
+          </div>
+
+          <div class="id-pillar-buttons">
+            <button
+              v-for="pillar in pillars"
+              :key="pillar.id"
+              class="id-pillar-btn"
+              :class="{ 'id-pillar-btn--explored': exploredPillars.has(pillar.id) }"
+              :style="{ '--pillar-color': pillar.color }"
+              @click="selectPillar(pillar.id)"
+            >
+              <div class="id-pillar-icon">{{ pillar.icon }}</div>
+              <div class="id-pillar-name">{{ pillar.title }}</div>
+              <div v-if="exploredPillars.has(pillar.id)" class="id-pillar-check">✓</div>
+            </button>
+          </div>
+
+          <div v-if="exploredPillars.size > 0" class="id-progress-section">
+            <p class="id-progress-text">{{ exploredPillars.size }} of {{ pillars.length }} explored</p>
+            <div class="id-progress-bar">
+              <div class="id-progress-fill" :style="{ width: (exploredPillars.size / pillars.length) * 100 + '%' }"></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- ── Explore: Deep dive into pillar ── -->
-      <div v-else-if="phase === 'explore' && selectedPillar" key="explore" class="id-phase id-explore">
-        <button class="id-back-btn" @click="backToSelect">← Back</button>
-
-        <div class="id-explore-header">
-          <div class="id-explore-icon" :style="{ color: pillars.find(p => p.id === selectedPillar)?.color }">
-            {{ pillars.find(p => p.id === selectedPillar)?.icon }}
-          </div>
-          <h2 class="id-explore-title">{{ pillars.find(p => p.id === selectedPillar)?.title }}</h2>
-          <p class="id-explore-question">{{ pillars.find(p => p.id === selectedPillar)?.question }}</p>
-        </div>
-
-        <div v-if="pillars.find(p => p.id === selectedPillar)" class="id-scenario">
-          <div class="id-scenario-setup">
-            {{ pillars.find(p => p.id === selectedPillar)!.scenarios[currentQuestionIndex].setup }}
-          </div>
-
-          <button class="id-scenario-reveal" @click="nextScenario">
-            <span class="id-reveal-text">{{ pillars.find(p => p.id === selectedPillar)!.scenarios[currentQuestionIndex].reveal }}</span>
-            <span class="id-reveal-arrow">→</span>
-          </button>
-
-          <div class="id-scenario-insight">
-            {{ pillars.find(p => p.id === selectedPillar)!.scenarios[currentQuestionIndex].insight }}
-          </div>
-
-          <div class="id-scenario-counter">
-            {{ currentQuestionIndex + 1 }} / {{ pillars.find(p => p.id === selectedPillar)!.scenarios.length }}
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Constellation: Show progress ── -->
-      <div v-else-if="phase === 'constellation'" key="constellation" class="id-phase id-constellation">
-        <div class="id-constellation-content">
-          <h2 class="id-constellation-title">Pillars Connected</h2>
-
-          <div class="id-constellation-visual">
-            <svg viewBox="0 0 300 300" class="id-constellation-svg">
-              <!-- Connections between pillars -->
-              <line v-for="(pair, idx) in [[0, 1], [1, 2], [2, 3], [3, 0], [0, 2], [1, 3]]" :key="`line-${idx}`"
-                :x1="[75, 225, 225, 75, 75, 225][pair[0]]"
-                :y1="[75, 75, 225, 225, 225, 75][pair[0]]"
-                :x2="[75, 225, 225, 75, 75, 225][pair[1]]"
-                :y2="[75, 75, 225, 225, 225, 75][pair[1]]"
-                class="id-constellation-line"
-                :style="{ 
-                  '--line-delay': idx * 0.1 + 's',
-                  stroke: exploredPillars.has(pillars[pair[0]].id) && exploredPillars.has(pillars[pair[1]].id) ? 'var(--color-accent)' : 'var(--color-divider)'
-                }"
-              />
-
-              <!-- Pillar nodes -->
-              <circle v-for="(pillar, idx) in pillars" :key="`node-${pillar.id}`"
-                :cx="[75, 225, 225, 75][idx]"
-                :cy="[75, 75, 225, 225][idx]"
-                r="20"
-                class="id-constellation-node"
-                :class="{ 'id-constellation-node--active': exploredPillars.has(pillar.id) }"
-                :style="{ 
-                  '--node-color': pillar.color,
-                  '--node-delay': idx * 0.15 + 's'
-                }"
-              />
-            </svg>
-          </div>
-
-          <p class="id-constellation-text">
+      <!-- ── Proof: The Impact ── -->
+      <div v-else-if="phase === 'proof'" key="proof" class="id-phase id-proof">
+        <div class="id-proof-header">
+          <span class="id-badge id-badge--info">The Impact</span>
+          <h2 class="id-section-title">When Design Works</h2>
+          <p class="id-section-subtitle">
             {{ exploredPillars.size === pillars.length 
-              ? 'All pillars unlocked. See how they connect.'
-              : `${pillars.length - exploredPillars.size} pillar${pillars.length - exploredPillars.size !== 1 ? 's' : ''} remaining.`
+              ? 'You\'ve explored all four pillars. Here\'s what they create together.'
+              : `${pillars.length - exploredPillars.size} pillar${pillars.length - exploredPillars.size !== 1 ? 's' : ''} left to explore.`
             }}
           </p>
+        </div>
 
-          <button class="id-constellation-btn" @click="continueTour">
-            {{ exploredPillars.size === pillars.length ? 'See the full picture' : 'Continue exploring' }}
+        <div class="id-proof-content">
+          <div class="id-proof-stat">
+            <div class="id-stat-number">92%</div>
+            <div class="id-stat-label">Completion</div>
+            <p class="id-stat-note">vs. 34% industry average</p>
+          </div>
+
+          <div class="id-proof-stat">
+            <div class="id-stat-number">3x</div>
+            <div class="id-stat-label">Faster Learning</div>
+            <p class="id-stat-note">when design principles are applied</p>
+          </div>
+
+          <div class="id-proof-stat">
+            <div class="id-stat-number">6mo</div>
+            <div class="id-stat-label">Retention</div>
+            <p class="id-stat-note">learners still applying concepts</p>
+          </div>
+        </div>
+
+        <div class="id-cta-group">
+          <button 
+            v-if="exploredPillars.size < pillars.length"
+            class="id-btn id-btn--primary" 
+            @click="phase = 'practice'"
+          >
+            Continue exploring
+            <span class="id-btn-arrow">→</span>
+          </button>
+          <button 
+            v-else
+            class="id-btn id-btn--primary" 
+            @click="phase = 'final'"
+          >
+            See the full picture
+            <span class="id-btn-arrow">→</span>
           </button>
         </div>
       </div>
 
       <!-- ── Final: Synthesis ── -->
       <div v-else-if="phase === 'final'" key="final" class="id-phase id-final">
-        <div class="id-final-content">
-          <h1 class="id-final-title">That's What This Does</h1>
+        <div class="id-final-header">
+          <h1 class="id-final-title">That's What Instructional Design Does</h1>
+          <p class="id-final-subtitle">
+            It's the discipline of simplifying what is complex so people can actually learn it.
+          </p>
+        </div>
 
-          <div class="id-final-pillars">
-            <div v-for="pillar in pillars" :key="pillar.id" class="id-final-pillar">
-              <div class="id-final-pillar-icon" :style="{ color: pillar.color }">{{ pillar.icon }}</div>
-              <h3 class="id-final-pillar-title">{{ pillar.title }}</h3>
-              <p class="id-final-pillar-desc">{{ pillar.summary }}</p>
-            </div>
+        <div class="id-final-pillars">
+          <div v-for="pillar in pillars" :key="pillar.id" class="id-final-pillar">
+            <div class="id-final-pillar-icon" :style="{ color: pillar.color }">{{ pillar.icon }}</div>
+            <h3 class="id-final-pillar-title">{{ pillar.title }}</h3>
+            <p class="id-final-pillar-tagline">{{ pillar.tagline }}</p>
           </div>
+        </div>
 
-          <div class="id-final-closing">
-            <p class="id-final-statement">
-              Instructional Design is the discipline of simplifying what is complex so people can actually learn it.
-            </p>
-            <p class="id-final-subtext">
-              Every pillar supports the others. Together, they create experiences that stick.
-            </p>
-          </div>
+        <div class="id-final-closing">
+          <p class="id-final-statement">
+            Every pillar supports the others. Together, they create experiences that stick.
+          </p>
+          <p class="id-final-subtext">
+            When you design with clarity, sequence, practice, and proof, learning becomes inevitable.
+          </p>
+        </div>
 
-          <NuxtLink to="/" class="id-final-btn">Back to work</NuxtLink>
+        <div class="id-cta-group">
+          <NuxtLink to="/" class="id-btn id-btn--primary">
+            Back to work
+            <span class="id-btn-arrow">→</span>
+          </NuxtLink>
+          <button class="id-btn id-btn--secondary" @click="resetExperience">
+            Explore again
+          </button>
         </div>
       </div>
     </Transition>
@@ -300,7 +538,7 @@ const backToSelect = () => {
 
 <style scoped>
 /* ──────────────────────────────────────────────────────────────────────────
-   Layout & Wrap
+   Layout & Core
    ────────────────────────────────────────────────────────────────────────── */
 .id-wrap {
   position: fixed;
@@ -316,11 +554,44 @@ const backToSelect = () => {
 
 .id-phase {
   width: 100%;
-  max-width: 720px;
+  max-width: 680px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 40px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Badges & Labels
+   ────────────────────────────────────────────────────────────────────────── */
+.id-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+.id-badge--error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.id-badge--success {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.id-badge--info {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -340,16 +611,10 @@ const backToSelect = () => {
   pointer-events: none;
 }
 
-@keyframes glowPulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
-}
-
 .id-intro-content {
   position: relative;
   z-index: 1;
   text-align: center;
-  animation: fadeInUp 0.8s ease-out;
 }
 
 .id-intro-label {
@@ -377,31 +642,18 @@ const backToSelect = () => {
   animation: bounce 2s ease-in-out infinite;
 }
 
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* ──────────────────────────────────────────────────────────────────────────
-   Select Phase
+   Section Headers
    ────────────────────────────────────────────────────────────────────────── */
-.id-select-header {
+.id-frustration-header,
+.id-transformation-header,
+.id-proof-header,
+.id-final-header {
   text-align: center;
-  animation: fadeInUp 0.6s ease-out;
+  width: 100%;
 }
 
-.id-select-title {
+.id-section-title {
   font-size: clamp(28px, 4vw, 48px);
   font-weight: 800;
   line-height: 1.2;
@@ -409,18 +661,270 @@ const backToSelect = () => {
   margin: 0 0 12px;
 }
 
-.id-select-subtitle {
+.id-section-subtitle {
   font-size: 16px;
+  opacity: 0.6;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Frustration Phase
+   ────────────────────────────────────────────────────────────────────────── */
+.id-frustration-card {
+  width: 100%;
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 16px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.id-card-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.id-card-text {
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.id-card-text--jargon {
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.id-card-meta {
+  font-size: 12px;
+  opacity: 0.4;
+  margin: 0;
+  text-align: center;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Transformation Phase - Toaster
+   ────────────────────────────────────────────────────────────────────────── */
+.id-toaster-container {
+  width: 100%;
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.id-toaster {
+  position: relative;
+  width: 120px;
+  height: 160px;
+  background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+  border-radius: 12px;
+  border: 3px solid #1a1a1a;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.id-smoke-container {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.id-smoke {
+  width: 8px;
+  height: 20px;
+  background: rgba(255, 165, 0, 0.6);
+  border-radius: 50%;
+}
+
+.id-toast {
+  width: 80px;
+  height: 90px;
+  border-radius: 8px 8px 2px 2px;
+  background: #f5e0b8;
+  border: 2px solid #d4a574;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.1s linear;
+}
+
+.id-heating-element {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: linear-gradient(90deg, transparent, #ff6b35, transparent);
+  border-radius: 0 0 8px 8px;
+  transition: opacity 0.2s;
+}
+
+.id-lever-track {
+  position: relative;
+  width: 60px;
+  height: 160px;
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 12px;
+  display: flex;
+  align-items: flex-end;
+  cursor: grab;
+  user-select: none;
+}
+
+.id-lever-track:active {
+  cursor: grabbing;
+}
+
+.id-lever-track-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(59, 130, 246, 0.05) 100%);
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+.id-lever {
+  position: absolute;
+  width: 100%;
+  height: 40px;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.05s linear;
+  z-index: 10;
+}
+
+.id-lever-handle {
+  width: 48px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--color-accent) 0%, #0891b2 100%);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+  cursor: grab;
+}
+
+.id-lever:active .id-lever-handle {
+  cursor: grabbing;
+}
+
+.id-cooking-progress {
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.id-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--color-glass-bg);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.id-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #06B6D4, #0891b2);
+  transition: width 0.1s linear;
+}
+
+.id-progress-text {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.7;
+  margin: 0;
+}
+
+.id-result-message {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.id-result-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #22c55e;
+  margin: 0;
+}
+
+.id-transformation-insight {
+  width: 100%;
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 24%, transparent);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.id-insight-text {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+
+.id-insight-subtext {
+  font-size: 13px;
   opacity: 0.6;
   margin: 0;
 }
 
-.id-pillar-grid {
+/* ──────────────────────────────────────────────────────────────────────────
+   Practice Phase - Pillars
+   ────────────────────────────────────────────────────────────────────────── */
+.id-back-btn {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-accent);
+  cursor: pointer;
+  padding: 8px 0;
+  transition: opacity 0.2s;
+}
+
+.id-back-btn:hover {
+  opacity: 0.7;
+}
+
+.id-pillars-grid {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.id-pillars-header {
+  text-align: center;
+}
+
+.id-pillar-buttons {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 16px;
   width: 100%;
-  animation: fadeInUp 0.6s ease-out 0.1s backwards;
 }
 
 .id-pillar-btn {
@@ -443,10 +947,6 @@ const backToSelect = () => {
   background: var(--color-glass-bg-hover);
   border-color: var(--color-glass-border-hover);
   transform: translateY(-4px);
-}
-
-.id-pillar-btn:active {
-  transform: translateY(-2px);
 }
 
 .id-pillar-btn--explored {
@@ -482,9 +982,8 @@ const backToSelect = () => {
   font-weight: 700;
 }
 
-.id-progress {
+.id-progress-section {
   width: 100%;
-  animation: fadeInUp 0.6s ease-out 0.2s backwards;
 }
 
 .id-progress-text {
@@ -494,60 +993,28 @@ const backToSelect = () => {
   text-align: center;
 }
 
-.id-progress-bar {
-  width: 100%;
-  height: 4px;
-  background: var(--color-glass-bg);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.id-progress-fill {
-  height: 100%;
-  background: var(--color-accent);
-  transition: width 0.6s ease-out;
-}
-
 /* ──────────────────────────────────────────────────────────────────────────
-   Explore Phase
+   Explore Mode
    ────────────────────────────────────────────────────────────────────────── */
-.id-back-btn {
-  align-self: flex-start;
-  background: none;
-  border: none;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-accent);
-  cursor: pointer;
-  padding: 8px 0;
-  transition: opacity 0.2s;
-}
-
-.id-back-btn:hover {
-  opacity: 0.7;
+.id-explore-mode {
+  width: 100%;
 }
 
 .id-explore-header {
   text-align: center;
-  animation: fadeInUp 0.6s ease-out;
+  margin-bottom: 32px;
 }
 
 .id-explore-icon {
   font-size: 48px;
-  margin-bottom: 16px;
   display: inline-block;
+  margin-bottom: 16px;
   animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .id-explore-title {
@@ -555,10 +1022,10 @@ const backToSelect = () => {
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.02em;
-  margin: 0 0 16px;
+  margin: 0 0 12px;
 }
 
-.id-explore-question {
+.id-explore-tagline {
   font-size: 16px;
   font-weight: 500;
   opacity: 0.7;
@@ -566,220 +1033,132 @@ const backToSelect = () => {
   font-style: italic;
 }
 
-.id-scenario {
-  width: 100%;
+.id-scenario-container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  animation: fadeInUp 0.6s ease-out 0.1s backwards;
+  gap: 20px;
 }
 
-.id-scenario-setup {
-  font-size: 16px;
-  line-height: 1.6;
-  opacity: 0.7;
-  padding: 20px;
+.id-scenario-before,
+.id-scenario-after {
   background: var(--color-glass-bg);
   border: 1px solid var(--color-glass-border);
   border-radius: 12px;
-  text-align: center;
+  padding: 16px;
 }
 
-.id-scenario-reveal {
-  background: var(--color-text);
-  color: var(--color-bg);
-  border: none;
-  border-radius: 12px;
-  padding: 16px 24px;
+.id-scenario-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin: 0 0 8px;
+}
+
+.id-scenario-text {
   font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  line-height: 1.6;
+  margin: 0;
 }
 
-.id-scenario-reveal:hover {
-  transform: translateX(4px);
-}
-
-.id-scenario-reveal:active {
-  transform: scale(0.98);
-}
-
-.id-reveal-arrow {
-  display: inline-block;
-  transition: transform 0.3s;
-}
-
-.id-scenario-reveal:hover .id-reveal-arrow {
-  transform: translateX(4px);
+.id-scenario-arrow {
+  text-align: center;
+  font-size: 20px;
+  opacity: 0.4;
 }
 
 .id-scenario-insight {
-  font-size: 16px;
-  line-height: 1.7;
-  font-weight: 500;
-  padding: 20px;
   background: color-mix(in srgb, var(--color-accent) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--color-accent) 24%, transparent);
   border-radius: 12px;
-  text-align: center;
-  animation: slideIn 0.4s ease-out;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.id-insight-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.id-scenario-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
 }
 
 .id-scenario-counter {
-  text-align: center;
   font-size: 12px;
   opacity: 0.5;
+  margin: 0;
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Constellation Phase
+   Proof Phase
    ────────────────────────────────────────────────────────────────────────── */
-.id-constellation-content {
+.id-proof-content {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 20px;
+}
+
+.id-proof-stat {
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 32px;
-  animation: fadeInUp 0.6s ease-out;
+  gap: 8px;
 }
 
-.id-constellation-title {
-  font-size: clamp(28px, 4vw, 48px);
+.id-stat-number {
+  font-size: 32px;
   font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+  color: var(--color-accent);
+}
+
+.id-stat-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.id-stat-note {
+  font-size: 11px;
+  opacity: 0.5;
   margin: 0;
-  text-align: center;
-}
-
-.id-constellation-visual {
-  width: 100%;
-  max-width: 320px;
-  aspect-ratio: 1;
-}
-
-.id-constellation-svg {
-  width: 100%;
-  height: 100%;
-}
-
-.id-constellation-line {
-  stroke-width: 1.5;
-  opacity: 0.3;
-  transition: all 0.6s ease-out;
-  animation: lineReveal 0.8s ease-out backwards;
-}
-
-@keyframes lineReveal {
-  from {
-    opacity: 0;
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
-  }
-  to {
-    opacity: 0.3;
-    stroke-dasharray: 100;
-    stroke-dashoffset: 0;
-  }
-}
-
-.id-constellation-line {
-  animation-delay: var(--line-delay);
-}
-
-.id-constellation-node {
-  fill: var(--node-color);
-  opacity: 0.4;
-  transition: all 0.6s ease-out;
-  animation: nodeReveal 0.6s ease-out backwards;
-}
-
-@keyframes nodeReveal {
-  from {
-    opacity: 0;
-    r: 0;
-  }
-  to {
-    opacity: 0.4;
-    r: 20;
-  }
-}
-
-.id-constellation-node {
-  animation-delay: var(--node-delay);
-}
-
-.id-constellation-node--active {
-  opacity: 1;
-  r: 24;
-}
-
-.id-constellation-text {
-  font-size: 14px;
-  opacity: 0.6;
-  text-align: center;
-  margin: 0;
-}
-
-.id-constellation-btn {
-  background: var(--color-text);
-  color: var(--color-bg);
-  border: none;
-  border-radius: 999px;
-  padding: 12px 28px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.id-constellation-btn:hover {
-  opacity: 0.9;
-}
-
-.id-constellation-btn:active {
-  transform: scale(0.97);
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
    Final Phase
    ────────────────────────────────────────────────────────────────────────── */
-.id-final-content {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-  animation: fadeInUp 0.6s ease-out;
-}
-
 .id-final-title {
   font-size: clamp(28px, 4vw, 48px);
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.02em;
+  margin: 0 0 16px;
+}
+
+.id-final-subtitle {
+  font-size: 16px;
+  opacity: 0.6;
   margin: 0;
-  text-align: center;
+  line-height: 1.5;
 }
 
 .id-final-pillars {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 16px;
   width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
 }
 
 .id-final-pillar {
@@ -801,14 +1180,8 @@ const backToSelect = () => {
 .id-final-pillar:nth-child(4) { animation-delay: 0.4s; }
 
 @keyframes pillarReveal {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .id-final-pillar-icon {
@@ -824,14 +1197,16 @@ const backToSelect = () => {
   opacity: 0.9;
 }
 
-.id-final-pillar-desc {
+.id-final-pillar-tagline {
   font-size: 12px;
   line-height: 1.5;
   opacity: 0.55;
   margin: 0;
+  font-style: italic;
 }
 
 .id-final-closing {
+  width: 100%;
   text-align: center;
   padding: 24px;
   border-top: 1px solid var(--color-divider);
@@ -851,28 +1226,70 @@ const backToSelect = () => {
   margin: 0;
 }
 
-.id-final-btn {
+/* ──────────────────────────────────────────────────────────────────────────
+   Buttons
+   ────────────────────────────────────────────────────────────────────────── */
+.id-cta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  align-items: center;
+}
+
+.id-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   padding: 12px 28px;
   border-radius: 999px;
   font-size: 14px;
   font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.id-btn--primary {
   background: var(--color-text);
   color: var(--color-bg);
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.3s;
-  animation: fadeInUp 0.6s ease-out 0.6s backwards;
 }
 
-.id-final-btn:hover {
+.id-btn--primary:hover {
   opacity: 0.9;
+  transform: translateY(-2px);
 }
 
-.id-final-btn:active {
-  transform: scale(0.97);
+.id-btn--primary:active {
+  transform: scale(0.98);
+}
+
+.id-btn--secondary {
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  color: var(--color-text);
+}
+
+.id-btn--secondary:hover {
+  background: var(--color-glass-bg-hover);
+  border-color: var(--color-glass-border-hover);
+  transform: translateY(-2px);
+}
+
+.id-btn--secondary:active {
+  transform: scale(0.98);
+}
+
+.id-btn-arrow {
+  display: inline-block;
+  transition: transform 0.3s;
+}
+
+.id-btn:hover .id-btn-arrow {
+  transform: translateX(2px);
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -891,21 +1308,40 @@ const backToSelect = () => {
 /* ──────────────────────────────────────────────────────────────────────────
    Responsive
    ────────────────────────────────────────────────────────────────────────── */
-@media (max-width: 600px) {
-  .id-pillar-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .id-final-pillars {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .id-scenario {
-    gap: 16px;
+@media (max-width: 640px) {
+  .id-wrap {
+    padding: var(--page-top) 16px calc(60px + var(--safe-bottom)) 16px;
   }
 
   .id-phase {
     gap: 24px;
+  }
+
+  .id-toaster-container {
+    gap: 24px;
+  }
+
+  .id-toaster,
+  .id-lever-track {
+    width: 100px;
+    height: 140px;
+  }
+
+  .id-toast {
+    width: 70px;
+    height: 80px;
+  }
+
+  .id-pillar-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .id-proof-content {
+    grid-template-columns: 1fr;
+  }
+
+  .id-final-pillars {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>

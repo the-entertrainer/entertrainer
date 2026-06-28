@@ -68,6 +68,8 @@ const fragmentShader = /* glsl */`
   uniform float uRimAngle;
   uniform float uGlowStrength;
   uniform float uIsImage;
+  uniform float uExitFade;
+  uniform float uEntranceFade;
   varying vec2 vUv;
   varying float vDepth;
   #include <fog_pars_fragment>
@@ -188,7 +190,13 @@ const fragmentShader = /* glsl */`
       color.rgb     += vec3(0.96, 0.95, 0.93) * glowMask * 0.50;
     }
 
-    gl_FragColor = vec4(color.rgb, alpha * color.a * uOpacity);
+    // Depth-cascade fade during spiral transitions
+    // Back cards (high vDepth) fade first, progressively to front cards
+    float depthCascade = smoothstep(14.0, 8.0, vDepth);
+    float transitionFade = mix(uExitFade, uEntranceFade, 0.5);
+    float cascadedFade = mix(transitionFade, 1.0, depthCascade);
+
+    gl_FragColor = vec4(color.rgb, alpha * color.a * uOpacity * cascadedFade);
     #include <fog_fragment>
   }
 `
@@ -206,6 +214,10 @@ export default class NavPlane {
   hoverTarget    = 0
   revealProgress = 0
   revealTarget   = 0
+
+  // Transition effects
+  exitFade = 0        // Fades out during spiral exit (0=full fade, 1=visible)
+  entranceFade = 1    // Fades in during spiral entrance (0=hidden, 1=visible)
 
   private prevBa: number | null = null
   private wrapFade = 1
@@ -286,7 +298,9 @@ export default class NavPlane {
           uOpacity:        { value: 1 },
           uRimAngle:       { value: 0 },
           uGlowStrength:   { value: 0 },
-          uIsImage:        { value: this._bgImage ? 1.0 : 0.0 }
+          uIsImage:        { value: this._bgImage ? 1.0 : 0.0 },
+          uExitFade:       { value: 0 },
+          uEntranceFade:   { value: 1 }
         }
       ]),
       vertexShader,
@@ -418,7 +432,7 @@ export default class NavPlane {
     mat.uniforms.uTexture.value = this._tex
   }
 
-  update(delta: number, scrollOffset: number, scrollSpeed: number) {
+  update(delta: number, scrollOffset: number, scrollSpeed: number, spinMultiplier = 1.0) {
     const centerIndex = Math.floor(this.totalCount / 2)
     let ws = (this.index - scrollOffset) % this.totalCount
     ws = ((ws % this.totalCount) + this.totalCount) % this.totalCount
@@ -448,7 +462,9 @@ export default class NavPlane {
     const edgePush = Math.sign(Ba) * edge * edge * 0.4
     const Va = Ba * this.verticalGap - 0.8 + this.hiddenProgress * 9.0 + edgePush
     const Ga = this.baseRadius * (1 - this.hiddenProgress / 2)
-    const Ha = Ba * this.angleGap
+
+    // Apply spin multiplier to angle during transition (spiral acceleration/deceleration)
+    const Ha = Ba * this.angleGap * spinMultiplier
 
     this.mesh.position.set(Math.cos(Ha) * Ga, Va, Math.sin(Ha) * Ga)
     this.mesh.rotation.y  = -Ha + Math.PI / 2
@@ -460,6 +476,8 @@ export default class NavPlane {
     mat.uniforms.uZoom.value           = 1 + 0.05 * this.hoverProgress
     mat.uniforms.uRevealProgress.value = this.revealProgress * (1 - this.hoverProgress * 0.05)
     mat.uniforms.uOpacity.value = this.wrapFade
+    mat.uniforms.uExitFade.value = this.exitFade
+    mat.uniforms.uEntranceFade.value = this.entranceFade
 
     // ── Typewriter ──────────────────────────────────────────────
     const LABEL_DURATION = 1200

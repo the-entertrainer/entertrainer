@@ -402,6 +402,22 @@ async function exportPPTX() {
     pptx.defineLayout({ name: 'CAL', width: SW, height: SH })
     pptx.layout = 'CAL'
 
+    // ── Embed DM Sans (variable TTF from jsDelivr / Google Fonts repo) ───────
+    // Runs in the user's browser so Vercel network restrictions don't apply.
+    // Gracefully skips if the fetch fails — PowerPoint will substitute a similar font.
+    try {
+      const fontResp = await fetch(
+        'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/dmsans/DMSans%5Bopsz%2Cwght%5D.ttf'
+      )
+      if (fontResp.ok) {
+        const bytes = new Uint8Array(await fontResp.arrayBuffer())
+        let binary = ''
+        for (let i = 0; i < bytes.length; i += 8192)
+          binary += String.fromCharCode(...bytes.subarray(i, i + 8192))
+        ;(pptx as any).defineFontFace({ name: 'DM Sans', data: btoa(binary), type: 'TrueType' })
+      }
+    } catch { /* system font fallback */ }
+
     // ── Theme palette ────────────────────────────────────────────────────────
     const T = pptxDark.value ? {
       slide:       '0D0C0A',
@@ -447,7 +463,7 @@ async function exportPPTX() {
     slide.addText(calTitle.value || 'Training Calendar', {
       x: GX, y: TY, w: GW * 0.7, h: 0.50,
       fontSize: 30, bold: true, color: T.title,
-      fontFace: 'Calibri', charSpacing: -0.5,
+      fontFace: 'DM Sans',
       valign: 'middle',
     })
 
@@ -455,7 +471,7 @@ async function exportPPTX() {
     slide.addText(`${calOrg.value}  ·  ${calDept.value}  ·  ${monthName} ${selectedYear.value}`, {
       x: GX, y: METY, w: GW, h: 0.30,
       fontSize: 13, color: T.meta,
-      fontFace: 'Calibri', valign: 'middle',
+      fontFace: 'DM Sans', valign: 'middle',
     })
 
     // ── Day-name header row ──────────────────────────────────────────────────
@@ -463,7 +479,7 @@ async function exportPPTX() {
       slide.addText(name, {
         x: GX + i * COLW, y: DNY, w: CELLW, h: 0.28,
         fontSize: 11, bold: true, color: T.dayName,
-        fontFace: 'Calibri', align: 'center', charSpacing: 0.8,
+        fontFace: 'DM Sans', align: 'center', charSpacing: 0.3,
       })
     })
 
@@ -487,7 +503,7 @@ async function exportPPTX() {
         slide.addText(String(day.date), {
           x: cx + 0.09, y: cy + 0.08, w: 0.42, h: 0.26,
           fontSize: 12, bold: true, color: T.dateNum,
-          fontFace: 'Calibri', valign: 'top',
+          fontFace: 'DM Sans', valign: 'top',
         })
 
         let sy = cy + 0.38
@@ -497,7 +513,7 @@ async function exportPPTX() {
           slide.addText(day.holiday, {
             x: cx + 0.09, y: sy, w: CELLW - 0.18, h: 0.22,
             fontSize: 9, bold: true, color: T.holiday,
-            fontFace: 'Calibri', valign: 'top', shrinkText: true,
+            fontFace: 'DM Sans', valign: 'top', shrinkText: true,
           })
           sy += 0.25
         }
@@ -523,7 +539,7 @@ async function exportPPTX() {
           ]
           slide.addText(parts, {
             x: cx + 0.13, y: sy + 0.03, w: CELLW - 0.28, h: 0.42,
-            color: T.sessionText, fontFace: 'Calibri',
+            color: T.sessionText, fontFace: 'DM Sans',
             valign: 'top', wrap: true, shrinkText: true,
           })
 

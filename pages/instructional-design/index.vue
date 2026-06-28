@@ -110,7 +110,7 @@ const restart = () => {
 <template>
   <div :class="`h-[100dvh] w-screen bg-[#FDFBF7] text-[#1E1C19] font-sans flex flex-col justify-between overflow-hidden select-none transition-transform duration-300 ${shakeScreen ? 'animate-shake' : ''}`">
     
-    {/* Premium Motion CSS Rules */}
+    <!-- Premium Motion CSS Rules-->
     <style>
       @keyframes springPop {
         0% { transform: translateY(60px) scaleY(0.8); }
@@ -140,7 +140,7 @@ const restart = () => {
       .rotate-y-180 { transform: rotateY(180deg); }
     </style>
 
-    {/* Modern Top Header / Nav */}
+    <!-- Modern Top Header / Nav-->
     <header class="px-6 py-5 flex justify-between items-center bg-[#FDFBF7]/85 backdrop-blur-md shrink-0 z-30">
       <div class="flex items-center gap-2">
         <div class="w-3 h-3 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
@@ -151,10 +151,10 @@ const restart = () => {
       </div>
     </header>
 
-    {/* Main Container - strictly locked to card content */}
+    <!-- Main Container - strictly locked to card content-->
     <div class="flex-1 w-full max-w-md mx-auto flex flex-col justify-center px-6 overflow-hidden z-20">
 
-      {/* ================= STAGE 0: The Frustration Hook ================= */}
+      <!-- ================= STAGE 0: The Frustration Hook =================-->
       <div v-if="stage === 0" class="flex flex-col h-full justify-between py-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div class="text-center">
           <span class="text-[10px] font-mono font-black text-rose-500 tracking-widest bg-rose-50 border border-rose-100 px-3 py-1 rounded-full uppercase">Let's try a quick test</span>
@@ -207,7 +207,7 @@ const restart = () => {
         </div>
       </div>
 
-      {/* ================= STAGE 1: The 3D Transformation Flip ================= */}
+      <!-- ================= STAGE 1: The 3D Transformation Flip =================-->
       <div v-else-if="stage === 1" class="flex flex-col h-full justify-between py-4 animate-in fade-in duration-500">
         <div class="text-center">
           <span class="text-[10px] font-mono font-black text-amber-600 tracking-widest bg-amber-50 border border-amber-100 px-3 py-1 rounded-full uppercase">Step 1: The Translation</span>
@@ -228,7 +228,7 @@ const restart = () => {
           >
             <div :class="`relative w-full h-full duration-500 transform-style-3d transition-transform ${flippedCards[idx] ? 'rotate-y-180' : ''}`">
               
-              {/* Front: Technical Jargon */}
+              <!-- Front: Technical Jargon-->
               <div class="absolute inset-0 bg-white rounded-2xl border border-stone-200 px-5 flex items-center gap-4 backface-hidden shadow-sm">
                 <div class="w-8 h-8 rounded-full bg-stone-100 font-extrabold text-xs flex items-center justify-center text-stone-400 shrink-0">
                   {{ card.num }}
@@ -236,7 +236,7 @@ const restart = () => {
                 <p class="text-[10.5px] font-mono text-stone-400 italic line-clamp-2">"{{ card.tech }}"</p>
               </div>
 
-              {/* Back: Clear Human Communication */}
+              <!-- Back: Clear Human Communication-->
               <div class="absolute inset-0 bg-amber-500 text-white rounded-2xl px-5 flex items-center gap-4 backface-hidden rotate-y-180 shadow-md">
                 <div class="w-8 h-8 rounded-full bg-white/20 font-extrabold text-xs flex items-center justify-center shrink-0">
                   {{ card.num }}
@@ -259,7 +259,7 @@ const restart = () => {
         </div>
       </div>
 
-      {/* ================= STAGE 2: Tactile Playground (Toaster Physics) ================= */}
+      <!-- ================= STAGE 2: Tactile Playground (Toaster Physics) =================-->
       <div v-else-if="stage === 2" class="flex flex-col h-full justify-between py-4 animate-in fade-in duration-500">
         <div class="text-center">
           <span class="text-[10px] font-mono font-black text-emerald-600 tracking-widest bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full uppercase">Step 2: Real Action</span>
@@ -267,19 +267,19 @@ const restart = () => {
           <p class="text-xs text-stone-500 mt-2">Reading isn't enough. Grab the lever and drag it down to start.</p>
         </div>
 
-        {/* Tactile Toaster Canvas */}
+        <!-- Tactile Toaster Canvas-->
         <div class="bg-stone-50 rounded-3xl border-2 border-stone-200/60 p-6 flex-1 my-5 flex flex-col justify-center items-center shadow-inner relative overflow-hidden">
           
-          {/* Toaster & Physics Setup */}
+          <!-- Toaster & Physics Setup-->
           <div class="relative w-48 h-48 flex justify-center items-end select-none">
             
-            {/* Heat smoke waves rising when toasted */}
+            <!-- Heat smoke waves rising when toasted-->
             <div v-if="toasterState === 'popped'" class="absolute top-0 left-0 w-full h-12 flex justify-center gap-5 z-0 pointer-events-none">
               <div class="w-1.5 h-6 bg-amber-400 rounded-full smoke-1"></div>
               <div class="w-1.5 h-10 bg-amber-400 rounded-full smoke-2"></div>
             </div>
 
-            {/* The Toast bread block */}
+            <!-- The Toast bread block-->
             <div 
               :class="`absolute w-28 h-28 rounded-t-[2.2rem] rounded-b-lg border-4 transition-all z-10 shadow-md
                 ${toasterState === 'popped' ? 'animate-spring-pop' : 'duration-150'}`"
@@ -289,7 +289,7 @@ const restart = () => {
                 bottom: toasterState === 'popped' ? '85px' : `${40 - (leverY * 0.4)}px`,
               }"
             >
-              {/* Happy face pops up on toast to trigger delight */}
+              <!-- Happy face pops up on toast to trigger delight-->
               <div v-if="toasterState === 'popped'" class="absolute inset-0 flex items-center justify-center flex-col opacity-0 animate-in fade-in duration-500 delay-300">
                 <div class="flex gap-2.5">
                   <div class="w-2 h-2 bg-stone-800 rounded-full"></div>
@@ -299,7 +299,7 @@ const restart = () => {
               </div>
             </div>
 
-            {/* The Sleek Chrome Toaster */}
+            <!-- The Sleek Chrome Toaster-->
             <div class="relative z-20 w-40 h-28 bg-[#1E1C19] rounded-t-3xl rounded-b-xl shadow-xl flex flex-col justify-between py-3 border-t-8 border-stone-800">
               <div class="w-28 h-2.5 bg-[#000000] rounded-full mx-auto relative overflow-hidden">
                 <div :class="`absolute inset-0 bg-gradient-to-r from-orange-500 via-amber-400 to-orange-500 opacity-0 transition-opacity duration-1000
@@ -314,11 +314,11 @@ const restart = () => {
                 />
               </div>
 
-              {/* Drag Handle Track Slot */}
+              <!-- Drag Handle Track Slot-->
               <div class="absolute -right-2 top-1/2 -translate-y-1/2 w-6.5 h-16 bg-[#121110] rounded border border-stone-800 shadow-inner flex justify-center py-0.5">
                 <div ref="dragTrackRef" class="relative w-1 h-full bg-[#000000] rounded">
                   
-                  {/* Tactile Drag Lever */}
+                  <!-- Tactile Drag Lever-->
                   <div 
                     @mousedown="startDrag"
                     @touchstart="startDrag"
@@ -335,7 +335,7 @@ const restart = () => {
             </div>
           </div>
 
-          {/* Real-time tactile guide indicator */}
+          <!-- Real-time tactile guide indicator-->
           <div class="mt-5 text-[11px] font-bold text-stone-500 h-6 flex items-center">
             <span v-if="toasterState === 'idle'" class="animate-pulse">👇 Slide the handle down to practice</span>
             <span v-else-if="toasterState === 'cooking'" class="text-amber-500 animate-pulse uppercase tracking-wider">Perfect Heat Flow: {{ Math.round(cookProgress) }}%</span>
@@ -355,7 +355,7 @@ const restart = () => {
         </div>
       </div>
 
-      {/* ================= STAGE 3: The Big Human-Centric Reveal ================= */}
+      <!-- ================= STAGE 3: The Big Human-Centric Reveal =================-->
       <div v-else-if="stage === 3" class="flex flex-col h-full justify-between py-4 animate-in fade-in duration-500 text-center">
         <div>
           <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 mx-auto mb-3 shadow-inner">
@@ -403,7 +403,7 @@ const restart = () => {
 
     </div>
 
-    {/* Premium Minimalist Footer */}
+    <!-- Premium Minimalist Footer-->
     <footer class="py-5 text-center border-t border-stone-200/50 bg-[#FDFBF7] shrink-0 z-10">
       <p class="text-[9px] text-stone-400 font-black tracking-widest uppercase">The Psychology of Experience Design</p>
     </footer>

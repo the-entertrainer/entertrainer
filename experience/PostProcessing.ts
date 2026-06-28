@@ -116,9 +116,9 @@ export default class PostProcessing {
     // bloom — subtle halo on bright card surfaces
     this.bloomPass = new UnrealBloomPass(
       new Vector2(experience.sizes.width, experience.sizes.height),
-      0.18,   // strength
+      0,      // strength — disabled
       0.45,   // radius
-      0.86    // threshold — only bright highlights bloom
+      0.86    // threshold
     )
     this.composer.addPass(this.bloomPass)
 
@@ -152,9 +152,9 @@ export default class PostProcessing {
       u.uTintStrength.value = 0.07
       vu.uStrength.value = 0.38
     }
-    this.bloomPass.strength  = isDark ? 0.20 : 0.16
-    this.bloomPass.threshold = isDark ? 0.85 : 0.88
-    this.bloomPass.radius    = isDark ? 0.50 : 0.40
+    this.bloomPass.strength  = 0  // bloom disabled everywhere
+    this.bloomPass.threshold = 0.90
+    this.bloomPass.radius    = 0.45
   }
 
   resize() {

@@ -8,6 +8,8 @@ export const useThemeStore = defineStore('theme', {
     isDark: (state) => state.theme === 'dark'
   },
   actions: {
+    _mqListener: null as ((e: MediaQueryListEvent) => void) | null,
+    _mq: null as MediaQueryList | null,
     set(t: Theme) {
       this.theme = t
       if (import.meta.client) {
@@ -17,11 +19,19 @@ export const useThemeStore = defineStore('theme', {
     init() {
       if (!import.meta.client) return
       localStorage.removeItem('et-theme')
-      const mq = window.matchMedia('(prefers-color-scheme: light)')
-      this.set(mq.matches ? 'light' : 'dark')
-      mq.addEventListener('change', (e) => {
+      this._mq = window.matchMedia('(prefers-color-scheme: light)')
+      this.set(this._mq.matches ? 'light' : 'dark')
+      this._mqListener = (e: MediaQueryListEvent) => {
         this.set(e.matches ? 'light' : 'dark')
-      })
+      }
+      this._mq.addEventListener('change', this._mqListener)
+    },
+    dispose() {
+      if (this._mq && this._mqListener) {
+        this._mq.removeEventListener('change', this._mqListener)
+        this._mqListener = null
+        this._mq = null
+      }
     }
   }
 })

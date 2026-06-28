@@ -355,14 +355,16 @@ function onLoaderEntered() {
     <Transition name="fade">
       <div v-if="hasEntered && isListMode" ref="listRef" class="spiral-list">
         <button
-          v-for="item in items"
+          v-for="(item, i) in items"
           :key="item.id"
           class="nav-row"
           @click="emit('cardClick', item.href)"
         >
-          <span class="nav-row__label">{{ item.label }}</span>
-          <span class="nav-row__desc">{{ item.description }}</span>
-          <span class="nav-row__arrow">→</span>
+          <span class="nav-row__index">{{ String(i + 1).padStart(2, '0') }}</span>
+          <span class="nav-row__body">
+            <span class="nav-row__label">{{ item.label }}</span>
+            <span class="nav-row__desc">{{ item.description }}</span>
+          </span>
         </button>
       </div>
     </Transition>
@@ -411,7 +413,7 @@ function onLoaderEntered() {
 }
 /* ────────────────────────────────────────────────────────────────────────── */
 
-/* List mode — matches the E-menu panel: white pill background, black foreground */
+/* List mode ─────────────────────────────────────────────────────────────── */
 .spiral-list {
   position: fixed;
   inset: 0;
@@ -419,98 +421,90 @@ function onLoaderEntered() {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: calc(100rem + var(--safe-top)) calc(var(--grid-margin) + 80rem) calc(80rem + var(--safe-bottom));
+  padding: calc(100rem + var(--safe-top)) calc(var(--grid-margin) + 60rem) calc(80rem + var(--safe-bottom));
   overflow-y: auto;
   background: var(--color-bg);
   color: var(--color-text);
 }
 
-/* Theme-aware focus ring */
-.spiral-list :focus-visible { outline-color: var(--color-accent); }
-
 .nav-row {
   display: flex;
   align-items: center;
-  gap: 24rem;
-  padding: 32rem 20rem;
+  gap: 20rem;
+  padding: 28rem 24rem;
   border: none;
-  border-radius: 8rem;
+  border-radius: var(--radius-m);
   background: transparent;
   text-align: left;
-  text-decoration: none;
   color: var(--color-text);
   width: 100%;
   cursor: pointer;
   font-family: var(--main-font);
-  transition: all 0.25s ease;
-  border: 1px solid transparent;
-  margin-bottom: 12rem;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background 0.2s ease, transform 0.18s var(--ease-spring);
+  border-bottom: 1px solid var(--color-divider);
+  border-radius: 0;
 }
-
-.nav-row:hover {
-  background: var(--color-surface, rgba(255, 255, 255, 0.05));
-  border-color: var(--color-accent);
-  padding-left: 36rem;
+.nav-row:first-child { border-top: 1px solid var(--color-divider); }
+.nav-row:active { transform: scale(0.985); }
+@media (hover: hover) {
+  .nav-row:hover { background: var(--color-glass-bg); }
 }
-
 .nav-row:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: -2px;
 }
 
-.nav-row__label {
-  font-size: 40rem;
+.nav-row__index {
+  font-size: 11rem;
   font-weight: 600;
-  letter-spacing: -0.04em;
-  flex: 0 0 auto;
-  min-width: 220rem;
+  letter-spacing: 0.06em;
+  opacity: 0.25;
+  font-variant-numeric: tabular-nums;
+  flex: 0 0 28rem;
+}
+
+.nav-row__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-row__label {
+  font-size: 24rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
 }
 
 .nav-row__desc {
-  font-size: var(--text-sm);
-  opacity: 0.6;
-  flex: 1;
-}
-
-.nav-row__arrow {
-  font-size: 20rem;
-  opacity: 0;
-  transition: all 0.2s ease;
-  flex: 0 0 auto;
-}
-
-.nav-row:hover .nav-row__arrow {
-  opacity: 1;
-  transform: translateX(4rem);
+  font-size: 14rem;
+  opacity: 0.4;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @media (max-width: 900px) {
   .spiral-list {
-    padding: calc(80rem + var(--safe-top)) 48rem calc(60rem + var(--safe-bottom));
+    padding: calc(80rem + var(--safe-top)) 32rem calc(60rem + var(--safe-bottom));
   }
 }
 
 @media (max-width: 600px) {
   .spiral-list {
-    padding: calc(80rem + var(--safe-top)) 24rem calc(60rem + var(--safe-bottom));
+    padding: calc(80rem + var(--safe-top)) 20rem calc(60rem + var(--safe-bottom));
   }
   .nav-row {
-    flex-wrap: wrap;
-    gap: 8rem;
-    padding: 24rem 16rem;
-    margin-bottom: 8rem;
+    padding: 22rem 16rem;
+    gap: 14rem;
   }
-  .nav-row:hover {
-    padding-left: 24rem;
-  }
-  .nav-row__label {
-    font-size: 28rem;
-    min-width: unset;
-    flex: 1;
-  }
-  .nav-row__desc {
-    display: none;
-  }
+  .nav-row__label { font-size: 20rem; }
+  .nav-row__desc { font-size: 13rem; }
 }
 
 .spiral-ui {

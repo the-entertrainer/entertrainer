@@ -26,6 +26,7 @@ export class CutPhysics {
   private started = false
   private thresholds: number[] = []
   private _survivorTriggered = false
+  private _pendingTimers: ReturnType<typeof setTimeout>[] = []
 
   async init(removeEls: HTMLElement[], keepEl: HTMLElement) {
     this.keepEl = keepEl
@@ -60,9 +61,8 @@ export class CutPhysics {
     })
     line.body = body
 
-    setTimeout(() => {
+    const tid = setTimeout(() => {
       if (!this.Matter) return
-      // pin element to viewport so we can drive it by physics
       line.el.style.position = 'fixed'
       line.el.style.left = '0'
       line.el.style.top = '0'
@@ -79,6 +79,7 @@ export class CutPhysics {
       })
       this._ensureLoop()
     }, 280)
+    this._pendingTimers.push(tid)
   }
 
   private _syncEl(line: CutLine) {
@@ -128,6 +129,8 @@ export class CutPhysics {
     this.running = false
     this._survivorTriggered = false
     cancelAnimationFrame(this.raf)
+    this._pendingTimers.forEach(t => clearTimeout(t))
+    this._pendingTimers = []
     if (this.Matter && this.engine) this.Matter.Engine.clear(this.engine)
     this.Matter = null
     this.engine = null

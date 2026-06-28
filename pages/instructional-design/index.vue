@@ -81,19 +81,23 @@ const endDrag = () => {
   }
 }
 
+let _cookTimer: ReturnType<typeof setInterval> | null = null
+let _shakeTimer: ReturnType<typeof setTimeout> | null = null
+
 const triggerCooking = () => {
   toasterState.value = 'cooking'
   shakeScreen.value = true
-  setTimeout(() => {
+  _shakeTimer = setTimeout(() => {
     shakeScreen.value = false
   }, 300)
 
   let progress = 0
-  const timer = setInterval(() => {
+  _cookTimer = setInterval(() => {
     progress += 2
     cookProgress.value = progress
     if (progress >= 100) {
-      clearInterval(timer)
+      if (_cookTimer) clearInterval(_cookTimer)
+      _cookTimer = null
       toasterState.value = 'popped'
       leverY.value = 0
       leverLocked.value = false
@@ -103,6 +107,8 @@ const triggerCooking = () => {
 
 onUnmounted(() => {
   if (isDragging.value) endDrag()
+  if (_cookTimer) { clearInterval(_cookTimer); _cookTimer = null }
+  if (_shakeTimer) { clearTimeout(_shakeTimer); _shakeTimer = null }
 })
 
 const restart = () => {

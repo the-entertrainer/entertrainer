@@ -391,51 +391,77 @@ function isMobileOrIOS(): boolean {
   return /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(navigator.userAgent)
 }
 
+function canShareFiles(files: File[]): boolean {
+  return !!(navigator.canShare && navigator.canShare({ files }))
+}
+
 async function exportCanvas(purpose: 'png' | 'pdf') {
   if (!import.meta.client || !calendarEl.value) return
   const mobile = isMobileOrIOS()
   const stem   = `training-calendar-${selectedYear.value}-${String(selectedMonth.value).padStart(2,'0')}`
 
-  // window.open must be called synchronously — iOS revokes the gesture after any await
-  let win: Window | null = null
-  if (mobile) {
-    win = window.open('', '_blank')
-    if (win) {
-      win.document.write('<!doctype html><html><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh"><p style="color:#fff;font-family:sans-serif;opacity:.5">Loading…</p></body></html>')
-      win.document.close()
-    }
-  }
-
   try {
     const { default: html2canvas } = await import('html2canvas')
-    const canvas  = await html2canvas(calendarEl.value, { scale: mobile ? 1.5 : 2, useCORS: true, backgroundColor: '#ffffff' })
-    const dataURL = canvas.toDataURL('image/png')
+    const canvas = await html2canvas(calendarEl.value, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
 
-    if (mobile) {
-      if (win) {
-        win.document.open()
-        win.document.write(`<!doctype html><html><head><title>${stem}</title></head><body style="margin:0;background:#000"><img src="${dataURL}" style="width:100%;height:auto;display:block"></body></html>`)
-        win.document.close()
-      }
-    } else if (purpose === 'png') {
-      const a = document.createElement('a')
-      a.download = `${stem}.png`
-      a.href     = dataURL
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-    } else {
+    if (purpose === 'pdf') {
       const jspdfMod = await import('jspdf')
       const jsPDF    = (jspdfMod as any).jsPDF ?? (jspdfMod as any).default?.jsPDF
+      const dataURL  = canvas.toDataURL('image/png')
       const w = canvas.width  / 2
       const h = canvas.height / 2
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [w, h] })
       pdf.addImage(dataURL, 'PNG', 0, 0, w, h)
-      pdf.save(`${stem}.pdf`)
+
+      if (mobile) {
+        // iOS: share sheet (iOS 15+); falls back to opening the data URI
+        const blob = pdf.output('blob') as Blob
+        const file = new File([blob], `${stem}.pdf`, { type: 'application/pdf' })
+        if (canShareFiles([file])) {
+          await navigator.share({ files: [file] })
+        } else {
+          const uri = pdf.output('datauristring') as string
+          if (!window.open(uri, '_blank')) {
+            alert('Allow popups in Safari (Settings → Safari → Block Pop-ups) to export PDF.')
+          }
+        }
+      } else {
+        pdf.save(`${stem}.pdf`)
+      }
+    } else {
+      // PNG
+      const blob = await new Promise<Blob>(resolve =>
+        canvas.toBlob(b => resolve(b!), 'image/png')
+      )
+
+      if (mobile) {
+        // iOS: share sheet (iOS 15+); falls back to opening a blob URL in a new tab
+        const file = new File([blob], `${stem}.png`, { type: 'image/png' })
+        if (canShareFiles([file])) {
+          await navigator.share({ files: [file] })
+        } else {
+          const url = URL.createObjectURL(blob)
+          if (!window.open(url, '_blank')) {
+            alert('Allow popups in Safari (Settings → Safari → Block Pop-ups) to export PNG.')
+          }
+          setTimeout(() => URL.revokeObjectURL(url), 60_000)
+        }
+      } else {
+        const url = URL.createObjectURL(blob)
+        const a   = document.createElement('a')
+        a.href     = url
+        a.download = `${stem}.png`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      }
     }
-  } catch {
-    if (win) win.close()
-    alert('Export failed. Please try again.')
+  } catch (err: any) {
+    // AbortError = user dismissed the share sheet — not an error
+    if (err?.name !== 'AbortError') {
+      alert('Export failed. Please try again.')
+    }
   }
 }
 

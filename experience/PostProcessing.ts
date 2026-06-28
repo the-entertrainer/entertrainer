@@ -7,8 +7,9 @@ import type Experience from './Experience'
 
 const VignetteShader = {
   uniforms: {
-    tDiffuse: { value: null },
-    uFillColor: { value: new Color(0x0D0C0A) }
+    tDiffuse:   { value: null },
+    uFillColor: { value: new Color(0x0D0C0A) },
+    uStrength:  { value: 0.72 }
   },
   vertexShader: /* glsl */`
     varying vec2 vUv;
@@ -20,19 +21,16 @@ const VignetteShader = {
   fragmentShader: /* glsl */`
     uniform sampler2D tDiffuse;
     uniform vec3 uFillColor;
+    uniform float uStrength;
     varying vec2 vUv;
 
-    float remap(float value, float inputMin, float inputMax, float outputMin, float outputMax) {
-      return outputMin + (outputMax - outputMin) * (value - inputMin) / (inputMax - inputMin);
-    }
-
     void main() {
-      float bot = clamp(remap(vUv.y, 0.0, 0.2, 1.0, 0.0), 0.0, 1.0);
-      float top = clamp(remap(vUv.y, 0.8, 1.0, 0.0, 1.0), 0.0, 1.0);
-      float strength = clamp(top + bot, 0.0, 1.0);
-
       vec4 tex = texture2D(tDiffuse, vUv);
-      gl_FragColor = vec4(mix(tex.rgb, uFillColor, strength), tex.a);
+      // Radial vignette — cinematic oval, slightly taller than wide
+      vec2 uv2 = (vUv - 0.5) * vec2(1.0, 1.15);
+      float dist = length(uv2);
+      float vignette = smoothstep(0.30, 0.90, dist) * uStrength;
+      gl_FragColor = vec4(mix(tex.rgb, uFillColor, vignette), tex.a);
     }
   `
 }
@@ -141,20 +139,22 @@ export default class PostProcessing {
   }
 
   setColorGrade(isDark: boolean) {
-    const u = this.colorGradePass.material.uniforms
+    const u  = this.colorGradePass.material.uniforms
+    const vu = this.vignettePass.material.uniforms
     if (isDark) {
-      u.uContrast.value = 1.06
-      u.uShadowTint.value.setRGB(0.06, 0.08, 0.14)   // cool blue-grey shadows
-      u.uTintStrength.value = 0.08
+      u.uContrast.value = 1.10
+      u.uShadowTint.value.setRGB(0.04, 0.06, 0.13)   // deeper cool blue
+      u.uTintStrength.value = 0.12
+      vu.uStrength.value = 0.76                        // strong cinematic vignette
     } else {
-      u.uContrast.value = 1.04
-      u.uShadowTint.value.setRGB(0.12, 0.08, 0.04)   // warm amber shadows
-      u.uTintStrength.value = 0.05
+      u.uContrast.value = 1.07
+      u.uShadowTint.value.setRGB(0.15, 0.09, 0.04)   // warm amber
+      u.uTintStrength.value = 0.08
+      vu.uStrength.value = 0.48                        // softer vignette in light mode
     }
-    // Light mode gets only a whisper of bloom (high threshold so cream card
-    // surfaces don't blow out — just the white dust + window highlights glow)
-    this.bloomPass.strength  = isDark ? 0.32 : 0.07
-    this.bloomPass.threshold = isDark ? 0.80 : 0.90
+    this.bloomPass.strength  = isDark ? 0.38 : 0.18
+    this.bloomPass.threshold = isDark ? 0.78 : 0.82
+    this.bloomPass.radius    = isDark ? 0.60 : 0.45
   }
 
   resize() {

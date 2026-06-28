@@ -21,7 +21,7 @@ export default class Controls {
   wheelDirection = 1
 
   // ── Tunables ──────────────────────────────────────────────────────────────
-  private PX_PER_CARD   = 300     // finger pixels to advance one card (larger = less sensitive)
+  private PX_PER_CARD   = typeof window !== 'undefined' && window.innerWidth < 600 ? 160 : 300
   private WHEEL_PER_CARD = 600    // wheel deltaY pixels to advance one card
   private FRICTION_FRAME = 0.91   // momentum decay per 60fps frame (lower = quicker decay)
   private MAX_V          = 0.002  // max velocity (cards/ms) — keeps distortion minimal

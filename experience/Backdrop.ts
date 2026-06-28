@@ -72,24 +72,28 @@ const fragmentShader = /* glsl */`
       // ── Chalk on blackboard ──────────────────────────────────────────────
       float luma = dot(col, vec3(0.299, 0.587, 0.114));
       col = mix(vec3(luma * 0.50), col * 0.30, 0.25);
+      // Faint slate-blue chalkboard base tint
+      col = mix(col, vec3(0.06, 0.08, 0.13), 0.18);
       float chalk = fbm(uv * 450.0) * 0.14;
-      col += chalk * 0.60;
+      col += chalk * 0.55;
       float lineFreq  = 90.0;
       float lineVal   = fract(uv.y * lineFreq);
       float lineNoise = noise(vec2(uv.x * 60.0, uv.y * lineFreq)) * 0.3;
       float line = smoothstep(0.0, 0.04 + lineNoise, lineVal) *
                    (1.0 - smoothstep(0.82 - lineNoise, 0.95, lineVal));
       col = mix(col * 0.88, col, line);
-      // Chalk stars
+      // Chalk stars — brighter, more visible
       float stars = starField(uv);
-      col = mix(col, vec3(0.82, 0.79, 0.74), stars * 0.45);
+      col = mix(col, vec3(0.88, 0.85, 0.80), stars * 0.55);
+      // Soft luminous centre (light source above)
+      float centreLum = 1.0 - smoothstep(0.0, 0.85, length(uv - vec2(0.5, 0.55)) * 1.2);
+      col += vec3(0.04, 0.05, 0.08) * centreLum;
     } else {
       // ── Pencil on warm cream paper ───────────────────────────────────────
-      // Warm cream-ivory paper tone (#F5EFE8 ≈ 0.961, 0.937, 0.910)
       vec3 paper = vec3(0.961, 0.937, 0.910);
       float luma = dot(col, vec3(0.299, 0.587, 0.114));
-      col = mix(vec3(luma), col, 0.40);   // partial desaturate
-      col = mix(col, paper, 0.68);        // strong pull to warm paper
+      col = mix(vec3(luma), col, 0.40);
+      col = mix(col, paper, 0.68);
       float grain = fbm(uv * 550.0) * 0.07;
       col += grain * vec3(0.82, 0.74, 0.56);
       // Pencil hatching — very faint diagonal
@@ -101,6 +105,10 @@ const fragmentShader = /* glsl */`
       // Pencil stars
       float stars = starField(uv);
       col = mix(col, vec3(0.22, 0.19, 0.14), stars * 0.30);
+      // Warm sun patch — top-left corner, natural window light
+      float sunDist = length((uv - vec2(0.08, 0.92)) * vec2(1.0, 0.7));
+      float sun = exp(-sunDist * 3.2) * 0.10;
+      col += vec3(sun * 0.14, sun * 0.09, 0.0);
     }
     return col;
   }

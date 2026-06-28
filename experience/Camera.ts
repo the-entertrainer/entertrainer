@@ -10,7 +10,7 @@ export default class Camera {
     const { width, height } = this.experience.sizes
 
     this.instance = new PerspectiveCamera(
-      width < 900 ? 45 : 35,
+      width < 420 ? 52 : width < 900 ? 45 : 35,
       width / height,
       0.1,
       100
@@ -21,7 +21,7 @@ export default class Camera {
 
   resize() {
     const { width, height } = this.experience.sizes
-    this.instance.fov = width < 900 ? 45 : 35
+    this.instance.fov = width < 420 ? 52 : width < 900 ? 45 : 35
     this.instance.aspect = width / height
     this.instance.updateProjectionMatrix()
   }

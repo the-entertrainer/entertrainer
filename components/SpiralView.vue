@@ -102,39 +102,42 @@ function _atmoFrame(now: number) {
 
   ctx.clearRect(0, 0, w, h)
 
-  // drifting Pi Blue glow — slow sin/cos path, breathing alpha, scroll flare
-  const driftX = Math.sin(_atmoT * 0.13) * 0.06
-  const driftY = Math.cos(_atmoT * 0.09) * 0.04
-  const cx     = (0.5 + driftX) * w
-  const cy     = (0.38 + driftY) * h
-  const radius = Math.max(w, h) * (0.68 + kick * 0.14)  // glow expands on scroll
-  const breath = 0.5 + Math.sin(_atmoT * 0.48) * 0.5    // 0 → 1 cycle ~13 s
-  const baseA  = dark ? 0.30 : 0.05                        // glow nearly off in light mode
-  const glowA  = baseA * (0.60 + breath * 0.40 + kick * 0.70)
-  const glow   = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius)
-  glow.addColorStop(0,    `rgba(36,63,106,${Math.min(glowA, 0.82)})`)
-  glow.addColorStop(0.50, `rgba(36,63,106,${Math.min(glowA * 0.30, 0.30)})`)
+  // Atmospheric glow — blue in dark, warm amber in light
+  const driftX  = Math.sin(_atmoT * 0.13) * 0.06
+  const driftY  = Math.cos(_atmoT * 0.09) * 0.04
+  const cx      = (0.5 + driftX) * w
+  const cy      = (0.38 + driftY) * h
+  const radius  = Math.max(w, h) * (0.68 + kick * 0.14)
+  const breath  = 0.5 + Math.sin(_atmoT * 0.48) * 0.5
+  const baseA   = dark ? 0.30 : 0.10
+  const glowA   = baseA * (0.60 + breath * 0.40 + kick * 0.70)
+  // Dark: cool blue-slate glow | Light: warm amber-gold glow
+  const [gR, gG, gB] = dark ? [36, 63, 106] : [180, 120, 55]
+  const glow    = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius)
+  glow.addColorStop(0,    `rgba(${gR},${gG},${gB},${Math.min(glowA, 0.80)})`)
+  glow.addColorStop(0.50, `rgba(${gR},${gG},${gB},${Math.min(glowA * 0.28, 0.28)})`)
   glow.addColorStop(1,    'rgba(0,0,0,0)')
   ctx.fillStyle = glow
   ctx.fillRect(0, 0, w, h)
 
-  // radial vignette — edges pull toward bg
+  // Radial vignette — draws eye to centre, edges fade to bg
   const vig = ctx.createRadialGradient(
-    w / 2, h / 2, Math.min(w, h) * 0.28,
-    w / 2, h / 2, Math.max(w, h) * 0.74
+    w / 2, h / 2, Math.min(w, h) * 0.22,
+    w / 2, h / 2, Math.max(w, h) * 0.78
   )
   vig.addColorStop(0, 'rgba(0,0,0,0)')
-  vig.addColorStop(1, dark ? 'rgba(0,0,0,0.60)' : 'rgba(140,130,115,0.18)')
+  vig.addColorStop(1, dark ? 'rgba(0,0,0,0.65)' : 'rgba(185,168,148,0.30)')
   ctx.fillStyle = vig
   ctx.fillRect(0, 0, w, h)
 
-  // grain — tiled, jittered each frame; heavier while scrolling
-  const ox  = Math.random() * tile.width
-  const oy  = Math.random() * tile.height
+  // grain — tiled, slow drift (not per-frame random) for a calmer texture
+  const grainSpeed = 0.6
+  const ox  = (_atmoT * grainSpeed * 31.7) % tile.width
+  const oy  = (_atmoT * grainSpeed * 17.3) % tile.height
   const pat = ctx.createPattern(tile, 'repeat')
   if (pat) {
     ctx.save()
-    ctx.globalAlpha = Math.min((dark ? 0.72 : 0.20) * (1 + kick * 0.50), 0.95)
+    ctx.globalAlpha = Math.min((dark ? 0.55 : 0.14) * (1 + kick * 0.40), 0.82)
     ctx.translate(-ox, -oy)
     ctx.fillStyle = pat
     ctx.fillRect(ox, oy, w, h)
@@ -370,8 +373,8 @@ function onLoaderEntered() {
         <!-- Section title -->
         <p v-if="title" class="spiral-title">{{ title }}</p>
 
-        <!-- Hint -->
-        <p v-if="!isListMode" class="spiral-hint">scroll to spin · tap to explore</p>
+        <!-- Hint — only on root home view, not on sub-sections -->
+        <p v-if="!isListMode && !title" class="spiral-hint">scroll to spin · tap to explore</p>
       </div>
     </Transition>
   </div>
@@ -416,7 +419,7 @@ function onLoaderEntered() {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: calc(80rem + var(--safe-top)) calc(var(--grid-margin) + 80rem) calc(60rem + var(--safe-bottom));
+  padding: calc(100rem + var(--safe-top)) calc(var(--grid-margin) + 80rem) calc(80rem + var(--safe-bottom));
   overflow-y: auto;
   background: var(--color-white);
   color: var(--color-black);
@@ -479,27 +482,27 @@ function onLoaderEntered() {
 
 .spiral-title {
   position: absolute;
-  bottom: calc(52rem + var(--safe-bottom));
+  bottom: calc(44rem + var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%);
-  font-size: 13rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-size: 11rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--color-text);
-  opacity: 0.3;
+  opacity: 0.35;
   white-space: nowrap;
 }
 .spiral-hint {
   position: absolute;
-  bottom: calc(36rem + var(--safe-bottom));
+  bottom: calc(44rem + var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%);
-  font-size: 13rem;
+  font-size: 11rem;
   font-weight: 500;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--color-text);
-  opacity: 0.2;
+  opacity: 0.20;
   white-space: nowrap;
 }
 

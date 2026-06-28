@@ -43,11 +43,11 @@ export default class World {
   }
 
   reveal() {
-    this.navPlanes.forEach((p, i) => setTimeout(() => p.reveal(), (i % 4) * 50))
+    this.navPlanes.forEach((p, i) => setTimeout(() => p.reveal(), (i % 4) * 60))
   }
 
   hide() {
-    this.navPlanes.forEach((p, i) => setTimeout(() => p.hide(), (i % 4) * 30))
+    this.navPlanes.forEach((p, i) => setTimeout(() => p.hide(), (i % 4) * 40))
   }
 
   // Accordion transition: hide → swap items → reveal
@@ -79,21 +79,19 @@ export default class World {
     if (this._destroyed) return
 
     this.setNavItems(newItems, this._isDark)
+    this.experience.controls.reset()  // centre the new spiral at its first item
 
     await new Promise<void>(r => setTimeout(r, 30))
     if (this._destroyed) return
 
-    // Reveal: immediate for items ≤ clicked, staggered for new/shifted items
-    const oldCount = this._currentItems.length
+    // Reveal all with a gentle stagger for a crisp entrance
     for (let i = 0; i < this.navPlanes.length; i++) {
-      const itemIdx = i % newItems.length
       const plane = this.navPlanes[i]
       if (!plane) continue
-
-      if (itemIdx <= clickedItemIndex) {
+      const staggerMs = (i % newItems.length) * 60
+      if (staggerMs === 0) {
         plane.revealImmediate()
       } else {
-        const staggerMs = (itemIdx - clickedItemIndex - 1) * 80
         setTimeout(() => { plane.reveal() }, staggerMs)
       }
     }

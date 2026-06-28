@@ -1,76 +1,65 @@
 <script setup lang="ts">
 import { Handle, Position } from '@vue-flow/core'
 
-defineProps({
-  data: {
-    type: Object,
-    required: true
-  }
-})
+const props = defineProps<{
+  id: string
+  data: { content: string; choices?: Array<{ id: string; text: string }> }
+  selected?: boolean
+}>()
 </script>
 
 <template>
-  <div class="choice-node">
-    <Handle type="target" :position="Position.Top" />
-
-    <div class="node-content">
-      <div class="choice-label">Decision Point</div>
-      <div v-if="data.choices && data.choices.length" class="choices-list">
-        <div v-for="choice of data.choices" :key="choice.id" class="choice-item">
-          • {{ choice.text?.substring(0, 40) }}
-        </div>
-      </div>
-      <div v-else class="no-choices">Add choices</div>
+  <div :class="['cn', { selected }]">
+    <Handle type="target" :position="Position.Top" class="cn-handle" />
+    <div class="cn-head">
+      <svg class="cn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      <span class="cn-label">Decision</span>
     </div>
-
-    <Handle type="source" :position="Position.Bottom" />
+    <div v-if="data.choices?.length" class="cn-choices">
+      <div v-for="(c, i) in data.choices" :key="c.id" class="cn-choice">
+        <span class="cn-dot" />
+        <span class="cn-choice-text">{{ c.text }}</span>
+        <Handle
+          type="source"
+          :position="Position.Right"
+          :id="c.id"
+          class="cn-handle cn-handle-choice"
+          :style="{ top: `${44 + i * 32}px` }"
+        />
+      </div>
+    </div>
+    <div v-else class="cn-empty">No choices yet</div>
+    <Handle type="source" :position="Position.Bottom" class="cn-handle" />
   </div>
 </template>
 
 <style scoped>
-.choice-node {
-  background: linear-gradient(135deg, #6D8A40 0%, #5a7035 100%);
-  border: 2px solid #6D8A40;
-  border-radius: 0.75rem;
-  padding: 1rem;
-  min-width: 200px;
-  max-width: 280px;
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s;
+.cn {
+  width: 220rem; padding: 14rem 16rem;
+  background: var(--color-bg); border: 1.5px solid color-mix(in srgb, #6D8A40 40%, var(--color-glass-border));
+  border-radius: var(--radius-m); color: var(--color-text);
+  box-shadow: 0 4rem 14rem rgba(0,0,0,0.08);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  cursor: grab; position: relative;
 }
+.cn:hover { border-color: #6D8A40; }
+.cn.selected { border-color: #6D8A40; box-shadow: 0 0 0 3rem rgba(109,138,64,0.15), 0 4rem 14rem rgba(0,0,0,0.08); }
 
-.choice-node:hover {
-  box-shadow: 0 8px 20px rgba(109, 138, 64, 0.4);
-}
+.cn-head { display: flex; align-items: center; gap: 6rem; margin-bottom: 10rem; }
+.cn-icon { opacity: 0.4; flex-shrink: 0; color: #6D8A40; }
+.cn-label { font-size: 12rem; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; opacity: 0.5; }
 
-.node-content {
-  font-size: 0.85rem;
-  line-height: 1.4;
-}
+.cn-choices { display: flex; flex-direction: column; gap: 6rem; }
+.cn-choice { display: flex; align-items: center; gap: 8rem; }
+.cn-dot { width: 6rem; height: 6rem; border-radius: 50%; background: #6D8A40; opacity: 0.5; flex-shrink: 0; }
+.cn-choice-text { font-size: 13rem; line-height: 1.4; opacity: 0.8; }
 
-.choice-label {
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  opacity: 0.9;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  padding-bottom: 0.5rem;
-}
+.cn-empty { font-size: 13rem; opacity: 0.35; font-style: italic; }
 
-.choices-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+.cn-handle {
+  width: 10rem !important; height: 10rem !important;
+  background: #6D8A40 !important; border: 2px solid var(--color-bg) !important;
+  border-radius: 50% !important;
 }
-
-.choice-item {
-  font-size: 0.8rem;
-  opacity: 0.85;
-}
-
-.no-choices {
-  font-size: 0.8rem;
-  opacity: 0.6;
-  font-style: italic;
-}
+.cn-handle-choice { right: -5rem !important; }
 </style>

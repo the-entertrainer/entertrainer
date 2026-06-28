@@ -101,6 +101,10 @@ const triggerCooking = () => {
   }, 40)
 }
 
+onUnmounted(() => {
+  if (isDragging.value) endDrag()
+})
+
 const restart = () => {
   stage.value = 0
   quizAnswer.value = null

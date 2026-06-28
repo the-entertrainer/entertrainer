@@ -1,285 +1,223 @@
 <script setup lang="ts">
+import { useEditor, EditorContent } from '@tiptap/vue-3'
+import StarterKit from '@tiptap/starter-kit'
 import { useScribeFlowStore } from '~/stores/scribeflow'
-import { ref, watch } from 'vue'
 
 const scribeStore = useScribeFlowStore()
 
-const editingSpeaker = ref('')
-const editingContent = ref('')
+const speakerInput = ref('')
 const newChoiceText = ref('')
 
-watch(
-  () => scribeStore.selectedNode,
-  (node) => {
-    if (node) {
-      editingSpeaker.value = node.data.speaker || ''
-      editingContent.value = node.data.content || ''
-    }
+const editor = useEditor({
+  extensions: [StarterKit],
+  content: '',
+  editorProps: {
+    attributes: { class: 'sfnp-editor-content' }
   },
-  { immediate: true }
-)
-
-const saveSpeaker = () => {
-  if (scribeStore.selectedNode) {
-    scribeStore.updateNode(scribeStore.selectedNode.id, {
-      data: {
-        ...scribeStore.selectedNode.data,
-        speaker: editingSpeaker.value
-      }
-    })
+  onUpdate: ({ editor: e }) => {
+    if (!scribeStore.selectedNode) return
+    scribeStore.updateNode(scribeStore.selectedNode.id, { data: { content: e.getHTML() } })
   }
-}
+})
 
-const saveContent = () => {
-  if (scribeStore.selectedNode) {
-    scribeStore.updateNode(scribeStore.selectedNode.id, {
-      data: {
-        ...scribeStore.selectedNode.data,
-        content: editingContent.value
-      }
-    })
+watch(() => scribeStore.selectedNode, (node) => {
+  if (!node) return
+  speakerInput.value = node.data.speaker || ''
+  if (editor.value && editor.value.getHTML() !== node.data.content) {
+    editor.value.commands.setContent(node.data.content || '')
   }
-}
+}, { immediate: true })
 
-const addChoice = () => {
-  if (!newChoiceText.value.trim() || !scribeStore.selectedNode) return
-
-  const choices = scribeStore.selectedNode.data.choices || []
-  const newChoice = {
-    id: `choice_${Date.now()}`,
-    text: newChoiceText.value
-  }
-
-  scribeStore.updateNode(scribeStore.selectedNode.id, {
-    data: {
-      ...scribeStore.selectedNode.data,
-      choices: [...choices, newChoice]
-    }
-  })
-
-  newChoiceText.value = ''
-}
-
-const removeChoice = (choiceId: string) => {
+function saveSpeaker() {
   if (!scribeStore.selectedNode) return
-
-  const choices = (scribeStore.selectedNode.data.choices || []).filter(c => c.id !== choiceId)
-  scribeStore.updateNode(scribeStore.selectedNode.id, {
-    data: {
-      ...scribeStore.selectedNode.data,
-      choices
-    }
-  })
+  scribeStore.updateNode(scribeStore.selectedNode.id, { data: { speaker: speakerInput.value } })
 }
 
-const deleteNode = () => {
-  if (scribeStore.selectedNode && confirm('Delete this node?')) {
-    scribeStore.deleteNode(scribeStore.selectedNode.id)
-  }
+function addChoice() {
+  if (!scribeStore.selectedNode) return
+  scribeStore.addChoice(scribeStore.selectedNode.id)
 }
+
+function updateChoice(choiceId: string, text: string) {
+  if (!scribeStore.selectedNode) return
+  scribeStore.updateChoice(scribeStore.selectedNode.id, choiceId, text)
+}
+
+function removeChoice(choiceId: string) {
+  if (!scribeStore.selectedNode) return
+  scribeStore.removeChoice(scribeStore.selectedNode.id, choiceId)
+}
+
+function addConnectedNode(type: 'dialogue' | 'choice') {
+  if (!scribeStore.selectedNode) return
+  const from = scribeStore.selectedNode
+  const pos = { x: from.position.x, y: from.position.y + 200 }
+  scribeStore.addNode(type, pos, from.id)
+}
+
+function deleteNode() {
+  if (!scribeStore.selectedNode) return
+  scribeStore.deleteNode(scribeStore.selectedNode.id)
+}
+
+onUnmounted(() => { editor.value?.destroy() })
 </script>
 
 <template>
-  <div class="node-panel">
-    <div v-if="scribeStore.selectedNode" class="panel-content">
+  <div class="sfnp">
+    <div v-if="scribeStore.selectedNode" class="sfnp-inner">
       <!-- Header -->
-      <div class="panel-header">
-        <h4>{{ scribeStore.selectedNode.type === 'dialogue' ? 'Dialogue' : 'Choice' }} Node</h4>
-        <button class="btn-delete-node" @click="deleteNode">🗑</button>
+      <div class="sfnp-head">
+        <span class="sfnp-type">{{ scribeStore.selectedNode.type === 'dialogue' ? 'Dialogue' : 'Choice' }}</span>
+        <button class="sfnp-del" @click="deleteNode" aria-label="Delete node">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        </button>
       </div>
 
-      <!-- Dialogue Node Editor -->
+      <!-- Dialogue fields -->
       <template v-if="scribeStore.selectedNode.type === 'dialogue'">
-        <div class="field">
-          <label>Speaker</label>
-          <input
-            v-model="editingSpeaker"
-            type="text"
-            placeholder="Character name..."
-            @blur="saveSpeaker"
-          />
-        </div>
+        <label class="sfnp-label">Speaker</label>
+        <input
+          v-model="speakerInput" type="text"
+          class="sfnp-input" placeholder="Character name…"
+          @blur="saveSpeaker" @keyup.enter="($event.target as HTMLInputElement).blur()"
+        />
 
-        <div class="field">
-          <label>Content</label>
-          <textarea
-            v-model="editingContent"
-            placeholder="Dialogue text..."
-            rows="6"
-            @blur="saveContent"
-          />
-        </div>
-      </template>
-
-      <!-- Choice Node Editor -->
-      <template v-else>
-        <div class="field">
-          <label>Choices</label>
-          <div v-if="scribeStore.selectedNode.data.choices?.length" class="choices-list">
-            <div
-              v-for="choice of scribeStore.selectedNode.data.choices"
-              :key="choice.id"
-              class="choice-item"
-            >
-              <span>{{ choice.text }}</span>
-              <button @click="removeChoice(choice.id)" class="btn-remove">✕</button>
-            </div>
+        <label class="sfnp-label">Content</label>
+        <div class="sfnp-editor">
+          <div v-if="editor" class="sfnp-toolbar">
+            <button :class="{ active: editor.isActive('bold') }" @click="editor.chain().focus().toggleBold().run()"><b>B</b></button>
+            <button :class="{ active: editor.isActive('italic') }" @click="editor.chain().focus().toggleItalic().run()"><i>I</i></button>
+            <button :class="{ active: editor.isActive('bulletList') }" @click="editor.chain().focus().toggleBulletList().run()">•</button>
           </div>
-          <div v-else class="empty-choices">No choices yet</div>
-        </div>
-
-        <div class="field">
-          <input
-            v-model="newChoiceText"
-            type="text"
-            placeholder="Add a new choice..."
-            @keyup.enter="addChoice"
-          />
-          <button @click="addChoice" class="btn-add-choice">Add Choice</button>
+          <EditorContent :editor="editor" />
         </div>
       </template>
+
+      <!-- Choice fields -->
+      <template v-else>
+        <label class="sfnp-label">Choices</label>
+        <div class="sfnp-choices">
+          <div v-for="c in scribeStore.selectedNode.data.choices" :key="c.id" class="sfnp-choice">
+            <input
+              :value="c.text" type="text"
+              class="sfnp-input sfnp-choice-input"
+              @input="updateChoice(c.id, ($event.target as HTMLInputElement).value)"
+            />
+            <button class="sfnp-choice-rm" @click="removeChoice(c.id)" aria-label="Remove choice">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <button class="sfnp-add-choice" @click="addChoice">+ Add choice</button>
+        </div>
+      </template>
+
+      <!-- Quick connect -->
+      <div class="sfnp-divider" />
+      <label class="sfnp-label">Connect to new</label>
+      <div class="sfnp-connect-row">
+        <button class="sfnp-connect-btn" @click="addConnectedNode('dialogue')">+ Dialogue</button>
+        <button class="sfnp-connect-btn" @click="addConnectedNode('choice')">+ Choice</button>
+      </div>
     </div>
 
-    <div v-else class="panel-empty">
+    <div v-else class="sfnp-empty">
       <p>Select a node to edit</p>
     </div>
   </div>
 </template>
 
 <style scoped>
-.node-panel {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: var(--color-bg);
-  overflow-y: auto;
+.sfnp { height: 100%; overflow-y: auto; }
+
+.sfnp-inner { padding: 18rem 16rem; }
+.sfnp-empty { padding: 40rem 20rem; text-align: center; font-size: var(--text-sm); opacity: 0.35; }
+
+.sfnp-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18rem; padding-bottom: 12rem;
+  border-bottom: 1px solid var(--color-divider);
+}
+.sfnp-type { font-size: 13rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; opacity: 0.5; }
+
+.sfnp-del {
+  width: 30rem; height: 30rem; border-radius: var(--radius-s);
+  border: 1px solid var(--color-glass-border); background: none;
+  color: var(--color-text); opacity: 0.35; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.15s, background 0.15s;
+}
+.sfnp-del:hover { opacity: 1; background: rgba(220,50,50,0.08); color: #dc3232; border-color: rgba(220,50,50,0.3); }
+
+.sfnp-label {
+  display: block; font-size: var(--text-label); font-weight: 600;
+  letter-spacing: var(--tracking-label); text-transform: uppercase;
+  opacity: 0.4; margin-bottom: 6rem; margin-top: 14rem;
 }
 
-.panel-content {
-  padding: 1.5rem;
-  flex: 1;
+.sfnp-input {
+  width: 100%; padding: 10rem 12rem;
+  border-radius: var(--radius-s); border: 1px solid var(--color-glass-border);
+  background: var(--color-glass-bg); color: var(--color-text);
+  font: 400 14rem/1.4 var(--main-font);
 }
+.sfnp-input:focus { outline: none; border-color: var(--color-glass-border-hover); background: var(--color-glass-bg-hover); }
+.sfnp-input::placeholder { opacity: 0.3; }
 
-.panel-empty {
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
+/* ── Tiptap editor ── */
+.sfnp-editor {
+  border: 1px solid var(--color-glass-border); border-radius: var(--radius-s);
+  background: var(--color-glass-bg); overflow: hidden;
 }
+.sfnp-toolbar {
+  display: flex; gap: 2rem; padding: 4rem 6rem;
+  border-bottom: 1px solid var(--color-divider);
+}
+.sfnp-toolbar button {
+  width: 28rem; height: 28rem; border-radius: var(--radius-xs);
+  border: none; background: none; color: var(--color-text); cursor: pointer;
+  font-size: 13rem; display: flex; align-items: center; justify-content: center;
+  opacity: 0.5; transition: opacity 0.12s, background 0.12s;
+}
+.sfnp-toolbar button:hover { opacity: 1; background: var(--color-glass-bg); }
+.sfnp-toolbar button.active { opacity: 1; background: var(--color-glass-bg-hover); }
 
-.panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+.sfnp-editor :deep(.sfnp-editor-content) {
+  padding: 10rem 12rem; min-height: 100rem; font-size: 14rem; line-height: 1.5;
+  color: var(--color-text); outline: none;
 }
+.sfnp-editor :deep(.sfnp-editor-content p) { margin: 0 0 6rem; }
+.sfnp-editor :deep(.sfnp-editor-content p:last-child) { margin-bottom: 0; }
+.sfnp-editor :deep(.ProseMirror-focused) { outline: none; }
 
-.panel-header h4 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 700;
+/* ── Choices ── */
+.sfnp-choices { display: flex; flex-direction: column; gap: 6rem; }
+.sfnp-choice { display: flex; gap: 6rem; align-items: center; }
+.sfnp-choice-input { flex: 1; }
+.sfnp-choice-rm {
+  width: 28rem; height: 28rem; border-radius: var(--radius-xs);
+  border: 1px solid transparent; background: none; color: var(--color-text);
+  opacity: 0.3; cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
+.sfnp-choice-rm:hover { opacity: 1; color: #dc3232; border-color: rgba(220,50,50,0.3); }
 
-.btn-delete-node {
-  padding: 0.25rem 0.5rem;
-  background: transparent;
-  border: 1px solid rgba(255, 0, 0, 0.3);
-  border-radius: 0.25rem;
-  cursor: pointer;
-  font-size: 1rem;
-  color: #ff4444;
-  transition: all 0.2s;
+.sfnp-add-choice {
+  padding: 8rem; border-radius: var(--radius-s);
+  border: 1px dashed var(--color-glass-border); background: none;
+  color: var(--color-text); font: 500 13rem/1 var(--main-font);
+  opacity: 0.4; cursor: pointer; transition: opacity 0.15s, background 0.15s;
 }
+.sfnp-add-choice:hover { opacity: 0.7; background: var(--color-glass-bg); }
 
-.btn-delete-node:hover {
-  background: rgba(255, 0, 0, 0.1);
+/* ── Quick connect ── */
+.sfnp-divider { height: 1px; background: var(--color-divider); margin: 20rem 0 4rem; }
+.sfnp-connect-row { display: flex; gap: 6rem; }
+.sfnp-connect-btn {
+  flex: 1; padding: 8rem;
+  border-radius: var(--radius-s); border: 1px solid var(--color-glass-border);
+  background: none; color: var(--color-text);
+  font: 500 12rem/1 var(--main-font); cursor: pointer;
+  transition: background 0.15s;
 }
-
-.field {
-  margin-bottom: 1.5rem;
-}
-
-.field label {
-  display: block;
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.field input,
-.field textarea {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  font-family: inherit;
-  font-size: 0.9rem;
-  resize: vertical;
-}
-
-.field input:focus,
-.field textarea:focus {
-  outline: none;
-  border-color: #243F6A;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.choices-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.choice-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem;
-  background: rgba(109, 138, 64, 0.1);
-  border-radius: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.btn-remove {
-  padding: 0.25rem 0.5rem;
-  background: transparent;
-  border: none;
-  color: #ff4444;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.btn-remove:hover {
-  color: #ff2222;
-}
-
-.empty-choices {
-  padding: 1rem;
-  text-align: center;
-  font-size: 0.85rem;
-  opacity: 0.6;
-  font-style: italic;
-}
-
-.btn-add-choice {
-  width: 100%;
-  padding: 0.5rem;
-  background: #6D8A40;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-
-.btn-add-choice:hover {
-  background: #5a7035;
-}
+.sfnp-connect-btn:hover { background: var(--color-glass-bg); }
 </style>

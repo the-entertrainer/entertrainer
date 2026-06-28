@@ -196,6 +196,7 @@ export default class Backdrop {
       this._bake(img)
     }
     img.onload = ready
+    img.onerror = () => { this.experience.trigger('backdropReady', []) }
     img.src = src
     if (img.complete && img.naturalWidth > 0) ready()
   }

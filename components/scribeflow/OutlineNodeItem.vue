@@ -1,171 +1,80 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
-const props = defineProps({
+const props = defineProps<{
   node: {
-    type: Object,
-    required: true
-  },
-  expanded: Boolean,
-  selected: Boolean
-})
-
-const emit = defineEmits(['toggle', 'select'])
-
-const hasChildren = computed(() => props.node.children && props.node.children.length > 0)
-
-const nodeLabel = computed(() => {
-  if (props.node.type === 'dialogue') {
-    return props.node.speaker || 'Dialogue'
+    id: string; type: string; speaker?: string; content: string;
+    choices?: Array<{ id: string; text: string }>; children: any[]
   }
-  return `Decision (${props.node.choices?.length || 0} options)`
-})
+  expanded: boolean
+  selected: boolean
+}>()
 
-const nodePreview = computed(() => {
-  if (props.node.type === 'dialogue') {
-    return props.node.content?.substring(0, 60) || ''
-  }
-  return props.node.choices?.map(c => c.text).join(', ') || ''
-})
+const emit = defineEmits<{
+  toggle: [id: string]
+  select: [id: string]
+}>()
+
+function strip(html: string) {
+  if (!import.meta.client) return ''
+  const d = document.createElement('div')
+  d.innerHTML = html
+  const t = d.textContent || ''
+  return t.length > 50 ? t.slice(0, 50) + '…' : t
+}
 </script>
 
 <template>
-  <div class="outline-node-item">
-    <div
-      :class="['node-header', { selected, [props.node.type]: true }]"
-      @click="$emit('select', props.node.id)"
-    >
-      <button
-        v-if="hasChildren"
-        :class="['expand-btn', { expanded }]"
-        @click.stop="$emit('toggle', props.node.id)"
-      >
-        ▶
+  <div class="oni">
+    <div :class="['oni-row', { selected }]" @click="emit('select', node.id)">
+      <button v-if="node.children.length" class="oni-expand" :class="{ open: expanded }" @click.stop="emit('toggle', node.id)">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
-      <span v-else class="expand-placeholder" />
+      <span v-else class="oni-spacer" />
 
-      <div class="node-label">
-        <span class="type-badge" :class="props.node.type">
-          {{ props.node.type === 'dialogue' ? '💬' : '🔀' }}
-        </span>
-        <span class="label-text">{{ nodeLabel }}</span>
-      </div>
+      <span class="oni-badge" :class="node.type">{{ node.type === 'dialogue' ? 'D' : 'C' }}</span>
+      <span class="oni-name">{{ node.type === 'dialogue' ? (node.speaker || 'Narrator') : 'Decision' }}</span>
+      <span class="oni-preview">{{ strip(node.content) }}</span>
     </div>
 
-    <div v-if="nodePreview" class="node-preview">{{ nodePreview }}</div>
-
-    <div v-if="hasChildren && expanded" class="node-children">
+    <div v-if="node.children.length && expanded" class="oni-children">
       <OutlineNodeItem
-        v-for="child in props.node.children"
-        :key="child.id"
-        :node="child"
-        :expanded="expanded"
-        :selected="selected"
-        @toggle="$emit('toggle', $event)"
-        @select="$emit('select', $event)"
+        v-for="child in node.children" :key="child.id"
+        :node="child" :expanded="expanded" :selected="selected"
+        @toggle="emit('toggle', $event)" @select="emit('select', $event)"
       />
     </div>
   </div>
 </template>
 
 <style scoped>
-.outline-node-item {
-  margin-bottom: 0.25rem;
-}
-
-.node-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: transparent;
-  border: none;
+.oni-row {
+  display: flex; align-items: center; gap: 8rem;
+  padding: 8rem 10rem; border-radius: var(--radius-s);
+  cursor: pointer; transition: background 0.12s;
   border-left: 3px solid transparent;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-size: 0.9rem;
-  font-weight: 500;
 }
+.oni-row:hover { background: var(--color-glass-bg); }
+.oni-row.selected { background: color-mix(in srgb, var(--color-accent) 12%, transparent); border-left-color: var(--color-accent); }
 
-.node-header:hover {
-  background: rgba(36, 63, 106, 0.05);
+.oni-expand {
+  width: 18rem; height: 18rem; border: none; background: none;
+  color: var(--color-text); opacity: 0.4; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s; flex-shrink: 0;
 }
+.oni-expand.open { transform: rotate(90deg); }
 
-.node-header.selected {
-  background: rgba(36, 63, 106, 0.15);
-  border-left-color: #243F6A;
-}
+.oni-spacer { width: 18rem; flex-shrink: 0; }
 
-.node-header.dialogue {
-  --highlight: #243F6A;
+.oni-badge {
+  width: 20rem; height: 20rem; border-radius: var(--radius-xs);
+  font-size: 10rem; font-weight: 700; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
 }
+.oni-badge.dialogue { background: color-mix(in srgb, var(--color-accent) 15%, transparent); color: var(--color-accent); }
+.oni-badge.choice { background: color-mix(in srgb, #6D8A40 15%, transparent); color: #6D8A40; }
 
-.node-header.choice {
-  --highlight: #6D8A40;
-}
+.oni-name { font-size: 13rem; font-weight: 600; white-space: nowrap; }
+.oni-preview { font-size: 12rem; opacity: 0.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 
-.expand-btn {
-  padding: 0;
-  width: 1.2rem;
-  height: 1.2rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  transition: transform 0.2s;
-  flex-shrink: 0;
-}
-
-.expand-btn.expanded {
-  transform: rotate(90deg);
-}
-
-.expand-btn:hover {
-  color: var(--highlight, #243F6A);
-}
-
-.expand-placeholder {
-  display: block;
-  width: 1.2rem;
-  flex-shrink: 0;
-}
-
-.node-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
-  flex: 1;
-}
-
-.type-badge {
-  display: inline-block;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-.label-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.node-preview {
-  padding: 0 0.75rem 0 calc(1.2rem + 0.5rem + 0.5rem);
-  font-size: 0.8rem;
-  opacity: 0.6;
-  margin-bottom: 0.25rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.node-children {
-  margin-left: 0.5rem;
-  border-left: 2px solid rgba(0, 0, 0, 0.1);
-  padding-left: 0.5rem;
-}
+.oni-children { margin-left: 18rem; border-left: 1px solid var(--color-divider); padding-left: 4rem; }
 </style>

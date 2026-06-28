@@ -1,326 +1,191 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from 'vue'
 import { useScribeFlowStore } from '~/stores/scribeflow'
-import ScribeFlowOutline from './scribeflow/ScribeFlowOutline.vue'
-import ScribeFlowNodePanel from './scribeflow/ScribeFlowNodePanel.vue'
-
-const ScribeFlowCanvas = defineAsyncComponent(() =>
-  import('./scribeflow/ScribeFlowCanvas.vue')
-)
 
 const scribeStore = useScribeFlowStore()
-const showShareModal = ref(false)
+const showShare = ref(false)
 const shareUrl = ref('')
+const copied = ref(false)
 
-const toggleEditMode = (mode: 'canvas' | 'outline') => {
-  scribeStore.setEditingMode(mode)
-}
+function goBack() { scribeStore.setCurrentProject(null) }
 
-const generateShareUrl = () => {
+function share() {
   const hash = scribeStore.exportAsUrl()
   shareUrl.value = `${window.location.origin}${window.location.pathname}${hash}`
-  showShareModal.value = true
+  showShare.value = true
+  copied.value = false
 }
 
-const copyToClipboard = () => {
-  navigator.clipboard.writeText(shareUrl.value)
+async function copyLink() {
+  try {
+    await navigator.clipboard.writeText(shareUrl.value)
+    copied.value = true
+    setTimeout(() => { copied.value = false }, 2000)
+  } catch {}
 }
 
-const goBack = () => {
-  scribeStore.setCurrentProject(null)
-}
+const isMobile = ref(false)
+onMounted(() => { isMobile.value = window.innerWidth < 640 })
 </script>
 
 <template>
-  <div class="scribeflow-editor">
-    <!-- Header -->
-    <div class="editor-header">
-      <div class="header-left">
-        <button class="btn-back" @click="goBack">← Back</button>
-        <div class="project-title">
-          <h2>{{ scribeStore.currentProject?.title }}</h2>
-          <p class="node-count">{{ scribeStore.currentNodes.length }} nodes</p>
+  <div class="sfe">
+    <!-- Header bar -->
+    <header class="sfe-bar">
+      <div class="sfe-bar-left">
+        <button class="sfe-back" @click="goBack" aria-label="Back to projects">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="sfe-title-group">
+          <h2 class="sfe-title">{{ scribeStore.currentProject?.title }}</h2>
+          <span class="sfe-count">{{ scribeStore.currentNodes.length }} nodes</span>
         </div>
       </div>
 
-      <div class="header-center">
+      <div class="sfe-bar-center">
         <button
-          :class="['mode-btn', { active: scribeStore.editingMode === 'canvas' }]"
-          @click="toggleEditMode('canvas')"
-        >
-          Canvas
-        </button>
+          :class="['sfe-tab', { active: scribeStore.editingMode === 'canvas' }]"
+          @click="scribeStore.setEditingMode('canvas')"
+        >Canvas</button>
         <button
-          :class="['mode-btn', { active: scribeStore.editingMode === 'outline' }]"
-          @click="toggleEditMode('outline')"
-        >
-          Outline
-        </button>
+          :class="['sfe-tab', { active: scribeStore.editingMode === 'outline' }]"
+          @click="scribeStore.setEditingMode('outline')"
+        >Outline</button>
       </div>
 
-      <div class="header-right">
-        <button class="btn-share" @click="generateShareUrl">Share</button>
+      <div class="sfe-bar-right">
+        <button class="sfe-share" @click="share">Share</button>
       </div>
-    </div>
+    </header>
 
-    <!-- Main Content -->
-    <div class="editor-content">
-      <div
-        v-if="scribeStore.editingMode === 'canvas'"
-        class="editor-pane canvas-pane"
-      >
-        <ScribeFlowCanvas />
+    <!-- Main workspace -->
+    <div class="sfe-workspace">
+      <div class="sfe-pane sfe-main">
+        <ScribeFlowCanvas v-if="scribeStore.editingMode === 'canvas'" />
+        <ScribeFlowOutline v-else />
       </div>
 
-      <div
-        v-if="scribeStore.editingMode === 'outline'"
-        class="editor-pane outline-pane"
-      >
-        <ScribeFlowOutline />
-      </div>
-
-      <div
-        v-if="scribeStore.selectedNode"
-        class="inspector-pane"
-      >
+      <aside v-if="scribeStore.selectedNode && !isMobile" class="sfe-pane sfe-inspector">
         <ScribeFlowNodePanel />
-      </div>
+      </aside>
     </div>
 
-    <!-- Share Modal -->
-    <div v-if="showShareModal" class="modal-overlay" @click="showShareModal = false">
-      <div class="modal" @click.stop>
-        <h3>Share Scenario</h3>
-        <p class="share-description">Copy this link to share your scenario with others:</p>
-        <div class="share-link-container">
-          <input
-            type="text"
-            :value="shareUrl"
-            readonly
-            class="share-link"
-          />
-          <button class="btn-copy" @click="copyToClipboard">Copy</button>
+    <!-- Mobile bottom sheet for node editing -->
+    <Teleport to="body">
+      <Transition name="sheet">
+        <div v-if="scribeStore.selectedNode && isMobile" class="sfe-sheet-backdrop" @click="scribeStore.selectedNodeId = null">
+          <div class="sfe-sheet" @click.stop>
+            <div class="sfe-sheet-handle" />
+            <ScribeFlowNodePanel />
+          </div>
         </div>
-        <button class="btn-close-modal" @click="showShareModal = false">Close</button>
-      </div>
-    </div>
+      </Transition>
+    </Teleport>
+
+    <!-- Share modal -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div v-if="showShare" class="sf-overlay" @click="showShare = false">
+          <div class="sf-modal" @click.stop>
+            <h3>Share Scenario</h3>
+            <p class="sfe-share-desc">Anyone with this link can import your scenario.</p>
+            <div class="sfe-share-row">
+              <input type="text" :value="shareUrl" readonly class="sf-input sfe-share-input" />
+              <button class="sf-btn-primary" @click="copyLink">{{ copied ? '✓' : 'Copy' }}</button>
+            </div>
+            <button class="sf-btn-ghost sfe-share-close" @click="showShare = false">Close</button>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <style scoped>
-.scribeflow-editor {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100dvh;
-  background: var(--color-bg);
-  color: var(--color-text);
+.sfe { display: flex; flex-direction: column; width: 100%; height: 100dvh; background: var(--color-bg); color: var(--color-text); }
+
+/* ── Header ── */
+.sfe-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10rem 16rem; gap: 12rem;
+  border-bottom: 1px solid var(--color-divider);
+  flex-shrink: 0;
+}
+.sfe-bar-left { display: flex; align-items: center; gap: 10rem; flex: 1; min-width: 0; }
+.sfe-bar-center { display: flex; gap: 4rem; }
+.sfe-bar-right { flex: 1; display: flex; justify-content: flex-end; }
+
+.sfe-back {
+  width: 34rem; height: 34rem; border-radius: var(--radius-s);
+  border: 1px solid var(--color-glass-border); background: none;
+  color: var(--color-text); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.sfe-back:hover { background: var(--color-glass-bg); }
+
+.sfe-title-group { min-width: 0; }
+.sfe-title { font-size: 15rem; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sfe-count { font-size: var(--text-label); opacity: 0.4; letter-spacing: var(--tracking-label); text-transform: uppercase; }
+
+.sfe-tab {
+  padding: 7rem 14rem; border-radius: var(--radius-full);
+  border: 1px solid var(--color-glass-border); background: none;
+  color: var(--color-text); font: 500 12rem/1 var(--main-font); cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.sfe-tab.active { background: var(--color-accent); color: #fff; border-color: var(--color-accent); }
+.sfe-tab:not(.active):hover { background: var(--color-glass-bg); }
+
+.sfe-share {
+  padding: 7rem 16rem; border-radius: var(--radius-full);
+  border: none; background: var(--color-accent); color: #fff;
+  font: 600 12rem/1 var(--main-font); cursor: pointer;
 }
 
-/* Header */
-.editor-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  background: var(--color-surface, rgba(255, 255, 255, 0.03));
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  gap: 2rem;
+/* ── Workspace ── */
+.sfe-workspace { display: flex; flex: 1; overflow: hidden; }
+.sfe-pane { overflow: hidden; }
+.sfe-main { flex: 1; }
+.sfe-inspector { width: 300rem; border-left: 1px solid var(--color-divider); overflow-y: auto; }
+
+/* ── Mobile bottom sheet ── */
+.sfe-sheet-backdrop {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.35); display: flex; align-items: flex-end;
+}
+.sfe-sheet {
+  width: 100%; max-height: 70dvh; border-radius: var(--radius-l) var(--radius-l) 0 0;
+  background: var(--color-bg); border-top: 1px solid var(--color-glass-border);
+  overflow-y: auto; padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.sfe-sheet-handle {
+  width: 36rem; height: 4rem; border-radius: 2rem;
+  background: var(--color-glass-border); margin: 10rem auto 6rem;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex: 1;
-  min-width: 0;
-}
+.sheet-enter-active { transition: transform 0.3s ease; }
+.sheet-leave-active { transition: transform 0.2s ease; }
+.sheet-enter-from, .sheet-leave-to { transform: translateY(100%); }
 
-.btn-back {
-  padding: 0.5rem 1rem;
-  background: transparent;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
+/* ── Share ── */
+.sfe-share-desc { font-size: var(--text-sm); opacity: 0.5; margin: 0 0 16rem; }
+.sfe-share-row { display: flex; gap: 8rem; margin-bottom: 16rem; }
+.sfe-share-input { flex: 1; font-size: 13rem; }
+.sfe-share-close { width: 100%; }
 
-.btn-back:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
+/* Reuse page modal styles */
+.sf-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; padding: 20rem; }
+.sf-modal { background: var(--color-bg); border: 1px solid var(--color-glass-border); border-radius: var(--radius-l); padding: 28rem; width: 100%; max-width: 440rem; box-shadow: 0 24rem 60rem -12rem rgba(0,0,0,0.35); }
+.sf-modal h3 { font-size: var(--text-h2); font-weight: 700; margin: 0 0 8rem; }
+.sf-input { width: 100%; padding: 12rem 14rem; border-radius: var(--radius-m); border: 1px solid var(--color-glass-border); background: var(--color-glass-bg); color: var(--color-text); font: 400 var(--text-sm)/1.4 var(--main-font); }
+.sf-input:focus { outline: none; border-color: var(--color-glass-border-hover); }
+.sf-btn-primary { padding: 10rem 18rem; border-radius: var(--radius-full); border: none; background: var(--color-accent); color: #fff; font: 600 13rem/1 var(--main-font); cursor: pointer; white-space: nowrap; }
+.sf-btn-ghost { padding: 10rem 18rem; border-radius: var(--radius-full); border: 1px solid var(--color-glass-border); background: none; color: var(--color-text); font: 600 13rem/1 var(--main-font); cursor: pointer; }
 
-.project-title {
-  min-width: 0;
-  flex: 1;
-}
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 
-.project-title h2 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.node-count {
-  font-size: 0.85rem;
-  opacity: 0.6;
-  margin: 0;
-}
-
-.header-center {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.mode-btn {
-  padding: 0.5rem 1rem;
-  background: transparent;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-
-.mode-btn.active {
-  background: #243F6A;
-  color: white;
-  border-color: #243F6A;
-}
-
-.mode-btn:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.header-right {
-  flex: 1;
-  text-align: right;
-}
-
-.btn-share {
-  padding: 0.5rem 1rem;
-  background: #243F6A;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-
-.btn-share:hover {
-  background: #1a2d4d;
-}
-
-/* Content */
-.editor-content {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  gap: 1px;
-  background: rgba(0, 0, 0, 0.1);
-}
-
-.editor-pane {
-  flex: 1;
-  overflow: hidden;
-  background: var(--color-bg);
-}
-
-.canvas-pane {
-  flex: 2;
-}
-
-.outline-pane {
-  flex: 1;
-}
-
-.inspector-pane {
-  width: 320px;
-  border-left: 1px solid rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-  background: var(--color-surface, rgba(255, 255, 255, 0.02));
-}
-
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal {
-  background: var(--color-bg);
-  padding: 2rem;
-  border-radius: 1rem;
-  min-width: 500px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.modal h3 {
-  margin-bottom: 0.5rem;
-  font-size: 1.3rem;
-}
-
-.share-description {
-  opacity: 0.7;
-  margin-bottom: 1.5rem;
-}
-
-.share-link-container {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.share-link {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  font-size: 0.9rem;
-  word-break: break-all;
-}
-
-.btn-copy {
-  padding: 0.75rem 1.5rem;
-  background: #243F6A;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.btn-copy:hover {
-  background: #1a2d4d;
-}
-
-.btn-close-modal {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: transparent;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-
-.btn-close-modal:hover {
-  background: rgba(255, 255, 255, 0.1);
+@media (max-width: 640px) {
+  .sfe-bar { padding: 8rem 12rem; }
+  .sfe-inspector { display: none; }
 }
 </style>

@@ -1,292 +1,201 @@
 <script setup lang="ts">
 import { useScribeFlowStore } from '~/stores/scribeflow'
-import { onMounted, ref } from 'vue'
+
+definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 
 const scribeStore = useScribeFlowStore()
-const showNewProjectModal = ref(false)
+const showNewModal = ref(false)
 const projectTitle = ref('')
+const titleInput = ref<HTMLInputElement | null>(null)
 
 onMounted(async () => {
   await scribeStore.loadProjects()
-
-  // Check for URL import
   const hash = window.location.hash
   if (hash.includes('scenario=')) {
-    const success = await scribeStore.importFromUrl(hash)
-    if (success) {
-      window.location.hash = ''
-    }
+    const ok = await scribeStore.importFromUrl(hash)
+    if (ok) window.location.hash = ''
   }
 })
 
-const createNewProject = async () => {
-  if (!projectTitle.value.trim()) return
+function openNew() {
+  showNewModal.value = true
+  nextTick(() => titleInput.value?.focus())
+}
 
-  await scribeStore.createProject(projectTitle.value)
+async function createProject() {
+  const t = projectTitle.value.trim()
+  if (!t) return
+  await scribeStore.createProject(t)
   projectTitle.value = ''
-  showNewProjectModal.value = false
+  showNewModal.value = false
 }
 
-const selectProject = (projectId: string) => {
-  scribeStore.setCurrentProject(projectId)
-}
+function selectProject(id: string) { scribeStore.setCurrentProject(id) }
 
-const deleteProject = async (projectId: string, e: Event) => {
+async function deleteProject(id: string, e: Event) {
   e.stopPropagation()
   if (confirm('Delete this scenario? This cannot be undone.')) {
-    await scribeStore.deleteProject(projectId)
+    await scribeStore.deleteProject(id)
   }
 }
+
+function formatDate(ts: number) {
+  return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+const sortedProjects = computed(() =>
+  [...scribeStore.projects.values()].sort((a, b) => b.updatedAt - a.updatedAt)
+)
 </script>
 
 <template>
-  <div class="scribeflow-page">
-    <!-- Project List View -->
-    <div v-if="!scribeStore.currentProjectId" class="projects-view">
-      <div class="projects-header">
-        <h1>ScribeFlow</h1>
-        <p>Author branching dialogues and scenarios with a node-based editor</p>
-      </div>
+  <div class="sf-root">
+    <!-- ═══ Project List ═══ -->
+    <div v-if="!scribeStore.currentProjectId" class="detail-page sf-list">
+      <h1 class="detail-title">ScribeFlow</h1>
+      <p class="detail-desc">Author branching dialogues and scenarios with a visual node editor.</p>
 
-      <button class="btn-create" @click="showNewProjectModal = true">
-        + New Scenario
-      </button>
+      <div class="sf-body">
+        <button class="sf-btn-new" @click="openNew">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New scenario
+        </button>
 
-      <div class="projects-grid">
-        <div
-          v-for="project of scribeStore.projects.values()"
-          :key="project.id"
-          class="project-card"
-          @click="selectProject(project.id)"
-        >
-          <div class="project-info">
-            <h3>{{ project.title }}</h3>
-            <p>{{ project.description || 'No description' }}</p>
-            <span class="node-count">{{ project.nodes.length }} nodes</span>
-          </div>
-          <button
-            class="btn-delete"
-            @click="(e) => deleteProject(project.id, e)"
+        <div v-if="sortedProjects.length" class="sf-grid">
+          <div
+            v-for="p in sortedProjects" :key="p.id"
+            class="sf-card" @click="selectProject(p.id)"
           >
-            ✕
-          </button>
-        </div>
-      </div>
-
-      <!-- New Project Modal -->
-      <div v-if="showNewProjectModal" class="modal-overlay" @click="showNewProjectModal = false">
-        <div class="modal" @click.stop>
-          <h2>New Scenario</h2>
-          <input
-            v-model="projectTitle"
-            type="text"
-            placeholder="Scenario title..."
-            class="modal-input"
-            @keyup.enter="createNewProject"
-            autofocus
-          />
-          <div class="modal-actions">
-            <button @click="showNewProjectModal = false">Cancel</button>
-            <button class="btn-primary" @click="createNewProject">Create</button>
+            <div class="sf-card-body">
+              <h3>{{ p.title }}</h3>
+              <span class="sf-meta">{{ p.nodes.length }} nodes · {{ formatDate(p.updatedAt) }}</span>
+            </div>
+            <button class="sf-card-del" @click="(e) => deleteProject(p.id, e)" aria-label="Delete">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
           </div>
         </div>
+
+        <p v-else class="sf-empty">No scenarios yet. Create one to get started.</p>
       </div>
+
+      <!-- New project modal -->
+      <Teleport to="body">
+        <Transition name="fade">
+          <div v-if="showNewModal" class="sf-overlay" @click="showNewModal = false">
+            <div class="sf-modal" @click.stop>
+              <h2>New Scenario</h2>
+              <input
+                ref="titleInput" v-model="projectTitle" type="text"
+                class="sf-input" placeholder="Scenario title…"
+                @keyup.enter="createProject"
+              />
+              <div class="sf-modal-actions">
+                <button class="sf-btn-ghost" @click="showNewModal = false">Cancel</button>
+                <button class="sf-btn-primary" @click="createProject" :disabled="!projectTitle.trim()">Create</button>
+              </div>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
     </div>
 
-    <!-- Editor View -->
-    <div v-else class="editor-view">
+    <!-- ═══ Editor ═══ -->
+    <div v-else class="sf-editor-shell">
       <ScribeFlowEditor />
     </div>
   </div>
 </template>
 
 <style scoped>
-.scribeflow-page {
-  min-height: 100dvh;
-  background: var(--color-bg);
-  color: var(--color-text);
+.sf-root { min-height: 100dvh; background: var(--color-bg); color: var(--color-text); }
+
+.sf-list { padding-bottom: 120rem; }
+
+.sf-body {
+  border-top: 1px solid var(--color-divider);
+  padding-top: 40rem;
+  max-width: 720rem;
 }
 
-/* Projects View */
-.projects-view {
-  padding: 3rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+/* ── New button ── */
+.sf-btn-new {
+  display: inline-flex; align-items: center; gap: 8rem;
+  padding: var(--btn-pad-y) var(--btn-pad-x);
+  border-radius: var(--radius-full);
+  background: var(--color-text); color: var(--color-bg);
+  font: 600 14rem/1 var(--main-font); border: none; cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  margin-bottom: 32rem;
 }
+.sf-btn-new:active { transform: scale(var(--btn-press)); }
 
-.projects-header {
-  margin-bottom: 3rem;
-  text-align: center;
-}
+/* ── Card grid ── */
+.sf-grid { display: flex; flex-direction: column; gap: 10rem; }
 
-.projects-header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+.sf-card {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18rem 20rem;
+  border-radius: var(--radius-m);
+  background: var(--color-glass-bg); border: 1px solid var(--color-glass-border);
+  cursor: pointer; transition: background 0.15s, transform 0.15s;
 }
+.sf-card:hover { background: var(--color-glass-bg-hover); }
+.sf-card:active { transform: scale(0.99); }
 
-.projects-header p {
-  font-size: 1.1rem;
-  opacity: 0.7;
-}
+.sf-card h3 { font-size: var(--text-body); font-weight: 600; margin: 0 0 4rem; }
+.sf-meta { font-size: var(--text-label); opacity: 0.45; letter-spacing: var(--tracking-label); text-transform: uppercase; }
 
-.btn-create {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  background: #243F6A;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 2rem;
-  transition: all 0.2s;
+.sf-card-del {
+  width: 32rem; height: 32rem; border-radius: var(--radius-s);
+  border: 1px solid transparent; background: none; color: var(--color-text);
+  opacity: 0.3; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.15s, background 0.15s;
 }
+.sf-card-del:hover { opacity: 1; background: var(--color-glass-bg); border-color: var(--color-glass-border); }
 
-.btn-create:hover {
-  background: #1a2d4d;
-  transform: translateY(-2px);
-}
+.sf-empty { font-size: var(--text-sm); opacity: 0.4; padding: 40rem 0; }
 
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+/* ── Modal ── */
+.sf-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center;
+  padding: 20rem;
 }
+.sf-modal {
+  background: var(--color-bg); border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-l); padding: 28rem; width: 100%; max-width: 400rem;
+  box-shadow: 0 24rem 60rem -12rem rgba(0,0,0,0.35);
+}
+.sf-modal h2 { font-size: var(--text-h2); font-weight: 700; margin: 0 0 20rem; }
 
-.project-card {
-  padding: 1.5rem;
-  background: var(--color-surface, rgba(255, 255, 255, 0.05));
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
+.sf-input {
+  width: 100%; padding: 14rem 16rem;
+  border-radius: var(--radius-m); border: 1px solid var(--color-glass-border);
+  background: var(--color-glass-bg); color: var(--color-text);
+  font: 400 var(--text-sm)/1.4 var(--main-font); margin-bottom: 20rem;
 }
+.sf-input:focus { outline: none; border-color: var(--color-glass-border-hover); background: var(--color-glass-bg-hover); }
+.sf-input::placeholder { opacity: 0.35; }
 
-.project-card:hover {
-  background: var(--color-surface, rgba(255, 255, 255, 0.08));
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
+.sf-modal-actions { display: flex; gap: 10rem; justify-content: flex-end; }
 
-.project-info h3 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+.sf-btn-ghost {
+  padding: 10rem 20rem; border-radius: var(--radius-full);
+  border: 1px solid var(--color-glass-border); background: none;
+  color: var(--color-text); font: 600 13rem/1 var(--main-font); cursor: pointer;
 }
+.sf-btn-primary {
+  padding: 10rem 20rem; border-radius: var(--radius-full);
+  border: none; background: var(--color-accent); color: #fff;
+  font: 600 13rem/1 var(--main-font); cursor: pointer;
+}
+.sf-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.project-info p {
-  font-size: 0.9rem;
-  opacity: 0.7;
-  margin-bottom: 0.75rem;
-}
+/* ── Editor shell ── */
+.sf-editor-shell { width: 100%; height: 100dvh; }
 
-.node-count {
-  display: inline-block;
-  font-size: 0.85rem;
-  padding: 0.25rem 0.75rem;
-  background: rgba(36, 63, 106, 0.1);
-  border-radius: 0.25rem;
-  color: #243F6A;
-}
-
-.btn-delete {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 2rem;
-  height: 2rem;
-  border: none;
-  background: rgba(255, 0, 0, 0.1);
-  color: #ff4444;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  font-size: 1.2rem;
-  transition: all 0.2s;
-}
-
-.btn-delete:hover {
-  background: rgba(255, 0, 0, 0.2);
-}
-
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal {
-  background: var(--color-bg);
-  padding: 2rem;
-  border-radius: 1rem;
-  min-width: 400px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.modal h2 {
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
-}
-
-.modal-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  margin-bottom: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.modal-input:focus {
-  outline: none;
-  border-color: #243F6A;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.modal-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-}
-
-.modal-actions button {
-  padding: 0.75rem 1.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
-  background: transparent;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-
-.modal-actions .btn-primary {
-  background: #243F6A;
-  color: white;
-  border-color: #243F6A;
-}
-
-.modal-actions .btn-primary:hover {
-  background: #1a2d4d;
-}
-
-.modal-actions button:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* Editor View */
-.editor-view {
-  width: 100%;
-  height: 100dvh;
-}
+/* ── Transitions ── */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

@@ -11,7 +11,6 @@ import {
 import type Experience from './Experience'
 import type { NavItem } from '~/types/nav'
 
-// Start fetching card images immediately at module load — before any NavPlane is constructed
 const CARD_IMAGE_MAP: Record<string, string> = {
   'about':                '/about-me.png',
   'instructional-design': '/instructional-design.png',
@@ -22,12 +21,12 @@ const CARD_IMAGE_MAP: Record<string, string> = {
   'training-cal-gen':     '/training-cal-gen.png',
   'easymcq':              '/easymcq.png',
 }
-const _imageCache = new Map<string, HTMLImageElement>()
+const _imageReady = new Map<string, Promise<HTMLImageElement>>()
 if (typeof document !== 'undefined') {
   for (const [id, src] of Object.entries(CARD_IMAGE_MAP)) {
     const img = new Image()
     img.src = src
-    _imageCache.set(id, img)
+    _imageReady.set(id, img.decode().then(() => img).catch(() => null as any))
   }
 }
 
@@ -239,8 +238,8 @@ export default class NavPlane {
   private _rimAngle    = 0
   private _glowStrength = 0
 
-  // Custom background image (replaces canvas texture for specific cards)
   private _bgImage: HTMLImageElement | null = null
+  private _destroyed = false
 
   readonly baseScaleX  = 1.7
   readonly baseScaleY  = 1.0
@@ -269,19 +268,14 @@ export default class NavPlane {
     this._tex = new CanvasTexture(this._canvas)
     this._drawTexture(isDark)
 
-    const cached = _imageCache.get(navItem.id)
-    if (cached) {
-      if (cached.complete && cached.naturalWidth > 0) {
-        // Already in browser cache — use immediately
-        this._bgImage = cached
-        this._drawTexture(isDark)
-      } else {
-        cached.addEventListener('load', () => {
-          this._bgImage = cached
-          this._drawTexture(this._isDark)
-          ;(this.mesh.material as ShaderMaterial).uniforms.uIsImage.value = 1.0
-        }, { once: true })
-      }
+    const ready = _imageReady.get(navItem.id)
+    if (ready) {
+      ready.then((img) => {
+        if (!img || this._destroyed) return
+        this._bgImage = img
+        this._drawTexture(this._isDark)
+        ;(this.mesh.material as ShaderMaterial).uniforms.uIsImage.value = 1.0
+      })
     }
 
     const material = new ShaderMaterial({
@@ -520,6 +514,7 @@ export default class NavPlane {
   }
 
   destroy() {
+    this._destroyed = true
     this.experience.scene.remove(this.mesh)
     ;(this.mesh.material as ShaderMaterial).dispose()
     this._tex.dispose()

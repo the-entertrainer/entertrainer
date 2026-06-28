@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import Dexie from 'dexie'
 import LZString from 'lz-string'
+
+export interface ChoiceOption {
+  id: string
+  text: string
+}
 
 export interface NodeData {
   id: string
@@ -9,14 +15,16 @@ export interface NodeData {
   data: {
     speaker?: string
     content: string
-    choices?: Array<{ id: string; text: string; targetId?: string }>
+    choices?: ChoiceOption[]
   }
 }
 
 export interface Edge {
   id: string
   source: string
+  sourceHandle?: string
   target: string
+  targetHandle?: string
   type: string
 }
 
@@ -29,221 +37,202 @@ export interface ScenarioProject {
   updatedAt: number
 }
 
-const STORAGE_KEY = 'scribeflow_projects'
+class ScribeFlowDB extends Dexie {
+  projects!: Dexie.Table<ScenarioProject, string>
+
+  constructor() {
+    super('scribeflow')
+    this.version(1).stores({
+      projects: 'id, updatedAt'
+    })
+  }
+}
+
+let db: ScribeFlowDB | null = null
+function getDB() {
+  if (!db) db = new ScribeFlowDB()
+  return db
+}
 
 export const useScribeFlowStore = defineStore('scribeflow', () => {
   const projects = ref<Map<string, ScenarioProject>>(new Map())
   const currentProjectId = ref<string | null>(null)
   const selectedNodeId = ref<string | null>(null)
   const editingMode = ref<'canvas' | 'outline'>('canvas')
+  const interactionMode = ref<'pan' | 'arrange'>('pan')
   const isLoading = ref(false)
 
   const currentProject = computed(() =>
-    currentProjectId.value ? projects.value.get(currentProjectId.value) : null
+    currentProjectId.value ? projects.value.get(currentProjectId.value) ?? null : null
   )
-
-  const currentNodes = computed(() => currentProject.value?.nodes || [])
-  const currentEdges = computed(() => currentProject.value?.edges || [])
-
+  const currentNodes = computed(() => currentProject.value?.nodes ?? [])
+  const currentEdges = computed(() => currentProject.value?.edges ?? [])
   const selectedNode = computed(() =>
-    selectedNodeId.value
-      ? currentNodes.value.find(n => n.id === selectedNodeId.value)
-      : null
+    selectedNodeId.value ? currentNodes.value.find(n => n.id === selectedNodeId.value) ?? null : null
   )
 
-  // Load all projects from localStorage
+  let _saveTimer: ReturnType<typeof setTimeout> | null = null
+
+  function _debouncedPersist() {
+    if (_saveTimer) clearTimeout(_saveTimer)
+    _saveTimer = setTimeout(() => {
+      if (currentProject.value) {
+        currentProject.value.updatedAt = Date.now()
+        getDB().projects.put({ ...currentProject.value })
+      }
+    }, 800)
+  }
+
   async function loadProjects() {
     if (typeof window === 'undefined') return
-
     isLoading.value = true
     try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        const data = JSON.parse(stored)
-        projects.value.clear()
-        Object.entries(data).forEach(([id, project]) => {
-          projects.value.set(id, project as ScenarioProject)
-        })
-      }
-    } catch (error) {
-      console.error('Failed to load projects:', error)
+      const all = await getDB().projects.toArray()
+      projects.value = new Map(all.map(p => [p.id, p]))
+    } catch (e) {
+      console.error('ScribeFlow: failed to load', e)
     } finally {
       isLoading.value = false
     }
   }
 
-  // Save to localStorage
-  function persistProjects() {
-    if (typeof window === 'undefined') return
-
-    try {
-      const data: Record<string, ScenarioProject> = {}
-      projects.value.forEach((project, id) => {
-        data[id] = project
-      })
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-    } catch (error) {
-      console.error('Failed to persist projects:', error)
-    }
+  function _uid() {
+    return `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
   }
 
-  // Create new project
-  async function createProject(title: string, description: string = '') {
-    const id = `proj_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
+  async function createProject(title: string) {
+    const id = `proj_${_uid()}`
+    const startNode: NodeData = {
+      id: 'node_start',
+      type: 'dialogue',
+      position: { x: 250, y: 60 },
+      data: { speaker: 'Narrator', content: '<p>Begin your scenario here…</p>' }
+    }
     const project: ScenarioProject = {
-      id,
-      title,
-      description,
-      nodes: [
-        {
-          id: 'node_start',
-          type: 'dialogue',
-          position: { x: 0, y: 0 },
-          data: {
-            speaker: 'Start',
-            content: 'Begin your scenario here...'
-          }
-        }
-      ],
-      edges: [],
-      updatedAt: Date.now()
+      id, title, description: '', nodes: [startNode], edges: [], updatedAt: Date.now()
     }
-
-    try {
-      projects.value.set(id, project)
-      currentProjectId.value = id
-      selectedNodeId.value = 'node_start'
-      persistProjects()
-      return id
-    } catch (error) {
-      console.error('Failed to create project:', error)
-      return null
-    }
+    projects.value.set(id, project)
+    currentProjectId.value = id
+    selectedNodeId.value = 'node_start'
+    await getDB().projects.put(project)
+    return id
   }
 
-  // Save project
-  async function saveProject() {
-    if (!currentProject.value) return
-
-    const updated = {
-      ...currentProject.value,
-      updatedAt: Date.now()
-    }
-
-    try {
-      projects.value.set(updated.id, updated)
-      persistProjects()
-    } catch (error) {
-      console.error('Failed to save project:', error)
-    }
-  }
-
-  // Add node to current project
-  function addNode(type: 'dialogue' | 'choice', position: { x: number; y: number }) {
-    if (!currentProject.value) return
-
-    const nodeId = `node_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
-    const newNode: NodeData = {
-      id: nodeId,
-      type,
-      position,
+  function addNode(type: 'dialogue' | 'choice', position: { x: number; y: number }, fromNodeId?: string) {
+    if (!currentProject.value) return null
+    const id = `node_${_uid()}`
+    const node: NodeData = {
+      id, type, position,
       data: {
         speaker: type === 'dialogue' ? 'Character' : undefined,
-        content: type === 'dialogue' ? 'Enter dialogue here...' : '',
-        choices: type === 'choice' ? [] : undefined
+        content: type === 'dialogue' ? '<p></p>' : '',
+        choices: type === 'choice' ? [{ id: `c_${_uid()}`, text: 'Option A' }] : undefined
       }
     }
-
-    currentProject.value.nodes.push(newNode)
-    selectedNodeId.value = nodeId
-    saveProject()
-    return nodeId
+    currentProject.value.nodes.push(node)
+    if (fromNodeId) {
+      addEdge(fromNodeId, id)
+    }
+    selectedNodeId.value = id
+    _debouncedPersist()
+    return id
   }
 
-  // Update node
   function updateNode(nodeId: string, updates: Partial<NodeData>) {
     if (!currentProject.value) return
+    const idx = currentProject.value.nodes.findIndex(n => n.id === nodeId)
+    if (idx === -1) return
+    const node = currentProject.value.nodes[idx]
+    if (updates.data) node.data = { ...node.data, ...updates.data }
+    if (updates.position) node.position = updates.position
+    _debouncedPersist()
+  }
 
-    const nodeIndex = currentProject.value.nodes.findIndex(n => n.id === nodeId)
-    if (nodeIndex !== -1) {
-      currentProject.value.nodes[nodeIndex] = {
-        ...currentProject.value.nodes[nodeIndex],
-        ...updates
-      }
-      saveProject()
+  function updateNodePosition(nodeId: string, pos: { x: number; y: number }) {
+    if (!currentProject.value) return
+    const node = currentProject.value.nodes.find(n => n.id === nodeId)
+    if (node) {
+      node.position = pos
+      _debouncedPersist()
     }
   }
 
-  // Delete node and its edges
   function deleteNode(nodeId: string) {
     if (!currentProject.value) return
-
     currentProject.value.nodes = currentProject.value.nodes.filter(n => n.id !== nodeId)
     currentProject.value.edges = currentProject.value.edges.filter(
       e => e.source !== nodeId && e.target !== nodeId
     )
-
-    if (selectedNodeId.value === nodeId) {
-      selectedNodeId.value = null
-    }
-
-    saveProject()
+    if (selectedNodeId.value === nodeId) selectedNodeId.value = null
+    _debouncedPersist()
   }
 
-  // Add edge between nodes
-  function addEdge(source: string, target: string) {
+  function addEdge(source: string, target: string, sourceHandle?: string) {
     if (!currentProject.value) return
-
-    const edgeId = `edge_${source}_${target}_${Date.now()}`
-    const edge: Edge = {
-      id: edgeId,
-      source,
-      target,
+    const exists = currentProject.value.edges.some(e => e.source === source && e.target === target)
+    if (exists) return
+    currentProject.value.edges.push({
+      id: `e_${source}_${target}`,
+      source, target,
+      sourceHandle,
       type: 'smoothstep'
-    }
-
-    currentProject.value.edges.push(edge)
-    saveProject()
-    return edgeId
+    })
+    _debouncedPersist()
   }
 
-  // Delete edge
   function deleteEdge(edgeId: string) {
     if (!currentProject.value) return
-
     currentProject.value.edges = currentProject.value.edges.filter(e => e.id !== edgeId)
-    saveProject()
+    _debouncedPersist()
   }
 
-  // Export project as compressed URL hash
+  function addChoice(nodeId: string) {
+    if (!currentProject.value) return
+    const node = currentProject.value.nodes.find(n => n.id === nodeId)
+    if (!node || node.type !== 'choice') return
+    const choices = node.data.choices ?? []
+    choices.push({ id: `c_${_uid()}`, text: `Option ${String.fromCharCode(65 + choices.length)}` })
+    node.data.choices = choices
+    _debouncedPersist()
+  }
+
+  function updateChoice(nodeId: string, choiceId: string, text: string) {
+    if (!currentProject.value) return
+    const node = currentProject.value.nodes.find(n => n.id === nodeId)
+    const choice = node?.data.choices?.find(c => c.id === choiceId)
+    if (choice) {
+      choice.text = text
+      _debouncedPersist()
+    }
+  }
+
+  function removeChoice(nodeId: string, choiceId: string) {
+    if (!currentProject.value) return
+    const node = currentProject.value.nodes.find(n => n.id === nodeId)
+    if (node?.data.choices) {
+      node.data.choices = node.data.choices.filter(c => c.id !== choiceId)
+      currentProject.value.edges = currentProject.value.edges.filter(
+        e => e.sourceHandle !== choiceId
+      )
+      _debouncedPersist()
+    }
+  }
+
   function exportAsUrl(): string {
     if (!currentProject.value) return ''
-
-    const payload = {
-      title: currentProject.value.title,
-      description: currentProject.value.description,
-      nodes: currentProject.value.nodes,
-      edges: currentProject.value.edges
-    }
-
-    const json = JSON.stringify(payload)
-    const compressed = LZString.compressToBase64(json)
+    const { title, description, nodes, edges } = currentProject.value
+    const compressed = LZString.compressToBase64(JSON.stringify({ title, description, nodes, edges }))
     return `#scenario=${compressed}`
   }
 
-  // Import from URL hash
   async function importFromUrl(hash: string): Promise<boolean> {
     try {
       const match = hash.match(/scenario=([A-Za-z0-9+/=]+)/)
       if (!match) return false
-
-      const compressed = match[1]
-      const json = LZString.decompressFromBase64(compressed)
+      const json = LZString.decompressFromBase64(match[1])
       if (!json) return false
-
       const payload = JSON.parse(json)
-      const id = `proj_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
-
+      const id = `proj_${_uid()}`
       const project: ScenarioProject = {
         id,
         title: payload.title || 'Imported Scenario',
@@ -252,68 +241,44 @@ export const useScribeFlowStore = defineStore('scribeflow', () => {
         edges: payload.edges || [],
         updatedAt: Date.now()
       }
-
       projects.value.set(id, project)
       currentProjectId.value = id
-      persistProjects()
+      await getDB().projects.put(project)
       return true
-    } catch (error) {
-      console.error('Failed to import from URL:', error)
+    } catch {
       return false
     }
   }
 
-  // Delete project
   async function deleteProject(projectId: string) {
-    try {
-      projects.value.delete(projectId)
-      if (currentProjectId.value === projectId) {
-        currentProjectId.value = null
-        selectedNodeId.value = null
-      }
-      persistProjects()
-    } catch (error) {
-      console.error('Failed to delete project:', error)
+    projects.value.delete(projectId)
+    if (currentProjectId.value === projectId) {
+      currentProjectId.value = null
+      selectedNodeId.value = null
     }
+    await getDB().projects.delete(projectId)
   }
 
-  // Set current project
-  function setCurrentProject(projectId: string | null) {
-    currentProjectId.value = projectId
+  function setCurrentProject(id: string | null) {
+    currentProjectId.value = id
     selectedNodeId.value = null
   }
 
-  // Set editing mode
   function setEditingMode(mode: 'canvas' | 'outline') {
     editingMode.value = mode
   }
 
+  function setInteractionMode(mode: 'pan' | 'arrange') {
+    interactionMode.value = mode
+  }
+
   return {
-    // State
-    projects,
-    currentProjectId,
-    selectedNodeId,
-    editingMode,
-    isLoading,
-
-    // Computed
-    currentProject,
-    currentNodes,
-    currentEdges,
-    selectedNode,
-
-    // Methods
-    loadProjects,
-    saveProject,
-    addNode,
-    updateNode,
-    deleteNode,
-    addEdge,
-    deleteEdge,
-    exportAsUrl,
-    importFromUrl,
-    deleteProject,
-    setCurrentProject,
-    setEditingMode
+    projects, currentProjectId, selectedNodeId, editingMode, interactionMode, isLoading,
+    currentProject, currentNodes, currentEdges, selectedNode,
+    loadProjects, createProject, addNode, updateNode, updateNodePosition,
+    deleteNode, addEdge, deleteEdge,
+    addChoice, updateChoice, removeChoice,
+    exportAsUrl, importFromUrl, deleteProject, setCurrentProject,
+    setEditingMode, setInteractionMode
   }
 })

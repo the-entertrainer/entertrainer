@@ -68,8 +68,6 @@ const fragmentShader = /* glsl */`
   uniform float uRimAngle;
   uniform float uGlowStrength;
   uniform float uIsImage;
-  uniform float uCenterDist;
-
   varying vec2 vUv;
   varying float vDepth;
   #include <fog_pars_fragment>
@@ -83,20 +81,6 @@ const fragmentShader = /* glsl */`
     float depthFactor = smoothstep(8.0, 14.0, depth) * 0.08;
     vec3 warmTint = vec3(1.02, 0.98, 0.96);
     return mix(col, col * warmTint, depthFactor);
-  }
-
-  vec2 sketchDisplace(vec2 uv) {
-    float dx = noise(uv * 48.0 + 0.1) - 0.5;
-    float dy = noise(uv * 48.0 + 6.3) - 0.5;
-    return uv + vec2(dx, dy) * 0.007;
-  }
-
-  float roughBorderSdf(vec2 uv, float cardAsp) {
-    vec2 nUv = sketchDisplace(uv);
-    vec2 p   = vec2((nUv.x - 0.5) * cardAsp, nUv.y - 0.5);
-    vec2 hs  = vec2(cardAsp * 0.5 - 0.06, 0.44);
-    vec2 d   = abs(p) - hs;
-    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
   }
 
   void main() {
@@ -204,30 +188,6 @@ const fragmentShader = /* glsl */`
       color.rgb     += vec3(0.96, 0.95, 0.93) * glowMask * 0.50;
     }
 
-    // ── Sketch / hand-drawn overlay (front face only) ─────────────────
-    if (gl_FrontFacing) {
-      float modeLuma   = dot(fogColor, vec3(0.299, 0.587, 0.114));
-      float isDarkMode = step(modeLuma, 0.5);
-      vec3 paperFill   = mix(vec3(0.96, 0.93, 0.86), vec3(0.05, 0.04, 0.03), isDarkMode);
-      vec3 strokeColor = mix(vec3(0.12, 0.10, 0.07), vec3(0.90, 0.87, 0.82), isDarkMode);
-      float roughSdf   = roughBorderSdf(vUv, aspect);
-      float strokeW    = 0.014 + noise(vUv * 110.0) * 0.010;
-      float stroke     = 1.0 - smoothstep(0.0, strokeW, abs(roughSdf));
-      stroke          *= (0.50 + 0.50 * noise(vUv * 70.0));
-      // Use uCenterDist (0=center, 1=adjacent, 2...) for the interior fade
-      float distFade   = smoothstep(0.2, 3.5, uCenterDist);
-      float interiorOp = mix(0.93, 0.04, distFade);
-      // Subtle yellow accent highlight on center card bottom edge
-      float yellowAccent = (1.0 - distFade) * (1.0 - modeLuma) *
-                           smoothstep(-0.05, 0.02, roughSdf) *
-                           smoothstep(-0.25, -0.15, vUv.y - 0.5);
-      color.rgb = mix(color.rgb, paperFill, 0.18 + distFade * 0.60);
-      color.rgb = mix(color.rgb, strokeColor, stroke * 0.80);
-      color.rgb = mix(color.rgb, vec3(0.965, 0.784, 0.157), yellowAccent * 0.55);
-      color.a   = min(color.a, interiorOp + stroke * 0.85);
-    }
-    // ────────────────────────────────────────────────────────────────────
-
     gl_FragColor = vec4(color.rgb, alpha * color.a * uOpacity);
     #include <fog_fragment>
   }
@@ -325,8 +285,7 @@ export default class NavPlane {
           uOpacity:        { value: 1 },
           uRimAngle:       { value: 0 },
           uGlowStrength:   { value: 0 },
-          uIsImage:        { value: this._bgImage ? 1.0 : 0.0 },
-          uCenterDist:     { value: 0.0 }
+          uIsImage:        { value: this._bgImage ? 1.0 : 0.0 }
         }
       ]),
       vertexShader,
@@ -354,7 +313,7 @@ export default class NavPlane {
     }
 
     // Glass body
-    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.08)'
+    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.15)'
     ctx.fillRect(0, 0, W, H)
 
     // Diagonal ambient sweep — dark mode only; on light it washes out dark text
@@ -367,7 +326,7 @@ export default class NavPlane {
     }
 
     // Border
-    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.10)'
+    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)'
     ctx.lineWidth   = 5
     ctx.strokeRect(6, 6, W - 12, H - 12)
 
@@ -489,17 +448,14 @@ export default class NavPlane {
     const Ha = Ba * this.angleGap
 
     this.mesh.position.set(Math.cos(Ha) * Ga, Va, Math.sin(Ha) * Ga)
-    this.mesh.rotation.y = -Ha + Math.PI / 2
-    // Per-card scatter tilt — paper scattered on desk feel
-    const tiltAmt = Math.abs(Ba) > 0.5 ? 0.055 : 0.008
-    this.mesh.rotation.z = Math.sin(this.index * 2.3 + 1.1) * tiltAmt * (1 - this.hoverProgress)
+    this.mesh.rotation.y  = -Ha + Math.PI / 2
+    this.mesh.rotation.z  = 0
 
     const mat = this.mesh.material as ShaderMaterial
     mat.uniforms.uScrollSpeed.value    = scrollSpeed
     mat.uniforms.uColorStrength.value  = 0.55 * this.hoverProgress
     mat.uniforms.uZoom.value           = 1 + 0.05 * this.hoverProgress
     mat.uniforms.uRevealProgress.value = this.revealProgress * (1 - this.hoverProgress * 0.05)
-    mat.uniforms.uCenterDist.value     = Math.abs(Ba)
 
     mat.uniforms.uOpacity.value = this.wrapFade
 

@@ -25,45 +25,53 @@ const fragmentShader = /* glsl */`
   uniform vec2  uRepeat;
   uniform float uBlur;
   uniform float uAspect;
+  uniform float uIsDark;
   varying vec2 vUv;
 
   #define SAMPLES 28
 
-  // Subtle noise for film grain texture (premium feel)
   float noise(vec2 p) {
     return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
   }
 
-  // Subtle outline enhancement (Sobel-like edge detection)
-  float edgeStrength(sampler2D tex, vec2 uv, float scale) {
-    vec2 eps = vec2(scale, 0.0);
-    float l = dot(texture2D(tex, uv - eps.xy).rgb, vec3(0.299, 0.587, 0.114));
-    float r = dot(texture2D(tex, uv + eps.xy).rgb, vec3(0.299, 0.587, 0.114));
-    float u = dot(texture2D(tex, uv - eps.yx).rgb, vec3(0.299, 0.587, 0.114));
-    float d = dot(texture2D(tex, uv + eps.yx).rgb, vec3(0.299, 0.587, 0.114));
-    return sqrt((r-l)*(r-l) + (d-u)*(d-u)) * 0.5;
+  float fbm(vec2 p) {
+    float v = 0.0; float a = 0.5;
+    for (int i = 0; i < 4; i++) {
+      v += a * noise(p);
+      p = p * 2.07 + vec2(0.13, 0.47);
+      a *= 0.5;
+    }
+    return v;
   }
 
-  // Subtle comic enhancement (less aggressive than before)
-  vec3 subtleComicEffect(vec3 col, vec2 uv) {
-    // Very gentle posterize (smoother than before)
-    float levels = 8.0;
-    vec3 posterized = floor(col * levels) / levels;
-    col = mix(col, posterized, 0.4); // 40% blend for subtlety
-
-    // Subtle saturation boost
-    float luma = dot(col, vec3(0.299, 0.587, 0.114));
-    vec3 saturated = mix(vec3(luma), col, 1.15);
-
-    // Very subtle contrast
-    saturated = mix(vec3(0.5), saturated, 1.08);
-
-    // Add subtle edge definition (soft outlines)
-    float edges = edgeStrength(uTexture, uv, 0.003);
-    edges = smoothstep(0.05, 0.15, edges);
-    saturated = mix(saturated, saturated * 0.85, edges * 0.15);
-
-    return saturated;
+  vec3 sketchEffect(vec3 col, vec2 uv) {
+    if (uIsDark > 0.5) {
+      // Chalk on blackboard
+      float luma = dot(col, vec3(0.299, 0.587, 0.114));
+      col = mix(vec3(luma * 0.55), col * 0.35, 0.3);
+      float chalk = fbm(uv * 450.0) * 0.12;
+      col += chalk * 0.55;
+      float lineFreq  = 90.0;
+      float lineVal   = fract(uv.y * lineFreq);
+      float lineNoise = noise(vec2(uv.x * 60.0, uv.y * lineFreq)) * 0.3;
+      float line = smoothstep(0.0, 0.04 + lineNoise, lineVal) *
+                   (1.0 - smoothstep(0.82 - lineNoise, 0.95, lineVal));
+      col = mix(col * 0.9, col, line);
+    } else {
+      // Pencil on cream paper
+      vec3 paper = vec3(0.941, 0.918, 0.851);
+      float luma = dot(col, vec3(0.299, 0.587, 0.114));
+      col = mix(vec3(luma), col, 0.5);
+      col = mix(col, paper, 0.45);
+      float grain = fbm(uv * 550.0) * 0.07;
+      col += grain * vec3(0.80, 0.72, 0.55);
+      float hatch      = fract((uv.x + uv.y) * 140.0);
+      float hatchNoise = noise(uv * 90.0) * 0.25;
+      float hatchLine  = smoothstep(0.0, 0.04 + hatchNoise, hatch) *
+                         (1.0 - smoothstep(0.94 - hatchNoise, 1.0, hatch));
+      col = mix(col, col * 0.93, (1.0 - hatchLine) * 0.08);
+    }
+    return col;
   }
 
   void main() {
@@ -83,12 +91,11 @@ const fragmentShader = /* glsl */`
       total += 1.0;
     }
     vec3 blurred = mix(sumA / total, sumB / total, uCrossFade);
-    vec3 enhanced = subtleComicEffect(blurred, baseUv);
+    vec3 enhanced = sketchEffect(blurred, baseUv);
 
-    // Add film grain noise (subtle texture for premium feel)
     float grain = noise(vUv * 240.0);
-    grain = mix(0.5, grain, 0.4) - 0.5; // centered noise
-    enhanced += grain * 0.03;
+    grain = mix(0.5, grain, 0.4) - 0.5;
+    enhanced += grain * 0.025;
 
     gl_FragColor = vec4(enhanced, 1.0);
   }
@@ -125,6 +132,7 @@ export default class Backdrop {
         uRepeat:    { value: new Vector2(OVERSCAN, OVERSCAN) },
         uBlur:      { value: 0.0 },
         uAspect:    { value: 1.0 },
+        uIsDark:    { value: 1.0 },
       },
       vertexShader,
       fragmentShader,
@@ -142,6 +150,7 @@ export default class Backdrop {
 
   setTheme(isDark: boolean) {
     this._isDark = isDark
+    this.material.uniforms.uIsDark.value = isDark ? 1.0 : 0.0
     const landscape = this.experience.sizes.width >= this.experience.sizes.height
     const src = `/backdrop-${isDark ? 'dark' : 'light'}-${landscape ? 'landscape' : 'portrait'}.png`
 
@@ -186,6 +195,7 @@ export default class Backdrop {
       this.material.uniforms.uTextureB.value = tex  // safe: same tex, fade=0
       this.material.uniforms.uCrossFade.value = 0
       this.material.uniforms.uAspect.value = cw / ch
+      this.material.uniforms.uIsDark.value = this._isDark ? 1.0 : 0.0
       this._enabled = true
       this.mesh.visible = true
       if (!this._readyFired) {
@@ -198,6 +208,7 @@ export default class Backdrop {
       this._texB = tex
       this.material.uniforms.uTextureB.value = tex
       this.material.uniforms.uAspect.value = cw / ch
+      this.material.uniforms.uIsDark.value = this._isDark ? 1.0 : 0.0
       this._crossFadeStart = -1  // update() will capture elapsed on next frame
     }
   }

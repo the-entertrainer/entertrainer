@@ -78,12 +78,24 @@ const fragmentShader = /* glsl */`
     return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
   }
 
-  // Subtle depth-based color tint (matches background vibrancy)
   vec3 depthTint(vec3 col, float depth) {
-    // Very subtle warmth tint for cards far from center
     float depthFactor = smoothstep(8.0, 14.0, depth) * 0.08;
     vec3 warmTint = vec3(1.02, 0.98, 0.96);
     return mix(col, col * warmTint, depthFactor);
+  }
+
+  vec2 sketchDisplace(vec2 uv) {
+    float dx = noise(uv * 48.0 + 0.1) - 0.5;
+    float dy = noise(uv * 48.0 + 6.3) - 0.5;
+    return uv + vec2(dx, dy) * 0.007;
+  }
+
+  float roughBorderSdf(vec2 uv, float cardAsp) {
+    vec2 nUv = sketchDisplace(uv);
+    vec2 p   = vec2((nUv.x - 0.5) * cardAsp, nUv.y - 0.5);
+    vec2 hs  = vec2(cardAsp * 0.5 - 0.06, 0.44);
+    vec2 d   = abs(p) - hs;
+    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
   }
 
   void main() {
@@ -190,6 +202,24 @@ const fragmentShader = /* glsl */`
       float glowMask = rimFade * arcFade * uGlowStrength;
       color.rgb     += vec3(0.96, 0.95, 0.93) * glowMask * 0.50;
     }
+
+    // ── Sketch / hand-drawn overlay (front face only) ─────────────────
+    if (gl_FrontFacing) {
+      float modeLuma   = dot(fogColor, vec3(0.299, 0.587, 0.114));
+      float isDarkMode = step(modeLuma, 0.5);
+      vec3 paperFill   = mix(vec3(0.96, 0.93, 0.86), vec3(0.05, 0.04, 0.03), isDarkMode);
+      vec3 strokeColor = mix(vec3(0.12, 0.10, 0.07), vec3(0.90, 0.87, 0.82), isDarkMode);
+      float roughSdf   = roughBorderSdf(vUv, aspect);
+      float strokeW    = 0.013 + noise(vUv * 110.0) * 0.009;
+      float stroke     = 1.0 - smoothstep(0.0, strokeW, abs(roughSdf));
+      stroke          *= (0.45 + 0.55 * noise(vUv * 70.0));
+      float distFade   = smoothstep(5.5, 11.0, vDepth);
+      float interiorOp = mix(0.88, 0.04, distFade);
+      color.rgb = mix(color.rgb, paperFill, 0.22 + distFade * 0.55);
+      color.rgb = mix(color.rgb, strokeColor, stroke * 0.75);
+      color.a   = min(color.a, interiorOp + stroke * 0.82);
+    }
+    // ────────────────────────────────────────────────────────────────────
 
     gl_FragColor = vec4(color.rgb, alpha * color.a * uOpacity);
     #include <fog_fragment>
@@ -315,8 +345,8 @@ export default class NavPlane {
       return
     }
 
-    // Glass body — matches --color-glass-bg token
-    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.15)'
+    // Glass body
+    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.08)'
     ctx.fillRect(0, 0, W, H)
 
     // Diagonal ambient sweep — dark mode only; on light it washes out dark text
@@ -328,8 +358,8 @@ export default class NavPlane {
       ctx.fillRect(0, 0, W, H)
     }
 
-    // Border — matches --color-glass-border token
-    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)'
+    // Border
+    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.10)'
     ctx.lineWidth   = 5
     ctx.strokeRect(6, 6, W - 12, H - 12)
 

@@ -162,10 +162,12 @@ export default class Controls {
   }
 
   reset() {
+    // Reset to center position (0.5 centers the spiral on the first item)
     this.scrollOffset = 0.5
     this._prevOffset = 0.5
+    this._snapTarget = 0.5
     this._velocity = 0
-    this._phase = 'drift'
+    this._phase = 'rest'  // Start at rest to prevent drift during transitions
     this._lastInteraction = performance.now()
   }
 

@@ -179,20 +179,27 @@ const fragmentShader = /* glsl */`
     float alpha     = 1.0 - smoothstep(-aa, aa, sdf);
     alpha          *= smoothstep(0.1, 1.0, uRevealProgress);
 
-    // Orbiting rim glow — cream spotlight tracing the card edge
+    // Orbiting rim glow — cream spotlight tracing the card edge during reveal
     if (gl_FrontFacing) {
       vec2  cp       = vec2((vUv.x - 0.5) * aspect, vUv.y - 0.5);
       float pAngle   = atan(cp.y, cp.x);
       float angDelta = abs(mod(pAngle - uRimAngle + 3.14159, 6.28318) - 3.14159);
-      float rimFade  = exp(-sdf * sdf * 300.0);
-      float arcFade  = exp(-angDelta * angDelta * 1.2);
+      // Sharper edge falloff for more focused glow
+      float rimFade  = exp(-sdf * sdf * 350.0);
+      // Tighter arc for more delicate accent
+      float arcFade  = exp(-angDelta * angDelta * 1.4);
       float glowMask = rimFade * arcFade * uGlowStrength;
-      color.rgb     += vec3(0.96, 0.95, 0.93) * glowMask * 0.50;
+      // Premium warm glow color
+      color.rgb     += vec3(0.98, 0.96, 0.94) * glowMask * 0.65;
     }
 
     // Depth-cascade fade during spiral transitions
     // Back cards (high vDepth) fade first, progressively to front cards
-    float depthCascade = smoothstep(14.0, 8.0, vDepth);
+    // Smoother transition between depth ranges for better visual continuity
+    float depthCascade = smoothstep(14.5, 7.5, vDepth);
+
+    // Blend exit/entrance fades with a smooth mix
+    // During exit, use exitFade; during entrance, use entranceFade
     float transitionFade = mix(uExitFade, uEntranceFade, 0.5);
     float cascadedFade = mix(transitionFade, 1.0, depthCascade);
 
@@ -244,7 +251,7 @@ export default class NavPlane {
 
   readonly baseScaleX  = 1.7
   readonly baseScaleY  = 1.0
-  readonly verticalGap = 0.5
+  readonly verticalGap = 0.48  // Slightly tighter for better centering
   readonly angleGap    = 0.85
   readonly baseRadius  = 2.0
 
@@ -359,12 +366,15 @@ export default class NavPlane {
     ctx.fillStyle    = textColor
     ctx.textAlign    = 'left'
     ctx.textBaseline = 'alphabetic'
-    let labelPx = 180
-    ctx.font = `700 ${labelPx}px system-ui, -apple-system, Arial, sans-serif`
+    let labelPx = 175
+    ctx.font = `700 ${labelPx}px -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`
     while (ctx.measureText(label).width > 1480 && labelPx > 72) {
       labelPx -= 6
-      ctx.font = `700 ${labelPx}px system-ui, -apple-system, Arial, sans-serif`
+      ctx.font = `700 ${labelPx}px -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`
     }
+    // Smooth rendering for text
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
     ctx.fillText(label.substring(0, charCount), 100, 550)
 
     // ── Cursor ────────────────────────────────────────────────────
@@ -383,17 +393,18 @@ export default class NavPlane {
     // ── Description (fades in after label) ───────────────────────
     if (this._descProgress > 0) {
       const desc      = this.navItem.description
-      const descAlpha = this._descProgress * (isDark ? 0.60 : 0.50)
+      // Smoother alpha curve for description fade
+      const descAlpha = Math.pow(this._descProgress, 0.9) * (isDark ? 0.62 : 0.52)
       ctx.fillStyle   = isDark
         ? `rgba(244,241,236,${descAlpha.toFixed(3)})`
         : `rgba(13,12,10,${descAlpha.toFixed(3)})`
-      let descPx = 64
-      ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
+      let descPx = 62
+      ctx.font = `400 ${descPx}px -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`
       while (ctx.measureText(desc).width > 1480 && descPx > 38) {
         descPx -= 4
-        ctx.font = `400 ${descPx}px system-ui, -apple-system, Arial, sans-serif`
+        ctx.font = `400 ${descPx}px -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`
       }
-      ctx.fillText(desc, 100, 650)
+      ctx.fillText(desc, 100, 655)
     }
 
     this._tex.needsUpdate = true
@@ -438,11 +449,13 @@ export default class NavPlane {
     ws = ((ws % this.totalCount) + this.totalCount) % this.totalCount
     const Ba = ws - centerIndex
 
+    // Detect wrap: when the relative position jumps discontinuously
     if (this.prevBa !== null && Math.abs(Ba - this.prevBa) > this.totalCount / 2) {
       this.wrapFade = 0
     }
     this.prevBa = Ba
-    const wFactor = 1 - Math.pow(1 - 0.008, delta)
+    // Smooth wrap fade — cards gradually reappear as they re-enter the visible range
+    const wFactor = 1 - Math.pow(1 - 0.006, delta)
     this.wrapFade += (1 - this.wrapFade) * wFactor
 
     const hFactor  = 1 - Math.pow(1 - 0.05, delta * 0.15)
@@ -452,21 +465,24 @@ export default class NavPlane {
     this.revealProgress += (this.revealTarget  - this.revealProgress) * hFactor
     this.hoverProgress  += (this.hoverTarget   - this.hoverProgress)  * hvFactor
 
-    // Edge push: ramp a card sharply up (top) / down (bottom) once it passes the
-    // visible fan, so it flies in from above the viewport and out below the
-    // bottom — instead of dissolving in mid-screen at the wrap point.
+    // Edge push: ramp cards sharply up (top) / down (bottom) and away in Z (depth)
+    // once they pass the visible fan, so they fly away from the camera and out of view
+    // instead of dissolving in mid-screen at the wrap point.
     const half = this.totalCount / 2
     const edge = Math.max(0, Math.abs(Ba) - (half - 2.2))
-    // ~0.4 lifts a card just past the top/bottom edge as it fades; higher
-    // values fling it far above the viewport and read as a violent jump.
-    const edgePush = Math.sign(Ba) * edge * edge * 0.4
-    const Va = Ba * this.verticalGap - 0.8 + this.hiddenProgress * 9.0 + edgePush
+    // Vertical push: lifts/drops card as it fades
+    const edgeVertical = Math.sign(Ba) * edge * edge * 0.5
+    // Depth push: cards fly away from camera (positive Z direction)
+    const edgeDepth = edge * edge * 0.35
+
+    const Va = Ba * this.verticalGap + this.hiddenProgress * 9.0 + edgeVertical
+    const Za = edgeDepth  // Push cards away in depth during wrap
     const Ga = this.baseRadius * (1 - this.hiddenProgress / 2)
 
     // Apply spin multiplier to angle during transition (spiral acceleration/deceleration)
     const Ha = Ba * this.angleGap * spinMultiplier
 
-    this.mesh.position.set(Math.cos(Ha) * Ga, Va, Math.sin(Ha) * Ga)
+    this.mesh.position.set(Math.cos(Ha) * Ga, Va, Math.sin(Ha) * Ga + Za)
     this.mesh.rotation.y  = -Ha + Math.PI / 2
     this.mesh.rotation.z  = 0
 
@@ -480,18 +496,20 @@ export default class NavPlane {
     mat.uniforms.uEntranceFade.value = this.entranceFade
 
     // ── Typewriter ──────────────────────────────────────────────
-    const LABEL_DURATION = 1200
-    const DESC_DELAY     = 0.70
-    const DESC_DURATION  = 600
+    // Timing: label → description delay → description (staggered reveal)
+    const LABEL_DURATION = 1100
+    const DESC_DELAY     = 0.65
+    const DESC_DURATION  = 700
 
-    if (this.revealProgress > 0.5 && this._labelProgress < 1) {
+    if (this.revealProgress > 0.4 && this._labelProgress < 1) {
       this._labelProgress = Math.min(1, this._labelProgress + delta / LABEL_DURATION)
     }
     if (this._labelProgress >= DESC_DELAY) {
       this._descProgress = Math.min(1, this._descProgress + delta / DESC_DURATION)
     }
+    // Cursor fade: smooth fade after label completes
     if (this._labelProgress >= 1 && this._cursorFading < 1) {
-      this._cursorFading = Math.min(1, this._cursorFading + delta / 1200)
+      this._cursorFading = Math.min(1, this._cursorFading + delta / 1400)
     }
 
     const charCount   = Math.min(
@@ -508,9 +526,11 @@ export default class NavPlane {
     }
 
     // ── Rim glow ─────────────────────────────────────────────────
-    this._rimAngle     = (this._rimAngle + delta * 0.0007) % (Math.PI * 2)
-    const glowFactor   = 1 - Math.pow(1 - 0.004, delta)
-    this._glowStrength += (this.revealProgress - this._glowStrength) * glowFactor
+    // Orbiting rim light that brightens as card is revealed
+    this._rimAngle     = (this._rimAngle + delta * 0.00065) % (Math.PI * 2)
+    const glowFactor   = 1 - Math.pow(1 - 0.005, delta)
+    // Glow strength peaks at full reveal, creating a premium "glass" look
+    this._glowStrength += (this.revealProgress * 0.85 - this._glowStrength) * glowFactor
 
     mat.uniforms.uRimAngle.value     = this._rimAngle
     mat.uniforms.uGlowStrength.value = this._glowStrength

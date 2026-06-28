@@ -72,7 +72,7 @@ export default class World {
 
   private async _animateSpiralExit() {
     const startTime = performance.now()
-    const duration = 600  // ms
+    const duration = 650  // ms — slightly longer for dramatic exit
 
     return new Promise<void>(r => {
       const animate = () => {
@@ -84,11 +84,14 @@ export default class World {
         const elapsed = performance.now() - startTime
         const progress = Math.min(elapsed / duration, 1)
 
-        // Accelerate spin: 1x → 3x speed over 600ms
-        this.spiralRotationSpeedMultiplier = 1 + progress * 2
+        // Accelerate spin: 1x → 3.5x speed (more dramatic vortex)
+        // Use ease-in quad for snappy acceleration
+        const easeProgress = progress * progress
+        this.spiralRotationSpeedMultiplier = 1 + easeProgress * 2.5
 
         // Depth-cascade fade: fade out as we spin
-        const fadeFactor = Math.pow(progress, 1.2)  // ease-out for fade
+        // Progress faster for more dramatic exit
+        const fadeFactor = Math.pow(progress, 1.0)
         this.navPlanes.forEach(p => {
           p.exitFade = fadeFactor
         })
@@ -107,7 +110,7 @@ export default class World {
 
   private async _animateSpiralEntrance() {
     const startTime = performance.now()
-    const duration = 500  // ms
+    const duration = 550  // ms — slightly longer for satisfying reveal
 
     this.navPlanes.forEach(p => { p.entranceFade = 0 })
 
@@ -121,11 +124,13 @@ export default class World {
         const elapsed = performance.now() - startTime
         const progress = Math.min(elapsed / duration, 1)
 
-        // Decelerate spin: 3x → 1x speed
-        this.spiralRotationSpeedMultiplier = 3 - progress * 2
+        // Decelerate spin: 3.5x → 1x speed with ease-out quad
+        const easeProgress = 1 - (1 - progress) * (1 - progress)
+        this.spiralRotationSpeedMultiplier = 3.5 - easeProgress * 2.5
 
         // Depth-cascade fade in (reverse): cards appear via depth
-        const revealFactor = Math.pow(progress, 0.8)  // ease-in for reveal
+        // Use ease-out for smooth, natural reveal
+        const revealFactor = Math.pow(progress, 0.7)
         this.navPlanes.forEach(p => {
           p.entranceFade = revealFactor
         })

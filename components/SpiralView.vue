@@ -200,12 +200,19 @@ async function mountExperience() {
     _pendingExpansionIndex = experience!.lastClickedItemIndex
     emit('cardClick', href)
     // Reset camera and fade overlay out after nav (covers both accordion and route cases)
+    // Timing: camera reset immediately, then overlay fades out after a brief settle
     setTimeout(() => {
       experience?.resetCamera()
-      if (dollyOverlayRef.value) {
-        gsap.to(dollyOverlayRef.value, { opacity: 0, duration: 0.5, ease: 'power2.out', delay: 0.15 })
-      }
-    }, 80)
+    }, 100)
+
+    if (dollyOverlayRef.value) {
+      gsap.to(dollyOverlayRef.value, {
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power2.out',
+        delay: 0.25
+      })
+    }
   })
 
   // For return visits (no loader, or loader already played): ensure the menu
@@ -277,16 +284,18 @@ watch(() => props.items, async (newItems) => {
   if (!experience || !newItems.length || transitioning) return
   transitioning = true
 
-  if (_pendingExpansionIndex !== null) {
-    // Sub-section clicked — expand in-place
-    await experience.world.expandAt(newItems, _pendingExpansionIndex)
-    _pendingExpansionIndex = null
-  } else {
-    // Back navigation or full transition
-    await experience.world.transitionTo(newItems)
+  try {
+    if (_pendingExpansionIndex !== null) {
+      // Sub-section clicked — expand in-place
+      await experience.world.expandAt(newItems, _pendingExpansionIndex)
+      _pendingExpansionIndex = null
+    } else {
+      // Back navigation or full transition — vortex spiral out/in
+      await experience.world.transitionTo(newItems)
+    }
+  } finally {
+    transitioning = false
   }
-
-  transitioning = false
 }, { deep: false })
 
 // Sync theme (fog + card textures) when theme changes

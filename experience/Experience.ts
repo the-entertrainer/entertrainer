@@ -87,6 +87,7 @@ export default class Experience extends EventEmitter {
 
   resetCamera() {
     this._dollyActive         = false
+    this._dollyMidFired       = false
     this.controls.locked      = false
     this.camera.instance.position.set(0, 0, 8)
     this.camera.instance.lookAt(0, 0, 0)

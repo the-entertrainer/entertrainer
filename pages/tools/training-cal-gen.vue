@@ -391,18 +391,53 @@ function isMobileOrIOS(): boolean {
   return /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(navigator.userAgent)
 }
 
-function canShareFiles(files: File[]): boolean {
-  return !!(navigator.canShare && navigator.canShare({ files }))
+const isMobileDevice = ref(false)
+
+// ─── Print export (mobile / iOS) ──────────────────────────────────────────────
+// html2canvas has an unresolved SecurityError on iOS Safari when any stylesheet
+// in the document contains data: URI backgrounds — even outside the capture
+// target. html-to-image uses SVG foreignObject which Safari restricts similarly.
+// The only reliable cross-platform approach on iOS is window.print():
+// the native print dialog lets users save as PDF at full vector quality.
+function printCalendar() {
+  if (!calendarEl.value) return
+
+  // Sync v-model input values to HTML attributes so cloneNode preserves them
+  calendarEl.value.querySelectorAll('input').forEach((el: HTMLInputElement) => {
+    el.setAttribute('value', el.value)
+  })
+
+  const container = document.createElement('div')
+  container.id = 'tcg-print-root'
+  container.appendChild(calendarEl.value.cloneNode(true))
+  document.body.appendChild(container)
+  document.body.classList.add('tcg-is-printing')
+
+  const cleanup = () => {
+    document.body.classList.remove('tcg-is-printing')
+    if (document.body.contains(container)) document.body.removeChild(container)
+    window.removeEventListener('afterprint', cleanup)
+    clearTimeout(fallbackTimer)
+  }
+  // afterprint may not fire on all iOS versions — clean up after 20s anyway
+  const fallbackTimer = setTimeout(cleanup, 20_000)
+  window.addEventListener('afterprint', cleanup)
+  window.print()
 }
 
+// ─── Canvas export (desktop) ──────────────────────────────────────────────────
 async function exportCanvas(purpose: 'png' | 'pdf') {
   if (!import.meta.client || !calendarEl.value) return
-  const mobile = isMobileOrIOS()
-  const stem   = `training-calendar-${selectedYear.value}-${String(selectedMonth.value).padStart(2,'0')}`
+  const stem = `training-calendar-${selectedYear.value}-${String(selectedMonth.value).padStart(2,'0')}`
 
   try {
     const { default: html2canvas } = await import('html2canvas')
-    const canvas = await html2canvas(calendarEl.value, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
+    const canvas = await html2canvas(calendarEl.value, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+    })
 
     if (purpose === 'pdf') {
       const jspdfMod = await import('jspdf')
@@ -412,61 +447,30 @@ async function exportCanvas(purpose: 'png' | 'pdf') {
       const h = canvas.height / 2
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [w, h] })
       pdf.addImage(dataURL, 'PNG', 0, 0, w, h)
-
-      if (mobile) {
-        // iOS: share sheet (iOS 15+); falls back to opening the data URI
-        const blob = pdf.output('blob') as Blob
-        const file = new File([blob], `${stem}.pdf`, { type: 'application/pdf' })
-        if (canShareFiles([file])) {
-          await navigator.share({ files: [file] })
-        } else {
-          const uri = pdf.output('datauristring') as string
-          if (!window.open(uri, '_blank')) {
-            alert('Allow popups in Safari (Settings → Safari → Block Pop-ups) to export PDF.')
-          }
-        }
-      } else {
-        pdf.save(`${stem}.pdf`)
-      }
+      pdf.save(`${stem}.pdf`)
     } else {
-      // PNG
       const blob = await new Promise<Blob>(resolve =>
         canvas.toBlob(b => resolve(b!), 'image/png')
       )
-
-      if (mobile) {
-        // iOS: share sheet (iOS 15+); falls back to opening a blob URL in a new tab
-        const file = new File([blob], `${stem}.png`, { type: 'image/png' })
-        if (canShareFiles([file])) {
-          await navigator.share({ files: [file] })
-        } else {
-          const url = URL.createObjectURL(blob)
-          if (!window.open(url, '_blank')) {
-            alert('Allow popups in Safari (Settings → Safari → Block Pop-ups) to export PNG.')
-          }
-          setTimeout(() => URL.revokeObjectURL(url), 60_000)
-        }
-      } else {
-        const url = URL.createObjectURL(blob)
-        const a   = document.createElement('a')
-        a.href     = url
-        a.download = `${stem}.png`
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      }
+      const url = URL.createObjectURL(blob)
+      const a   = document.createElement('a')
+      a.href     = url
+      a.download = `${stem}.png`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
     }
-  } catch (err: any) {
-    // AbortError = user dismissed the share sheet — not an error
-    if (err?.name !== 'AbortError') {
-      alert('Export failed. Please try again.')
-    }
+  } catch {
+    // Canvas capture failed on this browser — fall back to print
+    printCalendar()
   }
 }
 
-function exportPNG() { exportCanvas('png') }
-function exportPDF() { exportCanvas('pdf') }
+function exportPNG() { isMobileDevice.value ? printCalendar() : exportCanvas('png') }
+function exportPDF() { isMobileDevice.value ? printCalendar() : exportCanvas('pdf') }
+
+onMounted(() => { isMobileDevice.value = isMobileOrIOS() })
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 function backToInput() {
@@ -712,8 +716,13 @@ function backToTable() {
             </div>
 
             <div class="tcg-export-btns">
-              <button class="tcg-export" @click="exportPNG">Export PNG</button>
-              <button class="tcg-export" @click="exportPDF">Export PDF</button>
+              <template v-if="isMobileDevice">
+                <button class="tcg-export" @click="printCalendar">Print / Save PDF</button>
+              </template>
+              <template v-else>
+                <button class="tcg-export" @click="exportPNG">Export PNG</button>
+                <button class="tcg-export" @click="exportPDF">Export PDF</button>
+              </template>
             </div>
           </div>
 
@@ -1705,4 +1714,40 @@ function backToTable() {
 /* ── Transitions ── */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.22s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
+</style>
+
+<!-- Print styles must be global (not scoped) so they apply to the cloned
+     #tcg-print-root appended directly to <body>. The calendar content inside
+     the clone retains its scoped data-v-* attributes so scoped styles still
+     apply. -->
+<style>
+@media print {
+  /* Hide everything on the page while printing the calendar clone */
+  body.tcg-is-printing { visibility: hidden !important; }
+
+  /* Show only the cloned calendar container */
+  #tcg-print-root {
+    visibility: visible !important;
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    background: #ffffff !important;
+  }
+  #tcg-print-root * { visibility: visible !important; }
+
+  /* Reset the calendar card so it fills the print page edge-to-edge */
+  #tcg-print-root .tcg-cal {
+    min-width: 0 !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Force backgrounds and colours to print (no browser auto-stripping) */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
 </style>

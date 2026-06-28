@@ -184,7 +184,6 @@ body {
   -webkit-touch-callout: none;
   overscroll-behavior-y: none;
   -moz-osx-font-smoothing: grayscale;
-  transition: background 0.25s ease, color 0.25s ease;
 }
 a {
   color: inherit;

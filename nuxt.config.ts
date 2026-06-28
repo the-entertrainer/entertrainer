@@ -12,12 +12,13 @@ export default defineNuxtConfig({
       title: 'Entertrainer',
       script: [
         {
-          innerHTML: `(function(){var t=localStorage.getItem('et-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.dataset.theme=t;})();`
+          innerHTML: `(function(){var t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;})();`
         }
       ],
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
-        { name: 'theme-color', content: '#0D0C0A' },
+        { name: 'theme-color', content: '#0D0C0A', media: '(prefers-color-scheme: dark)' },
+        { name: 'theme-color', content: '#F5EFE8', media: '(prefers-color-scheme: light)' },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },

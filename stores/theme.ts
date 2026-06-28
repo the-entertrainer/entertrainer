@@ -12,15 +12,16 @@ export const useThemeStore = defineStore('theme', {
       this.theme = t
       if (import.meta.client) {
         document.documentElement.dataset.theme = t
-        localStorage.setItem('et-theme', t)
       }
     },
     init() {
       if (!import.meta.client) return
-      const saved = localStorage.getItem('et-theme') as Theme | null
-      if (saved) { this.set(saved); return }
-      const preferLight = window.matchMedia('(prefers-color-scheme: light)').matches
-      this.set(preferLight ? 'light' : 'dark')
+      localStorage.removeItem('et-theme')
+      const mq = window.matchMedia('(prefers-color-scheme: light)')
+      this.set(mq.matches ? 'light' : 'dark')
+      mq.addEventListener('change', (e) => {
+        this.set(e.matches ? 'light' : 'dark')
+      })
     }
   }
 })

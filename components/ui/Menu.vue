@@ -2,7 +2,6 @@
 import gsap from 'gsap'
 import { useMenuStore }       from '~/stores/menu'
 import { useContentStore }    from '~/stores/content'
-import { useThemeStore }      from '~/stores/theme'
 import { useHomeViewStore }   from '~/stores/homeview'
 import { useExperienceStore } from '~/stores/experience'
 
@@ -10,7 +9,6 @@ const route           = useRoute()
 const router          = useRouter()
 const menuStore       = useMenuStore()
 const contentStore    = useContentStore()
-const themeStore      = useThemeStore()
 const homeViewStore   = useHomeViewStore()
 const experienceStore = useExperienceStore()
 const isOpened        = computed(() => menuStore.isOpened)
@@ -54,10 +52,6 @@ watch(isOpened, (open) => {
 function setItemEl(el: any, i: number) {
   if (!el) return
   itemEls.value[i] = el.$el ?? el
-}
-
-function toggleTheme() {
-  themeStore.set(themeStore.isDark ? 'light' : 'dark')
 }
 
 function toggleView() {
@@ -110,36 +104,9 @@ function handleBack() {
           </template>
         </div>
 
-        <div class="e-controls" :ref="(el: any) => setItemEl(el, links.length + 1)">
-          <!-- Theme toggle — sun ↔ moon morph -->
-          <button
-            class="e-ctl"
-            :class="{ alt: themeStore.isDark }"
-            @click="toggleTheme"
-            :aria-label="themeStore.isDark ? 'Switch to light theme' : 'Switch to dark theme'"
-          >
-            <span class="ic-wrap">
-              <svg class="ic ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="4.2" />
-                <line x1="12" y1="1.6" x2="12" y2="3.6" />
-                <line x1="12" y1="20.4" x2="12" y2="22.4" />
-                <line x1="1.6" y1="12" x2="3.6" y2="12" />
-                <line x1="20.4" y1="12" x2="22.4" y2="12" />
-                <line x1="4.6" y1="4.6" x2="6" y2="6" />
-                <line x1="18" y1="18" x2="19.4" y2="19.4" />
-                <line x1="4.6" y1="19.4" x2="6" y2="18" />
-                <line x1="18" y1="6" x2="19.4" y2="4.6" />
-              </svg>
-              <svg class="ic ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-              </svg>
-            </span>
-            <span class="e-ctl-label">{{ themeStore.isDark ? 'dark' : 'light' }}</span>
-          </button>
-
+        <div v-if="showViewToggle" class="e-controls" :ref="(el: any) => setItemEl(el, links.length + 1)">
           <!-- View mode toggle — list ↔ spiral (home only, after loader) -->
           <button
-            v-if="showViewToggle"
             class="e-ctl e-view-ctl"
             :class="{ alt: homeViewStore.mode === 'list' }"
             @click="toggleView"
@@ -252,7 +219,7 @@ function handleBack() {
 .e-panel.open {
   /* Compact dropdown card — anchored under the ET button */
   width: 264rem;
-  height: 326rem;
+  height: 240rem;
   border-radius: 22rem;
   /* Open: fully opaque solid panel */
   background: var(--color-white);
@@ -390,12 +357,6 @@ function handleBack() {
   transform-origin: 50% 50%;
   transition: opacity 0.35s ease, transform 0.45s var(--ease-spring);
 }
-
-/* Theme: sun (light) ↔ moon (dark, .alt) */
-.ic-sun  { opacity: 1; transform: rotate(0deg) scale(1); }
-.ic-moon { opacity: 0; transform: rotate(80deg) scale(0.6); }
-.e-ctl.alt .ic-sun  { opacity: 0; transform: rotate(-80deg) scale(0.6); }
-.e-ctl.alt .ic-moon { opacity: 1; transform: rotate(0deg) scale(1); }
 
 /* View: list (spiral mode) ↔ spiral (list mode, .alt) */
 .ic-list   { opacity: 1; transform: rotate(0deg); }

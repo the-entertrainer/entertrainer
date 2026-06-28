@@ -46,7 +46,10 @@ export default class Experience extends EventEmitter {
 
   constructor(canvas: HTMLCanvasElement) {
     super()
-    if (Experience._instance) return Experience._instance
+    if (Experience._instance) {
+      if (Experience._instance.canvas.isConnected) return Experience._instance
+      Experience._instance.destroy()
+    }
     Experience._instance = this
 
     this.canvas       = canvas

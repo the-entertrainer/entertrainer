@@ -34,6 +34,7 @@ if (typeof document !== 'undefined') {
 const vertexShader = /* glsl */`
   varying vec2 vUv;
   varying vec3 vWorldPosition;
+  varying float vDepth;
   #include <fog_pars_vertex>
   #define PI 3.14159265359
   uniform float uScrollSpeed;
@@ -51,6 +52,7 @@ const vertexShader = /* glsl */`
     gl_Position = projectionMatrix * mvPosition;
     vUv = uv;
     vWorldPosition = worldPosition;
+    vDepth = length(mvPosition.xyz); // distance from camera for depth effects
     #include <fog_vertex>
   }
 `
@@ -68,7 +70,21 @@ const fragmentShader = /* glsl */`
   uniform float uIsImage;
 
   varying vec2 vUv;
+  varying float vDepth;
   #include <fog_pars_fragment>
+
+  // Subtle noise for texture
+  float noise(vec2 p) {
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+  }
+
+  // Subtle depth-based color tint (matches background vibrancy)
+  vec3 depthTint(vec3 col, float depth) {
+    // Very subtle warmth tint for cards far from center
+    float depthFactor = smoothstep(8.0, 14.0, depth) * 0.08;
+    vec3 warmTint = vec3(1.02, 0.98, 0.96);
+    return mix(col, col * warmTint, depthFactor);
+  }
 
   void main() {
     vec2 ratio = vec2(
@@ -81,10 +97,36 @@ const fragmentShader = /* glsl */`
     );
     vec2 zoomedUv = (uv - 0.5) / uZoom + 0.5;
 
+    // Depth-based blur: cards far from camera get subtle blur
+    float depthBlur = smoothstep(8.0, 14.0, vDepth) * 0.015;
+
     vec4 color;
     if (gl_FrontFacing) {
       color = texture2D(uTexture, zoomedUv);
+
+      // Apply subtle depth blur to distant cards
+      if (depthBlur > 0.001) {
+        vec4 blurred = color;
+        const int samples = 5;
+        for (int i = -samples; i <= samples; i++) {
+          for (int j = -samples; j <= samples; j++) {
+            vec2 offset = vec2(float(i), float(j)) * depthBlur * 0.002;
+            blurred += texture2D(uTexture, zoomedUv + offset);
+          }
+        }
+        blurred /= float((2*samples+1) * (2*samples+1));
+        color = mix(color, blurred, smoothstep(10.0, 13.0, vDepth));
+      }
+
       color.rgb = mix(color.rgb, vec3(0.0), uColorStrength);
+
+      // Apply depth-based tinting for visual depth
+      color.rgb = depthTint(color.rgb, vDepth);
+
+      // Add subtle grain texture for premium feel
+      float grain = noise(zoomedUv * 200.0 + vDepth);
+      grain = mix(0.5, grain, 0.3) - 0.5;
+      color.rgb += grain * 0.02;
     } else {
       // Solid glass back face — mirrors front card aesthetics, no bleed-through
       float luma = dot(fogColor, vec3(0.299, 0.587, 0.114));

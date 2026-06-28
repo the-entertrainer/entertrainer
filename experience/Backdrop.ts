@@ -29,18 +29,39 @@ const fragmentShader = /* glsl */`
 
   #define SAMPLES 28
 
-  // Comic effect: posterize + edge detection + saturation boost
-  vec3 comicEffect(vec3 col) {
-    // Posterize: reduce colors to distinct levels (comic book style)
-    float levels = 6.0;
+  // Subtle noise for film grain texture (premium feel)
+  float noise(vec2 p) {
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+  }
+
+  // Subtle outline enhancement (Sobel-like edge detection)
+  float edgeStrength(sampler2D tex, vec2 uv, float scale) {
+    vec2 eps = vec2(scale, 0.0);
+    float l = dot(texture2D(tex, uv - eps.xy).rgb, vec3(0.299, 0.587, 0.114));
+    float r = dot(texture2D(tex, uv + eps.xy).rgb, vec3(0.299, 0.587, 0.114));
+    float u = dot(texture2D(tex, uv - eps.yx).rgb, vec3(0.299, 0.587, 0.114));
+    float d = dot(texture2D(tex, uv + eps.yx).rgb, vec3(0.299, 0.587, 0.114));
+    return sqrt((r-l)*(r-l) + (d-u)*(d-u)) * 0.5;
+  }
+
+  // Subtle comic enhancement (less aggressive than before)
+  vec3 subtleComicEffect(vec3 col, vec2 uv) {
+    // Very gentle posterize (smoother than before)
+    float levels = 8.0;
     vec3 posterized = floor(col * levels) / levels;
+    col = mix(col, posterized, 0.4); // 40% blend for subtlety
 
-    // Boost saturation for vibrant comic look
-    float luma = dot(posterized, vec3(0.299, 0.587, 0.114));
-    vec3 saturated = mix(vec3(luma), posterized, 1.4);
+    // Subtle saturation boost
+    float luma = dot(col, vec3(0.299, 0.587, 0.114));
+    vec3 saturated = mix(vec3(luma), col, 1.15);
 
-    // Increase contrast for bold impact
-    saturated = mix(vec3(0.5), saturated, 1.4);
+    // Very subtle contrast
+    saturated = mix(vec3(0.5), saturated, 1.08);
+
+    // Add subtle edge definition (soft outlines)
+    float edges = edgeStrength(uTexture, uv, 0.003);
+    edges = smoothstep(0.05, 0.15, edges);
+    saturated = mix(saturated, saturated * 0.85, edges * 0.15);
 
     return saturated;
   }
@@ -62,8 +83,14 @@ const fragmentShader = /* glsl */`
       total += 1.0;
     }
     vec3 blurred = mix(sumA / total, sumB / total, uCrossFade);
-    vec3 comic = comicEffect(blurred);
-    gl_FragColor = vec4(comic, 1.0);
+    vec3 enhanced = subtleComicEffect(blurred, baseUv);
+
+    // Add film grain noise (subtle texture for premium feel)
+    float grain = noise(vUv * 240.0);
+    grain = mix(0.5, grain, 0.4) - 0.5; // centered noise
+    enhanced += grain * 0.03;
+
+    gl_FragColor = vec4(enhanced, 1.0);
   }
 `
 
@@ -179,7 +206,7 @@ export default class Backdrop {
     const cam = this.experience.camera.instance
     const dist = cam.position.z - BACK_Z
     const vFov = (cam.fov * Math.PI) / 180
-    const h = 2 * dist * Math.tan(vFov / 2) * 1.18
+    const h = 2 * dist * Math.tan(vFov / 2) * 1.35  // Increased from 1.18 to cover edges during zoom
     const w = h * cam.aspect
     this.mesh.scale.set(w, h, 1)
     if (this._src) this.setTheme(this._isDark)

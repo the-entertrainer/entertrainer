@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, defineAsyncComponent } from 'vue'
 import { useScribeFlowStore } from '~/stores/scribeflow'
-import ScribeFlowCanvas from './scribeflow/ScribeFlowCanvas.vue'
 import ScribeFlowOutline from './scribeflow/ScribeFlowOutline.vue'
 import ScribeFlowNodePanel from './scribeflow/ScribeFlowNodePanel.vue'
+
+const ScribeFlowCanvas = defineAsyncComponent(() =>
+  import('./scribeflow/ScribeFlowCanvas.vue')
+)
 
 const scribeStore = useScribeFlowStore()
 const showShareModal = ref(false)

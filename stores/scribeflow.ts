@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import LZString from 'lz-string'
-import Dexie, { type Table } from 'dexie'
 
 export interface NodeData {
   id: string
@@ -30,18 +29,7 @@ export interface ScenarioProject {
   updatedAt: number
 }
 
-class ScribeFlowDB extends Dexie {
-  projects!: Table<ScenarioProject>
-
-  constructor() {
-    super('ScribeFlowDB')
-    this.version(1).stores({
-      projects: 'id, updatedAt'
-    })
-  }
-}
-
-const db = new ScribeFlowDB()
+const STORAGE_KEY = 'scribeflow_projects'
 
 export const useScribeFlowStore = defineStore('scribeflow', () => {
   const projects = ref<Map<string, ScenarioProject>>(new Map())
@@ -63,19 +51,39 @@ export const useScribeFlowStore = defineStore('scribeflow', () => {
       : null
   )
 
-  // Load all projects from IndexedDB
+  // Load all projects from localStorage
   async function loadProjects() {
+    if (typeof window === 'undefined') return
+
     isLoading.value = true
     try {
-      const allProjects = await db.projects.toArray()
-      projects.value.clear()
-      allProjects.forEach(p => {
-        projects.value.set(p.id, p)
-      })
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored) {
+        const data = JSON.parse(stored)
+        projects.value.clear()
+        Object.entries(data).forEach(([id, project]) => {
+          projects.value.set(id, project as ScenarioProject)
+        })
+      }
     } catch (error) {
       console.error('Failed to load projects:', error)
     } finally {
       isLoading.value = false
+    }
+  }
+
+  // Save to localStorage
+  function persistProjects() {
+    if (typeof window === 'undefined') return
+
+    try {
+      const data: Record<string, ScenarioProject> = {}
+      projects.value.forEach((project, id) => {
+        data[id] = project
+      })
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    } catch (error) {
+      console.error('Failed to persist projects:', error)
     }
   }
 
@@ -102,10 +110,10 @@ export const useScribeFlowStore = defineStore('scribeflow', () => {
     }
 
     try {
-      await db.projects.add(project)
       projects.value.set(id, project)
       currentProjectId.value = id
       selectedNodeId.value = 'node_start'
+      persistProjects()
       return id
     } catch (error) {
       console.error('Failed to create project:', error)
@@ -113,7 +121,7 @@ export const useScribeFlowStore = defineStore('scribeflow', () => {
     }
   }
 
-  // Save project to IndexedDB
+  // Save project
   async function saveProject() {
     if (!currentProject.value) return
 
@@ -123,8 +131,8 @@ export const useScribeFlowStore = defineStore('scribeflow', () => {
     }
 
     try {
-      await db.projects.put(updated)
       projects.value.set(updated.id, updated)
+      persistProjects()
     } catch (error) {
       console.error('Failed to save project:', error)
     }
@@ -245,9 +253,9 @@ export const useScribeFlowStore = defineStore('scribeflow', () => {
         updatedAt: Date.now()
       }
 
-      await db.projects.add(project)
       projects.value.set(id, project)
       currentProjectId.value = id
+      persistProjects()
       return true
     } catch (error) {
       console.error('Failed to import from URL:', error)
@@ -258,12 +266,12 @@ export const useScribeFlowStore = defineStore('scribeflow', () => {
   // Delete project
   async function deleteProject(projectId: string) {
     try {
-      await db.projects.delete(projectId)
       projects.value.delete(projectId)
       if (currentProjectId.value === projectId) {
         currentProjectId.value = null
         selectedNodeId.value = null
       }
+      persistProjects()
     } catch (error) {
       console.error('Failed to delete project:', error)
     }
@@ -296,7 +304,6 @@ export const useScribeFlowStore = defineStore('scribeflow', () => {
 
     // Methods
     loadProjects,
-    createProject,
     saveProject,
     addNode,
     updateNode,

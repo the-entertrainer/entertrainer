@@ -1,49 +1,11 @@
 <script setup lang="ts">
-import { VueFlow, useVueFlow } from '@vue-flow/core'
-import { Controls, Background, MiniMap } from '@vue-flow/additional-components'
 import { computed, ref } from 'vue'
 import { useScribeFlowStore } from '~/stores/scribeflow'
-import DialogueNode from './nodes/DialogueNode.vue'
-import ChoiceNode from './nodes/ChoiceNode.vue'
-
-import '@vue-flow/core/dist/style.css'
-import '@vue-flow/core/dist/theme-default.css'
-import '@vue-flow/additional-components/dist/style.css'
+import CanvasNode from './CanvasNode.vue'
 
 const scribeStore = useScribeFlowStore()
-const { onConnect, addNodes, addEdges } = useVueFlow()
-const showNodeMenu = ref(false)
 const contextMenu = ref({ x: 0, y: 0, visible: false })
-
-// Convert store nodes to Vue Flow nodes
-const nodes = computed(() =>
-  scribeStore.currentNodes.map(node => ({
-    id: node.id,
-    data: {
-      label: node.data.speaker || 'Node',
-      ...node.data
-    },
-    position: node.position,
-    type: node.type === 'choice' ? 'choiceNode' : 'dialogueNode'
-  }))
-)
-
-// Convert store edges to Vue Flow edges
-const edges = computed(() =>
-  scribeStore.currentEdges.map(edge => ({
-    id: edge.id,
-    source: edge.source,
-    target: edge.target,
-    type: edge.type
-  }))
-)
-
-// Handle node connection
-const handleConnect = (connection: any) => {
-  if (connection.source && connection.target) {
-    scribeStore.addEdge(connection.source, connection.target)
-  }
-}
+const selectedConnecting = ref<string | null>(null)
 
 // Handle right-click context menu
 const handlePaneContextMenu = (e: MouseEvent) => {
@@ -73,35 +35,62 @@ const addChoiceNode = () => {
   })
   contextMenu.value.visible = false
 }
+
+// Handle node connection
+const startConnect = (fromId: string) => {
+  selectedConnecting.value = fromId
+}
+
+const connectTo = (toId: string) => {
+  if (selectedConnecting.value && selectedConnecting.value !== toId) {
+    scribeStore.addEdge(selectedConnecting.value, toId)
+  }
+  selectedConnecting.value = null
+}
+
+const cancelConnect = () => {
+  selectedConnecting.value = null
+}
 </script>
 
 <template>
-  <div class="canvas-container">
-    <VueFlow
-      :nodes="nodes"
-      :edges="edges"
-      @connect="handleConnect"
-      @pane-context-menu="handlePaneContextMenu"
-      @node-click="(e) => scribeStore.selectedNodeId = e.node.id"
-    >
-      <Background pattern-color="#aaa" :gap="[16, 16]" />
-      <Controls />
-      <MiniMap />
+  <div class="canvas-container" @contextmenu="handlePaneContextMenu">
+    <svg class="canvas-svg">
+      <!-- Draw edges -->
+      <g class="edges">
+        <line
+          v-for="edge in scribeStore.currentEdges"
+          :key="edge.id"
+          :x1="scribeStore.currentNodes.find(n => n.id === edge.source)?.position.x || 0"
+          :y1="scribeStore.currentNodes.find(n => n.id === edge.source)?.position.y || 0"
+          :x2="scribeStore.currentNodes.find(n => n.id === edge.target)?.position.x || 0"
+          :y2="scribeStore.currentNodes.find(n => n.id === edge.target)?.position.y || 0"
+          class="edge-line"
+          @click="(e) => { e.stopPropagation(); e.preventDefault() }"
+        />
+      </g>
+    </svg>
 
-      <template #node-dialogueNode="props">
-        <DialogueNode :data="props.data" />
-      </template>
-
-      <template #node-choiceNode="props">
-        <ChoiceNode :data="props.data" />
-      </template>
-    </VueFlow>
+    <!-- Render nodes absolutely positioned -->
+    <div class="nodes-layer">
+      <CanvasNode
+        v-for="node in scribeStore.currentNodes"
+        :key="node.id"
+        :node="node"
+        :is-selected="scribeStore.selectedNodeId === node.id"
+        :is-connecting="selectedConnecting === node.id"
+        @select="scribeStore.selectedNodeId = node.id"
+        @connect-start="startConnect"
+        @connect-to="connectTo"
+        @connect-cancel="cancelConnect"
+      />
+    </div>
 
     <!-- Context Menu -->
     <div
       v-if="contextMenu.visible"
       :style="{
-        position: 'absolute',
+        position: 'fixed',
         left: contextMenu.x + 'px',
         top: contextMenu.y + 'px',
         zIndex: 10
@@ -118,7 +107,7 @@ const addChoiceNode = () => {
     <div
       v-if="contextMenu.visible"
       @click="contextMenu.visible = false"
-      style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 5"
+      class="menu-backdrop"
     />
   </div>
 </template>
@@ -128,6 +117,41 @@ const addChoiceNode = () => {
   position: relative;
   width: 100%;
   height: 100%;
+  background: var(--color-bg);
+  overflow: hidden;
+  user-select: none;
+}
+
+.canvas-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.edge-line {
+  stroke: rgba(36, 63, 106, 0.3);
+  stroke-width: 2;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: stroke 0.2s;
+}
+
+.edge-line:hover {
+  stroke: rgba(36, 63, 106, 0.6);
+  stroke-width: 3;
+}
+
+.nodes-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
 }
 
 .context-menu {
@@ -150,6 +174,7 @@ const addChoiceNode = () => {
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .context-menu button:last-child {
@@ -159,5 +184,14 @@ const addChoiceNode = () => {
 .context-menu button:hover {
   background: rgba(36, 63, 106, 0.1);
   color: #243F6A;
+}
+
+.menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
 }
 </style>

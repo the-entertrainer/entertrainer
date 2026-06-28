@@ -1,0 +1,365 @@
+/* ============================================================
+   Design Tokens
+   ============================================================ */
+
+/* ─── Dark theme (default) ─── */
+[data-theme="dark"] {
+  --color-bg: #0D0C0A;
+  --color-text: #F4F1EC;
+  --color-accent: #243F6A;
+
+  /* Glass UI — white tint on dark surfaces */
+  --color-glass-bg: rgba(255,255,255,0.07);
+  --color-glass-border: rgba(255,255,255,0.18);
+  --color-glass-bg-hover: rgba(255,255,255,0.13);
+  --color-glass-border-hover: rgba(255,255,255,0.32);
+  --color-spinner-track: rgba(244,241,236,0.15);
+  --color-divider: rgba(244,241,236,0.1);
+
+  /* ET mark — black SVG, invert to white on dark surfaces; un-invert on open cream panel */
+  --et-mark-filter: invert(1);
+  --et-mark-filter-on-panel: invert(0);
+
+  /* Legacy aliases — existing CSS selectors keep working */
+  --color-black: #0D0C0A;
+  --color-white: #F4F1EC;
+  --color-pop-green: #243F6A;
+  --color-white20: rgba(244,241,236,0.2);
+  --color-bg-dark: #0D0C0A;
+  --color-bg-dark20: rgba(13,12,10,0.2);
+  --color-bg-dark40: rgba(13,12,10,0.4);
+  --color-bg-dark60: rgba(13,12,10,0.6);
+  --color-bg-dark-transparent: rgba(13,12,10,0);
+}
+
+/* ─── Light theme ─── */
+[data-theme="light"] {
+  --color-bg: #F5EFE8;
+  --color-text: #0D0C0A;
+  --color-accent: #243F6A;
+
+  /* Glass UI — dark tint on light surfaces */
+  --color-glass-bg: rgba(0,0,0,0.06);
+  --color-glass-border: rgba(0,0,0,0.14);
+  --color-glass-bg-hover: rgba(0,0,0,0.11);
+  --color-glass-border-hover: rgba(0,0,0,0.26);
+  --color-spinner-track: rgba(13,12,10,0.12);
+  --color-divider: rgba(13,12,10,0.1);
+
+  /* ET mark — black SVG already readable on cream bg; invert on open dark panel */
+  --et-mark-filter: invert(0);
+  --et-mark-filter-on-panel: invert(1);
+
+  /* Legacy aliases — FLIPPED so existing CSS inverts correctly */
+  --color-black: #F4F1EC;
+  --color-white: #0D0C0A;
+  --color-pop-green: #243F6A;
+  --color-white20: rgba(13,12,10,0.15);
+  --color-bg-dark: #0D0C0A;
+  --color-bg-dark20: rgba(13,12,10,0.2);
+  --color-bg-dark40: rgba(13,12,10,0.4);
+  --color-bg-dark60: rgba(13,12,10,0.6);
+  --color-bg-dark-transparent: rgba(13,12,10,0);
+}
+
+:root {
+  /* Typography */
+  --main-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
+  --display-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
+
+  /* Spacing scale */
+  --gap-xs: 10px;
+  --gap-s: 15px;
+  --gap-m: 30px;
+  --gap-l: 60px;
+  --gap-xl: 90px;
+  --gap-xxl: 120px;
+  --gap-xxxl: 180px;
+  --gap-20: 20px;
+  --gap-45: 45px;
+
+  /* Safe area insets (notched phones, Dynamic Island) */
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+
+  /* Border radius */
+  --radius-xs: 4px;
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Chrome — the single corner button (E / hamburger) and its clearances */
+  --chrome-offset: 18px;
+  --chrome-size: 48px;
+  --page-top: calc(100px + var(--safe-top));
+
+  /* Z-index layers */
+  --z-canvas: 0;
+  --z-page-ui: 10;
+  --z-chrome: 30;
+  --z-menu: 40;
+  --z-loader: 1000;
+
+  /* Buttons */
+  --btn-pad-y: 13px;
+  --btn-pad-x: 26px;
+  --btn-press: 0.95;
+
+  /* Type scale */
+  --text-display: clamp(60px, 8vw, 120px);
+  --text-h1: 36px;
+  --text-h2: 24px;
+  --text-lead: 20px;
+  --text-body: 17px;
+  --text-sm: 15px;
+  --text-label: 11px;
+  --tracking-label: 0.1em;
+
+  /* Grid system (desktop, 12 cols) */
+  --grid-margin: 30px;
+  --grid-gutter: 16px;
+  --grid-column: calc(100vw / 12 - 16px * 11 / 12 - 30px * 2 / 12);
+
+  /* Easing */
+  --ease-spring: linear(
+    0, .0014, .0055 1.03%, .0239, .053 3.44%,
+    .0961 4.81%, .1957 7.39%, .4354 12.88%,
+    .5484, .6494, .7362, .8083 23.88%,
+    .8696, .9168 29.72%, .9368, .9536 32.81%,
+    .9793 35.9%, .997 39.17%, 1.0084 42.77%,
+    1.0142 47.07%, 1.0144 53.43%, 1.0054 68.37%,
+    1.0019 77.3%, .9998 99.98%
+  );
+  --ease-quad-in-out: cubic-bezier(.455, .03, .515, .955);
+  --ease-expo-out: cubic-bezier(.19, 1, .22, 1);
+}
+
+@media (max-width: 900px) {
+  :root {
+    --grid-margin: 20px;
+    --grid-gutter: 15px;
+    --grid-column: calc(100vw / 6 - 15px * 5 / 6 - 20px * 2 / 6);
+  }
+}
+@media (max-width: 420px) {
+  :root {
+    --grid-margin: 15px;
+    --grid-gutter: 10px;
+  }
+}
+
+/* ============================================================
+   Base reset — 1rem = 1px sizing system
+   ============================================================ */
+html {
+  font-size: 1px;
+  overscroll-behavior: none;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  font-family: var(--main-font);
+  font-size: 18rem;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--color-text);
+  background: var(--color-bg);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -webkit-touch-callout: none;
+  overscroll-behavior-y: none;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font-family: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+canvas {
+  display: block;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 3px;
+}
+.e-btn:focus-visible { outline-offset: 5px; }
+
+/* ============================================================
+   WebGL canvas layout
+   ============================================================ */
+.webgl {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  transition: opacity 0.5s ease-out;
+}
+.webgl.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ============================================================
+   Page transitions
+   ============================================================ */
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.35s ease;
+}
+
+.project-enter-from {
+  opacity: 0;
+  transform: translateY(80px) scale(0.96);
+}
+.project-enter-to {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.project-enter-active {
+  transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: 0.2s;
+}
+.project-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.project-leave-to {
+  opacity: 0;
+  transform: translateY(0) scale(0.985);
+}
+.project-leave-active {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.project-fade-enter-from {
+  opacity: 0;
+  transform: translateY(18px) scale(0.96);
+}
+.project-fade-enter-active {
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.project-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-12px) scale(0.96);
+}
+.project-fade-leave-active {
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.video-fade-enter-from,
+.video-fade-leave-to {
+  opacity: 0;
+  transform: scaleY(0.95) scaleX(0.95);
+  border-top-left-radius: 16rem;
+  border-top-right-radius: 16rem;
+}
+.video-fade-enter-active,
+.video-fade-leave-active {
+  transform-origin: bottom center;
+  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out,
+    border-radius 0.4s ease-in-out;
+}
+.video-fade-enter-active {
+  transition-delay: 0.1s;
+}
+
+.iconfade-leave-from {
+  filter: blur(0);
+  opacity: 1;
+  transform: scale(1) rotate(0);
+}
+.iconfade-leave-to {
+  filter: blur(2px);
+  opacity: 0;
+  transform: scale(0.8) rotate(15deg);
+}
+.iconfade-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+}
+.iconfade-enter-from {
+  filter: blur(2px);
+  opacity: 0;
+  transform: scale(0.8) rotate(-15deg);
+}
+.iconfade-enter-to {
+  filter: blur(0);
+  opacity: 1;
+  transform: scale(1) rotate(0);
+}
+.iconfade-enter-active {
+  transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+}
+
+/* ============================================================
+   Detail pages
+   ============================================================ */
+.detail-page {
+  min-height: 100dvh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  padding: var(--page-top) var(--grid-margin) calc(100rem + var(--safe-bottom));
+}
+.detail-title {
+  font-size: var(--text-display);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  margin-bottom: 24rem;
+}
+.detail-desc {
+  font-size: var(--text-lead);
+  font-weight: 500;
+  opacity: 0.5;
+  margin-bottom: 60rem;
+  max-width: 540rem;
+  line-height: 1.5;
+}
+.detail-content {
+  border-top: 1px solid var(--color-divider);
+  padding-top: 60rem;
+}
+.placeholder-text {
+  font-size: var(--text-body);
+  opacity: 0.3;
+  font-style: italic;
+}
+
+/* ============================================================
+   About page
+   ============================================================ */
+html[data-about][data-theme="dark"] body  { background: #080808; }
+html[data-about][data-theme="light"] body { background: #F8F8F6; }
+html[data-about]:not([data-theme]) body   { background: #080808; }
+
+html[data-about] .e-nav {
+  opacity: 0.12;
+  transition: opacity 0.6s ease;
+}
+html[data-about] .e-nav:hover,
+html[data-about] .e-nav:focus-within {
+  opacity: 1;
+}

@@ -1,0 +1,55 @@
+.tool-form {
+  margin-top: 40px;
+}
+
+.tool-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.tool-form label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.tool-form textarea {
+  padding: 16px;
+  border: 1px solid var(--color-divider);
+  border-radius: 8px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 16rem;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.tool-form textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tool-form button {
+  padding: 14px 28px;
+  border: 1px solid var(--color-text);
+  border-radius: 8px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 16rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.tool-form button:hover:not(:disabled) {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.tool-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

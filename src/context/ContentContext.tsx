@@ -1,0 +1,96 @@
+import React, { createContext, useContext } from 'react'
+
+export interface NavItem {
+  id: string
+  label: string
+  description: string
+  href: string
+  color: string
+}
+
+interface SocialLink {
+  platform: string
+  label: string
+  url: string
+}
+
+interface ContentContextType {
+  nav: Record<string, NavItem[]>
+  name: string
+  brand: string
+  tagline: string
+  yearsExperience: string
+  email: string
+  socialLinks: SocialLink[]
+
+  homeNav: NavItem[]
+  aboutNav: NavItem[]
+  toolsNav: NavItem[]
+  downloadsNav: NavItem[]
+  myWorkNav: NavItem[]
+  instructionalDesignNav: NavItem[]
+}
+
+const navigationData = {
+  home: [
+    { id: 'about', label: 'About Me', description: 'The story behind Entertrainer', href: '/about', color: '#243F6A' },
+    { id: 'instructional-design', label: 'Instructional Design', description: "What gets designed when no one's watching?", href: '/instructional-design', color: '#243F6A' },
+    { id: 'my-work', label: 'My Work', description: 'Proof it wasn\'t all talk.', href: '/my-work', color: '#243F6A' },
+    { id: 'tools', label: 'Web Apps', description: 'The toolkit that powers impactful learning', href: '/tools', color: '#243F6A' },
+    { id: 'downloads', label: 'Downloads', description: 'Resources & templates for L&D professionals', href: '/downloads', color: '#243F6A' }
+  ],
+  about: [],
+  'instructional-design': [],
+  'my-work': [
+    { id: 'work-01', label: 'Project 01', description: 'A learning experience worth remembering', href: '/my-work/01', color: '#243F6A' },
+    { id: 'work-02', label: 'Project 02', description: 'Where strategy meets storytelling', href: '/my-work/02', color: '#243F6A' },
+    { id: 'work-03', label: 'Project 03', description: 'From messy brief to measurable outcome', href: '/my-work/03', color: '#243F6A' }
+  ],
+  tools: [
+    { id: 'easymcq', label: 'EasyMCQ', description: 'Give a question and answer — AI generates the wrong options.', href: '/tools/easymcq', color: '#243F6A' },
+    { id: 'training-cal-gen', label: 'Training Calendar', description: 'Turn a list of topics into a ready-to-present monthly schedule.', href: '/tools/training-cal-gen', color: '#243F6A' },
+    { id: 'better-emails', label: 'Better Emails', description: 'Turn messy drafts into polished, professional emails.', href: '/tools/better-emails', color: '#243F6A' },
+    { id: 'scribeflow', label: 'ScribeFlow', description: 'Author branching dialogues and scenarios with a node-based editor.', href: '/tools/scribeflow', color: '#243F6A' }
+  ],
+  downloads: [
+    { id: 'templates', label: 'Templates', description: 'Ready-to-use L&D templates', href: '/downloads/templates', color: '#243F6A' },
+    { id: 'frameworks', label: 'Frameworks', description: 'ID frameworks & storyboard guides', href: '/downloads/frameworks', color: '#243F6A' },
+    { id: 'resources', label: 'Resources', description: 'Curated L&D resources', href: '/downloads/resources', color: '#243F6A' }
+  ]
+}
+
+const ContentContext = createContext<ContentContextType | undefined>(undefined)
+
+export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const value: ContentContextType = {
+    nav: navigationData,
+    name: 'Naveen Jose',
+    brand: 'Entertrainer',
+    tagline: 'Certified Instructional Design Specialist',
+    yearsExperience: '4.0+',
+    email: 'iamnaveenjose@outlook.com',
+    socialLinks: [
+      { platform: 'linkedin', label: 'LinkedIn', url: 'https://linkedin.com/in/entertrainer' },
+      { platform: 'email', label: 'Email', url: 'mailto:iamnaveenjose@outlook.com' }
+    ],
+
+    homeNav: navigationData.home,
+    aboutNav: navigationData.about,
+    toolsNav: navigationData.tools,
+    downloadsNav: navigationData.downloads,
+    myWorkNav: navigationData['my-work'],
+    instructionalDesignNav: navigationData['instructional-design']
+  }
+
+  return (
+    <ContentContext.Provider value={value}>
+      {children}
+    </ContentContext.Provider>
+  )
+}
+
+export const useContent = () => {
+  const context = useContext(ContentContext)
+  if (!context) throw new Error('useContent must be used within ContentProvider')
+  return context
+}

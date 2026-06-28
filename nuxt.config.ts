@@ -84,5 +84,10 @@ export default defineNuxtConfig({
     externals: {
       external: ['playwright-core', '@sparticuz/chromium'],
     },
+    vercel: {
+      functions: {
+        maxDuration: 60,
+      },
+    },
   }
 })

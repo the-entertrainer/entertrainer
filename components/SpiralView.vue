@@ -421,8 +421,8 @@ function onLoaderEntered() {
   z-index: 8;
   pointer-events: none;
   background:
-    linear-gradient(to bottom, rgba(var(--accent-fog, 120,120,140), 0.20) 0%, transparent 17%),
-    linear-gradient(to top,    rgba(var(--accent-fog, 120,120,140), 0.20) 0%, transparent 17%);
+    linear-gradient(to bottom, rgba(var(--accent-fog, 120,120,140), 0.16) 0%, transparent 18%),
+    linear-gradient(to top,    rgba(var(--accent-fog, 120,120,140), 0.16) 0%, transparent 18%);
 }
 /* ────────────────────────────────────────────────────────────────────────── */
 

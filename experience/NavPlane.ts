@@ -48,6 +48,7 @@ const vertexShader = /* glsl */`
   varying vec2 vUv;
   varying vec3 vWorldPosition;
   varying float vDepth;
+  varying float vScreenY;     // 0 = bottom of viewport, 1 = top
   #include <fog_pars_vertex>
   #define PI 3.14159265359
   uniform float uScrollSpeed;
@@ -66,6 +67,7 @@ const vertexShader = /* glsl */`
     vUv = uv;
     vWorldPosition = worldPosition;
     vDepth = length(mvPosition.xyz); // distance from camera for depth effects
+    vScreenY = gl_Position.y / gl_Position.w * 0.5 + 0.5;
     #include <fog_vertex>
   }
 `
@@ -86,6 +88,7 @@ const fragmentShader = /* glsl */`
   uniform vec3  uPrimary;    // backdrop's primary accent (shared) for the glass back
   varying vec2 vUv;
   varying float vDepth;
+  varying float vScreenY;
   #include <fog_pars_fragment>
 
   // Subtle noise for texture
@@ -209,11 +212,20 @@ const fragmentShader = /* glsl */`
       color.rgb     += mix(uAccent, vec3(1.0), 0.30) * glowMask * 0.55;
     }
 
+    // Volumetric edge fog — fragments near the top/bottom of the viewport sink
+    // into the accent haze (matching the --accent-fog overlay). Because it's
+    // per-fragment, a card straddling the band fogs only the part inside it, so
+    // cards genuinely recede into the fog rather than sitting behind a flat pane.
+    // Slightly deeper (further) cards fog a touch more for volume.
+    float depthBoost = mix(1.0, 1.35, smoothstep(7.0, 13.0, vDepth));
+    float fog = clamp((smoothstep(0.18, 0.0, vScreenY) + smoothstep(0.82, 1.0, vScreenY)) * depthBoost, 0.0, 1.0);
+    color.rgb = mix(color.rgb, uPrimary, fog * 0.40);
+
     // Subtle static depth dim — far cards recede a touch for depth. The spiral
     // transition is a single clean cross-fade via uTransition (1 visible → 0).
     float depthDim = mix(0.6, 1.0, smoothstep(14.0, 7.0, vDepth));
 
-    gl_FragColor = vec4(color.rgb, alpha * color.a * uOpacity * uTransition * depthDim);
+    gl_FragColor = vec4(color.rgb, alpha * color.a * uOpacity * uTransition * depthDim * (1.0 - fog * 0.22));
     #include <fog_fragment>
   }
 `

@@ -378,12 +378,21 @@ export default class NavPlane {
     this.revealProgress += (this.revealTarget  - this.revealProgress) * hFactor
     this.hoverProgress  += (this.hoverTarget   - this.hoverProgress)  * hvFactor
 
+    // Stretch the spiral's vertical pitch to fill the viewport height.
+    // Tall (portrait/mobile) viewports use a wider FOV and therefore show a
+    // much taller slice of the world; without this the spiral occupies only a
+    // central band. Reference distance is the resting camera Z (8) so the pitch
+    // stays stable during the click dolly. Desktop (~5.05) → 1.0; mobile → ~1.55.
+    const cam = this.experience.camera.instance
+    const visibleH = 2 * 8 * Math.tan((cam.fov * Math.PI / 180) * 0.5)
+    const vScale = Math.max(1, visibleH / 5.05)
+
     const half = this.totalCount / 2
     const visibleRange = Math.max(half - 0.5, 3.0)
     const edge = Math.max(0, Math.abs(Ba) - visibleRange)
-    const edgePush = Math.sign(Ba) * edge * edge * 0.2
+    const edgePush = Math.sign(Ba) * edge * edge * 0.2 * vScale
     const edgeOpacity = Math.max(0, 1 - edge * 0.25)
-    const Va = Ba * this.verticalGap - 0.8 + this.hiddenProgress * 9.0 + edgePush
+    const Va = Ba * this.verticalGap * vScale - 0.8 + this.hiddenProgress * 9.0 + edgePush
     const Ga = this.baseRadius * (1 - this.hiddenProgress / 2)
 
     // Apply spin multiplier to angle during transition (spiral acceleration/deceleration)

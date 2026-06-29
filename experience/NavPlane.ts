@@ -249,6 +249,7 @@ export default class NavPlane {
 
   readonly baseScaleX  = 1.7
   readonly baseScaleY  = 1.0
+  readonly verticalGap = 0.5
   readonly angleGap    = 0.85
   readonly baseRadius  = 2.0
 
@@ -383,26 +384,33 @@ export default class NavPlane {
     this.revealProgress += (this.revealTarget  - this.revealProgress) * hFactor
     this.hoverProgress  += (this.hoverTarget   - this.hoverProgress)  * hvFactor
 
-    // Even-spaced vertical helix sized to the viewport. The full ring spans
-    // SPAN× the visible height (derived from the resting camera FOV at Z=8), so
-    // the extreme cards sit well off-screen and the index wrap always happens
-    // out of frame. Because the span tracks the viewport, the spiral fills tall
-    // portrait screens and keeps a constant on-screen card density across every
-    // section, regardless of how many items it has.
+    // Dense helix near the centre, sized to the viewport so it fills tall
+    // portrait screens (vScale). Only the few cards beyond the visible band are
+    // pushed hard off-screen, so the index wrap always happens out of frame.
     const cam = this.experience.camera.instance
-    const visibleH = 2 * 8 * Math.tan((cam.fov * Math.PI / 180) * 0.5)
-    const SPAN = 1.8
-    const stepY = (SPAN * visibleH) / this.totalCount
-    const Va = Ba * stepY + this.hiddenProgress * 9.0
-    const Ga = this.baseRadius * (1 - this.hiddenProgress / 2)
+    const fovRad   = (cam.fov * Math.PI) / 180
+    const visibleH = 2 * 8 * Math.tan(fovRad * 0.5)
+    const vScale   = Math.max(1, visibleH / 5.05)
 
-    // Opacity from vertical screen position: a card holds full opacity through
-    // the centre band and fades out symmetrically just as it crosses the top or
-    // bottom edge — so it reads as flying out of frame, never blinking off.
-    const edgeOpacity = 1 - smoothstep(visibleH * 0.50, visibleH * 0.62, Math.abs(Va))
+    const half         = this.totalCount / 2
+    const visibleRange = Math.max(half - 1, 1.8)
+    const edge         = Math.max(0, Math.abs(Ba) - visibleRange)
+    const edgePush     = Math.sign(Ba) * edge * edge * 2.5 * vScale
+    const Va = Ba * this.verticalGap * vScale + edgePush + this.hiddenProgress * 9.0
+    const Ga = this.baseRadius * (1 - this.hiddenProgress / 2)
 
     // Apply spin multiplier to angle during transition (spiral acceleration/deceleration)
     const Ha = Ba * this.angleGap * spinMultiplier
+
+    // Perspective-correct screen-edge fade: project each card to its real
+    // vertical screen fraction (1.0 = at the edge) using its own depth, then
+    // fade across the edge. A card holds full opacity through frame and fades
+    // out exactly as it crosses the top/bottom edge — symmetric, reading as
+    // flying out of view rather than blinking off, whatever its depth.
+    const cardZ      = Math.sin(Ha) * Ga
+    const halfH      = (8 - cardZ) * Math.tan(fovRad * 0.5)
+    const screenFrac = Math.abs(Va) / Math.max(halfH, 0.001)
+    const edgeOpacity = 1 - smoothstep(0.82, 1.05, screenFrac)
 
     this.mesh.position.set(Math.cos(Ha) * Ga, Va, Math.sin(Ha) * Ga)
     this.mesh.rotation.y  = -Ha + Math.PI / 2

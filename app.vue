@@ -19,7 +19,7 @@ onMounted(() => {
 <template>
   <div id="app-root">
     <NuxtPage :transition="transition" />
-    <UiMenu />
+    <UiMenu v-if="route.path !== '/glass-lab'" />
   </div>
 </template>
 

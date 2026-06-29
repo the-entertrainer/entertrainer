@@ -19,6 +19,8 @@ const reduceMotion = import.meta.client &&
 let introDone = false, pendingExit = false, exitQueued = false, exiting = false
 let rafId = 0, glClock = 0, glLast = 0
 let stopGlass: (() => void) | null = null
+// Live shader params the exit animation can ramp (melt the glass on the way out).
+let glassLive: { warp: number; refr: number; bright: number } | null = null
 
 // ── Fractal-glass background (same effect as the site backdrop) ──────────────
 const PALETTES = [
@@ -76,10 +78,11 @@ function startGlass() {
   const dark = themeStore.isDark
   const pal = PALETTES[Math.floor(Math.random() * PALETTES.length)]
   const r = Math.random
-  gl.uniform1f(U('uWarp'), 0.03 + r() * 0.06); gl.uniform1f(U('uWSpeed'), 0.08 + r() * 0.08)
+  const live = { warp: 0.03 + r() * 0.06, refr: 90 + r() * 70, bright: dark ? 1.1 : 0.2 }
+  glassLive = live
+  gl.uniform1f(U('uWSpeed'), 0.08 + r() * 0.08)
   gl.uniform1f(U('uNSX'), 0.3 + r() * 0.3); gl.uniform1f(U('uNSY'), 0.45 + r() * 0.35)
-  gl.uniform1f(U('uFlute'), 100); gl.uniform1f(U('uRefr'), 90 + r() * 70)
-  gl.uniform1f(U('uBright'), dark ? 1.1 : 0.2); gl.uniform1f(U('uGrain'), 0.07)
+  gl.uniform1f(U('uFlute'), 100); gl.uniform1f(U('uGrain'), 0.07)
   gl.uniform1f(U('uSeed'), r() * 10); gl.uniform1f(U('uAlgo'), r() < 0.5 ? 0 : 1); gl.uniform1f(U('uLight'), dark ? 0 : 1)
   gl.uniform3f(U('uBase'), ...(dark ? [0.005, 0.01, 0.055] : [0.98, 0.97, 0.96]) as [number, number, number])
   ;[U('uC1'), U('uC2'), U('uC3'), U('uC4'), U('uC5')].forEach((l, i) => gl.uniform3f(l, pal[i][0], pal[i][1], pal[i][2]))
@@ -94,7 +97,9 @@ function startGlass() {
   const frame = (now: number) => {
     rafId = requestAnimationFrame(frame)
     glClock += Math.min((now - glLast) / 1000, 0.05); glLast = now
-    gl.uniform1f(U('uTime'), glClock); gl.drawArrays(gl.TRIANGLES, 0, 3)
+    gl.uniform1f(U('uTime'), glClock)
+    gl.uniform1f(U('uWarp'), live.warp); gl.uniform1f(U('uRefr'), live.refr); gl.uniform1f(U('uBright'), live.bright)
+    gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
   rafId = requestAnimationFrame(frame)
   stopGlass = () => { cancelAnimationFrame(rafId); window.removeEventListener('resize', resize) }
@@ -129,46 +134,31 @@ function queueExit() {
   setTimeout(runExit, 900)
 }
 
-// Netflix-style banded reveal: the loader splits into vertical bands that open
-// from their centres in a left-to-right stagger, unveiling the spiral behind.
+// "Dive through the glass": the shader's warp + refraction surge so the glass
+// smears and melts, while the whole surface zooms toward the viewer, blurs and
+// fades — as if falling through the pane into the spiral world behind it.
 function runExit() {
   if (exiting || !loaderEl.value) return
   exiting = true
-  const el = loaderEl.value
 
   if (reduceMotion) {
     experienceStore.setHasEntered()
-    gsap.to(el, { opacity: 0, duration: 0.4, onComplete: () => emit('entered') })
+    gsap.to(loaderEl.value, { opacity: 0, duration: 0.4, onComplete: () => emit('entered') })
     return
   }
 
-  const N = 14
-  const bandW = window.innerWidth / N
-  const setMask = (open: number[]) => {
-    // For each band, an opaque core of width (bandW - gap) centred in the band.
-    const stops = open.map((g, i) => {
-      const x0 = i * bandW, half = g * 0.5
-      const a = (x0 + half).toFixed(1), bnd = (x0 + bandW - half).toFixed(1)
-      return `transparent ${x0}px, transparent ${a}px, #000 ${a}px, #000 ${bnd}px, transparent ${bnd}px`
-    }).join(', ')
-    const grad = `linear-gradient(90deg, ${stops})`
-    el.style.webkitMaskImage = grad; el.style.maskImage = grad
-  }
-
-  const gaps = new Array(N).fill(0)
   const tl = gsap.timeline({ onComplete: () => emit('entered') })
+  tl.add(() => experienceStore.setHasEntered(), 0.25)
 
-  // wordmark lifts away first
-  tl.to(textEl.value, { opacity: 0, y: -24, filter: 'blur(6px)', duration: 0.4, ease: 'power2.in' }, 0)
-    .add(() => experienceStore.setHasEntered(), 0.25)
-
-  // bands split open, staggered left → right
-  gaps.forEach((_, i) => {
-    tl.to(gaps, {
-      [i]: bandW, duration: 0.7, ease: 'power3.inOut',
-      onUpdate: () => setMask(gaps),
-    }, 0.3 + i * 0.035)
-  })
+  // glass melts — warp + refraction blow up
+  if (glassLive) {
+    tl.to(glassLive, { warp: '+=0.22', duration: 1.0, ease: 'power2.in' }, 0)
+      .to(glassLive, { refr: glassLive.refr * 2.8, duration: 1.0, ease: 'power2.in' }, 0)
+  }
+  // zoom THROUGH the pane: scale up, blur, fade
+  tl.to(canvasEl.value, { scale: 1.95, filter: 'blur(18px)', opacity: 0, duration: 1.0, ease: 'power2.in' }, 0)
+  // wordmark dives forward, ahead of the glass
+    .to(textEl.value, { scale: 2.7, opacity: 0, filter: 'blur(12px)', duration: 0.8, ease: 'power2.in' }, 0.04)
 }
 </script>
 

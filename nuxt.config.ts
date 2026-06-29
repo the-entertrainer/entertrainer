@@ -26,8 +26,7 @@ export default defineNuxtConfig({
         { name: 'msapplication-TileColor', content: '#0D0C0A' }
       ],
       link: [
-        { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
-        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
@@ -52,7 +51,6 @@ export default defineNuxtConfig({
       scope: '/',
       start_url: '/',
       icons: [
-        { src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
         { src: '/pwa-192.png', sizes: '192x192', type: 'image/png' },
         { src: '/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
       ]

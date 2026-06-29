@@ -8,6 +8,7 @@ useHead({ title: 'Glass Lab' })
 
 const canvas = ref<HTMLCanvasElement | null>(null)
 const copied = ref(false)
+const showPanel = ref(true)   // on mobile the panel is a toggleable bottom sheet
 
 const params = reactive({
   theme: 'dark' as 'dark' | 'light',
@@ -211,7 +212,9 @@ onMounted(() => {
       <canvas ref="canvas" class="cv" />
     </div>
 
-    <aside class="panel">
+    <button class="fab" @click="showPanel = !showPanel">{{ showPanel ? 'Hide ▾' : 'Tune ▴' }}</button>
+
+    <aside class="panel" :class="{ open: showPanel }">
       <h1>Glass Lab</h1>
       <p class="hint">Tune freely. Colours are random — use Shuffle. Copy the config and paste it back to bake into the site.</p>
 
@@ -292,9 +295,42 @@ textarea { width: 100%; box-sizing: border-box; resize: none; font-family: ui-mo
 .copy { padding: 10px; border-radius: 9px; border: none; background: #6f9bff; color: #08080c; font-weight: 700; cursor: pointer; font-size: 13px; }
 .copy:hover { background: #84acff; }
 
+/* Floating toggle — mobile only */
+.fab { display: none; }
+
 @media (max-width: 720px) {
-  .lab { flex-direction: column-reverse; }
-  .panel { width: 100%; flex-basis: auto; height: 50%; border-left: none; border-top: 1px solid rgba(255,255,255,0.08); }
-  .stage.phone .cv { height: auto; width: 50vw; }
+  /* Full-screen canvas (matches the real device resolution / flute density),
+     controls slide up as a bottom sheet over it. */
+  .lab { display: block; }
+  .stage { position: fixed; inset: 0; }
+  /* ignore the desktop phone-frame on a real phone — fill the screen */
+  .stage.phone .cv { width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; box-shadow: none; }
+
+  .fab {
+    display: inline-flex; align-items: center; gap: 6px;
+    position: fixed; z-index: 3;
+    top: calc(12px + env(safe-area-inset-top)); right: 14px;
+    padding: 10px 16px; border-radius: 999px; border: none;
+    background: #6f9bff; color: #08080c; font-weight: 700; font-size: 13px;
+    box-shadow: 0 8px 24px -6px rgba(0,0,0,0.5); cursor: pointer;
+  }
+
+  .panel {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 2;
+    width: 100%; flex-basis: auto; height: auto; max-height: 76vh;
+    border-left: none; border-top: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px 18px 0 0;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.22,1,0.36,1);
+    -webkit-overflow-scrolling: touch;
+  }
+  .panel.open { transform: translateY(0); }
+  .panel h1 { display: none; }
+
+  /* larger touch targets */
+  input[type=range] { height: 32px; }
+  .seg button, .btns button { padding: 13px; font-size: 13px; }
+  .chk { padding: 4px 0; }
+  .copy { padding: 14px; font-size: 14px; }
 }
 </style>

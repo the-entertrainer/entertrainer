@@ -399,8 +399,10 @@ export default class NavPlane {
     const Va = Ba * this.verticalGap * vScale + edgePush + this.hiddenProgress * 9.0
     const Ga = this.baseRadius * (1 - this.hiddenProgress / 2)
 
-    // Apply spin multiplier to angle during transition (spiral acceleration/deceleration)
-    const Ha = Ba * this.angleGap * spinMultiplier
+    // Quarter-turn phase puts the focused card (Ba 0) at front-centre
+    // (0, Va, Ga) facing the camera head-on, instead of off to the side facing
+    // +X. The spin multiplier still accelerates the orbit during transitions.
+    const Ha = Ba * this.angleGap * spinMultiplier + Math.PI / 2
 
     // Perspective-correct screen-edge fade: project each card to its real
     // vertical screen fraction (1.0 = at the edge) using its own depth, then

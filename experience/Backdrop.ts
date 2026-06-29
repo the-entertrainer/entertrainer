@@ -126,17 +126,19 @@ function genParams(isDark: boolean): GlassParams {
     colors: PALETTES[Math.floor(r() * PALETTES.length)],
     base: isDark ? [0.005, 0.010, 0.055] : [0.98, 0.97, 0.96],
     light: isDark ? 0 : 1,
+    // randomised every page load
     algo: r() < 0.5 ? 0 : 1,
     noiseScale1: 0.25 + r() * 0.35,
     noiseScale2: 0.40 + r() * 0.40,
     warp: 0.03 + r() * 0.07,
     warpSpeed: 0.06 + r() * 0.10,
-    flowSpeed: 0.7 + r() * 0.5,
-    grain: (isDark ? 0.05 : 0.04) + r() * 0.045,
-    fluteWidth: 42 + Math.floor(r() * 70),
     fluteStrength: 80 + Math.floor(r() * 80),
-    brightness: isDark ? 0.9 + r() * 0.35 : 0.66 + r() * 0.22,
     seed: r() * 10.0,
+    // fixed
+    flowSpeed: 2.0,
+    grain: 0.07,
+    fluteWidth: 100,
+    brightness: isDark ? 1.10 : 0.20,
   }
 }
 

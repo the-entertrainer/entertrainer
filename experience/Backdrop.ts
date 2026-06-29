@@ -12,137 +12,130 @@ const vertexShader = /* glsl */`
 `
 
 // Fractal-glass gradients — fluted/reeded glass refracting a flowing 5-blob
-// gradient, with film grain and exponential tone-mapping. Technique learned
-// from franky-adl/fractal-glass-gradients, reproduced fully procedurally (the
-// noise-warp and grain are generated in-shader rather than from FBO/texture
-// assets). Every load randomises the palette + flute/warp params; dark and
-// light themes draw from separate palette pools for distinct aesthetics.
+// gradient, distorted by an animated two-scale simplex-noise warp, with film
+// grain and tone-mapping. Technique from franky-adl/fractal-glass-gradients,
+// reproduced procedurally (noise-warp + grain generated in-shader). Colour
+// model is theme-aware and vivid in BOTH themes: dark = additive glow on black,
+// light = subtractive "ink" on white. Every load randomises palette + warp +
+// flute + brightness params.
 const fragmentShader = /* glsl */`
   precision highp float;
-  uniform float uTime, uReducedMotion, uScrollEnergy;
-  uniform float uWarpStrength, uFluteWidth, uFluteStrength, uToneMapExposure, uGrainStrength, uSeed, uAlgo;
+  uniform float uTime, uWarpStrength, uWarpSpeed, uNoiseScaleX, uNoiseScaleY, uFlowSpeed;
+  uniform float uFluteWidth, uFluteStrength, uBrightness, uGrainStrength, uSeed, uAlgo, uLight;
   uniform vec2  uResolution, uPointer;
   uniform vec3  uC1, uC2, uC3, uC4, uC5, uBase;
   varying vec2 vUv;
 
-  float hash21(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-  float vnoise(vec2 p){
-    vec2 i = floor(p), f = fract(p);
-    vec2 u = f * f * (3.0 - 2.0 * f);
-    float a = hash21(i), b = hash21(i + vec2(1.0,0.0)), c = hash21(i + vec2(0.0,1.0)), d = hash21(i + vec2(1.0,1.0));
-    return mix(mix(a,b,u.x), mix(c,d,u.x), u.y);
+  vec3 permute(vec3 x){ return mod((x*34.0+1.0)*x, 289.0); }
+  float snoise(vec2 v){
+    const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+    vec2 i = floor(v + dot(v, C.yy));
+    vec2 x0 = v - i + dot(i, C.xx);
+    vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+    vec4 x12 = x0.xyxy + C.xxzz; x12.xy -= i1; i = mod(i, 289.0);
+    vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+    vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0); m = m*m; m = m*m;
+    vec3 x = 2.0 * fract(p * C.www) - 1.0; vec3 h = abs(x) - 0.5; vec3 ox = floor(x + 0.5); vec3 a0 = x - ox;
+    m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+    vec3 g; g.x = a0.x*x0.x + h.x*x0.y; g.yz = a0.yz*x12.xz + h.yz*x12.yw;
+    return 130.0 * dot(m, g);
   }
-  float fbm(vec2 p){ float v = 0.0, a = 0.5; for (int i = 0; i < 4; i++){ v += a * vnoise(p); p *= 2.03; a *= 0.5; } return v; }
-  float tt(float s){ return uTime * s * (1.0 - uReducedMotion * 0.9); }
+  float hash21(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
   float atanh_(float x){ x = clamp(x, -0.9999, 0.9999); return 0.5 * log((1.0 + x) / (1.0 - x)); }
   vec2 rot(vec2 v, float a){ float s = sin(a), c = cos(a); return mat2(c, -s, s, c) * v; }
-  vec2 warpN(vec2 uv){ return vec2(fbm(uv * 3.0 + uSeed), fbm(uv * 3.0 + vec2(17.3, 4.1) + uSeed)); }
 
-  // Flowing field of five soft Gaussian blobs.
-  vec3 blobs(vec2 uv){
-    float t = tt(0.6) + 3.5 + uSeed;
-    vec2 p1 = vec2(-0.28 + sin(t*0.7+0.5)*0.15,  0.06 + cos(t*0.5)*0.12);
-    vec2 p2 = vec2(-0.06 + sin(t*0.4+1.2)*0.18,  0.16 + cos(t*0.6)*0.15);
-    vec2 p3 = vec2( 0.07 + sin(t*0.5+3.4)*0.20,  0.00 + cos(t*0.4)*0.14);
-    vec2 p4 = vec2( 0.22 + sin(t*0.3+2.3)*0.24, -0.10 + cos(t*0.7)*0.14);
-    vec2 p5 = vec2( 0.30 + sin(t*0.6+1.1)*0.18,  0.06 + cos(t*0.4)*0.13);
-    vec2 wn = warpN(vUv) * 2.0 - 1.0;
-    vec2 w = uv + wn * uWarpStrength;
-    vec3 col = uBase;
-    col += uC1 * exp(-dot(w-p1, w-p1) * 12.0) * 1.4;
-    col += uC2 * exp(-dot(w-p2, w-p2) * 20.0) * 2.0;
-    col += uC3 * exp(-dot(w-p3, w-p3) *  9.0) * 1.6;
-    col += uC4 * exp(-dot(w-p4, w-p4) * 15.0) * 1.3;
-    col += uC5 * exp(-dot(w-p5, w-p5) * 25.0) * 0.8;
-    return col;
+  // Animated two-scale simplex warp (mirrors the repo's noise.glsl).
+  vec2 warpVec(vec2 p){
+    float t = uTime * uWarpSpeed;
+    vec2 sc = vec2(uNoiseScaleX, uNoiseScaleY) * 4.0;
+    return vec2(snoise(p * sc + t * 0.5), snoise(p * sc * 0.93 - t * 0.3));
   }
-  // Flowing field of five rotated Gaussian ellipses.
-  vec3 ellipses(vec2 uv){
-    float t = tt(0.6) + 3.5 + uSeed;
-    vec2 p1 = vec2(-0.32 + sin(t*0.5+1.8)*0.20, -0.12 + cos(t*0.8+0.3)*0.16);
-    vec2 p2 = vec2( 0.10 + sin(t*0.6+2.5)*0.14,  0.24 + cos(t*0.3+1.7)*0.18);
-    vec2 p3 = vec2(-0.15 + sin(t*0.9+0.7)*0.22, -0.08 + cos(t*0.5+2.9)*0.11);
-    vec2 p4 = vec2( 0.28 + sin(t*0.4+3.1)*0.17,  0.18 + cos(t*0.6+0.9)*0.20);
-    vec2 p5 = vec2(-0.05 + sin(t*0.7+4.2)*0.13, -0.20 + cos(t*0.9+1.5)*0.15);
-    vec2 wn = warpN(vUv) * 2.0 - 1.0;
-    vec2 w = uv + vec2(wn.r * uWarpStrength, wn.g * uWarpStrength * 0.2);
-    vec2 r1 = rot(w-p1, 0.3), r2 = rot(w-p2, -1.1), r3 = rot(w-p3, 0.8), r4 = rot(w-p4, -0.5), r5 = rot(w-p5, 1.4);
-    float e1 = r1.x*r1.x* 8.0 + r1.y*r1.y* 1.0;
-    float e2 = r2.x*r2.x*25.0 + r2.y*r2.y*12.0;
-    float e3 = r3.x*r3.x* 6.0 + r3.y*r3.y*14.0;
-    float e4 = r4.x*r4.x*20.0 + r4.y*r4.y* 8.0;
-    float e5 = r5.x*r5.x*30.0 + r5.y*r5.y*15.0;
-    vec3 col = uBase;
-    col += uC1*exp(-e1)*1.4; col += uC2*exp(-e2)*2.0; col += uC3*exp(-e3)*1.6; col += uC4*exp(-e4)*1.3; col += uC5*exp(-e5)*0.8;
-    return col;
+
+  // Returns vec4(accumulated colour, total gaussian weight).
+  vec4 field(vec2 uv){
+    float t = uTime * 0.6 * uFlowSpeed + 3.5 + uSeed;
+    if (uAlgo < 0.5){
+      vec2 p1 = vec2(-0.28+sin(t*0.7+0.5)*0.15,  0.06+cos(t*0.5)*0.12);
+      vec2 p2 = vec2(-0.06+sin(t*0.4+1.2)*0.18,  0.16+cos(t*0.6)*0.15);
+      vec2 p3 = vec2( 0.07+sin(t*0.5+3.4)*0.20,  0.00+cos(t*0.4)*0.14);
+      vec2 p4 = vec2( 0.22+sin(t*0.3+2.3)*0.24, -0.10+cos(t*0.7)*0.14);
+      vec2 p5 = vec2( 0.30+sin(t*0.6+1.1)*0.18,  0.06+cos(t*0.4)*0.13);
+      float g1=exp(-dot(uv-p1,uv-p1)*12.0)*1.4, g2=exp(-dot(uv-p2,uv-p2)*20.0)*2.0, g3=exp(-dot(uv-p3,uv-p3)*9.0)*1.6, g4=exp(-dot(uv-p4,uv-p4)*15.0)*1.3, g5=exp(-dot(uv-p5,uv-p5)*25.0)*0.8;
+      return vec4(uC1*g1+uC2*g2+uC3*g3+uC4*g4+uC5*g5, g1+g2+g3+g4+g5);
+    } else {
+      vec2 p1 = vec2(-0.32+sin(t*0.5+1.8)*0.20, -0.12+cos(t*0.8+0.3)*0.16);
+      vec2 p2 = vec2( 0.10+sin(t*0.6+2.5)*0.14,  0.24+cos(t*0.3+1.7)*0.18);
+      vec2 p3 = vec2(-0.15+sin(t*0.9+0.7)*0.22, -0.08+cos(t*0.5+2.9)*0.11);
+      vec2 p4 = vec2( 0.28+sin(t*0.4+3.1)*0.17,  0.18+cos(t*0.6+0.9)*0.20);
+      vec2 p5 = vec2(-0.05+sin(t*0.7+4.2)*0.13, -0.20+cos(t*0.9+1.5)*0.15);
+      vec2 r1=rot(uv-p1,0.3), r2=rot(uv-p2,-1.1), r3=rot(uv-p3,0.8), r4=rot(uv-p4,-0.5), r5=rot(uv-p5,1.4);
+      float g1=exp(-(r1.x*r1.x*8.0+r1.y*r1.y*1.0))*1.4, g2=exp(-(r2.x*r2.x*25.0+r2.y*r2.y*12.0))*2.0, g3=exp(-(r3.x*r3.x*6.0+r3.y*r3.y*14.0))*1.6, g4=exp(-(r4.x*r4.x*20.0+r4.y*r4.y*8.0))*1.3, g5=exp(-(r5.x*r5.x*30.0+r5.y*r5.y*15.0))*0.8;
+      return vec4(uC1*g1+uC2*g2+uC3*g3+uC4*g4+uC5*g5, g1+g2+g3+g4+g5);
+    }
   }
 
   void main(){
-    // Fluted/reeded glass: split into vertical flutes, displace the sample
-    // coords within each flute so every strip refracts the gradient.
-    vec2 frag   = vUv * uResolution;
-    vec2 mapped = frag - uResolution * 0.5;
-    vec2 scaled = mapped / uFluteWidth;
-    vec2 fr     = vec2(fract(scaled.x), scaled.y);
-    float fx    =  uFluteStrength * (fr.x - 0.5);
-    float fy    = -uFluteStrength * atanh_(pow(fr.x, 6.0));
-    vec2 fc     = vec2(mapped.x + fx, mapped.y + fy);
-    vec2 fuv    = fc / uResolution.y + uPointer * 0.01;
+    vec2 ar = vec2(uResolution.x / uResolution.y, 1.0);
+    vec2 frag = vUv * uResolution; vec2 mapped = frag - uResolution * 0.5;
+    vec2 scaled = mapped / uFluteWidth; vec2 fr = vec2(fract(scaled.x), scaled.y);
+    float fx =  uFluteStrength * (fr.x - 0.5);
+    float fy = -uFluteStrength * atanh_(pow(fr.x, 6.0));
+    vec2 fc = vec2(mapped.x + fx, mapped.y + fy);
+    vec2 fuv = fc / uResolution.y + uPointer * 0.01;
 
-    vec3 color = (uAlgo < 0.5) ? blobs(fuv) : ellipses(fuv);
+    vec2 warp = warpVec(vUv * ar) * uWarpStrength;
+    vec4 fld = field(fuv + warp);
+    vec3 glow = fld.rgb; float totalG = fld.a;
 
-    // exponential tone-map → soft, filmic, no harsh clipping
-    color = 1.0 - exp(-color * uToneMapExposure);
+    vec3 col;
+    if (uLight > 0.5) {
+      // vivid colour on white — subtractive ink (CMY-on-paper)
+      vec3 ink = (vec3(totalG) - glow) * uBrightness;
+      col = uBase - ink;
+    } else {
+      // vivid colour on black — additive glow + HDR tone-map
+      col = uBase + glow;
+      col = 1.0 - exp(-col * uBrightness);
+    }
 
-    // film grain, scaled by local brightness
-    float g = hash21(vUv * uResolution + fract(uTime * 0.5) * 100.0) * 2.0 - 1.0;
-    color += g * uGrainStrength * max(color.r, max(color.g, color.b));
-
-    color *= 1.0 + uScrollEnergy * 0.15;
-    gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
+    float gr = hash21(vUv * uResolution + fract(uTime * 0.5) * 100.0) * 2.0 - 1.0;
+    col += gr * uGrainStrength * max(col.r, max(col.g, col.b));
+    gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
   }
 `
 
-// Curated palette pools — each entry is five RGB triplets.
-const DARK_PALETTES: number[][][] = [
+// Vivid palette pool (used in both themes — the colour model differs, not the hues).
+const PALETTES: number[][][] = [
   [[1.0,0.15,0.60],[0.15,0.90,1.00],[0.30,0.30,1.00],[0.70,0.20,1.00],[1.00,0.40,0.85]], // neon flux
   [[1.0,0.50,0.15],[1.00,0.20,0.25],[1.00,0.78,0.20],[0.90,0.20,0.60],[0.50,0.15,0.65]], // sunset
   [[0.2,1.00,0.60],[0.10,0.80,0.95],[0.20,0.50,1.00],[0.50,1.00,0.80],[0.55,0.30,1.00]], // aurora
   [[1.0,0.30,0.10],[1.00,0.62,0.12],[1.00,0.85,0.30],[0.95,0.20,0.35],[0.60,0.10,0.25]], // ember
   [[0.6,0.20,1.00],[1.00,0.20,0.80],[0.20,0.65,1.00],[0.95,0.45,1.00],[0.30,0.95,1.00]], // cyber violet
 ]
-const LIGHT_PALETTES: number[][][] = [
-  [[0.95,0.55,0.68],[0.55,0.80,1.00],[0.82,0.68,1.00],[1.00,0.78,0.60],[0.70,0.92,0.86]], // pastel dawn
-  [[0.60,0.92,0.86],[0.66,0.84,1.00],[0.86,0.78,1.00],[0.98,0.84,0.66],[0.80,0.94,0.90]], // mint sky
-  [[1.00,0.76,0.68],[0.84,0.74,1.00],[0.96,0.68,0.85],[0.74,0.86,1.00],[0.92,0.86,0.74]], // peach lilac
-]
 
 interface GlassParams {
-  colors: number[][]
-  base: number[]
-  fluteWidth: number
-  fluteStrength: number
-  warp: number
-  algo: number
-  exposure: number
-  grain: number
-  seed: number
+  colors: number[][]; base: number[]; light: number
+  algo: number; noiseScale1: number; noiseScale2: number
+  warp: number; warpSpeed: number; flowSpeed: number; grain: number
+  fluteWidth: number; fluteStrength: number; brightness: number; seed: number
 }
 
 function genParams(isDark: boolean): GlassParams {
   const r = Math.random
-  const pool = isDark ? DARK_PALETTES : LIGHT_PALETTES
-  const pal = pool[Math.floor(r() * pool.length)]
-  const scale = isDark ? 1.0 : 0.62
   return {
-    colors: pal.map(c => c.map(x => x * scale)),
-    base: isDark ? [0.005, 0.010, 0.055] : [0.58, 0.57, 0.60],
-    fluteWidth: 28 + Math.floor(r() * 58),
-    fluteStrength: 34 + Math.floor(r() * 86),
-    warp: 0.02 + r() * 0.07,
+    colors: PALETTES[Math.floor(r() * PALETTES.length)],
+    base: isDark ? [0.005, 0.010, 0.055] : [0.98, 0.97, 0.96],
+    light: isDark ? 0 : 1,
     algo: r() < 0.5 ? 0 : 1,
-    exposure: isDark ? 0.95 + r() * 0.6 : 0.80 + r() * 0.28,
+    noiseScale1: 0.25 + r() * 0.35,
+    noiseScale2: 0.40 + r() * 0.40,
+    warp: 0.03 + r() * 0.07,
+    warpSpeed: 0.06 + r() * 0.10,
+    flowSpeed: 0.7 + r() * 0.5,
     grain: (isDark ? 0.05 : 0.04) + r() * 0.045,
+    fluteWidth: 42 + Math.floor(r() * 70),
+    fluteStrength: 80 + Math.floor(r() * 80),
+    brightness: isDark ? 0.9 + r() * 0.35 : 0.66 + r() * 0.22,
     seed: r() * 10.0,
   }
 }
@@ -157,9 +150,9 @@ export default class Backdrop {
   private _isDark = true
   private _pointer = new Vector2(0, 0)
   private _reducedMotion = false
-  private _scrollEnergy = 0
+  private _clock = 0
+  private _lastElapsed = 0
   private _mqListener: (() => void) | null = null
-  // One random variant rolled per theme, per page load.
   private _darkParams = genParams(true)
   private _lightParams = genParams(false)
 
@@ -177,24 +170,27 @@ export default class Backdrop {
     const { width, height } = experience.sizes
     this.material = new ShaderMaterial({
       uniforms: {
-        uTime:            { value: 0.0 },
-        uReducedMotion:   { value: 0.0 },
-        uScrollEnergy:    { value: 0.0 },
-        uResolution:      { value: new Vector2(width, height) },
-        uPointer:         { value: new Vector2(0, 0) },
-        uWarpStrength:    { value: 0.05 },
-        uFluteWidth:      { value: 48 },
-        uFluteStrength:   { value: 70 },
-        uToneMapExposure: { value: 1.1 },
-        uGrainStrength:   { value: 0.07 },
-        uSeed:            { value: 0 },
-        uAlgo:            { value: 0 },
-        uBase:            { value: new Vector3() },
-        uC1:              { value: new Vector3() },
-        uC2:              { value: new Vector3() },
-        uC3:              { value: new Vector3() },
-        uC4:              { value: new Vector3() },
-        uC5:              { value: new Vector3() },
+        uTime:          { value: 0.0 },
+        uResolution:    { value: new Vector2(width, height) },
+        uPointer:       { value: new Vector2(0, 0) },
+        uWarpStrength:  { value: 0.05 },
+        uWarpSpeed:     { value: 0.1 },
+        uNoiseScaleX:   { value: 0.35 },
+        uNoiseScaleY:   { value: 0.55 },
+        uFlowSpeed:     { value: 1.0 },
+        uFluteWidth:    { value: 70 },
+        uFluteStrength: { value: 140 },
+        uBrightness:    { value: 1.0 },
+        uGrainStrength: { value: 0.07 },
+        uSeed:          { value: 0 },
+        uAlgo:          { value: 0 },
+        uLight:         { value: 0 },
+        uBase:          { value: new Vector3() },
+        uC1:            { value: new Vector3() },
+        uC2:            { value: new Vector3() },
+        uC3:            { value: new Vector3() },
+        uC4:            { value: new Vector3() },
+        uC5:            { value: new Vector3() },
       },
       vertexShader,
       fragmentShader,
@@ -215,13 +211,18 @@ export default class Backdrop {
 
   private _applyParams(p: GlassParams) {
     const u = this.material.uniforms
-    u.uWarpStrength.value    = p.warp
-    u.uFluteWidth.value      = p.fluteWidth
-    u.uFluteStrength.value   = p.fluteStrength
-    u.uToneMapExposure.value = p.exposure
-    u.uGrainStrength.value   = p.grain
-    u.uSeed.value            = p.seed
-    u.uAlgo.value            = p.algo
+    u.uWarpStrength.value  = p.warp
+    u.uWarpSpeed.value     = p.warpSpeed
+    u.uNoiseScaleX.value   = p.noiseScale1
+    u.uNoiseScaleY.value   = p.noiseScale2
+    u.uFlowSpeed.value     = p.flowSpeed
+    u.uFluteWidth.value    = p.fluteWidth
+    u.uFluteStrength.value = p.fluteStrength
+    u.uBrightness.value    = p.brightness
+    u.uGrainStrength.value = p.grain
+    u.uSeed.value          = p.seed
+    u.uAlgo.value          = p.algo
+    u.uLight.value         = p.light
     ;(u.uBase.value as Vector3).set(p.base[0], p.base[1], p.base[2])
     const cs = [u.uC1, u.uC2, u.uC3, u.uC4, u.uC5]
     cs.forEach((c, i) => (c.value as Vector3).set(p.colors[i][0], p.colors[i][1], p.colors[i][2]))
@@ -249,22 +250,18 @@ export default class Backdrop {
     ;(this.material.uniforms.uResolution.value as Vector2).set(width, height)
   }
 
-  update(elapsed: number, pointer: Vector2, scrollSpeed: number) {
-    this.material.uniforms.uTime.value = elapsed / 1000
+  update(elapsed: number, pointer: Vector2, _scrollSpeed: number) {
+    // Advance our own clock so prefers-reduced-motion can freeze the animation.
+    const dt = elapsed - this._lastElapsed
+    this._lastElapsed = elapsed
+    if (!this._reducedMotion) this._clock += dt
+    this.material.uniforms.uTime.value = this._clock / 1000
 
     const tx = pointer.x * 0.5
     const ty = pointer.y * 0.5
     this._pointer.x += (tx - this._pointer.x) * 0.03
     this._pointer.y += (ty - this._pointer.y) * 0.03
     ;(this.material.uniforms.uPointer.value as Vector2).set(this._pointer.x, this._pointer.y)
-
-    this.material.uniforms.uReducedMotion.value = this._reducedMotion ? 1.0 : 0.0
-
-    // Scroll energy — quick attack, slow decay; floor ignores the idle drift.
-    const target = Math.min(1, Math.max(0, Math.abs(scrollSpeed) - 0.006) * 26)
-    const rate = target > this._scrollEnergy ? 0.18 : 0.04
-    this._scrollEnergy += (target - this._scrollEnergy) * rate
-    this.material.uniforms.uScrollEnergy.value = this._scrollEnergy
   }
 
   destroy() {

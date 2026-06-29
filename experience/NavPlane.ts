@@ -37,6 +37,12 @@ if (typeof document !== 'undefined') {
   }
 }
 
+// Hermite smoothstep — 0 below a, 1 above b, eased between.
+const smoothstep = (a: number, b: number, x: number) => {
+  const t = Math.max(0, Math.min(1, (x - a) / (b - a)))
+  return t * t * (3 - 2 * t)
+}
+
 const vertexShader = /* glsl */`
   varying vec2 vUv;
   varying vec3 vWorldPosition;
@@ -243,7 +249,6 @@ export default class NavPlane {
 
   readonly baseScaleX  = 1.7
   readonly baseScaleY  = 1.0
-  readonly verticalGap = 0.5
   readonly angleGap    = 0.85
   readonly baseRadius  = 2.0
 
@@ -378,22 +383,23 @@ export default class NavPlane {
     this.revealProgress += (this.revealTarget  - this.revealProgress) * hFactor
     this.hoverProgress  += (this.hoverTarget   - this.hoverProgress)  * hvFactor
 
-    // Stretch the spiral's vertical pitch to fill the viewport height.
-    // Tall (portrait/mobile) viewports use a wider FOV and therefore show a
-    // much taller slice of the world; without this the spiral occupies only a
-    // central band. Reference distance is the resting camera Z (8) so the pitch
-    // stays stable during the click dolly. Desktop (~5.05) → 1.0; mobile → ~1.55.
+    // Even-spaced vertical helix sized to the viewport. The full ring spans
+    // SPAN× the visible height (derived from the resting camera FOV at Z=8), so
+    // the extreme cards sit well off-screen and the index wrap always happens
+    // out of frame. Because the span tracks the viewport, the spiral fills tall
+    // portrait screens and keeps a constant on-screen card density across every
+    // section, regardless of how many items it has.
     const cam = this.experience.camera.instance
     const visibleH = 2 * 8 * Math.tan((cam.fov * Math.PI / 180) * 0.5)
-    const vScale = Math.max(1, visibleH / 5.05)
-
-    const half = this.totalCount / 2
-    const visibleRange = Math.max(half - 0.5, 3.0)
-    const edge = Math.max(0, Math.abs(Ba) - visibleRange)
-    const edgePush = Math.sign(Ba) * edge * edge * 0.2 * vScale
-    const edgeOpacity = Math.max(0, 1 - edge * 0.25)
-    const Va = Ba * this.verticalGap * vScale - 0.8 + this.hiddenProgress * 9.0 + edgePush
+    const SPAN = 1.8
+    const stepY = (SPAN * visibleH) / this.totalCount
+    const Va = Ba * stepY + this.hiddenProgress * 9.0
     const Ga = this.baseRadius * (1 - this.hiddenProgress / 2)
+
+    // Opacity from vertical screen position: a card holds full opacity through
+    // the centre band and fades out symmetrically just as it crosses the top or
+    // bottom edge — so it reads as flying out of frame, never blinking off.
+    const edgeOpacity = 1 - smoothstep(visibleH * 0.50, visibleH * 0.62, Math.abs(Va))
 
     // Apply spin multiplier to angle during transition (spiral acceleration/deceleration)
     const Ha = Ba * this.angleGap * spinMultiplier

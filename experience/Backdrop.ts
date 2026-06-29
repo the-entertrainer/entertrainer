@@ -217,6 +217,14 @@ export default class Backdrop {
 
   private _applyParams(p: GlassParams) {
     this._activeColors = p.colors
+    // Publish the primary accent to CSS so chrome (e.g. edge fog) can match it.
+    if (typeof document !== 'undefined') {
+      const c = p.colors[0]
+      document.documentElement.style.setProperty(
+        '--accent-fog',
+        `${Math.round(c[0] * 255)},${Math.round(c[1] * 255)},${Math.round(c[2] * 255)}`
+      )
+    }
     const u = this.material.uniforms
     u.uWarpStrength.value  = p.warp
     u.uWarpSpeed.value     = p.warpSpeed

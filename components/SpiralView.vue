@@ -346,6 +346,9 @@ function onLoaderEntered() {
     <!-- Unified atmosphere: animated glow + vignette + film grain -->
     <canvas ref="atmoRef" class="spiral-atmo" />
 
+    <!-- Accent-tinted edge fog — soft finishing haze at top & bottom -->
+    <div class="spiral-fog" aria-hidden="true" />
+
     <!-- Dolly transition overlay — fades in as camera rushes toward card -->
     <div ref="dollyOverlayRef" class="dolly-overlay" />
 
@@ -408,6 +411,18 @@ function onLoaderEntered() {
   inset: 0;
   z-index: 2;
   pointer-events: none;
+}
+
+/* Accent edge fog — subtle haze at the top & bottom, tinted to the backdrop's
+   primary accent (published as --accent-fog). */
+.spiral-fog {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, rgba(var(--accent-fog, 120,120,140), 0.20) 0%, transparent 17%),
+    linear-gradient(to top,    rgba(var(--accent-fog, 120,120,140), 0.20) 0%, transparent 17%);
 }
 /* ────────────────────────────────────────────────────────────────────────── */
 

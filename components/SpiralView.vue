@@ -11,6 +11,7 @@ const props = defineProps<{
   showLoader?: boolean
   title?: string
   showViewSwitch?: boolean
+  inSpiralHrefs?: string[]
 }>()
 
 const emit = defineEmits<{
@@ -156,6 +157,8 @@ function startAtmo() {
 function stopAtmo() {
   _atmoRunning = false
   cancelAnimationFrame(_atmoRaf)
+  // Clear the last painted frame so no stale overlay lingers over spiral view.
+  if (_atmoCtx) _atmoCtx.clearRect(0, 0, _atmoW, _atmoH)
 }
 
 function _onWheel(e: WheelEvent) {
@@ -178,6 +181,7 @@ async function mountExperience() {
   // Experience over the top of a live one.
   if (!canvasRef.value || experience) return
   experience = new Experience(canvasRef.value)
+  experience.inSpiralHrefs = new Set(props.inSpiralHrefs ?? [])
   experience.world.setNavItems(props.items, themeStore.isDark)
   experience.setFogColor(themeStore.isDark ? FOG_DARK : FOG_LIGHT)
   experience.postProcessing.setColorGrade(themeStore.isDark)
@@ -218,7 +222,9 @@ function destroyExperience() {
 }
 
 onMounted(() => {
-  startAtmo()
+  // The 2D atmosphere overlay is only the atmosphere source in list view —
+  // spiral view gets glow/vignette/grain from the GLSL Backdrop + PostProcessing.
+  if (isListMode.value) startAtmo()
   window.addEventListener('resize', _resizeAtmo)
   window.addEventListener('wheel',      _onWheel,      { passive: true })
   window.addEventListener('touchstart', _onTouchStart, { passive: true })
@@ -287,10 +293,12 @@ watch(() => themeStore.isDark, (isDark) => {
 // List mode toggle — destroy/recreate Three.js
 watch(isListMode, async (listMode) => {
   if (listMode) {
+    startAtmo()
     destroyExperience()
     await nextTick()
     animateListIn()
   } else {
+    stopAtmo()
     await nextTick()
     mountExperience()
   }

@@ -91,6 +91,7 @@ onUnmounted(() => {
     :show-loader="true"
     :show-view-switch="true"
     :title="sectionTitles[currentSection]"
+    :in-spiral-hrefs="Object.keys(sectionRoutes)"
     @card-click="handleCardClick"
   />
 </template>

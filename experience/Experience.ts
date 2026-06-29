@@ -24,6 +24,10 @@ export default class Experience extends EventEmitter {
   raycaster: Raycaster
   backdrop: Backdrop
 
+  // Hrefs that navigate *within* the spiral (sub-sections). Tapping these skips
+  // the camera dolly and lets the vortex carry the motion; set by SpiralView.
+  inSpiralHrefs = new Set<string>()
+
   private static _instance: Experience | null = null
   private _parallaxTarget = new Vector2(0, 0)
   private _onPointerMove = (e: PointerEvent) => {
@@ -69,6 +73,17 @@ export default class Experience extends EventEmitter {
     this.time.on('tick', () => this._update())
     if (typeof window !== 'undefined') {
       window.addEventListener('pointermove', this._onPointerMove, { passive: true })
+    }
+  }
+
+  // Tap response: in-spiral cards (sub-sections) skip the dolly so the vortex
+  // is the only motion — matching the back/home transition. Everything else
+  // dollies into the card before its route loads.
+  selectPlane(plane: NavPlane, href: string) {
+    if (this.inSpiralHrefs.has(href)) {
+      this.trigger('planeClick', [href])
+    } else {
+      this.startDolly(plane, href)
     }
   }
 

@@ -1,8 +1,7 @@
-import { Color, Vector2 } from 'three'
+import { Color } from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import type Experience from './Experience'
 
 const VignetteShader = {
@@ -102,7 +101,6 @@ const ColorGradeShader = {
 export default class PostProcessing {
   experience: Experience
   composer: EffectComposer
-  bloomPass: UnrealBloomPass
   vignettePass: ShaderPass
   chromaPass: ShaderPass
   colorGradePass: ShaderPass
@@ -112,15 +110,6 @@ export default class PostProcessing {
 
     this.composer = new EffectComposer(experience.renderer.instance)
     this.composer.addPass(new RenderPass(experience.scene, experience.camera.instance))
-
-    // bloom — subtle halo on bright card surfaces
-    this.bloomPass = new UnrealBloomPass(
-      new Vector2(experience.sizes.width, experience.sizes.height),
-      0,      // strength — disabled
-      0.45,   // radius
-      0.86    // threshold
-    )
-    this.composer.addPass(this.bloomPass)
 
     this.vignettePass = new ShaderPass(VignetteShader)
     this.vignettePass.material.uniforms.uFillColor.value = new Color('#0D0C0A')
@@ -152,16 +141,12 @@ export default class PostProcessing {
       u.uTintStrength.value = 0.07
       vu.uStrength.value = 0.38
     }
-    this.bloomPass.strength  = 0  // bloom disabled everywhere
-    this.bloomPass.threshold = 0.90
-    this.bloomPass.radius    = 0.45
   }
 
   resize() {
     const { width, height, pixelRatio } = this.experience.sizes
     this.composer.setSize(width, height)
     this.composer.setPixelRatio(pixelRatio)
-    this.bloomPass.resolution.set(width, height)
   }
 
   render() {

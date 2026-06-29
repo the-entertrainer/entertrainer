@@ -20,6 +20,7 @@ const fragmentShader = /* glsl */`
   uniform vec2  uResolution;
   uniform sampler2D uTypoTex;
   uniform float uReducedMotion;
+  uniform float uScrollEnergy;
   varying vec2 vUv;
 
   // ── Utility ─────────────────────────────────────────────────────────
@@ -255,6 +256,10 @@ const fragmentShader = /* glsl */`
     vec3 warm = mix(accent, vec3(0.2, 0.15, 0.1), uIsDark * 0.5);
     result += warm * exp(-d4 * d4 * 5.0) * 0.03;
 
+    // Scroll-reactive lift — the glow swells while the spiral is spinning,
+    // ported from the old 2D atmosphere overlay so spiral view stays alive.
+    result *= 1.0 + uScrollEnergy * 0.7;
+
     return result;
   }
 
@@ -352,6 +357,7 @@ export default class Backdrop {
   private _isDark = true
   private _pointer = new Vector2(0, 0)
   private _reducedMotion = false
+  private _scrollEnergy = 0
   private _mqListener: (() => void) | null = null
 
   constructor(experience: Experience) {
@@ -377,6 +383,7 @@ export default class Backdrop {
         uResolution:    { value: new Vector2(width, height) },
         uTypoTex:       { value: this._typoTex },
         uReducedMotion: { value: 0.0 },
+        uScrollEnergy:  { value: 0.0 },
       },
       vertexShader,
       fragmentShader,
@@ -416,7 +423,7 @@ export default class Backdrop {
     this.material.uniforms.uResolution.value.set(width, height)
   }
 
-  update(elapsed: number, pointer: Vector2, _scrollSpeed: number) {
+  update(elapsed: number, pointer: Vector2, scrollSpeed: number) {
     this.material.uniforms.uTime.value = elapsed / 1000
 
     // Smooth pointer
@@ -427,6 +434,13 @@ export default class Backdrop {
     this.material.uniforms.uPointer.value.set(this._pointer.x, this._pointer.y)
 
     this.material.uniforms.uReducedMotion.value = this._reducedMotion ? 1.0 : 0.0
+
+    // Scroll energy — quick attack, slow decay. Floor of 0.006 cards/frame keeps
+    // the ambient idle drift from triggering it; only real scrolling lifts the glow.
+    const target = Math.min(1, Math.max(0, Math.abs(scrollSpeed) - 0.006) * 26)
+    const rate = target > this._scrollEnergy ? 0.18 : 0.04
+    this._scrollEnergy += (target - this._scrollEnergy) * rate
+    this.material.uniforms.uScrollEnergy.value = this._scrollEnergy
   }
 
   destroy() {

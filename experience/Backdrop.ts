@@ -1,4 +1,4 @@
-import { Mesh, PlaneGeometry, ShaderMaterial, CanvasTexture, Vector2 } from 'three'
+import { Mesh, PlaneGeometry, ShaderMaterial, CanvasTexture, Vector2, RepeatWrapping } from 'three'
 import type Experience from './Experience'
 
 const BACK_Z = -6
@@ -269,6 +269,25 @@ const fragmentShader = /* glsl */`
     return (n - 0.5) * 0.018;
   }
 
+  // ── Layer 5: Kinetic editorial typography ───────────────────────────
+  // The word texture tiles (RepeatWrapping); sample it as three parallax bands
+  // drifting at different scales/speeds/directions, each nudged by the pointer.
+  float typoSample(vec2 p) {
+    return texture2D(uTypoTex, fract(p)).a;
+  }
+  float typographyLayer(vec2 uv) {
+    float aspect = uResolution.x / uResolution.y;
+    vec2 base = vec2(uv.x * aspect, uv.y);   // square sampling space — no stretch
+    float tt = t(1.0);                        // honours reduced-motion
+
+    // foreground (large, faster, strong parallax) → background (small, slow)
+    float a = typoSample(base * 1.15 + vec2( tt * 0.016, 0.00) + uPointer * 0.060);
+    float b = typoSample(base * 1.95 + vec2(-tt * 0.011, 0.37) + uPointer * 0.034);
+    float c = typoSample(base * 3.00 + vec2( tt * 0.007, 0.71) + uPointer * 0.018);
+
+    return a + b * 0.5 + c * 0.32;
+  }
+
   // ── Main ────────────────────────────────────────────────────────────
   void main() {
     vec2 uv = vUv;
@@ -295,9 +314,8 @@ const fragmentShader = /* glsl */`
     // Layer 4: Geometric decorations
     col += elemCol * decorLayer(uv);
 
-    // Layer 5: Editorial typography
-    float typo = texture2D(uTypoTex, uv).a;
-    col += elemCol * typo * mix(0.04, 0.025, uIsDark);
+    // Layer 5: Kinetic editorial typography — drifting parallax word-bands
+    col += elemCol * typographyLayer(uv) * mix(0.42, 0.18, uIsDark);
 
     // Layer 7: Gradient lighting
     col += gradientLayer(uv);
@@ -310,40 +328,51 @@ const fragmentShader = /* glsl */`
 `
 
 const TYPO_WORDS = [
-  { text: 'LEARN',    x: 0.10, y: 0.25, size: 180, rot: -8,  weight: 700 },
-  { text: 'BUILD',    x: 0.68, y: 0.15, size: 160, rot: 5,   weight: 600 },
-  { text: 'DESIGN',   x: 0.38, y: 0.72, size: 220, rot: -3,  weight: 700 },
-  { text: 'THINK',    x: 0.80, y: 0.55, size: 140, rot: 12,  weight: 300 },
-  { text: 'SYSTEM',   x: 0.05, y: 0.82, size: 120, rot: -15, weight: 600 },
-  { text: 'IDEA',     x: 0.60, y: 0.90, size: 200, rot: 7,   weight: 700 },
-  { text: '3.14',     x: 0.28, y: 0.12, size: 260, rot: -5,  weight: 300 },
-  { text: 'FLOW',     x: 0.50, y: 0.42, size: 160, rot: 10,  weight: 600 },
-  { text: 'MAKE',     x: 0.82, y: 0.35, size: 150, rot: -10, weight: 700 },
-  { text: 'CREATE',   x: 0.20, y: 0.55, size: 130, rot: 3,   weight: 300 },
-  { text: 'REMEMBER', x: 0.45, y: 0.05, size: 110, rot: -2,  weight: 600 },
+  { text: 'LEARN',    x: 0.12, y: 0.10, size: 200, rot: -6,  weight: 700 },
+  { text: 'DESIGN',   x: 0.62, y: 0.16, size: 240, rot: 4,   weight: 800 },
+  { text: 'SYSTEM',   x: 0.30, y: 0.30, size: 150, rot: -12, weight: 600 },
+  { text: 'THINK',    x: 0.84, y: 0.34, size: 170, rot: 8,   weight: 300 },
+  { text: 'BUILD',    x: 0.10, y: 0.45, size: 190, rot: 10,  weight: 700 },
+  { text: 'FLOW',     x: 0.50, y: 0.48, size: 220, rot: -4,  weight: 600 },
+  { text: 'CREATE',   x: 0.85, y: 0.56, size: 160, rot: -10, weight: 700 },
+  { text: 'IDEA',     x: 0.22, y: 0.62, size: 230, rot: 6,   weight: 800 },
+  { text: '3.14',     x: 0.61, y: 0.66, size: 200, rot: -8,  weight: 300 },
+  { text: 'MAKE',     x: 0.40, y: 0.80, size: 200, rot: 12,  weight: 700 },
+  { text: 'REMEMBER', x: 0.79, y: 0.83, size: 140, rot: -3,  weight: 600 },
+  { text: 'TEACH',    x: 0.10, y: 0.86, size: 180, rot: 5,   weight: 700 },
+  { text: 'ITERATE',  x: 0.50, y: 0.95, size: 130, rot: -7,  weight: 300 },
 ]
 
 function bakeTypographyTexture(): CanvasTexture {
-  const W = 2048, H = 1024
+  // Square canvas, full-alpha marks (the shader controls intensity). Each word
+  // is drawn in a 3×3 wrap grid so the texture tiles seamlessly when scrolled.
+  const S = 2048
   const c = document.createElement('canvas')
-  c.width = W
-  c.height = H
+  c.width = S
+  c.height = S
   const ctx = c.getContext('2d')!
-  ctx.clearRect(0, 0, W, H)
+  ctx.clearRect(0, 0, S, S)
+  ctx.fillStyle = 'rgba(255, 255, 255, 1)'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
 
   for (const w of TYPO_WORDS) {
-    ctx.save()
-    ctx.translate(w.x * W, w.y * H)
-    ctx.rotate((w.rot * Math.PI) / 180)
-    ctx.font = `${w.weight} ${w.size}px "DM Sans", system-ui, sans-serif`
-    ctx.fillStyle = `rgba(255, 255, 255, 0.22)`
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(w.text, 0, 0)
-    ctx.restore()
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        ctx.save()
+        ctx.translate(w.x * S + dx * S, w.y * S + dy * S)
+        ctx.rotate((w.rot * Math.PI) / 180)
+        ctx.font = `${w.weight} ${w.size}px "DM Sans", system-ui, sans-serif`
+        ctx.fillText(w.text, 0, 0)
+        ctx.restore()
+      }
+    }
   }
 
-  return new CanvasTexture(c)
+  const tex = new CanvasTexture(c)
+  tex.wrapS = RepeatWrapping
+  tex.wrapT = RepeatWrapping
+  return tex
 }
 
 export default class Backdrop {
@@ -359,12 +388,25 @@ export default class Backdrop {
   private _reducedMotion = false
   private _scrollEnergy = 0
   private _mqListener: (() => void) | null = null
+  private _disposed = false
 
   constructor(experience: Experience) {
     this.experience = experience
     this._geometry = new PlaneGeometry(1, 1)
 
     this._typoTex = bakeTypographyTexture()
+
+    // Rebake once webfonts are ready so the words render in DM Sans, not the
+    // fallback — the typography is now the hero of the backdrop.
+    if (typeof document !== 'undefined' && (document as any).fonts?.ready) {
+      ;(document as any).fonts.ready.then(() => {
+        if (this._disposed) return
+        const fresh = bakeTypographyTexture()
+        this._typoTex.dispose()
+        this._typoTex = fresh
+        this.material.uniforms.uTypoTex.value = fresh
+      })
+    }
 
     if (typeof window !== 'undefined') {
       const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -444,6 +486,7 @@ export default class Backdrop {
   }
 
   destroy() {
+    this._disposed = true
     this.experience.scene.remove(this.mesh)
     this._geometry.dispose()
     this.material.dispose()

@@ -80,8 +80,7 @@ const fragmentShader = /* glsl */`
   uniform float uRimAngle;
   uniform float uGlowStrength;
   uniform float uIsImage;
-  uniform float uExitFade;
-  uniform float uEntranceFade;
+  uniform float uTransition;
   varying vec2 vUv;
   varying float vDepth;
   #include <fog_pars_fragment>
@@ -202,13 +201,11 @@ const fragmentShader = /* glsl */`
       color.rgb     += vec3(0.96, 0.95, 0.93) * glowMask * 0.50;
     }
 
-    // Depth-cascade fade during spiral transitions
-    // Back cards (high vDepth) fade first, progressively to front cards
-    float depthCascade = smoothstep(14.0, 8.0, vDepth);
-    float transitionFade = mix(uExitFade, uEntranceFade, 0.5);
-    float cascadedFade = mix(transitionFade, 1.0, depthCascade);
+    // Subtle static depth dim — far cards recede a touch for depth. The spiral
+    // transition is a single clean cross-fade via uTransition (1 visible → 0).
+    float depthDim = mix(0.6, 1.0, smoothstep(14.0, 7.0, vDepth));
 
-    gl_FragColor = vec4(color.rgb, alpha * color.a * uOpacity * cascadedFade);
+    gl_FragColor = vec4(color.rgb, alpha * color.a * uOpacity * uTransition * depthDim);
     #include <fog_fragment>
   }
 `
@@ -228,8 +225,7 @@ export default class NavPlane {
   revealTarget   = 0
 
   // Transition effects
-  exitFade = 0        // Fades out during spiral exit (0=full fade, 1=visible)
-  entranceFade = 1    // Fades in during spiral entrance (0=hidden, 1=visible)
+  transitionOpacity = 1   // Spiral transition cross-fade (1 visible → 0 gone)
 
   private prevBa: number | null = null
   private wrapFade = 1
@@ -299,8 +295,7 @@ export default class NavPlane {
           uRimAngle:       { value: 0 },
           uGlowStrength:   { value: 0 },
           uIsImage:        { value: this._bgImage ? 1.0 : 0.0 },
-          uExitFade:       { value: 0 },
-          uEntranceFade:   { value: 1 }
+          uTransition:     { value: 1 }
         }
       ]),
       vertexShader,
@@ -424,8 +419,7 @@ export default class NavPlane {
     mat.uniforms.uZoom.value           = 1 + 0.05 * this.hoverProgress
     mat.uniforms.uRevealProgress.value = this.revealProgress * (1 - this.hoverProgress * 0.05)
     mat.uniforms.uOpacity.value = this.wrapFade * edgeOpacity
-    mat.uniforms.uExitFade.value = this.exitFade
-    mat.uniforms.uEntranceFade.value = this.entranceFade
+    mat.uniforms.uTransition.value = this.transitionOpacity
 
     // ── Rim glow ─────────────────────────────────────────────────
     this._rimAngle     = (this._rimAngle + delta * 0.0007) % (Math.PI * 2)

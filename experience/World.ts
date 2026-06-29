@@ -45,8 +45,12 @@ export default class World {
   }
 
   // Spiral vortex transition — the single motion for every in-spiral change
-  // (entering a sub-section, going back, returning home). Accelerate spin →
-  // swap items → decelerate spin while fading the new cards in.
+  // (entering a sub-section, going back, returning home). The spiral winds up
+  // and cross-fades out, items swap while invisible, then it unwinds and
+  // cross-fades back in. Spin is continuous across the swap (no jump): exit
+  // leaves it wound to PEAK, entrance picks up from PEAK and relaxes to 1.
+  private readonly _spinPeak = 2.2
+
   async transitionTo(items: NavItem[]) {
     await this._animateSpiralExit()
 
@@ -54,47 +58,38 @@ export default class World {
 
     this.experience.controls.reset()
     this.setNavItems(items, this._isDark)
-    // New planes are born hidden (hiddenProgress = 1). Snap them into final
-    // position but invisible (entranceFade = 0) so the entrance animation can
-    // fade + spin them in. Without this the spiral stays blank after the swap.
-    this.navPlanes.forEach(p => { p.revealImmediate(); p.entranceFade = 0 })
+    // New planes are born hidden — snap them to their final spots but fully
+    // transparent so the entrance can cross-fade them in. The spin multiplier
+    // is already at PEAK, so they start wound up and unwind into place.
+    this.navPlanes.forEach(p => { p.revealImmediate(); p.transitionOpacity = 0 })
 
-    await new Promise<void>(r => setTimeout(r, 80))
+    // One frame to let the new meshes register, then fade/unwind in.
+    await new Promise<void>(r => requestAnimationFrame(() => r()))
     if (this._destroyed) return
 
     await this._animateSpiralEntrance()
   }
 
+  // easeInOutSine — gentle, symmetric, no abrupt starts or stops.
+  private _ease(t: number): number {
+    return 0.5 - 0.5 * Math.cos(Math.PI * t)
+  }
+
   private async _animateSpiralExit() {
     const startTime = performance.now()
-    const duration = 600  // ms
+    const duration = 440  // ms
 
     return new Promise<void>(r => {
       const animate = () => {
-        if (this._destroyed) {
-          r()
-          return
-        }
+        if (this._destroyed) { r(); return }
 
-        const elapsed = performance.now() - startTime
-        const progress = Math.min(elapsed / duration, 1)
+        const e = this._ease(Math.min((performance.now() - startTime) / duration, 1))
+        // Wind up 1 → PEAK and cross-fade out 1 → 0.
+        this.spiralRotationSpeedMultiplier = 1 + (this._spinPeak - 1) * e
+        this.navPlanes.forEach(p => { p.transitionOpacity = 1 - e })
 
-        // Accelerate spin: 1x → 3x speed over 600ms
-        this.spiralRotationSpeedMultiplier = 1 + progress * 2
-
-        // Depth-cascade fade: fade out as we spin
-        const fadeFactor = Math.pow(progress, 1.2)  // ease-out for fade
-        this.navPlanes.forEach(p => {
-          p.exitFade = fadeFactor
-        })
-
-        if (progress < 1) {
-          requestAnimationFrame(animate)
-        } else {
-          this.spiralRotationSpeedMultiplier = 1
-          this.navPlanes.forEach(p => { p.exitFade = 1 })
-          r()
-        }
+        if (e < 1) requestAnimationFrame(animate)
+        else r()  // leave spin wound at PEAK, opacity 0 — entrance continues from here
       }
       animate()
     })
@@ -104,32 +99,19 @@ export default class World {
     const startTime = performance.now()
     const duration = 500  // ms
 
-    this.navPlanes.forEach(p => { p.entranceFade = 0 })
-
     return new Promise<void>(r => {
       const animate = () => {
-        if (this._destroyed) {
-          r()
-          return
-        }
+        if (this._destroyed) { r(); return }
 
-        const elapsed = performance.now() - startTime
-        const progress = Math.min(elapsed / duration, 1)
+        const e = this._ease(Math.min((performance.now() - startTime) / duration, 1))
+        // Unwind PEAK → 1 and cross-fade in 0 → 1.
+        this.spiralRotationSpeedMultiplier = this._spinPeak - (this._spinPeak - 1) * e
+        this.navPlanes.forEach(p => { p.transitionOpacity = e })
 
-        // Decelerate spin: 3x → 1x speed
-        this.spiralRotationSpeedMultiplier = 3 - progress * 2
-
-        // Depth-cascade fade in (reverse): cards appear via depth
-        const revealFactor = Math.pow(progress, 0.8)  // ease-in for reveal
-        this.navPlanes.forEach(p => {
-          p.entranceFade = revealFactor
-        })
-
-        if (progress < 1) {
-          requestAnimationFrame(animate)
-        } else {
+        if (e < 1) requestAnimationFrame(animate)
+        else {
           this.spiralRotationSpeedMultiplier = 1
-          this.navPlanes.forEach(p => { p.entranceFade = 1 })
+          this.navPlanes.forEach(p => { p.transitionOpacity = 1 })
           r()
         }
       }

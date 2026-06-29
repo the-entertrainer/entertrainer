@@ -159,6 +159,7 @@ export default class Experience extends EventEmitter {
 
   setBackdrop(isDark: boolean) {
     this.backdrop.setTheme(isDark)
+    this.world.applyBackdropAccents()
   }
 
   setTheme(isDark: boolean) {
@@ -166,6 +167,7 @@ export default class Experience extends EventEmitter {
     this.world.updateTheme(isDark)
     this.postProcessing.setColorGrade(isDark)
     this.backdrop.setTheme(isDark)
+    this.world.applyBackdropAccents()
   }
 
   destroy() {

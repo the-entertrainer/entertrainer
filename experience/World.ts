@@ -33,6 +33,15 @@ export default class World {
     doubled.forEach((item, i) => {
       this.navPlanes.push(new NavPlane(this.experience, i, item, doubled.length, this.geometry, isDark))
     })
+    this.applyBackdropAccents()
+  }
+
+  // Tint each card's rim/edge to a colour from the live backdrop palette —
+  // spread across the palette by index so the spiral echoes the whole gradient.
+  applyBackdropAccents() {
+    const pal = this.experience.backdrop?.getPalette?.()
+    if (!pal || !pal.length) return
+    this.navPlanes.forEach((p) => p.setAccent(pal[p.index % pal.length]))
   }
 
   updateTheme(isDark: boolean) {

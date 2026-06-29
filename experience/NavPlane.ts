@@ -4,6 +4,7 @@ import {
   DoubleSide,
   CanvasTexture,
   Vector2,
+  Vector3,
   PlaneGeometry,
   UniformsLib,
   UniformsUtils
@@ -81,6 +82,7 @@ const fragmentShader = /* glsl */`
   uniform float uGlowStrength;
   uniform float uIsImage;
   uniform float uTransition;
+  uniform vec3  uAccent;     // pulled from the live backdrop palette
   varying vec2 vUv;
   varying float vDepth;
   #include <fog_pars_fragment>
@@ -168,12 +170,13 @@ const fragmentShader = /* glsl */`
         mix(fogColor, vec3(1.0), bStr),  // dark:  faint white edge
         dark
       );
+      bCol = mix(bCol, uAccent, 0.28);   // glass edge harmonises with the backdrop
       glass = mix(glass, bCol, smoothstep(-0.008, -0.001, bSdf));
 
-      // Accent tick — mirrors bottom-left marker on front face
+      // Accent tick — mirrors bottom-left marker on front face (backdrop hue)
       float tX = step(100.0/1700.0, vUv.x) - step(240.0/1700.0, vUv.x);
       float tY = step(820.0/1000.0, vUv.y) - step(824.0/1000.0, vUv.y);
-      vec3  tCol = mix(fogColor * 0.70, vec3(0.957, 0.945, 0.925), dark);
+      vec3  tCol = mix(mix(fogColor * 0.70, vec3(0.957, 0.945, 0.925), dark), uAccent, 0.55);
       glass = mix(glass, tCol, clamp(tX * tY, 0.0, 1.0) * mix(0.30, 0.40, dark));
 
       color = vec4(glass, 1.0);
@@ -190,7 +193,8 @@ const fragmentShader = /* glsl */`
     float alpha     = 1.0 - smoothstep(-aa, aa, sdf);
     alpha          *= smoothstep(0.1, 1.0, uRevealProgress);
 
-    // Orbiting rim glow — cream spotlight tracing the card edge
+    // Orbiting rim glow — spotlight tracing the card edge, tinted to the
+    // backdrop accent (a hot near-white core fading into the backdrop hue).
     if (gl_FrontFacing) {
       vec2  cp       = vec2((vUv.x - 0.5) * aspect, vUv.y - 0.5);
       float pAngle   = atan(cp.y, cp.x);
@@ -198,7 +202,7 @@ const fragmentShader = /* glsl */`
       float rimFade  = exp(-sdf * sdf * 300.0);
       float arcFade  = exp(-angDelta * angDelta * 1.2);
       float glowMask = rimFade * arcFade * uGlowStrength;
-      color.rgb     += vec3(0.96, 0.95, 0.93) * glowMask * 0.50;
+      color.rgb     += mix(uAccent, vec3(1.0), 0.30) * glowMask * 0.55;
     }
 
     // Subtle static depth dim — far cards recede a touch for depth. The spiral
@@ -295,7 +299,8 @@ export default class NavPlane {
           uRimAngle:       { value: 0 },
           uGlowStrength:   { value: 0 },
           uIsImage:        { value: this._bgImage ? 1.0 : 0.0 },
-          uTransition:     { value: 1 }
+          uTransition:     { value: 1 },
+          uAccent:         { value: new Vector3(0.96, 0.95, 0.93) }
         }
       ]),
       vertexShader,
@@ -350,6 +355,12 @@ export default class NavPlane {
   }
 
   setHovered(hovered: boolean) { this.hoverTarget = hovered ? 1 : 0 }
+
+  // Tint the rim glow + glass edge to a backdrop-palette colour.
+  setAccent(rgb: number[]) {
+    const mat = this.mesh.material as ShaderMaterial
+    ;(mat.uniforms.uAccent.value as Vector3).set(rgb[0], rgb[1], rgb[2])
+  }
 
   updateTexture(isDark: boolean) {
     if (isDark === this._isDark) return

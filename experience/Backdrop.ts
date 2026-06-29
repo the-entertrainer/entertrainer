@@ -157,6 +157,7 @@ export default class Backdrop {
   private _mqListener: (() => void) | null = null
   private _darkParams = genParams(true)
   private _lightParams = genParams(false)
+  private _activeColors: number[][] = []
 
   constructor(experience: Experience) {
     this.experience = experience
@@ -211,7 +212,11 @@ export default class Backdrop {
     this.resize()
   }
 
+  // The active palette (5 RGB triplets), so the cards can harmonise with it.
+  getPalette(): number[][] { return this._activeColors }
+
   private _applyParams(p: GlassParams) {
+    this._activeColors = p.colors
     const u = this.material.uniforms
     u.uWarpStrength.value  = p.warp
     u.uWarpSpeed.value     = p.warpSpeed

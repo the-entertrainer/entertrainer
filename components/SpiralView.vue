@@ -32,7 +32,6 @@ const FOG_LIGHT = 0xF5EFE8
 
 let experience: Experience | null = null
 let transitioning = false
-let _pendingExpansionIndex: number | null = null
 
 const dollyOverlayRef = ref<HTMLDivElement | null>(null)
 
@@ -197,7 +196,6 @@ async function mountExperience() {
   })
 
   experience.on('planeClick', (href: string) => {
-    _pendingExpansionIndex = experience!.lastClickedItemIndex
     emit('cardClick', href)
     // Reset camera and fade overlay out after nav (covers both accordion and route cases)
     setTimeout(() => {
@@ -271,21 +269,13 @@ watch(hasEntered, async (entered) => {
   }
 })
 
-// Accordion: when items prop changes, route between expandAt (sub-section) vs transitionTo (full)
+// Every in-spiral item change — entering a sub-section, going back, returning
+// home — uses the one canonical motion: the spiral vortex transition.
 watch(() => props.items, async (newItems) => {
   if (isListMode.value) { await nextTick(); animateListIn(); return }
   if (!experience || !newItems.length || transitioning) return
   transitioning = true
-
-  if (_pendingExpansionIndex !== null) {
-    // Sub-section clicked — expand in-place
-    await experience.world.expandAt(newItems, _pendingExpansionIndex)
-    _pendingExpansionIndex = null
-  } else {
-    // Back navigation or full transition
-    await experience.world.transitionTo(newItems)
-  }
-
+  await experience.world.transitionTo(newItems)
   transitioning = false
 }, { deep: false })
 

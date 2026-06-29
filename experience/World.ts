@@ -41,7 +41,10 @@ export default class World {
   applyBackdropAccents() {
     const pal = this.experience.backdrop?.getPalette?.()
     if (!pal || !pal.length) return
-    this.navPlanes.forEach((p) => p.setAccent(pal[p.index % pal.length]))
+    this.navPlanes.forEach((p) => {
+      p.setAccent(pal[p.index % pal.length])
+      p.setPrimary(pal[0])
+    })
   }
 
   updateTheme(isDark: boolean) {

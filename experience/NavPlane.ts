@@ -82,7 +82,8 @@ const fragmentShader = /* glsl */`
   uniform float uGlowStrength;
   uniform float uIsImage;
   uniform float uTransition;
-  uniform vec3  uAccent;     // pulled from the live backdrop palette
+  uniform vec3  uAccent;     // per-card hue from the backdrop palette
+  uniform vec3  uPrimary;    // backdrop's primary accent (shared) for the glass back
   varying vec2 vUv;
   varying float vDepth;
   #include <fog_pars_fragment>
@@ -154,6 +155,8 @@ const fragmentShader = /* glsl */`
         mix(fogColor, vec3(1.0), 0.07),
         dark
       );
+      // Adopt the backdrop's primary hue so translucent backs read as one world
+      glass = mix(glass, uPrimary, 0.38);
 
       // Diagonal ambient sheen — both modes
       float sweep = max(0.0, 0.6 - vUv.x * 0.5 - vUv.y * 0.5) * mix(0.05, 0.04, dark);
@@ -179,7 +182,8 @@ const fragmentShader = /* glsl */`
       vec3  tCol = mix(mix(fogColor * 0.70, vec3(0.957, 0.945, 0.925), dark), uAccent, 0.55);
       glass = mix(glass, tCol, clamp(tX * tY, 0.0, 1.0) * mix(0.30, 0.40, dark));
 
-      color = vec4(glass, 1.0);
+      // Translucent back (leaning opaque) — the colourful backdrop shows through
+      color = vec4(glass, 0.84);
     }
 
     float aspect    = uPlaneSizes.x / uPlaneSizes.y;
@@ -300,7 +304,8 @@ export default class NavPlane {
           uGlowStrength:   { value: 0 },
           uIsImage:        { value: this._bgImage ? 1.0 : 0.0 },
           uTransition:     { value: 1 },
-          uAccent:         { value: new Vector3(0.96, 0.95, 0.93) }
+          uAccent:         { value: new Vector3(0.96, 0.95, 0.93) },
+          uPrimary:        { value: new Vector3(0.96, 0.95, 0.93) }
         }
       ]),
       vertexShader,
@@ -360,6 +365,12 @@ export default class NavPlane {
   setAccent(rgb: number[]) {
     const mat = this.mesh.material as ShaderMaterial
     ;(mat.uniforms.uAccent.value as Vector3).set(rgb[0], rgb[1], rgb[2])
+  }
+
+  // The backdrop's primary hue for the translucent glass back.
+  setPrimary(rgb: number[]) {
+    const mat = this.mesh.material as ShaderMaterial
+    ;(mat.uniforms.uPrimary.value as Vector3).set(rgb[0], rgb[1], rgb[2])
   }
 
   updateTexture(isDark: boolean) {

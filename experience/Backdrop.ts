@@ -11,13 +11,16 @@ const vertexShader = /* glsl */`
   }
 `
 
-// Photoreal-ish shattered glass over a glossy iridescent gradient. Rather than
-// painting crack lines, this builds a real glass *normal field* (faceted shards
-// + two crack scales, concentrated into a diagonal band) and renders it with
-// proper screen-space refraction, chromatic dispersion (a per-channel IOR
-// sampling loop), Fresnel reflection against a procedural studio environment,
-// and Blinn-Phong specular glints. Technique per Maxime Heckel's refraction /
-// dispersion write-up, adapted to sample an analytic background.
+// Organic monochrome shattered-crystal glass, theme-aware.
+//
+// The fracture is generated organically (heavy domain-warp + ridged multi-fractal
+// cracks + sparse warped-Voronoi shards with broken edges, concentrated by a
+// warped noise mask) — no honeycomb. It's baked into a height field whose normal
+// drives real glass: screen-space refraction with a faint chromatic dispersion
+// loop, Fresnel reflection against a procedural studio environment, and
+// Blinn-Phong specular. Monochrome, with two distinct aesthetics:
+//   dark  → dramatic obsidian / smoked glass (charcoal base, sharp silver fractures)
+//   light → soft frosted pearl (airy off-white, gentle crack shadows, diffuse glints)
 const fragmentShader = /* glsl */`
   precision highp float;
   uniform float uTime;
@@ -39,40 +42,32 @@ const fragmentShader = /* glsl */`
     float a = hash21(i), b = hash21(i + vec2(1.0,0.0)), c = hash21(i + vec2(0.0,1.0)), d = hash21(i + vec2(1.0,1.0));
     return mix(mix(a,b,u.x), mix(c,d,u.x), u.y);
   }
+  float fbm(vec2 p){ float v = 0.0, a = 0.5; for (int i = 0; i < 5; i++){ v += a * vnoise(p); p = p * 2.03 + vec2(1.7, 9.2); a *= 0.5; } return v; }
   float t(float s){ return uTime * s * (1.0 - uReducedMotion * 0.9); }
   vec3 sat(vec3 c, float i){ vec3 L = vec3(0.2125, 0.7154, 0.0721); return mix(vec3(dot(c, L)), c, i); }
+  vec2 warp2(vec2 p){ float b = t(0.08); return vec2(fbm(p + vec2(0.0, b)), fbm(p + vec2(3.1, 1.7) - b)); }
 
-  // Glossy iridescent gradient — kept cheap so the dispersion loop can sample it.
+  // Monochrome flowing tone — charcoal (dark) or pearl-white (light).
   vec3 background(vec2 uv){
     vec2 p = uv + 0.05 * vec2(sin(uv.y * 4.0 + t(0.25)), cos(uv.x * 3.2 + t(0.2)));
-    float d = clamp(0.55 * p.x + 0.62 * (1.0 - p.y), 0.0, 1.0);
-    vec3 gold    = vec3(0.98, 0.66, 0.30);
-    vec3 magenta = vec3(0.62, 0.16, 0.45);
-    vec3 purple  = vec3(0.24, 0.14, 0.55);
-    vec3 teal    = vec3(0.06, 0.45, 0.60);
-    vec3 blue    = vec3(0.07, 0.16, 0.50);
-    vec3 c = gold;
-    c = mix(c, magenta, smoothstep(0.05, 0.27, d));
-    c = mix(c, purple,  smoothstep(0.25, 0.44, d));
-    c = mix(c, teal,    smoothstep(0.44, 0.66, d));
-    c = mix(c, blue,    smoothstep(0.66, 0.95, d));
-    float s1 = 0.5 + 0.5 * sin((p.x * 1.5 + p.y) * 7.0 + t(0.5) + 2.0 * sin(p.y * 5.0 + t(0.3)));
-    c += vec3(0.7, 0.8, 1.0) * pow(s1, 4.0) * 0.18;
-    float s2 = 0.5 + 0.5 * sin((p.x - p.y) * 9.0 - t(0.4));
-    c += vec3(1.0, 0.8, 0.6) * pow(s2, 6.0) * 0.10;
-    return c;
+    float v = 0.5 + 0.30 * sin((p.x * 1.4 + p.y) * 3.0 + t(0.3)) + 0.18 * sin((p.x - p.y) * 5.0 - t(0.25));
+    v = clamp(mix(v, 1.0 - uv.y, 0.30), 0.0, 1.0);
+    vec3 dk = vec3(0.045, 0.050, 0.065) + v * vec3(0.15, 0.17, 0.21);
+    vec3 lt = vec3(0.72, 0.71, 0.69) + v * vec3(0.22, 0.22, 0.23);
+    return mix(lt, dk, uIsDark);
   }
 
-  // Procedural studio environment for Fresnel reflections.
+  // Procedural studio environment for Fresnel reflections (theme-aware).
   vec3 envReflect(vec3 R){
     float y = R.y * 0.5 + 0.5;
-    vec3 e = mix(vec3(0.02, 0.03, 0.06), vec3(0.6, 0.75, 0.95), smoothstep(0.2, 0.9, y));
-    e += vec3(1.0) * smoothstep(0.62, 0.64, y) * 0.5;                       // soft-box highlight
-    e += vec3(1.0, 0.95, 0.9) * pow(max(R.x * 0.5 + 0.5, 0.0), 8.0) * 0.4;  // side key
-    return e;
+    vec3 dk = mix(vec3(0.02, 0.02, 0.03), vec3(0.55, 0.62, 0.78), smoothstep(0.25, 0.95, y));
+    dk += vec3(0.80, 0.88, 1.0) * smoothstep(0.62, 0.66, y) * 0.7;
+    vec3 lt = mix(vec3(0.56, 0.56, 0.58), vec3(1.0, 1.0, 1.0), smoothstep(0.1, 0.9, y));
+    lt += vec3(1.0) * smoothstep(0.7, 0.74, y) * 0.25;
+    return mix(lt, dk, uIsDark);
   }
 
-  void voronoi(vec2 x, out float border, out vec2 ndir, out vec2 cid){
+  void voronoi(vec2 x, out float border, out vec2 cid){
     vec2 n = floor(x), f = fract(x), mg = vec2(0.0), mr = vec2(0.0);
     float md = 8.0;
     for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++){
@@ -82,98 +77,94 @@ const fragmentShader = /* glsl */`
       float dd = dot(r, r);
       if (dd < md){ md = dd; mr = r; mg = g; }
     }
-    border = 8.0; vec2 bd = vec2(0.0);
+    border = 8.0;
     for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++){
       vec2 g = mg + vec2(float(i), float(j));
       vec2 o = hash22(n + g);
       vec2 r = g + o - f;
       vec2 df = mr - r;
-      if (dot(df, df) > 0.0001){
-        float b = dot(0.5 * (mr + r), normalize(r - mr));
-        if (b < border){ border = b; bd = normalize(r - mr); }
-      }
+      if (dot(df, df) > 0.0001){ float b = dot(0.5 * (mr + r), normalize(r - mr)); border = min(border, b); }
     }
-    ndir = bd; cid = n + mg;
+    cid = n + mg;
   }
 
-  // The shattered-glass surface normal: smooth flowing base everywhere, faceted
-  // shards + two crack scales concentrated in a diagonal band.
-  vec3 glassNormal(vec2 uv, out float bevel){
-    vec2 ar = vec2(uResolution.x / uResolution.y, 1.0);
-    float dl      = abs((uv.x - 0.52) - (1.0 - uv.y) * 0.12);
-    float band    = smoothstep(0.5, 0.0, dl);
-    float organic = smoothstep(0.30, 0.72, vnoise(uv * ar * 2.5 + 3.0));
-    float mask    = clamp(band * (0.5 + organic), 0.0, 1.0);
+  // Organic crack value: ridged branching cracks + sparse broken-edge shards,
+  // over a heavy domain warp — fracture, not honeycomb.
+  float crackField(vec2 b){
+    vec2 w = warp2(b * 1.2);
+    vec2 p = b + (w - 0.5) * 0.55;
+    float r1 = fbm(p * 2.5 + w * 0.95); float c1 = 1.0 - abs(r1 - 0.5) * 2.0; c1 = pow(smoothstep(0.72, 1.0, c1), 1.3);
+    float r2 = fbm(p * 5.2 - w * 0.6);  float c2 = 1.0 - abs(r2 - 0.5) * 2.0; c2 = pow(smoothstep(0.80, 1.0, c2), 1.6);
+    float bv; vec2 ci; voronoi(p * 4.2, bv, ci);
+    float cv = (1.0 - smoothstep(0.0, 0.045, bv)) * step(0.45, hash21(ci + 0.7));
+    return max(max(c1, c2 * 0.7), cv * 0.9);
+  }
 
-    float border; vec2 ndir, cid;
-    voronoi(uv * ar * 9.0 + uPointer * 0.2, border, ndir, cid);
-    vec2 tilt   = (hash22(cid + 3.1) - 0.5) * 0.85;     // per-shard facet slope
-    vec3 facetN = normalize(vec3(tilt, 1.0));
-    bevel       = smoothstep(0.06, 0.0, border) * mask;
-    vec3 bevelN = normalize(vec3(ndir * 1.6, 0.5));
-    vec3 N = normalize(mix(facetN, bevelN, bevel));
-
-    // finer secondary cracks for crystalline detail
-    float border2; vec2 ndir2, cid2;
-    voronoi(uv * ar * 21.0 - uPointer * 0.1, border2, ndir2, cid2);
-    float bevel2 = smoothstep(0.035, 0.0, border2) * mask;
-    vec3 bevelN2 = normalize(vec3(ndir2 * 1.4, 0.5));
-    N = normalize(mix(N, bevelN2, bevel2 * 0.6));
-    bevel = max(bevel, bevel2 * 0.85);
-
-    // gentle smooth flow for the un-cracked glossy areas
-    vec2 flow = 0.12 * vec2(sin(uv.y * 6.0 + t(0.4)), cos(uv.x * 5.0 + t(0.35)));
-    vec3 baseN = normalize(vec3(flow, 1.0));
-    N = normalize(mix(baseN, N, mask * 0.85 + 0.15));
-    return N;
+  // Glass surface height (cracks are grooves) — its gradient gives the normal.
+  float surfaceH(vec2 b){
+    float crack = crackField(b);
+    vec2 w = warp2(b * 1.2);
+    vec2 p = b + (w - 0.5) * 0.55;
+    float facet = fbm(p * 1.8) * 0.5;
+    return facet * 0.85 - crack * 1.1;
   }
 
   void main(){
     vec2 uv = vUv;
     vec2 ar = vec2(uResolution.x / uResolution.y, 1.0);
+    vec2 b = uv * ar;
 
-    float bevel; vec3 N = glassNormal(uv, bevel);
+    // organic shatter concentration (warped noise + mild central bias)
+    vec2 w0 = warp2(b * 0.9);
+    float cen = smoothstep(1.0, 0.15, abs(uv.x - 0.58));
+    float mask = smoothstep(0.34, 0.66, fbm(b * 1.0 + w0 * 0.85) + cen * 0.16);
+
+    // height-field normal, flattened in the smooth glossy areas
+    float e = 1.3 / uResolution.y;
+    float h = surfaceH(b), hx = surfaceH(b + vec2(e, 0.0)), hy = surfaceH(b + vec2(0.0, e));
+    vec3 N = normalize(vec3((h - hx) / e, (h - hy) / e, 1.0));
+    N = normalize(mix(vec3(0.0, 0.0, 1.0), N, mask * 0.9 + 0.1));
+    float crack = crackField(b) * mask;
+
     vec3 eye = normalize(vec3((uv - 0.5) * ar * 0.7, -1.0));
 
-    // ── Refraction with chromatic dispersion (per-channel IOR sampling loop) ──
-    float power = 0.14;
+    // refraction with a faint chromatic dispersion loop (subtle — monochrome)
+    float power = 0.20;
+    float disp = mix(0.55, 1.0, uIsDark);
     vec3 refrCol = vec3(0.0);
-    const int LOOP = 12;
+    const int LOOP = 10;
     for (int i = 0; i < LOOP; i++){
       float sl = float(i) / float(LOOP) * 0.5;
-      vec3 rR = refract(eye, N, 1.0 / 1.44);
-      vec3 rG = refract(eye, N, 1.0 / 1.47);
-      vec3 rB = refract(eye, N, 1.0 / 1.50);
+      vec3 rR = refract(eye, N, 1.0 / (1.46 - 0.03 * disp));
+      vec3 rG = refract(eye, N, 1.0 / 1.46);
+      vec3 rB = refract(eye, N, 1.0 / (1.46 + 0.04 * disp));
       refrCol.r += background(uv + rR.xy * (power + sl * 0.02)).r;
       refrCol.g += background(uv + rG.xy * (power + sl * 0.03)).g;
       refrCol.b += background(uv + rB.xy * (power + sl * 0.04)).b;
     }
     refrCol /= float(LOOP);
-    refrCol = sat(refrCol, 1.2);
+    refrCol = sat(refrCol, mix(1.02, 1.10, uIsDark));
 
-    // ── Fresnel: blend refraction toward the reflected environment at edges ──
-    float F = pow(1.0 - abs(dot(eye, N)), 4.0);
+    // Fresnel reflection
+    float F = pow(1.0 - abs(dot(eye, N)), mix(3.0, 4.0, uIsDark));
     vec3 R = reflect(eye, N);
-    vec3 col = mix(refrCol, envReflect(R), clamp(F * 0.9, 0.0, 0.92));
+    vec3 col = mix(refrCol, envReflect(R), clamp(F * mix(0.55, 0.9, uIsDark), 0.0, 0.92));
 
-    // ── Blinn-Phong specular glints (cool key + warm fill) ───────────────────
+    // specular glints + crack edge highlight + groove AO — all theme-weighted
+    vec3 hi = mix(vec3(1.0, 0.99, 0.97), vec3(0.88, 0.93, 1.0), uIsDark);
+    float specPow = mix(36.0, 110.0, uIsDark);
+    float specAmt = mix(0.45, 1.3, uIsDark);
     vec3 L1 = normalize(vec3(-0.5, 0.6, 0.6)); vec3 H1 = normalize(L1 - eye);
-    col += vec3(1.0) * pow(max(dot(N, H1), 0.0), 120.0) * 1.2;
+    col += hi * pow(max(dot(N, H1), 0.0), specPow) * specAmt;
     vec3 L2 = normalize(vec3(0.6, -0.4, 0.6)); vec3 H2 = normalize(L2 - eye);
-    col += vec3(1.0, 0.9, 0.8) * pow(max(dot(N, H2), 0.0), 80.0) * 0.7;
+    col += hi * pow(max(dot(N, H2), 0.0), specPow * 0.7) * specAmt * 0.6;
+    col += hi * pow(crack, 1.5) * mix(0.18, 0.5, uIsDark);
+    col *= 1.0 - crack * mix(0.28, 0.16, uIsDark);
 
-    // ── Crystalline edge glint + round sparkle on the bevels ─────────────────
-    col += vec3(0.9, 0.95, 1.0) * pow(bevel, 1.6) * 0.5;
-    vec2 sg = uv * ar * 130.0;
-    vec2 sid = floor(sg); vec2 sf = fract(sg) - 0.5;
-    float sr = hash21(sid + floor(t(2.5)));
-    float sparkle = step(0.70, sr) * smoothstep(0.5, 0.0, length(sf));
-    col += vec3(1.0) * sparkle * smoothstep(0.08, 0.55, bevel) * 2.4;
-
-    // ── Scroll-reactive energy + soft bloom on highlights ────────────────────
+    // scroll-reactive energy + soft bloom on highlights
     col *= 1.0 + uScrollEnergy * 0.3;
     float lum = dot(col, vec3(0.299, 0.587, 0.114));
-    col += col * smoothstep(0.75, 1.5, lum) * 0.4;
+    col += col * smoothstep(0.78, 1.5, lum) * 0.4;
 
     gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
   }

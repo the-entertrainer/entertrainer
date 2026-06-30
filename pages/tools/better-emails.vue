@@ -352,7 +352,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
             </div>
           </div>
           <div class="be-body">
-            <p v-for="(para, i) in body.split(/\n\s*\n/)" :key="i" class="be-body-para">{{ para }}</p>
+            <p v-for="(para, i) in body.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean)" :key="i" class="be-body-para">{{ para }}</p>
           </div>
 
           <!-- Inline edit + re-optimize -->
@@ -522,7 +522,10 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
   line-height: 1.65;
   color: var(--color-text);
 }
-.be-body-para { margin: 0 0 10rem; }
+.be-body-para {
+  margin: 0 0 10rem;
+  white-space: pre-wrap;
+}
 .be-body-para:last-child { margin-bottom: 0; }
 
 .be-subject {
@@ -539,8 +542,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
   gap: 6rem;
 }
 .be-refine-chips .glass-chip {
-  font-size: 12rem;
-  padding: 5rem 11rem;
+  padding: 6rem 12rem;
 }
 
 /* Actions */
@@ -548,6 +550,10 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
   display: flex;
   gap: 10rem;
   flex-wrap: wrap;
+}
+.be-results-actions .glass-btn--ghost {
+  font-size: 14rem;
+  padding: var(--btn-pad-y) var(--btn-pad-x);
 }
 .be-back { margin-top: 4rem; }
 
@@ -576,7 +582,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
   margin-top: 8rem;
 }
 .be-edit-btn {
-  font-size: 12rem;
+  font-size: 14rem;
 }
 .be-edit-panel {
   margin-top: 12rem;
@@ -596,6 +602,11 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
   justify-content: flex-end;
   flex-wrap: wrap;
 }
+.be-edit-actions .glass-btn--ghost,
+.be-edit-actions .glass-btn {
+  font-size: 14rem;
+  padding: var(--btn-pad-y) var(--btn-pad-x);
+}
 
 /* Transitions */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.22s ease; }
@@ -612,8 +623,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
   margin-top: 6rem;
 }
 .be-example-chip {
-  font-size: 12rem;
-  padding: 5rem 10rem;
+  padding: 6rem 12rem;
   white-space: nowrap;
 }
 

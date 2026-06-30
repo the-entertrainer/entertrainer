@@ -22,200 +22,88 @@
         </p>
       </section>
 
-      <!-- ───────────────── Chapter 01 · The Floor ───────────────── -->
-      <section id="the-floor" class="glass-panel about-panel anim">
-        <p class="about-chapter"><span class="about-chapter__no">01</span> The Floor</p>
-        <p class="about-body">It all began in hotels. I worked with places like Club Mahindra and Marriott, starting as a housekeeper. There was something quietly powerful about turning a messy room into a place that made people sigh with relief the moment they walked in. I learned to pay attention to the details that make a space feel cared for — the way a bed is made, how the light falls, the small surprises that make someone smile.</p>
-      </section>
-
-      <figure class="shot shot--duo anim">
-        <div class="shot__grid shot__grid--duo">
-          <div class="shot__cell">
-            <img class="shot__img px" src="/about/about-housekeeper-1.webp" alt="Naveen early in his career at the hotel" loading="lazy" />
-          </div>
-          <div class="shot__cell">
-            <img class="shot__img px" src="/about/about-housekeeper-2.webp" alt="Naveen in a Marriott lobby" loading="lazy" />
-          </div>
-        </div>
-        <figcaption class="shot__cap">
-          <span class="shot__cap-rule" />
-          <span>Those early days taught me that the smallest gestures of care can change how someone experiences a place. I still fold my towels the same way at home — just because it feels good.</span>
-        </figcaption>
-      </figure>
-
-      <section class="glass-panel about-panel about-panel--callout anim">
-        <p class="about-callout">
-          Looking back, that work planted a seed: the best experiences aren't loud. They're the ones that quietly make you feel at home in a new idea.
-        </p>
-      </section>
-
-      <!-- ───────────────── Chapter 02 · The Spark ───────────────── -->
-      <section id="the-spark" class="glass-panel about-panel anim">
-        <p class="about-chapter"><span class="about-chapter__no">02</span> The Spark</p>
-        <p class="about-body">The real turning point came when I got to work on something creative for the first time. We turned dry service standards into a comic strip story called SEWA Chronicles. Watching people light up as they read these little illustrated moments instead of another policy document — that was it. I didn't have the words for it yet, but I knew I wanted to spend my days making learning feel like something people actually wanted to do.</p>
-      </section>
-
-      <figure class="shot shot--editorial anim">
-        <div class="shot__grid shot__grid--editorial">
-          <div class="shot__cell shot__cell--wide">
-            <img class="shot__img px" src="/about/about-sewa-1.webp" alt="SEWA Chronicles comic storyboards laid out on a table" loading="lazy" />
-          </div>
-          <div class="shot__cell shot__cell--tall">
-            <img class="shot__img px" src="/about/about-sewa-2.webp" alt="SEWA Chronicles comic pages in a training room" loading="lazy" />
-          </div>
-        </div>
-        <figcaption class="shot__cap">
-          <span class="shot__cap-rule" />
-          <span>Those first comic pages were my real classroom. They showed me that when you wrap useful ideas in something warm and human, people lean in instead of tuning out.</span>
-        </figcaption>
-      </figure>
-
-      <section class="glass-panel about-panel anim">
-        <p class="about-pull">
-          What kept pulling me forward was the people.
-        </p>
-        <div class="about-questions">
-          <p>What makes someone truly remember something?</p>
-          <p>How do we help people feel capable instead of overwhelmed?</p>
-          <p>What turns information into something that actually changes how someone sees the world?</p>
-        </div>
-        <p class="about-body">Those questions became my compass. I fell in love with the quiet thrill of watching understanding click into place — that small, wonderful moment when something difficult suddenly feels possible.</p>
-      </section>
-
-      <!-- ───────────────── Chapter 03 · The Craft ───────────────── -->
-      <section id="the-craft" class="glass-panel about-panel anim">
-        <p class="about-chapter"><span class="about-chapter__no">03</span> The Craft</p>
-        <p class="about-body">Over time I got to design programs for big teams at Marriott — leadership journeys, onboarding adventures, training for trainers. What I loved most was seeing how the right story, the right moment of discovery, could turn a room full of tired professionals into people who were genuinely excited to try something new.</p>
-      </section>
-
-      <figure class="shot shot--gallery anim">
-        <div class="shot__grid shot__grid--gallery">
-          <figure class="shot__item">
-            <div class="shot__cell"><img class="shot__img" src="/about/about-ignite.webp" alt="IGNITE certification program for Marriott International" loading="lazy" /></div>
-            <figcaption class="shot__tag">IGNITE · Leadership ignition</figcaption>
-          </figure>
-          <figure class="shot__item">
-            <div class="shot__cell"><img class="shot__img" src="/about/about-cdt.webp" alt="CDT Masterclass — Training the Trainers" loading="lazy" /></div>
-            <figcaption class="shot__tag">CDT Masterclass · Training the trainers</figcaption>
-          </figure>
-          <figure class="shot__item">
-            <div class="shot__cell"><img class="shot__img" src="/about/about-onboarding.webp" alt="Heroes On Board onboarding program" loading="lazy" /></div>
-            <figcaption class="shot__tag">Heroes On Board · Onboarding</figcaption>
-          </figure>
-        </div>
-        <figcaption class="shot__cap">
-          <span class="shot__cap-rule" />
-          <span>Those rooms taught me that when learning feels generous and human, people don't just remember it — they carry it forward.</span>
-        </figcaption>
-      </figure>
-
-      <!-- ───────────────── Chapter 04 · The Present ───────────────── -->
-      <section id="the-present" class="glass-panel about-panel anim">
-        <p class="about-chapter"><span class="about-chapter__no">04</span> The Present</p>
-        <p class="about-body">Today I'm at Concentrix, working with banking and finance teams. We take complex new ways of working and turn them into experiences that actually feel doable — even welcoming. The tools change, but the heart of it stays the same: helping people feel capable and a little more hopeful about what they can do next.</p>
-      </section>
-
-      <figure class="shot shot--solo anim">
-        <div class="shot__cell shot__cell--portrait">
-          <img class="shot__img px" src="/about/about-concentrix.webp" alt="Illustrated portrait of Naveen" loading="lazy" />
-        </div>
-        <figcaption class="shot__cap">
-          <span class="shot__cap-rule" />
-          <span>The work keeps evolving, but the joy of it never changes — that quiet moment when someone realizes they can do the thing they thought was too hard.</span>
-        </figcaption>
-      </figure>
-
-      <section class="glass-panel about-panel about-panel--closing anim">
-        <p class="about-body">At the end of the day, I just love helping ideas land softly in people's lives. When someone walks away from something I helped shape feeling a little more confident, a little more curious — that's everything.</p>
-        <p class="about-asatoma">Asatoma Sadgamaya.</p>
-      </section>
-
     </div>
 
-    <!-- 3D Story Space: sections as floating glass planes in 3D -->
-    <!-- Swipe left/right (or drag on desktop) to orbit/navigate the story in 3D space -->
-    <!-- Inspired by immersive Awwwards storytelling sites with 3D depth, image-text integration, and cinematic reveals -->
+    <!-- 3D Story Orbit -->
+    <!-- The signature: four glass memory planes arranged in 3D space. Swipe or drag to orbit the chapters. Cinematic, mobile-first, grounded in real photos and a warm personal voice. -->
     <div class="story-3d-wrapper">
       <div 
         class="story-3d" 
-        ref="story3d"
-        @touchstart="handleSwipeStart"
-        @touchmove="handleSwipeMove"
-        @touchend="handleSwipeEnd"
-        @mousedown="handleSwipeStart"
-        @mousemove="handleSwipeMove"
-        @mouseup="handleSwipeEnd"
-        @mouseleave="handleSwipeEnd"
+        ref="story3dRef"
+        @touchstart.passive="handleStart"
+        @touchmove="handleMove"
+        @touchend="handleEnd"
+        @mousedown="handleStart"
+        @mousemove="handleMove"
+        @mouseup="handleEnd"
+        @mouseleave="handleEnd"
       >
-        <div class="story-group" :style="{ transform: `rotateY(${groupRotation}deg)` }">
-          
-          <!-- Plane 1: The Floor -->
-          <div class="story-plane glass-panel" :class="{ active: currentPlane === 0 }" style="transform: rotateY(0deg) translateZ(400px);">
-            <div class="plane-inner">
+        <div class="story-group" :style="{ transform: `perspective(1280px) rotateY(${groupRotation}deg)` }">
+          <!-- 01 -->
+          <div class="story-plane glass-panel" :class="{ 'is-active': currentIndex === 0 }" :style="getPlaneStyle(0)">
+            <div class="plane-content">
               <p class="about-chapter"><span class="about-chapter__no">01</span> The Floor</p>
-              <p class="about-body">It all began in hotels. I worked with places like Club Mahindra and Marriott, starting as a housekeeper. There was something quietly powerful about turning a messy room into a place that made people sigh with relief the moment they walked in. I learned to pay attention to the details that make a space feel cared for — the way a bed is made, how the light falls, the small surprises that make someone smile.</p>
-              <figure class="plane-image">
-                <img class="story-img" src="/about/about-housekeeper-1.webp" alt="Early days as housekeeper" loading="lazy" />
-              </figure>
-              <p class="plane-caption">Those early days taught me that the smallest gestures of care can change how someone experiences a place. I still fold my towels the same way at home — just because it feels good.</p>
+              <p class="about-body">It started in hotel rooms. Club Mahindra, Marriott. I was the one turning chaos into something that made people exhale when they walked in. Making the bed just so. Folding towels into little animals because why not. It wasn't glamorous. It was the feeling that someone had their back.</p>
+              <div class="plane-media">
+                <img src="/about/about-housekeeper-1.webp" alt="Early days turning hotel rooms into places that felt cared for" loading="lazy" />
+              </div>
+              <p class="plane-footnote">I still fold towels that way at home. Small things add up.</p>
             </div>
           </div>
 
-          <!-- Plane 2: The Spark -->
-          <div class="story-plane glass-panel" :class="{ active: currentPlane === 1 }" style="transform: rotateY(90deg) translateZ(400px);">
-            <div class="plane-inner">
+          <!-- 02 -->
+          <div class="story-plane glass-panel" :class="{ 'is-active': currentIndex === 1 }" :style="getPlaneStyle(1)">
+            <div class="plane-content">
               <p class="about-chapter"><span class="about-chapter__no">02</span> The Spark</p>
-              <p class="about-body">The real turning point came when I got to work on something creative for the first time. We turned dry service standards into a comic strip story called SEWA Chronicles. Watching people light up as they read these little illustrated moments instead of another policy document — that was it. I didn't have the words for it yet, but I knew I wanted to spend my days making learning feel like something people actually wanted to do.</p>
-              <figure class="plane-image">
-                <img class="story-img" src="/about/about-sewa-1.webp" alt="SEWA Chronicles comic storyboards" loading="lazy" />
-              </figure>
-              <p class="plane-caption">Those first comic pages were my real classroom. They showed me that when you wrap useful ideas in something warm and human, people lean in instead of tuning out.</p>
+              <p class="about-body">One day we turned a stack of dry service standards into a comic called SEWA Chronicles. People actually read it. They smiled at their desks. That was the first time I saw what happens when you wrap something useful in something that feels made by a person for a person. I wanted more of that.</p>
+              <div class="plane-media">
+                <img src="/about/about-sewa-1.webp" alt="SEWA Chronicles comic storyboards" loading="lazy" />
+              </div>
               <div class="plane-questions">
-                <p>What makes someone truly remember something?</p>
-                <p>How do we help people feel capable instead of overwhelmed?</p>
-                <p>What turns information into something that actually changes how someone sees the world?</p>
+                <p>What makes someone actually remember something?</p>
+                <p>How do we help people feel capable instead of buried?</p>
+                <p>What turns information into something that quietly changes how a person sees their work?</p>
               </div>
             </div>
           </div>
 
-          <!-- Plane 3: The Craft -->
-          <div class="story-plane glass-panel" :class="{ active: currentPlane === 2 }" style="transform: rotateY(180deg) translateZ(400px);">
-            <div class="plane-inner">
+          <!-- 03 -->
+          <div class="story-plane glass-panel" :class="{ 'is-active': currentIndex === 2 }" :style="getPlaneStyle(2)">
+            <div class="plane-content">
               <p class="about-chapter"><span class="about-chapter__no">03</span> The Craft</p>
-              <p class="about-body">Over time I got to design programs for big teams at Marriott — leadership journeys, onboarding adventures, training for trainers. What I loved most was seeing how the right story, the right moment of discovery, could turn a room full of tired professionals into people who were genuinely excited to try something new.</p>
-              <figure class="plane-image">
-                <img class="story-img" src="/about/about-ignite.webp" alt="IGNITE program" loading="lazy" />
-              </figure>
-              <p class="plane-caption">Those rooms taught me that when learning feels generous and human, people don't just remember it — they carry it forward.</p>
+              <p class="about-body">Later at Marriott I built leadership programs, trainer trainings, onboarding that didn't feel like a checklist. The best rooms were the ones where tired people leaned forward because a story landed. Not louder. Just more human.</p>
+              <div class="plane-media">
+                <img src="/about/about-ignite.webp" alt="IGNITE leadership program at Marriott" loading="lazy" />
+              </div>
+              <p class="plane-footnote">Those rooms showed me that when learning feels generous, people don't just remember it. They pass it on.</p>
             </div>
           </div>
 
-          <!-- Plane 4: The Present -->
-          <div class="story-plane glass-panel" :class="{ active: currentPlane === 3 }" style="transform: rotateY(270deg) translateZ(400px);">
-            <div class="plane-inner">
+          <!-- 04 -->
+          <div class="story-plane glass-panel" :class="{ 'is-active': currentIndex === 3 }" :style="getPlaneStyle(3)">
+            <div class="plane-content">
               <p class="about-chapter"><span class="about-chapter__no">04</span> The Present</p>
-              <p class="about-body">Today I'm at Concentrix, working with banking and finance teams. We take complex new ways of working and turn them into experiences that actually feel doable — even welcoming. The tools change, but the heart of it stays the same: helping people feel capable and a little more hopeful about what they can do next.</p>
-              <figure class="plane-image">
-                <img class="story-img" src="/about/about-concentrix.webp" alt="Illustrated portrait" loading="lazy" />
-              </figure>
-              <p class="plane-caption">The work keeps evolving, but the joy of it never changes — that quiet moment when someone realizes they can do the thing they thought was too hard.</p>
+              <p class="about-body">Now I'm with banking teams at Concentrix. We take tangled new ways of working and turn them into something a person can actually see themselves doing on Monday. The software changes. The heart of it doesn't.</p>
+              <div class="plane-media">
+                <img src="/about/about-concentrix.webp" alt="Portrait" loading="lazy" />
+              </div>
+              <p class="plane-footnote">The moment someone says "I think I can do this now" — that's the whole point.</p>
             </div>
           </div>
-
         </div>
-      </div>
-      <!-- Swipe hint -->
-      <div class="swipe-hint">Swipe left or right to navigate the story in 3D space</div>
-      <!-- Plane indicators -->
-      <div class="plane-indicators">
-        <button v-for="i in 4" :key="i" class="dot" :class="{ active: currentPlane === i-1 }" @click="goToPlane(i-1)"></button>
+
+        <div class="swipe-hints">
+          <div class="hint">swipe or drag to turn • tap dots to jump</div>
+        </div>
+        <div class="plane-dots">
+          <button v-for="i in 4" :key="i" class="dot" :class="{ active: currentIndex === i-1 }" @click="goToPlane(i-1)"></button>
+        </div>
       </div>
     </div>
 
     <div class="about-container">
-      <!-- Closing remains at bottom for scroll fallback / SEO -->
-      <section class="glass-panel about-panel about-panel--closing anim">
-        <p class="about-body">At the end of the day, I just love helping ideas land softly in people's lives. When someone walks away from something I helped shape feeling a little more confident, a little more curious — that's everything.</p>
+      <section class="glass-panel about-panel about-panel--closing">
+        <p class="about-body">At the end of it, I like the part where an idea stops being just an idea and becomes something someone carries with them. That quiet shift.</p>
         <p class="about-asatoma">Asatoma Sadgamaya.</p>
       </section>
     </div>
@@ -223,6 +111,8 @@
 </template>
 
 <script setup lang="ts">
+import gsap from 'gsap'
+
 definePageMeta({ layout: 'default' })
 
 let io: IntersectionObserver | null = null
@@ -338,10 +228,8 @@ onMounted(() => {
     }
   }
 
-  // Mobile-first scroll progress + chapter nav
-  window.addEventListener('scroll', updateScrollProgress, { passive: true })
-  updateScrollProgress()
-  setTimeout(detectCurrentChapter, 250)
+  // 3D swipe navigation init (no conflicting scroll progress)
+  // The 3D viewer handles its own navigation; page scroll still works for the rest
 })
 
 onBeforeUnmount(() => {
@@ -363,70 +251,91 @@ onBeforeUnmount(() => {
 // Uses CSS 3D + GSAP for smooth cinematic rotations.
 // Cohesive with site's glass, gradient, and 3D spiral theme.
 
-const story3d = ref<HTMLElement | null>(null)
+const story3dRef = ref<HTMLElement | null>(null)
 const groupRotation = ref(0)
-const currentPlane = ref(0)
+const currentIndex = ref(0)
 const isDragging = ref(false)
 let dragStartX = 0
 let dragStartRot = 0
+let lastX = 0
+let lastTime = 0
+let vel = 0
+
 const numPlanes = 4
 const angleStep = 90
+const radius = 430
 
-function updateGroupRotation(targetRot: number, duration = 0.65) {
+function updateGroupRotation(targetRot: number, duration = 0.7) {
   const obj = { rot: groupRotation.value }
   gsap.to(obj, {
     rot: targetRot,
     duration,
-    ease: 'power2.out',
+    ease: 'power3.out',
     onUpdate: () => { groupRotation.value = obj.rot }
   })
 }
 
 function goToPlane(index: number) {
-  currentPlane.value = (index + numPlanes) % numPlanes
-  const targetRot = -currentPlane.value * angleStep
+  currentIndex.value = (index + numPlanes) % numPlanes
+  const targetRot = -currentIndex.value * angleStep
   updateGroupRotation(targetRot)
 }
 
-function handleSwipeStart(e: TouchEvent | MouseEvent) {
-  isDragging.value = true
-  dragStartX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX
-  dragStartRot = groupRotation.value
+function getPlaneStyle(index: number) {
+  const base = index * angleStep
+  const rel = index - currentIndex.value
+  const z = radius + rel * 6
+  return `rotateY(${base}deg) translateZ(${z}px)`
 }
 
-function handleSwipeMove(e: TouchEvent | MouseEvent) {
+function handleStart(e: TouchEvent | MouseEvent) {
+  isDragging.value = true
+  const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX
+  dragStartX = clientX
+  dragStartRot = groupRotation.value
+  lastX = clientX
+  lastTime = performance.now()
+  vel = 0
+}
+
+function handleMove(e: TouchEvent | MouseEvent) {
   if (!isDragging.value) return
   const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX
-  const delta = (clientX - dragStartX) * 0.35
+  const delta = (clientX - dragStartX) * 0.33
   groupRotation.value = dragStartRot + delta
+  const now = performance.now()
+  const dt = now - lastTime || 16
+  vel = (clientX - lastX) / dt
+  lastX = clientX
+  lastTime = now
 }
 
-function handleSwipeEnd(e: TouchEvent | MouseEvent) {
+function handleEnd(e: TouchEvent | MouseEvent) {
   if (!isDragging.value) return
   isDragging.value = false
   const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : (e as MouseEvent).clientX
   const delta = clientX - dragStartX
-  const threshold = 70
+  const thresh = 52
 
-  let newIndex = currentPlane.value
-  if (Math.abs(delta) > threshold) {
-    newIndex = delta > 0 
-      ? (currentPlane.value - 1 + numPlanes) % numPlanes 
-      : (currentPlane.value + 1) % numPlanes
+  let steps = 0
+  if (Math.abs(delta) > thresh) {
+    steps = delta > 0 ? -1 : 1
+  } else if (Math.abs(vel) > 0.35) {
+    steps = vel > 0 ? -1 : 1
   }
 
-  currentPlane.value = newIndex
-  const targetRot = -currentPlane.value * angleStep
-  updateGroupRotation(targetRot)
+  currentIndex.value = (currentIndex.value + steps + numPlanes) % numPlanes
+  const targetRot = -currentIndex.value * angleStep
+  updateGroupRotation(targetRot, 0.55 + Math.abs(steps) * 0.1)
 }
 
 function handleKey(e: KeyboardEvent) {
-  if (e.key === 'ArrowLeft') goToPlane(currentPlane.value - 1)
-  if (e.key === 'ArrowRight') goToPlane(currentPlane.value + 1)
+  if (e.key === 'ArrowLeft') goToPlane(currentIndex.value - 1)
+  if (e.key === 'ArrowRight') goToPlane(currentIndex.value + 1)
 }
 
 onMounted(() => {
-  window.addEventListener('keydown', handleKey)
+  window.addEventListener('keydown', handleKey, { passive: true })
   groupRotation.value = 0
 })
 
@@ -1127,5 +1036,113 @@ onBeforeUnmount(() => {
   .swipe-hint {
     font-size: 11rem;
   }
+}
+
+/* ─── 3D Story Orbit (immersive swipe carousel) ─── */
+.story-3d-wrapper {
+  perspective: 1300px;
+  margin: 28rem auto 48rem;
+  max-width: 980px;
+  padding: 0 16px;
+  position: relative;
+}
+
+.story-3d {
+  position: relative;
+  height: 520px;
+  width: 100%;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+}
+.story-3d:active { cursor: grabbing; }
+
+.story-group {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  transform-style: preserve-3d;
+}
+
+.story-plane {
+  position: absolute;
+  width: min(86vw, 480px);
+  min-height: 410px;
+  padding: 26px 22px;
+  border-radius: 20px;
+  transform-origin: 50% 50%;
+  background: color-mix(in srgb, var(--color-bg) 66%, transparent);
+  border: 1px solid var(--color-glass-border);
+  backdrop-filter: blur(22px) saturate(1.35);
+  -webkit-backdrop-filter: blur(22px) saturate(1.35);
+  box-shadow:
+    0 28px 90px -26px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+  will-change: transform;
+  display: flex;
+  align-items: center;
+}
+.story-plane.is-active {
+  box-shadow:
+    0 38px 110px -22px rgba(0, 0, 0, 0.72),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+.plane-content { width: 100%; }
+.plane-media {
+  margin: 16px 0 12px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--color-glass-border);
+  background: rgba(0,0,0,0.06);
+}
+.plane-media img { width: 100%; height: auto; display: block; }
+
+.plane-footnote {
+  font-size: 12.5px;
+  line-height: 1.45;
+  opacity: .72;
+  margin-top: 8px;
+}
+.plane-questions {
+  margin-top: 12px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  font-style: italic;
+  opacity: .78;
+}
+
+.swipe-hints {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  opacity: 0.55;
+}
+
+.plane-dots {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 8px;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--color-glass-border);
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease;
+}
+.dot.active {
+  background: var(--color-text);
+  border-color: var(--color-text);
+  transform: scale(1.15);
+}
+
+@media (max-width: 640px) {
+  .story-3d { height: 460px; }
+  .story-plane { min-height: 360px; padding: 20px 16px; }
 }
 </style>

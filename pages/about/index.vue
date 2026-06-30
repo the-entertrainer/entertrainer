@@ -3,6 +3,28 @@
     <!-- Living fluted-glass gradient — the site's signature backdrop -->
     <UiGlassBackdrop />
 
+    <!-- Cinematic film grain + cut flash overlay. Activated on claps for that real projector feel. -->
+    <div class="cinema-grain" :class="{ 'cut-flash': isCutting }"></div>
+
+    <!-- Cinematic Clapperboard Navigator: absurd-genius way to "direct" the story -->
+    <!-- Clap to cut between scenes. Feels like editing a film. Adds agency + pacing control. -->
+    <div class="clapper-nav" :class="{ 'is-clapping': isClapping }" @click="clapToNextScene" @mousedown="armDown" @mouseup="armUp" @mouseleave="armUp">
+      <div class="clapper-slate">
+        <div class="slate-row">
+          <span>ENTERTRAINER</span>
+          <span class="take">TAKE {{ currentTake.toString().padStart(2, '0') }}</span>
+        </div>
+        <div class="slate-row scene">
+          SCENE {{ currentScene.toString().padStart(2, '0') }} / {{ totalScenes }}
+        </div>
+        <div class="slate-row small">DIRECTOR · NAVEEN</div>
+      </div>
+      <div class="clapper-arm" :style="{ transform: `rotate(${armAngle}deg)` }">
+        <div class="arm-inner">CLAP</div>
+      </div>
+      <div class="clapper-hint">clap to cut</div>
+    </div>
+
     <div class="about-container">
 
       <!-- ───────────────── Hero panel ───────────────── -->
@@ -25,6 +47,8 @@
           <span class="code-word">→</span>
           <span class="code-word">shift</span>
         </div>
+
+        <p class="clapper-instruction">Use the clapperboard in the corner to direct the story. Clap to cut between scenes like a real film.</p>
       </section>
 
       <!-- ───────────────── Chapter 01 · The Floor ───────────────── -->
@@ -269,6 +293,139 @@ onBeforeUnmount(() => {
     el.removeEventListener('pointermove', onSheenMove as EventListener)
     el.removeEventListener('pointerleave', onSheenLeave as EventListener)
   }
+})
+
+// ── Cinematic "Clap to Cut" Story Navigation ───────────────────────────────
+// Absurd but genius: You don't just scroll the story. You *direct* it.
+// Clap the board to perform a "cut". Each cut advances the scene with a
+// cinematic transition and drops a production note that adds real value
+// (connects the beat to an instructional design principle).
+// Keeps everything cinematic while staying true to the glass/gradient/spiral soul.
+
+const currentScene = ref(1)
+const currentTake = ref(1)
+const totalScenes = 7
+const isClapping = ref(false)
+const isCutting = ref(false)
+const armAngle = ref(0)
+
+const aboutPanels = ref<HTMLElement[]>([])
+
+function collectScenes() {
+  const container = document.querySelector('.about-container')
+  if (!container) return
+  aboutPanels.value = Array.from(container.querySelectorAll<HTMLElement>('.about-panel, .shot'))
+}
+
+function getSceneLabel(index: number): string {
+  const labels = [
+    'HERO — THE RENDER',
+    '01 — THE FLOOR',
+    'CALL — DEBUG SESSION',
+    '02 — THE SPARK',
+    '03 — THE CRAFT',
+    '04 — THE PRESENT',
+    'FINAL — THE LIGHT'
+  ]
+  return labels[index - 1] || `SCENE ${index}`
+}
+
+function showProductionNote(scene: number) {
+  const notes = [
+    'Principle: Invisible craft > obvious instruction. The best experiences feel inevitable.',
+    'Principle: Start with the environment. Everything else is decoration until the space feels right.',
+    'Principle: Turn compliance into narrative. People remember stories, not rules.',
+    'Principle: Mentorship as code review. Fast feedback loops = fast mental model shifts.',
+    'Principle: Instructional design is frontend engineering for the brain.',
+    'Principle: Ship the render that makes the complex feel obvious.',
+    'The end. Gradient keeps moving. Keep cutting until it feels right.'
+  ]
+  const noteText = notes[scene - 1] || 'Every good story has a cut that changes everything.'
+
+  const note = document.createElement('div')
+  note.className = 'production-note glass-panel'
+  note.innerHTML = `
+    <div class="note-header">PRODUCTION NOTE — ${getSceneLabel(scene)}</div>
+    <div class="note-body">${noteText}</div>
+  `
+  document.querySelector('.about-container')?.appendChild(note)
+
+  setTimeout(() => note.classList.add('in'), 10)
+  setTimeout(() => {
+    note.classList.add('out')
+    setTimeout(() => note.remove(), 400)
+  }, 4200)
+}
+
+async function performCinematicCut(fromIndex: number, toIndex: number) {
+  if (toIndex > totalScenes || toIndex < 1) return
+
+  isCutting.value = true
+  setTimeout(() => { isCutting.value = false }, 180)
+
+  const target = aboutPanels.value[toIndex - 1]
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+    target.classList.remove('scene-lit')
+    void target.offsetWidth
+    target.classList.add('scene-lit', 'just-cut')
+
+    setTimeout(() => target.classList.remove('just-cut'), 900)
+  }
+
+  currentScene.value = toIndex
+  currentTake.value += 1
+
+  showProductionNote(toIndex)
+
+  const container = document.querySelector('.about-container') as HTMLElement | null
+  if (container) {
+    container.style.setProperty('--sheen', '0.8')
+    setTimeout(() => container.style.setProperty('--sheen', '0'), 650)
+  }
+}
+
+function clapToNextScene() {
+  if (isClapping.value) return
+  isClapping.value = true
+
+  const next = Math.min(currentScene.value + 1, totalScenes)
+
+  armAngle.value = -38
+
+  setTimeout(async () => {
+    await performCinematicCut(currentScene.value, next)
+    armAngle.value = 0
+    isClapping.value = false
+  }, 260)
+}
+
+function armDown() {
+  if (!isClapping.value) armAngle.value = -22
+}
+
+function armUp() {
+  if (!isClapping.value) armAngle.value = 0
+}
+
+onMounted(() => {
+  nextTick(() => {
+    collectScenes()
+    if (aboutPanels.value.length) {
+      aboutPanels.value[0]?.classList.add('scene-lit')
+    }
+  })
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 'c' || e.key === ' ') {
+      e.preventDefault()
+      clapToNextScene()
+    }
+    if (e.key === 'ArrowRight') {
+      clapToNextScene()
+    }
+  })
 })
 </script>
 
@@ -613,6 +770,210 @@ onBeforeUnmount(() => {
 @keyframes code-pulse {
   0%, 100% { opacity: 0.65; }
   50% { opacity: 0.95; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CINEMATIC CLAPPER + STORY ENGINE
+   Absurd-genius navigation: Clap the board to "call action" and cut scenes.
+   Feels like a film set. Adds real value through production notes that
+   surface instructional design principles hidden in the story.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.clapper-nav {
+  position: fixed;
+  top: calc(28rem + var(--safe-top));
+  right: 28rem;
+  z-index: 120;
+  width: 148rem;
+  background: color-mix(in srgb, var(--color-bg) 55%, transparent);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 10rem;
+  padding: 10rem 12rem 14rem;
+  backdrop-filter: blur(18px) saturate(1.35);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  box-shadow: 0 20rem 60rem -20rem rgba(0,0,0,0.6);
+  cursor: pointer;
+  user-select: none;
+  font-family: ui-monospace, monospace;
+  font-size: 10rem;
+  letter-spacing: 0.06em;
+  color: var(--color-text);
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.clapper-nav:hover {
+  box-shadow: 0 26rem 70rem -18rem rgba(0,0,0,0.7);
+}
+
+.clapper-nav.is-clapping {
+  transform: scale(0.98);
+}
+
+.clapper-slate {
+  border: 1px solid var(--color-glass-border);
+  background: color-mix(in srgb, var(--color-bg) 75%, transparent);
+  padding: 8rem 10rem;
+  border-radius: 6rem;
+  margin-bottom: 8rem;
+}
+
+.slate-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  line-height: 1;
+}
+
+.slate-row.scene {
+  font-size: 14rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin: 6rem 0;
+}
+
+.slate-row.small {
+  font-size: 9rem;
+  opacity: 0.6;
+}
+
+.clapper-arm {
+  height: 26rem;
+  background: linear-gradient(180deg, var(--color-text), color-mix(in srgb, var(--color-text) 70%, transparent));
+  border-radius: 3rem;
+  margin: 0 8rem;
+  position: relative;
+  transition: transform 0.18s cubic-bezier(0.23, 1, 0.32, 1);
+  transform-origin: left center;
+  box-shadow: 0 4rem 12rem -4rem rgba(0,0,0,0.5);
+}
+
+.arm-inner {
+  position: absolute;
+  right: 6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-bg);
+}
+
+.clapper-hint {
+  text-align: center;
+  margin-top: 6rem;
+  font-size: 9rem;
+  opacity: 0.45;
+  letter-spacing: 0.1em;
+}
+
+.clapper-instruction {
+  font-size: 11rem;
+  opacity: 0.45;
+  margin-top: 12rem;
+  font-style: italic;
+  letter-spacing: -0.01em;
+}
+
+/* Cinema grain + flash for real cuts */
+.cinema-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 4px 4px;
+  opacity: 0.25;
+  mix-blend-mode: screen;
+  transition: opacity 0.2s ease;
+}
+
+.cinema-grain.cut-flash {
+  opacity: 0.65;
+  animation: film-flash 180ms steps(1);
+}
+
+@keyframes film-flash {
+  0% { opacity: 0.8; }
+  100% { opacity: 0.25; }
+}
+
+/* Scene focus + cut animation */
+.about-panel.scene-lit,
+.shot.scene-lit {
+  box-shadow: 
+    0 34rem 90rem -42rem rgba(0, 0, 0, 0.6),
+    0 0 0 1px var(--color-glass-border-hover),
+    inset 0 0 0 1px color-mix(in srgb, var(--color-text) 12%, transparent);
+  transition: box-shadow 0.6s var(--ease-spring);
+}
+
+.about-panel.just-cut,
+.shot.just-cut {
+  animation: cinematic-cut-in 820ms var(--ease-spring);
+}
+
+@keyframes cinematic-cut-in {
+  0% {
+    transform: scale(0.96) translateY(12rem) rotateX(4deg);
+    filter: blur(1px);
+    opacity: 0.6;
+  }
+  60% {
+    filter: blur(0);
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Production notes — little glass slates that pop on each cut */
+.production-note {
+  position: relative;
+  margin: 18rem auto;
+  max-width: 620rem;
+  padding: 18rem 24rem 20rem;
+  font-size: 13rem;
+  line-height: 1.5;
+  opacity: 0;
+  transform: translateY(14rem) scale(0.985);
+  transition: all 0.55s var(--ease-spring);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.production-note.in {
+  opacity: 1;
+  transform: none;
+}
+
+.production-note.out {
+  opacity: 0;
+  transform: translateY(-10rem);
+}
+
+.note-header {
+  font-family: ui-monospace, monospace;
+  font-size: 10rem;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+  margin-bottom: 8rem;
+}
+
+.note-body {
+  color: var(--color-text);
+}
+
+/* Make sure clapper doesn't fight reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .clapper-arm,
+  .cinema-grain,
+  .production-note {
+    transition: none;
+    animation: none;
+  }
 }
 
 /* ───────────────── Desktop micro-interactions (hover-capable only) ───────────────── */

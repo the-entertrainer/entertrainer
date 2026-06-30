@@ -31,6 +31,9 @@ export default defineEventHandler(async (event) => {
 
     const draft = String(body?.draft ?? '').trim()
     const tone  = String(body?.tone  ?? 'semi-formal').trim()
+    const context = String(body?.context ?? '').trim()
+    const audience = String(body?.audience ?? '').trim()
+    const refineInstruction = String(body?.refineInstruction ?? '').trim()
 
     if (!draft) {
       throw createError({ statusCode: 400, message: 'Email draft is required.' })
@@ -42,24 +45,38 @@ export default defineEventHandler(async (event) => {
     }
 
     const toneDesc =
-      tone === 'casual'     ? 'casual and friendly — warm but not sloppy' :
-      tone === 'formal'     ? 'formal and professional — precise, no contractions' :
-      /* semi-formal */       'semi-formal — clear, respectful, and natural'
+      tone === 'casual'     ? 'casual and friendly — warm, conversational, but still professional' :
+      tone === 'formal'     ? 'formal and professional — precise, no contractions, respectful distance' :
+      /* semi-formal */       'semi-formal — clear, respectful, and natural (recommended default)'
+
+    const audienceDesc = audience ? `AUDIENCE: ${audience}. ` : ''
+    const contextDesc = context ? `CONTEXT / GOAL: ${context}. ` : ''
+    const refinePart = refineInstruction ? `REFINE INSTRUCTION: ${refineInstruction}. Apply this on top of the original draft while keeping the target tone.` : ''
 
     const systemPrompt =
-      `You are an expert email editor. Your only job is to polish the user's draft email and return a JSON object with exactly two keys: "subject" (string) and "body" (string).\n\n` +
-      `TARGET TONE: ${toneDesc}\n\n` +
+      `You are an expert email coach who specializes in clear, action-oriented professional communication.\n\n` +
+      `TASK: Turn the user's messy draft into a polished, effective email.\n` +
+      `TARGET TONE: ${toneDesc}\n` +
+      `${audienceDesc}${contextDesc}${refinePart}\n\n` +
+      `RETURN ONLY this exact JSON shape (no markdown, no extra text):\n` +
+      `{\n` +
+      `  "subject": "concise, specific subject line (ideally 6-10 words)",\n` +
+      `  "body": "the full polished email body as plain text with natural paragraph breaks",\n` +
+      `  "improvements": ["3 to 5 short, specific bullets explaining the key improvements and why they matter"]\n` +
+      `}\n\n` +
       `STRICT RULES:\n` +
-      `- Return ONLY valid JSON — no markdown, no prose, no explanation.\n` +
-      `- If the sender's name is missing, sign off as "XYZ".\n` +
-      `- If the recipient is unknown, open with "Hi there," or "Hi [Name],".\n` +
-      `- For short drafts (under 30 words): only polish grammar/tone — never invent new information or expand the message.\n` +
-      `- Vary paragraph structure naturally — avoid uniform single-sentence paragraphs.\n` +
-      `- Never use: "hope this email finds you well", "delve", "foster", "furthermore", "moreover", "testament", "please do not hesitate to reach out".\n` +
-      `- Never use arbitrary bolding or italics inside the body.\n` +
-      `- Never use emojis.\n` +
-      `- The subject line should be concise and specific (under 10 words when possible).\n` +
-      `- Return only the JSON object, nothing else.`
+      `- Never use corporate fluff: "hope this email finds you well", "please do not hesitate to reach out", "delve", "foster", "furthermore", "moreover", "testament".\n` +
+      `- Make the ask or next step crystal clear (who should do what by when).\n` +
+      `- Use short paragraphs and varied sentence length.\n` +
+      `- If sender name is missing, sign as "— [Your Name]".\n` +
+      `- If recipient is unclear, use "Hi [Name]," or "Hi team,".\n` +
+      `- For very short drafts (< 25 words), focus on clarity and structure rather than adding content.\n` +
+      `- improvements should be honest, educational, and specific (e.g. "Replaced vague request with a clear deadline and owner").\n` +
+      `- Subject must be useful and specific, never generic.`
+
+    const userContent = refineInstruction
+      ? `Original messy draft:\n${draft}`
+      : `Messy draft:\n${draft}`
 
     let res: Response
     try {
@@ -73,7 +90,7 @@ export default defineEventHandler(async (event) => {
           model: 'llama-3.3-70b-versatile',
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user',   content: `Draft email:\n${draft}` }
+            { role: 'user',   content: userContent }
           ],
           response_format: { type: 'json_object' },
           temperature: 0.5,
@@ -119,9 +136,14 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 422, message: 'Unexpected AI response shape. Try again.' })
     }
 
+    const improvements = Array.isArray(parsed.improvements)
+      ? parsed.improvements.map((s: any) => String(s).trim()).filter(Boolean)
+      : []
+
     return {
       subject: parsed.subject.trim(),
-      body:    parsed.body.trim()
+      body:    parsed.body.trim(),
+      improvements
     }
   } catch (err: any) {
     if (err?.statusCode) throw err

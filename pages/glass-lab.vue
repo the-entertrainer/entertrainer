@@ -212,7 +212,7 @@ onMounted(() => {
       <canvas ref="canvas" class="cv" />
     </div>
 
-    <button class="glass-btn--ghost fab" style="position:fixed; bottom:20rem; right:20rem; z-index:100;" @click="showPanel = !showPanel">{{ showPanel ? 'Hide ▾' : 'Tune ▴' }}</button>
+    <button class="glass-btn glass-btn--ghost fab" style="position:fixed; bottom:20rem; right:20rem; z-index:100;" @click="showPanel = !showPanel">{{ showPanel ? 'Hide ▾' : 'Tune ▴' }}</button>
 
     <aside class="glass-panel panel" :class="{ open: showPanel }">
       <h1>Glass Lab</h1>
@@ -261,8 +261,8 @@ onMounted(() => {
       </div>
 
       <div class="row btns">
-        <button class="glass-btn--ghost" style="font-size:12rem;" @click="shuffleColours">Shuffle colours</button>
-        <button class="glass-btn--ghost" style="font-size:12rem;" @click="randomizeAll">Randomize all</button>
+        <button class="glass-btn glass-btn--ghost" style="font-size:12rem;" @click="shuffleColours">Shuffle colours</button>
+        <button class="glass-btn glass-btn--ghost" style="font-size:12rem;" @click="randomizeAll">Randomize all</button>
       </div>
 
       <div class="out">

@@ -37,7 +37,7 @@
         </figcaption>
       </figure>
 
-      <section class="about-panel about-panel--callout anim">
+      <section class="glass-panel about-panel about-panel--callout anim">
         <p class="about-callout">Looking back, that role taught me something I still carry today: details matter, and experiences matter even more.</p>
       </section>
 
@@ -118,7 +118,7 @@
         </figcaption>
       </figure>
 
-      <section class="about-panel about-panel--closing anim">
+      <section class="glass-panel about-panel about-panel--closing anim">
         <p class="about-body">That's what excites me every day: turning information into experiences that people genuinely connect with.</p>
         <p class="about-asatoma">Asatoma Sadgamaya.</p>
       </section>

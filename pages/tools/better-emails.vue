@@ -399,10 +399,10 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
         <div class="be-refine">
           <span class="glass-label be-refine-label">Quick refinements</span>
           <div class="be-refine-chips">
-            <button class="glass-chip" @click="optimize('Make it noticeably shorter and tighter')">Shorter</button>
-            <button class="glass-chip" @click="optimize('Make it more direct and confident')">More direct</button>
-            <button class="glass-chip" @click="optimize('Add a clear, specific call to action with a deadline')">Add strong CTA</button>
-            <button class="glass-chip" @click="optimize('Soften the language and make it warmer')">Warmer tone</button>
+            <button type="button" class="glass-chip" @click="optimize('Make it noticeably shorter and tighter')">Shorter</button>
+            <button type="button" class="glass-chip" @click="optimize('Make it more direct and confident')">More direct</button>
+            <button type="button" class="glass-chip" @click="optimize('Add a clear, specific call to action with a deadline')">Add strong CTA</button>
+            <button type="button" class="glass-chip" @click="optimize('Soften the language and make it warmer')">Warmer tone</button>
           </div>
         </div>
 

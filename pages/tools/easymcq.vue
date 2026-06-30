@@ -10,6 +10,17 @@ const copied    = ref<number | null>(null)
 
 const canSubmit = computed(() => question.value.trim().length > 0 && answer.value.trim().length > 0)
 
+const EXAMPLE_PROMPTS = [
+  { q: 'What is the primary purpose of a needs analysis?', a: 'To identify the gap between current and desired performance before designing a solution.' },
+  { q: 'What does ADDIE stand for?', a: 'Analysis, Design, Development, Implementation, Evaluation.' },
+  { q: 'Why use Bloom\'s taxonomy when writing objectives?', a: 'It ensures objectives target the right cognitive level for the desired learning outcome.' }
+] as const
+
+function loadExample(ex: typeof EXAMPLE_PROMPTS[number]) {
+  question.value = ex.q
+  answer.value = ex.a
+}
+
 async function generate() {
   if (!canSubmit.value || pending.value) return
   pending.value = true
@@ -41,37 +52,61 @@ async function copy(text: string, i: number) {
 <template>
   <UiToolShell eyebrow="Web App" title="Distractor Generator" deck="Turn correct answers into brilliant wrong ones.">
 
-    <!-- Form -->
-    <form class="glass-panel dg-form" @submit.prevent="generate">
-      <label class="glass-label" for="dg-question">Your question</label>
-      <textarea
-        id="dg-question"
-        v-model="question"
-        class="glass-field dg-textarea"
-        placeholder="e.g. What is the primary purpose of a needs analysis in instructional design?"
-        rows="3"
-        :disabled="pending"
-      />
+    <!-- Form / Loading -->
+    <div class="glass-panel dg-form" :class="{ 'dg-form--loading': pending }">
+      <!-- Loading state (rich, matches Better Emails) -->
+      <div v-if="pending" class="dg-loading">
+        <div class="dg-loading-spinner" />
+        <p class="dg-loading-title">Crafting clever distractors...</p>
+        <p class="dg-loading-subtitle">Generating plausible but incorrect options that test real understanding.</p>
+        <p class="dg-loading-hint">Just a moment.</p>
+      </div>
 
-      <label class="glass-label" for="dg-answer">Correct answer</label>
-      <textarea
-        id="dg-answer"
-        v-model="answer"
-        class="glass-field dg-textarea"
-        placeholder="e.g. To identify the gap between current and desired performance before designing a solution."
-        rows="2"
-        :disabled="pending"
-      />
+      <!-- Normal form -->
+      <form v-else @submit.prevent="generate">
+        <div style="margin-bottom:8rem;">
+          <span class="glass-label">Need inspiration? Try an example</span>
+          <div style="display:flex; flex-wrap:wrap; gap:6rem; margin-top:4rem;">
+            <button
+              v-for="ex in EXAMPLE_PROMPTS"
+              :key="ex.q"
+              type="button"
+              class="glass-chip"
+              style="font-size:12rem;"
+              @click="loadExample(ex)"
+            >
+              {{ ex.q.length > 42 ? ex.q.slice(0,39)+'…' : ex.q }}
+            </button>
+          </div>
+        </div>
 
-      <button
-        type="submit"
-        class="glass-btn dg-submit"
-        :disabled="!canSubmit || pending"
-      >
-        <span v-if="pending" class="dg-spinner"></span>
-        <span>{{ pending ? 'Generating…' : 'Generate distractors' }}</span>
-      </button>
-    </form>
+        <label class="glass-label" for="dg-question">Your question</label>
+        <textarea
+          id="dg-question"
+          v-model="question"
+          class="glass-field dg-textarea"
+          placeholder="e.g. What is the primary purpose of a needs analysis in instructional design?"
+          rows="3"
+        />
+
+        <label class="glass-label" for="dg-answer">Correct answer</label>
+        <textarea
+          id="dg-answer"
+          v-model="answer"
+          class="glass-field dg-textarea"
+          placeholder="e.g. To identify the gap between current and desired performance before designing a solution."
+          rows="2"
+        />
+
+        <button
+          type="submit"
+          class="glass-btn dg-submit"
+          :disabled="!canSubmit"
+        >
+          Generate distractors
+        </button>
+      </form>
+    </div>
 
     <!-- Error -->
     <Transition name="fade">
@@ -106,18 +141,48 @@ async function copy(text: string, i: number) {
   flex-direction: column;
   gap: 12rem;
 }
-.dg-textarea { resize: vertical; margin-bottom: 8rem; }
-.dg-submit { align-self: flex-start; margin-top: 4rem; }
-
-.dg-spinner {
-  width: 14rem;
-  height: 14rem;
-  border: 2px solid transparent;
-  border-top-color: var(--color-bg);
-  border-radius: 50%;
-  animation: spin 0.65s linear infinite;
-  flex-shrink: 0;
+.dg-form--loading {
+  align-items: center;
+  justify-content: center;
+  min-height: 180rem;
 }
+.dg-loading { display: block; }
+.dg-textarea { resize: vertical; margin-bottom: 8rem; }
+.dg-submit { align-self: flex-start; margin-top: 12rem; }
+
+/* Rich loading state (matches Better Emails) */
+.dg-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32rem 16rem;
+}
+.dg-loading-spinner {
+  width: 32rem;
+  height: 32rem;
+  border: 3rem solid var(--color-glass-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16rem;
+}
+.dg-loading-title {
+  font-size: var(--text-body);
+  font-weight: 600;
+  margin: 0 0 8rem;
+}
+.dg-loading-subtitle {
+  font-size: var(--text-sm);
+  opacity: 0.75;
+  margin: 0 0 4rem;
+}
+.dg-loading-hint {
+  font-size: var(--text-sm);
+  opacity: 0.55;
+  margin: 0;
+}
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .dg-error { margin: 16rem 0 0; }

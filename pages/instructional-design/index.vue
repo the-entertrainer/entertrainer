@@ -363,8 +363,8 @@ const restart = () => {
           <button 
             @click="() => stage = 3"
             :disabled="toasterState !== 'popped'"
-            :class="`w-full py-4 text-white rounded-2xl font-bold text-sm tracking-wide transition-all shadow-md flex items-center justify-center gap-2
-              ${toasterState === 'popped' ? 'bg-stone-900 hover:bg-stone-800' : 'bg-stone-300 cursor-not-allowed shadow-none'}`"
+            class="glass-btn w-full" 
+            :style="{ background: toasterState === 'popped' ? '#1E1C19' : '#d1d5db', color: 'white', borderRadius: '16rem', padding: '14rem 0', opacity: toasterState === 'popped' ? 1 : 0.5 }"
           >
             Let's look at what happened <ArrowRight :size="16" />
           </button>
@@ -410,7 +410,7 @@ const restart = () => {
         <div class="space-y-3">
           <button 
             @click="restart"
-            class="glass-btn--ghost w-full" style="border-radius:16rem; padding:14rem 0;"
+            class="glass-btn glass-btn--ghost w-full" style="border-radius:16rem; padding:14rem 0;"
           >
             <RotateCcw :size="14" /> Play Again
           </button>

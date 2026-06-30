@@ -3,58 +3,29 @@
     <!-- Living fluted-glass gradient — the site's signature backdrop -->
     <UiGlassBackdrop />
 
-    <!-- Cinematic film grain + cut flash overlay. Activated on claps for that real projector feel. -->
-    <div class="cinema-grain" :class="{ 'cut-flash': isCutting }"></div>
-
-    <!-- Cinematic Clapperboard Navigator: absurd-genius way to "direct" the story -->
-    <!-- Clap to cut between scenes. Feels like editing a film. Adds agency + pacing control. -->
-    <div class="clapper-nav" :class="{ 'is-clapping': isClapping }" @click="clapToNextScene" @mousedown="armDown" @mouseup="armUp" @mouseleave="armUp">
-      <div class="clapper-slate">
-        <div class="slate-row">
-          <span>ENTERTRAINER</span>
-          <span class="take">TAKE {{ currentTake.toString().padStart(2, '0') }}</span>
-        </div>
-        <div class="slate-row scene">
-          SCENE {{ currentScene.toString().padStart(2, '0') }} / {{ totalScenes }}
-        </div>
-        <div class="slate-row small">DIRECTOR · NAVEEN</div>
-      </div>
-      <div class="clapper-arm" :style="{ transform: `rotate(${armAngle}deg)` }">
-        <div class="arm-inner">CLAP</div>
-      </div>
-      <div class="clapper-hint">clap to cut</div>
-    </div>
-
     <div class="about-container">
 
       <!-- ───────────────── Hero panel ───────────────── -->
       <section class="glass-panel about-panel about-panel--hero anim">
+        <!-- Decorative subtle light leak (generated asset, blended gently for cinematic warmth) -->
+        <div class="hero-decor" style="background-image: url('/decorative-light-leak.jpg');"></div>
+        
         <h1 class="about-intro">
-          I am <span class="hl" data-text="Naveen">Naveen</span>.<br>
-          And this? This is me finally shipping the one project I didn't know I was building the whole time.
+          I am <span class="hl" data-text="Naveen">Naveen</span>.
         </h1>
         <hr class="about-rule" />
         <p class="about-lead">
-          No roadmap. Just a former housekeeper who one day realized that the way you fold a bedsheet so it feels like a gift and the way you fold a hard idea so it actually sticks in someone's head are the exact same impossible craft.
+          My path here didn't start with a big plan or a fancy title. It started with making beds at a hotel, folding towels into little roses just to make someone's day a tiny bit brighter.
         </p>
         <p class="about-lead">
-          Instructional design crashed the party the night I turned dry service standards into comic strips that people actually wanted to read. That's when I figured out I wasn't just arranging information. I was writing the render loop for how humans change.
+          Somewhere along the way, I realized that the same care — the attention to how things feel, how they land, how they stay with you — could be used to help people learn. Not through lectures or dry slides, but through experiences that feel alive, human, and a little bit magical.
         </p>
-        <div class="about-extravaganza">
-          <span class="code-word">state</span>
-          <span class="code-word">→</span>
-          <span class="code-word">story</span>
-          <span class="code-word">→</span>
-          <span class="code-word">shift</span>
-        </div>
-
-        <p class="clapper-instruction">Use the clapperboard in the corner to direct the story. Clap to cut between scenes like a real film.</p>
       </section>
 
       <!-- ───────────────── Chapter 01 · The Floor ───────────────── -->
       <section class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">01</span> The Floor</p>
-        <p class="about-body">I started my career in the hotel industry and had the opportunity to work with brands such as Marriott International and Club Mahindra. My first job was as a housekeeper - with Club Mahindra. Yes, I made beds, cleaned rooms, folded towel art (the fun stuff), and learned how to make spaces feel welcoming, organized, and beautiful. Housekeeping is an art backed by science. You can still see the way I keep my toilet rolls in my place - nicely folded into a rose 😂 and my bedsheets are always wrinkle free 😉</p>
+        <p class="about-body">It all began in hotels. I worked with places like Club Mahindra and Marriott, starting as a housekeeper. There was something quietly powerful about turning a messy room into a place that made people sigh with relief the moment they walked in. I learned to pay attention to the details that make a space feel cared for — the way a bed is made, how the light falls, the small surprises that make someone smile.</p>
       </section>
 
       <figure class="shot shot--duo anim">
@@ -68,21 +39,20 @@
         </div>
         <figcaption class="shot__cap">
           <span class="shot__cap-rule" />
-          <span>Where it started — the floors of Club Mahindra Udaipur. Long before I ever wrote a learning objective, I was learning the real craft: a room (or a mind) only feels right when every tiny detail has been considered and then made invisible.</span>
+          <span>Those early days taught me that the smallest gestures of care can change how someone experiences a place. I still fold my towels the same way at home — just because it feels good.</span>
         </figcaption>
       </figure>
 
       <section class="glass-panel about-panel about-panel--callout anim">
         <p class="about-callout">
-          That job was the original <span class="hl" data-text="debug">debug</span> session. I learned that the tiniest fold, the exact angle of a pillow, the way light hits a made bed — none of it is decoration. It's the difference between "fine" and "holy shit, someone cared."
+          Looking back, that work planted a seed: the best experiences aren't loud. They're the ones that quietly make you feel at home in a new idea.
         </p>
       </section>
 
       <!-- ───────────────── Chapter 02 · The Spark ───────────────── -->
       <section class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">02</span> The Spark</p>
-        <p class="about-body">The real plot twist hit when I started turning service standards into comic strips for SEWA. No one had taught me the term "instructional design" yet, but I was already doing the thing: taking something dense and corporate and making it feel like a story you want to keep reading at 1 a.m.</p>
-        <p class="about-body">Mentors showed up like good code reviews — blunt, generous, and suddenly the whole mental model recompiled. I started obsessing over the same questions you ask when you're knee-deep in a gnarly frontend problem: how do people actually *parse* this? Where does it break? What makes the lightbulb go off instead of the eyes glaze over?</p>
+        <p class="about-body">The real turning point came when I got to work on something creative for the first time. We turned dry service standards into a comic strip story called SEWA Chronicles. Watching people light up as they read these little illustrated moments instead of another policy document — that was it. I didn't have the words for it yet, but I knew I wanted to spend my days making learning feel like something people actually wanted to do.</p>
       </section>
 
       <figure class="shot shot--editorial anim">
@@ -96,27 +66,26 @@
         </div>
         <figcaption class="shot__cap">
           <span class="shot__cap-rule" />
-          <span><strong>SEWA Chronicles</strong> — my first project alongside a Corporate L&amp;D team. We turned dry service standards into comic strips. I didn't have the words <em>"instructional design"</em> yet, but this was exactly that: turning information into something people actually wanted to read.</span>
+          <span>Those first comic pages were my real classroom. They showed me that when you wrap useful ideas in something warm and human, people lean in instead of tuning out.</span>
         </figcaption>
       </figure>
 
       <section class="glass-panel about-panel anim">
         <p class="about-pull">
-          What actually kept me up wasn't the content. It was the humans on the other side of it.
+          What kept pulling me forward was the people.
         </p>
         <div class="about-questions">
-          <p>How does someone's brain decide this is worth paying attention to?</p>
-          <p>Why does perfect information still slide right off people?</p>
-          <p>What makes a lesson feel like it was written *for them* instead of at them?</p>
+          <p>What makes someone truly remember something?</p>
+          <p>How do we help people feel capable instead of overwhelmed?</p>
+          <p>What turns information into something that actually changes how someone sees the world?</p>
         </div>
-        <p class="about-body">I got addicted to that exact click — the moment the fog lifts and something that used to be abstract suddenly feels obvious and personal. That's the real craft. Everything else is just scaffolding.</p>
+        <p class="about-body">Those questions became my compass. I fell in love with the quiet thrill of watching understanding click into place — that small, wonderful moment when something difficult suddenly feels possible.</p>
       </section>
 
       <!-- ───────────────── Chapter 03 · The Craft ───────────────── -->
       <section class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">03</span> The Craft</p>
-        <p class="about-body">Instructional design, at its best, is just extremely good frontend engineering for the human brain. You decide the data model (what actually needs to be understood), the component architecture (how it should be broken down), and the interaction model (how someone moves through it without getting lost or bored). Then you ship it and watch what actually renders in their head.</p>
-        <p class="about-body">The best work doesn't feel like training. It feels like you just handed someone a perfectly tuned shader and they suddenly see the whole scene in a new light.</p>
+        <p class="about-body">Over time I got to design programs for big teams at Marriott — leadership journeys, onboarding adventures, training for trainers. What I loved most was seeing how the right story, the right moment of discovery, could turn a room full of tired professionals into people who were genuinely excited to try something new.</p>
       </section>
 
       <figure class="shot shot--gallery anim">
@@ -136,14 +105,14 @@
         </div>
         <figcaption class="shot__cap">
           <span class="shot__cap-rule" />
-          <span>Programs I went on to design and run for <strong>Marriott International</strong> — rooms full of people learning without ever feeling like they were being taught.</span>
+          <span>Those rooms taught me that when learning feels generous and human, people don't just remember it — they carry it forward.</span>
         </figcaption>
       </figure>
 
       <!-- ───────────────── Chapter 04 · The Present ───────────────── -->
       <section class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">04</span> The Present</p>
-        <p class="about-body">These days I'm at Concentrix, deep in banking and finance systems, doing the same weird magic trick at scale. Taking frameworks that feel like they were written by lawyers on a bad day and turning them into things actual humans can pick up, play with, and actually use without their eyes rolling back into their skulls.</p>
+        <p class="about-body">Today I'm at Concentrix, working with banking and finance teams. We take complex new ways of working and turn them into experiences that actually feel doable — even welcoming. The tools change, but the heart of it stays the same: helping people feel capable and a little more hopeful about what they can do next.</p>
       </section>
 
       <figure class="shot shot--solo anim">
@@ -152,15 +121,39 @@
         </div>
         <figcaption class="shot__cap">
           <span class="shot__cap-rule" />
-          <span>Still the same obsession. New canvas. New shaders. Same goal: people walk up to something that used to look impenetrable and leave thinking "oh... of course."</span>
+          <span>The work keeps evolving, but the joy of it never changes — that quiet moment when someone realizes they can do the thing they thought was too hard.</span>
         </figcaption>
       </figure>
 
       <section class="glass-panel about-panel about-panel--closing anim">
-        <p class="about-body">That's the real high: when the thing you built stops feeling like "content" and just feels like the obvious next step in someone's head. The gradient keeps shifting, the spiral keeps pulling, and every once in a while the light hits exactly right.</p>
+        <p class="about-body">At the end of the day, I just love helping ideas land softly in people's lives. When someone walks away from something I helped shape feeling a little more confident, a little more curious — that's everything.</p>
         <p class="about-asatoma">Asatoma Sadgamaya.</p>
       </section>
 
+    </div>
+
+    <!-- Theatre Timeline - Theatre.js inspired slow, beautiful unfolding -->
+    <!-- Drag or scroll to progress the story. Animations unfold gently and enjoyably. -->
+    <div class="theatre-timeline glass-panel">
+      <div class="timeline-track">
+        <div class="timeline-progress" :style="{ width: timelineProgress + '%' }"></div>
+        <div 
+          v-for="(chapter, index) in chapters" 
+          :key="index"
+          class="timeline-marker"
+          :class="{ active: currentChapter === index + 1 }"
+          @click="jumpToChapter(index + 1)"
+        >
+          <span class="marker-dot"></span>
+          <span class="marker-label">{{ chapter }}</span>
+        </div>
+      </div>
+      <div class="timeline-handle" 
+           :style="{ left: timelineProgress + '%' }"
+           @mousedown="startScrub"
+           @touchstart="startScrub">
+      </div>
+      <div class="timeline-label">The Story Unfolds</div>
     </div>
   </div>
 </template>
@@ -295,137 +288,216 @@ onBeforeUnmount(() => {
   }
 })
 
-// ── Cinematic "Clap to Cut" Story Navigation ───────────────────────────────
-// Absurd but genius: You don't just scroll the story. You *direct* it.
-// Clap the board to perform a "cut". Each cut advances the scene with a
-// cinematic transition and drops a production note that adds real value
-// (connects the beat to an instructional design principle).
-// Keeps everything cinematic while staying true to the glass/gradient/spiral soul.
+// ── Theatre Timeline (Theatre.js inspired) ─────────────────────────────────
+// Slow, beautiful unfolding of the story.
+// Desktop: drag the handle or mousemove for subtle "direction".
+// Mobile: scroll drives progress, tap markers to jump.
+// Animations unfold gently with GSAP for a warm, cinematic feel.
 
-const currentScene = ref(1)
-const currentTake = ref(1)
-const totalScenes = 7
-const isClapping = ref(false)
-const isCutting = ref(false)
-const armAngle = ref(0)
+const timelineProgress = ref(0)
+const currentChapter = ref(1)
+const isScrubbing = ref(false)
 
-const aboutPanels = ref<HTMLElement[]>([])
+const chapters = [
+  'The Beginning',
+  'The Spark',
+  'The Craft',
+  'Today'
+]
 
-function collectScenes() {
-  const container = document.querySelector('.about-container')
-  if (!container) return
-  aboutPanels.value = Array.from(container.querySelectorAll<HTMLElement>('.about-panel, .shot'))
+function updateTimelineFromScroll() {
+  const scrollTop = window.scrollY
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight
+  if (docHeight <= 0) return
+  const progress = Math.min(Math.max((scrollTop / docHeight) * 100, 0), 100)
+  timelineProgress.value = progress
+  updateCurrentChapter(progress)
 }
 
-function getSceneLabel(index: number): string {
-  const labels = [
-    'HERO — THE RENDER',
-    '01 — THE FLOOR',
-    'CALL — DEBUG SESSION',
-    '02 — THE SPARK',
-    '03 — THE CRAFT',
-    '04 — THE PRESENT',
-    'FINAL — THE LIGHT'
-  ]
-  return labels[index - 1] || `SCENE ${index}`
-}
-
-function showProductionNote(scene: number) {
-  const notes = [
-    'Principle: Invisible craft > obvious instruction. The best experiences feel inevitable.',
-    'Principle: Start with the environment. Everything else is decoration until the space feels right.',
-    'Principle: Turn compliance into narrative. People remember stories, not rules.',
-    'Principle: Mentorship as code review. Fast feedback loops = fast mental model shifts.',
-    'Principle: Instructional design is frontend engineering for the brain.',
-    'Principle: Ship the render that makes the complex feel obvious.',
-    'The end. Gradient keeps moving. Keep cutting until it feels right.'
-  ]
-  const noteText = notes[scene - 1] || 'Every good story has a cut that changes everything.'
-
-  const note = document.createElement('div')
-  note.className = 'production-note glass-panel'
-  note.innerHTML = `
-    <div class="note-header">PRODUCTION NOTE — ${getSceneLabel(scene)}</div>
-    <div class="note-body">${noteText}</div>
-  `
-  document.querySelector('.about-container')?.appendChild(note)
-
-  setTimeout(() => note.classList.add('in'), 10)
-  setTimeout(() => {
-    note.classList.add('out')
-    setTimeout(() => note.remove(), 400)
-  }, 4200)
-}
-
-async function performCinematicCut(fromIndex: number, toIndex: number) {
-  if (toIndex > totalScenes || toIndex < 1) return
-
-  isCutting.value = true
-  setTimeout(() => { isCutting.value = false }, 180)
-
-  const target = aboutPanels.value[toIndex - 1]
-  if (target) {
-    target.scrollIntoView({ behavior: 'smooth', block: 'center' })
-
-    target.classList.remove('scene-lit')
-    void target.offsetWidth
-    target.classList.add('scene-lit', 'just-cut')
-
-    setTimeout(() => target.classList.remove('just-cut'), 900)
-  }
-
-  currentScene.value = toIndex
-  currentTake.value += 1
-
-  showProductionNote(toIndex)
-
-  const container = document.querySelector('.about-container') as HTMLElement | null
-  if (container) {
-    container.style.setProperty('--sheen', '0.8')
-    setTimeout(() => container.style.setProperty('--sheen', '0'), 650)
+function updateCurrentChapter(progress: number) {
+  const chapterCount = chapters.length
+  const newChapter = Math.min(Math.floor((progress / 100) * chapterCount) + 1, chapterCount)
+  if (newChapter !== currentChapter.value) {
+    currentChapter.value = newChapter
+    triggerChapterUnfold(newChapter)
   }
 }
 
-function clapToNextScene() {
-  if (isClapping.value) return
-  isClapping.value = true
+function triggerChapterUnfold(chapter: number) {
+  const sections = document.querySelectorAll('.about-panel, .shot')
+  const target = sections[chapter - 1] as HTMLElement | undefined
+  if (!target || !(window as any).gsap) return
 
-  const next = Math.min(currentScene.value + 1, totalScenes)
+  const img = target.querySelector('img') as HTMLElement | null
+  if (img) {
+    (window as any).gsap.to(img, {
+      scale: 1,
+      duration: 1.8,
+      ease: 'power2.out',
+      overwrite: true
+    })
+  }
 
-  armAngle.value = -38
-
-  setTimeout(async () => {
-    await performCinematicCut(currentScene.value, next)
-    armAngle.value = 0
-    isClapping.value = false
-  }, 260)
+  (window as any).gsap.to(target, {
+    opacity: 1,
+    y: 0,
+    duration: 1.2,
+    ease: 'power1.out',
+    overwrite: true
+  })
 }
 
-function armDown() {
-  if (!isClapping.value) armAngle.value = -22
+function jumpToChapter(chapter: number) {
+  const sections = document.querySelectorAll('.about-panel, .shot')
+  const target = sections[chapter - 1] as HTMLElement | undefined
+  if (!target) return
+
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  currentChapter.value = chapter
+  timelineProgress.value = ((chapter - 1) / chapters.length) * 100
+  triggerChapterUnfold(chapter)
 }
 
-function armUp() {
-  if (!isClapping.value) armAngle.value = 0
+let startX = 0
+let startProgress = 0
+
+function startScrub(e: MouseEvent | TouchEvent) {
+  isScrubbing.value = true
+  const clientX = 'touches' in e ? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).clientX
+  startX = clientX
+  startProgress = timelineProgress.value
+
+  document.addEventListener('mousemove', onScrubMove)
+  document.addEventListener('mouseup', endScrub)
+  document.addEventListener('touchmove', onScrubMove, { passive: false })
+  document.addEventListener('touchend', endScrub)
+}
+
+function onScrubMove(e: MouseEvent | TouchEvent) {
+  if (!isScrubbing.value) return
+  e.preventDefault()
+
+  const clientX = 'touches' in e ? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).clientX
+  const deltaX = clientX - startX
+  const timelineWidth = (document.querySelector('.timeline-track') as HTMLElement)?.offsetWidth || 1
+  const deltaPercent = (deltaX / timelineWidth) * 100
+
+  let newProgress = Math.min(Math.max(startProgress + deltaPercent, 0), 100)
+  timelineProgress.value = newProgress
+
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight
+  const targetScroll = (newProgress / 100) * docHeight
+  window.scrollTo({ top: targetScroll, behavior: 'auto' })
+
+  updateCurrentChapter(newProgress)
+}
+
+function endScrub() {
+  isScrubbing.value = false
+  document.removeEventListener('mousemove', onScrubMove)
+  document.removeEventListener('mouseup', endScrub)
+  document.removeEventListener('touchmove', onScrubMove)
+  document.removeEventListener('touchend', endScrub)
+}
+
+function onMouseDirect(e: MouseEvent) {
+  const activeSection = document.querySelectorAll('.about-panel, .shot')[currentChapter.value - 1] as HTMLElement | null
+  if (!activeSection) return
+
+  const rect = activeSection.getBoundingClientRect()
+  const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2
+  const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2
+
+  const img = activeSection.querySelector('img') as HTMLElement | null
+  if (img) {
+    img.style.transform = `perspective(800px) rotateX(${-y * 3}deg) rotateY(${x * 4}deg) scale(1.01)`
+  }
+}
+
+function resetMouseDirect() {
+  const activeSection = document.querySelectorAll('.about-panel, .shot')[currentChapter.value - 1] as HTMLElement | null
+  if (!activeSection) return
+  const img = activeSection.querySelector('img') as HTMLElement | null
+  if (img) {
+    img.style.transition = 'transform 0.8s var(--ease-spring)'
+    img.style.transform = ''
+    setTimeout(() => { if (img) img.style.transition = '' }, 800)
+  }
 }
 
 onMounted(() => {
-  nextTick(() => {
-    collectScenes()
-    if (aboutPanels.value.length) {
-      aboutPanels.value[0]?.classList.add('scene-lit')
-    }
+  // Original setup
+  reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in-view')
+          io!.unobserve(e.target)
+        }
+      })
+    },
+    { threshold: 0.1, rootMargin: '0px 0px -28px 0px' }
+  )
+
+  const els = document.querySelectorAll('.anim')
+  els.forEach((el, i) => {
+    if (i < 3) (el as HTMLElement).style.transitionDelay = `${i * 0.09}s`
+    io!.observe(el)
   })
 
-  window.addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === 'c' || e.key === ' ') {
-      e.preventDefault()
-      clapToNextScene()
+  const hlEls = document.querySelectorAll('.hl')
+  if (reduceMotion) {
+    hlEls.forEach(el => el.classList.add('lit'))
+  } else {
+    ioHl = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('lit')
+            ioHl!.unobserve(e.target)
+          }
+        })
+      },
+      { threshold: 0, rootMargin: '0px 0px -28% 0px' }
+    )
+    hlEls.forEach(el => ioHl!.observe(el))
+  }
+
+  if (!reduceMotion) {
+    pxEls = Array.from(document.querySelectorAll<HTMLElement>('.px'))
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll, { passive: true })
+    applyParallax()
+
+    const hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    if (hoverCapable) {
+      sheenEls = Array.from(document.querySelectorAll<HTMLElement>('.about-panel, .shot__cell'))
+      for (const el of sheenEls) {
+        el.addEventListener('pointermove', onSheenMove as EventListener, { passive: true })
+        el.addEventListener('pointerleave', onSheenLeave as EventListener, { passive: true })
+      }
     }
-    if (e.key === 'ArrowRight') {
-      clapToNextScene()
-    }
-  })
+  }
+
+  // Theatre timeline sync
+  window.addEventListener('scroll', () => {
+    if (!isScrubbing.value) updateTimelineFromScroll()
+  }, { passive: true })
+
+  const hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+  if (hoverCapable) {
+    window.addEventListener('mousemove', onMouseDirect, { passive: true })
+    window.addEventListener('mouseleave', resetMouseDirect)
+  }
+
+  setTimeout(updateTimelineFromScroll, 120)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('mousemove', onMouseDirect)
+  window.removeEventListener('mouseleave', resetMouseDirect)
 })
 </script>
 
@@ -483,6 +555,19 @@ onMounted(() => {
 .about-panel--hero {
   padding: 48rem 40rem 44rem;
   margin-bottom: 26rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-decor {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.12;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 0;
 }
 .about-panel--callout { padding: 30rem 36rem; }
 .about-panel--closing { margin-bottom: 0; }
@@ -772,209 +857,7 @@ onMounted(() => {
   50% { opacity: 0.95; }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   CINEMATIC CLAPPER + STORY ENGINE
-   Absurd-genius navigation: Clap the board to "call action" and cut scenes.
-   Feels like a film set. Adds real value through production notes that
-   surface instructional design principles hidden in the story.
-   ═══════════════════════════════════════════════════════════════════════ */
 
-.clapper-nav {
-  position: fixed;
-  top: calc(28rem + var(--safe-top));
-  right: 28rem;
-  z-index: 120;
-  width: 148rem;
-  background: color-mix(in srgb, var(--color-bg) 55%, transparent);
-  border: 1px solid var(--color-glass-border);
-  border-radius: 10rem;
-  padding: 10rem 12rem 14rem;
-  backdrop-filter: blur(18px) saturate(1.35);
-  -webkit-backdrop-filter: blur(18px) saturate(1.35);
-  box-shadow: 0 20rem 60rem -20rem rgba(0,0,0,0.6);
-  cursor: pointer;
-  user-select: none;
-  font-family: ui-monospace, monospace;
-  font-size: 10rem;
-  letter-spacing: 0.06em;
-  color: var(--color-text);
-  transition: transform 0.1s ease, box-shadow 0.2s ease;
-}
-
-.clapper-nav:hover {
-  box-shadow: 0 26rem 70rem -18rem rgba(0,0,0,0.7);
-}
-
-.clapper-nav.is-clapping {
-  transform: scale(0.98);
-}
-
-.clapper-slate {
-  border: 1px solid var(--color-glass-border);
-  background: color-mix(in srgb, var(--color-bg) 75%, transparent);
-  padding: 8rem 10rem;
-  border-radius: 6rem;
-  margin-bottom: 8rem;
-}
-
-.slate-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  line-height: 1;
-}
-
-.slate-row.scene {
-  font-size: 14rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  margin: 6rem 0;
-}
-
-.slate-row.small {
-  font-size: 9rem;
-  opacity: 0.6;
-}
-
-.clapper-arm {
-  height: 26rem;
-  background: linear-gradient(180deg, var(--color-text), color-mix(in srgb, var(--color-text) 70%, transparent));
-  border-radius: 3rem;
-  margin: 0 8rem;
-  position: relative;
-  transition: transform 0.18s cubic-bezier(0.23, 1, 0.32, 1);
-  transform-origin: left center;
-  box-shadow: 0 4rem 12rem -4rem rgba(0,0,0,0.5);
-}
-
-.arm-inner {
-  position: absolute;
-  right: 6rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 11rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--color-bg);
-}
-
-.clapper-hint {
-  text-align: center;
-  margin-top: 6rem;
-  font-size: 9rem;
-  opacity: 0.45;
-  letter-spacing: 0.1em;
-}
-
-.clapper-instruction {
-  font-size: 11rem;
-  opacity: 0.45;
-  margin-top: 12rem;
-  font-style: italic;
-  letter-spacing: -0.01em;
-}
-
-/* Cinema grain + flash for real cuts */
-.cinema-grain {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  pointer-events: none;
-  background-image: 
-    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
-  background-size: 4px 4px;
-  opacity: 0.25;
-  mix-blend-mode: screen;
-  transition: opacity 0.2s ease;
-}
-
-.cinema-grain.cut-flash {
-  opacity: 0.65;
-  animation: film-flash 180ms steps(1);
-}
-
-@keyframes film-flash {
-  0% { opacity: 0.8; }
-  100% { opacity: 0.25; }
-}
-
-/* Scene focus + cut animation */
-.about-panel.scene-lit,
-.shot.scene-lit {
-  box-shadow: 
-    0 34rem 90rem -42rem rgba(0, 0, 0, 0.6),
-    0 0 0 1px var(--color-glass-border-hover),
-    inset 0 0 0 1px color-mix(in srgb, var(--color-text) 12%, transparent);
-  transition: box-shadow 0.6s var(--ease-spring);
-}
-
-.about-panel.just-cut,
-.shot.just-cut {
-  animation: cinematic-cut-in 820ms var(--ease-spring);
-}
-
-@keyframes cinematic-cut-in {
-  0% {
-    transform: scale(0.96) translateY(12rem) rotateX(4deg);
-    filter: blur(1px);
-    opacity: 0.6;
-  }
-  60% {
-    filter: blur(0);
-  }
-  100% {
-    transform: none;
-    opacity: 1;
-  }
-}
-
-/* Production notes — little glass slates that pop on each cut */
-.production-note {
-  position: relative;
-  margin: 18rem auto;
-  max-width: 620rem;
-  padding: 18rem 24rem 20rem;
-  font-size: 13rem;
-  line-height: 1.5;
-  opacity: 0;
-  transform: translateY(14rem) scale(0.985);
-  transition: all 0.55s var(--ease-spring);
-  pointer-events: none;
-  z-index: 10;
-}
-
-.production-note.in {
-  opacity: 1;
-  transform: none;
-}
-
-.production-note.out {
-  opacity: 0;
-  transform: translateY(-10rem);
-}
-
-.note-header {
-  font-family: ui-monospace, monospace;
-  font-size: 10rem;
-  letter-spacing: 0.1em;
-  opacity: 0.5;
-  margin-bottom: 8rem;
-}
-
-.note-body {
-  color: var(--color-text);
-}
-
-/* Make sure clapper doesn't fight reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .clapper-arm,
-  .cinema-grain,
-  .production-note {
-    transition: none;
-    animation: none;
-  }
-}
 
 /* ───────────────── Desktop micro-interactions (hover-capable only) ───────────────── */
 /* A soft specular highlight tracks the cursor across each glass surface — the
@@ -1022,6 +905,154 @@ onMounted(() => {
   .hl.lit { animation: none; }
   .shot__img { scale: 1; }
   .about-panel::after, .shot__cell::after { display: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   THEATRE TIMELINE - Theatre.js inspired
+   Beautiful, slow unfolding controlled by scroll or drag.
+   Warm, light, and cinematic.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.theatre-timeline {
+  position: fixed;
+  bottom: calc(24rem + var(--safe-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: min(92vw, 720rem);
+  padding: 12rem 20rem;
+  border-radius: 20rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8rem;
+  background: color-mix(in srgb, var(--color-bg) 45%, transparent);
+  border: 1px solid var(--color-glass-border);
+  backdrop-filter: blur(20px) saturate(1.3);
+  box-shadow: 0 20rem 60rem -24rem rgba(0,0,0,0.5);
+}
+
+.timeline-track {
+  position: relative;
+  height: 4rem;
+  background: color-mix(in srgb, var(--color-glass-border) 35%, transparent);
+  border-radius: 999rem;
+  overflow: visible;
+}
+
+.timeline-progress {
+  position: absolute;
+  height: 100%;
+  background: linear-gradient(to right, var(--color-accent), var(--color-text));
+  border-radius: 999rem;
+  transition: width 0.1s linear;
+}
+
+.timeline-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timeline-marker .marker-dot {
+  width: 8rem;
+  height: 8rem;
+  background: var(--color-text);
+  border-radius: 50%;
+  border: 2rem solid var(--color-bg);
+  z-index: 2;
+  transition: transform 0.2s ease;
+}
+
+.timeline-marker.active .marker-dot {
+  transform: scale(1.4);
+  background: var(--color-accent);
+}
+
+.marker-label {
+  position: absolute;
+  top: 18rem;
+  font-size: 9rem;
+  white-space: nowrap;
+  opacity: 0.55;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+
+.timeline-marker.active .marker-label {
+  opacity: 0.95;
+  font-weight: 500;
+}
+
+.timeline-handle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 18rem;
+  height: 18rem;
+  background: var(--color-text);
+  border: 3rem solid var(--color-bg);
+  border-radius: 50%;
+  box-shadow: 0 4rem 12rem -2rem rgba(0,0,0,0.4);
+  cursor: grab;
+  z-index: 10;
+  transition: transform 0.1s ease;
+}
+
+.timeline-handle:active {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.timeline-label {
+  text-align: center;
+  font-size: 10rem;
+  opacity: 0.5;
+  letter-spacing: 0.08em;
+}
+
+/* Image unfolding enhancements for theatrical feel */
+.shot__img {
+  transition: transform 1.6s cubic-bezier(0.23, 1, 0.32, 1), 
+              filter 1.2s ease;
+  will-change: transform;
+}
+
+.shot.in-view .shot__img {
+  transform: scale(1);
+  filter: none;
+}
+
+/* Subtle decorative light sweep on images when in focus (cinematic) */
+.shot.in-view .shot__cell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 40%,
+    rgba(255,255,255,0.18) 50%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  animation: light-sweep 2.8s ease forwards;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+@keyframes light-sweep {
+  0% { background-position: 200% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* Warm, enjoyable text reveals */
+.about-body, .shot__cap {
+  transition: opacity 0.8s ease, transform 0.8s var(--ease-spring);
 }
 
 /* ─── Tablet ─── */

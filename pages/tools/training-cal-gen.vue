@@ -566,181 +566,187 @@ function backToTable() {
 
 <template>
   <UiToolShell wide eyebrow="Web App" title="Training Calendar" deck="Turn a list of topics into a ready-to-present monthly schedule.">
-    <div class="tcg-body">
+    <div>
       <Transition name="fade" mode="out-in">
 
         <!-- ── Input phase ──────────────────────────────────────── -->
-        <form v-if="phase === 'input'" key="input" class="tcg-form" @submit.prevent="parseTable">
+        <div v-if="phase === 'input'" key="input" class="glass-panel tcg-input-panel">
+          <form @submit.prevent="parseTable">
 
-          <!-- Calendar metadata -->
-          <div class="tcg-section-label">Calendar Details</div>
-          <input
-            v-model="calTitle"
-            class="tcg-input tcg-input--hero"
-            placeholder="Calendar title"
-          />
-          <div class="tcg-row">
-            <div class="tcg-field">
-              <label class="tcg-label" for="tcg-org">Organisation</label>
-              <input id="tcg-org" v-model="calOrg" class="tcg-input" placeholder="My Organisation" />
+            <!-- Calendar metadata -->
+            <div class="glass-label" style="font-weight:700; opacity:0.3; margin-bottom:4rem;">Calendar Details</div>
+            <input
+              v-model="calTitle"
+              class="glass-field"
+              style="font-size:22rem; font-weight:700; letter-spacing:-0.02em;"
+              placeholder="Calendar title"
+            />
+            <div class="tcg-row" style="display:flex; gap:16rem; margin-top:12rem;">
+              <div style="flex:1;">
+                <label class="glass-label" for="tcg-org">Organisation</label>
+                <input id="tcg-org" v-model="calOrg" class="glass-field" placeholder="My Organisation" />
+              </div>
+              <div style="flex:1;">
+                <label class="glass-label" for="tcg-dept">Department</label>
+                <input id="tcg-dept" v-model="calDept" class="glass-field" placeholder="Department" />
+              </div>
             </div>
-            <div class="tcg-field">
-              <label class="tcg-label" for="tcg-dept">Department</label>
-              <input id="tcg-dept" v-model="calDept" class="tcg-input" placeholder="Department" />
+
+            <!-- Month / Year -->
+            <div class="tcg-row" style="display:flex; gap:16rem; margin-top:12rem;">
+              <div style="flex:1;">
+                <label class="glass-label" for="tcg-month">Month</label>
+                <select id="tcg-month" v-model="selectedMonth" class="glass-field glass-select">
+                  <option v-for="(m, i) in MONTH_NAMES" :key="i" :value="i + 1">{{ m }}</option>
+                </select>
+              </div>
+              <div style="flex:1;">
+                <label class="glass-label" for="tcg-year">Year</label>
+                <input id="tcg-year" v-model.number="selectedYear" type="number" min="2024" max="2030" class="glass-field" />
+              </div>
             </div>
-          </div>
 
-          <!-- Month / Year -->
-          <div class="tcg-row">
-            <div class="tcg-field">
-              <label class="tcg-label" for="tcg-month">Month</label>
-              <select id="tcg-month" v-model="selectedMonth" class="tcg-select">
-                <option v-for="(m, i) in MONTH_NAMES" :key="i" :value="i + 1">{{ m }}</option>
-              </select>
+            <!-- Audiences -->
+            <span class="glass-label" style="margin-top:12rem;">Target Audiences</span>
+            <p style="font-size:12rem; opacity:0.4; margin:-4rem 0 8rem; font-style:italic;">Add all the groups this calendar will cater to</p>
+            <div class="tcg-chips" style="display:flex; flex-wrap:wrap; gap:6rem; margin-bottom:12rem;">
+              <div v-for="(aud, i) in audiences" :key="aud" class="glass-chip" style="display:flex; align-items:center; gap:4rem;">
+                {{ aud }}
+                <button type="button" @click="removeAudience(i)" aria-label="Remove" style="background:none; border:none; color:inherit; cursor:pointer; font-size:12rem; opacity:0.6;">×</button>
+              </div>
+              <div style="display:flex; align-items:center; gap:6rem;">
+                <input
+                  v-model="newAudience"
+                  class="glass-field"
+                  style="max-width:160rem; font-size:12rem;"
+                  placeholder="Add audience…"
+                  @keydown.enter.prevent="addAudience"
+                />
+                <button type="button" class="glass-btn glass-btn--ghost" style="font-size:12rem; padding:4rem 10rem;" @click="addAudience">Add</button>
+              </div>
             </div>
-            <div class="tcg-field">
-              <label class="tcg-label" for="tcg-year">Year</label>
-              <input id="tcg-year" v-model.number="selectedYear" type="number" min="2024" max="2030" class="tcg-input" />
+
+            <!-- Topics -->
+            <label class="glass-label" for="tcg-topics">Training Topics</label>
+            <p style="font-size:12rem; opacity:0.4; margin:-4rem 0 8rem; font-style:italic;">One per line. Optional: <em>Topic | Hours</em></p>
+            <textarea
+              id="tcg-topics"
+              v-model="topicsText"
+              class="glass-field"
+              rows="8"
+              placeholder="Excel for Beginners&#10;Leadership Fundamentals | 6&#10;Communication Skills"
+            />
+
+            <!-- Preferred days -->
+            <span class="glass-label" style="margin-top:12rem;">Preferred Training Days</span>
+            <div style="display:flex; gap:8rem; flex-wrap:wrap; margin:8rem 0 12rem;">
+              <button
+                v-for="(name, wd) in DAY_NAMES" :key="wd"
+                type="button"
+                class="glass-chip"
+                :class="{ active: preferredDays.includes(wd) }"
+                style="font-size:12rem;"
+                @click="toggleDay(wd)"
+              >{{ name }}</button>
             </div>
-          </div>
 
-          <!-- Audiences -->
-          <span class="tcg-label">Target Audiences</span>
-          <p class="tcg-hint">Add all the groups this calendar will cater to</p>
-          <div class="tcg-chips">
-            <div v-for="(aud, i) in audiences" :key="aud" class="tcg-chip">
-              {{ aud }}
-              <button type="button" class="tcg-chip-remove" @click="removeAudience(i)" aria-label="Remove">×</button>
+            <!-- Time slots -->
+            <span class="glass-label">Time Slots</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6rem; margin:8rem 0 12rem;">
+              <div v-for="(slot, i) in timeSlots" :key="i" class="glass-chip" style="display:flex; align-items:center; gap:4rem; font-size:12rem;">
+                {{ slot }}
+                <button type="button" @click="removeSlot(i)" aria-label="Remove" style="background:none; border:none; color:inherit; cursor:pointer; font-size:12rem; opacity:0.6;">×</button>
+              </div>
+              <div style="display:flex; align-items:center; gap:6rem;">
+                <input v-model="newSlot" class="glass-field" style="max-width:160rem; font-size:12rem;" placeholder="e.g. 10:00–13:00" @keydown.enter.prevent="addSlot" />
+                <button type="button" class="glass-btn glass-btn--ghost" style="font-size:12rem; padding:4rem 10rem;" @click="addSlot">Add</button>
+              </div>
             </div>
-            <div class="tcg-chip-add">
-              <input
-                v-model="newAudience"
-                class="tcg-input tcg-chip-input"
-                placeholder="Add audience…"
-                @keydown.enter.prevent="addAudience"
-              />
-              <button type="button" class="tcg-add-btn" @click="addAudience">Add</button>
-            </div>
-          </div>
 
-          <!-- Topics -->
-          <label class="tcg-label" for="tcg-topics">Training Topics</label>
-          <p class="tcg-hint">One per line. Optional: <em>Topic | Hours</em></p>
-          <textarea
-            id="tcg-topics"
-            v-model="topicsText"
-            class="tcg-textarea"
-            rows="8"
-            placeholder="Excel for Beginners&#10;Leadership Fundamentals | 6&#10;Communication Skills"
-          />
+            <Transition name="fade">
+              <p v-if="error" class="glass-note glass-note--error">{{ error }}</p>
+            </Transition>
 
-          <!-- Preferred days -->
-          <span class="tcg-label">Preferred Training Days</span>
-          <div class="tcg-days">
-            <button
-              v-for="(name, wd) in DAY_NAMES" :key="wd"
-              type="button"
-              class="tcg-day-btn"
-              :class="{ active: preferredDays.includes(wd) }"
-              @click="toggleDay(wd)"
-            >{{ name }}</button>
-          </div>
+            <button type="submit" class="glass-btn" :disabled="!canSubmitInput" style="margin-top:8rem;">
+              Build Training Table →
+            </button>
 
-          <!-- Time slots -->
-          <span class="tcg-label">Time Slots</span>
-          <div class="tcg-slots">
-            <div v-for="(slot, i) in timeSlots" :key="i" class="tcg-slot-tag">
-              {{ slot }}
-              <button type="button" class="tcg-slot-remove" @click="removeSlot(i)" aria-label="Remove">×</button>
-            </div>
-            <div class="tcg-chip-add">
-              <input v-model="newSlot" class="tcg-input tcg-chip-input" placeholder="e.g. 10:00–13:00" @keydown.enter.prevent="addSlot" />
-              <button type="button" class="tcg-add-btn" @click="addSlot">Add</button>
-            </div>
-          </div>
-
-          <Transition name="fade">
-            <p v-if="error" class="tcg-error">{{ error }}</p>
-          </Transition>
-
-          <button type="submit" class="tcg-submit" :disabled="!canSubmitInput">
-            Build Training Table →
-          </button>
-
-        </form>
+          </form>
+        </div>
 
         <!-- ── Parsing phase ────────────────────────────────────── -->
-        <div v-else-if="phase === 'parsing'" key="parsing" class="tcg-loading">
-          <span class="tcg-spinner" />
-          <p>Building your training table with AI…</p>
+        <div v-else-if="phase === 'parsing'" key="parsing" class="glass-panel" style="padding:32rem 24rem; text-align:center;">
+          <div style="width:32rem; height:32rem; border:3rem solid var(--color-glass-border); border-top-color:var(--color-accent); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16rem;"></div>
+          <p style="font-size:var(--text-body); font-weight:600; margin:0 0 8rem;">Building your training table with AI…</p>
+          <p style="font-size:var(--text-sm); opacity:0.75; margin:0;">Analyzing topics for optimal pedagogical order.</p>
         </div>
 
         <!-- ── Table phase ──────────────────────────────────────── -->
-        <div v-else-if="phase === 'table'" key="table" class="tcg-table-wrap">
+        <div v-else-if="phase === 'table'" key="table" class="glass-panel" style="max-width:760rem;">
 
-          <div class="tcg-table-header">
-            <div>
-              <h2 class="tcg-table-title">Review &amp; Customise</h2>
-              <p class="tcg-table-sub">AI suggested these configs. Adjust anything before generating your calendar.</p>
-            </div>
+          <div style="margin-bottom:16rem;">
+            <h2 style="font-size:var(--text-body); font-weight:700; margin:0 0 4rem;">Review &amp; Customise</h2>
+            <p style="font-size:var(--text-sm); opacity:0.6; margin:0;">AI suggested these configs. Adjust anything before generating your calendar.</p>
           </div>
 
-          <div class="tcg-modules">
-            <div v-for="(mod, i) in modules" :key="mod.id" class="tcg-module-card">
+          <div style="display:flex; flex-direction:column; gap:12rem;">
+            <div v-for="(mod, i) in modules" :key="mod.id" class="glass-panel" style="padding:16rem;">
 
-              <div class="tcg-module-top">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12rem;">
                 <input
                   v-model="mod.topic"
-                  class="tcg-module-topic"
+                  class="glass-field"
                   placeholder="Topic name"
+                  style="font-weight:600;"
                 />
-                <button type="button" class="tcg-module-delete" @click="removeModule(i)" aria-label="Remove module">×</button>
+                <button type="button" @click="removeModule(i)" aria-label="Remove module" style="background:none; border:none; font-size:18rem; opacity:0.4; cursor:pointer;">×</button>
               </div>
 
-              <div class="tcg-module-fields">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12rem;">
 
-                <div class="tcg-mfield">
-                  <label class="tcg-mlabel">Duration</label>
-                  <select v-model="mod.duration" class="tcg-mselect">
+                <div>
+                  <label class="glass-label" style="font-size:11rem;">Duration</label>
+                  <select v-model="mod.duration" class="glass-field glass-select">
                     <option v-for="d in DURATION_OPTIONS" :key="d" :value="d">{{ d }}</option>
                   </select>
                 </div>
 
-                <div class="tcg-mfield">
-                  <label class="tcg-mlabel">Method</label>
-                  <select v-model="mod.method" class="tcg-mselect">
+                <div>
+                  <label class="glass-label" style="font-size:11rem;">Method</label>
+                  <select v-model="mod.method" class="glass-field glass-select">
                     <option v-for="m in METHOD_OPTIONS" :key="m" :value="m">{{ m }}</option>
                   </select>
                 </div>
 
-                <div class="tcg-mfield">
-                  <label class="tcg-mlabel">Time Slot</label>
-                  <select v-model="mod.slot" class="tcg-mselect">
+                <div>
+                  <label class="glass-label" style="font-size:11rem;">Time Slot</label>
+                  <select v-model="mod.slot" class="glass-field glass-select">
                     <option value="Any">Any (auto-assign)</option>
                     <option v-for="s in timeSlots" :key="s" :value="s">{{ s }}</option>
                   </select>
                 </div>
 
-                <div class="tcg-mfield">
-                  <label class="tcg-mlabel">Priority</label>
-                  <select v-model="mod.priority" class="tcg-mselect">
+                <div>
+                  <label class="glass-label" style="font-size:11rem;">Priority</label>
+                  <select v-model="mod.priority" class="glass-field glass-select">
                     <option v-for="p in PRIORITY_OPTIONS" :key="p" :value="p">{{ p }}</option>
                   </select>
                 </div>
 
-                <div class="tcg-mfield tcg-mfield--full">
-                  <label class="tcg-mlabel">Facilitator</label>
-                  <input v-model="mod.facilitator" class="tcg-minput" placeholder="Facilitator name" />
+                <div style="grid-column: 1 / -1;">
+                  <label class="glass-label" style="font-size:11rem;">Facilitator</label>
+                  <input v-model="mod.facilitator" class="glass-field" placeholder="Facilitator name" />
                 </div>
 
-                <div class="tcg-mfield tcg-mfield--full">
-                  <label class="tcg-mlabel">Audiences</label>
-                  <div class="tcg-aud-chips">
+                <div style="grid-column: 1 / -1;">
+                  <label class="glass-label" style="font-size:11rem;">Audiences</label>
+                  <div style="display:flex; flex-wrap:wrap; gap:6rem; margin-top:6rem;">
                     <button
                       v-for="aud in audiences" :key="aud"
                       type="button"
-                      class="tcg-aud-chip"
+                      class="glass-chip"
                       :class="{ active: mod.audiences.includes(aud) }"
+                      style="font-size:12rem;"
                       @click="toggleModuleAudience(mod, aud)"
                     >{{ aud }}</button>
                   </div>
@@ -749,16 +755,16 @@ function backToTable() {
               </div>
             </div>
 
-            <button type="button" class="tcg-add-module" @click="addModule">+ Add Module</button>
+            <button type="button" class="glass-btn glass-btn--ghost" style="align-self:flex-start;" @click="addModule">+ Add Module</button>
           </div>
 
           <Transition name="fade">
-            <p v-if="error" class="tcg-error">{{ error }}</p>
+            <p v-if="error" class="glass-note glass-note--error" style="margin-top:12rem;">{{ error }}</p>
           </Transition>
 
-          <div class="tcg-table-actions">
-            <button type="button" class="tcg-back-link" @click="backToInput">← Back</button>
-            <button type="button" class="tcg-submit" :disabled="!canSubmitTable" @click="generateCalendar">
+          <div style="display:flex; gap:10rem; margin-top:16rem; flex-wrap:wrap;">
+            <button type="button" class="glass-btn--ghost" @click="backToInput">← Back</button>
+            <button type="button" class="glass-btn" :disabled="!canSubmitTable" @click="generateCalendar">
               Generate Calendar →
             </button>
           </div>
@@ -766,32 +772,33 @@ function backToTable() {
         </div>
 
         <!-- ── Loading phase ─────────────────────────────────────── -->
-        <div v-else-if="phase === 'loading'" key="loading" class="tcg-loading">
-          <span class="tcg-spinner" />
-          <p>Scheduling your trainings intelligently…</p>
+        <div v-else-if="phase === 'loading'" key="loading" class="glass-panel" style="padding:32rem 24rem; text-align:center;">
+          <div style="width:32rem; height:32rem; border:3rem solid var(--color-glass-border); border-top-color:var(--color-accent); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16rem;"></div>
+          <p style="font-size:var(--text-body); font-weight:600; margin:0 0 8rem;">Scheduling your trainings intelligently…</p>
+          <p style="font-size:var(--text-sm); opacity:0.75; margin:0;">Generating a pedagogically balanced calendar.</p>
         </div>
 
         <!-- ── Calendar phase ────────────────────────────────────── -->
         <div v-else key="calendar" class="tcg-calendar-wrap">
 
           <!-- Toolbar -->
-          <div class="tcg-toolbar">
-            <button class="tcg-back" @click="backToInput">← New calendar</button>
-            <button class="tcg-back" style="margin-left:0" @click="backToTable">Edit modules</button>
+          <div style="display:flex; align-items:center; gap:12rem; flex-wrap:wrap; margin-bottom:20rem;">
+            <button class="glass-btn--ghost" @click="backToInput">← New calendar</button>
+            <button class="glass-btn--ghost" style="margin-left:0" @click="backToTable">Edit modules</button>
 
-            <div class="tcg-themes">
+            <div style="display:flex; gap:8rem; align-items:center; margin-left:4rem;">
               <button
                 v-for="(th, i) in THEMES" :key="i"
-                class="tcg-theme-btn"
+                class="glass-chip"
                 :class="{ active: activeTheme === i }"
                 :title="th.name"
-                :style="{ background: th.colors[0] }"
+                :style="{ background: th.colors[0], padding: '4rem 4rem' }"
                 @click="changeTheme(i)"
               />
             </div>
 
-            <div class="tcg-export-btns">
-              <button class="tcg-export" :disabled="exporting" @click="exportPPTX">
+            <div style="display:flex; align-items:center; gap:8rem; margin-left:auto;">
+              <button class="glass-btn" :disabled="exporting" @click="exportPPTX">
                 {{ exporting ? 'Building…' : 'Export PPTX' }}
               </button>
             </div>
@@ -965,98 +972,7 @@ function backToTable() {
 </template>
 
 <style scoped>
-.tcg-body { color: var(--color-text); }
-
-/* ── Form — frosted glass panel ── */
-.tcg-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14rem;
-  max-width: 600rem;
-  padding: 28rem;
-  border-radius: 24rem;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.10), transparent 38%),
-    color-mix(in srgb, var(--color-bg) 62%, transparent);
-  -webkit-backdrop-filter: blur(26px) saturate(1.4);
-  backdrop-filter: blur(26px) saturate(1.4);
-  border: 1px solid var(--color-glass-border);
-  box-shadow:
-    0 34rem 90rem -42rem rgba(0, 0, 0, 0.6),
-    inset 0 1px 1px color-mix(in srgb, var(--color-text) 16%, transparent);
-}
-
-.tcg-section-label {
-  font-size: var(--text-label);
-  font-weight: 700;
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  opacity: 0.3;
-  padding-bottom: 2rem;
-}
-
-.tcg-label {
-  display: block;
-  font-size: var(--text-label);
-  font-weight: 600;
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  opacity: 0.45;
-  padding-bottom: 4rem;
-}
-
-.tcg-hint {
-  font-size: 12rem;
-  opacity: 0.4;
-  margin: -8rem 0 4rem;
-  font-style: italic;
-}
-
-.tcg-row {
-  display: flex;
-  gap: 16rem;
-}
-.tcg-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4rem;
-  flex: 1;
-}
-
-.tcg-input, .tcg-select {
-  width: 100%;
-  background: color-mix(in srgb, var(--color-bg) 54%, transparent);
-  border: 1px solid var(--color-glass-border);
-  border-radius: 10rem;
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: var(--text-sm);
-  padding: 10rem 14rem;
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  transition: border-color 0.18s, background 0.18s, box-shadow 0.22s;
-}
-.tcg-input:focus, .tcg-select:focus {
-  outline: none;
-  border-color: var(--color-glass-border-hover);
-  background: color-mix(in srgb, var(--color-bg) 66%, transparent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, rgb(var(--accent-fog, 150,140,255)) 22%, transparent);
-}
-
-.tcg-input--hero {
-  font-size: 22rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  padding: 12rem 16rem;
-  border-radius: 12rem;
-}
-
-.tcg-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12rem center;
-  padding-right: 32rem;
+/* Input form now uses global glass-panel and glass-field classes for consistency */
 }
 
 .tcg-textarea {
@@ -1188,24 +1104,7 @@ function backToTable() {
   line-height: 1.55;
 }
 
-/* ── Loading ── */
-.tcg-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20rem;
-  padding: 80rem 0;
-  opacity: 0.6;
-}
-.tcg-spinner {
-  width: 32rem;
-  height: 32rem;
-  border: 3px solid transparent;
-  border-top-color: var(--color-text);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+/* Loading now uses inline glass-panel styles for consistency with Better Emails */
 
 /* ── Table phase ── */
 .tcg-table-wrap {
@@ -1288,106 +1187,9 @@ function backToTable() {
 }
 .tcg-module-delete:hover { opacity: 0.8; }
 
-.tcg-module-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10rem;
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.tcg-mfield {
-  display: flex;
-  flex-direction: column;
-  gap: 4rem;
-}
-.tcg-mfield--full { grid-column: 1 / -1; }
-
-.tcg-mlabel {
-  font-size: 11rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  opacity: 0.4;
-}
-
-.tcg-mselect, .tcg-minput {
-  width: 100%;
-  background: color-mix(in srgb, var(--color-bg) 50%, transparent);
-  border: 1px solid var(--color-glass-border);
-  border-radius: 8rem;
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: 13rem;
-  padding: 8rem 10rem;
-  -webkit-backdrop-filter: blur(5px);
-  backdrop-filter: blur(5px);
-  transition: border-color 0.18s, background 0.18s;
-}
-.tcg-mselect:focus, .tcg-minput:focus {
-  outline: none;
-  border-color: var(--color-glass-border-hover);
-  background: color-mix(in srgb, var(--color-bg) 64%, transparent);
-}
-.tcg-minput::placeholder { opacity: 0.35; }
-
-.tcg-mselect {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10rem center;
-  padding-right: 26rem;
-}
-
-.tcg-aud-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6rem;
-}
-.tcg-aud-chips--sm .tcg-aud-chip { font-size: 11rem; padding: 4rem 10rem; }
-
-.tcg-aud-chip {
-  padding: 5rem 12rem;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-glass-border);
-  background: transparent;
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: 12rem;
-  font-weight: 500;
-  cursor: pointer;
-  opacity: 0.45;
-  transition: opacity 0.12s, background 0.12s, border-color 0.12s;
-}
-.tcg-aud-chip.active {
-  opacity: 1;
-  background: var(--color-text);
-  color: var(--color-bg);
-  border-color: var(--color-text);
-}
-.tcg-aud-chip:not(.active):hover { opacity: 0.75; }
-
-.tcg-add-module {
-  align-self: flex-start;
-  background: transparent;
-  border: 1px dashed var(--color-glass-border);
-  border-radius: 10rem;
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: 13rem;
-  font-weight: 500;
-  opacity: 0.5;
-  cursor: pointer;
-  padding: 10rem 18rem;
-  transition: opacity 0.15s, background 0.15s;
-  margin-top: 4rem;
-}
-.tcg-add-module:hover { opacity: 0.9; background: var(--color-glass-bg); }
-
-.tcg-table-actions {
-  display: flex;
-  align-items: center;
-  gap: 20rem;
-  margin-top: 8rem;
-}
+/* Table and input now use glass classes for consistency with other tools. Calendar grid retains custom light styles as intentional. */
 .tcg-back-link {
   background: none;
   border: none;

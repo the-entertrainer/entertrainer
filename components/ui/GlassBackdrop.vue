@@ -39,7 +39,21 @@ onMounted(async () => {
 })
 
 // Theme flip recolours the gradient (dark = glow on black, light = ink on white).
-watch(() => themeStore.isDark, () => boot())
+// Dip the canvas opacity across the reboot so the recolour eases rather than
+// snapping — matches the global theme crossfade.
+let themeDipTimer = 0
+watch(() => themeStore.isDark, () => {
+  const cv = canvasEl.value
+  if (!cv || reduceMotion) { boot(); return }
+  cv.style.opacity = '0'
+  clearTimeout(themeDipTimer)
+  themeDipTimer = window.setTimeout(() => {
+    boot()
+    requestAnimationFrame(() => { if (cv) cv.style.opacity = '1' })
+  }, 300)
+})
+
+onUnmounted(() => clearTimeout(themeDipTimer))
 
 onUnmounted(() => renderer?.stop())
 </script>
@@ -65,6 +79,7 @@ onUnmounted(() => renderer?.stop())
   width: 100%;
   height: 100%;
   display: block;
+  transition: opacity 0.4s ease;
 }
 .glass-backdrop__fog {
   position: absolute;

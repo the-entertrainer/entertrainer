@@ -44,6 +44,7 @@ watch(() => homeViewStore.pendingHome, (pending) => {
   if (pending) {
     if (sectionStack.value.length > 1) {
       sectionStack.value = ['home']
+      syncHistorySection()
     }
     homeViewStore.ackHome()
   }
@@ -51,12 +52,29 @@ watch(() => homeViewStore.pendingHome, (pending) => {
 
 let _pushingState = false
 
+// `history.state.section` is the single source of truth for which spiral
+// sub-section the '/' entry represents. Keep it in sync whenever the in-page
+// stack changes so back/forward and remounts all restore the same view.
+function readSection(): Section | null {
+  const s = (history.state as { section?: Section } | null)?.section
+  return s && s in sectionTitles && s !== 'home' ? s : null
+}
+function syncHistorySection() {
+  const cur = currentSection.value
+  history.replaceState(
+    { ...history.state, section: cur === 'home' ? undefined : cur },
+    '', '/'
+  )
+}
+
 function handleCardClick(href: string) {
   if (href in sectionRoutes) {
     const section = sectionRoutes[href]
     sectionStack.value = [...sectionStack.value, section]
     _pushingState = true
-    history.pushState({ section }, '', '/')
+    // Preserve vue-router's own history keys; just tag this entry with the
+    // section so returning to '/' (e.g. backing out of a tool) can restore it.
+    history.pushState({ ...history.state, section }, '', '/')
     _pushingState = false
   } else {
     router.push(href)
@@ -66,18 +84,25 @@ function handleCardClick(href: string) {
 function handleBack() {
   if (sectionStack.value.length > 1) {
     sectionStack.value = sectionStack.value.slice(0, -1)
+    syncHistorySection()
   }
 }
 
 function onPopState() {
   if (_pushingState) return
-  if (sectionStack.value.length > 1) {
-    sectionStack.value = sectionStack.value.slice(0, -1)
-  }
+  // Mirror whatever section the landed history entry represents — this respects
+  // both back and forward through the spiral hierarchy.
+  const s = readSection()
+  sectionStack.value = s ? ['home', s] : ['home']
 }
 
 onMounted(() => {
   window.addEventListener('popstate', onPopState)
+  // Returning to '/' from a deeper route (e.g. backing out of a tool) — restore
+  // the spiral sub-section we were in so back respects the hierarchy instead of
+  // snapping to the root spiral.
+  const restored = readSection()
+  if (restored) sectionStack.value = ['home', restored]
 })
 
 onUnmounted(() => {

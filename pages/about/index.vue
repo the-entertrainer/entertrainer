@@ -219,7 +219,9 @@ onMounted(() => {
           }
         })
       },
-      { threshold: 0, rootMargin: '-30% 0px -42% 0px' }
+      // Light when the word rises into the lower-mid of the viewport. This also
+      // catches the hero (already on-screen at load) so it blooms in on arrival.
+      { threshold: 0, rootMargin: '0px 0px -28% 0px' }
     )
     hlEls.forEach(el => ioHl!.observe(el))
   }
@@ -275,20 +277,17 @@ onBeforeUnmount(() => {
   padding: 0 24rem;
 }
 
-/* ─── Base reveal ─── (frosted glass condensing into focus) */
+/* ─── Base reveal ─── (clean spring rise — crisp text, no blur layer) */
 .anim {
   opacity: 0;
-  transform: translateY(22rem) scale(0.988);
-  filter: blur(7rem);
+  transform: translateY(26rem) scale(0.985);
   transition:
     opacity 0.7s ease,
-    transform 0.85s var(--ease-spring),
-    filter 0.7s ease;
+    transform 0.9s var(--ease-spring);
 }
 .anim.in-view {
   opacity: 1;
   transform: none;
-  filter: none;
 }
 
 /* ─── Frosted glass story panel ─── */
@@ -348,18 +347,28 @@ onBeforeUnmount(() => {
    backdrop publishes). Wrap-safe: it tints the real text, so multi-word
    phrases never break across lines. */
 .hl {
+  /* symmetric stops so the flow loops seamlessly under `alternate` */
   background-image: linear-gradient(112deg,
     rgb(var(--grad-1, 200,120,255)),
     rgb(var(--grad-2, 130,150,255)),
-    rgb(var(--grad-3, 120,200,255)));
+    rgb(var(--grad-3, 120,200,255)),
+    rgb(var(--grad-2, 130,150,255)),
+    rgb(var(--grad-1, 200,120,255)));
+  background-size: 220% auto;
+  background-position: 0% 50%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: var(--color-text);
-  transition: -webkit-text-fill-color 0.8s ease, filter 0.8s ease;
+  transition: -webkit-text-fill-color 0.8s ease;
 }
 .hl.lit {
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2rem 14rem rgba(var(--accent-fog, 150,140,255), 0.35));
+  /* the gradient drifts back and forth once lit — the hero "moves" */
+  animation: hl-flow 7s ease-in-out infinite alternate;
+}
+@keyframes hl-flow {
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
 }
 
 /* ─── Chapter marker ─── */
@@ -597,8 +606,8 @@ onBeforeUnmount(() => {
   .shot__cell,
   .about-chapter__no,
   .shot__img { transition: none; }
-  .anim { filter: none; }
   .hl { transition: none; }
+  .hl.lit { animation: none; }
   .shot__img { scale: 1; }
   .about-panel::after, .shot__cell::after { display: none; }
 }

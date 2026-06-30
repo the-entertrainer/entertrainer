@@ -60,8 +60,8 @@ useGlassMicro(rootRef)
   animation: tool-head-in 0.7s var(--ease-spring) both;
 }
 @keyframes tool-head-in {
-  from { opacity: 0; transform: translateY(16rem); filter: blur(5rem); }
-  to   { opacity: 1; transform: none; filter: none; }
+  from { opacity: 0; transform: translateY(16rem); }
+  to   { opacity: 1; transform: none; }
 }
 .tool-eyebrow {
   font-size: var(--text-label);

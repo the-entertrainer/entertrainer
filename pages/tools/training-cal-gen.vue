@@ -973,7 +973,6 @@ function backToTable() {
 
 <style scoped>
 /* Input form now uses global glass-panel and glass-field classes for consistency */
-}
 
 .tcg-textarea {
   width: 100%;

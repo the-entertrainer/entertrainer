@@ -763,7 +763,7 @@ function backToTable() {
           </Transition>
 
           <div style="display:flex; gap:10rem; margin-top:16rem; flex-wrap:wrap;">
-            <button type="button" class="glass-btn--ghost" @click="backToInput">← Back</button>
+            <button type="button" class="glass-btn glass-btn--ghost" @click="backToInput">← Back</button>
             <button type="button" class="glass-btn" :disabled="!canSubmitTable" @click="generateCalendar">
               Generate Calendar →
             </button>
@@ -783,8 +783,8 @@ function backToTable() {
 
           <!-- Toolbar -->
           <div style="display:flex; align-items:center; gap:12rem; flex-wrap:wrap; margin-bottom:20rem;">
-            <button class="glass-btn--ghost" @click="backToInput">← New calendar</button>
-            <button class="glass-btn--ghost" style="margin-left:0" @click="backToTable">Edit modules</button>
+            <button class="glass-btn glass-btn--ghost" @click="backToInput">← New calendar</button>
+            <button class="glass-btn glass-btn--ghost" style="margin-left:0" @click="backToTable">Edit modules</button>
 
             <div style="display:flex; gap:8rem; align-items:center; margin-left:4rem;">
               <button
@@ -872,61 +872,64 @@ function backToTable() {
 
               <!-- Session editor -->
               <Transition name="fade" mode="out-in">
-                <div v-if="selectedSession" key="editor" class="tcg-edit-panel">
-                  <div class="tcg-edit-header">
-                    <span class="tcg-sidebar-label">Edit Session</span>
-                    <button class="tcg-edit-close" @click="selectedSession = null" aria-label="Close">×</button>
+                <div v-if="selectedSession" key="editor" class="glass-panel" style="padding:12rem;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8rem;">
+                    <span class="glass-label" style="margin:0;">Edit Session</span>
+                    <button class="glass-chip" style="font-size:14rem; padding:2rem 6rem;" @click="selectedSession = null" aria-label="Close">×</button>
                   </div>
 
-                  <div class="tcg-edit-field">
-                    <label class="tcg-mlabel">Topic</label>
-                    <input v-model="selectedSession.session.topic" class="tcg-minput" placeholder="Topic name" />
-                  </div>
-                  <div class="tcg-edit-field">
-                    <label class="tcg-mlabel">Time Slot</label>
-                    <select v-model="selectedSession.session.slot" class="tcg-mselect">
-                      <option v-for="s in timeSlots" :key="s" :value="s">{{ s }}</option>
-                    </select>
-                  </div>
-                  <div class="tcg-edit-field">
-                    <label class="tcg-mlabel">Duration</label>
-                    <select v-model="selectedSession.session.duration" class="tcg-mselect">
-                      <option v-for="d in DURATION_OPTIONS" :key="d" :value="d">{{ d }}</option>
-                    </select>
-                  </div>
-                  <div class="tcg-edit-field">
-                    <label class="tcg-mlabel">Method</label>
-                    <select v-model="selectedSession.session.method" class="tcg-mselect">
-                      <option v-for="m in METHOD_OPTIONS" :key="m" :value="m">{{ m }}</option>
-                    </select>
-                  </div>
-                  <div class="tcg-edit-field">
-                    <label class="tcg-mlabel">Priority</label>
-                    <select v-model="selectedSession.session.priority" class="tcg-mselect">
-                      <option v-for="p in PRIORITY_OPTIONS" :key="p" :value="p">{{ p }}</option>
-                    </select>
-                  </div>
-                  <div class="tcg-edit-field">
-                    <label class="tcg-mlabel">Facilitator</label>
-                    <input v-model="selectedSession.session.facilitator" class="tcg-minput" placeholder="Facilitator name" />
-                  </div>
-                  <div class="tcg-edit-field">
-                    <label class="tcg-mlabel">Audiences</label>
-                    <div class="tcg-aud-chips tcg-aud-chips--sm">
-                      <button
-                        v-for="aud in audiences" :key="aud"
-                        type="button"
-                        class="tcg-aud-chip"
-                        :class="{ active: selectedSession.session.audiences.includes(aud) }"
-                        @click="toggleSessionAudience(aud)"
-                      >{{ aud }}</button>
+                  <div style="display:flex; flex-direction:column; gap:8rem;">
+                    <div>
+                      <label class="glass-label" style="font-size:11rem;">Topic</label>
+                      <input v-model="selectedSession.session.topic" class="glass-field" placeholder="Topic name" />
+                    </div>
+                    <div>
+                      <label class="glass-label" style="font-size:11rem;">Time Slot</label>
+                      <select v-model="selectedSession.session.slot" class="glass-field glass-select">
+                        <option v-for="s in timeSlots" :key="s" :value="s">{{ s }}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="glass-label" style="font-size:11rem;">Duration</label>
+                      <select v-model="selectedSession.session.duration" class="glass-field glass-select">
+                        <option v-for="d in DURATION_OPTIONS" :key="d" :value="d">{{ d }}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="glass-label" style="font-size:11rem;">Method</label>
+                      <select v-model="selectedSession.session.method" class="glass-field glass-select">
+                        <option v-for="m in METHOD_OPTIONS" :key="m" :value="m">{{ m }}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="glass-label" style="font-size:11rem;">Priority</label>
+                      <select v-model="selectedSession.session.priority" class="glass-field glass-select">
+                        <option v-for="p in PRIORITY_OPTIONS" :key="p" :value="p">{{ p }}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="glass-label" style="font-size:11rem;">Facilitator</label>
+                      <input v-model="selectedSession.session.facilitator" class="glass-field" placeholder="Facilitator name" />
+                    </div>
+                    <div>
+                      <label class="glass-label" style="font-size:11rem;">Audiences</label>
+                      <div style="display:flex; flex-wrap:wrap; gap:6rem; margin-top:4rem;">
+                        <button
+                          v-for="aud in audiences" :key="aud"
+                          type="button"
+                          class="glass-chip"
+                          :class="{ active: selectedSession.session.audiences.includes(aud) }"
+                          style="font-size:11rem; padding:4rem 8rem;"
+                          @click="toggleSessionAudience(aud)"
+                        >{{ aud }}</button>
+                      </div>
                     </div>
                   </div>
 
-                  <button class="tcg-remove-session" @click="removeSelectedSession">
+                  <button class="glass-btn--ghost" style="font-size:12rem; padding:6rem 12rem; margin-top:12rem; color:#ef4444; border-color: rgba(239,68,68,0.3);" @click="removeSelectedSession">
                     Remove from calendar
                   </button>
-                  <p class="tcg-move-hint">Tap any date on the calendar to move this session there</p>
+                  <p style="font-size:11rem; opacity:0.35; text-align:center; margin:4rem 0 0; font-style:italic;">Tap any date on the calendar to move this session there</p>
                 </div>
 
                 <!-- Stats + legend -->
@@ -1189,19 +1192,7 @@ function backToTable() {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* Table and input now use glass classes for consistency with other tools. Calendar grid retains custom light styles as intentional. */
-.tcg-back-link {
-  background: none;
-  border: none;
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: var(--text-sm);
-  font-weight: 500;
-  opacity: 0.4;
-  cursor: pointer;
-  padding: 0;
-  transition: opacity 0.15s;
-}
-.tcg-back-link:hover { opacity: 0.8; }
+/* back buttons now use glass-btn--ghost */
 
 /* ── Calendar ── */
 .tcg-calendar-wrap {
@@ -1217,19 +1208,7 @@ function backToTable() {
   flex-wrap: wrap;
 }
 
-.tcg-back {
-  background: none;
-  border: none;
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: var(--text-sm);
-  font-weight: 500;
-  opacity: 0.45;
-  cursor: pointer;
-  padding: 0;
-  transition: opacity 0.15s;
-}
-.tcg-back:hover { opacity: 0.9; }
+/* back buttons now use glass-btn--ghost */
 
 .tcg-themes { display: flex; gap: 8rem; align-items: center; margin-left: 4rem; }
 .tcg-theme-btn {
@@ -1549,68 +1528,7 @@ function backToTable() {
   opacity: 0.4;
 }
 
-/* ── Session editor panel ── */
-.tcg-edit-panel {
-  background: color-mix(in srgb, var(--color-bg) 62%, transparent);
-  -webkit-backdrop-filter: blur(22px) saturate(1.4);
-  backdrop-filter: blur(22px) saturate(1.4);
-  border: 1px solid var(--color-glass-border);
-  border-radius: 14rem;
-  padding: 16rem;
-  display: flex;
-  flex-direction: column;
-  gap: 12rem;
-  box-shadow: inset 0 1px 1px color-mix(in srgb, var(--color-text) 14%, transparent);
-}
-
-.tcg-edit-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.tcg-edit-close {
-  background: none;
-  border: none;
-  color: var(--color-text);
-  opacity: 0.4;
-  font-size: 20rem;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0;
-  transition: opacity 0.12s;
-}
-.tcg-edit-close:hover { opacity: 0.9; }
-
-.tcg-edit-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4rem;
-}
-
-.tcg-remove-session {
-  margin-top: 4rem;
-  padding: 8rem 14rem;
-  border-radius: 8rem;
-  border: 1px solid color-mix(in srgb, #ef4444 40%, transparent);
-  background: color-mix(in srgb, #ef4444 8%, transparent);
-  color: #ef4444;
-  font-family: inherit;
-  font-size: 12rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.tcg-remove-session:hover { background: color-mix(in srgb, #ef4444 15%, transparent); }
-
-.tcg-move-hint {
-  font-size: 11rem;
-  opacity: 0.35;
-  text-align: center;
-  margin: 4rem 0 0;
-  font-style: italic;
-  line-height: 1.4;
-}
+/* Sidebar editor now uses glass-panel inside the light .tcg-cal */
 
 /* ── Transitions ── */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.22s ease; }

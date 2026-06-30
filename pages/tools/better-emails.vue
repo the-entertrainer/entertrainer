@@ -223,7 +223,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
         </div>
 
         <!-- Normal compose form -->
-        <template v-else>
+        <form v-else @submit.prevent="optimize">
 
           <div class="be-examples">
             <span class="glass-label">Need inspiration? Try an example</span>
@@ -306,8 +306,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
             class="glass-btn be-submit"
             :disabled="!canSubmit || phase === 'loading'"
           >
-            <span v-if="phase === 'loading'" class="be-spinner" />
-            <span>{{ phase === 'loading' ? 'Optimizing…' : 'Optimize Email' }}</span>
+            <span>Optimize Email</span>
           </button>
         </div>
 
@@ -316,7 +315,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
           <p v-if="error" class="glass-note glass-note--error be-error">{{ error }}</p>
         </Transition>
 
-        </template>
+        </form>
       </div>
 
       <!-- Results -->

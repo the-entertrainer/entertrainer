@@ -56,11 +56,11 @@ export default class World {
     this.navPlanes.forEach((p, i) => setTimeout(() => p.reveal(), (i % 4) * 60))
   }
 
-  // Spiral vortex transition — the single motion for every in-spiral change
-  // (entering a sub-section, going back, returning home). The spiral winds up
-  // and cross-fades out, items swap while invisible, then it unwinds and
-  // cross-fades back in. Spin is continuous across the swap (no jump): exit
-  // leaves it wound to PEAK, entrance picks up from PEAK and relaxes to 1.
+  // Spiral vortex transition — the single canonical motion used for all
+  // navigation from the spiral (both in-spiral sections and leaving to
+  // external pages like About / Instructional Design).
+  // The spiral winds up and cross-fades out, then (for internal) items swap
+  // and it unwinds. For external navigation we only perform the exit.
   private readonly _spinPeak = 2.2
 
   async transitionTo(items: NavItem[]) {
@@ -80,6 +80,15 @@ export default class World {
     if (this._destroyed) return
 
     await this._animateSpiralEntrance()
+  }
+
+  /**
+   * Perform only the exit half of the vortex animation.
+   * Used when navigating away to a full page (e.g. /about).
+   * Leaves the spiral wound up and faded out.
+   */
+  async exit() {
+    await this._animateSpiralExit()
   }
 
   // easeInOutSine — gentle, symmetric, no abrupt starts or stops.

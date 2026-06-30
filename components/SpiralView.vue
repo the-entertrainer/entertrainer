@@ -11,7 +11,6 @@ const props = defineProps<{
   showLoader?: boolean
   title?: string
   showViewSwitch?: boolean
-  inSpiralHrefs?: string[]
 }>()
 
 const emit = defineEmits<{
@@ -33,8 +32,6 @@ const FOG_LIGHT = 0xF5EFE8
 
 let experience: Experience | null = null
 let transitioning = false
-
-const dollyOverlayRef = ref<HTMLDivElement | null>(null)
 
 // ── Unified atmosphere canvas (animated glow + vignette + grain) ───────────
 const atmoRef   = ref<HTMLCanvasElement | null>(null)
@@ -181,7 +178,6 @@ async function mountExperience() {
   // Experience over the top of a live one.
   if (!canvasRef.value || experience) return
   experience = new Experience(canvasRef.value)
-  experience.inSpiralHrefs = new Set(props.inSpiralHrefs ?? [])
   experience.world.setNavItems(props.items, themeStore.isDark)
   experience.setFogColor(themeStore.isDark ? FOG_DARK : FOG_LIGHT)
   experience.postProcessing.setColorGrade(themeStore.isDark)
@@ -193,21 +189,8 @@ async function mountExperience() {
   const revealDelay = (props.showLoader && !experienceStore.hasEntered) ? 150 : 0
   setTimeout(() => exp.world.reveal(), revealDelay)
 
-  experience.on('dollyMid', () => {
-    if (dollyOverlayRef.value) {
-      gsap.to(dollyOverlayRef.value, { opacity: 1, duration: 0.45, ease: 'power2.in' })
-    }
-  })
-
   experience.on('planeClick', (href: string) => {
     emit('cardClick', href)
-    // Reset camera and fade overlay out after nav (covers both accordion and route cases)
-    setTimeout(() => {
-      experience?.resetCamera()
-      if (dollyOverlayRef.value) {
-        gsap.to(dollyOverlayRef.value, { opacity: 0, duration: 0.5, ease: 'power2.out', delay: 0.15 })
-      }
-    }, 80)
   })
 
   // For return visits (no loader, or loader already played): ensure the menu
@@ -231,8 +214,6 @@ onMounted(() => {
   window.addEventListener('touchmove',  _onTouchMove,  { passive: true })
   ;($lenis as any)?.stop()
   // Always start overlay hidden — guards against stale GSAP inline style on remount
-  nextTick(() => { if (dollyOverlayRef.value) gsap.set(dollyOverlayRef.value, { opacity: 0 }) })
-
   if (props.showLoader) {
     // Return visit — skip loader, show experience directly
     if (experienceStore.hasEntered) {
@@ -275,8 +256,9 @@ watch(hasEntered, async (entered) => {
   }
 })
 
-// Every in-spiral item change — entering a sub-section, going back, returning
-// home — uses the one canonical motion: the spiral vortex transition.
+// Any change to items (switching between home sub-sections) triggers the
+// canonical vortex transition (wind + cross-fade). External page navigations
+// call performExit() explicitly before router.push.
 watch(() => props.items, async (newItems) => {
   if (isListMode.value) { await nextTick(); animateListIn(); return }
   if (!experience || !newItems.length || transitioning) return
@@ -314,6 +296,22 @@ function animateListIn() {
   )
 }
 
+/**
+ * Public method for external page navigation.
+ * Performs the vortex exit animation (wind up + fade out) before leaving
+ * the spiral. This unifies the motion for both in-spiral sections and
+ * links that navigate to full pages (About, Instructional Design, etc.).
+ */
+async function performExit() {
+  if (experience?.world) {
+    await experience.world.exit()
+  }
+}
+
+defineExpose({
+  performExit
+})
+
 onUnmounted(() => {
   stopAtmo()
   window.removeEventListener('resize',     _resizeAtmo)
@@ -348,9 +346,6 @@ function onLoaderEntered() {
 
     <!-- Accent-tinted edge fog — soft finishing haze at top & bottom -->
     <div class="spiral-fog" aria-hidden="true" />
-
-    <!-- Dolly transition overlay — fades in as camera rushes toward card -->
-    <div ref="dollyOverlayRef" class="dolly-overlay" />
 
     <!-- List mode — emit cardClick so the parent applies accordion vs router logic -->
     <Transition name="fade">
@@ -551,15 +546,6 @@ function onLoaderEntered() {
   color: var(--color-text);
   opacity: 0.20;
   white-space: nowrap;
-}
-
-.dolly-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  background: var(--color-bg);
-  opacity: 0;
-  pointer-events: none;
 }
 
 .fade-enter-active, .fade-leave-active { transition: opacity 0.35s ease; }

@@ -1,4 +1,4 @@
-import { Scene, FogExp2, Vector2, Vector3 } from 'three'
+import { Scene, FogExp2, Vector2 } from 'three'
 import EventEmitter from './EventEmitter'
 import Sizes from './Sizes'
 import Time from './Time'
@@ -24,10 +24,6 @@ export default class Experience extends EventEmitter {
   raycaster: Raycaster
   backdrop: Backdrop
 
-  // Hrefs that navigate *within* the spiral (sub-sections). Tapping these skips
-  // the camera dolly and lets the vortex carry the motion; set by SpiralView.
-  inSpiralHrefs = new Set<string>()
-
   private static _instance: Experience | null = null
   private _parallaxTarget = new Vector2(0, 0)
   private _onPointerMove = (e: PointerEvent) => {
@@ -36,17 +32,6 @@ export default class Experience extends EventEmitter {
       (e.clientY / this.sizes.height) * 2 - 1
     )
   }
-
-  // ── Camera dolly state ─────────────────────────────────────────────────────
-  private _dollyActive    = false
-  private _dollyElapsed   = 0
-  private readonly _DOLLY_DURATION = 800  // ms
-  private _dollyTargetPos = new Vector3()
-  private _dollyCamStart  = new Vector3()
-  private _dollyHref      = ''
-  private _dollyMidFired  = false
-  private _dollyTmpVec    = new Vector3()
-  private _dollyNavItemIndex = 0
 
   constructor(canvas: HTMLCanvasElement) {
     super()
@@ -76,38 +61,15 @@ export default class Experience extends EventEmitter {
     }
   }
 
-  // Tap response: in-spiral cards (sub-sections) skip the dolly so the vortex
-  // is the only motion — matching the back/home transition. Everything else
-  // dollies into the card before its route loads.
+  /**
+   * Unified selection handler.
+   * All navigation from the spiral (internal sections + external pages)
+   * now uses the vortex transition. The caller (SpiralView / index) decides
+   * whether to update in-place items (vortex via watch) or run an explicit
+   * exit before router navigation.
+   */
   selectPlane(plane: NavPlane, href: string) {
-    if (this.inSpiralHrefs.has(href)) {
-      this.trigger('planeClick', [href])
-    } else {
-      this.startDolly(plane, href)
-    }
-  }
-
-  startDolly(plane: NavPlane, href: string) {
-    if (this._dollyActive) return
-    this.controls.locked  = true
-    this._dollyActive     = true
-    this._dollyElapsed    = 0
-    this._dollyMidFired   = false
-    this._dollyHref       = href
-    this._dollyTargetPos.copy(plane.mesh.position)
-    this._dollyCamStart.copy(this.camera.instance.position)
-    this._dollyNavItemIndex = plane.index % this.world.currentItemCount
-  }
-
-  get lastClickedItemIndex(): number {
-    return this._dollyNavItemIndex
-  }
-
-  resetCamera() {
-    this._dollyActive         = false
-    this.controls.locked      = false
-    this.camera.instance.position.set(0, 0, 8)
-    this.camera.instance.lookAt(0, 0, 0)
+    this.trigger('planeClick', [href])
   }
 
   private _onResize() {
@@ -118,34 +80,7 @@ export default class Experience extends EventEmitter {
   }
 
   private _update() {
-    if (this._dollyActive) {
-      this._dollyElapsed = Math.min(this._dollyElapsed + this.time.delta, this._DOLLY_DURATION)
-      const rawT = this._dollyElapsed / this._DOLLY_DURATION
-      const t    = rawT * rawT  // ease-in quad — accelerates into the card
-
-      // Move camera toward card, stop 1.4 units before it
-      const dir      = this._dollyTmpVec.subVectors(this._dollyTargetPos, this._dollyCamStart).normalize()
-      const maxTravel = Math.max(0, this._dollyCamStart.distanceTo(this._dollyTargetPos) - 1.4)
-      this.camera.instance.position
-        .copy(this._dollyCamStart)
-        .addScaledVector(dir, maxTravel * t)
-      this.camera.instance.lookAt(this._dollyTargetPos)
-
-      // Midpoint event at 60% — SpiralView fades in the overlay
-      if (!this._dollyMidFired && rawT >= 0.6) {
-        this._dollyMidFired = true
-        this.trigger('dollyMid', [])
-      }
-
-      if (rawT >= 1) {
-        this._dollyActive    = false
-        this.controls.locked = false
-        this.trigger('planeClick', [this._dollyHref])
-      }
-    } else {
-      this.controls.update()
-    }
-
+    this.controls.update()
     this.world.update(this.time.delta)
     this.backdrop.update(this.time.elapsed, this._parallaxTarget, this.controls.wheelDeltaY)
     this.postProcessing.render()

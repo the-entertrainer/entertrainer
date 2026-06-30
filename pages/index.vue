@@ -7,6 +7,7 @@ definePageMeta({ layout: 'default' })
 const contentStore   = useContentStore()
 const homeViewStore  = useHomeViewStore()
 const router         = useRouter()
+const spiralRef      = ref<any>(null)
 
 type Section = 'home' | 'tools' | 'downloads' | 'my-work'
 
@@ -29,6 +30,9 @@ const sectionTitles: Record<Section, string> = {
 const sectionRoutes: Record<string, Section> = {
   '/tools': 'tools', '/downloads': 'downloads', '/my-work': 'my-work'
 }
+
+// Items in sectionRoutes use in-place vortex (via items watch).
+// All other home cards now also use the vortex (explicit exit before router.push).
 
 watch(currentSection, (s) => homeViewStore.setIsHome(s === 'home'), { immediate: true })
 
@@ -67,7 +71,7 @@ function syncHistorySection() {
   )
 }
 
-function handleCardClick(href: string) {
+async function handleCardClick(href: string) {
   if (href in sectionRoutes) {
     const section = sectionRoutes[href]
     sectionStack.value = [...sectionStack.value, section]
@@ -77,6 +81,9 @@ function handleCardClick(href: string) {
     history.pushState({ ...history.state, section }, '', '/')
     _pushingState = false
   } else {
+    // External page (About, Instructional Design, etc.):
+    // Run the vortex exit animation first so every navigation feels unified.
+    await spiralRef.value?.performExit?.()
     router.push(href)
   }
 }
@@ -112,11 +119,11 @@ onUnmounted(() => {
 
 <template>
   <SpiralView
+    ref="spiralRef"
     :items="sectionItems"
     :show-loader="true"
     :show-view-switch="true"
     :title="sectionTitles[currentSection]"
-    :in-spiral-hrefs="Object.keys(sectionRoutes)"
     @card-click="handleCardClick"
   />
 </template>

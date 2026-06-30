@@ -24,6 +24,15 @@ const editedBody    = ref('')
 
 const canSubmit = computed(() => draft.value.trim().length > 0)
 
+const formattedBody = computed(() => {
+  if (!body.value) return []
+  return body.value
+    .split(/\n{2,}/)
+    .map(p => p.trim())
+    .filter(p => p.length > 0)
+    .map(p => p.replace(/\n/g, '<br>'))
+})
+
 const TONE_OPTIONS = [
   { value: 'casual',     label: 'Casual'      },
   { value: 'semi-formal', label: 'Semi-Formal' },
@@ -352,7 +361,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
             </div>
           </div>
           <div class="be-body">
-            <p v-for="(para, i) in body.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean)" :key="i" class="be-body-para">{{ para }}</p>
+            <p v-for="(para, i) in formattedBody" :key="i" class="be-body-para" v-html="para"></p>
           </div>
 
           <!-- Inline edit + re-optimize -->
@@ -519,12 +528,15 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
 
 .be-body {
   font-size: var(--text-sm);
-  line-height: 1.65;
+  line-height: 1.7;
   color: var(--color-text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* RTF / email-like formatting */
+  max-width: 100%;
+  padding: 4rem 0;
 }
 .be-body-para {
-  margin: 0 0 10rem;
-  white-space: pre-wrap;
+  margin: 0 0 1em;
 }
 .be-body-para:last-child { margin-bottom: 0; }
 

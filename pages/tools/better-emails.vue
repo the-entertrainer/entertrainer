@@ -357,7 +357,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
 
           <!-- Inline edit + re-optimize -->
           <div v-if="!editingResult" class="be-edit-result">
-            <button class="glass-btn--ghost be-edit-btn" @click="startEditingResult">
+            <button class="glass-btn glass-btn--ghost be-edit-btn" @click="startEditingResult">
               Edit this version &amp; re-optimize
             </button>
           </div>
@@ -379,8 +379,8 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
             />
 
             <div class="be-edit-actions">
-              <button class="glass-btn--ghost" @click="cancelEditingResult">Cancel</button>
-              <button class="glass-btn--ghost" @click="applyEdits">Apply edits</button>
+              <button class="glass-btn glass-btn--ghost" @click="cancelEditingResult">Cancel</button>
+              <button class="glass-btn glass-btn--ghost" @click="applyEdits">Apply edits</button>
               <button class="glass-btn" @click="reoptimizeEditedVersion">Re-optimize this version</button>
             </div>
           </div>
@@ -398,8 +398,8 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
         </div>
 
         <div class="be-results-actions">
-          <button class="glass-btn--ghost be-back" @click="reset">← New draft</button>
-          <button v-if="originalDraft" class="glass-btn--ghost" @click="useOriginal">Edit original draft</button>
+          <button class="glass-btn glass-btn--ghost be-back" @click="reset">← New draft</button>
+          <button v-if="originalDraft" class="glass-btn glass-btn--ghost" @click="useOriginal">Edit original draft</button>
         </div>
 
         <!-- Original for reference -->
@@ -582,7 +582,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
   margin-top: 8rem;
 }
 .be-edit-btn {
-  font-size: 14rem;
+  /* inherits full glass-btn base styles now that we include the class */
 }
 .be-edit-panel {
   margin-top: 12rem;

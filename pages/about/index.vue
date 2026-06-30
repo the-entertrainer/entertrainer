@@ -8,12 +8,23 @@
       <!-- ───────────────── Hero panel ───────────────── -->
       <section class="glass-panel about-panel about-panel--hero anim">
         <h1 class="about-intro">
-          I am <span class="hl" data-text="Naveen">Naveen</span>, and I'm an <span class="hl" data-text="Instructional Designer">Instructional Designer</span>.
+          I am <span class="hl" data-text="Naveen">Naveen</span>.<br>
+          And this? This is me finally shipping the one project I didn't know I was building the whole time.
         </h1>
         <hr class="about-rule" />
         <p class="about-lead">
-          Finding Instructional Design as a career was never planned—it was a <span class="hl" data-text="discovery">discovery</span>.
+          No roadmap. Just a former housekeeper who one day realized that the way you fold a bedsheet so it feels like a gift and the way you fold a hard idea so it actually sticks in someone's head are the exact same impossible craft.
         </p>
+        <p class="about-lead">
+          Instructional design crashed the party the night I turned dry service standards into comic strips that people actually wanted to read. That's when I figured out I wasn't just arranging information. I was writing the render loop for how humans change.
+        </p>
+        <div class="about-extravaganza">
+          <span class="code-word">state</span>
+          <span class="code-word">→</span>
+          <span class="code-word">story</span>
+          <span class="code-word">→</span>
+          <span class="code-word">shift</span>
+        </div>
       </section>
 
       <!-- ───────────────── Chapter 01 · The Floor ───────────────── -->
@@ -33,18 +44,21 @@
         </div>
         <figcaption class="shot__cap">
           <span class="shot__cap-rule" />
-          <span>Where it started — the floors of Club Mahindra Udaipur. Long before I ever designed a lesson, I was learning that a space, like a story, has to make people <em>feel</em> something.</span>
+          <span>Where it started — the floors of Club Mahindra Udaipur. Long before I ever wrote a learning objective, I was learning the real craft: a room (or a mind) only feels right when every tiny detail has been considered and then made invisible.</span>
         </figcaption>
       </figure>
 
       <section class="glass-panel about-panel about-panel--callout anim">
-        <p class="about-callout">Looking back, that role taught me something I still carry today: details matter, and experiences matter even more.</p>
+        <p class="about-callout">
+          That job was the original <span class="hl" data-text="debug">debug</span> session. I learned that the tiniest fold, the exact angle of a pillow, the way light hits a made bed — none of it is decoration. It's the difference between "fine" and "holy shit, someone cared."
+        </p>
       </section>
 
       <!-- ───────────────── Chapter 02 · The Spark ───────────────── -->
       <section class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">02</span> The Spark</p>
-        <p class="about-body">The path that led me into Learning and Development was shaped by the mentors I met along the way. Their guidance redirected my curiosity toward learning, people, and growth. The transition wasn't easy. It took countless sleepless nights, long days, and an endless commitment to learning concepts I once didn't even know existed.</p>
+        <p class="about-body">The real plot twist hit when I started turning service standards into comic strips for SEWA. No one had taught me the term "instructional design" yet, but I was already doing the thing: taking something dense and corporate and making it feel like a story you want to keep reading at 1 a.m.</p>
+        <p class="about-body">Mentors showed up like good code reviews — blunt, generous, and suddenly the whole mental model recompiled. I started obsessing over the same questions you ask when you're knee-deep in a gnarly frontend problem: how do people actually *parse* this? Where does it break? What makes the lightbulb go off instead of the eyes glaze over?</p>
       </section>
 
       <figure class="shot shot--editorial anim">
@@ -64,21 +78,21 @@
 
       <section class="glass-panel about-panel anim">
         <p class="about-pull">
-          What fascinated me most wasn't the content itself—it was <span class="hl" data-text="people">people</span>.
+          What actually kept me up wasn't the content. It was the humans on the other side of it.
         </p>
         <div class="about-questions">
-          <p>How do people learn?</p>
-          <p>Why do they resist change?</p>
-          <p>What motivates them?</p>
-          <p>What makes them remember?</p>
+          <p>How does someone's brain decide this is worth paying attention to?</p>
+          <p>Why does perfect information still slide right off people?</p>
+          <p>What makes a lesson feel like it was written *for them* instead of at them?</p>
         </div>
-        <p class="about-body">Observing people, understanding their behaviors, and uncovering what drives them became an obsession. That curiosity eventually led me into Learning &amp; Development and, later, Instructional Design.</p>
+        <p class="about-body">I got addicted to that exact click — the moment the fog lifts and something that used to be abstract suddenly feels obvious and personal. That's the real craft. Everything else is just scaffolding.</p>
       </section>
 
       <!-- ───────────────── Chapter 03 · The Craft ───────────────── -->
       <section class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">03</span> The Craft</p>
-        <p class="about-body">To me, Instructional Designers decide what is taught and how it is taught. But more importantly, we are entertainers. We remove the noise, simplify complexity, and uncover the core truth that helps people understand, remember, and act.</p>
+        <p class="about-body">Instructional design, at its best, is just extremely good frontend engineering for the human brain. You decide the data model (what actually needs to be understood), the component architecture (how it should be broken down), and the interaction model (how someone moves through it without getting lost or bored). Then you ship it and watch what actually renders in their head.</p>
+        <p class="about-body">The best work doesn't feel like training. It feels like you just handed someone a perfectly tuned shader and they suddenly see the whole scene in a new light.</p>
       </section>
 
       <figure class="shot shot--gallery anim">
@@ -105,7 +119,7 @@
       <!-- ───────────────── Chapter 04 · The Present ───────────────── -->
       <section class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">04</span> The Present</p>
-        <p class="about-body">Today, I'm an Instructional Designer at <strong>Concentrix</strong>, working with leading banking and finance clients to build the learning modules that bring a new framework to life across their systems — turning complex, unfamiliar processes into something their teams can actually understand, remember, and use.</p>
+        <p class="about-body">These days I'm at Concentrix, deep in banking and finance systems, doing the same weird magic trick at scale. Taking frameworks that feel like they were written by lawyers on a bad day and turning them into things actual humans can pick up, play with, and actually use without their eyes rolling back into their skulls.</p>
       </section>
 
       <figure class="shot shot--solo anim">
@@ -114,12 +128,12 @@
         </div>
         <figcaption class="shot__cap">
           <span class="shot__cap-rule" />
-          <span>Still the same obsession, a new room to fill — helping people meet systems they've never seen before and walk away feeling like they've known them all along.</span>
+          <span>Still the same obsession. New canvas. New shaders. Same goal: people walk up to something that used to look impenetrable and leave thinking "oh... of course."</span>
         </figcaption>
       </figure>
 
       <section class="glass-panel about-panel about-panel--closing anim">
-        <p class="about-body">That's what excites me every day: turning information into experiences that people genuinely connect with.</p>
+        <p class="about-body">That's the real high: when the thing you built stops feeling like "content" and just feels like the obvious next step in someone's head. The gradient keeps shifting, the spiral keeps pulling, and every once in a while the light hits exactly right.</p>
         <p class="about-asatoma">Asatoma Sadgamaya.</p>
       </section>
 
@@ -562,6 +576,43 @@ onBeforeUnmount(() => {
   color: var(--color-text);
   opacity: 0.5;
   margin-top: 28rem;
+}
+
+/* ─── Peak web dev wordplay extravaganza ─── */
+.about-extravaganza {
+  margin-top: 24rem;
+  display: flex;
+  align-items: center;
+  gap: 12rem;
+  font-family: ui-monospace, monospace;
+  font-size: 13rem;
+  letter-spacing: 0.08em;
+  opacity: 0.65;
+}
+.about-extravaganza .code-word {
+  padding: 4rem 10rem;
+  border-radius: 6rem;
+  background: color-mix(in srgb, var(--color-bg) 40%, transparent);
+  border: 1px solid var(--color-glass-border);
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+.about-extravaganza .code-word:hover {
+  opacity: 1;
+  transform: translateY(-1rem) scale(1.02);
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  border-color: var(--color-glass-border-hover);
+  box-shadow: 0 4rem 14rem -6rem rgba(0,0,0,0.3);
+}
+
+/* Little "compiling" pulse on the pipeline — feels like the whole site is one big render loop */
+.about-extravaganza .code-word:nth-child(1) { animation: code-pulse 2.4s ease-in-out infinite; }
+.about-extravaganza .code-word:nth-child(3) { animation: code-pulse 2.4s ease-in-out 0.4s infinite; }
+.about-extravaganza .code-word:nth-child(5) { animation: code-pulse 2.4s ease-in-out 0.8s infinite; }
+
+@keyframes code-pulse {
+  0%, 100% { opacity: 0.65; }
+  50% { opacity: 0.95; }
 }
 
 /* ───────────────── Desktop micro-interactions (hover-capable only) ───────────────── */

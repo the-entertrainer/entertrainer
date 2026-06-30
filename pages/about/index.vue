@@ -1,23 +1,26 @@
 <template>
   <div class="about-wrap">
+    <!-- Living fluted-glass gradient — the site's signature backdrop -->
+    <UiGlassBackdrop />
+
     <div class="about-container">
 
-      <h1 class="about-intro anim">
-        I am Naveen, and I'm an Instructional Designer.
-      </h1>
-
-      <hr class="about-rule anim" />
-
-      <p class="about-lead anim">
-        Finding Instructional Design as a career was never planned—it was a discovery.
-      </p>
+      <!-- ───────────────── Hero panel ───────────────── -->
+      <section class="about-panel about-panel--hero anim">
+        <h1 class="about-intro">
+          I am Naveen, and I'm an Instructional Designer.
+        </h1>
+        <hr class="about-rule" />
+        <p class="about-lead">
+          Finding Instructional Design as a career was never planned—it was a discovery.
+        </p>
+      </section>
 
       <!-- ───────────────── Chapter 01 · The Floor ───────────────── -->
-      <p class="about-chapter anim"><span class="about-chapter__no">01</span> The Floor</p>
-
-      <div class="about-section anim">
-        <p>I started my career in the hotel industry and had the opportunity to work with brands such as Marriott International and Club Mahindra. My first job was as a housekeeper - with Club Mahindra. Yes, I made beds, cleaned rooms, folded towel art (the fun stuff), and learned how to make spaces feel welcoming, organized, and beautiful. Housekeeping is an art backed by science. You can still see the way I keep my toilet rolls in my place - nicely folded into a rose 😂 and my bedsheets are always wrinkle free 😉</p>
-      </div>
+      <section class="about-panel anim">
+        <p class="about-chapter"><span class="about-chapter__no">01</span> The Floor</p>
+        <p class="about-body">I started my career in the hotel industry and had the opportunity to work with brands such as Marriott International and Club Mahindra. My first job was as a housekeeper - with Club Mahindra. Yes, I made beds, cleaned rooms, folded towel art (the fun stuff), and learned how to make spaces feel welcoming, organized, and beautiful. Housekeeping is an art backed by science. You can still see the way I keep my toilet rolls in my place - nicely folded into a rose 😂 and my bedsheets are always wrinkle free 😉</p>
+      </section>
 
       <figure class="shot shot--duo anim">
         <div class="shot__grid shot__grid--duo">
@@ -34,16 +37,15 @@
         </figcaption>
       </figure>
 
-      <div class="about-section anim">
+      <section class="about-panel about-panel--callout anim">
         <p class="about-callout">Looking back, that role taught me something I still carry today: details matter, and experiences matter even more.</p>
-      </div>
+      </section>
 
       <!-- ───────────────── Chapter 02 · The Spark ───────────────── -->
-      <p class="about-chapter anim"><span class="about-chapter__no">02</span> The Spark</p>
-
-      <div class="about-section anim">
-        <p>The path that led me into Learning and Development was shaped by the mentors I met along the way. Their guidance redirected my curiosity toward learning, people, and growth. The transition wasn't easy. It took countless sleepless nights, long days, and an endless commitment to learning concepts I once didn't even know existed.</p>
-      </div>
+      <section class="about-panel anim">
+        <p class="about-chapter"><span class="about-chapter__no">02</span> The Spark</p>
+        <p class="about-body">The path that led me into Learning and Development was shaped by the mentors I met along the way. Their guidance redirected my curiosity toward learning, people, and growth. The transition wasn't easy. It took countless sleepless nights, long days, and an endless commitment to learning concepts I once didn't even know existed.</p>
+      </section>
 
       <figure class="shot shot--editorial anim">
         <div class="shot__grid shot__grid--editorial">
@@ -60,27 +62,24 @@
         </figcaption>
       </figure>
 
-      <p class="about-pull anim">
-        What fascinated me most wasn't the content itself—it was people.
-      </p>
-
-      <div class="about-questions anim">
-        <p>How do people learn?</p>
-        <p>Why do they resist change?</p>
-        <p>What motivates them?</p>
-        <p>What makes them remember?</p>
-      </div>
-
-      <div class="about-section anim">
-        <p>Observing people, understanding their behaviors, and uncovering what drives them became an obsession. That curiosity eventually led me into Learning &amp; Development and, later, Instructional Design.</p>
-      </div>
+      <section class="about-panel anim">
+        <p class="about-pull">
+          What fascinated me most wasn't the content itself—it was people.
+        </p>
+        <div class="about-questions">
+          <p>How do people learn?</p>
+          <p>Why do they resist change?</p>
+          <p>What motivates them?</p>
+          <p>What makes them remember?</p>
+        </div>
+        <p class="about-body">Observing people, understanding their behaviors, and uncovering what drives them became an obsession. That curiosity eventually led me into Learning &amp; Development and, later, Instructional Design.</p>
+      </section>
 
       <!-- ───────────────── Chapter 03 · The Craft ───────────────── -->
-      <p class="about-chapter anim"><span class="about-chapter__no">03</span> The Craft</p>
-
-      <div class="about-section anim">
-        <p>To me, Instructional Designers decide what is taught and how it is taught. But more importantly, we are entertainers. We remove the noise, simplify complexity, and uncover the core truth that helps people understand, remember, and act.</p>
-      </div>
+      <section class="about-panel anim">
+        <p class="about-chapter"><span class="about-chapter__no">03</span> The Craft</p>
+        <p class="about-body">To me, Instructional Designers decide what is taught and how it is taught. But more importantly, we are entertainers. We remove the noise, simplify complexity, and uncover the core truth that helps people understand, remember, and act.</p>
+      </section>
 
       <figure class="shot shot--gallery anim">
         <div class="shot__grid shot__grid--gallery">
@@ -103,11 +102,10 @@
         </figcaption>
       </figure>
 
-      <div class="about-section anim">
-        <p>That's what excites me every day: turning information into experiences that people genuinely connect with.</p>
-      </div>
-
-      <p class="about-asatoma anim">Asatoma Sadgamaya.</p>
+      <section class="about-panel about-panel--closing anim">
+        <p class="about-body">That's what excites me every day: turning information into experiences that people genuinely connect with.</p>
+        <p class="about-asatoma">Asatoma Sadgamaya.</p>
+      </section>
 
     </div>
   </div>
@@ -141,8 +139,6 @@ function onScroll() {
 }
 
 onMounted(() => {
-  document.documentElement.setAttribute('data-about', '')
-
   reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
   io = new IntersectionObserver(
@@ -176,69 +172,88 @@ onBeforeUnmount(() => {
   window.removeEventListener('scroll', onScroll)
   window.removeEventListener('resize', onScroll)
   if (pxRaf) cancelAnimationFrame(pxRaf)
-  document.documentElement.removeAttribute('data-about')
 })
 </script>
 
 <style scoped>
-/* ─── Wrap ─── */
+/* ─── Wrap ─── (transparent so the living gradient shows through) */
 .about-wrap {
+  position: relative;
+  z-index: 1;
   min-height: 100dvh;
-  background: var(--color-bg);
-  padding: calc(96rem + var(--safe-top)) 0 80rem;
+  padding: calc(108rem + var(--safe-top)) 0 96rem;
   overflow-x: clip;
 }
 
 /* ─── Container ─── */
 .about-container {
-  max-width: 680rem;
+  position: relative;
+  z-index: 1;
+  max-width: 720rem;
   margin: 0 auto;
-  padding: 0 30rem;
+  padding: 0 24rem;
 }
 
-/* ─── Base animation ─── */
+/* ─── Base reveal ─── */
 .anim {
   opacity: 0;
-  transform: translateY(16rem);
-  transition: opacity 0.65s ease, transform 0.65s ease;
+  transform: translateY(20rem);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .anim.in-view {
   opacity: 1;
   transform: none;
 }
 
+/* ─── Frosted glass story panel ─── */
+.about-panel {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 18rem;
+  padding: 40rem 40rem;
+  border-radius: 26rem;
+  /* theme-true frosted glass: dark panel in dark theme, light in light theme */
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), transparent 38%),
+    color-mix(in srgb, var(--color-bg) 62%, transparent);
+  backdrop-filter: blur(26px) saturate(1.4);
+  -webkit-backdrop-filter: blur(26px) saturate(1.4);
+  border: 1px solid var(--color-glass-border);
+  box-shadow:
+    0 34rem 90rem -42rem rgba(0, 0, 0, 0.6),
+    inset 0 1px 1px color-mix(in srgb, var(--color-text) 16%, transparent),
+    inset 0 0 60rem color-mix(in srgb, var(--color-text) 3%, transparent);
+}
+.about-panel--hero {
+  padding: 48rem 40rem 44rem;
+  margin-bottom: 26rem;
+}
+.about-panel--callout { padding: 30rem 36rem; }
+.about-panel--closing { margin-bottom: 0; }
+
 /* ─── Intro ─── */
 .about-intro {
   font-size: clamp(32rem, 4vw, 50rem);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.18;
   letter-spacing: -0.04em;
   color: var(--color-text);
-  margin-bottom: 32rem;
 }
 
 /* ─── Rule ─── */
 .about-rule {
   border: none;
   border-top: 1px solid var(--color-divider);
-  margin: 0 0 44rem;
-  transform-origin: left center;
-  transform: scaleX(0); /* override anim's translateY */
-  transition: opacity 0.4s ease, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.about-rule.in-view {
-  opacity: 1;
-  transform: scaleX(1); /* override anim's translateY(0) */
+  margin: 28rem 0 24rem;
 }
 
 /* ─── Lead ─── */
 .about-lead {
   font-size: clamp(18rem, 2.1vw, 23rem);
   font-weight: 500;
-  line-height: 1.6;
+  line-height: 1.55;
   letter-spacing: -0.025em;
   color: var(--color-text);
-  margin-bottom: 20rem;
 }
 
 /* ─── Chapter marker ─── */
@@ -246,40 +261,35 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: baseline;
   gap: 14rem;
-  margin: 64rem 0 26rem;
+  margin: 0 0 22rem;
   font-size: 13rem;
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--color-text);
-  opacity: 0.55;
+  opacity: 0.62;
 }
-.about-chapter.in-view { opacity: 0.55; } /* override anim opacity:1 */
 .about-chapter__no {
   font-size: 13rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: var(--color-accent);
+  color: var(--color-text);
   padding: 3rem 8rem;
-  border: 1px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-text) 35%, transparent);
   border-radius: 5rem;
+  opacity: 0.9;
 }
 
-/* ─── Body sections ─── */
-.about-section {
-  margin-bottom: 24rem;
-  display: flex;
-  flex-direction: column;
-  gap: 18rem;
-}
-.about-section p:not(.about-callout) {
+/* ─── Body copy ─── */
+.about-body {
   font-size: var(--text-body);
   font-weight: 400;
-  line-height: 1.8;
+  line-height: 1.78;
   letter-spacing: -0.018em;
   color: var(--color-text);
-  opacity: 0.68;
+  opacity: 0.82;
 }
+.about-body + .about-body { margin-top: 18rem; }
 
 /* ─── Callout ─── */
 .about-callout {
@@ -299,37 +309,32 @@ onBeforeUnmount(() => {
   line-height: 1.3;
   letter-spacing: -0.032em;
   color: var(--color-text);
-  margin: 48rem 0 40rem;
+  margin-bottom: 28rem;
 }
 
 /* ─── Questions ─── */
 .about-questions {
-  margin-bottom: 32rem;
+  margin-bottom: 28rem;
 }
 .about-questions p {
   font-size: var(--text-body);
   font-weight: 400;
   font-style: italic;
-  line-height: 2.1;
+  line-height: 2.0;
   letter-spacing: -0.018em;
   color: var(--color-text);
-  opacity: 0;
-  transform: translateY(10rem);
-  transition: opacity 0.45s ease, transform 0.45s ease;
+  opacity: 0.72;
 }
-.about-questions.in-view p:nth-child(1) { opacity: 0.62; transform: none; }
-.about-questions.in-view p:nth-child(2) { opacity: 0.62; transform: none; transition-delay: 0.07s; }
-.about-questions.in-view p:nth-child(3) { opacity: 0.62; transform: none; transition-delay: 0.14s; }
-.about-questions.in-view p:nth-child(4) { opacity: 0.62; transform: none; transition-delay: 0.21s; }
 
-/* ───────────────── Cinematic photo shots ───────────────── */
+/* ───────────────── Cinematic photo shots — float on the gradient ───────────────── */
 .shot {
   position: relative;
-  /* break out wider than the 680rem text column */
-  width: min(90vw, 860rem);
+  z-index: 1;
+  /* break out wider than the panels, floating directly on the gradient */
+  width: min(92vw, 920rem);
   left: 50%;
-  translate: -50% 0;        /* independent of .anim's transform */
-  margin: 44rem 0 30rem;
+  translate: -50% 0;
+  margin: 34rem 0;
 }
 
 .shot__grid { display: grid; gap: 12rem; }
@@ -337,14 +342,16 @@ onBeforeUnmount(() => {
 .shot__grid--editorial { grid-template-columns: 1.5fr 1fr; }
 .shot__grid--gallery { grid-template-columns: repeat(3, 1fr); gap: 16rem; }
 
-/* Framed cell — the "film still" */
+/* Glass-framed cell — a floating "film still" */
 .shot__cell {
   position: relative;
   overflow: hidden;
-  border-radius: 12rem;
-  border: 1px solid var(--color-divider);
-  background: color-mix(in srgb, var(--color-text) 4%, transparent);
-  box-shadow: 0 24rem 60rem -28rem rgba(0,0,0,0.55);
+  border-radius: 16rem;
+  border: 1px solid var(--color-glass-border);
+  background: color-mix(in srgb, var(--color-bg) 30%, transparent);
+  box-shadow:
+    0 40rem 90rem -38rem rgba(0, 0, 0, 0.7),
+    inset 0 1px 1px rgba(255, 255, 255, 0.28);
 }
 /* Duo / editorial use a fixed cinematic band height with cover crop */
 .shot--duo .shot__cell      { aspect-ratio: 4 / 5; }
@@ -363,17 +370,24 @@ onBeforeUnmount(() => {
 .shot.in-view .shot__img { scale: 1.04; }
 
 /* Gallery items show the full collage (titles are baked in) — no crop, no overscan */
-.shot__grid--gallery .shot__cell { aspect-ratio: auto; box-shadow: 0 20rem 50rem -26rem rgba(0,0,0,0.5); }
+.shot__grid--gallery .shot__cell { aspect-ratio: auto; box-shadow: 0 34rem 76rem -34rem rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.24); }
 .shot__grid--gallery .shot__img  { height: auto; object-fit: contain; scale: 1; }
 .shot__item { margin: 0; }
 .shot__tag {
-  margin-top: 10rem;
+  display: inline-block;
+  margin-top: 12rem;
+  padding: 6rem 11rem;
+  border-radius: 9rem;
   font-size: 11rem;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-text);
-  opacity: 0.4;
+  opacity: 0.75;
+  background: color-mix(in srgb, var(--color-bg) 52%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--color-glass-border);
 }
 
 /* Staggered reveal across gallery columns */
@@ -382,20 +396,27 @@ onBeforeUnmount(() => {
 .shot--gallery.in-view .shot__item:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.16s; }
 .shot--gallery.in-view .shot__item:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.27s; }
 
-/* Caption */
+/* Caption — a frosted glass chip so it stays legible over the vivid gradient */
 .shot__cap {
   display: flex;
   gap: 14rem;
   margin-top: 18rem;
-  max-width: 620rem;
+  max-width: 640rem;
+  padding: 15rem 18rem;
+  border-radius: 14rem;
   font-size: var(--text-sm);
   line-height: 1.6;
   letter-spacing: -0.012em;
   color: var(--color-text);
-  opacity: 0.62;
+  opacity: 0.92;
+  background: color-mix(in srgb, var(--color-bg) 55%, transparent);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border: 1px solid var(--color-glass-border);
+  box-shadow: inset 0 1px 1px color-mix(in srgb, var(--color-text) 14%, transparent);
 }
-.shot__cap em     { font-style: italic; opacity: 0.92; }
-.shot__cap strong { font-weight: 600; opacity: 0.95; }
+.shot__cap em     { font-style: italic; opacity: 0.95; }
+.shot__cap strong { font-weight: 600; }
 .shot__cap-rule {
   flex: 0 0 auto;
   width: 2px;
@@ -411,36 +432,34 @@ onBeforeUnmount(() => {
   font-style: italic;
   letter-spacing: -0.018em;
   color: var(--color-text);
-  margin-top: 72rem;
-}
-.about-asatoma.in-view {
-  opacity: 0.36; /* override .anim.in-view opacity:1 */
+  opacity: 0.5;
+  margin-top: 28rem;
 }
 
 /* ─── Reduced motion ─── */
 @media (prefers-reduced-motion: reduce) {
   .anim,
-  .about-questions p,
   .shot__item,
-  .shot__img,
-  .about-rule { transition: none; }
+  .shot__img { transition: none; }
   .shot__img { scale: 1; }
 }
 
 /* ─── Tablet ─── */
 @media (max-width: 820px) {
-  .shot { width: min(92vw, 680rem); }
+  .shot { width: min(94vw, 720rem); }
   .shot__grid--editorial { grid-template-columns: 1.4fr 1fr; }
 }
 
 /* ─── Mobile ─── */
 @media (max-width: 600px) {
-  .about-wrap { padding-top: calc(80rem + var(--safe-top)); }
-  .about-container { padding: 0 20rem; }
+  .about-wrap { padding-top: calc(92rem + var(--safe-top)); }
+  .about-container { padding: 0 14rem; }
 
-  .about-chapter { margin: 48rem 0 22rem; }
+  .about-panel { padding: 28rem 24rem; border-radius: 22rem; }
+  .about-panel--hero { padding: 34rem 24rem 30rem; }
+  .about-panel--callout { padding: 24rem 22rem; }
 
-  .shot { width: 100%; left: 0; translate: none; margin: 32rem 0 24rem; }
+  .shot { width: 100%; left: 0; translate: none; margin: 26rem 0; }
   .shot__grid--duo { grid-template-columns: 1fr 1fr; gap: 10rem; }
   .shot__grid--editorial { grid-template-columns: 1fr; }
   .shot__cell--wide { aspect-ratio: 16 / 10; }

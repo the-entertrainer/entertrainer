@@ -6,7 +6,7 @@
     <div class="about-container">
 
       <!-- ───────────────── Hero panel ───────────────── -->
-      <section class="about-panel about-panel--hero anim">
+      <section class="glass-panel about-panel about-panel--hero anim">
         <h1 class="about-intro">
           I am <span class="hl" data-text="Naveen">Naveen</span>, and I'm an <span class="hl" data-text="Instructional Designer">Instructional Designer</span>.
         </h1>
@@ -17,7 +17,7 @@
       </section>
 
       <!-- ───────────────── Chapter 01 · The Floor ───────────────── -->
-      <section class="about-panel anim">
+      <section class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">01</span> The Floor</p>
         <p class="about-body">I started my career in the hotel industry and had the opportunity to work with brands such as Marriott International and Club Mahindra. My first job was as a housekeeper - with Club Mahindra. Yes, I made beds, cleaned rooms, folded towel art (the fun stuff), and learned how to make spaces feel welcoming, organized, and beautiful. Housekeeping is an art backed by science. You can still see the way I keep my toilet rolls in my place - nicely folded into a rose 😂 and my bedsheets are always wrinkle free 😉</p>
       </section>
@@ -42,7 +42,7 @@
       </section>
 
       <!-- ───────────────── Chapter 02 · The Spark ───────────────── -->
-      <section class="about-panel anim">
+      <section class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">02</span> The Spark</p>
         <p class="about-body">The path that led me into Learning and Development was shaped by the mentors I met along the way. Their guidance redirected my curiosity toward learning, people, and growth. The transition wasn't easy. It took countless sleepless nights, long days, and an endless commitment to learning concepts I once didn't even know existed.</p>
       </section>
@@ -62,7 +62,7 @@
         </figcaption>
       </figure>
 
-      <section class="about-panel anim">
+      <section class="glass-panel about-panel anim">
         <p class="about-pull">
           What fascinated me most wasn't the content itself—it was <span class="hl" data-text="people">people</span>.
         </p>
@@ -76,7 +76,7 @@
       </section>
 
       <!-- ───────────────── Chapter 03 · The Craft ───────────────── -->
-      <section class="about-panel anim">
+      <section class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">03</span> The Craft</p>
         <p class="about-body">To me, Instructional Designers decide what is taught and how it is taught. But more importantly, we are entertainers. We remove the noise, simplify complexity, and uncover the core truth that helps people understand, remember, and act.</p>
       </section>
@@ -103,7 +103,7 @@
       </figure>
 
       <!-- ───────────────── Chapter 04 · The Present ───────────────── -->
-      <section class="about-panel anim">
+      <section class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">04</span> The Present</p>
         <p class="about-body">Today, I'm an Instructional Designer at <strong>Concentrix</strong>, working with leading banking and finance clients to build the learning modules that bring a new framework to life across their systems — turning complex, unfamiliar processes into something their teams can actually understand, remember, and use.</p>
       </section>

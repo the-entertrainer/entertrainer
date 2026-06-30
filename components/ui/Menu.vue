@@ -133,13 +133,13 @@ function handleHomeClick() {
           <span class="e-controls-label">View</span>
           <!-- Liquid-glass segmented toggle: spiral ↔ list -->
           <div class="e-seg" role="group" aria-label="View mode">
-            <button class="e-seg-btn" :class="{ on: homeViewStore.mode === 'spiral' }" @click="setView('spiral')">
+            <button class="glass-chip e-seg-btn" :class="{ on: homeViewStore.mode === 'spiral' }" @click="setView('spiral')">
               <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M11 12a1 1 0 1 1 2 0 2 2 0 1 1-4 0 3 3 0 1 1 6 0 4 4 0 1 1-8 0" />
               </svg>
               <span>Spiral</span>
             </button>
-            <button class="e-seg-btn" :class="{ on: homeViewStore.mode === 'list' }" @click="setView('list')">
+            <button class="glass-chip e-seg-btn" :class="{ on: homeViewStore.mode === 'list' }" @click="setView('list')">
               <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
                 <line x1="4" y1="7" x2="20" y2="7" />
                 <line x1="4" y1="12" x2="20" y2="12" />

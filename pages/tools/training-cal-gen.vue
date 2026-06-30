@@ -814,15 +814,16 @@ function backToTable() {
               <div class="tcg-cal-header">
                 <input
                   v-model="calTitle"
-                  class="tcg-hdr-title"
+                  class="glass-field"
+                  style="font-size:20rem; font-weight:700; background:transparent; border:none; padding:0;"
                   placeholder="Calendar title"
                 />
-                <div class="tcg-hdr-meta">
-                  <input v-model="calOrg"  class="tcg-hdr-meta-input" placeholder="Organisation" />
-                  <span class="tcg-hdr-sep">·</span>
-                  <input v-model="calDept" class="tcg-hdr-meta-input" placeholder="Department" />
-                  <span class="tcg-hdr-sep">·</span>
-                  <span class="tcg-hdr-period">{{ MONTH_NAMES[selectedMonth - 1] }} {{ selectedYear }}</span>
+                <div style="display:flex; align-items:center; gap:8rem; font-size:12rem; opacity:0.6;">
+                  <input v-model="calOrg"  class="glass-field" style="max-width:120rem; font-size:12rem; background:transparent;" placeholder="Organisation" />
+                  <span>·</span>
+                  <input v-model="calDept" class="glass-field" style="max-width:120rem; font-size:12rem; background:transparent;" placeholder="Department" />
+                  <span>·</span>
+                  <span>{{ MONTH_NAMES[selectedMonth - 1] }} {{ selectedYear }}</span>
                 </div>
               </div>
 
@@ -934,29 +935,29 @@ function backToTable() {
 
                 <!-- Stats + legend -->
                 <div v-else key="stats" class="tcg-sidebar-content">
-                  <div class="tcg-stat-card">
-                    <span class="tcg-stat-num">{{ stats.total }}</span>
-                    <span class="tcg-stat-label">Sessions scheduled</span>
+                  <div class="glass-panel" style="padding:12rem; margin-bottom:8rem;">
+                    <span style="font-size:28rem; font-weight:700;">{{ stats.total }}</span>
+                    <span class="glass-label" style="margin:0;">Sessions scheduled</span>
                   </div>
-                  <div class="tcg-stat-card">
-                    <span class="tcg-stat-num">{{ stats.holidays }}</span>
-                    <span class="tcg-stat-label">Holidays this month</span>
+                  <div class="glass-panel" style="padding:12rem;">
+                    <span style="font-size:28rem; font-weight:700;">{{ stats.holidays }}</span>
+                    <span class="glass-label" style="margin:0;">Holidays this month</span>
                   </div>
 
-                  <div v-if="stats.unscheduled.length" class="tcg-unscheduled">
-                    <p class="tcg-sidebar-label">Unscheduled topics</p>
-                    <ul>
+                  <div v-if="stats.unscheduled.length" class="glass-panel" style="padding:8rem; margin:8rem 0;">
+                    <p class="glass-label" style="margin:0 0 4rem;">Unscheduled topics</p>
+                    <ul style="font-size:12rem; margin:0; padding-left:16rem;">
                       <li v-for="t in stats.unscheduled" :key="t">{{ t }}</li>
                     </ul>
                   </div>
 
-                  <div class="tcg-legend">
-                    <p class="tcg-sidebar-label">Topics</p>
-                    <div v-for="mod in modules" :key="mod.id" class="tcg-legend-row">
-                      <span class="tcg-legend-dot" :style="{ background: topicColor(mod.topic, activeTheme) }" />
-                      <div class="tcg-legend-info">
-                        <span class="tcg-legend-name">{{ mod.topic }}</span>
-                        <span class="tcg-legend-meta">{{ mod.duration }} · {{ mod.method }}</span>
+                  <div class="glass-panel" style="padding:8rem;">
+                    <p class="glass-label" style="margin:0 0 8rem;">Topics</p>
+                    <div v-for="mod in modules" :key="mod.id" style="display:flex; align-items:center; gap:8rem; margin-bottom:4rem;">
+                      <span style="width:12rem; height:12rem; border-radius:50%; flex-shrink:0;" :style="{ background: topicColor(mod.topic, activeTheme) }" />
+                      <div style="font-size:11rem;">
+                        <div>{{ mod.topic }}</div>
+                        <div style="opacity:0.5;">{{ mod.duration }} · {{ mod.method }}</div>
                       </div>
                     </div>
                   </div>

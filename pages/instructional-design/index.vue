@@ -123,6 +123,7 @@ const restart = () => {
 </script>
 
 <template>
+  <UiGlassBackdrop />
   <div :class="`h-[100dvh] w-screen bg-[#FDFBF7] text-[#1E1C19] font-sans flex flex-col justify-between overflow-hidden select-none transition-transform duration-300 ${shakeScreen ? 'animate-shake' : ''}`">
     
     <!-- Premium Motion CSS Rules-->
@@ -156,7 +157,7 @@ const restart = () => {
     </style>
 
     <!-- Modern Top Header / Nav-->
-    <header class="px-6 py-5 flex justify-between items-center bg-[#FDFBF7]/85 backdrop-blur-md shrink-0 z-30">
+    <header class="glass-panel" style="position:fixed; top:0; left:0; right:0; z-index:30; padding:12rem 24rem; display:flex; justify-content:space-between; align-items:center; border-radius:0 0 12rem 12rem; --color-glass-bg: rgba(255,255,255,0.8); border-bottom:1px solid var(--color-glass-border);">
       <div class="flex items-center gap-2">
         <div class="w-3 h-3 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
         <span class="text-[10px] font-mono font-bold tracking-[0.2em] text-stone-400 uppercase">Clarity Engine</span>
@@ -177,7 +178,7 @@ const restart = () => {
           <p class="text-xs text-stone-500 mt-2">Before we start, read this real procedure and answer the check.</p>
         </div>
 
-        <div class="bg-white rounded-3xl border border-stone-200 p-6 shadow-xl shadow-stone-100/50 flex-1 my-5 flex flex-col justify-center relative group">
+        <div class="glass-panel" style="background: rgba(255,255,255,0.9); border-color: rgba(0,0,0,0.1); --color-glass-border: rgba(0,0,0,0.1);">
           <div class="flex items-center gap-2 text-stone-400 font-mono text-[9px] uppercase tracking-wider mb-3">
             <AlertCircle :size="12" class="text-stone-400" /> Operational Protocol T-9
           </div>
@@ -215,7 +216,7 @@ const restart = () => {
           </p>
           <button 
             @click="() => stage = 1"
-            class="w-full py-4 bg-stone-900 hover:bg-stone-800 text-white rounded-2xl font-bold text-sm tracking-wide transition-all shadow-md flex items-center justify-center gap-2"
+            class="glass-btn w-full" style="background:#1E1C19; color:white; border-radius:16rem; padding:14rem 0;"
           >
             Let's make this human <ArrowRight :size="16" />
           </button>
@@ -230,7 +231,7 @@ const restart = () => {
           <p class="text-xs text-stone-500 mt-2">Tap each card below to flip it from "Robot Code" to "Plain Human Speak".</p>
         </div>
 
-        <div class="flex-1 my-5 flex flex-col justify-center gap-3">
+        <div class="glass-panel my-5" style="background:rgba(255,255,255,0.95);">
           <div 
             v-for="(card, idx) in [
               { id: 0, num: '1', tech: 'Secure vertical alignment of the leavened starch substrate inside the slot.', clear: 'Put your slice of bread into the toaster slot.' },
@@ -267,7 +268,7 @@ const restart = () => {
           <p class="text-[11px] text-center text-stone-400 font-medium italic">Flipped cards feel light, intuitive, and simple. Just like good teaching.</p>
           <button 
             @click="() => stage = 2"
-            class="w-full py-4 bg-stone-900 hover:bg-stone-800 text-white rounded-2xl font-bold text-sm tracking-wide transition-all shadow-md flex items-center justify-center gap-2"
+            class="glass-btn w-full" style="background:#1E1C19; color:white; border-radius:16rem; padding:14rem 0;"
           >
             Let's practice doing it <ArrowRight :size="16" />
           </button>
@@ -409,7 +410,7 @@ const restart = () => {
         <div class="space-y-3">
           <button 
             @click="restart"
-            class="w-full py-4 border-2 border-stone-200 hover:border-stone-800 text-stone-600 hover:text-stone-900 rounded-2xl font-bold text-sm tracking-wide transition-all flex items-center justify-center gap-2"
+            class="glass-btn--ghost w-full" style="border-radius:16rem; padding:14rem 0;"
           >
             <RotateCcw :size="14" /> Play Again
           </button>

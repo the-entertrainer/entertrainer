@@ -212,19 +212,19 @@ onMounted(() => {
       <canvas ref="canvas" class="cv" />
     </div>
 
-    <button class="fab" @click="showPanel = !showPanel">{{ showPanel ? 'Hide ▾' : 'Tune ▴' }}</button>
+    <button class="glass-btn--ghost fab" style="position:fixed; bottom:20rem; right:20rem; z-index:100;" @click="showPanel = !showPanel">{{ showPanel ? 'Hide ▾' : 'Tune ▴' }}</button>
 
-    <aside class="panel" :class="{ open: showPanel }">
+    <aside class="glass-panel panel" :class="{ open: showPanel }">
       <h1>Glass Lab</h1>
       <p class="hint">Tune freely. Colours are random — use Shuffle. Copy the config and paste it back to bake into the site.</p>
 
       <div class="row seg">
-        <button :class="{ on: params.theme === 'dark' }"  @click="params.theme = 'dark'">Dark</button>
-        <button :class="{ on: params.theme === 'light' }" @click="params.theme = 'light'">Light</button>
+        <button class="glass-chip" :class="{ active: params.theme === 'dark' }"  @click="params.theme = 'dark'">Dark</button>
+        <button class="glass-chip" :class="{ active: params.theme === 'light' }" @click="params.theme = 'light'">Light</button>
       </div>
       <div class="row seg">
-        <button :class="{ on: params.algo === 0 }" @click="params.algo = 0">Blobs</button>
-        <button :class="{ on: params.algo === 1 }" @click="params.algo = 1">Ellipses</button>
+        <button class="glass-chip" :class="{ active: params.algo === 0 }" @click="params.algo = 0">Blobs</button>
+        <button class="glass-chip" :class="{ active: params.algo === 1 }" @click="params.algo = 1">Ellipses</button>
       </div>
 
       <label>Noise scale 1 <b>{{ params.noiseScale1.toFixed(2) }}</b>
@@ -261,13 +261,13 @@ onMounted(() => {
       </div>
 
       <div class="row btns">
-        <button @click="shuffleColours">Shuffle colours</button>
-        <button @click="randomizeAll">Randomize all</button>
+        <button class="glass-btn--ghost" style="font-size:12rem;" @click="shuffleColours">Shuffle colours</button>
+        <button class="glass-btn--ghost" style="font-size:12rem;" @click="randomizeAll">Randomize all</button>
       </div>
 
       <div class="out">
-        <textarea readonly rows="4" :value="configText" />
-        <button class="copy" @click="copyConfig">{{ copied ? 'Copied ✓' : 'Copy config' }}</button>
+        <textarea readonly rows="4" class="glass-field" :value="configText" />
+        <button class="glass-chip" @click="copyConfig">{{ copied ? 'Copied ✓' : 'Copy config' }}</button>
       </div>
     </aside>
   </div>

@@ -24,7 +24,6 @@ const CARD_IMAGE_MAP: Record<string, string> = {
   'work-01':              '/placeholder-work-01.png',
   'work-02':              '/placeholder-work-02.png',
   'work-03':              '/placeholder-work-03.png',
-  'scribeflow':           '/placeholder-scribeflow.png',
   'templates':            '/placeholder-templates.png',
   'frameworks':           '/placeholder-frameworks.png',
   'resources':            '/placeholder-resources.png',

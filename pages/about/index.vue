@@ -24,80 +24,38 @@
 
     </div>
 
-    <!-- 3D Story Orbit -->
-    <!-- The signature: four glass memory planes arranged in 3D space. Swipe or drag to orbit the chapters. Cinematic, mobile-first, grounded in real photos and a warm personal voice. -->
+    <!-- 3D Story Orbit — powered by Three.js (interactive narrative) -->
+    <!-- Drag or swipe the 3D memory photos. Real depth, lighting, and physical-feeling orbit. -->
+    <!-- Follows scroll-experience (cinematic interactive stories, perf, reduced-motion, accessibility), threejs-skills (proper setup, interaction, textures, damping), ui-ux-pro-max (touch targets, a11y, timing, glass consistency, mobile-first). -->
     <div class="story-3d-wrapper">
-      <div 
-        class="story-3d" 
-        ref="story3dRef"
-        @touchstart.passive="handleStart"
-        @touchmove="handleMove"
-        @touchend="handleEnd"
-        @mousedown="handleStart"
-        @mousemove="handleMove"
-        @mouseup="handleEnd"
-        @mouseleave="handleEnd"
-      >
-        <div class="story-group" :style="{ transform: `perspective(1280px) rotateY(${groupRotation}deg)` }">
-          <!-- 01 -->
-          <div class="story-plane glass-panel" :class="{ 'is-active': currentIndex === 0 }" :style="getPlaneStyle(0)">
-            <div class="plane-content">
-              <p class="about-chapter"><span class="about-chapter__no">01</span> The Floor</p>
-              <p class="about-body">It started in hotel rooms. Club Mahindra, Marriott. I was the one turning chaos into something that made people exhale when they walked in. Making the bed just so. Folding towels into little animals because why not. It wasn't glamorous. It was the feeling that someone had their back.</p>
-              <div class="plane-media">
-                <img src="/about/about-housekeeper-1.webp" alt="Early days turning hotel rooms into places that felt cared for" loading="lazy" />
-              </div>
-              <p class="plane-footnote">I still fold towels that way at home. Small things add up.</p>
-            </div>
-          </div>
-
-          <!-- 02 -->
-          <div class="story-plane glass-panel" :class="{ 'is-active': currentIndex === 1 }" :style="getPlaneStyle(1)">
-            <div class="plane-content">
-              <p class="about-chapter"><span class="about-chapter__no">02</span> The Spark</p>
-              <p class="about-body">One day we turned a stack of dry service standards into a comic called SEWA Chronicles. People actually read it. They smiled at their desks. That was the first time I saw what happens when you wrap something useful in something that feels made by a person for a person. I wanted more of that.</p>
-              <div class="plane-media">
-                <img src="/about/about-sewa-1.webp" alt="SEWA Chronicles comic storyboards" loading="lazy" />
-              </div>
-              <div class="plane-questions">
-                <p>What makes someone actually remember something?</p>
-                <p>How do we help people feel capable instead of buried?</p>
-                <p>What turns information into something that quietly changes how a person sees their work?</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- 03 -->
-          <div class="story-plane glass-panel" :class="{ 'is-active': currentIndex === 2 }" :style="getPlaneStyle(2)">
-            <div class="plane-content">
-              <p class="about-chapter"><span class="about-chapter__no">03</span> The Craft</p>
-              <p class="about-body">Later at Marriott I built leadership programs, trainer trainings, onboarding that didn't feel like a checklist. The best rooms were the ones where tired people leaned forward because a story landed. Not louder. Just more human.</p>
-              <div class="plane-media">
-                <img src="/about/about-ignite.webp" alt="IGNITE leadership program at Marriott" loading="lazy" />
-              </div>
-              <p class="plane-footnote">Those rooms showed me that when learning feels generous, people don't just remember it. They pass it on.</p>
-            </div>
-          </div>
-
-          <!-- 04 -->
-          <div class="story-plane glass-panel" :class="{ 'is-active': currentIndex === 3 }" :style="getPlaneStyle(3)">
-            <div class="plane-content">
-              <p class="about-chapter"><span class="about-chapter__no">04</span> The Present</p>
-              <p class="about-body">Now I'm with banking teams at Concentrix. We take tangled new ways of working and turn them into something a person can actually see themselves doing on Monday. The software changes. The heart of it doesn't.</p>
-              <div class="plane-media">
-                <img src="/about/about-concentrix.webp" alt="Portrait" loading="lazy" />
-              </div>
-              <p class="plane-footnote">The moment someone says "I think I can do this now" — that's the whole point.</p>
-            </div>
-          </div>
+      <div class="story-3d" ref="threeContainer" aria-label="Interactive 3D story: drag or swipe to orbit through four chapters of memories. Photos appear as floating planes in space.">
+        <canvas ref="threeCanvas" class="story-canvas"></canvas>
+        <div class="swipe-hints" aria-hidden="true">
+          <div class="hint">drag or swipe to orbit the memories • tap dots to jump</div>
         </div>
+      </div>
 
-        <div class="swipe-hints">
-          <div class="hint">swipe or drag to turn • tap dots to jump</div>
+      <!-- Synced chapter info — crisp readable text outside the 3D for accessibility and polish -->
+      <div class="chapter-info glass-panel">
+        <p class="about-chapter"><span class="about-chapter__no">{{ String(currentIndex + 1).padStart(2, '0') }}</span> {{ chapters[currentIndex].title }}</p>
+        <p class="about-body">{{ chapters[currentIndex].body }}</p>
+        <p class="plane-footnote" v-if="chapters[currentIndex].footnote">{{ chapters[currentIndex].footnote }}</p>
+        <div class="plane-questions" v-if="chapters[currentIndex].questions">
+          <p v-for="(q, i) in chapters[currentIndex].questions" :key="i">{{ q }}</p>
         </div>
-        <div class="plane-dots">
-          <button v-for="i in 4" :key="i" class="dot" :class="{ active: currentIndex === i-1 }" @click="goToPlane(i-1)"></button>
-        </div>
+      </div>
+
+      <div class="plane-dots" role="tablist" aria-label="Jump to chapter">
+        <button 
+          v-for="(ch, i) in chapters" 
+          :key="i" 
+          class="dot" 
+          :class="{ active: currentIndex === i }" 
+          :aria-label="'Go to ' + ch.title"
+          :aria-selected="currentIndex === i"
+          role="tab"
+          @click="goToPlane(i)"
+        ></button>
       </div>
     </div>
 
@@ -112,235 +70,232 @@
 
 <script setup lang="ts">
 import gsap from 'gsap'
+import * as THREE from 'three'
 
 definePageMeta({ layout: 'default' })
 
 let io: IntersectionObserver | null = null
 let ioHl: IntersectionObserver | null = null
-
-// ── Scroll-linked parallax on photographs (cinematic drift) ────────────────
-let pxEls: HTMLElement[] = []
-let pxRaf = 0
 let reduceMotion = false
 
-function applyParallax() {
-  pxRaf = 0
-  const vh = window.innerHeight
-  // Gentler drift on phones (smaller viewport, perf headroom).
-  const mag = window.innerWidth <= 600 ? -10 : -16
-  for (const el of pxEls) {
-    const r = el.getBoundingClientRect()
-    const center = r.top + r.height / 2
-    // -0.5 (above centre) … +0.5 (below centre)
-    const rel = (center - vh / 2) / vh
-    const shift = Math.max(-1, Math.min(1, rel)) * mag // px
-    el.style.transform = `translateY(${shift.toFixed(2)}px)`
+// Chapters data (warm, human voice — human-writing patterns)
+const chapters = [
+  {
+    title: 'The Floor',
+    body: "It started in hotel rooms. Club Mahindra, Marriott. I was the one turning chaos into something that made people exhale when they walked in. Making the bed just so. Folding towels into little animals because why not. It wasn't glamorous. It was the feeling that someone had their back.",
+    footnote: 'I still fold towels that way at home. Small things add up.'
+  },
+  {
+    title: 'The Spark',
+    body: 'One day we turned a stack of dry service standards into a comic called SEWA Chronicles. People actually read it. They smiled at their desks. That was the first time I saw what happens when you wrap something useful in something that feels made by a person for a person. I wanted more of that.',
+    footnote: '',
+    questions: [
+      'What makes someone actually remember something?',
+      'How do we help people feel capable instead of buried?',
+      'What turns information into something that quietly changes how a person sees their work?'
+    ]
+  },
+  {
+    title: 'The Craft',
+    body: "Later at Marriott I built leadership programs, trainer trainings, onboarding that didn't feel like a checklist. The best rooms were the ones where tired people leaned forward because a story landed. Not louder. Just more human.",
+    footnote: "Those rooms showed me that when learning feels generous, people don't just remember it. They pass it on."
+  },
+  {
+    title: 'The Present',
+    body: "Now I'm with banking teams at Concentrix. We take tangled new ways of working and turn them into something a person can actually see themselves doing on Monday. The software changes. The heart of it doesn't.",
+    footnote: 'The moment someone says "I think I can do this now" — that\'s the whole point.'
   }
+]
+
+// ── Three.js 3D Interactive Story (threejs-skills + scroll-experience interactive narrative + ui-ux-pro-max rules) ──
+const threeContainer = ref<HTMLElement | null>(null)
+const threeCanvas = ref<HTMLCanvasElement | null>(null)
+
+let scene: THREE.Scene | null = null
+let camera: THREE.PerspectiveCamera | null = null
+let renderer: THREE.WebGLRenderer | null = null
+let storyGroup: THREE.Group | null = null
+let currentRot = 0
+let targetRot = 0
+let isThreeDragging = false
+let lastPointerX = 0
+
+const currentIndex = ref(0)
+const numPlanes = 4
+const angleStep = Math.PI / 2
+const orbitRadius = 5.8
+
+function onThreeResize() {
+  if (!threeContainer.value || !camera || !renderer) return
+  const w = threeContainer.value.clientWidth
+  const h = threeContainer.value.clientHeight
+  camera.aspect = w / h
+  camera.updateProjectionMatrix()
+  renderer.setSize(w, h)
 }
 
-function onScroll() {
-  if (!pxRaf) pxRaf = requestAnimationFrame(applyParallax)
+function updateCurrentFromRot() {
+  const normalized = ((currentRot % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)
+  const idx = Math.round(normalized / angleStep) % numPlanes
+  if (idx !== currentIndex.value) currentIndex.value = idx
 }
 
-// ── Cursor-tracked specular sheen on glass surfaces (desktop only) ──────────
-let sheenEls: HTMLElement[] = []
-let sheenRaf = 0
-let pendingSheen: { el: HTMLElement; x: number; y: number } | null = null
-
-function flushSheen() {
-  sheenRaf = 0
-  const s = pendingSheen
-  if (!s) return
-  s.el.style.setProperty('--mx', `${s.x}%`)
-  s.el.style.setProperty('--my', `${s.y}%`)
-  s.el.style.setProperty('--sheen', '1')
+function goToPlane(index: number) {
+  const idx = (index + numPlanes) % numPlanes
+  currentIndex.value = idx
+  targetRot = -idx * angleStep
 }
-function onSheenMove(e: PointerEvent) {
-  const el = e.currentTarget as HTMLElement
-  const r = el.getBoundingClientRect()
-  pendingSheen = {
-    el,
-    x: ((e.clientX - r.left) / r.width) * 100,
-    y: ((e.clientY - r.top) / r.height) * 100,
+
+function onThreePointerDown(e: PointerEvent) {
+  isThreeDragging = true
+  lastPointerX = e.clientX
+  threeContainer.value?.setPointerCapture(e.pointerId)
+}
+
+function onThreePointerMove(e: PointerEvent) {
+  if (!isThreeDragging || !storyGroup) return
+  const delta = (e.clientX - lastPointerX) * 0.0042
+  currentRot += delta
+  storyGroup.rotation.y = currentRot
+  lastPointerX = e.clientX
+  updateCurrentFromRot()
+}
+
+function onThreePointerUp(e: PointerEvent) {
+  if (!isThreeDragging || !storyGroup) return
+  isThreeDragging = false
+  threeContainer.value?.releasePointerCapture(e.pointerId)
+
+  const snapped = Math.round(currentRot / angleStep) * angleStep
+  currentRot = snapped
+  targetRot = snapped
+
+  gsap.to(storyGroup.rotation, {
+    y: targetRot,
+    duration: reduceMotion ? 0.1 : 0.22,
+    ease: 'power2.out',
+    onUpdate: () => {
+      currentRot = storyGroup!.rotation.y
+      updateCurrentFromRot()
+    }
+  })
+}
+
+function animateThree() {
+  if (!renderer || !scene || !camera || !storyGroup) return
+  requestAnimationFrame(animateThree)
+
+  if (!isThreeDragging) {
+    const diff = targetRot - currentRot
+    currentRot += diff * (reduceMotion ? 0.3 : 0.09)
+    storyGroup.rotation.y = currentRot
   }
-  if (!sheenRaf) sheenRaf = requestAnimationFrame(flushSheen)
-}
-function onSheenLeave(e: PointerEvent) {
-  (e.currentTarget as HTMLElement).style.setProperty('--sheen', '0')
+  renderer.render(scene, camera)
 }
 
+function initThree() {
+  if (!threeCanvas.value || !threeContainer.value) return
+
+  scene = new THREE.Scene()
+
+  camera = new THREE.PerspectiveCamera(
+    58,
+    threeContainer.value.clientWidth / threeContainer.value.clientHeight,
+    0.1,
+    100
+  )
+  camera.position.set(0, 0.7, 8.0)
+
+  const dpr = Math.min(window.devicePixelRatio || 1, reduceMotion ? 1 : 1.5)
+  renderer = new THREE.WebGLRenderer({ canvas: threeCanvas.value, antialias: true, alpha: true })
+  renderer.setPixelRatio(dpr)
+  renderer.setSize(threeContainer.value.clientWidth, threeContainer.value.clientHeight)
+
+  // Lights for depth and "glass" highlight on photos
+  scene.add(new THREE.AmbientLight(0xffffff, 0.68))
+  const key = new THREE.DirectionalLight(0xffffff, 0.95)
+  key.position.set(4, 5, 7)
+  scene.add(key)
+  const rim = new THREE.DirectionalLight(0x99aaff, 0.32)
+  rim.position.set(-5, 1, -6)
+  scene.add(rim)
+
+  storyGroup = new THREE.Group()
+  scene.add(storyGroup)
+
+  const loader = new THREE.TextureLoader()
+  const urls = [
+    '/about/about-housekeeper-1.webp',
+    '/about/about-sewa-1.webp',
+    '/about/about-ignite.webp',
+    '/about/about-concentrix.webp'
+  ]
+  const pw = 4.35
+  const ph = 2.9
+
+  urls.forEach((url, i) => {
+    loader.load(url, (tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace
+      const mat = new THREE.MeshPhongMaterial({ map: tex, shininess: 36, specular: 0x222222, side: THREE.DoubleSide })
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(pw, ph), mat)
+      const ang = i * angleStep
+      mesh.position.x = Math.sin(ang) * orbitRadius
+      mesh.position.z = Math.cos(ang) * orbitRadius
+      mesh.rotation.y = ang + Math.PI
+      storyGroup!.add(mesh)
+    })
+  })
+
+  currentRot = 0
+  targetRot = 0
+  storyGroup.rotation.y = 0
+
+  const viewer = threeContainer.value
+  viewer.addEventListener('pointerdown', onThreePointerDown)
+  window.addEventListener('pointermove', onThreePointerMove)
+  window.addEventListener('pointerup', onThreePointerUp)
+  window.addEventListener('pointerleave', onThreePointerUp)
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') goToPlane(currentIndex.value - 1)
+    if (e.key === 'ArrowRight') goToPlane(currentIndex.value + 1)
+  })
+
+  window.addEventListener('resize', onThreeResize)
+  animateThree()
+  currentIndex.value = 0
+}
+
+// Hero reveal + hl (minimal)
 onMounted(() => {
   reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-  io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('in-view')
-          io!.unobserve(e.target)
-        }
-      })
-    },
-    { threshold: 0.1, rootMargin: '0px 0px -28px 0px' }
-  )
+  io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in-view'); io!.unobserve(e.target) } })
+  }, { threshold: 0.1, rootMargin: '0px 0px -28px 0px' })
 
-  const els = document.querySelectorAll('.anim')
-  els.forEach((el, i) => {
-    if (i < 3) (el as HTMLElement).style.transitionDelay = `${i * 0.09}s`
+  document.querySelectorAll('.anim').forEach((el, i) => {
+    if (i < 2) (el as HTMLElement).style.transitionDelay = `${i * 0.08}s`
     io!.observe(el)
   })
 
-  // Headline emphasis — light each key word as it reaches the reading band.
   const hlEls = document.querySelectorAll('.hl')
-  if (reduceMotion) {
-    hlEls.forEach(el => el.classList.add('lit'))
-  } else {
-    ioHl = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            e.target.classList.add('lit')
-            ioHl!.unobserve(e.target)
-          }
-        })
-      },
-      // Light when the word rises into the lower-mid of the viewport. This also
-      // catches the hero (already on-screen at load) so it blooms in on arrival.
-      { threshold: 0, rootMargin: '0px 0px -28% 0px' }
-    )
+  if (reduceMotion) hlEls.forEach(el => el.classList.add('lit'))
+  else {
+    ioHl = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('lit'); ioHl!.unobserve(e.target) } })
+    }, { threshold: 0, rootMargin: '0px 0px -28% 0px' })
     hlEls.forEach(el => ioHl!.observe(el))
   }
 
-  if (!reduceMotion) {
-    pxEls = Array.from(document.querySelectorAll<HTMLElement>('.px'))
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll, { passive: true })
-    applyParallax()
-
-    // Bind the cursor sheen only on hover-capable, fine-pointer devices.
-    const hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)').matches
-    if (hoverCapable) {
-      sheenEls = Array.from(document.querySelectorAll<HTMLElement>('.about-panel, .shot__cell'))
-      for (const el of sheenEls) {
-        el.addEventListener('pointermove', onSheenMove as EventListener, { passive: true })
-        el.addEventListener('pointerleave', onSheenLeave as EventListener, { passive: true })
-      }
-    }
-  }
-
-  // 3D swipe navigation init (no conflicting scroll progress)
-  // The 3D viewer handles its own navigation; page scroll still works for the rest
+  initThree()
 })
 
 onBeforeUnmount(() => {
   io?.disconnect()
   ioHl?.disconnect()
-  window.removeEventListener('scroll', onScroll)
-  window.removeEventListener('resize', onScroll)
-  if (pxRaf) cancelAnimationFrame(pxRaf)
-  if (sheenRaf) cancelAnimationFrame(sheenRaf)
-  for (const el of sheenEls) {
-    el.removeEventListener('pointermove', onSheenMove as EventListener)
-    el.removeEventListener('pointerleave', onSheenLeave as EventListener)
-  }
-})
-
-// ── 3D Story Space with Swipe Navigation ─────────────────────────────────
-// Sections split into 3D space as floating glass planes arranged in a circle.
-// Swipe (touch) or drag (desktop) to orbit/navigate between planes.
-// Uses CSS 3D + GSAP for smooth cinematic rotations.
-// Cohesive with site's glass, gradient, and 3D spiral theme.
-
-const story3dRef = ref<HTMLElement | null>(null)
-const groupRotation = ref(0)
-const currentIndex = ref(0)
-const isDragging = ref(false)
-let dragStartX = 0
-let dragStartRot = 0
-let lastX = 0
-let lastTime = 0
-let vel = 0
-
-const numPlanes = 4
-const angleStep = 90
-const radius = 430
-
-function updateGroupRotation(targetRot: number, duration = 0.7) {
-  const obj = { rot: groupRotation.value }
-  gsap.to(obj, {
-    rot: targetRot,
-    duration,
-    ease: 'power3.out',
-    onUpdate: () => { groupRotation.value = obj.rot }
-  })
-}
-
-function goToPlane(index: number) {
-  currentIndex.value = (index + numPlanes) % numPlanes
-  const targetRot = -currentIndex.value * angleStep
-  updateGroupRotation(targetRot)
-}
-
-function getPlaneStyle(index: number) {
-  const base = index * angleStep
-  const rel = index - currentIndex.value
-  const z = radius + rel * 6
-  return `rotateY(${base}deg) translateZ(${z}px)`
-}
-
-function handleStart(e: TouchEvent | MouseEvent) {
-  isDragging.value = true
-  const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX
-  dragStartX = clientX
-  dragStartRot = groupRotation.value
-  lastX = clientX
-  lastTime = performance.now()
-  vel = 0
-}
-
-function handleMove(e: TouchEvent | MouseEvent) {
-  if (!isDragging.value) return
-  const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX
-  const delta = (clientX - dragStartX) * 0.33
-  groupRotation.value = dragStartRot + delta
-  const now = performance.now()
-  const dt = now - lastTime || 16
-  vel = (clientX - lastX) / dt
-  lastX = clientX
-  lastTime = now
-}
-
-function handleEnd(e: TouchEvent | MouseEvent) {
-  if (!isDragging.value) return
-  isDragging.value = false
-  const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : (e as MouseEvent).clientX
-  const delta = clientX - dragStartX
-  const thresh = 52
-
-  let steps = 0
-  if (Math.abs(delta) > thresh) {
-    steps = delta > 0 ? -1 : 1
-  } else if (Math.abs(vel) > 0.35) {
-    steps = vel > 0 ? -1 : 1
-  }
-
-  currentIndex.value = (currentIndex.value + steps + numPlanes) % numPlanes
-  const targetRot = -currentIndex.value * angleStep
-  updateGroupRotation(targetRot, 0.55 + Math.abs(steps) * 0.1)
-}
-
-function handleKey(e: KeyboardEvent) {
-  if (e.key === 'ArrowLeft') goToPlane(currentIndex.value - 1)
-  if (e.key === 'ArrowRight') goToPlane(currentIndex.value + 1)
-}
-
-onMounted(() => {
-  window.addEventListener('keydown', handleKey, { passive: true })
-  groupRotation.value = 0
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKey)
+  window.removeEventListener('resize', onThreeResize)
+  if (renderer) renderer.dispose()
 })
 </script>
 
@@ -1024,18 +979,64 @@ onBeforeUnmount(() => {
   }
 }
 
-/* Mobile tweaks for 3D */
-@media (max-width: 600px) {
-  .story-3d-wrapper {
-    height: 68vh;
-    margin: 30rem 0;
-  }
-  .plane-inner {
-    font-size: 14rem;
-  }
-  .swipe-hint {
-    font-size: 11rem;
-  }
+/* ─── Three.js 3D Story Orbit (immersive, accessible, performant) ─── */
+.story-3d-wrapper {
+  max-width: 980px;
+  margin: 22rem auto 36rem;
+  padding: 0 12px;
+  position: relative;
+}
+
+.story-3d {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(0,0,0,0.02);
+  touch-action: none;
+  cursor: grab;
+}
+.story-3d:active { cursor: grabbing; }
+
+.story-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.chapter-info {
+  margin: 18px auto 0;
+  max-width: 620px;
+  padding: 22px 24px;
+}
+.chapter-info .about-chapter { margin-bottom: 14px; }
+.chapter-info .about-body { margin-bottom: 10px; }
+
+.plane-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+.dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  border: 1px solid var(--color-glass-border);
+  background: transparent;
+  cursor: pointer;
+  transition: background .12s ease, transform .12s ease;
+}
+.dot.active {
+  background: var(--color-text);
+  border-color: var(--color-text);
+  transform: scale(1.1);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .story-3d { transition: none; }
 }
 
 /* ─── 3D Story Orbit (immersive swipe carousel) ─── */

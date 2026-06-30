@@ -102,6 +102,22 @@
         </figcaption>
       </figure>
 
+      <!-- ───────────────── Chapter 04 · The Present ───────────────── -->
+      <section class="about-panel anim">
+        <p class="about-chapter"><span class="about-chapter__no">04</span> The Present</p>
+        <p class="about-body">Today, I'm an Instructional Designer at <strong>Concentrix</strong>, working with leading banking and finance clients to build the learning modules that bring a new framework to life across their systems — turning complex, unfamiliar processes into something their teams can actually understand, remember, and use.</p>
+      </section>
+
+      <figure class="shot shot--solo anim">
+        <div class="shot__cell shot__cell--portrait">
+          <img class="shot__img px" src="/about/about-concentrix.webp" alt="Illustrated portrait of Naveen" loading="lazy" />
+        </div>
+        <figcaption class="shot__cap">
+          <span class="shot__cap-rule" />
+          <span>Still the same obsession, a new room to fill — helping people meet systems they've never seen before and walk away feeling like they've known them all along.</span>
+        </figcaption>
+      </figure>
+
       <section class="about-panel about-panel--closing anim">
         <p class="about-body">That's what excites me every day: turning information into experiences that people genuinely connect with.</p>
         <p class="about-asatoma">Asatoma Sadgamaya.</p>
@@ -124,18 +140,47 @@ let reduceMotion = false
 function applyParallax() {
   pxRaf = 0
   const vh = window.innerHeight
+  // Gentler drift on phones (smaller viewport, perf headroom).
+  const mag = window.innerWidth <= 600 ? -10 : -16
   for (const el of pxEls) {
     const r = el.getBoundingClientRect()
     const center = r.top + r.height / 2
     // -0.5 (above centre) … +0.5 (below centre)
     const rel = (center - vh / 2) / vh
-    const shift = Math.max(-1, Math.min(1, rel)) * -16 // px
+    const shift = Math.max(-1, Math.min(1, rel)) * mag // px
     el.style.transform = `translateY(${shift.toFixed(2)}px)`
   }
 }
 
 function onScroll() {
   if (!pxRaf) pxRaf = requestAnimationFrame(applyParallax)
+}
+
+// ── Cursor-tracked specular sheen on glass surfaces (desktop only) ──────────
+let sheenEls: HTMLElement[] = []
+let sheenRaf = 0
+let pendingSheen: { el: HTMLElement; x: number; y: number } | null = null
+
+function flushSheen() {
+  sheenRaf = 0
+  const s = pendingSheen
+  if (!s) return
+  s.el.style.setProperty('--mx', `${s.x}%`)
+  s.el.style.setProperty('--my', `${s.y}%`)
+  s.el.style.setProperty('--sheen', '1')
+}
+function onSheenMove(e: PointerEvent) {
+  const el = e.currentTarget as HTMLElement
+  const r = el.getBoundingClientRect()
+  pendingSheen = {
+    el,
+    x: ((e.clientX - r.left) / r.width) * 100,
+    y: ((e.clientY - r.top) / r.height) * 100,
+  }
+  if (!sheenRaf) sheenRaf = requestAnimationFrame(flushSheen)
+}
+function onSheenLeave(e: PointerEvent) {
+  (e.currentTarget as HTMLElement).style.setProperty('--sheen', '0')
 }
 
 onMounted(() => {
@@ -164,6 +209,16 @@ onMounted(() => {
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll, { passive: true })
     applyParallax()
+
+    // Bind the cursor sheen only on hover-capable, fine-pointer devices.
+    const hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    if (hoverCapable) {
+      sheenEls = Array.from(document.querySelectorAll<HTMLElement>('.about-panel, .shot__cell'))
+      for (const el of sheenEls) {
+        el.addEventListener('pointermove', onSheenMove as EventListener, { passive: true })
+        el.addEventListener('pointerleave', onSheenLeave as EventListener, { passive: true })
+      }
+    }
   }
 })
 
@@ -172,6 +227,11 @@ onBeforeUnmount(() => {
   window.removeEventListener('scroll', onScroll)
   window.removeEventListener('resize', onScroll)
   if (pxRaf) cancelAnimationFrame(pxRaf)
+  if (sheenRaf) cancelAnimationFrame(sheenRaf)
+  for (const el of sheenEls) {
+    el.removeEventListener('pointermove', onSheenMove as EventListener)
+    el.removeEventListener('pointerleave', onSheenLeave as EventListener)
+  }
 })
 </script>
 
@@ -194,15 +254,20 @@ onBeforeUnmount(() => {
   padding: 0 24rem;
 }
 
-/* ─── Base reveal ─── */
+/* ─── Base reveal ─── (frosted glass condensing into focus) */
 .anim {
   opacity: 0;
-  transform: translateY(20rem);
-  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(22rem) scale(0.988);
+  filter: blur(7rem);
+  transition:
+    opacity 0.7s ease,
+    transform 0.85s var(--ease-spring),
+    filter 0.7s ease;
 }
 .anim.in-view {
   opacity: 1;
   transform: none;
+  filter: none;
 }
 
 /* ─── Frosted glass story panel ─── */
@@ -278,7 +343,11 @@ onBeforeUnmount(() => {
   border: 1px solid color-mix(in srgb, var(--color-text) 35%, transparent);
   border-radius: 5rem;
   opacity: 0.9;
+  transform-origin: left center;
+  transition: transform 0.6s var(--ease-spring) 0.14s;
 }
+/* Micro-pop: the chapter chip springs in once its panel reveals */
+.about-panel:not(.in-view) .about-chapter__no { transform: scale(0.55); }
 
 /* ─── Body copy ─── */
 .about-body {
@@ -369,6 +438,12 @@ onBeforeUnmount(() => {
 }
 .shot.in-view .shot__img { scale: 1.04; }
 
+/* Solo portrait — a single centred glass-framed illustration */
+.shot--solo { width: min(58vw, 360rem); }
+.shot__cell--portrait { aspect-ratio: 1 / 1; }
+.shot--solo .shot__img { scale: 1.06; }
+.shot--solo.in-view .shot__img { scale: 1; }
+
 /* Gallery items show the full collage (titles are baked in) — no crop, no overscan */
 .shot__grid--gallery .shot__cell { aspect-ratio: auto; box-shadow: 0 34rem 76rem -34rem rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.24); }
 .shot__grid--gallery .shot__img  { height: auto; object-fit: contain; scale: 1; }
@@ -414,7 +489,10 @@ onBeforeUnmount(() => {
   -webkit-backdrop-filter: blur(16px) saturate(1.3);
   border: 1px solid var(--color-glass-border);
   box-shadow: inset 0 1px 1px color-mix(in srgb, var(--color-text) 14%, transparent);
+  transition: opacity 0.6s ease 0.16s, transform 0.7s var(--ease-spring) 0.16s;
 }
+/* Caption settles in just after its photo frame */
+.shot:not(.in-view) .shot__cap { opacity: 0; transform: translateY(10rem); }
 .shot__cap em     { font-style: italic; opacity: 0.95; }
 .shot__cap strong { font-weight: 600; }
 .shot__cap-rule {
@@ -436,12 +514,51 @@ onBeforeUnmount(() => {
   margin-top: 28rem;
 }
 
+/* ───────────────── Desktop micro-interactions (hover-capable only) ───────────────── */
+/* A soft specular highlight tracks the cursor across each glass surface — the
+   "liquid glass catches the light" tell. Driven by --mx/--my from pointermove
+   (set in script, rAF-throttled). Pointer-fine devices only; phones never bind. */
+.about-panel, .shot__cell { --mx: 50%; --my: 50%; --sheen: 0; }
+
+@media (hover: hover) and (pointer: fine) {
+  .about-panel::after,
+  .shot__cell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 3;
+    background: radial-gradient(200rem circle at var(--mx) var(--my),
+      rgba(255, 255, 255, 0.14), transparent 60%);
+    opacity: var(--sheen);
+    transition: opacity 0.4s ease;
+    mix-blend-mode: screen;
+  }
+
+  /* Photo frames lift gently toward the viewer on hover */
+  .shot__cell {
+    transition: transform 0.5s var(--ease-spring), box-shadow 0.5s ease;
+  }
+  .shot__cell:hover {
+    transform: translateY(-5rem);
+    box-shadow:
+      0 56rem 110rem -38rem rgba(0, 0, 0, 0.78),
+      inset 0 1px 1px rgba(255, 255, 255, 0.34);
+  }
+}
+
 /* ─── Reduced motion ─── */
 @media (prefers-reduced-motion: reduce) {
   .anim,
   .shot__item,
+  .shot__cap,
+  .shot__cell,
+  .about-chapter__no,
   .shot__img { transition: none; }
+  .anim { filter: none; }
   .shot__img { scale: 1; }
+  .about-panel::after, .shot__cell::after { display: none; }
 }
 
 /* ─── Tablet ─── */
@@ -455,11 +572,18 @@ onBeforeUnmount(() => {
   .about-wrap { padding-top: calc(92rem + var(--safe-top)); }
   .about-container { padding: 0 14rem; }
 
-  .about-panel { padding: 28rem 24rem; border-radius: 22rem; }
+  /* Lighter backdrop blur on phones — backdrop-filter is the heaviest GPU cost */
+  .about-panel {
+    padding: 28rem 24rem;
+    border-radius: 22rem;
+    backdrop-filter: blur(16px) saturate(1.3);
+    -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  }
   .about-panel--hero { padding: 34rem 24rem 30rem; }
   .about-panel--callout { padding: 24rem 22rem; }
 
   .shot { width: 100%; left: 0; translate: none; margin: 26rem 0; }
+  .shot--solo { width: min(70vw, 280rem); left: 50%; translate: -50% 0; }
   .shot__grid--duo { grid-template-columns: 1fr 1fr; gap: 10rem; }
   .shot__grid--editorial { grid-template-columns: 1fr; }
   .shot__cell--wide { aspect-ratio: 16 / 10; }

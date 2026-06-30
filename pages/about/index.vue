@@ -132,23 +132,93 @@
 
     </div>
 
-    <!-- Simple scroll progress (subtle, top, works on all devices) -->
-    <div class="story-progress">
-      <div class="progress-bar" :style="{ width: scrollProgress + '%' }"></div>
+    <!-- 3D Story Space: sections as floating glass planes in 3D -->
+    <!-- Swipe left/right (or drag on desktop) to orbit/navigate the story in 3D space -->
+    <!-- Inspired by immersive Awwwards storytelling sites with 3D depth, image-text integration, and cinematic reveals -->
+    <div class="story-3d-wrapper">
+      <div 
+        class="story-3d" 
+        ref="story3d"
+        @touchstart="handleSwipeStart"
+        @touchmove="handleSwipeMove"
+        @touchend="handleSwipeEnd"
+        @mousedown="handleSwipeStart"
+        @mousemove="handleSwipeMove"
+        @mouseup="handleSwipeEnd"
+        @mouseleave="handleSwipeEnd"
+      >
+        <div class="story-group" :style="{ transform: `rotateY(${groupRotation}deg)` }">
+          
+          <!-- Plane 1: The Floor -->
+          <div class="story-plane glass-panel" :class="{ active: currentPlane === 0 }" style="transform: rotateY(0deg) translateZ(400px);">
+            <div class="plane-inner">
+              <p class="about-chapter"><span class="about-chapter__no">01</span> The Floor</p>
+              <p class="about-body">It all began in hotels. I worked with places like Club Mahindra and Marriott, starting as a housekeeper. There was something quietly powerful about turning a messy room into a place that made people sigh with relief the moment they walked in. I learned to pay attention to the details that make a space feel cared for — the way a bed is made, how the light falls, the small surprises that make someone smile.</p>
+              <figure class="plane-image">
+                <img class="story-img" src="/about/about-housekeeper-1.webp" alt="Early days as housekeeper" loading="lazy" />
+              </figure>
+              <p class="plane-caption">Those early days taught me that the smallest gestures of care can change how someone experiences a place. I still fold my towels the same way at home — just because it feels good.</p>
+            </div>
+          </div>
+
+          <!-- Plane 2: The Spark -->
+          <div class="story-plane glass-panel" :class="{ active: currentPlane === 1 }" style="transform: rotateY(90deg) translateZ(400px);">
+            <div class="plane-inner">
+              <p class="about-chapter"><span class="about-chapter__no">02</span> The Spark</p>
+              <p class="about-body">The real turning point came when I got to work on something creative for the first time. We turned dry service standards into a comic strip story called SEWA Chronicles. Watching people light up as they read these little illustrated moments instead of another policy document — that was it. I didn't have the words for it yet, but I knew I wanted to spend my days making learning feel like something people actually wanted to do.</p>
+              <figure class="plane-image">
+                <img class="story-img" src="/about/about-sewa-1.webp" alt="SEWA Chronicles comic storyboards" loading="lazy" />
+              </figure>
+              <p class="plane-caption">Those first comic pages were my real classroom. They showed me that when you wrap useful ideas in something warm and human, people lean in instead of tuning out.</p>
+              <div class="plane-questions">
+                <p>What makes someone truly remember something?</p>
+                <p>How do we help people feel capable instead of overwhelmed?</p>
+                <p>What turns information into something that actually changes how someone sees the world?</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plane 3: The Craft -->
+          <div class="story-plane glass-panel" :class="{ active: currentPlane === 2 }" style="transform: rotateY(180deg) translateZ(400px);">
+            <div class="plane-inner">
+              <p class="about-chapter"><span class="about-chapter__no">03</span> The Craft</p>
+              <p class="about-body">Over time I got to design programs for big teams at Marriott — leadership journeys, onboarding adventures, training for trainers. What I loved most was seeing how the right story, the right moment of discovery, could turn a room full of tired professionals into people who were genuinely excited to try something new.</p>
+              <figure class="plane-image">
+                <img class="story-img" src="/about/about-ignite.webp" alt="IGNITE program" loading="lazy" />
+              </figure>
+              <p class="plane-caption">Those rooms taught me that when learning feels generous and human, people don't just remember it — they carry it forward.</p>
+            </div>
+          </div>
+
+          <!-- Plane 4: The Present -->
+          <div class="story-plane glass-panel" :class="{ active: currentPlane === 3 }" style="transform: rotateY(270deg) translateZ(400px);">
+            <div class="plane-inner">
+              <p class="about-chapter"><span class="about-chapter__no">04</span> The Present</p>
+              <p class="about-body">Today I'm at Concentrix, working with banking and finance teams. We take complex new ways of working and turn them into experiences that actually feel doable — even welcoming. The tools change, but the heart of it stays the same: helping people feel capable and a little more hopeful about what they can do next.</p>
+              <figure class="plane-image">
+                <img class="story-img" src="/about/about-concentrix.webp" alt="Illustrated portrait" loading="lazy" />
+              </figure>
+              <p class="plane-caption">The work keeps evolving, but the joy of it never changes — that quiet moment when someone realizes they can do the thing they thought was too hard.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- Swipe hint -->
+      <div class="swipe-hint">Swipe left or right to navigate the story in 3D space</div>
+      <!-- Plane indicators -->
+      <div class="plane-indicators">
+        <button v-for="i in 4" :key="i" class="dot" :class="{ active: currentPlane === i-1 }" @click="goToPlane(i-1)"></button>
+      </div>
     </div>
 
-    <!-- Chapter navigation - optimized: horizontal scrollable on mobile, sticky vertical on desktop -->
-    <nav class="chapter-nav glass-panel" aria-label="Story chapters">
-      <button 
-        v-for="(chapter, index) in chapters" 
-        :key="index"
-        class="nav-item"
-        :class="{ active: currentChapter === index + 1 }"
-        @click="scrollToChapter(index + 1)"
-      >
-        {{ chapter }}
-      </button>
-    </nav>
+    <div class="about-container">
+      <!-- Closing remains at bottom for scroll fallback / SEO -->
+      <section class="glass-panel about-panel about-panel--closing anim">
+        <p class="about-body">At the end of the day, I just love helping ideas land softly in people's lives. When someone walks away from something I helped shape feeling a little more confident, a little more curious — that's everything.</p>
+        <p class="about-asatoma">Asatoma Sadgamaya.</p>
+      </section>
+    </div>
   </div>
 </template>
 
@@ -287,125 +357,81 @@ onBeforeUnmount(() => {
   }
 })
 
-// ── Theatre Timeline (Theatre.js inspired) ─────────────────────────────────
-// Slow, beautiful unfolding of the story.
-// Desktop: drag the handle or mousemove for subtle "direction".
-// Mobile: scroll drives progress, tap markers to jump.
-// Animations unfold gently with GSAP for a warm, cinematic feel.
+// ── 3D Story Space with Swipe Navigation ─────────────────────────────────
+// Sections split into 3D space as floating glass planes arranged in a circle.
+// Swipe (touch) or drag (desktop) to orbit/navigate between planes.
+// Uses CSS 3D + GSAP for smooth cinematic rotations.
+// Cohesive with site's glass, gradient, and 3D spiral theme.
 
-const scrollProgress = ref(0)
-const currentChapter = ref(1)
+const story3d = ref<HTMLElement | null>(null)
+const groupRotation = ref(0)
+const currentPlane = ref(0)
+const isDragging = ref(false)
+let dragStartX = 0
+let dragStartRot = 0
+const numPlanes = 4
+const angleStep = 90
 
-const chapters = [
-  'The Beginning',
-  'The Spark',
-  'The Craft',
-  'Today'
-]
-
-function updateScrollProgress() {
-  const scrollTop = window.scrollY
-  const docHeight = document.documentElement.scrollHeight - window.innerHeight
-  if (docHeight <= 0) return
-  scrollProgress.value = Math.min(Math.max((scrollTop / docHeight) * 100, 0), 100)
-  detectCurrentChapter()
-}
-
-function detectCurrentChapter() {
-  const ids = ['the-floor', 'the-spark', 'the-craft', 'the-present']
-  let active = 1
-  const triggerPoint = window.innerHeight * 0.35
-
-  ids.forEach((id, i) => {
-    const el = document.getElementById(id)
-    if (el) {
-      const rect = el.getBoundingClientRect()
-      if (rect.top < triggerPoint) {
-        active = i + 1
-      }
-    }
+function updateGroupRotation(targetRot: number, duration = 0.65) {
+  const obj = { rot: groupRotation.value }
+  gsap.to(obj, {
+    rot: targetRot,
+    duration,
+    ease: 'power2.out',
+    onUpdate: () => { groupRotation.value = obj.rot }
   })
-
-  if (active !== currentChapter.value) {
-    currentChapter.value = active
-  }
 }
 
-function scrollToChapter(ch: number) {
-  const ids = ['the-floor', 'the-spark', 'the-craft', 'the-present']
-  const el = document.getElementById(ids[ch - 1])
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    currentChapter.value = ch
+function goToPlane(index: number) {
+  currentPlane.value = (index + numPlanes) % numPlanes
+  const targetRot = -currentPlane.value * angleStep
+  updateGroupRotation(targetRot)
+}
+
+function handleSwipeStart(e: TouchEvent | MouseEvent) {
+  isDragging.value = true
+  dragStartX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX
+  dragStartRot = groupRotation.value
+}
+
+function handleSwipeMove(e: TouchEvent | MouseEvent) {
+  if (!isDragging.value) return
+  const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX
+  const delta = (clientX - dragStartX) * 0.35
+  groupRotation.value = dragStartRot + delta
+}
+
+function handleSwipeEnd(e: TouchEvent | MouseEvent) {
+  if (!isDragging.value) return
+  isDragging.value = false
+  const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : (e as MouseEvent).clientX
+  const delta = clientX - dragStartX
+  const threshold = 70
+
+  let newIndex = currentPlane.value
+  if (Math.abs(delta) > threshold) {
+    newIndex = delta > 0 
+      ? (currentPlane.value - 1 + numPlanes) % numPlanes 
+      : (currentPlane.value + 1) % numPlanes
   }
+
+  currentPlane.value = newIndex
+  const targetRot = -currentPlane.value * angleStep
+  updateGroupRotation(targetRot)
+}
+
+function handleKey(e: KeyboardEvent) {
+  if (e.key === 'ArrowLeft') goToPlane(currentPlane.value - 1)
+  if (e.key === 'ArrowRight') goToPlane(currentPlane.value + 1)
 }
 
 onMounted(() => {
-  // Original setup
-  reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-  io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('in-view')
-          io!.unobserve(e.target)
-        }
-      })
-    },
-    { threshold: 0.1, rootMargin: '0px 0px -28px 0px' }
-  )
-
-  const els = document.querySelectorAll('.anim')
-  els.forEach((el, i) => {
-    if (i < 3) (el as HTMLElement).style.transitionDelay = `${i * 0.09}s`
-    io!.observe(el)
-  })
-
-  const hlEls = document.querySelectorAll('.hl')
-  if (reduceMotion) {
-    hlEls.forEach(el => el.classList.add('lit'))
-  } else {
-    ioHl = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            e.target.classList.add('lit')
-            ioHl!.unobserve(e.target)
-          }
-        })
-      },
-      { threshold: 0, rootMargin: '0px 0px -28% 0px' }
-    )
-    hlEls.forEach(el => ioHl!.observe(el))
-  }
-
-  if (!reduceMotion) {
-    pxEls = Array.from(document.querySelectorAll<HTMLElement>('.px'))
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll, { passive: true })
-    applyParallax()
-
-    const hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)').matches
-    if (hoverCapable) {
-      sheenEls = Array.from(document.querySelectorAll<HTMLElement>('.about-panel, .shot__cell'))
-      for (const el of sheenEls) {
-        el.addEventListener('pointermove', onSheenMove as EventListener, { passive: true })
-        el.addEventListener('pointerleave', onSheenLeave as EventListener, { passive: true })
-      }
-    }
-  }
-
-  // Scroll progress listener (mobile optimized)
-  window.addEventListener('scroll', updateScrollProgress, { passive: true })
-  updateScrollProgress()
-
-  // initial detection
-  setTimeout(detectCurrentChapter, 200)
+  window.addEventListener('keydown', handleKey)
+  groupRotation.value = 0
 })
 
 onBeforeUnmount(() => {
-  // no extra listeners for progress (passive scroll)
+  window.removeEventListener('keydown', handleKey)
 })
 </script>
 
@@ -941,6 +967,165 @@ onBeforeUnmount(() => {
   /* Progress thinner */
   .story-progress {
     height: 2rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   3D STORY SPACE
+   Planes arranged in 3D circle. Swipe/drag to navigate.
+   Cohesive glass + gradient theme, cinematic, mobile optimized.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.story-3d-wrapper {
+  perspective: 1200px;
+  height: 72vh;
+  margin: 40rem 0;
+  position: relative;
+  touch-action: pan-y; /* allow vertical scroll, capture horizontal swipes */
+  overflow: visible;
+}
+
+.story-3d {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  cursor: grab;
+}
+
+.story-3d:active {
+  cursor: grabbing;
+}
+
+.story-group {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.story-plane {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  height: 80%;
+  background: color-mix(in srgb, var(--color-bg) 58%, transparent);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 20rem;
+  padding: 24rem 28rem;
+  backdrop-filter: blur(22px) saturate(1.35);
+  -webkit-backdrop-filter: blur(22px) saturate(1.35);
+  box-shadow: 0 30rem 80rem -30rem rgba(0,0,0,0.55);
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  transition: box-shadow 0.3s ease, opacity 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-plane.active {
+  box-shadow: 0 40rem 100rem -24rem rgba(0,0,0,0.65),
+              0 0 0 1px var(--color-glass-border-hover);
+  z-index: 2;
+}
+
+.plane-inner {
+  width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  font-size: 15rem;
+  line-height: 1.45;
+}
+
+.plane-inner .about-chapter {
+  font-size: 18rem;
+  margin-bottom: 14rem;
+}
+
+.plane-image {
+  margin: 20rem 0;
+}
+
+.story-img {
+  width: 100%;
+  border-radius: 14rem;
+  display: block;
+  box-shadow: 0 10rem 30rem -10rem rgba(0,0,0,0.4);
+}
+
+.plane-caption {
+  font-size: 13rem;
+  opacity: 0.85;
+  margin-top: 12rem;
+  line-height: 1.4;
+}
+
+.plane-questions {
+  margin-top: 16rem;
+  font-size: 13rem;
+  opacity: 0.8;
+}
+
+.plane-questions p {
+  margin: 6rem 0;
+}
+
+.swipe-hint {
+  text-align: center;
+  margin-top: 16rem;
+  font-size: 12rem;
+  opacity: 0.55;
+  letter-spacing: 0.04em;
+}
+
+.plane-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 10rem;
+  margin-top: 18rem;
+}
+
+.plane-indicators .dot {
+  width: 10rem;
+  height: 10rem;
+  border-radius: 50%;
+  background: var(--color-glass-border);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.plane-indicators .dot.active {
+  background: var(--color-accent);
+  transform: scale(1.3);
+}
+
+/* Desktop: slightly larger planes */
+@media (min-width: 820px) {
+  .story-3d-wrapper {
+    height: 78vh;
+  }
+  .story-plane {
+    width: 70%;
+    left: 15%;
+    padding: 32rem 36rem;
+  }
+}
+
+/* Mobile tweaks for 3D */
+@media (max-width: 600px) {
+  .story-3d-wrapper {
+    height: 68vh;
+    margin: 30rem 0;
+  }
+  .plane-inner {
+    font-size: 14rem;
+  }
+  .swipe-hint {
+    font-size: 11rem;
   }
 }
 </style>

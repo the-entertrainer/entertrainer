@@ -174,7 +174,7 @@ export default class Backdrop {
         uFluteWidth:    { value: 70 },
         uFluteStrength: { value: 140 },
         uBrightness:    { value: 1.0 },
-        uGrainStrength: { value: 0.07 },
+        uGrainStrength: { value: 0.02 },
         uSeed:          { value: 0 },
         uAlgo:          { value: 0 },
         uLight:         { value: 0 },

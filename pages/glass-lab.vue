@@ -18,7 +18,7 @@ const params = reactive({
   warp: 0.05,
   warpSpeed: 0.10,
   flowSpeed: 1.0,
-  grain: 0.07,
+  grain: 0.02,
   fluteWidth: 70,
   fluteStrength: 140,
   brightness: 1.0,
@@ -48,7 +48,7 @@ function randomizeAll() {
   params.warp = +(0.03 + Math.random() * 0.07).toFixed(3)
   params.warpSpeed = +(0.06 + Math.random() * 0.10).toFixed(2)
   params.flowSpeed = +(0.7 + Math.random() * 0.5).toFixed(2)
-  params.grain = +((params.theme === 'dark' ? 0.05 : 0.04) + Math.random() * 0.045).toFixed(3)
+  params.grain = +((params.theme === 'dark' ? 0.015 : 0.012) + Math.random() * 0.015).toFixed(3)
   params.fluteWidth = Math.round(42 + Math.random() * 70)
   params.fluteStrength = Math.round(80 + Math.random() * 80)
   params.brightness = +(params.theme === 'dark' ? 0.9 + Math.random() * 0.35 : 0.66 + Math.random() * 0.22).toFixed(2)

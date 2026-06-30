@@ -25,7 +25,7 @@ function roll(): GlassParams {
     warpSpeed: 0.06 + r() * 0.10,
     fluteStrength: 80 + Math.floor(r() * 80),
     seed: r() * 10.0,
-    grain: 0.07,
+    grain: 0.02,
   }
 }
 

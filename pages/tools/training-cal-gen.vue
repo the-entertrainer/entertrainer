@@ -927,7 +927,7 @@ function backToTable() {
                     </div>
                   </div>
 
-                  <button class="glass-btn--ghost" style="font-size:12rem; padding:6rem 12rem; margin-top:12rem; color:#ef4444; border-color: rgba(239,68,68,0.3);" @click="removeSelectedSession">
+                  <button class="glass-btn glass-btn--ghost" style="font-size:12rem; padding:6rem 12rem; margin-top:12rem; color:#ef4444; border-color: rgba(239,68,68,0.3);" @click="removeSelectedSession">
                     Remove from calendar
                   </button>
                   <p style="font-size:11rem; opacity:0.35; text-align:center; margin:4rem 0 0; font-style:italic;">Tap any date on the calendar to move this session there</p>

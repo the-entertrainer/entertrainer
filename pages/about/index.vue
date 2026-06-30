@@ -8,11 +8,11 @@
       <!-- ───────────────── Hero panel ───────────────── -->
       <section class="about-panel about-panel--hero anim">
         <h1 class="about-intro">
-          I am Naveen, and I'm an Instructional Designer.
+          I am <span class="hl" data-text="Naveen">Naveen</span>, and I'm an <span class="hl" data-text="Instructional Designer">Instructional Designer</span>.
         </h1>
         <hr class="about-rule" />
         <p class="about-lead">
-          Finding Instructional Design as a career was never planned—it was a discovery.
+          Finding Instructional Design as a career was never planned—it was a <span class="hl" data-text="discovery">discovery</span>.
         </p>
       </section>
 
@@ -64,7 +64,7 @@
 
       <section class="about-panel anim">
         <p class="about-pull">
-          What fascinated me most wasn't the content itself—it was people.
+          What fascinated me most wasn't the content itself—it was <span class="hl" data-text="people">people</span>.
         </p>
         <div class="about-questions">
           <p>How do people learn?</p>
@@ -131,6 +131,7 @@
 definePageMeta({ layout: 'default' })
 
 let io: IntersectionObserver | null = null
+let ioHl: IntersectionObserver | null = null
 
 // ── Scroll-linked parallax on photographs (cinematic drift) ────────────────
 let pxEls: HTMLElement[] = []
@@ -204,6 +205,25 @@ onMounted(() => {
     io!.observe(el)
   })
 
+  // Headline emphasis — light each key word as it reaches the reading band.
+  const hlEls = document.querySelectorAll('.hl')
+  if (reduceMotion) {
+    hlEls.forEach(el => el.classList.add('lit'))
+  } else {
+    ioHl = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('lit')
+            ioHl!.unobserve(e.target)
+          }
+        })
+      },
+      { threshold: 0, rootMargin: '-30% 0px -42% 0px' }
+    )
+    hlEls.forEach(el => ioHl!.observe(el))
+  }
+
   if (!reduceMotion) {
     pxEls = Array.from(document.querySelectorAll<HTMLElement>('.px'))
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -224,6 +244,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   io?.disconnect()
+  ioHl?.disconnect()
   window.removeEventListener('scroll', onScroll)
   window.removeEventListener('resize', onScroll)
   if (pxRaf) cancelAnimationFrame(pxRaf)
@@ -319,6 +340,26 @@ onBeforeUnmount(() => {
   line-height: 1.55;
   letter-spacing: -0.025em;
   color: var(--color-text);
+}
+
+/* ─── Scroll-emphasised headline words ─── */
+/* Key words sit in normal ink until they scroll into the reading band, then
+   cross-fade to the live backdrop palette (the same gradient stops the WebGL
+   backdrop publishes). Wrap-safe: it tints the real text, so multi-word
+   phrases never break across lines. */
+.hl {
+  background-image: linear-gradient(112deg,
+    rgb(var(--grad-1, 200,120,255)),
+    rgb(var(--grad-2, 130,150,255)),
+    rgb(var(--grad-3, 120,200,255)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: var(--color-text);
+  transition: -webkit-text-fill-color 0.8s ease, filter 0.8s ease;
+}
+.hl.lit {
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2rem 14rem rgba(var(--accent-fog, 150,140,255), 0.35));
 }
 
 /* ─── Chapter marker ─── */
@@ -557,6 +598,7 @@ onBeforeUnmount(() => {
   .about-chapter__no,
   .shot__img { transition: none; }
   .anim { filter: none; }
+  .hl { transition: none; }
   .shot__img { scale: 1; }
   .about-panel::after, .shot__cell::after { display: none; }
 }

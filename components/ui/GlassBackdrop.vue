@@ -21,13 +21,16 @@ function boot() {
   renderer?.stop()
   renderer = startGlassRenderer(canvasEl.value, themeStore.isDark, glassStore.params, { reducedMotion: reduceMotion })
 
-  // Publish the primary accent so the edge fog matches the gradient. The
-  // Three.js backdrop sets this on the home route; on standalone pages we do it.
-  const c = glassStore.params.colors[0]
-  document.documentElement.style.setProperty(
-    '--accent-fog',
-    `${Math.round(c[0] * 255)},${Math.round(c[1] * 255)},${Math.round(c[2] * 255)}`,
-  )
+  // Publish the palette to CSS so chrome and text accents match the live
+  // gradient exactly. --accent-fog (primary) drives the edge fog; --grad-1..3
+  // are evenly-spaced stops used by scroll-emphasised headline words.
+  const cols = glassStore.params.colors
+  const rgb = (c: number[]) => `${Math.round(c[0] * 255)},${Math.round(c[1] * 255)},${Math.round(c[2] * 255)}`
+  const root = document.documentElement.style
+  root.setProperty('--accent-fog', rgb(cols[0]))
+  root.setProperty('--grad-1', rgb(cols[0]))
+  root.setProperty('--grad-2', rgb(cols[2]))
+  root.setProperty('--grad-3', rgb(cols[4]))
 }
 
 onMounted(async () => {

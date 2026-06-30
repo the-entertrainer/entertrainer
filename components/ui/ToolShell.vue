@@ -8,6 +8,7 @@ defineProps<{
   eyebrow?: string
   title?: string
   deck?: string
+  wide?: boolean
 }>()
 
 const rootRef = ref<HTMLElement | null>(null)
@@ -15,7 +16,7 @@ useGlassMicro(rootRef)
 </script>
 
 <template>
-  <div ref="rootRef" class="tool-shell">
+  <div ref="rootRef" class="tool-shell" :class="{ 'tool-shell--wide': wide }">
     <UiGlassBackdrop />
 
     <div class="tool-inner">
@@ -51,6 +52,7 @@ useGlassMicro(rootRef)
   margin: 0 auto;
   padding: 0 24rem;
 }
+.tool-shell--wide .tool-inner { max-width: 1080rem; }
 
 /* ── Header ── */
 .tool-head {

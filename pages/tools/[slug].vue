@@ -15,11 +15,9 @@ if (!item.value) throw createError({ statusCode: 404 })
 </script>
 
 <template>
-  <div v-if="item" class="detail-page">
-    <h1 class="detail-title">{{ item.label }}</h1>
-    <p class="detail-desc">{{ item.description }}</p>
-    <div class="detail-content">
-      <p class="placeholder-text">Content coming soon — this section is being crafted.</p>
+  <UiToolShell v-if="item" eyebrow="Web App" :title="item.label" :deck="item.description">
+    <div class="glass-panel">
+      <p class="stub-text">Content coming soon — this section is being crafted.</p>
     </div>
-  </div>
+  </UiToolShell>
 </template>

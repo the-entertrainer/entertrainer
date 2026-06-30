@@ -565,10 +565,7 @@ function backToTable() {
 </script>
 
 <template>
-  <div class="detail-page tcg-page">
-    <h1 class="detail-title">Training Calendar</h1>
-    <p class="detail-desc">Turn a list of topics into a ready-to-present monthly schedule.</p>
-
+  <UiToolShell wide eyebrow="Web App" title="Training Calendar" deck="Turn a list of topics into a ready-to-present monthly schedule.">
     <div class="tcg-body">
       <Transition name="fade" mode="out-in">
 
@@ -964,28 +961,29 @@ function backToTable() {
 
       </Transition>
     </div>
-  </div>
+  </UiToolShell>
 </template>
 
 <style scoped>
-.tcg-page {
-  min-height: 100dvh;
-  background: var(--color-bg);
-  color: var(--color-text);
-  padding: var(--page-top) var(--grid-margin) calc(100rem + var(--safe-bottom));
-}
+.tcg-body { color: var(--color-text); }
 
-.tcg-body {
-  border-top: 1px solid var(--color-divider);
-  padding-top: 48rem;
-}
-
-/* ── Form ── */
+/* ── Form — frosted glass panel ── */
 .tcg-form {
   display: flex;
   flex-direction: column;
   gap: 14rem;
   max-width: 600rem;
+  padding: 28rem;
+  border-radius: 24rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), transparent 38%),
+    color-mix(in srgb, var(--color-bg) 62%, transparent);
+  -webkit-backdrop-filter: blur(26px) saturate(1.4);
+  backdrop-filter: blur(26px) saturate(1.4);
+  border: 1px solid var(--color-glass-border);
+  box-shadow:
+    0 34rem 90rem -42rem rgba(0, 0, 0, 0.6),
+    inset 0 1px 1px color-mix(in srgb, var(--color-text) 16%, transparent);
 }
 
 .tcg-section-label {
@@ -1027,16 +1025,23 @@ function backToTable() {
 
 .tcg-input, .tcg-select {
   width: 100%;
-  background: var(--color-glass-bg);
+  background: color-mix(in srgb, var(--color-bg) 54%, transparent);
   border: 1px solid var(--color-glass-border);
   border-radius: 10rem;
   color: var(--color-text);
   font-family: inherit;
   font-size: var(--text-sm);
   padding: 10rem 14rem;
-  transition: border-color 0.15s;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.22s;
 }
-.tcg-input:focus, .tcg-select:focus { outline: none; border-color: var(--color-glass-border-hover); }
+.tcg-input:focus, .tcg-select:focus {
+  outline: none;
+  border-color: var(--color-glass-border-hover);
+  background: color-mix(in srgb, var(--color-bg) 66%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, rgb(var(--accent-fog, 150,140,255)) 22%, transparent);
+}
 
 .tcg-input--hero {
   font-size: 22rem;
@@ -1056,7 +1061,7 @@ function backToTable() {
 
 .tcg-textarea {
   width: 100%;
-  background: var(--color-glass-bg);
+  background: color-mix(in srgb, var(--color-bg) 54%, transparent);
   border: 1px solid var(--color-glass-border);
   border-radius: 12rem;
   color: var(--color-text);
@@ -1065,10 +1070,17 @@ function backToTable() {
   line-height: 1.6;
   padding: 14rem 16rem;
   resize: vertical;
-  transition: border-color 0.15s;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.22s;
 }
 .tcg-textarea::placeholder { opacity: 0.35; }
-.tcg-textarea:focus { outline: none; border-color: var(--color-glass-border-hover); }
+.tcg-textarea:focus {
+  outline: none;
+  border-color: var(--color-glass-border-hover);
+  background: color-mix(in srgb, var(--color-bg) 66%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, rgb(var(--accent-fog, 150,140,255)) 22%, transparent);
+}
 
 /* Chips (audiences + slots) */
 .tcg-chips, .tcg-slots {
@@ -1223,13 +1235,20 @@ function backToTable() {
 }
 
 .tcg-module-card {
-  background: var(--color-glass-bg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 38%),
+    color-mix(in srgb, var(--color-bg) 60%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(1.35);
+  backdrop-filter: blur(20px) saturate(1.35);
   border: 1px solid var(--color-glass-border);
-  border-radius: 14rem;
+  border-radius: 16rem;
   padding: 16rem;
   display: flex;
   flex-direction: column;
   gap: 14rem;
+  box-shadow:
+    0 24rem 60rem -36rem rgba(0, 0, 0, 0.55),
+    inset 0 1px 1px color-mix(in srgb, var(--color-text) 14%, transparent);
 }
 
 .tcg-module-top {
@@ -1292,16 +1311,22 @@ function backToTable() {
 
 .tcg-mselect, .tcg-minput {
   width: 100%;
-  background: var(--color-glass-bg);
+  background: color-mix(in srgb, var(--color-bg) 50%, transparent);
   border: 1px solid var(--color-glass-border);
   border-radius: 8rem;
   color: var(--color-text);
   font-family: inherit;
   font-size: 13rem;
   padding: 8rem 10rem;
-  transition: border-color 0.15s;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  transition: border-color 0.18s, background 0.18s;
 }
-.tcg-mselect:focus, .tcg-minput:focus { outline: none; border-color: var(--color-glass-border-hover); }
+.tcg-mselect:focus, .tcg-minput:focus {
+  outline: none;
+  border-color: var(--color-glass-border-hover);
+  background: color-mix(in srgb, var(--color-bg) 64%, transparent);
+}
 .tcg-minput::placeholder { opacity: 0.35; }
 
 .tcg-mselect {
@@ -1631,13 +1656,16 @@ function backToTable() {
 }
 
 .tcg-stat-card {
-  background: var(--color-glass-bg);
+  background: color-mix(in srgb, var(--color-bg) 60%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(1.35);
+  backdrop-filter: blur(20px) saturate(1.35);
   border: 1px solid var(--color-glass-border);
   border-radius: 12rem;
   padding: 16rem;
   display: flex;
   flex-direction: column;
   gap: 4rem;
+  box-shadow: inset 0 1px 1px color-mix(in srgb, var(--color-text) 12%, transparent);
 }
 .tcg-stat-num {
   font-size: 32rem;
@@ -1682,10 +1710,13 @@ function backToTable() {
 .tcg-unscheduled li { margin-bottom: 3rem; }
 
 .tcg-legend {
-  background: var(--color-glass-bg);
+  background: color-mix(in srgb, var(--color-bg) 60%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(1.35);
+  backdrop-filter: blur(20px) saturate(1.35);
   border: 1px solid var(--color-glass-border);
   border-radius: 12rem;
   padding: 14rem;
+  box-shadow: inset 0 1px 1px color-mix(in srgb, var(--color-text) 12%, transparent);
 }
 .tcg-legend-row {
   display: flex;
@@ -1719,13 +1750,16 @@ function backToTable() {
 
 /* ── Session editor panel ── */
 .tcg-edit-panel {
-  background: var(--color-glass-bg);
+  background: color-mix(in srgb, var(--color-bg) 62%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  backdrop-filter: blur(22px) saturate(1.4);
   border: 1px solid var(--color-glass-border);
   border-radius: 14rem;
   padding: 16rem;
   display: flex;
   flex-direction: column;
   gap: 12rem;
+  box-shadow: inset 0 1px 1px color-mix(in srgb, var(--color-text) 14%, transparent);
 }
 
 .tcg-edit-header {

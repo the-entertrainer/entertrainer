@@ -317,41 +317,6 @@ canvas {
 }
 
 /* ============================================================
-   Detail pages — shared shell for the [slug] stubs
-   (about/[slug], tools/[slug], downloads/[slug])
-   ============================================================ */
-.detail-page {
-  min-height: 100dvh;
-  background: var(--color-bg);
-  color: var(--color-text);
-  padding: var(--page-top) var(--grid-margin) calc(100rem + var(--safe-bottom));
-}
-.detail-title {
-  font-size: var(--text-display);
-  font-weight: 700;
-  letter-spacing: -0.05em;
-  line-height: 1;
-  margin-bottom: 24rem;
-}
-.detail-desc {
-  font-size: var(--text-lead);
-  font-weight: 500;
-  opacity: 0.5;
-  margin-bottom: 60rem;
-  max-width: 540rem;
-  line-height: 1.5;
-}
-.detail-content {
-  border-top: 1px solid var(--color-divider);
-  padding-top: 60rem;
-}
-.placeholder-text {
-  font-size: var(--text-body);
-  opacity: 0.3;
-  font-style: italic;
-}
-
-/* ============================================================
    Glass primitives — the shared surface system
    The single source of truth for tool / content pages so every
    page wears the same liquid-glass skin as the About page:
@@ -516,6 +481,16 @@ canvas {
   backdrop-filter: blur(10px);
 }
 .glass-note--error { border-color: color-mix(in srgb, #ff7a7a 50%, var(--color-glass-border)); }
+
+/* Stub / "coming soon" copy inside a glass panel */
+.stub-text {
+  font-size: var(--text-body);
+  line-height: 1.6;
+  color: var(--color-text);
+  opacity: 0.55;
+  font-style: italic;
+  margin: 0;
+}
 
 /* ── Reduced motion + mobile tuning ── */
 @media (prefers-reduced-motion: reduce) {

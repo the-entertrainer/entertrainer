@@ -2,11 +2,13 @@
 import gsap from 'gsap'
 import { useExperienceStore } from '~/stores/experience'
 import { useThemeStore } from '~/stores/theme'
+import { useGlassStore } from '~/stores/glass'
 
 const emit = defineEmits<{ (e: 'entered'): void }>()
 
 const experienceStore = useExperienceStore()
 const themeStore       = useThemeStore()
+const glassStore       = useGlassStore()
 const isReady          = computed(() => experienceStore.isReady)
 
 const loaderEl = ref<HTMLElement | null>(null)
@@ -23,13 +25,6 @@ let stopGlass: (() => void) | null = null
 let glassLive: { warp: number; refr: number; bright: number } | null = null
 
 // ── Fractal-glass background (same effect as the site backdrop) ──────────────
-const PALETTES = [
-  [[1.0,0.15,0.60],[0.15,0.90,1.00],[0.30,0.30,1.00],[0.70,0.20,1.00],[1.00,0.40,0.85]],
-  [[1.0,0.50,0.15],[1.00,0.20,0.25],[1.00,0.78,0.20],[0.90,0.20,0.60],[0.50,0.15,0.65]],
-  [[0.2,1.00,0.60],[0.10,0.80,0.95],[0.20,0.50,1.00],[0.50,1.00,0.80],[0.55,0.30,1.00]],
-  [[1.0,0.30,0.10],[1.00,0.62,0.12],[1.00,0.85,0.30],[0.95,0.20,0.35],[0.60,0.10,0.25]],
-  [[0.6,0.20,1.00],[1.00,0.20,0.80],[0.20,0.65,1.00],[0.95,0.45,1.00],[0.30,0.95,1.00]],
-]
 const FS = `
 precision highp float;
 uniform float uTime,uWarp,uWSpeed,uNSX,uNSY,uFlute,uRefr,uBright,uGrain,uSeed,uAlgo,uLight;
@@ -76,16 +71,15 @@ function startGlass() {
   const la = gl.getAttribLocation(pr, 'a'); gl.enableVertexAttribArray(la); gl.vertexAttribPointer(la, 2, gl.FLOAT, false, 0, 0)
   const U = (n: string) => gl.getUniformLocation(pr, n)
   const dark = themeStore.isDark
-  const pal = PALETTES[Math.floor(Math.random() * PALETTES.length)]
-  const r = Math.random
-  const live = { warp: 0.03 + r() * 0.06, refr: 90 + r() * 70, bright: dark ? 1.1 : 0.2 }
+  const gp = glassStore.params
+  const live = { warp: gp.warp, refr: gp.fluteStrength, bright: dark ? 1.1 : 0.2 }
   glassLive = live
-  gl.uniform1f(U('uWSpeed'), 0.08 + r() * 0.08)
-  gl.uniform1f(U('uNSX'), 0.3 + r() * 0.3); gl.uniform1f(U('uNSY'), 0.45 + r() * 0.35)
-  gl.uniform1f(U('uFlute'), 100); gl.uniform1f(U('uGrain'), 0.07)
-  gl.uniform1f(U('uSeed'), r() * 10); gl.uniform1f(U('uAlgo'), r() < 0.5 ? 0 : 1); gl.uniform1f(U('uLight'), dark ? 0 : 1)
+  gl.uniform1f(U('uWSpeed'), gp.warpSpeed)
+  gl.uniform1f(U('uNSX'), gp.noiseScale1); gl.uniform1f(U('uNSY'), gp.noiseScale2)
+  gl.uniform1f(U('uFlute'), 100); gl.uniform1f(U('uGrain'), gp.grain)
+  gl.uniform1f(U('uSeed'), gp.seed); gl.uniform1f(U('uAlgo'), gp.algo); gl.uniform1f(U('uLight'), dark ? 0 : 1)
   gl.uniform3f(U('uBase'), ...(dark ? [0.005, 0.01, 0.055] : [0.98, 0.97, 0.96]) as [number, number, number])
-  ;[U('uC1'), U('uC2'), U('uC3'), U('uC4'), U('uC5')].forEach((l, i) => gl.uniform3f(l, pal[i][0], pal[i][1], pal[i][2]))
+  ;[U('uC1'), U('uC2'), U('uC3'), U('uC4'), U('uC5')].forEach((l, i) => gl.uniform3f(l, gp.colors[i][0], gp.colors[i][1], gp.colors[i][2]))
 
   const resize = () => {
     const dpr = Math.min(window.devicePixelRatio || 1, 2)

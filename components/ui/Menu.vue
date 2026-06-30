@@ -107,7 +107,7 @@ function handleHomeClick() {
 
   <div class="e-nav" :class="{ 'panel-open': isOpened }">
     <!-- Panel renders behind the button (DOM order = visual z-order) -->
-    <div class="e-panel lg-surface" :class="{ open: isOpened }">
+    <div class="e-panel lg-surface" :class="{ open: isOpened, 'has-toggle': showViewToggle }">
       <div class="e-panel-inner">
         <nav class="e-nav-group">
           <template v-for="(link, i) in links" :key="link.label">
@@ -282,6 +282,9 @@ function handleHomeClick() {
     width 0.55s var(--ease-spring),
     height 0.6s var(--ease-spring),
     border-radius 0.5s ease, background 0.35s ease, box-shadow 0.5s ease;
+}
+.e-panel.open.has-toggle {
+  height: 310rem;
 }
 
 /* ── Panel inner ── */

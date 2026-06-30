@@ -23,7 +23,7 @@
       </section>
 
       <!-- ───────────────── Chapter 01 · The Floor ───────────────── -->
-      <section class="glass-panel about-panel anim">
+      <section id="the-floor" class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">01</span> The Floor</p>
         <p class="about-body">It all began in hotels. I worked with places like Club Mahindra and Marriott, starting as a housekeeper. There was something quietly powerful about turning a messy room into a place that made people sigh with relief the moment they walked in. I learned to pay attention to the details that make a space feel cared for — the way a bed is made, how the light falls, the small surprises that make someone smile.</p>
       </section>
@@ -50,7 +50,7 @@
       </section>
 
       <!-- ───────────────── Chapter 02 · The Spark ───────────────── -->
-      <section class="glass-panel about-panel anim">
+      <section id="the-spark" class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">02</span> The Spark</p>
         <p class="about-body">The real turning point came when I got to work on something creative for the first time. We turned dry service standards into a comic strip story called SEWA Chronicles. Watching people light up as they read these little illustrated moments instead of another policy document — that was it. I didn't have the words for it yet, but I knew I wanted to spend my days making learning feel like something people actually wanted to do.</p>
       </section>
@@ -83,7 +83,7 @@
       </section>
 
       <!-- ───────────────── Chapter 03 · The Craft ───────────────── -->
-      <section class="glass-panel about-panel anim">
+      <section id="the-craft" class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">03</span> The Craft</p>
         <p class="about-body">Over time I got to design programs for big teams at Marriott — leadership journeys, onboarding adventures, training for trainers. What I loved most was seeing how the right story, the right moment of discovery, could turn a room full of tired professionals into people who were genuinely excited to try something new.</p>
       </section>
@@ -110,7 +110,7 @@
       </figure>
 
       <!-- ───────────────── Chapter 04 · The Present ───────────────── -->
-      <section class="glass-panel about-panel anim">
+      <section id="the-present" class="glass-panel about-panel anim">
         <p class="about-chapter"><span class="about-chapter__no">04</span> The Present</p>
         <p class="about-body">Today I'm at Concentrix, working with banking and finance teams. We take complex new ways of working and turn them into experiences that actually feel doable — even welcoming. The tools change, but the heart of it stays the same: helping people feel capable and a little more hopeful about what they can do next.</p>
       </section>
@@ -132,29 +132,23 @@
 
     </div>
 
-    <!-- Theatre Timeline - Theatre.js inspired slow, beautiful unfolding -->
-    <!-- Drag or scroll to progress the story. Animations unfold gently and enjoyably. -->
-    <div class="theatre-timeline glass-panel">
-      <div class="timeline-track">
-        <div class="timeline-progress" :style="{ width: timelineProgress + '%' }"></div>
-        <div 
-          v-for="(chapter, index) in chapters" 
-          :key="index"
-          class="timeline-marker"
-          :class="{ active: currentChapter === index + 1 }"
-          @click="jumpToChapter(index + 1)"
-        >
-          <span class="marker-dot"></span>
-          <span class="marker-label">{{ chapter }}</span>
-        </div>
-      </div>
-      <div class="timeline-handle" 
-           :style="{ left: timelineProgress + '%' }"
-           @mousedown="startScrub"
-           @touchstart="startScrub">
-      </div>
-      <div class="timeline-label">The Story Unfolds</div>
+    <!-- Simple scroll progress (subtle, top, works on all devices) -->
+    <div class="story-progress">
+      <div class="progress-bar" :style="{ width: scrollProgress + '%' }"></div>
     </div>
+
+    <!-- Chapter navigation - optimized: horizontal scrollable on mobile, sticky vertical on desktop -->
+    <nav class="chapter-nav glass-panel" aria-label="Story chapters">
+      <button 
+        v-for="(chapter, index) in chapters" 
+        :key="index"
+        class="nav-item"
+        :class="{ active: currentChapter === index + 1 }"
+        @click="scrollToChapter(index + 1)"
+      >
+        {{ chapter }}
+      </button>
+    </nav>
   </div>
 </template>
 
@@ -273,6 +267,11 @@ onMounted(() => {
       }
     }
   }
+
+  // Mobile-first scroll progress + chapter nav
+  window.addEventListener('scroll', updateScrollProgress, { passive: true })
+  updateScrollProgress()
+  setTimeout(detectCurrentChapter, 250)
 })
 
 onBeforeUnmount(() => {
@@ -294,9 +293,8 @@ onBeforeUnmount(() => {
 // Mobile: scroll drives progress, tap markers to jump.
 // Animations unfold gently with GSAP for a warm, cinematic feel.
 
-const timelineProgress = ref(0)
+const scrollProgress = ref(0)
 const currentChapter = ref(1)
-const isScrubbing = ref(false)
 
 const chapters = [
   'The Beginning',
@@ -305,123 +303,40 @@ const chapters = [
   'Today'
 ]
 
-function updateTimelineFromScroll() {
+function updateScrollProgress() {
   const scrollTop = window.scrollY
   const docHeight = document.documentElement.scrollHeight - window.innerHeight
   if (docHeight <= 0) return
-  const progress = Math.min(Math.max((scrollTop / docHeight) * 100, 0), 100)
-  timelineProgress.value = progress
-  updateCurrentChapter(progress)
+  scrollProgress.value = Math.min(Math.max((scrollTop / docHeight) * 100, 0), 100)
+  detectCurrentChapter()
 }
 
-function updateCurrentChapter(progress: number) {
-  const chapterCount = chapters.length
-  const newChapter = Math.min(Math.floor((progress / 100) * chapterCount) + 1, chapterCount)
-  if (newChapter !== currentChapter.value) {
-    currentChapter.value = newChapter
-    triggerChapterUnfold(newChapter)
-  }
-}
+function detectCurrentChapter() {
+  const ids = ['the-floor', 'the-spark', 'the-craft', 'the-present']
+  let active = 1
+  const triggerPoint = window.innerHeight * 0.35
 
-function triggerChapterUnfold(chapter: number) {
-  const sections = document.querySelectorAll('.about-panel, .shot')
-  const target = sections[chapter - 1] as HTMLElement | undefined
-  if (!target || !(window as any).gsap) return
-
-  const img = target.querySelector('img') as HTMLElement | null
-  if (img) {
-    (window as any).gsap.to(img, {
-      scale: 1,
-      duration: 1.8,
-      ease: 'power2.out',
-      overwrite: true
-    })
-  }
-
-  (window as any).gsap.to(target, {
-    opacity: 1,
-    y: 0,
-    duration: 1.2,
-    ease: 'power1.out',
-    overwrite: true
+  ids.forEach((id, i) => {
+    const el = document.getElementById(id)
+    if (el) {
+      const rect = el.getBoundingClientRect()
+      if (rect.top < triggerPoint) {
+        active = i + 1
+      }
+    }
   })
-}
 
-function jumpToChapter(chapter: number) {
-  const sections = document.querySelectorAll('.about-panel, .shot')
-  const target = sections[chapter - 1] as HTMLElement | undefined
-  if (!target) return
-
-  target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  currentChapter.value = chapter
-  timelineProgress.value = ((chapter - 1) / chapters.length) * 100
-  triggerChapterUnfold(chapter)
-}
-
-let startX = 0
-let startProgress = 0
-
-function startScrub(e: MouseEvent | TouchEvent) {
-  isScrubbing.value = true
-  const clientX = 'touches' in e ? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).clientX
-  startX = clientX
-  startProgress = timelineProgress.value
-
-  document.addEventListener('mousemove', onScrubMove)
-  document.addEventListener('mouseup', endScrub)
-  document.addEventListener('touchmove', onScrubMove, { passive: false })
-  document.addEventListener('touchend', endScrub)
-}
-
-function onScrubMove(e: MouseEvent | TouchEvent) {
-  if (!isScrubbing.value) return
-  e.preventDefault()
-
-  const clientX = 'touches' in e ? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).clientX
-  const deltaX = clientX - startX
-  const timelineWidth = (document.querySelector('.timeline-track') as HTMLElement)?.offsetWidth || 1
-  const deltaPercent = (deltaX / timelineWidth) * 100
-
-  let newProgress = Math.min(Math.max(startProgress + deltaPercent, 0), 100)
-  timelineProgress.value = newProgress
-
-  const docHeight = document.documentElement.scrollHeight - window.innerHeight
-  const targetScroll = (newProgress / 100) * docHeight
-  window.scrollTo({ top: targetScroll, behavior: 'auto' })
-
-  updateCurrentChapter(newProgress)
-}
-
-function endScrub() {
-  isScrubbing.value = false
-  document.removeEventListener('mousemove', onScrubMove)
-  document.removeEventListener('mouseup', endScrub)
-  document.removeEventListener('touchmove', onScrubMove)
-  document.removeEventListener('touchend', endScrub)
-}
-
-function onMouseDirect(e: MouseEvent) {
-  const activeSection = document.querySelectorAll('.about-panel, .shot')[currentChapter.value - 1] as HTMLElement | null
-  if (!activeSection) return
-
-  const rect = activeSection.getBoundingClientRect()
-  const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2
-  const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2
-
-  const img = activeSection.querySelector('img') as HTMLElement | null
-  if (img) {
-    img.style.transform = `perspective(800px) rotateX(${-y * 3}deg) rotateY(${x * 4}deg) scale(1.01)`
+  if (active !== currentChapter.value) {
+    currentChapter.value = active
   }
 }
 
-function resetMouseDirect() {
-  const activeSection = document.querySelectorAll('.about-panel, .shot')[currentChapter.value - 1] as HTMLElement | null
-  if (!activeSection) return
-  const img = activeSection.querySelector('img') as HTMLElement | null
-  if (img) {
-    img.style.transition = 'transform 0.8s var(--ease-spring)'
-    img.style.transform = ''
-    setTimeout(() => { if (img) img.style.transition = '' }, 800)
+function scrollToChapter(ch: number) {
+  const ids = ['the-floor', 'the-spark', 'the-craft', 'the-present']
+  const el = document.getElementById(ids[ch - 1])
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    currentChapter.value = ch
   }
 }
 
@@ -481,23 +396,16 @@ onMounted(() => {
     }
   }
 
-  // Theatre timeline sync
-  window.addEventListener('scroll', () => {
-    if (!isScrubbing.value) updateTimelineFromScroll()
-  }, { passive: true })
+  // Scroll progress listener (mobile optimized)
+  window.addEventListener('scroll', updateScrollProgress, { passive: true })
+  updateScrollProgress()
 
-  const hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)').matches
-  if (hoverCapable) {
-    window.addEventListener('mousemove', onMouseDirect, { passive: true })
-    window.addEventListener('mouseleave', resetMouseDirect)
-  }
-
-  setTimeout(updateTimelineFromScroll, 120)
+  // initial detection
+  setTimeout(detectCurrentChapter, 200)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('mousemove', onMouseDirect)
-  window.removeEventListener('mouseleave', resetMouseDirect)
+  // no extra listeners for progress (passive scroll)
 })
 </script>
 
@@ -907,152 +815,86 @@ onBeforeUnmount(() => {
   .about-panel::after, .shot__cell::after { display: none; }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   THEATRE TIMELINE - Theatre.js inspired
-   Beautiful, slow unfolding controlled by scroll or drag.
-   Warm, light, and cinematic.
-   ═══════════════════════════════════════════════════════════════════════ */
-
-.theatre-timeline {
+/* Simple story progress bar (top, non-intrusive, works on mobile) */
+.story-progress {
   position: fixed;
-  bottom: calc(24rem + var(--safe-bottom));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-  width: min(92vw, 720rem);
-  padding: 12rem 20rem;
-  border-radius: 20rem;
-  display: flex;
-  flex-direction: column;
-  gap: 8rem;
-  background: color-mix(in srgb, var(--color-bg) 45%, transparent);
-  border: 1px solid var(--color-glass-border);
-  backdrop-filter: blur(20px) saturate(1.3);
-  box-shadow: 0 20rem 60rem -24rem rgba(0,0,0,0.5);
+  top: calc(80rem + var(--safe-top));
+  left: 0;
+  right: 0;
+  height: 3rem;
+  background: color-mix(in srgb, var(--color-glass-border) 30%, transparent);
+  z-index: 90;
+  pointer-events: none;
 }
 
-.timeline-track {
-  position: relative;
-  height: 4rem;
-  background: color-mix(in srgb, var(--color-glass-border) 35%, transparent);
-  border-radius: 999rem;
-  overflow: visible;
-}
-
-.timeline-progress {
-  position: absolute;
+.progress-bar {
   height: 100%;
   background: linear-gradient(to right, var(--color-accent), var(--color-text));
-  border-radius: 999rem;
   transition: width 0.1s linear;
+  will-change: width;
 }
 
-.timeline-marker {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
+/* Chapter nav - mobile optimized: horizontal scroll, thumb friendly */
+.chapter-nav {
+  position: sticky;
+  top: calc(88rem + var(--safe-top));
+  z-index: 95;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  overflow-x: auto;
+  gap: 8rem;
+  padding: 12rem 16rem;
+  margin-bottom: 20rem;
+  border-radius: 16rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.chapter-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-item {
+  flex: 0 0 auto;
+  padding: 8rem 16rem;
+  font-size: 12rem;
+  border-radius: 999rem;
+  background: color-mix(in srgb, var(--color-bg) 60%, transparent);
+  border: 1px solid var(--color-glass-border);
+  color: var(--color-text);
+  white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.timeline-marker .marker-dot {
-  width: 8rem;
-  height: 8rem;
-  background: var(--color-text);
-  border-radius: 50%;
-  border: 2rem solid var(--color-bg);
-  z-index: 2;
-  transition: transform 0.2s ease;
-}
-
-.timeline-marker.active .marker-dot {
-  transform: scale(1.4);
+.nav-item.active {
   background: var(--color-accent);
+  color: var(--color-bg);
+  border-color: var(--color-accent);
 }
 
-.marker-label {
-  position: absolute;
-  top: 18rem;
-  font-size: 9rem;
-  white-space: nowrap;
-  opacity: 0.55;
-  letter-spacing: 0.06em;
-  pointer-events: none;
-  text-transform: uppercase;
+@media (min-width: 820px) {
+  .chapter-nav {
+    flex-direction: column;
+    position: fixed;
+    top: 180rem;
+    left: 24rem;
+    width: 160rem;
+    overflow: visible;
+  }
+  .nav-item {
+    padding: 10rem 14rem;
+    font-size: 13rem;
+  }
 }
 
-.timeline-marker.active .marker-label {
-  opacity: 0.95;
-  font-weight: 500;
-}
-
-.timeline-handle {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 18rem;
-  height: 18rem;
-  background: var(--color-text);
-  border: 3rem solid var(--color-bg);
-  border-radius: 50%;
-  box-shadow: 0 4rem 12rem -2rem rgba(0,0,0,0.4);
-  cursor: grab;
-  z-index: 10;
-  transition: transform 0.1s ease;
-}
-
-.timeline-handle:active {
-  cursor: grabbing;
-  transform: translate(-50%, -50%) scale(1.1);
-}
-
-.timeline-label {
-  text-align: center;
-  font-size: 10rem;
-  opacity: 0.5;
-  letter-spacing: 0.08em;
-}
-
-/* Image unfolding enhancements for theatrical feel */
+/* Image reveals - keep light for mobile perf */
 .shot__img {
-  transition: transform 1.6s cubic-bezier(0.23, 1, 0.32, 1), 
-              filter 1.2s ease;
+  transition: transform 1.2s cubic-bezier(0.23, 1, 0.32, 1);
   will-change: transform;
 }
 
 .shot.in-view .shot__img {
   transform: scale(1);
-  filter: none;
-}
-
-/* Subtle decorative light sweep on images when in focus (cinematic) */
-.shot.in-view .shot__cell::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    110deg,
-    transparent 40%,
-    rgba(255,255,255,0.18) 50%,
-    transparent 60%
-  );
-  background-size: 200% 100%;
-  animation: light-sweep 2.8s ease forwards;
-  pointer-events: none;
-  opacity: 0.6;
-}
-
-@keyframes light-sweep {
-  0% { background-position: 200% 0; }
-  100% { background-position: -100% 0; }
-}
-
-/* Warm, enjoyable text reveals */
-.about-body, .shot__cap {
-  transition: opacity 0.8s ease, transform 0.8s var(--ease-spring);
 }
 
 /* ─── Tablet ─── */
@@ -1084,5 +926,21 @@ onBeforeUnmount(() => {
   .shot__cell--tall { aspect-ratio: 16 / 11; }
   .shot__grid--gallery { grid-template-columns: 1fr; gap: 22rem; }
   .shot__cap { font-size: 13rem; }
+
+  /* Mobile chapter nav: easy horizontal swipe */
+  .chapter-nav {
+    top: calc(84rem + var(--safe-top));
+    padding: 8rem 12rem;
+    gap: 6rem;
+  }
+  .nav-item {
+    padding: 6rem 12rem;
+    font-size: 11rem;
+  }
+
+  /* Progress thinner */
+  .story-progress {
+    height: 2rem;
+  }
 }
 </style>

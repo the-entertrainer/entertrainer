@@ -25,11 +25,23 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Could not read request body.' })
     }
 
-    const raw = String(body?.raw ?? '').trim()
-    const audience = String(body?.audience ?? '').trim()
-    const modality = String(body?.modality ?? 'eLearning storyboard').trim()
-    const tone = String(body?.tone ?? 'clear, practical, and learner-centered').trim()
-    const screenCount = Math.max(3, Math.min(20, Number(body?.screenCount ?? 8)))
+    const raw           = String(body?.raw           ?? '').trim()
+    const audience      = String(body?.audience      ?? '').trim()
+    const modality      = String(body?.modality      ?? 'eLearning storyboard').trim()
+    const tone          = String(body?.tone          ?? 'clear, practical, and learner-centered').trim()
+    const authoringTool = String(body?.authoringTool ?? 'Other').trim()
+    const screenCount   = Math.max(3, Math.min(20, Number(body?.screenCount ?? 8)))
+
+    const TOOL_HINTS: Record<string, string> = {
+      Storyline: 'Articulate Storyline 360 — use slide layers, trigger-driven interactions, branching, and knowledge checks.',
+      Rise:      'Articulate Rise 360 — use block-based interactions: flashcards, accordions, tabs, labelled diagrams, and inline knowledge checks.',
+      Captivate: 'Adobe Captivate — use fluid boxes, advanced actions, multi-state objects, and xAPI tracking.',
+      Vyond:     'Vyond animated video — frame scene directions as character actions, dialogue, and visual motion.',
+      HeyGen:    'HeyGen AI video — write narration as teleprompter scripts for AI avatars with background scene notes.',
+      Synthesia: 'Synthesia AI video — write clean narration blocks for AI presenters with slide overlay notes.',
+      Other:     'General authoring tool — keep interactions and navigation tool-agnostic.',
+    }
+    const toolHint = TOOL_HINTS[authoringTool] ?? TOOL_HINTS.Other
 
     if (!raw || raw.length < 20) {
       throw createError({ statusCode: 400, message: 'Paste or upload at least a few lines of source material.' })
@@ -42,6 +54,8 @@ export default defineEventHandler(async (event) => {
 
     const systemPrompt = `You are StoryForge, an expert instructional designer and learning storyboard architect. Turn messy raw material into a polished ${modality} storyboard.
 
+Authoring tool target: ${toolHint}
+
 Return ONLY valid JSON with this exact shape:
 {
   "title": "short project title",
@@ -50,10 +64,10 @@ Return ONLY valid JSON with this exact shape:
   "scenes": [
     {
       "title": "scene title",
-      "visualDescription": "specific visual layout, media direction, and on-screen text",
+      "visualDescription": "specific visual layout, media direction, and on-screen text — tailored to the authoring tool",
       "narration": "spoken audio script or facilitator notes",
-      "interactions": "learner action, decision, knowledge check, or reflection prompt",
-      "navigation": "navigation or branching notes",
+      "interactions": "learner action, decision, knowledge check, or reflection prompt — use the authoring tool's actual feature set",
+      "navigation": "navigation or branching notes appropriate for the authoring tool",
       "duration": 60,
       "status": "Draft"
     }

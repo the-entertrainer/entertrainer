@@ -67,18 +67,30 @@ function syllables(word: string): number {
   const w = word.toLowerCase().replace(/[^a-z]/g, '')
   if (!w) return 0
   if (w.length <= 3) return 1
-  const m = w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '').replace(/^y/, '').match(/[aeiouy]{1,2}/g)
+  // Strip silent trailing letters (e.g. silent 'e', '-es', '-ed'),
+  // handle leading 'y', then count vowel clusters as syllable nuclei.
+  const m = w
+    .replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '')
+    .replace(/^y/, '')
+    .match(/[aeiouy]{1,2}/g)
   return m?.length || 1
 }
+
+// Grade labels indexed by FK grade (0 = unused, 1 = Kindergarten…)
+const GRADE_LABELS: Record<number, string> = {
+  1: 'K', 2: '1', 3: '2', 4: '3', 5: '4', 6: '5', 7: '6',
+  8: '7', 9: '8', 10: '9', 11: '10', 12: '11', 13: '12',
+  14: 'College', 15: 'College+', 16: 'Grad', 17: 'Grad+', 18: 'Grad++',
+}
+
 function readabilityGrade(text: string): { grade: number; label: string } | null {
   if (!text || text.trim().length < 30) return null
   const sents = (text.match(/[.!?]+/g) || []).length || 1
   const words = text.trim().split(/\s+/).filter(Boolean)
   if (!words.length) return null
-  const sylls  = words.reduce((s, w) => s + syllables(w), 0)
-  const g      = Math.max(1, Math.min(18, Math.round(0.39 * (words.length / sents) + 11.8 * (sylls / words.length) - 15.59)))
-  const labels = ['', 'K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'College', 'College+', 'Grad', 'Grad+', 'Grad++']
-  return { grade: g, label: labels[g] ?? `${g}` }
+  const sylls = words.reduce((s, w) => s + syllables(w), 0)
+  const grade = Math.max(1, Math.min(18, Math.round(0.39 * (words.length / sents) + 11.8 * (sylls / words.length) - 15.59)))
+  return { grade, label: GRADE_LABELS[grade] ?? `${grade}` }
 }
 
 // ── Computed ───────────────────────────────────────────────────────────────
@@ -99,7 +111,10 @@ onMounted(() => {
 function createScene(title = 'New Scene', visualDescription = '', narration = '', interactions = '', navigation = 'Standard Next', duration = 60, status = 'Draft'): Scene {
   return { id: `s${Date.now()}-${Math.random().toString(16).slice(2)}`, title, visualDescription, narration, interactions, navigation, duration, status }
 }
-function selectScreen(screen: Scene) { selectedScreen.value = screen; dismissSuggestion() }
+function selectScreen(screen: Scene) {
+  selectedScreen.value = screen
+  dismissSuggestion()
+}
 function addScreen() { const scene = createScene(); screens.value.push(scene); selectScreen(scene) }
 function deleteScreen() {
   if (!selectedScreen.value) return
@@ -181,7 +196,13 @@ function acceptEditedSuggestion() {
   selectedScreen.value[copilotField.value] = copilotEditText.value
   dismissSuggestion()
 }
-function dismissSuggestion() { copilotField.value = null; copilotSuggestion.value = ''; copilotError.value = ''; copilotEditMode.value = false; copilotEditText.value = '' }
+function dismissSuggestion() {
+  copilotField.value      = null
+  copilotSuggestion.value = ''
+  copilotError.value      = ''
+  copilotEditMode.value   = false
+  copilotEditText.value   = ''
+}
 
 // ── File import / export ───────────────────────────────────────────────────
 function extractPdfTextFallback(buffer: ArrayBuffer) {

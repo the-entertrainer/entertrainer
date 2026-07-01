@@ -1,6 +1,7 @@
 function parseBody(event: any): Promise<any> {
   const req = event.node?.req ?? event.req
   return new Promise((resolve, reject) => {
+    if (req.readableEnded) { resolve({}); return }
     const chunks: Buffer[] = []
     req.on('data', (c: any) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(String(c))))
     req.on('end', () => {
@@ -12,7 +13,6 @@ function parseBody(event: any): Promise<any> {
       }
     })
     req.on('error', reject)
-    if (req.readableEnded) resolve({})
   })
 }
 

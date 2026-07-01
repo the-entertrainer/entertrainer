@@ -8,7 +8,10 @@ const contentStore = useContentStore()
 const slug         = route.params.slug as string
 
 const item = computed(() =>
-  contentStore.toolsNav.find((n) => n.id === slug)
+  contentStore.toolsNav.find((n) => {
+    const hrefSlug = n.href?.replace(/^\/tools\//, '')
+    return n.id === slug || hrefSlug === slug
+  })
 )
 
 if (!item.value) throw createError({ statusCode: 404 })

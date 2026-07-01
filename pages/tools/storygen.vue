@@ -41,6 +41,10 @@ const cards = ref<StoryCard[]>([])
 const selectedId = ref<string | null>(null)
 const nextNumber = ref(1)
 const showExportMenu = ref(false)
+const importError = ref('')
+
+let idCounter = 0
+function makeId() { idCounter += 1; return `c${Date.now()}-${idCounter}-${Math.random().toString(16).slice(2)}` }
 
 // Canvas view state (pan / zoom)
 const pan = ref({ x: 60, y: 40 })
@@ -61,7 +65,7 @@ onMounted(() => {
 function makeCard(type: CardType, x: number, y: number): StoryCard {
   const def = defByType(type)
   return {
-    id: `c${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    id: makeId(),
     type,
     number: nextNumber.value++,
     title: def.label,
@@ -91,7 +95,7 @@ function duplicateCard() {
   const src = selectedCard.value
   if (!src) return
   const clone: StoryCard = JSON.parse(JSON.stringify(src))
-  clone.id = `c${Date.now()}-${Math.random().toString(16).slice(2)}`
+  clone.id = makeId()
   clone.number = nextNumber.value++
   clone.x += 32
   clone.y += 32
@@ -219,13 +223,16 @@ function exportProjectJSON() {
 async function importProject(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (!file) return
+  importError.value = ''
   try {
     const data = JSON.parse(await file.text())
     projectTitle.value = data.title || 'Imported Project'
     cards.value = data.cards || []
     nextNumber.value = Math.max(1, ...cards.value.map((c: StoryCard) => c.number)) + 1
     selectedId.value = cards.value[0]?.id ?? null
-  } catch { /* ignore malformed file */ }
+  } catch {
+    importError.value = 'Could not import that project file. Make sure it is a valid StoryGen JSON export.'
+  }
   ;(e.target as HTMLInputElement).value = ''
 }
 
@@ -265,8 +272,7 @@ async function exportDocx() {
       rows.push(labelRow('Objectives', card.objectives.map((o, i) => `${i + 1}. ${o}`).join('\n')))
     }
     if (card.type === 'mcq' && card.options.length) {
-      const optionsText = card.options.map((o, i) => `${String.fromCharCode(65 + i)}. ${o.text}${o.correct ? '  [Correct]' : ''}${o.feedback ? `  — Feedback: ${o.feedback}` : ''}`).join('\n')
-      rows.push(labelRow('Answer options', optionsText))
+      rows.push(labelRow('Answer options', card.options.map(formatMcqOption).join('\n')))
     }
 
     rows.push(labelRow('Developer notes', card.notes || '—'))
@@ -294,6 +300,13 @@ function labelRow(label: string, value: string) {
     ]
   })
 }
+
+function formatMcqOption(option: McqOption, index: number) {
+  const letter = String.fromCharCode(65 + index)
+  const correctFlag = option.correct ? '  [Correct]' : ''
+  const feedback = option.feedback ? `  — Feedback: ${option.feedback}` : ''
+  return `${letter}. ${option.text}${correctFlag}${feedback}`
+}
 </script>
 
 <template>
@@ -316,6 +329,8 @@ function labelRow(label: string, value: string) {
         </div>
       </div>
     </div>
+
+    <p v-if="importError" class="glass-note glass-note--error sg-error">{{ importError }}</p>
 
     <section class="sg-grid">
       <aside class="glass-panel sg-library">
@@ -446,6 +461,7 @@ function labelRow(label: string, value: string) {
 .sg-export { position:relative; }
 .sg-menu { position:absolute; right:0; top:calc(100% + 8rem); min-width:190rem; padding:8rem; z-index:6; }
 .sg-menu button { display:block; width:100%; padding:10rem 12rem; border-radius:10rem; text-align:left; font-size:13rem; }
+.sg-error { margin-bottom:16rem; }
 
 .sg-grid { display:grid; grid-template-columns:220rem minmax(0, 1fr) 340rem; gap:16rem; align-items:start; }
 

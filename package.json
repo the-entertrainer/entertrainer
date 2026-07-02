@@ -17,6 +17,7 @@
     "@resvg/resvg-js": "^2.6.2",
     "@sparticuz/chromium": "^149.0.0",
     "@studio-freight/lenis": "^1.0.42",
+    "docx": "^9.7.1",
     "file-saver": "^2.0.5",
     "gsap": "^3.12.5",
     "html2canvas": "^1.4.1",

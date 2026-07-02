@@ -126,36 +126,6 @@ const restart = () => {
   <UiGlassBackdrop />
   <div :class="`h-[100dvh] w-screen bg-[#FDFBF7] text-[#1E1C19] font-sans flex flex-col justify-between overflow-hidden select-none transition-transform duration-300 ${shakeScreen ? 'animate-shake' : ''}`">
     
-    <!-- Premium Motion CSS Rules-->
-    <style>
-      @keyframes springPop {
-        0% { transform: translateY(60px) scaleY(0.8); }
-        40% { transform: translateY(-25px) scaleY(1.1); }
-        70% { transform: translateY(10px) scaleY(0.95); }
-        100% { transform: translateY(0px) scaleY(1); }
-      }
-      @keyframes smokeFloat {
-        0% { transform: translateY(0) scaleX(1); opacity: 0; }
-        40% { opacity: 0.4; }
-        100% { transform: translateY(-40px) scaleX(1.4); opacity: 0; }
-      }
-      @keyframes subtleShake {
-        0%, 100% { transform: translateX(0); }
-        20%, 60% { transform: translateX(-4px); }
-        40%, 80% { transform: translateX(4px); }
-      }
-      .animate-spring-pop { animation: springPop 0.65s cubic-bezier(0.25, 0.8, 0.25, 1.2) forwards; }
-      .smoke-1 { animation: smokeFloat 1.6s infinite ease-out; }
-      .smoke-2 { animation: smokeFloat 1.6s infinite ease-out 0.5s; }
-      .animate-shake { animation: subtleShake 0.25s ease-in-out; }
-      
-      /* 3D Card Flip Mechanics */
-      .perspective-1000 { perspective: 1000px; }
-      .transform-style-3d { transform-style: preserve-3d; }
-      .backface-hidden { backface-visibility: hidden; }
-      .rotate-y-180 { transform: rotateY(180deg); }
-    </style>
-
     <!-- Modern Top Header / Nav-->
     <header class="glass-panel" style="position:fixed; top:0; left:0; right:0; z-index:30; padding:12rem 24rem; display:flex; justify-content:space-between; align-items:center; border-radius:0 0 12rem 12rem; --color-glass-bg: rgba(255,255,255,0.8); border-bottom:1px solid var(--color-glass-border);">
       <div class="flex items-center gap-2">
@@ -428,6 +398,34 @@ const restart = () => {
 </template>
 
 <style scoped>
+/* Premium motion rules */
+@keyframes springPop {
+  0% { transform: translateY(60px) scaleY(0.8); }
+  40% { transform: translateY(-25px) scaleY(1.1); }
+  70% { transform: translateY(10px) scaleY(0.95); }
+  100% { transform: translateY(0px) scaleY(1); }
+}
+@keyframes smokeFloat {
+  0% { transform: translateY(0) scaleX(1); opacity: 0; }
+  40% { opacity: 0.4; }
+  100% { transform: translateY(-40px) scaleX(1.4); opacity: 0; }
+}
+@keyframes subtleShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+.animate-spring-pop { animation: springPop 0.65s cubic-bezier(0.25, 0.8, 0.25, 1.2) forwards; }
+.smoke-1 { animation: smokeFloat 1.6s infinite ease-out; }
+.smoke-2 { animation: smokeFloat 1.6s infinite ease-out 0.5s; }
+.animate-shake { animation: subtleShake 0.25s ease-in-out; }
+
+/* 3D Card Flip Mechanics */
+.perspective-1000 { perspective: 1000px; }
+.transform-style-3d { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; }
+.rotate-y-180 { transform: rotateY(180deg); }
+
 /* Ensure proper animation and transition support */
 * {
   box-sizing: border-box;

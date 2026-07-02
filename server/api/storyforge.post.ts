@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 422, message: 'API key not configured on the server.' })
     }
 
-    const systemPrompt = `You are StoryForge, an expert instructional designer and learning storyboard architect. Turn messy raw material into a polished ${modality} storyboard.
+    const systemPrompt = `You are StoryForge, an expert instructional designer and learning storyboard architect. Turn messy raw material into a polished ${modality} storyboard plus a short knowledge-check quiz.
 
 Return ONLY valid JSON with this exact shape:
 {
@@ -57,6 +57,15 @@ Return ONLY valid JSON with this exact shape:
       "duration": 60,
       "status": "Draft"
     }
+  ],
+  "mcqs": [
+    {
+      "sceneTitle": "the exact title of the scene this question checks, or empty string for a general question",
+      "question": "one clear multiple-choice question",
+      "options": ["option A", "option B", "option C", "option D"],
+      "correctIndex": 0,
+      "explanation": "1 sentence on why the correct option is right"
+    }
   ]
 }
 
@@ -64,6 +73,7 @@ Rules:
 - Create exactly ${screenCount} scenes unless the source clearly needs fewer; never fewer than 3.
 - Preserve facts from the source. If content is unclear, make sensible instructional assumptions instead of inventing risky specifics.
 - Make scenes actionable for a designer/developer: concrete visuals, on-screen text, audio, interaction, and navigation.
+- Create 4-6 multiple-choice knowledge-check questions covering the most important scenes, each with exactly 4 options and exactly one correct option.
 - Audience: ${audience || 'general adult learners'}.
 - Tone: ${tone}.
 - Use plain text strings only; no markdown.`
@@ -84,7 +94,7 @@ Rules:
           ],
           response_format: { type: 'json_object' },
           temperature: 0.45,
-          max_tokens: 5500
+          max_tokens: 6800
         })
       })
     } catch (e: any) {
@@ -110,23 +120,43 @@ Rules:
       parsed = JSON.parse(match[0])
     }
 
-    const scenes = Array.isArray(parsed.scenes) ? parsed.scenes : []
-    if (!scenes.length) throw createError({ statusCode: 422, message: 'AI did not return storyboard scenes. Try again.' })
+    const rawScenes = Array.isArray(parsed.scenes) ? parsed.scenes : []
+    if (!rawScenes.length) throw createError({ statusCode: 422, message: 'AI did not return storyboard scenes. Try again.' })
+
+    const stamp = Date.now()
+    const scenes = rawScenes.map((scene: any, index: number) => ({
+      id: `s${stamp}-${index}`,
+      title: String(scene.title || `Scene ${index + 1}`),
+      visualDescription: String(scene.visualDescription || ''),
+      narration: String(scene.narration || ''),
+      interactions: String(scene.interactions || ''),
+      navigation: String(scene.navigation || 'Next'),
+      duration: Number(scene.duration || 60),
+      status: String(scene.status || 'Draft')
+    }))
+
+    const titleToId = new Map(scenes.map(s => [s.title.trim().toLowerCase(), s.id]))
+    const rawMcqs = Array.isArray(parsed.mcqs) ? parsed.mcqs : []
+    const mcqs = rawMcqs.slice(0, 12).map((mcq: any, index: number) => {
+      const options = (Array.isArray(mcq.options) ? mcq.options : []).slice(0, 4).map(String)
+      while (options.length < 4) options.push('')
+      const correctIndex = Math.max(0, Math.min(3, Number(mcq.correctIndex ?? 0)))
+      const linkedTitle = String(mcq.sceneTitle || '').trim().toLowerCase()
+      return {
+        id: `m${stamp}-${index}`,
+        sceneId: (linkedTitle && titleToId.get(linkedTitle)) || null,
+        question: String(mcq.question || ''),
+        options: options.map((text: string, i: number) => ({ id: `m${stamp}-${index}-o${i}`, text, correct: i === correctIndex })),
+        explanation: String(mcq.explanation || '')
+      }
+    })
 
     return {
       title: String(parsed.title || 'AI Storyboard'),
       summary: String(parsed.summary || ''),
       learningObjectives: Array.isArray(parsed.learningObjectives) ? parsed.learningObjectives.map(String).slice(0, 6) : [],
-      scenes: scenes.map((scene: any, index: number) => ({
-        id: `s${Date.now()}-${index}`,
-        title: String(scene.title || `Scene ${index + 1}`),
-        visualDescription: String(scene.visualDescription || ''),
-        narration: String(scene.narration || ''),
-        interactions: String(scene.interactions || ''),
-        navigation: String(scene.navigation || 'Next'),
-        duration: Number(scene.duration || 60),
-        status: String(scene.status || 'Draft')
-      }))
+      scenes,
+      mcqs
     }
   } catch (err: any) {
     if (err?.statusCode) throw err

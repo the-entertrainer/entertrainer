@@ -4,7 +4,7 @@ import type { CardKind, Connection, StoryCard, StoryGenProject } from '~/types/s
 import { createCard, CARD_KINDS } from '~/utils/storyCards'
 import type { ModelId } from '~/utils/idModels'
 import { ID_MODELS, modelOf } from '~/utils/idModels'
-import { cardNumbers, lastInSequence, orderCards } from '~/utils/storyGraph'
+import { cardNumbers, lastInSequence, sanitizeConnections } from '~/utils/storyGraph'
 import { laneLayout, nextAutoPosition, tidyPositions } from '~/utils/storyLayout'
 import { exportStoryDocx } from '~/utils/storyExportDocx'
 import { exportStoryXlsx } from '~/utils/storyExportXlsx'
@@ -39,7 +39,13 @@ function startTour() {
 }
 function closeTour() {
   tourOpen.value = false
+  showMenu.value = null
   try { localStorage.setItem(TOUR_KEY, '1') } catch {}
+}
+// The tour stages real UI: on the export step it opens the actual menu so
+// the spotlight shows the genuine options, then closes it afterward.
+function onTourStep(stepId: string) {
+  showMenu.value = stepId === 'export' ? (isDesktop.value ? 'export' : 'mobile') : null
 }
 
 const canvasRef = ref<{
@@ -84,8 +90,15 @@ function addCard(kind: CardKind, stage?: string) {
 }
 
 function deleteCard(cardId: string) {
+  // Deleting a middle card heals the chain: its predecessor re-plugs
+  // straight into its successor instead of leaving two loose ends.
+  const inbound = connections.value.find(c => c.to === cardId)
+  const outbound = connections.value.find(c => c.from === cardId)
   cards.value = cards.value.filter(c => c.id !== cardId)
   connections.value = connections.value.filter(c => c.from !== cardId && c.to !== cardId)
+  if (inbound && outbound && inbound.from !== outbound.to) {
+    connections.value.push({ id: id('k'), from: inbound.from, to: outbound.to })
+  }
   if (selectedCardId.value === cardId) selectedCardId.value = null
 }
 
@@ -240,11 +253,9 @@ function normalizeProject(data: any): { title: string; model: ModelId; cards: St
       while (options.length < 4) options.push('')
       return { ...base, ...c, kind, options, stage: typeof c.stage === 'string' ? c.stage : '', id: String(c.id || base.id) }
     })
-    const ids = new Set(sane.map(c => c.id))
     const conns = (Array.isArray(data.connections) ? data.connections : [])
-      .filter((c: any) => ids.has(c.from) && ids.has(c.to))
       .map((c: any) => ({ id: String(c.id || id('k')), from: String(c.from), to: String(c.to) }))
-    return { title: String(data.title || 'Untitled Storyboard'), model: modelId, cards: sane, connections: conns }
+    return { title: String(data.title || 'Untitled Storyboard'), model: modelId, cards: sane, connections: sanitizeConnections(sane, conns) }
   }
   if (Array.isArray(data?.scenes)) {
     const migrated: StoryCard[] = data.scenes.map((s: any, i: number) => ({
@@ -257,10 +268,8 @@ function normalizeProject(data: any): { title: string; model: ModelId; cards: St
       duration: Number(s.duration || 45),
       status: String(s.status || 'Draft')
     }))
-    const ids = new Set(migrated.map(c => c.id))
-    const conns = (Array.isArray(data.connections) ? data.connections : [])
-      .filter((c: any) => ids.has(c.from) && ids.has(c.to))
-      .map((c: any) => ({ id: String(c.id || id('k')), from: String(c.from), to: String(c.to) }))
+    const conns = sanitizeConnections(migrated, (Array.isArray(data.connections) ? data.connections : [])
+      .map((c: any) => ({ id: String(c.id || id('k')), from: String(c.from), to: String(c.to) })))
     for (const m of (Array.isArray(data.mcqs) ? data.mcqs : [])) {
       const pos = nextAutoPosition(migrated, conns)
       const opts = (Array.isArray(m.options) ? m.options : []).map((o: any) => String(o?.text ?? o ?? ''))
@@ -513,7 +522,7 @@ onUnmounted(() => {
 
     <!-- Spotlight product tour: auto-plays once on the first storyboard,
          replayable from ? (desktop) or the ⋯ menu (mobile) -->
-    <ToolsStoryTourGuide v-if="tourOpen" @close="closeTour" />
+    <ToolsStoryTourGuide v-if="tourOpen" @close="closeTour" @step="onTourStep" />
 
     <!-- Click-away layer for open dropdowns -->
     <div v-if="showMenu" class="sg-clickaway" @click="showMenu = null" />

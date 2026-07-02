@@ -1,5 +1,6 @@
 import { saveAs } from 'file-saver'
 import type { Connection, StoryCard } from '~/types/story'
+import { bezierControls } from './storyBezier'
 import { CARD_KINDS, cardPreview } from './storyCards'
 import { stageOf } from './idModels'
 import { cardNumbers } from './storyGraph'
@@ -117,10 +118,10 @@ export function exportDiagramPng(
     if (!from || !to) continue
     const p1 = { x: from.x + NODE_W, y: from.y + NODE_H / 2 }
     const p2 = { x: to.x, y: to.y + NODE_H / 2 }
-    const dx = Math.max(Math.abs(p2.x - p1.x) * 0.55, 70)
+    const { c1, c2 } = bezierControls(p1, p2)
     ctx.beginPath()
     ctx.moveTo(p1.x, p1.y)
-    ctx.bezierCurveTo(p1.x + dx, p1.y, p2.x - dx, p2.y, p2.x, p2.y)
+    ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, p2.x, p2.y)
     ctx.stroke()
   }
 

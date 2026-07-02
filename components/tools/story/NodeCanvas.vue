@@ -2,7 +2,8 @@
 import type { Connection, StoryCard } from '~/types/story'
 import { CARD_KINDS, cardPreview } from '~/utils/storyCards'
 import { stageOf } from '~/utils/idModels'
-import { cardNumbers } from '~/utils/storyGraph'
+import { bezierPath, bezierPointAt } from '~/utils/storyBezier'
+import { cardNumbers, isReachable } from '~/utils/storyGraph'
 import { NODE_H, NODE_W } from '~/utils/storyLayout'
 
 const cards = defineModel<StoryCard[]>('cards', { required: true })
@@ -51,6 +52,7 @@ let pinchStartPan = { x: 0, y: 0 }
 const cardById = computed(() => new Map(cards.value.map(c => [c.id, c])))
 const numberById = computed(() => cardNumbers(cards.value, connections.value))
 const incomingIds = computed(() => new Set(connections.value.map(c => c.to)))
+const outgoingIds = computed(() => new Set(connections.value.map(c => c.from)))
 
 function meta(card: StoryCard) { return CARD_KINDS[card.kind] ?? CARD_KINDS['text-image'] }
 function stageChip(card: StoryCard) { return stageOf(props.modelId, card.stage) }
@@ -67,22 +69,6 @@ function screenToWorld(clientX: number, clientY: number) {
   const left = rect?.left ?? 0
   const top = rect?.top ?? 0
   return { x: (clientX - left - pan.x) / zoom.value, y: (clientY - top - pan.y) / zoom.value }
-}
-
-function bezierControlOffset(x1: number, x2: number) { return Math.max(Math.abs(x2 - x1) * 0.55, 70) }
-function bezierPath(p1: { x: number; y: number }, p2: { x: number; y: number }) {
-  const dx = bezierControlOffset(p1.x, p2.x)
-  return `M${p1.x},${p1.y} C${p1.x + dx},${p1.y} ${p2.x - dx},${p2.y} ${p2.x},${p2.y}`
-}
-function bezierPointAt(p0: { x: number; y: number }, p3: { x: number; y: number }, t: number) {
-  const dx = bezierControlOffset(p0.x, p3.x)
-  const p1 = { x: p0.x + dx, y: p0.y }
-  const p2 = { x: p3.x - dx, y: p3.y }
-  const mt = 1 - t
-  return {
-    x: mt * mt * mt * p0.x + 3 * mt * mt * t * p1.x + 3 * mt * t * t * p2.x + t * t * t * p3.x,
-    y: mt * mt * mt * p0.y + 3 * mt * mt * t * p1.y + 3 * mt * t * t * p2.y + t * t * t * p3.y
-  }
 }
 
 const edges = computed(() => connections.value.map(c => {
@@ -181,32 +167,85 @@ function onConnectPointerUp() {
   const { from, snapTarget, origin } = connecting.value
   connecting.value = null
   if (snapTarget && snapTarget !== from) {
-    addConnection(from, snapTarget)
+    const ok = addConnection(from, snapTarget)
+    // A rejected re-plug (cycle) must not eat the original connection.
+    if (!ok && origin) connections.value.push(origin)
   } else if (origin) {
     // A detached curve released over nothing springs back where it was —
     // deleting is always an explicit act (the Disconnect chip).
     connections.value.push(origin)
   }
 }
-function addConnection(from: string, to: string) {
-  const exists = connections.value.some(c => c.from === from && c.to === to)
-  if (exists) return
-  connections.value.push({ id: `k${Date.now()}-${Math.random().toString(16).slice(2)}`, from, to })
+const rejectedCardId = ref<string | null>(null)
+let rejectTimer: ReturnType<typeof setTimeout> | null = null
+
+// The flow is a set of linear chains: one curve out of a port, one curve
+// into a port, never a loop. Re-plugging an occupied port re-routes it —
+// intelligent replace, not silent stacking. A connection that would close
+// a cycle is refused with a shake on the offending card.
+function addConnection(from: string, to: string): boolean {
+  if (from === to) return false
+  const remaining = connections.value.filter(c => c.from !== from && c.to !== to)
+  if (isReachable(remaining, to, from)) {
+    rejectedCardId.value = to
+    if (rejectTimer) clearTimeout(rejectTimer)
+    rejectTimer = setTimeout(() => { rejectedCardId.value = null }, 600)
+    return false
+  }
+  connections.value = [...remaining, { id: `k${Date.now()}-${Math.random().toString(16).slice(2)}`, from, to }]
+  return true
 }
+
+// Reconnect uses a drag threshold: press near a curve's arrival end and
+// nothing detaches until the pointer really moves — so a plain tap simply
+// selects the curve (crucial on touch, where the invisible handle used to
+// swallow taps). pointercancel (browser gesture takeover) restores the
+// original connection instead of losing it.
+let pendingReconnect: { edgeId: string; x: number; y: number } | null = null
 
 function onReconnectStart(e: PointerEvent, edgeId: string) {
   e.stopPropagation()
-  const conn = connections.value.find(c => c.id === edgeId)
-  if (!conn) return
-  connections.value = connections.value.filter(c => c.id !== edgeId)
-  connecting.value = { from: conn.from, pointer: screenToWorld(e.clientX, e.clientY), snapTarget: null, origin: conn }
-  window.addEventListener('pointermove', onConnectPointerMove)
-  window.addEventListener('pointerup', onWindowReconnectUp, { once: true })
+  pendingReconnect = { edgeId, x: e.clientX, y: e.clientY }
+  window.addEventListener('pointermove', onReconnectMove)
+  window.addEventListener('pointerup', onReconnectEnd)
+  window.addEventListener('pointercancel', onReconnectEnd)
 }
-function onWindowReconnectUp() {
-  window.removeEventListener('pointermove', onConnectPointerMove)
+function onReconnectMove(e: PointerEvent) {
+  if (pendingReconnect) {
+    if (Math.hypot(e.clientX - pendingReconnect.x, e.clientY - pendingReconnect.y) < 9) return
+    const conn = connections.value.find(c => c.id === pendingReconnect!.edgeId)
+    pendingReconnect = null
+    if (!conn) { removeReconnectListeners(); return }
+    connections.value = connections.value.filter(c => c.id !== conn.id)
+    connecting.value = { from: conn.from, pointer: screenToWorld(e.clientX, e.clientY), snapTarget: null, origin: conn }
+  }
+  onConnectPointerMove(e)
+}
+function onReconnectEnd(e: PointerEvent) {
+  removeReconnectListeners()
+  if (pendingReconnect) {
+    // Never moved: treat the press as a tap on the curve → select it.
+    const edgeId = pendingReconnect.edgeId
+    pendingReconnect = null
+    selectedConnectionId.value = selectedConnectionId.value === edgeId ? null : edgeId
+    selectedCardId.value = null
+    return
+  }
+  if (e.type === 'pointercancel' && connecting.value?.origin) {
+    // The browser took the gesture — put the curve back where it was.
+    const origin = connecting.value.origin
+    connecting.value = null
+    connections.value.push(origin)
+    return
+  }
   onConnectPointerUp()
 }
+function removeReconnectListeners() {
+  window.removeEventListener('pointermove', onReconnectMove)
+  window.removeEventListener('pointerup', onReconnectEnd)
+  window.removeEventListener('pointercancel', onReconnectEnd)
+}
+onUnmounted(removeReconnectListeners)
 
 function onEdgeTap(e: PointerEvent, edgeId: string) {
   e.stopPropagation()
@@ -341,6 +380,7 @@ onMounted(() => nextTick(fitView))
       <svg class="node-canvas__svg">
         <path
           v-for="edge in edges" :key="`hit-${edge.id}`" class="edge-hit" :d="edge.d"
+          :style="{ strokeWidth: 30 / zoom }"
           @pointerdown="onEdgeTap($event, edge.id)"
         />
         <path
@@ -359,7 +399,7 @@ onMounted(() => nextTick(fitView))
       <article
         v-for="card in cards" :key="card.id"
         class="node-card"
-        :class="{ 'node-card--active': card.id === selectedCardId }"
+        :class="{ 'node-card--active': card.id === selectedCardId, 'node-card--reject': card.id === rejectedCardId }"
         :style="nodeStyle(card)"
         @pointerdown="onNodePointerDown($event, card)"
         @pointermove="onNodePointerMove"
@@ -392,7 +432,8 @@ onMounted(() => nextTick(fitView))
 
         <div class="port port--in" :style="{ transform: `translate(-50%, -50%) scale(${1 / zoom})` }" />
         <div
-          class="port port--out" :style="{ transform: `translate(50%, -50%) scale(${1 / zoom})` }"
+          class="port port--out" :class="{ 'port--filled': outgoingIds.has(card.id) }"
+          :style="{ transform: `translate(50%, -50%) scale(${1 / zoom})` }"
           @pointerdown="onOutputPointerDown($event, card)"
           @pointermove="onConnectPointerMove"
           @pointerup="onConnectPointerUp"
@@ -453,11 +494,14 @@ onMounted(() => nextTick(fitView))
 
 .reconnect-handle {
   position: absolute;
-  width: 22rem; height: 22rem;
+  width: 26rem; height: 26rem;
   border-radius: 999px;
   cursor: grab;
   pointer-events: auto;
   background: transparent;
+  /* Without this the browser claims the touch for scrolling and fires
+     pointercancel mid-drag — the classic vanishing-connection bug. */
+  touch-action: none;
 }
 
 .edge-delete-chip {
@@ -473,6 +517,9 @@ onMounted(() => nextTick(fitView))
   box-shadow: 0 8rem 22rem -8rem rgba(0,0,0,0.6);
   z-index: 5;
   white-space: nowrap;
+}
+@media (hover: none) {
+  .edge-delete-chip { padding: 11rem 18rem; font-size: 13rem; }
 }
 
 .node-card {
@@ -498,6 +545,15 @@ onMounted(() => nextTick(fitView))
 .node-card--active {
   border-color: var(--kind-color);
   box-shadow: 0 0 0 2rem color-mix(in srgb, var(--kind-color) 55%, transparent), 0 26rem 60rem -30rem rgba(0,0,0,0.65);
+}
+.node-card--reject {
+  animation: node-reject 0.45s ease;
+  box-shadow: 0 0 0 2rem color-mix(in srgb, #ff6b6b 70%, transparent), 0 26rem 60rem -30rem rgba(0,0,0,0.65);
+}
+@keyframes node-reject {
+  0%, 100% { translate: 0 0; }
+  20%, 60% { translate: -6rem 0; }
+  40%, 80% { translate: 6rem 0; }
 }
 .node-card__start {
   position: absolute;
@@ -600,6 +656,8 @@ onMounted(() => nextTick(fitView))
 .port--in { left: 0; border-color: var(--color-text); }
 .port--out { right: 0; cursor: crosshair; }
 .port--out:hover { background: var(--kind-color); }
+/* An occupied output reads as plugged-in; dragging it again re-routes */
+.port--filled { background: var(--kind-color); }
 
 .node-canvas__empty {
   position: absolute;

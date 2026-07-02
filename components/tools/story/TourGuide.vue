@@ -2,8 +2,9 @@
 // A spotlight product tour: dims the live app and cuts a moving, rounded
 // window onto real UI — then narrates each capability in a step card with
 // autoplay. Nothing is mocked: the tour points at the user's actual
-// storyboard, so what they see is exactly what they'll use.
-const emit = defineEmits<{ close: [] }>()
+// storyboard, and the `step` event lets the host page stage real UI (like
+// opening the export menu) for the spotlight.
+const emit = defineEmits<{ close: []; step: [id: string] }>()
 
 interface TourStep {
   id: string
@@ -25,7 +26,7 @@ const STEPS: TourStep[] = [
     title: 'Your framework drives everything',
     body: 'This storyboard follows the instructional design model you picked. Every stage carries its own guiding question — and you can switch frameworks here anytime without losing work.',
     bodyMobile: 'This storyboard follows the ID model you picked — every stage has its own guiding question. Switch frameworks anytime from this menu without losing work.',
-    target: { desktop: '.sg-model-chip', mobile: '.sg-topbar .sg-menu-wrap' }
+    target: { desktop: '.sg-model-chip', mobile: '.sg-topbar .sg-menu-wrap.sg-mobile-only' }
   },
   {
     id: 'add',
@@ -60,9 +61,9 @@ const STEPS: TourStep[] = [
   {
     id: 'export',
     title: 'Export, polished',
-    body: 'One click produces a formatted Word or Excel storyboard grouped by stage, a PNG of the flow diagram, or a project file. Everything autosaves to this device as you work.',
-    bodyMobile: 'From this menu: a formatted Word or Excel storyboard grouped by stage, a PNG of the flow, or a project file. Everything autosaves as you work.',
-    target: { desktop: '.sg-export-btn', mobile: '.sg-topbar .sg-menu-wrap' }
+    body: 'These are your outputs: a formatted Word or Excel storyboard grouped by stage, a PNG of the flow diagram, or a project file. Everything autosaves to this device as you work.',
+    bodyMobile: 'Your outputs live here: a formatted Word or Excel storyboard grouped by stage, a PNG of the flow, or a project file. Everything autosaves as you work.',
+    target: { desktop: '.sg-menu', mobile: '.sg-menu' }
   },
   {
     id: 'done',
@@ -87,14 +88,28 @@ const isLast = computed(() => current.value === STEPS.length - 1)
 const bodyText = computed(() => (isMobile.value && step.value.bodyMobile) || step.value.body)
 const autoplay = computed(() => !reducedMotion.value && !isLast.value)
 
-function measure() {
+let measureRetry: ReturnType<typeof setTimeout> | null = null
+function measure(attempt = 0) {
+  if (measureRetry) { clearTimeout(measureRetry); measureRetry = null }
   const sel = isMobile.value ? step.value.target?.mobile : step.value.target?.desktop
   const el = sel ? document.querySelector(sel) : null
-  if (!el) { rect.value = null; return }
-  const r = el.getBoundingClientRect()
-  if (!r.width && !r.height) { rect.value = null; return }
+  const r = el?.getBoundingClientRect()
+  if (!r || (!r.width && !r.height)) {
+    rect.value = null
+    // Some targets appear asynchronously (menus the host page opens for
+    // this step) — keep looking for a moment before giving up.
+    if (sel && attempt < 8) measureRetry = setTimeout(() => measure(attempt + 1), 90)
+    return
+  }
   rect.value = { x: r.left - PAD, y: r.top - PAD, w: r.width + PAD * 2, h: r.height + PAD * 2 }
 }
+
+// On phones the step card sits at the bottom — unless the spotlight target
+// is also down there, in which case the card flips to the top so it never
+// covers the thing it's describing.
+const cardOnTop = computed(() =>
+  isMobile.value && !!rect.value && rect.value.y + rect.value.h / 2 > window.innerHeight * 0.55
+)
 
 const spotlightStyle = computed(() => {
   if (rect.value) {
@@ -141,8 +156,9 @@ function resetTimer() {
 
 function goTo(i: number) {
   current.value = Math.min(Math.max(i, 0), STEPS.length - 1)
+  emit('step', STEPS[current.value].id)
   resetTimer()
-  nextTick(measure)
+  nextTick(() => measure())
 }
 function next() { isLast.value ? emit('close') : goTo(current.value + 1) }
 function back() { goTo(current.value - 1) }
@@ -153,18 +169,21 @@ function onKeydown(e: KeyboardEvent) {
   else if (e.key === 'ArrowLeft') back()
 }
 
+const onResize = () => measure()
 onMounted(() => {
   isMobile.value = !window.matchMedia('(min-width: 900px)').matches
   reducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  window.addEventListener('resize', measure)
+  window.addEventListener('resize', onResize)
   window.addEventListener('keydown', onKeydown, { capture: true })
-  nextTick(measure)
+  emit('step', STEPS[0].id)
+  nextTick(() => measure())
   resetTimer()
   rafId = requestAnimationFrame(tick)
 })
 onUnmounted(() => {
   cancelAnimationFrame(rafId)
-  window.removeEventListener('resize', measure)
+  if (measureRetry) clearTimeout(measureRetry)
+  window.removeEventListener('resize', onResize)
   window.removeEventListener('keydown', onKeydown, { capture: true } as any)
 })
 </script>
@@ -176,6 +195,7 @@ onUnmounted(() => {
 
     <section
       class="tour__card glass-panel"
+      :class="{ 'tour__card--top': cardOnTop }"
       :style="cardStyle"
       @click.stop
       @pointerenter="paused = true"
@@ -376,6 +396,11 @@ onUnmounted(() => {
     bottom: calc(14rem + var(--safe-bottom));
     width: auto;
     max-width: none;
+  }
+  /* Flip above when the spotlight target lives at the bottom of the screen */
+  .tour__card--top {
+    top: calc(70rem + var(--safe-top)) !important;
+    bottom: auto;
   }
 }
 

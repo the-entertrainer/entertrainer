@@ -45,3 +45,42 @@ export function lastInSequence(cards: StoryCard[], connections: Connection[]): S
   const ordered = orderCards(cards, connections)
   return ordered.length ? ordered[ordered.length - 1] : null
 }
+
+// True if `target` is reachable by walking outgoing connections from
+// `start` — connecting target→start would then close a loop.
+export function isReachable(connections: Connection[], start: string, target: string): boolean {
+  const outgoing = new Map<string, string[]>()
+  for (const c of connections) {
+    if (!outgoing.has(c.from)) outgoing.set(c.from, [])
+    outgoing.get(c.from)!.push(c.to)
+  }
+  const stack = [start]
+  const seen = new Set<string>()
+  while (stack.length) {
+    const id = stack.pop()!
+    if (id === target) return true
+    if (seen.has(id)) continue
+    seen.add(id)
+    for (const next of outgoing.get(id) || []) stack.push(next)
+  }
+  return false
+}
+
+// The storyboard flow is a set of linear chains: each output feeds one
+// input, each input accepts one output, and no loops. Imports from older
+// saves (or hand-edited files) get squeezed through this.
+export function sanitizeConnections(cards: StoryCard[], connections: Connection[]): Connection[] {
+  const ids = new Set(cards.map(c => c.id))
+  const usedFrom = new Set<string>()
+  const usedTo = new Set<string>()
+  const kept: Connection[] = []
+  for (const c of connections) {
+    if (!ids.has(c.from) || !ids.has(c.to) || c.from === c.to) continue
+    if (usedFrom.has(c.from) || usedTo.has(c.to)) continue
+    if (isReachable(kept, c.to, c.from)) continue
+    kept.push(c)
+    usedFrom.add(c.from)
+    usedTo.add(c.to)
+  }
+  return kept
+}

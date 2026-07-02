@@ -13,6 +13,7 @@ import { exportDiagramPng } from '~/utils/storyExportDiagram'
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 
 const STORAGE_KEY = 'storygen-project'
+const TOUR_KEY = 'storygen-tour-seen'
 
 const projectTitle = ref('Untitled Storyboard')
 const model = ref<ModelId>('freeform')
@@ -30,6 +31,16 @@ const showPaletteSheet = ref(false)
 const showMenu = ref<'export' | 'mobile' | null>(null)
 const modelPicker = ref<'new' | 'switch' | null>(null)
 const savedFlash = ref(false)
+const tourOpen = ref(false)
+
+function startTour() {
+  showMenu.value = null
+  tourOpen.value = true
+}
+function closeTour() {
+  tourOpen.value = false
+  try { localStorage.setItem(TOUR_KEY, '1') } catch {}
+}
 
 const canvasRef = ref<{
   zoomIn: () => void; zoomOut: () => void; fitView: () => void
@@ -137,6 +148,11 @@ function pickModel(modelId: ModelId) {
     }
   } else {
     seedFromModel(modelId)
+    // Very first storyboard: let the tour walk the fresh canvas once the
+    // seeded lanes have settled into view.
+    let seen = false
+    try { seen = !!localStorage.getItem(TOUR_KEY) } catch {}
+    if (!seen) setTimeout(() => { tourOpen.value = true }, 700)
   }
 }
 
@@ -334,6 +350,7 @@ function onKeydown(e: KeyboardEvent) {
   } else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedCardId.value && !isEditingText(e)) {
     e.preventDefault(); deleteCard(selectedCardId.value)
   } else if (e.key === 'Escape') {
+    if (tourOpen.value) return // TourGuide owns Escape while open
     if (modelPicker.value === 'switch') { modelPicker.value = null; return }
     if (showMenu.value || showPaletteSheet.value) { showMenu.value = null; showPaletteSheet.value = false; return }
     if (inspectorOpen.value) { inspectorOpen.value = false; return }
@@ -394,6 +411,7 @@ onUnmounted(() => {
       <div class="sg-topbar__group">
         <button class="sg-tool" :disabled="!canUndo" title="Undo (⌘Z)" @click="undo">↶</button>
         <button class="sg-tool" :disabled="!canRedo" title="Redo (⇧⌘Z)" @click="redo">↷</button>
+        <button class="sg-tool sg-desktop-only" title="Product tour" @click="startTour">?</button>
       </div>
 
       <div class="sg-topbar__group sg-desktop-only">
@@ -414,6 +432,7 @@ onUnmounted(() => {
         <button class="sg-tool" aria-label="Menu" @click="showMenu = showMenu === 'mobile' ? null : 'mobile'">⋯</button>
         <div v-if="showMenu === 'mobile'" class="glass-panel sg-menu">
           <button @click="showMenu = null; modelPicker = 'switch'">Framework: {{ activeModel.label }}</button>
+          <button @click="startTour">Show the tour</button>
           <button @click="newProject">New storyboard</button>
           <label class="sg-menu-file">Open project (.sbf)<input type="file" accept=".sbf,.json" @change="importProject"></label>
           <button @click="exportDocx">Export Word (.docx)</button>
@@ -491,6 +510,10 @@ onUnmounted(() => {
       @pick="pickModel"
       @close="modelPicker = null"
     />
+
+    <!-- Spotlight product tour: auto-plays once on the first storyboard,
+         replayable from ? (desktop) or the ⋯ menu (mobile) -->
+    <ToolsStoryTourGuide v-if="tourOpen" @close="closeTour" />
 
     <!-- Click-away layer for open dropdowns -->
     <div v-if="showMenu" class="sg-clickaway" @click="showMenu = null" />

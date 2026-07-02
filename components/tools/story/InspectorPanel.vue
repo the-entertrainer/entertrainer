@@ -203,6 +203,14 @@ const floatStyle = computed(() =>
   overflow-y: auto;
   overscroll-behavior: contain;
 }
+/* The body is a height-capped flex column: without this, flexbox compresses
+   every field and label into each other instead of letting the body scroll. */
+.inspector__body > * { flex-shrink: 0; }
+
+/* Comfortable writing room — these are authoring fields, not form filler */
+.inspector__body textarea.glass-field { min-height: 96rem; resize: vertical; }
+.inspector__body #in-body { min-height: 128rem; }
+.inspector__body #in-narration { min-height: 112rem; }
 .inspector__row { display: grid; grid-template-columns: 1fr 1fr; gap: 12rem; }
 .inspector__prompt {
   font-size: 12rem;
@@ -230,9 +238,13 @@ const floatStyle = computed(() =>
     left: 10rem; right: 10rem;
     bottom: calc(72rem + var(--safe-bottom));
     width: auto;
-    max-height: 62dvh;
+    max-height: 74dvh;
     box-shadow: 0 -20rem 60rem -20rem rgba(0, 0, 0, 0.65);
   }
+  /* Bigger tap-and-type targets on phones */
+  .inspector__body .glass-field { padding: 13rem 14rem; }
+  .inspector__body textarea.glass-field { min-height: 108rem; }
+  .inspector__body #in-body { min-height: 140rem; }
   .inspector__head { cursor: default; }
   .inspector-enter-from, .inspector-leave-to { transform: translateY(24rem); opacity: 0; }
   /* iOS Safari zooms into any focused field under 16px — hold the line */

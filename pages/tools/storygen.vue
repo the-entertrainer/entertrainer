@@ -2,9 +2,12 @@
 import { saveAs } from 'file-saver'
 import type { CardKind, Connection, StoryCard, StoryGenProject } from '~/types/story'
 import { createCard, CARD_KINDS } from '~/utils/storyCards'
-import { cardNumbers, lastInSequence } from '~/utils/storyGraph'
-import { nextAutoPosition, tidyPositions } from '~/utils/storyLayout'
+import type { ModelId } from '~/utils/idModels'
+import { ID_MODELS, modelOf } from '~/utils/idModels'
+import { cardNumbers, lastInSequence, orderCards } from '~/utils/storyGraph'
+import { laneLayout, nextAutoPosition, tidyPositions } from '~/utils/storyLayout'
 import { exportStoryDocx } from '~/utils/storyExportDocx'
+import { exportStoryXlsx } from '~/utils/storyExportXlsx'
 import { exportDiagramPng } from '~/utils/storyExportDiagram'
 
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
@@ -12,12 +15,20 @@ definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 const STORAGE_KEY = 'storygen-project'
 
 const projectTitle = ref('Untitled Storyboard')
+const model = ref<ModelId>('freeform')
 const cards = ref<StoryCard[]>([])
 const connections = ref<Connection[]>([])
 const selectedCardId = ref<string | null>(null)
 
+// Selection and editing are deliberately separate states: on mobile a tap
+// only selects (a slim action bar appears); the inspector drawer opens on
+// an explicit Edit. On desktop selecting opens the floating inspector,
+// which never blocks the canvas.
+const inspectorOpen = ref(false)
+
 const showPaletteSheet = ref(false)
-const showMenu = ref<'file' | 'export' | 'mobile' | null>(null)
+const showMenu = ref<'export' | 'mobile' | null>(null)
+const modelPicker = ref<'new' | 'switch' | null>(null)
 const savedFlash = ref(false)
 
 const canvasRef = ref<{
@@ -25,8 +36,6 @@ const canvasRef = ref<{
   centerOn: (id: string) => void; zoomPercent: number; gestureActive: boolean
 } | null>(null)
 
-// Insets keep fitView/centerOn framing content clear of the floating chrome
-// (dock on desktop, action bar on mobile).
 const isDesktop = ref(true)
 let mq: MediaQueryList | null = null
 const onMq = (e: MediaQueryListEvent | MediaQueryList) => { isDesktop.value = e.matches }
@@ -34,18 +43,28 @@ const canvasInsets = computed(() => isDesktop.value
   ? { top: 76, right: 24, bottom: 70, left: 208 }
   : { top: 72, right: 12, bottom: 88, left: 12 })
 
+const activeModel = computed(() => modelOf(model.value))
 const numberMap = computed(() => cardNumbers(cards.value, connections.value))
 const selectedCard = computed(() => cards.value.find(c => c.id === selectedCardId.value) ?? null)
 const selectedCardNumber = computed(() => (selectedCardId.value && numberMap.value.get(selectedCardId.value)) || 0)
+const selectedKindColor = computed(() => (selectedCard.value ? CARD_KINDS[selectedCard.value.kind]?.color : undefined))
 const totalMinutes = computed(() => Math.max(1, Math.round(cards.value.reduce((s, c) => s + (c.duration || 0), 0) / 60)))
+
+watch(selectedCardId, (id) => {
+  if (!id) { inspectorOpen.value = false; return }
+  if (isDesktop.value) inspectorOpen.value = true
+})
 
 function id(prefix: string) { return `${prefix}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}` }
 function safeName(name: string) { return name.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'storyboard' }
 
 // ── Card operations ─────────────────────────────────────────────
-function addCard(kind: CardKind) {
+function addCard(kind: CardKind, stage?: string) {
   const prevLast = lastInSequence(cards.value, connections.value)
   const card = createCard(kind, nextAutoPosition(cards.value, connections.value))
+  // Quick-adds from a stage carry it; plain kind-adds continue the stage
+  // the flow is currently in.
+  card.stage = stage ?? (activeModel.value.stages.length ? (prevLast?.stage ?? '') : '')
   cards.value.push(card)
   if (prevLast) connections.value.push({ id: id('k'), from: prevLast.id, to: card.id })
   selectedCardId.value = card.id
@@ -67,9 +86,63 @@ function duplicateSelected() {
   selectedCardId.value = copy.id
 }
 
+function editCard(cardId: string) {
+  selectedCardId.value = cardId
+  inspectorOpen.value = true
+}
+
 function tidy() {
-  tidyPositions(cards.value, connections.value)
+  if (activeModel.value.stages.length) laneLayout(cards.value, connections.value, activeModel.value)
+  else tidyPositions(cards.value, connections.value)
   nextTick(() => canvasRef.value?.fitView())
+}
+
+// ── Model picking / seeding ─────────────────────────────────────
+function seedFromModel(modelId: ModelId) {
+  const m = ID_MODELS[modelId]
+  model.value = modelId
+  projectTitle.value = 'Untitled Storyboard'
+  selectedCardId.value = null
+  connections.value = []
+  if (!m.stages.length) {
+    cards.value = [createCard('title', { x: 60, y: 160 })]
+  } else {
+    const seeded: StoryCard[] = []
+    const conns: Connection[] = []
+    for (const s of m.stages) {
+      const card = createCard(s.kind, { x: 0, y: 0 })
+      card.stage = s.id
+      card.title = s.label.replace(/^\d+ · /, '')
+      const prev = seeded.at(-1)
+      seeded.push(card)
+      if (prev) conns.push({ id: id('k'), from: prev.id, to: card.id })
+    }
+    cards.value = seeded
+    connections.value = conns
+    laneLayout(cards.value, connections.value, m)
+  }
+  nextTick(() => canvasRef.value?.fitView())
+}
+
+function pickModel(modelId: ModelId) {
+  const mode = modelPicker.value
+  modelPicker.value = null
+  if (mode === 'switch') {
+    // Non-destructive: cards stay, stages that don't exist in the new
+    // framework reset to unassigned. Tidy re-lanes on demand.
+    const m = ID_MODELS[modelId]
+    model.value = modelId
+    for (const card of cards.value) {
+      if (card.stage && !m.stages.some(s => s.id === card.stage)) card.stage = ''
+    }
+  } else {
+    seedFromModel(modelId)
+  }
+}
+
+function newProject() {
+  showMenu.value = null
+  modelPicker.value = 'new'
 }
 
 // ── Persistence + history ───────────────────────────────────────
@@ -82,7 +155,7 @@ const canUndo = computed(() => histIndex.value > 0)
 const canRedo = computed(() => histIndex.value < histStack.value.length - 1)
 
 function serialize() {
-  return JSON.stringify({ title: projectTitle.value, cards: cards.value, connections: connections.value })
+  return JSON.stringify({ title: projectTitle.value, model: model.value, cards: cards.value, connections: connections.value })
 }
 function commitHistory() {
   const s = serialize()
@@ -97,6 +170,7 @@ function applySnapshot(s: string) {
   try {
     const data = JSON.parse(s)
     projectTitle.value = data.title
+    model.value = data.model || 'freeform'
     cards.value = data.cards
     connections.value = data.connections
     if (selectedCardId.value && !data.cards.some((c: StoryCard) => c.id === selectedCardId.value)) selectedCardId.value = null
@@ -110,8 +184,9 @@ function redo() { if (canRedo.value) { histIndex.value++; applySnapshot(histStac
 
 function persist() {
   const project: StoryGenProject = {
-    version: '4.0',
+    version: '5.0',
     title: projectTitle.value,
+    model: model.value,
     updated: new Date().toISOString(),
     cards: cards.value,
     connections: connections.value
@@ -131,14 +206,15 @@ function scheduleCommit(delay = 350) {
   }, delay)
 }
 
-watch([projectTitle, cards, connections], () => {
+watch([projectTitle, model, cards, connections], () => {
   if (restoring) return
   scheduleCommit()
 }, { deep: true })
 
-// Accepts the current v4 shape or migrates a v3 StoryForge project
-// (scenes + separate mcqs) so nobody's saved work is stranded.
-function normalizeProject(data: any): { title: string; cards: StoryCard[]; connections: Connection[] } {
+// Accepts the current shape or migrates older StoryGen/StoryForge saves so
+// nobody's work is stranded.
+function normalizeProject(data: any): { title: string; model: ModelId; cards: StoryCard[]; connections: Connection[] } {
+  const modelId: ModelId = ID_MODELS[data?.model as ModelId] ? data.model : 'freeform'
   const blank = (kind: CardKind, x: number, y: number) => createCard(kind, { x, y })
   if (Array.isArray(data?.cards)) {
     const sane: StoryCard[] = data.cards.map((c: any, i: number) => {
@@ -146,13 +222,13 @@ function normalizeProject(data: any): { title: string; cards: StoryCard[]; conne
       const base = blank(kind, Number(c.x ?? 60 + i * 300), Number(c.y ?? 160))
       const options = Array.isArray(c.options) ? c.options.slice(0, 4).map(String) : base.options
       while (options.length < 4) options.push('')
-      return { ...base, ...c, kind, options, id: String(c.id || base.id) }
+      return { ...base, ...c, kind, options, stage: typeof c.stage === 'string' ? c.stage : '', id: String(c.id || base.id) }
     })
     const ids = new Set(sane.map(c => c.id))
     const conns = (Array.isArray(data.connections) ? data.connections : [])
       .filter((c: any) => ids.has(c.from) && ids.has(c.to))
       .map((c: any) => ({ id: String(c.id || id('k')), from: String(c.from), to: String(c.to) }))
-    return { title: String(data.title || 'Untitled Storyboard'), cards: sane, connections: conns }
+    return { title: String(data.title || 'Untitled Storyboard'), model: modelId, cards: sane, connections: conns }
   }
   if (Array.isArray(data?.scenes)) {
     const migrated: StoryCard[] = data.scenes.map((s: any, i: number) => ({
@@ -182,26 +258,18 @@ function normalizeProject(data: any): { title: string; cards: StoryCard[]; conne
         feedback: String(m.explanation || '')
       })
     }
-    return { title: String(data.title || 'Imported Storyboard'), cards: migrated, connections: conns }
+    return { title: String(data.title || 'Imported Storyboard'), model: 'freeform', cards: migrated, connections: conns }
   }
-  return { title: 'Untitled Storyboard', cards: [], connections: [] }
+  return { title: 'Untitled Storyboard', model: 'freeform', cards: [], connections: [] }
 }
 
 function applyProject(data: any) {
   const normal = normalizeProject(data)
   projectTitle.value = normal.title
+  model.value = normal.model
   cards.value = normal.cards
   connections.value = normal.connections
   selectedCardId.value = null
-  nextTick(() => canvasRef.value?.fitView())
-}
-
-function newProject() {
-  projectTitle.value = 'Untitled Storyboard'
-  connections.value = []
-  cards.value = [createCard('title', { x: 60, y: 160 })]
-  selectedCardId.value = null
-  showMenu.value = null
   nextTick(() => canvasRef.value?.fitView())
 }
 
@@ -217,18 +285,31 @@ async function importProject(e: Event) {
 async function exportDocx() {
   showMenu.value = null
   await exportStoryDocx(
-    { title: projectTitle.value, cards: cards.value, connections: connections.value },
+    { title: projectTitle.value, cards: cards.value, connections: connections.value, model: activeModel.value },
     `${safeName(projectTitle.value)}.docx`
+  )
+}
+async function exportXlsx() {
+  showMenu.value = null
+  await exportStoryXlsx(
+    { title: projectTitle.value, cards: cards.value, connections: connections.value, model: activeModel.value },
+    `${safeName(projectTitle.value)}.xlsx`
   )
 }
 function exportDiagram() {
   showMenu.value = null
-  exportDiagramPng({ title: projectTitle.value, cards: cards.value, connections: connections.value }, `${safeName(projectTitle.value)}-flow.png`)
+  exportDiagramPng({
+    title: projectTitle.value,
+    cards: cards.value,
+    connections: connections.value,
+    modelId: model.value,
+    modelLabel: activeModel.value.stages.length ? activeModel.value.label : undefined
+  }, `${safeName(projectTitle.value)}-flow.png`)
 }
 function exportSbf() {
   showMenu.value = null
   const project: StoryGenProject = {
-    version: '4.0', title: projectTitle.value, updated: new Date().toISOString(),
+    version: '5.0', title: projectTitle.value, model: model.value, updated: new Date().toISOString(),
     cards: cards.value, connections: connections.value
   }
   saveAs(new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' }), `${safeName(projectTitle.value)}.sbf`)
@@ -253,8 +334,9 @@ function onKeydown(e: KeyboardEvent) {
   } else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedCardId.value && !isEditingText(e)) {
     e.preventDefault(); deleteCard(selectedCardId.value)
   } else if (e.key === 'Escape') {
-    showMenu.value = null
-    showPaletteSheet.value = false
+    if (modelPicker.value === 'switch') { modelPicker.value = null; return }
+    if (showMenu.value || showPaletteSheet.value) { showMenu.value = null; showPaletteSheet.value = false; return }
+    if (inspectorOpen.value) { inspectorOpen.value = false; return }
     selectedCardId.value = null
   }
 }
@@ -272,7 +354,7 @@ onMounted(() => {
       loaded = cards.value.length > 0
     }
   } catch {}
-  if (!loaded) newProject()
+  if (!loaded) modelPicker.value = 'new'
   nextTick(commitHistory)
 })
 onUnmounted(() => {
@@ -294,7 +376,9 @@ onUnmounted(() => {
       v-model:selected-card-id="selectedCardId"
       class="sg-canvas"
       :insets="canvasInsets"
+      :model-id="model"
       @delete-card="deleteCard"
+      @edit-card="editCard"
     />
 
     <!-- Top bar -->
@@ -302,6 +386,10 @@ onUnmounted(() => {
       <span class="sg-wordmark">Story<em>Gen</em></span>
       <input v-model="projectTitle" class="sg-title" placeholder="Untitled Storyboard" aria-label="Project title">
       <span class="sg-saved" :class="{ 'sg-saved--on': savedFlash }">● Saved</span>
+
+      <button class="sg-tool sg-tool--wide sg-model-chip sg-desktop-only" title="Switch framework" @click="modelPicker = 'switch'">
+        {{ activeModel.label }}
+      </button>
 
       <div class="sg-topbar__group">
         <button class="sg-tool" :disabled="!canUndo" title="Undo (⌘Z)" @click="undo">↶</button>
@@ -314,7 +402,8 @@ onUnmounted(() => {
         <div class="sg-menu-wrap">
           <button class="glass-btn sg-export-btn" @click="showMenu = showMenu === 'export' ? null : 'export'">Export ▾</button>
           <div v-if="showMenu === 'export'" class="glass-panel sg-menu">
-            <button @click="exportDocx">Word (.docx) — Storyboard + MCQ tables</button>
+            <button @click="exportDocx">Word (.docx) — Storyboard + MCQ</button>
+            <button @click="exportXlsx">Excel (.xlsx) — Storyboard + MCQ</button>
             <button @click="exportDiagram">Flow diagram (.png)</button>
             <button @click="exportSbf">Project file (.sbf)</button>
           </div>
@@ -324,9 +413,11 @@ onUnmounted(() => {
       <div class="sg-menu-wrap sg-mobile-only">
         <button class="sg-tool" aria-label="Menu" @click="showMenu = showMenu === 'mobile' ? null : 'mobile'">⋯</button>
         <div v-if="showMenu === 'mobile'" class="glass-panel sg-menu">
+          <button @click="showMenu = null; modelPicker = 'switch'">Framework: {{ activeModel.label }}</button>
           <button @click="newProject">New storyboard</button>
           <label class="sg-menu-file">Open project (.sbf)<input type="file" accept=".sbf,.json" @change="importProject"></label>
           <button @click="exportDocx">Export Word (.docx)</button>
+          <button @click="exportXlsx">Export Excel (.xlsx)</button>
           <button @click="exportDiagram">Export diagram (.png)</button>
           <button @click="exportSbf">Save project (.sbf)</button>
         </div>
@@ -335,7 +426,7 @@ onUnmounted(() => {
 
     <!-- Left dock: card palette (desktop) -->
     <aside class="sg-dock glass-panel sg-desktop-only">
-      <ToolsStoryCardPalette @add="addCard" />
+      <ToolsStoryCardPalette :model-id="model" @add="addCard" />
     </aside>
 
     <!-- Bottom-left: zoom + layout controls (desktop; mobile pinches) -->
@@ -345,7 +436,7 @@ onUnmounted(() => {
       <button class="sg-tool" aria-label="Zoom in" @click="canvasRef?.zoomIn()">+</button>
       <span class="sg-zoombar__sep" />
       <button class="sg-tool sg-tool--wide" @click="canvasRef?.fitView()">Fit</button>
-      <button class="sg-tool sg-tool--wide" title="Auto-arrange the flow" @click="tidy">Tidy</button>
+      <button class="sg-tool sg-tool--wide" title="Auto-arrange into stage lanes" @click="tidy">Tidy</button>
       <span class="sg-zoombar__sep sg-desktop-only" />
       <span class="sg-zoombar__meta sg-desktop-only">{{ cards.length }} screens · ≈{{ totalMinutes }} min</span>
     </div>
@@ -358,6 +449,18 @@ onUnmounted(() => {
       <span class="sg-bottombar__meta">{{ cards.length }} screens · ≈{{ totalMinutes }} min</span>
     </div>
 
+    <!-- Mobile: slim selected-card bar — the clever middle step between
+         tapping a card and committing to the full editor drawer -->
+    <Transition name="cardbar">
+      <div v-if="selectedCard && !isDesktop && !inspectorOpen" class="sg-cardbar glass-panel">
+        <span class="sg-cardbar__dot" :style="{ background: selectedKindColor }" />
+        <span class="sg-cardbar__title">{{ selectedCard.title || 'Untitled' }}</span>
+        <button class="glass-btn sg-cardbar__edit" @click="inspectorOpen = true">✎ Edit</button>
+        <button class="sg-tool" title="Duplicate" @click="duplicateSelected">⧉</button>
+        <button class="sg-tool sg-cardbar__delete" title="Delete" @click="deleteCard(selectedCard.id)">✕</button>
+      </div>
+    </Transition>
+
     <!-- Mobile palette sheet -->
     <Transition name="sheet">
       <div v-if="showPaletteSheet" class="sg-sheet-overlay" @click.self="showPaletteSheet = false">
@@ -366,18 +469,27 @@ onUnmounted(() => {
             <strong>Add a card</strong>
             <button class="sg-tool" aria-label="Close" @click="showPaletteSheet = false">✕</button>
           </div>
-          <ToolsStoryCardPalette sheet @add="addCard" />
+          <ToolsStoryCardPalette sheet :model-id="model" @add="addCard" />
         </div>
       </div>
     </Transition>
 
-    <!-- Inspector: floating window (desktop) / bottom sheet (mobile) -->
+    <!-- Inspector: floating window (desktop) / bottom drawer (mobile) -->
     <ToolsStoryInspectorPanel
-      :card="selectedCard"
+      :card="inspectorOpen ? selectedCard : null"
       :card-number="selectedCardNumber"
+      :model-id="model"
       @delete="selectedCardId && deleteCard(selectedCardId)"
       @duplicate="duplicateSelected"
-      @close="selectedCardId = null"
+      @close="inspectorOpen = false"
+    />
+
+    <!-- Framework picker: first run, New, and framework switch -->
+    <ToolsStoryModelPicker
+      v-if="modelPicker"
+      :switching="modelPicker === 'switch'"
+      @pick="pickModel"
+      @close="modelPicker = null"
     />
 
     <!-- Click-away layer for open dropdowns -->
@@ -439,6 +551,7 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 .sg-saved--on { opacity: 0.9; }
+.sg-model-chip { max-width: 190rem; overflow: hidden; text-overflow: ellipsis; }
 
 .sg-topbar__group { display: flex; align-items: center; gap: 6rem; }
 
@@ -459,7 +572,7 @@ onUnmounted(() => {
 }
 @media (hover: hover) { .sg-tool:not(:disabled):hover { background: color-mix(in srgb, var(--color-bg) 65%, transparent); } }
 .sg-tool:disabled { opacity: 0.3; cursor: default; }
-.sg-tool--wide { font-size: 12rem; padding: 0 12rem; }
+.sg-tool--wide { font-size: 12rem; padding: 0 12rem; white-space: nowrap; }
 .sg-file-btn { position: relative; overflow: hidden; cursor: pointer; }
 .sg-file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 
@@ -470,7 +583,7 @@ onUnmounted(() => {
   position: absolute;
   right: 0;
   top: calc(100% + 8rem);
-  min-width: 250rem;
+  min-width: 260rem;
   padding: 8rem;
   z-index: 26;
   display: flex;
@@ -510,7 +623,7 @@ onUnmounted(() => {
   overflow-y: auto;
 }
 
-/* ── Zoom bar + status ── */
+/* ── Zoom bar ── */
 .sg-zoombar {
   position: absolute;
   left: 14rem;
@@ -535,13 +648,41 @@ onUnmounted(() => {
   display: none;
   align-items: center;
   justify-content: space-between;
-  gap: 10rem;
+  gap: 8rem;
   padding: 10rem 12rem;
   border-radius: 16rem;
   z-index: 18;
 }
-.sg-add-btn { padding: 10rem 18rem; font-size: 13rem; }
-.sg-bottombar__meta { font-size: 11.5rem; font-weight: 600; opacity: 0.6; white-space: nowrap; }
+.sg-add-btn { padding: 10rem 16rem; font-size: 13rem; }
+.sg-bottombar__meta { font-size: 11rem; font-weight: 600; opacity: 0.6; white-space: nowrap; margin-left: auto; }
+
+/* Slim selected-card action bar (mobile) */
+.sg-cardbar {
+  position: absolute;
+  left: 10rem;
+  right: 10rem;
+  bottom: calc(66rem + var(--safe-bottom));
+  display: flex;
+  align-items: center;
+  gap: 9rem;
+  padding: 9rem 12rem;
+  border-radius: 14rem;
+  z-index: 19;
+}
+.sg-cardbar__dot { width: 10rem; height: 10rem; border-radius: 999px; flex-shrink: 0; }
+.sg-cardbar__title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sg-cardbar__edit { padding: 8rem 14rem; font-size: 12rem; }
+.sg-cardbar__delete { color: #ff8d8d; }
+.cardbar-enter-active, .cardbar-leave-active { transition: opacity 0.18s ease, transform 0.18s ease; }
+.cardbar-enter-from, .cardbar-leave-to { opacity: 0; transform: translateY(10rem); }
 
 .sg-sheet-overlay {
   position: fixed;
@@ -576,7 +717,7 @@ onUnmounted(() => {
   .sg-mobile-only { display: flex; }
   .sg-topbar { left: 72rem; right: 72rem; padding: 8rem 10rem; gap: 7rem; }
   .sg-wordmark { display: none; }
-  .sg-title { font-size: 13rem; }
+  .sg-title { font-size: 16px; } /* ≥16px so iOS Safari doesn't zoom on focus */
   .sg-bottombar { display: flex; }
   .sg-menu { position: fixed; left: 12rem; right: 12rem; top: calc(64rem + var(--safe-top)); min-width: 0; }
 }

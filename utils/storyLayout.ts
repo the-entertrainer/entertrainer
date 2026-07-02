@@ -1,4 +1,5 @@
 import type { Connection, StoryCard } from '~/types/story'
+import type { IdModel } from './idModels'
 import { lastInSequence, orderCards } from './storyGraph'
 
 export const NODE_W = 256
@@ -26,4 +27,24 @@ export function tidyPositions(cards: StoryCard[], connections: Connection[]) {
     card.x = 60 + i * (NODE_W + GAP_X)
     card.y = Math.max(40, BASE_Y + Math.sin(i * 0.7) * WAVE)
   })
+}
+
+// Model-aware tidy: one horizontal lane per stage, in the model's stage
+// order, cards sequenced within their lane. Unassigned cards get a final
+// lane of their own. This is how "the tool transforms" around a framework.
+export function laneLayout(cards: StoryCard[], connections: Connection[], model: IdModel) {
+  if (!model.stages.length) { tidyPositions(cards, connections); return }
+  const ordered = orderCards(cards, connections)
+  const laneOf = new Map<string, number>(model.stages.map((s, i) => [s.id, i]))
+  const laneCounts = new Map<number, number>()
+  const LANE_H = NODE_H + 96
+  const unassignedLane = model.stages.length
+
+  for (const card of ordered) {
+    const lane = laneOf.get(card.stage) ?? unassignedLane
+    const col = laneCounts.get(lane) ?? 0
+    laneCounts.set(lane, col + 1)
+    card.x = 60 + col * (NODE_W + GAP_X)
+    card.y = 60 + lane * LANE_H
+  }
 }

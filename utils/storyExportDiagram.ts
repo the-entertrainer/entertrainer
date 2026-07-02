@@ -1,6 +1,7 @@
 import { saveAs } from 'file-saver'
 import type { Connection, StoryCard } from '~/types/story'
 import { CARD_KINDS, cardPreview } from './storyCards'
+import { stageOf } from './idModels'
 import { cardNumbers } from './storyGraph'
 import { NODE_H, NODE_W } from './storyLayout'
 
@@ -62,7 +63,7 @@ function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number
 }
 
 export function exportDiagramPng(
-  input: { title: string; cards: StoryCard[]; connections: Connection[] },
+  input: { title: string; cards: StoryCard[]; connections: Connection[]; modelId?: string; modelLabel?: string },
   filename: string
 ) {
   const { cards, connections } = input
@@ -103,7 +104,8 @@ export function exportDiagramPng(
   ctx.fillText(input.title || 'Untitled Storyboard', minX + 36, minY + 44)
   ctx.fillStyle = theme.muted
   ctx.font = `500 12px ${FONT}`
-  ctx.fillText(`${cards.length} screens · StoryGen · ${new Date().toLocaleDateString()}`, minX + 36, minY + 66)
+  const metaBits = [`${cards.length} screens`, input.modelLabel, new Date().toLocaleDateString()].filter(Boolean)
+  ctx.fillText(metaBits.join(' · '), minX + 36, minY + 66)
 
   // Connections — same cubic bezier the live canvas draws
   ctx.strokeStyle = theme.line
@@ -172,10 +174,21 @@ export function exportDiagramPng(
       ctx.fillText(line, x + 20, y + 98 + i * 16)
     }
 
-    // Footer: duration
-    ctx.fillStyle = theme.muted
-    ctx.font = `600 10px ${FONT}`
-    ctx.fillText(`${card.duration || 0}s`, x + 20, y + NODE_H - 14)
+    // Footer: stage chip (if the project follows a model) + duration
+    const stage = stageOf(input.modelId, card.stage)
+    if (stage) {
+      ctx.fillStyle = stage.color
+      ctx.font = `700 10px ${FONT}`
+      ctx.fillText(stage.short.toUpperCase(), x + 20, y + NODE_H - 14)
+      ctx.fillStyle = theme.muted
+      ctx.font = `600 10px ${FONT}`
+      const t = `${card.duration || 0}s`
+      ctx.fillText(t, x + NODE_W - 20 - ctx.measureText(t).width, y + NODE_H - 14)
+    } else {
+      ctx.fillStyle = theme.muted
+      ctx.font = `600 10px ${FONT}`
+      ctx.fillText(`${card.duration || 0}s`, x + 20, y + NODE_H - 14)
+    }
 
     // Ports
     for (const px of [x, x + NODE_W]) {

@@ -2,11 +2,14 @@
 import type { StoryCard } from '~/types/story'
 import { CARD_STATUSES } from '~/types/story'
 import { CARD_KINDS } from '~/utils/storyCards'
+import { modelOf, stageOf } from '~/utils/idModels'
 
-const props = defineProps<{ card: StoryCard | null; cardNumber: number }>()
+const props = defineProps<{ card: StoryCard | null; cardNumber: number; modelId?: string }>()
 defineEmits<{ delete: []; duplicate: []; close: [] }>()
 
 const meta = computed(() => (props.card ? CARD_KINDS[props.card.kind] : null))
+const model = computed(() => modelOf(props.modelId))
+const stage = computed(() => (props.card ? stageOf(props.modelId, props.card.stage) : null))
 
 // Which of the shared content fields this kind exposes, and what they're
 // called — the kind decides the vocabulary the designer sees.
@@ -82,6 +85,16 @@ const floatStyle = computed(() =>
       </div>
 
       <div class="inspector__body">
+        <!-- The active ID model's vocabulary: which stage this screen serves -->
+        <template v-if="model.stages.length">
+          <label class="glass-label" for="in-stage">{{ model.columnLabel }}</label>
+          <select id="in-stage" v-model="card.stage" class="glass-field glass-select">
+            <option value="">Unassigned</option>
+            <option v-for="s in model.stages" :key="s.id" :value="s.id">{{ s.label }}</option>
+          </select>
+          <p v-if="stage" class="inspector__prompt" :style="{ '--stage-color': stage.color }">{{ stage.prompt }}</p>
+        </template>
+
         <label class="glass-label" for="in-title">Screen title</label>
         <input id="in-title" v-model="card.title" class="glass-field">
 
@@ -104,7 +117,7 @@ const floatStyle = computed(() =>
 
         <template v-else-if="fieldPlan">
           <label class="glass-label" for="in-body">{{ fieldPlan.body }}</label>
-          <textarea id="in-body" v-model="card.body" class="glass-field" rows="4" />
+          <textarea id="in-body" v-model="card.body" class="glass-field" rows="4" :placeholder="stage?.prompt" />
 
           <label class="glass-label" for="in-visual">{{ fieldPlan.visual }}</label>
           <textarea id="in-visual" v-model="card.visual" class="glass-field" rows="3" />
@@ -191,6 +204,16 @@ const floatStyle = computed(() =>
   overscroll-behavior: contain;
 }
 .inspector__row { display: grid; grid-template-columns: 1fr 1fr; gap: 12rem; }
+.inspector__prompt {
+  font-size: 12rem;
+  line-height: 1.5;
+  padding: 9rem 12rem;
+  border-radius: 10rem;
+  color: var(--color-text);
+  opacity: 0.85;
+  background: color-mix(in srgb, var(--stage-color) 12%, transparent);
+  border-left: 3rem solid var(--stage-color);
+}
 
 .inspector__options { display: flex; flex-direction: column; gap: 7rem; }
 .inspector__option { display: flex; align-items: center; gap: 8rem; }
@@ -212,5 +235,7 @@ const floatStyle = computed(() =>
   }
   .inspector__head { cursor: default; }
   .inspector-enter-from, .inspector-leave-to { transform: translateY(24rem); opacity: 0; }
+  /* iOS Safari zooms into any focused field under 16px — hold the line */
+  .inspector__body .glass-field { font-size: 16px; }
 }
 </style>

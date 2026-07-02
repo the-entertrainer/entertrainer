@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Connection, StoryCard } from '~/types/story'
 import { CARD_KINDS, cardPreview } from '~/utils/storyCards'
+import { stageOf } from '~/utils/idModels'
 import { cardNumbers } from '~/utils/storyGraph'
 import { NODE_H, NODE_W } from '~/utils/storyLayout'
 
@@ -9,8 +10,12 @@ const connections = defineModel<Connection[]>('connections', { required: true })
 const selectedCardId = defineModel<string | null>('selectedCardId', { default: null })
 
 // Floating chrome (dock, toolbars) overlays the canvas; fitView/centerOn
-// frame content inside the visible window between them.
-const props = defineProps<{ insets?: { top?: number; right?: number; bottom?: number; left?: number } }>()
+// frame content inside the visible window between them. `modelId` colors
+// each card's stage chip with its instructional-design stage.
+const props = defineProps<{
+  insets?: { top?: number; right?: number; bottom?: number; left?: number }
+  modelId?: string
+}>()
 const inset = computed(() => ({
   top: props.insets?.top ?? 0,
   right: props.insets?.right ?? 0,
@@ -18,7 +23,7 @@ const inset = computed(() => ({
   left: props.insets?.left ?? 0
 }))
 
-const emit = defineEmits<{ 'delete-card': [id: string]; 'moved': [] }>()
+const emit = defineEmits<{ 'delete-card': [id: string]; 'edit-card': [id: string]; 'moved': [] }>()
 
 const MIN_ZOOM = 0.3
 const MAX_ZOOM = 1.8
@@ -48,6 +53,7 @@ const numberById = computed(() => cardNumbers(cards.value, connections.value))
 const incomingIds = computed(() => new Set(connections.value.map(c => c.to)))
 
 function meta(card: StoryCard) { return CARD_KINDS[card.kind] ?? CARD_KINDS['text-image'] }
+function stageChip(card: StoryCard) { return stageOf(props.modelId, card.stage) }
 function pad(n: number | undefined) { return String(n ?? 0).padStart(2, '0') }
 function clamp(v: number, lo: number, hi: number) { return Math.min(hi, Math.max(lo, v)) }
 function dist(a: { x: number; y: number }, b: { x: number; y: number }) { return Math.hypot(a.x - b.x, a.y - b.y) }
@@ -121,7 +127,7 @@ function counterScaleStyle(p: { x: number; y: number }) {
 // ── Node dragging ──────────────────────────────────────────────
 function onNodePointerDown(e: PointerEvent, card: StoryCard) {
   const target = e.target as HTMLElement
-  if (target.closest('.port, .node-card__delete')) return
+  if (target.closest('.port, .node-card__delete, .node-card__edit')) return
   e.stopPropagation()
   selectedCardId.value = card.id
   selectedConnectionId.value = null
@@ -359,9 +365,15 @@ onMounted(() => nextTick(fitView))
         @pointermove="onNodePointerMove"
         @pointerup="onNodePointerUp"
         @pointercancel="onNodePointerUp"
+        @dblclick.stop="emit('edit-card', card.id)"
       >
         <span v-if="!incomingIds.has(card.id)" class="node-card__start">START</span>
-        <button class="node-card__delete" title="Delete card" @click.stop="deleteNode(card.id)">✕</button>
+        <div class="node-card__actions">
+          <button class="node-card__edit" title="Edit card" @click.stop="emit('edit-card', card.id)" @pointerdown.stop>
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+          </button>
+          <button class="node-card__delete" title="Delete card" @click.stop="deleteNode(card.id)" @pointerdown.stop>✕</button>
+        </div>
         <div class="node-card__kind">
           <span class="node-card__glyph">{{ meta(card).glyph }}</span>
           <span class="node-card__kind-label">{{ meta(card).label }}</span>
@@ -370,7 +382,11 @@ onMounted(() => nextTick(fitView))
         <h3>{{ card.title || 'Untitled' }}</h3>
         <p>{{ cardPreview(card) }}</p>
         <div class="node-card__foot">
-          <span class="node-card__status">{{ card.status || 'Draft' }}</span>
+          <span
+            v-if="stageChip(card)" class="node-card__stage"
+            :style="{ '--stage-color': stageChip(card)!.color }"
+          >{{ stageChip(card)!.short }}</span>
+          <span v-else class="node-card__status">{{ card.status || 'Draft' }}</span>
           <span class="node-card__time">{{ card.duration || 0 }}s</span>
         </div>
 
@@ -494,10 +510,15 @@ onMounted(() => nextTick(fitView))
   background: var(--color-text);
   color: var(--color-bg);
 }
-.node-card__delete {
+.node-card__actions {
   position: absolute;
   top: 8rem; right: 8rem;
-  width: 22rem; height: 22rem;
+  display: flex;
+  gap: 5rem;
+  z-index: 2;
+}
+.node-card__edit, .node-card__delete {
+  width: 24rem; height: 24rem;
   display: grid; place-items: center;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-bg) 55%, transparent);
@@ -505,11 +526,16 @@ onMounted(() => nextTick(fitView))
   font-size: 10rem;
   opacity: 0;
   transition: opacity 0.15s ease;
-  z-index: 2;
 }
+.node-card:hover .node-card__edit,
 .node-card:hover .node-card__delete,
-.node-card--active .node-card__delete { opacity: 0.75; }
-.node-card__delete:hover { opacity: 1 !important; }
+.node-card--active .node-card__edit,
+.node-card--active .node-card__delete { opacity: 0.8; }
+.node-card__edit:hover, .node-card__delete:hover { opacity: 1 !important; }
+/* Touch devices have no hover — keep the actions discoverable */
+@media (hover: none) {
+  .node-card__edit, .node-card__delete { opacity: 0.7; }
+}
 
 .node-card__kind { display: flex; align-items: center; gap: 7rem; }
 .node-card__glyph {
@@ -544,6 +570,13 @@ onMounted(() => nextTick(fitView))
   background: color-mix(in srgb, var(--color-bg) 50%, transparent);
   border: 1px solid var(--color-glass-border);
 }
+.node-card__stage {
+  display: inline-flex;
+  font-size: 10rem; font-weight: 700; padding: 3rem 9rem; border-radius: 999px;
+  color: var(--stage-color);
+  background: color-mix(in srgb, var(--stage-color) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--stage-color) 45%, transparent);
+}
 .node-card__time { font-size: 10.5rem; font-weight: 600; opacity: 0.5; }
 
 .port {
@@ -556,6 +589,13 @@ onMounted(() => nextTick(fitView))
   transform-origin: center;
   touch-action: none;
   z-index: 2;
+}
+/* Generous invisible hit area — 16px dots are hostile to fingers */
+.port::after {
+  content: '';
+  position: absolute;
+  inset: -12rem;
+  border-radius: 999px;
 }
 .port--in { left: 0; border-color: var(--color-text); }
 .port--out { right: 0; cursor: crosshair; }

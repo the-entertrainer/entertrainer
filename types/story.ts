@@ -14,6 +14,7 @@ export type CardKind =
 export interface StoryCard {
   id: string
   kind: CardKind
+  stage: string       // stage id within the project's instructional design model ('' = unassigned)
   title: string
   body: string        // on-screen text / objectives (one per line) / key points / message
   visual: string      // visual, image, or video direction for the developer
@@ -39,6 +40,7 @@ export interface Connection {
 export interface StoryGenProject {
   version: string
   title: string
+  model: string       // instructional design model id (see utils/idModels.ts)
   updated: string
   cards: StoryCard[]
   connections: Connection[]

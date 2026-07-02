@@ -1,16 +1,40 @@
 <script setup lang="ts">
 import type { CardKind } from '~/types/story'
 import { CARD_KINDS, CARD_KIND_ORDER } from '~/utils/storyCards'
+import { modelOf } from '~/utils/idModels'
 
 // Desktop: a slim dock on the left edge. Mobile: rendered inside a bottom
-// sheet as a two-column grid. Same component, different `sheet` styling.
-defineProps<{ sheet?: boolean }>()
-const emit = defineEmits<{ add: [kind: CardKind] }>()
+// sheet as a two-column grid. When an ID model is active, its stages appear
+// first — one tap adds a card already assigned to that stage, in that
+// stage's natural card kind.
+const props = defineProps<{ sheet?: boolean; modelId?: string }>()
+const emit = defineEmits<{ add: [kind: CardKind, stage?: string] }>()
+
+const model = computed(() => modelOf(props.modelId))
 </script>
 
 <template>
   <div class="palette" :class="{ 'palette--sheet': sheet }">
-    <p v-if="!sheet" class="palette__label">Cards</p>
+    <template v-if="model.stages.length">
+      <p class="palette__label">{{ model.label }}</p>
+      <button
+        v-for="s in model.stages" :key="s.id"
+        class="palette__item palette__item--stage"
+        :style="{ '--kind-color': s.color }"
+        :title="s.prompt"
+        @click="emit('add', s.kind, s.id)"
+      >
+        <span class="palette__dot" />
+        <span class="palette__text">
+          <span class="palette__name">{{ s.label }}</span>
+          <span v-if="sheet" class="palette__hint">{{ s.prompt }}</span>
+        </span>
+        <span class="palette__plus">+</span>
+      </button>
+      <div class="palette__rule" />
+    </template>
+
+    <p class="palette__label">Cards</p>
     <button
       v-for="kind in CARD_KIND_ORDER" :key="kind"
       class="palette__item"
@@ -41,12 +65,14 @@ const emit = defineEmits<{ add: [kind: CardKind] }>()
   text-transform: uppercase;
   opacity: 0.45;
   padding: 2rem 10rem 6rem;
+  color: var(--color-text);
 }
+.palette__rule { height: 1px; background: var(--color-divider); margin: 8rem 6rem; }
 .palette__item {
   display: flex;
   align-items: center;
   gap: 10rem;
-  padding: 9rem 10rem;
+  padding: 8rem 10rem;
   border-radius: 12rem;
   text-align: left;
   transition: background 0.15s ease;
@@ -66,8 +92,15 @@ const emit = defineEmits<{ add: [kind: CardKind] }>()
   background: var(--kind-color);
   flex-shrink: 0;
 }
+.palette__dot {
+  width: 10rem; height: 10rem;
+  margin: 0 8rem;
+  border-radius: 999px;
+  background: var(--kind-color);
+  flex-shrink: 0;
+}
 .palette__text { display: flex; flex-direction: column; gap: 2rem; min-width: 0; }
-.palette__name { font-size: 12.5rem; font-weight: 600; color: var(--color-text); white-space: nowrap; }
+.palette__name { font-size: 12.5rem; font-weight: 600; color: var(--color-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 168rem; }
 .palette__hint { font-size: 11rem; opacity: 0.55; color: var(--color-text); line-height: 1.35; white-space: normal; }
 .palette__plus { margin-left: auto; font-size: 14rem; font-weight: 600; opacity: 0; color: var(--color-text); transition: opacity 0.15s ease; }
 
@@ -77,11 +110,13 @@ const emit = defineEmits<{ add: [kind: CardKind] }>()
   grid-template-columns: 1fr 1fr;
   gap: 8rem;
 }
+.palette--sheet .palette__label, .palette--sheet .palette__rule { grid-column: 1 / -1; }
 .palette--sheet .palette__item {
   border: 1px solid var(--color-glass-border);
   background: color-mix(in srgb, var(--color-bg) 45%, transparent);
   padding: 12rem;
   align-items: flex-start;
 }
+.palette--sheet .palette__name { white-space: normal; max-width: none; }
 .palette--sheet .palette__plus { display: none; }
 </style>

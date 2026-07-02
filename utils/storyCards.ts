@@ -83,6 +83,7 @@ export function createCard(kind: CardKind, position: { x: number; y: number }): 
   return {
     id: cardId(),
     kind,
+    stage: '',
     title: '',
     body: '',
     visual: '',
@@ -94,7 +95,9 @@ export function createCard(kind: CardKind, position: { x: number; y: number }): 
     options: ['', '', '', ''],
     correctIndex: 0,
     feedback: '',
-    ...meta.defaults,
+    // Deep-clone the registry defaults — a shared `options` array reference
+    // would silently link every MCQ card's answers together.
+    ...JSON.parse(JSON.stringify(meta.defaults)),
     x: position.x,
     y: position.y
   }

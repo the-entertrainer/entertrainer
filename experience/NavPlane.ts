@@ -21,6 +21,7 @@ const CARD_IMAGE_MAP: Record<string, string> = {
   'better-emails':        '/better-emails.png',
   'training-cal-gen':     '/training-cal-gen.png',
   'easymcq':              '/easymcq.png',
+  'storygen':             '/storygen.png',
   'work-01':              '/placeholder-work-01.png',
   'work-02':              '/placeholder-work-02.png',
   'work-03':              '/placeholder-work-03.png',

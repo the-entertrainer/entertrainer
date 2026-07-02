@@ -1,14 +1,33 @@
-export interface Scene {
+export type CardKind =
+  | 'title'
+  | 'objectives'
+  | 'divider'
+  | 'text-image'
+  | 'video'
+  | 'mcq'
+  | 'summary'
+  | 'thankyou'
+
+// One card = one screen in the course. Every kind shares the storyboard
+// columns (narration, notes, duration); the kind decides which of the
+// content fields the inspector exposes and how the node previews it.
+export interface StoryCard {
   id: string
+  kind: CardKind
   title: string
-  visualDescription: string
-  narration: string
-  interactions: string
-  navigation: string
-  duration: number
+  body: string        // on-screen text / objectives (one per line) / key points / message
+  visual: string      // visual, image, or video direction for the developer
+  narration: string   // audio script
+  notes: string       // developer & navigation notes
+  duration: number    // seconds
   status: string
   x: number
   y: number
+  // MCQ-only fields — kept non-optional (empty defaults) so editing is simple
+  question: string
+  options: string[]
+  correctIndex: number
+  feedback: string
 }
 
 export interface Connection {
@@ -17,27 +36,12 @@ export interface Connection {
   to: string
 }
 
-export interface McqOption {
-  id: string
-  text: string
-  correct: boolean
-}
-
-export interface Mcq {
-  id: string
-  sceneId: string | null
-  question: string
-  options: McqOption[]
-  explanation: string
-}
-
-export interface StoryProject {
+export interface StoryGenProject {
   version: string
   title: string
-  summary: string
-  learningObjectives: string[]
-  created: string
-  scenes: Scene[]
+  updated: string
+  cards: StoryCard[]
   connections: Connection[]
-  mcqs: Mcq[]
 }
+
+export const CARD_STATUSES = ['Draft', 'In Review', 'Approved', 'Final'] as const

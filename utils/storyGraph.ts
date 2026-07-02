@@ -1,11 +1,11 @@
-import type { Scene, Connection } from '~/types/story'
+import type { Connection, StoryCard } from '~/types/story'
 
-// The connection graph *is* the story sequence: numbering, export order, and
-// "what comes next" all fall out of a depth-first walk starting at the
-// root node(s) (scenes nothing points into). Disconnected islands are
+// The connection graph *is* the storyboard sequence: numbering, export
+// order, and "what comes next" all fall out of a depth-first walk starting
+// at the root card(s) (cards nothing points into). Disconnected islands are
 // appended afterward, left-to-right, so nothing gets silently dropped.
-export function orderScenes(scenes: Scene[], connections: Connection[]): Scene[] {
-  const byId = new Map(scenes.map(s => [s.id, s]))
+export function orderCards(cards: StoryCard[], connections: Connection[]): StoryCard[] {
+  const byId = new Map(cards.map(c => [c.id, c]))
   const outgoing = new Map<string, string[]>()
   for (const c of connections) {
     if (!byId.has(c.from) || !byId.has(c.to)) continue
@@ -13,35 +13,35 @@ export function orderScenes(scenes: Scene[], connections: Connection[]): Scene[]
     outgoing.get(c.from)!.push(c.to)
   }
   const hasIncoming = new Set(connections.map(c => c.to))
-  const roots = scenes.filter(s => !hasIncoming.has(s.id)).sort((a, b) => a.x - b.x || a.y - b.y)
+  const roots = cards.filter(c => !hasIncoming.has(c.id)).sort((a, b) => a.x - b.x || a.y - b.y)
 
   const visited = new Set<string>()
-  const ordered: Scene[] = []
+  const ordered: StoryCard[] = []
 
   function visit(id: string) {
     if (visited.has(id)) return
-    const scene = byId.get(id)
-    if (!scene) return
+    const card = byId.get(id)
+    if (!card) return
     visited.add(id)
-    ordered.push(scene)
+    ordered.push(card)
     for (const nextId of outgoing.get(id) || []) visit(nextId)
   }
 
   for (const root of roots) visit(root.id)
-  const remaining = scenes.filter(s => !visited.has(s.id)).sort((a, b) => a.x - b.x || a.y - b.y)
-  for (const s of remaining) visit(s.id)
+  const remaining = cards.filter(c => !visited.has(c.id)).sort((a, b) => a.x - b.x || a.y - b.y)
+  for (const c of remaining) visit(c.id)
 
   return ordered
 }
 
-export function sceneNumbers(scenes: Scene[], connections: Connection[]): Map<string, number> {
-  const ordered = orderScenes(scenes, connections)
-  return new Map(ordered.map((s, i) => [s.id, i + 1]))
+export function cardNumbers(cards: StoryCard[], connections: Connection[]): Map<string, number> {
+  const ordered = orderCards(cards, connections)
+  return new Map(ordered.map((c, i) => [c.id, i + 1]))
 }
 
-// The single node at the end of the primary chain — new scenes auto-wire
-// their input to this node's output so the graph always "snaps" onward.
-export function lastInSequence(scenes: Scene[], connections: Connection[]): Scene | null {
-  const ordered = orderScenes(scenes, connections)
+// The single card at the end of the primary chain — new cards auto-wire
+// their input to this card's output so the flow always "snaps" onward.
+export function lastInSequence(cards: StoryCard[], connections: Connection[]): StoryCard | null {
+  const ordered = orderCards(cards, connections)
   return ordered.length ? ordered[ordered.length - 1] : null
 }

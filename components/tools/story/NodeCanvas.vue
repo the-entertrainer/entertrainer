@@ -1,29 +1,40 @@
 <script setup lang="ts">
-import type { Connection, Scene } from '~/types/story'
-import { sceneNumbers } from '~/utils/storyGraph'
+import type { Connection, StoryCard } from '~/types/story'
+import { CARD_KINDS, cardPreview } from '~/utils/storyCards'
+import { cardNumbers } from '~/utils/storyGraph'
 import { NODE_H, NODE_W } from '~/utils/storyLayout'
 
-const scenes = defineModel<Scene[]>('scenes', { required: true })
+const cards = defineModel<StoryCard[]>('cards', { required: true })
 const connections = defineModel<Connection[]>('connections', { required: true })
-const selectedSceneId = defineModel<string | null>('selectedSceneId', { default: null })
+const selectedCardId = defineModel<string | null>('selectedCardId', { default: null })
 
-const emit = defineEmits<{ 'delete-scene': [id: string] }>()
+// Floating chrome (dock, toolbars) overlays the canvas; fitView/centerOn
+// frame content inside the visible window between them.
+const props = defineProps<{ insets?: { top?: number; right?: number; bottom?: number; left?: number } }>()
+const inset = computed(() => ({
+  top: props.insets?.top ?? 0,
+  right: props.insets?.right ?? 0,
+  bottom: props.insets?.bottom ?? 0,
+  left: props.insets?.left ?? 0
+}))
 
-const MIN_ZOOM = 0.35
+const emit = defineEmits<{ 'delete-card': [id: string]; 'moved': [] }>()
+
+const MIN_ZOOM = 0.3
 const MAX_ZOOM = 1.8
-const SNAP_PX = 34
+const SNAP_PX = 36
 
 const containerRef = ref<HTMLElement | null>(null)
 const pan = reactive({ x: 80, y: 80 })
 const zoom = ref(1)
 
 type DragState =
-  | { type: 'node'; id: string; startPointer: { x: number; y: number }; startNode: { x: number; y: number } }
+  | { type: 'node'; id: string; startPointer: { x: number; y: number }; startNode: { x: number; y: number }; moved: boolean }
   | { type: 'pan'; startPointer: { x: number; y: number }; startPan: { x: number; y: number } }
   | null
 
 const dragState = ref<DragState>(null)
-const connecting = ref<{ from: string; pointer: { x: number; y: number }; snapTarget: string | null } | null>(null)
+const connecting = ref<{ from: string; pointer: { x: number; y: number }; snapTarget: string | null; origin?: Connection } | null>(null)
 const selectedConnectionId = ref<string | null>(null)
 
 const activePointers = new Map<number, { x: number; y: number }>()
@@ -32,17 +43,18 @@ let pinchStartZoom = 1
 let pinchStartMid = { x: 0, y: 0 }
 let pinchStartPan = { x: 0, y: 0 }
 
-const sceneById = computed(() => new Map(scenes.value.map(s => [s.id, s])))
-const numberById = computed(() => sceneNumbers(scenes.value, connections.value))
+const cardById = computed(() => new Map(cards.value.map(c => [c.id, c])))
+const numberById = computed(() => cardNumbers(cards.value, connections.value))
 const incomingIds = computed(() => new Set(connections.value.map(c => c.to)))
 
+function meta(card: StoryCard) { return CARD_KINDS[card.kind] ?? CARD_KINDS['text-image'] }
 function pad(n: number | undefined) { return String(n ?? 0).padStart(2, '0') }
 function clamp(v: number, lo: number, hi: number) { return Math.min(hi, Math.max(lo, v)) }
 function dist(a: { x: number; y: number }, b: { x: number; y: number }) { return Math.hypot(a.x - b.x, a.y - b.y) }
 function midOf(a: { x: number; y: number }, b: { x: number; y: number }) { return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } }
 
-function outPort(s: Scene) { return { x: s.x + NODE_W, y: s.y + NODE_H / 2 } }
-function inPort(s: Scene) { return { x: s.x, y: s.y + NODE_H / 2 } }
+function outPort(c: StoryCard) { return { x: c.x + NODE_W, y: c.y + NODE_H / 2 } }
+function inPort(c: StoryCard) { return { x: c.x, y: c.y + NODE_H / 2 } }
 
 function screenToWorld(clientX: number, clientY: number) {
   const rect = containerRef.value?.getBoundingClientRect()
@@ -68,8 +80,8 @@ function bezierPointAt(p0: { x: number; y: number }, p3: { x: number; y: number 
 }
 
 const edges = computed(() => connections.value.map(c => {
-  const from = sceneById.value.get(c.from)
-  const to = sceneById.value.get(c.to)
+  const from = cardById.value.get(c.from)
+  const to = cardById.value.get(c.to)
   if (!from || !to) return null
   const p1 = outPort(from)
   const p2 = inPort(to)
@@ -78,16 +90,16 @@ const edges = computed(() => connections.value.map(c => {
     d: bezierPath(p1, p2),
     mid: bezierPointAt(p1, p2, 0.5),
     handle: bezierPointAt(p1, p2, 0.82),
-    fromId: c.from
+    color: meta(from).color
   }
 }).filter((e): e is NonNullable<typeof e> => !!e))
 
 const connectingPath = computed(() => {
   if (!connecting.value) return null
-  const from = sceneById.value.get(connecting.value.from)
+  const from = cardById.value.get(connecting.value.from)
   if (!from) return null
   const p1 = outPort(from)
-  const target = connecting.value.snapTarget ? sceneById.value.get(connecting.value.snapTarget) : null
+  const target = connecting.value.snapTarget ? cardById.value.get(connecting.value.snapTarget) : null
   const p2 = target ? inPort(target) : connecting.value.pointer
   return bezierPath(p1, p2)
 })
@@ -96,50 +108,60 @@ const worldStyle = computed(() => ({
   transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom.value})`
 }))
 
-function nodeStyle(s: Scene) {
-  return { left: `${s.x}px`, top: `${s.y}px`, width: `${NODE_W}px`, minHeight: `${NODE_H}px` }
+function nodeStyle(c: StoryCard) {
+  return {
+    left: `${c.x}px`, top: `${c.y}px`, width: `${NODE_W}px`, minHeight: `${NODE_H}px`,
+    '--kind-color': meta(c).color
+  }
 }
 function counterScaleStyle(p: { x: number; y: number }) {
   return { left: `${p.x}px`, top: `${p.y}px`, transform: `translate(-50%, -50%) scale(${1 / zoom.value})` }
 }
 
 // ── Node dragging ──────────────────────────────────────────────
-function onNodePointerDown(e: PointerEvent, scene: Scene) {
+function onNodePointerDown(e: PointerEvent, card: StoryCard) {
   const target = e.target as HTMLElement
   if (target.closest('.port, .node-card__delete')) return
   e.stopPropagation()
-  selectedSceneId.value = scene.id
+  selectedCardId.value = card.id
   selectedConnectionId.value = null
-  dragState.value = { type: 'node', id: scene.id, startPointer: { x: e.clientX, y: e.clientY }, startNode: { x: scene.x, y: scene.y } }
+  dragState.value = { type: 'node', id: card.id, startPointer: { x: e.clientX, y: e.clientY }, startNode: { x: card.x, y: card.y }, moved: false }
   ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
 }
 function onNodePointerMove(e: PointerEvent) {
   if (dragState.value?.type !== 'node') return
   const dx = (e.clientX - dragState.value.startPointer.x) / zoom.value
   const dy = (e.clientY - dragState.value.startPointer.y) / zoom.value
-  const scene = sceneById.value.get(dragState.value.id)
-  if (scene) { scene.x = dragState.value.startNode.x + dx; scene.y = dragState.value.startNode.y + dy }
+  const card = cardById.value.get(dragState.value.id)
+  if (card) {
+    card.x = dragState.value.startNode.x + dx
+    card.y = dragState.value.startNode.y + dy
+    dragState.value.moved = true
+  }
 }
 function onNodePointerUp() {
-  if (dragState.value?.type === 'node') dragState.value = null
+  if (dragState.value?.type === 'node') {
+    if (dragState.value.moved) emit('moved')
+    dragState.value = null
+  }
 }
 
 // ── Connection dragging (create / reconnect) ───────────────────
 function nearestInputTarget(world: { x: number; y: number }, excludeId: string) {
   const thresholdWorld = SNAP_PX / zoom.value
   let best: { id: string; d: number } | null = null
-  for (const s of scenes.value) {
-    if (s.id === excludeId) continue
-    const p = inPort(s)
+  for (const c of cards.value) {
+    if (c.id === excludeId) continue
+    const p = inPort(c)
     const d = dist(p, world)
-    if (d < thresholdWorld && (!best || d < best.d)) best = { id: s.id, d }
+    if (d < thresholdWorld && (!best || d < best.d)) best = { id: c.id, d }
   }
   return best?.id ?? null
 }
 
-function onOutputPointerDown(e: PointerEvent, scene: Scene) {
+function onOutputPointerDown(e: PointerEvent, card: StoryCard) {
   e.stopPropagation()
-  connecting.value = { from: scene.id, pointer: screenToWorld(e.clientX, e.clientY), snapTarget: null }
+  connecting.value = { from: card.id, pointer: screenToWorld(e.clientX, e.clientY), snapTarget: null }
   ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
 }
 function onConnectPointerMove(e: PointerEvent) {
@@ -150,14 +172,20 @@ function onConnectPointerMove(e: PointerEvent) {
 }
 function onConnectPointerUp() {
   if (!connecting.value) return
-  const { from, snapTarget } = connecting.value
+  const { from, snapTarget, origin } = connecting.value
   connecting.value = null
-  if (snapTarget && snapTarget !== from) addConnection(from, snapTarget)
+  if (snapTarget && snapTarget !== from) {
+    addConnection(from, snapTarget)
+  } else if (origin) {
+    // A detached curve released over nothing springs back where it was —
+    // deleting is always an explicit act (the Disconnect chip).
+    connections.value.push(origin)
+  }
 }
 function addConnection(from: string, to: string) {
   const exists = connections.value.some(c => c.from === from && c.to === to)
   if (exists) return
-  connections.value.push({ id: `c${Date.now()}-${Math.random().toString(16).slice(2)}`, from, to })
+  connections.value.push({ id: `k${Date.now()}-${Math.random().toString(16).slice(2)}`, from, to })
 }
 
 function onReconnectStart(e: PointerEvent, edgeId: string) {
@@ -165,7 +193,7 @@ function onReconnectStart(e: PointerEvent, edgeId: string) {
   const conn = connections.value.find(c => c.id === edgeId)
   if (!conn) return
   connections.value = connections.value.filter(c => c.id !== edgeId)
-  connecting.value = { from: conn.from, pointer: screenToWorld(e.clientX, e.clientY), snapTarget: null }
+  connecting.value = { from: conn.from, pointer: screenToWorld(e.clientX, e.clientY), snapTarget: null, origin: conn }
   window.addEventListener('pointermove', onConnectPointerMove)
   window.addEventListener('pointerup', onWindowReconnectUp, { once: true })
 }
@@ -177,7 +205,7 @@ function onWindowReconnectUp() {
 function onEdgeTap(e: PointerEvent, edgeId: string) {
   e.stopPropagation()
   selectedConnectionId.value = selectedConnectionId.value === edgeId ? null : edgeId
-  selectedSceneId.value = null
+  selectedCardId.value = null
 }
 function deleteSelectedConnection() {
   if (!selectedConnectionId.value) return
@@ -202,7 +230,7 @@ function onContainerPointerDown(e: PointerEvent) {
     return
   }
   if (e.target === containerRef.value || (e.target as HTMLElement).classList.contains('node-canvas__world')) {
-    selectedSceneId.value = null
+    selectedCardId.value = null
     selectedConnectionId.value = null
   }
   if (dragState.value) return
@@ -255,23 +283,40 @@ function zoomIn() { zoomBy(1.25) }
 function zoomOut() { zoomBy(0.8) }
 function fitView() {
   const rect = containerRef.value?.getBoundingClientRect()
-  if (!rect || !scenes.value.length) { pan.x = 80; pan.y = 80; zoom.value = 1; return }
-  const minX = Math.min(...scenes.value.map(s => s.x))
-  const minY = Math.min(...scenes.value.map(s => s.y))
-  const maxX = Math.max(...scenes.value.map(s => s.x + NODE_W))
-  const maxY = Math.max(...scenes.value.map(s => s.y + NODE_H))
-  const pad = 90
-  const bw = maxX - minX + pad * 2
-  const bh = maxY - minY + pad * 2
-  const nextZoom = clamp(Math.min(rect.width / bw, rect.height / bh), MIN_ZOOM, MAX_ZOOM)
+  const { top, right, bottom, left } = inset.value
+  if (!rect || !cards.value.length) { pan.x = left + 80; pan.y = top + 80; zoom.value = 1; return }
+  const availW = rect.width - left - right
+  const availH = rect.height - top - bottom
+  const minX = Math.min(...cards.value.map(c => c.x))
+  const minY = Math.min(...cards.value.map(c => c.y))
+  const maxX = Math.max(...cards.value.map(c => c.x + NODE_W))
+  const maxY = Math.max(...cards.value.map(c => c.y + NODE_H))
+  const margin = 60
+  const bw = maxX - minX + margin * 2
+  const bh = maxY - minY + margin * 2
+  const nextZoom = clamp(Math.min(availW / bw, availH / bh, 1.1), MIN_ZOOM, MAX_ZOOM)
   zoom.value = nextZoom
-  pan.x = (rect.width - bw * nextZoom) / 2 - (minX - pad) * nextZoom
-  pan.y = (rect.height - bh * nextZoom) / 2 - (minY - pad) * nextZoom
+  pan.x = left + (availW - bw * nextZoom) / 2 - (minX - margin) * nextZoom
+  pan.y = top + (availH - bh * nextZoom) / 2 - (minY - margin) * nextZoom
+}
+function centerOn(cardId: string) {
+  const rect = containerRef.value?.getBoundingClientRect()
+  const card = cardById.value.get(cardId)
+  if (!rect || !card) return
+  const { top, right, bottom, left } = inset.value
+  pan.x = left + (rect.width - left - right) / 2 - (card.x + NODE_W / 2) * zoom.value
+  pan.y = top + (rect.height - top - bottom) / 2 - (card.y + NODE_H / 2) * zoom.value
 }
 
-function deleteNode(id: string) { emit('delete-scene', id) }
+function deleteNode(id: string) { emit('delete-card', id) }
 
-defineExpose({ zoomIn, zoomOut, fitView })
+const zoomPercent = computed(() => Math.round(zoom.value * 100))
+
+// True while a drag/connect gesture is mid-flight — consumers should hold
+// off snapshotting history so half-finished states never become undo steps.
+const gestureActive = computed(() => !!dragState.value || !!connecting.value)
+
+defineExpose({ zoomIn, zoomOut, fitView, centerOn, zoomPercent, gestureActive })
 
 onMounted(() => nextTick(fitView))
 </script>
@@ -306,26 +351,33 @@ onMounted(() => nextTick(fitView))
       />
 
       <article
-        v-for="scene in scenes" :key="scene.id"
+        v-for="card in cards" :key="card.id"
         class="node-card"
-        :class="{ 'node-card--active': scene.id === selectedSceneId }"
-        :style="nodeStyle(scene)"
-        @pointerdown="onNodePointerDown($event, scene)"
+        :class="{ 'node-card--active': card.id === selectedCardId }"
+        :style="nodeStyle(card)"
+        @pointerdown="onNodePointerDown($event, card)"
         @pointermove="onNodePointerMove"
         @pointerup="onNodePointerUp"
         @pointercancel="onNodePointerUp"
       >
-        <span v-if="!incomingIds.has(scene.id)" class="node-card__start">START</span>
-        <button class="node-card__delete" title="Delete scene" @click.stop="deleteNode(scene.id)">✕</button>
-        <div class="node-card__top"><span>Scene {{ pad(numberById.get(scene.id)) }}</span><span>{{ scene.duration || 0 }}s</span></div>
-        <h3>{{ scene.title || 'Untitled Scene' }}</h3>
-        <p>{{ scene.visualDescription || 'No visual direction yet.' }}</p>
-        <span class="node-card__status">{{ scene.status || 'Draft' }}</span>
+        <span v-if="!incomingIds.has(card.id)" class="node-card__start">START</span>
+        <button class="node-card__delete" title="Delete card" @click.stop="deleteNode(card.id)">✕</button>
+        <div class="node-card__kind">
+          <span class="node-card__glyph">{{ meta(card).glyph }}</span>
+          <span class="node-card__kind-label">{{ meta(card).label }}</span>
+          <span class="node-card__num">№ {{ pad(numberById.get(card.id)) }}</span>
+        </div>
+        <h3>{{ card.title || 'Untitled' }}</h3>
+        <p>{{ cardPreview(card) }}</p>
+        <div class="node-card__foot">
+          <span class="node-card__status">{{ card.status || 'Draft' }}</span>
+          <span class="node-card__time">{{ card.duration || 0 }}s</span>
+        </div>
 
         <div class="port port--in" :style="{ transform: `translate(-50%, -50%) scale(${1 / zoom})` }" />
         <div
           class="port port--out" :style="{ transform: `translate(50%, -50%) scale(${1 / zoom})` }"
-          @pointerdown="onOutputPointerDown($event, scene)"
+          @pointerdown="onOutputPointerDown($event, card)"
           @pointermove="onConnectPointerMove"
           @pointerup="onConnectPointerUp"
           @pointercancel="onConnectPointerUp"
@@ -340,7 +392,7 @@ onMounted(() => nextTick(fitView))
       @click="deleteSelectedConnection"
     >✕ Disconnect</button>
 
-    <p v-if="!scenes.length" class="node-canvas__empty">No scenes yet — add one to start building your storyboard.</p>
+    <p v-if="!cards.length" class="node-canvas__empty">Blank canvas. Add a card from the palette to begin your storyboard.</p>
   </div>
 </template>
 
@@ -352,12 +404,9 @@ onMounted(() => nextTick(fitView))
   overflow: hidden;
   touch-action: none;
   cursor: grab;
-  border-radius: 24rem;
   background:
     radial-gradient(circle at 1px 1px, var(--color-glass-border) 1.4px, transparent 0) 0 0 / 28rem 28rem,
-    linear-gradient(180deg, rgba(255,255,255,0.05), transparent 40%),
-    color-mix(in srgb, var(--color-bg) 70%, transparent);
-  border: 1px solid var(--color-glass-border);
+    color-mix(in srgb, var(--color-bg) 40%, transparent);
 }
 .node-canvas:active { cursor: grabbing; }
 
@@ -383,7 +432,7 @@ onMounted(() => nextTick(fitView))
   stroke-linecap: round;
   transition: stroke 0.18s ease, stroke-width 0.18s ease;
 }
-.edge-visible--selected { stroke: var(--color-accent-2, #6d8cff); stroke-width: 3.5; }
+.edge-visible--selected { stroke: #6d8cff; stroke-width: 3.5; }
 .edge-visible--live { stroke: color-mix(in srgb, var(--color-text) 65%, transparent); stroke-dasharray: 7 7; }
 
 .reconnect-handle {
@@ -412,28 +461,31 @@ onMounted(() => nextTick(fitView))
 
 .node-card {
   position: absolute;
-  padding: 18rem 18rem 16rem;
-  border-radius: 20rem;
+  padding: 16rem 18rem 14rem;
+  border-radius: 18rem;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.10), transparent 38%),
-    color-mix(in srgb, var(--color-bg) 70%, transparent);
-  backdrop-filter: blur(20px) saturate(1.3);
-  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+    color-mix(in srgb, var(--color-bg) 76%, transparent);
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
   border: 1px solid var(--color-glass-border);
+  border-left: 4rem solid var(--kind-color);
   box-shadow: 0 18rem 46rem -26rem rgba(0,0,0,0.65);
   cursor: grab;
   touch-action: none;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
   user-select: none;
+  display: flex;
+  flex-direction: column;
 }
 .node-card:active { cursor: grabbing; }
 .node-card--active {
-  border-color: var(--color-glass-border-hover);
-  box-shadow: 0 0 0 2rem color-mix(in srgb, var(--color-text) 26%, transparent), 0 26rem 60rem -30rem rgba(0,0,0,0.65);
+  border-color: var(--kind-color);
+  box-shadow: 0 0 0 2rem color-mix(in srgb, var(--kind-color) 55%, transparent), 0 26rem 60rem -30rem rgba(0,0,0,0.65);
 }
 .node-card__start {
   position: absolute;
-  top: -11rem; left: 16rem;
+  top: -11rem; left: 14rem;
   font-size: 10rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -444,7 +496,7 @@ onMounted(() => nextTick(fitView))
 }
 .node-card__delete {
   position: absolute;
-  top: 10rem; right: 10rem;
+  top: 8rem; right: 8rem;
   width: 22rem; height: 22rem;
   display: grid; place-items: center;
   border-radius: 999px;
@@ -453,25 +505,46 @@ onMounted(() => nextTick(fitView))
   font-size: 10rem;
   opacity: 0;
   transition: opacity 0.15s ease;
+  z-index: 2;
 }
 .node-card:hover .node-card__delete,
 .node-card--active .node-card__delete { opacity: 0.75; }
 .node-card__delete:hover { opacity: 1 !important; }
-.node-card__top {
-  display: flex; justify-content: space-between;
-  font-size: 11rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.55;
+
+.node-card__kind { display: flex; align-items: center; gap: 7rem; }
+.node-card__glyph {
+  width: 20rem; height: 20rem;
+  display: grid; place-items: center;
+  border-radius: 6rem;
+  font-size: 10.5rem;
+  font-weight: 700;
+  color: var(--color-bg);
+  background: var(--kind-color);
+  flex-shrink: 0;
 }
-.node-card h3 { margin: 12rem 0 8rem; font-size: 17rem; line-height: 1.2; }
+.node-card__kind-label {
+  font-size: 10rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--kind-color);
+}
+.node-card__num { margin-left: auto; margin-right: 18rem; font-size: 10rem; font-weight: 600; opacity: 0.5; }
+
+.node-card h3 { margin: 11rem 0 7rem; font-size: 16.5rem; line-height: 1.2; letter-spacing: -0.02em; }
 .node-card p {
-  font-size: 12.5rem; line-height: 1.4; opacity: 0.65; min-height: 52rem;
+  font-size: 12rem; line-height: 1.45; opacity: 0.62; min-height: 50rem;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  white-space: pre-line;
 }
+.node-card__foot { margin-top: auto; padding-top: 8rem; display: flex; align-items: center; justify-content: space-between; }
 .node-card__status {
-  display: inline-flex; margin-top: 8rem;
-  font-size: 10.5rem; font-weight: 600; padding: 3rem 9rem; border-radius: 999px;
+  display: inline-flex;
+  font-size: 10rem; font-weight: 600; padding: 3rem 9rem; border-radius: 999px;
   background: color-mix(in srgb, var(--color-bg) 50%, transparent);
   border: 1px solid var(--color-glass-border);
 }
+.node-card__time { font-size: 10.5rem; font-weight: 600; opacity: 0.5; }
 
 .port {
   position: absolute;
@@ -479,14 +552,14 @@ onMounted(() => nextTick(fitView))
   width: 16rem; height: 16rem;
   border-radius: 999px;
   background: var(--color-bg);
-  border: 2.5rem solid var(--color-text);
+  border: 2.5rem solid var(--kind-color);
   transform-origin: center;
   touch-action: none;
   z-index: 2;
 }
-.port--in { left: 0; }
+.port--in { left: 0; border-color: var(--color-text); }
 .port--out { right: 0; cursor: crosshair; }
-.port--out:hover { background: var(--color-text); }
+.port--out:hover { background: var(--kind-color); }
 
 .node-canvas__empty {
   position: absolute;
@@ -496,5 +569,8 @@ onMounted(() => nextTick(fitView))
   font-size: 14rem;
   opacity: 0.5;
   pointer-events: none;
+  text-align: center;
+  padding: 0 32rem;
+  line-height: 1.5;
 }
 </style>

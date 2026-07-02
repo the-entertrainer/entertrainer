@@ -13,42 +13,49 @@ import {
   WidthType
 } from 'docx'
 import { saveAs } from 'file-saver'
-import type { Connection, Mcq, Scene } from '~/types/story'
-import { orderScenes, sceneNumbers } from './storyGraph'
+import type { Connection, StoryCard } from '~/types/story'
+import { CARD_KINDS } from './storyCards'
+import { orderCards } from './storyGraph'
 
 const HEADER_FILL = '243F6A'
 
 function textCell(text: string, opts: { header?: boolean; width?: number } = {}) {
+  const lines = (text ?? '').split('\n').map(l => l.trim()).filter(Boolean)
   return new TableCell({
     width: opts.width ? { size: opts.width, type: WidthType.PERCENTAGE } : undefined,
     verticalAlign: VerticalAlign.TOP,
     shading: opts.header ? { type: ShadingType.CLEAR, fill: HEADER_FILL } : undefined,
     margins: { top: 100, bottom: 100, left: 120, right: 120 },
-    children: [
-      new Paragraph({
-        children: [
-          new TextRun({
-            text: text?.trim() || '—',
-            bold: !!opts.header,
-            color: opts.header ? 'FFFFFF' : undefined,
-            size: opts.header ? 19 : 18
-          })
-        ]
-      })
-    ]
+    children: (lines.length ? lines : ['—']).map((line, i) => new Paragraph({
+      spacing: i < lines.length - 1 ? { after: 40 } : undefined,
+      children: [
+        new TextRun({
+          text: line,
+          bold: !!opts.header,
+          color: opts.header ? 'FFFFFF' : undefined,
+          size: opts.header ? 19 : 18
+        })
+      ]
+    }))
   })
 }
 
-function optionsCell(mcq: Mcq) {
+function optionsCell(card: StoryCard) {
+  const options = card.options || []
+  const any = options.some(o => o.trim())
   return new TableCell({
-    width: { size: 32, type: WidthType.PERCENTAGE },
+    width: { size: 30, type: WidthType.PERCENTAGE },
     verticalAlign: VerticalAlign.TOP,
     margins: { top: 100, bottom: 100, left: 120, right: 120 },
-    children: mcq.options.length
-      ? mcq.options.map(o => new Paragraph({
+    children: any
+      ? options.map((text, i) => new Paragraph({
           spacing: { after: 40 },
           children: [
-            new TextRun({ text: `${o.correct ? '✓ ' : '– '}${o.text || '—'}`, bold: o.correct, size: 18 })
+            new TextRun({
+              text: `${String.fromCharCode(65 + i)}. ${text.trim() || '—'}${i === card.correctIndex ? '  ✓' : ''}`,
+              bold: i === card.correctIndex,
+              size: 18
+            })
           ]
         }))
       : [new Paragraph({ children: [new TextRun({ text: '—', size: 18 })] })]
@@ -66,72 +73,77 @@ function heading(text: string, level: typeof HeadingLevel[keyof typeof HeadingLe
   return new Paragraph({ text, heading: level, spacing: { before: 320, after: 160 } })
 }
 
+// The card's main storyboard content, flattened for the on-screen column.
+function onScreenContent(card: StoryCard): string {
+  if (card.kind === 'mcq') {
+    const opts = (card.options || []).map((o, i) => `${String.fromCharCode(65 + i)}. ${o.trim() || '—'}`).join('\n')
+    return [card.question, opts].filter(Boolean).join('\n')
+  }
+  return card.body
+}
+
 export interface DocxExportInput {
   title: string
-  summary: string
-  learningObjectives: string[]
-  scenes: Scene[]
+  cards: StoryCard[]
   connections: Connection[]
-  mcqs: Mcq[]
 }
 
 export async function exportStoryDocx(input: DocxExportInput, filename: string) {
-  const ordered = orderScenes(input.scenes, input.connections)
-  const numbers = sceneNumbers(input.scenes, input.connections)
+  const ordered = orderCards(input.cards, input.connections)
 
   const storyboardTable = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
     rows: [
       headerRow([
-        { text: '#', width: 5 },
-        { text: 'Scene Title', width: 15 },
-        { text: 'Visual / On-Screen Text', width: 23 },
-        { text: 'Narration / Audio Script', width: 22 },
-        { text: 'Interaction & Feedback', width: 15 },
-        { text: 'Navigation', width: 12 },
-        { text: 'Duration', width: 8 }
+        { text: '#', width: 4 },
+        { text: 'Screen', width: 14 },
+        { text: 'Type', width: 10 },
+        { text: 'On-Screen Content', width: 24 },
+        { text: 'Visual / Media', width: 16 },
+        { text: 'Narration / Audio', width: 18 },
+        { text: 'Developer Notes', width: 9 },
+        { text: 'Time', width: 5 }
       ]),
-      ...ordered.map((scene, i) => new TableRow({
+      ...ordered.map((card, i) => new TableRow({
         children: [
           textCell(String(i + 1).padStart(2, '0')),
-          textCell(scene.title),
-          textCell(scene.visualDescription),
-          textCell(scene.narration),
-          textCell(scene.interactions),
-          textCell(scene.navigation),
-          textCell(`${scene.duration || 0}s`)
+          textCell(card.title),
+          textCell(CARD_KINDS[card.kind]?.label ?? card.kind),
+          textCell(onScreenContent(card)),
+          textCell(card.visual),
+          textCell(card.narration),
+          textCell(card.notes),
+          textCell(`${card.duration || 0}s`)
         ]
       }))
     ]
   })
+
+  const mcqCards = ordered.filter(c => c.kind === 'mcq')
+  const numberOf = new Map(ordered.map((c, i) => [c.id, i + 1]))
 
   const mcqTable = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
     rows: [
       headerRow([
         { text: '#', width: 5 },
-        { text: 'Linked Scene', width: 16 },
-        { text: 'Question', width: 25 },
-        { text: 'Answer Options (✓ correct)', width: 32 },
-        { text: 'Explanation', width: 22 }
+        { text: 'Screen', width: 16 },
+        { text: 'Question', width: 27 },
+        { text: 'Options (✓ correct)', width: 30 },
+        { text: 'Feedback', width: 22 }
       ]),
-      ...(input.mcqs.length
-        ? input.mcqs.map((mcq, i) => {
-            const num = mcq.sceneId ? numbers.get(mcq.sceneId) : null
-            const scene = mcq.sceneId ? input.scenes.find(s => s.id === mcq.sceneId) : null
-            const linked = num && scene ? `Scene ${String(num).padStart(2, '0')}: ${scene.title}` : 'General'
-            return new TableRow({
-              children: [
-                textCell(String(i + 1).padStart(2, '0')),
-                textCell(linked),
-                textCell(mcq.question),
-                optionsCell(mcq),
-                textCell(mcq.explanation)
-              ]
-            })
-          })
+      ...(mcqCards.length
+        ? mcqCards.map((card, i) => new TableRow({
+            children: [
+              textCell(String(i + 1).padStart(2, '0')),
+              textCell(`Screen ${String(numberOf.get(card.id)).padStart(2, '0')}: ${card.title || 'Knowledge Check'}`),
+              textCell(card.question),
+              optionsCell(card),
+              textCell(card.feedback)
+            ]
+          }))
         : [new TableRow({ children: [
-            textCell(''), textCell(''), textCell('No knowledge checks yet.'), textCell(''), textCell('')
+            textCell(''), textCell(''), textCell('No MCQ screens in this storyboard.'), textCell(''), textCell('')
           ] })])
     ]
   })
@@ -141,13 +153,6 @@ export async function exportStoryDocx(input: DocxExportInput, filename: string) 
       properties: {},
       children: [
         new Paragraph({ text: input.title || 'Untitled Storyboard', heading: HeadingLevel.TITLE }),
-        ...(input.summary ? [new Paragraph({ text: input.summary, spacing: { before: 120, after: 120 } })] : []),
-        ...(input.learningObjectives.length
-          ? [
-              new Paragraph({ text: 'Learning Objectives', heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-              ...input.learningObjectives.map(o => new Paragraph({ text: o, bullet: { level: 0 } }))
-            ]
-          : []),
         heading('Storyboard', HeadingLevel.HEADING_1),
         storyboardTable,
         heading('MCQ', HeadingLevel.HEADING_1),
@@ -155,7 +160,7 @@ export async function exportStoryDocx(input: DocxExportInput, filename: string) 
         new Paragraph({
           spacing: { before: 260 },
           alignment: AlignmentType.LEFT,
-          children: [new TextRun({ text: `Exported from StoryForge · ${new Date().toLocaleDateString()}`, size: 15, color: '888888' })]
+          children: [new TextRun({ text: `Exported from StoryGen · ${new Date().toLocaleDateString()}`, size: 15, color: '888888' })]
         })
       ]
     }]

@@ -156,6 +156,14 @@ html {
   /* Disable overscroll bounce globally — native app feel */
   overscroll-behavior: none;
 }
+/* Applied while the 404/construction mini-game is in its fullscreen
+   immersive mode (ConstructionGame.vue) — stops the page underneath from
+   scrolling while the game covers the viewport. */
+html.cgame-lock,
+html.cgame-lock body {
+  overflow: hidden;
+  height: 100%;
+}
 * {
   margin: 0;
   padding: 0;

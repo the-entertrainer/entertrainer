@@ -22,12 +22,12 @@ const CARD_IMAGE_MAP: Record<string, string> = {
   'training-cal-gen':     '/training-cal-gen.png',
   'easymcq':              '/easymcq.png',
   'storygen':             '/storygen.png',
-  'work-01':              '/placeholder-work-01.png',
-  'work-02':              '/placeholder-work-02.png',
-  'work-03':              '/placeholder-work-03.png',
-  'templates':            '/placeholder-templates.png',
-  'frameworks':           '/placeholder-frameworks.png',
-  'resources':            '/placeholder-resources.png',
+  'work-01':              '/work-01.png',
+  'work-02':              '/work-02.png',
+  'work-03':              '/work-03.png',
+  'templates':            '/templates.png',
+  'frameworks':           '/frameworks.png',
+  'resources':            '/resources.png',
 }
 const _imageReady = new Map<string, Promise<HTMLImageElement>>()
 if (typeof document !== 'undefined') {

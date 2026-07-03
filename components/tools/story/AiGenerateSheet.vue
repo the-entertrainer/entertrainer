@@ -66,10 +66,10 @@ async function generate() {
     <div class="aig glass-panel" data-lenis-prevent>
       <header class="aig__head">
         <div>
-          <h2>✨ New storyboard with AI</h2>
+          <h2 class="aig__head-title"><ToolsStoryIcon name="sparkle" :size="16" /> New storyboard with AI</h2>
           <p>Drop in source material — the AI structures it into framework-shaped screen cards you fully control afterward.</p>
         </div>
-        <button class="aig__close" aria-label="Close" :disabled="phase === 'generating'" @click="emit('close')">✕</button>
+        <button class="aig__close" aria-label="Close" :disabled="phase === 'generating'" @click="emit('close')"><ToolsStoryIcon name="close" :size="14" /></button>
       </header>
 
       <div v-if="phase === 'generating'" class="aig__busy">
@@ -138,6 +138,7 @@ async function generate() {
 }
 .aig__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12rem; }
 .aig__head h2 { font-size: 20rem; letter-spacing: -0.03em; margin-bottom: 6rem; }
+.aig__head-title { display: flex; align-items: center; gap: 8rem; color: #8B7CF6; }
 .aig__head p { font-size: 13rem; opacity: 0.65; line-height: 1.5; }
 .aig__close {
   width: 28rem; height: 28rem;

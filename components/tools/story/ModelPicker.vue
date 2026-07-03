@@ -21,7 +21,7 @@ const canClose = computed(() => props.switching || props.dismissible)
             ? 'Your cards stay — stages reset to the new model.'
             : 'Pick the instructional design model this storyboard should follow.' }}</p>
         </div>
-        <button v-if="canClose" class="mp__close" aria-label="Close" @click="emit('close')">✕</button>
+        <button v-if="canClose" class="mp__close" aria-label="Close" @click="emit('close')"><ToolsStoryIcon name="close" :size="14" /></button>
       </header>
 
       <div class="mp__grid">

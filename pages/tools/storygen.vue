@@ -641,11 +641,14 @@ onUnmounted(() => {
     <!-- Splash: a breath of brand before the shelf -->
     <Transition name="splash">
       <div v-if="view === 'splash'" class="sg-splash" @click="view = 'home'">
-        <ToolsStoryBrandMark :size="116" class="sg-splash__mark" />
+        <div class="sg-splash__orb sg-splash__orb--a" />
+        <div class="sg-splash__orb sg-splash__orb--b" />
+        <ToolsStoryBrandMark :size="116" animated class="sg-splash__mark" />
         <p class="sg-splash__name">Story<em>Gen</em></p>
         <p class="sg-splash__tag">Storyboard studio for instructional designers</p>
+        <span class="sg-splash__loader" aria-hidden="true"><i /><i /><i /></span>
         <button class="sg-ai-chip sg-splash__ai" @click.stop="view = 'home'; aiSetupOpen = true">
-          ✨ AI features: {{ aiReady ? 'On' : 'Off' }}
+          <ToolsStoryIcon name="sparkle" :size="13" /> AI features: {{ aiReady ? 'On' : 'Off' }}
         </button>
       </div>
     </Transition>
@@ -660,21 +663,22 @@ onUnmounted(() => {
             <p>Pick a framework, wire the screens, export a polished storyboard.</p>
           </div>
           <button class="sg-ai-chip sg-home__ai" :class="{ 'sg-ai-chip--on': aiReady }" @click="aiSetupOpen = true">
-            ✨ AI {{ aiReady ? 'On' : 'Off' }}
+            <ToolsStoryIcon name="sparkle" :size="13" /> AI {{ aiReady ? 'On' : 'Off' }}
           </button>
         </header>
 
         <div class="sg-home__actions">
-          <button class="glass-btn" @click="newProject">+ New storyboard</button>
-          <button v-if="aiReady" class="glass-btn sg-home__ai-new" @click="openAiGenerate">✨ New with AI</button>
+          <button class="glass-btn sg-home__new" @click="newProject"><ToolsStoryIcon name="plus" :size="13" /> New storyboard</button>
+          <button v-if="aiReady" class="glass-btn sg-home__ai-new" @click="openAiGenerate"><ToolsStoryIcon name="sparkle" :size="13" /> New with AI</button>
           <label class="sg-tool sg-tool--wide sg-file-btn sg-home__open">Open .sbf<input type="file" accept=".sbf,.json" @change="importProject"></label>
         </div>
 
         <p v-if="projects.length" class="glass-label sg-home__label">Recent storyboards</p>
         <div class="sg-home__grid">
           <article
-            v-for="p in projects" :key="p.id"
+            v-for="(p, i) in projects" :key="p.id"
             class="glass-panel sg-proj" role="button" tabindex="0"
+            :style="{ '--proj-i': Math.min(i, 8) }"
             @click="openProject(p.id)"
             @keydown.enter="openProject(p.id)"
           >
@@ -687,7 +691,7 @@ onUnmounted(() => {
               <span>{{ modelLabelOf(p.model) }} · {{ p.screens }} screens · ≈{{ p.minutes }} min</span>
               <span class="sg-proj__date">{{ relTime(p.updated) }}</span>
             </div>
-            <button class="sg-proj__del" title="Delete storyboard" @click.stop="deleteProjectEntry(p.id)">✕</button>
+            <button class="sg-proj__del" title="Delete storyboard" @click.stop="deleteProjectEntry(p.id)"><ToolsStoryIcon name="trash" :size="12" /></button>
           </article>
         </div>
         <p v-if="!projects.length" class="sg-home__empty">Nothing here yet — your storyboards live on this device. Create the first one.</p>
@@ -725,8 +729,8 @@ onUnmounted(() => {
       </button>
 
       <div class="sg-topbar__group">
-        <button class="sg-tool" :disabled="!canUndo" title="Undo (⌘Z)" @click="undo">↶</button>
-        <button class="sg-tool" :disabled="!canRedo" title="Redo (⇧⌘Z)" @click="redo">↷</button>
+        <button class="sg-tool" :disabled="!canUndo" title="Undo (⌘Z)" @click="undo"><ToolsStoryIcon name="undo" :size="14" /></button>
+        <button class="sg-tool" :disabled="!canRedo" title="Redo (⇧⌘Z)" @click="redo"><ToolsStoryIcon name="redo" :size="14" /></button>
         <button class="sg-tool sg-desktop-only" title="Product tour" @click="startTour">?</button>
       </div>
 
@@ -735,10 +739,10 @@ onUnmounted(() => {
           <button
             class="sg-tool sg-tool--wide" :class="{ 'sg-tool--ai': aiReady }" title="AI features"
             @click="aiReady ? (showMenu = showMenu === 'ai' ? null : 'ai') : openAiSetup()"
-          >✨{{ aiReady ? ' AI' : '' }}</button>
+          ><ToolsStoryIcon name="sparkle" :size="13" />{{ aiReady ? ' AI' : '' }}</button>
           <div v-if="showMenu === 'ai'" class="glass-panel sg-menu">
-            <button @click="openAiGenerate">✨ New storyboard with AI…</button>
-            <button :disabled="aiBusyField === 'mcqs'" @click="aiAddMcqs">✨ Add knowledge checks from content</button>
+            <button @click="openAiGenerate"><ToolsStoryIcon name="sparkle" :size="12" /> New storyboard with AI…</button>
+            <button :disabled="aiBusyField === 'mcqs'" @click="aiAddMcqs"><ToolsStoryIcon name="sparkle" :size="12" /> Add knowledge checks from content</button>
             <button @click="openAiSetup">AI settings…</button>
           </div>
         </div>
@@ -746,7 +750,7 @@ onUnmounted(() => {
         <button class="sg-tool sg-tool--wide" @click="newProject">New</button>
         <label class="sg-tool sg-tool--wide sg-file-btn">Open<input type="file" accept=".sbf,.json" @change="importProject"></label>
         <div class="sg-menu-wrap">
-          <button class="glass-btn sg-export-btn" @click="showMenu = showMenu === 'export' ? null : 'export'">Export ▾</button>
+          <button class="glass-btn sg-export-btn" @click="showMenu = showMenu === 'export' ? null : 'export'">Export <ToolsStoryIcon name="chevron-down" :size="11" /></button>
           <div v-if="showMenu === 'export'" class="glass-panel sg-menu">
             <button @click="exportDocx">Word (.docx) — Storyboard + MCQ</button>
             <button @click="exportXlsx">Excel (.xlsx) — Storyboard + MCQ</button>
@@ -757,14 +761,14 @@ onUnmounted(() => {
       </div>
 
       <div class="sg-menu-wrap sg-mobile-only">
-        <button class="sg-tool" aria-label="Menu" @click="showMenu = showMenu === 'mobile' ? null : 'mobile'">⋯</button>
+        <button class="sg-tool" aria-label="Menu" @click="showMenu = showMenu === 'mobile' ? null : 'mobile'"><ToolsStoryIcon name="more-horizontal" :size="16" /></button>
         <div v-if="showMenu === 'mobile'" class="glass-panel sg-menu">
           <button @click="goHome">Home — all storyboards</button>
           <button @click="showMenu = null; modelPicker = 'switch'">Framework: {{ activeModel.label }}</button>
           <button v-if="isProcessModel" @click="showMenu = null; planOpen = true">Design plan…</button>
-          <button @click="openAiSetup">✨ AI features: {{ aiReady ? 'On' : 'Off' }}…</button>
-          <button v-if="aiReady" @click="openAiGenerate">✨ New storyboard with AI…</button>
-          <button v-if="aiReady" :disabled="aiBusyField === 'mcqs'" @click="aiAddMcqs">✨ Add knowledge checks</button>
+          <button @click="openAiSetup"><ToolsStoryIcon name="sparkle" :size="12" /> AI features: {{ aiReady ? 'On' : 'Off' }}…</button>
+          <button v-if="aiReady" @click="openAiGenerate"><ToolsStoryIcon name="sparkle" :size="12" /> New storyboard with AI…</button>
+          <button v-if="aiReady" :disabled="aiBusyField === 'mcqs'" @click="aiAddMcqs"><ToolsStoryIcon name="sparkle" :size="12" /> Add knowledge checks</button>
           <button @click="startTour">Show the tour</button>
           <button @click="newProject">New storyboard</button>
           <label class="sg-menu-file">Open project (.sbf)<input type="file" accept=".sbf,.json" @change="importProject"></label>
@@ -807,9 +811,9 @@ onUnmounted(() => {
       <div v-if="selectedCard && !isDesktop && !inspectorOpen" class="sg-cardbar glass-panel">
         <span class="sg-cardbar__dot" :style="{ background: selectedKindColor }" />
         <span class="sg-cardbar__title">{{ selectedCard.title || 'Untitled' }}</span>
-        <button class="glass-btn sg-cardbar__edit" @click="inspectorOpen = true">✎ Edit</button>
-        <button class="sg-tool" title="Duplicate" @click="duplicateSelected">⧉</button>
-        <button class="sg-tool sg-cardbar__delete" title="Delete" @click="deleteCard(selectedCard.id)">✕</button>
+        <button class="glass-btn sg-cardbar__edit" @click="inspectorOpen = true"><ToolsStoryIcon name="edit" :size="12" /> Edit</button>
+        <button class="sg-tool" title="Duplicate" @click="duplicateSelected"><ToolsStoryIcon name="duplicate" :size="14" /></button>
+        <button class="sg-tool sg-cardbar__delete" title="Delete" @click="deleteCard(selectedCard.id)"><ToolsStoryIcon name="trash" :size="14" /></button>
       </div>
     </Transition>
 
@@ -819,7 +823,7 @@ onUnmounted(() => {
         <div class="sg-sheet glass-panel" data-lenis-prevent>
           <div class="sg-sheet__head">
             <strong>Add a card</strong>
-            <button class="sg-tool" aria-label="Close" @click="showPaletteSheet = false">✕</button>
+            <button class="sg-tool" aria-label="Close" @click="showPaletteSheet = false"><ToolsStoryIcon name="close" :size="14" /></button>
           </div>
           <ToolsStoryCardPalette sheet :model-id="model" :stage-seconds="stageSeconds" @add="addCard" />
         </div>
@@ -893,6 +897,37 @@ onUnmounted(() => {
   justify-content: center;
   gap: 16rem;
   cursor: pointer;
+  overflow: hidden;
+  background:
+    radial-gradient(60% 50% at 50% 38%, color-mix(in srgb, #8B7CF6 10%, transparent), transparent),
+    var(--color-bg);
+}
+.sg-splash__orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(60rem);
+  opacity: 0.35;
+  pointer-events: none;
+}
+.sg-splash__orb--a {
+  width: 340rem; height: 340rem;
+  left: 8%; top: 12%;
+  background: radial-gradient(circle, #8B7CF6, transparent 70%);
+  animation: splash-orb-drift-a 9s ease-in-out infinite;
+}
+.sg-splash__orb--b {
+  width: 300rem; height: 300rem;
+  right: 10%; bottom: 14%;
+  background: radial-gradient(circle, #2DD4BF, transparent 70%);
+  animation: splash-orb-drift-b 11s ease-in-out infinite;
+}
+@keyframes splash-orb-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(30rem, 20rem) scale(1.12); }
+}
+@keyframes splash-orb-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-24rem, -18rem) scale(1.08); }
 }
 .sg-splash__mark {
   border-radius: 26rem;
@@ -907,9 +942,14 @@ onUnmounted(() => {
   font-size: 34rem;
   font-weight: 800;
   letter-spacing: -0.04em;
-  animation: splash-text 0.7s 0.25s var(--ease-spring) both;
+  background: linear-gradient(100deg, var(--color-text) 40%, #8B7CF6 52%, #2DD4BF 64%, var(--color-text) 76%);
+  background-size: 260% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: splash-text 0.7s 0.25s var(--ease-spring) both, splash-shimmer 3.2s 1.1s ease-in-out infinite;
 }
-.sg-splash__name em { font-style: normal; opacity: 0.55; }
+.sg-splash__name em { font-style: normal; color: color-mix(in srgb, var(--color-text) 55%, transparent); }
 .sg-splash__tag {
   font-size: 13.5rem;
   opacity: 0.55;
@@ -919,8 +959,36 @@ onUnmounted(() => {
   from { opacity: 0; transform: translateY(12rem); }
   to   { opacity: 1; transform: none; }
 }
+@keyframes splash-shimmer {
+  0%, 100% { background-position: 0% 0; }
+  50%      { background-position: 100% 0; }
+}
+.sg-splash__loader {
+  display: flex;
+  gap: 6rem;
+  height: 8rem;
+  animation: splash-text 0.6s 0.55s var(--ease-spring) both;
+}
+.sg-splash__loader i {
+  width: 6rem; height: 6rem;
+  border-radius: 999px;
+  background: var(--color-text);
+  opacity: 0.3;
+  animation: splash-dot-bounce 1.1s ease-in-out infinite;
+}
+.sg-splash__loader i:nth-child(2) { animation-delay: 0.15s; }
+.sg-splash__loader i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes splash-dot-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
+  30%           { transform: translateY(-6rem); opacity: 0.9; }
+}
 .splash-leave-active { transition: opacity 0.35s ease, transform 0.35s ease; }
 .splash-leave-to { opacity: 0; transform: scale(1.04); }
+@media (prefers-reduced-motion: reduce) {
+  .sg-splash__orb { animation: none; }
+  .sg-splash__name { animation: splash-text 0.7s 0.25s var(--ease-spring) both; background: none; color: var(--color-text); }
+  .sg-splash__loader i { animation: none; opacity: 0.6; }
+}
 
 /* ── AI chips + toast ── */
 .sg-ai-chip {
@@ -946,6 +1014,13 @@ onUnmounted(() => {
 .sg-home__ai-new {
   background: linear-gradient(120deg, #8B7CF6, #5B8DEF);
   color: #fff;
+}
+.sg-home__new {
+  border-color: color-mix(in srgb, #8B7CF6 40%, var(--color-glass-border));
+  box-shadow: 0 10rem 26rem -14rem color-mix(in srgb, #8B7CF6 55%, transparent);
+}
+@media (hover: hover) {
+  .sg-home__new:hover { border-color: color-mix(in srgb, #8B7CF6 65%, var(--color-glass-border)); }
 }
 .sg-tool--ai {
   border-color: color-mix(in srgb, #A78BFA 55%, transparent);
@@ -982,18 +1057,29 @@ onUnmounted(() => {
   align-items: center;
   gap: 18rem;
   margin-bottom: 26rem;
+  animation: sg-home-rise 0.6s var(--ease-spring) both;
 }
-.sg-home__head svg { border-radius: 12rem; box-shadow: 0 18rem 40rem -18rem rgba(0,0,0,0.5); }
+.sg-home__head svg { border-radius: 12rem; box-shadow: 0 18rem 40rem -18rem rgba(139, 124, 246, 0.45); }
 .sg-home__head h1 { font-size: 30rem; font-weight: 800; letter-spacing: -0.04em; }
 .sg-home__head h1 em { font-style: normal; opacity: 0.55; }
 .sg-home__head p { font-size: 14rem; opacity: 0.6; margin-top: 4rem; line-height: 1.4; }
-.sg-home__actions { display: flex; align-items: center; gap: 10rem; margin-bottom: 30rem; }
+.sg-home__actions {
+  display: flex;
+  align-items: center;
+  gap: 10rem;
+  margin-bottom: 30rem;
+  animation: sg-home-rise 0.6s 0.08s var(--ease-spring) both;
+}
 .sg-home__open { height: 40rem; }
-.sg-home__label { margin-bottom: 10rem; }
+.sg-home__label { margin-bottom: 10rem; animation: sg-home-rise 0.6s 0.14s var(--ease-spring) both; }
 .sg-home__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280rem, 1fr));
   gap: 14rem;
+}
+@keyframes sg-home-rise {
+  from { opacity: 0; transform: translateY(14rem); }
+  to   { opacity: 1; transform: none; }
 }
 .sg-proj {
   position: relative;
@@ -1002,23 +1088,34 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 11rem;
   cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  animation: glass-rise 0.55s var(--ease-spring) both;
+  animation-delay: calc(var(--proj-i, 0) * 0.05s);
 }
 @media (hover: hover) {
-  .sg-proj:hover { transform: translateY(-2rem); border-color: var(--color-glass-border-hover); }
+  .sg-proj:hover {
+    transform: translateY(-4rem);
+    border-color: color-mix(in srgb, #8B7CF6 45%, var(--color-glass-border-hover));
+    box-shadow: 0 22rem 48rem -22rem color-mix(in srgb, #8B7CF6 35%, transparent);
+  }
   .sg-proj:hover .sg-proj__del { opacity: 0.7; }
+  .sg-proj:hover .sg-proj__thumb img { transform: scale(1.04); }
 }
 .sg-proj__thumb {
+  position: relative;
   height: 132rem;
   border-radius: 14rem;
   overflow: hidden;
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--color-text) 5%, transparent);
+  background:
+    radial-gradient(120% 140% at 15% 0%, color-mix(in srgb, #8B7CF6 16%, transparent), transparent 60%),
+    radial-gradient(120% 140% at 100% 100%, color-mix(in srgb, #2DD4BF 14%, transparent), transparent 60%),
+    color-mix(in srgb, var(--color-text) 5%, transparent);
   border: 1px solid var(--color-divider);
 }
-.sg-proj__thumb img { width: 100%; height: 100%; object-fit: cover; }
-.sg-proj__thumb-fallback { opacity: 0.5; border-radius: 10rem; }
+.sg-proj__thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+.sg-proj__thumb-fallback { opacity: 0.6; border-radius: 10rem; }
 .sg-proj__meta { display: flex; flex-direction: column; gap: 3rem; padding: 0 4rem 2rem; }
 .sg-proj__meta strong { font-size: 15rem; letter-spacing: -0.02em; }
 .sg-proj__meta span { font-size: 12rem; opacity: 0.6; }
@@ -1029,7 +1126,6 @@ onUnmounted(() => {
   width: 24rem; height: 24rem;
   display: grid; place-items: center;
   border-radius: 999px;
-  font-size: 10rem;
   color: #ff8d8d;
   background: color-mix(in srgb, var(--color-bg) 60%, transparent);
   border: 1px solid var(--color-glass-border);
@@ -1037,7 +1133,10 @@ onUnmounted(() => {
   transition: opacity 0.15s ease;
 }
 @media (hover: none) { .sg-proj__del { opacity: 0.55; } }
-.sg-home__empty { font-size: 14rem; opacity: 0.55; line-height: 1.5; }
+.sg-home__empty { font-size: 14rem; opacity: 0.55; line-height: 1.5; animation: sg-home-rise 0.6s 0.14s var(--ease-spring) both; }
+@media (prefers-reduced-motion: reduce) {
+  .sg-home__head, .sg-home__actions, .sg-home__label, .sg-proj, .sg-home__empty { animation: none; }
+}
 
 @media (max-width: 640px) {
   .sg-home { padding: calc(84rem + var(--safe-top)) 14rem calc(40rem + var(--safe-bottom)); }

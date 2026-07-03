@@ -47,7 +47,7 @@ const STEPS: TourStep[] = [
     id: 'edit',
     title: 'Edit any screen',
     body: 'Click a card and its inspector opens as a floating window you can drag around. Shortcuts: ⌘Z undo, ⌘D duplicate, Delete removes.',
-    bodyMobile: 'Tap a card for quick actions, then ✎ Edit opens the full editor. The ✎ pencil on each card jumps straight in.',
+    bodyMobile: 'Tap a card for quick actions, then Edit opens the full editor. The pencil icon on each card jumps straight in.',
     target: { desktop: '.node-card', mobile: '.node-card' },
     illo: 'edit'
   },

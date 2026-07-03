@@ -39,10 +39,10 @@ function turnOn() {
     <div class="ai glass-panel" data-lenis-prevent>
       <header class="ai__head">
         <div>
-          <h2>✨ AI features</h2>
+          <h2 class="ai__head-title"><ToolsStoryIcon name="sparkle" :size="17" /> AI features</h2>
           <p>Optional, off by default — the storyboard tool works fully without them.</p>
         </div>
-        <button class="ai__close" aria-label="Close" @click="emit('close')">✕</button>
+        <button class="ai__close" aria-label="Close" @click="emit('close')"><ToolsStoryIcon name="close" :size="14" /></button>
       </header>
 
       <div class="ai__what">
@@ -74,7 +74,7 @@ function turnOn() {
       </template>
 
       <template v-else>
-        <p class="ai__status">✅ AI is enabled with your Groq key <code>…{{ settings.key.slice(-4) }}</code>.</p>
+        <p class="ai__status"><ToolsStoryIcon name="check" :size="14" /> AI is enabled with your Groq key <code>…{{ settings.key.slice(-4) }}</code>.</p>
         <div class="ai__actions">
           <button class="glass-btn" @click="emit('close')">Done</button>
           <button class="ai__ghost" @click="turnOff">Turn off (keep key)</button>
@@ -105,6 +105,7 @@ function turnOn() {
 }
 .ai__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12rem; }
 .ai__head h2 { font-size: 21rem; letter-spacing: -0.03em; margin-bottom: 6rem; }
+.ai__head-title { display: flex; align-items: center; gap: 8rem; color: #8B7CF6; }
 .ai__head p { font-size: 13rem; opacity: 0.65; line-height: 1.5; }
 .ai__close {
   width: 28rem; height: 28rem;
@@ -147,7 +148,8 @@ function turnOn() {
   border-radius: 10rem;
   background: color-mix(in srgb, #ff6b6b 10%, transparent);
 }
-.ai__status { font-size: 13.5rem; line-height: 1.5; }
+.ai__status { display: flex; align-items: center; gap: 7rem; font-size: 13.5rem; line-height: 1.5; }
+.ai__status svg { color: #34D399; flex-shrink: 0; }
 .ai__actions { display: flex; align-items: center; gap: 12rem; flex-wrap: wrap; }
 .ai__ghost { font-size: 12.5rem; font-weight: 600; opacity: 0.65; text-decoration: underline; text-underline-offset: 3rem; color: var(--color-text); }
 .ai__ghost:hover { opacity: 0.95; }

@@ -19,7 +19,7 @@ const model = computed(() => modelOf(props.modelId))
           <h2>{{ model.label }} design plan</h2>
           <p>{{ model.label }} phases describe your project, not the learner's screens — capture the plan here. It leads the Word and Excel exports.</p>
         </div>
-        <button class="plan__close" aria-label="Close" @click="$emit('close')">✕</button>
+        <button class="plan__close" aria-label="Close" @click="$emit('close')"><ToolsStoryIcon name="close" :size="14" /></button>
       </header>
 
       <div v-for="s in model.stages" :key="s.id" class="plan__phase" :style="{ '--stage-color': s.color }">

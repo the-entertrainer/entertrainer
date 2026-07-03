@@ -486,9 +486,11 @@ onUnmounted(() => resizeObs?.disconnect())
         <span v-if="!incomingIds.has(card.id)" class="node-card__start">START</span>
         <div class="node-card__actions">
           <button class="node-card__edit" title="Edit card" @click.stop="emit('edit-card', card.id)" @pointerdown.stop>
-            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+            <ToolsStoryIcon name="edit" :size="11" />
           </button>
-          <button class="node-card__delete" title="Delete card" @click.stop="deleteNode(card.id)" @pointerdown.stop>✕</button>
+          <button class="node-card__delete" title="Delete card" @click.stop="deleteNode(card.id)" @pointerdown.stop>
+            <ToolsStoryIcon name="trash" :size="11" />
+          </button>
         </div>
         <div class="node-card__kind">
           <span class="node-card__glyph">{{ meta(card).glyph }}</span>
@@ -541,7 +543,7 @@ onUnmounted(() => resizeObs?.disconnect())
       :style="{ left: `${pan.x + selectedEdge.mid.x * zoom}px`, top: `${pan.y + selectedEdge.mid.y * zoom}px` }"
       @pointerdown.stop
       @click="deleteSelectedConnection"
-    >✕ Disconnect</button>
+    ><ToolsStoryIcon name="close" :size="11" /> Disconnect</button>
 
     <p v-if="!cards.length" class="node-canvas__empty">Blank canvas. Add a card from the palette to begin your storyboard.</p>
 
@@ -621,6 +623,9 @@ onUnmounted(() => resizeObs?.disconnect())
 .edge-delete-chip {
   position: absolute;
   transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 5rem;
   padding: 6rem 12rem;
   border-radius: 999px;
   font-size: 11rem;

@@ -100,9 +100,9 @@ const floatStyle = computed(() =>
           <span class="inspector__kind">{{ meta?.label }}</span>
           <span class="inspector__num">Screen {{ pad(cardNumber) }}</span>
         </div>
-        <button class="inspector__icon-btn" title="Duplicate (⌘D)" @click="$emit('duplicate')">⧉</button>
-        <button class="inspector__icon-btn inspector__icon-btn--danger" title="Delete card" @click="$emit('delete')">🗑</button>
-        <button class="inspector__icon-btn" aria-label="Close inspector" @click="$emit('close')">✕</button>
+        <button class="inspector__icon-btn" title="Duplicate (⌘D)" @click="$emit('duplicate')"><ToolsStoryIcon name="duplicate" :size="14" /></button>
+        <button class="inspector__icon-btn inspector__icon-btn--danger" title="Delete card" @click="$emit('delete')"><ToolsStoryIcon name="trash" :size="14" /></button>
+        <button class="inspector__icon-btn" aria-label="Close inspector" @click="$emit('close')"><ToolsStoryIcon name="close" :size="14" /></button>
       </div>
 
       <div class="inspector__body">
@@ -125,7 +125,7 @@ const floatStyle = computed(() =>
           <div class="inspector__label-row">
             <label class="glass-label" for="in-question">Question</label>
             <button v-if="aiReady && card.question.trim()" class="inspector__ai" :disabled="!!aiBusy" @click="$emit('ai-rewrite', 'question')">
-              {{ aiBusy === 'question' ? '…' : '✨ Rewrite' }}
+              <ToolsStoryIcon :name="aiBusy === 'question' ? 'spinner' : 'sparkle'" :size="12" /> {{ aiBusy === 'question' ? 'Rewriting…' : 'Rewrite' }}
             </button>
           </div>
           <textarea id="in-question" v-model="card.question" class="glass-field" rows="2" placeholder="What should the learner be able to answer?" />
@@ -133,7 +133,7 @@ const floatStyle = computed(() =>
           <div class="inspector__label-row">
             <label class="glass-label">Options — mark the correct one</label>
             <button v-if="aiReady" class="inspector__ai" :disabled="!!aiBusy" @click="$emit('ai-options')">
-              {{ aiBusy === 'options' ? '…' : '✨ Suggest options' }}
+              <ToolsStoryIcon :name="aiBusy === 'options' ? 'spinner' : 'sparkle'" :size="12" /> {{ aiBusy === 'options' ? 'Suggesting…' : 'Suggest options' }}
             </button>
           </div>
           <div class="inspector__options">
@@ -150,7 +150,7 @@ const floatStyle = computed(() =>
           <div class="inspector__label-row">
             <label class="glass-label" for="in-feedback">Feedback</label>
             <button v-if="aiReady && card.feedback.trim()" class="inspector__ai" :disabled="!!aiBusy" @click="$emit('ai-rewrite', 'feedback')">
-              {{ aiBusy === 'feedback' ? '…' : '✨ Rewrite' }}
+              <ToolsStoryIcon :name="aiBusy === 'feedback' ? 'spinner' : 'sparkle'" :size="12" /> {{ aiBusy === 'feedback' ? 'Rewriting…' : 'Rewrite' }}
             </button>
           </div>
           <textarea id="in-feedback" v-model="card.feedback" class="glass-field" rows="2" placeholder="Why the correct answer is right." />
@@ -160,7 +160,7 @@ const floatStyle = computed(() =>
           <div class="inspector__label-row">
             <label class="glass-label" for="in-body">{{ fieldPlan.body }}</label>
             <button v-if="aiReady && card.body.trim()" class="inspector__ai" :disabled="!!aiBusy" @click="$emit('ai-rewrite', 'body')">
-              {{ aiBusy === 'body' ? '…' : '✨ Rewrite' }}
+              <ToolsStoryIcon :name="aiBusy === 'body' ? 'spinner' : 'sparkle'" :size="12" /> {{ aiBusy === 'body' ? 'Rewriting…' : 'Rewrite' }}
             </button>
           </div>
           <textarea id="in-body" v-model="card.body" class="glass-field" rows="4" :placeholder="stage?.prompt" />
@@ -172,7 +172,7 @@ const floatStyle = computed(() =>
         <div class="inspector__label-row">
           <label class="glass-label" for="in-narration">Narration / audio script</label>
           <button v-if="aiReady && card.narration.trim()" class="inspector__ai" :disabled="!!aiBusy" @click="$emit('ai-rewrite', 'narration')">
-            {{ aiBusy === 'narration' ? '…' : '✨ Rewrite' }}
+            <ToolsStoryIcon :name="aiBusy === 'narration' ? 'spinner' : 'sparkle'" :size="12" /> {{ aiBusy === 'narration' ? 'Rewriting…' : 'Rewrite' }}
           </button>
         </div>
         <textarea id="in-narration" v-model="card.narration" class="glass-field" rows="3" />
@@ -291,6 +291,9 @@ const floatStyle = computed(() =>
 .inspector__hint { font-size: 11rem; line-height: 1.5; opacity: 0.5; color: var(--color-text); }
 .inspector__label-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8rem; }
 .inspector__ai {
+  display: inline-flex;
+  align-items: center;
+  gap: 4rem;
   font-size: 10.5rem;
   font-weight: 700;
   color: var(--color-text);

@@ -19,7 +19,8 @@ const STEPS: TourStep[] = [
   {
     id: 'welcome',
     title: 'Meet StoryGen',
-    body: 'A storyboard is a flow of connected screen cards on an infinite canvas. This tour takes about 40 seconds — it plays itself, or tap anywhere to skip ahead.'
+    body: 'A storyboard is a flow of connected screen cards on an infinite canvas. Step through this short tour with Next, your → key, or a click anywhere on the dimmed canvas.',
+    bodyMobile: 'A storyboard is a flow of connected screen cards on an infinite canvas. This tour takes about 40 seconds — it plays itself, or tap anywhere to skip ahead.'
   },
   {
     id: 'framework',
@@ -86,7 +87,8 @@ const reducedMotion = ref(false)
 const step = computed(() => STEPS[current.value])
 const isLast = computed(() => current.value === STEPS.length - 1)
 const bodyText = computed(() => (isMobile.value && step.value.bodyMobile) || step.value.body)
-const autoplay = computed(() => !reducedMotion.value && !isLast.value)
+// Desktop users read at their own pace; only the mobile tour self-advances.
+const autoplay = computed(() => isMobile.value && !reducedMotion.value && !isLast.value)
 
 let measureRetry: ReturnType<typeof setTimeout> | null = null
 function measure(attempt = 0) {
@@ -201,7 +203,8 @@ onUnmounted(() => {
       @pointerenter="paused = true"
       @pointerleave="paused = false"
     >
-      <div class="tour__progress"><span :style="{ width: `${(autoplay ? progress : 0) * 100}%` }" /></div>
+      <div v-if="autoplay" class="tour__progress"><span :style="{ width: `${progress * 100}%` }" /></div>
+      <div v-else class="tour__progress-spacer" />
 
       <p class="tour__eyebrow">{{ current + 1 }} / {{ STEPS.length }} · StoryGen tour</p>
       <h3 class="tour__title">{{ step.title }}</h3>
@@ -309,6 +312,7 @@ onUnmounted(() => {
   background: var(--color-text);
   transition: width 0.15s linear;
 }
+.tour__progress-spacer { height: 3rem; margin-bottom: 14rem; }
 
 .tour__eyebrow {
   font-size: 10rem;

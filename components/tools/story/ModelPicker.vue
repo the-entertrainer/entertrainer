@@ -13,7 +13,7 @@ const canClose = computed(() => props.switching || props.dismissible)
 
 <template>
   <div class="mp-overlay" @click.self="canClose ? emit('close') : undefined">
-    <div class="mp glass-panel">
+    <div class="mp glass-panel" data-lenis-prevent>
       <header class="mp__head">
         <div>
           <h2>{{ switching ? 'Switch framework' : 'Start a storyboard' }}</h2>

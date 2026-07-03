@@ -13,6 +13,7 @@ import {
   listProjects, migrateLegacyProject, newProjectId, readProject,
   removeProject, writeProject, writeThumb, type ProjectMeta
 } from '~/composables/useStoryProjects'
+import { aiRewriteField, aiSuggestOptions, aiGenerateMcqCards, type GeneratedStoryboard } from '~/utils/aiStoryboard'
 
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 
@@ -38,10 +39,108 @@ const selectedCardId = ref<string | null>(null)
 const inspectorOpen = ref(false)
 
 const showPaletteSheet = ref(false)
-const showMenu = ref<'export' | 'mobile' | null>(null)
+const showMenu = ref<'export' | 'mobile' | 'ai' | null>(null)
 const modelPicker = ref<'new' | 'switch' | null>(null)
 const savedFlash = ref(false)
 const tourOpen = ref(false)
+
+// ── Optional AI (bring-your-own Groq key, stored locally) ───────
+const { settings: aiSettings, aiReady } = useAiSettings()
+const aiSetupOpen = ref(false)
+const aiGenerateOpen = ref(false)
+const aiBusyField = ref<string | null>(null)
+const toast = ref('')
+let toastTimer: ReturnType<typeof setTimeout> | null = null
+
+function showToast(message: string) {
+  toast.value = message
+  if (toastTimer) clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => { toast.value = '' }, 3200)
+}
+
+function openAiSetup() {
+  showMenu.value = null
+  aiSetupOpen.value = true
+}
+function openAiGenerate() {
+  showMenu.value = null
+  aiGenerateOpen.value = true
+}
+
+// A finished AI generation becomes a fresh project on the shelf.
+function onAiGenerated(result: GeneratedStoryboard & { modelId: ModelId }) {
+  aiGenerateOpen.value = false
+  flushSave()
+  projectTitle.value = result.title
+  model.value = result.modelId
+  cards.value = result.cards
+  connections.value = result.connections
+  selectedCardId.value = null
+  activeProjectId.value = newProjectId()
+  resetHistory()
+  persist()
+  view.value = 'editor'
+  nextTick(() => canvasRef.value?.fitView())
+  showToast(`Storyboard drafted — ${result.cards.length} screens. Every card is yours to edit.`)
+}
+
+async function aiRewrite(field: 'body' | 'narration' | 'question' | 'feedback') {
+  const card = selectedCard.value
+  if (!card || aiBusyField.value) return
+  const text = card[field]
+  if (!text.trim()) return
+  aiBusyField.value = field
+  try {
+    const labels = { body: 'on-screen text', narration: 'narration script', question: 'question', feedback: 'answer feedback' }
+    card[field] = await aiRewriteField(aiSettings.value.key, card, labels[field], text, activeModel.value)
+    showToast('Rewritten — undo (⌘Z) brings the old text back.')
+  } catch (e: any) {
+    showToast(e?.message || 'AI rewrite failed — try again.')
+  } finally {
+    aiBusyField.value = null
+  }
+}
+
+async function aiOptions() {
+  const card = selectedCard.value
+  if (!card || card.kind !== 'mcq' || aiBusyField.value) return
+  aiBusyField.value = 'options'
+  try {
+    const suggestion = await aiSuggestOptions(aiSettings.value.key, card)
+    card.options = suggestion.options
+    card.correctIndex = suggestion.correctIndex
+    if (suggestion.feedback && !card.feedback.trim()) card.feedback = suggestion.feedback
+    showToast('Options drafted — mark a different correct answer if needed.')
+  } catch (e: any) {
+    showToast(e?.message || 'AI suggestion failed — try again.')
+  } finally {
+    aiBusyField.value = null
+  }
+}
+
+async function aiAddMcqs() {
+  showMenu.value = null
+  if (aiBusyField.value) return
+  aiBusyField.value = 'mcqs'
+  showToast('Analyzing your content for knowledge checks…')
+  try {
+    const generated = await aiGenerateMcqCards(aiSettings.value.key, cards.value, connections.value, activeModel.value, 3)
+    for (const card of generated) {
+      const prevLast = lastInSequence(cards.value, connections.value)
+      const pos = nextAutoPosition(cards.value, connections.value)
+      card.x = pos.x
+      card.y = pos.y
+      cards.value.push(card)
+      if (prevLast) connections.value.push({ id: id('k'), from: prevLast.id, to: card.id })
+    }
+    nextTick(() => canvasRef.value?.fitView())
+    showToast(`Added ${generated.length} knowledge checks from your content.`)
+  } catch (e: any) {
+    showToast(e?.message || 'Could not generate knowledge checks.')
+  } finally {
+    aiBusyField.value = null
+  }
+}
 
 function startTour() {
   showMenu.value = null
@@ -526,11 +625,14 @@ onUnmounted(() => {
         <ToolsStoryBrandMark :size="116" class="sg-splash__mark" />
         <p class="sg-splash__name">Story<em>Gen</em></p>
         <p class="sg-splash__tag">Storyboard studio for instructional designers</p>
+        <button class="sg-ai-chip sg-splash__ai" @click.stop="view = 'home'; aiSetupOpen = true">
+          ✨ AI features: {{ aiReady ? 'On' : 'Off' }}
+        </button>
       </div>
     </Transition>
 
     <!-- Home: recent local projects -->
-    <div v-if="view === 'home'" class="sg-home">
+    <div v-if="view === 'home'" class="sg-home" data-lenis-prevent>
       <div class="sg-home__inner">
         <header class="sg-home__head">
           <ToolsStoryBrandMark :size="46" />
@@ -538,10 +640,14 @@ onUnmounted(() => {
             <h1>Story<em>Gen</em></h1>
             <p>Pick a framework, wire the screens, export a polished storyboard.</p>
           </div>
+          <button class="sg-ai-chip sg-home__ai" :class="{ 'sg-ai-chip--on': aiReady }" @click="aiSetupOpen = true">
+            ✨ AI {{ aiReady ? 'On' : 'Off' }}
+          </button>
         </header>
 
         <div class="sg-home__actions">
           <button class="glass-btn" @click="newProject">+ New storyboard</button>
+          <button v-if="aiReady" class="glass-btn sg-home__ai-new" @click="openAiGenerate">✨ New with AI</button>
           <label class="sg-tool sg-tool--wide sg-file-btn sg-home__open">Open .sbf<input type="file" accept=".sbf,.json" @change="importProject"></label>
         </div>
 
@@ -579,6 +685,7 @@ onUnmounted(() => {
       v-model:connections="connections"
       v-model:selected-card-id="selectedCardId"
       class="sg-canvas"
+      data-lenis-prevent
       :insets="canvasInsets"
       :model-id="model"
       @delete-card="deleteCard"
@@ -605,6 +712,17 @@ onUnmounted(() => {
       </div>
 
       <div class="sg-topbar__group sg-desktop-only">
+        <div class="sg-menu-wrap">
+          <button
+            class="sg-tool sg-tool--wide" :class="{ 'sg-tool--ai': aiReady }" title="AI features"
+            @click="aiReady ? (showMenu = showMenu === 'ai' ? null : 'ai') : openAiSetup()"
+          >✨{{ aiReady ? ' AI' : '' }}</button>
+          <div v-if="showMenu === 'ai'" class="glass-panel sg-menu">
+            <button @click="openAiGenerate">✨ New storyboard with AI…</button>
+            <button :disabled="aiBusyField === 'mcqs'" @click="aiAddMcqs">✨ Add knowledge checks from content</button>
+            <button @click="openAiSetup">AI settings…</button>
+          </div>
+        </div>
         <button class="sg-tool sg-tool--wide" @click="newProject">New</button>
         <label class="sg-tool sg-tool--wide sg-file-btn">Open<input type="file" accept=".sbf,.json" @change="importProject"></label>
         <div class="sg-menu-wrap">
@@ -623,6 +741,9 @@ onUnmounted(() => {
         <div v-if="showMenu === 'mobile'" class="glass-panel sg-menu">
           <button @click="goHome">Home — all storyboards</button>
           <button @click="showMenu = null; modelPicker = 'switch'">Framework: {{ activeModel.label }}</button>
+          <button @click="openAiSetup">✨ AI features: {{ aiReady ? 'On' : 'Off' }}…</button>
+          <button v-if="aiReady" @click="openAiGenerate">✨ New storyboard with AI…</button>
+          <button v-if="aiReady" :disabled="aiBusyField === 'mcqs'" @click="aiAddMcqs">✨ Add knowledge checks</button>
           <button @click="startTour">Show the tour</button>
           <button @click="newProject">New storyboard</button>
           <label class="sg-menu-file">Open project (.sbf)<input type="file" accept=".sbf,.json" @change="importProject"></label>
@@ -635,7 +756,7 @@ onUnmounted(() => {
     </header>
 
     <!-- Left dock: card palette (desktop) -->
-    <aside class="sg-dock glass-panel sg-desktop-only">
+    <aside class="sg-dock glass-panel sg-desktop-only" data-lenis-prevent>
       <ToolsStoryCardPalette :model-id="model" :stage-seconds="stageSeconds" @add="addCard" />
     </aside>
 
@@ -674,7 +795,7 @@ onUnmounted(() => {
     <!-- Mobile palette sheet -->
     <Transition name="sheet">
       <div v-if="showPaletteSheet" class="sg-sheet-overlay" @click.self="showPaletteSheet = false">
-        <div class="sg-sheet glass-panel">
+        <div class="sg-sheet glass-panel" data-lenis-prevent>
           <div class="sg-sheet__head">
             <strong>Add a card</strong>
             <button class="sg-tool" aria-label="Close" @click="showPaletteSheet = false">✕</button>
@@ -690,9 +811,13 @@ onUnmounted(() => {
       :card-number="selectedCardNumber"
       :model-id="model"
       :branch-labels="branchLabels"
+      :ai-ready="aiReady"
+      :ai-busy="aiBusyField"
       @delete="selectedCardId && deleteCard(selectedCardId)"
       @duplicate="duplicateSelected"
       @close="inspectorOpen = false"
+      @ai-rewrite="aiRewrite"
+      @ai-options="aiOptions"
     />
 
     <!-- Click-away layer for open dropdowns -->
@@ -711,6 +836,19 @@ onUnmounted(() => {
     <!-- Spotlight product tour: auto-plays once on the first storyboard,
          replayable from ? (desktop) or the ⋯ menu (mobile) -->
     <ToolsStoryTourGuide v-if="tourOpen" @close="closeTour" @step="onTourStep" />
+
+    <!-- Optional AI: setup (key + validation) and document-to-storyboard -->
+    <ToolsStoryAiSetupSheet v-if="aiSetupOpen" @close="aiSetupOpen = false" />
+    <ToolsStoryAiGenerateSheet
+      v-if="aiGenerateOpen"
+      :default-model="model"
+      @close="aiGenerateOpen = false"
+      @done="onAiGenerated"
+    />
+
+    <Transition name="toast">
+      <div v-if="toast" class="sg-toast glass-panel">{{ toast }}</div>
+    </Transition>
   </div>
 </template>
 
@@ -754,6 +892,52 @@ onUnmounted(() => {
 }
 .splash-leave-active { transition: opacity 0.35s ease, transform 0.35s ease; }
 .splash-leave-to { opacity: 0; transform: scale(1.04); }
+
+/* ── AI chips + toast ── */
+.sg-ai-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rem;
+  padding: 7rem 14rem;
+  border-radius: 999px;
+  font-size: 12rem;
+  font-weight: 700;
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-bg) 50%, transparent);
+  border: 1px solid var(--color-glass-border);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.sg-ai-chip--on {
+  border-color: color-mix(in srgb, #A78BFA 55%, transparent);
+  background: color-mix(in srgb, #A78BFA 14%, transparent);
+}
+@media (hover: hover) { .sg-ai-chip:hover { background: color-mix(in srgb, #A78BFA 20%, transparent); } }
+.sg-splash__ai { margin-top: 10rem; animation: splash-text 0.7s 0.55s var(--ease-spring) both; }
+.sg-home__ai { margin-left: auto; flex-shrink: 0; }
+.sg-home__ai-new {
+  background: linear-gradient(120deg, #8B7CF6, #5B8DEF);
+  color: #fff;
+}
+.sg-tool--ai {
+  border-color: color-mix(in srgb, #A78BFA 55%, transparent);
+  background: color-mix(in srgb, #A78BFA 14%, transparent);
+}
+
+.sg-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24rem + var(--safe-bottom));
+  transform: translateX(-50%);
+  z-index: 34;
+  padding: 12rem 18rem;
+  font-size: 13rem;
+  font-weight: 600;
+  max-width: min(480rem, calc(100vw - 32rem));
+  text-align: center;
+  line-height: 1.45;
+}
+.toast-enter-active, .toast-leave-active { transition: opacity 0.25s ease, transform 0.25s ease; }
+.toast-enter-from, .toast-leave-to { opacity: 0; transform: translateX(-50%) translateY(10rem); }
 
 /* ── Home ── */
 .sg-home {

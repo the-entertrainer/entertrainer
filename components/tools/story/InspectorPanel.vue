@@ -10,8 +10,16 @@ const props = defineProps<{
   modelId?: string
   // Per-option branch destinations for MCQ cards, e.g. '→ Screen 04'
   branchLabels?: (string | null)[]
+  // AI assist: buttons render only when the user has a validated key; the
+  // page owns the actual calls. aiBusy names the field being processed.
+  aiReady?: boolean
+  aiBusy?: string | null
 }>()
-defineEmits<{ delete: []; duplicate: []; close: [] }>()
+defineEmits<{
+  delete: []; duplicate: []; close: []
+  'ai-rewrite': [field: 'body' | 'narration' | 'question' | 'feedback']
+  'ai-options': []
+}>()
 
 const meta = computed(() => (props.card ? CARD_KINDS[props.card.kind] : null))
 const model = computed(() => modelOf(props.modelId))
@@ -83,6 +91,7 @@ const floatStyle = computed(() =>
     <aside
       v-if="card" ref="panelRef" :key="card.id"
       class="inspector glass-panel"
+      data-lenis-prevent
       :style="[{ '--kind-color': meta?.color }, floatStyle]"
     >
       <div class="inspector__head" @pointerdown="onHeadPointerDown">
@@ -112,10 +121,20 @@ const floatStyle = computed(() =>
 
         <!-- MCQ has its own structured block -->
         <template v-if="card.kind === 'mcq'">
-          <label class="glass-label" for="in-question">Question</label>
+          <div class="inspector__label-row">
+            <label class="glass-label" for="in-question">Question</label>
+            <button v-if="aiReady && card.question.trim()" class="inspector__ai" :disabled="!!aiBusy" @click="$emit('ai-rewrite', 'question')">
+              {{ aiBusy === 'question' ? '…' : '✨ Rewrite' }}
+            </button>
+          </div>
           <textarea id="in-question" v-model="card.question" class="glass-field" rows="2" placeholder="What should the learner be able to answer?" />
 
-          <label class="glass-label">Options — mark the correct one</label>
+          <div class="inspector__label-row">
+            <label class="glass-label">Options — mark the correct one</label>
+            <button v-if="aiReady" class="inspector__ai" :disabled="!!aiBusy" @click="$emit('ai-options')">
+              {{ aiBusy === 'options' ? '…' : '✨ Suggest options' }}
+            </button>
+          </div>
           <div class="inspector__options">
             <div v-for="(_, i) in card.options" :key="i" class="inspector__option-row">
               <label class="inspector__option" :class="{ 'inspector__option--correct': card.correctIndex === i }">
@@ -127,19 +146,34 @@ const floatStyle = computed(() =>
           </div>
           <p class="inspector__hint">Branch answers on the canvas: drag an option's A–D dot onto the screen it should lead to.</p>
 
-          <label class="glass-label" for="in-feedback">Feedback</label>
+          <div class="inspector__label-row">
+            <label class="glass-label" for="in-feedback">Feedback</label>
+            <button v-if="aiReady && card.feedback.trim()" class="inspector__ai" :disabled="!!aiBusy" @click="$emit('ai-rewrite', 'feedback')">
+              {{ aiBusy === 'feedback' ? '…' : '✨ Rewrite' }}
+            </button>
+          </div>
           <textarea id="in-feedback" v-model="card.feedback" class="glass-field" rows="2" placeholder="Why the correct answer is right." />
         </template>
 
         <template v-else-if="fieldPlan">
-          <label class="glass-label" for="in-body">{{ fieldPlan.body }}</label>
+          <div class="inspector__label-row">
+            <label class="glass-label" for="in-body">{{ fieldPlan.body }}</label>
+            <button v-if="aiReady && card.body.trim()" class="inspector__ai" :disabled="!!aiBusy" @click="$emit('ai-rewrite', 'body')">
+              {{ aiBusy === 'body' ? '…' : '✨ Rewrite' }}
+            </button>
+          </div>
           <textarea id="in-body" v-model="card.body" class="glass-field" rows="4" :placeholder="stage?.prompt" />
 
           <label class="glass-label" for="in-visual">{{ fieldPlan.visual }}</label>
           <textarea id="in-visual" v-model="card.visual" class="glass-field" rows="3" />
         </template>
 
-        <label class="glass-label" for="in-narration">Narration / audio script</label>
+        <div class="inspector__label-row">
+          <label class="glass-label" for="in-narration">Narration / audio script</label>
+          <button v-if="aiReady && card.narration.trim()" class="inspector__ai" :disabled="!!aiBusy" @click="$emit('ai-rewrite', 'narration')">
+            {{ aiBusy === 'narration' ? '…' : '✨ Rewrite' }}
+          </button>
+        </div>
         <textarea id="in-narration" v-model="card.narration" class="glass-field" rows="3" />
         <div v-if="narrationWords" class="inspector__timing">
           <span>≈ {{ narrationWords }} words · ~{{ suggestedSeconds }}s spoken</span>
@@ -254,6 +288,21 @@ const floatStyle = computed(() =>
   color: var(--color-text);
 }
 .inspector__hint { font-size: 11rem; line-height: 1.5; opacity: 0.5; color: var(--color-text); }
+.inspector__label-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8rem; }
+.inspector__ai {
+  font-size: 10.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  opacity: 0.7;
+  white-space: nowrap;
+  padding: 2rem 8rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-glass-border);
+  background: color-mix(in srgb, #A78BFA 12%, transparent);
+  transition: opacity 0.15s ease;
+}
+.inspector__ai:hover:not(:disabled) { opacity: 1; }
+.inspector__ai:disabled { opacity: 0.35; cursor: default; }
 .inspector__timing {
   display: flex;
   align-items: center;

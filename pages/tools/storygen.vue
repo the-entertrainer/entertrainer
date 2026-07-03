@@ -1066,6 +1066,7 @@ onUnmounted(() => {
 .sg-home__actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10rem;
   margin-bottom: 30rem;
   animation: sg-home-rise 0.6s 0.08s var(--ease-spring) both;

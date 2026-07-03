@@ -135,7 +135,10 @@ function hasRealText(s: string): boolean {
 async function parsePdf(file: File): Promise<string> {
   const bytes = await file.arrayBuffer()
   try {
-    const text = await parsePdfViaPdfjs(bytes)
+    // pdf.js hands this buffer to its worker as a transferable, which
+    // detaches it in this thread — pass a throwaway copy so `bytes` is
+    // still readable below if the fallback scanner is needed.
+    const text = await parsePdfViaPdfjs(bytes.slice(0))
     if (hasRealText(text)) return text
   } catch (err) {
     if (import.meta.dev) console.warn('[StoryGen] pdf.js parse failed, falling back to stream scan:', err)

@@ -115,7 +115,7 @@ export async function exportStoryXlsx(input: XlsxExportInput, filename: string) 
   if (mcqRows.length) {
     for (const r of mcqRows) {
       const optionText = r.options
-        .map((o, i) => `${String.fromCharCode(65 + i)}. ${o.text.trim() || '—'}${o.correct ? '  ✓' : ''}`)
+        .map((o, i) => `${String.fromCharCode(65 + i)}. ${o.text.trim() || '—'}${o.correct ? '  ✓' : ''}${o.goto ? `  → ${o.goto}` : ''}`)
         .join('\n')
       const row = wq.addRow([r.num, r.screen, r.question, optionText, r.feedback])
       row.eachCell(cell => {

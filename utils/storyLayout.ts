@@ -5,6 +5,17 @@ import { lastInSequence, orderCards } from './storyGraph'
 export const NODE_W = 256
 export const NODE_H = 168
 
+// Where a curve leaves a card. MCQ cards expose one output per answer
+// option, stacked down the right edge at 20/40/60/80% height; every other
+// kind has a single centered output.
+export function outPortPoint(card: StoryCard, fromPort?: string): { x: number; y: number } {
+  if (card.kind === 'mcq' && fromPort?.startsWith('opt-')) {
+    const i = Math.max(0, Math.min(3, Number(fromPort.slice(4)) || 0))
+    return { x: card.x + NODE_W, y: card.y + NODE_H * ((i + 1) / 5) }
+  }
+  return { x: card.x + NODE_W, y: card.y + NODE_H / 2 }
+}
+
 const GAP_X = 120
 const BASE_Y = 160
 const WAVE = 96

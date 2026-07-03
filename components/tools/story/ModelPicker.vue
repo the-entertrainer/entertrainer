@@ -4,13 +4,15 @@ import { ID_MODELS, MODEL_ORDER } from '~/utils/idModels'
 
 // The front door of every project: pick the instructional design framework
 // and the whole tool reshapes around it — starter lanes, palette, inspector
-// vocabulary, and the export layout.
-defineProps<{ switching?: boolean }>()
+// vocabulary, and the export layout. `dismissible` allows backing out when
+// there's something to go back to.
+const props = defineProps<{ switching?: boolean; dismissible?: boolean }>()
 const emit = defineEmits<{ pick: [id: ModelId]; close: [] }>()
+const canClose = computed(() => props.switching || props.dismissible)
 </script>
 
 <template>
-  <div class="mp-overlay" @click.self="switching ? emit('close') : undefined">
+  <div class="mp-overlay" @click.self="canClose ? emit('close') : undefined">
     <div class="mp glass-panel">
       <header class="mp__head">
         <div>
@@ -19,7 +21,7 @@ const emit = defineEmits<{ pick: [id: ModelId]; close: [] }>()
             ? 'Your cards stay — stages reset to the new model.'
             : 'Pick the instructional design model this storyboard should follow.' }}</p>
         </div>
-        <button v-if="switching" class="mp__close" aria-label="Close" @click="emit('close')">✕</button>
+        <button v-if="canClose" class="mp__close" aria-label="Close" @click="emit('close')">✕</button>
       </header>
 
       <div class="mp__grid">

@@ -53,6 +53,15 @@ export default defineNuxtConfig({
       icons: [
         { src: '/pwa-192.png', sizes: '192x192', type: 'image/png' },
         { src: '/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+      ],
+      shortcuts: [
+        {
+          name: 'StoryGen — Storyboard Studio',
+          short_name: 'StoryGen',
+          description: 'Design instructional storyboards on an infinite canvas',
+          url: '/tools/storygen',
+          icons: [{ src: '/storygen-icon-192.png', sizes: '192x192', type: 'image/png' }]
+        }
       ]
     },
     workbox: {

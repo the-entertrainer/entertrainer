@@ -4,7 +4,7 @@ import { CARD_KINDS, cardPreview } from '~/utils/storyCards'
 import { stageOf } from '~/utils/idModels'
 import { bezierPath, bezierPointAt } from '~/utils/storyBezier'
 import { cardNumbers, isReachable } from '~/utils/storyGraph'
-import { NODE_H, NODE_W } from '~/utils/storyLayout'
+import { NODE_H, NODE_W, outPortPoint } from '~/utils/storyLayout'
 
 const cards = defineModel<StoryCard[]>('cards', { required: true })
 const connections = defineModel<Connection[]>('connections', { required: true })
@@ -40,7 +40,7 @@ type DragState =
   | null
 
 const dragState = ref<DragState>(null)
-const connecting = ref<{ from: string; pointer: { x: number; y: number }; snapTarget: string | null; origin?: Connection } | null>(null)
+const connecting = ref<{ from: string; fromPort: string; pointer: { x: number; y: number }; snapTarget: string | null; origin?: Connection } | null>(null)
 const selectedConnectionId = ref<string | null>(null)
 
 const activePointers = new Map<number, { x: number; y: number }>()
@@ -52,7 +52,8 @@ let pinchStartPan = { x: 0, y: 0 }
 const cardById = computed(() => new Map(cards.value.map(c => [c.id, c])))
 const numberById = computed(() => cardNumbers(cards.value, connections.value))
 const incomingIds = computed(() => new Set(connections.value.map(c => c.to)))
-const outgoingIds = computed(() => new Set(connections.value.map(c => c.from)))
+// Which output ports are occupied — key: `${cardId}#${port}` ('' = main)
+const occupiedPorts = computed(() => new Set(connections.value.map(c => `${c.from}#${c.fromPort || ''}`)))
 
 function meta(card: StoryCard) { return CARD_KINDS[card.kind] ?? CARD_KINDS['text-image'] }
 function stageChip(card: StoryCard) { return stageOf(props.modelId, card.stage) }
@@ -61,7 +62,6 @@ function clamp(v: number, lo: number, hi: number) { return Math.min(hi, Math.max
 function dist(a: { x: number; y: number }, b: { x: number; y: number }) { return Math.hypot(a.x - b.x, a.y - b.y) }
 function midOf(a: { x: number; y: number }, b: { x: number; y: number }) { return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } }
 
-function outPort(c: StoryCard) { return { x: c.x + NODE_W, y: c.y + NODE_H / 2 } }
 function inPort(c: StoryCard) { return { x: c.x, y: c.y + NODE_H / 2 } }
 
 function screenToWorld(clientX: number, clientY: number) {
@@ -75,13 +75,17 @@ const edges = computed(() => connections.value.map(c => {
   const from = cardById.value.get(c.from)
   const to = cardById.value.get(c.to)
   if (!from || !to) return null
-  const p1 = outPort(from)
+  const p1 = outPortPoint(from, c.fromPort)
   const p2 = inPort(to)
+  const optIndex = c.fromPort?.startsWith('opt-') ? Number(c.fromPort.slice(4)) : -1
   return {
     id: c.id,
     d: bezierPath(p1, p2),
     mid: bezierPointAt(p1, p2, 0.5),
     handle: bezierPointAt(p1, p2, 0.82),
+    // Branch curves carry their answer letter near the source
+    letter: optIndex >= 0 ? String.fromCharCode(65 + optIndex) : null,
+    letterPos: optIndex >= 0 ? bezierPointAt(p1, p2, 0.16) : null,
     color: meta(from).color
   }
 }).filter((e): e is NonNullable<typeof e> => !!e))
@@ -90,7 +94,7 @@ const connectingPath = computed(() => {
   if (!connecting.value) return null
   const from = cardById.value.get(connecting.value.from)
   if (!from) return null
-  const p1 = outPort(from)
+  const p1 = outPortPoint(from, connecting.value.fromPort)
   const target = connecting.value.snapTarget ? cardById.value.get(connecting.value.snapTarget) : null
   const p2 = target ? inPort(target) : connecting.value.pointer
   return bezierPath(p1, p2)
@@ -151,9 +155,9 @@ function nearestInputTarget(world: { x: number; y: number }, excludeId: string) 
   return best?.id ?? null
 }
 
-function onOutputPointerDown(e: PointerEvent, card: StoryCard) {
+function onOutputPointerDown(e: PointerEvent, card: StoryCard, fromPort = '') {
   e.stopPropagation()
-  connecting.value = { from: card.id, pointer: screenToWorld(e.clientX, e.clientY), snapTarget: null }
+  connecting.value = { from: card.id, fromPort, pointer: screenToWorld(e.clientX, e.clientY), snapTarget: null }
   ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
 }
 function onConnectPointerMove(e: PointerEvent) {
@@ -164,10 +168,10 @@ function onConnectPointerMove(e: PointerEvent) {
 }
 function onConnectPointerUp() {
   if (!connecting.value) return
-  const { from, snapTarget, origin } = connecting.value
+  const { from, fromPort, snapTarget, origin } = connecting.value
   connecting.value = null
   if (snapTarget && snapTarget !== from) {
-    const ok = addConnection(from, snapTarget)
+    const ok = addConnection(from, snapTarget, fromPort)
     // A rejected re-plug (cycle) must not eat the original connection.
     if (!ok && origin) connections.value.push(origin)
   } else if (origin) {
@@ -179,20 +183,24 @@ function onConnectPointerUp() {
 const rejectedCardId = ref<string | null>(null)
 let rejectTimer: ReturnType<typeof setTimeout> | null = null
 
-// The flow is a set of linear chains: one curve out of a port, one curve
-// into a port, never a loop. Re-plugging an occupied port re-routes it —
-// intelligent replace, not silent stacking. A connection that would close
-// a cycle is refused with a shake on the offending card.
-function addConnection(from: string, to: string): boolean {
+// Flow rules: every output port carries exactly one curve — re-plugging an
+// occupied port re-routes it — while inputs may merge several branches
+// (both answers can lead to the same screen). A connection that would
+// close a loop is refused with a shake on the offending card.
+function addConnection(from: string, to: string, fromPort = ''): boolean {
   if (from === to) return false
-  const remaining = connections.value.filter(c => c.from !== from && c.to !== to)
+  const remaining = connections.value.filter(c => !(c.from === from && (c.fromPort || '') === fromPort))
   if (isReachable(remaining, to, from)) {
     rejectedCardId.value = to
     if (rejectTimer) clearTimeout(rejectTimer)
     rejectTimer = setTimeout(() => { rejectedCardId.value = null }, 600)
     return false
   }
-  connections.value = [...remaining, { id: `k${Date.now()}-${Math.random().toString(16).slice(2)}`, from, to }]
+  connections.value = [...remaining, {
+    id: `k${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    from, to,
+    ...(fromPort ? { fromPort } : {})
+  }]
   return true
 }
 
@@ -217,7 +225,7 @@ function onReconnectMove(e: PointerEvent) {
     pendingReconnect = null
     if (!conn) { removeReconnectListeners(); return }
     connections.value = connections.value.filter(c => c.id !== conn.id)
-    connecting.value = { from: conn.from, pointer: screenToWorld(e.clientX, e.clientY), snapTarget: null, origin: conn }
+    connecting.value = { from: conn.from, fromPort: conn.fromPort || '', pointer: screenToWorld(e.clientX, e.clientY), snapTarget: null, origin: conn }
   }
   onConnectPointerMove(e)
 }
@@ -357,13 +365,75 @@ function deleteNode(id: string) { emit('delete-card', id) }
 
 const zoomPercent = computed(() => Math.round(zoom.value * 100))
 
+// ── Minimap (desktop) ───────────────────────────────────────────
+const MM_W = 172
+const MM_H = 110
+const viewW = ref(0)
+const viewH = ref(0)
+let resizeObs: ResizeObserver | null = null
+
+const mmScene = computed(() => {
+  if (cards.value.length < 2) return null
+  const pad = 60
+  const minX = Math.min(...cards.value.map(c => c.x)) - pad
+  const minY = Math.min(...cards.value.map(c => c.y)) - pad
+  const maxX = Math.max(...cards.value.map(c => c.x + NODE_W)) + pad
+  const maxY = Math.max(...cards.value.map(c => c.y + NODE_H)) + pad
+  const scale = Math.min(MM_W / (maxX - minX), MM_H / (maxY - minY))
+  const ox = (MM_W - (maxX - minX) * scale) / 2
+  const oy = (MM_H - (maxY - minY) * scale) / 2
+  const nodes = cards.value.map(c => ({
+    id: c.id,
+    x: ox + (c.x - minX) * scale,
+    y: oy + (c.y - minY) * scale,
+    w: Math.max(3, NODE_W * scale),
+    h: Math.max(2, NODE_H * scale),
+    color: meta(c).color
+  }))
+  // The viewport rectangle in minimap space
+  const vx = ox + (-pan.x / zoom.value - minX) * scale
+  const vy = oy + (-pan.y / zoom.value - minY) * scale
+  const vw = (viewW.value / zoom.value) * scale
+  const vh = (viewH.value / zoom.value) * scale
+  return { nodes, view: { x: vx, y: vy, w: vw, h: vh }, minX, minY, scale, ox, oy }
+})
+
+let mmDragging = false
+function mmJump(e: PointerEvent) {
+  const scene = mmScene.value
+  if (!scene) return
+  const box = (e.currentTarget as HTMLElement).getBoundingClientRect()
+  const worldX = scene.minX + (e.clientX - box.left - scene.ox) / scene.scale
+  const worldY = scene.minY + (e.clientY - box.top - scene.oy) / scene.scale
+  pan.x = viewW.value / 2 - worldX * zoom.value
+  pan.y = viewH.value / 2 - worldY * zoom.value
+}
+function onMinimapDown(e: PointerEvent) {
+  e.stopPropagation()
+  mmDragging = true
+  ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+  mmJump(e)
+}
+function onMinimapMove(e: PointerEvent) { if (mmDragging) mmJump(e) }
+function onMinimapUp() { mmDragging = false }
+
 // True while a drag/connect gesture is mid-flight — consumers should hold
 // off snapshotting history so half-finished states never become undo steps.
 const gestureActive = computed(() => !!dragState.value || !!connecting.value)
 
 defineExpose({ zoomIn, zoomOut, fitView, centerOn, zoomPercent, gestureActive })
 
-onMounted(() => nextTick(fitView))
+onMounted(() => {
+  nextTick(fitView)
+  if (containerRef.value) {
+    resizeObs = new ResizeObserver((entries) => {
+      viewW.value = entries[0].contentRect.width
+      viewH.value = entries[0].contentRect.height
+    })
+    resizeObs.observe(containerRef.value)
+  }
+})
+onUnmounted(() => resizeObs?.disconnect())
 </script>
 
 <template>
@@ -395,6 +465,12 @@ onMounted(() => nextTick(fitView))
         :style="counterScaleStyle(edge.handle)"
         @pointerdown="onReconnectStart($event, edge.id)"
       />
+
+      <!-- Branch letters riding their curves near the source -->
+      <span
+        v-for="edge in edges.filter(e => e.letter)" :key="`letter-${edge.id}`"
+        class="edge-letter" :style="counterScaleStyle(edge.letterPos!)"
+      >{{ edge.letter }}</span>
 
       <article
         v-for="card in cards" :key="card.id"
@@ -431,8 +507,26 @@ onMounted(() => nextTick(fitView))
         </div>
 
         <div class="port port--in" :style="{ transform: `translate(-50%, -50%) scale(${1 / zoom})` }" />
+
+        <!-- MCQ: one branch port per answer option; others: single output -->
+        <template v-if="card.kind === 'mcq'">
+          <!-- Counter-scale is capped: four stacked ports must never grow
+               into each other at low zoom -->
+          <div
+            v-for="i in 4" :key="`opt-${i}`"
+            class="port port--out port--opt"
+            :class="{ 'port--filled': occupiedPorts.has(`${card.id}#opt-${i - 1}`) }"
+            :style="{ top: `${i * 20}%`, transform: `translate(50%, -50%) scale(${Math.min(1 / zoom, 1.15)})` }"
+            :title="`If ${String.fromCharCode(64 + i)}: ${card.options?.[i - 1] || '…'} — drag to the next screen`"
+            @pointerdown="onOutputPointerDown($event, card, `opt-${i - 1}`)"
+            @pointermove="onConnectPointerMove"
+            @pointerup="onConnectPointerUp"
+            @pointercancel="onConnectPointerUp"
+          >{{ String.fromCharCode(64 + i) }}</div>
+        </template>
         <div
-          class="port port--out" :class="{ 'port--filled': outgoingIds.has(card.id) }"
+          v-else
+          class="port port--out" :class="{ 'port--filled': occupiedPorts.has(`${card.id}#`) }"
           :style="{ transform: `translate(50%, -50%) scale(${1 / zoom})` }"
           @pointerdown="onOutputPointerDown($event, card)"
           @pointermove="onConnectPointerMove"
@@ -450,6 +544,26 @@ onMounted(() => nextTick(fitView))
     >✕ Disconnect</button>
 
     <p v-if="!cards.length" class="node-canvas__empty">Blank canvas. Add a card from the palette to begin your storyboard.</p>
+
+    <!-- Minimap (desktop) -->
+    <div
+      v-if="mmScene"
+      class="minimap"
+      @pointerdown="onMinimapDown"
+      @pointermove="onMinimapMove"
+      @pointerup="onMinimapUp"
+      @pointercancel="onMinimapUp"
+      @wheel.stop.prevent
+    >
+      <span
+        v-for="n in mmScene.nodes" :key="n.id" class="minimap__node"
+        :style="{ left: `${n.x}px`, top: `${n.y}px`, width: `${n.w}px`, height: `${n.h}px`, background: n.color }"
+      />
+      <span
+        class="minimap__view"
+        :style="{ left: `${mmScene.view.x}px`, top: `${mmScene.view.y}px`, width: `${mmScene.view.w}px`, height: `${mmScene.view.h}px` }"
+      />
+    </div>
   </div>
 </template>
 
@@ -659,6 +773,31 @@ onMounted(() => nextTick(fitView))
 /* An occupied output reads as plugged-in; dragging it again re-routes */
 .port--filled { background: var(--kind-color); }
 
+/* MCQ answer branch ports: labelled A–D down the right edge */
+.port--opt {
+  width: 19rem; height: 19rem;
+  display: grid; place-items: center;
+  font-size: 9.5rem;
+  font-weight: 800;
+  color: var(--kind-color);
+  line-height: 1;
+  user-select: none;
+}
+.port--opt.port--filled, .port--opt:hover { color: var(--color-bg); }
+
+.edge-letter {
+  position: absolute;
+  width: 20rem; height: 20rem;
+  display: grid; place-items: center;
+  border-radius: 999px;
+  font-size: 10.5rem;
+  font-weight: 800;
+  color: var(--color-bg);
+  background: #FB7185;
+  box-shadow: 0 4rem 10rem -4rem rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+
 .node-canvas__empty {
   position: absolute;
   inset: 0;
@@ -671,4 +810,30 @@ onMounted(() => nextTick(fitView))
   padding: 0 32rem;
   line-height: 1.5;
 }
+
+/* ── Minimap ── */
+.minimap {
+  position: absolute;
+  right: 14rem;
+  bottom: calc(14rem + var(--safe-bottom));
+  width: 172rem;
+  height: 110rem;
+  border-radius: 12rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+  border: 1px solid var(--color-glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  touch-action: none;
+  z-index: 12;
+}
+.minimap__node { position: absolute; border-radius: 2rem; opacity: 0.75; }
+.minimap__view {
+  position: absolute;
+  border: 1.5rem solid var(--color-text);
+  border-radius: 4rem;
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+@media (max-width: 899px) { .minimap { display: none; } }
 </style>

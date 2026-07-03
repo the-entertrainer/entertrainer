@@ -7,10 +7,16 @@ import { modelOf } from '~/utils/idModels'
 // sheet as a two-column grid. When an ID model is active, its stages appear
 // first — one tap adds a card already assigned to that stage, in that
 // stage's natural card kind.
-const props = defineProps<{ sheet?: boolean; modelId?: string }>()
+const props = defineProps<{ sheet?: boolean; modelId?: string; stageSeconds?: Record<string, number> }>()
 const emit = defineEmits<{ add: [kind: CardKind, stage?: string] }>()
 
 const model = computed(() => modelOf(props.modelId))
+
+function fmtTime(total: number) {
+  const m = Math.floor(total / 60)
+  const s = total % 60
+  return m ? `${m}:${String(s).padStart(2, '0')}` : `${s}s`
+}
 </script>
 
 <template>
@@ -29,6 +35,7 @@ const model = computed(() => modelOf(props.modelId))
           <span class="palette__name">{{ s.label }}</span>
           <span v-if="sheet" class="palette__hint">{{ s.prompt }}</span>
         </span>
+        <span v-if="stageSeconds?.[s.id]" class="palette__time">{{ fmtTime(stageSeconds[s.id]) }}</span>
         <span class="palette__plus">+</span>
       </button>
       <div class="palette__rule" />
@@ -103,6 +110,15 @@ const model = computed(() => modelOf(props.modelId))
 .palette__name { font-size: 12.5rem; font-weight: 600; color: var(--color-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 168rem; }
 .palette__hint { font-size: 11rem; opacity: 0.55; color: var(--color-text); line-height: 1.35; white-space: normal; }
 .palette__plus { margin-left: auto; font-size: 14rem; font-weight: 600; opacity: 0; color: var(--color-text); transition: opacity 0.15s ease; }
+.palette__time {
+  margin-left: auto;
+  font-size: 10.5rem;
+  font-weight: 700;
+  opacity: 0.55;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+.palette__time + .palette__plus { margin-left: 6rem; }
 
 /* Bottom-sheet variant */
 .palette--sheet {

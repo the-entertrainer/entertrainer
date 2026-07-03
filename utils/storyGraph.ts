@@ -7,7 +7,10 @@ import type { Connection, StoryCard } from '~/types/story'
 export function orderCards(cards: StoryCard[], connections: Connection[]): StoryCard[] {
   const byId = new Map(cards.map(c => [c.id, c]))
   const outgoing = new Map<string, string[]>()
-  for (const c of connections) {
+  // Branches walk in option order (main port first, then A, B, C, D) so
+  // numbering follows the "answer A" path before later branches.
+  const sorted = [...connections].sort((a, b) => (a.fromPort || '').localeCompare(b.fromPort || ''))
+  for (const c of sorted) {
     if (!byId.has(c.from) || !byId.has(c.to)) continue
     if (!outgoing.has(c.from)) outgoing.set(c.from, [])
     outgoing.get(c.from)!.push(c.to)
@@ -66,21 +69,20 @@ export function isReachable(connections: Connection[], start: string, target: st
   return false
 }
 
-// The storyboard flow is a set of linear chains: each output feeds one
-// input, each input accepts one output, and no loops. Imports from older
-// saves (or hand-edited files) get squeezed through this.
+// Flow rules: every output port carries at most one curve (an MCQ has one
+// port per answer option), inputs may merge several branches, and no
+// loops. Imports from older saves get squeezed through the same rules.
 export function sanitizeConnections(cards: StoryCard[], connections: Connection[]): Connection[] {
   const ids = new Set(cards.map(c => c.id))
-  const usedFrom = new Set<string>()
-  const usedTo = new Set<string>()
+  const usedPorts = new Set<string>()
   const kept: Connection[] = []
   for (const c of connections) {
     if (!ids.has(c.from) || !ids.has(c.to) || c.from === c.to) continue
-    if (usedFrom.has(c.from) || usedTo.has(c.to)) continue
+    const portKey = `${c.from}#${c.fromPort || ''}`
+    if (usedPorts.has(portKey)) continue
     if (isReachable(kept, c.to, c.from)) continue
     kept.push(c)
-    usedFrom.add(c.from)
-    usedTo.add(c.to)
+    usedPorts.add(portKey)
   }
   return kept
 }

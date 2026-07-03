@@ -35,6 +35,9 @@ export interface Connection {
   id: string
   from: string
   to: string
+  // Which output the curve leaves from: '' / undefined = the card's main
+  // port; 'opt-0'..'opt-3' = an MCQ answer branch ("if A, go to…").
+  fromPort?: string
 }
 
 export interface StoryGenProject {

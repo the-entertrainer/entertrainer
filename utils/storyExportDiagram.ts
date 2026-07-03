@@ -1,13 +1,12 @@
 import { saveAs } from 'file-saver'
 import type { Connection, StoryCard } from '~/types/story'
-import { bezierControls } from './storyBezier'
+import { bezierControls, bezierPointAt } from './storyBezier'
 import { CARD_KINDS, cardPreview } from './storyCards'
 import { stageOf } from './idModels'
 import { cardNumbers } from './storyGraph'
-import { NODE_H, NODE_W } from './storyLayout'
+import { NODE_H, NODE_W, outPortPoint } from './storyLayout'
 
 const PAD = 110
-const SCALE = 2
 const FONT = '"DM Sans", "Helvetica Neue", Arial, sans-serif'
 
 interface Theme {
@@ -63,12 +62,19 @@ function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number
   return lines
 }
 
-export function exportDiagramPng(
-  input: { title: string; cards: StoryCard[]; connections: Connection[]; modelId?: string; modelLabel?: string },
-  filename: string
-) {
+export interface DiagramInput {
+  title: string
+  cards: StoryCard[]
+  connections: Connection[]
+  modelId?: string
+  modelLabel?: string
+}
+
+// Renders the flow to an offscreen canvas — shared by the PNG export and
+// the home screen's project thumbnails (which pass a small scale).
+export function renderDiagram(input: DiagramInput, scale = 2): HTMLCanvasElement | null {
   const { cards, connections } = input
-  if (!cards.length) return
+  if (!cards.length) return null
 
   const theme = THEMES[(document.documentElement.dataset.theme as 'dark' | 'light') || 'dark']
   const numbers = cardNumbers(cards, connections)
@@ -80,11 +86,11 @@ export function exportDiagramPng(
   const maxY = Math.max(...cards.map(c => c.y + NODE_H)) + PAD
 
   const canvas = document.createElement('canvas')
-  canvas.width = (maxX - minX) * SCALE
-  canvas.height = (maxY - minY) * SCALE
+  canvas.width = Math.max(1, Math.round((maxX - minX) * scale))
+  canvas.height = Math.max(1, Math.round((maxY - minY) * scale))
   const ctx = canvas.getContext('2d')
-  if (!ctx) return
-  ctx.scale(SCALE, SCALE)
+  if (!ctx) return null
+  ctx.scale(scale, scale)
   ctx.translate(-minX, -minY)
 
   // Backdrop + dot grid
@@ -108,21 +114,34 @@ export function exportDiagramPng(
   const metaBits = [`${cards.length} screens`, input.modelLabel, new Date().toLocaleDateString()].filter(Boolean)
   ctx.fillText(metaBits.join(' · '), minX + 36, minY + 66)
 
-  // Connections — same cubic bezier the live canvas draws
-  ctx.strokeStyle = theme.line
-  ctx.lineWidth = 2.5
+  // Connections — same cubic bezier the live canvas draws, with answer
+  // letters riding MCQ branch curves
   ctx.lineCap = 'round'
   for (const conn of connections) {
     const from = byId.get(conn.from)
     const to = byId.get(conn.to)
     if (!from || !to) continue
-    const p1 = { x: from.x + NODE_W, y: from.y + NODE_H / 2 }
+    const p1 = outPortPoint(from, conn.fromPort)
     const p2 = { x: to.x, y: to.y + NODE_H / 2 }
     const { c1, c2 } = bezierControls(p1, p2)
+    ctx.strokeStyle = theme.line
+    ctx.lineWidth = 2.5
     ctx.beginPath()
     ctx.moveTo(p1.x, p1.y)
     ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, p2.x, p2.y)
     ctx.stroke()
+    if (conn.fromPort?.startsWith('opt-')) {
+      const i = Number(conn.fromPort.slice(4)) || 0
+      const pt = bezierPointAt(p1, p2, 0.16)
+      ctx.beginPath()
+      ctx.arc(pt.x, pt.y, 9, 0, Math.PI * 2)
+      ctx.fillStyle = '#FB7185'
+      ctx.fill()
+      ctx.fillStyle = '#FFFFFF'
+      ctx.font = `800 10px ${FONT}`
+      const letter = String.fromCharCode(65 + i)
+      ctx.fillText(letter, pt.x - ctx.measureText(letter).width / 2, pt.y + 3.5)
+    }
   }
 
   // Cards
@@ -191,10 +210,16 @@ export function exportDiagramPng(
       ctx.fillText(`${card.duration || 0}s`, x + 20, y + NODE_H - 14)
     }
 
-    // Ports
-    for (const px of [x, x + NODE_W]) {
+    // Ports: input on the left; one output per MCQ option, else centered
+    const portPts = [{ x, y: y + NODE_H / 2 }]
+    if (card.kind === 'mcq') {
+      for (let i = 0; i < 4; i++) portPts.push(outPortPoint(card, `opt-${i}`))
+    } else {
+      portPts.push({ x: x + NODE_W, y: y + NODE_H / 2 })
+    }
+    for (const p of portPts) {
       ctx.beginPath()
-      ctx.arc(px, y + NODE_H / 2, 6, 0, Math.PI * 2)
+      ctx.arc(p.x, p.y, 6, 0, Math.PI * 2)
       ctx.fillStyle = theme.bg
       ctx.fill()
       ctx.strokeStyle = theme.text
@@ -203,7 +228,12 @@ export function exportDiagramPng(
     }
   }
 
-  canvas.toBlob((blob) => {
+  return canvas
+}
+
+export function exportDiagramPng(input: DiagramInput, filename: string) {
+  const canvas = renderDiagram(input, 2)
+  canvas?.toBlob((blob) => {
     if (blob) saveAs(blob, filename)
   }, 'image/png')
 }

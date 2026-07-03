@@ -4,12 +4,24 @@ import { CARD_STATUSES } from '~/types/story'
 import { CARD_KINDS } from '~/utils/storyCards'
 import { modelOf, stageOf } from '~/utils/idModels'
 
-const props = defineProps<{ card: StoryCard | null; cardNumber: number; modelId?: string }>()
+const props = defineProps<{
+  card: StoryCard | null
+  cardNumber: number
+  modelId?: string
+  // Per-option branch destinations for MCQ cards, e.g. '→ Screen 04'
+  branchLabels?: (string | null)[]
+}>()
 defineEmits<{ delete: []; duplicate: []; close: [] }>()
 
 const meta = computed(() => (props.card ? CARD_KINDS[props.card.kind] : null))
 const model = computed(() => modelOf(props.modelId))
 const stage = computed(() => (props.card ? stageOf(props.modelId, props.card.stage) : null))
+
+// Narration → speaking-time intelligence (~150 words per minute)
+const narrationWords = computed(() => props.card?.narration.trim().split(/\s+/).filter(Boolean).length ?? 0)
+const suggestedSeconds = computed(() => Math.max(15, Math.ceil(narrationWords.value / 150 * 60 / 5) * 5))
+const showSuggestion = computed(() => narrationWords.value >= 8 && props.card && Math.abs(props.card.duration - suggestedSeconds.value) > 7)
+function applySuggestion() { if (props.card) props.card.duration = suggestedSeconds.value }
 
 // Which of the shared content fields this kind exposes, and what they're
 // called — the kind decides the vocabulary the designer sees.
@@ -105,11 +117,15 @@ const floatStyle = computed(() =>
 
           <label class="glass-label">Options — mark the correct one</label>
           <div class="inspector__options">
-            <label v-for="(_, i) in card.options" :key="i" class="inspector__option" :class="{ 'inspector__option--correct': card.correctIndex === i }">
-              <input type="radio" name="in-correct" :checked="card.correctIndex === i" @change="card.correctIndex = i">
-              <input v-model="card.options[i]" class="glass-field inspector__option-input" :placeholder="`Option ${String.fromCharCode(65 + i)}`">
-            </label>
+            <div v-for="(_, i) in card.options" :key="i" class="inspector__option-row">
+              <label class="inspector__option" :class="{ 'inspector__option--correct': card.correctIndex === i }">
+                <input type="radio" name="in-correct" :checked="card.correctIndex === i" @change="card.correctIndex = i">
+                <input v-model="card.options[i]" class="glass-field inspector__option-input" :placeholder="`Option ${String.fromCharCode(65 + i)}`">
+              </label>
+              <p v-if="branchLabels?.[i]" class="inspector__branch">{{ String.fromCharCode(65 + i) }} {{ branchLabels[i] }}</p>
+            </div>
           </div>
+          <p class="inspector__hint">Branch answers on the canvas: drag an option's A–D dot onto the screen it should lead to.</p>
 
           <label class="glass-label" for="in-feedback">Feedback</label>
           <textarea id="in-feedback" v-model="card.feedback" class="glass-field" rows="2" placeholder="Why the correct answer is right." />
@@ -125,6 +141,10 @@ const floatStyle = computed(() =>
 
         <label class="glass-label" for="in-narration">Narration / audio script</label>
         <textarea id="in-narration" v-model="card.narration" class="glass-field" rows="3" />
+        <div v-if="narrationWords" class="inspector__timing">
+          <span>≈ {{ narrationWords }} words · ~{{ suggestedSeconds }}s spoken</span>
+          <button v-if="showSuggestion" class="inspector__timing-btn" @click="applySuggestion">Set {{ suggestedSeconds }}s</button>
+        </div>
 
         <label class="glass-label" for="in-notes">Developer notes</label>
         <textarea id="in-notes" v-model="card.notes" class="glass-field" rows="2" />
@@ -224,7 +244,34 @@ const floatStyle = computed(() =>
 }
 
 .inspector__options { display: flex; flex-direction: column; gap: 7rem; }
+.inspector__option-row { display: flex; flex-direction: column; gap: 3rem; }
 .inspector__option { display: flex; align-items: center; gap: 8rem; }
+.inspector__branch {
+  font-size: 11rem;
+  font-weight: 600;
+  opacity: 0.65;
+  padding-left: 24rem;
+  color: var(--color-text);
+}
+.inspector__hint { font-size: 11rem; line-height: 1.5; opacity: 0.5; color: var(--color-text); }
+.inspector__timing {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8rem;
+  font-size: 11.5rem;
+  opacity: 0.75;
+  color: var(--color-text);
+}
+.inspector__timing-btn {
+  padding: 4rem 11rem;
+  border-radius: 999px;
+  font-size: 11rem;
+  font-weight: 700;
+  color: var(--color-bg);
+  background: var(--color-text);
+  flex-shrink: 0;
+}
 .inspector__option input[type="radio"] { width: 15rem; height: 15rem; accent-color: var(--kind-color, var(--color-accent)); flex-shrink: 0; }
 .inspector__option-input { padding: 9rem 12rem; }
 .inspector__option--correct .inspector__option-input { border-color: color-mix(in srgb, #3fbf6f 60%, var(--color-glass-border)); }

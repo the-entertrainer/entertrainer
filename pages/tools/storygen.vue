@@ -8,12 +8,22 @@ import { cardNumbers, lastInSequence, sanitizeConnections } from '~/utils/storyG
 import { laneLayout, nextAutoPosition, tidyPositions } from '~/utils/storyLayout'
 import { exportStoryDocx } from '~/utils/storyExportDocx'
 import { exportStoryXlsx } from '~/utils/storyExportXlsx'
-import { exportDiagramPng } from '~/utils/storyExportDiagram'
+import { exportDiagramPng, renderDiagram } from '~/utils/storyExportDiagram'
+import {
+  listProjects, migrateLegacyProject, newProjectId, readProject,
+  removeProject, writeProject, writeThumb, type ProjectMeta
+} from '~/composables/useStoryProjects'
 
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 
-const STORAGE_KEY = 'storygen-project'
 const TOUR_KEY = 'storygen-tour-seen'
+
+// The app has three faces: a brief branded splash, the project shelf
+// (home), and the canvas editor.
+const view = ref<'splash' | 'home' | 'editor'>('splash')
+const projects = ref<ProjectMeta[]>([])
+const activeProjectId = ref<string | null>(null)
+let pendingPrevProjectId: string | null | undefined
 
 const projectTitle = ref('Untitled Storyboard')
 const model = ref<ModelId>('freeform')
@@ -66,6 +76,26 @@ const selectedCard = computed(() => cards.value.find(c => c.id === selectedCardI
 const selectedCardNumber = computed(() => (selectedCardId.value && numberMap.value.get(selectedCardId.value)) || 0)
 const selectedKindColor = computed(() => (selectedCard.value ? CARD_KINDS[selectedCard.value.kind]?.color : undefined))
 const totalMinutes = computed(() => Math.max(1, Math.round(cards.value.reduce((s, c) => s + (c.duration || 0), 0) / 60)))
+
+// Where each MCQ answer branch of the selected card currently leads
+const branchLabels = computed<(string | null)[]>(() => {
+  const card = selectedCard.value
+  if (!card || card.kind !== 'mcq') return []
+  return [0, 1, 2, 3].map(i => {
+    const conn = connections.value.find(c => c.from === card.id && c.fromPort === `opt-${i}`)
+    const num = conn ? numberMap.value.get(conn.to) : undefined
+    return num ? `→ Screen ${String(num).padStart(2, '0')}` : null
+  })
+})
+
+// Seconds of storyboard time already committed per framework stage
+const stageSeconds = computed<Record<string, number>>(() => {
+  const acc: Record<string, number> = {}
+  for (const c of cards.value) {
+    if (c.stage) acc[c.stage] = (acc[c.stage] || 0) + (c.duration || 0)
+  }
+  return acc
+})
 
 watch(selectedCardId, (id) => {
   if (!id) { inspectorOpen.value = false; return }
@@ -160,7 +190,11 @@ function pickModel(modelId: ModelId) {
       if (card.stage && !m.stages.some(s => s.id === card.stage)) card.stage = ''
     }
   } else {
+    pendingPrevProjectId = undefined // the new project is committed
     seedFromModel(modelId)
+    view.value = 'editor'
+    resetHistory()
+    persist()
     // Very first storyboard: let the tour walk the fresh canvas once the
     // seeded lanes have settled into view.
     let seen = false
@@ -169,9 +203,64 @@ function pickModel(modelId: ModelId) {
   }
 }
 
+function onPickerClose() {
+  modelPicker.value = null
+  // A cancelled "new" flow rolls back to whatever was active before.
+  if (pendingPrevProjectId !== undefined) {
+    activeProjectId.value = pendingPrevProjectId
+    pendingPrevProjectId = undefined
+  }
+}
+
 function newProject() {
   showMenu.value = null
+  flushSave()
+  pendingPrevProjectId = activeProjectId.value
+  activeProjectId.value = newProjectId()
   modelPicker.value = 'new'
+}
+
+// ── Project shelf (home) ────────────────────────────────────────
+function openProject(projectId: string) {
+  const data = readProject(projectId)
+  if (!data) return
+  applyProject(data)
+  activeProjectId.value = projectId
+  resetHistory()
+  view.value = 'editor'
+}
+
+function goHome() {
+  flushSave()
+  refreshThumb(true)
+  selectedCardId.value = null
+  inspectorOpen.value = false
+  showMenu.value = null
+  projects.value = listProjects()
+  view.value = 'home'
+}
+
+function deleteProjectEntry(projectId: string) {
+  removeProject(projectId)
+  projects.value = listProjects()
+  if (activeProjectId.value === projectId) activeProjectId.value = null
+}
+
+function flushSave() {
+  if (saveTimer) { clearTimeout(saveTimer); saveTimer = null }
+  if (activeProjectId.value) { commitHistory(); persist() }
+}
+
+function modelLabelOf(modelId: string) { return modelOf(modelId).label }
+
+function relTime(iso: string) {
+  const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000))
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins} min ago`
+  const hours = Math.round(mins / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.round(hours / 24)
+  return days === 1 ? 'yesterday' : `${days} days ago`
 }
 
 // ── Persistence + history ───────────────────────────────────────
@@ -211,8 +300,8 @@ function applySnapshot(s: string) {
 function undo() { if (canUndo.value) { histIndex.value--; applySnapshot(histStack.value[histIndex.value]) } }
 function redo() { if (canRedo.value) { histIndex.value++; applySnapshot(histStack.value[histIndex.value]) } }
 
-function persist() {
-  const project: StoryGenProject = {
+function currentProject(): StoryGenProject {
+  return {
     version: '5.0',
     title: projectTitle.value,
     model: model.value,
@@ -220,9 +309,38 @@ function persist() {
     cards: cards.value,
     connections: connections.value
   }
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(project)) } catch {}
+}
+
+// Home-screen thumbnails come from the same renderer as the PNG export,
+// at postcard scale — refreshed at most every few seconds.
+let lastThumbAt = 0
+function refreshThumb(force = false) {
+  if (!activeProjectId.value || !cards.value.length) return
+  const now = Date.now()
+  if (!force && now - lastThumbAt < 8000) return
+  lastThumbAt = now
+  try {
+    const w = Math.max(...cards.value.map(c => c.x)) - Math.min(...cards.value.map(c => c.x)) + 480
+    const canvas = renderDiagram({
+      title: projectTitle.value, cards: cards.value, connections: connections.value,
+      modelId: model.value, modelLabel: activeModel.value.stages.length ? activeModel.value.label : undefined
+    }, Math.min(0.55, 620 / w))
+    if (canvas) writeThumb(activeProjectId.value, canvas.toDataURL('image/jpeg', 0.72))
+  } catch {}
+}
+
+function persist() {
+  if (!activeProjectId.value) return
+  writeProject(activeProjectId.value, currentProject())
+  refreshThumb()
   savedFlash.value = true
   setTimeout(() => { savedFlash.value = false }, 1400)
+}
+
+function resetHistory() {
+  histStack.value = []
+  histIndex.value = -1
+  nextTick(commitHistory)
 }
 
 function scheduleCommit(delay = 350) {
@@ -302,7 +420,16 @@ async function importProject(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0]
   showMenu.value = null
   if (!file) return
-  try { applyProject(JSON.parse(await file.text())) } catch {}
+  try {
+    const data = JSON.parse(await file.text())
+    flushSave()
+    applyProject(data)
+    // An imported file becomes its own project on the shelf.
+    activeProjectId.value = newProjectId()
+    resetHistory()
+    persist()
+    view.value = 'editor'
+  } catch {}
   ;(e.target as HTMLInputElement).value = ''
 }
 
@@ -346,6 +473,10 @@ function isEditingText(e: KeyboardEvent) {
   return !!t.closest('input, textarea, select, [contenteditable="true"]')
 }
 function onKeydown(e: KeyboardEvent) {
+  if (view.value !== 'editor') {
+    if (e.key === 'Escape' && modelPicker.value) onPickerClose()
+    return
+  }
   const mod = e.metaKey || e.ctrlKey
   if (mod && e.key.toLowerCase() === 'z') {
     if (isEditingText(e)) return
@@ -360,39 +491,86 @@ function onKeydown(e: KeyboardEvent) {
     e.preventDefault(); deleteCard(selectedCardId.value)
   } else if (e.key === 'Escape') {
     if (tourOpen.value) return // TourGuide owns Escape while open
-    if (modelPicker.value === 'switch') { modelPicker.value = null; return }
+    if (modelPicker.value) { onPickerClose(); return }
     if (showMenu.value || showPaletteSheet.value) { showMenu.value = null; showPaletteSheet.value = false; return }
     if (inspectorOpen.value) { inspectorOpen.value = false; return }
     selectedCardId.value = null
   }
 }
 
+let splashTimer: ReturnType<typeof setTimeout> | null = null
 onMounted(() => {
   mq = window.matchMedia('(min-width: 900px)')
   onMq(mq)
   mq.addEventListener('change', onMq)
   window.addEventListener('keydown', onKeydown)
-  let loaded = false
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) {
-      applyProject(JSON.parse(raw))
-      loaded = cards.value.length > 0
-    }
-  } catch {}
-  if (!loaded) modelPicker.value = 'new'
-  nextTick(commitHistory)
+  migrateLegacyProject()
+  projects.value = listProjects()
+  splashTimer = setTimeout(() => { if (view.value === 'splash') view.value = 'home' }, 1300)
 })
 onUnmounted(() => {
   mq?.removeEventListener('change', onMq)
   window.removeEventListener('keydown', onKeydown)
-  if (saveTimer) { clearTimeout(saveTimer); commitHistory(); persist() }
+  if (splashTimer) clearTimeout(splashTimer)
+  flushSave()
 })
 </script>
 
 <template>
-  <div class="sg-app">
+  <div class="sg-root">
     <UiGlassBackdrop />
+
+    <!-- Splash: a breath of brand before the shelf -->
+    <Transition name="splash">
+      <div v-if="view === 'splash'" class="sg-splash" @click="view = 'home'">
+        <ToolsStoryBrandMark :size="116" class="sg-splash__mark" />
+        <p class="sg-splash__name">Story<em>Gen</em></p>
+        <p class="sg-splash__tag">Storyboard studio for instructional designers</p>
+      </div>
+    </Transition>
+
+    <!-- Home: recent local projects -->
+    <div v-if="view === 'home'" class="sg-home">
+      <div class="sg-home__inner">
+        <header class="sg-home__head">
+          <ToolsStoryBrandMark :size="46" />
+          <div>
+            <h1>Story<em>Gen</em></h1>
+            <p>Pick a framework, wire the screens, export a polished storyboard.</p>
+          </div>
+        </header>
+
+        <div class="sg-home__actions">
+          <button class="glass-btn" @click="newProject">+ New storyboard</button>
+          <label class="sg-tool sg-tool--wide sg-file-btn sg-home__open">Open .sbf<input type="file" accept=".sbf,.json" @change="importProject"></label>
+        </div>
+
+        <p v-if="projects.length" class="glass-label sg-home__label">Recent storyboards</p>
+        <div class="sg-home__grid">
+          <article
+            v-for="p in projects" :key="p.id"
+            class="glass-panel sg-proj" role="button" tabindex="0"
+            @click="openProject(p.id)"
+            @keydown.enter="openProject(p.id)"
+          >
+            <div class="sg-proj__thumb">
+              <img v-if="p.thumb" :src="p.thumb" alt="">
+              <ToolsStoryBrandMark v-else :size="40" class="sg-proj__thumb-fallback" />
+            </div>
+            <div class="sg-proj__meta">
+              <strong>{{ p.title || 'Untitled Storyboard' }}</strong>
+              <span>{{ modelLabelOf(p.model) }} · {{ p.screens }} screens · ≈{{ p.minutes }} min</span>
+              <span class="sg-proj__date">{{ relTime(p.updated) }}</span>
+            </div>
+            <button class="sg-proj__del" title="Delete storyboard" @click.stop="deleteProjectEntry(p.id)">✕</button>
+          </article>
+        </div>
+        <p v-if="!projects.length" class="sg-home__empty">Nothing here yet — your storyboards live on this device. Create the first one.</p>
+      </div>
+    </div>
+
+    <!-- Editor -->
+    <div v-if="view === 'editor'" class="sg-app">
 
     <!-- Canvas fills the whole workspace; every control floats above it -->
     <ToolsStoryNodeCanvas
@@ -409,7 +587,10 @@ onUnmounted(() => {
 
     <!-- Top bar -->
     <header class="sg-topbar glass-panel">
-      <span class="sg-wordmark">Story<em>Gen</em></span>
+      <button class="sg-wordmark" title="Home" @click="goHome">
+        <ToolsStoryBrandMark :size="20" />
+        <span class="sg-wordmark__text">Story<em>Gen</em></span>
+      </button>
       <input v-model="projectTitle" class="sg-title" placeholder="Untitled Storyboard" aria-label="Project title">
       <span class="sg-saved" :class="{ 'sg-saved--on': savedFlash }">● Saved</span>
 
@@ -440,6 +621,7 @@ onUnmounted(() => {
       <div class="sg-menu-wrap sg-mobile-only">
         <button class="sg-tool" aria-label="Menu" @click="showMenu = showMenu === 'mobile' ? null : 'mobile'">⋯</button>
         <div v-if="showMenu === 'mobile'" class="glass-panel sg-menu">
+          <button @click="goHome">Home — all storyboards</button>
           <button @click="showMenu = null; modelPicker = 'switch'">Framework: {{ activeModel.label }}</button>
           <button @click="startTour">Show the tour</button>
           <button @click="newProject">New storyboard</button>
@@ -454,7 +636,7 @@ onUnmounted(() => {
 
     <!-- Left dock: card palette (desktop) -->
     <aside class="sg-dock glass-panel sg-desktop-only">
-      <ToolsStoryCardPalette :model-id="model" @add="addCard" />
+      <ToolsStoryCardPalette :model-id="model" :stage-seconds="stageSeconds" @add="addCard" />
     </aside>
 
     <!-- Bottom-left: zoom + layout controls (desktop; mobile pinches) -->
@@ -497,7 +679,7 @@ onUnmounted(() => {
             <strong>Add a card</strong>
             <button class="sg-tool" aria-label="Close" @click="showPaletteSheet = false">✕</button>
           </div>
-          <ToolsStoryCardPalette sheet :model-id="model" @add="addCard" />
+          <ToolsStoryCardPalette sheet :model-id="model" :stage-seconds="stageSeconds" @add="addCard" />
         </div>
       </div>
     </Transition>
@@ -507,29 +689,150 @@ onUnmounted(() => {
       :card="inspectorOpen ? selectedCard : null"
       :card-number="selectedCardNumber"
       :model-id="model"
+      :branch-labels="branchLabels"
       @delete="selectedCardId && deleteCard(selectedCardId)"
       @duplicate="duplicateSelected"
       @close="inspectorOpen = false"
     />
 
-    <!-- Framework picker: first run, New, and framework switch -->
+    <!-- Click-away layer for open dropdowns -->
+    <div v-if="showMenu" class="sg-clickaway" @click="showMenu = null" />
+    </div><!-- /editor -->
+
+    <!-- Framework picker: new storyboards (home or editor) + framework switch -->
     <ToolsStoryModelPicker
       v-if="modelPicker"
       :switching="modelPicker === 'switch'"
+      :dismissible="projects.length > 0 || view === 'editor'"
       @pick="pickModel"
-      @close="modelPicker = null"
+      @close="onPickerClose"
     />
 
     <!-- Spotlight product tour: auto-plays once on the first storyboard,
          replayable from ? (desktop) or the ⋯ menu (mobile) -->
     <ToolsStoryTourGuide v-if="tourOpen" @close="closeTour" @step="onTourStep" />
-
-    <!-- Click-away layer for open dropdowns -->
-    <div v-if="showMenu" class="sg-clickaway" @click="showMenu = null" />
   </div>
 </template>
 
 <style scoped>
+/* ── Splash ── */
+.sg-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16rem;
+  cursor: pointer;
+}
+.sg-splash__mark {
+  border-radius: 26rem;
+  box-shadow: 0 34rem 80rem -30rem rgba(0, 0, 0, 0.55);
+  animation: splash-mark 0.9s var(--ease-spring) both;
+}
+@keyframes splash-mark {
+  from { opacity: 0; transform: scale(0.7) rotate(-6deg); }
+  to   { opacity: 1; transform: none; }
+}
+.sg-splash__name {
+  font-size: 34rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  animation: splash-text 0.7s 0.25s var(--ease-spring) both;
+}
+.sg-splash__name em { font-style: normal; opacity: 0.55; }
+.sg-splash__tag {
+  font-size: 13.5rem;
+  opacity: 0.55;
+  animation: splash-text 0.7s 0.4s var(--ease-spring) both;
+}
+@keyframes splash-text {
+  from { opacity: 0; transform: translateY(12rem); }
+  to   { opacity: 1; transform: none; }
+}
+.splash-leave-active { transition: opacity 0.35s ease, transform 0.35s ease; }
+.splash-leave-to { opacity: 0; transform: scale(1.04); }
+
+/* ── Home ── */
+.sg-home {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  z-index: 1;
+  padding: calc(96rem + var(--safe-top)) 24rem calc(48rem + var(--safe-bottom));
+}
+.sg-home__inner { max-width: 980rem; margin: 0 auto; }
+.sg-home__head {
+  display: flex;
+  align-items: center;
+  gap: 18rem;
+  margin-bottom: 26rem;
+}
+.sg-home__head svg { border-radius: 12rem; box-shadow: 0 18rem 40rem -18rem rgba(0,0,0,0.5); }
+.sg-home__head h1 { font-size: 30rem; font-weight: 800; letter-spacing: -0.04em; }
+.sg-home__head h1 em { font-style: normal; opacity: 0.55; }
+.sg-home__head p { font-size: 14rem; opacity: 0.6; margin-top: 4rem; line-height: 1.4; }
+.sg-home__actions { display: flex; align-items: center; gap: 10rem; margin-bottom: 30rem; }
+.sg-home__open { height: 40rem; }
+.sg-home__label { margin-bottom: 10rem; }
+.sg-home__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280rem, 1fr));
+  gap: 14rem;
+}
+.sg-proj {
+  position: relative;
+  padding: 12rem;
+  display: flex;
+  flex-direction: column;
+  gap: 11rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+@media (hover: hover) {
+  .sg-proj:hover { transform: translateY(-2rem); border-color: var(--color-glass-border-hover); }
+  .sg-proj:hover .sg-proj__del { opacity: 0.7; }
+}
+.sg-proj__thumb {
+  height: 132rem;
+  border-radius: 14rem;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--color-text) 5%, transparent);
+  border: 1px solid var(--color-divider);
+}
+.sg-proj__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.sg-proj__thumb-fallback { opacity: 0.5; border-radius: 10rem; }
+.sg-proj__meta { display: flex; flex-direction: column; gap: 3rem; padding: 0 4rem 2rem; }
+.sg-proj__meta strong { font-size: 15rem; letter-spacing: -0.02em; }
+.sg-proj__meta span { font-size: 12rem; opacity: 0.6; }
+.sg-proj__date { font-size: 11rem !important; opacity: 0.45 !important; }
+.sg-proj__del {
+  position: absolute;
+  top: 10rem; right: 10rem;
+  width: 24rem; height: 24rem;
+  display: grid; place-items: center;
+  border-radius: 999px;
+  font-size: 10rem;
+  color: #ff8d8d;
+  background: color-mix(in srgb, var(--color-bg) 60%, transparent);
+  border: 1px solid var(--color-glass-border);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+@media (hover: none) { .sg-proj__del { opacity: 0.55; } }
+.sg-home__empty { font-size: 14rem; opacity: 0.55; line-height: 1.5; }
+
+@media (max-width: 640px) {
+  .sg-home { padding: calc(84rem + var(--safe-top)) 14rem calc(40rem + var(--safe-bottom)); }
+  .sg-home__grid { grid-template-columns: 1fr; }
+  .sg-home__head h1 { font-size: 25rem; }
+}
+
+/* ── Editor shell ── */
 .sg-app {
   position: fixed;
   inset: 0;
@@ -555,11 +858,20 @@ onUnmounted(() => {
   z-index: 20;
 }
 .sg-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rem;
   font-size: 15rem;
   font-weight: 800;
   letter-spacing: -0.03em;
   white-space: nowrap;
+  color: var(--color-text);
+  border-radius: 10rem;
+  padding: 4rem 6rem;
+  transition: background 0.15s ease;
 }
+@media (hover: hover) { .sg-wordmark:hover { background: color-mix(in srgb, var(--color-bg) 55%, transparent); } }
+.sg-wordmark svg { border-radius: 5rem; display: block; }
 .sg-wordmark em { font-style: normal; opacity: 0.55; }
 .sg-title {
   flex: 1;
@@ -748,7 +1060,8 @@ onUnmounted(() => {
   .sg-desktop-only { display: none !important; }
   .sg-mobile-only { display: flex; }
   .sg-topbar { left: 72rem; right: 72rem; padding: 8rem 10rem; gap: 7rem; }
-  .sg-wordmark { display: none; }
+  .sg-wordmark__text { display: none; }
+  .sg-wordmark { padding: 4rem; }
   .sg-title { font-size: 16px; } /* ≥16px so iOS Safari doesn't zoom on focus */
   .sg-bottombar { display: flex; }
   .sg-menu { position: fixed; left: 12rem; right: 12rem; top: calc(64rem + var(--safe-top)); min-width: 0; }

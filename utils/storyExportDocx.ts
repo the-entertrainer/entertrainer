@@ -154,7 +154,7 @@ export async function exportStoryDocx(input: DocxExportInput, filename: string) 
                 children: row.options.map((o, i) => new Paragraph({
                   spacing: { after: 40 },
                   children: [new TextRun({
-                    text: `${String.fromCharCode(65 + i)}. ${o.text.trim() || '—'}${o.correct ? '  ✓' : ''}`,
+                    text: `${String.fromCharCode(65 + i)}. ${o.text.trim() || '—'}${o.correct ? '  ✓' : ''}${o.goto ? `  → ${o.goto}` : ''}`,
                     bold: o.correct,
                     size: 18,
                     color: '2B2B2B'

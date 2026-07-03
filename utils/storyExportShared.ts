@@ -29,18 +29,31 @@ export interface McqRow {
   num: string
   screen: string
   question: string
-  options: { text: string; correct: boolean }[]
+  options: { text: string; correct: boolean; goto: string | null }[]
   feedback: string
 }
 
 function pad(n: number) { return String(n).padStart(2, '0') }
 
-function rowOf(card: StoryCard, num: number): ExportRow {
+// "If A → Screen 04 · If B → Screen 07" for an MCQ card's answer branches.
+function branchSummary(card: StoryCard, connections: Connection[], numberOf: Map<string, number>): string {
+  if (card.kind !== 'mcq') return ''
+  const parts: string[] = []
+  for (let i = 0; i < 4; i++) {
+    const conn = connections.find(c => c.from === card.id && c.fromPort === `opt-${i}`)
+    const num = conn ? numberOf.get(conn.to) : undefined
+    if (num) parts.push(`If ${String.fromCharCode(65 + i)} → Screen ${pad(num)}`)
+  }
+  return parts.join(' · ')
+}
+
+function rowOf(card: StoryCard, num: number, connections: Connection[], numberOf: Map<string, number>): ExportRow {
   let content = card.body
   if (card.kind === 'mcq') {
     const opts = (card.options || []).map((o, i) => `${String.fromCharCode(65 + i)}. ${o.trim() || '—'}`).join('\n')
     content = [card.question, opts].filter(Boolean).join('\n')
   }
+  const branches = branchSummary(card, connections, numberOf)
   return {
     num: pad(num),
     title: card.title || 'Untitled',
@@ -48,7 +61,7 @@ function rowOf(card: StoryCard, num: number): ExportRow {
     content,
     visual: card.visual,
     narration: card.narration,
-    notes: card.notes,
+    notes: [card.notes, branches && `Branching: ${branches}`].filter(Boolean).join('\n'),
     time: `${card.duration || 0}s`
   }
 }
@@ -56,19 +69,20 @@ function rowOf(card: StoryCard, num: number): ExportRow {
 export function buildSections(cards: StoryCard[], connections: Connection[], model: IdModel): ExportSection[] {
   const ordered = orderCards(cards, connections)
   const numberOf = new Map(ordered.map((c, i) => [c.id, i + 1]))
+  const row = (c: StoryCard) => rowOf(c, numberOf.get(c.id)!, connections, numberOf)
 
   if (!model.stages.length) {
-    return [{ label: null, prompt: null, color: null, rows: ordered.map(c => rowOf(c, numberOf.get(c.id)!)) }]
+    return [{ label: null, prompt: null, color: null, rows: ordered.map(row) }]
   }
 
   const sections: ExportSection[] = []
   for (const stage of model.stages) {
-    const rows = ordered.filter(c => c.stage === stage.id).map(c => rowOf(c, numberOf.get(c.id)!))
+    const rows = ordered.filter(c => c.stage === stage.id).map(row)
     sections.push({ label: stage.label, prompt: stage.prompt, color: stage.color, rows })
   }
   const loose = ordered.filter(c => !model.stages.some(s => s.id === c.stage))
   if (loose.length) {
-    sections.push({ label: 'Additional screens', prompt: null, color: '#94A3B8', rows: loose.map(c => rowOf(c, numberOf.get(c.id)!)) })
+    sections.push({ label: 'Additional screens', prompt: null, color: '#94A3B8', rows: loose.map(row) })
   }
   return sections
 }
@@ -80,7 +94,11 @@ export function buildMcqRows(cards: StoryCard[], connections: Connection[]): Mcq
     num: pad(i + 1),
     screen: `Screen ${pad(numberOf.get(card.id)!)}: ${card.title || 'Knowledge Check'}`,
     question: card.question,
-    options: (card.options || []).map((text, oi) => ({ text, correct: oi === card.correctIndex })),
+    options: (card.options || []).map((text, oi) => {
+      const conn = connections.find(c => c.from === card.id && c.fromPort === `opt-${oi}`)
+      const num = conn ? numberOf.get(conn.to) : undefined
+      return { text, correct: oi === card.correctIndex, goto: num ? `Screen ${pad(num)}` : null }
+    }),
     feedback: card.feedback
   }))
 }

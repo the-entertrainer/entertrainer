@@ -47,6 +47,9 @@ export interface StoryGenProject {
   updated: string
   cards: StoryCard[]
   connections: Connection[]
+  // Process frameworks (ADDIE, SAM) plan the PROJECT, not the lesson flow:
+  // per-phase designer notes, keyed by stage id.
+  plan?: Record<string, string>
 }
 
 export const CARD_STATUSES = ['Draft', 'In Review', 'Approved', 'Final'] as const

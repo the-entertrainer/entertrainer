@@ -106,8 +106,9 @@ const floatStyle = computed(() =>
       </div>
 
       <div class="inspector__body">
-        <!-- The active ID model's vocabulary: which stage this screen serves -->
-        <template v-if="model.stages.length">
+        <!-- The active ID model's vocabulary: which stage this screen serves.
+             Only learner-journey frameworks tag screens with stages. -->
+        <template v-if="model.kind === 'journey' && model.stages.length">
           <label class="glass-label" for="in-stage">{{ model.columnLabel }}</label>
           <select id="in-stage" v-model="card.stage" class="glass-field glass-select">
             <option value="">Unassigned</option>

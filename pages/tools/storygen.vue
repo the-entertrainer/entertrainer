@@ -28,6 +28,9 @@ let pendingPrevProjectId: string | null | undefined
 
 const projectTitle = ref('Untitled Storyboard')
 const model = ref<ModelId>('freeform')
+// Process frameworks (ADDIE/SAM) plan the project in phase notes
+const plan = ref<Record<string, string>>({})
+const planOpen = ref(false)
 const cards = ref<StoryCard[]>([])
 const connections = ref<Connection[]>([])
 const selectedCardId = ref<string | null>(null)
@@ -73,6 +76,7 @@ function onAiGenerated(result: GeneratedStoryboard & { modelId: ModelId }) {
   flushSave()
   projectTitle.value = result.title
   model.value = result.modelId
+  plan.value = result.plan || {}
   cards.value = result.cards
   connections.value = result.connections
   selectedCardId.value = null
@@ -170,6 +174,7 @@ const canvasInsets = computed(() => isDesktop.value
   : { top: 72, right: 12, bottom: 88, left: 12 })
 
 const activeModel = computed(() => modelOf(model.value))
+const isProcessModel = computed(() => activeModel.value.kind === 'process')
 const numberMap = computed(() => cardNumbers(cards.value, connections.value))
 const selectedCard = computed(() => cards.value.find(c => c.id === selectedCardId.value) ?? null)
 const selectedCardNumber = computed(() => (selectedCardId.value && numberMap.value.get(selectedCardId.value)) || 0)
@@ -245,7 +250,7 @@ function editCard(cardId: string) {
 }
 
 function tidy() {
-  if (activeModel.value.stages.length) laneLayout(cards.value, connections.value, activeModel.value)
+  if (!isProcessModel.value && activeModel.value.stages.length) laneLayout(cards.value, connections.value, activeModel.value)
   else tidyPositions(cards.value, connections.value)
   nextTick(() => canvasRef.value?.fitView())
 }
@@ -257,8 +262,12 @@ function seedFromModel(modelId: ModelId) {
   projectTitle.value = 'Untitled Storyboard'
   selectedCardId.value = null
   connections.value = []
-  if (!m.stages.length) {
+  plan.value = {}
+  if (m.kind === 'process' || !m.stages.length) {
+    // Process frameworks don't seed phase-named screens — learners never
+    // see "Analyze". They start like freeform, plus an empty design plan.
     cards.value = [createCard('title', { x: 60, y: 160 })]
+    if (m.kind === 'process') planOpen.value = true
   } else {
     const seeded: StoryCard[] = []
     const conns: Connection[] = []
@@ -281,12 +290,13 @@ function pickModel(modelId: ModelId) {
   const mode = modelPicker.value
   modelPicker.value = null
   if (mode === 'switch') {
-    // Non-destructive: cards stay, stages that don't exist in the new
-    // framework reset to unassigned. Tidy re-lanes on demand.
+    // Non-destructive: cards stay. Journey targets keep stages that exist
+    // in the new framework; process targets carry no card stages at all —
+    // their phases live in the design plan instead.
     const m = ID_MODELS[modelId]
     model.value = modelId
     for (const card of cards.value) {
-      if (card.stage && !m.stages.some(s => s.id === card.stage)) card.stage = ''
+      if (m.kind === 'process' || (card.stage && !m.stages.some(s => s.id === card.stage))) card.stage = ''
     }
   } else {
     pendingPrevProjectId = undefined // the new project is committed
@@ -372,7 +382,7 @@ const canUndo = computed(() => histIndex.value > 0)
 const canRedo = computed(() => histIndex.value < histStack.value.length - 1)
 
 function serialize() {
-  return JSON.stringify({ title: projectTitle.value, model: model.value, cards: cards.value, connections: connections.value })
+  return JSON.stringify({ title: projectTitle.value, model: model.value, plan: plan.value, cards: cards.value, connections: connections.value })
 }
 function commitHistory() {
   const s = serialize()
@@ -388,6 +398,7 @@ function applySnapshot(s: string) {
     const data = JSON.parse(s)
     projectTitle.value = data.title
     model.value = data.model || 'freeform'
+    plan.value = data.plan || {}
     cards.value = data.cards
     connections.value = data.connections
     if (selectedCardId.value && !data.cards.some((c: StoryCard) => c.id === selectedCardId.value)) selectedCardId.value = null
@@ -406,7 +417,8 @@ function currentProject(): StoryGenProject {
     model: model.value,
     updated: new Date().toISOString(),
     cards: cards.value,
-    connections: connections.value
+    connections: connections.value,
+    plan: plan.value
   }
 }
 
@@ -452,7 +464,7 @@ function scheduleCommit(delay = 350) {
   }, delay)
 }
 
-watch([projectTitle, model, cards, connections], () => {
+watch([projectTitle, model, plan, cards, connections], () => {
   if (restoring) return
   scheduleCommit()
 }, { deep: true })
@@ -460,6 +472,7 @@ watch([projectTitle, model, cards, connections], () => {
 // Accepts the current shape or migrates older StoryGen/StoryForge saves so
 // nobody's work is stranded.
 function normalizeProject(data: any): { title: string; model: ModelId; cards: StoryCard[]; connections: Connection[] } {
+  // (plan is applied separately in applyProject)
   const modelId: ModelId = ID_MODELS[data?.model as ModelId] ? data.model : 'freeform'
   const blank = (kind: CardKind, x: number, y: number) => createCard(kind, { x, y })
   if (Array.isArray(data?.cards)) {
@@ -470,8 +483,9 @@ function normalizeProject(data: any): { title: string; model: ModelId; cards: St
       while (options.length < 4) options.push('')
       return { ...base, ...c, kind, options, stage: typeof c.stage === 'string' ? c.stage : '', id: String(c.id || base.id) }
     })
+    if (ID_MODELS[modelId].kind === 'process') for (const c of sane) c.stage = ''
     const conns = (Array.isArray(data.connections) ? data.connections : [])
-      .map((c: any) => ({ id: String(c.id || id('k')), from: String(c.from), to: String(c.to) }))
+      .map((c: any) => ({ id: String(c.id || id('k')), from: String(c.from), to: String(c.to), ...(c.fromPort ? { fromPort: String(c.fromPort) } : {}) }))
     return { title: String(data.title || 'Untitled Storyboard'), model: modelId, cards: sane, connections: sanitizeConnections(sane, conns) }
   }
   if (Array.isArray(data?.scenes)) {
@@ -509,6 +523,11 @@ function applyProject(data: any) {
   const normal = normalizeProject(data)
   projectTitle.value = normal.title
   model.value = normal.model
+  const rawPlan = data?.plan
+  plan.value = {}
+  if (rawPlan && typeof rawPlan === 'object') {
+    for (const st of ID_MODELS[normal.model].stages) plan.value[st.id] = String(rawPlan[st.id] || '')
+  }
   cards.value = normal.cards
   connections.value = normal.connections
   selectedCardId.value = null
@@ -536,14 +555,14 @@ async function importProject(e: Event) {
 async function exportDocx() {
   showMenu.value = null
   await exportStoryDocx(
-    { title: projectTitle.value, cards: cards.value, connections: connections.value, model: activeModel.value },
+    { title: projectTitle.value, cards: cards.value, connections: connections.value, model: activeModel.value, plan: plan.value },
     `${safeName(projectTitle.value)}.docx`
   )
 }
 async function exportXlsx() {
   showMenu.value = null
   await exportStoryXlsx(
-    { title: projectTitle.value, cards: cards.value, connections: connections.value, model: activeModel.value },
+    { title: projectTitle.value, cards: cards.value, connections: connections.value, model: activeModel.value, plan: plan.value },
     `${safeName(projectTitle.value)}.xlsx`
   )
 }
@@ -561,7 +580,7 @@ function exportSbf() {
   showMenu.value = null
   const project: StoryGenProject = {
     version: '5.0', title: projectTitle.value, model: model.value, updated: new Date().toISOString(),
-    cards: cards.value, connections: connections.value
+    cards: cards.value, connections: connections.value, plan: plan.value
   }
   saveAs(new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' }), `${safeName(projectTitle.value)}.sbf`)
 }
@@ -723,6 +742,7 @@ onUnmounted(() => {
             <button @click="openAiSetup">AI settings…</button>
           </div>
         </div>
+        <button v-if="isProcessModel" class="sg-tool sg-tool--wide" title="Design plan worksheet" @click="planOpen = true">Plan</button>
         <button class="sg-tool sg-tool--wide" @click="newProject">New</button>
         <label class="sg-tool sg-tool--wide sg-file-btn">Open<input type="file" accept=".sbf,.json" @change="importProject"></label>
         <div class="sg-menu-wrap">
@@ -741,6 +761,7 @@ onUnmounted(() => {
         <div v-if="showMenu === 'mobile'" class="glass-panel sg-menu">
           <button @click="goHome">Home — all storyboards</button>
           <button @click="showMenu = null; modelPicker = 'switch'">Framework: {{ activeModel.label }}</button>
+          <button v-if="isProcessModel" @click="showMenu = null; planOpen = true">Design plan…</button>
           <button @click="openAiSetup">✨ AI features: {{ aiReady ? 'On' : 'Off' }}…</button>
           <button v-if="aiReady" @click="openAiGenerate">✨ New storyboard with AI…</button>
           <button v-if="aiReady" :disabled="aiBusyField === 'mcqs'" @click="aiAddMcqs">✨ Add knowledge checks</button>
@@ -836,6 +857,14 @@ onUnmounted(() => {
     <!-- Spotlight product tour: auto-plays once on the first storyboard,
          replayable from ? (desktop) or the ⋯ menu (mobile) -->
     <ToolsStoryTourGuide v-if="tourOpen" @close="closeTour" @step="onTourStep" />
+
+    <!-- Design-plan worksheet for process frameworks (ADDIE / SAM) -->
+    <ToolsStoryPlanSheet
+      v-if="planOpen && view === 'editor'"
+      v-model:plan="plan"
+      :model-id="model"
+      @close="planOpen = false"
+    />
 
     <!-- Optional AI: setup (key + validation) and document-to-storyboard -->
     <ToolsStoryAiSetupSheet v-if="aiSetupOpen" @close="aiSetupOpen = false" />

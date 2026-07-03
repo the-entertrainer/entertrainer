@@ -32,6 +32,9 @@ const canClose = computed(() => props.switching || props.dismissible)
           @click="emit('pick', id)"
         >
           <span class="mp__name">{{ ID_MODELS[id].label }}</span>
+          <span class="mp__kind" :class="{ 'mp__kind--process': ID_MODELS[id].kind === 'process' }">
+            {{ id === 'freeform' ? 'blank canvas' : ID_MODELS[id].kind === 'process' ? 'design process + plan' : 'lesson arc' }}
+          </span>
           <span class="mp__tagline">{{ ID_MODELS[id].tagline }}</span>
           <span class="mp__stages">
             <span
@@ -103,6 +106,18 @@ const canClose = computed(() => props.switching || props.dismissible)
 .mp__card:active { transform: scale(0.98); }
 .mp__card--freeform { border-style: dashed; }
 .mp__name { font-size: 15rem; font-weight: 700; letter-spacing: -0.02em; color: var(--color-text); }
+.mp__kind {
+  align-self: flex-start;
+  font-size: 9.5rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2rem 8rem;
+  border-radius: 999px;
+  color: var(--color-text);
+  background: color-mix(in srgb, #34D399 16%, transparent);
+}
+.mp__kind--process { background: color-mix(in srgb, #A78BFA 18%, transparent); }
 .mp__tagline { font-size: 12rem; line-height: 1.45; opacity: 0.6; color: var(--color-text); min-height: 34rem; }
 .mp__stages { display: flex; align-items: center; gap: 5rem; flex-wrap: wrap; }
 .mp__stage-dot { width: 9rem; height: 9rem; border-radius: 999px; }

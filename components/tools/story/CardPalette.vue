@@ -21,7 +21,9 @@ function fmtTime(total: number) {
 
 <template>
   <div class="palette" :class="{ 'palette--sheet': sheet }">
-    <template v-if="model.stages.length">
+    <!-- Stage quick-adds exist only for learner-journey frameworks; a
+         process framework's phases are project notes, not screen types -->
+    <template v-if="model.kind === 'journey' && model.stages.length">
       <p class="palette__label">{{ model.label }}</p>
       <button
         v-for="s in model.stages" :key="s.id"

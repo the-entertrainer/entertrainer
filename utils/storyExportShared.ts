@@ -66,12 +66,33 @@ function rowOf(card: StoryCard, num: number, connections: Connection[], numberOf
   }
 }
 
+export interface PlanRow {
+  label: string
+  prompt: string
+  color: string
+  notes: string
+}
+
+// Process frameworks export their phases as a Design Plan table — the
+// designer's project worksheet — never as screen groupings.
+export function buildPlanRows(model: IdModel, plan: Record<string, string> | undefined): PlanRow[] {
+  if (model.kind !== 'process') return []
+  return model.stages.map(s => ({
+    label: s.label,
+    prompt: s.prompt,
+    color: s.color,
+    notes: String(plan?.[s.id] || '')
+  }))
+}
+
 export function buildSections(cards: StoryCard[], connections: Connection[], model: IdModel): ExportSection[] {
   const ordered = orderCards(cards, connections)
   const numberOf = new Map(ordered.map((c, i) => [c.id, i + 1]))
   const row = (c: StoryCard) => rowOf(c, numberOf.get(c.id)!, connections, numberOf)
 
-  if (!model.stages.length) {
+  // Flat table when there are no learner-facing stages: freeform, and all
+  // process frameworks (their phases belong to the plan, not the screens).
+  if (model.kind === 'process' || !model.stages.length) {
     return [{ label: null, prompt: null, color: null, rows: ordered.map(row) }]
   }
 

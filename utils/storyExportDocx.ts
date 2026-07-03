@@ -16,7 +16,7 @@ import {
 import { saveAs } from 'file-saver'
 import type { Connection, StoryCard } from '~/types/story'
 import type { IdModel } from './idModels'
-import { buildMcqRows, buildSections, hexShade, hexTint } from './storyExportShared'
+import { buildMcqRows, buildPlanRows, buildSections, hexShade, hexTint } from './storyExportShared'
 
 const HEADER_FILL = '2B2B2B'
 const COLUMNS = [
@@ -103,11 +103,43 @@ export interface DocxExportInput {
   cards: StoryCard[]
   connections: Connection[]
   model: IdModel
+  plan?: Record<string, string>
 }
 
 export async function exportStoryDocx(input: DocxExportInput, filename: string) {
   const sections = buildSections(input.cards, input.connections, input.model)
   const mcqRows = buildMcqRows(input.cards, input.connections)
+  const planRows = buildPlanRows(input.model, input.plan)
+
+  const planTable = planRows.length
+    ? new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
+            tableHeader: true,
+            children: [
+              textCell(input.model.columnLabel, { header: true, width: 16 }),
+              textCell('Guiding question', { header: true, width: 38 }),
+              textCell('Plan', { header: true, width: 46 })
+            ]
+          }),
+          ...planRows.map(row => new TableRow({
+            children: [
+              new TableCell({
+                width: { size: 16, type: WidthType.PERCENTAGE },
+                verticalAlign: VerticalAlign.TOP,
+                shading: { type: ShadingType.CLEAR, fill: hexTint(row.color) },
+                borders: CELL_BORDERS,
+                margins: { top: 110, bottom: 110, left: 120, right: 120 },
+                children: [new Paragraph({ children: [new TextRun({ text: row.label, bold: true, size: 19, color: hexShade(row.color) })] })]
+              }),
+              textCell(row.prompt, { width: 38 }),
+              textCell(row.notes, { width: 46 })
+            ]
+          }))
+        ]
+      })
+    : null
 
   const storyboardRows: TableRow[] = [headerRow()]
   for (const section of sections) {
@@ -183,7 +215,13 @@ export async function exportStoryDocx(input: DocxExportInput, filename: string) 
       children: [
         new Paragraph({ children: [new TextRun({ text: input.title || 'Untitled Storyboard', bold: true, size: 52, color: '1A1A1A' })], spacing: { after: 60 } }),
         new Paragraph({ children: [new TextRun({ text: `${modelLine} · ${new Date().toLocaleDateString()}`, size: 20, color: '8A8A8A' })], spacing: { after: 240 } }),
-        new Paragraph({ text: 'Storyboard', heading: HeadingLevel.HEADING_1, spacing: { before: 120, after: 140 } }),
+        ...(planTable
+          ? [
+              new Paragraph({ text: `${input.model.label} Design Plan`, heading: HeadingLevel.HEADING_1, spacing: { before: 120, after: 140 } }),
+              planTable
+            ]
+          : []),
+        new Paragraph({ text: 'Storyboard', heading: HeadingLevel.HEADING_1, spacing: { before: planTable ? 380 : 120, after: 140 } }),
         storyboardTable,
         new Paragraph({ text: 'MCQ', heading: HeadingLevel.HEADING_1, spacing: { before: 380, after: 140 } }),
         mcqTable

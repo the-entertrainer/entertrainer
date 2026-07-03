@@ -20,10 +20,21 @@ export interface IdStage {
   group?: string      // optional grouping band (Gagné: Before / During / After)
 }
 
+// The critical distinction most tools miss:
+// - 'journey' frameworks (Gagné, Bloom's, Merrill, Action Mapping,
+//   70-20-10) describe the LEARNER's experience — their stages are lesson
+//   sections, so screens carry stage tags and exports group by stage.
+// - 'process' frameworks (ADDIE, SAM) describe the DESIGNER's workflow —
+//   a learner never sits "inside the Develop phase". Their stages are a
+//   planning worksheet: per-phase notes about the project, kept alongside
+//   a flat screen flow and exported as a Design Plan table.
+export type ModelKind = 'journey' | 'process'
+
 export interface IdModel {
   id: ModelId
   label: string
   tagline: string
+  kind: ModelKind
   columnLabel: string // what a stage is called in this model's exports
   stages: IdStage[]
 }
@@ -35,6 +46,7 @@ export interface IdModel {
 export const ID_MODELS: Record<ModelId, IdModel> = {
   'freeform': {
     id: 'freeform',
+    kind: 'journey',
     label: 'Freeform',
     tagline: 'Blank canvas — structure it your way',
     columnLabel: 'Stage',
@@ -43,6 +55,7 @@ export const ID_MODELS: Record<ModelId, IdModel> = {
 
   'blooms': {
     id: 'blooms',
+    kind: 'journey',
     label: "Bloom's Taxonomy",
     tagline: 'Climb from recall to creation, level by level',
     columnLabel: "Bloom's Level",
@@ -64,6 +77,7 @@ export const ID_MODELS: Record<ModelId, IdModel> = {
 
   'gagne': {
     id: 'gagne',
+    kind: 'journey',
     label: "Gagné's 9 Events",
     tagline: 'The classic lesson arc — attention to transfer',
     columnLabel: 'Event',
@@ -92,8 +106,9 @@ export const ID_MODELS: Record<ModelId, IdModel> = {
 
   'addie': {
     id: 'addie',
+    kind: 'process',
     label: 'ADDIE',
-    tagline: 'Analyze → Design → Develop → Implement → Evaluate',
+    tagline: 'The design process — phase-by-phase project plan',
     columnLabel: 'Phase',
     stages: [
       { id: 'analyze', label: 'Analyze', short: 'Analyze', color: '#A78BFA', kind: 'text-image',
@@ -111,8 +126,9 @@ export const ID_MODELS: Record<ModelId, IdModel> = {
 
   'sam': {
     id: 'sam',
+    kind: 'process',
     label: 'SAM',
-    tagline: 'Small iterations: evaluate, design, develop — repeat',
+    tagline: 'Iterative design process — plan in quick cycles',
     columnLabel: 'Phase',
     stages: [
       { id: 'evaluate', label: 'Evaluate', short: 'Evaluate', color: '#FB7185', kind: 'text-image',
@@ -126,6 +142,7 @@ export const ID_MODELS: Record<ModelId, IdModel> = {
 
   'merrill': {
     id: 'merrill',
+    kind: 'journey',
     label: "Merrill's First Principles",
     tagline: 'Real problems at the center of learning',
     columnLabel: 'Principle',
@@ -145,6 +162,7 @@ export const ID_MODELS: Record<ModelId, IdModel> = {
 
   'action-mapping': {
     id: 'action-mapping',
+    kind: 'journey',
     label: 'Action Mapping',
     tagline: 'Start with the business goal, map back to behavior',
     columnLabel: 'Component',
@@ -162,6 +180,7 @@ export const ID_MODELS: Record<ModelId, IdModel> = {
 
   '70-20-10': {
     id: '70-20-10',
+    kind: 'journey',
     label: '70 · 20 · 10',
     tagline: 'Experience, exchange, education — in proportion',
     columnLabel: 'Bucket',
@@ -184,7 +203,11 @@ export function modelOf(id: string | undefined | null): IdModel {
   return ID_MODELS[(id as ModelId) || 'freeform'] ?? ID_MODELS['freeform']
 }
 
+// Resolves a stage tag for a CARD — process models never tag cards, so
+// their phases resolve to null here (they only surface via the plan).
 export function stageOf(modelId: string | undefined | null, stageId: string | undefined | null): IdStage | null {
   if (!stageId) return null
-  return modelOf(modelId).stages.find(s => s.id === stageId) ?? null
+  const model = modelOf(modelId)
+  if (model.kind === 'process') return null
+  return model.stages.find(s => s.id === stageId) ?? null
 }

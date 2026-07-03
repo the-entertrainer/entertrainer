@@ -1,7 +1,7 @@
 import { saveAs } from 'file-saver'
 import type { Connection, StoryCard } from '~/types/story'
 import type { IdModel } from './idModels'
-import { buildMcqRows, buildSections, hexShade, hexTint } from './storyExportShared'
+import { buildMcqRows, buildPlanRows, buildSections, hexShade, hexTint } from './storyExportShared'
 
 const HEADER_FILL = 'FF2B2B2B'
 const BORDER_COLOR = 'FFD8D8D8'
@@ -22,6 +22,7 @@ export interface XlsxExportInput {
   cards: StoryCard[]
   connections: Connection[]
   model: IdModel
+  plan?: Record<string, string>
 }
 
 export async function exportStoryXlsx(input: XlsxExportInput, filename: string) {
@@ -33,6 +34,35 @@ export async function exportStoryXlsx(input: XlsxExportInput, filename: string) 
 
   const thin = { style: 'thin' as const, color: { argb: BORDER_COLOR } }
   const allBorders = { top: thin, bottom: thin, left: thin, right: thin }
+
+  // ── Design Plan sheet (process frameworks only) ──────────────
+  const planRows = buildPlanRows(input.model, input.plan)
+  if (planRows.length) {
+    const wp = wb.addWorksheet('Design Plan', { views: [{ state: 'frozen', ySplit: 2 }] })
+    wp.columns = [{ width: 18 }, { width: 52 }, { width: 64 }]
+    const pTitle = wp.addRow([`${input.model.label} Design Plan`])
+    pTitle.font = { bold: true, size: 16, color: { argb: 'FF1A1A1A' } }
+    pTitle.height = 26
+    wp.mergeCells(1, 1, 1, 3)
+    const pHeader = wp.addRow([input.model.columnLabel, 'Guiding question', 'Plan'])
+    pHeader.height = 22
+    pHeader.eachCell(cell => {
+      cell.font = { bold: true, size: 10, color: { argb: 'FFFFFFFF' } }
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: HEADER_FILL } }
+      cell.alignment = { vertical: 'middle' }
+      cell.border = allBorders
+    })
+    for (const row of planRows) {
+      const r = wp.addRow([row.label, row.prompt, row.notes])
+      r.getCell(1).font = { bold: true, size: 10, color: { argb: `FF${hexShade(row.color)}` } }
+      r.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: `FF${hexTint(row.color)}` } }
+      r.eachCell(cell => {
+        cell.alignment = { vertical: 'top', wrapText: true }
+        cell.border = allBorders
+        if (!cell.font) cell.font = { size: 10, color: { argb: 'FF2B2B2B' } }
+      })
+    }
+  }
 
   // ── Storyboard sheet ─────────────────────────────────────────
   const ws = wb.addWorksheet('Storyboard', { views: [{ state: 'frozen', ySplit: 4 }] })

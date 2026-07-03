@@ -18,6 +18,7 @@ const fileNames = ref<string[]>([])
 const parseNotes = ref<string[]>([])
 const screenCount = ref(10)
 const phase = ref<'idle' | 'parsing' | 'generating'>('idle')
+const parseStatus = ref('')
 const error = ref('')
 
 const sourceChars = computed(() => fileText.value.length + pasted.value.trim().length)
@@ -27,9 +28,14 @@ async function onFiles(e: Event) {
   const files = Array.from((e.target as HTMLInputElement).files || [])
   if (!files.length) return
   phase.value = 'parsing'
+  parseStatus.value = ''
   error.value = ''
   try {
-    const parsed = await parseFiles(files)
+    // Most files parse instantly; OCR (the last-resort path for scanned
+    // PDFs) takes seconds per page, so it reports live progress here
+    // instead of leaving the sheet looking stuck.
+    const parsed = await parseFiles(files, (msg) => { parseStatus.value = msg })
+    if (import.meta.dev) console.debug('[StoryGen] parsed source preview:', parsed.text.slice(0, 800))
     fileText.value = [fileText.value, parsed.text].filter(Boolean).join('\n\n').slice(0, 60000)
     fileNames.value = [...fileNames.value, ...files.map(f => f.name)]
     parseNotes.value = parsed.notes
@@ -37,6 +43,7 @@ async function onFiles(e: Event) {
     error.value = 'Could not read those files.'
   }
   phase.value = 'idle'
+  parseStatus.value = ''
   ;(e.target as HTMLInputElement).value = ''
 }
 
@@ -80,7 +87,7 @@ async function generate() {
 
       <template v-else>
         <label class="glass-chip aig__file">
-          {{ phase === 'parsing' ? 'Parsing…' : 'Upload documents — PDF, Word (.docx), text, markdown, CSV, HTML' }}
+          {{ phase === 'parsing' ? (parseStatus || 'Parsing…') : 'Upload documents — PDF, Word (.docx), text, markdown, CSV, HTML' }}
           <input type="file" multiple :disabled="phase === 'parsing'" accept=".pdf,.docx,.txt,.md,.markdown,.csv,.json,.html,.htm,.rtf,.vtt,.srt" @change="onFiles">
         </label>
         <p v-if="fileNames.length" class="aig__filelist">

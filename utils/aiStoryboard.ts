@@ -67,7 +67,9 @@ const CRAFT_RULES = `Craft rules:
 - Honor explicit client directives in the source: stated length limits (fit total durationSeconds within them), tone, visual style, and any "use this wording verbatim" instructions (verbatim wording belongs in narration).
 - body = what the learner SEES (short on-screen text; one point per line for objectives/summary). narration = what they HEAR (natural spoken register). visual = direction for the developer (style, motion, layout). notes = production/dev reminders from the source that learners never see.
 - Learning-objective cards state observable behaviors ("Approve or reject a change via the Referral Queue"), never vague awareness ("Understand the importance of…").
-- Preserve facts exactly; never invent statistics, names, or features. Plain text only, no markdown.`
+- Grounding is absolute: every number, date, name, policy, threshold, tool name, and procedure step must come from the source, word-for-word in meaning. Never invent a statistic, example, quote, or feature the source doesn't state — including plausible-sounding filler ("studies show…", "on average…", "for example, Sarah from accounting…") the model generates to sound concrete.
+- If the source is thin on detail for a screen, write it thin and generic rather than fabricating specifics to fill space — a short honest screen beats a padded invented one.
+- Plain text only, no markdown.`
 
 export async function aiGenerateStoryboard(
   key: string,
@@ -162,7 +164,7 @@ export async function aiRewriteField(
   model: IdModel
 ): Promise<string> {
   const stage = model.stages.find(s => s.id === card.stage)
-  const system = `You are an expert instructional writer. Rewrite the given text to be clearer, tighter, and more engaging for adult learners. Keep the meaning and roughly the same length. Keep line breaks if the input is a list. Plain text only.
+  const system = `You are an expert instructional writer. Rewrite the given text to be clearer, tighter, and more engaging for adult learners. Keep the meaning and roughly the same length. Keep line breaks if the input is a list. Plain text only. Never add a fact, number, example, or claim that isn't already in the original text — tightening the wording is not license to invent supporting detail.
 Return ONLY JSON: {"text":"the rewritten text"}`
   const user = `Screen: "${card.title}" (${CARD_KINDS[card.kind]?.label})${stage ? `\nStage guidance: ${stage.prompt}` : ''}\nField: ${fieldLabel}\nText to rewrite:\n${text}`
   const parsed = extractJson(await groqChat(key, system, user, { maxTokens: 1200, temperature: 0.55 }))

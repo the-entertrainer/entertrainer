@@ -8,7 +8,10 @@ const contentStore = useContentStore()
 const slug         = route.params.slug as string
 
 const item = computed(() =>
-  contentStore.myWorkNav.find((n) => n.id === slug)
+  contentStore.myWorkNav.find((n) => {
+    const hrefSlug = n.href?.replace(/^\/my-work\//, '')
+    return n.id === slug || hrefSlug === slug
+  })
 )
 
 if (!item.value) throw createError({ statusCode: 404 })
@@ -16,8 +19,6 @@ if (!item.value) throw createError({ statusCode: 404 })
 
 <template>
   <UiToolShell v-if="item" eyebrow="My Work" :title="item.label" :deck="item.description">
-    <div class="glass-panel">
-      <p class="stub-text">Content coming soon — this section is being crafted.</p>
-    </div>
+    <UiConstructionZone />
   </UiToolShell>
 </template>

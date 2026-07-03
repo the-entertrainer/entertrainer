@@ -499,16 +499,6 @@ canvas {
 }
 .glass-note--error { border-color: color-mix(in srgb, #ff7a7a 50%, var(--color-glass-border)); }
 
-/* Stub / "coming soon" copy inside a glass panel */
-.stub-text {
-  font-size: var(--text-body);
-  line-height: 1.6;
-  color: var(--color-text);
-  opacity: 0.55;
-  font-style: italic;
-  margin: 0;
-}
-
 /* ── Reduced motion + mobile tuning ── */
 @media (prefers-reduced-motion: reduce) {
   .glass-panel { animation: none; }

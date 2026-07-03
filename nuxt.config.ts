@@ -65,6 +65,13 @@ export default defineNuxtConfig({
       ]
     },
     workbox: {
+      // A new deploy's service worker must take over immediately — without
+      // this, an open tab (or an installed PWA) can keep serving every JS
+      // chunk from the PREVIOUS deploy indefinitely, since the browser only
+      // swaps controllers once all old-SW-controlled tabs close naturally.
+      skipWaiting: true,
+      clientsClaim: true,
+      cleanupOutdatedCaches: true,
       globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
       navigateFallback: '/',
       navigateFallbackDenylist: [/^\/api\//],

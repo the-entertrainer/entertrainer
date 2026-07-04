@@ -157,6 +157,65 @@ let groundScrollX = 0
 let lastMilestone = 0
 const MILESTONE_STEP = 500
 
+// ── Infinite parallax — a dim mid-ground layer of flat hill silhouettes
+// (scrolls slower than the foreground, giving depth) plus a slow-drifting
+// star field further back still. Hills are spawned with a randomized gap
+// whenever the rightmost one scrolls far enough to clear the right edge,
+// so the skyline never visibly repeats or runs out. ─────────────────────
+interface Hill { x: number; w: number; h: number }
+let hills: Hill[] = []
+function seedHills() {
+  hills = []
+  let x = -20 * scale
+  while (x < W + 40 * scale) {
+    const w = (36 + Math.random() * 64) * scale
+    const h = (8 + Math.random() * 20) * scale
+    hills.push({ x, w, h })
+    x += w + (14 + Math.random() * 50) * scale
+  }
+}
+function updateParallax(dt: number) {
+  const hillSpeed = speed * 0.4
+  for (const h of hills) h.x -= hillSpeed * dt
+  hills = hills.filter(h => h.x + h.w > -10 * scale)
+  const last = hills[hills.length - 1]
+  const rightEdge = last ? last.x + last.w : 0
+  if (rightEdge < W + 20 * scale) {
+    const w = (36 + Math.random() * 64) * scale
+    const h = (8 + Math.random() * 20) * scale
+    const gap = (14 + Math.random() * 50) * scale
+    hills.push({ x: Math.max(rightEdge + gap, W), w, h })
+  }
+  starScrollX = (starScrollX + speed * 0.15 * dt) % Math.max(1, W)
+}
+interface StarDef { xFrac: number; yFrac: number; size: number; alpha: number }
+const STAR_DEFS: StarDef[] = Array.from({ length: 20 }, () => ({
+  xFrac: Math.random(),
+  yFrac: Math.random() * 0.55,
+  size: 1 + Math.floor(Math.random() * 2),
+  alpha: 0.15 + Math.random() * 0.35
+}))
+let starScrollX = 0
+function drawStars() {
+  if (!ctx) return
+  for (let rep = -1; rep <= 1; rep++) {
+    const baseX = rep * W - starScrollX
+    for (const s of STAR_DEFS) {
+      const x = baseX + s.xFrac * W
+      if (x < -4 || x > W + 4) continue
+      const y = s.yFrac * GROUND_Y
+      const size = Math.max(1, s.size * scale * 0.6)
+      ctx.fillStyle = `rgba(150,220,120,${s.alpha})`
+      ctx.fillRect(x, y, size, size)
+    }
+  }
+}
+function drawHills() {
+  if (!ctx) return
+  ctx.fillStyle = 'rgba(150,220,120,0.13)'
+  for (const h of hills) ctx.fillRect(h.x, GROUND_Y - h.h, h.w, h.h)
+}
+
 // ── Progressive background flair — meteors, then (further into a run) a
 // UFO — purely decorative, never collidable, and gradually more frequent
 // as the score climbs so a long run keeps feeling more alive rather than
@@ -259,6 +318,8 @@ function resetGame() {
   skyObjects = []
   skySpawnTimer = 0
   lastMilestone = 0
+  seedHills()
+  starScrollX = 0
 }
 
 function loadHighScore() {
@@ -333,8 +394,10 @@ function spawnObstacle() {
   ].map(p => ({ w: p.w * scale, h: p.h * scale }))
   const p = presets[Math.floor(Math.random() * presets.length)]
   obstacles.push({ x: W + 4, w: p.w, h: p.h })
-  // Occasionally pair a second obstacle close behind once the pace has picked up.
-  if (speed > 200 * scale && Math.random() < 0.22) {
+  // Occasionally pair a second obstacle close behind once the pace has picked
+  // up — kept rare and late so the game ramps up without tipping into
+  // "unfair," per the explicit ask to keep this playable, not brutal.
+  if (speed > 230 * scale && Math.random() < 0.16) {
     obstacles.push({ x: W + 4 + p.w + 14 * scale, w: presets[0].w, h: presets[0].h })
   }
 }
@@ -342,7 +405,9 @@ function spawnObstacle() {
 function update(dt: number) {
   elapsed += dt
   score.value += dt * 10
-  speed = Math.min(340 * scale, 140 * scale + elapsed * 6 * scale)
+  // Capped well short of "unfair" — a ~2.1x speed range (rather than the
+  // ~2.4x this used to ramp to) keeps a long run readable instead of a blur.
+  speed = Math.min(300 * scale, 140 * scale + elapsed * 6 * scale)
 
   const milestone = Math.floor(score.value / MILESTONE_STEP)
   if (milestone > lastMilestone) {
@@ -350,6 +415,7 @@ function update(dt: number) {
     playMilestoneSound()
   }
   updateSky(dt)
+  updateParallax(dt)
 
   // player physics
   player.vy += GRAVITY * dt
@@ -428,19 +494,24 @@ function draw(t = 0) {
   ctx.fillStyle = '#0A1408'
   ctx.fillRect(0, 0, W, H)
 
-  // background flair — behind everything else, purely decorative
+  // parallax, back to front: distant stars, then sky flair, then hills
+  drawStars()
   for (const s of skyObjects) {
     if (s.kind === 'meteor') drawMeteor(s)
     else drawUfo(s, t)
   }
+  drawHills()
 
-  // ground
+  // ground — a soft glow on the line only, kept subtle to stay "minimalist"
+  ctx.shadowColor = 'rgba(150,220,120,0.5)'
+  ctx.shadowBlur = 3 * scale
   ctx.strokeStyle = 'rgba(150,220,120,0.35)'
   ctx.lineWidth = Math.max(1, scale)
   ctx.beginPath()
   ctx.moveTo(0, GROUND_Y + 0.5)
   ctx.lineTo(W, GROUND_Y + 0.5)
   ctx.stroke()
+  ctx.shadowBlur = 0
   ctx.fillStyle = 'rgba(150,220,120,0.22)'
   const dashW = Math.max(2, 3 * scale)
   for (let x = -groundScrollX; x < W; x += 8 * scale) ctx.fillRect(x, GROUND_Y + 3 * scale, dashW, Math.max(1, scale))
@@ -449,6 +520,8 @@ function draw(t = 0) {
   const legW = Math.max(2, 3 * scale)
   const legH = Math.max(3, 4 * scale)
   const bob = player.grounded && Math.floor(player.runFrame * 10) % 2 === 0 ? 0 : 1
+  ctx.shadowColor = 'rgba(214,255,190,0.85)'
+  ctx.shadowBlur = 5 * scale
   ctx.fillStyle = 'rgb(150,220,120)'
   ctx.fillRect(player.x, player.y, player.w, player.h - legH)
   ctx.fillStyle = 'rgb(214,255,190)'
@@ -461,8 +534,11 @@ function draw(t = 0) {
     ctx.fillRect(player.x + 1 * scale, player.y + player.h - legH, legW, Math.max(2, 3 * scale))
     ctx.fillRect(player.x + 5 * scale, player.y + player.h - legH, legW, Math.max(2, 3 * scale))
   }
+  ctx.shadowBlur = 0
 
   // obstacles ("bugs")
+  ctx.shadowColor = 'rgba(150,220,120,0.7)'
+  ctx.shadowBlur = 4 * scale
   ctx.fillStyle = 'rgb(150,220,120)'
   for (const o of obstacles) {
     const oy = GROUND_Y - o.h
@@ -473,6 +549,7 @@ function draw(t = 0) {
     ctx.fillRect(o.x + o.w - eye - 1 * scale, oy + 2 * scale, eye, eye)
     ctx.fillStyle = 'rgb(150,220,120)'
   }
+  ctx.shadowBlur = 0
 }
 
 function frame(t: number) {
@@ -522,7 +599,13 @@ function onVisibility() {
 onMounted(() => {
   loadHighScore()
   loadSoundPref()
-  isCoarsePointer.value = window.matchMedia?.('(pointer: coarse)').matches ?? false
+  // Pointer-type media queries occasionally misreport (some mobile browsers
+  // in certain webviews), so a narrow-viewport fallback catches phones that
+  // `(pointer: coarse)` alone would miss — tapping the frame should reliably
+  // fullscreen on a phone either way.
+  isCoarsePointer.value =
+    (window.matchMedia?.('(pointer: coarse)').matches ?? false) ||
+    (window.matchMedia?.('(max-width: 640px)').matches ?? false)
   const canvas = canvasRef.value
   if (!canvas) return
   ctx = canvas.getContext('2d')
@@ -573,13 +656,19 @@ onUnmounted(() => {
               @pointerdown.stop
               @click.stop="toggleSound"
             >
-              <svg v-if="soundOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 9v6h4l5 4V5L8 9H4Z" />
-                <path d="M16.5 8.5a5 5 0 0 1 0 7" />
-              </svg>
-              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 9v6h4l5 4V5L8 9H4Z" />
-                <path d="M16 9l5 6M21 9l-5 6" />
+              <!-- Same 4-rect "cone" every state; unmuted adds two wave bars,
+                   muted adds a single cross-out bar — flat rects only, no
+                   curves, to match the game's own pixel-art rendering. -->
+              <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+                <rect x="3" y="9" width="3" height="6" fill="currentColor" />
+                <rect x="6" y="6" width="3" height="3" fill="currentColor" />
+                <rect x="6" y="15" width="3" height="3" fill="currentColor" />
+                <rect x="9" y="3" width="3" height="18" fill="currentColor" />
+                <template v-if="soundOn">
+                  <rect x="15" y="9" width="3" height="6" fill="currentColor" />
+                  <rect x="19" y="6" width="3" height="12" fill="currentColor" />
+                </template>
+                <rect v-else x="2" y="11" width="20" height="3" fill="currentColor" transform="rotate(-35 12 12)" />
               </svg>
             </button>
             <button
@@ -589,11 +678,24 @@ onUnmounted(() => {
               @pointerdown.stop
               @click.stop="toggleImmersive"
             >
-              <svg v-if="!immersive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3" />
+              <!-- Not fullscreen: four corner brackets spread to the edges
+                   ("stretch out to fill the screen"). Fullscreen: one small
+                   solid block at the centre ("shrink back down") — the
+                   previous version used matching outward-pointing arrows for
+                   BOTH states, which read as "expand" even while already
+                   fullscreen. -->
+              <svg v-if="!immersive" viewBox="0 0 24 24" shape-rendering="crispEdges">
+                <rect x="3" y="3" width="6" height="3" fill="currentColor" />
+                <rect x="3" y="3" width="3" height="6" fill="currentColor" />
+                <rect x="15" y="3" width="6" height="3" fill="currentColor" />
+                <rect x="18" y="3" width="3" height="6" fill="currentColor" />
+                <rect x="3" y="18" width="6" height="3" fill="currentColor" />
+                <rect x="3" y="15" width="3" height="6" fill="currentColor" />
+                <rect x="15" y="18" width="6" height="3" fill="currentColor" />
+                <rect x="18" y="15" width="3" height="6" fill="currentColor" />
               </svg>
-              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 4l6 6M4 10V4h6M20 4l-6 6M20 10V4h-6M4 20l6-6M4 14v6h6M20 20l-6-6M20 14v6h-6" />
+              <svg v-else viewBox="0 0 24 24" shape-rendering="crispEdges">
+                <rect x="8" y="8" width="8" height="8" fill="currentColor" />
               </svg>
             </button>
           </div>
@@ -616,6 +718,13 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+@font-face {
+  font-family: 'DeadlineDashPixel';
+  src: url('/fonts/VT323.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 .cgame { width: 100%; }
 .cgame__bezel {
   position: relative;
@@ -692,14 +801,14 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: ui-monospace, 'SF Mono', 'Courier New', monospace;
-  font-size: 10rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-family: 'DeadlineDashPixel', ui-monospace, 'SF Mono', 'Courier New', monospace;
+  font-size: 15rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
   pointer-events: none;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  text-shadow: 0 0 6rem rgba(150,220,120,0.5), 0 1px 2px rgba(0,0,0,0.6);
 }
-.cgame--immersive .cgame__hud { top: 14rem; left: 16rem; right: 92rem; font-size: 13rem; }
+.cgame--immersive .cgame__hud { top: 14rem; left: 16rem; right: 92rem; font-size: 19rem; }
 .cgame__hi { color: rgba(150,220,120,0.55); }
 .cgame__score { color: rgba(214,255,190,0.95); }
 
@@ -753,24 +862,25 @@ onUnmounted(() => {
   padding: 8rem 16rem;
   background: rgba(7, 15, 6, 0.6);
   cursor: pointer;
+  font-family: 'DeadlineDashPixel', ui-monospace, 'SF Mono', 'Courier New', monospace;
 }
-.cgame__title { font-size: 15rem; font-weight: 800; color: rgb(214,255,190); letter-spacing: -0.02em; }
-.cgame__hint { font-size: 11rem; color: rgba(150,220,120,0.75); }
-.cgame__over { font-size: 15rem; font-weight: 800; color: rgb(214,255,190); letter-spacing: -0.02em; }
-.cgame__epitaph { font-size: 11.5rem; color: rgba(150,220,120,0.8); font-style: italic; }
-.cgame__score { font-size: 12rem; font-weight: 700; color: rgb(214,255,190); }
+.cgame__title { font-size: 20rem; font-weight: 400; color: rgb(214,255,190); letter-spacing: 0.02em; text-shadow: 0 0 10rem rgba(150,220,120,0.55); }
+.cgame__hint { font-size: 15rem; color: rgba(150,220,120,0.75); }
+.cgame__over { font-size: 20rem; font-weight: 400; color: rgb(214,255,190); letter-spacing: 0.02em; text-shadow: 0 0 10rem rgba(150,220,120,0.55); }
+.cgame__epitaph { font-size: 15rem; color: rgba(150,220,120,0.8); font-style: italic; }
+.cgame__score { font-size: 16rem; font-weight: 400; color: rgb(214,255,190); }
 .cgame__cta {
   margin-top: 4rem;
-  font-size: 10rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-size: 14rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: rgb(214,255,190);
 }
-.cgame--immersive .cgame__title { font-size: 22rem; }
-.cgame--immersive .cgame__hint { font-size: 14rem; }
-.cgame--immersive .cgame__over { font-size: 22rem; }
-.cgame--immersive .cgame__epitaph { font-size: 15rem; }
-.cgame--immersive .cgame__score { font-size: 15rem; }
-.cgame--immersive .cgame__cta { font-size: 12rem; margin-top: 8rem; }
+.cgame--immersive .cgame__title { font-size: 28rem; }
+.cgame--immersive .cgame__hint { font-size: 18rem; }
+.cgame--immersive .cgame__over { font-size: 28rem; }
+.cgame--immersive .cgame__epitaph { font-size: 19rem; }
+.cgame--immersive .cgame__score { font-size: 19rem; }
+.cgame--immersive .cgame__cta { font-size: 16rem; margin-top: 8rem; }
 </style>

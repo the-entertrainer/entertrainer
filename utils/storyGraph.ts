@@ -7,6 +7,7 @@ import type { Connection, StoryCard } from '~/types/story'
 export function orderCards(cards: StoryCard[], connections: Connection[]): StoryCard[] {
   const byId = new Map(cards.map(c => [c.id, c]))
   const outgoing = new Map<string, string[]>()
+  const indegree = new Map<string, number>()
   // Branches walk in option order (main port first, then A, B, C, D) so
   // numbering follows the "answer A" path before later branches.
   const sorted = [...connections].sort((a, b) => (a.fromPort || '').localeCompare(b.fromPort || ''))
@@ -14,15 +15,25 @@ export function orderCards(cards: StoryCard[], connections: Connection[]): Story
     if (!byId.has(c.from) || !byId.has(c.to)) continue
     if (!outgoing.has(c.from)) outgoing.set(c.from, [])
     outgoing.get(c.from)!.push(c.to)
+    indegree.set(c.to, (indegree.get(c.to) || 0) + 1)
   }
   const hasIncoming = new Set(connections.map(c => c.to))
   const roots = cards.filter(c => !hasIncoming.has(c.id)).sort((a, b) => a.x - b.x || a.y - b.y)
 
   const visited = new Set<string>()
+  // A card fed by more than one branch (two MCQ answers rejoining the same
+  // next screen, say) must wait for every branch to arrive before it's
+  // placed — otherwise whichever branch reaches it first drags it (and
+  // everything after it) forward, ahead of the other branch entirely.
+  const arrivals = new Map<string, number>()
   const ordered: StoryCard[] = []
 
   function visit(id: string) {
     if (visited.has(id)) return
+    const need = indegree.get(id) || 0
+    const seen = (arrivals.get(id) || 0) + 1
+    arrivals.set(id, seen)
+    if (seen < need) return // other branches into this card haven't walked yet
     const card = byId.get(id)
     if (!card) return
     visited.add(id)

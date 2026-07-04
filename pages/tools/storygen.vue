@@ -4,7 +4,7 @@ import type { CardKind, Connection, StoryCard, StoryGenProject } from '~/types/s
 import { createCard, CARD_KINDS } from '~/utils/storyCards'
 import type { ModelId } from '~/utils/idModels'
 import { ID_MODELS, modelOf } from '~/utils/idModels'
-import { cardNumbers, lastInSequence, sanitizeConnections } from '~/utils/storyGraph'
+import { cardNumbers, lastInSequence, orderCards, sanitizeConnections } from '~/utils/storyGraph'
 import { laneLayout, nextAutoPosition, tidyPositions } from '~/utils/storyLayout'
 import { exportStoryDocx } from '~/utils/storyExportDocx'
 import { exportStoryXlsx } from '~/utils/storyExportXlsx'
@@ -128,17 +128,36 @@ async function aiAddMcqs() {
   aiBusyField.value = 'mcqs'
   showToast('Analyzing your content for knowledge checks…')
   try {
-    const generated = await aiGenerateMcqCards(aiSettings.value.key, cards.value, connections.value, activeModel.value, 3)
-    for (const card of generated) {
-      const prevLast = lastInSequence(cards.value, connections.value)
+    const anchored = await aiGenerateMcqCards(aiSettings.value.key, cards.value, connections.value, activeModel.value, 3)
+
+    // Insert each check right after the specific screen the AI grounded it
+    // in (never before the opening title or after a closing summary/thank
+    // you) rather than chaining everything onto the literal end — otherwise
+    // a freshly-added knowledge check lands after "Thanks for watching",
+    // which reads backwards, and every check ends up clustered at the end
+    // regardless of which screen it's actually testing.
+    const contentCards = orderCards(cards.value, connections.value).filter(c => c.kind !== 'mcq')
+    const tailOf = new Map<string, string>() // anchor card id -> current last card chained after it so far
+    for (const { card, afterScreen } of anchored) {
+      const anchor = contentCards[Math.min(contentCards.length, Math.max(1, afterScreen)) - 1]
+      if (!anchor) continue
+      const fromId = tailOf.get(anchor.id) ?? anchor.id
+      const fromCard = cards.value.find(c => c.id === fromId)
+      const fromPort = fromCard?.kind === 'mcq' ? 'opt-0' : undefined
+
       const pos = nextAutoPosition(cards.value, connections.value)
       card.x = pos.x
       card.y = pos.y
       cards.value.push(card)
-      if (prevLast) connections.value.push({ id: id('k'), from: prevLast.id, to: card.id })
+
+      const bridgeIdx = connections.value.findIndex(c => c.from === fromId && (fromPort ? c.fromPort === fromPort : !c.fromPort))
+      const bridged = bridgeIdx !== -1 ? connections.value.splice(bridgeIdx, 1)[0] : null
+      connections.value.push({ id: id('k'), from: fromId, to: card.id, ...(fromPort ? { fromPort } : {}) })
+      if (bridged) connections.value.push({ id: id('k'), from: card.id, to: bridged.to, fromPort: 'opt-0' })
+      tailOf.set(anchor.id, card.id)
     }
     nextTick(() => canvasRef.value?.fitView())
-    showToast(`Added ${generated.length} knowledge checks from your content.`)
+    showToast(`Added ${anchored.length} knowledge checks from your content.`)
   } catch (e: any) {
     showToast(e?.message || 'Could not generate knowledge checks.')
   } finally {
@@ -481,7 +500,11 @@ function normalizeProject(data: any): { title: string; model: ModelId; cards: St
       const base = blank(kind, Number(c.x ?? 60 + i * 300), Number(c.y ?? 160))
       const options = Array.isArray(c.options) ? c.options.slice(0, 4).map(String) : base.options
       while (options.length < 4) options.push('')
-      return { ...base, ...c, kind, options, stage: typeof c.stage === 'string' ? c.stage : '', id: String(c.id || base.id) }
+      // Foreign/hand-edited imports can carry an out-of-range correctIndex —
+      // clamp it the same way AI-generated cards already are, otherwise the
+      // exported MCQ table silently marks no option as correct at all.
+      const correctIndex = Math.max(0, Math.min(3, Number(c.correctIndex ?? base.correctIndex) || 0))
+      return { ...base, ...c, kind, options, correctIndex, stage: typeof c.stage === 'string' ? c.stage : '', id: String(c.id || base.id) }
     })
     if (ID_MODELS[modelId].kind === 'process') for (const c of sane) c.stage = ''
     const conns = (Array.isArray(data.connections) ? data.connections : [])

@@ -11,8 +11,17 @@ import { laneLayout, tidyPositions } from './storyLayout'
 // came back onto our real data model — invalid kinds, stages, options, or
 // durations are corrected, never trusted.
 
-function conn(from: string, to: string): Connection {
-  return { id: `k${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`, from, to }
+function conn(from: string, to: string, fromPort?: string): Connection {
+  return { id: `k${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`, from, to, ...(fromPort ? { fromPort } : {}) }
+}
+
+// mcq cards only ever expose their 4 lettered answer ports (opt-0..opt-3) —
+// there's no plain/main output port for that kind (see NodeCanvas.vue) — so
+// a chain link leaving an mcq card must be routed through a real port,
+// otherwise it's an invisible edge the canvas can't draw and the export
+// "Branching:" summary can't recognize.
+function chainConn(from: StoryCard, to: StoryCard): Connection {
+  return conn(from.id, to.id, from.kind === 'mcq' ? 'opt-0' : undefined)
 }
 
 function clampDuration(v: any, narration: string): number {
@@ -69,25 +78,29 @@ const CRAFT_RULES = `Craft rules:
 - If the source is thin on detail for a screen, write it thin and generic rather than fabricating specifics to fill space — a short honest screen beats a padded invented one.
 - Plain text only, no markdown.`
 
-// Distributes MCQ cards evenly through the content chain — each one placed
-// AFTER the content card it lands on (a check tests what the learner just
-// saw, never what they're about to see), and never before the opening
-// title or after the closing summary/thankyou. Insertions run back-to-front
-// so each computed index stays valid against the original (pre-insertion)
-// array, since earlier, smaller indices are untouched by later splices.
-function spliceInMcqs(cards: StoryCard[], mcqs: StoryCard[]): StoryCard[] {
+// The valid "grounded in screen #N" band for a set of ordered content cards:
+// 1-based, excludes a leading title (teaches nothing to test) and a trailing
+// summary/thankyou (recaps or closes out — never introduces anything new).
+export function contentAnchorBounds(cards: StoryCard[]): { min: number; max: number } {
+  const min = cards[0]?.kind === 'title' ? 2 : 1
+  let max = cards.length
+  if (cards[max - 1]?.kind === 'thankyou') max--
+  if (cards[max - 1]?.kind === 'summary') max--
+  return { min, max: Math.max(min, max) }
+}
+
+// Places each MCQ right after the specific screen it's actually grounded in
+// (per its own afterScreen anchor from aiGenerateMcqCards) — never before
+// the opening title or after the closing summary/thankyou. Insertions run
+// back-to-front so each computed index stays valid against the original
+// (pre-insertion) array, since earlier, smaller indices are untouched by
+// later splices.
+function spliceInMcqs(cards: StoryCard[], mcqs: AnchoredMcq[]): StoryCard[] {
   if (!mcqs.length) return cards
-  const start = cards[0]?.kind === 'title' ? 1 : 0
-  let end = cards.length
-  if (cards[end - 1]?.kind === 'thankyou') end--
-  if (cards[end - 1]?.kind === 'summary') end--
-  const span = Math.max(1, end - start)
+  const { min, max } = contentAnchorBounds(cards)
   const result = [...cards]
-  const insertAt = mcqs.map((_, i) => {
-    const targetContentIdx = start + Math.floor((span * (i + 1)) / (mcqs.length + 1))
-    return Math.min(end, Math.max(start, targetContentIdx) + 1)
-  })
-  for (let i = mcqs.length - 1; i >= 0; i--) result.splice(insertAt[i], 0, mcqs[i])
+  const insertAt = mcqs.map(m => Math.min(max, Math.max(min, m.afterScreen)))
+  for (let i = mcqs.length - 1; i >= 0; i--) result.splice(insertAt[i], 0, mcqs[i].card)
   return result
 }
 
@@ -165,7 +178,7 @@ ${CRAFT_RULES}`
   // just produced (aiGenerateMcqCards can't see the raw source at all), then
   // distributed through the chain rather than clustered at the end.
   let seqConnections: Connection[] = []
-  for (let i = 1; i < cards.length; i++) seqConnections.push(conn(cards[i - 1].id, cards[i].id))
+  for (let i = 1; i < cards.length; i++) seqConnections.push(chainConn(cards[i - 1], cards[i]))
   try {
     const mcqs = await aiGenerateMcqCards(key, cards, seqConnections, model, mcqCount)
     cards = spliceInMcqs(cards, mcqs)
@@ -190,7 +203,7 @@ ${CRAFT_RULES}`
   if (isProcess) for (const card of cards) card.stage = ''
 
   const connections: Connection[] = []
-  for (let i = 1; i < cards.length; i++) connections.push(conn(cards[i - 1].id, cards[i].id))
+  for (let i = 1; i < cards.length; i++) connections.push(chainConn(cards[i - 1], cards[i]))
   if (!isProcess && model.stages.length) laneLayout(cards, connections, model)
   else tidyPositions(cards, connections)
 
@@ -244,13 +257,21 @@ Return ONLY JSON: {"options":["A","B","C","D"],"correctIndex":0,"feedback":"one 
   }
 }
 
+export interface AnchoredMcq {
+  card: StoryCard
+  // 1-based index into the numbered digest below — which screen this
+  // question is actually grounded in, so callers can place it right after
+  // that screen instead of guessing from position alone.
+  afterScreen: number
+}
+
 export async function aiGenerateMcqCards(
   key: string,
   cards: StoryCard[],
   connections: Connection[],
   model: IdModel,
   count: number
-): Promise<StoryCard[]> {
+): Promise<AnchoredMcq[]> {
   const contentCards = orderCards(cards, connections).filter(c => c.kind !== 'mcq')
   if (!contentCards.length) throw new Error('Add some content screens first.')
   const digest = contentCards.slice(0, 30).map((c, i) =>
@@ -260,11 +281,24 @@ export async function aiGenerateMcqCards(
   const stageIds = useStages ? model.stages.map(s => `"${s.id}"`).join(', ') : '""'
 
   const system = `You write multiple-choice knowledge checks that test understanding of given storyboard content (never trivia beyond it).
-Return ONLY JSON: {"mcqs":[{"stage":${useStages ? `"one of ${stageIds}"` : '""'},"title":"short check title","question":"...","options":["A","B","C","D"],"correctIndex":0,"feedback":"one sentence"}]}
+Return ONLY JSON: {"mcqs":[{"afterScreen":1,"stage":${useStages ? `"one of ${stageIds}"` : '""'},"title":"short check title","question":"...","options":["A","B","C","D"],"correctIndex":0,"feedback":"one sentence"}]}
 Create exactly ${count} questions, each grounded in a different part of the content, 4 options each, one correct.
+"afterScreen" is the numbered screen (from the list below) this exact question is grounded in — the check will be placed right after that screen, so pick precisely, never a screen that doesn't actually cover this question's answer.
 ${MCQ_RULES}`
   const parsed = extractJson(await groqChat(key, system, `Storyboard content:\n${digest}`, { maxTokens: 2600, temperature: 0.6 }))
   const raw = Array.isArray(parsed?.mcqs) ? parsed.mcqs : []
   if (!raw.length) throw new Error('The AI returned no questions — try again.')
-  return raw.slice(0, count).map((m: any) => sanitizeCard({ ...m, kind: 'mcq' }, model))
+  const picked = raw.slice(0, count)
+  const { min, max } = contentAnchorBounds(contentCards)
+  return picked.map((m: any, i: number) => {
+    // Distrust the model's own index the same way every other field here is
+    // distrusted: fall back to an even spread through the content if it's
+    // missing or out of range (including the title/summary/thankyou screens,
+    // which never actually teach anything a question could be grounded in).
+    const n = Number(m?.afterScreen)
+    const afterScreen = Number.isFinite(n) && n >= min && n <= max
+      ? Math.round(n)
+      : Math.min(max, Math.max(min, Math.round((max * (i + 1)) / (picked.length + 1))))
+    return { card: sanitizeCard({ ...m, kind: 'mcq' }, model), afterScreen }
+  })
 }

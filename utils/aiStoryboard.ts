@@ -11,8 +11,6 @@ import { laneLayout, tidyPositions } from './storyLayout'
 // came back onto our real data model — invalid kinds, stages, options, or
 // durations are corrected, never trusted.
 
-const KIND_LIST = Object.keys(CARD_KINDS).join(' | ')
-
 function conn(from: string, to: string): Connection {
   return { id: `k${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`, from, to }
 }
@@ -71,6 +69,28 @@ const CRAFT_RULES = `Craft rules:
 - If the source is thin on detail for a screen, write it thin and generic rather than fabricating specifics to fill space — a short honest screen beats a padded invented one.
 - Plain text only, no markdown.`
 
+// Distributes MCQ cards evenly through the content chain — each one placed
+// AFTER the content card it lands on (a check tests what the learner just
+// saw, never what they're about to see), and never before the opening
+// title or after the closing summary/thankyou. Insertions run back-to-front
+// so each computed index stays valid against the original (pre-insertion)
+// array, since earlier, smaller indices are untouched by later splices.
+function spliceInMcqs(cards: StoryCard[], mcqs: StoryCard[]): StoryCard[] {
+  if (!mcqs.length) return cards
+  const start = cards[0]?.kind === 'title' ? 1 : 0
+  let end = cards.length
+  if (cards[end - 1]?.kind === 'thankyou') end--
+  if (cards[end - 1]?.kind === 'summary') end--
+  const span = Math.max(1, end - start)
+  const result = [...cards]
+  const insertAt = mcqs.map((_, i) => {
+    const targetContentIdx = start + Math.floor((span * (i + 1)) / (mcqs.length + 1))
+    return Math.min(end, Math.max(start, targetContentIdx) + 1)
+  })
+  for (let i = mcqs.length - 1; i >= 0; i--) result.splice(insertAt[i], 0, mcqs[i])
+  return result
+}
+
 export async function aiGenerateStoryboard(
   key: string,
   source: string,
@@ -78,6 +98,19 @@ export async function aiGenerateStoryboard(
   screenHint: number
 ): Promise<GeneratedStoryboard> {
   const isProcess = model.kind === 'process'
+  const CONTENT_KIND_LIST = Object.keys(CARD_KINDS).filter(k => k !== 'mcq').join(' | ')
+
+  // Knowledge checks are generated in a SEPARATE pass, below, from a digest
+  // of the actual screens this call produces — never from the raw source.
+  // A single one-shot call that writes both content and MCQs together can
+  // (and does) quiz a topic the source covers at length but that didn't
+  // make the cut into an actual screen this time — a real, reported failure
+  // ("what is the purpose of the Call Section?" with no Call Section screen
+  // anywhere in the deck). Grounding the MCQ pass in the produced screens
+  // instead of the source makes that class of mismatch structurally
+  // impossible, not just discouraged by instruction.
+  const mcqCount = Math.max(1, Math.min(3, Math.round(screenHint / 6)))
+  const contentTarget = Math.max(3, screenHint - mcqCount)
 
   let system: string
   if (isProcess) {
@@ -87,14 +120,12 @@ export async function aiGenerateStoryboard(
     const phaseList = model.stages.map(s => `"${s.id}" — ${s.label}: ${s.prompt}`).join('\n')
     system = `You are StoryGen's structuring engine. Convert raw source material into (1) a learner-facing storyboard and (2) a ${model.label} design plan. ${model.label} is a DESIGN PROCESS: its phases describe the project work, so they go in the plan — screens are never labeled with phases.
 Return ONLY valid JSON, exactly this shape:
-{"title":"short course title","plan":{${model.stages.map(s => `"${s.id}":"2-4 sentence notes"`).join(',')}},"cards":[{"kind":"...","title":"screen title","body":"on-screen text","visual":"visual & media direction","narration":"spoken audio script","notes":"production notes, may be empty","durationSeconds":45,"question":"","options":["","","",""],"correctIndex":0,"feedback":""}]}
+{"title":"short course title","plan":{${model.stages.map(s => `"${s.id}":"2-4 sentence notes"`).join(',')}},"cards":[{"kind":"...","title":"screen title","body":"on-screen text","visual":"visual & media direction","narration":"spoken audio script","notes":"production notes, may be empty","durationSeconds":45}]}
 Plan phases (write practical notes for each, grounded in the source):
 ${phaseList}
 Hard rules:
-- "kind" must be one of: ${KIND_LIST}.
-- Create ${Math.max(4, screenHint - 2)}-${screenHint + 2} cards in the order the learner experiences them: a "title" card first, then objectives/content, any "mcq" checks right after the content they test, a "summary" near the end, "thankyou" last if used.
-- Include at least one "mcq" card with a real question, 4 plausible options, correctIndex, and feedback.
-${MCQ_RULES}
+- "kind" must be one of: ${CONTENT_KIND_LIST}. Never "mcq" — knowledge checks are handled separately, do not include any.
+- Create ${Math.max(3, contentTarget - 2)}-${contentTarget + 2} cards in the order the learner experiences them: a "title" card first, then objectives/content, a "summary" near the end, "thankyou" last if used.
 ${CRAFT_RULES}`
   } else {
     const stageList = model.stages.length
@@ -102,23 +133,24 @@ ${CRAFT_RULES}`
       : '(freeform project — always use "" for stage)'
     system = `You are StoryGen's structuring engine. Convert raw source material into an instructional storyboard following ${model.label} — a learner-journey framework whose stages are the lesson's arc.
 Return ONLY valid JSON, exactly this shape:
-{"title":"short course title","cards":[{"kind":"...","stage":"...","title":"screen title","body":"on-screen text","visual":"visual & media direction","narration":"spoken audio script","notes":"production notes, may be empty","durationSeconds":45,"question":"","options":["","","",""],"correctIndex":0,"feedback":""}]}
+{"title":"short course title","cards":[{"kind":"...","stage":"...","title":"screen title","body":"on-screen text","visual":"visual & media direction","narration":"spoken audio script","notes":"production notes, may be empty","durationSeconds":45}]}
 Hard rules:
-- "kind" must be one of: ${KIND_LIST}.
+- "kind" must be one of: ${CONTENT_KIND_LIST}. Never "mcq" — knowledge checks are handled separately, do not include any.
 - "stage" must be one of these ids (assign the best fit to EVERY card):
 ${stageList}
 - Cards are in the order the learner experiences them, and stages must progress FORWARD through the list above — a later card never returns to an earlier stage. A "title" card opens, "thankyou" (if used) closes.
-- Create ${Math.max(4, screenHint - 2)}-${screenHint + 2} cards. Include at least one "mcq" card with a real question, 4 plausible options, correctIndex, and feedback.
-${MCQ_RULES}
+- Create ${Math.max(3, contentTarget - 2)}-${contentTarget + 2} cards.
 ${CRAFT_RULES}`
   }
 
-  const content = await groqChat(key, system, `Source material:\n${source.slice(0, 24000)}`, { maxTokens: 7000, temperature: 0.4 })
+  const content = await groqChat(key, system, `Source material:\n${source.slice(0, 24000)}`, { maxTokens: 6000, temperature: 0.4 })
   const parsed = extractJson(content)
   const rawCards = Array.isArray(parsed?.cards) ? parsed.cards : []
   if (rawCards.length < 2) throw new Error('The AI returned too few screens — try again or add more source material.')
 
-  const cards = rawCards.slice(0, 24).map((raw: any) => sanitizeCard(raw, model))
+  // Defensive filter: sanitizeCard would otherwise happily accept a stray
+  // "mcq" kind if the model ignores the hard rule above.
+  let cards = rawCards.slice(0, 24).map((raw: any) => sanitizeCard(raw, model)).filter(c => c.kind !== 'mcq')
 
   // Structural guarantees the model can't be trusted with: exactly one
   // opening title (first), thank-you at the very end, never mid-flow.
@@ -127,8 +159,24 @@ ${CRAFT_RULES}`
   const tyIdx = cards.findIndex((c: StoryCard) => c.kind === 'thankyou')
   if (tyIdx >= 0 && tyIdx !== cards.length - 1) cards.push(cards.splice(tyIdx, 1)[0])
 
-  // Journey arcs never step backwards: stage order along the chain is
-  // made monotonic (a wayward tag is bumped forward to the current stage).
+  if (isProcess) for (const card of cards) card.stage = ''
+
+  // Second pass: knowledge checks grounded ONLY in a digest of the screens
+  // just produced (aiGenerateMcqCards can't see the raw source at all), then
+  // distributed through the chain rather than clustered at the end.
+  let seqConnections: Connection[] = []
+  for (let i = 1; i < cards.length; i++) seqConnections.push(conn(cards[i - 1].id, cards[i].id))
+  try {
+    const mcqs = await aiGenerateMcqCards(key, cards, seqConnections, model, mcqCount)
+    cards = spliceInMcqs(cards, mcqs)
+  } catch {
+    // Non-fatal — a storyboard with zero knowledge checks is still usable;
+    // silently accepting a mis-grounded one is the actual bug being fixed.
+  }
+
+  // Journey arcs never step backwards: stage order along the chain is made
+  // monotonic (a wayward tag — including on a freshly spliced-in MCQ — is
+  // bumped forward to the current stage).
   if (!isProcess && model.stages.length) {
     const rank = new Map(model.stages.map((s, i) => [s.id, i]))
     let high = -1

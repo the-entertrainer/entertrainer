@@ -50,7 +50,13 @@ async function copy(text: string, i: number) {
 </script>
 
 <template>
-  <UiToolShell eyebrow="Web App" title="Distractor Generator" deck="Turn correct answers into brilliant wrong ones.">
+  <UiToolShell eyebrow="Distractor Generator" deck="Turn correct answers into brilliant wrong ones — plausible options that test real understanding.">
+    <template #title>
+      <span class="mcq-lockup">
+        <ToolsMcqBrandMark :size="46" class="mcq-lockup__mark" />
+        <span class="mcq-wordmark">EasyMCQ</span>
+      </span>
+    </template>
 
     <!-- Form / Loading -->
     <div class="glass-panel dg-form" :class="{ 'dg-form--loading': pending }">
@@ -135,6 +141,30 @@ async function copy(text: string, i: number) {
 </template>
 
 <style scoped>
+/* ── EasyMCQ brand lockup (page header) ── */
+.mcq-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 14rem;
+}
+.mcq-lockup__mark {
+  flex-shrink: 0;
+  filter: drop-shadow(0 6rem 18rem rgba(91, 141, 239, 0.28));
+}
+.mcq-wordmark {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  background: linear-gradient(100deg, #8B7CF6, #5B8DEF 55%, #2DD4BF);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@media (max-width: 600px) {
+  .mcq-lockup { gap: 11rem; }
+  .mcq-lockup__mark { width: 38rem; height: 38rem; }
+}
+
 /* ── Form layout (surfaces from global .glass-* primitives) ── */
 .dg-form {
   display: flex;

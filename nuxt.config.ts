@@ -68,6 +68,13 @@ export default defineNuxtConfig({
           description: 'Turn a list of topics into a ready-to-present monthly training calendar',
           url: '/tools/training-cal-gen',
           icons: [{ src: '/cadence-icon-192.png', sizes: '192x192', type: 'image/png' }]
+        },
+        {
+          name: 'EasyMCQ — Distractor Generator',
+          short_name: 'EasyMCQ',
+          description: 'Turn correct answers into brilliant, plausible wrong options',
+          url: '/tools/easymcq',
+          icons: [{ src: '/easymcq-icon-192.png', sizes: '192x192', type: 'image/png' }]
         }
       ]
     },

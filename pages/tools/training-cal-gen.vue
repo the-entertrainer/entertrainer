@@ -426,9 +426,10 @@ async function exportPPTX() {
       meta:        '6B6864',
       dayName:     '6B6864',
       dateNum:     '3A3835',
-      cellFill:    { color: '000000', transparency: 94 },
-      holidayFill: { color: 'EF4444', transparency: 88 },
-      cellBorder:  { color: '000000', transparency: 82, width: 0.5 },
+      cellFill:     { color: '000000', transparency: 94 },
+      trainingFill: { color: '5B8DEF', transparency: 90 },
+      holidayFill:  { color: 'EF4444', transparency: 88 },
+      cellBorder:   { color: '000000', transparency: 82, width: 0.5 },
       holiday:     'DC2626',
       sessionText: 'FFFFFF',
     }
@@ -477,10 +478,11 @@ async function exportPPTX() {
         const cx = GX + ci * COLW
         const cy = GRY + ri * (CELLH + RGAP)
 
-        // Cell background
+        // Cell background — preferred training days get a faint blue wash
+        const isTrainingDay = !day.holiday && preferredDays.value.includes(day.weekday)
         slide.addShape('roundRect' as any, {
           x: cx, y: cy, w: CELLW, h: CELLH,
-          fill: day.holiday ? T.holidayFill : T.cellFill,
+          fill: day.holiday ? T.holidayFill : (isTrainingDay ? T.trainingFill : T.cellFill),
           line: T.cellBorder,
           rectRadius: 0.04,
         } as any)
@@ -837,7 +839,11 @@ function backToTable() {
 
               <!-- Day headers -->
               <div class="tcg-grid tcg-header-row">
-                <div v-for="n in DAY_NAMES" :key="n" class="tcg-col-head">{{ n }}</div>
+                <div
+                  v-for="(n, wd) in DAY_NAMES" :key="n"
+                  class="tcg-col-head"
+                  :class="{ 'tcg-col-head--training': preferredDays.includes(wd) }"
+                >{{ n }}</div>
               </div>
 
               <!-- Day cells -->
@@ -846,10 +852,11 @@ function backToTable() {
                   v-for="(day, i) in calDays" :key="i"
                   class="tcg-day"
                   :class="{
-                    'tcg-day--empty':   !day.inMonth,
-                    'tcg-day--weekend': day.inMonth && (day.weekday === 0 || day.weekday === 6),
-                    'tcg-day--holiday': day.inMonth && day.holiday,
-                    'tcg-day--receive': day.inMonth && !!selectedSession && selectedSession.day !== day,
+                    'tcg-day--empty':    !day.inMonth,
+                    'tcg-day--weekend':  day.inMonth && (day.weekday === 0 || day.weekday === 6),
+                    'tcg-day--training': day.inMonth && !day.holiday && preferredDays.includes(day.weekday),
+                    'tcg-day--holiday':  day.inMonth && day.holiday,
+                    'tcg-day--receive':  day.inMonth && !!selectedSession && selectedSession.day !== day,
                   }"
                   @dragover.prevent
                   @drop="onDrop(day)"
@@ -1403,6 +1410,10 @@ function backToTable() {
   text-align: center;
   padding-bottom: 8rem;
 }
+.tcg-col-head--training {
+  opacity: 1;
+  color: #3D63C4;
+}
 
 .tcg-day {
   min-height: 84rem;
@@ -1420,6 +1431,13 @@ function backToTable() {
 .tcg-day--empty { background: transparent; border-color: transparent; pointer-events: none; }
 .tcg-day--weekend { background: color-mix(in srgb, var(--color-text) 2.5%, transparent); }
 .tcg-day--weekend .tcg-date-num { opacity: 0.38; }
+/* Preferred training days — highlighted in the brand blue so the schedule's
+   working days read at a glance (wins over weekend styling) */
+.tcg-day--training {
+  background: color-mix(in srgb, #5B8DEF 8%, transparent);
+  border-color: color-mix(in srgb, #5B8DEF 26%, transparent);
+}
+.tcg-day--training .tcg-date-num { opacity: 0.85; color: #3D63C4; }
 .tcg-day--holiday {
   background: color-mix(in srgb, #ef4444 7%, transparent);
   border-color: color-mix(in srgb, #ef4444 22%, transparent);

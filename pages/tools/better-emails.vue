@@ -217,7 +217,13 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
 </script>
 
 <template>
-  <UiToolShell eyebrow="Web App" title="Better Emails" deck="Turn messy drafts into clear, professional emails — with explanations of what changed.">
+  <UiToolShell eyebrow="Email Polisher" deck="Turn messy drafts into clear, professional emails — with explanations of what changed.">
+    <template #title>
+      <span class="draftly-lockup">
+        <ToolsEmailBrandMark :size="46" class="draftly-lockup__mark" />
+        <span class="draftly-wordmark">Draftly</span>
+      </span>
+    </template>
 
     <!-- Compose / form / loading -->
     <Transition name="fade" mode="out-in">
@@ -424,6 +430,30 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
 </template>
 
 <style scoped>
+/* ── Draftly brand lockup (page header) ── */
+.draftly-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 14rem;
+}
+.draftly-lockup__mark {
+  flex-shrink: 0;
+  filter: drop-shadow(0 6rem 18rem rgba(91, 141, 239, 0.28));
+}
+.draftly-wordmark {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  background: linear-gradient(100deg, #8B7CF6, #5B8DEF 55%, #2DD4BF);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@media (max-width: 600px) {
+  .draftly-lockup { gap: 11rem; }
+  .draftly-lockup__mark { width: 38rem; height: 38rem; }
+}
+
 /* ── Form layout ── */
 .be-form {
   display: flex;

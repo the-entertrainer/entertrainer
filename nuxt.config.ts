@@ -75,6 +75,13 @@ export default defineNuxtConfig({
           description: 'Turn correct answers into brilliant, plausible wrong options',
           url: '/tools/easymcq',
           icons: [{ src: '/easymcq-icon-192.png', sizes: '192x192', type: 'image/png' }]
+        },
+        {
+          name: 'Draftly — Email Polisher',
+          short_name: 'Draftly',
+          description: 'Turn messy drafts into clear, professional emails',
+          url: '/tools/better-emails',
+          icons: [{ src: '/draftly-icon-192.png', sizes: '192x192', type: 'image/png' }]
         }
       ]
     },

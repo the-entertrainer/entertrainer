@@ -565,7 +565,13 @@ function backToTable() {
 </script>
 
 <template>
-  <UiToolShell wide eyebrow="Web App" title="Training Calendar" deck="Turn a list of topics into a ready-to-present monthly schedule.">
+  <UiToolShell wide eyebrow="Training Calendar Generator" deck="Turn a list of topics into a ready-to-present monthly schedule — laid out around your holidays, audiences and time slots.">
+    <template #title>
+      <span class="cal-lockup">
+        <ToolsCalBrandMark :size="46" class="cal-lockup__mark" />
+        <span class="cal-wordmark">Cadence</span>
+      </span>
+    </template>
     <div>
       <Transition name="fade" mode="out-in">
 
@@ -675,8 +681,8 @@ function backToTable() {
         </div>
 
         <!-- ── Parsing phase ────────────────────────────────────── -->
-        <div v-else-if="phase === 'parsing'" key="parsing" class="glass-panel" style="padding:32rem 24rem; text-align:center;">
-          <div style="width:32rem; height:32rem; border:3rem solid var(--color-glass-border); border-top-color:var(--color-accent); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16rem;"></div>
+        <div v-else-if="phase === 'parsing'" key="parsing" class="glass-panel cal-loading">
+          <ToolsCalBrandMark :size="60" animated class="cal-loading__mark" />
           <p style="font-size:var(--text-body); font-weight:600; margin:0 0 8rem;">Building your training table with AI…</p>
           <p style="font-size:var(--text-sm); opacity:0.75; margin:0;">Analyzing topics for optimal pedagogical order.</p>
         </div>
@@ -772,8 +778,8 @@ function backToTable() {
         </div>
 
         <!-- ── Loading phase ─────────────────────────────────────── -->
-        <div v-else-if="phase === 'loading'" key="loading" class="glass-panel" style="padding:32rem 24rem; text-align:center;">
-          <div style="width:32rem; height:32rem; border:3rem solid var(--color-glass-border); border-top-color:var(--color-accent); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16rem;"></div>
+        <div v-else-if="phase === 'loading'" key="loading" class="glass-panel cal-loading">
+          <ToolsCalBrandMark :size="60" animated class="cal-loading__mark" />
           <p style="font-size:var(--text-body); font-weight:600; margin:0 0 8rem;">Scheduling your trainings intelligently…</p>
           <p style="font-size:var(--text-sm); opacity:0.75; margin:0;">Generating a pedagogically balanced calendar.</p>
         </div>
@@ -812,12 +818,14 @@ function backToTable() {
 
               <!-- Editable header -->
               <div class="tcg-cal-header">
-                <input
-                  v-model="calTitle"
-                  class="glass-field"
-                  style="font-size:20rem; font-weight:700; background:transparent; border:none; padding:0;"
-                  placeholder="Calendar title"
-                />
+                <div class="tcg-cal-titlerow">
+                  <ToolsCalBrandMark :size="26" class="tcg-cal-mark" />
+                  <input
+                    v-model="calTitle"
+                    class="glass-field tcg-cal-titleinput"
+                    placeholder="Calendar title"
+                  />
+                </div>
                 <div style="display:flex; align-items:center; gap:8rem; font-size:12rem; opacity:0.6;">
                   <input v-model="calOrg"  class="glass-field" style="max-width:120rem; font-size:12rem; background:transparent;" placeholder="Organisation" />
                   <span>·</span>
@@ -839,8 +847,8 @@ function backToTable() {
                   class="tcg-day"
                   :class="{
                     'tcg-day--empty':   !day.inMonth,
+                    'tcg-day--weekend': day.inMonth && (day.weekday === 0 || day.weekday === 6),
                     'tcg-day--holiday': day.inMonth && day.holiday,
-                    'tcg-day--today':   day.inMonth && day.date === now.getDate() && selectedMonth === now.getMonth() + 1 && selectedYear === now.getFullYear(),
                     'tcg-day--receive': day.inMonth && !!selectedSession && selectedSession.day !== day,
                   }"
                   @dragover.prevent
@@ -976,6 +984,40 @@ function backToTable() {
 </template>
 
 <style scoped>
+/* ── Cadence brand lockup (page header) ── */
+.cal-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 14rem;
+}
+.cal-lockup__mark {
+  flex-shrink: 0;
+  filter: drop-shadow(0 6rem 18rem rgba(91, 141, 239, 0.28));
+}
+.cal-wordmark {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  background: linear-gradient(100deg, #8B7CF6, #5B8DEF 55%, #2DD4BF);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@media (max-width: 600px) {
+  .cal-lockup { gap: 11rem; }
+  .cal-lockup__mark { width: 38rem; height: 38rem; }
+}
+
+/* ── Branded loading / parsing panels ── */
+.cal-loading {
+  padding: 40rem 24rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.cal-loading__mark { margin-bottom: 20rem; }
+
 /* Input form now uses global glass-panel and glass-field classes for consistency */
 
 .tcg-textarea {
@@ -1281,8 +1323,32 @@ function backToTable() {
 
 /* Editable calendar header */
 .tcg-cal-header {
-  margin-bottom: 20rem;
+  margin-bottom: 18rem;
+  padding-bottom: 16rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-divider) 55%, transparent);
 }
+.tcg-cal-titlerow {
+  display: flex;
+  align-items: center;
+  gap: 10rem;
+  margin-bottom: 5rem;
+}
+.tcg-cal-mark { flex-shrink: 0; }
+.tcg-cal-titleinput {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 21rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+  padding: 0;
+  cursor: text;
+}
+.tcg-cal-titleinput::placeholder { opacity: 0.25; }
 
 .tcg-hdr-title {
   background: transparent;
@@ -1339,43 +1405,40 @@ function backToTable() {
 }
 
 .tcg-day {
-  min-height: 80rem;
-  border: 1px solid color-mix(in srgb, var(--color-divider) 60%, transparent);
-  border-radius: 6rem;
-  padding: 5rem;
+  min-height: 84rem;
+  border: 1px solid color-mix(in srgb, var(--color-divider) 55%, transparent);
+  border-radius: 8rem;
+  padding: 6rem;
   display: flex;
   flex-direction: column;
   gap: 3rem;
   position: relative;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
   cursor: default;
 }
 .tcg-day:hover { background: color-mix(in srgb, var(--color-text) 3%, transparent); }
 .tcg-day--empty { background: transparent; border-color: transparent; pointer-events: none; }
-.tcg-day--holiday { background: color-mix(in srgb, #ef4444 8%, transparent); }
+.tcg-day--weekend { background: color-mix(in srgb, var(--color-text) 2.5%, transparent); }
+.tcg-day--weekend .tcg-date-num { opacity: 0.38; }
+.tcg-day--holiday {
+  background: color-mix(in srgb, #ef4444 7%, transparent);
+  border-color: color-mix(in srgb, #ef4444 22%, transparent);
+}
 .tcg-day--receive {
   background: color-mix(in srgb, var(--color-text) 6%, transparent);
   border-color: color-mix(in srgb, var(--color-text) 35%, transparent);
+  border-style: dashed;
   cursor: pointer;
 }
 .tcg-day--receive:hover { background: color-mix(in srgb, var(--color-text) 11%, transparent); }
-.tcg-day--today .tcg-date-num {
-  background: var(--color-text);
-  color: var(--color-bg);
-  border-radius: 50%;
-  width: 20rem;
-  height: 20rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 .tcg-date-num {
   font-size: 11rem;
   font-weight: 600;
-  opacity: 0.55;
+  opacity: 0.5;
   line-height: 1;
   flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .tcg-holiday-badge {
@@ -1390,27 +1453,42 @@ function backToTable() {
 }
 
 .tcg-session {
-  border-radius: 4rem;
-  padding: 3rem 6rem;
+  position: relative;
+  border-radius: 6rem;
+  padding: 4rem 7rem 5rem;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   user-select: none;
-  transition: opacity 0.12s, transform 0.1s, box-shadow 0.12s;
+  overflow: hidden;
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.14);
+  transition: opacity 0.12s, transform 0.1s, box-shadow 0.15s;
 }
-.tcg-session:hover { opacity: 0.88; }
+/* A soft top-light gives the flat fill a bit of dimension */
+.tcg-session::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 55%);
+  pointer-events: none;
+}
+.tcg-session:hover {
+  transform: translateY(-1rem);
+  box-shadow: 0 3rem 8rem rgba(0, 0, 0, 0.2);
+}
 .tcg-session[draggable="true"] { cursor: grab; }
-.tcg-session[draggable="true"]:active { cursor: grabbing; opacity: 0.7; transform: scale(0.97); }
+.tcg-session[draggable="true"]:active { cursor: grabbing; opacity: 0.75; transform: scale(0.97); }
 .tcg-session--selected {
-  box-shadow: 0 0 0 2px #1A1916, 0 0 0 4px rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 2px #1A1916, 0 0 0 4px rgba(255, 255, 255, 0.7);
 }
 
 .tcg-session-topic {
-  font-size: 9rem;
+  font-size: 9.5rem;
   font-weight: 700;
   color: #fff;
-  line-height: 1.2;
+  line-height: 1.22;
+  letter-spacing: -0.01em;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -1418,12 +1496,13 @@ function backToTable() {
 }
 .tcg-session-slot {
   font-size: 8rem;
-  color: rgba(255,255,255,0.75);
-  font-weight: 500;
+  color: rgba(255,255,255,0.82);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 .tcg-session-dur {
   font-size: 8rem;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.66);
   font-weight: 500;
 }
 

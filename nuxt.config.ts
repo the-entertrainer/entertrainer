@@ -61,6 +61,13 @@ export default defineNuxtConfig({
           description: 'Design instructional storyboards on an infinite canvas',
           url: '/tools/storygen',
           icons: [{ src: '/storygen-icon-192.png', sizes: '192x192', type: 'image/png' }]
+        },
+        {
+          name: 'Cadence — Training Calendar',
+          short_name: 'Cadence',
+          description: 'Turn a list of topics into a ready-to-present monthly training calendar',
+          url: '/tools/training-cal-gen',
+          icons: [{ src: '/cadence-icon-192.png', sizes: '192x192', type: 'image/png' }]
         }
       ]
     },

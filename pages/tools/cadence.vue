@@ -797,7 +797,7 @@ function backToTable() {
             <div style="display:flex; gap:8rem; align-items:center; margin-left:4rem;">
               <button
                 v-for="(th, i) in THEMES" :key="i"
-                class="glass-chip"
+                class="glass-chip tcg-theme-btn"
                 :class="{ active: activeTheme === i }"
                 :title="th.name"
                 :style="{ background: th.colors[0], padding: '4rem 4rem' }"
@@ -1105,26 +1105,11 @@ function backToTable() {
 }
 .tcg-add-btn:hover { background: var(--color-glass-bg-hover); }
 
-/* Days */
-.tcg-days { display: flex; gap: 8rem; flex-wrap: wrap; }
-.tcg-day-btn {
-  padding: 6rem 14rem;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-glass-border);
-  background: transparent;
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: 12rem;
-  font-weight: 500;
-  cursor: pointer;
-  opacity: 0.5;
-  transition: opacity 0.15s, background 0.15s, border-color 0.15s;
-}
-.tcg-day-btn.active {
-  opacity: 1;
-  background: var(--color-text);
-  color: var(--color-bg);
-  border-color: var(--color-text);
+/* Selectable chips — preferred days, module/session audiences */
+.glass-chip.active {
+  background: color-mix(in srgb, #5B8DEF 24%, transparent);
+  border-color: color-mix(in srgb, #5B8DEF 50%, transparent);
+  color: #3D63C4;
 }
 
 /* Submit */

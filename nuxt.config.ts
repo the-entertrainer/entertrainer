@@ -66,7 +66,7 @@ export default defineNuxtConfig({
           name: 'Cadence — Training Calendar',
           short_name: 'Cadence',
           description: 'Turn a list of topics into a ready-to-present monthly training calendar',
-          url: '/tools/training-cal-gen',
+          url: '/tools/cadence',
           icons: [{ src: '/cadence-icon-192.png', sizes: '192x192', type: 'image/png' }]
         },
         {
@@ -118,6 +118,9 @@ export default defineNuxtConfig({
     devOptions: { enabled: false }
   },
   ssr: false,
+  routeRules: {
+    '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } }
+  },
   nitro: {
     preset: 'vercel',
     externals: {

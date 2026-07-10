@@ -25,17 +25,25 @@ import { fbm3, mulberry32 } from './noise'
 // ── layout constants ─────────────────────────────────────────
 // Fruit radius is 0.5 · scale; centres tuned so neighbours touch without
 // intersecting. Ground is y = 0.
+//
+// The staging IS the experiment: four fruit inside the net, two loose on
+// the ground beside it. Without that split every fruit shifts together and
+// there is nothing to compare — the trap never springs. With it, the bagged
+// fruit read riper than the loose ones while every peel is the same paint.
 const R = 0.5
-const PILE: { p: [number, number, number]; s: number }[] = [
-  { p: [-0.62, 0.475, 0.28], s: 0.97 },
-  { p: [0.42, 0.48, 0.62], s: 0.98 },
-  { p: [0.62, 0.47, -0.4], s: 0.96 },
-  { p: [-0.42, 0.475, -0.66], s: 0.97 },
-  { p: [-0.1, 1.2, 0.44], s: 0.95 },
-  { p: [0.1, 1.19, -0.52], s: 0.94 }
+const BAGGED: { p: [number, number, number]; s: number }[] = [
+  { p: [0.3, 0.49, 0.34], s: 0.97 },
+  { p: [1.26, 0.49, 0.38], s: 0.98 },
+  { p: [0.78, 0.47, -0.52], s: 0.96 },
+  { p: [0.78, 1.26, 0.06], s: 0.95 }
 ]
-const PILE_CENTER = new THREE.Vector3(0, 0.74, 0)
-const KNOT = new THREE.Vector3(0.08, 2.0, -0.04)
+const LOOSE: { p: [number, number, number]; s: number }[] = [
+  { p: [-0.98, 0.49, 0.52], s: 0.97 },
+  { p: [-1.44, 0.47, -0.42], s: 0.96 }
+]
+const PILE = [...BAGGED, ...LOOSE]
+const BAG_CENTER = new THREE.Vector3(0.78, 0.72, 0.06)
+const KNOT = new THREE.Vector3(0.82, 1.98, 0.03)
 
 export interface OrangeScreenPos {
   x: number
@@ -85,8 +93,8 @@ export class NetStage {
     this.scene.fog = new THREE.Fog(0x16110d, 5.5, 11)
 
     this.camera = new THREE.PerspectiveCamera(31, 1, 0.1, 100)
-    this.camera.position.set(2.55, 2.2, 5.15)
-    this.camera.lookAt(0, 1.04, 0)
+    this.camera.position.set(1.9, 1.95, 5.2)
+    this.camera.lookAt(-0.05, 0.88, 0)
 
     this.pmrem = new THREE.PMREMGenerator(this.renderer)
     this.scene.environment = this.buildEnvironment()
@@ -250,18 +258,18 @@ export class NetStage {
     return tex
   }
 
-  // ── the net: tube strands draped over the fruit hull ───────
+  // ── the net: tube strands draped over the BAGGED fruit hull ─
   private bagSDF(p: THREE.Vector3): number {
     let d = Infinity
-    for (const { p: c, s } of PILE) {
+    for (const { p: c, s } of BAGGED) {
       const dist =
-        Math.hypot(p.x - c[0], p.y - c[1], p.z - c[2]) - (R * s + 0.045)
+        Math.hypot(p.x - c[0], p.y - c[1], p.z - c[2]) - (R * s + 0.04)
       d = smin(d, dist, 0.38)
     }
     return d
   }
 
-  /** March outward from the pile centre; return where the strand rests. */
+  /** March outward from the bag centre; return where the strand rests. */
   private surfacePoint(dir: THREE.Vector3): THREE.Vector3 {
     const steps = 120
     const maxR = 2.6
@@ -271,7 +279,7 @@ export class NetStage {
     const probe = new THREE.Vector3()
     for (let i = 0; i <= steps; i++) {
       const r = 0.05 + (maxR - 0.05) * (i / steps)
-      probe.copy(PILE_CENTER).addScaledVector(dir, r)
+      probe.copy(BAG_CENTER).addScaledVector(dir, r)
       const d = this.bagSDF(probe)
       if (d < 0) lastNeg = r
       if (Math.abs(d) < bestD) {
@@ -288,13 +296,13 @@ export class NetStage {
       let hi = Math.min(lastNeg + (maxR - 0.05) / steps, maxR)
       for (let i = 0; i < 24; i++) {
         const mid = (lo + hi) / 2
-        probe.copy(PILE_CENTER).addScaledVector(dir, mid)
+        probe.copy(BAG_CENTER).addScaledVector(dir, mid)
         if (this.bagSDF(probe) < 0) lo = mid
         else hi = mid
       }
       r = (lo + hi) / 2
     }
-    const out = PILE_CENTER.clone().addScaledVector(dir, r)
+    const out = BAG_CENTER.clone().addScaledVector(dir, r)
     out.y = Math.max(out.y, 0.02) // strands press flat against the ground
     return out
   }
@@ -308,8 +316,12 @@ export class NetStage {
       envMapIntensity: 0.6
     })
 
+    // Assimilation is a spatial-frequency effect: it only fires when the
+    // coloured lines are THIN and DENSE at viewing scale. A coarse cage
+    // does nothing — the eye keeps fruit and net separate. So the weave is
+    // fine: many hair-width strands, small cells.
     const rand = mulberry32(23)
-    const strandsPerFamily = 19
+    const strandsPerFamily = 40
     const samples = 46
 
     for (const twist of [2.35, -2.35]) {
@@ -318,8 +330,8 @@ export class NetStage {
         const pts: THREE.Vector3[] = []
         for (let i = 0; i <= samples; i++) {
           const t = i / samples
-          // bottom pole → shoulder, with the family's helical twist
-          const phi = Math.PI * (0.9 - 0.76 * t)
+          // bottom pole → close to the top pole, with the family's twist
+          const phi = Math.PI * (0.9 - 0.84 * t)
           const theta = theta0 + twist * t
           const dir = new THREE.Vector3(
             Math.sin(phi) * Math.cos(theta),
@@ -327,8 +339,9 @@ export class NetStage {
             Math.sin(phi) * Math.sin(theta)
           )
           let p = this.surfacePoint(dir)
-          // gather into the neck over the last stretch
-          const g = THREE.MathUtils.smoothstep(t, 0.78, 1)
+          // gather into the neck only over the very last stretch, so the
+          // top fruit stays wrapped instead of poking through a sparse cone
+          const g = THREE.MathUtils.smoothstep(t, 0.88, 1)
           if (g > 0) {
             const bundle = KNOT.clone()
             bundle.x += Math.cos(theta0 * 3.1) * 0.045
@@ -348,7 +361,7 @@ export class NetStage {
 
         this.smoothPolyline(pts, 2)
         const curve = new THREE.CatmullRomCurve3(pts)
-        const tube = new THREE.TubeGeometry(curve, 140, 0.008, 6, false)
+        const tube = new THREE.TubeGeometry(curve, 150, 0.005, 5, false)
         this.netGroup.add(new THREE.Mesh(tube, this.netMaterial))
       }
     }
@@ -391,19 +404,22 @@ export class NetStage {
   }
 
   private buildShadows() {
-    // one wide ambient pool under the pile
-    const pool = new THREE.Mesh(
-      new THREE.PlaneGeometry(4.4, 4.4),
+    // ambient pools: one under the bag, a smaller one under the loose pair
+    const poolMat = () =>
       new THREE.MeshBasicMaterial({ map: this.radialTexture(0.5, 0.22), transparent: true, depthWrite: false })
-    )
-    pool.rotation.x = -Math.PI / 2
-    pool.position.y = 0.008
-    this.root.add(pool)
+    const bagPool = new THREE.Mesh(new THREE.PlaneGeometry(3.8, 3.8), poolMat())
+    bagPool.rotation.x = -Math.PI / 2
+    bagPool.position.set(BAG_CENTER.x, 0.008, BAG_CENTER.z)
+    this.root.add(bagPool)
+    const loosePool = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6), poolMat())
+    loosePool.rotation.x = -Math.PI / 2
+    loosePool.position.set(-1.2, 0.008, 0.05)
+    this.root.add(loosePool)
 
-    // tighter contact blobs under the four grounded fruit, nudged away
-    // from the key light
+    // tighter contact blobs under every grounded fruit, nudged away from
+    // the key light
     const blobTex = this.radialTexture(0.55, 0.18)
-    for (const { p, s } of PILE.slice(0, 4)) {
+    for (const { p, s } of PILE.filter((o) => o.p[1] < 0.6)) {
       const blob = new THREE.Mesh(
         new THREE.PlaneGeometry(1.25 * s, 1.25 * s),
         new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false })
@@ -419,10 +435,10 @@ export class NetStage {
     const c = document.createElement('canvas')
     c.width = c.height = size
     const ctx = c.getContext('2d')!
-    ctx.strokeStyle = 'rgba(0,0,0,0.6)'
-    ctx.lineWidth = 5
-    ctx.filter = 'blur(4px)'
-    for (let d = -size; d < size * 2; d += 42) {
+    ctx.strokeStyle = 'rgba(0,0,0,0.55)'
+    ctx.lineWidth = 3
+    ctx.filter = 'blur(3px)'
+    for (let d = -size; d < size * 2; d += 22) {
       ctx.beginPath()
       ctx.moveTo(d, 0)
       ctx.lineTo(d + size, size)
@@ -446,15 +462,15 @@ export class NetStage {
       opacity: 0.5,
       depthWrite: false
     })
-    const lattice = new THREE.Mesh(new THREE.PlaneGeometry(3.1, 3.1), this.netShadowMaterial)
+    const lattice = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 2.5), this.netShadowMaterial)
     lattice.rotation.x = -Math.PI / 2
-    lattice.position.y = 0.012
+    lattice.position.set(BAG_CENTER.x, 0.012, BAG_CENTER.z)
     this.root.add(lattice)
   }
 
-  /** A tiny staggered squash as the net clears — the pile settles. */
+  /** A tiny staggered squash as the net clears — the bagged pile settles. */
   pulseOranges(gsapLib: { to: Function }) {
-    this.oranges.forEach((m, i) => {
+    this.oranges.slice(0, BAGGED.length).forEach((m, i) => {
       const parent = m.parent as THREE.Group
       const s = parent.scale.x
       gsapLib.to(parent.scale, {

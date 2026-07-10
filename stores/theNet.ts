@@ -1,19 +1,23 @@
 import { defineStore } from 'pinia'
 
-// Cross-scene state for "The Net". The one value that has to survive from
-// scene 1 all the way to scene 2 is the learner's choice — the fruit they
-// committed to as "ripest" before they were allowed any explanation. The
-// marker in scene 2 stays pinned to exactly this index.
+// Cross-scene state for "The Net". The one value that must survive from
+// scene 1 to the end is the learner's committed choice — the fruit they
+// called ripest before any explanation existed. The marker stays pinned to
+// exactly this index through the reveal.
+//
+// Scenes: 1 Pick · 2 Reveal · 3 Proof · 4 Mechanism · 5 In the wild · 6 Takeaway
+export type NetScene = 1 | 2 | 3 | 4 | 5 | 6
+
 export const useTheNetStore = defineStore('the-net', {
   state: () => ({
-    scene: 1 as 1 | 2 | 3 | 4,
+    scene: 1 as NetScene,
     chosenIndex: null as number | null
   }),
   actions: {
     choose(i: number) {
       if (this.chosenIndex === null) this.chosenIndex = i
     },
-    goTo(s: 1 | 2 | 3 | 4) {
+    goTo(s: NetScene) {
       this.scene = s
     },
     reset() {

@@ -4,9 +4,10 @@ import { NetStage } from '~/utils/thenet/stage'
 import type { OrangeScreenPos } from '~/utils/thenet/stage'
 import { useTheNetStore } from '~/stores/theNet'
 
-// Scenes 1 (THE TRAP) and 2 (THE REVEAL) share one procedural stage. The net
-// is present the whole time; scene 2 is simply the animation that takes it
-// away. No explanation is allowed to appear until AFTER a choice is committed.
+// Scenes 1 (the pick) and 2 (the reveal) share one procedural stage. The
+// net is present from the first frame; scene 2 is only the animation that
+// takes it away. No explanation is allowed on screen until AFTER the
+// learner has committed to a choice.
 const emit = defineEmits<{ (e: 'revealed'): void }>()
 
 const store = useTheNetStore()
@@ -20,7 +21,8 @@ let ro: ResizeObserver | null = null
 const reduced = ref(false)
 const positions = ref<OrangeScreenPos[]>([])
 const chosen = computed(() => store.chosenIndex)
-const revealLine = ref(false) // "They were always the same color."
+const hovered = ref<number | null>(null)
+const revealLine = ref(false)
 const picked = ref(false)
 
 function syncOverlay() {
@@ -40,34 +42,38 @@ function onPointerMove(e: PointerEvent) {
 function pick(i: number) {
   if (picked.value) return
   picked.value = true
+  hovered.value = null
   store.choose(i)
-  // No feedback. No right, no wrong. Let the choice sit, then reveal.
-  gsap.delayedCall(0.9, runReveal)
+  // No feedback. No right, no wrong. Let the commitment sit for a beat.
+  gsap.delayedCall(1.0, runReveal)
 }
 
 function runReveal() {
   if (!stage) return
   store.goTo(2)
-  const u = stage.netUniforms
-  const shell = stage.netGroup
-  const shadowMat = stage.shadow.material as any
+  const net = stage.netGroup
+  const mat = stage.netMaterial
+  const latticeShadow = stage.netShadowMaterial
 
   if (reduced.value) {
-    // prefers-reduced-motion: a plain crossfade, no lift, no elastic.
-    gsap.to(u.uOpacity, { value: 0, duration: 0.6, ease: 'none' })
-    gsap.to(shadowMat, { opacity: 0.35, duration: 0.6, ease: 'none' })
-    gsap.delayedCall(1.0, () => showLine())
+    // prefers-reduced-motion: a plain crossfade, no lift.
+    gsap.to(mat, { opacity: 0, duration: 0.7, ease: 'none' })
+    gsap.to(latticeShadow, { opacity: 0, duration: 0.7, ease: 'none' })
+    gsap.delayedCall(1.2, showLine)
     return
   }
 
+  // The bag is picked up by its knot: a slight anticipation dip, then the
+  // lift — stretching as it goes — while its cast lattice fades off the
+  // fruit. The pile gives a small settle once the net clears.
   const tl = gsap.timeline({ onComplete: () => gsap.delayedCall(1.2, showLine) })
-  // The net lifts, stretches and dissolves upward over ~1.8s, gentle elastic.
-  tl.to(shell.position, { y: 3.2, duration: 1.8, ease: 'elastic.out(0.6, 0.5)' }, 0)
-  tl.to(shell.scale, { y: 2.1, x: 0.86, z: 0.86, duration: 1.8, ease: 'elastic.out(0.6, 0.5)' }, 0)
-  tl.to(u.uDissolve, { value: 1, duration: 1.5, ease: 'power2.in' }, 0)
-  // the cast shadow softens as the bag leaves
-  tl.to(shadowMat, { opacity: 0.4, duration: 1.6, ease: 'power2.out' }, 0)
-  tl.to(stage.shadow.scale, { x: 1.15, y: 1.15, duration: 1.6, ease: 'power2.out' }, 0)
+  tl.to(net.position, { y: -0.04, duration: 0.28, ease: 'power2.out' }, 0)
+  tl.to(net.position, { y: 2.9, duration: 1.55, ease: 'power3.in' }, 0.28)
+  tl.to(net.scale, { x: 0.94, z: 0.94, y: 1.14, duration: 1.4, ease: 'power2.in' }, 0.32)
+  tl.to(net.rotation, { y: 0.16, duration: 1.7, ease: 'power1.inOut' }, 0.2)
+  tl.to(mat, { opacity: 0, duration: 0.55, ease: 'power1.in' }, 1.28)
+  tl.to(latticeShadow, { opacity: 0, duration: 1.2, ease: 'power2.out' }, 0.35)
+  tl.add(() => stage!.pulseOranges(gsap), 1.05)
 }
 
 function showLine() {
@@ -86,7 +92,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   cancelAnimationFrame(overlayRaf)
   ro?.disconnect()
-  gsap.killTweensOf('*')
   stage?.dispose()
   stage = null
 })
@@ -96,33 +101,55 @@ onBeforeUnmount(() => {
   <div ref="wrap" class="stage" @pointermove="onPointerMove">
     <canvas ref="canvas" class="stage__canvas" />
 
-    <!-- Focusable, transparent hit targets pinned to each fruit. They give
-         both pointer tap and keyboard (tab + enter) selection without a
-         raycaster, and they carry the accessible names. -->
+    <!-- Focusable transparent hit targets pinned to each fruit: pointer tap
+         AND keyboard (tab + enter) selection, and the accessible names. -->
     <button
       v-for="(p, i) in positions"
       :key="i"
       class="pip"
-      :class="{ 'pip--locked': picked }"
       :style="{ left: p.x + 'px', top: p.y + 'px', width: p.r * 2 + 'px', height: p.r * 2 + 'px' }"
-      :aria-label="`Orange ${i + 1}`"
+      :aria-label="`Orange ${i + 1} of 6`"
       :aria-pressed="chosen === i"
       :disabled="picked"
       @click="pick(i)"
+      @pointerenter="!picked && (hovered = i)"
+      @pointerleave="hovered === i && (hovered = null)"
+      @focus="!picked && (hovered = i)"
+      @blur="hovered === i && (hovered = null)"
     />
 
-    <!-- The learner's marker: pinned in 3D space, survives the reveal. -->
+    <!-- hover / focus affordance -->
+    <div
+      v-if="hovered !== null && positions[hovered]"
+      class="halo"
+      :style="{
+        left: positions[hovered].x + 'px',
+        top: positions[hovered].y + 'px',
+        width: positions[hovered].r * 2.3 + 'px',
+        height: positions[hovered].r * 2.3 + 'px'
+      }"
+      aria-hidden="true"
+    />
+
+    <!-- the learner's committed marker: pinned in 3D, survives the reveal -->
     <div
       v-if="chosen !== null && positions[chosen]"
       class="marker"
       :style="{ left: positions[chosen].x + 'px', top: positions[chosen].y + 'px' }"
       aria-hidden="true"
-    />
+    >
+      <span v-if="revealLine" class="marker__tag">your pick</span>
+    </div>
 
-    <!-- Scene 1: one line, no heading. -->
-    <p v-if="!picked" class="prompt">Tap the ripest one.</p>
+    <!-- scene 1: one line, no heading, no explanation -->
+    <transition name="fade-line">
+      <div v-if="!picked" class="prompt">
+        <p class="prompt__main">Pick the ripest orange.</p>
+        <p class="prompt__sub">Go on — trust your eye.</p>
+      </div>
+    </transition>
 
-    <!-- Scene 2: the only words allowed here, low contrast, after the silence. -->
+    <!-- scene 2: the only words allowed here, after the silence -->
     <transition name="fade-line">
       <p v-if="revealLine" class="reveal">They were always the same color.</p>
     </transition>
@@ -154,59 +181,98 @@ onBeforeUnmount(() => {
   cursor: pointer;
   outline: none;
 }
-.pip:focus-visible {
-  box-shadow: 0 0 0 2px rgba(241, 236, 230, 0.85);
+.pip:disabled { cursor: default; }
+.pip:focus-visible { box-shadow: 0 0 0 2px rgba(241, 236, 230, 0.8); }
+
+.halo {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(241, 236, 230, 0.4);
+  border-radius: 9999px;
+  pointer-events: none;
+  animation: halo-in 0.28s var(--ease-expo-out, ease) both;
 }
-.pip--locked {
-  cursor: default;
+@keyframes halo-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 
 .marker {
   position: absolute;
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   transform: translate(-50%, -50%);
-  border: 2px solid #f1ece6;
+  border: 1.5px solid #f1ece6;
   border-radius: 9999px;
-  box-shadow: 0 0 0 4px rgba(20, 17, 15, 0.55);
+  box-shadow: 0 0 0 3px rgba(20, 17, 15, 0.5);
   pointer-events: none;
   animation: marker-in 0.4s ease both;
 }
+.marker__tag {
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a8480;
+  white-space: nowrap;
+  animation: tag-in 0.6s ease both;
+}
 @keyframes marker-in {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+  from { opacity: 0; transform: translate(-50%, -50%) scale(1.7); }
   to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes tag-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .prompt {
   position: absolute;
   left: 50%;
-  bottom: clamp(24px, 8vh, 64px);
+  bottom: clamp(28px, 9vh, 76px);
   transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+}
+.prompt__main {
   margin: 0;
-  color: #8a8480;
-  font-size: clamp(15px, 2.2vw, 19px);
+  font-family: 'Fraunces', serif;
   font-weight: 400;
-  letter-spacing: 0.01em;
+  font-size: clamp(21px, 2.8vw, 28px);
+  letter-spacing: 0.005em;
+  color: #d8d2ca;
   white-space: nowrap;
+}
+.prompt__sub {
+  margin: 10px 0 0;
+  font-size: clamp(12px, 1.4vw, 14px);
+  letter-spacing: 0.04em;
+  color: #6f6a65;
 }
 
 .reveal {
   position: absolute;
   left: 50%;
-  bottom: clamp(24px, 8vh, 64px);
+  bottom: clamp(28px, 9vh, 76px);
   transform: translateX(-50%);
   margin: 0;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 350;
+  font-size: clamp(19px, 2.4vw, 25px);
   color: #8a8480;
-  font-size: clamp(15px, 2.2vw, 19px);
-  font-weight: 300;
-  letter-spacing: 0.01em;
   white-space: nowrap;
 }
 
 .fade-line-enter-active { transition: opacity 1.1s ease; }
-.fade-line-enter-from { opacity: 0; }
+.fade-line-leave-active { transition: opacity 0.35s ease; }
+.fade-line-enter-from,
+.fade-line-leave-to { opacity: 0; }
 
 @media (prefers-reduced-motion: reduce) {
-  .marker { animation: none; }
+  .marker, .halo { animation: none; }
 }
 </style>

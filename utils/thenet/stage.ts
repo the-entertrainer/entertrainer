@@ -179,15 +179,18 @@ export class NetStage {
     this.displacePeel(geo)
     geo.computeVertexNormals()
 
+    // Speculars are kept modest on purpose: a big glossy highlight on the
+    // loose fruit reads as "brighter = fresher" and fights the hue shift
+    // the module is trying to isolate.
     this.orangeMat = new THREE.MeshPhysicalMaterial({
       color: new THREE.Color(BASE_ORANGE),
-      roughness: 0.46,
+      roughness: 0.56,
       metalness: 0,
       bumpMap: this.buildPeelBump(),
       bumpScale: 1.35,
-      clearcoat: 0.14, // the waxy sheen of citrus skin
-      clearcoatRoughness: 0.5,
-      envMapIntensity: 0.85
+      clearcoat: 0.05,
+      clearcoatRoughness: 0.6,
+      envMapIntensity: 0.65
     })
 
     // stem + calyx share cheap materials; they are trim, not peel, so they
@@ -308,12 +311,20 @@ export class NetStage {
   }
 
   private buildNet() {
+    // Bright extruded plastic, like real produce mesh: a strong emissive
+    // floor keeps every strand saturated even on its shaded side. Without
+    // it the strand undersides go brown and the whole bag reads DARKER
+    // than the loose fruit — brightness then argues against ripeness and
+    // the illusion loses. (This tunes the net's own material; the peel
+    // constant is untouched.)
     this.netMaterial = new THREE.MeshStandardMaterial({
       color: new THREE.Color(NET_ORANGE),
-      roughness: 0.58,
+      emissive: new THREE.Color(NET_ORANGE),
+      emissiveIntensity: 0.55,
+      roughness: 0.5,
       metalness: 0,
       transparent: true,
-      envMapIntensity: 0.6
+      envMapIntensity: 0.5
     })
 
     // Assimilation is a spatial-frequency effect: it only fires when the
@@ -466,6 +477,22 @@ export class NetStage {
     lattice.rotation.x = -Math.PI / 2
     lattice.position.set(BAG_CENTER.x, 0.012, BAG_CENTER.z)
     this.root.add(lattice)
+  }
+
+  /**
+   * The single source of truth for how far the net is lifted (0 = resting
+   * on the fruit, 1 = carried away). Both the reveal animation and the
+   * learner's scrub control drive this, so lowering the bag back over the
+   * fruit is exactly the reveal in reverse — the effect is reversible and
+   * the learner can toggle it at will.
+   */
+  setNetLift(t: number) {
+    const k = THREE.MathUtils.clamp(t, 0, 1)
+    this.netGroup.position.y = 2.9 * k * k // eases in as it rises
+    this.netGroup.scale.set(1 - 0.05 * k, 1 + 0.13 * k, 1 - 0.05 * k)
+    this.netGroup.rotation.y = 0.14 * k
+    this.netMaterial.opacity = k < 0.7 ? 1 : 1 - (k - 0.7) / 0.3
+    this.netShadowMaterial.opacity = 0.5 * (1 - THREE.MathUtils.smoothstep(k, 0, 0.5))
   }
 
   /** A tiny staggered squash as the net clears — the bagged pile settles. */

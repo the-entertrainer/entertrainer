@@ -25,6 +25,14 @@ const hovered = ref<number | null>(null)
 const revealLine = ref(false)
 const picked = ref(false)
 
+// the scrubbable net: 0 = resting on the fruit, 1 = carried away
+const lift = ref(0)
+const scrubbed = ref(false)
+function onScrub() {
+  scrubbed.value = true
+  stage?.setNetLift(lift.value)
+}
+
 function syncOverlay() {
   if (!stage) return
   positions.value = Array.from({ length: 6 }, (_, i) => stage!.projectOrange(i))
@@ -51,29 +59,26 @@ function pick(i: number) {
 function runReveal() {
   if (!stage) return
   store.goTo(2)
-  const net = stage.netGroup
-  const mat = stage.netMaterial
-  const latticeShadow = stage.netShadowMaterial
 
   if (reduced.value) {
-    // prefers-reduced-motion: a plain crossfade, no lift.
-    gsap.to(mat, { opacity: 0, duration: 0.7, ease: 'none' })
-    gsap.to(latticeShadow, { opacity: 0, duration: 0.7, ease: 'none' })
-    gsap.delayedCall(1.2, showLine)
+    // prefers-reduced-motion: a short linear lift, no theatrics.
+    gsap.to(lift, { value: 1, duration: 0.8, ease: 'none', onUpdate: () => stage?.setNetLift(lift.value) })
+    gsap.delayedCall(1.4, showLine)
     return
   }
 
-  // The bag is picked up by its knot: a slight anticipation dip, then the
-  // lift — stretching as it goes — while its cast lattice fades off the
-  // fruit. The pile gives a small settle once the net clears.
+  // The bag is picked up by its knot and carried off; the cast lattice
+  // fades from the fruit and the pile gives a small settle as it clears.
+  // Everything routes through setNetLift so the learner's scrub control is
+  // the exact same motion, reversible.
   const tl = gsap.timeline({ onComplete: () => gsap.delayedCall(1.2, showLine) })
-  tl.to(net.position, { y: -0.04, duration: 0.28, ease: 'power2.out' }, 0)
-  tl.to(net.position, { y: 2.9, duration: 1.55, ease: 'power3.in' }, 0.28)
-  tl.to(net.scale, { x: 0.94, z: 0.94, y: 1.14, duration: 1.4, ease: 'power2.in' }, 0.32)
-  tl.to(net.rotation, { y: 0.16, duration: 1.7, ease: 'power1.inOut' }, 0.2)
-  tl.to(mat, { opacity: 0, duration: 0.55, ease: 'power1.in' }, 1.28)
-  tl.to(latticeShadow, { opacity: 0, duration: 1.2, ease: 'power2.out' }, 0.35)
-  tl.add(() => stage!.pulseOranges(gsap), 1.05)
+  tl.to(lift, {
+    value: 1,
+    duration: 1.9,
+    ease: 'power2.inOut',
+    onUpdate: () => stage?.setNetLift(lift.value)
+  })
+  tl.add(() => stage!.pulseOranges(gsap), 1.15)
 }
 
 function showLine() {
@@ -152,6 +157,26 @@ onBeforeUnmount(() => {
     <!-- scene 2: the only words allowed here, after the silence -->
     <transition name="fade-line">
       <p v-if="revealLine" class="reveal">They were always the same color.</p>
+    </transition>
+
+    <!-- the reversible experiment: lower the bag back over the fruit and
+         watch "ripeness" return; nothing about the fruit changes -->
+    <transition name="fade-line">
+      <div v-if="revealLine" class="scrub">
+        <label class="scrub__label" for="net-lift">the net</label>
+        <input
+          id="net-lift"
+          v-model.number="lift"
+          class="scrub__input"
+          type="range"
+          min="0"
+          max="1"
+          step="0.005"
+          aria-label="Raise and lower the net over the fruit"
+          @input="onScrub"
+        />
+        <span class="scrub__hint">{{ scrubbed ? (lift < 0.5 ? 'on' : 'off') : 'drag me' }}</span>
+      </div>
     </transition>
   </div>
 </template>
@@ -266,6 +291,30 @@ onBeforeUnmount(() => {
   color: #8a8480;
   white-space: nowrap;
 }
+
+.scrub {
+  position: absolute;
+  right: clamp(70px, 8vw, 130px);
+  bottom: clamp(30px, 9vh, 80px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.scrub__label,
+.scrub__hint {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6f6a65;
+  white-space: nowrap;
+}
+.scrub__hint { min-width: 58px; color: #8a8480; }
+.scrub__input {
+  width: clamp(110px, 14vw, 180px);
+  accent-color: #e8471a;
+  cursor: grab;
+}
+.scrub__input:active { cursor: grabbing; }
 
 .fade-line-enter-active { transition: opacity 1.1s ease; }
 .fade-line-leave-active { transition: opacity 0.35s ease; }

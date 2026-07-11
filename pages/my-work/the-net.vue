@@ -24,12 +24,12 @@ const stageRevealed = ref(false)
 const maxVisited = ref<NetScene>(1)
 
 const SCENES: { n: NetScene; label: string }[] = [
-  { n: 1, label: 'The pick' },
-  { n: 2, label: 'The reveal' },
-  { n: 3, label: 'The proof' },
-  { n: 4, label: 'The mechanism' },
-  { n: 5, label: 'In the wild' },
-  { n: 6, label: 'The takeaway' }
+  { n: 1, label: 'Pick' },
+  { n: 2, label: 'Reveal' },
+  { n: 3, label: 'Proof' },
+  { n: 4, label: 'Why it works' },
+  { n: 5, label: 'At the store' },
+  { n: 6, label: 'Takeaway' }
 ]
 
 onMounted(() => store.reset())
@@ -252,8 +252,9 @@ const onStage = computed(() => store.scene <= 2)
   transform: none;
 }
 @media (max-width: 760px) {
-  .rail { right: 14px; gap: 14px; }
+  .rail { right: 10px; gap: 13px; }
   .rail__label { display: none; }
+  .rail__num { font-size: 9.5px; }
 }
 
 /* ── scenes ── */
@@ -282,6 +283,12 @@ const onStage = computed(() => store.scene <= 2)
   left: 50%;
   bottom: clamp(70px, 17vh, 130px);
   transform: translateX(-50%);
+}
+@media (max-width: 700px) {
+  /* the stage's own bottom column (slider at 140px, line at 88px) sits
+     above; continue takes the very bottom */
+  .scene__continue { bottom: 22px; }
+  .scene--pad { padding-right: 34px; }
 }
 
 /* transitions */

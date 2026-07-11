@@ -41,6 +41,12 @@ const LOOSE: { p: [number, number, number]; s: number }[] = [
   { p: [-0.98, 0.49, 0.52], s: 0.97 },
   { p: [-1.44, 0.47, -0.42], s: 0.96 }
 ]
+// Portrait screens can't fit fruit BESIDE the bag, so the loose fruit move
+// to the foreground instead — on the counter in front of the bag.
+const LOOSE_PORTRAIT: { p: [number, number, number]; s: number }[] = [
+  { p: [0.12, 0.49, 1.72], s: 0.97 },
+  { p: [1.02, 0.47, 1.3], s: 0.96 }
+]
 const PILE = [...BAGGED, ...LOOSE]
 const BAG_CENTER = new THREE.Vector3(0.78, 0.72, 0.06)
 const KNOT = new THREE.Vector3(0.82, 1.98, 0.03)
@@ -70,6 +76,12 @@ export class NetStage {
   private oranges: THREE.Mesh[] = []
   private orangeMat!: THREE.MeshPhysicalMaterial
 
+  // responsive staging (portrait moves the loose fruit to the foreground)
+  private looseGroups: THREE.Group[] = []
+  private looseBlobs: THREE.Mesh[] = []
+  private loosePool!: THREE.Mesh
+  private portrait: boolean | null = null
+
   // exposed handles the reveal animation tweens directly
   netGroup = new THREE.Group()
   netMaterial!: THREE.MeshStandardMaterial
@@ -93,8 +105,7 @@ export class NetStage {
     this.scene.fog = new THREE.Fog(0x16110d, 5.5, 11)
 
     this.camera = new THREE.PerspectiveCamera(31, 1, 0.1, 100)
-    this.camera.position.set(1.9, 1.95, 5.2)
-    this.camera.lookAt(-0.05, 0.88, 0)
+    // framing is set per-aspect in layoutForAspect(), called from resize()
 
     this.pmrem = new THREE.PMREMGenerator(this.renderer)
     this.scene.environment = this.buildEnvironment()
@@ -201,7 +212,7 @@ export class NetStage {
     const calyxGeo = new THREE.ConeGeometry(0.055, 0.02, 5)
 
     const rand = mulberry32(7)
-    for (const { p, s } of PILE) {
+    PILE.forEach(({ p, s }, idx) => {
       const fruit = new THREE.Group()
       const m = new THREE.Mesh(geo, this.orangeMat)
       fruit.add(m)
@@ -218,8 +229,9 @@ export class NetStage {
       fruit.scale.setScalar(s)
       fruit.position.set(p[0], p[1], p[2])
       this.oranges.push(m)
+      if (idx >= BAGGED.length) this.looseGroups.push(fruit)
       this.root.add(fruit)
-    }
+    })
   }
 
   /** Gentle seeded irregularity — real fruit is never a perfect sphere. */
@@ -422,23 +434,25 @@ export class NetStage {
     bagPool.rotation.x = -Math.PI / 2
     bagPool.position.set(BAG_CENTER.x, 0.008, BAG_CENTER.z)
     this.root.add(bagPool)
-    const loosePool = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6), poolMat())
-    loosePool.rotation.x = -Math.PI / 2
-    loosePool.position.set(-1.2, 0.008, 0.05)
-    this.root.add(loosePool)
+    this.loosePool = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6), poolMat())
+    this.loosePool.rotation.x = -Math.PI / 2
+    this.loosePool.position.set(-1.2, 0.008, 0.05)
+    this.root.add(this.loosePool)
 
     // tighter contact blobs under every grounded fruit, nudged away from
     // the key light
     const blobTex = this.radialTexture(0.55, 0.18)
-    for (const { p, s } of PILE.filter((o) => o.p[1] < 0.6)) {
+    PILE.forEach(({ p, s }, idx) => {
+      if (p[1] >= 0.6) return
       const blob = new THREE.Mesh(
         new THREE.PlaneGeometry(1.25 * s, 1.25 * s),
         new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false })
       )
       blob.rotation.x = -Math.PI / 2
       blob.position.set(p[0] - 0.09, 0.01, p[2] + 0.07)
+      if (idx >= BAGGED.length) this.looseBlobs.push(blob)
       this.root.add(blob)
-    }
+    })
 
     // the net's cast lattice — a blurred diamond grid that fades as the
     // net lifts away (the "shadow softens" beat of the reveal)
@@ -534,6 +548,34 @@ export class NetStage {
     return { x, y, r, visible: p.z < 1 }
   }
 
+  /**
+   * Reframe per aspect ratio. Landscape shows the loose fruit BESIDE the
+   * bag; portrait can't fit that width, so the loose fruit move to the
+   * counter in FRONT of the bag and the camera looks down a little more.
+   */
+  private layoutForAspect(aspect: number) {
+    const portrait = aspect < 0.95
+    if (portrait === this.portrait) return
+    this.portrait = portrait
+
+    const loose = portrait ? LOOSE_PORTRAIT : LOOSE
+    this.looseGroups.forEach((g, i) => g.position.set(loose[i].p[0], loose[i].p[1], loose[i].p[2]))
+    this.looseBlobs.forEach((b, i) => b.position.set(loose[i].p[0] - 0.09, 0.01, loose[i].p[2] + 0.07))
+    const cx = (loose[0].p[0] + loose[1].p[0]) / 2
+    const cz = (loose[0].p[2] + loose[1].p[2]) / 2
+    this.loosePool.position.set(cx, 0.008, cz)
+
+    if (portrait) {
+      this.camera.fov = 50
+      this.camera.position.set(0.85, 2.75, 5.35)
+      this.camera.lookAt(0.58, 0.85, 0.25)
+    } else {
+      this.camera.fov = 31
+      this.camera.position.set(1.9, 1.95, 5.2)
+      this.camera.lookAt(-0.05, 0.88, 0)
+    }
+  }
+
   resize() {
     const rect = this.canvas.getBoundingClientRect()
     const w = Math.max(1, rect.width)
@@ -541,6 +583,7 @@ export class NetStage {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     this.renderer.setSize(w, h, false)
     this.camera.aspect = w / h
+    this.layoutForAspect(w / h)
     this.camera.updateProjectionMatrix()
   }
 

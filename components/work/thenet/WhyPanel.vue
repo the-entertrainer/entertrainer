@@ -17,9 +17,9 @@ const regime = computed(() => {
   return 'contrast'
 })
 const regimeCopy = computed(() => {
-  if (spacing.value <= 15) return 'fine weave — the field borrows the strand color and reads warmer'
-  if (spacing.value <= 27) return 'the effect loosens its grip about here'
-  return 'sparse stripes — contrast pushes the two colors apart instead'
+  if (spacing.value <= 15) return 'fine weave: the field takes on the color of the strands'
+  if (spacing.value <= 27) return 'the blending fades around here'
+  return 'wide stripes: the two colors separate again'
 })
 
 function draw() {
@@ -56,22 +56,20 @@ onMounted(draw)
 
 <template>
   <div class="why">
-    <p class="tn-overline">04 · The mechanism</p>
+    <p class="tn-overline">04 · Why it works</p>
     <h2 class="tn-h">The Bezold effect</h2>
 
     <div class="why__copy">
       <p class="tn-body">
-        In 1874 the German meteorologist Wilhelm von Bezold — a rug collector on the side —
-        noticed something odd about his carpets: swapping the color of a single outline thread
-        changed the apparent color of <span class="tn-em">everything around it</span>. Not the
-        thread. The whole pattern.
+        In 1874, the meteorologist Wilhelm von Bezold noticed that changing the color of a single
+        thread in a rug pattern changed how <span class="tn-em">every other color in the rug</span>
+        looked.
       </p>
       <p class="tn-body">
-        The reason lives in your visual system, not in the dye. When thin lines of one color run
-        through a field of another, your eye stops keeping them separate and
-        <span class="tn-em">averages the two together</span> — perception researchers call it
-        assimilation. Pull the same lines far enough apart and the effect reverses into contrast:
-        the colors push away from each other instead.
+        When thin lines of one color run through a field of another, the eye
+        <span class="tn-em">blends the two together</span>. Researchers call this assimilation.
+        Spread the same lines far apart and the opposite happens: contrast, where the two colors
+        look more different than they are.
       </p>
     </div>
 
@@ -92,7 +90,7 @@ onMounted(draw)
         <div class="why__meta">
           <span class="why__regime" :data-regime="regime">{{ regime }}</span>
           <span class="why__chip">
-            field poured at <i :style="{ background: measured }" />{{ measured }} — never repainted
+            field painted <i :style="{ background: measured }" />{{ measured }}
           </span>
         </div>
       </div>
@@ -100,7 +98,7 @@ onMounted(draw)
     </div>
 
     <p class="tn-note">
-      Drag the spacing. The two paints never change — only the distance between them does.
+      Move the slider. Both colors stay the same. Only the spacing changes.
     </p>
   </div>
 </template>
@@ -155,8 +153,11 @@ onMounted(draw)
 }
 .why__slider input {
   flex: 1;
+  height: 30px;
   accent-color: #e8471a;
+  touch-action: none; /* touch-drag moves the slider, not the page */
 }
+.why__slider input::-webkit-slider-thumb { width: 22px; height: 22px; }
 .why__meta {
   display: flex;
   align-items: center;

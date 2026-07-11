@@ -137,12 +137,12 @@ onMounted(draw)
 
 <template>
   <div class="proof">
-    <p class="tn-overline">03 · The proof</p>
-    <h2 class="tn-h">Don't take my word for it.</h2>
+    <p class="tn-overline">03 · Proof</p>
+    <h2 class="tn-h">Measure it yourself.</h2>
     <p class="tn-body">
-      This is a live eyedropper reading real pixels off a real canvas — nothing is staged.
-      Sample the peel in both panels, as often as you like.
-      <span class="tn-dim">Mind the strands: the dropper reads exactly what's under it.</span>
+      The eyedropper below reads the actual pixels on your screen, live. Sample the peel in both
+      panels as often as you like.
+      <span class="tn-dim">If you land on a strand, you'll get the strand's color instead.</span>
     </p>
 
     <div class="proof__panels">
@@ -233,7 +233,7 @@ onMounted(draw)
     <!-- the module is about colour, so offer a reading that doesn't depend on it -->
     <label class="tn-toggle">
       <input v-model="showChannels" type="checkbox" />
-      <span>Show channel values</span>
+      <span>Show RGB values</span>
     </label>
   </div>
 </template>

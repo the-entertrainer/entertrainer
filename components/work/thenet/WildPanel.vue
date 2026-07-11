@@ -11,9 +11,9 @@ const frame = ref<Frame>('red')
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
 const FRAMES: { id: Frame; label: string; caption: string }[] = [
-  { id: 'red', label: 'Red-orange mesh', caption: 'the industry standard — pale peel reads ripe' },
-  { id: 'green', label: 'Green mesh', caption: 'same trick, reversed — now it reads underripe' },
-  { id: 'none', label: 'No mesh', caption: 'the fruit as it actually is' }
+  { id: 'red', label: 'Red mesh', caption: 'with red mesh, the fruit looks riper' },
+  { id: 'green', label: 'Green mesh', caption: 'with green mesh, the same fruit looks less ripe' },
+  { id: 'none', label: 'No mesh', caption: 'without mesh, the fruit as it is' }
 ]
 const caption = computed(() => FRAMES.find((f) => f.id === frame.value)!.caption)
 
@@ -98,14 +98,14 @@ onMounted(draw)
 
 <template>
   <div class="wild">
-    <p class="tn-overline">05 · In the wild</p>
-    <h2 class="tn-h">This is why oranges ship in red mesh.</h2>
+    <p class="tn-overline">05 · At the store</p>
+    <h2 class="tn-h">Why oranges come in red mesh.</h2>
 
     <p class="tn-body">
-      Citrus is routinely picked before it colors up. Packers don't repaint the fruit — they wrap
-      it in a net that does the repainting <span class="tn-em">inside your eye</span>. Red-orange
-      mesh drags pale peel toward ripe. The same weave in green would push it back the other way.
-      Lemons get yellow nets for exactly the same reason.
+      Oranges are usually picked before they turn fully orange. Sellers don't repaint the fruit.
+      They bag it in red mesh, and the blending you just saw makes the peel
+      <span class="tn-em">look riper than it is</span>. The same bag in green would push it the
+      other way. Lemons are sold in yellow nets for the same reason.
     </p>
 
     <div class="wild__lab">
@@ -128,7 +128,7 @@ onMounted(draw)
       </div>
     </div>
 
-    <p class="tn-note">The peel in every frame is painted from the same constant. Only the frame changes.</p>
+    <p class="tn-note">The fruit is drawn with the same color in all three options.</p>
   </div>
 </template>
 

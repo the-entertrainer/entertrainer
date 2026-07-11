@@ -28,7 +28,8 @@ const picked = ref(false)
 // the scrubbable net: 0 = resting on the fruit, 1 = carried away
 const lift = ref(0)
 const scrubbed = ref(false)
-function onScrub() {
+function onScrub(e: Event) {
+  lift.value = parseFloat((e.target as HTMLInputElement).value)
   scrubbed.value = true
   stage?.setNetLift(lift.value)
 }
@@ -150,7 +151,7 @@ onBeforeUnmount(() => {
     <transition name="fade-line">
       <div v-if="!picked" class="prompt">
         <p class="prompt__main">Pick the ripest orange.</p>
-        <p class="prompt__sub">Go on — trust your eye.</p>
+        <p class="prompt__sub">Tap one to choose.</p>
       </div>
     </transition>
 
@@ -163,19 +164,19 @@ onBeforeUnmount(() => {
          watch "ripeness" return; nothing about the fruit changes -->
     <transition name="fade-line">
       <div v-if="revealLine" class="scrub">
-        <label class="scrub__label" for="net-lift">the net</label>
+        <label class="scrub__label" for="net-lift">net</label>
         <input
           id="net-lift"
-          v-model.number="lift"
           class="scrub__input"
           type="range"
           min="0"
           max="1"
           step="0.005"
-          aria-label="Raise and lower the net over the fruit"
+          :value="lift"
+          aria-label="Slide to put the net back on the fruit or take it off"
           @input="onScrub"
         />
-        <span class="scrub__hint">{{ scrubbed ? (lift < 0.5 ? 'on' : 'off') : 'drag me' }}</span>
+        <span class="scrub__hint">{{ scrubbed ? (lift < 0.5 ? 'on' : 'off') : 'slide' }}</span>
       </div>
     </transition>
   </div>
@@ -310,16 +311,41 @@ onBeforeUnmount(() => {
 }
 .scrub__hint { min-width: 58px; color: #8a8480; }
 .scrub__input {
-  width: clamp(110px, 14vw, 180px);
+  width: clamp(120px, 16vw, 190px);
+  height: 30px;
   accent-color: #e8471a;
   cursor: grab;
+  /* without this, touch-dragging the thumb scrolls the page instead of
+     moving the slider on most mobile browsers */
+  touch-action: none;
 }
 .scrub__input:active { cursor: grabbing; }
+.scrub__input::-webkit-slider-thumb { width: 22px; height: 22px; }
 
 .fade-line-enter-active { transition: opacity 1.1s ease; }
 .fade-line-leave-active { transition: opacity 0.35s ease; }
 .fade-line-enter-from,
 .fade-line-leave-to { opacity: 0; }
+
+/* phones: stack the bottom controls in one centred column so the line,
+   the net slider and the page's continue button never collide */
+@media (max-width: 700px) {
+  .prompt { bottom: 84px; width: 100%; padding: 0 16px; }
+  .prompt__main { white-space: normal; }
+  .reveal {
+    bottom: 88px;
+    white-space: normal;
+    width: 100%;
+    padding: 0 16px;
+    text-align: center;
+  }
+  .scrub {
+    right: 50%;
+    transform: translateX(50%);
+    bottom: 140px;
+  }
+  .marker__tag { font-size: 10px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .marker, .halo { animation: none; }

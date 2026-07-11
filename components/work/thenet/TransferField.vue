@@ -7,20 +7,16 @@ const emit = defineEmits<{ (e: 'replay'): void }>()
 
 <template>
   <div class="takeaway">
-    <p class="tn-overline">06 · The takeaway</p>
+    <p class="tn-overline">06 · Takeaway</p>
 
     <div class="takeaway__lines">
-      <p>The same idea sounds average in one meeting and sharp in another.</p>
-      <p>The same person is invisible on one team and unstoppable on the next.</p>
+      <p>A good idea can sound weak in the wrong meeting.</p>
+      <p>A good person can look average on the wrong team.</p>
       <p class="takeaway__last">Before you judge the thread, look at the rug.</p>
     </div>
 
-    <p class="tn-note takeaway__credit">
-      — after Wilhelm von Bezold, who found it in actual rugs.
-    </p>
-
     <button class="tn-btn takeaway__replay" type="button" @click="emit('replay')">
-      Run it again
+      Start over
     </button>
   </div>
 </template>
@@ -53,6 +49,5 @@ const emit = defineEmits<{ (e: 'replay'): void }>()
   font-style: italic;
   color: #f1ece6 !important;
 }
-.takeaway__credit { margin-top: -10px; }
 .takeaway__replay { margin-top: 4px; }
 </style>

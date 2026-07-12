@@ -10,6 +10,7 @@
   "instructional-design": [],
   "my-work": [
     { "id": "the-net", "label": "The Net", "description": "An interactive lesson on the Bezold effect — why oranges ship in orange mesh.", "href": "/my-work/the-net", "color": "#243F6A" },
+    { "id": "doombox", "label": "DOOMBOX", "description": "Drop into a live email server. Neutralise 10 threats. Learn what gave them away.", "href": "/my-work/doombox", "color": "#243F6A" },
     { "id": "work-01", "label": "Project 01", "description": "A learning experience worth remembering", "href": "/my-work/01", "color": "#243F6A" },
     { "id": "work-02", "label": "Project 02", "description": "Where strategy meets storytelling",      "href": "/my-work/02", "color": "#243F6A" },
     { "id": "work-03", "label": "Project 03", "description": "From messy brief to measurable outcome", "href": "/my-work/03", "color": "#243F6A" }

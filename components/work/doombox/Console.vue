@@ -17,6 +17,13 @@ import { vibrate } from '~/utils/doombox/haptics'
 type Btn = 'up' | 'down' | 'left' | 'right' | 'a' | 'b' | 'start'
 const emit = defineEmits<{ (e: 'press', btn: Btn): void; (e: 'release', btn: Btn): void }>()
 
+// The shell is a device that can host different game cartridges — brand it
+// per game. Defaults keep DOOMBOX working unchanged.
+withDefaults(
+  defineProps<{ brand?: string; tagline?: string }>(),
+  { brand: 'DOOMBOX', tagline: '· antispam division' }
+)
+
 const down = reactive<Record<Btn, boolean>>({
   up: false, down: false, left: false, right: false, a: false, b: false, start: false
 })
@@ -40,7 +47,7 @@ function release(btn: Btn) {
       <!-- screen assembly -->
       <div class="db-console__screenwrap">
         <span class="db-console__led" aria-hidden="true" />
-        <span class="db-console__brandtop">DOOMBOX<span>&nbsp;· antispam division</span></span>
+        <span class="db-console__brandtop">{{ brand }}<span>&nbsp;{{ tagline }}</span></span>
         <div class="db-console__bezel">
           <div class="db-lcd">
             <slot />
@@ -50,7 +57,7 @@ function release(btn: Btn) {
         </div>
       </div>
 
-      <span class="db-console__wordmark" aria-hidden="true">DOOMBOX</span>
+      <span class="db-console__wordmark" aria-hidden="true">{{ brand }}</span>
 
       <!-- control deck -->
       <div class="db-deck">

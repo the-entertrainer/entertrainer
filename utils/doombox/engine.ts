@@ -3,16 +3,17 @@
 // ============================================================
 //
 // A grid map, a DDA wall raycaster, billboarded sprites with a per-column
-// depth buffer, and a first-person weapon. Rendered to a raw 2D canvas at a
-// fixed logical resolution with smoothing off — authentic 2.5D, no WebGL.
+// depth buffer, a first-person weapon, and — Doom-style — enemies that hunt
+// and shoot back. Rendered to a raw 2D canvas at a fixed logical resolution
+// with smoothing off: authentic 2.5D, no WebGL.
 //
-// The engine owns its own input (keyboard + pointer-lock mouse) and exposes
-// hooks for touch controls and for the Vue layer to pause it while a puzzle
-// is open. It never touches the DOM beyond its canvas and the listeners it
-// adds in start()/removes in stop().
+// The engine owns keyboard + pointer-lock mouse input and exposes a control
+// surface (setMove / setTurn / fire) for the on-device console buttons and
+// touch. It reports two things up: onHitThreat (the player shot a villain →
+// open the puzzle) and onPlayerHit (a villain's packet landed → lose health).
 
 import { WALL_A, WALL_B, FLOOR, CEIL, SPAM, hexToRgb, shade } from './palette'
-import { threatSprite, weaponSprite } from './sprites'
+import { threatSprite, projectileSprite, weaponSprite } from './sprites'
 
 const MAP_W = 24
 const MAP_H = 18
@@ -30,8 +31,8 @@ function buildMap(): Uint8Array {
     set(0, y, 1)
     set(MAP_W - 1, y, 1)
   }
-  // 2x2 server racks laid out on a regular grid → reads as a machine hall,
-  // and an open hall minus isolated pillars is guaranteed fully connected.
+  // 2x2 server racks on a regular grid → reads as a machine hall, and an open
+  // hall minus isolated pillars is guaranteed fully connected.
   const racks = [
     [4, 3], [10, 3], [16, 3], [20, 3],
     [4, 8], [10, 8], [16, 8], [20, 8],
@@ -46,7 +47,7 @@ function buildMap(): Uint8Array {
   return m
 }
 
-// where the ten specimens live, spread through the aisles
+// where the ten specimens spawn, spread through the aisles
 const THREAT_CELLS: [number, number][] = [
   [7, 3], [13, 3], [19, 5], [7, 8], [13, 8],
   [19, 10], [7, 13], [13, 13], [19, 15], [3, 10]
@@ -58,21 +59,40 @@ interface Threat {
   y: number
   kind: 'spam' | 'virus'
   alive: boolean
-  sprite: HTMLCanvasElement
+  idle: HTMLCanvasElement
+  atk: HTMLCanvasElement
+  attackTimer: number // seconds until it can fire again
+  attackAnim: number // seconds of "lunging" frame left
+}
+
+interface Projectile {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  kind: 'spam' | 'virus'
+  alive: boolean
 }
 
 export interface EngineOpts {
   onHitThreat: (id: number) => void
   onShoot: () => void
+  onPlayerHit: (damage: number) => void
   reduced: boolean
-  /** id → kind, so spawns glow correctly and the sprite matches the specimen */
   threatKinds: Record<number, 'spam' | 'virus'>
 }
 
 const RW = 480 // logical render width
 const RH = 300 // logical render height
-const MOVE = 2.6 // cells / second
-const TURN = 2.4 // radians / second (keyboard)
+const MOVE = 2.7 // player cells / second
+const TURN = 2.5 // radians / second (keyboard + console d-pad)
+
+const ENEMY_MOVE = 1.15 // villains are slower than you — you can back off
+const DETECT = 9.5 // cells: line-of-sight range at which a villain wakes
+const ATTACK_RANGE = 7.5 // cells: range at which it spits packets
+const PROJ_SPEED = 4.2 // cells / second
+const ATTACK_COOLDOWN = 1.6 // seconds between an enemy's shots
+const HIT_DAMAGE = 9 // health lost per packet
 
 export class DoomEngine {
   private canvas: HTMLCanvasElement
@@ -80,6 +100,8 @@ export class DoomEngine {
   private opts: EngineOpts
   private map = buildMap()
   private threats: Threat[] = []
+  private shots: Projectile[] = []
+  private projSprites!: Record<'spam' | 'virus', HTMLCanvasElement>
   private zbuf = new Float32Array(RW)
 
   // player
@@ -87,13 +109,15 @@ export class DoomEngine {
   private py = 2.5
   private ang = 0
   private bob = 0
+  private hurt = 0 // seconds of red damage-flash left
 
   // input
   private keys = new Set<string>()
-  private moveVec = { f: 0, s: 0 } // touch: forward, strafe (-1..1)
-  private lookQueue = 0 // pending rotation from mouse/touch (radians)
+  private moveVec = { f: 0, s: 0 }
+  private turnInput = 0 // -1 / 0 / 1 continuous turn from console d-pad
+  private lookQueue = 0
   private locked = false
-  private firing = 0 // frames of muzzle flash left
+  private firing = 0
 
   private raf = 0
   private last = 0
@@ -109,6 +133,7 @@ export class DoomEngine {
     this.ctx = ctx
     this.ctx.imageSmoothingEnabled = false
     this.opts = opts
+    this.projSprites = { spam: projectileSprite('spam'), virus: projectileSprite('virus') }
 
     for (let i = 0; i < THREAT_CELLS.length; i++) {
       const [cx, cy] = THREAT_CELLS[i]
@@ -120,7 +145,10 @@ export class DoomEngine {
         y: cy + 0.5,
         kind,
         alive: true,
-        sprite: threatSprite(kind)
+        idle: threatSprite(kind, false),
+        atk: threatSprite(kind, true),
+        attackTimer: 0.8 + Math.random() * ATTACK_COOLDOWN,
+        attackAnim: 0
       })
     }
   }
@@ -151,6 +179,7 @@ export class DoomEngine {
     this.paused = true
     this.keys.clear()
     this.moveVec.f = this.moveVec.s = 0
+    this.turnInput = 0
     if (document.pointerLockElement === this.canvas) document.exitPointerLock()
   }
 
@@ -159,10 +188,14 @@ export class DoomEngine {
     this.last = performance.now()
   }
 
-  // ── public control surface (touch + inspector) ─────────────
+  // ── control surface (console buttons + touch + inspector) ──
   setMove(f: number, s: number) {
     this.moveVec.f = Math.max(-1, Math.min(1, f))
     this.moveVec.s = Math.max(-1, Math.min(1, s))
+  }
+
+  setTurn(t: number) {
+    this.turnInput = Math.max(-1, Math.min(1, t))
   }
 
   addLook(dx: number) {
@@ -221,11 +254,10 @@ export class DoomEngine {
       if (!t.alive) continue
       const rx = t.x - this.px
       const ry = t.y - this.py
-      const depth = rx * dx + ry * dy // projection onto view dir
-      if (depth <= 0.2 || depth > 12 || depth > wallDist) continue
-      const lateral = Math.abs(-rx * dy + ry * dx) // perpendicular offset
-      // forgiving aim cone: within ~half a cell of the crosshair line
-      if (lateral / depth < 0.14 && depth < bestDepth) {
+      const depth = rx * dx + ry * dy
+      if (depth <= 0.2 || depth > 14 || depth > wallDist) continue
+      const lateral = Math.abs(-rx * dy + ry * dx)
+      if (lateral / depth < 0.16 && depth < bestDepth) {
         bestDepth = depth
         best = t.id
       }
@@ -234,16 +266,32 @@ export class DoomEngine {
   }
 
   private centerWallDist(): number {
-    const dx = Math.cos(this.ang)
-    const dy = Math.sin(this.ang)
-    let x = this.px
-    let y = this.py
-    for (let i = 0; i < 240; i++) {
-      x += dx * 0.05
-      y += dy * 0.05
-      if (this.isWall(x, y)) return Math.hypot(x - this.px, y - this.py)
+    return this.rayWall(this.px, this.py, Math.cos(this.ang), Math.sin(this.ang))
+  }
+
+  /** distance to the first wall from (x,y) along a unit direction */
+  private rayWall(x: number, y: number, dx: number, dy: number): number {
+    let cx = x
+    let cy = y
+    for (let i = 0; i < 300; i++) {
+      cx += dx * 0.05
+      cy += dy * 0.05
+      if (this.isWall(cx, cy)) return Math.hypot(cx - x, cy - y)
     }
-    return 12
+    return 15
+  }
+
+  /** true if nothing solid blocks the straight line between two points */
+  private lineClear(ax: number, ay: number, bx: number, by: number): boolean {
+    const dx = bx - ax
+    const dy = by - ay
+    const dist = Math.hypot(dx, dy)
+    const steps = Math.ceil(dist / 0.1)
+    for (let i = 1; i < steps; i++) {
+      const t = i / steps
+      if (this.isWall(ax + dx * t, ay + dy * t)) return false
+    }
+    return true
   }
 
   private isWall(x: number, y: number): boolean {
@@ -255,8 +303,8 @@ export class DoomEngine {
 
   // ── update ─────────────────────────────────────────────────
   private update(dt: number) {
-    // rotation: keys + queued mouse/touch look
-    let turn = this.lookQueue
+    // rotation: mouse/touch look + keys + console d-pad
+    let turn = this.lookQueue + this.turnInput * TURN * dt
     this.lookQueue = 0
     if (this.keys.has('arrowleft')) turn -= TURN * dt
     if (this.keys.has('arrowright')) turn += TURN * dt
@@ -275,14 +323,74 @@ export class DoomEngine {
     const dx = Math.cos(this.ang)
     const dy = Math.sin(this.ang)
     const step = MOVE * dt
-    const nx = this.px + (dx * f - dy * s) * step
-    const ny = this.py + (dy * f + dx * s) * step
-    // slide along walls: resolve axes independently, keep a body radius
+    const mvx = dx * f - dy * s
+    const mvy = dy * f + dx * s
     const r = 0.18
-    if (!this.isWall(nx + Math.sign(dx * f - dy * s) * r, this.py)) this.px = nx
-    if (!this.isWall(this.px, ny + Math.sign(dy * f + dx * s) * r)) this.py = ny
+    if (!this.isWall(this.px + Math.sign(mvx) * r, this.py)) this.px += mvx * step
+    if (!this.isWall(this.px, this.py + Math.sign(mvy) * r)) this.py += mvy * step
 
     if (!this.opts.reduced && (f !== 0 || s !== 0)) this.bob += dt * 9
+    if (this.hurt > 0) this.hurt -= dt
+
+    this.updateEnemies(dt)
+    this.updateShots(dt)
+  }
+
+  private updateEnemies(dt: number) {
+    for (const t of this.threats) {
+      if (!t.alive) continue
+      if (t.attackAnim > 0) t.attackAnim -= dt
+      const rx = this.px - t.x
+      const ry = this.py - t.y
+      const dist = Math.hypot(rx, ry)
+      const awake = dist < DETECT && this.lineClear(t.x, t.y, this.px, this.py)
+      if (!awake) continue
+
+      // close the gap, but keep a little breathing room
+      if (dist > 1.4) {
+        const ux = rx / dist
+        const uy = ry / dist
+        const stp = ENEMY_MOVE * dt
+        const er = 0.25
+        if (!this.isWall(t.x + Math.sign(ux) * er, t.y)) t.x += ux * stp
+        if (!this.isWall(t.x, t.y + Math.sign(uy) * er)) t.y += uy * stp
+      }
+
+      // spit a packet on cadence when in range
+      t.attackTimer -= dt
+      if (t.attackTimer <= 0 && dist < ATTACK_RANGE) {
+        const ux = rx / dist
+        const uy = ry / dist
+        this.shots.push({
+          x: t.x + ux * 0.3,
+          y: t.y + uy * 0.3,
+          vx: ux * PROJ_SPEED,
+          vy: uy * PROJ_SPEED,
+          kind: t.kind,
+          alive: true
+        })
+        t.attackTimer = ATTACK_COOLDOWN * (0.75 + Math.random() * 0.6)
+        t.attackAnim = 0.28
+      }
+    }
+  }
+
+  private updateShots(dt: number) {
+    for (const p of this.shots) {
+      if (!p.alive) continue
+      p.x += p.vx * dt
+      p.y += p.vy * dt
+      if (this.isWall(p.x, p.y)) {
+        p.alive = false
+        continue
+      }
+      if (Math.hypot(p.x - this.px, p.y - this.py) < 0.4) {
+        p.alive = false
+        this.hurt = 0.5
+        this.opts.onPlayerHit(HIT_DAMAGE)
+      }
+    }
+    if (this.shots.length > 40) this.shots = this.shots.filter((p) => p.alive)
   }
 
   // ── render ─────────────────────────────────────────────────
@@ -290,11 +398,9 @@ export class DoomEngine {
     const ctx = this.ctx
     const dirX = Math.cos(this.ang)
     const dirY = Math.sin(this.ang)
-    // camera plane perpendicular to dir, length sets the FOV (~66°)
     const planeX = -dirY * 0.66
     const planeY = dirX * 0.66
 
-    // ceiling / floor
     ctx.fillStyle = CEIL
     ctx.fillRect(0, 0, RW, RH / 2)
     ctx.fillStyle = FLOOR
@@ -303,7 +409,6 @@ export class DoomEngine {
     const wallA = hexToRgb(WALL_A)
     const wallB = hexToRgb(WALL_B)
 
-    // walls, column by column (DDA)
     for (let col = 0; col < RW; col++) {
       const camX = (2 * col) / RW - 1
       const rayX = dirX + planeX * camX
@@ -350,60 +455,86 @@ export class DoomEngine {
       this.zbuf[col] = dist
       const lineH = Math.min(RH * 4, (RH / Math.max(dist, 0.05)) | 0)
       const y0 = ((RH - lineH) / 2) | 0
-      // distance + side shading
       const f = Math.max(0.18, Math.min(1, 1.25 - dist * 0.11)) * (side === 1 ? 0.72 : 1)
       const base = side === 1 ? wallB : wallA
       ctx.fillStyle = shade(base, f)
       ctx.fillRect(col, y0, 1, lineH)
-      // a couple of horizontal seams so racks read as stacked units
       ctx.fillStyle = shade(base, f * 0.6)
-      ctx.fillRect(col, y0 + (lineH * 0.33) | 0, 1, 1)
-      ctx.fillRect(col, y0 + (lineH * 0.66) | 0, 1, 1)
+      ctx.fillRect(col, y0 + ((lineH * 0.33) | 0), 1, 1)
+      ctx.fillRect(col, y0 + ((lineH * 0.66) | 0), 1, 1)
     }
 
-    // sprites (threats), far → near, occluded by zbuffer
-    const order = this.threats
-      .filter((t) => t.alive)
-      .map((t) => ({ t, d: (t.x - this.px) ** 2 + (t.y - this.py) ** 2 }))
-      .sort((a, b) => b.d - a.d)
-
     const invDet = 1 / (planeX * dirY - dirX * planeY)
-    for (const { t } of order) {
-      const rx = t.x - this.px
-      const ry = t.y - this.py
+
+    // collect billboards: threats + projectiles, drawn far → near
+    type Bill = { x: number; y: number; sprite: HTMLCanvasElement; scale: number; lift: number }
+    const bills: Bill[] = []
+    for (const t of this.threats) {
+      if (!t.alive) continue
+      const bob = this.opts.reduced ? 0 : Math.sin(performance.now() / 400 + t.id) * 0.12
+      bills.push({ x: t.x, y: t.y, sprite: t.attackAnim > 0 ? t.atk : t.idle, scale: 1, lift: bob })
+    }
+    for (const p of this.shots) {
+      if (p.alive) bills.push({ x: p.x, y: p.y, sprite: this.projSprites[p.kind], scale: 0.4, lift: 0 })
+    }
+    bills.sort(
+      (a, b) => (b.x - this.px) ** 2 + (b.y - this.py) ** 2 - ((a.x - this.px) ** 2 + (a.y - this.py) ** 2)
+    )
+
+    for (const bl of bills) {
+      const rx = bl.x - this.px
+      const ry = bl.y - this.py
       const transX = invDet * (dirY * rx - dirX * ry)
-      const transY = invDet * (-planeY * rx + planeX * ry) // depth
+      const transY = invDet * (-planeY * rx + planeX * ry)
       if (transY <= 0.1) continue
-      const bobY = this.opts.reduced ? 0 : Math.sin(performance.now() / 400 + t.id) * 0.12
       const screenX = ((RW / 2) * (1 + transX / transY)) | 0
-      const size = Math.min(RH * 2, Math.abs((RH / transY) | 0))
-      const sy = ((RH - size) / 2 - bobY * (RH / transY)) | 0
+      const size = Math.min(RH * 2, Math.abs(((RH / transY) * bl.scale) | 0))
+      const sy = ((RH - size) / 2 - bl.lift * (RH / transY)) | 0
       const sx = (screenX - size / 2) | 0
-      // draw column-clipped against the wall depth buffer
       for (let stripe = 0; stripe < size; stripe++) {
         const colX = sx + stripe
         if (colX < 0 || colX >= RW) continue
         if (transY >= this.zbuf[colX]) continue
-        ctx.drawImage(t.sprite, (stripe / size) * t.sprite.width, 0, t.sprite.width / size, t.sprite.height, colX, sy, 1, size)
+        ctx.drawImage(
+          bl.sprite,
+          (stripe / size) * bl.sprite.width,
+          0,
+          bl.sprite.width / size,
+          bl.sprite.height,
+          colX,
+          sy,
+          1,
+          size
+        )
       }
     }
 
-    // weapon, bottom-centre, bobbing
+    // weapon
     const w = weaponSprite(this.firing > 0)
     const scale = 4
     const ww = w.width * scale
     const wh = w.height * scale
     const bobX = this.opts.reduced ? 0 : Math.sin(this.bob) * 6
     const bobDip = this.opts.reduced ? 0 : Math.abs(Math.cos(this.bob)) * 4
-    ctx.drawImage(w, ((RW - ww) / 2 + bobX) | 0, (RH - wh + 6 + bobDip) | 0, ww, wh)
+    ctx.drawImage(w, (((RW - ww) / 2 + bobX) | 0), ((RH - wh + 6 + bobDip) | 0), ww, wh)
     if (this.firing > 0) this.firing--
 
     // crosshair
     ctx.fillStyle = SPAM
-    ctx.fillRect((RW / 2) | 0, (RH / 2 - 5) | 0, 1, 4)
-    ctx.fillRect((RW / 2) | 0, (RH / 2 + 2) | 0, 1, 4)
-    ctx.fillRect((RW / 2 - 5) | 0, (RH / 2) | 0, 4, 1)
-    ctx.fillRect((RW / 2 + 2) | 0, (RH / 2) | 0, 4, 1)
+    ctx.fillRect((RW / 2) | 0, ((RH / 2 - 5) | 0), 1, 4)
+    ctx.fillRect((RW / 2) | 0, ((RH / 2 + 2) | 0), 1, 4)
+    ctx.fillRect(((RW / 2 - 5) | 0), (RH / 2) | 0, 4, 1)
+    ctx.fillRect(((RW / 2 + 2) | 0), (RH / 2) | 0, 4, 1)
+
+    // damage flash — a red vignette when a packet lands
+    if (this.hurt > 0) {
+      const a = Math.min(0.5, this.hurt)
+      const g = ctx.createRadialGradient(RW / 2, RH / 2, RH * 0.2, RW / 2, RH / 2, RH * 0.75)
+      g.addColorStop(0, 'rgba(255,59,92,0)')
+      g.addColorStop(1, `rgba(255,59,92,${a})`)
+      ctx.fillStyle = g
+      ctx.fillRect(0, 0, RW, RH)
+    }
   }
 
   private loop = (now: number) => {

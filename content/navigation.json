@@ -9,8 +9,6 @@
   "about": [],
   "instructional-design": [],
   "my-work": [
-    { "id": "the-net", "label": "The Net", "description": "An interactive lesson on the Bezold effect — why oranges ship in orange mesh.", "href": "/my-work/the-net", "color": "#243F6A" },
-    { "id": "zero-day", "label": "Zero Day", "description": "A run-and-gun handheld game: race the kill chain through a breached subnet, gunning down malware. Cyber-safety, Contra-style.", "href": "/my-work/zero-day", "color": "#243F6A" },
     { "id": "work-01", "label": "Project 01", "description": "A learning experience worth remembering", "href": "/my-work/01", "color": "#243F6A" },
     { "id": "work-02", "label": "Project 02", "description": "Where strategy meets storytelling",      "href": "/my-work/02", "color": "#243F6A" },
     { "id": "work-03", "label": "Project 03", "description": "From messy brief to measurable outcome", "href": "/my-work/03", "color": "#243F6A" }
@@ -19,8 +17,7 @@
     { "id": "easymcq",           "label": "EasyMCQ",              "description": "Give a question and answer — AI generates the wrong options.",        "href": "/tools/easymcq",           "color": "#243F6A" },
     { "id": "training-cal-gen", "label": "Cadence",              "description": "Turn a list of topics into a ready-to-present monthly training calendar.", "href": "/tools/cadence", "color": "#243F6A" },
     { "id": "better-emails",    "label": "Draftly",              "description": "Turn messy drafts into polished, professional emails.",               "href": "/tools/better-emails",    "color": "#243F6A" },
-    { "id": "storygen",         "label": "StoryGen",            "description": "Design storyboards on an infinite canvas — cards, flows, Word export.", "href": "/tools/storygen",     "color": "#243F6A" },
-    { "id": "buttoncraft",      "label": "ButtonCraft",         "description": "Design a button once — export every interaction state as transparent PNGs.", "href": "/tools/buttoncraft",  "color": "#243F6A" }
+    { "id": "storygen",         "label": "StoryGen",            "description": "Design storyboards on an infinite canvas — cards, flows, Word export.", "href": "/tools/storygen",     "color": "#243F6A" }
   ],
   "downloads": [
     { "id": "templates",  "label": "Templates",  "description": "Ready-to-use L&D templates",       "href": "/downloads/templates",  "color": "#243F6A" },

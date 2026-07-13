@@ -29,10 +29,12 @@ export const P = {
 }
 
 // enemy strips: idle / shoot frames
+// frame 0 is the settled aim pose on every mob; the next frames are muzzle
+// flashes, so idle must not include them or the enemy looks perma-firing.
 export const E = {
   ar: { fw: AR_FW, idle: [0, 1], shoot: [2, 3, 4] },
-  rpg: { fw: RPG_FW, idle: [0, 1], shoot: [2, 3, 4] },
-  sniper: { fw: SNIPER_FW, idle: [0, 1], shoot: [2, 3, 4, 5] }
+  rpg: { fw: RPG_FW, idle: [0], shoot: [1, 2, 3] },
+  sniper: { fw: SNIPER_FW, idle: [0], shoot: [1, 2, 3] }
 }
 
 const URLS: Record<string, string> = {

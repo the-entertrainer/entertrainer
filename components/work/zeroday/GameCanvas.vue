@@ -3,7 +3,7 @@ import { ZeroDayEngine, RW, RH } from '~/utils/zeroday/engine'
 import { SpriteBank } from '~/utils/zeroday/sprites'
 import { generateLevel } from '~/utils/zeroday/mapgen'
 import { useZeroDayStore } from '~/stores/zeroday'
-import { vibrate } from '~/utils/doombox/haptics'
+import { vibrate } from '~/utils/zeroday/haptics'
 
 // Loads the CC0 art, generates a fresh procedural level, runs the engine, and
 // scales the low-res canvas to fill the LCD with a crunchy pixel look. The

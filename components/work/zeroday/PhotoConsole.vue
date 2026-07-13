@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { vibrate } from '~/utils/doombox/haptics'
+import { vibrate } from '~/utils/zeroday/haptics'
 
 // The console skin is the uploaded handheld photo (background removed). The
 // game is mapped onto the screen region; the D-pad / A / B / Start are

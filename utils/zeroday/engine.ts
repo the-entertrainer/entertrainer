@@ -11,7 +11,7 @@
 
 import { TILE, ROWS, type Level, type EnemyType } from './mapgen'
 import { SpriteBank, P, E, PLAYER_FW, PLAYER_COLS, EXPLO_FW } from './sprites'
-import { SPAM, VIRUS, HUD } from '~/utils/doombox/palette'
+import { SPAM, VIRUS, HUD } from '~/utils/zeroday/palette'
 
 export const RW = 336
 export const RH = ROWS * TILE // 272

@@ -37,14 +37,11 @@ useHead({
 })
 
 const store = useConfidenceTrapStore()
-const view = ref<CtView>('title')
-const visited = ref<CtView[]>(['title'])
 
 onMounted(() => store.start())
 
 function go(next: CtView) {
-  view.value = next
-  if (!visited.value.includes(next)) visited.value.push(next)
+  store.goTo(next)
   window.scrollTo({ top: 0, behavior: 'auto' })
 }
 
@@ -79,23 +76,23 @@ function openPanel(panel: 'lesson' | 'hands-on' | 'assessment') {
 <template>
   <div class="ct-root">
     <div class="ct-shell">
-      <TitleScreen v-if="view === 'title'" @continue="go('objectives')" />
-      <Objectives v-else-if="view === 'objectives'" @continue="go('menu')" />
+      <TitleScreen v-if="store.view === 'title'" @continue="go('objectives')" />
+      <Objectives v-else-if="store.view === 'objectives'" @continue="go('menu')" />
       <MainMenu
-        v-else-if="view === 'menu'"
+        v-else-if="store.view === 'menu'"
         :lesson-status="lessonStatus"
         :hands-on-status="handsOnStatus"
         :assessment-status="assessmentStatus"
         :gauge-value="gaugeValue"
         @open="openPanel"
       />
-      <Lesson v-else-if="view === 'lesson'" @back="go('menu')" @continue="go('hands-on')" />
-      <HandsOn v-else-if="view === 'hands-on'" @back="go('menu')" @continue="go('assessment')" />
-      <Assessment v-else-if="view === 'assessment'" @back="go('menu')" @continue="go('thank-you')" />
-      <ThankYou v-else-if="view === 'thank-you'" />
+      <Lesson v-else-if="store.view === 'lesson'" @back="go('menu')" @continue="go('hands-on')" />
+      <HandsOn v-else-if="store.view === 'hands-on'" @back="go('menu')" @continue="go('assessment')" />
+      <Assessment v-else-if="store.view === 'assessment'" @back="go('menu')" @continue="go('thank-you')" />
+      <ThankYou v-else-if="store.view === 'thank-you'" />
     </div>
 
-    <Player :slides="SLIDES" :current-view="view" :visited="visited" @navigate="go" />
+    <Player :slides="SLIDES" :current-view="store.view" :visited="store.visited" @navigate="go" @restart="store.reset" />
   </div>
 </template>
 

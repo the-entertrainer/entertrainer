@@ -1,29 +1,77 @@
 import { defineStore } from 'pinia'
-import type { AssessmentAttempt, GauntletResponse, LessonRating } from '~/types/confidenceTrap'
+import type { AssessmentAttempt, CtView, GauntletResponse, LessonRating } from '~/types/confidenceTrap'
 import { ASSESSMENT_PASS_THRESHOLD } from '~/utils/confidenceTrap/content'
 
-// Holds every real, timestamped measurement taken across the module. The
-// Thank You screen's chart reads directly from this store — there is no
-// separate "display" data path, so what gets plotted is what actually
-// happened.
+const STORAGE_KEY = 'confidence-trap-progress'
+
+interface PersistedShape {
+  lessonRatings: LessonRating[]
+  gauntletResponses: GauntletResponse[]
+  assessmentAttempts: AssessmentAttempt[]
+  view: CtView
+  visited: CtView[]
+}
+
+function loadPersisted(): Partial<PersistedShape> {
+  if (!import.meta.client) return {}
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch { return {} }
+}
+
+// Holds every real, timestamped measurement taken across the module, plus
+// navigation position — a real SCORM module bookmarks and resumes, so this
+// one does too. `startedAt` is deliberately NOT persisted: resuming a
+// bookmarked session should not silently count the time the tab was
+// closed as "time spent," so the elapsed-time clock restarts each session.
+// The Thank You screen's chart reads directly from lessonRatings/
+// gauntletResponses/assessmentAttempts — there is no separate "display"
+// data path, so what gets plotted is what actually happened.
 export const useConfidenceTrapStore = defineStore('confidenceTrap', () => {
+  const persisted = loadPersisted()
+
   const startedAt = ref<string | null>(null)
-  const lessonRatings = ref<LessonRating[]>([])
-  const gauntletResponses = ref<GauntletResponse[]>([])
-  const assessmentAttempts = ref<AssessmentAttempt[]>([])
+  const lessonRatings = ref<LessonRating[]>(persisted.lessonRatings ?? [])
+  const gauntletResponses = ref<GauntletResponse[]>(persisted.gauntletResponses ?? [])
+  const assessmentAttempts = ref<AssessmentAttempt[]>(persisted.assessmentAttempts ?? [])
+  const view = ref<CtView>(persisted.view ?? 'title')
+  const visited = ref<CtView[]>(persisted.visited ?? ['title'])
+
+  function persist() {
+    if (!import.meta.client) return
+    try {
+      const shape: PersistedShape = {
+        lessonRatings: lessonRatings.value,
+        gauntletResponses: gauntletResponses.value,
+        assessmentAttempts: assessmentAttempts.value,
+        view: view.value,
+        visited: visited.value
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(shape))
+    } catch {}
+  }
 
   function start() {
     if (!startedAt.value) startedAt.value = new Date().toISOString()
   }
 
+  function goTo(next: CtView) {
+    view.value = next
+    if (!visited.value.includes(next)) visited.value.push(next)
+    persist()
+  }
+
   function logLessonRating(sectionId: string, rating: number) {
     lessonRatings.value = lessonRatings.value.filter(r => r.sectionId !== sectionId)
     lessonRatings.value.push({ sectionId, rating, at: new Date().toISOString() })
+    persist()
   }
 
   function logGauntletResponse(response: Omit<GauntletResponse, 'at'>) {
     gauntletResponses.value = gauntletResponses.value.filter(r => r.questionId !== response.questionId)
     gauntletResponses.value.push({ ...response, at: new Date().toISOString() })
+    persist()
   }
 
   function logAssessmentAttempt(answers: number[], score: number) {
@@ -33,6 +81,7 @@ export const useConfidenceTrapStore = defineStore('confidenceTrap', () => {
       passed: score >= ASSESSMENT_PASS_THRESHOLD,
       at: new Date().toISOString()
     })
+    persist()
   }
 
   const averageLessonConfidence = computed(() => {
@@ -81,6 +130,11 @@ export const useConfidenceTrapStore = defineStore('confidenceTrap', () => {
     lessonRatings.value = []
     gauntletResponses.value = []
     assessmentAttempts.value = []
+    view.value = 'title'
+    visited.value = ['title']
+    if (import.meta.client) {
+      try { localStorage.removeItem(STORAGE_KEY) } catch {}
+    }
   }
 
   return {
@@ -88,7 +142,10 @@ export const useConfidenceTrapStore = defineStore('confidenceTrap', () => {
     lessonRatings,
     gauntletResponses,
     assessmentAttempts,
+    view,
+    visited,
     start,
+    goTo,
     logLessonRating,
     logGauntletResponse,
     logAssessmentAttempt,

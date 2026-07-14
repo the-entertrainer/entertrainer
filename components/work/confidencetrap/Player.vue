@@ -13,9 +13,10 @@ const props = defineProps<{
   visited: CtView[]
 }>()
 
-const emit = defineEmits<{ navigate: [view: CtView] }>()
+const emit = defineEmits<{ navigate: [view: CtView]; restart: [] }>()
 
 const menuOpen = ref(false)
+const isFullscreen = ref(false)
 
 const currentIndex = computed(() => props.slides.findIndex(s => s.id === props.currentView))
 const currentSlide = computed(() => props.slides[currentIndex.value])
@@ -33,6 +34,29 @@ function jump(id: CtView) {
   emit('navigate', id)
   menuOpen.value = false
 }
+
+function onFullscreenChange() {
+  isFullscreen.value = !!document.fullscreenElement
+}
+onMounted(() => document.addEventListener('fullscreenchange', onFullscreenChange))
+onUnmounted(() => document.removeEventListener('fullscreenchange', onFullscreenChange))
+
+async function toggleFullscreen() {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen()
+    else await document.documentElement.requestFullscreen()
+  } catch {
+    // Fullscreen can be denied (iframe sandbox, browser policy) — the
+    // button simply stays a no-op rather than showing a fake state.
+  }
+}
+
+function restart() {
+  if (window.confirm('Start over? This clears everything you\'ve logged in this module.')) {
+    emit('restart')
+    menuOpen.value = false
+  }
+}
 </script>
 
 <template>
@@ -48,6 +72,15 @@ function jump(id: CtView) {
         <span class="ct-player__slide-label">{{ currentSlide?.label }}</span>
         <span class="ct-player__slide-count">Slide {{ currentIndex + 1 }} of {{ slides.length }}</span>
       </div>
+
+      <button
+        type="button"
+        class="ct-player__icon-btn ct-player__fullscreen-btn"
+        :aria-label="isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'"
+        @click="toggleFullscreen"
+      >
+        <CtIcon :name="isFullscreen ? 'collapse' : 'expand'" :size="15" />
+      </button>
 
       <div class="ct-player__nav">
         <button type="button" class="ct-player__nav-btn" :disabled="!canPrev" aria-label="Previous slide" @click="prev">
@@ -90,6 +123,12 @@ function jump(id: CtView) {
                   </button>
                 </li>
               </ol>
+              <div class="ct-player__drawer-foot">
+                <button type="button" class="ct-player__restart" @click="restart">
+                  <CtIcon name="restart" :size="14" />
+                  Start over
+                </button>
+              </div>
             </nav>
           </Transition>
         </div>
@@ -171,6 +210,24 @@ function jump(id: CtView) {
   color: var(--ct-secondary-on-card);
 }
 
+.ct-player__icon-btn {
+  width: 34rem;
+  height: 34rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--ct-secondary-on-card);
+  flex-shrink: 0;
+}
+@media (hover: hover) {
+  .ct-player__icon-btn:hover { background: var(--ct-bone); color: var(--ct-graphite); }
+}
+.ct-player__icon-btn:focus-visible { outline: 2px solid var(--ct-graphite); outline-offset: 2px; }
+@media (max-width: 420px) {
+  .ct-player__fullscreen-btn { display: none; }
+}
+
 .ct-player__nav {
   display: flex;
   gap: 6rem;
@@ -238,7 +295,7 @@ function jump(id: CtView) {
   .ct-player__drawer-close:hover { background: var(--ct-sand); color: var(--ct-graphite); }
 }
 
-.ct-player__drawer-list { list-style: none; padding: 8rem 0; overflow-y: auto; }
+.ct-player__drawer-list { list-style: none; padding: 8rem 0; overflow-y: auto; flex: 1; }
 .ct-player__drawer-item {
   width: 100%;
   display: flex;
@@ -271,6 +328,23 @@ function jump(id: CtView) {
   flex-shrink: 0;
 }
 .ct-player__drawer-dot--visited { background: var(--ct-graphite); border-color: var(--ct-graphite); }
+
+.ct-player__drawer-foot {
+  padding: 14rem 20rem;
+  border-top: 1px solid var(--ct-border);
+}
+.ct-player__restart {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rem;
+  font-family: var(--ct-sans);
+  font-size: 13rem;
+  color: var(--ct-secondary-on-card);
+  padding: 6rem 0;
+}
+@media (hover: hover) {
+  .ct-player__restart:hover { color: var(--ct-graphite); }
+}
 
 .ct-fade-enter-active, .ct-fade-leave-active { transition: opacity 0.2s ease; }
 .ct-fade-enter-from, .ct-fade-leave-to { opacity: 0; }

@@ -8,6 +8,21 @@ import Lesson from '~/components/work/confidencetrap/Lesson.vue'
 import HandsOn from '~/components/work/confidencetrap/HandsOn.vue'
 import Assessment from '~/components/work/confidencetrap/Assessment.vue'
 import ThankYou from '~/components/work/confidencetrap/ThankYou.vue'
+import Player, { type CtSlide } from '~/components/work/confidencetrap/Player.vue'
+
+// The slide sequence the player bar's Prev/Next and outline menu walk
+// through. Deliberately screen-level, not sub-section-level — Lesson stays
+// one scrolling article and Hands On keeps its own internal question
+// -stepping, per the earlier decision against slide-per-concept pagination.
+const SLIDES: CtSlide[] = [
+  { id: 'title', label: 'Title' },
+  { id: 'objectives', label: 'Learning Objectives' },
+  { id: 'menu', label: 'Main Menu' },
+  { id: 'lesson', label: 'Lesson' },
+  { id: 'hands-on', label: 'Hands On' },
+  { id: 'assessment', label: 'Assessment' },
+  { id: 'thank-you', label: 'Results' }
+]
 
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 
@@ -23,11 +38,13 @@ useHead({
 
 const store = useConfidenceTrapStore()
 const view = ref<CtView>('title')
+const visited = ref<CtView[]>(['title'])
 
 onMounted(() => store.start())
 
 function go(next: CtView) {
   view.value = next
+  if (!visited.value.includes(next)) visited.value.push(next)
   window.scrollTo({ top: 0, behavior: 'auto' })
 }
 
@@ -77,6 +94,8 @@ function openPanel(panel: 'lesson' | 'hands-on' | 'assessment') {
       <Assessment v-else-if="view === 'assessment'" @back="go('menu')" @continue="go('thank-you')" />
       <ThankYou v-else-if="view === 'thank-you'" />
     </div>
+
+    <Player :slides="SLIDES" :current-view="view" :visited="visited" @navigate="go" />
   </div>
 </template>
 
@@ -110,7 +129,8 @@ function openPanel(panel: 'lesson' | 'hands-on' | 'assessment') {
 .ct-shell {
   max-width: 760rem;
   margin: 0 auto;
-  padding: var(--page-top) 24rem 100rem;
+  /* Clears the fixed player bar (60rem + its own safe-bottom padding) plus room to breathe. */
+  padding: var(--page-top) 24rem calc(60rem + var(--safe-bottom) + 40rem);
 }
 
 .ct-back {
@@ -151,6 +171,6 @@ function openPanel(panel: 'lesson' | 'hands-on' | 'assessment') {
 }
 
 @media (max-width: 600px) {
-  .ct-shell { padding: calc(88rem + var(--safe-top)) 18rem 70rem; }
+  .ct-shell { padding: calc(88rem + var(--safe-top)) 18rem calc(60rem + var(--safe-bottom) + 30rem); }
 }
 </style>

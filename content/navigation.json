@@ -9,7 +9,7 @@
   "about": [],
   "instructional-design": [],
   "my-work": [
-    { "id": "confidence-trap", "label": "The Confidence Trap", "description": "An interactive module that measures your own confidence-accuracy gap and shows it back to you.", "href": "/my-work/confidence-trap", "color": "#243F6A" },
+    { "id": "triangulate", "label": "Triangulate", "description": "Find an earthquake's epicentre the way a seismologist does: read the waves, measure the gap, cross three circles.", "href": "/my-work/triangulate", "color": "#243F6A" },
     { "id": "work-01", "label": "Project 01", "description": "A learning experience worth remembering", "href": "/my-work/01", "color": "#243F6A" },
     { "id": "work-02", "label": "Project 02", "description": "Where strategy meets storytelling",      "href": "/my-work/02", "color": "#243F6A" },
     { "id": "work-03", "label": "Project 03", "description": "From messy brief to measurable outcome", "href": "/my-work/03", "color": "#243F6A" }

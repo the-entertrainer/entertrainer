@@ -17,13 +17,27 @@ export default defineNuxtConfig({
       ],
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
+        { name: 'description', content: 'Entertrainer is the portfolio of Naveen Jose, a certified instructional designer building learning experiences that feel human — plus a set of free web apps for L&D teams.' },
         { name: 'theme-color', content: '#0D0C0A', media: '(prefers-color-scheme: dark)' },
         { name: 'theme-color', content: '#F5EFE8', media: '(prefers-color-scheme: light)' },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'Entertrainer' },
-        { name: 'msapplication-TileColor', content: '#0D0C0A' }
+        { name: 'msapplication-TileColor', content: '#0D0C0A' },
+        // Open Graph / Twitter — social share preview.
+        { property: 'og:type', content: 'website' },
+        { property: 'og:site_name', content: 'Entertrainer' },
+        { property: 'og:title', content: 'Entertrainer — Instructional Design by Naveen Jose' },
+        { property: 'og:description', content: 'Learning experiences that feel human, plus free web apps for L&D teams.' },
+        { property: 'og:url', content: 'https://entertrainer.in/' },
+        { property: 'og:image', content: 'https://entertrainer.in/about-me.png' },
+        { property: 'og:image:width', content: '1920' },
+        { property: 'og:image:height', content: '1080' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'Entertrainer — Instructional Design by Naveen Jose' },
+        { name: 'twitter:description', content: 'Learning experiences that feel human, plus free web apps for L&D teams.' },
+        { name: 'twitter:image', content: 'https://entertrainer.in/about-me.png' }
       ],
       link: [
         { rel: 'icon', href: '/favicon.ico', sizes: 'any' },

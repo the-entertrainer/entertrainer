@@ -214,8 +214,8 @@ function initThree() {
   window.addEventListener('pointerleave', upFn)
   window.addEventListener('keydown', keyFn)
 
-  ;(viewer as any)._td = downFn; ;(viewer as any)._tu = upFn
-  ;(window as any)._tm = moveFn; ;(window as any)._tk = keyFn
+  ;(viewer as any)._td = downFn
+  ;(window as any)._tm = moveFn; ;(window as any)._tu = upFn; ;(window as any)._tk = keyFn
 
   window.addEventListener('resize', onThreeResize)
   animateThree()
@@ -244,11 +244,12 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', onThreeResize)
 
   const viewer = threeContainer.value
-  if (viewer) {
-    if ((viewer as any)._td) viewer.removeEventListener('pointerdown', (viewer as any)._td)
-    if ((viewer as any)._tu) viewer.removeEventListener('pointerup', (viewer as any)._tu)
-  }
+  if (viewer && (viewer as any)._td) viewer.removeEventListener('pointerdown', (viewer as any)._td)
   if ((window as any)._tm) window.removeEventListener('pointermove', (window as any)._tm)
+  if ((window as any)._tu) {
+    window.removeEventListener('pointerup', (window as any)._tu)
+    window.removeEventListener('pointerleave', (window as any)._tu)
+  }
   if ((window as any)._tk) window.removeEventListener('keydown', (window as any)._tk)
 
   if (renderer) { renderer.dispose(); renderer = null }

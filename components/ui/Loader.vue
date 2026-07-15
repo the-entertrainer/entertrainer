@@ -34,7 +34,12 @@ function startGlass() {
 }
 
 onMounted(async () => {
-  if (import.meta.client && (document as any).fonts?.ready) { try { await (document as any).fonts.ready } catch {} }
+  // Wait for fonts so the wordmark doesn't reflow mid-intro, but never block
+  // entry on a slow or failed font fetch — cap the wait so a flaky network
+  // (or a Google Fonts outage) can't leave visitors stuck on the loader.
+  if (import.meta.client && (document as any).fonts?.ready) {
+    try { await Promise.race([(document as any).fonts.ready, new Promise(r => setTimeout(r, 1200))]) } catch {}
+  }
   await nextTick()
   startGlass()
   startIntro()

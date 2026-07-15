@@ -5,15 +5,12 @@ import { analyze, randomPassphrase, sciNotation, type Passphrase } from '~/utils
 import { TARGET_BITS } from '~/utils/strong/content'
 
 const store = useStrongStore()
-const emit = defineEmits<{ back: []; continue: [] }>()
 
 const input = ref('')
 const reveal = ref(true)
 const pp = ref<Passphrase | null>(null)
 
 const a = computed(() => analyze(input.value))
-// A generated passphrase's honest strength is its word-level entropy, which is
-// far below the character-level estimate a naive meter would show.
 const isPhrase = computed(() => pp.value != null && input.value === pp.value.phrase)
 const effBits = computed(() => isPhrase.value ? pp.value!.bits : a.value.effBits)
 const naiveForBar = computed(() => {
@@ -32,28 +29,17 @@ watch(effBits, (b) => {
 </script>
 
 <template>
-  <section class="st-screen st-lab">
-    <button type="button" class="st-back" @click="emit('back')">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7" /></svg>
-      Menu
-    </button>
+  <section class="st-card st-card--wide st-lab">
     <p class="st-eyebrow">Password lab</p>
-    <h2 class="st-h2">Build one and watch it break</h2>
-    <p class="st-lab__intro st-body">
-      Type anything and the numbers update as you go. Your goal: reach {{ TARGET_BITS }} bits of real
-      strength. Try a short clever password first, then try a passphrase, and compare.
-    </p>
-    <p class="st-note st-lab__privacy">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-      This runs entirely in your browser. Nothing is sent, logged, or saved. Still, use a made-up password, not a real one.
-    </p>
+    <h2 class="st-h2">Build one, watch it break</h2>
+    <p class="st-lead st-lab__line">Reach {{ TARGET_BITS }} bits of real strength to continue. Try a clever short one, then a passphrase.</p>
 
     <div class="st-lab__field">
       <input
         :type="reveal ? 'text' : 'password'"
         v-model="input"
         class="st-lab__input st-num"
-        placeholder="type a password to test"
+        placeholder="type a made-up password"
         autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
         aria-label="Password to test"
       />
@@ -66,27 +52,16 @@ watch(effBits, (b) => {
       </button>
     </div>
 
-    <div class="st-lab__actions-row">
-      <button type="button" class="st-lab__gen" @click="generate">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>
-        Generate a passphrase
-      </button>
-    </div>
+    <button type="button" class="st-lab__gen" @click="generate">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>
+      Generate a passphrase
+    </button>
 
     <div v-if="has" class="st-lab__readout">
       <div class="st-lab__stats">
-        <div class="st-lab__stat">
-          <span class="st-lab__k">Length</span>
-          <span class="st-lab__v st-num">{{ a.length }}</span>
-        </div>
-        <div class="st-lab__stat">
-          <span class="st-lab__k">Pool</span>
-          <span class="st-lab__v st-num">{{ a.pool }}</span>
-        </div>
-        <div class="st-lab__stat">
-          <span class="st-lab__k">Possibilities</span>
-          <span class="st-lab__v st-num">{{ sciNotation(a.possLog10) }}</span>
-        </div>
+        <div class="st-lab__stat"><span class="st-lab__k">Length</span><span class="st-lab__v st-num">{{ a.length }}</span></div>
+        <div class="st-lab__stat"><span class="st-lab__k">Pool</span><span class="st-lab__v st-num">{{ a.pool }}</span></div>
+        <div class="st-lab__stat"><span class="st-lab__k">Possibilities</span><span class="st-lab__v st-num">{{ sciNotation(a.possLog10) }}</span></div>
       </div>
 
       <div class="st-lab__bar"><StrengthBar :bits="effBits" :naive="naiveForBar" /></div>
@@ -97,79 +72,50 @@ watch(effBits, (b) => {
       </div>
       <div v-else-if="isPhrase" class="st-lab__flag st-lab__flag--info">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>
-        <span>A naive meter would call this {{ Math.round(a.naiveBits) }} bits, treating every letter as random. It is really seven words from a {{ Math.round(Math.pow(2, effBits / 7)) }}-word list, so its honest strength is {{ Math.round(effBits) }} bits. Strong, and you can picture it.</span>
+        <span>A naive meter would call this {{ Math.round(a.naiveBits) }} bits. It is really seven words, so its honest strength is {{ Math.round(effBits) }} bits. Strong, and memorable.</span>
       </div>
 
       <div class="st-lab__crack"><CrackTimes :bits="effBits" /></div>
     </div>
 
-    <div v-else class="st-lab__empty">
-      <p class="st-note">Start typing above, or generate a passphrase, to see the numbers.</p>
-    </div>
+    <div v-else class="st-lab__empty"><p class="st-note">Start typing, or generate a passphrase, to see the numbers.</p></div>
 
-    <div class="st-lab__foot">
-      <div class="st-lab__goal" :class="{ 'is-met': passed }" role="status">
-        <svg v-if="passed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-11"/></svg>
-        <span>{{ passed ? `Cleared. ${Math.round(effBits)} bits of real strength.` : `Goal: reach ${TARGET_BITS} bits. You are at ${Math.round(effBits)}.` }}</span>
-      </div>
-      <button type="button" class="st-btn st-btn--primary" :disabled="!passed" @click="emit('continue')">
-        Continue to assessment
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
-      </button>
+    <div class="st-lab__goal" :class="{ 'is-met': passed }" role="status">
+      <svg v-if="passed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-11"/></svg>
+      <span>{{ passed ? `Cleared at ${Math.round(effBits)} bits. Use the arrow to continue.` : `Goal: ${TARGET_BITS} bits. You are at ${Math.round(effBits)}.` }}</span>
     </div>
   </section>
 </template>
 
 <style scoped>
-.st-lab__intro { max-width: 62ch; margin-bottom: 14rem; }
-.st-lab__privacy { display: flex; align-items: flex-start; gap: 7rem; color: var(--st-muted); margin-bottom: 24rem; max-width: 64ch; }
-.st-lab__privacy svg { color: var(--st-accent); flex-shrink: 0; margin-top: 2rem; }
-
+.st-lab__line { margin: 16rem 0 24rem; max-width: 46ch; }
 .st-lab__field { position: relative; display: flex; align-items: center; gap: 4rem; background: var(--st-slot); border: 1px solid var(--st-line-strong); border-radius: 12rem; padding: 4rem 8rem 4rem 4rem; }
 .st-lab__field:focus-within { border-color: var(--st-accent); }
-.st-lab__input {
-  flex: 1; min-width: 0; background: transparent; border: none; outline: none;
-  padding: 15rem 14rem; font-size: 18rem; color: var(--st-text); letter-spacing: 0.02em;
-}
+.st-lab__input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; padding: 15rem 14rem; font-size: 18rem; color: var(--st-text); letter-spacing: 0.02em; }
 .st-lab__input::placeholder { color: var(--st-muted); opacity: 0.7; font-family: var(--st-body); letter-spacing: 0; }
 .st-lab__icon { width: 34rem; height: 34rem; display: flex; align-items: center; justify-content: center; border-radius: 8rem; color: var(--st-muted); flex-shrink: 0; }
 @media (hover: hover) { .st-lab__icon:hover { color: var(--st-text); background: var(--st-slot-hover); } }
 .st-lab__icon:focus-visible { outline: 2px solid var(--st-text); outline-offset: 2px; }
-
-.st-lab__actions-row { margin-top: 12rem; }
-.st-lab__gen {
-  display: inline-flex; align-items: center; gap: 8rem; padding: 10rem 15rem;
-  border-radius: 8rem; border: 1px solid var(--st-line-strong);
-  font-family: var(--st-display); font-weight: 500; font-size: 13.5rem; color: var(--st-text);
-  transition: border-color 0.14s ease, background 0.14s ease;
-}
+.st-lab__gen { display: inline-flex; align-items: center; gap: 8rem; margin-top: 12rem; padding: 10rem 15rem; border-radius: 8rem; border: 1px solid var(--st-line-strong); font-family: var(--st-display); font-weight: 500; font-size: 13.5rem; color: var(--st-text); transition: border-color 0.14s ease, background 0.14s ease; }
 @media (hover: hover) { .st-lab__gen:hover { border-color: var(--st-accent); background: var(--st-slot-hover); } }
 .st-lab__gen:focus-visible { outline: 2px solid var(--st-text); outline-offset: 2px; }
 
-.st-lab__readout { margin-top: 24rem; }
-.st-lab__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10rem; margin-bottom: 22rem; }
-.st-lab__stat { background: var(--st-panel); border: 1px solid var(--st-line); border-radius: 10rem; padding: 13rem 15rem; }
+.st-lab__readout { margin-top: 22rem; }
+.st-lab__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10rem; margin-bottom: 20rem; }
+.st-lab__stat { background: color-mix(in srgb, var(--st-panel) 90%, transparent); border: 1px solid var(--st-line); border-radius: 10rem; padding: 13rem 15rem; }
 .st-lab__k { display: block; font-family: var(--st-mono); font-size: 10.5rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--st-muted); margin-bottom: 6rem; }
 .st-lab__v { font-size: 20rem; font-weight: 600; color: var(--st-text); }
-.st-lab__bar { background: var(--st-panel); border: 1px solid var(--st-line); border-radius: 12rem; padding: 18rem; margin-bottom: 14rem; }
-
+.st-lab__bar { background: color-mix(in srgb, var(--st-panel) 90%, transparent); border: 1px solid var(--st-line); border-radius: 12rem; padding: 18rem; margin-bottom: 14rem; }
 .st-lab__flag { display: flex; align-items: flex-start; gap: 10rem; padding: 13rem 15rem; border-radius: 10rem; font-size: 13.5rem; line-height: 1.5; margin-bottom: 14rem; }
 .st-lab__flag svg { flex-shrink: 0; margin-top: 1rem; }
 .st-lab__flag--warn { background: color-mix(in srgb, var(--st-t0) 12%, transparent); border: 1px solid color-mix(in srgb, var(--st-t0) 40%, transparent); color: var(--st-text); }
 .st-lab__flag--warn svg { color: var(--st-t0); }
 .st-lab__flag--info { background: color-mix(in srgb, var(--st-t4) 10%, transparent); border: 1px solid color-mix(in srgb, var(--st-t4) 35%, transparent); color: var(--st-text); }
 .st-lab__flag--info svg { color: var(--st-t4); }
-
-.st-lab__crack { background: var(--st-panel); border: 1px solid var(--st-line); border-radius: 12rem; padding: 18rem; }
-.st-lab__empty { margin-top: 24rem; padding: 30rem; text-align: center; background: var(--st-panel); border: 1px dashed var(--st-line-strong); border-radius: 12rem; }
-
-.st-lab__foot { margin-top: 26rem; padding-top: 22rem; border-top: 1px solid var(--st-line); display: flex; align-items: center; justify-content: space-between; gap: 16rem; flex-wrap: wrap; }
-.st-lab__goal { display: inline-flex; align-items: center; gap: 8rem; font-family: var(--st-mono); font-size: 13rem; color: var(--st-muted); }
+.st-lab__crack { background: color-mix(in srgb, var(--st-panel) 90%, transparent); border: 1px solid var(--st-line); border-radius: 12rem; padding: 18rem; }
+.st-lab__empty { margin-top: 22rem; padding: 28rem; text-align: center; background: color-mix(in srgb, var(--st-panel) 70%, transparent); border: 1px dashed var(--st-line-strong); border-radius: 12rem; }
+.st-lab__goal { margin-top: 20rem; display: inline-flex; align-items: center; gap: 8rem; font-family: var(--st-mono); font-size: 13rem; color: var(--st-muted); }
 .st-lab__goal.is-met { color: var(--st-t3); }
 
-@media (max-width: 560px) {
-  .st-lab__stats { grid-template-columns: 1fr; }
-  .st-lab__foot { flex-direction: column; align-items: stretch; }
-  .st-lab__foot .st-btn { width: 100%; }
-}
+@media (max-width: 560px) { .st-lab__stats { grid-template-columns: 1fr; } }
 </style>

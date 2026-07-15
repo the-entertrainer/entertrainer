@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
-import type { AssessmentAttempt, LabResult, StView } from '~/types/strong'
+import type { AssessmentAttempt, LabResult } from '~/types/strong'
 import { PASS_MARK, TARGET_BITS } from '~/utils/strong/content'
 
 const STORAGE_KEY = 'strong-progress'
 
 interface Persisted {
-  view: StView
-  visited: StView[]
+  index: number
+  furthest: number
   lessonComplete: boolean
   bestBits: number
   best: LabResult | null
@@ -24,8 +24,8 @@ function load(): Partial<Persisted> {
 export const useStrongStore = defineStore('strong', () => {
   const p = load()
 
-  const view = ref<StView>(p.view ?? 'title')
-  const visited = ref<StView[]>(p.visited ?? ['title'])
+  const index = ref<number>(p.index ?? 0)
+  const furthest = ref<number>(p.furthest ?? 0)
   const lessonComplete = ref<boolean>(p.lessonComplete ?? false)
   const bestBits = ref<number>(p.bestBits ?? 0)
   const best = ref<LabResult | null>(p.best ?? null)
@@ -36,7 +36,7 @@ export const useStrongStore = defineStore('strong', () => {
     if (!import.meta.client) return
     try {
       const data: Persisted = {
-        view: view.value, visited: visited.value, lessonComplete: lessonComplete.value,
+        index: index.value, furthest: furthest.value, lessonComplete: lessonComplete.value,
         bestBits: bestBits.value, best: best.value, attempts: attempts.value
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
@@ -45,13 +45,13 @@ export const useStrongStore = defineStore('strong', () => {
 
   function start() { if (startedAt.value == null) startedAt.value = Date.now() }
 
-  function goTo(next: StView) {
-    view.value = next
-    if (!visited.value.includes(next)) visited.value.push(next)
+  function setIndex(i: number) {
+    index.value = i
+    if (i > furthest.value) furthest.value = i
     persist()
   }
 
-  function markLessonComplete() { lessonComplete.value = true; persist() }
+  function markLessonComplete() { if (!lessonComplete.value) { lessonComplete.value = true; persist() } }
 
   function saveLab(result: LabResult) {
     if (result.effBits > bestBits.value) { bestBits.value = result.effBits; best.value = result }
@@ -84,8 +84,8 @@ export const useStrongStore = defineStore('strong', () => {
   }
 
   function reset() {
-    view.value = 'title'
-    visited.value = ['title']
+    index.value = 0
+    furthest.value = 0
     lessonComplete.value = false
     bestBits.value = 0
     best.value = null
@@ -95,8 +95,8 @@ export const useStrongStore = defineStore('strong', () => {
   }
 
   return {
-    view, visited, lessonComplete, bestBits, best, attempts,
-    start, goTo, markLessonComplete, saveLab, logAttempt,
+    index, furthest, lessonComplete, bestBits, best, attempts,
+    start, setIndex, markLessonComplete, saveLab, logAttempt,
     handsOnComplete, latestAttempt, assessmentPassed, progress, completedCount,
     elapsedSeconds, reset
   }

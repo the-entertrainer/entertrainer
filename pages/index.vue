@@ -4,6 +4,14 @@ import { useHomeViewStore } from '~/stores/homeview'
 
 definePageMeta({ layout: 'default' })
 
+useSeoMeta({
+  title: 'Entertrainer — Instructional Design by Naveen Jose',
+  description: 'The portfolio of Naveen Jose, a certified instructional designer who builds learning experiences that feel human, plus free web apps for L&D teams.',
+  ogTitle: 'Entertrainer — Instructional Design by Naveen Jose',
+  ogDescription: 'Learning experiences that feel human, plus free web apps for L&D teams.',
+  ogUrl: 'https://entertrainer.in/'
+})
+
 const contentStore   = useContentStore()
 const homeViewStore  = useHomeViewStore()
 const router         = useRouter()

@@ -65,6 +65,14 @@ import * as THREE from 'three'
 
 definePageMeta({ layout: 'default' })
 
+useSeoMeta({
+  title: 'About — Naveen Jose · Entertrainer',
+  description: 'From folding towels at a hotel to designing learning for banking teams. The story and the thinking behind Entertrainer.',
+  ogTitle: 'About Naveen Jose · Entertrainer',
+  ogDescription: 'From folding towels at a hotel to designing learning for banking teams.',
+  ogUrl: 'https://entertrainer.in/about'
+})
+
 // Data
 const chapters = [
   { title: 'The Floor', body: "It started in hotel rooms. Club Mahindra, Marriott. I was the one turning chaos into something that made people exhale when they walked in. Making the bed just so. Folding towels into little animals because why not. It wasn't glamorous. It was the feeling that someone had their back.", footnote: 'I still fold towels that way at home. Small things add up.' },

@@ -16,6 +16,13 @@ import {
 import { aiRewriteField, aiSuggestOptions, aiGenerateMcqCards, type GeneratedStoryboard } from '~/utils/aiStoryboard'
 
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
+useSeoMeta({
+  title: 'StoryGen — Storyboard Studio · Entertrainer',
+  description: 'Design instructional storyboards on an infinite canvas. Pick a framework, wire the screens, and export a polished storyboard to Word or Excel.',
+  ogTitle: 'StoryGen — Storyboard Studio',
+  ogDescription: 'Design instructional storyboards on an infinite canvas.',
+  ogUrl: 'https://entertrainer.in/tools/storygen'
+})
 
 const TOUR_KEY = 'storygen-tour-seen'
 

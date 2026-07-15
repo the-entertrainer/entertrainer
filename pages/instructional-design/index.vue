@@ -8,7 +8,13 @@
 // version uses the site's real token system (theme-aware --color-* variables,
 // the 1rem = 1px scale, DM Sans) and the shared .glass-* primitives.
 definePageMeta({ layout: false, pageTransition: { name: 'fade', mode: 'out-in' } })
-useHead({ title: 'Instructional Design · Entertrainer' })
+useSeoMeta({
+  title: 'Instructional Design · Entertrainer',
+  description: 'A page that designs itself while you read it. See instructional design principles applied to the page you are on.',
+  ogTitle: 'Instructional Design · Entertrainer',
+  ogDescription: 'A page that designs itself while you read it.',
+  ogUrl: 'https://entertrainer.in/instructional-design'
+})
 
 const cutJargon = ref(false)
 const chunk = ref(false)

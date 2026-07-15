@@ -171,13 +171,38 @@ function _onTouchMove(e: TouchEvent) {
 }
 // ──────────────────────────────────────────────────────────────────────────
 
+// If WebGL is unavailable (old device, disabled, driver crash) or the 3D
+// Experience throws, we don't want the home page to die on a black canvas —
+// drop into the existing 2D list view, which is fully featured on its own.
+function webglSupported(): boolean {
+  try {
+    const c = document.createElement('canvas')
+    return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl')))
+  } catch { return false }
+}
+
+function fallbackToList() {
+  if (experience) { experience.destroy(); experience = null }
+  if (homeViewStore.mode !== 'list') homeViewStore.setMode('list')
+  if (!experienceStore.hasEntered) experienceStore.setHasEntered()
+  experienceStore.setReady()
+  if (!_atmoRunning) startAtmo()
+}
+
 async function mountExperience() {
   await nextTick()
   // Guard against a double mount: on a return visit onMounted calls this
   // directly, and we never want the hasEntered watcher to spin up a second
   // Experience over the top of a live one.
   if (!canvasRef.value || experience) return
-  experience = new Experience(canvasRef.value)
+  if (!webglSupported()) { fallbackToList(); return }
+  try {
+    experience = new Experience(canvasRef.value)
+  } catch (err) {
+    console.warn('[SpiralView] WebGL unavailable — falling back to list view.', err)
+    fallbackToList()
+    return
+  }
   experience.world.setNavItems(props.items, themeStore.isDark)
   experience.setFogColor(themeStore.isDark ? FOG_DARK : FOG_LIGHT)
   experience.postProcessing.setColorGrade(themeStore.isDark)

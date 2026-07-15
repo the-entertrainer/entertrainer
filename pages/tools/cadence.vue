@@ -1,5 +1,12 @@
 <script setup lang="ts">
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
+useSeoMeta({
+  title: 'Cadence — Training Calendar Generator · Entertrainer',
+  description: 'Turn a list of topics into a ready-to-present monthly training calendar, laid out around your holidays, audiences and time slots. Exports to PowerPoint.',
+  ogTitle: 'Cadence — Training Calendar Generator',
+  ogDescription: 'Turn a list of topics into a ready-to-present monthly training calendar.',
+  ogUrl: 'https://entertrainer.in/tools/cadence'
+})
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface TrainingModule {

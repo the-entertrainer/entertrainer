@@ -31,13 +31,14 @@ export default defineNuxtConfig({
         { property: 'og:title', content: 'Entertrainer — Instructional Design by Naveen Jose' },
         { property: 'og:description', content: 'Learning experiences that feel human, plus free web apps for L&D teams.' },
         { property: 'og:url', content: 'https://entertrainer.in/' },
-        { property: 'og:image', content: 'https://entertrainer.in/about-me.png' },
-        { property: 'og:image:width', content: '1920' },
-        { property: 'og:image:height', content: '1080' },
+        { property: 'og:image', content: 'https://entertrainer.in/og-card.png' },
+        { property: 'og:image:width', content: '2400' },
+        { property: 'og:image:height', content: '1260' },
+        { property: 'og:image:alt', content: 'Entertrainer — instructional design that feels human, by Naveen Jose' },
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'Entertrainer — Instructional Design by Naveen Jose' },
         { name: 'twitter:description', content: 'Learning experiences that feel human, plus free web apps for L&D teams.' },
-        { name: 'twitter:image', content: 'https://entertrainer.in/about-me.png' }
+        { name: 'twitter:image', content: 'https://entertrainer.in/og-card.png' }
       ],
       link: [
         { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
@@ -133,7 +134,8 @@ export default defineNuxtConfig({
   },
   ssr: false,
   routeRules: {
-    '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } }
+    '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } },
+    '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } }
   },
   nitro: {
     preset: 'vercel',

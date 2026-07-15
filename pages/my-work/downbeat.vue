@@ -21,8 +21,14 @@ const SEQUENCE: { id: GvView; label: string }[] = [
 
 definePageMeta({ layout: false, pageTransition: { name: 'gv-fade', mode: 'out-in' } })
 useHead({
-  title: 'Downbeat: Build a Groove',
   link: [{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap' }]
+})
+useSeoMeta({
+  title: 'Downbeat — Build a Groove · Entertrainer',
+  description: 'A short interactive module: build a drum groove on a real step sequencer and learn why placement turns three sounds into a beat.',
+  ogTitle: 'Downbeat — an interactive rhythm module',
+  ogDescription: 'Build a drum groove on a real step sequencer and hear why placement is everything.',
+  ogUrl: 'https://entertrainer.in/my-work/downbeat'
 })
 
 const store = useGrooveStore()

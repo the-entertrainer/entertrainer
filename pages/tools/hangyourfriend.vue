@@ -6,17 +6,6 @@ import { HangAudio } from '~/utils/hang/audio'
 import { randomCard } from '~/utils/hang/words'
 import { clamp, lerp, easeInCubic, easeInOutCubic } from '~/utils/hang/math'
 
-// Every wrong guess plays the next reaction in this escalating list.
-const REACTIONS: ReactKind[] = ['flinch', 'gulp', 'shiver', 'dart', 'tug', 'wobble']
-// The hang plays out differently each round; timings (seconds) tuned per style.
-const ENDINGS: DeathStyle[] = ['swing', 'snap', 'kick', 'twitch']
-const END_TIMES: Record<DeathStyle, { hang: number; limp: number; done: number }> = {
-  swing:  { hang: 0.55, limp: 3.6, done: 4.6 },
-  snap:   { hang: 0.42, limp: 1.7, done: 3.0 },
-  kick:   { hang: 0.6,  limp: 4.8, done: 5.8 },
-  twitch: { hang: 0.55, limp: 4.2, done: 5.2 }
-}
-
 definePageMeta({ layout: false, pageTransition: { name: 'hy-fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'HangYourFriend — a darkly funny Hangman · Entertrainer',
@@ -28,17 +17,20 @@ useSeoMeta({
 const ROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM']
 const MAX_WRONG = 7
 
-type Phase = 'setup' | 'handoff' | 'play' | 'result'
-const phase = ref<Phase>('setup')
+// Every wrong guess plays the next reaction in this escalating list.
+const REACTIONS: ReactKind[] = ['flinch', 'gulp', 'shiver', 'dart', 'tug', 'wobble']
+// The hang plays out differently each round; timings (seconds) tuned per style.
+const ENDINGS: DeathStyle[] = ['swing', 'snap', 'kick', 'twitch']
+const END_TIMES: Record<DeathStyle, { hang: number; limp: number; done: number }> = {
+  swing:  { hang: 0.55, limp: 3.6, done: 4.6 },
+  snap:   { hang: 0.42, limp: 1.7, done: 3.0 },
+  kick:   { hang: 0.6,  limp: 4.8, done: 5.8 },
+  twitch: { hang: 0.55, limp: 4.2, done: 5.2 }
+}
+
+type Phase = 'title' | 'setup' | 'handoff' | 'play' | 'result'
+const phase = ref<Phase>('title')
 const status = ref<'playing' | 'won' | 'lost'>('playing')
-
-const word = ref('')
-const clues = ref<string[]>(['', '', ''])
-const guessed = ref<string[]>([])
-
-const setupMode = ref<'own' | 'random'>('random')
-const ownWord = ref('')
-const ownClues = ref<string[]>(['', '', ''])
 
 // Procedural soundtrack: wind + crackle ambience and per-event stings.
 const audio = new HangAudio()
@@ -50,10 +42,28 @@ function toggleSound() {
   if (soundOn.value) audio.startAmbience()
 }
 
+const word = ref('')
+const clues = ref<string[]>(['', '', ''])
+const guessed = ref<string[]>([])
+
+const setupMode = ref<'own' | 'random'>('random')
+const ownWord = ref('')
+const ownClues = ref<string[]>(['', '', ''])
+
 const wrong = computed(() => guessed.value.filter(l => !word.value.includes(l)).length)
 const uniqueLetters = computed(() => [...new Set(word.value.split('').filter(c => /[A-Z]/.test(c)))])
 const solved = computed(() => uniqueLetters.value.length > 0 && uniqueLetters.value.every(l => guessed.value.includes(l)))
 const display = computed(() => word.value.split('').map(c => (/[A-Z]/.test(c) ? (guessed.value.includes(c) || status.value !== 'playing' ? c : '') : c)))
+
+// Screen shake on every miss — pure game juice.
+const shaking = ref(false)
+let shakeTO: ReturnType<typeof setTimeout> | undefined
+function shake() {
+  shaking.value = false
+  requestAnimationFrame(() => { shaking.value = true })
+  clearTimeout(shakeTO)
+  shakeTO = setTimeout(() => { shaking.value = false }, 420)
+}
 
 // ── Canvas + loop ────────────────────────────────────────────────────────────
 const host = ref<HTMLElement | null>(null)
@@ -166,6 +176,14 @@ function frame(now: number) {
 }
 
 // ── Game flow ────────────────────────────────────────────────────────────────
+function resetWorld() {
+  status.value = 'playing'; guessed.value = []
+  platformDrop = 0; deathT = 0; endT = 0; ropeReleased = false
+  neckKickX = 0; twitchTimer = 0; swingSign = 0; ending = 'swing'
+  char = new HangCharacter()
+  buildWorld()
+}
+
 function lockIn() {
   if (setupMode.value === 'own') {
     const w = ownWord.value.toUpperCase().replace(/[^A-Z ]/g, '').trim()
@@ -182,6 +200,15 @@ function lockIn() {
   phase.value = setupMode.value === 'own' ? 'handoff' : 'play'
   audio.unlock()
   if (soundOn.value) audio.startAmbience()
+}
+
+function quickGame() { setupMode.value = 'random'; resetWorld(); lockIn() }
+function setTrap() { setupMode.value = 'own'; phase.value = 'setup'; audio.unlock() }
+function toMenu() { resetWorld(); phase.value = 'title' }
+function playAgain() {
+  resetWorld()
+  if (setupMode.value === 'own') phase.value = 'setup'
+  else lockIn()
 }
 
 function beginGuessing() {
@@ -210,20 +237,14 @@ function guess(letter: string) {
     else rope.nudgeLast(0, 3 * L.s)
     char.setState('FALLING')
     audio.trapdoor()
+    shake()
   } else {
     // Non-fatal wrong guess: escalating flinch + a jolt through the rope.
     char.react(REACTIONS[Math.min(wrong.value - 1, REACTIONS.length - 1)])
     neckKickX = (Math.random() < 0.5 ? -1 : 1) * (4 + wrong.value) * L.s
     audio.wrong(wrong.value)
+    shake()
   }
-}
-
-function rematch() {
-  phase.value = 'setup'; status.value = 'playing'; guessed.value = []
-  platformDrop = 0; deathT = 0; endT = 0; ropeReleased = false
-  neckKickX = 0; twitchTimer = 0; swingSign = 0; ending = 'swing'
-  char = new HangCharacter()
-  buildWorld()
 }
 
 function onKey(e: KeyboardEvent) {
@@ -249,232 +270,332 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="host" class="hy">
-    <canvas ref="cv" class="hy__canvas" aria-hidden="true" />
+    <canvas ref="cv" class="hy__canvas" :class="{ 'is-shaking': shaking }" aria-hidden="true" />
 
-    <header class="hy__top">
-      <div class="hy__brand"><span class="hy__brand-dot" /> HANGYOURFRIEND</div>
-      <div class="hy__top-right">
-        <button type="button" class="hy__exit" :aria-pressed="soundOn" @click="toggleSound">
-          {{ soundOn ? '♪ Sound on' : '♪ Muted' }}
-        </button>
-        <NuxtLink to="/" class="hy__exit" aria-label="Leave">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7" /></svg>
-          Exit
-        </NuxtLink>
-      </div>
-    </header>
+    <!-- Persistent corner controls, game-style round buttons -->
+    <NuxtLink to="/" class="hy__icon hy__icon--home" aria-label="Leave the game">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 11.5 12 4l9 7.5" /><path d="M6 10v10h12V10" />
+      </svg>
+    </NuxtLink>
+    <button type="button" class="hy__icon hy__icon--sound" :aria-pressed="soundOn" :aria-label="soundOn ? 'Mute sound' : 'Unmute sound'" @click="toggleSound">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 5 6.5 9H3v6h3.5L11 19V5z" />
+        <path v-if="soundOn" d="M15.5 9.5a4 4 0 0 1 0 5.5M18 7a8 8 0 0 1 0 10" />
+        <path v-else d="m16 9 5 6M21 9l-5 6" />
+      </svg>
+    </button>
 
-    <!-- SETUP -->
-    <div v-if="phase === 'setup'" class="hy__center">
-      <div class="hy__panel hy__setup">
-        <p class="hy__eyebrow">A darkly funny hangman &mdash; in glorious sepiavision</p>
-        <h1 class="hy__title">Set a trap for your friend</h1>
-        <p class="hy__sub">Pick a word and three clues. Then hand them the device and watch them sweat. Nobody actually gets hurt. Legally, you can't.</p>
-
-        <div class="hy__seg">
-          <button type="button" :class="{ on: setupMode === 'random' }" @click="setupMode = 'random'">Surprise me</button>
-          <button type="button" :class="{ on: setupMode === 'own' }" @click="setupMode = 'own'">Set my own</button>
+    <Transition name="iris" mode="out-in">
+      <!-- TITLE -->
+      <div v-if="phase === 'title'" key="title" class="hy__screen hy__screen--title">
+        <div class="hy__title-top">
+          <h1 class="hy__logo" aria-label="Hang Your Friend">
+            <span class="hy__logo-big"><b v-for="(ch, i) in 'HANG'" :key="i" :class="`n${i % 4}`">{{ ch }}</b></span>
+            <span class="hy__logo-mid">your</span>
+            <span class="hy__logo-big"><b v-for="(ch, i) in 'FRIEND'" :key="i" :class="`n${(i + 2) % 4}`">{{ ch }}</b></span>
+          </h1>
+          <p class="hy__tagline">A darkly funny hangman picture &mdash; in glorious sepiavision</p>
         </div>
+        <div class="hy__title-bottom">
+          <div class="hy__menu">
+            <button type="button" class="hy__mbtn hy__mbtn--primary" @click="quickGame">&#9656;&nbsp; Quick game</button>
+            <button type="button" class="hy__mbtn" @click="setTrap">Set a trap for a friend</button>
+          </div>
+          <p class="hy__studio">&copy; 1931 Entertrainer Pictures &middot; no friends were harmed</p>
+        </div>
+      </div>
 
-        <div v-if="setupMode === 'own'" class="hy__form">
+      <!-- SETUP: write the trap -->
+      <div v-else-if="phase === 'setup'" key="setup" class="hy__screen hy__screen--center">
+        <div class="hy__card">
+          <p class="hy__eyebrow">Strictly between us</p>
+          <h2 class="hy__h2">Write the trap</h2>
           <label class="hy__label">Secret word</label>
           <input v-model="ownWord" class="hy__input" maxlength="18" placeholder="e.g. GALLOWS" autocomplete="off" spellcheck="false" />
           <label class="hy__label">Three clues</label>
           <input v-for="i in 3" :key="i" v-model="ownClues[i - 1]" class="hy__input" maxlength="60" :placeholder="`Clue ${i}`" autocomplete="off" />
-        </div>
-        <p v-else class="hy__note">A random word and three ready clues will be dealt from the deck.</p>
-
-        <button type="button" class="hy__btn" :disabled="setupMode === 'own' && ownWord.replace(/[^A-Za-z]/g, '').length < 3" @click="lockIn">
-          Lock it in
-        </button>
-      </div>
-    </div>
-
-    <!-- HANDOFF -->
-    <div v-else-if="phase === 'handoff'" class="hy__center">
-      <div class="hy__panel hy__handoff">
-        <div class="hy__hand-glyph" aria-hidden="true">
-          <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 8-8M20 12a8 8 0 0 1-8 8M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>
-        </div>
-        <h2 class="hy__title">Pass it over</h2>
-        <p class="hy__sub">Hand the device to your victim. The word is hidden. When they are ready, let them begin.</p>
-        <button type="button" class="hy__btn" @click="beginGuessing">I'm the victim. Begin.</button>
-      </div>
-    </div>
-
-    <!-- PLAY -->
-    <template v-else-if="phase === 'play'">
-      <div class="hy__clues">
-        <div v-for="(c, i) in clues" :key="i" class="hy__clue"><span class="hy__clue-n">{{ i + 1 }}</span>{{ c }}</div>
-      </div>
-
-      <div class="hy__hud">
-        <div class="hy__word" role="text" :aria-label="`Word, ${display.filter(d => d !== ' ').length} letters`">
-          <span v-for="(ch, i) in display" :key="i" class="hy__slot" :class="{ 'is-space': ch === ' ', 'is-filled': ch && ch !== ' ' }">{{ ch === ' ' ? '' : ch || '' }}</span>
-        </div>
-        <div class="hy__mistakes">
-          <span>mistakes</span>
-          <i v-for="n in MAX_WRONG" :key="n" :class="{ used: n <= wrong }" />
-          <b class="hy__num">{{ wrong }} / {{ MAX_WRONG }}</b>
-        </div>
-
-        <div class="hy__keyboard">
-          <div v-for="(row, ri) in ROWS" :key="ri" class="hy__krow">
-            <button
-              v-for="k in row.split('')" :key="k" type="button"
-              class="hy__key"
-              :class="{ hit: guessed.includes(k) && word.includes(k), miss: guessed.includes(k) && !word.includes(k) }"
-              :disabled="guessed.includes(k) || status !== 'playing'"
-              @click="guess(k)"
-            >{{ k }}</button>
+          <div class="hy__row">
+            <button type="button" class="hy__mbtn" @click="toMenu">Back</button>
+            <button type="button" class="hy__mbtn hy__mbtn--primary" :disabled="ownWord.replace(/[^A-Za-z]/g, '').length < 3" @click="lockIn">Lock it in</button>
           </div>
         </div>
       </div>
-    </template>
 
-    <!-- RESULT -->
-    <div v-if="phase === 'result'" class="hy__center">
-      <div class="hy__panel hy__result" :class="status === 'won' ? 'won' : 'lost'">
-        <p class="hy__eyebrow">{{ status === 'won' ? 'The rope goes slack' : 'The floor gives way' }}</p>
-        <h2 class="hy__title">{{ status === 'won' ? 'You escaped' : 'You have been hanged' }}</h2>
-        <p class="hy__reveal">The word was <b>{{ word }}</b></p>
-        <div class="hy__result-actions">
-          <button type="button" class="hy__btn" @click="rematch">Rematch</button>
-          <NuxtLink to="/" class="hy__btn hy__btn--ghost">Leave</NuxtLink>
+      <!-- HANDOFF -->
+      <div v-else-if="phase === 'handoff'" key="handoff" class="hy__screen hy__screen--center">
+        <div class="hy__card hy__card--center">
+          <div class="hy__hand-glyph" aria-hidden="true">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 8-8M20 12a8 8 0 0 1-8 8M8 8l-4 4 4 4M16 8l4 4-4 4" /></svg>
+          </div>
+          <h2 class="hy__h2">Pass it over</h2>
+          <p class="hy__cardsub">Hand the device to your victim. The word is hidden. When they are ready, let them begin.</p>
+          <button type="button" class="hy__mbtn hy__mbtn--primary hy__mbtn--full" @click="beginGuessing">I'm the victim &mdash; begin</button>
         </div>
       </div>
-    </div>
+
+      <!-- PLAY -->
+      <div v-else-if="phase === 'play'" key="play" class="hy__screen">
+        <div class="hy__clues">
+          <div v-for="(c, i) in clues" :key="i" class="hy__clue"><span class="hy__clue-n">N&ordm;{{ i + 1 }}</span>{{ c }}</div>
+        </div>
+
+        <div class="hy__hud">
+          <div class="hy__word" role="text" :aria-label="`Word, ${display.filter(d => d !== ' ').length} letters`">
+            <span v-for="(ch, i) in display" :key="i" class="hy__slot" :class="{ 'is-space': ch === ' ', 'is-filled': ch && ch !== ' ' }">{{ ch === ' ' ? '' : ch || '' }}</span>
+          </div>
+          <div class="hy__lives" :class="{ 'is-danger': wrong >= MAX_WRONG - 2 }" :aria-label="`${wrong} of ${MAX_WRONG} mistakes`">
+            <svg v-for="n in MAX_WRONG" :key="n" class="hy__noose" :class="{ used: n <= wrong }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+              <path d="M12 2v4" /><circle cx="12" cy="13" r="6.5" />
+            </svg>
+            <b class="hy__num">{{ wrong }}/{{ MAX_WRONG }}</b>
+          </div>
+
+          <div class="hy__keyboard">
+            <div v-for="(row, ri) in ROWS" :key="ri" class="hy__krow">
+              <button
+                v-for="k in row.split('')" :key="k" type="button"
+                class="hy__key"
+                :class="{ hit: guessed.includes(k) && word.includes(k), miss: guessed.includes(k) && !word.includes(k) }"
+                :disabled="guessed.includes(k) || status !== 'playing'"
+                @click="guess(k)"
+              >{{ k }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULT -->
+      <div v-else key="result" class="hy__screen hy__screen--center">
+        <div class="hy__end">
+          <p class="hy__eyebrow hy__end-eyebrow">{{ status === 'won' ? 'The rope goes slack' : 'The floor gives way' }}</p>
+          <h2 class="hy__logo hy__logo--end" :aria-label="status === 'won' ? 'You escaped' : 'Game over'">
+            <span class="hy__logo-big"><b v-for="(ch, i) in (status === 'won' ? 'YOU' : 'GAME')" :key="i" :class="`n${i % 4}`">{{ ch }}</b></span>
+            <span class="hy__logo-big"><b v-for="(ch, i) in (status === 'won' ? 'ESCAPED' : 'OVER')" :key="'b' + i" :class="`n${(i + 1) % 4}`">{{ ch }}</b></span>
+          </h2>
+          <p class="hy__ticket">The word was <b>{{ word }}</b></p>
+          <div class="hy__menu">
+            <button type="button" class="hy__mbtn hy__mbtn--primary" @click="playAgain">&#9656;&nbsp; Play again</button>
+            <button type="button" class="hy__mbtn" @click="toMenu">Menu</button>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <style scoped>
-/* Vintage title-card HUD: sepia paper world, black intertitle cards with a
-   double cream frame, serif type, dusty poster red. */
+/* A native-game shell over the sepia cartoon world: hand-lettered title,
+   iris-wipe screen transitions, round icon controls, chunky letter tiles,
+   arcade keys with a 3D ledge, noose lives, ticket-stub clues. */
 .hy {
   position: fixed; inset: 0; overflow: hidden;
   background: #cbbc95; color: #241a10;
   font-family: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
-  --ink: #f0e5c6;            /* cream text on the cards */
-  --paper-ink: #241a10;      /* ink text over the paper canvas */
-  --muted: #b9ab88;
+  --ink: #241a10;
+  --cream: #f0e5c6;
   --danger: #a03d2d;
-  --accent: #cf6a50;         /* the same red, lifted for dark cards */
-  --card: rgba(26, 18, 10, 0.94);
-  --line: rgba(240, 229, 198, 0.28);
   --mono: ui-monospace, 'Courier New', monospace;
 }
 .hy__canvas { position: absolute; inset: 0; display: block; }
-
-.hy__top {
-  position: absolute; top: 0; left: 0; right: 0; z-index: 10;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: calc(14rem + var(--safe-top)) 20rem 14rem;
+.hy__canvas.is-shaking { animation: hy-shake 0.38s linear; }
+@keyframes hy-shake {
+  12% { translate: -7rem 3rem; } 28% { translate: 6rem -4rem; }
+  46% { translate: -5rem 2rem; } 64% { translate: 4rem -2rem; }
+  82% { translate: -2rem 1rem; } 100% { translate: 0 0; }
 }
-.hy__brand { display: inline-flex; align-items: center; gap: 9rem; font-size: 13.5rem; font-weight: 700; letter-spacing: 0.18em; color: var(--paper-ink); }
-.hy__brand-dot { width: 8rem; height: 8rem; border-radius: 50%; background: var(--danger); box-shadow: 0 0 10rem rgba(160, 61, 45, 0.7); }
-.hy__top-right { display: flex; gap: 8rem; }
-.hy__exit {
-  display: inline-flex; align-items: center; gap: 5rem; font-size: 12rem; color: #4a3a22;
-  font-family: var(--mono); padding: 6rem 11rem; border: 1px solid rgba(56, 42, 22, 0.4);
-  border-radius: 999rem; background: rgba(240, 231, 205, 0.4); cursor: pointer;
+
+/* ── Corner icon buttons ─────────────────────────────────────────────────── */
+.hy__icon {
+  position: absolute; z-index: 20; top: calc(14rem + var(--safe-top));
+  width: 44rem; height: 44rem; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--ink); color: var(--cream);
+  border: 2rem solid var(--cream);
+  box-shadow: 0 0 0 2.5rem var(--ink), 0 5rem 0 2.5rem #17100a;
+  cursor: pointer; transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
-@media (hover: hover) { .hy__exit:hover { color: var(--paper-ink); border-color: rgba(56, 42, 22, 0.7); } }
+.hy__icon:active { transform: translateY(3rem); box-shadow: 0 0 0 2.5rem var(--ink), 0 2rem 0 2.5rem #17100a; }
+.hy__icon--home { left: 16rem; }
+.hy__icon--sound { right: 16rem; }
+@media (hover: hover) { .hy__icon:hover { background: #3a2c1a; } }
 
-.hy__center { position: absolute; inset: 0; z-index: 8; display: flex; align-items: center; justify-content: center; padding: 24rem; }
-.hy__panel {
-  width: 100%; max-width: 460rem; background: var(--card); border: 1px solid var(--line);
-  border-radius: 8rem; padding: 38rem 34rem;
-  box-shadow:
-    inset 0 0 0 5rem rgba(26, 18, 10, 1),
-    inset 0 0 0 6rem var(--line),
-    0 34rem 90rem -44rem rgba(20, 12, 4, 0.95);
+/* ── Screens + iris wipe ─────────────────────────────────────────────────── */
+.hy__screen { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
+.hy__screen--center { display: flex; align-items: center; justify-content: center; padding: 24rem; }
+.hy__screen--center > *, .hy__clues, .hy__hud, .hy__title-top, .hy__title-bottom { pointer-events: auto; }
+.hy__screen--title {
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  text-align: center;
+  padding: calc(76rem + var(--safe-top)) 20rem calc(22rem + var(--safe-bottom));
 }
-.hy__eyebrow { font-style: italic; font-size: 12.5rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 12rem; }
-.hy__title { font-size: clamp(28rem, 5vw, 40rem); font-weight: 700; line-height: 1.08; letter-spacing: 0.005em; color: var(--ink); }
-.hy__sub { margin-top: 14rem; font-size: 14.5rem; line-height: 1.65; color: var(--muted); }
-.hy__note { margin-top: 18rem; font-size: 13.5rem; color: var(--muted); font-style: italic; }
+.hy__title-top, .hy__title-bottom { display: flex; flex-direction: column; align-items: center; }
 
-.hy__seg { display: flex; gap: 6rem; margin-top: 24rem; padding: 5rem; background: rgba(12, 8, 4, 0.65); border-radius: 8rem; }
-.hy__seg button { flex: 1; padding: 11rem; border-radius: 6rem; font-size: 13.5rem; font-weight: 700; color: var(--muted); font-family: inherit; cursor: pointer; }
-.hy__seg button.on { background: rgba(240, 229, 198, 0.13); color: var(--ink); }
+.iris-enter-active { animation: hy-iris-in 0.55s ease both; }
+.iris-leave-active { animation: hy-iris-out 0.4s ease both; }
+@keyframes hy-iris-in { from { clip-path: circle(0% at 50% 45%); } to { clip-path: circle(125% at 50% 45%); } }
+@keyframes hy-iris-out { from { clip-path: circle(125% at 50% 45%); } to { clip-path: circle(0% at 50% 45%); } }
 
-.hy__form { margin-top: 20rem; }
-.hy__label { display: block; font-family: var(--mono); font-size: 10.5rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin: 14rem 0 8rem; }
-.hy__input { width: 100%; background: rgba(12, 8, 4, 0.7); border: 1px solid var(--line); border-radius: 6rem; padding: 12rem 14rem; color: var(--ink); font-size: 15rem; margin-bottom: 8rem; letter-spacing: 0.05em; font-family: var(--mono); }
-.hy__input:focus { outline: none; border-color: var(--accent); }
-
-.hy__btn {
-  display: inline-flex; align-items: center; justify-content: center; margin-top: 24rem; width: 100%;
-  padding: 14rem; border-radius: 6rem; background: var(--danger); color: #f6ecd2;
-  font-size: 15rem; font-weight: 700; letter-spacing: 0.05em; cursor: pointer; font-family: inherit;
-  box-shadow: inset 0 0 0 1.5rem rgba(246, 236, 210, 0.35);
-  transition: filter 0.15s ease, transform 0.1s ease;
+/* ── Title screen ────────────────────────────────────────────────────────── */
+.hy__logo { display: flex; flex-direction: column; align-items: center; line-height: 0.94; }
+.hy__logo-big { display: block; white-space: nowrap; animation: hy-float 3.2s ease-in-out infinite alternate; }
+.hy__logo-big + .hy__logo-big, .hy__logo-mid + .hy__logo-big { animation-delay: 0.45s; }
+@keyframes hy-float { from { translate: 0 0; } to { translate: 0 -5rem; } }
+.hy__logo-big b {
+  display: inline-block; font-weight: 900;
+  font-size: clamp(42rem, 11vw, 74rem);
+  color: var(--cream);
+  -webkit-text-stroke: 2.2rem var(--ink);
+  text-shadow: 3.5rem 4.5rem 0 rgba(36, 26, 16, 0.92);
+  letter-spacing: 0.015em;
 }
-.hy__btn:active { transform: translateY(1px); }
-.hy__btn:disabled { opacity: 0.4; cursor: not-allowed; }
-@media (hover: hover) { .hy__btn:not(:disabled):hover { filter: brightness(1.12); } }
-.hy__btn--ghost { background: transparent; border: 1px solid var(--line); box-shadow: none; color: var(--ink); text-decoration: none; }
+.hy__logo-big b.n0 { rotate: -2.6deg; }
+.hy__logo-big b.n1 { rotate: 1.9deg; translate: 0 2.5rem; }
+.hy__logo-big b.n2 { rotate: -1.1deg; translate: 0 -2rem; }
+.hy__logo-big b.n3 { rotate: 2.7deg; translate: 0 1.5rem; }
+.hy__logo-mid {
+  display: block; font-style: italic; font-weight: 700;
+  font-size: clamp(17rem, 4.2vw, 23rem); color: var(--danger);
+  letter-spacing: 0.35em; padding-left: 0.35em; text-transform: lowercase;
+  margin: 5rem 0 7rem;
+  text-shadow: 1.5rem 2rem 0 rgba(240, 229, 198, 0.75);
+}
+.hy__tagline { margin-top: 14rem; font-style: italic; font-size: 13rem; color: rgba(36, 26, 16, 0.78); text-shadow: 0 1rem 0 rgba(240, 229, 198, 0.6); }
+.hy__studio { margin-top: 16rem; font-size: 10.5rem; letter-spacing: 0.18em; text-transform: uppercase; color: #4c3d26; text-shadow: 0 1rem 0 rgba(240, 229, 198, 0.5); }
 
-.hy__hand-glyph { color: var(--accent); margin-bottom: 8rem; }
+/* ── Game menu buttons ───────────────────────────────────────────────────── */
+.hy__menu { display: grid; gap: 13rem; margin-top: 30rem; width: min(320rem, 80vw); }
+.hy__title-bottom .hy__menu { margin-top: 0; }
+.hy__mbtn {
+  position: relative; padding: 15rem 20rem;
+  font-family: inherit; font-weight: 800; font-size: 15.5rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  background: var(--ink); color: var(--cream);
+  border: 2rem solid var(--cream); border-radius: 12rem;
+  box-shadow: 0 0 0 2.5rem var(--ink), 0 6rem 0 2.5rem #17100a;
+  cursor: pointer; transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+}
+.hy__mbtn:active:not(:disabled) { transform: translateY(4rem); box-shadow: 0 0 0 2.5rem var(--ink), 0 2rem 0 2.5rem #17100a; }
+.hy__mbtn:disabled { opacity: 0.45; cursor: not-allowed; }
+.hy__mbtn--primary { background: var(--danger); box-shadow: 0 0 0 2.5rem #712a1e, 0 6rem 0 2.5rem #572117; }
+.hy__mbtn--primary:active:not(:disabled) { box-shadow: 0 0 0 2.5rem #712a1e, 0 2rem 0 2.5rem #572117; }
+.hy__mbtn--full { width: 100%; margin-top: 24rem; }
+@media (hover: hover) {
+  .hy__mbtn:not(:disabled):hover { filter: brightness(1.12); animation: hy-wiggle 0.4s ease; }
+}
+@keyframes hy-wiggle { 25% { rotate: -1deg; } 65% { rotate: 1deg; } 100% { rotate: 0deg; } }
 
-/* PLAY HUD */
+/* ── Paper cards (setup / handoff) ───────────────────────────────────────── */
+.hy__card {
+  width: min(440rem, 92vw); background: var(--cream); color: var(--ink);
+  border: 3rem solid var(--ink); border-radius: 10rem;
+  padding: 30rem 28rem; rotate: -0.4deg;
+  box-shadow: 8rem 10rem 0 rgba(36, 26, 16, 0.4);
+}
+.hy__card--center { text-align: center; }
+.hy__eyebrow { font-style: italic; font-size: 12.5rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--danger); margin-bottom: 10rem; }
+.hy__h2 { font-size: clamp(26rem, 5vw, 34rem); font-weight: 900; line-height: 1.06; }
+.hy__cardsub { margin-top: 12rem; font-size: 14rem; line-height: 1.6; color: rgba(36, 26, 16, 0.72); }
+.hy__hand-glyph { color: var(--danger); margin-bottom: 6rem; display: inline-flex; }
+
+.hy__label { display: block; font-family: var(--mono); font-size: 10.5rem; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(36, 26, 16, 0.6); margin: 16rem 0 6rem; }
+.hy__input {
+  width: 100%; background: rgba(36, 26, 16, 0.05);
+  border: none; border-bottom: 2.5rem dashed rgba(36, 26, 16, 0.45);
+  border-radius: 6rem 6rem 0 0; padding: 11rem 12rem;
+  color: var(--ink); font-family: var(--mono); font-size: 15rem;
+  letter-spacing: 0.06em; margin-bottom: 8rem;
+}
+.hy__input::placeholder { color: rgba(36, 26, 16, 0.35); }
+.hy__input:focus { outline: none; border-bottom-color: var(--danger); background: rgba(36, 26, 16, 0.08); }
+.hy__row { display: flex; gap: 10rem; margin-top: 24rem; }
+.hy__row .hy__mbtn { flex: 1; padding: 13rem 10rem; font-size: 13.5rem; }
+
+/* ── Play HUD ────────────────────────────────────────────────────────────── */
 .hy__clues {
-  position: absolute; top: calc(58rem + var(--safe-top)); left: 0; right: 0; z-index: 7;
+  position: absolute; top: calc(66rem + var(--safe-top)); left: 0; right: 0;
   display: flex; gap: 10rem; justify-content: center; flex-wrap: wrap; padding: 0 16rem;
 }
 .hy__clue {
   display: flex; align-items: baseline; gap: 8rem; max-width: 260rem;
-  background: var(--card); border: 1px solid var(--line); border-radius: 6rem;
-  padding: 10rem 14rem; font-size: 13rem; line-height: 1.45; color: var(--ink);
-  font-style: italic;
-  box-shadow: inset 0 0 0 3rem rgba(26, 18, 10, 1), inset 0 0 0 4rem rgba(240, 229, 198, 0.18);
+  background: var(--cream); color: var(--ink);
+  border: 2rem solid var(--ink); border-left: 2rem dashed var(--ink);
+  border-radius: 4rem; padding: 8rem 13rem;
+  font-style: italic; font-size: 13rem; line-height: 1.45;
+  box-shadow: 2.5rem 3.5rem 0 rgba(36, 26, 16, 0.45);
 }
-.hy__clue-n { font-family: var(--mono); font-style: normal; font-size: 11rem; color: var(--accent); }
+.hy__clue:nth-child(1) { rotate: -1.1deg; }
+.hy__clue:nth-child(2) { rotate: 0.9deg; }
+.hy__clue:nth-child(3) { rotate: -0.5deg; }
+.hy__clue-n { font-family: var(--mono); font-style: normal; font-size: 10.5rem; font-weight: 700; color: var(--danger); }
 
-.hy__hud { position: absolute; left: 0; right: 0; bottom: 0; z-index: 8; padding: 16rem 16rem calc(16rem + var(--safe-bottom)); display: flex; flex-direction: column; align-items: center; gap: 13rem; }
-.hy__word { display: flex; flex-wrap: wrap; gap: 8rem; justify-content: center; }
+.hy__hud {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 16rem 16rem calc(16rem + var(--safe-bottom));
+  display: flex; flex-direction: column; align-items: center; gap: 13rem;
+}
+
+/* Word: chunky letter tiles that pop when they land. */
+.hy__word { display: flex; flex-wrap: wrap; gap: 7rem; justify-content: center; }
 .hy__slot {
-  min-width: 30rem; height: 42rem; display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--mono); font-size: 26rem; font-weight: 700; color: var(--paper-ink);
-  background: rgba(240, 231, 205, 0.55); border-radius: 5rem 5rem 0 0;
-  border-bottom: 3px solid rgba(46, 34, 18, 0.55);
+  min-width: 34rem; height: 46rem; display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 24rem; color: var(--ink);
+  background: var(--cream); border: 2.5rem solid var(--ink); border-radius: 7rem;
+  box-shadow: 0 4rem 0 var(--ink);
 }
-.hy__slot.is-space { min-width: 14rem; border: none; background: transparent; }
-.hy__slot.is-filled { border-color: var(--danger); }
-.hy__mistakes {
-  display: flex; align-items: center; gap: 6rem; font-family: var(--mono); font-size: 11.5rem;
-  color: #5a4930; background: rgba(240, 231, 205, 0.55); padding: 5rem 12rem; border-radius: 999rem;
-}
-.hy__mistakes i { width: 9rem; height: 9rem; border-radius: 50%; border: 1.5px solid rgba(46, 34, 18, 0.5); }
-.hy__mistakes i.used { background: var(--danger); border-color: var(--danger); }
-.hy__num { color: var(--paper-ink); margin-left: 4rem; }
+.hy__slot:nth-child(odd) { rotate: -1.3deg; }
+.hy__slot:nth-child(even) { rotate: 1.1deg; }
+.hy__slot.is-space { min-width: 12rem; background: transparent; border: none; box-shadow: none; }
+.hy__slot.is-filled { animation: hy-pop 0.32s ease; border-color: var(--danger); box-shadow: 0 4rem 0 var(--danger); }
+@keyframes hy-pop { 0% { scale: 0.3; rotate: -10deg; } 62% { scale: 1.18; } 100% { scale: 1; } }
 
-.hy__keyboard { display: flex; flex-direction: column; gap: 7rem; width: 100%; max-width: 500rem; }
+/* Lives: seven little nooses, stamped red as they're used up. */
+.hy__lives {
+  display: flex; align-items: center; gap: 6rem;
+  background: rgba(240, 231, 205, 0.65); border: 2rem solid rgba(36, 26, 16, 0.35);
+  padding: 6rem 13rem; border-radius: 999rem;
+}
+.hy__lives.is-danger { animation: hy-pulse 0.8s ease infinite; border-color: var(--danger); }
+@keyframes hy-pulse { 0% { box-shadow: 0 0 0 0 rgba(160, 61, 45, 0.45); } 100% { box-shadow: 0 0 0 11rem rgba(160, 61, 45, 0); } }
+.hy__noose { width: 17rem; height: 17rem; color: rgba(36, 26, 16, 0.32); }
+.hy__noose.used { color: var(--danger); animation: hy-stamp 0.32s ease; }
+@keyframes hy-stamp { 0% { scale: 2.1; opacity: 0; rotate: -18deg; } 65% { scale: 0.88; } 100% { scale: 1; opacity: 1; rotate: 0deg; } }
+.hy__num { font-family: var(--mono); font-size: 11.5rem; color: var(--ink); margin-left: 3rem; }
+
+/* Keyboard: arcade keys with a 3D ledge. */
+.hy__keyboard { display: flex; flex-direction: column; gap: 8rem; width: 100%; max-width: 500rem; }
 .hy__krow { display: flex; gap: 6rem; justify-content: center; }
 .hy__key {
-  flex: 1; max-width: 44rem; aspect-ratio: 1 / 1.15; border-radius: 6rem;
-  background: #241a10; border: 1px solid rgba(240, 229, 198, 0.32); color: #efe3c2;
-  font-family: inherit; font-size: 15rem; font-weight: 700; cursor: pointer;
-  transition: transform 0.08s ease, background 0.14s ease;
+  flex: 1; max-width: 44rem; aspect-ratio: 1 / 1.12; border-radius: 8rem;
+  background: var(--cream); border: 2.5rem solid var(--ink); color: var(--ink);
+  font-family: inherit; font-size: 17rem; font-weight: 800; cursor: pointer;
+  box-shadow: 0 4rem 0 var(--ink);
+  transition: transform 0.07s ease, box-shadow 0.07s ease, background 0.14s ease;
 }
-@media (hover: hover) { .hy__key:not(:disabled):hover { background: #3a2c1a; } }
-.hy__key:active:not(:disabled) { transform: translateY(2px); }
-.hy__key.hit { background: #46512f; border-color: #6c7a49; color: #e7ecd0; }
-.hy__key.miss { background: #57281c; border-color: var(--danger); color: #e2b9a8; opacity: 0.75; }
+@media (hover: hover) { .hy__key:not(:disabled):hover { background: #fff8e0; } }
+.hy__key:active:not(:disabled) { transform: translateY(3rem); box-shadow: 0 1rem 0 var(--ink); }
+.hy__key.hit { background: #7f8f52; border-color: #4d5a2c; color: #f3f5e3; box-shadow: 0 2rem 0 #4d5a2c; animation: hy-stamp 0.3s ease; }
+.hy__key.miss { background: var(--danger); border-color: #572117; color: #f0d7cd; box-shadow: 0 1rem 0 #572117; rotate: -2.5deg; opacity: 0.9; animation: hy-stamp 0.3s ease; }
 .hy__key:disabled { cursor: default; }
 
-.hy__result.won .hy__eyebrow { color: #9aa86a; }
-.hy__reveal { margin-top: 16rem; font-size: 15rem; color: var(--muted); }
-.hy__reveal b { color: var(--ink); font-family: var(--mono); letter-spacing: 0.1em; }
-.hy__result-actions { display: flex; gap: 10rem; margin-top: 26rem; }
-.hy__result-actions .hy__btn { margin-top: 0; }
+/* ── Result screen ───────────────────────────────────────────────────────── */
+.hy__end { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.hy__end-eyebrow { color: #cf6a50; margin-bottom: 14rem; text-shadow: 0 1rem 0 rgba(20, 12, 4, 0.8); }
+.hy__logo--end .hy__logo-big b { font-size: clamp(42rem, 11vw, 74rem); }
+.hy__ticket {
+  margin-top: 22rem; background: var(--cream); color: var(--ink);
+  border: 2rem solid var(--ink); border-radius: 4rem;
+  padding: 9rem 16rem; font-size: 14rem; font-style: italic; rotate: 1deg;
+  box-shadow: 2.5rem 3.5rem 0 rgba(20, 12, 4, 0.55);
+}
+.hy__ticket b { font-family: var(--mono); font-style: normal; letter-spacing: 0.12em; color: var(--danger); }
 
 .hy-fade-enter-active, .hy-fade-leave-active { transition: opacity 0.3s ease; }
 .hy-fade-enter-from, .hy-fade-leave-to { opacity: 0; }
 
 @media (max-width: 560px) {
   .hy__clue { font-size: 12rem; max-width: 44%; }
-  .hy__slot { min-width: 24rem; font-size: 21rem; height: 36rem; }
-  .hy__key { font-size: 13rem; }
+  .hy__slot { min-width: 27rem; font-size: 20rem; height: 38rem; }
+  .hy__key { font-size: 14rem; }
 }
 </style>

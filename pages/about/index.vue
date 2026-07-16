@@ -99,6 +99,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="areel">
     <UiGlassBackdrop />
+    <div class="areel__scrim" aria-hidden="true" />
     <canvas
       ref="cv" class="areel__canvas"
       @pointerdown="onPointerDown" @wheel.passive="onWheel"
@@ -155,6 +156,13 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .areel { position: fixed; inset: 0; overflow: hidden; color: var(--color-text); }
+/* Calm the living glass into a quiet, clean backdrop. */
+.areel__scrim {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    linear-gradient(color-mix(in srgb, var(--color-bg) 66%, transparent), color-mix(in srgb, var(--color-bg) 66%, transparent)),
+    radial-gradient(135% 105% at 50% 32%, transparent 34%, var(--color-bg) 100%);
+}
 .areel__canvas { position: fixed; inset: 0; z-index: 1; display: block; touch-action: none; cursor: grab; }
 .areel__canvas:active { cursor: grabbing; }
 
@@ -171,7 +179,7 @@ onBeforeUnmount(() => {
   position: fixed; left: 0; right: 0; bottom: 108rem; z-index: 3; pointer-events: none;
   max-width: 620rem; margin: 0 auto; padding: 0 26rem; text-align: center;
 }
-.areel__cap-in > * { text-shadow: 0 1rem 22rem var(--color-bg), 0 0 8rem var(--color-bg); }
+.areel__cap-in > * { text-shadow: 0 2rem 26rem var(--color-bg); }
 .areel__badge {
   display: inline-block; pointer-events: auto; font-size: 12rem; font-weight: 700; letter-spacing: 0.14em;
   text-transform: uppercase; color: var(--color-text); background: var(--color-glass-bg);

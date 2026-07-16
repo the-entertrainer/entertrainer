@@ -32,17 +32,18 @@ function roundRect(g: CanvasRenderingContext2D, x: number, y: number, w: number,
 function cellCanvas(): { c: HTMLCanvasElement; g: CanvasRenderingContext2D } {
   const c = document.createElement('canvas'); c.width = CW; c.height = CH
   const g = c.getContext('2d')!
-  // Film base.
-  g.fillStyle = '#141118'; g.fillRect(0, 0, CW, CH)
-  g.fillStyle = '#0c0a10'; g.fillRect(0, 0, CW, WIN.y - 10); g.fillRect(0, WIN.y + WIN.h + 10, CW, CH)
-  // Sprocket holes, top and bottom rows.
-  g.fillStyle = '#050408'
-  const holeW = 46, holeH = 30, gap = (CW - 6 * holeW) / 7
-  for (let i = 0; i < 6; i++) {
+  g.clearRect(0, 0, CW, CH)
+  // Rounded, clean dark film base.
+  roundRect(g, 3, 3, CW - 6, CH - 6, 30); g.fillStyle = '#0f0e13'; g.fill()
+  // Punch transparent sprocket holes so the glass shows through them.
+  g.globalCompositeOperation = 'destination-out'
+  const holeW = 30, holeH = 18, gap = (CW - 7 * holeW) / 8
+  for (let i = 0; i < 7; i++) {
     const hx = gap + i * (holeW + gap)
-    roundRect(g, hx, 32, holeW, holeH, 7); g.fill()
-    roundRect(g, hx, CH - 62, holeW, holeH, 7); g.fill()
+    roundRect(g, hx, 32, holeW, holeH, 6); g.fill()
+    roundRect(g, hx, CH - 50, holeW, holeH, 6); g.fill()
   }
+  g.globalCompositeOperation = 'source-over'
   return { c, g }
 }
 
@@ -94,7 +95,16 @@ export class CurvedReel {
       this.frames.push(mesh)
 
       const im = new Image()
-      im.onload = () => { drawFit(g, im, f.fit || 'cover'); g.strokeStyle = 'rgba(255,255,255,0.14)'; g.lineWidth = 3; g.strokeRect(WIN.x, WIN.y, WIN.w, WIN.h); tex.needsUpdate = true }
+      im.onload = () => {
+        g.save()
+        roundRect(g, WIN.x, WIN.y, WIN.w, WIN.h, 12); g.clip()
+        g.fillStyle = '#0a090d'; g.fillRect(WIN.x, WIN.y, WIN.w, WIN.h)
+        drawFit(g, im, f.fit || 'cover')
+        g.restore()
+        roundRect(g, WIN.x, WIN.y, WIN.w, WIN.h, 12)
+        g.strokeStyle = 'rgba(255,255,255,0.16)'; g.lineWidth = 2.5; g.stroke()
+        tex.needsUpdate = true
+      }
       im.src = f.img
     })
   }
@@ -131,11 +141,11 @@ export class CurvedReel {
     for (let i = 0; i < this.frames.length; i++) {
       const rel = Math.abs(i * this.dA + this.rotY)
       const m = this.mats[i]
-      m.opacity = Math.max(0.1, 1 - rel * 0.85)
+      // Keep the centre crisp; ghost the neighbours hard so the composition stays clean.
+      m.opacity = Math.max(0.03, 1 - rel * 2.05)
       const f = this.frames[i]
-      f.visible = rel < 2.6
-      const s = 1 + Math.max(0, 0.08 - rel * 0.08)
-      f.scale.setScalar(s)
+      f.visible = rel < this.dA * 2.2
+      f.scale.setScalar(1)
     }
     this.renderer.render(this.scene, this.camera)
   }

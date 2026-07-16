@@ -2,8 +2,6 @@
 // pinned while the victim stands, then released for the drop so the rope's own
 // pendulum physics carry the swing and settle. Framework-agnostic.
 
-import { mulberry32 } from './math'
-
 export interface Particle { x: number; y: number; ox: number; oy: number; pinned: boolean }
 
 export class Rope {
@@ -13,7 +11,6 @@ export class Rope {
   gravity: number
   damping: number
   iterations: number
-  private rand = mulberry32(1337)
 
   constructor(ax: number, ay: number, bx: number, by: number, count: number, opts?: { gravity?: number; damping?: number; iterations?: number }) {
     this.gravity = opts?.gravity ?? 0.6
@@ -78,11 +75,12 @@ export class Rope {
   draw(ctx: CanvasRenderingContext2D) {
     const pts = this.points
     const tight = this.tension()
-    // Smooth the rope with quadratic midpoints for a natural drape.
+    // Smooth the rope with quadratic midpoints for a natural drape. Aged hemp
+    // ink-brown, darkening slightly as it loads up.
     ctx.lineJoin = 'round'
     ctx.lineCap = 'round'
-    ctx.strokeStyle = `rgb(${74 + tight * 34}, ${55 - tight * 6}, ${40 - tight * 6})`
-    ctx.lineWidth = 6
+    ctx.strokeStyle = `rgb(${82 - tight * 18}, ${60 - tight * 14}, ${38 - tight * 10})`
+    ctx.lineWidth = 6.5
     ctx.beginPath()
     ctx.moveTo(pts[0].x, pts[0].y)
     for (let i = 1; i < pts.length - 1; i++) {
@@ -93,18 +91,16 @@ export class Rope {
     ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y)
     ctx.stroke()
 
-    // Procedural fibre hairs.
-    this.rand = mulberry32(4)
-    ctx.strokeStyle = 'rgba(120, 96, 68, 0.5)'
-    ctx.lineWidth = 1.4
+    // Twist ticks — short slanted dashes across the line, the classic cartoon
+    // shorthand for a wound rope.
+    ctx.strokeStyle = 'rgba(30, 20, 10, 0.45)'
+    ctx.lineWidth = 1.6
     for (let i = 1; i < pts.length - 1; i++) {
-      const p = pts[i]
-      const a = Math.atan2(pts[i + 1].y - p.y, pts[i + 1].x - p.x) + Math.PI / 2
-      const len = 2.5 + this.rand() * 2.5
-      const dir = this.rand() > 0.5 ? 1 : -1
+      const p = pts[i], q = pts[i + 1]
+      const a = Math.atan2(q.y - p.y, q.x - p.x) + 0.9
       ctx.beginPath()
-      ctx.moveTo(p.x, p.y)
-      ctx.lineTo(p.x + Math.cos(a) * len * dir, p.y + Math.sin(a) * len * dir)
+      ctx.moveTo(p.x - Math.cos(a) * 3.4, p.y - Math.sin(a) * 3.4)
+      ctx.lineTo(p.x + Math.cos(a) * 3.4, p.y + Math.sin(a) * 3.4)
       ctx.stroke()
     }
   }

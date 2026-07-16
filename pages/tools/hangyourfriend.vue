@@ -1,9 +1,20 @@
 <script setup lang="ts">
 import { Rope } from '~/utils/hang/rope'
-import { HangCharacter } from '~/utils/hang/character'
+import { HangCharacter, type ReactKind, type DeathStyle } from '~/utils/hang/character'
 import { computeLayout, drawBackground, drawBacklight, drawTrees, drawGround, drawGallows, drawFog, Atmosphere, type Layout } from '~/utils/hang/scene'
 import { randomCard } from '~/utils/hang/words'
 import { clamp, easeInCubic } from '~/utils/hang/math'
+
+// Every wrong guess plays the next reaction in this escalating list.
+const REACTIONS: ReactKind[] = ['flinch', 'gulp', 'shiver', 'dart', 'tug', 'wobble']
+// The hang plays out differently each round; timings (seconds) tuned per style.
+const ENDINGS: DeathStyle[] = ['swing', 'snap', 'kick', 'twitch']
+const END_TIMES: Record<DeathStyle, { hang: number; limp: number; done: number }> = {
+  swing:  { hang: 0.55, limp: 3.6, done: 4.6 },
+  snap:   { hang: 0.42, limp: 1.7, done: 3.0 },
+  kick:   { hang: 0.6,  limp: 4.8, done: 5.8 },
+  twitch: { hang: 0.55, limp: 4.2, done: 5.2 }
+}
 
 definePageMeta({ layout: false, pageTransition: { name: 'hy-fade', mode: 'out-in' } })
 useSeoMeta({
@@ -42,6 +53,8 @@ let W = 0, H = 0, raf = 0, lastT = 0, acc = 0, t = 0
 let platformDrop = 0, deathT = 0, endT = 0, speed = 0
 let neckX = 0, neckY = 0, ang = Math.PI / 2, footY: number | null = 0
 let ropeReleased = false
+let neckKickX = 0, twitchTimer = 0
+let ending: DeathStyle = 'swing'
 const STEP = 1 / 60
 
 function buildWorld() {
@@ -65,7 +78,8 @@ function step(dt: number) {
 
   if (status.value === 'playing') {
     char.setState(wf < 0.3 ? 'IDLE' : wf < 0.6 ? 'NERVOUS' : 'STRUGGLING')
-    neckX = L.standNeckX + Math.sin(t * 2) * wf * 8 * L.s
+    neckKickX *= Math.pow(0.02, dt) // per-wrong rope jolt settles quickly
+    neckX = L.standNeckX + Math.sin(t * 2) * wf * 8 * L.s + neckKickX
     neckY = L.standNeckY
     ang = Math.PI / 2 + Math.sin(t * 2) * wf * 0.05
     footY = L.platformY
@@ -77,10 +91,16 @@ function step(dt: number) {
     if (endT > 1.8 && phase.value === 'play') phase.value = 'result'
   } else {
     deathT += dt
+    const T = END_TIMES[ending]
     platformDrop = easeInCubic(clamp(deathT / 0.28, 0, 1)) * L.dropDist * 3
-    if (deathT > 0.55 && char.state === 'FALLING') char.setState('HANGING')
-    if (deathT > 3.4 && char.state === 'HANGING') char.setState('LIMP')
-    if (deathT > 4.4 && phase.value === 'play') phase.value = 'result'
+    if (deathT > T.hang && char.state === 'FALLING') char.setState('HANGING')
+    // The "twitch" ending shudders periodically before finally going still.
+    if (ending === 'twitch' && char.state === 'HANGING') {
+      twitchTimer -= dt
+      if (twitchTimer <= 0) { char.twitch(); twitchTimer = 0.45 + Math.random() * 0.6 }
+    }
+    if (deathT > T.limp && char.state === 'HANGING') char.setState('LIMP')
+    if (deathT > T.done && phase.value === 'play') phase.value = 'result'
     const last = rope.last
     speed = Math.hypot(last.x - last.ox, last.y - last.oy)
     neckX = last.x; neckY = last.y; ang = rope.endAngle(); footY = null
@@ -137,15 +157,28 @@ function guess(letter: string) {
   if (word.value.includes(letter)) {
     if (solved.value) { status.value = 'won'; endT = 0 }
   } else if (wrong.value >= MAX_WRONG) {
-    status.value = 'lost'; deathT = 0; ropeReleased = true
-    rope.unpinLast(); rope.nudgeLast(0, 3 * L.s)
+    // Fatal guess: pick a random ending and release the rope with matching energy.
+    ending = ENDINGS[Math.floor(Math.random() * ENDINGS.length)]
+    char.setDeathStyle(ending)
+    status.value = 'lost'; deathT = 0; twitchTimer = 0.5; ropeReleased = true
+    rope.unpinLast()
+    const dir = Math.random() < 0.5 ? -1 : 1
+    if (ending === 'snap') rope.nudgeLast(dir * 7 * L.s, 9 * L.s)
+    else if (ending === 'kick') rope.nudgeLast(dir * 11 * L.s, 2 * L.s)
+    else if (ending === 'swing') rope.nudgeLast(dir * 9 * L.s, 2 * L.s)
+    else rope.nudgeLast(0, 3 * L.s)
     char.setState('FALLING')
+  } else {
+    // Non-fatal wrong guess: escalating flinch + a jolt through the rope.
+    char.react(REACTIONS[Math.min(wrong.value - 1, REACTIONS.length - 1)])
+    neckKickX = (Math.random() < 0.5 ? -1 : 1) * (4 + wrong.value) * L.s
   }
 }
 
 function rematch() {
   phase.value = 'setup'; status.value = 'playing'; guessed.value = []
   platformDrop = 0; deathT = 0; endT = 0; ropeReleased = false
+  neckKickX = 0; twitchTimer = 0; ending = 'swing'
   char = new HangCharacter()
   buildWorld()
 }

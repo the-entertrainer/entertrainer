@@ -211,8 +211,8 @@ function onKey(e: KeyboardEvent) {
 /* Stage */
 .st-stage { position: relative; z-index: 5; flex: 1; min-height: 0; display: flex; }
 .st-stage__slide { position: relative; flex: 1; min-height: 0; display: flex; overflow-y: auto; overflow-x: hidden; }
-.st-card { margin: auto; width: 100%; max-width: 760rem; padding: 40rem 32rem 44rem; }
-.st-card--wide { max-width: 880rem; }
+.st-card { margin: auto; width: 100%; max-width: 680rem; padding: clamp(48rem, 8vh, 96rem) 40rem; }
+.st-card--wide { max-width: 860rem; }
 
 /* Slide transitions */
 .st-fwd-enter-active, .st-fwd-leave-active, .st-back-enter-active, .st-back-leave-active { transition: opacity 0.28s ease, transform 0.28s ease; }
@@ -224,10 +224,10 @@ function onKey(e: KeyboardEvent) {
 .st-fade-enter-from, .st-fade-leave-to { opacity: 0; }
 
 /* Type + primitives */
-.st-eyebrow { font-family: var(--st-mono); font-size: 12rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--st-accent); margin-bottom: 16rem; }
-.st-h1 { font-family: var(--st-display); font-weight: 700; font-size: clamp(44rem, 7vw, 88rem); line-height: 0.95; letter-spacing: -0.02em; }
-.st-h2 { font-family: var(--st-display); font-weight: 600; font-size: clamp(28rem, 4.4vw, 44rem); line-height: 1.06; letter-spacing: -0.015em; }
-.st-lead { font-size: clamp(17rem, 2.2vw, 20rem); line-height: 1.55; color: var(--st-muted-strong); }
+.st-eyebrow { font-family: var(--st-mono); font-size: 12rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--st-accent); margin-bottom: 24rem; }
+.st-h1 { font-family: var(--st-display); font-weight: 700; font-size: clamp(46rem, 7.4vw, 92rem); line-height: 0.95; letter-spacing: -0.02em; }
+.st-h2 { font-family: var(--st-display); font-weight: 600; font-size: clamp(30rem, 4.8vw, 48rem); line-height: 1.08; letter-spacing: -0.015em; }
+.st-lead { font-size: clamp(17rem, 2.2vw, 21rem); line-height: 1.6; color: var(--st-muted-strong); }
 .st-body { font-size: 15.5rem; line-height: 1.65; color: var(--st-muted-strong); }
 .st-note { font-size: 13.5rem; line-height: 1.55; color: var(--st-muted); }
 .st-num { font-family: var(--st-mono); font-variant-numeric: tabular-nums; }
@@ -248,14 +248,14 @@ function onKey(e: KeyboardEvent) {
 .st-btn:focus-visible { outline: 2px solid var(--st-text); outline-offset: 3px; }
 
 .st-reveal {
-  display: inline-flex; align-items: center; gap: 7rem; margin-top: 4rem;
+  display: inline-flex; align-items: center; gap: 7rem; margin-top: 10rem;
   font-family: var(--st-mono); font-size: 12.5rem; color: var(--st-accent);
   padding: 6rem 0;
 }
 .st-reveal:focus-visible { outline: 2px solid var(--st-text); outline-offset: 2px; }
 .st-reveal svg { transition: transform 0.2s ease; }
 .st-reveal.is-open svg { transform: rotate(180deg); }
-.st-revealbody { margin-top: 14rem; padding: 16rem 18rem; background: color-mix(in srgb, var(--st-panel) 70%, transparent); border: 1px solid var(--st-line); border-radius: 12rem; }
+.st-revealbody { margin-top: 18rem; padding: 20rem 22rem; background: color-mix(in srgb, var(--st-panel) 70%, transparent); border: 1px solid var(--st-line); border-radius: 14rem; }
 
 @media (prefers-reduced-motion: reduce) {
   .st-fwd-enter-active, .st-fwd-leave-active, .st-back-enter-active, .st-back-leave-active,

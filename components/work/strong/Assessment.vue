@@ -68,11 +68,11 @@ function retry() { answers.value = ASSESSMENT.map(() => null); qIndex.value = 0;
 .st-quiz__dots i { width: 8rem; height: 8rem; border-radius: 50%; background: var(--st-slot); border: 1px solid var(--st-line-strong); }
 .st-quiz__dots i.is-done { background: color-mix(in srgb, var(--st-accent) 55%, var(--st-slot)); border-color: transparent; }
 .st-quiz__dots i.is-current { background: var(--st-accent); border-color: transparent; }
-.st-quiz__prompt { margin: 8rem 0 26rem; font-size: clamp(22rem, 3.2vw, 30rem); max-width: 26ch; }
-.st-quiz__opts { display: flex; flex-direction: column; gap: 10rem; }
+.st-quiz__prompt { margin: 12rem 0 34rem; font-size: clamp(23rem, 3.4vw, 32rem); max-width: 24ch; line-height: 1.2; }
+.st-quiz__opts { display: flex; flex-direction: column; gap: 12rem; }
 .st-quiz__opt {
-  display: flex; align-items: flex-start; gap: 12rem; padding: 15rem 18rem;
-  border: 1px solid var(--st-line); border-radius: 12rem; font-size: 15.5rem; line-height: 1.4;
+  display: flex; align-items: flex-start; gap: 13rem; padding: 18rem 20rem;
+  border: 1px solid var(--st-line); border-radius: 14rem; font-size: 15.5rem; line-height: 1.4;
   color: var(--st-text); cursor: pointer; transition: border-color 0.14s ease, background 0.14s ease;
 }
 @media (hover: hover) { .st-quiz__opt:not(.is-locked):hover { border-color: var(--st-line-strong); background: var(--st-slot-hover); } }
@@ -80,9 +80,9 @@ function retry() { answers.value = ASSESSMENT.map(() => null); qIndex.value = 0;
 .st-quiz__opt input { margin-top: 2rem; accent-color: var(--st-accent); flex-shrink: 0; }
 .st-quiz__opt.is-correct { border-color: var(--st-t3); background: color-mix(in srgb, var(--st-t3) 14%, transparent); }
 .st-quiz__opt.is-wrong { border-color: var(--st-t0); background: color-mix(in srgb, var(--st-t0) 12%, transparent); }
-.st-quiz__fb { margin-top: 16rem; font-size: 14rem; line-height: 1.55; color: var(--st-muted-strong); }
+.st-quiz__fb { margin-top: 20rem; font-size: 14rem; line-height: 1.55; color: var(--st-muted-strong); }
 .st-quiz__fb.is-right { color: var(--st-t3); }
-.st-quiz__actions { margin-top: 24rem; }
+.st-quiz__actions { margin-top: 32rem; }
 .st-quiz__result { margin: 18rem 0 0; }
 .st-quiz__retry { margin-top: 22rem; }
 </style>

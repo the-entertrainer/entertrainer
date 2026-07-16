@@ -19,8 +19,8 @@ import { OBJECTIVES } from '~/utils/strong/content'
 </template>
 
 <style scoped>
-.st-obj__list { list-style: none; margin: 34rem 0 24rem; padding: 0; }
-.st-obj__item { display: flex; gap: 20rem; align-items: baseline; padding: 22rem 0; border-top: 1px solid var(--st-line); }
+.st-obj__list { list-style: none; margin: 44rem 0 30rem; padding: 0; }
+.st-obj__item { display: flex; gap: 22rem; align-items: baseline; padding: 26rem 0; border-top: 1px solid var(--st-line); }
 .st-obj__item:last-child { border-bottom: 1px solid var(--st-line); }
 .st-obj__num { font-size: 15rem; color: var(--st-accent); flex-shrink: 0; }
 .st-obj__text { font-size: clamp(18rem, 2.4vw, 22rem); line-height: 1.4; color: var(--st-text); }

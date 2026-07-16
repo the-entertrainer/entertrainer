@@ -59,16 +59,16 @@ const timeLabel = computed(() => {
 </template>
 
 <style scoped>
-.st-ty__stats { display: flex; gap: 34rem; flex-wrap: wrap; margin: 28rem 0 28rem; }
-.st-ty__stat { display: flex; flex-direction: column; gap: 4rem; }
-.st-ty__stat-val { font-family: var(--st-display); font-weight: 700; font-size: 46rem; line-height: 1; }
+.st-ty__stats { display: flex; gap: 40rem; flex-wrap: wrap; margin: 36rem 0 36rem; }
+.st-ty__stat { display: flex; flex-direction: column; gap: 5rem; }
+.st-ty__stat-val { font-family: var(--st-display); font-weight: 700; font-size: 48rem; line-height: 1; }
 .st-ty__stat-val small { font-size: 16rem; color: var(--st-muted); margin-left: 4rem; }
 .st-ty__stat-label { font-size: 13rem; color: var(--st-muted); }
-.st-ty__bar { background: color-mix(in srgb, var(--st-panel) 90%, transparent); border: 1px solid var(--st-line); border-radius: 14rem; padding: 20rem; margin-bottom: 16rem; }
-.st-ty__remark { max-width: 52ch; margin-bottom: 8rem; }
-.st-ty__list { margin: 0; padding-left: 20rem; display: flex; flex-direction: column; gap: 10rem; }
-.st-ty__list li { font-size: 14.5rem; line-height: 1.55; color: var(--st-muted-strong); }
+.st-ty__bar { background: color-mix(in srgb, var(--st-panel) 90%, transparent); border: 1px solid var(--st-line); border-radius: 16rem; padding: 24rem; margin-bottom: 20rem; }
+.st-ty__remark { max-width: 50ch; margin-bottom: 8rem; }
+.st-ty__list { margin: 0; padding-left: 20rem; display: flex; flex-direction: column; gap: 12rem; }
+.st-ty__list li { font-size: 14.5rem; line-height: 1.6; color: var(--st-muted-strong); }
 .st-ty__list b { color: var(--st-text); font-weight: 600; }
-.st-ty__actions { margin-top: 34rem; display: flex; gap: 12rem; flex-wrap: wrap; }
+.st-ty__actions { margin-top: 44rem; display: flex; gap: 12rem; flex-wrap: wrap; }
 .st-ty__actions .st-btn { text-decoration: none; }
 </style>

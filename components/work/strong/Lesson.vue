@@ -116,14 +116,14 @@ const weak = analyze('P@ssw0rd')
 </template>
 
 <style scoped>
-.st-lesson__line { margin: 18rem 0 0; max-width: 40ch; }
-.st-lesson__formula { margin: 30rem 0 8rem; font-size: clamp(46rem, 9vw, 84rem); font-weight: 500; color: var(--st-accent); line-height: 1; }
+.st-lesson__line { margin: 24rem 0 0; max-width: 38ch; }
+.st-lesson__formula { margin: 44rem 0 10rem; font-size: clamp(50rem, 9.5vw, 92rem); font-weight: 500; color: var(--st-accent); line-height: 1; }
 .st-lesson__formula sup { font-size: 0.5em; }
-.st-lesson__panel { margin: 26rem 0 18rem; background: color-mix(in srgb, var(--st-panel) 90%, transparent); border: 1px solid var(--st-line); border-radius: 14rem; padding: 22rem; }
-.st-lesson__example { margin-bottom: 18rem; font-size: 17rem; }
+.st-lesson__panel { margin: 36rem 0 22rem; background: color-mix(in srgb, var(--st-panel) 90%, transparent); border: 1px solid var(--st-line); border-radius: 16rem; padding: 26rem; }
+.st-lesson__example { margin-bottom: 20rem; font-size: 17rem; }
 
 /* calculator */
-.st-calc { margin: 26rem 0 0; background: color-mix(in srgb, var(--st-panel) 90%, transparent); border: 1px solid var(--st-line); border-radius: 14rem; padding: 22rem; }
+.st-calc { margin: 36rem 0 0; background: color-mix(in srgb, var(--st-panel) 90%, transparent); border: 1px solid var(--st-line); border-radius: 16rem; padding: 26rem; }
 .st-calc__classes { display: flex; flex-wrap: wrap; gap: 8rem; margin-bottom: 18rem; }
 .st-chip { display: inline-flex; align-items: center; gap: 7rem; padding: 9rem 13rem; border-radius: 8rem; border: 1px solid var(--st-line); background: var(--st-slot); font-size: 13.5rem; color: var(--st-muted); transition: all 0.14s ease; }
 .st-chip__size { font-size: 11rem; opacity: 0.7; }
@@ -145,7 +145,7 @@ const weak = analyze('P@ssw0rd')
 .st-range::-moz-range-thumb { width: 18rem; height: 18rem; border-radius: 50%; background: var(--st-accent); cursor: pointer; border: 3px solid var(--st-panel); }
 .st-range:focus-visible { outline: 2px solid var(--st-text); outline-offset: 3px; }
 
-.st-versus { display: grid; grid-template-columns: 1fr 1fr; gap: 14rem; margin: 26rem 0 4rem; }
+.st-versus { display: grid; grid-template-columns: 1fr 1fr; gap: 16rem; margin: 36rem 0 8rem; }
 .st-versus__card { background: color-mix(in srgb, var(--st-panel) 90%, transparent); border: 1px solid var(--st-line); border-radius: 12rem; padding: 16rem; }
 .st-versus__card--win { border-color: color-mix(in srgb, var(--st-t3) 55%, var(--st-line)); }
 .st-versus__label { font-family: var(--st-mono); font-size: 11rem; color: var(--st-muted); margin-bottom: 10rem; }

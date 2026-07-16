@@ -7,7 +7,7 @@ import * as THREE from 'three'
 export interface ReelFrame { img: string; fit?: 'cover' | 'contain' }
 
 const CW = 600, CH = 800 // cell texture resolution
-const WIN = { x: 44, y: 96, w: 512, h: 608 } // photo window inside the cell
+const WIN = { x: 26, y: 92, w: 548, h: 616 } // photo window inside the cell
 
 function drawFit(g: CanvasRenderingContext2D, img: HTMLImageElement, fit: 'cover' | 'contain') {
   const { x, y, w, h } = WIN
@@ -33,15 +33,15 @@ function cellCanvas(): { c: HTMLCanvasElement; g: CanvasRenderingContext2D } {
   const c = document.createElement('canvas'); c.width = CW; c.height = CH
   const g = c.getContext('2d')!
   g.clearRect(0, 0, CW, CH)
-  // Rounded, clean dark film base.
-  roundRect(g, 3, 3, CW - 6, CH - 6, 30); g.fillStyle = '#0f0e13'; g.fill()
-  // Punch transparent sprocket holes so the glass shows through them.
+  // Full, square dark film base so adjacent cells butt into one continuous strip.
+  g.fillStyle = '#0f0e13'; g.fillRect(0, 0, CW, CH)
+  // Transparent sprocket holes on a fixed pitch so they tile seamlessly across
+  // cell boundaries and read as one continuous perforated reel.
   g.globalCompositeOperation = 'destination-out'
-  const holeW = 30, holeH = 18, gap = (CW - 7 * holeW) / 8
-  for (let i = 0; i < 7; i++) {
-    const hx = gap + i * (holeW + gap)
-    roundRect(g, hx, 32, holeW, holeH, 6); g.fill()
-    roundRect(g, hx, CH - 50, holeW, holeH, 6); g.fill()
+  const slot = 100, holeW = 42, holeH = 20
+  for (let cx = slot / 2; cx < CW; cx += slot) {
+    roundRect(g, cx - holeW / 2, 34, holeW, holeH, 6); g.fill()
+    roundRect(g, cx - holeW / 2, CH - 54, holeW, holeH, 6); g.fill()
   }
   g.globalCompositeOperation = 'source-over'
   return { c, g }
@@ -58,6 +58,9 @@ export class CurvedReel {
   private R: number
   private dA: number
   private n: number
+  private fw: number
+  private fh: number
+  private vHalf = Math.tan((38 * Math.PI / 180) / 2)
 
   index = 0
   private rotY = 0
@@ -68,6 +71,7 @@ export class CurvedReel {
   constructor(canvas: HTMLCanvasElement, frames: ReelFrame[]) {
     this.n = frames.length
     const w = 2.7, h = w * (CH / CW)
+    this.fw = w; this.fh = h
     this.R = 6.0
     this.dA = 2 * Math.asin(Math.min(0.9, w / (2 * this.R)))
     this.geo = new THREE.PlaneGeometry(w, h)
@@ -75,9 +79,7 @@ export class CurvedReel {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' })
     this.renderer.setClearColor(0x000000, 0)
     this.camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100)
-    this.camera.position.set(0, 0, this.R + 10)
-    // Lift the reel into the upper area so the caption sits on clear glass below.
-    this.group.position.y = 1.4
+    this.camera.position.set(0, 0, this.R + 12)
     this.scene.add(this.group)
 
     frames.forEach((f, i) => {
@@ -97,12 +99,11 @@ export class CurvedReel {
       const im = new Image()
       im.onload = () => {
         g.save()
-        roundRect(g, WIN.x, WIN.y, WIN.w, WIN.h, 12); g.clip()
+        g.beginPath(); g.rect(WIN.x, WIN.y, WIN.w, WIN.h); g.clip()
         g.fillStyle = '#0a090d'; g.fillRect(WIN.x, WIN.y, WIN.w, WIN.h)
         drawFit(g, im, f.fit || 'cover')
         g.restore()
-        roundRect(g, WIN.x, WIN.y, WIN.w, WIN.h, 12)
-        g.strokeStyle = 'rgba(255,255,255,0.16)'; g.lineWidth = 2.5; g.stroke()
+        g.strokeStyle = 'rgba(255,255,255,0.10)'; g.lineWidth = 2; g.strokeRect(WIN.x, WIN.y, WIN.w, WIN.h)
         tex.needsUpdate = true
       }
       im.src = f.img
@@ -125,9 +126,16 @@ export class CurvedReel {
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
     this.renderer.setPixelRatio(dpr)
     this.renderer.setSize(w, h, false)
-    this.camera.aspect = w / h
-    // Pull the camera back a touch on narrow/portrait screens so cells fit.
-    this.camera.position.z = this.R + 10 + Math.max(0, (1 - w / h)) * 6
+    const aspect = w / h
+    this.camera.aspect = aspect
+    // Distance the centre cell so it fits within ~54% of the height AND ~84% of
+    // the width, whichever is tighter — keeps it sized right on any screen.
+    const dH = this.fh / (0.54 * 2 * this.vHalf)
+    const dW = this.fw / (0.84 * 2 * this.vHalf * aspect)
+    const d = Math.max(dH, dW, 6)
+    this.camera.position.z = this.R + d
+    // Lift the reel into the upper area so the caption sits on clear glass below.
+    this.group.position.y = 2 * d * this.vHalf * 0.14
     this.camera.updateProjectionMatrix()
   }
 
@@ -141,10 +149,11 @@ export class CurvedReel {
     for (let i = 0; i < this.frames.length; i++) {
       const rel = Math.abs(i * this.dA + this.rotY)
       const m = this.mats[i]
-      // Keep the centre crisp; ghost the neighbours hard so the composition stays clean.
-      m.opacity = Math.max(0.03, 1 - rel * 2.05)
+      // Neighbours stay visible so the strip reads as one continuous reel, but
+      // dim with distance so the centre frame is clearly the focus.
+      m.opacity = Math.max(0.32, 1 - rel * 0.5)
       const f = this.frames[i]
-      f.visible = rel < this.dA * 2.2
+      f.visible = rel < this.dA * 3.4
       f.scale.setScalar(1)
     }
     this.renderer.render(this.scene, this.camera)

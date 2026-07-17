@@ -10,14 +10,17 @@ useSeoMeta({
   ogUrl: 'https://entertrainer.in/about'
 })
 
-interface Scene { badge: string; head: string; caption: string; img: string; fit?: 'cover' | 'contain'; footnote?: string }
+// aspect = the image's own width/height. The reel sizes each frame to this
+// exactly, so every photo fills its window edge-to-edge — no cropping, no
+// letterbox bars, whatever the source orientation.
+interface Scene { badge: string; head: string; caption: string; img: string; aspect: number; footnote?: string }
 const SCENES: Scene[] = [
-  { badge: 'Hello', head: 'I’m Naveen Jose', caption: 'Instructional designer. From folding towels at a hotel to designing how people learn — the whole thing, one frame at a time.', img: '/about-me.png', fit: 'contain' },
-  { badge: 'The floor', head: 'It started on the floor', caption: 'Hotel rooms at Club Mahindra and Marriott. Turning chaos into a feeling that someone had your back.', img: '/about/about-housekeeper-1.webp', fit: 'cover', footnote: 'I still fold towels that way at home.' },
-  { badge: 'The spark', head: 'A comic lit the spark', caption: 'We turned dry service standards into a comic called SEWA Chronicles. People actually read it, and smiled.', img: '/about/about-sewa-1.webp', fit: 'contain' },
-  { badge: 'The craft', head: 'Learning that feels human', caption: 'Leadership programs and trainer trainings at Marriott. The best rooms were the ones where tired people leaned forward.', img: '/about/about-ignite.webp', fit: 'contain' },
-  { badge: 'The present', head: 'A face people trust', caption: 'Now with banking teams at Concentrix, turning tangled new systems into something a person can see themselves doing.', img: '/about/about-concentrix.webp', fit: 'cover' },
-  { badge: 'Still day one', head: 'An idea they carry', caption: 'The moment an idea stops being an idea and becomes something someone keeps. That quiet shift is the whole point.', img: '/about/about-onboarding.webp', fit: 'contain', footnote: 'Asatoma Sadgamaya.' }
+  { badge: 'Hello', head: 'I’m Naveen Jose', caption: 'Instructional designer. From folding towels at a hotel to designing how people learn — the whole thing, one frame at a time.', img: '/about-me.png', aspect: 1920 / 1080 },
+  { badge: 'The floor', head: 'It started on the floor', caption: 'Hotel rooms at Club Mahindra and Marriott. Turning chaos into a feeling that someone had your back.', img: '/about/about-housekeeper-1.webp', aspect: 600 / 800, footnote: 'I still fold towels that way at home.' },
+  { badge: 'The spark', head: 'A comic lit the spark', caption: 'We turned dry service standards into a comic called SEWA Chronicles. People actually read it, and smiled.', img: '/about/about-sewa-1.webp', aspect: 1600 / 900 },
+  { badge: 'The craft', head: 'Learning that feels human', caption: 'Leadership programs and trainer trainings at Marriott. The best rooms were the ones where tired people leaned forward.', img: '/about/about-ignite.webp', aspect: 1131 / 1600 },
+  { badge: 'The present', head: 'A face people trust', caption: 'Now with banking teams at Concentrix, turning tangled new systems into something a person can see themselves doing.', img: '/about/about-concentrix.webp', aspect: 768 / 768 },
+  { badge: 'Still day one', head: 'An idea they carry', caption: 'The moment an idea stops being an idea and becomes something someone keeps. That quiet shift is the whole point.', img: '/about/about-onboarding.webp', aspect: 1131 / 1600, footnote: 'Asatoma Sadgamaya.' }
 ]
 
 const SCENE_MS = 5200

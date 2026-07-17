@@ -46,6 +46,9 @@ function toggleSound() {
 const word = ref('')
 const clues = ref<string[]>(['', '', ''])
 const guessed = ref<string[]>([])
+// One clue at a time — auto-cycles, tap to advance.
+const clueIdx = ref(0)
+let clueTimer: ReturnType<typeof setInterval> | undefined
 
 const setupMode = ref<'own' | 'random'>('random')
 const ownWord = ref('')
@@ -167,7 +170,7 @@ function render() {
   if (irisP > 0) {
     const cx = neckX, cy = neckY - 48 * L.s
     const maxR = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy))
-    drawIris(ctx, W, H, cx, cy, lerp(maxR, 92 * L.s, easeInOutCubic(irisP)))
+    drawIris(ctx, W, H, cx, cy, lerp(maxR, 76 * L.s, easeInOutCubic(irisP)))
   }
   // The soul floats up over everything, iris included.
   char.drawGhost(ctx, L.s)
@@ -204,6 +207,7 @@ function lockIn() {
   }
   guessed.value = []
   status.value = 'playing'
+  clueIdx.value = 0
   phase.value = setupMode.value === 'own' ? 'handoff' : 'play'
   audio.unlock()
   if (soundOn.value) audio.startAmbience()
@@ -270,9 +274,15 @@ onMounted(() => {
   raf = requestAnimationFrame(frame)
   window.addEventListener('resize', onResize)
   window.addEventListener('keydown', onKey)
+  clueTimer = setInterval(() => {
+    if (phase.value === 'play' && status.value === 'playing' && clues.value.length) {
+      clueIdx.value = (clueIdx.value + 1) % clues.value.length
+    }
+  }, 4000)
 })
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf)
+  clearInterval(clueTimer)
   window.removeEventListener('resize', onResize)
   window.removeEventListener('keydown', onKey)
   audio.dispose()
@@ -300,20 +310,22 @@ onBeforeUnmount(() => {
     <Transition name="iris" mode="out-in">
       <!-- TITLE -->
       <div v-if="phase === 'title'" key="title" class="hy__screen hy__screen--title">
+        <div class="hy__scrim hy__scrim--top" aria-hidden="true" />
+        <div class="hy__scrim hy__scrim--bottom" aria-hidden="true" />
         <div class="hy__title-top">
           <h1 class="hy__logo" aria-label="Hang Your Friend">
             <span class="hy__logo-big"><b v-for="(ch, i) in 'HANG'" :key="i" :class="`n${i % 4}`">{{ ch }}</b></span>
             <span class="hy__logo-mid">your</span>
             <span class="hy__logo-big"><b v-for="(ch, i) in 'FRIEND'" :key="i" :class="`n${(i + 2) % 4}`">{{ ch }}</b></span>
           </h1>
-          <p class="hy__tagline">A darkly funny hangman picture &mdash; in glorious sepiavision</p>
+          <p class="hy__tagline">A darkly funny hangman picture</p>
         </div>
         <div class="hy__title-bottom">
           <div class="hy__menu">
             <button type="button" class="hy__mbtn hy__mbtn--primary" @click="quickGame">&#9656;&nbsp; Quick game</button>
             <button type="button" class="hy__mbtn" @click="setTrap">Set a trap for a friend</button>
           </div>
-          <p class="hy__studio">&copy; 1931 Entertrainer Pictures &middot; no friends were harmed</p>
+          <p class="hy__studio">&copy; 1931 Entertrainer Pictures &middot; no friends harmed</p>
         </div>
       </div>
 
@@ -347,11 +359,15 @@ onBeforeUnmount(() => {
 
       <!-- PLAY -->
       <div v-else-if="phase === 'play'" key="play" class="hy__screen">
-        <div class="hy__clues">
-          <div v-for="(c, i) in clues" :key="i" class="hy__clue"><span class="hy__clue-n">N&ordm;{{ i + 1 }}</span>{{ c }}</div>
+        <div class="hy__clues" :class="{ 'is-hidden': status !== 'playing' }">
+          <button type="button" class="hy__clue" :aria-label="`Clue ${clueIdx + 1} of ${clues.length}. Tap for next.`" @click="clueIdx = (clueIdx + 1) % clues.length">
+            <span class="hy__clue-n">N&ordm;{{ clueIdx + 1 }}</span>
+            <span class="hy__clue-text">{{ clues[clueIdx] }}</span>
+            <span class="hy__clue-dots" aria-hidden="true"><i v-for="i in clues.length" :key="i" :class="{ on: i - 1 === clueIdx }" /></span>
+          </button>
         </div>
 
-        <div class="hy__hud">
+        <div class="hy__hud" :class="{ 'is-hidden': status !== 'playing' }">
           <div class="hy__word" role="text" :aria-label="`Word, ${display.filter(d => d !== ' ').length} letters`">
             <span v-for="(ch, i) in display" :key="i" class="hy__slot" :class="{ 'is-space': ch === ' ', 'is-filled': ch && ch !== ' ' }">{{ ch === ' ' ? '' : ch || '' }}</span>
           </div>
@@ -376,14 +392,17 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- RESULT -->
-      <div v-else key="result" class="hy__screen hy__screen--center">
-        <div class="hy__end">
+      <!-- RESULT: title up top, actions pinned at the bottom — the iris circle
+           in the middle stays clear so the final shot reads. -->
+      <div v-else key="result" class="hy__screen hy__screen--end">
+        <div class="hy__end-top">
           <p class="hy__eyebrow hy__end-eyebrow">{{ status === 'won' ? 'The rope goes slack' : 'The floor gives way' }}</p>
           <h2 class="hy__logo hy__logo--end" :aria-label="status === 'won' ? 'You escaped' : 'Game over'">
             <span class="hy__logo-big"><b v-for="(ch, i) in (status === 'won' ? 'YOU' : 'GAME')" :key="i" :class="`n${i % 4}`">{{ ch }}</b></span>
             <span class="hy__logo-big"><b v-for="(ch, i) in (status === 'won' ? 'ESCAPED' : 'OVER')" :key="'b' + i" :class="`n${(i + 1) % 4}`">{{ ch }}</b></span>
           </h2>
+        </div>
+        <div class="hy__end-bottom">
           <p class="hy__ticket">The word was <b>{{ word }}</b></p>
           <div class="hy__menu">
             <button type="button" class="hy__mbtn hy__mbtn--primary" @click="playAgain">&#9656;&nbsp; Play again</button>
@@ -434,13 +453,18 @@ onBeforeUnmount(() => {
 /* ── Screens + iris wipe ─────────────────────────────────────────────────── */
 .hy__screen { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
 .hy__screen--center { display: flex; align-items: center; justify-content: center; padding: 24rem; }
-.hy__screen--center > *, .hy__clues, .hy__hud, .hy__title-top, .hy__title-bottom { pointer-events: auto; }
+.hy__screen--center > *, .hy__clues, .hy__hud, .hy__title-top, .hy__title-bottom, .hy__end-top, .hy__end-bottom { pointer-events: auto; }
 .hy__screen--title {
   display: flex; flex-direction: column; align-items: center; justify-content: space-between;
   text-align: center;
   padding: calc(76rem + var(--safe-top)) 20rem calc(22rem + var(--safe-bottom));
 }
-.hy__title-top, .hy__title-bottom { display: flex; flex-direction: column; align-items: center; }
+.hy__title-top, .hy__title-bottom { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+
+/* Soft washes that separate the type from the busy scene behind it. */
+.hy__scrim { position: absolute; left: 0; right: 0; pointer-events: none; }
+.hy__scrim--top { top: 0; height: 36%; background: linear-gradient(to bottom, rgba(216,203,168,0.85), rgba(216,203,168,0)); }
+.hy__scrim--bottom { bottom: 0; height: 38%; background: linear-gradient(to top, rgba(58,47,30,0.55), rgba(58,47,30,0)); }
 
 .iris-enter-active { animation: hy-iris-in 0.55s ease both; }
 .iris-leave-active { animation: hy-iris-out 0.4s ease both; }
@@ -472,7 +496,7 @@ onBeforeUnmount(() => {
   text-shadow: 1.5rem 2rem 0 rgba(240, 229, 198, 0.75);
 }
 .hy__tagline { margin-top: 14rem; font-style: italic; font-size: 13rem; color: rgba(36, 26, 16, 0.78); text-shadow: 0 1rem 0 rgba(240, 229, 198, 0.6); }
-.hy__studio { margin-top: 16rem; font-size: 10.5rem; letter-spacing: 0.18em; text-transform: uppercase; color: #4c3d26; text-shadow: 0 1rem 0 rgba(240, 229, 198, 0.5); }
+.hy__studio { margin-top: 16rem; font-size: 9.5rem; letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; color: #d9cca8; opacity: 0.75; }
 
 /* ── Game menu buttons ───────────────────────────────────────────────────── */
 .hy__menu { display: grid; gap: 13rem; margin-top: 30rem; width: min(320rem, 80vw); }
@@ -522,29 +546,36 @@ onBeforeUnmount(() => {
 .hy__row { display: flex; gap: 10rem; margin-top: 24rem; }
 .hy__row .hy__mbtn { flex: 1; padding: 13rem 10rem; font-size: 13.5rem; }
 
-/* ── Play HUD ────────────────────────────────────────────────────────────── */
+/* ── Play HUD — one rotating clue ticket, nothing stacked on the gallows. ── */
 .hy__clues {
-  position: absolute; top: calc(66rem + var(--safe-top)); left: 0; right: 0;
-  display: flex; gap: 10rem; justify-content: center; flex-wrap: wrap; padding: 0 16rem;
+  position: absolute; top: calc(64rem + var(--safe-top)); left: 0; right: 0;
+  display: flex; justify-content: center; padding: 0 16rem;
+  transition: opacity 0.45s ease;
 }
 .hy__clue {
-  display: flex; align-items: baseline; gap: 8rem; max-width: 260rem;
+  display: flex; align-items: center; gap: 10rem;
+  max-width: min(420rem, calc(100vw - 110rem));
   background: var(--cream); color: var(--ink);
   border: 2rem solid var(--ink); border-left: 2rem dashed var(--ink);
-  border-radius: 4rem; padding: 8rem 13rem;
-  font-style: italic; font-size: 13rem; line-height: 1.45;
+  border-radius: 4rem; padding: 9rem 14rem;
+  font-family: inherit; font-style: italic; font-size: 13.5rem; line-height: 1.4;
+  text-align: left; cursor: pointer; rotate: -0.8deg;
   box-shadow: 2.5rem 3.5rem 0 rgba(36, 26, 16, 0.45);
 }
-.hy__clue:nth-child(1) { rotate: -1.1deg; }
-.hy__clue:nth-child(2) { rotate: 0.9deg; }
-.hy__clue:nth-child(3) { rotate: -0.5deg; }
-.hy__clue-n { font-family: var(--mono); font-style: normal; font-size: 10.5rem; font-weight: 700; color: var(--danger); }
+.hy__clue-n { font-family: var(--mono); font-style: normal; font-size: 10.5rem; font-weight: 700; color: var(--danger); flex: none; }
+.hy__clue-text { flex: 1; min-width: 0; }
+.hy__clue-dots { display: inline-flex; gap: 4rem; flex: none; }
+.hy__clue-dots i { width: 5rem; height: 5rem; border-radius: 50%; background: rgba(36, 26, 16, 0.25); }
+.hy__clue-dots i.on { background: var(--danger); }
 
 .hy__hud {
   position: absolute; left: 0; right: 0; bottom: 0;
   padding: 16rem 16rem calc(16rem + var(--safe-bottom));
-  display: flex; flex-direction: column; align-items: center; gap: 13rem;
+  display: flex; flex-direction: column; align-items: center; gap: 14rem;
+  transition: opacity 0.45s ease;
 }
+/* The stage clears for the ending cinematic. */
+.hy__clues.is-hidden, .hy__hud.is-hidden { opacity: 0; pointer-events: none; }
 
 /* Word: chunky letter tiles that pop when they land. */
 .hy__word { display: flex; flex-wrap: wrap; gap: 7rem; justify-content: center; }
@@ -589,12 +620,19 @@ onBeforeUnmount(() => {
 .hy__key.miss { background: var(--danger); border-color: #572117; color: #f0d7cd; box-shadow: 0 1rem 0 #572117; rotate: -2.5deg; opacity: 0.9; animation: hy-stamp 0.3s ease; }
 .hy__key:disabled { cursor: default; }
 
-/* ── Result screen ───────────────────────────────────────────────────────── */
-.hy__end { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.hy__end-eyebrow { color: #cf6a50; margin-bottom: 14rem; text-shadow: 0 1rem 0 rgba(20, 12, 4, 0.8); }
-.hy__logo--end .hy__logo-big b { font-size: clamp(42rem, 11vw, 74rem); }
+/* ── Result screen: title up top, actions at the bottom, iris clear between. */
+.hy__screen--end {
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  text-align: center;
+  padding: calc(66rem + var(--safe-top)) 24rem calc(24rem + var(--safe-bottom));
+}
+.hy__end-top, .hy__end-bottom { display: flex; flex-direction: column; align-items: center; }
+.hy__end-bottom { gap: 18rem; width: 100%; }
+.hy__end-bottom .hy__menu { margin-top: 0; }
+.hy__end-eyebrow { color: #cf6a50; margin-bottom: 12rem; text-shadow: 0 1rem 0 rgba(20, 12, 4, 0.8); }
+.hy__logo--end .hy__logo-big b { font-size: clamp(34rem, 9vw, 60rem); }
 .hy__ticket {
-  margin-top: 22rem; background: var(--cream); color: var(--ink);
+  background: var(--cream); color: var(--ink);
   border: 2rem solid var(--ink); border-radius: 4rem;
   padding: 9rem 16rem; font-size: 14rem; font-style: italic; rotate: 1deg;
   box-shadow: 2.5rem 3.5rem 0 rgba(20, 12, 4, 0.55);

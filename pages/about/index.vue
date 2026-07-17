@@ -3,10 +3,10 @@ import { CurvedReel, type ReelFrame } from '~/utils/reel/curvedReel'
 
 definePageMeta({ layout: false, pageTransition: { name: 'reel-fade', mode: 'out-in' } })
 useSeoMeta({
-  title: 'About — Naveen Jose, in a reel · Entertrainer',
-  description: 'The story behind Entertrainer, told as a curved 3D film reel: from folding towels at a hotel to designing learning for banking teams.',
-  ogTitle: 'Naveen Jose, in a reel',
-  ogDescription: 'From folding towels at a hotel to designing how people learn. The whole story as a 3D film reel.',
+  title: 'About — Naveen Jose · Entertrainer',
+  description: 'A short introduction to Naveen Jose, a certified instructional designer: from a hospitality background into L&D at Club Mahindra, Marriott, and now Concentrix.',
+  ogTitle: 'About — Naveen Jose',
+  ogDescription: 'A certified instructional designer. A short story of how I got into designing learning, told as a curved film reel.',
   ogUrl: 'https://entertrainer.in/about'
 })
 
@@ -15,12 +15,12 @@ useSeoMeta({
 // letterbox bars, whatever the source orientation.
 interface Scene { badge: string; head: string; caption: string; img: string; aspect: number; footnote?: string }
 const SCENES: Scene[] = [
-  { badge: 'Hello', head: 'I’m Naveen Jose', caption: 'Instructional designer. From folding towels at a hotel to designing how people learn — the whole thing, one frame at a time.', img: '/about-me.png', aspect: 1920 / 1080 },
-  { badge: 'The floor', head: 'It started on the floor', caption: 'Hotel rooms at Club Mahindra and Marriott. Turning chaos into a feeling that someone had your back.', img: '/about/about-housekeeper-1.webp', aspect: 600 / 800, footnote: 'I still fold towels that way at home.' },
-  { badge: 'The spark', head: 'A comic lit the spark', caption: 'We turned dry service standards into a comic called SEWA Chronicles. People actually read it, and smiled.', img: '/about/about-sewa-1.webp', aspect: 1600 / 900 },
-  { badge: 'The craft', head: 'Learning that feels human', caption: 'Leadership programs and trainer trainings at Marriott. The best rooms were the ones where tired people leaned forward.', img: '/about/about-ignite.webp', aspect: 1131 / 1600 },
-  { badge: 'The present', head: 'A face people trust', caption: 'Now with banking teams at Concentrix, turning tangled new systems into something a person can see themselves doing.', img: '/about/about-concentrix.webp', aspect: 768 / 768 },
-  { badge: 'Still day one', head: 'An idea they carry', caption: 'The moment an idea stops being an idea and becomes something someone keeps. That quiet shift is the whole point.', img: '/about/about-onboarding.webp', aspect: 1131 / 1600, footnote: 'Asatoma Sadgamaya.' }
+  { badge: 'Hello', head: 'I’m Naveen Jose', caption: 'A certified instructional designer, based in Gurugram. Here’s the short version of how I got here.', img: '/about-me.png', aspect: 1920 / 1080 },
+  { badge: 'Where it began', head: 'It started in hospitality', caption: 'I studied hotel management in Chennai and began on the floor. Hospitality taught me to pay attention to the small things that make service feel human.', img: '/about/about-housekeeper-1.webp', aspect: 600 / 800 },
+  { badge: 'First step into L&D', head: 'A comic, and a new path', caption: 'At Club Mahindra I moved into learning and development, and drew The SEWA Chronicles — a small comic of real guest-experience stories. That’s where design became the plan.', img: '/about/about-sewa-1.webp', aspect: 1600 / 900 },
+  { badge: 'Marriott', head: 'Learning the craft', caption: 'As an L&D specialist at Courtyard by Marriott, I helped run certification programs for teams, from frontline associates through to managers.', img: '/about/about-onboarding.webp', aspect: 1131 / 1600 },
+  { badge: 'The tools', head: 'Building the modules', caption: 'I build training in Articulate Storyline, with a little video and animation, trying to make each module something people actually want to finish.', img: '/about/about-ignite.webp', aspect: 1131 / 1600 },
+  { badge: 'Now', head: 'Where I am today', caption: 'I’m with the Training-as-a-Service team at Concentrix, turning operational detail into e-learning for teams around the world.', img: '/about/about-concentrix.webp', aspect: 768 / 768, footnote: 'Asatoma Sadgamaya — from ignorance, toward truth.' }
 ]
 
 const SCENE_MS = 5200

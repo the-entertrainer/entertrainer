@@ -12,7 +12,7 @@ useSeoMeta({
 
 interface Scene { badge: string; head: string; caption: string; img: string; fit?: 'cover' | 'contain'; footnote?: string }
 const SCENES: Scene[] = [
-  { badge: 'The reel', head: 'This is me, in a reel', caption: 'From folding towels at a hotel to designing how people learn. The whole thing, one frame at a time.', img: '/about-me.png', fit: 'contain' },
+  { badge: 'Hello', head: 'I’m Naveen Jose', caption: 'Instructional designer. From folding towels at a hotel to designing how people learn — the whole thing, one frame at a time.', img: '/about-me.png', fit: 'contain' },
   { badge: 'The floor', head: 'It started on the floor', caption: 'Hotel rooms at Club Mahindra and Marriott. Turning chaos into a feeling that someone had your back.', img: '/about/about-housekeeper-1.webp', fit: 'cover', footnote: 'I still fold towels that way at home.' },
   { badge: 'The spark', head: 'A comic lit the spark', caption: 'We turned dry service standards into a comic called SEWA Chronicles. People actually read it, and smiled.', img: '/about/about-sewa-1.webp', fit: 'contain' },
   { badge: 'The craft', head: 'Learning that feels human', caption: 'Leadership programs and trainer trainings at Marriott. The best rooms were the ones where tired people leaned forward.', img: '/about/about-ignite.webp', fit: 'contain' },
@@ -52,27 +52,52 @@ function next() { if (!atEnd.value) goTo(index.value + 1); else playing.value = 
 function prev() { goTo(index.value - 1) }
 function toggle() { if (atEnd.value && !playing.value) { goTo(0); playing.value = true; return } playing.value = !playing.value }
 
-// Drag + wheel through the reel.
+// Drag anywhere on the reel; a still tap steps the story (left third = back).
+let downX = 0, downY = 0, dragMoved = false
 function onPointerDown(e: PointerEvent) {
   if (e.button !== 0 && e.pointerType === 'mouse') return
   playing.value = false
+  downX = e.clientX; downY = e.clientY; dragMoved = false
   reel?.startDrag(e.clientX)
   window.addEventListener('pointermove', onPointerMove)
   window.addEventListener('pointerup', onPointerUp)
 }
-function onPointerMove(e: PointerEvent) { reel?.moveDrag(e.clientX) }
-function onPointerUp() {
+function onPointerMove(e: PointerEvent) {
+  if (Math.hypot(e.clientX - downX, e.clientY - downY) > 8) dragMoved = true
+  reel?.moveDrag(e.clientX)
+}
+function onPointerUp(e: PointerEvent) {
   window.removeEventListener('pointermove', onPointerMove)
   window.removeEventListener('pointerup', onPointerUp)
   reel?.endDrag()
+  if (!dragMoved) {
+    if (e.clientX < window.innerWidth * 0.3) prev()
+    else next()
+  }
 }
+
+// Wheel works everywhere on the page, not just over the canvas.
 let wheelLock = false
 function onWheel(e: WheelEvent) {
+  if (e.ctrlKey) return
   const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
   if (Math.abs(d) < 18 || wheelLock) return
   wheelLock = true; playing.value = false
   if (d > 0) next(); else prev()
   setTimeout(() => { wheelLock = false }, 420)
+}
+
+// Keyboard: arrows step, space toggles play.
+function onKey(e: KeyboardEvent) {
+  if (e.key === 'ArrowRight') { playing.value = false; next() }
+  else if (e.key === 'ArrowLeft') { playing.value = false; prev() }
+  else if (e.key === ' ' && e.target === document.body) { e.preventDefault(); toggle() }
+}
+
+// The reel leans toward the cursor for a touch of life between interactions.
+function onHover(e: PointerEvent) {
+  if (e.pointerType !== 'mouse') return
+  reel?.setPointer((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1)
 }
 
 function onResize() { if (reel) reel.resize(window.innerWidth, window.innerHeight) }
@@ -84,12 +109,18 @@ onMounted(() => {
   reel.onIndex = (i) => { index.value = i; progress.value = 0 }
   reel.resize(window.innerWidth, window.innerHeight)
   window.addEventListener('resize', onResize)
+  window.addEventListener('wheel', onWheel, { passive: true })
+  window.addEventListener('keydown', onKey)
+  window.addEventListener('pointermove', onHover, { passive: true })
   last = 0
   raf = requestAnimationFrame(tick)
 })
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf)
   window.removeEventListener('resize', onResize)
+  window.removeEventListener('wheel', onWheel)
+  window.removeEventListener('keydown', onKey)
+  window.removeEventListener('pointermove', onHover)
   window.removeEventListener('pointermove', onPointerMove)
   window.removeEventListener('pointerup', onPointerUp)
   reel?.dispose()
@@ -102,7 +133,7 @@ onBeforeUnmount(() => {
     <div class="areel__scrim" aria-hidden="true" />
     <canvas
       ref="cv" class="areel__canvas"
-      @pointerdown="onPointerDown" @wheel.passive="onWheel"
+      @pointerdown="onPointerDown"
       aria-hidden="true"
     />
 
@@ -110,7 +141,7 @@ onBeforeUnmount(() => {
       <NuxtLink to="/" class="glass-btn glass-btn--ghost areel__ic" aria-label="Back to the site">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7" /></svg>
       </NuxtLink>
-      <span class="areel__word">MY STORY</span>
+      <span class="areel__word">NAVEEN JOSE</span>
       <NuxtLink to="/my-work" class="glass-btn areel__ic" aria-label="See my work">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
       </NuxtLink>
@@ -141,14 +172,6 @@ onBeforeUnmount(() => {
           v-for="(s, i) in SCENES" :key="i" type="button" class="areel__seg"
           :class="{ done: i < index, cur: i === index }" :aria-label="`Scene ${i + 1}: ${s.head}`" @click="goTo(i)"
         ><span class="areel__seg-fill" :style="{ width: i < index ? '100%' : i === index ? progress * 100 + '%' : '0%' }" /></button>
-      </div>
-      <div class="areel__nav">
-        <button type="button" class="glass-btn glass-btn--ghost areel__sm" aria-label="Previous" :disabled="index === 0" @click="prev">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7" /></svg>
-        </button>
-        <button type="button" class="glass-btn glass-btn--ghost areel__sm" aria-label="Next" :disabled="atEnd" @click="next">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7" /></svg>
-        </button>
       </div>
     </div>
   </div>
@@ -198,17 +221,17 @@ onBeforeUnmount(() => {
   max-width: 620rem; margin: 0 auto; padding: 14rem 24rem calc(20rem + var(--safe-bottom));
 }
 .areel__play { width: 52rem; height: 52rem; padding: 0; border-radius: 50%; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; }
-.areel__sm { width: 36rem; height: 36rem; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
 .areel__seek { flex: 1; display: flex; gap: 5rem; }
 .areel__seg { flex: 1; height: 6rem; border-radius: 999rem; background: var(--color-glass-bg); border: 1px solid var(--color-glass-border); overflow: hidden; cursor: pointer; padding: 0; }
 .areel__seg-fill { display: block; height: 100%; background: var(--color-text); opacity: 0.9; border-radius: 999rem; }
 .areel__seg.cur .areel__seg-fill { transition: width 0.1s linear; }
 .areel__seg:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; }
-.areel__nav { display: flex; gap: 6rem; flex-shrink: 0; }
 
-.reel-swap-enter-active, .reel-swap-leave-active { transition: opacity 0.32s ease, transform 0.32s ease; }
-.reel-swap-enter-from { opacity: 0; transform: translateY(10rem); }
-.reel-swap-leave-to { opacity: 0; transform: translateY(-8rem); }
+/* Filmic hand-off: the old caption slips away fast, the new one rises in soft. */
+.reel-swap-enter-active { transition: opacity 0.5s cubic-bezier(0.22, 0.61, 0.36, 1), transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1); }
+.reel-swap-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
+.reel-swap-enter-from { opacity: 0; transform: translateY(14rem); }
+.reel-swap-leave-to { opacity: 0; transform: translateY(-6rem); }
 .reel-fade-enter-active, .reel-fade-leave-active { transition: opacity 0.3s ease; }
 .reel-fade-enter-from, .reel-fade-leave-to { opacity: 0; }
 

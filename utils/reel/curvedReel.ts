@@ -66,6 +66,8 @@ export class CurvedReel {
   private rotY = 0
   private dragging = false
   private dragBase = 0; private dragStartX = 0; private dragRot = 0
+  // Pointer parallax targets (-1..1) — the reel leans gently toward the cursor.
+  private px = 0; private py = 0
   onIndex?: (i: number) => void
 
   constructor(canvas: HTMLCanvasElement, frames: ReelFrame[]) {
@@ -122,10 +124,15 @@ export class CurvedReel {
   }
   get isDragging() { return this.dragging }
 
+  setPointer(nx: number, ny: number) { this.px = nx; this.py = ny }
+
   resize(w: number, h: number) {
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
     this.renderer.setPixelRatio(dpr)
-    this.renderer.setSize(w, h, false)
+    // updateStyle must stay ON: the canvas is an absolutely-positioned replaced
+    // element, so without an explicit CSS size it renders at its DPR-scaled
+    // buffer size and overflows the viewport on high-density screens.
+    this.renderer.setSize(w, h)
     const aspect = w / h
     this.camera.aspect = aspect
     // Distance the centre cell so it fits within ~54% of the height AND ~84% of
@@ -135,7 +142,7 @@ export class CurvedReel {
     const d = Math.max(dH, dW, 6)
     this.camera.position.z = this.R + d
     // Lift the reel into the upper area so the caption sits on clear glass below.
-    this.group.position.y = 2 * d * this.vHalf * 0.14
+    this.group.position.y = 2 * d * this.vHalf * 0.155
     this.camera.updateProjectionMatrix()
   }
 
@@ -144,6 +151,10 @@ export class CurvedReel {
     else {
       const target = -this.index * this.dA
       this.rotY += (target - this.rotY) * (1 - Math.pow(0.0009, dt))
+      // Gentle pointer parallax so the reel feels alive between interactions.
+      const k = 1 - Math.pow(0.005, dt)
+      this.group.rotation.x += (this.py * 0.045 - this.group.rotation.x) * k
+      this.group.position.x += (this.px * 0.2 - this.group.position.x) * k
     }
     this.group.rotation.y = this.rotY
     for (let i = 0; i < this.frames.length; i++) {
@@ -154,7 +165,9 @@ export class CurvedReel {
       m.opacity = Math.max(0.32, 1 - rel * 0.5)
       const f = this.frames[i]
       f.visible = rel < this.dA * 3.4
-      f.scale.setScalar(1)
+      // The focused frame breathes slightly forward.
+      const focus = Math.max(0, 1 - rel / this.dA)
+      f.scale.setScalar(1 + focus * 0.045)
     }
     this.renderer.render(this.scene, this.camera)
   }

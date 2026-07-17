@@ -149,6 +149,22 @@ export class HangAudio {
     })
   }
 
+  // The crow's two-squawk commentary.
+  caw() {
+    if (!this.ac) return
+    const t = this.ac.currentTime
+    this.tone({ f: 640, f2: 390, type: 'sawtooth', dur: 0.15, vol: 0.06, lpf: 1900, t })
+    this.tone({ f: 560, f2: 330, type: 'sawtooth', dur: 0.16, vol: 0.05, lpf: 1900, t: t + 0.19 })
+  }
+
+  // An airy rising gliss as the soul departs.
+  ghostRise() {
+    if (!this.ac) return
+    const t = this.ac.currentTime + 0.8
+    this.tone({ f: 300, f2: 640, type: 'sine', dur: 1.7, vol: 0.05, a: 0.35, t })
+    this.tone({ f: 450, f2: 960, type: 'triangle', dur: 1.7, vol: 0.022, a: 0.45, lpf: 1600, t })
+  }
+
   // A quick ragtime ditty for the escape.
   win() {
     if (!this.ac) return

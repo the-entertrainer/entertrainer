@@ -54,6 +54,21 @@ export function drawBackground(ctx: CanvasRenderingContext2D, W: number, H: numb
 
   // A pale sun, printed with a halo ring like an old plate.
   const sx = W * 0.79, sy = H * 0.14, sr = 46 * k
+  // Slowly wheeling poster rays behind the disc.
+  ctx.save()
+  ctx.translate(sx, sy)
+  ctx.rotate(t * 0.045)
+  ctx.fillStyle = 'rgba(244,233,203,0.14)'
+  for (let i = 0; i < 12; i++) {
+    ctx.rotate(Math.PI / 6)
+    ctx.beginPath()
+    ctx.moveTo(0, 0)
+    ctx.lineTo(sr * 4.4, -sr * 0.42)
+    ctx.lineTo(sr * 4.4, sr * 0.42)
+    ctx.closePath()
+    ctx.fill()
+  }
+  ctx.restore()
   ctx.fillStyle = 'rgba(244,233,203,0.85)'
   ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2); ctx.fill()
   ctx.strokeStyle = 'rgba(90,74,44,0.3)'; ctx.lineWidth = 2 * k; ctx.stroke()
@@ -258,6 +273,8 @@ export class Atmosphere {
   private motes: { x: number; y: number; r: number; a: number; ph: number; sp: number }[] = []
   private grain: HTMLCanvasElement | null = null
   private pat: CanvasPattern | null = null
+  private dots: HTMLCanvasElement | null = null
+  private dotPat: CanvasPattern | null = null
   private scratches: { x: number; life: number }[] = []
   private lastT = 0
 
@@ -280,6 +297,15 @@ export class Atmosphere {
       }
       g2.putImageData(id, 0, 0)
       this.grain = gc
+
+      // Halftone dot tile — the cheap-print texture of an old comic page.
+      const hc = document.createElement('canvas')
+      hc.width = hc.height = 8
+      const h2 = hc.getContext('2d')!
+      h2.fillStyle = 'rgba(36,26,16,0.085)'
+      h2.beginPath(); h2.arc(2, 2, 1.15, 0, Math.PI * 2); h2.fill()
+      h2.beginPath(); h2.arc(6, 6, 1.15, 0, Math.PI * 2); h2.fill()
+      this.dots = hc
     }
   }
 
@@ -296,6 +322,18 @@ export class Atmosphere {
       ctx.beginPath(); ctx.arc(x, y, m.r, 0, Math.PI * 2); ctx.fill()
     }
     ctx.globalAlpha = 1
+
+    // Static halftone print texture.
+    if (this.dots) {
+      if (!this.dotPat) this.dotPat = ctx.createPattern(this.dots, 'repeat')
+      if (this.dotPat) {
+        ctx.save()
+        ctx.globalAlpha = 0.5
+        ctx.fillStyle = this.dotPat
+        ctx.fillRect(0, 0, W, H)
+        ctx.restore()
+      }
+    }
 
     // Animated film grain (a noise tile stamped at a random offset each frame).
     if (this.grain) {

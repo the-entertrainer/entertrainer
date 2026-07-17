@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Rope } from '~/utils/hang/rope'
+import { Crow } from '~/utils/hang/crow'
 import { HangCharacter, type ReactKind, type DeathStyle } from '~/utils/hang/character'
 import { computeLayout, drawBackground, drawBacklight, drawTrees, drawGround, drawGallows, drawFog, drawIris, Atmosphere, type Layout } from '~/utils/hang/scene'
 import { HangAudio } from '~/utils/hang/audio'
@@ -22,10 +23,10 @@ const REACTIONS: ReactKind[] = ['flinch', 'gulp', 'shiver', 'dart', 'tug', 'wobb
 // The hang plays out differently each round; timings (seconds) tuned per style.
 const ENDINGS: DeathStyle[] = ['swing', 'snap', 'kick', 'twitch']
 const END_TIMES: Record<DeathStyle, { hang: number; limp: number; done: number }> = {
-  swing:  { hang: 0.55, limp: 3.6, done: 4.6 },
-  snap:   { hang: 0.42, limp: 1.7, done: 3.0 },
-  kick:   { hang: 0.6,  limp: 4.8, done: 5.8 },
-  twitch: { hang: 0.55, limp: 4.2, done: 5.2 }
+  swing:  { hang: 0.55, limp: 3.6, done: 5.7 },
+  snap:   { hang: 0.42, limp: 1.7, done: 4.1 },
+  kick:   { hang: 0.6,  limp: 4.8, done: 6.9 },
+  twitch: { hang: 0.55, limp: 4.2, done: 6.3 }
 }
 
 type Phase = 'title' | 'setup' | 'handoff' | 'play' | 'result'
@@ -69,7 +70,7 @@ function shake() {
 const host = ref<HTMLElement | null>(null)
 const cv = ref<HTMLCanvasElement | null>(null)
 let ctx: CanvasRenderingContext2D | null = null
-let rope: Rope, char: HangCharacter, atmo: Atmosphere, L: Layout
+let rope: Rope, char: HangCharacter, crow: Crow, atmo: Atmosphere, L: Layout
 let W = 0, H = 0, raf = 0, lastT = 0, acc = 0, t = 0
 let platformDrop = 0, deathT = 0, endT = 0, speed = 0
 let neckX = 0, neckY = 0, ang = Math.PI / 2, footY: number | null = 0
@@ -90,6 +91,7 @@ function buildWorld() {
   // Build rope long enough to reach the taut hang point, then pin at the (higher) standing neck so it starts slack.
   rope = new Rope(L.anchorX, L.anchorY, L.standNeckX, L.tautNeckY, 14, { gravity: 0.55, damping: 0.99, iterations: 14 })
   if (!ropeReleased) rope.pinLast(L.standNeckX, L.standNeckY)
+  crow = new Crow(L.beamRightX + 16 * L.s, L.beamY - 10 * L.s, L.anchorX + 32 * L.s)
   atmo = new Atmosphere(W, H, 34)
 }
 
@@ -107,6 +109,7 @@ function step(dt: number) {
     rope.pinLast(neckX, neckY)
   } else if (status.value === 'won') {
     char.setState('ESCAPED')
+    crow.flyAway()
     neckX = L.standNeckX; neckY = L.standNeckY; ang = Math.PI / 2; footY = L.platformY
     endT += dt
     if (endT > 1.8 && phase.value === 'play') phase.value = 'result'
@@ -120,7 +123,7 @@ function step(dt: number) {
       twitchTimer -= dt
       if (twitchTimer <= 0) { char.twitch(); audio.creak(0.9); twitchTimer = 0.45 + Math.random() * 0.6 }
     }
-    if (deathT > T.limp && char.state === 'HANGING') { char.setState('LIMP'); audio.sadSting() }
+    if (deathT > T.limp && char.state === 'HANGING') { char.setState('LIMP'); audio.sadSting(); audio.ghostRise() }
     if (deathT > T.done && phase.value === 'play') phase.value = 'result'
     const last = rope.last
     speed = Math.hypot(last.x - last.ox, last.y - last.oy)
@@ -137,6 +140,7 @@ function step(dt: number) {
 
   rope.update()
   char.update(dt, { wrongFrac: wf, speed, groundY: L.groundY })
+  crow.update(dt, wf)
 }
 
 function render() {
@@ -146,6 +150,7 @@ function render() {
   drawBacklight(ctx, L)
   drawGround(ctx, L)
   drawGallows(ctx, L, platformDrop)
+  crow.draw(ctx, L.s)
   rope.draw(ctx)
   char.draw(ctx, neckX, neckY, ang, L.s, footY)
   drawFog(ctx, L, t)
@@ -164,6 +169,8 @@ function render() {
     const maxR = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy))
     drawIris(ctx, W, H, cx, cy, lerp(maxR, 92 * L.s, easeInOutCubic(irisP)))
   }
+  // The soul floats up over everything, iris included.
+  char.drawGhost(ctx, L.s)
 }
 
 function frame(now: number) {
@@ -236,13 +243,17 @@ function guess(letter: string) {
     else if (ending === 'swing') rope.nudgeLast(dir * 9 * L.s, 2 * L.s)
     else rope.nudgeLast(0, 3 * L.s)
     char.setState('FALLING')
+    crow.excite()
     audio.trapdoor()
     shake()
   } else {
-    // Non-fatal wrong guess: escalating flinch + a jolt through the rope.
+    // Non-fatal wrong guess: escalating flinch + a jolt through the rope,
+    // and the crow hops a little closer each time.
     char.react(REACTIONS[Math.min(wrong.value - 1, REACTIONS.length - 1)])
     neckKickX = (Math.random() < 0.5 ? -1 : 1) * (4 + wrong.value) * L.s
+    crow.startle()
     audio.wrong(wrong.value)
+    if (wrong.value >= 4) audio.caw()
     shake()
   }
 }

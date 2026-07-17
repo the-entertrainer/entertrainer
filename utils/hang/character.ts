@@ -68,6 +68,12 @@ export class HangCharacter {
   private groundY: number | null = null
   private headTop = { x: 0, y: 0 }
 
+  // The soul: rises from the body once it goes limp, relieved to be done.
+  private ghostT = -1
+  private ghostX = 0
+  private ghostY = 0
+  private ghostInit = false
+
   setState(s: CharState) {
     if (s === this.state) return
     if (s === 'FALLING') {
@@ -85,6 +91,7 @@ export class HangCharacter {
       this.squash = 1
       if (this.deathStyle === 'snap') this.headLoll = -0.9 // violent sideways snap
     }
+    if (s === 'LIMP') this.ghostT = 0
     this.state = s
   }
 
@@ -175,6 +182,8 @@ export class HangCharacter {
       d.life -= dt
     }
     if (this.sweat.length) this.sweat = this.sweat.filter(d => d.life > 0)
+
+    if (this.ghostT >= 0) this.ghostT += dt
 
     // Hat physics once airborne.
     if (this.hat.mode === 'flying') {
@@ -287,6 +296,8 @@ export class HangCharacter {
     const shoulderC = { x: nx + down.x * 16 * s, y: ny + down.y * 16 * s }
     this.headTop.x = headC.x + up.x * hr
     this.headTop.y = headC.y + up.y * hr
+    // Anchor the ghost where the head is when the body finally stills.
+    if (this.ghostT >= 0 && !this.ghostInit) { this.ghostX = headC.x; this.ghostY = headC.y; this.ghostInit = true }
 
     const wig = Math.sin(this.t * 9) * this.flail
     const wig2 = Math.sin(this.t * 7 + 1.3) * this.flail
@@ -427,6 +438,45 @@ export class HangCharacter {
       }
       ctx.globalAlpha = 1
     }
+  }
+
+  // The departing soul — drawn by the page AFTER the film iris so it floats up
+  // over the closing black, wavy skirt, halo and all.
+  drawGhost(ctx: CanvasRenderingContext2D, s: number) {
+    if (this.ghostT < 0 || !this.ghostInit) return
+    const p = this.ghostT
+    const alpha = p < 0.3 ? p / 0.3 : clamp(1 - (p - 2.2) / 1.4, 0, 1)
+    if (alpha <= 0) return
+    const x = this.ghostX + Math.sin(p * 2.4) * 16 * s
+    const y = this.ghostY - p * 120 * s - p * p * 14 * s
+    const r = 19 * s
+
+    ctx.save()
+    ctx.globalAlpha = alpha * 0.85
+    ctx.translate(x, y)
+    ctx.rotate(Math.sin(p * 2.4) * 0.08)
+    // Body: round head flowing into a three-scallop skirt.
+    ctx.fillStyle = '#f4ecd6'
+    ctx.beginPath()
+    ctx.arc(0, 0, r, Math.PI, 0)
+    ctx.lineTo(r, r * 1.15)
+    const wob = Math.sin(p * 7) * 2.5 * s
+    ctx.quadraticCurveTo(r * 0.66, r * 1.5 + wob, r * 0.33, r * 1.15)
+    ctx.quadraticCurveTo(0, r * 1.5 - wob, -r * 0.33, r * 1.15)
+    ctx.quadraticCurveTo(-r * 0.66, r * 1.5 + wob, -r, r * 1.15)
+    ctx.closePath()
+    ctx.fill()
+    ctx.strokeStyle = 'rgba(36,26,16,0.55)'; ctx.lineWidth = 1.6 * s; ctx.stroke()
+    // Relieved face: closed happy eyes, little o mouth.
+    ctx.strokeStyle = INK; ctx.lineWidth = 2 * s
+    for (const sgn of [-1, 1]) {
+      ctx.beginPath(); ctx.arc(sgn * r * 0.42, -r * 0.1, r * 0.2, Math.PI, Math.PI * 2); ctx.stroke()
+    }
+    ctx.beginPath(); ctx.arc(0, r * 0.42, r * 0.14, 0, Math.PI * 2); ctx.stroke()
+    // Halo, finally earned.
+    ctx.strokeStyle = 'rgba(240,229,198,0.9)'; ctx.lineWidth = 2.6 * s
+    ctx.beginPath(); ctx.ellipse(0, -r * 1.5, r * 0.72, r * 0.2, 0, 0, Math.PI * 2); ctx.stroke()
+    ctx.restore()
   }
 
   private drawFace(ctx: CanvasRenderingContext2D, hr: number, s: number) {

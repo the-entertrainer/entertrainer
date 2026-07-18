@@ -1,25 +1,49 @@
 export type LuminaBlockKind =
+  // Content
   | 'hero'
   | 'text'
   | 'list'
-  | 'image'
-  | 'video'
   | 'quote'
   | 'callout'
+  | 'stat'
+  | 'steps'
+  | 'cardgrid'
+  | 'table'
   | 'divider'
+  // Media
+  | 'image'
+  | 'imagetext'
+  | 'video'
+  | 'audio'
+  // Interactive
   | 'accordion'
   | 'tabs'
   | 'flashcards'
+  | 'reveal'
+  | 'reflection'
+  // Assessment
   | 'quiz'
+  | 'multiquiz'
+  | 'truefalse'
+  | 'fillblank'
+  | 'poll'
+  // Games
+  | 'scenario'
+  | 'ordering'
+  | 'matching'
+  | 'sortgame'
+  | 'memory'
+  // Action
   | 'cta'
 
 // A titled pair used by every "collection" block: accordion panels, tab
-// panes, and flashcard front/back all share this shape so the inspector
-// can edit them with one control.
+// panes, flashcards, steps, cards, matching, memory and sort cards all
+// share this shape so one inspector control edits them all.
 export interface LuminaPair {
   id: string
-  title: string   // panel heading / tab label / card front
-  body: string    // panel body / tab body / card back
+  title: string   // panel heading / tab label / card front / left item
+  body: string    // panel body / tab body / card back / right item
+  bucket?: number // sort game: index of the category this card belongs to
 }
 
 // One block = one row of the lesson. Like StoryCard, fields are flat and
@@ -37,16 +61,21 @@ export interface LuminaBlock {
   alt: string          // image alt text
   caption: string      // image or video caption / quote attribution
   // Quiz fields (same conventions as StoryGen MCQ cards)
-  options: string[]
-  correctIndex: number
+  options: string[]      // answer options / poll choices / sort category names / stat trend
+  correctIndex: number   // single-answer quiz / true(0) or false(1) / scenario best choice
+  correctSet: number[]   // multi-select: every option index that counts as correct
+  outcomes: string[]     // scenario: the result shown for each choice, index-aligned to options
+  grid: string[][]       // table rows (row 0 is the header)
   feedback: string
   // Presentation switches, meaning varies by kind:
   //  list: 'bullet' | 'number' | 'check'
   //  callout: 'note' | 'tip' | 'warning'
   //  divider: 'line' | 'space' | 'dots'
-  //  image: 'inset' | 'full'
+  //  image / imagetext: 'inset' | 'full' | 'left' | 'right'
   //  hero: 'plain' | 'accent'
   //  cta: 'accent' | 'outline'
+  //  stat: 'accent' | 'plain'
+  //  steps: 'number' | 'timeline'
   variant: string
 }
 

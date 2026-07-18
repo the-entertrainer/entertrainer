@@ -19,7 +19,10 @@ const variantPlan = computed<{ label: string; options: { id: string; label: stri
     case 'callout': return { label: 'Tone', options: [{ id: 'note', label: 'Note' }, { id: 'tip', label: 'Tip' }, { id: 'warning', label: 'Warning' }] }
     case 'divider': return { label: 'Style', options: [{ id: 'line', label: 'Line' }, { id: 'dots', label: 'Dots' }, { id: 'space', label: 'Space' }] }
     case 'image': return { label: 'Width', options: [{ id: 'inset', label: 'Inset' }, { id: 'full', label: 'Full bleed' }] }
+    case 'imagetext': return { label: 'Picture on', options: [{ id: 'left', label: 'Left' }, { id: 'right', label: 'Right' }] }
     case 'cta': return { label: 'Style', options: [{ id: 'accent', label: 'Filled' }, { id: 'outline', label: 'Outline' }] }
+    case 'stat': return { label: 'Number color', options: [{ id: 'accent', label: 'Accent' }, { id: 'plain', label: 'Ink' }] }
+    case 'steps': return { label: 'Style', options: [{ id: 'number', label: 'Numbered' }, { id: 'timeline', label: 'Timeline' }] }
     default: return null
   }
 })
@@ -29,9 +32,58 @@ const pairVocab = computed(() => {
     case 'accordion': return { item: 'Panel', title: 'Panel title', body: 'Panel content' }
     case 'tabs': return { item: 'Tab', title: 'Tab label', body: 'Tab content' }
     case 'flashcards': return { item: 'Card', title: 'Front', body: 'Back' }
+    case 'steps': return { item: 'Step', title: 'Step title', body: 'Detail (optional)' }
+    case 'cardgrid': return { item: 'Card', title: 'Card title', body: 'Card text' }
+    case 'reveal': return { item: 'Item', title: 'Prompt or cue', body: 'What gets revealed' }
+    case 'matching': return { item: 'Pair', title: 'Left item', body: 'Its match (right)' }
+    case 'memory': return { item: 'Pair', title: 'Card A', body: 'Card B (its match)' }
     default: return null
   }
 })
+
+// Blocks that edit a list of answer options (question stem stays in title).
+const optionKinds = ['multiquiz', 'poll', 'scenario']
+function addOption() {
+  const b = props.block
+  if (!b) return
+  b.options.push('')
+  if (b.kind === 'scenario') b.outcomes.push('')
+}
+function removeOption(i: number) {
+  const b = props.block
+  if (!b || b.options.length <= 2) return
+  b.options.splice(i, 1)
+  if (b.kind === 'scenario') b.outcomes.splice(i, 1)
+  if (b.correctIndex >= b.options.length) b.correctIndex = b.options.length - 1
+  b.correctSet = b.correctSet.filter(n => n !== i).map(n => (n > i ? n - 1 : n))
+}
+function toggleCorrect(i: number) {
+  const b = props.block
+  if (!b) return
+  b.correctSet = b.correctSet.includes(i) ? b.correctSet.filter(n => n !== i) : [...b.correctSet, i]
+}
+
+// Fill-the-blank keeps accepted answers one per line.
+const answersText = computed({
+  get: () => props.block?.options.join('\n') ?? '',
+  set: (v: string) => { if (props.block) props.block.options = v.split('\n') }
+})
+
+// ── Table editing ───────────────────────────────────────────────
+function tableCols() { return props.block?.grid[0]?.length ?? 0 }
+function addRow() { const b = props.block; if (b) b.grid.push(Array.from({ length: tableCols() }, () => '')) }
+function removeRow(i: number) { const b = props.block; if (b && b.grid.length > 2) b.grid.splice(i, 1) }
+function addCol() { const b = props.block; if (b) b.grid.forEach(r => r.push('')) }
+function removeCol() { const b = props.block; if (b && tableCols() > 1) b.grid.forEach(r => r.pop()) }
+
+// ── Sort-game buckets (stored in options) ───────────────────────
+function addBucket() { props.block?.options.push('') }
+function removeBucket(i: number) {
+  const b = props.block
+  if (!b || b.options.length <= 2) return
+  b.options.splice(i, 1)
+  b.pairs.forEach(p => { if ((p.bucket ?? 0) >= b.options.length) p.bucket = b.options.length - 1 })
+}
 
 const videoState = computed(() => {
   if (!props.block || props.block.kind !== 'video' || !props.block.src.trim()) return null
@@ -242,6 +294,185 @@ onUnmounted(() => window.removeEventListener('pointermove', onHeadPointerMove))
           <textarea id="lin-feedback" v-model="block.feedback" class="glass-field" rows="2" placeholder="Why the correct answer is right." />
         </template>
 
+        <!-- stat -->
+        <template v-else-if="block.kind === 'stat'">
+          <label class="glass-label" for="lin-title">The number</label>
+          <input id="lin-title" v-model="block.title" class="glass-field" placeholder="92%   ·   3x   ·   1,200">
+          <label class="glass-label" for="lin-body">Label</label>
+          <input id="lin-body" v-model="block.body" class="glass-field" placeholder="What the number measures">
+          <label class="glass-label" for="lin-caption">Note (optional)</label>
+          <input id="lin-caption" v-model="block.caption" class="glass-field">
+        </template>
+
+        <!-- table -->
+        <template v-else-if="block.kind === 'table'">
+          <label class="glass-label">Table — the first row is the header</label>
+          <div class="linsp__table">
+            <div v-for="(row, ri) in block.grid" :key="ri" class="linsp__trow">
+              <input
+                v-for="(_, ci) in row" :key="ci"
+                v-model="block.grid[ri][ci]" class="glass-field linsp__cell"
+                :placeholder="ri === 0 ? `Header ${ci + 1}` : ''"
+              >
+              <button class="linsp__pair-del" title="Remove row" :disabled="block.grid.length <= 2 || ri === 0" @click="removeRow(ri)"><ToolsLuminaIcon name="trash" :size="12" /></button>
+            </div>
+          </div>
+          <div class="linsp__table-actions">
+            <button class="glass-btn glass-btn--ghost" @click="addRow"><ToolsLuminaIcon name="plus" :size="12" /> Row</button>
+            <button class="glass-btn glass-btn--ghost" @click="addCol"><ToolsLuminaIcon name="plus" :size="12" /> Column</button>
+            <button class="glass-btn glass-btn--ghost" :disabled="tableCols() <= 1" @click="removeCol">Fewer columns</button>
+          </div>
+        </template>
+
+        <!-- imagetext -->
+        <template v-else-if="block.kind === 'imagetext'">
+          <label class="linsp__upload glass-btn glass-btn--ghost">
+            <ToolsLuminaIcon name="upload" :size="14" />
+            {{ uploadBusy ? 'Optimizing…' : block.src ? 'Replace image' : 'Upload image' }}
+            <input type="file" accept="image/*" @change="onImageFile">
+          </label>
+          <label class="glass-label" for="lin-src">…or paste an image URL</label>
+          <input id="lin-src" v-model="block.src" class="glass-field" placeholder="https://…" inputmode="url">
+          <label class="glass-label" for="lin-alt">Alt text (required)</label>
+          <input id="lin-alt" v-model="block.alt" class="glass-field" placeholder="Describe the image for screen readers">
+          <label class="glass-label" for="lin-body">Text beside the picture</label>
+          <textarea id="lin-body" v-model="block.body" class="glass-field" rows="5" placeholder="Write the paragraph that sits next to the image." />
+          <label class="glass-label" for="lin-caption">Caption (optional)</label>
+          <input id="lin-caption" v-model="block.caption" class="glass-field">
+        </template>
+
+        <!-- audio -->
+        <template v-else-if="block.kind === 'audio'">
+          <label class="glass-label" for="lin-src">Audio link</label>
+          <input id="lin-src" v-model="block.src" class="glass-field" placeholder="Direct .mp3, .wav or .m4a URL" inputmode="url">
+          <label class="glass-label" for="lin-caption">Caption or title (optional)</label>
+          <input id="lin-caption" v-model="block.caption" class="glass-field">
+          <label class="glass-label" for="lin-body">Transcript (optional)</label>
+          <textarea id="lin-body" v-model="block.body" class="glass-field" rows="4" placeholder="Paste the words. Learners can open it under the player." />
+        </template>
+
+        <!-- reflection -->
+        <template v-else-if="block.kind === 'reflection'">
+          <label class="glass-label" for="lin-title">Prompt</label>
+          <textarea id="lin-title" v-model="block.title" class="glass-field" rows="2" placeholder="What should learners think through?" />
+          <label class="glass-label" for="lin-body">Guidance (optional)</label>
+          <input id="lin-body" v-model="block.body" class="glass-field" placeholder="A nudge on how to answer">
+          <p class="linsp__hint">Answers stay on the learner's device. Nothing is sent anywhere.</p>
+        </template>
+
+        <!-- multi-select -->
+        <template v-else-if="block.kind === 'multiquiz'">
+          <label class="glass-label" for="lin-q">Question</label>
+          <textarea id="lin-q" v-model="block.title" class="glass-field" rows="2" placeholder="What should learners choose from?" />
+          <label class="glass-label">Options — tick every correct one</label>
+          <label
+            v-for="(_, i) in block.options" :key="i"
+            class="linsp__option" :class="{ 'linsp__option--correct': block.correctSet.includes(i) }"
+          >
+            <input type="checkbox" :checked="block.correctSet.includes(i)" @change="toggleCorrect(i)">
+            <input v-model="block.options[i]" class="glass-field linsp__option-input" :placeholder="`Option ${String.fromCharCode(65 + i)}`">
+            <button class="linsp__opt-del" title="Remove" :disabled="block.options.length <= 2" @click="removeOption(i)"><ToolsLuminaIcon name="close" :size="12" /></button>
+          </label>
+          <button class="glass-btn glass-btn--ghost linsp__add-pair" @click="addOption"><ToolsLuminaIcon name="plus" :size="13" /> Add option</button>
+          <label class="glass-label" for="lin-feedback">Feedback</label>
+          <textarea id="lin-feedback" v-model="block.feedback" class="glass-field" rows="2" placeholder="Explain the correct set." />
+        </template>
+
+        <!-- true / false -->
+        <template v-else-if="block.kind === 'truefalse'">
+          <label class="glass-label" for="lin-title">Statement</label>
+          <textarea id="lin-title" v-model="block.title" class="glass-field" rows="2" placeholder="Something that is clearly true or clearly false." />
+          <label class="glass-label">Correct answer</label>
+          <div class="linsp__seg">
+            <button :class="{ on: block.correctIndex === 0 }" @click="block.correctIndex = 0">True</button>
+            <button :class="{ on: block.correctIndex === 1 }" @click="block.correctIndex = 1">False</button>
+          </div>
+          <label class="glass-label" for="lin-feedback">Feedback</label>
+          <textarea id="lin-feedback" v-model="block.feedback" class="glass-field" rows="2" />
+        </template>
+
+        <!-- fill the blank -->
+        <template v-else-if="block.kind === 'fillblank'">
+          <label class="glass-label" for="lin-title">Prompt (optional)</label>
+          <input id="lin-title" v-model="block.title" class="glass-field" placeholder="A short instruction">
+          <label class="glass-label" for="lin-body">Sentence — put ___ where the gap is</label>
+          <textarea id="lin-body" v-model="block.body" class="glass-field" rows="3" placeholder="Water boils at ___ degrees Celsius." />
+          <label class="glass-label" for="lin-ans">Accepted answers, one per line</label>
+          <textarea id="lin-ans" v-model="answersText" class="glass-field" rows="3" placeholder="100&#10;one hundred" />
+          <label class="glass-label" for="lin-feedback">Feedback</label>
+          <textarea id="lin-feedback" v-model="block.feedback" class="glass-field" rows="2" />
+        </template>
+
+        <!-- poll -->
+        <template v-else-if="block.kind === 'poll'">
+          <label class="glass-label" for="lin-q">Question</label>
+          <textarea id="lin-q" v-model="block.title" class="glass-field" rows="2" placeholder="What do you want the room to weigh in on?" />
+          <label class="glass-label">Choices</label>
+          <div v-for="(_, i) in block.options" :key="i" class="linsp__option">
+            <input v-model="block.options[i]" class="glass-field linsp__option-input" :placeholder="`Choice ${i + 1}`">
+            <button class="linsp__opt-del" title="Remove" :disabled="block.options.length <= 2" @click="removeOption(i)"><ToolsLuminaIcon name="close" :size="12" /></button>
+          </div>
+          <button class="glass-btn glass-btn--ghost linsp__add-pair" @click="addOption"><ToolsLuminaIcon name="plus" :size="13" /> Add choice</button>
+          <label class="glass-label" for="lin-feedback">Note shown after voting (optional)</label>
+          <textarea id="lin-feedback" v-model="block.feedback" class="glass-field" rows="2" />
+        </template>
+
+        <!-- scenario -->
+        <template v-else-if="block.kind === 'scenario'">
+          <label class="glass-label" for="lin-title">The situation</label>
+          <textarea id="lin-title" v-model="block.title" class="glass-field" rows="2" placeholder="Set up the decision learners are facing." />
+          <label class="glass-label" for="lin-body">Setup detail (optional)</label>
+          <textarea id="lin-body" v-model="block.body" class="glass-field" rows="2" />
+          <label class="glass-label">Choices and outcomes — mark the best one</label>
+          <div v-for="(_, i) in block.options" :key="i" class="linsp__pair">
+            <div class="linsp__pair-head">
+              <span>Choice {{ i + 1 }}</span>
+              <label class="linsp__best"><input type="radio" name="lin-best" :checked="block.correctIndex === i" @change="block.correctIndex = i"> Best</label>
+              <button class="linsp__pair-del" title="Remove" :disabled="block.options.length <= 2" @click="removeOption(i)"><ToolsLuminaIcon name="trash" :size="12" /></button>
+            </div>
+            <input v-model="block.options[i]" class="glass-field" :placeholder="`What the learner picks`">
+            <textarea v-model="block.outcomes[i]" class="glass-field" rows="2" placeholder="What happens if they pick this" />
+          </div>
+          <button class="glass-btn glass-btn--ghost linsp__add-pair" @click="addOption"><ToolsLuminaIcon name="plus" :size="13" /> Add choice</button>
+          <label class="glass-label" for="lin-feedback">Debrief (optional)</label>
+          <textarea id="lin-feedback" v-model="block.feedback" class="glass-field" rows="2" placeholder="The lesson to leave them with." />
+        </template>
+
+        <!-- ordering -->
+        <template v-else-if="block.kind === 'ordering'">
+          <label class="glass-label" for="lin-title">Prompt (optional)</label>
+          <input id="lin-title" v-model="block.title" class="glass-field" placeholder="Put these in the right order">
+          <label class="glass-label" for="lin-items">Steps in the correct order, one per line</label>
+          <textarea id="lin-items" v-model="itemsText" class="glass-field linsp__tall" rows="6" placeholder="First step&#10;Second step&#10;Third step" />
+          <p class="linsp__hint">Learners get them shuffled and put them back in order.</p>
+          <label class="glass-label" for="lin-feedback">Feedback</label>
+          <textarea id="lin-feedback" v-model="block.feedback" class="glass-field" rows="2" />
+        </template>
+
+        <!-- sort game -->
+        <template v-else-if="block.kind === 'sortgame'">
+          <label class="glass-label">Buckets to sort into</label>
+          <div v-for="(_, i) in block.options" :key="i" class="linsp__option">
+            <input v-model="block.options[i]" class="glass-field linsp__option-input" :placeholder="`Bucket ${i + 1}`">
+            <button class="linsp__opt-del" title="Remove" :disabled="block.options.length <= 2" @click="removeBucket(i)"><ToolsLuminaIcon name="close" :size="12" /></button>
+          </div>
+          <button class="glass-btn glass-btn--ghost linsp__add-pair" @click="addBucket"><ToolsLuminaIcon name="plus" :size="13" /> Add bucket</button>
+          <label class="glass-label">Cards — set each card's correct bucket</label>
+          <div v-for="(p, i) in block.pairs" :key="p.id" class="linsp__pair">
+            <div class="linsp__pair-head">
+              <span>Card {{ i + 1 }}</span>
+              <button class="linsp__pair-del" title="Remove" :disabled="block.pairs.length <= 1" @click="removePair(i)"><ToolsLuminaIcon name="trash" :size="12" /></button>
+            </div>
+            <input v-model="p.title" class="glass-field" placeholder="Card text">
+            <select :value="p.bucket ?? 0" class="glass-field glass-select" @change="p.bucket = +($event.target as HTMLSelectElement).value">
+              <option v-for="(b, bi) in block.options" :key="bi" :value="bi">{{ b.trim() || `Bucket ${bi + 1}` }}</option>
+            </select>
+          </div>
+          <button class="glass-btn glass-btn--ghost linsp__add-pair" @click="addPair"><ToolsLuminaIcon name="plus" :size="13" /> Add card</button>
+          <label class="glass-label" for="lin-feedback">Feedback</label>
+          <textarea id="lin-feedback" v-model="block.feedback" class="glass-field" rows="2" />
+        </template>
+
         <!-- cta -->
         <template v-else-if="block.kind === 'cta'">
           <label class="glass-label" for="lin-title">Button label</label>
@@ -378,9 +609,27 @@ onUnmounted(() => window.removeEventListener('pointermove', onHeadPointerMove))
 .linsp__add-pair { width: 100%; }
 
 .linsp__option { display: flex; align-items: center; gap: 8rem; }
-.linsp__option input[type="radio"] { width: 15rem; height: 15rem; accent-color: var(--color-accent); flex-shrink: 0; }
+.linsp__option input[type="radio"], .linsp__option input[type="checkbox"] { width: 16rem; height: 16rem; accent-color: var(--color-accent); flex-shrink: 0; }
 .linsp__option-input { padding: 9rem 12rem; }
 .linsp__option--correct .linsp__option-input { border-color: color-mix(in srgb, #3fbf6f 60%, var(--color-glass-border)); }
+.linsp__opt-del {
+  width: 24rem; height: 24rem;
+  display: grid; place-items: center;
+  border-radius: 7rem;
+  color: #ff8d8d;
+  border: 1px solid var(--color-glass-border);
+  flex-shrink: 0;
+}
+.linsp__opt-del:disabled { opacity: 0.25; cursor: default; }
+.linsp__best { display: inline-flex; align-items: center; gap: 4rem; font-size: 11rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8; margin-left: auto; margin-right: 4rem; }
+.linsp__best input { width: 14rem; height: 14rem; accent-color: var(--color-accent); }
+
+/* Table editor */
+.linsp__table { display: flex; flex-direction: column; gap: 6rem; }
+.linsp__trow { display: flex; align-items: center; gap: 5rem; }
+.linsp__cell { padding: 8rem 10rem; min-width: 0; }
+.linsp__table-actions { display: flex; flex-wrap: wrap; gap: 6rem; }
+.linsp__table-actions .glass-btn { flex: 1; font-size: 11.5rem; padding: 8rem 10rem; }
 
 .linsp__hint { font-size: 12rem; line-height: 1.5; opacity: 0.55; }
 

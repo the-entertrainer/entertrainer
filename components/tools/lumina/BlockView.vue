@@ -18,9 +18,13 @@ const emit = defineEmits<{ select: []; edit: []; delete: []; duplicate: []; move
 const meta = computed(() => LUMINA_KINDS[props.block.kind])
 const paragraphs = computed(() => props.block.body.trim().split(/\n{2,}/).filter(Boolean))
 const listItems = computed(() => props.block.items.filter(i => i.trim()))
+const orderItems = computed(() => props.block.items.filter(i => i.trim()))
 const filledPairs = computed(() => props.block.pairs.filter(p => p.title.trim() || p.body.trim()))
+const fullPairs = computed(() => props.block.pairs.filter(p => p.title.trim() && p.body.trim()))
 const videoEmbed = computed(() => parseVideoEmbed(props.block.src))
 const filledOptions = computed(() => props.block.options.map((o, i) => ({ text: o, i })).filter(o => o.text.trim()))
+const buckets = computed(() => props.block.options.filter(o => o.trim()))
+const gridRows = computed(() => props.block.grid.filter(r => r.some(c => c.trim())))
 
 const isEmpty = computed(() => {
   const b = props.block
@@ -28,13 +32,19 @@ const isEmpty = computed(() => {
     case 'hero': return !b.title.trim()
     case 'text': case 'quote': return !b.body.trim()
     case 'list': return !listItems.value.length
+    case 'ordering': return orderItems.value.length < 2
     case 'callout': return !b.title.trim() && !b.body.trim()
+    case 'stat': return !b.title.trim()
+    case 'table': return gridRows.value.length < 1
     case 'divider': return false
-    case 'image': return !b.src.trim()
+    case 'image': case 'imagetext': return !b.src.trim()
     case 'video': return !videoEmbed.value
-    case 'accordion': case 'tabs': case 'flashcards': return !filledPairs.value.length
-    case 'quiz': return !b.title.trim()
-    case 'cta': return !b.title.trim()
+    case 'audio': return !b.src.trim()
+    case 'steps': case 'cardgrid': case 'accordion': case 'tabs': case 'flashcards': case 'reveal': return !filledPairs.value.length
+    case 'matching': case 'memory': return fullPairs.value.length < 1
+    case 'sortgame': return !filledPairs.value.length || buckets.value.length < 2
+    case 'reflection': case 'quiz': case 'multiquiz': case 'truefalse': case 'fillblank': case 'poll': case 'scenario': case 'cta': return !b.title.trim()
+    default: return false
   }
 })
 </script>
@@ -149,6 +159,165 @@ const isEmpty = computed(() => {
         <i /><span>{{ o.text }}</span>
         <ToolsLuminaIcon v-if="o.i === block.correctIndex" name="check" :size="12" class="lb-quiz__check" />
       </div>
+    </div>
+
+    <!-- stat -->
+    <div v-else-if="block.kind === 'stat'" class="lb-stat" :class="{ 'lb-stat--accent': block.variant !== 'plain' }">
+      <span class="lb-stat__num">{{ block.title.trim() }}</span>
+      <span v-if="block.body.trim()" class="lb-stat__label">{{ block.body.trim() }}</span>
+      <span v-if="block.caption.trim()" class="lb-stat__note">{{ block.caption.trim() }}</span>
+    </div>
+
+    <!-- steps -->
+    <ol v-else-if="block.kind === 'steps'" class="lb-steps">
+      <li v-for="(p, i) in filledPairs" :key="p.id">
+        <span class="lb-steps__num">{{ i + 1 }}</span>
+        <div><strong>{{ p.title.trim() || `Step ${i + 1}` }}</strong><p v-if="p.body.trim()">{{ p.body.trim() }}</p></div>
+      </li>
+    </ol>
+
+    <!-- cardgrid -->
+    <div v-else-if="block.kind === 'cardgrid'" class="lb-cgrid">
+      <div v-for="p in filledPairs" :key="p.id" class="lb-cgrid__card">
+        <strong>{{ p.title.trim() }}</strong><p v-if="p.body.trim()">{{ p.body.trim() }}</p>
+      </div>
+    </div>
+
+    <!-- table -->
+    <div v-else-if="block.kind === 'table'" class="lb-tablewrap">
+      <table class="lb-table">
+        <thead><tr><th v-for="(c, ci) in gridRows[0]" :key="ci">{{ c.trim() }}</th></tr></thead>
+        <tbody>
+          <tr v-for="(row, ri) in gridRows.slice(1)" :key="ri">
+            <td v-for="(_, ci) in gridRows[0]" :key="ci">{{ (row[ci] || '').trim() }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- imagetext -->
+    <div v-else-if="block.kind === 'imagetext'" class="lb-imgtext" :class="`lb-imgtext--${block.variant || 'left'}`">
+      <img :src="block.src" :alt="block.alt">
+      <div class="lb-imgtext__body">
+        <p v-for="(p, i) in paragraphs" :key="i">{{ p }}</p>
+        <p v-if="!paragraphs.length" class="lb-imgtext__ph">Text sits here, beside the picture.</p>
+      </div>
+    </div>
+
+    <!-- audio -->
+    <div v-else-if="block.kind === 'audio'" class="lb-audio">
+      <span class="lb-audio__play" aria-hidden="true" />
+      <div>
+        <strong>{{ block.caption.trim() || 'Audio clip' }}</strong>
+        <span v-if="block.body.trim()" class="lb-audio__tx">Transcript included</span>
+      </div>
+    </div>
+
+    <!-- reveal -->
+    <div v-else-if="block.kind === 'reveal'" class="lb-reveal">
+      <h3 v-if="block.title.trim()">{{ block.title.trim() }}</h3>
+      <div v-for="p in filledPairs" :key="p.id" class="lb-reveal__item">
+        <span>{{ p.title.trim() || 'Reveal' }}</span>
+        <span class="lb-reveal__hint">Tap to reveal</span>
+      </div>
+    </div>
+
+    <!-- reflection -->
+    <div v-else-if="block.kind === 'reflection'" class="lb-reflect">
+      <span class="lb-tag">Your turn</span>
+      <h3>{{ block.title.trim() }}</h3>
+      <p v-if="block.body.trim()">{{ block.body.trim() }}</p>
+      <div class="lb-reflect__box">Learners write here…</div>
+    </div>
+
+    <!-- multiquiz / truefalse -->
+    <div v-else-if="block.kind === 'multiquiz' || block.kind === 'truefalse'" class="lb-quiz">
+      <span class="lb-quiz__tag">{{ block.kind === 'truefalse' ? 'True or false' : 'Select all that apply' }}</span>
+      <h3>{{ block.title.trim() }}</h3>
+      <div
+        v-for="o in filledOptions" :key="o.i" class="lb-quiz__opt"
+        :class="{ 'lb-quiz__opt--good': block.kind === 'truefalse' ? o.i === block.correctIndex : block.correctSet.includes(o.i) }"
+      >
+        <i :class="{ 'lb-box': block.kind === 'multiquiz' }" /><span>{{ o.text }}</span>
+        <ToolsLuminaIcon
+          v-if="block.kind === 'truefalse' ? o.i === block.correctIndex : block.correctSet.includes(o.i)"
+          name="check" :size="12" class="lb-quiz__check"
+        />
+      </div>
+    </div>
+
+    <!-- fillblank -->
+    <div v-else-if="block.kind === 'fillblank'" class="lb-quiz">
+      <span class="lb-quiz__tag">Fill the blank</span>
+      <h3 v-if="block.title.trim()">{{ block.title.trim() }}</h3>
+      <p class="lb-fib">
+        <template v-for="(part, i) in block.body.split('___')" :key="i">{{ part }}<span v-if="i < block.body.split('___').length - 1" class="lb-fib__gap" /></template>
+      </p>
+    </div>
+
+    <!-- poll -->
+    <div v-else-if="block.kind === 'poll'" class="lb-quiz">
+      <span class="lb-quiz__tag">Poll</span>
+      <h3>{{ block.title.trim() }}</h3>
+      <div v-for="o in filledOptions" :key="o.i" class="lb-poll__opt">{{ o.text }}</div>
+    </div>
+
+    <!-- scenario -->
+    <div v-else-if="block.kind === 'scenario'" class="lb-quiz">
+      <span class="lb-quiz__tag">Scenario</span>
+      <h3>{{ block.title.trim() }}</h3>
+      <div
+        v-for="o in filledOptions" :key="o.i" class="lb-scenario__choice"
+        :class="{ 'lb-scenario__choice--best': o.i === block.correctIndex }"
+      >
+        {{ o.text }}
+        <ToolsLuminaIcon v-if="o.i === block.correctIndex" name="check" :size="12" />
+      </div>
+    </div>
+
+    <!-- ordering -->
+    <div v-else-if="block.kind === 'ordering'" class="lb-order">
+      <span class="lb-quiz__tag">Put in order</span>
+      <h3 v-if="block.title.trim()">{{ block.title.trim() }}</h3>
+      <div v-for="(item, i) in orderItems" :key="i" class="lb-order__item">
+        <span class="lb-order__grip" aria-hidden="true" />{{ item }}
+      </div>
+    </div>
+
+    <!-- matching -->
+    <div v-else-if="block.kind === 'matching'" class="lb-match">
+      <span class="lb-quiz__tag">Matching</span>
+      <h3 v-if="block.title.trim()">{{ block.title.trim() }}</h3>
+      <div class="lb-match__rows">
+        <div v-for="p in fullPairs" :key="p.id" class="lb-match__row">
+          <span>{{ p.title.trim() }}</span>
+          <span class="lb-match__link" aria-hidden="true" />
+          <span>{{ p.body.trim() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- sortgame -->
+    <div v-else-if="block.kind === 'sortgame'" class="lb-sort">
+      <span class="lb-quiz__tag">Sort it</span>
+      <h3 v-if="block.title.trim()">{{ block.title.trim() }}</h3>
+      <div class="lb-sort__buckets">
+        <span v-for="(b, bi) in buckets" :key="bi" class="lb-sort__bucket">{{ b }}</span>
+      </div>
+      <div v-for="p in filledPairs.filter(p => p.title.trim())" :key="p.id" class="lb-sort__card">
+        <span>{{ p.title.trim() }}</span>
+        <span class="lb-sort__into">→ {{ buckets[Math.min(buckets.length - 1, p.bucket || 0)] || '—' }}</span>
+      </div>
+    </div>
+
+    <!-- memory -->
+    <div v-else-if="block.kind === 'memory'" class="lb-memory">
+      <span class="lb-quiz__tag">Memory match</span>
+      <h3 v-if="block.title.trim()">{{ block.title.trim() }}</h3>
+      <div class="lb-memory__grid">
+        <span v-for="n in Math.min(8, fullPairs.length * 2)" :key="n" class="lb-memory__card">?</span>
+      </div>
+      <p class="lb-memory__note">{{ fullPairs.length }} pair{{ fullPairs.length === 1 ? '' : 's' }} to find</p>
     </div>
 
     <!-- cta -->
@@ -420,4 +589,68 @@ const isEmpty = computed(() => {
 }
 .lb-cta__btn--outline { background: none; border: 2px solid var(--lum-accent); color: var(--lum-accent); }
 .lb-cta p { margin-top: 8rem; font-size: 12rem; color: color-mix(in srgb, var(--lum-ink) 55%, transparent); }
+
+/* ── New block previews ── */
+.lb-tag, .lb-quiz__tag {
+  font-size: 9.5rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--lum-accent);
+}
+.lb-stat { text-align: center; padding: 8rem 0; }
+.lb-stat__num { display: block; font-size: 40rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; color: var(--lum-ink); }
+.lb-stat--accent .lb-stat__num { color: var(--lum-accent); }
+.lb-stat__label { display: block; margin-top: 7rem; font-size: 14rem; font-weight: 600; color: var(--lum-ink); }
+.lb-stat__note { display: block; margin-top: 4rem; font-size: 12rem; color: color-mix(in srgb, var(--lum-ink) 55%, transparent); }
+.lb-steps { list-style: none; display: flex; flex-direction: column; gap: 12rem; }
+.lb-steps li { display: flex; gap: 12rem; }
+.lb-steps__num { flex-shrink: 0; width: 26rem; height: 26rem; border-radius: 999px; display: grid; place-items: center; font-weight: 800; font-size: 12rem; background: var(--lum-accent); color: #fff; }
+.lb-steps strong { font-size: 14rem; color: var(--lum-ink); }
+.lb-steps p { margin-top: 2rem; font-size: 12.5rem; color: color-mix(in srgb, var(--lum-ink) 60%, transparent); }
+.lb-cgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120rem, 1fr)); gap: 8rem; }
+.lb-cgrid__card { padding: 12rem; border-radius: 10rem; background: var(--lum-panel); border: 1px solid color-mix(in srgb, var(--lum-ink) 12%, transparent); }
+.lb-cgrid__card strong { font-size: 13rem; color: var(--lum-ink); }
+.lb-cgrid__card p { margin-top: 4rem; font-size: 12rem; color: color-mix(in srgb, var(--lum-ink) 60%, transparent); line-height: 1.4; }
+.lb-tablewrap { overflow-x: auto; border: 1px solid color-mix(in srgb, var(--lum-ink) 12%, transparent); border-radius: 10rem; }
+.lb-table { border-collapse: collapse; width: 100%; font-size: 12.5rem; color: var(--lum-ink); }
+.lb-table th, .lb-table td { padding: 8rem 12rem; text-align: left; border-bottom: 1px solid color-mix(in srgb, var(--lum-ink) 10%, transparent); white-space: nowrap; }
+.lb-table th { background: color-mix(in srgb, var(--lum-accent) 10%, transparent); font-weight: 700; }
+.lb-table tbody tr:last-child td { border-bottom: 0; }
+.lb-imgtext { display: grid; grid-template-columns: 1fr 1fr; gap: 12rem; align-items: center; }
+.lb-imgtext--right img { order: 2; }
+.lb-imgtext img { width: 100%; border-radius: 10rem; }
+.lb-imgtext__body p { font-size: 13rem; line-height: 1.5; color: var(--lum-ink); }
+.lb-imgtext__body p + p { margin-top: 6rem; }
+.lb-imgtext__ph { color: color-mix(in srgb, var(--lum-ink) 45%, transparent) !important; font-style: italic; }
+.lb-audio { display: flex; align-items: center; gap: 12rem; padding: 12rem 14rem; border-radius: 12rem; background: var(--lum-panel); border: 1px solid color-mix(in srgb, var(--lum-ink) 12%, transparent); }
+.lb-audio__play { width: 34rem; height: 34rem; border-radius: 999px; background: var(--lum-accent); position: relative; flex-shrink: 0; }
+.lb-audio__play::after { content: ""; position: absolute; left: 13rem; top: 10rem; border-left: 11rem solid #fff; border-top: 7rem solid transparent; border-bottom: 7rem solid transparent; }
+.lb-audio strong { display: block; font-size: 13.5rem; color: var(--lum-ink); }
+.lb-audio__tx { font-size: 11.5rem; color: color-mix(in srgb, var(--lum-ink) 55%, transparent); }
+.lb-reveal h3, .lb-reflect h3, .lb-order h3, .lb-match h3, .lb-sort h3, .lb-memory h3, .lb-quiz h3 { color: var(--lum-ink); }
+.lb-reveal h3 { font-size: 15rem; margin-bottom: 8rem; }
+.lb-reveal__item { display: flex; align-items: center; justify-content: space-between; gap: 10rem; padding: 12rem 14rem; border: 1.5px solid color-mix(in srgb, var(--lum-ink) 12%, transparent); border-radius: 10rem; margin: 6rem 0; font-size: 13.5rem; font-weight: 600; color: var(--lum-ink); background: var(--lum-panel); }
+.lb-reveal__hint { font-size: 10rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--lum-accent); }
+.lb-reflect { padding: 14rem; border-radius: 12rem; background: var(--lum-panel); border: 1px solid color-mix(in srgb, var(--lum-ink) 12%, transparent); }
+.lb-reflect h3 { font-size: 15rem; margin: 6rem 0; }
+.lb-reflect p { font-size: 12.5rem; color: color-mix(in srgb, var(--lum-ink) 60%, transparent); margin-bottom: 8rem; }
+.lb-reflect__box { padding: 12rem; border: 1.5px dashed color-mix(in srgb, var(--lum-ink) 20%, transparent); border-radius: 8rem; font-size: 12.5rem; color: color-mix(in srgb, var(--lum-ink) 45%, transparent); }
+.lb-quiz__opt i.lb-box { border-radius: 5rem; }
+.lb-fib { font-size: 14rem; line-height: 2; color: var(--lum-ink); }
+.lb-fib__gap { display: inline-block; width: 70rem; height: 0; border-bottom: 2.5px solid var(--lum-accent); vertical-align: middle; margin: 0 4rem; }
+.lb-poll__opt { padding: 10rem 12rem; border: 1.5px solid color-mix(in srgb, var(--lum-ink) 12%, transparent); border-radius: 10rem; margin: 6rem 0; font-size: 13rem; color: var(--lum-ink); }
+.lb-scenario__choice { display: flex; align-items: center; justify-content: space-between; gap: 8rem; padding: 11rem 13rem; border: 1.5px solid color-mix(in srgb, var(--lum-ink) 12%, transparent); border-radius: 10rem; margin: 6rem 0; font-size: 13rem; color: var(--lum-ink); }
+.lb-scenario__choice--best { border-color: #2f9e6e; background: rgba(47, 158, 110, 0.07); color: #2f9e6e; }
+.lb-order__item { display: flex; align-items: center; gap: 10rem; padding: 10rem 12rem; border: 1.5px solid color-mix(in srgb, var(--lum-ink) 12%, transparent); border-radius: 10rem; margin: 6rem 0; font-size: 13.5rem; color: var(--lum-ink); background: var(--lum-panel); }
+.lb-order__grip, .lb-sort__into { flex-shrink: 0; }
+.lb-order__grip { width: 14rem; height: 14rem; background-image: radial-gradient(currentColor 1.2px, transparent 1.2px); background-size: 5rem 5rem; color: color-mix(in srgb, var(--lum-ink) 30%, transparent); }
+.lb-match__rows { display: flex; flex-direction: column; gap: 8rem; margin-top: 8rem; }
+.lb-match__row { display: grid; grid-template-columns: 1fr 24rem 1fr; align-items: center; gap: 6rem; font-size: 12.5rem; color: var(--lum-ink); }
+.lb-match__row span:first-child, .lb-match__row span:last-child { padding: 9rem 11rem; border: 1.5px solid color-mix(in srgb, var(--lum-ink) 12%, transparent); border-radius: 9rem; background: var(--lum-panel); }
+.lb-match__link { height: 2px; background: color-mix(in srgb, var(--lum-accent) 45%, transparent); }
+.lb-sort__buckets { display: flex; flex-wrap: wrap; gap: 6rem; margin: 8rem 0; }
+.lb-sort__bucket { padding: 5rem 12rem; border-radius: 999px; background: var(--lum-accent); color: #fff; font-size: 11.5rem; font-weight: 700; }
+.lb-sort__card { display: flex; align-items: center; justify-content: space-between; gap: 8rem; padding: 9rem 12rem; border: 1.5px solid color-mix(in srgb, var(--lum-ink) 12%, transparent); border-radius: 9rem; margin: 5rem 0; font-size: 12.5rem; color: var(--lum-ink); }
+.lb-sort__into { font-size: 11rem; font-weight: 600; color: var(--lum-accent); }
+.lb-memory { text-align: left; }
+.lb-memory__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6rem; margin: 8rem 0; }
+.lb-memory__card { aspect-ratio: 3 / 4; display: grid; place-items: center; border-radius: 8rem; background: linear-gradient(140deg, var(--lum-accent), color-mix(in srgb, var(--lum-accent) 55%, #000)); color: #fff; font-weight: 800; font-size: 16rem; }
+.lb-memory__note { font-size: 11.5rem; color: color-mix(in srgb, var(--lum-ink) 55%, transparent); }
 </style>

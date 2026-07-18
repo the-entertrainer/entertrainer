@@ -24,6 +24,24 @@ function paras(s: string): string {
 
 let quizCounter = 0
 
+// Single-answer question, shared by the knowledge check and true/false.
+function renderQuiz(block: LuminaBlock, tag: string): string {
+  const qid = `q${++quizCounter}`
+  const opts = block.options.map((o, i) => ({ text: o.trim(), i })).filter(o => o.text)
+  return `<div class="blk quiz" data-quiz="${qid}" data-correct="${block.correctIndex}">
+    <span class="quiz__tag">${esc(tag)}</span>
+    <h3 class="quiz__q">${esc(block.title.trim())}</h3>
+    <div class="quiz__opts" role="radiogroup" aria-label="${esc(block.title.trim())}">
+      ${opts.map(o => `<button class="quiz__opt" role="radio" aria-checked="false" data-i="${o.i}"><i class="quiz__dot" aria-hidden="true"></i><span>${esc(o.text)}</span></button>`).join('')}
+    </div>
+    <button class="quiz__submit" disabled>Check answer</button>
+    <div class="quiz__result" hidden>
+      <strong class="quiz__verdict"></strong>
+      ${block.feedback.trim() ? `<p>${esc(block.feedback.trim())}</p>` : ''}
+    </div>
+  </div>`
+}
+
 function renderBlock(block: LuminaBlock): string {
   switch (block.kind) {
     case 'hero':
@@ -84,20 +102,173 @@ function renderBlock(block: LuminaBlock): string {
           <span class="card__face card__back">${esc(p.body.trim())}</span>
         </button>`).join('')}</div>`
     }
-    case 'quiz': {
-      const qid = `q${++quizCounter}`
-      const opts = block.options.map((o, i) => ({ text: o.trim(), i })).filter(o => o.text)
-      return `<div class="blk quiz" data-quiz="${qid}" data-correct="${block.correctIndex}">
-        <span class="quiz__tag">Knowledge check</span>
+    case 'stat':
+      return `<div class="blk stat stat--${esc(block.variant || 'accent')}">
+        <span class="stat__num">${esc(block.title.trim())}</span>
+        ${block.body.trim() ? `<span class="stat__label">${esc(block.body.trim())}</span>` : ''}
+        ${block.caption.trim() ? `<span class="stat__note">${esc(block.caption.trim())}</span>` : ''}
+      </div>`
+    case 'steps': {
+      const pairs = block.pairs.filter(p => p.title.trim() || p.body.trim())
+      return `<ol class="blk steps steps--${esc(block.variant || 'number')}">${pairs.map((p, i) => `
+        <li class="steps__item"><span class="steps__num">${i + 1}</span><div class="steps__body"><strong>${esc(p.title.trim() || `Step ${i + 1}`)}</strong>${p.body.trim() ? `<p>${esc(p.body.trim())}</p>` : ''}</div></li>`).join('')}</ol>`
+    }
+    case 'cardgrid': {
+      const pairs = block.pairs.filter(p => p.title.trim() || p.body.trim())
+      return `<div class="blk cgrid">${pairs.map(p => `
+        <div class="cgrid__card"><strong>${esc(p.title.trim())}</strong>${p.body.trim() ? `<p>${esc(p.body.trim())}</p>` : ''}</div>`).join('')}</div>`
+    }
+    case 'table': {
+      const rows = block.grid.filter(r => r.some(c => c.trim()))
+      if (rows.length < 1) return ''
+      const [head, ...body] = rows
+      return `<div class="blk tablewrap"><table class="ltable">
+        <thead><tr>${head.map(c => `<th>${esc(c.trim())}</th>`).join('')}</tr></thead>
+        <tbody>${body.map(r => `<tr>${head.map((_, ci) => `<td>${esc((r[ci] || '').trim())}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table></div>`
+    }
+    case 'imagetext': {
+      if (!block.src.trim()) return ''
+      return `<div class="blk imgtext imgtext--${esc(block.variant || 'left')}">
+        <figure class="imgtext__fig"><img src="${esc(block.src.trim())}" alt="${esc(block.alt.trim())}" loading="lazy">${block.caption.trim() ? `<figcaption>${esc(block.caption.trim())}</figcaption>` : ''}</figure>
+        <div class="imgtext__body">${paras(block.body)}</div>
+      </div>`
+    }
+    case 'audio': {
+      if (!block.src.trim()) return ''
+      return `<figure class="blk audio">
+        ${block.caption.trim() ? `<figcaption class="audio__cap">${esc(block.caption.trim())}</figcaption>` : ''}
+        <audio controls preload="metadata" src="${esc(block.src.trim())}"></audio>
+        ${block.body.trim() ? `<details class="audio__tx"><summary>Transcript</summary><div>${paras(block.body)}</div></details>` : ''}
+      </figure>`
+    }
+    case 'reveal': {
+      const pairs = block.pairs.filter(p => p.title.trim() || p.body.trim())
+      return `<div class="blk reveal">${block.title.trim() ? `<h3 class="reveal__q">${esc(block.title.trim())}</h3>` : ''}${pairs.map(p => `
+        <button class="reveal__item" data-reveal aria-expanded="false">
+          <span class="reveal__cue">${esc(p.title.trim() || 'Reveal')}</span>
+          <span class="reveal__ans" hidden>${esc(p.body.trim())}</span>
+          <span class="reveal__hint" aria-hidden="true">Tap to reveal</span>
+        </button>`).join('')}</div>`
+    }
+    case 'reflection': {
+      const rid = `r${++quizCounter}`
+      return `<div class="blk reflection" data-reflect="${rid}">
+        <span class="quiz__tag">Your turn</span>
         <h3 class="quiz__q">${esc(block.title.trim())}</h3>
-        <div class="quiz__opts" role="radiogroup" aria-label="${esc(block.title.trim())}">
-          ${opts.map(o => `<button class="quiz__opt" role="radio" aria-checked="false" data-i="${o.i}"><i class="quiz__dot" aria-hidden="true"></i><span>${esc(o.text)}</span></button>`).join('')}
+        ${block.body.trim() ? `<p class="reflection__hint">${esc(block.body.trim())}</p>` : ''}
+        <textarea class="reflection__input" rows="4" placeholder="Write your thoughts. They stay on this device."></textarea>
+        <span class="reflection__saved" hidden>Saved on this device</span>
+      </div>`
+    }
+    case 'quiz':
+      return renderQuiz(block, 'Knowledge check')
+    case 'truefalse':
+      return renderQuiz(block, 'True or false')
+    case 'multiquiz': {
+      const qid = `m${++quizCounter}`
+      const opts = block.options.map((o, i) => ({ text: o.trim(), i })).filter(o => o.text)
+      const correct = opts.filter(o => block.correctSet.includes(o.i)).map(o => o.i)
+      return `<div class="blk quiz mq" data-mq="${qid}" data-correct="${correct.join(',')}">
+        <span class="quiz__tag">Select all that apply</span>
+        <h3 class="quiz__q">${esc(block.title.trim())}</h3>
+        <div class="mq__opts" role="group" aria-label="${esc(block.title.trim())}">
+          ${opts.map(o => `<button class="mq__opt" role="checkbox" aria-checked="false" data-i="${o.i}"><span class="mq__box" aria-hidden="true"></span><span>${esc(o.text)}</span></button>`).join('')}
         </div>
         <button class="quiz__submit" disabled>Check answer</button>
-        <div class="quiz__result" hidden>
-          <strong class="quiz__verdict"></strong>
-          ${block.feedback.trim() ? `<p>${esc(block.feedback.trim())}</p>` : ''}
+        <div class="quiz__result" hidden><strong class="quiz__verdict"></strong>${block.feedback.trim() ? `<p>${esc(block.feedback.trim())}</p>` : ''}</div>
+      </div>`
+    }
+    case 'fillblank': {
+      const qid = `f${++quizCounter}`
+      const answers = block.options.map(o => o.trim()).filter(Boolean)
+      const sentence = esc(block.body.trim()).replace('___', '<input class="fib__input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer">')
+      return `<div class="blk quiz fib" data-fib="${qid}" data-answers="${esc(JSON.stringify(answers))}">
+        <span class="quiz__tag">Fill the blank</span>
+        ${block.title.trim() ? `<h3 class="quiz__q">${esc(block.title.trim())}</h3>` : ''}
+        <p class="fib__sentence">${sentence}</p>
+        <button class="quiz__submit">Check answer</button>
+        <div class="quiz__result" hidden><strong class="quiz__verdict"></strong>${block.feedback.trim() ? `<p>${esc(block.feedback.trim())}</p>` : ''}</div>
+      </div>`
+    }
+    case 'poll': {
+      const pid = `p${++quizCounter}`
+      const opts = block.options.map((o, i) => ({ text: o.trim(), i })).filter(o => o.text)
+      return `<div class="blk quiz poll" data-poll="${pid}">
+        <span class="quiz__tag">Poll</span>
+        <h3 class="quiz__q">${esc(block.title.trim())}</h3>
+        <div class="poll__opts">${opts.map(o => `
+          <button class="poll__opt" data-i="${o.i}"><span class="poll__row"><span class="poll__label">${esc(o.text)}</span><span class="poll__pct"></span></span><span class="poll__bar" aria-hidden="true"><i></i></span></button>`).join('')}</div>
+        ${block.feedback.trim() ? `<p class="poll__note" hidden>${esc(block.feedback.trim())}</p>` : ''}
+      </div>`
+    }
+    case 'scenario': {
+      const sid = `s${++quizCounter}`
+      const choices = block.options.map((o, i) => ({ text: o.trim(), out: (block.outcomes[i] || '').trim(), i })).filter(c => c.text)
+      return `<div class="blk quiz scenario" data-scenario="${sid}" data-best="${block.correctIndex}">
+        <span class="quiz__tag">Scenario</span>
+        <h3 class="quiz__q">${esc(block.title.trim())}</h3>
+        ${block.body.trim() ? `<div class="scenario__setup">${paras(block.body)}</div>` : ''}
+        <div class="scenario__choices">${choices.map(c => `<button class="scenario__choice" data-i="${c.i}" data-outcome="${esc(c.out)}">${esc(c.text)}</button>`).join('')}</div>
+        <div class="scenario__outcome" hidden><strong class="scenario__label"></strong><p class="scenario__text"></p></div>
+        ${block.feedback.trim() ? `<p class="scenario__debrief" hidden>${esc(block.feedback.trim())}</p>` : ''}
+        <button class="scenario__retry" hidden>Try a different choice</button>
+      </div>`
+    }
+    case 'ordering': {
+      const oid = `o${++quizCounter}`
+      const items = block.items.map((t, i) => ({ text: t.trim(), i })).filter(x => x.text)
+      return `<div class="blk quiz order" data-order="${oid}">
+        <span class="quiz__tag">Put in order</span>
+        ${block.title.trim() ? `<h3 class="quiz__q">${esc(block.title.trim())}</h3>` : ''}
+        <ul class="order__list">${items.map(x => `
+          <li class="order__item" data-key="${x.i}"><span class="order__grip" aria-hidden="true"></span><span class="order__text">${esc(x.text)}</span><span class="order__moves"><button class="order__up" aria-label="Move up">↑</button><button class="order__down" aria-label="Move down">↓</button></span></li>`).join('')}</ul>
+        <button class="quiz__submit">Check order</button>
+        <div class="quiz__result" hidden><strong class="quiz__verdict"></strong>${block.feedback.trim() ? `<p>${esc(block.feedback.trim())}</p>` : ''}</div>
+      </div>`
+    }
+    case 'matching': {
+      const mid = `x${++quizCounter}`
+      const pairs = block.pairs.filter(p => p.title.trim() && p.body.trim())
+      return `<div class="blk quiz match" data-match="${mid}">
+        <span class="quiz__tag">Matching</span>
+        ${block.title.trim() ? `<h3 class="quiz__q">${esc(block.title.trim())}</h3>` : ''}
+        <div class="match__cols">
+          <div class="match__col match__left">${pairs.map((p, i) => `<button class="match__item" data-side="l" data-key="${i}">${esc(p.title.trim())}</button>`).join('')}</div>
+          <div class="match__col match__right">${pairs.map((p, i) => `<button class="match__item" data-side="r" data-key="${i}">${esc(p.body.trim())}</button>`).join('')}</div>
         </div>
+        <button class="quiz__submit" disabled>Check matches</button>
+        <div class="quiz__result" hidden><strong class="quiz__verdict"></strong>${block.feedback.trim() ? `<p>${esc(block.feedback.trim())}</p>` : ''}</div>
+      </div>`
+    }
+    case 'sortgame': {
+      const gid = `g${++quizCounter}`
+      const buckets = block.options.map(o => o.trim()).filter(Boolean)
+      const cards = block.pairs.filter(p => p.title.trim())
+      return `<div class="blk quiz sort" data-sort="${gid}">
+        <span class="quiz__tag">Sort it</span>
+        ${block.title.trim() ? `<h3 class="quiz__q">${esc(block.title.trim())}</h3>` : ''}
+        <div class="sort__cards">${cards.map(c => `
+          <div class="sort__card" data-correct="${Math.min(buckets.length - 1, c.bucket || 0)}" data-pick="0">
+            <span class="sort__text">${esc(c.title.trim())}</span>
+            <span class="sort__chips">${buckets.map((b, bi) => `<button class="sort__chip${bi === 0 ? ' on' : ''}" data-b="${bi}">${esc(b)}</button>`).join('')}</span>
+          </div>`).join('')}</div>
+        <button class="quiz__submit">Check</button>
+        <div class="quiz__result" hidden><strong class="quiz__verdict"></strong>${block.feedback.trim() ? `<p>${esc(block.feedback.trim())}</p>` : ''}</div>
+      </div>`
+    }
+    case 'memory': {
+      const yid = `y${++quizCounter}`
+      const pairs = block.pairs.filter(p => p.title.trim() && p.body.trim())
+      const faces = pairs.flatMap((p, i) => [
+        { pair: i, text: p.title.trim() },
+        { pair: i, text: p.body.trim() }
+      ])
+      return `<div class="blk quiz memory" data-memory="${yid}" data-faces="${esc(JSON.stringify(faces))}">
+        <span class="quiz__tag">Memory match</span>
+        ${block.title.trim() ? `<h3 class="quiz__q">${esc(block.title.trim())}</h3>` : ''}
+        <div class="memory__grid"></div>
+        <p class="memory__status" role="status"></p>
       </div>`
     }
     case 'cta': {
@@ -237,6 +408,146 @@ main{max-width:760px;margin:0 auto;padding:clamp(24px,5vw,56px) clamp(18px,5vw,2
 .cta__btn--outline{border:2px solid var(--accent);color:var(--accent)}
 .cta__sub{margin-top:10px;font-size:13.5px;color:var(--ink-soft)}
 
+/* Statistic */
+.stat{text-align:center;padding:14px 0}
+.stat__num{display:block;font-family:var(--font-head);font-size:clamp(46px,10vw,72px);font-weight:800;line-height:1;letter-spacing:-.03em}
+.stat--accent .stat__num{color:var(--accent)}
+.stat__label{display:block;margin-top:10px;font-size:16px;font-weight:600}
+.stat__note{display:block;margin-top:6px;font-size:13.5px;color:var(--ink-soft)}
+/* Steps */
+.steps{list-style:none;counter-reset:step}
+.steps__item{display:flex;gap:16px;padding:0 0 22px;position:relative}
+.steps__num{flex-shrink:0;width:34px;height:34px;border-radius:999px;display:grid;place-items:center;font-weight:800;font-size:15px;background:var(--accent);color:#fff}
+.steps--timeline .steps__item::before{content:"";position:absolute;left:16px;top:34px;bottom:0;width:2px;background:color-mix(in srgb,var(--accent) 30%,transparent)}
+.steps__item:last-child{padding-bottom:0}
+.steps__item:last-child::before{display:none}
+.steps__body strong{display:block;font-size:16.5px;letter-spacing:-.01em}
+.steps__body p{margin-top:4px;color:var(--ink-soft);font-size:15px}
+/* Card grid */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.cgrid__card{padding:18px;border-radius:var(--r);background:var(--panel);border:1px solid var(--line);box-shadow:0 12px 30px -22px rgba(0,0,0,.35)}
+.cgrid__card strong{display:block;font-size:16px;letter-spacing:-.01em}
+.cgrid__card p{margin-top:6px;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+/* Table */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);-webkit-overflow-scrolling:touch}
+.ltable{border-collapse:collapse;width:100%;font-size:14.5px}
+.ltable th,.ltable td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+.ltable thead th{background:color-mix(in srgb,var(--accent) 10%,var(--panel));font-weight:700;color:var(--ink)}
+.ltable tbody tr:last-child td{border-bottom:0}
+.ltable tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--ink) 3%,transparent)}
+/* Image + text */
+.imgtext{display:grid;gap:20px;align-items:center;grid-template-columns:1fr}
+@media(min-width:640px){.imgtext{grid-template-columns:1fr 1fr}.imgtext--right .imgtext__fig{order:2}}
+.imgtext__fig img{width:100%;border-radius:var(--r)}
+.imgtext__fig figcaption{margin-top:8px;font-size:13px;color:var(--ink-soft)}
+.imgtext__body p+p{margin-top:12px}
+/* Audio */
+.audio{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
+.audio__cap{font-weight:600;margin-bottom:10px}
+.audio audio{width:100%}
+.audio__tx{margin-top:12px;font-size:14px;color:var(--ink-soft)}
+.audio__tx summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.audio__tx div{margin-top:8px}
+/* Reveal */
+.reveal__q{font-size:18px;margin-bottom:12px;letter-spacing:-.01em}
+.reveal__item{display:block;width:100%;text-align:left;padding:16px 18px;border:1.5px solid var(--line);border-radius:var(--r-s);background:var(--panel);margin:8px 0;transition:border-color .15s ease,transform .1s ease}
+.reveal__item:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.reveal__item:active{transform:scale(.995)}
+.reveal__cue{display:block;font-weight:600;font-size:16px}
+.reveal__ans{display:block;margin-top:10px;color:var(--ink-soft);font-size:15px;line-height:1.55}
+.reveal__hint{display:inline-block;margin-top:8px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.reveal__item.open{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+/* Reflection */
+.reflection{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:22px}
+.reflection__hint{margin:6px 0 12px;color:var(--ink-soft);font-size:14.5px}
+.reflection__input{width:100%;resize:vertical;min-height:100px;padding:13px 15px;border:1.5px solid var(--line);border-radius:var(--r-s);background:var(--paper);color:var(--ink);font:inherit;font-size:15px;line-height:1.55}
+.reflection__input:focus{outline:none;border-color:var(--accent)}
+.reflection__saved{display:inline-block;margin-top:8px;font-size:12px;font-weight:600;color:#2f9e6e}
+/* Multi-select */
+.mq__opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;border:1.5px solid var(--line);border-radius:var(--r-s);margin:8px 0;font-size:15.5px;transition:border-color .15s ease,background .15s ease}
+.mq__opt:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.mq__box{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);flex-shrink:0;position:relative}
+.mq__opt[aria-checked=true]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.mq__opt[aria-checked=true] .mq__box{border-color:var(--accent);background:var(--accent)}
+.mq__opt[aria-checked=true] .mq__box::after{content:"";position:absolute;left:5px;top:2px;width:6px;height:10px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg)}
+.mq.locked .mq__opt{pointer-events:none}
+.mq__opt.good{border-color:#2f9e6e;background:rgba(47,158,110,.1)}
+.mq__opt.bad{border-color:#d64550;background:rgba(214,69,80,.08)}
+/* Fill the blank */
+.fib__sentence{font-size:17px;line-height:2.1}
+.fib__input{display:inline-block;min-width:120px;padding:4px 10px;border:0;border-bottom:2.5px solid var(--accent);background:color-mix(in srgb,var(--accent) 7%,transparent);color:var(--ink);font:inherit;font-weight:600;text-align:center;border-radius:6px 6px 0 0}
+.fib__input:focus{outline:none;background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.fib.locked .fib__input{pointer-events:none}
+.fib__input.good{border-color:#2f9e6e;background:rgba(47,158,110,.12)}
+.fib__input.bad{border-color:#d64550;background:rgba(214,69,80,.1)}
+/* Poll */
+.poll__opt{display:block;width:100%;text-align:left;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--r-s);margin:8px 0;transition:border-color .15s ease}
+.poll__opt:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.poll__row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:15px}
+.poll__pct{font-weight:700;color:var(--accent);opacity:0;transition:opacity .3s ease}
+.poll__bar{display:block;height:8px;margin-top:9px;border-radius:999px;background:var(--line);overflow:hidden}
+.poll__bar i{display:block;height:100%;width:0;border-radius:999px;background:var(--accent);transition:width .5s cubic-bezier(.2,.7,.3,1)}
+.poll.voted .poll__pct{opacity:1}
+.poll.voted .poll__opt{pointer-events:none}
+.poll.voted .poll__opt.mine{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent)}
+.poll__note{margin-top:12px;padding:12px 14px;border-radius:var(--r-s);background:color-mix(in srgb,var(--accent) 8%,transparent);color:var(--ink-soft);font-size:14px}
+/* Scenario */
+.scenario__setup{margin-bottom:16px;color:var(--ink-soft)}
+.scenario__setup p+p{margin-top:10px}
+.scenario__choice{display:block;width:100%;text-align:left;padding:14px 16px;border:1.5px solid var(--line);border-radius:var(--r-s);background:var(--panel);margin:8px 0;font-size:15.5px;font-weight:500;transition:border-color .15s ease,transform .1s ease}
+.scenario__choice:hover{border-color:var(--accent);transform:translateX(2px)}
+.scenario.done .scenario__choice{pointer-events:none;opacity:.5}
+.scenario.done .scenario__choice.picked{opacity:1;border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.scenario__outcome{margin-top:16px;padding:16px 18px;border-radius:var(--r-s);border-left:4px solid var(--accent);background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.scenario__outcome.good{border-left-color:#2f9e6e;background:rgba(47,158,110,.08)}
+.scenario__outcome.bad{border-left-color:#d64550;background:rgba(214,69,80,.06)}
+.scenario__label{display:block;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.scenario__text{color:var(--ink-soft);font-size:15px;line-height:1.55}
+.scenario__debrief{margin-top:12px;color:var(--ink-soft);font-size:14px;font-style:italic}
+.scenario__retry{margin-top:14px;padding:10px 20px;border-radius:999px;border:1.5px solid var(--line);font-weight:600;font-size:14px}
+.scenario__retry:hover{border-color:var(--accent)}
+/* Ordering */
+.order__list{list-style:none}
+.order__item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--r-s);background:var(--panel);margin:8px 0}
+.order__grip{width:16px;height:16px;flex-shrink:0;background-image:radial-gradient(currentColor 1.4px,transparent 1.4px);background-size:6px 6px;color:color-mix(in srgb,var(--ink) 30%,transparent)}
+.order__text{flex:1;font-size:15.5px}
+.order__moves{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+.order__moves button{width:30px;height:22px;border:1px solid var(--line);border-radius:6px;font-size:13px;line-height:1;color:var(--ink-soft)}
+.order__moves button:hover{border-color:var(--accent);color:var(--accent)}
+.order.locked .order__moves{display:none}
+.order__item.good{border-color:#2f9e6e;background:rgba(47,158,110,.08)}
+.order__item.bad{border-color:#d64550;background:rgba(214,69,80,.06)}
+/* Matching */
+.match__cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.match__col{display:flex;flex-direction:column;gap:8px}
+.match__item{padding:13px 14px;border:1.5px solid var(--line);border-radius:var(--r-s);background:var(--panel);font-size:14.5px;text-align:left;transition:border-color .12s ease,box-shadow .12s ease}
+.match__item:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.match__item.sel{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.match__item.paired{border-color:var(--mc,#888);background:color-mix(in srgb,var(--mc,#888) 12%,transparent)}
+.match.locked .match__item{pointer-events:none}
+.match__item.good{border-color:#2f9e6e!important;background:rgba(47,158,110,.1)!important}
+.match__item.bad{border-color:#d64550!important;background:rgba(214,69,80,.08)!important}
+/* Sort */
+.sort__card{padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--r-s);background:var(--panel);margin:8px 0}
+.sort__text{display:block;font-size:15px;font-weight:500;margin-bottom:9px}
+.sort__chips{display:flex;flex-wrap:wrap;gap:6px}
+.sort__chip{padding:7px 13px;border-radius:999px;border:1.5px solid var(--line);font-size:13px;font-weight:600;color:var(--ink-soft)}
+.sort__chip.on{border-color:var(--accent);background:var(--accent);color:#fff}
+.sort.locked .sort__chips{pointer-events:none}
+.sort__card.good{border-color:#2f9e6e;background:rgba(47,158,110,.07)}
+.sort__card.bad{border-color:#d64550;background:rgba(214,69,80,.06)}
+/* Memory */
+.memory__grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.memory__card{aspect-ratio:3/4;border-radius:var(--r-s);border:0;position:relative;perspective:700px;background:none;padding:0}
+.memory__face{position:absolute;inset:0;display:grid;place-items:center;padding:8px;text-align:center;font-size:13px;font-weight:600;line-height:1.3;border-radius:var(--r-s);backface-visibility:hidden;transition:transform .4s cubic-bezier(.2,.7,.3,1)}
+.memory__front{background:var(--panel);border:1px solid var(--line);color:var(--ink);transform:rotateY(180deg)}
+.memory__back{background:linear-gradient(140deg,var(--accent),color-mix(in srgb,var(--accent) 60%,#000));color:transparent}
+.memory__back::after{content:"?";color:#fff;font-size:24px;font-weight:800;opacity:.85}
+.memory__card.up .memory__front,.memory__card.done .memory__front{transform:rotateY(0)}
+.memory__card.up .memory__back,.memory__card.done .memory__back{transform:rotateY(-180deg)}
+.memory__card.done .memory__front{border-color:#2f9e6e;box-shadow:0 0 0 2px rgba(47,158,110,.3)}
+.memory__status{margin-top:12px;font-size:14px;font-weight:600;color:var(--ink-soft);text-align:center}
+
 /* Lesson footer nav */
 .lesson__nav{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:56px;padding-top:26px;border-top:1px solid var(--line)}
 .lesson__btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:999px;font-weight:700;font-size:15px;background:var(--accent);color:#fff}
@@ -316,7 +627,8 @@ function persist(){
 }
 
 /* ── Progress + navigation ── */
-var totalQuiz=document.querySelectorAll('[data-quiz]').length;
+/* Every scored or participatory interaction counts toward completion. */
+var totalQuiz=document.querySelectorAll('[data-quiz],[data-mq],[data-fib],[data-poll],[data-scenario],[data-order],[data-match],[data-sort],[data-memory]').length;
 function progress(){
   var seen=Object.keys(state.seen).length,answered=Object.keys(state.quiz).length;
   var p=(seen+answered)/(lessons.length+totalQuiz);
@@ -420,6 +732,232 @@ document.querySelectorAll('[data-quiz]').forEach(function(q){
     opts.forEach(function(x){x.setAttribute('aria-checked',+x.getAttribute('data-i')===s.c)});
     lock(s.c,s.ok);
   }
+});
+
+/* ── Shared game helpers ── */
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function norm(s){return String(s).toLowerCase().replace(/\\s+/g,' ').trim()}
+var MATCH_COLORS=['#5B8DEF','#E15B8F','#2DD4BF','#F5A623','#8B7CF6','#FF7A6B','#34A853','#C084FC'];
+/* Record a scored interaction; drives progress bar + SCORM score. */
+function record(id,ok,resp){
+  state.quiz[id]={ok:!!ok,done:true};
+  if(scorm.api){
+    var n=Object.keys(state.quiz).length-1;
+    sset('cmi.interactions.'+n+'.id',id);
+    sset('cmi.interactions.'+n+'.type','other');
+    if(resp!=null)sset('cmi.interactions.'+n+'.student_response',String(resp).slice(0,255));
+    sset('cmi.interactions.'+n+'.result',ok?'correct':'wrong');
+  }
+  progress();
+}
+function verdictText(el,ok){var v=el.querySelector('.quiz__verdict');if(v)v.textContent=ok?'Correct!':'Not quite.';var r=el.querySelector('.quiz__result');if(r)r.hidden=false;}
+
+/* ── Reveal (think, then uncover) ── */
+document.querySelectorAll('[data-reveal]').forEach(function(b){
+  b.addEventListener('click',function(){
+    var open=b.classList.toggle('open');
+    b.setAttribute('aria-expanded',open?'true':'false');
+    var ans=b.querySelector('.reveal__ans'),hint=b.querySelector('.reveal__hint');
+    if(ans)ans.hidden=!open;if(hint)hint.textContent=open?'Tap to hide':'Tap to reveal';
+  });
+});
+
+/* ── Reflection (private notes, saved on device) ── */
+document.querySelectorAll('[data-reflect]').forEach(function(el){
+  var id=el.getAttribute('data-reflect'),ta=el.querySelector('.reflection__input'),saved=el.querySelector('.reflection__saved');
+  if(state.reflect&&state.reflect[id])ta.value=state.reflect[id];
+  var t;
+  ta.addEventListener('input',function(){
+    if(!state.reflect)state.reflect={};
+    state.reflect[id]=ta.value;
+    if(saved){saved.hidden=false}
+    clearTimeout(t);t=setTimeout(persist,400);
+  });
+});
+
+/* ── Multi-select ── */
+document.querySelectorAll('[data-mq]').forEach(function(el){
+  var id=el.getAttribute('data-mq');
+  var correct=(el.getAttribute('data-correct')||'').split(',').filter(function(s){return s!==''}).map(Number);
+  var opts=[].slice.call(el.querySelectorAll('.mq__opt')),submit=el.querySelector('.quiz__submit');
+  function sync(){submit.disabled=!opts.some(function(o){return o.getAttribute('aria-checked')==='true'})}
+  function lock(){
+    el.classList.add('locked');
+    opts.forEach(function(o){
+      var i=+o.getAttribute('data-i'),picked=o.getAttribute('aria-checked')==='true',right=correct.indexOf(i)>-1;
+      if(right)o.classList.add('good');else if(picked)o.classList.add('bad');
+    });
+  }
+  opts.forEach(function(o){o.addEventListener('click',function(){o.setAttribute('aria-checked',o.getAttribute('aria-checked')==='true'?'false':'true');sync()})});
+  submit.addEventListener('click',function(){
+    var picked=opts.filter(function(o){return o.getAttribute('aria-checked')==='true'}).map(function(o){return +o.getAttribute('data-i')});
+    var ok=picked.length===correct.length&&picked.every(function(i){return correct.indexOf(i)>-1});
+    lock();verdictText(el,ok);record(id,ok,picked.join(','));
+  });
+  if(state.quiz[id]){el.classList.add('locked');verdictText(el,state.quiz[id].ok);submit.style.display='none'}
+});
+
+/* ── Fill the blank ── */
+document.querySelectorAll('[data-fib]').forEach(function(el){
+  var id=el.getAttribute('data-fib'),input=el.querySelector('.fib__input'),submit=el.querySelector('.quiz__submit');
+  var answers=[];try{answers=JSON.parse(el.getAttribute('data-answers')||'[]')}catch(e){}
+  var accepted=answers.map(norm);
+  function check(){
+    var ok=accepted.indexOf(norm(input.value))>-1;
+    el.classList.add('locked');input.classList.add(ok?'good':'bad');
+    verdictText(el,ok);record(id,ok,input.value);
+  }
+  submit.addEventListener('click',check);
+  input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();if(!el.classList.contains('locked'))check()}});
+  if(state.quiz[id]){el.classList.add('locked');input.classList.add(state.quiz[id].ok?'good':'bad');verdictText(el,state.quiz[id].ok);submit.style.display='none';input.disabled=true}
+});
+
+/* ── Poll (local tally on this device) ── */
+document.querySelectorAll('[data-poll]').forEach(function(el){
+  var id=el.getAttribute('data-poll'),opts=[].slice.call(el.querySelectorAll('.poll__opt')),note=el.querySelector('.poll__note');
+  var key='lumina-poll:'+id;
+  function counts(){try{var c=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(c)?c:[]}catch(e){return[]}}
+  function render(mine){
+    var c=counts(),total=c.reduce(function(a,b){return a+(b||0)},0)||1;
+    el.classList.add('voted');
+    opts.forEach(function(o,i){
+      var pct=Math.round(100*(c[i]||0)/total);
+      o.querySelector('.poll__pct').textContent=pct+'%';
+      o.querySelector('.poll__bar i').style.width=pct+'%';
+      if(i===mine)o.classList.add('mine');
+    });
+    if(note)note.hidden=false;
+  }
+  opts.forEach(function(o,i){o.addEventListener('click',function(){
+    var c=counts();while(c.length<opts.length)c.push(0);c[i]=(c[i]||0)+1;
+    try{localStorage.setItem(key,JSON.stringify(c))}catch(e){}
+    render(i);record(id,true,String(i));
+  })});
+  if(state.quiz[id])render(-1);
+});
+
+/* ── Scenario (branching outcomes) ── */
+document.querySelectorAll('[data-scenario]').forEach(function(el){
+  var id=el.getAttribute('data-scenario'),best=+el.getAttribute('data-best');
+  var choices=[].slice.call(el.querySelectorAll('.scenario__choice'));
+  var out=el.querySelector('.scenario__outcome'),label=el.querySelector('.scenario__label'),text=el.querySelector('.scenario__text');
+  var debrief=el.querySelector('.scenario__debrief'),retry=el.querySelector('.scenario__retry');
+  function choose(btn,save){
+    var i=+btn.getAttribute('data-i'),ok=i===best;
+    el.classList.add('done');choices.forEach(function(c){c.classList.remove('picked')});btn.classList.add('picked');
+    out.hidden=false;out.className='scenario__outcome '+(ok?'good':'bad');
+    label.textContent=ok?'Good call':'Consider this';
+    text.textContent=btn.getAttribute('data-outcome')||'';
+    if(debrief)debrief.hidden=false;
+    if(retry)retry.hidden=false;
+    if(save)record(id,ok,String(i));
+  }
+  choices.forEach(function(c){c.addEventListener('click',function(){choose(c,true)})});
+  if(retry)retry.addEventListener('click',function(){el.classList.remove('done');out.hidden=true;if(debrief)debrief.hidden=true;retry.hidden=true;choices.forEach(function(c){c.classList.remove('picked')})});
+});
+
+/* ── Ordering (arrange the steps) ── */
+document.querySelectorAll('[data-order]').forEach(function(el){
+  var id=el.getAttribute('data-order'),list=el.querySelector('.order__list');
+  var items=[].slice.call(list.children);
+  shuffle(items).forEach(function(li){list.appendChild(li)});
+  list.addEventListener('click',function(e){
+    var up=e.target.closest('.order__up'),down=e.target.closest('.order__down');
+    if(el.classList.contains('locked'))return;
+    var li=e.target.closest('.order__item');if(!li)return;
+    if(up&&li.previousElementSibling)list.insertBefore(li,li.previousElementSibling);
+    else if(down&&li.nextElementSibling)list.insertBefore(li.nextElementSibling,li);
+  });
+  el.querySelector('.quiz__submit').addEventListener('click',function(){
+    var cur=[].slice.call(list.children),ok=true;
+    cur.forEach(function(li,idx){var right=+li.getAttribute('data-key')===idx;li.classList.add(right?'good':'bad');if(!right)ok=false});
+    el.classList.add('locked');verdictText(el,ok);record(id,ok);
+  });
+  if(state.quiz[id]){el.classList.add('locked');verdictText(el,state.quiz[id].ok);el.querySelector('.quiz__submit').style.display='none'}
+});
+
+/* ── Matching (tap left, tap right) ── */
+document.querySelectorAll('[data-match]').forEach(function(el){
+  var id=el.getAttribute('data-match');
+  var rights=[].slice.call(el.querySelectorAll('.match__right .match__item'));
+  shuffle(rights).forEach(function(b){b.parentNode.appendChild(b)});
+  var items=[].slice.call(el.querySelectorAll('.match__item')),submit=el.querySelector('.quiz__submit');
+  var sel=null,links={},cn=0;
+  function keyOf(b){return b.getAttribute('data-side')+b.getAttribute('data-key')}
+  function clearPair(b){
+    var lk=keyOf(b),partner=links[lk];if(!partner)return;
+    [b,partner].forEach(function(x){x.classList.remove('paired');x.style.removeProperty('--mc');delete links[keyOf(x)]});
+  }
+  items.forEach(function(b){b.addEventListener('click',function(){
+    if(el.classList.contains('locked'))return;
+    if(links[keyOf(b)]){clearPair(b);sync();return}
+    if(!sel){sel=b;b.classList.add('sel');return}
+    if(sel===b){sel.classList.remove('sel');sel=null;return}
+    if(sel.getAttribute('data-side')===b.getAttribute('data-side')){sel.classList.remove('sel');sel=b;b.classList.add('sel');return}
+    var color=MATCH_COLORS[cn++%MATCH_COLORS.length];
+    [sel,b].forEach(function(x){x.classList.remove('sel');x.classList.add('paired');x.style.setProperty('--mc',color)});
+    links[keyOf(sel)]=b;links[keyOf(b)]=sel;sel=null;sync();
+  })});
+  function sync(){submit.disabled=[].slice.call(el.querySelectorAll('.match__left .match__item')).some(function(b){return !links[keyOf(b)]})}
+  submit.addEventListener('click',function(){
+    var ok=true;
+    el.querySelectorAll('.match__left .match__item').forEach(function(l){
+      var partner=links[keyOf(l)],right=partner&&partner.getAttribute('data-key')===l.getAttribute('data-key');
+      l.classList.add(right?'good':'bad');if(partner)partner.classList.add(right?'good':'bad');if(!right)ok=false;
+    });
+    el.classList.add('locked');verdictText(el,ok);record(id,ok);
+  });
+  if(state.quiz[id]){el.classList.add('locked');verdictText(el,state.quiz[id].ok);submit.style.display='none'}
+});
+
+/* ── Sort it (assign each card to a bucket) ── */
+document.querySelectorAll('[data-sort]').forEach(function(el){
+  var id=el.getAttribute('data-sort'),cards=[].slice.call(el.querySelectorAll('.sort__card'));
+  cards.forEach(function(card){
+    card.querySelectorAll('.sort__chip').forEach(function(chip){chip.addEventListener('click',function(){
+      if(el.classList.contains('locked'))return;
+      card.querySelectorAll('.sort__chip').forEach(function(c){c.classList.remove('on')});
+      chip.classList.add('on');card.setAttribute('data-pick',chip.getAttribute('data-b'));
+    })});
+  });
+  el.querySelector('.quiz__submit').addEventListener('click',function(){
+    var ok=true;
+    cards.forEach(function(card){var right=card.getAttribute('data-pick')===card.getAttribute('data-correct');card.classList.add(right?'good':'bad');if(!right)ok=false});
+    el.classList.add('locked');verdictText(el,ok);record(id,ok);
+  });
+  if(state.quiz[id]){el.classList.add('locked');verdictText(el,state.quiz[id].ok);el.querySelector('.quiz__submit').style.display='none'}
+});
+
+/* ── Memory match ── */
+document.querySelectorAll('[data-memory]').forEach(function(el){
+  var id=el.getAttribute('data-memory'),grid=el.querySelector('.memory__grid'),status=el.querySelector('.memory__status');
+  var faces=[];try{faces=JSON.parse(el.getAttribute('data-faces')||'[]')}catch(e){}
+  var already=state.quiz[id]&&state.quiz[id].done;
+  shuffle(faces.slice()).forEach(function(f){
+    var b=document.createElement('button');b.className='memory__card';b.setAttribute('data-pair',f.pair);
+    b.innerHTML='<span class="memory__face memory__front">'+f.text.replace(/[&<>]/g,function(c){return c==='&'?'&amp;':c==='<'?'&lt;':'&gt;'})+'</span><span class="memory__face memory__back" aria-hidden="true"></span>';
+    grid.appendChild(b);
+  });
+  var cards=[].slice.call(grid.children),open=[],matched=0,moves=0,pairs=faces.length/2;
+  if(already){cards.forEach(function(c){c.classList.add('done')});status.textContent='Solved';return}
+  function tap(c){
+    if(c.classList.contains('up')||c.classList.contains('done')||open.length>=2)return;
+    c.classList.add('up');open.push(c);
+    if(open.length===2){
+      moves++;
+      var a=open[0],b=open[1];
+      if(a.getAttribute('data-pair')===b.getAttribute('data-pair')){
+        setTimeout(function(){a.classList.add('done');b.classList.add('done');a.classList.remove('up');b.classList.remove('up');open=[];matched++;
+          status.textContent=matched+' of '+pairs+' pairs';
+          if(matched===pairs){status.textContent='Solved in '+moves+' moves!';record(id,true)}
+        },380);
+      }else{
+        setTimeout(function(){a.classList.remove('up');b.classList.remove('up');open=[]},760);
+      }
+    }
+  }
+  cards.forEach(function(c){c.addEventListener('click',function(){tap(c)})});
+  status.textContent='0 of '+pairs+' pairs';
 });
 
 /* ── Scroll reveal (per the course's motion setting) ── */

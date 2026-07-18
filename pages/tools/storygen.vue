@@ -14,6 +14,8 @@ import {
   removeProject, writeProject, writeThumb, type ProjectMeta
 } from '~/composables/useStoryProjects'
 import { aiRewriteField, aiSuggestOptions, aiGenerateMcqCards, type GeneratedStoryboard } from '~/utils/aiStoryboard'
+import { courseFromStoryboard } from '~/utils/luminaFromStory'
+import { newLuminaProjectId, writeLuminaProject } from '~/composables/useLuminaProjects'
 
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
@@ -606,6 +608,18 @@ function exportDiagram() {
     modelLabel: activeModel.value.stages.length ? activeModel.value.label : undefined
   }, `${safeName(projectTitle.value)}-flow.png`)
 }
+// Hand the storyboard to Lumina: convert it into a block course on the
+// Lumina shelf, then jump straight into that editor. The storyboard here
+// stays untouched — the course is a new, separate project.
+async function openInLumina() {
+  showMenu.value = null
+  flushSave()
+  const { course } = courseFromStoryboard(currentProject())
+  const luminaId = newLuminaProjectId()
+  writeLuminaProject(luminaId, course)
+  await navigateTo(`/tools/lumina?open=${luminaId}`)
+}
+
 function exportSbf() {
   showMenu.value = null
   const project: StoryGenProject = {
@@ -786,6 +800,7 @@ onUnmounted(() => {
             <button @click="exportXlsx">Excel (.xlsx) — Storyboard + MCQ</button>
             <button @click="exportDiagram">Flow diagram (.png)</button>
             <button @click="exportSbf">Project file (.sbf)</button>
+            <button @click="openInLumina">Build in Lumina — block course</button>
           </div>
         </div>
       </div>
@@ -806,6 +821,7 @@ onUnmounted(() => {
           <button @click="exportXlsx">Export Excel (.xlsx)</button>
           <button @click="exportDiagram">Export diagram (.png)</button>
           <button @click="exportSbf">Save project (.sbf)</button>
+          <button @click="openInLumina">Build in Lumina</button>
         </div>
       </div>
     </header>

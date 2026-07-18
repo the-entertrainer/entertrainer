@@ -1,0 +1,32 @@
+# Gatekeeper: every push and pull request must produce a clean production
+# build before it can be trusted. Vercel deploys are fast to break silently;
+# this catches template errors, bad imports, and type-level mistakes in
+# .vue/.ts files at review time instead of in production.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Production build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build

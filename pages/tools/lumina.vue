@@ -15,6 +15,7 @@ import {
   removeLuminaProject, writeLuminaProject, type LuminaProjectMeta
 } from '~/composables/useLuminaProjects'
 import { listProjects as listStoryProjects, readProject as readStoryProject, type ProjectMeta } from '~/composables/useStoryProjects'
+import { aiSuggestInteractions, applyLuminaSuggestions, type LuminaSuggestion } from '~/utils/luminaAiSuggest'
 
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
@@ -42,6 +43,18 @@ const lessonsOpen = ref(false)
 const themeOpen = ref(false)
 const storygenOpen = ref(false)
 const savedFlash = ref(false)
+
+// ── Optional AI: interactivity suggestions (bring-your-own Groq key,
+// shared with StoryGen). Everything is off unless the user opted in. ──
+const { aiReady } = useAiSettings()
+const aiSetupOpen = ref(false)
+const aiSuggestOpen = ref(false)
+const aiState = ref<'loading' | 'ready' | 'empty' | 'error'>('loading')
+const aiSuggestions = ref<LuminaSuggestion[]>([])
+const aiError = ref('')
+// After a StoryGen import, a dismissible banner invites the interactivity
+// pass. It only appears the once, for freshly bridged courses.
+const aiOffer = ref(false)
 
 const toast = ref('')
 let toastTimer: ReturnType<typeof setTimeout> | null = null
@@ -299,6 +312,7 @@ async function importFile(e: Event) {
       // A StoryGen storyboard file — run it through the bridge.
       const bridged = courseFromStoryboard(data)
       course.value = bridged.course
+      offerInteractivity()
       showToast(`Storyboard converted. ${bridged.cardCount} screens became ${bridged.blockCount} blocks.`)
     } else {
       showToast('That file is neither a Lumina course nor a StoryGen storyboard.')
@@ -331,7 +345,45 @@ function importFromStorygen(projectId: string) {
   resetHistory()
   persist()
   view.value = 'editor'
+  offerInteractivity()
   showToast(`Storyboard converted. ${bridged.cardCount} screens became ${bridged.blockCount} blocks, with narration resolved into on-screen text.`)
+}
+
+// ── AI interactivity pass ───────────────────────────────────────
+// The banner shows after any StoryGen import: a converted storyboard reads
+// like slides, and the model can spot where a check, a scenario or a set
+// of flashcards would earn its place. Nothing runs until the author asks.
+function offerInteractivity() {
+  aiOffer.value = true
+}
+
+async function runSuggest() {
+  showMenu.value = null
+  aiOffer.value = false
+  if (!aiReady.value) { aiSetupOpen.value = true; return }
+  flushSave()
+  aiState.value = 'loading'
+  aiSuggestions.value = []
+  aiError.value = ''
+  aiSuggestOpen.value = true
+  try {
+    const { settings } = useAiSettings()
+    const suggestions = await aiSuggestInteractions(settings.value.key, course.value)
+    aiSuggestions.value = suggestions
+    aiState.value = suggestions.length ? 'ready' : 'empty'
+  } catch (e: any) {
+    aiError.value = e?.message || 'The suggestion could not be generated.'
+    aiState.value = 'error'
+  }
+}
+
+function onSuggestApply(picks: LuminaSuggestion[]) {
+  aiSuggestOpen.value = false
+  if (!picks.length) return
+  course.value = applyLuminaSuggestions(course.value, picks)
+  selectedBlockId.value = null
+  nextTick(() => { commitHistory(); persist() })
+  showToast(`Added ${picks.length} interactive block${picks.length === 1 ? '' : 's'}. Each one is yours to edit.`)
 }
 
 // ── Preview (the real exported player, in an iframe) ────────────
@@ -422,6 +474,8 @@ function onKeydown(e: KeyboardEvent) {
     e.preventDefault(); deleteBlock(selectedBlockId.value)
   } else if (e.key === 'Escape') {
     if (previewOpen.value) { previewOpen.value = false; return }
+    if (aiSuggestOpen.value) { aiSuggestOpen.value = false; return }
+    if (aiSetupOpen.value) { aiSetupOpen.value = false; return }
     if (auditIssues.value) { auditIssues.value = null; return }
     if (showMenu.value || showPaletteSheet.value || lessonsOpen.value || themeOpen.value || storygenOpen.value) {
       showMenu.value = null; showPaletteSheet.value = false; lessonsOpen.value = false; themeOpen.value = false; storygenOpen.value = false
@@ -444,6 +498,7 @@ onMounted(() => {
   const openId = useRoute().query.open
   if (typeof openId === 'string' && readLuminaProject(openId)) {
     openProject(openId)
+    offerInteractivity()
     showToast('Storyboard converted into a block course. Narration is now on-screen text, so give each lesson a read.')
     return
   }
@@ -536,6 +591,7 @@ onUnmounted(() => {
         </div>
 
         <div class="lum-topbar__group lum-desktop-only">
+          <button class="lum-tool lum-tool--wide lum-tool--ai" title="Suggest interactive blocks with AI" @click="runSuggest"><ToolsLuminaIcon name="sparkle" :size="13" /> Interactive</button>
           <button class="lum-tool lum-tool--wide" title="Colors, fonts, motion" @click="themeOpen = true"><ToolsLuminaIcon name="palette" :size="13" /> Design</button>
           <button class="lum-tool lum-tool--wide" title="Run the course check" @click="gate('check')"><ToolsLuminaIcon name="shield" :size="13" /> Check</button>
           <button class="lum-tool lum-tool--wide" title="Preview the real player" @click="openPreview"><ToolsLuminaIcon name="eye" :size="13" /> Preview</button>
@@ -554,6 +610,7 @@ onUnmounted(() => {
           <button class="lum-tool" aria-label="Menu" @click="showMenu = showMenu === 'mobile' ? null : 'mobile'"><ToolsLuminaIcon name="more-horizontal" :size="16" /></button>
           <div v-if="showMenu === 'mobile'" class="glass-panel lum-menu">
             <button @click="goHome">Home (all courses)</button>
+            <button @click="runSuggest">Suggest interactive blocks (AI)</button>
             <button @click="showMenu = null; themeOpen = true">Design: colors, fonts, motion</button>
             <button @click="gate('check')">Run course check</button>
             <button @click="openPreview">Preview player</button>
@@ -578,6 +635,21 @@ onUnmounted(() => {
         </button>
         <button class="lum-lessons__manage" title="Manage lessons" @click="lessonsOpen = true"><ToolsLuminaIcon name="layers" :size="13" /></button>
       </nav>
+
+      <!-- After a StoryGen import: invite the AI interactivity pass -->
+      <Transition name="lum-offer">
+        <div v-if="aiOffer" class="lum-offer glass-panel">
+          <span class="lum-offer__spark"><ToolsLuminaIcon name="sparkle" :size="15" /></span>
+          <p class="lum-offer__text">
+            <strong>Make it an interactive course?</strong>
+            AI can suggest knowledge checks, flashcards and scenarios where they fit.
+          </p>
+          <div class="lum-offer__actions">
+            <button class="glass-btn lum-offer__go" @click="runSuggest"><ToolsLuminaIcon name="sparkle" :size="12" /> Suggest blocks</button>
+            <button class="lum-tool" @click="aiOffer = false">Not now</button>
+          </div>
+        </div>
+      </Transition>
 
       <!-- Canvas: the course page, as it will export -->
       <div class="lum-canvas" data-lenis-prevent @click="selectedBlockId = null">
@@ -838,6 +910,21 @@ onUnmounted(() => {
       @jump="onAuditJump"
       @proceed="onAuditProceed"
     />
+
+    <!-- AI interactivity suggestions (review before applying) -->
+    <ToolsLuminaAiSuggestSheet
+      v-if="aiSuggestOpen"
+      :state="aiState"
+      :suggestions="aiSuggestions"
+      :error-message="aiError"
+      :course="course"
+      @close="aiSuggestOpen = false"
+      @apply="onSuggestApply"
+      @retry="runSuggest"
+    />
+
+    <!-- Bring-your-own-key AI setup (shared with StoryGen) -->
+    <ToolsStoryAiSetupSheet v-if="aiSetupOpen" @close="aiSetupOpen = false" />
 
     <Transition name="toast">
       <div v-if="toast" class="lum-toast glass-panel">{{ toast }}</div>
@@ -1158,6 +1245,11 @@ onUnmounted(() => {
 @media (hover: hover) { .lum-tool:not(:disabled):hover { background: color-mix(in srgb, var(--color-bg) 65%, transparent); } }
 .lum-tool:disabled { opacity: 0.3; cursor: default; }
 .lum-tool--wide { font-size: 12rem; padding: 0 12rem; white-space: nowrap; }
+.lum-tool--ai {
+  border-color: color-mix(in srgb, #A78BFA 55%, transparent);
+  background: color-mix(in srgb, #A78BFA 14%, transparent);
+}
+@media (hover: hover) { .lum-tool--ai:hover { background: color-mix(in srgb, #A78BFA 22%, transparent); } }
 .lum-file-btn { position: relative; overflow: hidden; cursor: pointer; }
 .lum-file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .lum-export-btn { padding: 8rem 16rem; font-size: 12.5rem; }
@@ -1193,6 +1285,36 @@ onUnmounted(() => {
 .lum-menu-file { overflow: hidden; }
 .lum-menu-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .lum-clickaway { position: fixed; inset: 0; z-index: 19; }
+
+/* ── AI interactivity offer banner ── */
+.lum-offer {
+  position: absolute;
+  top: calc(108rem + var(--safe-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 16;
+  width: min(560rem, calc(100vw - 220rem));
+  display: flex;
+  align-items: center;
+  gap: 13rem;
+  padding: 12rem 14rem;
+  border-radius: 16rem;
+  border-color: color-mix(in srgb, #A78BFA 40%, var(--color-glass-border));
+}
+.lum-offer__spark {
+  width: 30rem; height: 30rem;
+  display: grid; place-items: center;
+  border-radius: 9rem;
+  flex-shrink: 0;
+  color: #fff;
+  background: linear-gradient(135deg, #A78BFA, #E15B8F);
+}
+.lum-offer__text { font-size: 12.5rem; line-height: 1.45; margin-right: auto; }
+.lum-offer__text strong { display: block; font-size: 13.5rem; letter-spacing: -0.01em; margin-bottom: 2rem; }
+.lum-offer__actions { display: flex; align-items: center; gap: 7rem; flex-shrink: 0; }
+.lum-offer__go { padding: 8rem 14rem; font-size: 12.5rem; }
+.lum-offer-enter-active, .lum-offer-leave-active { transition: opacity 0.25s ease, transform 0.25s ease; }
+.lum-offer-enter-from, .lum-offer-leave-to { opacity: 0; transform: translateX(-50%) translateY(-10rem); }
 
 /* ── Lesson strip ── */
 .lum-lessons {
@@ -1576,6 +1698,15 @@ onUnmounted(() => {
     transform: none;
     max-width: none;
   }
+  .lum-offer {
+    left: 10rem;
+    right: 10rem;
+    width: auto;
+    transform: none;
+    flex-wrap: wrap;
+  }
+  .lum-offer__text { margin-right: 0; flex: 1 1 100%; }
+  .lum-offer-enter-from, .lum-offer-leave-to { transform: translateY(-10rem); }
   .lum-canvas { padding: calc(118rem + var(--safe-top)) 10rem calc(150rem + var(--safe-bottom)); }
   .lum-paper { border-radius: 18rem; }
   .lum-paper__title { font-size: 24rem; }

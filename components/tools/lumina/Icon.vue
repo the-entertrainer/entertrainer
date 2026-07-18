@@ -6,6 +6,7 @@ export type LuminaIconName =
   | 'close' | 'trash' | 'edit' | 'duplicate' | 'undo' | 'redo' | 'check'
   | 'chevron-down' | 'more-horizontal' | 'plus' | 'arrow-up' | 'arrow-down'
   | 'eye' | 'download' | 'upload' | 'alert' | 'layers' | 'palette' | 'shield'
+  | 'sparkle' | 'spinner'
 
 withDefaults(defineProps<{ name: LuminaIconName; size?: number }>(), { size: 16 })
 </script>
@@ -13,7 +14,7 @@ withDefaults(defineProps<{ name: LuminaIconName; size?: number }>(), { size: 16 
 <template>
   <svg
     :width="size" :height="size" viewBox="0 0 24 24"
-    class="lm-icon" aria-hidden="true" focusable="false"
+    class="lm-icon" :class="{ 'lm-icon--spin': name === 'spinner' }" aria-hidden="true" focusable="false"
   >
     <g v-if="name === 'close'" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
       <path d="M18 6 6 18M6 6l12 12" />
@@ -99,9 +100,28 @@ withDefaults(defineProps<{ name: LuminaIconName; size?: number }>(), { size: 16 
       <path d="M12 2.8 19.5 5.5v6c0 4.6-3.1 8-7.5 9.7C7.6 19.5 4.5 16.1 4.5 11.5v-6L12 2.8Z" />
       <path d="M8.8 11.7l2.3 2.3 4.2-4.2" />
     </g>
+
+    <path
+      v-else-if="name === 'sparkle'" fill="currentColor" stroke="none"
+      d="M12 2.4c.55 3.1 1.15 4.72 2.32 5.9 1.18 1.17 2.8 1.77 5.9 2.32-3.1.55-4.72 1.15-5.9 2.32-1.17 1.18-1.77 2.8-2.32 5.9-.55-3.1-1.15-4.72-2.32-5.9-1.18-1.17-2.8-1.77-5.9-2.32 3.1-.55 4.72-1.15 5.9-2.32C10.85 7.12 11.45 5.5 12 2.4Z"
+    />
+
+    <g v-else-if="name === 'spinner'" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+      <path d="M12 3v4" opacity="1" />
+      <path d="M12 17v4" opacity=".25" />
+      <path d="M4.9 4.9l2.8 2.8" opacity=".4" />
+      <path d="M16.3 16.3l2.8 2.8" opacity=".85" />
+      <path d="M3 12h4" opacity=".55" />
+      <path d="M17 12h4" opacity=".7" />
+      <path d="M4.9 19.1l2.8-2.8" opacity=".1" />
+      <path d="M16.3 7.7l2.8-2.8" opacity=".7" />
+    </g>
   </svg>
 </template>
 
 <style scoped>
 .lm-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+.lm-icon.lm-icon--spin { animation: lm-spin 0.9s linear infinite; }
+@keyframes lm-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .lm-icon.lm-icon--spin { animation-duration: 1.8s; } }
 </style>

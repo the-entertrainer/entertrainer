@@ -1,4 +1,7 @@
-import type { LuminaBlock, LuminaBlockKind, LuminaCourse, LuminaLesson, LuminaPair, LuminaTheme } from '~/types/lumina'
+import type {
+  LuminaBlock, LuminaBlockKind, LuminaCanvasId, LuminaCourse, LuminaFontId,
+  LuminaLesson, LuminaPair, LuminaTheme
+} from '~/types/lumina'
 
 export interface LuminaKindMeta {
   label: string
@@ -79,8 +82,50 @@ export function createLesson(title = 'New lesson'): LuminaLesson {
 
 export const LUMINA_ACCENTS = ['#F5A623', '#E15B8F', '#8B7CF6', '#2DD4BF', '#5B8DEF', '#FF7A6B', '#34A853', '#243F6A']
 
+// Every font choice is a system stack, so exported courses stay one
+// self-contained file with nothing to download and no layout shift.
+export const LUMINA_FONTS: Record<LuminaFontId, { label: string; stack: string }> = {
+  sans:      { label: 'Modern sans',   stack: `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif` },
+  humanist:  { label: 'Humanist sans', stack: `Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'DejaVu Sans', Verdana, sans-serif` },
+  geometric: { label: 'Geometric',     stack: `'Avenir Next', Avenir, Futura, 'Century Gothic', 'Trebuchet MS', sans-serif` },
+  serif:     { label: 'Editorial serif', stack: `'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif` },
+  classic:   { label: 'Classic serif', stack: `Charter, 'Bitstream Charter', Cambria, Georgia, 'Times New Roman', serif` },
+  mono:      { label: 'Typewriter',    stack: `ui-monospace, 'Cascadia Code', 'SF Mono', Menlo, Consolas, monospace` }
+}
+export const LUMINA_FONT_ORDER: LuminaFontId[] = ['sans', 'humanist', 'geometric', 'serif', 'classic', 'mono']
+
+// Page palettes. Each pairs paper (page), panel (cards) and ink (text),
+// chosen so body text clears WCAG AA contrast on both surfaces.
+export const LUMINA_CANVASES: Record<LuminaCanvasId, { label: string; paper: string; panel: string; ink: string; dark: boolean }> = {
+  ivory:    { label: 'Ivory',    paper: '#FAF7F2', panel: '#FFFFFF', ink: '#221D16', dark: false },
+  snow:     { label: 'Snow',     paper: '#FFFFFF', panel: '#F6F7F8', ink: '#17181A', dark: false },
+  mist:     { label: 'Mist',     paper: '#EFF2F6', panel: '#FFFFFF', ink: '#1B2430', dark: false },
+  sand:     { label: 'Sand',     paper: '#F5EEDE', panel: '#FFFCF5', ink: '#2A2118', dark: false },
+  charcoal: { label: 'Charcoal', paper: '#232120', panel: '#2D2A28', ink: '#F1EDE7', dark: true },
+  midnight: { label: 'Midnight', paper: '#111419', panel: '#1B2028', ink: '#E8ECF2', dark: true }
+}
+export const LUMINA_CANVAS_ORDER: LuminaCanvasId[] = ['ivory', 'snow', 'mist', 'sand', 'charcoal', 'midnight']
+
+export const LUMINA_SCALES: Record<LuminaTheme['scale'], { label: string; px: number }> = {
+  compact: { label: 'Compact', px: 15.5 },
+  cozy:    { label: 'Cozy',    px: 17 },
+  large:   { label: 'Large',   px: 19 }
+}
+
+export const LUMINA_CORNERS: Record<LuminaTheme['corners'], { label: string; r: number; rs: number }> = {
+  round: { label: 'Round', r: 18, rs: 12 },
+  soft:  { label: 'Soft',  r: 10, rs: 8 },
+  sharp: { label: 'Sharp', r: 4,  rs: 3 }
+}
+
+export const LUMINA_MOTIONS: Record<LuminaTheme['motion'], { label: string; hint: string }> = {
+  lively: { label: 'Lively', hint: 'Blocks rise into view as learners scroll' },
+  calm:   { label: 'Calm',   hint: 'Gentle fades only' },
+  off:    { label: 'Still',  hint: 'No animation at all' }
+}
+
 export function defaultTheme(): LuminaTheme {
-  return { accent: '#F5A623', font: 'sans', corners: 'round' }
+  return { accent: '#F5A623', canvas: 'ivory', headingFont: 'sans', bodyFont: 'sans', scale: 'cozy', corners: 'round', motion: 'lively' }
 }
 
 export function createCourse(title = 'Untitled Course'): LuminaCourse {
@@ -115,6 +160,24 @@ export function blockPreview(block: LuminaBlock): string {
   }
 }
 
+// Rough reading time at 200 words per minute, counting every text field a
+// learner will actually read. Shown on the shelf, the editor and the
+// exported cover.
+export function courseReadingMinutes(course: LuminaCourse): number {
+  let words = 0
+  const count = (s: string) => { words += s.split(/\s+/).filter(Boolean).length }
+  for (const lesson of course.lessons) {
+    count(lesson.title)
+    for (const b of lesson.blocks) {
+      count(b.title); count(b.body); count(b.caption); count(b.feedback)
+      b.items.forEach(count)
+      b.options.forEach(count)
+      b.pairs.forEach(p => { count(p.title); count(p.body) })
+    }
+  }
+  return Math.max(1, Math.round(words / 200))
+}
+
 // ── Import normalization ─────────────────────────────────────────
 // Accepts any parsed .lumina JSON (or hand-edited file) and returns a
 // course every editor code path can trust: all fields present, all ids
@@ -126,8 +189,18 @@ export function normalizeCourse(data: any): LuminaCourse {
   const theme = data?.theme
   if (theme && typeof theme === 'object') {
     if (typeof theme.accent === 'string' && /^#[0-9a-f]{6}$/i.test(theme.accent)) course.theme.accent = theme.accent
-    if (theme.font === 'serif') course.theme.font = 'serif'
-    if (theme.corners === 'sharp') course.theme.corners = 'sharp'
+    if (LUMINA_CANVASES[theme.canvas as LuminaCanvasId]) course.theme.canvas = theme.canvas
+    if (LUMINA_FONTS[theme.headingFont as LuminaFontId]) course.theme.headingFont = theme.headingFont
+    if (LUMINA_FONTS[theme.bodyFont as LuminaFontId]) course.theme.bodyFont = theme.bodyFont
+    if (LUMINA_SCALES[theme.scale as LuminaTheme['scale']]) course.theme.scale = theme.scale
+    if (LUMINA_CORNERS[theme.corners as LuminaTheme['corners']]) course.theme.corners = theme.corners
+    if (LUMINA_MOTIONS[theme.motion as LuminaTheme['motion']]) course.theme.motion = theme.motion
+    // Courses saved before the theme had font pairs carried a single
+    // 'font' switch. Honor it.
+    if (theme.font === 'serif' && !theme.bodyFont) {
+      course.theme.headingFont = 'serif'
+      course.theme.bodyFont = 'serif'
+    }
   }
   const lessons = Array.isArray(data?.lessons) ? data.lessons : []
   course.lessons = lessons.map((l: any, li: number): LuminaLesson => ({

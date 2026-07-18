@@ -18,7 +18,7 @@
     { "id": "training-cal-gen", "label": "Cadence",              "description": "Turn a list of topics into a ready-to-present monthly training calendar.", "href": "/tools/cadence", "color": "#243F6A" },
     { "id": "better-emails",    "label": "Draftly",              "description": "Turn messy drafts into polished, professional emails.",               "href": "/tools/better-emails",    "color": "#243F6A" },
     { "id": "storygen",         "label": "StoryGen",            "description": "Design storyboards on an infinite canvas — cards, flows, Word export.", "href": "/tools/storygen",     "color": "#243F6A" },
-    { "id": "lumina",           "label": "Lumina",              "description": "Stack learning blocks into a polished Rise-style course — then export premium HTML or SCORM.", "href": "/tools/lumina", "color": "#243F6A" },
+    { "id": "lumina",           "label": "Lumina",              "description": "Build a course out of blocks, right from your phone. Export one HTML file or a SCORM package.", "href": "/tools/lumina", "color": "#243F6A" },
     { "id": "hangyourfriend",   "label": "HangYourFriend",      "description": "A darkly funny 1930s-cartoon Hangman with a real physics rope and four different endings, drawn entirely in code.", "href": "/tools/hangyourfriend", "color": "#243F6A" }
   ],
   "downloads": [

@@ -166,7 +166,7 @@ onUnmounted(() => window.removeEventListener('pointermove', onHeadPointerMove))
 
         <!-- list -->
         <template v-else-if="block.kind === 'list'">
-          <label class="glass-label" for="lin-items">Items — one per line</label>
+          <label class="glass-label" for="lin-items">Items, one per line</label>
           <textarea id="lin-items" v-model="itemsText" class="glass-field linsp__tall" rows="6" placeholder="First point&#10;Second point" />
         </template>
 
@@ -195,7 +195,7 @@ onUnmounted(() => window.removeEventListener('pointermove', onHeadPointerMove))
           </label>
           <label class="glass-label" for="lin-src">…or paste an image URL</label>
           <input id="lin-src" v-model="block.src" class="glass-field" placeholder="https://…" inputmode="url">
-          <label class="glass-label" for="lin-alt">Alt text — required</label>
+          <label class="glass-label" for="lin-alt">Alt text (required)</label>
           <input id="lin-alt" v-model="block.alt" class="glass-field" placeholder="Describe the image for screen readers">
           <label class="glass-label" for="lin-caption">Caption (optional)</label>
           <input id="lin-caption" v-model="block.caption" class="glass-field">
@@ -205,7 +205,7 @@ onUnmounted(() => window.removeEventListener('pointermove', onHeadPointerMove))
         <template v-else-if="block.kind === 'video'">
           <label class="glass-label" for="lin-src">Video link</label>
           <input id="lin-src" v-model="block.src" class="glass-field" placeholder="YouTube, Vimeo or .mp4 URL" inputmode="url">
-          <p v-if="videoState === 'ok'" class="linsp__ok"><ToolsLuminaIcon name="check" :size="12" /> Link recognized — it will embed cleanly.</p>
+          <p v-if="videoState === 'ok'" class="linsp__ok"><ToolsLuminaIcon name="check" :size="12" /> Link recognized. It will embed cleanly.</p>
           <p v-else-if="videoState === 'bad'" class="linsp__bad"><ToolsLuminaIcon name="alert" :size="12" /> Not a playable link. Use a YouTube / Vimeo page URL or a direct .mp4.</p>
           <label class="glass-label" for="lin-caption">Caption (optional)</label>
           <input id="lin-caption" v-model="block.caption" class="glass-field">
@@ -230,7 +230,7 @@ onUnmounted(() => window.removeEventListener('pointermove', onHeadPointerMove))
         <template v-else-if="block.kind === 'quiz'">
           <label class="glass-label" for="lin-q">Question</label>
           <textarea id="lin-q" v-model="block.title" class="glass-field" rows="2" placeholder="What should the learner be able to answer?" />
-          <label class="glass-label">Options — mark the correct one</label>
+          <label class="glass-label">Options (mark the correct one)</label>
           <label
             v-for="(_, i) in block.options" :key="i"
             class="linsp__option" :class="{ 'linsp__option--correct': block.correctIndex === i }"
@@ -246,14 +246,14 @@ onUnmounted(() => window.removeEventListener('pointermove', onHeadPointerMove))
         <template v-else-if="block.kind === 'cta'">
           <label class="glass-label" for="lin-title">Button label</label>
           <input id="lin-title" v-model="block.title" class="glass-field" placeholder="e.g. Download the checklist">
-          <label class="glass-label" for="lin-src">Link (optional — empty = milestone button)</label>
+          <label class="glass-label" for="lin-src">Link (leave empty for a simple milestone button)</label>
           <input id="lin-src" v-model="block.src" class="glass-field" placeholder="https://…" inputmode="url">
           <label class="glass-label" for="lin-body">Note under the button (optional)</label>
           <input id="lin-body" v-model="block.body" class="glass-field">
         </template>
 
         <!-- divider has only its variant control -->
-        <p v-else-if="block.kind === 'divider'" class="linsp__hint">Dividers give a lesson breathing room — pick a style above.</p>
+        <p v-else-if="block.kind === 'divider'" class="linsp__hint">Dividers give a lesson breathing room. Pick a style above.</p>
       </div>
     </aside>
   </Transition>

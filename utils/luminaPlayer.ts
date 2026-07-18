@@ -1,5 +1,6 @@
 import type { LuminaBlock, LuminaCourse } from '~/types/lumina'
 import { parseVideoEmbed } from '~/utils/luminaAudit'
+import { courseReadingMinutes, LUMINA_CANVASES, LUMINA_CORNERS, LUMINA_FONTS, LUMINA_SCALES } from '~/utils/luminaBlocks'
 
 // Renders a LuminaCourse into ONE self-contained HTML document: no CDN, no
 // fonts to fetch, works from a file:// double-click or inside an LMS
@@ -37,7 +38,7 @@ function renderBlock(block: LuminaBlock): string {
       return `<div class="blk list list--${esc(block.variant || 'bullet')}"><${tag}>${items.map(i => `<li>${esc(i.trim())}</li>`).join('')}</${tag}></div>`
     }
     case 'quote':
-      return `<figure class="blk quote"><blockquote>${paras(block.body)}</blockquote>${block.caption.trim() ? `<figcaption>— ${esc(block.caption.trim())}</figcaption>` : ''}</figure>`
+      return `<figure class="blk quote"><blockquote>${paras(block.body)}</blockquote>${block.caption.trim() ? `<figcaption>${esc(block.caption.trim())}</figcaption>` : ''}</figure>`
     case 'callout':
       return `<aside class="blk callout callout--${esc(block.variant || 'note')}">
         ${block.title.trim() ? `<strong class="callout__title">${esc(block.title.trim())}</strong>` : ''}
@@ -78,7 +79,7 @@ function renderBlock(block: LuminaBlock): string {
     case 'flashcards': {
       const pairs = block.pairs.filter(p => p.title.trim() || p.body.trim())
       return `<div class="blk cards">${pairs.map(p => `
-        <button class="card" data-flip aria-label="Flashcard — activate to flip">
+        <button class="card" data-flip aria-label="Flashcard. Activate to flip.">
           <span class="card__face card__front">${esc(p.title.trim())}</span>
           <span class="card__face card__back">${esc(p.body.trim())}</span>
         </button>`).join('')}</div>`
@@ -112,13 +113,11 @@ function renderBlock(block: LuminaBlock): string {
 }
 
 const PLAYER_CSS = `
-:root{--ink:#221d16;--ink-soft:rgba(34,29,22,.62);--paper:#faf7f2;--panel:#ffffff;--line:rgba(34,29,22,.12);--r:18px;--r-s:12px}
-.corners-sharp{--r:6px;--r-s:4px}
+:root{--ink-soft:color-mix(in srgb,var(--ink) 65%,transparent);--line:color-mix(in srgb,var(--ink) 14%,transparent)}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
-body{font-family:var(--font-body);background:var(--paper);color:var(--ink);line-height:1.6;font-size:17px;-webkit-font-smoothing:antialiased}
-.font-sans{--font-body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
-.font-serif{--font-body:"Iowan Old Style",Georgia,"Times New Roman",serif}
+body{font-family:var(--font-body);background:var(--paper);color:var(--ink);line-height:1.6;font-size:var(--fs);-webkit-font-smoothing:antialiased}
+h1,h2,h3,.cover h1{font-family:var(--font-head)}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* The cover/shell swap relies on [hidden]; author display rules must not beat it */
 [hidden]{display:none!important}
@@ -249,8 +248,13 @@ main{max-width:760px;margin:0 auto;padding:clamp(24px,5vw,56px) clamp(18px,5vw,2
 .finish__ring::after{content:"";width:30px;height:16px;border-left:4px solid #fff;border-bottom:4px solid #fff;transform:rotate(-45deg) translate(2px,-2px)}
 .finish h2{font-size:clamp(24px,4vw,34px);letter-spacing:-.02em}
 .finish p{margin-top:10px;color:var(--ink-soft)}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
-@media print{.topbar,.menu,.lesson__nav{display:none}.lesson{display:block!important}}
+/* Motion is a course setting: lively blocks rise in as you scroll, calm
+   ones only fade, still means no movement at all. */
+body[data-motion=lively] main .blk{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.3,1)}
+body[data-motion=calm] main .blk{opacity:0;transition:opacity .6s ease}
+body[data-motion] main .blk.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}main .blk{opacity:1!important;transform:none!important}}
+@media print{.topbar,.menu,.lesson__nav{display:none}.lesson{display:block!important}main .blk{opacity:1!important;transform:none!important}}
 `
 
 const PLAYER_JS = `
@@ -283,13 +287,32 @@ if(scorm.on){
     window.addEventListener('beforeunload',function(){persist();try{scorm.api.LMSFinish('')}catch(e){}});
   }
 }
+/* Standalone courses remember progress in the browser, so a learner who
+   closes the tab can pick up where they left off. */
+var storeKey='lumina-resume:'+(document.title||'course').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+if(!scorm.on){
+  try{
+    var localRaw=localStorage.getItem(storeKey);
+    if(localRaw){
+      var localSaved=JSON.parse(localRaw);
+      if(localSaved&&typeof localSaved.i==='number'&&(Object.keys(localSaved.seen||{}).length||Object.keys(localSaved.quiz||{}).length)){
+        state=localSaved;
+        var sb=document.getElementById('start');
+        if(sb)sb.textContent='Pick up where you left off';
+      }
+    }
+  }catch(e){}
+}
 function persist(){
-  if(!scorm.api)return;
-  sset('cmi.suspend_data',JSON.stringify(state));
-  var qs=Object.keys(state.quiz),right=0;
-  qs.forEach(function(k){if(state.quiz[k].ok)right++});
-  if(qs.length){sset('cmi.core.score.min',0);sset('cmi.core.score.max',100);sset('cmi.core.score.raw',Math.round(100*right/qs.length))}
-  scommit();
+  if(scorm.api){
+    sset('cmi.suspend_data',JSON.stringify(state));
+    var qs=Object.keys(state.quiz),right=0;
+    qs.forEach(function(k){if(state.quiz[k].ok)right++});
+    if(qs.length){sset('cmi.core.score.min',0);sset('cmi.core.score.max',100);sset('cmi.core.score.raw',Math.round(100*right/qs.length))}
+    scommit();
+  }else{
+    try{localStorage.setItem(storeKey,JSON.stringify(state))}catch(e){}
+  }
 }
 
 /* ── Progress + navigation ── */
@@ -300,13 +323,17 @@ function progress(){
   if(bar)bar.style.transform='scaleX('+p+')';
   if(pct)pct.textContent=Math.round(p*100)+'%';
   menuItems.forEach(function(m){m.classList.toggle('done',!!state.seen[m.dataset.i])});
-  if(p>=1){sset('cmi.core.lesson_status','completed');persist()}
-  else if(scorm.api)persist();
+  if(p>=1)sset('cmi.core.lesson_status','completed');
+  persist();
 }
 function show(i,scroll){
   state.i=i;state.seen[i]=true;
   lessons.forEach(function(l,j){l.classList.toggle('on',j===i)});
-  menuItems.forEach(function(m){m.classList.toggle('on',+m.dataset.i===i)});
+  menuItems.forEach(function(m){
+    var on=+m.dataset.i===i;
+    m.classList.toggle('on',on);
+    if(on)m.setAttribute('aria-current','true');else m.removeAttribute('aria-current');
+  });
   if(finish)finish.classList.remove('on');
   if(scroll!==false)window.scrollTo({top:0,behavior:'auto'});
   progress();
@@ -395,6 +422,21 @@ document.querySelectorAll('[data-quiz]').forEach(function(q){
   }
 });
 
+/* ── Scroll reveal (per the course's motion setting) ── */
+(function(){
+  var motion=document.body.getAttribute('data-motion');
+  var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var blocks=[].slice.call(document.querySelectorAll('main .blk'));
+  if(motion&&!reduced&&'IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}});
+    },{threshold:0.06,rootMargin:'0px 0px -8% 0px'});
+    blocks.forEach(function(b){io.observe(b)});
+  }else{
+    blocks.forEach(function(b){b.classList.add('in')});
+  }
+})();
+
 progress();
 })();
 `
@@ -402,7 +444,14 @@ progress();
 export function renderPlayerHtml(course: LuminaCourse, options: PlayerOptions = {}): string {
   quizCounter = 0
   const lessons = course.lessons.filter(l => l.blocks.length)
-  const accent = course.theme.accent
+  const theme = course.theme
+  const accent = theme.accent
+  const canvas = LUMINA_CANVASES[theme.canvas]
+  const corners = LUMINA_CORNERS[theme.corners]
+  const scale = LUMINA_SCALES[theme.scale]
+  const bodyFont = LUMINA_FONTS[theme.bodyFont].stack
+  const headFont = LUMINA_FONTS[theme.headingFont].stack
+  const minutes = courseReadingMinutes(course)
 
   const lessonHtml = lessons.map((lesson, i) => `
     <section class="lesson" aria-label="${esc(lesson.title)}">
@@ -426,16 +475,16 @@ export function renderPlayerHtml(course: LuminaCourse, options: PlayerOptions = 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(course.title || 'Course')}</title>
-<meta name="generator" content="Lumina — entertrainer.in">
-<style>:root{--accent:${esc(accent)}}${PLAYER_CSS}</style>
+<meta name="generator" content="Lumina (entertrainer.in)">
+<style>:root{--accent:${esc(accent)};--paper:${esc(canvas.paper)};--panel:${esc(canvas.panel)};--ink:${esc(canvas.ink)};--r:${corners.r}px;--r-s:${corners.rs}px;--fs:${scale.px}px;--font-body:${bodyFont};--font-head:${headFont}}${PLAYER_CSS}</style>
 </head>
-<body class="font-${esc(course.theme.font)} corners-${esc(course.theme.corners)}">
+<body${theme.motion === 'off' ? '' : ` data-motion="${esc(theme.motion)}"`}>
 
 <div class="cover" id="cover">
   <span class="cover__kicker">Interactive course</span>
   <h1>${esc(course.title || 'Untitled Course')}</h1>
   ${course.description.trim() ? `<p class="cover__desc">${esc(course.description.trim())}</p>` : ''}
-  <p class="cover__meta">${lessons.length} lesson${lessons.length === 1 ? '' : 's'}</p>
+  <p class="cover__meta">${lessons.length} lesson${lessons.length === 1 ? '' : 's'} · about ${minutes} min</p>
   <button class="cover__start" id="start">Start learning</button>
 </div>
 
@@ -458,7 +507,7 @@ export function renderPlayerHtml(course: LuminaCourse, options: PlayerOptions = 
     <section class="finish" id="finish">
       <div class="finish__ring" aria-hidden="true"></div>
       <h2>Course complete</h2>
-      <p>Nice work — you reached the end of “${esc(course.title || 'this course')}”.</p>
+      <p>You made it to the end of “${esc(course.title || 'this course')}”.</p>
     </section>
   </main>
 </div>

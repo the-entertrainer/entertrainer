@@ -80,7 +80,7 @@ export default defineNuxtConfig({
         {
           name: 'Lumina — Course Builder',
           short_name: 'Lumina',
-          description: 'Stack learning blocks into a polished course, then export HTML or SCORM',
+          description: 'Build block-based courses and export HTML or SCORM',
           url: '/tools/lumina',
           icons: [{ src: '/lumina-icon-192.png', sizes: '192x192', type: 'image/png' }]
         },

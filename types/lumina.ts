@@ -56,12 +56,20 @@ export interface LuminaLesson {
   blocks: LuminaBlock[]
 }
 
+export type LuminaFontId = 'sans' | 'humanist' | 'geometric' | 'serif' | 'classic' | 'mono'
+export type LuminaCanvasId = 'ivory' | 'snow' | 'mist' | 'sand' | 'charcoal' | 'midnight'
+
 // Theme travels with the course and drives both the editor canvas and the
-// exported player, via CSS custom properties.
+// exported player through the same CSS custom properties, so what authors
+// see while editing is exactly what learners get.
 export interface LuminaTheme {
-  accent: string             // brand color for headings, buttons, quiz UI
-  font: 'sans' | 'serif'     // body voice of the exported course
-  corners: 'round' | 'sharp'
+  accent: string             // any hex color: headings, buttons, quiz UI
+  canvas: LuminaCanvasId     // page palette: paper, panel and ink colors
+  headingFont: LuminaFontId
+  bodyFont: LuminaFontId
+  scale: 'compact' | 'cozy' | 'large'      // base reading size
+  corners: 'round' | 'soft' | 'sharp'
+  motion: 'lively' | 'calm' | 'off'        // how much the course moves
 }
 
 export interface LuminaCourse {

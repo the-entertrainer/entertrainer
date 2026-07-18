@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import type { LuminaAuditIssue, LuminaBlock, LuminaBlockKind, LuminaCourse } from '~/types/lumina'
-import { createBlock, createCourse, createLesson, LUMINA_ACCENTS, luminaId, normalizeCourse } from '~/utils/luminaBlocks'
+import {
+  courseReadingMinutes, createBlock, createCourse, createLesson,
+  LUMINA_ACCENTS, LUMINA_CANVAS_ORDER, LUMINA_CANVASES, LUMINA_CORNERS,
+  LUMINA_FONT_ORDER, LUMINA_FONTS, LUMINA_MOTIONS, LUMINA_SCALES,
+  luminaId, normalizeCourse
+} from '~/utils/luminaBlocks'
 import { auditCourse } from '~/utils/luminaAudit'
 import { exportLuminaHtml, exportLuminaProject, exportLuminaScorm } from '~/utils/luminaExport'
 import { renderPlayerHtml } from '~/utils/luminaPlayer'
@@ -13,10 +18,10 @@ import { listProjects as listStoryProjects, readProject as readStoryProject, typ
 
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
-  title: 'Lumina — Course Builder · Entertrainer',
-  description: 'Build beautiful, Rise-style block courses on your phone or desktop. Stack blocks, check quality, export premium HTML or SCORM 1.2 — free, local-first.',
-  ogTitle: 'Lumina — Course Builder',
-  ogDescription: 'Stack learning blocks into a polished course. Export premium HTML or SCORM.',
+  title: 'Lumina Course Builder · Entertrainer',
+  description: 'Build block-based courses that read well on any screen. Edit on your phone or laptop, run the quality check, and export one HTML file or a SCORM 1.2 package. Free, and everything stays on your device.',
+  ogTitle: 'Lumina Course Builder',
+  ogDescription: 'Build a course out of blocks, right from your phone. Export HTML or SCORM.',
   ogUrl: 'https://entertrainer.in/tools/lumina'
 })
 
@@ -55,6 +60,23 @@ const selectedBlock = computed<LuminaBlock | null>(() =>
   activeLesson.value?.blocks.find(b => b.id === selectedBlockId.value) ?? null
 )
 const totalBlocks = computed(() => course.value.lessons.reduce((s, l) => s + l.blocks.length, 0))
+const readingMinutes = computed(() => courseReadingMinutes(course.value))
+
+// The course theme, expressed as CSS variables. Set on the page root so
+// the canvas, the block previews and the preview frame all read the same
+// palette the export will use.
+const themeVars = computed(() => {
+  const t = course.value.theme
+  const canvas = LUMINA_CANVASES[t.canvas]
+  return {
+    '--lum-accent': t.accent,
+    '--lum-paper': canvas.paper,
+    '--lum-panel': canvas.panel,
+    '--lum-ink': canvas.ink,
+    '--lum-head-font': LUMINA_FONTS[t.headingFont].stack,
+    '--lum-body-font': LUMINA_FONTS[t.bodyFont].stack
+  }
+})
 const storyShelf = ref<ProjectMeta[]>([])
 
 watch(selectedBlockId, (id) => {
@@ -121,6 +143,16 @@ function editBlock(blockId: string) {
 function addLesson() {
   course.value.lessons.push(createLesson(`Lesson ${course.value.lessons.length + 1}`))
   activeLessonIndex.value = course.value.lessons.length - 1
+}
+function duplicateLesson(index: number) {
+  const src = course.value.lessons[index]
+  if (!src) return
+  const copy = JSON.parse(JSON.stringify(src)) as typeof src
+  copy.id = luminaId('l')
+  copy.title = src.title ? `${src.title} copy` : 'Untitled copy'
+  copy.blocks = copy.blocks.map(b => ({ ...b, id: luminaId('b'), pairs: b.pairs.map(p => ({ ...p, id: luminaId('p') })) }))
+  course.value.lessons.splice(index + 1, 0, copy)
+  activeLessonIndex.value = index + 1
 }
 function deleteLesson(index: number) {
   if (course.value.lessons.length <= 1) return
@@ -267,7 +299,7 @@ async function importFile(e: Event) {
       // A StoryGen storyboard file — run it through the bridge.
       const bridged = courseFromStoryboard(data)
       course.value = bridged.course
-      showToast(`Storyboard converted — ${bridged.cardCount} screens became ${bridged.blockCount} blocks.`)
+      showToast(`Storyboard converted. ${bridged.cardCount} screens became ${bridged.blockCount} blocks.`)
     } else {
       showToast('That file is neither a Lumina course nor a StoryGen storyboard.')
       return
@@ -299,7 +331,7 @@ function importFromStorygen(projectId: string) {
   resetHistory()
   persist()
   view.value = 'editor'
-  showToast(`Storyboard converted — ${bridged.cardCount} screens became ${bridged.blockCount} blocks. Narration is now on-screen text.`)
+  showToast(`Storyboard converted. ${bridged.cardCount} screens became ${bridged.blockCount} blocks, with narration resolved into on-screen text.`)
 }
 
 // ── Preview (the real exported player, in an iframe) ────────────
@@ -327,8 +359,8 @@ const actionLabels: Record<GatedAction, string> = {
 }
 
 async function runExport(action: GatedAction) {
-  if (action === 'html') { exportLuminaHtml(course.value); showToast('Standalone HTML exported — one file, plays anywhere.') }
-  else if (action === 'scorm') { await exportLuminaScorm(course.value); showToast('SCORM 1.2 package exported — upload the zip to your LMS.') }
+  if (action === 'html') { exportLuminaHtml(course.value); showToast('Exported. One HTML file that plays anywhere.') }
+  else if (action === 'scorm') { await exportLuminaScorm(course.value); showToast('SCORM package exported. Upload the zip to your LMS.') }
 }
 
 async function gate(action: GatedAction) {
@@ -412,7 +444,7 @@ onMounted(() => {
   const openId = useRoute().query.open
   if (typeof openId === 'string' && readLuminaProject(openId)) {
     openProject(openId)
-    showToast('Storyboard converted into a block course. Narration is now on-screen text — review each lesson.')
+    showToast('Storyboard converted into a block course. Narration is now on-screen text, so give each lesson a read.')
     return
   }
   splashTimer = setTimeout(() => { if (view.value === 'splash') view.value = 'home' }, 1300)
@@ -426,7 +458,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="lum-root">
+  <div class="lum-root" :style="themeVars">
     <UiGlassBackdrop />
 
     <!-- Splash -->
@@ -448,7 +480,7 @@ onUnmounted(() => {
           <ToolsLuminaBrandMark :size="46" />
           <div>
             <h1>Lumina</h1>
-            <p>Stack learning blocks into a polished course. Export premium HTML or SCORM.</p>
+            <p>Build a course out of blocks, right from your phone. Export it as one HTML file or a SCORM package.</p>
           </div>
         </header>
 
@@ -481,7 +513,7 @@ onUnmounted(() => {
           </article>
         </div>
         <p v-if="!projects.length" class="lum-home__empty">
-          Nothing here yet — your courses live on this device. Start one fresh, or convert a StoryGen storyboard into a course in one tap.
+          Nothing here yet. Courses are saved on this device. Start one fresh, or turn a StoryGen storyboard into a course in one tap.
         </p>
       </div>
     </div>
@@ -504,15 +536,15 @@ onUnmounted(() => {
         </div>
 
         <div class="lum-topbar__group lum-desktop-only">
-          <button class="lum-tool lum-tool--wide" title="Theme" @click="themeOpen = true"><ToolsLuminaIcon name="palette" :size="13" /> Theme</button>
+          <button class="lum-tool lum-tool--wide" title="Colors, fonts, motion" @click="themeOpen = true"><ToolsLuminaIcon name="palette" :size="13" /> Design</button>
           <button class="lum-tool lum-tool--wide" title="Run the course check" @click="gate('check')"><ToolsLuminaIcon name="shield" :size="13" /> Check</button>
           <button class="lum-tool lum-tool--wide" title="Preview the real player" @click="openPreview"><ToolsLuminaIcon name="eye" :size="13" /> Preview</button>
           <label class="lum-tool lum-tool--wide lum-file-btn">Open<input type="file" accept=".lumina,.sbf,.json" @change="importFile"></label>
           <div class="lum-menu-wrap">
             <button class="glass-btn lum-export-btn" @click="showMenu = showMenu === 'export' ? null : 'export'">Export <ToolsLuminaIcon name="chevron-down" :size="11" /></button>
             <div v-if="showMenu === 'export'" class="glass-panel lum-menu">
-              <button @click="gate('html')"><ToolsLuminaIcon name="download" :size="12" /> Standalone HTML — one beautiful file</button>
-              <button @click="gate('scorm')"><ToolsLuminaIcon name="download" :size="12" /> SCORM 1.2 — LMS package (.zip)</button>
+              <button @click="gate('html')"><ToolsLuminaIcon name="download" :size="12" /> Standalone HTML (single file)</button>
+              <button @click="gate('scorm')"><ToolsLuminaIcon name="download" :size="12" /> SCORM 1.2 package (.zip)</button>
               <button @click="saveProjectFile">Project file (.lumina)</button>
             </div>
           </div>
@@ -521,8 +553,8 @@ onUnmounted(() => {
         <div class="lum-menu-wrap lum-mobile-only">
           <button class="lum-tool" aria-label="Menu" @click="showMenu = showMenu === 'mobile' ? null : 'mobile'"><ToolsLuminaIcon name="more-horizontal" :size="16" /></button>
           <div v-if="showMenu === 'mobile'" class="glass-panel lum-menu">
-            <button @click="goHome">Home — all courses</button>
-            <button @click="showMenu = null; themeOpen = true">Theme…</button>
+            <button @click="goHome">Home (all courses)</button>
+            <button @click="showMenu = null; themeOpen = true">Design: colors, fonts, motion</button>
             <button @click="gate('check')">Run course check</button>
             <button @click="openPreview">Preview player</button>
             <button @click="newCourse">New course</button>
@@ -548,8 +580,8 @@ onUnmounted(() => {
       </nav>
 
       <!-- Canvas: the course page, as it will export -->
-      <div class="lum-canvas" data-lenis-prevent :style="{ '--lum-accent': course.theme.accent }" @click="selectedBlockId = null">
-        <div class="lum-paper" :class="{ 'lum-paper--serif': course.theme.font === 'serif', 'lum-paper--sharp': course.theme.corners === 'sharp' }" @click.stop>
+      <div class="lum-canvas" data-lenis-prevent @click="selectedBlockId = null">
+        <div class="lum-paper" :class="{ 'lum-paper--sharp': course.theme.corners === 'sharp' }" @click.stop>
           <div class="lum-paper__head">
             <span class="lum-paper__kicker">Lesson {{ activeLessonIndex + 1 }} of {{ course.lessons.length }}</span>
             <input
@@ -574,7 +606,7 @@ onUnmounted(() => {
           </TransitionGroup>
 
           <div v-if="!activeLesson.blocks.length" class="lum-paper__blank">
-            This lesson is empty. Add your first block — a heading is a good start.
+            This lesson is empty. Add your first block. A heading is a good start.
           </div>
 
           <button class="lum-paper__add" @click="isDesktop ? undefined : (showPaletteSheet = true)">
@@ -594,7 +626,7 @@ onUnmounted(() => {
         <button class="glass-btn lum-add-btn" @click="showPaletteSheet = true">+ Add block</button>
         <button class="lum-tool lum-tool--wide" @click="lessonsOpen = true">Lessons</button>
         <button class="lum-tool lum-tool--wide" @click="openPreview"><ToolsLuminaIcon name="eye" :size="13" /></button>
-        <span class="lum-bottombar__meta">{{ totalBlocks }} blocks</span>
+        <span class="lum-bottombar__meta">{{ totalBlocks }} blocks · {{ readingMinutes }} min</span>
       </div>
 
       <!-- Mobile: slim selected-block bar -->
@@ -635,6 +667,7 @@ onUnmounted(() => {
                 <input v-model="lesson.title" class="glass-field lum-lessonrow__name" placeholder="Lesson title">
                 <button class="lum-tool" title="Move up" :disabled="i === 0" @click="moveLesson(i, -1)"><ToolsLuminaIcon name="arrow-up" :size="13" /></button>
                 <button class="lum-tool" title="Move down" :disabled="i === course.lessons.length - 1" @click="moveLesson(i, 1)"><ToolsLuminaIcon name="arrow-down" :size="13" /></button>
+                <button class="lum-tool" title="Duplicate lesson" @click="duplicateLesson(i)"><ToolsLuminaIcon name="duplicate" :size="13" /></button>
                 <button class="lum-tool lum-lessonrow__del" title="Delete lesson" :disabled="course.lessons.length <= 1" @click="deleteLesson(i)"><ToolsLuminaIcon name="trash" :size="13" /></button>
               </div>
             </div>
@@ -643,34 +676,85 @@ onUnmounted(() => {
         </div>
       </Transition>
 
-      <!-- Theme sheet -->
+      <!-- Design sheet: every visual decision the course carries -->
       <Transition name="sheet">
         <div v-if="themeOpen" class="lum-sheet-overlay" @click.self="themeOpen = false">
           <div class="lum-sheet glass-panel lum-sheet--narrow" data-lenis-prevent>
             <div class="lum-sheet__head">
-              <strong>Course theme</strong>
+              <strong>Design</strong>
               <button class="lum-tool" aria-label="Close" @click="themeOpen = false"><ToolsLuminaIcon name="close" :size="14" /></button>
             </div>
+
             <p class="glass-label">Accent color</p>
             <div class="lum-swatches">
               <button
                 v-for="c in LUMINA_ACCENTS" :key="c"
-                class="lum-swatch" :class="{ on: course.theme.accent === c }"
+                class="lum-swatch" :class="{ on: course.theme.accent.toLowerCase() === c.toLowerCase() }"
                 :style="{ background: c }" :aria-label="`Accent ${c}`"
                 @click="course.theme.accent = c"
-              ><ToolsLuminaIcon v-if="course.theme.accent === c" name="check" :size="13" /></button>
+              ><ToolsLuminaIcon v-if="course.theme.accent.toLowerCase() === c.toLowerCase()" name="check" :size="13" /></button>
+              <label class="lum-swatch lum-swatch--custom" :style="{ background: course.theme.accent }" title="Pick any color">
+                <input type="color" :value="course.theme.accent" aria-label="Custom accent color" @input="course.theme.accent = ($event.target as HTMLInputElement).value">
+                <ToolsLuminaIcon name="edit" :size="12" />
+              </label>
             </div>
-            <p class="glass-label">Typography</p>
+
+            <p class="glass-label">Page palette</p>
+            <div class="lum-canvases">
+              <button
+                v-for="id in LUMINA_CANVAS_ORDER" :key="id"
+                class="lum-canvas-tile" :class="{ on: course.theme.canvas === id }"
+                :style="{ background: LUMINA_CANVASES[id].paper, color: LUMINA_CANVASES[id].ink }"
+                @click="course.theme.canvas = id"
+              >
+                <span class="lum-canvas-tile__bar" :style="{ background: LUMINA_CANVASES[id].ink }" />
+                <span class="lum-canvas-tile__bar lum-canvas-tile__bar--soft" :style="{ background: LUMINA_CANVASES[id].ink }" />
+                {{ LUMINA_CANVASES[id].label }}
+              </button>
+            </div>
+
+            <div class="lum-design-row">
+              <div>
+                <label class="glass-label" for="lum-font-head">Heading font</label>
+                <select id="lum-font-head" v-model="course.theme.headingFont" class="glass-field glass-select">
+                  <option v-for="f in LUMINA_FONT_ORDER" :key="f" :value="f">{{ LUMINA_FONTS[f].label }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="glass-label" for="lum-font-body">Body font</label>
+                <select id="lum-font-body" v-model="course.theme.bodyFont" class="glass-field glass-select">
+                  <option v-for="f in LUMINA_FONT_ORDER" :key="f" :value="f">{{ LUMINA_FONTS[f].label }}</option>
+                </select>
+              </div>
+            </div>
+
+            <p class="glass-label">Text size</p>
             <div class="lum-seg">
-              <button :class="{ on: course.theme.font === 'sans' }" @click="course.theme.font = 'sans'">Modern sans</button>
-              <button :class="{ on: course.theme.font === 'serif' }" @click="course.theme.font = 'serif'">Editorial serif</button>
+              <button
+                v-for="(s, id) in LUMINA_SCALES" :key="id"
+                :class="{ on: course.theme.scale === id }" @click="course.theme.scale = id"
+              >{{ s.label }}</button>
             </div>
+
             <p class="glass-label">Corners</p>
             <div class="lum-seg">
-              <button :class="{ on: course.theme.corners === 'round' }" @click="course.theme.corners = 'round'">Rounded</button>
-              <button :class="{ on: course.theme.corners === 'sharp' }" @click="course.theme.corners = 'sharp'">Sharp</button>
+              <button
+                v-for="(c, id) in LUMINA_CORNERS" :key="id"
+                :class="{ on: course.theme.corners === id }" @click="course.theme.corners = id"
+              >{{ c.label }}</button>
             </div>
-            <p class="glass-label">Course description — shown on the cover</p>
+
+            <p class="glass-label">Motion</p>
+            <div class="lum-seg">
+              <button
+                v-for="(m, id) in LUMINA_MOTIONS" :key="id"
+                :class="{ on: course.theme.motion === id }" :title="m.hint"
+                @click="course.theme.motion = id"
+              >{{ m.label }}</button>
+            </div>
+            <p class="lum-design-hint">{{ LUMINA_MOTIONS[course.theme.motion].hint }}. Learners who prefer reduced motion always get the still version.</p>
+
+            <p class="glass-label">Course description, shown on the cover</p>
             <textarea v-model="course.description" class="glass-field" rows="3" placeholder="One or two sentences on what this course delivers." />
           </div>
         </div>
@@ -731,7 +815,7 @@ onUnmounted(() => {
     <Transition name="sheet">
       <div v-if="previewOpen" class="lum-preview">
         <div class="lum-preview__bar glass-panel">
-          <strong>Preview — this is the real export</strong>
+          <strong>Preview</strong><span class="lum-preview__note lum-desktop-only">exactly the file learners will get</span>
           <div class="lum-seg lum-preview__devices lum-desktop-only">
             <button :class="{ on: previewDevice === 'phone' }" @click="previewDevice = 'phone'">Phone</button>
             <button :class="{ on: previewDevice === 'tablet' }" @click="previewDevice = 'tablet'">Tablet</button>
@@ -1172,18 +1256,17 @@ onUnmounted(() => {
 .lum-paper {
   max-width: 720rem;
   margin: 0 auto;
-  background: #faf7f2;
-  color: #221d16;
+  background: var(--lum-paper);
+  color: var(--lum-ink);
+  font-family: var(--lum-body-font, var(--main-font));
   border-radius: 22rem;
   padding: clamp(24rem, 4vw, 48rem) clamp(18rem, 4vw, 56rem) 40rem;
   box-shadow: 0 40rem 110rem -50rem rgba(0, 0, 0, 0.55);
 }
 .lum-paper--sharp { border-radius: 8rem; }
-.lum-paper--serif .lum-paper__title,
-.lum-paper--serif :deep(.lb-hero h2),
-.lum-paper--serif :deep(.lb-text p),
-.lum-paper--serif :deep(.lb-quote blockquote) {
-  font-family: "Iowan Old Style", Georgia, "Times New Roman", serif;
+.lum-paper :deep(.lb-hero h2),
+.lum-paper :deep(.lb-quiz h3) {
+  font-family: var(--lum-head-font, var(--main-font));
 }
 .lum-paper__head { margin-bottom: 20rem; }
 .lum-paper__kicker {
@@ -1199,12 +1282,15 @@ onUnmounted(() => {
   background: transparent;
   outline: none;
   margin-top: 6rem;
-  font: 700 30rem/1.15 var(--main-font);
+  font-weight: 700;
+  font-size: 30rem;
+  line-height: 1.15;
+  font-family: var(--lum-head-font, var(--main-font));
   letter-spacing: -0.02em;
-  color: #221d16;
+  color: var(--lum-ink);
   padding: 4rem 0;
 }
-.lum-paper__title::placeholder { color: rgba(34, 29, 22, 0.3); }
+.lum-paper__title::placeholder { color: color-mix(in srgb, var(--lum-ink) 30%, transparent); }
 .lum-paper__blocks { display: flex; flex-direction: column; gap: 8rem; }
 .lum-block-move { transition: transform 0.25s ease; }
 .lum-block-enter-active { transition: opacity 0.25s ease, transform 0.25s ease; }
@@ -1212,10 +1298,10 @@ onUnmounted(() => {
 .lum-block-leave-active { display: none; }
 .lum-paper__blank {
   padding: 26rem 18rem;
-  border: 1.5px dashed rgba(34, 29, 22, 0.22);
+  border: 1.5px dashed color-mix(in srgb, var(--lum-ink) 22%, transparent);
   border-radius: 14rem;
   font-size: 13.5rem;
-  color: rgba(34, 29, 22, 0.55);
+  color: color-mix(in srgb, var(--lum-ink) 55%, transparent);
   text-align: center;
   line-height: 1.5;
 }
@@ -1228,10 +1314,10 @@ onUnmounted(() => {
   margin-top: 14rem;
   padding: 13rem;
   border-radius: 12rem;
-  border: 1.5px dashed rgba(34, 29, 22, 0.25);
+  border: 1.5px dashed color-mix(in srgb, var(--lum-ink) 25%, transparent);
   font-size: 12.5rem;
   font-weight: 600;
-  color: rgba(34, 29, 22, 0.5);
+  color: color-mix(in srgb, var(--lum-ink) 50%, transparent);
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 @media (hover: hover) { .lum-paper__add:hover { border-color: var(--lum-accent); color: var(--lum-accent); } }
@@ -1337,7 +1423,7 @@ onUnmounted(() => {
 .lum-lessonrow__del { color: #ff8d8d; }
 .lum-lessonadd { width: 100%; }
 
-/* Theme sheet */
+/* Design sheet */
 .lum-swatches { display: flex; flex-wrap: wrap; gap: 8rem; margin-bottom: 14rem; }
 .lum-swatch {
   width: 34rem; height: 34rem;
@@ -1345,10 +1431,48 @@ onUnmounted(() => {
   display: grid; place-items: center;
   color: #fff;
   border: 2px solid transparent;
+  cursor: pointer;
   transition: transform 0.15s ease;
 }
 .lum-swatch.on { border-color: var(--color-text); }
 @media (hover: hover) { .lum-swatch:hover { transform: scale(1.08); } }
+.lum-swatch--custom { position: relative; overflow: hidden; border-style: dashed; border-color: var(--color-glass-border-hover); }
+.lum-swatch--custom input {
+  position: absolute;
+  inset: -8rem;
+  width: 200%;
+  height: 200%;
+  opacity: 0;
+  cursor: pointer;
+}
+.lum-swatch--custom svg { pointer-events: none; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6)); }
+
+.lum-canvases {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8rem;
+  margin-bottom: 14rem;
+}
+.lum-canvas-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4rem;
+  padding: 10rem 11rem 8rem;
+  border-radius: 12rem;
+  border: 2px solid var(--color-glass-border);
+  font-size: 11.5rem;
+  font-weight: 700;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.lum-canvas-tile.on { border-color: var(--color-text); }
+@media (hover: hover) { .lum-canvas-tile:hover { transform: translateY(-2rem); } }
+.lum-canvas-tile__bar { width: 70%; height: 5rem; border-radius: 3rem; opacity: 0.8; }
+.lum-canvas-tile__bar--soft { width: 45%; opacity: 0.35; margin-bottom: 3rem; }
+
+.lum-design-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10rem; margin-bottom: 14rem; }
+.lum-design-row .glass-field { padding: 10rem 12rem; }
+.lum-design-hint { font-size: 11.5rem; line-height: 1.5; opacity: 0.55; margin: -6rem 0 14rem; }
 .lum-seg {
   display: flex;
   gap: 4rem;
@@ -1414,7 +1538,8 @@ onUnmounted(() => {
   border-radius: 14rem;
   font-size: 13rem;
 }
-.lum-preview__bar strong { margin-right: auto; font-size: 13rem; letter-spacing: -0.01em; }
+.lum-preview__bar strong { font-size: 13rem; letter-spacing: -0.01em; flex-shrink: 0; }
+.lum-preview__note { margin-right: auto; font-size: 11.5rem; opacity: 0.55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lum-preview__devices { margin-bottom: 0; }
 .lum-preview__stage {
   flex: 1;
@@ -1428,7 +1553,7 @@ onUnmounted(() => {
   height: 100%;
   border: 1px solid var(--color-glass-border);
   border-radius: 18rem;
-  background: #faf7f2;
+  background: var(--lum-paper, #faf7f2);
 }
 .lum-preview__stage--phone .lum-preview__frame { max-width: 400rem; }
 .lum-preview__stage--tablet .lum-preview__frame { max-width: 768rem; }
@@ -1457,5 +1582,6 @@ onUnmounted(() => {
   .lum-preview__stage--phone .lum-preview__frame,
   .lum-preview__stage--tablet .lum-preview__frame { max-width: none; }
   .lum-preview__bar { margin-left: 72rem; margin-right: 72rem; }
+  .lum-preview__bar strong { margin-right: auto; }
 }
 </style>

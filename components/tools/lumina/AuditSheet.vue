@@ -27,9 +27,9 @@ const blocked = computed(() => errors.value.length > 0)
         <ToolsLuminaIcon name="shield" :size="18" class="laud__shield" :class="{ 'laud__shield--ok': !issues.length }" />
         <div>
           <strong>Course check</strong>
-          <p v-if="!issues.length">All clear — no issues found.</p>
+          <p v-if="!issues.length">All clear. Nothing to fix.</p>
           <p v-else-if="blocked">{{ errors.length }} blocking issue{{ errors.length === 1 ? '' : 's' }}{{ warnings.length ? ` · ${warnings.length} warning${warnings.length === 1 ? '' : 's'}` : '' }}</p>
-          <p v-else>{{ warnings.length }} warning{{ warnings.length === 1 ? '' : 's' }} — worth a look before shipping.</p>
+          <p v-else>{{ warnings.length }} warning{{ warnings.length === 1 ? '' : 's' }} worth a look before you share this.</p>
         </div>
         <button class="laud__close" aria-label="Close" @click="emit('close')"><ToolsLuminaIcon name="close" :size="14" /></button>
       </div>
@@ -49,10 +49,10 @@ const blocked = computed(() => errors.value.length > 0)
       </div>
 
       <div class="laud__foot">
-        <p v-if="blocked" class="laud__verdict">Fix the blocking issues to unlock the export — tap any row to jump to it.</p>
+        <p v-if="blocked" class="laud__verdict">Fix the blocking issues to unlock the export. Tap a row to jump straight to it.</p>
         <template v-else>
           <button class="glass-btn" @click="emit('proceed')">{{ exportLabel }}</button>
-          <p v-if="warnings.length" class="laud__verdict">Warnings won't block you — but they're how courses quietly get worse.</p>
+          <p v-if="warnings.length" class="laud__verdict">Warnings will not stop the export, but they are usually worth the minute they take to fix.</p>
         </template>
       </div>
     </div>

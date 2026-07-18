@@ -32,7 +32,7 @@ function auditBlock(block: LuminaBlock, push: (level: 'error' | 'warning', messa
     case 'list': {
       const filled = block.items.filter(i => i.trim())
       if (!filled.length) push('error', `${name} has no items`, 'Add at least one line, or delete the block.')
-      else if (filled.length < block.items.length) push('warning', `${name} has blank items`, 'Empty lines are dropped on export — remove them or fill them in.')
+      else if (filled.length < block.items.length) push('warning', `${name} has blank items`, 'Empty lines are dropped on export. Remove them or fill them in.')
       break
     }
     case 'quote':
@@ -45,7 +45,7 @@ function auditBlock(block: LuminaBlock, push: (level: 'error' | 'warning', messa
       break
     case 'image':
       if (empty(block.src)) push('error', `${name} has no picture`, 'Upload an image or paste an image URL.')
-      else if (empty(block.alt)) push('error', `${name} is missing alt text`, 'Describe the image for screen readers — required for an accessible course.')
+      else if (empty(block.alt)) push('error', `${name} is missing alt text`, 'Describe the picture in a sentence, so screen reader users get the same information.')
       break
     case 'video':
       if (empty(block.src)) push('error', `${name} has no link`, 'Paste a YouTube, Vimeo or MP4 URL.')
@@ -57,8 +57,8 @@ function auditBlock(block: LuminaBlock, push: (level: 'error' | 'warning', messa
       const filled = block.pairs.filter(p => p.title.trim() || p.body.trim())
       if (!filled.length) push('error', `${name} has no content`, 'Fill in at least one item, or delete the block.')
       else {
-        if (filled.length < block.pairs.length) push('warning', `${name} has empty items`, 'Empty items are dropped on export — remove or fill them.')
-        if (block.kind !== 'flashcards' && filled.some(p => !p.title.trim())) push('warning', `${name} item is missing a title`, 'Untitled panels are hard to scan — give each one a label.')
+        if (filled.length < block.pairs.length) push('warning', `${name} has empty items`, 'Empty items are dropped on export. Remove them or fill them in.')
+        if (block.kind !== 'flashcards' && filled.some(p => !p.title.trim())) push('warning', `${name} item is missing a title`, 'Untitled panels are hard to scan. Give each one a label.')
       }
       break
     }
@@ -66,8 +66,8 @@ function auditBlock(block: LuminaBlock, push: (level: 'error' | 'warning', messa
       const opts = block.options.filter(o => o.trim())
       if (empty(block.title)) push('error', `${name} has no question`, 'Write the question learners will answer.')
       if (opts.length < 2) push('error', `${name} needs at least two answers`, 'Fill in more answer options.')
-      else if (!block.options[block.correctIndex]?.trim()) push('error', `${name} — the correct answer is blank`, 'The option marked correct has no text. Fill it in or mark another option.')
-      if (opts.length >= 2 && empty(block.feedback)) push('warning', `${name} has no feedback`, 'Learners learn most from the "why" — add a sentence of feedback.')
+      else if (!block.options[block.correctIndex]?.trim()) push('error', `${name}: the correct answer is blank`, 'The option marked correct has no text. Fill it in or mark another option.')
+      if (opts.length >= 2 && empty(block.feedback)) push('warning', `${name} has no feedback`, 'A sentence on why the answer is right is where the learning happens.')
       break
     }
     case 'cta':
@@ -80,7 +80,7 @@ function auditBlock(block: LuminaBlock, push: (level: 'error' | 'warning', messa
 export function auditCourse(course: LuminaCourse): LuminaAuditIssue[] {
   const issues: LuminaAuditIssue[] = []
   if (!course.title.trim()) {
-    issues.push({ level: 'warning', lessonId: '', blockId: null, message: 'The course has no title', fix: 'Name it — the title appears on the player cover and in the LMS.' })
+    issues.push({ level: 'warning', lessonId: '', blockId: null, message: 'The course has no title', fix: 'The title appears on the cover and in the LMS. Give it a name.' })
   }
   const totalBlocks = course.lessons.reduce((s, l) => s + l.blocks.length, 0)
   if (!totalBlocks) {
@@ -89,10 +89,10 @@ export function auditCourse(course: LuminaCourse): LuminaAuditIssue[] {
   }
   for (const lesson of course.lessons) {
     if (!lesson.title.trim()) {
-      issues.push({ level: 'warning', lessonId: lesson.id, blockId: null, message: 'A lesson has no title', fix: 'Lesson titles build the course menu — name it.' })
+      issues.push({ level: 'warning', lessonId: lesson.id, blockId: null, message: 'A lesson has no title', fix: 'Lesson titles build the course menu. Give this one a name.' })
     }
     if (!lesson.blocks.length) {
-      issues.push({ level: 'warning', lessonId: lesson.id, blockId: null, message: `"${lesson.title || 'Untitled lesson'}" is empty`, fix: 'Empty lessons are skipped on export — add blocks or delete the lesson.' })
+      issues.push({ level: 'warning', lessonId: lesson.id, blockId: null, message: `"${lesson.title || 'Untitled lesson'}" is empty`, fix: 'Empty lessons are skipped on export. Add blocks or delete it.' })
     }
     for (const block of lesson.blocks) {
       auditBlock(block, (level, message, fix) => {
@@ -101,7 +101,7 @@ export function auditCourse(course: LuminaCourse): LuminaAuditIssue[] {
           level,
           lessonId: lesson.id,
           blockId: block.id,
-          message: preview ? `${message} — “${preview}”` : message,
+          message: preview ? `${message}: “${preview}”` : message,
           fix
         })
       })

@@ -800,7 +800,7 @@ onUnmounted(() => {
             <button @click="exportXlsx">Excel (.xlsx) — Storyboard + MCQ</button>
             <button @click="exportDiagram">Flow diagram (.png)</button>
             <button @click="exportSbf">Project file (.sbf)</button>
-            <button @click="openInLumina">Build in Lumina — block course</button>
+            <button @click="openInLumina">Build in Lumina (block course)</button>
           </div>
         </div>
       </div>

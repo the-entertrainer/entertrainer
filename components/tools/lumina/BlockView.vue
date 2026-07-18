@@ -60,7 +60,7 @@ const isEmpty = computed(() => {
     <!-- Empty state: name what's missing -->
     <div v-if="isEmpty" class="lblk__empty">
       <span class="lblk__empty-dot" :style="{ background: meta.color }" />
-      {{ meta.label }} — {{ meta.hint.toLowerCase() }}
+      {{ meta.label }}: {{ meta.hint.toLowerCase() }}
     </div>
 
     <!-- hero -->
@@ -88,7 +88,7 @@ const isEmpty = computed(() => {
     <!-- quote -->
     <figure v-else-if="block.kind === 'quote'" class="lb-quote">
       <blockquote>{{ block.body.trim() }}</blockquote>
-      <figcaption v-if="block.caption.trim()">— {{ block.caption.trim() }}</figcaption>
+      <figcaption v-if="block.caption.trim()">{{ block.caption.trim() }}</figcaption>
     </figure>
 
     <!-- callout -->
@@ -231,21 +231,21 @@ const isEmpty = computed(() => {
   align-items: center;
   gap: 9rem;
   padding: 16rem 14rem;
-  border: 1.5px dashed rgba(34, 29, 22, 0.25);
+  border: 1.5px dashed color-mix(in srgb, var(--lum-ink) 25%, transparent);
   border-radius: 10rem;
   font-size: 13rem;
-  color: rgba(34, 29, 22, 0.55);
+  color: color-mix(in srgb, var(--lum-ink) 55%, transparent);
 }
 .lblk__empty-dot { width: 8rem; height: 8rem; border-radius: 3rem; flex-shrink: 0; }
 
 /* ── Paper previews (course-styled, not site-styled) ── */
-.lb-hero h2 { font-size: 24rem; letter-spacing: -0.02em; line-height: 1.2; color: #221d16; }
+.lb-hero h2 { font-size: 24rem; letter-spacing: -0.02em; line-height: 1.2; color: var(--lum-ink); }
 .lb-hero--accent h2 { color: var(--lum-accent); }
-.lb-hero p { margin-top: 6rem; font-size: 14.5rem; color: rgba(34, 29, 22, 0.6); line-height: 1.45; }
-.lb-text p { font-size: 14.5rem; line-height: 1.6; color: #221d16; }
+.lb-hero p { margin-top: 6rem; font-size: 14.5rem; color: color-mix(in srgb, var(--lum-ink) 60%, transparent); line-height: 1.45; }
+.lb-text p { font-size: 14.5rem; line-height: 1.6; color: var(--lum-ink); }
 .lb-text p + p { margin-top: 10rem; }
 .lb-list { list-style: none; display: flex; flex-direction: column; gap: 7rem; }
-.lb-list li { display: flex; align-items: baseline; gap: 10rem; font-size: 14.5rem; line-height: 1.5; color: #221d16; }
+.lb-list li { display: flex; align-items: baseline; gap: 10rem; font-size: 14.5rem; line-height: 1.5; color: var(--lum-ink); }
 .lb-list__marker {
   flex-shrink: 0;
   width: 18rem;
@@ -262,27 +262,27 @@ const isEmpty = computed(() => {
 }
 .lb-list--bullet .lb-list__marker { width: 6rem; height: 6rem; border-radius: 999px; background: var(--lum-accent); margin-top: 8rem; }
 .lb-quote { border-left: 3px solid var(--lum-accent); padding: 4rem 0 4rem 16rem; }
-.lb-quote blockquote { font-size: 17rem; line-height: 1.45; font-weight: 500; color: #221d16; }
-.lb-quote figcaption { margin-top: 8rem; font-size: 12rem; font-weight: 600; color: rgba(34, 29, 22, 0.55); }
+.lb-quote blockquote { font-size: 17rem; line-height: 1.45; font-weight: 500; color: var(--lum-ink); }
+.lb-quote figcaption { margin-top: 8rem; font-size: 12rem; font-weight: 600; color: color-mix(in srgb, var(--lum-ink) 55%, transparent); }
 .lb-callout {
   border-radius: 12rem;
   padding: 14rem 16rem;
-  background: #fff;
-  border: 1px solid rgba(34, 29, 22, 0.12);
+  background: var(--lum-panel);
+  border: 1px solid color-mix(in srgb, var(--lum-ink) 12%, transparent);
   border-left: 4px solid #5B8DEF;
 }
 .lb-callout--tip { border-left-color: #34C3A2; }
 .lb-callout--warning { border-left-color: #F08C4A; background: rgba(240, 140, 74, 0.07); }
-.lb-callout strong { display: block; font-size: 13.5rem; color: #221d16; margin-bottom: 4rem; }
-.lb-callout p { font-size: 13.5rem; line-height: 1.5; color: rgba(34, 29, 22, 0.65); }
+.lb-callout strong { display: block; font-size: 13.5rem; color: var(--lum-ink); margin-bottom: 4rem; }
+.lb-callout p { font-size: 13.5rem; line-height: 1.5; color: color-mix(in srgb, var(--lum-ink) 65%, transparent); }
 .lb-callout p + p { margin-top: 8rem; }
-.lb-divider--line { border-top: 1px solid rgba(34, 29, 22, 0.14); margin: 8rem 0; }
+.lb-divider--line { border-top: 1px solid color-mix(in srgb, var(--lum-ink) 14%, transparent); margin: 8rem 0; }
 .lb-divider--space { height: 26rem; }
 .lb-divider--dots { display: flex; justify-content: center; gap: 8rem; padding: 8rem 0; }
 .lb-divider--dots i { width: 5rem; height: 5rem; border-radius: 999px; background: var(--lum-accent); opacity: 0.5; }
 .lb-img { position: relative; }
 .lb-img img { width: 100%; border-radius: 12rem; display: block; }
-.lb-img figcaption, .lb-video figcaption { margin-top: 8rem; font-size: 12rem; color: rgba(34, 29, 22, 0.55); text-align: center; }
+.lb-img figcaption, .lb-video figcaption { margin-top: 8rem; font-size: 12rem; color: color-mix(in srgb, var(--lum-ink) 55%, transparent); text-align: center; }
 .lb-img__alt-flag {
   position: absolute;
   top: 8rem;
@@ -338,30 +338,30 @@ const isEmpty = computed(() => {
   justify-content: space-between;
   gap: 10rem;
   padding: 12rem 14rem;
-  border: 1px solid rgba(34, 29, 22, 0.12);
-  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--lum-ink) 12%, transparent);
+  background: var(--lum-panel);
   border-radius: 10rem;
   margin: 6rem 0;
   font-size: 13.5rem;
   font-weight: 600;
-  color: #221d16;
+  color: var(--lum-ink);
 }
 .lb-tabs__bar {
   display: flex;
   gap: 4rem;
-  border-bottom: 1px solid rgba(34, 29, 22, 0.14);
+  border-bottom: 1px solid color-mix(in srgb, var(--lum-ink) 14%, transparent);
   overflow: hidden;
 }
 .lb-tabs__bar span {
   padding: 8rem 12rem;
   font-size: 12.5rem;
   font-weight: 600;
-  color: rgba(34, 29, 22, 0.5);
+  color: color-mix(in srgb, var(--lum-ink) 50%, transparent);
   border-bottom: 2px solid transparent;
   white-space: nowrap;
 }
 .lb-tabs__bar span.on { color: var(--lum-accent); border-bottom-color: var(--lum-accent); }
-.lb-tabs__pane { padding: 10rem 2rem 0; font-size: 13rem; color: rgba(34, 29, 22, 0.6); line-height: 1.5; }
+.lb-tabs__pane { padding: 10rem 2rem 0; font-size: 13rem; color: color-mix(in srgb, var(--lum-ink) 60%, transparent); line-height: 1.5; }
 .lb-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(120rem, 1fr)); gap: 8rem; }
 .lb-cards__card {
   aspect-ratio: 5 / 3.4;
@@ -370,18 +370,18 @@ const isEmpty = computed(() => {
   padding: 10rem;
   text-align: center;
   border-radius: 12rem;
-  background: #fff;
-  border: 1px solid rgba(34, 29, 22, 0.12);
+  background: var(--lum-panel);
+  border: 1px solid color-mix(in srgb, var(--lum-ink) 12%, transparent);
   box-shadow: 0 8rem 18rem -12rem rgba(0, 0, 0, 0.3);
   font-size: 12.5rem;
   font-weight: 600;
-  color: #221d16;
+  color: var(--lum-ink);
   line-height: 1.35;
 }
 .lb-quiz {
-  border: 1px solid rgba(34, 29, 22, 0.12);
+  border: 1px solid color-mix(in srgb, var(--lum-ink) 12%, transparent);
   border-radius: 14rem;
-  background: #fff;
+  background: var(--lum-panel);
   padding: 16rem;
 }
 .lb-quiz__tag {
@@ -391,19 +391,19 @@ const isEmpty = computed(() => {
   text-transform: uppercase;
   color: var(--lum-accent);
 }
-.lb-quiz h3 { margin: 8rem 0 12rem; font-size: 15.5rem; line-height: 1.35; color: #221d16; }
+.lb-quiz h3 { margin: 8rem 0 12rem; font-size: 15.5rem; line-height: 1.35; color: var(--lum-ink); }
 .lb-quiz__opt {
   display: flex;
   align-items: center;
   gap: 10rem;
   padding: 9rem 11rem;
-  border: 1.5px solid rgba(34, 29, 22, 0.12);
+  border: 1.5px solid color-mix(in srgb, var(--lum-ink) 12%, transparent);
   border-radius: 10rem;
   margin: 6rem 0;
   font-size: 13rem;
-  color: #221d16;
+  color: var(--lum-ink);
 }
-.lb-quiz__opt i { width: 14rem; height: 14rem; border-radius: 999px; border: 2px solid rgba(34, 29, 22, 0.25); flex-shrink: 0; }
+.lb-quiz__opt i { width: 14rem; height: 14rem; border-radius: 999px; border: 2px solid color-mix(in srgb, var(--lum-ink) 25%, transparent); flex-shrink: 0; }
 .lb-quiz__opt--good { border-color: #2f9e6e; background: rgba(47, 158, 110, 0.07); }
 .lb-quiz__opt--good i { border-color: #2f9e6e; }
 .lb-quiz__opt span { flex: 1; min-width: 0; }
@@ -419,5 +419,5 @@ const isEmpty = computed(() => {
   font-weight: 700;
 }
 .lb-cta__btn--outline { background: none; border: 2px solid var(--lum-accent); color: var(--lum-accent); }
-.lb-cta p { margin-top: 8rem; font-size: 12rem; color: rgba(34, 29, 22, 0.55); }
+.lb-cta p { margin-top: 8rem; font-size: 12rem; color: color-mix(in srgb, var(--lum-ink) 55%, transparent); }
 </style>

@@ -680,7 +680,7 @@ onUnmounted(() => {
 
 <template>
   <div class="sg-root">
-    <UiGlassBackdrop />
+    <UiGlassBackdrop calm />
 
     <!-- Splash: a breath of brand before the shelf -->
     <Transition name="splash">
@@ -738,7 +738,7 @@ onUnmounted(() => {
             <button class="sg-proj__del" title="Delete storyboard" @click.stop="deleteProjectEntry(p.id)"><ToolsStoryIcon name="trash" :size="12" /></button>
           </article>
         </div>
-        <p v-if="!projects.length" class="sg-home__empty">Nothing here yet — your storyboards live on this device. Create the first one.</p>
+        <p v-if="!projects.length" class="sg-home__empty">Nothing here yet. Your storyboards live on this device. Create the first one.</p>
       </div>
     </div>
 

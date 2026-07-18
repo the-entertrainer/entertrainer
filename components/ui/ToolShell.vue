@@ -17,7 +17,7 @@ useGlassMicro(rootRef)
 
 <template>
   <div ref="rootRef" class="tool-shell" :class="{ 'tool-shell--wide': wide }">
-    <UiGlassBackdrop />
+    <UiGlassBackdrop calm />
 
     <div class="tool-inner">
       <header class="tool-head">

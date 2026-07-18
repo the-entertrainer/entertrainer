@@ -574,7 +574,7 @@ function backToTable() {
 </script>
 
 <template>
-  <UiToolShell wide eyebrow="Training Calendar Generator" deck="Turn a list of topics into a ready-to-present monthly schedule — laid out around your holidays, audiences and time slots.">
+  <UiToolShell wide eyebrow="Training Calendar Generator" deck="Turn a list of topics into a ready-to-present monthly schedule, laid out around your holidays, audiences and time slots.">
     <template #title>
       <span class="cal-lockup">
         <ToolsCalBrandMark :size="46" class="cal-lockup__mark" />

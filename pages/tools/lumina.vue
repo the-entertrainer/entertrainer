@@ -514,7 +514,7 @@ onUnmounted(() => {
 
 <template>
   <div class="lum-root" :style="themeVars">
-    <UiGlassBackdrop />
+    <UiGlassBackdrop calm />
 
     <!-- Splash -->
     <Transition name="splash">

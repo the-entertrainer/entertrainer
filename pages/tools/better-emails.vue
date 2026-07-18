@@ -224,7 +224,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
 </script>
 
 <template>
-  <UiToolShell eyebrow="Email Polisher" deck="Turn messy drafts into clear, professional emails — with explanations of what changed.">
+  <UiToolShell eyebrow="Email Polisher" deck="Turn messy drafts into clear, professional emails, with a note on what changed.">
     <template #title>
       <span class="draftly-lockup">
         <ToolsEmailBrandMark :size="46" class="draftly-lockup__mark" />
@@ -271,7 +271,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
             id="be-draft"
             v-model="draft"
             class="glass-field be-textarea"
-            placeholder="Paste your rough email here — bullet points, fragments, all caps rants — anything goes."
+            placeholder="Paste your rough email here. Bullet points, fragments, all-caps rants, anything goes."
             rows="7"
             :disabled="phase === 'loading'"
           />

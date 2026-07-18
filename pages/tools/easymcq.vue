@@ -57,7 +57,7 @@ async function copy(text: string, i: number) {
 </script>
 
 <template>
-  <UiToolShell eyebrow="Distractor Generator" deck="Turn correct answers into brilliant wrong ones — plausible options that test real understanding.">
+  <UiToolShell eyebrow="Distractor Generator" deck="Turn correct answers into brilliant wrong ones. Plausible options that test real understanding.">
     <template #title>
       <span class="mcq-lockup">
         <ToolsMcqBrandMark :size="46" class="mcq-lockup__mark" />
@@ -129,7 +129,7 @@ async function copy(text: string, i: number) {
     <!-- Results -->
     <Transition name="slide-up">
       <div v-if="results.length" class="dg-results">
-        <p class="glass-label dg-results-label">Three distractors — ready to drop in</p>
+        <p class="glass-label dg-results-label">Three distractors, ready to drop in</p>
         <div
           v-for="(d, i) in results"
           :key="i"

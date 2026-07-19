@@ -34,17 +34,20 @@ export default class Raycaster {
     )
   }
 
-  private _intersect() {
+  private _intersect(): { plane: NavPlane; uv?: Vector2 } | null {
     this.instance.setFromCamera(this.pointer, this.experience.camera.instance)
     const meshes = this.experience.world.navPlanes.map((p) => p.mesh)
     const hits = this.instance.intersectObjects(meshes, false)
     if (!hits.length) return null
-    return this.experience.world.navPlanes.find((p) => p.mesh === hits[0].object) ?? null
+    const plane = this.experience.world.navPlanes.find((p) => p.mesh === hits[0].object)
+    if (!plane) return null
+    return { plane, uv: hits[0].uv }
   }
 
   private _updateHover() {
-    const hit = this._intersect()
-    this.experience.world.navPlanes.forEach((p) => p.setHovered(p === hit))
+    const res = this._intersect()
+    const hit = res?.plane ?? null
+    this.experience.world.navPlanes.forEach((p) => p.setHovered(p === hit, p === hit ? res?.uv : undefined))
     if (hit !== this.hoveredPlane) {
       this.hoveredPlane = hit
       this.experience.trigger('hoverChange', [hit?.navItem ?? null])
@@ -59,9 +62,9 @@ export default class Raycaster {
 
   private _onClick() {
     if (Date.now() - this._lastTouchEndMs < 500) return
-    const hit = this._intersect()
-    if (hit) {
-      this.experience.selectPlane(hit, hit.navItem.href)
+    const res = this._intersect()
+    if (res) {
+      this.experience.selectPlane(res.plane, res.plane.navItem.href)
     }
   }
 
@@ -78,11 +81,11 @@ export default class Raycaster {
     if (dx * dx + dy * dy > 144) return
 
     this.pointer = this._toNDC(t.clientX, t.clientY)
-    const hit = this._intersect()
+    const res = this._intersect()
     this.pointer = new Vector2(-999, -999)
-    if (hit) {
+    if (res) {
       this._lastTouchEndMs = Date.now()
-      this.experience.selectPlane(hit, hit.navItem.href)
+      this.experience.selectPlane(res.plane, res.plane.navItem.href)
     }
   }
 

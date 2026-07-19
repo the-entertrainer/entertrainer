@@ -87,6 +87,10 @@ const fragmentShader = /* glsl */`
   uniform float uTransition;
   uniform vec3  uAccent;     // per-card hue from the backdrop palette
   uniform vec3  uPrimary;    // backdrop's primary accent (shared) for the glass back
+  uniform float uHover;      // 0..1 eased hover amount for this card
+  uniform vec2  uHoverUV;    // pointer position on the card (0..1), for a tracked sheen
+  uniform float uTime;       // seconds, for the slow gloss sweep
+  uniform float uFocus;      // 1 when this card is the front-centred one
   varying vec2 vUv;
   varying float vDepth;
   varying float vScreenY;
@@ -135,7 +139,10 @@ const fragmentShader = /* glsl */`
         color = mix(color, blurred, smoothstep(10.0, 13.0, vDepth));
       }
 
-      color.rgb = mix(color.rgb, vec3(0.0), uColorStrength);
+      // Hover adds a little vibrance so the focused card feels lit, without
+      // washing out light artwork. The forward lift and tilt do the real work.
+      vec3 lum3 = vec3(dot(color.rgb, vec3(0.299, 0.587, 0.114)));
+      color.rgb = mix(color.rgb, mix(lum3, color.rgb, 1.15), uHover * 0.5);
 
       // Apply depth-based tinting for visual depth
       color.rgb = depthTint(color.rgb, vDepth);
@@ -210,7 +217,22 @@ const fragmentShader = /* glsl */`
       float rimFade  = exp(-sdf * sdf * 300.0);
       float arcFade  = exp(-angDelta * angDelta * 1.2);
       float glowMask = rimFade * arcFade * uGlowStrength;
-      color.rgb     += mix(uAccent, vec3(1.0), 0.30) * glowMask * 0.55;
+      color.rgb     += mix(uAccent, vec3(1.0), 0.30) * glowMask * (0.55 + uHover * 0.75);
+
+      // Slow diagonal light sweep across the focused card — a glossy sheen that
+      // gives the front card constant life, even where there is no pointer
+      // (touch devices). Masked to the focused card so it never distracts.
+      float band  = vUv.x * 0.5 + (1.0 - vUv.y) * 0.5;
+      float phase = fract(uTime * 0.055) * 1.3 - 0.15;
+      float sweep = exp(-pow((band - phase) * 5.0, 2.0)) * uFocus;
+      // (1.0 - color) keeps the sheen specular: whites stay white, midtones lift.
+      color.rgb  += (1.0 - color.rgb) * sweep * 0.16;
+
+      // Pointer-tracked specular: a soft highlight follows the cursor on hover,
+      // like light catching glossy paper as you move over it.
+      vec2  gp    = vec2((vUv.x - uHoverUV.x) * aspect, vUv.y - uHoverUV.y);
+      float gloss = exp(-dot(gp, gp) * 5.5) * uHover;
+      color.rgb  += (1.0 - color.rgb) * mix(vec3(1.0), uAccent, 0.2) * gloss * 0.35;
     }
 
     // Volumetric edge fog — fragments near the top/bottom of the viewport sink
@@ -244,6 +266,12 @@ export default class NavPlane {
   hoverTarget    = 0
   revealProgress = 0
   revealTarget   = 0
+
+  // Where the pointer sits on the card (0..1), eased, for the tracked sheen
+  // and the tilt-toward-cursor.
+  hoverUV = new Vector2(0.5, 0.5)
+  private _hoverUVTarget = new Vector2(0.5, 0.5)
+  private _time = 0
 
   // Transition effects
   transitionOpacity = 1   // Spiral transition cross-fade (1 visible → 0 gone)
@@ -318,7 +346,11 @@ export default class NavPlane {
           uIsImage:        { value: this._bgImage ? 1.0 : 0.0 },
           uTransition:     { value: 1 },
           uAccent:         { value: new Vector3(0.96, 0.95, 0.93) },
-          uPrimary:        { value: new Vector3(0.96, 0.95, 0.93) }
+          uPrimary:        { value: new Vector3(0.96, 0.95, 0.93) },
+          uHover:          { value: 0 },
+          uHoverUV:        { value: new Vector2(0.5, 0.5) },
+          uTime:           { value: 0 },
+          uFocus:          { value: 0 }
         }
       ]),
       vertexShader,
@@ -372,7 +404,10 @@ export default class NavPlane {
     this.revealTarget   = 0
   }
 
-  setHovered(hovered: boolean) { this.hoverTarget = hovered ? 1 : 0 }
+  setHovered(hovered: boolean, uv?: { x: number; y: number }) {
+    this.hoverTarget = hovered ? 1 : 0
+    if (hovered && uv) this._hoverUVTarget.set(uv.x, uv.y)
+  }
 
   // Tint the rim glow + glass edge to a backdrop-palette colour.
   setAccent(rgb: number[]) {
@@ -444,17 +479,33 @@ export default class NavPlane {
     const screenFrac = Math.abs(Va) / Math.max(halfH, 0.001)
     const edgeOpacity = 1 - smoothstep(0.82, 1.05, screenFrac)
 
-    this.mesh.position.set(Math.cos(Ha) * Ga, Va, Math.sin(Ha) * Ga)
-    this.mesh.rotation.y  = -Ha + Math.PI / 2
+    // Ease the pointer position on the card, and how central (focused) it is.
+    this._time += delta / 1000
+    this.hoverUV.x += (this._hoverUVTarget.x - this.hoverUV.x) * hvFactor
+    this.hoverUV.y += (this._hoverUVTarget.y - this.hoverUV.y) * hvFactor
+    const focus = 1 - smoothstep(0.0, 0.7, Math.abs(Ba))
+
+    // Hover lifts the card toward the camera and gives it a gentle
+    // parallax tilt toward the pointer — the premium "card follows you" feel.
+    const lift = this.hoverProgress * 0.55
+    this.mesh.position.set(Math.cos(Ha) * Ga, Va, Math.sin(Ha) * Ga + lift)
     this.mesh.rotation.z  = 0
+    this.mesh.rotation.y  = -Ha + Math.PI / 2 + (this.hoverUV.x - 0.5) * 0.34 * this.hoverProgress
+    this.mesh.rotation.x  = -(this.hoverUV.y - 0.5) * 0.30 * this.hoverProgress
+    const s = 1 + 0.05 * this.hoverProgress
+    this.mesh.scale.set(this.baseScaleX * s, this.baseScaleY * s, 1)
 
     const mat = this.mesh.material as ShaderMaterial
     mat.uniforms.uScrollSpeed.value    = scrollSpeed
-    mat.uniforms.uColorStrength.value  = 0.55 * this.hoverProgress
+    mat.uniforms.uColorStrength.value  = 0
     mat.uniforms.uZoom.value           = 1 + 0.05 * this.hoverProgress
     mat.uniforms.uRevealProgress.value = this.revealProgress * (1 - this.hoverProgress * 0.05)
     mat.uniforms.uOpacity.value = this.wrapFade * edgeOpacity
     mat.uniforms.uTransition.value = this.transitionOpacity
+    mat.uniforms.uHover.value   = this.hoverProgress
+    ;(mat.uniforms.uHoverUV.value as Vector2).set(this.hoverUV.x, this.hoverUV.y)
+    mat.uniforms.uTime.value    = this._time
+    mat.uniforms.uFocus.value   = focus
 
     // ── Rim glow ─────────────────────────────────────────────────
     this._rimAngle     = (this._rimAngle + delta * 0.0007) % (Math.PI * 2)

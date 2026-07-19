@@ -8,6 +8,7 @@
   "about": [],
   "instructional-design": [],
   "my-work": [
+    { "id": "sewa-chronicles", "label": "The SEWA Chronicles", "description": "A service-culture comic magazine for Club Mahindra: true guest-service stories that teach hospitality values through comics.", "href": "/my-work/sewa-chronicles", "color": "#243F6A" },
     { "id": "strong", "label": "Strong", "description": "The real math of password strength: entropy in bits, why length beats symbols, and why the same password is instant or eternal depending on the attacker.", "href": "/my-work/strong", "color": "#243F6A" }
   ],
   "tools": [

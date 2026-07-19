@@ -78,13 +78,6 @@ export default defineNuxtConfig({
           icons: [{ src: '/storygen-icon-192.png', sizes: '192x192', type: 'image/png' }]
         },
         {
-          name: 'Lumina — Course Builder',
-          short_name: 'Lumina',
-          description: 'Build block-based courses and export HTML or SCORM',
-          url: '/tools/lumina',
-          icons: [{ src: '/lumina-icon-192.png', sizes: '192x192', type: 'image/png' }]
-        },
-        {
           name: 'Cadence — Training Calendar',
           short_name: 'Cadence',
           description: 'Turn a list of topics into a ready-to-present monthly training calendar',

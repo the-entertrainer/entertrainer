@@ -19,7 +19,7 @@ onMounted(() => {
 <template>
   <div id="app-root">
     <NuxtPage :transition="transition" />
-    <UiMenu v-if="!route.path.startsWith('/glass-lab') && !route.path.startsWith('/instructional-design') && !route.path.startsWith('/my-work/strong') && !route.path.startsWith('/tools/hangyourfriend') && !/^\/about\/?$/.test(route.path)" />
+    <UiMenu v-if="!route.path.startsWith('/glass-lab') && !route.path.startsWith('/instructional-design') && !route.path.startsWith('/my-work/strong') && !/^\/about\/?$/.test(route.path)" />
   </div>
 </template>
 

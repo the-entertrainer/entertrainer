@@ -17,7 +17,10 @@ export interface GlassParams {
 function roll(): GlassParams {
   const r = Math.random
   return {
-    colors: PALETTES[Math.floor(r() * PALETTES.length)],
+    // Pinned to the Y2K signature palette (magenta · cyan · electric blue) so
+    // the "Entertrainer OS" world reads cohesively every load. Other params
+    // still randomise for living variety.
+    colors: PALETTES[0],
     algo: r() < 0.5 ? 0 : 1,
     noiseScale1: 0.25 + r() * 0.35,
     noiseScale2: 0.40 + r() * 0.40,

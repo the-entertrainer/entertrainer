@@ -393,11 +393,11 @@ function onLoaderEntered() {
     <!-- UI chrome -->
     <Transition name="fade">
       <div v-if="hasEntered" class="spiral-ui">
-        <!-- Section title -->
-        <p v-if="title" class="spiral-title">{{ title }}</p>
+        <!-- Entertrainer OS chrome — retro-computer layer over the live spiral -->
+        <HomeOsChrome v-if="!isListMode" :path="title" />
 
-        <!-- Hint — only on root home view, not on sub-sections -->
-        <p v-if="!isListMode && !title" class="spiral-hint">scroll to spin · tap to explore</p>
+        <!-- List mode keeps the plain section label -->
+        <p v-else-if="title" class="spiral-title">{{ title }}</p>
       </div>
     </Transition>
   </div>

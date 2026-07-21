@@ -76,31 +76,32 @@ const fragmentShader = /* glsl */`
   }
 
   void main(){
-    vec2 ar = vec2(uResolution.x / uResolution.y, 1.0);
-    vec2 frag = vUv * uResolution; vec2 mapped = frag - uResolution * 0.5;
-    vec2 scaled = mapped / uFluteWidth; vec2 fr = vec2(fract(scaled.x), scaled.y);
-    float fx =  uFluteStrength * (fr.x - 0.5);
-    float fy = -uFluteStrength * atanh_(pow(fr.x, 6.0));
-    vec2 fc = vec2(mapped.x + fx, mapped.y + fy);
-    vec2 fuv = fc / uResolution.y + uPointer * 0.01;
-
-    vec2 warp = warpVec(vUv * ar) * uWarpStrength;
-    vec4 fld = field(fuv + warp);
-    vec3 glow = fld.rgb; float totalG = fld.a;
+    // Editorial backdrop — the rippled fractal glass now lives only in the
+    // preloader. Here we keep a calm, paper-quiet surface so the cards lead:
+    // a soft off-centre wash in the palette's primary hue, a gentle vignette
+    // and a whisper of grain. No flute, no warp, no blobs.
+    vec2 ar  = vec2(uResolution.x / uResolution.y, 1.0);
+    vec2 uv  = vUv + uPointer * 0.008;                 // barely-there parallax
+    vec2 c   = vec2(0.5, 0.60);
+    float d  = distance(uv * ar, c * ar);
+    float breathe = 0.965 + 0.035 * sin(uTime * 0.35);
+    float glow = smoothstep(0.95 * breathe, 0.0, d);   // soft central lift
 
     vec3 col;
     if (uLight > 0.5) {
-      // vivid colour on white — subtractive ink (CMY-on-paper)
-      vec3 ink = (vec3(totalG) - glow) * uBrightness;
-      col = uBase - ink;
+      // paper: faint ink tint drawn toward the primary hue
+      col = uBase - (1.0 - uC1) * glow * 0.055;
     } else {
-      // vivid colour on black — additive glow + HDR tone-map
-      col = uBase + glow;
-      col = 1.0 - exp(-col * uBrightness);
+      // near-black: a low, cool glow of the primary hue
+      col = uBase + uC1 * glow * 0.10;
     }
 
+    // Gentle vignette to seat the edges
+    float vig = smoothstep(1.25, 0.25, distance(uv, vec2(0.5)));
+    col *= mix(uLight > 0.5 ? 0.965 : 0.80, 1.0, vig);
+
     float gr = hash21(vUv * uResolution + fract(uTime * 0.5) * 100.0) * 2.0 - 1.0;
-    col += gr * uGrainStrength * max(col.r, max(col.g, col.b));
+    col += gr * uGrainStrength * 0.5;
     gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
   }
 `

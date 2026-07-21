@@ -1,6 +1,6 @@
 export default defineNuxtConfig({
   devtools: { enabled: false },
-  modules: ['@pinia/nuxt', '@vite-pwa/nuxt'],
+  modules: ['@pinia/nuxt', '@vite-pwa/nuxt', '@vueuse/motion/nuxt'],
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     // Server-only — set via GIPHY_API_KEY env var (Vercel project settings).
@@ -47,7 +47,7 @@ export default defineNuxtConfig({
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&display=swap' }
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&display=swap' }
       ]
     },
     pageTransition: false,

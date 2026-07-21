@@ -12,6 +12,9 @@ defineProps<{
   intro?: string
   items: NavItem[]
 }>()
+
+const R = useReveal()
+const rv = { eyebrow: R.rise(0), title: R.rise(80), deck: R.rise(170), intro: R.rise(240) }
 </script>
 
 <template>
@@ -20,17 +23,17 @@ defineProps<{
 
     <div class="cg-inner">
       <header class="cg-head">
-        <p v-if="eyebrow" class="cg-eyebrow">{{ eyebrow }}</p>
-        <h1 class="cg-title">{{ title }}</h1>
-        <p v-if="deck" class="cg-deck">{{ deck }}</p>
-        <p v-if="intro" class="cg-intro">{{ intro }}</p>
+        <p v-if="eyebrow" class="cg-eyebrow" v-motion :initial="rv.eyebrow.initial" :visible-once="rv.eyebrow.visibleOnce">{{ eyebrow }}</p>
+        <h1 class="cg-title" v-motion :initial="rv.title.initial" :visible-once="rv.title.visibleOnce">{{ title }}</h1>
+        <p v-if="deck" class="cg-deck" v-motion :initial="rv.deck.initial" :visible-once="rv.deck.visibleOnce">{{ deck }}</p>
+        <p v-if="intro" class="cg-intro" v-motion :initial="rv.intro.initial" :visible-once="rv.intro.visibleOnce">{{ intro }}</p>
       </header>
 
       <div class="cg-grid">
         <NuxtLink
           v-for="(item, i) in items" :key="item.id"
           :to="item.href" class="glass-panel cg-card"
-          :style="{ '--i': Math.min(i, 10) }"
+          v-motion :initial="R.riseIn(i).initial" :visible-once="R.riseIn(i).visibleOnce"
         >
           <span class="cg-card__dot" aria-hidden="true" />
           <span class="cg-card__body">
@@ -55,7 +58,7 @@ defineProps<{
   margin: 0 auto;
   padding: calc(120rem + var(--safe-top)) 24rem calc(64rem + var(--safe-bottom));
 }
-.cg-head { margin-bottom: 34rem; animation: cg-rise 0.6s var(--ease-spring) both; }
+.cg-head { margin-bottom: 34rem; }
 .cg-eyebrow {
   font-size: 12rem;
   font-weight: 700;
@@ -64,7 +67,7 @@ defineProps<{
   opacity: 0.5;
   margin-bottom: 12rem;
 }
-.cg-title { font-size: clamp(32rem, 6vw, 46rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1.05; }
+.cg-title { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; font-size: clamp(38rem, 6.5vw, 58rem); font-weight: 400; letter-spacing: -0.015em; line-height: 1.02; }
 .cg-deck { font-size: 16rem; opacity: 0.65; margin-top: 12rem; line-height: 1.5; max-width: 34em; }
 .cg-intro { font-size: 14rem; opacity: 0.55; margin-top: 14rem; line-height: 1.6; max-width: 40em; }
 
@@ -81,8 +84,6 @@ defineProps<{
   border-radius: 18rem;
   color: var(--color-text);
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  animation: cg-rise 0.55s var(--ease-spring) both;
-  animation-delay: calc(var(--i, 0) * 0.05s);
 }
 @media (hover: hover) {
   .cg-card:hover {
@@ -106,13 +107,6 @@ defineProps<{
 .cg-card__arrow { flex-shrink: 0; opacity: 0.4; transition: transform 0.2s ease, opacity 0.2s ease; color: var(--color-text); }
 .cg-empty { font-size: 14rem; opacity: 0.55; }
 
-@keyframes cg-rise {
-  from { opacity: 0; transform: translateY(16rem); }
-  to   { opacity: 1; transform: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .cg-head, .cg-card { animation: none; }
-}
 @media (max-width: 640px) {
   .cg-inner { padding: calc(100rem + var(--safe-top)) 16rem calc(48rem + var(--safe-bottom)); }
   .cg-grid { grid-template-columns: 1fr; }

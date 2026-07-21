@@ -151,6 +151,20 @@ const fragmentShader = /* glsl */`
       float grain = noise(zoomedUv * 200.0 + vDepth);
       grain = mix(0.5, grain, 0.3) - 0.5;
       color.rgb += grain * 0.02;
+
+      // Physical bevel — soft ambient occlusion hugging the card edges (a
+      // contact-shadow that seats the card as a real object) plus a bright
+      // catch of light along the top edge, so it reads as raised, not printed.
+      float aspC   = uPlaneSizes.x / uPlaneSizes.y;
+      vec2  epc    = vec2((vUv.x - 0.5) * aspC, vUv.y - 0.5);
+      vec2  edc    = vec2(aspC, 1.0) * 0.5 - abs(epc);
+      float edge   = min(edc.x, edc.y);
+      float ao     = smoothstep(0.0, 0.05, edge);
+      color.rgb   *= mix(0.86, 1.0, ao);                       // inner edge shadow
+      float topLit = smoothstep(0.045, 0.0, edc.y) * step(0.0, epc.y);
+      color.rgb   += (1.0 - color.rgb) * topLit * 0.14;        // top-edge highlight
+      float botAO  = smoothstep(0.05, 0.0, edc.y) * step(epc.y, 0.0);
+      color.rgb   *= mix(1.0, 0.9, botAO);                     // deeper shade under the lip
     } else {
       // Solid glass back face — mirrors front card aesthetics, no bleed-through
       float luma = dot(fogColor, vec3(0.299, 0.587, 0.114));

@@ -1,7 +1,8 @@
-import { Color } from 'three'
+import { Color, Vector2 } from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import type Experience from './Experience'
 
 const VignetteShader = {
@@ -101,6 +102,7 @@ const ColorGradeShader = {
 export default class PostProcessing {
   experience: Experience
   composer: EffectComposer
+  bloomPass: UnrealBloomPass
   vignettePass: ShaderPass
   chromaPass: ShaderPass
   colorGradePass: ShaderPass
@@ -110,6 +112,14 @@ export default class PostProcessing {
 
     this.composer = new EffectComposer(experience.renderer.instance)
     this.composer.addPass(new RenderPass(experience.scene, experience.camera.instance))
+
+    // Soft bloom — a premium glow that only the brightest highlights (card
+    // artwork, rim glow, iridescent edges) reach. Enabled in dark only; the
+    // light theme's bright paper backdrop would bloom into a wash, so its
+    // strength is dropped to 0 in setColorGrade().
+    const { width, height } = experience.sizes
+    this.bloomPass = new UnrealBloomPass(new Vector2(width, height), 0.22, 0.6, 0.86)
+    this.composer.addPass(this.bloomPass)
 
     this.vignettePass = new ShaderPass(VignetteShader)
     this.vignettePass.material.uniforms.uFillColor.value = new Color('#0D0C0A')
@@ -135,11 +145,17 @@ export default class PostProcessing {
       u.uShadowTint.value.setRGB(0.04, 0.06, 0.13)
       u.uTintStrength.value = 0.10
       vu.uStrength.value = 0.52
+      this.bloomPass.enabled = true
+      this.bloomPass.strength = 0.22
+      this.bloomPass.threshold = 0.86
     } else {
       u.uContrast.value = 1.06
       u.uShadowTint.value.setRGB(0.15, 0.09, 0.04)
       u.uTintStrength.value = 0.07
       vu.uStrength.value = 0.38
+      // Light theme: the paper backdrop is already bright — bloom would wash it,
+      // and disabling the pass entirely saves the GPU cost.
+      this.bloomPass.enabled = false
     }
   }
 

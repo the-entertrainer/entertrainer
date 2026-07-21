@@ -123,7 +123,10 @@ const fragmentShader = /* glsl */`
 
     vec4 color;
     if (gl_FrontFacing) {
-      color = texture2D(uTexture, zoomedUv);
+      // Parallax: the artwork sits a layer BEHIND the glass surface, so on
+      // hover/tilt it shifts against the fixed frame — real depth, not a print.
+      vec2 sampleUv = zoomedUv - (uHoverUV - 0.5) * 0.035 * uHover;
+      color = texture2D(uTexture, sampleUv);
 
       // Apply subtle depth blur to distant cards
       if (depthBlur > 0.001) {
@@ -132,7 +135,7 @@ const fragmentShader = /* glsl */`
         for (int i = -samples; i <= samples; i++) {
           for (int j = -samples; j <= samples; j++) {
             vec2 offset = vec2(float(i), float(j)) * depthBlur * 0.002;
-            blurred += texture2D(uTexture, zoomedUv + offset);
+            blurred += texture2D(uTexture, sampleUv + offset);
           }
         }
         blurred /= float((2*samples+1) * (2*samples+1));
@@ -165,6 +168,14 @@ const fragmentShader = /* glsl */`
       color.rgb   += (1.0 - color.rgb) * topLit * 0.14;        // top-edge highlight
       float botAO  = smoothstep(0.05, 0.0, edc.y) * step(epc.y, 0.0);
       color.rgb   *= mix(1.0, 0.9, botAO);                     // deeper shade under the lip
+
+      // Iridescent glass edge — a cool pearlescent sheen that hue-shifts along
+      // the border and brightens on hover. Specular (1 - color) so the artwork
+      // underneath stays clean. This is the "future glass" material cue.
+      float irid   = smoothstep(0.075, 0.0, edge);
+      vec3  sheen  = 0.5 + 0.5 * cos(6.2831853 * (vUv.x * 0.6 + vUv.y * 0.4 + uTime * 0.03) + vec3(0.0, 2.1, 4.2));
+      sheen        = mix(vec3(0.62, 0.80, 1.0), sheen, 0.45);  // bias toward cyan / lilac
+      color.rgb   += (1.0 - color.rgb) * sheen * irid * 0.10 * (0.55 + uHover * 0.9);
     } else {
       // Solid glass back face — mirrors front card aesthetics, no bleed-through
       float luma = dot(fogColor, vec3(0.299, 0.587, 0.114));

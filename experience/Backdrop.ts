@@ -96,6 +96,14 @@ const fragmentShader = /* glsl */`
       col = uBase + uC1 * glow * 0.10;
     }
 
+    // Iridescent contact pool — a soft hue-shifting glow rising from the bottom
+    // centre, as if the floating helix cast light onto a surface below it.
+    float floorY = 1.0 - smoothstep(0.0, 0.40, uv.y);
+    float floorX = smoothstep(0.85, 0.0, abs(uv.x - 0.5) * ar.x);
+    vec3  irid   = 0.5 + 0.5 * cos(6.2831853 * (uv.x * 0.5 + uTime * 0.04) + vec3(0.0, 2.1, 4.2));
+    irid         = mix(vec3(0.5, 0.75, 1.0), irid, 0.5);         // bias cool
+    col         += irid * floorY * floorX * (uLight > 0.5 ? 0.028 : 0.06);
+
     // Gentle vignette to seat the edges
     float vig = smoothstep(1.25, 0.25, distance(uv, vec2(0.5)));
     col *= mix(uLight > 0.5 ? 0.965 : 0.80, 1.0, vig);

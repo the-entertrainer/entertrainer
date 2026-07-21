@@ -118,8 +118,8 @@ const fragmentShader = /* glsl */`
     );
     vec2 zoomedUv = (uv - 0.5) / uZoom + 0.5;
 
-    // Depth-based blur: cards far from camera get subtle blur
-    float depthBlur = smoothstep(8.0, 14.0, vDepth) * 0.015;
+    // Depth-based blur: cards far from camera melt into soft focus (DoF)
+    float depthBlur = smoothstep(8.0, 14.0, vDepth) * 0.024;
 
     vec4 color;
     if (gl_FrontFacing) {
@@ -134,13 +134,20 @@ const fragmentShader = /* glsl */`
         const int samples = 5;
         for (int i = -samples; i <= samples; i++) {
           for (int j = -samples; j <= samples; j++) {
-            vec2 offset = vec2(float(i), float(j)) * depthBlur * 0.002;
+            vec2 offset = vec2(float(i), float(j)) * depthBlur * 0.0028;
             blurred += texture2D(uTexture, sampleUv + offset);
           }
         }
         blurred /= float((2*samples+1) * (2*samples+1));
-        color = mix(color, blurred, smoothstep(10.0, 13.0, vDepth));
+        color = mix(color, blurred, smoothstep(9.5, 13.0, vDepth));
       }
+
+      // Frosted depth — as cards recede they desaturate and lift toward a cool
+      // frosted glass, so the focused front card stays crisp and pops forward.
+      float dof  = smoothstep(8.5, 15.0, vDepth);
+      float lumf = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+      color.rgb  = mix(color.rgb, vec3(lumf), dof * 0.30);
+      color.rgb  = mix(color.rgb, color.rgb * 0.92 + vec3(0.05, 0.06, 0.085), dof * 0.5);
 
       // Hover adds a little vibrance so the focused card feels lit, without
       // washing out light artwork. The forward lift and tilt do the real work.

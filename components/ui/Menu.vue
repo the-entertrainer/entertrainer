@@ -12,7 +12,8 @@ const contentStore    = useContentStore()
 const homeViewStore   = useHomeViewStore()
 const experienceStore = useExperienceStore()
 const isOpened        = computed(() => menuStore.isOpened)
-const showViewToggle  = computed(() => homeViewStore.isHome && experienceStore.hasEntered)
+// The spiral↔list toggle is retired — the home is now the immersive gallery.
+const showViewToggle  = computed(() => false)
 // Standalone back button shows when there's somewhere to go back to: any real
 // page, or an open sub-section on the home route.
 const showBack        = computed(() => route.path !== '/' || !homeViewStore.isHome)

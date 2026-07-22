@@ -10,5 +10,12 @@ export const LAB_NAV: LabItem[] = [
 ]
 
 export const LAB_CONCEPTS = [
-  { n: '01', slug: 'immerse', name: 'Immersive Gallery', blurb: 'Real 3D depth, full 16:9 artwork (no crop), swipe with momentum.' }
+  { n: '01', slug: 'brutalist', name: 'Brutalist',      blurb: 'Raw concrete, monster type, one acid accent.' },
+  { n: '02', slug: 'chrome',    name: 'Y2K Chrome',      blurb: 'Liquid-metal chrome, iridescence, early-web bling.' },
+  { n: '03', slug: 'noir',      name: 'Editorial Noir',  blurb: 'High-fashion serif, full-bleed, elegant and slow.' },
+  { n: '04', slug: 'terminal',  name: 'Terminal',        blurb: 'Phosphor-green CRT with a typed boot sequence.' },
+  { n: '05', slug: 'aurora',    name: 'Liquid Aurora',   blurb: 'Flowing gradient mesh, dreamy glassmorphism.' },
+  { n: '06', slug: 'swiss',     name: 'Kinetic Swiss',   blurb: 'Red/black grid, giant type in constant motion.' },
+  { n: '07', slug: 'clay',      name: 'Claymorphic',     blurb: 'Soft 3D clay, pastel, bouncy and playful.' },
+  { n: '08', slug: 'riso',      name: 'Risograph',       blurb: 'Two-ink halftone print, grain, 70s overprint.' }
 ]

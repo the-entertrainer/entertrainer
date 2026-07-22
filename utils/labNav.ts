@@ -10,6 +10,7 @@ export const LAB_NAV: LabItem[] = [
 ]
 
 export const LAB_CONCEPTS = [
+  { n: '★', slug: 'flux',      name: 'WebGL Flux (OGL)', blurb: 'Award-site image distortion — drag to liquify, momentum, touch ripple. Built on OGL, the library Lusion/Unseen/BDSN use.' },
   { n: '01', slug: 'brutalist', name: 'Brutalist',      blurb: 'Raw concrete, monster type, one acid accent.' },
   { n: '02', slug: 'chrome',    name: 'Y2K Chrome',      blurb: 'Liquid-metal chrome, iridescence, early-web bling.' },
   { n: '03', slug: 'noir',      name: 'Editorial Noir',  blurb: 'High-fashion serif, full-bleed, elegant and slow.' },

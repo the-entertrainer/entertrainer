@@ -26,7 +26,18 @@ const ray = new THREE.Raycaster(); const ndc = new THREE.Vector2()
 let raf = 0, tPrev = 0, loaded = 0
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v))
 
-const H = 2.15, SPACING = 2.3, DEPTH = 1.55, TILT = 0.62, MAXT = 0.9, YLIFT = 0.5, DRAGPX = 240
+// Layout scales with the viewport so a 16:9 card always fits the width — on
+// portrait phones the card would otherwise bleed off both edges.
+let H = 2.15, SPACING = 2.3, DEPTH = 1.55, YLIFT = 0.5
+const TILT = 0.62, MAXT = 0.9, DRAGPX = 240
+function computeLayout() {
+  const fovR = 42 * Math.PI / 180
+  const visH = 2 * 6.6 * Math.tan(fovR / 2)
+  const visW = visH * (innerWidth / innerHeight)
+  H = Math.min(2.15, (visW * 0.86) / 1.778)   // card width ≤ 86% of visible width
+  SPACING = H * 1.07; DEPTH = H * 0.72
+  YLIFT = innerWidth < 760 ? 0.34 : 0.5
+}
 
 const vert = /* glsl */`
 varying vec2 vUv; varying float vDepth;
@@ -135,8 +146,8 @@ onMounted(() => {
     const tex = loader.load(IMG[item.id] || '/about-me.png', (t) => { const im = t.image as HTMLImageElement; if (im?.width) c.aspect = im.width / im.height; done() }, undefined, done)
     tex.colorSpace = THREE.SRGBColorSpace; tex.minFilter = THREE.LinearFilter; mat.uniforms.map.value = tex
   })
-  const resize = () => { renderer.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix() }
-  resize(); addEventListener('resize', resize); addEventListener('wheel', onWheel, { passive: true }); addEventListener('keydown', onKey)
+  const resize = () => { renderer.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); computeLayout() }
+  computeLayout(); resize(); addEventListener('resize', resize); addEventListener('wheel', onWheel, { passive: true }); addEventListener('keydown', onKey)
   raf = requestAnimationFrame(tick)
   // Safety: never block entry on a stuck texture.
   setTimeout(() => emit('ready'), 4000)

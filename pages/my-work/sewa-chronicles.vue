@@ -8,6 +8,7 @@ useSeoMeta({
   ogUrl: 'https://entertrainer.in/my-work/sewa-chronicles',
   ogImage: 'https://entertrainer.in/work/sewa/cover.webp'
 })
+const R = useReveal()
 
 interface Page { src: string; alt: string; cap: string; tag: string }
 const pages: Page[] = [
@@ -51,7 +52,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <article class="cs-inner">
       <!-- Hero -->
       <header class="cs-hero">
-        <div class="cs-hero__text">
+        <div class="cs-hero__text" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
           <p class="cs-eyebrow">My Work · Club Mahindra · 2023</p>
           <h1 class="cs-title">The SEWA Chronicles</h1>
           <p class="cs-deck">A service-culture comic magazine that teaches hospitality teams the values behind great guest experience, through true stories from the resort floor.</p>
@@ -62,24 +63,24 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
             </div>
           </dl>
         </div>
-        <button class="cs-hero__cover" @click="open(0)" aria-label="Open the cover">
+        <button class="cs-hero__cover" @click="open(0)" aria-label="Open the cover" v-motion :initial="R.scaleIn(120).initial" :visible-once="R.scaleIn(120).visibleOnce">
           <img src="/work/sewa/cover.webp" width="1400" height="1980" alt="The SEWA Chronicles cover" loading="eager">
         </button>
       </header>
 
       <!-- Narrative -->
       <section class="cs-body">
-        <div class="cs-block">
+        <div class="cs-block" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
           <h2>The problem</h2>
           <p>Service values usually live in a slide deck that nobody remembers. But hospitality is made of small human moments, and a resort team spread across the country needs those values to feel real, not like a poster in the back office.</p>
         </div>
 
-        <div class="cs-block">
+        <div class="cs-block" v-motion :initial="R.rise(90).initial" :visible-once="R.rise(90).visibleOnce">
           <h2>The idea</h2>
           <p>Turn real guest-service moments into a comic. Each issue collects true stories of SEWA Champions, the housekeepers, front-office and food-and-beverage staff who went out of their way for a member, and draws them as short strips. People remember a story long after they forget a rule.</p>
         </div>
 
-        <div class="cs-block">
+        <div class="cs-block" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
           <h2>How it is built to teach</h2>
           <ul class="cs-list">
             <li><strong>Story over instruction.</strong> Every value is shown happening, not described.</li>
@@ -89,7 +90,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           </ul>
         </div>
 
-        <div class="cs-block">
+        <div class="cs-block" v-motion :initial="R.rise(90).initial" :visible-once="R.rise(90).visibleOnce">
           <h2>My part</h2>
           <p>I made it end to end: gathering the stories, writing and storyboarding each strip, illustrating the characters, and laying out the issue. It is the clearest example of how I like to design learning, warm, specific, and built around a real human moment.</p>
         </div>
@@ -99,7 +100,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       <section class="cs-gallery" aria-label="Selected pages">
         <p class="glass-label cs-gallery__label">Selected pages</p>
         <div class="cs-grid">
-          <figure v-for="(p, i) in pages" :key="p.src" class="cs-fig">
+          <figure v-for="(p, i) in pages" :key="p.src" class="cs-fig" v-motion :initial="R.scaleInStagger(i).initial" :visible-once="R.scaleInStagger(i).visibleOnce">
             <button class="cs-fig__btn" @click="open(i)" :aria-label="`Enlarge: ${p.cap}`">
               <img :src="`/work/sewa/${p.src}.webp`" width="1400" height="1980" :alt="p.alt" loading="eager" decoding="async">
             </button>
@@ -112,7 +113,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       </section>
 
       <!-- Close -->
-      <footer class="cs-foot">
+      <footer class="cs-foot" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
         <p>Learning that people actually want to finish, that is the whole idea.</p>
         <div class="cs-foot__links">
           <NuxtLink to="/my-work" class="cs-link">← All work</NuxtLink>
@@ -137,7 +138,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
-.cs-page { position: relative; z-index: 1; min-height: 100dvh; }
+.cs-page { position: relative; z-index: 1; min-height: 100dvh; --serif: 'Fraunces', Georgia, serif; }
 .cs-inner {
   max-width: 920rem;
   margin: 0 auto;
@@ -151,10 +152,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   gap: 34rem;
   align-items: center;
   margin-bottom: 48rem;
-  animation: cs-rise 0.6s var(--ease-spring) both;
 }
-.cs-eyebrow { font-size: 12rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.5; }
-.cs-title { font-size: clamp(34rem, 6vw, 52rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1.02; margin-top: 12rem; }
+.cs-eyebrow { font-size: 12rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.55; }
+.cs-title { font-family: var(--serif); font-optical-sizing: auto; font-size: clamp(40rem, 6.5vw, 64rem); font-weight: 400; letter-spacing: -0.015em; line-height: 1.0; margin-top: 12rem; }
 .cs-deck { font-size: 17rem; line-height: 1.55; opacity: 0.7; margin-top: 16rem; max-width: 30em; }
 .cs-meta { display: flex; flex-wrap: wrap; gap: 10rem 28rem; margin-top: 26rem; }
 .cs-meta__row { display: flex; flex-direction: column; gap: 3rem; }
@@ -182,7 +182,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   border-top: 1px solid var(--color-divider);
   border-bottom: 1px solid var(--color-divider);
 }
-.cs-block h2 { font-size: 13rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-accent); opacity: 0.9; margin-bottom: 10rem; }
+.cs-block h2 { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 26rem; letter-spacing: -0.01em; opacity: 0.9; margin-bottom: 12rem; }
 .cs-block p { font-size: 15rem; line-height: 1.65; opacity: 0.82; }
 .cs-list { list-style: none; display: flex; flex-direction: column; gap: 11rem; }
 .cs-list li { font-size: 14.5rem; line-height: 1.55; opacity: 0.82; padding-left: 18rem; position: relative; }
@@ -213,7 +213,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
 /* Close */
 .cs-foot { margin-top: 48rem; padding-top: 28rem; border-top: 1px solid var(--color-divider); }
-.cs-foot > p { font-size: 18rem; font-weight: 600; letter-spacing: -0.02em; opacity: 0.85; max-width: 22em; }
+.cs-foot > p { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: clamp(22rem, 3vw, 30rem); letter-spacing: -0.01em; line-height: 1.25; opacity: 0.9; max-width: 20em; }
 .cs-foot__links { display: flex; flex-wrap: wrap; gap: 10rem 24rem; margin-top: 22rem; }
 .cs-link { font-size: 14rem; font-weight: 600; color: var(--color-text); opacity: 0.7; transition: opacity 0.15s ease; }
 .cs-link:hover { opacity: 1; }

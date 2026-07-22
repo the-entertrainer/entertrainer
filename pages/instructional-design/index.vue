@@ -64,7 +64,7 @@ function iconPath(name: string) {
 
 <template>
   <div class="id-page">
-    <UiGlassBackdrop />
+    <UiGlassBackdrop calm />
 
     <NuxtLink to="/" class="id-exit" aria-label="Back to the site">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7" /></svg>
@@ -213,11 +213,13 @@ function iconPath(name: string) {
   margin-bottom: 16rem;
 }
 .id-title {
-  font-size: clamp(30rem, 5vw, 50rem);
-  font-weight: 700;
-  line-height: 1.06;
-  letter-spacing: -0.03em;
-  max-width: 16ch;
+  font-family: 'Fraunces', Georgia, serif;
+  font-optical-sizing: auto;
+  font-size: clamp(34rem, 5.5vw, 60rem);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  max-width: 15ch;
 }
 .id-dek {
   margin-top: 20rem;

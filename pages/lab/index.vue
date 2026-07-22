@@ -10,8 +10,8 @@ const R = useReveal()
     <div class="lab__inner">
       <header class="lab__head">
         <p class="lab__eyebrow" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">Hidden · Lab</p>
-        <h1 class="lab__title" v-motion :initial="R.rise(80).initial" :visible-once="R.rise(80).visibleOnce">Eight bold themes</h1>
-        <p class="lab__deck" v-motion :initial="R.rise(170).initial" :visible-once="R.rise(170).visibleOnce">Entire art directions for the site — brutalist, chrome, noir, terminal, and more. Open each, feel the whole world, pick a direction. Nothing else links here, so the unpicked ones delete cleanly.</p>
+        <h1 class="lab__title" v-motion :initial="R.rise(80).initial" :visible-once="R.rise(80).visibleOnce">Bold theme experiments</h1>
+        <p class="lab__deck" v-motion :initial="R.rise(170).initial" :visible-once="R.rise(170).visibleOnce">Entire art directions for the site — WebGL flux, brutalist, chrome, noir, plasma, physics, synthwave, comic, and more. Open each, feel the whole world, pick a direction. Nothing else links here, so the unpicked ones delete cleanly.</p>
       </header>
 
       <ol class="lab__grid">

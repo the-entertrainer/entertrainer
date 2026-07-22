@@ -18,5 +18,13 @@ export const LAB_CONCEPTS = [
   { n: '05', slug: 'aurora',    name: 'Liquid Aurora',   blurb: 'Flowing gradient mesh, dreamy glassmorphism.' },
   { n: '06', slug: 'swiss',     name: 'Kinetic Swiss',   blurb: 'Red/black grid, giant type in constant motion.' },
   { n: '07', slug: 'clay',      name: 'Claymorphic',     blurb: 'Soft 3D clay, pastel, bouncy and playful.' },
-  { n: '08', slug: 'riso',      name: 'Risograph',       blurb: 'Two-ink halftone print, grain, 70s overprint.' }
+  { n: '08', slug: 'riso',      name: 'Risograph',       blurb: 'Two-ink halftone print, grain, 70s overprint.' },
+  { n: '09', slug: 'plasma',    name: 'Plasma Shader',   blurb: 'A living OGL aurora shader you push with the cursor.' },
+  { n: '10', slug: 'physics',   name: 'Physics Toybox',  blurb: 'Matter.js — throw and stack the nav like real objects.' },
+  { n: '11', slug: 'ascii',     name: 'ASCII Portrait',  blurb: 'The portrait rendered live as glowing ASCII text.' },
+  { n: '12', slug: 'synthwave', name: 'Synthwave',       blurb: 'Neon sun, endless perspective grid, retro-future.' },
+  { n: '13', slug: 'comic',     name: 'Pop Comic',       blurb: 'Ben-Day halftone, speech bubbles, POW! — your comic DNA.' },
+  { n: '14', slug: 'blueprint', name: 'Blueprint',       blurb: 'Cyan technical drawing, dimension lines, annotations.' },
+  { n: '15', slug: 'mesh',      name: 'Mesh Gradient',   blurb: 'Stripe-style animated mesh + grain, big serif.' },
+  { n: '16', slug: 'glitch',    name: 'VHS Glitch',      blurb: 'RGB-split datamosh type, scanlines, signal noise.' }
 ]

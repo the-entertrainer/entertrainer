@@ -111,6 +111,10 @@ export default class PostProcessing {
     this.experience = experience
 
     this.composer = new EffectComposer(experience.renderer.instance)
+    // Match the composer's render targets to the renderer's DPR + size up front,
+    // so the first frame is already crisp instead of waiting for a resize event.
+    this.composer.setPixelRatio(experience.sizes.pixelRatio)
+    this.composer.setSize(experience.sizes.width, experience.sizes.height)
     this.composer.addPass(new RenderPass(experience.scene, experience.camera.instance))
 
     // Soft bloom — a premium glow that only the brightest highlights (card

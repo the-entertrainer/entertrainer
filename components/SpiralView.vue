@@ -24,7 +24,11 @@ const canvasRef       = ref<HTMLCanvasElement | null>(null)
 const listRef         = ref<HTMLElement | null>(null)
 const isLoaderDone    = ref(!props.showLoader || experienceStore.hasEntered)
 const hasEntered      = computed(() => props.showLoader ? experienceStore.hasEntered : true)
-const isListMode      = computed(() => props.showViewSwitch && homeViewStore.mode === 'list')
+// List mode renders whenever the view store is in 'list' — set either by the
+// (optional) menu toggle or automatically by the WebGL fallback. It must NOT be
+// gated behind showViewSwitch, or a device without WebGL would fall back to a
+// list that never renders and show a blank page.
+const isListMode      = computed(() => homeViewStore.mode === 'list')
 const { $lenis }      = useNuxtApp()
 
 const FOG_DARK  = 0x0D0C0A
@@ -250,11 +254,11 @@ onMounted(() => {
     // First visit: start the experience loading in the background immediately so
     // that by the time the loader's exit animation completes, the canvas is
     // already rendered and there is no blank frame.
+    const tStart = Date.now()
     mountExperience().then(() => {
       if (!experience) { experienceStore.setReady(); return }
 
       const MIN_DISPLAY_MS = 700  // keep the wordmark visible at least this long
-      const tStart = Date.now()
       let readyFired = false
 
       const markReady = () => {
@@ -264,9 +268,12 @@ onMounted(() => {
         setTimeout(() => experienceStore.setReady(), wait)
       }
 
-      // Primary signal: backdrop image baked and first render happened
-      experience!.on('backdropReady', markReady)
-      // Fallback: if backdrop never loads (network error etc.), give up after 6s
+      // The procedural backdrop is ready the moment the Experience is built —
+      // its `backdropReady` fires synchronously *inside* mountExperience(), i.e.
+      // before this callback runs, so we can't rely on catching that event here.
+      // Instead wait two frames so a real frame has composited, then reveal.
+      // A 6 s hard cap remains as a safety net for pathological GPU stalls.
+      requestAnimationFrame(() => requestAnimationFrame(markReady))
       setTimeout(markReady, 6000)
     })
   } else {

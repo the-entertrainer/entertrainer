@@ -128,13 +128,16 @@ const fragmentShader = /* glsl */`
       vec2 sampleUv = zoomedUv - (uHoverUV - 0.5) * 0.035 * uHover;
       color = texture2D(uTexture, sampleUv);
 
-      // Apply subtle depth blur to distant cards
+      // Apply subtle depth blur to distant cards. A 5×5 kernel (25 taps) with a
+      // widened step covers the same blur radius the old 11×11 (121 taps) did —
+      // for a blur this soft the coarser sampling is indistinguishable, at ~5×
+      // fewer texture fetches on the far cards.
       if (depthBlur > 0.001) {
         vec4 blurred = color;
-        const int samples = 5;
+        const int samples = 2;
         for (int i = -samples; i <= samples; i++) {
           for (int j = -samples; j <= samples; j++) {
-            vec2 offset = vec2(float(i), float(j)) * depthBlur * 0.0028;
+            vec2 offset = vec2(float(i), float(j)) * depthBlur * 0.007;
             blurred += texture2D(uTexture, sampleUv + offset);
           }
         }
@@ -236,7 +239,14 @@ const fragmentShader = /* glsl */`
     float radius    = 0.08 * reveal;
     vec2  d         = abs(p) - halfSize + radius;
     float sdf       = length(max(d, 0.0)) - radius;
-    float aa        = fwidth(sdf);
+    // Positive floor on the AA width. fwidth() should always be >= 0, but some
+    // GPU/driver paths (notably SwiftShader's Subzero backend) can hand back a
+    // zero or negative screen-space derivative here, which inverts the
+    // smoothstep and cuts the card's fill out entirely — leaving only a thin
+    // edge ring with the background showing through. Clamping to a small
+    // positive epsilon is a no-op on healthy GPUs (fwidth is ~0.001–0.005) and
+    // keeps the card solid everywhere else.
+    float aa        = max(fwidth(sdf), 1e-4);
     float alpha     = 1.0 - smoothstep(-aa, aa, sdf);
     alpha          *= smoothstep(0.1, 1.0, uRevealProgress);
 

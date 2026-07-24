@@ -10,7 +10,6 @@ const props = defineProps<{
   items: NavItem[]
   showLoader?: boolean
   title?: string
-  showViewSwitch?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -24,10 +23,9 @@ const canvasRef       = ref<HTMLCanvasElement | null>(null)
 const listRef         = ref<HTMLElement | null>(null)
 const isLoaderDone    = ref(!props.showLoader || experienceStore.hasEntered)
 const hasEntered      = computed(() => props.showLoader ? experienceStore.hasEntered : true)
-// List mode renders whenever the view store is in 'list' — set either by the
-// (optional) menu toggle or automatically by the WebGL fallback. It must NOT be
-// gated behind showViewSwitch, or a device without WebGL would fall back to a
-// list that never renders and show a blank page.
+// List mode renders whenever the view store is in 'list' — currently set only
+// by the WebGL fallback (see fallbackToList below), so a device without WebGL
+// gets the fully-featured 2D list instead of a blank canvas.
 const isListMode      = computed(() => homeViewStore.mode === 'list')
 const { $lenis }      = useNuxtApp()
 

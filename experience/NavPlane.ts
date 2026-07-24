@@ -30,13 +30,24 @@ const CARD_IMAGE_MAP: Record<string, string> = {
   'frameworks':           '/frameworks.png',
   'resources':            '/resources.png',
 }
-const _imageReady = new Map<string, Promise<HTMLImageElement>>()
-if (typeof document !== 'undefined') {
-  for (const [id, src] of Object.entries(CARD_IMAGE_MAP)) {
+// Loaded lazily, per id, the first time a card actually needs it — not all 16
+// possible card images up front. The home spiral only ever shows 4 of them;
+// eagerly decoding the rest competed for the browser's connection pool and
+// could delay the ones actually on screen. Memoized so the doubled nav-item
+// list (×2, for the infinite loop) shares one decode per id.
+const _imageReady = new Map<string, Promise<HTMLImageElement | null>>()
+function loadCardImage(id: string): Promise<HTMLImageElement | null> | null {
+  if (typeof document === 'undefined') return null
+  const src = CARD_IMAGE_MAP[id]
+  if (!src) return null
+  let ready = _imageReady.get(id)
+  if (!ready) {
     const img = new Image()
     img.src = src
-    _imageReady.set(id, img.decode().then(() => img).catch(() => null as any))
+    ready = img.decode().then(() => img).catch(() => null)
+    _imageReady.set(id, ready)
   }
+  return ready
 }
 
 // Hermite smoothstep — 0 below a, 1 above b, eased between.
@@ -334,7 +345,13 @@ export default class NavPlane {
   private _bgImage: HTMLImageElement | null = null
   private _destroyed = false
 
-  readonly baseScaleX  = 1.7
+  // Every current card image is a native 16:9 render (1920×1080 for the home
+  // set, 1672×941 — same ratio — for the tool set), so the plane itself is cut
+  // to 16:9 too: zero letterbox, zero crop, pixel-accurate. If a differently-
+  // shaped image ever lands in CARD_IMAGE_MAP, the contain-fit math in the
+  // fragment shader (driven by uPlaneSizes vs uImageSizes) still letterboxes
+  // it cleanly rather than stretching it — see _resizeCanvasForImage below.
+  readonly baseScaleX  = 16 / 9
   readonly baseScaleY  = 1.0
   readonly verticalGap = 0.5
   readonly angleGap    = 0.85
@@ -354,18 +371,22 @@ export default class NavPlane {
     this.totalCount = totalCount
     this._isDark    = isDark
 
+    // Default canvas matches the plane's own 16:9 aspect, so even the brief
+    // glass-fallback state (before the real image decodes) shows zero
+    // letterbox — not just the final image.
     this._canvas        = document.createElement('canvas')
     this._canvas.width  = 1700
-    this._canvas.height = 1000
+    this._canvas.height = 956
     this._ctx = this._canvas.getContext('2d')!
     this._tex = new CanvasTexture(this._canvas)
     this._drawTexture(isDark)
 
-    const ready = _imageReady.get(navItem.id)
+    const ready = loadCardImage(navItem.id)
     if (ready) {
       ready.then((img) => {
         if (!img || this._destroyed) return
         this._bgImage = img
+        this._resizeCanvasForImage(img)
         this._drawTexture(this._isDark)
         ;(this.mesh.material as ShaderMaterial).uniforms.uIsImage.value = 1.0
       })
@@ -378,8 +399,8 @@ export default class NavPlane {
           uTexture:        { value: this._tex },
           uColorStrength:  { value: 0 },
           uZoom:           { value: 1 },
-          uPlaneSizes:     { value: new Vector2(1.7, 1.0) },
-          uImageSizes:     { value: new Vector2(1700, 1000) },
+          uPlaneSizes:     { value: new Vector2(this.baseScaleX, this.baseScaleY) },
+          uImageSizes:     { value: new Vector2(this._canvas.width, this._canvas.height) },
           uRevealProgress: { value: 0 },
           uScrollSpeed:    { value: 0 },
           uOpacity:        { value: 1 },
@@ -407,8 +428,28 @@ export default class NavPlane {
     experience.scene.add(this.mesh)
   }
 
+  // Resize the texture canvas (and tell the shader its real size) to match
+  // the loaded image's native aspect ratio, before drawing it. Previously the
+  // canvas was a hardcoded 1700×1000 (1.7:1) regardless of the source image,
+  // so every 16:9 card image (1920×1080 / 1672×941 — all the current art) got
+  // stretched ~4.6% to fill it. Sizing the canvas — and uImageSizes — to the
+  // real aspect lets the shader's existing contain-fit math do its job:
+  // pixel-accurate, undistorted artwork (matching-aspect art fills edge to
+  // edge; a mismatched aspect gets a clean letterbox instead of a squeeze).
+  private _resizeCanvasForImage(img: HTMLImageElement) {
+    const targetW = 1700
+    const aspect  = img.naturalWidth / Math.max(1, img.naturalHeight)
+    const targetH = Math.max(1, Math.round(targetW / aspect))
+    if (this._canvas.width !== targetW || this._canvas.height !== targetH) {
+      this._canvas.width  = targetW
+      this._canvas.height = targetH
+    }
+    const mat = this.mesh.material as ShaderMaterial
+    ;(mat.uniforms.uImageSizes.value as Vector2).set(targetW, targetH)
+  }
+
   private _drawTexture(isDark: boolean) {
-    const W = 1700, H = 1000
+    const W = this._canvas.width, H = this._canvas.height
     const ctx = this._ctx
     ctx.clearRect(0, 0, W, H)
 

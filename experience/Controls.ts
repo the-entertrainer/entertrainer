@@ -18,6 +18,9 @@ export default class Controls {
 
   scrollOffset = 0.5
   wheelDeltaY = 0 // per-frame change in scrollOffset (consumed by World/NavPlane shaders)
+  // Sign of the most recent real input (wheel impulse or touch drag), so the
+  // idle drift that resumes after a rest continues the way the spiral was
+  // last actually pushed, instead of always drifting the same fixed way.
   wheelDirection = 1
 
   // ── Tunables ──────────────────────────────────────────────────────────────
@@ -65,6 +68,7 @@ export default class Controls {
     if (this.locked) return
     const impulse = (event.deltaY / this.WHEEL_PER_CARD) / 16.67 // cards/ms
     this._velocity = clamp(this._velocity + impulse, -this.MAX_V, this.MAX_V)
+    if (this._velocity !== 0) this.wheelDirection = Math.sign(this._velocity)
     this._phase = 'fling'
     this._lastInteraction = performance.now()
   }
@@ -93,6 +97,7 @@ export default class Controls {
 
     const inst = dOffset / dt // cards/ms
     this._velocity = clamp(this._velocity * 0.7 + inst * 0.3, -this.MAX_V, this.MAX_V)
+    if (this._velocity !== 0) this.wheelDirection = Math.sign(this._velocity)
 
     this._lastTouchY = y
     this._lastTouchTime = now

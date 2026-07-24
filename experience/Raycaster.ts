@@ -16,12 +16,20 @@ export default class Raycaster {
     this.experience = experience
     this.instance = new ThreeRaycaster()
 
-    this._onMouseMove = this._onMouseMove.bind(this)
-    this._onClick     = this._onClick.bind(this)
+    this._onMouseMove  = this._onMouseMove.bind(this)
+    this._onMouseLeave = this._onMouseLeave.bind(this)
+    this._onClick      = this._onClick.bind(this)
     this._onTouchStart = this._onTouchStart.bind(this)
     this._onTouchEnd   = this._onTouchEnd.bind(this)
 
     window.addEventListener('mousemove', this._onMouseMove)
+    // Without this, moving the cursor off the edge of the browser window (or
+    // alt-tabbing away) leaves the last-hovered card stuck lifted/tilted/glossy
+    // forever — there's no further mousemove to clear it. documentElement's
+    // mouseleave fires when the pointer truly exits the viewport; blur covers
+    // switching windows/apps without the pointer crossing an edge.
+    document.documentElement.addEventListener('mouseleave', this._onMouseLeave)
+    window.addEventListener('blur', this._onMouseLeave)
     experience.canvas.addEventListener('click', this._onClick)
     experience.canvas.addEventListener('touchstart', this._onTouchStart, { passive: true })
     experience.canvas.addEventListener('touchend', this._onTouchEnd, { passive: true })
@@ -60,6 +68,11 @@ export default class Raycaster {
     this._updateHover()
   }
 
+  private _onMouseLeave() {
+    this.pointer = new Vector2(-999, -999)
+    this._updateHover()
+  }
+
   private _onClick() {
     if (Date.now() - this._lastTouchEndMs < 500) return
     const res = this._intersect()
@@ -91,6 +104,8 @@ export default class Raycaster {
 
   destroy() {
     window.removeEventListener('mousemove', this._onMouseMove)
+    document.documentElement.removeEventListener('mouseleave', this._onMouseLeave)
+    window.removeEventListener('blur', this._onMouseLeave)
     this.experience.canvas.removeEventListener('click', this._onClick)
     this.experience.canvas.removeEventListener('touchstart', this._onTouchStart)
     this.experience.canvas.removeEventListener('touchend', this._onTouchEnd)

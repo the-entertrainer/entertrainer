@@ -49,7 +49,6 @@ onBeforeUnmount(() => { navigating = false })
     ref="spiralRef"
     :items="items"
     :show-loader="true"
-    :show-view-switch="true"
     :title="''"
     @card-click="handleCardClick"
   />

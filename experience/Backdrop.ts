@@ -19,6 +19,13 @@ const vertexShader = /* glsl */`
 // model is theme-aware and vivid in BOTH themes: dark = additive glow on black,
 // light = subtractive "ink" on white. Every load randomises palette + warp +
 // flute + brightness params.
+//
+// This is the same ripple-glass identity the preloader dives through — the
+// spiral was previously arrived at through a calm, flattened wash of it
+// (see the retired comment this replaced). Reinstating the full fluted/warped
+// field here means the loader's "melt through the glass" transition actually
+// leads somewhere continuous: the helix floats in the same living glass world
+// it was just born from, not a different, quieter one.
 const fragmentShader = /* glsl */`
   precision highp float;
   uniform float uTime, uWarpStrength, uWarpSpeed, uNoiseScaleX, uNoiseScaleY, uFlowSpeed;
@@ -76,24 +83,36 @@ const fragmentShader = /* glsl */`
   }
 
   void main(){
-    // Editorial backdrop — the rippled fractal glass now lives only in the
-    // preloader. Here we keep a calm, paper-quiet surface so the cards lead:
-    // a soft off-centre wash in the palette's primary hue, a gentle vignette
-    // and a whisper of grain. No flute, no warp, no blobs.
     vec2 ar  = vec2(uResolution.x / uResolution.y, 1.0);
-    vec2 uv  = vUv + uPointer * 0.008;                 // barely-there parallax
-    vec2 c   = vec2(0.5, 0.60);
-    float d  = distance(uv * ar, c * ar);
-    float breathe = 0.965 + 0.035 * sin(uTime * 0.35);
-    float glow = smoothstep(0.95 * breathe, 0.0, d);   // soft central lift
+    vec2 uv  = vUv + uPointer * 0.01;   // the whole glass answers the cursor, subtly
+
+    // Fluted / reeded glass refraction — the same "glass rod" banding the
+    // preloader's canvas dives through: pixel space is folded into repeating
+    // vertical flutes, each one bending the sample horizontally and vertically
+    // (atanh_ gives the lens its characteristic pinched-edge falloff).
+    vec2 frag   = uv * uResolution;
+    vec2 mapped = frag - uResolution * 0.5;
+    vec2 sc     = mapped / uFluteWidth;
+    vec2 fr     = vec2(fract(sc.x), sc.y);
+    float fx    = uFluteStrength * (fr.x - 0.5);
+    float fy    = -uFluteStrength * atanh_(pow(fr.x, 6.0));
+    vec2 fuv    = vec2(mapped.x + fx, mapped.y + fy) / uResolution.y;
+
+    // Simplex warp on top, then the flowing 5-blob gradient field behind it all.
+    vec2 warp = warpVec(uv * ar) * uWarpStrength;
+    vec4 fld  = field(fuv + warp);
+    vec3 glow = fld.rgb;
+    float tot = fld.a;
 
     vec3 col;
     if (uLight > 0.5) {
-      // paper: faint ink tint drawn toward the primary hue
-      col = uBase - (1.0 - uC1) * glow * 0.055;
+      // paper: the gradient reads as ink pooling beneath the fluted pane
+      col = uBase - (vec3(tot) - glow) * uBrightness;
     } else {
-      // near-black: a low, cool glow of the primary hue
-      col = uBase + uC1 * glow * 0.10;
+      // near-black: additive glow through the glass, filmic tonemap so hot
+      // blob overlaps roll off instead of clipping to flat white
+      col = uBase + glow;
+      col = 1.0 - exp(-col * uBrightness);
     }
 
     // Iridescent contact pool — a soft hue-shifting glow rising from the bottom
@@ -102,14 +121,18 @@ const fragmentShader = /* glsl */`
     float floorX = smoothstep(0.85, 0.0, abs(uv.x - 0.5) * ar.x);
     vec3  irid   = 0.5 + 0.5 * cos(6.2831853 * (uv.x * 0.5 + uTime * 0.04) + vec3(0.0, 2.1, 4.2));
     irid         = mix(vec3(0.5, 0.75, 1.0), irid, 0.5);         // bias cool
-    col         += irid * floorY * floorX * (uLight > 0.5 ? 0.028 : 0.06);
+    col         += irid * floorY * floorX * (uLight > 0.5 ? 0.035 : 0.05);
 
-    // Gentle vignette to seat the edges
-    float vig = smoothstep(1.25, 0.25, distance(uv, vec2(0.5)));
-    col *= mix(uLight > 0.5 ? 0.965 : 0.80, 1.0, vig);
+    // Vignette — a touch deeper than before now the field itself carries much
+    // more light, so the eye still settles on the cards, not the edges.
+    float vig = smoothstep(1.25, 0.20, distance(uv, vec2(0.5)));
+    col *= mix(uLight > 0.5 ? 0.93 : 0.68, 1.0, vig);
 
+    // Grain scaled by local luminance — textures the bright glass without
+    // dusting the near-black areas with visible sensor-noise speckle.
     float gr = hash21(vUv * uResolution + fract(uTime * 0.5) * 100.0) * 2.0 - 1.0;
-    col += gr * uGrainStrength * 0.5;
+    col += gr * uGrainStrength * max(col.r, max(col.g, col.b));
+
     gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
   }
 `
@@ -132,12 +155,17 @@ function genParams(isDark: boolean): GlassParams {
     noiseScale2: shared.noiseScale2,
     warp: shared.warp,
     warpSpeed: shared.warpSpeed,
-    fluteStrength: shared.fluteStrength,
+    // The loader shows this at full, close-up intensity for about a second.
+    // Here it runs for as long as someone lingers on the spiral, so the flute
+    // refraction and blob drift are damped a little from the shared roll —
+    // same glass, same identity, tuned for sustained ambient viewing rather
+    // than a brief dramatic reveal.
+    fluteStrength: shared.fluteStrength * 0.6,
     seed: shared.seed,
     grain: shared.grain,
-    flowSpeed: 2.0,
+    flowSpeed: 1.3,
     fluteWidth: 100,
-    brightness: isDark ? 1.10 : 0.20,
+    brightness: isDark ? 0.85 : 0.22,
   }
 }
 

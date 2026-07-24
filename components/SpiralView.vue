@@ -564,6 +564,10 @@ function onLoaderEntered() {
   color: var(--color-text);
   opacity: 0.35;
   white-space: nowrap;
+  /* A blurred halo in the theme's own background colour keeps this legible
+     over the now much livelier ripple-glass backdrop, whatever hue the
+     random palette lands on behind it, without needing a fixed direction. */
+  text-shadow: 0 0 10rem var(--color-bg), 0 0 3rem var(--color-bg);
 }
 .spiral-hint {
   position: absolute;
@@ -574,6 +578,7 @@ function onLoaderEntered() {
   font-weight: 500;
   letter-spacing: 0.08em;
   color: var(--color-text);
+  text-shadow: 0 0 10rem var(--color-bg), 0 0 3rem var(--color-bg);
   opacity: 0.20;
   white-space: nowrap;
 }

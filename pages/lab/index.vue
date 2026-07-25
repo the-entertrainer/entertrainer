@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { LAB_CONCEPTS, GLASS_CONCEPTS, HOME_VARIANTS } from '~/utils/labNav'
+import { CONCEPTS } from '~/utils/labNav'
 definePageMeta({ layout: false })
-useSeoMeta({ title: 'Home concepts — Lab', robots: 'noindex' })
+useSeoMeta({ title: 'Homepage concepts — Lab', robots: 'noindex' })
 const R = useReveal()
 </script>
 
@@ -10,48 +10,26 @@ const R = useReveal()
     <div class="lab__inner">
       <header class="lab__head">
         <p class="lab__eyebrow" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">Hidden · Lab</p>
-        <h1 class="lab__title" v-motion :initial="R.rise(80).initial" :visible-once="R.rise(80).visibleOnce">Bold theme experiments</h1>
-        <p class="lab__deck" v-motion :initial="R.rise(170).initial" :visible-once="R.rise(170).visibleOnce">Entire art directions for the site — WebGL flux, brutalist, chrome, noir, plasma, physics, synthwave, comic, and more. Open each, feel the whole world, pick a direction. Nothing else links here, so the unpicked ones delete cleanly.</p>
+        <h1 class="lab__title" v-motion :initial="R.rise(70).initial" :visible-once="R.rise(70).visibleOnce">Fifteen homepages,<br>one argument each</h1>
+        <p class="lab__deck" v-motion :initial="R.rise(150).initial" :visible-once="R.rise(150).visibleOnce">
+          Each concept is built on a single documented finding from interaction research — not on taste.
+          The finding is named on every page, the mechanism demonstrates it, and the marketing angle falls
+          out of it: a portfolio that applies attention, memory and motion research <em>is</em> the argument
+          for hiring an instructional designer. Nothing here links to the live site, so anything unpicked
+          deletes cleanly.
+        </p>
       </header>
 
-      <h2 class="lab__sec">Homepage — ten design languages</h2>
-      <p class="lab__secnote">All ten run the same fixed Liquid Tower. What changes is the palette, the typeface, the chrome and how the caption moves. Pick one and it becomes the site's language.</p>
-      <ol class="lab__grid lab__grid--glass">
-        <li v-for="(c, i) in HOME_VARIANTS" :key="c.slug" v-motion :initial="R.riseIn(i, 45).initial" :visible-once="R.riseIn(i, 45).visibleOnce">
-          <NuxtLink :to="`/lab/${c.slug}`" class="lab__card lab__card--glass">
-            <span class="lab__n">{{ c.n }}</span>
-            <span class="lab__body">
-              <strong class="lab__name">{{ c.name }}</strong>
-              <span class="lab__blurb">{{ c.blurb }}</span>
-            </span>
-            <span class="lab__arrow" aria-hidden="true">→</span>
-          </NuxtLink>
-        </li>
-      </ol>
-
-      <h2 class="lab__sec">Liquid Glass — twelve worlds</h2>
-      <p class="lab__secnote">One optical engine: real transmission, IOR refraction and PMREM-lit bevels. Twelve completely different spaces built on it.</p>
-      <ol class="lab__grid lab__grid--glass">
-        <li v-for="(c, i) in GLASS_CONCEPTS" :key="c.slug" v-motion :initial="R.riseIn(i, 45).initial" :visible-once="R.riseIn(i, 45).visibleOnce">
-          <NuxtLink :to="`/lab/${c.slug}`" class="lab__card lab__card--glass">
-            <span class="lab__n">{{ c.n }}</span>
-            <span class="lab__body">
-              <strong class="lab__name">{{ c.name }}</strong>
-              <span class="lab__blurb">{{ c.blurb }}</span>
-            </span>
-            <span class="lab__arrow" aria-hidden="true">→</span>
-          </NuxtLink>
-        </li>
-      </ol>
-
-      <h2 class="lab__sec">Earlier theme studies</h2>
       <ol class="lab__grid">
-        <li v-for="(c, i) in LAB_CONCEPTS" :key="c.slug" v-motion :initial="R.riseIn(i, 55).initial" :visible-once="R.riseIn(i, 55).visibleOnce">
+        <li v-for="(c, i) in CONCEPTS" :key="c.slug" v-motion
+            :initial="R.riseIn(i, 40).initial" :visible-once="R.riseIn(i, 40).visibleOnce">
           <NuxtLink :to="`/lab/${c.slug}`" class="lab__card">
             <span class="lab__n">{{ c.n }}</span>
             <span class="lab__body">
               <strong class="lab__name">{{ c.name }}</strong>
-              <span class="lab__blurb">{{ c.blurb }}</span>
+              <span class="lab__law">{{ c.law }}</span>
+              <span class="lab__pitch">{{ c.pitch }}</span>
+              <span class="lab__tech">{{ c.technique }}</span>
             </span>
             <span class="lab__arrow" aria-hidden="true">→</span>
           </NuxtLink>
@@ -63,22 +41,22 @@ const R = useReveal()
 
 <style scoped>
 .lab { position: fixed; inset: 0; overflow-y: auto; background: var(--color-bg); color: var(--color-text); --serif: 'Fraunces', Georgia, serif; }
-.lab__inner { max-width: 860rem; margin: 0 auto; padding: calc(90rem + var(--safe-top)) clamp(20rem, 5vw, 40rem) 90rem; }
+.lab__inner { max-width: 900rem; margin: 0 auto; padding: calc(80rem + var(--safe-top)) clamp(20rem, 5vw, 40rem) 90rem; }
 .lab__eyebrow { font-size: 12rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.55; }
-.lab__title { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(38rem, 6.5vw, 68rem); line-height: 1.0; letter-spacing: -0.015em; margin: 14rem 0 0; }
-.lab__deck { margin: 20rem 0 40rem; max-width: 54ch; font-size: 16rem; line-height: 1.6; opacity: 0.7; }
-.lab__sec { font-family: var(--serif); font-weight: 400; font-size: 26rem; letter-spacing: -0.01em; margin: 0 0 6rem; }
-.lab__sec + .lab__grid, .lab__secnote + .lab__grid { margin-top: 16rem; }
-.lab__grid + .lab__sec { margin-top: 54rem; }
-.lab__secnote { font-size: 14rem; line-height: 1.55; opacity: 0.6; margin: 0; max-width: 56ch; }
-.lab__grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 12rem; }
-.lab__card--glass { background: linear-gradient(135deg, var(--color-glass-bg), transparent 70%); }
-.lab__card { display: flex; align-items: center; gap: 18rem; padding: 20rem 22rem; border: 1px solid var(--color-glass-border); border-radius: 16rem; background: var(--color-glass-bg); color: var(--color-text); text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease; }
+.lab__title { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(34rem, 6vw, 62rem); line-height: 1.02; letter-spacing: -0.02em; margin: 14rem 0 0; }
+.lab__deck { margin: 20rem 0 40rem; max-width: 62ch; font-size: 15rem; line-height: 1.65; opacity: 0.7; }
+.lab__deck em { font-style: italic; }
+
+.lab__grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 10rem; }
+.lab__card { display: grid; grid-template-columns: 34rem 1fr 22rem; align-items: start; gap: 16rem; padding: 20rem 22rem; border: 1px solid var(--color-glass-border); border-radius: 16rem; background: var(--color-glass-bg); color: var(--color-text); text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease; }
 @media (hover: hover) { .lab__card:hover { transform: translateY(-3rem); border-color: var(--color-glass-border-hover); background: var(--color-glass-bg-hover); } .lab__card:hover .lab__arrow { transform: translateX(4rem); } }
 .lab__card:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; }
-.lab__n { font-family: var(--serif); font-size: 26rem; opacity: 0.4; font-variant-numeric: tabular-nums; flex: 0 0 auto; }
-.lab__body { display: flex; flex-direction: column; gap: 4rem; margin-right: auto; min-width: 0; }
-.lab__name { font-size: 18rem; font-weight: 700; letter-spacing: -0.01em; }
-.lab__blurb { font-size: 13.5rem; opacity: 0.6; line-height: 1.45; }
-.lab__arrow { font-size: 20rem; opacity: 0.4; transition: transform 0.2s ease; }
+.lab__n { font-family: var(--serif); font-size: 22rem; opacity: 0.38; font-variant-numeric: tabular-nums; padding-top: 2rem; }
+.lab__body { display: grid; gap: 6rem; min-width: 0; }
+.lab__name { font-size: 19rem; font-weight: 700; letter-spacing: -0.01em; }
+.lab__law { font-size: 12.5rem; line-height: 1.5; opacity: 0.62; }
+.lab__pitch { font-size: 13.5rem; line-height: 1.45; font-style: italic; opacity: 0.9; }
+.lab__tech { font-size: 12rem; line-height: 1.5; opacity: 0.45; }
+.lab__arrow { font-size: 18rem; opacity: 0.35; transition: transform 0.2s ease; padding-top: 4rem; }
+@media (prefers-reduced-motion: reduce) { .lab__card, .lab__arrow { transition: none; } }
 </style>

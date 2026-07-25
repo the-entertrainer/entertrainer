@@ -10,13 +10,12 @@ const R = useReveal()
     <div class="lab__inner">
       <header class="lab__head">
         <p class="lab__eyebrow" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">Hidden · Lab</p>
-        <h1 class="lab__title" v-motion :initial="R.rise(70).initial" :visible-once="R.rise(70).visibleOnce">Fifteen homepages,<br>one argument each</h1>
+        <h1 class="lab__title" v-motion :initial="R.rise(70).initial" :visible-once="R.rise(70).visibleOnce">Fifteen homepages,<br>one sheet of glass</h1>
         <p class="lab__deck" v-motion :initial="R.rise(150).initial" :visible-once="R.rise(150).visibleOnce">
-          Each concept is built on a single documented finding from interaction research — not on taste.
-          The finding is named on every page, the mechanism demonstrates it, and the marketing angle falls
-          out of it: a portfolio that applies attention, memory and motion research <em>is</em> the argument
-          for hiring an instructional designer. Nothing here links to the live site, so anything unpicked
-          deletes cleanly.
+          Every one renders real Liquid Glass — a rounded-rect distance field, surface normals taken from
+          its gradient, edge-weighted refraction, chromatic dispersion, Fresnel and specular — over a
+          procedural backdrop the glass actually bends. Same optics throughout; fifteen different
+          art directions on top.
         </p>
       </header>
 
@@ -27,10 +26,8 @@ const R = useReveal()
             <span class="lab__n">{{ c.n }}</span>
             <span class="lab__body">
               <strong class="lab__name">{{ c.name }}</strong>
-              <span class="lab__law">{{ c.law }}</span>
-              <span class="lab__pitch">{{ c.pitch }}</span>
-              <span class="lab__tech">{{ c.technique }}</span>
-            </span>
+              <span class="lab__law">{{ c.note }}</span>
+                          </span>
             <span class="lab__arrow" aria-hidden="true">→</span>
           </NuxtLink>
         </li>

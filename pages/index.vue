@@ -85,7 +85,7 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
 
 .h-brand { display: flex; flex-direction: column; align-items: center; gap: 3rem; text-align: center; }
 .h-mark { font-family: var(--display); font-weight: 400; font-size: 17rem; letter-spacing: -0.01em; color: var(--ink); }
-.h-role { font-family: 'DM Sans', sans-serif; font-size: 10.5rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-35); }
+.h-role { font-family: var(--mono-font); font-weight: 500; font-size: 10.5rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-35); }
 
 /* ── Bottom sheet ─────────────────────────────────────────────────────────
    Everything you can act on is here, in the lower third: the label of the
@@ -108,7 +108,7 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
 .h-cta:hover span:last-child { translate: 4rem 0; }
 .h-cta:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 
-.h-hint { font-family: 'DM Sans', sans-serif; font-size: 10rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-35); margin: 0; text-align: center; }
+.h-hint { font-family: var(--mono-font); font-weight: 500; font-size: 10rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-35); margin: 0; text-align: center; }
 /* Name the gesture the device actually has — telling a desktop visitor to
    swipe is the sort of thing that makes an interface feel unreliable. */
 .h-hint__fine { display: none; }
@@ -129,7 +129,7 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
   transition: color 0.22s, background 0.22s, border-color 0.22s;
   -webkit-tap-highlight-color: transparent;
 }
-.h-chip__n { font-family: 'DM Sans', sans-serif; font-size: 9.5rem; letter-spacing: 0.14em; opacity: 0.7; }
+.h-chip__n { font-family: var(--mono-font); font-weight: 500; font-size: 9.5rem; letter-spacing: 0.12em; opacity: 0.7; }
 .h-chip__l { font-family: 'DM Sans', sans-serif; font-size: 12.5rem; font-weight: 600; line-height: 1.1; }
 .h-chip__short { display: none; }
 .h-chip.on { color: var(--on-pop); background: var(--pop); border-color: var(--pop); }

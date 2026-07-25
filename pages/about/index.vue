@@ -157,7 +157,7 @@ onBeforeUnmount(() => {
 @media (max-width: 560px) { .ab-bar__word { display: none; } }
 
 .ab-steps { position: fixed; right: clamp(14rem, 2.4vw, 30rem); top: 50%; translate: 0 -50%; z-index: 36; display: flex; flex-direction: column; gap: 2rem; }
-.ab-step { width: 40rem; height: 40rem; padding: 0; background: none; border: 0; cursor: pointer; display: grid; place-items: center; }
+.ab-step { width: 44rem; height: 44rem; padding: 0; background: none; border: 0; cursor: pointer; display: grid; place-items: center; }
 .ab-step span { width: 22rem; height: 2rem; border-radius: 2rem; background: var(--color-text); opacity: 0.22; transition: opacity 0.35s ease, width 0.4s var(--ease-spring); }
 .ab-step:hover span { opacity: 0.5; } .ab-step.on span { opacity: 0.95; width: 30rem; }
 .ab-step:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; border-radius: 6rem; }
@@ -166,7 +166,7 @@ onBeforeUnmount(() => {
 .ab-hero { position: relative; max-width: var(--maxw); margin: 0 auto; padding: calc(120rem + var(--safe-top)) var(--edge) clamp(60rem, 10vh, 120rem); display: grid; gap: clamp(30rem, 5vw, 70rem); align-items: center; grid-template-columns: 1.05fr 0.95fr; min-height: 100dvh; }
 .ab-hero__glow { position: absolute; z-index: 0; top: 18%; left: 28%; width: 60vw; height: 60vw; max-width: 720rem; max-height: 720rem; translate: -50% -30%; pointer-events: none; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--color-accent) 42%, transparent), transparent 62%); opacity: 0.3; filter: blur(30rem); }
 .ab-hero__copy { position: relative; z-index: 2; max-width: 560rem; }
-.ab-hero__eyebrow { display: inline-block; font-size: 12rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; opacity: 0.7; margin-bottom: 22rem; }
+.ab-hero__eyebrow { display: inline-block; font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.7; margin-bottom: 22rem; }
 .ab-hero__name { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(64rem, 11vw, 150rem); line-height: 0.92; letter-spacing: -0.015em; margin: 0; }
 .ab-hero__lead { margin: clamp(24rem, 3vw, 38rem) 0 0; max-width: 44ch; font-size: clamp(16rem, 1.8vw, 21rem); line-height: 1.58; opacity: 0.9; }
 .ab-hero__lead em { font-family: var(--serif); font-style: italic; font-weight: 500; opacity: 1; }
@@ -186,7 +186,7 @@ onBeforeUnmount(() => {
 .ab-ch__img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .ab-ch__place { margin-top: 14rem; font-size: 11rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; opacity: 0.66; }
 .ab-ch__prose { align-self: stretch; max-width: 500rem; min-height: 82vh; display: flex; flex-direction: column; justify-content: center; padding-block: clamp(10rem, 6vh, 60rem); }
-.ab-ch__eyebrow { display: inline-block; font-size: 12rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; opacity: 0.72; margin-bottom: 22rem; }
+.ab-ch__eyebrow { display: inline-block; font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.72; margin-bottom: 22rem; }
 .ab-ch__eyebrow em { font-style: normal; opacity: 0.6; margin-right: 4rem; }
 .ab-ch__head { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(34rem, 4.8vw, 66rem); line-height: 1.03; letter-spacing: -0.015em; margin: 0; }
 .ab-ch__body { margin: clamp(20rem, 2.4vw, 30rem) 0 0; max-width: 46ch; font-size: clamp(15.5rem, 1.5vw, 18rem); line-height: 1.66; opacity: 0.84; }

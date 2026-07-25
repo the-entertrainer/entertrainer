@@ -18,6 +18,7 @@ const contentStore = useContentStore()
     eyebrow="My Work"
     title="Selected projects"
     deck="Interactive learning, built for real teams. Open one to see how it was designed."
+    meta="02 projects"
     :items="contentStore.myWorkNav"
   />
 </template>

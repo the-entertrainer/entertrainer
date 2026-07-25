@@ -39,7 +39,7 @@ const R = useReveal()
 <style scoped>
 .lab { position: fixed; inset: 0; overflow-y: auto; background: var(--color-bg); color: var(--color-text); --serif: 'Fraunces', Georgia, serif; }
 .lab__inner { max-width: 900rem; margin: 0 auto; padding: calc(80rem + var(--safe-top)) clamp(20rem, 5vw, 40rem) 90rem; }
-.lab__eyebrow { font-size: 12rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.55; }
+.lab__eyebrow { font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.55; }
 .lab__title { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(34rem, 6vw, 62rem); line-height: 1.02; letter-spacing: -0.02em; margin: 14rem 0 0; }
 .lab__deck { margin: 20rem 0 40rem; max-width: 62ch; font-size: 15rem; line-height: 1.65; opacity: 0.7; }
 .lab__deck em { font-style: italic; }

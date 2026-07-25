@@ -191,7 +191,8 @@ function iconPath(name: string) {
   display: inline-flex;
   align-items: center;
   gap: 6rem;
-  padding: 8rem 13rem;
+  min-height: 44rem;
+  padding: 8rem 16rem;
   border-radius: 999rem;
   font-size: 13rem;
   color: var(--color-text);
@@ -206,6 +207,8 @@ function iconPath(name: string) {
 
 .id-head { margin-bottom: 34rem; }
 .id-eyebrow {
+  font-family: var(--mono-font);
+  font-weight: 500;
   font-size: 12rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -237,7 +240,7 @@ function iconPath(name: string) {
   gap: 20rem;
   margin-bottom: 22rem;
 }
-.id-lab__kicker { font-size: 11.5rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.5; margin-bottom: 6rem; }
+.id-lab__kicker { font-family: var(--mono-font); font-weight: 500; font-size: 11.5rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.5; margin-bottom: 6rem; }
 .id-lab__topic { font-size: 19rem; font-weight: 600; letter-spacing: -0.01em; }
 
 .id-meter { display: flex; align-items: center; gap: 10rem; flex-shrink: 0; }

@@ -153,12 +153,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   align-items: center;
   margin-bottom: 48rem;
 }
-.cs-eyebrow { font-size: 12rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.55; }
+.cs-eyebrow { font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.55; }
 .cs-title { font-family: var(--serif); font-optical-sizing: auto; font-size: clamp(40rem, 6.5vw, 64rem); font-weight: 400; letter-spacing: -0.015em; line-height: 1.0; margin-top: 12rem; }
 .cs-deck { font-size: 17rem; line-height: 1.55; opacity: 0.7; margin-top: 16rem; max-width: 30em; }
 .cs-meta { display: flex; flex-wrap: wrap; gap: 10rem 28rem; margin-top: 26rem; }
 .cs-meta__row { display: flex; flex-direction: column; gap: 3rem; }
-.cs-meta__row dt { font-size: 10.5rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.45; }
+.cs-meta__row dt { font-family: var(--mono-font); font-size: 10.5rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.45; }
 .cs-meta__row dd { font-size: 13.5rem; font-weight: 600; }
 .cs-hero__cover {
   border-radius: 16rem;
@@ -215,7 +215,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .cs-foot { margin-top: 48rem; padding-top: 28rem; border-top: 1px solid var(--color-divider); }
 .cs-foot > p { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: clamp(22rem, 3vw, 30rem); letter-spacing: -0.01em; line-height: 1.25; opacity: 0.9; max-width: 20em; }
 .cs-foot__links { display: flex; flex-wrap: wrap; gap: 10rem 24rem; margin-top: 22rem; }
-.cs-link { font-size: 14rem; font-weight: 600; color: var(--color-text); opacity: 0.7; transition: opacity 0.15s ease; }
+.cs-link { display: inline-flex; align-items: center; min-height: 44rem; font-size: 14rem; font-weight: 600; color: var(--color-text); opacity: 0.7; transition: opacity 0.15s ease; }
 .cs-link:hover { opacity: 1; }
 .cs-link--accent { color: var(--color-accent); opacity: 1; }
 

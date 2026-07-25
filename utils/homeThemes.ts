@@ -87,7 +87,15 @@ export const FONT_HREF =
  */
 export function glassThemeFor(t: HomeTheme): GlassTheme {
   return { bg: t.bg, key: t.dark ? mix(t.pop, '#FFFFFF', 0.45) : mix(t.pop, '#FFFFFF', 0.6),
-           rim: t.alt, glass: t.dark ? '#EDF2FF' : '#FFFFFF' }
+           rim: t.alt, glass: t.dark ? '#EDF2FF' : '#FFFFFF',
+           // The backdrop's currents are drawn in the theme's own accents so
+           // the field the glass refracts belongs to the palette instead of
+           // being a generic WebGL gradient underneath it. Crucially they come
+           // from the *cool* half of the palette — the accent blue and the ink
+           // — because the loud colour mixed into warm paper turns to mud, and
+           // because the artwork is itself cream-and-navy.
+           alt: mix(t.alt, t.bg, t.dark ? 0.55 : 0.60),
+           pop: mix(t.ink, t.bg, t.dark ? 0.30 : 0.42) }
 }
 
 /** CSS custom properties for a theme — spread onto the page root. */

@@ -132,12 +132,15 @@ defineExpose({ go, goToItem, active, activeIndex })
     var(--bg-60) calc(var(--top-h, 0px) + 64rem),
     var(--bg-0) 100%);
 }
+/* The bottom fade runs long. Now that the focused card fills the frame the card
+   behind it emerges right where the caption sits, and a short fade left it
+   sharp and competing with the title; this veils it into the page instead. */
 .tw__scrim--bot {
-  bottom: 0; height: calc(var(--bot-h, 0px) + 150rem);
+  bottom: 0; height: calc(var(--bot-h, 0px) + 230rem);
   background: linear-gradient(to top,
     var(--bg) 0, var(--bg) var(--bot-h, 0px),
-    var(--bg-90) calc(var(--bot-h, 0px) + 36rem),
-    var(--bg-60) calc(var(--bot-h, 0px) + 88rem),
+    var(--bg-90) calc(var(--bot-h, 0px) + 54rem),
+    var(--bg-60) calc(var(--bot-h, 0px) + 132rem),
     var(--bg-0) 100%);
 }
 

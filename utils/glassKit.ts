@@ -21,9 +21,10 @@
  * feels like it belongs to Entertrainer, not a generic WebGL demo.
  */
 import {
-  ACESFilmicToneMapping, AmbientLight, CanvasTexture, Clock, Color, DirectionalLight,
+  AmbientLight, CanvasTexture, Clock, Color, DirectionalLight,
   ExtrudeGeometry, Group, LinearFilter, Mesh, MeshBasicMaterial, MeshPhysicalMaterial,
-  MeshStandardMaterial, PerspectiveCamera, PlaneGeometry, PMREMGenerator, Raycaster, Scene, Shape,
+  MeshStandardMaterial, NoToneMapping, PerspectiveCamera, PlaneGeometry, PMREMGenerator,
+  Raycaster, Scene, ShaderMaterial, Shape,
   ShapeGeometry, SRGBColorSpace, TextureLoader, Vector2, Vector3, WebGLRenderer
 } from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
@@ -43,10 +44,121 @@ export interface GlassTheme {
   glass: string
   /** Ground plane on/under which cards cast contact shadows. 0 = no ground. */
   ground?: number
+  /** Loud accent, woven into the backdrop's brightest ripple crests. */
+  pop?: string
+  /** Secondary accent — the mid-tone the backdrop's currents are drawn in. */
+  alt?: string
 }
 
 export const PAPER: GlassTheme = { bg: '#F2EBE3', key: '#FFF3E2', rim: '#9EC3FF', glass: '#FFFFFF' }
 export const DUSK:  GlassTheme = { bg: '#14131A', key: '#FFE2C0', rim: '#7FA8FF', glass: '#EEF3FF' }
+
+// ── Backdrop ────────────────────────────────────────────────────────────────
+/**
+ * The field the glass actually bends.
+ *
+ * Until this existed the scene's background was a single flat colour, which
+ * meant the cards' transmission had nothing to refract: physically correct
+ * glass over a uniform field returns that same uniform field, so all the
+ * expensive optics were invisible and the cards read as frosted plastic. A
+ * moving, structured backdrop is not decoration here — it is the thing that
+ * makes the glass legible as glass.
+ *
+ * Two layers of structure: twice-warped fbm for slow continental drift, and
+ * two travelling ripple systems for the fine relief that catches the bevel.
+ * Amplitudes are deliberately low and the vignette pulls hard back to the page
+ * tone at the top and bottom, so the DOM scrims meet it without a seam and the
+ * artwork stays the loudest thing on screen.
+ */
+const BACKDROP_VERT = `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`
+
+const BACKDROP_FRAG = `
+  precision highp float;
+  varying vec2 vUv;
+  uniform float uTime;
+  uniform float uAspect;
+  uniform vec3 uBg;
+  uniform vec3 uDeep;
+  uniform vec3 uAlt;
+  uniform vec3 uPop;
+
+  float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+
+  float vnoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
+               mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+  }
+
+  float fbm(vec2 p) {
+    float v = 0.0;
+    float a = 0.5;
+    for (int i = 0; i < 5; i++) {
+      v += a * vnoise(p);
+      p *= 2.02;
+      a *= 0.5;
+    }
+    return v;
+  }
+
+  void main() {
+    // Domain scale sets how much structure fits on screen. At 2.4 the whole
+    // backdrop was two or three enormous blobs, which rendered as a smear
+    // rather than as complexity; this puts real detail inside the frame.
+    vec2 p = (vUv - 0.5) * vec2(uAspect, 1.0) * 5.6;
+    float t = uTime * 0.05;
+
+    // Twice-warped noise: warping the domain with noise, then warping that
+    // again, is what turns bland clouds into something with currents and eddies.
+    vec2 q = vec2(fbm(p * 1.10 + t), fbm(p * 1.10 + vec2(5.2, 1.3) - t));
+    vec2 r = vec2(fbm(p * 1.55 + 3.4 * q + vec2(1.7, 9.2) + t * 1.3),
+                  fbm(p * 1.55 + 3.4 * q + vec2(8.3, 2.8) - t * 1.1));
+    float f = fbm(p * 1.35 + 3.2 * r);
+
+    // Two travelling ripple systems, their centres drifting on slow circles.
+    vec2 c1 = vec2(sin(uTime * 0.13) * 0.85, cos(uTime * 0.11) * 0.5);
+    vec2 c2 = vec2(cos(uTime * 0.09) * 1.05, sin(uTime * 0.15) * 0.6);
+    float d1 = length(p - c1);
+    float d2 = length(p - c2);
+    float rip = sin(d1 * 5.0 - uTime * 0.85) * 0.5 + sin(d2 * 4.0 + uTime * 0.65) * 0.5;
+    rip *= smoothstep(5.5, 0.0, min(d1, d2));
+
+    float body = f + rip * 0.10;
+
+    // Three tones out of one family, layered by height. Mixing the loud accent
+    // straight into warm paper made mud — lime over cream is a coffee stain —
+    // so the crests are the palette's own deep ink and the mid-tones its blue.
+    // The loud colour stays where it belongs, on the one button.
+    vec3 col = uBg;
+    col = mix(col, uDeep, smoothstep(0.20, 0.86, body) * 0.85);
+    col = mix(col, uAlt,  smoothstep(0.46, 1.00, body) * 0.55);
+    col = mix(col, uPop,  smoothstep(0.72, 1.14, body) * 0.34);
+    col += rip * 0.012;
+
+    // Squashed vignette: falls off faster vertically than horizontally so the
+    // frame's top and bottom return to the flat page tone, and the DOM scrims
+    // sitting there have nothing to disagree with.
+    float vg = smoothstep(3.4, 0.45, length(p * vec2(0.42, 1.15)));
+    col = mix(uBg, col, 0.10 + 0.90 * vg);
+
+    gl_FragColor = vec4(col, 1.0);
+
+    // three.js hands uniforms to a ShaderMaterial in its linear working space
+    // but does not convert the output for you the way it does for its own
+    // materials. Writing linear values straight to an sRGB framebuffer rendered
+    // the page's warm cream as a dark tan and pushed every accent off-hue — the
+    // backdrop visibly disagreed with the DOM scrims sitting on top of it.
+    #include <colorspace_fragment>
+  }
+`
 
 // ── Squircle ────────────────────────────────────────────────────────────────
 // A superellipse-cornered rounded rect. Unlike a circular-radius rect the
@@ -179,14 +291,22 @@ const CARD_W = ART_W + MAT * 2, CARD_H = ART_H + MAT * 2
 // narrow phone screen instead of running off both edges.
 const LAYOUT_SPREAD: Record<LayoutName, number> = {
   helix: 2.5, coverflow: 2.7, deck: 0.5, orbit: 2.6, arc: 2.4, grid: 3.1,
-  column: 0.25, ribbon: 3.4, desk: 0, constellation: 3.6, wave: 2.1, vortex: 3.4
+  // The tower's own lateral throw is 0.40, but framing for all of it shrank the
+  // focused card to make room for neighbours that are dimmed and scrimmed
+  // anyway. Framing for a fraction of it lets the subject fill the frame.
+  column: 0.08, ribbon: 3.4, desk: 0, constellation: 3.6, wave: 2.1, vortex: 3.4
 }
 
 // Breathing room around the framed content, as a fraction of a card. Expressed
 // relative to the card rather than in world units so it scales with the frame:
 // a fixed margin that looked right on a desktop left a phone with 55px of dead
 // paper down each side and a card too small to read.
-const FRAME_MARGIN = CARD_W * 0.12
+//
+// Kept deliberately tight. The card is the subject and the artwork is the whole
+// pitch, so it runs nearly edge to edge; the neighbours above and below are
+// allowed to bleed past the frame, which reads as "the stack continues" rather
+// than as a mistake.
+const FRAME_MARGIN = CARD_W * 0.035
 
 export function createGlassStage(opts: StageOptions) {
   const theme = opts.theme ?? PAPER
@@ -200,7 +320,12 @@ export function createGlassStage(opts: StageOptions) {
   const renderer = new WebGLRenderer({ canvas: opts.canvas, antialias: true, alpha: false })
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
   renderer.setSize(innerWidth, innerHeight)
-  renderer.toneMapping = ACESFilmicToneMapping
+  // ACES is a film curve: it rolls off highlights and desaturates on the way,
+  // which is right for a lit CG scene and wrong for artwork that is already
+  // finished, in gamut, and delivered through `emissive`. It was quietly
+  // greying every print and pulling the navy toward slate. No tone curve means
+  // the cards render at the colour the artwork was actually drawn in.
+  renderer.toneMapping = NoToneMapping
   renderer.toneMappingExposure = 1.0
   renderer.outputColorSpace = SRGBColorSpace
 
@@ -211,6 +336,28 @@ export function createGlassStage(opts: StageOptions) {
 
   const camera = new PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 120)
   camera.position.set(0, 0, 9)
+
+  // The refractable field, sized to the frustum in onResize.
+  const BACKDROP_Z = -7
+  const bdMat = new ShaderMaterial({
+    vertexShader: BACKDROP_VERT,
+    fragmentShader: BACKDROP_FRAG,
+    depthWrite: false,
+    uniforms: {
+      uTime: { value: 0 },
+      uAspect: { value: 1 },
+      uBg: { value: new Color(theme.bg) },
+      // A three-step ramp out of one hue family: page tone, a pale wash of it,
+      // then the accent, then the deep crest.
+      uDeep: { value: new Color(theme.bg).lerp(new Color(theme.alt ?? theme.rim), 0.16) },
+      uAlt: { value: new Color(theme.alt ?? theme.rim) },
+      uPop: { value: new Color(theme.pop ?? theme.key) }
+    }
+  })
+  const backdrop = new Mesh(new PlaneGeometry(1, 1), bdMat)
+  backdrop.position.z = BACKDROP_Z
+  backdrop.renderOrder = -1
+  scene.add(backdrop)
 
   // Real lights on top of the IBL — the directional gives the crisp moving
   // specular dot on the bevel that IBL alone renders too softly. Intensities
@@ -280,8 +427,14 @@ export function createGlassStage(opts: StageOptions) {
       color: 0x000000,
       emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 1.0,
       roughness: 0.5, metalness: 0.0,
-      clearcoat: 1.0, clearcoatRoughness: 0.05,
-      envMapIntensity: 0.5, specularIntensity: 1.0
+      // A near-mirror clearcoat sampling a blue-tinted studio environment laid
+      // a cool veil over the whole print — the artwork's cream paper was
+      // rendering grey-blue and its navy was reading slate. Roughening the coat
+      // and pulling the environment right down turns that mirror into a sheen:
+      // the gloss still slides across the card as it moves, but the colour
+      // underneath is the artwork's own.
+      clearcoat: 1.0, clearcoatRoughness: 0.18,
+      envMapIntensity: 0.14, specularIntensity: 1.0
     }))
     // Flush against the slab's front face — mounted on the glass, not floating.
     art.position.z = SLAB_FRONT + 0.001
@@ -292,10 +445,19 @@ export function createGlassStage(opts: StageOptions) {
     // through the mat border and around the bevelled edge.
     const glass = new Mesh(slabGeo, new MeshPhysicalMaterial({
       color: new Color(theme.glass),
-      transmission: 1.0, thickness: 0.55, ior: 1.5,
+      // `thickness` is a distance in world units, and it is how far the
+      // refracted sample is dragged across the backdrop. At 0.55 on a card
+      // 2.74 wide it reached a fifth of the way across the print — so the mat,
+      // which is only 0.12 wide, sampled the artwork instead of the page and
+      // wore a smeared duplicate of the print around its edge. Scaling it to
+      // the slab's actual depth is both the fix and the physically honest
+      // number: this is a few millimetres of glass over a print, not a
+      // paperweight. The bevel still bends hard, which is where the optics
+      // were always meant to live.
+      transmission: 1.0, thickness: SLAB_DEPTH, ior: 1.45,
       roughness: 0.04, metalness: 0.0,
       clearcoat: 1.0, clearcoatRoughness: 0.04,
-      iridescence: 0.35, iridescenceIOR: 1.3, iridescenceThicknessRange: [140, 520],
+      iridescence: 0.18, iridescenceIOR: 1.3, iridescenceThicknessRange: [140, 520],
       envMapIntensity: 1.8,
       specularIntensity: 1.0,
       transparent: true, opacity: 1.0
@@ -399,7 +561,13 @@ export function createGlassStage(opts: StageOptions) {
         // Pitch must clear the card's own height (CARD_H ≈ 1.65) or the stack
         // collapses into an unreadable overlap — the original 1.05 buried each
         // card under the next by more than a third.
-        py = -rel * 2.05
+        // Pitch is tighter than the card is tall on purpose. Now that the
+        // focused card fills the frame, a pitch that cleared its full height
+        // threw both neighbours clean off screen and the tower stopped being a
+        // tower at all. Overlapping is correct here — the neighbours sit a long
+        // way further back, so they read as a stack continuing behind the
+        // subject rather than as a collision.
+        py = -rel * 1.72
         const ang = rel * 0.42
         px = Math.sin(ang) * 0.40
         // Neighbours fall away from the lens as well as up and down the frame.
@@ -408,10 +576,10 @@ export function createGlassStage(opts: StageOptions) {
         // the caption and the button belonged to. Depth does that work: the
         // focused card is nearer, larger and brighter, and the stack reads as
         // one object receding rather than a row of equals.
-        pz = Math.cos(ang) * 0.55 - 0.55 - Math.min(ar, 4) * 0.85
+        pz = Math.cos(ang) * 0.55 - 0.55 - Math.min(ar, 4) * 1.75
         ry = -ang * 0.85
         rx = rel * 0.10
-        s = 1 - Math.min(ar, 4) * 0.075
+        s = 1 - Math.min(ar, 4) * 0.11
         break
       }
       case 'ribbon': {
@@ -592,7 +760,12 @@ export function createGlassStage(opts: StageOptions) {
   addEventListener('wheel', onWheel, { passive: true })
   addEventListener('keydown', onKey)
 
-  const BASE_Z = 9
+  // A floor on camera distance, not a default. At 9 it was *binding* on every
+  // desktop viewport — the width and height solves both wanted to come closer,
+  // so the card sat at a quarter of the frame no matter what the framing maths
+  // asked for. Low enough now to let the solve win, high enough that a very
+  // wide, short window can't push the lens into fisheye.
+  const BASE_Z = 4.2
   const onResize = () => {
     camera.aspect = innerWidth / innerHeight
     if (layout === 'desk') {
@@ -628,6 +801,15 @@ export function createGlassStage(opts: StageOptions) {
       camera.position.set(0, -(lift + recentre), dist)
     }
     camera.updateProjectionMatrix()
+
+    // Cover the frustum at the backdrop's depth, with margin so a card's
+    // refraction can never sample past its edge and pick up empty scene.
+    const bdDist = camera.position.z - BACKDROP_Z
+    const bdH = 2 * Math.tan((camera.fov * Math.PI / 180) / 2) * bdDist
+    const bdW = bdH * camera.aspect
+    backdrop.scale.set(bdW * 1.25, bdH * 1.25, 1)
+    backdrop.position.set(0, camera.position.y, BACKDROP_Z)
+    bdMat.uniforms.uAspect.value = camera.aspect
     renderer.setSize(innerWidth, innerHeight)
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
   }
@@ -648,6 +830,11 @@ export function createGlassStage(opts: StageOptions) {
     // no travel, no float, no parallax. The layout still changes, but nothing
     // slides across the field of view.
     const calm = mqReduce.matches
+
+    // The backdrop keeps drifting under reduced motion, just far slower: it is
+    // a diffuse field with no edges to track, so it reads as light changing
+    // rather than as something moving across the view.
+    bdMat.uniforms.uTime.value = calm ? t * 0.15 : t
 
     if (!dragging) {
       if (calm) { scroll = target; vel = 0 }
@@ -699,15 +886,17 @@ export function createGlassStage(opts: StageOptions) {
       // Glass gets thicker + glossier as a card comes forward: the focused card
       // reads as a heavier, more present piece of glass.
       const m = c.hit.material as MeshPhysicalMaterial
-      m.thickness = 0.42 + tmp.a * 0.25 + c.hover * 0.2
-      m.iridescence = 0.24 + c.hover * 0.4
+      m.thickness = SLAB_DEPTH * (0.9 + tmp.a * 0.35 + c.hover * 0.35)
+      m.iridescence = 0.14 + c.hover * 0.22
       m.envMapIntensity = 1.5 + tmp.a * 0.6 + c.hover * 0.7
       const am = c.art.material as MeshPhysicalMaterial
-      // Cards further from focus dim — depth cueing without fog, and the main
-      // reason the focused card owns the frame rather than merely sitting in it.
-      am.emissiveIntensity = 0.54 + tmp.a * 0.46 + c.hover * 0.06
-      am.envMapIntensity = 0.42 + tmp.a * 0.2 + c.hover * 0.3
-      am.clearcoatRoughness = 0.06 - tmp.a * 0.02
+      // Cards further from focus dim — depth cueing without fog. The old 0.54
+      // floor took it too far: neighbours went milky and illegible, so the
+      // stack read as out of focus rather than deep. Scale, recession and the
+      // scrims already carry the depth; brightness only has to hint at it.
+      am.emissiveIntensity = 0.54 + tmp.a * 0.46 + c.hover * 0.04
+      am.envMapIntensity = 0.11 + tmp.a * 0.05 + c.hover * 0.10
+      am.clearcoatRoughness = 0.22 - tmp.a * 0.06
 
       if (c.shadow && theme.ground !== undefined) {
         // Directly under the card in world space, softening and fading with the
@@ -759,6 +948,7 @@ export function createGlassStage(opts: StageOptions) {
       removeEventListener('keydown', onKey)
       removeEventListener('resize', onResize)
       slabGeo.dispose(); artGeo.dispose(); shadowTex.dispose(); envTex.dispose()
+      backdrop.geometry.dispose(); bdMat.dispose()
       cards.forEach(c => {
         ;(c.hit.material as MeshPhysicalMaterial).dispose()
         ;(c.art.material as MeshPhysicalMaterial).emissiveMap?.dispose()

@@ -9,6 +9,23 @@ export const LAB_NAV: LabItem[] = [
   { n: '04', label: 'Web Apps',             href: '/tools',                desc: 'Free tools I built for instructional designers.',         img: '/web-apps.png' }
 ]
 
+// The Liquid Glass series — twelve homepage worlds sharing one optical engine
+// (real transmission, IOR refraction, PMREM-lit bevels) but no two alike.
+export const GLASS_CONCEPTS = [
+  { n: 'G1',  slug: 'glass-helix',   name: 'Liquid Helix',   blurb: 'The spiral reborn in real glass — cards climb a helix, bezels bending the paper behind them.' },
+  { n: 'G2',  slug: 'glass-river',   name: 'Liquid River',   blurb: 'A horizontal coverflow current. Giant ghost numerals, drag along the stream.' },
+  { n: 'G3',  slug: 'glass-deck',    name: 'Liquid Deck',    blurb: 'A dusk-lit stack you peel through, one heavy glass card at a time.' },
+  { n: 'G4',  slug: 'glass-orbit',   name: 'Liquid Orbit',   blurb: 'Cards orbit a still centre on a tilted ring, like a slow orrery.' },
+  { n: 'G5',  slug: 'glass-fan',     name: 'Liquid Fan',     blurb: 'Held in the hand — cards fanned on an arc, editorial and calm.' },
+  { n: 'G6',  slug: 'glass-gallery', name: 'Liquid Gallery', blurb: 'A hung wall of glass plates, parallaxing gently as you move.' },
+  { n: 'G7',  slug: 'glass-tower',   name: 'Liquid Tower',   blurb: 'A vertical monolith you descend, each plate turning as it passes.' },
+  { n: 'G8',  slug: 'glass-ribbon',  name: 'Liquid Ribbon',  blurb: 'Cards threaded along a flowing ribbon path over an oversized ghost word.' },
+  { n: 'G9',  slug: 'glass-desk',    name: 'Liquid Desk',    blurb: 'Laid flat on a lit surface, seen from above, with true contact shadows.' },
+  { n: 'G10', slug: 'glass-field',   name: 'Liquid Field',   blurb: 'Scattered through depth like a constellation, drifting out of the dark.' },
+  { n: 'G11', slug: 'glass-wave',    name: 'Liquid Wave',    blurb: 'A sine wave of glass rolling across frame, steered from a floating pill.' },
+  { n: 'G12', slug: 'glass-vortex',  name: 'Liquid Vortex',  blurb: 'A tunnel spiralling into the dark — cards rush past toward the throat.' }
+]
+
 export const LAB_CONCEPTS = [
   { n: '★', slug: 'flux',      name: 'WebGL Flux (OGL)', blurb: 'Award-site image distortion — drag to liquify, momentum, touch ripple. Built on OGL, the library Lusion/Unseen/BDSN use.' },
   { n: '01', slug: 'brutalist', name: 'Brutalist',      blurb: 'Raw concrete, monster type, one acid accent.' },

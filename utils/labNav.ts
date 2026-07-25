@@ -9,6 +9,21 @@ export const LAB_NAV: LabItem[] = [
   { n: '04', label: 'Web Apps',             href: '/tools',                desc: 'Free tools I built for instructional designers.',         img: '/web-apps.png' }
 ]
 
+// The homepage candidates: one fixed Liquid Tower, ten design languages.
+// Colour, type, chrome and motion all change; the 3D stage never does.
+export const HOME_VARIANTS = [
+  { n: '01', slug: 'home-01', name: 'Electric Cream', blurb: 'Warm paper, navy ink, a jolt of electric lime. Index rail, serif display.' },
+  { n: '02', slug: 'home-02', name: 'Midnight Candy', blurb: 'Near-black neon — cyan ticker overhead, hot-pink glow bar under the title.' },
+  { n: '03', slug: 'home-03', name: 'Sunset Pop',     blurb: 'Peach and plum. The caption arrives as a physical card sliding up.' },
+  { n: '04', slug: 'home-04', name: 'Mint Studio',    blurb: 'Swiss grid, caption top-left, magenta rule, oversized numeral.' },
+  { n: '05', slug: 'home-05', name: 'Cobalt Bold',    blurb: 'Poster energy — a yellow highlighter swipe redraws behind each name.' },
+  { n: '06', slug: 'home-06', name: 'Paper Riot',     blurb: 'Bauhaus primaries, flat shapes, a hard black caption slab.' },
+  { n: '07', slug: 'home-07', name: 'Dusk Violet',    blurb: 'Violet night, italic serif assembling letter by letter, lilac bloom.' },
+  { n: '08', slug: 'home-08', name: 'Acid Lab',       blurb: 'Instrument panel — mono readouts, bracketed labels, acid green.' },
+  { n: '09', slug: 'home-09', name: 'Terracotta',     blurb: 'Baked clay and cream serif, captions cross-fading through blur.' },
+  { n: '10', slug: 'home-10', name: 'Ink & Ice',      blurb: 'Charcoal restraint, one ice-blue cut, title wiping up behind a mask.' }
+]
+
 // The Liquid Glass series — twelve homepage worlds sharing one optical engine
 // (real transmission, IOR refraction, PMREM-lit bevels) but no two alike.
 export const GLASS_CONCEPTS = [

@@ -150,6 +150,11 @@ export interface StageOptions {
   items: { href: string; img: string; label: string }[]
   /** Cards to render; items repeat if fewer. */
   count?: number
+  /**
+   * Shifts the camera up so the composition sits high in frame, reserving a
+   * clear band at the bottom for copy. Positive = cards ride higher.
+   */
+  lift?: number
   onActive?: (index: number) => void
   onPick?: (href: string) => void
 }
@@ -162,11 +167,20 @@ const ART_W = 2.50, ART_H = (ART_W * 9) / 16
 const MAT   = 0.12
 const CARD_W = ART_W + MAT * 2, CARD_H = ART_H + MAT * 2
 
+// How far each layout throws a card's centre off the vertical axis. The camera
+// frames `CARD_W + 2 × spread`, so a layout that fans sideways still fits a
+// narrow phone screen instead of running off both edges.
+const LAYOUT_SPREAD: Record<LayoutName, number> = {
+  helix: 2.5, coverflow: 2.7, deck: 0.5, orbit: 2.6, arc: 2.4, grid: 3.1,
+  column: 0.45, ribbon: 3.4, desk: 0, constellation: 3.6, wave: 2.1, vortex: 3.4
+}
+
 export function createGlassStage(opts: StageOptions) {
   const theme = opts.theme ?? PAPER
   const layout = opts.layout
   const items = opts.items
   const N = opts.count ?? Math.max(items.length, 6)
+  const lift = opts.lift ?? 0
 
   const renderer = new WebGLRenderer({ canvas: opts.canvas, antialias: true, alpha: false })
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
@@ -367,10 +381,14 @@ export function createGlassStage(opts: StageOptions) {
         break
       }
       case 'column': {
-        py = -rel * 1.05
-        const ang = rel * 0.5
-        px = Math.sin(ang) * 0.75; pz = Math.cos(ang) * 0.75 - 0.4
-        ry = -ang * 0.9
+        // Pitch must clear the card's own height (CARD_H ≈ 1.65) or the stack
+        // collapses into an unreadable overlap — the original 1.05 buried each
+        // card under the next by more than a third.
+        py = -rel * 2.05
+        const ang = rel * 0.42
+        px = Math.sin(ang) * 0.40; pz = Math.cos(ang) * 0.55 - 0.55
+        ry = -ang * 0.85
+        s = 1 - Math.min(ar, 4) * 0.05
         break
       }
       case 'ribbon': {
@@ -488,13 +506,16 @@ export function createGlassStage(opts: StageOptions) {
       camera.position.set(0, 7.4, 5.6)
       camera.lookAt(0, 0, 0)
     } else {
-      // Distance needed for a card (plus margin) to span the frame width:
+      // Distance needed for the layout's full width to fit the frame:
       //   halfW = d·tan(fov/2)·aspect  ⇒  d = wanted / (2·tan(fov/2)·aspect)
-      // Only pull back when that actually exceeds the composed distance, so
-      // desktop keeps its depth and portrait stops shrinking cards to specks.
-      const wanted = CARD_W + 0.7
+      // `wanted` has to account for how far a layout throws cards sideways, not
+      // just one card: the tower swings its stack off-axis, so framing it as a
+      // single card width let the edges run off a phone screen.
+      const wanted = (CARD_W + LAYOUT_SPREAD[layout] * 2) + 0.6
       const need = wanted / (2 * Math.tan((camera.fov * Math.PI / 180) / 2) * camera.aspect)
-      camera.position.set(0, 0, Math.max(BASE_Z, need))
+      // Negated: dropping the camera raises the composition in frame. Moving it
+      // *up* would push the cards down into the very band we're clearing.
+      camera.position.set(0, -lift, Math.max(BASE_Z, need))
     }
     camera.updateProjectionMatrix()
     renderer.setSize(innerWidth, innerHeight)

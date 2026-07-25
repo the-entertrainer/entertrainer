@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LAB_CONCEPTS, GLASS_CONCEPTS } from '~/utils/labNav'
+import { LAB_CONCEPTS, GLASS_CONCEPTS, HOME_VARIANTS } from '~/utils/labNav'
 definePageMeta({ layout: false })
 useSeoMeta({ title: 'Home concepts — Lab', robots: 'noindex' })
 const R = useReveal()
@@ -13,6 +13,21 @@ const R = useReveal()
         <h1 class="lab__title" v-motion :initial="R.rise(80).initial" :visible-once="R.rise(80).visibleOnce">Bold theme experiments</h1>
         <p class="lab__deck" v-motion :initial="R.rise(170).initial" :visible-once="R.rise(170).visibleOnce">Entire art directions for the site — WebGL flux, brutalist, chrome, noir, plasma, physics, synthwave, comic, and more. Open each, feel the whole world, pick a direction. Nothing else links here, so the unpicked ones delete cleanly.</p>
       </header>
+
+      <h2 class="lab__sec">Homepage — ten design languages</h2>
+      <p class="lab__secnote">All ten run the same fixed Liquid Tower. What changes is the palette, the typeface, the chrome and how the caption moves. Pick one and it becomes the site's language.</p>
+      <ol class="lab__grid lab__grid--glass">
+        <li v-for="(c, i) in HOME_VARIANTS" :key="c.slug" v-motion :initial="R.riseIn(i, 45).initial" :visible-once="R.riseIn(i, 45).visibleOnce">
+          <NuxtLink :to="`/lab/${c.slug}`" class="lab__card lab__card--glass">
+            <span class="lab__n">{{ c.n }}</span>
+            <span class="lab__body">
+              <strong class="lab__name">{{ c.name }}</strong>
+              <span class="lab__blurb">{{ c.blurb }}</span>
+            </span>
+            <span class="lab__arrow" aria-hidden="true">→</span>
+          </NuxtLink>
+        </li>
+      </ol>
 
       <h2 class="lab__sec">Liquid Glass — twelve worlds</h2>
       <p class="lab__secnote">One optical engine: real transmission, IOR refraction and PMREM-lit bevels. Twelve completely different spaces built on it.</p>

@@ -8,6 +8,8 @@ const props = withDefaults(defineProps<{
   count?: number
   /** Ground plane height — enables contact shadows when set. */
   ground?: number
+  /** Raises the composition in frame, reserving a clear band for copy. */
+  lift?: number
 }>(), { theme: 'paper' })
 
 const emit = defineEmits<{ ready: []; active: [i: number] }>()
@@ -32,6 +34,7 @@ onMounted(() => {
     theme: resolveTheme(),
     items: LAB_NAV,
     count: props.count,
+    lift: props.lift,
     onActive: (i) => { activeIndex.value = i; emit('active', i) },
     onPick: (href) => router.push(href)
   })

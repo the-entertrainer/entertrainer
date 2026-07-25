@@ -21,10 +21,10 @@
  * feels like it belongs to Entertrainer, not a generic WebGL demo.
  */
 import {
-  ACESFilmicToneMapping, AmbientLight, BackSide, CanvasTexture, Clock, Color, DirectionalLight,
-  DoubleSide, ExtrudeGeometry, Group, LinearFilter, Mesh, MeshBasicMaterial, MeshPhysicalMaterial,
+  ACESFilmicToneMapping, AmbientLight, CanvasTexture, Clock, Color, DirectionalLight,
+  ExtrudeGeometry, Group, LinearFilter, Mesh, MeshBasicMaterial, MeshPhysicalMaterial,
   MeshStandardMaterial, PerspectiveCamera, PlaneGeometry, PMREMGenerator, Raycaster, Scene, Shape,
-  SRGBColorSpace, TextureLoader, Vector2, Vector3, WebGLRenderer
+  ShapeGeometry, SRGBColorSpace, TextureLoader, Vector2, Vector3, WebGLRenderer
 } from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 
@@ -55,20 +55,37 @@ export const DUSK:  GlassTheme = { bg: '#14131A', key: '#FFE2C0', rim: '#7FA8FF'
 export function squircle(w: number, h: number, r: number, n = 5, seg = 14): Shape {
   const s = new Shape()
   const hw = w / 2, hh = h / 2
-  const rr = Math.min(r, Math.min(hw, hh))
-  // Corner arc sampled from |x|^n + |y|^n = 1, walked quadrant by quadrant.
-  const corner = (cx: number, cy: number, sx: number, sy: number, first: boolean) => {
+  const rr = Math.max(1e-4, Math.min(r, Math.min(hw, hh)))
+  const pts: number[][] = []
+
+  // One superelliptic quadrant. Sweeping t from 0 to PI/2 runs from the arc's
+  // x-axis end to its y-axis end; `rev` walks it the other way.
+  //
+  // Direction matters: to trace one continuous counter-clockwise outline the
+  // quadrants must alternate, right→top, top→left, left→bottom, bottom→right.
+  // Walking every quadrant the same way (the earlier bug) leaves each corner
+  // ending on the wrong edge, so the connecting segments cut diagonally across
+  // the card, the outline self-intersects, and the extruder turns those chords
+  // into spurious flanges off the corners.
+  // Every point is emitted: consecutive quadrants end and start on *different*
+  // corners, joined by the card's straight edges, so there are no duplicate
+  // vertices to drop — skipping one would clip the head off each arc.
+  const quadrant = (cx: number, cy: number, sx: number, sy: number, rev: boolean) => {
     for (let i = 0; i <= seg; i++) {
-      const t = (i / seg) * (Math.PI / 2)
-      const px = cx + sx * rr * Math.pow(Math.abs(Math.cos(t)), 2 / n)
-      const py = cy + sy * rr * Math.pow(Math.abs(Math.sin(t)), 2 / n)
-      if (first && i === 0) s.moveTo(px, py); else s.lineTo(px, py)
+      const t = ((rev ? seg - i : i) / seg) * (Math.PI / 2)
+      pts.push([
+        cx + sx * rr * Math.pow(Math.cos(t), 2 / n),
+        cy + sy * rr * Math.pow(Math.sin(t), 2 / n)
+      ])
     }
   }
-  corner(hw - rr, hh - rr,  1,  1, true)   // top-right
-  corner(-hw + rr, hh - rr, -1,  1, false) // top-left  (walks back to +y axis)
-  corner(-hw + rr, -hh + rr, -1, -1, false)
-  corner(hw - rr, -hh + rr,  1, -1, false)
+  quadrant( hw - rr,  hh - rr,  1,  1, false) // right edge → top edge
+  quadrant(-hw + rr,  hh - rr, -1,  1, true)  // top edge   → left edge
+  quadrant(-hw + rr, -hh + rr, -1, -1, false) // left edge  → bottom edge
+  quadrant( hw - rr, -hh + rr,  1, -1, true)  // bottom     → right edge
+
+  s.moveTo(pts[0][0], pts[0][1])
+  for (let i = 1; i < pts.length; i++) s.lineTo(pts[i][0], pts[i][1])
   s.closePath()
   return s
 }
@@ -137,7 +154,13 @@ export interface StageOptions {
   onPick?: (href: string) => void
 }
 
-const CARD_W = 2.7, CARD_H = 1.52   // 16:9, matching the artwork exactly
+// The print is a true 16:9 (matching every card image), sitting on a slightly
+// taller-aspect slab so it carries an even glass "mat" on all four sides —
+// like a photograph mounted behind glass. Deriving the card from the art
+// guarantees the margin is uniform and the artwork is never stretched.
+const ART_W = 2.50, ART_H = (ART_W * 9) / 16
+const MAT   = 0.12
+const CARD_W = ART_W + MAT * 2, CARD_H = ART_H + MAT * 2
 
 export function createGlassStage(opts: StageOptions) {
   const theme = opts.theme ?? PAPER
@@ -175,50 +198,36 @@ export function createGlassStage(opts: StageOptions) {
   const loader = new TextureLoader()
   const shadowTex = shadowTexture()
 
-  // Apple's Liquid Glass keeps *content* crisp and puts the optics at the rim:
-  // the glass is a bezel that lenses whatever is behind it, while the thing
-  // you're actually reading stays sharp. Building it as two pieces gets that
-  // exactly — a fully transmissive slab laid over the artwork would refract the
-  // artwork itself into mush (and show neighbouring cards through it).
+  // One clean slab of glass with the print mounted on its face.
   //
-  //  · artGeo — the face. Opaque artwork, but with a clearcoat so it still
-  //    catches real environment reflections and a moving specular sheen.
-  //  · rimGeo — a squircle ring standing proud of the face. This is the glass:
-  //    transmissive, thick, high IOR, so it bends the paper backdrop around the
-  //    card's edge and throws a prismatic fringe.
-  // Band width must comfortably exceed 2×bevelSize or the bevel walls grown
-  // from the outer and inner contours meet in the middle and fold through each
-  // other, throwing spikes off the corners. 0.17 band vs 0.035 bevel is safe.
-  const RIM_BAND = 0.34
-  const outer = squircle(CARD_W, CARD_H, 0.30)
-  const inner = squircle(CARD_W - RIM_BAND, CARD_H - RIM_BAND, 0.19)
-  const ringShape = squircle(CARD_W, CARD_H, 0.30)
-  ringShape.holes.push(inner)
-
-  const rimGeo = new ExtrudeGeometry(ringShape, {
-    depth: 0.11, bevelEnabled: true, bevelThickness: 0.05,
-    bevelSize: 0.035, bevelSegments: 5, curveSegments: 20
+  // The previous build made the glass a separate *ring* standing proud of the
+  // artwork. Even with correct geometry that reads as a moulded plastic tray —
+  // a chunky picture frame, not glass — and a thin ring is fragile to bevel
+  // anyway (bevel walls grown from the outer and inner contours collide in the
+  // middle of a narrow band). A single slab is both simpler and far more
+  // elegant: the visible glass is the even mat around the print plus the
+  // bevelled edge, and that is exactly where the refraction wants to be.
+  const SLAB_DEPTH = 0.10, SLAB_BEVEL = 0.03
+  const slabGeo = new ExtrudeGeometry(squircle(CARD_W, CARD_H, 0.22), {
+    depth: SLAB_DEPTH, bevelEnabled: true, bevelThickness: SLAB_BEVEL,
+    bevelSize: SLAB_BEVEL, bevelSegments: 6, curveSegments: 24
   })
-  rimGeo.center()
+  slabGeo.center()
+  // Front face of the slab in local Z, so the print can sit exactly on it.
+  const SLAB_FRONT = SLAB_DEPTH / 2 + SLAB_BEVEL
 
-  // Sized to tuck just barely under the rim's inner lip: enough to hide the
-  // seam, not enough for the bezel to refract the artwork into a double image.
-  const AW = CARD_W - RIM_BAND + 0.12, AH = CARD_H - RIM_BAND + 0.12
-  const artGeo = new ExtrudeGeometry(squircle(AW, AH, 0.25), {
-    depth: 0.06, bevelEnabled: true, bevelThickness: 0.02,
-    bevelSize: 0.02, bevelSegments: 3, curveSegments: 20
-  })
-  artGeo.center()
-  // ExtrudeGeometry's UVs are world-scaled, not 0..1 — reproject planar so the
-  // artwork maps across the face undistorted at its native 16:9.
+  // The print itself: flat, no extrusion. Nothing sits in front of it, so it
+  // stays perfectly crisp while the glass around and beneath it does the optics.
+  const artGeo = new ShapeGeometry(squircle(ART_W, ART_H, 0.13), 24)
   {
+    // ShapeGeometry UVs are in world units, not 0..1 — reproject planar so the
+    // artwork maps across the print undistorted at its native 16:9.
     const p = artGeo.attributes.position, uv = artGeo.attributes.uv
     for (let i = 0; i < p.count; i++) {
-      uv.setXY(i, (p.getX(i) / AW) + 0.5, (p.getY(i) / AH) + 0.5)
+      uv.setXY(i, (p.getX(i) / ART_W) + 0.5, (p.getY(i) / ART_H) + 0.5)
     }
     uv.needsUpdate = true
   }
-  const slabGeo = rimGeo
 
   const cards: GlassCard[] = []
   for (let i = 0; i < N; i++) {
@@ -245,13 +254,14 @@ export function createGlassStage(opts: StageOptions) {
       clearcoat: 1.0, clearcoatRoughness: 0.05,
       envMapIntensity: 0.5, specularIntensity: 1.0
     }))
-    art.position.z = -0.015
+    // Flush against the slab's front face — mounted on the glass, not floating.
+    art.position.z = SLAB_FRONT + 0.001
     group.add(art)
 
-    // The glass bezel. transmission=1 makes three render the scene to an
-    // offscreen target and refract it through this ring, so the backdrop
-    // genuinely bends and disperses around the card's edge.
-    const glass = new Mesh(rimGeo, new MeshPhysicalMaterial({
+    // The slab. transmission=1 makes three render the scene to an offscreen
+    // target and refract it through the glass, so the backdrop genuinely bends
+    // through the mat border and around the bevelled edge.
+    const glass = new Mesh(slabGeo, new MeshPhysicalMaterial({
       color: new Color(theme.glass),
       transmission: 1.0, thickness: 0.55, ior: 1.5,
       roughness: 0.04, metalness: 0.0,
@@ -592,8 +602,8 @@ export function createGlassStage(opts: StageOptions) {
       slabGeo.dispose(); artGeo.dispose(); shadowTex.dispose(); envTex.dispose()
       cards.forEach(c => {
         ;(c.hit.material as MeshPhysicalMaterial).dispose()
-        ;(c.art.material as MeshStandardMaterial).map?.dispose()
-        ;(c.art.material as MeshStandardMaterial).dispose()
+        ;(c.art.material as MeshPhysicalMaterial).emissiveMap?.dispose()
+        ;(c.art.material as MeshPhysicalMaterial).dispose()
         c.shadow && (c.shadow.material as MeshBasicMaterial).dispose()
       })
       renderer.dispose()

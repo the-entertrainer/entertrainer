@@ -64,7 +64,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           </dl>
         </div>
         <button class="cs-hero__cover" @click="open(0)" aria-label="Open the cover" v-motion :initial="R.scaleIn(120).initial" :visible-once="R.scaleIn(120).visibleOnce">
-          <img src="/work/sewa/cover.webp" width="1400" height="1980" alt="The SEWA Chronicles cover" loading="eager">
+          <img class="mono-img" src="/work/sewa/cover.webp" width="1400" height="1980" alt="The SEWA Chronicles cover" loading="eager">
         </button>
       </header>
 
@@ -102,7 +102,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <div class="cs-grid">
           <figure v-for="(p, i) in pages" :key="p.src" class="cs-fig" v-motion :initial="R.scaleInStagger(i).initial" :visible-once="R.scaleInStagger(i).visibleOnce">
             <button class="cs-fig__btn" @click="open(i)" :aria-label="`Enlarge: ${p.cap}`">
-              <img :src="`/work/sewa/${p.src}.webp`" width="1400" height="1980" :alt="p.alt" loading="eager" decoding="async">
+              <img class="mono-img" :src="`/work/sewa/${p.src}.webp`" width="1400" height="1980" :alt="p.alt" loading="eager" decoding="async">
             </button>
             <figcaption>
               <strong>{{ p.cap }}</strong>
@@ -138,7 +138,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
-.cs-page { position: relative; z-index: 1; min-height: 100dvh; --serif: 'Fraunces', Georgia, serif; }
+.cs-page { position: relative; z-index: 1; min-height: 100dvh; --serif: var(--display-font); }
 .cs-inner {
   max-width: 920rem;
   margin: 0 auto;
@@ -154,7 +154,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   margin-bottom: 48rem;
 }
 .cs-eyebrow { font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.55; }
-.cs-title { font-family: var(--serif); font-optical-sizing: auto; font-size: clamp(40rem, 6.5vw, 64rem); font-weight: 400; letter-spacing: -0.015em; line-height: 1.0; margin-top: 12rem; }
+.cs-title { font-family: var(--serif); font-optical-sizing: auto; font-size: clamp(21rem, 3.2vw, 36rem); font-weight: 400; letter-spacing: 0.01em; line-height: 1.22; margin-top: 12rem; }
 .cs-deck { font-size: 17rem; line-height: 1.55; opacity: 0.7; margin-top: 16rem; max-width: 30em; }
 .cs-meta { display: flex; flex-wrap: wrap; gap: 10rem 28rem; margin-top: 26rem; }
 .cs-meta__row { display: flex; flex-direction: column; gap: 3rem; }
@@ -213,7 +213,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
 /* Close */
 .cs-foot { margin-top: 48rem; padding-top: 28rem; border-top: 1px solid var(--color-divider); }
-.cs-foot > p { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: clamp(22rem, 3vw, 30rem); letter-spacing: -0.01em; line-height: 1.25; opacity: 0.9; max-width: 20em; }
+.cs-foot > p { font-family: var(--serif); font-weight: 400; font-size: clamp(15rem, 1.9vw, 21rem); letter-spacing: 0.01em; line-height: 1.5; opacity: 0.9; max-width: 20em; }
 .cs-foot__links { display: flex; flex-wrap: wrap; gap: 10rem 24rem; margin-top: 22rem; }
 .cs-link { display: inline-flex; align-items: center; min-height: 44rem; font-size: 14rem; font-weight: 600; color: var(--color-text); opacity: 0.7; transition: opacity 0.15s ease; }
 .cs-link:hover { opacity: 1; }

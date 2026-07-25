@@ -51,7 +51,12 @@ export default defineNuxtConfig({
         // JetBrains Mono for metadata — indices, eyebrows, dates, counts. The
         // mono is what gives the editorial pages their studio voice; without it
         // every label was just DM Sans in caps, and the pages read generic.
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=JetBrains+Mono:wght@400;500&display=swap' }
+        // Three roles, three faces: Silkscreen — a true bitmap face — carries
+        // the display voice, DM Sans carries the reading, JetBrains Mono carries
+        // the metadata. The pixel face is the whole art direction; it only reads
+        // as crisp rather than mushy because it is a real bitmap design, not a
+        // rounded font pretending to be one.
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap' }
       ]
     },
     pageTransition: false,

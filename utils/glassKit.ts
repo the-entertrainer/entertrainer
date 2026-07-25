@@ -27,6 +27,10 @@ import {
   Raycaster, Scene, ShaderMaterial, Shape,
   ShapeGeometry, SRGBColorSpace, TextureLoader, Vector2, Vector3, WebGLRenderer
 } from 'three'
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 
 export type LayoutName =
@@ -48,6 +52,10 @@ export interface GlassTheme {
   pop?: string
   /** Secondary accent — the mid-tone the backdrop's currents are drawn in. */
   alt?: string
+  /** Dark end of the duotone ramp the card artwork is re-mapped across. */
+  duoShadow?: string
+  /** Bright end of that ramp. */
+  duoHighlight?: string
 }
 
 export const PAPER: GlassTheme = { bg: '#F2EBE3', key: '#FFF3E2', rim: '#9EC3FF', glass: '#FFFFFF' }
@@ -359,6 +367,21 @@ export function createGlassStage(opts: StageOptions) {
   backdrop.renderOrder = -1
   scene.add(backdrop)
 
+  // ── Bloom ────────────────────────────────────────────────────────────────
+  // The look is monochrome, so brightness is the only dimension left to
+  // compose with: the specular streak on a bevel, the lit face of the card in
+  // front, the crest of a ripple. Bloom is what turns those into light rather
+  // than just pale pixels — it is the difference between a grey render and
+  // something that looks lit from inside. Threshold sits high on purpose so it
+  // catches highlights only and never washes the artwork's midtones.
+  const composer = new EffectComposer(renderer)
+  composer.addPass(new RenderPass(scene, camera))
+  const bloom = new UnrealBloomPass(new Vector2(innerWidth, innerHeight), 0.42, 0.70, 0.90)
+  composer.addPass(bloom)
+  // Without this the composer's linear buffer is written straight out and the
+  // whole scene renders dark and off-gamma.
+  composer.addPass(new OutputPass())
+
   // Real lights on top of the IBL — the directional gives the crisp moving
   // specular dot on the bevel that IBL alone renders too softly. Intensities
   // stay modest on purpose: the glass draws its brilliance from the PMREM
@@ -423,7 +446,7 @@ export function createGlassStage(opts: StageOptions) {
     // sidesteps the lighting equation entirely, so the card reads at its real
     // colour, while clearcoat still samples the environment on top for a
     // genuine moving gloss. Physically it's a backlit transparency under glass.
-    const art = new Mesh(artGeo, new MeshPhysicalMaterial({
+    const artMat = new MeshPhysicalMaterial({
       color: 0x000000,
       emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 1.0,
       roughness: 0.5, metalness: 0.0,
@@ -433,9 +456,40 @@ export function createGlassStage(opts: StageOptions) {
       // and pulling the environment right down turns that mirror into a sheen:
       // the gloss still slides across the card as it moves, but the colour
       // underneath is the artwork's own.
-      clearcoat: 1.0, clearcoatRoughness: 0.18,
-      envMapIntensity: 0.14, specularIntensity: 1.0
-    }))
+      clearcoat: 1.0, clearcoatRoughness: 0.12,
+      envMapIntensity: 0.35, specularIntensity: 1.0
+    })
+
+    // Duotone the print on the GPU.
+    //
+    // The scene is a monochrome, and dropping full-colour artwork into it would
+    // have made four bright rectangles floating in an otherwise achromatic
+    // world — the one thing guaranteed to break the look. Collapsing each print
+    // to luminance and re-mapping it across a black-to-white ramp keeps the
+    // composition, the type and the figure perfectly readable while putting the
+    // artwork in the same palette as everything around it. Contrast is pushed
+    // hard on purpose: a bitmap-era image is high contrast, and the bloom needs
+    // genuine highlights to catch.
+    artMat.onBeforeCompile = (shader) => {
+      shader.uniforms.uShadow = { value: new Color(theme.duoShadow ?? '#0A0A0C') }
+      shader.uniforms.uHighlight = { value: new Color(theme.duoHighlight ?? '#FFFFFF') }
+      shader.fragmentShader = shader.fragmentShader
+        .replace('void main() {', 'uniform vec3 uShadow;\nuniform vec3 uHighlight;\nvoid main() {')
+        .replace('#include <emissivemap_fragment>', `
+          #ifdef USE_EMISSIVEMAP
+            vec4 emissiveColor = texture2D( emissiveMap, vEmissiveMapUv );
+            float lum = dot( emissiveColor.rgb, vec3( 0.2126, 0.7152, 0.0722 ) );
+            lum = clamp( ( lum - 0.50 ) * 1.06 + 0.5, 0.0, 1.0 );
+            // Roll the top of the range off rather than letting it clip. The
+            // figure's dark suit is a big uniform mass; inverted and pushed it
+            // clipped to flat white and bloomed into a shapeless blob that ate
+            // the headline next to it. This keeps its form.
+            lum = lum * ( 1.0 - 0.28 * smoothstep( 0.55, 1.0, lum ) );
+            totalEmissiveRadiance *= mix( uShadow, uHighlight, lum );
+          #endif
+        `)
+    }
+    const art = new Mesh(artGeo, artMat)
     // Flush against the slab's front face — mounted on the glass, not floating.
     art.position.z = SLAB_FRONT + 0.001
     group.add(art)
@@ -812,6 +866,9 @@ export function createGlassStage(opts: StageOptions) {
     bdMat.uniforms.uAspect.value = camera.aspect
     renderer.setSize(innerWidth, innerHeight)
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+    composer.setSize(innerWidth, innerHeight)
+    composer.setPixelRatio(Math.min(devicePixelRatio, 2))
+    bloom.setSize(innerWidth, innerHeight)
   }
   addEventListener('resize', onResize); onResize()
 
@@ -910,7 +967,7 @@ export function createGlassStage(opts: StageOptions) {
 
     if (bestI !== active) { active = bestI; opts.onActive?.(active % items.length) }
 
-    renderer.render(scene, camera)
+    composer.render()
     if (!ready) { ready = true; onReadyCbs.forEach(f => f()) }
   }
   raf = requestAnimationFrame(frame)
@@ -949,6 +1006,7 @@ export function createGlassStage(opts: StageOptions) {
       removeEventListener('resize', onResize)
       slabGeo.dispose(); artGeo.dispose(); shadowTex.dispose(); envTex.dispose()
       backdrop.geometry.dispose(); bdMat.dispose()
+      bloom.dispose(); composer.dispose()
       cards.forEach(c => {
         ;(c.hit.material as MeshPhysicalMaterial).dispose()
         ;(c.art.material as MeshPhysicalMaterial).emissiveMap?.dispose()

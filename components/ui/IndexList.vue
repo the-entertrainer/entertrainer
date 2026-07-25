@@ -112,7 +112,7 @@ const pad = (i: number) => String(i + 1).padStart(2, '0')
           <!-- Touch and reduced-motion get the image in the row itself. The
                follower would otherwise leave those visitors with no artwork. -->
           <span v-if="item.img" class="ix__thumb" aria-hidden="true">
-            <img :src="item.img" alt="" loading="lazy" decoding="async">
+            <img class="mono-img" :src="item.img" alt="" loading="lazy" decoding="async">
           </span>
 
           <span class="ix__body">
@@ -135,7 +135,7 @@ const pad = (i: number) => String(i + 1).padStart(2, '0')
     <!-- The cursor-tracked plate. Inert to pointer events so it can never
          interrupt the very hover that is driving it. -->
     <div v-if="follow" ref="media" class="ix__media" aria-hidden="true">
-      <img v-if="src" :src="src" alt="">
+      <img v-if="src" class="mono-img" :src="src" alt="">
     </div>
   </div>
 </template>
@@ -168,7 +168,7 @@ const pad = (i: number) => String(i + 1).padStart(2, '0')
 .ix__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 .ix__body { flex: 1 1 auto; display: grid; gap: 6rem; min-width: 0; }
-.ix__title { font-size: var(--text-h2); line-height: 1.05; }
+.ix__title { font-size: var(--text-h2); line-height: 1.25; }
 .ix__desc {
   font-size: var(--text-sm); line-height: 1.5; opacity: 0.55;
   max-width: 52ch;

@@ -29,10 +29,13 @@ export interface HomeTheme {
   /** true when `bg` is dark, so chrome can flip its treatments. */
   dark: boolean
   /** Display face for the headline. */
-  display: 'fraunces' | 'archivo' | 'bricolage' | 'space'
+  display: 'silkscreen' | 'fraunces' | 'archivo' | 'bricolage' | 'space'
 }
 
 export const HOME_THEMES: HomeTheme[] = [
+  { id: 'h00', name: 'Blackout', blurb: 'Pure monochrome. Black ground, bitmap type, everything lit by bloom.',
+    bg: '#07070A', ink: '#F2F2EF', pop: '#FFFFFF', alt: '#8E8E96', dark: true, display: 'silkscreen' },
+
   { id: 'h01', name: 'Electric Cream', blurb: 'Warm paper, navy ink, a jolt of electric lime.',
     bg: '#F6EFE3', ink: '#171334', pop: '#C6F135', alt: '#4A6CF7', dark: false, display: 'fraunces' },
 
@@ -65,6 +68,7 @@ export const HOME_THEMES: HomeTheme[] = [
 ]
 
 export const FONT_STACK: Record<HomeTheme['display'], string> = {
+  silkscreen: "'Silkscreen', 'Courier New', monospace",
   fraunces:   "'Fraunces', Georgia, serif",
   archivo:    "'Archivo', 'DM Sans', sans-serif",
   bricolage:  "'Bricolage Grotesque', 'DM Sans', sans-serif",
@@ -87,7 +91,7 @@ export const FONT_HREF =
  */
 export function glassThemeFor(t: HomeTheme): GlassTheme {
   return { bg: t.bg, key: t.dark ? mix(t.pop, '#FFFFFF', 0.45) : mix(t.pop, '#FFFFFF', 0.6),
-           rim: t.alt, glass: t.dark ? '#EDF2FF' : '#FFFFFF',
+           rim: t.alt, glass: t.dark ? '#FFFFFF' : '#FFFFFF',
            // The backdrop's currents are drawn in the theme's own accents so
            // the field the glass refracts belongs to the palette instead of
            // being a generic WebGL gradient underneath it. Crucially they come
@@ -95,7 +99,19 @@ export function glassThemeFor(t: HomeTheme): GlassTheme {
            // — because the loud colour mixed into warm paper turns to mud, and
            // because the artwork is itself cream-and-navy.
            alt: mix(t.alt, t.bg, t.dark ? 0.55 : 0.60),
-           pop: mix(t.ink, t.bg, t.dark ? 0.30 : 0.42) }
+           pop: mix(t.ink, t.bg, t.dark ? 0.30 : 0.42),
+           // The artwork is re-mapped across this ramp so it lives in the same
+           // palette as the scene rather than floating in it as full colour.
+           //
+           // On a dark ground the ramp runs *backwards*, and that is the whole
+           // trick. These prints are dark ink on pale paper, so mapping them
+           // the obvious way turned each card into a sheet of white — most of
+           // the image is paper — which the bloom then blew into an unreadable
+           // slab. Inverted, the paper falls to near-black and only the type
+           // and the figure come up bright: a lit mark on a dark field, which
+           // is what a monochrome wants and what bloom is actually for.
+           duoShadow:    t.dark ? t.ink : mix(t.bg, t.ink, 0.86),
+           duoHighlight: t.dark ? mix(t.bg, t.ink, 0.09) : mix(t.ink, t.bg, 0.90) }
 }
 
 /** CSS custom properties for a theme — spread onto the page root. */

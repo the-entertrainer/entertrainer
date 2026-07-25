@@ -216,9 +216,9 @@ function iconPath(name: string) {
   margin-bottom: 16rem;
 }
 .id-title {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--display-font);
   font-optical-sizing: auto;
-  font-size: clamp(34rem, 5.5vw, 60rem);
+  font-size: clamp(20rem, 2.9vw, 34rem);
   font-weight: 400;
   line-height: 1.02;
   letter-spacing: -0.015em;

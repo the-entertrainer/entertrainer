@@ -181,15 +181,15 @@ onBeforeUnmount(() => { cancelAnimationFrame(raf); removeEventListener('wheel', 
 .gal { position: fixed; inset: 0; overflow: hidden; }
 .gal__cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
 .gal__cv:active { cursor: grabbing; }
-.gal__idx { position: fixed; top: calc(22rem + var(--safe-top)); right: clamp(70rem, 8vw, 96rem); z-index: 12; font-family: 'Fraunces', Georgia, serif; font-size: 15rem; opacity: 0.55; font-variant-numeric: tabular-nums; }
+.gal__idx { position: fixed; top: calc(22rem + var(--safe-top)); right: clamp(70rem, 8vw, 96rem); z-index: 12; font-family: var(--display-font); font-size: 15rem; opacity: 0.55; font-variant-numeric: tabular-nums; }
 .gal__idx i { font-style: normal; opacity: 0.4; margin: 0 4rem; }
 .gal__ui { position: fixed; left: 0; right: 0; bottom: clamp(40rem, 8vh, 84rem); z-index: 12; text-align: center; pointer-events: none; padding: 0 24rem; }
 .gal__eyebrow { display: inline-block; font-size: 12rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; opacity: 0.55; }
 .gal__cap { margin-top: 8rem; }
-.gal__label { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; font-weight: 400; font-size: clamp(40rem, 6vw, 84rem); line-height: 1; letter-spacing: -0.02em; margin: 0; }
+.gal__label { font-family: var(--display-font); font-optical-sizing: auto; font-weight: 400; font-size: clamp(40rem, 6vw, 84rem); line-height: 1; letter-spacing: -0.02em; margin: 0; }
 .gal__desc { font-size: 14.5rem; opacity: 0.65; margin: 8rem auto 0; max-width: 44ch; }
 .gal__row { margin-top: 16rem; display: inline-flex; align-items: center; gap: 16rem; flex-wrap: wrap; justify-content: center; }
-.gal__enter { pointer-events: auto; text-decoration: none; font-family: 'Fraunces', Georgia, serif; font-style: italic; }
+.gal__enter { pointer-events: auto; text-decoration: none; font-family: var(--display-font); font-style: italic; }
 .gal__hint { font-size: 11.5rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.45; }
 .gal-enter-active, .gal-leave-active { transition: opacity 0.35s ease, transform 0.5s cubic-bezier(.19,1,.22,1); }
 .gal-enter-from { opacity: 0; transform: translateY(16rem); }

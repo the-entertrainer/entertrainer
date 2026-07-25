@@ -12,9 +12,9 @@ useSeoMeta({
   ogUrl: 'https://entertrainer.in/'
 })
 
-// Electric Cream: the bold-and-playful language applied to the site's existing
-// warm-paper identity, so the homepage and the editorial pages still read as
-// one place. Swap this index to preview any of the ten directions.
+// Blackout: pure monochrome, bitmap type, everything lit by bloom. The site
+// tokens carry the same palette, so the stage and the editorial pages are one
+// place. Swap this index to preview any of the other directions.
 const theme = HOME_THEMES[0]
 
 const homeViewStore = useHomeViewStore()
@@ -79,7 +79,7 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
 .h-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 .h-brand { display: flex; flex-direction: column; align-items: center; gap: 3rem; text-align: center; }
-.h-mark { font-family: var(--display); font-weight: 400; font-size: 17rem; letter-spacing: -0.01em; color: var(--ink); }
+.h-mark { font-family: var(--display); font-weight: 700; font-size: 15rem; letter-spacing: 0.02em; color: var(--ink); }
 .h-role { font-family: var(--mono-font); font-weight: 500; font-size: 10.5rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-35); }
 
 /* ── Bottom chrome ────────────────────────────────────────────────────────
@@ -91,7 +91,10 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
    Ink on paper, hairlines, and one 2px accent is the whole vocabulary now. */
 .h-sheet { display: flex; flex-direction: column; align-items: center; gap: 18rem; max-width: 720rem; margin: 0 auto; }
 .h-cap { text-align: center; }
-.h-title { font-family: var(--display); font-weight: 400; font-size: clamp(28rem, 5.6vw, 52rem); line-height: 1.0; letter-spacing: -0.03em; margin: 0; color: var(--ink); }
+/* A bitmap face carries far more ink per em than a serif and cannot be tracked
+   tight, so the card title sits well below where the old display size was —
+   "Instructional Design" set at 52px in Silkscreen simply does not fit. */
+.h-title { font-family: var(--display); font-weight: 400; font-size: clamp(17rem, 2.9vw, 30rem); line-height: 1.25; letter-spacing: 0.01em; margin: 0; color: var(--ink); text-shadow: 0 0 26rem rgba(255,255,255,0.22); }
 .h-desc { font-family: 'DM Sans', sans-serif; font-size: 13rem; line-height: 1.5; margin: 8rem auto 0; max-width: 42ch; color: var(--ink-60); }
 
 /* The way in: type, not a button. A rule that grows under it on hover is the

@@ -106,22 +106,21 @@ export function glassThemeFor(t: HomeTheme): GlassTheme {
            // The artwork is re-mapped across this ramp so it lives in the same
            // palette as the scene rather than floating in it as full colour.
            //
-           // On a dark ground the ramp runs *backwards*, and that is the whole
-           // trick. These prints are dark ink on pale paper, so mapping them
-           // the obvious way turned each card into a sheet of white — most of
-           // the image is paper — which the bloom then blew into an unreadable
-           // slab. Inverted, the paper falls to near-black and only the type
-           // and the figure come up bright: a lit mark on a dark field, which
-           // is what a monochrome wants and what bloom is actually for.
-           // The bright end is deliberately short of white. Mapped all the way
-           // to the ink value the type and the figure landed at 242 and the
-           // bloom then carried them to 255, so a quarter of every print was
-           // crushed flat with no detail left in it. Ending the ramp below
-           // white keeps headroom: the marks still read as bright on black, and
-           // the glow comes from the glass and the field rather than from the
-           // artwork being burnt out.
-           duoShadow:    t.dark ? mix(t.ink, t.bg, 0.32) : mix(t.bg, t.ink, 0.86),
-           duoHighlight: t.dark ? mix(t.bg, t.ink, 0.09) : mix(t.ink, t.bg, 0.90) }
+           // The ramp runs the way the artwork does: ink dark, paper light.
+           //
+           // It ran backwards on the dark theme for a while, to stop the pale
+           // paper — most of every print — blowing out under bloom. That fixed
+           // the exposure and broke the artwork: the cards came out as
+           // negatives. These are drawings of a person, and rendering them as
+           // an X-ray misrepresents the work being shown.
+           //
+           // Exposure belongs at the ceiling, which is where it is handled now.
+           // The bright end stops well short of white, so paper reads as a lit
+           // print rather than a blown slab and stays under the bloom threshold
+           // — the glow comes from the glass rim and the field behind it, not
+           // from the image burning out.
+           duoShadow:    mix(t.bg, t.ink, t.dark ? 0.05 : 0.86),
+           duoHighlight: mix(t.ink, t.bg, t.dark ? 0.24 : 0.04) }
 }
 
 /** CSS custom properties for a theme — spread onto the page root. */

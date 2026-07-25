@@ -21,13 +21,22 @@ await page.waitForTimeout(16000)
 
 // The focused card sits centred; crop its inner print, clear of the glass mat.
 const CLIP = { x: 380, y: 150, width: 680, height: 400 }
-const shot = await page.screenshot({ clip: CLIP })
+// Every card, not just the first. The four prints have very different tonal
+// makeups — one is mostly pale paper, another mostly flat colour — so a ramp
+// tuned against a single one can quietly crush the others.
+const shots = []
+for (let i = 0; i < 4; i++) {
+  shots.push(await page.screenshot({ clip: CLIP }))
+  await page.keyboard.press('ArrowDown')
+  await page.waitForTimeout(9000)
+}
 await ctx.close()
 
 const p2 = await (await b.newContext()).newPage()
+const measure = async (shot) => {
 await p2.setContent(`<img id="i" src="data:image/png;base64,${shot.toString('base64')}">`)
 await p2.waitForFunction(() => document.getElementById('i')?.complete)
-const stats = await p2.evaluate(() => {
+return p2.evaluate(() => {
   const img = document.getElementById('i')
   const c = document.createElement('canvas')
   c.width = img.naturalWidth; c.height = img.naturalHeight
@@ -44,10 +53,17 @@ const stats = await p2.evaluate(() => {
   for (let l = 0; l < 256; l++) { acc += hist[l]; if (acc >= n * 0.99) { p99 = l; break } }
   return { clipped: +pct(250).toFixed(2), near: +pct(242).toFixed(2), bright: +pct(230).toFixed(2), mean: +(sum / n).toFixed(1), p99 }
 })
+}
+
+let pass = true
+for (let i = 0; i < shots.length; i++) {
+  const s = await measure(shots[i])
+  const ok = s.clipped < 0.5 && s.near < 4
+  if (!ok) pass = false
+  console.log(`card ${i + 1}  clipped(>=250) ${String(s.clipped).padStart(5)}%  near(>=242) ${String(s.near).padStart(5)}%  bright(>=230) ${String(s.bright).padStart(5)}%  mean ${s.mean}  p99 ${s.p99}  ${ok ? 'ok' : 'CRUSHED'}`)
+}
 await b.close()
 
-const pass = stats.clipped < 0.5 && stats.near < 4
-console.log(`clipped(>=250) ${stats.clipped}%   near(>=242) ${stats.near}%   bright(>=230) ${stats.bright}%   mean ${stats.mean}   p99 ${stats.p99}`)
-console.log(pass ? 'PASS — artwork retains detail in the highlights'
-                 : 'FAIL — highlights are crushed; the print has lost detail')
+console.log(pass ? 'PASS — every card retains detail in the highlights'
+                 : 'FAIL — highlights are crushed; a print has lost detail')
 process.exit(pass ? 0 : 1)

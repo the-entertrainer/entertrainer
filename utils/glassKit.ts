@@ -496,15 +496,14 @@ export function createGlassStage(opts: StageOptions) {
           #ifdef USE_EMISSIVEMAP
             vec4 emissiveColor = texture2D( emissiveMap, vEmissiveMapUv );
             float lum = dot( emissiveColor.rgb, vec3( 0.2126, 0.7152, 0.0722 ) );
-            // Contrast is pushed *below* the ceiling, not through it. With the
-            // ramp's bright end capped there is headroom to deepen the darks and
-            // give the print separation again, without any of it reaching white.
-            lum = clamp( ( lum - 0.52 ) * 1.45 + 0.5, 0.0, 1.0 );
-            // Roll the top of the range off rather than letting it clip. The
-            // figure's dark suit is a big uniform mass; inverted and pushed it
-            // clipped to flat white and bloomed into a shapeless blob that ate
-            // the headline next to it. This keeps its form.
-            lum = lum * ( 1.0 - 0.44 * smoothstep( 0.42, 1.0, lum ) );
+            // A gentle S around the paper's own value. These prints are mostly
+            // pale paper, so the pivot sits high: centring the curve at 0.5
+            // would drag the whole sheet down and grey the artwork out.
+            lum = clamp( ( lum - 0.62 ) * 1.20 + 0.62, 0.0, 1.0 );
+            // Shoulder, not a clip. Paper is a big uniform mass and the first
+            // thing to crush; rolling the top of the range off keeps the fold
+            // and grain of the sheet visible instead of flattening it to a slab.
+            lum = lum * ( 1.0 - 0.16 * smoothstep( 0.55, 1.0, lum ) );
             totalEmissiveRadiance *= mix( uShadow, uHighlight, lum );
           #endif
         `)

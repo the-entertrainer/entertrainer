@@ -496,7 +496,10 @@ export function createGlassStage(opts: StageOptions) {
           #ifdef USE_EMISSIVEMAP
             vec4 emissiveColor = texture2D( emissiveMap, vEmissiveMapUv );
             float lum = dot( emissiveColor.rgb, vec3( 0.2126, 0.7152, 0.0722 ) );
-            lum = clamp( ( lum - 0.50 ) * 1.06 + 0.5, 0.0, 1.0 );
+            // Contrast is pushed *below* the ceiling, not through it. With the
+            // ramp's bright end capped there is headroom to deepen the darks and
+            // give the print separation again, without any of it reaching white.
+            lum = clamp( ( lum - 0.52 ) * 1.45 + 0.5, 0.0, 1.0 );
             // Roll the top of the range off rather than letting it clip. The
             // figure's dark suit is a big uniform mass; inverted and pushed it
             // clipped to flat white and bloomed into a shapeless blob that ate

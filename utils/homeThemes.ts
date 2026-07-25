@@ -113,7 +113,14 @@ export function glassThemeFor(t: HomeTheme): GlassTheme {
            // slab. Inverted, the paper falls to near-black and only the type
            // and the figure come up bright: a lit mark on a dark field, which
            // is what a monochrome wants and what bloom is actually for.
-           duoShadow:    t.dark ? t.ink : mix(t.bg, t.ink, 0.86),
+           // The bright end is deliberately short of white. Mapped all the way
+           // to the ink value the type and the figure landed at 242 and the
+           // bloom then carried them to 255, so a quarter of every print was
+           // crushed flat with no detail left in it. Ending the ramp below
+           // white keeps headroom: the marks still read as bright on black, and
+           // the glow comes from the glass and the field rather than from the
+           // artwork being burnt out.
+           duoShadow:    t.dark ? mix(t.ink, t.bg, 0.32) : mix(t.bg, t.ink, 0.86),
            duoHighlight: t.dark ? mix(t.bg, t.ink, 0.09) : mix(t.ink, t.bg, 0.90) }
 }
 

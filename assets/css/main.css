@@ -26,6 +26,10 @@
   --color-glass-border: rgba(255,255,255,0.16);
   --color-glass-bg-hover: rgba(255,255,255,0.11);
   --color-glass-border-hover: rgba(255,255,255,0.34);
+  /* The light every glass surface bends and spills — the DOM's share of the
+     stage's bloom, so panels are lit by the same source as the cards. */
+  --glow-soft: rgba(255,255,255,0.20);
+  --glow-rim: rgba(255,255,255,0.34);
   --color-spinner-track: rgba(242,242,239,0.15);
   --color-divider: rgba(242,242,239,0.12);
 
@@ -55,6 +59,8 @@
   --color-glass-border: rgba(0,0,0,0.14);
   --color-glass-bg-hover: rgba(0,0,0,0.10);
   --color-glass-border-hover: rgba(0,0,0,0.28);
+  --glow-soft: rgba(11,11,13,0.14);
+  --glow-rim: rgba(255,255,255,0.75);
   --color-spinner-track: rgba(11,11,13,0.12);
   --color-divider: rgba(11,11,13,0.12);
 
@@ -190,6 +196,30 @@
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
 }
+/* ── Pixel edge ─────────────────────────────────────────────────────────
+   A bitmap-era chamfer: corners cut on the diagonal in whole steps instead of
+   arced. It is what makes a panel read as drawn on a grid alongside the type,
+   and unlike a border-radius it stays honest at any size because the cut is a
+   fixed number of pixels rather than a curve that resamples.
+
+   `--px-step` is the size of one notch. Anything wearing this must drop its
+   own border-radius — clip-path and radius fight, and the radius wins on the
+   corner while the clip wins on the edge, which leaves a visible nick. */
+.pixel-edge {
+  --px-step: 8px;
+  border-radius: 0 !important;
+  clip-path: polygon(
+    0 var(--px-step), var(--px-step) var(--px-step), var(--px-step) 0,
+    calc(100% - var(--px-step)) 0, calc(100% - var(--px-step)) var(--px-step), 100% var(--px-step),
+    100% calc(100% - var(--px-step)), calc(100% - var(--px-step)) calc(100% - var(--px-step)),
+    calc(100% - var(--px-step)) 100%,
+    var(--px-step) 100%, var(--px-step) calc(100% - var(--px-step)), 0 calc(100% - var(--px-step))
+  );
+}
+/* clip-path cuts the border off with the corner, so the outline has to be
+   painted inside the shape instead. */
+.pixel-edge { box-shadow: inset 0 0 0 1px var(--color-glass-border); }
+
 /* Content imagery in a monochrome world.
    The WebGL stage duotones its cards on the GPU, but every ordinary <img> on
    the site is still full colour, and a cream-and-navy illustration dropped
@@ -434,13 +464,20 @@ canvas {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.10), transparent 38%),
     color-mix(in srgb, var(--color-bg) 62%, transparent);
-  backdrop-filter: blur(26px) saturate(1.4);
-  -webkit-backdrop-filter: blur(26px) saturate(1.4);
+  /* Real glass on a dark ground needs three things the old surface only faked:
+     a wide blur to displace what is behind it, a bright top rim where the light
+     catches the bevel, and an *outward* glow so it reads as lit rather than as
+     a rectangle with a border. That last shadow is the DOM's answer to the
+     stage's bloom — the same light, spilling past the same edges. */
+  backdrop-filter: blur(30px) saturate(1.35) brightness(1.06);
+  -webkit-backdrop-filter: blur(30px) saturate(1.35) brightness(1.06);
   border: 1px solid var(--color-glass-border);
   box-shadow:
-    0 34rem 90rem -42rem rgba(0, 0, 0, 0.6),
-    inset 0 1px 1px color-mix(in srgb, var(--color-text) 16%, transparent),
-    inset 0 0 60rem color-mix(in srgb, var(--color-text) 3%, transparent);
+    0 34rem 90rem -42rem rgba(0, 0, 0, 0.7),
+    0 0 40rem -10rem var(--glow-soft),
+    inset 0 1.5px 0 var(--glow-rim),
+    inset 0 -1px 0 color-mix(in srgb, var(--color-text) 8%, transparent),
+    inset 0 0 60rem color-mix(in srgb, var(--color-text) 4%, transparent);
   animation: glass-rise 0.7s var(--ease-spring) both;
 }
 @keyframes glass-rise {

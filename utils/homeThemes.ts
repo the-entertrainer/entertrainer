@@ -98,8 +98,11 @@ export function glassThemeFor(t: HomeTheme): GlassTheme {
            // from the *cool* half of the palette — the accent blue and the ink
            // — because the loud colour mixed into warm paper turns to mud, and
            // because the artwork is itself cream-and-navy.
-           alt: mix(t.alt, t.bg, t.dark ? 0.55 : 0.60),
-           pop: mix(t.ink, t.bg, t.dark ? 0.30 : 0.42),
+           // On a dark ground the crests have to reach near-white or the bloom
+           // has nothing above its threshold to catch, and the whole field
+           // stays a flat grey haze.
+           alt: mix(t.alt, t.bg, t.dark ? 0.30 : 0.60),
+           pop: mix(t.ink, t.bg, t.dark ? 0.04 : 0.42),
            // The artwork is re-mapped across this ramp so it lives in the same
            // palette as the scene rather than floating in it as full colour.
            //

@@ -109,61 +109,78 @@ const BACKDROP_FRAG = `
   float fbm(vec2 p) {
     float v = 0.0;
     float a = 0.5;
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 6; i++) {
       v += a * vnoise(p);
-      p *= 2.02;
+      p = p * 2.03 + vec2(1.7, 9.2);
+      a *= 0.5;
+    }
+    return v;
+  }
+
+  // Ridged noise. Folding each octave around its midpoint turns soft blobs into
+  // thin bright filaments — this is what draws light *through* the water rather
+  // than just lighting it, and it is what the bloom has to catch.
+  float ridge(vec2 p) {
+    float v = 0.0;
+    float a = 0.5;
+    for (int i = 0; i < 5; i++) {
+      float n = vnoise(p);
+      n = 1.0 - abs(n * 2.0 - 1.0);
+      v += a * n * n;
+      p = p * 2.07 + vec2(3.1, 1.7);
       a *= 0.5;
     }
     return v;
   }
 
   void main() {
-    // Domain scale sets how much structure fits on screen. At 2.4 the whole
-    // backdrop was two or three enormous blobs, which rendered as a smear
-    // rather than as complexity; this puts real detail inside the frame.
-    vec2 p = (vUv - 0.5) * vec2(uAspect, 1.0) * 5.6;
-    float t = uTime * 0.05;
+    vec2 p = (vUv - 0.5) * vec2(uAspect, 1.0);
+    float t = uTime;
 
-    // Twice-warped noise: warping the domain with noise, then warping that
-    // again, is what turns bland clouds into something with currents and eddies.
-    vec2 q = vec2(fbm(p * 1.10 + t), fbm(p * 1.10 + vec2(5.2, 1.3) - t));
-    vec2 r = vec2(fbm(p * 1.55 + 3.4 * q + vec2(1.7, 9.2) + t * 1.3),
-                  fbm(p * 1.55 + 3.4 * q + vec2(8.3, 2.8) - t * 1.1));
-    float f = fbm(p * 1.35 + 3.2 * r);
+    // Two layers drifting against each other. Counter-motion is the whole
+    // reason this reads as depth rather than as a texture sliding past.
+    vec2 pa = p * 3.2 + vec2(t * 0.012, -t * 0.008);
+    vec2 pb = p * 5.8 - vec2(t * 0.021,  t * 0.014);
 
-    // Two travelling ripple systems, their centres drifting on slow circles.
-    vec2 c1 = vec2(sin(uTime * 0.13) * 0.85, cos(uTime * 0.11) * 0.5);
-    vec2 c2 = vec2(cos(uTime * 0.09) * 1.05, sin(uTime * 0.15) * 0.6);
-    float d1 = length(p - c1);
-    float d2 = length(p - c2);
-    float rip = sin(d1 * 5.0 - uTime * 0.85) * 0.5 + sin(d2 * 4.0 + uTime * 0.65) * 0.5;
-    rip *= smoothstep(5.5, 0.0, min(d1, d2));
+    // The swell: the slow body of the water.
+    vec2 w = vec2(fbm(pa), fbm(pa + vec2(4.3, 1.9)));
+    float swell = fbm(pa + 2.4 * w);
 
-    float body = f + rip * 0.10;
+    // The filaments riding on it.
+    float fil = ridge(pb + 1.3 * w + swell * 0.6);
+    fil = pow(clamp(fil, 0.0, 1.0), 2.6);
 
-    // Three tones out of one family, layered by height. Mixing the loud accent
-    // straight into warm paper made mud — lime over cream is a coffee stain —
-    // so the crests are the palette's own deep ink and the mid-tones its blue.
-    // The loud colour stays where it belongs, on the one button.
+    // Organic pulse. Three periods that share no common multiple, so the
+    // brightness breathes and never visibly loops — a single sine would tick
+    // like a metronome and the whole thing would read as a screensaver.
+    float pulse = 0.62
+      + 0.20 * sin(t * 0.21 + swell * 3.0)
+      + 0.12 * sin(t * 0.13 + fil * 2.0)
+      + 0.06 * sin(t * 0.37);
+
+    // Far specks, slowly guttering.
+    vec2 sp = floor(p * 190.0);
+    float star = step(0.9975, hash(sp));
+    star *= 0.5 + 0.5 * sin(t * 1.6 + hash(sp + 7.0) * 30.0);
+
     vec3 col = uBg;
-    col = mix(col, uDeep, smoothstep(0.20, 0.86, body) * 0.85);
-    col = mix(col, uAlt,  smoothstep(0.46, 1.00, body) * 0.55);
-    col = mix(col, uPop,  smoothstep(0.72, 1.14, body) * 0.34);
-    col += rip * 0.012;
+    col = mix(col, uDeep, smoothstep(0.30, 0.95, swell) * 0.75);
+    col = mix(col, uAlt,  clamp(fil * pulse, 0.0, 1.0) * 0.55);
+    col = mix(col, uPop,  smoothstep(0.55, 1.05, fil * pulse) * 0.42);
+    col += star * 0.45;
 
-    // Squashed vignette: falls off faster vertically than horizontally so the
-    // frame's top and bottom return to the flat page tone, and the DOM scrims
-    // sitting there have nothing to disagree with.
-    float vg = smoothstep(3.4, 0.45, length(p * vec2(0.42, 1.15)));
-    col = mix(uBg, col, 0.10 + 0.90 * vg);
+    // Vignette to true black. The ocean has no edges — it just stops being lit,
+    // which also hands the DOM scrims a seamless join.
+    float vg = smoothstep(1.15, 0.12, length(p * vec2(0.80, 1.30)));
+    col = mix(uBg, col, 0.05 + 0.95 * vg);
 
     gl_FragColor = vec4(col, 1.0);
 
     // three.js hands uniforms to a ShaderMaterial in its linear working space
     // but does not convert the output for you the way it does for its own
     // materials. Writing linear values straight to an sRGB framebuffer rendered
-    // the page's warm cream as a dark tan and pushed every accent off-hue — the
-    // backdrop visibly disagreed with the DOM scrims sitting on top of it.
+    // the page tone as a dark tan and pushed every accent off-hue — the backdrop
+    // visibly disagreed with the DOM scrims sitting on top of it.
     #include <colorspace_fragment>
   }
 `
@@ -376,7 +393,7 @@ export function createGlassStage(opts: StageOptions) {
   // catches highlights only and never washes the artwork's midtones.
   const composer = new EffectComposer(renderer)
   composer.addPass(new RenderPass(scene, camera))
-  const bloom = new UnrealBloomPass(new Vector2(innerWidth, innerHeight), 0.42, 0.70, 0.90)
+  const bloom = new UnrealBloomPass(new Vector2(innerWidth, innerHeight), 0.34, 0.72, 0.92)
   composer.addPass(bloom)
   // Without this the composer's linear buffer is written straight out and the
   // whole scene renders dark and off-gamma.
@@ -484,7 +501,7 @@ export function createGlassStage(opts: StageOptions) {
             // figure's dark suit is a big uniform mass; inverted and pushed it
             // clipped to flat white and bloomed into a shapeless blob that ate
             // the headline next to it. This keeps its form.
-            lum = lum * ( 1.0 - 0.28 * smoothstep( 0.55, 1.0, lum ) );
+            lum = lum * ( 1.0 - 0.44 * smoothstep( 0.42, 1.0, lum ) );
             totalEmissiveRadiance *= mix( uShadow, uHighlight, lum );
           #endif
         `)
@@ -908,8 +925,24 @@ export function createGlassStage(opts: StageOptions) {
     // The whole rig breathes toward the pointer — parallax that sells depth.
     if (calm) lightTarget.set(0, 0)
     light.lerp(lightTarget, 1 - Math.pow(0.02, dt))
-    keyLight.position.set(4 + light.x * 3.5, 6 + light.y * 2.5, 8)
-    rimLight.position.set(-6 + light.x * 2.5, -2 + light.y * 2, 4)
+
+    // On top of the pointer parallax, the lamps wander on their own. Three
+    // incommensurate periods per axis means the path never repeats and never
+    // reads as a loop — light that drifts like weather rather than orbiting on
+    // a timer. The specular streak on each bevel crawls with it, which is what
+    // gives the glass its life when nothing else on screen is moving.
+    const organic = calm ? 0 : 1
+    const ox = organic * (Math.sin(t * 0.13) * 1.6 + Math.sin(t * 0.071) * 1.1 + Math.sin(t * 0.037) * 0.7)
+    const oy = organic * (Math.cos(t * 0.11) * 1.2 + Math.cos(t * 0.053) * 0.9)
+    const breathe = 1 + organic * (Math.sin(t * 0.19) * 0.10 + Math.sin(t * 0.087) * 0.06)
+
+    keyLight.position.set(4 + light.x * 3.5 + ox, 6 + light.y * 2.5 + oy, 8)
+    keyLight.intensity = 1.15 * breathe
+    rimLight.position.set(-6 + light.x * 2.5 - ox * 0.7, -2 + light.y * 2 + oy * 0.5, 4)
+    rimLight.intensity = 0.6 * (2 - breathe)
+    // The bloom swells with the same signal, so the glow is the light's own
+    // rather than a constant post effect sitting on top of it.
+    bloom.strength = 0.34 * breathe
 
     // Hover pick
     ray.setFromCamera(pointer, camera)

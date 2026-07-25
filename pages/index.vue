@@ -58,7 +58,7 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
              tower to that card, which keeps the two in sync without the links
              pretending to be buttons. -->
         <nav class="h-index" aria-label="Sections">
-          <NuxtLink v-for="(it, i) in items" :key="it.href" :to="it.href" class="h-slot"
+          <NuxtLink v-for="(it, i) in items" :key="it.href" :to="it.href" class="h-slot pixel-edge"
                     :class="{ on: index % 4 === i }"
                     :aria-current="index % 4 === i ? 'page' : undefined"
                     :aria-label="it.label"
@@ -124,12 +124,24 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
 .h-index { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10rem; width: 100%; }
 .h-slot {
   display: flex; flex-direction: column; gap: 9rem;
-  min-height: 46rem; padding-top: 2rem;
+  min-height: 46rem; padding: 8rem 10rem 9rem;
   color: var(--ink); text-decoration: none;
   -webkit-tap-highlight-color: transparent;
+  /* Chamfered like the rest of the bitmap chrome. Each slot is a lens over the
+     stage, so the field keeps drifting behind the index. */
+  --px-step: 6px;
+  background: rgba(255,255,255,0.035);
+  backdrop-filter: blur(10px) saturate(1.3) brightness(1.08);
+  -webkit-backdrop-filter: blur(10px) saturate(1.3) brightness(1.08);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10);
+  transition: background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
+.h-slot.on { background: rgba(255,255,255,0.085); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.30), 0 0 22rem -8rem rgba(255,255,255,0.6); }
+/* Full-bleed to the panel's own edge. Inset by the padding it read as a stray
+   floating line inside a box rather than as the panel's status bar. */
 .h-slot__rule {
-  display: block; height: 2px; width: 100%; background: currentColor; opacity: 0.16;
+  display: block; height: 3px; opacity: 0.16;
+  margin: -8rem -10rem 0; background: currentColor;
   transition: opacity var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
 }
 .h-slot__txt { display: flex; align-items: baseline; gap: 7rem; opacity: 0.42; transition: opacity var(--dur-fast) var(--ease-out); }
@@ -140,6 +152,7 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
 .h-slot.on .h-slot__txt { opacity: 1; }
 .h-slot:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 4rem; }
 @media (hover: hover) {
+  .h-slot:hover { background: rgba(255,255,255,0.07); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.22); }
   .h-slot:hover .h-slot__rule { opacity: 0.5; }
   .h-slot:hover .h-slot__txt { opacity: 0.8; }
   .h-slot.on:hover .h-slot__rule { opacity: 1; }

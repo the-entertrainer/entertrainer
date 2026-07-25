@@ -155,6 +155,13 @@ export interface StageOptions {
    * clear band at the bottom for copy. Positive = cards ride higher.
    */
   lift?: number
+  /**
+   * Screen-space bands reserved for chrome, in CSS pixels. The camera frames
+   * the cards into what's left, so a fixed header or caption sheet can never
+   * be overlapped by the stage.
+   */
+  insetTop?: number
+  insetBottom?: number
   onActive?: (index: number) => void
   onPick?: (href: string) => void
 }
@@ -172,8 +179,14 @@ const CARD_W = ART_W + MAT * 2, CARD_H = ART_H + MAT * 2
 // narrow phone screen instead of running off both edges.
 const LAYOUT_SPREAD: Record<LayoutName, number> = {
   helix: 2.5, coverflow: 2.7, deck: 0.5, orbit: 2.6, arc: 2.4, grid: 3.1,
-  column: 0.45, ribbon: 3.4, desk: 0, constellation: 3.6, wave: 2.1, vortex: 3.4
+  column: 0.25, ribbon: 3.4, desk: 0, constellation: 3.6, wave: 2.1, vortex: 3.4
 }
+
+// Breathing room around the framed content, as a fraction of a card. Expressed
+// relative to the card rather than in world units so it scales with the frame:
+// a fixed margin that looked right on a desktop left a phone with 55px of dead
+// paper down each side and a card too small to read.
+const FRAME_MARGIN = CARD_W * 0.12
 
 export function createGlassStage(opts: StageOptions) {
   const theme = opts.theme ?? PAPER
@@ -181,6 +194,8 @@ export function createGlassStage(opts: StageOptions) {
   const items = opts.items
   const N = opts.count ?? Math.max(items.length, 6)
   const lift = opts.lift ?? 0
+  let insetTop = opts.insetTop ?? 0
+  let insetBottom = opts.insetBottom ?? 0
 
   const renderer = new WebGLRenderer({ canvas: opts.canvas, antialias: true, alpha: false })
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
@@ -386,9 +401,17 @@ export function createGlassStage(opts: StageOptions) {
         // card under the next by more than a third.
         py = -rel * 2.05
         const ang = rel * 0.42
-        px = Math.sin(ang) * 0.40; pz = Math.cos(ang) * 0.55 - 0.55
+        px = Math.sin(ang) * 0.40
+        // Neighbours fall away from the lens as well as up and down the frame.
+        // Height alone gave no hierarchy — on a phone the card behind read as
+        // loud as the one in front, so there was nothing to tell you which one
+        // the caption and the button belonged to. Depth does that work: the
+        // focused card is nearer, larger and brighter, and the stack reads as
+        // one object receding rather than a row of equals.
+        pz = Math.cos(ang) * 0.55 - 0.55 - Math.min(ar, 4) * 0.85
         ry = -ang * 0.85
-        s = 1 - Math.min(ar, 4) * 0.05
+        rx = rel * 0.10
+        s = 1 - Math.min(ar, 4) * 0.075
         break
       }
       case 'ribbon': {
@@ -446,50 +469,121 @@ export function createGlassStage(opts: StageOptions) {
     return out
   }
 
-  // ── Input: momentum scroll + pointer ──────────────────────────────────────
-  let scroll = 0, vel = 0, dragging = false, dragged = false
-  let lastX = 0, lastY = 0, downX = 0, downY = 0, base = 0
+  // ── Input: direct manipulation onto spring detents ────────────────────────
+  //
+  // The stack is a *paged* control, not a free-scrolling one. A finger moves it
+  // one-to-one; on release the position springs onto a whole card. Free
+  // momentum reads fine under a mouse wheel but is miserable under a thumb: a
+  // flick used to spin the tower for a second and stop wherever friction
+  // happened to run out, so there was no way to aim it. Projecting the flick
+  // onto a detent — and capping how far a single flick may carry — makes every
+  // gesture land on a card the person chose.
+  let scroll = 0            // continuous position, in card units
+  let target = 0            // the detent being settled onto
+  let vel = 0               // spring velocity, card units per second
+  let dragging = false, dragged = false, caught = false
+  let downX = 0, downY = 0, base = 0
+  let moveT = 0, moveV = 0  // last sample time + smoothed drag velocity
   const pointer = new Vector2(-999, -999)
   const light = new Vector2(0, 0), lightTarget = new Vector2(0, 0)
   const ray = new Raycaster()
+  const pick = new Vector2()
   let active = -1
-  const PX = () => (innerWidth < 700 ? 150 : 280)
+
+  const mqReduce = matchMedia('(prefers-reduced-motion: reduce)')
+  const mqCoarse = matchMedia('(pointer: coarse)')
+
+  // Travel per card. Touch gets a much shorter throw than a mouse: a thumb arc
+  // is a fraction of a comfortable mouse drag, and it has a shorter viewport to
+  // work in, so the desktop distance made the tower feel stuck to the glass.
+  const PX = () => (mqCoarse.matches ? Math.max(90, Math.min(190, innerHeight * 0.22)) : 280)
   const axisH = layout === 'coverflow' || layout === 'wave' || layout === 'arc' || layout === 'grid'
+
+  /** The t nearest the current position that puts card `i` dead centre. */
+  const detentFor = (i: number) => i + Math.round((scroll - i) / N) * N
+
+  /** Which card is under a given client point, if any. */
+  const hitAt = (cx: number, cy: number) => {
+    pick.set((cx / innerWidth) * 2 - 1, -(cy / innerHeight) * 2 + 1)
+    ray.setFromCamera(pick, camera)
+    const h = ray.intersectObjects(cards.map(c => c.hit), false)
+    return h.length ? cards.find(c => c.hit === h[0].object) ?? null : null
+  }
 
   const onDown = (e: PointerEvent) => {
     dragging = true; dragged = false
-    downX = lastX = e.clientX; downY = lastY = e.clientY
-    base = scroll; vel = 0
+    downX = e.clientX; downY = e.clientY
+    base = scroll
+    moveT = e.timeStamp; moveV = 0
+    // Was the stack still travelling when the finger landed? If so this gesture
+    // is a catch, not a tap, and it must not also navigate.
+    caught = Math.abs(vel) > 0.35 || Math.abs(target - scroll) > 0.03
+    vel = 0; target = scroll
     ;(opts.canvas as HTMLElement).setPointerCapture?.(e.pointerId)
   }
   const onMove = (e: PointerEvent) => {
-    pointer.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1)
-    lightTarget.set(pointer.x, pointer.y)
+    // Parallax follows a real pointer only. On touch the "pointer" is the finger
+    // mid-drag, so tying the lights and the rig's sway to it made the whole
+    // scene lurch sideways on every swipe.
+    if (!mqCoarse.matches) {
+      pointer.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1)
+      lightTarget.set(pointer.x, pointer.y)
+    }
     if (!dragging) return
     const dx = e.clientX - downX, dy = e.clientY - downY
-    if (dx * dx + dy * dy > 36) dragged = true
-    const d = axisH ? (e.clientX - downX) : (e.clientY - downY)
-    scroll = base - d / PX()
-    const inst = axisH ? (e.clientX - lastX) : (e.clientY - lastY)
-    vel = -inst / PX() * 0.6
-    lastX = e.clientX; lastY = e.clientY
+    // 8px slop: a thumb never holds perfectly still, and treating a 6px wobble
+    // as a drag stole taps from people with less steady hands.
+    if (dx * dx + dy * dy > 64) dragged = true
+    const prev = scroll
+    scroll = base - (axisH ? dx : dy) / PX()
+    const dt = Math.max(8, e.timeStamp - moveT) / 1000
+    moveT = e.timeStamp
+    // Smoothed, so one jittery sample at lift-off can't define the whole flick.
+    moveV = moveV * 0.6 + ((scroll - prev) / dt) * 0.4
+    target = scroll
   }
-  const onUp = () => {
+  const onUp = (e: PointerEvent) => {
     if (!dragging) return
     dragging = false
-    if (!dragged && active >= 0) opts.onPick?.(cards[active].href)
+    if (dragged) {
+      // Project the flick a fifth of a second forward, then bite onto the
+      // nearest detent — never more than three cards from where it was let go.
+      vel = Math.max(-14, Math.min(14, moveV))
+      const here = Math.round(scroll)
+      target = Math.max(here - 3, Math.min(here + 3, Math.round(scroll + vel * 0.20)))
+      return
+    }
+    vel = 0
+    // A tap. First job is to arrest a moving stack; only then may it navigate —
+    // and only into a card the finger actually landed on. Tapping empty
+    // background used to open whatever happened to be centred.
+    if (caught) { target = Math.round(scroll); return }
+    const c = hitAt(e.clientX, e.clientY)
+    target = Math.round(scroll)
+    if (!c) return
+    // Tap the front card to open it; tap one behind to bring it to the front.
+    // That gives the stack a second, forgiving way in on a phone, where
+    // dragging to a precise card is fiddly.
+    if (c.index === active) opts.onPick?.(c.href)
+    else target = detentFor(c.index)
   }
   let wheelLock = false
   const onWheel = (e: WheelEvent) => {
     const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
-    if (Math.abs(d) < 4 || wheelLock) return
-    wheelLock = true; vel += d > 0 ? 0.13 : -0.13
-    setTimeout(() => (wheelLock = false), 70)
+    if (Math.abs(d) < 4 || wheelLock || dragging) return
+    wheelLock = true; vel = 0
+    target = Math.round(scroll) + (d > 0 ? 1 : -1)
+    setTimeout(() => (wheelLock = false), 130)
   }
   const onKey = (e: KeyboardEvent) => {
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') vel += 0.28
-    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') vel -= 0.28
-    else if ((e.key === 'Enter' || e.key === ' ') && active >= 0) { e.preventDefault(); opts.onPick?.(cards[active].href) }
+    const ae = document.activeElement as HTMLElement | null
+    // Never steal keys from a field, and never let Enter both activate a
+    // focused button and open the centred card.
+    if (ae?.closest?.('input, textarea, select, [contenteditable="true"]')) return
+    const idle = !ae || ae === document.body || ae === opts.canvas
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { vel = 0; target = Math.round(scroll) + 1 }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { vel = 0; target = Math.round(scroll) - 1 }
+    else if (idle && (e.key === 'Enter' || e.key === ' ') && active >= 0) { e.preventDefault(); opts.onPick?.(cards[active].href) }
   }
   opts.canvas.addEventListener('pointerdown', onDown)
   opts.canvas.addEventListener('pointermove', onMove)
@@ -511,11 +605,27 @@ export function createGlassStage(opts: StageOptions) {
       // `wanted` has to account for how far a layout throws cards sideways, not
       // just one card: the tower swings its stack off-axis, so framing it as a
       // single card width let the edges run off a phone screen.
-      const wanted = (CARD_W + LAYOUT_SPREAD[layout] * 2) + 0.6
-      const need = wanted / (2 * Math.tan((camera.fov * Math.PI / 180) / 2) * camera.aspect)
-      // Negated: dropping the camera raises the composition in frame. Moving it
-      // *up* would push the cards down into the very band we're clearing.
-      camera.position.set(0, -lift, Math.max(BASE_Z, need))
+      const tanHalf = Math.tan((camera.fov * Math.PI / 180) / 2)
+
+      // Width: the layout's full lateral throw has to fit, not just one card.
+      const wantW = CARD_W + LAYOUT_SPREAD[layout] * 2 + FRAME_MARGIN * 2
+      const needW = wantW / (2 * tanHalf * camera.aspect)
+
+      // Height: cards may only occupy the band left between the chrome. Framing
+      // against the whole viewport is what let the top card sit under the
+      // wordmark and the bottom one hide behind the caption.
+      const H = Math.max(1, innerHeight)
+      const band = Math.max(120, H - insetTop - insetBottom)
+      const needH = ((CARD_H + FRAME_MARGIN * 2) * H) / (band * 2 * tanHalf)
+
+      const dist = Math.max(BASE_Z, needW, needH)
+
+      // Re-centre on that band: world units per screen pixel at this distance,
+      // times half the inset imbalance. Positive raises the composition.
+      const perPx = (2 * dist * tanHalf) / H
+      const recentre = ((insetBottom - insetTop) / 2) * perPx
+
+      camera.position.set(0, -(lift + recentre), dist)
     }
     camera.updateProjectionMatrix()
     renderer.setSize(innerWidth, innerHeight)
@@ -534,17 +644,25 @@ export function createGlassStage(opts: StageOptions) {
     const dt = Math.min(clock.getDelta(), 0.05)
     const t = clock.elapsedTime
 
+    // Under a reduced-motion preference the stack steps straight to its detent:
+    // no travel, no float, no parallax. The layout still changes, but nothing
+    // slides across the field of view.
+    const calm = mqReduce.matches
+
     if (!dragging) {
-      scroll += vel
-      vel *= Math.pow(0.90, dt * 60)
-      if (Math.abs(vel) < 0.0012) {
-        vel = 0
-        const tgt = Math.round(scroll)
-        scroll += (tgt - scroll) * (1 - Math.pow(0.86, dt * 60))
+      if (calm) { scroll = target; vel = 0 }
+      else {
+        // Critically damped spring — settles in roughly a third of a second and
+        // never overshoots, so the card you aimed at is the card you get.
+        const k = 130, c = 2 * Math.sqrt(k)
+        vel += (-k * (scroll - target) - c * vel) * dt
+        scroll += vel * dt
+        if (Math.abs(scroll - target) < 0.0008 && Math.abs(vel) < 0.01) { scroll = target; vel = 0 }
       }
     }
 
     // The whole rig breathes toward the pointer — parallax that sells depth.
+    if (calm) lightTarget.set(0, 0)
     light.lerp(lightTarget, 1 - Math.pow(0.02, dt))
     keyLight.position.set(4 + light.x * 3.5, 6 + light.y * 2.5, 8)
     rimLight.position.set(-6 + light.x * 2.5, -2 + light.y * 2, 4)
@@ -563,7 +681,7 @@ export function createGlassStage(opts: StageOptions) {
       c.hover += (c.hoverTarget - c.hover) * (1 - Math.pow(0.005, dt))
 
       // Idle float — tiny, out of phase per card, so the scene is never static.
-      const fl = Math.sin(t * 0.7 + c.index * 1.7) * 0.045
+      const fl = calm ? 0 : Math.sin(t * 0.7 + c.index * 1.7) * 0.045
       const g = c.group
       g.position.set(
         tmp.p.x + light.x * 0.12,
@@ -573,7 +691,7 @@ export function createGlassStage(opts: StageOptions) {
       g.rotation.set(
         tmp.r.x + (layout === 'desk' ? 0 : -light.y * 0.06) + c.hover * 0.05,
         tmp.r.y + (layout === 'desk' ? 0 : light.x * 0.10),
-        tmp.r.z + Math.sin(t * 0.5 + c.index) * 0.006
+        tmp.r.z + (calm ? 0 : Math.sin(t * 0.5 + c.index) * 0.006)
       )
       const sc = tmp.s * (1 + c.hover * 0.05)
       g.scale.setScalar(sc)
@@ -585,8 +703,9 @@ export function createGlassStage(opts: StageOptions) {
       m.iridescence = 0.24 + c.hover * 0.4
       m.envMapIntensity = 1.5 + tmp.a * 0.6 + c.hover * 0.7
       const am = c.art.material as MeshPhysicalMaterial
-      // Cards further from focus dim slightly — depth cueing without fog.
-      am.emissiveIntensity = 0.72 + tmp.a * 0.28 + c.hover * 0.06
+      // Cards further from focus dim — depth cueing without fog, and the main
+      // reason the focused card owns the frame rather than merely sitting in it.
+      am.emissiveIntensity = 0.54 + tmp.a * 0.46 + c.hover * 0.06
       am.envMapIntensity = 0.42 + tmp.a * 0.2 + c.hover * 0.3
       am.clearcoatRoughness = 0.06 - tmp.a * 0.02
 
@@ -609,8 +728,27 @@ export function createGlassStage(opts: StageOptions) {
 
   return {
     onReady(cb: () => void) { ready ? cb() : onReadyCbs.push(cb) },
-    /** Nudge the carousel programmatically (chrome arrows, dots). */
-    go(delta: number) { vel += delta * 0.3 },
+    /** Chrome heights measured from the DOM, so framing tracks real layout. */
+    setInsets(top: number, bottom: number) {
+      if (top === insetTop && bottom === insetBottom) return
+      insetTop = top; insetBottom = bottom; onResize()
+    },
+    /** Step whole cards (arrows, keyboard). */
+    go(delta: number) { vel = 0; target = Math.round(scroll) + Math.round(delta) },
+    /**
+     * Bring a specific *item* to the front by the shortest route. Cards repeat
+     * (8 cards over 4 destinations), so every candidate card for the item is
+     * tested and the nearest wins — pressing a dot should never send the tower
+     * the long way round.
+     */
+    goToItem(itemIndex: number) {
+      let best = target, bd = Infinity
+      for (let c = ((itemIndex % items.length) + items.length) % items.length; c < N; c += items.length) {
+        const t = detentFor(c), d = Math.abs(t - scroll)
+        if (d < bd) { bd = d; best = t }
+      }
+      vel = 0; target = best
+    },
     dispose() {
       cancelAnimationFrame(raf)
       opts.canvas.removeEventListener('pointerdown', onDown)

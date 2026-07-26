@@ -29,12 +29,12 @@ export interface HomeTheme {
   /** true when `bg` is dark, so chrome can flip its treatments. */
   dark: boolean
   /** Display face for the headline. */
-  display: 'silkscreen' | 'fraunces' | 'archivo' | 'bricolage' | 'space'
+  display: 'fraunces' | 'archivo' | 'bricolage' | 'space'
 }
 
 export const HOME_THEMES: HomeTheme[] = [
-  { id: 'h00', name: 'Blackout', blurb: 'Pure monochrome. Black ground, bitmap type, everything lit by bloom.',
-    bg: '#07070A', ink: '#F2F2EF', pop: '#FFFFFF', alt: '#8E8E96', dark: true, display: 'silkscreen' },
+  { id: 'h00', name: 'Blackout', blurb: 'Pure monochrome. Black ground, poster grotesque, everything lit by bloom.',
+    bg: '#07070A', ink: '#F2F2EF', pop: '#FFFFFF', alt: '#8E8E96', dark: true, display: 'archivo' },
 
   { id: 'h01', name: 'Electric Cream', blurb: 'Warm paper, navy ink, a jolt of electric lime.',
     bg: '#F6EFE3', ink: '#171334', pop: '#C6F135', alt: '#4A6CF7', dark: false, display: 'fraunces' },
@@ -68,9 +68,8 @@ export const HOME_THEMES: HomeTheme[] = [
 ]
 
 export const FONT_STACK: Record<HomeTheme['display'], string> = {
-  silkscreen: "'Silkscreen', 'Courier New', monospace",
   fraunces:   "'Fraunces', Georgia, serif",
-  archivo:    "'Archivo', 'DM Sans', sans-serif",
+  archivo:    "'Archivo', 'Helvetica Neue', sans-serif",
   bricolage:  "'Bricolage Grotesque', 'DM Sans', sans-serif",
   space:      "'Space Grotesk', 'DM Sans', sans-serif"
 }
@@ -78,7 +77,7 @@ export const FONT_STACK: Record<HomeTheme['display'], string> = {
 /** Google Fonts href for the display faces that aren't already global. */
 export const FONT_HREF =
   'https://fonts.googleapis.com/css2' +
-  '?family=Archivo:wght@600;800;900' +
+  '?family=Fraunces:opsz,wght@9..144,400;9..144,600' +
   '&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800' +
   '&family=Space+Grotesk:wght@500;700' +
   '&display=swap'

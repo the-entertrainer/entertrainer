@@ -83,12 +83,8 @@
      display face with a mono for indices and labels; it is the single cheapest
      way to make a page read as art-directed rather than templated. */
   --main-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
-  --display-font: "Silkscreen", "Courier New", monospace;
-  --mono-font: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  /* A bitmap face carries far more ink per em than a serif, so the display ramp
-     has to sit lower or every heading turns into a wall. Multiplied into the
-     type scale rather than fighting it rung by rung. */
-  --display-scale: 0.66;
+  --display-font: "Archivo", "Helvetica Neue", "Arial", sans-serif;
+  --mono-font: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
   /* Spacing scale */
   --gap-xs: 10px;
@@ -139,18 +135,23 @@
      either shouted on a phone or whispered on a desktop, and the heroes each
      hand-rolled their own clamp() to compensate, so no two pages agreed. One
      ramp, viewport-interpolated, used everywhere. */
-  --text-display: clamp(30px, 5.4vw, 84px);   /* the one big statement */
-  --text-h1: clamp(22px, 3.4vw, 44px);        /* page hero titles */
-  --text-h2: clamp(16px, 1.9vw, 25px);        /* section heads */
-  --text-h3: clamp(14px, 1.2vw, 17px);        /* card / row titles */
+  /* Display goes genuinely big. A grotesque this heavy is *made* to be set
+     enormous — at 40px it is just a bold label, and the whole point of the
+     artwork's poster type is that it fills the sheet. Mobile-first: the low end
+     of each clamp is what a phone actually gets, and it is deliberately loud. */
+  --text-display: clamp(66px, 20vw, 220px);   /* the one big statement */
+  --text-h1: clamp(46px, 13.5vw, 112px);        /* page hero titles */
+  --text-h2: clamp(26px, 5.6vw, 48px);        /* section heads */
+  --text-h3: clamp(18px, 2.4vw, 26px);        /* card / row titles */
   --text-lead: clamp(17px, 1.5vw, 22px);      /* deck / sub-title */
   --text-body: clamp(15px, 1.15vw, 17px);
   --text-sm: clamp(13px, 1vw, 15px);
   --text-label: clamp(10px, 0.8vw, 12px);     /* mono eyebrows */
-  --tracking-label: 0.14em;
-  /* A bitmap face is drawn on a grid and already carries its own sidebearings;
-     pulling it tight the way you would a serif just collides the pixels. */
-  --tracking-display: 0em;
+  --tracking-label: 0.16em;
+  /* Set this large, a grotesque needs pulling in hard or the counters float
+     apart. This is the single number that makes big type look set rather than
+     typed. */
+  --tracking-display: -0.045em;
 
   /* Editorial measure — the widths copy is allowed to run to. */
   --measure-deck: 34ch;
@@ -196,92 +197,60 @@
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
 }
-/* ── Pixel edge ─────────────────────────────────────────────────────────
-   A bitmap-era chamfer: corners cut on the diagonal in whole steps instead of
-   arced. It is what makes a panel read as drawn on a grid alongside the type,
-   and unlike a border-radius it stays honest at any size because the cut is a
-   fixed number of pixels rather than a curve that resamples.
+/* Kept as a no-op shim: the bitmap chamfer is gone with the pixel direction,
+   but a few elements still carry the class. A soft radius is the right
+   fallback, and crucially it drops the clip-path so outer shadows survive. */
+.pixel-edge { border-radius: 14rem; }
 
-   `--px-step` is the size of one notch. Anything wearing this must drop its
-   own border-radius — clip-path and radius fight, and the radius wins on the
-   corner while the clip wins on the edge, which leaves a visible nick. */
-.pixel-edge {
-  --px-step: 8px;
-  border-radius: 0 !important;
-  clip-path: polygon(
-    0 var(--px-step), var(--px-step) var(--px-step), var(--px-step) 0,
-    calc(100% - var(--px-step)) 0, calc(100% - var(--px-step)) var(--px-step), 100% var(--px-step),
-    100% calc(100% - var(--px-step)), calc(100% - var(--px-step)) calc(100% - var(--px-step)),
-    calc(100% - var(--px-step)) 100%,
-    var(--px-step) 100%, var(--px-step) calc(100% - var(--px-step)), 0 calc(100% - var(--px-step))
-  );
-}
-/* clip-path cuts the border off with the corner, so the outline has to be
-   painted inside the shape instead. */
-.pixel-edge { box-shadow: inset 0 0 0 1px var(--color-glass-border); }
-
-/* ── Pixel button ───────────────────────────────────────────────────────
-   The clicky one. A bitmap-era button has no gradient and no easing — it has a
-   hard offset block behind it that *disappears* when you press, so the button
-   physically drops onto the page. That travel is the entire feedback, and it is
-   why these read as mechanical rather than as a rectangle that changes colour.
-
-   Square by design: the offset block and a rounded corner cannot agree, and a
-   1px radius on a bitmap face just looks like a rendering error. */
+/* ── Control ────────────────────────────────────────────────────────────
+   One button, and it is glass. The stepped offset-block press went with the
+   pixel direction — it was mechanical on purpose, and mechanical is the
+   opposite of what this is now. The feel comes from weight instead: it lifts
+   toward you on hover and sinks under the press, both on a spring, so it reads
+   as an object with mass rather than a rectangle changing state. */
 .px-btn {
-  --px-lift: 4px;
   position: relative;
-  display: inline-flex; align-items: center; justify-content: center; gap: 9rem;
-  min-height: 44rem; padding: 11rem 20rem;
-  border: 0; border-radius: 0;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10rem;
+  min-height: 48rem; padding: 13rem 26rem;
+  border: 0; border-radius: 999rem;
   background: var(--color-glass-bg);
-  backdrop-filter: blur(12px) saturate(1.3) brightness(1.08);
-  -webkit-backdrop-filter: blur(12px) saturate(1.3) brightness(1.08);
+  backdrop-filter: blur(20px) saturate(1.4) brightness(1.1);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4) brightness(1.1);
   color: var(--color-text);
   font-family: var(--display-font);
-  font-size: 13rem; font-weight: 400; letter-spacing: 0.04em;
-  text-transform: uppercase; text-decoration: none; white-space: nowrap;
-  cursor: pointer;
+  font-size: 14rem; font-weight: 700; letter-spacing: 0.02em;
+  text-decoration: none; white-space: nowrap; cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   box-shadow:
-    inset 0 0 0 1px var(--color-glass-border-hover),
-    var(--px-lift) var(--px-lift) 0 0 var(--glow-soft);
-  /* Stepped, not smooth: the press should land in one frame like a key. */
-  transition: transform 90ms steps(2, end), box-shadow 90ms steps(2, end), background 160ms linear;
+    inset 0 1px 0 var(--glow-rim),
+    inset 0 0 0 1px var(--color-glass-border),
+    0 10rem 30rem -14rem rgba(0,0,0,0.8),
+    0 0 30rem -14rem var(--glow-soft);
+  transition: transform 460ms var(--ease-spring), box-shadow 320ms var(--ease-out), background 320ms var(--ease-out);
 }
 @media (hover: hover) {
   .px-btn:hover {
     background: var(--color-glass-bg-hover);
-    transform: translate(-1px, -1px);
+    transform: translateY(-3rem) scale(1.015);
     box-shadow:
-      inset 0 0 0 1px var(--color-text),
-      calc(var(--px-lift) + 1px) calc(var(--px-lift) + 1px) 0 0 var(--glow-soft);
+      inset 0 1px 0 var(--glow-rim),
+      inset 0 0 0 1px var(--color-glass-border-hover),
+      0 20rem 44rem -18rem rgba(0,0,0,0.9),
+      0 0 44rem -12rem var(--glow-soft);
   }
 }
-/* Pressed: the button travels the exact distance of its own shadow and the
-   shadow goes to nothing, so it reads as the block being pushed flat. */
-.px-btn:active {
-  transform: translate(var(--px-lift), var(--px-lift));
-  box-shadow: inset 0 0 0 1px var(--color-text), 0 0 0 0 var(--glow-soft);
-}
-.px-btn:focus-visible {
-  outline: 2px dashed var(--color-text);
-  outline-offset: 3px;
-}
+.px-btn:active { transform: translateY(1rem) scale(0.975); transition-duration: 120ms; }
+.px-btn:focus-visible { outline: 2px solid var(--color-text); outline-offset: 4px; }
 .px-btn[disabled] { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-/* The filled variant, for the one primary action on a page. */
 .px-btn--solid {
   background: var(--color-pop); color: var(--color-on-pop);
   backdrop-filter: none; -webkit-backdrop-filter: none;
-  box-shadow: inset 0 0 0 1px var(--color-pop), var(--px-lift) var(--px-lift) 0 0 var(--glow-soft);
 }
-@media (hover: hover) { .px-btn--solid:hover { background: var(--color-text); color: var(--color-bg); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .px-btn { transition: background 160ms linear; }
-  .px-btn:hover { transform: none; }
-  .px-btn:active { transform: none; box-shadow: inset 0 0 0 1px var(--color-text), 0 0 0 0 var(--glow-soft); }
+  .px-btn { transition: background 200ms linear; }
+  .px-btn:hover, .px-btn:active { transform: none; }
 }
 
 /* Content imagery in a monochrome world.
@@ -298,11 +267,13 @@ a:focus-visible .mono-img, button:focus-visible .mono-img,
 
 .t-display {
   font-family: var(--display-font);
-  font-weight: 400;
+  font-weight: 800;
+  font-stretch: 96%;
   letter-spacing: var(--tracking-display);
-  /* Bitmap glyphs need air between rows or the ascenders and descenders of
-     adjacent lines read as one solid block. */
-  line-height: 1.28;
+  /* Tight. Big grotesque headings want their lines to stack into a block, and
+     the loose leading a bitmap face needed reads as a gap here. */
+  line-height: 0.92;
+  text-wrap: balance;
 }
 
 @media (max-width: 900px) {
@@ -617,66 +588,57 @@ canvas {
 /* ── Buttons ──
    `min-height` rather than padding alone: the padding tokens put the pill at
    42px, which is under the 44px touch floor on every one of these buttons. */
-/* The site's primary button *is* the pixel button now. Every tool page already
-   uses .glass-btn, so redirecting the class here converts the whole site in one
-   move rather than leaving rounded pills scattered through the app pages while
-   the homepage went bitmap. A soft pill and a bitmap face were never going to
-   agree on the same page. */
+/* The site's primary button. Same glass mechanic as .px-btn — every tool page
+   already uses this class, so it converts the whole site in one move. */
 .glass-btn {
-  --px-lift: 4px;
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 9rem;
-  min-height: 44rem;
-  padding: 11rem 20rem;
+  gap: 10rem;
+  min-height: 48rem;
+  padding: 13rem 26rem;
   border: 0;
-  border-radius: 0;
+  border-radius: 999rem;
   background: var(--color-pop);
   color: var(--color-on-pop);
   font-family: var(--display-font);
-  font-size: 13rem;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 14rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   cursor: pointer;
   white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: inset 0 0 0 1px var(--color-pop), var(--px-lift) var(--px-lift) 0 0 var(--glow-soft);
-  transition: transform 90ms steps(2, end), box-shadow 90ms steps(2, end), background 160ms linear;
+  box-shadow: 0 12rem 34rem -16rem rgba(0,0,0,0.85), 0 0 34rem -16rem var(--glow-soft);
+  transition: transform 460ms var(--ease-spring), box-shadow 320ms var(--ease-out), background 320ms var(--ease-out);
 }
 .glass-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 @media (hover: hover) {
   .glass-btn:not(:disabled):hover {
-    background: var(--color-text);
-    transform: translate(-1px, -1px);
-    box-shadow: inset 0 0 0 1px var(--color-text),
-      calc(var(--px-lift) + 1px) calc(var(--px-lift) + 1px) 0 0 var(--glow-soft);
+    transform: translateY(-3rem) scale(1.015);
+    box-shadow: 0 22rem 48rem -20rem rgba(0,0,0,0.9), 0 0 48rem -14rem var(--glow-soft);
   }
 }
-.glass-btn:not(:disabled):active {
-  transform: translate(var(--px-lift), var(--px-lift));
-  box-shadow: inset 0 0 0 1px var(--color-text), 0 0 0 0 var(--glow-soft);
-}
-.glass-btn:focus-visible { outline: 2px dashed var(--color-text); outline-offset: 3px; }
+.glass-btn:not(:disabled):active { transform: translateY(1rem) scale(0.975); transition-duration: 120ms; }
+.glass-btn:focus-visible { outline: 2px solid var(--color-text); outline-offset: 4px; }
 
 .glass-btn--ghost {
   background: var(--color-glass-bg);
   color: var(--color-text);
-  -webkit-backdrop-filter: blur(12px) saturate(1.3) brightness(1.08);
-  backdrop-filter: blur(12px) saturate(1.3) brightness(1.08);
-  box-shadow: inset 0 0 0 1px var(--color-glass-border-hover),
-    var(--px-lift) var(--px-lift) 0 0 var(--glow-soft);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4) brightness(1.1);
+  backdrop-filter: blur(20px) saturate(1.4) brightness(1.1);
+  box-shadow:
+    inset 0 1px 0 var(--glow-rim),
+    inset 0 0 0 1px var(--color-glass-border),
+    0 10rem 30rem -14rem rgba(0,0,0,0.8);
 }
 @media (hover: hover) {
   .glass-btn--ghost:not(:disabled):hover { background: var(--color-glass-bg-hover); color: var(--color-text); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .glass-btn { transition: background 160ms linear; }
-  .glass-btn:not(:disabled):hover { transform: none; }
-  .glass-btn:not(:disabled):active { transform: none; }
+  .glass-btn { transition: background 200ms linear; }
+  .glass-btn:not(:disabled):hover, .glass-btn:not(:disabled):active { transform: none; }
 }
 
 /* ── Chip — small pill (copy buttons, tags, toggles) ── */

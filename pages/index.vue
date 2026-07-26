@@ -38,42 +38,31 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
       </div>
     </template>
 
-    <template #bottom="{ active, index, goToItem, open, items }">
+    <template #bottom="{ active, index, goToItem, items }">
       <div class="h-sheet">
-        <!-- No title here. The card filling the screen already *is* the title —
-             its artwork reads "ABOUT ME" in poster type — and the index below
-             names it a third time. Three copies of one word was the design
-             mistake; the caption's job is the one thing the artwork cannot say,
-             which is what the section actually contains. -->
+        <!-- The cards are the interface. No title (the artwork is the title), no
+             button (the card is the button), no index (the stack is the index).
+             What is left is the one line the artwork cannot say — what the
+             section actually contains — and a counter to say where you are. -->
         <Transition name="h" mode="out-in">
-          <p :key="active.href" class="h-desc">{{ active.desc }}</p>
+          <div :key="active.href" class="h-cap">
+            <p class="h-desc">{{ active.desc }}</p>
+            <p class="h-count" aria-hidden="true">
+              <span class="h-count__n">{{ String((index % 4) + 1).padStart(2, '0') }}</span>
+              <span class="h-count__t">/ 04</span>
+            </p>
+          </div>
         </Transition>
 
-        <!-- The visible label stays short and generic so it never echoes the
-             card; the accessible name still carries the destination, because a
-             screen reader has no artwork to read it from. -->
-        <button class="px-btn h-open" :aria-label="`Enter ${active.label}`" @click="open(active.href)">
-          <span class="h-open__a" aria-hidden="true">▸</span>
-          <span>Enter</span>
-        </button>
-
-        <!-- The index is also the site's real navigation: four honest links, so
-             the whole homepage is operable by keyboard and screen reader even
-             though the stack itself is a canvas. Hover or focus slides the
-             tower to that card, which keeps the two in sync without the links
-             pretending to be buttons. -->
-        <nav class="h-index" aria-label="Sections">
-          <NuxtLink v-for="(it, i) in items" :key="it.href" :to="it.href" class="h-slot pixel-edge"
-                    :class="{ on: index % 4 === i }"
+        <!-- The stack is a canvas, so this is the only navigation assistive tech
+             and the keyboard can reach. It is off-screen until focused rather
+             than hidden outright: tabbing lands on a real, visible link, and
+             focusing one turns the tower to that card so the two never disagree
+             about where you are. -->
+        <nav class="h-a11y" aria-label="Sections">
+          <NuxtLink v-for="(it, i) in items" :key="it.href" :to="it.href"
                     :aria-current="index % 4 === i ? 'page' : undefined"
-                    :aria-label="it.label"
-                    @mouseenter="goToItem(i)" @focus="goToItem(i)">
-            <span class="h-slot__rule" aria-hidden="true" />
-            <span class="h-slot__txt" aria-hidden="true">
-              <span class="h-slot__n">{{ it.n }}</span>
-              <span class="h-slot__l"><span class="h-slot__full">{{ it.label }}</span><span class="h-slot__short">{{ it.short }}</span></span>
-            </span>
-          </NuxtLink>
+                    @focus="goToItem(i)">{{ it.label }}</NuxtLink>
         </nav>
       </div>
     </template>
@@ -88,72 +77,36 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
 .h-role { font-family: var(--mono-font); font-weight: 500; font-size: 10.5rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-35); }
 
 /* ── Bottom chrome ────────────────────────────────────────────────────────
-   Quiet on purpose. The stack is the piece; the chrome's job is to name what
-   is in front, offer the way in, and index the rest — then get out of the way.
-   The previous version fought the glass: a neon pill button with a coloured
-   glow, four bordered chips that read as a form control, and an all-caps hint,
-   all stacked in four bright rows under a scene built out of paper and light.
-   Ink on paper, hairlines, and one 2px accent is the whole vocabulary now. */
-.h-sheet { display: flex; flex-direction: column; align-items: center; gap: 18rem; max-width: 720rem; margin: 0 auto; }
-.h-desc { font-family: 'DM Sans', sans-serif; font-size: 13rem; line-height: 1.5; margin: 0 auto; max-width: 42ch; color: var(--ink-60); text-align: center; }
+   Almost nothing. The stack is the interface: the artwork is the title, the
+   card is the button, and the position in the stack is the index — so all three
+   of those left the page. What remains is the one line the artwork cannot say
+   and a counter to locate you. */
+.h-sheet { display: flex; flex-direction: column; align-items: center; gap: 12rem; max-width: 720rem; margin: 0 auto; }
+.h-cap { display: flex; flex-direction: column; align-items: center; gap: 10rem; }
+.h-desc {
+  font-family: 'DM Sans', sans-serif; font-size: clamp(13rem, 3.5vw, 16rem);
+  line-height: 1.5; margin: 0; max-width: 34ch; color: var(--ink-60); text-align: center;
+}
+.h-count {
+  display: flex; align-items: baseline; gap: 5rem; margin: 0;
+  font-family: var(--display); font-weight: 700; letter-spacing: 0.1em;
+  color: var(--ink-35); font-variant-numeric: tabular-nums;
+}
+.h-count__n { font-size: 15rem; color: var(--ink); }
+.h-count__t { font-size: 10.5rem; }
 
-/* Inherits the whole press mechanic from .px-btn; only the caret animation is
-   local. The label is deliberately generic — the card behind it is the title. */
-.h-open__a { display: inline-block; transition: translate var(--dur-fast) var(--ease-out); }
-.h-open:hover .h-open__a { translate: 3rem 0; }
-@media (prefers-reduced-motion: reduce) { .h-open__a { transition: none; } }
-
-/* ── Index / navigation ───────────────────────────────────────────────────
-   Four real links on hairline rails. Each is a full-width column so the touch
-   target stays well past 44px on both axes while the ink on screen is only a
-   rule and two words. */
-.h-index { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10rem; width: 100%; }
-.h-slot {
-  display: flex; flex-direction: column; gap: 9rem;
-  min-height: 46rem; padding: 8rem 10rem 9rem;
-  color: var(--ink); text-decoration: none;
-  -webkit-tap-highlight-color: transparent;
-  /* Chamfered like the rest of the bitmap chrome. Each slot is a lens over the
-     stage, so the field keeps drifting behind the index. */
-  --px-step: 6px;
-  background: rgba(255,255,255,0.035);
-  backdrop-filter: blur(10px) saturate(1.3) brightness(1.08);
-  -webkit-backdrop-filter: blur(10px) saturate(1.3) brightness(1.08);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10);
-  /* The offset block is a drop-shadow *filter*, not a box-shadow. These slots
-     are chamfered with clip-path, and clip-path cuts the element's own shadows
-     off with the corner — the block simply vanished. A filter is applied after
-     the clip, so the block takes the chamfered silhouette instead of being
-     erased by it.
-     Same press mechanic as the buttons: stepped, not eased, so it lands like a
-     key rather than easing like a web control. */
-  filter: drop-shadow(3px 3px 0 rgba(255,255,255,0.13));
-  transition: transform 90ms steps(2, end), filter 90ms steps(2, end), background 160ms linear;
+/* Off-screen until focused, not hidden. Tabbing has to land on something a
+   sighted keyboard user can actually see, and a canvas cannot be that. */
+.h-a11y a {
+  position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;
 }
-.h-slot:active {
-  transform: translate(3px, 3px);
-  filter: drop-shadow(0 0 0 rgba(255,255,255,0));
-}
-.h-slot.on { background: rgba(255,255,255,0.085); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.30); filter: drop-shadow(3px 3px 0 rgba(255,255,255,0.26)); }
-/* Full-bleed to the panel's own edge. Inset by the padding it read as a stray
-   floating line inside a box rather than as the panel's status bar. */
-.h-slot__rule {
-  display: block; height: 3px; opacity: 0.16;
-  margin: -8rem -10rem 0; background: currentColor;
-  transition: opacity var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
-}
-.h-slot__txt { display: flex; align-items: baseline; gap: 7rem; opacity: 0.42; transition: opacity var(--dur-fast) var(--ease-out); }
-.h-slot__n { font-family: var(--mono-font); font-weight: 500; font-size: 9.5rem; letter-spacing: 0.1em; }
-.h-slot__l { font-family: 'DM Sans', sans-serif; font-size: 12rem; font-weight: 500; line-height: 1.1; letter-spacing: -0.01em; }
-.h-slot__short { display: none; }
-.h-slot.on .h-slot__rule { opacity: 1; background: var(--pop); }
-.h-slot.on .h-slot__txt { opacity: 1; }
-.h-slot:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 4rem; }
-@media (hover: hover) {
-  .h-slot:hover { background: rgba(255,255,255,0.07); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.22); filter: drop-shadow(4px 4px 0 rgba(255,255,255,0.20)); transform: translate(-1px,-1px); }
-  .h-slot:hover .h-slot__rule { opacity: 0.5; }
-  .h-slot:hover .h-slot__txt { opacity: 0.8; }
-  .h-slot.on:hover .h-slot__rule { opacity: 1; }
+.h-a11y a:focus-visible {
+  position: fixed; left: 50%; translate: -50% 0; bottom: calc(18rem + var(--safe-bottom));
+  width: auto; height: auto; z-index: 60;
+  padding: 12rem 22rem; border-radius: 999rem;
+  background: var(--ink); color: var(--bg);
+  font-family: var(--display); font-weight: 700; font-size: 13rem;
+  outline: 2px solid var(--ink); outline-offset: 3px;
 }
 
 .h-enter-active, .h-leave-active { transition: opacity 0.3s ease, transform 0.5s cubic-bezier(.19,1,.22,1); }
@@ -164,10 +117,6 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
    640px-tall screen every line of chrome is a line the cards don't get. */
 @media (max-width: 560px) {
   .h-role { display: none; }
-  .h-sheet { gap: 13rem; }
-  .h-index { gap: 7rem; }
-  .h-slot__full { display: none; }
-  .h-slot__short { display: inline; }
 }
 
 /* Landscape phones have height to spare in exactly the wrong direction: the
@@ -175,17 +124,12 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
    out along the long axis instead — caption, action, index, one row. */
 @media (orientation: landscape) and (max-height: 520px) {
   .h-sheet { flex-direction: row; align-items: center; justify-content: space-between; gap: 20rem; max-width: none; }
-  .h-desc { text-align: left; min-width: 0; flex: 1 1 auto; margin: 0; }
-  .h-open { flex: 0 0 auto; }
-  .h-index { width: auto; flex: 0 0 auto; grid-template-columns: repeat(4, 66rem); }
-  .h-slot__full { display: none; }
-  .h-slot__short { display: inline; }
+  .h-desc { text-align: left; min-width: 0; margin: 0; }
   .h-role { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .h-enter-active, .h-leave-active,
-  .h-open__a, .h-slot, .h-slot__rule, .h-slot__txt { transition: none; }
-  .h-slot:hover, .h-slot:active { transform: none; }
+  .h-enter-active, .h-leave-active { transition: opacity 0.2s ease; }
+  .h-enter-from, .h-leave-to { transform: none; }
 }
 </style>

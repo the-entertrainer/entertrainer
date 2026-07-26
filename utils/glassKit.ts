@@ -805,8 +805,26 @@ export function createGlassStage(opts: StageOptions) {
     // Tap the front card to open it; tap one behind to bring it to the front.
     // That gives the stack a second, forgiving way in on a phone, where
     // dragging to a precise card is fiddly.
-    if (c.index === active) opts.onPick?.(c.href)
+    if (c.index === active) flipAndPick(c)
     else target = detentFor(c.index)
+  }
+
+  // ── The flip ──────────────────────────────────────────────────────────────
+  // Tapping the front card turns it over in space and navigates as it lands.
+  // The card *is* the button now, so the transition has to carry the whole
+  // weight of the interaction: a full half-turn on Y, lifted toward the lens at
+  // the midpoint so it arcs rather than spinning on the spot, and eased out of
+  // a fast start so it reads as thrown rather than played back. Navigation
+  // fires at 78% — the page underneath begins arriving while the card is still
+  // moving, which is what makes it feel continuous instead of sequential.
+  let flipping: GlassCard | null = null
+  let flipT = 0, flipHref = ''
+  const FLIP_MS = 620
+  function flipAndPick(c: GlassCard) {
+    if (flipping) return
+    flipping = c; flipT = 0; flipHref = c.href
+    // Reduced motion gets the navigation without the somersault.
+    if (mqReduce.matches) { flipping = null; opts.onPick?.(c.href) }
   }
   let wheelLock = false
   const onWheel = (e: WheelEvent) => {
@@ -907,6 +925,14 @@ export function createGlassStage(opts: StageOptions) {
     // slides across the field of view.
     const calm = mqReduce.matches
 
+    // Advance the flip and hand off to the router as it lands.
+    if (flipping) {
+      flipT += dt
+      const k = flipT / (FLIP_MS / 1000)
+      if (k >= 0.78 && flipHref) { opts.onPick?.(flipHref); flipHref = '' }
+      if (k >= 1) flipping = null
+    }
+
     // The backdrop keeps drifting under reduced motion, just far slower: it is
     // a diffuse field with no edges to track, so it reads as light changing
     // rather than as something moving across the view.
@@ -972,8 +998,27 @@ export function createGlassStage(opts: StageOptions) {
         tmp.r.y + (layout === 'desk' ? 0 : light.x * 0.10),
         tmp.r.z + (calm ? 0 : Math.sin(t * 0.5 + c.index) * 0.006)
       )
-      const sc = tmp.s * (1 + c.hover * 0.05)
-      g.scale.setScalar(sc)
+      let sc = tmp.s * (1 + c.hover * 0.05)
+
+      // The card being turned over ignores the layout for the duration and
+      // drives itself, so the stack behind it can keep behaving normally.
+      if (flipping === c) {
+        const k = Math.min(1, flipT / (FLIP_MS / 1000))
+        // Ease in *and* out. A pure ease-out passes 90 degrees a fifth of the
+        // way in, so the print vanished almost immediately and the rest of the
+        // turn was spent staring at the back of the card. Symmetric easing puts
+        // the edge-on moment at the halfway point, where it belongs.
+        const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2
+        g.rotation.y = tmp.r.y + e * Math.PI
+        // Arc toward the lens through the midpoint rather than spinning flat.
+        const arc = Math.sin(k * Math.PI)
+        g.position.z = tmp.p.z + arc * 1.5
+        g.position.y = tmp.p.y + arc * 0.12
+        sc = sc * (1 + arc * 0.06)
+        g.scale.setScalar(sc)
+      } else {
+        g.scale.setScalar(sc)
+      }
 
       // Glass gets thicker + glossier as a card comes forward: the focused card
       // reads as a heavier, more present piece of glass.

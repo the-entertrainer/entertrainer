@@ -218,11 +218,11 @@ function iconPath(name: string) {
 .id-title {
   font-family: var(--display-font);
   font-optical-sizing: auto;
-  font-size: clamp(20rem, 2.9vw, 34rem);
-  font-weight: 400;
-  line-height: 1.02;
-  letter-spacing: -0.015em;
-  max-width: 15ch;
+  font-size: var(--text-h1);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: var(--tracking-display);
+  max-width: 13ch;
 }
 .id-dek {
   margin-top: 20rem;

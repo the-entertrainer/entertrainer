@@ -110,7 +110,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
       <figure class="ab-hero__portrait" v-motion :initial="rv.portrait.initial" :visible-once="rv.portrait.visibleOnce">
-        <img class="mono-img" src="/about-me.png" alt="Portrait of Naveen Jose" width="1920" height="1080" loading="eager" draggable="false" />
+        <UiCard3D src="/about-me.png" alt="Portrait of Naveen Jose" ratio="fill" :strength="10" radius="16rem" eager />
       </figure>
       <span class="ab-hero__cue" aria-hidden="true" v-motion :initial="rv.cue.initial" :visible-once="rv.cue.visibleOnce"><span class="ab-hero__cue-line" /> scroll</span>
     </section>
@@ -167,7 +167,7 @@ onBeforeUnmount(() => {
 .ab-hero__glow { position: absolute; z-index: 0; top: 18%; left: 28%; width: 60vw; height: 60vw; max-width: 720rem; max-height: 720rem; translate: -50% -30%; pointer-events: none; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--color-accent) 42%, transparent), transparent 62%); opacity: 0.3; filter: blur(30rem); }
 .ab-hero__copy { position: relative; z-index: 2; max-width: 560rem; }
 .ab-hero__eyebrow { display: inline-block; font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.7; margin-bottom: 22rem; }
-.ab-hero__name { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(30rem, 5.2vw, 70rem); line-height: 1.16; letter-spacing: 0.01em; margin: 0; }
+.ab-hero__name { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: var(--text-h1); font-weight: 800; line-height: 0.92; letter-spacing: var(--tracking-display); margin: 0; }
 .ab-hero__lead { margin: clamp(24rem, 3vw, 38rem) 0 0; max-width: 44ch; font-size: clamp(16rem, 1.8vw, 21rem); line-height: 1.58; opacity: 0.9; }
 .ab-hero__lead em { font-family: var(--serif); font-style: italic; font-weight: 500; opacity: 1; }
 .ab-hero__meta { margin-top: 26rem; display: flex; align-items: center; gap: 12rem; font-size: 12.5rem; letter-spacing: 0.06em; font-weight: 600; opacity: 0.72; flex-wrap: wrap; }
@@ -188,7 +188,7 @@ onBeforeUnmount(() => {
 .ab-ch__prose { align-self: stretch; max-width: 500rem; min-height: 82vh; display: flex; flex-direction: column; justify-content: center; padding-block: clamp(10rem, 6vh, 60rem); }
 .ab-ch__eyebrow { display: inline-block; font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.72; margin-bottom: 22rem; }
 .ab-ch__eyebrow em { font-style: normal; opacity: 0.6; margin-right: 4rem; }
-.ab-ch__head { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(19rem, 2.6vw, 34rem); line-height: 1.25; letter-spacing: 0.01em; margin: 0; }
+.ab-ch__head { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: var(--text-h2); font-weight: 800; line-height: 0.92; letter-spacing: var(--tracking-display); margin: 0; }
 .ab-ch__body { margin: clamp(20rem, 2.4vw, 30rem) 0 0; max-width: 46ch; font-size: clamp(15.5rem, 1.5vw, 18rem); line-height: 1.66; opacity: 0.84; }
 .ab-ch__foot { margin: 20rem 0 0; font-family: var(--serif); font-style: italic; font-size: 16rem; opacity: 0.7; }
 .ab-ch__cta { display: flex; flex-wrap: wrap; gap: 12rem; margin-top: 34rem; }

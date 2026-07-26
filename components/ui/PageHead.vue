@@ -21,10 +21,15 @@ defineProps<{
 
 const R = useReveal()
 const rv = { eyebrow: R.rise(0), title: R.rise(90), deck: R.rise(190), intro: R.rise(260) }
+
+// The masthead tracks its own position, so the title drifts and settles as the
+// page moves under it rather than sitting still like a printed header.
+const head = ref<HTMLElement | null>(null)
+useScrollProgress(head)
 </script>
 
 <template>
-  <header class="ph">
+  <header class="ph" ref="head">
     <div class="ph__top">
       <p v-if="eyebrow" class="t-mono ph__eyebrow" v-motion
          :initial="rv.eyebrow.initial" :visible-once="rv.eyebrow.visibleOnce">{{ eyebrow }}</p>
@@ -56,7 +61,20 @@ const rv = { eyebrow: R.rise(0), title: R.rise(90), deck: R.rise(190), intro: R.
 .ph__eyebrow { color: var(--color-text); opacity: 0.55; margin: 0; }
 .ph__meta { color: var(--color-text); opacity: 0.35; margin: 0; white-space: nowrap; }
 
-.ph__title { font-size: var(--text-h1); margin: 0; max-width: 18ch; }
+/* Huge, and it moves. The title slides against the scroll and loses a little
+   weight as it goes, which reads as the page having depth — the heading sits on
+   a plane behind the content instead of on the same sheet of paper.
+   `--pc` is clamped in the calc so a title parked mid-screen barely moves and
+   only the extremes travel. */
+.ph__title {
+  font-size: var(--text-h1);
+  margin: 0;
+  max-width: 14ch;
+  will-change: transform;
+  transform: translate3d(calc(var(--pc, 0) * -3.5vw), calc(var(--pc, 0) * -1.2vh), 0);
+  font-variation-settings: "wght" calc(860 - var(--p, 0.5) * 120);
+}
+@media (prefers-reduced-motion: reduce) { .ph__title { transform: none; } }
 .ph__deck {
   font-size: var(--text-lead); line-height: 1.4; letter-spacing: -0.01em;
   margin: clamp(16rem, 2vw, 26rem) 0 0; max-width: var(--measure-deck); opacity: 0.75;

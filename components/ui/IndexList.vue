@@ -112,7 +112,7 @@ const pad = (i: number) => String(i + 1).padStart(2, '0')
           <!-- Touch and reduced-motion get the image in the row itself. The
                follower would otherwise leave those visitors with no artwork. -->
           <span v-if="item.img" class="ix__thumb" aria-hidden="true">
-            <img class="mono-img" :src="item.img" alt="" loading="lazy" decoding="async">
+            <UiCard3D :src="item.img" :strength="12" radius="8rem" />
           </span>
 
           <span class="ix__body">
@@ -135,7 +135,7 @@ const pad = (i: number) => String(i + 1).padStart(2, '0')
     <!-- The cursor-tracked plate. Inert to pointer events so it can never
          interrupt the very hover that is driving it. -->
     <div v-if="follow" ref="media" class="ix__media" aria-hidden="true">
-      <img v-if="src" class="mono-img" :src="src" alt="">
+      <UiCard3D v-if="src" :key="src" :src="src" :strength="10" radius="14rem" eager />
     </div>
   </div>
 </template>
@@ -161,14 +161,11 @@ const pad = (i: number) => String(i + 1).padStart(2, '0')
 
 /* The inline thumbnail is the touch/reduced-motion path. On a fine pointer the
    follower does this job far better, so the inline one steps aside. */
-.ix__thumb {
-  width: 74rem; aspect-ratio: 16/9; border-radius: 8rem; overflow: hidden;
-  background: var(--color-glass-bg); flex-shrink: 0;
-}
-.ix__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ix__thumb { width: 84rem; flex-shrink: 0; }
+.ix__thumb :deep(img) { width: 100%; height: 100%; object-fit: cover; }
 
 .ix__body { flex: 1 1 auto; display: grid; gap: 6rem; min-width: 0; }
-.ix__title { font-size: var(--text-h2); line-height: 1.25; }
+.ix__title { font-size: var(--text-h2); line-height: 0.95; }
 .ix__desc {
   font-size: var(--text-sm); line-height: 1.5; opacity: 0.55;
   max-width: 52ch;
@@ -188,12 +185,10 @@ const pad = (i: number) => String(i + 1).padStart(2, '0')
 /* ── The cursor-tracked plate ─────────────────────────────────────────── */
 .ix__media {
   position: fixed; top: 0; left: 0; z-index: 5;
-  width: clamp(240rem, 22vw, 380rem); aspect-ratio: 16/9;
-  border-radius: 14rem; overflow: hidden; pointer-events: none; opacity: 0;
-  box-shadow: 0 40rem 80rem -40rem rgba(0,0,0,0.55);
+  width: clamp(240rem, 22vw, 380rem);
+  pointer-events: none; opacity: 0;
   will-change: transform, opacity;
 }
-.ix__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* The inline thumbnail only stands down where the follower actually replaces
    it. Hiding it on every fine pointer left reduced-motion desktop visitors with

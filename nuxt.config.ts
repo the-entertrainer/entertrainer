@@ -51,12 +51,15 @@ export default defineNuxtConfig({
         // JetBrains Mono for metadata — indices, eyebrows, dates, counts. The
         // mono is what gives the editorial pages their studio voice; without it
         // every label was just DM Sans in caps, and the pages read generic.
-        // Three roles, three faces: Silkscreen — a true bitmap face — carries
-        // the display voice, DM Sans carries the reading, JetBrains Mono carries
-        // the metadata. The pixel face is the whole art direction; it only reads
-        // as crisp rather than mushy because it is a real bitmap design, not a
-        // rounded font pretending to be one.
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap' }
+        // Archivo, loaded with both variable axes.
+        //
+        // Chosen by reading the card artwork rather than by taste: the prints
+        // set "Instructional" in a neo-grotesque and "DESIGN" in an ultra-bold
+        // slightly-condensed cut of the same family. Archivo covers that whole
+        // range in one face — 100..900 weight *and* 62..125 width — so the
+        // site's type can sit in the poster instead of next to it. DM Sans
+        // stays for long-form reading.
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=Archivo:wdth,wght@62..125,400..900&display=swap' }
       ]
     },
     pageTransition: false,

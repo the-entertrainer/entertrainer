@@ -104,18 +104,22 @@ onUnmounted(() => renderer?.stop())
     linear-gradient(to top,    rgba(var(--accent-fog, 120,120,140), 0.16) 0%, transparent 18%);
 }
 
-/* Calm wash: a clean page with a faint two-corner brand tint. Kept low so
-   text and glass panels always lead. Reads well in both themes. */
+/* Calm wash. This carried a hardcoded violet (#8B7CF6) from before the site
+   went monochrome — every content page was quietly showing a purple corner
+   tint while the home ran strict black-and-bloom, which is exactly the kind
+   of mismatch this pass exists to remove. Two soft white glows now, the same
+   light the stage's cards and bloom are made of, just static and low enough
+   that a reading page still leads. */
 .glass-backdrop__wash {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(115% 80% at 100% -5%, color-mix(in srgb, var(--color-accent) 7%, transparent), transparent 55%),
-    radial-gradient(100% 75% at -5% 105%, color-mix(in srgb, #8B7CF6 6%, transparent), transparent 55%);
+    radial-gradient(90% 70% at 100% -8%, color-mix(in srgb, var(--glow-rim) 55%, transparent), transparent 60%),
+    radial-gradient(80% 65% at -8% 108%, color-mix(in srgb, var(--glow-soft) 55%, transparent), transparent 60%);
 }
 :root[data-theme="dark"] .glass-backdrop__wash {
   background:
-    radial-gradient(115% 80% at 100% -5%, color-mix(in srgb, var(--color-accent) 24%, transparent), transparent 55%),
-    radial-gradient(100% 75% at -5% 105%, color-mix(in srgb, #8B7CF6 16%, transparent), transparent 55%);
+    radial-gradient(90% 70% at 100% -8%, color-mix(in srgb, #FFFFFF 10%, transparent), transparent 60%),
+    radial-gradient(80% 65% at -8% 108%, color-mix(in srgb, #FFFFFF 6%, transparent), transparent 60%);
 }
 </style>

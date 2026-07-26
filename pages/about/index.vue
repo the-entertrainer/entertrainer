@@ -119,7 +119,7 @@ onBeforeUnmount(() => {
     <main class="ab-body">
       <section v-for="(c, i) in CHAPTERS" :key="i" class="ab-ch" :class="{ 'ab-ch--rev': i % 2 === 1 }" :aria-labelledby="`ab-h-${i}`">
         <figure class="ab-ch__figure" v-motion :initial="R.scaleIn(0).initial" :visible-once="R.scaleIn(0).visibleOnce">
-          <div class="ab-ch__frame"><img class="ab-ch__img" :src="c.img" :alt="c.alt" width="1131" height="1414" loading="lazy" decoding="async" draggable="false" /></div>
+          <div class="ab-ch__frame"><UiCard3D :src="c.img" :alt="c.alt" ratio="fill" :strength="8" radius="16rem" /></div>
           <figcaption class="ab-ch__place">{{ c.place }}</figcaption>
         </figure>
         <div class="ab-ch__prose">
@@ -172,8 +172,9 @@ onBeforeUnmount(() => {
 .ab-hero__lead em { font-family: var(--serif); font-style: italic; font-weight: 500; opacity: 1; }
 .ab-hero__meta { margin-top: 26rem; display: flex; align-items: center; gap: 12rem; font-size: 12.5rem; letter-spacing: 0.06em; font-weight: 600; opacity: 0.72; flex-wrap: wrap; }
 .ab-hero__meta i { opacity: 0.5; }
-.ab-hero__portrait { position: relative; z-index: 1; margin: 0; width: 100%; max-width: 440rem; justify-self: center; aspect-ratio: 4 / 5; border-radius: 18rem; overflow: hidden; box-shadow: 0 50rem 110rem -40rem rgba(0,0,0,0.6), 0 0 0 1px var(--color-glass-border); }
-.ab-hero__portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 32%; display: block; }
+/* Card3D frames itself — its own rim light, sheen and outward glow — so this
+   wrapper only needs to set the box it fills, not frame it a second time. */
+.ab-hero__portrait { position: relative; z-index: 1; margin: 0; width: 100%; max-width: 440rem; justify-self: center; aspect-ratio: 4 / 5; }
 .ab-hero__cue { position: absolute; left: var(--edge); bottom: clamp(24rem, 5vh, 48rem); z-index: 2; display: inline-flex; align-items: center; gap: 12rem; font-size: 11rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600; opacity: 0.5; }
 .ab-hero__cue-line { display: block; width: 46rem; height: 1px; background: currentColor; transform-origin: left; animation: ab-cue 2.4s ease-in-out infinite; }
 @keyframes ab-cue { 0%, 100% { transform: scaleX(0.4); opacity: 0.4 } 50% { transform: scaleX(1); opacity: 0.9 } }
@@ -182,8 +183,7 @@ onBeforeUnmount(() => {
 .ab-ch { max-width: var(--maxw); margin: 0 auto; padding: clamp(60rem, 12vh, 150rem) var(--edge); display: grid; grid-template-columns: 1fr 1fr; gap: clamp(30rem, 6vw, 96rem); align-items: start; }
 .ab-ch--rev .ab-ch__figure { order: 2; }
 .ab-ch__figure { position: sticky; top: clamp(90rem, 14vh, 140rem); margin: 0; }
-.ab-ch__frame { width: 100%; aspect-ratio: 4 / 5; border-radius: 16rem; overflow: hidden; box-shadow: 0 44rem 100rem -44rem rgba(0,0,0,0.6), 0 0 0 1px var(--color-glass-border); }
-.ab-ch__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ab-ch__frame { width: 100%; aspect-ratio: 4 / 5; }
 .ab-ch__place { margin-top: 14rem; font-size: 11rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; opacity: 0.66; }
 .ab-ch__prose { align-self: stretch; max-width: 500rem; min-height: 82vh; display: flex; flex-direction: column; justify-content: center; padding-block: clamp(10rem, 6vh, 60rem); }
 .ab-ch__eyebrow { display: inline-block; font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.72; margin-bottom: 22rem; }

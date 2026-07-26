@@ -103,6 +103,7 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
 .h-a11y a:focus-visible {
   position: fixed; left: 50%; translate: -50% 0; bottom: calc(18rem + var(--safe-bottom));
   width: auto; height: auto; z-index: 60;
+  display: inline-flex; align-items: center; min-height: 44rem; box-sizing: border-box;
   padding: 12rem 22rem; border-radius: 999rem;
   background: var(--ink); color: var(--bg);
   font-family: var(--display); font-weight: 700; font-size: 13rem;

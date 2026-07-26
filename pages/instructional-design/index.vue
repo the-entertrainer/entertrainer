@@ -194,15 +194,18 @@ function iconPath(name: string) {
   min-height: 44rem;
   padding: 8rem 16rem;
   border-radius: 999rem;
+  font-family: var(--display-font);
+  font-weight: 700;
   font-size: 13rem;
   color: var(--color-text);
   background: var(--color-glass-bg);
   border: 1px solid var(--color-glass-border);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: background 0.15s ease;
+  backdrop-filter: blur(16px) saturate(1.3) brightness(1.08);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3) brightness(1.08);
+  box-shadow: inset 0 1px 0 var(--glow-rim), 0 10rem 26rem -16rem rgba(0,0,0,0.8);
+  transition: background 0.2s ease, transform 0.2s var(--ease-spring);
 }
-@media (hover: hover) { .id-exit:hover { background: var(--color-glass-bg-hover); } }
+@media (hover: hover) { .id-exit:hover { background: var(--color-glass-bg-hover); transform: translateX(-2rem); } }
 .id-exit:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
 
 .id-head { margin-bottom: 34rem; }
@@ -246,7 +249,7 @@ function iconPath(name: string) {
 .id-meter { display: flex; align-items: center; gap: 10rem; flex-shrink: 0; }
 .id-meter__label { font-size: 11rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.5; }
 .id-meter__track { width: 88rem; height: 7rem; border-radius: 999rem; background: var(--color-glass-border); overflow: hidden; }
-.id-meter__fill { display: block; height: 100%; border-radius: 999rem; background: var(--color-accent); transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.id-meter__fill { display: block; height: 100%; border-radius: 999rem; background: var(--color-pop); box-shadow: 0 0 12rem -2rem var(--glow-soft); transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
 .id-meter__fill.no-anim { transition: none; }
 .id-meter__val { font-size: 12.5rem; font-weight: 600; min-width: 62rem; }
 
@@ -259,8 +262,8 @@ function iconPath(name: string) {
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .id-canvas.is-designed {
-  border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-glass-border));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 22%, transparent);
+  border-color: var(--color-glass-border-hover);
+  box-shadow: inset 0 0 0 1px var(--color-glass-border-hover), 0 0 32rem -14rem var(--glow-soft);
 }
 .id-raw {
   font-size: 15rem;
@@ -280,12 +283,14 @@ function iconPath(name: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-family: var(--display-font);
+  font-weight: 800;
   font-size: 14rem;
-  background: var(--color-accent);
-  color: #fff;
+  background: var(--color-pop);
+  color: var(--color-on-pop);
+  box-shadow: 0 0 20rem -8rem var(--glow-soft);
 }
-.id-step__icon { flex-shrink: 0; color: var(--color-accent); display: flex; }
+.id-step__icon { flex-shrink: 0; color: var(--color-text); display: flex; }
 .id-step__text { font-size: 17rem; line-height: 1.4; }
 .id-step__text b { font-weight: 700; }
 .id-mnemonic { margin-top: 18rem; font-size: 14rem; opacity: 0.7; }
@@ -304,7 +309,7 @@ function iconPath(name: string) {
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 @media (hover: hover) { .id-move:hover { border-color: var(--color-glass-border-hover); } }
-.id-move.is-on { border-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 12%, transparent); }
+.id-move.is-on { border-color: var(--color-text); background: var(--color-glass-bg-hover); box-shadow: 0 0 26rem -12rem var(--glow-soft); }
 .id-move:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
 .id-move__check {
   flex-shrink: 0;
@@ -315,10 +320,10 @@ function iconPath(name: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--color-on-pop);
   transition: background 0.15s ease, border-color 0.15s ease;
 }
-.id-move.is-on .id-move__check { background: var(--color-accent); border-color: var(--color-accent); }
+.id-move.is-on .id-move__check { background: var(--color-pop); border-color: var(--color-pop); }
 .id-move__body { display: flex; flex-direction: column; gap: 5rem; }
 .id-move__label { font-size: 14.5rem; font-weight: 600; letter-spacing: -0.01em; }
 .id-move__principle { font-size: 12rem; line-height: 1.45; opacity: 0.62; }

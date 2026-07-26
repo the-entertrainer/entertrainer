@@ -10,6 +10,14 @@ useSeoMeta({
 })
 const R = useReveal()
 
+interface Beat { h: string; body: string }
+const beats: Beat[] = [
+  { h: 'The problem', body: 'Service values usually live in a slide deck that nobody remembers. But hospitality is made of small human moments, and a resort team spread across the country needs those values to feel real, not like a poster in the back office.' },
+  { h: 'The idea', body: 'Turn real guest-service moments into a comic. Each issue collects true stories of SEWA Champions, the housekeepers, front-office and food-and-beverage staff who went out of their way for a member, and draws them as short strips. People remember a story long after they forget a rule.' },
+  { h: 'How it is built to teach', body: 'Story over instruction: every value is shown happening, not described. Each strip names the real employee and resort, so good service is something to be seen doing. Every story is tagged with one named behaviour, so teams build a shared vocabulary — and a submission page keeps the next issue writing itself.' },
+  { h: 'My part', body: 'I made it end to end: gathering the stories, writing and storyboarding each strip, illustrating the characters, and laying out the issue. It is the clearest example of how I like to design learning, warm, specific, and built around a real human moment.' }
+]
+
 interface Page { src: string; alt: string; cap: string; tag: string }
 const pages: Page[] = [
   { src: 'cover', tag: 'Volume 1', cap: 'Cover', alt: 'The SEWA Chronicles cover: four resort staff around the title, calling out Service, Empathy, Warmth and Attentiveness.' },
@@ -68,48 +76,35 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         </button>
       </header>
 
-      <!-- Narrative -->
+      <!-- Narrative: four beats, dragged through rather than read down the page -->
       <section class="cs-body">
-        <div class="cs-block" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
-          <h2>The problem</h2>
-          <p>Service values usually live in a slide deck that nobody remembers. But hospitality is made of small human moments, and a resort team spread across the country needs those values to feel real, not like a poster in the back office.</p>
-        </div>
-
-        <div class="cs-block" v-motion :initial="R.rise(90).initial" :visible-once="R.rise(90).visibleOnce">
-          <h2>The idea</h2>
-          <p>Turn real guest-service moments into a comic. Each issue collects true stories of SEWA Champions, the housekeepers, front-office and food-and-beverage staff who went out of their way for a member, and draws them as short strips. People remember a story long after they forget a rule.</p>
-        </div>
-
-        <div class="cs-block" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
-          <h2>How it is built to teach</h2>
-          <ul class="cs-list">
-            <li><strong>Story over instruction.</strong> Every value is shown happening, not described.</li>
-            <li><strong>Recognition as motivation.</strong> Each strip names the real employee and resort, so good service becomes something to be seen doing.</li>
-            <li><strong>A shared vocabulary.</strong> Each story is tagged with one named service behaviour, from Going the Extra Mile to Attention to Detail, so teams build a common language for what good looks like.</li>
-            <li><strong>A loop that keeps it alive.</strong> A submission page invites staff to send their own stories, so the next issue partly writes itself.</li>
-          </ul>
-        </div>
-
-        <div class="cs-block" v-motion :initial="R.rise(90).initial" :visible-once="R.rise(90).visibleOnce">
-          <h2>My part</h2>
-          <p>I made it end to end: gathering the stories, writing and storyboarding each strip, illustrating the characters, and laying out the issue. It is the clearest example of how I like to design learning, warm, specific, and built around a real human moment.</p>
-        </div>
+        <p class="glass-label cs-body__label">How it came together</p>
+        <UiSpatialDeck :items="beats" :spacing="0.85" aria-label="How the comic came together">
+          <template #default="{ item }">
+            <article class="cs-beat">
+              <h2>{{ item.h }}</h2>
+              <p>{{ item.body }}</p>
+            </article>
+          </template>
+        </UiSpatialDeck>
       </section>
 
       <!-- Gallery -->
       <section class="cs-gallery" aria-label="Selected pages">
         <p class="glass-label cs-gallery__label">Selected pages</p>
-        <div class="cs-grid">
-          <figure v-for="(p, i) in pages" :key="p.src" class="cs-fig" v-motion :initial="R.scaleInStagger(i).initial" :visible-once="R.scaleInStagger(i).visibleOnce">
-            <button class="cs-fig__btn" @click="open(i)" :aria-label="`Enlarge: ${p.cap}`">
-              <UiCard3D :src="`/work/sewa/${p.src}.webp`" :alt="p.alt" ratio="1400/1980" :strength="11" radius="10rem" />
-            </button>
-            <figcaption>
-              <strong>{{ p.cap }}</strong>
-              <span class="cs-fig__tag">{{ p.tag }}</span>
-            </figcaption>
-          </figure>
-        </div>
+        <UiSpatialDeck :items="pages" aria-label="Selected comic pages">
+          <template #default="{ item: p, index: i, active }">
+            <figure class="cs-fig">
+              <button class="cs-fig__btn" :tabindex="active ? 0 : -1" @click="open(i)" :aria-label="`Enlarge: ${p.cap}`">
+                <UiCard3D :src="`/work/sewa/${p.src}.webp`" :alt="p.alt" ratio="fill" :strength="11" radius="0" />
+              </button>
+              <figcaption>
+                <strong>{{ p.cap }}</strong>
+                <span class="cs-fig__tag">{{ p.tag }}</span>
+              </figcaption>
+            </figure>
+          </template>
+        </UiSpatialDeck>
       </section>
 
       <!-- Close -->
@@ -172,41 +167,44 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 @media (hover: hover) { .cs-hero__cover:hover { transform: translateY(-6rem) scale(1.015); } }
 .cs-hero__cover:focus-visible { outline: 2px solid var(--color-text); outline-offset: 4px; border-radius: 16rem; }
 
-/* Body */
-.cs-body {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 30rem 40rem;
-  padding: 34rem 0;
-  border-top: 1px solid var(--color-divider);
-  border-bottom: 1px solid var(--color-divider);
+/* Body: a deck of four beats, dragged through rather than read as columns */
+.cs-body { padding: 34rem 0; border-top: 1px solid var(--color-divider); border-bottom: 1px solid var(--color-divider); }
+.cs-body__label { margin-bottom: 16rem; }
+.cs-beat {
+  display: flex; flex-direction: column; justify-content: center; gap: 14rem;
+  width: 100%; height: 100%; padding: 30rem 32rem; box-sizing: border-box;
+  border-radius: 20rem; overflow: hidden;
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
+  box-shadow: inset 0 1px 0 var(--glow-rim), inset 0 0 0 1px var(--color-glass-border);
 }
-.cs-block h2 { font-family: var(--serif); font-weight: 800; font-size: var(--text-h3); letter-spacing: var(--tracking-display); line-height: 1; opacity: 1; margin-bottom: 12rem; }
-.cs-block p { font-size: 15rem; line-height: 1.65; opacity: 0.82; }
-.cs-list { list-style: none; display: flex; flex-direction: column; gap: 11rem; }
-.cs-list li { font-size: 14.5rem; line-height: 1.55; opacity: 0.82; padding-left: 18rem; position: relative; }
-.cs-list li::before { content: ""; position: absolute; left: 0; top: 8rem; width: 7rem; height: 7rem; border-radius: 999px; background: var(--color-pop); box-shadow: 0 0 10rem -1rem var(--glow-soft); }
-.cs-list strong { font-weight: 700; opacity: 1; }
+.cs-beat h2 { font-family: var(--serif); font-weight: 800; font-size: var(--text-h3); letter-spacing: var(--tracking-display); line-height: 1; opacity: 1; flex-shrink: 0; }
+.cs-beat p {
+  font-size: 15rem; line-height: 1.65; opacity: 0.82;
+  display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden;
+}
 
 /* Gallery */
 .cs-gallery { margin-top: 44rem; }
 .cs-gallery__label { margin-bottom: 16rem; }
-.cs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16rem; }
-.cs-fig { display: flex; flex-direction: column; gap: 9rem; }
+.cs-fig {
+  display: flex; flex-direction: column; width: 100%; height: 100%;
+  border-radius: 20rem; overflow: hidden;
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
+  box-shadow: inset 0 1px 0 var(--glow-rim), inset 0 0 0 1px var(--color-glass-border);
+}
 .cs-fig__btn {
-  display: block;
-  padding: 0;
-  border: 0;
-  border-radius: 10rem;
-  cursor: zoom-in;
-  background: none;
-  transition: transform 0.4s var(--ease-spring);
+  display: block; flex: 1 1 auto; min-height: 0; width: 100%;
+  padding: 0; border: 0; cursor: zoom-in; background: none;
 }
-@media (hover: hover) {
-  .cs-fig__btn:hover { transform: translateY(-5rem); }
-}
-.cs-fig__btn:focus-visible { outline: 2px solid var(--color-text); outline-offset: 4px; border-radius: 10rem; }
-.cs-fig figcaption { display: flex; flex-direction: column; gap: 2rem; padding: 0 2rem; }
+.cs-fig__btn :deep(.c3) { height: 100%; }
+.cs-fig__btn :deep(.c3__plate) { border-radius: 0; box-shadow: none; height: 100%; }
+.cs-fig__btn :deep(.c3__img) { height: 100%; }
+.cs-fig__btn:focus-visible { outline: 2px solid var(--color-text); outline-offset: -3px; }
+.cs-fig figcaption { display: flex; flex-direction: column; gap: 2rem; padding: 14rem 18rem 18rem; flex-shrink: 0; }
 .cs-fig figcaption strong { font-size: 13.5rem; letter-spacing: -0.01em; }
 .cs-fig__tag { font-size: 11rem; font-weight: 600; opacity: 0.5; }
 
@@ -277,11 +275,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 @media (max-width: 760px) {
   .cs-hero { grid-template-columns: 1fr; gap: 24rem; }
   .cs-hero__cover { max-width: 260rem; order: -1; }
-  .cs-body { grid-template-columns: 1fr; gap: 26rem; }
 }
 @media (max-width: 640px) {
   .cs-inner { padding: calc(96rem + var(--safe-top)) 16rem calc(56rem + var(--safe-bottom)); }
-  .cs-grid { grid-template-columns: repeat(2, 1fr); }
   .cs-lb__nav { width: 44rem; height: 44rem; font-size: 24rem; }
 }
 </style>

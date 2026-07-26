@@ -1,7 +1,9 @@
 <script setup lang="ts">
-// About — editorial + modern, animated with Motion for Vue (v-motion springs)
-// and set in Fraunces. Theme-aware via the site tokens; reduced-motion safe
-// through useReveal(). No GSAP here — reveals are declarative.
+// About — the identity hero stays a normal scrolling page (there is nothing
+// to spatially navigate about a name and a portrait), but the chapters that
+// used to run on as six full-height scroll-jacked sections are now a
+// UiSpatialDeck: the same drag-and-settle the rest of the site's content
+// runs on, not a stepper dot-nav driving an IntersectionObserver.
 definePageMeta({ layout: false })
 useSeoMeta({
   title: 'About — Naveen Jose · Entertrainer',
@@ -36,54 +38,10 @@ const CHAPTERS: Chapter[] = [
     img: '/about/about-concentrix.webp', alt: 'Portrait, present day, at Concentrix', place: 'Concentrix · Training-as-a-Service',
     footnote: 'Asatoma Sadgamaya — from ignorance, toward truth.' }
 ]
-
-const root = ref<HTMLElement | null>(null)
-const progress = ref(0)
-const active = ref(0)
-const STEPS = CHAPTERS.length + 1
-let io: IntersectionObserver | null = null
-const { $lenis } = useNuxtApp() as unknown as { $lenis?: { on: Function; off: Function; scrollTo: Function } }
-
-function onScroll() {
-  const max = document.documentElement.scrollHeight - window.innerHeight
-  progress.value = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0
-}
-function jumpTo(i: number) {
-  const target = i <= 0
-    ? root.value?.querySelector<HTMLElement>('.ab-hero')
-    : root.value?.querySelectorAll<HTMLElement>('.ab-ch')[i - 1]
-  if (!target) return
-  if ($lenis?.scrollTo) $lenis.scrollTo(target, { offset: -60, duration: 1 })
-  else target.scrollIntoView({ behavior: 'smooth' })
-}
-
-onMounted(() => {
-  onScroll()
-  window.addEventListener('scroll', onScroll, { passive: true })
-  $lenis?.on?.('scroll', onScroll)
-  // Active-section tracking for the stepper.
-  const sections = [root.value?.querySelector('.ab-hero'), ...Array.from(root.value?.querySelectorAll('.ab-ch') ?? [])].filter(Boolean) as HTMLElement[]
-  io = new IntersectionObserver((entries) => {
-    entries.forEach((e) => {
-      if (e.isIntersecting) {
-        const idx = sections.indexOf(e.target as HTMLElement)
-        if (idx >= 0) active.value = idx
-      }
-    })
-  }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 })
-  sections.forEach((s) => io!.observe(s))
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('scroll', onScroll)
-  $lenis?.off?.('scroll', onScroll)
-  io?.disconnect()
-})
 </script>
 
 <template>
-  <div ref="root" class="ab">
-    <div class="ab-prog" aria-hidden="true"><span :style="{ transform: `scaleX(${progress})` }" /></div>
-
+  <div class="ab">
     <header class="ab-bar">
       <NuxtLink to="/" class="ab-back" aria-label="Back to the site">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7" /></svg><span>Back</span>
@@ -91,12 +49,6 @@ onBeforeUnmount(() => {
       <span class="ab-bar__word">Naveen Jose</span>
       <NuxtLink to="/my-work" class="ab-bar__link">Work<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7" /></svg></NuxtLink>
     </header>
-
-    <nav class="ab-steps" aria-label="Jump to chapter">
-      <button v-for="i in STEPS" :key="i" type="button" class="ab-step" :class="{ on: active === i - 1 }"
-        :aria-label="i === 1 ? 'Introduction' : `Chapter ${CHAPTERS[i - 2].n}: ${CHAPTERS[i - 2].head}`"
-        :aria-current="active === i - 1 ? 'true' : undefined" @click="jumpTo(i - 1)"><span /></button>
-    </nav>
 
     <!-- Hero -->
     <section class="ab-hero">
@@ -115,24 +67,36 @@ onBeforeUnmount(() => {
       <span class="ab-hero__cue" aria-hidden="true" v-motion :initial="rv.cue.initial" :visible-once="rv.cue.visibleOnce"><span class="ab-hero__cue-line" /> scroll</span>
     </section>
 
-    <!-- Chapters -->
+    <!-- Chapters: a deck, not a scroll -->
     <main class="ab-body">
-      <section v-for="(c, i) in CHAPTERS" :key="i" class="ab-ch" :class="{ 'ab-ch--rev': i % 2 === 1 }" :aria-labelledby="`ab-h-${i}`">
-        <figure class="ab-ch__figure" v-motion :initial="R.scaleIn(0).initial" :visible-once="R.scaleIn(0).visibleOnce">
-          <div class="ab-ch__frame"><UiCard3D :src="c.img" :alt="c.alt" ratio="fill" :strength="8" radius="16rem" /></div>
-          <figcaption class="ab-ch__place">{{ c.place }}</figcaption>
-        </figure>
-        <div class="ab-ch__prose">
-          <span class="ab-ch__eyebrow" v-motion :initial="R.slideX(-24,60).initial" :visible-once="R.slideX(-24,60).visibleOnce"><em>{{ c.n }}</em> — {{ c.eyebrow }}</span>
-          <h2 :id="`ab-h-${i}`" class="ab-ch__head" v-motion :initial="R.rise(120).initial" :visible-once="R.rise(120).visibleOnce">{{ c.head }}</h2>
-          <p class="ab-ch__body" v-motion :initial="R.rise(200).initial" :visible-once="R.rise(200).visibleOnce">{{ c.body }}</p>
-          <p v-if="c.footnote" class="ab-ch__foot" v-motion :initial="R.rise(280).initial" :visible-once="R.rise(280).visibleOnce">{{ c.footnote }}</p>
-          <div v-if="i === CHAPTERS.length - 1" class="ab-ch__cta" v-motion :initial="R.rise(300).initial" :visible-once="R.rise(300).visibleOnce">
-            <NuxtLink to="/my-work" class="glass-btn">See my work</NuxtLink>
-            <NuxtLink to="/tools" class="glass-btn glass-btn--ghost">The web apps I built</NuxtLink>
-          </div>
+      <div class="ab-body__head">
+        <span class="t-mono ab-body__eyebrow">The story, in five stops</span>
+        <h2 class="t-display ab-body__title">Drag through it</h2>
+      </div>
+
+      <UiSpatialDeck :items="CHAPTERS" aria-label="Chapters of the story">
+        <template #default="{ item }">
+          <article class="ab-card">
+            <div class="ab-card__figure">
+              <UiCard3D :src="item.img" :alt="item.alt" ratio="fill" :strength="8" radius="0" />
+            </div>
+            <div class="ab-card__body">
+              <span class="t-mono ab-card__eyebrow"><em>{{ item.n }}</em> — {{ item.eyebrow }}</span>
+              <h3 class="t-display ab-card__head">{{ item.head }}</h3>
+              <p class="ab-card__text">{{ item.body }}</p>
+              <p class="ab-card__place">{{ item.place }}</p>
+            </div>
+          </article>
+        </template>
+      </UiSpatialDeck>
+
+      <footer class="ab-close">
+        <p class="ab-close__quote">Asatoma Sadgamaya — from ignorance, toward truth.</p>
+        <div class="ab-close__cta">
+          <NuxtLink to="/my-work" class="glass-btn">See my work</NuxtLink>
+          <NuxtLink to="/tools" class="glass-btn glass-btn--ghost">The web apps I built</NuxtLink>
         </div>
-      </section>
+      </footer>
     </main>
   </div>
 </template>
@@ -145,9 +109,6 @@ onBeforeUnmount(() => {
   --serif: var(--display-font);
 }
 
-.ab-prog { position: fixed; top: 0; left: 0; right: 0; height: 3rem; z-index: 40; pointer-events: none; background: color-mix(in srgb, var(--color-text) 8%, transparent); }
-.ab-prog span { display: block; height: 100%; transform-origin: left; transform: scaleX(0); background: var(--color-text); opacity: 0.85; }
-
 .ab-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 36; display: flex; align-items: center; justify-content: space-between; gap: 16rem; padding: calc(14rem + var(--safe-top)) var(--edge) 14rem; }
 .ab-bar::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(var(--color-bg), transparent); -webkit-mask: linear-gradient(#000, #000 55%, transparent); mask: linear-gradient(#000, #000 55%, transparent); }
 .ab-back, .ab-bar__link { display: inline-flex; align-items: center; gap: 7rem; min-height: 44rem; padding: 0 4rem; color: var(--color-text); text-decoration: none; font-size: 13.5rem; font-weight: 600; opacity: 0.82; transition: opacity 0.25s ease, transform 0.25s ease; border-radius: 8rem; }
@@ -155,13 +116,6 @@ onBeforeUnmount(() => {
 .ab-bar__word { font-size: 12rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 600; opacity: 0.6; }
 .ab-back:focus-visible, .ab-bar__link:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; opacity: 1; }
 @media (max-width: 560px) { .ab-bar__word { display: none; } }
-
-.ab-steps { position: fixed; right: clamp(14rem, 2.4vw, 30rem); top: 50%; translate: 0 -50%; z-index: 36; display: flex; flex-direction: column; gap: 2rem; }
-.ab-step { width: 44rem; height: 44rem; padding: 0; background: none; border: 0; cursor: pointer; display: grid; place-items: center; }
-.ab-step span { width: 22rem; height: 2rem; border-radius: 2rem; background: var(--color-text); opacity: 0.22; transition: opacity 0.35s ease, width 0.4s var(--ease-spring); }
-.ab-step:hover span { opacity: 0.5; } .ab-step.on span { opacity: 0.95; width: 30rem; }
-.ab-step:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; border-radius: 6rem; }
-@media (max-width: 900px) { .ab-steps { display: none; } }
 
 .ab-hero { position: relative; max-width: var(--maxw); margin: 0 auto; padding: calc(120rem + var(--safe-top)) var(--edge) clamp(60rem, 10vh, 120rem); display: grid; gap: clamp(30rem, 5vw, 70rem); align-items: center; grid-template-columns: 1.05fr 0.95fr; min-height: 100dvh; }
 .ab-hero__glow { position: absolute; z-index: 0; top: 18%; left: 28%; width: 60vw; height: 60vw; max-width: 720rem; max-height: 720rem; translate: -50% -30%; pointer-events: none; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--color-accent) 42%, transparent), transparent 62%); opacity: 0.3; filter: blur(30rem); }
@@ -178,35 +132,46 @@ onBeforeUnmount(() => {
 .ab-hero__cue { position: absolute; left: var(--edge); bottom: clamp(24rem, 5vh, 48rem); z-index: 2; display: inline-flex; align-items: center; gap: 12rem; font-size: 11rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600; opacity: 0.5; }
 .ab-hero__cue-line { display: block; width: 46rem; height: 1px; background: currentColor; transform-origin: left; animation: ab-cue 2.4s ease-in-out infinite; }
 @keyframes ab-cue { 0%, 100% { transform: scaleX(0.4); opacity: 0.4 } 50% { transform: scaleX(1); opacity: 0.9 } }
-
-.ab-body { position: relative; z-index: 1; }
-.ab-ch { max-width: var(--maxw); margin: 0 auto; padding: clamp(60rem, 12vh, 150rem) var(--edge); display: grid; grid-template-columns: 1fr 1fr; gap: clamp(30rem, 6vw, 96rem); align-items: start; }
-.ab-ch--rev .ab-ch__figure { order: 2; }
-.ab-ch__figure { position: sticky; top: clamp(90rem, 14vh, 140rem); margin: 0; }
-.ab-ch__frame { width: 100%; aspect-ratio: 4 / 5; }
-.ab-ch__place { margin-top: 14rem; font-size: 11rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; opacity: 0.66; }
-.ab-ch__prose { align-self: stretch; max-width: 500rem; min-height: 82vh; display: flex; flex-direction: column; justify-content: center; padding-block: clamp(10rem, 6vh, 60rem); }
-.ab-ch__eyebrow { display: inline-block; font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.72; margin-bottom: 22rem; }
-.ab-ch__eyebrow em { font-style: normal; opacity: 0.6; margin-right: 4rem; }
-.ab-ch__head { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: var(--text-h2); font-weight: 800; line-height: 0.92; letter-spacing: var(--tracking-display); margin: 0; }
-.ab-ch__body { margin: clamp(20rem, 2.4vw, 30rem) 0 0; max-width: 46ch; font-size: clamp(15.5rem, 1.5vw, 18rem); line-height: 1.66; opacity: 0.84; }
-.ab-ch__foot { margin: 20rem 0 0; font-family: var(--serif); font-style: italic; font-size: 16rem; opacity: 0.7; }
-.ab-ch__cta { display: flex; flex-wrap: wrap; gap: 12rem; margin-top: 34rem; }
-.ab-ch__cta .glass-btn { text-decoration: none; }
-
-.ab.is-still .ab-hero__cue-line { animation: none; }
 @media (prefers-reduced-motion: reduce) { .ab-hero__cue-line { animation: none; } }
+
+.ab-body { position: relative; z-index: 1; max-width: var(--maxw); margin: 0 auto; padding: clamp(40rem, 8vh, 100rem) var(--edge) calc(90rem + var(--safe-bottom)); }
+.ab-body__head { max-width: 640rem; margin: 0 auto clamp(26rem, 4vh, 44rem); text-align: center; }
+.ab-body__eyebrow { display: inline-block; opacity: 0.6; margin-bottom: 10rem; }
+.ab-body__title { font-size: var(--text-h2); line-height: 1; }
+
+/* The chapter card: same glass surface the rest of the spiral's decks use —
+   full-bleed photo on top, the text underneath. */
+.ab-card {
+  display: flex; flex-direction: column; width: 100%; height: 100%;
+  border-radius: 20rem; overflow: hidden;
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
+  box-shadow: inset 0 1px 0 var(--glow-rim), inset 0 0 0 1px var(--color-glass-border);
+}
+.ab-card__figure { flex: 1 1 auto; min-height: 0; }
+.ab-card__figure :deep(.c3) { height: 100%; }
+.ab-card__figure :deep(.c3__plate) { border-radius: 0; box-shadow: none; height: 100%; }
+.ab-card__figure :deep(.c3__img) { height: 100%; }
+.ab-card__body { display: flex; flex-direction: column; gap: 6rem; padding: 22rem 24rem 24rem; flex-shrink: 0; }
+.ab-card__eyebrow { opacity: 0.6; }
+.ab-card__eyebrow em { font-style: normal; opacity: 0.7; margin-right: 4rem; }
+.ab-card__head { font-size: var(--text-h3); line-height: 1.05; }
+.ab-card__text {
+  margin-top: 4rem; font-size: var(--text-sm); line-height: 1.55; opacity: 0.78;
+  display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden;
+}
+.ab-card__place { margin-top: 2rem; font-size: 11rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.5; }
+
+.ab-close { max-width: 560rem; margin: clamp(40rem, 7vh, 72rem) auto 0; text-align: center; }
+.ab-close__quote { font-family: var(--serif); font-style: italic; font-size: 16rem; opacity: 0.7; margin: 0; }
+.ab-close__cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12rem; margin-top: 22rem; }
+.ab-close__cta .glass-btn { text-decoration: none; }
 
 @media (max-width: 900px) {
   .ab-hero { grid-template-columns: 1fr; min-height: auto; padding: calc(96rem + var(--safe-top)) var(--edge) 64rem; gap: 40rem; }
   .ab-hero__portrait { order: -1; max-width: 360rem; aspect-ratio: 3 / 4; }
   .ab-hero__cue { display: none; }
   .ab-hero__glow { top: 6%; left: 50%; width: 90vw; height: 90vw; }
-  .ab-ch { grid-template-columns: 1fr; gap: 26rem; padding: clamp(48rem, 9vh, 84rem) var(--edge); }
-  .ab-ch--rev .ab-ch__figure { order: 0; }
-  .ab-ch__figure { position: static; top: auto; }
-  .ab-ch__frame { aspect-ratio: 3 / 4; max-height: 62vh; margin-inline: auto; }
-  .ab-ch__prose { max-width: 100%; min-height: 0; display: block; padding-block: 0; }
 }
-@media (max-width: 480px) { .ab-ch__frame { aspect-ratio: 4 / 5; } }
 </style>

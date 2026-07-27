@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { CONCEPTS } from '~/utils/labNav'
+import { SPIRAL_ERAS } from '~/utils/spiralLabNav'
 definePageMeta({ layout: false })
 useSeoMeta({ title: 'Homepage concepts — Lab', robots: 'noindex' })
 const R = useReveal()
@@ -19,6 +20,31 @@ const R = useReveal()
         </p>
       </header>
 
+      <p class="lab__section-h" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
+        The spiral · six real variations, in order
+      </p>
+      <p class="lab__section-d">
+        The WebGL helix carousel that used to be the home page, reconstructed
+        era by era from the actual commit history — same engine, six genuinely
+        different art directions, heaviest first.
+      </p>
+      <ol class="lab__grid">
+        <li v-for="(e, i) in SPIRAL_ERAS" :key="e.slug" v-motion
+            :initial="R.riseIn(i, 40).initial" :visible-once="R.riseIn(i, 40).visibleOnce">
+          <NuxtLink :to="`/lab/${e.slug}`" class="lab__card">
+            <span class="lab__n">{{ e.n }}</span>
+            <span class="lab__body">
+              <strong class="lab__name">{{ e.name }}</strong>
+              <span class="lab__law">{{ e.note }}</span>
+            </span>
+            <span class="lab__arrow" aria-hidden="true">→</span>
+          </NuxtLink>
+        </li>
+      </ol>
+
+      <p class="lab__section-h lab__section-h--second" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
+        Fifteen homepages, one sheet of glass
+      </p>
       <ol class="lab__grid">
         <li v-for="(c, i) in CONCEPTS" :key="c.slug" v-motion
             :initial="R.riseIn(i, 40).initial" :visible-once="R.riseIn(i, 40).visibleOnce">
@@ -56,4 +82,8 @@ const R = useReveal()
 .lab__tech { font-size: 12rem; line-height: 1.5; opacity: 0.45; }
 .lab__arrow { font-size: 18rem; opacity: 0.35; transition: transform 0.2s ease; padding-top: 4rem; }
 @media (prefers-reduced-motion: reduce) { .lab__card, .lab__arrow { transition: none; } }
+
+.lab__section-h { margin: 60rem 0 6rem; font-family: var(--serif); font-size: 22rem; font-weight: 400; letter-spacing: -0.01em; }
+.lab__section-h--second { margin-top: 80rem; }
+.lab__section-d { margin: 0 0 24rem; max-width: 62ch; font-size: 13.5rem; line-height: 1.6; opacity: 0.6; }
 </style>

@@ -82,6 +82,17 @@ export const APPS: IndexEntry[] = [
   }
 ]
 
+/**
+ * The single catalogue the pinned Work stage runs through.
+ *
+ * The original files everything under one "Work" heading — client pieces and
+ * side projects in one sequence, ordered for visual rhythm rather than sorted
+ * by kind. Following that here means the four apps sit in the same index as the
+ * two case studies, which is also the honest shape: they are all things Naveen
+ * made, and splitting them was a taxonomy the page didn't need.
+ */
+export const INDEX: IndexEntry[] = [WORK[0], APPS[0], WORK[1], APPS[1], APPS[2], APPS[3]]
+
 /** Where the rest of the site lives — the footer's index. */
 export const ELSEWHERE = [
   { label: 'Instructional Design', desc: 'The practice, and the frameworks behind it', href: '/instructional-design' },

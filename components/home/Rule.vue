@@ -37,12 +37,13 @@ const bits = computed(() => {
   justify-content: space-between;
   overflow: hidden;
   width: 100%;
-  padding: 10rem var(--w-edge);
+  padding: 8rem var(--w-edge);
   border-block: 1px solid var(--w-rule);
   font-family: var(--w-mono);
   font-size: var(--w-micro);
-  line-height: 1;
-  color: var(--w-ink-35);
+  line-height: 1.4;
+  color: var(--w-ink);
+  opacity: 0.55;
   user-select: none;
 }
 /* The strip must never wrap or scroll — it is a rule, not content. Letting the

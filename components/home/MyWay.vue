@@ -1,37 +1,42 @@
 <script setup lang="ts">
 /**
- * The manifesto beat — the reference's two-layer "catcher".
+ * The manifesto beat — the original's two-layer "catcher".
  *
- * Four words, each in its own overflow-hidden line, each riding the section's
- * `--p` at a slightly different rate so the phrase assembles itself as you
- * arrive and comes apart as you leave. Behind each word sits a skewed, faded
- * duplicate travelling on a different coefficient: that ghost is what turns a
- * plain reveal into something that reads as distortion, and it costs one extra
- * span per line.
+ * Each word sits in its own clipped window holding two copies: a normal layer
+ * entering from above and a distorted layer leaving below, both riding the
+ * section's `--p` at different amplitudes so they pass through the window and
+ * cross. The distorted copy is skewed and set in the red, which is what turns a
+ * plain reveal into something that reads as interference.
  *
- * The `--pc` written by useScrollProgress is already centred to -1 → 1, which
- * is exactly the shape this wants: 0 at the moment the section sits mid-screen,
- * signed either side of it.
+ * `--pc` (progress centred to -1 → 1) is the natural driver here: zero at the
+ * moment the section sits mid-screen, signed either side of it.
  */
 const WORDS = ['DESIGNING', 'LEARNING', 'THAT', 'STICKS']
 
 const root = ref<HTMLElement | null>(null)
-useScrollProgress(root)
+useWodProgress(root)
 </script>
 
 <template>
   <section ref="root" class="wm">
+    <span class="wm__smiley" aria-hidden="true">
+      <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" stroke-width="4" />
+        <circle cx="34" cy="38" r="6" fill="currentColor" />
+        <circle cx="66" cy="38" r="6" fill="currentColor" />
+        <path d="M28 60c6 12 38 12 44 0" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+      </svg>
+    </span>
+
     <h2 class="wm__h">
-      <span class="sr-only">Designing learning that sticks</span>
-      <span v-for="(w, i) in WORDS" :key="w" class="wm__line" :style="{ '--i': i }" aria-hidden="true">
-        <span class="wm__ghost w-shout">{{ w }}</span>
-        <span class="wm__word w-shout">{{ w }}</span>
+      <span class="wm__sr">Designing learning that sticks</span>
+      <span v-for="(w, i) in WORDS" :key="w" class="wm__win" :style="{ '--i': i }" aria-hidden="true">
+        <span class="wm__layer wm__layer--distorted w-shout">{{ w }}</span>
+        <span class="wm__layer wm__layer--normal w-shout">{{ w }}</span>
       </span>
     </h2>
 
-    <p class="w-mono wm__note">
-      From the hotel floor to the workbench — still noticing what makes it land.
-    </p>
+    <p class="wm__note">From the hotel floor to the workbench — still noticing what makes it land.</p>
   </section>
 </template>
 
@@ -43,60 +48,69 @@ useScrollProgress(root)
   justify-content: center;
   position: relative;
   z-index: 3;
-  padding: var(--w-gap-breath) var(--w-edge);
+  padding: var(--w-gap-myway) var(--w-edge);
   overflow: hidden;
 }
 
+.wm__smiley {
+  display: block;
+  width: 90rem;
+  height: 90rem;
+  margin-bottom: 60rem;
+  color: var(--w-red);
+  animation: wm-spin 10s linear infinite;
+}
+.wm__smiley svg { display: block; width: 100%; height: 100%; }
+@keyframes wm-spin { to { transform: rotate(360deg); } }
+
 .wm__h { margin: 0; display: flex; flex-direction: column; align-items: center; }
-.sr-only {
+.wm__sr {
   position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
   overflow: hidden; clip-path: inset(50%); white-space: nowrap;
 }
 
-/* The window. Each line clips its own word, so the travel reads as the word
-   rising out of nothing rather than sliding across the page. */
-.wm__line {
+/* The window. Each word is clipped to its own line box, so the travel reads as
+   the word rising out of nothing rather than sliding across the page. */
+.wm__win {
   position: relative;
   display: block;
-  overflow: hidden;
-  line-height: 0.86;
-  /* A hair of vertical padding so the descender-free caps don't get shaved by
-     the clip at large sizes. */
-  padding-block: 0.04em;
-}
-
-.wm__word, .wm__ghost {
-  display: block;
+  height: 0.86em;
   font-size: var(--w-catcher);
-  white-space: nowrap;
+  line-height: 0.86;
+  overflow: hidden;
 }
 
-.wm__word {
+.wm__layer { display: block; white-space: nowrap; will-change: transform; }
+
+/* Enters from above. The `--i` stagger is what keeps the four lines from
+   moving as one block. */
+.wm__layer--normal {
+  position: relative;
   color: var(--w-ink);
-  /* --i staggers the lines; the 0.34 factor keeps the travel inside the clip
-     window so a word is never caught mid-air at rest. */
-  translate: 0 calc(var(--pc, 0) * (0.34 + var(--i) * 0.11) * 1em);
-  will-change: translate;
+  transform: translateY(calc(var(--pc, 0) * (0.34 + var(--i) * 0.1) * 1em));
 }
 
-.wm__ghost {
+/* Leaves below, skewed, in the red — the interference layer. */
+.wm__layer--distorted {
   position: absolute;
   inset: 0;
-  color: var(--w-accent);
-  opacity: 0.42;
-  transform: skewY(-3deg);
-  translate: 0 calc(var(--pc, 0) * (0.52 + var(--i) * 0.14) * 1em);
-  will-change: translate;
+  color: var(--w-red);
+  transform: skewY(-3deg) translateY(calc(var(--pc, 0) * (0.56 + var(--i) * 0.14) * 1em));
 }
 
 .wm__note {
-  margin: clamp(40px, 7vh, 90px) 0 0;
-  color: var(--w-ink-35);
+  margin: 70rem 0 0;
+  font-family: var(--w-mono);
+  font-size: var(--w-chrome);
+  letter-spacing: var(--w-track-chrome);
+  text-transform: uppercase;
+  color: var(--w-ink-55);
   text-align: center;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wm__word, .wm__ghost { translate: none; }
-  .wm__ghost { display: none; }
+  .wm__smiley { animation: none; }
+  .wm__layer--normal { transform: none; }
+  .wm__layer--distorted { display: none; }
 }
 </style>

@@ -20,7 +20,12 @@ onMounted(() => {
   <div id="app-root">
     <NuxtPage :transition="transition" />
     <UiGrain />
-    <UiMenu v-if="!route.path.startsWith('/glass-lab') && !route.path.startsWith('/lab') && !route.path.startsWith('/instructional-design') && !route.path.startsWith('/my-work/strong') && !/^\/about\/?$/.test(route.path)" />
+    <!-- The home page carries its own chrome now: a hairline head bar with the
+         section nav, and a footer index for everything that didn't earn a
+         section. The floating corner button would sit on top of both and
+         duplicate the navigation, so `/` opts out along with the other routes
+         that own their own navigation. -->
+    <UiMenu v-if="route.path !== '/' && !route.path.startsWith('/glass-lab') && !route.path.startsWith('/lab') && !route.path.startsWith('/instructional-design') && !route.path.startsWith('/my-work/strong') && !/^\/about\/?$/.test(route.path)" />
   </div>
 </template>
 

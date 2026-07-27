@@ -29,7 +29,7 @@ export default defineNuxtConfig({
         { property: 'og:type', content: 'website' },
         { property: 'og:site_name', content: 'Entertrainer' },
         { property: 'og:title', content: 'Entertrainer — Instructional Design by Naveen Jose' },
-        { property: 'og:description', content: 'Learning experiences that feel human, plus free web apps for L&D teams.' },
+        { property: 'og:description', content: 'Instructional design, but fun. Training people actually finish — and the free tools that make it.' },
         { property: 'og:url', content: 'https://entertrainer.in/' },
         { property: 'og:image', content: 'https://entertrainer.in/og-card.png' },
         { property: 'og:image:width', content: '2400' },
@@ -37,7 +37,7 @@ export default defineNuxtConfig({
         { property: 'og:image:alt', content: 'Entertrainer — instructional design that feels human, by Naveen Jose' },
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'Entertrainer — Instructional Design by Naveen Jose' },
-        { name: 'twitter:description', content: 'Learning experiences that feel human, plus free web apps for L&D teams.' },
+        { name: 'twitter:description', content: 'Instructional design, but fun. Training people actually finish — and the free tools that make it.' },
         { name: 'twitter:image', content: 'https://entertrainer.in/og-card.png' }
       ],
       link: [
@@ -59,7 +59,16 @@ export default defineNuxtConfig({
         // range in one face — 100..900 weight *and* 62..125 width — so the
         // site's type can sit in the poster instead of next to it. DM Sans
         // stays for long-form reading.
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=Archivo:wdth,wght@62..125,400..900&display=swap' }
+        //
+        // Instrument Serif and JetBrains Mono join them for the editorial
+        // layer on the home page (see the `--w-*` block in main.css). The
+        // reference portfolio's whole effect rests on three faces with three
+        // jobs that never mix — a high-contrast serif carrying the human
+        // voice, a real mono carrying the machine voice, a heavy grotesque
+        // carrying the shout. The system mono stack was the weak link: it
+        // reads as *unset* rather than chosen, which is the one thing a page
+        // like this cannot afford.
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap' }
       ]
     },
     pageTransition: false,

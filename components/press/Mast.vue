@@ -4,6 +4,10 @@
  * makes five separately-written pages read as one publication. A control-row
  * of butted, hairline-divided cells: mark, dateline, section nav. Nothing
  * floats, nothing is rounded; the whole thing reads as print, not UI.
+ *
+ * Below 560px the section nav collapses behind a hamburger disclosure —
+ * four links wrapping to two cramped rows ate a third of a phone screen
+ * before a reader saw anything else.
  */
 import { useContentStore } from '~/stores/content'
 
@@ -20,6 +24,9 @@ const NAV = [
 
 const edition = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
 void props.section
+
+const open = ref(false)
+watch(() => route.path, () => { open.value = false })
 </script>
 
 <template>
@@ -31,8 +38,11 @@ void props.section
       <span class="pm__brand">Entertrainer</span>
       <span class="pm__edition">Gurugram Edition &middot; {{ edition }}</span>
       <a :href="`mailto:${content.email}`" class="pm__mail">{{ content.email }}</a>
+      <button type="button" class="pm__burger" :class="{ 'is-open': open }" :aria-expanded="open" aria-controls="pm-nav" aria-label="Sections menu" @click="open = !open">
+        <span /><span /><span />
+      </button>
     </div>
-    <nav class="pm__nav" aria-label="Sections">
+    <nav id="pm-nav" class="pm__nav" :class="{ 'is-open': open }" aria-label="Sections">
       <NuxtLink v-for="n in NAV" :key="n.to" :to="n.to" class="pm__link" :class="{ 'is-current': route.path.startsWith(n.to) }">
         {{ n.label }}
       </NuxtLink>
@@ -95,10 +105,35 @@ void props.section
 .pm__link.is-current { color: var(--press-paper); background: var(--press-ink); }
 .pm__link:focus-visible { outline: 2px solid var(--press-ink); outline-offset: -2px; }
 
+.pm__burger {
+  display: none;
+  flex: 0 0 auto;
+  width: 48px;
+  align-items: center; justify-content: center;
+  gap: 5px;
+  border: 0; border-left: 1px solid var(--press-rule);
+  background: none; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.pm__burger span { display: block; width: 18px; height: 2px; background: var(--press-ink); transition: transform 0.2s ease, opacity 0.2s ease; }
+.pm__burger.is-open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.pm__burger.is-open span:nth-child(2) { opacity: 0; }
+.pm__burger.is-open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.pm__burger:focus-visible { outline: 2px solid var(--press-ink); outline-offset: -2px; }
+
 @media (max-width: 860px) { .pm__brand, .pm__edition { display: none; } }
 @media (max-width: 560px) {
   .pm__mail { display: none; }
-  .pm__nav { overflow-x: auto; }
-  .pm__link { padding: 11px 14px; white-space: nowrap; }
+  .pm__burger { display: flex; }
+  .pm__nav {
+    display: none; flex-direction: column; flex-wrap: nowrap;
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
+    background: var(--press-paper);
+    border-bottom: 2px solid var(--press-ink);
+    box-shadow: 0 12px 24px rgba(14, 13, 12, 0.14);
+  }
+  .pm__nav.is-open { display: flex; }
+  .pm__link { border-right: 0; border-top: 1px solid var(--press-rule); padding: 15px 20px; }
+  .pm__link:first-child { border-top: 0; }
 }
 </style>

@@ -58,8 +58,11 @@ const fragment = /* glsl */`
 
     if (inPlate > 0.5) {
       float lum = dot(col, vec3(0.299, 0.587, 0.114));
-      // Slightly open the shadows so the screen has range to work in.
-      lum = clamp(lum * 1.06 - 0.03, 0.0, 1.0);
+      // Open the shadows well past the source's own black point — the plate
+      // art already carries plenty of dark ink of its own (illustrations,
+      // not just photos), and screening it on top of that used to crush
+      // everything below mid-gray into a solid, illegible mass.
+      lum = clamp(lum * 1.02 + 0.10, 0.0, 1.0);
 
       // Rotated dot lattice — 15° is the classic black screen angle.
       float freq = 232.0 + uHover * 12.0;
@@ -69,8 +72,10 @@ const fragment = /* glsl */`
       vec2 cell = fract(rc) - 0.5;
       float d = length(cell);
 
-      // Dot area tracks ink coverage; sqrt keeps midtones where the eye wants them.
-      float radius = sqrt(1.0 - lum) * 0.70;
+      // Dot area tracks ink coverage; sqrt keeps midtones where the eye wants
+      // them. Capped well under the cell's own half-diagonal so even the
+      // darkest coverage still reads as dots, not a solid ink block.
+      float radius = sqrt(1.0 - lum) * 0.58;
       float aa = max(fwidth(d) * 1.1, 0.004);
       float dotMask = smoothstep(radius + aa, radius - aa, d);
 

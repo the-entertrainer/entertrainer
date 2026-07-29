@@ -8,8 +8,7 @@
   "about": [],
   "instructional-design": [],
   "my-work": [
-    { "id": "sewa-chronicles", "label": "The SEWA Chronicles", "description": "A service-culture comic magazine for Club Mahindra: true guest-service stories that teach hospitality values through comics.", "href": "/my-work/sewa-chronicles", "color": "#243F6A", "img": "/work-01.png", "meta": "Comic · Club Mahindra" },
-    { "id": "strong", "label": "Strong", "description": "The real math of password strength: entropy in bits, why length beats symbols, and why the same password is instant or eternal depending on the attacker.", "href": "/my-work/strong", "color": "#243F6A", "img": "/strong.png", "meta": "Interactive explainer" }
+    { "id": "sewa-chronicles", "label": "The SEWA Chronicles", "description": "A service-culture comic magazine for Club Mahindra: true guest-service stories that teach hospitality values through comics.", "href": "/my-work/sewa-chronicles", "color": "#243F6A", "img": "/work-01.png", "meta": "Comic · Club Mahindra" }
   ],
   "tools": [
     { "id": "easymcq",          "label": "EasyMCQ",   "description": "Give a question and answer, and AI generates the wrong options.",         "href": "/tools/easymcq",       "color": "#243F6A", "img": "/easymcq.png",         "meta": "Assessment" },

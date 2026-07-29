@@ -89,8 +89,8 @@ export const LAB_CONCEPTS: LabConcept[] = [
 ]
 
 // ── Real content, for the inner pages ────────────────────────────────────────
-// Every word below already exists on the site (content/navigation.json,
-// components/home/About.vue, utils/homeIndex.ts). Nothing is invented.
+// Every word below already exists on the site (content/navigation.json and
+// the About page's chapters). Nothing is invented.
 
 export interface LabSection {
   id: string
@@ -143,8 +143,7 @@ export const LAB_SECTIONS: Record<string, LabSection> = {
     lead: 'Proof it wasn’t all talk.',
     body: 'Case studies, a comic, and the projects behind them — the things that shipped and what they were actually for.',
     rows: [
-      ['Comic · Club Mahindra', 'The SEWA Chronicles — true guest-service stories that teach hospitality values in panels, not policy documents.'],
-      ['Interactive explainer', 'Strong — the real math of password strength: entropy in bits, and why length beats symbols.']
+      ['Comic · Club Mahindra', 'The SEWA Chronicles — true guest-service stories that teach hospitality values in panels, not policy documents.']
     ]
   },
   'tools': {

@@ -24,7 +24,7 @@ function goHome() {
     <p class="czone__note">{{ note }}</p>
     <UiNaveenStatus />
     <UiConstructionGame :autofocus="isErrorPage" />
-    <button type="button" class="glass-btn czone__home" @click="goHome">Back to the spiral</button>
+    <button type="button" class="glass-btn czone__home" @click="goHome">Back to the front page</button>
   </div>
 </template>
 

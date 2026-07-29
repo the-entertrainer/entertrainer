@@ -2,12 +2,9 @@
 /**
  * The generic page frame for every route that isn't a tool app: placeholder
  * stubs (an about/my-work/downloads slug nobody has written yet) and the
- * site's own error page. It used to share `UiToolShell` with the three real
- * tool apps (EasyMCQ, Cadence, Draftly), which meant giving these pages the
- * site's current type and glass language would have reskinned those tools'
- * headers too. This is the same shell rebuilt on `UiPageHead`, so a dead-end
- * page reads as the same site as everywhere else while the tool apps stay
- * exactly as they are.
+ * site's own error page. Same Press masthead and footer as every other page,
+ * so a dead end still reads as the same publication rather than a different
+ * website underneath it.
  */
 defineProps<{
   eyebrow?: string
@@ -17,25 +14,34 @@ defineProps<{
 </script>
 
 <template>
-  <div class="cs">
-    <UiGlassBackdrop calm />
+  <div class="press-page cs">
+    <PressMast :section="title || 'Not found'" />
     <div class="cs__inner">
-      <UiPageHead :eyebrow="eyebrow" :title="title || ''" :deck="deck" />
+      <PressHead :eyebrow="eyebrow" :title="title || ''" :deck="deck" />
       <div class="cs__body">
         <slot />
       </div>
     </div>
+    <PressFoot />
   </div>
 </template>
 
 <style scoped>
-.cs { position: relative; z-index: 1; min-height: 100dvh; overflow-x: clip; }
-.cs__inner {
-  position: relative; z-index: 1;
-  max-width: 760rem; margin: 0 auto;
-  padding: calc(var(--page-top) + 10rem) 24rem calc(90rem + var(--safe-bottom));
+.cs { display: flex; flex-direction: column; }
+.cs__inner { flex: 1 1 auto; max-width: 780px; margin: 0 auto; width: 100%; padding: clamp(48px, 7vw, 84px) var(--press-edge) clamp(64px, 8vw, 96px); }
+.cs__body { margin-top: clamp(28px, 4vw, 40px); }
+.cs__body :deep(.glass-btn) {
+  background: transparent;
+  color: var(--press-ink);
+  border: 1px solid var(--press-ink);
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  font-family: var(--press-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
-@media (max-width: 600px) {
-  .cs__inner { padding: calc(var(--page-top)) 16rem calc(70rem + var(--safe-bottom)); }
-}
+.cs__body :deep(.glass-btn:hover) { background: var(--press-ink); color: var(--press-paper); transform: none; }
 </style>

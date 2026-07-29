@@ -3,10 +3,8 @@
 // three real instructional-design moves to one piece of content and watches
 // its cognitive load fall. The page performs the craft it is describing.
 //
-// Rebuilt from scratch: the previous version was authored in Tailwind utility
-// classes, but this project ships no Tailwind, so none of them resolved. This
-// version uses the site's real token system (theme-aware --color-* variables,
-// the 1rem = 1px scale, DM Sans) and the shared .glass-* primitives.
+// Styled as a Press worksheet — the interactive logic below is unchanged;
+// only the markup and CSS were reskinned onto the site's `--press-*` layer.
 definePageMeta({ layout: false, pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'Instructional Design · Entertrainer',
@@ -63,33 +61,24 @@ function iconPath(name: string) {
 </script>
 
 <template>
-  <div class="id-page">
-    <UiGlassBackdrop calm />
-
-    <NuxtLink to="/" class="id-exit" aria-label="Back to the site">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7" /></svg>
-      <span>Back</span>
-    </NuxtLink>
+  <div class="press-page id-page">
+    <PressMast section="Instructional Design" />
 
     <div class="id-wrap">
-      <header class="id-head">
-        <p class="id-eyebrow">Instructional design</p>
-        <h1 class="id-title">What gets designed when no one is watching</h1>
-        <p class="id-dek">
-          A subject expert can already do the thing. Instructional design is the work of turning
-          what they know into something another person can learn. Most of that work is subtraction.
-          Try it on the panel below.
-        </p>
-      </header>
+      <PressHead
+        eyebrow="Instructional design"
+        title="What gets designed when no one is watching"
+        deck="A subject expert can already do the thing. Instructional design is the work of turning what they know into something another person can learn. Most of that work is subtraction. Try it on the worksheet below."
+      />
 
-      <section class="id-lab glass-panel" aria-label="Interactive demonstration">
+      <section class="id-lab" aria-label="Interactive demonstration">
         <div class="id-lab__top">
           <div>
-            <p class="id-lab__kicker">The same instruction, redesigned live</p>
+            <p class="press-label">The same instruction, redesigned live</p>
             <p class="id-lab__topic">How to use a fire extinguisher</p>
           </div>
           <div class="id-meter" role="img" :aria-label="`Cognitive load: ${loadLabel}`">
-            <span class="id-meter__label">Load</span>
+            <span class="press-label">Load</span>
             <span class="id-meter__track"><span class="id-meter__fill" :class="{ 'no-anim': reduceMotion }" :style="{ width: load + '%' }" /></span>
             <span class="id-meter__val">{{ loadLabel }}</span>
           </div>
@@ -164,182 +153,89 @@ function iconPath(name: string) {
         </p>
       </footer>
     </div>
+
+    <PressFoot />
   </div>
 </template>
 
 <style scoped>
-.id-page {
-  position: fixed;
-  inset: 0;
-  overflow-y: auto;
-  color: var(--color-text);
-  background: var(--color-bg);
-}
 .id-wrap {
-  position: relative;
-  z-index: 1;
-  max-width: 780rem;
-  margin: 0 auto;
-  padding: calc(96rem + var(--safe-top)) 24rem calc(80rem + var(--safe-bottom));
+  position: relative; z-index: 1;
+  max-width: 780px; margin: 0 auto;
+  padding: clamp(40px, 6vw, 72px) var(--press-edge) clamp(64px, 8vw, 96px);
 }
 
-.id-exit {
-  position: fixed;
-  top: calc(18rem + var(--safe-top));
-  left: calc(20rem + var(--safe-left));
-  z-index: 30;
-  display: inline-flex;
-  align-items: center;
-  gap: 6rem;
-  min-height: 44rem;
-  padding: 8rem 16rem;
-  border-radius: 999rem;
-  font-family: var(--display-font);
-  font-weight: 700;
-  font-size: 13rem;
-  color: var(--color-text);
-  background: var(--color-glass-bg);
-  border: 1px solid var(--color-glass-border);
-  backdrop-filter: blur(16px) saturate(1.3) brightness(1.08);
-  -webkit-backdrop-filter: blur(16px) saturate(1.3) brightness(1.08);
-  box-shadow: inset 0 1px 0 var(--glow-rim), 0 10rem 26rem -16rem rgba(0,0,0,0.8);
-  transition: background 0.2s ease, transform 0.2s var(--ease-spring);
+/* The worksheet — a proof sheet: bordered, faintly screened, unmistakably a
+   panel to work on rather than a card to admire. */
+.id-lab {
+  margin-top: clamp(32px, 5vw, 48px);
+  padding: 26px 26px 24px;
+  border: 1px solid var(--press-ink);
+  background-image: radial-gradient(var(--press-rule) 0.7px, transparent 0.7px);
+  background-size: 8px 8px;
 }
-@media (hover: hover) { .id-exit:hover { background: var(--color-glass-bg-hover); transform: translateX(-2rem); } }
-.id-exit:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
+.id-lab__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--press-rule); }
+.id-lab__topic { margin-top: 6px; font-family: var(--press-sans); font-weight: 700; font-size: 19px; letter-spacing: -0.01em; }
 
-.id-head { margin-bottom: 34rem; }
-.id-eyebrow {
-  font-family: var(--mono-font);
-  font-weight: 500;
-  font-size: 12rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.55;
-  margin-bottom: 16rem;
-}
-.id-title {
-  font-family: var(--display-font);
-  font-optical-sizing: auto;
-  font-size: var(--text-h1);
-  font-weight: 800;
-  line-height: 0.92;
-  letter-spacing: var(--tracking-display);
-  max-width: 13ch;
-}
-.id-dek {
-  margin-top: 20rem;
-  font-size: 17rem;
-  line-height: 1.6;
-  opacity: 0.72;
-  max-width: 54ch;
-}
-
-.id-lab { padding: 26rem 26rem 24rem; }
-.id-lab__top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20rem;
-  margin-bottom: 22rem;
-}
-.id-lab__kicker { font-family: var(--mono-font); font-weight: 500; font-size: 11.5rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.5; margin-bottom: 6rem; }
-.id-lab__topic { font-size: 19rem; font-weight: 600; letter-spacing: -0.01em; }
-
-.id-meter { display: flex; align-items: center; gap: 10rem; flex-shrink: 0; }
-.id-meter__label { font-size: 11rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.5; }
-.id-meter__track { width: 88rem; height: 7rem; border-radius: 999rem; background: var(--color-glass-border); overflow: hidden; }
-.id-meter__fill { display: block; height: 100%; border-radius: 999rem; background: var(--color-pop); box-shadow: 0 0 12rem -2rem var(--glow-soft); transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.id-meter { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.id-meter__track { width: 88px; height: 7px; border: 1px solid var(--press-ink); background: var(--press-paper); overflow: hidden; }
+.id-meter__fill { display: block; height: 100%; background: var(--press-ink); transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
 .id-meter__fill.no-anim { transition: none; }
-.id-meter__val { font-size: 12.5rem; font-weight: 600; min-width: 62rem; }
+.id-meter__val { font-family: var(--press-mono); font-size: 12.5px; font-weight: 600; min-width: 62px; }
 
 .id-canvas {
-  min-height: 190rem;
-  padding: 24rem;
-  border-radius: 14rem;
-  background: color-mix(in srgb, var(--color-bg) 55%, transparent);
-  border: 1px solid var(--color-glass-border);
+  min-height: 190px; padding: 24px;
+  background: var(--press-paper);
+  border: 1px solid var(--press-rule);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-.id-canvas.is-designed {
-  border-color: var(--color-glass-border-hover);
-  box-shadow: inset 0 0 0 1px var(--color-glass-border-hover), 0 0 32rem -14rem var(--glow-soft);
-}
-.id-raw {
-  font-size: 15rem;
-  line-height: 1.5;
-  opacity: 0.6;
-  text-align: justify;
-  font-family: 'Georgia', 'Times New Roman', serif;
-}
-.id-plain { font-size: 18rem; line-height: 1.6; }
-.id-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12rem; }
-.id-step { display: flex; align-items: center; gap: 14rem; }
+.id-canvas.is-designed { border-color: var(--press-ink); box-shadow: inset 0 0 0 1px var(--press-ink); }
+.id-raw { font-size: 15px; line-height: 1.5; color: var(--press-ink-62); text-align: justify; font-family: 'Georgia', 'Times New Roman', serif; }
+.id-plain { font-family: var(--press-serif); font-size: 19px; line-height: 1.5; }
+.id-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.id-step { display: flex; align-items: center; gap: 14px; }
 .id-step__badge {
-  flex-shrink: 0;
-  width: 30rem;
-  height: 30rem;
-  border-radius: 8rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--display-font);
-  font-weight: 800;
-  font-size: 14rem;
-  background: var(--color-pop);
-  color: var(--color-on-pop);
-  box-shadow: 0 0 20rem -8rem var(--glow-soft);
+  flex-shrink: 0; width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--press-sans); font-weight: 800; font-size: 14px;
+  background: var(--press-ink); color: var(--press-paper);
 }
-.id-step__icon { flex-shrink: 0; color: var(--color-text); display: flex; }
-.id-step__text { font-size: 17rem; line-height: 1.4; }
+.id-step__icon { flex-shrink: 0; color: var(--press-ink); display: flex; }
+.id-step__text { font-family: var(--press-serif); font-size: 17px; line-height: 1.4; }
 .id-step__text b { font-weight: 700; }
-.id-mnemonic { margin-top: 18rem; font-size: 14rem; opacity: 0.7; }
-.id-mnemonic b { letter-spacing: 0.24em; font-weight: 700; opacity: 1; }
+.id-mnemonic { margin-top: 18px; font-family: var(--press-serif); font-size: 14px; color: var(--press-ink-62); }
+.id-mnemonic b { font-family: var(--press-mono); letter-spacing: 0.2em; font-weight: 700; color: var(--press-ink); }
 
-.id-moves { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12rem; margin-top: 22rem; }
+.id-moves { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 22px; background: var(--press-rule); border: 1px solid var(--press-rule); }
 .id-move {
-  display: flex;
-  gap: 12rem;
-  text-align: left;
-  padding: 15rem 15rem;
-  border-radius: 12rem;
-  border: 1px solid var(--color-glass-border);
-  background: color-mix(in srgb, var(--color-bg) 40%, transparent);
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  display: flex; gap: 12px; text-align: left; padding: 16px 16px;
+  background: var(--press-paper); cursor: pointer;
+  transition: background 0.15s ease;
 }
-@media (hover: hover) { .id-move:hover { border-color: var(--color-glass-border-hover); } }
-.id-move.is-on { border-color: var(--color-text); background: var(--color-glass-bg-hover); box-shadow: 0 0 26rem -12rem var(--glow-soft); }
-.id-move:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
+@media (hover: hover) { .id-move:hover { background: var(--press-paper-dim); } }
+.id-move.is-on { background: var(--press-ink); color: var(--press-paper); }
+.id-move:focus-visible { outline: 2px solid var(--press-ink); outline-offset: -2px; }
 .id-move__check {
-  flex-shrink: 0;
-  width: 22rem;
-  height: 22rem;
-  border-radius: 6rem;
-  border: 1.5px solid var(--color-glass-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-on-pop);
-  transition: background 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0; width: 20px; height: 20px; margin-top: 1px;
+  border: 1.5px solid currentColor;
+  display: flex; align-items: center; justify-content: center;
 }
-.id-move.is-on .id-move__check { background: var(--color-pop); border-color: var(--color-pop); }
-.id-move__body { display: flex; flex-direction: column; gap: 5rem; }
-.id-move__label { font-size: 14.5rem; font-weight: 600; letter-spacing: -0.01em; }
-.id-move__principle { font-size: 12rem; line-height: 1.45; opacity: 0.62; }
+.id-move.is-on .id-move__check { background: var(--press-paper); color: var(--press-ink); }
+.id-move__body { display: flex; flex-direction: column; gap: 5px; }
+.id-move__label { font-family: var(--press-sans); font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+.id-move__principle { font-family: var(--press-serif); font-size: 12.5px; line-height: 1.45; opacity: 0.82; }
 
-.id-foot { margin-top: 30rem; }
-.id-foot__line { font-size: 16rem; line-height: 1.6; opacity: 0.72; max-width: 56ch; transition: opacity 0.3s ease; }
-.id-foot__line.is-live { opacity: 1; font-weight: 500; }
+.id-foot { margin-top: 30px; padding-top: 24px; border-top: 1px solid var(--press-rule); }
+.id-foot__line { font-family: var(--press-serif); font-size: 16px; line-height: 1.6; color: var(--press-ink-62); max-width: 56ch; transition: color 0.3s ease; }
+.id-foot__line.is-live { color: var(--press-ink); font-weight: 500; }
 
 .id-swap-enter-active, .id-swap-leave-active { transition: opacity 0.28s ease, transform 0.28s ease; }
-.id-swap-enter-from { opacity: 0; transform: translateY(8rem); }
-.id-swap-leave-to { opacity: 0; transform: translateY(-8rem); }
+.id-swap-enter-from { opacity: 0; transform: translateY(8px); }
+.id-swap-leave-to { opacity: 0; transform: translateY(-8px); }
 
 @media (max-width: 640px) {
-  .id-wrap { padding-top: calc(84rem + var(--safe-top)); }
-  .id-lab__top { flex-direction: column; gap: 14rem; }
+  .id-lab__top { flex-direction: column; gap: 14px; }
   .id-moves { grid-template-columns: 1fr; }
-  .id-canvas { padding: 20rem; }
+  .id-canvas { padding: 20px; }
 }
 </style>

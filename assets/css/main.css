@@ -186,164 +186,6 @@
   --dur-slow: 700ms;
 }
 
-/* ============================================================
-   The editorial layer — `--w-*`
-   ============================================================
-   A second, deliberately extreme design language, adapted from the structural
-   analysis in /Inspiration/wodniack-scrape-2026.md. It sits *alongside* the
-   `--color-*` / `--text-*` system rather than replacing it: every interior
-   page, every tool and the whole WebGL stage keep the tokens they were built
-   against, and nothing above this comment changed.
-
-   Three ideas carry the whole look, and they are the three worth stealing:
-
-   1. Extreme type contrast. A ~25x ratio between the 9px machine voice and the
-      display shout, with almost nothing in the middle. A conventional 1.25
-      modular scale is exactly what makes a page read as templated — the gap is
-      the art direction.
-   2. Absurd whitespace. Sections breathe in hundreds of pixels, not tens.
-      Confidence reads as emptiness.
-   3. One easing curve, used relentlessly. `--w-ease` is on essentially every
-      transition down here; that single repetition is what makes motion feel
-      authored rather than assembled.
-
-   Three faces, three jobs, never mixed: mono is the machine, serif is the
-   human, display is the shout. */
-
-:root {
-  /* The four colours, taken exactly. Nothing here is neutral: the black leans
-     red and the white leans peach, and that bias is most of the warmth. */
-  --w-red: #f40c3f;
-  --w-ink: #160000;
-  --w-shadow: #540000;
-  --w-paper: #fff0eb;
-
-  --w-accent: var(--w-red);
-  --w-on-accent: var(--w-ink);
-  --w-rule: var(--w-ink);
-  --w-ink-55: color-mix(in srgb, var(--w-ink) 55%, transparent);
-  --w-ink-35: color-mix(in srgb, var(--w-ink) 35%, transparent);
-
-  /* Three faces, three jobs, never mixed. The originals are paid licences
-     (PP Editorial New, PP Fraktion Mono, Bigger Display); these are the
-     closest free stand-ins that keep each role's *character* — a high-contrast
-     serif for the human voice, a real mono for the machine voice, and a heavy
-     grotesque with a width axis for the shout. */
-  --w-serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
-  --w-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
-  --w-face: var(--display-font);
-
-  /* The scale, converted rung for rung. Every value below is the original's
-     rem measured against a 16px root and written out in px, because this
-     codebase sets `html { font-size: 1px }` — copying `18.5rem` verbatim here
-     would give an 18px headline. */
-  --w-display: min(15vw, 296px);   /* 18.5rem  / 0.8  */
-  --w-closer: min(300px, 25lvh);   /* 18.75rem / 1    */
-  --w-catcher: min(13vw, 220px);
-  --w-head: min(11vw, 105px);      /* 6.5625rem / 0.82 */
-  --w-sub: 60px;                   /* 3.75rem  */
-  --w-lead: 36px;                  /* 2.25rem  / 1.13 */
-  --w-big: 32px;                   /* 2rem     / 1.5  */
-  --w-body: 20px;                  /* 1.25rem  / 1.3  */
-  --w-chrome: 12px;
-  --w-chrome-l: 14px;
-  --w-micro: 8px;
-  --w-track-chrome: 0.06em;
-
-  /* Spacing, also taken at full strength. 240px between sections and 880px of
-     silence before the close is not a typo — the emptiness *is* the design,
-     and scaling it down is what made the first pass read as ordinary. */
-  --w-gap-section: 240px;          /* 15rem */
-  --w-gap-breath: 880px;           /* 55rem */
-  --w-gap-myway: 640px;            /* 40rem */
-  --w-head-h: 96px;                /* 6rem  */
-  --w-edge: 24px;                  /* 1.5rem */
-  --w-measure: 628px;              /* 39.25rem */
-
-  /* The curve vocabulary, verbatim and frequency-ranked. --w-ease is the house
-     curve: slow, snap, slow. There is no plain `ease` anywhere below. */
-  --w-ease: cubic-bezier(.86, 0, .07, 1);
-  --w-ease-step: cubic-bezier(1, 0, 0, 1);
-  --w-ease-out: cubic-bezier(.23, 1, .32, 1);
-  --w-ease-in: cubic-bezier(.55, .055, .675, .19);
-  --w-ease-cubic: cubic-bezier(.215, .61, .355, 1);
-  --w-ease-expo: cubic-bezier(.19, 1, .22, 1);
-  --w-ease-sine: cubic-bezier(.455, .03, .515, .955);
-}
-
-/* The header's "change contrast" control, which is an accessibility affordance
-   rather than a light/dark theme — it inverts the sheet and drops the warmth,
-   so the page goes to near-pure black on white at full strength. */
-[data-contrast="high"] {
-  --w-paper: #fff;
-  --w-ink: #000;
-  --w-red: #e3002f;
-  --w-ink-55: color-mix(in srgb, var(--w-ink) 72%, transparent);
-  --w-ink-35: color-mix(in srgb, var(--w-ink) 55%, transparent);
-}
-
-/* The original steps its measure and padding down at explicit breakpoints
-   rather than interpolating them — the jumps are part of the rhythm. */
-@media only screen and (max-width: 987px) {
-  :root { --w-measure: 512px; }
-}
-@media only screen and (max-width: 767px) and (orientation: landscape),
-       only screen and (max-width: 576px) {
-  :root {
-    --w-measure: 70vw;
-    --w-gap-section: 120px;
-    --w-gap-breath: 550px;
-    --w-gap-myway: 400px;
-    --w-head-h: 64px;
-    --w-edge: 16px;
-    --w-lead: 26px;
-    --w-big: 24px;
-    --w-body: 17px;
-  }
-}
-
-/* The machine voice. Small, uppercase, tracked, tabular — every label, index,
-   counter and eyebrow in the editorial layer is this and nothing else. */
-.w-mono {
-  font-family: var(--w-mono);
-  font-size: var(--w-chrome);
-  font-weight: 400;
-  letter-spacing: var(--w-track-chrome);
-  text-transform: uppercase;
-  font-variant-numeric: tabular-nums;
-}
-
-/* The shout. Archivo's width axis pushed wide so it fills a sheet the way the
-   original's display face does, and pulled tight enough to set as a block. */
-.w-shout {
-  font-family: var(--w-face);
-  font-weight: 900;
-  font-stretch: 118%;
-  line-height: 0.82;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-}
-
-/* The human voice. Set light and large — this is the only midtone on the page
-   and the only thing that isn't shouting or labelling. The original runs its
-   prose at weight 200; Instrument Serif ships one weight, so the lightness has
-   to come from size and leading instead. */
-.w-prose {
-  font-family: var(--w-serif);
-  font-weight: 400;
-  line-height: 1.13;
-  letter-spacing: -0.015em;
-}
-
-/* The base body setting, taken exactly: 16px, 1.48 leading, -0.025em. */
-.w-base {
-  font-family: var(--w-serif);
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.48;
-  letter-spacing: -0.025em;
-}
-
 /* ── Shared type roles ──────────────────────────────────────────────────
    Named once so a page never re-declares the family/tracking of a label or a
    display line. `.t-mono` is the metadata voice: indices, eyebrows, counts. */
@@ -850,5 +692,149 @@ canvas {
     -webkit-backdrop-filter: blur(16px) saturate(1.3);
   }
 }
+
+/* ============================================================
+   The Press layer — --press-*
+   ============================================================
+   Every page except the web apps now speaks one language: black ink on bone
+   paper, a condensed broadsheet masthead, hairline rules, folio numbers, and
+   true luminance-driven halftone wherever a photograph appears (PressHalftone).
+   Grown from the /lab "Press" concept — same two colours, same three faces.
+
+   Committed to one palette regardless of the OS light/dark preference:
+   newsprint doesn't have a dark mode, and pages built on this layer don't
+   read `--color-*`/`[data-theme]` at all. The tools keep that system exactly
+   as it was; this is additive, not a replacement. */
+:root {
+  --press-paper: #ECE9E2;
+  --press-paper-dim: #E2DED2;
+  --press-ink: #0E0D0D;
+  --press-ink-80: rgba(14,13,13,0.80);
+  --press-ink-62: rgba(14,13,13,0.62);
+  --press-ink-42: rgba(14,13,13,0.42);
+  --press-rule: rgba(14,13,13,0.22);
+  --press-rule-strong: var(--press-ink);
+
+  /* Three faces, three jobs — the same discipline as the `--w-*` layer.
+     Serif carries the reading voice, sans carries the shout, mono carries
+     the machine (folios, bylines, labels). All three already ship globally
+     (see nuxt.config.ts head links), so nothing new to load. */
+  --press-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --press-sans: var(--display-font);
+  --press-mono: var(--mono-font);
+
+  --press-edge: clamp(20px, 5vw, 56px);
+  --press-measure: 64ch;
+  --press-mast-h: 64px;
+
+  /* Fluid scale, one ramp for every Press page. */
+  --press-display: clamp(52px, 11vw, 148px);
+  --press-h1: clamp(40px, 8vw, 88px);
+  --press-h2: clamp(26px, 4vw, 42px);
+  --press-lead: clamp(18px, 2vw, 24px);
+  --press-body: clamp(15px, 1.1vw, 17px);
+  --press-label: 11px;
+}
+
+/* Base page shell — every Press page opens with this. */
+.press-page {
+  position: relative;
+  min-height: 100dvh;
+  background: var(--press-paper);
+  color: var(--press-ink);
+  font-family: var(--press-serif);
+  font-size: 17px;
+  line-height: 1.5;
+  overflow-x: clip;
+}
+
+.press-label {
+  font-family: var(--press-mono);
+  font-size: var(--press-label);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--press-ink-62);
+}
+
+.press-h1 {
+  font-family: var(--press-sans);
+  font-weight: 800;
+  font-stretch: 100%;
+  font-size: var(--press-h1);
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+  color: var(--press-ink);
+}
+
+.press-lead {
+  font-family: var(--press-serif);
+  font-size: var(--press-lead);
+  line-height: 1.34;
+  letter-spacing: -0.005em;
+  color: var(--press-ink);
+}
+
+.press-rule { border: 0; border-top: 1px solid var(--press-rule); margin: 0; }
+.press-rule--strong { border-top-color: var(--press-rule-strong); border-top-width: 2px; }
+
+/* The dt/dd data table every Press page uses for credentials, meta and specs. */
+.press-table { margin: 0; border-top: 1px solid var(--press-rule); }
+.press-table .press-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 26%) 1fr;
+  gap: 18px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--press-rule);
+}
+.press-table dt {
+  margin: 0;
+  font-family: var(--press-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--press-ink-62);
+  padding-top: 2px;
+}
+.press-table dd { margin: 0; font-family: var(--press-serif); font-size: 15px; line-height: 1.5; color: var(--press-ink); }
+@media (max-width: 560px) { .press-table .press-row { grid-template-columns: 1fr; gap: 3px; } }
+
+/* Drop cap — the first paragraph of a Press feature. */
+.press-dropcap::first-letter {
+  font-family: var(--press-sans);
+  font-weight: 800;
+  font-size: 2.6em;
+  line-height: 0.8;
+  float: left;
+  padding: 0.04em 0.07em 0 0;
+  color: var(--press-ink);
+}
+
+/* One pill-free button convention: an underline that thickens, ink on hover. */
+.press-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 12px 22px;
+  border: 1px solid var(--press-ink);
+  color: var(--press-ink);
+  font-family: var(--press-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.press-btn:hover { background: var(--press-ink); color: var(--press-paper); }
+.press-btn:focus-visible { outline: 2px solid var(--press-ink); outline-offset: 3px; }
+.press-btn--solid { background: var(--press-ink); color: var(--press-paper); }
+.press-btn--solid:hover { background: transparent; color: var(--press-ink); }
+
+@media (prefers-reduced-motion: reduce) { .press-btn { transition: none; } }
 
 

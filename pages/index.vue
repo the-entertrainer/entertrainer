@@ -30,12 +30,14 @@ function onSelect(item: NavItem) {
 
 <template>
   <div class="press-page">
-    <PressMast section="Front Page" />
+    <div class="home-hero">
+      <PressMast section="Front Page" />
 
-    <div class="home-stage">
-      <LabSpatialStage :concept="concept" :items="contentStore.homeNav" @select="onSelect">
-        <p class="home-stage__hint">Flick up to turn &middot; click the top sheet to open</p>
-      </LabSpatialStage>
+      <div class="home-stage">
+        <LabSpatialStage :concept="concept" :items="contentStore.homeNav" @select="onSelect">
+          <p class="home-stage__hint">Flick up to turn &middot; click the top sheet to open</p>
+        </LabSpatialStage>
+      </div>
     </div>
 
     <PressFoot />
@@ -43,11 +45,22 @@ function onSelect(item: NavItem) {
 </template>
 
 <style scoped>
+/* Mast + stage together claim exactly one viewport: the mast takes its own
+   content height, and the stage — which has no in-flow content of its own,
+   only the absolutely-positioned canvas — absorbs whatever's left. Pinning
+   the stage to a flat 100dvh instead (regardless of the mast's height, which
+   itself changes at the nav's responsive breakpoints) pushed the hero taller
+   than one screen, so the card's own foot rule was cropped off by the
+   viewport before you'd scrolled a pixel. */
+.home-hero {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
 .home-stage {
   position: relative;
-  height: 100dvh;
-  min-height: 560px;
-  max-height: 980px;
+  flex: 1 1 auto;
+  min-height: 460px;
   overflow: hidden;
   background: #dedbd2;
 }

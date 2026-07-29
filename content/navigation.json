@@ -1,9 +1,9 @@
 {
   "home": [
-    { "id": "about",                "label": "About Me",             "description": "The story behind Entertrainer",               "href": "/about",                "color": "#243F6A", "img": "/about-me.png",             "meta": "Story" },
-    { "id": "instructional-design", "label": "Instructional Design", "description": "What gets designed when no one's watching?",  "href": "/instructional-design", "color": "#243F6A", "img": "/instructional-design.png", "meta": "Practice" },
-    { "id": "my-work",              "label": "My Work",              "description": "Proof it wasn't all talk.",                   "href": "/my-work",              "color": "#243F6A", "img": "/my-work.png",              "meta": "Projects" },
-    { "id": "tools",                "label": "Web Apps",             "description": "The toolkit that powers impactful learning",  "href": "/tools",                "color": "#243F6A", "img": "/web-apps.png",             "meta": "Free tools" }
+    { "id": "about",                "label": "About Me",             "description": "The story behind Entertrainer",               "href": "/about",                "color": "#243F6A", "img": "/naveen.jpeg",                        "meta": "Story" },
+    { "id": "instructional-design", "label": "Instructional Design", "description": "What gets designed when no one's watching?",  "href": "/instructional-design", "color": "#243F6A", "img": "/plate-instructional-design.png",     "meta": "Practice" },
+    { "id": "my-work",              "label": "My Work",              "description": "Proof it wasn't all talk.",                   "href": "/my-work",              "color": "#243F6A", "img": "/plate-my-work.png",                  "meta": "Projects" },
+    { "id": "tools",                "label": "Web Apps",             "description": "The toolkit that powers impactful learning",  "href": "/tools",                "color": "#243F6A", "img": "/plate-web-apps.png",                 "meta": "Free tools" }
   ],
   "about": [],
   "instructional-design": [],

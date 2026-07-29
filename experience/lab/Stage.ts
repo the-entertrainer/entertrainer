@@ -103,22 +103,15 @@ export const smootherstep = (t: number) => { const x = clamp01(t); return x * x 
 
 // ── Card artwork ─────────────────────────────────────────────────────────────
 
-const CARD_IMAGE: Record<string, string> = {
-  'about': '/about-me.png',
-  'instructional-design': '/instructional-design.png',
-  'my-work': '/my-work.png',
-  'tools': '/web-apps.png'
-}
 const _imgCache = new Map<string, Promise<HTMLImageElement | null>>()
-function loadImage(id: string): Promise<HTMLImageElement | null> {
-  const src = CARD_IMAGE[id]
+function loadImage(src: string | undefined): Promise<HTMLImageElement | null> {
   if (!src || typeof document === 'undefined') return Promise.resolve(null)
-  let p = _imgCache.get(id)
+  let p = _imgCache.get(src)
   if (!p) {
     const img = new Image()
     img.src = src
     p = img.decode().then(() => img).catch(() => null)
-    _imgCache.set(id, p)
+    _imgCache.set(src, p)
   }
   return p
 }
@@ -398,13 +391,13 @@ export default class Stage {
       tex.needsUpdate = true
     }
     paint(null)
-    loadImage(item.id).then((img) => { if (!this.dead) paint(img) })
+    loadImage(item.img).then((img) => { if (!this.dead) paint(img) })
     void n
   }
 
   private repaintFaces() {
     this.faces.forEach(({ canvas, tex, card }) => {
-      loadImage(card.item.id).then((img) => {
+      loadImage(card.item.img).then((img) => {
         if (this.dead) return
         const ctx = canvas.getContext('2d')!
         ctx.clearRect(0, 0, canvas.width, canvas.height)

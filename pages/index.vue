@@ -1,11 +1,16 @@
 <script setup lang="ts">
 /**
- * The home page — not a page styled like /lab/press, but the same Concept
- * mounted with the site's own content: the four real destinations
- * (content/navigation.json's "home" array) as the sheets on the press bed,
- * flicked and read exactly as they are in the lab. PressMast and PressFoot
- * carry the real, crawlable links above and below it — the stage itself is
- * the front page's lead story, not a hero graphic bolted on top of one.
+ * The home page is the card stack and nothing else. Every previous pass kept
+ * a masthead and a footer index around it "for navigation" — but the cards
+ * already are the navigation (flick, then click one), and stacking a nav bar
+ * and a footer on top of a UI that already does that job just reads as
+ * clutter around the one thing that matters. Real destinations
+ * (content/navigation.json's "home" array) are the sheets on the press bed;
+ * selecting one routes straight to that page.
+ *
+ * The four links still exist in the DOM (sr-only) so the page stays
+ * crawlable and usable without WebGL or a pointer — the visual design is
+ * card-only, the markup isn't link-only-to-sighted-mouse-users.
  */
 import concept from '~/experience/lab/concepts/press'
 import { useContentStore } from '~/stores/content'
@@ -29,42 +34,25 @@ function onSelect(item: NavItem) {
 </script>
 
 <template>
-  <div class="press-page">
-    <div class="home-hero">
-      <PressMast section="Front Page" />
+  <div class="home">
+    <nav class="sr-only" aria-label="Sections">
+      <NuxtLink v-for="item in contentStore.homeNav" :key="item.id" :to="item.href">{{ item.label }}</NuxtLink>
+    </nav>
 
-      <div class="home-stage">
-        <LabSpatialStage :concept="concept" :items="contentStore.homeNav" @select="onSelect">
-          <p class="home-stage__hint">Flick up to turn &middot; click the top sheet to open</p>
-        </LabSpatialStage>
-      </div>
-    </div>
-
-    <PressFoot />
+    <LabSpatialStage :concept="concept" :items="contentStore.homeNav" @select="onSelect">
+      <p class="home__hint">Flick up to turn &middot; click the top sheet to open</p>
+    </LabSpatialStage>
   </div>
 </template>
 
 <style scoped>
-/* Mast + stage together claim exactly one viewport: the mast takes its own
-   content height, and the stage — which has no in-flow content of its own,
-   only the absolutely-positioned canvas — absorbs whatever's left. Pinning
-   the stage to a flat 100dvh instead (regardless of the mast's height, which
-   itself changes at the nav's responsive breakpoints) pushed the hero taller
-   than one screen, so the card's own foot rule was cropped off by the
-   viewport before you'd scrolled a pixel. */
-.home-hero {
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-}
-.home-stage {
+.home {
   position: relative;
-  flex: 1 1 auto;
-  min-height: 460px;
+  height: 100dvh;
   overflow: hidden;
   background: #dedbd2;
 }
-.home-stage__hint {
+.home__hint {
   position: absolute;
   bottom: calc(28px + var(--safe-bottom, 0px));
   left: 50%;
@@ -75,6 +63,15 @@ function onSelect(item: NavItem) {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--press-ink);
-  opacity: 0.45;
+  opacity: 0.4;
+}
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 </style>

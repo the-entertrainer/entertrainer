@@ -502,6 +502,11 @@ export default class Stage {
     this.hovered = this.pick()
     this.holdProgress = this.hovered && this.input.down ? clamp01(this.input.held / 0.85) : 0
 
+    // A card you can actually act on should look like it, before the click —
+    // the pointer alone says "this responds," the drag cursor says "and this
+    // is what dragging does here."
+    this.canvas.style.cursor = this.hovered ? 'pointer' : this.input.down ? 'grabbing' : 'grab'
+
     if (this.concept.selectOn === 'hold') {
       if (!this.input.down) this.holdFired = false
       else if (this.holdProgress >= 1 && this.hovered && !this.holdFired) {

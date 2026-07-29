@@ -16,7 +16,7 @@
  * nothing else. The restraint is the art direction.
  */
 import { wrapT, clamp01, type Concept } from '../Stage'
-import { cover, tracked, wrap, MONO, SANS } from '../draw'
+import { contain, tracked, wrap, MONO, SANS } from '../draw'
 
 // The screened plate, in UV (origin bottom-left) — shared by the painter and
 // the shader so the halftone lands exactly on the photograph and nowhere else.
@@ -160,12 +160,15 @@ const press: Concept = {
     const W = 1.78, H = W * 1.35
 
     if (t >= -0.02) {
-      // Waiting in the stack.
-      c.mesh.position.set(0, -t * 0.085, -t * 0.36)
+      // Waiting in the stack. The one you can actually read lifts very
+      // slightly toward you under the pointer — feedback that it's live,
+      // sized to feel like a response rather than a decoration.
+      const lift = c.hover * 0.05
+      c.mesh.position.set(0, -t * 0.085, -t * 0.36 + lift)
       c.mesh.rotation.set(-0.075 - t * 0.012, 0, t * 0.006)
       c.uniforms.uCurl.value = 0
       c.uniforms.uFade.value = 1
-      const k = 1 - t * 0.012
+      const k = 1 - t * 0.012 + c.hover * 0.012
       c.mesh.scale.set(W * k, H * k, 1)
     } else {
       // Turning: hinged at the far edge, up and over the reader.
@@ -210,7 +213,7 @@ const press: Concept = {
     if (img) {
       ctx.save()
       ctx.beginPath(); ctx.rect(px, py, pw, ph); ctx.clip()
-      cover(ctx, img, px, py, pw, ph)
+      contain(ctx, img, px, py, pw, ph)
       ctx.restore()
     }
 

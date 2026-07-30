@@ -727,12 +727,16 @@ canvas {
   --press-rule: rgba(14,13,13,0.22);
   --press-rule-strong: var(--press-ink);
 
-  /* Three faces, three jobs — the same discipline as the `--w-*` layer.
-     Serif carries the reading voice, sans carries the shout, mono carries
-     the machine (folios, bylines, labels). All three already ship globally
-     (see nuxt.config.ts head links), so nothing new to load. */
-  --press-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
-  --press-sans: var(--display-font);
+  /* Two faces now, not three. Fraunces carries every reading register — the
+     shout of a headline down to running body copy — because it has the full
+     weight range (100–900) and a real optical-size axis that a single serif
+     needs to do both jobs; Instrument Serif, tried first, had no bold cut,
+     which is exactly why headlines had quietly drifted into a competing sans
+     and read as mixed rather than designed. Mono stays a distinct third
+     voice for the machine parts (folios, bylines, labels) — that was never
+     the inconsistency. There is no `--press-sans` any more: every consumer
+     that asked for it now asks for `--press-serif` directly. */
+  --press-serif: "Fraunces", Georgia, "Times New Roman", serif;
   --press-mono: var(--mono-font);
 
   --press-edge: clamp(20px, 5vw, 56px);
@@ -791,9 +795,8 @@ canvas {
 }
 
 .press-h1 {
-  font-family: var(--press-sans);
+  font-family: var(--press-serif);
   font-weight: 800;
-  font-stretch: 100%;
   font-size: var(--press-h1);
   line-height: 0.96;
   letter-spacing: -0.03em;
@@ -835,7 +838,7 @@ canvas {
 
 /* Drop cap — the first paragraph of a Press feature. */
 .press-dropcap::first-letter {
-  font-family: var(--press-sans);
+  font-family: var(--press-serif);
   font-weight: 800;
   font-size: 2.6em;
   line-height: 0.8;

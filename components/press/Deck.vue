@@ -83,7 +83,7 @@ const pad = (i: number) => String(i + 1).padStart(2, '0')
 .pd__art { width: 100%; border-bottom: 1px solid var(--press-rule); }
 .pd__body { display: flex; flex-direction: column; gap: 8px; padding: 22px 22px 24px; flex: 1 1 auto; }
 .pd__n { color: var(--press-ink-42); }
-.pd__title { margin: 2px 0 0; font-family: var(--press-sans); font-weight: 800; font-size: var(--press-h3); line-height: 1.05; letter-spacing: -0.01em; }
+.pd__title { margin: 2px 0 0; font-family: var(--press-serif); font-weight: 800; font-size: var(--press-h3); line-height: 1.05; letter-spacing: -0.01em; }
 .pd__desc { margin: 2px 0 0; font-family: var(--press-serif); font-size: var(--press-body); line-height: 1.5; color: var(--press-ink-80); flex: 1 1 auto; }
 .pd__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--press-rule); }
 .pd__tag { font-family: var(--press-mono); font-size: var(--press-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--press-ink-62); }

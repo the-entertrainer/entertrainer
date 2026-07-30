@@ -175,7 +175,7 @@ function iconPath(name: string) {
   background-size: 8px 8px;
 }
 .id-lab__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--press-rule); }
-.id-lab__topic { margin-top: 6px; font-family: var(--press-sans); font-weight: 700; font-size: var(--press-h3); letter-spacing: -0.01em; }
+.id-lab__topic { margin-top: 6px; font-family: var(--press-serif); font-weight: 700; font-size: var(--press-h3); letter-spacing: -0.01em; }
 
 .id-meter { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .id-meter__track { width: 88px; height: 7px; border: 1px solid var(--press-ink); background: var(--press-paper); overflow: hidden; }
@@ -202,7 +202,7 @@ function iconPath(name: string) {
 .id-step__badge {
   flex-shrink: 0; width: 30px; height: 30px;
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--press-sans); font-weight: 800; font-size: var(--press-body);
+  font-family: var(--press-serif); font-weight: 800; font-size: var(--press-body);
   background: var(--press-ink); color: var(--press-paper);
 }
 .id-step__icon { flex-shrink: 0; color: var(--press-ink); display: flex; }
@@ -223,7 +223,7 @@ function iconPath(name: string) {
 }
 .id-move.is-on .id-move__check { background: var(--press-paper); color: var(--press-ink); }
 .id-move__body { display: flex; flex-direction: column; gap: 5px; }
-.id-move__label { font-family: var(--press-sans); font-size: var(--press-body); font-weight: 700; letter-spacing: -0.01em; }
+.id-move__label { font-family: var(--press-serif); font-size: var(--press-body); font-weight: 700; letter-spacing: -0.01em; }
 .id-move__principle { font-family: var(--press-serif); font-size: var(--press-small); line-height: 1.45; opacity: 0.82; }
 
 .id-foot { margin-top: 30px; padding-top: 24px; border-top: 1px solid var(--press-rule); }

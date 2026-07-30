@@ -47,30 +47,22 @@ export default defineNuxtConfig({
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        // Three roles, three faces: Fraunces for display, DM Sans for reading,
-        // JetBrains Mono for metadata — indices, eyebrows, dates, counts. The
-        // mono is what gives the editorial pages their studio voice; without it
-        // every label was just DM Sans in caps, and the pages read generic.
-        // Archivo, loaded with both variable axes.
+        // DM Sans and Archivo remain for the tools/glass layer (`--main-font`,
+        // `--display-font`) — those pages keep their own type system entirely.
         //
-        // Chosen by reading the card artwork rather than by taste: the prints
-        // set "Instructional" in a neo-grotesque and "DESIGN" in an ultra-bold
-        // slightly-condensed cut of the same family. Archivo covers that whole
-        // range in one face — 100..900 weight *and* 62..125 width — so the
-        // site's type can sit in the poster instead of next to it. DM Sans
-        // stays for long-form reading.
-        //
-        // Instrument Serif and JetBrains Mono join them for the editorial
-        // layer on the home page (see the `--w-*` block in main.css). The
-        // reference portfolio's whole effect rests on three faces with three
-        // jobs that never mix — a high-contrast serif carrying the human
-        // voice, a real mono carrying the machine voice, a heavy grotesque
-        // carrying the shout. The system mono stack was the weak link: it
-        // reads as *unset* rather than chosen, which is the one thing a page
-        // like this cannot afford.
+        // The Press layer is two faces now, not three: Fraunces carries every
+        // register from folio-sized headline down to body copy, and JetBrains
+        // Mono carries the machine voice (folios, eyebrows, dates, labels).
+        // Instrument Serif — the Press layer's original reading face — shipped
+        // with no bold cut, so headlines were quietly set in Archivo instead;
+        // the two competing voices read as unintentional font-mixing rather
+        // than a deliberate contrast. Fraunces has a full 100–900 weight range
+        // plus a real optical-size axis, and `font-optical-sizing` is `auto`
+        // by default (nothing here overrides it), so the browser already picks
+        // the display or text cut on its own — one family does both jobs.
         // Mono weight 500 is the one the Press cards and every `.press-label`
         // actually ask for; without it they silently rendered at 400.
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap' }
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=Archivo:wdth,wght@62..125,400..900&family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=JetBrains+Mono:wght@400;500;700&display=swap' }
       ]
     },
     pageTransition: false,

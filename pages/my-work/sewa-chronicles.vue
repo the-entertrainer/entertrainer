@@ -155,7 +155,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .cs-beat { display: grid; grid-template-columns: 48px 1fr; gap: 18px; padding: 22px 0; border-top: 1px solid var(--press-rule); }
 .cs-beat:first-of-type { border-top: 0; }
 .cs-beat__n { padding-top: 3px; }
-.cs-beat h2 { margin: 0; font-family: var(--press-sans); font-weight: 800; font-size: var(--press-h3); letter-spacing: -0.01em; }
+.cs-beat h2 { margin: 0; font-family: var(--press-serif); font-weight: 800; font-size: var(--press-h3); letter-spacing: -0.01em; }
 .cs-beat p { margin: 10px 0 0; font-family: var(--press-serif); font-size: var(--press-body); line-height: 1.6; color: var(--press-ink-80); max-width: 60ch; }
 
 .cs-gallery { padding-top: clamp(32px, 5vw, 48px); }
@@ -164,11 +164,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .cs-fig { display: flex; flex-direction: column; background: var(--press-paper); }
 .cs-fig__btn { display: block; padding: 0; border: 0; cursor: zoom-in; }
 .cs-fig figcaption { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px 16px; }
-.cs-fig figcaption strong { font-family: var(--press-sans); font-size: var(--press-small); font-weight: 700; letter-spacing: -0.005em; }
+.cs-fig figcaption strong { font-family: var(--press-serif); font-size: var(--press-small); font-weight: 700; letter-spacing: -0.005em; }
 .cs-fig__tag { font-family: var(--press-mono); font-size: var(--press-label); letter-spacing: 0.06em; text-transform: uppercase; color: var(--press-ink-62); }
 
 .cs-foot { margin-top: clamp(40px, 6vw, 64px); padding-top: 28px; border-top: 2px solid var(--press-rule-strong); }
-.cs-foot > p { font-family: var(--press-sans); font-weight: 800; font-size: var(--press-h2); line-height: 1.05; letter-spacing: -0.02em; max-width: 20ch; }
+.cs-foot > p { font-family: var(--press-serif); font-weight: 800; font-size: var(--press-h2); line-height: 1.05; letter-spacing: -0.02em; max-width: 20ch; }
 .cs-foot__links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
 
 /* Lightbox — projection room: the page's own ink, at near-opacity, so the real

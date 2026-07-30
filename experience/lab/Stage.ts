@@ -73,8 +73,11 @@ export interface Concept {
     /** Euler order — geometries that tilt a whole formation need XYZ. */
     rotationOrder?: 'XYZ' | 'YXZ' | 'ZXY' | 'ZYX' | 'YZX' | 'XZY'
   }
-  /** Painted onto every card's own canvas — this is where type happens. */
-  face: (ctx: CanvasRenderingContext2D, w: number, h: number, item: NavItem, img: HTMLImageElement | null, i: number) => void
+  /** Painted onto every card's own canvas — this is where type happens.
+   *  `total` is the deck size — a concept that prints a folio count (e.g.
+   *  Press's "01 / 06") needs the real count, not a guess baked in at
+   *  authoring time; it changes per page (home has 4 cards, About has more). */
+  face: (ctx: CanvasRenderingContext2D, w: number, h: number, item: NavItem, img: HTMLImageElement | null, i: number, total: number) => void
   /** Optional reverse side, for geometries that turn cards over. */
   back?: (ctx: CanvasRenderingContext2D, w: number, h: number, item: NavItem, i: number) => void
   backdrop?: { fragment: string; uniforms?: () => Record<string, { value: any }>; dist: number }
@@ -140,6 +143,7 @@ class Input {
   private _idle = 0
   private _committed: number | null = null
   private _downAt = 0
+  private _offsetVel = 0
 
   constructor(private el: HTMLElement, private cfg: Concept['input']) {
     el.addEventListener('wheel', this._wheel, { passive: true })
@@ -149,7 +153,20 @@ class Input {
     window.addEventListener('pointercancel', this._up)
   }
 
-  private get per() { return this.cfg.perCard ?? 340 }
+  // The configured `perCard` was tuned as a flat pixel count against roughly
+  // a 700px-tall stage. Left flat, the same physical drag is a near-full-height
+  // swipe on a phone and a shrug on a tall desktop window — the gesture's
+  // *meaning* changed with the screen. Scaling it by the element's own size
+  // along the drag axis keeps the fraction of the screen a flick asks for
+  // roughly constant everywhere, which is what makes it feel precise rather
+  // than device-dependent. Clamped so it can't run away at extreme sizes.
+  private get per() {
+    const explicit = this.cfg.perCard
+    if (!explicit) return 340
+    const dim = this.cfg.axis === 'x' ? this.el.clientWidth : this.el.clientHeight
+    const scale = Math.min(Math.max(dim / 700, 0.62), 1.35)
+    return explicit * scale
+  }
   private get sign() { return this.cfg.invert ? -1 : 1 }
 
   private _wheel = (e: WheelEvent) => {
@@ -208,14 +225,25 @@ class Input {
     // press-and-hold take several times longer than it should on any device
     // rendering below ~20fps.
     this.held = this.down ? (performance.now() - this._downAt) / 1000 : 0
-    this.px += (this._tpx - this.px) * Math.min(dt * 8, 1)
-    this.py += (this._tpy - this.py) * Math.min(dt * 8, 1)
+    // Faster than the settle below on purpose — this is raw hover/pick
+    // tracking (raycasting, the shader's uPointer), and a cursor that lags
+    // behind the actual pointer reads as unresponsive before a single card
+    // has even moved.
+    this.px += (this._tpx - this.px) * Math.min(dt * 14, 1)
+    this.py += (this._tpy - this.py) * Math.min(dt * 14, 1)
 
     if (this.cfg.mode === 'flick') {
       const target = this._committed ?? Math.round(this.offset)
-      const k = Math.min(dt * 7.5, 1)
+      // A critically-damped-ish spring rather than a flat exponential ease:
+      // the old version was a monotonic decay toward the target, which reads
+      // as a UI tween. This is stiff enough to settle in ~300ms but just
+      // under critical damping, so it carries a hair of overshoot — a sheet
+      // settling back onto the stack, not a value animating to a stop.
+      const stiffness = 210, damping = 23
+      const accel = (target - this.offset) * stiffness - this._offsetVel * damping
+      this._offsetVel += accel * dt
       const prev = this.offset
-      this.offset += (target - this.offset) * k
+      this.offset += this._offsetVel * dt
       this.velocity = (this.offset - prev) / Math.max(dt, 0.001)
       return
     }
@@ -387,12 +415,11 @@ export default class Stage {
     const paint = (img: HTMLImageElement | null) => {
       const ctx = canvas.getContext('2d')!
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      this.concept.face(ctx, canvas.width, canvas.height, item, img, i)
+      this.concept.face(ctx, canvas.width, canvas.height, item, img, i, n)
       tex.needsUpdate = true
     }
     paint(null)
     loadImage(item.img).then((img) => { if (!this.dead) paint(img) })
-    void n
   }
 
   private repaintFaces() {
@@ -401,7 +428,7 @@ export default class Stage {
         if (this.dead) return
         const ctx = canvas.getContext('2d')!
         ctx.clearRect(0, 0, canvas.width, canvas.height)
-        this.concept.face(ctx, canvas.width, canvas.height, card.item, img, card.index)
+        this.concept.face(ctx, canvas.width, canvas.height, card.item, img, card.index, this.cards.length)
         tex.needsUpdate = true
       })
     })

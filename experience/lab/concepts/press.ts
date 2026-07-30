@@ -16,11 +16,19 @@
  * nothing else. The restraint is the art direction.
  */
 import { wrapT, clamp01, type Concept } from '../Stage'
-import { contain, tracked, wrap, MONO, SANS } from '../draw'
+import { contain, tracked, wrap, MONO } from '../draw'
 
 // The screened plate, in UV (origin bottom-left) — shared by the painter and
 // the shader so the halftone lands exactly on the photograph and nowhere else.
 const PLATE = { x: 0.055, y: 0.335, w: 0.89, h: 0.465 }
+
+// The card's headline face, kept local rather than imported from `draw.ts`'s
+// shared SANS/SERIF exports — those are still read by the other lab concepts
+// (bleed, fold, assembly, signal), which keep their own deliberate faces.
+// This one is Press's own: Fraunces, the same family the DOM Press layer
+// reads through `--press-serif`, so a card's headline and an <h1> two clicks
+// away are visibly the same voice.
+const HEAD = '"Fraunces", Georgia, "Times New Roman", serif'
 
 const vertex = /* glsl */`
   uniform float uCurl, uTime, uFocus;
@@ -183,7 +191,7 @@ const press: Concept = {
     c.focus = 1 - clamp01(Math.abs(t) / 0.55)
   },
 
-  face(ctx, w, h, item, img, i) {
+  face(ctx, w, h, item, img, i, total) {
     ctx.fillStyle = '#eceadf'
     ctx.fillRect(0, 0, w, h)
 
@@ -198,9 +206,10 @@ const press: Concept = {
     ctx.textBaseline = 'alphabetic'
     tracked(ctx, 'ENTERTRAINER', M, h * 0.040, h * 0.004)
     const folio = String(i + 1).padStart(2, '0')
+    const folioTotal = String(total ?? 4).padStart(2, '0')
     ctx.textAlign = 'right'
     ctx.font = `500 ${Math.round(h * 0.019)}px ${MONO}`
-    ctx.fillText(`${folio} / 04`, w - M, h * 0.040)
+    ctx.fillText(`${folio} / ${folioTotal}`, w - M, h * 0.040)
     ctx.textAlign = 'left'
 
     // The screened plate.
@@ -222,18 +231,26 @@ const press: Concept = {
     ctx.font = `500 ${Math.round(h * 0.020)}px ${MONO}`
     tracked(ctx, (item.meta ?? '').toUpperCase(), M, py - h * 0.022, h * 0.005)
 
-    // The headline, set tight and large — the page's whole voice.
-    ctx.font = `700 ${Math.round(h * 0.088)}px ${SANS}`
-    const lines = wrap(ctx, item.label.toUpperCase(), w - M * 2)
+    // The headline, set tight and large — the page's whole voice. Capped at
+    // two lines: a third would already be crowding the standfirst below.
+    ctx.font = `800 ${Math.round(h * 0.088)}px ${HEAD}`
+    const lines = wrap(ctx, item.label.toUpperCase(), w - M * 2).slice(0, 2)
     let ty = py + ph + h * 0.098
     lines.forEach((l) => { ctx.fillText(l, M, ty); ty += h * 0.086 })
 
-    // Standfirst.
-    ctx.font = `400 ${Math.round(h * 0.030)}px ${SANS}`
+    // Standfirst — however many lines actually still fit above the foot
+    // rule, not a flat count. A two-line headline leaves less room than a
+    // one-line one; on longer prose (About's chapters run to full sentences,
+    // unlike home's short taglines) a fixed 3-line cap could run the text
+    // straight into "FLICK UP TO TURN" below.
+    ctx.font = `400 ${Math.round(h * 0.030)}px ${HEAD}`
     ctx.fillStyle = 'rgba(14,13,12,0.72)'
     const deck = wrap(ctx, item.description, w - M * 2)
     ty += h * 0.006
-    deck.slice(0, 3).forEach((l) => { ctx.fillText(l, M, ty); ty += h * 0.040 })
+    const deckLineH = h * 0.040
+    const deckMaxTy = h * 0.90
+    const maxLines = Math.max(1, Math.floor((deckMaxTy - ty) / deckLineH) + 1)
+    deck.slice(0, Math.min(3, maxLines)).forEach((l) => { ctx.fillText(l, M, ty); ty += deckLineH })
 
     // Foot rule.
     ctx.fillStyle = ink

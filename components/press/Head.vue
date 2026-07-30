@@ -30,7 +30,7 @@ const R = useReveal()
 </template>
 
 <style scoped>
-.phd { max-width: 780px; }
+.phd { max-width: var(--press-col); }
 .phd__top { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding-bottom: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--press-rule); }
 .phd__meta { color: var(--press-ink-42); }
 .phd__deck { margin: 18px 0 0; max-width: 44ch; }

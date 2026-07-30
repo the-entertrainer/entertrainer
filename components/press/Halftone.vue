@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<{
   /** Dot pitch in CSS px at 1x. */
   cell?: number
   eager?: boolean
-}>(), { angle: 15, cell: 7 })
+}>(), { angle: 15, cell: 4.5 })
 
 const wrap = ref<HTMLElement | null>(null)
 const canvas = ref<HTMLCanvasElement | null>(null)
@@ -87,9 +87,14 @@ function render() {
       const y = cy + u * sinA + v * cosA
       if (x < 0 || x >= w || y < 0 || y >= h) continue
       const idx = (Math.floor(y) * w + Math.floor(x)) * 4
-      const lum = (data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114) / 255
+      let lum = (data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114) / 255
+      // Same tone curve the home card's shader uses: open the shadows before
+      // screening, so dark artwork reads as dots rather than a solid mass.
+      // Without this the DOM halftone crushed everything below mid-grey while
+      // the reference card next door did not.
+      lum = Math.min(1, Math.max(0, lum * 1.02 + 0.10))
       const radius = (cell / 2) * Math.sqrt(Math.max(0, 1 - lum)) * 1.06
-      if (radius < 0.35) continue
+      if (radius < 0.3) continue
       ctx.beginPath()
       ctx.arc(x, y, radius, 0, Math.PI * 2)
       ctx.fill()

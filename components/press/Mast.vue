@@ -54,11 +54,11 @@ watch(() => route.path, () => { open.value = false })
 .pm {
   position: relative; z-index: 5;
   font-family: var(--press-mono);
-  font-size: 11px;
+  font-size: var(--press-label);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--press-ink);
-  border-bottom: 2px solid var(--press-ink);
+  border-bottom: 2px solid var(--press-rule-strong);
 }
 .pm__row {
   display: flex; align-items: stretch;
@@ -69,7 +69,7 @@ watch(() => route.path, () => { open.value = false })
   flex: 0 0 auto; width: var(--press-mast-h);
   padding: 16px; border-right: 1px solid var(--press-rule);
   color: var(--press-ink);
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: background var(--press-dur) var(--press-ease), color var(--press-dur) var(--press-ease);
 }
 .pm__mark svg { width: 26px; height: 26px; }
 .pm__mark:hover { background: var(--press-ink); color: var(--press-paper); }
@@ -129,8 +129,10 @@ watch(() => route.path, () => { open.value = false })
     display: none; flex-direction: column; flex-wrap: nowrap;
     position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
     background: var(--press-paper);
-    border-bottom: 2px solid var(--press-ink);
-    box-shadow: 0 12px 24px rgba(14, 13, 12, 0.14);
+    /* The heavy rule is what separates the drawer from the page — this was the
+       only box-shadow left in the Press layer, and the home card proves the
+       system doesn't need one: depth here is a rule and a value change. */
+    border-bottom: 2px solid var(--press-rule-strong);
   }
   .pm__nav.is-open { display: flex; }
   .pm__link { border-right: 0; border-top: 1px solid var(--press-rule); padding: 15px 20px; }

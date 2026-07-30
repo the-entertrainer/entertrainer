@@ -84,7 +84,11 @@
      way to make a page read as art-directed rather than templated. */
   --main-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
   --display-font: "Archivo", "Helvetica Neue", "Arial", sans-serif;
-  --mono-font: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  /* JetBrains Mono ships from the Google Fonts link in nuxt.config.ts but was
+     never referenced here, so every mono label on the site silently fell back
+     to the system stack — "unset" rather than chosen, which is exactly what
+     that font was added to avoid. */
+  --mono-font: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
   /* Spacing scale */
   --gap-xs: 10px;
@@ -368,6 +372,14 @@ canvas {
 }
 /* The corner E-button rides on the WebGL canvas; give its ring breathing room. */
 .e-btn:focus-visible { outline-offset: 5px; }
+
+/* The ring above is drawn in `--color-text`, which on the Press layer's bone
+   paper is near-white — i.e. no ring at all. Press pages don't read the themed
+   palette, so they need their own ink. Without this, only `.press-btn` (which
+   sets its own) was ever visibly focusable; the footer index cells, in
+   particular, had no discernible focus state. */
+.press-page :focus-visible,
+.home :focus-visible { outline-color: var(--press-ink); }
 
 /* ============================================================
    WebGL canvas layout — Section 10
@@ -727,13 +739,34 @@ canvas {
   --press-measure: 64ch;
   --press-mast-h: 64px;
 
-  /* Fluid scale, one ramp for every Press page. */
+  /* Fluid scale, one ramp for every Press page. `h3` is the card-title rung
+     and `small` the meta rung — both were missing, which is why pages had
+     drifted into ad-hoc 22px / 13.5px / 12.5px values with nowhere to land. */
   --press-display: clamp(52px, 11vw, 148px);
   --press-h1: clamp(40px, 8vw, 88px);
   --press-h2: clamp(26px, 4vw, 42px);
+  --press-h3: clamp(20px, 2.4vw, 24px);
   --press-lead: clamp(18px, 2vw, 24px);
   --press-body: clamp(15px, 1.1vw, 17px);
+  --press-small: clamp(13px, 1vw, 14px);
   --press-label: 11px;
+
+  /* Three container rungs, each with a job — prose, prose-beside-media, and
+     card grids. Pages previously picked 780 / 860 / 920 / 1180 independently. */
+  --press-col: 780px;
+  --press-col-feature: 920px;
+  --press-col-wide: 1180px;
+  --press-pad-top: clamp(40px, 6vw, 72px);
+  --press-pad-bottom: clamp(60px, 8vw, 100px);
+
+  /* Interaction, translated from the home card. Its hover eases exponentially
+     at rate 9/s (~90% in 256ms) and grows 1.2%; its ink gains ~3%. There is no
+     press state on the canvas, so `--press-press` is this layer's own addition:
+     it reverses the lift, which is the honest physical read of a push. */
+  --press-dur: 180ms;
+  --press-ease: cubic-bezier(.2, .7, .3, 1);
+  --press-hover: 1.012;
+  --press-press: 0.99;
 }
 
 /* Base page shell — every Press page opens with this. */
@@ -828,13 +861,78 @@ canvas {
   text-decoration: none;
   background: transparent;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  /* Same clock as `.press-card` / `.press-cell` — one interaction tempo across
+     every control on the site, taken from the home card's hover easing. */
+  transition: background-color var(--press-dur) var(--press-ease),
+              color var(--press-dur) var(--press-ease),
+              transform var(--press-dur) var(--press-ease);
 }
 .press-btn:hover { background: var(--press-ink); color: var(--press-paper); }
+.press-btn:active { transform: scale(var(--press-press)); }
 .press-btn:focus-visible { outline: 2px solid var(--press-ink); outline-offset: 3px; }
+.press-btn:disabled, .press-btn[disabled] { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 .press-btn--solid { background: var(--press-ink); color: var(--press-paper); }
 .press-btn--solid:hover { background: transparent; color: var(--press-ink); }
 
-@media (prefers-reduced-motion: reduce) { .press-btn { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .press-btn { transition: none; }
+  .press-btn:active { transform: none; }
+}
+
+/* ── The card language, translated from the home page ────────────────────────
+   The home sheet's whole feedback vocabulary is: grow 1.2%, gain ~3% ink,
+   settle in about a quarter-second. Nothing else — no shadow, no radius, no
+   border change, no hue. These two classes are that vocabulary in DOM form.
+
+   Two densities, one language. The difference is purely whether the surface
+   floats in a gapped grid (it can lift above its neighbours, like a sheet off
+   the stack) or sits flush edge-to-edge (scaling it would tear the grid, so
+   it darkens in place instead). Everything else — timing, easing, ink target,
+   press behaviour, focus ring — is shared. */
+.press-card,
+.press-cell {
+  position: relative;
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--press-paper);
+  color: var(--press-ink);
+  cursor: pointer;
+  transition: transform var(--press-dur) var(--press-ease),
+              background-color var(--press-dur) var(--press-ease),
+              color var(--press-dur) var(--press-ease);
+}
+
+@media (hover: hover) {
+  .press-card:hover { transform: scale(var(--press-hover)); background: var(--press-paper-dim); z-index: 1; }
+  .press-cell:hover { background: var(--press-paper-dim); }
+}
+
+/* Press reverses the lift. On a card that was hovering it reads as pushing the
+   sheet back down; on a touch device, where there is no hover, it is the only
+   feedback there is — which is why it is on the cell too. */
+.press-card:active { transform: scale(var(--press-press)); background: var(--press-paper-dim); }
+.press-cell:active { transform: scale(var(--press-press)); }
+
+.press-card:focus-visible,
+.press-cell:focus-visible { outline: 2px solid var(--press-ink); outline-offset: -2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .press-card, .press-cell { transition: none; }
+  .press-card:hover, .press-card:active, .press-cell:active { transform: none; }
+}
+
+/* Present in the DOM, absent from the page — real links behind a canvas-only
+   design, so it stays crawlable and keyboard-reachable. Lived scoped inside
+   pages/index.vue, which meant it compiled with a data-v-* attribute and no
+   other page could use it. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 

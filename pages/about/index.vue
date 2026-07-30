@@ -52,7 +52,7 @@ const CREDENTIALS: Array<[string, string]> = [
     <article class="ab-inner">
       <header class="ab-hero">
         <p class="press-label" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">About &middot; A short story</p>
-        <h1 class="ab-hero__h1" v-motion :initial="R.rise(90).initial" :visible-once="R.rise(90).visibleOnce">Naveen Jose</h1>
+        <h1 class="press-h1 ab-hero__h1" v-motion :initial="R.rise(90).initial" :visible-once="R.rise(90).visibleOnce">Naveen Jose</h1>
         <p class="press-dropcap ab-hero__lead" v-motion :initial="R.rise(180).initial" :visible-once="R.rise(180).visibleOnce">
           A certified instructional designer who <em>designs</em> learning, <em>builds</em> the tools
           to deliver it, and keeps <em>daring</em> to try new tech.
@@ -99,13 +99,17 @@ const CREDENTIALS: Array<[string, string]> = [
 </template>
 
 <style scoped>
-.ab-inner { max-width: 860px; margin: 0 auto; padding: clamp(40px, 6vw, 72px) var(--press-edge) clamp(64px, 8vw, 96px); }
+.ab-inner { max-width: var(--press-col-feature); margin: 0 auto; padding: var(--press-pad-top) var(--press-edge) var(--press-pad-bottom); }
 
 .ab-hero { padding-bottom: clamp(32px, 5vw, 48px); border-bottom: 1px solid var(--press-rule); }
-.ab-hero__h1 { margin: 14px 0 0; font-family: var(--press-serif); font-weight: 400; font-size: var(--press-display); line-height: 0.94; }
+/* Sans-bold, matching the home card's headline — that is what "the shout"
+   looks like in this system. Serif is the reading voice and stays in the body
+   copy below. Sizing steps up to `--press-display` because this is the one
+   page-opening name on the site. */
+.ab-hero__h1 { margin: 14px 0 0; font-size: var(--press-display); }
 .ab-hero__lead { margin: 26px 0 0; font-size: var(--press-lead); line-height: 1.4; max-width: 42ch; }
 .ab-hero__lead em { font-style: italic; }
-.ab-hero__meta { margin-top: 18px; font-family: var(--press-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--press-ink-62); }
+.ab-hero__meta { margin-top: 18px; font-family: var(--press-mono); font-size: var(--press-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--press-ink-62); }
 
 .ab-chapters { display: flex; flex-direction: column; gap: clamp(48px, 7vw, 76px); margin-top: clamp(48px, 7vw, 76px); }
 .ab-ch { display: grid; grid-template-columns: 280px 1fr; gap: clamp(24px, 4vw, 44px); align-items: start; }
@@ -114,13 +118,13 @@ const CREDENTIALS: Array<[string, string]> = [
 .ab-ch__art { border: 1px solid var(--press-rule); }
 .ab-ch__head { margin: 10px 0 0; font-family: var(--press-sans); font-weight: 800; font-size: var(--press-h2); line-height: 1.05; letter-spacing: -0.015em; }
 .ab-ch__text { margin: 16px 0 0; font-family: var(--press-serif); font-size: var(--press-body); line-height: 1.68; color: var(--press-ink-80); max-width: 52ch; }
-.ab-ch__place { margin-top: 12px; font-family: var(--press-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--press-ink-42); }
+.ab-ch__place { margin-top: 12px; font-family: var(--press-mono); font-size: var(--press-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--press-ink-42); }
 
-.ab-cred { margin-top: clamp(56px, 8vw, 84px); padding-top: clamp(28px, 4vw, 40px); border-top: 2px solid var(--press-ink); }
+.ab-cred { margin-top: clamp(56px, 8vw, 84px); padding-top: clamp(28px, 4vw, 40px); border-top: 2px solid var(--press-rule-strong); }
 .ab-cred__table { margin-top: 18px; }
 
 .ab-close { margin-top: clamp(56px, 8vw, 84px); padding-top: clamp(28px, 4vw, 40px); border-top: 1px solid var(--press-rule); text-align: center; }
-.ab-close__quote { font-family: var(--press-serif); font-style: italic; font-size: 18px; color: var(--press-ink-80); margin: 0; }
+.ab-close__quote { font-family: var(--press-serif); font-style: italic; font-size: var(--press-lead); color: var(--press-ink-80); margin: 0; }
 .ab-close__cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 24px; }
 
 @media (max-width: 700px) {

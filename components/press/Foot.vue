@@ -19,7 +19,7 @@ const INDEX = [
 <template>
   <footer class="pf">
     <nav class="pf__index" aria-label="Elsewhere on the site">
-      <NuxtLink v-for="i in INDEX" :key="i.to" :to="i.to" class="pf__cell">
+      <NuxtLink v-for="i in INDEX" :key="i.to" :to="i.to" class="press-cell pf__cell">
         <span class="pf__cell-label">{{ i.label }}</span>
         <span class="pf__cell-desc">{{ i.desc }}</span>
         <span class="pf__cell-go" aria-hidden="true">&rarr;</span>
@@ -41,30 +41,32 @@ const INDEX = [
 <style scoped>
 .pf {
   position: relative; z-index: 1;
-  border-top: 2px solid var(--press-ink);
+  border-top: 2px solid var(--press-rule-strong);
   font-family: var(--press-mono);
-  font-size: 11px;
+  font-size: var(--press-label);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--press-ink);
 }
 
 .pf__index { display: grid; grid-template-columns: repeat(4, 1fr); }
+/* A flush 4-across grid, so these use `.press-cell` (darken in place) rather
+   than `.press-card` (scale up) — scaling a cell whose edges butt against its
+   neighbours would tear the grid. The full ink inversion is this component's
+   own louder register; timing, press and focus come from the shared class. */
 .pf__cell {
   display: flex; flex-direction: column; gap: 8px;
   position: relative;
   padding: 28px 22px 40px;
-  color: var(--press-ink);
   border-right: 1px solid var(--press-rule);
-  transition: background 0.2s ease, color 0.2s ease;
 }
 .pf__index .pf__cell:last-child { border-right: 0; }
 @media (hover: hover) {
   .pf__cell:hover { background: var(--press-ink); color: var(--press-paper); }
   .pf__cell:hover .pf__cell-go { transform: translate(3px, -3px); opacity: 1; }
 }
-.pf__cell-desc { font-family: var(--press-serif); text-transform: none; letter-spacing: 0; font-size: 13.5px; opacity: 0.72; }
-.pf__cell-go { position: absolute; top: 28px; right: 22px; opacity: 0.4; transition: transform 0.3s ease, opacity 0.3s ease; }
+.pf__cell-desc { font-family: var(--press-serif); text-transform: none; letter-spacing: 0; font-size: var(--press-small); opacity: 0.72; }
+.pf__cell-go { position: absolute; top: 28px; right: 22px; opacity: 0.4; transition: transform var(--press-dur) var(--press-ease), opacity var(--press-dur) var(--press-ease); }
 
 .pf__bar {
   display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;

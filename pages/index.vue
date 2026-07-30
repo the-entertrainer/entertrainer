@@ -40,7 +40,7 @@ function onSelect(item: NavItem) {
     </nav>
 
     <LabSpatialStage :concept="concept" :items="contentStore.homeNav" @select="onSelect">
-      <p class="home__hint">Flick up to turn &middot; click the top sheet to open</p>
+      <p class="home__hint">Click the top sheet to open</p>
     </LabSpatialStage>
   </div>
 </template>
@@ -64,14 +64,5 @@ function onSelect(item: NavItem) {
   text-transform: uppercase;
   color: var(--press-ink);
   opacity: 0.4;
-}
-.sr-only {
-  position: absolute;
-  width: 1px; height: 1px;
-  padding: 0; margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }
 </style>

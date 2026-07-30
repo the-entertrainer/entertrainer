@@ -66,7 +66,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       <header class="cs-hero">
         <div class="cs-hero__text" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
           <p class="press-label">My Work &middot; Club Mahindra &middot; 2023</p>
-          <h1 class="cs-title">The SEWA Chronicles</h1>
+          <h1 class="press-h1 cs-title">The SEWA Chronicles</h1>
           <p class="cs-deck press-lead">A service-culture comic magazine that teaches hospitality teams the values behind great guest experience, through true stories from the resort floor.</p>
           <dl class="press-table cs-meta">
             <div v-for="m in meta" :key="m.k" class="press-row">
@@ -75,9 +75,15 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
             </div>
           </dl>
         </div>
-        <button class="cs-hero__cover" @click="open(0)" aria-label="Open the cover" v-motion :initial="R.scaleIn(120).initial" :visible-once="R.scaleIn(120).visibleOnce">
-          <PressHalftone src="/work/sewa/cover.webp" alt="The SEWA Chronicles cover" ratio="1400/1980" eager />
-        </button>
+        <!-- The reveal animation lives on the wrapper, not the button: v-motion
+             writes an inline `transform`, which would beat `.press-card`'s
+             hover and press scales and leave this the one card on the site
+             that doesn't respond to the pointer. -->
+        <div class="cs-hero__coverwrap" v-motion :initial="R.scaleIn(120).initial" :visible-once="R.scaleIn(120).visibleOnce">
+          <button class="press-card cs-hero__cover" @click="open(0)" aria-label="Open the cover">
+            <PressHalftone src="/work/sewa/cover.webp" alt="The SEWA Chronicles cover" ratio="1400/1980" eager />
+          </button>
+        </div>
       </header>
 
       <section class="cs-body">
@@ -93,7 +99,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <p class="press-label cs-gallery__label">Selected pages</p>
         <div class="cs-grid">
           <figure v-for="(p, i) in pages" :key="p.src" class="cs-fig">
-            <button class="cs-fig__btn" @click="open(i)" :aria-label="`Enlarge: ${p.cap}`">
+            <button class="press-card cs-fig__btn" @click="open(i)" :aria-label="`Enlarge: ${p.cap}`">
               <PressHalftone :src="`/work/sewa/${p.src}.webp`" :alt="p.alt" ratio="4/5" />
             </button>
             <figcaption>
@@ -131,67 +137,73 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
-.cs-inner { max-width: 920px; margin: 0 auto; padding: clamp(40px, 6vw, 72px) var(--press-edge) clamp(56px, 7vw, 84px); }
+.cs-inner { max-width: var(--press-col-feature); margin: 0 auto; padding: var(--press-pad-top) var(--press-edge) var(--press-pad-bottom); }
 
 .cs-hero { display: grid; grid-template-columns: 1fr 280px; gap: 34px; align-items: start; padding-bottom: clamp(32px, 5vw, 48px); border-bottom: 1px solid var(--press-rule); }
-.cs-title { font-family: var(--press-serif); font-weight: 400; font-size: var(--press-h1); line-height: 0.94; margin-top: 12px; }
+/* Sans-bold via `.press-h1`, matching the home card and the About hero. */
+.cs-title { margin-top: 12px; }
 .cs-deck { margin-top: 16px; max-width: 30em; }
 .cs-meta { margin-top: 26px; }
-.cs-hero__cover { display: block; padding: 0; border: 1px solid var(--press-rule); cursor: zoom-in; background: none; transition: transform 0.35s ease; }
-@media (hover: hover) { .cs-hero__cover:hover { transform: translateY(-4px); } }
-.cs-hero__cover:focus-visible { outline: 2px solid var(--press-ink); outline-offset: 3px; }
+/* Both this and the gallery figures below are zoom triggers, so both take
+   `.press-card`. `zoom-in` overrides the shared `pointer` because it says
+   something more specific about what the click does. */
+.cs-hero__coverwrap { min-width: 0; }
+.cs-hero__cover { display: block; width: 100%; padding: 0; border: 1px solid var(--press-rule); cursor: zoom-in; }
 
 .cs-body { padding: clamp(32px, 5vw, 48px) 0; border-bottom: 1px solid var(--press-rule); }
 .cs-body__label { margin-bottom: 20px; }
 .cs-beat { display: grid; grid-template-columns: 48px 1fr; gap: 18px; padding: 22px 0; border-top: 1px solid var(--press-rule); }
 .cs-beat:first-of-type { border-top: 0; }
 .cs-beat__n { padding-top: 3px; }
-.cs-beat h2 { margin: 0; font-family: var(--press-sans); font-weight: 800; font-size: 21px; letter-spacing: -0.01em; }
-.cs-beat p { margin: 10px 0 0; font-family: var(--press-serif); font-size: 15.5px; line-height: 1.6; color: var(--press-ink-80); max-width: 60ch; }
+.cs-beat h2 { margin: 0; font-family: var(--press-sans); font-weight: 800; font-size: var(--press-h3); letter-spacing: -0.01em; }
+.cs-beat p { margin: 10px 0 0; font-family: var(--press-serif); font-size: var(--press-body); line-height: 1.6; color: var(--press-ink-80); max-width: 60ch; }
 
 .cs-gallery { padding-top: clamp(32px, 5vw, 48px); }
 .cs-gallery__label { margin-bottom: 18px; }
 .cs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--press-rule); border: 1px solid var(--press-rule); }
 .cs-fig { display: flex; flex-direction: column; background: var(--press-paper); }
-.cs-fig__btn { display: block; padding: 0; border: 0; cursor: zoom-in; background: none; }
-.cs-fig__btn:focus-visible { outline: 2px solid var(--press-ink); outline-offset: -3px; }
+.cs-fig__btn { display: block; padding: 0; border: 0; cursor: zoom-in; }
 .cs-fig figcaption { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px 16px; }
-.cs-fig figcaption strong { font-family: var(--press-sans); font-size: 13.5px; font-weight: 700; letter-spacing: -0.005em; }
-.cs-fig__tag { font-family: var(--press-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--press-ink-62); }
+.cs-fig figcaption strong { font-family: var(--press-sans); font-size: var(--press-small); font-weight: 700; letter-spacing: -0.005em; }
+.cs-fig__tag { font-family: var(--press-mono); font-size: var(--press-label); letter-spacing: 0.06em; text-transform: uppercase; color: var(--press-ink-62); }
 
-.cs-foot { margin-top: clamp(40px, 6vw, 64px); padding-top: 28px; border-top: 2px solid var(--press-ink); }
+.cs-foot { margin-top: clamp(40px, 6vw, 64px); padding-top: 28px; border-top: 2px solid var(--press-rule-strong); }
 .cs-foot > p { font-family: var(--press-sans); font-weight: 800; font-size: var(--press-h2); line-height: 1.05; letter-spacing: -0.02em; max-width: 20ch; }
 .cs-foot__links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
 
-/* Lightbox — projection room: near-black, so the real colour art pops */
+/* Lightbox — projection room: the page's own ink, at near-opacity, so the real
+   colour art pops. Inside it the roles invert (paper-on-ink), which is why the
+   controls are described in paper rather than reaching for `.press-btn`. */
 .cs-lb {
   position: fixed; inset: 0; z-index: 60;
   display: flex; align-items: center; justify-content: center; gap: 8px; padding: 20px;
   background: rgba(14, 13, 13, 0.94);
 }
 .cs-lb__figure { display: flex; flex-direction: column; align-items: center; gap: 12px; max-height: 100%; }
-.cs-lb__figure img { max-width: min(92vw, 760px); max-height: 84dvh; box-shadow: 0 40px 120px -30px rgba(0, 0, 0, 0.8); }
-.cs-lb__figure figcaption { color: rgba(236, 233, 226, 0.8); font-family: var(--press-mono); font-size: 12px; letter-spacing: 0.05em; }
+.cs-lb__figure img { max-width: min(92vw, 760px); max-height: 84dvh; }
+.cs-lb__figure figcaption { color: var(--press-paper); opacity: 0.8; font-family: var(--press-mono); font-size: var(--press-label); letter-spacing: 0.05em; }
 .cs-lb__close {
   position: absolute; top: calc(16px + var(--safe-top)); right: 18px;
   width: 40px; height: 40px;
-  color: #ECE9E2; font-size: 18px;
-  background: transparent; border: 1px solid rgba(236,233,226,0.4);
-  transition: background 0.2s ease;
+  color: var(--press-paper); font-size: 18px;
+  background: transparent; border: 1px solid rgba(236, 233, 226, 0.4);
+  transition: background var(--press-dur) var(--press-ease);
 }
 .cs-lb__nav {
   width: 48px; height: 48px; flex-shrink: 0;
-  color: #ECE9E2; font-size: 28px; line-height: 1;
-  background: transparent; border: 1px solid rgba(236,233,226,0.4);
-  transition: background 0.2s ease;
+  color: var(--press-paper); font-size: 28px; line-height: 1;
+  background: transparent; border: 1px solid rgba(236, 233, 226, 0.4);
+  transition: background var(--press-dur) var(--press-ease);
 }
-@media (hover: hover) { .cs-lb__nav:hover, .cs-lb__close:hover { background: rgba(236,233,226,0.15); } }
+@media (hover: hover) { .cs-lb__nav:hover, .cs-lb__close:hover { background: rgba(236, 233, 226, 0.15); } }
+.cs-lb__nav:active, .cs-lb__close:active { transform: scale(var(--press-press)); }
+.cs-lb__nav:focus-visible, .cs-lb__close:focus-visible { outline: 2px solid var(--press-paper); outline-offset: 3px; }
 .cs-lb-enter-active, .cs-lb-leave-active { transition: opacity 0.25s ease; }
 .cs-lb-enter-from, .cs-lb-leave-to { opacity: 0; }
 
 @media (max-width: 760px) {
   .cs-hero { grid-template-columns: 1fr; gap: 24px; }
-  .cs-hero__cover { max-width: 220px; order: -1; }
+  .cs-hero__coverwrap { max-width: 220px; order: -1; }
   .cs-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 640px) {

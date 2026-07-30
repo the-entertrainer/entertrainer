@@ -68,7 +68,9 @@ export default defineNuxtConfig({
         // carrying the shout. The system mono stack was the weak link: it
         // reads as *unset* rather than chosen, which is the one thing a page
         // like this cannot afford.
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap' }
+        // Mono weight 500 is the one the Press cards and every `.press-label`
+        // actually ask for; without it they silently rendered at 400.
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap' }
       ]
     },
     pageTransition: false,

@@ -83,7 +83,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="nvstatus glass-panel">
+  <div class="nvstatus">
     <div class="nvstatus__head">
       <span class="nvstatus__dot" />
       <span class="nvstatus__label">Naveen — live status</span>
@@ -96,52 +96,57 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* Was a `.glass-panel` — 24px radius, 30px backdrop blur and a green pulsing
+   dot — dropped straight onto bone paper, which made it the single loudest
+   clash on the stub and 404 routes. Rebuilt in the Press language: square,
+   one hairline rule, ink instead of green. The dot still pulses, because a
+   "live" indicator that doesn't move isn't saying anything. */
 .nvstatus {
-  padding: 16rem 18rem;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 9rem;
+  gap: 9px;
+  background: var(--press-paper);
+  border: 1px solid var(--press-rule);
 }
 .nvstatus__head {
   display: flex;
   align-items: center;
-  gap: 8rem;
-  font-size: 11rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  gap: 8px;
+  font-family: var(--press-mono);
+  font-size: var(--press-label);
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  opacity: 0.6;
+  color: var(--press-ink-62);
 }
 .nvstatus__dot {
-  width: 7rem;
-  height: 7rem;
+  width: 7px;
+  height: 7px;
   border-radius: 999px;
-  background: #34D399;
-  box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+  background: var(--press-ink);
   animation: nvstatus-pulse 1.8s ease-out infinite;
   flex-shrink: 0;
 }
 @keyframes nvstatus-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
-  70%  { box-shadow: 0 0 0 7rem rgba(52, 211, 153, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(14, 13, 13, 0.45); }
+  70%  { box-shadow: 0 0 0 7px rgba(14, 13, 13, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(14, 13, 13, 0); }
 }
 .nvstatus__ago {
   margin-left: auto;
-  font-weight: 600;
-  opacity: 0.7;
   white-space: nowrap;
 }
 .nvstatus__line {
-  font-size: 15rem;
+  font-family: var(--press-serif);
+  font-size: var(--press-body);
   line-height: 1.5;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  color: var(--press-ink);
   min-height: 1.5em;
 }
 .nvstatus-line-enter-active, .nvstatus-line-leave-active { transition: opacity 0.28s ease, transform 0.28s ease; }
-.nvstatus-line-enter-from { opacity: 0; transform: translateY(6rem); }
-.nvstatus-line-leave-to { opacity: 0; transform: translateY(-6rem); }
+.nvstatus-line-enter-from { opacity: 0; transform: translateY(6px); }
+.nvstatus-line-leave-to { opacity: 0; transform: translateY(-6px); }
 
 @media (prefers-reduced-motion: reduce) {
   .nvstatus__dot { animation: none; }

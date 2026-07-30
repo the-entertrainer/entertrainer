@@ -125,7 +125,7 @@ function iconPath(name: string) {
             type="button"
             role="switch"
             :aria-checked="m.model.value"
-            class="id-move"
+            class="press-cell id-move"
             :class="{ 'is-on': m.model.value }"
             @click="m.model.value = !m.model.value"
           >
@@ -161,8 +161,8 @@ function iconPath(name: string) {
 <style scoped>
 .id-wrap {
   position: relative; z-index: 1;
-  max-width: 780px; margin: 0 auto;
-  padding: clamp(40px, 6vw, 72px) var(--press-edge) clamp(64px, 8vw, 96px);
+  max-width: var(--press-col); margin: 0 auto;
+  padding: var(--press-pad-top) var(--press-edge) var(--press-pad-bottom);
 }
 
 /* The worksheet — a proof sheet: bordered, faintly screened, unmistakably a
@@ -175,13 +175,13 @@ function iconPath(name: string) {
   background-size: 8px 8px;
 }
 .id-lab__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--press-rule); }
-.id-lab__topic { margin-top: 6px; font-family: var(--press-sans); font-weight: 700; font-size: 19px; letter-spacing: -0.01em; }
+.id-lab__topic { margin-top: 6px; font-family: var(--press-sans); font-weight: 700; font-size: var(--press-h3); letter-spacing: -0.01em; }
 
 .id-meter { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .id-meter__track { width: 88px; height: 7px; border: 1px solid var(--press-ink); background: var(--press-paper); overflow: hidden; }
 .id-meter__fill { display: block; height: 100%; background: var(--press-ink); transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
 .id-meter__fill.no-anim { transition: none; }
-.id-meter__val { font-family: var(--press-mono); font-size: 12.5px; font-weight: 600; min-width: 62px; }
+.id-meter__val { font-family: var(--press-mono); font-size: var(--press-small); font-weight: 600; min-width: 62px; }
 
 .id-canvas {
   min-height: 190px; padding: 24px;
@@ -190,31 +190,32 @@ function iconPath(name: string) {
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .id-canvas.is-designed { border-color: var(--press-ink); box-shadow: inset 0 0 0 1px var(--press-ink); }
-.id-raw { font-size: 15px; line-height: 1.5; color: var(--press-ink-62); text-align: justify; font-family: 'Georgia', 'Times New Roman', serif; }
-.id-plain { font-family: var(--press-serif); font-size: 19px; line-height: 1.5; }
+/* The "before" state, and the one place on the site that deliberately opts out
+   of the type system: a justified wall in the browser's own default serif. It
+   has to look untouched for the designed version beside it to mean anything,
+   so `serif` here is the generic keyword — not a font choice, the absence of
+   one. Everything else on the page uses `--press-serif`. */
+.id-raw { font-size: var(--press-body); line-height: 1.5; color: var(--press-ink-62); text-align: justify; font-family: serif; }
+.id-plain { font-family: var(--press-serif); font-size: var(--press-lead); line-height: 1.5; }
 .id-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .id-step { display: flex; align-items: center; gap: 14px; }
 .id-step__badge {
   flex-shrink: 0; width: 30px; height: 30px;
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--press-sans); font-weight: 800; font-size: 14px;
+  font-family: var(--press-sans); font-weight: 800; font-size: var(--press-body);
   background: var(--press-ink); color: var(--press-paper);
 }
 .id-step__icon { flex-shrink: 0; color: var(--press-ink); display: flex; }
-.id-step__text { font-family: var(--press-serif); font-size: 17px; line-height: 1.4; }
+.id-step__text { font-family: var(--press-serif); font-size: var(--press-body); line-height: 1.4; }
 .id-step__text b { font-weight: 700; }
-.id-mnemonic { margin-top: 18px; font-family: var(--press-serif); font-size: 14px; color: var(--press-ink-62); }
+.id-mnemonic { margin-top: 18px; font-family: var(--press-serif); font-size: var(--press-small); color: var(--press-ink-62); }
 .id-mnemonic b { font-family: var(--press-mono); letter-spacing: 0.2em; font-weight: 700; color: var(--press-ink); }
 
 .id-moves { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 22px; background: var(--press-rule); border: 1px solid var(--press-rule); }
-.id-move {
-  display: flex; gap: 12px; text-align: left; padding: 16px 16px;
-  background: var(--press-paper); cursor: pointer;
-  transition: background 0.15s ease;
-}
-@media (hover: hover) { .id-move:hover { background: var(--press-paper-dim); } }
+/* Flush toggles in a hairline grid — `.press-cell` carries hover, press, focus
+   and timing; this only adds layout and the selected state. */
+.id-move { display: flex; gap: 12px; text-align: left; padding: 16px 16px; }
 .id-move.is-on { background: var(--press-ink); color: var(--press-paper); }
-.id-move:focus-visible { outline: 2px solid var(--press-ink); outline-offset: -2px; }
 .id-move__check {
   flex-shrink: 0; width: 20px; height: 20px; margin-top: 1px;
   border: 1.5px solid currentColor;
@@ -222,11 +223,11 @@ function iconPath(name: string) {
 }
 .id-move.is-on .id-move__check { background: var(--press-paper); color: var(--press-ink); }
 .id-move__body { display: flex; flex-direction: column; gap: 5px; }
-.id-move__label { font-family: var(--press-sans); font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
-.id-move__principle { font-family: var(--press-serif); font-size: 12.5px; line-height: 1.45; opacity: 0.82; }
+.id-move__label { font-family: var(--press-sans); font-size: var(--press-body); font-weight: 700; letter-spacing: -0.01em; }
+.id-move__principle { font-family: var(--press-serif); font-size: var(--press-small); line-height: 1.45; opacity: 0.82; }
 
 .id-foot { margin-top: 30px; padding-top: 24px; border-top: 1px solid var(--press-rule); }
-.id-foot__line { font-family: var(--press-serif); font-size: 16px; line-height: 1.6; color: var(--press-ink-62); max-width: 56ch; transition: color 0.3s ease; }
+.id-foot__line { font-family: var(--press-serif); font-size: var(--press-body); line-height: 1.6; color: var(--press-ink-62); max-width: 56ch; transition: color 0.3s ease; }
 .id-foot__line.is-live { color: var(--press-ink); font-weight: 500; }
 
 .id-swap-enter-active, .id-swap-leave-active { transition: opacity 0.28s ease, transform 0.28s ease; }

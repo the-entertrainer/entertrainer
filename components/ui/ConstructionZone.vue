@@ -24,7 +24,7 @@ function goHome() {
     <p class="czone__note">{{ note }}</p>
     <UiNaveenStatus />
     <UiConstructionGame :autofocus="isErrorPage" />
-    <button type="button" class="glass-btn czone__home" @click="goHome">Back to the front page</button>
+    <button type="button" class="press-btn czone__home" @click="goHome">Back to the front page</button>
   </div>
 </template>
 
@@ -32,16 +32,17 @@ function goHome() {
 .czone {
   display: flex;
   flex-direction: column;
-  gap: 16rem;
+  gap: 16px;
 }
 .czone__note {
-  font-size: 14rem;
+  font-family: var(--press-serif);
+  font-size: var(--press-body);
   line-height: 1.55;
-  opacity: 0.7;
-  max-width: 520rem;
+  color: var(--press-ink-80);
+  max-width: 60ch;
 }
 .czone__home {
   align-self: flex-start;
 }
-.czone--compact .czone__note { font-size: 13rem; }
+.czone--compact .czone__note { font-size: var(--press-small); }
 </style>

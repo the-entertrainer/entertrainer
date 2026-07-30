@@ -23,8 +23,10 @@ onMounted(() => {
     <!-- Every non-tool route now carries its own Press masthead (a hairline
          head bar with the section nav) and footer index. The floating corner
          button would sit on top of both and duplicate the navigation, so those
-         routes opt out; it remains the tools' own chrome. -->
-    <UiMenu v-if="route.path !== '/' && !route.path.startsWith('/glass-lab') && !route.path.startsWith('/lab') && !route.path.startsWith('/instructional-design') && !route.path.startsWith('/my-work') && !route.path.startsWith('/about') && !route.path.startsWith('/downloads')" />
+         routes opt out; it remains the tool apps' own chrome.
+         `/tools` itself is a Press listing page like /my-work, so it opts out
+         too — only the apps beneath it (/tools/storygen &c.) still need it. -->
+    <UiMenu v-if="route.path !== '/' && route.path !== '/tools' && !route.path.startsWith('/glass-lab') && !route.path.startsWith('/lab') && !route.path.startsWith('/instructional-design') && !route.path.startsWith('/my-work') && !route.path.startsWith('/about') && !route.path.startsWith('/downloads')" />
   </div>
 </template>
 

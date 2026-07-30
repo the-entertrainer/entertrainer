@@ -543,7 +543,6 @@ export default class Stage {
       if (cu.uReveal) cu.uReveal.value = s.reveal
     }
 
-    this.canvas.style.cursor = this.hovered ? 'pointer' : ''
     this.composer.render()
   }
 

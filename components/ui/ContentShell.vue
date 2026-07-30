@@ -28,20 +28,6 @@ defineProps<{
 
 <style scoped>
 .cs { display: flex; flex-direction: column; }
-.cs__inner { flex: 1 1 auto; max-width: 780px; margin: 0 auto; width: 100%; padding: clamp(48px, 7vw, 84px) var(--press-edge) clamp(64px, 8vw, 96px); }
+.cs__inner { flex: 1 1 auto; max-width: var(--press-col); margin: 0 auto; width: 100%; padding: var(--press-pad-top) var(--press-edge) var(--press-pad-bottom); }
 .cs__body { margin-top: clamp(28px, 4vw, 40px); }
-.cs__body :deep(.glass-btn) {
-  background: transparent;
-  color: var(--press-ink);
-  border: 1px solid var(--press-ink);
-  border-radius: 0;
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  font-family: var(--press-mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.cs__body :deep(.glass-btn:hover) { background: var(--press-ink); color: var(--press-paper); transform: none; }
 </style>

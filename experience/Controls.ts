@@ -34,6 +34,13 @@ export default class Controls {
   private IDLE_DELAY     = 600    // ms at rest before the gentle drift resumes
   private IDLE_DRIFT     = 0.00025 // cards/ms — gentle ambient rotation
 
+  // Someone who has asked their OS for reduced motion should not get a 3D
+  // helix that rotates forever on its own. Dragging and flicking still work —
+  // motion the user causes is not the thing being opted out of — but the
+  // unprompted ambient spin stops.
+  private readonly _reduceMotion = typeof window !== 'undefined'
+    && (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false)
+
   locked = false
 
   private _phase: Phase = 'rest'
@@ -157,7 +164,9 @@ export default class Controls {
         break
 
       case 'drift':
-        this.scrollOffset += this.wheelDirection * this.IDLE_DRIFT * dt
+        if (!this._reduceMotion) {
+          this.scrollOffset += this.wheelDirection * this.IDLE_DRIFT * dt
+        }
         break
     }
 

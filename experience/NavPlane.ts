@@ -12,23 +12,23 @@ import {
 import type Experience from './Experience'
 import type { NavItem } from '~/types/nav'
 
+// WebP, not the PNG originals. These are decoded straight into GPU textures, so
+// the 1.4-2.4 MB sources were being paid for on every cold load of the home
+// page; the WebP builds are ~100 KB each for the same visible result. See
+// scripts/build-webp.mjs.
 const CARD_IMAGE_MAP: Record<string, string> = {
-  'about':                '/about-me.png',
-  'instructional-design': '/instructional-design.png',
-  'my-work':              '/my-work.png',
-  'tools':                '/web-apps.png',
-  'downloads':            '/downloads.png',
-  'better-emails':        '/better-emails.png',
-  'training-cal-gen':     '/training-cal-gen.png',
-  'easymcq':              '/easymcq.png',
-  'storygen':             '/storygen.png',
-  'strong':               '/strong.png',
-  'work-01':              '/work-01.png',
-  'work-02':              '/work-02.png',
-  'work-03':              '/work-03.png',
-  'templates':            '/templates.png',
-  'frameworks':           '/frameworks.png',
-  'resources':            '/resources.png',
+  'about':                '/about-me.webp',
+  'instructional-design': '/instructional-design.webp',
+  'my-work':              '/my-work.webp',
+  'tools':                '/web-apps.webp',
+  'better-emails':        '/better-emails.webp',
+  'training-cal-gen':     '/training-cal-gen.webp',
+  'easymcq':              '/easymcq.webp',
+  'storygen':             '/storygen.webp',
+  'strong':               '/work-strong.webp',
+  'work-01':              '/work-01.webp',
+  'work-02':              '/work-02.webp',
+  'work-03':              '/work-03.webp',
 }
 // Loaded lazily, per id, the first time a card actually needs it — not all 16
 // possible card images up front. The home spiral only ever shows 4 of them;
@@ -49,6 +49,13 @@ function loadCardImage(id: string): Promise<HTMLImageElement | null> | null {
   }
   return ready
 }
+
+// Under prefers-reduced-motion the cards keep every state the user drives —
+// hover tilt, drag, snap — but the ambient loops stop: the rim spotlight that
+// orbits every ~9s and the gloss sweep that crawls across the focused card. They
+// are the parts that move when nobody is touching anything.
+const REDUCE_MOTION = typeof window !== 'undefined'
+  && (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false)
 
 // Hermite smoothstep — 0 below a, 1 above b, eased between.
 const smoothstep = (a: number, b: number, x: number) => {
@@ -563,7 +570,7 @@ export default class NavPlane {
     const edgeOpacity = 1 - smoothstep(0.82, 1.05, screenFrac)
 
     // Ease the pointer position on the card, and how central (focused) it is.
-    this._time += delta / 1000
+    if (!REDUCE_MOTION) this._time += delta / 1000
     this.hoverUV.x += (this._hoverUVTarget.x - this.hoverUV.x) * hvFactor
     this.hoverUV.y += (this._hoverUVTarget.y - this.hoverUV.y) * hvFactor
     const focus = 1 - smoothstep(0.0, 0.7, Math.abs(Ba))
@@ -591,7 +598,7 @@ export default class NavPlane {
     mat.uniforms.uFocus.value   = focus
 
     // ── Rim glow ─────────────────────────────────────────────────
-    this._rimAngle     = (this._rimAngle + delta * 0.0007) % (Math.PI * 2)
+    if (!REDUCE_MOTION) this._rimAngle = (this._rimAngle + delta * 0.0007) % (Math.PI * 2)
     const glowFactor   = 1 - Math.pow(1 - 0.004, delta)
     this._glowStrength += (this.revealProgress - this._glowStrength) * glowFactor
 

@@ -16,10 +16,5 @@
     { "id": "training-cal-gen", "label": "Cadence",  "description": "A list of topics in, a ready-to-present monthly training calendar out. Exports to PowerPoint.",                             "href": "/tools/cadence",       "color": "#243F6A", "image": "/training-cal-gen.webp", "meta": "Planning" },
     { "id": "better-emails",    "label": "Draftly",  "description": "Messy draft in, an email you would be happy to send out.",                                                                  "href": "/tools/better-emails", "color": "#243F6A", "image": "/better-emails.webp",   "meta": "Writing" },
     { "id": "storygen",         "label": "StoryGen", "description": "Storyboards on an infinite canvas. Cards, flows, and a Word export your SME will actually open.",                           "href": "/tools/storygen",      "color": "#243F6A", "image": "/storygen.webp",        "meta": "Storyboarding" }
-  ],
-  "downloads": [
-    { "id": "templates",  "label": "Templates",  "description": "Ready-to-use L&D templates",       "href": "/downloads/templates",  "color": "#243F6A" },
-    { "id": "frameworks", "label": "Frameworks", "description": "ID frameworks & storyboard guides", "href": "/downloads/frameworks", "color": "#243F6A" },
-    { "id": "resources",  "label": "Resources",  "description": "Curated L&D resources",            "href": "/downloads/resources",  "color": "#243F6A" }
   ]
 }

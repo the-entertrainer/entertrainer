@@ -8,7 +8,7 @@ useHead({ link: [{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?f
 <template>
   <div class="no">
     <NuxtLink to="/lab" class="no__lab">◂ lab</NuxtLink>
-    <figure class="no__photo"><img src="/about-me.png" alt="" /></figure>
+    <figure class="no__photo"><img src="/about-me.webp" alt="" /></figure>
     <div class="no__copy">
       <p class="no__eyebrow">Naveen Jose — Issue Nº 01</p>
       <h1 class="no__name">The<br><em>Instructional</em><br>Designer</h1>

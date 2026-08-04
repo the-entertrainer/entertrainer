@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /glass-lab
+Disallow: /lab
 
 Sitemap: https://entertrainer.in/sitemap.xml

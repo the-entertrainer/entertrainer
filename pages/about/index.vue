@@ -110,7 +110,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
       <figure class="ab-hero__portrait" v-motion :initial="rv.portrait.initial" :visible-once="rv.portrait.visibleOnce">
-        <img src="/about-me.png" alt="Portrait of Naveen Jose" width="1920" height="1080" loading="eager" draggable="false" />
+        <img src="/about-me.webp" alt="Portrait of Naveen Jose" width="1400" height="788" loading="eager" draggable="false" />
       </figure>
       <span class="ab-hero__cue" aria-hidden="true" v-motion :initial="rv.cue.initial" :visible-once="rv.cue.visibleOnce"><span class="ab-hero__cue-line" /> scroll</span>
     </section>

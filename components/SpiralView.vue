@@ -364,11 +364,29 @@ function onLoaderEntered() {
       <UiLoader v-if="showLoader && !isLoaderDone" @entered="onLoaderEntered" />
     </Transition>
 
+    <!-- The four destinations as real links.
+         The spiral is a bare canvas: its cards are meshes, picked by a raycaster
+         and navigated with router.push. That means that until this block existed
+         the site's four primary destinations could not be reached by keyboard,
+         were invisible to a screen reader, and — on an ssr:false site — were
+         invisible to a crawler too. The canvas is the visual interface; this is
+         the functional one. Both have to be complete.
+
+         Visually hidden rather than display:none, because display:none is not
+         focusable and the whole point is that Tab reaches these. -->
+    <nav class="sr-only" aria-label="Sections">
+      <NuxtLink
+        v-for="item in items" :key="`lnk-${item.id}`"
+        :to="item.href" :aria-label="`${item.label}: ${item.description}`"
+      >{{ item.label }}</NuxtLink>
+    </nav>
+
     <!-- WebGL canvas -->
     <canvas
       ref="canvasRef"
       class="spiral-canvas"
       :class="{ hidden: !hasEntered || isListMode }"
+      aria-hidden="true"
     />
 
     <!-- Unified atmosphere: animated glow + vignette + film grain -->

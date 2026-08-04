@@ -4,7 +4,7 @@ definePageMeta({ layout: false })
 useSeoMeta({ title: 'ASCII Portrait — Theme Lab', robots: 'noindex' })
 const art = ref('loading…')
 onMounted(() => {
-  const img = new Image(); img.crossOrigin = 'anonymous'; img.src = '/about-me.png'
+  const img = new Image(); img.crossOrigin = 'anonymous'; img.src = '/about-me.webp'
   img.onload = () => {
     const cols = window.innerWidth < 700 ? 74 : 120
     const ar = img.height / img.width

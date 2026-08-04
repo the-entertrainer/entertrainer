@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import type { NavItem } from '~/types/nav'
 
-// A calm, indexable section landing: header plus a grid of cards that link
-// out to the real pages. Used by /tools and /my-work so those routes are
-// genuine destinations (crawlable, shareable) rather than redirects back
-// into the spiral. Sits on the quiet calm backdrop, not the living ripple.
-defineProps<{
+// A section landing: header plus a grid of plates that link out to the real
+// pages. Used by /tools and /my-work so those routes are genuine destinations
+// (crawlable, shareable) rather than redirects back into the spiral.
+//
+// The cards used to be text rows with a decorative gradient dot, which meant a
+// comic magazine and four working web apps were presented as a list of
+// sentences while their artwork sat unused in /public. The artwork is the point:
+// it is hand-made, torn-paper, ink-and-handwriting work, and it says more about
+// how Naveen thinks than any description does.
+const props = defineProps<{
   eyebrow?: string
   title: string
   deck?: string
@@ -15,6 +20,16 @@ defineProps<{
 
 const R = useReveal()
 const rv = R.head()
+
+// Column count comes from the item count rather than from `auto-fill`, which
+// would leave the two-item /my-work grid as two narrow cards against a half-empty
+// row and drop the fourth /tools card onto an orphan row of its own. Four items
+// read better as a 2x2 block than as 3 + 1.
+const columns = computed(() => {
+  const n = props.items.length
+  if (n <= 2 || n === 4) return 2
+  return 3
+})
 </script>
 
 <template>
@@ -29,24 +44,35 @@ const rv = R.head()
         <p v-if="intro" class="cg-intro" v-motion :initial="rv.intro.initial" :visible-once="rv.intro.visibleOnce">{{ intro }}</p>
       </header>
 
-      <div class="cg-grid">
+      <div class="cg-grid" :style="{ '--cg-cols': columns }">
         <NuxtLink
           v-for="(item, i) in items" :key="item.id"
-          :to="item.href" class="glass-panel cg-card"
+          :to="item.href" class="glass-panel u-lift cg-card"
           v-motion :initial="R.riseIn(i).initial" :visible-once="R.riseIn(i).visibleOnce"
         >
-          <span class="cg-card__dot" aria-hidden="true" />
+          <span class="cg-card__media" :class="{ 'cg-card__media--type': !item.image }">
+            <img
+              v-if="item.image"
+              :src="item.image" :alt="''" aria-hidden="true"
+              :loading="i < 2 ? 'eager' : 'lazy'" decoding="async"
+            >
+            <!-- No artwork for this one, so the name becomes the artwork rather
+                 than leaving a grey hole. -->
+            <span v-else class="cg-card__typetile" aria-hidden="true">{{ item.label }}</span>
+            <span class="cg-card__arrow" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            </span>
+          </span>
+
           <span class="cg-card__body">
+            <span v-if="item.meta" class="eyebrow eyebrow--quiet cg-card__meta">{{ item.meta }}</span>
             <strong class="cg-card__label">{{ item.label }}</strong>
             <span class="cg-card__desc">{{ item.description }}</span>
-          </span>
-          <span class="cg-card__arrow" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
           </span>
         </NuxtLink>
       </div>
 
-      <p v-if="!items.length" class="cg-empty">More is on the way. Check back soon.</p>
+      <p v-if="!items.length" class="cg-empty">Nothing here yet — I'm still building it.</p>
     </div>
   </div>
 </template>
@@ -58,49 +84,122 @@ const rv = R.head()
   margin: 0 auto;
   padding: var(--page-top) var(--edge-column) var(--page-bottom);
 }
-.cg-head { margin-bottom: 34rem; }
+
+/* ── Header ──
+   The old ramp descended in size but not in weight: `intro` sat at 14rem/0.55
+   *below* a 16rem/0.65 deck, so the most substantive sentence on /tools was the
+   least legible thing on the page. Both axes descend now. */
+.cg-head { margin-bottom: clamp(30rem, 4.5vw, 52rem); }
 .cg-eyebrow { margin-bottom: 12rem; }
-.cg-title { font-family: var(--serif-font); font-optical-sizing: auto; font-size: clamp(38rem, 6.5vw, 58rem); font-weight: 400; letter-spacing: -0.015em; line-height: 1.02; }
-.cg-deck { font-size: 16rem; opacity: 0.65; margin-top: 12rem; line-height: 1.5; max-width: 34em; }
-.cg-intro { font-size: 14rem; opacity: 0.55; margin-top: 14rem; line-height: 1.6; max-width: 40em; }
+.cg-title { font-size: var(--text-display); }
+.cg-deck { font-size: var(--text-lead); opacity: 0.78; margin-top: 14rem; line-height: 1.5; max-width: 46ch; }
+.cg-intro { font-size: 15.5rem; opacity: 0.62; margin-top: 12rem; line-height: 1.62; max-width: 58ch; }
 
 .cg-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280rem, 1fr));
-  gap: 14rem;
+  grid-template-columns: repeat(var(--cg-cols, 2), minmax(0, 1fr));
+  gap: clamp(16rem, 2vw, 26rem);
 }
+
 .cg-card {
   display: flex;
-  align-items: center;
-  gap: 14rem;
-  padding: 20rem 22rem;
+  flex-direction: column;
+  padding: 0;                 /* the media is flush; the body carries its own inset */
   border-radius: 18rem;
+  overflow: hidden;           /* clips the media scale on hover */
   color: var(--color-text);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
-@media (hover: hover) {
-  .cg-card:hover {
-    transform: translateY(-4rem);
-    border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-glass-border-hover));
-    box-shadow: 0 26rem 54rem -26rem color-mix(in srgb, var(--color-accent) 40%, transparent);
-  }
-  .cg-card:hover .cg-card__arrow { transform: translateX(3rem); opacity: 1; }
-  .cg-card:hover .cg-card__dot { transform: scale(1.25); }
-}
-.cg-card__dot {
-  width: 12rem; height: 12rem;
-  border-radius: 999px;
-  flex-shrink: 0;
-  background: linear-gradient(135deg, #8B7CF6, #2DD4BF);
-  transition: transform 0.2s ease;
-}
-.cg-card__body { display: flex; flex-direction: column; gap: 5rem; min-width: 0; margin-right: auto; }
-.cg-card__label { font-size: 17rem; font-weight: 700; letter-spacing: -0.02em; }
-.cg-card__desc { font-size: 13rem; opacity: 0.6; line-height: 1.45; }
-.cg-card__arrow { flex-shrink: 0; opacity: 0.4; transition: transform 0.2s ease, opacity 0.2s ease; color: var(--color-text); }
-.cg-empty { font-size: 14rem; opacity: 0.55; }
 
+/* ── Media ── */
+.cg-card__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-accent-deep) 22%, var(--color-bg));
+}
+.cg-card__media img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1.001);    /* pre-promote, so the first hover isn't a repaint */
+  transition: transform var(--dur-5) var(--ease-out-soft);
+}
+/* A scrim so the corner glyph reads against any artwork. */
+.cg-card__media::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top,
+    color-mix(in srgb, var(--color-bg) 55%, transparent) 0%, transparent 40%);
+}
+.cg-card__media--type {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--color-accent-deep) 46%, var(--color-bg)),
+    var(--color-bg) 78%);
+}
+.cg-card__typetile {
+  font-family: var(--serif-font);
+  font-variation-settings: "SOFT" 32, "WONK" 1;
+  font-size: clamp(34rem, 6vw, 54rem);
+  letter-spacing: -0.02em;
+  opacity: 0.16;
+  text-align: center;
+  padding: 0 24rem;
+}
+
+.cg-card__arrow {
+  position: absolute;
+  right: 12rem; bottom: 12rem;
+  z-index: 2;
+  width: 30rem; height: 30rem;
+  display: grid; place-items: center;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-bg) 64%, transparent);
+  border: 1px solid var(--color-glass-border);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--color-text);
+  opacity: 0.62;
+  transition: opacity var(--dur-2) var(--ease-out-soft),
+              transform var(--dur-3) var(--ease-out-soft);
+}
+
+/* ── Body ── */
+.cg-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6rem;
+  padding: 18rem 20rem 20rem;
+}
+.cg-card__meta { margin-bottom: 2rem; }
+.cg-card__label { font-size: 19rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
+.cg-card__desc {
+  font-size: 14rem; opacity: 0.66; line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.cg-empty { font-size: 15rem; opacity: 0.62; }
+
+/* .u-lift carries the surface hover; these are the media-specific parts. */
+@media (hover: hover) and (pointer: fine) {
+  .cg-card:hover .cg-card__media img { transform: scale(1.045); }
+  .cg-card:hover .cg-card__arrow { opacity: 1; transform: translate(2rem, -2rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cg-card__media img { transition: none; }
+  .cg-card:hover .cg-card__media img { transform: none; }
+}
+
+/* Below the three-column width, everything collapses to two and then to one —
+   a plate narrower than ~280rem stops showing the artwork and starts showing a
+   detail of it. */
+@media (max-width: 1000px) {
+  .cg-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 @media (max-width: 640px) {
   .cg-grid { grid-template-columns: 1fr; }
+  .cg-card__media { aspect-ratio: 16 / 9; }
 }
 </style>

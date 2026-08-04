@@ -19,14 +19,7 @@ onMounted(() => {
 <template>
   <div id="app-root">
     <NuxtPage :transition="transition" />
-    <UiGrain />
-    <!-- Every non-tool route now carries its own Press masthead (a hairline
-         head bar with the section nav) and footer index. The floating corner
-         button would sit on top of both and duplicate the navigation, so those
-         routes opt out; it remains the tool apps' own chrome.
-         `/tools` itself is a Press listing page like /my-work, so it opts out
-         too — only the apps beneath it (/tools/storygen &c.) still need it. -->
-    <UiMenu v-if="route.path !== '/' && route.path !== '/tools' && !route.path.startsWith('/glass-lab') && !route.path.startsWith('/lab') && !route.path.startsWith('/instructional-design') && !route.path.startsWith('/my-work') && !route.path.startsWith('/about') && !route.path.startsWith('/downloads')" />
+    <UiMenu v-if="!route.path.startsWith('/glass-lab') && !route.path.startsWith('/lab') && !route.path.startsWith('/instructional-design') && !route.path.startsWith('/my-work/strong') && !/^\/about\/?$/.test(route.path)" />
   </div>
 </template>
 
@@ -37,7 +30,7 @@ onMounted(() => {
 .fade-enter-from,   .fade-leave-to     { opacity: 0; }
 
 /* Editorial page transition — a refined fade + rise with an expo-out feel.
-   Used for every route except the home page, which cross-fades instead. */
+   Used for every route except the fixed-viewport home spiral. */
 .editorial-enter-active { transition: opacity 0.5s cubic-bezier(.19,1,.22,1), transform 0.6s cubic-bezier(.19,1,.22,1), filter 0.5s ease; }
 .editorial-leave-active { transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease; }
 .editorial-enter-from { opacity: 0; transform: translateY(22px); filter: blur(6px); }

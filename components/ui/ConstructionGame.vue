@@ -726,19 +726,15 @@ onUnmounted(() => {
   font-display: swap;
 }
 .cgame { width: 100%; }
-/* The green CRT interior is the game's own screen and stays exactly as it is —
-   an arcade cabinet is allowed its own screen. The bezel is the part that sits
-   on the page's bone paper, so it takes the Press frame: square corners, one
-   ink hairline, no glow. */
 .cgame__bezel {
   position: relative;
   width: 100%;
   aspect-ratio: 21 / 6;
-  border-radius: 0;
+  border-radius: 12rem;
   overflow: hidden;
   background: #070F06;
-  border: 1px solid var(--press-ink);
-  box-shadow: none;
+  border: 1px solid var(--color-glass-border);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 18rem 40rem -24rem rgba(0,0,0,0.6);
 }
 .cgame__canvas {
   width: 100%;
@@ -766,16 +762,17 @@ onUnmounted(() => {
 .cgame__scrim {
   position: fixed;
   inset: 0;
-  /* Same ink scrim the SEWA lightbox uses — one dim-the-page treatment
-     site-wide rather than a themed one here and a hardcoded one there. */
-  background: rgba(14, 13, 13, 0.94);
+  background: color-mix(in srgb, var(--color-bg) 78%, transparent);
+  backdrop-filter: blur(28px) saturate(1.1);
+  -webkit-backdrop-filter: blur(28px) saturate(1.1);
 }
 .cgame--immersive .cgame__bezel {
   position: relative;
   z-index: 1;
   width: min(92vw, 144dvh, 720rem);
   aspect-ratio: 2 / 1;
-  animation: cgame-materialize 0.5s var(--ease-spring) both;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 40rem 90rem -30rem rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.05);
+  animation: cgame-materialize 0.5s var(--ease-spring) both, cgame-glow 4s ease-in-out 0.5s infinite;
 }
 .cgame--immersive .cgame__bezel.cgame__bezel--leaving {
   animation: cgame-dematerialize 0.22s ease forwards;
@@ -788,6 +785,11 @@ onUnmounted(() => {
   from { opacity: 1; transform: scale(1); }
   to   { opacity: 0; transform: scale(0.92); }
 }
+@keyframes cgame-glow {
+  0%, 100% { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 40rem 90rem -30rem rgba(0,0,0,0.75), 0 0 60rem -12rem rgba(150,220,120,0.25); }
+  50%      { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 40rem 90rem -30rem rgba(0,0,0,0.75), 0 0 90rem -10rem rgba(214,255,190,0.30); }
+}
+
 .cgame-scrim-enter-active, .cgame-scrim-leave-active { transition: opacity 0.4s ease; }
 .cgame-scrim-enter-from, .cgame-scrim-leave-to { opacity: 0; }
 

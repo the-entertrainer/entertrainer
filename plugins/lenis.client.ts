@@ -1,10 +1,7 @@
 import Lenis from '@studio-freight/lenis'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  gsap.registerPlugin(ScrollTrigger)
-
   const lenis = new Lenis({
     gestureOrientation: 'vertical',
     duration: 1.2,
@@ -20,20 +17,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   gsap.ticker.add(raf)
   gsap.ticker.lagSmoothing(0)
 
-  // ScrollTrigger has to be told that Lenis, not the browser, owns the scroll
-  // position — otherwise every pinned section reads a stale offset and the
-  // pins drift a frame behind the content they are pinning.
-  lenis.on('scroll', ScrollTrigger.update)
-  ScrollTrigger.scrollerProxy(document.documentElement, {
-    scrollTop(value) {
-      if (arguments.length && typeof value === 'number') lenis.scrollTo(value, { immediate: true })
-      return lenis.scroll
-    },
-    getBoundingClientRect() {
-      return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight }
-    }
-  })
-
   nuxtApp.hook('app:beforeMount', () => {
     lenis.resize()
   })
@@ -45,9 +28,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.hook('page:finish', () => {
     lenis.resize()
     lenis.scrollTo(0, { immediate: true, force: true })
-    // Pinned sections measure themselves on creation, so a route swap has to
-    // re-measure or the new page inherits the old page's trigger positions.
-    ScrollTrigger.refresh()
   })
 
   return {

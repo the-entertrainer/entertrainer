@@ -180,22 +180,16 @@ function handleHomeClick() {
 .lg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 
 /* ── Shared liquid-glass surface ───────────────────────────────────────────── */
-/* Barely-there glass. On a near-black ground a 26%-opaque fill reads as a grey
-   plastic disc, not as something you are looking *through*; dropping it to 10%
-   and leaning on blur and refraction instead lets the cosmic field behind it
-   stay visible and bend. The outer glow is the panel's share of the stage's
-   bloom, so chrome and cards are lit by the same source. */
 .lg-surface {
-  background: rgba(255, 255, 255, 0.055);
-  backdrop-filter: blur(14px) saturate(1.5) brightness(1.12) url(#liquidGlass);
-  -webkit-backdrop-filter: blur(16px) saturate(1.5) brightness(1.12);
-  border: 1px solid rgba(255, 255, 255, 0.26);
+  background: rgba(28, 30, 40, 0.26);
+  backdrop-filter: blur(9px) saturate(1.7) brightness(1.06) url(#liquidGlass);
+  -webkit-backdrop-filter: blur(11px) saturate(1.7) brightness(1.06);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   box-shadow:
-    0 8rem 26rem -10rem rgba(0, 0, 0, 0.6),
-    0 0 26rem -6rem rgba(255, 255, 255, 0.42),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.5),
+    0 8rem 26rem -10rem rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.55),
     inset 0 -2px 3px rgba(255, 255, 255, 0.10),
-    inset 0 0 26rem rgba(255, 255, 255, 0.07);
+    inset 0 0 22rem rgba(255, 255, 255, 0.06);
 }
 /* Specular sheen for every glass surface */
 .lg-surface::before {
@@ -277,17 +271,14 @@ function handleHomeClick() {
 .e-panel.open {
   width: 272rem; height: 232rem;
   border-radius: 28rem;
-  /* Transparent enough that the cosmic field keeps moving behind the links —
-     the panel is a lens over the scene, not a card laid on top of it. */
-  background: rgba(255, 255, 255, 0.045);
-  backdrop-filter: blur(22px) saturate(1.6) brightness(1.10) url(#liquidGlass);
-  -webkit-backdrop-filter: blur(24px) saturate(1.6) brightness(1.10);
+  background: rgba(18, 20, 28, 0.42);
+  backdrop-filter: blur(16px) saturate(1.9) brightness(1.04) url(#liquidGlass);
+  -webkit-backdrop-filter: blur(18px) saturate(1.9) brightness(1.04);
   box-shadow:
-    0 26rem 64rem -20rem rgba(0, 0, 0, 0.7),
-    0 0 46rem -12rem rgba(255, 255, 255, 0.5),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.46),
+    0 26rem 64rem -20rem rgba(0, 0, 0, 0.6),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.5),
     inset 0 -2px 4px rgba(255, 255, 255, 0.12),
-    inset 0 0 60rem rgba(255, 255, 255, 0.06);
+    inset 0 0 50rem rgba(255, 255, 255, 0.05);
   transition:
     width 0.55s var(--ease-spring),
     height 0.6s var(--ease-spring),
@@ -317,18 +308,11 @@ function handleHomeClick() {
   display: flex;
   align-items: center;
   gap: 12rem;
-  /* The bitmap face is set smaller than the old sans, which dropped these rows
-     to 36px — under the touch floor. The height is pinned rather than left to
-     the type. */
-  min-height: 44rem;
   padding: 9rem 12rem;
   border-radius: 12rem;
-  /* The menu is chrome, and chrome speaks in the bitmap face like the rest of
-     it. A bitmap at 24px with -0.03em tracking collides, so both come back. */
-  font-family: var(--display-font);
-  font-size: 16rem;
-  font-weight: 400;
-  letter-spacing: 0.01em;
+  font-size: 24rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
   line-height: 1.1;
   color: #fff;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);

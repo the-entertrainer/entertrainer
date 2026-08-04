@@ -29,16 +29,12 @@ export const useThemeStore = defineStore('theme', {
     init() {
       if (!import.meta.client) return
       localStorage.removeItem('et-theme')
-      // Pinned dark, deliberately.
-      //
-      // The site is one art direction now — a monochrome black ground, bitmap
-      // type, and a WebGL stage whose whole look is highlights blooming out of
-      // near-black. Following the OS preference meant a visitor on a light
-      // desktop got pale editorial pages either side of a stage that is always
-      // dark, which read as two different websites rather than one. The light
-      // palette is kept in the tokens and is still monochrome, so nothing is
-      // lost if this is ever handed back to the OS.
-      this.set('dark', false)
+      this._mq = window.matchMedia('(prefers-color-scheme: light)')
+      this.set(this._mq.matches ? 'light' : 'dark', false)
+      this._mqListener = (e: MediaQueryListEvent) => {
+        this.set(e.matches ? 'light' : 'dark')
+      }
+      this._mq.addEventListener('change', this._mqListener)
     },
     dispose() {
       if (this._mq && this._mqListener) {

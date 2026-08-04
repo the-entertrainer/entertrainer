@@ -1,10 +1,5 @@
 <script setup lang="ts">
-// The SEWA Chronicles — a broadsheet case study. Halftone carries the comic
-// pages in the gallery grid (screening a comic through a dot pattern is, if
-// anything, more honest than a filter — that's how comics were printed for
-// most of the last century); the lightbox shows the real, full-colour art
-// when a reader wants to actually read a page.
-definePageMeta({ layout: false, pageTransition: { name: 'fade', mode: 'out-in' } })
+definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'The SEWA Chronicles — service-culture comics for Club Mahindra · Naveen Jose',
   description: 'A case study of The SEWA Chronicles: a comic magazine by Naveen Jose that teaches Club Mahindra hospitality teams the SEWA service values through true guest-service stories.',
@@ -14,14 +9,6 @@ useSeoMeta({
   ogImage: 'https://entertrainer.in/work/sewa/cover.webp'
 })
 const R = useReveal()
-
-interface Beat { n: string; h: string; body: string }
-const beats: Beat[] = [
-  { n: '01', h: 'The problem', body: 'Service values usually live in a slide deck that nobody remembers. But hospitality is made of small human moments, and a resort team spread across the country needs those values to feel real, not like a poster in the back office.' },
-  { n: '02', h: 'The idea', body: 'Turn real guest-service moments into a comic. Each issue collects true stories of SEWA Champions — the housekeepers, front-office and food-and-beverage staff who went out of their way for a member — and draws them as short strips. People remember a story long after they forget a rule.' },
-  { n: '03', h: 'How it is built to teach', body: 'Story over instruction: every value is shown happening, not described. Each strip names the real employee and resort, so good service is something to be seen doing. Every story is tagged with one named behaviour, so teams build a shared vocabulary — and a submission page keeps the next issue writing itself.' },
-  { n: '04', h: 'My part', body: 'I made it end to end: gathering the stories, writing and storyboarding each strip, illustrating the characters, and laying out the issue. It is the clearest example of how I like to design learning — warm, specific, and built around a real human moment.' }
-]
 
 interface Page { src: string; alt: string; cap: string; tag: string }
 const pages: Page[] = [
@@ -40,7 +27,7 @@ const meta = [
   { k: 'Format', v: '16-page comic magazine' }
 ]
 
-// Lightbox — shows the real full-colour art, not the halftone thumbnail.
+// Lightbox
 const lightbox = ref<number | null>(null)
 function open(i: number) { lightbox.value = i }
 function close() { lightbox.value = null }
@@ -59,48 +46,63 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
-  <div class="press-page cs">
-    <PressMast section="My Work" />
+  <div class="cs-page">
+    <UiGlassBackdrop calm />
 
     <article class="cs-inner">
+      <!-- Hero -->
       <header class="cs-hero">
         <div class="cs-hero__text" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
-          <p class="press-label">My Work &middot; Club Mahindra &middot; 2023</p>
-          <h1 class="press-h1 cs-title">The SEWA Chronicles</h1>
-          <p class="cs-deck press-lead">A service-culture comic magazine that teaches hospitality teams the values behind great guest experience, through true stories from the resort floor.</p>
-          <dl class="press-table cs-meta">
-            <div v-for="m in meta" :key="m.k" class="press-row">
+          <p class="cs-eyebrow">My Work · Club Mahindra · 2023</p>
+          <h1 class="cs-title">The SEWA Chronicles</h1>
+          <p class="cs-deck">A service-culture comic magazine that teaches hospitality teams the values behind great guest experience, through true stories from the resort floor.</p>
+          <dl class="cs-meta">
+            <div v-for="m in meta" :key="m.k" class="cs-meta__row">
               <dt>{{ m.k }}</dt>
               <dd>{{ m.v }}</dd>
             </div>
           </dl>
         </div>
-        <!-- The reveal animation lives on the wrapper, not the button: v-motion
-             writes an inline `transform`, which would beat `.press-card`'s
-             hover and press scales and leave this the one card on the site
-             that doesn't respond to the pointer. -->
-        <div class="cs-hero__coverwrap" v-motion :initial="R.scaleIn(120).initial" :visible-once="R.scaleIn(120).visibleOnce">
-          <button class="press-card cs-hero__cover" @click="open(0)" aria-label="Open the cover">
-            <PressHalftone src="/work/sewa/cover.webp" alt="The SEWA Chronicles cover" ratio="1400/1980" eager />
-          </button>
-        </div>
+        <button class="cs-hero__cover" @click="open(0)" aria-label="Open the cover" v-motion :initial="R.scaleIn(120).initial" :visible-once="R.scaleIn(120).visibleOnce">
+          <img src="/work/sewa/cover.webp" width="1400" height="1980" alt="The SEWA Chronicles cover" loading="eager">
+        </button>
       </header>
 
+      <!-- Narrative -->
       <section class="cs-body">
-        <p class="press-label cs-body__label">How it came together</p>
-        <article v-for="b in beats" :key="b.n" class="cs-beat">
-          <span class="press-label cs-beat__n">{{ b.n }}</span>
-          <h2>{{ b.h }}</h2>
-          <p>{{ b.body }}</p>
-        </article>
+        <div class="cs-block" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
+          <h2>The problem</h2>
+          <p>Service values usually live in a slide deck that nobody remembers. But hospitality is made of small human moments, and a resort team spread across the country needs those values to feel real, not like a poster in the back office.</p>
+        </div>
+
+        <div class="cs-block" v-motion :initial="R.rise(90).initial" :visible-once="R.rise(90).visibleOnce">
+          <h2>The idea</h2>
+          <p>Turn real guest-service moments into a comic. Each issue collects true stories of SEWA Champions, the housekeepers, front-office and food-and-beverage staff who went out of their way for a member, and draws them as short strips. People remember a story long after they forget a rule.</p>
+        </div>
+
+        <div class="cs-block" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
+          <h2>How it is built to teach</h2>
+          <ul class="cs-list">
+            <li><strong>Story over instruction.</strong> Every value is shown happening, not described.</li>
+            <li><strong>Recognition as motivation.</strong> Each strip names the real employee and resort, so good service becomes something to be seen doing.</li>
+            <li><strong>A shared vocabulary.</strong> Each story is tagged with one named service behaviour, from Going the Extra Mile to Attention to Detail, so teams build a common language for what good looks like.</li>
+            <li><strong>A loop that keeps it alive.</strong> A submission page invites staff to send their own stories, so the next issue partly writes itself.</li>
+          </ul>
+        </div>
+
+        <div class="cs-block" v-motion :initial="R.rise(90).initial" :visible-once="R.rise(90).visibleOnce">
+          <h2>My part</h2>
+          <p>I made it end to end: gathering the stories, writing and storyboarding each strip, illustrating the characters, and laying out the issue. It is the clearest example of how I like to design learning, warm, specific, and built around a real human moment.</p>
+        </div>
       </section>
 
+      <!-- Gallery -->
       <section class="cs-gallery" aria-label="Selected pages">
-        <p class="press-label cs-gallery__label">Selected pages</p>
+        <p class="glass-label cs-gallery__label">Selected pages</p>
         <div class="cs-grid">
-          <figure v-for="(p, i) in pages" :key="p.src" class="cs-fig">
-            <button class="press-card cs-fig__btn" @click="open(i)" :aria-label="`Enlarge: ${p.cap}`">
-              <PressHalftone :src="`/work/sewa/${p.src}.webp`" :alt="p.alt" ratio="4/5" />
+          <figure v-for="(p, i) in pages" :key="p.src" class="cs-fig" v-motion :initial="R.scaleInStagger(i).initial" :visible-once="R.scaleInStagger(i).visibleOnce">
+            <button class="cs-fig__btn" @click="open(i)" :aria-label="`Enlarge: ${p.cap}`">
+              <img :src="`/work/sewa/${p.src}.webp`" width="1400" height="1980" :alt="p.alt" loading="eager" decoding="async">
             </button>
             <figcaption>
               <strong>{{ p.cap }}</strong>
@@ -110,104 +112,168 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         </div>
       </section>
 
+      <!-- Close -->
       <footer class="cs-foot" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
-        <p>Learning that people actually want to finish — that is the whole idea.</p>
+        <p>Learning that people actually want to finish, that is the whole idea.</p>
         <div class="cs-foot__links">
-          <NuxtLink to="/my-work" class="press-btn">&larr; All work</NuxtLink>
-          <NuxtLink to="/tools" class="press-btn press-btn--solid">See the tools I build &rarr;</NuxtLink>
+          <NuxtLink to="/my-work" class="cs-link">← All work</NuxtLink>
+          <NuxtLink to="/tools" class="cs-link cs-link--accent">See the tools I build →</NuxtLink>
         </div>
       </footer>
     </article>
 
-    <PressFoot />
-
-    <!-- Lightbox — real art, real colour -->
+    <!-- Lightbox -->
     <Transition name="cs-lb">
       <div v-if="lightbox !== null" class="cs-lb" @click.self="close()">
-        <button class="cs-lb__close" aria-label="Close" @click="close()">&times;</button>
-        <button class="cs-lb__nav cs-lb__nav--prev" aria-label="Previous page" @click.stop="step(-1)">&lsaquo;</button>
+        <button class="cs-lb__close" aria-label="Close" @click="close()">✕</button>
+        <button class="cs-lb__nav cs-lb__nav--prev" aria-label="Previous page" @click.stop="step(-1)">‹</button>
         <figure class="cs-lb__figure">
           <img :src="`/work/sewa/${pages[lightbox].src}.webp`" :alt="pages[lightbox].alt">
-          <figcaption>{{ pages[lightbox].cap }} &middot; {{ pages[lightbox].tag }}</figcaption>
+          <figcaption>{{ pages[lightbox].cap }} · {{ pages[lightbox].tag }}</figcaption>
         </figure>
-        <button class="cs-lb__nav cs-lb__nav--next" aria-label="Next page" @click.stop="step(1)">&rsaquo;</button>
+        <button class="cs-lb__nav cs-lb__nav--next" aria-label="Next page" @click.stop="step(1)">›</button>
       </div>
     </Transition>
   </div>
 </template>
 
 <style scoped>
-.cs-inner { max-width: var(--press-col-feature); margin: 0 auto; padding: var(--press-pad-top) var(--press-edge) var(--press-pad-bottom); }
-
-.cs-hero { display: grid; grid-template-columns: 1fr 280px; gap: 34px; align-items: start; padding-bottom: clamp(32px, 5vw, 48px); border-bottom: 1px solid var(--press-rule); }
-/* Sans-bold via `.press-h1`, matching the home card and the About hero. */
-.cs-title { margin-top: 12px; }
-.cs-deck { margin-top: 16px; max-width: 30em; }
-.cs-meta { margin-top: 26px; }
-/* Both this and the gallery figures below are zoom triggers, so both take
-   `.press-card`. `zoom-in` overrides the shared `pointer` because it says
-   something more specific about what the click does. */
-.cs-hero__coverwrap { min-width: 0; }
-.cs-hero__cover { display: block; width: 100%; padding: 0; border: 1px solid var(--press-rule); cursor: zoom-in; }
-
-.cs-body { padding: clamp(32px, 5vw, 48px) 0; border-bottom: 1px solid var(--press-rule); }
-.cs-body__label { margin-bottom: 20px; }
-.cs-beat { display: grid; grid-template-columns: 48px 1fr; gap: 18px; padding: 22px 0; border-top: 1px solid var(--press-rule); }
-.cs-beat:first-of-type { border-top: 0; }
-.cs-beat__n { padding-top: 3px; }
-.cs-beat h2 { margin: 0; font-family: var(--press-serif); font-weight: 800; font-size: var(--press-h3); letter-spacing: -0.01em; }
-.cs-beat p { margin: 10px 0 0; font-family: var(--press-serif); font-size: var(--press-body); line-height: 1.6; color: var(--press-ink-80); max-width: 60ch; }
-
-.cs-gallery { padding-top: clamp(32px, 5vw, 48px); }
-.cs-gallery__label { margin-bottom: 18px; }
-.cs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--press-rule); border: 1px solid var(--press-rule); }
-.cs-fig { display: flex; flex-direction: column; background: var(--press-paper); }
-.cs-fig__btn { display: block; padding: 0; border: 0; cursor: zoom-in; }
-.cs-fig figcaption { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px 16px; }
-.cs-fig figcaption strong { font-family: var(--press-serif); font-size: var(--press-small); font-weight: 700; letter-spacing: -0.005em; }
-.cs-fig__tag { font-family: var(--press-mono); font-size: var(--press-label); letter-spacing: 0.06em; text-transform: uppercase; color: var(--press-ink-62); }
-
-.cs-foot { margin-top: clamp(40px, 6vw, 64px); padding-top: 28px; border-top: 2px solid var(--press-rule-strong); }
-.cs-foot > p { font-family: var(--press-serif); font-weight: 800; font-size: var(--press-h2); line-height: 1.05; letter-spacing: -0.02em; max-width: 20ch; }
-.cs-foot__links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
-
-/* Lightbox — projection room: the page's own ink, at near-opacity, so the real
-   colour art pops. Inside it the roles invert (paper-on-ink), which is why the
-   controls are described in paper rather than reaching for `.press-btn`. */
-.cs-lb {
-  position: fixed; inset: 0; z-index: 60;
-  display: flex; align-items: center; justify-content: center; gap: 8px; padding: 20px;
-  background: rgba(14, 13, 13, 0.94);
+.cs-page { position: relative; z-index: 1; min-height: 100dvh; --serif: 'Fraunces', Georgia, serif; }
+.cs-inner {
+  max-width: 920rem;
+  margin: 0 auto;
+  padding: calc(112rem + var(--safe-top)) 24rem calc(72rem + var(--safe-bottom));
 }
-.cs-lb__figure { display: flex; flex-direction: column; align-items: center; gap: 12px; max-height: 100%; }
-.cs-lb__figure img { max-width: min(92vw, 760px); max-height: 84dvh; }
-.cs-lb__figure figcaption { color: var(--press-paper); opacity: 0.8; font-family: var(--press-mono); font-size: var(--press-label); letter-spacing: 0.05em; }
+
+/* Hero */
+.cs-hero {
+  display: grid;
+  grid-template-columns: 1fr 300rem;
+  gap: 34rem;
+  align-items: center;
+  margin-bottom: 48rem;
+}
+.cs-eyebrow { font-size: 12rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.55; }
+.cs-title { font-family: var(--serif); font-optical-sizing: auto; font-size: clamp(40rem, 6.5vw, 64rem); font-weight: 400; letter-spacing: -0.015em; line-height: 1.0; margin-top: 12rem; }
+.cs-deck { font-size: 17rem; line-height: 1.55; opacity: 0.7; margin-top: 16rem; max-width: 30em; }
+.cs-meta { display: flex; flex-wrap: wrap; gap: 10rem 28rem; margin-top: 26rem; }
+.cs-meta__row { display: flex; flex-direction: column; gap: 3rem; }
+.cs-meta__row dt { font-size: 10.5rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.45; }
+.cs-meta__row dd { font-size: 13.5rem; font-weight: 600; }
+.cs-hero__cover {
+  border-radius: 16rem;
+  overflow: hidden;
+  box-shadow: 0 40rem 90rem -40rem rgba(0, 0, 0, 0.6);
+  transition: transform 0.2s ease;
+  cursor: zoom-in;
+  background: none;
+  padding: 0;
+  border: 1px solid var(--color-glass-border);
+}
+@media (hover: hover) { .cs-hero__cover:hover { transform: translateY(-4rem) scale(1.01); } }
+.cs-hero__cover img { width: 100%; height: auto; display: block; }
+
+/* Body */
+.cs-body {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30rem 40rem;
+  padding: 34rem 0;
+  border-top: 1px solid var(--color-divider);
+  border-bottom: 1px solid var(--color-divider);
+}
+.cs-block h2 { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 26rem; letter-spacing: -0.01em; opacity: 0.9; margin-bottom: 12rem; }
+.cs-block p { font-size: 15rem; line-height: 1.65; opacity: 0.82; }
+.cs-list { list-style: none; display: flex; flex-direction: column; gap: 11rem; }
+.cs-list li { font-size: 14.5rem; line-height: 1.55; opacity: 0.82; padding-left: 18rem; position: relative; }
+.cs-list li::before { content: ""; position: absolute; left: 0; top: 8rem; width: 7rem; height: 7rem; border-radius: 999px; background: linear-gradient(135deg, #8B7CF6, #2DD4BF); }
+.cs-list strong { font-weight: 700; opacity: 1; }
+
+/* Gallery */
+.cs-gallery { margin-top: 44rem; }
+.cs-gallery__label { margin-bottom: 16rem; }
+.cs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16rem; }
+.cs-fig { display: flex; flex-direction: column; gap: 9rem; }
+.cs-fig__btn {
+  padding: 0;
+  border: 1px solid var(--color-glass-border);
+  border-radius: 12rem;
+  overflow: hidden;
+  cursor: zoom-in;
+  background: var(--color-glass-bg);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+@media (hover: hover) {
+  .cs-fig__btn:hover { transform: translateY(-4rem); border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-glass-border-hover)); box-shadow: 0 24rem 50rem -26rem rgba(0, 0, 0, 0.5); }
+}
+.cs-fig__btn img { width: 100%; height: auto; display: block; }
+.cs-fig figcaption { display: flex; flex-direction: column; gap: 2rem; padding: 0 2rem; }
+.cs-fig figcaption strong { font-size: 13.5rem; letter-spacing: -0.01em; }
+.cs-fig__tag { font-size: 11rem; font-weight: 600; opacity: 0.5; }
+
+/* Close */
+.cs-foot { margin-top: 48rem; padding-top: 28rem; border-top: 1px solid var(--color-divider); }
+.cs-foot > p { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: clamp(22rem, 3vw, 30rem); letter-spacing: -0.01em; line-height: 1.25; opacity: 0.9; max-width: 20em; }
+.cs-foot__links { display: flex; flex-wrap: wrap; gap: 10rem 24rem; margin-top: 22rem; }
+.cs-link { font-size: 14rem; font-weight: 600; color: var(--color-text); opacity: 0.7; transition: opacity 0.15s ease; }
+.cs-link:hover { opacity: 1; }
+.cs-link--accent { color: var(--color-accent); opacity: 1; }
+
+@keyframes cs-rise { from { opacity: 0; transform: translateY(16rem); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .cs-hero { animation: none; } }
+
+/* Lightbox */
+.cs-lb {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rem;
+  padding: 20rem;
+  background: rgba(10, 8, 6, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.cs-lb__figure { display: flex; flex-direction: column; align-items: center; gap: 12rem; max-height: 100%; }
+.cs-lb__figure img { max-width: min(92vw, 760rem); max-height: 84dvh; border-radius: 8rem; box-shadow: 0 40rem 120rem -30rem rgba(0, 0, 0, 0.8); }
+.cs-lb__figure figcaption { color: rgba(255, 255, 255, 0.75); font-size: 13rem; font-weight: 600; }
 .cs-lb__close {
-  position: absolute; top: calc(16px + var(--safe-top)); right: 18px;
-  width: 40px; height: 40px;
-  color: var(--press-paper); font-size: 18px;
-  background: transparent; border: 1px solid rgba(236, 233, 226, 0.4);
-  transition: background var(--press-dur) var(--press-ease);
+  position: absolute;
+  top: calc(16rem + var(--safe-top));
+  right: 18rem;
+  width: 44rem; height: 44rem;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 18rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .cs-lb__nav {
-  width: 48px; height: 48px; flex-shrink: 0;
-  color: var(--press-paper); font-size: 28px; line-height: 1;
-  background: transparent; border: 1px solid rgba(236, 233, 226, 0.4);
-  transition: background var(--press-dur) var(--press-ease);
+  width: 52rem; height: 52rem;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 30rem;
+  line-height: 1;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: background 0.15s ease;
 }
-@media (hover: hover) { .cs-lb__nav:hover, .cs-lb__close:hover { background: rgba(236, 233, 226, 0.15); } }
-.cs-lb__nav:active, .cs-lb__close:active { transform: scale(var(--press-press)); }
-.cs-lb__nav:focus-visible, .cs-lb__close:focus-visible { outline: 2px solid var(--press-paper); outline-offset: 3px; }
+@media (hover: hover) { .cs-lb__nav:hover, .cs-lb__close:hover { background: rgba(255, 255, 255, 0.24); } }
 .cs-lb-enter-active, .cs-lb-leave-active { transition: opacity 0.25s ease; }
 .cs-lb-enter-from, .cs-lb-leave-to { opacity: 0; }
 
+/* Responsive */
 @media (max-width: 760px) {
-  .cs-hero { grid-template-columns: 1fr; gap: 24px; }
-  .cs-hero__coverwrap { max-width: 220px; order: -1; }
-  .cs-grid { grid-template-columns: repeat(2, 1fr); }
+  .cs-hero { grid-template-columns: 1fr; gap: 24rem; }
+  .cs-hero__cover { max-width: 260rem; order: -1; }
+  .cs-body { grid-template-columns: 1fr; gap: 26rem; }
 }
 @media (max-width: 640px) {
-  .cs-inner { padding: clamp(32px, 6vw, 56px) var(--press-edge) clamp(48px, 7vw, 72px); }
-  .cs-lb__nav { width: 40px; height: 40px; font-size: 22px; }
+  .cs-inner { padding: calc(96rem + var(--safe-top)) 16rem calc(56rem + var(--safe-bottom)); }
+  .cs-grid { grid-template-columns: repeat(2, 1fr); }
+  .cs-lb__nav { width: 44rem; height: 44rem; font-size: 24rem; }
 }
 </style>

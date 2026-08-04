@@ -64,9 +64,8 @@ useGlassMicro(rootRef)
   to   { opacity: 1; transform: none; }
 }
 .tool-eyebrow {
-  font-family: var(--mono-font);
   font-size: var(--text-label);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   opacity: 0.5;

@@ -1,68 +1,55 @@
 <script setup lang="ts">
-/**
- * The home page is the card stack and nothing else. Every previous pass kept
- * a masthead and a footer index around it "for navigation" — but the cards
- * already are the navigation (flick, then click one), and stacking a nav bar
- * and a footer on top of a UI that already does that job just reads as
- * clutter around the one thing that matters. Real destinations
- * (content/navigation.json's "home" array) are the sheets on the press bed;
- * selecting one routes straight to that page.
- *
- * The four links still exist in the DOM (sr-only) so the page stays
- * crawlable and usable without WebGL or a pointer — the visual design is
- * card-only, the markup isn't link-only-to-sighted-mouse-users.
- */
-import concept from '~/experience/lab/concepts/press'
 import { useContentStore } from '~/stores/content'
-import type { NavItem } from '~/types/nav'
+import { useHomeViewStore } from '~/stores/homeview'
 
-definePageMeta({ layout: false })
+definePageMeta({ layout: 'default' })
 
 useSeoMeta({
   title: 'Entertrainer — Instructional Design by Naveen Jose',
-  description: 'Naveen Jose is a Certified Instructional Design Specialist who builds training people actually finish — plus four free web apps for L&D teams.',
+  description: 'The portfolio of Naveen Jose, a certified instructional designer who builds learning experiences that feel human, plus free web apps for L&D teams.',
   ogTitle: 'Entertrainer — Instructional Design by Naveen Jose',
-  ogDescription: 'Instructional design, but fun. Training people actually finish, and the free tools that make it.',
+  ogDescription: 'Learning experiences that feel human, plus free web apps for L&D teams.',
   ogUrl: 'https://entertrainer.in/'
 })
 
-const contentStore = useContentStore()
+const contentStore  = useContentStore()
+const homeViewStore  = useHomeViewStore()
+const router         = useRouter()
+const spiralRef      = ref<{ performExit?: () => Promise<void> } | null>(null)
 
-function onSelect(item: NavItem) {
-  navigateTo(item.href)
+// The home is the root spiral. Every card is a real destination page, so a tap
+// always leaves the spiral — no in-spiral sub-sections. This keeps navigation
+// dead simple: run the unified vortex exit, then SPA-navigate (never a reload).
+const items = computed(() => contentStore.homeNav)
+
+homeViewStore.setIsHome(true)
+
+let navigating = false
+async function handleCardClick(href: string) {
+  if (navigating || !href) return
+  navigating = true
+  try {
+    await spiralRef.value?.performExit?.()
+  } finally {
+    router.push(href)
+  }
 }
+
+// The menu's "home" link (while already on '/') and its back button both flow
+// through the homeview store. There are no sub-sections to pop anymore, so just
+// acknowledge the signals to keep the store clean.
+watch(() => homeViewStore.pendingBack, (p) => { if (p) homeViewStore.ackBack() })
+watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() })
+
+onBeforeUnmount(() => { navigating = false })
 </script>
 
 <template>
-  <div class="home">
-    <nav class="sr-only" aria-label="Sections">
-      <NuxtLink v-for="item in contentStore.homeNav" :key="item.id" :to="item.href">{{ item.label }}</NuxtLink>
-    </nav>
-
-    <LabSpatialStage :concept="concept" :items="contentStore.homeNav" @select="onSelect">
-      <p class="home__hint">Click the top sheet to open</p>
-    </LabSpatialStage>
-  </div>
+  <SpiralView
+    ref="spiralRef"
+    :items="items"
+    :show-loader="true"
+    :title="''"
+    @card-click="handleCardClick"
+  />
 </template>
-
-<style scoped>
-.home {
-  position: relative;
-  height: 100dvh;
-  overflow: hidden;
-  background: #dedbd2;
-}
-.home__hint {
-  position: absolute;
-  bottom: calc(28px + var(--safe-bottom, 0px));
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
-  font-family: var(--press-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--press-ink);
-  opacity: 0.4;
-}
-</style>

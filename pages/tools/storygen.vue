@@ -1025,7 +1025,6 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 6rem;
-  min-height: 44rem;
   padding: 7rem 14rem;
   border-radius: 999px;
   font-size: 12rem;

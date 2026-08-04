@@ -2,93 +2,62 @@
    Design Tokens
    ============================================================ */
 
-/* One palette for the whole site, and it is a monochrome.
-   No hue anywhere: ground, ink and accent are the same neutral at different
-   values, and the only thing that ever "colours" the page is light — the
-   bloom on the stage and the glow on an active rule. A single accent hue was
-   what made every earlier version feel like a template with a brand colour
-   dropped in; taking hue off the table entirely means contrast, weight and
-   glow have to do the work, which is the whole point of the look.
-   `--color-pop` is the bright one and is only ever used as a fill with
-   `--color-on-pop` on top. */
-
 /* ─── Dark theme (default) ─── */
 [data-theme="dark"] {
-  --color-bg: #07070A;
-  --color-text: #F2F2EF;
-  --color-accent: #FFFFFF;
-  --color-pop: #FFFFFF;
-  --color-on-pop: #07070A;
-  --color-alt: #8E8E96;
+  --color-bg: #0D0C0A;
+  --color-text: #F4F1EC;
+  --color-accent: #243F6A;
 
   /* Glass UI — white tint on dark surfaces */
-  --color-glass-bg: rgba(255,255,255,0.055);
-  --color-glass-border: rgba(255,255,255,0.16);
-  --color-glass-bg-hover: rgba(255,255,255,0.11);
-  --color-glass-border-hover: rgba(255,255,255,0.34);
-  /* The light every glass surface bends and spills — the DOM's share of the
-     stage's bloom, so panels are lit by the same source as the cards. */
-  --glow-soft: rgba(255,255,255,0.20);
-  --glow-rim: rgba(255,255,255,0.34);
-  --color-spinner-track: rgba(242,242,239,0.15);
-  --color-divider: rgba(242,242,239,0.12);
+  --color-glass-bg: rgba(255,255,255,0.07);
+  --color-glass-border: rgba(255,255,255,0.18);
+  --color-glass-bg-hover: rgba(255,255,255,0.13);
+  --color-glass-border-hover: rgba(255,255,255,0.32);
+  --color-spinner-track: rgba(244,241,236,0.15);
+  --color-divider: rgba(244,241,236,0.1);
 
   /* Legacy aliases — existing CSS selectors keep working */
-  --color-black: #07070A;
-  --color-white: #F2F2EF;
-  --color-pop-green: #FFFFFF;
-  --color-white20: rgba(242,242,239,0.2);
-  --color-bg-dark: #07070A;
-  --color-bg-dark20: rgba(7,7,10,0.2);
-  --color-bg-dark40: rgba(7,7,10,0.4);
-  --color-bg-dark60: rgba(7,7,10,0.6);
-  --color-bg-dark-transparent: rgba(7,7,10,0);
+  --color-black: #0D0C0A;
+  --color-white: #F4F1EC;
+  --color-pop-green: #243F6A;
+  --color-white20: rgba(244,241,236,0.2);
+  --color-bg-dark: #0D0C0A;
+  --color-bg-dark20: rgba(13,12,10,0.2);
+  --color-bg-dark40: rgba(13,12,10,0.4);
+  --color-bg-dark60: rgba(13,12,10,0.6);
+  --color-bg-dark-transparent: rgba(13,12,10,0);
 }
 
 /* ─── Light theme ─── */
 [data-theme="light"] {
-  --color-bg: #F2F2EF;
-  --color-text: #0B0B0D;
-  --color-accent: #0B0B0D;
-  --color-pop: #0B0B0D;
-  --color-on-pop: #F2F2EF;
-  --color-alt: #6E6E76;
+  --color-bg: #F5EFE8;
+  --color-text: #0D0C0A;
+  --color-accent: #243F6A;
 
   /* Glass UI — dark tint on light surfaces */
-  --color-glass-bg: rgba(0,0,0,0.05);
+  --color-glass-bg: rgba(0,0,0,0.06);
   --color-glass-border: rgba(0,0,0,0.14);
-  --color-glass-bg-hover: rgba(0,0,0,0.10);
-  --color-glass-border-hover: rgba(0,0,0,0.28);
-  --glow-soft: rgba(11,11,13,0.14);
-  --glow-rim: rgba(255,255,255,0.75);
-  --color-spinner-track: rgba(11,11,13,0.12);
-  --color-divider: rgba(11,11,13,0.12);
+  --color-glass-bg-hover: rgba(0,0,0,0.11);
+  --color-glass-border-hover: rgba(0,0,0,0.26);
+  --color-spinner-track: rgba(13,12,10,0.12);
+  --color-divider: rgba(13,12,10,0.1);
 
   /* Legacy aliases — FLIPPED so existing CSS inverts correctly */
-  --color-black: #F2F2EF;
-  --color-white: #0B0B0D;
-  --color-pop-green: #0B0B0D;
-  --color-white20: rgba(11,11,13,0.15);
-  --color-bg-dark: #07070A;
-  --color-bg-dark20: rgba(7,7,10,0.2);
-  --color-bg-dark40: rgba(7,7,10,0.4);
-  --color-bg-dark60: rgba(7,7,10,0.6);
-  --color-bg-dark-transparent: rgba(7,7,10,0);
+  --color-black: #F4F1EC;
+  --color-white: #0D0C0A;
+  --color-pop-green: #243F6A;
+  --color-white20: rgba(13,12,10,0.15);
+  --color-bg-dark: #0D0C0A;
+  --color-bg-dark20: rgba(13,12,10,0.2);
+  --color-bg-dark40: rgba(13,12,10,0.4);
+  --color-bg-dark60: rgba(13,12,10,0.6);
+  --color-bg-dark-transparent: rgba(13,12,10,0);
 }
 
 :root {
-  /* Typography — three faces, three jobs.
-     Display carries the voice, sans carries the reading, mono carries the
-     metadata. Every award-winning portfolio studied for this system pairs a
-     display face with a mono for indices and labels; it is the single cheapest
-     way to make a page read as art-directed rather than templated. */
+  /* Typography */
   --main-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
-  --display-font: "Archivo", "Helvetica Neue", "Arial", sans-serif;
-  /* JetBrains Mono ships from the Google Fonts link in nuxt.config.ts but was
-     never referenced here, so every mono label on the site silently fell back
-     to the system stack — "unset" rather than chosen, which is exactly what
-     that font was added to avoid. */
-  --mono-font: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --display-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
 
   /* Spacing scale */
   --gap-xs: 10px;
@@ -135,31 +104,16 @@
   --btn-pad-x: 26px;
   --btn-press: 0.95;          /* :active scale */
 
-  /* Type scale — fluid throughout. Fixed px rungs meant every interior page
-     either shouted on a phone or whispered on a desktop, and the heroes each
-     hand-rolled their own clamp() to compensate, so no two pages agreed. One
-     ramp, viewport-interpolated, used everywhere. */
-  /* Display goes genuinely big. A grotesque this heavy is *made* to be set
-     enormous — at 40px it is just a bold label, and the whole point of the
-     artwork's poster type is that it fills the sheet. Mobile-first: the low end
-     of each clamp is what a phone actually gets, and it is deliberately loud. */
-  --text-display: clamp(66px, 20vw, 220px);   /* the one big statement */
-  --text-h1: clamp(46px, 13.5vw, 112px);        /* page hero titles */
-  --text-h2: clamp(26px, 5.6vw, 48px);        /* section heads */
-  --text-h3: clamp(18px, 2.4vw, 26px);        /* card / row titles */
-  --text-lead: clamp(17px, 1.5vw, 22px);      /* deck / sub-title */
-  --text-body: clamp(15px, 1.15vw, 17px);
-  --text-sm: clamp(13px, 1vw, 15px);
-  --text-label: clamp(10px, 0.8vw, 12px);     /* mono eyebrows */
-  --tracking-label: 0.16em;
-  /* Set this large, a grotesque needs pulling in hard or the counters float
-     apart. This is the single number that makes big type look set rather than
-     typed. */
-  --tracking-display: -0.045em;
-
-  /* Editorial measure — the widths copy is allowed to run to. */
-  --measure-deck: 34ch;
-  --measure-body: 62ch;
+  /* Type scale — the canonical ramp for shared surfaces. Per-page heroes may
+     still tune their own clamp() for character; these name the common rungs. */
+  --text-display: clamp(60px, 8vw, 120px);  /* page hero titles */
+  --text-h1: 36px;
+  --text-h2: 24px;
+  --text-lead: 20px;          /* deck / sub-title */
+  --text-body: 17px;
+  --text-sm: 15px;
+  --text-label: 11px;         /* uppercase eyebrows */
+  --tracking-label: 0.1em;
 
   /* Grid system (desktop, 12 cols) */
   --grid-margin: 30px;
@@ -178,106 +132,6 @@
   );
   --ease-quad-in-out: cubic-bezier(.455, .03, .515, .955);
   --ease-expo-out: cubic-bezier(.19, 1, .22, 1);
-  /* The curve that dominates the reference set — a slightly softer expo than
-     the .19/.22 classic, so long travels decelerate without the dead tail. One
-     curve doing most of the work is what makes a site feel authored. */
-  --ease-out: cubic-bezier(.16, 1, .3, 1);
-  --ease-in-out: cubic-bezier(.65, 0, .35, 1);
-
-  /* Motion durations — a three-rung ladder, all inside the 200–500ms band. */
-  --dur-fast: 220ms;
-  --dur-mid: 420ms;
-  --dur-slow: 700ms;
-}
-
-/* ── Shared type roles ──────────────────────────────────────────────────
-   Named once so a page never re-declares the family/tracking of a label or a
-   display line. `.t-mono` is the metadata voice: indices, eyebrows, counts. */
-.t-mono {
-  font-family: var(--mono-font);
-  font-size: var(--text-label);
-  font-weight: 500;
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  font-variant-numeric: tabular-nums;
-}
-/* Kept as a no-op shim: the bitmap chamfer is gone with the pixel direction,
-   but a few elements still carry the class. A soft radius is the right
-   fallback, and crucially it drops the clip-path so outer shadows survive. */
-.pixel-edge { border-radius: 14rem; }
-
-/* ── Control ────────────────────────────────────────────────────────────
-   One button, and it is glass. The stepped offset-block press went with the
-   pixel direction — it was mechanical on purpose, and mechanical is the
-   opposite of what this is now. The feel comes from weight instead: it lifts
-   toward you on hover and sinks under the press, both on a spring, so it reads
-   as an object with mass rather than a rectangle changing state. */
-.px-btn {
-  position: relative;
-  display: inline-flex; align-items: center; justify-content: center; gap: 10rem;
-  min-height: 48rem; padding: 13rem 26rem;
-  border: 0; border-radius: 999rem;
-  background: var(--color-glass-bg);
-  backdrop-filter: blur(20px) saturate(1.4) brightness(1.1);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4) brightness(1.1);
-  color: var(--color-text);
-  font-family: var(--display-font);
-  font-size: 14rem; font-weight: 700; letter-spacing: 0.02em;
-  text-decoration: none; white-space: nowrap; cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  box-shadow:
-    inset 0 1px 0 var(--glow-rim),
-    inset 0 0 0 1px var(--color-glass-border),
-    0 10rem 30rem -14rem rgba(0,0,0,0.8),
-    0 0 30rem -14rem var(--glow-soft);
-  transition: transform 460ms var(--ease-spring), box-shadow 320ms var(--ease-out), background 320ms var(--ease-out);
-}
-@media (hover: hover) {
-  .px-btn:hover {
-    background: var(--color-glass-bg-hover);
-    transform: translateY(-3rem) scale(1.015);
-    box-shadow:
-      inset 0 1px 0 var(--glow-rim),
-      inset 0 0 0 1px var(--color-glass-border-hover),
-      0 20rem 44rem -18rem rgba(0,0,0,0.9),
-      0 0 44rem -12rem var(--glow-soft);
-  }
-}
-.px-btn:active { transform: translateY(1rem) scale(0.975); transition-duration: 120ms; }
-.px-btn:focus-visible { outline: 2px solid var(--color-text); outline-offset: 4px; }
-.px-btn[disabled] { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-.px-btn--solid {
-  background: var(--color-pop); color: var(--color-on-pop);
-  backdrop-filter: none; -webkit-backdrop-filter: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .px-btn { transition: background 200ms linear; }
-  .px-btn:hover, .px-btn:active { transform: none; }
-}
-
-/* Content imagery in a monochrome world.
-   The WebGL stage duotones its cards on the GPU, but every ordinary <img> on
-   the site is still full colour, and a cream-and-navy illustration dropped
-   onto a pure black page is the one thing that breaks the look. Desaturated by
-   default, full colour back on hover or focus — the art direction holds while
-   the work itself is never actually hidden from anyone who wants to see it. */
-.mono-img { filter: grayscale(1) contrast(1.08) brightness(0.95); transition: filter var(--dur-mid) var(--ease-out); }
-a:hover .mono-img, button:hover .mono-img,
-a:focus-visible .mono-img, button:focus-visible .mono-img,
-.mono-img:hover { filter: grayscale(0) contrast(1) brightness(1); }
-@media (prefers-reduced-motion: reduce) { .mono-img { transition: none; } }
-
-.t-display {
-  font-family: var(--display-font);
-  font-weight: 800;
-  font-stretch: 96%;
-  letter-spacing: var(--tracking-display);
-  /* Tight. Big grotesque headings want their lines to stack into a block, and
-     the loose leading a bitmap face needed reads as a gap here. */
-  line-height: 0.92;
-  text-wrap: balance;
 }
 
 @media (max-width: 900px) {
@@ -372,14 +226,6 @@ canvas {
 }
 /* The corner E-button rides on the WebGL canvas; give its ring breathing room. */
 .e-btn:focus-visible { outline-offset: 5px; }
-
-/* The ring above is drawn in `--color-text`, which on the Press layer's bone
-   paper is near-white — i.e. no ring at all. Press pages don't read the themed
-   palette, so they need their own ink. Without this, only `.press-btn` (which
-   sets its own) was ever visibly focusable; the footer index cells, in
-   particular, had no discernible focus state. */
-.press-page :focus-visible,
-.home :focus-visible { outline-color: var(--press-ink); }
 
 /* ============================================================
    WebGL canvas layout — Section 10
@@ -511,20 +357,13 @@ canvas {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.10), transparent 38%),
     color-mix(in srgb, var(--color-bg) 62%, transparent);
-  /* Real glass on a dark ground needs three things the old surface only faked:
-     a wide blur to displace what is behind it, a bright top rim where the light
-     catches the bevel, and an *outward* glow so it reads as lit rather than as
-     a rectangle with a border. That last shadow is the DOM's answer to the
-     stage's bloom — the same light, spilling past the same edges. */
-  backdrop-filter: blur(30px) saturate(1.35) brightness(1.06);
-  -webkit-backdrop-filter: blur(30px) saturate(1.35) brightness(1.06);
+  backdrop-filter: blur(26px) saturate(1.4);
+  -webkit-backdrop-filter: blur(26px) saturate(1.4);
   border: 1px solid var(--color-glass-border);
   box-shadow:
-    0 34rem 90rem -42rem rgba(0, 0, 0, 0.7),
-    0 0 40rem -10rem var(--glow-soft),
-    inset 0 1.5px 0 var(--glow-rim),
-    inset 0 -1px 0 color-mix(in srgb, var(--color-text) 8%, transparent),
-    inset 0 0 60rem color-mix(in srgb, var(--color-text) 4%, transparent);
+    0 34rem 90rem -42rem rgba(0, 0, 0, 0.6),
+    inset 0 1px 1px color-mix(in srgb, var(--color-text) 16%, transparent),
+    inset 0 0 60rem color-mix(in srgb, var(--color-text) 3%, transparent);
   animation: glass-rise 0.7s var(--ease-spring) both;
 }
 @keyframes glass-rise {
@@ -597,60 +436,38 @@ canvas {
   cursor: pointer;
 }
 
-/* ── Buttons ──
-   `min-height` rather than padding alone: the padding tokens put the pill at
-   42px, which is under the 44px touch floor on every one of these buttons. */
-/* The site's primary button. Same glass mechanic as .px-btn — every tool page
-   already uses this class, so it converts the whole site in one move. */
+/* ── Buttons ── */
 .glass-btn {
-  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10rem;
-  min-height: 48rem;
-  padding: 13rem 26rem;
-  border: 0;
-  border-radius: 999rem;
-  background: var(--color-pop);
-  color: var(--color-on-pop);
-  font-family: var(--display-font);
+  padding: var(--btn-pad-y) var(--btn-pad-x);
+  border-radius: var(--radius-full);
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-family: inherit;
   font-size: 14rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  font-weight: 600;
+  border: 1px solid transparent;
   cursor: pointer;
   white-space: nowrap;
-  -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 12rem 34rem -16rem rgba(0,0,0,0.85), 0 0 34rem -16rem var(--glow-soft);
-  transition: transform 460ms var(--ease-spring), box-shadow 320ms var(--ease-out), background 320ms var(--ease-out);
+  box-shadow: 0 14rem 32rem -18rem rgba(0, 0, 0, 0.55);
+  transition: opacity 0.15s ease, transform 0.12s ease, box-shadow 0.22s ease;
 }
 .glass-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-@media (hover: hover) {
-  .glass-btn:not(:disabled):hover {
-    transform: translateY(-3rem) scale(1.015);
-    box-shadow: 0 22rem 48rem -20rem rgba(0,0,0,0.9), 0 0 48rem -14rem var(--glow-soft);
-  }
-}
-.glass-btn:not(:disabled):active { transform: translateY(1rem) scale(0.975); transition-duration: 120ms; }
-.glass-btn:focus-visible { outline: 2px solid var(--color-text); outline-offset: 4px; }
+.glass-btn:not(:disabled):active { transform: scale(var(--btn-press)); }
 
 .glass-btn--ghost {
-  background: var(--color-glass-bg);
+  background: color-mix(in srgb, var(--color-bg) 46%, transparent);
   color: var(--color-text);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4) brightness(1.1);
-  backdrop-filter: blur(20px) saturate(1.4) brightness(1.1);
-  box-shadow:
-    inset 0 1px 0 var(--glow-rim),
-    inset 0 0 0 1px var(--color-glass-border),
-    0 10rem 30rem -14rem rgba(0,0,0,0.8);
+  border: 1px solid var(--color-glass-border);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: none;
 }
 @media (hover: hover) {
-  .glass-btn--ghost:not(:disabled):hover { background: var(--color-glass-bg-hover); color: var(--color-text); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .glass-btn { transition: background 200ms linear; }
-  .glass-btn:not(:disabled):hover, .glass-btn:not(:disabled):active { transform: none; }
+  .glass-btn--ghost:hover { background: color-mix(in srgb, var(--color-bg) 62%, transparent); }
 }
 
 /* ── Chip — small pill (copy buttons, tags, toggles) ── */
@@ -703,239 +520,6 @@ canvas {
     backdrop-filter: blur(16px) saturate(1.3);
     -webkit-backdrop-filter: blur(16px) saturate(1.3);
   }
-}
-
-/* ============================================================
-   The Press layer — --press-*
-   ============================================================
-   Every page except the web apps now speaks one language: black ink on bone
-   paper, a condensed broadsheet masthead, hairline rules, folio numbers, and
-   true luminance-driven halftone wherever a photograph appears (PressHalftone).
-   Grown from the /lab "Press" concept — same two colours, same three faces.
-
-   Committed to one palette regardless of the OS light/dark preference:
-   newsprint doesn't have a dark mode, and pages built on this layer don't
-   read `--color-*`/`[data-theme]` at all. The tools keep that system exactly
-   as it was; this is additive, not a replacement. */
-:root {
-  --press-paper: #ECE9E2;
-  --press-paper-dim: #E2DED2;
-  --press-ink: #0E0D0D;
-  --press-ink-80: rgba(14,13,13,0.80);
-  --press-ink-62: rgba(14,13,13,0.62);
-  --press-ink-42: rgba(14,13,13,0.42);
-  --press-rule: rgba(14,13,13,0.22);
-  --press-rule-strong: var(--press-ink);
-
-  /* Two faces now, not three. Fraunces carries every reading register — the
-     shout of a headline down to running body copy — because it has the full
-     weight range (100–900) and a real optical-size axis that a single serif
-     needs to do both jobs; Instrument Serif, tried first, had no bold cut,
-     which is exactly why headlines had quietly drifted into a competing sans
-     and read as mixed rather than designed. Mono stays a distinct third
-     voice for the machine parts (folios, bylines, labels) — that was never
-     the inconsistency. There is no `--press-sans` any more: every consumer
-     that asked for it now asks for `--press-serif` directly. */
-  --press-serif: "Fraunces", Georgia, "Times New Roman", serif;
-  --press-mono: var(--mono-font);
-
-  --press-edge: clamp(20px, 5vw, 56px);
-  --press-measure: 64ch;
-  --press-mast-h: 64px;
-
-  /* Fluid scale, one ramp for every Press page. `h3` is the card-title rung
-     and `small` the meta rung — both were missing, which is why pages had
-     drifted into ad-hoc 22px / 13.5px / 12.5px values with nowhere to land. */
-  --press-display: clamp(52px, 11vw, 148px);
-  --press-h1: clamp(40px, 8vw, 88px);
-  --press-h2: clamp(26px, 4vw, 42px);
-  --press-h3: clamp(20px, 2.4vw, 24px);
-  --press-lead: clamp(18px, 2vw, 24px);
-  --press-body: clamp(15px, 1.1vw, 17px);
-  --press-small: clamp(13px, 1vw, 14px);
-  --press-label: 11px;
-
-  /* Three container rungs, each with a job — prose, prose-beside-media, and
-     card grids. Pages previously picked 780 / 860 / 920 / 1180 independently. */
-  --press-col: 780px;
-  --press-col-feature: 920px;
-  --press-col-wide: 1180px;
-  --press-pad-top: clamp(40px, 6vw, 72px);
-  --press-pad-bottom: clamp(60px, 8vw, 100px);
-
-  /* Interaction, translated from the home card. Its hover eases exponentially
-     at rate 9/s (~90% in 256ms) and grows 1.2%; its ink gains ~3%. There is no
-     press state on the canvas, so `--press-press` is this layer's own addition:
-     it reverses the lift, which is the honest physical read of a push. */
-  --press-dur: 180ms;
-  --press-ease: cubic-bezier(.2, .7, .3, 1);
-  --press-hover: 1.012;
-  --press-press: 0.99;
-}
-
-/* Base page shell — every Press page opens with this. */
-.press-page {
-  position: relative;
-  min-height: 100dvh;
-  background: var(--press-paper);
-  color: var(--press-ink);
-  font-family: var(--press-serif);
-  font-size: 17px;
-  line-height: 1.5;
-  overflow-x: clip;
-}
-
-.press-label {
-  font-family: var(--press-mono);
-  font-size: var(--press-label);
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--press-ink-62);
-}
-
-.press-h1 {
-  font-family: var(--press-serif);
-  font-weight: 800;
-  font-size: var(--press-h1);
-  line-height: 0.96;
-  letter-spacing: -0.03em;
-  text-wrap: balance;
-  color: var(--press-ink);
-}
-
-.press-lead {
-  font-family: var(--press-serif);
-  font-size: var(--press-lead);
-  line-height: 1.34;
-  letter-spacing: -0.005em;
-  color: var(--press-ink);
-}
-
-.press-rule { border: 0; border-top: 1px solid var(--press-rule); margin: 0; }
-.press-rule--strong { border-top-color: var(--press-rule-strong); border-top-width: 2px; }
-
-/* The dt/dd data table every Press page uses for credentials, meta and specs. */
-.press-table { margin: 0; border-top: 1px solid var(--press-rule); }
-.press-table .press-row {
-  display: grid;
-  grid-template-columns: minmax(140px, 26%) 1fr;
-  gap: 18px;
-  padding: 13px 0;
-  border-bottom: 1px solid var(--press-rule);
-}
-.press-table dt {
-  margin: 0;
-  font-family: var(--press-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--press-ink-62);
-  padding-top: 2px;
-}
-.press-table dd { margin: 0; font-family: var(--press-serif); font-size: 15px; line-height: 1.5; color: var(--press-ink); }
-@media (max-width: 560px) { .press-table .press-row { grid-template-columns: 1fr; gap: 3px; } }
-
-/* Drop cap — the first paragraph of a Press feature. */
-.press-dropcap::first-letter {
-  font-family: var(--press-serif);
-  font-weight: 800;
-  font-size: 2.6em;
-  line-height: 0.8;
-  float: left;
-  padding: 0.04em 0.07em 0 0;
-  color: var(--press-ink);
-}
-
-/* One pill-free button convention: an underline that thickens, ink on hover. */
-.press-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 12px 22px;
-  border: 1px solid var(--press-ink);
-  color: var(--press-ink);
-  font-family: var(--press-mono);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-decoration: none;
-  background: transparent;
-  cursor: pointer;
-  /* Same clock as `.press-card` / `.press-cell` — one interaction tempo across
-     every control on the site, taken from the home card's hover easing. */
-  transition: background-color var(--press-dur) var(--press-ease),
-              color var(--press-dur) var(--press-ease),
-              transform var(--press-dur) var(--press-ease);
-}
-.press-btn:hover { background: var(--press-ink); color: var(--press-paper); }
-.press-btn:active { transform: scale(var(--press-press)); }
-.press-btn:focus-visible { outline: 2px solid var(--press-ink); outline-offset: 3px; }
-.press-btn:disabled, .press-btn[disabled] { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
-.press-btn--solid { background: var(--press-ink); color: var(--press-paper); }
-.press-btn--solid:hover { background: transparent; color: var(--press-ink); }
-
-@media (prefers-reduced-motion: reduce) {
-  .press-btn { transition: none; }
-  .press-btn:active { transform: none; }
-}
-
-/* ── The card language, translated from the home page ────────────────────────
-   The home sheet's whole feedback vocabulary is: grow 1.2%, gain ~3% ink,
-   settle in about a quarter-second. Nothing else — no shadow, no radius, no
-   border change, no hue. These two classes are that vocabulary in DOM form.
-
-   Two densities, one language. The difference is purely whether the surface
-   floats in a gapped grid (it can lift above its neighbours, like a sheet off
-   the stack) or sits flush edge-to-edge (scaling it would tear the grid, so
-   it darkens in place instead). Everything else — timing, easing, ink target,
-   press behaviour, focus ring — is shared. */
-.press-card,
-.press-cell {
-  position: relative;
-  border-radius: 0;
-  box-shadow: none;
-  background: var(--press-paper);
-  color: var(--press-ink);
-  cursor: pointer;
-  transition: transform var(--press-dur) var(--press-ease),
-              background-color var(--press-dur) var(--press-ease),
-              color var(--press-dur) var(--press-ease);
-}
-
-@media (hover: hover) {
-  .press-card:hover { transform: scale(var(--press-hover)); background: var(--press-paper-dim); z-index: 1; }
-  .press-cell:hover { background: var(--press-paper-dim); }
-}
-
-/* Press reverses the lift. On a card that was hovering it reads as pushing the
-   sheet back down; on a touch device, where there is no hover, it is the only
-   feedback there is — which is why it is on the cell too. */
-.press-card:active { transform: scale(var(--press-press)); background: var(--press-paper-dim); }
-.press-cell:active { transform: scale(var(--press-press)); }
-
-.press-card:focus-visible,
-.press-cell:focus-visible { outline: 2px solid var(--press-ink); outline-offset: -2px; }
-
-@media (prefers-reduced-motion: reduce) {
-  .press-card, .press-cell { transition: none; }
-  .press-card:hover, .press-card:active, .press-cell:active { transform: none; }
-}
-
-/* Present in the DOM, absent from the page — real links behind a canvas-only
-   design, so it stays crawlable and keyboard-reachable. Lived scoped inside
-   pages/index.vue, which meant it compiled with a data-v-* attribute and no
-   other page could use it. */
-.sr-only {
-  position: absolute;
-  width: 1px; height: 1px;
-  padding: 0; margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }
 
 

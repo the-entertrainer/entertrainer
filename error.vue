@@ -22,8 +22,8 @@ useHead({ title: isNotFound.value ? 'Page not found â€” Entertrainer' : 'Error â
 
 <template>
   <div>
-    <UiContentShell :eyebrow="`Error ${error?.statusCode ?? ''}`" :title="title" :deck="deck">
+    <UiToolShell :eyebrow="`Error ${error?.statusCode ?? ''}`" :title="title" :deck="deck">
       <UiConstructionZone is-error-page />
-    </UiContentShell>
+    </UiToolShell>
   </div>
 </template>

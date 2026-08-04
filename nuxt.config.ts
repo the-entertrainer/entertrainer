@@ -29,7 +29,7 @@ export default defineNuxtConfig({
         { property: 'og:type', content: 'website' },
         { property: 'og:site_name', content: 'Entertrainer' },
         { property: 'og:title', content: 'Entertrainer — Instructional Design by Naveen Jose' },
-        { property: 'og:description', content: 'Learning experiences that feel human, plus free web apps for L&D teams.' },
+        { property: 'og:description', content: 'Instructional design, but fun. Training people actually finish — and the free tools that make it.' },
         { property: 'og:url', content: 'https://entertrainer.in/' },
         { property: 'og:image', content: 'https://entertrainer.in/og-card.png' },
         { property: 'og:image:width', content: '2400' },
@@ -37,7 +37,7 @@ export default defineNuxtConfig({
         { property: 'og:image:alt', content: 'Entertrainer — instructional design that feels human, by Naveen Jose' },
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'Entertrainer — Instructional Design by Naveen Jose' },
-        { name: 'twitter:description', content: 'Learning experiences that feel human, plus free web apps for L&D teams.' },
+        { name: 'twitter:description', content: 'Instructional design, but fun. Training people actually finish — and the free tools that make it.' },
         { name: 'twitter:image', content: 'https://entertrainer.in/og-card.png' }
       ],
       link: [

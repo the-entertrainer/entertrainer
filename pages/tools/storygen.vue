@@ -1025,6 +1025,9 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 6rem;
+  /* 7rem of padding on 12rem type leaves the chip ~30rem tall — under the 44px
+     touch floor, and these chips are the primary AI controls on a phone. */
+  min-height: 44rem;
   padding: 7rem 14rem;
   border-radius: 999px;
   font-size: 12rem;

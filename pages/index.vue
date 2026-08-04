@@ -6,9 +6,9 @@ definePageMeta({ layout: 'default' })
 
 useSeoMeta({
   title: 'Entertrainer — Instructional Design by Naveen Jose',
-  description: 'The portfolio of Naveen Jose, a certified instructional designer who builds learning experiences that feel human, plus free web apps for L&D teams.',
+  description: 'Naveen Jose is a Certified Instructional Design Specialist who builds training people actually finish — plus four free web apps for L&D teams.',
   ogTitle: 'Entertrainer — Instructional Design by Naveen Jose',
-  ogDescription: 'Learning experiences that feel human, plus free web apps for L&D teams.',
+  ogDescription: 'Instructional design, but fun. Training people actually finish, and the free tools that make it.',
   ogUrl: 'https://entertrainer.in/'
 })
 

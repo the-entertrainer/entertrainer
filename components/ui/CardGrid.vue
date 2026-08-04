@@ -14,7 +14,7 @@ defineProps<{
 }>()
 
 const R = useReveal()
-const rv = { eyebrow: R.rise(0), title: R.rise(80), deck: R.rise(170), intro: R.rise(240) }
+const rv = R.head()
 </script>
 
 <template>
@@ -23,8 +23,8 @@ const rv = { eyebrow: R.rise(0), title: R.rise(80), deck: R.rise(170), intro: R.
 
     <div class="cg-inner">
       <header class="cg-head">
-        <p v-if="eyebrow" class="cg-eyebrow" v-motion :initial="rv.eyebrow.initial" :visible-once="rv.eyebrow.visibleOnce">{{ eyebrow }}</p>
-        <h1 class="cg-title" v-motion :initial="rv.title.initial" :visible-once="rv.title.visibleOnce">{{ title }}</h1>
+        <p v-if="eyebrow" class="eyebrow cg-eyebrow" v-motion :initial="rv.eyebrow.initial" :visible-once="rv.eyebrow.visibleOnce">{{ eyebrow }}</p>
+        <h1 class="display-serif cg-title" v-motion :initial="rv.title.initial" :visible-once="rv.title.visibleOnce">{{ title }}</h1>
         <p v-if="deck" class="cg-deck" v-motion :initial="rv.deck.initial" :visible-once="rv.deck.visibleOnce">{{ deck }}</p>
         <p v-if="intro" class="cg-intro" v-motion :initial="rv.intro.initial" :visible-once="rv.intro.visibleOnce">{{ intro }}</p>
       </header>
@@ -52,22 +52,15 @@ const rv = { eyebrow: R.rise(0), title: R.rise(80), deck: R.rise(170), intro: R.
 </template>
 
 <style scoped>
-.cg-page { position: fixed; inset: 0; overflow-y: auto; z-index: 1; }
+.cg-page { position: relative; z-index: 1; min-height: 100dvh; }
 .cg-inner {
-  max-width: 900rem;
+  max-width: var(--maxw);
   margin: 0 auto;
-  padding: calc(120rem + var(--safe-top)) 24rem calc(64rem + var(--safe-bottom));
+  padding: var(--page-top) var(--edge-column) var(--page-bottom);
 }
 .cg-head { margin-bottom: 34rem; }
-.cg-eyebrow {
-  font-size: 12rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  opacity: 0.5;
-  margin-bottom: 12rem;
-}
-.cg-title { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; font-size: clamp(38rem, 6.5vw, 58rem); font-weight: 400; letter-spacing: -0.015em; line-height: 1.02; }
+.cg-eyebrow { margin-bottom: 12rem; }
+.cg-title { font-family: var(--serif-font); font-optical-sizing: auto; font-size: clamp(38rem, 6.5vw, 58rem); font-weight: 400; letter-spacing: -0.015em; line-height: 1.02; }
 .cg-deck { font-size: 16rem; opacity: 0.65; margin-top: 12rem; line-height: 1.5; max-width: 34em; }
 .cg-intro { font-size: 14rem; opacity: 0.55; margin-top: 14rem; line-height: 1.6; max-width: 40em; }
 
@@ -108,7 +101,6 @@ const rv = { eyebrow: R.rise(0), title: R.rise(80), deck: R.rise(170), intro: R.
 .cg-empty { font-size: 14rem; opacity: 0.55; }
 
 @media (max-width: 640px) {
-  .cg-inner { padding: calc(100rem + var(--safe-top)) 16rem calc(48rem + var(--safe-bottom)); }
   .cg-grid { grid-template-columns: 1fr; }
 }
 </style>

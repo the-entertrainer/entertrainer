@@ -26,17 +26,27 @@ onMounted(() => {
 <style>
 #app-root { min-height: 100dvh; background: var(--color-bg); }
 
-.fade-enter-active, .fade-leave-active { transition: opacity 0.35s ease; }
+.fade-enter-active, .fade-leave-active { transition: opacity var(--dur-4) var(--ease-in-out); }
 .fade-enter-from,   .fade-leave-to     { opacity: 0; }
 
 /* Editorial page transition — a refined fade + rise with an expo-out feel.
-   Used for every route except the fixed-viewport home spiral. */
-.editorial-enter-active { transition: opacity 0.5s cubic-bezier(.19,1,.22,1), transform 0.6s cubic-bezier(.19,1,.22,1), filter 0.5s ease; }
-.editorial-leave-active { transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease; }
+   Used for every route except the fixed-viewport home spiral.
+   This was declared here and then overridden back to a flat `fade` by
+   definePageMeta on eleven pages, so it effectively never ran. Those overrides
+   are gone now; only StoryGen (whose full-viewport canvas hitches when the
+   entering subtree is rasterized for the blur) and Strong (which owns st-fade)
+   still opt out. */
+.editorial-enter-active { transition: opacity var(--dur-5) var(--ease-out), transform 0.6s var(--ease-out), filter var(--dur-5) var(--ease-in-out); }
+.editorial-leave-active { transition: opacity var(--dur-3) var(--ease-in-out), transform var(--dur-3) var(--ease-in-out), filter var(--dur-3) var(--ease-in-out); }
 .editorial-enter-from { opacity: 0; transform: translateY(22px); filter: blur(6px); }
 .editorial-leave-to   { opacity: 0; transform: translateY(-12px); filter: blur(4px); }
+/* Blurring a whole entering page is a full-surface rasterization; on phone GPUs
+   that is the difference between a transition and a stutter. */
+@media (max-width: 640px) {
+  .editorial-enter-from, .editorial-leave-to { filter: none; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .editorial-enter-active, .editorial-leave-active { transition: opacity 0.25s ease; }
+  .editorial-enter-active, .editorial-leave-active { transition: opacity var(--dur-3) var(--ease-in-out); }
   .editorial-enter-from, .editorial-leave-to { transform: none; filter: none; }
 }
 </style>

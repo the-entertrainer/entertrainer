@@ -31,7 +31,7 @@ const R = useReveal()
 </template>
 
 <style scoped>
-.lab { position: fixed; inset: 0; overflow-y: auto; background: var(--color-bg); color: var(--color-text); --serif: 'Fraunces', Georgia, serif; }
+.lab { position: fixed; inset: 0; overflow-y: auto; background: var(--color-bg); color: var(--color-text); --serif: var(--serif-font); }
 .lab__inner { max-width: 860rem; margin: 0 auto; padding: calc(90rem + var(--safe-top)) clamp(20rem, 5vw, 40rem) 90rem; }
 .lab__eyebrow { font-size: 12rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.55; }
 .lab__title { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(38rem, 6.5vw, 68rem); line-height: 1.0; letter-spacing: -0.015em; margin: 14rem 0 0; }

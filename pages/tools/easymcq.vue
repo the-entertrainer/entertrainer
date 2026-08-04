@@ -1,5 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'EasyMCQ — Distractor Generator · Entertrainer',
   description: 'Give a question and its correct answer, and EasyMCQ writes three plausible wrong options that test real understanding. A free tool for L&D teams.',

@@ -7,7 +7,7 @@
 // classes, but this project ships no Tailwind, so none of them resolved. This
 // version uses the site's real token system (theme-aware --color-* variables,
 // the 1rem = 1px scale, DM Sans) and the shared .glass-* primitives.
-definePageMeta({ layout: false, pageTransition: { name: 'fade', mode: 'out-in' } })
+definePageMeta({ layout: false })
 useSeoMeta({
   title: 'Instructional Design · Entertrainer',
   description: 'A page that designs itself while you read it. See instructional design principles applied to the page you are on.',
@@ -73,8 +73,8 @@ function iconPath(name: string) {
 
     <div class="id-wrap">
       <header class="id-head">
-        <p class="id-eyebrow">Instructional design</p>
-        <h1 class="id-title">What gets designed when no one is watching</h1>
+        <p class="eyebrow id-eyebrow">Instructional design</p>
+        <h1 class="display-serif id-title">What gets designed when no one is watching</h1>
         <p class="id-dek">
           A subject expert can already do the thing. Instructional design is the work of turning
           what they know into something another person can learn. Most of that work is subtraction.
@@ -169,18 +169,17 @@ function iconPath(name: string) {
 
 <style scoped>
 .id-page {
-  position: fixed;
-  inset: 0;
-  overflow-y: auto;
+  position: relative;
+  min-height: 100dvh;
   color: var(--color-text);
   background: var(--color-bg);
 }
 .id-wrap {
   position: relative;
   z-index: 1;
-  max-width: 780rem;
+  max-width: var(--maxw-read);
   margin: 0 auto;
-  padding: calc(96rem + var(--safe-top)) 24rem calc(80rem + var(--safe-bottom));
+  padding: var(--page-top) var(--edge-column) var(--page-bottom);
 }
 
 .id-exit {
@@ -205,20 +204,9 @@ function iconPath(name: string) {
 .id-exit:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
 
 .id-head { margin-bottom: 34rem; }
-.id-eyebrow {
-  font-size: 12rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.55;
-  margin-bottom: 16rem;
-}
+.id-eyebrow { margin-bottom: 16rem; }
 .id-title {
-  font-family: 'Fraunces', Georgia, serif;
-  font-optical-sizing: auto;
-  font-size: clamp(34rem, 5.5vw, 60rem);
-  font-weight: 400;
-  line-height: 1.02;
-  letter-spacing: -0.015em;
+  font-size: var(--text-display);
   max-width: 15ch;
 }
 .id-dek {
@@ -243,7 +231,7 @@ function iconPath(name: string) {
 .id-meter { display: flex; align-items: center; gap: 10rem; flex-shrink: 0; }
 .id-meter__label { font-size: 11rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.5; }
 .id-meter__track { width: 88rem; height: 7rem; border-radius: 999rem; background: var(--color-glass-border); overflow: hidden; }
-.id-meter__fill { display: block; height: 100%; border-radius: 999rem; background: var(--color-accent); transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.id-meter__fill { display: block; height: 100%; border-radius: 999rem; background: var(--color-accent); transition: width var(--dur-5) var(--ease-out-soft); }
 .id-meter__fill.no-anim { transition: none; }
 .id-meter__val { font-size: 12.5rem; font-weight: 600; min-width: 62rem; }
 
@@ -280,7 +268,7 @@ function iconPath(name: string) {
   font-weight: 700;
   font-size: 14rem;
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-accent-ink);
 }
 .id-step__icon { flex-shrink: 0; color: var(--color-accent); display: flex; }
 .id-step__text { font-size: 17rem; line-height: 1.4; }
@@ -301,7 +289,7 @@ function iconPath(name: string) {
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 @media (hover: hover) { .id-move:hover { border-color: var(--color-glass-border-hover); } }
-.id-move.is-on { border-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 12%, transparent); }
+.id-move.is-on { border-color: var(--color-accent); background: var(--color-accent-soft); }
 .id-move:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
 .id-move__check {
   flex-shrink: 0;
@@ -312,8 +300,8 @@ function iconPath(name: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  color: var(--color-accent-ink);
+  transition: background var(--dur-2) var(--ease-out-soft), border-color var(--dur-2) var(--ease-out-soft);
 }
 .id-move.is-on .id-move__check { background: var(--color-accent); border-color: var(--color-accent); }
 .id-move__body { display: flex; flex-direction: column; gap: 5rem; }
@@ -329,7 +317,6 @@ function iconPath(name: string) {
 .id-swap-leave-to { opacity: 0; transform: translateY(-8rem); }
 
 @media (max-width: 640px) {
-  .id-wrap { padding-top: calc(84rem + var(--safe-top)); }
   .id-lab__top { flex-direction: column; gap: 14rem; }
   .id-moves { grid-template-columns: 1fr; }
   .id-canvas { padding: 20rem; }

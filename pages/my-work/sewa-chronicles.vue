@@ -1,5 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'The SEWA Chronicles — service-culture comics for Club Mahindra · Naveen Jose',
   description: 'A case study of The SEWA Chronicles: a comic magazine by Naveen Jose that teaches Club Mahindra hospitality teams the SEWA service values through true guest-service stories.',
@@ -53,8 +52,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       <!-- Hero -->
       <header class="cs-hero">
         <div class="cs-hero__text" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
-          <p class="cs-eyebrow">My Work · Club Mahindra · 2023</p>
-          <h1 class="cs-title">The SEWA Chronicles</h1>
+          <p class="eyebrow cs-eyebrow">My Work · Club Mahindra · 2023</p>
+          <h1 class="display-serif cs-title">The SEWA Chronicles</h1>
           <p class="cs-deck">A service-culture comic magazine that teaches hospitality teams the values behind great guest experience, through true stories from the resort floor.</p>
           <dl class="cs-meta">
             <div v-for="m in meta" :key="m.k" class="cs-meta__row">
@@ -138,11 +137,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
-.cs-page { position: relative; z-index: 1; min-height: 100dvh; --serif: 'Fraunces', Georgia, serif; }
+.cs-page { position: relative; z-index: 1; min-height: 100dvh; --serif: var(--serif-font); }
 .cs-inner {
-  max-width: 920rem;
+  max-width: var(--maxw-read);
   margin: 0 auto;
-  padding: calc(112rem + var(--safe-top)) 24rem calc(72rem + var(--safe-bottom));
+  padding: var(--page-top) var(--edge-column) var(--page-bottom);
 }
 
 /* Hero */
@@ -153,8 +152,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   align-items: center;
   margin-bottom: 48rem;
 }
-.cs-eyebrow { font-size: 12rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.55; }
-.cs-title { font-family: var(--serif); font-optical-sizing: auto; font-size: clamp(40rem, 6.5vw, 64rem); font-weight: 400; letter-spacing: -0.015em; line-height: 1.0; margin-top: 12rem; }
+.cs-eyebrow { /* type from .eyebrow */ }
+.cs-title { font-size: clamp(40rem, 6.5vw, 64rem); margin-top: 12rem; }
 .cs-deck { font-size: 17rem; line-height: 1.55; opacity: 0.7; margin-top: 16rem; max-width: 30em; }
 .cs-meta { display: flex; flex-wrap: wrap; gap: 10rem 28rem; margin-top: 26rem; }
 .cs-meta__row { display: flex; flex-direction: column; gap: 3rem; }
@@ -272,7 +271,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   .cs-body { grid-template-columns: 1fr; gap: 26rem; }
 }
 @media (max-width: 640px) {
-  .cs-inner { padding: calc(96rem + var(--safe-top)) 16rem calc(56rem + var(--safe-bottom)); }
   .cs-grid { grid-template-columns: repeat(2, 1fr); }
   .cs-lb__nav { width: 44rem; height: 44rem; font-size: 24rem; }
 }

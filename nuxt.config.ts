@@ -47,7 +47,14 @@ export default defineNuxtConfig({
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&display=swap' }
+        // Fraunces now ships its SOFT and WONK axes, which the old request left
+        // on the table. WONK swaps in the quirky alternate glyphs (the single-
+        // storey g, the curled y) and SOFT rounds the terminals — together they
+        // are what stops a variable serif from reading as a stock system serif,
+        // and they cost one URL parameter. Applied via font-variation-settings on
+        // display headings only; body serif stays at WONK 0 for readability.
+        // Weight range also widened 600 -> 700 so headings have a bold cut.
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&display=swap' }
       ]
     },
     pageTransition: false,

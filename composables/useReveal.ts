@@ -42,5 +42,12 @@ export function useReveal() {
   function riseIn(i = 0, step = 70): RevealConfig { return rise(i * step) }
   function scaleInStagger(i = 0, step = 80): RevealConfig { return scaleIn(i * step) }
 
-  return { reduce, spring, expo, rise, fade, scaleIn, slideX, riseIn, scaleInStagger }
+  // The header cluster every page shell shares: eyebrow → title → deck → intro.
+  // Hand-rolled identically in CardGrid before; naming it keeps the cadence the
+  // same everywhere instead of letting each shell invent its own delays.
+  function head() {
+    return { eyebrow: rise(0), title: rise(80), deck: rise(170), intro: rise(240) }
+  }
+
+  return { reduce, spring, expo, rise, fade, scaleIn, slideX, riseIn, scaleInStagger, head }
 }

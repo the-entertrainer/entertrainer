@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useContentStore } from '~/stores/content'
 
-definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'Web Apps — free L&D tools by Naveen Jose · Entertrainer',
   description: 'A small set of free web apps for instructional designers and L&D teams: build storyboards and block courses, generate quiz distractors, plan training calendars, and polish emails. Built by Naveen Jose.',

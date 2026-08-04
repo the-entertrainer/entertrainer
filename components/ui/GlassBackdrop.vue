@@ -110,12 +110,12 @@ onUnmounted(() => renderer?.stop())
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(115% 80% at 100% -5%, color-mix(in srgb, var(--color-accent) 7%, transparent), transparent 55%),
+    radial-gradient(115% 80% at 100% -5%, color-mix(in srgb, var(--color-accent-deep) 7%, transparent), transparent 55%),
     radial-gradient(100% 75% at -5% 105%, color-mix(in srgb, #8B7CF6 6%, transparent), transparent 55%);
 }
 :root[data-theme="dark"] .glass-backdrop__wash {
   background:
-    radial-gradient(115% 80% at 100% -5%, color-mix(in srgb, var(--color-accent) 24%, transparent), transparent 55%),
+    radial-gradient(115% 80% at 100% -5%, color-mix(in srgb, var(--color-accent-deep) 24%, transparent), transparent 55%),
     radial-gradient(100% 75% at -5% 105%, color-mix(in srgb, #8B7CF6 16%, transparent), transparent 55%);
 }
 </style>

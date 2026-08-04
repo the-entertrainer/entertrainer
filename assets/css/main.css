@@ -6,7 +6,20 @@
 [data-theme="dark"] {
   --color-bg: #0D0C0A;
   --color-text: #F4F1EC;
-  --color-accent: #243F6A;
+
+  /* Signal accent — links, meter fills, active borders, badge fills.
+     This has to differ per theme, and that is arithmetic rather than taste: for
+     one colour to clear 4.5:1 against both #0D0C0A and #F5EFE8 it would need a
+     relative luminance >= 0.1975 and <= 0.1622 at the same time. The old shared
+     #243F6A measured 1.86:1 here, which is why the instructional-design load
+     meter was a dark bar on a dark track. #7FA6E8 is the same brand navy held at
+     hue 217 and lifted until it reads at night: 7.94:1. */
+  --color-accent: #7FA6E8;
+  --color-accent-ink: #0D0C0A;                 /* text/glyphs sitting ON an accent fill */
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  /* Atmosphere accent — backdrop washes and hero glows only, never text. Held
+     identical across themes so the living backdrop renders the same either way. */
+  --color-accent-deep: #243F6A;
 
   /* Glass UI — white tint on dark surfaces */
   --color-glass-bg: rgba(255,255,255,0.07);
@@ -32,7 +45,12 @@
 [data-theme="light"] {
   --color-bg: #F5EFE8;
   --color-text: #0D0C0A;
+
+  /* The navy already clears 9.23:1 on cream, so light theme keeps it verbatim. */
   --color-accent: #243F6A;
+  --color-accent-ink: #F5EFE8;
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  --color-accent-deep: #243F6A;
 
   /* Glass UI — dark tint on light surfaces */
   --color-glass-bg: rgba(0,0,0,0.06);
@@ -55,20 +73,12 @@
 }
 
 :root {
-  /* Typography */
+  /* Typography. The serif used to be re-declared in three files with two
+     different fallback stacks, which meant two different FOUT shapes for the
+     same headline. The longer stack is the correct one — 'Georgia, serif' alone
+     drops the Windows fallback. */
   --main-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
-  --display-font: "DM Sans", "Helvetica Neue", "Arial", sans-serif;
-
-  /* Spacing scale */
-  --gap-xs: 10px;
-  --gap-s: 15px;
-  --gap-m: 30px;
-  --gap-l: 60px;
-  --gap-xl: 90px;
-  --gap-xxl: 120px;
-  --gap-xxxl: 180px;
-  --gap-20: 20px;
-  --gap-45: 45px;
+  --serif-font: "Fraunces", Georgia, "Times New Roman", serif;
 
   /* Safe area insets (notched phones, Dynamic Island) */
   --safe-top:    env(safe-area-inset-top, 0px);
@@ -77,11 +87,7 @@
   --safe-right:  env(safe-area-inset-right, 0px);
 
   /* Border radius */
-  --radius-xs: 4px;
-  --radius-s: 8px;
   --radius-m: 12px;
-  --radius-l: 16px;
-  --radius-xl: 20px;
   --radius-full: 9999px;
 
   /* Chrome — the single corner button (E / hamburger) and its clearances.
@@ -89,12 +95,21 @@
      loader's flying bars always land exactly on the live button. */
   --chrome-offset: 18px;          /* corner inset (before safe-area) */
   --chrome-size: 48px;            /* button hit box */
-  --page-top: calc(100px + var(--safe-top));  /* inner-page top padding that clears the button */
+
+  /* Page shell — the one geometry contract every inner page adopts. Replaces
+     five hand-tuned top paddings (120/120/112/100/96) and five gutters. The vh
+     middle term is what makes the top padding degrade on short landscape
+     phones; none of the five values it replaces did that. */
+  --edge:        clamp(20rem, 6vw, 96rem);   /* editorial / full-bleed pages */
+  --edge-column: clamp(16rem, 4vw, 32rem);   /* pages with a capped column   */
+  --page-top:    calc(clamp(88rem, 9vh, 112rem) + var(--safe-top));
+  --page-bottom: calc(clamp(56rem, 8vh, 96rem) + var(--safe-bottom));
+  --maxw:           1240rem;      /* editorial full width  */
+  --maxw-read:       860rem;      /* single-column reading */
+  --maxw-tool:       720rem;      /* tool form column      */
+  --maxw-tool-wide: 1080rem;
 
   /* Z-index layers */
-  --z-canvas: 0;
-  --z-page-ui: 10;
-  --z-chrome: 30;
   --z-menu: 40;
   --z-loader: 1000;
 
@@ -106,21 +121,47 @@
 
   /* Type scale — the canonical ramp for shared surfaces. Per-page heroes may
      still tune their own clamp() for character; these name the common rungs. */
-  --text-display: clamp(60px, 8vw, 120px);  /* page hero titles */
-  --text-h1: 36px;
-  --text-h2: 24px;
-  --text-lead: 20px;          /* deck / sub-title */
+  --text-display: clamp(40rem, 6.5vw, 62rem);  /* index / section titles */
+  --text-h1: clamp(34rem, 5vw, 56rem);         /* tool + stub page titles */
+  --text-h2: clamp(26rem, 3.4vw, 38rem);
+  --text-lead: clamp(17rem, 2vw, 20rem);       /* deck / sub-title */
   --text-body: 17px;
   --text-sm: 15px;
   --text-label: 11px;         /* uppercase eyebrows */
   --tracking-label: 0.1em;
 
-  /* Grid system (desktop, 12 cols) */
-  --grid-margin: 30px;
-  --grid-gutter: 16px;
-  --grid-column: calc(100vw / 12 - 16px * 11 / 12 - 30px * 2 / 12);
+  /* Elevation — four rungs distilled from six near-identical hand-written
+     shadows. --elev-1 and --elev-3 are byte-exact copies of the old .glass-btn
+     and .glass-panel values, so the two most-rendered surfaces on the site
+     change by zero pixels. */
+  --elev-1: 0 14rem 32rem -18rem rgba(0, 0, 0, 0.55);   /* button, chip        */
+  --elev-2: 0 26rem 60rem -30rem rgba(0, 0, 0, 0.55);   /* raised card / hover */
+  --elev-3: 0 34rem 90rem -42rem rgba(0, 0, 0, 0.60);   /* panel               */
+  --elev-4: 0 46rem 104rem -42rem rgba(0, 0, 0, 0.60);  /* media / portrait    */
+  --elev-2-accent: 0 26rem 60rem -30rem color-mix(in srgb, var(--color-accent) 34%, transparent);
+  --elev-hairline: inset 0 1px 1px color-mix(in srgb, var(--color-text) 16%, transparent);
+  --elev-bloom:    inset 0 0 60rem color-mix(in srgb, var(--color-text) 3%, transparent);
+  --ring-hairline: 0 0 0 1px var(--color-glass-border);
 
-  /* Easing */
+  /* Duration — collapses twenty hand-typed values onto seven rungs.
+     0.1/0.12 -> 1 · 0.15/0.18/0.2/0.22 -> 2 · 0.25/0.3 -> 3 · 0.35/0.4/0.45 -> 4
+     0.5/0.55/0.6/0.65 -> 5 · 0.7 -> 6 · 0.85/0.95 -> 7
+     Menu.vue and Loader.vue are deliberately excluded: their springs are the
+     choreography the loader's flying bars land against. */
+  --dur-1: 120ms;   /* press / :active                      */
+  --dur-2: 180ms;   /* hover tint, field focus, small state */
+  --dur-3: 250ms;   /* transform + icon swap                */
+  --dur-4: 350ms;   /* fade, page fade                      */
+  --dur-5: 500ms;   /* theme crossfade, meter fill          */
+  --dur-6: 700ms;   /* entrance (glass-rise, tool-head-in)  */
+
+  /* Grid margin (the only surviving consumer of the old 12-col system) */
+  --grid-margin: 30px;
+
+  /* Easing. --ease-spring is the house snap and is load-bearing for the loader
+     choreography — do not retune it. The rest collapse the three bezier
+     literals that were duplicated inline across app.vue, main.css and
+     instructional-design. */
   --ease-spring: linear(
     0, .0014, .0055 1.03%, .0239, .053 3.44%,
     .0961 4.81%, .1957 7.39%, .4354 12.88%,
@@ -130,22 +171,22 @@
     1.0142 47.07%, 1.0144 53.43%, 1.0054 68.37%,
     1.0019 77.3%, .9998 99.98%
   );
-  --ease-quad-in-out: cubic-bezier(.455, .03, .515, .955);
-  --ease-expo-out: cubic-bezier(.19, 1, .22, 1);
+  --ease-out:      cubic-bezier(.19, 1, .22, 1);    /* the house out-curve      */
+  --ease-out-soft: cubic-bezier(.22, 1, .36, 1);    /* shorter tail, hover/state */
+  --ease-in-out:   cubic-bezier(.4, 0, .2, 1);      /* symmetric                */
+  --ease-expo-out: var(--ease-out);                 /* alias — keeps old uses alive */
+
+  /* Breakpoint policy (custom properties can't be used in @media, so this is
+     the reference): 1180 editorial two-col collapses · 900 rail drops ·
+     640 tablet -> phone · 420 small phone. The 600px rule on .glass-panel is a
+     deliberate exception; see the note there. */
 }
 
 @media (max-width: 900px) {
-  :root {
-    --grid-margin: 20px;
-    --grid-gutter: 15px;
-    --grid-column: calc(100vw / 6 - 15px * 5 / 6 - 20px * 2 / 6);
-  }
+  :root { --grid-margin: 20px; }
 }
 @media (max-width: 420px) {
-  :root {
-    --grid-margin: 15px;
-    --grid-gutter: 10px;
-  }
+  :root { --grid-margin: 15px; }
 }
 
 /* ============================================================
@@ -253,93 +294,11 @@ canvas {
 }
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.35s ease;
+  transition: opacity var(--dur-4) var(--ease-in-out);
 }
-
-.project-enter-from {
-  opacity: 0;
-  transform: translateY(80px) scale(0.96);
-}
-.project-enter-to {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-.project-enter-active {
-  transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: 0.2s;
-}
-.project-leave-from {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-.project-leave-to {
-  opacity: 0;
-  transform: translateY(0) scale(0.985);
-}
-.project-leave-active {
-  position: absolute;
-  inset: 0;
-  transition: opacity 0.45s ease, transform 0.45s ease;
-}
-
-.project-fade-enter-from {
-  opacity: 0;
-  transform: translateY(18px) scale(0.96);
-}
-.project-fade-enter-active {
-  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.project-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-12px) scale(0.96);
-}
-.project-fade-leave-active {
-  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.video-fade-enter-from,
-.video-fade-leave-to {
-  opacity: 0;
-  transform: scaleY(0.95) scaleX(0.95);
-  border-top-left-radius: 16rem;
-  border-top-right-radius: 16rem;
-}
-.video-fade-enter-active,
-.video-fade-leave-active {
-  transform-origin: bottom center;
-  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out,
-    border-radius 0.4s ease-in-out;
-}
-.video-fade-enter-active {
-  transition-delay: 0.1s;
-}
-
-.iconfade-leave-from {
-  filter: blur(0);
-  opacity: 1;
-  transform: scale(1) rotate(0);
-}
-.iconfade-leave-to {
-  filter: blur(2px);
-  opacity: 0;
-  transform: scale(0.8) rotate(15deg);
-}
-.iconfade-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease;
-}
-.iconfade-enter-from {
-  filter: blur(2px);
-  opacity: 0;
-  transform: scale(0.8) rotate(-15deg);
-}
-.iconfade-enter-to {
-  filter: blur(0);
-  opacity: 1;
-  transform: scale(1) rotate(0);
-}
-.iconfade-enter-active {
-  transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease;
-}
+/* `project`, `project-fade`, `video-fade` and `iconfade` transitions lived here
+   for surfaces that no longer exist — grep finds no <Transition name> for any of
+   them. Removed rather than left as a maintenance hazard. */
 
 /* ============================================================
    Glass primitives — the shared surface system
@@ -348,23 +307,29 @@ canvas {
    frosted panels floating on the living gradient backdrop.
    ============================================================ */
 
-/* ── Frosted panel — the core reading / form / result surface ── */
+/* ── The frosted material, split from the panel geometry ──
+   `.glass-surface` is the skin only: background, blur, border, elevation. It
+   carries no padding, no radius and no entrance animation, so floating chrome
+   (StoryGen's toolbars, dropdowns and toasts) can wear the material without
+   also inheriting a reading-surface's 28rem padding and a 700ms rise every time
+   a menu opens. `.glass-panel` is that material plus the reading geometry. */
+.glass-surface,
 .glass-panel {
   position: relative;
   z-index: 1;
-  border-radius: 24rem;
-  padding: 28rem 28rem;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.10), transparent 38%),
     color-mix(in srgb, var(--color-bg) 62%, transparent);
   backdrop-filter: blur(26px) saturate(1.4);
   -webkit-backdrop-filter: blur(26px) saturate(1.4);
   border: 1px solid var(--color-glass-border);
-  box-shadow:
-    0 34rem 90rem -42rem rgba(0, 0, 0, 0.6),
-    inset 0 1px 1px color-mix(in srgb, var(--color-text) 16%, transparent),
-    inset 0 0 60rem color-mix(in srgb, var(--color-text) 3%, transparent);
-  animation: glass-rise 0.7s var(--ease-spring) both;
+  box-shadow: var(--elev-3), var(--elev-hairline), var(--elev-bloom);
+  --mx: 50%; --my: 50%; --sheen: 0;
+}
+.glass-panel {
+  border-radius: 24rem;
+  padding: 28rem 28rem;
+  animation: glass-rise var(--dur-6) var(--ease-spring) both;
 }
 @keyframes glass-rise {
   from { opacity: 0; transform: translateY(18rem) scale(0.99); }
@@ -372,9 +337,8 @@ canvas {
 }
 
 /* Cursor-tracked specular sheen (desktop only — driven by useGlassMicro) */
-.glass-panel { --mx: 50%; --my: 50%; --sheen: 0; }
 @media (hover: hover) and (pointer: fine) {
-  .glass-panel::after {
+  :is(.glass-surface, .glass-panel)::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -384,12 +348,68 @@ canvas {
     background: radial-gradient(220rem circle at var(--mx) var(--my),
       rgba(255, 255, 255, 0.12), transparent 60%);
     opacity: var(--sheen);
-    transition: opacity 0.4s ease;
+    transition: opacity var(--dur-4) var(--ease-in-out);
     mix-blend-mode: screen;
   }
 }
 
-/* ── Labels / eyebrows ── */
+/* ── Display serif — the one voice for page titles ──
+   `opsz` is left to `auto` (the browser picks the display cut at large sizes),
+   `SOFT` rounds the terminals just enough to lose the stock-serif chill, and
+   `WONK` brings in Fraunces' alternate glyphs. Both are subtle at a glance and
+   unmistakable in a headline, which is exactly the register this site wants. */
+.display-serif {
+  font-family: var(--serif-font);
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-variation-settings: "SOFT" 32, "WONK" 1;
+  letter-spacing: -0.015em;
+  line-height: 1.02;
+}
+
+/* ── The page eyebrow ──
+   Six near-identical specs across CardGrid, ToolShell, about (x2), sewa and
+   instructional-design collapse onto this: 12/700/.16em is the median of the
+   six, .62 the midpoint of the .5–.72 opacity spread (8.9:1 on the dark ground).
+   Deliberately NOT folded into `.glass-label` below — that one is the form-label
+   primitive with 59 consumers across the four tools. */
+.eyebrow {
+  display: inline-block;
+  font-family: var(--main-font);
+  font-size: 12rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  opacity: 0.62;
+  color: var(--color-text);
+}
+.eyebrow--quiet { opacity: 0.48; }
+
+/* ── One hover vocabulary for "this surface is clickable" ──
+   Replaces four idioms that had drifted apart: CardGrid's lift+accent glow,
+   sewa's lift+scale on the cover, sewa's lift+neutral glow on figures, and
+   instructional-design's border-only. */
+.u-lift {
+  transition:
+    transform var(--dur-3) var(--ease-out-soft),
+    border-color var(--dur-3) var(--ease-out-soft),
+    box-shadow var(--dur-3) var(--ease-out-soft);
+}
+@media (hover: hover) and (pointer: fine) {
+  .u-lift:hover {
+    transform: translateY(-4rem);
+    border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-glass-border-hover));
+    box-shadow: var(--elev-2-accent);
+  }
+}
+.u-lift:active { transform: translateY(-1rem) scale(0.995); }
+@media (prefers-reduced-motion: reduce) {
+  .u-lift { transition: border-color var(--dur-2) linear; }
+  .u-lift:hover, .u-lift:active { transform: none; }
+}
+
+/* ── Form labels — the tool-form primitive (59 consumers). Not an eyebrow. ── */
 .glass-label {
   display: block;
   font-size: var(--text-label);
@@ -421,7 +441,7 @@ canvas {
   outline: none;
   border-color: var(--color-glass-border-hover);
   background: color-mix(in srgb, var(--color-bg) 66%, transparent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, rgb(var(--accent-fog, 150,140,255)) 22%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, rgb(var(--accent-fog, 127,166,232)) 22%, transparent);
 }
 .glass-field:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -452,11 +472,26 @@ canvas {
   border: 1px solid transparent;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 14rem 32rem -18rem rgba(0, 0, 0, 0.55);
-  transition: opacity 0.15s ease, transform 0.12s ease, box-shadow 0.22s ease;
+  box-shadow: var(--elev-1);
+  transition:
+    opacity var(--dur-2) var(--ease-out-soft),
+    transform var(--dur-1) var(--ease-out-soft),
+    background var(--dur-2) var(--ease-out-soft),
+    box-shadow var(--dur-3) var(--ease-out-soft);
 }
 .glass-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .glass-btn:not(:disabled):active { transform: scale(var(--btn-press)); }
+/* The filled button had no hover at all — yet its transition list already named
+   opacity, transform and box-shadow, so the rule was written and then forgotten.
+   It is the primary CTA on About, on every stub page and in all four tools.
+   The accent-warmed fill keeps the label above 17:1 in both themes. */
+@media (hover: hover) and (pointer: fine) {
+  .glass-btn:not(:disabled):hover {
+    transform: translateY(-1rem);
+    background: color-mix(in srgb, var(--color-text) 92%, var(--color-accent));
+    box-shadow: var(--elev-2);
+  }
+}
 
 .glass-btn--ghost {
   background: color-mix(in srgb, var(--color-bg) 46%, transparent);
@@ -472,8 +507,10 @@ canvas {
 
 /* ── Chip — small pill (copy buttons, tags, toggles) ── */
 .glass-chip {
+  position: relative;
   display: inline-flex;
   align-items: center;
+  min-height: 32rem;
   gap: 6rem;
   padding: 6rem 12rem;
   border-radius: var(--radius-full);
@@ -491,6 +528,19 @@ canvas {
 }
 @media (hover: hover) {
   .glass-chip:hover { background: color-mix(in srgb, var(--color-bg) 64%, transparent); }
+}
+/* ~40 chips across Cadence, Draftly and EasyMCQ computed to ~26px tall — under
+   the 44px touch floor. Fixed with an invisible hit expander rather than padding
+   so no chip re-wraps, and gated to coarse pointers so desktop tool layouts move
+   by exactly nothing. */
+@media (pointer: coarse) {
+  .glass-chip { min-height: 36rem; }
+  .glass-chip::after {
+    content: "";
+    position: absolute;
+    inset: -4rem;
+    border-radius: inherit;
+  }
 }
 
 /* ── Note / message ── */
@@ -510,13 +560,19 @@ canvas {
 /* ── Reduced motion + mobile tuning ── */
 @media (prefers-reduced-motion: reduce) {
   .glass-panel { animation: none; }
-  .glass-panel::after { display: none; }
+  :is(.glass-surface, .glass-panel)::after { display: none; }
 }
+/* Deliberately 600px, not the site's 640px breakpoint: this is the only rule
+   that changes panel geometry, and Cadence's 560rem calendar artboard is already
+   fighting for room in the 600–640 band. Moving it needs a PPTX export check. */
 @media (max-width: 600px) {
   /* backdrop-filter is the heaviest GPU cost — lighten it on phones */
   .glass-panel {
     padding: 22rem 20rem;
     border-radius: 20rem;
+  }
+  .glass-surface,
+  .glass-panel {
     backdrop-filter: blur(16px) saturate(1.3);
     -webkit-backdrop-filter: blur(16px) saturate(1.3);
   }

@@ -141,8 +141,8 @@ onBeforeUnmount(() => {
 .ab {
   position: relative; background: var(--color-bg); color: var(--color-text);
   min-height: 100dvh; overflow-x: clip;
-  --edge: clamp(20rem, 6vw, 96rem); --maxw: 1240rem;
-  --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+  /* --edge / --maxw are global now (main.css page-shell contract). */
+  --serif: var(--serif-font);
 }
 
 .ab-prog { position: fixed; top: 0; left: 0; right: 0; height: 3rem; z-index: 40; pointer-events: none; background: color-mix(in srgb, var(--color-text) 8%, transparent); }
@@ -163,8 +163,8 @@ onBeforeUnmount(() => {
 .ab-step:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; border-radius: 6rem; }
 @media (max-width: 900px) { .ab-steps { display: none; } }
 
-.ab-hero { position: relative; max-width: var(--maxw); margin: 0 auto; padding: calc(120rem + var(--safe-top)) var(--edge) clamp(60rem, 10vh, 120rem); display: grid; gap: clamp(30rem, 5vw, 70rem); align-items: center; grid-template-columns: 1.05fr 0.95fr; min-height: 100dvh; }
-.ab-hero__glow { position: absolute; z-index: 0; top: 18%; left: 28%; width: 60vw; height: 60vw; max-width: 720rem; max-height: 720rem; translate: -50% -30%; pointer-events: none; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--color-accent) 42%, transparent), transparent 62%); opacity: 0.3; filter: blur(30rem); }
+.ab-hero { position: relative; max-width: var(--maxw); margin: 0 auto; padding: var(--page-top) var(--edge) clamp(60rem, 10vh, 120rem); display: grid; gap: clamp(30rem, 5vw, 70rem); align-items: center; grid-template-columns: 1.05fr 0.95fr; min-height: 100dvh; }
+.ab-hero__glow { position: absolute; z-index: 0; top: 18%; left: 28%; width: 60vw; height: 60vw; max-width: 720rem; max-height: 720rem; translate: -50% -30%; pointer-events: none; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--color-accent-deep) 42%, transparent), transparent 62%); opacity: 0.3; filter: blur(30rem); }
 .ab-hero__copy { position: relative; z-index: 2; max-width: 560rem; }
 .ab-hero__eyebrow { display: inline-block; font-size: 12rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; opacity: 0.7; margin-bottom: 22rem; }
 .ab-hero__name { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(64rem, 11vw, 150rem); line-height: 0.92; letter-spacing: -0.015em; margin: 0; }

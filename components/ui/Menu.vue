@@ -12,8 +12,6 @@ const contentStore    = useContentStore()
 const homeViewStore   = useHomeViewStore()
 const experienceStore = useExperienceStore()
 const isOpened        = computed(() => menuStore.isOpened)
-// The spiral↔list toggle is retired — the home is now the immersive gallery.
-const showViewToggle  = computed(() => false)
 // Standalone back button shows when there's somewhere to go back to: any real
 // page, or an open sub-section on the home route.
 const showBack        = computed(() => route.path !== '/' || !homeViewStore.isHome)
@@ -56,11 +54,6 @@ watch(isOpened, (open) => {
 function setItemEl(el: any, i: number) {
   if (!el) return
   itemEls.value[i] = el.$el ?? el
-}
-
-function setView(mode: 'spiral' | 'list') {
-  homeViewStore.setMode(mode)
-  menuStore.close()
 }
 
 function handleBack() {
@@ -108,7 +101,7 @@ function handleHomeClick() {
 
   <div class="e-nav" :class="{ 'panel-open': isOpened }">
     <!-- Panel renders behind the button (DOM order = visual z-order) -->
-    <div class="e-panel lg-surface" :class="{ open: isOpened, 'has-toggle': showViewToggle }">
+    <div class="e-panel lg-surface" :class="{ open: isOpened }">
       <div class="e-panel-inner">
         <nav class="e-nav-group">
           <template v-for="(link, i) in links" :key="link.label">
@@ -130,26 +123,6 @@ function handleHomeClick() {
           </template>
         </nav>
 
-        <div v-if="showViewToggle" class="e-controls" :ref="(el: any) => setItemEl(el, links.length)">
-          <span class="e-controls-label">View</span>
-          <!-- Liquid-glass segmented toggle: spiral ↔ list -->
-          <div class="e-seg" role="group" aria-label="View mode">
-            <button class="glass-chip e-seg-btn" :class="{ on: homeViewStore.mode === 'spiral' }" @click="setView('spiral')">
-              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M11 12a1 1 0 1 1 2 0 2 2 0 1 1-4 0 3 3 0 1 1 6 0 4 4 0 1 1-8 0" />
-              </svg>
-              <span>Spiral</span>
-            </button>
-            <button class="glass-chip e-seg-btn" :class="{ on: homeViewStore.mode === 'list' }" @click="setView('list')">
-              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-                <line x1="4" y1="7" x2="20" y2="7" />
-                <line x1="4" y1="12" x2="20" y2="12" />
-                <line x1="4" y1="17" x2="20" y2="17" />
-              </svg>
-              <span>List</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -179,12 +152,48 @@ function handleHomeClick() {
 .e-backdrop { position: fixed; inset: 0; z-index: 39; background: transparent; }
 .lg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 
+/* ── Theme-aware chrome ink ────────────────────────────────────────────────
+   This whole component used to be dark-only: a 26%-opacity dark tint carrying
+   hardcoded #fff glyphs. On the dark theme that is correct and handsome. On the
+   light theme it composited to roughly #BCBBB9 behind white icons — about
+   1.4:1, held together entirely by a drop-shadow — and it rendered on every
+   tool page, every case study and the light-theme spiral.
+
+   Rather than force one surface to work against both grounds, the glass flips:
+   dark glass with light ink at night, light glass with dark ink by day. Both
+   sit above 13:1 even over the spiral's most saturated palette roll. */
+.e-nav, .e-back-fab, .e-backdrop {
+  --chrome-ink: #fff;
+  --chrome-ink-dim: rgba(255, 255, 255, 0.7);
+  --chrome-tint: rgba(28, 30, 40, 0.26);
+  --chrome-tint-strong: rgba(18, 20, 28, 0.42);
+  --chrome-tint-hover: rgba(40, 42, 54, 0.34);
+  --chrome-edge: rgba(255, 255, 255, 0.22);
+  --chrome-shadow: rgba(0, 0, 0, 0.4);
+  --chrome-sheen: screen;
+}
+/* Written out rather than wrapped in :is() — Vue's scoped-CSS transform appends
+   the scope attribute to the last compound selector, and it does not survive
+   that grouping. */
+:root[data-theme="light"] .e-nav,
+:root[data-theme="light"] .e-back-fab,
+:root[data-theme="light"] .e-backdrop {
+  --chrome-ink: #0D0C0A;
+  --chrome-ink-dim: rgba(13, 12, 10, 0.66);
+  --chrome-tint: rgba(255, 255, 255, 0.58);
+  --chrome-tint-strong: rgba(255, 255, 255, 0.72);
+  --chrome-tint-hover: rgba(255, 255, 255, 0.74);
+  --chrome-edge: rgba(255, 255, 255, 0.85);
+  --chrome-shadow: rgba(0, 0, 0, 0.18);
+  --chrome-sheen: overlay;
+}
+
 /* ── Shared liquid-glass surface ───────────────────────────────────────────── */
 .lg-surface {
-  background: rgba(28, 30, 40, 0.26);
+  background: var(--chrome-tint);
   backdrop-filter: blur(9px) saturate(1.7) brightness(1.06) url(#liquidGlass);
   -webkit-backdrop-filter: blur(11px) saturate(1.7) brightness(1.06);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid var(--chrome-edge);
   box-shadow:
     0 8rem 26rem -10rem rgba(0, 0, 0, 0.5),
     inset 0 1px 1px rgba(255, 255, 255, 0.55),
@@ -201,7 +210,7 @@ function handleHomeClick() {
   background: linear-gradient(133deg,
     rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.08) 20%,
     transparent 44%, transparent 72%, rgba(255,255,255,0.14) 100%);
-  mix-blend-mode: screen;
+  mix-blend-mode: var(--chrome-sheen);
   opacity: 0.85;
   z-index: 0;
 }
@@ -220,11 +229,11 @@ function handleHomeClick() {
   justify-content: center;
   overflow: hidden;
   cursor: pointer;
-  color: #fff;
+  color: var(--chrome-ink);
   transition: transform 0.25s var(--ease-spring), background 0.3s ease;
 }
-.e-back-fab svg { width: 20rem; height: 20rem; position: relative; z-index: 1; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); transition: transform 0.3s var(--ease-spring); }
-.e-back-fab:hover { background: rgba(40, 42, 54, 0.34); }
+.e-back-fab svg { width: 20rem; height: 20rem; position: relative; z-index: 1; filter: drop-shadow(0 1px 2px var(--chrome-shadow)); transition: transform 0.3s var(--ease-spring); }
+.e-back-fab:hover { background: var(--chrome-tint-hover); }
 .e-back-fab:hover svg { transform: translateX(-3px); }
 .e-back-fab:active { transform: scale(0.94); }
 .back-pop-enter-active, .back-pop-leave-active { transition: opacity 0.3s ease, transform 0.4s var(--ease-spring); }
@@ -246,7 +255,7 @@ function handleHomeClick() {
   z-index: 2;
   display: flex; align-items: center; justify-content: center;
   padding: 0; background: none; border: none; cursor: pointer;
-  color: #fff;
+  color: var(--chrome-ink);
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
 }
 .hb-wrap { width: 22rem; height: 22rem; }
@@ -271,7 +280,7 @@ function handleHomeClick() {
 .e-panel.open {
   width: 272rem; height: 232rem;
   border-radius: 28rem;
-  background: rgba(18, 20, 28, 0.42);
+  background: var(--chrome-tint-strong);
   backdrop-filter: blur(16px) saturate(1.9) brightness(1.04) url(#liquidGlass);
   -webkit-backdrop-filter: blur(18px) saturate(1.9) brightness(1.04);
   box-shadow:
@@ -284,9 +293,6 @@ function handleHomeClick() {
     height 0.6s var(--ease-spring),
     border-radius 0.5s ease, background 0.35s ease, box-shadow 0.5s ease;
 }
-.e-panel.open.has-toggle {
-  height: 310rem;
-}
 
 /* ── Panel inner ── */
 .e-panel-inner {
@@ -296,11 +302,11 @@ function handleHomeClick() {
   flex-direction: column;
   justify-content: flex-start;
   padding: 56rem 20rem 18rem;
-  color: #fff;
+  color: var(--chrome-ink);
   z-index: 1;
 }
 .e-nav-group { flex: 1; display: flex; flex-direction: column; gap: 2rem; }
-.e-panel-inner :focus-visible { outline: 2px solid rgba(255, 255, 255, 0.85); outline-offset: 2px; border-radius: 8rem; }
+.e-panel-inner :focus-visible { outline: 2px solid color-mix(in srgb, var(--chrome-ink) 85%, transparent); outline-offset: 2px; border-radius: 8rem; }
 
 /* ── Link items — glass rows ── */
 .e-link {
@@ -314,71 +320,21 @@ function handleHomeClick() {
   font-weight: 500;
   letter-spacing: -0.03em;
   line-height: 1.1;
-  color: #fff;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+  color: var(--chrome-ink);
+  text-shadow: 0 1px 8px var(--chrome-shadow);
   text-decoration: none;
   transition: background 0.22s ease, padding-left 0.3s var(--ease-spring);
 }
 .e-link-dot {
   width: 7rem; height: 7rem; border-radius: 50%;
-  background: #fff; box-shadow: 0 0 10rem rgba(255,255,255,0.85);
+  background: var(--chrome-ink); box-shadow: 0 0 10rem color-mix(in srgb, var(--chrome-ink) 85%, transparent);
   transform: scale(0); opacity: 0;
   transition: transform 0.35s var(--ease-spring), opacity 0.3s ease;
 }
 .e-link-label { transition: transform 0.3s var(--ease-spring); }
-.e-link:hover { background: rgba(255, 255, 255, 0.12); }
+.e-link:hover { background: color-mix(in srgb, var(--chrome-ink) 12%, transparent); }
 .e-link:hover .e-link-dot { transform: scale(1); opacity: 1; }
 
-/* ── View toggle — visible segmented glass control ── */
-.e-controls {
-  margin-top: 14rem;
-  padding-top: 14rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
-}
-.e-controls-label {
-  display: block;
-  font-size: 10rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.5;
-  margin: 0 4rem 8rem;
-}
-.e-seg {
-  display: flex;
-  gap: 4rem;
-  padding: 4rem;
-  border-radius: 14rem;
-  background: rgba(0, 0, 0, 0.22);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-.e-seg-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7rem;
-  padding: 9rem 6rem;
-  border: none;
-  border-radius: 10rem;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.7);
-  font-family: var(--main-font);
-  font-size: 13rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
-}
-.e-seg-btn .ic { width: 17rem; height: 17rem; }
-.e-seg-btn:hover { color: #fff; }
-.e-seg-btn.on {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.22);
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.5),
-    0 2rem 8rem -2rem rgba(0, 0, 0, 0.4);
-}
 
 /* ── Stacked icons that cross-fade + rotate between two states ── */
 .ic-wrap { position: relative; width: 22rem; height: 22rem; transform-origin: 50% 50%; }

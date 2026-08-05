@@ -16,6 +16,9 @@ useSeoMeta({
   ogUrl: 'https://entertrainer.in/instructional-design'
 })
 
+const R = useReveal()
+const rv = R.head()
+
 const cutJargon = ref(false)
 const chunk = ref(false)
 const show = ref(false)
@@ -73,16 +76,16 @@ function iconPath(name: string) {
 
     <div class="id-wrap">
       <header class="id-head">
-        <p class="eyebrow id-eyebrow">Instructional design</p>
-        <h1 class="display-serif id-title">What gets designed when no one is watching</h1>
-        <p class="id-dek">
+        <p class="eyebrow id-eyebrow" v-motion :initial="rv.eyebrow.initial" :visible-once="rv.eyebrow.visibleOnce">Instructional design</p>
+        <h1 class="display-serif id-title" v-motion :initial="rv.title.initial" :visible-once="rv.title.visibleOnce">What gets designed when no one is watching</h1>
+        <p class="id-dek" v-motion :initial="rv.deck.initial" :visible-once="rv.deck.visibleOnce">
           A subject expert can already do the thing. Instructional design is the work of turning
           what they know into something another person can learn. Most of that work is subtraction.
           Try it on the panel below.
         </p>
       </header>
 
-      <section class="id-lab glass-panel" aria-label="Interactive demonstration">
+      <section class="id-lab glass-panel" aria-label="Interactive demonstration" v-motion :initial="R.rise(240).initial" :visible-once="R.rise(240).visibleOnce">
         <div class="id-lab__top">
           <div>
             <p class="id-lab__kicker">The same instruction, redesigned live</p>
@@ -96,7 +99,7 @@ function iconPath(name: string) {
         </div>
 
         <!-- The content region that the moves transform -->
-        <div class="id-canvas" :class="{ 'is-designed': moveCount === 3 }">
+        <div class="id-canvas" :class="{ 'is-designed': moveCount === 3 }" aria-live="polite">
           <Transition :name="reduceMotion ? '' : 'id-swap'" mode="out-in">
             <!-- Raw: dense, jargon, unstructured -->
             <p v-if="!cutJargon" key="raw" class="id-raw">
@@ -151,7 +154,11 @@ function iconPath(name: string) {
         </div>
       </section>
 
-      <footer class="id-foot">
+      <footer class="id-foot" :class="{ 'is-live': moveCount === 3 }">
+        <p v-if="moveCount === 3" class="id-foot__seal" aria-hidden="true">
+          <span class="id-foot__count">{{ moveCount }}/3</span>
+          <span class="id-foot__rule" />
+        </p>
         <p class="id-foot__line" :class="{ 'is-live': moveCount === 3 }">
           <template v-if="moveCount === 3">
             That is the whole job. The expert knew all of this already. The design is what made it
@@ -247,12 +254,17 @@ function iconPath(name: string) {
   border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-glass-border));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 22%, transparent);
 }
+/* The "before" state. It is deliberately dense and unwelcoming — that is the
+   teaching point — but it was set in Georgia, a third serif on a site that has
+   one, and justified without hyphenation, which at this measure opens rivers of
+   white space down the paragraph. Bad typography is not the same thing as bad
+   writing, and only one of the two is being demonstrated here. */
 .id-raw {
+  font-family: var(--serif-font);
   font-size: 15rem;
   line-height: 1.5;
   opacity: 0.6;
-  text-align: justify;
-  font-family: 'Georgia', 'Times New Roman', serif;
+  hyphens: auto;
 }
 .id-plain { font-size: 18rem; line-height: 1.6; }
 .id-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12rem; }
@@ -308,9 +320,46 @@ function iconPath(name: string) {
 .id-move__label { font-size: 14.5rem; font-weight: 600; letter-spacing: -0.01em; }
 .id-move__principle { font-size: 12rem; line-height: 1.45; opacity: 0.62; }
 
+/* The payoff. Landing all three moves used to change opacity 0.72 -> 1 and
+   weight 400 -> 500, which is imperceptible — the page asked you to complete an
+   interaction and then said nothing when you did. The closing line now sets in
+   the reading serif at lead size, under a rule that draws itself across from a
+   3/3 seal. It reads as a conclusion rather than a caption. */
 .id-foot { margin-top: 30rem; }
-.id-foot__line { font-size: 16rem; line-height: 1.6; opacity: 0.72; max-width: 56ch; transition: opacity 0.3s ease; }
-.id-foot__line.is-live { opacity: 1; font-weight: 500; }
+.id-foot__seal { display: flex; align-items: center; gap: 14rem; margin-bottom: 16rem; }
+.id-foot__count {
+  font-size: 12rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 5rem 10rem;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+.id-foot__rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--color-accent), transparent);
+  transform-origin: left;
+  animation: id-rule 0.7s var(--ease-out) both;
+}
+@keyframes id-rule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.id-foot__line {
+  font-size: 16rem;
+  line-height: 1.6;
+  opacity: 0.72;
+  max-width: 56ch;
+  transition: opacity var(--dur-3) var(--ease-out-soft);
+}
+.id-foot__line.is-live {
+  font-family: var(--serif-font);
+  font-optical-sizing: auto;
+  font-size: var(--text-lead);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) { .id-foot__rule { animation: none; } }
 
 .id-swap-enter-active, .id-swap-leave-active { transition: opacity 0.28s ease, transform 0.28s ease; }
 .id-swap-enter-from { opacity: 0; transform: translateY(8rem); }

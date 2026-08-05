@@ -100,8 +100,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <p class="glass-label cs-gallery__label">Selected pages</p>
         <div class="cs-grid">
           <figure v-for="(p, i) in pages" :key="p.src" class="cs-fig" v-motion :initial="R.scaleInStagger(i).initial" :visible-once="R.scaleInStagger(i).visibleOnce">
-            <button class="cs-fig__btn" @click="open(i)" :aria-label="`Enlarge: ${p.cap}`">
-              <img :src="`/work/sewa/${p.src}.webp`" width="1400" height="1980" :alt="p.alt" loading="eager" decoding="async">
+            <button class="cs-fig__btn u-lift" @click="open(i)" :aria-label="`Enlarge: ${p.cap}`">
+              <img :src="`/work/sewa/${p.src}.webp`" width="1400" height="1980" :alt="p.alt" :loading="i < 2 ? 'eager' : 'lazy'" decoding="async">
             </button>
             <figcaption>
               <strong>{{ p.cap }}</strong>
@@ -203,7 +203,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 @media (hover: hover) {
-  .cs-fig__btn:hover { transform: translateY(-4rem); border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-glass-border-hover)); box-shadow: 0 24rem 50rem -26rem rgba(0, 0, 0, 0.5); }
 }
 .cs-fig__btn img { width: 100%; height: auto; display: block; }
 .cs-fig figcaption { display: flex; flex-direction: column; gap: 2rem; padding: 0 2rem; }
@@ -231,36 +230,44 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   justify-content: center;
   gap: 8rem;
   padding: 20rem;
-  background: rgba(10, 8, 6, 0.9);
+  background: rgba(10, 8, 6, 0.92);
   backdrop-filter: blur(8px);
+  /* The scrim is intentionally dark in both themes — a comic page reads best
+     against black. That makes the ring theme-independent too. */
+  --lb-ink: #fff;
+  --lb-surface: rgba(255, 255, 255, 0.14);
+  --lb-edge: rgba(255, 255, 255, 0.24);
   -webkit-backdrop-filter: blur(8px);
 }
 .cs-lb__figure { display: flex; flex-direction: column; align-items: center; gap: 12rem; max-height: 100%; }
 .cs-lb__figure img { max-width: min(92vw, 760rem); max-height: 84dvh; border-radius: 8rem; box-shadow: 0 40rem 120rem -30rem rgba(0, 0, 0, 0.8); }
-.cs-lb__figure figcaption { color: rgba(255, 255, 255, 0.75); font-size: 13rem; font-weight: 600; }
+.cs-lb__figure figcaption { color: color-mix(in srgb, var(--lb-ink) 78%, transparent); font-size: 13rem; font-weight: 600; }
 .cs-lb__close {
   position: absolute;
   top: calc(16rem + var(--safe-top));
   right: 18rem;
   width: 44rem; height: 44rem;
   border-radius: 999px;
-  color: #fff;
+  color: var(--lb-ink);
   font-size: 18rem;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--lb-surface);
+  border: 1px solid var(--lb-edge);
 }
 .cs-lb__nav {
   width: 52rem; height: 52rem;
   border-radius: 999px;
-  color: #fff;
+  color: var(--lb-ink);
   font-size: 30rem;
   line-height: 1;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: background 0.15s ease;
+  background: var(--lb-surface);
+  border: 1px solid var(--lb-edge);
+  transition: background var(--dur-2) var(--ease-out-soft);
 }
-@media (hover: hover) { .cs-lb__nav:hover, .cs-lb__close:hover { background: rgba(255, 255, 255, 0.24); } }
+/* The global ring is `2px solid var(--color-text)`, which in light theme is
+   near-black — drawn on a near-black scrim it was invisible. */
+.cs-lb :focus-visible { outline: 2px solid var(--lb-ink); outline-offset: 3px; }
+@media (hover: hover) { .cs-lb__nav:hover, .cs-lb__close:hover { background: color-mix(in srgb, var(--lb-ink) 26%, transparent); } }
 .cs-lb-enter-active, .cs-lb-leave-active { transition: opacity 0.25s ease; }
 .cs-lb-enter-from, .cs-lb-leave-to { opacity: 0; }
 
@@ -272,6 +279,16 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 }
 @media (max-width: 640px) {
   .cs-grid { grid-template-columns: repeat(2, 1fr); }
-  .cs-lb__nav { width: 44rem; height: 44rem; font-size: 24rem; }
+}
+@media (max-width: 520px) {
+  /* One page at a time. Two columns here means ~156px per comic page and the
+     dialogue stops being legible, which defeats the point of showing them. */
+  .cs-grid { grid-template-columns: 1fr; gap: 22rem; }
+  /* Arrows flanking the image ate ~110px of a 360px viewport; move them under
+     it and give the page the full width. */
+  .cs-lb { flex-direction: column; gap: 14rem; padding: 16rem; }
+  .cs-lb__figure { order: -1; }
+  .cs-lb__nav { width: 48rem; height: 48rem; font-size: 26rem; }
+  .cs-lb__figure img { max-width: 96vw; max-height: 68dvh; }
 }
 </style>

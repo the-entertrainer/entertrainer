@@ -15,8 +15,8 @@ const contentStore = useContentStore()
 <template>
   <UiCardGrid
     eyebrow="My Work"
-    title="Selected projects"
-    deck="Interactive learning, built for real teams. Open one to see how it was designed."
+    title="Proof it wasn't all talk"
+    deck="The two I can show you end to end — what they were for, who they were for, and how they were built."
     :items="contentStore.myWorkNav"
   />
 </template>

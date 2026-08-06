@@ -392,7 +392,7 @@ onUnmounted(() => {
   border: 1px solid var(--color-glass-border);
 }
 
-@media (max-width: 899px) {
+@media (max-width: 900px) {
   .tour__card {
     left: 12rem !important;
     right: 12rem;

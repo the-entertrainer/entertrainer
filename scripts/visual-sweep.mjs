@@ -66,14 +66,51 @@ const AUDIT = () => {
   const name = (el) => el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className.trim()
     ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : '')
 
+  /** Painted at all — including because of an ancestor. The menu hides its links
+   *  with `gsap.set(items, { opacity: 0 })` on a panel that is still laid out,
+   *  so checking the element alone reports invisible controls as real ones. */
+  const isPainted = (el) => {
+    for (let a = el; a && a !== document.documentElement; a = a.parentElement) {
+      const cs = getComputedStyle(a)
+      if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) return false
+    }
+    return true
+  }
+
+  /**
+   * The rect a user can actually see.
+   *
+   * getBoundingClientRect() reports geometry regardless of whether an ancestor
+   * clips it, so a closed menu panel (48px circle, overflow:hidden) full of
+   * full-width links, or a visually-hidden skip-nav, both look like they are
+   * hanging off the edge of the screen when nothing is painted there at all.
+   * Intersecting with every clipping ancestor is what makes this check
+   * trustworthy — without it the sweep cries wolf on every page and stops
+   * being read.
+   */
+  const visibleRect = (el) => {
+    let r = el.getBoundingClientRect()
+    for (let a = el.parentElement; a && a !== document.documentElement; a = a.parentElement) {
+      const cs = getComputedStyle(a)
+      const clips = cs.overflow !== 'visible' || cs.clipPath !== 'none' || cs.contain.includes('paint')
+      if (!clips) continue
+      const ar = a.getBoundingClientRect()
+      const left = Math.max(r.left, ar.left), right = Math.min(r.right, ar.right)
+      const top = Math.max(r.top, ar.top), bottom = Math.min(r.bottom, ar.bottom)
+      if (right <= left || bottom <= top) return null
+      r = { left, right, top, bottom, width: right - left, height: bottom - top }
+    }
+    return r
+  }
+
   // Anything sticking out past an edge, named so it is findable.
   const escapees = []
   for (const el of document.querySelectorAll('body *')) {
     const cs = getComputedStyle(el)
-    if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') continue
-    if (cs.position === 'fixed' && cs.pointerEvents === 'none') continue  // decorative backdrops
-    const r = el.getBoundingClientRect()
-    if (r.width === 0 || r.height === 0) continue
+    if (!isPainted(el)) continue
+    if (cs.pointerEvents === 'none' && cs.position === 'fixed') continue  // decorative backdrops
+    const r = visibleRect(el)
+    if (!r || r.width < 1 || r.height < 1) continue
     if (r.right > vw + 1 || r.left < -1) {
       const id = name(el)
       if (!escapees.includes(id)) escapees.push(id)
@@ -85,10 +122,9 @@ const AUDIT = () => {
   if (matchMedia('(pointer: coarse)').matches) {
     const small = []
     for (const el of document.querySelectorAll('a[href], button, [role="button"], [role="switch"], input, select, summary')) {
-      const cs = getComputedStyle(el)
-      if (cs.display === 'none' || cs.visibility === 'hidden') continue
-      const r = el.getBoundingClientRect()
-      if (r.width === 0 || r.height === 0) continue
+      if (!isPainted(el)) continue
+      const r = visibleRect(el)
+      if (!r || r.width < 1 || r.height < 1) continue
       if (r.height < 44 || r.width < 24) {
         const entry = `${name(el)} ${Math.round(r.width)}x${Math.round(r.height)}`
         if (!small.includes(entry)) small.push(entry)

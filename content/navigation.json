@@ -8,7 +8,7 @@
   "about": [],
   "instructional-design": [],
   "my-work": [
-    { "id": "sewa-chronicles", "label": "The SEWA Chronicles", "description": "A comic magazine for Club Mahindra. True guest-service stories, drawn as strips, because people remember a story long after they forget a rule.", "href": "/my-work/sewa-chronicles", "color": "#243F6A", "image": "/work/sewa/cover.webp", "meta": "Comic · Club Mahindra · 2023" },
+    { "id": "sewa-chronicles", "label": "The SEWA Chronicles", "description": "A comic magazine for Club Mahindra. True guest-service stories, drawn as strips, because people remember a story long after they forget a rule.", "href": "/my-work/sewa-chronicles", "color": "#243F6A", "image": "/work/sewa/cover.webp", "portrait": true, "meta": "Comic · Club Mahindra · 2023" },
     { "id": "strong", "label": "Strong", "description": "The real math of password strength, made playable: entropy in bits, why length beats symbols, and why one password is instant or eternal depending on who is guessing.", "href": "/my-work/strong", "color": "#243F6A", "image": "/work-strong.webp", "meta": "Interactive lesson · 10 parts" }
   ],
   "tools": [

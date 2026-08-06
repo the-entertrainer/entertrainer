@@ -149,9 +149,6 @@
   --paper-dark-pool:    #6B4A2F;   /* dark-theme counterweight             */
   --paper-dark-stock:   #1B1814;
 
-  /* Grid margin (the only surviving consumer of the old 12-col system) */
-  --grid-margin: 30px;
-
   /* Easing. --ease-spring is the house snap and is load-bearing for the loader
      choreography — do not retune it. The rest collapse the three bezier
      literals that were duplicated inline across app.vue, main.css and
@@ -183,6 +180,22 @@
      because a landscape phone is not a narrow screen. */
 }
 
+/* Wide screens. The type ramp's own clamps top out around a 1440px viewport, so
+   this tier is what keeps a 2560px screen from showing a 1240px artifact with
+   62px headlines. --maxw is already fluid; these are the rungs that go with it.
+   --maxw-read and --maxw-tool are pointedly absent: prose does not get wider. */
+@media (min-width: 1441px) {
+  :root {
+    --text-display: clamp(84rem, 5.4vw, 132rem);
+    --text-h1:      clamp(68rem, 4.2vw, 100rem);
+    --text-lead:    clamp(22rem, 1.5vw, 28rem);
+    --text-body:    19px;
+    --edge:         clamp(96rem, 7vw, 180rem);
+    --page-top:     calc(clamp(112rem, 9vh, 160rem) + var(--safe-top));
+    --page-bottom:  calc(clamp(96rem, 8vh, 140rem) + var(--safe-bottom));
+  }
+}
+
 /* Short viewports — a landscape phone, or a very small window. --page-top's vh
    term cannot reach here (its clamp floor exceeds 9vh at any height under about
    980px), so without this tier a 390px-tall viewport spends 144px — 37% of the
@@ -194,12 +207,6 @@
   }
 }
 
-@media (max-width: 900px) {
-  :root { --grid-margin: 20px; }
-}
-@media (max-width: 420px) {
-  :root { --grid-margin: 15px; }
-}
 
 /* ============================================================
    Base reset — 1rem = 1px sizing system
@@ -305,8 +312,11 @@ canvas {
   overflow: visible;
   clip-path: none;
   display: flex;
-  gap: 18rem;
-  border-radius: var(--radius-full);
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: calc(100vw - 24rem);
+  gap: 10rem 18rem;
+  border-radius: 18rem;
   background: var(--color-bg);
   border: 1px solid var(--color-glass-border);
   box-shadow: var(--elev-2);
@@ -513,6 +523,7 @@ canvas {
   align-items: center;
   justify-content: center;
   gap: 10rem;
+  min-height: 44rem;
   padding: var(--btn-pad-y) var(--btn-pad-x);
   border-radius: var(--radius-full);
   background: var(--color-text);
@@ -585,13 +596,7 @@ canvas {
    so no chip re-wraps, and gated to coarse pointers so desktop tool layouts move
    by exactly nothing. */
 @media (pointer: coarse) {
-  .glass-chip { min-height: 36rem; }
-  .glass-chip::after {
-    content: "";
-    position: absolute;
-    inset: -4rem;
-    border-radius: inherit;
-  }
+  .glass-chip { min-height: 44rem; padding-inline: 14rem; }
 }
 
 /* ── Note / message ── */

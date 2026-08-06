@@ -17,23 +17,23 @@ const rv = {
   portrait: R.scaleIn(140), cue: R.fade(460)
 }
 
-interface Chapter { n: string; eyebrow: string; head: string; body: string; img: string; alt: string; place: string; footnote?: string }
+interface Chapter { n: string; eyebrow: string; head: string; body: string; img: string; w: number; h: number; alt: string; place: string; footnote?: string }
 const CHAPTERS: Chapter[] = [
   { n: '02', eyebrow: 'Where it began', head: 'It started in hospitality',
     body: 'I studied hotel management in Chennai and began on the floor. Hospitality is where I learned to notice the small things that make service feel human — the details nobody asks for but everybody remembers.',
-    img: '/about/about-housekeeper-1.webp', alt: 'On the hotel floor in the early hospitality years', place: 'Chennai · Hotel management' },
+    img: '/about/about-housekeeper-1.webp', w: 600, h: 800, alt: 'On the hotel floor in the early hospitality years', place: 'Chennai · Hotel management' },
   { n: '03', eyebrow: 'The turn', head: 'A comic, and a new path',
     body: 'At Club Mahindra I moved into learning and development, and drew The SEWA Chronicles — a small comic of real guest-experience stories. That was the moment design stopped being a side interest and became the plan.',
-    img: '/about/about-sewa-1.webp', alt: 'A page from The SEWA Chronicles comic', place: 'Club Mahindra · L&D' },
+    img: '/about/about-sewa-1.webp', w: 1600, h: 900, alt: 'A page from The SEWA Chronicles comic', place: 'Club Mahindra · L&D' },
   { n: '04', eyebrow: 'The craft', head: 'Learning the craft',
     body: 'As an L&D specialist at Courtyard by Marriott, I helped run certification programs for teams — frontline associates through to managers. I learned how a good program actually holds together.',
-    img: '/about/about-onboarding.webp', alt: 'Running a training session at Courtyard by Marriott', place: 'Courtyard by Marriott' },
+    img: '/about/about-onboarding.webp', w: 1131, h: 1600, alt: 'Running a training session at Courtyard by Marriott', place: 'Courtyard by Marriott' },
   { n: '05', eyebrow: 'The tools', head: 'I design, and I build',
     body: 'I build training in Articulate Storyline — but I also ship the tools around it. StoryGen, EasyMCQ, Cadence, this very site: designed and built by me, because the idea deserved to exist.',
-    img: '/about/about-ignite.webp', alt: 'A module in progress on the workbench', place: 'The workbench' },
+    img: '/about/about-ignite.webp', w: 1131, h: 1600, alt: 'A module in progress on the workbench', place: 'The workbench' },
   { n: '06', eyebrow: 'Now', head: 'Designing, building, daring',
     body: 'I’m with the Training-as-a-Service team at Concentrix, turning operational detail into e-learning for teams around the world — and still daring to try new tech (a little motion, some WebGL, a bit of AI) whenever it makes the learning land better.',
-    img: '/about/about-concentrix.webp', alt: 'Portrait, present day, at Concentrix', place: 'Concentrix · Training-as-a-Service',
+    img: '/about/about-concentrix.webp', w: 768, h: 768, alt: 'Portrait, present day, at Concentrix', place: 'Concentrix · Training-as-a-Service',
     footnote: 'Asatoma Sadgamaya — from ignorance, toward truth.' }
 ]
 
@@ -119,7 +119,7 @@ onBeforeUnmount(() => {
     <main class="ab-body">
       <section v-for="(c, i) in CHAPTERS" :key="i" class="ab-ch" :class="{ 'ab-ch--rev': i % 2 === 1 }" :aria-labelledby="`ab-h-${i}`">
         <figure class="ab-ch__figure" v-motion :initial="R.scaleIn(0).initial" :visible-once="R.scaleIn(0).visibleOnce">
-          <div class="ab-ch__frame"><img class="ab-ch__img" :src="c.img" :alt="c.alt" width="1131" height="1414" loading="lazy" decoding="async" draggable="false" /></div>
+          <div class="ab-ch__frame u-lift"><img class="ab-ch__img" :src="c.img" :alt="c.alt" :width="c.w" :height="c.h" loading="lazy" decoding="async" draggable="false" /></div>
           <figcaption class="eyebrow eyebrow--quiet ab-ch__place">{{ c.place }}</figcaption>
         </figure>
         <div class="ab-ch__prose">
@@ -161,7 +161,25 @@ onBeforeUnmount(() => {
 .ab-step span { width: 22rem; height: 2rem; border-radius: 2rem; background: var(--color-text); opacity: 0.22; transition: opacity 0.35s ease, width 0.4s var(--ease-spring); }
 .ab-step:hover span { opacity: 0.5; } .ab-step.on span { opacity: 0.95; width: 30rem; }
 .ab-step:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; border-radius: 6rem; }
-@media (max-width: 900px) { .ab-steps { display: none; } }
+@media (max-width: 900px) {
+  /* Not hidden — moved. Below 900 the rail becomes a horizontal row of dashes
+     pinned to the bottom, which is reachable with a thumb and still says how
+     far through the story you are. */
+  .ab-steps {
+    top: auto; bottom: calc(14rem + var(--safe-bottom));
+    right: auto; left: 50%;
+    translate: -50% 0;
+    flex-direction: row;
+    gap: 4rem;
+    padding: 8rem 12rem;
+    border-radius: var(--radius-full);
+    background: color-mix(in srgb, var(--color-bg) 78%, transparent);
+    border: 1px solid var(--color-glass-border);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+  .ab-step { width: 44rem; height: 44rem; }
+}
 
 .ab-hero { position: relative; max-width: var(--maxw); margin: 0 auto; padding: var(--page-top) var(--edge) clamp(60rem, 10vh, 120rem); display: grid; gap: clamp(30rem, 5vw, 70rem); align-items: center; grid-template-columns: 1.05fr 0.95fr; min-height: 100dvh; }
 .ab-hero__glow { position: absolute; z-index: 0; top: 18%; left: 28%; width: 60vw; height: 60vw; max-width: 720rem; max-height: 720rem; translate: -50% -30%; pointer-events: none; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--color-accent-deep) 42%, transparent), transparent 62%); opacity: 0.3; filter: blur(30rem); }
@@ -182,8 +200,32 @@ onBeforeUnmount(() => {
 .ab-ch { max-width: var(--maxw); margin: 0 auto; padding: clamp(60rem, 12vh, 150rem) var(--edge); display: grid; grid-template-columns: 1fr 1fr; gap: clamp(30rem, 6vw, 96rem); align-items: start; }
 .ab-ch--rev .ab-ch__figure { order: 2; }
 .ab-ch__figure { position: sticky; top: clamp(90rem, 14vh, 140rem); margin: 0; }
-.ab-ch__frame { width: 100%; aspect-ratio: 4 / 5; border-radius: 16rem; overflow: hidden; box-shadow: var(--elev-4), var(--ring-hairline); }
-.ab-ch__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ab-ch__frame { width: 100%; border-radius: 16rem; overflow: hidden; box-shadow: var(--elev-4), var(--ring-hairline); }
+/* No forced aspect-ratio: these six photographs are not one shape. Five are
+   portrait, one is square and one (about-sewa-1) is 1600x900 landscape — any
+   single frame throws away most of at least one of them. The image sets the
+   height and the frame follows, capped so a tall portrait cannot run away with
+   the column. */
+.ab-ch__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(78vh, 760rem);
+  object-fit: contain;
+  /* These are working photographs — a hotel floor, a training room, a comic
+     page — not art direction. A light warm grade settles them onto the paper
+     ground instead of leaving them as six bright rectangles, and hovering
+     restores them fully: the treatment is a resting state, not a filter. */
+  filter: saturate(0.82) contrast(1.03);
+  transition: filter var(--dur-5) var(--ease-out-soft), scale var(--dur-5) var(--ease-out-soft);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ab-ch__frame:hover .ab-ch__img { filter: none; scale: 1.02; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab-ch__img { transition: filter var(--dur-3) linear; }
+  .ab-ch__frame:hover .ab-ch__img { scale: none; }
+}
 .ab-ch__place { margin-top: 14rem; }
 .ab-ch__prose { align-self: stretch; max-width: 500rem; min-height: 82vh; display: flex; flex-direction: column; justify-content: center; padding-block: clamp(10rem, 6vh, 60rem); }
 .ab-ch__eyebrow { margin-bottom: 22rem; }
@@ -192,7 +234,7 @@ onBeforeUnmount(() => {
   font-optical-sizing: auto;
   font-variation-settings: "SOFT" 32, "WONK" 1;
   font-style: normal;
-  font-size: 30rem;
+  font-size: clamp(22rem, 6vw, 32rem);
   font-weight: 400;
   letter-spacing: -0.02em;
   color: var(--color-accent);
@@ -210,14 +252,13 @@ onBeforeUnmount(() => {
 
 @media (max-width: 900px) {
   .ab-hero { grid-template-columns: 1fr; min-height: auto; padding: var(--page-top) var(--edge) 64rem; gap: 40rem; }
-  .ab-hero__portrait { order: -1; max-width: 360rem; aspect-ratio: 3 / 4; }
+  .ab-hero__portrait { order: -1; max-width: 520rem; }
   .ab-hero__cue { display: none; }
   .ab-hero__glow { top: 6%; left: 50%; width: 90vw; height: 90vw; }
   .ab-ch { grid-template-columns: 1fr; gap: 26rem; padding: clamp(48rem, 9vh, 84rem) var(--edge); }
   .ab-ch--rev .ab-ch__figure { order: 0; }
   .ab-ch__figure { position: static; top: auto; }
-  .ab-ch__frame { aspect-ratio: 3 / 4; max-height: 62vh; margin-inline: auto; }
+  .ab-ch__frame { max-width: 460rem; margin-inline: auto; }
   .ab-ch__prose { max-width: 100%; min-height: 0; display: block; padding-block: 0; }
 }
-@media (max-width: 480px) { .ab-ch__frame { aspect-ratio: 4 / 5; } }
 </style>

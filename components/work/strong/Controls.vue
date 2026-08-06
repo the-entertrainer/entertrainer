@@ -68,7 +68,12 @@ const segments = computed(() => Array.from({ length: props.total }, (_, i) => i)
 .st-bar__center { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8rem; }
 .st-seek { display: flex; gap: 5rem; width: 100%; max-width: 520rem; }
 .st-seek__seg {
-  flex: 1; height: 5rem; border-radius: 999rem; background: var(--st-slot);
+  /* A 5rem rail is the right visual weight for a progress bar and the wrong size
+     for a finger. The bar keeps its height via background-clip; the button grows
+     around it. */
+  flex: 1; height: 44rem; border-radius: 999rem; background: var(--st-slot);
+  padding-block: 19.5rem;
+  background-clip: content-box;
   transition: background 0.2s ease, transform 0.15s ease;
 }
 .st-seek__seg.is-done { background: color-mix(in srgb, var(--st-accent) 55%, var(--st-slot)); }

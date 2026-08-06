@@ -1195,8 +1195,8 @@ onUnmounted(() => {
 .sg-topbar {
   position: absolute;
   top: calc(12rem + var(--safe-top));
-  left: 78rem;
-  right: 78rem;
+  left: clamp(58rem, 18vw, 78rem);
+  right: clamp(58rem, 18vw, 78rem);
   display: flex;
   align-items: center;
   gap: 10rem;
@@ -1404,10 +1404,10 @@ onUnmounted(() => {
 .sheet-enter-from, .sheet-leave-to { opacity: 0; }
 .sheet-enter-from .sg-sheet, .sheet-leave-to .sg-sheet { transform: translateY(60%); }
 
-@media (max-width: 899px) {
+@media (max-width: 900px) {
   .sg-desktop-only { display: none !important; }
   .sg-mobile-only { display: flex; }
-  .sg-topbar { left: 72rem; right: 72rem; padding: 8rem 10rem; gap: 7rem; }
+  .sg-topbar { left: 58rem; right: 58rem; padding: 8rem 10rem; gap: 7rem; }
   .sg-wordmark__text { display: none; }
   .sg-wordmark { padding: 4rem; }
   .sg-title { font-size: 16px; } /* ≥16px so iOS Safari doesn't zoom on focus */

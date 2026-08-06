@@ -9,4 +9,7 @@ export interface NavItem {
   image?: string
   /** Short kind label above the card title, e.g. "Comic · Club Mahindra". */
   meta?: string
+  /** Set when `image` is taller than it is wide, so the card frames it as a
+   *  portrait instead of centre-cropping it into a landscape plate. */
+  portrait?: boolean
 }

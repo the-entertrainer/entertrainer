@@ -696,7 +696,7 @@ function backToTable() {
         </div>
 
         <!-- ── Table phase ──────────────────────────────────────── -->
-        <div v-else-if="phase === 'table'" key="table" class="glass-panel" style="max-width:760rem;">
+        <div v-else-if="phase === 'table'" key="table" class="glass-panel" style="max-width:760rem; margin-inline:auto;">
 
           <div style="margin-bottom:16rem;">
             <h2 style="font-size:var(--text-body); font-weight:700; margin:0 0 4rem;">Review &amp; Customise</h2>
@@ -1151,6 +1151,7 @@ function backToTable() {
 
 /* ── Table phase ── */
 .tcg-table-wrap {
+  margin-inline: auto;
   display: flex;
   flex-direction: column;
   gap: 20rem;
@@ -1315,7 +1316,7 @@ function backToTable() {
   border-radius: 16rem;
   padding: 20rem;
   overflow: hidden;
-  min-width: 560rem;
+  min-width: min(560rem, 100%);
   color: #1A1916;
 }
 

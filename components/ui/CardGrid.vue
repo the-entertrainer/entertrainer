@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NavItem } from '~/types/nav'
+import { useGlassMicro } from '~/composables/useGlassMicro'
 
 // A section landing: header plus a grid of plates that link out to the real
 // pages. Used by /tools and /my-work so those routes are genuine destinations
@@ -21,6 +22,11 @@ const props = defineProps<{
 const R = useReveal()
 const rv = R.head()
 
+// The cursor-tracked specular sheen. One delegated, rAF-throttled pointermove
+// for the whole grid, already gated on a fine pointer and not-reduced-motion.
+const rootRef = ref<HTMLElement | null>(null)
+useGlassMicro(rootRef)
+
 // Column count comes from the item count rather than from `auto-fill`, which
 // would leave the two-item /my-work grid as two narrow cards against a half-empty
 // row and drop the fourth /tools card onto an orphan row of its own. Four items
@@ -33,7 +39,7 @@ const columns = computed(() => {
 </script>
 
 <template>
-  <div class="cg-page">
+  <div ref="rootRef" class="cg-page">
     <UiGlassBackdrop calm />
 
     <div class="cg-inner">
@@ -50,7 +56,10 @@ const columns = computed(() => {
           :to="item.href" class="glass-panel u-lift cg-card"
           v-motion :initial="R.riseIn(i).initial" :visible-once="R.riseIn(i).visibleOnce"
         >
-          <span class="cg-card__media" :class="{ 'cg-card__media--type': !item.image }">
+          <span
+            class="cg-card__media"
+            :class="{ 'cg-card__media--type': !item.image, 'cg-card__media--portrait': item.portrait }"
+          >
             <img
               v-if="item.image"
               :src="item.image" :alt="''" aria-hidden="true"
@@ -118,6 +127,12 @@ const columns = computed(() => {
   overflow: hidden;
   background: color-mix(in srgb, var(--color-accent-deep) 22%, var(--color-bg));
 }
+/* A portrait source in a landscape plate showed 40% of itself — the SEWA cover
+   is a 1400x1980 magazine page. The row still wants one silhouette, so portrait
+   artwork gets a taller frame and is anchored to the top, where a cover keeps
+   its masthead, rather than being centre-cropped into a detail. */
+.cg-card__media--portrait { aspect-ratio: 1 / 1; }
+.cg-card__media--portrait img { object-position: 50% 12%; }
 .cg-card__media img {
   width: 100%; height: 100%;
   object-fit: cover;
@@ -207,5 +222,8 @@ const columns = computed(() => {
 @media (max-width: 640px) {
   .cg-grid { grid-template-columns: 1fr; }
   .cg-card__media { aspect-ratio: 16 / 9; }
+  /* Re-stated after the landscape rule: same specificity, so source order is
+     what decides, and a portrait cover must not be re-cropped to 16/9 here. */
+  .cg-card__media--portrait { aspect-ratio: 4 / 5; }
 }
 </style>

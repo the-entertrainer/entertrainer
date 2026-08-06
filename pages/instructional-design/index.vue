@@ -190,6 +190,7 @@ function iconPath(name: string) {
 }
 
 .id-exit {
+  min-height: 44rem;
   position: fixed;
   top: calc(18rem + var(--safe-top));
   left: calc(20rem + var(--safe-left));

@@ -191,7 +191,31 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .cs-gallery__label { margin-bottom: 16rem; }
 .cs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16rem; }
 .cs-fig { display: flex; flex-direction: column; gap: 9rem; }
+.cs-fig__btn::after {
+  /* `cursor: zoom-in` says "you can open this" only once the pointer is already
+     on it. This says it before you commit — and on touch, where there is no
+     cursor at all, it is the only thing that says it. */
+  content: "";
+  position: absolute;
+  right: 10rem; bottom: 10rem;
+  width: 30rem; height: 30rem;
+  border-radius: var(--radius-full);
+  background:
+    linear-gradient(currentColor, currentColor) center/11rem 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) center/1.5px 11rem no-repeat,
+    color-mix(in srgb, var(--color-bg) 68%, transparent);
+  border: 1px solid var(--color-glass-border);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  opacity: 0.72;
+  transition: opacity var(--dur-2) var(--ease-out-soft), scale var(--dur-3) var(--ease-out-soft);
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .cs-fig__btn:hover::after { opacity: 1; scale: 1.08; }
+}
 .cs-fig__btn {
+  position: relative;
   padding: 0;
   border: 1px solid var(--color-glass-border);
   border-radius: 12rem;
@@ -208,7 +232,10 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .cs-foot { margin-top: 48rem; padding-top: 28rem; border-top: 1px solid var(--color-divider); }
 .cs-foot > p { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: clamp(22rem, 3vw, 30rem); letter-spacing: -0.01em; line-height: 1.25; opacity: 0.9; max-width: 20em; }
 .cs-foot__links { display: flex; flex-wrap: wrap; gap: 10rem 24rem; margin-top: 22rem; }
-.cs-link { font-size: 14rem; font-weight: 600; color: var(--color-text); opacity: 0.7; transition: opacity 0.15s ease; }
+.cs-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44rem; font-size: 14rem; font-weight: 600; color: var(--color-text); opacity: 0.7; transition: opacity 0.15s ease; }
 .cs-link:hover { opacity: 1; }
 .cs-link--accent { color: var(--color-accent); opacity: 1; }
 

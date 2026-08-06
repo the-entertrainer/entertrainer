@@ -429,7 +429,7 @@ function onLoaderEntered() {
 <style scoped>
 .spiral-view {
   position: relative;
-  width: 100vw;
+  width: 100%;
   height: 100dvh;
   overflow: hidden;
   background: var(--color-bg);
@@ -470,14 +470,17 @@ function onLoaderEntered() {
 /* ────────────────────────────────────────────────────────────────────────── */
 
 /* List mode ─────────────────────────────────────────────────────────────── */
+/* Auto margins rather than justify-content: center — see the note on overflow
+   below. The measure cap stops four rows stretching 2380px wide at 2560. */
+.spiral-list > * { margin-block: auto; width: 100%; max-width: var(--maxw-read); align-self: center; }
 .spiral-list {
   position: fixed;
   inset: 0;
   z-index: 5;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: calc(100rem + var(--safe-top)) calc(var(--grid-margin) + 60rem) calc(80rem + var(--safe-bottom));
+  justify-content: flex-start;
+  padding: var(--page-top) clamp(20rem, 6vw, 90rem) var(--page-bottom);
   overflow-y: auto;
   background: var(--color-bg);
   color: var(--color-text);
@@ -545,16 +548,7 @@ function onLoaderEntered() {
   text-overflow: ellipsis;
 }
 
-@media (max-width: 900px) {
-  .spiral-list {
-    padding: calc(80rem + var(--safe-top)) 32rem calc(60rem + var(--safe-bottom));
-  }
-}
-
-@media (max-width: 600px) {
-  .spiral-list {
-    padding: calc(80rem + var(--safe-top)) 20rem calc(60rem + var(--safe-bottom));
-  }
+@media (max-width: 640px) {
   .nav-row {
     padding: 22rem 16rem;
     gap: 14rem;

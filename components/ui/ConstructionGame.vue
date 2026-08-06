@@ -827,8 +827,13 @@ onUnmounted(() => {
   gap: 8rem;
 }
 .cgame__toggle {
-  width: 24rem;
-  height: 24rem;
+  /* The visible disc stays small — an arcade bezel wants small chrome — but the
+     hit area does not. Padding plus background-clip keeps the look and gives the
+     finger something to land on. */
+  width: 44rem;
+  height: 44rem;
+  padding: 10rem;
+  background-clip: content-box;
   display: grid;
   place-items: center;
   border-radius: 999px;
@@ -845,8 +850,9 @@ onUnmounted(() => {
   .cgame__toggle:hover { background: rgba(7,15,6,0.8); color: rgb(214,255,190); }
 }
 .cgame--immersive .cgame__toggle {
-  width: 32rem;
-  height: 32rem;
+  width: 48rem;
+  height: 48rem;
+  padding: 8rem;
 }
 .cgame--immersive .cgame__toggle svg { width: 15rem; height: 15rem; }
 

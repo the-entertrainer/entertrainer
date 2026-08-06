@@ -4,12 +4,25 @@ import { useThemeStore } from '~/stores/theme'
 const route      = useRoute()
 const themeStore = useThemeStore()
 
-// All routes use out-in fade so pages never hard-swap.
-// Home uses 'default' mode (no wait for outgoing) to avoid a stall while the
-// about/sub pages unmount — home mounts and fades in while the previous page fades out.
-const transition = computed(() =>
-  route.path === '/' ? { name: 'fade' } : { name: 'editorial', mode: 'out-in' as const }
-)
+// Transition selection lives here and nowhere else. Nuxt merges
+// `props.transition` ahead of `route.meta.pageTransition`
+// (nuxt/dist/pages/runtime/page.js:108-111 — first argument wins), so a page's
+// own definePageMeta({ pageTransition }) can never override this. I previously
+// deleted eleven such overrides believing they were suppressing the editorial
+// transition; they were no-ops, and so were the two I kept as exemptions.
+// Opt-outs have to be listed here to have any effect at all.
+//
+//  - home: plain fade, 'default' mode so it mounts while the previous page
+//    leaves rather than stalling on the unmount.
+//  - storygen / strong: the editorial transition rasterizes the whole entering
+//    subtree for its blur, which on a full-viewport canvas app is a visible
+//    hitch. They cross-fade instead.
+const FLAT_FADE = ['/tools/storygen', '/my-work/strong']
+const transition = computed(() => {
+  if (route.path === '/') return { name: 'fade' }
+  if (FLAT_FADE.some(p => route.path.startsWith(p))) return { name: 'fade', mode: 'out-in' as const }
+  return { name: 'editorial', mode: 'out-in' as const }
+})
 
 onMounted(() => {
   themeStore.init()
@@ -30,13 +43,9 @@ onMounted(() => {
 .fade-enter-from,   .fade-leave-to     { opacity: 0; }
 
 /* Editorial page transition — a refined fade + rise with an expo-out feel.
-   Used for every route except the fixed-viewport home spiral.
-   This was declared here and then overridden back to a flat `fade` by
-   definePageMeta on eleven pages, so it effectively never ran. Those overrides
-   are gone now; only StoryGen (whose full-viewport canvas hitches when the
-   entering subtree is rasterized for the blur) and Strong (which owns st-fade)
-   still opt out. */
-.editorial-enter-active { transition: opacity var(--dur-5) var(--ease-out), transform 0.6s var(--ease-out), filter var(--dur-5) var(--ease-in-out); }
+   Applied to every route except home and the two full-canvas apps; see the
+   FLAT_FADE list above, which is the only place an opt-out can live. */
+.editorial-enter-active { transition: opacity var(--dur-5) var(--ease-out), transform var(--dur-5) var(--ease-out), filter var(--dur-5) var(--ease-in-out); }
 .editorial-leave-active { transition: opacity var(--dur-3) var(--ease-in-out), transform var(--dur-3) var(--ease-in-out), filter var(--dur-3) var(--ease-in-out); }
 .editorial-enter-from { opacity: 0; transform: translateY(22px); filter: blur(6px); }
 .editorial-leave-to   { opacity: 0; transform: translateY(-12px); filter: blur(4px); }

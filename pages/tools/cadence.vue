@@ -716,7 +716,7 @@ function backToTable() {
                 <button type="button" @click="removeModule(i)" aria-label="Remove module" style="background:none; border:none; font-size:18rem; opacity:0.4; cursor:pointer;">×</button>
               </div>
 
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12rem;">
+              <div class="tcg-module-fields">
 
                 <div>
                   <label class="glass-label" style="font-size:11rem;">Duration</label>
@@ -1288,7 +1288,7 @@ function backToTable() {
   align-items: start;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 640px) {
   .tcg-layout { grid-template-columns: 1fr; }
   .tcg-module-fields { grid-template-columns: 1fr; }
   .tcg-row { flex-direction: column; }

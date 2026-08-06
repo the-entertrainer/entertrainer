@@ -74,8 +74,7 @@ const rv = R.head()
   font-weight: 400;
   line-height: 1.55;
   letter-spacing: -0.015em;
-  color: var(--color-text);
-  opacity: 0.72;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
   max-width: 46ch;
 }
 </style>

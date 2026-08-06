@@ -86,7 +86,7 @@ onUnmounted(() => {
   <div class="nvstatus glass-panel">
     <div class="nvstatus__head">
       <span class="nvstatus__dot" />
-      <span class="nvstatus__label">Naveen — live status</span>
+      <span class="eyebrow nvstatus__label">Naveen — live status</span>
       <span class="nvstatus__ago">{{ ago }}</span>
     </div>
     <Transition name="nvstatus-line" mode="out-in">
@@ -116,15 +116,15 @@ onUnmounted(() => {
   width: 7rem;
   height: 7rem;
   border-radius: 999px;
-  background: #34D399;
-  box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+  background: var(--color-accent);
+  box-shadow: 0 0 0 0 var(--color-accent-soft);
   animation: nvstatus-pulse 1.8s ease-out infinite;
   flex-shrink: 0;
 }
 @keyframes nvstatus-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
-  70%  { box-shadow: 0 0 0 7rem rgba(52, 211, 153, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+  0%   { box-shadow: 0 0 0 0 var(--color-accent-soft); }
+  70%  { box-shadow: 0 0 0 7rem transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }
 .nvstatus__ago {
   margin-left: auto;

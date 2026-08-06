@@ -217,10 +217,10 @@ function iconPath(name: string) {
   max-width: 15ch;
 }
 .id-dek {
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
   margin-top: 20rem;
-  font-size: 17rem;
+  font-size: var(--text-lead);
   line-height: 1.6;
-  opacity: 0.72;
   max-width: 54ch;
 }
 

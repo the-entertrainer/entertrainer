@@ -10,7 +10,7 @@
   /* Signal accent — links, meter fills, active borders, badge fills.
      This has to differ per theme, and that is arithmetic rather than taste: for
      one colour to clear 4.5:1 against both #0D0C0A and #F5EFE8 it would need a
-     relative luminance >= 0.1975 and <= 0.1622 at the same time. The old shared
+     relative luminance >= 0.1917 and <= 0.1544 at the same time. The old shared
      #243F6A measured 1.86:1 here, which is why the instructional-design load
      meter was a dark bar on a dark track. #7FA6E8 is the same brand navy held at
      hue 217 and lifted until it reads at night: 7.94:1. */
@@ -29,16 +29,6 @@
   --color-spinner-track: rgba(244,241,236,0.15);
   --color-divider: rgba(244,241,236,0.1);
 
-  /* Legacy aliases — existing CSS selectors keep working */
-  --color-black: #0D0C0A;
-  --color-white: #F4F1EC;
-  --color-pop-green: #243F6A;
-  --color-white20: rgba(244,241,236,0.2);
-  --color-bg-dark: #0D0C0A;
-  --color-bg-dark20: rgba(13,12,10,0.2);
-  --color-bg-dark40: rgba(13,12,10,0.4);
-  --color-bg-dark60: rgba(13,12,10,0.6);
-  --color-bg-dark-transparent: rgba(13,12,10,0);
 }
 
 /* ─── Light theme ─── */
@@ -60,20 +50,10 @@
   --color-spinner-track: rgba(13,12,10,0.12);
   --color-divider: rgba(13,12,10,0.1);
 
-  /* Legacy aliases — FLIPPED so existing CSS inverts correctly */
-  --color-black: #F4F1EC;
-  --color-white: #0D0C0A;
-  --color-pop-green: #243F6A;
-  --color-white20: rgba(13,12,10,0.15);
-  --color-bg-dark: #0D0C0A;
-  --color-bg-dark20: rgba(13,12,10,0.2);
-  --color-bg-dark40: rgba(13,12,10,0.4);
-  --color-bg-dark60: rgba(13,12,10,0.6);
-  --color-bg-dark-transparent: rgba(13,12,10,0);
 }
 
 :root {
-  /* Typography. The serif used to be re-declared in three files with two
+  /* Typography. The serif used to be re-declared in four files with two
      different fallback stacks, which meant two different FOUT shapes for the
      same headline. The longer stack is the correct one — 'Georgia, serif' alone
      drops the Windows fallback. */
@@ -97,14 +77,19 @@
   --chrome-size: 48px;            /* button hit box */
 
   /* Page shell — the one geometry contract every inner page adopts. Replaces
-     five hand-tuned top paddings (120/120/112/100/96) and five gutters. The vh
-     middle term is what makes the top padding degrade on short landscape
-     phones; none of the five values it replaces did that. */
+     five hand-tuned top paddings (120/120/112/100/96) and five gutters.
+     The vh middle term does NOT rescue short viewports, whatever an earlier
+     version of this comment claimed: on a 390px-tall landscape phone 9vh is 35,
+     the clamp floors at 88, and you get 88. Short viewports are handled by the
+     explicit max-height tier below, which is the only thing that can. */
   --edge:        clamp(20rem, 6vw, 96rem);   /* editorial / full-bleed pages */
   --edge-column: clamp(16rem, 4vw, 32rem);   /* pages with a capped column   */
   --page-top:    calc(clamp(88rem, 9vh, 112rem) + var(--safe-top));
   --page-bottom: calc(clamp(56rem, 8vh, 96rem) + var(--safe-bottom));
-  --maxw:           1240rem;      /* editorial full width  */
+  /* --maxw grows on very wide screens. Held flat it centred a 1240px artifact in
+     a 2560px field; the reading widths below deliberately do not grow, because a
+     measure that keeps widening stops being readable. */
+  --maxw:      clamp(1240rem, 74vw, 1680rem); /* editorial / grid full width */
   --maxw-read:       860rem;      /* single-column reading */
   --maxw-tool:       720rem;      /* tool form column      */
   --maxw-tool-wide: 1080rem;
@@ -121,19 +106,19 @@
 
   /* Type scale — the canonical ramp for shared surfaces. Per-page heroes may
      still tune their own clamp() for character; these name the common rungs. */
-  --text-display: clamp(40rem, 6.5vw, 62rem);  /* index / section titles */
-  --text-h1: clamp(34rem, 5vw, 56rem);         /* tool + stub page titles */
-  --text-h2: clamp(26rem, 3.4vw, 38rem);
-  --text-lead: clamp(17rem, 2vw, 20rem);       /* deck / sub-title */
+  --text-display: clamp(40rem, 4.4vw, 84rem);  /* index / section titles  */
+  --text-h1: clamp(34rem, 3.6vw, 68rem);       /* tool + stub page titles */
+  --text-lead: clamp(17rem, 1.3vw, 22rem);     /* deck / sub-title        */
   --text-body: 17px;
   --text-sm: 15px;
   --text-label: 11px;         /* uppercase eyebrows */
   --tracking-label: 0.1em;
 
-  /* Elevation — four rungs distilled from six near-identical hand-written
-     shadows. --elev-1 and --elev-3 are byte-exact copies of the old .glass-btn
-     and .glass-panel values, so the two most-rendered surfaces on the site
-     change by zero pixels. */
+  /* Elevation — four rungs distilled from the site's hand-written shadows.
+     --elev-1 and --elev-3 are byte-exact copies of the old .glass-btn and
+     .glass-panel values, so the two most-rendered surfaces change by zero
+     pixels; --elev-4 absorbs the three media shadows (about's portrait and
+     chapter frames, sewa's cover) which sat within a few rem of each other. */
   --elev-1: 0 14rem 32rem -18rem rgba(0, 0, 0, 0.55);   /* button, chip        */
   --elev-2: 0 26rem 60rem -30rem rgba(0, 0, 0, 0.55);   /* raised card / hover */
   --elev-3: 0 34rem 90rem -42rem rgba(0, 0, 0, 0.60);   /* panel               */
@@ -143,17 +128,26 @@
   --elev-bloom:    inset 0 0 60rem color-mix(in srgb, var(--color-text) 3%, transparent);
   --ring-hairline: 0 0 0 1px var(--color-glass-border);
 
-  /* Duration — collapses twenty hand-typed values onto seven rungs.
+  /* Duration — collapses the site's hand-typed values onto six rungs.
      0.1/0.12 -> 1 · 0.15/0.18/0.2/0.22 -> 2 · 0.25/0.3 -> 3 · 0.35/0.4/0.45 -> 4
-     0.5/0.55/0.6/0.65 -> 5 · 0.7 -> 6 · 0.85/0.95 -> 7
-     Menu.vue and Loader.vue are deliberately excluded: their springs are the
-     choreography the loader's flying bars land against. */
+     0.5/0.55/0.6/0.65 -> 5 · 0.7 -> 6
+     Menu.vue and Loader.vue are deliberately excluded: their 0.85/0.95 springs
+     are the choreography the loader's flying bars land against, so they keep
+     their literals rather than getting a rung nothing else would use. */
   --dur-1: 120ms;   /* press / :active                      */
   --dur-2: 180ms;   /* hover tint, field focus, small state */
   --dur-3: 250ms;   /* transform + icon swap                */
   --dur-4: 350ms;   /* fade, page fade                      */
   --dur-5: 500ms;   /* theme crossfade, meter fill          */
-  --dur-6: 700ms;   /* entrance (glass-rise, tool-head-in)  */
+  --dur-6: 700ms;   /* entrance (glass-rise)                */
+
+  /* Paper — the calm ground's pigments. These were four hex literals inside
+     GlassBackdrop.vue, which is exactly the thing the rest of this file exists
+     to stop. Warm, never neutral: the card artwork is printed on stock. */
+  --paper-light-source: #FFF6E9;   /* the light falling in from one corner */
+  --paper-warm:         #E8C9A0;   /* the stock's own warmth               */
+  --paper-dark-pool:    #6B4A2F;   /* dark-theme counterweight             */
+  --paper-dark-stock:   #1B1814;
 
   /* Grid margin (the only surviving consumer of the old 12-col system) */
   --grid-margin: 30px;
@@ -177,9 +171,27 @@
   --ease-expo-out: var(--ease-out);                 /* alias — keeps old uses alive */
 
   /* Breakpoint policy (custom properties can't be used in @media, so this is
-     the reference): 1180 editorial two-col collapses · 900 rail drops ·
-     640 tablet -> phone · 420 small phone. The 600px rule on .glass-panel is a
-     deliberate exception; see the note there. */
+     the reference). An earlier version of this comment named 1180, which
+     appeared nowhere in the codebase — the ladder is now real and migrated:
+       1440  wide desktop — grids gain a column
+        900  two-column editorial collapses, side rails drop
+        640  tablet -> phone
+        420  small phone
+     Two deliberate exceptions: the 600px rule on .glass-panel (see the note
+     there) and the tools' own internal widths, which answer to their content
+     rather than to the page. Short viewports are handled by max-height, below,
+     because a landscape phone is not a narrow screen. */
+}
+
+/* Short viewports — a landscape phone, or a very small window. --page-top's vh
+   term cannot reach here (its clamp floor exceeds 9vh at any height under about
+   980px), so without this tier a 390px-tall viewport spends 144px — 37% of the
+   screen — on shell padding before any content appears. */
+@media (max-height: 560px) {
+  :root {
+    --page-top:    calc(52rem + var(--safe-top));
+    --page-bottom: calc(28rem + var(--safe-bottom));
+  }
 }
 
 @media (max-width: 900px) {
@@ -311,7 +323,7 @@ canvas {
   width: 100%;
   height: 100%;
   z-index: 0;
-  transition: opacity 0.5s ease-out;
+  transition: opacity var(--dur-5) var(--ease-out-soft);
 }
 .webgl.hide {
   opacity: 0;
@@ -322,14 +334,7 @@ canvas {
 /* ============================================================
    Page transitions — Section 8
    ============================================================ */
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity var(--dur-4) var(--ease-in-out);
-}
+/* `.fade-*` lives in app.vue, beside the transition that selects it. */
 /* `project`, `project-fade`, `video-fade` and `iconfade` transitions lived here
    for surfaces that no longer exist — grep finds no <Transition name> for any of
    them. Removed rather than left as a maintenance hazard. */
@@ -402,9 +407,10 @@ canvas {
 }
 
 /* ── The page eyebrow ──
-   Six near-identical specs across CardGrid, ToolShell, about (x2), sewa and
-   instructional-design collapse onto this: 12/700/.16em is the median of the
-   six, .62 the midpoint of the .5–.72 opacity spread (8.9:1 on the dark ground).
+   The page-eyebrow specs across CardGrid, ToolShell, about, sewa, NaveenStatus
+   and instructional-design collapse onto this: 12/700/.16em is the median, and
+   62% the midpoint of the .5–.72 spread they sat across (6.96:1 on the dark
+   ground, 5.29:1 on cream — both measured, not estimated).
    Deliberately NOT folded into `.glass-label` below — that one is the form-label
    primitive with 59 consumers across the four tools. */
 .eyebrow {
@@ -415,32 +421,43 @@ canvas {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   line-height: 1.2;
-  opacity: 0.62;
-  color: var(--color-text);
+  /* Tone via colour, not opacity: every adopter carries v-motion, which lands an
+     inline `opacity: 1` when the reveal completes, and inline style beats a
+     class. Set as opacity, the chosen tone silently never rendered. */
+  color: color-mix(in srgb, var(--color-text) 62%, transparent);
 }
-.eyebrow--quiet { opacity: 0.48; }
+/* 58% is the floor that still clears 4.5:1 in BOTH themes — 48% measured 3.34:1
+   on cream, below AA for 12px uppercase. */
+.eyebrow--quiet { color: color-mix(in srgb, var(--color-text) 58%, transparent); }
 
 /* ── One hover vocabulary for "this surface is clickable" ──
    Replaces four idioms that had drifted apart: CardGrid's lift+accent glow,
    sewa's lift+scale on the cover, sewa's lift+neutral glow on figures, and
    instructional-design's border-only. */
 .u-lift {
+  /* `translate`/`scale` rather than `transform`, and that is load-bearing: the
+     main adopter is a .glass-panel, whose `animation: glass-rise … both` pins
+     `transform: none` from the animation cascade origin forever. A transform
+     hover on that element is silently discarded — those cards had a hover that
+     changed colour and shadow but never actually lifted. `translate` is an
+     independent property the animation does not write, so it composes. */
   transition:
-    transform var(--dur-3) var(--ease-out-soft),
+    translate var(--dur-3) var(--ease-out-soft),
+    scale var(--dur-3) var(--ease-out-soft),
     border-color var(--dur-3) var(--ease-out-soft),
     box-shadow var(--dur-3) var(--ease-out-soft);
 }
 @media (hover: hover) and (pointer: fine) {
   .u-lift:hover {
-    transform: translateY(-4rem);
+    translate: 0 -4rem;
     border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-glass-border-hover));
     box-shadow: var(--elev-2-accent);
   }
 }
-.u-lift:active { transform: translateY(-1rem) scale(0.995); }
+.u-lift:active { translate: 0 -1rem; scale: 0.995; }
 @media (prefers-reduced-motion: reduce) {
   .u-lift { transition: border-color var(--dur-2) linear; }
-  .u-lift:hover, .u-lift:active { transform: none; }
+  .u-lift:hover, .u-lift:active { translate: none; scale: none; }
 }
 
 /* ── Form labels — the tool-form primitive (59 consumers). Not an eyebrow. ── */
@@ -468,7 +485,7 @@ canvas {
   padding: 14rem 16rem;
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
-  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.22s ease;
+  transition: border-color var(--dur-2) var(--ease-out-soft), background var(--dur-2) var(--ease-out-soft), box-shadow var(--dur-2) var(--ease-out-soft);
 }
 .glass-field::placeholder { color: var(--color-text); opacity: 0.4; }
 .glass-field:focus {
@@ -518,7 +535,7 @@ canvas {
 /* The filled button had no hover at all — yet its transition list already named
    opacity, transform and box-shadow, so the rule was written and then forgotten.
    It is the primary CTA on About, on every stub page and in all four tools.
-   The accent-warmed fill keeps the label above 17:1 in both themes. */
+   The accent-warmed fill keeps the label at 16.4:1 dark / 16.7:1 light. */
 @media (hover: hover) and (pointer: fine) {
   .glass-btn:not(:disabled):hover {
     transform: translateY(-1rem);
@@ -558,7 +575,7 @@ canvas {
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.18s ease, opacity 0.18s ease;
+  transition: background var(--dur-2) var(--ease-out-soft), opacity var(--dur-2) var(--ease-out-soft);
 }
 @media (hover: hover) {
   .glass-chip:hover { background: color-mix(in srgb, var(--color-bg) 64%, transparent); }

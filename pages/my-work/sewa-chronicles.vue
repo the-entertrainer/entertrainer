@@ -57,12 +57,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           <p class="cs-deck">A service-culture comic magazine that teaches hospitality teams the values behind great guest experience, through true stories from the resort floor.</p>
           <dl class="cs-meta">
             <div v-for="m in meta" :key="m.k" class="cs-meta__row">
-              <dt>{{ m.k }}</dt>
+              <dt class="eyebrow eyebrow--quiet">{{ m.k }}</dt>
               <dd>{{ m.v }}</dd>
             </div>
           </dl>
         </div>
-        <button class="cs-hero__cover" @click="open(0)" aria-label="Open the cover" v-motion :initial="R.scaleIn(120).initial" :visible-once="R.scaleIn(120).visibleOnce">
+        <button class="cs-hero__cover u-lift" @click="open(0)" aria-label="Open the cover" v-motion :initial="R.scaleIn(120).initial" :visible-once="R.scaleIn(120).visibleOnce">
           <img src="/work/sewa/cover.webp" width="1400" height="1980" alt="The SEWA Chronicles cover" loading="eager">
         </button>
       </header>
@@ -152,24 +152,22 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   align-items: center;
   margin-bottom: 48rem;
 }
-.cs-eyebrow { /* type from .eyebrow */ }
-.cs-title { font-size: clamp(40rem, 6.5vw, 64rem); margin-top: 12rem; }
+.cs-title { font-size: var(--text-display); margin-top: 12rem; }
 .cs-deck { font-size: 17rem; line-height: 1.55; opacity: 0.7; margin-top: 16rem; max-width: 30em; }
 .cs-meta { display: flex; flex-wrap: wrap; gap: 10rem 28rem; margin-top: 26rem; }
 .cs-meta__row { display: flex; flex-direction: column; gap: 3rem; }
-.cs-meta__row dt { font-size: 10.5rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.45; }
+.cs-meta__row dt { letter-spacing: 0.1em; }
 .cs-meta__row dd { font-size: 13.5rem; font-weight: 600; }
 .cs-hero__cover {
   border-radius: 16rem;
   overflow: hidden;
-  box-shadow: 0 40rem 90rem -40rem rgba(0, 0, 0, 0.6);
+  box-shadow: var(--elev-4);
   transition: transform 0.2s ease;
   cursor: zoom-in;
   background: none;
   padding: 0;
   border: 1px solid var(--color-glass-border);
 }
-@media (hover: hover) { .cs-hero__cover:hover { transform: translateY(-4rem) scale(1.01); } }
 .cs-hero__cover img { width: 100%; height: auto; display: block; }
 
 /* Body */
@@ -185,7 +183,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .cs-block p { font-size: 15rem; line-height: 1.65; opacity: 0.82; }
 .cs-list { list-style: none; display: flex; flex-direction: column; gap: 11rem; }
 .cs-list li { font-size: 14.5rem; line-height: 1.55; opacity: 0.82; padding-left: 18rem; position: relative; }
-.cs-list li::before { content: ""; position: absolute; left: 0; top: 8rem; width: 7rem; height: 7rem; border-radius: 999px; background: linear-gradient(135deg, #8B7CF6, #2DD4BF); }
+.cs-list li::before { content: ""; position: absolute; left: 0; top: 8rem; width: 7rem; height: 7rem; border-radius: 999px; background: linear-gradient(135deg, var(--color-accent), var(--color-accent-deep)); }
 .cs-list strong { font-weight: 700; opacity: 1; }
 
 /* Gallery */
@@ -200,9 +198,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   overflow: hidden;
   cursor: zoom-in;
   background: var(--color-glass-bg);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-@media (hover: hover) {
 }
 .cs-fig__btn img { width: 100%; height: auto; display: block; }
 .cs-fig figcaption { display: flex; flex-direction: column; gap: 2rem; padding: 0 2rem; }

@@ -121,17 +121,17 @@ onUnmounted(() => renderer?.stop())
   inset: 0;
   background:
     /* the light source */
-    radial-gradient(120% 90% at 88% -12%, color-mix(in srgb, #FFF6E9 78%, transparent), transparent 58%),
+    radial-gradient(120% 90% at 88% -12%, color-mix(in srgb, var(--paper-light-source) 78%, transparent), transparent 58%),
     /* warmth pooling into the opposite corner */
     radial-gradient(100% 80% at -8% 108%, color-mix(in srgb, var(--color-accent-deep) 9%, transparent), transparent 62%),
     /* the stock itself, very slightly warmer than --color-bg so edges have depth */
-    linear-gradient(168deg, color-mix(in srgb, #E8C9A0 12%, var(--color-bg)), var(--color-bg) 62%);
+    linear-gradient(168deg, color-mix(in srgb, var(--paper-warm) 12%, var(--color-bg)), var(--color-bg) 62%);
 }
 :root[data-theme="dark"] .glass-backdrop__wash {
   background:
     radial-gradient(120% 90% at 88% -12%, color-mix(in srgb, var(--color-accent-deep) 34%, transparent), transparent 58%),
-    radial-gradient(100% 80% at -8% 108%, color-mix(in srgb, #6B4A2F 22%, transparent), transparent 62%),
-    linear-gradient(168deg, color-mix(in srgb, #1B1814 70%, var(--color-bg)), var(--color-bg) 60%);
+    radial-gradient(100% 80% at -8% 108%, color-mix(in srgb, var(--paper-dark-pool) 22%, transparent), transparent 62%),
+    linear-gradient(168deg, color-mix(in srgb, var(--paper-dark-stock) 70%, var(--color-bg)), var(--color-bg) 60%);
 }
 
 /* Grain. A single inline feTurbulence tile, scaled up and left to repeat — the

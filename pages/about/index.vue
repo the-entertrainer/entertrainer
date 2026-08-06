@@ -88,7 +88,7 @@ onBeforeUnmount(() => {
       <NuxtLink to="/" class="ab-back" aria-label="Back to the site">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7" /></svg><span>Back</span>
       </NuxtLink>
-      <span class="ab-bar__word">Naveen Jose</span>
+      <span class="eyebrow ab-bar__word">Naveen Jose</span>
       <NuxtLink to="/my-work" class="ab-bar__link">Work<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7" /></svg></NuxtLink>
     </header>
 
@@ -102,8 +102,8 @@ onBeforeUnmount(() => {
     <section class="ab-hero">
       <div class="ab-hero__glow" aria-hidden="true" />
       <div class="ab-hero__copy">
-        <span class="ab-hero__eyebrow" v-motion :initial="rv.eyebrow.initial" :visible-once="rv.eyebrow.visibleOnce">About · a short story</span>
-        <h1 class="ab-hero__name" v-motion :initial="rv.name.initial" :visible-once="rv.name.visibleOnce">Naveen<br>Jose</h1>
+        <span class="eyebrow ab-hero__eyebrow" v-motion :initial="rv.eyebrow.initial" :visible-once="rv.eyebrow.visibleOnce">About · a short story</span>
+        <h1 class="display-serif ab-hero__name" v-motion :initial="rv.name.initial" :visible-once="rv.name.visibleOnce">Naveen<br>Jose</h1>
         <p class="ab-hero__lead" v-motion :initial="rv.lead.initial" :visible-once="rv.lead.visibleOnce">A certified instructional designer who <em>designs</em> learning, <em>builds</em> the tools to deliver it, and keeps <em>daring</em> to try new tech.</p>
         <div class="ab-hero__meta" v-motion :initial="rv.meta.initial" :visible-once="rv.meta.visibleOnce">
           <span>Instructional Designer</span><i aria-hidden="true">·</i><span>Gurugram, IN</span>
@@ -112,7 +112,7 @@ onBeforeUnmount(() => {
       <figure class="ab-hero__portrait" v-motion :initial="rv.portrait.initial" :visible-once="rv.portrait.visibleOnce">
         <img src="/about-me.webp" alt="Portrait of Naveen Jose" width="1400" height="788" loading="eager" draggable="false" />
       </figure>
-      <span class="ab-hero__cue" aria-hidden="true" v-motion :initial="rv.cue.initial" :visible-once="rv.cue.visibleOnce"><span class="ab-hero__cue-line" /> scroll</span>
+      <span class="eyebrow eyebrow--quiet ab-hero__cue" aria-hidden="true" v-motion :initial="rv.cue.initial" :visible-once="rv.cue.visibleOnce"><span class="ab-hero__cue-line" /> scroll</span>
     </section>
 
     <!-- Chapters -->
@@ -120,10 +120,10 @@ onBeforeUnmount(() => {
       <section v-for="(c, i) in CHAPTERS" :key="i" class="ab-ch" :class="{ 'ab-ch--rev': i % 2 === 1 }" :aria-labelledby="`ab-h-${i}`">
         <figure class="ab-ch__figure" v-motion :initial="R.scaleIn(0).initial" :visible-once="R.scaleIn(0).visibleOnce">
           <div class="ab-ch__frame"><img class="ab-ch__img" :src="c.img" :alt="c.alt" width="1131" height="1414" loading="lazy" decoding="async" draggable="false" /></div>
-          <figcaption class="ab-ch__place">{{ c.place }}</figcaption>
+          <figcaption class="eyebrow eyebrow--quiet ab-ch__place">{{ c.place }}</figcaption>
         </figure>
         <div class="ab-ch__prose">
-          <span class="ab-ch__eyebrow" v-motion :initial="R.slideX(-24,60).initial" :visible-once="R.slideX(-24,60).visibleOnce"><em>{{ c.n }}</em> — {{ c.eyebrow }}</span>
+          <span class="eyebrow ab-ch__eyebrow" v-motion :initial="R.slideX(-24,60).initial" :visible-once="R.slideX(-24,60).visibleOnce"><em>{{ c.n }}</em> — {{ c.eyebrow }}</span>
           <h2 :id="`ab-h-${i}`" class="ab-ch__head" v-motion :initial="R.rise(120).initial" :visible-once="R.rise(120).visibleOnce">{{ c.head }}</h2>
           <p class="ab-ch__body" v-motion :initial="R.rise(200).initial" :visible-once="R.rise(200).visibleOnce">{{ c.body }}</p>
           <p v-if="c.footnote" class="ab-ch__foot" v-motion :initial="R.rise(280).initial" :visible-once="R.rise(280).visibleOnce">{{ c.footnote }}</p>
@@ -152,7 +152,7 @@ onBeforeUnmount(() => {
 .ab-bar::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(var(--color-bg), transparent); -webkit-mask: linear-gradient(#000, #000 55%, transparent); mask: linear-gradient(#000, #000 55%, transparent); }
 .ab-back, .ab-bar__link { display: inline-flex; align-items: center; gap: 7rem; min-height: 44rem; padding: 0 4rem; color: var(--color-text); text-decoration: none; font-size: 13.5rem; font-weight: 600; opacity: 0.82; transition: opacity 0.25s ease, transform 0.25s ease; border-radius: 8rem; }
 .ab-back:hover, .ab-bar__link:hover { opacity: 1; } .ab-back:hover { transform: translateX(-2rem); } .ab-bar__link:hover { transform: translateX(2rem); }
-.ab-bar__word { font-size: 12rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 600; opacity: 0.6; }
+.ab-bar__word { letter-spacing: 0.22em; }
 .ab-back:focus-visible, .ab-bar__link:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; opacity: 1; }
 @media (max-width: 560px) { .ab-bar__word { display: none; } }
 
@@ -166,15 +166,15 @@ onBeforeUnmount(() => {
 .ab-hero { position: relative; max-width: var(--maxw); margin: 0 auto; padding: var(--page-top) var(--edge) clamp(60rem, 10vh, 120rem); display: grid; gap: clamp(30rem, 5vw, 70rem); align-items: center; grid-template-columns: 1.05fr 0.95fr; min-height: 100dvh; }
 .ab-hero__glow { position: absolute; z-index: 0; top: 18%; left: 28%; width: 60vw; height: 60vw; max-width: 720rem; max-height: 720rem; translate: -50% -30%; pointer-events: none; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--color-accent-deep) 42%, transparent), transparent 62%); opacity: 0.3; filter: blur(30rem); }
 .ab-hero__copy { position: relative; z-index: 2; max-width: 560rem; }
-.ab-hero__eyebrow { display: inline-block; font-size: 12rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; opacity: 0.7; margin-bottom: 22rem; }
-.ab-hero__name { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(64rem, 11vw, 150rem); line-height: 0.92; letter-spacing: -0.015em; margin: 0; }
+.ab-hero__eyebrow { letter-spacing: 0.2em; margin-bottom: 22rem; }
+.ab-hero__name { font-size: clamp(52rem, 9vw, 168rem); line-height: 0.92; margin: 0; }
 .ab-hero__lead { margin: clamp(24rem, 3vw, 38rem) 0 0; max-width: 44ch; font-size: clamp(16rem, 1.8vw, 21rem); line-height: 1.58; opacity: 0.9; }
 .ab-hero__lead em { font-family: var(--serif); font-style: italic; font-weight: 500; opacity: 1; }
 .ab-hero__meta { margin-top: 26rem; display: flex; align-items: center; gap: 12rem; font-size: 12.5rem; letter-spacing: 0.06em; font-weight: 600; opacity: 0.72; flex-wrap: wrap; }
 .ab-hero__meta i { opacity: 0.5; }
-.ab-hero__portrait { position: relative; z-index: 1; margin: 0; width: 100%; max-width: 440rem; justify-self: center; aspect-ratio: 4 / 5; border-radius: 18rem; overflow: hidden; box-shadow: 0 50rem 110rem -40rem rgba(0,0,0,0.6), 0 0 0 1px var(--color-glass-border); }
-.ab-hero__portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 32%; display: block; }
-.ab-hero__cue { position: absolute; left: var(--edge); bottom: clamp(24rem, 5vh, 48rem); z-index: 2; display: inline-flex; align-items: center; gap: 12rem; font-size: 11rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600; opacity: 0.5; }
+.ab-hero__portrait { position: relative; z-index: 1; margin: 0; width: 100%; max-width: 620rem; justify-self: center; aspect-ratio: 16 / 9; border-radius: 18rem; overflow: hidden; box-shadow: var(--elev-4), var(--ring-hairline); }
+.ab-hero__portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ab-hero__cue { position: absolute; left: var(--edge); bottom: clamp(24rem, 5vh, 48rem); z-index: 2; display: inline-flex; align-items: center; gap: 12rem; letter-spacing: 0.2em; }
 .ab-hero__cue-line { display: block; width: 46rem; height: 1px; background: currentColor; transform-origin: left; animation: ab-cue 2.4s ease-in-out infinite; }
 @keyframes ab-cue { 0%, 100% { transform: scaleX(0.4); opacity: 0.4 } 50% { transform: scaleX(1); opacity: 0.9 } }
 
@@ -182,12 +182,23 @@ onBeforeUnmount(() => {
 .ab-ch { max-width: var(--maxw); margin: 0 auto; padding: clamp(60rem, 12vh, 150rem) var(--edge); display: grid; grid-template-columns: 1fr 1fr; gap: clamp(30rem, 6vw, 96rem); align-items: start; }
 .ab-ch--rev .ab-ch__figure { order: 2; }
 .ab-ch__figure { position: sticky; top: clamp(90rem, 14vh, 140rem); margin: 0; }
-.ab-ch__frame { width: 100%; aspect-ratio: 4 / 5; border-radius: 16rem; overflow: hidden; box-shadow: 0 44rem 100rem -44rem rgba(0,0,0,0.6), 0 0 0 1px var(--color-glass-border); }
+.ab-ch__frame { width: 100%; aspect-ratio: 4 / 5; border-radius: 16rem; overflow: hidden; box-shadow: var(--elev-4), var(--ring-hairline); }
 .ab-ch__img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.ab-ch__place { margin-top: 14rem; font-size: 11rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; opacity: 0.66; }
+.ab-ch__place { margin-top: 14rem; }
 .ab-ch__prose { align-self: stretch; max-width: 500rem; min-height: 82vh; display: flex; flex-direction: column; justify-content: center; padding-block: clamp(10rem, 6vh, 60rem); }
-.ab-ch__eyebrow { display: inline-block; font-size: 12rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; opacity: 0.72; margin-bottom: 22rem; }
-.ab-ch__eyebrow em { font-style: normal; opacity: 0.6; margin-right: 4rem; }
+.ab-ch__eyebrow { margin-bottom: 22rem; }
+.ab-ch__eyebrow em {
+  font-family: var(--serif-font);
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 32, "WONK" 1;
+  font-style: normal;
+  font-size: 30rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--color-accent);
+  margin-right: 10rem;
+  vertical-align: -4rem;
+}
 .ab-ch__head { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(34rem, 4.8vw, 66rem); line-height: 1.03; letter-spacing: -0.015em; margin: 0; }
 .ab-ch__body { margin: clamp(20rem, 2.4vw, 30rem) 0 0; max-width: 46ch; font-size: clamp(15.5rem, 1.5vw, 18rem); line-height: 1.66; opacity: 0.84; }
 .ab-ch__foot { margin: 20rem 0 0; font-family: var(--serif); font-style: italic; font-size: 16rem; opacity: 0.7; }
@@ -198,7 +209,7 @@ onBeforeUnmount(() => {
 @media (prefers-reduced-motion: reduce) { .ab-hero__cue-line { animation: none; } }
 
 @media (max-width: 900px) {
-  .ab-hero { grid-template-columns: 1fr; min-height: auto; padding: calc(96rem + var(--safe-top)) var(--edge) 64rem; gap: 40rem; }
+  .ab-hero { grid-template-columns: 1fr; min-height: auto; padding: var(--page-top) var(--edge) 64rem; gap: 40rem; }
   .ab-hero__portrait { order: -1; max-width: 360rem; aspect-ratio: 3 / 4; }
   .ab-hero__cue { display: none; }
   .ab-hero__glow { top: 6%; left: 50%; width: 90vw; height: 90vw; }

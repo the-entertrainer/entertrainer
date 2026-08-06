@@ -164,7 +164,6 @@ function handleHomeClick() {
    sit above 13:1 even over the spiral's most saturated palette roll. */
 .e-nav, .e-back-fab, .e-backdrop {
   --chrome-ink: #fff;
-  --chrome-ink-dim: rgba(255, 255, 255, 0.7);
   --chrome-tint: rgba(28, 30, 40, 0.26);
   --chrome-tint-strong: rgba(18, 20, 28, 0.42);
   --chrome-tint-hover: rgba(40, 42, 54, 0.34);
@@ -179,11 +178,10 @@ function handleHomeClick() {
 :root[data-theme="light"] .e-back-fab,
 :root[data-theme="light"] .e-backdrop {
   --chrome-ink: #0D0C0A;
-  --chrome-ink-dim: rgba(13, 12, 10, 0.66);
   --chrome-tint: rgba(255, 255, 255, 0.58);
   --chrome-tint-strong: rgba(255, 255, 255, 0.72);
   --chrome-tint-hover: rgba(255, 255, 255, 0.74);
-  --chrome-edge: rgba(255, 255, 255, 0.85);
+  --chrome-edge: rgba(13, 12, 10, 0.16);
   --chrome-shadow: rgba(0, 0, 0, 0.18);
   --chrome-sheen: overlay;
 }
@@ -256,7 +254,7 @@ function handleHomeClick() {
   display: flex; align-items: center; justify-content: center;
   padding: 0; background: none; border: none; cursor: pointer;
   color: var(--chrome-ink);
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 1px 2px var(--chrome-shadow));
 }
 .hb-wrap { width: 22rem; height: 22rem; }
 .ic-hb { opacity: 1; transform: rotate(0deg) scale(1); }

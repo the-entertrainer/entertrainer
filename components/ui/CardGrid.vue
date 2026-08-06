@@ -44,7 +44,7 @@ const columns = computed(() => {
         <p v-if="intro" class="cg-intro" v-motion :initial="rv.intro.initial" :visible-once="rv.intro.visibleOnce">{{ intro }}</p>
       </header>
 
-      <div class="cg-grid" :style="{ '--cg-cols': columns }">
+      <div class="cg-grid" :data-count="items.length" :style="{ '--cg-cols': columns }">
         <NuxtLink
           v-for="(item, i) in items" :key="item.id"
           :to="item.href" class="glass-panel u-lift cg-card"
@@ -82,7 +82,7 @@ const columns = computed(() => {
 .cg-inner {
   max-width: var(--maxw);
   margin: 0 auto;
-  padding: var(--page-top) var(--edge-column) var(--page-bottom);
+  padding: var(--page-top) var(--edge) var(--page-bottom);
 }
 
 /* ── Header ──
@@ -92,8 +92,8 @@ const columns = computed(() => {
 .cg-head { margin-bottom: clamp(30rem, 4.5vw, 52rem); }
 .cg-eyebrow { margin-bottom: 12rem; }
 .cg-title { font-size: var(--text-display); }
-.cg-deck { font-size: var(--text-lead); opacity: 0.78; margin-top: 14rem; line-height: 1.5; max-width: 46ch; }
-.cg-intro { font-size: 15.5rem; opacity: 0.62; margin-top: 12rem; line-height: 1.62; max-width: 58ch; }
+.cg-deck { font-size: var(--text-lead); color: color-mix(in srgb, var(--color-text) 78%, transparent); margin-top: 14rem; line-height: 1.5; max-width: 46ch; }
+.cg-intro { font-size: 15.5rem; color: color-mix(in srgb, var(--color-text) 62%, transparent); margin-top: 12rem; line-height: 1.62; max-width: 58ch; }
 
 .cg-grid {
   display: grid;
@@ -192,10 +192,16 @@ const columns = computed(() => {
   .cg-card:hover .cg-card__media img { transform: none; }
 }
 
-/* Below the three-column width, everything collapses to two and then to one —
-   a plate narrower than ~280rem stops showing the artwork and starts showing a
-   detail of it. */
-@media (max-width: 1000px) {
+/* Above 1440 the grid gains a column rather than inflating the plates: four
+   tools read as a row of four, not as two billboards. Below 900 everything
+   collapses to two and then to one — a plate narrower than ~280rem stops
+   showing the artwork and starts showing a detail of it. */
+@media (min-width: 1441px) {
+  .cg-grid[data-count="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .cg-grid[data-count="5"],
+  .cg-grid[data-count="6"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
   .cg-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 640px) {

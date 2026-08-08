@@ -626,7 +626,7 @@ function backToTable() {
             <div class="tcg-chips" style="display:flex; flex-wrap:wrap; gap:6rem; margin-bottom:12rem;">
               <div v-for="(aud, i) in audiences" :key="aud" class="glass-chip" style="display:flex; align-items:center; gap:4rem;">
                 {{ aud }}
-                <button type="button" @click="removeAudience(i)" aria-label="Remove" style="background:none; border:none; color:inherit; cursor:pointer; font-size:12rem; opacity:0.6;">×</button>
+                <button type="button" @click="removeAudience(i)" aria-label="Remove" class="tcg-x">×</button>
               </div>
               <div style="display:flex; align-items:center; gap:6rem;">
                 <input
@@ -636,7 +636,7 @@ function backToTable() {
                   placeholder="Add audience…"
                   @keydown.enter.prevent="addAudience"
                 />
-                <button type="button" class="glass-btn glass-btn--ghost" style="font-size:12rem; padding:4rem 10rem;" @click="addAudience">Add</button>
+                <button type="button" class="glass-btn glass-btn--ghost" style="font-size:12rem;" @click="addAudience">Add</button>
               </div>
             </div>
 
@@ -669,11 +669,11 @@ function backToTable() {
             <div style="display:flex; flex-wrap:wrap; gap:6rem; margin:8rem 0 12rem;">
               <div v-for="(slot, i) in timeSlots" :key="i" class="glass-chip" style="display:flex; align-items:center; gap:4rem; font-size:12rem;">
                 {{ slot }}
-                <button type="button" @click="removeSlot(i)" aria-label="Remove" style="background:none; border:none; color:inherit; cursor:pointer; font-size:12rem; opacity:0.6;">×</button>
+                <button type="button" @click="removeSlot(i)" aria-label="Remove" class="tcg-x">×</button>
               </div>
               <div style="display:flex; align-items:center; gap:6rem;">
                 <input v-model="newSlot" class="glass-field" style="max-width:160rem; font-size:12rem;" placeholder="e.g. 10:00–13:00" @keydown.enter.prevent="addSlot" />
-                <button type="button" class="glass-btn glass-btn--ghost" style="font-size:12rem; padding:4rem 10rem;" @click="addSlot">Add</button>
+                <button type="button" class="glass-btn glass-btn--ghost" style="font-size:12rem;" @click="addSlot">Add</button>
               </div>
             </div>
 
@@ -713,7 +713,7 @@ function backToTable() {
                   placeholder="Topic name"
                   style="font-weight:600;"
                 />
-                <button type="button" @click="removeModule(i)" aria-label="Remove module" style="background:none; border:none; font-size:18rem; opacity:0.4; cursor:pointer;">×</button>
+                <button type="button" @click="removeModule(i)" aria-label="Remove module" class="tcg-x tcg-x--lg">×</button>
               </div>
 
               <div class="tcg-module-fields">
@@ -897,7 +897,7 @@ function backToTable() {
                 <div v-if="selectedSession" key="editor" class="glass-panel" style="padding:12rem;">
                   <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8rem;">
                     <span class="glass-label" style="margin:0;">Edit Session</span>
-                    <button class="glass-chip" style="font-size:14rem; padding:2rem 6rem;" @click="selectedSession = null" aria-label="Close">×</button>
+                    <button class="glass-chip tcg-x" @click="selectedSession = null" aria-label="Close">×</button>
                   </div>
 
                   <div style="display:flex; flex-direction:column; gap:8rem;">
@@ -1303,6 +1303,25 @@ function backToTable() {
 }
 
 /* Calendar grid — fixed light palette, isolated from the site theme */
+/* The inline remove/close buttons measured as little as 7x14. The glyph keeps
+   its size — these sit inside dense rows and a 44px disc would dominate them —
+   and the button grows around it. */
+.tcg-x {
+  min-width: 44rem;
+  min-height: 44rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 12rem;
+  opacity: 0.6;
+}
+.tcg-x--lg { font-size: 18rem; opacity: 0.4; }
+@media (hover: hover) { .tcg-x:hover { opacity: 1; } }
+
 .tcg-cal {
   --color-glass-bg:           rgba(0, 0, 0, 0.04);
   --color-glass-bg-hover:     rgba(0, 0, 0, 0.07);

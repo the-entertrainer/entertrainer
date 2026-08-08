@@ -190,7 +190,8 @@
     --text-h1:      clamp(68rem, 4.2vw, 100rem);
     --text-lead:    clamp(22rem, 1.5vw, 28rem);
     --text-body:    19px;
-    --edge:         clamp(96rem, 7vw, 180rem);
+    --maxw:         clamp(1440rem, 84vw, 2100rem);
+    --edge:         clamp(64rem, 3.5vw, 104rem);
     --page-top:     calc(clamp(112rem, 9vh, 160rem) + var(--safe-top));
     --page-bottom:  calc(clamp(96rem, 8vh, 140rem) + var(--safe-bottom));
   }
@@ -202,7 +203,11 @@
    screen — on shell padding before any content appears. */
 @media (max-height: 560px) {
   :root {
-    --page-top:    calc(52rem + var(--safe-top));
+    --chrome-offset: 12px;
+    --chrome-size:   40px;
+    /* Must clear the corner chrome: offset + size + breathing room. Anything
+       less and the eyebrow renders underneath the back button. */
+    --page-top:    calc(64rem + var(--safe-top));
     --page-bottom: calc(28rem + var(--safe-bottom));
   }
 }

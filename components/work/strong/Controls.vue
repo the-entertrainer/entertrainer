@@ -52,6 +52,8 @@ const segments = computed(() => Array.from({ length: props.total }, (_, i) => i)
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 }
 .st-bar__nav {
+  min-width: 44rem;
+  min-height: 44rem;
   width: 42rem; height: 42rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
   border-radius: 999rem; border: 1px solid var(--st-line-strong); color: var(--st-text);
   transition: border-color 0.14s ease, background 0.14s ease, opacity 0.14s ease;

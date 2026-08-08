@@ -49,7 +49,9 @@ function reroll() { demo.value = randomPassphrase(7) }
 }
 .st-cover__demo-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16rem; }
 .st-cover__demo-label { font-family: var(--st-mono); font-size: 11rem; color: var(--st-muted); }
-.st-cover__reroll { width: 28rem; height: 28rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 7rem; border: 1px solid var(--st-line); color: var(--st-muted); }
+/* The bordered square stays 28rem — it sits beside a phrase and would bully it
+   at 44 — but the button around it is a real target via content-box clipping. */
+.st-cover__reroll { width: 44rem; height: 44rem; padding: 8rem; background-clip: content-box; display: inline-flex; align-items: center; justify-content: center; border-radius: 7rem; border: 1px solid var(--st-line); color: var(--st-muted); }
 @media (hover: hover) { .st-cover__reroll:hover { color: var(--st-text); border-color: var(--st-line-strong); } }
 .st-cover__reroll:focus-visible { outline: 2px solid var(--st-text); outline-offset: 2px; }
 .st-cover__phrase { font-size: 16rem; font-weight: 500; color: var(--st-text); overflow-wrap: anywhere; line-height: 1.55; margin-bottom: 20rem; }

@@ -200,6 +200,7 @@ function onKey(e: KeyboardEvent) {
 .st-topbar__word { font-family: var(--st-display); font-weight: 700; font-size: 16rem; letter-spacing: 0.14em; }
 .st-topbar__right { display: flex; align-items: center; gap: 8rem; }
 .st-topbtn {
+  min-height: 44rem;
   display: inline-flex; align-items: center; gap: 7rem; padding: 8rem 13rem; border-radius: 999rem;
   font-family: var(--st-mono); font-size: 12rem; color: var(--st-muted);
   border: 1px solid var(--st-line); transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
@@ -233,6 +234,7 @@ function onKey(e: KeyboardEvent) {
 .st-num { font-family: var(--st-mono); font-variant-numeric: tabular-nums; }
 
 .st-btn {
+  min-height: 44rem;
   display: inline-flex; align-items: center; justify-content: center; gap: 9rem;
   padding: 14rem 26rem; border-radius: 10rem;
   font-family: var(--st-display); font-weight: 600; font-size: 15rem;

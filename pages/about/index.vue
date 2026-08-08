@@ -157,7 +157,7 @@ onBeforeUnmount(() => {
 @media (max-width: 560px) { .ab-bar__word { display: none; } }
 
 .ab-steps { position: fixed; right: clamp(14rem, 2.4vw, 30rem); top: 50%; translate: 0 -50%; z-index: 36; display: flex; flex-direction: column; gap: 2rem; }
-.ab-step { width: 40rem; height: 40rem; padding: 0; background: none; border: 0; cursor: pointer; display: grid; place-items: center; }
+.ab-step { width: 44rem; height: 44rem; padding: 0; background: none; border: 0; cursor: pointer; display: grid; place-items: center; }
 .ab-step span { width: 22rem; height: 2rem; border-radius: 2rem; background: var(--color-text); opacity: 0.22; transition: opacity 0.35s ease, width 0.4s var(--ease-spring); }
 .ab-step:hover span { opacity: 0.5; } .ab-step.on span { opacity: 0.95; width: 30rem; }
 .ab-step:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; border-radius: 6rem; }

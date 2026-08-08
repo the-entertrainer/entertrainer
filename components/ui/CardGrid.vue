@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { NavItem } from '~/types/nav'
 import { useGlassMicro } from '~/composables/useGlassMicro'
+import { useContentStore } from '~/stores/content'
 
 // A section landing: header plus a grid of plates that link out to the real
 // pages. Used by /tools and /my-work so those routes are genuine destinations
@@ -26,6 +27,18 @@ const rv = R.head()
 // for the whole grid, already gated on a fine pointer and not-reduced-motion.
 const rootRef = ref<HTMLElement | null>(null)
 useGlassMicro(rootRef)
+
+// Where this page hands you on to. Reads the real home nav so it can never point
+// at a route that no longer exists.
+const contentStore = useContentStore()
+const route = useRoute()
+const next = computed(() => {
+  const nav = contentStore.homeNav
+  const here = nav.findIndex(i => route.path.startsWith(i.href))
+  return nav[(here + 1) % nav.length] ?? nav[0]
+})
+const nextHref = computed(() => next.value?.href ?? '/')
+const nextLabel = computed(() => next.value?.label ?? 'Home')
 
 // Column count comes from the item count rather than from `auto-fill`, which
 // would leave the two-item /my-work grid as two narrow cards against a half-empty
@@ -82,6 +95,16 @@ const columns = computed(() => {
       </div>
 
       <p v-if="!items.length" class="cg-empty">Nothing here yet — I'm still building it.</p>
+
+      <!-- The page has to end on purpose rather than just stop. -->
+      <footer class="cg-foot" v-motion :initial="R.rise(120).initial" :visible-once="R.rise(120).visibleOnce">
+        <UiNaveenStatus />
+        <NuxtLink :to="nextHref" class="cg-foot__next u-lift">
+          <span class="eyebrow eyebrow--quiet">Next</span>
+          <span class="cg-foot__label">{{ nextLabel }}</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+        </NuxtLink>
+      </footer>
     </div>
   </div>
 </template>
@@ -102,7 +125,7 @@ const columns = computed(() => {
 .cg-eyebrow { margin-bottom: 12rem; }
 .cg-title { font-size: var(--text-display); }
 .cg-deck { font-size: var(--text-lead); color: color-mix(in srgb, var(--color-text) 78%, transparent); margin-top: 14rem; line-height: 1.5; max-width: 46ch; }
-.cg-intro { font-size: 15.5rem; color: color-mix(in srgb, var(--color-text) 62%, transparent); margin-top: 12rem; line-height: 1.62; max-width: 58ch; }
+.cg-intro { font-size: clamp(15.5rem, 1vw, 19rem); color: color-mix(in srgb, var(--color-text) 62%, transparent); margin-top: 12rem; line-height: 1.62; max-width: 58ch; }
 
 .cg-grid {
   display: grid;
@@ -128,11 +151,22 @@ const columns = computed(() => {
   background: color-mix(in srgb, var(--color-accent-deep) 22%, var(--color-bg));
 }
 /* A portrait source in a landscape plate showed 40% of itself — the SEWA cover
-   is a 1400x1980 magazine page. The row still wants one silhouette, so portrait
-   artwork gets a taller frame and is anchored to the top, where a cover keeps
-   its masthead, rather than being centre-cropped into a detail. */
-.cg-card__media--portrait { aspect-ratio: 1 / 1; }
-.cg-card__media--portrait img { object-position: 50% 12%; }
+   is a 1400x1980 magazine page. Giving it its own aspect-ratio fixed the crop
+   and broke the row: a square plate beside a 16/10 one stretches the grid row to
+   the taller card and leaves a quarter of the shorter card empty under its text.
+   A grid wants one silhouette. So the plate keeps its ratio and the cover is
+   contained on it — full height, centred, the mount showing at its sides, which
+   is how a cover is presented in a grid anyway. */
+.cg-card__media--portrait img {
+  object-fit: contain;
+  padding: 10rem 0;
+}
+/* The plate under a contained cover reads as a mount rather than a gap. */
+.cg-card__media--portrait {
+  background:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--color-accent-deep) 30%, transparent), transparent 70%),
+    color-mix(in srgb, var(--color-accent-deep) 16%, var(--color-bg));
+}
 .cg-card__media img {
   width: 100%; height: 100%;
   object-fit: cover;
@@ -197,6 +231,32 @@ const columns = computed(() => {
 }
 .cg-empty { font-size: 15rem; opacity: 0.62; }
 
+/* ── The close ── */
+.cg-foot {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: clamp(20rem, 3vw, 40rem);
+  margin-top: clamp(56rem, 9vh, 120rem);
+  padding-top: clamp(28rem, 4vw, 44rem);
+  border-top: 1px solid var(--color-divider);
+}
+.cg-foot__next {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rem;
+  min-height: 44rem;
+  padding: 12rem 20rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-glass-border);
+  color: var(--color-text);
+  white-space: nowrap;
+}
+.cg-foot__label { font-family: var(--serif-font); font-optical-sizing: auto; font-size: clamp(19rem, 1.6vw, 26rem); }
+@media (max-width: 640px) {
+  .cg-foot { grid-template-columns: 1fr; }
+}
+
 /* .u-lift carries the surface hover; these are the media-specific parts. */
 @media (hover: hover) and (pointer: fine) {
   .cg-card:hover .cg-card__media img { transform: scale(1.045); }
@@ -212,7 +272,8 @@ const columns = computed(() => {
    collapses to two and then to one — a plate narrower than ~280rem stops
    showing the artwork and starts showing a detail of it. */
 @media (min-width: 1441px) {
-  .cg-grid[data-count="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .cg-grid[data-count="3"],
+  .cg-grid[data-count="4"],
   .cg-grid[data-count="5"],
   .cg-grid[data-count="6"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
@@ -222,8 +283,8 @@ const columns = computed(() => {
 @media (max-width: 640px) {
   .cg-grid { grid-template-columns: 1fr; }
   .cg-card__media { aspect-ratio: 16 / 9; }
-  /* Re-stated after the landscape rule: same specificity, so source order is
-     what decides, and a portrait cover must not be re-cropped to 16/9 here. */
-  .cg-card__media--portrait { aspect-ratio: 4 / 5; }
+  /* On one column the plate can afford to be squarer, so a contained cover has
+     more room without the row rhythm mattering — there is only one card wide. */
+  .cg-card__media { aspect-ratio: 4 / 3; }
 }
 </style>

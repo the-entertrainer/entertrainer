@@ -125,7 +125,14 @@ const AUDIT = () => {
       if (!isPainted(el)) continue
       const r = visibleRect(el)
       if (!r || r.width < 1 || r.height < 1) continue
-      if (r.height < 44 || r.width < 24) {
+      // 43.5, not 44: a `min-height: 44rem` control measures 43.98 once border
+      // and sub-pixel rounding are involved, and reporting "44x44 is too small"
+      // is how a check gets ignored.
+      // Segmented controls are exempt from the width floor: a ten-part progress
+      // bar cannot give each segment 24px on a 320px screen, and pretending it
+      // should would make the check something to ignore rather than obey.
+      const segmented = el.closest('[data-segmented], .st-seek')
+      if (r.height < 43.5 || (!segmented && r.width < 24)) {
         const entry = `${name(el)} ${Math.round(r.width)}x${Math.round(r.height)}`
         if (!small.includes(entry)) small.push(entry)
       }
@@ -175,7 +182,15 @@ for (const theme of THEMES) {
         await page.goto(BASE + route, { waitUntil: 'load', timeout: 30000 })
         await page.waitForTimeout(name === 'home' ? 7000 : 1500)
         await page.screenshot({ path: `${OUT}/${theme}-${vp}-${name}.png` })
-        const problems = await page.evaluate(AUDIT)
+        let problems
+        try {
+          problems = await page.evaluate(AUDIT)
+        } catch {
+          // A late client-side navigation can destroy the execution context
+          // mid-evaluate. Settle and try once more before believing it.
+          await page.waitForTimeout(1200)
+          problems = await page.evaluate(AUDIT)
+        }
         if (errors.length) problems.push(`js: ${errors[0]}`)
         checked++
         if (problems.length) {

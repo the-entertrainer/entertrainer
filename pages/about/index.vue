@@ -149,7 +149,10 @@ onBeforeUnmount(() => {
 .ab-prog span { display: block; height: 100%; transform-origin: left; transform: scaleX(0); background: var(--color-text); opacity: 0.85; }
 
 .ab-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 36; display: flex; align-items: center; justify-content: space-between; gap: 16rem; padding: calc(14rem + var(--safe-top)) var(--edge) 14rem; }
-.ab-bar::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(var(--color-bg), transparent); -webkit-mask: linear-gradient(#000, #000 55%, transparent); mask: linear-gradient(#000, #000 55%, transparent); }
+/* The scrim alone is a fade, so a 100rem serif heading scrolling underneath
+   showed through its lower half as ghost letterforms behind the two links. The
+   blur rides the same mask, so the bar still has no hard edge. */
+.ab-bar::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(var(--color-bg), transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); -webkit-mask: linear-gradient(#000, #000 55%, transparent); mask: linear-gradient(#000, #000 55%, transparent); }
 .ab-back, .ab-bar__link { display: inline-flex; align-items: center; gap: 7rem; min-height: 44rem; padding: 0 4rem; color: var(--color-text); text-decoration: none; font-size: 13.5rem; font-weight: 600; opacity: 0.82; transition: opacity 0.25s ease, transform 0.25s ease; border-radius: 8rem; }
 .ab-back:hover, .ab-bar__link:hover { opacity: 1; } .ab-back:hover { transform: translateX(-2rem); } .ab-bar__link:hover { transform: translateX(2rem); }
 .ab-bar__word { letter-spacing: 0.22em; }
@@ -188,9 +191,17 @@ onBeforeUnmount(() => {
   .ab-ch:last-of-type { padding-bottom: calc(clamp(48rem, 9vh, 84rem) + 68rem); }
 }
 
-.ab-hero { position: relative; max-width: var(--maxw); margin: 0 auto; padding: var(--page-top) var(--edge) clamp(60rem, 10vh, 120rem); display: grid; gap: clamp(30rem, 5vw, 70rem); align-items: center; grid-template-columns: 1.05fr 0.95fr; min-height: 100dvh; }
+.ab-hero { position: relative; max-width: var(--maxw); margin: 0 auto; padding: var(--page-top) var(--edge) clamp(60rem, 10vh, 120rem); display: grid; gap: clamp(30rem, 5vw, 70rem); align-items: center; grid-template-columns: 1.05fr 0.95fr;
+  /* Capped, not uncapped: the hero centres its content, so on a 1366rem-tall
+     portrait tablet a full-height hero puts 470rem of nothing above the name and
+     as much below it. 980rem is still ~72% of that screen — a first screen the
+     hero owns — and on any normal desktop height the cap never engages. */
+  min-height: min(100dvh, 980rem); }
 .ab-hero__glow { position: absolute; z-index: 0; top: 18%; left: 28%; width: 60vw; height: 60vw; max-width: 720rem; max-height: 720rem; translate: -50% -30%; pointer-events: none; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--color-accent-deep) 42%, transparent), transparent 62%); opacity: 0.3; filter: blur(30rem); }
-.ab-hero__copy { position: relative; z-index: 2; max-width: 560rem; }
+/* The cap scales; the reading measure does not. Held flat at 560rem this left
+   ~425rem of empty column between the name and the portrait on a 2560rem screen,
+   which read as a gap rather than as space. The lead keeps its own 44ch. */
+.ab-hero__copy { position: relative; z-index: 2; max-width: clamp(560rem, 40vw, 860rem); }
 .ab-hero__eyebrow { letter-spacing: 0.2em; margin-bottom: 22rem; }
 .ab-hero__name { font-size: clamp(52rem, 9vw, 168rem); line-height: 0.92; margin: 0; }
 .ab-hero__lead { margin: clamp(24rem, 3vw, 38rem) 0 0; max-width: 44ch; font-size: clamp(16rem, 1.8vw, 21rem); line-height: 1.58; opacity: 0.9; }
@@ -207,7 +218,11 @@ onBeforeUnmount(() => {
 .ab-ch { max-width: var(--maxw); margin: 0 auto; padding: clamp(60rem, 12vh, 150rem) var(--edge); display: grid; grid-template-columns: 1fr 1fr; gap: clamp(30rem, 6vw, 96rem); align-items: start; }
 .ab-ch--rev .ab-ch__figure { order: 2; }
 .ab-ch__figure { position: sticky; top: clamp(90rem, 14vh, 140rem); margin: 0; }
-.ab-ch__frame { width: 100%; border-radius: 16rem; overflow: hidden; box-shadow: var(--elev-4), var(--ring-hairline); }
+/* `fit-content`, not `100%`. At 100% the frame took the whole column while a
+   height-capped portrait only filled part of it, so the hairline ring and the
+   shadow were drawn around two bars of empty paper. The frame hugs the
+   photograph at every width now, and the photograph decides how wide that is. */
+.ab-ch__frame { width: fit-content; max-width: 100%; margin-inline: auto; border-radius: 16rem; overflow: hidden; box-shadow: var(--elev-4), var(--ring-hairline); }
 /* No forced aspect-ratio: these six photographs are not one shape. Five are
    portrait, one is square and one (about-sewa-1) is 1600x900 landscape — any
    single frame throws away most of at least one of them. The image sets the
@@ -215,10 +230,13 @@ onBeforeUnmount(() => {
    the column. */
 .ab-ch__img {
   display: block;
-  width: 100%;
+  /* Both caps on `auto` dimensions: the replaced-element sizing rules resolve
+     the pair proportionally, so a tall portrait shrinks its width to honour the
+     height cap rather than being letterboxed inside a full-width box. */
+  width: auto;
+  max-width: 100%;
   height: auto;
   max-height: min(78vh, 760rem);
-  object-fit: contain;
   /* These are working photographs — a hotel floor, a training room, a comic
      page — not art direction. A light warm grade settles them onto the paper
      ground instead of leaving them as six bright rectangles, and hovering
@@ -267,5 +285,27 @@ onBeforeUnmount(() => {
   .ab-ch__figure { position: static; top: auto; }
   .ab-ch__frame { max-width: 460rem; margin-inline: auto; }
   .ab-ch__prose { max-width: 100%; min-height: 0; display: block; padding-block: 0; }
+}
+
+/* A landscape phone trips the 900 breakpoint but is not a narrow screen. Stacked
+   image-first it spends its whole first screen on the plate and pushes the name
+   and the lead below the fold; side by side, both fit in 390rem of height. */
+@media (max-width: 900px) and (min-aspect-ratio: 1 / 1) {
+  .ab-hero { grid-template-columns: 1.05fr 0.95fr; gap: clamp(24rem, 4vw, 40rem); }
+  .ab-hero__portrait { order: 0; max-width: none; }
+  .ab-ch { grid-template-columns: 0.95fr 1.05fr; gap: clamp(24rem, 4vw, 40rem); }
+  .ab-ch--rev .ab-ch__figure { order: 2; }
+  .ab-ch__figure { position: sticky; top: clamp(70rem, 14vh, 140rem); }
+  .ab-ch__frame { max-width: none; }
+}
+
+/* The hero can take the full wide --maxw — it is one big name against one big
+   plate. A chapter cannot: both its columns are capped by content (46ch of prose,
+   a photograph that hugs its own height), so at 2100rem the two halves drift
+   apart and the pairing stops reading as a pairing. The chapters get their own,
+   tighter measure. */
+@media (min-width: 1441px) {
+  .ab-ch { max-width: clamp(1240rem, 74vw, 1680rem); }
+  .ab-ch__prose { max-width: none; }
 }
 </style>

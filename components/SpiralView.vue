@@ -589,9 +589,13 @@ function onLoaderEntered() {
   font-size: 11rem;
   font-weight: 500;
   letter-spacing: 0.08em;
-  color: var(--color-text);
-  text-shadow: 0 0 10rem var(--color-bg), 0 0 3rem var(--color-bg);
-  opacity: 0.20;
+  /* Tone via colour, not opacity. At `opacity: 0.20` this was roughly 1.3:1 on
+     the glass — the one line that tells a first-time visitor the whole home page
+     responds to scroll, and it could not be read. Opacity also faded the halo
+     that is supposed to lift it off a moving, multi-coloured ground, so the
+     fainter it got the less the halo helped. Quiet, but legible. */
+  color: color-mix(in srgb, var(--color-text) 58%, transparent);
+  text-shadow: 0 0 12rem var(--color-bg), 0 0 4rem var(--color-bg);
   white-space: nowrap;
 }
 

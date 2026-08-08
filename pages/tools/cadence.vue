@@ -803,10 +803,12 @@ function backToTable() {
             <div style="display:flex; gap:8rem; align-items:center; margin-left:4rem;">
               <button
                 v-for="(th, i) in THEMES" :key="i"
-                class="glass-chip tcg-theme-btn"
+                class="tcg-theme-btn"
                 :class="{ active: activeTheme === i }"
                 :title="th.name"
-                :style="{ background: th.colors[0], padding: '4rem 4rem' }"
+                :aria-label="`Colour theme: ${th.name}`"
+                :aria-pressed="activeTheme === i"
+                :style="{ background: th.colors[0] }"
                 @click="changeTheme(i)"
               />
             </div>
@@ -983,7 +985,7 @@ function backToTable() {
                     </div>
                   </div>
 
-                  <p class="tcg-sidebar-hint">Tap a session to select it, then tap any date to move it</p>
+                  <p class="tcg-sidebar-hint">Pick a session, then pick the date you want it on.</p>
                 </div>
               </Transition>
 
@@ -1253,13 +1255,23 @@ function backToTable() {
 /* back buttons now use glass-btn--ghost */
 
 .tcg-themes { display: flex; gap: 8rem; align-items: center; margin-left: 4rem; }
+/* A colour swatch, not a chip. Carrying `.glass-chip` gave it that class's
+   `min-height: 32rem` against its own `width: 22rem`, so all six rendered as
+   ovals. They also need to be tappable, and a palette swatch is one of the few
+   controls that can just *be* 44rem on touch rather than hiding a small disc
+   inside a big hit box. */
 .tcg-theme-btn {
-  width: 22rem;
-  height: 22rem;
+  width: 28rem;
+  height: 28rem;
+  flex: 0 0 auto;
+  padding: 0;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
   transition: transform 0.15s, border-color 0.15s;
+}
+@media (pointer: coarse) {
+  .tcg-theme-btn { width: 44rem; height: 44rem; }
 }
 .tcg-theme-btn.active { border-color: var(--color-text); transform: scale(1.2); }
 .tcg-theme-btn:hover  { transform: scale(1.15); }

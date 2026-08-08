@@ -302,8 +302,12 @@ const columns = computed(() => {
 }
 @media (max-width: 640px) {
   .cg-grid { grid-template-columns: 1fr; }
-  /* On one column the plate can afford to be squarer, so a contained cover has
-     more room without the row rhythm mattering — there is only one card wide. */
+  /* On one column there is no row rhythm left to protect — every card is its own
+     row — so each plate can take the shape its artwork wants. A landscape plate
+     gets squarer, and a portrait cover gets a portrait plate and fills it,
+     instead of sitting small between two wide margins of mount. */
   .cg-card__media { aspect-ratio: 4 / 3; }
+  .cg-card__media--portrait { aspect-ratio: 4 / 5; }
+  .cg-card__media--portrait img { padding: 0; }
 }
 </style>

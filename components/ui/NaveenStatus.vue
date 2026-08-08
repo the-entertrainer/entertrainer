@@ -126,6 +126,15 @@ onUnmounted(() => {
   70%  { box-shadow: 0 0 0 7rem transparent; }
   100% { box-shadow: 0 0 0 0 transparent; }
 }
+/* .eyebrow's own 0.16em tracking is what pushes this past 244rem on a 320rem
+   screen; the label wrapped to two lines and left "just now" floating beside the
+   first of them. It stays one line and gives the tracking back instead. */
+.nvstatus__label { white-space: nowrap; }
+@media (max-width: 400px) {
+  .nvstatus { padding: 14rem 15rem; }
+  .nvstatus__head { gap: 6rem; }
+  .nvstatus__label { font-size: 10.5rem; letter-spacing: 0.08em; }
+}
 .nvstatus__ago {
   margin-left: auto;
   font-weight: 600;

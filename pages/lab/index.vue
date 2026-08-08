@@ -7,6 +7,13 @@ const R = useReveal()
 
 <template>
   <div class="lab">
+    <!-- `layout: false` means no site chrome renders here, so without this the
+         page is a dead end and the browser's own back button is the only exit. -->
+    <NuxtLink to="/" class="lab__exit">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 8 12l7 7" /></svg>
+      Back to the site
+    </NuxtLink>
+
     <div class="lab__inner">
       <header class="lab__head">
         <p class="lab__eyebrow" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">Hidden · Lab</p>
@@ -33,6 +40,18 @@ const R = useReveal()
 <style scoped>
 .lab { position: fixed; inset: 0; overflow-y: auto; background: var(--color-bg); color: var(--color-text); --serif: var(--serif-font); }
 .lab__inner { max-width: 860rem; margin: 0 auto; padding: calc(90rem + var(--safe-top)) clamp(20rem, 5vw, 40rem) 90rem; }
+.lab__exit {
+  position: fixed; z-index: 5;
+  top: calc(18rem + var(--safe-top)); left: calc(20rem + var(--safe-left));
+  min-height: 44rem; display: inline-flex; align-items: center; gap: 6rem;
+  padding: 8rem 14rem; border-radius: 999rem; font-size: 13rem;
+  color: var(--color-text); text-decoration: none;
+  background: var(--color-glass-bg); border: 1px solid var(--color-glass-border);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  transition: background 0.15s ease;
+}
+@media (hover: hover) { .lab__exit:hover { background: var(--color-glass-bg-hover); } }
+.lab__exit:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
 .lab__eyebrow { font-size: 12rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.55; }
 .lab__title { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(38rem, 6.5vw, 68rem); line-height: 1.0; letter-spacing: -0.015em; margin: 14rem 0 0; }
 .lab__deck { margin: 20rem 0 40rem; max-width: 54ch; font-size: 16rem; line-height: 1.6; opacity: 0.7; }

@@ -283,7 +283,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
             v-model="context"
             class="glass-field be-textarea"
             placeholder="e.g. This is to my manager. I need her to approve extra budget for the new e-learning platform by Friday."
-            rows="2"
+            rows="3"
             :disabled="phase === 'loading'"
           />
         </div>

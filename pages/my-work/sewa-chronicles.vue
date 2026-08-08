@@ -154,7 +154,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 }
 .cs-title { font-size: var(--text-display); margin-top: 12rem; }
 .cs-deck { font-size: 17rem; line-height: 1.55; opacity: 0.7; margin-top: 16rem; max-width: 30em; }
-.cs-meta { display: flex; flex-wrap: wrap; gap: 10rem 28rem; margin-top: 26rem; }
+/* A grid, not a wrapping flex row. Flowing four content-sized items meant the
+   second row started wherever the first row's widest value happened to end —
+   "Format" sat under the middle of "Concept, writing, illustration & layout"
+   instead of under "Role". Two fixed columns keep the labels in line. */
+.cs-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14rem 28rem; margin-top: 26rem; }
 .cs-meta__row { display: flex; flex-direction: column; gap: 3rem; }
 .cs-meta__row dt { letter-spacing: 0.1em; }
 .cs-meta__row dd { font-size: 13.5rem; font-weight: 600; }

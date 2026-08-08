@@ -107,7 +107,7 @@ async function copy(text: string, i: number) {
           v-model="answer"
           class="glass-field dg-textarea"
           placeholder="e.g. To identify the gap between current and desired performance before designing a solution."
-          rows="2"
+          rows="3"
         />
 
         <button

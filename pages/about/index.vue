@@ -171,14 +171,21 @@ onBeforeUnmount(() => {
     translate: -50% 0;
     flex-direction: row;
     gap: 4rem;
-    padding: 8rem 12rem;
+    padding: 4rem 10rem;
     border-radius: var(--radius-full);
-    background: color-mix(in srgb, var(--color-bg) 78%, transparent);
+    /* 78% let the paragraph underneath read straight through the pill, so the
+       dashes looked smudged rather than pinned on top. Floating chrome has to
+       be opaque enough to be a surface. */
+    background: color-mix(in srgb, var(--color-bg) 94%, transparent);
     border: 1px solid var(--color-glass-border);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    box-shadow: var(--elev-2);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
   }
   .ab-step { width: 44rem; height: 44rem; }
+  /* The pill is fixed, so the last thing on the page would otherwise end
+     underneath it and stay there — there is nothing further to scroll. */
+  .ab-ch:last-of-type { padding-bottom: calc(clamp(48rem, 9vh, 84rem) + 68rem); }
 }
 
 .ab-hero { position: relative; max-width: var(--maxw); margin: 0 auto; padding: var(--page-top) var(--edge) clamp(60rem, 10vh, 120rem); display: grid; gap: clamp(30rem, 5vw, 70rem); align-items: center; grid-template-columns: 1.05fr 0.95fr; min-height: 100dvh; }

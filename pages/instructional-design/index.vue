@@ -371,4 +371,19 @@ function iconPath(name: string) {
   .id-moves { grid-template-columns: 1fr; }
   .id-canvas { padding: 20rem; }
 }
+
+/* Above 1440 the column widens, but only for the parts that are not prose. Held
+   at --maxw-read the 132rem headline broke over four lines inside a 790rem
+   column, and the three moves were 190rem cards with 10rem labels in the middle
+   of a 2560rem screen. The dek keeps its 54ch measure and the canvas keeps its
+   56ch, so nothing anyone actually reads gets wider — the headline and the
+   apparatus around it do. */
+@media (min-width: 1441px) {
+  .id-wrap { max-width: clamp(860rem, 62vw, 1180rem); }
+  .id-lab { padding: clamp(26rem, 2.2vw, 44rem); }
+  .id-moves { gap: clamp(12rem, 1vw, 20rem); }
+  .id-move { padding: clamp(15rem, 1.2vw, 22rem); }
+  .id-move__label { font-size: clamp(14.5rem, 1.05vw, 18rem); }
+  .id-move__principle { font-size: clamp(12rem, 0.85vw, 15rem); }
+}
 </style>

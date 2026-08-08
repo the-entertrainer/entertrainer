@@ -736,6 +736,17 @@ onUnmounted(() => {
   border: 1px solid var(--color-glass-border);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 18rem 40rem -24rem rgba(0,0,0,0.6);
 }
+/* 21:6 is a desktop shape. On a 320px screen it leaves an 80px-tall strip, and
+   the idle overlay — title, hint and call to action, centred on `inset: 0` —
+   is about that tall on its own, so it landed on top of the score row and the
+   fullscreen disc. The stage gets taller as the screen gets narrower; the
+   playfield is laid out in fractions of its own height, so nothing else moves. */
+@media (max-width: 700px) {
+  .cgame__bezel { aspect-ratio: 2 / 1; }
+}
+@media (max-width: 420px) {
+  .cgame__bezel { aspect-ratio: 16 / 10; }
+}
 .cgame__canvas {
   width: 100%;
   height: 100%;
@@ -797,7 +808,9 @@ onUnmounted(() => {
   position: absolute;
   top: 6rem;
   left: 8rem;
-  right: 66rem;
+  /* Clears the control cluster: two 44rem hit boxes, a 6rem gap and an 8rem
+     inset. At 66 the score sat under the sound disc. */
+  right: 108rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -808,7 +821,9 @@ onUnmounted(() => {
   pointer-events: none;
   text-shadow: 0 0 6rem rgba(150,220,120,0.5), 0 1px 2px rgba(0,0,0,0.6);
 }
-.cgame--immersive .cgame__hud { top: 14rem; left: 16rem; right: 92rem; font-size: 19rem; }
+/* Same clearance, at the immersive cluster's size: two 48rem boxes, 8rem gap,
+   14rem inset, plus the right safe area. */
+.cgame--immersive .cgame__hud { top: 14rem; left: 16rem; right: calc(132rem + var(--safe-right)); font-size: 19rem; }
 .cgame__hi { color: rgba(150,220,120,0.55); }
 .cgame__score { color: rgba(214,255,190,0.95); }
 
@@ -826,34 +841,44 @@ onUnmounted(() => {
   right: calc(14rem + var(--safe-right));
   gap: 8rem;
 }
+/* The visible disc stays small — an arcade bezel wants small chrome — but the hit
+   area does not. `background-clip: content-box` cannot do that here for two
+   reasons: the shorthand `background` below it resets the clip to `border-box`,
+   and a border paints on the border box regardless of where the background is
+   clipped. So the button is the 44rem hit box and ::before is the disc. */
 .cgame__toggle {
-  /* The visible disc stays small — an arcade bezel wants small chrome — but the
-     hit area does not. Padding plus background-clip keeps the look and gives the
-     finger something to land on. */
+  position: relative;
   width: 44rem;
   height: 44rem;
-  padding: 10rem;
-  background-clip: content-box;
   display: grid;
   place-items: center;
-  border-radius: 999px;
-  background: rgba(7,15,6,0.55);
-  border: 1px solid rgba(150,220,120,0.3);
+  background: none;
+  border: 0;
   color: rgba(150,220,120,0.85);
   cursor: pointer;
   touch-action: manipulation;
-  transition: background 0.2s ease, transform 0.15s var(--ease-spring), color 0.2s ease;
+  transition: transform 0.15s var(--ease-spring), color 0.2s ease;
 }
-.cgame__toggle svg { width: 13rem; height: 13rem; }
+.cgame__toggle::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%; translate: -50% -50%;
+  width: 26rem; height: 26rem;
+  border-radius: 999px;
+  background: rgba(7,15,6,0.55);
+  border: 1px solid rgba(150,220,120,0.3);
+  transition: background 0.2s ease;
+}
+.cgame__toggle svg { position: relative; width: 13rem; height: 13rem; }
 .cgame__toggle:active { transform: scale(0.9); }
+.cgame__toggle:focus-visible { outline: none; }
+.cgame__toggle:focus-visible::before { outline: 2px solid rgb(214,255,190); outline-offset: 2px; }
 @media (hover: hover) {
-  .cgame__toggle:hover { background: rgba(7,15,6,0.8); color: rgb(214,255,190); }
+  .cgame__toggle:hover { color: rgb(214,255,190); }
+  .cgame__toggle:hover::before { background: rgba(7,15,6,0.8); }
 }
-.cgame--immersive .cgame__toggle {
-  width: 48rem;
-  height: 48rem;
-  padding: 8rem;
-}
+.cgame--immersive .cgame__toggle { width: 48rem; height: 48rem; }
+.cgame--immersive .cgame__toggle::before { width: 34rem; height: 34rem; }
 .cgame--immersive .cgame__toggle svg { width: 15rem; height: 15rem; }
 
 .cgame__overlay {

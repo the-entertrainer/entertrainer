@@ -137,7 +137,7 @@ const columns = computed(() => {
   display: flex;
   flex-direction: column;
   padding: 0;                 /* the media is flush; the body carries its own inset */
-  border-radius: 18rem;
+  border-radius: clamp(18rem, 1.1vw, 28rem);
   overflow: hidden;           /* clips the media scale on hover */
   color: var(--color-text);
 }
@@ -150,13 +150,26 @@ const columns = computed(() => {
   overflow: hidden;
   background: color-mix(in srgb, var(--color-accent-deep) 22%, var(--color-bg));
 }
+.cg-card__media img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1.001);    /* pre-promote, so the first hover isn't a repaint */
+  transition: transform var(--dur-5) var(--ease-out-soft);
+}
+
 /* A portrait source in a landscape plate showed 40% of itself — the SEWA cover
    is a 1400x1980 magazine page. Giving it its own aspect-ratio fixed the crop
    and broke the row: a square plate beside a 16/10 one stretches the grid row to
    the taller card and leaves a quarter of the shorter card empty under its text.
    A grid wants one silhouette. So the plate keeps its ratio and the cover is
    contained on it — full height, centred, the mount showing at its sides, which
-   is how a cover is presented in a grid anyway. */
+   is how a cover is presented in a grid anyway.
+   This block has to sit *after* `.cg-card__media img`, not before it. Both
+   selectors carry one class, one attribute and one type once Vue's scope
+   attribute is appended, so they tie on specificity and source order decides —
+   written above, `object-fit: contain` silently lost to `cover` and the cover
+   stayed cropped at every width. */
 .cg-card__media--portrait img {
   object-fit: contain;
   padding: 10rem 0;
@@ -166,13 +179,6 @@ const columns = computed(() => {
   background:
     radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--color-accent-deep) 30%, transparent), transparent 70%),
     color-mix(in srgb, var(--color-accent-deep) 16%, var(--color-bg));
-}
-.cg-card__media img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
-  transform: scale(1.001);    /* pre-promote, so the first hover isn't a repaint */
-  transition: transform var(--dur-5) var(--ease-out-soft);
 }
 /* A scrim so the corner glyph reads against any artwork. */
 .cg-card__media::after {
@@ -201,9 +207,9 @@ const columns = computed(() => {
 
 .cg-card__arrow {
   position: absolute;
-  right: 12rem; bottom: 12rem;
+  right: clamp(12rem, 0.8vw, 20rem); bottom: clamp(12rem, 0.8vw, 20rem);
   z-index: 2;
-  width: 30rem; height: 30rem;
+  width: clamp(30rem, 2vw, 44rem); height: clamp(30rem, 2vw, 44rem);
   display: grid; place-items: center;
   border-radius: var(--radius-full);
   background: color-mix(in srgb, var(--color-bg) 64%, transparent);
@@ -217,16 +223,21 @@ const columns = computed(() => {
 }
 
 /* ── Body ── */
+/* The body rides the same ramp as the plate it sits under. Held at a flat
+   19rem/14rem it read as a caption pinned to a billboard once the plate passed
+   900px wide — the card grew and its voice didn't. The description keeps a
+   reading measure, so it wraps rather than running the full width of the plate. */
 .cg-card__body {
   display: flex;
   flex-direction: column;
   gap: 6rem;
-  padding: 18rem 20rem 20rem;
+  padding: clamp(18rem, 1.2vw, 30rem) clamp(20rem, 1.3vw, 34rem) clamp(20rem, 1.4vw, 34rem);
 }
 .cg-card__meta { margin-bottom: 2rem; }
-.cg-card__label { font-size: 19rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
+.cg-card__label { font-size: clamp(19rem, 1.35vw, 30rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
 .cg-card__desc {
-  font-size: 14rem; opacity: 0.66; line-height: 1.5;
+  font-size: clamp(14rem, 0.95vw, 19rem); opacity: 0.66; line-height: 1.5;
+  max-width: 62ch;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .cg-empty { font-size: 15rem; opacity: 0.62; }
@@ -260,6 +271,9 @@ const columns = computed(() => {
 /* .u-lift carries the surface hover; these are the media-specific parts. */
 @media (hover: hover) and (pointer: fine) {
   .cg-card:hover .cg-card__media img { transform: scale(1.045); }
+  /* A contained cover is shown whole on purpose; zooming it would crop the very
+     edges the `contain` is there to keep. The plate lifts, the cover doesn't. */
+  .cg-card:hover .cg-card__media--portrait img { transform: none; }
   .cg-card:hover .cg-card__arrow { opacity: 1; transform: translate(2rem, -2rem); }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -267,22 +281,27 @@ const columns = computed(() => {
   .cg-card:hover .cg-card__media img { transform: none; }
 }
 
-/* Above 1440 the grid gains a column rather than inflating the plates: four
-   tools read as a row of four, not as two billboards. Below 900 everything
-   collapses to two and then to one — a plate narrower than ~280rem stops
-   showing the artwork and starts showing a detail of it. */
+/* Above 1440 the grid gains a third column — but only a third. Four small plates
+   in a row came out narrower than the two plates at 1440, which is the grid
+   gaining a column and losing presence. Three large ones read better. Below 900
+   everything collapses to two and then to one; a plate narrower than ~280rem
+   stops showing the artwork and starts showing a detail of it. */
 @media (min-width: 1441px) {
   .cg-grid[data-count="3"],
-  .cg-grid[data-count="4"],
   .cg-grid[data-count="5"],
   .cg-grid[data-count="6"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* Four is the one count that must not become three: it leaves a single plate
+     stranded on a row of its own, which is the arrangement the column logic in
+     the script block exists to avoid. Across the full 1900rem of content the
+     four plates are ~460rem each — a real row, not the ~310rem strip they were
+     before --maxw and --edge were rebalanced. */
+  .cg-grid[data-count="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 900px) {
   .cg-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 640px) {
   .cg-grid { grid-template-columns: 1fr; }
-  .cg-card__media { aspect-ratio: 16 / 9; }
   /* On one column the plate can afford to be squarer, so a contained cover has
      more room without the row rhythm mattering — there is only one card wide. */
   .cg-card__media { aspect-ratio: 4 / 3; }

@@ -897,7 +897,7 @@ function backToTable() {
                 <div v-if="selectedSession" key="editor" class="glass-panel" style="padding:12rem;">
                   <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8rem;">
                     <span class="glass-label" style="margin:0;">Edit Session</span>
-                    <button class="glass-chip tcg-x" @click="selectedSession = null" aria-label="Close">×</button>
+                    <button class="glass-chip tcg-close" @click="selectedSession = null" aria-label="Close">×</button>
                   </div>
 
                   <div style="display:flex; flex-direction:column; gap:8rem;">
@@ -1303,12 +1303,13 @@ function backToTable() {
 }
 
 /* Calendar grid — fixed light palette, isolated from the site theme */
-/* The inline remove/close buttons measured as little as 7x14. The glyph keeps
-   its size — these sit inside dense rows and a 44px disc would dominate them —
-   and the button grows around it. */
+/* The inline remove buttons measured as little as 7x14. The glyph keeps its size
+   — these sit inside dense chip rows — and the button grows around it, but only
+   where a finger is doing the aiming. A 44rem button inside a 32rem chip makes
+   every chip 56rem tall, and on a mouse a 14px × was never the problem. */
 .tcg-x {
-  min-width: 44rem;
-  min-height: 44rem;
+  min-width: 24rem;
+  min-height: 24rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1321,6 +1322,19 @@ function backToTable() {
 }
 .tcg-x--lg { font-size: 18rem; opacity: 0.4; }
 @media (hover: hover) { .tcg-x:hover { opacity: 1; } }
+@media (pointer: coarse) {
+  .tcg-x { min-width: 44rem; min-height: 44rem; }
+}
+
+/* The editor's close control is a chip, and must stay one: .tcg-x zeroes
+   background and border, which would have left a bare glyph where a chip was. */
+.tcg-close {
+  min-width: 44rem;
+  min-height: 44rem;
+  justify-content: center;
+  padding: 2rem 6rem;
+  font-size: 14rem;
+}
 
 .tcg-cal {
   --color-glass-bg:           rgba(0, 0, 0, 0.04);

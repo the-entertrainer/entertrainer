@@ -123,8 +123,15 @@ const AUDIT = () => {
     const small = []
     for (const el of document.querySelectorAll('a[href], button, [role="button"], [role="switch"], input, select, summary')) {
       if (!isPainted(el)) continue
-      const r = visibleRect(el)
-      if (!r || r.width < 1 || r.height < 1) continue
+      // Reachability first: something clipped away to nothing is not a target.
+      const vis = visibleRect(el)
+      if (!vis || vis.width < 1 || vis.height < 1) continue
+      // Then measure the control itself, not the sliver of it currently on
+      // screen. A 44rem button half-scrolled out of a panel is 44rem — the user
+      // scrolls and taps it. Measuring the visible sliver reported Strong's
+      // primary CTA as `122x24` on a landscape phone and sent me looking for a
+      // sizing bug that was not there.
+      const r = el.getBoundingClientRect()
       // 43.5, not 44: a `min-height: 44rem` control measures 43.98 once border
       // and sub-pixel rounding are involved, and reporting "44x44 is too small"
       // is how a check gets ignored.

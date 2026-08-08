@@ -203,11 +203,14 @@
    screen — on shell padding before any content appears. */
 @media (max-height: 560px) {
   :root {
-    --chrome-offset: 12px;
-    --chrome-size:   40px;
+    /* The inset shrinks; the button does not. 40px reclaimed eight more pixels
+       of a short screen and cost every corner control its 44px touch target —
+       a worse trade than the one it was fixing. */
+    --chrome-offset: 10px;
+    --chrome-size:   44px;
     /* Must clear the corner chrome: offset + size + breathing room. Anything
        less and the eyebrow renders underneath the back button. */
-    --page-top:    calc(64rem + var(--safe-top));
+    --page-top:    calc(66rem + var(--safe-top));
     --page-bottom: calc(28rem + var(--safe-bottom));
   }
 }

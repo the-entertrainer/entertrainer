@@ -1,7 +1,9 @@
 export default defineNuxtConfig({
   devtools: { enabled: false },
   modules: ['@pinia/nuxt', '@vite-pwa/nuxt', '@vueuse/motion/nuxt'],
-  css: ['~/assets/css/main.css'],
+  // fonts.css first — the @font-face blocks have to be registered before the
+  // stylesheet that asks for the families.
+  css: ['~/assets/css/fonts.css', '~/assets/css/main.css'],
   runtimeConfig: {
     // Server-only — set via GIPHY_API_KEY env var (Vercel project settings).
     // When absent, /api/giphy serves a curated fallback manifest.
@@ -45,16 +47,22 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        // Fraunces now ships its SOFT and WONK axes, which the old request left
-        // on the table. WONK swaps in the quirky alternate glyphs (the single-
-        // storey g, the curled y) and SOFT rounds the terminals — together they
-        // are what stops a variable serif from reading as a stock system serif,
-        // and they cost one URL parameter. Applied via font-variation-settings on
-        // display headings only; body serif stays at WONK 0 for readability.
-        // Weight range also widened 600 -> 700 so headings have a bold cut.
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&display=swap' }
+        // The two faces every page paints first. Both are served from this
+        // origin (see scripts/fetch-fonts.mjs), so there is no third-party DNS
+        // lookup, TLS handshake and CSS round trip standing between the HTML and
+        // the first correctly-shaped glyph — and no Georgia-then-Fraunces
+        // reflow behind it. Only the latin subsets are preloaded; latin-ext and
+        // vietnamese still load on demand via their unicode-range.
+        //
+        // Fraunces carries its SOFT and WONK axes. WONK swaps in the quirky
+        // alternates (the single-storey g, the curled y) and SOFT rounds the
+        // terminals — together they are what stops a variable serif from reading
+        // as a stock system serif. Applied via font-variation-settings on display
+        // headings only; body serif stays at WONK 0 for readability.
+        { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '',
+          href: '/fonts/fraunces-v38-6NUV8FyLNQOQZAnv9ZwIlOk.woff2' },
+        { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '',
+          href: '/fonts/dmsans-v17-rP2Hp2ywxg089UriCZOIHQ.woff2' }
       ]
     },
     pageTransition: false,

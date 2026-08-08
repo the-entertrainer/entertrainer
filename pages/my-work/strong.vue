@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// Vite keeps this with the route's own chunk, so the three faces this lesson
+// uses ship with the lesson and cost nothing on any other page.
+import '~/assets/css/fonts-strong.css'
 import Backdrop3d from '~/components/work/Backdrop3d.vue'
 import StCover from '~/components/work/strong/Title.vue'
 import StObjectives from '~/components/work/strong/Objectives.vue'
@@ -36,7 +39,13 @@ const BG_COLORS = ['#182533', '#1E2E3E', '#22384A', '#35D0C4', '#1A2836', '#2A42
 
 definePageMeta({ layout: false, pageTransition: { name: 'st-fade', mode: 'out-in' } })
 useHead({
-  link: [{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap' }]
+  // Self-hosted, like the rest of the site — see scripts/fetch-fonts.mjs. The
+  // stylesheet is imported below rather than linked, so this page costs no
+  // third-party round trip and never paints its display face in a fallback.
+  link: [
+    { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '',
+      href: '/fonts/spacegrotesk-v22-V8mDoQDjQSkFtoMM3T6r8E7mPbF4Cw.woff2' }
+  ]
 })
 useSeoMeta({
   title: 'Strong — How Passwords Really Break · Entertrainer',

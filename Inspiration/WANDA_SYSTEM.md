@@ -421,3 +421,44 @@ published comic cover). Generating substitute art for either would mean
 fabricating a stand-in for a real person or replacing real creative work
 with an AI facsimile of it — different from illustrating an abstract concept
 like "password strength," and not something to do to make a style match.
+
+## 16. §15's art was mood-board abstract. Told directly it needed to be thumbnail art instead — a photo with the title on it, content-aware.
+
+§15's six images were abstract light compositions (a dissolving padlock made
+of glowing particles, scattered geometric shards) — striking, but not what
+was actually asked for on a second read: "thumbnail artwork… with a photo
+and text on top… content aware about the thing it represents." Two changes,
+not one:
+
+**The photos themselves became literal rather than abstract** — a hand
+sketching a flowchart in chalk for instructional design, a macro shot of an
+actual brass padlock's keyhole for password strength, a pencil filling in a
+real bubble-sheet exam for multiple-choice assessment, a calendar page with
+a pen for training planning, a fountain pen mid-signature for writing, hand-
+sketched storyboard panels on a table for storyboarding. Recognisable
+subjects, not mood-board light shows — the same moody near-black, single-
+accent-colour lighting carries over, but the content is now legible at a
+glance, which was the actual point of "content aware."
+
+**The title is now baked into the image**, not left to the deck's small
+floating caption chip alone. Composited locally with Pillow rather than
+asked of the image model — text-in-image is a well-known weak point for
+diffusion models (garbled letterforms, wrong spelling), and this repo's own
+Space Grotesk/IBM Plex Mono faces were sitting right there as woff2 files
+already, one `fontTools.varLib.instancer` call away from a static Bold TTF
+PIL can render directly. Bottom-up layout — title's baseline is placed a
+fixed margin above the image's bottom edge, then the kicker, then the accent
+rule are stacked upward from there, each measured before anything is drawn —
+which is the fix for a real bug the first composite pass shipped with:
+positioning top-down from a fixed offset let "STRONG" render partially
+below the image's own bottom edge whenever the fitted font size came out
+larger than the gap that offset happened to leave.
+
+One image needed a second pass: the first `storygen` generation, prompted
+around "storyboard cards pinned to a corkboard," came back as a photograph
+of a potted monstera plant — beautifully lit, entirely off-theme, a reminder
+that a generated image has to be looked at and checked against its own brief
+before it ships, not just against the general mood the rest of the set is
+hitting. Re-prompted with the ambiguity removed ("hand-drawn storyboard
+sketch panels… small sequential comic-style frames") and it came back
+correct on the second try.

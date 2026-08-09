@@ -13,10 +13,14 @@ const contentStore = useContentStore()
 </script>
 
 <template>
-  <UiCardGrid
-    eyebrow="My Work"
-    title="Proof it wasn't all talk"
-    deck="The two I can show you end to end — what they were for, who they were for, and how they were built."
-    :items="contentStore.myWorkNav"
-  />
+  <WandaSurface :crumbs="[{ label: 'Index', href: '/' }, { label: 'Work', active: true }]">
+    <WandaHeroTitle
+      title="Work"
+      standfirst="The two I can show you end to end — what they were for, who they were for, and how they were built."
+    />
+    <WandaGenerativeGrid :items="contentStore.myWorkNav" />
+    <div class="w-endcta">
+      <NuxtLink to="/tools">→ The tools behind them</NuxtLink>
+    </div>
+  </WandaSurface>
 </template>

@@ -18,9 +18,22 @@ const themeStore = useThemeStore()
 //    subtree for its blur, which on a full-viewport canvas app is a visible
 //    hitch. They cross-fade instead.
 const FLAT_FADE = ['/tools/storygen', '/my-work/strong']
+
+// Routes rebuilt in the Wanda language. They carry their own fixed header and
+// index overlay (WandaSurface), so the old corner menu must not also mount —
+// two navigation systems on one page is one too many.
+const WANDA_ROUTES = ['/tools', '/my-work']
+const isWanda = computed(() =>
+  route.path === '/' ||
+  WANDA_ROUTES.some(p => route.path === p || route.path === `${p}/`)
+)
+
 const transition = computed(() => {
   if (route.path === '/') return { name: 'fade' }
   if (FLAT_FADE.some(p => route.path.startsWith(p))) return { name: 'fade', mode: 'out-in' as const }
+  // The Wanda surface transitions on opacity alone — no rise, no blur. Its
+  // whole motion vocabulary is sine curves under a third of a second.
+  if (isWanda.value) return { name: 'fade', mode: 'out-in' as const }
   return { name: 'editorial', mode: 'out-in' as const }
 })
 
@@ -32,7 +45,7 @@ onMounted(() => {
 <template>
   <div id="app-root">
     <NuxtPage :transition="transition" />
-    <UiMenu v-if="!route.path.startsWith('/glass-lab') && !route.path.startsWith('/lab') && !route.path.startsWith('/instructional-design') && !route.path.startsWith('/my-work/strong') && !/^\/about\/?$/.test(route.path)" />
+    <UiMenu v-if="!isWanda && !route.path.startsWith('/glass-lab') && !route.path.startsWith('/lab') && !route.path.startsWith('/instructional-design') && !route.path.startsWith('/my-work/strong') && !/^\/about\/?$/.test(route.path)" />
   </div>
 </template>
 

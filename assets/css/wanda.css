@@ -1,0 +1,551 @@
+/* ============================================================
+   The Wanda system
+   Extracted from wanda.net and documented in
+   Inspiration/WANDA_SYSTEM.md. Every number here is theirs.
+
+   Scoped under .w-surface so the deep interactive pages
+   (strong, storygen, the lab) keep their own visual language
+   and are not dragged into a monochrome shell they were never
+   designed for.
+   ============================================================ */
+
+.w-surface {
+  /* Canvas. There is no accent colour in this system — hierarchy is
+     carried entirely by opacity, size and typeface. Resist adding one. */
+  --w-bg: #080808;
+  --w-bg-raised: #121212;
+  --w-fg: #ffffff;
+  --w-muted: #b5b5b5;
+  --w-dim: #737373;
+  --w-faint: #4e4e4e;
+
+  /* Every link rests here and resolves to 1 on hover. This single pair
+     replaces what would otherwise be a dozen hover colours. */
+  --w-rest: 0.6;
+
+  /* Type roles. Söhne / Söhne Mono / Trash upstream; these three are
+     already self-hosted in this repo, so nothing new is licensed. */
+  --w-sans: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --w-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --w-display: 'Space Grotesk', 'Inter', sans-serif;
+
+  /* Geometry. The left gutter and the index column gap are the same
+     160px, which is what makes the index read as engineered. */
+  --w-gutter: 160px;
+  --w-gutter-right: 125px;
+  --w-header-h: 75px;
+  --w-logo-x: 40px;
+  --w-logo-y: 26px;
+
+  /* Chrome type: 18/21 above 1024, 16/18.75 below. */
+  --w-chrome-size: 18px;
+  --w-chrome-lh: 1.1666666667;
+
+  /* Motion. Sine-out entering, sine-in-out leaving, quad-out for
+     mechanical things like the plus rotating into a minus. */
+  --w-ease-out: cubic-bezier(0.39, 0.575, 0.565, 1);
+  --w-ease-in-out: cubic-bezier(0.445, 0.05, 0.55, 0.95);
+  --w-ease-quad: cubic-bezier(0.215, 0.61, 0.355, 1);
+
+  position: relative;
+  min-height: 100dvh;
+  background: var(--w-bg);
+  color: var(--w-fg);
+  font-family: var(--w-sans);
+  font-size: 16px;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (max-width: 1450px) {
+  .w-surface { --w-gutter: 100px; --w-gutter-right: 80px; }
+}
+@media (max-width: 1024px) {
+  .w-surface {
+    --w-chrome-size: 16px;
+    --w-chrome-lh: 1.171875;
+    --w-gutter: 60px;
+    --w-gutter-right: 40px;
+  }
+}
+@media (max-width: 812px) {
+  .w-surface { --w-gutter: 20px; --w-gutter-right: 20px; --w-logo-x: 15px; --w-logo-y: 16px; }
+}
+
+/* ─── Chrome type ─────────────────────────────────────────── */
+
+.w-chrome {
+  font-family: var(--w-sans);
+  font-size: var(--w-chrome-size);
+  line-height: var(--w-chrome-lh);
+  font-weight: 400;
+  letter-spacing: normal;
+}
+
+/* Any interactive text in the chrome. Opacity is the only state. */
+.w-link {
+  color: currentColor;
+  opacity: var(--w-rest);
+  transition: opacity 0.2s linear;
+}
+.w-link:hover,
+.w-link.is-active { opacity: 1; }
+
+/* ─── Header ──────────────────────────────────────────────── */
+
+.w-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--w-header-h);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  /* The breadcrumb starts at the content gutter, except where the gutter has
+     narrowed enough that it would run under the fixed logo — hence the floor at
+     the logo's own width plus clearance. */
+  padding: var(--w-logo-y) var(--w-gutter-right) 0 max(var(--w-gutter), calc(var(--w-logo-x) + 120px));
+  pointer-events: none;
+  z-index: 500;
+}
+.w-header > * { pointer-events: auto; }
+
+/* The source's mark is 101px wide in a 160px gutter — 19px of clearance before
+   the breadcrumb starts. "Entertrainer" is twice the glyph count of "Wanda+",
+   so holding both the 19px cap height and the 160px gutter is impossible; the
+   cap height gives, because the gutter is load-bearing (it is also the index
+   column gap) and the cap height is not. 13px lands the mark at ~100px, which
+   is the source's envelope exactly. */
+.w-logo {
+  position: fixed;
+  left: var(--w-logo-x);
+  top: var(--w-logo-y);
+  height: auto;
+  width: auto;
+  z-index: 5000;
+  color: var(--w-fg);
+  font-family: var(--w-display);
+  font-size: 13px;
+  line-height: 19px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color 0.2s linear;
+}
+
+/* ─── Breadcrumb ──────────────────────────────────────────── */
+
+.w-breadcrumb { position: relative; display: flex; align-items: baseline; }
+.w-breadcrumb-item { display: inline-block; margin-right: 12px; }
+.w-breadcrumb-item > * {
+  font-family: var(--w-sans);
+  font-size: var(--w-chrome-size);
+  line-height: var(--w-chrome-lh);
+}
+
+/* ─── Nav ─────────────────────────────────────────────────── */
+
+/* margin-left:auto rather than relying on space-between: the logo is fixed
+   (out of flow) and the breadcrumb is display:none below 812, so on narrow
+   viewports the nav is the only in-flow child and would sit hard left. */
+.w-nav {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-left: auto;
+  transition: opacity 0.2s linear;
+}
+/* The index panel's close button claims this corner. */
+.w-nav.is-yielded { opacity: 0; pointer-events: none; }
+.w-nav-links { margin-right: 12px; display: flex; }
+
+/* Rests hidden. Reveals on a REVERSE stagger — the first child is
+   delayed longest, so the group resolves right-to-left toward the
+   plus button that summoned it. */
+.w-nav-item {
+  display: inline-block;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    visibility 0.25s var(--w-ease-in-out) 0s,
+    opacity 0.25s var(--w-ease-in-out) 0s;
+}
+.w-nav-item:nth-child(2) {
+  transition:
+    visibility 0.25s var(--w-ease-in-out) 50ms,
+    opacity 0.25s var(--w-ease-in-out) 50ms;
+}
+.w-nav-item:nth-child(3) {
+  transition:
+    visibility 0.25s var(--w-ease-in-out) 0.1s,
+    opacity 0.25s var(--w-ease-in-out) 0.1s;
+}
+.w-nav.is-open .w-nav-item {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    visibility 0.25s var(--w-ease-out) 0s,
+    opacity 0.25s var(--w-ease-out) 0s;
+}
+.w-nav.is-open .w-nav-item:nth-child(2) {
+  transition:
+    visibility 0.25s var(--w-ease-out) 50ms,
+    opacity 0.25s var(--w-ease-out) 50ms;
+}
+.w-nav.is-open .w-nav-item:first-child {
+  transition:
+    visibility 0.25s var(--w-ease-out) 0.1s,
+    opacity 0.25s var(--w-ease-out) 0.1s;
+}
+.w-nav-item a {
+  font-family: var(--w-sans);
+  font-size: var(--w-chrome-size);
+  line-height: var(--w-chrome-lh);
+  margin-left: 12px;
+  white-space: nowrap;
+}
+
+/* ─── Plus button ─────────────────────────────────────────── */
+
+.w-plus {
+  color: currentColor;
+  display: block;
+  position: relative;
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.w-plus-glyph {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+.w-plus-glyph::before,
+.w-plus-glyph::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: currentColor;
+  transition: transform 0.2s var(--w-ease-quad);
+}
+.w-plus-glyph::before { width: 8px; height: 1px; }
+.w-plus-glyph::after { width: 1px; height: 8px; }
+/* Open turns the plus into a minus. The whole menu affordance. */
+.w-plus.is-open .w-plus-glyph::after { transform: translate(-50%, -50%) rotate(-90deg); }
+
+/* ─── Close button ────────────────────────────────────────── */
+
+.w-close {
+  position: fixed;
+  right: 30px;
+  top: 16px;
+  padding: 10px;
+  color: currentColor;
+  font-family: var(--w-sans);
+  font-size: var(--w-chrome-size);
+  line-height: var(--w-chrome-lh);
+  z-index: 600;
+}
+@media (max-width: 812px) { .w-close { right: 10px; } }
+
+/* ─── The index ───────────────────────────────────────────── */
+
+.w-index {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  background: var(--w-bg);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    visibility 0.3s var(--w-ease-in-out) 0s,
+    opacity 0.3s var(--w-ease-in-out) 0s;
+}
+.w-index.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    visibility 0.3s var(--w-ease-out) 0s,
+    opacity 0.3s var(--w-ease-out) 0s;
+}
+
+/* Inline is the same list living in the page rather than over it: no fixed
+   positioning, no backdrop, and it never hides. */
+.w-index--inline {
+  position: relative;
+  inset: auto;
+  z-index: 1;
+  background: transparent;
+  opacity: 1;
+  visibility: visible;
+  min-height: 0;
+  display: block;
+}
+
+.w-index-container {
+  position: relative;
+  width: 100%;
+  padding: 0 var(--w-gutter-right) 0 var(--w-gutter);
+}
+
+.w-index-lists { position: relative; z-index: 200; }
+
+.w-index-filters { display: flex; flex-direction: row; }
+.w-index-filter {
+  font-family: var(--w-mono);
+  font-size: var(--w-chrome-size);
+  line-height: var(--w-chrome-lh);
+  margin-right: 40px;
+  white-space: nowrap;
+  color: var(--w-fg);
+  opacity: var(--w-rest);
+  transition: opacity 0.2s linear;
+}
+.w-index-filter.is-active,
+.w-index-filter:hover { opacity: 1; }
+
+.w-index-grids { position: relative; }
+
+.w-index-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 0 var(--w-gutter);
+  margin-top: 30px;
+}
+.w-index-grid ul { display: flex; flex-direction: column; list-style: none; margin: 0; padding: 0; }
+.w-index-grid li { margin-bottom: 10px; }
+
+/* The name itself. A 1px underline lives at the baseline permanently and
+   is revealed by opacity, so nothing reflows on hover. */
+.w-index-grid a {
+  display: inline-block;
+  position: relative;
+  font-family: var(--w-mono);
+  font-size: var(--w-chrome-size);
+  line-height: var(--w-chrome-lh);
+  color: var(--w-fg);
+  opacity: var(--w-rest);
+  transition: opacity 0.2s linear;
+  white-space: nowrap;
+}
+.w-index-grid a::before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+  opacity: 0;
+  transition: opacity 0.2s linear;
+}
+.w-index-grid a:hover,
+.w-index-grid a:hover::before,
+.w-index-grid a.is-active,
+.w-index-grid a.is-active::before { opacity: 1; }
+
+@media (max-width: 1450px) { .w-index-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 1024px) { .w-index-grid { grid-template-columns: repeat(2, 1fr); } }
+/* Below 812 there is no room for a wordmark and a trail beside it, so the
+   breadcrumb goes — the source drops it on touch for the same reason. */
+@media (max-width: 812px) {
+  .w-header { padding-left: var(--w-gutter); }
+  .w-breadcrumb { display: none; }
+}
+
+@media (max-width: 812px) {
+  .w-index { align-items: flex-start; }
+  .w-index-container { padding-top: calc(var(--w-header-h) + 20px); }
+  .w-index-grid { grid-template-columns: 1fr; margin-top: 12px; }
+  .w-index-grid li { margin-bottom: 12px; }
+}
+
+/* ─── Floating hover thumbnails ───────────────────────────── */
+
+.w-thumbs {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  z-index: 300;
+}
+/* place() computes viewport coordinates, so the layer it writes into has to be
+   viewport-anchored in both variants. */
+.w-index--inline .w-thumbs { position: fixed; inset: 0; }
+
+.w-thumb {
+  position: absolute;
+  width: 35vw;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 100;
+}
+/* A portrait cover at 35vw is taller than the field it has to be placed in, so
+   the portrait case gets a narrower band rather than a clamp that would crop it. */
+.w-thumb--portrait { width: 20vw; }
+/* A flat 30% black over the media so white index type stays readable
+   whatever the thumbnail underneath happens to be. */
+.w-thumb::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  opacity: 0.3;
+  z-index: 2;
+}
+/* The media box declares its own aspect so the thumbnail has a real height the
+   moment it mounts. place() measures that box to decide where it can sit, and
+   an unloaded <img> measures zero — which would let a tall cover be positioned
+   as though it were a sliver and then paint straight off the bottom. */
+.w-thumb-media {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+.w-thumb--portrait .w-thumb-media { aspect-ratio: 3 / 4; }
+.w-thumb-media img,
+.w-thumb-media video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ─── Hero title ──────────────────────────────────────────── */
+
+.w-hero {
+  position: relative;
+  padding: calc(var(--w-header-h) + 80px) var(--w-gutter-right) 40px var(--w-gutter);
+}
+.w-hero-main {
+  font-family: var(--w-display);
+  font-size: clamp(44px, 10vw, 180px);
+  line-height: 0.86;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.w-hero-sub {
+  font-family: var(--w-mono);
+  font-size: var(--w-chrome-size);
+  line-height: var(--w-chrome-lh);
+  color: var(--w-fg);
+  opacity: var(--w-rest);
+  margin: 24px 0 0;
+  max-width: 46ch;
+}
+
+/* ─── Generative grid ─────────────────────────────────────── */
+
+.w-grid { position: relative; width: 100%; list-style: none; margin: 0; padding: 0; }
+.w-grid-item { display: block; position: absolute; pointer-events: none; }
+.w-grid-item.is-hover { z-index: 3; }
+.w-grid-item-container { position: absolute; inset: 0; width: 100%; height: 100%; }
+.w-grid-item-container > * { pointer-events: auto; }
+
+.w-grid-thumb { display: block; position: relative; width: 100%; height: 100%; }
+.w-grid-thumb-media {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0.75;
+  transition: opacity 0.4s ease-out;
+  z-index: 1;
+}
+.w-grid-thumb-media img,
+.w-grid-thumb-media video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.w-grid-thumb:hover .w-grid-thumb-media { opacity: 1; }
+
+/* Centred over the media, hidden at rest. visibility snaps to visible
+   immediately on the way in and waits out the fade on the way out. */
+.w-grid-thumb-label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--w-fg);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease-out, visibility 0s linear 0.2s;
+  z-index: 3;
+}
+.w-grid-thumb:hover .w-grid-thumb-label {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease-out, visibility 0s linear 0s;
+}
+.w-grid-thumb-meta {
+  font-family: var(--w-mono);
+  font-size: 26px;
+  line-height: 1.0769230769;
+  margin-bottom: 5px;
+  font-weight: 200;
+}
+.w-grid-thumb-title {
+  font-family: var(--w-display);
+  font-size: 27.15px;
+  line-height: 0.8103130755;
+  font-weight: 400;
+}
+@media (max-width: 1024px) {
+  .w-grid-thumb-meta { font-size: 20px; line-height: 1.175; }
+  .w-grid-thumb-title { font-size: 21px; line-height: 0.9047619048; }
+}
+
+/* ─── Footer / end CTA ────────────────────────────────────── */
+
+.w-endcta {
+  padding: 80px var(--w-gutter-right) 60px var(--w-gutter);
+}
+.w-endcta a {
+  font-family: var(--w-mono);
+  font-size: var(--w-chrome-size);
+  line-height: var(--w-chrome-lh);
+  color: var(--w-fg);
+  opacity: var(--w-rest);
+  transition: opacity 0.2s linear;
+}
+.w-endcta a:hover { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .w-surface *,
+  .w-surface *::before,
+  .w-surface *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

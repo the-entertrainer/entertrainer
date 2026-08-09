@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import { useContentStore } from '~/stores/content'
-import { useHomeViewStore } from '~/stores/homeview'
-
-definePageMeta({ layout: 'default' })
+import type { IndexGroup } from '~/components/wanda/IndexPanel.vue'
 
 useSeoMeta({
   title: 'Entertrainer — Instructional Design by Naveen Jose',
@@ -12,44 +9,55 @@ useSeoMeta({
   ogUrl: 'https://entertrainer.in/'
 })
 
-const contentStore  = useContentStore()
-const homeViewStore  = useHomeViewStore()
-const router         = useRouter()
-const spiralRef      = ref<{ performExit?: () => Promise<void> } | null>(null)
+const contentStore = useContentStore()
 
-// The home is the root spiral. Every card is a real destination page, so a tap
-// always leaves the spiral — no in-spiral sub-sections. This keeps navigation
-// dead simple: run the unified vortex exit, then SPA-navigate (never a reload).
-const items = computed(() => contentStore.homeNav)
-
-homeViewStore.setIsHome(true)
-
-let navigating = false
-async function handleCardClick(href: string) {
-  if (navigating || !href) return
-  navigating = true
-  try {
-    await spiralRef.value?.performExit?.()
-  } finally {
-    router.push(href)
-  }
-}
-
-// The menu's "home" link (while already on '/') and its back button both flow
-// through the homeview store. There are no sub-sections to pop anymore, so just
-// acknowledge the signals to keep the store clean.
-watch(() => homeViewStore.pendingBack, (p) => { if (p) homeViewStore.ackBack() })
-watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() })
-
-onBeforeUnmount(() => { navigating = false })
+/* Home is the index. Not a menu over the page — the page itself, the way
+   wanda.net makes its roster the landing experience rather than a hero
+   with a scroll prompt under it. */
+const groups = computed<IndexGroup[]>(() => [
+  { id: 'work', label: 'Work', items: contentStore.myWorkNav },
+  { id: 'tools', label: 'Web Apps', items: contentStore.toolsNav },
+  { id: 'more', label: 'More', items: contentStore.homeNav }
+])
 </script>
 
 <template>
-  <SpiralView
-    ref="spiralRef"
-    :items="items"
-    :show-loader="true"
-    :title="''"
-    @card-click="handleCardClick"
-  />
+  <WandaSurface :crumbs="[{ label: 'Index', active: true }]" :groups="groups">
+    <section class="home">
+      <h1 class="home-title">{{ contentStore.brand }}</h1>
+      <p class="home-standfirst">
+        {{ contentStore.tagline }} — {{ contentStore.yearsExperience }} years building training
+        people actually finish.
+      </p>
+
+      <WandaIndexPanel variant="inline" :open="true" :groups="groups" />
+    </section>
+  </WandaSurface>
 </template>
+
+<style scoped>
+.home {
+  padding: calc(var(--w-header-h) + 90px) 0 90px;
+}
+.home-title {
+  margin: 0 var(--w-gutter-right) 0 var(--w-gutter);
+  font-family: var(--w-display);
+  font-size: clamp(52px, 11vw, 200px);
+  line-height: 0.84;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+}
+.home-standfirst {
+  margin: 28px var(--w-gutter-right) 72px var(--w-gutter);
+  max-width: 48ch;
+  font-family: var(--w-mono);
+  font-size: var(--w-chrome-size);
+  line-height: 1.5;
+  opacity: var(--w-rest);
+}
+@media (max-width: 812px) {
+  .home { padding-top: calc(var(--w-header-h) + 40px); }
+  .home-standfirst { margin-bottom: 48px; }
+}
+</style>

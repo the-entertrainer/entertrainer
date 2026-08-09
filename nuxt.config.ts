@@ -3,7 +3,17 @@ export default defineNuxtConfig({
   modules: ['@pinia/nuxt', '@vite-pwa/nuxt', '@vueuse/motion/nuxt'],
   // fonts.css first — the @font-face blocks have to be registered before the
   // stylesheet that asks for the families.
-  css: ['~/assets/css/fonts.css', '~/assets/css/main.css'],
+  // fonts.css and fonts-strong.css first — the @font-face blocks have to be
+  // registered before the stylesheets that ask for the families. fonts-strong
+  // carries Inter / IBM Plex Mono / Space Grotesk, which used to be imported by
+  // the Strong lesson alone and are now the three type roles of the Wanda
+  // surface (see Inspiration/WANDA_SYSTEM.md §2), so it is global.
+  css: [
+    '~/assets/css/fonts.css',
+    '~/assets/css/fonts-strong.css',
+    '~/assets/css/main.css',
+    '~/assets/css/wanda.css'
+  ],
   runtimeConfig: {
     // Server-only — set via GIPHY_API_KEY env var (Vercel project settings).
     // When absent, /api/giphy serves a curated fallback manifest.

@@ -13,11 +13,14 @@ const contentStore = useContentStore()
 </script>
 
 <template>
-  <UiCardGrid
-    eyebrow="Web Apps"
-    title="Tools I built for L&D"
-    deck="Free web apps for instructional designers and training teams. No sign-up, and your work stays on your device."
-    intro="I kept hitting the same slow steps in my own work, so I built the tools I wished existed. Each one does a single job well, on a phone or a laptop. They are also the clearest proof of how I think about learning design."
-    :items="contentStore.toolsNav"
-  />
+  <WandaSurface :crumbs="[{ label: 'Index', href: '/' }, { label: 'Web Apps', active: true }]">
+    <WandaHeroTitle
+      title="Web Apps"
+      standfirst="Free tools for instructional designers and training teams. No sign-up, and your work stays on your device."
+    />
+    <WandaGenerativeGrid :items="contentStore.toolsNav" />
+    <div class="w-endcta">
+      <NuxtLink to="/my-work">→ See them used in real work</NuxtLink>
+    </div>
+  </WandaSurface>
 </template>

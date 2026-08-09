@@ -80,10 +80,16 @@ A device-emulated render at 390×844 with touch enabled (§10) turns up a
 | Directors index container padding | `0 125px 0 160px` | `.touch .Directors_container{padding:55px 0 10px 138px !important}` |
 | Directors grid on touch | — | fixed-height, internally scrolling: `height:calc(100vh - 255px);overflow:auto` — the *page* doesn't scroll, the list does |
 
-The load-bearing fact under all of this: on touch there is no hover, so
-`onItemMouseEnter: ENV.isTouch || show()` never fires. **The hover-thumbnail
-system doesn't degrade gracefully on mobile — it's simply absent.** Mobile is
-a plain, quiet, monospace list. Nothing else.
+On touch there is no hover, so `onItemMouseEnter: ENV.isTouch || show()`
+never fires — true, but **this table is still incomplete about what that
+means for the thumbnail deck itself.** The obvious read is "no hover, so the
+thumbnails just don't show" — that's what an earlier version of this file
+claimed, from a static mirror with the reveal forced by hand. A real phone
+recording (§12) shows the opposite: on touch the deck shows *every* thumbnail
+at once, unconditionally, scrolling — the hover-gated single-preview
+behaviour is a *desktop-only* affordance, not the thing that degrades when
+touch removes hover. Read §12 before treating "mobile" and "plain text list"
+as synonyms anywhere in this file.
 
 ## 4. The plus button
 
@@ -209,24 +215,100 @@ borrowing its palette.
 
 ## 11. Departures from a literal reproduction, and why
 
-This repo's home is a flat wall of full-bleed panels — one per destination,
-laid out in five different arrangements so neighbours never repeat — rather
-than wanda.net's monospace name-index. That structure was an explicit design
-brief for *this* site, not a claim about what wanda.net's homepage looks
-like, and it stands on its own regardless of what §10 found.
+This repo's home has gone through three shapes, each one a response to what
+the previous one got wrong when checked against real evidence:
 
-What §10 did change: the panel titles were originally sized against no
-measurement at all (`clamp(40px,5.5vw,96px)` on every panel, up to `190px` on
-the `type` variant) and read as a poster wall next to the source's quiet
-index. They're pulled back — `clamp(32px,3.6vw,64px)` baseline, `100px` and
-`120px` ceilings on the two variants that go bigger — enough to keep the
-titles reading as the panel's largest element without dominating the
-description under them the way the old scale did. The chrome (header, logo,
-nav, plus button, index overlay, column breakpoints) was corrected to the
-real measured values in §3a rather than adjusted by feel.
+1. **A monospace name-index**, modelled on §10's forced-reveal render of the
+   desktop directors list. Correct as far as it went, but §10 was reading a
+   *desktop* interaction model and generalising it to the whole site.
+2. **A flat wall of full-bleed panels**, one per destination, five layout
+   variants so neighbours wouldn't repeat — an explicit design brief for
+   *this* site, not a claim about wanda.net's own look. Its titles were sized
+   against no measurement at all (up to `190px` on one variant) and read as a
+   poster wall next to what §10 had actually found on the source's index.
+   Pulled back once, then replaced entirely once §12 landed — item 3.
+3. **The scattered, overlapping cascade in `ScatterDeck.vue`** (§12), once a
+   real phone recording showed that neither of the first two was how
+   wanda.net's *mobile* home works at all. This is the current shape.
+
+None of this means "guess, then get corrected" was fine to repeat three
+times — it means each guess should have been checked against a real render
+before being treated as final, and wasn't, twice. §10 and §12 are both here
+as a record of what checking actually turned up, not as a tour of mistakes
+for their own sake.
+
+The chrome — header, logo, nav, plus button, index overlay, column
+breakpoints — was corrected to the real measured values in §3a rather than
+adjusted by feel, and that correction survived all three shapes of the home
+above it unchanged.
 
 `/my-work` and `/tools` still run the old stacked-and-scrolling
 `HeroTitle`/`GenerativeGrid` pair rather than the fixed-viewport mechanic
 found in §7 — not because it's wrong to fix, but because nothing in the site
 links to either route any more (the flat wall replaced them as the
 navigation), so it wasn't the highest-value use of the time this pass had.
+
+## 12. §10 was wrong about the mobile home. Here's what a real phone showed.
+
+§10 forced the reveal on a static local mirror and read the result as ground
+truth: a plain monospace name list, no thumbnails, because
+`onItemMouseEnter: ENV.isTouch || show()` looked like it meant "the
+hover-preview system is simply absent on touch." That's true as a statement
+about the *hover handler*. It is not true about what a phone actually shows,
+which a real screen recording of wanda.net on a real phone (not a static
+mirror, not a forced CSS reveal — an actual browser session) settled directly.
+
+The mobile home is `.Directors_thumbnails` shown **unconditionally**, not
+hover-gated content this repo previously assumed was invisible without a
+mouse. Every thumbnail is on screen at once, autoplaying, arranged in a
+vertically-scrolling cascade: each one offset left or right of the one
+before it, overlapping its tail by a modest margin, later cards drawn over
+earlier ones. The whole thing scrolls as one continuous surface — there is
+no separate "index" to scroll past to reach it, because on mobile the
+thumbnail deck *is* the index. No director names are visible anywhere in a
+7.6-second recording of continuous scrolling.
+
+The lesson generalises past this one component: **a static mirror with the
+reveal forced on shows what CSS makes visible, not what the site actually
+does.** Where those two facts conflict — as they did here — the mirror is
+the one that's wrong, because it has no access to whatever runtime logic
+(here, `ENV.isTouch` presumably driving an unconditional `show()` on mount
+rather than the hover-gated one desktop uses) decides what's shown by
+default. Prefer a real device/browser recording over a mirror's forced state
+whenever the two are available and disagree.
+
+### What this repo's home actually is
+
+`components/wanda/ScatterDeck.vue` is the read of this recording — not a
+literal port, an adaptation, for two reasons stated in the component's own
+header comment:
+
+1. **No autoplaying video.** The source's cascade works as pure decoration
+   because dozens of anonymous reels *are* the content — you don't need to
+   know whose work you're looking at to enjoy watching it move. Eight static
+   project screenshots aren't that; a visitor needs to know "About" from
+   "EasyMCQ" or the deck is just texture. Each card carries a small
+   monospace caption (index number + label) anchored to its own **top-left**
+   corner.
+
+   That anchor point isn't arbitrary — it came out of a real bug. The first
+   version anchored captions to each card's *bottom*-left, which is exactly
+   the region the next card's overlap slides up into. "Instructional
+   Design"'s caption was silently buried under the SEWA card in the very
+   first render. A card's negative `margin-top` only ever pulls *its own* top
+   edge up into the *previous* card's bottom — nothing pulls the reverse
+   direction — so a card's top is the one region of it a later card can never
+   paint over. Caption placement follows from that, not from taste.
+
+2. **A genuine scroll-linked parallax**, not a measured one. Nothing in the
+   recording proves the source runs differential per-panel scroll speed
+   rather than uniform scroll plus autoplaying video creating the illusion of
+   it — there's no way to tell those apart by eye. It's implemented anyway
+   because "parallax" was the word used to ask for this look, and uniform
+   scroll wouldn't earn it. Each card gets a small `translateY` offset,
+   proportional to its distance from the viewport's vertical centre, sign and
+   magnitude varying per index, clamped to ±48px so it never disturbs the
+   overlap geometry the cascade depends on. Verified directly: measuring
+   on-screen position before and after a 300px scroll shows a −283 to −351px
+   delta across different cards rather than a uniform −300px, confirming the
+   drift is real and not just reported motion.

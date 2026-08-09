@@ -7,8 +7,7 @@
       "meta": "Who",
       "description": "Hospitality to L&D, and what the detour taught me about how people actually learn on a shift.",
       "image": "/about-me.webp",
-      "accent": "#E8C15A",
-      "variant": "split"
+      "accent": "#E8C15A"
     },
     {
       "id": "instructional-design",
@@ -17,8 +16,7 @@
       "meta": "How",
       "description": "What gets designed when no one is watching — the models, the load, and the part that decides whether any of it lands.",
       "image": "/instructional-design.webp",
-      "accent": "#7FA6E8",
-      "variant": "bleed"
+      "accent": "#7FA6E8"
     },
     {
       "id": "sewa-chronicles",
@@ -28,7 +26,6 @@
       "description": "True guest-service stories drawn as strips, because people remember a story long after they forget a rule.",
       "image": "/work/sewa/cover.webp",
       "accent": "#E4734A",
-      "variant": "edge",
       "portrait": true
     },
     {
@@ -38,8 +35,7 @@
       "meta": "Interactive lesson · 10 parts",
       "description": "The real math of password strength, made playable: entropy in bits, why length beats symbols, and why one password is instant or eternal depending on who is guessing.",
       "image": "/work-strong.webp",
-      "accent": "#5FD3A8",
-      "variant": "stack"
+      "accent": "#5FD3A8"
     },
     {
       "id": "easymcq",
@@ -48,8 +44,7 @@
       "meta": "Assessment",
       "description": "Give it a question and the right answer. It writes the wrong ones — the plausible kind that actually test understanding.",
       "image": "/easymcq.webp",
-      "accent": "#9C8CE8",
-      "variant": "split"
+      "accent": "#9C8CE8"
     },
     {
       "id": "cadence",
@@ -58,8 +53,7 @@
       "meta": "Planning",
       "description": "A list of topics in, a ready-to-present monthly training calendar out. Exports to PowerPoint.",
       "image": "/training-cal-gen.webp",
-      "accent": "#5AC8E8",
-      "variant": "type"
+      "accent": "#5AC8E8"
     },
     {
       "id": "draftly",
@@ -68,8 +62,7 @@
       "meta": "Writing",
       "description": "Messy draft in, an email you would be happy to send out.",
       "image": "/better-emails.webp",
-      "accent": "#E88CA6",
-      "variant": "bleed"
+      "accent": "#E88CA6"
     },
     {
       "id": "storygen",
@@ -78,8 +71,7 @@
       "meta": "Storyboarding",
       "description": "Storyboards on an infinite canvas. Cards, flows, and a Word export your SME will actually open.",
       "image": "/storygen.webp",
-      "accent": "#C7E85A",
-      "variant": "stack"
+      "accent": "#C7E85A"
     }
   ]
 }

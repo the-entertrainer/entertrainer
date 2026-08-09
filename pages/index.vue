@@ -9,10 +9,8 @@ useSeoMeta({
 
 const contentStore = useContentStore()
 
-/* One flat wall. Every page this site has, in reading order — no sections, no
-   filters, nothing to choose before you can start looking. The panels differ
-   from each other so the eye has somewhere to land; that is the whole
-   navigation model. */
+/* One flat, scrolling deck. Every page this site has, in reading order — no
+   sections, no filters, nothing to choose before you can start looking. */
 const panels = computed(() => contentStore.panels)
 </script>
 
@@ -27,14 +25,7 @@ const panels = computed(() => contentStore.panels)
       <p class="masthead-hint" aria-hidden="true">{{ panels.length }} pages</p>
     </section>
 
-    <div class="wall">
-      <WandaPanel
-        v-for="(panel, i) in panels"
-        :key="panel.id"
-        :panel="panel"
-        :index="i"
-      />
-    </div>
+    <WandaScatterDeck :items="panels" />
 
     <footer class="colophon">
       <a :href="`mailto:${contentStore.email}`">{{ contentStore.email }}</a>
@@ -81,8 +72,6 @@ const panels = computed(() => contentStore.panels)
   font-size: 16px;
   opacity: 0.35;
 }
-
-.wall { position: relative; }
 
 .colophon {
   display: flex;

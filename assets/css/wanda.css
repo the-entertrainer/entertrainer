@@ -281,35 +281,25 @@
 /* Open turns the plus into a minus. The whole menu affordance. */
 .w-plus.is-open .w-plus-glyph::after { transform: translate(-50%, -50%) rotate(-90deg); }
 
-/* Below 812 there is no hover to gate a reveal with, so the source doesn't try
-   — the nav sits permanently visible, stacked, and left-aligned as ordinary
-   page content instead of hovered-open chrome.
-   The plus button is a SEPARATE element on the real site — not the same node
-   that the desktop hover reveals — so on mobile it keeps its own fixed corner
-   independent of wherever `.w-nav` (now repositioned) carries it in the DOM;
-   `position: fixed` on a descendant escapes an ancestor's fixed positioning as
-   long as nothing in between establishes a containing block, which nothing
-   here does. This block has to come after the unscoped `.w-plus` rule above —
-   CSS doesn't let a media query jump the source-order queue, so an override
-   placed before the rule it overrides simply loses. */
+/* A real phone recording of the source's home (Inspiration/WANDA_SYSTEM.md
+   §12/§13) shows only the wordmark and the plus button at rest on mobile — no
+   nav text anywhere, in 7.6 seconds of continuous scrolling. An earlier pass
+   of this file forced the nav links permanently visible here, reasoning from
+   `.touch .Nav_links_item{opacity:1}` in the source's own CSS. That rule is
+   real, but it was the wrong generalisation: it governs the nav *once the
+   index overlay is open*, not the header at rest, and nothing here checked
+   that against an actual render before shipping it. Nav on mobile now follows
+   exactly the same hidden-until-summoned rule desktop uses (`navHover`/
+   `is-open` in Surface.vue) — it simply never gets a hover to trigger it,
+   which is correct: that's what the recording shows too. `About` is already
+   one of the eight destinations in the deck itself, and `Contact` lives in
+   the page footer, so nothing becomes unreachable by leaving nav hidden here.
+   The plus button still needs its own fixed corner — it's a separate element
+   on the real site, not the node that hover reveals — so that part of the
+   override stays; it has to come after the unscoped `.w-plus` rule above,
+   since a media query doesn't jump the cascade's source-order queue. */
 @media (max-width: 812px) {
   .w-header { padding-left: 15px; }
-  .w-nav {
-    position: fixed;
-    top: calc(var(--w-header-h-mobile) + 26px);
-    left: 15px;
-    margin-left: 0;
-    z-index: 400;
-    opacity: 1;
-  }
-  .w-nav.is-yielded { opacity: 1; pointer-events: auto; }
-  .w-nav-links { flex-direction: column; align-items: flex-start; gap: 12px; margin-right: 0; }
-  .w-nav-item {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transition: none !important;
-  }
-  .w-nav-item a { margin-left: 0; font-size: 18px; }
   .w-plus {
     position: fixed;
     top: calc((var(--w-header-h-mobile) - 18px) / 2);

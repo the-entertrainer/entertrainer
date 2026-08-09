@@ -134,8 +134,19 @@ onBeforeUnmount(() => {
 .deck-item {
   position: relative;
   /* First card sits in flow; every card after overlaps the tail of the one
-     before it — the cascade the reference is built from. */
-  margin-top: -19vh;
+     before it — the cascade the reference is built from.
+     Measured off a real recording (Inspiration/WANDA_SYSTEM.md §13): the
+     overlap is shallow, roughly 15–25% of the card above's own height, not
+     the 40%+ a vh-based value produced here originally — vh has no
+     relationship to a card's rendered height, so it happened to look
+     plausible at one viewport and wrong at every other one. A vertical
+     margin given as a PERCENTAGE resolves against the CONTAINING BLOCK'S
+     WIDTH per the CSS box model (a genuine quirk, not a bug) — which is
+     exactly what's wanted here, since a card's own height is a fixed
+     multiple of its width (16:10 or 3:4), so this one value tracks the
+     cascade correctly at every breakpoint without a tiered vh/vw override
+     underneath it. */
+  margin-top: -9%;
   transform: translateY(var(--drift, 0px));
   opacity: 0;
   transition:
@@ -206,13 +217,16 @@ onBeforeUnmount(() => {
 .deck-card:focus-visible .deck-media img { opacity: 1; transform: scale(1); }
 
 @media (max-width: 1024px) {
-  .deck-item { margin-top: -14vh; }
   .deck-item--left { padding-left: var(--w-gutter); }
   .deck-item--right { padding-right: var(--w-gutter-right); }
 }
 @media (max-width: 812px) {
   .deck { padding-top: calc(var(--w-header-h-mobile) + 30px); }
-  .deck-item { width: 84% !important; margin-top: -9vh; }
+  /* The per-card widths from seed() (74/78/82%) carry through unchanged —
+     the reference's own cards vary between roughly 63% and 75%, so flattening
+     every card to one fixed width here (an earlier version forced 84%) was
+     losing exactly the size variety that makes the cascade read as loose
+     rather than tiled. */
   .deck-item--left { padding-left: 15px; }
   .deck-item--right { padding-right: 15px; }
   .deck-caption { font-size: 14px; }

@@ -75,7 +75,7 @@ A device-emulated render at 390×844 with touch enabled (§10) turns up a
 | Logo height | `19px` | **`22px` — bigger, not smaller** |
 | Logo position | `left:40, top:26` | `left:15, top:9` |
 | Breadcrumb | visible | `display:none` (no `.mobile`-variant items exist on the pages checked, so the net effect is simply hidden) |
-| Nav links (Likes/Awards/Contact) | hidden, revealed on hover/plus | **always visible**, stacked vertically, `opacity:1` unconditionally |
+| Nav links (Likes/Awards/Contact) | hidden, revealed on hover/plus | ~~always visible~~ — **corrected in §13**: a real recording shows no nav text anywhere on the mobile home; `.touch .Nav_links_item{opacity:1}` governs the *open index overlay*, not the header at rest |
 | Plus button | inside `.Nav`, hover-revealed with it | a **separate** element outside `.Nav`, always present — `.touch .Nav>.PlusButton{display:none}` hides only the desktop one |
 | Directors index container padding | `0 125px 0 160px` | `.touch .Directors_container{padding:55px 0 10px 138px !important}` |
 | Directors grid on touch | — | fixed-height, internally scrolling: `height:calc(100vh - 255px);overflow:auto` — the *page* doesn't scroll, the list does |
@@ -312,3 +312,49 @@ header comment:
    on-screen position before and after a 300px scroll shows a −283 to −351px
    delta across different cards rather than a uniform −300px, confirming the
    drift is real and not just reported motion.
+
+## 13. §12's first build, checked against the same recording again — two things it got wrong
+
+Re-checking `ScatterDeck.vue` against the same phone recording, frame by
+frame with a measurement grid rather than by eye, found two concrete
+mistakes — both worth recording because both came from the same failure
+mode: generalising a real, correctly-read fact into a rule broader than the
+evidence supported.
+
+**Nav links were visible on the mobile home at rest. The recording never
+shows nav text at all, in 7.6 seconds of continuous scrolling.** §3a found
+`.touch .Nav_links_item{opacity:1}` in the source's real CSS and read it as
+"nav is unconditionally visible on touch" — true as a statement about that
+rule, false as a claim about the home route's default state. The rule almost
+certainly governs the nav *once the index overlay is open*, not the header
+at rest; nothing checked that distinction against a render before it shipped.
+Fixed by deleting the mobile override entirely and letting nav follow the
+same hidden-until-summoned behaviour `Surface.vue` already gives desktop —
+it simply never receives a hover to trigger it on touch, which turns out to
+be correct. `About` is already one of the eight cards in the deck and
+`Contact` lives in the page footer, so removing the header nav's mobile
+visibility doesn't remove a real path to either.
+
+**The cascade's overlap was roughly 2-3× deeper than the reference's.**
+`margin-top: -19vh/-14vh/-9vh` had no basis in a measurement — vh is a
+viewport-height fraction, and a card's rendered height is a function of its
+*width*, so tying overlap to vh means the ratio between "how much overlap"
+and "how tall the card actually is" is different at every viewport and
+was never checked at any of them. Pixel-measuring five consecutive cards
+directly off the recording (a 480px-wide extracted frame, gridded every
+50px) gives overlap-to-previous-card-height ratios of 13%, 21%, 20%, 26% —
+consistently in a 13-26% band, not the 40-60%+ a `-19vh` margin produces on
+a typical viewport. Fixed by switching to `margin-top: -9%` — a vertical
+percentage margin resolves against the *containing block's width* per the
+CSS box model, which is what's actually wanted here, since it makes the
+overlap scale with card width (and therefore card height, being a fixed
+aspect-ratio multiple of it) automatically, at every breakpoint, with one
+declaration instead of three guessed ones.
+
+The same measurement pass also found card widths varying between roughly
+63% and 75% across those five cards, not one fixed value — `ScatterDeck.vue`
+already had per-card width variety from `seed()` (74/78/82%), but a mobile
+override forced every card to a flat 84% regardless, which was quietly
+throwing that variety away right where the cascade needed it most to read as
+loose. Deleted the override; the seeded widths now carry through unchanged
+at every breakpoint.

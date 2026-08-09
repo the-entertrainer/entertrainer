@@ -25,9 +25,24 @@ const navHover = ref(false)
    than stack under it. */
 const navOpen = computed(() => navHover.value && !indexOpen.value)
 
+/* One group, so the panel renders no filter row at all. The site does not
+   categorise itself — the index is the same flat list of destinations the home
+   wall shows, in the same order. */
 const groups = computed<IndexGroup[]>(() => props.groups ?? [
-  { id: 'work', label: 'Work', items: contentStore.myWorkNav },
-  { id: 'tools', label: 'Web Apps', items: contentStore.toolsNav }
+  {
+    id: 'all',
+    label: 'All',
+    items: contentStore.panels.map(p => ({
+      id: p.id,
+      label: p.label,
+      description: p.description,
+      href: p.href,
+      color: p.accent,
+      image: p.image,
+      meta: p.meta,
+      portrait: p.portrait
+    }))
+  }
 ])
 
 /* A route change means the destination is reached; the panel has no reason to

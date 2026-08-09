@@ -14,10 +14,10 @@ const emit = defineEmits<{ toggle: [] }>()
 
 const contentStore = useContentStore()
 
-/* Three links, revealed on a reverse stagger by .w-nav.is-open — the CSS owns
-   the timing, this component only owns the flag. */
+/* Revealed on a reverse stagger by .w-nav.is-open — the CSS owns the timing,
+   this component only owns the flag. No section links here: the site does not
+   group its pages, so the plus button and its flat index are the only way in. */
 const links = [
-  { label: 'Web Apps', href: '/tools' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: `mailto:${contentStore.email}` }
 ]

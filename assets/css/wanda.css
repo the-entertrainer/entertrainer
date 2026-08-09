@@ -108,7 +108,21 @@
   pointer-events: none;
   z-index: 500;
 }
-.w-header > * { pointer-events: auto; }
+.w-header > * { pointer-events: auto; position: relative; z-index: 1; }
+
+/* The header floats over the content the way the source's does, but the source
+   floats over video, not over a wall of 96px headlines. Without a ground of its
+   own the wordmark and breadcrumb collide with whatever title happens to be
+   passing underneath. A short gradient is enough — it keeps the header looking
+   unboxed while guaranteeing the chrome stays readable. */
+.w-header::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: calc(var(--w-header-h) + 24px);
+  background: linear-gradient(180deg, var(--w-bg) 38%, rgba(8, 8, 8, 0));
+  pointer-events: none;
+}
 
 /* The source's mark is 101px wide in a 160px gutter — 19px of clearance before
    the breadcrumb starts. "Entertrainer" is twice the glyph count of "Wanda+",
@@ -281,19 +295,6 @@
     opacity 0.3s var(--w-ease-out) 0s;
 }
 
-/* Inline is the same list living in the page rather than over it: no fixed
-   positioning, no backdrop, and it never hides. */
-.w-index--inline {
-  position: relative;
-  inset: auto;
-  z-index: 1;
-  background: transparent;
-  opacity: 1;
-  visibility: visible;
-  min-height: 0;
-  display: block;
-}
-
 .w-index-container {
   position: relative;
   width: 100%;
@@ -376,7 +377,7 @@
 /* ─── Floating hover thumbnails ───────────────────────────── */
 
 .w-thumbs {
-  position: absolute;
+  position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
@@ -385,10 +386,6 @@
   user-select: none;
   z-index: 300;
 }
-/* place() computes viewport coordinates, so the layer it writes into has to be
-   viewport-anchored in both variants. */
-.w-index--inline .w-thumbs { position: fixed; inset: 0; }
-
 .w-thumb {
   position: absolute;
   width: 35vw;

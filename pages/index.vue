@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { IndexGroup } from '~/components/wanda/IndexPanel.vue'
-
 useSeoMeta({
   title: 'Entertrainer — Instructional Design by Naveen Jose',
   description: 'Naveen Jose is a Certified Instructional Design Specialist who builds training people actually finish — plus four free web apps for L&D teams.',
@@ -11,36 +9,52 @@ useSeoMeta({
 
 const contentStore = useContentStore()
 
-/* Home is the index. Not a menu over the page — the page itself, the way
-   wanda.net makes its roster the landing experience rather than a hero
-   with a scroll prompt under it. */
-const groups = computed<IndexGroup[]>(() => [
-  { id: 'work', label: 'Work', items: contentStore.myWorkNav },
-  { id: 'tools', label: 'Web Apps', items: contentStore.toolsNav },
-  { id: 'more', label: 'More', items: contentStore.homeNav }
-])
+/* One flat wall. Every page this site has, in reading order — no sections, no
+   filters, nothing to choose before you can start looking. The panels differ
+   from each other so the eye has somewhere to land; that is the whole
+   navigation model. */
+const panels = computed(() => contentStore.panels)
 </script>
 
 <template>
-  <WandaSurface :crumbs="[{ label: 'Index', active: true }]" :groups="groups">
-    <section class="home">
-      <h1 class="home-title">{{ contentStore.brand }}</h1>
-      <p class="home-standfirst">
-        {{ contentStore.tagline }} — {{ contentStore.yearsExperience }} years building training
-        people actually finish.
+  <WandaSurface :crumbs="[{ label: 'Index', active: true }]">
+    <section class="masthead">
+      <h1 class="masthead-title">{{ contentStore.brand }}</h1>
+      <p class="masthead-standfirst">
+        {{ contentStore.tagline }}. {{ contentStore.yearsExperience }} years building training
+        people actually finish — and the tools that make it.
       </p>
-
-      <WandaIndexPanel variant="inline" :open="true" :groups="groups" />
+      <p class="masthead-hint" aria-hidden="true">{{ panels.length }} pages</p>
     </section>
+
+    <div class="wall">
+      <WandaPanel
+        v-for="(panel, i) in panels"
+        :key="panel.id"
+        :panel="panel"
+        :index="i"
+      />
+    </div>
+
+    <footer class="colophon">
+      <a :href="`mailto:${contentStore.email}`">{{ contentStore.email }}</a>
+      <a
+        v-for="s in contentStore.socialLinks.filter(l => l.platform !== 'email')"
+        :key="s.platform"
+        :href="s.url"
+        target="_blank"
+        rel="noopener"
+      >{{ s.label }}</a>
+    </footer>
   </WandaSurface>
 </template>
 
 <style scoped>
-.home {
-  padding: calc(var(--w-header-h) + 90px) 0 90px;
+.masthead {
+  padding: calc(var(--w-header-h) + 110px) var(--w-gutter-right) 90px var(--w-gutter);
 }
-.home-title {
-  margin: 0 var(--w-gutter-right) 0 var(--w-gutter);
+.masthead-title {
+  margin: 0;
   font-family: var(--w-display);
   font-size: clamp(52px, 11vw, 200px);
   line-height: 0.84;
@@ -48,16 +62,36 @@ const groups = computed<IndexGroup[]>(() => [
   letter-spacing: -0.035em;
   text-transform: uppercase;
 }
-.home-standfirst {
-  margin: 28px var(--w-gutter-right) 72px var(--w-gutter);
-  max-width: 48ch;
+.masthead-standfirst {
+  margin: 28px 0 0;
+  max-width: 52ch;
   font-family: var(--w-mono);
   font-size: var(--w-chrome-size);
   line-height: 1.5;
   opacity: var(--w-rest);
 }
+.masthead-hint {
+  margin: 40px 0 0;
+  font-family: var(--w-mono);
+  font-size: 16px;
+  opacity: 0.35;
+}
+
+.wall { position: relative; }
+
+.colophon {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  padding: 70px var(--w-gutter-right) 70px var(--w-gutter);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  font-family: var(--w-mono);
+  font-size: 16px;
+}
+.colophon a { opacity: var(--w-rest); transition: opacity 0.2s linear; }
+.colophon a:hover { opacity: 1; }
+
 @media (max-width: 812px) {
-  .home { padding-top: calc(var(--w-header-h) + 40px); }
-  .home-standfirst { margin-bottom: 48px; }
+  .masthead { padding-top: calc(var(--w-header-h) + 48px); padding-bottom: 56px; }
 }
 </style>

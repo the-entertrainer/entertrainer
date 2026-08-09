@@ -15,7 +15,7 @@
       "href": "/instructional-design",
       "meta": "How",
       "description": "What gets designed when no one is watching — the models, the load, and the part that decides whether any of it lands.",
-      "image": "/instructional-design.webp",
+      "image": "/panels/instructional-design.webp",
       "accent": "#7FA6E8"
     },
     {
@@ -34,7 +34,7 @@
       "href": "/my-work/strong",
       "meta": "Interactive lesson · 10 parts",
       "description": "The real math of password strength, made playable: entropy in bits, why length beats symbols, and why one password is instant or eternal depending on who is guessing.",
-      "image": "/work-strong.webp",
+      "image": "/panels/strong.webp",
       "accent": "#5FD3A8"
     },
     {
@@ -43,7 +43,7 @@
       "href": "/tools/easymcq",
       "meta": "Assessment",
       "description": "Give it a question and the right answer. It writes the wrong ones — the plausible kind that actually test understanding.",
-      "image": "/easymcq.webp",
+      "image": "/panels/easymcq.webp",
       "accent": "#9C8CE8"
     },
     {
@@ -52,7 +52,7 @@
       "href": "/tools/cadence",
       "meta": "Planning",
       "description": "A list of topics in, a ready-to-present monthly training calendar out. Exports to PowerPoint.",
-      "image": "/training-cal-gen.webp",
+      "image": "/panels/cadence.webp",
       "accent": "#5AC8E8"
     },
     {
@@ -61,7 +61,7 @@
       "href": "/tools/better-emails",
       "meta": "Writing",
       "description": "Messy draft in, an email you would be happy to send out.",
-      "image": "/better-emails.webp",
+      "image": "/panels/draftly.webp",
       "accent": "#E88CA6"
     },
     {
@@ -70,7 +70,7 @@
       "href": "/tools/storygen",
       "meta": "Storyboarding",
       "description": "Storyboards on an infinite canvas. Cards, flows, and a Word export your SME will actually open.",
-      "image": "/storygen.webp",
+      "image": "/panels/storygen.webp",
       "accent": "#C7E85A"
     }
   ]

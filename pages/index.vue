@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { IndexGroup } from '~/components/wanda/IndexPanel.vue'
-
 useSeoMeta({
   title: 'Entertrainer — Instructional Design by Naveen Jose',
   description: 'Naveen Jose is a Certified Instructional Design Specialist who builds training people actually finish — plus four free web apps for L&D teams.',
@@ -11,18 +9,16 @@ useSeoMeta({
 
 const contentStore = useContentStore()
 
-/* The sample's own homepage has no masthead, no standfirst, nothing between
-   the fixed header and the list itself — the index IS the page. Every
-   destination this site has, in reading order, one flat group so no filter
-   row renders (the site doesn't categorise itself). */
-const groups = computed<IndexGroup[]>(() => [
-  { id: 'all', label: 'Index', items: contentStore.indexItems }
-])
+/* The flying, overlapping panel deck — confirmed against a real phone
+   recording of wanda.net's mobile home to be the actual target, not the
+   text index this repo tried in between. Every destination, in reading
+   order, no categorisation. See Inspiration/WANDA_SYSTEM.md §15. */
+const panels = computed(() => contentStore.panels)
 </script>
 
 <template>
   <WandaSurface :crumbs="[{ label: 'Index', active: true }]">
-    <WandaIndexPanel variant="inline" :open="true" :groups="groups" />
+    <WandaScatterDeck :items="panels" />
 
     <footer class="colophon">
       <a :href="`mailto:${contentStore.email}`">{{ contentStore.email }}</a>

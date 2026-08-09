@@ -391,4 +391,33 @@ site has no video CDN and no fleet of reels to draw one from. The name
 itself needed no adapting; it was never hidden on either site. Eight
 identifiable destinations read as a plain list either way, which is
 `IndexPanel.vue`'s whole design already, not something added for this.
-at every breakpoint.
+
+## 15. §14 was also wrong. The flying deck is back, this time with real artwork.
+
+Told directly, immediately after §14 shipped, that the flying panels were
+still the actual target — not the text index. `ScatterDeck.vue` is restored
+verbatim from the commit §14 deleted it from (`e42fc9c`); every measured
+correction from §12/§13 (the −9% overlap, the seeded 74/78/82% widths, no
+nav override on mobile) came back with it unchanged, because none of that
+measurement work was wrong — only the decision to abandon the structure it
+was measuring was.
+
+The one genuine gap the "flying panels" complaint pointed at: six of the
+eight cards were carrying flat, brightly-lit product-screenshot marketing
+graphics on cream backgrounds — correct information, wrong mood, nothing
+like the source's dark cinematic film stills. Fixed by generating new cover
+art for those six (`public/panels/*.webp`) with Gamma's image generator,
+one prompt per section's theme rather than its literal UI: a neural network
+for instructional design, a dissolving padlock for password strength,
+shattered glass tiles for multiple-choice assessment, light trails for
+calendar planning, a paper airplane for writing, a branching constellation
+for storytelling — all specified as moody, near-black, single-accent-colour
+film stills, matching the deck's existing colour-per-card system instead of
+introducing a new one.
+
+Two cards were deliberately left untouched: `about` (a real photo-based
+portrait of Naveen, not a generic theme) and `sewa-chronicles` (an actual
+published comic cover). Generating substitute art for either would mean
+fabricating a stand-in for a real person or replacing real creative work
+with an AI facsimile of it — different from illustrating an abstract concept
+like "password strength," and not something to do to make a style match.

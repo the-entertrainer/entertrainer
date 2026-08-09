@@ -357,4 +357,38 @@ already had per-card width variety from `seed()` (74/78/82%), but a mobile
 override forced every card to a flat 84% regardless, which was quietly
 throwing that variety away right where the cascade needed it most to read as
 loose. Deleted the override; the seeded widths now carry through unchanged
+
+## 14. The scatter deck was the wrong structure, not just imprecise. Reverted.
+
+§12 and §13 assumed the phone recording showed the mobile home's rest state,
+because a static capture of the same page — three separate ones by this
+point — couldn't get `.Directors` past `opacity:0` no matter how the reveal
+was forced. That was read as the static capture being the thing that
+couldn't be trusted, and the recording as the fallback ground truth. Told
+directly that the intended target was the text index rather than the
+recording's scattered deck, revisiting the evidence with that told: a static
+capture stuck at `opacity:0` is evidence the JS-driven reveal isn't firing in
+that environment, not evidence about which content is *supposed* to be
+there once it does. The recording may well have been the plain index's own
+entrance transition — thumbnails easing into a cascade before settling into
+the list §1–§11 already describes — misread as the page's permanent state
+because the clip ended before it would have settled. That's a plausible
+account of everything actually seen; it isn't a claim the recording somehow
+becomes false evidence in hindsight, only that "here is 7.6 seconds of a
+page" was never enough by itself to prove "and this is all it ever shows."
+
+`ScatterDeck.vue` is deleted. The home route now renders `IndexPanel.vue`
+directly — the same component every other route already uses for the
+plus-button overlay, given a second `variant="inline"` mode: no fixed
+positioning, no backdrop, `open` forced true, living in the page flow instead
+of over it. One component, two contexts, rather than two components
+maintaining the same list-plus-floating-thumbnail behaviour in parallel.
+
+One adaptation from the literal sample remains, already true of the index
+overlay and now load-bearing for the home route too: hovering a name reveals
+a static project image where the source reveals autoplaying video — this
+site has no video CDN and no fleet of reels to draw one from. The name
+itself needed no adapting; it was never hidden on either site. Eight
+identifiable destinations read as a plain list either way, which is
+`IndexPanel.vue`'s whole design already, not something added for this.
 at every breakpoint.

@@ -27,6 +27,20 @@ export const useContentStore = defineStore('content', {
     aboutNav:                (state): NavItem[] => state.nav.about                   ?? [],
     toolsNav:                (state): NavItem[] => state.nav.tools                   ?? [],
     myWorkNav:               (state): NavItem[] => state.nav['my-work']              ?? [],
-    instructionalDesignNav:  (state): NavItem[] => state.nav['instructional-design'] ?? []
+    instructionalDesignNav:  (state): NavItem[] => state.nav['instructional-design'] ?? [],
+    /** `panels` reshaped to `NavItem` — the one flat list of every destination
+     *  the site has, feeding both the home route's inline index and the
+     *  plus-button overlay every other route summons. One mapping, so the two
+     *  never drift apart. */
+    indexItems: (state): NavItem[] => state.panels.map(p => ({
+      id: p.id,
+      label: p.label,
+      description: p.description,
+      href: p.href,
+      color: p.accent,
+      image: p.image,
+      meta: p.meta,
+      portrait: p.portrait
+    }))
   }
 })

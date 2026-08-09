@@ -346,6 +346,27 @@
     opacity 0.3s var(--w-ease-out) 0s;
 }
 
+/* Inline is the same list living in the page rather than over it: the home
+   route's content, not a summonable panel. No fixed positioning, no backdrop,
+   never hidden. */
+.w-index--inline {
+  position: relative;
+  inset: auto;
+  z-index: 1;
+  background: transparent;
+  opacity: 1;
+  visibility: visible;
+  min-height: 0;
+  display: block;
+}
+/* The overlay variant centres inside a full-viewport flex box, so the fixed
+   header never has to be accounted for explicitly. Inline is ordinary
+   document flow starting at y:0 — without this, the fixed header sits over
+   the first ~75px of the list. */
+.w-index--inline .w-index-container { padding-top: calc(var(--w-header-h) + 60px); }
+@media (max-width: 812px) {
+  .w-index--inline .w-index-container { padding-top: calc(var(--w-header-h-mobile) + 40px); }
+}
 .w-index-container {
   position: relative;
   width: 100%;

@@ -16,11 +16,17 @@ export interface IndexGroup {
   items: NavItem[]
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   open: boolean
   groups: IndexGroup[]
   activeHref?: string
-}>()
+  /**
+   * 'overlay' is the panel the plus button summons on every non-home route.
+   * 'inline' is the same list living in the page itself — the home route,
+   * where the index isn't a menu, it's the content.
+   */
+  variant?: 'overlay' | 'inline'
+}>(), { variant: 'overlay' })
 
 const emit = defineEmits<{ close: []; navigate: [href: string] }>()
 
@@ -148,8 +154,12 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="w-index" :class="{ 'is-open': open }" :aria-hidden="open ? 'false' : 'true'">
-    <WandaCloseBtn @click="emit('close')" />
+  <div
+    class="w-index"
+    :class="[`w-index--${variant}`, { 'is-open': open || variant === 'inline' }]"
+    :aria-hidden="(open || variant === 'inline') ? 'false' : 'true'"
+  >
+    <WandaCloseBtn v-if="variant === 'overlay'" @click="emit('close')" />
 
     <div class="w-index-container">
       <div class="w-index-lists">

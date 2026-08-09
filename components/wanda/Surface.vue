@@ -26,23 +26,10 @@ const navHover = ref(false)
 const navOpen = computed(() => navHover.value && !indexOpen.value)
 
 /* One group, so the panel renders no filter row at all. The site does not
-   categorise itself — the index is the same flat list of destinations the home
-   wall shows, in the same order. */
+   categorise itself — the overlay shows the same flat list the home route's
+   inline index does, in the same order. */
 const groups = computed<IndexGroup[]>(() => props.groups ?? [
-  {
-    id: 'all',
-    label: 'All',
-    items: contentStore.panels.map(p => ({
-      id: p.id,
-      label: p.label,
-      description: p.description,
-      href: p.href,
-      color: p.accent,
-      image: p.image,
-      meta: p.meta,
-      portrait: p.portrait
-    }))
-  }
+  { id: 'all', label: 'All', items: contentStore.indexItems }
 ])
 
 /* A route change means the destination is reached; the panel has no reason to

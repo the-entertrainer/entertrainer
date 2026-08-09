@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { IndexGroup } from '~/components/wanda/IndexPanel.vue'
+
 useSeoMeta({
   title: 'Entertrainer — Instructional Design by Naveen Jose',
   description: 'Naveen Jose is a Certified Instructional Design Specialist who builds training people actually finish — plus four free web apps for L&D teams.',
@@ -9,23 +11,18 @@ useSeoMeta({
 
 const contentStore = useContentStore()
 
-/* One flat, scrolling deck. Every page this site has, in reading order — no
-   sections, no filters, nothing to choose before you can start looking. */
-const panels = computed(() => contentStore.panels)
+/* The sample's own homepage has no masthead, no standfirst, nothing between
+   the fixed header and the list itself — the index IS the page. Every
+   destination this site has, in reading order, one flat group so no filter
+   row renders (the site doesn't categorise itself). */
+const groups = computed<IndexGroup[]>(() => [
+  { id: 'all', label: 'Index', items: contentStore.indexItems }
+])
 </script>
 
 <template>
   <WandaSurface :crumbs="[{ label: 'Index', active: true }]">
-    <section class="masthead">
-      <h1 class="masthead-title">{{ contentStore.brand }}</h1>
-      <p class="masthead-standfirst">
-        {{ contentStore.tagline }}. {{ contentStore.yearsExperience }} years building training
-        people actually finish — and the tools that make it.
-      </p>
-      <p class="masthead-hint" aria-hidden="true">{{ panels.length }} pages</p>
-    </section>
-
-    <WandaScatterDeck :items="panels" />
+    <WandaIndexPanel variant="inline" :open="true" :groups="groups" />
 
     <footer class="colophon">
       <a :href="`mailto:${contentStore.email}`">{{ contentStore.email }}</a>
@@ -41,51 +38,16 @@ const panels = computed(() => contentStore.panels)
 </template>
 
 <style scoped>
-.masthead {
-  padding: calc(var(--w-header-h) + 110px) var(--w-gutter-right) 90px var(--w-gutter);
-}
-.masthead-title {
-  margin: 0;
-  font-family: var(--w-display);
-  /* The real index carries no headline of this kind at all — see
-     Inspiration/WANDA_SYSTEM.md §10 — so 200px was never a measured number.
-     This is the one deliberate departure the brand name earns: it is the
-     page's single moment of scale, held well under the old ceiling so it
-     doesn't read as a poster next to everything quieter below it. */
-  font-size: clamp(40px, 6.5vw, 96px);
-  line-height: 0.84;
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  text-transform: uppercase;
-}
-.masthead-standfirst {
-  margin: 28px 0 0;
-  max-width: 52ch;
-  font-family: var(--w-mono);
-  font-size: var(--w-chrome-size);
-  line-height: 1.5;
-  opacity: var(--w-rest);
-}
-.masthead-hint {
-  margin: 40px 0 0;
-  font-family: var(--w-mono);
-  font-size: 16px;
-  opacity: 0.35;
-}
-
 .colophon {
   display: flex;
   flex-wrap: wrap;
   gap: 28px;
-  padding: 70px var(--w-gutter-right) 70px var(--w-gutter);
+  margin-top: 60px;
+  padding: 40px var(--w-gutter-right) 60px var(--w-gutter);
   border-top: 1px solid rgba(255, 255, 255, 0.14);
   font-family: var(--w-mono);
   font-size: 16px;
 }
 .colophon a { opacity: var(--w-rest); transition: opacity 0.2s linear; }
 .colophon a:hover { opacity: 1; }
-
-@media (max-width: 812px) {
-  .masthead { padding-top: calc(var(--w-header-h) + 48px); padding-bottom: 56px; }
-}
 </style>

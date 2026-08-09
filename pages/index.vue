@@ -56,7 +56,12 @@ const panels = computed(() => contentStore.panels)
 .masthead-title {
   margin: 0;
   font-family: var(--w-display);
-  font-size: clamp(52px, 11vw, 200px);
+  /* The real index carries no headline of this kind at all — see
+     Inspiration/WANDA_SYSTEM.md §10 — so 200px was never a measured number.
+     This is the one deliberate departure the brand name earns: it is the
+     page's single moment of scale, held well under the old ceiling so it
+     doesn't read as a poster next to everything quieter below it. */
+  font-size: clamp(40px, 6.5vw, 96px);
   line-height: 0.84;
   font-weight: 700;
   letter-spacing: -0.035em;

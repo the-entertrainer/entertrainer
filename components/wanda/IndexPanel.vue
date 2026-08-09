@@ -33,9 +33,12 @@ const current = computed(() => props.groups.find(g => g.id === activeGroup.value
 
 /* Columns collapse the same way the source does: 4 → 3 → 2 → 1. */
 const columns = ref(4)
+/* Measured off the real breakpoints (Inspiration/WANDA_SYSTEM.md §3): the
+   source jumps straight from 3 columns to 1 at 1024px — there is no 2-column
+   tier anywhere in its stylesheet. */
 function readColumns() {
   const w = window.innerWidth
-  columns.value = w <= 812 ? 1 : w <= 1024 ? 2 : w <= 1450 ? 3 : 4
+  columns.value = w <= 1024 ? 1 : w <= 1450 ? 3 : 4
 }
 
 /* The source splits a flat list into columns with ceil(i*n/cols) rather than

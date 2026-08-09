@@ -69,8 +69,14 @@
     --w-gutter-right: 40px;
   }
 }
+/* Measured against a live render of wanda.net at 390×844 with touch emulation
+   on (see Inspiration/WANDA_SYSTEM.md §10): the mobile header is a shorter,
+   solid-filled bar — 40px, not a shrunk-down 75px — and the wordmark grows
+   rather than shrinks inside it (22px cap height vs. 19px on desktop), because
+   the breadcrumb that constrains it on desktop is gone below this width. */
+.w-surface { --w-header-h-mobile: 40px; }
 @media (max-width: 812px) {
-  .w-surface { --w-gutter: 20px; --w-gutter-right: 20px; --w-logo-x: 15px; --w-logo-y: 16px; }
+  .w-surface { --w-gutter: 20px; --w-gutter-right: 20px; --w-logo-x: 15px; --w-logo-y: 9px; }
 }
 
 /* ─── Chrome type ─────────────────────────────────────────── */
@@ -124,6 +130,17 @@
   pointer-events: none;
 }
 
+/* Below 812 the header is measured, not guessed: a short 40px bar with a
+   solid fill (not a fade), matching the real mobile chrome exactly. */
+@media (max-width: 812px) {
+  .w-header {
+    height: var(--w-header-h-mobile);
+    padding: 0 15px;
+    background: var(--w-bg);
+  }
+  .w-header::before { display: none; }
+}
+
 /* The source's mark is 101px wide in a 160px gutter — 19px of clearance before
    the breadcrumb starts. "Entertrainer" is twice the glyph count of "Wanda+",
    so holding both the 19px cap height and the 160px gutter is impossible; the
@@ -146,6 +163,13 @@
   text-transform: uppercase;
   white-space: nowrap;
   transition: color 0.2s linear;
+}
+
+/* The real mark grows below 812 (22px cap height vs. 19px), not shrinks — the
+   breadcrumb that constrains it on desktop is display:none down here, so
+   nothing is fighting it for room any more. */
+@media (max-width: 812px) {
+  .w-logo { font-size: 18px; line-height: 22px; }
 }
 
 /* ─── Breadcrumb ──────────────────────────────────────────── */
@@ -257,6 +281,43 @@
 /* Open turns the plus into a minus. The whole menu affordance. */
 .w-plus.is-open .w-plus-glyph::after { transform: translate(-50%, -50%) rotate(-90deg); }
 
+/* Below 812 there is no hover to gate a reveal with, so the source doesn't try
+   — the nav sits permanently visible, stacked, and left-aligned as ordinary
+   page content instead of hovered-open chrome.
+   The plus button is a SEPARATE element on the real site — not the same node
+   that the desktop hover reveals — so on mobile it keeps its own fixed corner
+   independent of wherever `.w-nav` (now repositioned) carries it in the DOM;
+   `position: fixed` on a descendant escapes an ancestor's fixed positioning as
+   long as nothing in between establishes a containing block, which nothing
+   here does. This block has to come after the unscoped `.w-plus` rule above —
+   CSS doesn't let a media query jump the source-order queue, so an override
+   placed before the rule it overrides simply loses. */
+@media (max-width: 812px) {
+  .w-header { padding-left: 15px; }
+  .w-nav {
+    position: fixed;
+    top: calc(var(--w-header-h-mobile) + 26px);
+    left: 15px;
+    margin-left: 0;
+    z-index: 400;
+    opacity: 1;
+  }
+  .w-nav.is-yielded { opacity: 1; pointer-events: auto; }
+  .w-nav-links { flex-direction: column; align-items: flex-start; gap: 12px; margin-right: 0; }
+  .w-nav-item {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transition: none !important;
+  }
+  .w-nav-item a { margin-left: 0; font-size: 18px; }
+  .w-plus {
+    position: fixed;
+    top: calc((var(--w-header-h-mobile) - 18px) / 2);
+    right: 15px;
+    z-index: 5000;
+  }
+}
+
 /* ─── Close button ────────────────────────────────────────── */
 
 .w-close {
@@ -358,20 +419,31 @@
 .w-index-grid a.is-active,
 .w-index-grid a.is-active::before { opacity: 1; }
 
+/* 4 columns above 1450px, 3 down to 1024px, then straight to 1 — the source
+   has no 2-column tier at any width. */
 @media (max-width: 1450px) { .w-index-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 1024px) { .w-index-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 1024px) { .w-index-grid { grid-template-columns: 1fr; } }
 /* Below 812 there is no room for a wordmark and a trail beside it, so the
-   breadcrumb goes — the source drops it on touch for the same reason. */
+   breadcrumb goes — the source drops it on touch for the same reason.
+   (padding-left is set once, in the nav block above — leaving a second
+   declaration here would just be a source-order race with the same property.) */
 @media (max-width: 812px) {
-  .w-header { padding-left: var(--w-gutter); }
   .w-breadcrumb { display: none; }
 }
 
+/* Real measured values for the touch-scoped index overlay: 55px top / 138px
+   left, not the desktop gutter scaled down (Inspiration/WANDA_SYSTEM.md §3). */
 @media (max-width: 812px) {
   .w-index { align-items: flex-start; }
-  .w-index-container { padding-top: calc(var(--w-header-h) + 20px); }
+  .w-index-container { padding: 55px 20px 10px 138px; }
   .w-index-grid { grid-template-columns: 1fr; margin-top: 12px; }
   .w-index-grid li { margin-bottom: 12px; }
+}
+@media (max-width: 480px) {
+  /* 138px is nearly a third of a small phone's width; the source measures
+     this on devices no narrower than a large phone. Below that, fall back to
+     the ordinary mobile gutter rather than eating the viewport. */
+  .w-index-container { padding-left: var(--w-gutter); }
 }
 
 /* ─── Floating hover thumbnails ───────────────────────────── */

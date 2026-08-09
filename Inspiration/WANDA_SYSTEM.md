@@ -50,13 +50,40 @@ whole stylesheet (`-.1em`, `.01em`). Do not add tracking.
 - Breadcrumb starts at `x = 160px` — that 160 is the site's left gutter
 - Content container padding: `0 125px 0 160px`
 - Index grid: `grid-template-columns: repeat(4, 1fr)`, `grid-gap: 0 160px`, `margin-top: 30px`
-  - 3 columns below 1450, 1 column on touch
+  - **Column count is 4 → 3 → 1. There is no 2-column tier at any width** —
+    verified by walking the compiled CSS with its `@media` nesting intact
+    rather than flattening rules out of context (which is how a false
+    2-column step got invented in an earlier pass of this file). `repeat(4,1fr)`
+    above 1450px, `repeat(3,1fr)` from 1450 down to 1024px, `1fr` at 1024px
+    and below, all the way to the smallest phone.
   - each column is a flex column, `margin-bottom: 10px` per row
 - Close button: fixed, `right: 30px, top: 16px`, `padding: 10px`
 - Breakpoints: `560`, `812`, `1024`, `1450`
 
 The column gap equals the left gutter equals `160px`. That single repeated
 number is what makes the index read as engineered rather than arranged.
+
+### 3a. Mobile chrome is not the desktop chrome scaled down
+
+A device-emulated render at 390×844 with touch enabled (§10) turns up a
+**different** header, not a shrunk one:
+
+| | Desktop | Touch (≤812px) |
+| --- | --- | --- |
+| Header height | `75px` | **`40px`** |
+| Header background | transparent (floats over content) | **solid `#080808`** |
+| Logo height | `19px` | **`22px` — bigger, not smaller** |
+| Logo position | `left:40, top:26` | `left:15, top:9` |
+| Breadcrumb | visible | `display:none` (no `.mobile`-variant items exist on the pages checked, so the net effect is simply hidden) |
+| Nav links (Likes/Awards/Contact) | hidden, revealed on hover/plus | **always visible**, stacked vertically, `opacity:1` unconditionally |
+| Plus button | inside `.Nav`, hover-revealed with it | a **separate** element outside `.Nav`, always present — `.touch .Nav>.PlusButton{display:none}` hides only the desktop one |
+| Directors index container padding | `0 125px 0 160px` | `.touch .Directors_container{padding:55px 0 10px 138px !important}` |
+| Directors grid on touch | — | fixed-height, internally scrolling: `height:calc(100vh - 255px);overflow:auto` — the *page* doesn't scroll, the list does |
+
+The load-bearing fact under all of this: on touch there is no hover, so
+`onItemMouseEnter: ENV.isTouch || show()` never fires. **The hover-thumbnail
+system doesn't degrade gracefully on mobile — it's simply absent.** Mobile is
+a plain, quiet, monospace list. Nothing else.
 
 ## 4. The plus button
 
@@ -106,6 +133,26 @@ A horizontal scroller of absolutely-positioned thumbnails at varying sizes.
 - Cursor over a playable thumbnail is a custom play-glyph SVG
 - Hovered item gets `z-index: 3`
 
+**The page this grid lives on does not scroll.** `.Director { height:100%;
+overflow:hidden; position:relative; width:100% }` — the whole route is a
+fixed 100vh/100vw canvas, verified directly from the route's own CSS chunk
+(`7d1facc.css`, undiscovered in the first pass because Nuxt code-splits CSS
+per route and only the shared/global chunks were pulled that time). The name
+is pinned, not stacked above the grid: `.Director>.HeroTitle{font-family:
+"Trash light"; left:40px; position:fixed; top:50%; width:calc(100% - 80px)}`
+— vertically centred on the left edge, `white-space:nowrap`, sized by a
+hidden `.HeroTitle_placeholder` measurement element rather than a fixed
+clamp. The `HorizontalGenerativeGrid` fills the same viewport behind/around
+it and is what actually scrolls, driven by wheel delta. Below 812px the title
+drops the centring and anchors to the bottom-left instead:
+`.Director>.HeroTitle{bottom:40px;left:15px;top:auto}`.
+
+`components/wanda/HeroTitle.vue` and `GenerativeGrid.vue` in this repo predate
+this finding and use a conventional stacked, page-scrolling layout instead —
+they were never rebuilt to the fixed-viewport mechanic because the two routes
+that use them (`/my-work`, `/tools`) are no longer linked from anywhere in the
+site (§11). Worth doing if either page comes back into the nav.
+
 ## 8. Motion vocabulary
 
 The whole site runs on a small set of constants. Durations:
@@ -127,3 +174,59 @@ Nothing bounces. Nothing overshoots except the `1.05 → 1` thumbnail settle.
 The wordmark, the roster, the reels, the Vimeo IDs, the FR/NL language
 switcher, the likes system, and the cookie banner. Those are Wanda+'s business,
 not a design system.
+
+## 10. How this was actually verified
+
+wanda.net was unreachable through this session's egress proxy on the second
+pass — not specific to the site: Chromium reset the connection on *every*
+HTTPS host tried, including `example.com`, while `curl` through the identical
+proxy succeeded every time. That's a proxy/browser interaction problem, not
+something to route around by disabling TLS verification, so the fix was to
+rebuild the local mirror properly instead: fetch every CSS/JS chunk a route
+actually references (not just the ones the homepage happens to load — this is
+what surfaced the missing `7d1facc.css` in §7), including the real
+Söhne/Söhne-mono/Trash `.woff2` files, and serve it locally where Chromium
+*can* connect.
+
+That still wasn't enough on its own. The reveal animations that bring the
+index and the detail-page content to visible opacity depend on Nuxt/Vuex
+state that a static mirror can't fully reconstruct, so every panel rendered
+at its rest state: `opacity:0`. The fix was to force the reveal directly —
+`page.addStyleTag` overriding `opacity/visibility:1 !important` on the
+relevant classes after load — which sacrifices the *animation* but exposes
+the real *content*: real type, real spacing, real hierarchy, at both 390×844
+(with `isMobile`/`hasTouch` set so the site's own `ontouchstart` detection
+takes the real touch code path) and 1600×1000.
+
+What that turned up, stated plainly because it corrected real mistakes in the
+first pass of this rebuild: **the index has no large display type on it at
+all.** No hero headline, no giant wordmark filling the viewport — just the
+small fixed logo and a page of small monospace names, with faint video
+texture doing the only decorative work. Giant type is a *detail-page* device
+(§7), not a homepage one. A rebuild that puts 96–200px headlines across its
+landing page is not reproducing this system; it's doing something else while
+borrowing its palette.
+
+## 11. Departures from a literal reproduction, and why
+
+This repo's home is a flat wall of full-bleed panels — one per destination,
+laid out in five different arrangements so neighbours never repeat — rather
+than wanda.net's monospace name-index. That structure was an explicit design
+brief for *this* site, not a claim about what wanda.net's homepage looks
+like, and it stands on its own regardless of what §10 found.
+
+What §10 did change: the panel titles were originally sized against no
+measurement at all (`clamp(40px,5.5vw,96px)` on every panel, up to `190px` on
+the `type` variant) and read as a poster wall next to the source's quiet
+index. They're pulled back — `clamp(32px,3.6vw,64px)` baseline, `100px` and
+`120px` ceilings on the two variants that go bigger — enough to keep the
+titles reading as the panel's largest element without dominating the
+description under them the way the old scale did. The chrome (header, logo,
+nav, plus button, index overlay, column breakpoints) was corrected to the
+real measured values in §3a rather than adjusted by feel.
+
+`/my-work` and `/tools` still run the old stacked-and-scrolling
+`HeroTitle`/`GenerativeGrid` pair rather than the fixed-viewport mechanic
+found in §7 — not because it's wrong to fix, but because nothing in the site
+links to either route any more (the flat wall replaced them as the
+navigation), so it wasn't the highest-value use of the time this pass had.

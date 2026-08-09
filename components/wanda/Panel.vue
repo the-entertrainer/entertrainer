@@ -82,11 +82,18 @@ const number = computed(() => String(props.index + 1).padStart(2, '0'))
 .panel-number { color: var(--accent); }
 .panel-kind { opacity: var(--w-rest); }
 
+/* A real render of wanda.net's own index (Inspiration/WANDA_SYSTEM.md §10)
+   turned up no display headline anywhere on it — the whole page is small
+   monospace text and video texture; the only place the source goes big is a
+   single vertically-centred name on an individual project page. clamp(96px)
+   here was invented, not measured, and read as a poster next to the source's
+   restraint. Pulled back so the title is clearly the panel's largest element
+   without dominating the description under it the way the old scale did. */
 .panel-title {
   margin: 0;
   font-family: var(--w-display);
-  font-size: clamp(40px, 5.5vw, 96px);
-  line-height: 0.92;
+  font-size: clamp(32px, 3.6vw, 64px);
+  line-height: 0.94;
   font-weight: 700;
   letter-spacing: -0.03em;
   text-transform: uppercase;
@@ -171,7 +178,7 @@ const number = computed(() => String(props.index + 1).padStart(2, '0'))
 
 /* stack — oversized title, artwork below and pushed to the outer edge. */
 .panel--stack { grid-template-columns: 1fr; gap: 56px; }
-.panel--stack .panel-title { font-size: clamp(48px, 8vw, 150px); }
+.panel--stack .panel-title { font-size: clamp(40px, 5.2vw, 100px); }
 .panel--stack .panel-media {
   justify-self: end;
   width: min(62%, 760px);
@@ -192,7 +199,7 @@ const number = computed(() => String(props.index + 1).padStart(2, '0'))
 /* type — no artwork. The title is the panel. */
 .panel--type { grid-template-columns: 1fr; padding-top: 120px; padding-bottom: 120px; }
 .panel--type .panel-title {
-  font-size: clamp(52px, 10vw, 190px);
+  font-size: clamp(44px, 6.5vw, 120px);
   -webkit-text-stroke: 1px var(--accent);
   color: transparent;
   transition: color 0.4s var(--w-ease-out);

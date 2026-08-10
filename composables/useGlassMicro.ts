@@ -27,7 +27,7 @@ export function useGlassMicro(rootRef: Ref<HTMLElement | null>) {
   }
 
   function onMove(e: PointerEvent) {
-    const el = (e.target as HTMLElement)?.closest?.('.glass-panel, .glass-surface') as HTMLElement | null
+    const el = (e.target as HTMLElement)?.closest?.('.glass-panel') as HTMLElement | null
     if (el !== current) {
       current?.style.setProperty('--sheen', '0')
       current = el

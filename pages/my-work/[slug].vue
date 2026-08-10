@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useContentStore } from '~/stores/content'
 
+definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 
 const route        = useRoute()
 const contentStore = useContentStore()
@@ -17,7 +18,7 @@ if (!item.value) throw createError({ statusCode: 404 })
 </script>
 
 <template>
-  <UiToolShell v-if="item" eyebrow="My Work" :title="item.label" :deck="item.description">
+  <UiContentShell v-if="item" eyebrow="My Work" :title="item.label" :deck="item.description">
     <UiConstructionZone />
-  </UiToolShell>
+  </UiContentShell>
 </template>

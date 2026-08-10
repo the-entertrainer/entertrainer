@@ -7,7 +7,7 @@
 // classes, but this project ships no Tailwind, so none of them resolved. This
 // version uses the site's real token system (theme-aware --color-* variables,
 // the 1rem = 1px scale, DM Sans) and the shared .glass-* primitives.
-definePageMeta({ layout: false })
+definePageMeta({ layout: false, pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'Instructional Design · Entertrainer',
   description: 'A page that designs itself while you read it. See instructional design principles applied to the page you are on.',
@@ -15,9 +15,6 @@ useSeoMeta({
   ogDescription: 'A page that designs itself while you read it.',
   ogUrl: 'https://entertrainer.in/instructional-design'
 })
-
-const R = useReveal()
-const rv = R.head()
 
 const cutJargon = ref(false)
 const chunk = ref(false)
@@ -76,16 +73,16 @@ function iconPath(name: string) {
 
     <div class="id-wrap">
       <header class="id-head">
-        <p class="eyebrow id-eyebrow" v-motion :initial="rv.eyebrow.initial" :visible-once="rv.eyebrow.visibleOnce">Instructional design</p>
-        <h1 class="display-serif id-title" v-motion :initial="rv.title.initial" :visible-once="rv.title.visibleOnce">What gets designed when no one is watching</h1>
-        <p class="id-dek" v-motion :initial="rv.deck.initial" :visible-once="rv.deck.visibleOnce">
+        <p class="id-eyebrow">Instructional design</p>
+        <h1 class="id-title">What gets designed when no one is watching</h1>
+        <p class="id-dek">
           A subject expert can already do the thing. Instructional design is the work of turning
           what they know into something another person can learn. Most of that work is subtraction.
           Try it on the panel below.
         </p>
       </header>
 
-      <section class="id-lab glass-panel" aria-label="Interactive demonstration" v-motion :initial="R.rise(240).initial" :visible-once="R.rise(240).visibleOnce">
+      <section class="id-lab glass-panel" aria-label="Interactive demonstration">
         <div class="id-lab__top">
           <div>
             <p class="id-lab__kicker">The same instruction, redesigned live</p>
@@ -99,7 +96,7 @@ function iconPath(name: string) {
         </div>
 
         <!-- The content region that the moves transform -->
-        <div class="id-canvas" :class="{ 'is-designed': moveCount === 3 }" aria-live="polite">
+        <div class="id-canvas" :class="{ 'is-designed': moveCount === 3 }">
           <Transition :name="reduceMotion ? '' : 'id-swap'" mode="out-in">
             <!-- Raw: dense, jargon, unstructured -->
             <p v-if="!cutJargon" key="raw" class="id-raw">
@@ -154,11 +151,7 @@ function iconPath(name: string) {
         </div>
       </section>
 
-      <footer class="id-foot" :class="{ 'is-live': moveCount === 3 }">
-        <p v-if="moveCount === 3" class="id-foot__seal" aria-hidden="true">
-          <span class="id-foot__count">{{ moveCount }}/3</span>
-          <span class="id-foot__rule" />
-        </p>
+      <footer class="id-foot">
         <p class="id-foot__line" :class="{ 'is-live': moveCount === 3 }">
           <template v-if="moveCount === 3">
             That is the whole job. The expert knew all of this already. The design is what made it
@@ -176,21 +169,21 @@ function iconPath(name: string) {
 
 <style scoped>
 .id-page {
-  position: relative;
-  min-height: 100dvh;
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
   color: var(--color-text);
   background: var(--color-bg);
 }
 .id-wrap {
   position: relative;
   z-index: 1;
-  max-width: var(--maxw-read);
+  max-width: 780rem;
   margin: 0 auto;
-  padding: var(--page-top) var(--edge-column) var(--page-bottom);
+  padding: calc(96rem + var(--safe-top)) 24rem calc(80rem + var(--safe-bottom));
 }
 
 .id-exit {
-  min-height: 44rem;
   position: fixed;
   top: calc(18rem + var(--safe-top));
   left: calc(20rem + var(--safe-left));
@@ -198,30 +191,47 @@ function iconPath(name: string) {
   display: inline-flex;
   align-items: center;
   gap: 6rem;
-  padding: 8rem 13rem;
+  min-height: 44rem;
+  padding: 8rem 16rem;
   border-radius: 999rem;
+  font-family: var(--display-font);
+  font-weight: 700;
   font-size: 13rem;
   color: var(--color-text);
   background: var(--color-glass-bg);
   border: 1px solid var(--color-glass-border);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: background 0.15s ease;
+  backdrop-filter: blur(16px) saturate(1.3) brightness(1.08);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3) brightness(1.08);
+  box-shadow: inset 0 1px 0 var(--glow-rim), 0 10rem 26rem -16rem rgba(0,0,0,0.8);
+  transition: background 0.2s ease, transform 0.2s var(--ease-spring);
 }
-@media (hover: hover) { .id-exit:hover { background: var(--color-glass-bg-hover); } }
+@media (hover: hover) { .id-exit:hover { background: var(--color-glass-bg-hover); transform: translateX(-2rem); } }
 .id-exit:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
 
 .id-head { margin-bottom: 34rem; }
-.id-eyebrow { margin-bottom: 16rem; }
+.id-eyebrow {
+  font-family: var(--mono-font);
+  font-weight: 500;
+  font-size: 12rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin-bottom: 16rem;
+}
 .id-title {
-  font-size: var(--text-display);
-  max-width: 15ch;
+  font-family: var(--display-font);
+  font-optical-sizing: auto;
+  font-size: var(--text-h1);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: var(--tracking-display);
+  max-width: 13ch;
 }
 .id-dek {
-  color: color-mix(in srgb, var(--color-text) 78%, transparent);
   margin-top: 20rem;
-  font-size: var(--text-lead);
+  font-size: 17rem;
   line-height: 1.6;
+  opacity: 0.72;
   max-width: 54ch;
 }
 
@@ -233,13 +243,13 @@ function iconPath(name: string) {
   gap: 20rem;
   margin-bottom: 22rem;
 }
-.id-lab__kicker { font-size: 11.5rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.5; margin-bottom: 6rem; }
+.id-lab__kicker { font-family: var(--mono-font); font-weight: 500; font-size: 11.5rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.5; margin-bottom: 6rem; }
 .id-lab__topic { font-size: 19rem; font-weight: 600; letter-spacing: -0.01em; }
 
 .id-meter { display: flex; align-items: center; gap: 10rem; flex-shrink: 0; }
 .id-meter__label { font-size: 11rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.5; }
 .id-meter__track { width: 88rem; height: 7rem; border-radius: 999rem; background: var(--color-glass-border); overflow: hidden; }
-.id-meter__fill { display: block; height: 100%; border-radius: 999rem; background: var(--color-accent); transition: width var(--dur-5) var(--ease-out-soft); }
+.id-meter__fill { display: block; height: 100%; border-radius: 999rem; background: var(--color-pop); box-shadow: 0 0 12rem -2rem var(--glow-soft); transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
 .id-meter__fill.no-anim { transition: none; }
 .id-meter__val { font-size: 12.5rem; font-weight: 600; min-width: 62rem; }
 
@@ -252,20 +262,15 @@ function iconPath(name: string) {
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .id-canvas.is-designed {
-  border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-glass-border));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 22%, transparent);
+  border-color: var(--color-glass-border-hover);
+  box-shadow: inset 0 0 0 1px var(--color-glass-border-hover), 0 0 32rem -14rem var(--glow-soft);
 }
-/* The "before" state. It is deliberately dense and unwelcoming — that is the
-   teaching point — but it was set in Georgia, a third serif on a site that has
-   one, and justified without hyphenation, which at this measure opens rivers of
-   white space down the paragraph. Bad typography is not the same thing as bad
-   writing, and only one of the two is being demonstrated here. */
 .id-raw {
-  font-family: var(--serif-font);
   font-size: 15rem;
   line-height: 1.5;
   opacity: 0.6;
-  hyphens: auto;
+  text-align: justify;
+  font-family: 'Georgia', 'Times New Roman', serif;
 }
 .id-plain { font-size: 18rem; line-height: 1.6; }
 .id-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12rem; }
@@ -278,12 +283,14 @@ function iconPath(name: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-family: var(--display-font);
+  font-weight: 800;
   font-size: 14rem;
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
+  background: var(--color-pop);
+  color: var(--color-on-pop);
+  box-shadow: 0 0 20rem -8rem var(--glow-soft);
 }
-.id-step__icon { flex-shrink: 0; color: var(--color-accent); display: flex; }
+.id-step__icon { flex-shrink: 0; color: var(--color-text); display: flex; }
 .id-step__text { font-size: 17rem; line-height: 1.4; }
 .id-step__text b { font-weight: 700; }
 .id-mnemonic { margin-top: 18rem; font-size: 14rem; opacity: 0.7; }
@@ -302,7 +309,7 @@ function iconPath(name: string) {
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 @media (hover: hover) { .id-move:hover { border-color: var(--color-glass-border-hover); } }
-.id-move.is-on { border-color: var(--color-accent); background: var(--color-accent-soft); }
+.id-move.is-on { border-color: var(--color-text); background: var(--color-glass-bg-hover); box-shadow: 0 0 26rem -12rem var(--glow-soft); }
 .id-move:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
 .id-move__check {
   flex-shrink: 0;
@@ -313,77 +320,26 @@ function iconPath(name: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-accent-ink);
-  transition: background var(--dur-2) var(--ease-out-soft), border-color var(--dur-2) var(--ease-out-soft);
+  color: var(--color-on-pop);
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
-.id-move.is-on .id-move__check { background: var(--color-accent); border-color: var(--color-accent); }
+.id-move.is-on .id-move__check { background: var(--color-pop); border-color: var(--color-pop); }
 .id-move__body { display: flex; flex-direction: column; gap: 5rem; }
 .id-move__label { font-size: 14.5rem; font-weight: 600; letter-spacing: -0.01em; }
 .id-move__principle { font-size: 12rem; line-height: 1.45; opacity: 0.62; }
 
-/* The payoff. Landing all three moves used to change opacity 0.72 -> 1 and
-   weight 400 -> 500, which is imperceptible — the page asked you to complete an
-   interaction and then said nothing when you did. The closing line now sets in
-   the reading serif at lead size, under a rule that draws itself across from a
-   3/3 seal. It reads as a conclusion rather than a caption. */
 .id-foot { margin-top: 30rem; }
-.id-foot__seal { display: flex; align-items: center; gap: 14rem; margin-bottom: 16rem; }
-.id-foot__count {
-  font-size: 12rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  padding: 5rem 10rem;
-  border-radius: var(--radius-full);
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
-}
-.id-foot__rule {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(to right, var(--color-accent), transparent);
-  transform-origin: left;
-  animation: id-rule 0.7s var(--ease-out) both;
-}
-@keyframes id-rule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-.id-foot__line {
-  font-size: 16rem;
-  line-height: 1.6;
-  opacity: 0.72;
-  max-width: 56ch;
-  transition: opacity var(--dur-3) var(--ease-out-soft);
-}
-.id-foot__line.is-live {
-  font-family: var(--serif-font);
-  font-optical-sizing: auto;
-  font-size: var(--text-lead);
-  line-height: 1.45;
-  letter-spacing: -0.01em;
-  opacity: 1;
-}
-@media (prefers-reduced-motion: reduce) { .id-foot__rule { animation: none; } }
+.id-foot__line { font-size: 16rem; line-height: 1.6; opacity: 0.72; max-width: 56ch; transition: opacity 0.3s ease; }
+.id-foot__line.is-live { opacity: 1; font-weight: 500; }
 
 .id-swap-enter-active, .id-swap-leave-active { transition: opacity 0.28s ease, transform 0.28s ease; }
 .id-swap-enter-from { opacity: 0; transform: translateY(8rem); }
 .id-swap-leave-to { opacity: 0; transform: translateY(-8rem); }
 
 @media (max-width: 640px) {
+  .id-wrap { padding-top: calc(84rem + var(--safe-top)); }
   .id-lab__top { flex-direction: column; gap: 14rem; }
   .id-moves { grid-template-columns: 1fr; }
   .id-canvas { padding: 20rem; }
-}
-
-/* Above 1440 the column widens, but only for the parts that are not prose. Held
-   at --maxw-read the 132rem headline broke over four lines inside a 790rem
-   column, and the three moves were 190rem cards with 10rem labels in the middle
-   of a 2560rem screen. The dek keeps its 54ch measure and the canvas keeps its
-   56ch, so nothing anyone actually reads gets wider — the headline and the
-   apparatus around it do. */
-@media (min-width: 1441px) {
-  .id-wrap { max-width: clamp(860rem, 62vw, 1180rem); }
-  .id-lab { padding: clamp(26rem, 2.2vw, 44rem); }
-  .id-moves { gap: clamp(12rem, 1vw, 20rem); }
-  .id-move { padding: clamp(15rem, 1.2vw, 22rem); }
-  .id-move__label { font-size: clamp(14.5rem, 1.05vw, 18rem); }
-  .id-move__principle { font-size: clamp(12rem, 0.85vw, 15rem); }
 }
 </style>

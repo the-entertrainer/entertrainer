@@ -1,17 +1,12 @@
 import { defineStore } from 'pinia'
 import nav from '~/content/navigation.json'
-import panelData from '~/content/panels.json'
 import type { NavItem } from '~/types/nav'
-import type { Panel } from '~/types/panel'
 
 export type { NavItem }
 
 export const useContentStore = defineStore('content', {
   state: () => ({
     nav: nav as Record<string, NavItem[]>,
-    /** The flat destination list. No sections, no categories — every page the
-     *  home is responsible for, in reading order. */
-    panels: panelData.panels as Panel[],
     name: 'Naveen Jose',
     brand: 'Entertrainer',
     tagline: 'Certified Instructional Design Specialist',
@@ -26,21 +21,8 @@ export const useContentStore = defineStore('content', {
     homeNav:                 (state): NavItem[] => state.nav.home                    ?? [],
     aboutNav:                (state): NavItem[] => state.nav.about                   ?? [],
     toolsNav:                (state): NavItem[] => state.nav.tools                   ?? [],
+    downloadsNav:            (state): NavItem[] => state.nav.downloads               ?? [],
     myWorkNav:               (state): NavItem[] => state.nav['my-work']              ?? [],
-    instructionalDesignNav:  (state): NavItem[] => state.nav['instructional-design'] ?? [],
-    /** `panels` reshaped to `NavItem` — the one flat list of every destination
-     *  the site has, feeding both the home route's inline index and the
-     *  plus-button overlay every other route summons. One mapping, so the two
-     *  never drift apart. */
-    indexItems: (state): NavItem[] => state.panels.map(p => ({
-      id: p.id,
-      label: p.label,
-      description: p.description,
-      href: p.href,
-      color: p.accent,
-      image: p.image,
-      meta: p.meta,
-      portrait: p.portrait
-    }))
+    instructionalDesignNav:  (state): NavItem[] => state.nav['instructional-design'] ?? []
   }
 })

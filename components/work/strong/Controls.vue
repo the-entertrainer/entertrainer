@@ -52,8 +52,6 @@ const segments = computed(() => Array.from({ length: props.total }, (_, i) => i)
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 }
 .st-bar__nav {
-  min-width: 44rem;
-  min-height: 44rem;
   width: 42rem; height: 42rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
   border-radius: 999rem; border: 1px solid var(--st-line-strong); color: var(--st-text);
   transition: border-color 0.14s ease, background 0.14s ease, opacity 0.14s ease;
@@ -70,23 +68,13 @@ const segments = computed(() => Array.from({ length: props.total }, (_, i) => i)
 .st-bar__center { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8rem; }
 .st-seek { display: flex; gap: 5rem; width: 100%; max-width: 520rem; }
 .st-seek__seg {
-  /* A 5rem rail is the right visual weight for a progress bar and the wrong size
-     for a finger. The bar keeps its height via background-clip; the button grows
-     around it. */
-  flex: 1; height: 44rem; border-radius: 999rem;
-  padding-block: 19.5rem;
-  background-color: var(--st-slot);
-  background-clip: content-box;
-  transition: background-color 0.2s ease, transform 0.15s ease;
+  flex: 1; height: 5rem; border-radius: 999rem; background: var(--st-slot);
+  transition: background 0.2s ease, transform 0.15s ease;
 }
-/* These must set `background-color`, never the `background` shorthand: the
-   shorthand resets `background-clip` to `border-box`, which paints the whole
-   44rem hit box. Every completed step rendered as a solid slab instead of a
-   dash, and the current one — scaled 1.8x — as a 79rem tower. */
-.st-seek__seg.is-done { background-color: color-mix(in srgb, var(--st-accent) 55%, var(--st-slot)); }
-.st-seek__seg.is-current { background-color: var(--st-accent); transform: scaleY(1.8); }
+.st-seek__seg.is-done { background: color-mix(in srgb, var(--st-accent) 55%, var(--st-slot)); }
+.st-seek__seg.is-current { background: var(--st-accent); transform: scaleY(1.8); }
 .st-seek__seg.is-locked { cursor: not-allowed; }
-@media (hover: hover) { .st-seek__seg.is-done:not(.is-current):hover { background-color: var(--st-accent); } }
+@media (hover: hover) { .st-seek__seg.is-done:not(.is-current):hover { background: var(--st-accent); } }
 .st-seek__seg:focus-visible { outline: 2px solid var(--st-text); outline-offset: 3px; }
 .st-bar__pos { display: flex; align-items: baseline; gap: 10rem; }
 .st-bar__section { font-family: var(--st-display); font-weight: 600; font-size: 12.5rem; color: var(--st-text); }

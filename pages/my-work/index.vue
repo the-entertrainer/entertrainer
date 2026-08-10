@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useContentStore } from '~/stores/content'
 
+definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'My Work — instructional design projects by Naveen Jose · Entertrainer',
   description: 'Selected instructional design and L&D work by Naveen Jose: interactive learning experiences built for real teams.',
@@ -13,14 +14,11 @@ const contentStore = useContentStore()
 </script>
 
 <template>
-  <WandaSurface :crumbs="[{ label: 'Index', href: '/' }, { label: 'Work', active: true }]">
-    <WandaHeroTitle
-      title="Work"
-      standfirst="The two I can show you end to end — what they were for, who they were for, and how they were built."
-    />
-    <WandaGenerativeGrid :items="contentStore.myWorkNav" />
-    <div class="w-endcta">
-      <NuxtLink to="/tools">→ The tools behind them</NuxtLink>
-    </div>
-  </WandaSurface>
+  <UiCardGrid
+    eyebrow="My Work"
+    title="Selected projects"
+    deck="Interactive learning, built for real teams. Open one to see how it was designed."
+    meta="02 projects"
+    :items="contentStore.myWorkNav"
+  />
 </template>

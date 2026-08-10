@@ -1,34 +1,33 @@
 <script setup lang="ts">
-import { LAB_CONCEPTS } from '~/utils/labNav'
+import { CONCEPTS } from '~/utils/labNav'
 definePageMeta({ layout: false })
-useSeoMeta({ title: 'Home concepts — Lab', robots: 'noindex' })
+useSeoMeta({ title: 'Homepage concepts — Lab', robots: 'noindex' })
 const R = useReveal()
 </script>
 
 <template>
   <div class="lab">
-    <!-- `layout: false` means no site chrome renders here, so without this the
-         page is a dead end and the browser's own back button is the only exit. -->
-    <NuxtLink to="/" class="lab__exit">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 8 12l7 7" /></svg>
-      Back to the site
-    </NuxtLink>
-
     <div class="lab__inner">
       <header class="lab__head">
         <p class="lab__eyebrow" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">Hidden · Lab</p>
-        <h1 class="lab__title" v-motion :initial="R.rise(80).initial" :visible-once="R.rise(80).visibleOnce">Bold theme experiments</h1>
-        <p class="lab__deck" v-motion :initial="R.rise(170).initial" :visible-once="R.rise(170).visibleOnce">Entire art directions for the site — WebGL flux, brutalist, chrome, noir, plasma, physics, synthwave, comic, and more. Open each, feel the whole world, pick a direction. Nothing else links here, so the unpicked ones delete cleanly.</p>
+        <h1 class="lab__title" v-motion :initial="R.rise(70).initial" :visible-once="R.rise(70).visibleOnce">Fifteen homepages,<br>one sheet of glass</h1>
+        <p class="lab__deck" v-motion :initial="R.rise(150).initial" :visible-once="R.rise(150).visibleOnce">
+          Every one renders real Liquid Glass — a rounded-rect distance field, surface normals taken from
+          its gradient, edge-weighted refraction, chromatic dispersion, Fresnel and specular — over a
+          procedural backdrop the glass actually bends. Same optics throughout; fifteen different
+          art directions on top.
+        </p>
       </header>
 
       <ol class="lab__grid">
-        <li v-for="(c, i) in LAB_CONCEPTS" :key="c.slug" v-motion :initial="R.riseIn(i, 55).initial" :visible-once="R.riseIn(i, 55).visibleOnce">
+        <li v-for="(c, i) in CONCEPTS" :key="c.slug" v-motion
+            :initial="R.riseIn(i, 40).initial" :visible-once="R.riseIn(i, 40).visibleOnce">
           <NuxtLink :to="`/lab/${c.slug}`" class="lab__card">
             <span class="lab__n">{{ c.n }}</span>
             <span class="lab__body">
               <strong class="lab__name">{{ c.name }}</strong>
-              <span class="lab__blurb">{{ c.blurb }}</span>
-            </span>
+              <span class="lab__law">{{ c.note }}</span>
+                          </span>
             <span class="lab__arrow" aria-hidden="true">→</span>
           </NuxtLink>
         </li>
@@ -38,30 +37,23 @@ const R = useReveal()
 </template>
 
 <style scoped>
-.lab { position: fixed; inset: 0; overflow-y: auto; background: var(--color-bg); color: var(--color-text); --serif: var(--serif-font); }
-.lab__inner { max-width: 860rem; margin: 0 auto; padding: calc(90rem + var(--safe-top)) clamp(20rem, 5vw, 40rem) 90rem; }
-.lab__exit {
-  position: fixed; z-index: 5;
-  top: calc(18rem + var(--safe-top)); left: calc(20rem + var(--safe-left));
-  min-height: 44rem; display: inline-flex; align-items: center; gap: 6rem;
-  padding: 8rem 14rem; border-radius: 999rem; font-size: 13rem;
-  color: var(--color-text); text-decoration: none;
-  background: var(--color-glass-bg); border: 1px solid var(--color-glass-border);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  transition: background 0.15s ease;
-}
-@media (hover: hover) { .lab__exit:hover { background: var(--color-glass-bg-hover); } }
-.lab__exit:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
-.lab__eyebrow { font-size: 12rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.55; }
-.lab__title { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(38rem, 6.5vw, 68rem); line-height: 1.0; letter-spacing: -0.015em; margin: 14rem 0 0; }
-.lab__deck { margin: 20rem 0 40rem; max-width: 54ch; font-size: 16rem; line-height: 1.6; opacity: 0.7; }
-.lab__grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 12rem; }
-.lab__card { display: flex; align-items: center; gap: 18rem; padding: 20rem 22rem; border: 1px solid var(--color-glass-border); border-radius: 16rem; background: var(--color-glass-bg); color: var(--color-text); text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease; }
+.lab { position: fixed; inset: 0; overflow-y: auto; background: var(--color-bg); color: var(--color-text); --serif: var(--display-font); }
+.lab__inner { max-width: 900rem; margin: 0 auto; padding: calc(80rem + var(--safe-top)) clamp(20rem, 5vw, 40rem) 90rem; }
+.lab__eyebrow { font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.55; }
+.lab__title { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(34rem, 6vw, 62rem); line-height: 1.02; letter-spacing: -0.02em; margin: 14rem 0 0; }
+.lab__deck { margin: 20rem 0 40rem; max-width: 62ch; font-size: 15rem; line-height: 1.65; opacity: 0.7; }
+.lab__deck em { font-style: italic; }
+
+.lab__grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 10rem; }
+.lab__card { display: grid; grid-template-columns: 34rem 1fr 22rem; align-items: start; gap: 16rem; padding: 20rem 22rem; border: 1px solid var(--color-glass-border); border-radius: 16rem; background: var(--color-glass-bg); color: var(--color-text); text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease; }
 @media (hover: hover) { .lab__card:hover { transform: translateY(-3rem); border-color: var(--color-glass-border-hover); background: var(--color-glass-bg-hover); } .lab__card:hover .lab__arrow { transform: translateX(4rem); } }
 .lab__card:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; }
-.lab__n { font-family: var(--serif); font-size: 26rem; opacity: 0.4; font-variant-numeric: tabular-nums; flex: 0 0 auto; }
-.lab__body { display: flex; flex-direction: column; gap: 4rem; margin-right: auto; min-width: 0; }
-.lab__name { font-size: 18rem; font-weight: 700; letter-spacing: -0.01em; }
-.lab__blurb { font-size: 13.5rem; opacity: 0.6; line-height: 1.45; }
-.lab__arrow { font-size: 20rem; opacity: 0.4; transition: transform 0.2s ease; }
+.lab__n { font-family: var(--serif); font-size: 22rem; opacity: 0.38; font-variant-numeric: tabular-nums; padding-top: 2rem; }
+.lab__body { display: grid; gap: 6rem; min-width: 0; }
+.lab__name { font-size: 19rem; font-weight: 700; letter-spacing: -0.01em; }
+.lab__law { font-size: 12.5rem; line-height: 1.5; opacity: 0.62; }
+.lab__pitch { font-size: 13.5rem; line-height: 1.45; font-style: italic; opacity: 0.9; }
+.lab__tech { font-size: 12rem; line-height: 1.5; opacity: 0.45; }
+.lab__arrow { font-size: 18rem; opacity: 0.35; transition: transform 0.2s ease; padding-top: 4rem; }
+@media (prefers-reduced-motion: reduce) { .lab__card, .lab__arrow { transition: none; } }
 </style>

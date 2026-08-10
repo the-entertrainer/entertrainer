@@ -1,7 +1,9 @@
 <script setup lang="ts">
-// About — editorial + modern, animated with Motion for Vue (v-motion springs)
-// and set in Fraunces. Theme-aware via the site tokens; reduced-motion safe
-// through useReveal(). No GSAP here — reveals are declarative.
+// About — the identity hero stays a normal scrolling page (there is nothing
+// to spatially navigate about a name and a portrait), but the chapters that
+// used to run on as six full-height scroll-jacked sections are now a
+// UiSpatialDeck: the same drag-and-settle the rest of the site's content
+// runs on, not a stepper dot-nav driving an IntersectionObserver.
 definePageMeta({ layout: false })
 useSeoMeta({
   title: 'About — Naveen Jose · Entertrainer',
@@ -17,122 +19,84 @@ const rv = {
   portrait: R.scaleIn(140), cue: R.fade(460)
 }
 
-interface Chapter { n: string; eyebrow: string; head: string; body: string; img: string; w: number; h: number; alt: string; place: string; footnote?: string }
+interface Chapter { n: string; eyebrow: string; head: string; body: string; img: string; alt: string; place: string; footnote?: string }
 const CHAPTERS: Chapter[] = [
   { n: '02', eyebrow: 'Where it began', head: 'It started in hospitality',
     body: 'I studied hotel management in Chennai and began on the floor. Hospitality is where I learned to notice the small things that make service feel human — the details nobody asks for but everybody remembers.',
-    img: '/about/about-housekeeper-1.webp', w: 600, h: 800, alt: 'On the hotel floor in the early hospitality years', place: 'Chennai · Hotel management' },
+    img: '/about/about-housekeeper-1.webp', alt: 'On the hotel floor in the early hospitality years', place: 'Chennai · Hotel management' },
   { n: '03', eyebrow: 'The turn', head: 'A comic, and a new path',
     body: 'At Club Mahindra I moved into learning and development, and drew The SEWA Chronicles — a small comic of real guest-experience stories. That was the moment design stopped being a side interest and became the plan.',
-    img: '/about/about-sewa-1.webp', w: 1600, h: 900, alt: 'A page from The SEWA Chronicles comic', place: 'Club Mahindra · L&D' },
+    img: '/about/about-sewa-1.webp', alt: 'A page from The SEWA Chronicles comic', place: 'Club Mahindra · L&D' },
   { n: '04', eyebrow: 'The craft', head: 'Learning the craft',
     body: 'As an L&D specialist at Courtyard by Marriott, I helped run certification programs for teams — frontline associates through to managers. I learned how a good program actually holds together.',
-    img: '/about/about-onboarding.webp', w: 1131, h: 1600, alt: 'Running a training session at Courtyard by Marriott', place: 'Courtyard by Marriott' },
+    img: '/about/about-onboarding.webp', alt: 'Running a training session at Courtyard by Marriott', place: 'Courtyard by Marriott' },
   { n: '05', eyebrow: 'The tools', head: 'I design, and I build',
     body: 'I build training in Articulate Storyline — but I also ship the tools around it. StoryGen, EasyMCQ, Cadence, this very site: designed and built by me, because the idea deserved to exist.',
-    img: '/about/about-ignite.webp', w: 1131, h: 1600, alt: 'A module in progress on the workbench', place: 'The workbench' },
+    img: '/about/about-ignite.webp', alt: 'A module in progress on the workbench', place: 'The workbench' },
   { n: '06', eyebrow: 'Now', head: 'Designing, building, daring',
     body: 'I’m with the Training-as-a-Service team at Concentrix, turning operational detail into e-learning for teams around the world — and still daring to try new tech (a little motion, some WebGL, a bit of AI) whenever it makes the learning land better.',
-    img: '/about/about-concentrix.webp', w: 768, h: 768, alt: 'Portrait, present day, at Concentrix', place: 'Concentrix · Training-as-a-Service',
+    img: '/about/about-concentrix.webp', alt: 'Portrait, present day, at Concentrix', place: 'Concentrix · Training-as-a-Service',
     footnote: 'Asatoma Sadgamaya — from ignorance, toward truth.' }
 ]
-
-const root = ref<HTMLElement | null>(null)
-const progress = ref(0)
-const active = ref(0)
-const STEPS = CHAPTERS.length + 1
-let io: IntersectionObserver | null = null
-const { $lenis } = useNuxtApp() as unknown as { $lenis?: { on: Function; off: Function; scrollTo: Function } }
-
-function onScroll() {
-  const max = document.documentElement.scrollHeight - window.innerHeight
-  progress.value = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0
-}
-function jumpTo(i: number) {
-  const target = i <= 0
-    ? root.value?.querySelector<HTMLElement>('.ab-hero')
-    : root.value?.querySelectorAll<HTMLElement>('.ab-ch')[i - 1]
-  if (!target) return
-  if ($lenis?.scrollTo) $lenis.scrollTo(target, { offset: -60, duration: 1 })
-  else target.scrollIntoView({ behavior: 'smooth' })
-}
-
-onMounted(() => {
-  onScroll()
-  window.addEventListener('scroll', onScroll, { passive: true })
-  $lenis?.on?.('scroll', onScroll)
-  // Active-section tracking for the stepper.
-  const sections = [root.value?.querySelector('.ab-hero'), ...Array.from(root.value?.querySelectorAll('.ab-ch') ?? [])].filter(Boolean) as HTMLElement[]
-  io = new IntersectionObserver((entries) => {
-    entries.forEach((e) => {
-      if (e.isIntersecting) {
-        const idx = sections.indexOf(e.target as HTMLElement)
-        if (idx >= 0) active.value = idx
-      }
-    })
-  }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 })
-  sections.forEach((s) => io!.observe(s))
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('scroll', onScroll)
-  $lenis?.off?.('scroll', onScroll)
-  io?.disconnect()
-})
 </script>
 
 <template>
-  <div ref="root" class="ab">
-    <div class="ab-prog" aria-hidden="true"><span :style="{ transform: `scaleX(${progress})` }" /></div>
-
+  <div class="ab">
     <header class="ab-bar">
       <NuxtLink to="/" class="ab-back" aria-label="Back to the site">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7" /></svg><span>Back</span>
       </NuxtLink>
-      <span class="eyebrow ab-bar__word">Naveen Jose</span>
+      <span class="ab-bar__word">Naveen Jose</span>
       <NuxtLink to="/my-work" class="ab-bar__link">Work<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7" /></svg></NuxtLink>
     </header>
-
-    <nav class="ab-steps" aria-label="Jump to chapter">
-      <button v-for="i in STEPS" :key="i" type="button" class="ab-step" :class="{ on: active === i - 1 }"
-        :aria-label="i === 1 ? 'Introduction' : `Chapter ${CHAPTERS[i - 2].n}: ${CHAPTERS[i - 2].head}`"
-        :aria-current="active === i - 1 ? 'true' : undefined" @click="jumpTo(i - 1)"><span /></button>
-    </nav>
 
     <!-- Hero -->
     <section class="ab-hero">
       <div class="ab-hero__glow" aria-hidden="true" />
       <div class="ab-hero__copy">
-        <span class="eyebrow ab-hero__eyebrow" v-motion :initial="rv.eyebrow.initial" :visible-once="rv.eyebrow.visibleOnce">About · a short story</span>
-        <h1 class="display-serif ab-hero__name" v-motion :initial="rv.name.initial" :visible-once="rv.name.visibleOnce">Naveen<br>Jose</h1>
+        <span class="ab-hero__eyebrow" v-motion :initial="rv.eyebrow.initial" :visible-once="rv.eyebrow.visibleOnce">About · a short story</span>
+        <h1 class="ab-hero__name" v-motion :initial="rv.name.initial" :visible-once="rv.name.visibleOnce">Naveen<br>Jose</h1>
         <p class="ab-hero__lead" v-motion :initial="rv.lead.initial" :visible-once="rv.lead.visibleOnce">A certified instructional designer who <em>designs</em> learning, <em>builds</em> the tools to deliver it, and keeps <em>daring</em> to try new tech.</p>
         <div class="ab-hero__meta" v-motion :initial="rv.meta.initial" :visible-once="rv.meta.visibleOnce">
           <span>Instructional Designer</span><i aria-hidden="true">·</i><span>Gurugram, IN</span>
         </div>
       </div>
       <figure class="ab-hero__portrait" v-motion :initial="rv.portrait.initial" :visible-once="rv.portrait.visibleOnce">
-        <img src="/about-me.webp" alt="Portrait of Naveen Jose" width="1400" height="788" loading="eager" draggable="false" />
+        <UiCard3D src="/about-me.png" alt="Portrait of Naveen Jose" ratio="fill" :strength="10" radius="16rem" eager />
       </figure>
-      <span class="eyebrow eyebrow--quiet ab-hero__cue" aria-hidden="true" v-motion :initial="rv.cue.initial" :visible-once="rv.cue.visibleOnce"><span class="ab-hero__cue-line" /> scroll</span>
+      <span class="ab-hero__cue" aria-hidden="true" v-motion :initial="rv.cue.initial" :visible-once="rv.cue.visibleOnce"><span class="ab-hero__cue-line" /> scroll</span>
     </section>
 
-    <!-- Chapters -->
+    <!-- Chapters: a deck, not a scroll -->
     <main class="ab-body">
-      <section v-for="(c, i) in CHAPTERS" :key="i" class="ab-ch" :class="{ 'ab-ch--rev': i % 2 === 1 }" :aria-labelledby="`ab-h-${i}`">
-        <figure class="ab-ch__figure" v-motion :initial="R.scaleIn(0).initial" :visible-once="R.scaleIn(0).visibleOnce">
-          <div class="ab-ch__frame u-lift"><img class="ab-ch__img" :src="c.img" :alt="c.alt" :width="c.w" :height="c.h" loading="lazy" decoding="async" draggable="false" /></div>
-          <figcaption class="eyebrow eyebrow--quiet ab-ch__place">{{ c.place }}</figcaption>
-        </figure>
-        <div class="ab-ch__prose">
-          <span class="eyebrow ab-ch__eyebrow" v-motion :initial="R.slideX(-24,60).initial" :visible-once="R.slideX(-24,60).visibleOnce"><em>{{ c.n }}</em> — {{ c.eyebrow }}</span>
-          <h2 :id="`ab-h-${i}`" class="ab-ch__head" v-motion :initial="R.rise(120).initial" :visible-once="R.rise(120).visibleOnce">{{ c.head }}</h2>
-          <p class="ab-ch__body" v-motion :initial="R.rise(200).initial" :visible-once="R.rise(200).visibleOnce">{{ c.body }}</p>
-          <p v-if="c.footnote" class="ab-ch__foot" v-motion :initial="R.rise(280).initial" :visible-once="R.rise(280).visibleOnce">{{ c.footnote }}</p>
-          <div v-if="i === CHAPTERS.length - 1" class="ab-ch__cta" v-motion :initial="R.rise(300).initial" :visible-once="R.rise(300).visibleOnce">
-            <NuxtLink to="/my-work" class="glass-btn">See my work</NuxtLink>
-            <NuxtLink to="/tools" class="glass-btn glass-btn--ghost">The web apps I built</NuxtLink>
-          </div>
+      <div class="ab-body__head">
+        <span class="t-mono ab-body__eyebrow">The story, in five stops</span>
+        <h2 class="t-display ab-body__title">Drag through it</h2>
+      </div>
+
+      <UiSpatialDeck :items="CHAPTERS" aria-label="Chapters of the story">
+        <template #default="{ item }">
+          <article class="ab-card">
+            <div class="ab-card__figure">
+              <UiCard3D :src="item.img" :alt="item.alt" ratio="fill" :strength="8" radius="0" />
+            </div>
+            <div class="ab-card__body">
+              <span class="t-mono ab-card__eyebrow"><em>{{ item.n }}</em> — {{ item.eyebrow }}</span>
+              <h3 class="t-display ab-card__head">{{ item.head }}</h3>
+              <p class="ab-card__text">{{ item.body }}</p>
+              <p class="ab-card__place">{{ item.place }}</p>
+            </div>
+          </article>
+        </template>
+      </UiSpatialDeck>
+
+      <footer class="ab-close">
+        <p class="ab-close__quote">Asatoma Sadgamaya — from ignorance, toward truth.</p>
+        <div class="ab-close__cta">
+          <NuxtLink to="/my-work" class="glass-btn">See my work</NuxtLink>
+          <NuxtLink to="/tools" class="glass-btn glass-btn--ghost">The web apps I built</NuxtLink>
         </div>
-      </section>
+      </footer>
     </main>
   </div>
 </template>
@@ -141,171 +105,73 @@ onBeforeUnmount(() => {
 .ab {
   position: relative; background: var(--color-bg); color: var(--color-text);
   min-height: 100dvh; overflow-x: clip;
-  /* --edge / --maxw are global now (main.css page-shell contract). */
-  --serif: var(--serif-font);
+  --edge: clamp(20rem, 6vw, 96rem); --maxw: 1240rem;
+  --serif: var(--display-font);
 }
 
-.ab-prog { position: fixed; top: 0; left: 0; right: 0; height: 3rem; z-index: 40; pointer-events: none; background: color-mix(in srgb, var(--color-text) 8%, transparent); }
-.ab-prog span { display: block; height: 100%; transform-origin: left; transform: scaleX(0); background: var(--color-text); opacity: 0.85; }
-
 .ab-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 36; display: flex; align-items: center; justify-content: space-between; gap: 16rem; padding: calc(14rem + var(--safe-top)) var(--edge) 14rem; }
-/* The scrim alone is a fade, so a 100rem serif heading scrolling underneath
-   showed through its lower half as ghost letterforms behind the two links. The
-   blur rides the same mask, so the bar still has no hard edge. */
-.ab-bar::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(var(--color-bg), transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); -webkit-mask: linear-gradient(#000, #000 55%, transparent); mask: linear-gradient(#000, #000 55%, transparent); }
+.ab-bar::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(var(--color-bg), transparent); -webkit-mask: linear-gradient(#000, #000 55%, transparent); mask: linear-gradient(#000, #000 55%, transparent); }
 .ab-back, .ab-bar__link { display: inline-flex; align-items: center; gap: 7rem; min-height: 44rem; padding: 0 4rem; color: var(--color-text); text-decoration: none; font-size: 13.5rem; font-weight: 600; opacity: 0.82; transition: opacity 0.25s ease, transform 0.25s ease; border-radius: 8rem; }
 .ab-back:hover, .ab-bar__link:hover { opacity: 1; } .ab-back:hover { transform: translateX(-2rem); } .ab-bar__link:hover { transform: translateX(2rem); }
-.ab-bar__word { letter-spacing: 0.22em; }
+.ab-bar__word { font-size: 12rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 600; opacity: 0.6; }
 .ab-back:focus-visible, .ab-bar__link:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; opacity: 1; }
 @media (max-width: 560px) { .ab-bar__word { display: none; } }
 
-.ab-steps { position: fixed; right: clamp(14rem, 2.4vw, 30rem); top: 50%; translate: 0 -50%; z-index: 36; display: flex; flex-direction: column; gap: 2rem; }
-.ab-step { width: 44rem; height: 44rem; padding: 0; background: none; border: 0; cursor: pointer; display: grid; place-items: center; }
-.ab-step span { width: 22rem; height: 2rem; border-radius: 2rem; background: var(--color-text); opacity: 0.22; transition: opacity 0.35s ease, width 0.4s var(--ease-spring); }
-.ab-step:hover span { opacity: 0.5; } .ab-step.on span { opacity: 0.95; width: 30rem; }
-.ab-step:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; border-radius: 6rem; }
-@media (max-width: 900px) {
-  /* Not hidden — moved. Below 900 the rail becomes a horizontal row of dashes
-     pinned to the bottom, which is reachable with a thumb and still says how
-     far through the story you are. */
-  .ab-steps {
-    top: auto; bottom: calc(14rem + var(--safe-bottom));
-    right: auto; left: 50%;
-    translate: -50% 0;
-    flex-direction: row;
-    gap: 4rem;
-    padding: 4rem 10rem;
-    border-radius: var(--radius-full);
-    /* 78% let the paragraph underneath read straight through the pill, so the
-       dashes looked smudged rather than pinned on top. Floating chrome has to
-       be opaque enough to be a surface. */
-    background: color-mix(in srgb, var(--color-bg) 94%, transparent);
-    border: 1px solid var(--color-glass-border);
-    box-shadow: var(--elev-2);
-    -webkit-backdrop-filter: blur(14px);
-    backdrop-filter: blur(14px);
-  }
-  .ab-step { width: 44rem; height: 44rem; }
-  /* The pill is fixed, so the last thing on the page would otherwise end
-     underneath it and stay there — there is nothing further to scroll. */
-  .ab-ch:last-of-type { padding-bottom: calc(clamp(48rem, 9vh, 84rem) + 68rem); }
-}
-
-.ab-hero { position: relative; max-width: var(--maxw); margin: 0 auto; padding: var(--page-top) var(--edge) clamp(60rem, 10vh, 120rem); display: grid; gap: clamp(30rem, 5vw, 70rem); align-items: center; grid-template-columns: 1.05fr 0.95fr;
-  /* Capped, not uncapped: the hero centres its content, so on a 1366rem-tall
-     portrait tablet a full-height hero puts 470rem of nothing above the name and
-     as much below it. 980rem is still ~72% of that screen — a first screen the
-     hero owns — and on any normal desktop height the cap never engages. */
-  min-height: min(100dvh, 980rem); }
-.ab-hero__glow { position: absolute; z-index: 0; top: 18%; left: 28%; width: 60vw; height: 60vw; max-width: 720rem; max-height: 720rem; translate: -50% -30%; pointer-events: none; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--color-accent-deep) 42%, transparent), transparent 62%); opacity: 0.3; filter: blur(30rem); }
-/* The cap scales; the reading measure does not. Held flat at 560rem this left
-   ~425rem of empty column between the name and the portrait on a 2560rem screen,
-   which read as a gap rather than as space. The lead keeps its own 44ch. */
-.ab-hero__copy { position: relative; z-index: 2; max-width: clamp(560rem, 40vw, 860rem); }
-.ab-hero__eyebrow { letter-spacing: 0.2em; margin-bottom: 22rem; }
-.ab-hero__name { font-size: clamp(52rem, 9vw, 168rem); line-height: 0.92; margin: 0; }
+.ab-hero { position: relative; max-width: var(--maxw); margin: 0 auto; padding: calc(120rem + var(--safe-top)) var(--edge) clamp(60rem, 10vh, 120rem); display: grid; gap: clamp(30rem, 5vw, 70rem); align-items: center; grid-template-columns: 1.05fr 0.95fr; min-height: 100dvh; }
+.ab-hero__glow { position: absolute; z-index: 0; top: 18%; left: 28%; width: 60vw; height: 60vw; max-width: 720rem; max-height: 720rem; translate: -50% -30%; pointer-events: none; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--color-accent) 42%, transparent), transparent 62%); opacity: 0.3; filter: blur(30rem); }
+.ab-hero__copy { position: relative; z-index: 2; max-width: 560rem; }
+.ab-hero__eyebrow { display: inline-block; font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.7; margin-bottom: 22rem; }
+.ab-hero__name { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: var(--text-h1); font-weight: 800; line-height: 0.92; letter-spacing: var(--tracking-display); margin: 0; }
 .ab-hero__lead { margin: clamp(24rem, 3vw, 38rem) 0 0; max-width: 44ch; font-size: clamp(16rem, 1.8vw, 21rem); line-height: 1.58; opacity: 0.9; }
 .ab-hero__lead em { font-family: var(--serif); font-style: italic; font-weight: 500; opacity: 1; }
 .ab-hero__meta { margin-top: 26rem; display: flex; align-items: center; gap: 12rem; font-size: 12.5rem; letter-spacing: 0.06em; font-weight: 600; opacity: 0.72; flex-wrap: wrap; }
 .ab-hero__meta i { opacity: 0.5; }
-.ab-hero__portrait { position: relative; z-index: 1; margin: 0; width: 100%; max-width: 620rem; justify-self: center; aspect-ratio: 16 / 9; border-radius: 18rem; overflow: hidden; box-shadow: var(--elev-4), var(--ring-hairline); }
-.ab-hero__portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.ab-hero__cue { position: absolute; left: var(--edge); bottom: clamp(24rem, 5vh, 48rem); z-index: 2; display: inline-flex; align-items: center; gap: 12rem; letter-spacing: 0.2em; }
+/* Card3D frames itself — its own rim light, sheen and outward glow — so this
+   wrapper only needs to set the box it fills, not frame it a second time. */
+.ab-hero__portrait { position: relative; z-index: 1; margin: 0; width: 100%; max-width: 440rem; justify-self: center; aspect-ratio: 4 / 5; }
+.ab-hero__cue { position: absolute; left: var(--edge); bottom: clamp(24rem, 5vh, 48rem); z-index: 2; display: inline-flex; align-items: center; gap: 12rem; font-size: 11rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600; opacity: 0.5; }
 .ab-hero__cue-line { display: block; width: 46rem; height: 1px; background: currentColor; transform-origin: left; animation: ab-cue 2.4s ease-in-out infinite; }
 @keyframes ab-cue { 0%, 100% { transform: scaleX(0.4); opacity: 0.4 } 50% { transform: scaleX(1); opacity: 0.9 } }
-
-.ab-body { position: relative; z-index: 1; }
-.ab-ch { max-width: var(--maxw); margin: 0 auto; padding: clamp(60rem, 12vh, 150rem) var(--edge); display: grid; grid-template-columns: 1fr 1fr; gap: clamp(30rem, 6vw, 96rem); align-items: start; }
-.ab-ch--rev .ab-ch__figure { order: 2; }
-.ab-ch__figure { position: sticky; top: clamp(90rem, 14vh, 140rem); margin: 0; }
-/* `fit-content`, not `100%`. At 100% the frame took the whole column while a
-   height-capped portrait only filled part of it, so the hairline ring and the
-   shadow were drawn around two bars of empty paper. The frame hugs the
-   photograph at every width now, and the photograph decides how wide that is. */
-.ab-ch__frame { width: fit-content; max-width: 100%; margin-inline: auto; border-radius: 16rem; overflow: hidden; box-shadow: var(--elev-4), var(--ring-hairline); }
-/* No forced aspect-ratio: these six photographs are not one shape. Five are
-   portrait, one is square and one (about-sewa-1) is 1600x900 landscape — any
-   single frame throws away most of at least one of them. The image sets the
-   height and the frame follows, capped so a tall portrait cannot run away with
-   the column. */
-.ab-ch__img {
-  display: block;
-  /* Both caps on `auto` dimensions: the replaced-element sizing rules resolve
-     the pair proportionally, so a tall portrait shrinks its width to honour the
-     height cap rather than being letterboxed inside a full-width box. */
-  width: auto;
-  max-width: 100%;
-  height: auto;
-  max-height: min(78vh, 760rem);
-  /* These are working photographs — a hotel floor, a training room, a comic
-     page — not art direction. A light warm grade settles them onto the paper
-     ground instead of leaving them as six bright rectangles, and hovering
-     restores them fully: the treatment is a resting state, not a filter. */
-  filter: saturate(0.82) contrast(1.03);
-  transition: filter var(--dur-5) var(--ease-out-soft), scale var(--dur-5) var(--ease-out-soft);
-}
-@media (hover: hover) and (pointer: fine) {
-  .ab-ch__frame:hover .ab-ch__img { filter: none; scale: 1.02; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ab-ch__img { transition: filter var(--dur-3) linear; }
-  .ab-ch__frame:hover .ab-ch__img { scale: none; }
-}
-.ab-ch__place { margin-top: 14rem; }
-.ab-ch__prose { align-self: stretch; max-width: 500rem; min-height: 82vh; display: flex; flex-direction: column; justify-content: center; padding-block: clamp(10rem, 6vh, 60rem); }
-.ab-ch__eyebrow { margin-bottom: 22rem; }
-.ab-ch__eyebrow em {
-  font-family: var(--serif-font);
-  font-optical-sizing: auto;
-  font-variation-settings: "SOFT" 32, "WONK" 1;
-  font-style: normal;
-  font-size: clamp(22rem, 6vw, 32rem);
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  color: var(--color-accent);
-  margin-right: 10rem;
-  vertical-align: -4rem;
-}
-.ab-ch__head { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(34rem, 4.8vw, 66rem); line-height: 1.03; letter-spacing: -0.015em; margin: 0; }
-.ab-ch__body { margin: clamp(20rem, 2.4vw, 30rem) 0 0; max-width: 46ch; font-size: clamp(15.5rem, 1.5vw, 18rem); line-height: 1.66; opacity: 0.84; }
-.ab-ch__foot { margin: 20rem 0 0; font-family: var(--serif); font-style: italic; font-size: 16rem; opacity: 0.7; }
-.ab-ch__cta { display: flex; flex-wrap: wrap; gap: 12rem; margin-top: 34rem; }
-.ab-ch__cta .glass-btn { text-decoration: none; }
-
-.ab.is-still .ab-hero__cue-line { animation: none; }
 @media (prefers-reduced-motion: reduce) { .ab-hero__cue-line { animation: none; } }
 
+.ab-body { position: relative; z-index: 1; max-width: var(--maxw); margin: 0 auto; padding: clamp(40rem, 8vh, 100rem) var(--edge) calc(90rem + var(--safe-bottom)); }
+.ab-body__head { max-width: 640rem; margin: 0 auto clamp(26rem, 4vh, 44rem); text-align: center; }
+.ab-body__eyebrow { display: inline-block; opacity: 0.6; margin-bottom: 10rem; }
+.ab-body__title { font-size: var(--text-h2); line-height: 1; }
+
+/* The chapter card: same glass surface the rest of the spiral's decks use —
+   full-bleed photo on top, the text underneath. */
+.ab-card {
+  display: flex; flex-direction: column; width: 100%; height: 100%;
+  border-radius: 20rem; overflow: hidden;
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
+  box-shadow: inset 0 1px 0 var(--glow-rim), inset 0 0 0 1px var(--color-glass-border);
+}
+.ab-card__figure { flex: 1 1 auto; min-height: 0; }
+.ab-card__figure :deep(.c3) { height: 100%; }
+.ab-card__figure :deep(.c3__plate) { border-radius: 0; box-shadow: none; height: 100%; }
+.ab-card__figure :deep(.c3__img) { height: 100%; }
+.ab-card__body { display: flex; flex-direction: column; gap: 6rem; padding: 22rem 24rem 24rem; flex-shrink: 0; }
+.ab-card__eyebrow { opacity: 0.6; }
+.ab-card__eyebrow em { font-style: normal; opacity: 0.7; margin-right: 4rem; }
+.ab-card__head { font-size: var(--text-h3); line-height: 1.05; }
+.ab-card__text {
+  margin-top: 4rem; font-size: var(--text-sm); line-height: 1.55; opacity: 0.78;
+  display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden;
+}
+.ab-card__place { margin-top: 2rem; font-size: 11rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.5; }
+
+.ab-close { max-width: 560rem; margin: clamp(40rem, 7vh, 72rem) auto 0; text-align: center; }
+.ab-close__quote { font-family: var(--serif); font-style: italic; font-size: 16rem; opacity: 0.7; margin: 0; }
+.ab-close__cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12rem; margin-top: 22rem; }
+.ab-close__cta .glass-btn { text-decoration: none; }
+
 @media (max-width: 900px) {
-  .ab-hero { grid-template-columns: 1fr; min-height: auto; padding: var(--page-top) var(--edge) 64rem; gap: 40rem; }
-  .ab-hero__portrait { order: -1; max-width: 520rem; }
+  .ab-hero { grid-template-columns: 1fr; min-height: auto; padding: calc(96rem + var(--safe-top)) var(--edge) 64rem; gap: 40rem; }
+  .ab-hero__portrait { order: -1; max-width: 360rem; aspect-ratio: 3 / 4; }
   .ab-hero__cue { display: none; }
   .ab-hero__glow { top: 6%; left: 50%; width: 90vw; height: 90vw; }
-  .ab-ch { grid-template-columns: 1fr; gap: 26rem; padding: clamp(48rem, 9vh, 84rem) var(--edge); }
-  .ab-ch--rev .ab-ch__figure { order: 0; }
-  .ab-ch__figure { position: static; top: auto; }
-  .ab-ch__frame { max-width: 460rem; margin-inline: auto; }
-  .ab-ch__prose { max-width: 100%; min-height: 0; display: block; padding-block: 0; }
-}
-
-/* A landscape phone trips the 900 breakpoint but is not a narrow screen. Stacked
-   image-first it spends its whole first screen on the plate and pushes the name
-   and the lead below the fold; side by side, both fit in 390rem of height. */
-@media (max-width: 900px) and (min-aspect-ratio: 1 / 1) {
-  .ab-hero { grid-template-columns: 1.05fr 0.95fr; gap: clamp(24rem, 4vw, 40rem); }
-  .ab-hero__portrait { order: 0; max-width: none; }
-  .ab-ch { grid-template-columns: 0.95fr 1.05fr; gap: clamp(24rem, 4vw, 40rem); }
-  .ab-ch--rev .ab-ch__figure { order: 2; }
-  .ab-ch__figure { position: sticky; top: clamp(70rem, 14vh, 140rem); }
-  .ab-ch__frame { max-width: none; }
-}
-
-/* The hero can take the full wide --maxw — it is one big name against one big
-   plate. A chapter cannot: both its columns are capped by content (46ch of prose,
-   a photograph that hugs its own height), so at 2100rem the two halves drift
-   apart and the pairing stops reading as a pairing. The chapters get their own,
-   tighter measure. */
-@media (min-width: 1441px) {
-  .ab-ch { max-width: clamp(1240rem, 74vw, 1680rem); }
-  .ab-ch__prose { max-width: none; }
 }
 </style>

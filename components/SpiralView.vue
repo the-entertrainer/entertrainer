@@ -364,29 +364,11 @@ function onLoaderEntered() {
       <UiLoader v-if="showLoader && !isLoaderDone" @entered="onLoaderEntered" />
     </Transition>
 
-    <!-- The four destinations as real links.
-         The spiral is a bare canvas: its cards are meshes, picked by a raycaster
-         and navigated with router.push. That means that until this block existed
-         the site's four primary destinations could not be reached by keyboard,
-         were invisible to a screen reader, and — on an ssr:false site — were
-         invisible to a crawler too. The canvas is the visual interface; this is
-         the functional one. Both have to be complete.
-
-         Visually hidden rather than display:none, because display:none is not
-         focusable and the whole point is that Tab reaches these. -->
-    <nav class="sr-only" aria-label="Sections">
-      <NuxtLink
-        v-for="item in items" :key="`lnk-${item.id}`"
-        :to="item.href" :aria-label="`${item.label}: ${item.description}`"
-      >{{ item.label }}</NuxtLink>
-    </nav>
-
     <!-- WebGL canvas -->
     <canvas
       ref="canvasRef"
       class="spiral-canvas"
       :class="{ hidden: !hasEntered || isListMode }"
-      aria-hidden="true"
     />
 
     <!-- Unified atmosphere: animated glow + vignette + film grain -->
@@ -429,7 +411,7 @@ function onLoaderEntered() {
 <style scoped>
 .spiral-view {
   position: relative;
-  width: 100%;
+  width: 100vw;
   height: 100dvh;
   overflow: hidden;
   background: var(--color-bg);
@@ -470,17 +452,14 @@ function onLoaderEntered() {
 /* ────────────────────────────────────────────────────────────────────────── */
 
 /* List mode ─────────────────────────────────────────────────────────────── */
-/* Auto margins rather than justify-content: center — see the note on overflow
-   below. The measure cap stops four rows stretching 2380px wide at 2560. */
-.spiral-list > * { margin-block: auto; width: 100%; max-width: var(--maxw-read); align-self: center; }
 .spiral-list {
   position: fixed;
   inset: 0;
   z-index: 5;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  padding: var(--page-top) clamp(20rem, 6vw, 90rem) var(--page-bottom);
+  justify-content: center;
+  padding: calc(100rem + var(--safe-top)) calc(var(--grid-margin) + 60rem) calc(80rem + var(--safe-bottom));
   overflow-y: auto;
   background: var(--color-bg);
   color: var(--color-text);
@@ -548,7 +527,16 @@ function onLoaderEntered() {
   text-overflow: ellipsis;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 900px) {
+  .spiral-list {
+    padding: calc(80rem + var(--safe-top)) 32rem calc(60rem + var(--safe-bottom));
+  }
+}
+
+@media (max-width: 600px) {
+  .spiral-list {
+    padding: calc(80rem + var(--safe-top)) 20rem calc(60rem + var(--safe-bottom));
+  }
   .nav-row {
     padding: 22rem 16rem;
     gap: 14rem;
@@ -589,13 +577,9 @@ function onLoaderEntered() {
   font-size: 11rem;
   font-weight: 500;
   letter-spacing: 0.08em;
-  /* Tone via colour, not opacity. At `opacity: 0.20` this was roughly 1.3:1 on
-     the glass — the one line that tells a first-time visitor the whole home page
-     responds to scroll, and it could not be read. Opacity also faded the halo
-     that is supposed to lift it off a moving, multi-coloured ground, so the
-     fainter it got the less the halo helped. Quiet, but legible. */
-  color: color-mix(in srgb, var(--color-text) 58%, transparent);
-  text-shadow: 0 0 12rem var(--color-bg), 0 0 4rem var(--color-bg);
+  color: var(--color-text);
+  text-shadow: 0 0 10rem var(--color-bg), 0 0 3rem var(--color-bg);
+  opacity: 0.20;
   white-space: nowrap;
 }
 

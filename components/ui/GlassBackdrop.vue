@@ -76,10 +76,7 @@ onUnmounted(() => renderer?.stop())
       <!-- Accent-tinted edge fog — mirrors the spiral's finishing haze -->
       <div class="glass-backdrop__fog" />
     </template>
-    <template v-else>
-      <div class="glass-backdrop__wash" />
-      <div class="glass-backdrop__grain" />
-    </template>
+    <div v-else class="glass-backdrop__wash" />
   </div>
 </template>
 
@@ -107,48 +104,22 @@ onUnmounted(() => renderer?.stop())
     linear-gradient(to top,    rgba(var(--accent-fog, 120,120,140), 0.16) 0%, transparent 18%);
 }
 
-/* Calm ground — warm paper rather than clean glass.
-   The old wash was two radial gradients at 6–7% in light theme, which is to say
-   invisible: every content page rendered as flat cream and the "calm backdrop"
-   was doing no work at all. The site's own card artwork is torn paper, ink and
-   handwriting, so the page under it should behave like stock, not like a screen:
-   a warm base, light falling from one corner, and a real grain.
-
-   Three cheap layers, all static — no animation, so this is reduced-motion safe
-   by construction and costs nothing after first paint. */
+/* Calm wash. This carried a hardcoded violet (#8B7CF6) from before the site
+   went monochrome — every content page was quietly showing a purple corner
+   tint while the home ran strict black-and-bloom, which is exactly the kind
+   of mismatch this pass exists to remove. Two soft white glows now, the same
+   light the stage's cards and bloom are made of, just static and low enough
+   that a reading page still leads. */
 .glass-backdrop__wash {
   position: absolute;
   inset: 0;
   background:
-    /* the light source */
-    radial-gradient(120% 90% at 88% -12%, color-mix(in srgb, var(--paper-light-source) 78%, transparent), transparent 58%),
-    /* warmth pooling into the opposite corner */
-    radial-gradient(100% 80% at -8% 108%, color-mix(in srgb, var(--color-accent-deep) 9%, transparent), transparent 62%),
-    /* the stock itself, very slightly warmer than --color-bg so edges have depth */
-    linear-gradient(168deg, color-mix(in srgb, var(--paper-warm) 12%, var(--color-bg)), var(--color-bg) 62%);
+    radial-gradient(90% 70% at 100% -8%, color-mix(in srgb, var(--glow-rim) 55%, transparent), transparent 60%),
+    radial-gradient(80% 65% at -8% 108%, color-mix(in srgb, var(--glow-soft) 55%, transparent), transparent 60%);
 }
 :root[data-theme="dark"] .glass-backdrop__wash {
   background:
-    radial-gradient(120% 90% at 88% -12%, color-mix(in srgb, var(--color-accent-deep) 34%, transparent), transparent 58%),
-    radial-gradient(100% 80% at -8% 108%, color-mix(in srgb, var(--paper-dark-pool) 22%, transparent), transparent 62%),
-    linear-gradient(168deg, color-mix(in srgb, var(--paper-dark-stock) 70%, var(--color-bg)), var(--color-bg) 60%);
-}
-
-/* Grain. A single inline feTurbulence tile, scaled up and left to repeat — the
-   technique the /lab riso prototype proved out. `mix-blend-mode` lets it darken
-   the paper on light and lift it on dark from one asset, and because it is a
-   data URI there is no request and nothing to cache-bust. */
-.glass-backdrop__grain {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.42;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-  background-size: 140px 140px;
-}
-:root[data-theme="dark"] .glass-backdrop__grain {
-  opacity: 0.26;
-  mix-blend-mode: screen;
+    radial-gradient(90% 70% at 100% -8%, color-mix(in srgb, #FFFFFF 10%, transparent), transparent 60%),
+    radial-gradient(80% 65% at -8% 108%, color-mix(in srgb, #FFFFFF 6%, transparent), transparent 60%);
 }
 </style>

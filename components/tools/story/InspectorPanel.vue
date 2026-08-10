@@ -332,7 +332,7 @@ const floatStyle = computed(() =>
 .inspector-enter-active, .inspector-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
 .inspector-enter-from, .inspector-leave-to { opacity: 0; transform: translateY(10rem) scale(0.99); }
 
-@media (max-width: 900px) {
+@media (max-width: 899px) {
   .inspector {
     top: auto;
     left: 10rem; right: 10rem;

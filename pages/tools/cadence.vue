@@ -1,4 +1,5 @@
 <script setup lang="ts">
+definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'Cadence — Training Calendar Generator · Entertrainer',
   description: 'Turn a list of topics into a ready-to-present monthly training calendar, laid out around your holidays, audiences and time slots. Exports to PowerPoint.',
@@ -626,7 +627,7 @@ function backToTable() {
             <div class="tcg-chips" style="display:flex; flex-wrap:wrap; gap:6rem; margin-bottom:12rem;">
               <div v-for="(aud, i) in audiences" :key="aud" class="glass-chip" style="display:flex; align-items:center; gap:4rem;">
                 {{ aud }}
-                <button type="button" @click="removeAudience(i)" aria-label="Remove" class="tcg-x">×</button>
+                <button type="button" @click="removeAudience(i)" aria-label="Remove" style="background:none; border:none; color:inherit; cursor:pointer; font-size:12rem; opacity:0.6;">×</button>
               </div>
               <div style="display:flex; align-items:center; gap:6rem;">
                 <input
@@ -636,7 +637,7 @@ function backToTable() {
                   placeholder="Add audience…"
                   @keydown.enter.prevent="addAudience"
                 />
-                <button type="button" class="glass-btn glass-btn--ghost" style="font-size:12rem;" @click="addAudience">Add</button>
+                <button type="button" class="glass-btn glass-btn--ghost" style="font-size:12rem; padding:4rem 10rem;" @click="addAudience">Add</button>
               </div>
             </div>
 
@@ -669,11 +670,11 @@ function backToTable() {
             <div style="display:flex; flex-wrap:wrap; gap:6rem; margin:8rem 0 12rem;">
               <div v-for="(slot, i) in timeSlots" :key="i" class="glass-chip" style="display:flex; align-items:center; gap:4rem; font-size:12rem;">
                 {{ slot }}
-                <button type="button" @click="removeSlot(i)" aria-label="Remove" class="tcg-x">×</button>
+                <button type="button" @click="removeSlot(i)" aria-label="Remove" style="background:none; border:none; color:inherit; cursor:pointer; font-size:12rem; opacity:0.6;">×</button>
               </div>
               <div style="display:flex; align-items:center; gap:6rem;">
                 <input v-model="newSlot" class="glass-field" style="max-width:160rem; font-size:12rem;" placeholder="e.g. 10:00–13:00" @keydown.enter.prevent="addSlot" />
-                <button type="button" class="glass-btn glass-btn--ghost" style="font-size:12rem;" @click="addSlot">Add</button>
+                <button type="button" class="glass-btn glass-btn--ghost" style="font-size:12rem; padding:4rem 10rem;" @click="addSlot">Add</button>
               </div>
             </div>
 
@@ -696,7 +697,7 @@ function backToTable() {
         </div>
 
         <!-- ── Table phase ──────────────────────────────────────── -->
-        <div v-else-if="phase === 'table'" key="table" class="glass-panel" style="max-width:760rem; margin-inline:auto;">
+        <div v-else-if="phase === 'table'" key="table" class="glass-panel" style="max-width:760rem;">
 
           <div style="margin-bottom:16rem;">
             <h2 style="font-size:var(--text-body); font-weight:700; margin:0 0 4rem;">Review &amp; Customise</h2>
@@ -713,10 +714,10 @@ function backToTable() {
                   placeholder="Topic name"
                   style="font-weight:600;"
                 />
-                <button type="button" @click="removeModule(i)" aria-label="Remove module" class="tcg-x tcg-x--lg">×</button>
+                <button type="button" @click="removeModule(i)" aria-label="Remove module" style="background:none; border:none; font-size:18rem; opacity:0.4; cursor:pointer;">×</button>
               </div>
 
-              <div class="tcg-module-fields">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12rem;">
 
                 <div>
                   <label class="glass-label" style="font-size:11rem;">Duration</label>
@@ -803,12 +804,10 @@ function backToTable() {
             <div style="display:flex; gap:8rem; align-items:center; margin-left:4rem;">
               <button
                 v-for="(th, i) in THEMES" :key="i"
-                class="tcg-theme-btn"
+                class="glass-chip tcg-theme-btn"
                 :class="{ active: activeTheme === i }"
                 :title="th.name"
-                :aria-label="`Colour theme: ${th.name}`"
-                :aria-pressed="activeTheme === i"
-                :style="{ background: th.colors[0] }"
+                :style="{ background: th.colors[0], padding: '4rem 4rem' }"
                 @click="changeTheme(i)"
               />
             </div>
@@ -899,7 +898,7 @@ function backToTable() {
                 <div v-if="selectedSession" key="editor" class="glass-panel" style="padding:12rem;">
                   <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8rem;">
                     <span class="glass-label" style="margin:0;">Edit Session</span>
-                    <button class="glass-chip tcg-close" @click="selectedSession = null" aria-label="Close">×</button>
+                    <button class="glass-chip" style="font-size:14rem; padding:2rem 6rem;" @click="selectedSession = null" aria-label="Close">×</button>
                   </div>
 
                   <div style="display:flex; flex-direction:column; gap:8rem;">
@@ -985,7 +984,7 @@ function backToTable() {
                     </div>
                   </div>
 
-                  <p class="tcg-sidebar-hint">Pick a session, then pick the date you want it on.</p>
+                  <p class="tcg-sidebar-hint">Tap a session to select it, then tap any date to move it</p>
                 </div>
               </Transition>
 
@@ -1153,7 +1152,6 @@ function backToTable() {
 
 /* ── Table phase ── */
 .tcg-table-wrap {
-  margin-inline: auto;
   display: flex;
   flex-direction: column;
   gap: 20rem;
@@ -1255,23 +1253,13 @@ function backToTable() {
 /* back buttons now use glass-btn--ghost */
 
 .tcg-themes { display: flex; gap: 8rem; align-items: center; margin-left: 4rem; }
-/* A colour swatch, not a chip. Carrying `.glass-chip` gave it that class's
-   `min-height: 32rem` against its own `width: 22rem`, so all six rendered as
-   ovals. They also need to be tappable, and a palette swatch is one of the few
-   controls that can just *be* 44rem on touch rather than hiding a small disc
-   inside a big hit box. */
 .tcg-theme-btn {
-  width: 28rem;
-  height: 28rem;
-  flex: 0 0 auto;
-  padding: 0;
+  width: 22rem;
+  height: 22rem;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
   transition: transform 0.15s, border-color 0.15s;
-}
-@media (pointer: coarse) {
-  .tcg-theme-btn { width: 44rem; height: 44rem; }
 }
 .tcg-theme-btn.active { border-color: var(--color-text); transform: scale(1.2); }
 .tcg-theme-btn:hover  { transform: scale(1.15); }
@@ -1301,7 +1289,7 @@ function backToTable() {
   align-items: start;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 700px) {
   .tcg-layout { grid-template-columns: 1fr; }
   .tcg-module-fields { grid-template-columns: 1fr; }
   .tcg-row { flex-direction: column; }
@@ -1315,39 +1303,6 @@ function backToTable() {
 }
 
 /* Calendar grid — fixed light palette, isolated from the site theme */
-/* The inline remove buttons measured as little as 7x14. The glyph keeps its size
-   — these sit inside dense chip rows — and the button grows around it, but only
-   where a finger is doing the aiming. A 44rem button inside a 32rem chip makes
-   every chip 56rem tall, and on a mouse a 14px × was never the problem. */
-.tcg-x {
-  min-width: 24rem;
-  min-height: 24rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  font-size: 12rem;
-  opacity: 0.6;
-}
-.tcg-x--lg { font-size: 18rem; opacity: 0.4; }
-@media (hover: hover) { .tcg-x:hover { opacity: 1; } }
-@media (pointer: coarse) {
-  .tcg-x { min-width: 44rem; min-height: 44rem; }
-}
-
-/* The editor's close control is a chip, and must stay one: .tcg-x zeroes
-   background and border, which would have left a bare glyph where a chip was. */
-.tcg-close {
-  min-width: 44rem;
-  min-height: 44rem;
-  justify-content: center;
-  padding: 2rem 6rem;
-  font-size: 14rem;
-}
-
 .tcg-cal {
   --color-glass-bg:           rgba(0, 0, 0, 0.04);
   --color-glass-bg-hover:     rgba(0, 0, 0, 0.07);
@@ -1361,7 +1316,7 @@ function backToTable() {
   border-radius: 16rem;
   padding: 20rem;
   overflow: hidden;
-  min-width: min(560rem, 100%);
+  min-width: 560rem;
   color: #1A1916;
 }
 

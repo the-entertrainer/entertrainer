@@ -27,10 +27,7 @@ let glassLive: { warp: number; refr: number; bright: number } | null = null
 function startGlass() {
   const cv = canvasEl.value
   if (!cv) return
-  // The opts argument was missing here, so the loader's glass animated even
-  // under prefers-reduced-motion — GlassBackdrop, driving the same renderer,
-  // has always passed it.
-  const renderer = startGlassRenderer(cv, themeStore.isDark, glassStore.params, { reducedMotion: !!reduceMotion })
+  const renderer = startGlassRenderer(cv, themeStore.isDark, glassStore.params)
   if (!renderer) return
   glassLive = renderer.live
   stopGlass = renderer.stop

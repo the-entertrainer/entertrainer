@@ -86,7 +86,7 @@ onUnmounted(() => {
   <div class="nvstatus glass-panel">
     <div class="nvstatus__head">
       <span class="nvstatus__dot" />
-      <span class="eyebrow nvstatus__label">Naveen — live status</span>
+      <span class="nvstatus__label">Naveen — live status</span>
       <span class="nvstatus__ago">{{ ago }}</span>
     </div>
     <Transition name="nvstatus-line" mode="out-in">
@@ -116,24 +116,15 @@ onUnmounted(() => {
   width: 7rem;
   height: 7rem;
   border-radius: 999px;
-  background: var(--color-accent);
-  box-shadow: 0 0 0 0 var(--color-accent-soft);
+  background: #34D399;
+  box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
   animation: nvstatus-pulse 1.8s ease-out infinite;
   flex-shrink: 0;
 }
 @keyframes nvstatus-pulse {
-  0%   { box-shadow: 0 0 0 0 var(--color-accent-soft); }
-  70%  { box-shadow: 0 0 0 7rem transparent; }
-  100% { box-shadow: 0 0 0 0 transparent; }
-}
-/* .eyebrow's own 0.16em tracking is what pushes this past 244rem on a 320rem
-   screen; the label wrapped to two lines and left "just now" floating beside the
-   first of them. It stays one line and gives the tracking back instead. */
-.nvstatus__label { white-space: nowrap; }
-@media (max-width: 400px) {
-  .nvstatus { padding: 14rem 15rem; }
-  .nvstatus__head { gap: 6rem; }
-  .nvstatus__label { font-size: 10.5rem; letter-spacing: 0.08em; }
+  0%   { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
+  70%  { box-shadow: 0 0 0 7rem rgba(52, 211, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
 }
 .nvstatus__ago {
   margin-left: auto;

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'Draftly — Email Polisher · Entertrainer',
   description: 'Turn messy drafts into clear, professional emails, with a plain-language explanation of what changed and why. A free tool for L&D teams.',
@@ -283,7 +284,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
             v-model="context"
             class="glass-field be-textarea"
             placeholder="e.g. This is to my manager. I need her to approve extra budget for the new e-learning platform by Friday."
-            rows="3"
+            rows="2"
             :disabled="phase === 'loading'"
           />
         </div>

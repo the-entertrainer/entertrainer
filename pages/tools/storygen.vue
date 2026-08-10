@@ -746,7 +746,7 @@ onUnmounted(() => {
     />
 
     <!-- Top bar -->
-    <header class="sg-topbar glass-surface">
+    <header class="sg-topbar glass-panel">
       <button class="sg-wordmark" title="Home" @click="goHome">
         <ToolsStoryBrandMark :size="20" />
         <span class="sg-wordmark__text">Story<em>Gen</em></span>
@@ -770,7 +770,7 @@ onUnmounted(() => {
             class="sg-tool sg-tool--wide" :class="{ 'sg-tool--ai': aiReady }" title="AI features"
             @click="aiReady ? (showMenu = showMenu === 'ai' ? null : 'ai') : openAiSetup()"
           ><ToolsStoryIcon name="sparkle" :size="13" />{{ aiReady ? ' AI' : '' }}</button>
-          <div v-if="showMenu === 'ai'" class="glass-surface sg-menu">
+          <div v-if="showMenu === 'ai'" class="glass-panel sg-menu">
             <button @click="openAiGenerate"><ToolsStoryIcon name="sparkle" :size="12" /> New storyboard with AI…</button>
             <button :disabled="aiBusyField === 'mcqs'" @click="aiAddMcqs"><ToolsStoryIcon name="sparkle" :size="12" /> Add knowledge checks from content</button>
             <button @click="openAiSetup">AI settings…</button>
@@ -781,7 +781,7 @@ onUnmounted(() => {
         <label class="sg-tool sg-tool--wide sg-file-btn">Open<input type="file" accept=".sbf,.json" @change="importProject"></label>
         <div class="sg-menu-wrap">
           <button class="glass-btn sg-export-btn" @click="showMenu = showMenu === 'export' ? null : 'export'">Export <ToolsStoryIcon name="chevron-down" :size="11" /></button>
-          <div v-if="showMenu === 'export'" class="glass-surface sg-menu">
+          <div v-if="showMenu === 'export'" class="glass-panel sg-menu">
             <button @click="exportDocx">Word (.docx) — Storyboard + MCQ</button>
             <button @click="exportXlsx">Excel (.xlsx) — Storyboard + MCQ</button>
             <button @click="exportDiagram">Flow diagram (.png)</button>
@@ -792,7 +792,7 @@ onUnmounted(() => {
 
       <div class="sg-menu-wrap sg-mobile-only">
         <button class="sg-tool" aria-label="Menu" @click="showMenu = showMenu === 'mobile' ? null : 'mobile'"><ToolsStoryIcon name="more-horizontal" :size="16" /></button>
-        <div v-if="showMenu === 'mobile'" class="glass-surface sg-menu">
+        <div v-if="showMenu === 'mobile'" class="glass-panel sg-menu">
           <button @click="goHome">Home — all storyboards</button>
           <button @click="showMenu = null; modelPicker = 'switch'">Framework: {{ activeModel.label }}</button>
           <button v-if="isProcessModel" @click="showMenu = null; planOpen = true">Design plan…</button>
@@ -811,12 +811,12 @@ onUnmounted(() => {
     </header>
 
     <!-- Left dock: card palette (desktop) -->
-    <aside class="sg-dock glass-surface sg-desktop-only" data-lenis-prevent>
+    <aside class="sg-dock glass-panel sg-desktop-only" data-lenis-prevent>
       <ToolsStoryCardPalette :model-id="model" :stage-seconds="stageSeconds" @add="addCard" />
     </aside>
 
     <!-- Bottom-left: zoom + layout controls (desktop; mobile pinches) -->
-    <div class="sg-zoombar glass-surface sg-desktop-only">
+    <div class="sg-zoombar glass-panel sg-desktop-only">
       <button class="sg-tool" aria-label="Zoom out" @click="canvasRef?.zoomOut()">−</button>
       <span class="sg-zoom-pct">{{ canvasRef?.zoomPercent ?? 100 }}%</span>
       <button class="sg-tool" aria-label="Zoom in" @click="canvasRef?.zoomIn()">+</button>
@@ -828,7 +828,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Mobile bottom action bar -->
-    <div class="sg-bottombar glass-surface sg-mobile-only">
+    <div class="sg-bottombar glass-panel sg-mobile-only">
       <button class="glass-btn sg-add-btn" @click="showPaletteSheet = true">+ Add card</button>
       <button class="sg-tool sg-tool--wide" @click="canvasRef?.fitView()">Fit</button>
       <button class="sg-tool sg-tool--wide" @click="tidy">Tidy</button>
@@ -838,7 +838,7 @@ onUnmounted(() => {
     <!-- Mobile: slim selected-card bar — the clever middle step between
          tapping a card and committing to the full editor drawer -->
     <Transition name="cardbar">
-      <div v-if="selectedCard && !isDesktop && !inspectorOpen" class="sg-cardbar glass-surface">
+      <div v-if="selectedCard && !isDesktop && !inspectorOpen" class="sg-cardbar glass-panel">
         <span class="sg-cardbar__dot" :style="{ background: selectedKindColor }" />
         <span class="sg-cardbar__title">{{ selectedCard.title || 'Untitled' }}</span>
         <button class="glass-btn sg-cardbar__edit" @click="inspectorOpen = true"><ToolsStoryIcon name="edit" :size="12" /> Edit</button>
@@ -850,7 +850,7 @@ onUnmounted(() => {
     <!-- Mobile palette sheet -->
     <Transition name="sheet">
       <div v-if="showPaletteSheet" class="sg-sheet-overlay" @click.self="showPaletteSheet = false">
-        <div class="sg-sheet glass-surface" data-lenis-prevent>
+        <div class="sg-sheet glass-panel" data-lenis-prevent>
           <div class="sg-sheet__head">
             <strong>Add a card</strong>
             <button class="sg-tool" aria-label="Close" @click="showPaletteSheet = false"><ToolsStoryIcon name="close" :size="14" /></button>
@@ -910,7 +910,7 @@ onUnmounted(() => {
     />
 
     <Transition name="toast">
-      <div v-if="toast" class="sg-toast glass-surface">{{ toast }}</div>
+      <div v-if="toast" class="sg-toast glass-panel">{{ toast }}</div>
     </Transition>
   </div>
 </template>
@@ -1025,8 +1025,6 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 6rem;
-  /* 7rem of padding on 12rem type leaves the chip ~30rem tall — under the 44px
-     touch floor, and these chips are the primary AI controls on a phone. */
   min-height: 44rem;
   padding: 7rem 14rem;
   border-radius: 999px;
@@ -1061,7 +1059,6 @@ onUnmounted(() => {
 }
 
 .sg-toast {
-  border-radius: 24rem;   /* was inherited from .glass-panel */
   position: fixed;
   left: 50%;
   bottom: calc(24rem + var(--safe-bottom));
@@ -1195,8 +1192,8 @@ onUnmounted(() => {
 .sg-topbar {
   position: absolute;
   top: calc(12rem + var(--safe-top));
-  left: clamp(58rem, 18vw, 78rem);
-  right: clamp(58rem, 18vw, 78rem);
+  left: 78rem;
+  right: 78rem;
   display: flex;
   align-items: center;
   gap: 10rem;
@@ -1271,7 +1268,6 @@ onUnmounted(() => {
 
 .sg-menu-wrap { position: relative; }
 .sg-menu {
-  border-radius: 24rem;   /* was inherited from .glass-panel */
   position: absolute;
   right: 0;
   top: calc(100% + 8rem);
@@ -1404,10 +1400,10 @@ onUnmounted(() => {
 .sheet-enter-from, .sheet-leave-to { opacity: 0; }
 .sheet-enter-from .sg-sheet, .sheet-leave-to .sg-sheet { transform: translateY(60%); }
 
-@media (max-width: 900px) {
+@media (max-width: 899px) {
   .sg-desktop-only { display: none !important; }
   .sg-mobile-only { display: flex; }
-  .sg-topbar { left: 58rem; right: 58rem; padding: 8rem 10rem; gap: 7rem; }
+  .sg-topbar { left: 72rem; right: 72rem; padding: 8rem 10rem; gap: 7rem; }
   .sg-wordmark__text { display: none; }
   .sg-wordmark { padding: 4rem; }
   .sg-title { font-size: 16px; } /* ≥16px so iOS Safari doesn't zoom on focus */

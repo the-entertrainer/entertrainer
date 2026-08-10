@@ -840,5 +840,5 @@ onUnmounted(() => resizeObs?.disconnect())
   border-radius: 4rem;
   background: color-mix(in srgb, var(--color-text) 8%, transparent);
 }
-@media (max-width: 900px) { .minimap { display: none; } }
+@media (max-width: 899px) { .minimap { display: none; } }
 </style>

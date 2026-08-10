@@ -1,4 +1,5 @@
 <script setup lang="ts">
+definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'EasyMCQ — Distractor Generator · Entertrainer',
   description: 'Give a question and its correct answer, and EasyMCQ writes three plausible wrong options that test real understanding. A free tool for L&D teams.',
@@ -107,7 +108,7 @@ async function copy(text: string, i: number) {
           v-model="answer"
           class="glass-field dg-textarea"
           placeholder="e.g. To identify the gap between current and desired performance before designing a solution."
-          rows="3"
+          rows="2"
         />
 
         <button

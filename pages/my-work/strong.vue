@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// Vite keeps this with the route's own chunk, so the three faces this lesson
-// uses ship with the lesson and cost nothing on any other page.
-import '~/assets/css/fonts-strong.css'
 import Backdrop3d from '~/components/work/Backdrop3d.vue'
 import StCover from '~/components/work/strong/Title.vue'
 import StObjectives from '~/components/work/strong/Objectives.vue'
@@ -39,13 +36,7 @@ const BG_COLORS = ['#182533', '#1E2E3E', '#22384A', '#35D0C4', '#1A2836', '#2A42
 
 definePageMeta({ layout: false, pageTransition: { name: 'st-fade', mode: 'out-in' } })
 useHead({
-  // Self-hosted, like the rest of the site — see scripts/fetch-fonts.mjs. The
-  // stylesheet is imported below rather than linked, so this page costs no
-  // third-party round trip and never paints its display face in a fallback.
-  link: [
-    { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '',
-      href: '/fonts/spacegrotesk-v22-V8mDoQDjQSkFtoMM3T6r8E7mPbF4Cw.woff2' }
-  ]
+  link: [{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap' }]
 })
 useSeoMeta({
   title: 'Strong — How Passwords Really Break · Entertrainer',
@@ -209,7 +200,6 @@ function onKey(e: KeyboardEvent) {
 .st-topbar__word { font-family: var(--st-display); font-weight: 700; font-size: 16rem; letter-spacing: 0.14em; }
 .st-topbar__right { display: flex; align-items: center; gap: 8rem; }
 .st-topbtn {
-  min-height: 44rem;
   display: inline-flex; align-items: center; gap: 7rem; padding: 8rem 13rem; border-radius: 999rem;
   font-family: var(--st-mono); font-size: 12rem; color: var(--st-muted);
   border: 1px solid var(--st-line); transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
@@ -243,7 +233,6 @@ function onKey(e: KeyboardEvent) {
 .st-num { font-family: var(--st-mono); font-variant-numeric: tabular-nums; }
 
 .st-btn {
-  min-height: 44rem;
   display: inline-flex; align-items: center; justify-content: center; gap: 9rem;
   padding: 14rem 26rem; border-radius: 10rem;
   font-family: var(--st-display); font-weight: 600; font-size: 15rem;

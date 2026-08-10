@@ -111,24 +111,6 @@ export default class PostProcessing {
     this.experience = experience
 
     this.composer = new EffectComposer(experience.renderer.instance)
-
-    // The renderer is constructed with antialias: true, but that flag only ever
-    // applies to the default framebuffer — the moment EffectComposer renders into
-    // its own target, it is discarded and nothing replaces it. Every edge on
-    // screen has been relying on the SDF fwidth() antialiasing inside the card
-    // shader alone, which is why the cards look clean and the rest of the scene
-    // does not. Multisampled render targets are WebGL2-only; on WebGL1 this is a
-    // no-op and the previous behaviour stands.
-    const gl = experience.renderer.instance.getContext()
-    const isWebGL2 = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext
-    if (isWebGL2) {
-      // 4 is the sweet spot: 8 costs noticeably more on integrated GPUs for a
-      // difference that is not visible at these edge angles.
-      const samples = Math.min(4, gl.getParameter(gl.MAX_SAMPLES) ?? 4)
-      this.composer.renderTarget1.samples = samples
-      this.composer.renderTarget2.samples = samples
-    }
-
     // Match the composer's render targets to the renderer's DPR + size up front,
     // so the first frame is already crisp instead of waiting for a resize event.
     this.composer.setPixelRatio(experience.sizes.pixelRatio)

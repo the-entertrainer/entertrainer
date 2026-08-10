@@ -49,21 +49,9 @@ function reroll() { demo.value = randomPassphrase(7) }
 }
 .st-cover__demo-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16rem; }
 .st-cover__demo-label { font-family: var(--st-mono); font-size: 11rem; color: var(--st-muted); }
-/* A 28rem square beside an 11rem label, and a 44rem target around it. The
-   `background-clip: content-box` trick used elsewhere cannot do this one: a
-   border paints on the border box, so a 44rem button with a border draws a 44rem
-   square no matter where its background is clipped. The square is a pseudo
-   element instead — the button is the hit box, ::before is the thing you see. */
-.st-cover__reroll { position: relative; width: 44rem; height: 44rem; display: inline-flex; align-items: center; justify-content: center; color: var(--st-muted); }
-.st-cover__reroll::before {
-  content: ""; position: absolute; left: 50%; top: 50%; translate: -50% -50%;
-  width: 28rem; height: 28rem; border-radius: 7rem; border: 1px solid var(--st-line);
-  transition: border-color 0.15s ease;
-}
-.st-cover__reroll svg { position: relative; }
-@media (hover: hover) { .st-cover__reroll:hover { color: var(--st-text); } .st-cover__reroll:hover::before { border-color: var(--st-line-strong); } }
-.st-cover__reroll:focus-visible { outline: none; }
-.st-cover__reroll:focus-visible::before { outline: 2px solid var(--st-text); outline-offset: 2px; }
+.st-cover__reroll { width: 28rem; height: 28rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 7rem; border: 1px solid var(--st-line); color: var(--st-muted); }
+@media (hover: hover) { .st-cover__reroll:hover { color: var(--st-text); border-color: var(--st-line-strong); } }
+.st-cover__reroll:focus-visible { outline: 2px solid var(--st-text); outline-offset: 2px; }
 .st-cover__phrase { font-size: 16rem; font-weight: 500; color: var(--st-text); overflow-wrap: anywhere; line-height: 1.55; margin-bottom: 20rem; }
 .st-cover__crack { margin-top: 8rem; }
 .st-cover__privacy { display: inline-flex; align-items: center; gap: 7rem; margin-top: 36rem; color: var(--st-muted); }

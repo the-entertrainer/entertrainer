@@ -1,30 +1,38 @@
-// Shared nav set for the hidden /lab homepage-concept prototypes. Mirrors the
-// real home destinations so each concept feels like the actual site.
-export interface LabItem { n: string; label: string; href: string; desc: string; img: string }
+// Shared nav set for the hidden /lab homepage concepts. Mirrors the real home
+// destinations so each concept behaves like the actual site.
+/** `short` is the label used where a full one won't fit — phone-width pagers. */
+export interface LabItem { n: string; label: string; short: string; href: string; desc: string; img: string }
 
 export const LAB_NAV: LabItem[] = [
-  { n: '01', label: 'About',                href: '/about',                desc: 'The short story of how I got here — hospitality to L&D.', img: '/about-me.webp' },
-  { n: '02', label: 'Instructional Design', href: '/instructional-design', desc: 'How I think about learning that actually lands.',          img: '/instructional-design.webp' },
-  { n: '03', label: 'My Work',              href: '/my-work',              desc: 'Case studies, a comic, and the projects behind them.',    img: '/my-work.webp' },
-  { n: '04', label: 'Web Apps',             href: '/tools',                desc: 'Free tools I built for instructional designers.',         img: '/web-apps.webp' }
+  { n: '01', label: 'About',                short: 'About',  href: '/about',                desc: 'The short story of how I got here — hospitality to L&D.', img: '/about-me.png' },
+  { n: '02', label: 'Instructional Design', short: 'Design', href: '/instructional-design', desc: 'How I think about learning that actually lands.',          img: '/instructional-design.png' },
+  { n: '03', label: 'My Work',              short: 'Work',   href: '/my-work',              desc: 'Case studies, a comic, and the projects behind them.',    img: '/my-work.png' },
+  { n: '04', label: 'Web Apps',             short: 'Apps',   href: '/tools',                desc: 'Free tools I built for instructional designers.',         img: '/web-apps.png' }
 ]
 
-export const LAB_CONCEPTS = [
-  { n: '★', slug: 'flux',      name: 'WebGL Flux (OGL)', blurb: 'Award-site image distortion — drag to liquify, momentum, touch ripple. Built on OGL, the library Lusion/Unseen/BDSN use.' },
-  { n: '01', slug: 'brutalist', name: 'Brutalist',      blurb: 'Raw concrete, monster type, one acid accent.' },
-  { n: '02', slug: 'chrome',    name: 'Y2K Chrome',      blurb: 'Liquid-metal chrome, iridescence, early-web bling.' },
-  { n: '03', slug: 'noir',      name: 'Editorial Noir',  blurb: 'High-fashion serif, full-bleed, elegant and slow.' },
-  { n: '04', slug: 'terminal',  name: 'Terminal',        blurb: 'Phosphor-green CRT with a typed boot sequence.' },
-  { n: '05', slug: 'aurora',    name: 'Liquid Aurora',   blurb: 'Flowing gradient mesh, dreamy glassmorphism.' },
-  { n: '06', slug: 'swiss',     name: 'Kinetic Swiss',   blurb: 'Red/black grid, giant type in constant motion.' },
-  { n: '07', slug: 'clay',      name: 'Claymorphic',     blurb: 'Soft 3D clay, pastel, bouncy and playful.' },
-  { n: '08', slug: 'riso',      name: 'Risograph',       blurb: 'Two-ink halftone print, grain, 70s overprint.' },
-  { n: '09', slug: 'plasma',    name: 'Plasma Shader',   blurb: 'A living OGL aurora shader you push with the cursor.' },
-  { n: '10', slug: 'physics',   name: 'Physics Toybox',  blurb: 'Matter.js — throw and stack the nav like real objects.' },
-  { n: '11', slug: 'ascii',     name: 'ASCII Portrait',  blurb: 'The portrait rendered live as glowing ASCII text.' },
-  { n: '12', slug: 'synthwave', name: 'Synthwave',       blurb: 'Neon sun, endless perspective grid, retro-future.' },
-  { n: '13', slug: 'comic',     name: 'Pop Comic',       blurb: 'Ben-Day halftone, speech bubbles, POW! — your comic DNA.' },
-  { n: '14', slug: 'blueprint', name: 'Blueprint',       blurb: 'Cyan technical drawing, dimension lines, annotations.' },
-  { n: '15', slug: 'mesh',      name: 'Mesh Gradient',   blurb: 'Stripe-style animated mesh + grain, big serif.' },
-  { n: '16', slug: 'glitch',    name: 'VHS Glitch',      blurb: 'RGB-split datamosh type, scanlines, signal noise.' }
+export interface LabConcept { n: string; slug: string; name: string; note: string }
+
+/**
+ * Fifteen homepages, one optical engine. Every concept renders real Liquid
+ * Glass — rounded-rect SDF, normal from the distance-field gradient, edge-
+ * weighted refraction, chromatic dispersion, Fresnel and specular — over a
+ * procedural backdrop the glass genuinely bends. What changes between them is
+ * the art direction: palette, backdrop, typography, panel geometry, layout.
+ */
+export const CONCEPTS: LabConcept[] = [
+  { n: '01', slug: 'g01', name: 'Prism',       note: 'Magenta-violet mesh, Instrument Serif, a four-card deck and a wide status bar.' },
+  { n: '02', slug: 'g02', name: 'Monolith',    note: 'Black-and-bone strata. Anton at poster scale over one segmented glass slab.' },
+  { n: '03', slug: 'g03', name: 'Sunset Pier', note: 'Warm interference waves, Bricolage Grotesque, buoyant glass pills.' },
+  { n: '04', slug: 'g04', name: 'Arctic',      note: 'Pale aurora, Fraunces, tall glass columns. Light, cold, quiet.' },
+  { n: '05', slug: 'g05', name: 'Primary',     note: 'Bauhaus grid in red and blue, Archivo Black, hard-cornered glass blocks.' },
+  { n: '06', slug: 'g06', name: 'Abyss',       note: 'Deep teal bokeh with circular glass orbs and heavy dispersion.' },
+  { n: '07', slug: 'g07', name: 'Neon Grid',   note: 'Pink-cyan concentric rings, Space Grotesk, tight glass tiles.' },
+  { n: '08', slug: 'g08', name: 'Dune',        note: 'Sand strata and Fraunces; a stacked list of wide glass rows.' },
+  { n: '09', slug: 'g09', name: 'Verdant',     note: 'Emerald mesh behind a single centred glass plate.' },
+  { n: '10', slug: 'g10', name: 'Graphite',    note: 'Pointer-tracked spotlight, Inter only, one thin glass rail. Maximum restraint.' },
+  { n: '11', slug: 'g11', name: 'Citrus',      note: 'Lime waves on cream, chunky glass pills, deliberately loud.' },
+  { n: '12', slug: 'g12', name: 'Dusk',        note: 'Violet aurora with staggered glass cards at two heights.' },
+  { n: '13', slug: 'g13', name: 'Copper',      note: 'Bronze rings and Anton; glass panels arranged on an arc.' },
+  { n: '14', slug: 'g14', name: 'Cryo',        note: 'Near-white grid, high dispersion, crystalline tiles. The most fragile-looking.' },
+  { n: '15', slug: 'g15', name: 'Ember',       note: 'Red-black bokeh, thick bevel, one dramatic hero plate.' }
 ]

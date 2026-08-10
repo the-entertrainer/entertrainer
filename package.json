@@ -10,12 +10,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "gifs": "node scripts/prefetch-gifs.mjs",
-    "check:tokens": "node scripts/check-tokens.mjs",
-    "check:contrast": "node scripts/check-contrast.mjs",
-    "check": "node scripts/check-tokens.mjs && node scripts/check-contrast.mjs",
-    "sweep": "node scripts/visual-sweep.mjs",
-    "webp": "node scripts/build-webp.mjs"
+    "gifs": "node scripts/prefetch-gifs.mjs"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",

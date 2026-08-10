@@ -17,7 +17,7 @@ defineProps<{ n: string; name: string; hint?: string }>()
 .lf {
   position: fixed; inset: 0; overflow: hidden;
   background: var(--color-bg); color: var(--color-text);
-  --serif: var(--serif-font);
+  --serif: var(--display-font);
 }
 .lf__bar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 50;

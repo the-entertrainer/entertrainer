@@ -237,16 +237,30 @@ function handleHomeClick() {
     inset 0 -2px 3px rgba(255, 255, 255, 0.10),
     inset 0 0 26rem rgba(255, 255, 255, 0.07);
 }
-/* Specular sheen for every glass surface */
+/* Specular sheen for every glass surface.
+   Two layers. The linear gradient is the fixed sheen — the shape of the light
+   the surface was moulded under. On top of it rides a highlight that tracks
+   the document's light field (--lxc/--lyc, published once per frame by
+   useLightField), so the hot spot slides across the glass toward the pointer
+   the same way the key light slides across the tower's bevels on the home
+   stage. Before this the chrome was lit from a hard-coded 133 degrees while
+   the WebGL a few pixels behind it was lit from wherever your cursor was:
+   two different physics on one screen. */
 .lg-surface::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: linear-gradient(133deg,
-    rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.08) 20%,
-    transparent 44%, transparent 72%, rgba(255,255,255,0.14) 100%);
+  background:
+    radial-gradient(72% 72% at
+      calc(50% + var(--lxc, 0) * 58%) calc(50% + var(--lyc, -0.2) * 58%),
+      rgba(255,255,255,0.62) 0%,
+      rgba(255,255,255,0.14) 40%,
+      transparent 70%),
+    linear-gradient(133deg,
+      rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.06) 20%,
+      transparent 44%, transparent 72%, rgba(255,255,255,0.12) 100%);
   mix-blend-mode: screen;
   opacity: 0.85;
   z-index: 0;

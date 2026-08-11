@@ -199,6 +199,20 @@
   --lift: -2rem;          /* hover rise for a raised, clickable surface */
   --press: 0.97;          /* active scale for a pressed control */
   --press-deep: 0.94;     /* active scale for a small circular control */
+
+  /* ── Light field ────────────────────────────────────────────────────────
+     Published every frame by composables/useLightField.ts (mounted once in
+     app.vue) so every glass surface on the page is lit by the same pointer
+     the WebGL stage's key light follows. Declared here with sane defaults so
+     the highlights are correctly placed on the very first paint, before any
+     JS has run, and so a touch device — where the composable deliberately
+     stays static — still gets a lit surface rather than an unlit one.
+       --lx/--ly    pointer, viewport fractions 0..1
+       --lxc/--lyc  the same, centred, -1..1
+       --lit        0..1, whether a pointer is present at all */
+  --lx: 0.5;  --ly: 0.42;
+  --lxc: 0;   --lyc: -0.16;
+  --lit: 0;
 }
 
 /* ── Shared type roles ──────────────────────────────────────────────────

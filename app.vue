@@ -37,6 +37,10 @@ const menuVisible = computed(() =>
 function onPreloaderLift() { booted.value = true }
 function onPreloaderDone() { showPreloader.value = false }
 
+// One pointer, one light, published as CSS variables for every glass surface
+// on the page to read. See composables/useLightField.ts.
+useLightField()
+
 onMounted(() => {
   themeStore.init()
 })

@@ -31,6 +31,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
+import { createLensPass } from './lensPass'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 
 export type LayoutName =
@@ -384,6 +385,10 @@ export function createGlassStage(opts: StageOptions) {
   backdrop.renderOrder = -1
   scene.add(backdrop)
 
+  // Read before the composer is built: the lens pass needs it at construction
+  // time, and the render loop needs it every frame.
+  const mqReduce = matchMedia('(prefers-reduced-motion: reduce)')
+
   // ── Bloom ────────────────────────────────────────────────────────────────
   // The look is monochrome, so brightness is the only dimension left to
   // compose with: the specular streak on a bevel, the lit face of the card in
@@ -395,6 +400,23 @@ export function createGlassStage(opts: StageOptions) {
   composer.addPass(new RenderPass(scene, camera))
   const bloom = new UnrealBloomPass(new Vector2(innerWidth, innerHeight), 0.34, 0.72, 0.92)
   composer.addPass(bloom)
+
+  // ── The lens ─────────────────────────────────────────────────────────────
+  // Everything above is the render. This is the piece of glass it is seen
+  // through: barrel, radial chromatic aberration, a velocity-coupled smear,
+  // vignette and film grain. It sits AFTER bloom on purpose — a real lens
+  // fringes and smears the light that already left the scene, including the
+  // glow, rather than fringing the geometry and then blooming the fringe.
+  // See utils/lensPass.ts for the optics.
+  const lens = createLensPass({
+    calm: mqReduce.matches,
+    // Coarse pointer is the best proxy available for "phone GPU" without
+    // fingerprinting. It also happens to be exactly the audience whose screen
+    // is small enough that a 3-tap smear was never going to be legible.
+    lite: matchMedia('(pointer: coarse)').matches
+  })
+  composer.addPass(lens.pass)
+
   // Without this the composer's linear buffer is written straight out and the
   // whole scene renders dark and off-gamma.
   composer.addPass(new OutputPass())
@@ -731,8 +753,31 @@ export function createGlassStage(opts: StageOptions) {
   const pick = new Vector2()
   let active = -1
 
-  const mqReduce = matchMedia('(prefers-reduced-motion: reduce)')
   const mqCoarse = matchMedia('(pointer: coarse)')
+
+  /**
+   * Which way do the cards actually travel on screen?
+   *
+   * The lens smears along the axis of motion, and every layout answers this
+   * differently — `column` and `helix` fall vertically, `coverflow` and `arc`
+   * sweep sideways, `vortex` does both. Rather than keep a table of layout
+   * names in step with the layout table (which would rot the first time a new
+   * layout is added), measure it: place a card at rel 0 and at rel 1, project
+   * both through the camera, and take the normalised screen-space delta.
+   * Whatever the layout does, this reports it.
+   */
+  const travelAxis = new Vector2(0, 1)
+  {
+    const a = { p: new Vector3(), r: new Vector3(), s: 1, a: 0 }
+    const b = { p: new Vector3(), r: new Vector3(), s: 1, a: 0 }
+    place(0, 0, a)
+    place(0, 1, b)
+    const pa = a.p.clone().project(camera)
+    const pb = b.p.clone().project(camera)
+    // Clip space y is up, screen/UV y is up too in the shader, so no flip.
+    const d = new Vector2(pb.x - pa.x, pb.y - pa.y)
+    if (d.lengthSq() > 1e-8) travelAxis.copy(d.normalize())
+  }
 
   // Travel per card. Touch gets a much shorter throw than a mouse: a thumb arc
   // is a fraction of a comfortable mouse drag, and it has a shorter viewport to
@@ -1047,6 +1092,12 @@ export function createGlassStage(opts: StageOptions) {
 
     if (bestI !== active) { active = bestI; opts.onActive?.(active % items.length) }
 
+    // The lens reads the physics that is already running — the spring's own
+    // velocity — rather than being animated on a timer of its own. That is the
+    // whole point: flick the stack hard and the highlights tear along the
+    // travel axis and resolve exactly as the spring settles.
+    lens.update(t, vel, travelAxis, dt)
+
     composer.render()
     if (!ready) { ready = true; onReadyCbs.forEach(f => f()) }
   }
@@ -1086,7 +1137,7 @@ export function createGlassStage(opts: StageOptions) {
       removeEventListener('resize', onResize)
       slabGeo.dispose(); artGeo.dispose(); shadowTex.dispose(); envTex.dispose()
       backdrop.geometry.dispose(); bdMat.dispose()
-      bloom.dispose(); composer.dispose()
+      bloom.dispose(); lens.dispose(); composer.dispose()
       cards.forEach(c => {
         ;(c.hit.material as MeshPhysicalMaterial).dispose()
         ;(c.art.material as MeshPhysicalMaterial).emissiveMap?.dispose()

@@ -108,17 +108,33 @@ onUnmounted(() => renderer?.stop())
    went monochrome — every content page was quietly showing a purple corner
    tint while the home ran strict black-and-bloom, which is exactly the kind
    of mismatch this pass exists to remove. Two soft white glows now, the same
-   light the stage's cards and bloom are made of, just static and low enough
-   that a reading page still leads. */
+   light the stage's cards and bloom are made of.
+
+   The third glow is the pointer's own. This is the one surface on an interior
+   page where a specular actually reads: it is huge and it is near-black, so a
+   few percent of white lands. The same treatment on the deck cards measured a
+   1% swing and was cut — their artwork is already ~185/255, and screen-blending
+   white onto near-white has nowhere to go. A highlight needs a dark surface,
+   and this is the dark surface. The effect is a lit room rather than a lit
+   object: the page brightens fractionally around wherever you are looking.
+
+   Positioned from --lx/--ly and scaled by --lit (composables/useLightField.ts).
+   On touch and under reduced motion the composable never raises --lit, so this
+   layer resolves to fully transparent and the two static corner glows carry the
+   page on their own — no glow frozen wherever the last tap happened to land. */
 .glass-backdrop__wash {
   position: absolute;
   inset: 0;
   background:
+    radial-gradient(46% 40% at calc(var(--lx, 0.5) * 100%) calc(var(--ly, 0.42) * 100%),
+      color-mix(in srgb, var(--glow-soft) calc(38% * var(--lit, 0)), transparent), transparent 70%),
     radial-gradient(90% 70% at 100% -8%, color-mix(in srgb, var(--glow-rim) 55%, transparent), transparent 60%),
     radial-gradient(80% 65% at -8% 108%, color-mix(in srgb, var(--glow-soft) 55%, transparent), transparent 60%);
 }
 :root[data-theme="dark"] .glass-backdrop__wash {
   background:
+    radial-gradient(46% 40% at calc(var(--lx, 0.5) * 100%) calc(var(--ly, 0.42) * 100%),
+      rgba(255, 255, 255, calc(0.055 * var(--lit, 0))), transparent 70%),
     radial-gradient(90% 70% at 100% -8%, color-mix(in srgb, #FFFFFF 10%, transparent), transparent 60%),
     radial-gradient(80% 65% at -8% 108%, color-mix(in srgb, #FFFFFF 6%, transparent), transparent 60%);
 }

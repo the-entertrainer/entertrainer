@@ -179,11 +179,26 @@
      curve doing most of the work is what makes a site feel authored. */
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --ease-in-out: cubic-bezier(.65, 0, .35, 1);
+  /* The mirror of --ease-out, for things LEAVING. An element on its way out
+     should accelerate away, not decelerate into nothing — using an ease-out
+     curve for an exit is the single most common reason a UI feels sluggish
+     even when every duration is short. */
+  --ease-in: cubic-bezier(.7, 0, .84, 0);
 
-  /* Motion durations — a three-rung ladder, all inside the 200–500ms band. */
+  /* Motion durations — a four-rung ladder. --dur-tap is new and deliberately
+     below the ~120ms threshold where a press stops feeling connected to the
+     finger; the other three keep their established values. */
+  --dur-tap: 110ms;
   --dur-fast: 220ms;
   --dur-mid: 420ms;
   --dur-slow: 700ms;
+
+  /* Micro-interaction constants, named once so every hover in the site agrees
+     on how far a thing lifts and how far it presses. Before this each
+     component invented its own -2rem/-3rem/0.96/0.92 and no two matched. */
+  --lift: -2rem;          /* hover rise for a raised, clickable surface */
+  --press: 0.97;          /* active scale for a pressed control */
+  --press-deep: 0.94;     /* active scale for a small circular control */
 }
 
 /* ── Shared type roles ──────────────────────────────────────────────────
@@ -694,3 +709,86 @@ canvas {
 }
 
 
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Micro-interaction layer
+   ──────────────────────────────────────────────────────────────────────────
+   Primitives every interactive surface opts into, so a hover on the menu, a
+   card and a nav arrow are recognisably the same gesture at the same speed.
+   Everything here is additive: components keep their own look, they just stop
+   inventing their own timing.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Anything that lifts on hover and presses on tap. */
+.u-lift {
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) {
+  .u-lift:hover { transform: translateY(var(--lift)); }
+}
+.u-lift:active { transform: scale(var(--press)); transition-duration: var(--dur-tap); }
+
+/* Small circular controls press deeper — a 44px button needs more travel than
+   a full-width card for the press to register at the same perceived strength. */
+.u-tap {
+  transition: transform var(--dur-fast) var(--ease-spring), opacity var(--dur-fast) var(--ease-out);
+}
+.u-tap:active:not(:disabled) { transform: scale(var(--press-deep)); transition-duration: var(--dur-tap); }
+
+/* A text link that draws its own underline from the leading edge rather than
+   toggling text-decoration, which snaps and cannot be timed. */
+.u-underline {
+  position: relative;
+  text-decoration: none;
+}
+.u-underline::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) {
+  .u-underline:hover::after { transform: scaleX(1); transform-origin: left center; }
+}
+.u-underline:focus-visible::after { transform: scaleX(1); transform-origin: left center; }
+
+/* One focus ring for the whole site. Keyboard users get a consistent, high
+   contrast target that never depends on the component underneath it. */
+.u-focus:focus-visible,
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
+}
+
+/* Media that settles rather than pops when it decodes. */
+.u-media-in {
+  animation: u-media-in var(--dur-slow) var(--ease-out) both;
+}
+@keyframes u-media-in {
+  from { opacity: 0; transform: scale(1.02); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Motion is a decoration, never a dependency: with reduced motion every
+   primitive above collapses to an instant state change, and nothing that
+   conveys meaning is carried by movement alone. */
+@media (prefers-reduced-motion: reduce) {
+  .u-lift,
+  .u-tap,
+  .u-underline::after { transition-duration: 1ms; }
+  .u-lift:hover,
+  .u-lift:active,
+  .u-tap:active:not(:disabled) { transform: none; }
+  .u-media-in { animation: none; }
+}

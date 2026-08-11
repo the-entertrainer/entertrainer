@@ -91,13 +91,48 @@ const pad = (i: number) => String(i + 1).padStart(2, '0')
   backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
   -webkit-backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
   box-shadow: inset 0 1px 0 var(--glow-rim), inset 0 0 0 1px var(--color-glass-border);
+  transition:
+    box-shadow var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
 }
-.gd-card__art { display: block; flex: 1 1 auto; min-height: 0; }
+/* The card is inside a 3D deck that owns transform, so hover cannot move it —
+   it brightens its rim instead. The arrow is what carries the motion. */
+@media (hover: hover) {
+  .gd-card:hover {
+    background: var(--color-glass-bg-hover);
+    box-shadow:
+      inset 0 1px 0 var(--glow-rim),
+      inset 0 0 0 1px var(--color-glass-border-hover),
+      0 18rem 50rem -20rem var(--glow-soft);
+  }
+  .gd-card:hover .gd-card__go { opacity: 1; }
+  .gd-card:hover .gd-card__go svg { transform: translate(2rem, -2rem); }
+}
+.gd-card__art { display: block; flex: 1 1 auto; min-height: 0; overflow: hidden; }
 .gd-card__art :deep(.c3) { height: 100%; }
 .gd-card__art :deep(.c3__plate) { border-radius: 0; box-shadow: none; height: 100%; }
 .gd-card__art :deep(.c3__img) { height: 100%; }
 
-.gd-card__body { display: flex; flex-direction: column; gap: 5rem; padding: 20rem 22rem 22rem; flex-shrink: 0; }
+/* The body needs a ground of its own, not the card's 5.5%-white glass.
+   The deck overlaps cards by design — measured on /my-work, the next card
+   starts 24px INTO this text block — so without a scrim the title and
+   description are set over whatever artwork happens to be behind them, and on
+   a bright card that is unreadable. The gradient keeps the glass look at the
+   top edge (where it meets the artwork) and resolves to near-opaque ground by
+   the time the type starts. */
+.gd-card__body {
+  position: relative;
+  display: flex; flex-direction: column; gap: 5rem;
+  padding: 20rem 22rem 22rem; flex-shrink: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-bg) 55%, transparent) 0%,
+    color-mix(in srgb, var(--color-bg) 88%, transparent) 38%,
+    color-mix(in srgb, var(--color-bg) 94%, transparent) 100%
+  );
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+}
 .gd-card__n { opacity: 0.4; }
 .gd-card__title { font-size: var(--text-h2); line-height: 1; }
 .gd-card__desc {
@@ -107,6 +142,17 @@ const pad = (i: number) => String(i + 1).padStart(2, '0')
 .gd-card__go {
   display: inline-flex; align-items: center; gap: 6rem; margin-top: 10rem;
   font-family: var(--display-font); font-weight: 700; font-size: 12.5rem;
-  letter-spacing: 0.02em; opacity: 0.85;
+  letter-spacing: 0.02em; opacity: 0.7;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+/* The arrow leaves along its own diagonal — the direction it points. A
+   generic translateY here would have been motion without meaning. */
+.gd-card__go svg { transition: transform var(--dur-fast) var(--ease-out); }
+
+@media (prefers-reduced-motion: reduce) {
+  .gd-card,
+  .gd-card__go,
+  .gd-card__go svg { transition-duration: 1ms; }
+  .gd-card:hover .gd-card__go svg { transform: none; }
 }
 </style>

@@ -145,6 +145,10 @@ export default defineNuxtConfig({
     devOptions: { enabled: false }
   },
   ssr: false,
+  // With ssr:false nothing is painted until the Vue bundle boots. This inlines
+  // app/spa-loading-template.html into index.html so the first frame is the
+  // brand rather than a white flash; UiPreloader then takes over from it.
+  spaLoadingTemplate: true,
   routeRules: {
     '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } },
     '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } }

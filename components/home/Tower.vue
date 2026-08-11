@@ -2,6 +2,7 @@
 import { LAB_NAV } from '~/utils/labNav'
 import { createGlassStage } from '~/utils/glassKit'
 import { glassThemeFor, cssVarsFor, FONT_HREF, type HomeTheme } from '~/utils/homeThemes'
+import { useExperienceStore } from '~/stores/experience'
 
 const props = defineProps<{ theme: HomeTheme }>()
 
@@ -14,6 +15,10 @@ const botEl = ref<HTMLElement | null>(null)
 const activeIndex = ref(0)
 const ready = ref(false)
 const router = useRouter()
+// The preloader holds the door until the stage has actually drawn something.
+// Without this it either guesses with a timer or lets you through to an empty
+// black frame while WebGL is still compiling.
+const experienceStore = useExperienceStore()
 let stage: ReturnType<typeof createGlassStage> | null = null
 
 const active = computed(() => LAB_NAV[activeIndex.value % LAB_NAV.length])
@@ -54,7 +59,10 @@ onMounted(() => {
     onActive: (i) => (activeIndex.value = i),
     onPick: open
   })
-  stage.onReady(() => (ready.value = true))
+  stage.onReady(() => {
+    ready.value = true
+    experienceStore.setReady()
+  })
 
   ro = new ResizeObserver(measure)
   if (topEl.value) ro.observe(topEl.value)

@@ -245,7 +245,11 @@ defineExpose({ next, prev, goTo, activeIndex })
 .sd { display: flex; flex-direction: column; gap: 18rem; }
 .sd__stage {
   position: relative;
-  min-height: clamp(400rem, 66dvh, 660rem);
+  /* Hugs the card rather than floating it in a tall box. At 66dvh the stage
+     was 660px around a 480px card, parking 90px of dead space above and below
+     the only thing anyone came to look at, and pushing the Prev/Next bar
+     under the fold on a 1000px screen. */
+  min-height: clamp(380rem, 56dvh, 560rem);
   /* Clipped to its own box so a receding card's translated bounds never
      bleed onto the Prev/Next bar sitting right below it in normal flow —
      that bar is a sibling, not part of this stack, and a card's very high
@@ -284,15 +288,38 @@ defineExpose({ next, prev, goTo, activeIndex })
   backdrop-filter: blur(16px) saturate(1.3) brightness(1.08);
   -webkit-backdrop-filter: blur(16px) saturate(1.3) brightness(1.08);
   box-shadow: inset 0 1px 0 var(--glow-rim), inset 0 0 0 1px var(--color-glass-border);
-  transition: transform 320ms var(--ease-spring), background 200ms var(--ease-out), opacity 200ms ease;
+  transition:
+    transform var(--dur-fast) var(--ease-spring),
+    background var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
 }
-@media (hover: hover) { .sd__nav:not(:disabled):hover { background: var(--color-glass-bg-hover); transform: translateY(-2rem); } }
-.sd__nav:active:not(:disabled) { transform: scale(0.92); }
+@media (hover: hover) {
+  .sd__nav:not(:disabled):hover {
+    background: var(--color-glass-bg-hover);
+    transform: translateY(var(--lift));
+    box-shadow:
+      inset 0 1px 0 var(--glow-rim),
+      inset 0 0 0 1px var(--color-glass-border-hover);
+  }
+}
+/* Small circular control, so it takes the deeper of the two press values —
+   a 44px target needs more travel than a card for the press to read as
+   equally firm. */
+.sd__nav:active:not(:disabled) { transform: scale(var(--press-deep)); transition-duration: var(--dur-tap); }
 .sd__nav:disabled { opacity: 0.3; cursor: not-allowed; }
 .sd__nav:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
 .sd__count { opacity: 0.5; min-width: 64rem; text-align: center; }
 
 @media (max-width: 560px) {
   .sd__card { width: 100%; }
+}
+
+/* The deck's physics already respect reduced motion in JS (`calm`), but the
+   nav buttons are pure CSS and were still springing. */
+@media (prefers-reduced-motion: reduce) {
+  .sd__nav { transition-duration: 1ms; }
+  .sd__nav:not(:disabled):hover,
+  .sd__nav:active:not(:disabled) { transform: none; }
 }
 </style>

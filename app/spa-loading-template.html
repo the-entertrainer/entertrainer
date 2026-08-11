@@ -1,0 +1,63 @@
+<!--
+  Pre-boot splash. This markup is inlined into index.html at build time and is
+  the ONLY thing on screen between first paint and Vue mounting — with
+  ssr:false that gap is otherwise a bare white rectangle, which on a slow
+  connection is the whole first impression.
+
+  It deliberately mirrors UiPreloader's resting state (same ground, same
+  wordmark, same rule position) so the handoff to the real preloader is a
+  continuation rather than a second, different loading screen. Colours are
+  hard-coded rather than tokenised because the stylesheet has not loaded yet.
+-->
+<div class="boot" role="status" aria-label="Loading">
+  <div class="boot__mark"><em>enter</em><b>trainer</b></div>
+  <div class="boot__rule"><i></i></div>
+</div>
+
+<style>
+  .boot {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    background: #07070A;
+    color: #F2F2EF;
+    font-family: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  }
+  .boot__mark {
+    font-size: clamp(22px, 5.2vw, 34px);
+    letter-spacing: 0.01em;
+    font-style: normal;
+  }
+  /* The mark is one word split into two weights — the same lockup the site
+     uses everywhere else, so the brand is legible before any font file or
+     component has loaded. */
+  .boot__mark em { font-style: normal; font-weight: 400; opacity: 0.55; }
+  .boot__mark b { font-weight: 700; }
+
+  .boot__rule {
+    width: min(240px, 46vw);
+    height: 1px;
+    background: rgba(242, 242, 239, 0.16);
+    overflow: hidden;
+  }
+  .boot__rule i {
+    display: block;
+    width: 40%;
+    height: 100%;
+    background: #F2F2EF;
+    transform: translateX(-100%);
+    animation: boot-sweep 1.15s cubic-bezier(.65, 0, .35, 1) infinite;
+  }
+  @keyframes boot-sweep {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(250%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .boot__rule i { animation: none; transform: none; width: 100%; opacity: 0.5; }
+  }
+</style>

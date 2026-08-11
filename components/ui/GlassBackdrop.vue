@@ -94,7 +94,7 @@ onUnmounted(() => renderer?.stop())
   width: 100%;
   height: 100%;
   display: block;
-  transition: opacity 0.4s ease;
+  transition: opacity var(--dur-mid) var(--ease-out);
 }
 .glass-backdrop__fog {
   position: absolute;

@@ -191,8 +191,15 @@ onBeforeUnmount(() => { cancelAnimationFrame(raf); removeEventListener('wheel', 
 .gal__row { margin-top: 16rem; display: inline-flex; align-items: center; gap: 16rem; flex-wrap: wrap; justify-content: center; }
 .gal__enter { pointer-events: auto; text-decoration: none; font-family: var(--display-font); font-style: italic; }
 .gal__hint { font-size: 11.5rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.45; }
-.gal-enter-active, .gal-leave-active { transition: opacity 0.35s ease, transform 0.5s cubic-bezier(.19,1,.22,1); }
+/* Caption swap. Split enter from leave so the outgoing caption clears out at
+   tap speed instead of lingering under the one replacing it. */
+.gal-enter-active { transition: opacity var(--dur-mid) var(--ease-out), transform var(--dur-slow) var(--ease-expo-out); }
+.gal-leave-active { transition: opacity var(--dur-fast) var(--ease-in), transform var(--dur-fast) var(--ease-in); }
 .gal-enter-from { opacity: 0; transform: translateY(16rem); }
 .gal-leave-to { opacity: 0; transform: translateY(-10rem); }
+@media (prefers-reduced-motion: reduce) {
+  .gal-enter-active, .gal-leave-active { transition: opacity var(--dur-fast) linear; }
+  .gal-enter-from, .gal-leave-to { transform: none; }
+}
 @media (max-width: 620px) { .gal__hint { display: none; } .gal__idx { right: 66rem; } }
 </style>

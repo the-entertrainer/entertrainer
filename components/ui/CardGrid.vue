@@ -31,13 +31,51 @@ const count = computed(() =>
     : undefined))
 
 const pad = (i: number) => String(i + 1).padStart(2, '0')
+
+/**
+ * Scroll cue.
+ *
+ * This page is `position: fixed` with its own scroll container, so on a short
+ * viewport there is no page scrollbar to suggest anything exists below — and
+ * what's below is the deck's own nav buttons and the card's "Open". The cue
+ * only appears when there is genuinely something to reach, and retires the
+ * moment it has been understood.
+ */
+const scroller = ref<HTMLElement | null>(null)
+const inner    = ref<HTMLElement | null>(null)
+const canScroll = ref(false)
+const scrolled  = ref(false)
+const showCue = computed(() => canScroll.value && !scrolled.value)
+
+function measure() {
+  const el = scroller.value
+  if (!el) return
+  // Discount the page's own bottom padding. On /my-work at 1440x900 the deck
+  // ends 15px above the fold and the only thing below it is 90px of trailing
+  // whitespace — pointing at that would be a cue that leads nowhere.
+  const slack = inner.value ? parseFloat(getComputedStyle(inner.value).paddingBottom) || 0 : 0
+  canScroll.value = el.scrollHeight - el.clientHeight > slack + 24
+}
+function onScroll() {
+  if (scroller.value && scroller.value.scrollTop > 12) scrolled.value = true
+}
+
+onMounted(() => {
+  measure()
+  // Artwork loading late changes the height, so re-measure rather than trusting
+  // a single reading taken before the images had arrived.
+  const ro = new ResizeObserver(measure)
+  if (scroller.value) ro.observe(scroller.value)
+  window.addEventListener('resize', measure)
+  onBeforeUnmount(() => { ro.disconnect(); window.removeEventListener('resize', measure) })
+})
 </script>
 
 <template>
-  <div class="cg-page">
+  <div class="cg-page" ref="scroller" @scroll.passive="onScroll">
     <UiGlassBackdrop calm />
 
-    <div class="cg-inner">
+    <div class="cg-inner" ref="inner">
       <UiPageHead :eyebrow="eyebrow" :title="title" :deck="deck" :intro="intro" :meta="count" />
 
       <UiSpatialDeck v-if="items.length" :items="items" :aria-label="title">
@@ -62,6 +100,13 @@ const pad = (i: number) => String(i + 1).padStart(2, '0')
 
       <slot />
     </div>
+
+    <Transition name="cg-cue">
+      <p v-if="showCue" class="t-mono cg-cue" aria-hidden="true">
+        <span>Scroll</span>
+        <i />
+      </p>
+    </Transition>
   </div>
 </template>
 
@@ -76,7 +121,64 @@ const pad = (i: number) => String(i + 1).padStart(2, '0')
   .cg-inner { padding: calc(var(--page-top)) 18rem calc(60rem + var(--safe-bottom)); }
 }
 
+/* ── Masthead vs. deck, on a short viewport ───────────────────────────────
+   The deck IS this page; the masthead is its label. But the masthead's rhythm
+   is clamped against viewport WIDTH only, so on a wide-but-short laptop it
+   stayed at full size while the space beneath it vanished. Measured at
+   1440x760 on /tools: the masthead ran to 599px of a 760px screen, leaving
+   161px for a 488px deck — both nav buttons and the card's own "Open" sat
+   below the fold, on a fixed-position page with no scrollbar to hint that
+   anything was down there.
+
+   So the masthead gives ground as vertical space runs out. The title stays
+   the largest thing on the page; it just stops being sized as though the
+   screen were infinitely tall. Article routes are untouched — a tall title
+   and a scroll is exactly right when the page IS the scroll. */
+@media (max-height: 900px) and (min-width: 641px) {
+  .cg-inner { padding-top: calc(var(--page-top) - 18rem); }
+  .cg-inner :deep(.ph)        { margin-bottom: clamp(26rem, 4vh, 60rem); }
+  .cg-inner :deep(.ph__title) { font-size: clamp(40px, 9.6vh, 112px); }
+  .cg-inner :deep(.ph__top)   { margin-bottom: clamp(14rem, 2vh, 30rem); }
+  .cg-inner :deep(.ph__deck)  { margin-top: clamp(12rem, 1.8vh, 26rem); }
+  .cg-inner :deep(.ph__intro) { margin-top: 12rem; }
+}
+
 .cg-empty { font-size: var(--text-body); opacity: 0.55; }
+
+/* ── Scroll cue ───────────────────────────────────────────────────────────
+   Fixed to the viewport, not the scrolling content, so it stays put while the
+   page moves under it. The line travels down and fades at the end rather than
+   bouncing — a bounce reads as an alert, and this is only a hint. */
+.cg-cue {
+  position: fixed;
+  /* NOT centred. The deck is centred, so dead-centre is the one place the cue
+     is guaranteed to land on a card — the first draft printed "SCROLL" across
+     the EasyMCQ artwork. The right margin is empty at every width the deck
+     occupies, so the cue lives there instead. */
+  right: clamp(16rem, 4vw, 52rem);
+  bottom: calc(18rem + var(--safe-bottom));
+  z-index: 3; margin: 0; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; gap: 8rem;
+  font-size: 10.5rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--color-text); opacity: 0.42;
+  /* The corner it sits in can still be artwork on a narrow screen; the halo
+     keeps it readable without drawing a box around it. */
+  text-shadow: 0 0 12rem var(--color-bg), 0 0 4rem var(--color-bg);
+}
+.cg-cue i {
+  display: block; width: 1px; height: 26rem;
+  background: linear-gradient(to bottom, transparent, currentColor);
+  transform-origin: top center;
+  animation: cg-cue-fall 1.9s var(--ease-in-out) infinite;
+}
+@keyframes cg-cue-fall {
+  0%        { transform: scaleY(0.25); opacity: 0; }
+  35%       { transform: scaleY(1);    opacity: 1; }
+  75%, 100% { transform: scaleY(1) translateY(14rem); opacity: 0; }
+}
+.cg-cue-enter-active { transition: opacity var(--dur-slow) var(--ease-out) 500ms; }
+.cg-cue-leave-active { transition: opacity var(--dur-fast) var(--ease-in); }
+.cg-cue-enter-from, .cg-cue-leave-to { opacity: 0; }
 
 /* ── The card itself ──────────────────────────────────────────────────────
    Full-bleed artwork on top, the glass surface's own blur and rim underneath
@@ -154,5 +256,8 @@ const pad = (i: number) => String(i + 1).padStart(2, '0')
   .gd-card__go,
   .gd-card__go svg { transition-duration: 1ms; }
   .gd-card:hover .gd-card__go svg { transform: none; }
+  /* The cue still says "scroll" — it just stops moving to say it. */
+  .cg-cue i { animation: none; opacity: 0.7; }
+  .cg-cue-enter-active, .cg-cue-leave-active { transition-duration: 1ms; }
 }
 </style>

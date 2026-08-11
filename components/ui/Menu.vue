@@ -58,6 +58,37 @@ function setItemEl(el: any, i: number) {
   itemEls.value[i] = el.$el ?? el
 }
 
+// ── Keyboard ──────────────────────────────────────────────────
+// The panel is written before the button in the DOM so it paints behind it,
+// which means tabbing forward from the button walked straight PAST the links
+// and out of the menu — they were reachable only by shift-tabbing backwards.
+// Opening moves focus to the first link, closing hands it back to the button,
+// and Escape closes from anywhere, which is what a disclosure is expected to
+// do and costs nothing for anyone using a pointer.
+const btnEl   = ref<HTMLElement | null>(null)
+const panelEl = ref<HTMLElement | null>(null)
+
+watch(isOpened, async (open) => {
+  // Read this BEFORE the DOM update flushes: once `inert` lands the browser has
+  // already blurred whatever was inside the panel, and we'd have no way to tell
+  // "the user was in the menu" from "the user was never there".
+  const wasInside = !!panelEl.value?.contains(document.activeElement)
+  await nextTick()
+  if (open) itemEls.value.find(Boolean)?.focus?.()
+  // Only reclaim focus if we're the ones who took it away. Closing by clicking
+  // the backdrop while focus sits elsewhere should leave that focus alone.
+  else if (wasInside) btnEl.value?.focus?.()
+})
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && isOpened.value) {
+    menuStore.close()
+    btnEl.value?.focus?.()
+  }
+}
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
+
 function setView(mode: 'spiral' | 'list') {
   homeViewStore.setMode(mode)
   menuStore.close()
@@ -109,7 +140,13 @@ function handleHomeClick() {
   <div class="e-nav" :class="{ 'panel-open': isOpened }">
     <!-- Panel renders behind the button (DOM order = visual z-order) -->
     <div class="e-panel lg-surface" :class="{ open: isOpened, 'has-toggle': showViewToggle }">
-      <div class="e-panel-inner">
+      <!-- The panel is 48×48 and `overflow: hidden` when closed, and its links
+           are faded to opacity 0 — but opacity does not remove anything from
+           the tab order. Tabbing through any page used to stop three times on
+           links nobody could see, with the focus ring parked off-canvas.
+           `inert` is the right tool; the visibility rule below is the backstop
+           for browsers that predate it. -->
+      <div class="e-panel-inner" id="e-menu-panel" ref="panelEl" :inert="!isOpened">
         <nav class="e-nav-group">
           <template v-for="(link, i) in links" :key="link.label">
             <a
@@ -156,9 +193,12 @@ function handleHomeClick() {
     <!-- Menu button — hamburger ↔ close icon -->
     <button
       class="e-btn"
+      ref="btnEl"
       :class="{ open: isOpened }"
       @click="menuStore.toggle"
-      aria-label="menu"
+      :aria-label="isOpened ? 'Close menu' : 'Open menu'"
+      :aria-expanded="isOpened"
+      aria-controls="e-menu-panel"
     >
       <span class="ic-wrap hb-wrap">
         <svg class="ic ic-hb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
@@ -299,6 +339,12 @@ function handleHomeClick() {
 
 /* ── Panel inner ── */
 .e-panel-inner {
+  /* Backstop for `inert` (Safari < 15.5): `visibility: hidden` takes the links
+     out of both the tab order and the accessibility tree. The delay holds it
+     visible long enough for the closing fade to finish — 0.2s of GSAP opacity
+     plus a frame — instead of cutting the animation dead. */
+  visibility: hidden;
+  transition: visibility 0s linear 0.3s;
   position: absolute;
   inset: 0;
   display: flex;
@@ -308,6 +354,7 @@ function handleHomeClick() {
   color: #fff;
   z-index: 1;
 }
+.e-panel.open .e-panel-inner { visibility: visible; transition-delay: 0s; }
 .e-nav-group { flex: 1; display: flex; flex-direction: column; gap: 2rem; }
 .e-panel-inner :focus-visible { outline: 2px solid rgba(255, 255, 255, 0.85); outline-offset: 2px; border-radius: 8rem; }
 
@@ -333,7 +380,7 @@ function handleHomeClick() {
   color: #fff;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
   text-decoration: none;
-  transition: background 0.22s ease, padding-left 0.3s var(--ease-spring);
+  transition: background var(--dur-fast) var(--ease-out), padding-left 0.3s var(--ease-spring);
 }
 .e-link-dot {
   width: 7rem; height: 7rem; border-radius: 50%;
@@ -384,7 +431,7 @@ function handleHomeClick() {
   font-size: 13rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
 .e-seg-btn .ic { width: 17rem; height: 17rem; }
 .e-seg-btn:hover { color: #fff; }

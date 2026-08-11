@@ -111,7 +111,7 @@ const CHAPTERS: Chapter[] = [
 
 .ab-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 36; display: flex; align-items: center; justify-content: space-between; gap: 16rem; padding: calc(14rem + var(--safe-top)) var(--edge) 14rem; }
 .ab-bar::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(var(--color-bg), transparent); -webkit-mask: linear-gradient(#000, #000 55%, transparent); mask: linear-gradient(#000, #000 55%, transparent); }
-.ab-back, .ab-bar__link { display: inline-flex; align-items: center; gap: 7rem; min-height: 44rem; padding: 0 4rem; color: var(--color-text); text-decoration: none; font-size: 13.5rem; font-weight: 600; opacity: 0.82; transition: opacity 0.25s ease, transform 0.25s ease; border-radius: 8rem; }
+.ab-back, .ab-bar__link { display: inline-flex; align-items: center; gap: 7rem; min-height: 44rem; padding: 0 4rem; color: var(--color-text); text-decoration: none; font-size: 13.5rem; font-weight: 600; opacity: 0.82; transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out); border-radius: 8rem; }
 .ab-back:hover, .ab-bar__link:hover { opacity: 1; } .ab-back:hover { transform: translateX(-2rem); } .ab-bar__link:hover { transform: translateX(2rem); }
 .ab-bar__word { font-size: 12rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 600; opacity: 0.6; }
 .ab-back:focus-visible, .ab-bar__link:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; opacity: 1; }

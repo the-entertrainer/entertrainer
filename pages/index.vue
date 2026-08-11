@@ -110,7 +110,8 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
   outline: 2px solid var(--ink); outline-offset: 3px;
 }
 
-.h-enter-active, .h-leave-active { transition: opacity 0.3s ease, transform 0.5s cubic-bezier(.19,1,.22,1); }
+.h-enter-active { transition: opacity var(--dur-mid) var(--ease-out), transform var(--dur-slow) var(--ease-expo-out); }
+.h-leave-active { transition: opacity var(--dur-fast) var(--ease-in), transform var(--dur-fast) var(--ease-in); }
 .h-enter-from { opacity: 0; transform: translateY(18rem); }
 .h-leave-to { opacity: 0; transform: translateY(-12rem); }
 
@@ -130,7 +131,7 @@ watch(() => homeViewStore.pendingHome, (p) => { if (p) homeViewStore.ackHome() }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .h-enter-active, .h-leave-active { transition: opacity 0.2s ease; }
+  .h-enter-active, .h-leave-active { transition: opacity var(--dur-fast) linear; }
   .h-enter-from, .h-leave-to { transform: none; }
 }
 </style>

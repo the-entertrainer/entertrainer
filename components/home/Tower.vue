@@ -154,7 +154,7 @@ defineExpose({ go, goToItem, active, activeIndex })
 
 /* Fade the whole stage up once the first frame has rendered, so there's never
    a flash of empty background before the cards exist. */
-.tw__cv { opacity: 0; transition: opacity 0.7s ease; }
+.tw__cv { opacity: 0; transition: opacity var(--dur-slow) var(--ease-out); }
 .tw--ready .tw__cv { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .tw__cv { transition: none; } }
 </style>

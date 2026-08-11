@@ -139,7 +139,8 @@ onUnmounted(() => {
   letter-spacing: -0.01em;
   min-height: 1.5em;
 }
-.nvstatus-line-enter-active, .nvstatus-line-leave-active { transition: opacity 0.28s ease, transform 0.28s ease; }
+.nvstatus-line-enter-active { transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out); }
+.nvstatus-line-leave-active { transition: opacity var(--dur-tap) var(--ease-in), transform var(--dur-tap) var(--ease-in); }
 .nvstatus-line-enter-from { opacity: 0; transform: translateY(6rem); }
 .nvstatus-line-leave-to { opacity: 0; transform: translateY(-6rem); }
 

@@ -19,6 +19,7 @@ defineProps<{
 <template>
   <div class="cs">
     <UiGlassBackdrop calm />
+    <UiPageOptics />
     <div class="cs__inner">
       <UiPageHead :eyebrow="eyebrow" :title="title || ''" :deck="deck" />
       <div class="cs__body">
@@ -32,10 +33,16 @@ defineProps<{
 .cs { position: relative; z-index: 1; min-height: 100dvh; overflow-x: clip; }
 .cs__inner {
   position: relative; z-index: 1;
-  max-width: 760rem; margin: 0 auto;
-  padding: calc(var(--page-top) + 10rem) 24rem calc(90rem + var(--safe-bottom));
+  max-width: var(--shell-max); margin: 0 auto;
+  padding: calc(var(--page-top) + 20rem) var(--shell-gutter) calc(90rem + var(--safe-bottom));
 }
-@media (max-width: 600px) {
-  .cs__inner { padding: calc(var(--page-top)) 16rem calc(70rem + var(--safe-bottom)); }
+@media (max-width: 640px) {
+  .cs__inner { padding-top: var(--page-top); padding-bottom: calc(70rem + var(--safe-bottom)); }
 }
+
+/* A dead end is not a hero. The 404's title ran at the full 112px h1 ramp —
+   three lines of display type apologising, louder than any real page on the
+   site. It keeps the family and the frame, at the scale of a section head. */
+.cs :deep(.ph__title) { font-size: var(--text-h2); max-width: 20ch; }
+.cs :deep(.ph) { margin-bottom: clamp(28rem, 4vw, 48rem); }
 </style>

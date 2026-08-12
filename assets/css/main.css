@@ -140,7 +140,7 @@
      artwork's poster type is that it fills the sheet. Mobile-first: the low end
      of each clamp is what a phone actually gets, and it is deliberately loud. */
   --text-display: clamp(66px, 20vw, 220px);   /* the one big statement */
-  --text-h1: clamp(46px, 13.5vw, 112px);        /* page hero titles */
+  --text-h1: clamp(46px, 13.5vw, 112px);        /* page hero titles */  /* see the short-viewport override below */
   --text-h2: clamp(26px, 5.6vw, 48px);        /* section heads */
   --text-h3: clamp(18px, 2.4vw, 26px);        /* card / row titles */
   --text-lead: clamp(17px, 1.5vw, 22px);      /* deck / sub-title */
@@ -210,9 +210,33 @@
        --lx/--ly    pointer, viewport fractions 0..1
        --lxc/--lyc  the same, centred, -1..1
        --lit        0..1, whether a pointer is present at all */
+  /* ── Page frame ─────────────────────────────────────────────────────────
+     One gutter and one page box for every content route. Sub pages used to
+     place their content at 186 / 190 / 284 / 354 px from the left edge at
+     1440 wide — a 168px spread, so text slid sideways as you navigated. The
+     COLUMN inside still varies with intent (a case study wants a narrower
+     measure than a deck landing page); that is the job of --measure-*, not of
+     the frame. See components/ui/PageShell.vue. */
+  --shell-max: 1180rem;
+  --shell-gutter: clamp(20rem, 5vw, 60rem);
+
   --lx: 0.5;  --ly: 0.42;
   --lxc: 0;   --lyc: -0.16;
   --lit: 0;
+}
+
+/* ── The display scale answers to height as well as width ─────────────────
+   --text-h1 is clamped against viewport WIDTH only, so on a wide-but-short
+   laptop the hero stayed at its 112px ceiling while the room beneath it
+   vanished. This lived on UiPageHead for one release, which only reached the
+   pages using that component: /my-work compressed to 86px while /about and
+   the case studies — which style their own h1 from the same token — stayed at
+   112, so a section landing page was smaller than the pages inside it.
+
+   Overriding the token instead fixes every user of it at once, which is the
+   point of having a token. */
+@media (max-height: 900px) and (min-width: 641px) {
+  :root { --text-h1: clamp(40px, 9.6vh, 112px); }
 }
 
 /* ── Shared type roles ──────────────────────────────────────────────────

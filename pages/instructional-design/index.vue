@@ -65,22 +65,15 @@ function iconPath(name: string) {
 <template>
   <div class="id-page">
     <UiGlassBackdrop calm />
+    <UiPageOptics />
 
-    <NuxtLink to="/" class="id-exit" aria-label="Back to the site">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7" /></svg>
-      <span>Back</span>
-    </NuxtLink>
 
     <div class="id-wrap">
-      <header class="id-head">
-        <p class="id-eyebrow">Instructional design</p>
-        <h1 class="id-title">What gets designed when no one is watching</h1>
-        <p class="id-dek">
-          A subject expert can already do the thing. Instructional design is the work of turning
-          what they know into something another person can learn. Most of that work is subtraction.
-          Try it on the panel below.
-        </p>
-      </header>
+      <UiPageHead
+        eyebrow="Instructional design"
+        title="What gets designed when no one is watching"
+        deck="A subject expert can already do the thing. Instructional design is the work of turning what they know into something another person can learn. Most of that work is subtraction. Try it on the panel below."
+      />
 
       <section class="id-lab glass-panel" aria-label="Interactive demonstration">
         <div class="id-lab__top">
@@ -178,62 +171,15 @@ function iconPath(name: string) {
 .id-wrap {
   position: relative;
   z-index: 1;
-  max-width: 780rem;
+  /* Was max-width 780 with a 24px pad, which landed this page's content 354px
+     from the left edge at 1440 — 164px further in than /my-work. Same frame as
+     everywhere else now; the reading measure is set on the type, not the box. */
+  max-width: var(--shell-max);
   margin: 0 auto;
-  padding: calc(96rem + var(--safe-top)) 24rem calc(80rem + var(--safe-bottom));
+  padding: calc(var(--page-top) + 20rem) var(--shell-gutter) calc(90rem + var(--safe-bottom));
 }
 
-.id-exit {
-  position: fixed;
-  top: calc(18rem + var(--safe-top));
-  left: calc(20rem + var(--safe-left));
-  z-index: 30;
-  display: inline-flex;
-  align-items: center;
-  gap: 6rem;
-  min-height: 44rem;
-  padding: 8rem 16rem;
-  border-radius: 999rem;
-  font-family: var(--display-font);
-  font-weight: 700;
-  font-size: 13rem;
-  color: var(--color-text);
-  background: var(--color-glass-bg);
-  border: 1px solid var(--color-glass-border);
-  backdrop-filter: blur(16px) saturate(1.3) brightness(1.08);
-  -webkit-backdrop-filter: blur(16px) saturate(1.3) brightness(1.08);
-  box-shadow: inset 0 1px 0 var(--glow-rim), 0 10rem 26rem -16rem rgba(0,0,0,0.8);
-  transition: background 0.2s ease, transform 0.2s var(--ease-spring);
-}
-@media (hover: hover) { .id-exit:hover { background: var(--color-glass-bg-hover); transform: translateX(-2rem); } }
-.id-exit:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
 
-.id-head { margin-bottom: 34rem; }
-.id-eyebrow {
-  font-family: var(--mono-font);
-  font-weight: 500;
-  font-size: 12rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.55;
-  margin-bottom: 16rem;
-}
-.id-title {
-  font-family: var(--display-font);
-  font-optical-sizing: auto;
-  font-size: var(--text-h1);
-  font-weight: 800;
-  line-height: 0.92;
-  letter-spacing: var(--tracking-display);
-  max-width: 13ch;
-}
-.id-dek {
-  margin-top: 20rem;
-  font-size: 17rem;
-  line-height: 1.6;
-  opacity: 0.72;
-  max-width: 54ch;
-}
 
 .id-lab { padding: 26rem 26rem 24rem; }
 .id-lab__top {

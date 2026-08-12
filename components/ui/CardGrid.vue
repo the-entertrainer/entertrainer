@@ -74,6 +74,7 @@ onMounted(() => {
 <template>
   <div class="cg-page" ref="scroller" @scroll.passive="onScroll">
     <UiGlassBackdrop calm />
+    <UiPageOptics />
 
     <div class="cg-inner" ref="inner">
       <UiPageHead :eyebrow="eyebrow" :title="title" :deck="deck" :intro="intro" :meta="count" />
@@ -112,35 +113,19 @@ onMounted(() => {
 
 <style scoped>
 .cg-page { position: fixed; inset: 0; overflow-y: auto; z-index: 1; }
+/* The shared page frame — same gutter and page box as every other content
+   route, so the left edge does not move when you navigate. The masthead's
+   short-viewport compression now lives in UiPageHead, where it applies to
+   landing pages and detail pages alike; keeping it here made /my-work's title
+   86px while its own child pages stayed at 112px, so a section was smaller
+   than the things inside it. */
 .cg-inner {
-  max-width: 1180rem;
+  max-width: var(--shell-max);
   margin: 0 auto;
-  padding: calc(var(--page-top) + 20rem) clamp(20rem, 5vw, 60rem) calc(90rem + var(--safe-bottom));
+  padding: calc(var(--page-top) + 20rem) var(--shell-gutter) calc(90rem + var(--safe-bottom));
 }
 @media (max-width: 640px) {
-  .cg-inner { padding: calc(var(--page-top)) 18rem calc(60rem + var(--safe-bottom)); }
-}
-
-/* ── Masthead vs. deck, on a short viewport ───────────────────────────────
-   The deck IS this page; the masthead is its label. But the masthead's rhythm
-   is clamped against viewport WIDTH only, so on a wide-but-short laptop it
-   stayed at full size while the space beneath it vanished. Measured at
-   1440x760 on /tools: the masthead ran to 599px of a 760px screen, leaving
-   161px for a 488px deck — both nav buttons and the card's own "Open" sat
-   below the fold, on a fixed-position page with no scrollbar to hint that
-   anything was down there.
-
-   So the masthead gives ground as vertical space runs out. The title stays
-   the largest thing on the page; it just stops being sized as though the
-   screen were infinitely tall. Article routes are untouched — a tall title
-   and a scroll is exactly right when the page IS the scroll. */
-@media (max-height: 900px) and (min-width: 641px) {
-  .cg-inner { padding-top: calc(var(--page-top) - 18rem); }
-  .cg-inner :deep(.ph)        { margin-bottom: clamp(26rem, 4vh, 60rem); }
-  .cg-inner :deep(.ph__title) { font-size: clamp(40px, 9.6vh, 112px); }
-  .cg-inner :deep(.ph__top)   { margin-bottom: clamp(14rem, 2vh, 30rem); }
-  .cg-inner :deep(.ph__deck)  { margin-top: clamp(12rem, 1.8vh, 26rem); }
-  .cg-inner :deep(.ph__intro) { margin-top: 12rem; }
+  .cg-inner { padding-top: var(--page-top); padding-bottom: calc(60rem + var(--safe-bottom)); }
 }
 
 .cg-empty { font-size: var(--text-body); opacity: 0.55; }

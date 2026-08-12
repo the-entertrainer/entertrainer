@@ -205,14 +205,14 @@ function drawStars() {
       if (x < -4 || x > W + 4) continue
       const y = s.yFrac * GROUND_Y
       const size = Math.max(1, s.size * scale * 0.6)
-      ctx.fillStyle = `rgba(150,220,120,${s.alpha})`
+      ctx.fillStyle = `rgba(170,170,164,${s.alpha})`
       ctx.fillRect(x, y, size, size)
     }
   }
 }
 function drawHills() {
   if (!ctx) return
-  ctx.fillStyle = 'rgba(150,220,120,0.13)'
+  ctx.fillStyle = 'rgba(170,170,164,0.13)'
   for (const h of hills) ctx.fillRect(h.x, GROUND_Y - h.h, h.w, h.h)
 }
 
@@ -466,7 +466,7 @@ function drawMeteor(s: SkyObject) {
     const tx = s.x - dirX * i * 4 * scale
     const ty = s.y - dirY * i * 4 * scale
     const alpha = i === 0 ? 1 : Math.max(0.12, 0.85 - i * 0.16)
-    ctx.fillStyle = i === 0 ? 'rgba(214,255,190,1)' : `rgba(150,220,120,${alpha})`
+    ctx.fillStyle = i === 0 ? 'rgba(242,242,239,1)' : `rgba(170,170,164,${alpha})`
     ctx.fillRect(tx - size / 2, ty - size / 2, size, size)
   }
 }
@@ -477,13 +477,13 @@ function drawUfo(s: SkyObject, t: number) {
   if (!ctx) return
   const bodyW = 20 * scale
   const bodyH = 3 * scale
-  ctx.fillStyle = 'rgba(150,220,120,0.75)'
+  ctx.fillStyle = 'rgba(170,170,164,0.75)'
   ctx.fillRect(s.x - bodyW / 2, s.y, bodyW, bodyH)
   ctx.fillRect(s.x - bodyW / 2 + 3 * scale, s.y - bodyH, bodyW - 6 * scale, bodyH)
-  ctx.fillStyle = 'rgba(214,255,190,0.85)'
+  ctx.fillStyle = 'rgba(242,242,239,0.85)'
   ctx.fillRect(s.x - 4 * scale, s.y - bodyH * 2, 8 * scale, bodyH)
   const blink = Math.floor(t * 3 + s.seed) % 2 === 0
-  ctx.fillStyle = blink ? 'rgba(214,255,190,0.95)' : 'rgba(150,220,120,0.25)'
+  ctx.fillStyle = blink ? 'rgba(242,242,239,0.95)' : 'rgba(170,170,164,0.25)'
   ctx.fillRect(s.x - bodyW / 2 + 2 * scale, s.y + bodyH, Math.max(1, scale), Math.max(1, scale))
   ctx.fillRect(s.x + bodyW / 2 - 3 * scale, s.y + bodyH, Math.max(1, scale), Math.max(1, scale))
 }
@@ -491,7 +491,7 @@ function drawUfo(s: SkyObject, t: number) {
 function draw(t = 0) {
   if (!ctx) return
   ctx.imageSmoothingEnabled = false
-  ctx.fillStyle = '#0A1408'
+  ctx.fillStyle = '#0E0E12'
   ctx.fillRect(0, 0, W, H)
 
   // parallax, back to front: distant stars, then sky flair, then hills
@@ -503,16 +503,16 @@ function draw(t = 0) {
   drawHills()
 
   // ground — a soft glow on the line only, kept subtle to stay "minimalist"
-  ctx.shadowColor = 'rgba(150,220,120,0.5)'
+  ctx.shadowColor = 'rgba(170,170,164,0.5)'
   ctx.shadowBlur = 3 * scale
-  ctx.strokeStyle = 'rgba(150,220,120,0.35)'
+  ctx.strokeStyle = 'rgba(170,170,164,0.35)'
   ctx.lineWidth = Math.max(1, scale)
   ctx.beginPath()
   ctx.moveTo(0, GROUND_Y + 0.5)
   ctx.lineTo(W, GROUND_Y + 0.5)
   ctx.stroke()
   ctx.shadowBlur = 0
-  ctx.fillStyle = 'rgba(150,220,120,0.22)'
+  ctx.fillStyle = 'rgba(170,170,164,0.22)'
   const dashW = Math.max(2, 3 * scale)
   for (let x = -groundScrollX; x < W; x += 8 * scale) ctx.fillRect(x, GROUND_Y + 3 * scale, dashW, Math.max(1, scale))
 
@@ -520,13 +520,13 @@ function draw(t = 0) {
   const legW = Math.max(2, 3 * scale)
   const legH = Math.max(3, 4 * scale)
   const bob = player.grounded && Math.floor(player.runFrame * 10) % 2 === 0 ? 0 : 1
-  ctx.shadowColor = 'rgba(214,255,190,0.85)'
+  ctx.shadowColor = 'rgba(242,242,239,0.85)'
   ctx.shadowBlur = 5 * scale
-  ctx.fillStyle = 'rgb(150,220,120)'
+  ctx.fillStyle = 'rgb(170,170,164)'
   ctx.fillRect(player.x, player.y, player.w, player.h - legH)
-  ctx.fillStyle = 'rgb(214,255,190)'
+  ctx.fillStyle = 'rgb(242,242,239)'
   ctx.fillRect(player.x + 2 * scale, player.y + 2 * scale, Math.max(2, 3 * scale), Math.max(2, 3 * scale)) // "visor" accent — a lighter tint of the same hue, not a different color
-  ctx.fillStyle = 'rgb(150,220,120)'
+  ctx.fillStyle = 'rgb(170,170,164)'
   if (player.grounded) {
     ctx.fillRect(player.x + (bob === 0 ? 0 : 2 * scale), player.y + player.h - legH, legW, legH)
     ctx.fillRect(player.x + (bob === 0 ? 6 * scale : 4 * scale), player.y + player.h - legH, legW, legH)
@@ -537,17 +537,17 @@ function draw(t = 0) {
   ctx.shadowBlur = 0
 
   // obstacles ("bugs")
-  ctx.shadowColor = 'rgba(150,220,120,0.7)'
+  ctx.shadowColor = 'rgba(170,170,164,0.7)'
   ctx.shadowBlur = 4 * scale
-  ctx.fillStyle = 'rgb(150,220,120)'
+  ctx.fillStyle = 'rgb(170,170,164)'
   for (const o of obstacles) {
     const oy = GROUND_Y - o.h
     ctx.fillRect(o.x, oy, o.w, o.h)
-    ctx.fillStyle = '#0A1408'
+    ctx.fillStyle = '#0E0E12'
     const eye = Math.max(1, 2 * scale)
     ctx.fillRect(o.x + 1 * scale, oy + 2 * scale, eye, eye)
     ctx.fillRect(o.x + o.w - eye - 1 * scale, oy + 2 * scale, eye, eye)
-    ctx.fillStyle = 'rgb(150,220,120)'
+    ctx.fillStyle = 'rgb(170,170,164)'
   }
   ctx.shadowBlur = 0
 }
@@ -732,7 +732,7 @@ onUnmounted(() => {
   aspect-ratio: 21 / 6;
   border-radius: 12rem;
   overflow: hidden;
-  background: #070F06;
+  background: #07070A;
   border: 1px solid var(--color-glass-border);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 18rem 40rem -24rem rgba(0,0,0,0.6);
 }
@@ -786,8 +786,8 @@ onUnmounted(() => {
   to   { opacity: 0; transform: scale(0.92); }
 }
 @keyframes cgame-glow {
-  0%, 100% { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 40rem 90rem -30rem rgba(0,0,0,0.75), 0 0 60rem -12rem rgba(150,220,120,0.25); }
-  50%      { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 40rem 90rem -30rem rgba(0,0,0,0.75), 0 0 90rem -10rem rgba(214,255,190,0.30); }
+  0%, 100% { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 40rem 90rem -30rem rgba(0,0,0,0.75), 0 0 60rem -12rem rgba(170,170,164,0.25); }
+  50%      { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 40rem 90rem -30rem rgba(0,0,0,0.75), 0 0 90rem -10rem rgba(242,242,239,0.30); }
 }
 
 .cgame-scrim-enter-active, .cgame-scrim-leave-active { transition: opacity 0.4s ease; }
@@ -806,11 +806,11 @@ onUnmounted(() => {
   font-weight: 400;
   letter-spacing: 0.04em;
   pointer-events: none;
-  text-shadow: 0 0 6rem rgba(150,220,120,0.5), 0 1px 2px rgba(0,0,0,0.6);
+  text-shadow: 0 0 6rem rgba(170,170,164,0.5), 0 1px 2px rgba(0,0,0,0.6);
 }
 .cgame--immersive .cgame__hud { top: 14rem; left: 16rem; right: 92rem; font-size: 19rem; }
-.cgame__hi { color: rgba(150,220,120,0.55); }
-.cgame__score { color: rgba(214,255,190,0.95); }
+.cgame__hi { color: rgba(170,170,164,0.55); }
+.cgame__score { color: rgba(242,242,239,0.95); }
 
 .cgame__controls {
   position: absolute;
@@ -832,9 +832,9 @@ onUnmounted(() => {
   display: grid;
   place-items: center;
   border-radius: 999px;
-  background: rgba(7,15,6,0.55);
-  border: 1px solid rgba(150,220,120,0.3);
-  color: rgba(150,220,120,0.85);
+  background: rgba(7, 7, 10, 0.55);
+  border: 1px solid rgba(170,170,164,0.3);
+  color: rgba(170,170,164,0.85);
   cursor: pointer;
   touch-action: manipulation;
   transition: background 0.2s ease, transform 0.15s var(--ease-spring), color 0.2s ease;
@@ -842,7 +842,7 @@ onUnmounted(() => {
 .cgame__toggle svg { width: 13rem; height: 13rem; }
 .cgame__toggle:active { transform: scale(0.9); }
 @media (hover: hover) {
-  .cgame__toggle:hover { background: rgba(7,15,6,0.8); color: rgb(214,255,190); }
+  .cgame__toggle:hover { background: rgba(7,15,6,0.8); color: rgb(242,242,239); }
 }
 .cgame--immersive .cgame__toggle {
   width: 32rem;
@@ -860,22 +860,22 @@ onUnmounted(() => {
   gap: 4rem;
   text-align: center;
   padding: 8rem 16rem;
-  background: rgba(7, 15, 6, 0.6);
+  background: rgba(7, 7, 10, 0.6);
   cursor: pointer;
   font-family: 'DeadlineDashPixel', ui-monospace, 'SF Mono', 'Courier New', monospace;
 }
-.cgame__title { font-size: 20rem; font-weight: 400; color: rgb(214,255,190); letter-spacing: 0.02em; text-shadow: 0 0 10rem rgba(150,220,120,0.55); }
-.cgame__hint { font-size: 15rem; color: rgba(150,220,120,0.75); }
-.cgame__over { font-size: 20rem; font-weight: 400; color: rgb(214,255,190); letter-spacing: 0.02em; text-shadow: 0 0 10rem rgba(150,220,120,0.55); }
-.cgame__epitaph { font-size: 15rem; color: rgba(150,220,120,0.8); font-style: italic; }
-.cgame__score { font-size: 16rem; font-weight: 400; color: rgb(214,255,190); }
+.cgame__title { font-size: 20rem; font-weight: 400; color: rgb(242,242,239); letter-spacing: 0.02em; text-shadow: 0 0 10rem rgba(170,170,164,0.55); }
+.cgame__hint { font-size: 15rem; color: rgba(170,170,164,0.75); }
+.cgame__over { font-size: 20rem; font-weight: 400; color: rgb(242,242,239); letter-spacing: 0.02em; text-shadow: 0 0 10rem rgba(170,170,164,0.55); }
+.cgame__epitaph { font-size: 15rem; color: rgba(170,170,164,0.8); font-style: italic; }
+.cgame__score { font-size: 16rem; font-weight: 400; color: rgb(242,242,239); }
 .cgame__cta {
   margin-top: 4rem;
   font-size: 14rem;
   font-weight: 400;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgb(214,255,190);
+  color: rgb(242,242,239);
 }
 .cgame--immersive .cgame__title { font-size: 28rem; }
 .cgame--immersive .cgame__hint { font-size: 18rem; }

@@ -56,6 +56,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 <template>
   <div class="cs-page">
     <UiGlassBackdrop calm />
+    <UiPageOptics />
 
     <article class="cs-inner">
       <!-- Hero -->
@@ -80,10 +81,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       <section class="cs-body">
         <p class="glass-label cs-body__label">How it came together</p>
         <UiSpatialDeck :items="beats" :spacing="0.85" aria-label="How the comic came together">
-          <template #default="{ item }">
+          <template #default="{ item, index }">
             <article class="cs-beat">
-              <h2>{{ item.h }}</h2>
-              <p>{{ item.body }}</p>
+              <p class="t-mono cs-beat__n">{{ String(index + 1).padStart(2, '0') }} <i>/</i> {{ String(beats.length).padStart(2, '0') }}</p>
+              <div class="cs-beat__text">
+                <h2>{{ item.h }}</h2>
+                <p>{{ item.body }}</p>
+              </div>
             </article>
           </template>
         </UiSpatialDeck>
@@ -135,9 +139,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 <style scoped>
 .cs-page { position: relative; z-index: 1; min-height: 100dvh; --serif: var(--display-font); }
 .cs-inner {
-  max-width: 920rem;
+  /* Shared frame. Was 920/24px, which put this case study's text 284px from
+     the left while its own section landing page sat at 190. */
+  max-width: var(--shell-max);
   margin: 0 auto;
-  padding: calc(112rem + var(--safe-top)) 24rem calc(72rem + var(--safe-bottom));
+  padding: calc(var(--page-top) + 20rem) var(--shell-gutter) calc(90rem + var(--safe-bottom));
 }
 
 /* Hero */
@@ -148,7 +154,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   align-items: center;
   margin-bottom: 48rem;
 }
-.cs-eyebrow { font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.55; }
+.cs-eyebrow { font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.55; }
 .cs-title { font-family: var(--serif); font-optical-sizing: auto; font-size: var(--text-h1); font-weight: 800; line-height: 0.92; letter-spacing: var(--tracking-display); margin-top: 12rem; }
 .cs-deck { font-size: 17rem; line-height: 1.55; opacity: 0.7; margin-top: 16rem; max-width: 30em; }
 .cs-meta { display: flex; flex-wrap: wrap; gap: 10rem 28rem; margin-top: 26rem; }
@@ -171,18 +177,35 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .cs-body { padding: 34rem 0; border-top: 1px solid var(--color-divider); border-bottom: 1px solid var(--color-divider); }
 .cs-body__label { margin-bottom: 16rem; }
 .cs-beat {
-  display: flex; flex-direction: column; justify-content: center; gap: 14rem;
-  width: 100%; height: 100%; padding: 30rem 32rem; box-sizing: border-box;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 14rem;
+  width: 100%; height: 100%; padding: 30rem 32rem 34rem; box-sizing: border-box;
   border-radius: 20rem; overflow: hidden;
   background: var(--color-glass-bg);
   backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
   -webkit-backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
   box-shadow: inset 0 1px 0 var(--glow-rim), inset 0 0 0 1px var(--color-glass-border);
 }
-.cs-beat h2 { font-family: var(--serif); font-weight: 800; font-size: var(--text-h3); letter-spacing: var(--tracking-display); line-height: 1; opacity: 1; flex-shrink: 0; }
+.cs-beat__n { margin: 0; opacity: 0.38; }
+.cs-beat__n i { font-style: normal; opacity: 0.5; margin: 0 2rem; }
+/* The text sits on the card's baseline, the way a caption sits on a plate —
+   so the empty space above it reads as air the composition chose, not as a
+   card that failed to fill. */
+.cs-beat__text { display: flex; flex-direction: column; gap: 16rem; }
+/* The deck sizes every card for artwork, and these carry only type — so the
+   type has to be the artwork. Set at display scale the heading fills the plate
+   and the card reads as a poster with a number in the corner, instead of a
+   caption adrift in 200px of black. */
+.cs-beat h2 {
+  font-family: var(--serif); font-weight: 800;
+  font-size: clamp(28rem, 3.4vw, 46rem);
+  letter-spacing: var(--tracking-display); line-height: 0.98;
+  opacity: 1; flex-shrink: 0; margin: 0;
+  max-width: 14ch;
+}
 .cs-beat p {
-  font-size: 15rem; line-height: 1.65; opacity: 0.82;
-  display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden;
+  font-size: 15rem; line-height: 1.6; opacity: 0.72; margin: 0;
+  max-width: 46ch;
+  display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden;
 }
 
 /* Gallery */
@@ -204,7 +227,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .cs-fig__btn :deep(.c3__plate) { border-radius: 0; box-shadow: none; height: 100%; }
 .cs-fig__btn :deep(.c3__img) { height: 100%; }
 .cs-fig__btn:focus-visible { outline: 2px solid var(--color-text); outline-offset: -3px; }
-.cs-fig figcaption { display: flex; flex-direction: column; gap: 2rem; padding: 14rem 18rem 18rem; flex-shrink: 0; }
+.cs-fig figcaption {
+  position: relative;
+  display: flex; flex-direction: column; gap: 2rem;
+  padding: 14rem 18rem 18rem; flex-shrink: 0;
+  background: linear-gradient(to bottom,
+    color-mix(in srgb, var(--color-bg) 55%, transparent) 0%,
+    color-mix(in srgb, var(--color-bg) 88%, transparent) 38%,
+    color-mix(in srgb, var(--color-bg) 94%, transparent) 100%);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+}
 .cs-fig figcaption strong { font-size: 13.5rem; letter-spacing: -0.01em; }
 .cs-fig__tag { font-size: 11rem; font-weight: 600; opacity: 0.5; }
 
@@ -277,7 +310,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   .cs-hero__cover { max-width: 260rem; order: -1; }
 }
 @media (max-width: 640px) {
-  .cs-inner { padding: calc(96rem + var(--safe-top)) 16rem calc(56rem + var(--safe-bottom)); }
+  .cs-inner { padding-top: var(--page-top); padding-bottom: calc(60rem + var(--safe-bottom)); }
   .cs-lb__nav { width: 44rem; height: 44rem; font-size: 24rem; }
 }
 </style>

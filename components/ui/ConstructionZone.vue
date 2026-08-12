@@ -21,7 +21,10 @@ function goHome() {
 
 <template>
   <div class="czone" :class="{ 'czone--compact': compact }">
-    <p class="czone__note">{{ note }}</p>
+    <!-- On the error page the masthead deck has already said this; repeating it
+         underneath in a smaller size was the same sentence twice. Inline stubs
+         have no masthead of their own, so they keep it. -->
+    <p v-if="!isErrorPage" class="czone__note">{{ note }}</p>
     <UiNaveenStatus />
     <UiConstructionGame :autofocus="isErrorPage" />
     <button type="button" class="glass-btn czone__home" @click="goHome">Back to the spiral</button>

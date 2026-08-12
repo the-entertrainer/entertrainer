@@ -83,4 +83,21 @@ useScrollProgress(head)
   font-size: var(--text-body); line-height: 1.65;
   margin: 18rem 0 0; max-width: var(--measure-body); opacity: 0.55;
 }
+
+/* ── Short viewports ──────────────────────────────────────────────────────
+   The ramp above is clamped against viewport WIDTH only, so on a wide-but-
+   short laptop the masthead stayed at full size while the room beneath it
+   vanished. Measured at 1440x760 on /tools: 599px of masthead on a 760px
+   screen, leaving 161px for a 488px deck.
+
+   The title's own compression lives on --text-h1 in main.css, so it reaches
+   pages that style their own h1 from the token (/about, the case studies) and
+   not just the ones using this component. What is left here is the masthead's
+   vertical rhythm, which only this component owns. */
+@media (max-height: 900px) and (min-width: 641px) {
+  .ph        { margin-bottom: clamp(26rem, 4vh, 60rem); }
+  .ph__top   { margin-bottom: clamp(14rem, 2vh, 30rem); }
+  .ph__deck  { margin-top: clamp(12rem, 1.8vh, 26rem); }
+  .ph__intro { margin-top: 12rem; }
+}
 </style>

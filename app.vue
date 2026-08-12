@@ -23,12 +23,16 @@ const transition = computed(() =>
   route.path === '/' ? { name: 'fade' } : { name: 'editorial', mode: 'out-in' as const }
 )
 
+// Chrome is hidden only where the page IS the interface — the WebGL labs and
+// the Strong module, which are self-contained artifacts with their own exits.
+// /about and /instructional-design used to be excluded too, which meant the
+// site's primary navigation simply vanished on two of five content pages;
+// both had grown a bespoke back button to compensate, so the site ended up
+// with three different back affordances and no menu on either page.
 const menuVisible = computed(() =>
   !route.path.startsWith('/glass-lab') &&
   !route.path.startsWith('/lab') &&
-  !route.path.startsWith('/instructional-design') &&
-  !route.path.startsWith('/my-work/strong') &&
-  !/^\/about\/?$/.test(route.path)
+  !route.path.startsWith('/my-work/strong')
 )
 
 // `lift` is the curtain starting to travel: the stage is visible, so the menu

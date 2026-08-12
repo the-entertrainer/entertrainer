@@ -66,9 +66,9 @@ const CHAPTERS: Chapter[] = [
         <h2 class="t-display ab-body__title">Drag through it</h2>
       </div>
 
-      <UiSpatialDeck :items="CHAPTERS" aria-label="Chapters of the story">
+      <UiSpatialDeck :items="CHAPTERS" aria-label="Chapters of the story" fill aspect="7/6" aspect-narrow="5/6">
         <template #default="{ item }">
-          <article class="ab-card">
+          <article class="ab-card lg lg--raised">
             <div class="ab-card__figure">
               <UiCard3D :src="item.img" :alt="item.alt" ratio="fill" :strength="8" radius="0" />
             </div>
@@ -128,10 +128,6 @@ const CHAPTERS: Chapter[] = [
 .ab-card {
   display: flex; flex-direction: column; width: 100%; height: 100%;
   border-radius: 20rem; overflow: hidden;
-  background: var(--color-glass-bg);
-  backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
-  -webkit-backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
-  box-shadow: inset 0 1px 0 var(--glow-rim), inset 0 0 0 1px var(--color-glass-border);
 }
 .ab-card__figure { flex: 1 1 auto; min-height: 0; }
 .ab-card__figure :deep(.c3) { height: 100%; }

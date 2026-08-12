@@ -830,3 +830,142 @@ button:focus-visible,
   .u-tap:active:not(:disabled) { transform: none; }
   .u-media-in { animation: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LIQUID GLASS
+   ──────────────────────────────────────────────────────────────────────────
+   One surface, available everywhere.
+
+   `.lg-surface` existed but lived inside components/ui/Menu.vue's SCOPED
+   styles, so only the two chrome buttons could ever use it. Every other
+   glassy thing on the site — deck cards, nav buttons, panels, the comic
+   plates — reimplemented the same blur/rim/shadow stack by hand, each with
+   slightly different numbers. This is that surface, promoted, and built as
+   four stacked layers the way real glass actually reads:
+
+     1. the medium      — a tinted, blurred, slightly brightened body
+     2. the rim         — a bright inner hairline where the edge catches light
+     3. the specular    — a highlight that tracks the document's light field
+                          (--lxc/--lyc, see composables/useLightField.ts), so
+                          every glass surface on screen is lit from the same
+                          place the WebGL stage's key light is
+     4. the cast        — a soft shadow underneath, so it sits ON something
+
+   Layers 3 and 4 are pseudo-elements, so any element using .lg needs to be a
+   positioned box. Use `.lg` for the surface, `.lg--raised` when it should read
+   as lifted off the page, `.lg--deep` for a heavier, more opaque panel.
+   ══════════════════════════════════════════════════════════════════════════ */
+.lg {
+  position: relative;
+  isolation: isolate;
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(20px) saturate(1.35) brightness(1.08);
+  -webkit-backdrop-filter: blur(20px) saturate(1.35) brightness(1.08);
+  box-shadow:
+    inset 0 1px 0 var(--glow-rim),
+    inset 0 0 0 1px var(--color-glass-border);
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    transform var(--dur-mid) var(--ease-spring);
+}
+.lg--deep {
+  background: color-mix(in srgb, var(--color-bg) 62%, transparent);
+  backdrop-filter: blur(28px) saturate(1.5) brightness(1.05);
+  -webkit-backdrop-filter: blur(28px) saturate(1.5) brightness(1.05);
+}
+.lg--raised {
+  box-shadow:
+    inset 0 1px 0 var(--glow-rim),
+    inset 0 0 0 1px var(--color-glass-border),
+    0 20rem 48rem -24rem rgba(0, 0, 0, 0.85);
+}
+
+/* The specular. A tight hot spot that slides toward the pointer, plus the
+   fixed diagonal sheen the surface was moulded under. Screen-blended so it
+   only ever adds light. */
+.lg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(72% 72% at
+      calc(50% + var(--lxc, 0) * 58%) calc(50% + var(--lyc, -0.2) * 58%),
+      color-mix(in srgb, var(--glow-rim) 90%, transparent) 0%,
+      color-mix(in srgb, var(--glow-rim) 22%, transparent) 40%,
+      transparent 70%),
+    linear-gradient(133deg,
+      color-mix(in srgb, var(--glow-rim) 55%, transparent) 0%,
+      transparent 42%, transparent 74%,
+      color-mix(in srgb, var(--glow-rim) 26%, transparent) 100%);
+  mix-blend-mode: screen;
+  opacity: calc(0.5 + var(--lit, 0) * 0.5);
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+.lg > * { position: relative; z-index: 1; }
+
+@media (hover: hover) {
+  .lg--interactive:hover {
+    background: var(--color-glass-bg-hover);
+    box-shadow:
+      inset 0 1px 0 var(--glow-rim),
+      inset 0 0 0 1px var(--color-glass-border-hover),
+      0 26rem 56rem -26rem rgba(0, 0, 0, 0.9);
+  }
+}
+.lg--interactive:active { transform: scale(var(--press)); transition-duration: var(--dur-tap); }
+
+@media (prefers-reduced-motion: reduce) {
+  .lg, .lg--interactive:active { transition-duration: 1ms; transform: none; }
+  .lg::before { transition: none; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TYPOGRAPHIC ANIMATION
+   ──────────────────────────────────────────────────────────────────────────
+   Display type arrives a line at a time, from under its own baseline, with
+   the weight axis riding in with it — Archivo is variable, so a heading can
+   literally gain weight as it settles rather than just fading up.
+
+   Each line is a span inside an overflow-clipped block, so the line rises out
+   of nothing instead of sliding over whatever is above it. `--i` staggers.
+   ══════════════════════════════════════════════════════════════════════════ */
+.t-rise { display: block; overflow: hidden; }
+.t-rise > span {
+  display: block;
+  transform-origin: left bottom;
+  animation: t-rise-in 1050ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 90ms + var(--t-delay, 0ms));
+}
+/* Deliberately NOT animating font-variation-settings. Doing so was the obvious
+   move — Archivo is variable, so the heading could gain weight as it settles —
+   but it forces the browser to rasterize the glyphs onto a composited layer for
+   the duration, and with `both` fill the layer persists. Measured result: a
+   soft halo around every display word, permanently. Translate and opacity
+   composite cleanly; the weight axis is still used, on scroll, by .ph__title,
+   where it is not competing with a transform. */
+@keyframes t-rise-in {
+  from { transform: translateY(105%) rotate(1.2deg); opacity: 0; }
+  60%  { opacity: 1; }
+  to   { transform: translateY(0) rotate(0deg); opacity: 1; }
+}
+
+/* A single word or short label that fades up in place — for eyebrows, counters
+   and captions, which should not compete with the heading they sit beside. */
+.t-fade-up {
+  animation: t-fade-up 760ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 70ms + var(--t-delay, 0ms));
+}
+@keyframes t-fade-up {
+  from { opacity: 0; transform: translateY(10rem); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-rise > span,
+  .t-fade-up { animation: t-reveal-plain 220ms linear both; animation-delay: 0ms; }
+  @keyframes t-reveal-plain { from { opacity: 0 } to { opacity: 1 } }
+}

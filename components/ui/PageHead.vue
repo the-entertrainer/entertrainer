@@ -19,6 +19,22 @@ defineProps<{
   meta?: string
 }>()
 
+/**
+ * Display type arrives a line at a time.
+ *
+ * The title used to fade up as one block, which is the same gesture as every
+ * other element on the page — so the biggest thing on screen entered with no
+ * more presence than a caption. Splitting on words and letting the browser
+ * decide the line breaks would need a measurement pass; splitting on words and
+ * animating each WORD is the cheap version of the same idea and reads almost
+ * identically at display scale, because a display line is only three or four
+ * words wide.
+ *
+ * Each word is clipped by its own block so it rises out of nothing, and the
+ * variable weight axis rides in with it — Archivo goes 300 to 800 across the
+ * entrance, so the heading gains weight as it settles instead of merely
+ * appearing. See .t-rise in main.css.
+ */
 const R = useReveal()
 const rv = { eyebrow: R.rise(0), title: R.rise(90), deck: R.rise(190), intro: R.rise(260) }
 
@@ -37,8 +53,12 @@ useScrollProgress(head)
          :initial="rv.eyebrow.initial" :visible-once="rv.eyebrow.visibleOnce">{{ meta }}</p>
     </div>
 
-    <h1 class="t-display ph__title" v-motion
-        :initial="rv.title.initial" :visible-once="rv.title.visibleOnce">{{ title }}</h1>
+    <h1 class="t-display ph__title">
+      <span
+        v-for="(word, i) in title.split(' ')" :key="i"
+        class="t-rise ph__word"
+      ><span :style="{ '--i': i }">{{ word }}</span></span>
+    </h1>
 
     <p v-if="deck" class="ph__deck" v-motion
        :initial="rv.deck.initial" :visible-once="rv.deck.visibleOnce">{{ deck }}</p>
@@ -68,13 +88,27 @@ useScrollProgress(head)
    only the extremes travel. */
 .ph__title {
   font-size: var(--text-h1);
+  display: flex; flex-wrap: wrap;
+  column-gap: 0.24em; row-gap: 0;
   margin: 0;
   max-width: 14ch;
   will-change: transform;
-  transform: translate3d(calc(var(--pc, 0) * -3.5vw), calc(var(--pc, 0) * -1.2vh), 0);
+  /* Vertical drift only. The horizontal component (-3.5vw of --pc) put the
+     title 16px to the LEFT of its own eyebrow and deck at rest, because --pc
+     is not zero at the resting scroll position — so on a page that never
+     scrolls the masthead was permanently out of alignment with the grid
+     everything else on the site now sits on. Drifting against the scroll is
+     worth having; breaking the left edge to get it is not. */
+  transform: translate3d(0, calc(var(--pc, 0) * -1.2vh), 0);
   font-variation-settings: "wght" calc(860 - var(--p, 0.5) * 120);
 }
 @media (prefers-reduced-motion: reduce) { .ph__title { transform: none; } }
+/* Each word gets its own clipping block so it rises from nothing. The negative
+   margins claw back the leading that `overflow: hidden` would otherwise expose
+   as a gap between lines — a clipped block cannot show a descender, so the box
+   has to be a little taller than the line and then pulled back in. */
+.ph__word { padding-bottom: 0.12em; margin-bottom: -0.12em; }
+
 .ph__deck {
   font-size: var(--text-lead); line-height: 1.4; letter-spacing: -0.01em;
   margin: clamp(16rem, 2vw, 26rem) 0 0; max-width: var(--measure-deck); opacity: 0.75;

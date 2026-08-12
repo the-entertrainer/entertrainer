@@ -54,7 +54,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
-  <div class="cs-page">
+  <div class="cs-sheet">
     <UiGlassBackdrop calm />
     <UiPageOptics />
 
@@ -80,9 +80,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       <!-- Narrative: four beats, dragged through rather than read down the page -->
       <section class="cs-body">
         <p class="glass-label cs-body__label">How it came together</p>
-        <UiSpatialDeck :items="beats" :spacing="0.85" aria-label="How the comic came together">
+        <UiSpatialDeck :items="beats" :spacing="0.85" aria-label="How the comic came together" fill>
           <template #default="{ item, index }">
-            <article class="cs-beat">
+            <article class="cs-beat lg lg--raised">
               <p class="t-mono cs-beat__n">{{ String(index + 1).padStart(2, '0') }} <i>/</i> {{ String(beats.length).padStart(2, '0') }}</p>
               <div class="cs-beat__text">
                 <h2>{{ item.h }}</h2>
@@ -96,19 +96,30 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       <!-- Gallery -->
       <section class="cs-gallery" aria-label="Selected pages">
         <p class="glass-label cs-gallery__label">Selected pages</p>
-        <UiSpatialDeck :items="pages" aria-label="Selected comic pages">
-          <template #default="{ item: p, index: i, active }">
-            <figure class="cs-fig">
-              <button class="cs-fig__btn" :tabindex="active ? 0 : -1" @click="open(i)" :aria-label="`Enlarge: ${p.cap}`">
-                <UiCard3D :src="`/work/sewa/${p.src}.webp`" :alt="p.alt" ratio="fill" :strength="11" radius="0" />
-              </button>
-              <figcaption>
+        <!-- A comic is a thing you look at, not a thing you swipe one letterboxed
+             frame at a time. These were 1400x1980 portrait pages being crushed
+             into a 560x450 landscape card inside a deck, so you saw roughly a
+             third of a page and had to drag to see the next third of the next
+             one. A gallery shows them at their own proportions, all at once,
+             at the width the page actually has — and each one still opens full
+             size in the lightbox. -->
+        <ul class="cs-pages">
+          <li v-for="(p, i) in pages" :key="p.src" class="cs-pages__item"
+              v-motion :initial="R.rise(i * 60).initial" :visible-once="R.rise(i * 60).visibleOnce">
+            <button class="cs-sheet" @click="open(i)" :aria-label="`Enlarge: ${p.cap}`">
+              <span class="cs-sheet__plate lg lg--raised lg--interactive">
+                <UiCard3D :src="`/work/sewa/${p.src}.webp`" :alt="p.alt" ratio="1400/1980" :strength="9" radius="0" />
+                <span class="cs-sheet__zoom" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5M11 8v6M8 11h6" /></svg>
+                </span>
+              </span>
+              <span class="cs-sheet__cap">
                 <strong>{{ p.cap }}</strong>
-                <span class="cs-fig__tag">{{ p.tag }}</span>
-              </figcaption>
-            </figure>
-          </template>
-        </UiSpatialDeck>
+                <span class="cs-sheet__tag">{{ p.tag }}</span>
+              </span>
+            </button>
+          </li>
+        </ul>
       </section>
 
       <!-- Close -->
@@ -180,10 +191,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   display: flex; flex-direction: column; justify-content: space-between; gap: 14rem;
   width: 100%; height: 100%; padding: 30rem 32rem 34rem; box-sizing: border-box;
   border-radius: 20rem; overflow: hidden;
-  background: var(--color-glass-bg);
-  backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
-  -webkit-backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
-  box-shadow: inset 0 1px 0 var(--glow-rim), inset 0 0 0 1px var(--color-glass-border);
 }
 .cs-beat__n { margin: 0; opacity: 0.38; }
 .cs-beat__n i { font-style: normal; opacity: 0.5; margin: 0 2rem; }
@@ -211,35 +218,46 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 /* Gallery */
 .cs-gallery { margin-top: 44rem; }
 .cs-gallery__label { margin-bottom: 16rem; }
-.cs-fig {
-  display: flex; flex-direction: column; width: 100%; height: 100%;
-  border-radius: 20rem; overflow: hidden;
-  background: var(--color-glass-bg);
-  backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
-  -webkit-backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
-  box-shadow: inset 0 1px 0 var(--glow-rim), inset 0 0 0 1px var(--color-glass-border);
+/* ── The pages ────────────────────────────────────────────────────────────
+   Portrait plates on a fluid grid: three up on a desktop, two on a phone, and
+   every one of them at 1400/1980 so a page reads as a page. auto-fill with a
+   minmax track means the column count follows the width instead of being
+   declared per breakpoint. */
+.cs-pages {
+  list-style: none; margin: 0; padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290rem, 1fr));
+  gap: clamp(16rem, 2.2vw, 30rem);
 }
-.cs-fig__btn {
-  display: block; flex: 1 1 auto; min-height: 0; width: 100%;
-  padding: 0; border: 0; cursor: zoom-in; background: none;
+.cs-sheet {
+  display: flex; flex-direction: column; gap: 10rem;
+  width: 100%; padding: 0; border: 0; background: none;
+  color: var(--color-text); cursor: zoom-in; text-align: left;
 }
-.cs-fig__btn :deep(.c3) { height: 100%; }
-.cs-fig__btn :deep(.c3__plate) { border-radius: 0; box-shadow: none; height: 100%; }
-.cs-fig__btn :deep(.c3__img) { height: 100%; }
-.cs-fig__btn:focus-visible { outline: 2px solid var(--color-text); outline-offset: -3px; }
-.cs-fig figcaption {
-  position: relative;
-  display: flex; flex-direction: column; gap: 2rem;
-  padding: 14rem 18rem 18rem; flex-shrink: 0;
-  background: linear-gradient(to bottom,
-    color-mix(in srgb, var(--color-bg) 55%, transparent) 0%,
-    color-mix(in srgb, var(--color-bg) 88%, transparent) 38%,
-    color-mix(in srgb, var(--color-bg) 94%, transparent) 100%);
-  backdrop-filter: blur(18px) saturate(1.2);
-  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+.cs-sheet__plate {
+  position: relative; display: block; overflow: hidden;
+  border-radius: 14rem;
 }
-.cs-fig figcaption strong { font-size: 13.5rem; letter-spacing: -0.01em; }
-.cs-fig__tag { font-size: 11rem; font-weight: 600; opacity: 0.5; }
+.cs-sheet__plate :deep(.c3__plate) { border-radius: 0; box-shadow: none; }
+.cs-sheet__zoom {
+  position: absolute; right: 10rem; bottom: 10rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30rem; height: 30rem; border-radius: 999rem;
+  opacity: 0; transform: scale(0.9);
+  transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring);
+}
+@media (hover: hover) {
+  .cs-sheet:hover .cs-sheet__plate {
+    transform: translateY(var(--lift));
+    box-shadow: inset 0 0 0 1px var(--color-glass-border-hover), 0 30rem 56rem -26rem rgba(0,0,0,0.9);
+  }
+  .cs-sheet:hover .cs-sheet__zoom { opacity: 1; transform: scale(1); }
+}
+.cs-sheet:active .cs-sheet__plate { transform: scale(var(--press)); transition-duration: var(--dur-tap); }
+.cs-sheet:focus-visible { outline: none; }
+.cs-sheet:focus-visible .cs-sheet__plate { outline: 2px solid var(--color-text); outline-offset: 3px; }
+.cs-sheet__cap { display: flex; flex-direction: column; gap: 2rem; }
+.cs-sheet__cap strong { font-size: 13.5rem; letter-spacing: -0.01em; }
 
 /* Close */
 .cs-foot { margin-top: 48rem; padding-top: 28rem; border-top: 1px solid var(--color-divider); }

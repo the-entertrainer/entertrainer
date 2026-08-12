@@ -32,6 +32,32 @@ const props = withDefaults(defineProps<{
   ariaLabel?: string
   /** Vertical travel between adjacent cards, as a fraction of the deck's own height. */
   spacing?: number
+  /**
+   * Take the rest of the viewport instead of a fixed box.
+   *
+   * The deck used to be `min-height: clamp(380rem, 56dvh, 560rem)` around a
+   * card hard-coded to `min(560rem, 100%)` by `clamp(300rem, 50dvh, 480rem)`.
+   * Measured at 1440x900 that put the front card at 560x450 — 19.4% of the
+   * viewport, inside a stage that was itself only 41% of it. Four fifths of
+   * the screen was doing nothing, on pages whose entire content IS the deck.
+   *
+   * With `fill` the stage measures where it actually lands on the page and
+   * claims everything from there to the bottom edge, so the card grows with
+   * the screen rather than sitting in the middle of it.
+   */
+  fill?: boolean
+  /**
+   * Card aspect ratio, e.g. '7/6'. Every deck on the site was rendering the
+   * same fixed landscape box regardless of what was in it.
+   */
+  aspect?: string
+  /**
+   * Ratio to use on a narrow screen. A shape is only "right" relative to the
+   * axis that has room: 7/6 in a 350px-wide column can never be taller than
+   * 300px, so a landscape card on a phone throws away the one dimension
+   * phones actually have. Portrait here, landscape on the desktop.
+   */
+  aspectNarrow?: string
 }>(), { ariaLabel: 'Items', spacing: 0.44 })
 
 const emit = defineEmits<{ (e: 'update:active', index: number): void }>()
@@ -41,6 +67,12 @@ const cardEls: (HTMLElement | null)[] = []
 const setCardEl = (el: any, i: number) => { cardEls[i] = el as HTMLElement | null }
 
 const N = computed(() => props.items.length)
+
+const parseAr = (v?: string) => {
+  if (!v) return null
+  const [w, h] = v.split('/').map(Number)
+  return (w && h) ? w / h : null
+}
 const activeIndex = ref(0)
 
 let calm = false // prefers-reduced-motion: user-driven moves stay, coasting/springing does not
@@ -199,23 +231,70 @@ function watchTarget() {
   poll()
 }
 
+/**
+ * How much height is left below the deck's own top edge.
+ *
+ * Measured rather than assumed: the masthead above it is fluid, so any fixed
+ * number here would be wrong at some viewport. Reads the stage's position in
+ * the document, subtracts it and the nav bar from the viewport, and publishes
+ * the remainder as --sd-h for CSS to use.
+ */
+const wrap = ref<HTMLElement | null>(null)
+function measureFill() {
+  if (!props.fill) return
+  const el = wrap.value
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  const BAR = N.value > 1 ? 62 : 0          // nav row + its gap
+  const TAIL = 24                            // breathing room at the bottom edge
+  // A floor in viewport units, not pixels. Where the masthead is tall — every
+  // one of these pages on a phone — "the rest of the viewport" is 274px, which
+  // is not a card, it is a strip. Below the floor the deck extends past the
+  // fold and the page scrolls a little, which is what phones do anyway.
+  const floor = window.innerHeight * 0.58
+  let h = Math.max(floor, window.innerHeight - rect.top - BAR - TAIL)
+
+  // If the card has a shape, the STAGE takes that shape too, so the card is
+  // always 100% of its stage and there is never an empty box under it. Done
+  // here rather than in CSS because a container cannot query its own width.
+  const ar = parseAr(window.matchMedia('(max-width: 900px)').matches
+    ? (props.aspectNarrow || props.aspect)
+    : props.aspect)
+  if (ar) h = Math.min(h, rect.width / ar)
+
+  el.style.setProperty('--sd-h', `${Math.round(h)}px`)
+  el.style.setProperty('--sd-ar', ar ? String(+ar.toFixed(4)) : '')
+}
+
+function onResize() { measureFill(); place() }
+
 onMounted(() => {
   calm = matchMedia('(prefers-reduced-motion: reduce)').matches
+  measureFill()
   place()
   watchTarget()
   raf = requestAnimationFrame(tick)
-  addEventListener('resize', place)
+  addEventListener('resize', onResize)
+  // The masthead reveals and the artwork loads after mount, both of which move
+  // the deck's top edge. Re-measure when its own box changes rather than
+  // trusting a single reading taken on the first frame.
+  if (props.fill && wrap.value) {
+    ro = new ResizeObserver(measureFill)
+    ro.observe(document.documentElement)
+  }
 })
+let ro: ResizeObserver | null = null
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf)
-  removeEventListener('resize', place)
+  removeEventListener('resize', onResize)
+  ro?.disconnect()
 })
 
 defineExpose({ next, prev, goTo, activeIndex })
 </script>
 
 <template>
-  <div class="sd" :class="{ 'sd--calm': calm }">
+  <div ref="wrap" class="sd" :class="{ 'sd--calm': calm, 'sd--fill': fill }">
     <div
       ref="root" class="sd__stage" tabindex="0" role="group" :aria-label="ariaLabel"
       @pointerdown="onDown" @pointermove="onMove" @pointerup="onUp" @pointercancel="onUp"
@@ -230,11 +309,11 @@ defineExpose({ next, prev, goTo, activeIndex })
     </div>
 
     <div v-if="N > 1" class="sd__bar">
-      <button type="button" class="sd__nav" :disabled="activeIndex === 0" aria-label="Previous" @click="prev">
+      <button type="button" class="sd__nav lg lg--interactive" :disabled="activeIndex === 0" aria-label="Previous" @click="prev">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18 9 12l6-6" /></svg>
       </button>
       <p class="t-mono sd__count" aria-hidden="true">{{ String(activeIndex + 1).padStart(2, '0') }} / {{ String(N).padStart(2, '0') }}</p>
-      <button type="button" class="sd__nav" :disabled="activeIndex === N - 1" aria-label="Next" @click="next">
+      <button type="button" class="sd__nav lg lg--interactive" :disabled="activeIndex === N - 1" aria-label="Next" @click="next">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6" /></svg>
       </button>
     </div>
@@ -245,10 +324,6 @@ defineExpose({ next, prev, goTo, activeIndex })
 .sd { display: flex; flex-direction: column; gap: 18rem; }
 .sd__stage {
   position: relative;
-  /* Hugs the card rather than floating it in a tall box. At 66dvh the stage
-     was 660px around a 480px card, parking 90px of dead space above and below
-     the only thing anyone came to look at, and pushing the Prev/Next bar
-     under the fold on a 1000px screen. */
   min-height: clamp(380rem, 56dvh, 560rem);
   /* Clipped to its own box so a receding card's translated bounds never
      bleed onto the Prev/Next bar sitting right below it in normal flow —
@@ -277,6 +352,37 @@ defineExpose({ next, prev, goTo, activeIndex })
   transform-origin: center center;
 }
 
+/* ── Fill mode ────────────────────────────────────────────────────────────
+   The stage takes the measured remainder of the viewport, and the card takes
+   the stage. With an `aspect` set the card keeps its proportions and is capped
+   by whichever axis runs out first — so a portrait comic page comes out tall
+   and a wide preview comes out wide, both as large as the screen allows. */
+.sd--fill .sd__stage { min-height: 0; height: var(--sd-h, 60dvh); }
+
+/* No ratio given: take the stage, capped so a very wide screen does not
+   stretch one card across the whole page. */
+.sd--fill .sd__card { width: min(100%, 900rem); height: 100%; }
+
+/* With a ratio, the STAGE hugs the card rather than the card rattling inside
+   the stage: the stage is as tall as the room allows OR as tall as the card at
+   this width, whichever is less. Sizing only the card left 190px of empty
+   stage under it on a phone — which is the dead box this whole change exists
+   to remove. Now the card is always 100% of its stage, and the nav bar sits
+   directly beneath the card. */
+/* --sd-h already accounts for the ratio (see measureFill), so the card simply
+   takes the stage and comes out the right shape.
+
+   The stage is deliberately NOT narrowed to the card. Constraining its width
+   from --sd-h fed the measurement back into itself through the
+   ResizeObserver and collapsed the whole deck to zero. It also would not have
+   helped: the stage paints nothing, so a stage wider than its card is
+   invisible — and it makes the drag target wider, which is the opposite of a
+   problem. */
+.sd--fill[style*="--sd-ar"] .sd__card {
+  width: min(100%, calc(var(--sd-h, 60dvh) * var(--sd-ar)));
+  height: 100%;
+}
+
 .sd__bar {
   display: flex; align-items: center; justify-content: center; gap: 18rem;
 }
@@ -284,24 +390,10 @@ defineExpose({ next, prev, goTo, activeIndex })
   display: inline-flex; align-items: center; justify-content: center;
   width: 44rem; height: 44rem; border-radius: 999rem; flex-shrink: 0;
   border: 0; cursor: pointer; color: var(--color-text);
-  background: var(--color-glass-bg);
-  backdrop-filter: blur(16px) saturate(1.3) brightness(1.08);
-  -webkit-backdrop-filter: blur(16px) saturate(1.3) brightness(1.08);
-  box-shadow: inset 0 1px 0 var(--glow-rim), inset 0 0 0 1px var(--color-glass-border);
-  transition:
-    transform var(--dur-fast) var(--ease-spring),
-    background var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out),
-    opacity var(--dur-fast) var(--ease-out);
+  /* Glass comes from .lg. */
 }
 @media (hover: hover) {
-  .sd__nav:not(:disabled):hover {
-    background: var(--color-glass-bg-hover);
-    transform: translateY(var(--lift));
-    box-shadow:
-      inset 0 1px 0 var(--glow-rim),
-      inset 0 0 0 1px var(--color-glass-border-hover);
-  }
+  .sd__nav:not(:disabled):hover { transform: translateY(var(--lift)); }
 }
 /* Small circular control, so it takes the deeper of the two press values —
    a 44px target needs more travel than a card for the press to read as

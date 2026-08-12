@@ -77,11 +77,14 @@ onMounted(() => {
     <UiPageOptics />
 
     <div class="cg-inner" ref="inner">
-      <UiPageHead :eyebrow="eyebrow" :title="title" :deck="deck" :intro="intro" :meta="count" />
+      <div class="cg-lede">
+        <UiPageHead :eyebrow="eyebrow" :title="title" :deck="deck" :meta="count" />
+      </div>
 
-      <UiSpatialDeck v-if="items.length" :items="items" :aria-label="title">
+      <div class="cg-deck">
+      <UiSpatialDeck v-if="items.length" :items="items" :aria-label="title" fill aspect="7/6" aspect-narrow="5/6">
         <template #default="{ item, index, active }">
-          <NuxtLink :to="item.href" class="gd-card" :tabindex="active ? 0 : -1">
+          <NuxtLink :to="item.href" class="gd-card lg lg--raised lg--interactive" :tabindex="active ? 0 : -1">
             <span class="gd-card__art" v-if="item.img">
               <UiCard3D :src="item.img" :alt="`Preview of ${item.label}`" ratio="fill" :strength="10" radius="0" />
             </span>
@@ -98,6 +101,15 @@ onMounted(() => {
         </template>
       </UiSpatialDeck>
       <p v-else class="cg-empty">{{ empty || 'More is on the way. Check back soon.' }}</p>
+      </div>
+
+      <!-- Deliberately its own block rather than a slot inside the masthead.
+           On a phone the masthead ran to 460px of an 844px screen before the
+           card even started, on a page whose entire content is the card. The
+           supporting paragraph is the least urgent thing here, so on narrow
+           screens it moves below the deck and the content leads. On desktop it
+           returns to the left column under the title, where there is room. -->
+      <p v-if="intro" class="cg-intro">{{ intro }}</p>
 
       <slot />
     </div>
@@ -126,6 +138,42 @@ onMounted(() => {
 }
 @media (max-width: 640px) {
   .cg-inner { padding-top: var(--page-top); padding-bottom: calc(60rem + var(--safe-bottom)); }
+}
+
+/* ── Two columns, because the page had two spare halves ───────────────────
+   Stacked, this page spent its top 486px on a masthead whose text measure is
+   408px wide inside a 1180px frame — so 770px of width sat empty beside the
+   type while the deck, the only thing anyone came for, got whatever height was
+   left and rendered at 19% of the viewport.
+
+   Side by side, the masthead keeps its own measure and the deck gets both the
+   remaining width AND a top edge near the top of the page, which is what makes
+   `fill` worth anything. Below 900px it stacks, because two columns of 400px
+   is worse than one of 800. */
+/* Mobile order: masthead, card, supporting copy. */
+.cg-intro {
+  font-size: var(--text-body); line-height: 1.65;
+  max-width: var(--measure-body); opacity: 0.55;
+  margin: clamp(26rem, 4vh, 40rem) 0 0;
+}
+
+@media (min-width: 901px) {
+  .cg-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 0.76fr) minmax(0, 1.24fr);
+    grid-template-areas: "lede deck" "intro deck";
+    grid-template-rows: auto 1fr;
+    gap: clamp(28rem, 4vw, 68rem);
+    column-gap: clamp(28rem, 4vw, 68rem);
+    row-gap: 0;
+    align-items: start;
+  }
+  .cg-lede  { grid-area: lede; }
+  .cg-intro { grid-area: intro; margin-top: clamp(20rem, 2.5vw, 32rem); }
+  .cg-deck  { grid-area: deck; min-width: 0; }
+  /* The masthead no longer needs to clear the deck below it — the deck is
+     beside it now. */
+  .cg-lede :deep(.ph) { margin-bottom: 0; }
 }
 
 .cg-empty { font-size: var(--text-body); opacity: 0.55; }
@@ -174,27 +222,19 @@ onMounted(() => {
   border-radius: 20rem;
   overflow: hidden;
   text-decoration: none; color: var(--color-text);
-  background: var(--color-glass-bg);
-  backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
-  -webkit-backdrop-filter: blur(20px) saturate(1.3) brightness(1.08);
-  box-shadow: inset 0 1px 0 var(--glow-rim), inset 0 0 0 1px var(--color-glass-border);
-  transition:
-    box-shadow var(--dur-fast) var(--ease-out),
-    background var(--dur-fast) var(--ease-out);
+  /* Surface, rim, specular and cast all come from .lg now — this used to be a
+     hand-rolled copy of the same stack with its own numbers. */
 }
 /* The card is inside a 3D deck that owns transform, so hover cannot move it —
    it brightens its rim instead. The arrow is what carries the motion. */
 @media (hover: hover) {
-  .gd-card:hover {
-    background: var(--color-glass-bg-hover);
-    box-shadow:
-      inset 0 1px 0 var(--glow-rim),
-      inset 0 0 0 1px var(--color-glass-border-hover),
-      0 18rem 50rem -20rem var(--glow-soft);
-  }
   .gd-card:hover .gd-card__go { opacity: 1; }
   .gd-card:hover .gd-card__go svg { transform: translate(2rem, -2rem); }
 }
+/* The deck sets this card's transform every frame, so the shared press must
+   not also write one — .lg--interactive's scale would be overwritten mid-drag
+   and read as a stutter. The rim brightening is what carries the press here. */
+.gd-card.lg--interactive:active { transform: none; }
 .gd-card__art { display: block; flex: 1 1 auto; min-height: 0; overflow: hidden; }
 .gd-card__art :deep(.c3) { height: 100%; }
 .gd-card__art :deep(.c3__plate) { border-radius: 0; box-shadow: none; height: 100%; }

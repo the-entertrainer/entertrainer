@@ -4,10 +4,10 @@
 export interface LabItem { n: string; label: string; short: string; href: string; desc: string; img: string }
 
 export const LAB_NAV: LabItem[] = [
-  { n: '01', label: 'About',                short: 'About',  href: '/about',                desc: 'The short story of how I got here — hospitality to L&D.', img: '/about-me.png' },
-  { n: '02', label: 'Instructional Design', short: 'Design', href: '/instructional-design', desc: 'How I think about learning that actually lands.',          img: '/instructional-design.png' },
-  { n: '03', label: 'My Work',              short: 'Work',   href: '/my-work',              desc: 'Case studies, a comic, and the projects behind them.',    img: '/my-work.png' },
-  { n: '04', label: 'Web Apps',             short: 'Apps',   href: '/tools',                desc: 'Free tools I built for instructional designers.',         img: '/web-apps.png' }
+  { n: '01', label: 'About',                short: 'About',  href: '/about',                desc: 'Hotel management, a comic, and a change of direction.', img: '/about-me.png' },
+  { n: '02', label: 'Instructional Design', short: 'Design', href: '/instructional-design', desc: 'Watch a page redesign itself while you read it.',          img: '/instructional-design.png' },
+  { n: '03', label: 'My Work',              short: 'Work',   href: '/my-work',              desc: 'Two projects, taken apart to show the working.',    img: '/my-work.png' },
+  { n: '04', label: 'Web Apps',             short: 'Apps',   href: '/tools',                desc: 'Four tools I built because I needed them first.',         img: '/web-apps.png' }
 ]
 
 export interface LabConcept { n: string; slug: string; name: string; note: string }

@@ -17,8 +17,8 @@ const contentStore = useContentStore()
   <UiCardGrid
     eyebrow="Web Apps"
     title="Tools I built for L&D"
-    deck="Free web apps for instructional designers and training teams. No sign-up, and your work stays on your device."
-    intro="I kept hitting the same slow steps in my own work, so I built the tools I wished existed. Each one does a single job well, on a phone or a laptop. They are also the clearest proof of how I think about learning design."
+    deck="Free web apps for instructional designers. No sign-up, no upload — nothing you type ever leaves your browser."
+    intro="Each of these started as a slow afternoon in my own work. They do one job each, and between them they are the clearest evidence of how I think about learning design."
     meta="04 tools"
     :items="contentStore.toolsNav"
   />

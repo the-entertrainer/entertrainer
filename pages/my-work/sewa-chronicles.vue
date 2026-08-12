@@ -14,8 +14,8 @@ interface Beat { h: string; body: string }
 const beats: Beat[] = [
   { h: 'The problem', body: 'Service values usually live in a slide deck that nobody remembers. But hospitality is made of small human moments, and a resort team spread across the country needs those values to feel real, not like a poster in the back office.' },
   { h: 'The idea', body: 'Turn real guest-service moments into a comic. Each issue collects true stories of SEWA Champions, the housekeepers, front-office and food-and-beverage staff who went out of their way for a member, and draws them as short strips. People remember a story long after they forget a rule.' },
-  { h: 'How it is built to teach', body: 'Story over instruction: every value is shown happening, not described. Each strip names the real employee and resort, so good service is something to be seen doing. Every story is tagged with one named behaviour, so teams build a shared vocabulary — and a submission page keeps the next issue writing itself.' },
-  { h: 'My part', body: 'I made it end to end: gathering the stories, writing and storyboarding each strip, illustrating the characters, and laying out the issue. It is the clearest example of how I like to design learning, warm, specific, and built around a real human moment.' }
+  { h: 'Why it teaches', body: 'Story over instruction: every value is shown happening, not described. Each strip names the real employee and resort, so good service is something to be seen doing. Every story is tagged with one named behaviour, so teams build a shared vocabulary — and a submission page keeps the next issue writing itself.' },
+  { h: 'What I did', body: "I made it end to end: gathering the stories, writing and storyboarding each strip, illustrating the characters, and laying out the issue. It's the clearest example of how I like to design learning: warm, specific, and built around one real human moment." }
 ]
 
 interface Page { src: string; alt: string; cap: string; tag: string }
@@ -64,7 +64,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <div class="cs-hero__text" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
           <p class="cs-eyebrow">My Work · Club Mahindra · 2023</p>
           <h1 class="cs-title">The SEWA Chronicles</h1>
-          <p class="cs-deck">A service-culture comic magazine that teaches hospitality teams the values behind great guest experience, through true stories from the resort floor.</p>
+          <p class="cs-deck">Sixteen pages of true stories from the resort floor, drawn as comic strips and handed to the teams they came from.</p>
           <dl class="cs-meta">
             <div v-for="m in meta" :key="m.k" class="cs-meta__row">
               <dt>{{ m.k }}</dt>
@@ -124,7 +124,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
       <!-- Close -->
       <footer class="cs-foot" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
-        <p>Learning that people actually want to finish, that is the whole idea.</p>
+        <p>Learning people actually want to finish — that's the whole idea.</p>
         <div class="cs-foot__links">
           <NuxtLink to="/my-work" class="cs-link">← All work</NuxtLink>
           <NuxtLink to="/tools" class="cs-link cs-link--accent">See the tools I build →</NuxtLink>

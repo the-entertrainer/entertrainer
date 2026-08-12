@@ -30,7 +30,7 @@ const STEPS = [
   { letter: 'P', word: 'Pull', tail: 'the pin.', icon: 'pin' },
   { letter: 'A', word: 'Aim', tail: 'low, at the base of the fire.', icon: 'aim' },
   { letter: 'S', word: 'Squeeze', tail: 'the handle.', icon: 'squeeze' },
-  { letter: 'S', word: 'Sweep', tail: 'side to side until it is out.', icon: 'sweep' }
+  { letter: 'S', word: 'Sweep', tail: "side to side until it's out.", icon: 'sweep' }
 ]
 
 // One honest load figure. Each move removes a real kind of load; the numbers
@@ -48,7 +48,7 @@ const moveCount = computed(() => Number(cutJargon.value) + Number(chunk.value) +
 const moves = [
   { key: 'cutJargon', model: cutJargon, label: 'Cut the jargon', principle: 'Extraneous load. Words the learner must decode are effort spent on nothing.' },
   { key: 'chunk', model: chunk, label: 'Chunk and order it', principle: 'Intrinsic load. One step at a time, in the sequence the hands follow.' },
-  { key: 'show', model: show, label: 'Show it, do not just tell', principle: 'Dual coding. A picture and words carry different halves of the same idea.' }
+  { key: 'show', model: show, label: "Show it, don't just tell", principle: 'Dual coding. A picture and words carry different halves of the same idea.' }
 ] as const
 
 function iconPath(name: string) {
@@ -103,7 +103,7 @@ function iconPath(name: string) {
             <!-- Plain, single sentence (jargon cut, not yet chunked) -->
             <p v-else-if="!chunk" key="plain" class="id-plain">
               To put out a fire: pull the pin, aim low at the base of the fire, squeeze the handle,
-              and sweep side to side until it is out.
+              and sweep side to side until it's out.
             </p>
 
             <!-- Chunked into ordered steps, optionally shown with icons -->
@@ -147,12 +147,12 @@ function iconPath(name: string) {
       <footer class="id-foot">
         <p class="id-foot__line" :class="{ 'is-live': moveCount === 3 }">
           <template v-if="moveCount === 3">
-            That is the whole job. The expert knew all of this already. The design is what made it
-            learnable in about seven seconds.
+            That's the whole job. The expert knew every word of this already. Design is what got it
+            into someone else's head in seven seconds.
           </template>
           <template v-else>
-            Turn on all three moves to see the finished version. The content never changed. Only the
-            design around it did.
+            Turn on all three to see the finished version. Not one fact changed — only the shape
+            around them.
           </template>
         </p>
       </footer>

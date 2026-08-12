@@ -26,16 +26,16 @@ const CHAPTERS: Chapter[] = [
   { n: '02', eyebrow: 'The turn', head: 'A comic, and a new path',
     body: 'At Club Mahindra I moved into learning and development, and drew The SEWA Chronicles — a small comic of real guest-experience stories. That was the moment design stopped being a side interest and became the plan.',
     img: '/about/about-sewa-1.webp', alt: 'A page from The SEWA Chronicles comic', place: 'Club Mahindra · L&D' },
-  { n: '03', eyebrow: 'The craft', head: 'Learning the craft',
+  { n: '03', eyebrow: 'The craft', head: 'Frontline to manager',
     body: 'As an L&D specialist at Courtyard by Marriott, I helped run certification programs for teams — frontline associates through to managers. I learned how a good program actually holds together.',
     img: '/about/about-onboarding.webp', alt: 'Running a training session at Courtyard by Marriott', place: 'Courtyard by Marriott' },
   { n: '04', eyebrow: 'The tools', head: 'I design, and I build',
     body: 'I build training in Articulate Storyline — but I also ship the tools around it. StoryGen, EasyMCQ, Cadence, this very site: designed and built by me, because the idea deserved to exist.',
     img: '/about/about-ignite.webp', alt: 'A module in progress on the workbench', place: 'The workbench' },
   { n: '05', eyebrow: 'Now', head: 'Designing, building, daring',
-    body: 'I’m with the Training-as-a-Service team at Concentrix, turning operational detail into e-learning for teams around the world — and still daring to try new tech (a little motion, some WebGL, a bit of AI) whenever it makes the learning land better.',
+    body: 'I’m with the Training-as-a-Service team at Concentrix, turning operational detail into e-learning for teams around the world. I still reach for whatever is new — motion, WebGL, a little AI — on the days it makes the learning land better.',
     img: '/about/about-concentrix.webp', alt: 'Portrait, present day, at Concentrix', place: 'Concentrix · Training-as-a-Service',
-    footnote: 'Asatoma Sadgamaya — from ignorance, toward truth.' }
+  }
 ]
 </script>
 
@@ -49,7 +49,7 @@ const CHAPTERS: Chapter[] = [
       <div class="ab-hero__copy">
         <span class="ab-hero__eyebrow" v-motion :initial="rv.eyebrow.initial" :visible-once="rv.eyebrow.visibleOnce">About · a short story</span>
         <h1 class="ab-hero__name" v-motion :initial="rv.name.initial" :visible-once="rv.name.visibleOnce">Naveen <br>Jose</h1>
-        <p class="ab-hero__lead" v-motion :initial="rv.lead.initial" :visible-once="rv.lead.visibleOnce">A certified instructional designer who <em>designs</em> learning, <em>builds</em> the tools to deliver it, and keeps <em>daring</em> to try new tech.</p>
+        <p class="ab-hero__lead" v-motion :initial="rv.lead.initial" :visible-once="rv.lead.visibleOnce">A certified instructional designer who <em>designs</em> learning, <em>builds</em> the tools that deliver it, and <em>dares</em> to try the new thing.</p>
         <div class="ab-hero__meta" v-motion :initial="rv.meta.initial" :visible-once="rv.meta.visibleOnce">
           <span>Instructional Designer</span> <i aria-hidden="true">·</i> <span>Gurugram, IN</span>
         </div>
@@ -62,8 +62,8 @@ const CHAPTERS: Chapter[] = [
     <!-- Chapters: a deck, not a scroll -->
     <main class="ab-body">
       <div class="ab-body__head">
-        <span class="t-mono ab-body__eyebrow">The story, in five stops</span>
-        <h2 class="t-display ab-body__title">Drag through it</h2>
+        <span class="t-mono ab-body__eyebrow">Five stops · drag to move</span>
+        <h2 class="t-display ab-body__title">Hospitality to L&amp;D</h2>
       </div>
 
       <UiSpatialDeck :items="CHAPTERS" aria-label="Chapters of the story" fill aspect="7/6" aspect-narrow="5/6">

@@ -969,3 +969,112 @@ button:focus-visible,
   .t-fade-up { animation: t-reveal-plain 220ms linear both; animation-delay: 0ms; }
   @keyframes t-reveal-plain { from { opacity: 0 } to { opacity: 1 } }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EDITORIAL GRID
+   ──────────────────────────────────────────────────────────────────────────
+   The reading pages set a ~510px measure inside an 1180px frame, so two
+   thirds of the width was empty. Stretching the text to fill it would have
+   been the wrong fix — a 110-character line is harder to read, not easier.
+   Tufte's answer is the right one: keep the measure honest and give the empty
+   space a job. A narrow text column, and a margin column beside it carrying
+   notes, labels and small figures.
+
+   That is also the on-brand answer here. Annotation beside the thing being
+   annotated is an instructional device, not just a layout: it is how you
+   scaffold without interrupting. A portfolio arguing for good learning design
+   should be built out of them.
+
+   Named lines so callers write intent, not numbers:
+     grid-column: text   the reading column (default for every child)
+     grid-column: note   the margin
+     grid-column: full   both, for figures and panels
+
+   Below 900px there is no margin to write in, so notes fall inline beneath
+   the paragraph they belong to, indented and ruled so they still read as
+   asides rather than as body copy.
+   ══════════════════════════════════════════════════════════════════════════ */
+.ed {
+  display: grid;
+  grid-template-columns:
+    [text-start] minmax(0, var(--ed-text, 620rem))
+    [text-end] var(--ed-gap, clamp(24rem, 3.4vw, 56rem))
+    [note-start] minmax(0, 1fr) [note-end];
+  align-items: start;
+}
+.ed > * { grid-column: text; min-width: 0; }
+.ed > .ed-note { grid-column: note; }
+.ed > .ed-wide { grid-column: text-start / note-end; }
+
+/* The note itself: mono label, small text, hung on a hairline so the eye
+   reads it as apparatus rather than as a second voice. */
+.ed-note {
+  font-size: 12.5rem;
+  line-height: 1.55;
+  opacity: 0.55;
+  border-left: 1px solid var(--color-divider);
+  padding-left: 14rem;
+}
+.ed-note b {
+  display: block;
+  font-family: var(--mono-font);
+  font-weight: 500;
+  font-size: 10rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  margin-bottom: 5rem;
+}
+
+@media (max-width: 900px) {
+  .ed { display: block; }
+  .ed > .ed-note {
+    margin: 14rem 0 20rem;
+    padding-left: 14rem;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SCROLL-DRIVEN REVEAL
+   ──────────────────────────────────────────────────────────────────────────
+   Replaces the IntersectionObserver reveals for anything that only needs to
+   arrive once. Three reasons, in order of how much they matter:
+
+   1. It cannot leave content invisible. The observer pattern starts an element
+      at opacity 0 and depends on JavaScript to raise it — so a slow bundle, a
+      failed observer, or a viewport that never fires the callback leaves the
+      page blank with the text technically present. The @supports fallback
+      below means the failure mode here is "no animation", not "no content".
+   2. It runs on the compositor, so it stays smooth while the main thread is
+      busy — and on the home route the main thread is running a WebGL scene.
+   3. It is about forty lines of JavaScript that no longer ship.
+
+   `animation-range: entry 8% cover 34%` means: start once the element is a
+   little way into view, finish well before it reaches the middle. Reveals
+   that run to the centre of the screen feel like the page is dragging.
+   ══════════════════════════════════════════════════════════════════════════ */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .u-reveal {
+      animation: u-reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 8% cover 34%;
+    }
+  }
+}
+@keyframes u-reveal-in {
+  from { opacity: 0; transform: translateY(18rem); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TYPOGRAPHIC REPAIR
+   ──────────────────────────────────────────────────────────────────────────
+   Two lines that fix the single most common typographic fault on the site:
+   a display heading breaking so the last line holds one short word. `balance`
+   evens the lines of a heading; `pretty` only guards the last line, which is
+   what body copy needs — balancing a long paragraph is expensive and looks
+   over-set. Both degrade to normal wrapping where unsupported.
+   ══════════════════════════════════════════════════════════════════════════ */
+h1, h2, h3, .t-display, .ph__deck { text-wrap: balance; }
+p, li, dd, figcaption { text-wrap: pretty; }

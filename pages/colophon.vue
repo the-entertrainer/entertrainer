@@ -27,7 +27,6 @@ useSeoMeta({
   ogUrl: 'https://entertrainer.in/colophon'
 })
 
-const R = useReveal()
 const email = useContentStore().email
 
 interface Entry { k: string; v: string; note: string }
@@ -71,23 +70,21 @@ const choices = [
 
     <section class="co-sec" aria-labelledby="co-stack">
       <h2 id="co-stack" class="t-mono co-label">The stack</h2>
-      <dl class="co-list">
-        <div v-for="(e, i) in stack" :key="e.k" class="co-row"
-             v-motion :initial="R.rise(i * 55).initial" :visible-once="R.rise(i * 55).visibleOnce">
-          <dt class="co-row__k t-mono">{{ e.k }}</dt>
-          <dd class="co-row__v">
-            <b>{{ e.v }}</b>
-            <span class="co-row__note">{{ e.note }}</span>
-          </dd>
-        </div>
+      <dl class="co-list ed">
+        <template v-for="e in stack" :key="e.k">
+          <div class="co-row u-reveal">
+            <dt class="co-row__k t-mono">{{ e.k }}</dt>
+            <dd class="co-row__v"><b>{{ e.v }}</b></dd>
+          </div>
+          <p class="ed-note co-row__note u-reveal"><b>{{ e.k }}</b>{{ e.note }}</p>
+        </template>
       </dl>
     </section>
 
-    <section class="co-sec" aria-labelledby="co-choices">
-      <h2 id="co-choices" class="t-mono co-label">Four decisions I would defend</h2>
-      <div class="co-choices">
-        <article v-for="(c, i) in choices" :key="c.h" class="co-choice lg lg--raised"
-                 v-motion :initial="R.rise(i * 70).initial" :visible-once="R.rise(i * 70).visibleOnce">
+    <section class="co-sec ed" aria-labelledby="co-choices">
+      <h2 id="co-choices" class="t-mono co-label ed-wide">Four decisions I would defend</h2>
+      <div class="co-choices ed-wide">
+        <article v-for="c in choices" :key="c.h" class="co-choice lg lg--raised u-reveal">
           <h3 class="t-display co-choice__h">{{ c.h }}</h3>
           <p class="co-choice__b">{{ c.b }}</p>
         </article>
@@ -114,18 +111,28 @@ const choices = [
 .co-list { margin: 0; }
 .co-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 6rem;
-  padding: 18rem 0;
+  grid-template-columns: 150rem minmax(0, 1fr);
+  gap: 24rem; align-items: baseline;
+  align-self: stretch;
+  padding: 16rem 0;
   border-bottom: 1px solid var(--color-divider);
 }
-@media (min-width: 760px) {
-  .co-row { grid-template-columns: 180rem minmax(0, 1fr); gap: 28rem; align-items: baseline; }
-}
+@media (max-width: 560px) { .co-row { grid-template-columns: minmax(0, 1fr); gap: 4rem; } }
 .co-row__k { margin: 0; opacity: 0.45; }
-.co-row__v { margin: 0; display: flex; flex-direction: column; gap: 6rem; max-width: var(--measure-body); }
+.co-row__v { margin: 0; }
 .co-row__v b { font-size: 15.5rem; font-weight: 600; }
-.co-row__note { font-size: 14rem; line-height: 1.6; opacity: 0.6; }
+/* The margin note sits on the same row as the entry it explains. */
+/* The margin note shares the row's height and its rule, so the hairline reads
+   across the whole spread with one deliberate break at the gutter. */
+.co-row__note {
+  align-self: stretch;
+  margin: 0;
+  padding: 16rem 0 16rem 14rem;
+  border-bottom: 1px solid var(--color-divider);
+}
+@media (max-width: 900px) {
+  .co-row__note { padding: 10rem 0 0 14rem; margin: 0 0 18rem; border-bottom: 0; }
+}
 
 .co-choices {
   display: grid;

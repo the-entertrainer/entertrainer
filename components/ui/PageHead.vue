@@ -20,20 +20,20 @@ defineProps<{
 }>()
 
 /**
- * Display type arrives a line at a time.
+ * The title rises out of a clip, as one block.
  *
- * The title used to fade up as one block, which is the same gesture as every
- * other element on the page — so the biggest thing on screen entered with no
- * more presence than a caption. Splitting on words and letting the browser
- * decide the line breaks would need a measurement pass; splitting on words and
- * animating each WORD is the cheap version of the same idea and reads almost
- * identically at display scale, because a display line is only three or four
- * words wide.
+ * It was briefly split into per-word spans so each word could rise on its own
+ * stagger. That reads well for about a second and then costs the heading its
+ * shape for good: splitting text into elements takes it out of the browser's
+ * line-breaking algorithm, so `text-wrap: balance` becomes a no-op and every
+ * title keeps whatever ragged break the flex container happens to produce.
+ * Measured on this site that meant "How this site is / built" and a
+ * four-line instructional-design title with a two-word last line.
  *
- * Each word is clipped by its own block so it rises out of nothing, and the
- * variable weight axis rides in with it — Archivo goes 300 to 800 across the
- * entrance, so the heading gains weight as it settles instead of merely
- * appearing. See .t-rise in main.css.
+ * A permanent improvement to how every heading is set beats a one-second
+ * entrance, so the text stays one text node and rises as a single unit. The
+ * clip is what gives it presence — it emerges from nothing rather than fading
+ * in place. See .t-rise in main.css.
  */
 const R = useReveal()
 const rv = { eyebrow: R.rise(0), title: R.rise(90), deck: R.rise(190), intro: R.rise(260) }
@@ -54,10 +54,7 @@ useScrollProgress(head)
     </div>
 
     <h1 class="t-display ph__title">
-      <span
-        v-for="(word, i) in title.split(' ')" :key="i"
-        class="t-rise ph__word"
-      ><span :style="{ '--i': i }">{{ word }}</span></span>
+      <span class="t-rise ph__clip"><span>{{ title }}</span></span>
     </h1>
 
     <p v-if="deck" class="ph__deck" v-motion
@@ -88,8 +85,6 @@ useScrollProgress(head)
    only the extremes travel. */
 .ph__title {
   font-size: var(--text-h1);
-  display: flex; flex-wrap: wrap;
-  column-gap: 0.24em; row-gap: 0;
   margin: 0;
   max-width: 14ch;
   will-change: transform;
@@ -103,11 +98,10 @@ useScrollProgress(head)
   font-variation-settings: "wght" calc(860 - var(--p, 0.5) * 120);
 }
 @media (prefers-reduced-motion: reduce) { .ph__title { transform: none; } }
-/* Each word gets its own clipping block so it rises from nothing. The negative
-   margins claw back the leading that `overflow: hidden` would otherwise expose
-   as a gap between lines — a clipped block cannot show a descender, so the box
-   has to be a little taller than the line and then pulled back in. */
-.ph__word { padding-bottom: 0.12em; margin-bottom: -0.12em; }
+/* The clip needs to be a little taller than the text or `overflow: hidden`
+   shears the descenders off; the negative margin claws the extra space back
+   so the masthead's rhythm is unchanged. */
+.ph__clip { padding-bottom: 0.14em; margin-bottom: -0.14em; }
 
 .ph__deck {
   font-size: var(--text-lead); line-height: 1.4; letter-spacing: -0.01em;

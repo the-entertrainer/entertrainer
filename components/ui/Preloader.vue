@@ -58,6 +58,25 @@ let stageDone = !isHome      // interior routes have no stage to wait for
 
 const counter = computed(() => String(Math.round(progress.value * 100)).padStart(3, '0'))
 
+/**
+ * The progress bar is the tower.
+ *
+ * It was a single rule filling left to right, which is what every loading bar
+ * on the internet does. The site's own object is a stack of four glass slabs —
+ * one per section — so the wait is spent assembling that stack instead: four
+ * rungs, filling bottom to top, and the thing you are waiting for turns out to
+ * be the thing you were watching build.
+ *
+ * Each rung gets a quarter of the range, and reports its own fill so the last
+ * one is still moving at 97% rather than every rung snapping full at once.
+ */
+const RUNGS = 4
+const rungFill = computed(() =>
+  Array.from({ length: RUNGS }, (_, i) => {
+    const lo = i / RUNGS, hi = (i + 1) / RUNGS
+    return Math.max(0, Math.min(1, (progress.value - lo) / (hi - lo)))
+  }))
+
 function checkSettled() {
   if (fontsDone && stageDone) settled = true
 }
@@ -143,8 +162,12 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
       <div class="pl__center">
         <p class="pl__mark"><em>enter</em><b>trainer</b></p>
 
-        <div class="pl__rule" aria-hidden="true">
-          <i :style="{ transform: `scaleX(${progress})` }" />
+        <div class="pl__ladder" aria-hidden="true">
+          <span
+            v-for="(f, i) in rungFill" :key="i"
+            class="pl__rung"
+            :style="{ '--f': f, '--i': RUNGS - 1 - i }"
+          ><i :style="{ transform: `scaleX(${f})` }" /></span>
         </div>
 
         <p class="pl__meta t-mono" aria-hidden="true">
@@ -182,6 +205,16 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   transform: translateY(-14rem) scale(1.04);
   opacity: 0;
 }
+/* On the way out the rungs fan apart before the lockup goes — the stack
+   coming undone into the stage that replaces it. */
+.pl--leaving .pl__rung {
+  transform: translateX(calc(var(--i) * 10rem - 15rem)) scaleX(1.06);
+  opacity: 0;
+  transition:
+    transform 520ms var(--ease-in),
+    opacity 300ms ease-in;
+  transition-delay: calc(var(--i) * 40ms);
+}
 
 .pl__mark {
   margin: 0;
@@ -195,22 +228,33 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
 .pl__mark em { font-style: normal; font-weight: 400; opacity: 0.55; }
 .pl__mark b { font-weight: 700; }
 
-.pl__rule {
-  width: min(240rem, 46vw);
-  height: 1px;
-  background: color-mix(in srgb, var(--color-text) 16%, transparent);
-  overflow: hidden;
-  animation: pl-fade-in 520ms var(--ease-out) 160ms both;
+/* Four rungs, bottom to top, in the tower's own proportions — the topmost is
+   the widest, the way the focused card is the largest on the home stage. */
+.pl__ladder {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 7rem;
+  animation: pl-fade-in-1 520ms var(--ease-out) 160ms both;
 }
-.pl__rule i {
+.pl__rung {
   display: block;
-  width: 100%;
-  height: 100%;
+  /* --i counts from the bottom rung, so each one up is a touch wider. */
+  width: calc(min(150rem, 34vw) + var(--i) * min(30rem, 4vw));
+  height: 3rem;
+  border-radius: 2rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-text) 13%, transparent);
+}
+.pl__rung i {
+  display: block;
+  width: 100%; height: 100%;
   background: var(--color-text);
   transform-origin: left center;
   transform: scaleX(0);
   /* No CSS transition: the rAF loop already eases the value, and a transition
      on top of an eased value lags behind the counter it is meant to match. */
+  box-shadow: 0 0 12rem -2rem var(--glow-soft);
 }
 
 .pl__meta {
@@ -234,7 +278,6 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   from { opacity: 0; }
   to   { opacity: 0.45; }
 }
-.pl__rule { animation-name: pl-fade-in-1; }
 @keyframes pl-fade-in-1 { from { opacity: 0; } to { opacity: 1; } }
 
 /* The curtain itself: lifts away after the lockup has already gone. It stops
@@ -250,8 +293,9 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
 @media (prefers-reduced-motion: reduce) {
   .pl__center,
   .pl__mark,
-  .pl__rule,
+  .pl__ladder,
   .pl__meta { animation: none !important; transition: opacity 160ms linear; }
+  .pl--leaving .pl__rung { transform: none; transition: opacity 160ms linear; }
   .pl--leaving .pl__center { transform: none; }
   .pl-leave-active { transition: opacity 200ms linear; }
   .pl-leave-to { transform: none; opacity: 0; }

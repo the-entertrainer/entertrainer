@@ -18,7 +18,6 @@
  */
 import { useContentStore } from '~/stores/content'
 
-definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'Colophon — how this site is built · Entertrainer',
   description: 'How entertrainer.in is put together: Nuxt, Three.js, a hand-built lens, and the reasoning behind each decision. Written by Naveen Jose.',

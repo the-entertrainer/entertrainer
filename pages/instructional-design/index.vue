@@ -7,7 +7,7 @@
 // classes, but this project ships no Tailwind, so none of them resolved. This
 // version uses the site's real token system (theme-aware --color-* variables,
 // the 1rem = 1px scale, DM Sans) and the shared .glass-* primitives.
-definePageMeta({ layout: false, pageTransition: { name: 'fade', mode: 'out-in' } })
+definePageMeta({ layout: false })
 useSeoMeta({
   title: 'Instructional Design · Entertrainer',
   description: 'A page that designs itself while you read it. See instructional design principles applied to the page you are on.',

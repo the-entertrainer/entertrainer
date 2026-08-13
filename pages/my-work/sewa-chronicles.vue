@@ -1,5 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'The SEWA Chronicles — service-culture comics for Club Mahindra · Naveen Jose',
   description: 'A case study of The SEWA Chronicles: a comic magazine by Naveen Jose that teaches Club Mahindra hospitality teams the SEWA service values through true guest-service stories.',

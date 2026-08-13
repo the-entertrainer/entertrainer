@@ -28,6 +28,7 @@ onMounted(() => {
 // ── Links ─────────────────────────────────────────────────────
 const links = [
   { label: 'home',     to: '/',                                          external: false },
+  { label: 'colophon', to: '/colophon',                                  external: false },
   { label: 'linkedin', to: 'https://www.linkedin.com/in/entertrainer/', external: true  },
   { label: 'contact',  to: `mailto:${contentStore.email}`,              external: true  }
 ]
@@ -52,6 +53,10 @@ watch(isOpened, (open) => {
     })
   }
 })
+
+// The back arrow points left, so it nudges left and springs back — the same
+// grammar the deck's Prev/Next arrows use. See composables/useBoop.ts.
+const boopBack = useBoop({ x: -3, timing: 180 })
 
 function setItemEl(el: any, i: number) {
   if (!el) return
@@ -128,8 +133,9 @@ function handleHomeClick() {
 
     <!-- Liquid-glass back button (top-left) -->
     <Transition name="back-pop">
-      <button v-if="showBack" class="e-back-fab lg-surface" @click="handleBack" aria-label="back">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <button v-if="showBack" class="e-back-fab lg-surface" @click="handleBack" aria-label="back"
+              @pointerenter="boopBack.boop" @focus="boopBack.boop">
+        <svg :style="boopBack.style.value" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <line x1="19" y1="12" x2="6" y2="12" />
           <polyline points="12 19 5 12 12 5" />
         </svg>

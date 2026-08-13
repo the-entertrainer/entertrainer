@@ -49,7 +49,7 @@ const CHAPTERS: Chapter[] = [
       <div class="ab-hero__copy">
         <span class="ab-hero__eyebrow" v-motion :initial="rv.eyebrow.initial" :visible-once="rv.eyebrow.visibleOnce">About · a short story</span>
         <h1 class="ab-hero__name" v-motion :initial="rv.name.initial" :visible-once="rv.name.visibleOnce">Naveen <br>Jose</h1>
-        <p class="ab-hero__lead" v-motion :initial="rv.lead.initial" :visible-once="rv.lead.visibleOnce">A certified instructional designer who <em>designs</em> learning, <em>builds</em> the tools that deliver it, and <em>dares</em> to try the new thing.</p>
+        <p class="ab-hero__lead" v-motion :initial="rv.lead.initial" :visible-once="rv.lead.visibleOnce">I <em>design</em> learning, <em>build</em> the tools that deliver it, and keep <em>daring</em> to try the thing I have not tried yet. Certified, but that is the least interesting part.</p>
         <div class="ab-hero__meta" v-motion :initial="rv.meta.initial" :visible-once="rv.meta.visibleOnce">
           <span>Instructional Designer</span> <i aria-hidden="true">·</i> <span>Gurugram, IN</span>
         </div>

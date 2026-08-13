@@ -290,6 +290,11 @@ onBeforeUnmount(() => {
   ro?.disconnect()
 })
 
+// The arrows nudge the way they would take you, and spring back on their own.
+// See composables/useBoop.ts.
+const boopPrev = useBoop({ x: -3, timing: 180 })
+const boopNext = useBoop({ x: 3, timing: 180 })
+
 defineExpose({ next, prev, goTo, activeIndex })
 </script>
 
@@ -309,12 +314,14 @@ defineExpose({ next, prev, goTo, activeIndex })
     </div>
 
     <div v-if="N > 1" class="sd__bar">
-      <button type="button" class="sd__nav lg lg--interactive" :disabled="activeIndex === 0" aria-label="Previous" @click="prev">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18 9 12l6-6" /></svg>
+      <button type="button" class="sd__nav lg lg--interactive" :disabled="activeIndex === 0" aria-label="Previous"
+              @click="prev" @pointerenter="boopPrev.boop" @focus="boopPrev.boop">
+        <svg :style="boopPrev.style.value" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18 9 12l6-6" /></svg>
       </button>
       <p class="t-mono sd__count" aria-hidden="true">{{ String(activeIndex + 1).padStart(2, '0') }} / {{ String(N).padStart(2, '0') }}</p>
-      <button type="button" class="sd__nav lg lg--interactive" :disabled="activeIndex === N - 1" aria-label="Next" @click="next">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+      <button type="button" class="sd__nav lg lg--interactive" :disabled="activeIndex === N - 1" aria-label="Next"
+              @click="next" @pointerenter="boopNext.boop" @focus="boopNext.boop">
+        <svg :style="boopNext.style.value" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6" /></svg>
       </button>
     </div>
   </div>

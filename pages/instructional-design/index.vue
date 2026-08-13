@@ -45,6 +45,32 @@ const load = computed(() => {
 const loadLabel = computed(() => (load.value > 78 ? 'Heavy' : load.value > 45 ? 'Moderate' : 'Light'))
 const moveCount = computed(() => Number(cutJargon.value) + Number(chunk.value) + Number(show.value))
 
+/**
+ * Predict, then reveal.
+ *
+ * The panel demonstrated the three moves but asked nothing of the reader, so
+ * you could watch the whole thing without ever forming a belief about it.
+ * Distill's survey of interactive articles is specific about this: eliciting a
+ * prediction before showing the answer improves recall, and using the
+ * visualisation itself as the prompt is an effective way to get readers to
+ * self-explain. The New York Times "You Draw It" pieces are the canonical
+ * version of the idea.
+ *
+ * It is also the honest move for THIS page. A page arguing that good design
+ * makes people do the thinking cannot itself be a thing you passively watch.
+ *
+ * Deliberately not a gate: skipping is one click, the panel is fully usable
+ * without answering, and nothing is scored. A prompt that blocks the content
+ * is a quiz, and a quiz is a different, worse page.
+ */
+const guess = ref(null)
+const guessSkipped = ref(false)
+const answered = computed(() => guess.value !== null || guessSkipped.value)
+/** The move that removes the most load - see the numbers in `load` above. */
+const HEAVIEST = 'cutJargon'
+function makeGuess(key) { guess.value = key }
+function skipGuess() { guessSkipped.value = true }
+
 const moves = [
   { key: 'cutJargon', model: cutJargon, label: 'Cut the jargon', principle: 'Extraneous load. Words the learner must decode are effort spent on nothing.' },
   { key: 'chunk', model: chunk, label: 'Chunk and order it', principle: 'Intrinsic load. One step at a time, in the sequence the hands follow.' },
@@ -72,10 +98,38 @@ function iconPath(name: string) {
       <UiPageHead
         eyebrow="Instructional design"
         title="What gets designed when no one is watching"
-        deck="A subject expert can already do the thing. Instructional design is the work of turning what they know into something another person can learn. Most of that work is subtraction. Try it on the panel below."
+        deck="A subject expert can already do the thing. Instructional design is the work of turning what they know into something another person can learn. Most of that work is subtraction. Answer one question, then take a badly written instruction apart yourself."
       />
 
+      <!-- Ask before showing. See the note on `guess` in the script above. -->
+      <section v-if="!answered" class="id-ask lg lg--raised" aria-labelledby="id-ask-q">
+        <p class="t-mono id-ask__eyebrow">Before you start</p>
+        <p id="id-ask-q" class="id-ask__q">
+          Three moves are about to be applied to a badly written instruction.
+          Which one do you think removes the most effort for the learner?
+        </p>
+        <div class="id-ask__opts">
+          <button v-for="m in moves" :key="m.key" type="button" class="id-ask__opt lg lg--interactive" @click="makeGuess(m.key)">
+            {{ m.label }}
+          </button>
+        </div>
+        <button type="button" class="id-ask__skip" @click="skipGuess">I would rather just try it</button>
+      </section>
+
       <section class="id-lab glass-panel" aria-label="Interactive demonstration">
+        <p v-if="guess" class="id-verdict" role="status">
+          <template v-if="guess === HEAVIEST">
+            You picked <b>{{ moves.find(m => m.key === guess)?.label }}</b> &mdash; that is the one.
+            Cutting what the learner has to decode buys back more than chunking and showing put together.
+          </template>
+          <template v-else>
+            You picked <b>{{ moves.find(m => m.key === guess)?.label }}</b>. It helps, but
+            <b>cutting the jargon</b> buys back more than the other two combined. Nothing you write is
+            free, and the words a learner has to decode cost the most.
+          </template>
+          Toggle them below and watch the meter.
+        </p>
+
         <div class="id-lab__top">
           <div>
             <p class="id-lab__kicker">The same instruction, redesigned live</p>
@@ -130,9 +184,10 @@ function iconPath(name: string) {
             role="switch"
             :aria-checked="m.model.value"
             class="id-move"
-            :class="{ 'is-on': m.model.value }"
+            :class="{ 'is-on': m.model.value, 'is-guess': guess === m.key }"
             @click="m.model.value = !m.model.value"
           >
+            <span v-if="guess === m.key" class="t-mono id-move__tag" aria-hidden="true">your pick</span>
             <span class="id-move__check" aria-hidden="true">
               <svg v-if="m.model.value" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
             </span>
@@ -180,6 +235,55 @@ function iconPath(name: string) {
 }
 
 
+
+/* ── The prediction prompt ────────────────────────────────────────────────
+   Sits above the panel and is replaced by it. Sized so the three options read
+   as a real choice rather than a form: full-width targets on a phone, a row on
+   a desktop, all the same height so no option looks like the default. */
+.id-ask {
+  border-radius: 20rem;
+  padding: clamp(22rem, 3vw, 32rem);
+  margin-bottom: clamp(20rem, 3vw, 30rem);
+}
+.id-ask__eyebrow { margin: 0 0 10rem; opacity: 0.5; }
+.id-ask__q {
+  margin: 0 0 20rem; max-width: 46ch;
+  font-size: var(--text-lead); line-height: 1.45; letter-spacing: -0.01em;
+}
+.id-ask__opts { display: flex; flex-wrap: wrap; gap: 10rem; }
+.id-ask__opt {
+  flex: 1 1 220rem;
+  min-height: 52rem; padding: 14rem 18rem;
+  border: 0; border-radius: 12rem; cursor: pointer;
+  color: var(--color-text); text-align: left;
+  font-family: var(--display-font); font-size: 14.5rem; font-weight: 600;
+}
+.id-ask__opt:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; }
+.id-ask__skip {
+  margin-top: 16rem; padding: 6rem 0; min-height: 32rem;
+  background: none; border: 0; cursor: pointer;
+  color: var(--color-text); opacity: 0.5;
+  font-size: 13rem; text-decoration: underline; text-underline-offset: 3px;
+}
+.id-ask__skip:hover { opacity: 0.8; }
+.id-ask__skip:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; opacity: 1; }
+
+/* The verdict. Not a score — a sentence that tells you what your own answer
+   implies, which is the part that does the teaching. */
+.id-verdict {
+  margin: 0 0 20rem; padding-bottom: 18rem;
+  border-bottom: 1px solid var(--color-divider);
+  font-size: 14.5rem; line-height: 1.6; opacity: 0.85; max-width: 62ch;
+}
+.id-verdict b { font-weight: 700; opacity: 1; }
+
+/* The toggle the reader guessed carries a quiet marker, so their own answer
+   stays visible while they play with the controls. */
+.id-move.is-guess { box-shadow: inset 0 0 0 1px var(--color-glass-border-hover); }
+.id-move__tag {
+  position: absolute; top: 8rem; right: 10rem;
+  font-size: 9.5rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.45;
+}
 
 .id-lab { padding: 26rem 26rem 24rem; }
 .id-lab__top {
@@ -244,6 +348,7 @@ function iconPath(name: string) {
 
 .id-moves { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12rem; margin-top: 22rem; }
 .id-move {
+  position: relative;   /* containing block for the "your pick" tag */
   display: flex;
   gap: 12rem;
   text-align: left;
@@ -252,7 +357,7 @@ function iconPath(name: string) {
   border: 1px solid var(--color-glass-border);
   background: color-mix(in srgb, var(--color-bg) 40%, transparent);
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) { .id-move:hover { border-color: var(--color-glass-border-hover); } }
 .id-move.is-on { border-color: var(--color-text); background: var(--color-glass-bg-hover); box-shadow: 0 0 26rem -12rem var(--glow-soft); }

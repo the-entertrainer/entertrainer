@@ -6,13 +6,18 @@ import type { NavItem } from '~/types/nav'
  * Used by /tools and /my-work so those routes are real, crawlable
  * destinations rather than redirects back into the spiral.
  *
- * This used to render a numbered index — full-width rows on hairlines. Rows
- * read well, but they are still a list you scroll, and the brief was to
- * carry the home spiral's actual *interaction* everywhere, not just its
- * palette. So the entries now live in a UiSpatialDeck: the same drag,
- * momentum and spring-detent as the tower, with the front card the one
- * that's readable and everything else a receding preview you swipe through
- * to reach. The name is kept because several routes still import it.
+ * These entries spent a release inside a drag deck — one card readable, the
+ * rest receding previews you had to swipe to reach. It carried the home
+ * stage's interaction, which was the brief, but it was the wrong container
+ * for the content: this page holds two projects and four tools, and a deck
+ * showed you one of them. Carousel research is blunt about the cost — roughly
+ * 1% of visitors interact with the first slide and under 0.5% with any slide
+ * after it — so on a page whose entire job is "here is everything I have
+ * made", hiding three quarters of it behind a gesture is indefensible.
+ *
+ * A grid shows all of them at once, which is what the page is for. The drag
+ * deck remains in the codebase for the home stage, where it belongs: there
+ * the stack IS the composition, not a lid on a list.
  */
 const props = defineProps<{
   eyebrow?: string
@@ -82,11 +87,11 @@ onMounted(() => {
       </div>
 
       <div class="cg-deck">
-      <UiSpatialDeck v-if="items.length" :items="items" :aria-label="title" fill aspect="7/6" aspect-narrow="5/6">
-        <template #default="{ item, index, active }">
-          <NuxtLink :to="item.href" class="gd-card lg lg--raised lg--interactive" :tabindex="active ? 0 : -1">
+      <ul v-if="items.length" class="cg-grid">
+        <li v-for="(item, index) in items" :key="item.href" class="u-reveal">
+          <NuxtLink :to="item.href" class="gd-card lg lg--raised lg--interactive">
             <span class="gd-card__art" v-if="item.img">
-              <UiCard3D :src="item.img" :alt="`Preview of ${item.label}`" ratio="fill" :strength="10" radius="0" />
+              <UiCard3D :src="item.img" :alt="`Preview of ${item.label}`" ratio="16/9" :strength="10" radius="0" />
             </span>
             <span class="gd-card__body">
               <span class="t-mono gd-card__n">{{ pad(index) }}</span>
@@ -98,8 +103,8 @@ onMounted(() => {
               </span>
             </span>
           </NuxtLink>
-        </template>
-      </UiSpatialDeck>
+        </li>
+      </ul>
       <p v-else class="cg-empty">{{ empty || 'More is on the way. Check back soon.' }}</p>
       </div>
 
@@ -176,6 +181,17 @@ onMounted(() => {
   .cg-lede :deep(.ph) { margin-bottom: 0; }
 }
 
+/* Two up wherever the column can hold it, one up when it cannot. With two
+   projects that is a single row; with four tools it is two. Either way you
+   see all of them without touching anything. */
+.cg-grid {
+  list-style: none; margin: 0; padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260rem, 1fr));
+  gap: clamp(14rem, 1.6vw, 22rem);
+}
+.cg-grid > li { min-width: 0; display: flex; }
+
 .cg-empty { font-size: var(--text-body); opacity: 0.55; }
 
 /* ── Scroll cue ───────────────────────────────────────────────────────────
@@ -231,14 +247,13 @@ onMounted(() => {
   .gd-card:hover .gd-card__go { opacity: 1; }
   .gd-card:hover .gd-card__go svg { transform: translate(2rem, -2rem); }
 }
-/* The deck sets this card's transform every frame, so the shared press must
-   not also write one — .lg--interactive's scale would be overwritten mid-drag
-   and read as a stutter. The rim brightening is what carries the press here. */
-.gd-card.lg--interactive:active { transform: none; }
-.gd-card__art { display: block; flex: 1 1 auto; min-height: 0; overflow: hidden; }
-.gd-card__art :deep(.c3) { height: 100%; }
-.gd-card__art :deep(.c3__plate) { border-radius: 0; box-shadow: none; height: 100%; }
-.gd-card__art :deep(.c3__img) { height: 100%; }
+/* Out of the deck, nothing else is writing this card's transform, so it can
+   lift on hover like every other raised surface on the site. */
+@media (hover: hover) {
+  .gd-card.lg--interactive:hover { transform: translateY(var(--lift)); }
+}
+.gd-card__art { display: block; overflow: hidden; }
+.gd-card__art :deep(.c3__plate) { border-radius: 0; box-shadow: none; }
 
 /* The body needs a ground of its own, not the card's 5.5%-white glass.
    The deck overlaps cards by design — measured on /my-work, the next card

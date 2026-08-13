@@ -80,17 +80,23 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       <!-- Narrative: four beats, dragged through rather than read down the page -->
       <section class="cs-body">
         <p class="glass-label cs-body__label">How it came together</p>
-        <UiSpatialDeck :items="beats" :spacing="0.85" aria-label="How the comic came together" fill>
-          <template #default="{ item, index }">
-            <article class="cs-beat lg lg--raised">
-              <p class="t-mono cs-beat__n">{{ String(index + 1).padStart(2, '0') }} <i>/</i> {{ String(beats.length).padStart(2, '0') }}</p>
-              <div class="cs-beat__text">
-                <h2>{{ item.h }}</h2>
-                <p>{{ item.body }}</p>
-              </div>
-            </article>
+        <!-- Four paragraphs of reasoning. They were in a drag deck, which meant
+             a reader saw one quarter of the argument and had to swipe for the
+             rest — on the section of a case study that explains the thinking,
+             which is the part anyone hiring a designer actually reads. They
+             are sections now, on the editorial grid, with the numbers hung in
+             the margin where the apparatus belongs. -->
+        <div class="cs-beats ed">
+          <template v-for="(b, i) in beats" :key="b.h">
+            <p class="ed-note cs-beat__n u-reveal">
+              <b>{{ String(i + 1).padStart(2, '0') }} / {{ String(beats.length).padStart(2, '0') }}</b>
+            </p>
+            <section class="cs-beat u-reveal">
+              <h2 class="t-display cs-beat__h">{{ b.h }}</h2>
+              <p class="cs-beat__body">{{ b.body }}</p>
+            </section>
           </template>
-        </UiSpatialDeck>
+        </div>
       </section>
 
       <!-- Gallery -->
@@ -187,37 +193,18 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 /* Body: a deck of four beats, dragged through rather than read as columns */
 .cs-body { padding: 34rem 0; border-top: 1px solid var(--color-divider); border-bottom: 1px solid var(--color-divider); }
 .cs-body__label { margin-bottom: 16rem; }
-.cs-beat {
-  display: flex; flex-direction: column; justify-content: space-between; gap: 14rem;
-  width: 100%; height: 100%; padding: 30rem 32rem 34rem; box-sizing: border-box;
-  border-radius: 20rem; overflow: hidden;
-}
-.cs-beat__n { margin: 0; opacity: 0.38; }
-.cs-beat__n i { font-style: normal; opacity: 0.5; margin: 0 2rem; }
-/* The text sits on the card's baseline, the way a caption sits on a plate —
-   so the empty space above it reads as air the composition chose, not as a
-   card that failed to fill. */
-.cs-beat__text { display: flex; flex-direction: column; gap: 16rem; }
-/* The deck sizes every card for artwork, and these carry only type — so the
-   type has to be the artwork. Set at display scale the heading fills the plate
-   and the card reads as a poster with a number in the corner, instead of a
-   caption adrift in 200px of black. */
-.cs-beat h2 {
-  font-family: var(--serif); font-weight: 800;
-  font-size: clamp(28rem, 3.4vw, 46rem);
-  letter-spacing: var(--tracking-display); line-height: 0.98;
-  opacity: 1; flex-shrink: 0; margin: 0;
-  max-width: 14ch;
-}
-.cs-beat p {
-  font-size: 15rem; line-height: 1.6; opacity: 0.72; margin: 0;
-  max-width: 46ch;
-  display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden;
+/* Four case-study sections, read top to bottom. The index sits in the margin
+   lane so it reads as apparatus, not as a heading. */
+.cs-beats { row-gap: clamp(30rem, 4vh, 52rem); }
+.cs-beat { margin: 0; }
+.cs-beat__h { font-size: var(--text-h3); line-height: 1.05; margin: 0 0 12rem; }
+.cs-beat__body { margin: 0; font-size: var(--text-body); line-height: 1.68; opacity: 0.78; }
+.cs-beat__n { border-left: 0; padding-left: 0; }
+@media (max-width: 900px) {
+  .cs-beats > .cs-beat { margin-bottom: 30rem; }
+  .cs-beat__n { margin: 0 0 6rem; padding-left: 0; }
 }
 
-/* Gallery */
-.cs-gallery { margin-top: 44rem; }
-.cs-gallery__label { margin-bottom: 16rem; }
 /* ── The pages ────────────────────────────────────────────────────────────
    Portrait plates on a fluid grid: three up on a desktop, two on a phone, and
    every one of them at 1400/1980 so a page reads as a page. auto-fill with a

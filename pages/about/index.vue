@@ -1,9 +1,18 @@
 <script setup lang="ts">
-// About — the identity hero stays a normal scrolling page (there is nothing
-// to spatially navigate about a name and a portrait), but the chapters that
-// used to run on as six full-height scroll-jacked sections are now a
-// UiSpatialDeck: the same drag-and-settle the rest of the site's content
-// runs on, not a stepper dot-nav driving an IntersectionObserver.
+// About.
+//
+// The five chapters spent a release inside a drag deck. It was the wrong
+// container twice over. A career is a sequence you read, not a set you choose
+// between — nobody wants to *operate* somebody's life story — and a deck shows
+// one chapter at a time, so four fifths of the page was hidden behind a
+// gesture and marked aria-hidden for anyone using a screen reader. Carousel
+// research puts interaction with the first slide at around 1% and with any
+// later slide under 0.5%, which for an about page means almost nobody ever
+// reached the part where he becomes an instructional designer.
+//
+// It is a vertical narrative now: every chapter present, in order, image
+// alongside text, alternating sides so the eye has a reason to keep going.
+// You scroll. That is what people do on an about page.
 useSeoMeta({
   title: 'About — Naveen Jose · Entertrainer',
   description: 'Naveen Jose — a certified instructional designer who designs learning, builds the tools to deliver it, and keeps daring to try new tech.',
@@ -62,25 +71,23 @@ const CHAPTERS: Chapter[] = [
     <!-- Chapters: a deck, not a scroll -->
     <main class="ab-body">
       <div class="ab-body__head">
-        <span class="t-mono ab-body__eyebrow">Five stops · drag to move</span>
+        <span class="t-mono ab-body__eyebrow">The short version, in five stops</span>
         <h2 class="t-display ab-body__title">Hospitality to L&amp;D</h2>
       </div>
 
-      <UiSpatialDeck :items="CHAPTERS" aria-label="Chapters of the story" fill aspect="7/6" aspect-narrow="5/6">
-        <template #default="{ item }">
-          <article class="ab-card lg lg--raised">
-            <div class="ab-card__figure">
-              <UiCard3D :src="item.img" :alt="item.alt" ratio="fill" :strength="8" radius="0" />
-            </div>
-            <div class="ab-card__body">
-              <span class="t-mono ab-card__eyebrow"><em>{{ item.n }}</em> — {{ item.eyebrow }}</span>
-              <h3 class="t-display ab-card__head">{{ item.head }}</h3>
-              <p class="ab-card__text">{{ item.body }}</p>
-              <p class="ab-card__place">{{ item.place }}</p>
-            </div>
-          </article>
-        </template>
-      </UiSpatialDeck>
+      <ol class="ab-story">
+        <li v-for="(c, i) in CHAPTERS" :key="c.n" class="ab-ch u-reveal" :class="{ 'ab-ch--flip': i % 2 === 1 }">
+          <figure class="ab-ch__fig">
+            <UiCard3D :src="c.img" :alt="c.alt" ratio="4/3" :strength="8" radius="14rem" />
+          </figure>
+          <div class="ab-ch__text">
+            <p class="t-mono ab-ch__eyebrow"><em>{{ c.n }}</em> — {{ c.eyebrow }}</p>
+            <h3 class="t-display ab-ch__head">{{ c.head }}</h3>
+            <p class="ab-ch__body">{{ c.body }}</p>
+            <p class="t-mono ab-ch__place">{{ c.place }}</p>
+          </div>
+        </li>
+      </ol>
 
       <footer class="ab-close">
         <p class="ab-close__quote">Asatoma Sadgamaya — from ignorance, toward truth.</p>
@@ -119,39 +126,41 @@ const CHAPTERS: Chapter[] = [
 .ab-hero__portrait { position: relative; z-index: 1; margin: 0; width: 100%; max-width: 440rem; justify-self: center; aspect-ratio: 4 / 5; }
 
 .ab-body { position: relative; z-index: 1; max-width: var(--maxw); margin: 0 auto; padding: clamp(24rem, 4vh, 56rem) var(--edge) calc(90rem + var(--safe-bottom)); }
-.ab-body__head { max-width: 640rem; margin: 0 auto clamp(26rem, 4vh, 44rem); text-align: center; }
+.ab-body__head { max-width: 640rem; margin: 0 0 clamp(34rem, 6vh, 64rem); }
 .ab-body__eyebrow { display: inline-block; opacity: 0.6; margin-bottom: 10rem; }
 .ab-body__title { font-size: var(--text-h2); line-height: 1; }
 
-/* The chapter card: same glass surface the rest of the spiral's decks use —
-   full-bleed photo on top, the text underneath. */
-.ab-card {
-  display: flex; flex-direction: column; width: 100%; height: 100%;
-  border-radius: 20rem; overflow: hidden;
+/* ── The story ────────────────────────────────────────────────────────────
+   One chapter per row: image on one side, text on the other, sides swapping
+   as you go down so the page has a rhythm rather than a column of identical
+   blocks. Below 820px it stacks — two 380px columns is worse than one of 760
+   for both the photograph and the prose. */
+.ab-story { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: clamp(48rem, 8vh, 110rem); }
+.ab-ch {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(28rem, 4vw, 64rem);
+  align-items: center;
 }
-.ab-card__figure { flex: 1 1 auto; min-height: 0; }
-.ab-card__figure :deep(.c3) { height: 100%; }
-.ab-card__figure :deep(.c3__plate) { border-radius: 0; box-shadow: none; height: 100%; }
-.ab-card__figure :deep(.c3__img) { height: 100%; }
-.ab-card__body {
-  position: relative;
-  display: flex; flex-direction: column; gap: 6rem;
-  padding: 22rem 24rem 24rem; flex-shrink: 0;
-  background: linear-gradient(to bottom,
-    color-mix(in srgb, var(--color-bg) 55%, transparent) 0%,
-    color-mix(in srgb, var(--color-bg) 88%, transparent) 38%,
-    color-mix(in srgb, var(--color-bg) 94%, transparent) 100%);
-  backdrop-filter: blur(18px) saturate(1.2);
-  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+.ab-ch--flip .ab-ch__fig  { order: 2; }
+.ab-ch--flip .ab-ch__text { order: 1; }
+
+.ab-ch__fig { margin: 0; min-width: 0; }
+.ab-ch__text { min-width: 0; max-width: 46ch; }
+.ab-ch__eyebrow { margin: 0 0 14rem; opacity: 0.5; }
+.ab-ch__eyebrow em { font-style: normal; opacity: 0.75; margin-right: 4rem; }
+/* The chapter heading is the second-largest thing on the page, under the name
+   itself — it is a chapter title, not a caption. */
+.ab-ch__head { font-size: var(--text-h2); line-height: 1.02; margin: 0 0 16rem; }
+.ab-ch__body { margin: 0; font-size: var(--text-body); line-height: 1.68; opacity: 0.78; }
+.ab-ch__place { margin: 18rem 0 0; font-size: 10.5rem; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.42; }
+
+@media (max-width: 820px) {
+  .ab-ch { grid-template-columns: minmax(0, 1fr); gap: 22rem; }
+  .ab-ch--flip .ab-ch__fig  { order: 0; }
+  .ab-ch--flip .ab-ch__text { order: 0; }
+  .ab-ch__text { max-width: none; }
 }
-.ab-card__eyebrow { opacity: 0.6; }
-.ab-card__eyebrow em { font-style: normal; opacity: 0.7; margin-right: 4rem; }
-.ab-card__head { font-size: var(--text-h3); line-height: 1.05; }
-.ab-card__text {
-  margin-top: 4rem; font-size: var(--text-sm); line-height: 1.55; opacity: 0.78;
-  display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden;
-}
-.ab-card__place { margin-top: 2rem; font-size: 11rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.5; }
 
 .ab-close { max-width: 560rem; margin: clamp(40rem, 7vh, 72rem) auto 0; text-align: center; }
 .ab-close__quote { font-family: var(--serif); font-style: italic; font-size: 16rem; opacity: 0.7; margin: 0; }

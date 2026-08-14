@@ -1,24 +1,18 @@
 <script setup lang="ts">
-import { useContentStore } from '~/stores/content'
-
 useSeoMeta({
   title: 'Web Apps — free L&D tools by Naveen Jose · Entertrainer',
-  description: 'A small set of free web apps for instructional designers and L&D teams: build storyboards and block courses, generate quiz distractors, plan training calendars, and polish emails. Built by Naveen Jose.',
+  description: 'A small set of free web apps for instructional designers and L&D teams: build storyboards, generate quiz distractors, plan training calendars, and polish emails. Built by Naveen Jose.',
   ogTitle: 'Web Apps for L&D — by Naveen Jose',
-  ogDescription: 'Free tools for instructional designers: course building, storyboards, quiz distractors, training calendars and more.',
+  ogDescription: 'Free tools for instructional designers: storyboards, quiz distractors, training calendars and more.',
   ogUrl: 'https://entertrainer.in/tools'
 })
-
-const contentStore = useContentStore()
 </script>
 
 <template>
-  <UiCardGrid
-    eyebrow="Web Apps"
+  <EdSection
+    category="tools"
     title="Tools I built for L&D"
     deck="Free web apps for instructional designers. No sign-up, no upload — nothing you type ever leaves your browser."
     intro="Each of these started as a slow afternoon in my own work. They do one job each, and between them they are the clearest evidence of how I think about learning design."
-    meta="04 tools"
-    :items="contentStore.toolsNav"
   />
 </template>

@@ -2,22 +2,32 @@ import { defineStore } from 'pinia'
 
 export type Theme = 'dark' | 'light'
 
+const KEY = 'et-theme'
+
+/**
+ * Light by default, because the publication is printed on paper.
+ *
+ * The previous version pinned dark and deleted any stored preference on every
+ * boot — correct then, when the site was one dark WebGL stage and a light page
+ * either side of it would have read as two different websites. The editorial
+ * system has a real second printing (see [data-theme="dark"] in main.css), so
+ * the choice goes back to the reader: OS preference on first visit, and an
+ * explicit toggle that is remembered after that.
+ */
 export const useThemeStore = defineStore('theme', {
-  state: () => ({ theme: 'dark' as Theme }),
+  state: () => ({ theme: 'light' as Theme, explicit: false }),
   getters: {
     isDark: (state) => state.theme === 'dark'
   },
   actions: {
-    _mqListener: null as ((e: MediaQueryListEvent) => void) | null,
     _mq: null as MediaQueryList | null,
+    _mqListener: null as ((e: MediaQueryListEvent) => void) | null,
     _animTimer: 0 as any,
+
     set(t: Theme, animate = true) {
       this.theme = t
       if (!import.meta.client) return
       const el = document.documentElement
-      // Crossfade colours on a real switch (not the initial sync) so light/dark
-      // is an experience, not a snap. The class is short-lived so it never adds
-      // latency to ordinary interactions.
       const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
       if (animate && !reduce) {
         el.classList.add('theme-anim')
@@ -26,20 +36,31 @@ export const useThemeStore = defineStore('theme', {
       }
       el.dataset.theme = t
     },
+
+    toggle() {
+      this.explicit = true
+      const next: Theme = this.theme === 'dark' ? 'light' : 'dark'
+      if (import.meta.client) { try { localStorage.setItem(KEY, next) } catch {} }
+      this.set(next)
+    },
+
     init() {
       if (!import.meta.client) return
-      localStorage.removeItem('et-theme')
-      // Pinned dark, deliberately.
-      //
-      // The site is one art direction now — a monochrome black ground, bitmap
-      // type, and a WebGL stage whose whole look is highlights blooming out of
-      // near-black. Following the OS preference meant a visitor on a light
-      // desktop got pale editorial pages either side of a stage that is always
-      // dark, which read as two different websites rather than one. The light
-      // palette is kept in the tokens and is still monochrome, so nothing is
-      // lost if this is ever handed back to the OS.
-      this.set('dark', false)
+      let stored: string | null = null
+      try { stored = localStorage.getItem(KEY) } catch {}
+
+      if (stored === 'dark' || stored === 'light') {
+        this.explicit = true
+        this.set(stored, false)
+      } else {
+        this._mq = window.matchMedia('(prefers-color-scheme: dark)')
+        this.set(this._mq.matches ? 'dark' : 'light', false)
+        // Follow the OS until the reader states a preference of their own.
+        this._mqListener = (e) => { if (!this.explicit) this.set(e.matches ? 'dark' : 'light') }
+        this._mq.addEventListener('change', this._mqListener)
+      }
     },
+
     dispose() {
       if (this._mq && this._mqListener) {
         this._mq.removeEventListener('change', this._mqListener)

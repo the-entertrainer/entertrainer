@@ -1,36 +1,38 @@
 <script setup lang="ts">
-import { useGlassMicro } from '~/composables/useGlassMicro'
-
-// The shared shell for every tool / content page: the living gradient backdrop,
-// a consistent header, and a centred content column. Pass the tool's UI into the
-// default slot — it should be built from the global .glass-* primitives.
+/**
+ * The frame the four web apps sit in.
+ *
+ * A tool is not an article, so this is not the story-page head: the title and
+ * the one-line description are compact, and everything below them is the
+ * application. What it does share with the rest of the publication is the
+ * category chip, the frame, the gutter and the type — so opening EasyMCQ still
+ * reads as a page of this site rather than a different product.
+ */
 defineProps<{
   eyebrow?: string
   title?: string
   deck?: string
   wide?: boolean
 }>()
-
-const rootRef = ref<HTMLElement | null>(null)
-useGlassMicro(rootRef)
 </script>
 
 <template>
-  <div ref="rootRef" class="tool-shell" :class="{ 'tool-shell--wide': wide }">
-    <UiGlassBackdrop calm />
-
-    <div class="tool-inner">
-      <header class="tool-head">
-        <p v-if="eyebrow" class="tool-eyebrow">{{ eyebrow }}</p>
-        <h1 class="tool-title">
+  <div class="ts" :class="{ 'ts--wide': wide }">
+    <div class="ts__inner">
+      <header class="ts__head">
+        <div class="ts__top">
+          <EdChip category="tools" media="web app" tone="solid" />
+          <NuxtLink to="/tools" class="t-mono ts__back u-underline">← All web apps</NuxtLink>
+        </div>
+        <h1 class="ts__title">
           <slot name="title">{{ title }}</slot>
         </h1>
-        <p v-if="deck || $slots.deck" class="tool-deck">
+        <p v-if="deck || $slots.deck" class="ts__deck">
           <slot name="deck">{{ deck }}</slot>
         </p>
       </header>
 
-      <div class="tool-content">
+      <div class="ts__content">
         <slot />
       </div>
     </div>
@@ -38,66 +40,21 @@ useGlassMicro(rootRef)
 </template>
 
 <style scoped>
-.tool-shell {
-  position: relative;
-  z-index: 1;
-  min-height: 100dvh;
-  padding: calc(100rem + var(--safe-top)) 0 calc(96rem + var(--safe-bottom));
-  overflow-x: clip;
-}
-.tool-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 720rem;
-  margin: 0 auto;
-  padding: 0 24rem;
-}
-.tool-shell--wide .tool-inner { max-width: 1080rem; }
+.ts { position: relative; padding: clamp(22rem, 4vw, 40rem) 0 clamp(40rem, 7vh, 80rem); }
+.ts__inner { max-width: 760rem; margin: 0 auto; padding: 0 var(--shell-gutter); }
+.ts--wide .ts__inner { max-width: var(--shell-max); }
 
-/* ── Header ── */
-.tool-head {
-  margin-bottom: 28rem;
-  animation: tool-head-in 0.7s var(--ease-spring) both;
+.ts__head {
+  margin-bottom: clamp(22rem, 3vw, 32rem);
+  padding-bottom: clamp(18rem, 2.5vw, 26rem);
+  border-bottom: var(--stroke) solid var(--ink);
 }
-@keyframes tool-head-in {
-  from { opacity: 0; transform: translateY(16rem); }
-  to   { opacity: 1; transform: none; }
-}
-.tool-eyebrow {
-  font-family: var(--mono-font);
-  font-size: var(--text-label);
-  font-weight: 500;
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  opacity: 0.5;
-  margin-bottom: 12rem;
-  color: var(--color-text);
-}
-.tool-title {
-  font-size: clamp(34rem, 5vw, 56rem);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1.08;
-  color: var(--color-text);
-}
-.tool-deck {
-  margin-top: 14rem;
-  font-size: clamp(16rem, 2vw, 20rem);
-  font-weight: 500;
-  line-height: 1.5;
-  letter-spacing: -0.02em;
-  color: var(--color-text);
-  opacity: 0.7;
-  max-width: 560rem;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tool-head { animation: none; }
-}
-
-@media (max-width: 600px) {
-  .tool-shell { padding-top: calc(88rem + var(--safe-top)); }
-  .tool-inner { padding: 0 16rem; }
-  .tool-head { margin-bottom: 22rem; }
+.ts__top { display: flex; align-items: center; justify-content: space-between; gap: 16rem; margin-bottom: 18rem; }
+.ts__back { color: var(--muted); font-family: var(--font-mono); font-size: var(--type-meta); letter-spacing: var(--tracking-meta); text-transform: uppercase; }
+.ts__title { font-size: var(--type-h1); line-height: 1.02; margin: 0; }
+.ts__deck {
+  margin: 12rem 0 0; max-width: 56ch;
+  font-family: var(--font-reading); font-size: clamp(16rem, 1.5vw, 19rem); line-height: 1.55;
+  color: var(--muted);
 }
 </style>

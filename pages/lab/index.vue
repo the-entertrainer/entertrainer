@@ -1,18 +1,29 @@
 <script setup lang="ts">
 import { CONCEPTS } from '~/utils/labNav'
-definePageMeta({ layout: false })
+
+/**
+ * The lab index.
+ *
+ * Unlisted and noindex, but not hidden: it is linked from the front page's
+ * archive and from the footer, because fifteen discarded directions are more
+ * honest evidence of how the work happens than the one that shipped.
+ *
+ * The sketches themselves are untouched by the editorial rebuild — they are
+ * self-contained WebGL artifacts with their own art direction, and app.vue
+ * deliberately renders every /lab route without the publication's chrome. This
+ * index is the doorway, so it wears the publication's clothes.
+ */
 useSeoMeta({ title: 'Homepage concepts — Lab', robots: 'noindex' })
-const R = useReveal()
 </script>
 
 <template>
   <div class="lab">
-    <div class="lab__inner">
+    <EdShell width="read">
       <header class="lab__head">
-        <p class="lab__eyebrow" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">Hidden · Lab</p>
-        <h1 class="lab__title" v-motion :initial="R.rise(70).initial" :visible-once="R.rise(70).visibleOnce">Fifteen homepages,<br>one sheet of glass</h1>
-        <p class="lab__deck" v-motion :initial="R.rise(150).initial" :visible-once="R.rise(150).visibleOnce">
-          Every one renders real Liquid Glass — a rounded-rect distance field, surface normals taken from
+        <p class="t-mono lab__eyebrow">Unlisted · Lab</p>
+        <h1 class="lab__title t-display">Fifteen homepages,<br>one sheet of glass</h1>
+        <p class="lab__deck">
+          Every one renders real liquid glass — a rounded-rect distance field, surface normals taken from
           its gradient, edge-weighted refraction, chromatic dispersion, Fresnel and specular — over a
           procedural backdrop the glass actually bends. Same optics throughout; fifteen different
           art directions on top.
@@ -20,40 +31,57 @@ const R = useReveal()
       </header>
 
       <ol class="lab__grid">
-        <li v-for="(c, i) in CONCEPTS" :key="c.slug" v-motion
-            :initial="R.riseIn(i, 40).initial" :visible-once="R.riseIn(i, 40).visibleOnce">
+        <li v-for="c in CONCEPTS" :key="c.slug" class="u-reveal">
           <NuxtLink :to="`/lab/${c.slug}`" class="lab__card">
-            <span class="lab__n">{{ c.n }}</span>
+            <span class="t-mono lab__n">{{ c.n }}</span>
             <span class="lab__body">
               <strong class="lab__name">{{ c.name }}</strong>
               <span class="lab__law">{{ c.note }}</span>
-                          </span>
-            <span class="lab__arrow" aria-hidden="true">→</span>
+            </span>
+            <span class="lab__arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+            </span>
           </NuxtLink>
         </li>
       </ol>
-    </div>
+    </EdShell>
   </div>
 </template>
 
 <style scoped>
-.lab { position: fixed; inset: 0; overflow-y: auto; background: var(--color-bg); color: var(--color-text); --serif: var(--display-font); }
-.lab__inner { max-width: 900rem; margin: 0 auto; padding: calc(80rem + var(--safe-top)) clamp(20rem, 5vw, 40rem) 90rem; }
-.lab__eyebrow { font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.55; }
-.lab__title { font-family: var(--serif); font-optical-sizing: auto; font-weight: 400; font-size: clamp(34rem, 6vw, 62rem); line-height: 1.02; letter-spacing: -0.02em; margin: 14rem 0 0; }
-.lab__deck { margin: 20rem 0 40rem; max-width: 62ch; font-size: 15rem; line-height: 1.65; opacity: 0.7; }
-.lab__deck em { font-style: italic; }
+.lab { min-height: 100dvh; background: var(--paper); color: var(--ink); }
+
+.lab__head { padding-bottom: clamp(22rem, 3vw, 32rem); border-bottom: var(--stroke) solid var(--ink); margin-bottom: clamp(24rem, 4vw, 40rem); }
+.lab__eyebrow { margin: 0 0 14rem; color: var(--muted); }
+.lab__title { font-size: var(--type-display); margin: 0; }
+.lab__deck {
+  margin: 18rem 0 0; max-width: var(--measure-body);
+  font-family: var(--font-reading); font-size: 17rem; line-height: 1.6; color: var(--muted);
+}
 
 .lab__grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 10rem; }
-.lab__card { display: grid; grid-template-columns: 34rem 1fr 22rem; align-items: start; gap: 16rem; padding: 20rem 22rem; border: 1px solid var(--color-glass-border); border-radius: 16rem; background: var(--color-glass-bg); color: var(--color-text); text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease; }
-@media (hover: hover) { .lab__card:hover { transform: translateY(-3rem); border-color: var(--color-glass-border-hover); background: var(--color-glass-bg-hover); } .lab__card:hover .lab__arrow { transform: translateX(4rem); } }
-.lab__card:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; }
-.lab__n { font-family: var(--serif); font-size: 22rem; opacity: 0.38; font-variant-numeric: tabular-nums; padding-top: 2rem; }
+.lab__card {
+  display: grid; grid-template-columns: 40rem minmax(0, 1fr) 20rem;
+  align-items: start; gap: 16rem;
+  padding: 18rem 20rem;
+  border: var(--stroke-hair) solid var(--line);
+  border-radius: var(--radius-m);
+  background: var(--paper);
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) {
+  .lab__card:hover { background: var(--paper-2); border-color: var(--ink); transform: translateX(3rem); }
+  .lab__card:hover .lab__arrow { transform: translate(2rem, -2rem); }
+}
+.lab__n { color: var(--muted); padding-top: 4rem; }
 .lab__body { display: grid; gap: 6rem; min-width: 0; }
-.lab__name { font-size: 19rem; font-weight: 700; letter-spacing: -0.01em; }
-.lab__law { font-size: 12.5rem; line-height: 1.5; opacity: 0.62; }
-.lab__pitch { font-size: 13.5rem; line-height: 1.45; font-style: italic; opacity: 0.9; }
-.lab__tech { font-size: 12rem; line-height: 1.5; opacity: 0.45; }
-.lab__arrow { font-size: 18rem; opacity: 0.35; transition: transform 0.2s ease; padding-top: 4rem; }
-@media (prefers-reduced-motion: reduce) { .lab__card, .lab__arrow { transition: none; } }
+.lab__name { font-size: 18rem; font-weight: 700; }
+.lab__law { font-size: 14rem; line-height: 1.5; color: var(--muted); }
+.lab__arrow { color: var(--muted); padding-top: 3rem; transition: transform var(--dur-fast) var(--ease-out); }
+
+@media (prefers-reduced-motion: reduce) {
+  .lab__card, .lab__arrow { transition: none; }
+  .lab__card:hover { transform: none; }
+}
 </style>

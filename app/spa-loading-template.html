@@ -1,16 +1,23 @@
 <!--
   Pre-boot splash. This markup is inlined into index.html at build time and is
   the ONLY thing on screen between first paint and Vue mounting — with
-  ssr:false that gap is otherwise a bare white rectangle, which on a slow
-  connection is the whole first impression.
+  ssr:false that gap is otherwise a bare rectangle, which on a slow connection
+  is the whole first impression.
 
-  It deliberately mirrors UiPreloader's resting state (same ground, same
-  wordmark, same rule position) so the handoff to the real preloader is a
-  continuation rather than a second, different loading screen. Colours are
-  hard-coded rather than tokenised because the stylesheet has not loaded yet.
+  It is the masthead's emblem on the paper ground, so the handoff to the real
+  page is a continuation rather than a second, different loading screen.
+  Colours are hard-coded and the wordmark is set in a system stack, because
+  neither the stylesheet nor the webfonts have loaded at this point.
+  `prefers-color-scheme` is read directly for the same reason.
 -->
 <div class="boot" role="status" aria-label="Loading">
-  <div class="boot__mark"><em>enter</em><b>trainer</b></div>
+  <svg class="boot__mark" viewBox="0 0 64 64" aria-hidden="true">
+    <path d="M8 6h48a4 4 0 0 1 4 4v12a10 10 0 0 0 0 20v12a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V42a10 10 0 0 0 0-20V10a4 4 0 0 1 4-4Z"
+          fill="#F6C945" stroke="#171717" stroke-width="4" stroke-linejoin="round" />
+    <path d="M17 20h22M17 44h22" stroke="#171717" stroke-width="6" stroke-linecap="round" />
+    <path d="M18 26.5 32 32l-14 5.5z" fill="#171717" stroke="#171717" stroke-width="3" stroke-linejoin="round" />
+  </svg>
+  <div class="boot__word">Entertrainer</div>
   <div class="boot__rule"><i></i></div>
 </div>
 
@@ -23,33 +30,28 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 22px;
-    background: #07070A;
-    color: #F2F2EF;
-    font-family: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    gap: 16px;
+    background: #FFFDF7;
+    color: #171717;
+    font-family: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
   }
-  .boot__mark {
-    font-size: clamp(22px, 5.2vw, 34px);
+  .boot__mark { width: 54px; height: 54px; display: block; }
+  .boot__word {
+    font-size: clamp(19px, 4.4vw, 24px);
+    font-weight: 700;
     letter-spacing: 0.01em;
-    font-style: normal;
   }
-  /* The mark is one word split into two weights — the same lockup the site
-     uses everywhere else, so the brand is legible before any font file or
-     component has loaded. */
-  .boot__mark em { font-style: normal; font-weight: 400; opacity: 0.55; }
-  .boot__mark b { font-weight: 700; }
-
   .boot__rule {
-    width: min(240px, 46vw);
-    height: 1px;
-    background: rgba(242, 242, 239, 0.16);
+    width: min(220px, 44vw);
+    height: 2px;
+    background: #D8D1C4;
     overflow: hidden;
   }
   .boot__rule i {
     display: block;
     width: 40%;
     height: 100%;
-    background: #F2F2EF;
+    background: #F36B5F;
     transform: translateX(-100%);
     animation: boot-sweep 1.15s cubic-bezier(.65, 0, .35, 1) infinite;
   }
@@ -57,7 +59,11 @@
     0%   { transform: translateX(-100%); }
     100% { transform: translateX(250%); }
   }
+  @media (prefers-color-scheme: dark) {
+    .boot { background: #131210; color: #F4EFE4; }
+    .boot__rule { background: #38342C; }
+  }
   @media (prefers-reduced-motion: reduce) {
-    .boot__rule i { animation: none; transform: none; width: 100%; opacity: 0.5; }
+    .boot__rule i { animation: none; transform: none; width: 100%; }
   }
 </style>

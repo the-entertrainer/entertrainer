@@ -36,7 +36,10 @@ const BG_COLORS = ['#182533', '#1E2E3E', '#22384A', '#35D0C4', '#1A2836', '#2A42
 
 definePageMeta({ layout: false, pageTransition: { name: 'st-fade', mode: 'out-in' } })
 useHead({
-  link: [{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap' }]
+  // Space Grotesk and IBM Plex Mono are self-hosted by the site now (see
+  // assets/css/fonts.css), so this module only fetches the one face the
+  // publication does not carry.
+  link: [{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap' }]
 })
 useSeoMeta({
   title: 'Strong — How Passwords Really Break · Entertrainer',

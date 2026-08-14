@@ -1,4 +1,12 @@
 <script setup lang="ts">
+/**
+ * The SEWA Chronicles — a case study, set as a story page.
+ *
+ * The four beats are sections on the editorial grid with their numbers hung in
+ * the margin, and the comic pages are a gallery at their own 1400×1980
+ * proportions rather than letterboxed into a landscape deck. A comic is a
+ * thing you look at.
+ */
 useSeoMeta({
   title: 'The SEWA Chronicles — service-culture comics for Club Mahindra · Naveen Jose',
   description: 'A case study of The SEWA Chronicles: a comic magazine by Naveen Jose that teaches Club Mahindra hospitality teams the SEWA service values through true guest-service stories.',
@@ -7,7 +15,6 @@ useSeoMeta({
   ogUrl: 'https://entertrainer.in/my-work/sewa-chronicles',
   ogImage: 'https://entertrainer.in/work/sewa/cover.webp'
 })
-const R = useReveal()
 
 interface Beat { h: string; body: string }
 const beats: Beat[] = [
@@ -34,10 +41,23 @@ const meta = [
   { k: 'Format', v: '16-page comic magazine' }
 ]
 
-// Lightbox
+// ── Lightbox ───────────────────────────────────────────────────────────────
+// Focus is moved into the dialog on open and returned to the thumbnail that
+// opened it on close; without that, dismissing a lightbox drops keyboard users
+// back at the top of the document.
 const lightbox = ref<number | null>(null)
-function open(i: number) { lightbox.value = i }
-function close() { lightbox.value = null }
+const opener = ref<HTMLElement | null>(null)
+const dialog = ref<HTMLElement | null>(null)
+
+function open(i: number, e?: Event) {
+  opener.value = (e?.currentTarget as HTMLElement) ?? null
+  lightbox.value = i
+  nextTick(() => dialog.value?.querySelector<HTMLButtonElement>('.lb__close')?.focus())
+}
+function close() {
+  lightbox.value = null
+  nextTick(() => opener.value?.focus())
+}
 function step(dir: 1 | -1) {
   if (lightbox.value === null) return
   lightbox.value = (lightbox.value + dir + pages.length) % pages.length
@@ -53,268 +73,186 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
-  <div class="cs-sheet">
-    <UiGlassBackdrop calm />
-    <UiPageOptics />
-
-    <article class="cs-inner">
-      <!-- Hero -->
-      <header class="cs-hero">
-        <div class="cs-hero__text" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
-          <p class="cs-eyebrow">My Work · Club Mahindra · 2023</p>
-          <h1 class="cs-title">The SEWA Chronicles</h1>
-          <p class="cs-deck">Sixteen pages of true stories from the resort floor, drawn as comic strips and handed to the teams they came from.</p>
-          <dl class="cs-meta">
-            <div v-for="m in meta" :key="m.k" class="cs-meta__row">
-              <dt>{{ m.k }}</dt>
-              <dd>{{ m.v }}</dd>
-            </div>
-          </dl>
-        </div>
-        <button class="cs-hero__cover" @click="open(0)" aria-label="Open the cover" v-motion :initial="R.scaleIn(120).initial" :visible-once="R.scaleIn(120).visibleOnce">
-          <UiCard3D src="/work/sewa/cover.webp" alt="The SEWA Chronicles cover" ratio="1400/1980" :strength="8" radius="12rem" eager />
+  <EdShell width="page">
+    <EdStoryHero
+      category="projects"
+      media="case study"
+      title="The SEWA Chronicles"
+      deck="Sixteen pages of true stories from the resort floor, drawn as comic strips and handed back to the teams they came from."
+      stamp="Club Mahindra · 2023"
+      :minutes="5"
+      byline
+    >
+      <div class="cs__facts">
+        <button class="cs__cover" @click="open(0, $event)" aria-label="Enlarge the cover">
+          <img src="/work/sewa/cover.webp" alt="The SEWA Chronicles cover" width="1400" height="1980" />
         </button>
-      </header>
+        <dl class="cs__meta">
+          <div v-for="m in meta" :key="m.k">
+            <dt class="t-mono">{{ m.k }}</dt>
+            <dd>{{ m.v }}</dd>
+          </div>
+        </dl>
+      </div>
+    </EdStoryHero>
 
-      <!-- Narrative: four beats, dragged through rather than read down the page -->
-      <section class="cs-body">
-        <p class="glass-label cs-body__label">How it came together</p>
-        <!-- Four paragraphs of reasoning. They were in a drag deck, which meant
-             a reader saw one quarter of the argument and had to swipe for the
-             rest — on the section of a case study that explains the thinking,
-             which is the part anyone hiring a designer actually reads. They
-             are sections now, on the editorial grid, with the numbers hung in
-             the margin where the apparatus belongs. -->
-        <div class="cs-beats ed">
-          <template v-for="(b, i) in beats" :key="b.h">
-            <p class="ed-note cs-beat__n u-reveal">
-              <b>{{ String(i + 1).padStart(2, '0') }} / {{ String(beats.length).padStart(2, '0') }}</b>
-            </p>
-            <section class="cs-beat u-reveal">
-              <h2 class="t-display cs-beat__h">{{ b.h }}</h2>
-              <p class="cs-beat__body">{{ b.body }}</p>
-            </section>
-          </template>
-        </div>
-      </section>
+    <section class="cs__beats" aria-labelledby="cs-how">
+      <h2 id="cs-how" class="t-mono cs__label">How it came together</h2>
+      <div class="ed">
+        <template v-for="(b, i) in beats" :key="b.h">
+          <p class="ed-note cs__n u-reveal"><b>{{ String(i + 1).padStart(2, '0') }} / {{ String(beats.length).padStart(2, '0') }}</b></p>
+          <section class="cs__beat u-reveal">
+            <h3 class="cs__beat-h">{{ b.h }}</h3>
+            <p class="cs__beat-b t-read">{{ b.body }}</p>
+          </section>
+        </template>
+      </div>
+    </section>
 
-      <!-- Gallery -->
-      <section class="cs-gallery" aria-label="Selected pages">
-        <p class="glass-label cs-gallery__label">Selected pages</p>
-        <!-- A comic is a thing you look at, not a thing you swipe one letterboxed
-             frame at a time. These were 1400x1980 portrait pages being crushed
-             into a 560x450 landscape card inside a deck, so you saw roughly a
-             third of a page and had to drag to see the next third of the next
-             one. A gallery shows them at their own proportions, all at once,
-             at the width the page actually has — and each one still opens full
-             size in the lightbox. -->
-        <ul class="cs-pages">
-          <li v-for="(p, i) in pages" :key="p.src" class="cs-pages__item"
-              v-motion :initial="R.rise(i * 60).initial" :visible-once="R.rise(i * 60).visibleOnce">
-            <button class="cs-sheet" @click="open(i)" :aria-label="`Enlarge: ${p.cap}`">
-              <span class="cs-sheet__plate lg lg--raised lg--interactive">
-                <UiCard3D :src="`/work/sewa/${p.src}.webp`" :alt="p.alt" ratio="1400/1980" :strength="9" radius="0" />
-                <span class="cs-sheet__zoom" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5M11 8v6M8 11h6" /></svg>
-                </span>
-              </span>
-              <span class="cs-sheet__cap">
-                <strong>{{ p.cap }}</strong>
-                <span class="cs-sheet__tag">{{ p.tag }}</span>
-              </span>
-            </button>
-          </li>
-        </ul>
-      </section>
+    <section class="cs__gallery" aria-labelledby="cs-pages">
+      <h2 id="cs-pages" class="t-mono cs__label">Selected pages</h2>
+      <ul class="cs__grid">
+        <li v-for="(p, i) in pages" :key="p.src" class="u-reveal">
+          <button class="sheet" @click="open(i, $event)" :aria-label="`Enlarge: ${p.cap}`">
+            <span class="sheet__plate">
+              <img :src="`/work/sewa/${p.src}.webp`" :alt="p.alt" loading="lazy" decoding="async" width="1400" height="1980" />
+            </span>
+            <span class="sheet__cap">
+              <strong>{{ p.cap }}</strong>
+              <span class="t-mono sheet__tag">{{ p.tag }}</span>
+            </span>
+          </button>
+        </li>
+      </ul>
+    </section>
 
-      <!-- Close -->
-      <footer class="cs-foot" v-motion :initial="R.rise(0).initial" :visible-once="R.rise(0).visibleOnce">
-        <p>Learning people actually want to finish — that's the whole idea.</p>
-        <div class="cs-foot__links">
-          <NuxtLink to="/my-work" class="cs-link">← All work</NuxtLink>
-          <NuxtLink to="/tools" class="cs-link cs-link--accent">See the tools I build →</NuxtLink>
-        </div>
-      </footer>
-    </article>
+    <footer class="cs__foot">
+      <p class="t-hand">Learning people actually want to finish — that's the whole idea.</p>
+      <div class="cs__links">
+        <NuxtLink to="/my-work" class="ticket ticket--ghost">← All work</NuxtLink>
+        <NuxtLink to="/tools" class="ticket">See the tools I build →</NuxtLink>
+      </div>
+    </footer>
+
+    <EdReadNext from="sewa-chronicles" />
 
     <!-- Lightbox -->
-    <Transition name="cs-lb">
-      <div v-if="lightbox !== null" class="cs-lb" @click.self="close()">
-        <button class="cs-lb__close" aria-label="Close" @click="close()">✕</button>
-        <button class="cs-lb__nav cs-lb__nav--prev" aria-label="Previous page" @click.stop="step(-1)">‹</button>
-        <figure class="cs-lb__figure">
-          <img :src="`/work/sewa/${pages[lightbox].src}.webp`" :alt="pages[lightbox].alt">
-          <figcaption>{{ pages[lightbox].cap }} · {{ pages[lightbox].tag }}</figcaption>
+    <Transition name="lb">
+      <div v-if="lightbox !== null" ref="dialog" class="lb" role="dialog" aria-modal="true"
+           :aria-label="pages[lightbox].cap" @click.self="close()">
+        <button class="lb__close" aria-label="Close" @click="close()">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18" /></svg>
+        </button>
+        <button class="lb__nav lb__nav--prev" aria-label="Previous page" @click.stop="step(-1)">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7" /></svg>
+        </button>
+        <figure class="lb__fig">
+          <img :src="`/work/sewa/${pages[lightbox].src}.webp`" :alt="pages[lightbox].alt" />
+          <figcaption class="t-mono">{{ pages[lightbox].cap }} · {{ pages[lightbox].tag }}</figcaption>
         </figure>
-        <button class="cs-lb__nav cs-lb__nav--next" aria-label="Next page" @click.stop="step(1)">›</button>
+        <button class="lb__nav lb__nav--next" aria-label="Next page" @click.stop="step(1)">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7" /></svg>
+        </button>
       </div>
     </Transition>
-  </div>
+  </EdShell>
 </template>
 
 <style scoped>
-.cs-page { position: relative; z-index: 1; min-height: 100dvh; --serif: var(--display-font); }
-.cs-inner {
-  /* Shared frame. Was 920/24px, which put this case study's text 284px from
-     the left while its own section landing page sat at 190. */
-  max-width: var(--shell-max);
-  margin: 0 auto;
-  padding: calc(var(--page-top) + 20rem) var(--shell-gutter) calc(90rem + var(--safe-bottom));
+.cs__facts {
+  margin-top: clamp(24rem, 4vw, 38rem);
+  display: grid; grid-template-columns: 260rem minmax(0, 1fr);
+  gap: clamp(20rem, 3vw, 40rem); align-items: start;
 }
+.cs__cover {
+  display: block; padding: 0; cursor: zoom-in;
+  border: var(--stroke) solid var(--ink); border-radius: var(--radius-m);
+  overflow: hidden; background: var(--paper-2);
+  box-shadow: 6rem 6rem 0 var(--ink);
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) { .cs__cover:hover { transform: translate(-3rem, -3rem); box-shadow: 9rem 9rem 0 var(--ink); } }
+.cs__cover img { display: block; width: 100%; height: auto; }
 
-/* Hero */
-.cs-hero {
-  display: grid;
-  grid-template-columns: 1fr 300rem;
-  gap: 34rem;
-  align-items: center;
-  margin-bottom: 48rem;
+.cs__meta {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20rem 32rem; margin: 0; max-width: 520rem;
 }
-.cs-eyebrow { font-family: var(--mono-font); font-weight: 500; font-size: 12rem; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.55; }
-.cs-title { font-family: var(--serif); font-optical-sizing: auto; font-size: var(--text-h1); font-weight: 800; line-height: 0.92; letter-spacing: var(--tracking-display); margin-top: 12rem; }
-.cs-deck { font-size: 17rem; line-height: 1.55; opacity: 0.7; margin-top: 16rem; max-width: 30em; }
-.cs-meta { display: flex; flex-wrap: wrap; gap: 10rem 28rem; margin-top: 26rem; }
-.cs-meta__row { display: flex; flex-direction: column; gap: 3rem; }
-.cs-meta__row dt { font-family: var(--mono-font); font-size: 10.5rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.45; }
-.cs-meta__row dd { font-size: 13.5rem; font-weight: 600; }
-.cs-hero__cover {
-  display: block;
-  border-radius: 16rem;
-  cursor: zoom-in;
-  background: none;
-  padding: 0;
-  border: 0;
-  transition: transform 0.4s var(--ease-spring);
-}
-@media (hover: hover) { .cs-hero__cover:hover { transform: translateY(-6rem) scale(1.015); } }
-.cs-hero__cover:focus-visible { outline: 2px solid var(--color-text); outline-offset: 4px; border-radius: 16rem; }
+.cs__meta dt { color: var(--muted); margin-bottom: 5rem; }
+.cs__meta dd { margin: 0; font-size: 15.5rem; font-weight: 600; line-height: 1.35; }
 
-/* Body: a deck of four beats, dragged through rather than read as columns */
-.cs-body { padding: 34rem 0; border-top: 1px solid var(--color-divider); border-bottom: 1px solid var(--color-divider); }
-.cs-body__label { margin-bottom: 16rem; }
-/* Four case-study sections, read top to bottom. The index sits in the margin
-   lane so it reads as apparatus, not as a heading. */
-.cs-beats { row-gap: clamp(30rem, 4vh, 52rem); }
-.cs-beat { margin: 0; }
-.cs-beat__h { font-size: var(--text-h3); line-height: 1.05; margin: 0 0 12rem; }
-.cs-beat__body { margin: 0; font-size: var(--text-body); line-height: 1.68; opacity: 0.78; }
-.cs-beat__n { border-left: 0; padding-left: 0; }
-@media (max-width: 900px) {
-  .cs-beats > .cs-beat { margin-bottom: 30rem; }
-  .cs-beat__n { margin: 0 0 6rem; padding-left: 0; }
-}
+@media (max-width: 720px) { .cs__facts { grid-template-columns: minmax(0, 1fr); } .cs__cover { max-width: 260rem; } }
 
-/* ── The pages ────────────────────────────────────────────────────────────
-   Portrait plates on a fluid grid: three up on a desktop, two on a phone, and
-   every one of them at 1400/1980 so a page reads as a page. auto-fill with a
-   minmax track means the column count follows the width instead of being
-   declared per breakpoint. */
-.cs-pages {
+.cs__label {
+  margin: 0 0 22rem; padding-bottom: 12rem;
+  border-bottom: var(--stroke) solid var(--ink); color: var(--muted);
+}
+.cs__beats, .cs__gallery { margin-top: clamp(40rem, 7vh, 76rem); }
+.cs__n { margin: 0; }
+.cs__beat { margin-bottom: 30rem; }
+.cs__beat-h { font-size: var(--type-h2); margin: 0 0 12rem; }
+.cs__beat-b { margin: 0; max-width: var(--measure-body); }
+
+.cs__grid {
   list-style: none; margin: 0; padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290rem, 1fr));
-  gap: clamp(16rem, 2.2vw, 30rem);
+  display: grid; gap: clamp(18rem, 2.4vw, 28rem);
+  grid-template-columns: repeat(auto-fill, minmax(260rem, 1fr));
 }
-.cs-sheet {
-  display: flex; flex-direction: column; gap: 10rem;
-  width: 100%; padding: 0; border: 0; background: none;
-  color: var(--color-text); cursor: zoom-in; text-align: left;
+.sheet { display: flex; flex-direction: column; gap: 12rem; width: 100%; text-align: left; padding: 0; cursor: zoom-in; }
+.sheet__plate {
+  display: block; overflow: hidden; background: var(--paper-2);
+  border: var(--stroke) solid var(--ink); border-radius: var(--radius-m);
+  box-shadow: 5rem 5rem 0 var(--ink);
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
-.cs-sheet__plate {
-  position: relative; display: block; overflow: hidden;
-  border-radius: 14rem;
-}
-.cs-sheet__plate :deep(.c3__plate) { border-radius: 0; box-shadow: none; }
-.cs-sheet__zoom {
-  position: absolute; right: 10rem; bottom: 10rem;
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 30rem; height: 30rem; border-radius: 999rem;
-  opacity: 0; transform: scale(0.9);
-  transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring);
-}
-@media (hover: hover) {
-  .cs-sheet:hover .cs-sheet__plate {
-    transform: translateY(var(--lift));
-    box-shadow: inset 0 0 0 1px var(--color-glass-border-hover), 0 30rem 56rem -26rem rgba(0,0,0,0.9);
-  }
-  .cs-sheet:hover .cs-sheet__zoom { opacity: 1; transform: scale(1); }
-}
-.cs-sheet:active .cs-sheet__plate { transform: scale(var(--press)); transition-duration: var(--dur-tap); }
-.cs-sheet:focus-visible { outline: none; }
-.cs-sheet:focus-visible .cs-sheet__plate { outline: 2px solid var(--color-text); outline-offset: 3px; }
-.cs-sheet__cap { display: flex; flex-direction: column; gap: 2rem; }
-.cs-sheet__cap strong { font-size: 13.5rem; letter-spacing: -0.01em; }
+@media (hover: hover) { .sheet:hover .sheet__plate { transform: translate(-3rem, -3rem); box-shadow: 8rem 8rem 0 var(--ink); } }
+.sheet__plate img { display: block; width: 100%; height: auto; }
+.sheet__cap { display: flex; flex-direction: column; gap: 4rem; }
+.sheet__cap strong { font-size: 16rem; font-weight: 700; }
+.sheet__tag { color: var(--muted); }
 
-/* Close */
-.cs-foot { margin-top: 48rem; padding-top: 28rem; border-top: 1px solid var(--color-divider); }
-.cs-foot > p { font-family: var(--serif); font-weight: 800; font-size: var(--text-h2); letter-spacing: var(--tracking-display); line-height: 0.98; opacity: 0.9; max-width: 20em; }
-.cs-foot__links { display: flex; flex-wrap: wrap; gap: 10rem 24rem; margin-top: 22rem; }
-.cs-link { display: inline-flex; align-items: center; min-height: 44rem; font-size: 14rem; font-weight: 600; color: var(--color-text); opacity: 0.7; transition: opacity 0.15s ease; }
-.cs-link:hover { opacity: 1; }
-.cs-link--accent { color: var(--color-accent); opacity: 1; }
+.cs__foot {
+  margin-top: clamp(44rem, 7vh, 80rem); padding-top: 26rem;
+  border-top: var(--stroke) solid var(--ink);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20rem;
+}
+.cs__foot p { margin: 0; font-size: 18rem; max-width: 34ch; }
+.cs__links { display: flex; flex-wrap: wrap; gap: 12rem; }
 
-@keyframes cs-rise { from { opacity: 0; transform: translateY(16rem); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .cs-hero { animation: none; } }
+/* ── Lightbox ──────────────────────────────────────────────────────────── */
+.lb {
+  position: fixed; inset: 0; z-index: var(--z-overlay);
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center;
+  gap: clamp(8rem, 2vw, 24rem);
+  padding: clamp(16rem, 4vw, 48rem);
+  background: color-mix(in srgb, var(--ink) 88%, transparent);
+}
+.lb__fig { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 12rem; min-width: 0; }
+.lb__fig img {
+  max-width: 100%; max-height: 78vh; object-fit: contain;
+  border: var(--stroke) solid var(--paper); border-radius: var(--radius-s); background: var(--paper);
+}
+.lb__fig figcaption { color: var(--paper); }
+.lb__close {
+  position: absolute; top: clamp(14rem, 3vw, 26rem); right: clamp(14rem, 3vw, 26rem);
+  width: 44rem; height: 44rem; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--paper); color: var(--ink); border: var(--stroke) solid var(--ink);
+}
+.lb__nav {
+  width: 48rem; height: 48rem; border-radius: 50%; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--paper); color: var(--ink); border: var(--stroke) solid var(--ink);
+}
+.lb__close:focus-visible, .lb__nav:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
 
-/* Lightbox */
-.cs-lb {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8rem;
-  padding: 20rem;
-  background: rgba(10, 8, 6, 0.9);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-.cs-lb__figure { display: flex; flex-direction: column; align-items: center; gap: 12rem; max-height: 100%; }
-.cs-lb__figure img { max-width: min(92vw, 760rem); max-height: 84dvh; border-radius: 8rem; box-shadow: 0 40rem 120rem -30rem rgba(0, 0, 0, 0.8); }
-.cs-lb__figure figcaption { color: rgba(255, 255, 255, 0.75); font-size: 13rem; font-weight: 600; }
-.cs-lb__close {
-  position: absolute;
-  top: calc(16rem + var(--safe-top));
-  right: 18rem;
-  width: 44rem; height: 44rem;
-  border-radius: 999px;
-  color: #fff;
-  font-size: 18rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(16px) saturate(1.3);
-  -webkit-backdrop-filter: blur(16px) saturate(1.3);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
-  transition: background 0.2s ease, transform 0.3s var(--ease-spring);
-}
-.cs-lb__nav {
-  width: 52rem; height: 52rem;
-  border-radius: 999px;
-  color: #fff;
-  font-size: 30rem;
-  line-height: 1;
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(16px) saturate(1.3);
-  -webkit-backdrop-filter: blur(16px) saturate(1.3);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
-  transition: background 0.2s ease, transform 0.3s var(--ease-spring);
-}
-@media (hover: hover) {
-  .cs-lb__nav:hover, .cs-lb__close:hover { background: rgba(255, 255, 255, 0.22); transform: scale(1.06); }
-}
-.cs-lb-enter-active, .cs-lb-leave-active { transition: opacity 0.25s ease; }
-.cs-lb-enter-from, .cs-lb-leave-to { opacity: 0; }
+.lb-enter-active, .lb-leave-active { transition: opacity var(--dur-mid) var(--ease-out); }
+.lb-enter-from, .lb-leave-to { opacity: 0; }
 
-/* Responsive */
-@media (max-width: 760px) {
-  .cs-hero { grid-template-columns: 1fr; gap: 24rem; }
-  .cs-hero__cover { max-width: 260rem; order: -1; }
-}
-@media (max-width: 640px) {
-  .cs-inner { padding-top: var(--page-top); padding-bottom: calc(60rem + var(--safe-bottom)); }
-  .cs-lb__nav { width: 44rem; height: 44rem; font-size: 24rem; }
+@media (max-width: 560px) {
+  .lb { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+  .lb__nav { position: static; }
+  .lb__nav--prev { grid-row: 2; justify-self: start; }
+  .lb__nav--next { grid-row: 2; justify-self: end; }
 }
 </style>

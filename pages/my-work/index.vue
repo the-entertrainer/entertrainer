@@ -1,23 +1,18 @@
 <script setup lang="ts">
-import { useContentStore } from '~/stores/content'
-
 useSeoMeta({
-  title: 'My Work — instructional design projects by Naveen Jose · Entertrainer',
+  title: 'Projects — instructional design work by Naveen Jose · Entertrainer',
   description: 'Selected instructional design and L&D work by Naveen Jose, with the thinking behind each project.',
-  ogTitle: 'My Work — Naveen Jose',
+  ogTitle: 'Projects — Naveen Jose',
   ogDescription: 'Selected instructional design and e-learning projects.',
   ogUrl: 'https://entertrainer.in/my-work'
 })
-
-const contentStore = useContentStore()
 </script>
 
 <template>
-  <UiCardGrid
-    eyebrow="My Work"
-    title="Selected projects"
-    deck="Two projects, opened up. Not just what they look like, but the decisions underneath them."
-    meta="02 projects"
-    :items="contentStore.myWorkNav"
+  <EdSection
+    category="projects"
+    title="Two projects, opened up"
+    deck="Not just what they look like, but the decisions underneath them — what the problem actually was, and why the shape of the answer is the shape it is."
+    intro="A comic magazine that taught service values to resort teams, and an interactive module about the real mathematics of password strength. Different formats, same argument: people finish the thing that respects their attention."
   />
 </template>

@@ -666,8 +666,6 @@ onUnmounted(() => {
 
 <template>
   <div class="sg-root">
-    <UiGlassBackdrop calm />
-
     <!-- Splash: a breath of brand before the shelf -->
     <Transition name="splash">
       <div v-if="view === 'splash'" class="sg-splash" @click="view = 'home'">

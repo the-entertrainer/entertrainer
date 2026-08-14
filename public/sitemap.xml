@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://entertrainer.in/</loc><priority>1.0</priority></url>
-  <url><loc>https://entertrainer.in/about</loc><priority>0.8</priority></url>
-  <url><loc>https://entertrainer.in/instructional-design</loc><priority>0.8</priority></url>
+  <url><loc>https://entertrainer.in/instructional-design</loc><priority>0.9</priority></url>
+  <url><loc>https://entertrainer.in/my-work</loc><priority>0.8</priority></url>
+  <url><loc>https://entertrainer.in/my-work/sewa-chronicles</loc><priority>0.8</priority></url>
   <url><loc>https://entertrainer.in/my-work/strong</loc><priority>0.8</priority></url>
-  <url><loc>https://entertrainer.in/tools/easymcq</loc><priority>0.7</priority></url>
-  <url><loc>https://entertrainer.in/tools/cadence</loc><priority>0.7</priority></url>
-  <url><loc>https://entertrainer.in/tools/better-emails</loc><priority>0.7</priority></url>
+  <url><loc>https://entertrainer.in/about</loc><priority>0.8</priority></url>
+  <url><loc>https://entertrainer.in/tools</loc><priority>0.8</priority></url>
   <url><loc>https://entertrainer.in/tools/storygen</loc><priority>0.7</priority></url>
+  <url><loc>https://entertrainer.in/tools/cadence</loc><priority>0.7</priority></url>
+  <url><loc>https://entertrainer.in/tools/easymcq</loc><priority>0.7</priority></url>
+  <url><loc>https://entertrainer.in/tools/better-emails</loc><priority>0.7</priority></url>
+  <url><loc>https://entertrainer.in/colophon</loc><priority>0.6</priority></url>
 </urlset>

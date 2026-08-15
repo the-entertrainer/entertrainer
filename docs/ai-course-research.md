@@ -95,6 +95,22 @@ Lesson 1 was also checked after the concise-content pass. The learner now sees o
 
 Selecting the evidence-led response returned concise feedback that states the required action without repeating the lesson. The course browser console showed no client-side errors during this final interaction check.
 
+## Design-director audit and redesign goals
+
+The current course is structurally sound but visually underpowered. Its warm-paper and muted-teal palette produces a low-energy experience, while most learning blocks share the same white-card treatment and thin border. The large serif headings create hierarchy, but there is too little visual contrast between explanation, practice, evidence, and completion states. The left navigation is functional yet dense, and the generated illustration appears only at a few points rather than contributing to a sustained visual learning rhythm.
+
+The concise-content revision improved scanability, but it also revealed a new gap: several lessons move from a definition directly to a check without an immediately visible practical application. The redesign will retain concise copy but give every lesson a stronger visual signal, a single applied prompt, a recognisable activity state, and a more distinctive lesson identity.
+
+The new direction is **Bright Learning Studio**. It will use a clean white canvas, deep ink-blue navigation, electric-blue progress, coral scenario states, aqua evidence cues, and warm-yellow achievement markers. Rather than repeating neutral cards, the course will use colour-coded instructional bands, visual lesson stamps, differentiated block materials, clearer learner-state feedback, and more deliberate page compositions. The intention is to achieve the lively clarity of a professional course authoring experience without copying the inaccessible Articulate reference or abandoning Entertrainer’s identity.
+
+The redesigned title and objectives screens were checked in the working preview. The new deep-blue rail, bright course canvas, visual hero composition, colour-coded objective cards, and working-principle bar create clearer hierarchy and a recognisable course identity. The title screen shows the intended learning path at a glance, while the objectives screen introduces three distinct learning outcomes before the learner enters the first lesson.
+
+The first lesson was also checked. Its directive **Observe** prompt asks the learner to name a task before moving into the concept, records that the exploration was opened, and reveals a brief explanation only when requested. This establishes a more active, varied rhythm than the prior repeated card sequence while preserving the evidence note and judgement check.
+
+The frontier lesson was checked as a contrasting activity type. Its coral scenario panel, evidence-led prompt, and direct answer feedback are visually and structurally distinct from the first lesson’s blue concept-and-exploration pattern. Selecting the evidence-led option returned the intended short feedback without client-side interruption.
+
+The redesigned course completed a production build successfully. The title, objectives, directive lesson prompt, optional expansion, scenario response, and navigation states were visually reviewed, and the client console remained free of runtime errors during the interaction checks.
+
 Submitting the action plan changed the learner state to **Course completed** and displayed an instructional completion message with a restart control. The course therefore retains its completion loop while using the revised, professional e-learning language.
 
 ## External course benchmark

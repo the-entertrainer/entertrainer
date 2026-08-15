@@ -26,7 +26,7 @@ export interface AiModule {
 
 export const AI_MODULES: AiModule[] = [
   {
-    id: 'bearing', number: '01', short: 'AI in simple words', title: 'What does AI really mean?', duration: '30 min',
+    id: 'bearing', number: '01', short: 'AI in simple words', title: 'What does AI really mean?', duration: '10 min',
     blurb: 'AI helps software recognise patterns, make predictions, or create content.',
     objective: 'Recognise an AI tool and the task it supports.',
     takeaway: 'Ask: What task? What data? What check?',
@@ -35,7 +35,7 @@ export const AI_MODULES: AiModule[] = [
     sourceLabel: 'Turing, 1950', sourceUrl: 'https://academic.oup.com/mind/article/LIX/236/433/986238', confidence: 'Verified public evidence'
   },
   {
-    id: 'rules', number: '02', short: 'Rules and examples', title: 'Two ways AI can work', duration: '35 min',
+    id: 'rules', number: '02', short: 'Rules and examples', title: 'Two ways AI can work', duration: '12 min',
     blurb: 'Some AI follows written rules. Other AI learns from examples.',
     objective: 'Distinguish rules from learned patterns.',
     takeaway: 'Match the method to the task.',
@@ -46,7 +46,7 @@ export const AI_MODULES: AiModule[] = [
     video: { title: 'But what is a neural network?', url: 'https://www.youtube.com/watch?v=aircAruvnKk', instruction: 'Notice that the “neurons” are a mathematical analogy: the system adjusts weights to improve a task, not human-like understanding.' }
   },
   {
-    id: 'data', number: '03', short: 'Learning from examples', title: 'How AI learns from data', duration: '35 min',
+    id: 'data', number: '03', short: 'Learning from examples', title: 'How AI learns from data', duration: '12 min',
     blurb: 'AI learns from examples before it responds to new work.',
     objective: 'Distinguish training from use.',
     takeaway: 'Good examples produce better results.',
@@ -55,7 +55,7 @@ export const AI_MODULES: AiModule[] = [
     sourceLabel: 'CRFM, 2021', sourceUrl: 'https://crfm.stanford.edu/report.html', confidence: 'Verified public evidence'
   },
   {
-    id: 'attention', number: '04', short: 'How chat AI works', title: 'Why modern AI feels different', duration: '40 min',
+    id: 'attention', number: '04', short: 'How chat AI works', title: 'Why modern AI feels different', duration: '14 min',
     blurb: 'Modern AI weighs the useful parts of your input to form a response.',
     objective: 'Explain why chat AI can work across many topics.',
     takeaway: 'Useful does not always mean correct.',
@@ -65,7 +65,7 @@ export const AI_MODULES: AiModule[] = [
     video: { title: 'Transformers, the tech behind LLMs', url: 'https://www.youtube.com/watch?v=wjZofJX0v4M', instruction: 'Watch the opening ten minutes, then describe “predict the next token” without calling it a database lookup.' }
   },
   {
-    id: 'generation', number: '05', short: 'Making new content', title: 'What generative AI can help with', duration: '40 min',
+    id: 'generation', number: '05', short: 'Making new content', title: 'What generative AI can help with', duration: '12 min',
     blurb: 'Generative AI can draft, summarise, translate, and create images.',
     objective: 'Choose an appropriate human check.',
     takeaway: 'Fluent output is not proof.',
@@ -74,7 +74,7 @@ export const AI_MODULES: AiModule[] = [
     sourceLabel: 'NIST AI 600-1, 2024', sourceUrl: 'https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence', confidence: 'Verified public evidence'
   },
   {
-    id: 'agents', number: '06', short: 'AI that can take steps', title: 'From answers to action', duration: '40 min',
+    id: 'agents', number: '06', short: 'AI that can take steps', title: 'From answers to action', duration: '12 min',
     blurb: 'With approved tools, some AI systems can complete steps in a workflow.',
     objective: 'Name the controls that make an AI agent safer.',
     takeaway: 'Start small. Keep people accountable.',
@@ -84,7 +84,7 @@ export const AI_MODULES: AiModule[] = [
     visual: 'agents'
   },
   {
-    id: 'embodied', number: '07', short: 'AI in the real world', title: 'AI beyond a screen', duration: '35 min',
+    id: 'embodied', number: '07', short: 'AI in the real world', title: 'AI beyond a screen', duration: '10 min',
     blurb: 'Real-world AI must work safely around people, places, and changing conditions.',
     objective: 'Explain why real-world AI needs stronger checks.',
     takeaway: 'Safety matters more when consequences are real.',
@@ -93,7 +93,7 @@ export const AI_MODULES: AiModule[] = [
     sourceLabel: 'CRFM, 2021', sourceUrl: 'https://crfm.stanford.edu/report.html', confidence: 'Verified public evidence'
   },
   {
-    id: 'frontier', number: '08', short: 'Facts, claims, and rumours', title: 'How to check a big AI claim', duration: '35 min',
+    id: 'frontier', number: '08', short: 'Facts, claims, and rumours', title: 'How to check a big AI claim', duration: '10 min',
     blurb: 'Separate public evidence, reported claims, and speculation.',
     objective: 'Apply a simple evidence label to an AI claim.',
     takeaway: 'No reliable evidence is a useful conclusion.',
@@ -102,7 +102,7 @@ export const AI_MODULES: AiModule[] = [
     sourceLabel: 'UK AISI, 2025', sourceUrl: 'https://www.aisi.gov.uk/frontier-ai-trends-report', confidence: 'Verified public evidence'
   },
   {
-    id: 'responsible', number: '09', short: 'Use AI responsibly', title: 'Use AI with care', duration: '35 min',
+    id: 'responsible', number: '09', short: 'Use AI responsibly', title: 'Use AI with care', duration: '10 min',
     blurb: 'AI can be wrong, unfair, or unsafe with private information.',
     objective: 'Match a risk with a practical control.',
     takeaway: 'Protect data. Check outputs. Keep accountability.',
@@ -111,7 +111,7 @@ export const AI_MODULES: AiModule[] = [
     sourceLabel: 'NIST AI 600-1, 2024', sourceUrl: 'https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence', confidence: 'Verified public evidence'
   },
   {
-    id: 'next', number: '10', short: 'Your next step', title: 'Choose one sensible next step', duration: '25 min',
+    id: 'next', number: '10', short: 'Your next step', title: 'Choose one sensible next step', duration: '8 min',
     blurb: 'AI’s future will be shaped by technology, policy, and everyday choices.',
     objective: 'Choose one responsible use for AI in your work or learning.',
     takeaway: 'Start small, check results, and learn.',

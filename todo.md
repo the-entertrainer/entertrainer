@@ -25,4 +25,18 @@
 - [x] Reduce each lesson to one clear core idea, one practical example or interaction, and one concise takeaway.
 - [x] Remove explanatory repetition while preserving formal tone, learner value, evidence labels, and instructional guidance.
 - [ ] Verify the compressed content flow and push the refined experience to `main`.
+
+## Visual e-learning overhaul
+
+- [x] Audit the course for weak visual hierarchy, flat colour use, repeated block composition, unclear pacing, and low-impact interactions.
+- [x] Replace the muted paper treatment with a brighter, more visual, professional e-learning palette and richer screen compositions.
+- [x] Strengthen the learning pathway, navigation feedback, visual storytelling, and assessment moments beyond the current implementation.
+- [x] Rewrite learner-facing labels, prompts, feedback, and transitions with direct instructional verbs and outcome-focused language.
+- [x] Vary the visual sequence and activity prompts so lessons do not repeat the same instructional pattern from screen to screen.
+- [x] Verify the redesigned experience and push the completed overhaul to `main`.
+
+## Instructional rhythm refinement
+
+- [ ] Rewrite learner-facing labels, prompts, feedback, and transitions with direct instructional verbs and outcome-focused language.
+- [ ] Vary the visual sequence and activity prompts so lessons do not repeat the same instructional pattern from screen to screen.
 - [ ] Commit the completed implementation and push the verified changes to `main`.

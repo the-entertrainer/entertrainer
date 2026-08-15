@@ -116,3 +116,15 @@ Submitting the action plan changed the learner state to **Course completed** and
 ## External course benchmark
 
 The supplied Articulate review link was opened for visual benchmarking. Its initial loading state did not yet expose learner-facing text or controls, so no design or writing conclusion has been drawn from the reference until its course content becomes visible.
+
+## Approved Rise-style implementation mapping
+
+The approved redesign replaces the current Bright Learning Studio shell rather than incrementally softening it. The dark permanent rail, dotted canvas, multi-colour block treatments, decorative orbit graphics, and large all-caps labels will be removed. The course will use a light neutral canvas, restrained accent use, compact sans-serif typography, an optional contents drawer, and quiet linear navigation.
+
+The current `lessonPrompts` banner will be refactored into neutral learner instructions. Labels such as “YOUR FIRST MOVE”, “CORE CONCEPT”, “YOUR PATH”, and “Ready for the next idea?” will be replaced by simple equivalents such as “Consider this example”, “Key point”, “Course progress”, and “Continue to the next lesson”. Accordions, tabs, flashcards, process steps, scenarios, knowledge checks, evidence links, and completion controls will retain their existing behaviour but be rebuilt as white or very light-grey, low-chrome Rise-style blocks with clear task directions.
+
+The revised frontier lesson and compact contents drawer were checked in the working preview. The lesson now uses a neutral page canvas, one restrained accent colour, simple bordered content blocks, plain learner directions, and a small source line. The previous permanent dark rail has been replaced by an optional outline drawer, which preserves navigation without reducing the lesson canvas.
+
+The data lesson was checked as a second standardised interaction type. The vocabulary activity appears as a simple three-card grid with a concise instruction, and selecting a card reveals its plain-language definition without changing the course’s neutral visual system. The knowledge check remains immediately below the activity and follows the same low-chrome block treatment.
+
+The training knowledge check was answered correctly and returned compact corrective feedback within the same content block. The action-plan screen was also checked: three completed fields enabled the course-completion control, displayed the restrained completion state, and preserved the restart control. The v4 storage state also accepted the prior v3 learner progress before writing the updated state.

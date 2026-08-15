@@ -39,4 +39,12 @@
 
 - [ ] Rewrite learner-facing labels, prompts, feedback, and transitions with direct instructional verbs and outcome-focused language.
 - [ ] Vary the visual sequence and activity prompts so lessons do not repeat the same instructional pattern from screen to screen.
+
+## Approved Rise-style redesign
+
+- [x] Replace the dark permanent rail, patterned canvas, multi-accent palette, and editorial display treatment with a restrained Rise-inspired course shell.
+- [x] Rebuild the title, objectives, lesson, resource, and capstone screens with light surfaces, compact typography, simple navigation, and calm content hierarchy.
+- [x] Convert expressive labels and learner prompts into plain, direct instructional text across every course block.
+- [x] Standardise accordions, tabs, flashcards, process steps, scenarios, knowledge checks, evidence links, and completion states into low-chrome Rise-style blocks.
+- [x] Verify visual consistency, responsive behaviour, keyboard accessibility, progress persistence, all interactions, and build output before pushing to `main`.
 - [ ] Commit the completed implementation and push the verified changes to `main`.

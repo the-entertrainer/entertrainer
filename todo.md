@@ -47,4 +47,12 @@
 - [x] Convert expressive labels and learner prompts into plain, direct instructional text across every course block.
 - [x] Standardise accordions, tabs, flashcards, process steps, scenarios, knowledge checks, evidence links, and completion states into low-chrome Rise-style blocks.
 - [x] Verify visual consistency, responsive behaviour, keyboard accessibility, progress persistence, all interactions, and build output before pushing to `main`.
+
+## Exact Rise 360 mobile reference rebuild
+
+- [x] Recreate the screenshot reference’s narrow mobile canvas, generous white reading area, black rounded display typography, and single bright-blue accent treatment.
+- [x] Rebuild the opening sequence around the reference’s image-led course card, large white title overlay, white rounded start control, course summary, duration, and vertical lesson menu.
+- [x] Recreate the light-blue lesson header panel, lesson count, plain long-form reading body, objective bullet style, left menu control, and right back control.
+- [x] Replace the current contents drawer with the reference-style vertical course menu using simple row icons and unfilled/completed circular status markers.
+- [x] Verify the rebuilt mobile and desktop experience against the supplied screenshots, then push the reference-matched course to `main`.
 - [ ] Commit the completed implementation and push the verified changes to `main`.

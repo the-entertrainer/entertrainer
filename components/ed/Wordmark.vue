@@ -16,11 +16,21 @@ withDefaults(defineProps<{
   variant?: 'full' | 'mark'
   /** Emblem height in px. The wordmark scales from it. */
   size?: number
-}>(), { variant: 'full', size: 34 })
+  /**
+   * Die-cut sticker treatment: a thick paper outline around the whole lockup
+   * with a hard ink shadow behind it, so the mark reads as a physical object
+   * laid on the page rather than as type printed into it.
+   *
+   * The technique is generic — it is how every printed sticker has looked for
+   * fifty years — and it suits a ticket emblem better than it has any right
+   * to. What stays ours is the mark itself.
+   */
+  sticker?: boolean
+}>(), { variant: 'full', size: 34, sticker: false })
 </script>
 
 <template>
-  <span class="wm" :class="`wm--${variant}`" :style="{ '--wm-size': size + 'rem' }">
+  <span class="wm" :class="[`wm--${variant}`, { 'wm--sticker': sticker }]" :style="{ '--wm-size': size + 'rem' }">
     <svg class="wm__mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
       <!-- The ticket. The notches are cut from the body rather than drawn on
            top, so the outline reads as one continuous stamped edge. -->
@@ -48,5 +58,29 @@ withDefaults(defineProps<{
   color: var(--ink);
   /* Bangers sits high in its box; nudge it onto the emblem's optical centre. */
   transform: translateY(0.06em);
+}
+
+/* ── Sticker ────────────────────────────────────────────────────────────
+   Two layers, no images. The paper-coloured stroke is painted *under* the
+   fill (paint-order), which gives the letterforms a cut edge; the hard,
+   un-blurred drop shadow lifts the whole lockup off the page. Browsers that
+   ignore paint-order get an outline over the fill, which is slightly heavier
+   and still legible — so this degrades rather than breaks. */
+.wm--sticker {
+  filter:
+    drop-shadow(3rem 3rem 0 var(--ink))
+    drop-shadow(0 0 0.5rem color-mix(in srgb, var(--ink) 25%, transparent));
+}
+.wm--sticker .wm__word {
+  -webkit-text-stroke: calc(var(--wm-size) * 0.14) var(--paper);
+  paint-order: stroke fill;
+}
+.wm--sticker .wm__mark {
+  /* The emblem gets the same cut edge as the letters, drawn as a stroke
+     widening on the outer path only. */
+  stroke: var(--paper);
+  stroke-width: 0;
+  filter: drop-shadow(0 0 calc(var(--wm-size) * 0.1) var(--paper))
+          drop-shadow(0 0 calc(var(--wm-size) * 0.07) var(--paper));
 }
 </style>

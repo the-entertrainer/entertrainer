@@ -26,26 +26,104 @@ useSeoMeta({
 
 const filter = ref<Category | 'all'>('all')
 
+/**
+ * Search.
+ *
+ * Ten entries does not need an index, a worker or a ranking function — it
+ * needs a substring match over the fields a person would actually type. What
+ * it does need is to search the *dek and the stamp* as well as the title,
+ * because people search for what a thing is about ("password", "comic",
+ * "storyboard") far more often than for what it is called.
+ */
+const query = ref('')
+const needle = computed(() => query.value.trim().toLowerCase())
+
+/**
+ * Every query token must appear somewhere in the entry — and a trailing plural
+ * is stripped before matching, because the first thing anyone typed into this
+ * box was "passwords" against a dek that says "password" and got nothing. A
+ * search that fails on a plural is a search people stop trusting immediately.
+ */
+const matches = (i: (typeof ITEMS)[number]) => {
+  if (!needle.value) return true
+  const label = CATEGORIES.find(c => c.id === i.category)?.label ?? ''
+  const hay = [i.title, i.dek, i.stamp, label, i.media].join(' ').toLowerCase()
+  return needle.value.split(/\s+/).every(term => {
+    if (hay.includes(term)) return true
+    const singular = term.replace(/(?:ies|es|s)$/, m => (m === 'ies' ? 'y' : ''))
+    return singular.length > 2 && hay.includes(singular)
+  })
+}
+
 const counts = computed(() => {
   const c: Record<string, number> = {}
-  for (const i of ITEMS) c[i.category] = (c[i.category] ?? 0) + 1
+  for (const i of ITEMS.filter(matches)) c[i.category] = (c[i.category] ?? 0) + 1
   return c
 })
 
-// The lead is only "the lead" when you are looking at everything. Filter to a
-// section and it becomes an ordinary member of that section's field, because
-// pinning it above a filtered list would be showing you something you just
-// asked not to see.
-const showLead = computed(() => filter.value === 'all')
-const field = computed(() =>
-  filter.value === 'all' ? REST : ITEMS.filter(i => i.category === filter.value))
+// The lead is only "the lead" when you are looking at everything unfiltered.
+// Narrow the field by section or by search and it becomes an ordinary member
+// of the results, because pinning it above a filtered list would be showing
+// you something you just asked not to see.
+const showLead = computed(() => filter.value === 'all' && !needle.value)
+const field = computed(() => {
+  const base = filter.value === 'all' ? (needle.value ? ITEMS : REST) : ITEMS.filter(i => i.category === filter.value)
+  return base.filter(matches)
+})
+
+// A filter that survives a search which has excluded it is a filter showing
+// nothing. Fall back to everything rather than to an empty page.
+watch(needle, () => {
+  if (filter.value !== 'all' && !(counts.value[filter.value] ?? 0)) filter.value = 'all'
+})
 
 const variantFor = (i: (typeof ITEMS)[number]) => i.size ?? 'standard'
+
+/**
+ * The rotating standfirst.
+ *
+ * A fixed opening clause with a changing completion — a masthead device old
+ * enough to be furniture, and the fastest way to say four things about a
+ * publication in the space of one line. All four completions are true, which
+ * is the only rule that matters here: a rotating tagline that overclaims just
+ * overclaims four times.
+ *
+ * It pauses on hover and focus, and does not rotate at all under reduced
+ * motion — where it prints the first line and stops, so the sentence is
+ * always complete.
+ */
+const ENDINGS = [
+  'teaches while you read it',
+  'shows its own workings',
+  'ships the tools it argues for',
+  'has been wrong in public, on purpose'
+]
+const ending = ref(0)
+const paused = ref(false)
+let timer: ReturnType<typeof setInterval> | undefined
+
+onMounted(() => {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  timer = setInterval(() => { if (!paused.value) ending.value = (ending.value + 1) % ENDINGS.length }, 3200)
+})
+onBeforeUnmount(() => clearInterval(timer))
 </script>
 
 <template>
   <EdShell width="wide">
     <EdIssueStrip note="Everything here is either a thing I made or the thinking behind it." />
+
+    <!-- ── Standfirst ──────────────────────────────────────────────────── -->
+    <p class="sf" @mouseenter="paused = true" @mouseleave="paused = false"
+       @focusin="paused = true" @focusout="paused = false">
+      <span class="sf__fixed">An instructional-design portfolio that…</span>
+      <Transition name="sf" mode="out-in">
+        <b :key="ending" class="sf__var">{{ ENDINGS[ending] }}</b>
+      </Transition>
+      <span class="sr-only">
+        This portfolio {{ ENDINGS.join(', ') }}.
+      </span>
+    </p>
 
     <!-- ── Nameplate ───────────────────────────────────────────────────── -->
     <section class="np">
@@ -77,8 +155,22 @@ const variantFor = (i: (typeof ITEMS)[number]) => i.size ?? 'standard'
     <!-- ── The field ───────────────────────────────────────────────────── -->
     <section class="field" aria-labelledby="field-h">
       <div class="field__head">
-        <h2 id="field-h" class="t-mono field__label">Everything else</h2>
+        <h2 id="field-h" class="t-mono field__label">{{ needle ? 'Results' : 'Everything else' }}</h2>
         <EdFilterRail v-model="filter" :counts="counts" />
+      </div>
+
+      <!-- Search sits with the filter, not in the masthead. On a ten-entry
+           index a search box in the chrome would be a promise the site cannot
+           keep; here it is plainly a way to narrow the list in front of you. -->
+      <div class="find">
+        <label class="sr-only" for="find">Find a story</label>
+        <span class="find__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-4.2-4.2" /></svg>
+        </span>
+        <input id="find" v-model="query" type="search" class="find__input"
+               placeholder="Find a story — try “comic”, “passwords”, “storyboard”" />
+        <button v-if="query" type="button" class="find__clear" @click="query = ''">Clear</button>
       </div>
 
       <!-- Keyed on the filter so a change crossfades the whole field rather
@@ -92,7 +184,10 @@ const variantFor = (i: (typeof ITEMS)[number]) => i.size ?? 'standard'
         </ul>
       </Transition>
 
-      <p v-if="!field.length" class="field__empty">Nothing filed under that yet.</p>
+      <p v-if="!field.length" class="field__empty">
+        Nothing matches <template v-if="needle">“{{ query }}”</template><template v-else>that filter</template>.
+        <button v-if="needle" type="button" class="field__reset" @click="query = ''">Show everything</button>
+      </p>
     </section>
 
     <!-- ── Interlude ───────────────────────────────────────────────────── -->
@@ -136,6 +231,25 @@ const variantFor = (i: (typeof ITEMS)[number]) => i.size ?? 'standard'
 </template>
 
 <style scoped>
+/* ── Standfirst ────────────────────────────────────────────────────────── */
+.sf {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6rem 10rem;
+  margin: clamp(20rem, 3vw, 32rem) 0 0;
+  font-family: var(--font-reading);
+  font-size: clamp(17rem, 1.9vw, 23rem);
+  line-height: 1.4;
+}
+.sf__fixed { color: var(--muted); }
+.sf__var {
+  font-weight: 600; color: var(--ink);
+  border-bottom: 4rem solid var(--sun);
+  padding-bottom: 1rem;
+}
+.sf-enter-active { transition: opacity var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out); }
+.sf-leave-active { transition: opacity 120ms var(--ease-in), transform 120ms var(--ease-in); }
+.sf-enter-from { opacity: 0; transform: translateY(8rem); }
+.sf-leave-to { opacity: 0; transform: translateY(-8rem); }
+
 /* ── Nameplate ─────────────────────────────────────────────────────────── */
 .np {
   display: grid;
@@ -230,7 +344,33 @@ const variantFor = (i: (typeof ITEMS)[number]) => i.size ?? 'standard'
   .field__grid > li.is-tall { grid-column: span 1; }
 }
 
+/* ── Search ── */
+.find { position: relative; display: flex; align-items: center; margin-bottom: clamp(20rem, 3vw, 30rem); }
+.find__icon { position: absolute; left: 16rem; display: flex; color: var(--muted); pointer-events: none; }
+.find__input {
+  width: 100%; max-width: 560rem;
+  min-height: 48rem; padding: 12rem 16rem 12rem 46rem;
+  border: var(--stroke) solid var(--ink); border-radius: var(--radius-full);
+  background: var(--paper); color: var(--ink);
+  font-family: inherit; font-size: 15.5rem;
+  transition: box-shadow var(--dur-fast) var(--ease-out);
+}
+.find__input::placeholder { color: var(--muted); }
+.find__input:focus { outline: none; box-shadow: 4rem 4rem 0 var(--ink); }
+.find__input:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 3px; }
+.find__clear {
+  margin-left: 12rem; padding: 8rem 14rem; border-radius: var(--radius-full);
+  border: var(--stroke-hair) solid var(--ink); background: var(--paper);
+  font-family: var(--font-mono); font-size: var(--type-meta);
+  letter-spacing: var(--tracking-meta); text-transform: uppercase; cursor: pointer;
+}
+@media (hover: hover) { .find__clear:hover { background: var(--sun); color: var(--on-sun); } }
+
 .field__empty { padding: 40rem 0; color: var(--muted); font-family: var(--font-reading); }
+.field__reset {
+  margin-left: 8rem; font-family: inherit; font-size: inherit;
+  color: var(--cobalt); text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+}
 
 /* Filter change: crossfade the field, stagger the cards in behind it. */
 .swap-enter-active { transition: opacity var(--dur-mid) var(--ease-out); }
@@ -306,5 +446,9 @@ const variantFor = (i: (typeof ITEMS)[number]) => i.size ?? 'standard'
   .field__grid > li { animation: none; }
   .swap-enter-active, .swap-leave-active { transition-duration: 1ms; }
   .arch__row, .arch__go { transition: none; }
+  /* The standfirst does not rotate at all under reduced motion — see the
+     script — so this only guards the transition if one is ever queued. */
+  .sf-enter-active, .sf-leave-active { transition-duration: 1ms; }
+  .sf-enter-from, .sf-leave-to { transform: none; }
 }
 </style>

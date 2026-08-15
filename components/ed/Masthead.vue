@@ -39,7 +39,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
     <div class="mh__bar">
       <NuxtLink to="/" class="mh__brand" aria-label="Entertrainer — home">
-        <EdWordmark :size="30" />
+        <EdWordmark :size="30" sticker />
       </NuxtLink>
 
       <p class="mh__tag">Instructional design, published in the open</p>

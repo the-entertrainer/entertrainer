@@ -114,4 +114,4 @@
 - [x] Map each useful block pattern to a cognitive-load purpose: signalling, segmentation, worked example, retrieval, elaboration, comparison, or practice.
 - [x] Design a deliberately limited set of new blocks and small games that make specific AI concepts easier to understand without interrupting the course narrative.
 - [x] Implement the selected blocks with accessible keyboard interactions and reference-matched visual restraint.
-- [ ] Validate the revised lesson flow, interaction feedback, visual quality, and production build; then push the improved course to `main`.
+- [x] Validate the revised lesson flow, interaction feedback, visual quality, and production build; then push the improved course to `main`.

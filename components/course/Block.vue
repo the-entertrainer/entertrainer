@@ -213,7 +213,7 @@ const linePoints = computed(() =>
 /* ── Prose ── */
 .bk-text { margin: 0 0 clamp(18rem, 2.2vw, 26rem); }
 .bk-text p {
-  font-family: var(--font-reading);
+  font-family: 'Nunito Sans', var(--font-reading);
   font-size: clamp(16.5rem, 1.35vw, 18.5rem);
   line-height: 1.72;
   max-width: var(--measure-body);
@@ -224,7 +224,7 @@ const linePoints = computed(() =>
 
 .bk-heading {
   font-size: var(--type-h2); margin: clamp(30rem, 4vw, 46rem) 0 14rem;
-  font-family: var(--font-display); font-weight: 400; letter-spacing: var(--tracking-display);
+  font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em;
 }
 
 .bk-quote {
@@ -234,7 +234,7 @@ const linePoints = computed(() =>
   box-shadow: var(--co-shadow, none);
 }
 .bk-quote blockquote {
-  margin: 0; font-family: var(--font-reading); font-style: italic;
+  margin: 0; font-family: 'Nunito Sans', var(--font-reading); font-style: italic;
   font-size: clamp(18rem, 1.8vw, 22rem); line-height: 1.5; max-width: 56ch;
 }
 .bk-quote figcaption { margin-top: 12rem; display: grid; gap: 4rem; }

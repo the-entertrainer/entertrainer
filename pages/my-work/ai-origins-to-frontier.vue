@@ -32,11 +32,12 @@ useSeoMeta({
 })
 
 // This one page borrows Rise 360's actual look rather than the rest of the
-// site's typographic system — Lato is the typeface Rise itself ships with, so
-// it's loaded here and nowhere else, the same exception Strong already makes
-// for Inter. Everything else on the site keeps its own faces untouched.
+// site's typographic system — Nunito Sans is the rounded, friendly face Rise
+// itself ships with, so it's loaded here and nowhere else, the same exception
+// Strong already makes for Inter. Everything else on the site keeps its own
+// faces untouched.
 useHead({
-  link: [{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap' }]
+  link: [{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800;6..12,900&display=swap' }]
 })
 
 type View = 'cover' | 'contents' | 'lesson' | 'diagnostic' | 'final' | 'capstone' | 'reference'
@@ -118,69 +119,79 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
         <EdWordmark variant="mark" :size="26" />
         <span class="co__brand-text">AI: Origins to Frontier</span>
       </button>
-
-      <div class="co__progress" v-if="store.started">
-        <span class="t-mono co__progress-n">{{ store.completedCount }}/{{ TOTAL_LESSONS }}</span>
-        <span class="co__progress-track" role="img" :aria-label="`${store.percent}% complete`">
-          <span class="co__progress-fill" :style="{ width: store.percent + '%' }" />
-        </span>
-        <span class="t-mono co__progress-left">{{ hours(store.minutesLeft) }} left</span>
-      </div>
-
       <nav class="co__actions" aria-label="Course">
-        <button type="button" class="co__btn" :class="{ 'is-on': view === 'contents' }" @click="go('contents')">Contents</button>
-        <button type="button" class="co__btn" :class="{ 'is-on': view === 'reference' }" @click="go('reference')">Reference</button>
-        <NuxtLink to="/my-work" class="co__btn co__btn--exit">Exit</NuxtLink>
+        <button type="button" class="co__link" :class="{ 'is-on': view === 'reference' }" @click="go('reference')">Reference</button>
+        <NuxtLink to="/my-work" class="co__link">Exit</NuxtLink>
       </nav>
     </header>
+
+    <div class="co__subbar">
+      <button type="button" class="co__hamburger" :class="{ 'is-on': view === 'contents' }"
+              aria-label="Course contents" @click="go('contents')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+      </button>
+      <div class="co__progress" v-if="store.started">
+        <span class="t-mono co__progress-n">{{ store.completedCount }}/{{ TOTAL_LESSONS }}</span>
+        <span class="t-mono co__progress-left">{{ hours(store.minutesLeft) }} left</span>
+      </div>
+    </div>
+    <span v-if="store.started" class="co__progress-track" role="img" :aria-label="`${store.percent}% complete`">
+      <span class="co__progress-fill" :style="{ width: store.percent + '%' }" />
+    </span>
 
     <main class="co__main">
       <!-- ── Cover ─────────────────────────────────────────────────── -->
       <section v-if="view === 'cover'" class="cv">
-        <p class="t-mono cv__eyebrow">A free one-day course · Entertrainer</p>
-        <h1 class="cv__title t-display">{{ COURSE.title }}</h1>
-        <p class="cv__sub">{{ COURSE.subtitle }}</p>
-
-        <dl class="cv__facts">
-          <div><dt class="t-mono">Duration</dt><dd>{{ hours(COURSE.minutes) }}, self-paced</dd></div>
-          <div><dt class="t-mono">Level</dt><dd>{{ COURSE.level }}</dd></div>
-          <div><dt class="t-mono">Prerequisites</dt><dd>{{ COURSE.prerequisites }}</dd></div>
-          <div><dt class="t-mono">Modules</dt><dd>{{ MODULES.length }} modules · {{ TOTAL_LESSONS }} lessons</dd></div>
-        </dl>
-
-        <div class="cv__cta">
-          <button type="button" class="ticket" @click="start">
-            {{ store.started ? 'Resume where you left off' : 'Start the course' }}
+        <div class="cv__banner">
+          <h1 class="cv__title">{{ COURSE.title }}</h1>
+          <button type="button" class="cv__start" @click="start">
+            {{ store.started ? 'Resume where you left off' : 'Start course' }}
           </button>
-          <button type="button" class="ticket ticket--ghost" @click="go('contents')">See the whole day</button>
-        </div>
-        <p v-if="store.started" class="t-mono cv__resume">
-          You are on lesson {{ lessonNumber }} of {{ TOTAL_LESSONS }} — {{ currentLesson?.title }}
-        </p>
-
-        <div class="cv__panel">
-          <h2 class="cv__h">By the end of this course, you will be able to:</h2>
-          <ol class="cv__obj">
-            <li v-for="(o, i) in COURSE.objectives" :key="i"><span class="t-mono">{{ i + 1 }})</span> {{ o }}</li>
-          </ol>
         </div>
 
-        <h2 class="cv__h2">Why this matters</h2>
-        <div class="cv__why">
-          <p v-for="(p, i) in COURSE.whyThisMatters" :key="i">{{ p }}</p>
+        <div class="cv__content">
+          <EdWordmark variant="mark" :size="34" />
+          <p class="cv__sub">{{ COURSE.subtitle }}</p>
+
+          <dl class="cv__facts">
+            <div><dt class="t-mono">Duration</dt><dd>{{ hours(COURSE.minutes) }}, self-paced</dd></div>
+            <div><dt class="t-mono">Level</dt><dd>{{ COURSE.level }}</dd></div>
+            <div><dt class="t-mono">Prerequisites</dt><dd>{{ COURSE.prerequisites }}</dd></div>
+            <div><dt class="t-mono">Modules</dt><dd>{{ MODULES.length }} modules · {{ TOTAL_LESSONS }} lessons</dd></div>
+          </dl>
+
+          <div class="cv__cta">
+            <button type="button" class="ticket ticket--ghost" @click="go('contents')">See the whole day</button>
+          </div>
+          <p v-if="store.started" class="t-mono cv__resume">
+            You are on lesson {{ lessonNumber }} of {{ TOTAL_LESSONS }} — {{ currentLesson?.title }}
+          </p>
+
+          <div class="cv__panel">
+            <h2 class="cv__h">Objectives</h2>
+            <p class="cv__h-sub">By the end of this course, you should be able to:</p>
+            <ul class="cv__obj">
+              <li v-for="(o, i) in COURSE.objectives" :key="i">{{ o }}</li>
+            </ul>
+          </div>
+
+          <h2 class="cv__h2">Why this matters</h2>
+          <div class="cv__why">
+            <p v-for="(p, i) in COURSE.whyThisMatters" :key="i">{{ p }}</p>
+          </div>
+
+          <h2 class="cv__h2">Who it is for</h2>
+          <p class="cv__body">{{ COURSE.audience }}</p>
+          <p class="cv__body">{{ COURSE.promise }}</p>
+
+          <EdNote label="Before you start" accent="var(--blue)">
+            <p>Your progress is saved only in this browser, nowhere else. There is no account, and
+              nothing is sent anywhere. You can stop and pick up again any time on this device. If you
+              clear your browser data or switch devices, you start over.</p>
+            <p>All facts are correct as of {{ COURSE.currentAsOf }}. Every video and link was checked on
+              that date. The Reference tab shows what was checked and what could not be.</p>
+          </EdNote>
         </div>
-
-        <h2 class="cv__h2">Who it is for</h2>
-        <p class="cv__body">{{ COURSE.audience }}</p>
-        <p class="cv__body">{{ COURSE.promise }}</p>
-
-        <EdNote label="Before you start" accent="var(--blue)">
-          <p>Your progress is stored in this browser and nowhere else. There is no account and nothing
-            is submitted — which means you can stop and resume freely on this device, and clearing your
-            site data or switching device starts you over.</p>
-          <p>Research current as of {{ COURSE.currentAsOf }}. Every video and link was checked on that
-            date; the Reference tab shows what was verified and what could not be.</p>
-        </EdNote>
       </section>
 
       <!-- ── Contents ──────────────────────────────────────────────── -->
@@ -213,14 +224,17 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
             <ul class="cm__lessons">
               <li v-for="(l, li) in m.lessons" :key="l.id">
                 <button type="button" class="cl" :class="{ 'is-done': store.isDone(m.id, l.id) }" @click="openLesson(mi, li)">
-                  <span class="cl__tick" aria-hidden="true">
-                    <svg v-if="store.isDone(m.id, l.id)" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                  <span class="cl__icon" :class="`cl__icon--${l.completion}`" aria-hidden="true">
+                    <svg v-if="l.completion === 'check'" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 4" /><circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none" /></svg>
+                    <svg v-else-if="l.completion === 'activity'" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4" /><circle cx="12" cy="12" r="4.5" /></svg>
+                    <svg v-else viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7M9 18h4" /></svg>
                   </span>
                   <span class="cl__body">
                     <span class="cl__title">{{ l.title }}</span>
                     <span class="cl__summary">{{ l.summary }}</span>
                   </span>
                   <span class="t-mono cl__min">{{ l.minutes }} min</span>
+                  <span class="cl__dot" aria-hidden="true" />
                 </button>
               </li>
             </ul>
@@ -252,25 +266,24 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 
       <!-- ── Lesson ────────────────────────────────────────────────── -->
       <article v-else-if="view === 'lesson' && currentModule && currentLesson" class="ls" :key="currentLesson.id">
-        <header class="ls__head" :style="{ '--accent': currentModule.accent }">
-          <p class="t-mono ls__crumb">
-            <span class="ls__dot" aria-hidden="true" />
-            Module {{ currentModule.n }} · {{ currentModule.title }}
-          </p>
+        <header class="ls__head">
+          <p class="ls__crumb t-mono">Lesson {{ lessonNumber }} of {{ TOTAL_LESSONS }}</p>
           <h1 class="ls__title">{{ currentLesson.title }}</h1>
-          <p class="t-mono ls__meta">
-            Lesson {{ lessonNumber }} of {{ TOTAL_LESSONS }} · {{ currentLesson.minutes }} min ·
-            {{ lessonDone ? 'Completed' : 'In progress' }}
-          </p>
+          <span class="ls__rule" aria-hidden="true" />
         </header>
+        <p class="t-mono ls__meta">
+          Module {{ currentModule.n }} · {{ currentModule.title }} · {{ currentLesson.minutes }} min ·
+          {{ lessonDone ? 'Completed' : 'In progress' }}
+        </p>
 
         <!-- Module cover: objectives, in the required format, on the first lesson -->
         <section v-if="pos.lessonIndex === 0" class="ls__obj">
           <p class="ls__intro">{{ currentModule.intro }}</p>
-          <h2 class="ls__obj-h">By the End of this module, you will be able to:</h2>
-          <ol>
-            <li v-for="(o, i) in currentModule.objectives" :key="i"><span class="t-mono">{{ i + 1 }})</span> {{ o }}</li>
-          </ol>
+          <h2 class="ls__obj-h">Objectives</h2>
+          <p class="ls__obj-sub">By the end of this module, you should be able to:</p>
+          <ul>
+            <li v-for="(o, i) in currentModule.objectives" :key="i">{{ o }}</li>
+          </ul>
         </section>
 
         <CourseBlock
@@ -303,9 +316,9 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
         <p class="t-mono as__eyebrow">Before you start</p>
         <h1 class="as__title t-display">Six questions, not scored</h1>
         <p class="as__deck">
-          The point of this is not to grade you. It is to get your current beliefs onto the record so
-          that, when a module contradicts one of them, you notice. Answer honestly, including the ones
-          you are guessing at.
+          This is not a test. It just puts your current beliefs on paper, so that when a module later
+          proves one of them wrong, you notice it happening. Answer honestly — even the ones you are
+          just guessing at.
         </p>
         <CourseCheck :questions="DIAGNOSTIC" title="Diagnostic" />
         <div class="as__foot">
@@ -318,8 +331,8 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
         <p class="t-mono as__eyebrow">Final assessment</p>
         <h1 class="as__title t-display">Fifteen questions</h1>
         <p class="as__deck">
-          Weighted towards judgement rather than recall, because recall is the part that decays by
-          Friday. Every answer comes with an explanation, including the ones you get right.
+          These questions test your judgement more than your memory, because memory fades by Friday
+          and judgement does not. Every answer comes with an explanation — even the ones you get right.
         </p>
         <p v-if="finalAnswered" class="as__score t-mono" role="status">
           {{ finalScore }} of {{ finalAnswered }} answered correctly so far
@@ -347,7 +360,7 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
         </ol>
 
         <h2 class="cp__h2">Rubric</h2>
-        <p class="cp__note">Self-assessed. Read the "strong" column before you write, not after.</p>
+        <p class="cp__note">You grade your own work. Read the "strong" column before you write, not after.</p>
         <div class="cp__scroll">
           <table class="cp__table">
             <thead><tr><th scope="col">Criterion</th><th scope="col">Strong</th><th scope="col">Adequate</th><th scope="col">Weak</th></tr></thead>
@@ -379,8 +392,8 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
       <section v-else class="rs">
         <h1 class="rs__title t-display">Reference</h1>
         <p class="rs__deck">
-          Everything the course points at, searchable. The glossary defines every term used; the
-          source register shows what each evidence label rests on.
+          Everything this course links to, in one searchable place. The glossary explains every term
+          used. The source list shows what backs up each evidence label.
         </p>
         <CourseReference />
       </section>
@@ -404,10 +417,10 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
   --co-shadow: 0 1px 2px rgba(20, 40, 70, 0.06), 0 4px 16px rgba(20, 40, 70, 0.08);
   --radius-xs: 6rem; --radius-s: 8rem; --radius-m: 10rem; --radius-l: 16rem;
   min-height: 100dvh; background: var(--paper); color: var(--ink); display: flex; flex-direction: column;
-  font-family: 'Lato', var(--font-ui), sans-serif;
+  font-family: 'Nunito Sans', var(--font-ui), sans-serif;
 }
 .co .t-display {
-  font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em;
+  font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em;
 }
 /* Dark mode needs its own tint and surface, not just the light ones left to
    cope: #EAF2FC (the light "picked" tint) on a near-black page made picked
@@ -419,35 +432,49 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 }
 
 /* ── Chrome ────────────────────────────────────────────────────────── */
+/* Two rows plus a hairline progress strip, the same structure Rise itself
+   uses: brand row, then an action row with the contents toggle on the left
+   and page links on the right, then one thin line of progress under both. */
 .co__bar {
   position: sticky; top: 0; z-index: var(--z-chrome);
   display: flex; align-items: center; gap: clamp(12rem, 2vw, 26rem);
-  padding: 10rem clamp(14rem, 3vw, 28rem) 10rem;
-  padding-top: calc(10rem + var(--safe-top));
+  padding: 12rem clamp(14rem, 3vw, 28rem);
+  padding-top: calc(12rem + var(--safe-top));
   background: var(--paper); border-bottom: var(--stroke) solid var(--line);
 }
 .co__brand { display: inline-flex; align-items: center; gap: 10rem; flex: none; }
-.co__brand-text { font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; font-size: 18rem; letter-spacing: 0; }
+.co__brand-text { font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-weight: 900; font-size: 18rem; letter-spacing: 0; }
+
+.co__actions { display: flex; align-items: center; gap: 18rem; margin-left: auto; }
+.co__link {
+  font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-size: 14.5rem; font-weight: 700;
+  color: var(--ink); text-decoration: none; white-space: nowrap; cursor: pointer;
+}
+.co__link.is-on { color: var(--blue); }
+@media (hover: hover) { .co__link:hover { color: var(--blue); } }
+
+.co__subbar {
+  position: sticky; top: 0; z-index: calc(var(--z-chrome) - 1);
+  display: flex; align-items: center; gap: 14rem;
+  padding: 10rem clamp(14rem, 3vw, 28rem);
+  background: var(--paper); border-bottom: var(--stroke) solid var(--line);
+}
+.co__hamburger {
+  display: flex; align-items: center; justify-content: center;
+  width: 34rem; height: 34rem; border-radius: var(--radius-s);
+  border: none; background: var(--paper-2); color: var(--ink); cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.co__hamburger.is-on, .co__hamburger:hover { background: var(--blue); color: #fff; }
 
 .co__progress { display: flex; align-items: center; gap: 10rem; margin-left: auto; min-width: 0; }
-.co__progress-n, .co__progress-left { color: var(--muted); white-space: nowrap; }
+.co__progress-n, .co__progress-left { font-size: 12.5rem; color: var(--muted); white-space: nowrap; }
+
 .co__progress-track {
-  display: block; width: clamp(70rem, 16vw, 200rem); height: 6rem;
-  border: none; border-radius: 999rem; overflow: hidden; background: var(--co-blue-tint);
+  display: block; width: 100%; height: 4rem;
+  background: var(--co-blue-tint);
 }
 .co__progress-fill { display: block; height: 100%; background: var(--blue); transition: width var(--dur-mid) var(--ease-out); }
-
-.co__actions { display: flex; align-items: center; gap: 6rem; margin-left: auto; }
-.co__progress + .co__actions { margin-left: 0; }
-.co__btn {
-  padding: 8rem 14rem; border-radius: var(--radius-full);
-  border: var(--stroke) solid var(--blue); background: var(--paper); color: var(--blue);
-  font-family: 'Lato', var(--font-ui), sans-serif; font-size: 12.5rem; font-weight: 700;
-  letter-spacing: 0.02em; text-transform: none; cursor: pointer; white-space: nowrap;
-}
-.co__btn.is-on { background: var(--blue); color: #fff; border-color: var(--blue); }
-@media (hover: hover) { .co__btn:not(.is-on):hover { background: var(--co-blue-tint); } }
-.co__btn--exit { text-decoration: none; }
 
 @media (max-width: 780px) {
   .co__brand-text, .co__progress-left { display: none; }
@@ -456,29 +483,53 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 .co__main { flex: 1; width: 100%; max-width: 880rem; margin: 0 auto; padding: clamp(26rem, 4vw, 48rem) clamp(18rem, 4vw, 32rem) clamp(60rem, 9vh, 110rem); }
 
 /* ── Cover ─────────────────────────────────────────────────────────── */
-.cv__eyebrow { margin: 0 0 16rem; color: var(--muted); }
-.cv__title { font-size: clamp(36rem, 5.6vw, 76rem); margin: 0; }
-.cv__sub { margin: 18rem 0 0; font-family: var(--font-reading); font-size: clamp(17rem, 1.8vw, 21rem); line-height: 1.55; color: var(--muted); max-width: 52ch; }
+/* The banner: a flat colored rectangle standing in for the photo Rise itself
+   would show here. No stock photo — nothing was available to use honestly,
+   so the layout keeps the shape and the color carries it instead. */
+.cv__banner {
+  position: relative; margin: 0 0 clamp(24rem, 3.4vw, 36rem);
+  padding: clamp(48rem, 9vw, 96rem) clamp(20rem, 4vw, 40rem) clamp(56rem, 8vw, 80rem);
+  background: linear-gradient(135deg, var(--co-blue-dark, #0F52A0), var(--blue) 65%);
+  border-radius: var(--radius-l); overflow: hidden;
+}
+.cv__title {
+  position: relative; z-index: 1; margin: 0 0 clamp(28rem, 4vw, 44rem);
+  color: #fff; font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-weight: 900;
+  font-size: clamp(32rem, 5.4vw, 64rem); line-height: 1.05; max-width: 18ch;
+}
+.cv__start {
+  position: relative; z-index: 1; display: inline-block;
+  padding: 15rem 32rem; border: none; border-radius: var(--radius-full);
+  background: #fff; color: var(--blue);
+  font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-size: 15rem; font-weight: 800;
+  letter-spacing: 0.02em; text-transform: uppercase; cursor: pointer;
+  box-shadow: var(--co-shadow);
+}
+@media (hover: hover) { .cv__start:hover { background: var(--co-blue-tint); } }
+
+.cv__content { display: block; }
+.cv__sub { margin: 18rem 0 0; font-size: clamp(17rem, 1.8vw, 21rem); line-height: 1.55; color: var(--ink); max-width: 56ch; }
 
 .cv__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(160rem, 1fr)); gap: 18rem; margin: clamp(26rem, 4vw, 38rem) 0; padding: 20rem 0; border-top: var(--stroke) solid var(--line); border-bottom: var(--stroke) solid var(--line); }
 .cv__facts dt { color: var(--muted); margin-bottom: 5rem; }
-.cv__facts dd { margin: 0; font-size: 15rem; font-weight: 600; line-height: 1.4; }
+.cv__facts dd { margin: 0; font-size: 15rem; font-weight: 700; line-height: 1.4; }
 
 .cv__cta { display: flex; flex-wrap: wrap; gap: 12rem; }
 .cv__resume { margin: 14rem 0 0; color: var(--muted); }
 
 .cv__panel { margin: clamp(30rem, 4vw, 44rem) 0; padding: clamp(20rem, 2.6vw, 28rem); background: var(--co-surface); border: none; border-radius: var(--radius-l); box-shadow: var(--co-shadow); }
-.cv__h { font-size: clamp(18rem, 1.9vw, 22rem); margin: 0 0 16rem; }
+.cv__h { font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-weight: 900; font-size: clamp(20rem, 2.1vw, 24rem); margin: 0 0 10rem; }
+.cv__h-sub { font-size: 16rem; font-weight: 700; margin: 0 0 16rem; }
 .cv__obj { list-style: none; margin: 0; padding: 0; display: grid; gap: 12rem; }
-.cv__obj li { display: grid; grid-template-columns: 30rem minmax(0, 1fr); gap: 8rem; font-size: 16rem; line-height: 1.5; }
-.cv__obj .t-mono { color: var(--muted); padding-top: 3rem; }
+.cv__obj li { position: relative; padding-left: 22rem; font-size: 16rem; line-height: 1.5; }
+.cv__obj li::before { content: ''; position: absolute; left: 4rem; top: 8rem; width: 7rem; height: 7rem; border-radius: 50%; background: var(--blue); }
 
-.cv__h2 { font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em; font-size: clamp(22rem, 2.6vw, 30rem); margin: clamp(30rem, 4vw, 44rem) 0 14rem; }
-.cv__why p, .cv__body { font-family: var(--font-reading); font-size: 16.5rem; line-height: 1.7; max-width: var(--measure-body); margin: 0 0 1em; color: var(--muted); }
+.cv__h2 { font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em; font-size: clamp(22rem, 2.6vw, 30rem); margin: clamp(30rem, 4vw, 44rem) 0 14rem; }
+.cv__why p, .cv__body { font-size: 16.5rem; line-height: 1.7; max-width: var(--measure-body); margin: 0 0 1em; color: var(--ink); }
 
 /* ── Contents ──────────────────────────────────────────────────────── */
 .ct__title { font-size: clamp(32rem, 4.6vw, 60rem); margin: 0; }
-.ct__deck { margin: 16rem 0 clamp(28rem, 4vw, 40rem); font-family: var(--font-reading); font-size: 16.5rem; line-height: 1.65; color: var(--muted); max-width: var(--measure-body); }
+.ct__deck { margin: 16rem 0 clamp(28rem, 4vw, 40rem); font-family: 'Nunito Sans', var(--font-reading); font-size: 16.5rem; line-height: 1.65; color: var(--muted); max-width: var(--measure-body); }
 
 .ct__modules { list-style: none; margin: 0; padding: 0; display: grid; gap: 16rem; }
 .cm { border: none; border-radius: var(--radius-l); background: var(--co-surface); overflow: hidden; box-shadow: var(--co-shadow); }
@@ -492,46 +543,63 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 
 .cm__lessons { list-style: none; margin: 0; padding: 0; border-top: var(--stroke) solid var(--line); }
 .cl {
-  display: grid; grid-template-columns: 24rem minmax(0, 1fr) auto; gap: 14rem; align-items: start;
+  display: grid; grid-template-columns: 30rem minmax(0, 1fr) auto 16rem; gap: 14rem; align-items: start;
   width: 100%; text-align: left; padding: 13rem 18rem;
   border-bottom: var(--stroke) solid var(--line);
   transition: background var(--dur-fast) var(--ease-out);
 }
 .cm__lessons li:last-child .cl { border-bottom: 0; }
 @media (hover: hover) { .cl:hover { background: var(--co-blue-tint); } }
-.cl__tick { width: 22rem; height: 22rem; border: var(--stroke) solid currentColor; border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; margin-top: 2rem; }
-.cl.is-done .cl__tick { background: var(--green); color: var(--on-green); border-color: var(--ink); }
+.cl__icon {
+  width: 30rem; height: 30rem; border-radius: var(--radius-s);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--co-blue-tint); color: var(--blue); margin-top: 1rem;
+}
+.cl.is-done .cl__icon { background: var(--blue); color: #fff; }
 .cl__body { display: grid; gap: 3rem; min-width: 0; }
 .cl__title { font-size: 15.5rem; font-weight: 600; }
 .cl__summary { font-size: 13.5rem; line-height: 1.5; color: var(--muted); }
 .cl:hover .cl__summary { color: inherit; opacity: 0.75; }
-.cl__min { color: var(--muted); white-space: nowrap; padding-top: 3rem; }
+.cl__min { color: var(--muted); white-space: nowrap; padding-top: 6rem; }
 .cl:hover .cl__min { color: inherit; opacity: 0.75; }
+.cl__dot {
+  width: 16rem; height: 16rem; margin-top: 6rem; border-radius: 50%;
+  border: var(--stroke) solid var(--line); background: transparent;
+}
+.cl.is-done .cl__dot { background: var(--blue); border-color: var(--blue); }
 
-.ct__h2 { font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em; font-size: clamp(22rem, 2.6vw, 30rem); margin: clamp(34rem, 5vw, 52rem) 0 10rem; }
+.ct__h2 { font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em; font-size: clamp(22rem, 2.6vw, 30rem); margin: clamp(34rem, 5vw, 52rem) 0 10rem; }
 .ct__note { margin: 0 0 18rem; font-size: 14.5rem; color: var(--muted); max-width: 62ch; }
 .ct__scroll { overflow-x: auto; border: var(--stroke) solid var(--line); border-radius: var(--radius-m); }
 .ct__table { border-collapse: collapse; width: 100%; min-width: 560rem; }
 .ct__table th, .ct__table td { text-align: left; padding: 11rem 13rem; font-size: 14rem; line-height: 1.45; border-bottom: var(--stroke) solid var(--line); vertical-align: top; }
-.ct__table thead th { background: var(--blue); color: #fff; font-family: 'Lato', var(--font-ui), sans-serif; font-size: 11.5rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.ct__table thead th { background: var(--blue); color: #fff; font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-size: 11.5rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
 .ct__table tr.is-break td { background: var(--paper-2); color: var(--muted); font-style: italic; }
 .ct__table tr.is-assessment td, .ct__table tr.is-capstone td { background: var(--co-blue-tint); }
 .ct__out { color: var(--muted); }
 .ct__ends { display: flex; flex-wrap: wrap; gap: 12rem; margin-top: clamp(26rem, 4vw, 38rem); }
 
 /* ── Lesson ────────────────────────────────────────────────────────── */
-.ls__head { padding-bottom: clamp(18rem, 2.4vw, 26rem); margin-bottom: clamp(24rem, 3.4vw, 34rem); border-bottom: var(--stroke) solid var(--line); }
-.ls__crumb { display: flex; align-items: center; gap: 9rem; margin: 0 0 14rem; color: var(--muted); }
-.ls__dot { width: 10rem; height: 10rem; border-radius: 50%; background: var(--accent); border: 1px solid var(--ink); flex: none; }
-.ls__title { font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em; font-size: clamp(28rem, 3.8vw, 44rem); line-height: 1.05; margin: 0 0 14rem; }
-.ls__meta { margin: 0; color: var(--muted); }
+/* The lesson banner: a flat colour block behind the title, the same device
+   Rise uses to mark the start of a new lesson — with an eyebrow, a bold
+   title, and a short accent rule underneath. */
+.ls__head {
+  position: relative; margin-bottom: clamp(18rem, 2.4vw, 26rem);
+  padding: clamp(22rem, 3.4vw, 34rem) clamp(20rem, 3vw, 32rem) clamp(28rem, 4vw, 40rem);
+  background: var(--co-blue-tint); border-radius: var(--radius-l);
+}
+.ls__crumb { margin: 0 0 10rem; text-align: right; color: var(--muted); }
+.ls__title { font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em; font-size: clamp(26rem, 3.6vw, 40rem); line-height: 1.08; margin: 0; }
+.ls__rule { display: block; width: 64rem; height: 4rem; margin-top: 16rem; background: var(--ink); }
+.ls__meta { margin: 12rem 0 clamp(24rem, 3.4vw, 34rem); color: var(--muted); }
 
 .ls__obj { margin-bottom: clamp(26rem, 3.4vw, 36rem); padding: clamp(18rem, 2.4vw, 26rem); background: var(--co-surface); border: none; border-radius: var(--radius-l); box-shadow: var(--co-shadow); }
-.ls__intro { margin: 0 0 18rem; font-family: var(--font-reading); font-size: 16.5rem; line-height: 1.65; }
-.ls__obj-h { font-size: 16.5rem; margin: 0 0 12rem; }
-.ls__obj ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 9rem; }
-.ls__obj li { display: grid; grid-template-columns: 28rem minmax(0, 1fr); gap: 6rem; font-size: 15rem; line-height: 1.5; }
-.ls__obj .t-mono { color: var(--muted); padding-top: 3rem; }
+.ls__intro { margin: 0 0 18rem; font-family: 'Nunito Sans', var(--font-reading); font-size: 16.5rem; line-height: 1.65; }
+.ls__obj-h { font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-weight: 900; font-size: 18rem; margin: 0 0 8rem; }
+.ls__obj-sub { font-size: 15rem; font-weight: 700; margin: 0 0 12rem; }
+.ls__obj ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9rem; }
+.ls__obj li { position: relative; padding-left: 22rem; font-size: 15rem; line-height: 1.5; }
+.ls__obj li::before { content: ''; position: absolute; left: 4rem; top: 7rem; width: 7rem; height: 7rem; border-radius: 50%; background: var(--blue); }
 
 .ls__ext { margin-top: clamp(28rem, 4vw, 40rem); padding: clamp(18rem, 2.4vw, 24rem); border: var(--stroke) dashed var(--ink); border-radius: var(--radius-m); }
 .ls__ext-kicker { margin: 0 0 8rem; color: var(--muted); }
@@ -545,7 +613,7 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 /* ── Assessments ───────────────────────────────────────────────────── */
 .as__eyebrow, .cp__eyebrow { margin: 0 0 14rem; color: var(--muted); }
 .as__title, .cp__title, .rs__title { font-size: clamp(30rem, 4.4vw, 54rem); margin: 0; }
-.as__deck, .cp__deck, .rs__deck { margin: 16rem 0 26rem; font-family: var(--font-reading); font-size: 16.5rem; line-height: 1.65; color: var(--muted); max-width: var(--measure-body); }
+.as__deck, .cp__deck, .rs__deck { margin: 16rem 0 26rem; font-family: 'Nunito Sans', var(--font-reading); font-size: 16.5rem; line-height: 1.65; color: var(--muted); max-width: var(--measure-body); }
 .as__score { margin: 0 0 18rem; color: var(--muted); }
 .as__foot { margin-top: 30rem; }
 
@@ -555,15 +623,15 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 .cp__n { color: var(--muted); font-size: 15rem; }
 .cp__parts h2 { margin: 0 0 8rem; font-size: 17.5rem; }
 .cp__parts p { margin: 0; font-size: 15rem; line-height: 1.6; color: var(--muted); }
-.cp__h2 { font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em; font-size: clamp(20rem, 2.4vw, 26rem); margin: 0 0 8rem; }
+.cp__h2 { font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em; font-size: clamp(20rem, 2.4vw, 26rem); margin: 0 0 8rem; }
 .cp__note { margin: 0 0 16rem; font-size: 14.5rem; color: var(--muted); }
 .cp__scroll { overflow-x: auto; border: var(--stroke) solid var(--line); border-radius: var(--radius-m); margin-bottom: clamp(26rem, 4vw, 36rem); }
 .cp__table { border-collapse: collapse; width: 100%; min-width: 700rem; }
 .cp__table th, .cp__table td { text-align: left; padding: 11rem 13rem; font-size: 13.5rem; line-height: 1.5; border-bottom: var(--stroke) solid var(--line); vertical-align: top; }
-.cp__table thead th { background: var(--blue); color: #fff; font-family: 'Lato', var(--font-ui), sans-serif; font-size: 11.5rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.cp__table thead th { background: var(--blue); color: #fff; font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-size: 11.5rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
 .cp__table tbody th { background: var(--paper-2); font-weight: 700; }
 .cp__foot { margin-top: clamp(30rem, 4vw, 44rem); padding-top: 24rem; border-top: var(--stroke) solid var(--line); }
-.cp__done { margin: 0 0 18rem; font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; font-size: 22rem; }
+.cp__done { margin: 0 0 18rem; font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-weight: 900; font-size: 22rem; }
 .cp__links { display: flex; flex-wrap: wrap; gap: 12rem; }
 
 @media (prefers-reduced-motion: reduce) {

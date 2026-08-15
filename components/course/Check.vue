@@ -169,7 +169,7 @@ watch(allAnswered, v => emit('answered', v), { immediate: true })
   flex: none; width: 26rem; height: 26rem;
   border: var(--stroke) solid var(--line); border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Lato', var(--font-ui), sans-serif; font-size: 12rem; font-weight: 700; color: var(--muted);
+  font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-size: 12rem; font-weight: 700; color: var(--muted);
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
 

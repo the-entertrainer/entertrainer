@@ -26,26 +26,26 @@ const AROUND_THE_EDGES = 20 + 25 + 45 + 30
 
 export const COURSE: CourseMeta = {
   title: 'Artificial Intelligence: From Its Origins to the Frontier',
-  subtitle: 'A one-day pathway from the 1950s to the present, built for people who want to judge AI claims rather than repeat them',
+  subtitle: 'A one-day journey from the 1950s to today, for people who want to judge AI claims instead of just repeating them',
   description:
-    'A full-day course on how artificial intelligence actually developed — symbolic systems, two collapses, the learning revolution, transformers, generative models, agents and the frontier — and, running through all of it, a method for telling what is established from what is merely announced.',
+    'A full-day course on how artificial intelligence really developed — rule-based systems, two big collapses, the rise of machine learning, transformers, generative AI, agents, and where the field stands today. Through all of it, you learn one simple method: how to tell what is proven from what is only announced.',
   audience:
-    'Complete beginners welcome. Also built for professionals, educators, creators and managers who keep being asked what they think about AI and would like a defensible answer.',
+    'No experience needed. Built for beginners, and just as useful for working professionals, teachers, creators and managers who keep getting asked what they think about AI, and want a real answer.',
   promise:
-    'By the end of the day you will be able to explain how AI got here, say precisely what current systems do, and evaluate a claim about AI using evidence rather than instinct.',
-  prerequisites: 'None. No mathematics, no programming. Curiosity and a browser.',
+    'By the end of the day, you will be able to explain how AI got here, say clearly what today\'s systems can and cannot do, and judge any AI claim using evidence instead of guesswork.',
+  prerequisites: 'None. No maths, no coding. Just curiosity and a browser.',
   level: 'Beginner to intermediate',
   minutes: lessonMinutes + AROUND_THE_EDGES,
   objectives: [
-    'Explain the major stages in the development of AI, including the periods when it failed.',
-    'Distinguish between different AI approaches, model types and capabilities.',
-    'Evaluate AI claims using evidence, limitations and source quality.',
-    'Decide where AI is appropriate in your own work, and say why.'
+    'Explain the major stages in how AI developed, including the times it failed.',
+    'Tell different AI approaches, model types and abilities apart.',
+    'Judge AI claims using evidence, limits and the quality of the source.',
+    'Decide where AI is useful in your own work, and explain why.'
   ],
   whyThisMatters: [
-    'You are being asked to have opinions about this. In meetings, in hiring, in policy, in what your organisation buys — the questions arrive whether or not you feel qualified to answer them.',
-    'Most available explanation is written either to sell you something or to frighten you. Both distort in predictable directions, and both are easier to resist once you know how the technology actually works.',
-    'The history is genuinely useful, not decorative. This field has collapsed twice, both times after a period of confident forecasting from intelligent people. Knowing the shape of that pattern is the cheapest form of judgement available.'
+    'People expect you to have an opinion on this. It comes up in meetings, in hiring, in policy, in what your company buys — whether or not you feel ready to answer.',
+    'Most explanations you find online are written to sell you something or to scare you. Both kinds bend the truth in predictable ways. Once you understand how the technology actually works, both get easier to see through.',
+    'The history is not just background reading — it is useful on its own. This field has collapsed twice before, both times right after confident, smart people made big predictions. Knowing that pattern is one of the cheapest ways to gain good judgement.'
   ],
   currentAsOf: '15 August 2026'
 }

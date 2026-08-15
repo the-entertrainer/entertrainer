@@ -118,7 +118,7 @@ const counts = computed(() => ({
 .ref__tab {
   padding: 8rem 14rem; border-radius: var(--radius-full);
   border: var(--stroke) solid var(--blue); background: var(--paper); color: var(--blue);
-  font-family: 'Lato', var(--font-ui), sans-serif; font-size: 12.5rem; font-weight: 700;
+  font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-size: 12.5rem; font-weight: 700;
   letter-spacing: 0.02em; text-transform: none; cursor: pointer;
 }
 .ref__tab.is-on { background: var(--blue); color: #fff; }
@@ -139,7 +139,7 @@ const counts = computed(() => ({
 .gl__short { font-size: 14rem; color: var(--muted); line-height: 1.5; }
 .gl__sign { font-family: var(--font-mono); color: var(--muted); }
 .gl__full { padding: 0 16rem 16rem; }
-.gl__full p { margin: 0 0 8rem; font-family: var(--font-reading); font-size: 15rem; line-height: 1.65; max-width: 70ch; }
+.gl__full p { margin: 0 0 8rem; font-family: 'Nunito Sans', var(--font-reading); font-size: 15rem; line-height: 1.65; max-width: 70ch; }
 .gl__where { margin: 0; color: var(--muted); }
 @media (max-width: 640px) { .gl__head { grid-template-columns: minmax(0, 1fr) 20rem; } .gl__short { grid-column: 1 / -1; } }
 

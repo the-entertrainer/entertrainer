@@ -160,7 +160,7 @@ function playWalkB() {
 .ds__hint { margin: 10rem 0 0; color: var(--muted); }
 
 .ds__beat { margin-top: clamp(16rem, 2.2vw, 22rem); padding-top: clamp(16rem, 2.2vw, 22rem); border-top: var(--stroke) solid var(--line); display: grid; gap: 12rem; justify-items: start; }
-.ds__line { margin: 0; font-family: var(--font-reading); font-size: 15.5rem; line-height: 1.65; max-width: 62ch; }
+.ds__line { margin: 0; font-family: 'Nunito Sans', var(--font-reading); font-size: 15.5rem; line-height: 1.65; max-width: 62ch; }
 .ds__line b { font-family: inherit; }
 
 @media (prefers-reduced-motion: reduce) {

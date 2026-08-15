@@ -98,7 +98,7 @@ const watchUrl = computed(() => v.value
   border: var(--stroke) solid currentColor;
   display: flex; align-items: center; justify-content: center;
 }
-.vid__play-label { font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; font-size: 20rem; letter-spacing: 0; }
+.vid__play-label { font-family: 'Nunito Sans', var(--font-ui), sans-serif; font-weight: 900; font-size: 20rem; letter-spacing: 0; }
 .vid__play-note { font-size: 12.5rem; color: var(--muted); max-width: 34ch; text-align: center; }
 .vid__play:hover .vid__play-note { color: inherit; }
 

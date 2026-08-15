@@ -240,7 +240,7 @@ watchEffect(() => { if (text.value) store.reflect(props.blockKey, text.value) })
 }
 .tabs__tab.is-on { background: var(--blue); color: #fff; }
 @media (hover: hover) { .tabs__tab:not(.is-on):hover { background: var(--paper-3); color: var(--ink); } }
-.tabs__panel { padding: clamp(18rem, 2.4vw, 26rem); font-family: var(--font-reading); font-size: 16rem; line-height: 1.68; }
+.tabs__panel { padding: clamp(18rem, 2.4vw, 26rem); font-family: 'Nunito Sans', var(--font-reading); font-size: 16rem; line-height: 1.68; }
 
 /* ── Accordion ── */
 .acc__title { margin: 0; padding: 14rem 18rem; color: var(--muted); background: var(--paper-2); border-bottom: var(--stroke) solid var(--line); }
@@ -252,7 +252,7 @@ watchEffect(() => { if (text.value) store.reflect(props.blockKey, text.value) })
 }
 @media (hover: hover) { .acc__q:hover { background: var(--paper-2); } }
 .acc__sign { font-family: var(--font-mono); font-size: 20rem; color: var(--muted); flex: none; }
-.acc__a { margin: 0; padding: 0 18rem 18rem; font-family: var(--font-reading); font-size: 15.5rem; line-height: 1.65; color: var(--muted); max-width: 70ch; }
+.acc__a { margin: 0; padding: 0 18rem 18rem; font-family: 'Nunito Sans', var(--font-reading); font-size: 15.5rem; line-height: 1.65; color: var(--muted); max-width: 70ch; }
 
 /* ── Flashcards ── */
 .fc__title { margin: 0; padding: 14rem 18rem; color: var(--muted); background: var(--paper-2); border-bottom: var(--stroke) solid var(--line); }
@@ -317,7 +317,7 @@ watchEffect(() => { if (text.value) store.reflect(props.blockKey, text.value) })
 /* ── Scenario ── */
 .sc { padding: clamp(18rem, 2.4vw, 26rem); background: var(--paper-2); }
 .sc__kicker { margin: 0 0 12rem; color: var(--muted); }
-.sc__setup { margin: 0 0 12rem; font-family: var(--font-reading); font-size: 16rem; line-height: 1.65; }
+.sc__setup { margin: 0 0 12rem; font-family: 'Nunito Sans', var(--font-reading); font-size: 16rem; line-height: 1.65; }
 .sc__q { margin: 0 0 14rem; font-size: 16rem; font-weight: 700; }
 .sc__choices { list-style: none; margin: 0; padding: 0; display: grid; gap: 8rem; }
 .sc__choice {
@@ -344,6 +344,6 @@ watchEffect(() => { if (text.value) store.reflect(props.blockKey, text.value) })
 .rf__kicker { margin: 0 0 10rem; color: var(--muted); }
 .rf__prompt { margin: 0 0 8rem; font-size: 16.5rem; line-height: 1.5; font-weight: 600; }
 .rf__hint { margin: 0 0 14rem; font-size: 13.5rem; line-height: 1.55; color: var(--muted); }
-.rf__field { font-family: var(--font-reading); font-size: 15.5rem; }
+.rf__field { font-family: 'Nunito Sans', var(--font-reading); font-size: 15.5rem; }
 .rf__count { margin: 8rem 0 0; color: var(--muted); }
 </style>

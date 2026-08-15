@@ -77,12 +77,12 @@ export const M04: Module = {
           'Strip the two winters down and the same five stages appear. They also appear in the perceptron boom of 1958, which you will meet in module 6, and — this is the uncomfortable part — they are visible in aspects of the present.',
           'Naming the stages is not cynicism. Real capability was created in every one of these cycles, and it persisted after each collapse. The purpose of the pattern is to let you hold two things at once: this is genuinely useful, *and* the timeline being sold to me is probably wrong.'
         ] },
-        { type: 'timeline', items: [
-          { year: 'Stage 1', label: 'A real result', body: 'Something genuinely works, usually in a constrained setting. This part is not fake, and dismissing it is the sceptic\'s version of the same error.' },
-          { year: 'Stage 2', label: 'Extrapolation', body: 'The result is projected forward on the assumption that the remaining difficulty is proportional to the difficulty already overcome. It almost never is: the last 10% of a capability routinely costs more than the first 90%.' },
-          { year: 'Stage 3', label: 'Money', body: 'Funding arrives, priced against the extrapolation rather than the result. Timelines are set by investment horizons rather than by research.' },
-          { year: 'Stage 4', label: 'The plateau', body: 'Progress continues, but along a different curve than the one that was sold. The gap between the promise and the product becomes visible to people outside the field.' },
-          { year: 'Stage 5', label: 'Correction', body: 'Money leaves, quickly. The underlying capability does not vanish — it gets absorbed into ordinary software and stops being called AI. See the AI effect from module 1.' }
+        { type: 'process', caption: 'The five-stage cycle', steps: [
+          { label: 'A real result', body: 'Something genuinely works, usually in a constrained setting. This part is not fake, and dismissing it is the sceptic\'s version of the same error.' },
+          { label: 'Extrapolation', body: 'The result is projected forward on the assumption that the remaining difficulty is proportional to the difficulty already overcome. It almost never is: the last 10% of a capability routinely costs more than the first 90%.' },
+          { label: 'Money', body: 'Funding arrives, priced against the extrapolation rather than the result. Timelines are set by investment horizons rather than by research.' },
+          { label: 'The plateau', body: 'Progress continues, but along a different curve than the one that was sold. The gap between the promise and the product becomes visible to people outside the field.' },
+          { label: 'Correction', body: 'Money leaves, quickly. The underlying capability does not vanish — it gets absorbed into ordinary software and stops being called AI. See the AI effect from module 1.' }
         ] },
         { type: 'sort',
           prompt: 'Here are five statements a technology might attract. Sort each by which stage of the cycle it belongs to. The skill is separating the reported result from the projection attached to it.',

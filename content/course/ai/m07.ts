@@ -45,7 +45,7 @@ export const M07: Module = {
       ]
     },
     {
-      id: 'm07l2', title: 'The dominoes', minutes: 8, completion: 'read',
+      id: 'm07l2', title: 'The dominoes', minutes: 10, completion: 'read',
       summary: 'Vision, speech, translation — the same method, one domain after another.',
       blocks: [
         { type: 'text', body: [
@@ -59,6 +59,12 @@ export const M07: Module = {
           { year: '2015–2017', label: 'Games', body: 'Systems learn Atari games from pixels alone; AlphaGo beats a world champion at Go; AlphaZero learns chess, shogi and Go from self-play with no human games at all.' },
           { year: '2017', label: 'Transformers', body: 'The architecture appears, initially for translation. Everything in module 8 follows from it.' },
           { year: '2020–2022', label: 'Generation', body: 'Large language models and diffusion image models move from research to consumer products, and the public conversation changes completely.' }
+        ] },
+        { type: 'match', prompt: 'Pair each field with what actually changed in it — not just "it got better".', pairs: [
+          { left: 'Vision', right: 'Deep convolutional networks took over the field within about two years of AlexNet', why: 'The ImageNet result from the previous lesson, spreading.' },
+          { left: 'Speech', right: 'Word error rates fell sharply; voice assistants went from demo to viable product', why: 'The same recipe — big network, big data, big compute — one domain over.' },
+          { left: 'Translation', right: 'Neural methods displaced statistical ones; major services had switched by 2016', why: 'The domino that mattered most: the exact problem that helped cause the first winter in 1966.' },
+          { left: 'Games', right: 'Systems learned Atari from raw pixels, then a self-play system beat a world Go champion', why: 'Module 7\'s next lesson, Move 37, is entirely about this one.' }
         ] },
         { type: 'takeaway', body: 'The decade\'s lesson is not that any single system was clever. It is that one recipe — big network, big data, big compute — kept working in domain after domain, including several where domain experts were confident it would not.' }
       ]

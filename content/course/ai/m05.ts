@@ -77,7 +77,11 @@ export const M05: Module = {
               'It has been central to game-playing systems'
             ], answer: [0, 1, 3],
             rationale: 'Reinforcement learning is powerful where trial and error is cheap and repeatable — games and simulations. Commercially, supervised learning dominates by a wide margin.',
-            distractors: { 2: 'Supervised learning is by far the most deployed. Reinforcement learning is prominent in research and in a few high-profile systems.' } }
+            distractors: { 2: 'Supervised learning is by far the most deployed. Reinforcement learning is prominent in research and in a few high-profile systems.' } },
+          { id: 'q0505', kind: 'fitb', difficulty: 'moderate', objective: 'Distinguish AI approaches',
+            stem: 'Fill in the blank: hiding part of unlabelled text and training a model to predict what was hidden is called ___-supervised learning.',
+            options: [], answer: [], blankAnswers: ['self', 'self-supervised', 'self supervised'],
+            rationale: 'Self-supervised. The hidden part is the label, generated for free from raw text — which is what let training scale to enormous unlabelled datasets and is the reason large language models exist at all.' }
         ] }
       ]
     },
@@ -110,7 +114,7 @@ export const M05: Module = {
       ]
     },
     {
-      id: 'm05l4', title: 'Overfitting, and the benchmark problem', minutes: 9, completion: 'check',
+      id: 'm05l4', title: 'Overfitting, and the benchmark problem', minutes: 10, completion: 'check',
       summary: 'The two ways a model looks better than it is.',
       blocks: [
         { type: 'text', body: [
@@ -122,6 +126,16 @@ export const M05: Module = {
             { label: 'Training accuracy', body: 'How well it does on what it was taught. Always the highest number, and the least informative. On its own it tells you the model has memory, not that it has learned.' },
             { label: 'Validation accuracy', body: 'Performance on held-out data used while tuning. Honest at first, but the more decisions you make by looking at it, the more you have quietly fitted to it too.' },
             { label: 'Test accuracy', body: 'Performance on data touched exactly once, at the end. The only one worth reporting — and the number most often absent from a slide.' }
+          ] },
+        { type: 'chart', kind: 'line', unit: '%',
+          caption: 'Validation accuracy as a model gets more complex — an illustrative pattern, not measured data',
+          note: 'The shape is the point, not the numbers. Accuracy on held-out data rises as the model gets more expressive, peaks, then falls as it starts fitting noise in the training set instead of the underlying pattern. Training accuracy alone would keep climbing past that peak — which is exactly why it is the least informative of the three numbers above.',
+          data: [
+            { label: 'Too simple', value: 58 },
+            { label: '', value: 72 },
+            { label: 'Good fit', value: 89 },
+            { label: '', value: 83 },
+            { label: 'Overfit', value: 68 }
           ] },
         { type: 'text', body: [
           'The same problem occurs at the scale of the whole field, and this is the version that matters when you read the news. A benchmark is a shared test set that everyone reports against. Over time, the field collectively overfits to it: architectures, training choices and data get selected for benchmark performance, and the benchmark stops measuring general capability and starts measuring benchmark capability.',

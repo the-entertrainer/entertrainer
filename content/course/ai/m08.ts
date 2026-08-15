@@ -28,17 +28,17 @@ export const M08: Module = {
       ]
     },
     {
-      id: 'm08l2', title: 'Tokens, embeddings, attention', minutes: 11, completion: 'check',
+      id: 'm08l2', title: 'Tokens, embeddings, attention', minutes: 12, completion: 'check',
       summary: 'The three words you need to read anything technical about modern AI.',
       blocks: [
         { type: 'video', videoId: 'v-transformers' },
-        { type: 'labeled', caption: 'The three concepts, in order',
-          parts: [
-            { label: 'Token', body: 'Text is chopped into pieces before anything else happens. Not quite words: common words are one token, rarer ones split into fragments, and punctuation and spaces count. "Understanding" might be "under" + "standing". This is why models are sometimes strangely bad at counting letters in a word — they do not see letters, they see tokens. It is also the unit you are billed in.' },
-            { label: 'Embedding', body: 'Each token becomes a list of numbers — a point in a space with hundreds or thousands of dimensions. Positions in that space are learned during training such that tokens used in similar ways end up near each other. This is what people mean when they say a model "represents meaning": meaning is a location, and similarity is distance.' },
-            { label: 'Attention', body: 'For each token, the model computes how much every other token should influence it, and updates its representation accordingly. In "the bank was steep and muddy", the word "bank" is pulled towards its geographic sense by "steep" and "muddy". Context is not looked up in a rule; it is computed as a weighted blend.' },
-            { label: 'Layers', body: 'That attention-and-update step is repeated dozens of times. Early layers handle local grammar; later ones handle longer-range structure. What each layer does is discovered in training, not designed, which is why interpretability is hard.' },
-            { label: 'Prediction', body: 'At the end, the model outputs a probability for every possible next token. One is chosen, appended to the input, and the whole process runs again for the next token. That loop is all that is happening when text appears on your screen a word at a time.' }
+        { type: 'hotspot', diagram: 'token-pipeline', caption: 'The three concepts, in order — plus what comes before and after them',
+          points: [
+            { x: 32, y: 49.8, label: 'Token', body: 'Text is chopped into pieces before anything else happens. Not quite words: common words are one token, rarer ones split into fragments, and punctuation and spaces count. "Understanding" might be "under" + "standing". This is why models are sometimes strangely bad at counting letters in a word — they do not see letters, they see tokens. It is also the unit you are billed in.' },
+            { x: 48.75, y: 49.8, label: 'Embedding', body: 'Each token becomes a list of numbers — a point in a space with hundreds or thousands of dimensions. Positions in that space are learned during training such that tokens used in similar ways end up near each other. This is what people mean when they say a model "represents meaning": meaning is a location, and similarity is distance.' },
+            { x: 68, y: 40, label: 'Attention', body: 'For each token, the model computes how much every other token should influence it, and updates its representation accordingly. In "the bank was steep and muddy", the word "bank" is pulled towards its geographic sense by "steep" and "muddy". Context is not looked up in a rule; it is computed as a weighted blend.' },
+            { x: 68, y: 53.3, label: 'Layers', body: 'That attention-and-update step is repeated dozens of times — the stack drawn here. Early layers handle local grammar; later ones handle longer-range structure. What each layer does is discovered in training, not designed, which is why interpretability is hard.' },
+            { x: 86, y: 49.8, label: 'Prediction', body: 'At the end, the model outputs a probability for every possible next token. One is chosen, appended to the input, and the whole process runs again for the next token. That loop is all that is happening when text appears on your screen a word at a time.' }
           ] },
         { type: 'flashcards', title: 'The vocabulary, in your own words', cards: [
           { front: 'Token', back: 'A chunk of text — roughly a word or word-fragment. The unit the model actually processes and the unit you are charged for.' },
@@ -77,7 +77,11 @@ export const M08: Module = {
               1: 'The user is not consulted; the weights are computed from the text.',
               2: 'Nothing to do with time budgets.',
               3: 'That would be a different technique entirely — attention operates at inference over the current input.'
-            } }
+            } },
+          { id: 'q0806', kind: 'fitb', difficulty: 'moderate', objective: 'Define token, embedding and attention',
+            stem: 'Fill in the blank: the mechanism by which each token\'s representation is updated based on how relevant every other token is to it is called ___.',
+            options: [], answer: [], blankAnswers: ['attention'],
+            rationale: 'Attention. It is what pulls "bank" towards its geographic sense in "the bank was steep and muddy" — computed as a weighted blend, not looked up in a rule.' }
         ] }
       ]
     },
@@ -88,10 +92,10 @@ export const M08: Module = {
         { type: 'text', body: [
           'A common misunderstanding is that a language model is trained to be helpful. It is not, at least not initially. It is trained to predict text, and helpfulness is added afterwards by a separate process. Knowing the three stages explains a surprising amount of observed behaviour.'
         ] },
-        { type: 'timeline', items: [
-          { year: 'Stage 1', label: 'Pretraining', body: 'Predict the next token, across an enormous quantity of text. This is where essentially all the knowledge and language ability comes from, and it accounts for the overwhelming majority of the compute cost. The output of this stage is a model that continues text plausibly and has no concept of answering a question — offered "What is the capital of France?" it might reasonably continue with more exam questions.' },
-          { year: 'Stage 2', label: 'Instruction tuning', body: 'Further training on examples of instructions paired with good responses. This teaches the format of assistance: that a question should be answered rather than continued. Far cheaper than pretraining, and it changes behaviour rather than knowledge.' },
-          { year: 'Stage 3', label: 'Preference tuning', body: 'Humans compare pairs of responses and say which is better. A reward model is fitted to those preferences, and the language model is tuned to score well against it. Commonly called RLHF. This is where tone, refusal behaviour, hedging and much of what people call a model\'s "personality" are set.' }
+        { type: 'process', caption: 'The three stages, in order', steps: [
+          { label: 'Pretraining', body: 'Predict the next token, across an enormous quantity of text. This is where essentially all the knowledge and language ability comes from, and it accounts for the overwhelming majority of the compute cost. The output of this stage is a model that continues text plausibly and has no concept of answering a question — offered "What is the capital of France?" it might reasonably continue with more exam questions.' },
+          { label: 'Instruction tuning', body: 'Further training on examples of instructions paired with good responses. This teaches the format of assistance: that a question should be answered rather than continued. Far cheaper than pretraining, and it changes behaviour rather than knowledge.' },
+          { label: 'Preference tuning', body: 'Humans compare pairs of responses and say which is better. A reward model is fitted to those preferences, and the language model is tuned to score well against it. Commonly called RLHF. This is where tone, refusal behaviour, hedging and much of what people call a model\'s "personality" are set.' }
         ] },
         { type: 'video', videoId: 'v-rlhf' },
         { type: 'text', body: [

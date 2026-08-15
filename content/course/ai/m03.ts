@@ -25,7 +25,7 @@ export const M03: Module = {
       ]
     },
     {
-      id: 'm03l2', title: 'Search: the first great idea', minutes: 9, completion: 'check',
+      id: 'm03l2', title: 'Search: the first great idea', minutes: 10, completion: 'check',
       summary: 'How to be intelligent by trying things, and why that stops working.',
       blocks: [
         { type: 'text', body: [
@@ -44,6 +44,15 @@ export const M03: Module = {
           'And here is the wall the whole era ran into. Suppose each position has about thirty legal moves — roughly true for chess. Looking one move ahead means 30 positions. Two moves, 900. Four moves, 810,000. Ten moves, about 590 trillion. The tree does not grow; it explodes.',
           'This is combinatorial explosion, and no amount of faster hardware fixes it, because the problem grows exponentially and hardware improves linearly. Every serious search system is therefore a system for *not* searching: better heuristics, pruning, and a willingness to accept a good answer rather than the best one. When Deep Blue beat Kasparov in 1997, it was not because it looked at every possibility. It was because it looked at astonishingly few of the ones that mattered.'
         ] },
+        { type: 'chart', kind: 'line', scale: 'log',
+          caption: 'Positions to consider, by how many moves you look ahead (30 legal moves per position)',
+          note: 'Plotted on a log scale on purpose — on a normal axis the first three points would sit invisibly on the baseline next to the last one, which is the entire point being made.',
+          data: [
+            { label: '1 move', value: 30 },
+            { label: '2 moves', value: 900 },
+            { label: '4 moves', value: 810000 },
+            { label: '10 moves', value: 590490000000000 }
+          ] },
         { type: 'evidence', confidence: 'high', sourceId: 's-lighthill',
           claim: 'Combinatorial explosion was identified as a fundamental obstacle to scaling early AI, not merely an engineering inconvenience.',
           basis: 'The 1973 Lighthill Report makes this its central technical criticism: methods that worked on small problems could not be expected to scale to real ones. The report is available in full and the argument is in its summary.' },

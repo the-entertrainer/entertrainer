@@ -31,6 +31,47 @@ const sortScore = computed(() => {
   return props.block.items.filter((it: any, i: number) => placed[i] === it.bucket).length
 })
 
+/* ── Matching ─────────────────────────────────────────────────────────── */
+// Pair every left item with its right item — sort's exact pattern (click to
+// place, a Check button, per-item feedback), just pairing two lists instead
+// of bucketing one.
+const matchLeftSel = ref<number | null>(null)
+/** leftIndex -> the display position (post-shuffle) of the right item placed against it. */
+const matchPicked = reactive<Record<number, number>>({})
+const matchChecked = ref(false)
+/** A shuffle of the right column's display order, fixed once per block instance. */
+const matchRightOrder = ref<number[]>([])
+onMounted(() => {
+  if (props.block.type !== 'match') return
+  const order = [...Array(props.block.pairs.length).keys()]
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[order[i], order[j]] = [order[j], order[i]]
+  }
+  matchRightOrder.value = order
+})
+function pickLeft(i: number) {
+  if (matchChecked.value) return
+  matchLeftSel.value = matchLeftSel.value === i ? null : i
+}
+function pickRight(displayIndex: number) {
+  if (matchChecked.value || matchLeftSel.value === null) return
+  for (const k of Object.keys(matchPicked)) {
+    if (matchPicked[+k] === displayIndex) delete matchPicked[+k]
+  }
+  matchPicked[matchLeftSel.value] = displayIndex
+  matchLeftSel.value = null
+}
+const matchTakenDisplayIndices = computed(() => new Set(Object.values(matchPicked)))
+const matchScore = computed(() => {
+  if (props.block.type !== 'match') return 0
+  let right = 0
+  for (const li of Object.keys(matchPicked)) {
+    if (matchRightOrder.value[matchPicked[+li]] === +li) right++
+  }
+  return right
+})
+
 /* ── Scenario ─────────────────────────────────────────────────────────── */
 const chosen = ref<number | null>(null)
 
@@ -102,6 +143,43 @@ watchEffect(() => { if (text.value) store.reflect(props.blockKey, text.value) })
     <p v-else class="t-mono sort__score" role="status">{{ sortScore }} of {{ block.items.length }} placed correctly</p>
   </div>
 
+  <!-- ── Matching ────────────────────────────────────────────────────── -->
+  <div v-else-if="block.type === 'match'" class="match">
+    <p class="match__prompt">{{ block.prompt }}</p>
+    <div class="match__grid">
+      <ul class="match__col">
+        <li v-for="(p, i) in block.pairs" :key="`l${i}`">
+          <button type="button" class="match__item"
+                  :class="{ 'is-sel': matchLeftSel === i, 'is-done': matchPicked[i] !== undefined,
+                            'is-right': matchChecked && matchRightOrder[matchPicked[i]] === i,
+                            'is-wrong': matchChecked && matchPicked[i] !== undefined && matchRightOrder[matchPicked[i]] !== i }"
+                  :disabled="matchChecked" @click="pickLeft(i)">{{ p.left }}</button>
+        </li>
+      </ul>
+      <ul class="match__col">
+        <li v-for="(ri, di) in matchRightOrder" :key="`r${di}`">
+          <button type="button" class="match__item"
+                  :class="{ 'is-taken': matchTakenDisplayIndices.has(di) }"
+                  :disabled="matchChecked" @click="pickRight(di)">{{ block.pairs[ri].right }}</button>
+        </li>
+      </ul>
+    </div>
+    <button v-if="!matchChecked" type="button" class="ticket ticket--sm"
+            :disabled="Object.keys(matchPicked).length < block.pairs.length" @click="matchChecked = true">
+      Check my pairing
+    </button>
+    <template v-else>
+      <p class="t-mono match__score" role="status">{{ matchScore }} of {{ block.pairs.length }} paired correctly</p>
+      <div class="match__review">
+        <div v-for="(p, i) in block.pairs" :key="`v${i}`" class="match__row"
+             :class="matchRightOrder[matchPicked[i]] === i ? 'is-right' : 'is-wrong'">
+          <p class="match__pair"><b>{{ p.left }}</b> → {{ p.right }}</p>
+          <p v-if="p.why" class="match__why">{{ p.why }}</p>
+        </div>
+      </div>
+    </template>
+  </div>
+
   <!-- ── Scenario ────────────────────────────────────────────────────── -->
   <div v-else-if="block.type === 'scenario'" class="sc">
     <p class="t-mono sc__kicker">Scenario</p>
@@ -143,7 +221,7 @@ watchEffect(() => { if (text.value) store.reflect(props.blockKey, text.value) })
 
 <style scoped>
 /* Shared shell for every interaction in this file. */
-.tabs, .acc, .fc, .sort, .sc, .rf {
+.tabs, .acc, .fc, .sort, .match, .sc, .rf {
   margin: clamp(20rem, 2.6vw, 30rem) 0;
   border: var(--stroke) solid var(--line);
   border-radius: var(--radius-l);
@@ -210,6 +288,30 @@ watchEffect(() => { if (text.value) store.reflect(props.blockKey, text.value) })
 .sort__bucket.is-wrong { background: var(--red); color: var(--on-red); }
 .sort__why { margin: 10rem 0 0; font-size: 13.5rem; line-height: 1.55; color: var(--muted); }
 .sort__score { margin: 0; color: var(--muted); }
+
+/* ── Matching ── */
+.match { padding: clamp(18rem, 2.4vw, 26rem); }
+.match__prompt { margin: 0 0 18rem; font-size: 16rem; line-height: 1.5; font-weight: 600; }
+.match__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12rem 16rem; margin-bottom: 16rem; }
+.match__col { list-style: none; margin: 0; padding: 0; display: grid; gap: 8rem; align-content: start; }
+.match__item {
+  width: 100%; text-align: left; padding: 11rem 14rem; border-radius: var(--radius-m);
+  border: var(--stroke) solid var(--ink); background: var(--paper);
+  font-size: 14.5rem; line-height: 1.4; cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) { .match__item:not(:disabled):hover { background: var(--paper-3); } }
+.match__item.is-sel { background: var(--yellow); color: var(--on-yellow); }
+.match__item.is-done, .match__item.is-taken { opacity: 0.6; }
+.match__item.is-right { background: var(--green); color: var(--on-green); opacity: 1; border-width: var(--stroke); }
+.match__item.is-wrong { background: var(--red); color: var(--on-red); opacity: 1; }
+.match__item:disabled { cursor: default; }
+.match__score { margin: 0 0 14rem; color: var(--muted); }
+.match__review { display: grid; gap: 12rem; }
+.match__row { padding: 12rem 14rem; border-radius: var(--radius-m); border-left: 5rem solid var(--red); background: var(--paper); }
+.match__row.is-right { border-left-color: var(--green); }
+.match__pair { margin: 0; font-size: 14.5rem; }
+.match__why { margin: 6rem 0 0; font-size: 13.5rem; line-height: 1.55; color: var(--muted); }
 
 /* ── Scenario ── */
 .sc { padding: clamp(18rem, 2.4vw, 26rem); background: var(--paper-2); }

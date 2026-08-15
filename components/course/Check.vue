@@ -20,13 +20,19 @@ const emit = defineEmits<{ answered: [boolean] }>()
 const store = useCourseStore()
 
 const picked = reactive<Record<string, number[]>>({})
+const pickedText = reactive<Record<string, string>>({})
 const submitted = reactive<Record<string, boolean>>({})
 
 onMounted(() => {
   // Restore previous answers so a revisited lesson shows your working.
   for (const q of props.questions) {
-    const prev = store.answers[q.id]
-    if (prev) { picked[q.id] = [...prev]; submitted[q.id] = true }
+    if (q.kind === 'fitb') {
+      const prev = store.textAnswers[q.id]
+      if (prev !== undefined) { pickedText[q.id] = prev; submitted[q.id] = true }
+    } else {
+      const prev = store.answers[q.id]
+      if (prev) { picked[q.id] = [...prev]; submitted[q.id] = true }
+    }
   }
 })
 
@@ -41,12 +47,24 @@ function toggle(q: Question, i: number) {
 }
 
 function submit(q: Question) {
+  if (q.kind === 'fitb') {
+    if (!pickedText[q.id]?.trim()) return
+    submitted[q.id] = true
+    store.answerText(q.id, pickedText[q.id])
+    return
+  }
   if (!picked[q.id]?.length) return
   submitted[q.id] = true
   store.answer(q.id, picked[q.id])
 }
 
+const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, ' ')
+
 const isCorrect = (q: Question) => {
+  if (q.kind === 'fitb') {
+    const given = norm(pickedText[q.id] ?? '')
+    return (q.blankAnswers ?? []).some(a => norm(a) === given)
+  }
   const p = [...(picked[q.id] ?? [])].sort()
   const a = [...q.answer].sort()
   return p.length === a.length && p.every((v, i) => v === a[i])
@@ -65,7 +83,14 @@ watch(allAnswered, v => emit('answered', v), { immediate: true })
       <p class="ck__stem">{{ q.stem }}</p>
       <p v-if="q.kind === 'mrq'" class="t-mono ck__hint">Select all that apply</p>
 
-      <ul class="ck__opts" :role="q.kind === 'mrq' ? 'group' : 'radiogroup'">
+      <template v-if="q.kind === 'fitb'">
+        <label class="sr-only" :for="`fitb-${q.id}`">Your answer</label>
+        <input :id="`fitb-${q.id}`" v-model="pickedText[q.id]" type="text" class="glass-field ck__blank"
+               :class="{ 'is-right': submitted[q.id] && isCorrect(q), 'is-wrong': submitted[q.id] && !isCorrect(q) }"
+               :disabled="submitted[q.id]" placeholder="Type the word" autocomplete="off"
+               @keydown.enter="submit(q)" />
+      </template>
+      <ul v-else class="ck__opts" :role="q.kind === 'mrq' ? 'group' : 'radiogroup'">
         <li v-for="(o, i) in q.options" :key="i">
           <button
             type="button" class="ck__opt"
@@ -90,7 +115,7 @@ watch(allAnswered, v => emit('answered', v), { immediate: true })
       </ul>
 
       <button v-if="!submitted[q.id]" type="button" class="ticket ticket--sm ck__submit"
-              :disabled="!picked[q.id]?.length" @click="submit(q)">
+              :disabled="q.kind === 'fitb' ? !pickedText[q.id]?.trim() : !picked[q.id]?.length" @click="submit(q)">
         Check my answer
       </button>
 
@@ -141,6 +166,10 @@ watch(allAnswered, v => emit('answered', v), { immediate: true })
   display: flex; align-items: center; justify-content: center;
 }
 .ck__dot { width: 10rem; height: 10rem; border-radius: 2rem; background: var(--ink); }
+
+.ck__blank { margin: 12rem 0 0; max-width: 320rem; font-size: 15rem; }
+.ck__blank.is-right { border-color: var(--green); background: color-mix(in srgb, var(--green) 20%, var(--paper)); }
+.ck__blank.is-wrong { border-color: var(--red); background: color-mix(in srgb, var(--red) 16%, var(--paper)); }
 
 .ck__submit { margin-top: 14rem; }
 

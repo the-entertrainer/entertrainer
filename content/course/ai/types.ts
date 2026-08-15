@@ -78,14 +78,17 @@ export interface Source {
    different option counts and answer lengths. */
 export interface Question {
   id: string
-  kind: 'mcq' | 'mrq' | 'tf'
+  kind: 'mcq' | 'mrq' | 'tf' | 'fitb'
   stem: string
+  /** Unused (empty array) when kind is 'fitb'. */
   options: string[]
-  /** Indices into `options`. More than one makes it a multiple-response. */
+  /** Indices into `options`. More than one makes it a multiple-response. Unused when kind is 'fitb'. */
   answer: number[]
+  /** Accepted answers for a fill-in-the-blank, matched trimmed and case-insensitive. Required when kind is 'fitb'. */
+  blankAnswers?: string[]
   /** Why the right answer is right. Shown after the learner commits. */
   rationale: string
-  /** Per-option feedback for the wrong ones, keyed by option index. */
+  /** Per-option feedback for the wrong ones, keyed by option index. Not used for 'fitb'. */
   distractors?: Record<number, string>
   difficulty: 'easy' | 'moderate' | 'hard'
   /** Which course objective this question is evidence for. */
@@ -115,6 +118,25 @@ export type Block =
   | { type: 'reflect'; prompt: string; hint?: string; minWords?: number }
   | { type: 'scenario'; setup: string; question: string; choices: { text: string; verdict: 'best' | 'workable' | 'poor'; feedback: string }[] }
   | { type: 'practice'; title: string; steps: string[]; output: string }
+  /** Undated, ordered steps — a procedure, not a chronology. Where `timeline`
+   *  is being used for something that isn't calendar time, this is the fix. */
+  | { type: 'process'; caption?: string; steps: { label: string; body: string }[] }
+  /** Pair every left item with its right item. Ungraded practice, like `sort`,
+   *  just pairing two lists instead of bucketing one. */
+  | { type: 'match'; prompt: string; pairs: { left: string; right: string; why?: string }[] }
+  /** A flat, self-drawn bar or line chart — no library, same label/value pairs
+   *  for both; `line` just connects them instead of drawing bars. `scale:
+   *  'log'` is for data that is only honest on a log axis — exponential
+   *  growth plotted linearly is not a simplification, it is unreadable. */
+  | { type: 'chart'; kind: 'bar' | 'line'; caption: string; note?: string; unit?: string; scale?: 'linear' | 'log'; data: { label: string; value: number }[] }
+  /** The real Rise "labeled graphic": numbered pins over a hand-drawn diagram,
+   *  each revealing its caption on click. `diagram` selects which base drawing
+   *  CourseHotspot renders under the pins; `points` are percent (0-100) over
+   *  its viewBox. */
+  | { type: 'hotspot'; diagram: 'tape-machine' | 'neural-net' | 'token-pipeline' | 'four-modes'; caption: string; points: { x: number; y: number; label: string; body: string }[] }
+  /** The gradient-descent interactive in m06l3. Bespoke and singular — no
+   *  authored data, like CourseReference. */
+  | { type: 'descent' }
 
 export interface Lesson {
   id: string

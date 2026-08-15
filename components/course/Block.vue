@@ -32,6 +32,35 @@ const b = computed(() => props.block as any)
 const resources = computed(() =>
   b.value.resourceIds ? b.value.resourceIds.map((id: string) => resourceById(id)).filter(Boolean) : [])
 const source = computed(() => b.value.sourceId ? sourceById(b.value.sourceId) : undefined)
+
+/* ── Chart geometry ───────────────────────────────────────────────────────
+   Self-drawn, no library — the same reasoning as the site's generated
+   thumbnails and share card: it cannot drift from the palette, and a chart
+   this simple does not need a dependency. `bar` and `line` share one data
+   shape (ordered label/value pairs); `line` just connects the same points
+   instead of drawing columns. */
+const CHART_W = 640, CHART_H = 300, CHART_PAD = 42, BAR_GAP = 22
+// Exponential growth plotted on a linear axis is not a simplification, it's
+// unreadable — the early points collapse to the baseline next to the last
+// one. `scale: 'log'` maps through log10 before anything is positioned.
+const chartVal = (v: number) => b.value.scale === 'log' ? Math.log10(Math.max(v, 1)) : v
+const chartMax = computed(() =>
+  b.value.type === 'chart' ? Math.max(...b.value.data.map((d: any) => chartVal(d.value)), 1) : 1)
+const barWidth = computed(() => {
+  if (b.value.type !== 'chart') return 0
+  const n = b.value.data.length
+  return (CHART_W - CHART_PAD * 2 - BAR_GAP * (n - 1)) / n
+})
+const barX = (i: number) => CHART_PAD + i * (barWidth.value + BAR_GAP)
+const barHeight = (v: number) => (chartVal(v) / chartMax.value) * (CHART_H - CHART_PAD * 2)
+const barY = (v: number) => CHART_H - CHART_PAD - barHeight(v)
+const ptX = (i: number) => {
+  const n = b.value.data.length
+  return n <= 1 ? CHART_PAD : CHART_PAD + i * ((CHART_W - CHART_PAD * 2) / (n - 1))
+}
+const ptY = (v: number) => CHART_H - CHART_PAD - (chartVal(v) / chartMax.value) * (CHART_H - CHART_PAD * 2)
+const linePoints = computed(() =>
+  b.value.type === 'chart' ? b.value.data.map((d: any, i: number) => `${ptX(i)},${ptY(d.value)}`).join(' ') : '')
 </script>
 
 <template>
@@ -107,6 +136,46 @@ const source = computed(() => b.value.sourceId ? sourceById(b.value.sourceId) : 
     </dl>
   </figure>
 
+  <!-- Process: undated, ordered steps. Where timeline has a year column this
+       has a running numeral instead — the fix for content that is a procedure,
+       not a chronology. -->
+  <figure v-else-if="b.type === 'process'" class="bk-proc">
+    <figcaption v-if="b.caption" class="t-mono">{{ b.caption }}</figcaption>
+    <ol>
+      <li v-for="(s, i) in b.steps" :key="i">
+        <span class="t-mono bk-proc__n">{{ String(i + 1).padStart(2, '0') }}</span>
+        <div>
+          <p class="bk-proc__label">{{ s.label }}</p>
+          <p class="bk-proc__body">{{ s.body }}</p>
+        </div>
+      </li>
+    </ol>
+  </figure>
+
+  <!-- Chart: flat, self-drawn, no library. -->
+  <figure v-else-if="b.type === 'chart'" class="bk-chart">
+    <figcaption class="t-mono">{{ b.caption }}</figcaption>
+    <svg :viewBox="`0 0 ${CHART_W} ${CHART_H}`" class="bk-chart__svg" role="img" :aria-label="b.caption">
+      <line :x1="CHART_PAD" :y1="CHART_H - CHART_PAD" :x2="CHART_W - CHART_PAD" :y2="CHART_H - CHART_PAD" class="bk-chart__axis" />
+      <template v-if="b.kind === 'bar'">
+        <g v-for="(d, i) in b.data" :key="i">
+          <rect :x="barX(i)" :y="barY(d.value)" :width="barWidth" :height="barHeight(d.value)" class="bk-chart__bar" />
+          <text :x="barX(i) + barWidth / 2" :y="barY(d.value) - 10" text-anchor="middle" class="bk-chart__val">{{ d.value.toLocaleString() }}{{ b.unit }}</text>
+          <text :x="barX(i) + barWidth / 2" :y="CHART_H - CHART_PAD + 22" text-anchor="middle" class="bk-chart__label">{{ d.label }}</text>
+        </g>
+      </template>
+      <template v-else>
+        <polyline :points="linePoints" class="bk-chart__line" fill="none" />
+        <g v-for="(d, i) in b.data" :key="i">
+          <circle :cx="ptX(i)" :cy="ptY(d.value)" r="5.5" class="bk-chart__dot" />
+          <text :x="ptX(i)" :y="ptY(d.value) - 12" text-anchor="middle" class="bk-chart__val">{{ d.value.toLocaleString() }}{{ b.unit }}</text>
+          <text :x="ptX(i)" :y="CHART_H - CHART_PAD + 22" text-anchor="middle" class="bk-chart__label">{{ d.label }}</text>
+        </g>
+      </template>
+    </svg>
+    <p v-if="b.note" class="bk-chart__note">{{ b.note }}</p>
+  </figure>
+
   <!-- Practice -->
   <section v-else-if="b.type === 'practice'" class="bk-practice">
     <p class="t-mono bk-practice__kicker">Do this</p>
@@ -135,6 +204,8 @@ const source = computed(() => b.value.sourceId ? sourceById(b.value.sourceId) : 
   <!-- Delegated -->
   <CourseVideo v-else-if="b.type === 'video'" :id="b.videoId" />
   <CourseCheck v-else-if="b.type === 'check'" :questions="b.questions" :title="b.title" @answered="emit('answered', $event)" />
+  <CourseHotspot v-else-if="b.type === 'hotspot'" :diagram="b.diagram" :caption="b.caption" :points="b.points" />
+  <CourseDescent v-else-if="b.type === 'descent'" />
   <CourseInteractions v-else :block="b" :block-key="blockKey" />
 </template>
 
@@ -234,6 +305,33 @@ const source = computed(() => b.value.sourceId ? sourceById(b.value.sourceId) : 
 .bk-labeled dt { display: flex; align-items: baseline; gap: 12rem; font-size: 16rem; font-weight: 700; margin-bottom: 6rem; }
 .bk-labeled__n { font-family: var(--font-mono); font-size: 11rem; color: var(--muted); }
 .bk-labeled dd { margin: 0 0 0 34rem; font-size: 14.5rem; line-height: 1.6; color: var(--muted); max-width: 66ch; }
+
+/* ── Process ── */
+.bk-proc { margin: clamp(20rem, 2.6vw, 30rem) 0; }
+.bk-proc figcaption { margin-bottom: 12rem; color: var(--muted); }
+.bk-proc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4rem; }
+.bk-proc li { display: grid; grid-template-columns: 40rem minmax(0, 1fr); gap: 16rem; padding: 14rem 0; border-top: var(--stroke) solid var(--line); }
+.bk-proc li:last-child { border-bottom: var(--stroke) solid var(--line); }
+.bk-proc__n {
+  display: flex; align-items: center; justify-content: center; margin-top: 2rem;
+  width: 34rem; height: 34rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m);
+  color: var(--muted);
+}
+.bk-proc__label { margin: 0 0 5rem; font-size: 16rem; font-weight: 700; }
+.bk-proc__body { margin: 0; font-size: 14.5rem; line-height: 1.6; color: var(--muted); max-width: 66ch; }
+@media (max-width: 560px) { .bk-proc li { grid-template-columns: minmax(0, 1fr); gap: 8rem; } .bk-proc__n { width: 26rem; height: 26rem; } }
+
+/* ── Chart ── */
+.bk-chart { margin: clamp(20rem, 2.6vw, 30rem) 0; }
+.bk-chart figcaption { margin-bottom: 12rem; color: var(--muted); }
+.bk-chart__svg { display: block; width: 100%; height: auto; border: var(--stroke) solid var(--line); border-radius: var(--radius-m); background: var(--paper-2); }
+.bk-chart__axis { stroke: var(--line); stroke-width: 1.5; }
+.bk-chart__bar { fill: var(--blue); }
+.bk-chart__line { stroke: var(--blue); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.bk-chart__dot { fill: var(--paper); stroke: var(--blue); stroke-width: 3; }
+.bk-chart__val { font-family: var(--font-mono); font-size: 13px; fill: var(--ink); font-weight: 600; }
+.bk-chart__label { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); letter-spacing: 0.02em; }
+.bk-chart__note { margin: 10rem 0 0; font-size: 13.5rem; line-height: 1.55; color: var(--muted); max-width: 66ch; }
 
 /* ── Practice ── */
 .bk-practice {

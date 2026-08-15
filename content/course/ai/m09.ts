@@ -12,9 +12,16 @@ export const M09: Module = {
   ],
   lessons: [
     {
-      id: 'm09l1', title: 'Images: a different mechanism entirely', minutes: 8, completion: 'check',
+      id: 'm09l1', title: 'Images: a different mechanism entirely', minutes: 10, completion: 'check',
       summary: 'Diffusion, and why it is not "the same as ChatGPT for pictures".',
       blocks: [
+        { type: 'hotspot', diagram: 'four-modes', caption: 'Four extensions of the same machinery — this module, at a glance',
+          points: [
+            { x: 50, y: 17.8, label: 'Generative', body: 'Producing new content — images, text, audio — rather than a label or a number. This lesson is about how image models do it, and why the mechanism is genuinely different from language generation.' },
+            { x: 83.8, y: 49.8, label: 'Multimodal', body: 'One model, several kinds of input, in a shared representation space. An image is turned into tokens the same way text is, and attention works across all of them without caring which came from where. Lesson 2.' },
+            { x: 50, y: 82.2, label: 'Agentic', body: 'The model wired into a loop so it can act — call tools, read what comes back, decide the next step. The addition here is not intelligence, it is consequence. Lesson 3.' },
+            { x: 16.3, y: 49.8, label: 'Embodied', body: 'Given a body, in the physical world, where a failed attempt breaks something real rather than costing a retry. This lesson\'s most surprising exception is not about robots at all. Lesson 4.' }
+          ] },
         { type: 'text', lead: true, body: [
           'People assume image generators work like language models — predicting the next bit of picture. They do not, and the difference explains most of their characteristic behaviour.',
           'The dominant method is diffusion, and the training idea is beautifully perverse. Take a real image. Add a little random noise. Add a little more. Keep going until it is pure static. Now train a model to undo one step of that: given a noisy image, predict what the slightly-less-noisy version looked like.',
@@ -67,12 +74,18 @@ export const M09: Module = {
       ]
     },
     {
-      id: 'm09l3', title: 'Agents, tools and retrieval', minutes: 10, completion: 'activity',
+      id: 'm09l3', title: 'Agents, tools and retrieval', minutes: 11, completion: 'activity',
       summary: 'What happens when a model can act, and what that changes about risk.',
       blocks: [
         { type: 'text', body: [
           'A language model on its own produces text. An agent is a model wired to a loop: it can call tools, read what comes back, decide what to do next, and repeat until it judges the task done.',
           'The step change is not intelligence. It is consequence. A wrong sentence is a wrong sentence. A wrong action sends an email, modifies a file, places an order. Every failure mode from earlier in this course still applies — but now failures have effects in the world rather than on your screen.'
+        ] },
+        { type: 'check', questions: [
+          { id: 'q0904', kind: 'fitb', difficulty: 'easy', objective: 'Explain agents, tool use and retrieval',
+            stem: 'Fill in the blank: a model wired into a loop so it can call tools, read what comes back, and decide the next step is called an ___.',
+            options: [], answer: [], blankAnswers: ['agent'],
+            rationale: 'An agent. The addition is not intelligence — it is consequence. A wrong sentence is a wrong sentence; a wrong action sends an email.' }
         ] },
         { type: 'labeled', caption: 'The four additions, and what each one fixes',
           parts: [

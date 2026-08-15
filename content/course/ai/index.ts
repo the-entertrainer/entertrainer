@@ -98,38 +98,46 @@ export interface ScheduleRow {
   output: string
 }
 
+/**
+ * Times below are recomputed to cascade from each module's actual lesson
+ * minutes — moduleMinutes(M01) etc. — with a small rounding buffer (a few
+ * minutes at most) at each join so the day still lands on tidy five-minute
+ * marks rather than starting a module at, say, 15:16. This is the same
+ * buffer the original schedule already carried; it just has to be
+ * recomputed by hand whenever a module's content changes, because nothing
+ * here enforces the two staying in sync automatically. */
 export const SCHEDULE: ScheduleRow[] = [
   { time: '09:00', what: 'Welcome and orientation', kind: 'orientation', minutes: 10,
     output: 'You know how the day is shaped and how to resume if you stop.' },
   { time: '09:10', what: 'Diagnostic — six questions, not scored', kind: 'assessment', minutes: 15,
     output: 'A record of what you believed before the course, to compare against later.' },
-  { time: '09:25', what: 'Module 01 · What we are actually talking about', kind: 'module', minutes: 30,
+  { time: '09:25', what: 'Module 01 · What we are actually talking about', kind: 'module', minutes: 32,
     output: 'A working definition, and your claim log started.' },
-  { time: '09:55', what: 'Module 02 · Before there was a field', kind: 'module', minutes: 33,
+  { time: '10:00', what: 'Module 02 · Before there was a field', kind: 'module', minutes: 35,
     output: 'The Turing test in your own words; the Dartmouth promise scored.' },
-  { time: '10:30', what: 'Break', kind: 'break', minutes: 15, output: 'Stand up. This is not optional.' },
-  { time: '10:45', what: 'Module 03 · Rules, search and expert systems', kind: 'module', minutes: 32,
+  { time: '10:35', what: 'Break', kind: 'break', minutes: 15, output: 'Stand up. This is not optional.' },
+  { time: '10:50', what: 'Module 03 · Rules, search and expert systems', kind: 'module', minutes: 33,
     output: 'A number that surprises you about combinatorial explosion.' },
-  { time: '11:20', what: 'Module 04 · The winters', kind: 'module', minutes: 25,
+  { time: '11:25', what: 'Module 04 · The winters', kind: 'module', minutes: 25,
     output: 'Claim log entry two: a result separated from its extrapolation.' },
-  { time: '11:45', what: 'Module 05 · Learning from data', kind: 'module', minutes: 34,
+  { time: '11:50', what: 'Module 05 · Learning from data', kind: 'module', minutes: 35,
     output: 'A classifier you trained and then deliberately broke.' },
-  { time: '12:20', what: 'Lunch', kind: 'break', minutes: 45, output: 'Genuinely stop. The afternoon is the harder half.' },
-  { time: '13:05', what: 'Module 06 · Neural networks', kind: 'module', minutes: 34,
-    output: 'The smallest network you could get to solve the spiral.' },
-  { time: '13:40', what: 'Module 07 · The deep learning decade', kind: 'module', minutes: 33,
+  { time: '12:25', what: 'Lunch', kind: 'break', minutes: 45, output: 'Genuinely stop. The afternoon is the harder half.' },
+  { time: '13:10', what: 'Module 06 · Neural networks', kind: 'module', minutes: 37,
+    output: 'The smallest network you could get to solve the spiral — and a hill you can watch it descend badly.' },
+  { time: '13:50', what: 'Module 07 · The deep learning decade', kind: 'module', minutes: 35,
     output: 'Claim log entry three, with a falsifiable expectation attached.' },
-  { time: '14:15', what: 'Break', kind: 'break', minutes: 15, output: 'Move around.' },
-  { time: '14:30', what: 'Module 08 · Transformers and language models', kind: 'module', minutes: 35,
+  { time: '14:25', what: 'Break', kind: 'break', minutes: 15, output: 'Move around.' },
+  { time: '14:40', what: 'Module 08 · Transformers and language models', kind: 'module', minutes: 36,
     output: 'Token, embedding and attention defined in your own words.' },
-  { time: '15:05', what: 'Module 09 · Generative, multimodal, agentic, embodied', kind: 'module', minutes: 33,
+  { time: '15:20', what: 'Module 09 · Generative, multimodal, agentic, embodied', kind: 'module', minutes: 36,
     output: 'One of your workflows mapped for reversibility and checkability.' },
-  { time: '15:40', what: 'Module 10 · Risk, evidence and the frontier', kind: 'module', minutes: 39,
+  { time: '16:00', what: 'Module 10 · Risk, evidence and the frontier', kind: 'module', minutes: 40,
     output: 'Your claim log tiered, and one paragraph you would say out loud.' },
-  { time: '16:20', what: 'Final assessment — fifteen questions', kind: 'assessment', minutes: 25,
+  { time: '16:40', what: 'Final assessment — fifteen questions', kind: 'assessment', minutes: 25,
     output: 'A score, and explanations for every answer including the ones you got right.' },
-  { time: '16:45', what: 'Capstone — your AI position paper', kind: 'capstone', minutes: 45,
+  { time: '17:05', what: 'Capstone — your AI position paper', kind: 'capstone', minutes: 45,
     output: 'One page you would be willing to defend in front of someone who disagrees.' },
-  { time: '17:30', what: 'Close and next steps', kind: 'orientation', minutes: 10,
+  { time: '17:50', what: 'Close and next steps', kind: 'orientation', minutes: 10,
     output: 'A shortlist of where to go next, matched to what you found hardest.' }
 ]

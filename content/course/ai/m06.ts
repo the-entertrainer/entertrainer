@@ -40,14 +40,14 @@ export const M06: Module = {
           'A neural network is a function with a very large number of adjustable numbers in it. You feed numbers in at one end, they get multiplied and added and squashed on the way through, and numbers come out the other end. "Training" means adjusting the adjustable numbers until the outputs are the ones you wanted.'
         ] },
         { type: 'video', videoId: 'v-nn1' },
-        { type: 'labeled', caption: 'The parts, and what each one does',
-          parts: [
-            { label: 'Input layer', body: 'The data as numbers. An image becomes one number per pixel; a word becomes a list of numbers. Everything must become numbers, and how you choose to do that matters more than beginners expect.' },
-            { label: 'Weight', body: 'One number saying how strongly one unit influences the next. These are the adjustable numbers, and there are billions of them in a large model. When you hear "a model has 70 billion parameters", these are mostly what is being counted.' },
-            { label: 'Bias', body: 'A number added regardless of the input — it shifts how easily a unit activates. Small idea, necessary one.' },
-            { label: 'Activation function', body: 'A squashing step applied after the weighted sum. Without it, stacking layers would be pointless: a chain of linear operations is just one linear operation. This is the piece that makes depth mean anything.' },
-            { label: 'Hidden layers', body: 'The layers between input and output. "Deep" learning simply means having several. Each layer builds on the representation the last one produced.' },
-            { label: 'Output layer', body: 'The answer: a class, a number, a probability distribution over possible next words.' }
+        { type: 'hotspot', diagram: 'neural-net', caption: 'The parts, and what each one does',
+          points: [
+            { x: 15, y: 49.8, label: 'Input layer', body: 'The data as numbers. An image becomes one number per pixel; a word becomes a list of numbers. Everything must become numbers, and how you choose to do that matters more than beginners expect.' },
+            { x: 32.5, y: 17.8, label: 'Weight', body: 'One number saying how strongly one unit influences the next. These are the adjustable numbers, and there are billions of them in a large model. When you hear "a model has 70 billion parameters", these are mostly what is being counted.' },
+            { x: 50, y: 37.8, label: 'Activation function', body: 'A squashing step applied after the weighted sum, marked here on one node. Without it, stacking layers would be pointless: a chain of linear operations is just one linear operation. This is the piece that makes depth mean anything.' },
+            { x: 50, y: 93.3, label: 'Bias', body: 'A number added regardless of the input — it shifts how easily a unit activates. Small idea, necessary one.' },
+            { x: 50, y: 62.2, label: 'Hidden layers', body: '"Deep" learning simply means having several of these between input and output. Each layer builds on the representation the last one produced.' },
+            { x: 85, y: 49.8, label: 'Output layer', body: 'The answer: a class, a number, a probability distribution over possible next words.' }
           ] },
         { type: 'text', body: [
           'The property that makes this worth doing is that the intermediate layers learn useful intermediate descriptions without anyone specifying them. In a vision network trained only on labelled photographs, early layers reliably end up detecting edges, later ones textures and parts, later still whole objects. Nobody wrote "look for edges first". It emerges because it is a useful way to organise the problem.',
@@ -71,27 +71,29 @@ export const M06: Module = {
           { id: 'q0602', kind: 'tf', difficulty: 'easy', objective: 'Distinguish AI approaches',
             stem: 'True or false: someone specifies in advance which features each layer of a network should detect.',
             options: ['True', 'False'], answer: [1],
-            rationale: 'The features are learned, not designed. That is the source of the method\'s power and of its opacity — the same fact explains both.' }
+            rationale: 'The features are learned, not designed. That is the source of the method\'s power and of its opacity — the same fact explains both.' },
+          { id: 'q0605', kind: 'fitb', difficulty: 'moderate', objective: 'Explain in outline how backpropagation trains a network',
+            stem: 'Fill in the blank: the efficient method for working out how every individual weight should change, computed backwards from the output, is called ___.',
+            options: [], answer: [], blankAnswers: ['backpropagation'],
+            rationale: 'Backpropagation. Without it you would have to test every weight separately; with it, the cost of computing every adjustment is roughly the same as running the network forwards once — the next lesson is entirely about this.' }
         ] }
       ]
     },
     {
-      id: 'm06l3', title: 'How it learns', minutes: 9, completion: 'activity',
-      summary: 'Backpropagation and gradient descent, at the level of intuition.',
+      id: 'm06l3', title: 'How it learns', minutes: 12, completion: 'activity',
+      summary: 'Backpropagation and gradient descent — try it, then watch it happen.',
       blocks: [
-        { type: 'text', body: [
-          'You have a network with a billion adjustable numbers, currently set at random, producing nonsense. How do you find the settings that produce sense?',
-          'Not by trying combinations. There are more of those than atoms in the universe. Instead, you use a trick that sounds too simple to work.',
-          'Show the network one example. Measure how wrong the output is — that number is the loss. Then ask, for each individual weight: if I nudged this one slightly up, would the loss get better or worse, and by how much? Nudge every weight a small step in the direction that reduces the loss. Repeat a few billion times.',
-          'That is gradient descent, and backpropagation is the efficient method for computing all those "would this help?" answers at once, working backwards from the output. Without it you would have to test every weight separately and training would be impossible. With it, the cost of computing all the adjustments is roughly the same as running the network forwards once.'
+        { type: 'text', lead: true, body: [
+          'You have a network with a billion adjustable numbers, currently set at random, producing nonsense. How do you find the settings that produce sense? Not by trying combinations — there are more of those than atoms in the universe.',
+          'Instead: show it one example, measure how wrong the answer is, then nudge every number a small step in the direction that makes it less wrong. Repeat a few billion times. That is gradient descent — and before the video explains it properly, try the version below with your own eyes.'
         ] },
+        { type: 'descent' },
         { type: 'video', videoId: 'v-backprop' },
         { type: 'text', body: [
-          'Two things worth holding on to, because they explain a great deal of behaviour later.',
-          'First: the network is not reasoning towards an answer. It is descending a slope in a space of billions of dimensions, and it stops when it stops improving. There is no step at which it understands anything, and there is no representation of "why" anywhere in the process.',
-          'Second: what it settles on depends on where it started, what order it saw examples in, and a dozen other choices. Train the same architecture twice on the same data and you get two different sets of weights that behave similarly. There is no single correct solution being converged on — only many adequate ones.'
+          'Backpropagation is the efficient trick behind that "nudge every number" step: working backwards from the output, it computes what every single weight should have done differently, in roughly the time it takes to run the network forwards once. Without it, training a billion weights one at a time would be impossible.',
+          'What you just watched on the hill is the whole of it, at any scale. No reasoning, no representation of "why" — only a slope, felt locally, one step at a time.'
         ] },
-        { type: 'practice', title: 'Watch a network learn',
+        { type: 'practice', title: 'Go further, with real controls',
           steps: [
             'Open TensorFlow Playground (linked below).',
             'Choose the spiral dataset — the hardest one, at the bottom left.',

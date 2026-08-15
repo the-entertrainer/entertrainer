@@ -52,7 +52,7 @@ export const M01: Module = {
       ]
     },
     {
-      id: 'm01l2', title: 'Four circles, not one', minutes: 7, completion: 'check',
+      id: 'm01l2', title: 'Four circles, not one', minutes: 9, completion: 'check',
       summary: 'How AI, machine learning, deep learning and generative AI actually nest.',
       blocks: [
         { type: 'text', body: [
@@ -65,6 +65,12 @@ export const M01: Module = {
             { label: 'Deep learning', body: 'A subset of machine learning using neural networks with many layers. This is the part that took off after 2012, and almost everything you have heard about since is here.' },
             { label: 'Generative AI', body: 'A subset of deep learning: models whose output is new content — text, images, audio, video — rather than a label or a number. ChatGPT and image generators live here. It is the smallest circle, and it is the one most people mean by "AI".' }
           ] },
+        { type: 'match', prompt: 'Pair each term with what actually distinguishes it — not a restatement, the thing above does not say.', pairs: [
+          { left: 'Artificial intelligence', right: 'The whole field — includes approaches with no learning at all', why: 'A chess engine doing pure search is AI, and it never learns from data.' },
+          { left: 'Machine learning', right: 'Improves by being shown data, rather than by being given rules', why: 'Decision trees and linear regression are machine learning with no neural network involved.' },
+          { left: 'Deep learning', right: 'Machine learning using neural networks with many layers', why: 'The subset that took off after 2012 — module 7 is entirely about what happened next.' },
+          { left: 'Generative AI', right: 'Output is new content — text, images, audio, video — not a label or a number', why: 'The smallest circle, and the one most people actually mean when they say "AI".' }
+        ] },
         { type: 'evidence', confidence: 'high', claim: 'Generative AI is a subset of deep learning, which is a subset of machine learning, which is a subset of artificial intelligence.',
           basis: 'This nesting is the standard framing used in textbooks, in industry documentation and in Google\'s public ML glossary. It is definitional rather than empirical, so it is not in dispute.', sourceId: 's-chm' },
         { type: 'flashcards', title: 'Say it before you see it', cards: [
@@ -84,7 +90,11 @@ export const M01: Module = {
               'A system can be AI without learning from data.'
             ], answer: [0, 2, 3],
             rationale: 'The circles nest inward, so anything in an inner circle is in every outer one — but not the reverse. Plenty of AI involves no learning at all, and plenty of machine learning uses no neural networks.',
-            distractors: { 1: 'This is the reverse of the nesting. Search, logic and planning are all AI and none of them learn from data.' } }
+            distractors: { 1: 'This is the reverse of the nesting. Search, logic and planning are all AI and none of them learn from data.' } },
+          { id: 'q0104', kind: 'fitb', difficulty: 'easy', objective: 'Distinguish AI approaches',
+            stem: 'Fill in the blank: the subset of machine learning that uses neural networks with many layers is called ___.',
+            options: [], answer: [], blankAnswers: ['deep learning'],
+            rationale: 'Deep learning is the third circle in from the outside — machine learning, narrowed to networks with many layers. It is the part of the nesting that took off after 2012.' }
         ] }
       ]
     },

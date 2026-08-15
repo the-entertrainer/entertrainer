@@ -124,7 +124,7 @@ export const M10: Module = {
       ]
     },
     {
-      id: 'm10l4', title: 'The frontier, and the question you came here to ask', minutes: 12, completion: 'activity',
+      id: 'm10l4', title: 'The frontier, and the question you came here to ask', minutes: 13, completion: 'activity',
       summary: 'How to think about unreleased and rumoured capability without inventing any of it.',
       blocks: [
         { type: 'text', lead: true, body: [
@@ -171,6 +171,15 @@ export const M10: Module = {
             'Write a short paragraph you would be willing to say out loud in a meeting: what is established, what is reported, what is unknown, and what you would do about it anyway.'
           ],
           output: 'A tiered claim log and one defensible paragraph. That paragraph is the deliverable of this course, and it goes into the final capstone.' },
+        { type: 'chart', kind: 'bar',
+          caption: 'Every evidence-labelled claim in this course today, by confidence tier',
+          note: 'Counted from the course\'s own content, not asserted: twenty-three claims were labelled across ten modules, and the shape leans hard towards "high" — because most of this course is settled history, not live argument. The one "speculative" entry is in this module, about exactly the thing nobody outside a lab can verify. The tiering you just practised on frontier claims is the same discipline this course tried to hold itself to.',
+          data: [
+            { label: 'High', value: 12 },
+            { label: 'Medium', value: 6 },
+            { label: 'Low', value: 4 },
+            { label: 'Speculative', value: 1 }
+          ] },
         { type: 'takeaway', title: 'The one thing to keep',
           body: 'You will not out-predict this field, and neither will anyone selling you a prediction. What you can do — and what almost nobody around you is doing — is separate what is established from what is reported from what is asserted, say which is which out loud, and act accordingly. That is the whole discipline, and today was practice for it.' }
       ]

@@ -6,6 +6,8 @@ const KEY = 'et-course-ai-v1'
 interface Saved {
   done: string[]
   answers: Record<string, number[]>
+  /** Fill-in-the-blank answers, kept separately — free text, not option indices. */
+  textAnswers: Record<string, string>
   pos: Position
   diagnostic: Record<string, number[]>
   final: Record<string, number[]>
@@ -15,7 +17,7 @@ interface Saved {
 }
 
 const EMPTY: Saved = {
-  done: [], answers: {}, pos: { moduleIndex: 0, lessonIndex: 0 },
+  done: [], answers: {}, textAnswers: {}, pos: { moduleIndex: 0, lessonIndex: 0 },
   diagnostic: {}, final: {}, reflections: {}, startedAt: null, finishedAt: null
 }
 
@@ -72,9 +74,9 @@ export const useCourseStore = defineStore('course-ai', {
 
     save() {
       if (!import.meta.client) return
-      const { done, answers, pos, diagnostic, final, reflections, startedAt, finishedAt } = this
+      const { done, answers, textAnswers, pos, diagnostic, final, reflections, startedAt, finishedAt } = this
       try {
-        localStorage.setItem(KEY, JSON.stringify({ done, answers, pos, diagnostic, final, reflections, startedAt, finishedAt }))
+        localStorage.setItem(KEY, JSON.stringify({ done, answers, textAnswers, pos, diagnostic, final, reflections, startedAt, finishedAt }))
       } catch { /* storage full or blocked — the course still works, it just will not resume */ }
     },
 
@@ -94,6 +96,7 @@ export const useCourseStore = defineStore('course-ai', {
 
     /** Knowledge-check answers are kept so a revisited lesson shows your working. */
     answer(questionId: string, chosen: number[]) { this.answers[questionId] = chosen; this.save() },
+    answerText(questionId: string, text: string) { this.textAnswers[questionId] = text; this.save() },
     answerDiagnostic(id: string, chosen: number[]) { this.diagnostic[id] = chosen; this.save() },
     answerFinal(id: string, chosen: number[]) { this.final[id] = chosen; this.save() },
     reflect(id: string, text: string) { this.reflections[id] = text; this.save() },

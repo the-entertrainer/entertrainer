@@ -12,7 +12,7 @@ export const M02: Module = {
   ],
   lessons: [
     {
-      id: 'm02l1', title: 'A machine that can be any machine', minutes: 8, completion: 'read',
+      id: 'm02l1', title: 'A machine that can be any machine', minutes: 10, completion: 'read',
       summary: 'Turing 1936, and the reason software exists at all.',
       blocks: [
         { type: 'text', lead: true, body: [
@@ -20,6 +20,12 @@ export const M02: Module = {
           'His imaginary device was almost insultingly simple: an endless paper tape, a head that reads and writes one symbol at a time, and a small table of rules saying what to do next. What he then proved is the reason everything since exists. A single machine of this kind, given a description of any other such machine on its tape, can behave exactly like it.',
           'That is the universal machine, and it is why we have software. Your phone is not a phone-shaped device with calculating parts; it is one general machine reading a description of a camera, then a description of a map, then a description of a chat assistant. Every argument in this course about what machines can do rests on this: the hardware is not the limit. The description is.'
         ] },
+        { type: 'hotspot', diagram: 'tape-machine', caption: 'The 1936 machine, in full',
+          points: [
+            { x: 26, y: 49.8, label: 'The tape', body: 'Endless, divided into cells, each holding one symbol or left blank. This is the machine\'s only memory — everything it knows or is working out lives here, not inside the machine itself.' },
+            { x: 50, y: 37.8, label: 'The head', body: 'Sits over one cell at a time. It can read the symbol there, write a new one, and move one cell left or right. That is the entire physical vocabulary of the machine — nothing about it is specific to arithmetic, language, or anything else.' },
+            { x: 50, y: 78.7, label: 'The rule table', body: 'A small, fixed list: given the current state and the symbol under the head, do this, then go to that state. This table is the program. Change the table and the same machine does something else entirely — which is the whole proof.' }
+          ] },
         { type: 'timeline', items: [
           { year: '1936', label: 'On Computable Numbers', body: 'Turing describes the universal machine and proves there are well-posed questions no such machine can answer. Both halves matter: it establishes generality and it establishes limits, in the same paper.' },
           { year: '1943', label: 'McCulloch and Pitts', body: 'A mathematical model of a neuron as a logic gate. The first serious suggestion that thinking might be computation performed by networks of simple units — the seed of everything in module 6.' },

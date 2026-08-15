@@ -132,7 +132,12 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
 .card__art img {
   width: 100%; height: 100%; object-fit: contain; display: block;
   border: var(--stroke) solid var(--ink);
-  background: var(--paper);
+  /* Every cover is a white sheet in both themes — they are printed pages, not
+     interface. The letterbox `contain` leaves on the variants whose frame is
+     not exactly 16:9 (the lead, and the wide cards) therefore has to be the
+     white of the sheet, not the theme's paper: with `var(--paper)` here, dark
+     mode drew black bars down either side of every cover, inside the accent. */
+  background: #FFFFFF;
 }
 
 .card__body {

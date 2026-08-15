@@ -15,6 +15,8 @@
  */
 import { Resvg } from '@resvg/resvg-js'
 import { writeFileSync, existsSync } from 'node:fs'
+import { join } from 'node:path'
+import { loadFont } from './lib/font-metrics.mjs'
 
 const FONT_DIR = process.argv[2]
 if (!FONT_DIR || !existsSync(FONT_DIR)) {
@@ -22,12 +24,39 @@ if (!FONT_DIR || !existsSync(FONT_DIR)) {
   process.exit(1)
 }
 
+const display = loadFont(join(FONT_DIR, 'Fraunces-Bold.ttf'))
+
 const PAPER = '#FFFFFF'
 const INK = '#161618'
 const MUTED = '#55555C'
 const LINE = '#DCDCE0'
 const YELLOW = '#F2DC2E'
 const BLUE = '#2C2BE8'
+
+/* The highlighter behind "actually". Earlier passes placed this rectangle by
+   trial and error and it drifted every time the wording changed; it is now
+   measured off Fraunces' own outlines, so it lands under the word by
+   construction.
+   Ink extents rather than advance widths, because the two disagree here: this
+   word ends in a y, whose tail swings past where the next glyph would start.
+   Measured by advance, the band clipped the tail. */
+const LINE2 = 'actually finish.'
+const WORD = 'actually'
+const HL_SIZE = 164, HL_X = 150, HL_BASE = 712
+const before = display.advance(LINE2.slice(0, LINE2.indexOf(WORD)), HL_SIZE)
+const ink = display.inkExtents(WORD, HL_SIZE)
+/* A marker stroke overhangs the word it marks; a band clamped to the glyphs
+   reads as a selection rectangle instead. The overhang is not allowed to break
+   the left margin, though — this word starts the line, and a band poking out
+   past the L above it would put a kink in the one edge the whole card aligns
+   to. So it bleeds right, and squares off against the margin on the left. */
+const BLEED = HL_SIZE * 0.05
+const hlStart = Math.max(HL_X, HL_X + before + ink.left - BLEED)
+const hlWidth = HL_X + before + ink.right + BLEED - hlStart
+/* Sit the band on the x-height rather than the full cap, and let it run a
+   little under the baseline — a marker stroke, not a bounding box. */
+const hlTop = HL_BASE - HL_SIZE * 0.56
+const hlHeight = HL_SIZE * 0.70
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1260" viewBox="0 0 2400 1260">
   <rect width="2400" height="1260" fill="${PAPER}"/>
@@ -37,12 +66,11 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1260" 
   <text x="150" y="168" font-family="Fraunces" font-weight="700" font-size="76" fill="${INK}">Entertrainer</text>
   <text x="150" y="230" font-family="Archivo" font-weight="600" font-size="34" letter-spacing="3" fill="${MUTED}">INSTRUCTIONAL DESIGN, PUBLISHED IN THE OPEN</text>
 
-  <!-- The line. The highlighter is painted before the word so the type sits
-       on it; the box is placed against Fraunces' actual advance widths at this
-       size, because there is no layout engine here to ask. -->
+  <!-- The line. The highlighter is painted before the word so the type sits on
+       top of it. -->
   <text x="150" y="516" font-family="Fraunces" font-weight="700" font-size="164" fill="${INK}">Learning people</text>
-  <rect x="832" y="588" width="424" height="152" fill="${YELLOW}"/>
-  <text x="150" y="712" font-family="Fraunces" font-weight="700" font-size="164" fill="${INK}">actually finish.</text>
+  <rect x="${hlStart.toFixed(1)}" y="${hlTop.toFixed(1)}" width="${hlWidth.toFixed(1)}" height="${hlHeight.toFixed(1)}" fill="${YELLOW}"/>
+  <text x="${HL_X}" y="${HL_BASE}" font-family="Fraunces" font-weight="700" font-size="${HL_SIZE}" fill="${INK}">${LINE2}</text>
 
   <!-- Standfirst -->
   <text x="150" y="838" font-family="Source Serif 4" font-size="52" fill="${MUTED}">Instructional design by Naveen Jose — plus four free</text>

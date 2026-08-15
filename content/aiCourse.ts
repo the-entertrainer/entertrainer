@@ -15,6 +15,8 @@ export interface AiModule {
   blurb: string
   objective: string
   takeaway: string
+  exploreTitle: string
+  exploreText: string
   sourceLabel: string
   sourceUrl: string
   confidence: Confidence
@@ -24,77 +26,97 @@ export interface AiModule {
 
 export const AI_MODULES: AiModule[] = [
   {
-    id: 'bearing', number: '01', short: 'Set your bearing', title: 'What AI is—and is not', duration: '32 min',
-    blurb: 'Artificial intelligence is a family of techniques for tasks associated with perception, prediction, language, decision-making, or control. It is not one thing, and it is not a synonym for a human mind.',
-    objective: 'Separate a useful working definition of AI from claims about consciousness or magic.',
-    takeaway: 'Ask: what task, what data, what model, and what evidence?',
+    id: 'bearing', number: '01', short: 'AI in simple words', title: 'What does AI really mean?', duration: '30 min',
+    blurb: 'AI is software that can find patterns, make suggestions, or create content. You may already use it in maps, online shopping, payment checks, phone keyboards, and chatbots.',
+    objective: 'Describe AI in simple words and recognise one AI feature you use in daily life.',
+    takeaway: 'Before trusting an AI result, ask: What job is it doing? What information is it using? How can I check the answer?',
+    exploreTitle: 'A useful way to think about AI',
+    exploreText: 'AI is not one single machine or one “super brain”. It is a group of tools made for different jobs. A map app predicts traffic. A photo app recognises faces. A chatbot predicts useful next words.',
     sourceLabel: 'Turing, 1950', sourceUrl: 'https://academic.oup.com/mind/article/LIX/236/433/986238', confidence: 'Verified public evidence'
   },
   {
-    id: 'rules', number: '02', short: 'From rules to learning', title: 'Two roads into AI', duration: '42 min',
-    blurb: 'Symbolic AI represents knowledge with rules, search, and explicit structures. Machine learning finds statistical patterns from examples. Most practical systems combine ideas from both traditions.',
-    objective: 'Compare an explicit rule system with a trained pattern-recognition system.',
-    takeaway: 'A model is not “smart” in the abstract; it is useful or unreliable for a particular task.',
+    id: 'rules', number: '02', short: 'Rules and examples', title: 'Two ways AI can work', duration: '35 min',
+    blurb: 'Some AI follows rules written by people. Other AI learns patterns from many examples. Both methods are useful, but they solve problems in different ways.',
+    objective: 'Tell the difference between an AI system that follows rules and one that learns from examples.',
+    takeaway: 'An AI tool is useful only when it fits the task it has been made for.',
+    exploreTitle: 'Why do we need both?',
+    exploreText: 'A rule can be clear and easy to audit, but it may miss unusual cases. Learning from examples can spot patterns that are hard to write as rules, but it depends on good examples and careful testing.',
     sourceLabel: 'Dartmouth proposal, 1955', sourceUrl: 'https://www-formal.stanford.edu/jmc/history/dartmouth/dartmouth.html', confidence: 'Verified public evidence',
     visual: 'history',
     video: { title: 'But what is a neural network?', url: 'https://www.youtube.com/watch?v=aircAruvnKk', instruction: 'Notice that the “neurons” are a mathematical analogy: the system adjusts weights to improve a task, not human-like understanding.' }
   },
   {
-    id: 'data', number: '03', short: 'The data turn', title: 'Learning from examples', duration: '38 min',
-    blurb: 'Supervised learning links examples to labels; unsupervised methods look for structure; reinforcement learning improves toward a defined reward. Training changes model parameters; inference applies what was learned to a new input.',
-    objective: 'Identify the learning signal a system uses and distinguish training from inference.',
-    takeaway: 'Data quality, task definition, and evaluation often matter as much as the algorithm.',
+    id: 'data', number: '03', short: 'Learning from examples', title: 'How AI learns from data', duration: '35 min',
+    blurb: 'Many AI systems learn by looking at examples. The examples may have labels, hidden patterns, or a clear reward for doing a task well.',
+    objective: 'Explain the difference between training an AI system and using it after training.',
+    takeaway: 'Good examples and clear checks matter as much as clever software.',
+    exploreTitle: 'Training and using are different steps',
+    exploreText: 'Training is like practice: the system changes based on examples and feedback. Using the trained system is called inference: you give it a fresh input and it gives you an output.',
     sourceLabel: 'CRFM, 2021', sourceUrl: 'https://crfm.stanford.edu/report.html', confidence: 'Verified public evidence'
   },
   {
-    id: 'attention', number: '04', short: 'Attention changes the map', title: 'Transformers and foundation models', duration: '48 min',
-    blurb: 'The Transformer architecture made it practical to model relationships across a sequence with attention mechanisms. Foundation models are trained on broad data at scale and adapted to many later tasks.',
-    objective: 'Explain—in plain language—why attention changed the modern AI landscape.',
-    takeaway: 'Scale can create broad utility, but it does not automatically create truth, judgment, or accountability.',
+    id: 'attention', number: '04', short: 'How chat AI works', title: 'Why modern AI feels different', duration: '40 min',
+    blurb: 'Modern language AI is built to look at the words around a question and decide what might matter most. This helps it produce more useful responses across many topics.',
+    objective: 'Explain, in simple language, why a modern AI tool can respond to different kinds of questions.',
+    takeaway: 'A wider range of skills does not mean the tool is always right.',
+    exploreTitle: 'What is “attention” here?',
+    exploreText: 'It is a maths method that helps a model give more weight to useful parts of the input. It is not the same as a person paying attention or understanding the world like a person does.',
     sourceLabel: 'Vaswani et al., 2017', sourceUrl: 'https://arxiv.org/abs/1706.03762', confidence: 'Verified public evidence',
     video: { title: 'Transformers, the tech behind LLMs', url: 'https://www.youtube.com/watch?v=wjZofJX0v4M', instruction: 'Watch the opening ten minutes, then describe “predict the next token” without calling it a database lookup.' }
   },
   {
-    id: 'generation', number: '05', short: 'Generation, grounded', title: 'What generative systems can do', duration: '44 min',
-    blurb: 'Today’s model families can generate and transform language, images, audio, code, and combinations of modalities. Outputs may be fluent or compelling without being accurate, current, or appropriately sourced.',
-    objective: 'Match a common generative-AI capability with an appropriate human verification step.',
-    takeaway: 'Fluency is not evidence. Ground important work in trustworthy sources and domain review.',
+    id: 'generation', number: '05', short: 'Making new content', title: 'What generative AI can help with', duration: '40 min',
+    blurb: 'Generative AI can draft text, create images, help with code, translate, and summarise. It can save time on a first draft, but it can also make mistakes that sound convincing.',
+    objective: 'Choose a sensible human check for a common use of generative AI.',
+    takeaway: 'Clear writing is not proof. Check important facts with reliable sources or an expert.',
+    exploreTitle: 'Where is it useful?',
+    exploreText: 'Use it to start, explore, organise, or simplify. Do not treat it as the final authority for medical, legal, financial, policy, or other high-impact information.',
     sourceLabel: 'NIST AI 600-1, 2024', sourceUrl: 'https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence', confidence: 'Verified public evidence'
   },
   {
-    id: 'agents', number: '06', short: 'Agents and tools', title: 'From answers to action', duration: '46 min',
-    blurb: 'An agentic system typically adds tools, instructions, guardrails, retrieval, and a workflow around a model. A predefined workflow is not the same as a system that dynamically selects actions.',
-    objective: 'Describe how a model, tools, instructions, and human oversight work together in an agentic system.',
-    takeaway: 'Start with the simplest reliable workflow. Add autonomy only where its benefits can be evaluated and controlled.',
+    id: 'agents', number: '06', short: 'AI that can take steps', title: 'From answers to action', duration: '40 min',
+    blurb: 'Some AI systems can do more than answer a question. With clear instructions and approved tools, they can search, organise information, or complete steps in a workflow.',
+    objective: 'Name the parts that make an AI assistant safer when it takes actions.',
+    takeaway: 'Start with small, clear tasks. Keep people in charge of important decisions and actions.',
+    exploreTitle: 'Assistant or agent?',
+    exploreText: 'A simple assistant gives an answer. An agent can choose steps and use tools to complete a task. In both cases, people should set the goal, the limits, and the review points.',
     sourceLabel: 'Anthropic, 2024', sourceUrl: 'https://www.anthropic.com/engineering/building-effective-agents', confidence: 'Informed analysis',
     visual: 'agents'
   },
   {
-    id: 'embodied', number: '07', short: 'Beyond the screen', title: 'AI in the physical world', duration: '36 min',
-    blurb: 'Robotics, autonomous systems, and scientific applications must cope with changing physical environments, imperfect sensors, safety constraints, scarce data, and the cost of real-world failure.',
-    objective: 'Explain why impressive language performance does not directly translate into safe physical-world performance.',
-    takeaway: 'Embodied intelligence depends on both models and the environments, tools, people, and safeguards around them.',
+    id: 'embodied', number: '07', short: 'AI in the real world', title: 'AI beyond a screen', duration: '35 min',
+    blurb: 'Robots, vehicles, health tools, and science systems work in the real world. They must deal with changing places, imperfect sensors, safety rules, and the cost of getting something wrong.',
+    objective: 'Explain why a helpful chatbot is not automatically ready to control a real-world machine.',
+    takeaway: 'In the physical world, safety checks and human responsibility matter even more.',
+    exploreTitle: 'Why is the real world harder?',
+    exploreText: 'A wrong sentence can be corrected. A wrong turn by a machine can hurt people or damage property. That is why testing, safety limits, and human oversight are essential.',
     sourceLabel: 'CRFM, 2021', sourceUrl: 'https://crfm.stanford.edu/report.html', confidence: 'Verified public evidence'
   },
   {
-    id: 'frontier', number: '08', short: 'Evidence, not rumours', title: 'How to read frontier claims', duration: '40 min',
-    blurb: 'Publicly released systems, published evaluations, private prototypes, rumors, restricted government systems, and imagined future systems belong in different evidence categories. Do not collapse them into a single story.',
-    objective: 'Classify an AI claim by what the public evidence can—and cannot—support.',
-    takeaway: '“No reliable public evidence” is a useful conclusion, not a failure of imagination.',
+    id: 'frontier', number: '08', short: 'Facts, claims, and rumours', title: 'How to check a big AI claim', duration: '35 min',
+    blurb: 'AI news can be exciting, confusing, or exaggerated. A useful habit is to separate what has been publicly shown, what has been reported, and what is only a guess or a rumour.',
+    objective: 'Use a simple evidence label when you read or hear a strong claim about AI.',
+    takeaway: '“I cannot find reliable public evidence” is a fair and useful answer.',
+    exploreTitle: 'A simple evidence ladder',
+    exploreText: 'Start with official documents, research papers, and independent testing. Treat marketing, leaked screenshots, and social-media posts as starting points for questions—not proof.',
     sourceLabel: 'UK AISI, 2025', sourceUrl: 'https://www.aisi.gov.uk/frontier-ai-trends-report', confidence: 'Verified public evidence'
   },
   {
-    id: 'responsible', number: '09', short: 'Responsible use', title: 'Capabilities need controls', duration: '46 min',
-    blurb: 'Hallucination, bias, privacy, copyright, labor impact, misinformation, cybersecurity, and unequal access are not side notes. They shape whether an AI application is fit for a real context.',
-    objective: 'Pair a likely risk with a practical control, review practice, or escalation path.',
-    takeaway: 'Responsible use is a design practice: set boundaries, test realistic failure modes, and keep people accountable.',
+    id: 'responsible', number: '09', short: 'Use AI responsibly', title: 'Use AI with care', duration: '35 min',
+    blurb: 'AI can make mistakes, repeat unfair patterns, expose private information, or be misused. Responsible use means thinking about these risks before they become a problem.',
+    objective: 'Match a common AI risk with one practical way to reduce it.',
+    takeaway: 'Set clear boundaries, protect personal information, and keep a person accountable for the final decision.',
+    exploreTitle: 'A quick safety check',
+    exploreText: 'Do not paste confidential information into a public AI tool. Check important outputs. Ask who could be affected if the answer is wrong or unfair.',
     sourceLabel: 'NIST AI 600-1, 2024', sourceUrl: 'https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence', confidence: 'Verified public evidence'
   },
   {
-    id: 'next', number: '10', short: 'Your next responsible step', title: 'Turn learning into practice', duration: '28 min',
-    blurb: 'The future of AI is not a single forecast. It is a collection of technical possibilities, commercial choices, public policy questions, and human decisions that will develop unevenly.',
-    objective: 'Make one evidence-led choice about where and how you will use AI next.',
-    takeaway: 'Stay curious, stay specific, and revise your view when better evidence arrives.',
+    id: 'next', number: '10', short: 'Your next step', title: 'Choose one sensible next step', duration: '25 min',
+    blurb: 'The future of AI is not fixed. It will be shaped by technology, business choices, public rules, and everyday decisions made by people and organisations.',
+    objective: 'Choose one small, useful, and responsible way to try AI in your own work or learning.',
+    takeaway: 'Stay curious. Ask clear questions. Check important results. Change your mind when better evidence appears.',
+    exploreTitle: 'Keep it practical',
+    exploreText: 'Start with a low-risk task, such as creating a rough outline or turning notes into a first draft. Decide what you will check yourself before you share or use the result.',
     sourceLabel: 'Course evidence register', sourceUrl: '/docs/ai-course-research.md', confidence: 'Informed analysis'
   }
 ]

@@ -66,3 +66,25 @@ The working preview was visually checked on the title, objectives, and history-m
 The agents module and resource library were also checked in the working preview. The agents artwork appears only in the tools-and-workflows lesson, while the source drawer exposes the concise glossary and the course evidence register without forcing a learner to leave their place in the pathway.
 
 The formative check in the data module was tested with its correct response and returned the intended explanatory feedback. The capstone’s three required reflection fields were completed in the preview; submission changed the course status to **Completed** and showed the final completion message and restart control.
+
+## Rise-style reference translation
+
+The supplied block references favour a calm, compact learning canvas with clearly labelled content blocks, visible but restrained borders, and one focused learner decision at a time. The revision will translate those patterns into a short module sequence: a clear introduction, an optional “Explore this idea” accordion, plain-language comparison tabs, simple click-to-reveal flashcards, a video or visual learning moment, and a short “Check your understanding” question with direct feedback.
+
+For essential terms, the course will use short flashcard reveals rather than a dense glossary panel. For applied judgement, the frontier section will use a scenario prompt with one decision and immediate instructional feedback, not a free-form technical exercise.
+
+## Revision verification
+
+The revised title and objectives screens were checked in the working preview. The learner sees plain-language copy, a clear course menu, an explicit progress indicator, and a single next action. The course continues to use the required objectives wording while simplifying the supporting instruction and visual hierarchy.
+
+Lesson 1 was also checked in the working preview. The key-idea block introduces AI through familiar daily examples, and the “Explore this idea” accordion opens and closes correctly with optional plain-language detail. The short knowledge check is introduced with a direct learner instruction rather than a technical diagnostic label.
+
+The first quick check returned plain-language corrective feedback after the learner chose the evidence-led option. The data lesson was opened using the persisted course state and displayed a three-card “Tap to reveal” vocabulary block alongside a straightforward training question, matching the requested professional e-learning interaction style.
+
+The first flashcard was opened successfully: the learner sees the short, non-technical meaning of “Training” in the same card, while the other terms remain hidden until selected.
+
+The frontier lesson’s scenario block was tested with its evidence-led choice. The course selected the response and returned clear guidance: look for an official source, a research paper, or independent testing before sharing a major claim.
+
+The revised action-plan screen was checked in the working preview. It asks the learner to name a low-risk task, identify what they will check, and state the human review step. All three plain-language fields accepted representative learner input and enabled the course completion action.
+
+Submitting the action plan changed the learner state to **Course completed** and displayed an instructional completion message with a restart control. The course therefore retains its completion loop while using the revised, professional e-learning language.

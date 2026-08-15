@@ -54,10 +54,10 @@ useHead({ title: isNotFound.value ? 'Page not found â€” Entertrainer' : 'Error â
   display: grid; grid-template-columns: auto minmax(0, 1fr) 16rem;
   align-items: center; gap: 14rem;
   padding: 14rem 8rem;
-  border-bottom: var(--stroke-hair) solid var(--line);
+  border-bottom: var(--stroke) solid var(--line);
   transition: background var(--dur-fast) var(--ease-out);
 }
-@media (hover: hover) { .err__row:hover { background: var(--sun); color: var(--on-sun); } }
+@media (hover: hover) { .err__row:hover { background: var(--yellow); color: var(--on-yellow); } }
 .err__t { font-size: 17rem; font-weight: 600; }
 .err__home { text-decoration: none; }
 </style>

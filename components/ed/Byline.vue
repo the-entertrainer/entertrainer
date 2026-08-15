@@ -24,7 +24,7 @@ const store = useContentStore()
 .by { display: inline-flex; align-items: center; gap: 11rem; }
 .by__face {
   width: 40rem; height: 40rem; border-radius: 50%; object-fit: cover; flex: none;
-  border: var(--stroke) solid var(--ink);
+  border: var(--stroke) solid var(--line);
 }
 .by__text { display: flex; flex-direction: column; gap: 3rem; }
 .by__name { margin: 0; font-size: 15.5rem; font-weight: 700; line-height: 1; }

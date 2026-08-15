@@ -52,7 +52,7 @@ useSeoMeta({ title: 'Homepage concepts — Lab', robots: 'noindex' })
 <style scoped>
 .lab { min-height: 100dvh; background: var(--paper); color: var(--ink); }
 
-.lab__head { padding-bottom: clamp(22rem, 3vw, 32rem); border-bottom: var(--stroke) solid var(--ink); margin-bottom: clamp(24rem, 4vw, 40rem); }
+.lab__head { padding-bottom: clamp(22rem, 3vw, 32rem); border-bottom: var(--stroke) solid var(--line); margin-bottom: clamp(24rem, 4vw, 40rem); }
 .lab__eyebrow { margin: 0 0 14rem; color: var(--muted); }
 .lab__title { font-size: var(--type-display); margin: 0; }
 .lab__deck {
@@ -65,14 +65,14 @@ useSeoMeta({ title: 'Homepage concepts — Lab', robots: 'noindex' })
   display: grid; grid-template-columns: 40rem minmax(0, 1fr) 20rem;
   align-items: start; gap: 16rem;
   padding: 18rem 20rem;
-  border: var(--stroke-hair) solid var(--line);
+  border: var(--stroke) solid var(--line);
   border-radius: var(--radius-m);
   background: var(--paper);
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) {
   .lab__card:hover { background: var(--paper-2); border-color: var(--ink); transform: translateX(3rem); }
-  .lab__card:hover .lab__arrow { transform: translate(2rem, -2rem); }
+  .lab__card:hover .lab__arrow {  }
 }
 .lab__n { color: var(--muted); padding-top: 4rem; }
 .lab__body { display: grid; gap: 6rem; min-width: 0; }

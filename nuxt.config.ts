@@ -26,13 +26,13 @@ export default defineNuxtConfig({
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         { name: 'description', content: 'Entertrainer is the portfolio of Naveen Jose, a certified instructional designer building learning experiences that feel human — plus a set of free web apps for L&D teams.' },
-        { name: 'theme-color', content: '#131210', media: '(prefers-color-scheme: dark)' },
-        { name: 'theme-color', content: '#FFFDF7', media: '(prefers-color-scheme: light)' },
+        { name: 'theme-color', content: '#0B0B0C', media: '(prefers-color-scheme: dark)' },
+        { name: 'theme-color', content: '#FFFFFF', media: '(prefers-color-scheme: light)' },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'Entertrainer' },
-        { name: 'msapplication-TileColor', content: '#F36B5F' },
+        { name: 'msapplication-TileColor', content: '#2C2BE8' },
         // Open Graph / Twitter — social share preview.
         { property: 'og:type', content: 'website' },
         { property: 'og:site_name', content: 'Entertrainer' },
@@ -53,23 +53,23 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
-        // Two preloads, not sixteen. Space Grotesk sets every interface
-        // string on the site and Bangers sets the headline, so those two
-        // files are on the critical path for the first screen; the rest
-        // (mono, serif, the hand, and every latin-ext cut) are requested by
-        // the CSS when something actually needs them.
+        // Two preloads. Archivo sets every interface string and Fraunces
+        // sets the headline, so those two are on the critical path for the
+        // first screen; the reading serif, the mono and every latin-ext cut
+        // are requested by the CSS when something actually needs them.
         { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: 'anonymous',
-          href: '/fonts/webfonts/space-grotesk-var-latin.woff2' },
+          href: '/fonts/webfonts/archivo-var-latin.woff2' },
         { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: 'anonymous',
-          href: '/fonts/webfonts/bangers-400-latin.woff2' },
-        // Five faces, five jobs, all open-source (SIL OFL) and all
-        // self-hosted — see assets/css/fonts.css:
+          href: '/fonts/webfonts/fraunces-var-latin.woff2' },
+        // Four faces, four jobs, all SIL OFL and all self-hosted. They are
+        // the closest open equivalents to the reference publication's
+        // commercial stack — see the substitution table in
+        // assets/css/fonts.css:
         //
-        //   Bangers        display — headlines, the nameplate, card titles
-        //   Space Grotesk  interface — navigation, buttons, labels, tool UI
+        //   Fraunces       display — masthead, headlines, card titles
+        //   Archivo        interface — navigation, buttons, labels, tool UI
         //   Source Serif 4 reading — decks, body copy, anything with a measure
         //   IBM Plex Mono  metadata — categories, counts, stamps, indices
-        //   Kalam          the hand — margin notes and pinned asides
       ]
     },
     pageTransition: false,
@@ -81,8 +81,8 @@ export default defineNuxtConfig({
       name: 'Entertrainer',
       short_name: 'Entertrainer',
       description: 'Instructional Design & E-Learning',
-      theme_color: '#FFFDF7',
-      background_color: '#FFFDF7',
+      theme_color: '#FFFFFF',
+      background_color: '#FFFFFF',
       display: 'standalone',
       orientation: 'any',
       scope: '/',

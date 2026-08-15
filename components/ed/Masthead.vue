@@ -94,7 +94,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .mh {
   position: sticky; top: 0; z-index: var(--z-chrome);
   background: var(--paper);
-  border-bottom: var(--stroke) solid var(--ink);
+  border-bottom: var(--stroke) solid var(--line);
   padding-top: var(--safe-top);
 }
 
@@ -122,7 +122,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font-size: 10.5rem; letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--muted); margin: 0;
   padding-left: clamp(12rem, 1.6vw, 20rem);
-  border-left: var(--stroke-hair) solid var(--line);
+  border-left: var(--stroke) solid var(--line);
   /* Two lines, always. Left to wrap freely it made a four-line paragraph out
      of a six-word standfirst and pushed the bar to 90px tall. */
   max-width: 28ch; line-height: 1.4;
@@ -141,19 +141,19 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 /* Current section gets a printed underline, not just a colour shift. */
 .mh__link[aria-current="page"]::after {
   content: ''; position: absolute; left: 10rem; right: 10rem; bottom: 2rem;
-  height: 3rem; background: var(--coral); border-radius: 2rem;
+  height: 3rem; background: var(--red); border-radius: 2rem;
 }
 
 .mh__end { display: flex; align-items: center; gap: 6rem; margin-left: 4rem; }
 .mh__icon {
   width: 40rem; height: 40rem; flex: none;
   display: inline-flex; align-items: center; justify-content: center;
-  border: var(--stroke-hair) solid var(--ink);
+  border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-full);
   background: var(--paper); color: var(--ink);
   transition: background var(--dur-fast) var(--ease-out);
 }
-@media (hover: hover) { .mh__icon:hover { background: var(--sun); color: var(--on-sun); } }
+@media (hover: hover) { .mh__icon:hover { background: var(--yellow); color: var(--on-yellow); } }
 .mh__icon--menu { display: none; }
 
 .mh__sheet { display: none; }
@@ -174,13 +174,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     transition: grid-template-rows var(--dur-mid) var(--ease-out);
     overflow: hidden;
   }
-  .mh__sheet.is-open { grid-template-rows: 1fr; border-top-width: var(--stroke-hair); }
+  .mh__sheet.is-open { grid-template-rows: 1fr; border-top-width: var(--stroke); }
   .mh__sheet-inner { min-height: 0; overflow: hidden; }
   .mh__sheet-link {
     display: flex; align-items: center; justify-content: space-between;
     padding: 15rem var(--shell-gutter);
     font-size: 19rem; font-weight: 600;
-    border-bottom: var(--stroke-hair) solid var(--line);
+    border-bottom: var(--stroke) solid var(--line);
     background: var(--paper);
   }
   .mh__sheet-link[aria-current="page"] { background: var(--paper-2); }

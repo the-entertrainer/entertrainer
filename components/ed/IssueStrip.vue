@@ -30,12 +30,12 @@ onMounted(() => {
 .strip {
   display: flex; align-items: center; flex-wrap: wrap; gap: 10rem 18rem;
   padding: 10rem 0;
-  border-bottom: var(--stroke-hair) solid var(--line);
+  border-bottom: var(--stroke) solid var(--line);
 }
 .strip__edition { display: inline-flex; align-items: center; gap: 8rem; color: var(--muted); }
 .strip__dot {
   width: 8rem; height: 8rem; border-radius: 50%;
-  background: var(--coral); border: 1px solid var(--ink); flex: none;
+  background: var(--red); border: 1px solid var(--ink); flex: none;
 }
 .strip__note { margin: 0; font-size: 16rem; color: var(--ink); }
 </style>

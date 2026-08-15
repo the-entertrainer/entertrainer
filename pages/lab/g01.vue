@@ -55,7 +55,7 @@ useHead({ link: [{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?f
 .card__l { font-family: 'Instrument Serif', serif; font-size: 27rem; line-height: 1.05; }
 .card__d { font-family: 'Inter', sans-serif; font-size: 11.5rem; line-height: 1.45; opacity: 0.66; }
 .card__go { position: absolute; top: 18rem; right: 18rem; font-size: 15rem; opacity: 0.5; transition: transform 320ms cubic-bezier(.2,.9,.2,1); }
-.card:hover .card__go { transform: translate(3rem, -3rem); opacity: 1; }
+.card:hover .card__go {  opacity: 1; }
 
 .bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14rem;
   padding: 15rem 20rem; border-radius: 999rem; font-family: 'Inter', sans-serif; font-size: 12.5rem; }

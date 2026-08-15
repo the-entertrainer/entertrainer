@@ -28,7 +28,7 @@ const items = computed(() => readNext(props.from, props.count))
 .rn {
   margin-top: clamp(48rem, 8vh, 96rem);
   padding-top: clamp(22rem, 3vw, 34rem);
-  border-top: var(--stroke) solid var(--ink);
+  border-top: var(--stroke) solid var(--line);
 }
 .rn__head { display: flex; align-items: baseline; justify-content: space-between; gap: 16rem; margin-bottom: 22rem; }
 .rn__title { margin: 0; color: var(--muted); }

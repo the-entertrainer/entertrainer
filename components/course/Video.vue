@@ -66,15 +66,15 @@ const watchUrl = computed(() => v.value
 <style scoped>
 .vid {
   margin: clamp(22rem, 3vw, 32rem) 0;
-  border: var(--stroke) solid var(--ink);
+  border: var(--stroke) solid var(--line);
   border-radius: var(--radius-l);
   background: var(--paper);
-  box-shadow: 5rem 5rem 0 var(--ink);
+  
   overflow: hidden;
 }
 .vid__head {
   display: flex; align-items: center; justify-content: space-between; gap: 12rem;
-  padding: 12rem 18rem; border-bottom: var(--stroke-hair) solid var(--line);
+  padding: 12rem 18rem; border-bottom: var(--stroke) solid var(--line);
   background: var(--paper-2);
 }
 .vid__kicker { margin: 0; color: var(--muted); }
@@ -84,7 +84,7 @@ const watchUrl = computed(() => v.value
 .vid__title { margin: 16rem 18rem 4rem; font-size: clamp(17rem, 1.7vw, 20rem); line-height: 1.25; }
 .vid__channel { margin: 0 18rem 14rem; font-family: var(--font-mono); font-size: 12rem; color: var(--muted); }
 
-.vid__frame { position: relative; aspect-ratio: 16 / 9; background: var(--ink); border-top: var(--stroke-hair) solid var(--line); border-bottom: var(--stroke-hair) solid var(--line); }
+.vid__frame { position: relative; aspect-ratio: 16 / 9; background: var(--ink); border-top: var(--stroke) solid var(--line); border-bottom: var(--stroke) solid var(--line); }
 .vid__frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .vid__play {
   position: absolute; inset: 0; width: 100%;
@@ -92,7 +92,7 @@ const watchUrl = computed(() => v.value
   background: var(--paper-2); color: var(--ink); cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out);
 }
-@media (hover: hover) { .vid__play:hover { background: var(--sun); color: var(--on-sun); } }
+@media (hover: hover) { .vid__play:hover { background: var(--yellow); color: var(--on-yellow); } }
 .vid__play-icon {
   width: 60rem; height: 60rem; border-radius: 50%;
   border: var(--stroke) solid currentColor;

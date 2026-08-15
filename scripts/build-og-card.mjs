@@ -7,8 +7,8 @@
  * values the site uses, and re-running this after a palette change updates the
  * share card too.
  *
- * Fonts: point FONT_DIR at a directory containing Bangers-Regular.ttf and a
- * Space Grotesk TTF. resvg reads TrueType, not the woff2 files the site
+ * Fonts: point FONT_DIR at a directory containing TTFs for Fraunces, Archivo,
+ * Source Serif 4 and IBM Plex Mono. resvg reads TrueType, not the woff2 files the site
  * serves, so this is a build-time-only dependency — nothing extra ships.
  *
  *   node scripts/build-og-card.mjs /path/to/ttf-dir
@@ -18,63 +18,56 @@ import { writeFileSync, existsSync } from 'node:fs'
 
 const FONT_DIR = process.argv[2]
 if (!FONT_DIR || !existsSync(FONT_DIR)) {
-  console.error('Usage: node scripts/build-og-card.mjs <dir with Bangers.ttf and SpaceGrotesk.ttf>')
+  console.error('Usage: node scripts/build-og-card.mjs <dir with Fraunces, Archivo, Source Serif 4 and IBM Plex Mono TTFs>')
   process.exit(1)
 }
 
-const PAPER = '#FFFDF7'
-const INK = '#171717'
-const SUN = '#F6C945'
-const CORAL = '#F36B5F'
+const PAPER = '#FFFFFF'
+const INK = '#161618'
+const MUTED = '#55555C'
+const LINE = '#DCDCE0'
+const YELLOW = '#F2DC2E'
+const BLUE = '#2C2BE8'
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1260" viewBox="0 0 2400 1260">
   <rect width="2400" height="1260" fill="${PAPER}"/>
 
-  <!-- Masthead rule -->
-  <rect x="0" y="0" width="2400" height="14" fill="${INK}"/>
+  <!-- Masthead: the wordmark, set, and the standfirst. No rules, no shadows,
+       no drawn marks — the same restraint the site itself now runs on. -->
+  <text x="150" y="168" font-family="Fraunces" font-weight="700" font-size="76" fill="${INK}">Entertrainer</text>
+  <text x="150" y="230" font-family="Archivo" font-weight="600" font-size="34" letter-spacing="3" fill="${MUTED}">INSTRUCTIONAL DESIGN, PUBLISHED IN THE OPEN</text>
 
-  <!-- Emblem, same geometry as public/favicon.svg -->
-  <g transform="translate(150 120) scale(1.9)">
-    <path d="M8 6h48a4 4 0 0 1 4 4v12a10 10 0 0 0 0 20v12a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V42a10 10 0 0 0 0-20V10a4 4 0 0 1 4-4Z"
-          fill="${SUN}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>
-    <path d="M17 20h22M17 44h22" stroke="${INK}" stroke-width="6" stroke-linecap="round"/>
-    <path d="M18 26.5 32 32l-14 5.5z" fill="${INK}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-  </g>
-  <text x="300" y="215" font-family="Bangers" font-size="104" fill="${INK}">ENTERTRAINER</text>
-
-  <!-- The line. The highlighter is drawn before the text so the word sits on
-       top of it, and its box is positioned by hand against Bangers' actual
-       advance widths at this size — the marker has to land on the word, and
-       there is no layout engine here to ask. -->
-  <text x="150" y="450" font-family="Bangers" font-size="188" fill="${INK}">LEARNING PEOPLE</text>
-  <rect x="762" y="475" width="410" height="142" fill="${SUN}"/>
-  <text x="150" y="610" font-family="Bangers" font-size="188" fill="${INK}">ACTUALLY FINISH.</text>
+  <!-- The line. The highlighter is painted before the word so the type sits
+       on it; the box is placed against Fraunces' actual advance widths at this
+       size, because there is no layout engine here to ask. -->
+  <text x="150" y="516" font-family="Fraunces" font-weight="700" font-size="164" fill="${INK}">Learning people</text>
+  <rect x="832" y="588" width="424" height="152" fill="${YELLOW}"/>
+  <text x="150" y="712" font-family="Fraunces" font-weight="700" font-size="164" fill="${INK}">actually finish.</text>
 
   <!-- Standfirst -->
-  <text x="150" y="742" font-family="Space Grotesk" font-size="56" fill="#6D6A63">Instructional design by Naveen Jose —</text>
-  <text x="150" y="818" font-family="Space Grotesk" font-size="56" fill="#6D6A63">plus four free web apps for L&amp;D teams.</text>
+  <text x="150" y="838" font-family="Source Serif 4" font-size="52" fill="${MUTED}">Instructional design by Naveen Jose — plus four free</text>
+  <text x="150" y="908" font-family="Source Serif 4" font-size="52" fill="${MUTED}">web apps for L&amp;D teams.</text>
 
-  <!-- Tickets -->
-  <g transform="translate(150 900)">
-    <rect x="6" y="8" width="470" height="106" rx="53" fill="${INK}"/>
-    <rect x="0" y="0" width="470" height="106" rx="53" fill="${CORAL}" stroke="${INK}" stroke-width="6"/>
-    <text x="235" y="70" font-family="Space Grotesk" font-size="44" font-weight="700" fill="${INK}" text-anchor="middle">See the craft, live</text>
+  <!-- One filled pill and one outlined, exactly as the site draws them -->
+  <g transform="translate(150 970)">
+    <rect x="0" y="0" width="430" height="96" rx="48" fill="${INK}"/>
+    <text x="215" y="62" font-family="Archivo" font-size="40" font-weight="600" fill="${PAPER}" text-anchor="middle">See the craft, live</text>
   </g>
-  <g transform="translate(660 900)">
-    <rect x="6" y="8" width="430" height="106" rx="53" fill="${INK}"/>
-    <rect x="0" y="0" width="430" height="106" rx="53" fill="${PAPER}" stroke="${INK}" stroke-width="6"/>
-    <text x="215" y="70" font-family="Space Grotesk" font-size="44" font-weight="700" fill="${INK}" text-anchor="middle">Four free web apps</text>
+  <g transform="translate(614 970)">
+    <rect x="1" y="1" width="428" height="94" rx="47" fill="none" stroke="${MUTED}" stroke-width="2"/>
+    <text x="215" y="62" font-family="Archivo" font-size="40" font-weight="600" fill="${INK}" text-anchor="middle">Four free web apps</text>
   </g>
 
-  <!-- Footer rule + domain -->
-  <rect x="150" y="1070" width="2100" height="4" fill="#D8D1C4"/>
-  <text x="150" y="1160" font-family="Space Grotesk" font-size="42" fill="#6D6A63">entertrainer.in</text>
-  <text x="2250" y="1160" font-family="Space Grotesk" font-size="42" fill="#6D6A63" text-anchor="end">Instructional design, published in the open</text>
+  <!-- Footer -->
+  <rect x="150" y="1120" width="2100" height="2" fill="${LINE}"/>
+  <text x="150" y="1192" font-family="IBM Plex Mono" font-size="34" letter-spacing="2" fill="${MUTED}">ENTERTRAINER.IN</text>
+  <circle cx="1858" cy="1180" r="11" fill="${BLUE}"/>
+  <text x="2250" y="1192" font-family="IBM Plex Mono" font-size="34" letter-spacing="2" fill="${MUTED}" text-anchor="end">CURRENT EDITION</text>
 </svg>`
 
 const png = new Resvg(svg, {
   fitTo: { mode: 'width', value: 2400 },
-  font: { fontDirs: [FONT_DIR], loadSystemFonts: false, defaultFontFamily: 'Space Grotesk' }
+  font: { fontDirs: [FONT_DIR], loadSystemFonts: false, defaultFontFamily: 'Archivo' }
 }).render().asPng()
 
 writeFileSync('public/og-card.png', png)

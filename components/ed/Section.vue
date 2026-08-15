@@ -61,7 +61,7 @@ const count = computed(() =>
   max-width: var(--measure-body);
   margin: clamp(28rem, 4vw, 44rem) 0 0;
   padding-top: clamp(20rem, 3vw, 28rem);
-  border-top: var(--stroke-hair) solid var(--line);
+  border-top: var(--stroke) solid var(--line);
 }
 
 @media (max-width: 680px) {

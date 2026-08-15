@@ -1,7 +1,7 @@
 import type { Module } from './types'
 
 export const M07: Module = {
-  id: 'm07', n: '07', accent: 'var(--sun)',
+  id: 'm07', n: '07', accent: 'var(--yellow)',
   title: 'The deep learning decade',
   intro: 'Between 2012 and 2020, machines went from unreliable at recognising a cat to superhuman at tasks people had used as the definition of intelligence. This module covers what actually happened in that decade, the moment a machine made a move no human would have made, and the finding that reorganised the entire industry.',
   objectives: [

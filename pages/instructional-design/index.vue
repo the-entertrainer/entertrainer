@@ -216,9 +216,9 @@ function iconPath(name: string) {
    size so none of them looks like the default answer. */
 .ask {
   background: var(--paper-2);
-  border: var(--stroke) solid var(--ink);
+  border: var(--stroke) solid var(--line);
   border-radius: var(--radius-l);
-  box-shadow: 5rem 5rem 0 var(--ink);
+  
   padding: clamp(22rem, 3vw, 32rem);
   margin-bottom: clamp(22rem, 3vw, 34rem);
 }
@@ -228,11 +228,11 @@ function iconPath(name: string) {
 .ask__opt {
   flex: 1 1 210rem; min-height: 54rem; padding: 14rem 18rem; text-align: left;
   background: var(--paper); color: var(--ink);
-  border: var(--stroke) solid var(--ink); border-radius: var(--radius-m);
+  border: var(--stroke) solid var(--line); border-radius: var(--radius-m);
   font-family: var(--font-ui); font-size: 15rem; font-weight: 600; cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
-@media (hover: hover) { .ask__opt:hover { background: var(--sun); color: var(--on-sun); transform: translate(-2rem, -2rem); } }
+@media (hover: hover) { .ask__opt:hover { background: var(--yellow); color: var(--on-yellow);  } }
 .ask__skip {
   margin-top: 16rem; min-height: 34rem; padding: 6rem 0;
   color: var(--muted); font-size: 14rem;
@@ -245,13 +245,13 @@ function iconPath(name: string) {
    is the loud thing; a decorated container would compete with the point. */
 .lab {
   background: var(--paper);
-  border: var(--stroke) solid var(--ink);
+  border: var(--stroke) solid var(--line);
   border-radius: var(--radius-xl);
   padding: clamp(20rem, 3vw, 32rem);
 }
 .lab__verdict {
   margin: 0 0 22rem; padding-bottom: 18rem;
-  border-bottom: var(--stroke-hair) solid var(--line);
+  border-bottom: var(--stroke) solid var(--line);
   font-family: var(--font-reading); font-size: 16rem; line-height: 1.6; max-width: 62ch;
   color: var(--muted);
 }
@@ -265,29 +265,29 @@ function iconPath(name: string) {
 .meter__label { color: var(--muted); }
 .meter__track {
   width: 96rem; height: 12rem; border-radius: 999rem; overflow: hidden;
-  background: var(--paper-3); border: var(--stroke-hair) solid var(--ink);
+  background: var(--paper-3); border: var(--stroke) solid var(--ink);
 }
 .meter__fill {
   display: block; height: 100%;
-  background: var(--coral);
+  background: var(--red);
   transition: width 500ms var(--ease-out), background 500ms var(--ease-out);
 }
 /* The bar changes hue as the load falls, but the word beside it changes with
    it — the reading never depends on telling coral from mint. */
-.meter__fill.is-mid { background: var(--sun); }
-.meter__fill.is-light { background: var(--mint); }
+.meter__fill.is-mid { background: var(--yellow); }
+.meter__fill.is-light { background: var(--green); }
 .meter__fill.no-anim { transition: none; }
 .meter__val { font-size: 14rem; font-weight: 700; min-width: 68rem; }
 
 .canvas {
   min-height: 200rem;
   padding: clamp(20rem, 2.5vw, 28rem);
-  border: var(--stroke-hair) solid var(--line);
+  border: var(--stroke) solid var(--line);
   border-radius: var(--radius-m);
   background: var(--paper-2);
   transition: border-color var(--dur-mid) var(--ease-out), background var(--dur-mid) var(--ease-out);
 }
-.canvas.is-designed { border: var(--stroke) solid var(--ink); background: var(--paper); }
+.canvas.is-designed { border: var(--stroke) solid var(--line); background: var(--paper); }
 
 /* The raw version is set as the document it actually is: justified serif, tight
    leading, no air. Nothing about it is exaggerated — this is how the sentence
@@ -304,8 +304,8 @@ function iconPath(name: string) {
 .step__badge {
   flex: none; width: 34rem; height: 34rem; border-radius: var(--radius-s);
   display: flex; align-items: center; justify-content: center;
-  background: var(--cobalt); color: var(--on-cobalt);
-  border: var(--stroke) solid var(--ink);
+  background: var(--blue); color: var(--on-blue);
+  border: var(--stroke) solid var(--line);
   font-family: var(--font-ui); font-weight: 700; font-size: 15rem;
 }
 .step__icon { flex: none; display: flex; color: var(--ink); }
@@ -318,22 +318,22 @@ function iconPath(name: string) {
 .move {
   position: relative; display: flex; gap: 12rem; text-align: left;
   padding: 15rem; border-radius: var(--radius-m);
-  border: var(--stroke-hair) solid var(--line);
+  border: var(--stroke) solid var(--line);
   background: var(--paper); cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) { .move:hover { border-color: var(--ink); } }
-.move.is-on { border: var(--stroke) solid var(--ink); background: var(--paper-2); }
-.move.is-guess { box-shadow: 0 0 0 2px var(--sun); }
+.move.is-on { border: var(--stroke) solid var(--line); background: var(--paper-2); }
+.move.is-guess { box-shadow: 0 0 0 2px var(--yellow); }
 .move__tag { position: absolute; top: 8rem; right: 10rem; color: var(--muted); font-size: 10rem; }
 .move__check {
   flex: none; width: 24rem; height: 24rem; border-radius: var(--radius-xs);
-  border: var(--stroke-hair) solid var(--ink);
+  border: var(--stroke) solid var(--ink);
   display: flex; align-items: center; justify-content: center;
-  color: var(--on-mint);
+  color: var(--on-green);
   transition: background var(--dur-fast) var(--ease-out);
 }
-.move.is-on .move__check { background: var(--mint); }
+.move.is-on .move__check { background: var(--green); }
 .move__body { display: flex; flex-direction: column; gap: 5rem; }
 .move__label { font-size: 15rem; font-weight: 700; }
 .move__principle { font-size: 13rem; line-height: 1.45; color: var(--muted); }

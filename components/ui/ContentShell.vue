@@ -30,7 +30,7 @@ defineProps<{
 .cs {
   padding-bottom: clamp(20rem, 3vw, 30rem);
   margin-bottom: clamp(24rem, 4vw, 40rem);
-  border-bottom: var(--stroke) solid var(--ink);
+  border-bottom: var(--stroke) solid var(--line);
 }
 .cs__eyebrow { margin: 0 0 12rem; color: var(--muted); }
 .cs__title { font-size: var(--type-h2); margin: 0; max-width: 22ch; }

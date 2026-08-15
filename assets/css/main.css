@@ -1,29 +1,32 @@
 /* ============================================================================
    ENTERTRAINER — editorial design system
    ----------------------------------------------------------------------------
-   One file, one system. Everything downstream — the front page, the section
-   indexes, the case studies, the four tool apps — reads its colour, type,
-   surface and motion from here.
+   One file, no framework. Colour, type, surface and motion are defined here and
+   read by everything downstream — the front page, the section indexes, the case
+   studies, the AI course and the four tool apps.
 
-   The previous system was a dark monochrome built around a WebGL stage: glass
-   panels, bloom, hue deliberately taken off the table. This is the opposite
-   premise, and it is the right one for a publication. Entertrainer is a body
-   of written and made work — case studies, an explainer that teaches itself,
-   four tools with real interfaces. That wants paper, not a stage: a warm quiet
-   ground, black ink, saturated cards carrying the energy, and colour used as a
-   semantic cue rather than as atmosphere.
+   ── What changed, and why ────────────────────────────────────────────────
+   The previous version of this file dressed every surface in a 2px black
+   outline, an 18–26px corner radius and a hard offset shadow. Three treatments,
+   applied to everything, doing the job that type, space and rule weight are
+   supposed to do. It read as a template with a personality bolted on.
 
-   Three rules the rest of the site depends on:
+   The reference publication this was measured against uses a 3px radius, six
+   box-shadows in its entire stylesheet, pure white, and lets four typefaces
+   carry the whole design. That is the correct instinct and this file now
+   follows it:
 
-   1. `1rem = 1px`. html { font-size: 1px } is load-bearing — every component
-      in this repository sizes in `rem` meaning pixels. Keeping it is what lets
-      the tool apps, the lab and the Strong module inherit the new system
-      without being rewritten.
-   2. The legacy token names (--color-bg, --glass-*, --text-*) are kept and
-      re-pointed at editorial values, so a page nobody touched this pass still
-      wears the new skin instead of the old one half-applied.
-   3. Colour never carries meaning alone. Every category accent ships with a
-      readable text label beside it.
+     · Radii are 3–6px. Pills stay pills; nothing else is round.
+     · There are no decorative shadows. Two exist, both for elements that
+       genuinely float above the page (overlay, sticky bar).
+     · Borders are one hairline in one grey. Weight comes from type, not stroke.
+     · The ground is white and the ink is near-black; six saturated accents
+       carry the category system and nothing else.
+
+   ── Load-bearing constraint ──────────────────────────────────────────────
+   `html { font-size: 1px }`, so `1rem` means one pixel throughout this
+   repository. Every component sizes in `rem` meaning px. Keeping it is what
+   lets the tool apps and the lab sketches inherit this system untouched.
    ========================================================================== */
 
 /* ============================================================
@@ -32,120 +35,150 @@
 
 :root,
 [data-theme="light"] {
-  /* Ground and ink */
-  --ink: #171717;
-  --paper: #FFFDF7;
-  --paper-2: #F5F0E6;
-  --paper-3: #EFE8DA;
-  --muted: #6D6A63;
-  --line: #D8D1C4;
+  /* A real neutral ramp, not three greys invented per component. */
+  --gray-50:   #FAFAFA;
+  --gray-100:  #F4F4F5;
+  --gray-200:  #EAEAEC;
+  --gray-300:  #DCDCE0;
+  --gray-400:  #A9A9B1;
+  --gray-500:  #737379;   /* the lightest grey that still clears 4.5:1 as text */
+  --gray-600:  #55555C;
+  --gray-700:  #3A3A40;
+  --gray-800:  #26262A;
+  --gray-900:  #161618;
+  --gray-1000: #0A0A0B;
 
-  /* Accents — printed tickets, arcade signage, editorial highlighter */
-  --coral: #F36B5F;
-  --sun: #F6C945;
-  /* Two of these were measured rather than trusted, and both moved:
-       cobalt  #2F6FED carried paper text at 4.47:1 — under the 4.5 floor, and
-               category chips are small text. Darkened one step to 5.09:1; the
-               hue is indistinguishable side by side.
-       violet  #B36BE8 with paper text is 3.34:1 and fails outright. The colour
-               is right, the text on it was wrong: ink on this violet is
-               5.28:1, so --on-violet flipped instead of the accent moving. */
-  --cobalt: #2A66DE;
-  --mint: #76D7C4;
-  --violet: #B36BE8;
-  --orange: #E98C2E;
+  --paper:   #FFFFFF;
+  --paper-2: var(--gray-50);
+  --paper-3: var(--gray-100);
+  --ink:     var(--gray-900);
+  --muted:   var(--gray-600);
+  --line:    var(--gray-300);
+  --line-strong: var(--gray-400);
 
-  /* Text that sits ON a saturated accent. Every pair below is at or above
-     4.5:1 — see the measurements in the comment above. */
-  --on-coral: #171717;
-  --on-sun: #171717;
-  --on-cobalt: #FFFDF7;
-  --on-mint: #171717;
-  --on-violet: #171717;
-  --on-orange: #171717;
+  /* Six accents. Saturated enough to sort a page from across the room, dark
+     enough to carry white text where they need to. Each is paired below with
+     the one text colour that clears 4.5:1 on it — measured, not assumed. */
+  --blue:   #2C2BE8;
+  --red:    #E02D18;
+  --green:  #1FD07A;
+  --purple: #8B34D4;
+  --yellow: #F2DC2E;
+  --cyan:   #22B8D8;
 
-  --shadow-ink: rgba(23, 23, 23, 0.9);
-  --texture-strength: 0.045;
+  /* Measured, not assumed. The three light accents carry ink and the three
+     dark ones carry white; picking per-accent is what let green and cyan stay
+     genuinely bright instead of being muddied down to hold white text. */
+  --on-blue:   #FFFFFF;   /* 8.0:1  */
+  --on-red:    #FFFFFF;   /* 4.6:1  */
+  --on-green:  #161618;   /* 8.9:1  */
+  --on-purple: #FFFFFF;   /* 5.9:1  */
+  --on-yellow: #161618;   /* 13.0:1 */
+  --on-cyan:   #161618;   /* 7.7:1  */
+
+  --selection: #F2DC2E;
+  --on-selection: #161618;
+  --focus: #2C2BE8;
+
   color-scheme: light;
 }
 
-/* Night press. Not a second design — the same press run on black stock. The
-   accents are lifted just enough to hold their contrast against ink. */
+/* The same design inverted, not a second one. The ramp reverses and the
+   accents lift just enough to hold their contrast on a dark ground. */
 [data-theme="dark"] {
-  --ink: #F4EFE4;
-  --paper: #131210;
-  --paper-2: #1C1A16;
-  --paper-3: #24211C;
-  --muted: #A29B8D;
-  --line: #38342C;
+  --gray-50:   #101012;
+  --gray-100:  #17171A;
+  --gray-200:  #1F1F23;
+  --gray-300:  #2C2C31;
+  --gray-400:  #4A4A52;
+  --gray-500:  #7E7E87;
+  --gray-600:  #A6A6AE;
+  --gray-700:  #C8C8CE;
+  --gray-800:  #E2E2E6;
+  --gray-900:  #F2F2F4;
+  --gray-1000: #FFFFFF;
 
-  --coral: #FF8A7E;
-  --sun: #FFD75E;
-  --cobalt: #7FA6FF;
-  --mint: #8FE3D2;
-  --violet: #CB97F5;
-  --orange: #F6A951;
+  --paper:   #0B0B0C;
+  --paper-2: var(--gray-100);
+  --paper-3: var(--gray-200);
+  --ink:     var(--gray-900);
+  --muted:   var(--gray-600);
+  --line:    var(--gray-300);
+  --line-strong: var(--gray-400);
 
-  --on-coral: #131210;
-  --on-sun: #131210;
-  --on-cobalt: #131210;
-  --on-mint: #131210;
-  --on-violet: #131210;
-  --on-orange: #131210;
+  --blue:   #6F6DFF;
+  --red:    #FF6B55;
+  --green:  #2AD98A;
+  --purple: #B770F0;
+  --yellow: #F2DC2E;
+  --cyan:   #38C6E8;
 
-  --shadow-ink: rgba(0, 0, 0, 0.95);
-  --texture-strength: 0.03;
+  --on-blue:   #0B0B0C;
+  --on-red:    #0B0B0C;
+  --on-green:  #0B0B0C;
+  --on-purple: #0B0B0C;
+  --on-yellow: #0B0B0C;
+  --on-cyan:   #0B0B0C;
+
+  --selection: #F2DC2E;
+  --on-selection: #0B0B0C;
+  --focus: #6F6DFF;
+
   color-scheme: dark;
 }
 
 :root {
-  /* Category accents. The spec's film/games/music set belongs to an
-     entertainment publication; this site publishes instructional design, so
-     the same mechanism carries this site's actual sections. */
-  --cat-practice: var(--cobalt);   /* instructional design, the craft itself */
-  --cat-projects: var(--coral);    /* case studies */
-  --cat-tools: var(--mint);        /* the web apps */
-  --cat-story: var(--violet);      /* about, the person */
-  --cat-lab: var(--sun);           /* experiments */
-  --cat-notes: var(--orange);      /* colophon, process writing */
+  /* The category system. Colour is a wayfinding cue; every use of it in the
+     interface ships beside the category's name in words. */
+  --cat-practice: var(--blue);
+  --cat-projects: var(--red);
+  --cat-tools:    var(--green);
+  --cat-story:    var(--purple);
+  --cat-lab:      var(--yellow);
+  --cat-notes:    var(--cyan);
 
-  --on-cat-practice: var(--on-cobalt);
-  --on-cat-projects: var(--on-coral);
-  --on-cat-tools: var(--on-mint);
-  --on-cat-story: var(--on-violet);
-  --on-cat-lab: var(--on-sun);
-  --on-cat-notes: var(--on-orange);
+  --on-cat-practice: var(--on-blue);
+  --on-cat-projects: var(--on-red);
+  --on-cat-tools:    var(--on-green);
+  --on-cat-story:    var(--on-purple);
+  --on-cat-lab:      var(--on-yellow);
+  --on-cat-notes:    var(--on-cyan);
 }
 
 /* ============================================================
    2 · Type
+   ------------------------------------------------------------
+   Four families, four jobs. Three are variable, which is what makes a range
+   this wide affordable — see assets/css/fonts.css for the substitution notes.
    ============================================================ */
 
 :root {
-  --font-display: "Bangers", Impact, "Haettenschweiler", sans-serif;
-  --font-annotation: "Kalam", "Comic Sans MS", cursive;
-  --font-ui: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-ui:      "Archivo", "Helvetica Neue", Arial, sans-serif;
   --font-reading: "Source Serif 4", Georgia, serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono:    "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Fluid scale. Written in px because 1rem is 1px here and px keeps the
-     intent legible at a glance. */
-  --type-hero: clamp(52px, 9vw, 136px);
-  --type-display: clamp(38px, 5.4vw, 80px);
-  --type-h1: clamp(32px, 3.8vw, 56px);
-  --type-h2: clamp(23px, 2.4vw, 36px);
-  --type-card: clamp(19px, 1.8vw, 26px);
-  --type-body: clamp(16px, 1.15vw, 19px);
-  --type-small: clamp(14px, 1vw, 15.5px);
-  --type-meta: clamp(11px, 0.8vw, 12.5px);
+  /* Fraunces axes. SOFT rounds the terminals; WONK swaps in the splayed
+     alternates. Set once here so a headline and the masthead are demonstrably
+     the same voice rather than two people's guesses. */
+  --display-soft: 24;
+  --display-wonk: 1;
 
-  --tracking-meta: 0.14em;
-  --tracking-display: 0.012em;   /* Bangers is already condensed; it wants air */
+  --type-hero:    clamp(44px, 7vw, 104px);
+  --type-display: clamp(34px, 4.4vw, 62px);
+  --type-h1:      clamp(28px, 3.2vw, 46px);
+  --type-h2:      clamp(22px, 2.2vw, 32px);
+  --type-card:    clamp(19px, 1.7vw, 25px);
+  --type-body:    clamp(16px, 1.1vw, 18px);
+  --type-small:   clamp(14px, 1vw, 15px);
+  --type-meta:    clamp(11px, 0.78vw, 12px);
 
-  /* Reading measures */
+  --tracking-meta: 0.08em;
+  --tracking-display: -0.015em;
+
   --measure-deck: 34ch;
-  --measure-body: 66ch;
-  --measure-note: 42ch;
+  --measure-body: 68ch;
+  --measure-note: 44ch;
 }
 
 /* ============================================================
@@ -153,62 +186,64 @@
    ============================================================ */
 
 :root {
-  --shell-max: 1240rem;
-  --shell-wide: 1440rem;
-  --shell-gutter: clamp(18rem, 4.5vw, 56rem);
-  --page-top: calc(96rem + var(--safe-top));
+  --shell-max:  1180rem;
+  --shell-wide: 1400rem;
+  --shell-gutter: clamp(18rem, 4vw, 48rem);
+  --page-top: calc(88rem + var(--safe-top));
 
-  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-top:    env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-left: env(safe-area-inset-left, 0px);
-  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
 
-  --radius-xs: 4rem;
-  --radius-s: 8rem;
-  --radius-m: 12rem;
-  --radius-l: 18rem;
-  --radius-xl: 26rem;
+  /* Small. A 20px radius on a content card is a 2010 app, not a publication. */
+  --radius-xs: 2rem;
+  --radius-s:  3rem;
+  --radius-m:  4rem;
+  --radius-l:  6rem;
   --radius-full: 999rem;
 
-  /* The outline weight that makes a card read as printed rather than drawn by
-     a UI kit. 2px for stamped objects, 1px warm grey for editorial rules. */
-  --stroke: 2px;
+  --stroke: 1px;
   --stroke-hair: 1px;
+
+  /* Two shadows in the whole system, both for things that genuinely sit above
+     the page. Nothing decorative. */
+  --shadow-sticky: 0 1px 0 var(--line);
+  --shadow-overlay: 0 24rem 60rem -24rem rgba(0, 0, 0, 0.4);
 
   --z-page: 1;
   --z-sticky: 20;
   --z-chrome: 40;
   --z-overlay: 60;
 
-  /* Motion. Short list, used everywhere; things leave faster than they arrive. */
-  --dur-tap: 110ms;
-  --dur-fast: 160ms;
-  --dur-mid: 260ms;
-  --dur-slow: 520ms;
+  --dur-tap:  90ms;
+  --dur-fast: 140ms;
+  --dur-mid:  240ms;
+  --dur-slow: 420ms;
   --ease-out: cubic-bezier(.16, 1, .3, 1);
-  --ease-in: cubic-bezier(.7, 0, .84, 0);
+  --ease-in:  cubic-bezier(.7, 0, .84, 0);
   --ease-in-out: cubic-bezier(.65, 0, .35, 1);
-  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --ease-spring: cubic-bezier(.34, 1.4, .64, 1);
   --ease-expo-out: cubic-bezier(.19, 1, .22, 1);
 
-  --lift: -3rem;
-  --press: 0.98;
-  --press-deep: 0.94;
+  --lift: -1rem;
+  --press: 0.99;
+  --press-deep: 0.96;
 }
 
 /* ============================================================
    4 · Compatibility layer
    ------------------------------------------------------------
-   Every token the untouched pages (the four tool apps, the fifteen lab
-   sketches, the Strong module) still ask for, re-pointed at the editorial
-   system. Deleting these names would have meant rewriting four thousand lines
-   of working tool UI to change the colour of a button.
+   The token names the untouched pages still ask for — the four tool apps, the
+   fifteen lab sketches, the Strong module — re-pointed at the system above.
+   Deleting these names would mean rewriting four thousand lines of working
+   tool UI to change the colour of a button.
    ============================================================ */
 
 :root {
   --color-bg: var(--paper);
   --color-text: var(--ink);
-  --color-accent: var(--coral);
+  --color-accent: var(--blue);
   --color-pop: var(--ink);
   --color-on-pop: var(--paper);
   --color-alt: var(--muted);
@@ -216,21 +251,21 @@
   --color-glass-bg: var(--paper-2);
   --color-glass-border: var(--line);
   --color-glass-bg-hover: var(--paper-3);
-  --color-glass-border-hover: var(--ink);
-  --glow-soft: rgba(243, 107, 95, 0.25);
+  --color-glass-border-hover: var(--line-strong);
+  --glow-soft: transparent;
   --glow-rim: transparent;
   --color-spinner-track: var(--line);
   --color-divider: var(--line);
 
   --color-black: var(--paper);
   --color-white: var(--ink);
-  --color-pop-green: var(--coral);
+  --color-pop-green: var(--blue);
   --color-white20: var(--line);
-  --color-bg-dark: var(--ink);
-  --color-bg-dark20: color-mix(in srgb, var(--ink) 20%, transparent);
-  --color-bg-dark40: color-mix(in srgb, var(--ink) 40%, transparent);
-  --color-bg-dark60: color-mix(in srgb, var(--ink) 60%, transparent);
-  --color-bg-dark-transparent: color-mix(in srgb, var(--ink) 0%, transparent);
+  --color-bg-dark: var(--gray-1000);
+  --color-bg-dark20: color-mix(in srgb, var(--gray-1000) 20%, transparent);
+  --color-bg-dark40: color-mix(in srgb, var(--gray-1000) 40%, transparent);
+  --color-bg-dark60: color-mix(in srgb, var(--gray-1000) 60%, transparent);
+  --color-bg-dark-transparent: color-mix(in srgb, var(--gray-1000) 0%, transparent);
 
   --main-font: var(--font-ui);
   --display-font: var(--font-ui);
@@ -240,7 +275,7 @@
   --text-h1: var(--type-display);
   --text-h2: var(--type-h2);
   --text-h3: var(--type-card);
-  --text-lead: clamp(17px, 1.6vw, 22px);
+  --text-lead: clamp(17px, 1.5vw, 21px);
   --text-body: var(--type-body);
   --text-sm: var(--type-small);
   --text-label: var(--type-meta);
@@ -249,28 +284,20 @@
   --gap-xs: 10rem; --gap-s: 15rem; --gap-m: 30rem; --gap-l: 60rem;
   --gap-xl: 90rem; --gap-xxl: 120rem; --gap-xxxl: 180rem;
   --gap-20: 20rem; --gap-45: 45rem;
-  --radius-full: 999rem;
   --chrome-offset: 18rem;
   --chrome-size: 44rem;
-  --btn-pad-y: 13rem;
-  --btn-pad-x: 24rem;
-  --btn-press: 0.96;
+  --btn-pad-y: 11rem;
+  --btn-pad-x: 20rem;
+  --btn-press: 0.98;
   --z-canvas: 0; --z-page-ui: 10; --z-menu: 40; --z-loader: 1000;
   --grid-margin: 30rem; --grid-gutter: 16rem;
   --ease-quad-in-out: var(--ease-in-out);
 
-  /* The light field the old glass system published each frame. Nothing reads
-     it any more, but the variables are declared so a stray calc() using them
-     resolves rather than collapsing a layout. */
   --lx: 0.5; --ly: 0.42; --lxc: 0; --lyc: -0.16; --lit: 0;
-
-  /* The tool apps read these for focus washes and small gradients; they used
-     to be published each frame by the WebGL backdrop. Static now, and drawn
-     from the editorial accents. */
-  --accent-fog: 47, 111, 237;
-  --grad-1: 47, 111, 237;
-  --grad-2: 243, 107, 95;
-  --grad-3: 118, 215, 196;
+  --accent-fog: 44, 43, 232;
+  --grad-1: 44, 43, 232;
+  --grad-2: 240, 64, 42;
+  --grad-3: 18, 184, 102;
 }
 
 /* ============================================================
@@ -278,7 +305,7 @@
    ============================================================ */
 
 html {
-  font-size: 1px;           /* 1rem = 1px, site-wide. See the header note. */
+  font-size: 1px;
   overscroll-behavior: none;
   -webkit-text-size-adjust: 100%;
 }
@@ -286,9 +313,7 @@ html.cgame-lock,
 html.cgame-lock body { overflow: hidden; height: 100%; }
 
 *, *::before, *::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  margin: 0; padding: 0; box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -297,7 +322,6 @@ body {
   font-size: var(--type-body);
   font-weight: 400;
   line-height: 1.55;
-  letter-spacing: 0;
   color: var(--ink);
   background: var(--paper);
   overflow-x: hidden;
@@ -311,45 +335,43 @@ button { font-family: inherit; color: inherit; background: none; border: none; c
 canvas { display: block; }
 img, svg, video { max-width: 100%; }
 
-/* One focus ring, everywhere, on paper. */
 :focus-visible {
-  outline: 3px solid var(--cobalt);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
   border-radius: var(--radius-xs);
 }
 
-/* Theme crossfade (stores/theme.ts adds .theme-anim for ~0.5s on switch). */
 html.theme-anim, html.theme-anim * {
   transition:
-    background-color .45s ease, color .45s ease, border-color .45s ease,
-    fill .45s ease, stroke .45s ease, box-shadow .45s ease !important;
+    background-color .3s ease, color .3s ease, border-color .3s ease,
+    fill .3s ease, stroke .3s ease !important;
 }
 
-::selection { background: var(--sun); color: #171717; }
+::selection { background: var(--selection); color: var(--on-selection); }
 
 /* ============================================================
    6 · Type roles
    ============================================================ */
 
-/* The display voice. Bangers, used deliberately and never for paragraphs. */
+/* The display voice. Fraunces, on its soft and wonk axes. */
 .t-display {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-variation-settings: "SOFT" var(--display-soft), "WONK" var(--display-wonk), "opsz" 96;
+  font-weight: 700;
   letter-spacing: var(--tracking-display);
-  line-height: 0.92;
-  text-transform: none;
+  line-height: 1.02;
   text-wrap: balance;
 }
 
-/* The metadata voice: issue numbers, dates, counts, category labels. */
+/* Metadata: issue numbers, dates, counts, category labels. */
 .t-mono {
   font-family: var(--font-mono);
   font-size: var(--type-meta);
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: var(--tracking-meta);
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
-  line-height: 1.1;
+  line-height: 1.2;
 }
 
 /* The reading voice. Anything that is a paragraph someone sits with. */
@@ -359,14 +381,15 @@ html.theme-anim, html.theme-anim * {
   line-height: 1.68;
 }
 
-/* The hand. Editorial asides, staff-pick marks, margin notes. */
+/* Retained so templates carrying the class do not lose their styling; the
+   hand-written face is gone with the rest of the decoration. */
 .t-hand {
-  font-family: var(--font-annotation);
-  font-weight: 400;
-  line-height: 1.4;
+  font-family: var(--font-reading);
+  font-style: italic;
+  line-height: 1.5;
 }
 
-h1, h2, h3, h4 { font-weight: 700; line-height: 1.05; text-wrap: balance; }
+h1, h2, h3, h4 { font-weight: 700; line-height: 1.1; text-wrap: balance; }
 p, li, dd, figcaption { text-wrap: pretty; }
 
 .sr-only {
@@ -375,182 +398,121 @@ p, li, dd, figcaption { text-wrap: pretty; }
 }
 
 /* ============================================================
-   7 · Texture
+   7 · Surfaces
    ------------------------------------------------------------
-   Paper grain and halftone, both generated rather than downloaded, both
-   low-opacity and both behind the text. Disabled under reduced motion or
-   reduced transparency, per the spec.
-   ============================================================ */
-
-.u-grain {
-  position: fixed; inset: 0; z-index: 2; pointer-events: none;
-  opacity: var(--texture-strength);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-  mix-blend-mode: multiply;
-}
-[data-theme="dark"] .u-grain { mix-blend-mode: screen; }
-
-.u-halftone {
-  background-image: radial-gradient(currentColor 1.1px, transparent 1.2px);
-  background-size: 7px 7px;
-  opacity: 0.16;
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  .u-grain { display: none; }
-}
-
-/* ============================================================
-   8 · Surfaces
-   ------------------------------------------------------------
-   One card, three weights. A stamped object has a 2px ink outline and an
-   offset ink shadow — the print-registration look, not a drop shadow.
+   One card, one rule weight, no shadow. Separation comes from the hairline
+   and from the space around it.
    ============================================================ */
 
 .paper {
   position: relative;
   background: var(--paper);
-  border: var(--stroke) solid var(--ink);
+  border: var(--stroke) solid var(--line);
   border-radius: var(--radius-l);
 }
-.paper--quiet {
-  background: var(--paper-2);
-  border: var(--stroke-hair) solid var(--line);
-}
-.paper--stamped {
-  box-shadow: 5rem 5rem 0 var(--ink);
-}
+.paper--quiet { background: var(--paper-2); }
 .paper--tint { background: var(--paper-2); }
 
-/* Anything pressable: lift a hair on hover, sink under the press, and let the
-   offset shadow do the talking. */
-.u-press {
+/* Pressable surfaces respond by changing their border and ground, not by
+   jumping around the page. */
+.u-press, .u-lift {
   transition:
-    transform var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
     background var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
+    color var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) {
-  .u-press:hover { transform: translate(-2rem, -2rem); box-shadow: 7rem 7rem 0 var(--ink); }
+  .u-press:hover, .u-lift:hover { border-color: var(--line-strong); background: var(--paper-2); }
 }
-.u-press:active {
-  transform: translate(2rem, 2rem);
-  box-shadow: 2rem 2rem 0 var(--ink);
-  transition-duration: var(--dur-tap);
-}
+.u-press:active, .u-lift:active { background: var(--paper-3); }
 
-/* Legacy aliases used across the tool apps. */
-.u-lift { transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out); }
-@media (hover: hover) { .u-lift:hover { transform: translateY(var(--lift)); } }
-.u-lift:active { transform: scale(var(--press)); transition-duration: var(--dur-tap); }
-.u-tap { transition: transform var(--dur-fast) var(--ease-spring); }
-.u-tap:active:not(:disabled) { transform: scale(var(--press-deep)); transition-duration: var(--dur-tap); }
+.u-tap { transition: opacity var(--dur-fast) var(--ease-out); }
+.u-tap:active:not(:disabled) { opacity: 0.7; }
 
 .u-underline { position: relative; text-decoration: none; }
 .u-underline::after {
-  content: ''; position: absolute; left: 0; right: 0; bottom: -2px; height: 2px;
+  content: ''; position: absolute; left: 0; right: 0; bottom: -2px; height: 1px;
   background: currentColor; transform: scaleX(0); transform-origin: right center;
   transition: transform var(--dur-mid) var(--ease-out);
 }
 @media (hover: hover) { .u-underline:hover::after { transform: scaleX(1); transform-origin: left center; } }
 .u-underline:focus-visible::after { transform: scaleX(1); transform-origin: left center; }
 
-/* Images arrive in colour now — the monochrome art direction is gone, and the
-   class survives only because a dozen templates still carry it. */
 .mono-img { filter: none; }
-.pixel-edge { border-radius: var(--radius-m); }
+.pixel-edge { border-radius: var(--radius-s); }
 
 /* ============================================================
-   9 · Controls
-   ------------------------------------------------------------
-   The ticket. One button, stamped, in three fills. `.px-btn` and `.glass-btn`
-   are the historical names the tool apps use; they are the same object.
+   8 · Controls
    ============================================================ */
 
 .ticket, .px-btn, .glass-btn {
   position: relative;
-  display: inline-flex; align-items: center; justify-content: center; gap: 9rem;
-  min-height: 46rem; padding: 12rem var(--btn-pad-x);
+  display: inline-flex; align-items: center; justify-content: center; gap: 8rem;
+  min-height: 44rem; padding: 11rem var(--btn-pad-x);
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-full);
-  background: var(--coral); color: var(--on-coral);
+  background: var(--ink); color: var(--paper);
   font-family: var(--font-ui);
-  font-size: 15rem; font-weight: 700; letter-spacing: 0.005em;
+  font-size: 15rem; font-weight: 600; letter-spacing: 0;
   text-decoration: none; white-space: nowrap; cursor: pointer;
-  box-shadow: 4rem 4rem 0 var(--ink);
   transition:
-    transform var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out),
-    background var(--dur-fast) var(--ease-out);
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) {
   .ticket:not(:disabled):hover, .px-btn:not(:disabled):hover, .glass-btn:not(:disabled):hover {
-    transform: translate(-2rem, -2rem);
-    box-shadow: 6rem 6rem 0 var(--ink);
+    background: var(--gray-700); border-color: var(--gray-700);
   }
 }
-.ticket:not(:disabled):active, .px-btn:not(:disabled):active, .glass-btn:not(:disabled):active {
-  transform: translate(2rem, 2rem);
-  box-shadow: 1rem 1rem 0 var(--ink);
-  transition-duration: var(--dur-tap);
-}
-.ticket:disabled, .px-btn[disabled], .glass-btn:disabled {
-  opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: 2rem 2rem 0 var(--line);
-}
+.ticket:not(:disabled):active, .px-btn:not(:disabled):active, .glass-btn:not(:disabled):active { opacity: 0.85; }
+.ticket:disabled, .px-btn[disabled], .glass-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
 .ticket--ink, .px-btn--solid { background: var(--ink); color: var(--paper); }
-.ticket--ghost, .glass-btn--ghost, .px-btn--ghost { background: var(--paper); color: var(--ink); }
-.ticket--sun { background: var(--sun); color: var(--on-sun); }
-.ticket--cobalt { background: var(--cobalt); color: var(--on-cobalt); }
-.ticket--mint { background: var(--mint); color: var(--on-mint); }
-.ticket--sm { min-height: 38rem; padding: 8rem 16rem; font-size: 13.5rem; box-shadow: 3rem 3rem 0 var(--ink); }
+.ticket--ghost, .glass-btn--ghost, .px-btn--ghost {
+  background: transparent; color: var(--ink); border-color: var(--line-strong);
+}
+@media (hover: hover) {
+  .ticket--ghost:not(:disabled):hover, .glass-btn--ghost:not(:disabled):hover, .px-btn--ghost:not(:disabled):hover {
+    background: var(--paper-2); border-color: var(--ink); color: var(--ink);
+  }
+}
+.ticket--sm { min-height: 36rem; padding: 8rem 15rem; font-size: 13.5rem; }
 
 /* Chip — category labels, filters, small toggles. */
 .chip, .glass-chip {
-  display: inline-flex; align-items: center; gap: 7rem;
-  min-height: 30rem; padding: 5rem 12rem;
-  border: var(--stroke-hair) solid var(--ink);
+  display: inline-flex; align-items: center; gap: 6rem;
+  min-height: 28rem; padding: 4rem 11rem;
+  border: var(--stroke) solid var(--line-strong);
   border-radius: var(--radius-full);
-  background: var(--paper);
-  color: var(--ink);
+  background: transparent; color: var(--ink);
   font-family: var(--font-mono);
-  font-size: var(--type-meta); font-weight: 600;
+  font-size: var(--type-meta); font-weight: 500;
   letter-spacing: var(--tracking-meta); text-transform: uppercase;
   white-space: nowrap; cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
-@media (hover: hover) { .chip:hover, .glass-chip:hover { background: var(--paper-3); } }
-.chip__dot { width: 9rem; height: 9rem; border-radius: 50%; background: var(--chip-accent, var(--coral)); border: 1px solid var(--ink); flex: none; }
-.chip[aria-pressed="true"], .chip.is-on {
-  background: var(--ink); color: var(--paper); border-color: var(--ink);
-}
-.chip[aria-pressed="true"] .chip__dot, .chip.is-on .chip__dot { border-color: var(--paper); }
+@media (hover: hover) { .chip:hover, .glass-chip:hover { background: var(--paper-2); border-color: var(--ink); } }
+.chip__dot { width: 8rem; height: 8rem; border-radius: 50%; background: var(--chip-accent, var(--blue)); flex: none; }
+.chip[aria-pressed="true"], .chip.is-on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
 /* ============================================================
-   10 · Panels, fields, notes — the tool-app surface
+   9 · Panels, fields, notes — the tool-app surface
    ============================================================ */
 
-/* The tool apps' working surface. Deliberately the quietest object in the
-   system: a sheet with a hairline around it, because the tool's own content is
-   what should be loud.
-
-   `.lg` — the old liquid-glass surface — is gone rather than re-pointed. Its
-   only remaining users were three components this rebuild deleted, and the
-   name collided with `.lg` in components/lab/Glass.vue, where it means
-   something else entirely. */
 .glass-panel {
   position: relative;
   background: var(--paper);
-  border: var(--stroke-hair) solid var(--line);
+  border: var(--stroke) solid var(--line);
   border-radius: var(--radius-l);
-  padding: 26rem;
+  padding: 24rem;
 }
 
 .glass-label {
   display: block;
   font-family: var(--font-mono);
-  font-size: var(--type-meta); font-weight: 600;
+  font-size: var(--type-meta); font-weight: 500;
   letter-spacing: var(--tracking-meta); text-transform: uppercase;
   color: var(--muted);
   padding-bottom: 6rem;
@@ -559,51 +521,50 @@ p, li, dd, figcaption { text-wrap: pretty; }
 .glass-field {
   width: 100%;
   background: var(--paper);
-  border: var(--stroke-hair) solid var(--ink);
+  border: var(--stroke) solid var(--line-strong);
   border-radius: var(--radius-m);
   color: var(--ink);
   font-family: inherit; font-size: var(--type-small); line-height: 1.6;
-  padding: 13rem 15rem;
+  padding: 11rem 13rem;
   transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
-.glass-field::placeholder { color: var(--muted); }
+.glass-field::placeholder { color: var(--gray-500); }
 .glass-field:focus {
   outline: none;
-  border-color: var(--cobalt);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cobalt) 26%, transparent);
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 20%, transparent);
 }
 .glass-field:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .glass-select {
   appearance: none; -webkit-appearance: none;
-  padding-right: 38rem; cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23171717' stroke-width='1.8' stroke-linecap='round' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 13rem center;
+  padding-right: 36rem; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%2355555C' stroke-width='1.6' stroke-linecap='round' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12rem center;
 }
 [data-theme="dark"] .glass-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23F4EFE4' stroke-width='1.8' stroke-linecap='round' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23A6A6AE' stroke-width='1.6' stroke-linecap='round' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
 }
 
 .glass-note {
   font-size: var(--type-small); line-height: 1.55; color: var(--ink);
   background: var(--paper-2);
-  border: var(--stroke-hair) solid var(--line);
-  border-left: 4rem solid var(--cobalt);
+  border: var(--stroke) solid var(--line);
+  border-left: 3rem solid var(--blue);
   border-radius: var(--radius-s);
-  padding: 12rem 15rem;
+  padding: 11rem 14rem;
 }
-.glass-note--error { border-left-color: var(--coral); background: color-mix(in srgb, var(--coral) 12%, var(--paper)); }
+.glass-note--error { border-left-color: var(--red); }
 
 /* ============================================================
-   11 · Rules and editorial apparatus
+   10 · Rules and editorial apparatus
    ============================================================ */
 
-.rule { border: 0; border-top: var(--stroke-hair) solid var(--line); margin: 0; }
+.rule { border: 0; border-top: var(--stroke) solid var(--line); margin: 0; }
 .rule--ink { border-top: var(--stroke) solid var(--ink); }
 
-/* The margin-note grid. A narrow reading column with a margin beside it
-   carrying labels, numbers and asides — annotation next to the thing being
-   annotated, which is an instructional device as much as a layout. */
+/* A narrow reading column with a margin beside it carrying labels, numbers
+   and asides — annotation next to the thing being annotated. */
 .ed {
   display: grid;
   grid-template-columns:
@@ -617,16 +578,16 @@ p, li, dd, figcaption { text-wrap: pretty; }
 .ed > .ed-wide { grid-column: text-start / note-end; }
 
 .ed-note {
-  font-family: var(--font-annotation);
-  font-size: 14.5rem; line-height: 1.5;
+  font-family: var(--font-ui);
+  font-size: 13.5rem; line-height: 1.55;
   color: var(--muted);
-  border-left: var(--stroke-hair) solid var(--line);
+  border-left: var(--stroke) solid var(--line);
   padding-left: 14rem;
   max-width: var(--measure-note);
 }
 .ed-note b {
   display: block;
-  font-family: var(--font-mono); font-weight: 600;
+  font-family: var(--font-mono); font-weight: 500;
   font-size: 10.5rem; letter-spacing: var(--tracking-meta); text-transform: uppercase;
   color: var(--ink);
   margin-bottom: 5rem;
@@ -638,65 +599,50 @@ p, li, dd, figcaption { text-wrap: pretty; }
 }
 
 /* ============================================================
-   12 · Motion
+   11 · Motion
    ============================================================ */
 
-/* Arrive once, on scroll, without JavaScript — so the failure mode is "no
-   animation" rather than "no content". */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .u-reveal {
       animation: u-reveal-in linear both;
       animation-timeline: view();
-      animation-range: entry 6% cover 30%;
+      animation-range: entry 4% cover 24%;
     }
   }
 }
 @keyframes u-reveal-in {
-  from { opacity: 0; transform: translateY(16rem); }
+  from { opacity: 0; transform: translateY(10rem); }
   to { opacity: 1; transform: none; }
 }
 
 .t-rise { display: block; overflow: hidden; }
 .t-rise > span {
   display: block;
-  animation: t-rise-in 760ms var(--ease-out) both;
-  animation-delay: calc(var(--i, 0) * 80ms + var(--t-delay, 0ms));
+  animation: t-rise-in 620ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 70ms + var(--t-delay, 0ms));
 }
 @keyframes t-rise-in {
-  from { transform: translateY(105%); opacity: 0; }
+  from { transform: translateY(102%); opacity: 0; }
   60% { opacity: 1; }
   to { transform: translateY(0); opacity: 1; }
 }
 
 .t-fade-up {
-  animation: t-fade-up 560ms var(--ease-out) both;
-  animation-delay: calc(var(--i, 0) * 60ms + var(--t-delay, 0ms));
+  animation: t-fade-up 460ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 55ms + var(--t-delay, 0ms));
 }
 @keyframes t-fade-up {
-  from { opacity: 0; transform: translateY(10rem); }
+  from { opacity: 0; transform: translateY(8rem); }
   to { opacity: 1; transform: none; }
 }
 
 .u-media-in { animation: u-media-in var(--dur-slow) var(--ease-out) both; }
-@keyframes u-media-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+@keyframes u-media-in { from { opacity: 0 } to { opacity: 1 } }
 
-/* Every decorative motion collapses to a state change. Nothing that carries
-   meaning is carried by movement alone. */
 @media (prefers-reduced-motion: reduce) {
-  .u-press, .u-lift, .u-tap, .lg--interactive, .ticket, .px-btn, .glass-btn, .u-underline::after {
-    transition-duration: 1ms;
-  }
-  .u-press:hover, .u-press:active,
-  .u-lift:hover, .u-lift:active,
-  .u-tap:active:not(:disabled),
-  .ticket:hover, .ticket:active,
-  .px-btn:hover, .px-btn:active,
-  .glass-btn:not(:disabled):hover, .glass-btn:not(:disabled):active { transform: none; }
-  .t-rise > span, .t-fade-up { animation: t-plain 200ms linear both; animation-delay: 0ms; }
+  .u-press, .u-lift, .u-tap, .ticket, .px-btn, .glass-btn, .u-underline::after { transition-duration: 1ms; }
+  .t-rise > span, .t-fade-up { animation: t-plain 180ms linear both; animation-delay: 0ms; }
   .u-media-in { animation: none; }
   @keyframes t-plain { from { opacity: 0 } to { opacity: 1 } }
 }
@@ -704,27 +650,21 @@ p, li, dd, figcaption { text-wrap: pretty; }
 /* Legacy transition names still referenced by the tool apps and lab pages. */
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 .fade-enter-active, .fade-leave-active { transition: opacity var(--dur-mid) ease; }
-.project-fade-enter-from { opacity: 0; transform: translateY(14rem); }
+.project-fade-enter-from { opacity: 0; transform: translateY(10rem); }
 .project-fade-enter-active { transition: opacity var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out); }
 .project-fade-leave-to { opacity: 0; }
 .project-fade-leave-active { transition: opacity var(--dur-fast) var(--ease-in); }
-.iconfade-enter-from, .iconfade-leave-to { opacity: 0; transform: scale(0.85); }
+.iconfade-enter-from, .iconfade-leave-to { opacity: 0; transform: scale(0.9); }
 .iconfade-enter-active, .iconfade-leave-active { transition: opacity var(--dur-fast) ease, transform var(--dur-fast) ease; }
-.video-fade-enter-from, .video-fade-leave-to { opacity: 0; transform: scale(0.97); }
-.video-fade-enter-active, .video-fade-leave-active { transition: opacity var(--dur-mid) ease, transform var(--dur-mid) ease; }
+.video-fade-enter-from, .video-fade-leave-to { opacity: 0; }
+.video-fade-enter-active, .video-fade-leave-active { transition: opacity var(--dur-mid) ease; }
 
 /* ============================================================
-   13 · Responsive tuning
+   12 · Responsive tuning
    ============================================================ */
 
-@media (max-width: 900px) {
-  :root { --grid-margin: 20rem; --grid-gutter: 15rem; }
-}
+@media (max-width: 900px) { :root { --grid-margin: 20rem; --grid-gutter: 15rem; } }
 @media (max-width: 640px) {
-  :root {
-    --page-top: calc(78rem + var(--safe-top));
-    --stroke: 2px;
-  }
-  .glass-panel { padding: 20rem 18rem; }
-  .paper--stamped { box-shadow: 4rem 4rem 0 var(--ink); }
+  :root { --page-top: calc(72rem + var(--safe-top)); }
+  .glass-panel { padding: 18rem 16rem; }
 }

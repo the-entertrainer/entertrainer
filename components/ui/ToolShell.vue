@@ -47,7 +47,7 @@ defineProps<{
 .ts__head {
   margin-bottom: clamp(22rem, 3vw, 32rem);
   padding-bottom: clamp(18rem, 2.5vw, 26rem);
-  border-bottom: var(--stroke) solid var(--ink);
+  border-bottom: var(--stroke) solid var(--line);
 }
 .ts__top { display: flex; align-items: center; justify-content: space-between; gap: 16rem; margin-bottom: 18rem; }
 .ts__back { color: var(--muted); font-family: var(--font-mono); font-size: var(--type-meta); letter-spacing: var(--tracking-meta); text-transform: uppercase; }

@@ -551,7 +551,6 @@ async function exportPPTX() {
     a.href = url; a.download = `${stem}.pptx`
     document.body.appendChild(a); a.click()
     document.body.removeChild(a); URL.revokeObjectURL(url)
-
   } catch {
     alert('Export failed. Please try again.')
   } finally {

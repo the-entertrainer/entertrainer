@@ -1,7 +1,7 @@
 import type { Module } from './types'
 
 export const M01: Module = {
-  id: 'm01', n: '01', accent: 'var(--cobalt)',
+  id: 'm01', n: '01', accent: 'var(--blue)',
   title: 'What we are actually talking about',
   intro: 'Before any history, one hour on the word itself. "AI" is used for six different things, and most bad arguments about it are two people using two of the six. By the end of this module you will be able to hear which one someone means — and say which one you mean.',
   objectives: [

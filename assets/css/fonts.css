@@ -1,47 +1,70 @@
 /* ============================================================================
-   Self-hosted webfonts
+   Self-hosted webfonts — latin and latin-ext
    ----------------------------------------------------------------------------
-   Five open-source families, subset to latin and latin-ext, served from this
-   origin rather than from Google's CDN.
+   Chosen as the closest open-licensed equivalents to the reference
+   publication's type, which is entirely commercial and licensed per domain
+   (Atlas Grotesk and Atlas Typewriter from Commercial Type, Tiempos Text from
+   Klim, Gooper SemiCondensed). None of those can be used here, so each was
+   replaced by role rather than imitated by name:
 
-   Three reasons this is worth the 500KB in the repository:
+     Gooper SemiCondensed  → Fraunces        soft display serif, variable on
+                                             optical size, weight, SOFT and
+                                             WONK — which is what lets one file
+                                             be both a warm masthead and a
+                                             tight headline.
+     Atlas Grotesk         → Archivo         neo-grotesque with a width axis;
+                                             the closest open face to Atlas's
+                                             proportions and squarish bowls.
+     Tiempos Text          → Source Serif 4  contemporary reading serif on an
+                                             optical-size axis.
+     Atlas Typewriter      → IBM Plex Mono   metadata mono.
 
-   1. No third-party request for type anywhere in the publication. The old
-      build opened connections to fonts.googleapis.com and fonts.gstatic.com
-      before it drew a single word, which is a dependency and, in some
-      jurisdictions, a privacy question the site does not need to have. (The
-      Strong module still fetches Inter for its own art direction; it is a
-      self-contained course with its own type system.)
-   2. No render-blocking stylesheet from another host. These faces are part of
-      the CSS bundle, so the browser learns about them in the same request.
-   3. The exact files are pinned. A CDN silently shipping a new version of a
-      face is a redesign nobody asked for.
+   All four are SIL Open Font License 1.1 — commercial use permitted, no
+   attribution required. Licence texts are in docs/licenses/. Files were
+   fetched from fonts.gstatic.com and are unmodified.
 
-   Source: Google Fonts (fonts.google.com), all five families under the SIL
-   Open Font License 1.1. Provenance is recorded in docs/asset_licenses.md.
-   Files were fetched from fonts.gstatic.com and are unmodified.
-
-   Space Grotesk and Source Serif 4 ship as variable fonts, so one file covers
-   their whole weight range; Bangers and Kalam are static cuts.
+   Three of the four are variable, so one file per subset covers their whole
+   weight, width and optical-size range. That is why this stack is four
+   families in eight files.
    ============================================================================ */
 
-/* Bangers · latin */
+/* Archivo · latin */
 @font-face {
-  font-family: 'Bangers';
+  font-family: 'Archivo';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 100 900;
   font-display: swap;
-  src: url('/fonts/webfonts/bangers-400-latin.woff2') format('woff2');
+  src: url('/fonts/webfonts/archivo-var-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* Bangers · latin-ext */
+/* Archivo · latin-ext */
 @font-face {
-  font-family: 'Bangers';
+  font-family: 'Archivo';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 100 900;
   font-display: swap;
-  src: url('/fonts/webfonts/bangers-400-latin-ext.woff2') format('woff2');
+  src: url('/fonts/webfonts/archivo-var-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Fraunces · latin */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/webfonts/fraunces-var-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Fraunces · latin-ext */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/webfonts/fraunces-var-latin-ext.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
@@ -105,51 +128,11 @@
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
-/* Kalam · latin */
-@font-face {
-  font-family: 'Kalam';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/webfonts/kalam-400-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-/* Kalam · latin */
-@font-face {
-  font-family: 'Kalam';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/webfonts/kalam-700-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-/* Kalam · latin-ext */
-@font-face {
-  font-family: 'Kalam';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/webfonts/kalam-400-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-
-/* Kalam · latin-ext */
-@font-face {
-  font-family: 'Kalam';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/webfonts/kalam-700-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-
 /* Source Serif 4 · latin */
 @font-face {
   font-family: 'Source Serif 4';
   font-style: normal;
-  font-weight: 400 600;
+  font-weight: 200 900;
   font-display: swap;
   src: url('/fonts/webfonts/source-serif-4-var-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
@@ -159,28 +142,8 @@
 @font-face {
   font-family: 'Source Serif 4';
   font-style: normal;
-  font-weight: 400 600;
+  font-weight: 200 900;
   font-display: swap;
   src: url('/fonts/webfonts/source-serif-4-var-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-
-/* Space Grotesk · latin */
-@font-face {
-  font-family: 'Space Grotesk';
-  font-style: normal;
-  font-weight: 400 700;
-  font-display: swap;
-  src: url('/fonts/webfonts/space-grotesk-var-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-/* Space Grotesk · latin-ext */
-@font-face {
-  font-family: 'Space Grotesk';
-  font-style: normal;
-  font-weight: 400 700;
-  font-display: swap;
-  src: url('/fonts/webfonts/space-grotesk-var-latin-ext.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }

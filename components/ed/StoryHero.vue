@@ -49,7 +49,7 @@ withDefaults(defineProps<{
 <style scoped>
 .hero {
   padding-bottom: clamp(24rem, 4vw, 40rem);
-  border-bottom: var(--stroke) solid var(--ink);
+  border-bottom: var(--stroke) solid var(--line);
   margin-bottom: clamp(28rem, 5vw, 52rem);
 }
 .hero__top {

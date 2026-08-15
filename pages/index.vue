@@ -192,7 +192,7 @@ onBeforeUnmount(() => clearInterval(timer))
 
     <!-- ── Interlude ───────────────────────────────────────────────────── -->
     <section class="interlude">
-      <EdNote label="From the desk" accent="var(--mint)">
+      <EdNote label="From the desk" accent="var(--green)">
         <p>
           Every tool on this site started as a slow afternoon in my own work. EasyMCQ exists because
           writing four plausible wrong answers is the dullest hour in assessment design. Cadence
@@ -242,7 +242,7 @@ onBeforeUnmount(() => clearInterval(timer))
 .sf__fixed { color: var(--muted); }
 .sf__var {
   font-weight: 600; color: var(--ink);
-  border-bottom: 4rem solid var(--sun);
+  border-bottom: 4rem solid var(--yellow);
   padding-bottom: 1rem;
 }
 .sf-enter-active { transition: opacity var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out); }
@@ -257,12 +257,17 @@ onBeforeUnmount(() => clearInterval(timer))
   gap: clamp(24rem, 4vw, 56rem);
   align-items: end;
   padding: clamp(28rem, 5vw, 60rem) 0 clamp(30rem, 5vw, 56rem);
-  border-bottom: var(--stroke) solid var(--ink);
+  border-bottom: var(--stroke) solid var(--line);
 }
 .np__line {
   font-size: var(--type-hero);
   margin: 0;
-  line-height: 0.86;
+  /* 1.08, not the 0.86 a display line usually wants. The highlighted word on
+     the second line paints a background box, and at tighter leading that box
+     climbs over the descenders of the line above — it was clipping the "y" of
+     "actually". Leading is the fix; shrinking the highlight would have been
+     the workaround. */
+  line-height: 1.08;
 }
 /* The one italic on the page. Bangers has no italic, so the emphasis is drawn
    instead: the word gets the highlighter, which is what an editor would do.
@@ -272,10 +277,13 @@ onBeforeUnmount(() => clearInterval(timer))
    if the word ever lands on a line break. */
 .np__line em {
   font-style: normal;
-  background: var(--sun);
-  color: var(--on-sun);
-  padding: 0 0.09em 0.04em;
-  border-radius: 0.06em;
+  background: var(--yellow);
+  color: var(--on-yellow);
+  padding: 0.02em 0.07em;
+  /* Fraunces' descending y swings right, and the highlight box was landing on
+     its tail. The box starts a hair later; the word itself does not move,
+     because the padding absorbs the offset. */
+  margin-left: 0.06em;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
@@ -297,7 +305,7 @@ onBeforeUnmount(() => clearInterval(timer))
   grid-template-columns: 150rem minmax(0, 1fr);
   gap: clamp(16rem, 2.5vw, 32rem);
   padding: clamp(30rem, 5vw, 56rem) 0;
-  border-bottom: var(--stroke-hair) solid var(--line);
+  border-bottom: var(--stroke) solid var(--line);
 }
 .lead__rail { display: flex; flex-direction: column; gap: 12rem; padding-top: 4rem; }
 .lead__label { margin: 0; color: var(--muted); }
@@ -313,7 +321,7 @@ onBeforeUnmount(() => clearInterval(timer))
 .field { padding: clamp(28rem, 4vw, 48rem) 0 0; }
 .field__head {
   display: flex; flex-wrap: wrap; align-items: center; gap: 8rem 24rem;
-  border-bottom: var(--stroke-hair) solid var(--line);
+  border-bottom: var(--stroke) solid var(--line);
   margin-bottom: clamp(20rem, 3vw, 32rem);
 }
 .field__label { margin: 0; color: var(--muted); }
@@ -350,26 +358,26 @@ onBeforeUnmount(() => clearInterval(timer))
 .find__input {
   width: 100%; max-width: 560rem;
   min-height: 48rem; padding: 12rem 16rem 12rem 46rem;
-  border: var(--stroke) solid var(--ink); border-radius: var(--radius-full);
+  border: var(--stroke) solid var(--line); border-radius: var(--radius-full);
   background: var(--paper); color: var(--ink);
   font-family: inherit; font-size: 15.5rem;
   transition: box-shadow var(--dur-fast) var(--ease-out);
 }
 .find__input::placeholder { color: var(--muted); }
-.find__input:focus { outline: none; box-shadow: 4rem 4rem 0 var(--ink); }
-.find__input:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 3px; }
+.find__input:focus { outline: none;  }
+.find__input:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
 .find__clear {
   margin-left: 12rem; padding: 8rem 14rem; border-radius: var(--radius-full);
-  border: var(--stroke-hair) solid var(--ink); background: var(--paper);
+  border: var(--stroke) solid var(--ink); background: var(--paper);
   font-family: var(--font-mono); font-size: var(--type-meta);
   letter-spacing: var(--tracking-meta); text-transform: uppercase; cursor: pointer;
 }
-@media (hover: hover) { .find__clear:hover { background: var(--sun); color: var(--on-sun); } }
+@media (hover: hover) { .find__clear:hover { background: var(--yellow); color: var(--on-yellow); } }
 
 .field__empty { padding: 40rem 0; color: var(--muted); font-family: var(--font-reading); }
 .field__reset {
   margin-left: 8rem; font-family: inherit; font-size: inherit;
-  color: var(--cobalt); text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+  color: var(--blue); text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
 }
 
 /* Filter change: crossfade the field, stagger the cards in behind it. */
@@ -395,7 +403,7 @@ onBeforeUnmount(() => clearInterval(timer))
   margin-top: clamp(48rem, 8vh, 90rem);
   padding: clamp(28rem, 4vw, 44rem);
   background: var(--paper-2);
-  border: var(--stroke) solid var(--ink);
+  border: var(--stroke) solid var(--line);
   border-radius: var(--radius-xl);
 }
 .interlude__by { display: flex; flex-direction: column; align-items: flex-start; gap: 16rem; }
@@ -405,7 +413,7 @@ onBeforeUnmount(() => clearInterval(timer))
 .arch { margin-top: clamp(48rem, 8vh, 90rem); }
 .arch__head {
   display: flex; align-items: baseline; justify-content: space-between; gap: 16rem;
-  padding-bottom: 12rem; border-bottom: var(--stroke) solid var(--ink);
+  padding-bottom: 12rem; border-bottom: var(--stroke) solid var(--line);
 }
 .arch__label, .arch__n { margin: 0; color: var(--muted); }
 
@@ -415,7 +423,7 @@ onBeforeUnmount(() => clearInterval(timer))
   grid-template-columns: 44rem minmax(0, 1fr) auto auto 20rem;
   align-items: center; gap: 18rem;
   padding: 16rem 8rem;
-  border-bottom: var(--stroke-hair) solid var(--line);
+  border-bottom: var(--stroke) solid var(--line);
   transition: background var(--dur-fast) var(--ease-out), padding var(--dur-fast) var(--ease-out);
 }
 /* The hover fill is yellow in both themes, so the row's text has to switch to
@@ -423,9 +431,9 @@ onBeforeUnmount(() => clearInterval(timer))
    night. Every accent fill on the site pairs with its own --on-* token for
    exactly this reason. */
 @media (hover: hover) {
-  .arch__row:hover { background: var(--sun); color: var(--on-sun); padding-left: 16rem; padding-right: 0; }
+  .arch__row:hover { background: var(--yellow); color: var(--on-yellow); padding-left: 16rem; padding-right: 0; }
   .arch__row:hover .arch__i, .arch__row:hover .arch__s { color: inherit; opacity: 0.7; }
-  .arch__row:hover .arch__go { transform: translate(2rem, -2rem); }
+  .arch__row:hover .arch__go {  }
 }
 .arch__i { color: var(--muted); }
 .arch__t { font-size: clamp(17rem, 1.6vw, 21rem); font-weight: 600; line-height: 1.2; }

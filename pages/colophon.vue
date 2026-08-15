@@ -32,12 +32,12 @@ const stack: Entry[] = [
     note: 'One Vue app, four of whose routes are full applications rather than pages. Every route is plain HTML the moment it mounts.' },
   { k: 'Design system', v: 'One CSS file, no framework',
     note: 'Colour, type, surface and motion are defined once in assets/css/main.css and read by everything downstream. No Tailwind, no component library, about six hundred lines including the comments.' },
-  { k: 'Type', v: 'Five faces, five jobs',
-    note: 'Bangers for display, Space Grotesk for interface, Source Serif 4 for reading, IBM Plex Mono for metadata, Kalam for the margin notes. All open-source, loaded with font-display: swap so text is never invisible while a font is in flight.' },
-  { k: 'Colour', v: 'Warm paper, black ink, six accents',
-    note: 'The ground stays quiet so the cards can be loud. Each section has an accent, and every accent ships beside a word — colour is a cue here, never the only carrier of meaning.' },
-  { k: 'Surfaces', v: 'Two-pixel outlines and offset shadows',
-    note: 'Cards are stamped rather than shaded: a hard outline and a solid shadow offset down and right, the way something printed sits on a page. No blur, no gradient, no glass.' },
+  { k: 'Type', v: 'Four faces, four jobs',
+    note: 'Fraunces for display, Archivo for interface, Source Serif 4 for reading, IBM Plex Mono for metadata. All SIL Open Font License, all self-hosted, three of the four variable — so the whole range is eight files. Chosen as the closest open equivalents to a commercial stack I could not license.' },
+  { k: 'Colour', v: 'White, near-black, six accents',
+    note: 'A neutral ramp from 50 to 1000 and six saturated accents, one per section. Every accent is paired with the one text colour that clears 4.5:1 on it — measured, not assumed, which is why the green and cyan carry black text and the blue carries white.' },
+  { k: 'Surfaces', v: 'One hairline, 3-6px radii, no shadows',
+    note: 'An earlier version put a 2px outline, a 20px radius and a hard offset shadow on everything — three treatments doing the job type and space are supposed to do. There are now two shadows in the whole stylesheet, both for things that genuinely float. Separation comes from the rule and the space around it.' },
   { k: 'Motion', v: 'Four durations, five curves',
     note: 'Every transition picks from the same short list, and things leave faster than they arrive. Scroll reveals are CSS scroll-driven animations, so the failure mode is "no animation" rather than "no content".' },
   { k: 'Images', v: 'WebP and PNG, drawn or generated, then composited',
@@ -105,7 +105,7 @@ const choices = [
 .co__sec { margin-top: clamp(34rem, 6vh, 64rem); }
 .co__label {
   margin: 0 0 20rem; padding-bottom: 12rem;
-  border-bottom: var(--stroke) solid var(--ink);
+  border-bottom: var(--stroke) solid var(--line);
   color: var(--muted);
 }
 
@@ -114,11 +114,11 @@ const choices = [
   display: grid; grid-template-columns: 170rem minmax(0, 1fr);
   gap: 22rem; align-items: baseline; align-self: stretch;
   padding: 16rem 0;
-  border-bottom: var(--stroke-hair) solid var(--line);
+  border-bottom: var(--stroke) solid var(--line);
 }
 .co__k { margin: 0; color: var(--muted); }
 .co__v { margin: 0; font-size: 16.5rem; font-weight: 600; }
-.co__note { align-self: stretch; margin: 0; padding: 16rem 0 16rem 14rem; border-bottom: var(--stroke-hair) solid var(--line); }
+.co__note { align-self: stretch; margin: 0; padding: 16rem 0 16rem 14rem; border-bottom: var(--stroke) solid var(--line); }
 
 @media (max-width: 900px) {
   .co__note { padding: 10rem 0 0 14rem; margin: 0 0 18rem; border-bottom: 0; }
@@ -127,16 +127,15 @@ const choices = [
 
 .co__choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(280rem, 1fr)); gap: clamp(16rem, 2vw, 22rem); }
 .co__choice {
-  background: var(--paper); border: var(--stroke) solid var(--ink);
+  background: var(--paper); border: var(--stroke) solid var(--line);
   border-radius: var(--radius-l); padding: clamp(20rem, 2.4vw, 28rem);
-  box-shadow: 5rem 5rem 0 var(--ink);
 }
 .co__choice-h { font-size: var(--type-card); line-height: 1.1; margin: 0 0 12rem; }
 .co__choice-b { margin: 0; font-size: 15.5rem; color: var(--muted); }
 
 .co__foot {
   margin-top: clamp(38rem, 6vh, 72rem); padding-top: 26rem;
-  border-top: var(--stroke) solid var(--ink);
+  border-top: var(--stroke) solid var(--line);
   display: flex; flex-wrap: wrap; align-items: center; gap: 18rem; justify-content: space-between;
 }
 .co__foot p { margin: 0; font-family: var(--font-reading); color: var(--muted); max-width: 46ch; }

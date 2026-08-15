@@ -1,7 +1,7 @@
 import type { Module } from './types'
 
 export const M08: Module = {
-  id: 'm08', n: '08', accent: 'var(--cobalt)',
+  id: 'm08', n: '08', accent: 'var(--blue)',
   title: 'Transformers and language models',
   intro: 'One architecture, published in 2017 for machine translation, now underlies essentially every system you have heard of. This module explains what a transformer does, what a language model actually is, and — the part most explanations skip — the training stages that turn a next-word predictor into something that answers your question.',
   objectives: [

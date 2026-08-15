@@ -39,7 +39,7 @@ const year = new Date().getFullYear()
       <div class="ft__col">
         <h2 class="t-mono ft__h">Credits</h2>
         <p class="ft__fine">
-          Type is Bangers, Space Grotesk, Source Serif&nbsp;4, Kalam and IBM Plex Mono, all open-source.
+          Type is Fraunces, Archivo, Source Serif&nbsp;4 and IBM Plex Mono, all open-source and self-hosted.
           Artwork, marks and icons are original to this site. Asset provenance is recorded in
           <code>docs/asset_licenses.md</code>.
         </p>
@@ -56,7 +56,7 @@ const year = new Date().getFullYear()
 
 <style scoped>
 .ft {
-  border-top: var(--stroke) solid var(--ink);
+  border-top: var(--stroke) solid var(--line);
   background: var(--paper-2);
   margin-top: clamp(60rem, 10vh, 120rem);
 }
@@ -82,7 +82,7 @@ const year = new Date().getFullYear()
 .ft__fine code { font-family: var(--font-mono); font-size: 12.5rem; }
 
 .ft__base {
-  border-top: var(--stroke-hair) solid var(--line);
+  border-top: var(--stroke) solid var(--line);
   max-width: var(--shell-wide); margin: 0 auto;
   padding: 18rem var(--shell-gutter) calc(18rem + var(--safe-bottom));
   display: flex; flex-wrap: wrap; gap: 10rem 24rem; justify-content: space-between;

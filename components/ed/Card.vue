@@ -80,11 +80,11 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
   display: flex; flex-direction: column;
   height: 100%;
   background: var(--paper);
-  border: var(--stroke) solid var(--ink);
+  border: var(--stroke) solid var(--line);
   border-radius: var(--radius-l);
   overflow: hidden;
   color: var(--ink);
-  box-shadow: 5rem 5rem 0 var(--ink);
+  
   transition:
     transform var(--dur-fast) var(--ease-out),
     box-shadow var(--dur-fast) var(--ease-out);
@@ -92,11 +92,11 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
 /* Short travel, a degree of rotation, 160ms — the card behaves like a printed
    thing being nudged rather than a div being animated. */
 @media (hover: hover) {
-  .card__hit:hover { transform: translate(-3rem, -3rem) rotate(-0.5deg); box-shadow: 9rem 9rem 0 var(--ink); }
+  .card__hit:hover {   }
   .card:nth-child(even) .card__hit:hover { rotate: 0.5deg; }
 }
-.card__hit:active { transform: translate(1rem, 1rem); box-shadow: 3rem 3rem 0 var(--ink); transition-duration: var(--dur-tap); }
-.card__hit:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 3px; }
+.card__hit:active {   transition-duration: var(--dur-tap); }
+.card__hit:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
 
 /* The index row: running number and stamp, above the artwork. */
 .card__index {
@@ -105,7 +105,7 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
 }
 .card__pill {
   padding: 4rem 11rem; border-radius: var(--radius-full);
-  border: var(--stroke-hair) solid var(--ink); color: var(--ink);
+  border: var(--stroke) solid var(--ink); color: var(--ink);
 }
 .card__pill--lead { background: var(--ink); color: var(--paper); }
 .card__stamp { color: var(--muted); text-align: right; }
@@ -124,14 +124,14 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
   flex: none;
   aspect-ratio: 16 / 9;
   background: var(--accent);
-  border-top: var(--stroke) solid var(--ink);
-  border-bottom: var(--stroke) solid var(--ink);
+  border-top: var(--stroke) solid var(--line);
+  border-bottom: var(--stroke) solid var(--line);
   overflow: hidden;
   padding: clamp(12rem, 1.8vw, 22rem);
 }
 .card__art img {
   width: 100%; height: 100%; object-fit: contain; display: block;
-  border: var(--stroke-hair) solid var(--ink);
+  border: var(--stroke) solid var(--ink);
   background: var(--paper);
 }
 
@@ -161,10 +161,10 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
   margin-top: auto; padding-top: 12rem;
   display: flex; align-items: center; justify-content: space-between; gap: 6rem;
   color: var(--muted);
-  border-top: var(--stroke-hair) solid var(--line);
+  border-top: var(--stroke) solid var(--line);
 }
 .card__go { display: inline-flex; transition: transform var(--dur-fast) var(--ease-out); }
-@media (hover: hover) { .card__hit:hover .card__go { transform: translate(2rem, -2rem); } }
+@media (hover: hover) { .card__hit:hover .card__go {  } }
 
 /* ── The lead ───────────────────────────────────────────────────────────── */
 .card--feature .card__hit { flex-direction: row; align-items: stretch; }
@@ -172,7 +172,7 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
 .card--feature .card__index { flex: 0 0 100%; }
 .card--feature .card__art {
   flex: 1 1 52%; aspect-ratio: auto; min-height: 340rem;
-  border-bottom: 0; border-right: var(--stroke) solid var(--ink);
+  border-bottom: 0; border-right: var(--stroke) solid var(--line);
   padding: clamp(16rem, 2.4vw, 30rem);
 }
 .card--feature .card__body { flex: 1 1 48%; justify-content: center; gap: 14rem; padding: clamp(22rem, 3vw, 40rem); }
@@ -188,7 +188,7 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
 
 @media (max-width: 820px) {
   .card--feature .card__hit { flex-direction: column; flex-wrap: nowrap; }
-  .card--feature .card__art { aspect-ratio: 16 / 9; min-height: 0; border-right: 0; border-bottom: var(--stroke) solid var(--ink); }
+  .card--feature .card__art { aspect-ratio: 16 / 9; min-height: 0; border-right: 0; border-bottom: var(--stroke) solid var(--line); }
 }
 
 /* ── Field variants ─────────────────────────────────────────────────────── */
@@ -204,7 +204,7 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
 .card--wide .card__index { flex: 0 0 100%; }
 .card--wide .card__art {
   flex: 0 0 52%; aspect-ratio: auto;
-  border-bottom: 0; border-right: var(--stroke) solid var(--ink);
+  border-bottom: 0; border-right: var(--stroke) solid var(--line);
 }
 .card--wide .card__body { flex: 1 1 48%; }
 
@@ -212,7 +212,7 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
   .card--wide .card__hit { flex-direction: column; flex-wrap: nowrap; }
   .card--wide .card__art {
     flex: none; aspect-ratio: 16 / 9;
-    border-right: 0; border-bottom: var(--stroke) solid var(--ink);
+    border-right: 0; border-bottom: var(--stroke) solid var(--line);
   }
 }
 
@@ -221,13 +221,13 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
 .card--noart .card__hit { background: var(--paper-2); }
 .card--noart .card__body::before {
   content: ''; display: block; height: 8rem; width: 64rem;
-  background: var(--accent); border: var(--stroke-hair) solid var(--ink); border-radius: 4rem;
+  background: var(--accent); border: var(--stroke) solid var(--ink); border-radius: 4rem;
   margin-bottom: 4rem;
 }
 .card--noart .card__title { font-size: var(--type-h2); }
 
 /* ── Compact: the read-next rail ────────────────────────────────────────── */
-.card--compact .card__hit { box-shadow: none; border-width: var(--stroke-hair); border-color: var(--line); }
+.card--compact .card__hit { box-shadow: none; border-width: var(--stroke); border-color: var(--line); }
 @media (hover: hover) {
   .card--compact .card__hit:hover { transform: none; box-shadow: none; border-color: var(--ink); background: var(--paper-2); }
 }

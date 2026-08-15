@@ -114,10 +114,10 @@ const counts = computed(() => ({
 .ref { display: grid; gap: 18rem; }
 .ref__search input { max-width: 520rem; }
 
-.ref__tabs { display: flex; flex-wrap: wrap; gap: 8rem; border-bottom: var(--stroke) solid var(--ink); padding-bottom: 12rem; }
+.ref__tabs { display: flex; flex-wrap: wrap; gap: 8rem; border-bottom: var(--stroke) solid var(--line); padding-bottom: 12rem; }
 .ref__tab {
   padding: 8rem 14rem; border-radius: var(--radius-full);
-  border: var(--stroke-hair) solid var(--ink); background: var(--paper);
+  border: var(--stroke) solid var(--ink); background: var(--paper);
   font-family: var(--font-mono); font-size: var(--type-meta);
   letter-spacing: var(--tracking-meta); text-transform: uppercase; cursor: pointer;
 }
@@ -128,7 +128,7 @@ const counts = computed(() => ({
 .ref__empty, .ref__note { font-size: 14.5rem; color: var(--muted); line-height: 1.6; max-width: 62ch; margin: 0; }
 
 /* Glossary */
-.gl { border: var(--stroke-hair) solid var(--line); border-radius: var(--radius-m); background: var(--paper); overflow: hidden; }
+.gl { border: var(--stroke) solid var(--line); border-radius: var(--radius-m); background: var(--paper); overflow: hidden; }
 .gl__head {
   display: grid; grid-template-columns: 190rem minmax(0, 1fr) 20rem; gap: 16rem; align-items: baseline;
   width: 100%; text-align: left; padding: 14rem 16rem;
@@ -144,8 +144,8 @@ const counts = computed(() => ({
 @media (max-width: 640px) { .gl__head { grid-template-columns: minmax(0, 1fr) 20rem; } .gl__short { grid-column: 1 / -1; } }
 
 /* Rows */
-.rw { padding: 14rem 16rem; border: var(--stroke-hair) solid var(--line); border-radius: var(--radius-m); background: var(--paper); }
-.rw__title { font-size: 15.5rem; font-weight: 700; color: var(--cobalt); text-decoration: underline; text-underline-offset: 3px; }
+.rw { padding: 14rem 16rem; border: var(--stroke) solid var(--line); border-radius: var(--radius-m); background: var(--paper); }
+.rw__title { font-size: 15.5rem; font-weight: 700; color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
 .rw__purpose { margin: 6rem 0 6rem; font-size: 14rem; line-height: 1.55; color: var(--muted); max-width: 68ch; }
 .rw__purpose b { color: var(--ink); }
 .rw__meta { margin: 0; color: var(--muted); opacity: 0.85; }

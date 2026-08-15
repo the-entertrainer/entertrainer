@@ -1,7 +1,7 @@
 import type { Module } from './types'
 
 export const M06: Module = {
-  id: 'm06', n: '06', accent: 'var(--coral)',
+  id: 'm06', n: '06', accent: 'var(--red)',
   title: 'Neural networks',
   intro: 'The idea that now dominates the field was invented in 1958, dismissed in 1969, revived in 1986, and ignored again until 2012. This module is the one where the machinery gets explained: what a neural network is, how it learns, and why an idea that good took fifty years to work.',
   objectives: [

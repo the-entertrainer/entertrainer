@@ -60,7 +60,7 @@ function onKeydown(e: KeyboardEvent, i: number) {
 .fr__chip {
   display: inline-flex; align-items: center; gap: 8rem;
   min-height: 40rem; padding: 8rem 14rem;
-  border: var(--stroke-hair) solid var(--ink);
+  border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-full);
   background: var(--paper); color: var(--ink);
   font-family: var(--font-mono); font-size: var(--type-meta); font-weight: 600;
@@ -75,7 +75,6 @@ function onKeydown(e: KeyboardEvent, i: number) {
 .fr__chip[aria-checked="true"] {
   background: var(--accent); color: var(--on-accent);
   border-color: var(--ink);
-  box-shadow: 3rem 3rem 0 var(--ink);
 }
 .fr__chip[aria-checked="true"] .fr__dot { background: var(--on-accent); }
 .fr__chip[aria-checked="true"] .fr__n { color: inherit; opacity: 0.7; }

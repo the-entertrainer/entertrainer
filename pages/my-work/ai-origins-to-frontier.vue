@@ -166,7 +166,7 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
         <p class="cv__body">{{ COURSE.audience }}</p>
         <p class="cv__body">{{ COURSE.promise }}</p>
 
-        <EdNote label="Before you start" accent="var(--cobalt)">
+        <EdNote label="Before you start" accent="var(--blue)">
           <p>Your progress is stored in this browser and nowhere else. There is no account and nothing
             is submitted — which means you can stop and resume freely on this device, and clearing your
             site data or switching device starts you over.</p>
@@ -352,7 +352,7 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
           </table>
         </div>
 
-        <EdNote label="On completion" accent="var(--mint)">
+        <EdNote label="On completion" accent="var(--green)">
           <p>{{ CAPSTONE.completion }}</p>
         </EdNote>
 
@@ -389,7 +389,7 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
   display: flex; align-items: center; gap: clamp(12rem, 2vw, 26rem);
   padding: 10rem clamp(14rem, 3vw, 28rem) 10rem;
   padding-top: calc(10rem + var(--safe-top));
-  background: var(--paper); border-bottom: var(--stroke) solid var(--ink);
+  background: var(--paper); border-bottom: var(--stroke) solid var(--line);
 }
 .co__brand { display: inline-flex; align-items: center; gap: 10rem; flex: none; }
 .co__brand-text { font-family: var(--font-display); font-size: 19rem; letter-spacing: 0.02em; }
@@ -398,20 +398,20 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 .co__progress-n, .co__progress-left { color: var(--muted); white-space: nowrap; }
 .co__progress-track {
   display: block; width: clamp(70rem, 16vw, 200rem); height: 10rem;
-  border: var(--stroke-hair) solid var(--ink); border-radius: 999rem; overflow: hidden; background: var(--paper-2);
+  border: var(--stroke) solid var(--ink); border-radius: 999rem; overflow: hidden; background: var(--paper-2);
 }
-.co__progress-fill { display: block; height: 100%; background: var(--coral); transition: width var(--dur-mid) var(--ease-out); }
+.co__progress-fill { display: block; height: 100%; background: var(--red); transition: width var(--dur-mid) var(--ease-out); }
 
 .co__actions { display: flex; align-items: center; gap: 6rem; margin-left: auto; }
 .co__progress + .co__actions { margin-left: 0; }
 .co__btn {
   padding: 8rem 12rem; border-radius: var(--radius-full);
-  border: var(--stroke-hair) solid var(--ink); background: var(--paper); color: var(--ink);
+  border: var(--stroke) solid var(--ink); background: var(--paper); color: var(--ink);
   font-family: var(--font-mono); font-size: var(--type-meta);
   letter-spacing: var(--tracking-meta); text-transform: uppercase; cursor: pointer; white-space: nowrap;
 }
 .co__btn.is-on { background: var(--ink); color: var(--paper); }
-@media (hover: hover) { .co__btn:not(.is-on):hover { background: var(--sun); color: var(--on-sun); } }
+@media (hover: hover) { .co__btn:not(.is-on):hover { background: var(--yellow); color: var(--on-yellow); } }
 .co__btn--exit { text-decoration: none; }
 
 @media (max-width: 780px) {
@@ -425,14 +425,14 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 .cv__title { font-size: clamp(36rem, 5.6vw, 76rem); margin: 0; }
 .cv__sub { margin: 18rem 0 0; font-family: var(--font-reading); font-size: clamp(17rem, 1.8vw, 21rem); line-height: 1.55; color: var(--muted); max-width: 52ch; }
 
-.cv__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(160rem, 1fr)); gap: 18rem; margin: clamp(26rem, 4vw, 38rem) 0; padding: 20rem 0; border-top: var(--stroke) solid var(--ink); border-bottom: var(--stroke) solid var(--ink); }
+.cv__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(160rem, 1fr)); gap: 18rem; margin: clamp(26rem, 4vw, 38rem) 0; padding: 20rem 0; border-top: var(--stroke) solid var(--line); border-bottom: var(--stroke) solid var(--line); }
 .cv__facts dt { color: var(--muted); margin-bottom: 5rem; }
 .cv__facts dd { margin: 0; font-size: 15rem; font-weight: 600; line-height: 1.4; }
 
 .cv__cta { display: flex; flex-wrap: wrap; gap: 12rem; }
 .cv__resume { margin: 14rem 0 0; color: var(--muted); }
 
-.cv__panel { margin: clamp(30rem, 4vw, 44rem) 0; padding: clamp(20rem, 2.6vw, 28rem); background: var(--paper-2); border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); box-shadow: 5rem 5rem 0 var(--ink); }
+.cv__panel { margin: clamp(30rem, 4vw, 44rem) 0; padding: clamp(20rem, 2.6vw, 28rem); background: var(--paper-2); border: var(--stroke) solid var(--line); border-radius: var(--radius-l);  }
 .cv__h { font-size: clamp(18rem, 1.9vw, 22rem); margin: 0 0 16rem; }
 .cv__obj { list-style: none; margin: 0; padding: 0; display: grid; gap: 12rem; }
 .cv__obj li { display: grid; grid-template-columns: 30rem minmax(0, 1fr); gap: 8rem; font-size: 16rem; line-height: 1.5; }
@@ -446,7 +446,7 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 .ct__deck { margin: 16rem 0 clamp(28rem, 4vw, 40rem); font-family: var(--font-reading); font-size: 16.5rem; line-height: 1.65; color: var(--muted); max-width: var(--measure-body); }
 
 .ct__modules { list-style: none; margin: 0; padding: 0; display: grid; gap: 16rem; }
-.cm { border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); background: var(--paper); overflow: hidden; }
+.cm { border: var(--stroke) solid var(--line); border-radius: var(--radius-l); background: var(--paper); overflow: hidden; }
 .cm__head { display: grid; grid-template-columns: 40rem minmax(0, 1fr); gap: 14rem; padding: 16rem 18rem 12rem; align-items: start; }
 .cm__n { color: var(--muted); font-size: 15rem; padding-top: 4rem; }
 .cm__title { font-size: clamp(18rem, 2vw, 23rem); margin: 0 0 5rem; }
@@ -455,17 +455,17 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 .cm__bar-fill { display: block; height: 100%; transition: width var(--dur-mid) var(--ease-out); }
 .cm__intro { margin: 0; padding: 0 18rem 14rem; font-size: 14.5rem; line-height: 1.6; color: var(--muted); max-width: 72ch; }
 
-.cm__lessons { list-style: none; margin: 0; padding: 0; border-top: var(--stroke-hair) solid var(--line); }
+.cm__lessons { list-style: none; margin: 0; padding: 0; border-top: var(--stroke) solid var(--line); }
 .cl {
   display: grid; grid-template-columns: 24rem minmax(0, 1fr) auto; gap: 14rem; align-items: start;
   width: 100%; text-align: left; padding: 13rem 18rem;
-  border-bottom: var(--stroke-hair) solid var(--line);
+  border-bottom: var(--stroke) solid var(--line);
   transition: background var(--dur-fast) var(--ease-out);
 }
 .cm__lessons li:last-child .cl { border-bottom: 0; }
-@media (hover: hover) { .cl:hover { background: var(--sun); color: var(--on-sun); } }
-.cl__tick { width: 22rem; height: 22rem; border: var(--stroke-hair) solid currentColor; border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; margin-top: 2rem; }
-.cl.is-done .cl__tick { background: var(--mint); color: var(--on-mint); border-color: var(--ink); }
+@media (hover: hover) { .cl:hover { background: var(--yellow); color: var(--on-yellow); } }
+.cl__tick { width: 22rem; height: 22rem; border: var(--stroke) solid currentColor; border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; margin-top: 2rem; }
+.cl.is-done .cl__tick { background: var(--green); color: var(--on-green); border-color: var(--ink); }
 .cl__body { display: grid; gap: 3rem; min-width: 0; }
 .cl__title { font-size: 15.5rem; font-weight: 600; }
 .cl__summary { font-size: 13.5rem; line-height: 1.5; color: var(--muted); }
@@ -475,35 +475,35 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 
 .ct__h2 { font-family: var(--font-display); font-weight: 400; letter-spacing: var(--tracking-display); font-size: clamp(24rem, 3vw, 34rem); margin: clamp(34rem, 5vw, 52rem) 0 10rem; }
 .ct__note { margin: 0 0 18rem; font-size: 14.5rem; color: var(--muted); max-width: 62ch; }
-.ct__scroll { overflow-x: auto; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); }
+.ct__scroll { overflow-x: auto; border: var(--stroke) solid var(--line); border-radius: var(--radius-m); }
 .ct__table { border-collapse: collapse; width: 100%; min-width: 560rem; }
-.ct__table th, .ct__table td { text-align: left; padding: 11rem 13rem; font-size: 14rem; line-height: 1.45; border-bottom: var(--stroke-hair) solid var(--line); vertical-align: top; }
+.ct__table th, .ct__table td { text-align: left; padding: 11rem 13rem; font-size: 14rem; line-height: 1.45; border-bottom: var(--stroke) solid var(--line); vertical-align: top; }
 .ct__table thead th { background: var(--ink); color: var(--paper); font-family: var(--font-mono); font-size: var(--type-meta); letter-spacing: var(--tracking-meta); text-transform: uppercase; }
 .ct__table tr.is-break td { background: var(--paper-2); color: var(--muted); font-style: italic; }
-.ct__table tr.is-assessment td, .ct__table tr.is-capstone td { background: color-mix(in srgb, var(--sun) 22%, var(--paper)); }
+.ct__table tr.is-assessment td, .ct__table tr.is-capstone td { background: color-mix(in srgb, var(--yellow) 22%, var(--paper)); }
 .ct__out { color: var(--muted); }
 .ct__ends { display: flex; flex-wrap: wrap; gap: 12rem; margin-top: clamp(26rem, 4vw, 38rem); }
 
 /* ── Lesson ────────────────────────────────────────────────────────── */
-.ls__head { padding-bottom: clamp(18rem, 2.4vw, 26rem); margin-bottom: clamp(24rem, 3.4vw, 34rem); border-bottom: var(--stroke) solid var(--ink); }
+.ls__head { padding-bottom: clamp(18rem, 2.4vw, 26rem); margin-bottom: clamp(24rem, 3.4vw, 34rem); border-bottom: var(--stroke) solid var(--line); }
 .ls__crumb { display: flex; align-items: center; gap: 9rem; margin: 0 0 14rem; color: var(--muted); }
 .ls__dot { width: 10rem; height: 10rem; border-radius: 50%; background: var(--accent); border: 1px solid var(--ink); flex: none; }
 .ls__title { font-family: var(--font-display); font-weight: 400; letter-spacing: var(--tracking-display); font-size: clamp(30rem, 4.4vw, 54rem); line-height: 0.95; margin: 0 0 14rem; }
 .ls__meta { margin: 0; color: var(--muted); }
 
-.ls__obj { margin-bottom: clamp(26rem, 3.4vw, 36rem); padding: clamp(18rem, 2.4vw, 26rem); background: var(--paper-2); border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); }
+.ls__obj { margin-bottom: clamp(26rem, 3.4vw, 36rem); padding: clamp(18rem, 2.4vw, 26rem); background: var(--paper-2); border: var(--stroke) solid var(--line); border-radius: var(--radius-l); }
 .ls__intro { margin: 0 0 18rem; font-family: var(--font-reading); font-size: 16.5rem; line-height: 1.65; }
 .ls__obj-h { font-size: 16.5rem; margin: 0 0 12rem; }
 .ls__obj ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 9rem; }
 .ls__obj li { display: grid; grid-template-columns: 28rem minmax(0, 1fr); gap: 6rem; font-size: 15rem; line-height: 1.5; }
 .ls__obj .t-mono { color: var(--muted); padding-top: 3rem; }
 
-.ls__ext { margin-top: clamp(28rem, 4vw, 40rem); padding: clamp(18rem, 2.4vw, 24rem); border: var(--stroke-hair) dashed var(--ink); border-radius: var(--radius-m); }
+.ls__ext { margin-top: clamp(28rem, 4vw, 40rem); padding: clamp(18rem, 2.4vw, 24rem); border: var(--stroke) dashed var(--ink); border-radius: var(--radius-m); }
 .ls__ext-kicker { margin: 0 0 8rem; color: var(--muted); }
 .ls__ext h3 { margin: 0 0 8rem; font-size: 17rem; }
 .ls__ext p { margin: 0; font-size: 14.5rem; line-height: 1.6; color: var(--muted); max-width: 66ch; }
 
-.ls__foot { margin-top: clamp(34rem, 5vw, 52rem); padding-top: 22rem; border-top: var(--stroke) solid var(--ink); }
+.ls__foot { margin-top: clamp(34rem, 5vw, 52rem); padding-top: 22rem; border-top: var(--stroke) solid var(--line); }
 .ls__gate { margin: 0 0 14rem; color: var(--muted); }
 .ls__nav { display: flex; flex-wrap: wrap; gap: 12rem; justify-content: space-between; }
 
@@ -516,18 +516,18 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 
 /* ── Capstone ──────────────────────────────────────────────────────── */
 .cp__parts { list-style: none; margin: 0 0 clamp(30rem, 4vw, 44rem); padding: 0; display: grid; gap: 16rem; }
-.cp__parts li { display: grid; grid-template-columns: 44rem minmax(0, 1fr); gap: 14rem; padding: 18rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--paper); }
+.cp__parts li { display: grid; grid-template-columns: 44rem minmax(0, 1fr); gap: 14rem; padding: 18rem; border: var(--stroke) solid var(--line); border-radius: var(--radius-m); background: var(--paper); }
 .cp__n { color: var(--muted); font-size: 15rem; }
 .cp__parts h2 { margin: 0 0 8rem; font-size: 17.5rem; }
 .cp__parts p { margin: 0; font-size: 15rem; line-height: 1.6; color: var(--muted); }
 .cp__h2 { font-family: var(--font-display); font-weight: 400; letter-spacing: var(--tracking-display); font-size: clamp(22rem, 2.8vw, 30rem); margin: 0 0 8rem; }
 .cp__note { margin: 0 0 16rem; font-size: 14.5rem; color: var(--muted); }
-.cp__scroll { overflow-x: auto; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); margin-bottom: clamp(26rem, 4vw, 36rem); }
+.cp__scroll { overflow-x: auto; border: var(--stroke) solid var(--line); border-radius: var(--radius-m); margin-bottom: clamp(26rem, 4vw, 36rem); }
 .cp__table { border-collapse: collapse; width: 100%; min-width: 700rem; }
-.cp__table th, .cp__table td { text-align: left; padding: 11rem 13rem; font-size: 13.5rem; line-height: 1.5; border-bottom: var(--stroke-hair) solid var(--line); vertical-align: top; }
+.cp__table th, .cp__table td { text-align: left; padding: 11rem 13rem; font-size: 13.5rem; line-height: 1.5; border-bottom: var(--stroke) solid var(--line); vertical-align: top; }
 .cp__table thead th { background: var(--ink); color: var(--paper); font-family: var(--font-mono); font-size: var(--type-meta); letter-spacing: var(--tracking-meta); text-transform: uppercase; }
 .cp__table tbody th { background: var(--paper-2); font-weight: 700; }
-.cp__foot { margin-top: clamp(30rem, 4vw, 44rem); padding-top: 24rem; border-top: var(--stroke) solid var(--ink); }
+.cp__foot { margin-top: clamp(30rem, 4vw, 44rem); padding-top: 24rem; border-top: var(--stroke) solid var(--line); }
 .cp__done { margin: 0 0 18rem; font-family: var(--font-display); font-size: 24rem; letter-spacing: var(--tracking-display); }
 .cp__links { display: flex; flex-wrap: wrap; gap: 12rem; }
 

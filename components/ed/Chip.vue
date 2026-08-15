@@ -39,7 +39,7 @@ const showMedia = computed(() => !!props.media && props.show !== 'category')
 .cat {
   display: inline-flex; align-items: center; gap: 6rem;
   padding: 4rem 10rem;
-  border: var(--stroke-hair) solid var(--ink);
+  border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-full);
   font-family: var(--font-mono);
   font-size: var(--type-meta); font-weight: 600;

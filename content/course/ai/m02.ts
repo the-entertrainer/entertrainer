@@ -1,7 +1,7 @@
 import type { Module } from './types'
 
 export const M02: Module = {
-  id: 'm02', n: '02', accent: 'var(--violet)',
+  id: 'm02', n: '02', accent: 'var(--purple)',
   title: 'Before there was a field',
   intro: 'The idea of a thinking machine is older than the computer. This module covers the twenty years in which a philosophical question turned into an engineering programme — Turing\'s 1936 machine, his 1950 test, and the summer in 1956 when ten people gave the field its name and, in the same document, made a promise nobody could keep.',
   objectives: [

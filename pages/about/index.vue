@@ -78,7 +78,7 @@ const CHAPTERS: Chapter[] = [
     </ol>
 
     <footer class="ab__close">
-      <EdNote label="Something I keep" accent="var(--violet)">
+      <EdNote label="Something I keep" accent="var(--purple)">
         <p>Asatoma Sadgamaya — from ignorance, toward truth.</p>
       </EdNote>
       <div class="ab__cta">
@@ -95,10 +95,10 @@ const CHAPTERS: Chapter[] = [
 .ab__portrait {
   margin: clamp(24rem, 4vw, 40rem) 0 0;
   max-width: 320rem;
-  border: var(--stroke) solid var(--ink);
+  border: var(--stroke) solid var(--line);
   border-radius: var(--radius-l);
   overflow: hidden;
-  box-shadow: 6rem 6rem 0 var(--ink);
+  
   background: var(--paper-2);
 }
 .ab__portrait img { display: block; width: 100%; height: auto; }
@@ -118,7 +118,7 @@ const CHAPTERS: Chapter[] = [
 .ch__fig img {
   display: block; width: 100%; height: auto;
   aspect-ratio: 16 / 9; object-fit: cover;
-  border: var(--stroke) solid var(--ink);
+  border: var(--stroke) solid var(--line);
   border-radius: var(--radius-l);
   background: var(--paper-2);
 }

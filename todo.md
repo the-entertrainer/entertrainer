@@ -11,4 +11,18 @@
 - [x] Rewrite learner-facing copy, guidance, feedback, and calls to action for an Indian general audience with limited technical background.
 - [x] Add clearer Rise-inspired block treatments such as labelled media, accordions, flashcards, quick checks, scenario prompts, and completion markers.
 - [x] Validate the revised desktop and mobile learning flow, then commit and push the refinement to `main`.
+
+## Articulate benchmark refinement
+
+- [ ] Review the supplied Articulate course’s writing, hierarchy, interaction rhythm, and course composition.
+- [ ] Apply a more formal instructional tone and strengthen the module lead-ins, learning prompts, feedback, and conclusion language.
+- [ ] Refine the course layout and navigation to better match the benchmark’s professional e-learning standard while retaining Entertrainer branding.
+- [ ] Verify the refreshed course and push the completed benchmark refinement to `main`.
+- [ ] Include the live course URL as `https://entertrainer.in/courses/ai-atlas` in the delivery message.
+
+## Concise high-value content refinement
+
+- [x] Reduce each lesson to one clear core idea, one practical example or interaction, and one concise takeaway.
+- [x] Remove explanatory repetition while preserving formal tone, learner value, evidence labels, and instructional guidance.
+- [ ] Verify the compressed content flow and push the refined experience to `main`.
 - [ ] Commit the completed implementation and push the verified changes to `main`.

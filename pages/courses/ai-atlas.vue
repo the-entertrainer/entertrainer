@@ -59,20 +59,20 @@ const capstoneReady = computed(() => reflection.use.trim().length > 7 && reflect
 const diagnosticFeedback = computed(() => {
   if (!diagnostic.value) return ''
   return diagnostic.value === 'patterns'
-    ? 'Correct. A language model creates a likely response from patterns in data. It can be useful, but it does not automatically check every statement for you.'
-    : 'Not quite. A polished answer can still contain a mistake. For important information, always check a reliable source.'
+    ? 'Correct. Use the response as a starting point, then verify what matters.'
+    : 'Not quite. A clear answer can still be wrong. Check important information.'
 })
 const learningFeedback = computed(() => {
   if (!learningCheck.value) return ''
   return learningCheck.value === 'training'
-    ? 'Correct. Training is the learning stage. Inference is the stage where a trained system responds to a new question or task.'
-    : 'Try once more. This option describes using a model after it has already been trained.'
+    ? 'Correct. Training is the learning stage. Inference is using the trained system.'
+    : 'Try again. This describes using a model after training.'
 })
 const scenarioFeedback = computed(() => {
   if (!scenarioChoice.value) return ''
   return scenarioChoice.value === 'check'
-    ? 'Good choice. Start by looking for an official announcement, a research paper, or independent testing. If none exists, say that reliable public evidence is not available.'
-    : 'Pause before sharing. A social-media post or a dramatic screenshot is not enough to prove a major AI claim.'
+    ? 'Good choice. Look for official evidence or independent testing before sharing.'
+    : 'Pause. A post or screenshot is not proof of a major claim.'
 })
 
 function persist() {
@@ -174,11 +174,11 @@ onMounted(() => {
               <div class="rise-hero__copy">
                 <p class="rise-eyebrow">A beginner-friendly course · 7 hours</p>
                 <h1>Understand AI<br />with <em>clarity</em>, not hype.</h1>
-                <p>This course is for anyone who is curious about AI. You do not need coding experience or a technical background. We will use everyday examples, short activities, and simple language.</p>
-                <div class="rise-hero__details"><span>No technical background needed</span><span>10 short lessons</span><span>Learn at your own pace</span></div>
+                <p>Learn the essentials through short explanations, practical checks, and everyday examples.</p>
+                <div class="rise-hero__details"><span>No technical background needed</span><span>10 focused lessons</span></div>
                 <button type="button" class="rise-primary" @click="next">Start course <span aria-hidden="true">→</span></button>
               </div>
-              <figure class="rise-hero__art"><img :src="'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/zByMCffPaXYvFeor.jpg'" alt="An illustrated map showing the journey through the history of artificial intelligence." /><figcaption><b>Why this matters</b><span>AI is already changing how we learn, work, travel, create, and make decisions. Understanding the basics helps you use it with confidence.</span></figcaption></figure>
+              <figure class="rise-hero__art"><img :src="'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/zByMCffPaXYvFeor.jpg'" alt="An illustrated map showing the journey through the history of artificial intelligence." /><figcaption><b>Why this matters</b><span>Understand AI well enough to use it with confidence and care.</span></figcaption></figure>
             </div>
             <section class="rise-info-strip" aria-label="What this course covers"><div><b>01</b><span>How AI began</span></div><div><b>02</b><span>How today’s tools work</span></div><div><b>03</b><span>How to use AI responsibly</span></div></section>
           </template>
@@ -187,8 +187,8 @@ onMounted(() => {
             <article class="rise-page-card rise-page-card--objectives">
               <p class="rise-eyebrow">Before you begin</p>
               <h2>By the End of this module, you will be able to:</h2>
-              <ol class="rise-objectives"><li><b>1</b><span>Explain the major stages in the development of AI.</span></li><li><b>2</b><span>Tell the difference between common AI approaches, tools, and capabilities.</span></li><li><b>3</b><span>Check AI claims using evidence, limitations, and source quality.</span></li></ol>
-              <div class="rise-note"><b>A quick note before you continue</b><p>We will focus on what is publicly known and well supported. We will clearly separate facts, reported claims, rumours, and future possibilities.</p></div>
+              <ol class="rise-objectives"><li><b>1</b><span>Explain the major stages in AI development.</span></li><li><b>2</b><span>Distinguish common AI approaches and capabilities.</span></li><li><b>3</b><span>Check AI claims using evidence and limitations.</span></li></ol>
+              <div class="rise-note"><b>Course principle</b><p>Separate facts, reported claims, rumours, and future possibilities.</p></div>
               <button type="button" class="rise-primary" @click="next">Continue to Lesson 1 <span aria-hidden="true">→</span></button>
             </article>
           </template>
@@ -201,80 +201,80 @@ onMounted(() => {
                 <p>{{ module.blurb }}</p>
               </header>
 
-              <section v-if="module.visual === 'history'" class="rise-media-block"><img :src="'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/lMkColbiQZRDDmAi.jpg'" alt="A visual timeline from early mechanical calculation to modern AI models." /><div><b>Look for the big shift</b><span>Early AI often used rules. Modern AI often learns patterns from examples. Both ideas still matter.</span></div></section>
-              <section v-if="module.visual === 'agents'" class="rise-media-block"><img :src="'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/MivTADgxAPaQaRCw.jpg'" alt="A visual map of AI tools, planning, and human review." /><div><b>Notice the human review point</b><span>An AI agent is not just a model. It also needs clear instructions, allowed tools, limits, and people who stay accountable.</span></div></section>
+              <section v-if="module.visual === 'history'" class="rise-media-block"><img :src="'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/lMkColbiQZRDDmAi.jpg'" alt="A visual timeline from early mechanical calculation to modern AI models." /><div><b>Key shift</b><span>AI moved from written rules to learning from examples.</span></div></section>
+              <section v-if="module.visual === 'agents'" class="rise-media-block"><img :src="'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/MivTADgxAPaQaRCw.jpg'" alt="A visual map of AI tools, planning, and human review." /><div><b>Key point</b><span>An agent needs limits and human review.</span></div></section>
 
               <section class="rise-block rise-block--key">
                 <span class="rise-block__label">Key idea</span>
-                <template v-if="module.id === 'bearing'"><h3>AI is a tool that helps with a specific job.</h3><p>For example, an AI feature might predict traffic, spot an unusual transaction, suggest the next word on your phone, or help write a first draft. A useful question is not “Is this AI smart?” It is “Is this tool suitable for this job?”</p></template>
-                <template v-else-if="module.id === 'rules'"><h3>Some AI follows rules. Some AI learns from examples.</h3><p>Both can be useful. The best choice depends on the problem, the information available, and how easy it is to check the result.</p></template>
-                <template v-else-if="module.id === 'data'"><h3>AI needs examples before it can help with new work.</h3><p>Like a learner practising with many questions, an AI system uses examples to improve. After training, it can respond to a new message, image, or task.</p></template>
-                <template v-else-if="module.id === 'attention'"><h3>Modern AI looks at the important parts of your input.</h3><p>When you ask a question, the system looks at the words around it and works out which parts may matter most. This is one reason newer language tools can work across many topics.</p></template>
-                <template v-else-if="module.id === 'generation'"><h3>Generative AI is helpful for a first draft, not a final decision.</h3><p>It can write, translate, summarise, make pictures, or organise ideas. But a confident answer can still be incomplete, old, biased, or wrong.</p></template>
-                <template v-else-if="module.id === 'agents'"><h3>AI agents can take a series of steps.</h3><p>With approved tools, an agent may search, organise, or update information. It needs clear instructions and a person who can review the work and stop it when needed.</p></template>
-                <template v-else-if="module.id === 'embodied'"><h3>Real-world AI needs stronger safety checks.</h3><p>A robot, medical tool, or vehicle works around people and places. Small mistakes can have real consequences, so testing and human responsibility are essential.</p></template>
-                <template v-else-if="module.id === 'frontier'"><h3>Big AI claims deserve careful checking.</h3><p>Ask what has been shown publicly, who has tested it, and whether the source is reliable. Avoid treating a rumour as a fact.</p></template>
-                <template v-else-if="module.id === 'responsible'"><h3>Responsible use starts before you enter a prompt.</h3><p>Think about privacy, fairness, mistakes, and who may be affected. Do not put confidential information into a public tool unless your organisation has approved it.</p></template>
-                <template v-else><h3>Start small and learn from the result.</h3><p>Choose one low-risk task where AI can help you begin. Decide what you will check yourself before sharing or using the output.</p></template>
+                <template v-if="module.id === 'bearing'"><h3>AI supports a specific task.</h3><p>Ask whether the tool suits the job.</p></template>
+                <template v-else-if="module.id === 'rules'"><h3>AI may use rules or examples.</h3><p>Choose the method that fits the task.</p></template>
+                <template v-else-if="module.id === 'data'"><h3>AI learns from examples.</h3><p>It uses that learning on new work.</p></template>
+                <template v-else-if="module.id === 'attention'"><h3>Modern AI weighs relevant context.</h3><p>This helps it respond across many topics.</p></template>
+                <template v-else-if="module.id === 'generation'"><h3>Generative AI creates a useful first draft.</h3><p>Review it before you rely on it.</p></template>
+                <template v-else-if="module.id === 'agents'"><h3>Agents can take approved steps.</h3><p>Clear limits and review keep them safe.</p></template>
+                <template v-else-if="module.id === 'embodied'"><h3>Real-world AI needs stronger safeguards.</h3><p>Small mistakes can have serious consequences.</p></template>
+                <template v-else-if="module.id === 'frontier'"><h3>Strong claims need strong evidence.</h3><p>Check the source before you share.</p></template>
+                <template v-else-if="module.id === 'responsible'"><h3>Responsible use starts before the prompt.</h3><p>Protect data and consider who may be affected.</p></template>
+                <template v-else><h3>Start small and check the result.</h3><p>Use AI where the risk is low and review is easy.</p></template>
               </section>
 
               <section class="rise-accordion-block">
-                <button type="button" class="rise-accordion" :aria-expanded="openExplore" @click="openExplore = !openExplore"><span><b>Explore this idea</b><small>Optional: open for a little more detail</small></span><i>{{ openExplore ? '−' : '+' }}</i></button>
+                <button type="button" class="rise-accordion" :aria-expanded="openExplore" @click="openExplore = !openExplore"><span><b>Learn more</b><small>Optional detail</small></span><i>{{ openExplore ? '−' : '+' }}</i></button>
                 <div v-if="openExplore" class="rise-accordion__content"><h3>{{ module.exploreTitle }}</h3><p>{{ module.exploreText }}</p></div>
               </section>
 
               <section v-if="module.id === 'rules'" class="rise-block rise-block--tabs">
-                <div class="rise-block__title"><span class="rise-block__label">Compare</span><h3>Choose a tab to compare the two approaches</h3></div>
+                <div class="rise-block__title"><span class="rise-block__label">Compare</span><h3>Rules or examples?</h3></div>
                 <div class="rise-tabs" role="tablist" aria-label="Compare AI approaches"><button type="button" role="tab" :aria-selected="activeTab === 'rules'" :class="{ active: activeTab === 'rules' }" @click="activeTab = 'rules'">AI with rules</button><button type="button" role="tab" :aria-selected="activeTab === 'examples'" :class="{ active: activeTab === 'examples' }" @click="activeTab = 'examples'">AI with examples</button></div>
-                <div class="rise-tab-panel"><template v-if="activeTab === 'rules'"><b>AI with rules</b><p>A person writes clear instructions: “If this happens, do that.” For example, a form can be flagged for review when it meets a set condition.</p><small>Best when the rules are known and easy to explain.</small></template><template v-else><b>AI with examples</b><p>The system looks at many past examples and learns a pattern. For example, it may learn to sort photos or predict likely demand.</p><small>Best when there are useful examples and the result can be checked.</small></template></div>
+                <div class="rise-tab-panel"><template v-if="activeTab === 'rules'"><b>AI with rules</b><p>A person writes the instructions.</p><small>Best when rules are clear.</small></template><template v-else><b>AI with examples</b><p>The system learns a pattern from past examples.</p><small>Best when results can be checked.</small></template></div>
               </section>
 
               <section v-if="module.id === 'data'" class="rise-block rise-block--flashcards">
-                <div class="rise-block__title"><span class="rise-block__label">Tap to reveal</span><h3>Three useful words</h3><p>Tap each card to see a simple meaning.</p></div>
+                <div class="rise-block__title"><span class="rise-block__label">Tap to reveal</span><h3>Three useful words</h3></div>
                 <div class="rise-flashcards"><button v-for="card in termCards" :key="card.term" type="button" class="rise-flashcard" :class="{ revealed: revealedTerms.includes(card.term) }" @click="revealTerm(card.term)"><span v-if="!revealedTerms.includes(card.term)"><b>{{ card.term }}</b><small>Tap to reveal</small></span><span v-else><b>{{ card.term }}</b><small>{{ card.plain }}</small></span></button></div>
               </section>
 
-              <section v-if="module.id === 'attention'" class="rise-block rise-block--process"><span class="rise-block__label">How it works</span><h3>A simple view of a modern chat tool</h3><ol><li><b>1</b><span>You ask a question or give an instruction.</span></li><li><b>2</b><span>The model considers the useful parts of your input.</span></li><li><b>3</b><span>It creates a likely next response, one small piece at a time.</span></li><li><b>4</b><span>You review the output before using it for anything important.</span></li></ol></section>
+              <section v-if="module.id === 'attention'" class="rise-block rise-block--process"><span class="rise-block__label">How it works</span><h3>From prompt to response</h3><ol><li><b>1</b><span>You give a prompt.</span></li><li><b>2</b><span>The model weighs context.</span></li><li><b>3</b><span>It creates a likely response.</span></li><li><b>4</b><span>You review the output.</span></li></ol></section>
 
               <section v-if="module.id === 'agents'" class="rise-block rise-block--steps"><span class="rise-block__label">The building blocks</span><h3>A safe agent needs more than a good model</h3><div class="rise-step-row"><span>Clear task</span><i>→</i><span>Approved tools</span><i>→</i><span>Safety limits</span><i>→</i><span>Human review</span></div></section>
 
-              <section v-if="module.video" class="rise-video-block"><div class="rise-video-block__icon" aria-hidden="true">▶</div><div><span class="rise-block__label">Optional video</span><h3>{{ module.video.title }}</h3><p>{{ module.video.instruction }}</p><a :href="module.video.url" target="_blank" rel="noreferrer">Watch the video <span aria-hidden="true">↗</span></a></div></section>
+              <section v-if="module.video" class="rise-video-block"><div class="rise-video-block__icon" aria-hidden="true">▶</div><div><span class="rise-block__label">Optional video</span><h3>{{ module.video.title }}</h3><p>Use this short video to reinforce the lesson.</p><a :href="module.video.url" target="_blank" rel="noreferrer">Watch video <span aria-hidden="true">↗</span></a></div></section>
 
               <section v-if="module.id === 'bearing'" class="rise-check-block">
-                <span class="rise-block__label">Check your understanding</span><h3>A chatbot gives you a clear answer about an important topic. What should you do next?</h3>
-                <div class="rise-options"><button type="button" :class="{ selected: diagnostic === 'patterns' }" @click="diagnostic = 'patterns'"><b>A</b><span>Use it as a useful starting point, then check the important details with a reliable source.</span></button><button type="button" :class="{ selected: diagnostic === 'trust' }" @click="diagnostic = 'trust'"><b>B</b><span>Trust it because the answer sounds clear and confident.</span></button></div>
+                <span class="rise-block__label">Check your understanding</span><h3>What should you do with an important AI answer?</h3>
+                <div class="rise-options"><button type="button" :class="{ selected: diagnostic === 'patterns' }" @click="diagnostic = 'patterns'"><b>A</b><span>Check it with a reliable source.</span></button><button type="button" :class="{ selected: diagnostic === 'trust' }" @click="diagnostic = 'trust'"><b>B</b><span>Trust it because it sounds confident.</span></button></div>
                 <p v-if="diagnosticFeedback" class="rise-feedback" :class="{ correct: diagnostic === 'patterns' }">{{ diagnosticFeedback }}</p>
               </section>
 
               <section v-if="module.id === 'data'" class="rise-check-block">
-                <span class="rise-block__label">Check your understanding</span><h3>Which sentence describes training?</h3>
-                <div class="rise-options rise-options--stack"><button type="button" :class="{ selected: learningCheck === 'inference' }" @click="learningCheck = 'inference'"><b>A</b><span>Using a trained tool to draft a new email from a fresh prompt.</span></button><button type="button" :class="{ selected: learningCheck === 'training' }" @click="learningCheck = 'training'"><b>B</b><span>Using examples and feedback to help the system improve before it is used.</span></button></div>
+                <span class="rise-block__label">Check your understanding</span><h3>Which describes training?</h3>
+                <div class="rise-options rise-options--stack"><button type="button" :class="{ selected: learningCheck === 'inference' }" @click="learningCheck = 'inference'"><b>A</b><span>Using a trained tool on a new prompt.</span></button><button type="button" :class="{ selected: learningCheck === 'training' }" @click="learningCheck = 'training'"><b>B</b><span>Improving a system with examples and feedback.</span></button></div>
                 <p v-if="learningFeedback" class="rise-feedback" :class="{ correct: learningCheck === 'training' }">{{ learningFeedback }}</p>
               </section>
 
               <section v-if="module.id === 'frontier'" class="rise-scenario">
                 <div class="rise-scenario__label">Scenario</div>
-                <div class="rise-scenario__body"><span class="rise-block__label">Make a careful choice</span><h3>You see a post saying a secret AI system can now make every business decision better than people.</h3><p>What is the most responsible next step?</p><div class="rise-options rise-options--stack"><button type="button" :class="{ selected: scenarioChoice === 'check' }" @click="scenarioChoice = 'check'"><b>A</b><span>Look for an official source or independent testing before sharing the claim.</span></button><button type="button" :class="{ selected: scenarioChoice === 'share' }" @click="scenarioChoice = 'share'"><b>B</b><span>Share it quickly because it may be important news.</span></button></div><p v-if="scenarioFeedback" class="rise-feedback" :class="{ correct: scenarioChoice === 'check' }">{{ scenarioFeedback }}</p></div>
+                <div class="rise-scenario__body"><span class="rise-block__label">Make a careful choice</span><h3>A post makes a dramatic AI claim.</h3><p>What should you do first?</p><div class="rise-options rise-options--stack"><button type="button" :class="{ selected: scenarioChoice === 'check' }" @click="scenarioChoice = 'check'"><b>A</b><span>Look for official evidence or independent testing.</span></button><button type="button" :class="{ selected: scenarioChoice === 'share' }" @click="scenarioChoice = 'share'"><b>B</b><span>Share it immediately.</span></button></div><p v-if="scenarioFeedback" class="rise-feedback" :class="{ correct: scenarioChoice === 'check' }">{{ scenarioFeedback }}</p></div>
               </section>
 
-              <section v-if="module.id === 'responsible'" class="rise-block rise-block--checklist"><span class="rise-block__label">Before you use AI</span><h3>Use this three-question check</h3><ul><li><i>✓</i><span>Am I keeping private or confidential information safe?</span></li><li><i>✓</i><span>Will I check important facts, numbers, and sources?</span></li><li><i>✓</i><span>Does a person remain responsible for the final decision?</span></li></ul></section>
+              <section v-if="module.id === 'responsible'" class="rise-block rise-block--checklist"><span class="rise-block__label">Before you use AI</span><h3>Run this quick check</h3><ul><li><i>✓</i><span>Is private information protected?</span></li><li><i>✓</i><span>Will I check important outputs?</span></li><li><i>✓</i><span>Is a person accountable?</span></li></ul></section>
 
               <section class="rise-source-block"><div><span class="rise-block__label">Source and evidence</span><b>{{ module.confidence }}</b><p>{{ module.sourceLabel }}</p></div><a :href="module.sourceUrl" target="_blank" rel="noreferrer">Open source <span aria-hidden="true">↗</span></a></section>
               <section class="rise-takeaway"><b>Key takeaway</b><p>{{ module.takeaway }}</p></section>
-              <div class="rise-complete-row"><span><b>Lesson complete?</b><small>You can return to this lesson from the course menu at any time.</small></span><button type="button" class="rise-primary" @click="next">{{ current < screens.length - 2 ? 'Mark lesson complete' : 'Continue to your action plan' }} <span aria-hidden="true">→</span></button></div>
+              <div class="rise-complete-row"><span><b>Ready to continue?</b><small>Return from the course menu at any time.</small></span><button type="button" class="rise-primary" @click="next">{{ current < screens.length - 2 ? 'Continue' : 'Create action plan' }} <span aria-hidden="true">→</span></button></div>
             </article>
           </template>
 
           <template v-else>
             <article class="rise-capstone">
-              <header><p class="rise-eyebrow">Your action plan</p><h2>Choose one small, responsible way to use AI.</h2><p>Use this final activity to turn the course into something practical. Keep your plan simple and clear.</p></header>
+              <header><p class="rise-eyebrow">Your action plan</p><h2>Choose one responsible use.</h2><p>Make a short plan you can apply immediately.</p></header>
               <form class="rise-capstone__form" @submit.prevent="finish">
-                <label><b>1. Choose one task AI could help you start</b><span>Pick a low-risk task such as organising ideas, drafting an outline, or simplifying notes.</span><textarea v-model="reflection.use" rows="2" placeholder="For example: Prepare a first draft of a training outline for my team."></textarea></label>
-                <label><b>2. Decide what you will check yourself</b><span>Think about facts, numbers, names, policies, or sources.</span><textarea v-model="reflection.check" rows="2" placeholder="For example: I will check every policy reference and source before sharing it."></textarea></label>
-                <label><b>3. Name the person or step that keeps the final decision safe</b><span>Important work should have a clear review step.</span><textarea v-model="reflection.review" rows="2" placeholder="For example: My manager or subject expert will review the final version."></textarea></label>
-                <div class="rise-capstone__action"><p><b>To complete this course:</b> fill in all three parts of your action plan.</p><button type="submit" class="rise-primary" :disabled="!capstoneReady">{{ completed ? 'Course completed' : 'Complete course' }} <span aria-hidden="true">→</span></button></div>
+                <label><b>1. Choose a low-risk task</b><span>For example, prepare a first draft.</span><textarea v-model="reflection.use" rows="2" placeholder="For example: Draft a training outline."></textarea></label>
+                <label><b>2. State what you will check</b><span>For example, facts, policies, or sources.</span><textarea v-model="reflection.check" rows="2" placeholder="For example: Check every source."></textarea></label>
+                <label><b>3. Name the review step</b><span>Who confirms the final result?</span><textarea v-model="reflection.review" rows="2" placeholder="For example: A subject expert reviews it."></textarea></label>
+                <div class="rise-capstone__action"><p>Complete all three fields to finish the course.</p><button type="submit" class="rise-primary" :disabled="!capstoneReady">{{ completed ? 'Course completed' : 'Complete course' }} <span aria-hidden="true">→</span></button></div>
               </form>
-              <div v-if="completed" class="rise-completion"><i>✓</i><div><span class="rise-block__label">Completion recorded</span><h3>You have completed this course.</h3><p>Keep using the same habit: start small, check important work, and stay responsible for the final decision.</p></div><button type="button" @click="restart">Restart course</button></div>
+              <div v-if="completed" class="rise-completion"><i>✓</i><div><span class="rise-block__label">Completion recorded</span><h3>Course completed.</h3><p>Start small, check important work, and stay accountable.</p></div><button type="button" @click="restart">Restart course</button></div>
             </article>
           </template>
         </section>

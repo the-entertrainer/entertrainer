@@ -87,4 +87,16 @@ The frontier lesson’s scenario block was tested with its evidence-led choice. 
 
 The revised action-plan screen was checked in the working preview. It asks the learner to name a low-risk task, identify what they will check, and state the human review step. All three plain-language fields accepted representative learner input and enabled the course completion action.
 
+## Concise-content verification
+
+The condensed action-plan screen was checked in the working preview. Its heading, supporting line, three form prompts, completion control, and completion message now each make one direct point, while preserving the practical learner action and required review step.
+
+Lesson 1 was also checked after the concise-content pass. The learner now sees one short definition, one key idea, one optional expansion, one focused check, an evidence link, and a three-question takeaway. The layout remains instructional while removing repeated explanation.
+
+Selecting the evidence-led response returned concise feedback that states the required action without repeating the lesson. The course browser console showed no client-side errors during this final interaction check.
+
 Submitting the action plan changed the learner state to **Course completed** and displayed an instructional completion message with a restart control. The course therefore retains its completion loop while using the revised, professional e-learning language.
+
+## External course benchmark
+
+The supplied Articulate review link was opened for visual benchmarking. Its initial loading state did not yet expose learner-facing text or controls, so no design or writing conclusion has been drawn from the reference until its course content becomes visible.

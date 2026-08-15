@@ -16,7 +16,7 @@
  */
 
 export type Category = 'practice' | 'projects' | 'tools' | 'story' | 'lab' | 'notes'
-export type Media = 'essay' | 'case study' | 'interactive' | 'web app' | 'index'
+export type Media = 'essay' | 'case study' | 'interactive' | 'web app' | 'course' | 'index'
 
 export interface EditorialItem {
   id: string
@@ -90,6 +90,20 @@ export const ITEMS: EditorialItem[] = [
     alt: 'The SEWA Chronicles comic cover',
     stamp: 'Club Mahindra · 2023',
     minutes: 5,
+    size: 'wide'
+  },
+  {
+    id: 'ai-course',
+    title: 'Artificial Intelligence: From Its Origins to the Frontier',
+    dek: 'A free full-day course on how AI actually got here — two collapses included — and a method for telling what is established from what is merely announced.',
+    category: 'projects',
+    media: 'course',
+    href: '/my-work/ai-origins-to-frontier',
+    image: '/work/ai-course-cover.png',
+    alt: 'Course cover: Artificial Intelligence, from its origins to the frontier',
+    // No `minutes` — the card would print "420 min read", which is both true
+    // and useless. A course is a thing you work through, not a thing you read.
+    stamp: 'Free · 10 modules · a full day',
     size: 'wide'
   },
   {

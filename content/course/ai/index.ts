@@ -1,0 +1,135 @@
+import type { CourseMeta, Module } from './types'
+import { M01 } from './m01'
+import { M02 } from './m02'
+import { M03 } from './m03'
+import { M04 } from './m04'
+import { M05 } from './m05'
+import { M06 } from './m06'
+import { M07 } from './m07'
+import { M08 } from './m08'
+import { M09 } from './m09'
+import { M10 } from './m10'
+
+export * from './types'
+export { VIDEOS, RESOURCES, SOURCES, videoById, resourceById, sourceById } from './media'
+export { GLOSSARY } from './glossary'
+export { DIAGNOSTIC, FINAL, CAPSTONE } from './assessment'
+
+export const MODULES: Module[] = [M01, M02, M03, M04, M05, M06, M07, M08, M09, M10]
+
+/** Total teaching minutes, summed from the lessons rather than asserted. */
+const lessonMinutes = MODULES.reduce(
+  (sum, m) => sum + m.lessons.reduce((s, l) => s + l.minutes, 0), 0)
+
+/** Diagnostic, final assessment, capstone and two breaks. */
+const AROUND_THE_EDGES = 20 + 25 + 45 + 30
+
+export const COURSE: CourseMeta = {
+  title: 'Artificial Intelligence: From Its Origins to the Frontier',
+  subtitle: 'A one-day pathway from the 1950s to the present, built for people who want to judge AI claims rather than repeat them',
+  description:
+    'A full-day course on how artificial intelligence actually developed — symbolic systems, two collapses, the learning revolution, transformers, generative models, agents and the frontier — and, running through all of it, a method for telling what is established from what is merely announced.',
+  audience:
+    'Complete beginners welcome. Also built for professionals, educators, creators and managers who keep being asked what they think about AI and would like a defensible answer.',
+  promise:
+    'By the end of the day you will be able to explain how AI got here, say precisely what current systems do, and evaluate a claim about AI using evidence rather than instinct.',
+  prerequisites: 'None. No mathematics, no programming. Curiosity and a browser.',
+  level: 'Beginner to intermediate',
+  minutes: lessonMinutes + AROUND_THE_EDGES,
+  objectives: [
+    'Explain the major stages in the development of AI, including the periods when it failed.',
+    'Distinguish between different AI approaches, model types and capabilities.',
+    'Evaluate AI claims using evidence, limitations and source quality.',
+    'Decide where AI is appropriate in your own work, and say why.'
+  ],
+  whyThisMatters: [
+    'You are being asked to have opinions about this. In meetings, in hiring, in policy, in what your organisation buys — the questions arrive whether or not you feel qualified to answer them.',
+    'Most available explanation is written either to sell you something or to frighten you. Both distort in predictable directions, and both are easier to resist once you know how the technology actually works.',
+    'The history is genuinely useful, not decorative. This field has collapsed twice, both times after a period of confident forecasting from intelligent people. Knowing the shape of that pattern is the cheapest form of judgement available.'
+  ],
+  currentAsOf: '15 August 2026'
+}
+
+/* ── Navigation helpers ─────────────────────────────────────────────────── */
+
+export interface Position { moduleIndex: number; lessonIndex: number }
+
+export const ALL_LESSONS = MODULES.flatMap((m, mi) =>
+  m.lessons.map((l, li) => ({ module: m, lesson: l, moduleIndex: mi, lessonIndex: li })))
+
+export const TOTAL_LESSONS = ALL_LESSONS.length
+
+export function lessonKey(moduleId: string, lessonId: string) {
+  return `${moduleId}/${lessonId}`
+}
+
+export function moduleMinutes(m: Module) {
+  return m.lessons.reduce((s, l) => s + l.minutes, 0)
+}
+
+/** The next lesson after a position, or null at the end of the course. */
+export function nextPosition(p: Position): Position | null {
+  const m = MODULES[p.moduleIndex]
+  if (!m) return null
+  if (p.lessonIndex + 1 < m.lessons.length) return { ...p, lessonIndex: p.lessonIndex + 1 }
+  if (p.moduleIndex + 1 < MODULES.length) return { moduleIndex: p.moduleIndex + 1, lessonIndex: 0 }
+  return null
+}
+
+export function prevPosition(p: Position): Position | null {
+  if (p.lessonIndex > 0) return { ...p, lessonIndex: p.lessonIndex - 1 }
+  if (p.moduleIndex > 0) {
+    const prev = MODULES[p.moduleIndex - 1]
+    return { moduleIndex: p.moduleIndex - 1, lessonIndex: prev.lessons.length - 1 }
+  }
+  return null
+}
+
+/* ── The day ────────────────────────────────────────────────────────────
+   A realistic schedule rather than a list of modules with times attached.
+   The breaks are in it because a full day without them is a document, not a
+   course, and the afternoon is deliberately lighter on new mechanism and
+   heavier on judgement — which is what people can still do at four o'clock. */
+export interface ScheduleRow {
+  time: string
+  what: string
+  kind: 'orientation' | 'module' | 'break' | 'assessment' | 'capstone'
+  minutes: number
+  output: string
+}
+
+export const SCHEDULE: ScheduleRow[] = [
+  { time: '09:00', what: 'Welcome and orientation', kind: 'orientation', minutes: 10,
+    output: 'You know how the day is shaped and how to resume if you stop.' },
+  { time: '09:10', what: 'Diagnostic — six questions, not scored', kind: 'assessment', minutes: 15,
+    output: 'A record of what you believed before the course, to compare against later.' },
+  { time: '09:25', what: 'Module 01 · What we are actually talking about', kind: 'module', minutes: 30,
+    output: 'A working definition, and your claim log started.' },
+  { time: '09:55', what: 'Module 02 · Before there was a field', kind: 'module', minutes: 33,
+    output: 'The Turing test in your own words; the Dartmouth promise scored.' },
+  { time: '10:30', what: 'Break', kind: 'break', minutes: 15, output: 'Stand up. This is not optional.' },
+  { time: '10:45', what: 'Module 03 · Rules, search and expert systems', kind: 'module', minutes: 32,
+    output: 'A number that surprises you about combinatorial explosion.' },
+  { time: '11:20', what: 'Module 04 · The winters', kind: 'module', minutes: 25,
+    output: 'Claim log entry two: a result separated from its extrapolation.' },
+  { time: '11:45', what: 'Module 05 · Learning from data', kind: 'module', minutes: 34,
+    output: 'A classifier you trained and then deliberately broke.' },
+  { time: '12:20', what: 'Lunch', kind: 'break', minutes: 45, output: 'Genuinely stop. The afternoon is the harder half.' },
+  { time: '13:05', what: 'Module 06 · Neural networks', kind: 'module', minutes: 34,
+    output: 'The smallest network you could get to solve the spiral.' },
+  { time: '13:40', what: 'Module 07 · The deep learning decade', kind: 'module', minutes: 33,
+    output: 'Claim log entry three, with a falsifiable expectation attached.' },
+  { time: '14:15', what: 'Break', kind: 'break', minutes: 15, output: 'Move around.' },
+  { time: '14:30', what: 'Module 08 · Transformers and language models', kind: 'module', minutes: 35,
+    output: 'Token, embedding and attention defined in your own words.' },
+  { time: '15:05', what: 'Module 09 · Generative, multimodal, agentic, embodied', kind: 'module', minutes: 33,
+    output: 'One of your workflows mapped for reversibility and checkability.' },
+  { time: '15:40', what: 'Module 10 · Risk, evidence and the frontier', kind: 'module', minutes: 39,
+    output: 'Your claim log tiered, and one paragraph you would say out loud.' },
+  { time: '16:20', what: 'Final assessment — fifteen questions', kind: 'assessment', minutes: 25,
+    output: 'A score, and explanations for every answer including the ones you got right.' },
+  { time: '16:45', what: 'Capstone — your AI position paper', kind: 'capstone', minutes: 45,
+    output: 'One page you would be willing to defend in front of someone who disagrees.' },
+  { time: '17:30', what: 'Close and next steps', kind: 'orientation', minutes: 10,
+    output: 'A shortlist of where to go next, matched to what you found hardest.' }
+]

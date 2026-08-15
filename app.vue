@@ -26,7 +26,8 @@ const theme = useThemeStore()
 const bare = computed(() =>
   r.path.startsWith('/lab/') ||
   r.path.startsWith('/glass-lab') ||
-  r.path.startsWith('/my-work/strong')
+  r.path.startsWith('/my-work/strong') ||
+  r.path.startsWith('/my-work/ai-origins-to-frontier')
 )
 
 onMounted(() => theme.init())

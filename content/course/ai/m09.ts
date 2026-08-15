@@ -1,7 +1,7 @@
 import type { Module } from './types'
 
 export const M09: Module = {
-  id: 'm09', n: '09', accent: 'var(--purple)',
+  id: 'm09', n: '09', accent: 'var(--blue)',
   title: 'Generative, multimodal, agentic, embodied',
   intro: 'Four extensions of the same underlying machinery, each with a genuinely different failure profile. Images are made by a mechanism unlike text generation. Agents add the ability to act, which changes the risk calculation entirely. Robots add a body, and the physical world is not kind. And in one domain — structural biology — the results are as good as the promises.',
   objectives: [

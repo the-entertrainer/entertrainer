@@ -1,7 +1,7 @@
 import type { Module } from './types'
 
 export const M03: Module = {
-  id: 'm03', n: '03', accent: 'var(--cyan)',
+  id: 'm03', n: '03', accent: 'var(--blue)',
   title: 'Rules, search and expert systems',
   intro: 'For roughly thirty years, AI meant something quite different from what it means now: intelligence as symbol manipulation, built by hand, out of logic. It is tempting to treat this era as a wrong turn. It was not. It produced ideas still running inside things you used this morning, and it failed for a reason worth understanding precisely.',
   objectives: [

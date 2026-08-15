@@ -31,6 +31,14 @@ useSeoMeta({
   ogUrl: 'https://entertrainer.in/my-work/ai-origins-to-frontier'
 })
 
+// This one page borrows Rise 360's actual look rather than the rest of the
+// site's typographic system — Lato is the typeface Rise itself ships with, so
+// it's loaded here and nowhere else, the same exception Strong already makes
+// for Inter. Everything else on the site keeps its own faces untouched.
+useHead({
+  link: [{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap' }]
+})
+
 type View = 'cover' | 'contents' | 'lesson' | 'diagnostic' | 'final' | 'capstone' | 'reference'
 
 const store = useCourseStore()
@@ -381,7 +389,34 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 </template>
 
 <style scoped>
-.co { min-height: 100dvh; background: var(--paper); color: var(--ink); display: flex; flex-direction: column; }
+/* ── Rise 360 skin ─────────────────────────────────────────────────────────
+   This page borrows Rise's actual look rather than the rest of the site's:
+   one brand blue used everywhere var(--blue) already appears (buttons, links,
+   chart lines, the medium-confidence accent — nothing else has to change to
+   pick this up), bigger rounded corners, and soft-shadow cards instead of
+   hairline borders. Scoped to `.co` only, so nothing outside this page
+   is affected — the rest of the site keeps its own system untouched. */
+.co {
+  --blue: #1467C8;
+  --co-blue-dark: #0F52A0;
+  --co-blue-tint: #EAF2FC;
+  --co-surface: var(--paper);
+  --co-shadow: 0 1px 2px rgba(20, 40, 70, 0.06), 0 4px 16px rgba(20, 40, 70, 0.08);
+  --radius-xs: 6rem; --radius-s: 8rem; --radius-m: 10rem; --radius-l: 16rem;
+  min-height: 100dvh; background: var(--paper); color: var(--ink); display: flex; flex-direction: column;
+  font-family: 'Lato', var(--font-ui), sans-serif;
+}
+.co .t-display {
+  font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em;
+}
+/* Dark mode needs its own tint and surface, not just the light ones left to
+   cope: #EAF2FC (the light "picked" tint) on a near-black page made picked
+   answers render as a near-white box with invisible text — this caught it. */
+[data-theme="dark"] .co {
+  --co-blue-tint: #15304C;
+  --co-surface: var(--paper-2);
+  --co-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 18px rgba(0, 0, 0, 0.45);
+}
 
 /* ── Chrome ────────────────────────────────────────────────────────── */
 .co__bar {
@@ -392,26 +427,26 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
   background: var(--paper); border-bottom: var(--stroke) solid var(--line);
 }
 .co__brand { display: inline-flex; align-items: center; gap: 10rem; flex: none; }
-.co__brand-text { font-family: var(--font-display); font-size: 19rem; letter-spacing: 0.02em; }
+.co__brand-text { font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; font-size: 18rem; letter-spacing: 0; }
 
 .co__progress { display: flex; align-items: center; gap: 10rem; margin-left: auto; min-width: 0; }
 .co__progress-n, .co__progress-left { color: var(--muted); white-space: nowrap; }
 .co__progress-track {
-  display: block; width: clamp(70rem, 16vw, 200rem); height: 10rem;
-  border: var(--stroke) solid var(--ink); border-radius: 999rem; overflow: hidden; background: var(--paper-2);
+  display: block; width: clamp(70rem, 16vw, 200rem); height: 6rem;
+  border: none; border-radius: 999rem; overflow: hidden; background: var(--co-blue-tint);
 }
-.co__progress-fill { display: block; height: 100%; background: var(--red); transition: width var(--dur-mid) var(--ease-out); }
+.co__progress-fill { display: block; height: 100%; background: var(--blue); transition: width var(--dur-mid) var(--ease-out); }
 
 .co__actions { display: flex; align-items: center; gap: 6rem; margin-left: auto; }
 .co__progress + .co__actions { margin-left: 0; }
 .co__btn {
-  padding: 8rem 12rem; border-radius: var(--radius-full);
-  border: var(--stroke) solid var(--ink); background: var(--paper); color: var(--ink);
-  font-family: var(--font-mono); font-size: var(--type-meta);
-  letter-spacing: var(--tracking-meta); text-transform: uppercase; cursor: pointer; white-space: nowrap;
+  padding: 8rem 14rem; border-radius: var(--radius-full);
+  border: var(--stroke) solid var(--blue); background: var(--paper); color: var(--blue);
+  font-family: 'Lato', var(--font-ui), sans-serif; font-size: 12.5rem; font-weight: 700;
+  letter-spacing: 0.02em; text-transform: none; cursor: pointer; white-space: nowrap;
 }
-.co__btn.is-on { background: var(--ink); color: var(--paper); }
-@media (hover: hover) { .co__btn:not(.is-on):hover { background: var(--yellow); color: var(--on-yellow); } }
+.co__btn.is-on { background: var(--blue); color: #fff; border-color: var(--blue); }
+@media (hover: hover) { .co__btn:not(.is-on):hover { background: var(--co-blue-tint); } }
 .co__btn--exit { text-decoration: none; }
 
 @media (max-width: 780px) {
@@ -432,13 +467,13 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 .cv__cta { display: flex; flex-wrap: wrap; gap: 12rem; }
 .cv__resume { margin: 14rem 0 0; color: var(--muted); }
 
-.cv__panel { margin: clamp(30rem, 4vw, 44rem) 0; padding: clamp(20rem, 2.6vw, 28rem); background: var(--paper-2); border: var(--stroke) solid var(--line); border-radius: var(--radius-l);  }
+.cv__panel { margin: clamp(30rem, 4vw, 44rem) 0; padding: clamp(20rem, 2.6vw, 28rem); background: var(--co-surface); border: none; border-radius: var(--radius-l); box-shadow: var(--co-shadow); }
 .cv__h { font-size: clamp(18rem, 1.9vw, 22rem); margin: 0 0 16rem; }
 .cv__obj { list-style: none; margin: 0; padding: 0; display: grid; gap: 12rem; }
 .cv__obj li { display: grid; grid-template-columns: 30rem minmax(0, 1fr); gap: 8rem; font-size: 16rem; line-height: 1.5; }
 .cv__obj .t-mono { color: var(--muted); padding-top: 3rem; }
 
-.cv__h2 { font-family: var(--font-display); font-weight: 400; letter-spacing: var(--tracking-display); font-size: clamp(24rem, 3vw, 34rem); margin: clamp(30rem, 4vw, 44rem) 0 14rem; }
+.cv__h2 { font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em; font-size: clamp(22rem, 2.6vw, 30rem); margin: clamp(30rem, 4vw, 44rem) 0 14rem; }
 .cv__why p, .cv__body { font-family: var(--font-reading); font-size: 16.5rem; line-height: 1.7; max-width: var(--measure-body); margin: 0 0 1em; color: var(--muted); }
 
 /* ── Contents ──────────────────────────────────────────────────────── */
@@ -446,7 +481,7 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 .ct__deck { margin: 16rem 0 clamp(28rem, 4vw, 40rem); font-family: var(--font-reading); font-size: 16.5rem; line-height: 1.65; color: var(--muted); max-width: var(--measure-body); }
 
 .ct__modules { list-style: none; margin: 0; padding: 0; display: grid; gap: 16rem; }
-.cm { border: var(--stroke) solid var(--line); border-radius: var(--radius-l); background: var(--paper); overflow: hidden; }
+.cm { border: none; border-radius: var(--radius-l); background: var(--co-surface); overflow: hidden; box-shadow: var(--co-shadow); }
 .cm__head { display: grid; grid-template-columns: 40rem minmax(0, 1fr); gap: 14rem; padding: 16rem 18rem 12rem; align-items: start; }
 .cm__n { color: var(--muted); font-size: 15rem; padding-top: 4rem; }
 .cm__title { font-size: clamp(18rem, 2vw, 23rem); margin: 0 0 5rem; }
@@ -463,7 +498,7 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
   transition: background var(--dur-fast) var(--ease-out);
 }
 .cm__lessons li:last-child .cl { border-bottom: 0; }
-@media (hover: hover) { .cl:hover { background: var(--yellow); color: var(--on-yellow); } }
+@media (hover: hover) { .cl:hover { background: var(--co-blue-tint); } }
 .cl__tick { width: 22rem; height: 22rem; border: var(--stroke) solid currentColor; border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; margin-top: 2rem; }
 .cl.is-done .cl__tick { background: var(--green); color: var(--on-green); border-color: var(--ink); }
 .cl__body { display: grid; gap: 3rem; min-width: 0; }
@@ -473,14 +508,14 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 .cl__min { color: var(--muted); white-space: nowrap; padding-top: 3rem; }
 .cl:hover .cl__min { color: inherit; opacity: 0.75; }
 
-.ct__h2 { font-family: var(--font-display); font-weight: 400; letter-spacing: var(--tracking-display); font-size: clamp(24rem, 3vw, 34rem); margin: clamp(34rem, 5vw, 52rem) 0 10rem; }
+.ct__h2 { font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em; font-size: clamp(22rem, 2.6vw, 30rem); margin: clamp(34rem, 5vw, 52rem) 0 10rem; }
 .ct__note { margin: 0 0 18rem; font-size: 14.5rem; color: var(--muted); max-width: 62ch; }
 .ct__scroll { overflow-x: auto; border: var(--stroke) solid var(--line); border-radius: var(--radius-m); }
 .ct__table { border-collapse: collapse; width: 100%; min-width: 560rem; }
 .ct__table th, .ct__table td { text-align: left; padding: 11rem 13rem; font-size: 14rem; line-height: 1.45; border-bottom: var(--stroke) solid var(--line); vertical-align: top; }
-.ct__table thead th { background: var(--ink); color: var(--paper); font-family: var(--font-mono); font-size: var(--type-meta); letter-spacing: var(--tracking-meta); text-transform: uppercase; }
+.ct__table thead th { background: var(--blue); color: #fff; font-family: 'Lato', var(--font-ui), sans-serif; font-size: 11.5rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
 .ct__table tr.is-break td { background: var(--paper-2); color: var(--muted); font-style: italic; }
-.ct__table tr.is-assessment td, .ct__table tr.is-capstone td { background: color-mix(in srgb, var(--yellow) 22%, var(--paper)); }
+.ct__table tr.is-assessment td, .ct__table tr.is-capstone td { background: var(--co-blue-tint); }
 .ct__out { color: var(--muted); }
 .ct__ends { display: flex; flex-wrap: wrap; gap: 12rem; margin-top: clamp(26rem, 4vw, 38rem); }
 
@@ -488,10 +523,10 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 .ls__head { padding-bottom: clamp(18rem, 2.4vw, 26rem); margin-bottom: clamp(24rem, 3.4vw, 34rem); border-bottom: var(--stroke) solid var(--line); }
 .ls__crumb { display: flex; align-items: center; gap: 9rem; margin: 0 0 14rem; color: var(--muted); }
 .ls__dot { width: 10rem; height: 10rem; border-radius: 50%; background: var(--accent); border: 1px solid var(--ink); flex: none; }
-.ls__title { font-family: var(--font-display); font-weight: 400; letter-spacing: var(--tracking-display); font-size: clamp(30rem, 4.4vw, 54rem); line-height: 0.95; margin: 0 0 14rem; }
+.ls__title { font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em; font-size: clamp(28rem, 3.8vw, 44rem); line-height: 1.05; margin: 0 0 14rem; }
 .ls__meta { margin: 0; color: var(--muted); }
 
-.ls__obj { margin-bottom: clamp(26rem, 3.4vw, 36rem); padding: clamp(18rem, 2.4vw, 26rem); background: var(--paper-2); border: var(--stroke) solid var(--line); border-radius: var(--radius-l); }
+.ls__obj { margin-bottom: clamp(26rem, 3.4vw, 36rem); padding: clamp(18rem, 2.4vw, 26rem); background: var(--co-surface); border: none; border-radius: var(--radius-l); box-shadow: var(--co-shadow); }
 .ls__intro { margin: 0 0 18rem; font-family: var(--font-reading); font-size: 16.5rem; line-height: 1.65; }
 .ls__obj-h { font-size: 16.5rem; margin: 0 0 12rem; }
 .ls__obj ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 9rem; }
@@ -516,22 +551,63 @@ const hours = (m: number) => `${Math.floor(m / 60)}h ${String(m % 60).padStart(2
 
 /* ── Capstone ──────────────────────────────────────────────────────── */
 .cp__parts { list-style: none; margin: 0 0 clamp(30rem, 4vw, 44rem); padding: 0; display: grid; gap: 16rem; }
-.cp__parts li { display: grid; grid-template-columns: 44rem minmax(0, 1fr); gap: 14rem; padding: 18rem; border: var(--stroke) solid var(--line); border-radius: var(--radius-m); background: var(--paper); }
+.cp__parts li { display: grid; grid-template-columns: 44rem minmax(0, 1fr); gap: 14rem; padding: 18rem; border: none; border-radius: var(--radius-m); background: var(--co-surface); box-shadow: var(--co-shadow); }
 .cp__n { color: var(--muted); font-size: 15rem; }
 .cp__parts h2 { margin: 0 0 8rem; font-size: 17.5rem; }
 .cp__parts p { margin: 0; font-size: 15rem; line-height: 1.6; color: var(--muted); }
-.cp__h2 { font-family: var(--font-display); font-weight: 400; letter-spacing: var(--tracking-display); font-size: clamp(22rem, 2.8vw, 30rem); margin: 0 0 8rem; }
+.cp__h2 { font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; letter-spacing: -0.01em; font-size: clamp(20rem, 2.4vw, 26rem); margin: 0 0 8rem; }
 .cp__note { margin: 0 0 16rem; font-size: 14.5rem; color: var(--muted); }
 .cp__scroll { overflow-x: auto; border: var(--stroke) solid var(--line); border-radius: var(--radius-m); margin-bottom: clamp(26rem, 4vw, 36rem); }
 .cp__table { border-collapse: collapse; width: 100%; min-width: 700rem; }
 .cp__table th, .cp__table td { text-align: left; padding: 11rem 13rem; font-size: 13.5rem; line-height: 1.5; border-bottom: var(--stroke) solid var(--line); vertical-align: top; }
-.cp__table thead th { background: var(--ink); color: var(--paper); font-family: var(--font-mono); font-size: var(--type-meta); letter-spacing: var(--tracking-meta); text-transform: uppercase; }
+.cp__table thead th { background: var(--blue); color: #fff; font-family: 'Lato', var(--font-ui), sans-serif; font-size: 11.5rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
 .cp__table tbody th { background: var(--paper-2); font-weight: 700; }
 .cp__foot { margin-top: clamp(30rem, 4vw, 44rem); padding-top: 24rem; border-top: var(--stroke) solid var(--line); }
-.cp__done { margin: 0 0 18rem; font-family: var(--font-display); font-size: 24rem; letter-spacing: var(--tracking-display); }
+.cp__done { margin: 0 0 18rem; font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; font-size: 22rem; }
 .cp__links { display: flex; flex-wrap: wrap; gap: 12rem; }
 
 @media (prefers-reduced-motion: reduce) {
   .co__progress-fill, .cm__bar-fill { transition: none; }
+}
+</style>
+
+<style>
+/* Unscoped on purpose: .ticket is defined once in the site's global stylesheet
+   and used by every course component (Check, Interactions, Descent, this page
+   itself) — a scoped block here could never reach a button rendered inside a
+   child component, since Vue's scoping attribute belongs to whichever
+   component rendered the element, not to this page. Keyed by the real DOM
+   ancestor `.co` instead, so it only ever applies inside the course. */
+.co .ticket,
+.co .px-btn,
+.co .glass-btn {
+  background: var(--blue);
+  border-color: var(--blue);
+  box-shadow: var(--co-shadow, none);
+}
+@media (hover: hover) {
+  .co .ticket:not(:disabled):hover,
+  .co .px-btn:not(:disabled):hover,
+  .co .glass-btn:not(:disabled):hover {
+    background: var(--co-blue-dark, #0F52A0);
+    border-color: var(--co-blue-dark, #0F52A0);
+  }
+}
+.co .ticket--ghost,
+.co .glass-btn--ghost,
+.co .px-btn--ghost {
+  background: transparent;
+  color: var(--blue);
+  border-color: var(--blue);
+  box-shadow: none;
+}
+@media (hover: hover) {
+  .co .ticket--ghost:not(:disabled):hover,
+  .co .glass-btn--ghost:not(:disabled):hover,
+  .co .px-btn--ghost:not(:disabled):hover {
+    background: var(--co-blue-tint, #EAF2FC);
+    color: var(--blue);
+    border-color: var(--blue);
+  }
 }
 </style>

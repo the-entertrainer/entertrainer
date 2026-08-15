@@ -159,8 +159,8 @@ function select(i: number) {
 </template>
 
 <style scoped>
-.hs { margin: clamp(22rem, 3vw, 32rem) 0; border: var(--stroke) solid var(--line); border-radius: var(--radius-l); overflow: hidden; background: var(--paper); }
-.hs__cap { padding: 14rem 18rem; background: var(--ink); color: var(--paper); border-bottom: var(--stroke) solid var(--ink); }
+.hs { margin: clamp(22rem, 3vw, 32rem) 0; border: none; border-radius: var(--radius-l); overflow: hidden; background: var(--co-surface, var(--paper)); box-shadow: var(--co-shadow, none); }
+.hs__cap { padding: 14rem 18rem; background: var(--blue); color: #fff; border-bottom: none; }
 
 .hs__stage { position: relative; aspect-ratio: 400 / 225; background: var(--paper-2); }
 .hs__art { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -176,7 +176,7 @@ function select(i: number) {
 }
 @media (hover: hover) { .hs__pin:hover { transform: translate(-50%, -50%) scale(1.08); } }
 .hs__pin.is-seen { background: var(--paper-3); }
-.hs__pin.is-active { background: var(--yellow); color: var(--on-yellow); border-width: var(--stroke); }
+.hs__pin.is-active { background: var(--blue); color: #fff; border-color: var(--blue); }
 
 .hs__panel { padding: clamp(16rem, 2.2vw, 22rem); min-height: 88rem; border-top: var(--stroke) solid var(--line); }
 .hs__label { margin: 0 0 6rem; font-size: 16rem; font-weight: 700; }

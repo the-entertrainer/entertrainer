@@ -1,7 +1,7 @@
 import type { Module } from './types'
 
 export const M10: Module = {
-  id: 'm10', n: '10', accent: 'var(--ink)',
+  id: 'm10', n: '10', accent: 'var(--blue)',
   title: 'Risk, evidence and the frontier',
   intro: 'The last module of the day, and the one that decides whether the rest of it was useful. Four kinds of real, documented harm; the safety problem stated precisely rather than dramatically; and then the hardest part — how to think about what the frontier labs might have that you cannot see, without either inventing it or pretending the question is silly.',
   objectives: [

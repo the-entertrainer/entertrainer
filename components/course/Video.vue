@@ -66,10 +66,10 @@ const watchUrl = computed(() => v.value
 <style scoped>
 .vid {
   margin: clamp(22rem, 3vw, 32rem) 0;
-  border: var(--stroke) solid var(--line);
+  border: none;
   border-radius: var(--radius-l);
-  background: var(--paper);
-  
+  background: var(--co-surface, var(--paper));
+  box-shadow: var(--co-shadow, none);
   overflow: hidden;
 }
 .vid__head {
@@ -92,13 +92,13 @@ const watchUrl = computed(() => v.value
   background: var(--paper-2); color: var(--ink); cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out);
 }
-@media (hover: hover) { .vid__play:hover { background: var(--yellow); color: var(--on-yellow); } }
+@media (hover: hover) { .vid__play:hover { background: var(--co-blue-tint, var(--yellow)); color: var(--blue); } }
 .vid__play-icon {
   width: 60rem; height: 60rem; border-radius: 50%;
   border: var(--stroke) solid currentColor;
   display: flex; align-items: center; justify-content: center;
 }
-.vid__play-label { font-family: var(--font-display); font-size: 24rem; letter-spacing: 0.02em; }
+.vid__play-label { font-family: 'Lato', var(--font-ui), sans-serif; font-weight: 900; font-size: 20rem; letter-spacing: 0; }
 .vid__play-note { font-size: 12.5rem; color: var(--muted); max-width: 34ch; text-align: center; }
 .vid__play:hover .vid__play-note { color: inherit; }
 

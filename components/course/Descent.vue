@@ -139,7 +139,7 @@ function playWalkB() {
 </template>
 
 <style scoped>
-.ds { margin: clamp(24rem, 3.2vw, 36rem) 0; border: var(--stroke) solid var(--line); border-radius: var(--radius-l); padding: clamp(18rem, 2.4vw, 26rem); background: var(--paper); }
+.ds { margin: clamp(24rem, 3.2vw, 36rem) 0; border: none; border-radius: var(--radius-l); padding: clamp(18rem, 2.4vw, 26rem); background: var(--co-surface, var(--paper)); box-shadow: var(--co-shadow, none); }
 .ds__kicker { margin: 0 0 10rem; color: var(--muted); }
 .ds__prompt { margin: 0 0 16rem; font-size: clamp(17rem, 1.6vw, 19.5rem); font-weight: 700; line-height: 1.4; }
 

@@ -1,7 +1,7 @@
 import type { Module } from './types'
 
 export const M04: Module = {
-  id: 'm04', n: '04', accent: 'var(--muted)',
+  id: 'm04', n: '04', accent: 'var(--blue)',
   title: 'The winters',
   intro: 'Twice, this field collapsed. Funding stopped, companies died, and researchers removed the words "artificial intelligence" from their grant applications to get them funded. This is the shortest module of the day and, if you take one thing from it into your working life, probably the most useful.',
   objectives: [

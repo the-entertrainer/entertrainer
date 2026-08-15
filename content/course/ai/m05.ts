@@ -1,7 +1,7 @@
 import type { Module } from './types'
 
 export const M05: Module = {
-  id: 'm05', n: '05', accent: 'var(--green)',
+  id: 'm05', n: '05', accent: 'var(--blue)',
   title: 'Learning from data',
   intro: 'The idea that broke the deadlock: stop writing the rules, and let the machine find them in examples. This module covers what machine learning actually does, the three setups you will meet, and the two ways it lies to you — overfitting and a misleading benchmark.',
   objectives: [

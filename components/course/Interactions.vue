@@ -223,10 +223,11 @@ watchEffect(() => { if (text.value) store.reflect(props.blockKey, text.value) })
 /* Shared shell for every interaction in this file. */
 .tabs, .acc, .fc, .sort, .match, .sc, .rf {
   margin: clamp(20rem, 2.6vw, 30rem) 0;
-  border: var(--stroke) solid var(--line);
+  border: none;
   border-radius: var(--radius-l);
-  background: var(--paper);
+  background: var(--co-surface, var(--paper));
   overflow: hidden;
+  box-shadow: var(--co-shadow, none);
 }
 
 /* ── Tabs ── */
@@ -237,7 +238,7 @@ watchEffect(() => { if (text.value) store.reflect(props.blockKey, text.value) })
   border-right: var(--stroke) solid var(--line);
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
-.tabs__tab.is-on { background: var(--ink); color: var(--paper); }
+.tabs__tab.is-on { background: var(--blue); color: #fff; }
 @media (hover: hover) { .tabs__tab:not(.is-on):hover { background: var(--paper-3); color: var(--ink); } }
 .tabs__panel { padding: clamp(18rem, 2.4vw, 26rem); font-family: var(--font-reading); font-size: 16rem; line-height: 1.68; }
 
@@ -260,12 +261,12 @@ watchEffect(() => { if (text.value) store.reflect(props.blockKey, text.value) })
 .fc__card {
   display: flex; flex-direction: column; justify-content: space-between; gap: 12rem;
   width: 100%; min-height: 130rem; padding: 15rem; text-align: left;
-  border: var(--stroke) solid var(--ink); border-radius: var(--radius-m);
-  background: var(--paper-2); font-size: 14.5rem; line-height: 1.5;
+  border: none; border-radius: var(--radius-m);
+  background: var(--co-surface, var(--paper)); font-size: 14.5rem; line-height: 1.5;
+  box-shadow: var(--co-shadow, none);
   transition: background var(--dur-fast) var(--ease-out);
 }
 .fc__card.is-flipped { background: var(--yellow); color: var(--on-yellow); }
-@media (hover: hover) { .fc__card:hover { border-width: var(--stroke); } }
 .fc__turn { color: var(--muted); font-size: 10rem; }
 .fc__card.is-flipped .fc__turn { color: inherit; opacity: 0.7; }
 
@@ -283,7 +284,7 @@ watchEffect(() => { if (text.value) store.reflect(props.blockKey, text.value) })
   text-transform: uppercase; cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out);
 }
-.sort__bucket.is-on { background: var(--ink); color: var(--paper); }
+.sort__bucket.is-on { background: var(--blue); color: #fff; border-color: var(--blue); }
 .sort__bucket.is-right { background: var(--green); color: var(--on-green); border-width: var(--stroke); }
 .sort__bucket.is-wrong { background: var(--red); color: var(--on-red); }
 .sort__why { margin: 10rem 0 0; font-size: 13.5rem; line-height: 1.55; color: var(--muted); }
@@ -301,7 +302,7 @@ watchEffect(() => { if (text.value) store.reflect(props.blockKey, text.value) })
   transition: background var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) { .match__item:not(:disabled):hover { background: var(--paper-3); } }
-.match__item.is-sel { background: var(--yellow); color: var(--on-yellow); }
+.match__item.is-sel { background: var(--blue); color: #fff; border-color: var(--blue); }
 .match__item.is-done, .match__item.is-taken { opacity: 0.6; }
 .match__item.is-right { background: var(--green); color: var(--on-green); opacity: 1; border-width: var(--stroke); }
 .match__item.is-wrong { background: var(--red); color: var(--on-red); opacity: 1; }

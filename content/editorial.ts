@@ -107,15 +107,15 @@ export const ITEMS: EditorialItem[] = [
   },
   {
     id: 'ai-atlas',
-    title: 'Artificial Intelligence: From Its Origins to the Frontier',
-    dek: 'A full-day learning atlas for reading AI history, capabilities, limits, and frontier claims with evidence rather than hype.',
+    title: 'From No AI to Know AI',
+    dek: 'A guided journey from AI’s long history to modern prediction, models, capabilities, and responsible use.',
     category: 'projects',
     media: 'interactive',
     href: '/courses/ai-atlas',
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/zByMCffPaXYvFeor.jpg',
     alt: 'An editorial illustration mapping the history of artificial intelligence',
-    stamp: 'Full-day interactive course',
-    minutes: 420,
+    stamp: 'Interactive course',
+    minutes: 95,
     size: 'wide'
   },
   {

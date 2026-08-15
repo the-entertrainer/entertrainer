@@ -1,192 +1,350 @@
 <script setup lang="ts">
 /**
- * Screenshot-grounded Rise 360 reference:
- * Match the supplied mobile course: white reading canvas, a single blue
- * accent, image-led course start, blue lesson headers, large black rounded
- * headings, generous text spacing, and a vertical completion-circle menu.
+ * Design reminder — Rise-style, content-led AI course.
+ * The course is a reading canvas first. Use prose, diagrams, media, and
+ * interactions only when each serves a stated learning purpose.
  */
-import { AI_GLOSSARY, AI_MODULES, type AiModule } from '~/content/aiCourse'
+import { AI_MODULES, type AiModule } from '~/content/aiCourse'
 
-type Screen = { id: string; kind: 'welcome' | 'objectives' | 'module' | 'capstone'; title: string; module?: AiModule }
+type ScreenId = 'objectives' | 'quiz' | 'summary' | string
+type QuizQuestion = { prompt: string; options: string[]; correct: number; explanation: string }
+type PredictionStep = { context: string; options: string[]; correct: number; explanation: string }
 
-const STORAGE_KEY = 'entertrainer-ai-atlas-v5'
-const screens: Screen[] = [
-  { id: 'welcome', kind: 'welcome', title: 'Course overview' },
-  { id: 'objectives', kind: 'objectives', title: 'Objectives' },
-  ...AI_MODULES.map(module => ({ id: module.id, kind: 'module' as const, title: module.title, module })),
-  { id: 'capstone', kind: 'capstone', title: 'Summary and action plan' }
-]
-
-const lessonBody: Record<string, string[]> = {
-  bearing: ['Artificial intelligence is a broad term for systems that perform tasks commonly associated with human judgement, such as recognising patterns, making predictions, or generating text.', 'AI is most useful when it supports a clear task. Before you use a tool, identify the task, the information it needs, and the result you will check.'],
-  rules: ['Some AI systems follow instructions written by people. Others learn a pattern from many examples. Both approaches can be useful.', 'Use written rules when the condition is clear. Use examples when the pattern is harder to describe but the outcome can still be checked.'],
-  data: ['AI systems learn from examples. The examples may include text, images, numbers, audio, or records of past decisions.', 'The quality of those examples affects the quality of the result. Missing, biased, or outdated examples can lead to poor decisions.'],
-  attention: ['Modern language tools consider the relationship between words in a prompt. This helps them decide which parts of the context are most relevant.', 'The result is generated one part at a time. Review the output before using it for important work.'],
-  generation: ['Generative AI can create a draft, summary, image, translation, or list of ideas from a prompt.', 'Treat the output as a starting point. Check facts, names, numbers, policies, and sources before you share it.'],
-  agents: ['An AI agent can follow a sequence of steps using approved tools. For example, it may find information, organise it, and prepare a draft.', 'The task, tools, limits, and review process should be clear before an agent is allowed to act.'],
-  embodied: ['Some AI systems act in the physical world through devices, robots, vehicles, or medical equipment.', 'Physical actions need stronger testing and supervision because an incorrect result can affect people, places, or safety.'],
-  frontier: ['New AI announcements can be useful, but they should be checked carefully. A claim is not established just because it is repeated online.', 'Look for public evidence, independent testing, and clear limits before you describe a major claim as a fact.'],
-  responsible: ['Responsible AI use begins before you enter a prompt. Consider privacy, fairness, accuracy, and who remains accountable for the decision.', 'Do not enter confidential information into an unapproved tool. Keep a person responsible for reviewing important work.'],
-  next: ['Start with a low-risk task where you can review the result easily. This helps you learn what the tool can and cannot do.', 'Keep the same routine: define the task, protect information, check the result, and make the final decision yourself.']
-}
-
-const termCards = [
-  { term: 'Training', plain: 'The stage where a system improves from examples.' },
-  { term: 'Inference', plain: 'The stage where a trained system responds to new input.' },
-  { term: 'Dataset', plain: 'A collection of examples used to train, test, or check a system.' }
-]
-
-definePageMeta({ layout: false, pageTransition: { name: 'rise-fade', mode: 'out-in' } })
-useHead({
-  link: [
-    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-    { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
-    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap' }
-  ]
-})
-useSeoMeta({ title: 'Artificial Intelligence: From Its Origins to the Frontier · Entertrainer', description: 'An introductory course on artificial intelligence, evidence, and responsible use.' })
-
-const current = ref(0)
-const furthest = ref(0)
+const STORAGE_KEY = 'entertrainer-ai-course-v8'
+const current = ref(-1)
 const menuOpen = ref(false)
-const resourcesOpen = ref(false)
-const completed = ref(false)
-const openExplore = ref(false)
-const activeTab = ref<'rules' | 'examples'>('rules')
-const revealedTerms = ref<string[]>([])
-const diagnostic = ref('')
-const learningCheck = ref('')
-const scenarioChoice = ref('')
-const reflection = reactive({ use: '', check: '', review: '' })
+const openDetails = ref<string | null>(null)
+const visited = ref<string[]>([])
+const predictionStep = ref(0)
+const predictionChoice = ref<number | null>(null)
+const predictionSubmitted = ref(false)
+const quizIndex = ref(0)
+const quizChoice = ref<number | null>(null)
+const quizSubmitted = ref(false)
+const quizAnswers = ref<number[]>([])
+const plan = reactive({ task: '', check: '', reviewer: '' })
+const courseCompleted = ref(false)
 
-const active = computed(() => screens[current.value])
-const module = computed(() => active.value.module)
-const progress = computed(() => Math.round((furthest.value / (screens.length - 1)) * 100))
-const capstoneReady = computed(() => reflection.use.trim().length > 7 && reflection.check.trim().length > 7 && reflection.review.trim().length > 7)
-const diagnosticFeedback = computed(() => !diagnostic.value ? '' : diagnostic.value === 'patterns' ? 'Correct. Check important information before you use the response.' : 'Try again. A confident answer can still be incorrect.')
-const learningFeedback = computed(() => !learningCheck.value ? '' : learningCheck.value === 'training' ? 'Correct. Training is the stage where a system improves from examples.' : 'Try again. This describes using a system after it has been trained.')
-const scenarioFeedback = computed(() => !scenarioChoice.value ? '' : scenarioChoice.value === 'check' ? 'Correct. Find official evidence or independent testing before sharing the claim.' : 'Try again. A post alone does not prove a major claim.')
+const predictionSteps: PredictionStep[] = [
+  {
+    context: 'Heavy rain has flooded the',
+    options: ['tracks', 'invoice', 'ladder'],
+    correct: 0,
+    explanation: 'Tracks is the strongest continuation because the surrounding words describe flooding and travel. The model has not observed the event; it has estimated which token best fits this context.'
+  },
+  {
+    context: 'Heavy rain has flooded the tracks, so the next train will be',
+    options: ['delayed', 'celebrated', 'invisible'],
+    correct: 0,
+    explanation: 'Delayed fits the growing sentence. The earlier tokens, including “flooded the tracks”, remain in context and make a service disruption more likely than the alternatives.'
+  },
+  {
+    context: 'Heavy rain has flooded the tracks, so the next train will be delayed. Passengers need to know when it may',
+    options: ['resume', 'juggle', 'shrink'],
+    correct: 0,
+    explanation: 'Resume makes the service update coherent. A language model repeats this next-token process to extend a response. A fluent result can emerge from many small estimates, which is why fluency still needs verification.'
+  }
+]
+
+const quizQuestions: QuizQuestion[] = [
+  {
+    prompt: 'Which statement best corrects the belief that AI began with ChatGPT?',
+    options: ['AI became a field only when chat tools became popular', 'AI research on reasoning, learning, language, and problem solving has developed over many decades', 'Modern chat tools do not use any earlier research'],
+    correct: 1,
+    explanation: 'Modern chat tools are a recent public chapter in a much longer history of AI research, including the 1950 Turing paper and the 1956 Dartmouth project.'
+  },
+  {
+    prompt: 'Which question helps define an AI system in practical terms?',
+    options: ['Does the system sound intelligent?', 'What task does it support, what information does it use, and how will the output be checked?', 'Can it produce a long answer?'],
+    correct: 1,
+    explanation: 'Task, information, pattern, and checking method provide a practical way to understand an AI use case.'
+  },
+  {
+    prompt: 'Which statement describes training from examples?',
+    options: ['Using a trained model on a new request', 'Adjusting a model with examples so it can learn a useful pattern', 'Checking an AI output against a source'],
+    correct: 1,
+    explanation: 'Training is the stage where a model learns patterns from examples. Inference is using that trained model on a new input.'
+  },
+  {
+    prompt: 'Why can a language model give a different continuation in two similar sentences?',
+    options: ['The surrounding context changes which next token is most likely', 'The model retrieves one fixed answer from a database', 'The model can only process one word at a time without context'],
+    correct: 0,
+    explanation: 'Language models use patterns in the surrounding context when they estimate a likely next token.'
+  },
+  {
+    prompt: 'Which statement best describes the modern AI landscape?',
+    options: ['A chatbot is the only important type of AI', 'Different AI systems work with different inputs and outputs, including prediction, vision, language, multimodal, and tool-using systems', 'Every famous model is suitable for every task'],
+    correct: 1,
+    explanation: 'Modern AI includes several task-specific families. The right question is which kind of system fits the particular task and how its output will be checked.'
+  },
+  {
+    prompt: 'Which is the strongest low-risk starting point for an AI use case?',
+    options: ['Making a final eligibility decision about a person', 'Drafting a meeting outline from non-sensitive notes, then reviewing it', 'Sending a confidential file to a public tool without controls'],
+    correct: 1,
+    explanation: 'A bounded task with safe inputs, a clear review step, and human accountability is a sensible starting point.'
+  }
+]
+
+const currentModule = computed<AiModule | undefined>(() => current.value >= 1 && current.value <= AI_MODULES.length ? AI_MODULES[current.value - 1] : undefined)
+const currentId = computed<ScreenId>(() => {
+  if (current.value === 0) return 'objectives'
+  if (current.value >= 1 && current.value <= AI_MODULES.length) return AI_MODULES[current.value - 1].id
+  if (current.value === AI_MODULES.length + 1) return 'quiz'
+  return 'summary'
+})
+const progress = computed(() => Math.round((visited.value.length / (AI_MODULES.length + 3)) * 100))
+const quizQuestion = computed(() => quizQuestions[quizIndex.value])
+const quizScore = computed(() => quizAnswers.value.filter((answer, index) => answer === quizQuestions[index]?.correct).length)
+const planReady = computed(() => plan.task.trim().length > 10 && plan.check.trim().length > 10 && plan.reviewer.trim().length > 10)
 
 function persist() {
-  if (import.meta.client) localStorage.setItem(STORAGE_KEY, JSON.stringify({ current: current.value, furthest: furthest.value, completed: completed.value }))
+  if (!import.meta.client) return
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ current: current.value, visited: visited.value, quizAnswers: quizAnswers.value, completed: courseCompleted.value }))
+}
+function markVisited(id: string) {
+  if (!visited.value.includes(id)) visited.value = [...visited.value, id]
 }
 function go(index: number) {
-  if (index < 0 || index >= screens.length) return
   current.value = index
-  furthest.value = Math.max(furthest.value, index)
-  openExplore.value = false
+  if (index >= 0) markVisited(currentId.value)
   menuOpen.value = false
+  openDetails.value = null
   persist()
 }
-function next() { go(Math.min(current.value + 1, screens.length - 1)) }
-function previous() { go(Math.max(0, current.value - 1)) }
-function revealTerm(term: string) { revealedTerms.value = revealedTerms.value.includes(term) ? revealedTerms.value.filter(item => item !== term) : [...revealedTerms.value, term] }
-function finish() { if (capstoneReady.value) { completed.value = true; furthest.value = screens.length - 1; persist() } }
-function restart() { current.value = 0; furthest.value = 0; completed.value = false; openExplore.value = false; revealedTerms.value = []; diagnostic.value = ''; learningCheck.value = ''; scenarioChoice.value = ''; reflection.use = ''; reflection.check = ''; reflection.review = ''; persist() }
-
+function startCourse() { go(0) }
+function next() { if (current.value < AI_MODULES.length + 2) go(current.value + 1) }
+function previous() { if (current.value > -1) go(current.value - 1) }
+function completeCurrent() { markVisited(currentId.value); next() }
+function submitQuiz() {
+  if (quizChoice.value === null) return
+  quizSubmitted.value = true
+}
+function submitPrediction() {
+  if (predictionChoice.value === null) return
+  predictionSubmitted.value = true
+}
+function nextPredictionStep() {
+  if (!predictionSubmitted.value) return
+  if (predictionStep.value < predictionSteps.length - 1) {
+    predictionStep.value += 1
+    predictionChoice.value = null
+    predictionSubmitted.value = false
+  }
+}
+function nextQuizQuestion() {
+  if (!quizSubmitted.value || quizChoice.value === null) return
+  quizAnswers.value = [...quizAnswers.value, quizChoice.value]
+  if (quizIndex.value < quizQuestions.length - 1) {
+    quizIndex.value += 1
+    quizChoice.value = null
+    quizSubmitted.value = false
+  } else {
+    markVisited('quiz')
+    go(AI_MODULES.length + 2)
+  }
+  persist()
+}
+function finishCourse() {
+  if (!planReady.value) return
+  courseCompleted.value = true
+  markVisited('summary')
+  persist()
+}
+function resetCourse() {
+  current.value = -1
+  visited.value = []
+  predictionStep.value = 0
+  predictionChoice.value = null
+  predictionSubmitted.value = false
+  quizIndex.value = 0
+  quizChoice.value = null
+  quizSubmitted.value = false
+  quizAnswers.value = []
+  plan.task = ''; plan.check = ''; plan.reviewer = ''
+  courseCompleted.value = false
+  persist()
+}
+function isComplete(id: string) { return visited.value.includes(id) }
+function headerLabel() {
+  if (current.value === 0) return 'Course introduction'
+  if (currentModule.value) return `Lesson ${currentModule.value.number} of ${AI_MODULES.length}`
+  if (currentId.value === 'quiz') return 'Knowledge check'
+  return 'Course summary'
+}
+function headerTitle() {
+  if (current.value === 0) return 'Objectives'
+  if (currentModule.value) return currentModule.value.title
+  if (currentId.value === 'quiz') return 'Knowledge check'
+  return 'Wrap-up'
+}
 onMounted(() => {
   const saved = localStorage.getItem(STORAGE_KEY)
   if (!saved) return
   try {
     const state = JSON.parse(saved)
-    current.value = Math.min(Math.max(0, Number(state.current) || 0), screens.length - 1)
-    furthest.value = Math.min(Math.max(current.value, Number(state.furthest) || 0), screens.length - 1)
-    completed.value = Boolean(state.completed)
+    current.value = typeof state.current === 'number' ? Math.min(state.current, AI_MODULES.length + 2) : -1
+    visited.value = Array.isArray(state.visited) ? state.visited : []
+    quizAnswers.value = Array.isArray(state.quizAnswers) ? state.quizAnswers : []
+    courseCompleted.value = Boolean(state.completed)
   } catch { localStorage.removeItem(STORAGE_KEY) }
 })
 </script>
 
 <template>
-  <div class="reference-page">
-    <div class="reference-course">
-      <header class="reference-appbar">
-        <div class="reference-mark" aria-hidden="true">e</div>
-        <div class="reference-appbar__name">Artificial Intelligence: From Its Origins to the Frontier</div>
-        <button type="button" class="reference-version">Current version <span>⌄</span></button>
-      </header>
-      <nav class="reference-nav" aria-label="Course navigation">
-        <button type="button" @click="menuOpen = !menuOpen"><span class="reference-menu-icon" aria-hidden="true"></span> Course outline</button>
-        <button type="button" class="reference-more" aria-label="More course actions">•••</button>
-        <button type="button" class="reference-resources" @click="resourcesOpen = !resourcesOpen">Resources</button>
-      </nav>
-      <div class="reference-progress" aria-label="Course progress"><span :style="{ width: `${progress}%` }"></span></div>
+  <div class="rise-canvas">
+    <aside class="rise-sidebar" :class="{ open: menuOpen }" aria-label="Course outline">
+      <button type="button" class="rise-sidebar__hero" @click="go(-1)">
+        <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/zByMCffPaXYvFeor.jpg" alt="Illustrated journey through the history of artificial intelligence" />
+        <span>From No AI<br />to Know AI</span>
+      </button>
+      <button type="button" class="rise-sidebar__home" @click="go(-1)">Entertrainer AI course</button>
+      <div class="rise-sidebar__progress"><span>{{ progress }}% complete</span><i><b :style="{ width: `${progress}%` }"></b></i></div>
+      <ol class="rise-sidebar__list">
+        <li><button type="button" :class="{ active: current === 0 }" @click="go(0)"><i class="rise-glyph"></i><span>Objectives</span><b :class="{ complete: isComplete('objectives') }">{{ isComplete('objectives') ? '✓' : '' }}</b></button></li>
+        <li v-for="(item, index) in AI_MODULES" :key="item.id"><button type="button" :class="{ active: current === index + 1 }" @click="go(index + 1)"><i class="rise-glyph"></i><span>{{ item.short }}</span><b :class="{ complete: isComplete(item.id) }">{{ isComplete(item.id) ? '✓' : '' }}</b></button></li>
+        <li><button type="button" :class="{ active: currentId === 'quiz' }" @click="go(AI_MODULES.length + 1)"><i class="rise-glyph quiz"></i><span>Knowledge check</span><b :class="{ complete: isComplete('quiz') }">{{ isComplete('quiz') ? '✓' : '' }}</b></button></li>
+        <li><button type="button" :class="{ active: currentId === 'summary' }" @click="go(AI_MODULES.length + 2)"><i class="rise-glyph"></i><span>Summary</span><b :class="{ complete: isComplete('summary') }">{{ isComplete('summary') ? '✓' : '' }}</b></button></li>
+      </ol>
+      <button type="button" class="rise-sidebar__close" @click="menuOpen = false">Close course menu</button>
+    </aside>
 
-      <main class="reference-main" id="main">
-        <Transition name="rise-fade" mode="out-in">
-          <section :key="active.id" class="reference-screen">
-            <template v-if="active.kind === 'welcome'">
-              <article class="course-start">
-                <div class="course-start__hero"><img :src="'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/zByMCffPaXYvFeor.jpg'" alt="Illustrated map tracing the development of artificial intelligence." /><div class="course-start__shade"></div><h1>Artificial Intelligence<br />from Origins to the Frontier</h1><button type="button" @click="next">Start course</button></div>
-                <div class="course-start__details"><div class="course-start__wordmark">Entertrainer</div><p><b>Duration: 2 hours</b></p><p>This course introduces the foundations of artificial intelligence, current AI tools, and practical steps for responsible use. It is designed for learners with no technical background.</p><ol class="course-outline"><li v-for="(screen, index) in screens.slice(1)" :key="screen.id"><button type="button" @click="go(index + 1)"><i :class="{ quiz: screen.kind === 'capstone' }" aria-hidden="true"></i><span>{{ screen.kind === 'module' ? screen.module?.short : screen.title }}</span><b :class="{ complete: index + 1 <= furthest }">{{ index + 1 <= furthest ? '✓' : '' }}</b></button></li></ol></div>
-              </article>
-            </template>
+    <main class="rise-main">
+      <Transition name="rise-fade" mode="out-in">
+        <section v-if="current === -1" key="overview" class="rise-screen rise-overview">
+          <div class="rise-overview__hero">
+            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/zByMCffPaXYvFeor.jpg" alt="An illustrated map showing the development of artificial intelligence" />
+            <div class="rise-overview__shade"></div>
+            <h1>From No AI<br />to Know AI</h1>
+            <button type="button" @click="startCourse">Start course</button>
+          </div>
+          <div class="rise-overview__body">
+            <h2 class="rise-wordmark">Entertrainer</h2>
+            <p class="rise-duration"><strong>Duration:</strong> Approximately 95 minutes</p>
+            <p>Artificial intelligence did not begin with ChatGPT. This course traces the long path from early questions about machine intelligence to the prediction systems, language models, and multimodal tools used today.</p>
+            <p>Read each lesson in sequence. The course begins with history, then explains learning and prediction, maps the modern AI landscape, and ends with a practical way to use capability with judgement.</p>
+            <ol class="rise-overview__outline">
+              <li><button type="button" @click="go(0)"><i></i><span>Objectives</span><b :class="{ complete: isComplete('objectives') }">{{ isComplete('objectives') ? '✓' : '' }}</b></button></li>
+              <li v-for="(item, index) in AI_MODULES" :key="item.id"><button type="button" @click="go(index + 1)"><i></i><span>{{ item.short }}</span><b :class="{ complete: isComplete(item.id) }">{{ isComplete(item.id) ? '✓' : '' }}</b></button></li>
+              <li><button type="button" @click="go(AI_MODULES.length + 1)"><i class="quiz"></i><span>Knowledge check</span><b :class="{ complete: isComplete('quiz') }">{{ isComplete('quiz') ? '✓' : '' }}</b></button></li>
+              <li><button type="button" @click="go(AI_MODULES.length + 2)"><i></i><span>Summary</span><b :class="{ complete: isComplete('summary') }">{{ isComplete('summary') ? '✓' : '' }}</b></button></li>
+            </ol>
+          </div>
+        </section>
 
-            <template v-else-if="active.kind === 'objectives'">
-              <article class="reading-page objectives-page"><div class="page-controls"><button type="button" aria-label="Open course outline" @click="menuOpen = true"><span class="reference-menu-icon" aria-hidden="true"></span></button><button type="button" aria-label="Return to course overview" @click="previous">←</button></div><h1>Objectives</h1><p class="objectives-lead">By the End of this module, you will be able to:</p><ul><li>Explain the major stages in AI development.</li><li>Distinguish common AI approaches and capabilities.</li><li>Check AI claims using evidence and limitations.</li><li>Apply simple steps for responsible AI use.</li></ul><h2>What is artificial intelligence?</h2><p>Artificial intelligence is a broad term for systems that identify patterns, make predictions, or generate content from information. The next lessons introduce these ideas in clear, practical terms.</p><div class="page-continue"><button type="button" class="text-link" @click="next">Continue to the first lesson</button></div></article>
-            </template>
+        <section v-else :key="currentId" class="rise-screen">
+          <header class="rise-header">
+            <div><button type="button" aria-label="Open course menu" @click="menuOpen = true"><i class="rise-menu-icon"></i></button><b>{{ headerLabel() }}</b></div>
+            <h1>{{ headerTitle() }}</h1>
+            <i></i>
+          </header>
 
-            <template v-else-if="active.kind === 'module' && module">
-              <article class="lesson-page">
-                <header class="lesson-banner"><div class="lesson-banner__controls"><button type="button" aria-label="Open course outline" @click="menuOpen = true"><span class="reference-menu-icon" aria-hidden="true"></span></button><b>Lesson {{ module.number }} of {{ AI_MODULES.length }}</b></div><h1>{{ module.title }}</h1><i></i></header>
-                <div class="reading-page lesson-reading"><p v-for="paragraph in lessonBody[module.id]" :key="paragraph">{{ paragraph }}</p>
-                  <section class="reading-highlight"><b>Key point</b><p>{{ module.takeaway }}</p></section>
-                  <section v-if="module.visual === 'history' || module.visual === 'agents'" class="reading-media"><img v-if="module.visual === 'history'" :src="'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/lMkColbiQZRDDmAi.jpg'" alt="Visual timeline of AI development." /><img v-else :src="'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/MivTADgxAPaQaRCw.jpg'" alt="Visual map of AI agents and human review." /><p>{{ module.visual === 'history' ? 'AI moved from written rules to learning patterns from examples.' : 'A controlled agent uses approved tools and remains subject to human review.' }}</p></section>
-                  <section class="reading-accordion"><button type="button" :aria-expanded="openExplore" @click="openExplore = !openExplore"><span>Additional information</span><b>{{ openExplore ? '−' : '+' }}</b></button><div v-if="openExplore"><h3>{{ module.exploreTitle }}</h3><p>{{ module.exploreText }}</p></div></section>
-                  <section v-if="module.id === 'rules'" class="reading-interaction"><h3>Compare the two approaches</h3><div class="reading-tabs" role="tablist"><button type="button" :class="{ active: activeTab === 'rules' }" @click="activeTab = 'rules'">Written rules</button><button type="button" :class="{ active: activeTab === 'examples' }" @click="activeTab = 'examples'">Past examples</button></div><div><template v-if="activeTab === 'rules'"><p><b>Written rules</b></p><p>A person defines the instructions. Use this approach when the rule is clear.</p></template><template v-else><p><b>Past examples</b></p><p>The system learns a pattern from examples. Use this approach when results can be checked.</p></template></div></section>
-                  <section v-if="module.id === 'data'" class="reading-interaction"><h3>Key terms</h3><p>Select a card to view the definition.</p><div class="term-grid"><button v-for="card in termCards" :key="card.term" type="button" :class="{ revealed: revealedTerms.includes(card.term) }" @click="revealTerm(card.term)"><b>{{ card.term }}</b><span>{{ revealedTerms.includes(card.term) ? card.plain : 'Select to view' }}</span></button></div></section>
-                  <section v-if="module.id === 'attention' || module.id === 'agents'" class="reading-interaction"><h3>{{ module.id === 'attention' ? 'How a response is created' : 'Elements of a controlled workflow' }}</h3><ol class="process-list"><template v-if="module.id === 'attention'"><li>You give a prompt.</li><li>The model weighs the context.</li><li>It creates a likely response.</li><li>You review the output.</li></template><template v-else><li>Define the task.</li><li>Choose approved tools.</li><li>Set clear limits.</li><li>Review the output.</li></template></ol></section>
-                  <section v-if="module.id === 'bearing'" class="reading-interaction"><h3>Knowledge check</h3><p>What should you do with an important AI answer?</p><div class="answer-options"><button type="button" :class="{ selected: diagnostic === 'patterns' }" @click="diagnostic = 'patterns'"><i>A</i><span>Check it with a reliable source.</span></button><button type="button" :class="{ selected: diagnostic === 'trust' }" @click="diagnostic = 'trust'"><i>B</i><span>Trust it because it sounds confident.</span></button></div><aside v-if="diagnosticFeedback" :class="{ correct: diagnostic === 'patterns' }">{{ diagnosticFeedback }}</aside></section>
-                  <section v-if="module.id === 'data'" class="reading-interaction"><h3>Knowledge check</h3><p>Which describes training?</p><div class="answer-options stack"><button type="button" :class="{ selected: learningCheck === 'inference' }" @click="learningCheck = 'inference'"><i>A</i><span>Using a trained tool on a new prompt.</span></button><button type="button" :class="{ selected: learningCheck === 'training' }" @click="learningCheck = 'training'"><i>B</i><span>Improving a system with examples and feedback.</span></button></div><aside v-if="learningFeedback" :class="{ correct: learningCheck === 'training' }">{{ learningFeedback }}</aside></section>
-                  <section v-if="module.id === 'frontier'" class="reading-interaction"><h3>Scenario</h3><p>A post makes a dramatic AI claim. Select the most appropriate response.</p><div class="answer-options stack"><button type="button" :class="{ selected: scenarioChoice === 'check' }" @click="scenarioChoice = 'check'"><i>A</i><span>Look for official evidence or independent testing.</span></button><button type="button" :class="{ selected: scenarioChoice === 'share' }" @click="scenarioChoice = 'share'"><i>B</i><span>Share it immediately.</span></button></div><aside v-if="scenarioFeedback" :class="{ correct: scenarioChoice === 'check' }">{{ scenarioFeedback }}</aside></section>
-                  <section v-if="module.id === 'responsible'" class="reading-interaction"><h3>Before you use AI</h3><ul class="checklist"><li>Private information is protected.</li><li>Important outputs will be checked.</li><li>A person remains accountable.</li></ul></section>
-                  <section v-if="module.video" class="video-link"><b>Optional video</b><span>{{ module.video.title }}</span><a :href="module.video.url" target="_blank" rel="noreferrer">Watch video</a></section>
-                  <section class="reading-source"><span>Source</span><a :href="module.sourceUrl" target="_blank" rel="noreferrer">{{ module.sourceLabel }}</a></section>
-                  <div class="page-continue"><button type="button" class="text-link" @click="next">{{ current < screens.length - 2 ? 'Continue to the next lesson' : 'Continue to the action plan' }}</button></div>
-                </div>
-              </article>
-            </template>
+          <article v-if="current === 0" class="rise-reading">
+            <p>Before you begin, use these objectives to organise the story of the course. Each lesson develops one idea needed for the next: history, task, learning, prediction, modern capability, and judgement.</p>
+            <h2>By the End of this module, you will be able to:</h2>
+            <p class="rise-lead">Explain where modern AI came from, how it learns and predicts, what different AI systems can do, and how to use those capabilities with judgement.</p>
+            <ul>
+              <li>Correct the misconception that AI began with modern chat tools by describing its long research history.</li>
+              <li>Explain how examples, context, and next-token prediction produce useful AI outputs.</li>
+              <li>Recognise major AI types and match their capabilities, limits, and safeguards to a real task.</li>
+            </ul>
+            <h2>How the course is organised</h2>
+            <p>The first three lessons answer where AI came from, what it is, and how a model learns a pattern. The central lesson then makes next-token prediction visible. The final lessons map modern AI types, explain what famous models can and cannot demonstrate, and turn the story into a practical use routine.</p>
+            <section class="rise-info"><i aria-hidden="true">i</i><div><b>Reading first</b><p>Complete the explanations and worked examples before opening the small activities. Each activity is designed to make one idea visible, not to replace the lesson.</p></div></section>
+            <button type="button" class="rise-next-link" @click="completeCurrent">Continue to Lesson 1</button>
+          </article>
 
-            <template v-else>
-              <article class="reading-page capstone-page"><div class="page-controls"><button type="button" aria-label="Open course outline" @click="menuOpen = true"><span class="reference-menu-icon" aria-hidden="true"></span></button><button type="button" aria-label="Return to previous lesson" @click="previous">←</button></div><h1>Summary and action plan</h1><p>Use this final activity to plan one responsible use of AI in your own work or learning.</p><form @submit.prevent="finish"><label><b>1. Choose a low-risk task.</b><span>Select a task that you can review easily.</span><textarea v-model="reflection.use" rows="3" placeholder="For example: Draft a training outline."></textarea></label><label><b>2. State what you will check.</b><span>Consider facts, policies, or sources.</span><textarea v-model="reflection.check" rows="3" placeholder="For example: Check every source."></textarea></label><label><b>3. Name the review step.</b><span>State who confirms the final result.</span><textarea v-model="reflection.review" rows="3" placeholder="For example: A subject expert reviews it."></textarea></label><button type="submit" class="complete-course" :disabled="!capstoneReady">{{ completed ? 'Course completed' : 'Complete course' }}</button></form><aside v-if="completed" class="completion-note"><b>Course completed</b><p>Your action plan has been recorded in this browser.</p><button type="button" class="text-link" @click="restart">Restart course</button></aside></article>
-            </template>
-          </section>
-        </Transition>
-      </main>
-      <footer class="reference-footer"><button type="button" :disabled="current === 0" @click="previous">Previous</button><span>{{ current + 1 }} of {{ screens.length }}</span><button type="button" :disabled="current === screens.length - 1" @click="next">Next</button></footer>
+          <article v-else-if="currentModule" class="rise-reading">
+            <p v-for="paragraph in currentModule.introduction" :key="paragraph">{{ paragraph }}</p>
+            <section class="rise-info"><i aria-hidden="true">i</i><div><b>Learning objective</b><p>{{ currentModule.objective }}</p></div></section>
 
-      <aside v-if="menuOpen" class="outline-drawer" aria-label="Course outline" role="dialog" aria-modal="true"><header><button type="button" aria-label="Close course outline" @click="menuOpen = false">×</button><h2>Course outline</h2></header><p><b>Duration: 2 hours</b></p><ol><li v-for="(screen, index) in screens.slice(1)" :key="screen.id"><button type="button" @click="go(index + 1)"><i :class="{ quiz: screen.kind === 'capstone' }" aria-hidden="true"></i><span>{{ screen.kind === 'module' ? screen.module?.short : screen.title }}</span><b :class="{ complete: index + 1 <= furthest }">{{ index + 1 <= furthest ? '✓' : '' }}</b></button></li></ol></aside>
-      <aside v-if="resourcesOpen" class="resources-drawer" aria-label="Course resources" role="dialog" aria-modal="true"><header><h2>Resources</h2><button type="button" aria-label="Close resources" @click="resourcesOpen = false">×</button></header><dl><div v-for="item in AI_GLOSSARY" :key="item[0]"><dt>{{ item[0] }}</dt><dd>{{ item[1] }}</dd></div></dl><a href="/docs/ai-course-research.md">View source register</a></aside>
-    </div>
+            <section v-for="section in currentModule.sections" :key="section.heading" class="rise-text-section">
+              <h2>{{ section.heading }}</h2>
+              <p v-for="paragraph in section.paragraphs" :key="paragraph">{{ paragraph }}</p>
+            </section>
+
+            <section class="rise-diagram" :class="`rise-diagram--${currentModule.diagram}`">
+              <template v-if="currentModule.diagram === 'timeline'"><span>Questions</span><i>→</i><span>Rules</span><i>→</i><span>Learning</span><i>→</i><span>Transformers</span><i>→</i><span>Modern AI</span></template>
+              <template v-else-if="currentModule.diagram === 'task'"><span>Task</span><i>→</i><span>Information</span><i>→</i><span>Output</span><i>→</i><span>Check</span></template>
+              <template v-else-if="currentModule.diagram === 'learning'"><span>Labelled examples</span><i>→</i><span>Training</span><i>→</i><span>New request</span><i>→</i><span>Output</span></template>
+              <template v-else-if="currentModule.diagram === 'prediction'"><span>Prompt and context</span><i>→</i><span>Relevant patterns</span><i>→</i><span>Likely next token</span></template>
+              <template v-else-if="currentModule.diagram === 'landscape'"><span>Prediction</span><i>·</i><span>Vision</span><i>·</i><span>Language</span><i>·</i><span>Multimodal</span><i>·</i><span>Tools</span></template>
+              <template v-else-if="currentModule.diagram === 'capabilities'"><span>Input</span><i>→</i><span>Model</span><i>→</i><span>Candidate output</span><i>→</i><span>Evaluation</span></template>
+              <template v-else><span>Bounded task</span><i>→</i><span>Protect information</span><i>→</i><span>Check output</span><i>→</i><span>Accountable person</span></template>
+            </section>
+
+            <section class="rise-worked-example">
+              <h2>{{ currentModule.exampleTitle }}</h2>
+              <p v-for="paragraph in currentModule.example" :key="paragraph">{{ paragraph }}</p>
+            </section>
+
+            <section v-if="currentModule.visual === 'history'" class="rise-media"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/UrwXNXgLQEdronNQ.jpg" alt="Editorial visual timeline from early artificial intelligence research to modern AI systems" /><p>Use this timeline as a reading aid. It does not list every breakthrough; it shows how modern AI rests on a long sequence of questions, methods, data, computing, and model design.</p></section>
+            <section v-if="currentModule.visual === 'models'" class="rise-media"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/htTSgHWeiwDLlMXR.jpg" alt="Editorial visual showing different types of modern AI systems and their inputs" /><p>This visual groups modern AI by the kind of information it works with and the kind of output it can create. It reinforces the distinction explained in the lesson text.</p></section>
+
+            <section v-if="currentModule.video" class="rise-video"><h2>{{ currentModule.video.title }}</h2><p><strong>Viewing question:</strong> {{ currentModule.video.question }}</p><div class="rise-video__frame"><iframe :src="currentModule.video.url" :title="currentModule.video.title" loading="lazy" allowfullscreen></iframe></div></section>
+
+            <section v-if="currentModule.activity === 'predictionLab'" class="rise-prediction-lab">
+              <p class="rise-prediction-lab__eyebrow">Prediction lab · {{ predictionStep + 1 }} of {{ predictionSteps.length }}</p>
+              <h2>Watch a response take shape</h2>
+              <p>You have read how context changes a next-token estimate. Now build one short service update across three predictions. Choose the continuation that best fits the text, then observe how that predicted token becomes part of the next context.</p>
+              <blockquote>{{ predictionSteps[predictionStep].context }} <b>…</b></blockquote>
+              <div class="rise-choice-column">
+                <button v-for="(option, index) in predictionSteps[predictionStep].options" :key="option" type="button" :class="{ selected: predictionChoice === index }" :disabled="predictionSubmitted" @click="predictionChoice = index">{{ option }}</button>
+              </div>
+              <button v-if="!predictionSubmitted" type="button" class="rise-submit" :disabled="predictionChoice === null" @click="submitPrediction">Submit prediction</button>
+              <template v-else>
+                <p class="rise-activity__feedback" :class="{ correct: predictionChoice === predictionSteps[predictionStep].correct }"><strong>{{ predictionChoice === predictionSteps[predictionStep].correct ? 'A useful estimate.' : 'Compare the context again.' }}</strong> {{ predictionSteps[predictionStep].explanation }}</p>
+                <div class="rise-prediction-lab__output"><span>Growing generated text</span><p>{{ predictionSteps[predictionStep].context }} <b>{{ predictionSteps[predictionStep].options[predictionSteps[predictionStep].correct] }}</b></p></div>
+              </template>
+              <button v-if="predictionSubmitted && predictionStep < predictionSteps.length - 1" type="button" class="rise-next-link" @click="nextPredictionStep">Continue the prediction</button>
+              <p v-if="predictionSubmitted && predictionStep === predictionSteps.length - 1" class="rise-prediction-lab__conclusion">You have now seen the core mechanism: a language-model response is built through many small, context-sensitive estimates. That is powerful, but it does not make the result automatically true.</p>
+            </section>
+
+            <section class="rise-source"><strong>Source:</strong> <a :href="currentModule.sourceUrl" target="_blank" rel="noreferrer">{{ currentModule.sourceLabel }}</a> <span>· {{ currentModule.confidence }}</span></section>
+            <section class="rise-bridge"><b>Next connection</b><p>{{ currentModule.bridge }}</p></section>
+            <button type="button" class="rise-next-link" @click="completeCurrent">{{ currentModule.number === '07' ? 'Continue to the knowledge check' : 'Continue to the next lesson' }}</button>
+          </article>
+
+          <article v-else-if="currentId === 'quiz'" class="rise-reading rise-quiz-screen">
+            <p>This knowledge check asks you to retrieve and apply ideas from the seven lessons. Read each question carefully, select one answer, and submit it before moving to the next question.</p>
+            <section class="rise-quiz">
+              <span>Question</span><b>{{ String(quizIndex + 1).padStart(2, '0') }}/{{ String(quizQuestions.length).padStart(2, '0') }}</b>
+              <h2>{{ quizQuestion.prompt }}</h2>
+              <p>Choose the correct answer from the options below.</p>
+              <label v-for="(option, index) in quizQuestion.options" :key="option" :class="{ selected: quizChoice === index }"><input v-model="quizChoice" type="radio" :value="index" :disabled="quizSubmitted" /><span>{{ option }}</span></label>
+              <button v-if="!quizSubmitted" type="button" class="rise-submit" :disabled="quizChoice === null" @click="submitQuiz">Submit</button>
+              <aside v-else :class="{ correct: quizChoice === quizQuestion.correct }"><strong>{{ quizChoice === quizQuestion.correct ? 'Correct.' : 'Review this point.' }}</strong> {{ quizQuestion.explanation }}</aside>
+              <button v-if="quizSubmitted" type="button" class="rise-next-link" @click="nextQuizQuestion">{{ quizIndex === quizQuestions.length - 1 ? 'Continue to summary' : 'Next question' }}</button>
+            </section>
+          </article>
+
+          <article v-else class="rise-reading rise-summary">
+            <p>This course began before the modern chat era, with the long history of questions about machine intelligence. The seven lessons then connected that history to learning from examples, next-token prediction, modern AI types, famous models, and practical judgement.</p>
+            <h2>What to carry forward</h2>
+            <p class="rise-lead">Use AI as a powerful prediction tool, not as an unquestioned authority.</p>
+            <ul>
+              <li>Ask what task the system is designed to support, what information shapes its output, and what it cannot know from the prompt alone.</li>
+              <li>Treat a generated response as a candidate answer built from patterns until important claims have been checked.</li>
+              <li>Choose a model and workflow that fit the task, protect information, and keep a person accountable for the final decision.</li>
+            </ul>
+            <h2>Create a responsible-use plan</h2>
+            <p>Use the three prompts below to apply the course to one realistic, low-risk task. A strong plan makes the task, the evidence check, and the human review point explicit.</p>
+            <form class="rise-action-plan" @submit.prevent="finishCourse">
+              <label><b>Choose one bounded task.</b><span>Describe a low-risk task where AI could help you prepare a first draft, organise notes, or identify questions.</span><textarea v-model="plan.task" rows="3" placeholder="For example: Prepare a first outline for a training session using public policy notes."></textarea></label>
+              <label><b>State what you will check.</b><span>Name the facts, sources, numbers, policy wording, or other outputs that require review.</span><textarea v-model="plan.check" rows="3" placeholder="For example: Check every policy reference against the current published policy."></textarea></label>
+              <label><b>Name the human review point.</b><span>Identify the person or role accountable for approving the final result.</span><textarea v-model="plan.reviewer" rows="3" placeholder="For example: A subject expert reviews the outline before it is shared."></textarea></label>
+              <button type="submit" class="rise-submit" :disabled="!planReady">{{ courseCompleted ? 'Course completed' : 'Complete course' }}</button>
+            </form>
+            <section v-if="courseCompleted" class="rise-complete"><b>Course completed</b><p>Your plan links the course concepts to a practical use case. Keep the same sequence: define the task, protect the information, check the output, and retain accountability.</p><button type="button" class="rise-next-link" @click="resetCourse">Restart course</button></section>
+          </article>
+        </section>
+      </Transition>
+    </main>
+
+    <footer v-if="current >= 0" class="rise-footer"><button type="button" :disabled="current < 0" @click="previous">Previous</button><span>{{ current + 1 }} of {{ AI_MODULES.length + 3 }}</span><button type="button" :disabled="current >= AI_MODULES.length + 2" @click="next">Next</button></footer>
   </div>
 </template>
 
 <style>
-:root { --rise-blue:#377bc9; --rise-light-blue:#78c5ee; --rise-black:#0a0a0a; --rise-grey:#f7f7f7; --rise-line:#e4e4e4; --rise-font:'Nunito',Arial,sans-serif; }
-* { box-sizing:border-box; }
-body { background:#efefef; }
-.reference-page { min-height:100dvh; background:#efefef; font-family:var(--rise-font); }
-.reference-course { position:relative; width:100%; max-width:828px; min-height:100dvh; margin:0 auto; background:#fff; color:var(--rise-black); box-shadow:0 0 1px rgba(0,0,0,.25); }
-.reference-appbar { display:grid; grid-template-columns:87px minmax(0,1fr) auto; align-items:center; min-height:64px; border-bottom:1px solid var(--rise-line); background:#fff; }
-.reference-mark { display:grid; place-items:center; width:87px; height:64px; background:var(--rise-blue); color:#fff; font-size:40px; font-weight:900; }
-.reference-appbar__name { overflow:hidden; padding:0 20px; font-size:15px; font-weight:800; text-overflow:ellipsis; white-space:nowrap; }
-.reference-version { padding:10px 16px; border:0; background:#fff; color:#111; cursor:pointer; font:800 14px var(--rise-font); white-space:nowrap; }.reference-version span { margin-left:4px; font-size:18px; }
-.reference-nav { display:grid; grid-template-columns:1fr auto auto; align-items:center; min-height:62px; padding:0 18px 0 29px; border-bottom:1px solid var(--rise-line); background:#fff; }.reference-nav button { border:0; background:none; color:#0a0a0a; cursor:pointer; font:800 16px var(--rise-font); }.reference-nav button:first-child { display:flex; align-items:center; gap:10px; text-align:left; }.reference-more { margin:0 26px; letter-spacing:3px; }.reference-resources { padding:9px 16px; border-radius:999px !important; background:var(--rise-blue) !important; color:#fff !important; }
-.reference-menu-icon { position:relative; display:inline-block; width:16px; height:12px; border-top:2px solid #333; border-bottom:2px solid #333; }.reference-menu-icon::after { content:''; position:absolute; top:4px; left:0; width:16px; border-top:2px solid #333; }
-.reference-progress { height:4px; background:#fff; }.reference-progress span { display:block; height:4px; background:var(--rise-blue); transition:width .2s ease; }
-.reference-main { min-height:calc(100dvh - 182px); background:#fff; }.reference-screen { min-height:inherit; }
-.course-start__hero { position:relative; min-height:430px; overflow:hidden; background:#333; }.course-start__hero img { width:100%; height:430px; object-fit:cover; display:block; }.course-start__shade { position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.05) 20%,rgba(0,0,0,.7) 100%); }.course-start__hero h1 { position:absolute; left:36px; right:36px; bottom:122px; margin:0; color:#fff; font-size:42px; font-weight:900; letter-spacing:-.035em; line-height:1.08; }.course-start__hero button { position:absolute; left:28px; right:28px; bottom:36px; min-height:62px; border:0; border-radius:999px; background:#fff; color:#111; cursor:pointer; font:900 17px var(--rise-font); letter-spacing:.05em; text-transform:uppercase; }
-.course-start__details { padding:55px 36px 112px; }.course-start__wordmark { margin-bottom:46px; font-size:48px; font-weight:900; letter-spacing:-.065em; }.course-start__details p { margin:0 0 31px; font-size:22px; font-weight:600; line-height:1.52; }.course-start__details p b { font-weight:900; }.course-outline { display:grid; gap:0; padding:10px 0 0; margin:0; list-style:none; }.course-outline li button { width:100%; display:grid; grid-template-columns:34px 1fr 29px; gap:14px; align-items:center; padding:22px 14px; border:0; background:#fff; color:#111; cursor:pointer; text-align:left; font:800 17px var(--rise-font); }.course-outline i,.outline-drawer i { width:22px; height:16px; position:relative; display:block; border-top:3px solid #787878; border-bottom:3px solid #787878; }.course-outline i::after,.outline-drawer i::after { content:''; position:absolute; top:5px; left:0; width:22px; border-top:3px solid #787878; }.course-outline i.quiz,.outline-drawer i.quiz { width:20px; height:20px; border:2px solid #787878; }.course-outline i.quiz::after,.outline-drawer i.quiz::after { content:'?'; top:-3px; left:5px; width:auto; border:0; color:#787878; font-size:13px; font-weight:900; }.course-outline b,.outline-drawer li b { width:27px; height:27px; display:grid; place-items:center; border:3px solid #dedede; border-radius:50%; color:#fff; font-size:13px; }.course-outline b.complete,.outline-drawer b.complete { border-color:var(--rise-blue); background:var(--rise-blue); }
-.reading-page { padding:44px 35px 112px; }.page-controls { display:flex; align-items:center; justify-content:space-between; margin:-5px 0 44px; }.page-controls button { width:34px; height:34px; border:0; background:#fff; color:#111; cursor:pointer; font-size:27px; }.objectives-page h1,.reading-page h1 { margin:0 0 22px; font-size:52px; font-weight:900; letter-spacing:-.05em; line-height:1.03; }.objectives-lead { margin:0 0 50px; font-size:27px; font-weight:900; line-height:1.35; }.objectives-page ul { display:grid; gap:25px; padding-left:32px; margin:0 0 84px; }.objectives-page li { padding-left:7px; font-size:25px; font-weight:600; line-height:1.45; }.objectives-page h2 { margin:0 0 21px; font-size:43px; font-weight:900; letter-spacing:-.045em; }.objectives-page p,.capstone-page>p,.lesson-reading>p { font-size:24px; font-weight:600; line-height:1.56; }
-.lesson-banner { min-height:322px; padding:16px 35px 42px; background:var(--rise-light-blue); }.lesson-banner__controls { display:flex; align-items:center; justify-content:space-between; }.lesson-banner__controls button { width:39px; height:39px; border:0; border-radius:3px; background:#fff; cursor:pointer; }.lesson-banner__controls b { font-size:16px; font-weight:900; }.lesson-banner h1 { max-width:650px; margin:72px 0 26px; font-size:43px; font-weight:900; letter-spacing:-.04em; line-height:1.15; }.lesson-banner>i { display:block; width:50px; border-top:7px solid #0a0a0a; }
-.lesson-reading { padding-top:47px; }.lesson-reading>p { margin:0 0 42px; }.reading-highlight { padding:22px 24px; margin:12px 0 42px; border-left:4px solid var(--rise-blue); background:#f6fbff; }.reading-highlight b { font-size:15px; font-weight:900; }.reading-highlight p { margin:8px 0 0; font-size:20px; font-weight:700; line-height:1.45; }.reading-media { margin:0 0 42px; border:1px solid var(--rise-line); }.reading-media img { display:block; width:100%; max-height:320px; object-fit:cover; }.reading-media p { padding:16px 19px; margin:0; font-size:17px; font-weight:700; line-height:1.45; }
-.reading-accordion,.reading-interaction { margin:0 0 36px; border-top:1px solid var(--rise-line); border-bottom:1px solid var(--rise-line); }.reading-accordion>button { width:100%; display:flex; align-items:center; justify-content:space-between; padding:19px 0; border:0; background:#fff; cursor:pointer; font:900 19px var(--rise-font); text-align:left; }.reading-accordion>button b { color:#777; font-size:27px; }.reading-accordion>div { padding:0 0 22px; }.reading-accordion h3,.reading-interaction h3 { margin:0 0 12px; font-size:27px; font-weight:900; }.reading-accordion p,.reading-interaction p { margin:0 0 16px; font-size:18px; font-weight:600; line-height:1.55; }.reading-interaction { padding:25px 0; border-top:0; }.reading-tabs { display:flex; gap:27px; margin:17px 0 22px; border-bottom:1px solid var(--rise-line); }.reading-tabs button { padding:11px 0; border:0; border-bottom:4px solid transparent; background:#fff; color:#777; cursor:pointer; font:900 16px var(--rise-font); }.reading-tabs button.active { border-bottom-color:var(--rise-blue); color:#111; }
-.term-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:13px; }.term-grid button { min-height:134px; padding:16px; border:1px solid var(--rise-line); background:#fff; color:#111; cursor:pointer; text-align:left; }.term-grid button.revealed { background:#eef8fb; border-color:#9dd1df; }.term-grid b,.term-grid span { display:block; }.term-grid b { margin-bottom:12px; font-size:17px; }.term-grid span { color:#555; font-size:14px; line-height:1.35; }.process-list { display:grid; gap:0; padding:0; margin:18px 0 0; list-style:none; }.process-list li { padding:16px 0 16px 44px; position:relative; border-top:1px solid var(--rise-line); font-size:18px; font-weight:700; }.process-list li::before { content:counter(list-item); position:absolute; left:0; top:13px; width:25px; height:25px; display:grid; place-items:center; border:2px solid var(--rise-blue); border-radius:50%; color:var(--rise-blue); font-size:12px; font-weight:900; }
-.answer-options { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:22px; }.answer-options.stack { grid-template-columns:1fr; }.answer-options button { display:grid; grid-template-columns:30px 1fr; gap:11px; align-items:start; padding:15px; border:1px solid var(--rise-line); background:#fff; color:#111; cursor:pointer; font:700 16px/1.4 var(--rise-font); text-align:left; }.answer-options button.selected { border:2px solid var(--rise-blue); background:#f4fbfd; }.answer-options i { width:24px; height:24px; display:grid; place-items:center; border:1px solid #bbb; border-radius:50%; color:#555; font-size:12px; font-style:normal; }.answer-options button.selected i { border-color:var(--rise-blue); background:var(--rise-blue); color:#fff; }.reading-interaction aside { padding:14px 16px; margin-top:14px; background:#fff1ef; color:#8a3b32; font-size:15px; font-weight:700; line-height:1.45; }.reading-interaction aside.correct { background:#eaf7f0; color:#2c735e; }.checklist { display:grid; gap:16px; padding:0; margin:20px 0 0; list-style:none; }.checklist li { padding-left:39px; position:relative; font-size:18px; font-weight:700; line-height:1.4; }.checklist li::before { content:'✓'; position:absolute; left:0; top:0; width:24px; height:24px; display:grid; place-items:center; border-radius:50%; background:var(--rise-blue); color:#fff; font-size:13px; }.video-link { display:grid; gap:6px; padding:21px 0; margin:0 0 36px; border-top:1px solid var(--rise-line); border-bottom:1px solid var(--rise-line); }.video-link b { font-size:16px; }.video-link span { font-size:18px; font-weight:700; }.video-link a,.reading-source a,.resources-drawer>a { color:var(--rise-blue); font-size:17px; font-weight:900; }.reading-source { display:grid; gap:5px; padding:17px 0; margin-top:20px; border-top:1px solid var(--rise-line); }.reading-source span { color:#777; font-size:15px; font-weight:700; }.page-continue { margin-top:45px; }.text-link { padding:0; border:0; background:none; color:var(--rise-blue); cursor:pointer; font:900 18px var(--rise-font); text-decoration:underline; }
-.capstone-page>p { margin:0 0 39px; }.capstone-page form { display:grid; gap:28px; }.capstone-page label { display:grid; gap:7px; }.capstone-page label b { font-size:20px; font-weight:900; }.capstone-page label span { color:#555; font-size:16px; font-weight:600; }.capstone-page textarea { width:100%; padding:15px; border:1px solid var(--rise-line); color:#111; font:600 16px/1.45 var(--rise-font); outline:none; }.capstone-page textarea:focus { border:2px solid var(--rise-blue); }.complete-course { min-height:56px; border:0; border-radius:999px; background:var(--rise-blue); color:#fff; cursor:pointer; font:900 16px var(--rise-font); text-transform:uppercase; }.complete-course:disabled { opacity:.45; cursor:not-allowed; }.completion-note { padding:22px; margin-top:34px; border-left:4px solid var(--rise-blue); background:#eef8fb; }.completion-note b { font-size:20px; }.completion-note p { font-size:16px; font-weight:600; line-height:1.5; }
-.reference-footer { display:flex; align-items:center; justify-content:space-between; min-height:56px; padding:0 29px; border-top:1px solid var(--rise-line); background:#fff; }.reference-footer button { border:0; background:#fff; color:#111; cursor:pointer; font:800 14px var(--rise-font); }.reference-footer button:disabled { color:#ccc; cursor:not-allowed; }.reference-footer span { color:#777; font-size:13px; font-weight:700; }
-.outline-drawer,.resources-drawer { position:fixed; top:0; right:0; bottom:0; z-index:20; width:min(640px,92vw); overflow:auto; padding:35px; background:#fff; box-shadow:-5px 0 25px rgba(0,0,0,.14); }.outline-drawer header,.resources-drawer header { display:flex; align-items:center; gap:24px; padding-bottom:22px; border-bottom:1px solid var(--rise-line); }.outline-drawer header button,.resources-drawer header button { width:38px; height:38px; border:0; background:#fff; cursor:pointer; font-size:31px; }.outline-drawer h2,.resources-drawer h2 { margin:0; font-size:35px; font-weight:900; }.outline-drawer>p { margin:43px 0 28px; font-size:22px; }.outline-drawer ol { padding:0; margin:0; list-style:none; }.outline-drawer li button { width:100%; display:grid; grid-template-columns:34px 1fr 31px; gap:14px; align-items:center; padding:23px 12px; border:0; background:#fff; color:#111; cursor:pointer; text-align:left; font:800 18px var(--rise-font); }.outline-drawer li button:hover { background:#fafafa; }.outline-drawer li b { justify-self:end; }.resources-drawer dl { margin:36px 0; }.resources-drawer dl div { padding:16px 0; border-bottom:1px solid var(--rise-line); }.resources-drawer dt { font-size:19px; font-weight:900; }.resources-drawer dd { margin:6px 0 0; color:#555; font-size:16px; font-weight:600; line-height:1.45; }
-.rise-fade-enter-active,.rise-fade-leave-active { transition:opacity .2s ease,transform .2s ease; }.rise-fade-enter-from { opacity:0; transform:translateY(7px); }.rise-fade-leave-to { opacity:0; transform:translateY(-5px); }
-@media (min-width:829px) { .reference-course { box-shadow:0 0 30px rgba(0,0,0,.12); } }
-@media (max-width:620px) { .reference-appbar { grid-template-columns:68px minmax(0,1fr) auto; min-height:55px; }.reference-mark { width:68px; height:55px; font-size:34px; }.reference-appbar__name { padding:0 12px; font-size:12px; }.reference-version { padding:8px 10px; font-size:11px; }.reference-nav { min-height:53px; padding:0 18px; }.reference-nav button { font-size:13px; }.reference-more { margin:0 14px; }.reference-resources { padding:8px 12px !important; }.course-start__hero,.course-start__hero img { min-height:338px; height:338px; }.course-start__hero h1 { left:26px; right:26px; bottom:103px; font-size:33px; }.course-start__hero button { left:20px; right:20px; bottom:25px; min-height:51px; font-size:14px; }.course-start__details { padding:42px 28px 88px; }.course-start__wordmark { margin-bottom:34px; font-size:39px; }.course-start__details p { font-size:18px; }.course-outline li button { padding:18px 6px; font-size:15px; }.reading-page { padding:36px 28px 88px; }.objectives-page h1,.reading-page h1 { font-size:43px; }.objectives-lead { margin-bottom:38px; font-size:23px; }.objectives-page li { font-size:21px; }.objectives-page h2 { font-size:36px; }.objectives-page p,.capstone-page>p,.lesson-reading>p { font-size:20px; }.lesson-banner { min-height:268px; padding:14px 28px 32px; }.lesson-banner h1 { margin-top:58px; font-size:35px; }.term-grid { grid-template-columns:1fr; }.answer-options { grid-template-columns:1fr; }.outline-drawer,.resources-drawer { padding:26px; }.outline-drawer li button { padding:18px 6px; font-size:16px; } }
-@media (prefers-reduced-motion:reduce) { .rise-fade-enter-active,.rise-fade-leave-active,.reference-progress span { transition:none; } }
+:root{--rise-blue:#2f6fb3;--rise-header:#9ac8e8;--rise-ink:#111;--rise-grey:#f3f3f3;--rise-line:#dedede;--rise-font:'Poppins',Arial,sans-serif}*{box-sizing:border-box}body{margin:0;background:#fff}.rise-canvas{min-height:100dvh;display:grid;grid-template-columns:242px minmax(0,1fr);grid-template-rows:minmax(0,1fr) 58px;background:#fff;color:var(--rise-ink);font-family:var(--rise-font)}.rise-sidebar{position:sticky;top:0;align-self:start;grid-row:1/-1;height:100dvh;overflow:auto;border-right:1px solid var(--rise-line);background:#fff}.rise-sidebar__hero{position:relative;width:100%;height:162px;padding:0;border:0;overflow:hidden;background:#222;color:#fff;text-align:left;cursor:pointer}.rise-sidebar__hero img{width:100%;height:100%;object-fit:cover}.rise-sidebar__hero::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.46)}.rise-sidebar__hero span{position:absolute;z-index:1;left:19px;bottom:17px;font-size:19px;font-weight:800;line-height:1.16}.rise-sidebar__home{width:100%;padding:14px 19px 10px;border:0;background:#fff;color:#111;text-align:left;cursor:pointer;font:800 13px var(--rise-font)}.rise-sidebar__progress{display:grid;gap:6px;padding:0 19px 18px;border-bottom:1px solid var(--rise-line)}.rise-sidebar__progress span{font-size:10px;font-weight:800}.rise-sidebar__progress i{display:block;height:3px;background:#e7e7e7}.rise-sidebar__progress i b{display:block;height:100%;background:var(--rise-blue)}.rise-sidebar__list{padding:11px 0;margin:0;list-style:none}.rise-sidebar__list li button{width:100%;display:grid;grid-template-columns:19px 1fr 18px;gap:10px;align-items:center;padding:13px 14px;border:0;background:#fff;color:#111;text-align:left;cursor:pointer;font:700 12px/1.25 var(--rise-font)}.rise-sidebar__list li button:hover,.rise-sidebar__list li button.active{background:#fafafa}.rise-glyph{position:relative;display:block;width:15px;height:11px;border-top:2px solid #777;border-bottom:2px solid #777}.rise-glyph::after{content:'';position:absolute;top:3px;left:0;width:15px;border-top:2px solid #777}.rise-glyph.quiz{width:14px;height:14px;border:2px solid #777}.rise-glyph.quiz::after{content:'?';top:-4px;left:3px;width:auto;border:0;color:#777;font-size:10px;font-weight:900}.rise-sidebar__list b,.rise-overview__outline b{width:16px;height:16px;display:grid;place-items:center;border:2px solid #dadada;border-radius:50%;color:#fff;font-size:9px}.rise-sidebar__list b.complete,.rise-overview__outline b.complete{background:var(--rise-blue);border-color:var(--rise-blue)}.rise-sidebar__close{display:none}.rise-main{min-width:0;background:#fff}.rise-screen{min-height:100dvh}.rise-overview{max-width:1180px;margin:0 auto}.rise-overview__hero{position:relative;min-height:410px;overflow:hidden;background:#202020}.rise-overview__hero img{width:100%;height:410px;display:block;object-fit:cover}.rise-overview__shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.64),rgba(0,0,0,.10) 74%)}.rise-overview__hero h1{position:absolute;left:50px;bottom:120px;max-width:630px;margin:0;color:#fff;font-size:50px;font-weight:900;letter-spacing:-.045em;line-height:1.12}.rise-overview__hero button{position:absolute;left:50px;bottom:42px;min-width:360px;height:58px;border:0;border-radius:999px;background:#fff;color:#111;cursor:pointer;font:900 15px var(--rise-font);letter-spacing:.07em;text-transform:uppercase}.rise-overview__body{max-width:880px;padding:52px 50px 86px}.rise-wordmark{margin:0 0 50px;font-size:55px;font-weight:900;letter-spacing:-.08em}.rise-overview__body p{max-width:670px;margin:0 0 31px;font-size:19px;font-weight:500;line-height:1.65}.rise-duration{font-size:18px!important}.rise-overview__outline{max-width:700px;padding:7px 0;margin:0;list-style:none}.rise-overview__outline li button{width:100%;display:grid;grid-template-columns:26px 1fr 22px;gap:15px;align-items:center;padding:17px 4px;border:0;background:#fff;color:#111;text-align:left;cursor:pointer;font:700 16px var(--rise-font)}.rise-overview__outline i{position:relative;width:17px;height:12px;border-top:2px solid #777;border-bottom:2px solid #777}.rise-overview__outline i::after{content:'';position:absolute;top:4px;left:0;width:17px;border-top:2px solid #777}.rise-overview__outline i.quiz{width:16px;height:16px;border:2px solid #777}.rise-overview__outline i.quiz::after{content:'?';top:-3px;left:4px;width:auto;border:0;color:#777;font-size:11px;font-weight:900}.rise-header{min-height:255px;padding:18px 54px 37px;background:var(--rise-header)}.rise-header>div{display:flex;align-items:center;justify-content:space-between}.rise-header button{width:36px;height:36px;border:0;border-radius:2px;background:#fff;cursor:pointer}.rise-menu-icon{position:relative;display:inline-block;width:15px;height:11px;border-top:2px solid #333;border-bottom:2px solid #333}.rise-menu-icon::after{content:'';position:absolute;top:3px;left:0;width:15px;border-top:2px solid #333}.rise-header>div>b{font-size:13px}.rise-header h1{max-width:760px;margin:67px 0 25px;font-size:46px;font-weight:900;letter-spacing:-.045em;line-height:1.12}.rise-header>i{display:block;width:65px;border-top:6px solid #111}.rise-reading{max-width:910px;padding:48px 54px 90px}.rise-reading>p,.rise-text-section>p,.rise-worked-example>p{max-width:780px;margin:0 0 28px;font-size:19px;font-weight:500;line-height:1.68}.rise-reading h2{max-width:780px;margin:52px 0 16px;font-size:35px;font-weight:900;letter-spacing:-.035em;line-height:1.2}.rise-reading h3{margin:0 0 11px;font-size:25px;font-weight:900}.rise-reading .rise-lead{font-size:24px;font-weight:800;line-height:1.5}.rise-reading>ul{display:grid;gap:20px;max-width:780px;padding-left:31px;margin:0 0 50px}.rise-reading>ul li{padding-left:7px;font-size:19px;font-weight:500;line-height:1.55}.rise-info{display:grid;grid-template-columns:34px 1fr;gap:13px;max-width:780px;padding:24px;margin:37px 0;background:#f5f5f5}.rise-info>i{width:24px;height:24px;display:grid;place-items:center;border:2px solid #777;border-radius:50%;color:#777;font-size:15px;font-style:normal;font-weight:900}.rise-info b{font-size:16px}.rise-info p{margin:6px 0 0;font-size:17px;font-weight:500;line-height:1.55}.rise-diagram{display:flex;flex-wrap:wrap;align-items:center;gap:9px;max-width:780px;margin:38px 0;padding:20px 0;border-top:1px solid var(--rise-line);border-bottom:1px solid var(--rise-line)}.rise-diagram span{padding:8px 10px;background:#f5f5f5;font-size:14px;font-weight:700}.rise-diagram i{font-style:normal;color:var(--rise-blue);font-size:20px;font-weight:800}.rise-worked-example{max-width:780px;margin:44px 0;padding-top:2px}.rise-worked-example h2{margin-top:0}.rise-media{max-width:780px;margin:40px 0}.rise-media img{display:block;width:100%;max-height:440px;object-fit:cover}.rise-media p{margin:12px 0 0;font-size:16px;font-weight:500;line-height:1.55}.rise-video{max-width:780px;margin:44px 0}.rise-video h2{margin:0 0 12px}.rise-video>p{margin:0 0 16px;font-size:17px;line-height:1.55}.rise-video__frame{position:relative;aspect-ratio:16/9;border:1px solid var(--rise-line)}.rise-video__frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.rise-activity{max-width:780px;margin:46px 0;padding-top:3px}.rise-activity h2{margin-top:0}.rise-activity>p{font-size:18px;font-weight:500;line-height:1.6}.rise-activity blockquote{margin:22px 0;padding:18px 22px;border-left:4px solid var(--rise-blue);background:#f5f5f5;font-size:18px;font-weight:600;line-height:1.55}.rise-choice-row{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0}.rise-choice-row button,.rise-choice-column button{border:1px solid var(--rise-line);background:#fff;color:#111;cursor:pointer;font:700 15px var(--rise-font)}.rise-choice-row button{padding:12px 16px}.rise-choice-column{display:grid;margin:20px 0}.rise-choice-column button{padding:15px;text-align:left}.rise-choice-column button+button{border-top:0}.rise-choice-row button.selected,.rise-choice-column button.selected{border-color:var(--rise-blue);box-shadow:inset 0 0 0 1px var(--rise-blue)}.rise-activity__feedback{padding:17px 0 0;border-top:1px solid var(--rise-line);font-size:17px!important}.rise-source{max-width:780px;padding-top:18px;border-top:1px solid var(--rise-line);font-size:15px}.rise-source a,.rise-source span{color:var(--rise-blue);font-weight:700}.rise-bridge{max-width:780px;margin:34px 0;padding-left:17px;border-left:4px solid var(--rise-blue)}.rise-bridge b{font-size:15px}.rise-bridge p{margin:6px 0 0;font-size:17px;font-weight:500;line-height:1.55}.rise-next-link{margin-top:39px;padding:0;border:0;background:#fff;color:var(--rise-blue);cursor:pointer;font:800 17px var(--rise-font);text-decoration:underline}.rise-quiz{max-width:780px;padding:38px;margin:44px 0;border:1px solid #ededed;background:#fff}.rise-quiz>span{display:block;font-size:11px;font-weight:800}.rise-quiz>b{display:block;margin:2px 0 22px;color:var(--rise-blue);font-size:25px}.rise-quiz h2{margin:0 0 16px;font-size:25px}.rise-quiz>p{margin:0 0 18px;font-size:17px;font-weight:500}.rise-quiz label{display:grid;grid-template-columns:22px 1fr;gap:13px;align-items:center;padding:16px;border:1px solid #e2e2e2;cursor:pointer;font-size:17px;font-weight:600}.rise-quiz label+label{border-top:0}.rise-quiz input{appearance:none;width:15px;height:15px;margin:0;border:1px solid #bbb;border-radius:50%}.rise-quiz label.selected input{border:5px solid var(--rise-blue)}.rise-submit{display:block;min-width:145px;height:42px;margin:25px auto 0;border:0;border-radius:999px;background:var(--rise-blue);color:#fff;cursor:pointer;font:800 12px var(--rise-font);letter-spacing:.05em;text-transform:uppercase}.rise-submit:disabled{opacity:.45;cursor:not-allowed}.rise-quiz aside{padding:15px 0 0;font-size:16px;font-weight:600;line-height:1.5}.rise-quiz aside.correct{color:#1f5a39}.rise-action-plan{display:grid;max-width:780px;gap:26px;margin-top:36px}.rise-action-plan label{display:grid;gap:7px}.rise-action-plan label b{font-size:19px}.rise-action-plan label span{color:#555;font-size:16px;font-weight:500}.rise-action-plan textarea{width:100%;padding:14px;border:1px solid var(--rise-line);font:500 16px/1.45 var(--rise-font);outline:none}.rise-action-plan textarea:focus{border-color:var(--rise-blue)}.rise-action-plan .rise-submit{margin:0}.rise-complete{max-width:780px;padding:24px;margin-top:34px;background:#f5f5f5}.rise-complete b{font-size:20px}.rise-complete p{font-size:17px;font-weight:500;line-height:1.5}.rise-footer{position:sticky;bottom:0;grid-column:2;display:flex;align-items:center;justify-content:space-between;padding:0 54px;border-top:1px solid var(--rise-line);background:#fff}.rise-footer button{border:0;background:#fff;color:var(--rise-blue);cursor:pointer;font:800 14px var(--rise-font)}.rise-footer button:disabled{color:#bbb;cursor:not-allowed}.rise-footer span{color:#777;font-size:13px}.rise-fade-enter-active,.rise-fade-leave-active{transition:opacity .18s ease}.rise-fade-enter-from,.rise-fade-leave-to{opacity:0}@media(max-width:760px){.rise-canvas{display:block}.rise-sidebar{position:fixed;z-index:20;top:0;bottom:0;left:0;width:min(310px,88vw);height:auto;transform:translateX(-102%);transition:transform .2s ease;box-shadow:4px 0 18px rgba(0,0,0,.16)}.rise-sidebar.open{transform:none}.rise-sidebar__close{display:block;width:100%;padding:16px;border:0;border-top:1px solid var(--rise-line);background:#fff;cursor:pointer;font:800 14px var(--rise-font)}.rise-overview__hero,.rise-overview__hero img{min-height:338px;height:338px}.rise-overview__hero h1{left:28px;right:28px;bottom:104px;font-size:34px}.rise-overview__hero button{left:24px;right:24px;bottom:26px;min-width:0;height:52px;font-size:13px}.rise-overview__body{padding:42px 28px 78px}.rise-wordmark{margin-bottom:37px;font-size:42px}.rise-overview__body p{font-size:18px}.rise-overview__outline li button{font-size:15px}.rise-header{min-height:268px;padding:14px 28px 32px}.rise-header h1{margin-top:60px;font-size:35px}.rise-reading{padding:38px 28px 78px}.rise-reading>p,.rise-text-section>p,.rise-worked-example>p{font-size:18px}.rise-reading h2{font-size:32px}.rise-reading>ul li{font-size:18px}.rise-diagram{gap:7px}.rise-diagram span{font-size:12px}.rise-diagram i{font-size:16px}.rise-quiz{padding:25px}.rise-info{padding:18px}.rise-choice-row{display:grid;grid-template-columns:1fr}.rise-choice-row button{text-align:left}.rise-footer{position:sticky;bottom:0;padding:0 28px;height:58px}.rise-footer span{font-size:12px}}
+.rise-prediction-lab{max-width:780px;margin:48px 0;padding:30px;border:1px solid var(--rise-line);background:#fff}.rise-prediction-lab__eyebrow{margin:0 0 10px;color:var(--rise-blue);font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.rise-prediction-lab h2{margin:0 0 14px}.rise-prediction-lab>p{font-size:18px;font-weight:500;line-height:1.6}.rise-prediction-lab blockquote{margin:25px 0;padding:20px 22px;border-left:4px solid var(--rise-blue);background:#f5f5f5;font-size:21px;font-weight:700;line-height:1.55}.rise-prediction-lab blockquote b{color:var(--rise-blue)}.rise-prediction-lab .rise-submit{margin-left:0}.rise-prediction-lab .rise-choice-column button:disabled{cursor:default}.rise-prediction-lab .rise-activity__feedback.correct{color:#1f5a39}.rise-prediction-lab__output{margin:17px 0 0;padding:15px 17px;border-left:3px solid #9ac8e8;background:#f5f9fc}.rise-prediction-lab__output span{display:block;margin-bottom:4px;color:var(--rise-blue);font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.rise-prediction-lab__output p{margin:0;font-size:17px!important;line-height:1.55}.rise-prediction-lab__output b{color:var(--rise-blue)}.rise-prediction-lab__conclusion{margin-top:25px!important;padding-top:18px;border-top:1px solid var(--rise-line);font-weight:700!important}@media(max-width:760px){.rise-prediction-lab{padding:22px}.rise-prediction-lab blockquote{font-size:19px}}
 </style>

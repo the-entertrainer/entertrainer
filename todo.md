@@ -55,4 +55,55 @@
 - [x] Recreate the light-blue lesson header panel, lesson count, plain long-form reading body, objective bullet style, left menu control, and right back control.
 - [x] Replace the current contents drawer with the reference-style vertical course menu using simple row icons and unfilled/completed circular status markers.
 - [x] Verify the rebuilt mobile and desktop experience against the supplied screenshots, then push the reference-matched course to `main`.
-- [ ] Commit the completed implementation and push the verified changes to `main`.
+
+## Screenshot-difference correction
+
+- [ ] Replace the separate image, title, metadata chips, and coloured start button with the reference’s full-bleed image card, title overlay, and white pill-shaped start control.
+- [ ] Rebuild the content below the course image as a plain white overview: large black Entertrainer wordmark, duration, long-form description, and vertical lesson list without chips or cards.
+- [ ] Remove remaining tinted/green surfaces, square bordered visual treatments, and non-reference spacing from the course-start, lesson, menu, and interaction blocks.
+- [ ] Compare the rebuilt screens directly against the supplied screenshots before pushing the correction to `main`.
+
+## Full review-course study
+
+- [x] Capture the entire accessible Articulate review course in the browser and record its page structures, typography, colour, spacing, navigation, and interaction conventions.
+- [x] Use the complete browser capture together with the screenshots as the sole visual specification for the corrective rebuild.
+
+- [x] Minimise the Review 360 comments panel for reference capture and exclude all review, feedback, sign-in, comment, annotation, and side-panel features from the Entertrainer course implementation.
+- [x] Commit the completed implementation and push the verified changes to `main`.
+
+## Instructional architecture correction
+
+- [x] Audit every current screen for its instructional purpose, prerequisite, learner action, transition, and contribution to the course outcome.
+- [x] Replace the disconnected topic list with a progressive course path from orientation to foundations, models, applications, evaluation, responsible use, practice, knowledge check, and summary.
+- [x] Add explicit lesson introductions, bridges, worked examples, practice moments, retrieval checks, and a final synthesis so the course flows as one learning experience.
+- [x] Preserve the captured Rise 360 canvas while rebuilding the underlying course architecture and content depth.
+
+## Content-led course correction
+
+- [x] Replace interaction-first lesson screens with sustained explanatory text, connected paragraphs, and clear worked examples before any learner activity.
+- [x] Give every lesson a defined role in the course sequence, a bridge from the previous lesson, and a transition to the next concept.
+- [x] Limit interactions to purposeful points after sufficient instruction: one application activity, one knowledge check, and one final synthesis task.
+- [x] Retain the reference-matched Rise 360 course canvas while increasing instructional content depth and reading flow.
+
+## Instructional-design research and refinement
+
+- [x] Replace the rounded current type treatment with a professional Poppins-style semi-bold hierarchy and select one deeper, topic-appropriate blue as the sole accent.
+- [x] Research and document evidence-based approaches to instructional writing, lesson sequencing, worked examples, cognitive load, multimedia placement, practice, feedback, and retrieval assessment.
+- [x] Redesign the course so explanatory reading, visuals, diagrams, videos, interactions, and assessments each serve a stated instructional purpose.
+- [x] Remove any interaction, visual, or media element that does not directly support an objective, explanation, example, practice opportunity, or assessment decision.
+
+## Concept-driven playable explanation
+
+- [x] Study the supplied interactive explainer for transferable teaching patterns: guided observation, constrained learner choices, immediate visible consequences, and cumulative explanation.
+- [x] Use a small number of playable explanations only where an AI concept is otherwise difficult to understand through reading alone.
+- [x] Ensure every playable explanation introduces a concrete question, provides guided feedback, and reconnects explicitly to the surrounding lesson text.
+
+## From No AI to Know AI rebuild
+
+- [x] Rename the course to “From No AI to Know AI” and replace the current curriculum with a coherent origin-to-modern-AI narrative.
+- [x] Correct the common misconception that AI began with ChatGPT by teaching the field’s historical origins, major turning points, and the long development of learning systems.
+- [x] Build a logical lesson path covering what AI is, where it came from, how learning and prediction work, modern AI types, well-known models, practical uses, capabilities, limits, and responsible use.
+- [x] Write sustained, simple, editorial instructional prose where every paragraph advances the same story and explicitly connects to the previous chapter.
+- [x] Design one central, multi-step prediction simulation that teaches next-token prediction through learner choices, visible consequences, explanations, and increasing complexity.
+- [x] Create only purposeful imagery, diagrams, videos, and micro-interactions that support a named explanation, example, practice opportunity, or assessment objective.
+- [x] Run a critical improvement pass against cognitive load, narrative coherence, visual quality, accessibility, interaction purpose, and reference fidelity before release.

@@ -9,8 +9,10 @@ import { AI_MODULES, type AiModule } from '~/content/aiCourse'
 type ScreenId = 'objectives' | 'quiz' | 'summary' | string
 type QuizQuestion = { prompt: string; options: string[]; correct: number; explanation: string }
 type PredictionStep = { context: string; options: string[]; correct: number; explanation: string }
+type SortCard = { prompt: string; answer: string; explanation: string }
+type MatchPrompt = { prompt: string; answer: string; explanation: string }
 
-const STORAGE_KEY = 'entertrainer-ai-course-v8'
+const STORAGE_KEY = 'entertrainer-ai-course-v9'
 const current = ref(-1)
 const menuOpen = ref(false)
 const openDetails = ref<string | null>(null)
@@ -18,6 +20,19 @@ const visited = ref<string[]>([])
 const predictionStep = ref(0)
 const predictionChoice = ref<number | null>(null)
 const predictionSubmitted = ref(false)
+const timelineStep = ref(0)
+const openFlashcards = ref<number[]>([])
+const learningTab = ref(0)
+const sortIndex = ref(0)
+const sortChoice = ref<string | null>(null)
+const sortSubmitted = ref(false)
+const matchIndex = ref(0)
+const matchChoice = ref<string | null>(null)
+const matchSubmitted = ref(false)
+const scenarioChoice = ref<number | null>(null)
+const scenarioSubmitted = ref(false)
+const safeguardsSelected = ref<number[]>([])
+const safeguardsSubmitted = ref(false)
 const quizIndex = ref(0)
 const quizChoice = ref<number | null>(null)
 const quizSubmitted = ref(false)
@@ -44,6 +59,50 @@ const predictionSteps: PredictionStep[] = [
     correct: 0,
     explanation: 'Resume makes the service update coherent. A language model repeats this next-token process to extend a response. A fluent result can emerge from many small estimates, which is why fluency still needs verification.'
   }
+]
+
+const historyEvents = [
+  { year: '1950', title: 'A practical question about intelligence', text: 'Alan Turing proposed judging machine intelligence through observable performance rather than a vague argument about whether a machine “thinks”.' },
+  { year: '1956', title: 'AI becomes a named field', text: 'The Dartmouth Summer Research Project on Artificial Intelligence brought learning, language, abstraction, and problem solving together under the name “artificial intelligence”.' },
+  { year: '1980s–2010s', title: 'Learning from data becomes practical', text: 'More data, better algorithms, and more capable computing helped models learn patterns from examples in images, speech, recommendations, and language.' },
+  { year: '2017 onward', title: 'Transformers make scale possible', text: 'Transformer architectures improved the handling of long sequences. Modern language and multimodal models build on this long research history.' }
+]
+
+const definitionFlashcards = [
+  { front: 'Task', back: 'What useful job is the system helping with? For example, estimate a travel time or draft a short summary.' },
+  { front: 'Information', back: 'What input does the system receive? This may be text, images, measurements, locations, or structured records.' },
+  { front: 'Check', back: 'How will a person decide whether the output is suitable, accurate enough, and safe to use?' }
+]
+
+const learningTabs = [
+  { label: 'Written rules', title: 'A person specifies the method', text: 'If a form is incomplete, return it. The behaviour is predictable when the relevant rule can be written clearly in advance.', example: 'Example: Lock an account after too many incorrect password attempts.' },
+  { label: 'Learned patterns', title: 'A model learns from examples', text: 'A model uses many examples to estimate which category or value best fits a new input. The examples shape both its strengths and its blind spots.', example: 'Example: Classify a customer message as delivery, billing, or product help.' },
+  { label: 'Next-token prediction', title: 'A model extends a sequence', text: 'A language model estimates a likely next token from the words and instructions already in context, then adds it and repeats.', example: 'Example: Draft a meeting summary one context-sensitive token at a time.' }
+]
+
+const sortCards: SortCard[] = [
+  { prompt: 'A photograph of a damaged parcel before a vision system examines it.', answer: 'Input', explanation: 'The photograph is input: information supplied to the system before it produces a result.' },
+  { prompt: 'A system estimates an 80% chance that a delivery will arrive late.', answer: 'Output', explanation: 'The estimate is output: the system’s result from the information and pattern it used.' },
+  { prompt: 'A team compares a delay prediction with what actually happened on recent deliveries.', answer: 'Evaluation', explanation: 'This is evaluation: people check whether the model’s outputs are useful and accurate enough for the task.' }
+]
+
+const matchPrompts: MatchPrompt[] = [
+  { prompt: 'A model family described as working across text, images, audio, and video.', answer: 'Gemini', explanation: 'Gemini is publicly described as a multimodal model family designed to work across several forms of information.' },
+  { prompt: 'A technical report describes this model as accepting image and text inputs and producing text outputs.', answer: 'GPT-4', explanation: 'GPT-4 is described in its technical report as accepting image and text inputs and producing text outputs.' },
+  { prompt: 'Public documentation describes text analysis, coding, structured output, and vision tasks.', answer: 'Claude', explanation: 'Claude is publicly described through these capabilities. In each case, the key question remains how the output will be evaluated in the real task.' }
+]
+
+const scenarioOptions = [
+  'Upload the file to a public tool because the summary will be checked later.',
+  'Pause, remove personal information, and confirm whether an approved tool and review process are available.',
+  'Ask the model to decide which employee needs the most attention and act on its answer.'
+]
+
+const safeguardOptions = [
+  'Use only information that is safe and approved for the task.',
+  'Check important facts, references, and policy wording against reliable sources.',
+  'Keep a named person accountable for the final decision.',
+  'Treat confident wording as proof that the result is correct.'
 ]
 
 const quizQuestions: QuizQuestion[] = [
@@ -96,6 +155,8 @@ const progress = computed(() => Math.round((visited.value.length / (AI_MODULES.l
 const quizQuestion = computed(() => quizQuestions[quizIndex.value])
 const quizScore = computed(() => quizAnswers.value.filter((answer, index) => answer === quizQuestions[index]?.correct).length)
 const planReady = computed(() => plan.task.trim().length > 10 && plan.check.trim().length > 10 && plan.reviewer.trim().length > 10)
+const currentSortCard = computed(() => sortCards[sortIndex.value])
+const currentMatchPrompt = computed(() => matchPrompts[matchIndex.value])
 
 function persist() {
   if (!import.meta.client) return
@@ -131,6 +192,51 @@ function nextPredictionStep() {
     predictionSubmitted.value = false
   }
 }
+function toggleFlashcard(index: number) {
+  openFlashcards.value = openFlashcards.value.includes(index)
+    ? openFlashcards.value.filter((item) => item !== index)
+    : [...openFlashcards.value, index]
+}
+function submitSort() {
+  if (!sortChoice.value) return
+  sortSubmitted.value = true
+}
+function nextSortCard() {
+  if (!sortSubmitted.value) return
+  if (sortIndex.value < sortCards.length - 1) {
+    sortIndex.value += 1
+    sortChoice.value = null
+    sortSubmitted.value = false
+  }
+}
+function submitMatch() {
+  if (!matchChoice.value) return
+  matchSubmitted.value = true
+}
+function nextMatchPrompt() {
+  if (!matchSubmitted.value) return
+  if (matchIndex.value < matchPrompts.length - 1) {
+    matchIndex.value += 1
+    matchChoice.value = null
+    matchSubmitted.value = false
+  }
+}
+function submitScenario() {
+  if (scenarioChoice.value === null) return
+  scenarioSubmitted.value = true
+}
+function toggleSafeguard(index: number) {
+  safeguardsSelected.value = safeguardsSelected.value.includes(index)
+    ? safeguardsSelected.value.filter((item) => item !== index)
+    : [...safeguardsSelected.value, index]
+}
+function submitSafeguards() {
+  if (!safeguardsSelected.value.length) return
+  safeguardsSubmitted.value = true
+}
+function isCorrectSafeguardSet() {
+  return safeguardsSelected.value.length === 3 && [0, 1, 2].every((item) => safeguardsSelected.value.includes(item))
+}
 function nextQuizQuestion() {
   if (!quizSubmitted.value || quizChoice.value === null) return
   quizAnswers.value = [...quizAnswers.value, quizChoice.value]
@@ -156,6 +262,19 @@ function resetCourse() {
   predictionStep.value = 0
   predictionChoice.value = null
   predictionSubmitted.value = false
+  timelineStep.value = 0
+  openFlashcards.value = []
+  learningTab.value = 0
+  sortIndex.value = 0
+  sortChoice.value = null
+  sortSubmitted.value = false
+  matchIndex.value = 0
+  matchChoice.value = null
+  matchSubmitted.value = false
+  scenarioChoice.value = null
+  scenarioSubmitted.value = false
+  safeguardsSelected.value = []
+  safeguardsSubmitted.value = false
   quizIndex.value = 0
   quizChoice.value = null
   quizSubmitted.value = false
@@ -282,6 +401,32 @@ onMounted(() => {
 
             <section v-if="currentModule.video" class="rise-video"><h2>{{ currentModule.video.title }}</h2><p><strong>Viewing question:</strong> {{ currentModule.video.question }}</p><div class="rise-video__frame"><iframe :src="currentModule.video.url" :title="currentModule.video.title" loading="lazy" allowfullscreen></iframe></div></section>
 
+            <section v-if="currentModule.id === 'before-chatbots'" class="rise-block rise-timeline-block">
+              <p class="rise-block__eyebrow">Interactive timeline · {{ timelineStep + 1 }} of {{ historyEvents.length }}</p>
+              <h2>Trace the long route to modern AI</h2>
+              <p>Move through four milestones. Notice that a modern chatbot appears only after earlier questions about intelligence, named AI research, learning from examples, and transformer architecture.</p>
+              <div class="rise-timeline-block__nav" role="tablist" aria-label="AI history milestones"><button v-for="(event, index) in historyEvents" :key="event.year" type="button" :class="{ active: timelineStep === index }" :aria-selected="timelineStep === index" role="tab" @click="timelineStep = index"><b>{{ event.year }}</b><span>{{ event.title }}</span></button></div>
+              <div class="rise-timeline-block__event"><b>{{ historyEvents[timelineStep].year }}</b><h3>{{ historyEvents[timelineStep].title }}</h3><p>{{ historyEvents[timelineStep].text }}</p></div>
+              <p class="rise-block__takeaway">The point is not to memorise every date. It is to see that ChatGPT is a recent public chapter in a much older field.</p>
+            </section>
+
+            <section v-if="currentModule.id === 'what-ai-is'" class="rise-block rise-flashcards">
+              <p class="rise-block__eyebrow">Recall pause</p>
+              <h2>Use the practical definition</h2>
+              <p>Before continuing, turn over each card and connect it to the travel-time example you have just read.</p>
+              <div class="rise-flashcards__grid"><button v-for="(card, index) in definitionFlashcards" :key="card.front" type="button" :class="{ open: openFlashcards.includes(index) }" :aria-pressed="openFlashcards.includes(index)" @click="toggleFlashcard(index)"><span v-if="!openFlashcards.includes(index)"><b>{{ card.front }}</b><small>Select to reveal</small></span><span v-else><small>{{ card.front }}</small><b>{{ card.back }}</b></span></button></div>
+              <p class="rise-block__takeaway">When you meet an AI claim, return to these three prompts: task, information, and check.</p>
+            </section>
+
+            <section v-if="currentModule.id === 'learning-patterns'" class="rise-block rise-tabs-block">
+              <p class="rise-block__eyebrow">Compare the methods</p>
+              <h2>One task, three ways of producing an output</h2>
+              <p>Read the three panels in order. Each method can be useful; the difference is how the output is produced and where its limits come from.</p>
+              <div class="rise-tabs-block__tabs" role="tablist" aria-label="Ways a system produces an output"><button v-for="(tab, index) in learningTabs" :key="tab.label" type="button" :class="{ active: learningTab === index }" :aria-selected="learningTab === index" role="tab" @click="learningTab = index">{{ tab.label }}</button></div>
+              <div class="rise-tabs-block__panel"><h3>{{ learningTabs[learningTab].title }}</h3><p>{{ learningTabs[learningTab].text }}</p><p><strong>{{ learningTabs[learningTab].example }}</strong></p></div>
+              <p class="rise-block__takeaway">Rules follow an authored method. Learned models estimate from examples. Language models estimate how a text sequence may continue.</p>
+            </section>
+
             <section v-if="currentModule.activity === 'predictionLab'" class="rise-prediction-lab">
               <p class="rise-prediction-lab__eyebrow">Prediction lab · {{ predictionStep + 1 }} of {{ predictionSteps.length }}</p>
               <h2>Watch a response take shape</h2>
@@ -297,6 +442,36 @@ onMounted(() => {
               </template>
               <button v-if="predictionSubmitted && predictionStep < predictionSteps.length - 1" type="button" class="rise-next-link" @click="nextPredictionStep">Continue the prediction</button>
               <p v-if="predictionSubmitted && predictionStep === predictionSteps.length - 1" class="rise-prediction-lab__conclusion">You have now seen the core mechanism: a language-model response is built through many small, context-sensitive estimates. That is powerful, but it does not make the result automatically true.</p>
+            </section>
+
+            <section v-if="currentModule.id === 'modern-landscape'" class="rise-block rise-game-block">
+              <p class="rise-block__eyebrow">Sorting game · {{ sortIndex + 1 }} of {{ sortCards.length }}</p>
+              <h2>Sort the AI workflow</h2>
+              <p>You have seen that an AI system takes information, produces an output, and needs evaluation. Classify the item below using that same sequence.</p>
+              <blockquote>{{ currentSortCard.prompt }}</blockquote>
+              <div class="rise-choice-row"><button v-for="option in ['Input', 'Output', 'Evaluation']" :key="option" type="button" :class="{ selected: sortChoice === option }" :disabled="sortSubmitted" @click="sortChoice = option">{{ option }}</button></div>
+              <button v-if="!sortSubmitted" type="button" class="rise-submit" :disabled="!sortChoice" @click="submitSort">Check category</button>
+              <template v-else><p class="rise-activity__feedback" :class="{ correct: sortChoice === currentSortCard.answer }"><strong>{{ sortChoice === currentSortCard.answer ? 'Correct.' : 'Review the workflow.' }}</strong> {{ currentSortCard.explanation }}</p><button v-if="sortIndex < sortCards.length - 1" type="button" class="rise-next-link" @click="nextSortCard">Sort the next item</button><p v-else class="rise-block__takeaway">Every AI workflow needs all three: suitable input, a meaningful output, and evaluation of whether that output is useful.</p></template>
+            </section>
+
+            <section v-if="currentModule.id === 'models-world'" class="rise-block rise-game-block">
+              <p class="rise-block__eyebrow">Matching game · {{ matchIndex + 1 }} of {{ matchPrompts.length }}</p>
+              <h2>Match capability to a documented model family</h2>
+              <p>Read the capability description and select the model name that best matches the documented public description.</p>
+              <blockquote>{{ currentMatchPrompt.prompt }}</blockquote>
+              <div class="rise-choice-row"><button v-for="option in ['GPT-4', 'Gemini', 'Claude']" :key="option" type="button" :class="{ selected: matchChoice === option }" :disabled="matchSubmitted" @click="matchChoice = option">{{ option }}</button></div>
+              <button v-if="!matchSubmitted" type="button" class="rise-submit" :disabled="!matchChoice" @click="submitMatch">Check match</button>
+              <template v-else><p class="rise-activity__feedback" :class="{ correct: matchChoice === currentMatchPrompt.answer }"><strong>{{ matchChoice === currentMatchPrompt.answer ? 'Correct.' : 'Review the description.' }}</strong> {{ currentMatchPrompt.explanation }}</p><button v-if="matchIndex < matchPrompts.length - 1" type="button" class="rise-next-link" @click="nextMatchPrompt">Match the next capability</button><p v-else class="rise-block__takeaway">A name is not a guarantee. The practical question is always whether the capability, inputs, checks, and safeguards fit the task.</p></template>
+            </section>
+
+            <section v-if="currentModule.id === 'know-ai'" class="rise-block rise-scenario-block">
+              <p class="rise-block__eyebrow">Decision scenario</p>
+              <h2>Choose a responsible next action</h2>
+              <p>A learning coordinator wants an AI tool to summarise notes from a meeting. The notes include names, personal feedback, and a draft action plan. What should happen first?</p>
+              <div class="rise-choice-column"><button v-for="(option, index) in scenarioOptions" :key="option" type="button" :class="{ selected: scenarioChoice === index }" :disabled="scenarioSubmitted" @click="scenarioChoice = index">{{ option }}</button></div>
+              <button v-if="!scenarioSubmitted" type="button" class="rise-submit" :disabled="scenarioChoice === null" @click="submitScenario">Check decision</button>
+              <template v-else><p class="rise-activity__feedback" :class="{ correct: scenarioChoice === 1 }"><strong>{{ scenarioChoice === 1 ? 'A responsible start.' : 'Pause before proceeding.' }}</strong> The task may be useful, but the information and the tool both need review before the coordinator asks for any output.</p>
+                <div class="rise-scenario-block__check"><h3>Select all safeguards that still apply</h3><p>The decision is not complete until you identify the conditions that keep the task bounded and accountable.</p><button v-for="(option, index) in safeguardOptions" :key="option" type="button" :class="{ selected: safeguardsSelected.includes(index) }" :aria-pressed="safeguardsSelected.includes(index)" @click="toggleSafeguard(index)"><i aria-hidden="true">{{ safeguardsSelected.includes(index) ? '✓' : '' }}</i>{{ option }}</button><button v-if="!safeguardsSubmitted" type="button" class="rise-submit" :disabled="!safeguardsSelected.length" @click="submitSafeguards">Check safeguards</button><p v-else class="rise-activity__feedback" :class="{ correct: isCorrectSafeguardSet() }"><strong>{{ isCorrectSafeguardSet() ? 'Complete.' : 'Review the conditions.' }}</strong> {{ isCorrectSafeguardSet() ? 'Safe inputs, evidence checks, and named accountability work together. Confident wording is never proof.' : 'The correct set includes the first three statements. A confident answer still needs checking.' }}</p></div></template>
             </section>
 
             <section class="rise-source"><strong>Source:</strong> <a :href="currentModule.sourceUrl" target="_blank" rel="noreferrer">{{ currentModule.sourceLabel }}</a> <span>· {{ currentModule.confidence }}</span></section>
@@ -347,4 +522,5 @@ onMounted(() => {
 <style>
 :root{--rise-blue:#2f6fb3;--rise-header:#9ac8e8;--rise-ink:#111;--rise-grey:#f3f3f3;--rise-line:#dedede;--rise-font:'Poppins',Arial,sans-serif}*{box-sizing:border-box}body{margin:0;background:#fff}.rise-canvas{min-height:100dvh;display:grid;grid-template-columns:242px minmax(0,1fr);grid-template-rows:minmax(0,1fr) 58px;background:#fff;color:var(--rise-ink);font-family:var(--rise-font)}.rise-sidebar{position:sticky;top:0;align-self:start;grid-row:1/-1;height:100dvh;overflow:auto;border-right:1px solid var(--rise-line);background:#fff}.rise-sidebar__hero{position:relative;width:100%;height:162px;padding:0;border:0;overflow:hidden;background:#222;color:#fff;text-align:left;cursor:pointer}.rise-sidebar__hero img{width:100%;height:100%;object-fit:cover}.rise-sidebar__hero::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.46)}.rise-sidebar__hero span{position:absolute;z-index:1;left:19px;bottom:17px;font-size:19px;font-weight:800;line-height:1.16}.rise-sidebar__home{width:100%;padding:14px 19px 10px;border:0;background:#fff;color:#111;text-align:left;cursor:pointer;font:800 13px var(--rise-font)}.rise-sidebar__progress{display:grid;gap:6px;padding:0 19px 18px;border-bottom:1px solid var(--rise-line)}.rise-sidebar__progress span{font-size:10px;font-weight:800}.rise-sidebar__progress i{display:block;height:3px;background:#e7e7e7}.rise-sidebar__progress i b{display:block;height:100%;background:var(--rise-blue)}.rise-sidebar__list{padding:11px 0;margin:0;list-style:none}.rise-sidebar__list li button{width:100%;display:grid;grid-template-columns:19px 1fr 18px;gap:10px;align-items:center;padding:13px 14px;border:0;background:#fff;color:#111;text-align:left;cursor:pointer;font:700 12px/1.25 var(--rise-font)}.rise-sidebar__list li button:hover,.rise-sidebar__list li button.active{background:#fafafa}.rise-glyph{position:relative;display:block;width:15px;height:11px;border-top:2px solid #777;border-bottom:2px solid #777}.rise-glyph::after{content:'';position:absolute;top:3px;left:0;width:15px;border-top:2px solid #777}.rise-glyph.quiz{width:14px;height:14px;border:2px solid #777}.rise-glyph.quiz::after{content:'?';top:-4px;left:3px;width:auto;border:0;color:#777;font-size:10px;font-weight:900}.rise-sidebar__list b,.rise-overview__outline b{width:16px;height:16px;display:grid;place-items:center;border:2px solid #dadada;border-radius:50%;color:#fff;font-size:9px}.rise-sidebar__list b.complete,.rise-overview__outline b.complete{background:var(--rise-blue);border-color:var(--rise-blue)}.rise-sidebar__close{display:none}.rise-main{min-width:0;background:#fff}.rise-screen{min-height:100dvh}.rise-overview{max-width:1180px;margin:0 auto}.rise-overview__hero{position:relative;min-height:410px;overflow:hidden;background:#202020}.rise-overview__hero img{width:100%;height:410px;display:block;object-fit:cover}.rise-overview__shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.64),rgba(0,0,0,.10) 74%)}.rise-overview__hero h1{position:absolute;left:50px;bottom:120px;max-width:630px;margin:0;color:#fff;font-size:50px;font-weight:900;letter-spacing:-.045em;line-height:1.12}.rise-overview__hero button{position:absolute;left:50px;bottom:42px;min-width:360px;height:58px;border:0;border-radius:999px;background:#fff;color:#111;cursor:pointer;font:900 15px var(--rise-font);letter-spacing:.07em;text-transform:uppercase}.rise-overview__body{max-width:880px;padding:52px 50px 86px}.rise-wordmark{margin:0 0 50px;font-size:55px;font-weight:900;letter-spacing:-.08em}.rise-overview__body p{max-width:670px;margin:0 0 31px;font-size:19px;font-weight:500;line-height:1.65}.rise-duration{font-size:18px!important}.rise-overview__outline{max-width:700px;padding:7px 0;margin:0;list-style:none}.rise-overview__outline li button{width:100%;display:grid;grid-template-columns:26px 1fr 22px;gap:15px;align-items:center;padding:17px 4px;border:0;background:#fff;color:#111;text-align:left;cursor:pointer;font:700 16px var(--rise-font)}.rise-overview__outline i{position:relative;width:17px;height:12px;border-top:2px solid #777;border-bottom:2px solid #777}.rise-overview__outline i::after{content:'';position:absolute;top:4px;left:0;width:17px;border-top:2px solid #777}.rise-overview__outline i.quiz{width:16px;height:16px;border:2px solid #777}.rise-overview__outline i.quiz::after{content:'?';top:-3px;left:4px;width:auto;border:0;color:#777;font-size:11px;font-weight:900}.rise-header{min-height:255px;padding:18px 54px 37px;background:var(--rise-header)}.rise-header>div{display:flex;align-items:center;justify-content:space-between}.rise-header button{width:36px;height:36px;border:0;border-radius:2px;background:#fff;cursor:pointer}.rise-menu-icon{position:relative;display:inline-block;width:15px;height:11px;border-top:2px solid #333;border-bottom:2px solid #333}.rise-menu-icon::after{content:'';position:absolute;top:3px;left:0;width:15px;border-top:2px solid #333}.rise-header>div>b{font-size:13px}.rise-header h1{max-width:760px;margin:67px 0 25px;font-size:46px;font-weight:900;letter-spacing:-.045em;line-height:1.12}.rise-header>i{display:block;width:65px;border-top:6px solid #111}.rise-reading{max-width:910px;padding:48px 54px 90px}.rise-reading>p,.rise-text-section>p,.rise-worked-example>p{max-width:780px;margin:0 0 28px;font-size:19px;font-weight:500;line-height:1.68}.rise-reading h2{max-width:780px;margin:52px 0 16px;font-size:35px;font-weight:900;letter-spacing:-.035em;line-height:1.2}.rise-reading h3{margin:0 0 11px;font-size:25px;font-weight:900}.rise-reading .rise-lead{font-size:24px;font-weight:800;line-height:1.5}.rise-reading>ul{display:grid;gap:20px;max-width:780px;padding-left:31px;margin:0 0 50px}.rise-reading>ul li{padding-left:7px;font-size:19px;font-weight:500;line-height:1.55}.rise-info{display:grid;grid-template-columns:34px 1fr;gap:13px;max-width:780px;padding:24px;margin:37px 0;background:#f5f5f5}.rise-info>i{width:24px;height:24px;display:grid;place-items:center;border:2px solid #777;border-radius:50%;color:#777;font-size:15px;font-style:normal;font-weight:900}.rise-info b{font-size:16px}.rise-info p{margin:6px 0 0;font-size:17px;font-weight:500;line-height:1.55}.rise-diagram{display:flex;flex-wrap:wrap;align-items:center;gap:9px;max-width:780px;margin:38px 0;padding:20px 0;border-top:1px solid var(--rise-line);border-bottom:1px solid var(--rise-line)}.rise-diagram span{padding:8px 10px;background:#f5f5f5;font-size:14px;font-weight:700}.rise-diagram i{font-style:normal;color:var(--rise-blue);font-size:20px;font-weight:800}.rise-worked-example{max-width:780px;margin:44px 0;padding-top:2px}.rise-worked-example h2{margin-top:0}.rise-media{max-width:780px;margin:40px 0}.rise-media img{display:block;width:100%;max-height:440px;object-fit:cover}.rise-media p{margin:12px 0 0;font-size:16px;font-weight:500;line-height:1.55}.rise-video{max-width:780px;margin:44px 0}.rise-video h2{margin:0 0 12px}.rise-video>p{margin:0 0 16px;font-size:17px;line-height:1.55}.rise-video__frame{position:relative;aspect-ratio:16/9;border:1px solid var(--rise-line)}.rise-video__frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.rise-activity{max-width:780px;margin:46px 0;padding-top:3px}.rise-activity h2{margin-top:0}.rise-activity>p{font-size:18px;font-weight:500;line-height:1.6}.rise-activity blockquote{margin:22px 0;padding:18px 22px;border-left:4px solid var(--rise-blue);background:#f5f5f5;font-size:18px;font-weight:600;line-height:1.55}.rise-choice-row{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0}.rise-choice-row button,.rise-choice-column button{border:1px solid var(--rise-line);background:#fff;color:#111;cursor:pointer;font:700 15px var(--rise-font)}.rise-choice-row button{padding:12px 16px}.rise-choice-column{display:grid;margin:20px 0}.rise-choice-column button{padding:15px;text-align:left}.rise-choice-column button+button{border-top:0}.rise-choice-row button.selected,.rise-choice-column button.selected{border-color:var(--rise-blue);box-shadow:inset 0 0 0 1px var(--rise-blue)}.rise-activity__feedback{padding:17px 0 0;border-top:1px solid var(--rise-line);font-size:17px!important}.rise-source{max-width:780px;padding-top:18px;border-top:1px solid var(--rise-line);font-size:15px}.rise-source a,.rise-source span{color:var(--rise-blue);font-weight:700}.rise-bridge{max-width:780px;margin:34px 0;padding-left:17px;border-left:4px solid var(--rise-blue)}.rise-bridge b{font-size:15px}.rise-bridge p{margin:6px 0 0;font-size:17px;font-weight:500;line-height:1.55}.rise-next-link{margin-top:39px;padding:0;border:0;background:#fff;color:var(--rise-blue);cursor:pointer;font:800 17px var(--rise-font);text-decoration:underline}.rise-quiz{max-width:780px;padding:38px;margin:44px 0;border:1px solid #ededed;background:#fff}.rise-quiz>span{display:block;font-size:11px;font-weight:800}.rise-quiz>b{display:block;margin:2px 0 22px;color:var(--rise-blue);font-size:25px}.rise-quiz h2{margin:0 0 16px;font-size:25px}.rise-quiz>p{margin:0 0 18px;font-size:17px;font-weight:500}.rise-quiz label{display:grid;grid-template-columns:22px 1fr;gap:13px;align-items:center;padding:16px;border:1px solid #e2e2e2;cursor:pointer;font-size:17px;font-weight:600}.rise-quiz label+label{border-top:0}.rise-quiz input{appearance:none;width:15px;height:15px;margin:0;border:1px solid #bbb;border-radius:50%}.rise-quiz label.selected input{border:5px solid var(--rise-blue)}.rise-submit{display:block;min-width:145px;height:42px;margin:25px auto 0;border:0;border-radius:999px;background:var(--rise-blue);color:#fff;cursor:pointer;font:800 12px var(--rise-font);letter-spacing:.05em;text-transform:uppercase}.rise-submit:disabled{opacity:.45;cursor:not-allowed}.rise-quiz aside{padding:15px 0 0;font-size:16px;font-weight:600;line-height:1.5}.rise-quiz aside.correct{color:#1f5a39}.rise-action-plan{display:grid;max-width:780px;gap:26px;margin-top:36px}.rise-action-plan label{display:grid;gap:7px}.rise-action-plan label b{font-size:19px}.rise-action-plan label span{color:#555;font-size:16px;font-weight:500}.rise-action-plan textarea{width:100%;padding:14px;border:1px solid var(--rise-line);font:500 16px/1.45 var(--rise-font);outline:none}.rise-action-plan textarea:focus{border-color:var(--rise-blue)}.rise-action-plan .rise-submit{margin:0}.rise-complete{max-width:780px;padding:24px;margin-top:34px;background:#f5f5f5}.rise-complete b{font-size:20px}.rise-complete p{font-size:17px;font-weight:500;line-height:1.5}.rise-footer{position:sticky;bottom:0;grid-column:2;display:flex;align-items:center;justify-content:space-between;padding:0 54px;border-top:1px solid var(--rise-line);background:#fff}.rise-footer button{border:0;background:#fff;color:var(--rise-blue);cursor:pointer;font:800 14px var(--rise-font)}.rise-footer button:disabled{color:#bbb;cursor:not-allowed}.rise-footer span{color:#777;font-size:13px}.rise-fade-enter-active,.rise-fade-leave-active{transition:opacity .18s ease}.rise-fade-enter-from,.rise-fade-leave-to{opacity:0}@media(max-width:760px){.rise-canvas{display:block}.rise-sidebar{position:fixed;z-index:20;top:0;bottom:0;left:0;width:min(310px,88vw);height:auto;transform:translateX(-102%);transition:transform .2s ease;box-shadow:4px 0 18px rgba(0,0,0,.16)}.rise-sidebar.open{transform:none}.rise-sidebar__close{display:block;width:100%;padding:16px;border:0;border-top:1px solid var(--rise-line);background:#fff;cursor:pointer;font:800 14px var(--rise-font)}.rise-overview__hero,.rise-overview__hero img{min-height:338px;height:338px}.rise-overview__hero h1{left:28px;right:28px;bottom:104px;font-size:34px}.rise-overview__hero button{left:24px;right:24px;bottom:26px;min-width:0;height:52px;font-size:13px}.rise-overview__body{padding:42px 28px 78px}.rise-wordmark{margin-bottom:37px;font-size:42px}.rise-overview__body p{font-size:18px}.rise-overview__outline li button{font-size:15px}.rise-header{min-height:268px;padding:14px 28px 32px}.rise-header h1{margin-top:60px;font-size:35px}.rise-reading{padding:38px 28px 78px}.rise-reading>p,.rise-text-section>p,.rise-worked-example>p{font-size:18px}.rise-reading h2{font-size:32px}.rise-reading>ul li{font-size:18px}.rise-diagram{gap:7px}.rise-diagram span{font-size:12px}.rise-diagram i{font-size:16px}.rise-quiz{padding:25px}.rise-info{padding:18px}.rise-choice-row{display:grid;grid-template-columns:1fr}.rise-choice-row button{text-align:left}.rise-footer{position:sticky;bottom:0;padding:0 28px;height:58px}.rise-footer span{font-size:12px}}
 .rise-prediction-lab{max-width:780px;margin:48px 0;padding:30px;border:1px solid var(--rise-line);background:#fff}.rise-prediction-lab__eyebrow{margin:0 0 10px;color:var(--rise-blue);font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.rise-prediction-lab h2{margin:0 0 14px}.rise-prediction-lab>p{font-size:18px;font-weight:500;line-height:1.6}.rise-prediction-lab blockquote{margin:25px 0;padding:20px 22px;border-left:4px solid var(--rise-blue);background:#f5f5f5;font-size:21px;font-weight:700;line-height:1.55}.rise-prediction-lab blockquote b{color:var(--rise-blue)}.rise-prediction-lab .rise-submit{margin-left:0}.rise-prediction-lab .rise-choice-column button:disabled{cursor:default}.rise-prediction-lab .rise-activity__feedback.correct{color:#1f5a39}.rise-prediction-lab__output{margin:17px 0 0;padding:15px 17px;border-left:3px solid #9ac8e8;background:#f5f9fc}.rise-prediction-lab__output span{display:block;margin-bottom:4px;color:var(--rise-blue);font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.rise-prediction-lab__output p{margin:0;font-size:17px!important;line-height:1.55}.rise-prediction-lab__output b{color:var(--rise-blue)}.rise-prediction-lab__conclusion{margin-top:25px!important;padding-top:18px;border-top:1px solid var(--rise-line);font-weight:700!important}@media(max-width:760px){.rise-prediction-lab{padding:22px}.rise-prediction-lab blockquote{font-size:19px}}
+.rise-block{max-width:780px;margin:48px 0;padding:30px;border-top:1px solid var(--rise-line);border-bottom:1px solid var(--rise-line);background:#fff}.rise-block__eyebrow{margin:0 0 10px!important;color:var(--rise-blue);font-size:12px!important;font-weight:800!important;letter-spacing:.05em;text-transform:uppercase}.rise-block h2{margin:0 0 14px!important;font-size:30px!important}.rise-block>p{font-size:18px;font-weight:500;line-height:1.6}.rise-block__takeaway{margin:23px 0 0!important;padding:15px 17px!important;border-left:3px solid #9ac8e8;background:#f5f9fc;font-size:16px!important;font-weight:700!important;line-height:1.55}.rise-timeline-block__nav{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:24px 0 0;border-top:1px solid var(--rise-line);border-bottom:1px solid var(--rise-line)}.rise-timeline-block__nav button{min-height:82px;padding:13px 11px;border:0;border-left:1px solid var(--rise-line);background:#fff;color:#555;text-align:left;cursor:pointer;font:700 13px/1.35 var(--rise-font)}.rise-timeline-block__nav button:first-child{border-left:0}.rise-timeline-block__nav button.active{background:#f5f9fc;color:#111;box-shadow:inset 0 3px 0 var(--rise-blue)}.rise-timeline-block__nav b{display:block;margin-bottom:4px;color:var(--rise-blue);font-size:14px}.rise-timeline-block__nav span{display:block}.rise-timeline-block__event{min-height:174px;padding:25px 0 6px}.rise-timeline-block__event>b{color:var(--rise-blue);font-size:14px}.rise-timeline-block__event h3{margin:7px 0 10px}.rise-timeline-block__event p{max-width:680px;margin:0;font-size:18px;font-weight:500;line-height:1.6}.rise-flashcards__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:25px}.rise-flashcards__grid button{min-height:180px;padding:20px;border:1px solid var(--rise-line);background:#fff;color:#111;text-align:left;cursor:pointer;font-family:var(--rise-font);transition:background .16s ease,border-color .16s ease}.rise-flashcards__grid button:hover,.rise-flashcards__grid button.open{border-color:var(--rise-blue);background:#f5f9fc}.rise-flashcards__grid button span{display:grid;gap:14px}.rise-flashcards__grid button b{font-size:19px;line-height:1.45}.rise-flashcards__grid button small{color:#666;font-size:13px;font-weight:700;line-height:1.5}.rise-tabs-block__tabs{display:flex;flex-wrap:wrap;gap:0;margin-top:24px;border-bottom:1px solid var(--rise-line)}.rise-tabs-block__tabs button{padding:13px 16px;border:0;border-bottom:3px solid transparent;background:#fff;color:#666;cursor:pointer;font:800 14px var(--rise-font)}.rise-tabs-block__tabs button.active{border-bottom-color:var(--rise-blue);color:#111}.rise-tabs-block__panel{min-height:220px;padding:25px 0 4px}.rise-tabs-block__panel h3{margin-bottom:9px}.rise-tabs-block__panel p{max-width:690px;font-size:18px;font-weight:500;line-height:1.6}.rise-game-block blockquote{margin:24px 0;padding:20px 22px;border-left:4px solid var(--rise-blue);background:#f5f5f5;font-size:19px;font-weight:700;line-height:1.55}.rise-game-block .rise-submit,.rise-scenario-block .rise-submit{margin-left:0}.rise-scenario-block .rise-choice-column{margin-top:22px}.rise-scenario-block__check{margin-top:27px;padding-top:25px;border-top:1px solid var(--rise-line)}.rise-scenario-block__check h3{margin-bottom:9px}.rise-scenario-block__check>p{font-size:17px;font-weight:500;line-height:1.55}.rise-scenario-block__check>button:not(.rise-submit){width:100%;display:grid;grid-template-columns:23px 1fr;gap:11px;align-items:center;padding:15px;border:1px solid var(--rise-line);background:#fff;color:#111;text-align:left;cursor:pointer;font:700 15px/1.45 var(--rise-font)}.rise-scenario-block__check>button:not(.rise-submit)+button:not(.rise-submit){border-top:0}.rise-scenario-block__check>button.selected{border-color:var(--rise-blue);background:#f5f9fc}.rise-scenario-block__check>button i{width:18px;height:18px;display:grid;place-items:center;border:1px solid #999;color:#fff;font-size:12px;font-style:normal}.rise-scenario-block__check>button.selected i{border-color:var(--rise-blue);background:var(--rise-blue)}@media(max-width:760px){.rise-block{padding:25px 0}.rise-block h2{font-size:28px!important}.rise-timeline-block__nav{grid-template-columns:1fr 1fr}.rise-timeline-block__nav button:nth-child(3){border-left:0;border-top:1px solid var(--rise-line)}.rise-timeline-block__nav button:nth-child(4){border-top:1px solid var(--rise-line)}.rise-flashcards__grid{grid-template-columns:1fr}.rise-flashcards__grid button{min-height:134px}.rise-tabs-block__tabs{display:grid;grid-template-columns:1fr}.rise-tabs-block__tabs button{text-align:left}.rise-tabs-block__panel{min-height:0}.rise-block__takeaway{font-size:15px!important}}
 </style>

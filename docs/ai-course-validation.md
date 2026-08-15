@@ -33,3 +33,25 @@ The local validation progress record was cleared after the completion test. A cl
 The refined prediction lab now presents a single service-update sentence. Its first prompt, “Heavy rain has flooded the …”, offered the context-appropriate continuation “tracks” and introduced the explicit instruction that each predicted token will become part of the next context.
 
 Submitting “tracks” displayed both explanatory feedback and a visible generated-text readout. Advancing to step two then carried that token into the prompt: “Heavy rain has flooded the tracks, so the next train will be …”, confirming the intended cumulative consequence.
+
+## Rise-inspired block expansion check
+
+The updated course loaded from a clean `v9` progress state. Lesson 01 presented the new four-event timeline after its history prose, worked example, and supporting visual. Its four labelled milestone controls and the opening 1950 panel rendered successfully within the existing Rise-style reading canvas.
+
+Lesson 02 presented the compact three-card retrieval pause after the practical definition and travel-time example. Selecting the **Task** card revealed the intended explanation in place while the remaining cards stayed compact, preserving the learner’s focus on one concept at a time.
+
+Lesson 03 rendered the three-panel rules-versus-patterns-versus-next-token comparison after the worked example. Selecting **Learned patterns** replaced only the focused panel explanation and example, while the comparison labels and conclusion remained stable.
+
+Lesson 05 rendered the three-step sorting game after its workflow example. The initial item, a damaged-parcel photograph, offered the expected input/output/evaluation categories; selecting **Input** activated the intended choice state before submission.
+
+Submitting **Input** provided the expected explanation and a clearly labelled next-item control. Lesson 06 then rendered its first model-matching prompt after the capability explanation and model-landscape visual, with three compact documented-model choices.
+
+Lesson 07 rendered the responsible-use scenario after the four-question routine and worked example. Selecting and submitting the approved-tool and personal-information option produced the intended contextual feedback, then revealed a four-option “select all safeguards” retrieval check. This preserves a single nested decision sequence rather than placing a second unrelated interaction in the lesson.
+
+The first two safeguard selections each showed the expected visible check state. The interaction is tap-first rather than drag-dependent and leaves the incorrect confidence-as-proof statement visibly available for comparison.
+
+Selecting the third required safeguard and submitting the set returned the intended completion message: safe inputs, evidence checks, and named accountability work together, while confident wording is not proof. The final scenario sequence therefore completed without a navigation or state error.
+
+The model-matching game was also re-opened after the scenario check. Selecting **Gemini** activated the intended choice state for the public multimodal-capability description, confirming that selection logic is independent across the lesson blocks.
+
+Submitting the Gemini match produced the expected capability explanation and next-capability control. The browser console showed no client-side runtime error after the expanded interaction sequence; it reported only Nuxt’s existing Suspense informational notice.

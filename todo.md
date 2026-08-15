@@ -107,3 +107,11 @@
 - [x] Design one central, multi-step prediction simulation that teaches next-token prediction through learner choices, visible consequences, explanations, and increasing complexity.
 - [x] Create only purposeful imagery, diagrams, videos, and micro-interactions that support a named explanation, example, practice opportunity, or assessment objective.
 - [x] Run a critical improvement pass against cognitive load, narrative coherence, visual quality, accessibility, interaction purpose, and reference fidelity before release.
+
+## Rise 360 block library and concept-game expansion
+
+- [x] Inventory every supplied Rise 360 block asset and document its structure, learner action, feedback pattern, and appropriate instructional use.
+- [x] Map each useful block pattern to a cognitive-load purpose: signalling, segmentation, worked example, retrieval, elaboration, comparison, or practice.
+- [x] Design a deliberately limited set of new blocks and small games that make specific AI concepts easier to understand without interrupting the course narrative.
+- [x] Implement the selected blocks with accessible keyboard interactions and reference-matched visual restraint.
+- [ ] Validate the revised lesson flow, interaction feedback, visual quality, and production build; then push the improved course to `main`.

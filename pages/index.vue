@@ -43,6 +43,8 @@ const pathways = [
 
 const selectedWork = computed(() => ITEMS.filter(item => ['sewa-chronicles', 'ai-atlas', 'strong'].includes(item.id)))
 const selectedTools = computed(() => ITEMS.filter(item => item.category === 'tools').slice(0, 3))
+const homeHeroArt = 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/CLHikwLahcffypTI.jpg'
+const eveningNoteArt = 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/vhnvNQcncSQVUYvR.jpg'
 </script>
 
 <template>
@@ -56,6 +58,7 @@ const selectedTools = computed(() => ITEMS.filter(item => item.category === 'too
         <p>I started out on hotel floors, where a good explanation helped someone get through a busy shift. Now I make lessons, projects, and small tools for people who need to understand difficult things.</p>
         <NuxtLink to="/instructional-design" class="ticket">Try a short lesson <span aria-hidden="true">→</span></NuxtLink>
       </div>
+      <figure class="home-hero__art u-editorial-enter"><img :src="homeHeroArt" alt="Editorial still life showing a practical path from tangled work to a clear route" loading="eager" decoding="async" /></figure>
     </header>
 
     <section class="paths" aria-labelledby="paths-title">
@@ -107,6 +110,7 @@ const selectedTools = computed(() => ITEMS.filter(item => item.category === 'too
       <p class="close__kicker t-mono">About Naveen</p>
       <h2 id="close-title" class="close__title t-display">I care about the moment someone says, “Oh. I get it now.”</h2>
       <p class="close__body">That is why I make this work. If you are trying to explain something important, I would genuinely like to hear about it.</p>
+      <figure class="close__art u-editorial-enter"><img :src="eveningNoteArt" alt="A quiet evening desk with a notebook, service bell, pencil, and an open envelope" loading="lazy" decoding="async" /></figure>
       <a href="mailto:iamnaveenjose@outlook.com" class="ticket">Start a conversation <span aria-hidden="true">→</span></a>
     </section>
   </EdShell>
@@ -119,6 +123,7 @@ const selectedTools = computed(() => ITEMS.filter(item => item.category === 'too
 .home-hero__title { max-width: 10ch; margin: 18rem 0 0; font-size: clamp(54rem, 8vw, 128rem); line-height: .92; letter-spacing: -.025em; word-spacing: .035em; }
 .home-hero__copy { align-self: end; display: flex; flex-direction: column; align-items: flex-start; gap: 24rem; max-width: 39ch; padding-bottom: 5rem; }
 .home-hero__copy p { margin: 0; color: var(--muted); font-family: var(--font-reading); font-size: clamp(18rem, 1.65vw, 22rem); line-height: 1.6; }
+.home-hero__art { grid-column: 1 / -1; height: clamp(230rem, 30vw, 430rem); margin: clamp(4rem, 1vw, 16rem) 0 0; overflow: hidden; border: var(--stroke) solid var(--line); background: var(--paper-2); }.home-hero__art img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 .paths, .projects, .tools { padding: clamp(54rem, 9vw, 132rem) 0; border-bottom: var(--stroke) solid var(--line); }
 .section-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250rem, .56fr); gap: 28rem; align-items: end; margin-bottom: clamp(30rem, 5vw, 64rem); }
@@ -148,8 +153,9 @@ const selectedTools = computed(() => ITEMS.filter(item => item.category === 'too
 
 .close { max-width: 760rem; padding: clamp(60rem, 11vw, 160rem) 0 calc(clamp(72rem, 12vw, 180rem)); }
 .close__title { max-width: 14ch; margin: 14rem 0 20rem; font-size: clamp(42rem, 5.8vw, 82rem); line-height: .96; }.close__body { max-width: 53ch; margin: 0 0 30rem; color: var(--muted); font-family: var(--font-reading); font-size: clamp(18rem, 1.7vw, 21rem); line-height: 1.6; }
+.close__art { width: min(100%, 620rem); margin: 0 0 30rem; overflow: hidden; border: var(--stroke) solid var(--line); background: var(--paper-2); }.close__art img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
 
 @media (max-width: 900px) { .home-hero { grid-template-columns: minmax(0, 1fr); gap: 32rem; }.home-hero__title { max-width: 11ch; }.projects__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 660px) { .home-hero { padding-top: 42rem; }.home-hero__title { font-size: clamp(52rem, 15vw, 70rem); }.section-intro, .section-intro--split { grid-template-columns: minmax(0, 1fr); gap: 18rem; }.paths__list, .projects__grid { grid-template-columns: minmax(0, 1fr); }.path:nth-child(odd) { border-right: 0; }.path__link { min-height: 190rem; grid-template-columns: 39% 61%; }.path__copy { padding: 18rem; }.tool-row { grid-template-columns: minmax(0, 1fr) auto; gap: 8rem 16rem; }.tool-row__dek { grid-column: 1 / -1; }.tool-row__action { grid-column: 2; grid-row: 1; } }
+@media (max-width: 660px) { .home-hero { padding-top: 42rem; }.home-hero__title { font-size: clamp(52rem, 15vw, 70rem); }.home-hero__art { height: auto; }.home-hero__art img { aspect-ratio: 4 / 3; object-fit: cover; }.section-intro, .section-intro--split { grid-template-columns: minmax(0, 1fr); gap: 18rem; }.paths__list, .projects__grid { grid-template-columns: minmax(0, 1fr); }.path:nth-child(odd) { border-right: 0; }.path__link { min-height: 190rem; grid-template-columns: 39% 61%; }.path__copy { padding: 18rem; }.tool-row { grid-template-columns: minmax(0, 1fr) auto; gap: 8rem 16rem; }.tool-row__dek { grid-column: 1 / -1; }.tool-row__action { grid-column: 2; grid-row: 1; }.close__art img { aspect-ratio: 4 / 3; } }
 @media (prefers-reduced-motion: reduce) { .path__art img, .tool-row { transition: none; } }
 </style>

@@ -13,5 +13,6 @@ useSeoMeta({
     category="projects"
     title="Projects"
     deck="Courses, stories, and interactive explainers I made for real people to use."
+    :visual="{ src: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/fkghADLtHOimQLlL.jpg', alt: 'Editorial workbench with comic panels, cards, and a blue thread connecting creative project pieces' }"
   />
 </template>

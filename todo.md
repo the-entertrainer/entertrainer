@@ -194,3 +194,11 @@
 - [x] Rework the Projects, Free tools, Lessons, About, and secondary page families around their distinct page roles.
 - [x] Complete the cross-site mobile, accessibility, asset, copy, and visual-restraint quality gates.
 - [x] Validate all primary routes, complete the production build, and push the finished no-miss redesign to `main`.
+
+## Visual impact expansion
+
+- [x] Audit the simplified site for page moments where original imagery will improve orientation, emotion, or project context without adding redundant interface content.
+- [x] Define a consistent text-free editorial art direction and exact asset placement plan for the homepage, Lessons, Projects, Tools, and About.
+- [x] Define reusable motion tokens and apply only purposeful visual movement for asset entrances, route feedback, and directional controls.
+- [x] Generate and integrate the selected original visual assets with descriptive alternative text and stable project URLs.
+- [x] Validate visual impact, contrast, mobile cropping, loading, keyboard feedback, reduced-motion behavior, accessibility, and production build; then push the expansion to `main`.

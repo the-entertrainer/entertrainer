@@ -229,6 +229,8 @@
   --lift: -1rem;
   --press: 0.99;
   --press-deep: 0.96;
+  --motion-distance-sm: 4rem;
+  --motion-distance-md: 18rem;
 }
 
 /* ============================================================
@@ -626,10 +628,37 @@ p, li, dd, figcaption { text-wrap: pretty; }
 .u-media-in { animation: u-media-in var(--dur-slow) var(--ease-out) both; }
 @keyframes u-media-in { from { opacity: 0 } to { opacity: 1 } }
 
+/* Public editorial assets enter once when a new route mounts. This is a
+   composited orientation cue, not a scroll-linked reveal; every image stays
+   fully visible when CSS animation is unavailable. */
+.u-editorial-enter { animation: u-editorial-enter var(--dur-slow) var(--ease-out) both; }
+@keyframes u-editorial-enter {
+  from { opacity: 0; transform: translateY(var(--motion-distance-md)); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Directional feedback: movement supports an existing arrow and never
+   replaces the visible link text or keyboard focus indication. */
+.ticket > span[aria-hidden="true"], .path__action, .tool-row__action, .lesson__action {
+  display: inline-block;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) {
+  .ticket:hover > span[aria-hidden="true"], .path__link:hover .path__action,
+  .tool-row:hover .tool-row__action, .lesson:hover .lesson__action {
+    transform: translateX(var(--motion-distance-sm));
+  }
+}
+.ticket:focus-visible > span[aria-hidden="true"], .path__link:focus-visible .path__action,
+.tool-row:focus-visible .tool-row__action, .lesson:focus-visible .lesson__action {
+  transform: translateX(var(--motion-distance-sm));
+}
+
 @media (prefers-reduced-motion: reduce) {
   .u-press, .u-lift, .u-tap, .ticket, .px-btn, .glass-btn, .u-underline::after { transition-duration: 1ms; }
   .t-rise > span, .t-fade-up { animation: t-plain 180ms linear both; animation-delay: 0ms; }
-  .u-media-in { animation: none; }
+  .u-media-in, .u-editorial-enter { animation: none; }
+  .ticket > span[aria-hidden="true"], .path__action, .tool-row__action, .lesson__action { transition: none; }
   @keyframes t-plain { from { opacity: 0 } to { opacity: 1 } }
 }
 

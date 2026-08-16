@@ -12,6 +12,8 @@ const props = defineProps<{
   deck: string
   /** Supporting paragraph, set below the field where it does not delay the work. */
   intro?: string
+  /** One text-free editorial image that establishes the destination before the real work. */
+  visual?: { src: string; alt: string }
 }>()
 
 const items = computed(() => byCategory(props.category))
@@ -24,6 +26,10 @@ const items = computed(() => byCategory(props.category))
       :title="title"
       :deck="deck"
     />
+
+    <figure v-if="visual" class="sec__visual u-editorial-enter">
+      <img :src="visual.src" :alt="visual.alt" loading="eager" decoding="async" />
+    </figure>
 
     <ul class="sec__grid">
       <li v-for="it in items" :key="it.id">
@@ -45,6 +51,8 @@ const items = computed(() => byCategory(props.category))
   grid-template-columns: repeat(auto-fit, minmax(300rem, 1fr));
 }
 .sec__grid > li { display: flex; min-width: 0; }
+.sec__visual { margin: 0 0 clamp(30rem, 5vw, 56rem); overflow: hidden; border: var(--stroke) solid var(--line); background: var(--paper-2); }
+.sec__visual img { display: block; width: 100%; aspect-ratio: 2.35 / 1; object-fit: cover; object-position: center 58%; }
 
 /* The supporting paragraph sits after the work, not before it. On a phone the
    old layout spent 460 of 844 pixels on preamble before the first card. */
@@ -60,5 +68,6 @@ const items = computed(() => byCategory(props.category))
 
 @media (max-width: 680px) {
   .sec__grid { grid-template-columns: minmax(0, 1fr); }
+  .sec__visual img { aspect-ratio: 16 / 9; }
 }
 </style>

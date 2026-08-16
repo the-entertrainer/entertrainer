@@ -1848,8 +1848,9 @@ repeat → candidate response</code></pre>
 .visual-explainer h2 { font-size: 24px !important; }
 .task-canvas__route li, .learn-use-map__lane, .context-map__sequence span, .context-map__loop span, .capability-route__steps li, .risk-route__lane { border-radius: 2px; box-shadow: none; }
 
-.rise-banner-block { min-height: 0; padding: 28px 30px; background: var(--co-blue-tint); }
-.rise-banner-block h2 { margin-top: 0; }
+.rise-banner-block { min-height: 0; padding: 28px 30px; background: var(--co-blue-tint); color: var(--co-ink); }
+.rise-banner-block h2 { margin-top: 0; color: var(--co-ink); }
+.rise-banner-block p:last-child { color: var(--co-muted); font-weight: 500; }
 .rise-gallery-carousel { padding: 0; background: transparent; }
 .rise-gallery-carousel__frame { min-height: 280px; border-radius: 0; }
 .rise-gallery-carousel__controls, .rise-quote-carousel__controls, .rise-stack__controls, .rise-process-block__controls { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 14px; }

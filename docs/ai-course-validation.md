@@ -85,3 +85,7 @@ The Prediction engine screen confirmed the revised hierarchy: a shallow pale-blu
 The Learning patterns process was tested through its third step. It now presents a compact, learner-paced control rail (`Examples`, `Pattern`, `New request`), one focused content panel, visible `3 of 3` progress, and deliberately simple Previous/Next controls. This replaces the former all-at-once process-card row and behaves as a genuine sequential interaction.
 
 The settled `375 × 812` mobile capture confirmed that the full-width cover image keeps the title and action readable over the dark overlay; the masthead, compact course-menu trigger, reading column, and source content remain within the viewport without horizontal clipping. The browser console contained only Nuxt’s existing Suspense informational notice and no client-side error from the revised shell or process interaction.
+
+## History-banner contrast correction: 16 August 2026
+
+The user correctly identified that the light-blue history banner inherited the older white-on-blue text rule and was unreadable on mobile. The banner now explicitly applies dark ink to its heading and muted dark text to its supporting paragraph while retaining the pale-blue background. In the live course, computed values were `rgb(237, 244, 251)` for the background, `rgb(27, 31, 38)` for the heading, and `rgb(93, 102, 115)` for the supporting text. A direct browser inspection of the affected Lesson 1 block confirmed that the complete message is visibly readable.

@@ -145,3 +145,8 @@
 - [x] Rebuild the course shell, visual blocks, and interaction states around a restrained modern Rise-style component system.
 - [x] Validate the rebuilt experience against the reference at desktop and mobile widths, including keyboard behaviour, motion, and a full production build.
 - [x] Push the faithful Rise-style rebuild to `main`.
+
+## History-banner contrast correction
+
+- [x] Correct the low-contrast pale-blue history banner so its title and supporting text remain readable at mobile and desktop widths.
+- [x] Verify the corrected Lesson 1 banner in the rendered course, then push the accessibility fix to `main`.

@@ -4,11 +4,13 @@ import { useContentStore } from '~/stores/content'
 const store = useContentStore()
 const year = new Date().getFullYear()
 const sectionLinks = [
-  { label: 'Try a lesson', href: '/instructional-design' },
-  { label: 'Things I made', href: '/my-work' },
+  { label: 'Lessons', href: '/lessons' },
+  { label: 'Projects', href: '/my-work' },
   { label: 'Free tools', href: '/tools' },
-  { label: 'About me', href: '/about' },
-  { label: 'Experiments', href: '/lab' },
+  { label: 'About', href: '/about' }
+]
+const secondaryLinks = [
+  { label: 'Homepage design experiments', href: '/lab' },
   { label: 'How this site works', href: '/colophon' }
 ]
 </script>
@@ -19,14 +21,13 @@ const sectionLinks = [
       <div class="ft__brand">
         <EdWordmark :size="32" />
         <p class="ft__blurb">
-          I’m {{ store.name }}. I make lessons, useful little tools, and clearer ways into complicated things.
-          This is where I keep the work, the stories behind it, and the experiments that taught me something.
+          I’m {{ store.name }}. I make lessons, useful tools, and clear explanations for complicated work.
         </p>
         <a class="ticket ticket--sm" :href="`mailto:${store.email}`">Start a conversation</a>
       </div>
 
       <nav class="ft__col" aria-labelledby="ft-sections">
-        <h2 id="ft-sections" class="t-mono ft__h">Have a look around</h2>
+        <h2 id="ft-sections" class="t-mono ft__h">Start here</h2>
         <NuxtLink v-for="link in sectionLinks" :key="link.href" class="ft__link u-underline" :to="link.href">{{ link.label }}</NuxtLink>
       </nav>
 
@@ -35,14 +36,14 @@ const sectionLinks = [
         <a v-for="s in store.socialLinks" :key="s.platform" class="ft__link u-underline"
            :href="s.url" :target="s.platform === 'email' ? undefined : '_blank'"
            :rel="s.platform === 'email' ? undefined : 'noopener noreferrer'">{{ s.label }}</a>
-        <NuxtLink class="ft__link u-underline" to="/colophon">How it is built</NuxtLink>
+        <NuxtLink v-for="link in secondaryLinks" :key="link.href" class="ft__link u-underline" :to="link.href">{{ link.label }}</NuxtLink>
       </nav>
 
       <div class="ft__col">
-        <h2 class="t-mono ft__h">A small note</h2>
+        <h2 class="t-mono ft__h">Privacy</h2>
         <p class="ft__fine">
-          I built this site around open-source type and original artwork. The longer version of how it is put together is
-          <NuxtLink to="/colophon" class="u-underline">here</NuxtLink>.
+          I use open-source type and original artwork. Read more about how the site is made in
+          <NuxtLink to="/colophon" class="u-underline">How this site works</NuxtLink>.
         </p>
         <p class="ft__fine">No analytics, no cookies, no database. Nothing you type in a tool leaves your browser.</p>
       </div>

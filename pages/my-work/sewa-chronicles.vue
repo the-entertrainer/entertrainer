@@ -75,13 +75,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 <template>
   <EdShell width="page">
     <EdStoryHero
-      category="projects"
-      media="case study"
       title="The SEWA Chronicles"
       deck="Sixteen pages of true stories from the resort floor, drawn as comic strips and handed back to the teams they came from."
-      stamp="Club Mahindra · 2023"
-      :minutes="5"
-      byline
     >
       <div class="cs__facts">
         <button class="cs__cover" @click="open(0, $event)" aria-label="Enlarge the cover">
@@ -97,7 +92,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     </EdStoryHero>
 
     <section class="cs__beats" aria-labelledby="cs-how">
-      <h2 id="cs-how" class="t-mono cs__label">How it came together</h2>
+      <h2 id="cs-how" class="t-mono cs__label">How I made it</h2>
       <div class="ed">
         <template v-for="(b, i) in beats" :key="b.h">
           <p class="ed-note cs__n u-reveal"><b>{{ String(i + 1).padStart(2, '0') }} / {{ String(beats.length).padStart(2, '0') }}</b></p>
@@ -133,8 +128,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <NuxtLink to="/tools" class="ticket">See the tools I build →</NuxtLink>
       </div>
     </footer>
-
-    <EdReadNext from="sewa-chronicles" />
 
     <!-- Lightbox -->
     <Transition name="lb">

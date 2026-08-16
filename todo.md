@@ -179,3 +179,18 @@
 - [x] Define direct topic-led page language and a simple Entertrainer logo system derived from the existing preloader mark.
 - [x] Implement clear page titles and descriptions alongside the redesigned logo across shared navigation, preloader, favicon, and footer contexts.
 - [x] Validate copy clarity, logo consistency, responsive rendering, and build health; then push the update to `main`.
+
+## No-miss redesign strategy
+
+- [x] Agree non-negotiable rules for direct language, purposeful information, personal voice, image use, and interface restraint.
+- [x] Make a page-by-page keep, simplify, move, or remove inventory so redundant information cannot re-enter the rebuild.
+- [x] Define the final site map, brand system, page roles, component limits, and editorial rules before implementation.
+- [x] Use staged implementation and explicit visual, content, accessibility, and general-visitor quality gates before each release.
+
+## No-miss redesign execution
+
+- [x] Apply shared subtraction rules to navigation, footer, card metadata, badges, counters, duplicate calls to action, and reading motion.
+- [x] Rebuild shared chrome and the homepage around the approved direct-language outline and component budget.
+- [x] Rework the Projects, Free tools, Lessons, About, and secondary page families around their distinct page roles.
+- [x] Complete the cross-site mobile, accessibility, asset, copy, and visual-restraint quality gates.
+- [x] Validate all primary routes, complete the production build, and push the finished no-miss redesign to `main`.

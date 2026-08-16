@@ -61,16 +61,12 @@ const choices = [
 <template>
   <EdShell width="page">
     <EdStoryHero
-      category="notes"
-      media="essay"
-      title="How this site is built"
-      deck="I claim on the about page that I design learning and build the tools that deliver it. This page is the evidence, in enough detail to check."
-      :minutes="6"
-      byline
+      title="How this site works"
+      deck="A straightforward look at the technology, artwork, privacy choices, and decisions behind Entertrainer."
     />
 
     <section class="co__sec" aria-labelledby="co-stack">
-      <h2 id="co-stack" class="t-mono co__label">The stack</h2>
+      <h2 id="co-stack" class="t-mono co__label">The technology</h2>
       <dl class="co__list ed">
         <template v-for="e in stack" :key="e.k">
           <div class="co__row u-reveal">
@@ -83,7 +79,7 @@ const choices = [
     </section>
 
     <section class="co__sec" aria-labelledby="co-choices">
-      <h2 id="co-choices" class="t-mono co__label">Four decisions I would defend</h2>
+      <h2 id="co-choices" class="t-mono co__label">Design decisions</h2>
       <div class="co__choices">
         <article v-for="(c, i) in choices" :key="c.h" class="co__choice u-reveal" :style="{ '--i': i }">
           <h3 class="co__choice-h">{{ c.h }}</h3>
@@ -97,7 +93,6 @@ const choices = [
       <a class="ticket" :href="`mailto:${email}`">Tell me what broke</a>
     </footer>
 
-    <EdReadNext from="colophon" />
   </EdShell>
 </template>
 

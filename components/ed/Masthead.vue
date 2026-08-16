@@ -42,9 +42,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         <EdWordmark :size="30" sticker />
       </NuxtLink>
 
-      <p class="mh__tag">Making complicated things easier to learn</p>
-
-      <nav class="mh__nav" aria-label="Sections">
+      <nav class="mh__nav" aria-label="Main navigation">
         <NuxtLink v-for="l in NAV" :key="l.href" :to="l.href" class="mh__link"
                   :aria-current="isCurrent(l.href) ? 'page' : undefined">{{ l.label }}</NuxtLink>
       </nav>
@@ -64,7 +62,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
         <button ref="btn" type="button" class="mh__icon mh__icon--menu" @click="open = !open"
                 :aria-expanded="open" aria-controls="mh-sheet"
-                :aria-label="open ? 'Close sections' : 'Open sections'">
+                :aria-label="open ? 'Close menu' : 'Open menu'">
           <svg v-if="!open" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
                stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
           <svg v-else viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
@@ -115,19 +113,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 .mh__brand { display: inline-flex; flex: none; }
 
-/* The compact description the spec asks the masthead row to carry. It is the
-   first thing that goes when the bar gets tight — the sections matter more. */
-.mh__tag {
-  font-family: var(--font-mono);
-  font-size: 10.5rem; letter-spacing: 0.06em; text-transform: uppercase;
-  color: var(--muted); margin: 0;
-  padding-left: clamp(12rem, 1.6vw, 20rem);
-  border-left: var(--stroke) solid var(--line);
-  /* Two lines, always. Left to wrap freely it made a four-line paragraph out
-     of a six-word standfirst and pushed the bar to 90px tall. */
-  max-width: 28ch; line-height: 1.4;
-}
-
 .mh__nav { margin-left: auto; display: flex; align-items: center; gap: clamp(4rem, 1.2vw, 14rem); }
 .mh__link {
   position: relative;
@@ -157,10 +142,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .mh__icon--menu { display: none; }
 
 .mh__sheet { display: none; }
-
-@media (max-width: 1080px) {
-  .mh__tag { display: none; }
-}
 
 @media (max-width: 860px) {
   .mh__bar { min-height: 58rem; padding-top: 8rem; padding-bottom: 8rem; }

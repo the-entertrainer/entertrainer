@@ -221,9 +221,8 @@ export function readNext(id: string, count = 3): EditorialItem[] {
 
 /** The masthead's primary navigation. */
 export const NAV = [
-  { label: 'Try a lesson', href: '/instructional-design' },
-  { label: 'Things I made', href: '/my-work' },
+  { label: 'Lessons', href: '/lessons' },
+  { label: 'Projects', href: '/my-work' },
   { label: 'Free tools', href: '/tools' },
-  { label: 'About me', href: '/about' },
-  { label: 'How this site works', href: '/colophon' }
+  { label: 'About', href: '/about' }
 ]

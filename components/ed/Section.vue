@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { byCategory, categoryMeta, type Category } from '~/content/editorial'
+import { byCategory, type Category } from '~/content/editorial'
 
 /**
  * A section index: the masthead for one category, then everything filed under
@@ -15,9 +15,6 @@ const props = defineProps<{
 }>()
 
 const items = computed(() => byCategory(props.category))
-const meta = computed(() => categoryMeta(props.category))
-const count = computed(() =>
-  `${String(items.value.length).padStart(2, '0')} ${items.value.length === 1 ? 'entry' : 'entries'}`)
 </script>
 
 <template>
@@ -26,12 +23,11 @@ const count = computed(() =>
       :category="category"
       :title="title"
       :deck="deck"
-      :count="count"
     />
 
     <ul class="sec__grid">
-      <li v-for="(it, i) in items" :key="it.id" :style="{ '--i': i }" class="u-reveal">
-        <EdCard :item="it" :index="i" chip="media" />
+      <li v-for="it in items" :key="it.id">
+        <EdCard :item="it" />
       </li>
     </ul>
 
@@ -39,7 +35,6 @@ const count = computed(() =>
 
     <slot />
 
-    <EdReadNext :from="items[0]?.id ?? ''" heading="Elsewhere on the site" />
   </EdShell>
 </template>
 

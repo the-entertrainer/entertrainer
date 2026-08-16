@@ -47,7 +47,7 @@ const load = computed(() => {
   if (show.value) n -= 18      // dual coding
   return n
 })
-const loadLabel = computed(() => (load.value > 78 ? 'Heavy' : load.value > 45 ? 'Moderate' : 'Light'))
+const loadLabel = computed(() => (load.value > 78 ? 'Hard to follow' : load.value > 45 ? 'Getting clearer' : 'Clear'))
 const moveCount = computed(() => Number(cutJargon.value) + Number(chunk.value) + Number(show.value))
 
 /**
@@ -67,9 +67,9 @@ function makeGuess(key: string) { guess.value = key }
 function skipGuess() { guessSkipped.value = true }
 
 const moves = [
-  { key: 'cutJargon', model: cutJargon, label: 'Cut the jargon', principle: 'Extraneous load. Words the learner must decode are effort spent on nothing.' },
-  { key: 'chunk', model: chunk, label: 'Chunk and order it', principle: 'Intrinsic load. One step at a time, in the sequence the hands follow.' },
-  { key: 'show', model: show, label: "Show it, don't just tell", principle: 'Dual coding. A picture and words carry different halves of the same idea.' }
+  { key: 'cutJargon', model: cutJargon, label: 'Use plain words', principle: 'Remove words the learner has to stop and decode.' },
+  { key: 'chunk', model: chunk, label: 'Put steps in order', principle: 'Give one step at a time, in the order the hands follow.' },
+  { key: 'show', model: show, label: 'Add a simple visual', principle: 'A picture can help the words do their job.' }
 ] as const
 
 function iconPath(name: string) {
@@ -86,12 +86,9 @@ function iconPath(name: string) {
 <template>
   <EdShell width="page">
     <EdStoryHero
-      category="practice"
-      media="interactive"
       title="How to make instructions easier to follow"
-      deck="Someone who knows a job well can still find it hard to explain. This is a short hands-on lesson about making instructions easier for another person to follow. Answer one question, then improve a badly written instruction yourself."
+      deck="Someone can know a job well and still find it hard to explain. Try three simple ways to make one badly written instruction easier for another person to follow."
       :minutes="4"
-      byline
     />
 
     <!-- Ask before showing. See the note on `guess` in the script above. -->
@@ -125,11 +122,11 @@ function iconPath(name: string) {
 
       <div class="lab__top">
         <div>
-          <p class="t-mono lab__kicker">The same instruction, redesigned live</p>
+          <p class="t-mono lab__kicker">One instruction, made clearer</p>
           <p class="lab__topic">How to use a fire extinguisher</p>
         </div>
         <div class="meter" role="img" :aria-label="`Cognitive load: ${loadLabel}`">
-          <span class="t-mono meter__label">Load</span>
+          <span class="t-mono meter__label">Effort</span>
           <span class="meter__track">
             <span class="meter__fill"
                   :class="{ 'no-anim': reduceMotion, 'is-mid': load <= 78 && load > 45, 'is-light': load <= 45 }"
@@ -196,8 +193,8 @@ function iconPath(name: string) {
     <footer class="close">
       <p class="close__line" :class="{ 'is-live': moveCount === 3 }">
         <template v-if="moveCount === 3">
-          That's the whole job. The expert knew every word of this already. Design is what got it
-          into someone else's head in seven seconds.
+          That's the whole job. The expert knew every word already. A good instruction gets it
+          into someone else's head quickly.
         </template>
         <template v-else>
           Turn on all three to see the finished version. Not one fact changed — only the shape
@@ -206,7 +203,6 @@ function iconPath(name: string) {
       </p>
     </footer>
 
-    <EdReadNext from="instructional-design" />
   </EdShell>
 </template>
 

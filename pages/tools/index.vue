@@ -1,8 +1,8 @@
 <script setup lang="ts">
 useSeoMeta({
-  title: 'Free little tools by Naveen Jose · Entertrainer',
-  description: 'A small set of free browser tools for planning, writing, quiz-making, and sketching ideas. Built by Naveen Jose.',
-  ogTitle: 'Free little tools — by Naveen Jose',
+  title: 'Free tools by Naveen Jose · Entertrainer',
+  description: 'Free browser tools for planning, writing, making quizzes, and sketching ideas.',
+  ogTitle: 'Free tools — by Naveen Jose',
   ogDescription: 'Free browser tools for planning, writing, quiz-making, and sketching ideas.',
   ogUrl: 'https://entertrainer.in/tools'
 })
@@ -11,8 +11,7 @@ useSeoMeta({
 <template>
   <EdSection
     category="tools"
-    title="Free little tools I built"
-    deck="Simple browser tools for writing, planning, quiz-making, and sketching ideas. No sign-up, no upload — nothing you type ever leaves your browser."
-    intro="Each of these began after one slow, repetitive job annoyed me enough to make a faster way. They do one thing each, and they are yours to use."
+    title="Free tools"
+    deck="Browser tools for planning, writing, making quizzes, and sketching ideas. No sign-up. What you type stays in your browser."
   />
 </template>

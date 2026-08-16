@@ -172,3 +172,10 @@
 - [x] Define a plain-language voice that explains the work to any visitor while retaining Naveen’s warmth, curiosity, and practical perspective.
 - [x] Rewrite the homepage and key route introductions, navigation labels, and calls to action in the revised voice.
 - [x] Validate the revised experience for immediate general-visitor comprehension, mobile reading comfort, and production build health; then push to `main`.
+
+## Direct language and logo redesign
+
+- [x] Screen all public pages for indirect, vague, overly stylized, or profession-specific headings and descriptions.
+- [x] Define direct topic-led page language and a simple Entertrainer logo system derived from the existing preloader mark.
+- [x] Implement clear page titles and descriptions alongside the redesigned logo across shared navigation, preloader, favicon, and footer contexts.
+- [x] Validate copy clarity, logo consistency, responsive rendering, and build health; then push the update to `main`.

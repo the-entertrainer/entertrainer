@@ -96,8 +96,8 @@ const tools = computed(() => ITEMS.filter(item => item.category === 'tools'))
     <section class="proof" aria-labelledby="proof-title">
       <div class="section-head section-head--split">
         <div>
-          <p class="section-head__label t-mono">A few things I’m proud of</p>
-          <h2 id="proof-title" class="section-head__title t-display">Things people could actually use.</h2>
+          <p class="section-head__label t-mono">Featured projects</p>
+          <h2 id="proof-title" class="section-head__title t-display">Courses, stories, and interactive explainers.</h2>
         </div>
         <NuxtLink to="/my-work" class="section-head__link u-underline">See more things I made <span aria-hidden="true">→</span></NuxtLink>
       </div>
@@ -108,8 +108,8 @@ const tools = computed(() => ITEMS.filter(item => item.category === 'tools'))
 
     <section class="toolkit" aria-labelledby="toolkit-title">
       <div class="toolkit__heading">
-        <p class="section-head__label t-mono">Free little tools</p>
-        <h2 id="toolkit-title" class="toolkit__title t-display">The boring bits, made quicker.</h2>
+        <p class="section-head__label t-mono">Free tools</p>
+        <h2 id="toolkit-title" class="toolkit__title t-display">Free tools that save time.</h2>
         <p>I made these after losing too many afternoons to the same repetitive jobs. No sign-up. What you type stays in your browser.</p>
         <NuxtLink to="/tools" class="ticket ticket--ghost">See all the free tools <span aria-hidden="true">→</span></NuxtLink>
       </div>

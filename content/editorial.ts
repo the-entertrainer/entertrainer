@@ -51,25 +51,25 @@ export interface CategoryMeta {
 }
 
 export const CATEGORIES: CategoryMeta[] = [
-  { id: 'practice', label: 'Practice', accent: 'var(--cat-practice)', onAccent: 'var(--on-cat-practice)',
-    blurb: 'The craft itself, demonstrated rather than described.' },
-  { id: 'projects', label: 'Projects', accent: 'var(--cat-projects)', onAccent: 'var(--on-cat-projects)',
-    blurb: 'Work that shipped, opened up — including the decisions underneath it.' },
-  { id: 'tools', label: 'Web apps', accent: 'var(--cat-tools)', onAccent: 'var(--on-cat-tools)',
-    blurb: 'Free tools for instructional designers. No sign-up, nothing leaves your browser.' },
-  { id: 'story', label: 'Story', accent: 'var(--cat-story)', onAccent: 'var(--on-cat-story)',
-    blurb: 'Hotel floors to learning design, in five stops.' },
-  { id: 'lab', label: 'Lab', accent: 'var(--cat-lab)', onAccent: 'var(--on-cat-lab)',
-    blurb: 'Experiments kept in public because the failures are the interesting part.' },
-  { id: 'notes', label: 'Notes', accent: 'var(--cat-notes)', onAccent: 'var(--on-cat-notes)',
-    blurb: 'How the work is made, in enough detail to check.' }
+  { id: 'practice', label: 'Try a lesson', accent: 'var(--cat-practice)', onAccent: 'var(--on-cat-practice)',
+    blurb: 'A short lesson that shows how a confusing instruction becomes easier to follow.' },
+  { id: 'projects', label: 'Things I made', accent: 'var(--cat-projects)', onAccent: 'var(--on-cat-projects)',
+    blurb: 'Courses, comics, and interactive explainers made for real people to use.' },
+  { id: 'tools', label: 'Free tools', accent: 'var(--cat-tools)', onAccent: 'var(--on-cat-tools)',
+    blurb: 'Free browser tools for writing, planning, quiz-making, and sketching ideas.' },
+  { id: 'story', label: 'About me', accent: 'var(--cat-story)', onAccent: 'var(--on-cat-story)',
+    blurb: 'How I got from hotel floors to making learning for people around the world.' },
+  { id: 'lab', label: 'Experiments', accent: 'var(--cat-lab)', onAccent: 'var(--on-cat-lab)',
+    blurb: 'Small design experiments and the ideas that came out of trying them.' },
+  { id: 'notes', label: 'How this site works', accent: 'var(--cat-notes)', onAccent: 'var(--on-cat-notes)',
+    blurb: 'A straightforward look at how the site, its tools, and its artwork are put together.' }
 ]
 
 export const ITEMS: EditorialItem[] = [
   {
     id: 'instructional-design',
-    title: 'What gets designed when no one is watching',
-    dek: 'A subject expert can already do the thing. Instructional design is turning what they know into something another person can learn — and most of that work is subtraction. Take a badly written instruction apart yourself.',
+    title: 'How to make instructions easier to follow',
+    dek: 'Try a four-minute lesson about turning a hard-to-read instruction into something another person can use.',
     category: 'practice',
     media: 'interactive',
     href: '/instructional-design',
@@ -84,7 +84,7 @@ export const ITEMS: EditorialItem[] = [
     title: 'The SEWA Chronicles',
     dek: 'Sixteen pages of true stories from the resort floor, drawn as comic strips and handed back to the teams they came from.',
     category: 'projects',
-    media: 'case study',
+    media: 'project story',
     href: '/my-work/sewa-chronicles',
     image: '/work-01.png',
     alt: 'The SEWA Chronicles comic cover',
@@ -123,48 +123,48 @@ export const ITEMS: EditorialItem[] = [
     title: 'StoryGen',
     dek: 'Storyboard on an infinite canvas — cards, flows, and a Word export at the end of it.',
     category: 'tools',
-    media: 'web app',
+    media: 'free tool',
     href: '/tools/storygen',
     image: '/storygen.png',
     alt: 'StoryGen storyboard canvas',
-    stamp: 'Free · Storyboarding'
+    stamp: 'Free · Plan a story'
   },
   {
     id: 'cadence',
     title: 'Cadence',
     dek: 'Turn a list of topics into a monthly training calendar you can actually present.',
     category: 'tools',
-    media: 'web app',
+    media: 'free tool',
     href: '/tools/cadence',
     image: '/training-cal-gen.png',
     alt: 'Cadence training calendar',
-    stamp: 'Free · Planning'
+    stamp: 'Free · Make a calendar'
   },
   {
     id: 'easymcq',
     title: 'EasyMCQ',
     dek: 'Write the question and the right answer; the AI writes the wrong ones.',
     category: 'tools',
-    media: 'web app',
+    media: 'free tool',
     href: '/tools/easymcq',
     image: '/easymcq.png',
     alt: 'EasyMCQ distractor generator',
-    stamp: 'Free · Assessment'
+    stamp: 'Free · Make a quiz'
   },
   {
     id: 'better-emails',
     title: 'Draftly',
     dek: 'Paste a messy draft, get an email you would actually send.',
     category: 'tools',
-    media: 'web app',
+    media: 'free tool',
     href: '/tools/better-emails',
     image: '/better-emails.png',
     alt: 'Draftly email polisher',
-    stamp: 'Free · Writing'
+    stamp: 'Free · Improve an email'
   },
   {
     id: 'about',
-    title: 'Hospitality to L&D, in five stops',
+    title: 'How I got from hospitality to learning design',
     dek: 'I studied hotel management and started on the floor. The comic I drew at Club Mahindra is where design stopped being a side interest.',
     category: 'story',
     media: 'essay',
@@ -178,7 +178,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'colophon',
     title: 'How this site is built',
-    dek: 'I claim I design learning and build the tools that deliver it. This is the working, in enough detail to check.',
+    dek: 'A straightforward look at how this site, its tools, and its artwork are put together.',
     category: 'notes',
     media: 'essay',
     href: '/colophon',
@@ -187,8 +187,8 @@ export const ITEMS: EditorialItem[] = [
   },
   {
     id: 'lab',
-    title: 'Fifteen homepages, one sheet of glass',
-    dek: 'Fifteen art directions over the same hand-written refraction shader. Kept in public, unlisted, because the discarded ones are the interesting part.',
+    title: 'Homepage design experiments',
+    dek: 'Fifteen visual experiments made from the same interactive glass effect. Some worked better than others.',
     category: 'lab',
     media: 'interactive',
     href: '/lab',

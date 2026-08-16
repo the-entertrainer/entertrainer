@@ -1,67 +1,32 @@
 <script setup lang="ts">
 /**
- * The Entertrainer wordmark.
- *
- * Live text, not a drawing. The previous version was a hand-drawn SVG ticket
- * with a play triangle in it, and it was the weakest thing on the site: an
- * emblem is a piece of illustration, and a piece of illustration made by
- * someone who is not an illustrator looks exactly like that. Publications with
- * no budget for a mark set their name in a good face and stop — which is what
- * this does.
- *
- * Fraunces carries it, at optical size 144 with the SOFT and WONK axes open,
- * so the terminals round and the alternates splay. That is a typographic
- * decision with two numbers behind it rather than a shape someone drew.
- *
- * Being real text also means it is selectable, searchable, translatable and
- * legible to a screen reader without an aria-label patch — which the SVG
- * version needed.
+ * Entertrainer identity system.
+ * The compact five-bar signal is derived from the violet-to-blue vertical bands
+ * in the original preloader logo. It gives the old identity a usable mark for
+ * a paper-and-ink publication without importing its full-screen gradient into
+ * every page. The lower-case word remains live text for accessibility.
  */
 withDefaults(defineProps<{
-  /** `full` is the name; `mark` is the E alone, for tight chrome and icons. */
+  /** `full` combines the signal and word; `mark` is used in tight spaces. */
   variant?: 'full' | 'mark'
-  /** Cap height target in px. Everything scales from it. */
+  /** Cap-height target in pixels. The signal scales from the same value. */
   size?: number
 }>(), { variant: 'full', size: 30 })
 </script>
 
 <template>
   <span class="wm" :class="`wm--${variant}`" :style="{ '--wm-size': size + 'rem' }">
-    <span v-if="variant === 'mark'" class="wm__mark" aria-hidden="true">E</span>
-    <span v-else class="wm__word">Entertrainer</span>
-    <span v-if="variant === 'mark'" class="sr-only">Entertrainer</span>
+    <span class="wm__signal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    <span v-if="variant === 'full'" class="wm__word">entertrainer</span>
+    <span v-else class="sr-only">Entertrainer</span>
   </span>
 </template>
 
 <style scoped>
-.wm {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-display);
-  color: var(--ink);
-  line-height: 1;
-}
-
-.wm__word {
-  font-size: var(--wm-size);
-  font-weight: 800;
-  /* opsz 144 is the display cut: higher contrast, tighter spacing, the
-     drawing the face was designed to be set large in. */
-  font-variation-settings: "SOFT" 30, "WONK" 1, "opsz" 144;
-  letter-spacing: -0.022em;
-}
-
-.wm__mark {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: calc(var(--wm-size) * 1.5);
-  height: calc(var(--wm-size) * 1.5);
-  border-radius: var(--radius-s);
-  background: var(--ink);
-  color: var(--paper);
-  font-size: calc(var(--wm-size) * 0.94);
-  font-weight: 800;
-  font-variation-settings: "SOFT" 30, "WONK" 1, "opsz" 144;
-  /* Fraunces' cap sits slightly high in the box at this weight. */
-  padding-bottom: 0.06em;
-}
+.wm { display: inline-flex; align-items: center; gap: calc(var(--wm-size) * .22); line-height: 1; color: var(--ink); }
+.wm__signal { display: inline-flex; align-items: stretch; gap: calc(var(--wm-size) * .055); height: calc(var(--wm-size) * .9); padding: calc(var(--wm-size) * .08); background: var(--ink); border-radius: calc(var(--wm-size) * .16); }
+.wm__signal i { display: block; width: calc(var(--wm-size) * .105); border-radius: calc(var(--wm-size) * .05); background: #4e28d8; }
+.wm__signal i:nth-child(2) { background: #6458e4; }.wm__signal i:nth-child(3) { background: #5d79e9; }.wm__signal i:nth-child(4) { background: #5299e8; }.wm__signal i:nth-child(5) { background: #8bc5f2; }
+.wm__word { font-family: var(--font-ui); font-size: var(--wm-size); font-weight: 720; letter-spacing: -.055em; text-transform: lowercase; }
+.wm--mark { gap: 0; }
 </style>

@@ -25,7 +25,7 @@ export default defineNuxtConfig({
       ],
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
-        { name: 'description', content: 'Entertrainer is the portfolio of Naveen Jose, a certified instructional designer building learning experiences that feel human — plus a set of free web apps for L&D teams.' },
+        { name: 'description', content: 'Naveen Jose makes lessons, useful little tools, and clearer ways into complicated things.' },
         { name: 'theme-color', content: '#0B0B0C', media: '(prefers-color-scheme: dark)' },
         { name: 'theme-color', content: '#FFFFFF', media: '(prefers-color-scheme: light)' },
         { name: 'mobile-web-app-capable', content: 'yes' },
@@ -36,19 +36,20 @@ export default defineNuxtConfig({
         // Open Graph / Twitter — social share preview.
         { property: 'og:type', content: 'website' },
         { property: 'og:site_name', content: 'Entertrainer' },
-        { property: 'og:title', content: 'Entertrainer — Instructional Design by Naveen Jose' },
-        { property: 'og:description', content: 'Learning experiences that feel human, plus free web apps for L&D teams.' },
+        { property: 'og:title', content: 'Entertrainer — Making complicated things easier to learn' },
+        { property: 'og:description', content: 'Lessons, useful little tools, and clear explanations by Naveen Jose.' },
         { property: 'og:url', content: 'https://entertrainer.in/' },
         { property: 'og:image', content: 'https://entertrainer.in/og-card.png' },
         { property: 'og:image:width', content: '2400' },
         { property: 'og:image:height', content: '1260' },
-        { property: 'og:image:alt', content: 'Entertrainer — instructional design that feels human, by Naveen Jose' },
+        { property: 'og:image:alt', content: 'Entertrainer — lessons, useful little tools, and clear explanations by Naveen Jose' },
         { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: 'Entertrainer — Instructional Design by Naveen Jose' },
-        { name: 'twitter:description', content: 'Learning experiences that feel human, plus free web apps for L&D teams.' },
+        { name: 'twitter:title', content: 'Entertrainer — Making complicated things easier to learn' },
+        { name: 'twitter:description', content: 'Lessons, useful little tools, and clear explanations by Naveen Jose.' },
         { name: 'twitter:image', content: 'https://entertrainer.in/og-card.png' }
       ],
       link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
         { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
@@ -80,7 +81,7 @@ export default defineNuxtConfig({
     manifest: {
       name: 'Entertrainer',
       short_name: 'Entertrainer',
-      description: 'Instructional Design & E-Learning',
+      description: 'Lessons, useful little tools, and clear explanations by Naveen Jose.',
       theme_color: '#FFFFFF',
       background_color: '#FFFFFF',
       display: 'standalone',

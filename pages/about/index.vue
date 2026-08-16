@@ -15,9 +15,9 @@
  */
 useSeoMeta({
   title: 'About — Naveen Jose · Entertrainer',
-  description: 'Naveen Jose — a certified instructional designer who designs learning, builds the tools to deliver it, and keeps daring to try new tech.',
+  description: 'Naveen Jose’s story: from hotel floors to making lessons and useful tools for people around the world.',
   ogTitle: 'About — Naveen Jose',
-  ogDescription: 'A certified instructional designer who designs, builds, and dares to try new tech.',
+  ogDescription: 'From hotel floors to making lessons and useful tools for people around the world.',
   ogUrl: 'https://entertrainer.in/about'
 })
 
@@ -48,8 +48,8 @@ const CHAPTERS: Chapter[] = [
       category="story"
       media="essay"
       title="Naveen Jose"
-      deck="I design learning, build the tools that deliver it, and keep daring to try the thing I have not tried yet. Certified, but that is the least interesting part."
-      stamp="Instructional Designer · Gurugram, IN"
+      deck="I started on hotel floors. Now I make lessons, useful little tools, and clearer ways to explain complicated work. This is how I got here."
+      stamp="Naveen Jose · Gurugram, India"
       :minutes="4"
     >
       <figure class="ab__portrait">
@@ -58,8 +58,8 @@ const CHAPTERS: Chapter[] = [
     </EdStoryHero>
 
     <div class="ab__lede">
-      <p class="t-mono ab__kicker">The short version, in five stops</p>
-      <h2 class="t-display ab__h2">Hospitality to L&amp;D</h2>
+      <p class="t-mono ab__kicker">My story, in five chapters</p>
+      <h2 class="t-display ab__h2">From hotel floors to learning design</h2>
     </div>
 
     <ol class="ab__story">
@@ -82,7 +82,7 @@ const CHAPTERS: Chapter[] = [
       </EdNote>
       <div class="ab__cta">
         <NuxtLink to="/my-work" class="ticket">See my work</NuxtLink>
-        <NuxtLink to="/tools" class="ticket ticket--ghost">The web apps I built</NuxtLink>
+        <NuxtLink to="/tools" class="ticket ticket--ghost">Try my free tools</NuxtLink>
       </div>
     </footer>
 

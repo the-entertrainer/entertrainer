@@ -20,13 +20,11 @@ useSeoMeta({ title: 'Homepage concepts — Lab', robots: 'noindex' })
   <div class="lab">
     <EdShell width="read">
       <header class="lab__head">
-        <p class="t-mono lab__eyebrow">Unlisted · Lab</p>
-        <h1 class="lab__title t-display">Fifteen homepages,<br>one sheet of glass</h1>
+        <p class="t-mono lab__eyebrow">Design experiments</p>
+        <h1 class="lab__title t-display">Homepage design experiments</h1>
         <p class="lab__deck">
-          Every one renders real liquid glass — a rounded-rect distance field, surface normals taken from
-          its gradient, edge-weighted refraction, chromatic dispersion, Fresnel and specular — over a
-          procedural backdrop the glass actually bends. Same optics throughout; fifteen different
-          art directions on top.
+          Fifteen versions of one interactive glass effect. The interaction stays the same; the type,
+          colour, spacing, and layout change to test different visual directions.
         </p>
       </header>
 

@@ -88,7 +88,7 @@ function iconPath(name: string) {
     <EdStoryHero
       category="practice"
       media="interactive"
-      title="What gets designed when no one is watching"
+      title="How to make instructions easier to follow"
       deck="Someone who knows a job well can still find it hard to explain. This is a short hands-on lesson about making instructions easier for another person to follow. Answer one question, then improve a badly written instruction yourself."
       :minutes="4"
       byline

@@ -150,3 +150,10 @@
 
 - [x] Correct the low-contrast pale-blue history banner so its title and supporting text remain readable at mobile and desktop widths.
 - [x] Verify the corrected Lesson 1 banner in the rendered course, then push the accessibility fix to `main`.
+
+## Whole-site design and quality pass
+
+- [x] Inventory the website routes, shared layouts, and current visual system before making broad changes.
+- [x] Audit the highest-impact learner journeys for visual hierarchy, navigation clarity, accessibility, responsive behaviour, and consistency.
+- [x] Define and implement a cohesive site-wide design correction plan that improves the course and surrounding Entertrainer experience together.
+- [x] Validate the revised core pages at desktop and mobile widths, confirm build health, and push the completed quality pass to `main`.

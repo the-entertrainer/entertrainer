@@ -51,7 +51,6 @@ const CHAPTERS: Chapter[] = [
       deck="I design learning, build the tools that deliver it, and keep daring to try the thing I have not tried yet. Certified, but that is the least interesting part."
       stamp="Instructional Designer · Gurugram, IN"
       :minutes="4"
-      byline
     >
       <figure class="ab__portrait">
         <img src="/about-me.png" alt="Portrait of Naveen Jose" width="880" height="1100" />

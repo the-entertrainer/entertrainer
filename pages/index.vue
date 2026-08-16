@@ -138,7 +138,7 @@ onBeforeUnmount(() => clearInterval(timer))
         </p>
         <div class="np__cta">
           <NuxtLink to="/instructional-design" class="ticket">See the craft, live</NuxtLink>
-          <NuxtLink to="/tools" class="ticket ticket--ghost">Four free web apps</NuxtLink>
+          <NuxtLink to="/tools" class="np__secondary u-underline">Explore four free web apps <span aria-hidden="true">→</span></NuxtLink>
         </div>
       </div>
     </section>
@@ -272,7 +272,9 @@ onBeforeUnmount(() => clearInterval(timer))
   font-size: clamp(16rem, 1.4vw, 19rem); line-height: 1.6;
   color: var(--muted); margin: 0; max-width: 42ch;
 }
-.np__cta { display: flex; flex-wrap: wrap; gap: 12rem; }
+.np__cta { display: flex; flex-wrap: wrap; align-items: center; gap: 16rem; }
+.np__secondary { color: var(--muted); font-size: 15rem; font-weight: 600; }
+.np__secondary:hover { color: var(--ink); }
 
 @media (max-width: 900px) {
   .np { grid-template-columns: minmax(0, 1fr); align-items: start; gap: 26rem; }
@@ -383,7 +385,7 @@ onBeforeUnmount(() => clearInterval(timer))
   padding: clamp(28rem, 4vw, 44rem);
   background: var(--paper-2);
   border: var(--stroke) solid var(--line);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-l);
 }
 .interlude__by { display: flex; flex-direction: column; align-items: flex-start; gap: 16rem; }
 @media (max-width: 820px) { .interlude { grid-template-columns: minmax(0, 1fr); } }

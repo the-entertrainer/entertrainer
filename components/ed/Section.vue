@@ -27,7 +27,6 @@ const count = computed(() =>
       :title="title"
       :deck="deck"
       :count="count"
-      byline
     />
 
     <ul class="sec__grid">

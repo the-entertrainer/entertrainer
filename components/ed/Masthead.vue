@@ -163,6 +163,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 
 @media (max-width: 860px) {
+  .mh__bar { min-height: 58rem; padding-top: 8rem; padding-bottom: 8rem; }
   .mh__nav { display: none; }
   .mh__icon--menu { display: inline-flex; }
   .mh__end { margin-left: auto; }

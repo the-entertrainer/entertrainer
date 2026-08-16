@@ -81,7 +81,7 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
   height: 100%;
   background: var(--paper);
   border: var(--stroke) solid var(--line);
-  border-radius: var(--radius-l);
+  border-radius: var(--radius-m);
   overflow: hidden;
   color: var(--ink);
   
@@ -110,28 +110,21 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
 .card__pill--lead { background: var(--ink); color: var(--paper); }
 .card__stamp { color: var(--muted); text-align: right; }
 
-/* The artwork sits ON the category colour rather than filling the frame.
-   Two things follow, and both are improvements the crop-and-fill version
-   could not give:
-     · Nothing is ever cropped. Every piece of artwork here is a poster with
-       words on it, and cropping a poster throws away the half that says what
-       it is — a problem this card fought through three revisions.
-     · The colour does the sorting from across the room. A reader scanning
-       the field sees six accents before they read a single headline, and the
-       chip underneath tells them what each one means. */
+/* The work leads. Category colour is a precise wayfinding detail, not a large
+   frame that makes every item in a collection look interchangeable. */
 .card__art {
   display: block; position: relative;
   flex: none;
   aspect-ratio: 16 / 9;
-  background: var(--accent);
-  border-top: var(--stroke) solid var(--line);
+  background: var(--paper-2);
+  border-top: 4rem solid var(--accent);
   border-bottom: var(--stroke) solid var(--line);
   overflow: hidden;
-  padding: clamp(12rem, 1.8vw, 22rem);
+  padding: clamp(10rem, 1.35vw, 16rem);
 }
 .card__art img {
   width: 100%; height: 100%; object-fit: contain; display: block;
-  border: var(--stroke) solid var(--ink);
+  border: var(--stroke) solid var(--line-strong);
   /* Every cover is a white sheet in both themes — they are printed pages, not
      interface. The letterbox `contain` leaves on the variants whose frame is
      not exactly 16:9 (the lead, and the wide cards) therefore has to be the
@@ -142,20 +135,16 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
 
 .card__body {
   display: flex; flex-direction: column; gap: 10rem;
-  padding: 18rem 20rem 20rem;
+  padding: 16rem 18rem 18rem;
   flex: 1;
 }
 .card__top { display: flex; align-items: center; justify-content: space-between; gap: 12rem; }
 
 .card__title {
   font-size: var(--type-card);
-  line-height: 0.95;
+  line-height: 1.02;
   margin: 2rem 0 0;
-  /* The one place a colour is allowed to carry the category on its own — and
-     it is redundant with the chip directly above it, which is the point. */
-  text-decoration: 4rem underline var(--accent);
-  text-underline-offset: 6rem;
-  text-decoration-skip-ink: none;
+  text-decoration: none;
 }
 .card__dek {
   font-family: var(--font-reading);
@@ -223,11 +212,11 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
 
 /* No artwork: the card leans on type instead of pretending it has a picture.
    The accent band is what keeps it from reading as an empty slot. */
-.card--noart .card__hit { background: var(--paper-2); }
+.card--noart .card__hit { background: var(--paper-2); border-top: 4rem solid var(--accent); }
 .card--noart .card__body::before {
-  content: ''; display: block; height: 8rem; width: 64rem;
-  background: var(--accent); border: var(--stroke) solid var(--ink); border-radius: 4rem;
-  margin-bottom: 4rem;
+  content: ''; display: block; height: 3rem; width: 42rem;
+  background: var(--accent); border: 0; border-radius: 0;
+  margin-bottom: 6rem;
 }
 .card--noart .card__title { font-size: var(--type-h2); }
 
@@ -238,7 +227,7 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
 }
 .card--compact .card__index { display: none; }
 .card--compact .card__body { padding: 16rem; gap: 8rem; }
-.card--compact .card__title { font-size: 21rem; text-decoration-thickness: 3rem; }
+.card--compact .card__title { font-size: 21rem; }
 .card--compact .card__dek {
   font-size: 14.5rem;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;

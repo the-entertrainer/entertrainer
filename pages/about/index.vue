@@ -56,7 +56,7 @@ const chapterPathArt = 'https://files.manuscdn.com/user_upload_by_module/session
     <figure class="ab__path-art u-paper-reveal"><img :src="chapterPathArt" alt="A hand-drawn route connecting a service bell, folded map, teaching card, and pencil" loading="eager" decoding="async" /></figure>
 
     <ol class="ab__story ab__story--path">
-      <li v-for="(c, index) in CHAPTERS" :key="c.head" class="ch" :style="{ '--chapter-delay': `${index * 90}ms` }">
+      <li v-for="(c, index) in CHAPTERS" :key="c.head" :class="['ch', index % 2 ? 'ch--even' : 'ch--odd']" :style="{ '--chapter-delay': `${index * 90}ms` }">
         <figure class="ch__fig">
           <img :src="c.img" :alt="c.alt" loading="lazy" decoding="async" />
           <figcaption class="t-mono ch__cap">{{ c.place }}</figcaption>
@@ -88,11 +88,14 @@ const chapterPathArt = 'https://files.manuscdn.com/user_upload_by_module/session
 .ab__story { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: clamp(68rem, 11vh, 148rem); }.ab__story--path { position: relative; }.ab__story--path::before { content: ''; position: absolute; left: -18rem; top: 8rem; bottom: 12rem; width: 2rem; background: var(--blue); transform-origin: top; animation: about-route-grow 1.2s var(--ease-expo-out) both; }
 @keyframes about-route-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 
-/* Each chapter is a band: the photograph at the full page width with its place
-   printed under it, then the reading column beneath. Alternating image/text
-   columns looked composed but made two 380px columns out of one good 760, and
-   the photographs are the weaker half of that trade. */
-.ch { display: flex; flex-direction: column; gap: clamp(22rem, 3vw, 34rem); }
+/* Route Atlas chapters leave the full reading measure intact while offsetting
+   the image and copy around a stable path. The image is an anchor, not a
+   competing second column of prose. */
+.ch { position: relative; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(18rem, 3vw, 42rem); row-gap: clamp(22rem, 3vw, 34rem); }
+.ch::before { content: ''; position: absolute; left: -25rem; top: 14rem; width: 14rem; height: 14rem; border: 3rem solid var(--paper); border-radius: var(--radius-full); background: var(--blue); box-shadow: 0 0 0 2rem var(--ink); }
+.ch--even::before { background: var(--violet); }.ch--odd:nth-child(5)::before { background: var(--yellow); }
+.ch--odd .ch__fig { grid-column: 1 / span 8; }.ch--odd .ch__text { grid-column: 6 / span 7; margin-top: clamp(32rem, 7vw, 100rem); }
+.ch--even .ch__fig { grid-column: 5 / span 8; }.ch--even .ch__text { grid-column: 1 / span 7; margin-top: clamp(32rem, 7vw, 100rem); }
 .ch__fig { margin: 0; }
 .ch__fig img {
   display: block; width: 100%; height: auto;
@@ -116,6 +119,6 @@ const chapterPathArt = 'https://files.manuscdn.com/user_upload_by_module/session
   justify-content: space-between;
 }
 .ab__cta { display: flex; flex-wrap: wrap; gap: 12rem; }
-@media (max-width: 680px) { .ab__path-art img { aspect-ratio: 16 / 9; } }
+@media (max-width: 680px) { .ab__path-art img { aspect-ratio: 16 / 9; }.ab__story--path::before { left: -12rem; }.ch { display: flex; flex-direction: column; gap: 22rem; }.ch::before { left: -19rem; }.ch--odd .ch__text, .ch--even .ch__text { margin-top: 0; } }
 @media (prefers-reduced-motion: reduce) { .ab__h2--path, .ab__path-art img, .ab__story--path::before, .ch__fig img, .ch__text { animation: none; } }
 </style>

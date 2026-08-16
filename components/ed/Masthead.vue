@@ -120,14 +120,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font-size: 15rem; font-weight: 600;
   color: var(--ink);
   border-radius: var(--radius-s);
-  transition: background var(--dur-fast) var(--ease-out);
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
-@media (hover: hover) { .mh__link:hover { background: var(--paper-2); } }
-/* Current section gets a printed underline, not just a colour shift. */
+@media (hover: hover) { .mh__link:hover { background: var(--paper-2); color: var(--blue); } }
+/* The active section receives a short section of the same route line used in
+   the Home atlas; it orients without adding a badge or a second label. */
 .mh__link[aria-current="page"]::after {
   content: ''; position: absolute; left: 10rem; right: 10rem; bottom: 2rem;
-  height: 3rem; background: var(--red); border-radius: 2rem;
+  height: 3rem; background: linear-gradient(90deg, var(--violet), var(--blue)); border-radius: 2rem;
+  transform-origin: left; animation: nav-route 460ms var(--ease-expo-out) both;
 }
+@keyframes nav-route { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 .mh__end { display: flex; align-items: center; gap: 6rem; margin-left: 4rem; }
 .mh__icon {
@@ -165,11 +168,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     border-bottom: var(--stroke) solid var(--line);
     background: var(--paper);
   }
-  .mh__sheet-link[aria-current="page"] { background: var(--paper-2); }
+  .mh__sheet-link[aria-current="page"] { background: linear-gradient(90deg, color-mix(in srgb, var(--violet) 10%, var(--paper)), var(--paper-2)); box-shadow: inset 4rem 0 0 var(--blue); }
   .mh__sheet-link svg { opacity: 0.45; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mh__sheet { transition-duration: 1ms; }
+  .mh__link[aria-current="page"]::after { animation: none; }
 }
 </style>

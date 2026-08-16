@@ -60,6 +60,7 @@
      enough to carry white text where they need to. Each is paired below with
      the one text colour that clears 4.5:1 on it — measured, not assumed. */
   --blue:   #2C2BE8;
+  --violet: #6958EA; /* Route Atlas companion: navigation traces and path transitions. */
   --red:    #E02D18;
   --green:  #1FD07A;
   --purple: #8B34D4;
@@ -107,6 +108,7 @@
   --line-strong: var(--gray-400);
 
   --blue:   #6F6DFF;
+  --violet: #A29CFF; /* Lifted for dark-paper contrast without adding a second palette. */
   --red:    #FF6B55;
   --green:  #2AD98A;
   --purple: #B770F0;

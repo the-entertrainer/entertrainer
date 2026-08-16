@@ -28,7 +28,6 @@ const bare = computed(() =>
   r.path.startsWith('/lab/') ||
   r.path.startsWith('/glass-lab') ||
   r.path.startsWith('/my-work/strong') ||
-  r.path.startsWith('/my-work/ai-origins-to-frontier') ||
   r.path.startsWith('/courses/ai-atlas')
 )
 

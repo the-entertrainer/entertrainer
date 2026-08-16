@@ -93,20 +93,6 @@ export const ITEMS: EditorialItem[] = [
     size: 'wide'
   },
   {
-    id: 'ai-course',
-    title: 'Artificial Intelligence: From Its Origins to the Frontier',
-    dek: 'A free full-day course on how AI actually got here — two collapses included — and a method for telling what is established from what is merely announced.',
-    category: 'projects',
-    media: 'course',
-    href: '/my-work/ai-origins-to-frontier',
-    image: '/work/ai-course-cover.png',
-    alt: 'Course cover: Artificial Intelligence, from its origins to the frontier',
-    // No `minutes` — the card would print "420 min read", which is both true
-    // and useless. A course is a thing you work through, not a thing you read.
-    stamp: 'Free · 10 modules · a full day',
-    size: 'wide'
-  },
-  {
     id: 'strong',
     title: 'Strong',
     dek: 'Why the same password takes a second or a century to crack, depending entirely on who is doing the cracking. A full module you can finish in ten minutes.',

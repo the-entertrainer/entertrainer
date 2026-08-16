@@ -27,7 +27,7 @@ const items = computed(() => byCategory(props.category))
       :deck="deck"
     />
 
-    <figure v-if="visual" class="sec__visual u-editorial-enter">
+    <figure v-if="visual" :class="['sec__visual', category === 'projects' ? 'u-artifact-shift' : 'u-tool-assemble']">
       <img :src="visual.src" :alt="visual.alt" loading="eager" decoding="async" />
     </figure>
 

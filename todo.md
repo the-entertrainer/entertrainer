@@ -202,3 +202,11 @@
 - [x] Define reusable motion tokens and apply only purposeful visual movement for asset entrances, route feedback, and directional controls.
 - [x] Generate and integrate the selected original visual assets with descriptive alternative text and stable project URLs.
 - [x] Validate visual impact, contrast, mobile cropping, loading, keyboard feedback, reduced-motion behavior, accessibility, and production build; then push the expansion to `main`.
+
+## Handcrafted whitespace and motion rebuild
+
+- [x] Audit every public page for visual clutter, excessive interface containment, weak whitespace, and the animation treatment each section should receive.
+- [x] Define the page-by-page visual composition and purpose-specific animation choreography, including a full reduced-motion equivalent.
+- [x] Create or refine original assets and build a custom Entertrainer title-and-logo preloader motion sequence.
+- [x] Rebuild page layouts with stronger whitespace and apply the section-specific animation system across shared and route-level UI.
+- [x] Validate animation timing, motion accessibility, mobile behavior, visual loading, interaction quality, and the production build; then push the handcrafted rebuild to `main`.

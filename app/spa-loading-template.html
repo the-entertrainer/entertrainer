@@ -10,17 +10,20 @@
   neither the stylesheet nor the webfonts have loaded at this point.
   `prefers-color-scheme` is read directly for the same reason.
 -->
-<div class="boot" role="status" aria-label="Loading">
-  <svg class="boot__mark" viewBox="0 0 82 62" aria-hidden="true">
-    <rect width="82" height="62" rx="13" fill="#171717"/>
-    <rect x="15" y="13" width="8" height="36" rx="3" fill="#4e28d8"/>
-    <rect x="26" y="13" width="8" height="36" rx="3" fill="#6458e4"/>
-    <rect x="37" y="13" width="8" height="36" rx="3" fill="#5d79e9"/>
-    <rect x="48" y="13" width="8" height="36" rx="3" fill="#5299e8"/>
-    <rect x="59" y="13" width="8" height="36" rx="3" fill="#8bc5f2"/>
-  </svg>
-  <div class="boot__word">entertrainer</div>
-  <div class="boot__rule"><i></i></div>
+<div class="boot" role="status" aria-label="Loading Entertrainer">
+  <div class="boot__stage">
+    <svg class="boot__mark" viewBox="0 0 82 62" aria-hidden="true">
+      <rect class="boot__frame" width="82" height="62" rx="13" fill="#171717"/>
+      <rect class="boot__bar boot__bar--1" x="15" y="13" width="8" height="36" rx="3" fill="#4e28d8"/>
+      <rect class="boot__bar boot__bar--2" x="26" y="13" width="8" height="36" rx="3" fill="#6458e4"/>
+      <rect class="boot__bar boot__bar--3" x="37" y="13" width="8" height="36" rx="3" fill="#5d79e9"/>
+      <rect class="boot__bar boot__bar--4" x="48" y="13" width="8" height="36" rx="3" fill="#5299e8"/>
+      <rect class="boot__bar boot__bar--5" x="59" y="13" width="8" height="36" rx="3" fill="#8bc5f2"/>
+    </svg>
+    <div class="boot__word" aria-label="entertrainer"><span>e</span><span>n</span><span>t</span><span>e</span><span>r</span><span>t</span><span>r</span><span>a</span><span>i</span><span>n</span><span>e</span><span>r</span></div>
+    <p class="boot__note">making difficult things clear</p>
+    <svg class="boot__route" viewBox="0 0 220 20" aria-hidden="true"><path d="M2 11C32 11 38 4 72 4s38 12 71 12 37-9 75-9"/></svg>
+  </div>
 </div>
 
 <style>
@@ -32,40 +35,37 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 16px;
     background: #FFFDF7;
     color: #171717;
     font-family: "Arial", "Helvetica Neue", sans-serif;
   }
-  .boot__mark { width: 62px; height: 48px; display: block; }
+  .boot__stage { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .boot__mark { width: 62px; height: 48px; display: block; overflow: visible; }
+  .boot__frame { transform-origin: 41px 31px; animation: boot-frame 420ms cubic-bezier(.16, 1, .3, 1) both; }
+  .boot__bar { transform-box: fill-box; transform-origin: center bottom; animation: boot-bar 380ms cubic-bezier(.16, 1, .3, 1) both; }
+  .boot__bar--1 { animation-delay: 120ms; }.boot__bar--2 { animation-delay: 175ms; }.boot__bar--3 { animation-delay: 230ms; }.boot__bar--4 { animation-delay: 285ms; }.boot__bar--5 { animation-delay: 340ms; }
   .boot__word {
     font-size: clamp(19px, 4.4vw, 24px);
     font-weight: 750;
     letter-spacing: -0.045em;
+    white-space: nowrap;
   }
-  .boot__rule {
-    width: min(220px, 44vw);
-    height: 2px;
-    background: #D8D1C4;
-    overflow: hidden;
-  }
-  .boot__rule i {
-    display: block;
-    width: 40%;
-    height: 100%;
-    background: linear-gradient(90deg, #4e28d8, #5299e8);
-    transform: translateX(-100%);
-    animation: boot-sweep 1.15s cubic-bezier(.65, 0, .35, 1) infinite;
-  }
-  @keyframes boot-sweep {
-    0%   { transform: translateX(-100%); }
-    100% { transform: translateX(250%); }
-  }
+  .boot__word span { display: inline-block; animation: boot-letter 280ms cubic-bezier(.16, 1, .3, 1) both; animation-delay: calc(400ms + var(--boot-i, 0) * 24ms); }
+  .boot__word span:nth-child(1) { --boot-i: 0; }.boot__word span:nth-child(2) { --boot-i: 1; }.boot__word span:nth-child(3) { --boot-i: 2; }.boot__word span:nth-child(4) { --boot-i: 3; }.boot__word span:nth-child(5) { --boot-i: 4; }.boot__word span:nth-child(6) { --boot-i: 5; }.boot__word span:nth-child(7) { --boot-i: 6; }.boot__word span:nth-child(8) { --boot-i: 7; }.boot__word span:nth-child(9) { --boot-i: 8; }.boot__word span:nth-child(10) { --boot-i: 9; }.boot__word span:nth-child(11) { --boot-i: 10; }.boot__word span:nth-child(12) { --boot-i: 11; }
+  .boot__note { margin: 0; color: #6B6861; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; animation: boot-note 300ms cubic-bezier(.16, 1, .3, 1) 680ms both; }
+  .boot__route { width: min(220px, 55vw); height: 20px; overflow: visible; }
+  .boot__route path { fill: none; stroke: #2C2BE8; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 240; stroke-dashoffset: 240; animation: boot-route 480ms cubic-bezier(.16, 1, .3, 1) 720ms both; }
+  @keyframes boot-frame { from { opacity: 0; transform: scale(.82) rotate(-5deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+  @keyframes boot-bar { from { opacity: 0; transform: scaleY(.12); } to { opacity: 1; transform: scaleY(1); } }
+  @keyframes boot-letter { from { opacity: 0; transform: translateY(8px) rotate(2deg); } to { opacity: 1; transform: translateY(0) rotate(0); } }
+  @keyframes boot-note { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes boot-route { to { stroke-dashoffset: 0; } }
   @media (prefers-color-scheme: dark) {
     .boot { background: #131210; color: #F4EFE4; }
-    .boot__rule { background: #38342C; }
+  .boot__note { color: #B8B2A7; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .boot__rule i { animation: none; transform: none; width: 100%; }
+    .boot__frame, .boot__bar, .boot__word span, .boot__note { animation: none; opacity: 1; transform: none; }
+    .boot__route path { animation: none; stroke-dashoffset: 0; }
   }
 </style>

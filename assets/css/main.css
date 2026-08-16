@@ -637,6 +637,19 @@ p, li, dd, figcaption { text-wrap: pretty; }
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Handcrafted page-family motion. These are named for the visual job they do
+   rather than a generic "fade in" effect, so a route can carry a distinct
+   movement without the site becoming a loop of identical card entrances. */
+.u-paper-reveal { clip-path: inset(0 100% 0 0); animation: u-paper-reveal 720ms var(--ease-expo-out) both; }
+@keyframes u-paper-reveal { to { clip-path: inset(0 0 0 0); } }
+.u-artifact-shift { animation: u-artifact-shift 640ms var(--ease-out) both; }
+@keyframes u-artifact-shift { from { opacity: 0; transform: translate3d(-14rem, 12rem, 0) rotate(-1.2deg); } to { opacity: 1; transform: none; } }
+.u-tool-assemble { animation: u-tool-assemble 560ms var(--ease-spring) both; }
+@keyframes u-tool-assemble { from { opacity: 0; transform: translate3d(0, 14rem, 0) scale(.96); } to { opacity: 1; transform: none; } }
+.u-chapter-path { position: relative; }
+.u-chapter-path::before { content: ''; position: absolute; inset: 0 auto 0 -18rem; width: 2rem; background: var(--blue); transform-origin: top; animation: u-chapter-path 900ms var(--ease-expo-out) both; }
+@keyframes u-chapter-path { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
 /* Directional feedback: movement supports an existing arrow and never
    replaces the visible link text or keyboard focus indication. */
 .ticket > span[aria-hidden="true"], .path__action, .tool-row__action, .lesson__action {
@@ -657,7 +670,8 @@ p, li, dd, figcaption { text-wrap: pretty; }
 @media (prefers-reduced-motion: reduce) {
   .u-press, .u-lift, .u-tap, .ticket, .px-btn, .glass-btn, .u-underline::after { transition-duration: 1ms; }
   .t-rise > span, .t-fade-up { animation: t-plain 180ms linear both; animation-delay: 0ms; }
-  .u-media-in, .u-editorial-enter { animation: none; }
+  .u-media-in, .u-editorial-enter, .u-paper-reveal, .u-artifact-shift, .u-tool-assemble { animation: none; }
+  .u-chapter-path::before { animation: none; }
   .ticket > span[aria-hidden="true"], .path__action, .tool-row__action, .lesson__action { transition: none; }
   @keyframes t-plain { from { opacity: 0 } to { opacity: 1 } }
 }

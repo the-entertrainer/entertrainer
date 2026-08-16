@@ -86,6 +86,7 @@ function iconPath(name: string) {
 <template>
   <EdShell width="page">
     <EdStoryHero
+      category="practice"
       title="How to make instructions easier to follow"
       deck="Someone can know a job well and still find it hard to explain. Try three simple ways to make one badly written instruction easier for another person to follow."
       :minutes="4"

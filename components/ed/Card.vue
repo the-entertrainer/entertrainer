@@ -58,14 +58,18 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
   color: var(--ink);
   
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  transform-origin: center;
 }
 /* Short travel, a degree of rotation, 160ms — the card behaves like a printed
    thing being nudged rather than a div being animated. */
 @media (hover: hover) {
-  .card__hit:hover { background: var(--paper-2); border-color: var(--ink); }
+  .card__hit:hover { background: var(--paper-2); border-color: var(--ink); transform: translateY(-4rem) rotate(-.22deg); }
+  .card__hit:hover .card__art img { transform: scale(1.045) translateX(.8%); }
+  .card__hit:hover .card__title { text-decoration-color: var(--blue); }
 }
-.card__hit:active {   transition-duration: var(--dur-tap); }
+.card__hit:active { transform: translateY(0) scale(.985); transition-duration: var(--dur-tap); }
 .card__hit:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.card__hit:focus-visible .card__art img { transform: scale(1.035) translateX(.6%); }
 
 /* Artwork provides context; no labels or category frame sit over it. */
 .card__art {
@@ -84,6 +88,7 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
      white of the sheet, not the theme's paper: with `var(--paper)` here, dark
      mode drew black bars down either side of every cover, inside the accent. */
   background: #FFFFFF;
+  transition: transform 520ms var(--ease-expo-out);
 }
 
 .card__body {

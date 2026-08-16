@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Design reminder — The Learning Atlas course is a self-contained, evidence-led player.
 import { useThemeStore } from '~/stores/theme'
 
 /**
@@ -27,7 +28,8 @@ const bare = computed(() =>
   r.path.startsWith('/lab/') ||
   r.path.startsWith('/glass-lab') ||
   r.path.startsWith('/my-work/strong') ||
-  r.path.startsWith('/my-work/ai-origins-to-frontier')
+  r.path.startsWith('/my-work/ai-origins-to-frontier') ||
+  r.path.startsWith('/courses/ai-atlas')
 )
 
 onMounted(() => theme.init())

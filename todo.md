@@ -121,3 +121,19 @@
 - [x] Reconcile the uploaded handoff with the newer Rise 360 course already present on `main`, retaining its existing content, answer keys, blocks, games, and visual system.
 - [x] Add the remaining central scroll-to-top navigation behaviour and reduced-motion-safe progressive section reveals.
 - [x] Validate the desktop scroll-reset path, responsive mobile cover, and full production build before release.
+
+## Visual-first course conversion
+
+- [x] Audit every lesson and identify dense explanations that can become diagrams, visual sequences, comparisons, maps, or illustrations.
+- [x] Create a lesson-by-lesson visual storyboard that preserves only essential framing prose and keeps every visual tied to a named learning objective.
+- [x] Generate and integrate a broader set of restrained course illustrations, together with accurate in-page explanatory diagrams and graphics.
+- [x] Reduce redundant text around the new visuals without removing the context, feedback, evidence labels, or learner decision points needed for instruction.
+- [x] Validate desktop and mobile visual hierarchy, image loading, interaction flow, accessibility, and production build; then push the conversion to `main`.
+
+## Comprehensive Rise 360 block implementation
+
+- [x] Inventory the newly supplied Rise block references and verify any uncertain interaction behaviour against official Articulate documentation.
+- [x] Map every suitable Rise content, media, process, timeline, carousel, interaction, and knowledge-check block to a named AI lesson objective.
+- [x] Implement the mapped blocks in the existing course shell with faithful Rise-style hierarchy, learner controls, feedback, and responsive behaviour.
+- [x] Validate every new block on desktop and mobile, including keyboard operation, feedback states, progress behaviour, visual loading, and the production build.
+- [x] Push the complete block-based course implementation to `main`.

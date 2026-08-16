@@ -98,6 +98,17 @@ own search and oEmbed endpoints. The title, channel and runtime recorded for
 each are the values YouTube returned, not values written from memory. Every
 resource URL was requested and returned HTTP 200.
 
+### Original instructional illustrations
+
+| Asset | Learning purpose | Origin | Public URL | Terms |
+|---|---|---|---|---|
+| Delivery-workflow editorial illustration | Supports the Modern AI types lesson by showing that a delivery operation can combine parcel, image, message, and approved-tool inputs. | Original course artwork generated for Entertrainer. | `https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/mPazqNdxSYgYJBwt.jpg` | Project-generated course asset; no visible third-party brand, logo, or person. |
+| Accountable-use editorial illustration | Supports the Know AI lesson by showing public drafting, privacy protection, evidence checking, and final human review. | Original course artwork generated for Entertrainer. | `https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/pQVXfuGdMKkvZYTs.jpg` | Project-generated course asset; no visible third-party brand, logo, or person. |
+| Travel-time estimate editorial illustration | Supports the What AI is lesson by showing several input signals contributing to one travel-time estimate and the need for a human decision. | Original course artwork generated for Entertrainer. | `https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/moUiSubVTjxUVwjH.jpg` | Project-generated course asset; no visible third-party brand, logo, or person. |
+| Learning-patterns editorial illustration | Supports the Learning patterns lesson by showing past examples forming a pattern before a new request receives a candidate category. | Original course artwork generated for Entertrainer. | `https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/fwdrOnvaUvKFwRRw.jpg` | Project-generated course asset; no visible third-party brand, logo, or person. |
+| Next-token context editorial illustration | Supports the Prediction engine lesson by showing prior context influencing one likely continuation among several choices. | Original course artwork generated for Entertrainer. | `https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/HskWrjBphxuOOcHq.jpg` | Project-generated course asset; no visible third-party brand, logo, or person. |
+| Capability-review editorial illustration | Supports the Models in the world lesson by showing a candidate model output moving through evidence checks to a human reviewer. | Original course artwork generated for Entertrainer. | `https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/tCQsxAZOHvMWOTPx.jpg` | Project-generated course asset; no visible third-party brand, logo, or person. |
+
 **Not verified, and therefore not published:** exact upload dates and caption
 availability. The endpoint carrying them is blocked to automated access, and
 inventing plausible dates would have been worse than omitting them. The data

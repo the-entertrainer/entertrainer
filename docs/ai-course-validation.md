@@ -63,3 +63,15 @@ The course navigation now centralises screen changes through a scroll-reset help
 The handoff release build completed successfully with `NODE_OPTIONS=--max-old-space-size=1536 npm run build`. Nuxt compiled the client and server bundles, generated the Vercel prebuilt output, and finished with `Build complete!`.
 
 At `375 × 812`, the settled mobile course cover retained the two-row masthead, visible hamburger control, black Entertrainer mark, readable course title, white pill-shaped Start course action, 95-minute duration, and long-form introduction without horizontal clipping.
+
+## Comprehensive Rise block validation: 16 August 2026
+
+The rebuilt course compiled successfully with `NODE_OPTIONS=--max-old-space-size=1536 npm run build`. Nuxt completed the client and server bundles, PWA output, and Vercel prebuilt functions with `Build complete!`.
+
+In the browser, the history lesson displayed the new full-width banner, learner-paced four-frame image carousel, editorial history visual, interactive timeline, and chronological ordering activity in one readable sequence. Activating the carousel’s next control moved from **Questions** to **Rules**, updated its frame count, and left the timeline and other lesson controls stable.
+
+The Prediction engine lesson displayed the new audio-readout control, plain-language code snippet, qualitative line chart, existing cumulative prediction simulation, and a fill-in-the-blank question-bank prompt. Entering **token** and selecting **Check answer** returned the expected immediate explanation without changing the prediction-lab choices or the surrounding lesson flow.
+
+The modern-AI and responsible-use lessons rendered the new visual-first family grid, model grid and card stack, quote-on-image treatment, capability boundary route, quote carousel, qualitative chart treatments, resource attachment, external-source embed link, and existing scenario without a client error. The browser console contained only Nuxt’s pre-existing Suspense informational notice.
+
+At `375 × 812`, the course retained its responsive header, hamburger navigation, blue cover, Start course control, readable body copy, and no horizontal clipping. The new mobile rules collapse comparison, process, grid, chart, resource, and recall blocks into readable single-column or two-column arrangements as appropriate.

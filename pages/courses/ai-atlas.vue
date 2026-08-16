@@ -45,6 +45,13 @@ const plan = reactive({ task: '', check: '', reviewer: '' })
 const courseCompleted = ref(false)
 const courseMain = ref<HTMLElement | null>(null)
 let revealObserver: IntersectionObserver | undefined
+const galleryIndex = ref(0)
+const quoteIndex = ref(0)
+const stackIndex = ref(0)
+const blankAnswer = ref('')
+const blankSubmitted = ref(false)
+const bankIndex = ref(0)
+const audioPlaying = ref(false)
 
 const predictionSteps: PredictionStep[] = [
   {
@@ -84,6 +91,31 @@ const learningTabs = [
   { label: 'Written rules', title: 'A person specifies the method', text: 'If a form is incomplete, return it. The behaviour is predictable when the relevant rule can be written clearly in advance.', example: 'Example: Lock an account after too many incorrect password attempts.' },
   { label: 'Learned patterns', title: 'A model learns from examples', text: 'A model uses many examples to estimate which category or value best fits a new input. The examples shape both its strengths and its blind spots.', example: 'Example: Classify a customer message as delivery, billing, or product help.' },
   { label: 'Next-token prediction', title: 'A model extends a sequence', text: 'A language model estimates a likely next token from the words and instructions already in context, then adds it and repeats.', example: 'Example: Draft a meeting summary one context-sensitive token at a time.' }
+]
+
+const galleryFrames = [
+  { title: 'Questions', text: 'The early field asked what machines could do with reasoning, language, and problem solving.', visual: 'gallery-frame--questions' },
+  { title: 'Rules', text: 'Some systems followed methods people could write down in advance.', visual: 'gallery-frame--rules' },
+  { title: 'Learning', text: 'More examples and computing helped models learn patterns from data.', visual: 'gallery-frame--learning' },
+  { title: 'Transformers', text: 'Modern sequence models made large-scale language and multimodal work practical.', visual: 'gallery-frame--transformers' }
+]
+
+const quoteSlides = [
+  { text: 'A task is not a person. Keep the task, evidence, and decision-maker in view.', label: 'Practical definition' },
+  { text: 'A fluent response can fit the prompt and still need fact checking.', label: 'Prediction lesson' },
+  { text: 'A capability is not a guarantee for every setting.', label: 'Model evaluation' }
+]
+
+const modelStackCards = [
+  { front: 'GPT-4', back: 'A documented example of a model that can accept image and text inputs and produce text output.' },
+  { front: 'Gemini', back: 'A documented multimodal model family that works across several forms of information.' },
+  { front: 'Claude', back: 'A documented example of text analysis, coding, structured output, and vision tasks.' }
+]
+
+const questionBank = [
+  { prompt: 'Complete the sentence: a language model estimates a likely next ___ from its context.', answer: 'token', feedback: 'A token is a piece of text such as a word, part of a word, or punctuation.' },
+  { prompt: 'Complete the sentence: training learns a pattern from earlier ___ .', answer: 'examples', feedback: 'The examples included during training shape both performance and blind spots.' },
+  { prompt: 'Complete the sentence: a high-stakes output needs stronger evidence and human ___ .', answer: 'oversight', feedback: 'Consequential use needs evidence, testing, oversight, and specialist judgement.' }
 ]
 
 const sortCards: SortCard[] = [
@@ -165,6 +197,17 @@ const quizScore = computed(() => quizAnswers.value.filter((answer, index) => ans
 const planReady = computed(() => plan.task.trim().length > 10 && plan.check.trim().length > 10 && plan.reviewer.trim().length > 10)
 const currentSortCard = computed(() => sortCards[sortIndex.value])
 const currentMatchPrompt = computed(() => matchPrompts[matchIndex.value])
+const currentBankQuestion = computed(() => questionBank[bankIndex.value])
+const condensedSections = computed(() => currentModule.value?.sections.map(section => ({
+  heading: section.heading,
+  paragraph: section.paragraphs[0],
+  supporting: section.paragraphs.slice(1)
+})) ?? [])
+const supportingParagraphs = computed(() => [
+  ...(currentModule.value?.introduction.slice(1) ?? []),
+  ...condensedSections.value.flatMap(section => section.supporting),
+  ...(currentModule.value?.example.slice(1) ?? [])
+])
 
 function persist() {
   if (!import.meta.client) return
@@ -220,6 +263,40 @@ function startCourse() { go(0) }
 function next() { if (current.value < AI_MODULES.length + 3) go(current.value + 1) }
 function previous() { if (current.value > -1) go(current.value - 1) }
 function completeCurrent() { markVisited(currentId.value); next() }
+function nextGalleryFrame(direction: number) {
+  galleryIndex.value = (galleryIndex.value + direction + galleryFrames.length) % galleryFrames.length
+}
+function nextQuote(direction: number) {
+  quoteIndex.value = (quoteIndex.value + direction + quoteSlides.length) % quoteSlides.length
+}
+function nextStackCard(direction: number) {
+  stackIndex.value = (stackIndex.value + direction + modelStackCards.length) % modelStackCards.length
+}
+function submitBlank() { if (blankAnswer.value.trim()) blankSubmitted.value = true }
+function drawBankQuestion() {
+  bankIndex.value = (bankIndex.value + 1) % questionBank.length
+  blankAnswer.value = ''
+  blankSubmitted.value = false
+}
+function playPredictionAudio() {
+  if (!import.meta.client || !('speechSynthesis' in window)) return
+  window.speechSynthesis.cancel()
+  audioPlaying.value = true
+  const utterance = new SpeechSynthesisUtterance('Heavy rain has flooded the tracks, so the next train will be delayed.')
+  utterance.onend = () => { audioPlaying.value = false }
+  utterance.onerror = () => { audioPlaying.value = false }
+  window.speechSynthesis.speak(utterance)
+}
+function downloadUseChecklist() {
+  if (!import.meta.client) return
+  const contents = 'Before using AI:\n1. Define the task.\n2. Use only safe and appropriate information.\n3. Check important output.\n4. Keep a named person accountable.\n'
+  const href = URL.createObjectURL(new Blob([contents], { type: 'text/plain' }))
+  const link = document.createElement('a')
+  link.href = href
+  link.download = 'ai-use-checklist.txt'
+  link.click()
+  URL.revokeObjectURL(href)
+}
 function submitQuiz() {
   if (quizChoice.value === null) return
   quizSubmitted.value = true
@@ -604,12 +681,12 @@ onBeforeUnmount(() => revealObserver?.disconnect())
           </article>
 
           <article v-else-if="currentModule" class="reading">
-            <p v-for="paragraph in currentModule.introduction" :key="paragraph">{{ paragraph }}</p>
+            <p>{{ currentModule.introduction[0] }}</p>
             <section class="info-note"><i aria-hidden="true">i</i><div><b>Learning objective</b><p>{{ currentModule.objective }}</p></div></section>
 
-            <section v-for="section in currentModule.sections" :key="section.heading" class="text-section">
+            <section v-for="section in condensedSections" :key="section.heading" class="text-section">
               <h2>{{ section.heading }}</h2>
-              <p v-for="paragraph in section.paragraphs" :key="paragraph">{{ paragraph }}</p>
+              <p>{{ section.paragraph }}</p>
             </section>
 
             <section class="diagram">
@@ -622,13 +699,191 @@ onBeforeUnmount(() => revealObserver?.disconnect())
               <template v-else><span>Bounded task</span><i>→</i><span>Protect information</span><i>→</i><span>Check output</span><i>→</i><span>Accountable person</span></template>
             </section>
 
+            <section v-if="currentModule.id === 'before-chatbots'" class="rise-banner-block">
+              <div><p class="block__eyebrow">Banner</p><h2>Modern AI is a chapter, not the opening page.</h2><p>Follow the story from early questions to modern systems before drawing conclusions about what AI is.</p></div>
+            </section>
+
+            <section v-if="currentModule.id === 'before-chatbots'" class="rise-gallery-carousel">
+              <p class="block__eyebrow">Image carousel · {{ galleryIndex + 1 }} of {{ galleryFrames.length }}</p>
+              <h2>Four movements in one long history</h2>
+              <div class="rise-gallery-carousel__frame" :class="galleryFrames[galleryIndex].visual">
+                <div class="rise-gallery-carousel__shape" aria-hidden="true" />
+                <div><b>{{ galleryFrames[galleryIndex].title }}</b><p>{{ galleryFrames[galleryIndex].text }}</p></div>
+              </div>
+              <div class="rise-gallery-carousel__controls"><button type="button" aria-label="Previous gallery image" @click="nextGalleryFrame(-1)">←</button><span><i v-for="(_, index) in galleryFrames" :key="index" :class="{ 'is-active': galleryIndex === index }" /></span><button type="button" aria-label="Next gallery image" @click="nextGalleryFrame(1)">→</button></div>
+            </section>
+
+            <section v-if="currentModule.id === 'learning-patterns'" class="rise-two-column">
+              <div><p class="block__eyebrow">Two column</p><h2>When a written rule is enough</h2><p>A stable, explicit condition can be written as a rule and followed consistently.</p></div>
+              <div><p class="block__eyebrow">Learned pattern</p><h2>When examples help</h2><p>Varied wording or images are often better handled by a model learning from many labelled examples.</p></div>
+            </section>
+
+            <section v-if="currentModule.id === 'learning-patterns'" class="rise-process-block">
+              <p class="block__eyebrow">Process</p><h2>From example to new request</h2>
+              <ol><li><span>01</span><div><b>Collect labelled examples</b><p>Past messages show what “delivery” can look like in different words.</p></div></li><li><span>02</span><div><b>Learn a pattern</b><p>Training adjusts the model so useful relationships are easier to reproduce.</p></div></li><li><span>03</span><div><b>Use the pattern carefully</b><p>A new request receives a candidate category that still needs testing in context.</p></div></li></ol>
+            </section>
+
+            <section v-if="currentModule.id === 'prediction-engine'" class="rise-audio-block">
+              <div><p class="block__eyebrow">Audio</p><h2>Hear the growing service update</h2><p>Listen once, then use the prediction lab to inspect the context-sensitive choices that created it.</p></div>
+              <button type="button" :aria-pressed="audioPlaying" @click="playPredictionAudio"><span aria-hidden="true">{{ audioPlaying ? '❚❚' : '▶' }}</span>{{ audioPlaying ? 'Playing' : 'Play short readout' }}</button>
+            </section>
+
+            <section v-if="currentModule.id === 'prediction-engine'" class="rise-code-block">
+              <p class="block__eyebrow">Code snippet</p><h2>A plain-language prompt pattern</h2>
+              <pre><code>context → estimate next token
+add token to context → estimate again
+repeat → candidate response</code></pre>
+              <p>This is not program code to copy. It is a compact representation of the sequence you are about to test.</p>
+            </section>
+
+            <section v-if="currentModule.id === 'prediction-engine'" class="rise-chart rise-chart--line" role="img" aria-label="Qualitative line chart showing context increasing the fit of one next-token continuation">
+              <p class="block__eyebrow">Line chart · qualitative</p><h2>More relevant context, stronger fit</h2><div class="rise-chart__plot"><svg viewBox="0 0 360 150" aria-hidden="true"><path d="M26 126H344M26 126V18" stroke="currentColor" stroke-width="2" fill="none"/><path d="M36 108 C104 96, 146 86, 190 60 S278 28, 334 24" stroke="currentColor" stroke-width="5" fill="none" stroke-linecap="round"/></svg><span>less context</span><span>more relevant context</span></div><p>The chart is illustrative: it shows the course idea that added context can make one continuation fit more strongly than another.</p>
+            </section>
+
             <section class="worked-example">
               <h2>{{ currentModule.exampleTitle }}</h2>
-              <p v-for="paragraph in currentModule.example" :key="paragraph">{{ paragraph }}</p>
+              <p>{{ currentModule.example[0] }}</p>
+            </section>
+
+            <figure v-if="currentModule.id === 'what-ai-is'" class="visual-explainer task-canvas" aria-labelledby="task-canvas-title">
+              <figcaption>
+                <p class="block__eyebrow">Visual map</p>
+                <h2 id="task-canvas-title">Follow one estimate from task to check</h2>
+                <p>The travel-time example becomes easier to inspect when its parts are kept visible together.</p>
+              </figcaption>
+              <ol class="task-canvas__route">
+                <li><span class="task-canvas__step">01</span><div><b>Task</b><p>Estimate a journey time.</p></div></li>
+                <li><span class="task-canvas__step">02</span><div><b>Information</b><p>Route, time, traffic, and road signals.</p></div></li>
+                <li><span class="task-canvas__step">03</span><div><b>Estimate</b><p>A likely travel time, not a promise.</p></div></li>
+                <li><span class="task-canvas__step">04</span><div><b>Check</b><p>Compare with weather, closures, and local knowledge.</p></div></li>
+              </ol>
+              <p class="visual-explainer__caption">A useful AI description names the task, information, output, and human check rather than treating a result as an unexplained answer.</p>
+            </figure>
+
+            <figure v-if="currentModule.id === 'what-ai-is'" class="editorial-visual">
+              <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/moUiSubVTjxUVwjH.jpg" alt="Editorial illustration of a route, travel token, traffic signal, weather marker, and clock contributing to a journey-time estimate" loading="lazy" />
+              <figcaption>Several inputs can support one estimate. The output is still a useful guide for a person to interpret rather than an automatic promise.</figcaption>
+            </figure>
+
+            <section v-if="currentModule.id === 'what-ai-is'" class="rise-grid rise-grid--two">
+              <article><i class="rise-grid__icon rise-grid__icon--route" aria-hidden="true" /><b>Information arrives</b><span>Route, time of day, traffic, and road signals become the input for a travel-time estimate.</span></article>
+              <article><i class="rise-grid__icon rise-grid__icon--review" aria-hidden="true" /><b>A person checks the result</b><span>Weather, closures, local knowledge, and the need to arrive early can change the final decision.</span></article>
+            </section>
+
+            <section v-if="currentModule.id === 'what-ai-is'" class="rise-chart rise-chart--bar" role="img" aria-label="Qualitative bar chart comparing the visible role of task, information, estimate, and human check in a responsible AI use case">
+              <p class="block__eyebrow">Bar chart · qualitative</p><h2>Four parts of one useful AI use case</h2><div class="rise-chart__bars"><div><span>Task</span><i><b style="width: 82%" /></i></div><div><span>Information</span><i><b style="width: 88%" /></i></div><div><span>Estimate</span><i><b style="width: 66%" /></i></div><div><span>Human check</span><i><b style="width: 92%" /></i></div></div><p>These bars are a visual emphasis aid, not measured performance data. A responsible use case makes every part explicit.</p>
+            </section>
+
+            <figure v-if="currentModule.id === 'learning-patterns'" class="visual-explainer learn-use-map" aria-labelledby="learn-use-title">
+              <figcaption>
+                <p class="block__eyebrow">Visual contrast</p>
+                <h2 id="learn-use-title">Learning happens before a new request</h2>
+                <p>The same model has two distinct moments: learning from earlier examples, then using that pattern on an unfamiliar input.</p>
+              </figcaption>
+              <div class="learn-use-map__lanes">
+                <section class="learn-use-map__lane">
+                  <span class="learn-use-map__label">Learn from examples</span>
+                  <div class="learn-use-map__cards"><span>“Where is my parcel?”</span><span>Delivery</span></div>
+                  <span class="learn-use-map__arrow" aria-hidden="true">↓</span>
+                  <strong>Learn a useful pattern</strong>
+                </section>
+                <span class="learn-use-map__bridge" aria-hidden="true">→</span>
+                <section class="learn-use-map__lane learn-use-map__lane--use">
+                  <span class="learn-use-map__label">Use on a new request</span>
+                  <div class="learn-use-map__cards"><span>“Tracking has not changed.”</span></div>
+                  <span class="learn-use-map__arrow" aria-hidden="true">↓</span>
+                  <strong>Candidate category: delivery</strong>
+                </section>
+              </div>
+              <p class="visual-explainer__caption">The examples shape the pattern; they also shape the conditions where the result may be less reliable.</p>
+            </figure>
+
+            <figure v-if="currentModule.id === 'learning-patterns'" class="editorial-visual">
+              <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/fwdrOnvaUvKFwRRw.jpg" alt="Editorial illustration showing varied past example slips forming a pattern before a new request receives a candidate category" loading="lazy" />
+              <figcaption>Training begins with earlier examples. Inference applies the learned pattern to a different request, where the result should still be tested in context.</figcaption>
+            </figure>
+
+            <figure v-if="currentModule.id === 'prediction-engine'" class="visual-explainer context-map" aria-labelledby="context-map-title">
+              <figcaption>
+                <p class="block__eyebrow">Context graphic</p>
+                <h2 id="context-map-title">Context changes the next estimate</h2>
+                <p>Words already in a sentence make some continuations fit more strongly than others.</p>
+              </figcaption>
+              <div class="context-map__sequence"><span>Heavy rain</span><i>+</i><span>flooded the tracks</span><i>→</i><strong>next token?</strong></div>
+              <div class="context-map__choices" aria-label="Illustrative next-token fit">
+                <div class="context-map__choice is-strong"><span>delayed</span><i><b /></i><small>stronger fit</small></div>
+                <div class="context-map__choice"><span>celebrated</span><i><b /></i><small>weaker fit</small></div>
+                <div class="context-map__choice"><span>invisible</span><i><b /></i><small>weaker fit</small></div>
+              </div>
+              <div class="context-map__loop"><span>Choose a fitting token</span><i>→</i><span>Add it to the context</span><i>→</i><span>Estimate again</span></div>
+              <p class="visual-explainer__caption">The prediction lab below lets you make this sequence visible one choice at a time.</p>
+            </figure>
+
+            <figure v-if="currentModule.id === 'prediction-engine'" class="editorial-visual">
+              <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/HskWrjBphxuOOcHq.jpg" alt="Abstract editorial illustration of context pieces guiding one of several possible continuation tiles" loading="lazy" />
+              <figcaption>The model does not retrieve one fixed sentence. It repeatedly uses what is already present to estimate the next fitting piece.</figcaption>
+            </figure>
+
+            <figure v-if="currentModule.id === 'modern-landscape'" class="editorial-visual editorial-visual--workflow">
+              <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/mPazqNdxSYgYJBwt.jpg" alt="Editorial illustration showing a parcel, damage image, customer message, and approved workflow tools as separate parts of a delivery operation" loading="lazy" />
+              <figcaption>One operational goal can call on several specialised systems. The family names and exact roles remain in the labelled graphic and sorting activity below.</figcaption>
+            </figure>
+
+            <figure v-if="currentModule.id === 'know-ai'" class="editorial-visual editorial-visual--accountability">
+              <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/pQVXfuGdMKkvZYTs.jpg" alt="Editorial illustration showing a public draft, protected information, fact checking, and human approval along one accountable review route" loading="lazy" />
+              <figcaption>Capability becomes useful only when information is protected, important claims are checked, and a person remains accountable for the final decision.</figcaption>
+            </figure>
+
+            <section v-if="currentModule.id === 'know-ai'" class="rise-quote-carousel">
+              <p class="block__eyebrow">Quote carousel · {{ quoteIndex + 1 }} of {{ quoteSlides.length }}</p><blockquote>“{{ quoteSlides[quoteIndex].text }}”</blockquote><p>{{ quoteSlides[quoteIndex].label }}</p>
+              <div><button type="button" aria-label="Previous course takeaway" @click="nextQuote(-1)">←</button><span><i v-for="(_, index) in quoteSlides" :key="index" :class="{ 'is-active': quoteIndex === index }" /></span><button type="button" aria-label="Next course takeaway" @click="nextQuote(1)">→</button></div>
+            </section>
+
+            <section v-if="currentModule.id === 'know-ai'" class="rise-chart rise-chart--pie" role="img" aria-label="Illustrative pie chart showing that task, safe information, output checks, and accountability are all required parts of responsible use">
+              <p class="block__eyebrow">Pie chart · concept map</p><h2>Responsible use needs four connected conditions</h2><div class="rise-chart__pie"><i /><ul><li><b>Task</b><span>Clear and bounded</span></li><li><b>Information</b><span>Safe and appropriate</span></li><li><b>Check</b><span>Evidence before action</span></li><li><b>Accountability</b><span>A named final decision-maker</span></li></ul></div><p>This visual does not assign a score. It shows that no one condition can substitute for the others.</p>
+            </section>
+
+            <section v-if="currentModule.id === 'know-ai'" class="rise-resource-row">
+              <button type="button" class="rise-attachment" @click="downloadUseChecklist"><span aria-hidden="true">↓</span><div><b>Attachment</b><small>Download the four-question AI use checklist</small></div></button>
+              <a class="rise-embed" href="https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence" target="_blank" rel="noreferrer"><span aria-hidden="true">↗</span><div><b>Embedded resource</b><small>Open the course source on AI risk management</small></div></a>
             </section>
 
             <section v-if="currentModule.visual === 'history'" class="media"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/UrwXNXgLQEdronNQ.jpg" alt="Editorial visual timeline from early artificial intelligence research to modern AI systems" /><p>Use this timeline as a reading aid. It does not list every breakthrough; it shows how modern AI rests on a long sequence of questions, methods, data, computing, and model design.</p></section>
             <section v-if="currentModule.visual === 'models'" class="media"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/htTSgHWeiwDLlMXR.jpg" alt="Editorial visual showing different types of modern AI systems and their inputs" /><p>This visual groups modern AI by the kind of information it works with and the kind of output it can create. It reinforces the distinction explained in the lesson text.</p></section>
+
+            <section v-if="currentModule.id === 'modern-landscape'" class="rise-grid rise-grid--four">
+              <article><i class="rise-grid__icon rise-grid__icon--route" aria-hidden="true" /><b>Prediction</b><span>Estimate a value or rank options.</span></article><article><i class="rise-grid__icon rise-grid__icon--vision" aria-hidden="true" /><b>Vision</b><span>Find patterns in images and video.</span></article><article><i class="rise-grid__icon rise-grid__icon--language" aria-hidden="true" /><b>Language</b><span>Work with text and code.</span></article><article><i class="rise-grid__icon rise-grid__icon--tools" aria-hidden="true" /><b>Tools</b><span>Connect a model to approved systems.</span></article>
+            </section>
+
+            <section v-if="currentModule.id === 'models-world'" class="rise-grid rise-grid--three">
+              <article><b>GPT-4</b><span>Image and text input; text output.</span></article><article><b>Gemini</b><span>Multimodal model family.</span></article><article><b>Claude</b><span>Text analysis, coding, structure, and vision.</span></article>
+            </section>
+
+            <section v-if="currentModule.id === 'models-world'" class="rise-flashcard-stack">
+              <p class="block__eyebrow">Flashcard stack · {{ stackIndex + 1 }} of {{ modelStackCards.length }}</p><h2>Turn a model name into a documented capability</h2>
+              <article><small>Model</small><b>{{ modelStackCards[stackIndex].front }}</b><p>{{ modelStackCards[stackIndex].back }}</p></article>
+              <div><button type="button" aria-label="Previous model card" @click="nextStackCard(-1)">←</button><span><i v-for="(_, index) in modelStackCards" :key="index" :class="{ 'is-active': stackIndex === index }" /></span><button type="button" aria-label="Next model card" @click="nextStackCard(1)">→</button></div>
+            </section>
+
+            <figure v-if="currentModule.id === 'models-world'" class="rise-quote-image">
+              <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/tCQsxAZOHvMWOTPx.jpg" alt="Editorial visual of an AI candidate output moving through evidence checks to a human reviewer" loading="lazy" />
+              <figcaption><span>“</span>A candidate output needs evidence and an accountable decision-maker.<span>”</span></figcaption>
+            </figure>
+
+            <figure v-if="currentModule.id === 'models-world'" class="visual-explainer capability-route" aria-labelledby="capability-route-title">
+              <figcaption><p class="block__eyebrow">Capability boundary</p><h2 id="capability-route-title">A model output is a candidate, not a conclusion</h2><p>Keep the chain visible before deciding whether a public capability claim fits a real task.</p></figcaption>
+              <ol class="capability-route__steps"><li><i>01</i><b>Input</b><span>What information is supplied?</span></li><li><i>02</i><b>Model</b><span>What pattern can it apply?</span></li><li><i>03</i><b>Candidate output</b><span>What draft or classification appears?</span></li><li><i>04</i><b>Evaluation</b><span>What evidence checks the result?</span></li><li><i>05</i><b>Accountable use</b><span>Who makes the final decision?</span></li></ol>
+            </figure>
+
+            <figure v-if="currentModule.id === 'models-world'" class="editorial-visual">
+              <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/tCQsxAZOHvMWOTPx.jpg" alt="Editorial illustration of a model output passing through an evidence check before a human reviewer makes the accountable decision" loading="lazy" />
+              <figcaption>Public capability is the beginning of evaluation, not the end. A team still needs evidence, conditions, and a reviewer for its own workflow.</figcaption>
+            </figure>
+
+            <figure v-if="currentModule.id === 'know-ai'" class="visual-explainer risk-route" aria-labelledby="risk-route-title">
+              <figcaption><p class="block__eyebrow">Use-with-care map</p><h2 id="risk-route-title">Match the safeguards to the consequences</h2><p>Not every useful task has the same risk. The more a result can affect someone, the stronger the evidence and oversight need to be.</p></figcaption>
+              <div class="risk-route__lanes"><section><span class="risk-route__tag">Bounded and reviewable</span><b>Draft a workshop outline from public notes</b><p>Safe inputs, visible review, and a person who can revise before sharing.</p></section><i aria-hidden="true">↔</i><section class="risk-route__lane--high"><span class="risk-route__tag">Consequential</span><b>Influence health, employment, finance, safety, or legal position</b><p>Stronger evidence, testing, oversight, and specialist judgement before action.</p></section></div>
+            </figure>
 
             <section v-if="currentModule.video" class="video"><h2>{{ currentModule.video.title }}</h2><p><strong>Viewing question:</strong> {{ currentModule.video.question }}</p><div class="video__frame"><iframe :src="currentModule.video.url" :title="currentModule.video.title" loading="lazy" allowfullscreen /></div></section>
 
@@ -748,6 +1003,13 @@ onBeforeUnmount(() => revealObserver?.disconnect())
               </div>
             </section>
 
+            <section v-if="currentModule.id === 'prediction-engine'" class="rise-fill-block">
+              <p class="block__eyebrow">Fill in the blank · question bank</p><h2>Retrieve one key idea</h2><p>{{ currentBankQuestion.prompt }}</p>
+              <div><input v-model="blankAnswer" type="text" :disabled="blankSubmitted" aria-label="Your answer" placeholder="Type one word" /><button v-if="!blankSubmitted" type="button" :disabled="!blankAnswer.trim()" @click="submitBlank">Check answer</button></div>
+              <p v-if="blankSubmitted" class="activity-feedback" :class="{ 'is-correct': blankAnswer.trim().toLowerCase() === currentBankQuestion.answer }"><strong>{{ blankAnswer.trim().toLowerCase() === currentBankQuestion.answer ? 'Correct.' : 'Review the phrase.' }}</strong> {{ currentBankQuestion.feedback }}</p>
+              <button type="button" class="next-link" @click="drawBankQuestion">Draw another prompt</button>
+            </section>
+
             <section v-if="currentModule.id === 'modern-landscape'" class="block game-block">
               <p class="block__eyebrow">Sorting game · {{ sortIndex + 1 }} of {{ sortCards.length }}</p>
               <h2>Sort the AI workflow</h2>
@@ -776,6 +1038,11 @@ onBeforeUnmount(() => revealObserver?.disconnect())
               <button v-if="!scenarioSubmitted" type="button" class="submit-btn" :disabled="scenarioChoice === null" @click="submitScenario">Check decision</button>
               <template v-else><p class="activity-feedback" :class="{ 'is-correct': scenarioChoice === 1 }"><strong>{{ scenarioChoice === 1 ? 'A responsible start.' : 'Pause before proceeding.' }}</strong> The task may be useful, but the information and the tool both need review before the coordinator asks for any output.</p>
                 <div class="scenario-block__check"><h3>Select all safeguards that still apply</h3><p>The decision is not complete until you identify the conditions that keep the task bounded and accountable.</p><button v-for="(option, index) in safeguardOptions" :key="option" type="button" :class="{ 'is-selected': safeguardsSelected.includes(index) }" :aria-pressed="safeguardsSelected.includes(index)" @click="toggleSafeguard(index)"><i aria-hidden="true">{{ safeguardsSelected.includes(index) ? '✓' : '' }}</i>{{ option }}</button><button v-if="!safeguardsSubmitted" type="button" class="submit-btn" :disabled="!safeguardsSelected.length" @click="submitSafeguards">Check safeguards</button><p v-else class="activity-feedback" :class="{ 'is-correct': isCorrectSafeguardSet() }"><strong>{{ isCorrectSafeguardSet() ? 'Complete.' : 'Review the conditions.' }}</strong> {{ isCorrectSafeguardSet() ? 'Safe inputs, evidence checks, and named accountability work together. Confident wording is never proof.' : 'The correct set includes the first three statements. A confident answer still needs checking.' }}</p></div></template>
+            </section>
+
+            <section v-if="supportingParagraphs.length" class="support-detail">
+              <button type="button" :aria-expanded="openDetails === currentModule.id" @click="openDetails = openDetails === currentModule.id ? null : currentModule.id"><span>Supporting detail</span><b>{{ openDetails === currentModule.id ? 'Hide' : 'Open' }}</b></button>
+              <div v-if="openDetails === currentModule.id" class="support-detail__body"><p v-for="paragraph in supportingParagraphs" :key="paragraph">{{ paragraph }}</p></div>
             </section>
 
             <section class="source-line"><strong>Source:</strong> <a :href="currentModule.sourceUrl" target="_blank" rel="noreferrer">{{ currentModule.sourceLabel }}</a> <span>· {{ currentModule.confidence }}</span></section>
@@ -1043,6 +1310,168 @@ onBeforeUnmount(() => revealObserver?.disconnect())
 .video__frame { position: relative; aspect-ratio: 16 / 9; border-radius: var(--co-radius-l); overflow: hidden; box-shadow: var(--co-shadow); }
 .video__frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
+/* ── Course visual explanations ── */
+.visual-explainer, .editorial-visual { max-width: 780px; margin: 42px 0; }
+.visual-explainer { padding: 26px; border-radius: var(--co-radius-l); background: var(--co-paper); box-shadow: var(--co-shadow); }
+.visual-explainer h2 { margin: 0 0 10px !important; font-size: 26px !important; }
+.visual-explainer figcaption > p:not(.block__eyebrow) { margin: 0; color: var(--co-muted); font-size: 16px; font-weight: 500; line-height: 1.55; }
+.visual-explainer__caption, .editorial-visual figcaption { margin: 18px 0 0; color: var(--co-muted); font-size: 15px; font-weight: 500; line-height: 1.55; }
+
+.task-canvas__route { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 24px 0 0; padding: 0; }
+.task-canvas__route li { position: relative; min-height: 146px; padding: 16px; border: 1px solid var(--co-line); border-radius: var(--co-radius-m); background: #fff; }
+.task-canvas__route li:not(:last-child)::after { content: '→'; position: absolute; right: -18px; top: 50%; z-index: 1; color: var(--co-blue); font-size: 20px; font-weight: 900; transform: translateY(-50%); }
+.task-canvas__step { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; margin-bottom: 24px; border-radius: 50%; background: var(--co-blue-tint); color: var(--co-blue); font-size: 10.5px; font-weight: 900; }
+.task-canvas__route b { display: block; margin-bottom: 7px; font-size: 16px; }
+.task-canvas__route p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--co-muted); }
+
+.learn-use-map__lanes { display: grid; grid-template-columns: 1fr 48px 1fr; align-items: center; gap: 12px; margin-top: 24px; }
+.learn-use-map__lane { min-height: 205px; padding: 20px; border-radius: var(--co-radius-m); background: var(--co-blue-tint); display: grid; align-content: start; gap: 12px; }
+.learn-use-map__lane--use { background: #F4F8FD; border: 1px solid var(--co-line); }
+.learn-use-map__label { color: var(--co-blue); font-size: 12px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; }
+.learn-use-map__cards { display: flex; flex-wrap: wrap; gap: 8px; }
+.learn-use-map__cards span { padding: 9px 10px; border-radius: 8px; background: #fff; box-shadow: 0 2px 8px rgba(36, 55, 76, 0.08); font-size: 13px; font-weight: 700; line-height: 1.35; }
+.learn-use-map__arrow { color: var(--co-blue); font-size: 22px; font-style: normal; font-weight: 900; line-height: 1; }
+.learn-use-map__lane strong { font-size: 15px; line-height: 1.4; }
+.learn-use-map__bridge { color: var(--co-blue); font-size: 28px; font-weight: 900; text-align: center; }
+
+.context-map { overflow: hidden; background: linear-gradient(180deg, var(--co-paper) 0%, #F3F8FE 100%); }
+.context-map__sequence, .context-map__loop { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin-top: 24px; }
+.context-map__sequence span, .context-map__loop span { padding: 9px 12px; border: 1px solid var(--co-line); border-radius: var(--co-radius-full); background: #fff; font-size: 13px; font-weight: 800; }
+.context-map__sequence strong { padding: 9px 12px; border-radius: var(--co-radius-full); background: var(--co-blue); color: #fff; font-size: 13px; }
+.context-map__sequence i, .context-map__loop i { color: var(--co-blue); font-size: 20px; font-style: normal; font-weight: 900; }
+.context-map__choices { display: grid; gap: 10px; max-width: 570px; margin: 22px auto 0; }
+.context-map__choice { display: grid; grid-template-columns: 96px 1fr 80px; align-items: center; gap: 10px; font-size: 14px; font-weight: 800; }
+.context-map__choice i { display: block; height: 11px; border-radius: var(--co-radius-full); background: #DCE6F1; overflow: hidden; }
+.context-map__choice i b { display: block; width: 24%; height: 100%; border-radius: inherit; background: #9FB9D6; }
+.context-map__choice.is-strong i b { width: 84%; background: var(--co-blue); }
+.context-map__choice small { color: var(--co-muted); font-size: 12px; font-weight: 700; text-align: right; }
+
+.editorial-visual { padding: 0; overflow: hidden; border-radius: var(--co-radius-l); background: var(--co-paper); box-shadow: var(--co-shadow); }
+.editorial-visual img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--co-blue-tint); }
+.editorial-visual figcaption { padding: 15px 18px 18px; margin: 0; }
+
+.capability-route__steps { list-style: none; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 24px 0 0; padding: 0; }
+.capability-route__steps li { position: relative; min-height: 144px; padding: 14px 12px; border: 1px solid var(--co-line); border-radius: var(--co-radius-m); background: #fff; }
+.capability-route__steps li:not(:last-child)::after { content: '→'; position: absolute; right: -14px; top: 50%; z-index: 1; color: var(--co-blue); font-size: 18px; font-weight: 900; transform: translateY(-50%); }
+.capability-route__steps i { display: block; margin-bottom: 17px; color: var(--co-blue); font-size: 11px; font-style: normal; font-weight: 900; letter-spacing: 0.05em; }
+.capability-route__steps b { display: block; margin-bottom: 7px; font-size: 14px; line-height: 1.25; }
+.capability-route__steps span { color: var(--co-muted); font-size: 12.5px; font-weight: 600; line-height: 1.4; }
+
+.risk-route__lanes { display: grid; grid-template-columns: 1fr 42px 1fr; align-items: stretch; gap: 12px; margin-top: 24px; }
+.risk-route__lanes section { padding: 20px; border-radius: var(--co-radius-m); background: var(--co-blue-tint); }
+.risk-route__lanes .risk-route__lane--high { background: #F8F4EE; border: 1px solid #E5D3BA; }
+.risk-route__lanes > i { align-self: center; color: var(--co-blue); font-size: 24px; font-style: normal; font-weight: 900; text-align: center; }
+.risk-route__tag { display: inline-block; margin-bottom: 16px; padding: 5px 9px; border-radius: var(--co-radius-full); background: #fff; color: var(--co-blue); font-size: 11px; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; }
+.risk-route__lane--high .risk-route__tag { color: #8D5B1C; }
+.risk-route__lanes b { display: block; margin-bottom: 8px; font-size: 16px; line-height: 1.35; }
+.risk-route__lanes p { margin: 0; color: var(--co-muted); font-size: 14px; font-weight: 600; line-height: 1.5; }
+
+.support-detail { max-width: 780px; margin: 38px 0; border-top: 1px solid var(--co-line); border-bottom: 1px solid var(--co-line); }
+.support-detail > button { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 16px 0; border: none; background: none; color: var(--co-ink); cursor: pointer; font: 800 14px inherit; text-align: left; }
+.support-detail > button b { color: var(--co-blue); }
+.support-detail__body { padding: 2px 0 18px; }
+.support-detail__body p { max-width: 720px; margin: 0 0 16px; color: var(--co-muted); font-size: 16px; font-weight: 500; line-height: 1.62; }
+
+/* ── Comprehensive Rise content, media, gallery, and knowledge-check blocks ── */
+.rise-banner-block { max-width: 780px; margin: 38px 0; min-height: 220px; padding: 34px; display: grid; align-items: end; overflow: hidden; border-radius: var(--co-radius-l); background: linear-gradient(135deg, var(--co-blue-dark), var(--co-blue)); color: #fff; box-shadow: var(--co-shadow); }
+.rise-banner-block > div { max-width: 560px; }
+.rise-banner-block .block__eyebrow { color: #DDEEFF; }
+.rise-banner-block h2 { margin: 0 0 9px !important; font-size: 30px !important; line-height: 1.15; }
+.rise-banner-block p:last-child { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.55; }
+
+.rise-gallery-carousel, .rise-process-block, .rise-code-block, .rise-chart, .rise-flashcard-stack, .rise-quote-carousel, .rise-fill-block { max-width: 780px; margin: 42px 0; padding: 26px; border-radius: var(--co-radius-l); background: var(--co-paper); box-shadow: var(--co-shadow); }
+.rise-gallery-carousel h2, .rise-process-block h2, .rise-code-block h2, .rise-chart h2, .rise-flashcard-stack h2, .rise-fill-block h2 { margin: 0 0 16px !important; font-size: 25px !important; }
+.rise-gallery-carousel__frame { position: relative; min-height: 270px; padding: 26px; display: flex; align-items: end; overflow: hidden; border-radius: var(--co-radius-m); color: #fff; }
+.rise-gallery-carousel__frame > div:last-child { position: relative; z-index: 1; max-width: 380px; }
+.rise-gallery-carousel__frame b { display: block; margin-bottom: 8px; font-size: 26px; }
+.rise-gallery-carousel__frame p { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.55; }
+.rise-gallery-carousel__shape { position: absolute; right: 12%; top: 16%; width: 132px; height: 132px; border: 16px solid rgba(255,255,255,.72); border-radius: 50%; transform: rotate(-18deg); }
+.gallery-frame--questions { background: linear-gradient(135deg, #183E68, #327FCB); }
+.gallery-frame--rules { background: linear-gradient(135deg, #6B7481, #33455D); }
+.gallery-frame--learning { background: linear-gradient(135deg, #35697A, #62A1A6); }
+.gallery-frame--transformers { background: linear-gradient(135deg, #6E5487, #295B98); }
+.rise-gallery-carousel__controls, .rise-flashcard-stack > div, .rise-quote-carousel > div { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 16px; }
+.rise-gallery-carousel__controls button, .rise-flashcard-stack button, .rise-quote-carousel button { width: 34px; height: 34px; border: 1.5px solid var(--co-line); border-radius: 50%; background: #fff; color: var(--co-blue); cursor: pointer; font: 900 17px inherit; }
+.rise-gallery-carousel__controls span, .rise-flashcard-stack > div span, .rise-quote-carousel > div span { display: flex; gap: 6px; }
+.rise-gallery-carousel__controls i, .rise-flashcard-stack > div i, .rise-quote-carousel > div i { width: 7px; height: 7px; border-radius: 50%; background: var(--co-line); }
+.rise-gallery-carousel__controls i.is-active, .rise-flashcard-stack > div i.is-active, .rise-quote-carousel > div i.is-active { background: var(--co-blue); }
+
+.rise-two-column { max-width: 780px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 40px 0; }
+.rise-two-column > div { padding: 22px; border-radius: var(--co-radius-l); background: var(--co-paper); box-shadow: var(--co-shadow); }
+.rise-two-column > div:last-child { background: var(--co-blue-tint); }
+.rise-two-column h2 { margin: 0 0 10px !important; font-size: 22px !important; }
+.rise-two-column p:last-child { margin: 0; color: var(--co-muted); font-size: 15.5px; line-height: 1.55; }
+
+.rise-process-block ol { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0 0; padding: 0; }
+.rise-process-block li { position: relative; padding: 16px; border: 1px solid var(--co-line); border-radius: var(--co-radius-m); background: #fff; }
+.rise-process-block li:not(:last-child)::after { content: '→'; position: absolute; right: -16px; top: 50%; z-index: 1; color: var(--co-blue); font-size: 20px; font-weight: 900; transform: translateY(-50%); }
+.rise-process-block li > span { display: block; margin-bottom: 18px; color: var(--co-blue); font-size: 12px; font-weight: 900; letter-spacing: .05em; }
+.rise-process-block b { display: block; margin-bottom: 7px; font-size: 15px; }
+.rise-process-block p { margin: 0; color: var(--co-muted); font-size: 13.5px; font-weight: 600; line-height: 1.48; }
+
+.rise-audio-block { max-width: 780px; margin: 40px 0; padding: 22px; display: flex; align-items: center; justify-content: space-between; gap: 22px; border: 1px solid var(--co-line); border-radius: var(--co-radius-l); background: var(--co-paper); }
+.rise-audio-block h2 { margin: 0 0 7px !important; font-size: 22px !important; }
+.rise-audio-block p:last-child { margin: 0; color: var(--co-muted); font-size: 15px; line-height: 1.55; }
+.rise-audio-block button { flex: none; min-width: 150px; padding: 12px 16px; border: none; border-radius: var(--co-radius-full); background: var(--co-blue); color: #fff; cursor: pointer; font: 800 13px inherit; }
+.rise-audio-block button span { margin-right: 8px; }
+
+.rise-code-block pre { margin: 20px 0 14px; padding: 18px; overflow-x: auto; border-radius: var(--co-radius-m); background: #15243A; color: #E9F4FF; font: 600 14px/1.65 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.rise-code-block > p:last-child, .rise-chart > p:last-child { margin: 0; color: var(--co-muted); font-size: 14.5px; line-height: 1.55; }
+
+.rise-chart__plot { color: var(--co-blue); margin: 20px 0 10px; }
+.rise-chart__plot svg { display: block; width: 100%; max-width: 430px; height: auto; margin: 0 auto; }
+.rise-chart__plot span { display: inline-block; width: 50%; color: var(--co-muted); font-size: 12px; font-weight: 700; }
+.rise-chart__plot span:last-child { text-align: right; }
+.rise-chart__bars { display: grid; gap: 12px; margin: 20px 0; }
+.rise-chart__bars div { display: grid; grid-template-columns: 105px 1fr; align-items: center; gap: 12px; font-size: 14px; font-weight: 800; }
+.rise-chart__bars i { display: block; height: 15px; overflow: hidden; border-radius: var(--co-radius-full); background: #E0EAF4; }
+.rise-chart__bars b { display: block; height: 100%; border-radius: inherit; background: var(--co-blue); }
+.rise-chart__pie { display: grid; grid-template-columns: 150px 1fr; align-items: center; gap: 24px; margin: 22px 0; }
+.rise-chart__pie > i { width: 150px; height: 150px; display: block; border-radius: 50%; background: conic-gradient(var(--co-blue) 0 25%, #6FA9DD 25% 50%, #A7C8E5 50% 75%, #D8E9F6 75%); }
+.rise-chart__pie ul { list-style: none; display: grid; gap: 8px; padding: 0; margin: 0; }
+.rise-chart__pie li { display: grid; grid-template-columns: 105px 1fr; gap: 8px; font-size: 13px; }
+.rise-chart__pie li b { color: var(--co-blue); }
+.rise-chart__pie li span { color: var(--co-muted); font-weight: 600; }
+
+.rise-grid { max-width: 780px; display: grid; gap: 12px; margin: 40px 0; }
+.rise-grid--two { grid-template-columns: repeat(2, 1fr); }
+.rise-grid--three { grid-template-columns: repeat(3, 1fr); }
+.rise-grid--four { grid-template-columns: repeat(4, 1fr); }
+.rise-grid article { min-height: 172px; padding: 18px; display: flex; flex-direction: column; border-radius: var(--co-radius-m); background: var(--co-paper); box-shadow: var(--co-shadow); }
+.rise-grid b { margin-top: auto; margin-bottom: 6px; font-size: 16px; }
+.rise-grid span { color: var(--co-muted); font-size: 13.5px; font-weight: 600; line-height: 1.45; }
+.rise-grid__icon { width: 46px; height: 46px; display: block; border-radius: 14px; background: var(--co-blue-tint); position: relative; }
+.rise-grid__icon::after { content: ''; position: absolute; inset: 13px; border: 3px solid var(--co-blue); border-radius: 50%; }
+.rise-grid__icon--vision::after { border-radius: 5px; }
+.rise-grid__icon--language::after { border-radius: 50% 50% 50% 4px; }
+.rise-grid__icon--tools::after { border-radius: 50% 4px 50% 4px; transform: rotate(45deg); }
+.rise-grid__icon--review::after { border-radius: 2px; transform: rotate(45deg); }
+
+.rise-flashcard-stack article { min-height: 220px; padding: 28px; display: grid; align-content: center; border: 1px solid var(--co-line); border-radius: var(--co-radius-m); background: linear-gradient(135deg, #F3F8FE, #fff); text-align: center; }
+.rise-flashcard-stack small { margin-bottom: 12px; color: var(--co-blue); font-size: 12px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; }
+.rise-flashcard-stack article b { display: block; margin-bottom: 14px; font-size: 30px; }
+.rise-flashcard-stack article p { max-width: 480px; margin: 0 auto; color: var(--co-muted); font-size: 16px; line-height: 1.55; }
+.rise-quote-image { position: relative; max-width: 780px; margin: 42px 0; overflow: hidden; border-radius: var(--co-radius-l); box-shadow: var(--co-shadow); }
+.rise-quote-image img { display: block; width: 100%; aspect-ratio: 16 / 8; object-fit: cover; }
+.rise-quote-image figcaption { position: absolute; inset: auto 0 0; padding: 26px; background: linear-gradient(transparent, rgba(10,28,52,.84)); color: #fff; font-size: 23px; font-weight: 800; line-height: 1.35; }
+.rise-quote-image figcaption span { color: #9DD0FF; font-size: 30px; }
+.rise-quote-carousel { text-align: center; background: var(--co-blue-tint); }
+.rise-quote-carousel blockquote { max-width: 590px; margin: 14px auto 8px; font-size: 25px; font-weight: 900; line-height: 1.38; }
+.rise-quote-carousel > p { margin: 0; color: var(--co-muted); font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+
+.rise-resource-row { max-width: 780px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 34px 0; }
+.rise-attachment, .rise-embed { padding: 16px; display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: center; border: 1px solid var(--co-line); border-radius: var(--co-radius-m); background: var(--co-paper); color: var(--co-ink); text-align: left; text-decoration: none; cursor: pointer; font-family: inherit; }
+.rise-attachment > span, .rise-embed > span { color: var(--co-blue); font-size: 22px; font-weight: 900; }
+.rise-attachment b, .rise-embed b { display: block; font-size: 14px; }
+.rise-attachment small, .rise-embed small { display: block; margin-top: 3px; color: var(--co-muted); font-size: 12.5px; font-weight: 600; line-height: 1.35; }
+
+.rise-fill-block > p:not(.block__eyebrow) { font-size: 16px; line-height: 1.6; }
+.rise-fill-block > div { display: flex; gap: 10px; margin-top: 16px; }
+.rise-fill-block input { flex: 1; min-width: 0; padding: 12px 14px; border: 1.5px solid var(--co-line); border-radius: var(--co-radius-m); font: 600 15px inherit; }
+.rise-fill-block input:focus { outline: none; border-color: var(--co-blue); }
+.rise-fill-block > div button { padding: 11px 16px; border: none; border-radius: var(--co-radius-m); background: var(--co-blue); color: #fff; cursor: pointer; font: 800 13px inherit; }
+.rise-fill-block > div button:disabled { opacity: .4; cursor: not-allowed; }
+
 /* ── Activity blocks ── */
 .block { max-width: 780px; margin: 44px 0; padding: 26px; background: var(--co-paper); border-radius: var(--co-radius-l); box-shadow: var(--co-shadow); }
 .block__eyebrow { margin: 0 0 10px !important; color: var(--co-blue); font-size: 12px !important; font-weight: 800 !important; letter-spacing: 0.05em; text-transform: uppercase; }
@@ -1290,6 +1719,38 @@ onBeforeUnmount(() => revealObserver?.disconnect())
   .labeled-graphic__hub { width: 76px; height: 76px; font-size: 11px; }
   .labeled-graphic__pin { width: 30px; height: 30px; font-size: 13px; }
   .statement p { font-size: 21px; }
+  .visual-explainer { padding: 20px; }
+  .task-canvas__route { grid-template-columns: 1fr; gap: 10px; }
+  .task-canvas__route li { min-height: 0; display: grid; grid-template-columns: 44px 1fr; align-items: start; gap: 10px; }
+  .task-canvas__route li:not(:last-child)::after { right: auto; left: 28px; top: auto; bottom: -19px; transform: translateX(-50%) rotate(90deg); }
+  .task-canvas__step { margin: 0; }
+  .learn-use-map__lanes { grid-template-columns: 1fr; gap: 12px; }
+  .learn-use-map__bridge { transform: rotate(90deg); }
+  .learn-use-map__lane { min-height: 0; }
+  .context-map__choice { grid-template-columns: 78px 1fr; }
+  .context-map__choice small { grid-column: 2; text-align: left; }
+  .capability-route__steps { grid-template-columns: 1fr; gap: 10px; }
+  .capability-route__steps li { min-height: 0; display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: 10px; }
+  .capability-route__steps li:not(:last-child)::after { right: auto; left: 24px; top: auto; bottom: -19px; transform: translateX(-50%) rotate(90deg); }
+  .capability-route__steps i { grid-row: span 2; margin: 0; }
+  .risk-route__lanes { grid-template-columns: 1fr; gap: 10px; }
+  .risk-route__lanes > i { transform: rotate(90deg); }
+  .rise-banner-block { min-height: 190px; padding: 24px; }
+  .rise-banner-block h2 { font-size: 25px !important; }
+  .rise-two-column, .rise-resource-row { grid-template-columns: 1fr; }
+  .rise-process-block ol { grid-template-columns: 1fr; }
+  .rise-process-block li { display: grid; grid-template-columns: 34px 1fr; column-gap: 10px; }
+  .rise-process-block li:not(:last-child)::after { right: auto; left: 25px; top: auto; bottom: -19px; transform: translateX(-50%) rotate(90deg); }
+  .rise-process-block li > span { grid-row: span 2; margin: 0; }
+  .rise-audio-block { align-items: flex-start; flex-direction: column; }
+  .rise-audio-block button { width: 100%; }
+  .rise-grid--two, .rise-grid--three, .rise-grid--four { grid-template-columns: 1fr 1fr; }
+  .rise-grid article { min-height: 150px; }
+  .rise-chart__pie { grid-template-columns: 1fr; justify-items: center; }
+  .rise-chart__pie ul { width: 100%; }
+  .rise-quote-image figcaption { padding: 18px; font-size: 19px; }
+  .rise-fill-block > div { flex-direction: column; }
+  .rise-fill-block > div button { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

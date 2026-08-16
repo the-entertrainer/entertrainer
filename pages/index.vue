@@ -9,36 +9,36 @@ import { ITEMS } from '~/content/editorial'
  * remain the visual vocabulary across this page.
  */
 useSeoMeta({
-  title: 'Entertrainer — Learning design, projects, and practical tools',
-  description: 'Entertrainer is Naveen Jose’s practice for learning design: demonstrated craft, selected projects, browser-based tools, and the working behind them.',
-  ogTitle: 'Entertrainer — Learning design, projects, and practical tools',
-  ogDescription: 'Demonstrated learning craft, selected work, and practical browser tools for L&D.',
+  title: 'Entertrainer — I make complicated things easier to learn',
+  description: 'Naveen Jose makes lessons, useful tools, and clear explanations for people who need to understand complicated things.',
+  ogTitle: 'Entertrainer — I make complicated things easier to learn',
+  ogDescription: 'Lessons, useful tools, and clear explanations by Naveen Jose.',
   ogUrl: 'https://entertrainer.in/'
 })
 
 const pathways = [
   {
-    number: '01', label: 'Practice', title: 'See the craft in action',
-    body: 'Step into one short interactive lesson and see how explanation, practice, and feedback are designed.',
-    href: '/instructional-design', action: 'Open the demonstration', accent: 'var(--blue)',
+    number: '01', label: 'Try a lesson', title: 'Try a short lesson',
+    body: 'Spend four minutes with a tricky instruction and see how a few small changes make it easier to follow.',
+    href: '/instructional-design', action: 'Try the lesson', accent: 'var(--blue)',
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/idMdUldTgLmROPkp.jpg', icon: 'practice'
   },
   {
-    number: '02', label: 'Projects', title: 'Open the work',
-    body: 'Browse learning experiences, case studies, and the decisions that gave each one its shape.',
-    href: '/my-work', action: 'Browse projects', accent: 'var(--red)',
+    number: '02', label: 'Things I made', title: 'See the work',
+    body: 'Open a comic, a course, or an interactive explainer I made for real people with real jobs to do.',
+    href: '/my-work', action: 'See what I made', accent: 'var(--red)',
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/JGRlAfvUmoOLfMks.jpg', icon: 'projects'
   },
   {
-    number: '03', label: 'Tools', title: 'Use a useful tool',
-    body: 'Work in the browser with practical utilities for storyboards, calendars, assessment, and writing.',
-    href: '/tools', action: 'Explore free tools', accent: 'var(--green)',
+    number: '03', label: 'Free tools', title: 'Save yourself some time',
+    body: 'Use a few small browser tools I built after getting tired of doing the same slow jobs by hand.',
+    href: '/tools', action: 'Use a free tool', accent: 'var(--green)',
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/arGfHThKMakIOmAy.jpg', icon: 'tools'
   },
   {
-    number: '04', label: 'Story', title: 'Meet the person behind it',
-    body: 'Follow the route from hotel floors to learning design, in five short chapters.',
-    href: '/about', action: 'Read the story', accent: 'var(--purple)',
+    number: '04', label: 'About me', title: 'How I ended up here',
+    body: 'Follow the route from hotel floors to making learning for people around the world.',
+    href: '/about', action: 'Read my story', accent: 'var(--purple)',
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/qAPWGwOScgDPspmw.jpg', icon: 'story'
   }
 ]
@@ -49,26 +49,26 @@ const tools = computed(() => ITEMS.filter(item => item.category === 'tools'))
 
 <template>
   <EdShell width="wide">
-    <EdIssueStrip note="Learning design, demonstrated in the open." />
+    <EdIssueStrip note="I make complicated things easier to learn." />
 
     <header class="home-hero" aria-labelledby="home-title">
       <div class="home-hero__intro">
-        <p class="home-hero__eyebrow t-mono"><span aria-hidden="true"></span> Entertrainer / independent learning practice</p>
-        <h1 id="home-title" class="home-hero__title t-display">Design learning people <em>finish.</em></h1>
+        <p class="home-hero__eyebrow t-mono"><span aria-hidden="true"></span> Hello, I’m Naveen.</p>
+        <h1 id="home-title" class="home-hero__title t-display">I make complicated things <em>click.</em></h1>
       </div>
       <div class="home-hero__copy">
-        <p>I’m Naveen Jose. I turn complicated work into learning people can understand, use, and come back to. Here you can see the craft, inspect the work, use the tools, and read the thinking behind all four.</p>
-        <NuxtLink to="/instructional-design" class="ticket">Begin with the demonstration <span aria-hidden="true">→</span></NuxtLink>
+        <p>I started out on hotel floors, where the best explanation was the one that helped someone get through a busy shift. Now I make lessons, useful little tools, and clear explanations for people who have complicated things to understand.</p>
+        <NuxtLink to="/instructional-design" class="ticket">Try a four-minute lesson <span aria-hidden="true">→</span></NuxtLink>
       </div>
     </header>
 
     <section class="routes" aria-labelledby="routes-title">
       <div class="section-head">
         <div>
-          <p class="section-head__label t-mono">Choose a way in</p>
-          <h2 id="routes-title" class="section-head__title t-display">Four places, four jobs.</h2>
+          <p class="section-head__label t-mono">Start wherever you like</p>
+          <h2 id="routes-title" class="section-head__title t-display">What would you like to see?</h2>
         </div>
-        <p class="section-head__deck">Start with the route that matches what you need. The rest will still be there when you are ready.</p>
+        <p class="section-head__deck">You do not need to work in training to look around. Pick the thing that sounds interesting and I will take it from there.</p>
       </div>
       <ol class="routes__grid">
         <li v-for="route in pathways" :key="route.label" class="route" :style="{ '--route': route.accent }">
@@ -96,10 +96,10 @@ const tools = computed(() => ITEMS.filter(item => item.category === 'tools'))
     <section class="proof" aria-labelledby="proof-title">
       <div class="section-head section-head--split">
         <div>
-          <p class="section-head__label t-mono">Selected learning experiences</p>
-          <h2 id="proof-title" class="section-head__title t-display">Work with its workings attached.</h2>
+          <p class="section-head__label t-mono">A few things I’m proud of</p>
+          <h2 id="proof-title" class="section-head__title t-display">Things people could actually use.</h2>
         </div>
-        <NuxtLink to="/my-work" class="section-head__link u-underline">See every project <span aria-hidden="true">→</span></NuxtLink>
+        <NuxtLink to="/my-work" class="section-head__link u-underline">See more things I made <span aria-hidden="true">→</span></NuxtLink>
       </div>
       <div class="proof__grid">
         <EdCard v-for="(item, index) in selectedWork" :key="item.id" :item="item" :index="index" variant="standard" />
@@ -108,10 +108,10 @@ const tools = computed(() => ITEMS.filter(item => item.category === 'tools'))
 
     <section class="toolkit" aria-labelledby="toolkit-title">
       <div class="toolkit__heading">
-        <p class="section-head__label t-mono">Free browser tools</p>
-        <h2 id="toolkit-title" class="toolkit__title t-display">Less blank-page time.</h2>
-        <p>Each tool began as a tedious task inside actual learning work. No sign-up. Nothing you type leaves your browser.</p>
-        <NuxtLink to="/tools" class="ticket ticket--ghost">Open all tools <span aria-hidden="true">→</span></NuxtLink>
+        <p class="section-head__label t-mono">Free little tools</p>
+        <h2 id="toolkit-title" class="toolkit__title t-display">The boring bits, made quicker.</h2>
+        <p>I made these after losing too many afternoons to the same repetitive jobs. No sign-up. What you type stays in your browser.</p>
+        <NuxtLink to="/tools" class="ticket ticket--ghost">See all the free tools <span aria-hidden="true">→</span></NuxtLink>
       </div>
       <ul class="toolkit__list">
         <li v-for="(tool, index) in tools" :key="tool.id">
@@ -127,11 +127,11 @@ const tools = computed(() => ITEMS.filter(item => item.category === 'tools'))
 
     <section class="close" aria-labelledby="close-title">
       <div class="close__mark" aria-hidden="true"><span></span><span></span><span></span></div>
-      <p class="close__label t-mono">One person, one practice</p>
-      <h2 id="close-title" class="close__title t-display">The work is the introduction.</h2>
-      <p class="close__body">I build the learning, the tools around it, and the site that shows the decisions. If you are working on a learning problem worth making clearer, I would like to hear about it.</p>
+      <p class="close__label t-mono">A little more about me</p>
+      <h2 id="close-title" class="close__title t-display">I like the moment someone says, “Oh. I get it now.”</h2>
+      <p class="close__body">That is why I make this work. If you are trying to explain something important, or you have a learning problem that is getting in the way, I would genuinely like to hear about it.</p>
       <div class="close__actions">
-        <NuxtLink to="/about" class="ticket ticket--ghost">Read the story</NuxtLink>
+        <NuxtLink to="/about" class="ticket ticket--ghost">A little more about me</NuxtLink>
         <a href="mailto:iamnaveenjose@outlook.com" class="close__email u-underline">Start a conversation <span aria-hidden="true">↗</span></a>
       </div>
     </section>

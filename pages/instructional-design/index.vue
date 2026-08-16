@@ -15,9 +15,9 @@
  */
 useSeoMeta({
   title: 'Instructional Design · Entertrainer',
-  description: 'A page that designs itself while you read it. See instructional design principles applied to the page you are on.',
+  description: 'Try a four-minute lesson that turns a hard-to-read instruction into something much easier to follow.',
   ogTitle: 'Instructional Design · Entertrainer',
-  ogDescription: 'A page that designs itself while you read it.',
+  ogDescription: 'Try a four-minute lesson that turns a hard-to-read instruction into something much easier to follow.',
   ogUrl: 'https://entertrainer.in/instructional-design'
 })
 
@@ -89,7 +89,7 @@ function iconPath(name: string) {
       category="practice"
       media="interactive"
       title="What gets designed when no one is watching"
-      deck="A subject expert can already do the thing. Instructional design is the work of turning what they know into something another person can learn. Most of that work is subtraction. Answer one question, then take a badly written instruction apart yourself."
+      deck="Someone who knows a job well can still find it hard to explain. This is a short hands-on lesson about making instructions easier for another person to follow. Answer one question, then improve a badly written instruction yourself."
       :minutes="4"
       byline
     />

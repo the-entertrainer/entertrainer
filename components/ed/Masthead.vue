@@ -42,7 +42,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         <EdWordmark :size="30" sticker />
       </NuxtLink>
 
-      <p class="mh__tag">Instructional design, published in the open</p>
+      <p class="mh__tag">Making complicated things easier to learn</p>
 
       <nav class="mh__nav" aria-label="Sections">
         <NuxtLink v-for="l in NAV" :key="l.href" :to="l.href" class="mh__link"

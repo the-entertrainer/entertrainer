@@ -1,9 +1,16 @@
 <script setup lang="ts">
-import { CATEGORIES } from '~/content/editorial'
 import { useContentStore } from '~/stores/content'
 
 const store = useContentStore()
 const year = new Date().getFullYear()
+const sectionLinks = [
+  { label: 'Try a lesson', href: '/instructional-design' },
+  { label: 'Things I made', href: '/my-work' },
+  { label: 'Free tools', href: '/tools' },
+  { label: 'About me', href: '/about' },
+  { label: 'Experiments', href: '/lab' },
+  { label: 'How this site works', href: '/colophon' }
+]
 </script>
 
 <template>
@@ -12,20 +19,15 @@ const year = new Date().getFullYear()
       <div class="ft__brand">
         <EdWordmark :size="32" />
         <p class="ft__blurb">
-          The portfolio of {{ store.name }} — a certified instructional designer who designs learning,
-          builds the tools that deliver it, and keeps daring to try the thing he has not tried yet.
+          I’m {{ store.name }}. I make lessons, useful little tools, and clearer ways into complicated things.
+          This is where I keep the work, the stories behind it, and the experiments that taught me something.
         </p>
         <a class="ticket ticket--sm" :href="`mailto:${store.email}`">Start a conversation</a>
       </div>
 
       <nav class="ft__col" aria-labelledby="ft-sections">
-        <h2 id="ft-sections" class="t-mono ft__h">Sections</h2>
-        <NuxtLink v-for="c in CATEGORIES" :key="c.id" class="ft__link u-underline"
-                  :to="c.id === 'practice' ? '/instructional-design'
-                     : c.id === 'projects' ? '/my-work'
-                     : c.id === 'tools' ? '/tools'
-                     : c.id === 'story' ? '/about'
-                     : c.id === 'lab' ? '/lab' : '/colophon'">{{ c.label }}</NuxtLink>
+        <h2 id="ft-sections" class="t-mono ft__h">Have a look around</h2>
+        <NuxtLink v-for="link in sectionLinks" :key="link.href" class="ft__link u-underline" :to="link.href">{{ link.label }}</NuxtLink>
       </nav>
 
       <nav class="ft__col" aria-labelledby="ft-elsewhere">
@@ -37,11 +39,10 @@ const year = new Date().getFullYear()
       </nav>
 
       <div class="ft__col">
-        <h2 class="t-mono ft__h">Credits</h2>
+        <h2 class="t-mono ft__h">A small note</h2>
         <p class="ft__fine">
-          Type is Fraunces, Archivo, Source Serif&nbsp;4 and IBM Plex Mono, all open-source and self-hosted.
-          Artwork, marks and icons are original to this site. Asset provenance is recorded in
-          <code>docs/asset_licenses.md</code>.
+          I built this site around open-source type and original artwork. The longer version of how it is put together is
+          <NuxtLink to="/colophon" class="u-underline">here</NuxtLink>.
         </p>
         <p class="ft__fine">No analytics, no cookies, no database. Nothing you type in a tool leaves your browser.</p>
       </div>

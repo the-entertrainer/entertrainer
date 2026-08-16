@@ -11,8 +11,8 @@ useSeoMeta({
 <template>
   <EdSection
     category="projects"
-    title="The work, opened up"
-    deck="Not just what these look like, but the decisions underneath them — what the problem actually was, and why the shape of the answer is the shape it is."
-    intro="A comic magazine that taught service values to resort teams; a full day on how artificial intelligence got here and how to judge what is claimed about it; an interactive module on the real mathematics of password strength. Three formats, one argument: people finish the thing that respects their attention."
+    title="Things I’ve made for people to use"
+    deck="A few learning experiences I made to help people understand something, do something, or see a familiar problem in a new way."
+    intro="There is a comic for resort teams, a guided course about how AI got here, and a small interactive story about password strength. They look different because the people using them needed different things."
   />
 </template>

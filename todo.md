@@ -165,3 +165,10 @@
 - [x] Create the necessary original visual assets and iconography to support the revised section system.
 - [x] Implement the organized page structure, reduced shared UI, and the new homepage composition.
 - [x] Validate desktop and mobile journeys, confirm build health, and push the redesign to `main`.
+
+## General-visitor voice and clarity pass
+
+- [x] Audit the homepage and primary routes for jargon, unclear labels, professional assumptions, and missing personal context.
+- [x] Define a plain-language voice that explains the work to any visitor while retaining Naveen’s warmth, curiosity, and practical perspective.
+- [x] Rewrite the homepage and key route introductions, navigation labels, and calls to action in the revised voice.
+- [x] Validate the revised experience for immediate general-visitor comprehension, mobile reading comfort, and production build health; then push to `main`.

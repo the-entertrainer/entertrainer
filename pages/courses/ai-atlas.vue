@@ -43,6 +43,8 @@ const quizSubmitted = ref(false)
 const quizAnswers = ref<number[]>([])
 const plan = reactive({ task: '', check: '', reviewer: '' })
 const courseCompleted = ref(false)
+const courseMain = ref<HTMLElement | null>(null)
+let revealObserver: IntersectionObserver | undefined
 
 const predictionSteps: PredictionStep[] = [
   {
@@ -171,12 +173,48 @@ function persist() {
 function markVisited(id: string) {
   if (!visited.value.includes(id)) visited.value = [...visited.value, id]
 }
+function setupScrollReveals() {
+  if (!import.meta.client || !courseMain.value || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  revealObserver?.disconnect()
+  const root = courseMain.value
+  root.classList.add('has-scroll-reveal')
+  const rootBounds = root.getBoundingClientRect()
+  const targets = root.querySelectorAll<HTMLElement>('.cover__body > *, .screen > *, .reading > *')
+  revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        ;(entry.target as HTMLElement).classList.add('is-visible')
+        revealObserver?.unobserve(entry.target)
+      }
+    })
+  }, { root, threshold: 0.08 })
+  targets.forEach(target => {
+    target.classList.remove('rise-reveal', 'is-visible', 'is-pending')
+    target.classList.add('rise-reveal')
+    const bounds = target.getBoundingClientRect()
+    if (bounds.top < rootBounds.bottom + 32 && bounds.bottom > rootBounds.top - 32) target.classList.add('is-visible')
+    else {
+      target.classList.add('is-pending')
+      revealObserver?.observe(target)
+    }
+  })
+}
+function scrollCourseToTop() {
+  if (!import.meta.client) return
+  nextTick(() => requestAnimationFrame(() => {
+    const behaviour = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+    courseMain.value?.scrollTo({ top: 0, behavior: behaviour })
+    window.scrollTo({ top: 0, behavior: behaviour })
+    setupScrollReveals()
+  }))
+}
 function go(index: number) {
   current.value = index
   if (index >= 0) markVisited(currentId.value)
   menuOpen.value = false
   openDetails.value = null
   persist()
+  scrollCourseToTop()
 }
 function startCourse() { go(0) }
 function next() { if (current.value < AI_MODULES.length + 3) go(current.value + 1) }
@@ -255,6 +293,7 @@ function nextQuizQuestion() {
     go(AI_MODULES.length + 2)
   }
   persist()
+  if (quizIndex.value < quizQuestions.length - 1) scrollCourseToTop()
 }
 function finishCourse() {
   if (!planReady.value) return
@@ -412,15 +451,18 @@ const activeFamily = ref<number | null>(null)
 
 onMounted(() => {
   const saved = localStorage.getItem(STORAGE_KEY)
-  if (!saved) return
-  try {
-    const state = JSON.parse(saved)
-    current.value = typeof state.current === 'number' ? Math.min(state.current, AI_MODULES.length + 3) : -1
-    visited.value = Array.isArray(state.visited) ? state.visited : []
-    quizAnswers.value = Array.isArray(state.quizAnswers) ? state.quizAnswers : []
-    courseCompleted.value = Boolean(state.completed)
-  } catch { localStorage.removeItem(STORAGE_KEY) }
+  if (saved) {
+    try {
+      const state = JSON.parse(saved)
+      current.value = typeof state.current === 'number' ? Math.min(state.current, AI_MODULES.length + 3) : -1
+      visited.value = Array.isArray(state.visited) ? state.visited : []
+      quizAnswers.value = Array.isArray(state.quizAnswers) ? state.quizAnswers : []
+      courseCompleted.value = Boolean(state.completed)
+    } catch { localStorage.removeItem(STORAGE_KEY) }
+  }
+  nextTick(setupScrollReveals)
 })
+onBeforeUnmount(() => revealObserver?.disconnect())
 </script>
 
 <template>
@@ -497,8 +539,8 @@ onMounted(() => {
       </ol>
     </aside>
 
-    <main class="course__main">
-      <Transition name="course-fade" mode="out-in">
+    <main ref="courseMain" class="course__main">
+      <Transition name="course-fade" mode="out-in" @after-enter="setupScrollReveals">
         <!-- ── Cover ─────────────────────────────────────────────────── -->
         <section v-if="current === -1" key="overview" class="cover">
           <div class="cover__banner">
@@ -1227,6 +1269,8 @@ onMounted(() => {
 
 .course-fade-enter-active, .course-fade-leave-active { transition: opacity 0.18s ease; }
 .course-fade-enter-from, .course-fade-leave-to { opacity: 0; }
+.has-scroll-reveal .rise-reveal.is-pending { opacity: 0; transform: translateY(10px); transition: opacity 0.28s cubic-bezier(.23,1,.32,1), transform 0.28s cubic-bezier(.23,1,.32,1); }
+.has-scroll-reveal .rise-reveal.is-pending.is-visible { opacity: 1; transform: none; }
 
 @media (max-width: 760px) {
   .course__bar, .course__subbar { padding-left: 16px; padding-right: 16px; }
@@ -1250,6 +1294,7 @@ onMounted(() => {
 
 @media (prefers-reduced-motion: reduce) {
   .course-fade-enter-active, .course-fade-leave-active,
-  .memory-card__face, .course__drawer, .course__progress-fill { transition: none; }
+  .memory-card__face, .course__drawer, .course__progress-fill,
+  .has-scroll-reveal .rise-reveal.is-pending { transition: none; opacity: 1; transform: none; }
 }
 </style>

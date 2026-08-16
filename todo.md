@@ -115,3 +115,9 @@
 - [x] Design a deliberately limited set of new blocks and small games that make specific AI concepts easier to understand without interrupting the course narrative.
 - [x] Implement the selected blocks with accessible keyboard interactions and reference-matched visual restraint.
 - [x] Validate the revised lesson flow, interaction feedback, visual quality, and production build; then push the improved course to `main`.
+
+## Claude handoff reconciliation
+
+- [x] Reconcile the uploaded handoff with the newer Rise 360 course already present on `main`, retaining its existing content, answer keys, blocks, games, and visual system.
+- [x] Add the remaining central scroll-to-top navigation behaviour and reduced-motion-safe progressive section reveals.
+- [x] Validate the desktop scroll-reset path, responsive mobile cover, and full production build before release.

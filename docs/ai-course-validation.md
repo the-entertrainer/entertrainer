@@ -55,3 +55,11 @@ Selecting the third required safeguard and submitting the set returned the inten
 The model-matching game was also re-opened after the scenario check. Selecting **Gemini** activated the intended choice state for the public multimodal-capability description, confirming that selection logic is independent across the lesson blocks.
 
 Submitting the Gemini match produced the expected capability explanation and next-capability control. The browser console showed no client-side runtime error after the expanded interaction sequence; it reported only Nuxt’s existing Suspense informational notice.
+
+## Scroll-reset and release check: 16 August 2026
+
+The course navigation now centralises screen changes through a scroll-reset helper. From the objectives screen, the reading pane was scrolled to the bottom of the long Course at a glance table before activating **Continue to Lesson 1**. Lesson 01 then opened with its banner and first reading paragraph at the top of the viewport, confirming that the prior reading position was not retained.
+
+The handoff release build completed successfully with `NODE_OPTIONS=--max-old-space-size=1536 npm run build`. Nuxt compiled the client and server bundles, generated the Vercel prebuilt output, and finished with `Build complete!`.
+
+At `375 × 812`, the settled mobile course cover retained the two-row masthead, visible hamburger control, black Entertrainer mark, readable course title, white pill-shaped Start course action, 95-minute duration, and long-form introduction without horizontal clipping.

@@ -75,3 +75,13 @@ The Prediction engine lesson displayed the new audio-readout control, plain-lang
 The modern-AI and responsible-use lessons rendered the new visual-first family grid, model grid and card stack, quote-on-image treatment, capability boundary route, quote carousel, qualitative chart treatments, resource attachment, external-source embed link, and existing scenario without a client error. The browser console contained only Nuxt’s pre-existing Suspense informational notice.
 
 At `375 × 812`, the course retained its responsive header, hamburger navigation, blue cover, Start course control, readable body copy, and no horizontal clipping. The new mobile rules collapse comparison, process, grid, chart, resource, and recall blocks into readable single-column or two-column arrangements as appropriate.
+
+## Rise-fidelity rebuild validation: 16 August 2026
+
+After a clean Nuxt development-server restart, the course loaded with the revised image-led cover rather than the former blue gradient card. The cover now places the title over a contrast overlay on the existing editorial course image, uses one restrained white action, and keeps the explanatory reading canvas separate from the cover.
+
+The Prediction engine screen confirmed the revised hierarchy: a shallow pale-blue lesson header, immediate readable paragraphs, a quiet left-rule learning-objective note, and no card framing around ordinary explanation. The previous page-wide repeated shadow and high-radius surface pattern is no longer visible in the primary reading flow.
+
+The Learning patterns process was tested through its third step. It now presents a compact, learner-paced control rail (`Examples`, `Pattern`, `New request`), one focused content panel, visible `3 of 3` progress, and deliberately simple Previous/Next controls. This replaces the former all-at-once process-card row and behaves as a genuine sequential interaction.
+
+The settled `375 × 812` mobile capture confirmed that the full-width cover image keeps the title and action readable over the dark overlay; the masthead, compact course-menu trigger, reading column, and source content remain within the viewport without horizontal clipping. The browser console contained only Nuxt’s existing Suspense informational notice and no client-side error from the revised shell or process interaction.

@@ -137,3 +137,11 @@
 - [x] Implement the mapped blocks in the existing course shell with faithful Rise-style hierarchy, learner controls, feedback, and responsive behaviour.
 - [x] Validate every new block on desktop and mobile, including keyboard operation, feedback states, progress behaviour, visual loading, and the production build.
 - [x] Push the complete block-based course implementation to `main`.
+
+## Rise 360 fidelity rebuild
+
+- [x] Study live Rise 360 examples and official guidance to document the authentic visual tokens, block hierarchy, interaction feedback, motion, and responsive behaviour.
+- [x] Audit the current course against that specification and remove dated, over-styled, or non-native treatments.
+- [x] Rebuild the course shell, visual blocks, and interaction states around a restrained modern Rise-style component system.
+- [x] Validate the rebuilt experience against the reference at desktop and mobile widths, including keyboard behaviour, motion, and a full production build.
+- [x] Push the faithful Rise-style rebuild to `main`.

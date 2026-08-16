@@ -48,6 +48,7 @@ let revealObserver: IntersectionObserver | undefined
 const galleryIndex = ref(0)
 const quoteIndex = ref(0)
 const stackIndex = ref(0)
+const processStep = ref(0)
 const blankAnswer = ref('')
 const blankSubmitted = ref(false)
 const bankIndex = ref(0)
@@ -222,7 +223,7 @@ function setupScrollReveals() {
   const root = courseMain.value
   root.classList.add('has-scroll-reveal')
   const rootBounds = root.getBoundingClientRect()
-  const targets = root.querySelectorAll<HTMLElement>('.cover__body > *, .screen > *, .reading > *')
+  const targets = root.querySelectorAll<HTMLElement>('.media, .video, .visual-explainer, .editorial-visual, .rise-banner-block, .rise-gallery-carousel, .rise-process-block, .timeline-nav, .timeline-event, .flashcards, .tabs-block, .prediction-lab, .rise-fill-block, .game-block, .scenario-block, .rise-two-column, .rise-grid, .rise-quote-carousel, .rise-resource-row, .quiz, .memory-grid, .action-plan')
   revealObserver = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -245,9 +246,8 @@ function setupScrollReveals() {
 function scrollCourseToTop() {
   if (!import.meta.client) return
   nextTick(() => requestAnimationFrame(() => {
-    const behaviour = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
-    courseMain.value?.scrollTo({ top: 0, behavior: behaviour })
-    window.scrollTo({ top: 0, behavior: behaviour })
+    courseMain.value?.scrollTo({ top: 0, behavior: 'auto' })
+    window.scrollTo({ top: 0, behavior: 'auto' })
     setupScrollReveals()
   }))
 }
@@ -271,6 +271,9 @@ function nextQuote(direction: number) {
 }
 function nextStackCard(direction: number) {
   stackIndex.value = (stackIndex.value + direction + modelStackCards.length) % modelStackCards.length
+}
+function setProcessStep(index: number) {
+  processStep.value = Math.max(0, Math.min(index, 2))
 }
 function submitBlank() { if (blankAnswer.value.trim()) blankSubmitted.value = true }
 function drawBankQuestion() {
@@ -621,8 +624,11 @@ onBeforeUnmount(() => revealObserver?.disconnect())
         <!-- ── Cover ─────────────────────────────────────────────────── -->
         <section v-if="current === -1" key="overview" class="cover">
           <div class="cover__banner">
-            <h1 class="cover__title">From No AI<br />to Know AI</h1>
-            <button type="button" class="cover__start" @click="startCourse">{{ visited.length ? 'Resume course' : 'Start course' }}</button>
+            <img class="cover__image" src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/zByMCffPaXYvFeor.jpg" alt="" />
+            <div class="cover__overlay">
+              <h1 class="cover__title">From No AI<br />to Know AI</h1>
+              <button type="button" class="cover__start" @click="startCourse">{{ visited.length ? 'Resume course' : 'Start course' }}</button>
+            </div>
           </div>
           <div class="cover__body">
             <span class="course__mark course__mark--lg" aria-hidden="true">E</span>
@@ -718,9 +724,18 @@ onBeforeUnmount(() => revealObserver?.disconnect())
               <div><p class="block__eyebrow">Learned pattern</p><h2>When examples help</h2><p>Varied wording or images are often better handled by a model learning from many labelled examples.</p></div>
             </section>
 
-            <section v-if="currentModule.id === 'learning-patterns'" class="rise-process-block">
-              <p class="block__eyebrow">Process</p><h2>From example to new request</h2>
-              <ol><li><span>01</span><div><b>Collect labelled examples</b><p>Past messages show what “delivery” can look like in different words.</p></div></li><li><span>02</span><div><b>Learn a pattern</b><p>Training adjusts the model so useful relationships are easier to reproduce.</p></div></li><li><span>03</span><div><b>Use the pattern carefully</b><p>A new request receives a candidate category that still needs testing in context.</p></div></li></ol>
+            <section v-if="currentModule.id === 'learning-patterns'" class="rise-process-block" aria-label="From example to new request process">
+              <h2>From example to new request</h2>
+              <p class="rise-process-block__intro">Move through the three stages. Each step adds one part of the same learning sequence.</p>
+              <div class="rise-process-block__steps" role="tablist" aria-label="Learning process steps">
+                <button v-for="(label, index) in ['Examples', 'Pattern', 'New request']" :key="label" type="button" role="tab" :aria-selected="processStep === index" :class="{ 'is-active': processStep === index }" @click="setProcessStep(index)"><span>{{ index + 1 }}</span>{{ label }}</button>
+              </div>
+              <div class="rise-process-block__panel" role="tabpanel">
+                <template v-if="processStep === 0"><b>Collect labelled examples</b><p>Past messages show what “delivery” can look like in different words.</p></template>
+                <template v-else-if="processStep === 1"><b>Learn a pattern</b><p>Training adjusts the model so useful relationships are easier to reproduce.</p></template>
+                <template v-else><b>Use the pattern carefully</b><p>A new request receives a candidate category that still needs testing in context.</p></template>
+              </div>
+              <div class="rise-process-block__controls"><button type="button" :disabled="processStep === 0" @click="setProcessStep(processStep - 1)">Previous</button><span>{{ processStep + 1 }} of 3</span><button type="button" :disabled="processStep === 2" @click="setProcessStep(processStep + 1)">Next</button></div>
             </section>
 
             <section v-if="currentModule.id === 'prediction-engine'" class="rise-audio-block">
@@ -1757,5 +1772,133 @@ repeat → candidate response</code></pre>
   .course-fade-enter-active, .course-fade-leave-active,
   .memory-card__face, .course__drawer, .course__progress-fill,
   .has-scroll-reveal .rise-reveal.is-pending { transition: none; opacity: 1; transform: none; }
+}
+
+/* ── Rise fidelity rebuild ───────────────────────────────────────────────
+   Design reminder: use one quiet authoring system. The reading canvas stays
+   white; only media and actionable controls receive containment. */
+:root {
+  --co-blue: #2f6fb3;
+  --co-blue-dark: #245b93;
+  --co-blue-tint: #edf4fb;
+  --co-ink: #1b1f26;
+  --co-muted: #5d6673;
+  --co-line: #dfe4ea;
+  --co-paper-2: #f7f8fa;
+  --co-shadow: none;
+  --co-radius-s: 3px;
+  --co-radius-m: 4px;
+  --co-radius-l: 4px;
+}
+
+.course { background: #fff; font-family: 'Nunito Sans', Arial, sans-serif; }
+.course__bar { min-height: 58px; padding: 10px 32px; }
+.course__mark, .course__mark--lg { border-radius: 2px; background: #1b1f26; }
+.course__brand-text { font-size: 14px; font-weight: 700; }
+.course__subbar { min-height: 42px; padding: 4px 32px; }
+.course__hamburger { width: 32px; height: 32px; border-radius: 2px; background: transparent; }
+.course__hamburger.is-on, .course__hamburger:hover { background: var(--co-blue-tint); color: var(--co-blue); }
+.course__progress-n { font-size: 11px; font-weight: 700; letter-spacing: .04em; }
+.course__progress-track { height: 3px; background: #edf1f5; }
+.course__progress-fill { transition: width 180ms ease-out; }
+
+.course__drawer { width: min(326px, 90vw); box-shadow: 8px 0 30px rgba(17, 31, 48, .16); transition: transform 220ms cubic-bezier(.2,.8,.2,1); }
+.course__drawer-head { padding: 16px 20px; }
+.course__drawer-kicker { font-size: 11px; letter-spacing: .08em; }
+.drawer-row { grid-template-columns: 22px minmax(0, 1fr) 10px; gap: 10px; padding: 11px 20px; }
+.drawer-row:hover, .drawer-row.is-active { background: #f5f8fc; }
+.drawer-row__icon { width: 18px; height: 18px; border-radius: 0; background: none; color: var(--co-blue); }
+.drawer-row.is-active .drawer-row__icon { background: none; color: var(--co-blue); }
+.drawer-row__label { font-size: 14px; font-weight: 600; }
+.drawer-row.is-active .drawer-row__label { font-weight: 700; }
+
+.cover { max-width: 1120px; padding: 32px 32px 84px; }
+.cover__banner { min-height: 470px; margin: 0 0 42px; padding: 0; border-radius: 0; background: #24415c; }
+.cover__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cover__overlay { position: relative; z-index: 1; display: flex; min-height: 470px; flex-direction: column; align-items: flex-start; justify-content: flex-end; padding: clamp(34px, 6vw, 72px); background: linear-gradient(90deg, rgba(12,24,38,.74) 0%, rgba(12,24,38,.36) 56%, rgba(12,24,38,.08) 100%); }
+.cover__title { max-width: 11ch; margin: 0 0 22px; font-size: clamp(38px, 5vw, 62px); font-weight: 700; line-height: 1.03; letter-spacing: -.025em; }
+.cover__start { min-height: 44px; padding: 0 24px; border-radius: 2px; box-shadow: none; color: #1b1f26; font-size: 13px; font-weight: 700; letter-spacing: 0; text-transform: none; }
+.cover__body { max-width: 720px; }
+.cover__duration { margin-bottom: 18px; font-size: 15px; font-weight: 700; }
+.cover__body > p { font-size: 17px; font-weight: 400; line-height: 1.72; }
+.cover__panel { padding: 0; background: none; border-radius: 0; box-shadow: none; }
+.cover__panel-h { font-size: 20px; font-weight: 700; }
+
+.screen { max-width: 820px; padding: 0 30px 80px; }
+.lesson-banner { margin: 28px 0 38px; padding: 24px 28px; border-radius: 0; background: var(--co-blue-tint); }
+.lesson-banner__crumb { margin-bottom: 8px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .06em; }
+.lesson-banner__title { font-size: clamp(28px, 3.7vw, 40px); font-weight: 700; letter-spacing: -.02em; }
+.lesson-banner__rule { width: 38px; height: 2px; margin-top: 16px; }
+.reading > p, .text-section > p, .worked-example > p { max-width: 720px; margin-bottom: 25px; font-size: 17px; font-weight: 400; line-height: 1.72; }
+.reading h2 { max-width: 720px; margin: 52px 0 14px; font-size: 27px; font-weight: 700; letter-spacing: -.015em; line-height: 1.25; }
+.reading h3 { font-size: 19px; font-weight: 700; }
+.reading .lead { font-size: 19px; font-weight: 600; }
+.block__eyebrow { display: none; }
+
+.panel, .info-note, .visual-explainer, .complete-note { border-radius: 0; box-shadow: none; }
+.panel { padding: 0 0 0 20px; border-left: 3px solid var(--co-blue); background: transparent; }
+.info-note { padding: 18px 20px; margin: 34px 0; border-left: 3px solid var(--co-blue); background: #f7f9fc; }
+.diagram { gap: 7px; margin: 38px 0; padding: 16px 0; }
+.diagram span { padding: 6px 10px; border-radius: 2px; background: #f0f4f8; font-size: 13px; font-weight: 600; }
+.media img, .video__frame { border-radius: 0; box-shadow: none; }
+.media p, .editorial-visual figcaption { font-size: 14px; font-weight: 400; }
+
+.visual-explainer, .editorial-visual, .rise-banner-block, .rise-gallery-carousel, .rise-two-column, .rise-process-block, .rise-audio-block, .rise-code-block, .rise-chart, .rise-grid, .rise-quote-carousel, .rise-resource-row, .rise-fill-block { border-radius: 0; box-shadow: none; }
+.visual-explainer { padding: 22px 0; border-top: 1px solid var(--co-line); border-bottom: 1px solid var(--co-line); background: transparent; }
+.visual-explainer h2 { font-size: 24px !important; }
+.task-canvas__route li, .learn-use-map__lane, .context-map__sequence span, .context-map__loop span, .capability-route__steps li, .risk-route__lane { border-radius: 2px; box-shadow: none; }
+
+.rise-banner-block { min-height: 0; padding: 28px 30px; background: var(--co-blue-tint); }
+.rise-banner-block h2 { margin-top: 0; }
+.rise-gallery-carousel { padding: 0; background: transparent; }
+.rise-gallery-carousel__frame { min-height: 280px; border-radius: 0; }
+.rise-gallery-carousel__controls, .rise-quote-carousel__controls, .rise-stack__controls, .rise-process-block__controls { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 14px; }
+.rise-gallery-carousel__controls button, .rise-quote-carousel__controls button, .rise-stack__controls button, .rise-process-block__controls button { min-width: 62px; min-height: 38px; border: 1px solid var(--co-line); border-radius: 2px; background: #fff; color: var(--co-blue); font: 600 13px inherit; }
+.rise-gallery-carousel__controls button:hover, .rise-quote-carousel__controls button:hover, .rise-stack__controls button:hover, .rise-process-block__controls button:hover { border-color: var(--co-blue); background: #f5f8fc; }
+.rise-gallery-carousel__controls i, .rise-quote-carousel__controls i, .rise-stack__controls i { width: 6px; height: 6px; background: #cad4df; }
+.rise-gallery-carousel__controls i.is-active, .rise-quote-carousel__controls i.is-active, .rise-stack__controls i.is-active { background: var(--co-blue); }
+
+.rise-two-column { gap: 0; border-top: 1px solid var(--co-line); border-bottom: 1px solid var(--co-line); border-radius: 0; }
+.rise-two-column > div { padding: 22px; background: transparent; }
+.rise-two-column > div + div { border-left: 1px solid var(--co-line); }
+.rise-process-block { padding: 26px 0; border-top: 1px solid var(--co-line); border-bottom: 1px solid var(--co-line); background: transparent; }
+.rise-process-block__intro { margin: 0 0 18px; color: var(--co-muted); font-size: 16px; line-height: 1.55; }
+.rise-process-block__steps { display: flex; gap: 0; border-bottom: 1px solid var(--co-line); }
+.rise-process-block__steps button { flex: 1; min-height: 44px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--co-muted); font: 600 13px inherit; }
+.rise-process-block__steps button span { display: inline-grid; width: 20px; height: 20px; margin-right: 7px; place-items: center; border: 1px solid currentColor; border-radius: 50%; font-size: 11px; }
+.rise-process-block__steps button.is-active { border-bottom-color: var(--co-blue); color: var(--co-blue); }
+.rise-process-block__panel { min-height: 160px; padding: 30px 24px; background: #f7f9fc; }
+.rise-process-block__panel b { display: block; margin-bottom: 8px; font-size: 19px; }
+.rise-process-block__panel p { margin: 0; font-size: 16px; line-height: 1.6; }
+.rise-process-block__controls span { color: var(--co-muted); font-size: 12px; font-weight: 600; }
+
+.flashcards__grid button, .tabs-block, .prediction-lab, .game-block, .scenario-block, .quiz, .memory-card { border-radius: 2px; box-shadow: none; }
+.flashcards__grid button { border: 1px solid var(--co-line); }
+.tabs-block { padding: 26px 0; border-top: 1px solid var(--co-line); border-bottom: 1px solid var(--co-line); background: transparent; }
+.tabs-block__tabs { gap: 0; border-bottom: 1px solid var(--co-line); }
+.tabs-block__tabs button { border-radius: 0; background: transparent; }
+.tabs-block__tabs button.is-active { background: transparent; color: var(--co-blue); border-bottom: 3px solid var(--co-blue); }
+.tabs-block__panel { border: 0; border-radius: 0; background: #f7f9fc; }
+.prediction-lab, .game-block, .scenario-block, .quiz { padding: 26px; border: 1px solid var(--co-line); background: #fff; }
+.choice-column button, .choice-row button, .scenario-block__check > button { border-radius: 2px; box-shadow: none; }
+.choice-column button.is-selected, .choice-row button.is-selected, .scenario-block__check > button.is-selected { border-color: var(--co-blue); background: #f3f7fc; color: var(--co-ink); }
+.submit-btn, .continue-block { border-radius: 2px; box-shadow: none; font-weight: 700; letter-spacing: 0; text-transform: none; }
+.continue-block { min-height: 48px; }
+.source-line, .bridge { border-radius: 0; }
+.bridge { padding: 16px 0 16px 18px; border-left: 3px solid var(--co-blue); background: transparent; }
+
+.has-scroll-reveal .rise-reveal.is-pending { opacity: 0; transform: translateY(8px); transition: opacity 200ms ease-out, transform 200ms ease-out; }
+@media (max-width: 760px) {
+  .course__bar, .course__subbar { padding-left: 16px; padding-right: 16px; }
+  .cover { padding: 0 0 60px; }
+  .cover__banner, .cover__overlay { min-height: 410px; }
+  .cover__overlay { padding: 30px 24px; }
+  .cover__body, .cover__panel { padding-left: 20px; padding-right: 20px; }
+  .screen { padding-left: 20px; padding-right: 20px; }
+  .lesson-banner { margin-left: -20px; margin-right: -20px; padding: 20px; }
+  .rise-two-column > div + div { border-left: 0; border-top: 1px solid var(--co-line); }
+  .rise-process-block__steps { overflow-x: auto; }
+  .rise-process-block__steps button { min-width: 116px; }
+  .rise-process-block__panel { min-height: 180px; }
 }
 </style>

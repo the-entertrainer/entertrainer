@@ -157,3 +157,11 @@
 - [x] Audit the highest-impact learner journeys for visual hierarchy, navigation clarity, accessibility, responsive behaviour, and consistency.
 - [x] Define and implement a cohesive site-wide design correction plan that improves the course and surrounding Entertrainer experience together.
 - [x] Validate the revised core pages at desktop and mobile widths, confirm build health, and push the completed quality pass to `main`.
+
+## Site architecture and homepage redesign
+
+- [x] Audit the present page architecture, repeated navigation, redundant sections, and high-noise interface patterns.
+- [x] Define a simpler site map and homepage information hierarchy with distinct roles for practice, work, tools, and story content.
+- [x] Create the necessary original visual assets and iconography to support the revised section system.
+- [x] Implement the organized page structure, reduced shared UI, and the new homepage composition.
+- [x] Validate desktop and mobile journeys, confirm build health, and push the redesign to `main`.

@@ -1,401 +1,160 @@
 <script setup lang="ts">
-import { ITEMS, FEATURED, REST, CATEGORIES, type Category } from '~/content/editorial'
+import { ITEMS } from '~/content/editorial'
 
 /**
- * The front page.
- *
- * A dense but calm editorial field, not a hero plus three cards. The order is
- * the one a reader actually uses: what this is, the one thing to read first,
- * a way to narrow the field, the field itself, a human aside, then the whole
- * index for anyone who would rather scan a list than look at pictures.
- *
- * The previous front page was a WebGL tower of four cards you rotated through
- * one at a time. It was the best-looking thing on the site and the worst
- * performing: four destinations, one visible at a time, no text for a crawler
- * or a screen reader beyond an off-screen link list, and roughly two seconds
- * of preloader before any of it appeared. Everything it held is on this page,
- * visible at once, in HTML.
+ * Design intent: an editorial field guide, not an archive dashboard.
+ * Every section answers one visitor question in sequence: what this is,
+ * where to go, what proves the claim, which tool can help, and who made it.
+ * Paper, ink, thin rules, restrained category colour, and purposeful imagery
+ * remain the visual vocabulary across this page.
  */
 useSeoMeta({
-  title: 'Entertrainer — Instructional Design by Naveen Jose',
-  description: 'The portfolio of Naveen Jose, a certified instructional designer who builds learning experiences that feel human, plus free web apps for L&D teams.',
-  ogTitle: 'Entertrainer — Instructional Design by Naveen Jose',
-  ogDescription: 'Learning experiences that feel human, plus free web apps for L&D teams.',
+  title: 'Entertrainer — Learning design, projects, and practical tools',
+  description: 'Entertrainer is Naveen Jose’s practice for learning design: demonstrated craft, selected projects, browser-based tools, and the working behind them.',
+  ogTitle: 'Entertrainer — Learning design, projects, and practical tools',
+  ogDescription: 'Demonstrated learning craft, selected work, and practical browser tools for L&D.',
   ogUrl: 'https://entertrainer.in/'
 })
 
-const filter = ref<Category | 'all'>('all')
-
-/**
- * Search.
- *
- * Ten entries does not need an index, a worker or a ranking function — it
- * needs a substring match over the fields a person would actually type. What
- * it does need is to search the *dek and the stamp* as well as the title,
- * because people search for what a thing is about ("password", "comic",
- * "storyboard") far more often than for what it is called.
- */
-const query = ref('')
-const needle = computed(() => query.value.trim().toLowerCase())
-
-/**
- * Every query token must appear somewhere in the entry — and a trailing plural
- * is stripped before matching, because the first thing anyone typed into this
- * box was "passwords" against a dek that says "password" and got nothing. A
- * search that fails on a plural is a search people stop trusting immediately.
- */
-const matches = (i: (typeof ITEMS)[number]) => {
-  if (!needle.value) return true
-  const label = CATEGORIES.find(c => c.id === i.category)?.label ?? ''
-  const hay = [i.title, i.dek, i.stamp, label, i.media].join(' ').toLowerCase()
-  return needle.value.split(/\s+/).every(term => {
-    if (hay.includes(term)) return true
-    const singular = term.replace(/(?:ies|es|s)$/, m => (m === 'ies' ? 'y' : ''))
-    return singular.length > 2 && hay.includes(singular)
-  })
-}
-
-const counts = computed(() => {
-  const c: Record<string, number> = {}
-  for (const i of ITEMS.filter(matches)) c[i.category] = (c[i.category] ?? 0) + 1
-  return c
-})
-
-// The lead is only "the lead" when you are looking at everything unfiltered.
-// Narrow the field by section or by search and it becomes an ordinary member
-// of the results, because pinning it above a filtered list would be showing
-// you something you just asked not to see.
-const showLead = computed(() => filter.value === 'all' && !needle.value)
-const field = computed(() => {
-  const base = filter.value === 'all' ? (needle.value ? ITEMS : REST) : ITEMS.filter(i => i.category === filter.value)
-  return base.filter(matches)
-})
-
-// A filter that survives a search which has excluded it is a filter showing
-// nothing. Fall back to everything rather than to an empty page.
-watch(needle, () => {
-  if (filter.value !== 'all' && !(counts.value[filter.value] ?? 0)) filter.value = 'all'
-})
-
-const variantFor = (i: (typeof ITEMS)[number]) => i.size ?? 'standard'
-
-/**
- * The rotating standfirst.
- *
- * A fixed opening clause with a changing completion — a masthead device old
- * enough to be furniture, and the fastest way to say four things about a
- * publication in the space of one line. All four completions are true, which
- * is the only rule that matters here: a rotating tagline that overclaims just
- * overclaims four times.
- *
- * It pauses on hover and focus, and does not rotate at all under reduced
- * motion — where it prints the first line and stops, so the sentence is
- * always complete.
- */
-const ENDINGS = [
-  'teaches while you read it',
-  'shows its own workings',
-  'ships the tools it argues for',
-  'has been wrong in public, on purpose'
+const pathways = [
+  {
+    number: '01', label: 'Practice', title: 'See the craft in action',
+    body: 'Step into one short interactive lesson and see how explanation, practice, and feedback are designed.',
+    href: '/instructional-design', action: 'Open the demonstration', accent: 'var(--blue)',
+    image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/idMdUldTgLmROPkp.jpg', icon: 'practice'
+  },
+  {
+    number: '02', label: 'Projects', title: 'Open the work',
+    body: 'Browse learning experiences, case studies, and the decisions that gave each one its shape.',
+    href: '/my-work', action: 'Browse projects', accent: 'var(--red)',
+    image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/JGRlAfvUmoOLfMks.jpg', icon: 'projects'
+  },
+  {
+    number: '03', label: 'Tools', title: 'Use a useful tool',
+    body: 'Work in the browser with practical utilities for storyboards, calendars, assessment, and writing.',
+    href: '/tools', action: 'Explore free tools', accent: 'var(--green)',
+    image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/arGfHThKMakIOmAy.jpg', icon: 'tools'
+  },
+  {
+    number: '04', label: 'Story', title: 'Meet the person behind it',
+    body: 'Follow the route from hotel floors to learning design, in five short chapters.',
+    href: '/about', action: 'Read the story', accent: 'var(--purple)',
+    image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/qAPWGwOScgDPspmw.jpg', icon: 'story'
+  }
 ]
-const ending = ref(0)
-const paused = ref(false)
-let timer: ReturnType<typeof setInterval> | undefined
 
-onMounted(() => {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-  timer = setInterval(() => { if (!paused.value) ending.value = (ending.value + 1) % ENDINGS.length }, 3200)
-})
-onBeforeUnmount(() => clearInterval(timer))
+const selectedWork = computed(() => ITEMS.filter(item => ['sewa-chronicles', 'ai-atlas', 'strong'].includes(item.id)))
+const tools = computed(() => ITEMS.filter(item => item.category === 'tools'))
 </script>
 
 <template>
   <EdShell width="wide">
-    <EdIssueStrip note="Everything here is either a thing I made or the thinking behind it." />
+    <EdIssueStrip note="Learning design, demonstrated in the open." />
 
-    <!-- ── Standfirst ──────────────────────────────────────────────────── -->
-    <p class="sf" @mouseenter="paused = true" @mouseleave="paused = false"
-       @focusin="paused = true" @focusout="paused = false">
-      <span class="sf__fixed">An instructional-design portfolio that…</span>
-      <Transition name="sf" mode="out-in">
-        <b :key="ending" class="sf__var">{{ ENDINGS[ending] }}</b>
-      </Transition>
-      <span class="sr-only">
-        This portfolio {{ ENDINGS.join(', ') }}.
-      </span>
-    </p>
+    <header class="home-hero" aria-labelledby="home-title">
+      <div class="home-hero__intro">
+        <p class="home-hero__eyebrow t-mono"><span aria-hidden="true"></span> Entertrainer / independent learning practice</p>
+        <h1 id="home-title" class="home-hero__title t-display">Design learning people <em>finish.</em></h1>
+      </div>
+      <div class="home-hero__copy">
+        <p>I’m Naveen Jose. I turn complicated work into learning people can understand, use, and come back to. Here you can see the craft, inspect the work, use the tools, and read the thinking behind all four.</p>
+        <NuxtLink to="/instructional-design" class="ticket">Begin with the demonstration <span aria-hidden="true">→</span></NuxtLink>
+      </div>
+    </header>
 
-    <!-- ── Nameplate ───────────────────────────────────────────────────── -->
-    <section class="np">
-      <h1 class="np__line t-display">
-        <span class="t-rise" style="--i: 0"><span>Learning people</span></span>
-        <span class="t-rise" style="--i: 1"><span>actually <em>finish</em>.</span></span>
-      </h1>
-      <div class="np__side">
-        <p class="np__deck">
-          I am Naveen Jose, a certified instructional designer. I design the learning, then I build
-          the tools that deliver it — and I publish both here, with the reasoning attached.
-        </p>
-        <div class="np__cta">
-          <NuxtLink to="/instructional-design" class="ticket">See the craft, live</NuxtLink>
-          <NuxtLink to="/tools" class="np__secondary u-underline">Explore four free web apps <span aria-hidden="true">→</span></NuxtLink>
+    <section class="routes" aria-labelledby="routes-title">
+      <div class="section-head">
+        <div>
+          <p class="section-head__label t-mono">Choose a way in</p>
+          <h2 id="routes-title" class="section-head__title t-display">Four places, four jobs.</h2>
         </div>
+        <p class="section-head__deck">Start with the route that matches what you need. The rest will still be there when you are ready.</p>
+      </div>
+      <ol class="routes__grid">
+        <li v-for="route in pathways" :key="route.label" class="route" :style="{ '--route': route.accent }">
+          <NuxtLink :to="route.href" class="route__link">
+            <div class="route__meta t-mono"><span>{{ route.number }}</span><span>{{ route.label }}</span></div>
+            <figure class="route__art">
+              <img :src="route.image" alt="" loading="eager" decoding="async" />
+              <span class="route__icon" aria-hidden="true">
+                <svg v-if="route.icon === 'practice'" viewBox="0 0 32 32" fill="none"><path d="M6 8.5h20v15H6zM10 12h8M10 16h12M10 20h5"/><path d="m22 22 4 4"/></svg>
+                <svg v-else-if="route.icon === 'projects'" viewBox="0 0 32 32" fill="none"><path d="M6 7h20v18H6zM10 11h12M10 15h12M10 19h7"/><path d="M8 7V5h16v2"/></svg>
+                <svg v-else-if="route.icon === 'tools'" viewBox="0 0 32 32" fill="none"><path d="M7 7h18v18H7zM12 12h3v3h-3zM17 12h3v3h-3zM12 17h3v3h-3zM17 17h3v3h-3z"/></svg>
+                <svg v-else viewBox="0 0 32 32" fill="none"><path d="M16 26s9-5.3 9-12.1A5.4 5.4 0 0 0 16 10a5.4 5.4 0 0 0-9 3.9C7 20.7 16 26 16 26Z"/><path d="M12 15h8"/></svg>
+              </span>
+            </figure>
+            <div class="route__body">
+              <h3 class="route__title t-display">{{ route.title }}</h3>
+              <p>{{ route.body }}</p>
+              <span class="route__action">{{ route.action }} <b aria-hidden="true">→</b></span>
+            </div>
+          </NuxtLink>
+        </li>
+      </ol>
+    </section>
+
+    <section class="proof" aria-labelledby="proof-title">
+      <div class="section-head section-head--split">
+        <div>
+          <p class="section-head__label t-mono">Selected learning experiences</p>
+          <h2 id="proof-title" class="section-head__title t-display">Work with its workings attached.</h2>
+        </div>
+        <NuxtLink to="/my-work" class="section-head__link u-underline">See every project <span aria-hidden="true">→</span></NuxtLink>
+      </div>
+      <div class="proof__grid">
+        <EdCard v-for="(item, index) in selectedWork" :key="item.id" :item="item" :index="index" variant="standard" />
       </div>
     </section>
 
-    <!-- ── The lead ────────────────────────────────────────────────────── -->
-    <section v-if="showLead" class="lead" aria-labelledby="lead-h">
-      <div class="lead__rail">
-        <h2 id="lead-h" class="t-mono lead__label">Start here</h2>
-        <p class="t-hand lead__hand">It takes four minutes and it argues with you.</p>
+    <section class="toolkit" aria-labelledby="toolkit-title">
+      <div class="toolkit__heading">
+        <p class="section-head__label t-mono">Free browser tools</p>
+        <h2 id="toolkit-title" class="toolkit__title t-display">Less blank-page time.</h2>
+        <p>Each tool began as a tedious task inside actual learning work. No sign-up. Nothing you type leaves your browser.</p>
+        <NuxtLink to="/tools" class="ticket ticket--ghost">Open all tools <span aria-hidden="true">→</span></NuxtLink>
       </div>
-      <EdCard :item="FEATURED" variant="feature" />
+      <ul class="toolkit__list">
+        <li v-for="(tool, index) in tools" :key="tool.id">
+          <NuxtLink :to="tool.href" class="tool-row">
+            <span class="tool-row__number t-mono">0{{ index + 1 }}</span>
+            <span class="tool-row__name t-display">{{ tool.title }}</span>
+            <span class="tool-row__dek">{{ tool.dek }}</span>
+            <span class="tool-row__arrow" aria-hidden="true">↗</span>
+          </NuxtLink>
+        </li>
+      </ul>
     </section>
 
-    <!-- ── The field ───────────────────────────────────────────────────── -->
-    <section class="field" aria-labelledby="field-h">
-      <div class="field__head">
-        <h2 id="field-h" class="t-mono field__label">{{ needle ? 'Results' : 'Everything else' }}</h2>
-        <EdFilterRail v-model="filter" :counts="counts" />
-      </div>
-
-      <!-- Search sits with the filter, not in the masthead. On a ten-entry
-           index a search box in the chrome would be a promise the site cannot
-           keep; here it is plainly a way to narrow the list in front of you. -->
-      <div class="find">
-        <label class="sr-only" for="find">Find a story</label>
-        <span class="find__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
-               stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-4.2-4.2" /></svg>
-        </span>
-        <input id="find" v-model="query" type="search" class="find__input"
-               placeholder="Find a story — try “comic”, “passwords”, “storyboard”" />
-        <button v-if="query" type="button" class="find__clear" @click="query = ''">Clear</button>
-      </div>
-
-      <!-- Keyed on the filter so a change crossfades the whole field rather
-           than mutating rows in place. The stagger is on the items. -->
-      <Transition name="swap" mode="out-in">
-        <ul class="field__grid" :key="filter">
-          <li v-for="(it, i) in field" :key="it.id"
-              :class="`is-${variantFor(it)}`" :style="{ '--i': i }">
-            <EdCard :item="it" :variant="variantFor(it)" :index="i" />
-          </li>
-        </ul>
-      </Transition>
-
-      <p v-if="!field.length" class="field__empty">
-        Nothing matches <template v-if="needle">“{{ query }}”</template><template v-else>that filter</template>.
-        <button v-if="needle" type="button" class="field__reset" @click="query = ''">Show everything</button>
-      </p>
-    </section>
-
-    <!-- ── Interlude ───────────────────────────────────────────────────── -->
-    <section class="interlude">
-      <EdNote label="From the desk" accent="var(--green)">
-        <p>
-          Every tool on this site started as a slow afternoon in my own work. EasyMCQ exists because
-          writing four plausible wrong answers is the dullest hour in assessment design. Cadence
-          exists because a training calendar should not take a morning in a spreadsheet.
-        </p>
-        <p>If one of them saves you an afternoon, that is the whole return I was after.</p>
-      </EdNote>
-      <div class="interlude__by">
-        <EdByline />
-        <NuxtLink to="/about" class="ticket ticket--sm ticket--ghost">Read the long version</NuxtLink>
+    <section class="close" aria-labelledby="close-title">
+      <div class="close__mark" aria-hidden="true"><span></span><span></span><span></span></div>
+      <p class="close__label t-mono">One person, one practice</p>
+      <h2 id="close-title" class="close__title t-display">The work is the introduction.</h2>
+      <p class="close__body">I build the learning, the tools around it, and the site that shows the decisions. If you are working on a learning problem worth making clearer, I would like to hear about it.</p>
+      <div class="close__actions">
+        <NuxtLink to="/about" class="ticket ticket--ghost">Read the story</NuxtLink>
+        <a href="mailto:iamnaveenjose@outlook.com" class="close__email u-underline">Start a conversation <span aria-hidden="true">↗</span></a>
       </div>
     </section>
-
   </EdShell>
 </template>
 
 <style scoped>
-/* ── Standfirst ────────────────────────────────────────────────────────── */
-.sf {
-  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6rem 10rem;
-  margin: clamp(20rem, 3vw, 32rem) 0 0;
-  font-family: var(--font-reading);
-  font-size: clamp(17rem, 1.9vw, 23rem);
-  line-height: 1.4;
-}
-.sf__fixed { color: var(--muted); }
-.sf__var {
-  font-weight: 600; color: var(--ink);
-  border-bottom: 4rem solid var(--yellow);
-  padding-bottom: 1rem;
-}
-.sf-enter-active { transition: opacity var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out); }
-.sf-leave-active { transition: opacity 120ms var(--ease-in), transform 120ms var(--ease-in); }
-.sf-enter-from { opacity: 0; transform: translateY(8rem); }
-.sf-leave-to { opacity: 0; transform: translateY(-8rem); }
-
-/* ── Nameplate ─────────────────────────────────────────────────────────── */
-.np {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
-  gap: clamp(24rem, 4vw, 56rem);
-  align-items: end;
-  padding: clamp(28rem, 5vw, 60rem) 0 clamp(30rem, 5vw, 56rem);
-  border-bottom: var(--stroke) solid var(--line);
-}
-.np__line {
-  font-size: var(--type-hero);
-  margin: 0;
-  /* 1.08, not the 0.86 a display line usually wants. The highlighted word on
-     the second line paints a background box, and at tighter leading that box
-     climbs over the descenders of the line above — it was clipping the "y" of
-     "actually". Leading is the fix; shrinking the highlight would have been
-     the workaround. */
-  line-height: 1.08;
-}
-/* The one italic on the page. Bangers has no italic, so the emphasis is drawn
-   instead: the word gets the highlighter, which is what an editor would do.
-   A full marker block rather than a swipe across the baseline — the swipe
-   version left the word set in --ink on top of yellow, which is fine on paper
-   and unreadable on the night printing. `box-decoration-break` keeps it intact
-   if the word ever lands on a line break. */
-.np__line em {
-  font-style: normal;
-  background: var(--yellow);
-  color: var(--on-yellow);
-  padding: 0.02em 0.07em;
-  /* Fraunces' descending y swings right, and the highlight box was landing on
-     its tail. The box starts a hair later; the word itself does not move,
-     because the padding absorbs the offset. */
-  margin-left: 0.06em;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
-.np__side { display: flex; flex-direction: column; gap: 20rem; padding-bottom: 6rem; }
-.np__deck {
-  font-family: var(--font-reading);
-  font-size: clamp(16rem, 1.4vw, 19rem); line-height: 1.6;
-  color: var(--muted); margin: 0; max-width: 42ch;
-}
-.np__cta { display: flex; flex-wrap: wrap; align-items: center; gap: 16rem; }
-.np__secondary { color: var(--muted); font-size: 15rem; font-weight: 600; }
-.np__secondary:hover { color: var(--ink); }
-
-@media (max-width: 900px) {
-  .np { grid-template-columns: minmax(0, 1fr); align-items: start; gap: 26rem; }
-}
-
-/* ── Lead ──────────────────────────────────────────────────────────────── */
-.lead {
-  display: grid;
-  grid-template-columns: 150rem minmax(0, 1fr);
-  gap: clamp(16rem, 2.5vw, 32rem);
-  padding: clamp(30rem, 5vw, 56rem) 0;
-  border-bottom: var(--stroke) solid var(--line);
-}
-.lead__rail { display: flex; flex-direction: column; gap: 12rem; padding-top: 4rem; }
-.lead__label { margin: 0; color: var(--muted); }
-.lead__hand { margin: 0; font-size: 16rem; color: var(--ink); max-width: 22ch; }
-
-@media (max-width: 820px) {
-  .lead { grid-template-columns: minmax(0, 1fr); }
-  .lead__rail { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 16rem; }
-  .lead__hand { text-align: right; }
-}
-
-/* ── Field ─────────────────────────────────────────────────────────────── */
-.field { padding: clamp(28rem, 4vw, 48rem) 0 0; }
-.field__head {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 8rem 24rem;
-  border-bottom: var(--stroke) solid var(--line);
-  margin-bottom: clamp(20rem, 3vw, 32rem);
-}
-.field__label { margin: 0; color: var(--muted); }
-
-/* Twelve columns on a large screen, six on a tablet, one on a phone. Cards
-   claim different widths so the field has a rhythm instead of a checkerboard —
-   but every card is still a full card, never a cropped one. */
-.field__grid {
-  list-style: none; margin: 0; padding: 0;
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: clamp(16rem, 2vw, 26rem);
-}
-.field__grid > li { grid-column: span 4; display: flex; min-width: 0; }
-.field__grid > li.is-wide { grid-column: span 8; }
-.field__grid > li.is-tall { grid-column: span 4; }
-
-@media (max-width: 1080px) {
-  .field__grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  .field__grid > li { grid-column: span 3; }
-  .field__grid > li.is-wide { grid-column: span 6; }
-  .field__grid > li.is-tall { grid-column: span 3; }
-}
-@media (max-width: 680px) {
-  .field__grid { grid-template-columns: minmax(0, 1fr); }
-  .field__grid > li,
-  .field__grid > li.is-wide,
-  .field__grid > li.is-tall { grid-column: span 1; }
-}
-
-/* ── Search ── */
-.find { position: relative; display: flex; align-items: center; margin-bottom: clamp(20rem, 3vw, 30rem); }
-.find__icon { position: absolute; left: 16rem; display: flex; color: var(--muted); pointer-events: none; }
-.find__input {
-  width: 100%; max-width: 560rem;
-  min-height: 48rem; padding: 12rem 16rem 12rem 46rem;
-  border: var(--stroke) solid var(--line); border-radius: var(--radius-full);
-  background: var(--paper); color: var(--ink);
-  font-family: inherit; font-size: 15.5rem;
-  transition: box-shadow var(--dur-fast) var(--ease-out);
-}
-.find__input::placeholder { color: var(--muted); }
-.find__input:focus { outline: none;  }
-.find__input:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
-.find__clear {
-  margin-left: 12rem; padding: 8rem 14rem; border-radius: var(--radius-full);
-  border: var(--stroke) solid var(--ink); background: var(--paper);
-  font-family: var(--font-mono); font-size: var(--type-meta);
-  letter-spacing: var(--tracking-meta); text-transform: uppercase; cursor: pointer;
-}
-@media (hover: hover) { .find__clear:hover { background: var(--yellow); color: var(--on-yellow); } }
-
-.field__empty { padding: 40rem 0; color: var(--muted); font-family: var(--font-reading); }
-.field__reset {
-  margin-left: 8rem; font-family: inherit; font-size: inherit;
-  color: var(--blue); text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
-}
-
-/* Filter change: crossfade the field, stagger the cards in behind it. */
-.swap-enter-active { transition: opacity var(--dur-mid) var(--ease-out); }
-.swap-leave-active { transition: opacity 120ms var(--ease-in); }
-.swap-enter-from, .swap-leave-to { opacity: 0; }
-.swap-enter-active .field__grid > li,
-.field__grid > li {
-  animation: card-in 260ms var(--ease-out) both;
-  animation-delay: calc(var(--i, 0) * 34ms);
-}
-@keyframes card-in {
-  from { opacity: 0; transform: translateY(10rem); }
-  to { opacity: 1; transform: none; }
-}
-
-/* ── Interlude ─────────────────────────────────────────────────────────── */
-.interlude {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-  gap: clamp(20rem, 3vw, 40rem);
-  align-items: center;
-  margin-top: clamp(48rem, 8vh, 90rem);
-  padding: clamp(28rem, 4vw, 44rem);
-  background: var(--paper-2);
-  border: var(--stroke) solid var(--line);
-  border-radius: var(--radius-l);
-}
-.interlude__by { display: flex; flex-direction: column; align-items: flex-start; gap: 16rem; }
-@media (max-width: 820px) { .interlude { grid-template-columns: minmax(0, 1fr); } }
-
-@media (prefers-reduced-motion: reduce) {
-  .field__grid > li { animation: none; }
-  .swap-enter-active, .swap-leave-active { transition-duration: 1ms; }
-  /* The standfirst does not rotate at all under reduced motion — see the
-     script — so this only guards the transition if one is ever queued. */
-  .sf-enter-active, .sf-leave-active { transition-duration: 1ms; }
-  .sf-enter-from, .sf-leave-to { transform: none; }
-}
+/* Design intent reminder: hierarchy through reading order, rules, paper
+   surfaces, and imagery—not component abundance or decorative chrome. */
+.home-hero { display: grid; grid-template-columns: minmax(0, 1.28fr) minmax(280rem, .72fr); gap: clamp(32rem, 7vw, 112rem); padding: clamp(40rem, 7vw, 92rem) 0 clamp(48rem, 8vw, 112rem); border-bottom: var(--stroke) solid var(--line); }
+.home-hero__eyebrow, .section-head__label, .close__label { margin: 0; color: var(--muted); }
+.home-hero__eyebrow { display: flex; align-items: center; gap: 8rem; }.home-hero__eyebrow span { width: 8rem; height: 8rem; background: var(--red); border-radius: 50%; }
+.home-hero__title { max-width: 9.3ch; margin: clamp(18rem, 3vw, 32rem) 0 0; font-size: clamp(56rem, 8.4vw, 132rem); line-height: .91; letter-spacing: -.055em; }.home-hero__title em { font-style: normal; color: var(--blue); }
+.home-hero__copy { align-self: end; display: grid; gap: 24rem; max-width: 40ch; padding-bottom: 5rem; }.home-hero__copy p { margin: 0; color: var(--muted); font-family: var(--font-reading); font-size: clamp(18rem, 1.65vw, 22rem); line-height: 1.58; }
+.routes, .proof { padding: clamp(52rem, 8vw, 116rem) 0; border-bottom: var(--stroke) solid var(--line); }
+.section-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240rem, .52fr); gap: 24rem; align-items: end; margin-bottom: clamp(28rem, 4vw, 52rem); }.section-head--split { grid-template-columns: minmax(0, 1fr) auto; }.section-head__title { margin: 10rem 0 0; max-width: 12ch; font-size: clamp(38rem, 4.6vw, 66rem); line-height: .98; }.section-head__deck { margin: 0; max-width: 37ch; color: var(--muted); font-family: var(--font-reading); font-size: 18rem; line-height: 1.55; }.section-head__link { color: var(--ink); font-weight: 650; white-space: nowrap; }
+.routes__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(16rem, 2vw, 28rem); list-style: none; margin: 0; padding: 0; }.route { min-width: 0; }.route__link { display: grid; grid-template-columns: minmax(0, .94fr) minmax(220rem, 1.06fr); height: 100%; color: var(--ink); background: var(--paper); border: var(--stroke) solid var(--line); transition: border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out); }.route__link:hover { border-color: var(--ink); transform: translateY(-3rem); box-shadow: 5rem 5rem 0 var(--line); }.route__meta { grid-column: 1 / -1; display: flex; justify-content: space-between; padding: 11rem 14rem; border-bottom: var(--stroke) solid var(--line); color: var(--muted); }
+.route__art { position: relative; min-height: 210rem; margin: 0; overflow: hidden; background: var(--paper-2); border-right: var(--stroke) solid var(--line); }.route__art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(145deg, color-mix(in srgb, var(--route) 15%, transparent), transparent 58%); pointer-events: none; }.route__art img { width: 100%; height: 100%; object-fit: cover; display: block; }.route__icon { position: absolute; z-index: 1; left: 14rem; bottom: 14rem; display: grid; place-items: center; width: 42rem; height: 42rem; border: var(--stroke) solid var(--ink); background: var(--paper); color: var(--ink); }.route__icon svg { width: 24rem; height: 24rem; stroke: currentColor; stroke-width: 1.7; }
+.route__body { display: flex; flex-direction: column; align-items: flex-start; gap: 12rem; padding: 22rem; }.route__title { margin: 0; font-size: clamp(26rem, 2.6vw, 39rem); line-height: .98; }.route__body p { margin: 0; color: var(--muted); font-family: var(--font-reading); line-height: 1.5; }.route__action { margin-top: auto; padding-top: 10rem; font-size: 14rem; font-weight: 700; }.route__action b { margin-left: 5rem; color: var(--route); }
+.proof__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16rem, 2vw, 26rem); }
+.toolkit { display: grid; grid-template-columns: minmax(260rem, .72fr) minmax(0, 1.28fr); gap: clamp(32rem, 6vw, 96rem); padding: clamp(58rem, 9vw, 126rem) 0; border-bottom: var(--stroke) solid var(--line); }.toolkit__heading { display: flex; flex-direction: column; align-items: flex-start; gap: 18rem; }.toolkit__title { margin: 0; font-size: clamp(42rem, 5vw, 72rem); line-height: .94; }.toolkit__heading p:not(.section-head__label) { margin: 0; color: var(--muted); font-family: var(--font-reading); font-size: 18rem; line-height: 1.55; max-width: 30ch; }.toolkit__list { list-style: none; margin: 0; padding: 0; border-top: var(--stroke) solid var(--line); }.tool-row { display: grid; grid-template-columns: 52rem minmax(120rem, .7fr) minmax(180rem, 1.3fr) 22rem; gap: 14rem; align-items: baseline; padding: 20rem 0; color: var(--ink); border-bottom: var(--stroke) solid var(--line); transition: padding var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }.tool-row:hover { padding-left: 10rem; color: var(--blue); }.tool-row__number { color: var(--muted); }.tool-row__name { font-size: clamp(26rem, 2.8vw, 38rem); line-height: 1; }.tool-row__dek { color: var(--muted); font-family: var(--font-reading); line-height: 1.45; }.tool-row__arrow { text-align: right; font-size: 20rem; }
+.close { position: relative; display: grid; justify-items: start; max-width: 760rem; padding: clamp(58rem, 10vw, 140rem) 0 clamp(72rem, 11vw, 154rem); }.close__mark { display: flex; gap: 5rem; margin-bottom: 22rem; }.close__mark span { width: 12rem; height: 12rem; border: var(--stroke) solid var(--ink); background: var(--paper); }.close__mark span:nth-child(1) { background: var(--yellow); }.close__mark span:nth-child(2) { background: var(--blue); }.close__mark span:nth-child(3) { background: var(--red); }.close__title { max-width: 13ch; margin: 12rem 0 18rem; font-size: clamp(42rem, 5.8vw, 82rem); line-height: .96; }.close__body { max-width: 54ch; margin: 0; color: var(--muted); font-family: var(--font-reading); font-size: clamp(18rem, 1.65vw, 21rem); line-height: 1.6; }.close__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 18rem; margin-top: 28rem; }.close__email { color: var(--ink); font-weight: 700; }
+@media (max-width: 900px) { .home-hero, .toolkit { grid-template-columns: minmax(0, 1fr); }.home-hero { gap: 28rem; }.home-hero__title { max-width: 10.5ch; }.proof__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 660px) { .home-hero { padding-top: 34rem; }.home-hero__title { font-size: clamp(52rem, 16vw, 68rem); }.section-head, .section-head--split { grid-template-columns: minmax(0, 1fr); }.section-head--split { gap: 18rem; }.routes__grid, .proof__grid { grid-template-columns: minmax(0, 1fr); }.route__link { grid-template-columns: 42% 58%; }.route__art { min-height: 185rem; }.route__body { padding: 18rem; }.tool-row { grid-template-columns: 38rem minmax(0, 1fr) 22rem; gap: 8rem; }.tool-row__dek { grid-column: 2 / 4; grid-row: 2; }.tool-row__arrow { grid-column: 3; grid-row: 1; } }
+@media (prefers-reduced-motion: reduce) { .route__link, .tool-row { transition: none; } }
 </style>

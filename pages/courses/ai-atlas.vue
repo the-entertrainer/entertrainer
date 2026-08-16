@@ -4,9 +4,13 @@
  * The course is a reading canvas first. Use prose, diagrams, media, and
  * interactions only when each serves a stated learning purpose.
  */
-import { AI_MODULES, type AiModule } from '~/content/aiCourse'
+import { AI_MODULES, AI_GLOSSARY, type AiModule } from '~/content/aiCourse'
 
-type ScreenId = 'objectives' | 'quiz' | 'summary' | string
+useHead({
+  link: [{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800;6..12,900&display=swap' }]
+})
+
+type ScreenId = 'objectives' | 'quiz' | 'match-game' | 'summary' | string
 type QuizQuestion = { prompt: string; options: string[]; correct: number; explanation: string }
 type PredictionStep = { context: string; options: string[]; correct: number; explanation: string }
 type SortCard = { prompt: string; answer: string; explanation: string }
@@ -149,9 +153,11 @@ const currentId = computed<ScreenId>(() => {
   if (current.value === 0) return 'objectives'
   if (current.value >= 1 && current.value <= AI_MODULES.length) return AI_MODULES[current.value - 1].id
   if (current.value === AI_MODULES.length + 1) return 'quiz'
+  if (current.value === AI_MODULES.length + 2) return 'match-game'
   return 'summary'
 })
-const progress = computed(() => Math.round((visited.value.length / (AI_MODULES.length + 3)) * 100))
+const TOTAL_SCREENS = AI_MODULES.length + 4
+const progress = computed(() => Math.round((visited.value.length / TOTAL_SCREENS) * 100))
 const quizQuestion = computed(() => quizQuestions[quizIndex.value])
 const quizScore = computed(() => quizAnswers.value.filter((answer, index) => answer === quizQuestions[index]?.correct).length)
 const planReady = computed(() => plan.task.trim().length > 10 && plan.check.trim().length > 10 && plan.reviewer.trim().length > 10)
@@ -173,7 +179,7 @@ function go(index: number) {
   persist()
 }
 function startCourse() { go(0) }
-function next() { if (current.value < AI_MODULES.length + 2) go(current.value + 1) }
+function next() { if (current.value < AI_MODULES.length + 3) go(current.value + 1) }
 function previous() { if (current.value > -1) go(current.value - 1) }
 function completeCurrent() { markVisited(currentId.value); next() }
 function submitQuiz() {
@@ -281,6 +287,8 @@ function resetCourse() {
   quizAnswers.value = []
   plan.task = ''; plan.check = ''; plan.reviewer = ''
   courseCompleted.value = false
+  resetOrderGame()
+  shuffleMemoryGame()
   persist()
 }
 function isComplete(id: string) { return visited.value.includes(id) }
@@ -288,20 +296,102 @@ function headerLabel() {
   if (current.value === 0) return 'Course introduction'
   if (currentModule.value) return `Lesson ${currentModule.value.number} of ${AI_MODULES.length}`
   if (currentId.value === 'quiz') return 'Knowledge check'
+  if (currentId.value === 'match-game') return 'Bonus round'
   return 'Course summary'
 }
 function headerTitle() {
   if (current.value === 0) return 'Objectives'
   if (currentModule.value) return currentModule.value.title
   if (currentId.value === 'quiz') return 'Knowledge check'
+  if (currentId.value === 'match-game') return 'Match the words'
   return 'Wrap-up'
 }
+
+/**
+ * Mini-game 1 — Put the milestones in order.
+ * A tap-to-place ordering game built from the same four `historyEvents`
+ * already used by the timeline explorer above it. No new facts: it reuses
+ * the exact year/title pairs, just as a quick recall game instead of a
+ * reading panel.
+ */
+const orderPool = ref<string[]>([])
+const orderPlaced = ref<string[]>([])
+const orderSubmitted = ref(false)
+function shuffleOrderPool() {
+  const years = historyEvents.map((e) => e.year)
+  orderPool.value = [...years].sort(() => Math.random() - 0.5)
+  orderPlaced.value = []
+  orderSubmitted.value = false
+}
+function placeOrderItem(year: string) {
+  if (orderSubmitted.value) return
+  orderPool.value = orderPool.value.filter((y) => y !== year)
+  orderPlaced.value = [...orderPlaced.value, year]
+}
+function removeOrderItem(year: string) {
+  if (orderSubmitted.value) return
+  orderPlaced.value = orderPlaced.value.filter((y) => y !== year)
+  orderPool.value = [...orderPool.value, year]
+}
+function submitOrder() {
+  if (orderPlaced.value.length !== historyEvents.length) return
+  orderSubmitted.value = true
+}
+function resetOrderGame() { shuffleOrderPool() }
+const isOrderCorrect = computed(() =>
+  orderSubmitted.value && orderPlaced.value.every((year, i) => year === historyEvents[i].year))
+shuffleOrderPool()
+
+/**
+ * Mini-game 2 — Match the words.
+ * A flip-card memory game built from the existing `AI_GLOSSARY` pairs — the
+ * same eight terms already defined for the site's glossary, just presented
+ * as a matching game instead of a list. No new content is introduced.
+ */
+type MemoryCard = { uid: number; pairId: number; face: string; kind: 'term' | 'def' }
+const memoryCards = ref<MemoryCard[]>([])
+const memoryFlipped = ref<number[]>([])
+const memoryMatched = ref<number[]>([])
+const memoryMoves = ref(0)
+const memoryLocked = ref(false)
+function shuffleMemoryGame() {
+  const cards: MemoryCard[] = []
+  AI_GLOSSARY.forEach(([term, def], pairId) => {
+    cards.push({ uid: pairId * 2, pairId, face: term, kind: 'term' })
+    cards.push({ uid: pairId * 2 + 1, pairId, face: def, kind: 'def' })
+  })
+  memoryCards.value = cards.sort(() => Math.random() - 0.5)
+  memoryFlipped.value = []
+  memoryMatched.value = []
+  memoryMoves.value = 0
+  memoryLocked.value = false
+}
+function flipMemoryCard(uid: number) {
+  if (memoryLocked.value) return
+  if (memoryFlipped.value.includes(uid) || memoryMatched.value.includes(uid)) return
+  if (memoryFlipped.value.length === 2) return
+  memoryFlipped.value = [...memoryFlipped.value, uid]
+  if (memoryFlipped.value.length === 2) {
+    memoryMoves.value += 1
+    const [a, b] = memoryFlipped.value.map((id) => memoryCards.value.find((c) => c.uid === id)!)
+    if (a.pairId === b.pairId) {
+      memoryMatched.value = [...memoryMatched.value, a.uid, b.uid]
+      memoryFlipped.value = []
+    } else {
+      memoryLocked.value = true
+      setTimeout(() => { memoryFlipped.value = []; memoryLocked.value = false }, 800)
+    }
+  }
+}
+const memoryComplete = computed(() => memoryMatched.value.length === memoryCards.value.length && memoryCards.value.length > 0)
+shuffleMemoryGame()
+
 onMounted(() => {
   const saved = localStorage.getItem(STORAGE_KEY)
   if (!saved) return
   try {
     const state = JSON.parse(saved)
-    current.value = typeof state.current === 'number' ? Math.min(state.current, AI_MODULES.length + 2) : -1
+    current.value = typeof state.current === 'number' ? Math.min(state.current, AI_MODULES.length + 3) : -1
     visited.value = Array.isArray(state.visited) ? state.visited : []
     quizAnswers.value = Array.isArray(state.quizAnswers) ? state.quizAnswers : []
     courseCompleted.value = Boolean(state.completed)
@@ -310,78 +400,140 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="rise-canvas">
-    <aside class="rise-sidebar" :class="{ open: menuOpen }" aria-label="Course outline">
-      <button type="button" class="rise-sidebar__hero" @click="go(-1)">
-        <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/zByMCffPaXYvFeor.jpg" alt="Illustrated journey through the history of artificial intelligence" />
-        <span>From No AI<br />to Know AI</span>
+  <div class="course">
+    <!-- ── Masthead ──────────────────────────────────────────────────── -->
+    <header class="course__bar">
+      <button type="button" class="course__brand" @click="go(-1)">
+        <span class="course__mark" aria-hidden="true">E</span>
+        <span class="course__brand-text">From No AI to Know AI</span>
       </button>
-      <button type="button" class="rise-sidebar__home" @click="go(-1)">Entertrainer AI course</button>
-      <div class="rise-sidebar__progress"><span>{{ progress }}% complete</span><i><b :style="{ width: `${progress}%` }"></b></i></div>
-      <ol class="rise-sidebar__list">
-        <li><button type="button" :class="{ active: current === 0 }" @click="go(0)"><i class="rise-glyph"></i><span>Objectives</span><b :class="{ complete: isComplete('objectives') }">{{ isComplete('objectives') ? '✓' : '' }}</b></button></li>
-        <li v-for="(item, index) in AI_MODULES" :key="item.id"><button type="button" :class="{ active: current === index + 1 }" @click="go(index + 1)"><i class="rise-glyph"></i><span>{{ item.short }}</span><b :class="{ complete: isComplete(item.id) }">{{ isComplete(item.id) ? '✓' : '' }}</b></button></li>
-        <li><button type="button" :class="{ active: currentId === 'quiz' }" @click="go(AI_MODULES.length + 1)"><i class="rise-glyph quiz"></i><span>Knowledge check</span><b :class="{ complete: isComplete('quiz') }">{{ isComplete('quiz') ? '✓' : '' }}</b></button></li>
-        <li><button type="button" :class="{ active: currentId === 'summary' }" @click="go(AI_MODULES.length + 2)"><i class="rise-glyph"></i><span>Summary</span><b :class="{ complete: isComplete('summary') }">{{ isComplete('summary') ? '✓' : '' }}</b></button></li>
+      <nav class="course__actions" aria-label="Course">
+        <NuxtLink to="/my-work" class="course__link">Exit</NuxtLink>
+      </nav>
+    </header>
+
+    <div class="course__subbar">
+      <button type="button" class="course__hamburger" :class="{ 'is-on': menuOpen }"
+              aria-label="Course contents" :aria-expanded="menuOpen" @click="menuOpen = !menuOpen">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+      </button>
+      <div class="course__progress" v-if="current >= 0">
+        <span class="course__progress-n">{{ progress }}% complete</span>
+      </div>
+    </div>
+    <span v-if="current >= 0" class="course__progress-track" role="img" :aria-label="`${progress}% complete`">
+      <span class="course__progress-fill" :style="{ width: progress + '%' }" />
+    </span>
+
+    <!-- ── Course-contents drawer ────────────────────────────────────── -->
+    <div v-if="menuOpen" class="course__scrim" @click="menuOpen = false" />
+    <aside class="course__drawer" :class="{ 'is-open': menuOpen }" :inert="!menuOpen" aria-label="Course contents">
+      <div class="course__drawer-head">
+        <p class="course__drawer-kicker">Course content</p>
+        <button type="button" class="course__drawer-close" aria-label="Close course contents" @click="menuOpen = false">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18" /></svg>
+        </button>
+      </div>
+      <ol class="course__drawer-list">
+        <li>
+          <button type="button" class="drawer-row" :class="{ 'is-active': current === 0 }" @click="go(0)">
+            <span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7" /></svg></span>
+            <span class="drawer-row__label">Objectives</span>
+            <span class="drawer-row__dot" :class="{ 'is-done': isComplete('objectives') }" aria-hidden="true" />
+          </button>
+        </li>
+        <li v-for="(item, index) in AI_MODULES" :key="item.id">
+          <button type="button" class="drawer-row" :class="{ 'is-active': current === index + 1 }" @click="go(index + 1)">
+            <span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7M9 18h4" /></svg></span>
+            <span class="drawer-row__label">{{ item.short }}</span>
+            <span class="drawer-row__dot" :class="{ 'is-done': isComplete(item.id) }" aria-hidden="true" />
+          </button>
+        </li>
+        <li>
+          <button type="button" class="drawer-row" :class="{ 'is-active': currentId === 'quiz' }" @click="go(AI_MODULES.length + 1)">
+            <span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 4" /><circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none" /></svg></span>
+            <span class="drawer-row__label">Knowledge check</span>
+            <span class="drawer-row__dot" :class="{ 'is-done': isComplete('quiz') }" aria-hidden="true" />
+          </button>
+        </li>
+        <li>
+          <button type="button" class="drawer-row" :class="{ 'is-active': currentId === 'match-game' }" @click="go(AI_MODULES.length + 2)">
+            <span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4" /><circle cx="12" cy="12" r="4.5" /></svg></span>
+            <span class="drawer-row__label">Bonus: Match the words</span>
+            <span class="drawer-row__dot" :class="{ 'is-done': isComplete('match-game') }" aria-hidden="true" />
+          </button>
+        </li>
+        <li>
+          <button type="button" class="drawer-row" :class="{ 'is-active': currentId === 'summary' }" @click="go(AI_MODULES.length + 3)">
+            <span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7M9 18h4" /></svg></span>
+            <span class="drawer-row__label">Summary</span>
+            <span class="drawer-row__dot" :class="{ 'is-done': isComplete('summary') }" aria-hidden="true" />
+          </button>
+        </li>
       </ol>
-      <button type="button" class="rise-sidebar__close" @click="menuOpen = false">Close course menu</button>
     </aside>
 
-    <main class="rise-main">
-      <Transition name="rise-fade" mode="out-in">
-        <section v-if="current === -1" key="overview" class="rise-screen rise-overview">
-          <div class="rise-overview__hero">
-            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/zByMCffPaXYvFeor.jpg" alt="An illustrated map showing the development of artificial intelligence" />
-            <div class="rise-overview__shade"></div>
-            <h1>From No AI<br />to Know AI</h1>
-            <button type="button" @click="startCourse">Start course</button>
+    <main class="course__main">
+      <Transition name="course-fade" mode="out-in">
+        <!-- ── Cover ─────────────────────────────────────────────────── -->
+        <section v-if="current === -1" key="overview" class="cover">
+          <div class="cover__banner">
+            <h1 class="cover__title">From No AI<br />to Know AI</h1>
+            <button type="button" class="cover__start" @click="startCourse">{{ visited.length ? 'Resume course' : 'Start course' }}</button>
           </div>
-          <div class="rise-overview__body">
-            <h2 class="rise-wordmark">Entertrainer</h2>
-            <p class="rise-duration"><strong>Duration:</strong> Approximately 95 minutes</p>
+          <div class="cover__body">
+            <span class="course__mark course__mark--lg" aria-hidden="true">E</span>
+            <p class="cover__duration">Approximately 95 minutes</p>
             <p>Artificial intelligence did not begin with ChatGPT. This course traces the long path from early questions about machine intelligence to the prediction systems, language models, and multimodal tools used today.</p>
             <p>Read each lesson in sequence. The course begins with history, then explains learning and prediction, maps the modern AI landscape, and ends with a practical way to use capability with judgement.</p>
-            <ol class="rise-overview__outline">
-              <li><button type="button" @click="go(0)"><i></i><span>Objectives</span><b :class="{ complete: isComplete('objectives') }">{{ isComplete('objectives') ? '✓' : '' }}</b></button></li>
-              <li v-for="(item, index) in AI_MODULES" :key="item.id"><button type="button" @click="go(index + 1)"><i></i><span>{{ item.short }}</span><b :class="{ complete: isComplete(item.id) }">{{ isComplete(item.id) ? '✓' : '' }}</b></button></li>
-              <li><button type="button" @click="go(AI_MODULES.length + 1)"><i class="quiz"></i><span>Knowledge check</span><b :class="{ complete: isComplete('quiz') }">{{ isComplete('quiz') ? '✓' : '' }}</b></button></li>
-              <li><button type="button" @click="go(AI_MODULES.length + 2)"><i></i><span>Summary</span><b :class="{ complete: isComplete('summary') }">{{ isComplete('summary') ? '✓' : '' }}</b></button></li>
-            </ol>
+            <div class="cover__panel">
+              <h2 class="cover__panel-h">Course content</h2>
+              <ol class="cover__outline">
+                <li><button type="button" @click="go(0)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7" /></svg></span><span>Objectives</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete('objectives') }" /></button></li>
+                <li v-for="(item, index) in AI_MODULES" :key="item.id"><button type="button" @click="go(index + 1)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7M9 18h4" /></svg></span><span>{{ item.short }}</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete(item.id) }" /></button></li>
+                <li><button type="button" @click="go(AI_MODULES.length + 1)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 4" /><circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none" /></svg></span><span>Knowledge check</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete('quiz') }" /></button></li>
+                <li><button type="button" @click="go(AI_MODULES.length + 2)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4" /><circle cx="12" cy="12" r="4.5" /></svg></span><span>Bonus: Match the words</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete('match-game') }" /></button></li>
+                <li><button type="button" @click="go(AI_MODULES.length + 3)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7M9 18h4" /></svg></span><span>Summary</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete('summary') }" /></button></li>
+              </ol>
+            </div>
           </div>
         </section>
 
-        <section v-else :key="currentId" class="rise-screen">
-          <header class="rise-header">
-            <div><button type="button" aria-label="Open course menu" @click="menuOpen = true"><i class="rise-menu-icon"></i></button><b>{{ headerLabel() }}</b></div>
-            <h1>{{ headerTitle() }}</h1>
-            <i></i>
+        <!-- ── Lesson / quiz / game / summary screens ───────────────────── -->
+        <section v-else :key="currentId" class="screen">
+          <header class="lesson-banner">
+            <p class="lesson-banner__crumb">{{ headerLabel() }}</p>
+            <h1 class="lesson-banner__title">{{ headerTitle() }}</h1>
+            <span class="lesson-banner__rule" aria-hidden="true" />
           </header>
 
-          <article v-if="current === 0" class="rise-reading">
+          <article v-if="current === 0" class="reading">
             <p>Before you begin, use these objectives to organise the story of the course. Each lesson develops one idea needed for the next: history, task, learning, prediction, modern capability, and judgement.</p>
-            <h2>By the End of this module, you will be able to:</h2>
-            <p class="rise-lead">Explain where modern AI came from, how it learns and predicts, what different AI systems can do, and how to use those capabilities with judgement.</p>
-            <ul>
-              <li>Correct the misconception that AI began with modern chat tools by describing its long research history.</li>
-              <li>Explain how examples, context, and next-token prediction produce useful AI outputs.</li>
-              <li>Recognise major AI types and match their capabilities, limits, and safeguards to a real task.</li>
-            </ul>
+            <div class="panel">
+              <h2 class="panel__h">Objectives</h2>
+              <p class="panel__sub">By the end of this course, you should be able to:</p>
+              <ul class="panel__list">
+                <li>Correct the misconception that AI began with modern chat tools by describing its long research history.</li>
+                <li>Explain how examples, context, and next-token prediction produce useful AI outputs.</li>
+                <li>Recognise major AI types and match their capabilities, limits, and safeguards to a real task.</li>
+              </ul>
+            </div>
             <h2>How the course is organised</h2>
             <p>The first three lessons answer where AI came from, what it is, and how a model learns a pattern. The central lesson then makes next-token prediction visible. The final lessons map modern AI types, explain what famous models can and cannot demonstrate, and turn the story into a practical use routine.</p>
-            <section class="rise-info"><i aria-hidden="true">i</i><div><b>Reading first</b><p>Complete the explanations and worked examples before opening the small activities. Each activity is designed to make one idea visible, not to replace the lesson.</p></div></section>
-            <button type="button" class="rise-next-link" @click="completeCurrent">Continue to Lesson 1</button>
+            <section class="info-note"><i aria-hidden="true">i</i><div><b>Reading first</b><p>Complete the explanations and worked examples before opening the small activities. Each activity is designed to make one idea visible, not to replace the lesson.</p></div></section>
+            <button type="button" class="next-link" @click="completeCurrent">Continue to Lesson 1</button>
           </article>
 
-          <article v-else-if="currentModule" class="rise-reading">
+          <article v-else-if="currentModule" class="reading">
             <p v-for="paragraph in currentModule.introduction" :key="paragraph">{{ paragraph }}</p>
-            <section class="rise-info"><i aria-hidden="true">i</i><div><b>Learning objective</b><p>{{ currentModule.objective }}</p></div></section>
+            <section class="info-note"><i aria-hidden="true">i</i><div><b>Learning objective</b><p>{{ currentModule.objective }}</p></div></section>
 
-            <section v-for="section in currentModule.sections" :key="section.heading" class="rise-text-section">
+            <section v-for="section in currentModule.sections" :key="section.heading" class="text-section">
               <h2>{{ section.heading }}</h2>
               <p v-for="paragraph in section.paragraphs" :key="paragraph">{{ paragraph }}</p>
             </section>
 
-            <section class="rise-diagram" :class="`rise-diagram--${currentModule.diagram}`">
+            <section class="diagram">
               <template v-if="currentModule.diagram === 'timeline'"><span>Questions</span><i>→</i><span>Rules</span><i>→</i><span>Learning</span><i>→</i><span>Transformers</span><i>→</i><span>Modern AI</span></template>
               <template v-else-if="currentModule.diagram === 'task'"><span>Task</span><i>→</i><span>Information</span><i>→</i><span>Output</span><i>→</i><span>Check</span></template>
               <template v-else-if="currentModule.diagram === 'learning'"><span>Labelled examples</span><i>→</i><span>Training</span><i>→</i><span>New request</span><i>→</i><span>Output</span></template>
@@ -391,111 +543,167 @@ onMounted(() => {
               <template v-else><span>Bounded task</span><i>→</i><span>Protect information</span><i>→</i><span>Check output</span><i>→</i><span>Accountable person</span></template>
             </section>
 
-            <section class="rise-worked-example">
+            <section class="worked-example">
               <h2>{{ currentModule.exampleTitle }}</h2>
               <p v-for="paragraph in currentModule.example" :key="paragraph">{{ paragraph }}</p>
             </section>
 
-            <section v-if="currentModule.visual === 'history'" class="rise-media"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/UrwXNXgLQEdronNQ.jpg" alt="Editorial visual timeline from early artificial intelligence research to modern AI systems" /><p>Use this timeline as a reading aid. It does not list every breakthrough; it shows how modern AI rests on a long sequence of questions, methods, data, computing, and model design.</p></section>
-            <section v-if="currentModule.visual === 'models'" class="rise-media"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/htTSgHWeiwDLlMXR.jpg" alt="Editorial visual showing different types of modern AI systems and their inputs" /><p>This visual groups modern AI by the kind of information it works with and the kind of output it can create. It reinforces the distinction explained in the lesson text.</p></section>
+            <section v-if="currentModule.visual === 'history'" class="media"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/UrwXNXgLQEdronNQ.jpg" alt="Editorial visual timeline from early artificial intelligence research to modern AI systems" /><p>Use this timeline as a reading aid. It does not list every breakthrough; it shows how modern AI rests on a long sequence of questions, methods, data, computing, and model design.</p></section>
+            <section v-if="currentModule.visual === 'models'" class="media"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/htTSgHWeiwDLlMXR.jpg" alt="Editorial visual showing different types of modern AI systems and their inputs" /><p>This visual groups modern AI by the kind of information it works with and the kind of output it can create. It reinforces the distinction explained in the lesson text.</p></section>
 
-            <section v-if="currentModule.video" class="rise-video"><h2>{{ currentModule.video.title }}</h2><p><strong>Viewing question:</strong> {{ currentModule.video.question }}</p><div class="rise-video__frame"><iframe :src="currentModule.video.url" :title="currentModule.video.title" loading="lazy" allowfullscreen></iframe></div></section>
+            <section v-if="currentModule.video" class="video"><h2>{{ currentModule.video.title }}</h2><p><strong>Viewing question:</strong> {{ currentModule.video.question }}</p><div class="video__frame"><iframe :src="currentModule.video.url" :title="currentModule.video.title" loading="lazy" allowfullscreen /></div></section>
 
-            <section v-if="currentModule.id === 'before-chatbots'" class="rise-block rise-timeline-block">
-              <p class="rise-block__eyebrow">Interactive timeline · {{ timelineStep + 1 }} of {{ historyEvents.length }}</p>
+            <section v-if="currentModule.id === 'before-chatbots'" class="block">
+              <p class="block__eyebrow">Interactive timeline · {{ timelineStep + 1 }} of {{ historyEvents.length }}</p>
               <h2>Trace the long route to modern AI</h2>
               <p>Move through four milestones. Notice that a modern chatbot appears only after earlier questions about intelligence, named AI research, learning from examples, and transformer architecture.</p>
-              <div class="rise-timeline-block__nav" role="tablist" aria-label="AI history milestones"><button v-for="(event, index) in historyEvents" :key="event.year" type="button" :class="{ active: timelineStep === index }" :aria-selected="timelineStep === index" role="tab" @click="timelineStep = index"><b>{{ event.year }}</b><span>{{ event.title }}</span></button></div>
-              <div class="rise-timeline-block__event"><b>{{ historyEvents[timelineStep].year }}</b><h3>{{ historyEvents[timelineStep].title }}</h3><p>{{ historyEvents[timelineStep].text }}</p></div>
-              <p class="rise-block__takeaway">The point is not to memorise every date. It is to see that ChatGPT is a recent public chapter in a much older field.</p>
+              <div class="timeline-nav" role="tablist" aria-label="AI history milestones"><button v-for="(event, index) in historyEvents" :key="event.year" type="button" :class="{ 'is-active': timelineStep === index }" :aria-selected="timelineStep === index" role="tab" @click="timelineStep = index"><b>{{ event.year }}</b><span>{{ event.title }}</span></button></div>
+              <div class="timeline-event"><b>{{ historyEvents[timelineStep].year }}</b><h3>{{ historyEvents[timelineStep].title }}</h3><p>{{ historyEvents[timelineStep].text }}</p></div>
+              <p class="block__takeaway">The point is not to memorise every date. It is to see that ChatGPT is a recent public chapter in a much older field.</p>
             </section>
 
-            <section v-if="currentModule.id === 'what-ai-is'" class="rise-block rise-flashcards">
-              <p class="rise-block__eyebrow">Recall pause</p>
+            <!-- Mini-game: put the same four milestones in order, tap-to-place -->
+            <section v-if="currentModule.id === 'before-chatbots'" class="block game-block">
+              <p class="block__eyebrow">Mini game</p>
+              <h2>Put the milestones in order</h2>
+              <p>Tap the four cards below, oldest first, to rebuild the timeline you just read.</p>
+              <div class="order-game">
+                <ol class="order-game__slots" aria-label="Your order">
+                  <li v-for="(year, i) in orderPlaced" :key="year" class="order-game__slot is-filled">
+                    <span class="order-game__slot-n">{{ i + 1 }}</span>
+                    <button type="button" :disabled="orderSubmitted" @click="removeOrderItem(year)">{{ year }}</button>
+                  </li>
+                  <li v-for="n in (historyEvents.length - orderPlaced.length)" :key="`empty-${n}`" class="order-game__slot">
+                    <span class="order-game__slot-n">{{ orderPlaced.length + n }}</span>
+                  </li>
+                </ol>
+                <div class="order-game__pool">
+                  <button v-for="year in orderPool" :key="year" type="button" class="order-game__chip" @click="placeOrderItem(year)">{{ year }}</button>
+                </div>
+                <button v-if="!orderSubmitted" type="button" class="submit-btn" :disabled="orderPlaced.length !== historyEvents.length" @click="submitOrder">Check my order</button>
+                <template v-else>
+                  <p class="activity-feedback" :class="{ 'is-correct': isOrderCorrect }">
+                    <strong>{{ isOrderCorrect ? 'That is the right order.' : 'Not quite the right order.' }}</strong>
+                    {{ isOrderCorrect ? 'Questions came first, then a named field, then learning from data, then transformers.' : 'The correct order is 1950, 1956, 1980s–2010s, 2017 onward.' }}
+                  </p>
+                  <button type="button" class="next-link" @click="resetOrderGame">Shuffle and try again</button>
+                </template>
+              </div>
+            </section>
+
+            <section v-if="currentModule.id === 'what-ai-is'" class="block flashcards">
+              <p class="block__eyebrow">Recall pause</p>
               <h2>Use the practical definition</h2>
               <p>Before continuing, turn over each card and connect it to the travel-time example you have just read.</p>
-              <div class="rise-flashcards__grid"><button v-for="(card, index) in definitionFlashcards" :key="card.front" type="button" :class="{ open: openFlashcards.includes(index) }" :aria-pressed="openFlashcards.includes(index)" @click="toggleFlashcard(index)"><span v-if="!openFlashcards.includes(index)"><b>{{ card.front }}</b><small>Select to reveal</small></span><span v-else><small>{{ card.front }}</small><b>{{ card.back }}</b></span></button></div>
-              <p class="rise-block__takeaway">When you meet an AI claim, return to these three prompts: task, information, and check.</p>
+              <div class="flashcards__grid"><button v-for="(card, index) in definitionFlashcards" :key="card.front" type="button" :class="{ 'is-open': openFlashcards.includes(index) }" :aria-pressed="openFlashcards.includes(index)" @click="toggleFlashcard(index)"><span v-if="!openFlashcards.includes(index)"><b>{{ card.front }}</b><small>Select to reveal</small></span><span v-else><small>{{ card.front }}</small><b>{{ card.back }}</b></span></button></div>
+              <p class="block__takeaway">When you meet an AI claim, return to these three prompts: task, information, and check.</p>
             </section>
 
-            <section v-if="currentModule.id === 'learning-patterns'" class="rise-block rise-tabs-block">
-              <p class="rise-block__eyebrow">Compare the methods</p>
+            <section v-if="currentModule.id === 'learning-patterns'" class="block tabs-block">
+              <p class="block__eyebrow">Compare the methods</p>
               <h2>One task, three ways of producing an output</h2>
               <p>Read the three panels in order. Each method can be useful; the difference is how the output is produced and where its limits come from.</p>
-              <div class="rise-tabs-block__tabs" role="tablist" aria-label="Ways a system produces an output"><button v-for="(tab, index) in learningTabs" :key="tab.label" type="button" :class="{ active: learningTab === index }" :aria-selected="learningTab === index" role="tab" @click="learningTab = index">{{ tab.label }}</button></div>
-              <div class="rise-tabs-block__panel"><h3>{{ learningTabs[learningTab].title }}</h3><p>{{ learningTabs[learningTab].text }}</p><p><strong>{{ learningTabs[learningTab].example }}</strong></p></div>
-              <p class="rise-block__takeaway">Rules follow an authored method. Learned models estimate from examples. Language models estimate how a text sequence may continue.</p>
+              <div class="tabs-block__tabs" role="tablist" aria-label="Ways a system produces an output"><button v-for="(tab, index) in learningTabs" :key="tab.label" type="button" :class="{ 'is-active': learningTab === index }" :aria-selected="learningTab === index" role="tab" @click="learningTab = index">{{ tab.label }}</button></div>
+              <div class="tabs-block__panel"><h3>{{ learningTabs[learningTab].title }}</h3><p>{{ learningTabs[learningTab].text }}</p><p><strong>{{ learningTabs[learningTab].example }}</strong></p></div>
+              <p class="block__takeaway">Rules follow an authored method. Learned models estimate from examples. Language models estimate how a text sequence may continue.</p>
             </section>
 
-            <section v-if="currentModule.activity === 'predictionLab'" class="rise-prediction-lab">
-              <p class="rise-prediction-lab__eyebrow">Prediction lab · {{ predictionStep + 1 }} of {{ predictionSteps.length }}</p>
+            <section v-if="currentModule.activity === 'predictionLab'" class="prediction-lab">
+              <p class="prediction-lab__eyebrow">Prediction lab · {{ predictionStep + 1 }} of {{ predictionSteps.length }}</p>
               <h2>Watch a response take shape</h2>
               <p>You have read how context changes a next-token estimate. Now build one short service update across three predictions. Choose the continuation that best fits the text, then observe how that predicted token becomes part of the next context.</p>
               <blockquote>{{ predictionSteps[predictionStep].context }} <b>…</b></blockquote>
-              <div class="rise-choice-column">
-                <button v-for="(option, index) in predictionSteps[predictionStep].options" :key="option" type="button" :class="{ selected: predictionChoice === index }" :disabled="predictionSubmitted" @click="predictionChoice = index">{{ option }}</button>
+              <div class="choice-column">
+                <button v-for="(option, index) in predictionSteps[predictionStep].options" :key="option" type="button" :class="{ 'is-selected': predictionChoice === index }" :disabled="predictionSubmitted" @click="predictionChoice = index">{{ option }}</button>
               </div>
-              <button v-if="!predictionSubmitted" type="button" class="rise-submit" :disabled="predictionChoice === null" @click="submitPrediction">Submit prediction</button>
+              <button v-if="!predictionSubmitted" type="button" class="submit-btn" :disabled="predictionChoice === null" @click="submitPrediction">Submit prediction</button>
               <template v-else>
-                <p class="rise-activity__feedback" :class="{ correct: predictionChoice === predictionSteps[predictionStep].correct }"><strong>{{ predictionChoice === predictionSteps[predictionStep].correct ? 'A useful estimate.' : 'Compare the context again.' }}</strong> {{ predictionSteps[predictionStep].explanation }}</p>
-                <div class="rise-prediction-lab__output"><span>Growing generated text</span><p>{{ predictionSteps[predictionStep].context }} <b>{{ predictionSteps[predictionStep].options[predictionSteps[predictionStep].correct] }}</b></p></div>
+                <p class="activity-feedback" :class="{ 'is-correct': predictionChoice === predictionSteps[predictionStep].correct }"><strong>{{ predictionChoice === predictionSteps[predictionStep].correct ? 'A useful estimate.' : 'Compare the context again.' }}</strong> {{ predictionSteps[predictionStep].explanation }}</p>
+                <div class="prediction-lab__output"><span>Growing generated text</span><p>{{ predictionSteps[predictionStep].context }} <b>{{ predictionSteps[predictionStep].options[predictionSteps[predictionStep].correct] }}</b></p></div>
               </template>
-              <button v-if="predictionSubmitted && predictionStep < predictionSteps.length - 1" type="button" class="rise-next-link" @click="nextPredictionStep">Continue the prediction</button>
-              <p v-if="predictionSubmitted && predictionStep === predictionSteps.length - 1" class="rise-prediction-lab__conclusion">You have now seen the core mechanism: a language-model response is built through many small, context-sensitive estimates. That is powerful, but it does not make the result automatically true.</p>
+              <button v-if="predictionSubmitted && predictionStep < predictionSteps.length - 1" type="button" class="next-link" @click="nextPredictionStep">Continue the prediction</button>
+              <p v-if="predictionSubmitted && predictionStep === predictionSteps.length - 1" class="prediction-lab__conclusion">You have now seen the core mechanism: a language-model response is built through many small, context-sensitive estimates. That is powerful, but it does not make the result automatically true.</p>
             </section>
 
-            <section v-if="currentModule.id === 'modern-landscape'" class="rise-block rise-game-block">
-              <p class="rise-block__eyebrow">Sorting game · {{ sortIndex + 1 }} of {{ sortCards.length }}</p>
+            <section v-if="currentModule.id === 'modern-landscape'" class="block game-block">
+              <p class="block__eyebrow">Sorting game · {{ sortIndex + 1 }} of {{ sortCards.length }}</p>
               <h2>Sort the AI workflow</h2>
               <p>You have seen that an AI system takes information, produces an output, and needs evaluation. Classify the item below using that same sequence.</p>
               <blockquote>{{ currentSortCard.prompt }}</blockquote>
-              <div class="rise-choice-row"><button v-for="option in ['Input', 'Output', 'Evaluation']" :key="option" type="button" :class="{ selected: sortChoice === option }" :disabled="sortSubmitted" @click="sortChoice = option">{{ option }}</button></div>
-              <button v-if="!sortSubmitted" type="button" class="rise-submit" :disabled="!sortChoice" @click="submitSort">Check category</button>
-              <template v-else><p class="rise-activity__feedback" :class="{ correct: sortChoice === currentSortCard.answer }"><strong>{{ sortChoice === currentSortCard.answer ? 'Correct.' : 'Review the workflow.' }}</strong> {{ currentSortCard.explanation }}</p><button v-if="sortIndex < sortCards.length - 1" type="button" class="rise-next-link" @click="nextSortCard">Sort the next item</button><p v-else class="rise-block__takeaway">Every AI workflow needs all three: suitable input, a meaningful output, and evaluation of whether that output is useful.</p></template>
+              <div class="choice-row"><button v-for="option in ['Input', 'Output', 'Evaluation']" :key="option" type="button" :class="{ 'is-selected': sortChoice === option }" :disabled="sortSubmitted" @click="sortChoice = option">{{ option }}</button></div>
+              <button v-if="!sortSubmitted" type="button" class="submit-btn" :disabled="!sortChoice" @click="submitSort">Check category</button>
+              <template v-else><p class="activity-feedback" :class="{ 'is-correct': sortChoice === currentSortCard.answer }"><strong>{{ sortChoice === currentSortCard.answer ? 'Correct.' : 'Review the workflow.' }}</strong> {{ currentSortCard.explanation }}</p><button v-if="sortIndex < sortCards.length - 1" type="button" class="next-link" @click="nextSortCard">Sort the next item</button><p v-else class="block__takeaway">Every AI workflow needs all three: suitable input, a meaningful output, and evaluation of whether that output is useful.</p></template>
             </section>
 
-            <section v-if="currentModule.id === 'models-world'" class="rise-block rise-game-block">
-              <p class="rise-block__eyebrow">Matching game · {{ matchIndex + 1 }} of {{ matchPrompts.length }}</p>
+            <section v-if="currentModule.id === 'models-world'" class="block game-block">
+              <p class="block__eyebrow">Matching game · {{ matchIndex + 1 }} of {{ matchPrompts.length }}</p>
               <h2>Match capability to a documented model family</h2>
               <p>Read the capability description and select the model name that best matches the documented public description.</p>
               <blockquote>{{ currentMatchPrompt.prompt }}</blockquote>
-              <div class="rise-choice-row"><button v-for="option in ['GPT-4', 'Gemini', 'Claude']" :key="option" type="button" :class="{ selected: matchChoice === option }" :disabled="matchSubmitted" @click="matchChoice = option">{{ option }}</button></div>
-              <button v-if="!matchSubmitted" type="button" class="rise-submit" :disabled="!matchChoice" @click="submitMatch">Check match</button>
-              <template v-else><p class="rise-activity__feedback" :class="{ correct: matchChoice === currentMatchPrompt.answer }"><strong>{{ matchChoice === currentMatchPrompt.answer ? 'Correct.' : 'Review the description.' }}</strong> {{ currentMatchPrompt.explanation }}</p><button v-if="matchIndex < matchPrompts.length - 1" type="button" class="rise-next-link" @click="nextMatchPrompt">Match the next capability</button><p v-else class="rise-block__takeaway">A name is not a guarantee. The practical question is always whether the capability, inputs, checks, and safeguards fit the task.</p></template>
+              <div class="choice-row"><button v-for="option in ['GPT-4', 'Gemini', 'Claude']" :key="option" type="button" :class="{ 'is-selected': matchChoice === option }" :disabled="matchSubmitted" @click="matchChoice = option">{{ option }}</button></div>
+              <button v-if="!matchSubmitted" type="button" class="submit-btn" :disabled="!matchChoice" @click="submitMatch">Check match</button>
+              <template v-else><p class="activity-feedback" :class="{ 'is-correct': matchChoice === currentMatchPrompt.answer }"><strong>{{ matchChoice === currentMatchPrompt.answer ? 'Correct.' : 'Review the description.' }}</strong> {{ currentMatchPrompt.explanation }}</p><button v-if="matchIndex < matchPrompts.length - 1" type="button" class="next-link" @click="nextMatchPrompt">Match the next capability</button><p v-else class="block__takeaway">A name is not a guarantee. The practical question is always whether the capability, inputs, checks, and safeguards fit the task.</p></template>
             </section>
 
-            <section v-if="currentModule.id === 'know-ai'" class="rise-block rise-scenario-block">
-              <p class="rise-block__eyebrow">Decision scenario</p>
+            <section v-if="currentModule.id === 'know-ai'" class="block scenario-block">
+              <p class="block__eyebrow">Decision scenario</p>
               <h2>Choose a responsible next action</h2>
               <p>A learning coordinator wants an AI tool to summarise notes from a meeting. The notes include names, personal feedback, and a draft action plan. What should happen first?</p>
-              <div class="rise-choice-column"><button v-for="(option, index) in scenarioOptions" :key="option" type="button" :class="{ selected: scenarioChoice === index }" :disabled="scenarioSubmitted" @click="scenarioChoice = index">{{ option }}</button></div>
-              <button v-if="!scenarioSubmitted" type="button" class="rise-submit" :disabled="scenarioChoice === null" @click="submitScenario">Check decision</button>
-              <template v-else><p class="rise-activity__feedback" :class="{ correct: scenarioChoice === 1 }"><strong>{{ scenarioChoice === 1 ? 'A responsible start.' : 'Pause before proceeding.' }}</strong> The task may be useful, but the information and the tool both need review before the coordinator asks for any output.</p>
-                <div class="rise-scenario-block__check"><h3>Select all safeguards that still apply</h3><p>The decision is not complete until you identify the conditions that keep the task bounded and accountable.</p><button v-for="(option, index) in safeguardOptions" :key="option" type="button" :class="{ selected: safeguardsSelected.includes(index) }" :aria-pressed="safeguardsSelected.includes(index)" @click="toggleSafeguard(index)"><i aria-hidden="true">{{ safeguardsSelected.includes(index) ? '✓' : '' }}</i>{{ option }}</button><button v-if="!safeguardsSubmitted" type="button" class="rise-submit" :disabled="!safeguardsSelected.length" @click="submitSafeguards">Check safeguards</button><p v-else class="rise-activity__feedback" :class="{ correct: isCorrectSafeguardSet() }"><strong>{{ isCorrectSafeguardSet() ? 'Complete.' : 'Review the conditions.' }}</strong> {{ isCorrectSafeguardSet() ? 'Safe inputs, evidence checks, and named accountability work together. Confident wording is never proof.' : 'The correct set includes the first three statements. A confident answer still needs checking.' }}</p></div></template>
+              <div class="choice-column"><button v-for="(option, index) in scenarioOptions" :key="option" type="button" :class="{ 'is-selected': scenarioChoice === index }" :disabled="scenarioSubmitted" @click="scenarioChoice = index">{{ option }}</button></div>
+              <button v-if="!scenarioSubmitted" type="button" class="submit-btn" :disabled="scenarioChoice === null" @click="submitScenario">Check decision</button>
+              <template v-else><p class="activity-feedback" :class="{ 'is-correct': scenarioChoice === 1 }"><strong>{{ scenarioChoice === 1 ? 'A responsible start.' : 'Pause before proceeding.' }}</strong> The task may be useful, but the information and the tool both need review before the coordinator asks for any output.</p>
+                <div class="scenario-block__check"><h3>Select all safeguards that still apply</h3><p>The decision is not complete until you identify the conditions that keep the task bounded and accountable.</p><button v-for="(option, index) in safeguardOptions" :key="option" type="button" :class="{ 'is-selected': safeguardsSelected.includes(index) }" :aria-pressed="safeguardsSelected.includes(index)" @click="toggleSafeguard(index)"><i aria-hidden="true">{{ safeguardsSelected.includes(index) ? '✓' : '' }}</i>{{ option }}</button><button v-if="!safeguardsSubmitted" type="button" class="submit-btn" :disabled="!safeguardsSelected.length" @click="submitSafeguards">Check safeguards</button><p v-else class="activity-feedback" :class="{ 'is-correct': isCorrectSafeguardSet() }"><strong>{{ isCorrectSafeguardSet() ? 'Complete.' : 'Review the conditions.' }}</strong> {{ isCorrectSafeguardSet() ? 'Safe inputs, evidence checks, and named accountability work together. Confident wording is never proof.' : 'The correct set includes the first three statements. A confident answer still needs checking.' }}</p></div></template>
             </section>
 
-            <section class="rise-source"><strong>Source:</strong> <a :href="currentModule.sourceUrl" target="_blank" rel="noreferrer">{{ currentModule.sourceLabel }}</a> <span>· {{ currentModule.confidence }}</span></section>
-            <section class="rise-bridge"><b>Next connection</b><p>{{ currentModule.bridge }}</p></section>
-            <button type="button" class="rise-next-link" @click="completeCurrent">{{ currentModule.number === '07' ? 'Continue to the knowledge check' : 'Continue to the next lesson' }}</button>
+            <section class="source-line"><strong>Source:</strong> <a :href="currentModule.sourceUrl" target="_blank" rel="noreferrer">{{ currentModule.sourceLabel }}</a> <span>· {{ currentModule.confidence }}</span></section>
+            <section class="bridge"><b>Next connection</b><p>{{ currentModule.bridge }}</p></section>
+            <button type="button" class="next-link" @click="completeCurrent">{{ currentModule.number === '07' ? 'Continue to the knowledge check' : 'Continue to the next lesson' }}</button>
           </article>
 
-          <article v-else-if="currentId === 'quiz'" class="rise-reading rise-quiz-screen">
+          <article v-else-if="currentId === 'quiz'" class="reading quiz-screen">
             <p>This knowledge check asks you to retrieve and apply ideas from the seven lessons. Read each question carefully, select one answer, and submit it before moving to the next question.</p>
-            <section class="rise-quiz">
+            <section class="quiz">
               <span>Question</span><b>{{ String(quizIndex + 1).padStart(2, '0') }}/{{ String(quizQuestions.length).padStart(2, '0') }}</b>
               <h2>{{ quizQuestion.prompt }}</h2>
               <p>Choose the correct answer from the options below.</p>
-              <label v-for="(option, index) in quizQuestion.options" :key="option" :class="{ selected: quizChoice === index }"><input v-model="quizChoice" type="radio" :value="index" :disabled="quizSubmitted" /><span>{{ option }}</span></label>
-              <button v-if="!quizSubmitted" type="button" class="rise-submit" :disabled="quizChoice === null" @click="submitQuiz">Submit</button>
-              <aside v-else :class="{ correct: quizChoice === quizQuestion.correct }"><strong>{{ quizChoice === quizQuestion.correct ? 'Correct.' : 'Review this point.' }}</strong> {{ quizQuestion.explanation }}</aside>
-              <button v-if="quizSubmitted" type="button" class="rise-next-link" @click="nextQuizQuestion">{{ quizIndex === quizQuestions.length - 1 ? 'Continue to summary' : 'Next question' }}</button>
+              <label v-for="(option, index) in quizQuestion.options" :key="option" class="quiz__option" :class="{ 'is-selected': quizChoice === index, 'is-locked': quizSubmitted, 'is-right': quizSubmitted && index === quizQuestion.correct, 'is-wrong': quizSubmitted && quizChoice === index && index !== quizQuestion.correct }">
+                <input v-model="quizChoice" type="radio" :value="index" :disabled="quizSubmitted" class="sr-only" />
+                <span class="quiz__letter">{{ ['A', 'B', 'C', 'D'][index] }}</span>
+                <span>{{ option }}</span>
+              </label>
+              <button v-if="!quizSubmitted" type="button" class="submit-btn" :disabled="quizChoice === null" @click="submitQuiz">Submit</button>
+              <aside v-else :class="{ 'is-correct': quizChoice === quizQuestion.correct }"><strong>{{ quizChoice === quizQuestion.correct ? 'Correct.' : 'Review this point.' }}</strong> {{ quizQuestion.explanation }}</aside>
+              <button v-if="quizSubmitted" type="button" class="next-link" @click="nextQuizQuestion">{{ quizIndex === quizQuestions.length - 1 ? 'Continue to the bonus round' : 'Next question' }}</button>
             </section>
           </article>
 
-          <article v-else class="rise-reading rise-summary">
+          <!-- Mini-game: memory match built from the site's own glossary -->
+          <article v-else-if="currentId === 'match-game'" class="reading">
+            <p>A quick, non-technical break before the wrap-up. Flip two cards at a time and pair each term with its plain-English meaning. Nothing here is scored against you — it is just a way to make the glossary stick.</p>
+            <section class="block game-block">
+              <p class="block__eyebrow">Memory match · {{ memoryMoves }} {{ memoryMoves === 1 ? 'move' : 'moves' }}</p>
+              <h2>Match the words</h2>
+              <div class="memory-grid" :class="{ 'is-complete': memoryComplete }">
+                <button
+                  v-for="card in memoryCards" :key="card.uid" type="button" class="memory-card"
+                  :class="{ 'is-face-up': memoryFlipped.includes(card.uid) || memoryMatched.includes(card.uid), 'is-matched': memoryMatched.includes(card.uid), 'is-def': card.kind === 'def' }"
+                  :disabled="memoryMatched.includes(card.uid)"
+                  @click="flipMemoryCard(card.uid)"
+                >
+                  <span class="memory-card__face memory-card__face--back">?</span>
+                  <span class="memory-card__face memory-card__face--front">{{ card.face }}</span>
+                </button>
+              </div>
+              <p v-if="memoryComplete" class="block__takeaway">All eight pairs matched in {{ memoryMoves }} moves. These are the same terms used throughout the course.</p>
+              <button v-if="memoryComplete" type="button" class="next-link" @click="shuffleMemoryGame">Shuffle and play again</button>
+            </section>
+            <button type="button" class="next-link" @click="completeCurrent">Continue to summary</button>
+          </article>
+
+          <article v-else class="reading summary">
             <p>This course began before the modern chat era, with the long history of questions about machine intelligence. The seven lessons then connected that history to learning from examples, next-token prediction, modern AI types, famous models, and practical judgement.</p>
             <h2>What to carry forward</h2>
-            <p class="rise-lead">Use AI as a powerful prediction tool, not as an unquestioned authority.</p>
+            <p class="lead">Use AI as a powerful prediction tool, not as an unquestioned authority.</p>
             <ul>
               <li>Ask what task the system is designed to support, what information shapes its output, and what it cannot know from the prompt alone.</li>
               <li>Treat a generated response as a candidate answer built from patterns until important claims have been checked.</li>
@@ -503,24 +711,379 @@ onMounted(() => {
             </ul>
             <h2>Create a responsible-use plan</h2>
             <p>Use the three prompts below to apply the course to one realistic, low-risk task. A strong plan makes the task, the evidence check, and the human review point explicit.</p>
-            <form class="rise-action-plan" @submit.prevent="finishCourse">
-              <label><b>Choose one bounded task.</b><span>Describe a low-risk task where AI could help you prepare a first draft, organise notes, or identify questions.</span><textarea v-model="plan.task" rows="3" placeholder="For example: Prepare a first outline for a training session using public policy notes."></textarea></label>
-              <label><b>State what you will check.</b><span>Name the facts, sources, numbers, policy wording, or other outputs that require review.</span><textarea v-model="plan.check" rows="3" placeholder="For example: Check every policy reference against the current published policy."></textarea></label>
-              <label><b>Name the human review point.</b><span>Identify the person or role accountable for approving the final result.</span><textarea v-model="plan.reviewer" rows="3" placeholder="For example: A subject expert reviews the outline before it is shared."></textarea></label>
-              <button type="submit" class="rise-submit" :disabled="!planReady">{{ courseCompleted ? 'Course completed' : 'Complete course' }}</button>
+            <form class="action-plan" @submit.prevent="finishCourse">
+              <label><b>Choose one bounded task.</b><span>Describe a low-risk task where AI could help you prepare a first draft, organise notes, or identify questions.</span><textarea v-model="plan.task" rows="3" placeholder="For example: Prepare a first outline for a training session using public policy notes." /></label>
+              <label><b>State what you will check.</b><span>Name the facts, sources, numbers, policy wording, or other outputs that require review.</span><textarea v-model="plan.check" rows="3" placeholder="For example: Check every policy reference against the current published policy." /></label>
+              <label><b>Name the human review point.</b><span>Identify the person or role accountable for approving the final result.</span><textarea v-model="plan.reviewer" rows="3" placeholder="For example: A subject expert reviews the outline before it is shared." /></label>
+              <button type="submit" class="submit-btn" :disabled="!planReady">{{ courseCompleted ? 'Course completed' : 'Complete course' }}</button>
             </form>
-            <section v-if="courseCompleted" class="rise-complete"><b>Course completed</b><p>Your plan links the course concepts to a practical use case. Keep the same sequence: define the task, protect the information, check the output, and retain accountability.</p><button type="button" class="rise-next-link" @click="resetCourse">Restart course</button></section>
+            <section v-if="courseCompleted" class="complete-note"><b>Course completed</b><p>Your plan links the course concepts to a practical use case. Keep the same sequence: define the task, protect the information, check the output, and retain accountability.</p><button type="button" class="next-link" @click="resetCourse">Restart course</button></section>
           </article>
         </section>
       </Transition>
     </main>
 
-    <footer v-if="current >= 0" class="rise-footer"><button type="button" :disabled="current < 0" @click="previous">Previous</button><span>{{ current + 1 }} of {{ AI_MODULES.length + 3 }}</span><button type="button" :disabled="current >= AI_MODULES.length + 2" @click="next">Next</button></footer>
+    <footer v-if="current >= 0" class="course__foot">
+      <button type="button" class="foot-btn" :disabled="current < 0" @click="previous">← Previous</button>
+      <span class="foot-pos">{{ current + 1 }} of {{ AI_MODULES.length + 4 }}</span>
+      <button type="button" class="foot-btn foot-btn--primary" :disabled="current >= AI_MODULES.length + 3" @click="next">Next →</button>
+    </footer>
   </div>
 </template>
 
 <style>
-:root{--rise-blue:#2f6fb3;--rise-header:#9ac8e8;--rise-ink:#111;--rise-grey:#f3f3f3;--rise-line:#dedede;--rise-font:'Poppins',Arial,sans-serif}*{box-sizing:border-box}body{margin:0;background:#fff}.rise-canvas{min-height:100dvh;display:grid;grid-template-columns:242px minmax(0,1fr);grid-template-rows:minmax(0,1fr) 58px;background:#fff;color:var(--rise-ink);font-family:var(--rise-font)}.rise-sidebar{position:sticky;top:0;align-self:start;grid-row:1/-1;height:100dvh;overflow:auto;border-right:1px solid var(--rise-line);background:#fff}.rise-sidebar__hero{position:relative;width:100%;height:162px;padding:0;border:0;overflow:hidden;background:#222;color:#fff;text-align:left;cursor:pointer}.rise-sidebar__hero img{width:100%;height:100%;object-fit:cover}.rise-sidebar__hero::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.46)}.rise-sidebar__hero span{position:absolute;z-index:1;left:19px;bottom:17px;font-size:19px;font-weight:800;line-height:1.16}.rise-sidebar__home{width:100%;padding:14px 19px 10px;border:0;background:#fff;color:#111;text-align:left;cursor:pointer;font:800 13px var(--rise-font)}.rise-sidebar__progress{display:grid;gap:6px;padding:0 19px 18px;border-bottom:1px solid var(--rise-line)}.rise-sidebar__progress span{font-size:10px;font-weight:800}.rise-sidebar__progress i{display:block;height:3px;background:#e7e7e7}.rise-sidebar__progress i b{display:block;height:100%;background:var(--rise-blue)}.rise-sidebar__list{padding:11px 0;margin:0;list-style:none}.rise-sidebar__list li button{width:100%;display:grid;grid-template-columns:19px 1fr 18px;gap:10px;align-items:center;padding:13px 14px;border:0;background:#fff;color:#111;text-align:left;cursor:pointer;font:700 12px/1.25 var(--rise-font)}.rise-sidebar__list li button:hover,.rise-sidebar__list li button.active{background:#fafafa}.rise-glyph{position:relative;display:block;width:15px;height:11px;border-top:2px solid #777;border-bottom:2px solid #777}.rise-glyph::after{content:'';position:absolute;top:3px;left:0;width:15px;border-top:2px solid #777}.rise-glyph.quiz{width:14px;height:14px;border:2px solid #777}.rise-glyph.quiz::after{content:'?';top:-4px;left:3px;width:auto;border:0;color:#777;font-size:10px;font-weight:900}.rise-sidebar__list b,.rise-overview__outline b{width:16px;height:16px;display:grid;place-items:center;border:2px solid #dadada;border-radius:50%;color:#fff;font-size:9px}.rise-sidebar__list b.complete,.rise-overview__outline b.complete{background:var(--rise-blue);border-color:var(--rise-blue)}.rise-sidebar__close{display:none}.rise-main{min-width:0;background:#fff}.rise-screen{min-height:100dvh}.rise-overview{max-width:1180px;margin:0 auto}.rise-overview__hero{position:relative;min-height:410px;overflow:hidden;background:#202020}.rise-overview__hero img{width:100%;height:410px;display:block;object-fit:cover}.rise-overview__shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.64),rgba(0,0,0,.10) 74%)}.rise-overview__hero h1{position:absolute;left:50px;bottom:120px;max-width:630px;margin:0;color:#fff;font-size:50px;font-weight:900;letter-spacing:-.045em;line-height:1.12}.rise-overview__hero button{position:absolute;left:50px;bottom:42px;min-width:360px;height:58px;border:0;border-radius:999px;background:#fff;color:#111;cursor:pointer;font:900 15px var(--rise-font);letter-spacing:.07em;text-transform:uppercase}.rise-overview__body{max-width:880px;padding:52px 50px 86px}.rise-wordmark{margin:0 0 50px;font-size:55px;font-weight:900;letter-spacing:-.08em}.rise-overview__body p{max-width:670px;margin:0 0 31px;font-size:19px;font-weight:500;line-height:1.65}.rise-duration{font-size:18px!important}.rise-overview__outline{max-width:700px;padding:7px 0;margin:0;list-style:none}.rise-overview__outline li button{width:100%;display:grid;grid-template-columns:26px 1fr 22px;gap:15px;align-items:center;padding:17px 4px;border:0;background:#fff;color:#111;text-align:left;cursor:pointer;font:700 16px var(--rise-font)}.rise-overview__outline i{position:relative;width:17px;height:12px;border-top:2px solid #777;border-bottom:2px solid #777}.rise-overview__outline i::after{content:'';position:absolute;top:4px;left:0;width:17px;border-top:2px solid #777}.rise-overview__outline i.quiz{width:16px;height:16px;border:2px solid #777}.rise-overview__outline i.quiz::after{content:'?';top:-3px;left:4px;width:auto;border:0;color:#777;font-size:11px;font-weight:900}.rise-header{min-height:255px;padding:18px 54px 37px;background:var(--rise-header)}.rise-header>div{display:flex;align-items:center;justify-content:space-between}.rise-header button{width:36px;height:36px;border:0;border-radius:2px;background:#fff;cursor:pointer}.rise-menu-icon{position:relative;display:inline-block;width:15px;height:11px;border-top:2px solid #333;border-bottom:2px solid #333}.rise-menu-icon::after{content:'';position:absolute;top:3px;left:0;width:15px;border-top:2px solid #333}.rise-header>div>b{font-size:13px}.rise-header h1{max-width:760px;margin:67px 0 25px;font-size:46px;font-weight:900;letter-spacing:-.045em;line-height:1.12}.rise-header>i{display:block;width:65px;border-top:6px solid #111}.rise-reading{max-width:910px;padding:48px 54px 90px}.rise-reading>p,.rise-text-section>p,.rise-worked-example>p{max-width:780px;margin:0 0 28px;font-size:19px;font-weight:500;line-height:1.68}.rise-reading h2{max-width:780px;margin:52px 0 16px;font-size:35px;font-weight:900;letter-spacing:-.035em;line-height:1.2}.rise-reading h3{margin:0 0 11px;font-size:25px;font-weight:900}.rise-reading .rise-lead{font-size:24px;font-weight:800;line-height:1.5}.rise-reading>ul{display:grid;gap:20px;max-width:780px;padding-left:31px;margin:0 0 50px}.rise-reading>ul li{padding-left:7px;font-size:19px;font-weight:500;line-height:1.55}.rise-info{display:grid;grid-template-columns:34px 1fr;gap:13px;max-width:780px;padding:24px;margin:37px 0;background:#f5f5f5}.rise-info>i{width:24px;height:24px;display:grid;place-items:center;border:2px solid #777;border-radius:50%;color:#777;font-size:15px;font-style:normal;font-weight:900}.rise-info b{font-size:16px}.rise-info p{margin:6px 0 0;font-size:17px;font-weight:500;line-height:1.55}.rise-diagram{display:flex;flex-wrap:wrap;align-items:center;gap:9px;max-width:780px;margin:38px 0;padding:20px 0;border-top:1px solid var(--rise-line);border-bottom:1px solid var(--rise-line)}.rise-diagram span{padding:8px 10px;background:#f5f5f5;font-size:14px;font-weight:700}.rise-diagram i{font-style:normal;color:var(--rise-blue);font-size:20px;font-weight:800}.rise-worked-example{max-width:780px;margin:44px 0;padding-top:2px}.rise-worked-example h2{margin-top:0}.rise-media{max-width:780px;margin:40px 0}.rise-media img{display:block;width:100%;max-height:440px;object-fit:cover}.rise-media p{margin:12px 0 0;font-size:16px;font-weight:500;line-height:1.55}.rise-video{max-width:780px;margin:44px 0}.rise-video h2{margin:0 0 12px}.rise-video>p{margin:0 0 16px;font-size:17px;line-height:1.55}.rise-video__frame{position:relative;aspect-ratio:16/9;border:1px solid var(--rise-line)}.rise-video__frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.rise-activity{max-width:780px;margin:46px 0;padding-top:3px}.rise-activity h2{margin-top:0}.rise-activity>p{font-size:18px;font-weight:500;line-height:1.6}.rise-activity blockquote{margin:22px 0;padding:18px 22px;border-left:4px solid var(--rise-blue);background:#f5f5f5;font-size:18px;font-weight:600;line-height:1.55}.rise-choice-row{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0}.rise-choice-row button,.rise-choice-column button{border:1px solid var(--rise-line);background:#fff;color:#111;cursor:pointer;font:700 15px var(--rise-font)}.rise-choice-row button{padding:12px 16px}.rise-choice-column{display:grid;margin:20px 0}.rise-choice-column button{padding:15px;text-align:left}.rise-choice-column button+button{border-top:0}.rise-choice-row button.selected,.rise-choice-column button.selected{border-color:var(--rise-blue);box-shadow:inset 0 0 0 1px var(--rise-blue)}.rise-activity__feedback{padding:17px 0 0;border-top:1px solid var(--rise-line);font-size:17px!important}.rise-source{max-width:780px;padding-top:18px;border-top:1px solid var(--rise-line);font-size:15px}.rise-source a,.rise-source span{color:var(--rise-blue);font-weight:700}.rise-bridge{max-width:780px;margin:34px 0;padding-left:17px;border-left:4px solid var(--rise-blue)}.rise-bridge b{font-size:15px}.rise-bridge p{margin:6px 0 0;font-size:17px;font-weight:500;line-height:1.55}.rise-next-link{margin-top:39px;padding:0;border:0;background:#fff;color:var(--rise-blue);cursor:pointer;font:800 17px var(--rise-font);text-decoration:underline}.rise-quiz{max-width:780px;padding:38px;margin:44px 0;border:1px solid #ededed;background:#fff}.rise-quiz>span{display:block;font-size:11px;font-weight:800}.rise-quiz>b{display:block;margin:2px 0 22px;color:var(--rise-blue);font-size:25px}.rise-quiz h2{margin:0 0 16px;font-size:25px}.rise-quiz>p{margin:0 0 18px;font-size:17px;font-weight:500}.rise-quiz label{display:grid;grid-template-columns:22px 1fr;gap:13px;align-items:center;padding:16px;border:1px solid #e2e2e2;cursor:pointer;font-size:17px;font-weight:600}.rise-quiz label+label{border-top:0}.rise-quiz input{appearance:none;width:15px;height:15px;margin:0;border:1px solid #bbb;border-radius:50%}.rise-quiz label.selected input{border:5px solid var(--rise-blue)}.rise-submit{display:block;min-width:145px;height:42px;margin:25px auto 0;border:0;border-radius:999px;background:var(--rise-blue);color:#fff;cursor:pointer;font:800 12px var(--rise-font);letter-spacing:.05em;text-transform:uppercase}.rise-submit:disabled{opacity:.45;cursor:not-allowed}.rise-quiz aside{padding:15px 0 0;font-size:16px;font-weight:600;line-height:1.5}.rise-quiz aside.correct{color:#1f5a39}.rise-action-plan{display:grid;max-width:780px;gap:26px;margin-top:36px}.rise-action-plan label{display:grid;gap:7px}.rise-action-plan label b{font-size:19px}.rise-action-plan label span{color:#555;font-size:16px;font-weight:500}.rise-action-plan textarea{width:100%;padding:14px;border:1px solid var(--rise-line);font:500 16px/1.45 var(--rise-font);outline:none}.rise-action-plan textarea:focus{border-color:var(--rise-blue)}.rise-action-plan .rise-submit{margin:0}.rise-complete{max-width:780px;padding:24px;margin-top:34px;background:#f5f5f5}.rise-complete b{font-size:20px}.rise-complete p{font-size:17px;font-weight:500;line-height:1.5}.rise-footer{position:sticky;bottom:0;grid-column:2;display:flex;align-items:center;justify-content:space-between;padding:0 54px;border-top:1px solid var(--rise-line);background:#fff}.rise-footer button{border:0;background:#fff;color:var(--rise-blue);cursor:pointer;font:800 14px var(--rise-font)}.rise-footer button:disabled{color:#bbb;cursor:not-allowed}.rise-footer span{color:#777;font-size:13px}.rise-fade-enter-active,.rise-fade-leave-active{transition:opacity .18s ease}.rise-fade-enter-from,.rise-fade-leave-to{opacity:0}@media(max-width:760px){.rise-canvas{display:block}.rise-sidebar{position:fixed;z-index:20;top:0;bottom:0;left:0;width:min(310px,88vw);height:auto;transform:translateX(-102%);transition:transform .2s ease;box-shadow:4px 0 18px rgba(0,0,0,.16)}.rise-sidebar.open{transform:none}.rise-sidebar__close{display:block;width:100%;padding:16px;border:0;border-top:1px solid var(--rise-line);background:#fff;cursor:pointer;font:800 14px var(--rise-font)}.rise-overview__hero,.rise-overview__hero img{min-height:338px;height:338px}.rise-overview__hero h1{left:28px;right:28px;bottom:104px;font-size:34px}.rise-overview__hero button{left:24px;right:24px;bottom:26px;min-width:0;height:52px;font-size:13px}.rise-overview__body{padding:42px 28px 78px}.rise-wordmark{margin-bottom:37px;font-size:42px}.rise-overview__body p{font-size:18px}.rise-overview__outline li button{font-size:15px}.rise-header{min-height:268px;padding:14px 28px 32px}.rise-header h1{margin-top:60px;font-size:35px}.rise-reading{padding:38px 28px 78px}.rise-reading>p,.rise-text-section>p,.rise-worked-example>p{font-size:18px}.rise-reading h2{font-size:32px}.rise-reading>ul li{font-size:18px}.rise-diagram{gap:7px}.rise-diagram span{font-size:12px}.rise-diagram i{font-size:16px}.rise-quiz{padding:25px}.rise-info{padding:18px}.rise-choice-row{display:grid;grid-template-columns:1fr}.rise-choice-row button{text-align:left}.rise-footer{position:sticky;bottom:0;padding:0 28px;height:58px}.rise-footer span{font-size:12px}}
-.rise-prediction-lab{max-width:780px;margin:48px 0;padding:30px;border:1px solid var(--rise-line);background:#fff}.rise-prediction-lab__eyebrow{margin:0 0 10px;color:var(--rise-blue);font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.rise-prediction-lab h2{margin:0 0 14px}.rise-prediction-lab>p{font-size:18px;font-weight:500;line-height:1.6}.rise-prediction-lab blockquote{margin:25px 0;padding:20px 22px;border-left:4px solid var(--rise-blue);background:#f5f5f5;font-size:21px;font-weight:700;line-height:1.55}.rise-prediction-lab blockquote b{color:var(--rise-blue)}.rise-prediction-lab .rise-submit{margin-left:0}.rise-prediction-lab .rise-choice-column button:disabled{cursor:default}.rise-prediction-lab .rise-activity__feedback.correct{color:#1f5a39}.rise-prediction-lab__output{margin:17px 0 0;padding:15px 17px;border-left:3px solid #9ac8e8;background:#f5f9fc}.rise-prediction-lab__output span{display:block;margin-bottom:4px;color:var(--rise-blue);font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.rise-prediction-lab__output p{margin:0;font-size:17px!important;line-height:1.55}.rise-prediction-lab__output b{color:var(--rise-blue)}.rise-prediction-lab__conclusion{margin-top:25px!important;padding-top:18px;border-top:1px solid var(--rise-line);font-weight:700!important}@media(max-width:760px){.rise-prediction-lab{padding:22px}.rise-prediction-lab blockquote{font-size:19px}}
-.rise-block{max-width:780px;margin:48px 0;padding:30px;border-top:1px solid var(--rise-line);border-bottom:1px solid var(--rise-line);background:#fff}.rise-block__eyebrow{margin:0 0 10px!important;color:var(--rise-blue);font-size:12px!important;font-weight:800!important;letter-spacing:.05em;text-transform:uppercase}.rise-block h2{margin:0 0 14px!important;font-size:30px!important}.rise-block>p{font-size:18px;font-weight:500;line-height:1.6}.rise-block__takeaway{margin:23px 0 0!important;padding:15px 17px!important;border-left:3px solid #9ac8e8;background:#f5f9fc;font-size:16px!important;font-weight:700!important;line-height:1.55}.rise-timeline-block__nav{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:24px 0 0;border-top:1px solid var(--rise-line);border-bottom:1px solid var(--rise-line)}.rise-timeline-block__nav button{min-height:82px;padding:13px 11px;border:0;border-left:1px solid var(--rise-line);background:#fff;color:#555;text-align:left;cursor:pointer;font:700 13px/1.35 var(--rise-font)}.rise-timeline-block__nav button:first-child{border-left:0}.rise-timeline-block__nav button.active{background:#f5f9fc;color:#111;box-shadow:inset 0 3px 0 var(--rise-blue)}.rise-timeline-block__nav b{display:block;margin-bottom:4px;color:var(--rise-blue);font-size:14px}.rise-timeline-block__nav span{display:block}.rise-timeline-block__event{min-height:174px;padding:25px 0 6px}.rise-timeline-block__event>b{color:var(--rise-blue);font-size:14px}.rise-timeline-block__event h3{margin:7px 0 10px}.rise-timeline-block__event p{max-width:680px;margin:0;font-size:18px;font-weight:500;line-height:1.6}.rise-flashcards__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:25px}.rise-flashcards__grid button{min-height:180px;padding:20px;border:1px solid var(--rise-line);background:#fff;color:#111;text-align:left;cursor:pointer;font-family:var(--rise-font);transition:background .16s ease,border-color .16s ease}.rise-flashcards__grid button:hover,.rise-flashcards__grid button.open{border-color:var(--rise-blue);background:#f5f9fc}.rise-flashcards__grid button span{display:grid;gap:14px}.rise-flashcards__grid button b{font-size:19px;line-height:1.45}.rise-flashcards__grid button small{color:#666;font-size:13px;font-weight:700;line-height:1.5}.rise-tabs-block__tabs{display:flex;flex-wrap:wrap;gap:0;margin-top:24px;border-bottom:1px solid var(--rise-line)}.rise-tabs-block__tabs button{padding:13px 16px;border:0;border-bottom:3px solid transparent;background:#fff;color:#666;cursor:pointer;font:800 14px var(--rise-font)}.rise-tabs-block__tabs button.active{border-bottom-color:var(--rise-blue);color:#111}.rise-tabs-block__panel{min-height:220px;padding:25px 0 4px}.rise-tabs-block__panel h3{margin-bottom:9px}.rise-tabs-block__panel p{max-width:690px;font-size:18px;font-weight:500;line-height:1.6}.rise-game-block blockquote{margin:24px 0;padding:20px 22px;border-left:4px solid var(--rise-blue);background:#f5f5f5;font-size:19px;font-weight:700;line-height:1.55}.rise-game-block .rise-submit,.rise-scenario-block .rise-submit{margin-left:0}.rise-scenario-block .rise-choice-column{margin-top:22px}.rise-scenario-block__check{margin-top:27px;padding-top:25px;border-top:1px solid var(--rise-line)}.rise-scenario-block__check h3{margin-bottom:9px}.rise-scenario-block__check>p{font-size:17px;font-weight:500;line-height:1.55}.rise-scenario-block__check>button:not(.rise-submit){width:100%;display:grid;grid-template-columns:23px 1fr;gap:11px;align-items:center;padding:15px;border:1px solid var(--rise-line);background:#fff;color:#111;text-align:left;cursor:pointer;font:700 15px/1.45 var(--rise-font)}.rise-scenario-block__check>button:not(.rise-submit)+button:not(.rise-submit){border-top:0}.rise-scenario-block__check>button.selected{border-color:var(--rise-blue);background:#f5f9fc}.rise-scenario-block__check>button i{width:18px;height:18px;display:grid;place-items:center;border:1px solid #999;color:#fff;font-size:12px;font-style:normal}.rise-scenario-block__check>button.selected i{border-color:var(--rise-blue);background:var(--rise-blue)}@media(max-width:760px){.rise-block{padding:25px 0}.rise-block h2{font-size:28px!important}.rise-timeline-block__nav{grid-template-columns:1fr 1fr}.rise-timeline-block__nav button:nth-child(3){border-left:0;border-top:1px solid var(--rise-line)}.rise-timeline-block__nav button:nth-child(4){border-top:1px solid var(--rise-line)}.rise-flashcards__grid{grid-template-columns:1fr}.rise-flashcards__grid button{min-height:134px}.rise-tabs-block__tabs{display:grid;grid-template-columns:1fr}.rise-tabs-block__tabs button{text-align:left}.rise-tabs-block__panel{min-height:0}.rise-block__takeaway{font-size:15px!important}}
+/* ── Rise 360 skin ──────────────────────────────────────────────────────
+   Matches the reference course exactly: Nunito Sans throughout, one brand
+   blue, a two-row header with a thin progress strip, a gradient cover
+   banner with a white pill CTA, a colour-tinted lesson banner with a black
+   underline rule, round-bullet objective lists, and lettered A/B/C/D
+   knowledge-check options. No sidebar rail — the course-contents list lives
+   in a hamburger-triggered drawer, exactly like the reference. */
+
+:root {
+  --co-blue: #1B6FC9;
+  --co-blue-dark: #0F52A0;
+  --co-blue-tint: #EAF2FC;
+  --co-ink: #14181F;
+  --co-muted: #5B6472;
+  --co-line: #E2E6EC;
+  --co-paper: #FFFFFF;
+  --co-paper-2: #F7F9FC;
+  --co-green: #1E8E5A;
+  --co-shadow: 0 1px 2px rgba(20, 40, 70, 0.06), 0 4px 16px rgba(20, 40, 70, 0.08);
+  --co-radius-s: 8px;
+  --co-radius-m: 10px;
+  --co-radius-l: 16px;
+  --co-radius-full: 999px;
+}
+
+.course {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--co-paper);
+  color: var(--co-ink);
+  font-family: 'Nunito Sans', system-ui, sans-serif;
+}
+.course * { box-sizing: border-box; }
+
+/* ── Masthead ── */
+.course__bar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 10px 24px;
+  border-bottom: 1px solid var(--co-line);
+}
+.course__brand { display: flex; align-items: center; gap: 10px; border: none; background: none; cursor: pointer; padding: 0; }
+.course__mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 6px;
+  background: var(--co-ink); color: #fff;
+  font-weight: 900; font-size: 15px;
+}
+.course__mark--lg { width: 40px; height: 40px; font-size: 19px; border-radius: 8px; margin-bottom: 18px; }
+.course__brand-text { font-size: 15px; font-weight: 800; color: var(--co-ink); }
+.course__actions { display: flex; align-items: center; gap: 18px; }
+.course__link { font-size: 14.5px; font-weight: 700; color: var(--co-ink); text-decoration: none; }
+.course__link:hover { color: var(--co-blue); }
+
+.course__subbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 24px; border-bottom: 1px solid var(--co-line);
+}
+.course__hamburger {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: var(--co-radius-s);
+  border: none; background: var(--co-paper-2); color: var(--co-ink); cursor: pointer;
+}
+.course__hamburger.is-on, .course__hamburger:hover { background: var(--co-blue); color: #fff; }
+.course__progress { display: flex; align-items: center; }
+.course__progress-n { font-size: 12.5px; font-weight: 800; color: var(--co-muted); letter-spacing: 0.02em; text-transform: uppercase; }
+.course__progress-track { display: block; width: 100%; height: 4px; background: var(--co-blue-tint); }
+.course__progress-fill { display: block; height: 100%; background: var(--co-blue); transition: width 0.25s ease; }
+
+/* ── Drawer ── */
+.course__scrim { position: fixed; inset: 0; background: rgba(15, 22, 33, 0.35); z-index: 30; }
+.course__drawer {
+  position: fixed; top: 0; bottom: 0; left: 0; z-index: 31;
+  width: min(340px, 88vw); background: var(--co-paper);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+  transform: translateX(-104%);
+  transition: transform 0.22s ease;
+  display: flex; flex-direction: column;
+}
+.course__drawer.is-open { transform: none; }
+.course__drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid var(--co-line); }
+.course__drawer-kicker { margin: 0; font-size: 12.5px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--co-muted); }
+.course__drawer-close { width: 30px; height: 30px; border: none; border-radius: 50%; background: var(--co-paper-2); color: var(--co-ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.course__drawer-list { list-style: none; margin: 0; padding: 8px 0; overflow-y: auto; }
+
+.drawer-row {
+  width: 100%; display: grid; grid-template-columns: 28px minmax(0, 1fr) 12px;
+  align-items: center; gap: 12px;
+  padding: 11px 20px; border: none; background: none; color: var(--co-ink);
+  text-align: left; cursor: pointer; font-family: inherit;
+}
+.drawer-row:hover, .drawer-row.is-active { background: var(--co-blue-tint); }
+.drawer-row.is-active .drawer-row__label { color: var(--co-blue); font-weight: 800; }
+.drawer-row__icon {
+  width: 26px; height: 26px; border-radius: var(--co-radius-s);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--co-blue-tint); color: var(--co-blue); flex: none;
+}
+.drawer-row.is-active .drawer-row__icon { background: var(--co-blue); color: #fff; }
+.drawer-row__label { font-size: 14.5px; font-weight: 700; }
+.drawer-row__dot { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--co-line); background: transparent; flex: none; justify-self: end; }
+.drawer-row__dot.is-done { background: var(--co-blue); border-color: var(--co-blue); }
+
+/* ── Main / cover ── */
+.course__main { flex: 1; }
+.cover { max-width: 980px; margin: 0 auto; padding: 28px 24px 80px; }
+.cover__banner {
+  position: relative; margin: 0 0 32px;
+  padding: clamp(48px, 8vw, 88px) clamp(20px, 4vw, 40px) clamp(52px, 7vw, 72px);
+  background: linear-gradient(135deg, var(--co-blue-dark), var(--co-blue) 65%);
+  border-radius: var(--co-radius-l); overflow: hidden;
+}
+.cover__title {
+  margin: 0 0 32px; color: #fff; font-weight: 900;
+  font-size: clamp(30px, 5vw, 56px); line-height: 1.06; max-width: 16ch;
+}
+.cover__start {
+  display: inline-block; padding: 15px 32px; border: none; border-radius: var(--co-radius-full);
+  background: #fff; color: var(--co-blue); font-size: 14.5px; font-weight: 800;
+  letter-spacing: 0.03em; text-transform: uppercase; cursor: pointer; box-shadow: var(--co-shadow);
+}
+.cover__body { max-width: 700px; }
+.cover__duration { font-size: 17px; font-weight: 700; margin: 0 0 22px; }
+.cover__body > p { font-size: 17.5px; line-height: 1.65; margin: 0 0 22px; }
+.cover__panel {
+  margin-top: 20px; padding: 22px 24px; background: var(--co-paper-2);
+  border-radius: var(--co-radius-l); box-shadow: var(--co-shadow);
+}
+.cover__panel-h { font-weight: 900; font-size: 20px; margin: 0 0 4px; }
+.cover__outline { list-style: none; margin: 10px 0 0; padding: 0; display: grid; }
+.cover__outline li button {
+  width: 100%; display: grid; grid-template-columns: 26px minmax(0, 1fr) 12px; align-items: center;
+  gap: 12px; padding: 10px 4px; border: none; border-top: 1px solid var(--co-line);
+  background: none; color: var(--co-ink); text-align: left; cursor: pointer;
+  font-family: inherit; font-size: 15px; font-weight: 700;
+}
+.cover__outline li:first-child button { border-top: none; }
+.cover__outline li button:hover { color: var(--co-blue); }
+
+/* ── Lesson banner ── */
+.screen { max-width: 910px; margin: 0 auto; padding: 0 24px 90px; }
+.lesson-banner {
+  position: relative; margin: 22px 0 26px;
+  padding: clamp(20px, 3vw, 30px) clamp(20px, 3vw, 30px) clamp(24px, 3.5vw, 34px);
+  background: var(--co-blue-tint); border-radius: var(--co-radius-l);
+}
+.lesson-banner__crumb { margin: 0 0 10px; text-align: right; font-size: 12.5px; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase; color: var(--co-muted); }
+.lesson-banner__title { font-weight: 900; letter-spacing: -0.01em; font-size: clamp(24px, 3.4vw, 38px); line-height: 1.1; margin: 0; }
+.lesson-banner__rule { display: block; width: 60px; height: 4px; margin-top: 16px; background: var(--co-ink); }
+
+/* ── Reading typography ── */
+.reading > p, .text-section > p, .worked-example > p { max-width: 780px; margin: 0 0 24px; font-size: 18px; font-weight: 500; line-height: 1.68; }
+.reading h2 { max-width: 780px; margin: 44px 0 14px; font-size: 30px; font-weight: 900; letter-spacing: -0.015em; line-height: 1.2; }
+.reading h3 { margin: 0 0 10px; font-size: 22px; font-weight: 900; }
+.reading .lead { font-size: 22px; font-weight: 800; line-height: 1.5; }
+.reading > ul { display: grid; gap: 18px; max-width: 780px; padding-left: 28px; margin: 0 0 44px; }
+.reading > ul li { padding-left: 6px; font-size: 18px; font-weight: 500; line-height: 1.55; }
+
+.panel { max-width: 780px; margin: 30px 0; padding: 22px 24px; background: var(--co-paper-2); border-radius: var(--co-radius-l); box-shadow: var(--co-shadow); }
+.panel__h { font-weight: 900; font-size: 18px; margin: 0 0 8px; }
+.panel__sub { font-size: 15px; font-weight: 700; margin: 0 0 12px; }
+.panel__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.panel__list li { position: relative; padding-left: 22px; font-size: 15.5px; line-height: 1.55; }
+.panel__list li::before { content: ''; position: absolute; left: 3px; top: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--co-blue); }
+
+.info-note { display: grid; grid-template-columns: 30px 1fr; gap: 13px; max-width: 780px; padding: 22px; margin: 32px 0; background: var(--co-paper-2); border-radius: var(--co-radius-l); box-shadow: var(--co-shadow); }
+.info-note > i { width: 24px; height: 24px; display: grid; place-items: center; border: 2px solid var(--co-blue); border-radius: 50%; color: var(--co-blue); font-size: 15px; font-style: normal; font-weight: 900; }
+.info-note b { font-size: 16px; }
+.info-note p { margin: 6px 0 0; font-size: 16px; font-weight: 500; line-height: 1.55; }
+
+.diagram { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; max-width: 780px; margin: 34px 0; padding: 18px 0; border-top: 1px solid var(--co-line); border-bottom: 1px solid var(--co-line); }
+.diagram span { padding: 8px 12px; background: var(--co-blue-tint); border-radius: var(--co-radius-full); font-size: 13.5px; font-weight: 700; }
+.diagram i { font-style: normal; color: var(--co-blue); font-size: 18px; font-weight: 800; }
+
+.worked-example { max-width: 780px; margin: 40px 0; padding-top: 2px; }
+.worked-example h2 { margin-top: 0; }
+.media { max-width: 780px; margin: 36px 0; }
+.media img { display: block; width: 100%; max-height: 420px; object-fit: cover; border-radius: var(--co-radius-l); }
+.media p { margin: 12px 0 0; font-size: 15.5px; font-weight: 500; line-height: 1.55; color: var(--co-muted); }
+.video { max-width: 780px; margin: 40px 0; }
+.video h2 { margin: 0 0 12px; }
+.video > p { margin: 0 0 16px; font-size: 16.5px; line-height: 1.55; }
+.video__frame { position: relative; aspect-ratio: 16 / 9; border-radius: var(--co-radius-l); overflow: hidden; box-shadow: var(--co-shadow); }
+.video__frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ── Activity blocks ── */
+.block { max-width: 780px; margin: 44px 0; padding: 26px; background: var(--co-paper); border-radius: var(--co-radius-l); box-shadow: var(--co-shadow); }
+.block__eyebrow { margin: 0 0 10px !important; color: var(--co-blue); font-size: 12px !important; font-weight: 800 !important; letter-spacing: 0.05em; text-transform: uppercase; }
+.block h2 { margin: 0 0 14px !important; font-size: 26px !important; }
+.block > p { font-size: 17px; font-weight: 500; line-height: 1.6; }
+.block__takeaway { margin: 20px 0 0 !important; padding: 14px 16px !important; border-radius: var(--co-radius-m); border-left: 4px solid var(--co-blue); background: var(--co-blue-tint); font-size: 15.5px !important; font-weight: 700 !important; line-height: 1.55; }
+
+.timeline-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 22px 0 0; }
+.timeline-nav button { min-height: 78px; padding: 12px; border: 1.5px solid var(--co-line); border-radius: var(--co-radius-m); background: var(--co-paper); color: var(--co-muted); text-align: left; cursor: pointer; font: 700 13px/1.35 inherit; }
+.timeline-nav button.is-active { background: var(--co-blue-tint); color: var(--co-ink); border-color: var(--co-blue); }
+.timeline-nav b { display: block; margin-bottom: 4px; color: var(--co-blue); font-size: 14px; }
+.timeline-event { min-height: 150px; padding: 22px 0 4px; }
+.timeline-event > b { color: var(--co-blue); font-size: 13px; font-weight: 800; }
+.timeline-event h3 { margin: 6px 0 10px; }
+.timeline-event p { max-width: 680px; margin: 0; font-size: 17px; font-weight: 500; line-height: 1.6; }
+
+/* Order game */
+.order-game { margin-top: 22px; }
+.order-game__slots { list-style: none; margin: 0 0 18px; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.order-game__slot {
+  min-height: 64px; border-radius: var(--co-radius-m); border: 1.5px dashed var(--co-line);
+  display: flex; align-items: center; justify-content: center; position: relative; padding: 6px;
+}
+.order-game__slot.is-filled { border-style: solid; background: var(--co-blue-tint); }
+.order-game__slot-n { position: absolute; top: 4px; left: 6px; font-size: 10.5px; font-weight: 800; color: var(--co-muted); }
+.order-game__slot button { border: none; background: none; font: 800 14px inherit; color: var(--co-blue); cursor: pointer; padding: 4px; }
+.order-game__pool { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+.order-game__chip { padding: 10px 18px; border-radius: var(--co-radius-full); border: 1.5px solid var(--co-blue); background: #fff; color: var(--co-blue); cursor: pointer; font: 800 14px inherit; }
+.order-game__chip:hover { background: var(--co-blue-tint); }
+
+/* Memory game */
+.memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 22px 0; perspective: 800px; }
+.memory-card { position: relative; aspect-ratio: 1; border: none; border-radius: var(--co-radius-m); background: none; cursor: pointer; padding: 0; }
+.memory-card__face {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--co-radius-m); backface-visibility: hidden;
+  transition: transform 0.35s ease; padding: 6px; text-align: center;
+}
+.memory-card__face--back { background: var(--co-blue); color: #fff; font-size: 22px; font-weight: 900; }
+.memory-card__face--front { background: var(--co-blue-tint); color: var(--co-ink); font-size: 11.5px; font-weight: 700; line-height: 1.3; transform: rotateY(180deg); }
+.memory-card:not(.is-face-up) .memory-card__face--back { transform: rotateY(0); }
+.memory-card:not(.is-face-up) .memory-card__face--front { transform: rotateY(180deg); }
+.memory-card.is-face-up .memory-card__face--back { transform: rotateY(-180deg); }
+.memory-card.is-face-up .memory-card__face--front { transform: rotateY(0); }
+.memory-card.is-def .memory-card__face--front { background: #FFF6DA; }
+.memory-card.is-matched .memory-card__face--front { background: #DCF3E6; }
+.memory-card.is-matched { cursor: default; }
+@media (max-width: 560px) { .memory-grid { grid-template-columns: repeat(3, 1fr); } .order-game__slots { grid-template-columns: repeat(2, 1fr); } }
+
+.flashcards__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 22px; }
+.flashcards__grid button { min-height: 170px; padding: 18px; border: 1.5px solid var(--co-line); border-radius: var(--co-radius-m); background: #fff; color: var(--co-ink); text-align: left; cursor: pointer; font-family: inherit; transition: background 0.16s, border-color 0.16s; }
+.flashcards__grid button:hover, .flashcards__grid button.is-open { border-color: var(--co-blue); background: var(--co-blue-tint); }
+.flashcards__grid button span { display: grid; gap: 12px; }
+.flashcards__grid button b { font-size: 18px; line-height: 1.4; }
+.flashcards__grid button small { color: var(--co-muted); font-size: 12.5px; font-weight: 700; }
+
+.tabs-block__tabs { display: flex; flex-wrap: wrap; gap: 0; margin-top: 22px; border-bottom: 1px solid var(--co-line); }
+.tabs-block__tabs button { padding: 12px 16px; border: none; border-bottom: 3px solid transparent; background: none; color: var(--co-muted); cursor: pointer; font: 800 14px inherit; }
+.tabs-block__tabs button.is-active { border-bottom-color: var(--co-blue); color: var(--co-ink); }
+.tabs-block__panel { min-height: 200px; padding: 22px 0 4px; }
+.tabs-block__panel h3 { margin-bottom: 8px; }
+.tabs-block__panel p { max-width: 690px; font-size: 17px; font-weight: 500; line-height: 1.6; }
+
+/* Prediction lab */
+.prediction-lab { max-width: 780px; margin: 44px 0; padding: 28px; background: var(--co-paper); border-radius: var(--co-radius-l); box-shadow: var(--co-shadow); }
+.prediction-lab__eyebrow { margin: 0 0 10px; color: var(--co-blue); font-size: 12px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+.prediction-lab h2 { margin: 0 0 14px; }
+.prediction-lab > p { font-size: 17px; font-weight: 500; line-height: 1.6; }
+.prediction-lab blockquote { margin: 22px 0; padding: 18px 20px; border-left: 4px solid var(--co-blue); border-radius: 0 var(--co-radius-m) var(--co-radius-m) 0; background: var(--co-blue-tint); font-size: 19px; font-weight: 700; line-height: 1.55; }
+.prediction-lab blockquote b { color: var(--co-blue); }
+.prediction-lab__output { margin: 16px 0 0; padding: 14px 16px; border-left: 3px solid var(--co-blue); border-radius: 0 var(--co-radius-m) var(--co-radius-m) 0; background: var(--co-paper-2); }
+.prediction-lab__output span { display: block; margin-bottom: 4px; color: var(--co-blue); font-size: 11px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+.prediction-lab__output p { margin: 0; font-size: 16px !important; line-height: 1.55; }
+.prediction-lab__output b { color: var(--co-blue); }
+.prediction-lab__conclusion { margin-top: 22px !important; padding-top: 16px; border-top: 1px solid var(--co-line); font-weight: 700 !important; }
+
+.choice-row { display: flex; flex-wrap: wrap; gap: 9px; margin: 20px 0; }
+.choice-column { display: grid; gap: 8px; margin: 20px 0; }
+.choice-row button, .choice-column button { border: 1.5px solid var(--co-line); border-radius: var(--co-radius-m); background: #fff; color: var(--co-ink); cursor: pointer; font: 700 15px inherit; }
+.choice-row button { padding: 12px 16px; }
+.choice-column button { padding: 14px 15px; text-align: left; }
+.choice-row button.is-selected, .choice-column button.is-selected { border-color: var(--co-blue); background: var(--co-blue-tint); }
+.activity-feedback { padding: 16px 0 0; border-top: 1px solid var(--co-line); font-size: 16px !important; margin-top: 16px; }
+.activity-feedback.is-correct strong { color: var(--co-green); }
+
+.source-line { max-width: 780px; padding-top: 18px; border-top: 1px solid var(--co-line); font-size: 14.5px; }
+.source-line a, .source-line span { color: var(--co-blue); font-weight: 700; }
+.bridge { max-width: 780px; margin: 32px 0; padding-left: 16px; border-left: 4px solid var(--co-blue); }
+.bridge b { font-size: 14.5px; }
+.bridge p { margin: 6px 0 0; font-size: 16.5px; font-weight: 500; line-height: 1.55; }
+.next-link { margin-top: 36px; padding: 0; border: none; background: none; color: var(--co-blue); cursor: pointer; font: 800 16px inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Quiz ── */
+.quiz { max-width: 780px; padding: 30px; margin: 40px 0; border-radius: var(--co-radius-l); background: var(--co-paper); box-shadow: var(--co-shadow); }
+.quiz > span { display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--co-muted); }
+.quiz > b { display: block; margin: 2px 0 20px; color: var(--co-blue); font-size: 22px; }
+.quiz h2 { margin: 0 0 16px; font-size: 23px; }
+.quiz > p { margin: 0 0 16px; font-size: 16px; font-weight: 500; }
+.quiz__option {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 13px 15px; border-radius: var(--co-radius-m);
+  border: 1.5px solid var(--co-line); background: #fff; color: var(--co-ink);
+  font-size: 15.5px; font-weight: 600; cursor: pointer; margin-bottom: 8px;
+  transition: background 0.14s, border-color 0.14s;
+}
+.quiz__option:hover:not(.is-locked) { border-color: var(--co-blue); background: var(--co-blue-tint); }
+.quiz__option.is-selected { border-color: var(--co-blue); background: var(--co-blue-tint); }
+.quiz__option.is-right { border-color: var(--co-green); background: #DCF3E6; }
+.quiz__option.is-wrong { border-color: #C64A3A; background: #FBE3DF; }
+.quiz__letter {
+  flex: none; width: 28px; height: 28px; border-radius: 50%;
+  border: 1.5px solid var(--co-line); background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12.5px; font-weight: 800; color: var(--co-muted);
+}
+.quiz__option.is-selected .quiz__letter { background: var(--co-blue); color: #fff; border-color: var(--co-blue); }
+.quiz__option.is-right .quiz__letter { background: var(--co-green); color: #fff; border-color: var(--co-green); }
+.quiz__option.is-wrong .quiz__letter { background: #C64A3A; color: #fff; border-color: #C64A3A; }
+.quiz aside { padding: 14px 0 0; font-size: 15.5px; font-weight: 600; line-height: 1.5; }
+.quiz aside.is-correct { color: var(--co-green); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+.submit-btn {
+  display: block; min-width: 150px; height: 44px; margin: 22px auto 0;
+  border: none; border-radius: var(--co-radius-full);
+  background: var(--co-blue); color: #fff; cursor: pointer;
+  font: 800 12.5px inherit; letter-spacing: 0.05em; text-transform: uppercase;
+}
+.submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Summary / action plan ── */
+.action-plan { display: grid; max-width: 780px; gap: 24px; margin-top: 32px; }
+.action-plan label { display: grid; gap: 7px; }
+.action-plan label b { font-size: 18px; }
+.action-plan label span { color: var(--co-muted); font-size: 15px; font-weight: 500; }
+.action-plan textarea { width: 100%; padding: 13px; border: 1.5px solid var(--co-line); border-radius: var(--co-radius-m); font: 500 15.5px/1.45 inherit; outline: none; }
+.action-plan textarea:focus { border-color: var(--co-blue); }
+.action-plan .submit-btn { margin: 0; }
+.complete-note { max-width: 780px; padding: 22px; margin-top: 30px; background: var(--co-blue-tint); border-radius: var(--co-radius-l); }
+.complete-note b { font-size: 18px; }
+.complete-note p { font-size: 16px; font-weight: 500; line-height: 1.5; }
+
+/* ── Footer ── */
+.course__foot { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 56px; border-top: 1px solid var(--co-line); background: var(--co-paper); }
+.foot-btn { border: none; background: none; color: var(--co-blue); cursor: pointer; font: 800 14px inherit; }
+.foot-btn:disabled { color: #C4CAD3; cursor: not-allowed; }
+.foot-btn--primary { color: var(--co-blue); }
+.foot-pos { color: var(--co-muted); font-size: 13px; font-weight: 700; }
+
+.course-fade-enter-active, .course-fade-leave-active { transition: opacity 0.18s ease; }
+.course-fade-enter-from, .course-fade-leave-to { opacity: 0; }
+
+@media (max-width: 760px) {
+  .course__bar, .course__subbar { padding-left: 16px; padding-right: 16px; }
+  .cover, .screen { padding-left: 16px; padding-right: 16px; }
+  .lesson-banner__title { font-size: 26px; }
+  .reading h2 { font-size: 25px; }
+  .flashcards__grid { grid-template-columns: 1fr; }
+  .timeline-nav { grid-template-columns: repeat(2, 1fr); }
+  .memory-grid { grid-template-columns: repeat(3, 1fr); }
+  .order-game__slots { grid-template-columns: repeat(2, 1fr); }
+  .choice-row { flex-direction: column; }
+  .course__foot { padding: 0 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .course-fade-enter-active, .course-fade-leave-active,
+  .memory-card__face, .course__drawer, .course__progress-fill { transition: none; }
+}
 </style>

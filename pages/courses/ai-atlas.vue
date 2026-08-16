@@ -289,6 +289,8 @@ function resetCourse() {
   courseCompleted.value = false
   resetOrderGame()
   shuffleMemoryGame()
+  recapStep.value = 0
+  activeFamily.value = null
   persist()
 }
 function isComplete(id: string) { return visited.value.includes(id) }
@@ -385,6 +387,28 @@ function flipMemoryCard(uid: number) {
 }
 const memoryComplete = computed(() => memoryMatched.value.length === memoryCards.value.length && memoryCards.value.length > 0)
 shuffleMemoryGame()
+
+/**
+ * Rise "Process" block — a step carousel. Used once, as a recap of the
+ * prediction lab the learner just completed: same three `predictionSteps`,
+ * replayed as Step 1/2/3 cards instead of the live activity. No new content.
+ */
+const recapStep = ref(0)
+
+/**
+ * Rise "Labeled Graphic" block — numbered pins on a diagram, click to
+ * reveal a caption. Used once, on the "modern-landscape" lesson, with
+ * captions lifted verbatim from that lesson's own "Five useful families to
+ * recognise" section rather than written fresh.
+ */
+const aiFamilies = [
+  { label: 'Prediction & recommendation', x: 20, y: 30, caption: 'Estimate a value or rank options: travel time, likely demand, possible fraud, or a video you may want to watch.' },
+  { label: 'Computer vision', x: 78, y: 26, caption: 'Classify or locate patterns in images and video: a defect on a product, a road sign, or a medical feature that needs a clinician’s attention.' },
+  { label: 'Language models', x: 50, y: 15, caption: 'Work with text and code.' },
+  { label: 'Multimodal models', x: 22, y: 75, caption: 'Combine information such as text, images, audio, and video.' },
+  { label: 'Tool-using systems', x: 78, y: 75, caption: 'Connect a model to approved search, database, or workflow tools.' }
+]
+const activeFamily = ref<number | null>(null)
 
 onMounted(() => {
   const saved = localStorage.getItem(STORAGE_KEY)
@@ -521,7 +545,20 @@ onMounted(() => {
             <h2>How the course is organised</h2>
             <p>The first three lessons answer where AI came from, what it is, and how a model learns a pattern. The central lesson then makes next-token prediction visible. The final lessons map modern AI types, explain what famous models can and cannot demonstrate, and turn the story into a practical use routine.</p>
             <section class="info-note"><i aria-hidden="true">i</i><div><b>Reading first</b><p>Complete the explanations and worked examples before opening the small activities. Each activity is designed to make one idea visible, not to replace the lesson.</p></div></section>
-            <button type="button" class="next-link" @click="completeCurrent">Continue to Lesson 1</button>
+
+            <h2>Course at a glance</h2>
+            <div class="rise-table">
+              <div class="rise-table__row rise-table__row--head">
+                <span>Lesson</span><span>Duration</span><span>What it's for</span>
+              </div>
+              <div v-for="item in AI_MODULES" :key="item.id" class="rise-table__row">
+                <span><b>{{ item.number }}</b> {{ item.short }}</span>
+                <span>{{ item.duration }}</span>
+                <span>{{ item.objective }}</span>
+              </div>
+            </div>
+
+            <button type="button" class="continue-block" @click="completeCurrent">Continue to Lesson 1</button>
           </article>
 
           <article v-else-if="currentModule" class="reading">
@@ -552,6 +589,29 @@ onMounted(() => {
             <section v-if="currentModule.visual === 'models'" class="media"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/htTSgHWeiwDLlMXR.jpg" alt="Editorial visual showing different types of modern AI systems and their inputs" /><p>This visual groups modern AI by the kind of information it works with and the kind of output it can create. It reinforces the distinction explained in the lesson text.</p></section>
 
             <section v-if="currentModule.video" class="video"><h2>{{ currentModule.video.title }}</h2><p><strong>Viewing question:</strong> {{ currentModule.video.question }}</p><div class="video__frame"><iframe :src="currentModule.video.url" :title="currentModule.video.title" loading="lazy" allowfullscreen /></div></section>
+
+            <hr class="rise-divider" />
+
+            <section v-if="currentModule.id === 'modern-landscape'" class="labeled-graphic">
+              <p class="block__eyebrow">Labeled graphic</p>
+              <h2>Five families, one landscape</h2>
+              <p>Select each point to see what that family of AI actually does.</p>
+              <div class="labeled-graphic__stage">
+                <span class="labeled-graphic__hub">Modern AI</span>
+                <button
+                  v-for="(family, i) in aiFamilies" :key="family.label" type="button"
+                  class="labeled-graphic__pin" :class="{ 'is-active': activeFamily === i }"
+                  :style="{ left: family.x + '%', top: family.y + '%' }"
+                  :aria-expanded="activeFamily === i" :aria-label="family.label"
+                  @click="activeFamily = activeFamily === i ? null : i"
+                >{{ i + 1 }}</button>
+              </div>
+              <div v-if="activeFamily !== null" class="labeled-graphic__caption">
+                <b>{{ aiFamilies[activeFamily].label }}</b>
+                <p>{{ aiFamilies[activeFamily].caption }}</p>
+              </div>
+              <p v-else class="labeled-graphic__hint">Tap a numbered point on the diagram above.</p>
+            </section>
 
             <section v-if="currentModule.id === 'before-chatbots'" class="block">
               <p class="block__eyebrow">Interactive timeline · {{ timelineStep + 1 }} of {{ historyEvents.length }}</p>
@@ -625,6 +685,27 @@ onMounted(() => {
               <p v-if="predictionSubmitted && predictionStep === predictionSteps.length - 1" class="prediction-lab__conclusion">You have now seen the core mechanism: a language-model response is built through many small, context-sensitive estimates. That is powerful, but it does not make the result automatically true.</p>
             </section>
 
+            <section v-if="currentModule.activity === 'predictionLab' && predictionSubmitted && predictionStep === predictionSteps.length - 1" class="process">
+              <p class="block__eyebrow">Process · replay</p>
+              <h2>The three estimates, side by side</h2>
+              <div class="process__card">
+                <span class="process__step">Step {{ recapStep + 1 }} of {{ predictionSteps.length }}</span>
+                <blockquote>{{ predictionSteps[recapStep].context }} <b>{{ predictionSteps[recapStep].options[predictionSteps[recapStep].correct] }}</b></blockquote>
+                <p>{{ predictionSteps[recapStep].explanation }}</p>
+                <div class="process__nav">
+                  <button type="button" aria-label="Previous step" :disabled="recapStep === 0" @click="recapStep -= 1">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
+                  </button>
+                  <span class="process__dots">
+                    <i v-for="(s, i) in predictionSteps" :key="i" :class="{ 'is-on': i === recapStep }" />
+                  </span>
+                  <button type="button" aria-label="Next step" :disabled="recapStep === predictionSteps.length - 1" @click="recapStep += 1">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+                  </button>
+                </div>
+              </div>
+            </section>
+
             <section v-if="currentModule.id === 'modern-landscape'" class="block game-block">
               <p class="block__eyebrow">Sorting game · {{ sortIndex + 1 }} of {{ sortCards.length }}</p>
               <h2>Sort the AI workflow</h2>
@@ -657,7 +738,7 @@ onMounted(() => {
 
             <section class="source-line"><strong>Source:</strong> <a :href="currentModule.sourceUrl" target="_blank" rel="noreferrer">{{ currentModule.sourceLabel }}</a> <span>· {{ currentModule.confidence }}</span></section>
             <section class="bridge"><b>Next connection</b><p>{{ currentModule.bridge }}</p></section>
-            <button type="button" class="next-link" @click="completeCurrent">{{ currentModule.number === '07' ? 'Continue to the knowledge check' : 'Continue to the next lesson' }}</button>
+            <button type="button" class="continue-block" @click="completeCurrent">{{ currentModule.number === '07' ? 'Continue to the knowledge check' : 'Continue to the next lesson' }}</button>
           </article>
 
           <article v-else-if="currentId === 'quiz'" class="reading quiz-screen">
@@ -697,13 +778,16 @@ onMounted(() => {
               <p v-if="memoryComplete" class="block__takeaway">All eight pairs matched in {{ memoryMoves }} moves. These are the same terms used throughout the course.</p>
               <button v-if="memoryComplete" type="button" class="next-link" @click="shuffleMemoryGame">Shuffle and play again</button>
             </section>
-            <button type="button" class="next-link" @click="completeCurrent">Continue to summary</button>
+            <button type="button" class="continue-block" @click="completeCurrent">Continue to summary</button>
           </article>
 
           <article v-else class="reading summary">
             <p>This course began before the modern chat era, with the long history of questions about machine intelligence. The seven lessons then connected that history to learning from examples, next-token prediction, modern AI types, famous models, and practical judgement.</p>
             <h2>What to carry forward</h2>
-            <p class="lead">Use AI as a powerful prediction tool, not as an unquestioned authority.</p>
+            <section class="statement">
+              <span class="statement__rule" aria-hidden="true" />
+              <p>Use AI as a powerful prediction tool, not as an unquestioned authority.</p>
+            </section>
             <ul>
               <li>Ask what task the system is designed to support, what information shapes its output, and what it cannot know from the prompt alone.</li>
               <li>Treat a generated response as a candidate answer built from patterns until important claims have been checked.</li>
@@ -924,6 +1008,81 @@ onMounted(() => {
 .block > p { font-size: 17px; font-weight: 500; line-height: 1.6; }
 .block__takeaway { margin: 20px 0 0 !important; padding: 14px 16px !important; border-radius: var(--co-radius-m); border-left: 4px solid var(--co-blue); background: var(--co-blue-tint); font-size: 15.5px !important; font-weight: 700 !important; line-height: 1.55; }
 
+/* ── Rise "Divider" block ── */
+.rise-divider { max-width: 780px; margin: 40px 0; border: none; border-top: 1px solid var(--co-line); }
+
+/* ── Rise "Table" block ── */
+.rise-table { max-width: 780px; margin: 20px 0 32px; border-radius: var(--co-radius-l); overflow: hidden; box-shadow: var(--co-shadow); }
+.rise-table__row { display: grid; grid-template-columns: 1.1fr 0.6fr 1.6fr; gap: 14px; padding: 13px 18px; background: var(--co-paper); border-bottom: 1px solid var(--co-line); font-size: 14.5px; line-height: 1.5; }
+.rise-table__row:last-child { border-bottom: none; }
+.rise-table__row--head { background: var(--co-blue); color: #fff; font-weight: 800; font-size: 12.5px; letter-spacing: 0.03em; text-transform: uppercase; }
+.rise-table__row b { color: var(--co-blue); }
+.rise-table__row--head b { color: #fff; }
+
+/* ── Rise "Button" / "Continue" block ── */
+.continue-block {
+  display: block; width: 100%; max-width: 780px; margin: 38px 0 0;
+  padding: 17px 24px; border: none; border-radius: var(--co-radius-m);
+  background: var(--co-blue); color: #fff; cursor: pointer;
+  font: 800 15px inherit; letter-spacing: 0.03em; text-transform: uppercase; text-align: center;
+  transition: background 0.15s;
+}
+.continue-block:hover { background: var(--co-blue-dark); }
+
+/* ── Rise "Statement" block ── */
+.statement { max-width: 780px; margin: 8px 0 34px; }
+.statement__rule { display: block; width: 34px; height: 4px; margin-bottom: 16px; background: var(--co-blue); border-radius: 2px; }
+.statement p { margin: 0; font-size: 26px; font-weight: 800; line-height: 1.45; letter-spacing: -0.01em; }
+
+/* ── Rise "Labeled Graphic" block ── */
+.labeled-graphic { max-width: 780px; margin: 44px 0; padding: 26px; background: var(--co-paper); border-radius: var(--co-radius-l); box-shadow: var(--co-shadow); }
+.labeled-graphic h2 { margin: 0 0 8px !important; font-size: 26px !important; }
+.labeled-graphic > p { font-size: 16px; color: var(--co-muted); margin: 0 0 6px; }
+.labeled-graphic__stage {
+  position: relative; margin: 22px 0 18px; aspect-ratio: 16 / 9;
+  border-radius: var(--co-radius-l);
+  background: radial-gradient(circle at 50% 50%, var(--co-blue-tint), var(--co-paper-2));
+  border: 1px solid var(--co-line);
+}
+.labeled-graphic__hub {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 96px; height: 96px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  background: var(--co-blue); color: #fff; font-weight: 800; font-size: 13px; line-height: 1.2;
+  box-shadow: var(--co-shadow);
+}
+.labeled-graphic__pin {
+  position: absolute; transform: translate(-50%, -50%);
+  width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--co-blue);
+  background: #fff; color: var(--co-blue); font-weight: 800; font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; box-shadow: var(--co-shadow);
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+}
+.labeled-graphic__pin:hover { transform: translate(-50%, -50%) scale(1.08); }
+.labeled-graphic__pin.is-active { background: var(--co-blue); color: #fff; }
+.labeled-graphic__caption { padding: 16px 18px; border-radius: var(--co-radius-m); background: var(--co-blue-tint); }
+.labeled-graphic__caption b { display: block; margin-bottom: 4px; font-size: 15px; }
+.labeled-graphic__caption p { margin: 0; font-size: 15px; line-height: 1.55; }
+.labeled-graphic__hint { color: var(--co-muted); font-size: 14px; margin: 0; }
+
+/* ── Rise "Process" block (step carousel) ── */
+.process { max-width: 780px; margin: 40px 0; }
+.process h2 { margin: 0 0 16px !important; font-size: 24px !important; }
+.process__card { padding: 26px; background: var(--co-paper); border-radius: var(--co-radius-l); box-shadow: var(--co-shadow); }
+.process__step {
+  display: inline-block; margin-bottom: 14px; padding: 5px 14px; border-radius: var(--co-radius-full);
+  background: var(--co-blue); color: #fff; font-size: 11.5px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.process__card blockquote { margin: 0 0 14px; padding: 16px 18px; border-left: 4px solid var(--co-blue); border-radius: 0 var(--co-radius-m) var(--co-radius-m) 0; background: var(--co-blue-tint); font-size: 17px; font-weight: 700; line-height: 1.5; }
+.process__card blockquote b { color: var(--co-blue); }
+.process__card > p { margin: 0; font-size: 15.5px; line-height: 1.55; color: var(--co-muted); }
+.process__nav { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 20px; }
+.process__nav button { width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--co-line); background: #fff; color: var(--co-ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.process__nav button:disabled { opacity: 0.35; cursor: not-allowed; }
+.process__dots { display: flex; gap: 7px; }
+.process__dots i { display: block; width: 7px; height: 7px; border-radius: 50%; background: var(--co-line); font-style: normal; }
+.process__dots i.is-on { background: var(--co-blue); }
+
 .timeline-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 22px 0 0; }
 .timeline-nav button { min-height: 78px; padding: 12px; border: 1.5px solid var(--co-line); border-radius: var(--co-radius-m); background: var(--co-paper); color: var(--co-muted); text-align: left; cursor: pointer; font: 700 13px/1.35 inherit; }
 .timeline-nav button.is-active { background: var(--co-blue-tint); color: var(--co-ink); border-color: var(--co-blue); }
@@ -1080,6 +1239,13 @@ onMounted(() => {
   .order-game__slots { grid-template-columns: repeat(2, 1fr); }
   .choice-row { flex-direction: column; }
   .course__foot { padding: 0 16px; }
+  .rise-table__row { grid-template-columns: 1fr; gap: 4px; }
+  .rise-table__row--head { display: none; }
+  .rise-table__row:not(.rise-table__row--head) { padding: 14px 16px; }
+  .labeled-graphic { padding: 18px; }
+  .labeled-graphic__hub { width: 76px; height: 76px; font-size: 11px; }
+  .labeled-graphic__pin { width: 30px; height: 30px; font-size: 13px; }
+  .statement p { font-size: 21px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

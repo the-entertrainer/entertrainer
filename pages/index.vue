@@ -206,27 +206,6 @@ onBeforeUnmount(() => clearInterval(timer))
       </div>
     </section>
 
-    <!-- ── Archive ─────────────────────────────────────────────────────── -->
-    <section class="arch" aria-labelledby="arch-h">
-      <div class="arch__head">
-        <h2 id="arch-h" class="t-mono arch__label">The whole index</h2>
-        <p class="t-mono arch__n">{{ String(ITEMS.length).padStart(2, '0') }} entries</p>
-      </div>
-      <ol class="arch__list">
-        <li v-for="(it, i) in ITEMS" :key="it.id">
-          <NuxtLink :to="it.href" class="arch__row">
-            <span class="t-mono arch__i">{{ String(i + 1).padStart(2, '0') }}</span>
-            <span class="arch__t">{{ it.title }}</span>
-            <EdChip :category="it.category" class="arch__c" />
-            <span class="t-mono arch__s">{{ it.stamp }}</span>
-            <svg class="arch__go" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M7 17 17 7M9 7h8v8" />
-            </svg>
-          </NuxtLink>
-        </li>
-      </ol>
-    </section>
   </EdShell>
 </template>
 
@@ -409,51 +388,9 @@ onBeforeUnmount(() => clearInterval(timer))
 .interlude__by { display: flex; flex-direction: column; align-items: flex-start; gap: 16rem; }
 @media (max-width: 820px) { .interlude { grid-template-columns: minmax(0, 1fr); } }
 
-/* ── Archive ───────────────────────────────────────────────────────────── */
-.arch { margin-top: clamp(48rem, 8vh, 90rem); }
-.arch__head {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 16rem;
-  padding-bottom: 12rem; border-bottom: var(--stroke) solid var(--line);
-}
-.arch__label, .arch__n { margin: 0; color: var(--muted); }
-
-.arch__list { list-style: none; margin: 0; padding: 0; }
-.arch__row {
-  display: grid;
-  grid-template-columns: 44rem minmax(0, 1fr) auto auto 20rem;
-  align-items: center; gap: 18rem;
-  padding: 16rem 8rem;
-  border-bottom: var(--stroke) solid var(--line);
-  transition: background var(--dur-fast) var(--ease-out), padding var(--dur-fast) var(--ease-out);
-}
-/* The hover fill is yellow in both themes, so the row's text has to switch to
-   the ink that yellow carries — inheriting --ink puts cream on yellow at
-   night. Every accent fill on the site pairs with its own --on-* token for
-   exactly this reason. */
-@media (hover: hover) {
-  .arch__row:hover { background: var(--yellow); color: var(--on-yellow); padding-left: 16rem; padding-right: 0; }
-  .arch__row:hover .arch__i, .arch__row:hover .arch__s { color: inherit; opacity: 0.7; }
-  .arch__row:hover .arch__go {  }
-}
-.arch__i { color: var(--muted); }
-.arch__t { font-size: clamp(17rem, 1.6vw, 21rem); font-weight: 600; line-height: 1.2; }
-.arch__s { color: var(--muted); white-space: nowrap; }
-.arch__go { opacity: 0.5; transition: transform var(--dur-fast) var(--ease-out); }
-
-@media (max-width: 860px) {
-  .arch__row { grid-template-columns: 34rem minmax(0, 1fr) auto; gap: 12rem; }
-  .arch__s { display: none; }
-  .arch__go { display: none; }
-}
-@media (max-width: 560px) {
-  .arch__row { grid-template-columns: 30rem minmax(0, 1fr); }
-  .arch__c { display: none; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .field__grid > li { animation: none; }
   .swap-enter-active, .swap-leave-active { transition-duration: 1ms; }
-  .arch__row, .arch__go { transition: none; }
   /* The standfirst does not rotate at all under reduced motion — see the
      script — so this only guards the transition if one is ever queued. */
   .sf-enter-active, .sf-leave-active { transition-duration: 1ms; }

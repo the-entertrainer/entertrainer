@@ -112,6 +112,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 
 .mh__brand { display: inline-flex; flex: none; }
+.mh__brand :deep(svg) { transition: transform var(--dur-mid) var(--ease-spring); }
+@media (hover: hover) { .mh__brand:hover :deep(svg) { transform: translateY(-1rem) rotate(-1.5deg); } }
 
 .mh__nav { margin-left: auto; display: flex; align-items: center; gap: clamp(4rem, 1.2vw, 14rem); }
 .mh__link {
@@ -139,9 +141,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-full);
   background: var(--paper); color: var(--ink);
-  transition: background var(--dur-fast) var(--ease-out);
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring);
 }
 @media (hover: hover) { .mh__icon:hover { background: var(--yellow); color: var(--on-yellow); } }
+.mh__icon:active { transform: scale(.94); }
+.mh__icon svg { transition: transform var(--dur-mid) var(--ease-spring), opacity var(--dur-fast) var(--ease-out); }
+.mh__icon--menu[aria-expanded="true"] svg { transform: rotate(90deg) scale(.88); }
 .mh__icon--menu { display: none; }
 
 .mh__sheet { display: none; }
@@ -175,5 +180,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 @media (prefers-reduced-motion: reduce) {
   .mh__sheet { transition-duration: 1ms; }
   .mh__link[aria-current="page"]::after { animation: none; }
+  .mh__brand :deep(svg), .mh__icon, .mh__icon svg { transition: none; }
 }
 </style>

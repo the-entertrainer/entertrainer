@@ -115,6 +115,42 @@ const modelStackCards = [
   { front: 'Claude', back: 'A documented example of text analysis, coding, structured output, and vision tasks.' }
 ]
 
+const expansionMedia = {
+  turing: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/OxdXlbgOfXEkTLHF.jpg',
+  eniac: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/SPEtUbjdHEzdnSkY.jpg',
+  cnn: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/pXuCtLavBAtdUBAr.png',
+  astrobee: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/hLWRGpDaupOqbeei.jpg',
+  serverRoom: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/CcQpBNlrdbhsTXFm.jpg',
+  context: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/HskWrjBphxuOOcHq.jpg',
+  workbench: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/CLHikwLahcffypTI.jpg'
+}
+
+const systemCheckOptions = [
+  { id: 'weather', label: 'Compare the estimate with weather, closures, and local knowledge.', correct: true },
+  { id: 'promise', label: 'Treat the estimate as a promise that cannot be questioned.', correct: false },
+  { id: 'guess', label: 'Remove the route and time information to make the answer simpler.', correct: false }
+]
+const systemCheckChoice = ref<string | null>(null)
+const systemCheckSubmitted = ref(false)
+
+const inputDetectiveCards = [
+  { prompt: 'A robot checks whether a free-flying path is clear inside a space station.', options: ['Camera and sensor readings', 'Only a long essay', 'A paper timetable'], correct: 0, explanation: 'A robot needs information about the space around it. Cameras and sensors can help describe position, obstacles, and movement.' },
+  { prompt: 'A tool drafts a reply to a customer who asks about a delayed parcel.', options: ['Written message and approved delivery information', 'Only a weather photograph', 'A random password'], correct: 0, explanation: 'Language tasks start with text and, when appropriate, approved information that helps the draft stay useful and checkable.' },
+  { prompt: 'A system checks a photo for a visible product defect.', options: ['An image or video frame', 'Only a spoken greeting', 'A spreadsheet without product details'], correct: 0, explanation: 'Computer vision works from images or video. A person still needs to decide whether the detection is reliable enough for the task.' }
+]
+const inputDetectiveIndex = ref(0)
+const inputDetectiveChoice = ref<number | null>(null)
+const inputDetectiveSubmitted = ref(false)
+const currentInputDetective = computed(() => inputDetectiveCards[inputDetectiveIndex.value])
+
+const evidenceCheckOptions = [
+  { id: 'model-name', label: 'The tool has a famous model name.', result: 'A name can help you find documentation, but it does not show that the tool works well for this exact task.', strong: false },
+  { id: 'demo', label: 'A short demo looked impressive once.', result: 'A demo can inspire a test, but a single polished example does not show reliability, limits, or fit.', strong: false },
+  { id: 'task-test', label: 'The team tested representative inputs, checked outcomes, and named a reviewer.', result: 'This is the strongest evidence because it connects a documented capability to the actual task, conditions, and review step.', strong: true }
+]
+const evidenceCheckChoice = ref<string | null>(null)
+const evidenceCheckSubmitted = ref(false)
+
 const questionBank = [
   { prompt: 'Complete the sentence: a language model estimates a likely next ___ from its context.', answer: 'token', feedback: 'A token is a piece of text such as a word, part of a word, or punctuation.' },
   { prompt: 'Complete the sentence: training learns a pattern from earlier ___ .', answer: 'examples', feedback: 'The examples included during training shape both performance and blind spots.' },
@@ -326,6 +362,23 @@ function submitPrediction() {
   if (predictionChoice.value === null) return
   predictionSubmitted.value = true
 }
+function submitSystemCheck() {
+  if (systemCheckChoice.value) systemCheckSubmitted.value = true
+}
+function submitInputDetective() {
+  if (inputDetectiveChoice.value !== null) inputDetectiveSubmitted.value = true
+}
+function nextInputDetective() {
+  if (!inputDetectiveSubmitted.value) return
+  if (inputDetectiveIndex.value < inputDetectiveCards.length - 1) {
+    inputDetectiveIndex.value += 1
+    inputDetectiveChoice.value = null
+    inputDetectiveSubmitted.value = false
+  }
+}
+function submitEvidenceCheck() {
+  if (evidenceCheckChoice.value) evidenceCheckSubmitted.value = true
+}
 function nextPredictionStep() {
   if (!predictionSubmitted.value) return
   if (predictionStep.value < predictionSteps.length - 1) {
@@ -431,6 +484,13 @@ function resetCourse() {
   shuffleMemoryGame()
   recapStep.value = 0
   activeFamily.value = null
+  systemCheckChoice.value = null
+  systemCheckSubmitted.value = false
+  inputDetectiveIndex.value = 0
+  inputDetectiveChoice.value = null
+  inputDetectiveSubmitted.value = false
+  evidenceCheckChoice.value = null
+  evidenceCheckSubmitted.value = false
   persist()
 }
 function isComplete(id: string) { return visited.value.includes(id) }
@@ -751,6 +811,12 @@ onBeforeUnmount(() => revealObserver?.disconnect())
               <div class="rise-gallery-carousel__controls"><button type="button" aria-label="Previous gallery image" @click="nextGalleryFrame(-1)">←</button><span><i v-for="(_, index) in galleryFrames" :key="index" :class="{ 'is-active': galleryIndex === index }" /></span><button type="button" aria-label="Next gallery image" @click="nextGalleryFrame(1)">→</button></div>
             </section>
 
+            <section v-if="currentModule.id === 'before-chatbots'" class="source-evidence source-evidence--history">
+              <div class="source-evidence__intro"><p class="block__eyebrow">Real evidence · 1951 and 1946</p><h2>AI ideas grew beside physical machines and people.</h2><p>Before modern software lived in a browser, computing was visible: rooms of equipment, switches, paper records, and skilled people who operated the machines. The 1956 Dartmouth project helped name a research field; it did not erase the earlier work that made questions about computation possible.</p></div>
+              <div class="source-evidence__media"><figure><img :src="expansionMedia.turing" alt="Black-and-white 1951 portrait of Alan Turing" loading="lazy" /><figcaption>Alan Turing, 1951. A historical source for the questions that shaped computing and AI research.</figcaption></figure><figure><img :src="expansionMedia.eniac" alt="A U.S. Army operator setting switches on the ENIAC computer in 1946" loading="lazy" /><figcaption>ENIAC, 1946. Early electronic computing was physical, maintained, and operated by people.</figcaption></figure></div>
+              <p class="source-evidence__credit">Sources: Elliott &amp; Fry / Wikimedia Commons (public domain); U.S. Army Photo / Wikimedia Commons (public domain). Open the lesson source below for the Dartmouth historical account.</p>
+            </section>
+
             <section v-if="currentModule.id === 'learning-patterns'" class="rise-two-column">
               <div><p class="block__eyebrow">Two column</p><h2>When a written rule is enough</h2><p>A stable, explicit condition can be written as a rule and followed consistently.</p></div>
               <div><p class="block__eyebrow">Learned pattern</p><h2>When examples help</h2><p>Varied wording or images are often better handled by a model learning from many labelled examples.</p></div>
@@ -812,6 +878,11 @@ repeat → candidate response</code></pre>
               <figcaption>Several inputs can support one estimate. The output is still a useful guide for a person to interpret rather than an automatic promise.</figcaption>
             </figure>
 
+            <figure v-if="currentModule.id === 'what-ai-is'" class="editorial-visual editorial-visual--expansion">
+              <img :src="expansionMedia.workbench" alt="Editorial workbench illustration showing an abstract input card, a pattern station, an output card, and a human review tool connected in sequence" loading="lazy" />
+              <figcaption><b>Keep the whole system visible.</b> Input, pattern, output, and checking are different jobs. A useful explanation names all four.</figcaption>
+            </figure>
+
             <section v-if="currentModule.id === 'what-ai-is'" class="rise-grid rise-grid--two">
               <article><i class="rise-grid__icon rise-grid__icon--route" aria-hidden="true" /><b>Information arrives</b><span>Route, time of day, traffic, and road signals become the input for a travel-time estimate.</span></article>
               <article><i class="rise-grid__icon rise-grid__icon--review" aria-hidden="true" /><b>A person checks the result</b><span>Weather, closures, local knowledge, and the need to arrive early can change the final decision.</span></article>
@@ -867,7 +938,7 @@ repeat → candidate response</code></pre>
             </figure>
 
             <figure v-if="currentModule.id === 'prediction-engine'" class="editorial-visual">
-              <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/HskWrjBphxuOOcHq.jpg" alt="Abstract editorial illustration of context pieces guiding one of several possible continuation tiles" loading="lazy" />
+              <img :src="expansionMedia.context" alt="Editorial illustration of abstract context pieces moving through a blue window toward three possible continuation tiles" loading="lazy" />
               <figcaption>The model does not retrieve one fixed sentence. It repeatedly uses what is already present to estimate the next fitting piece.</figcaption>
             </figure>
 
@@ -875,6 +946,12 @@ repeat → candidate response</code></pre>
               <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/mPazqNdxSYgYJBwt.jpg" alt="Editorial illustration showing a parcel, damage image, customer message, and approved workflow tools as separate parts of a delivery operation" loading="lazy" />
               <figcaption>One operational goal can call on several specialised systems. The family names and exact roles remain in the labelled graphic and sorting activity below.</figcaption>
             </figure>
+
+            <section v-if="currentModule.id === 'modern-landscape'" class="source-evidence source-evidence--systems">
+              <div class="source-evidence__intro"><p class="block__eyebrow">Real systems · vision and robotics</p><h2>Modern AI works with different kinds of information.</h2><p>Computer vision starts with pixels. A free-flying robot has to work with camera and sensor information as conditions change. These are different from a language model working with a written request, but each is still a system that takes input, produces a candidate result, and needs evaluation.</p></div>
+              <div class="source-evidence__media"><figure><img :src="expansionMedia.cnn" alt="Diagram of a typical convolutional neural network that processes an image through layers toward an output" loading="lazy" /><figcaption>A convolutional neural network is one way to turn an image into a candidate classification.</figcaption></figure><figure><img :src="expansionMedia.astrobee" alt="NASA astronaut with an Astrobee free-flying robot inside the International Space Station" loading="lazy" /><figcaption>NASA’s Astrobee robot is a real autonomy research platform inside the International Space Station.</figcaption></figure></div>
+              <p class="source-evidence__credit">Sources: Aphex34 / Wikimedia Commons, CC BY-SA 4.0; NASA / Anne McClain / Wikimedia Commons, public domain.</p>
+            </section>
 
             <figure v-if="currentModule.id === 'know-ai'" class="editorial-visual editorial-visual--accountability">
               <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/pQVXfuGdMKkvZYTs.jpg" alt="Editorial illustration showing a public draft, protected information, fact checking, and human approval along one accountable review route" loading="lazy" />
@@ -926,6 +1003,12 @@ repeat → candidate response</code></pre>
               <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/tCQsxAZOHvMWOTPx.jpg" alt="Editorial illustration of a model output passing through an evidence check before a human reviewer makes the accountable decision" loading="lazy" />
               <figcaption>Public capability is the beginning of evaluation, not the end. A team still needs evidence, conditions, and a reviewer for its own workflow.</figcaption>
             </figure>
+
+            <section v-if="currentModule.id === 'models-world'" class="source-evidence source-evidence--infrastructure">
+              <div class="source-evidence__intro"><p class="block__eyebrow">Real infrastructure</p><h2>AI is also hardware, power, cooling, networks, and people.</h2><p>A useful AI service does not float in the cloud by itself. Data must move through physical servers and networks; equipment produces heat; systems are maintained; and teams decide how outputs are checked and used.</p></div>
+              <div class="source-evidence__feature"><img :src="expansionMedia.serverRoom" alt="A photographed server room at The National Archives showing rows of hardware, cables, cooling, and indicator lights" loading="lazy" /><div><b>What this image helps you notice</b><ul><li>Models and services need computing hardware.</li><li>Hardware needs networking, cooling, maintenance, and energy.</li><li>Physical infrastructure is one reason task boundaries and responsible use matter.</li></ul></div></div>
+              <p class="source-evidence__credit">Source: The National Archives (UK) / Wikimedia Commons, CC BY 3.0 Unported.</p>
+            </section>
 
             <figure v-if="currentModule.id === 'know-ai'" class="visual-explainer risk-route" aria-labelledby="risk-route-title">
               <figcaption><p class="block__eyebrow">Use-with-care map</p><h2 id="risk-route-title">Match the safeguards to the consequences</h2><p>Not every useful task has the same risk. The more a result can affect someone, the stronger the evidence and oversight need to be.</p></figcaption>
@@ -1010,6 +1093,15 @@ repeat → candidate response</code></pre>
               <p class="block__takeaway">When you meet an AI claim, return to these three prompts: task, information, and check.</p>
             </section>
 
+            <section v-if="currentModule.id === 'what-ai-is'" class="block game-block microgame-block">
+              <p class="block__eyebrow">Mini game · human check</p>
+              <h2>Choose the missing part of the system.</h2>
+              <p>A travel-time estimate is useful only if someone can interpret it in the real situation. Which next action is the strongest human check?</p>
+              <div class="choice-column"><button v-for="option in systemCheckOptions" :key="option.id" type="button" :class="{ 'is-selected': systemCheckChoice === option.id }" :disabled="systemCheckSubmitted" @click="systemCheckChoice = option.id">{{ option.label }}</button></div>
+              <button v-if="!systemCheckSubmitted" type="button" class="submit-btn" :disabled="!systemCheckChoice" @click="submitSystemCheck">Check decision</button>
+              <p v-else class="activity-feedback" :class="{ 'is-correct': systemCheckChoice === 'weather' }"><strong>{{ systemCheckChoice === 'weather' ? 'Correct.' : 'Review the four parts.' }}</strong> {{ systemCheckChoice === 'weather' ? 'The estimate is a candidate result. A person checks conditions that may not be represented well enough in the input.' : 'The system needs a meaningful check. Removing relevant information or treating an estimate as a promise makes the decision less dependable.' }}</p>
+            </section>
+
             <section v-if="currentModule.id === 'learning-patterns'" class="block tabs-block">
               <p class="block__eyebrow">Compare the methods</p>
               <h2>One task, three ways of producing an output</h2>
@@ -1074,6 +1166,15 @@ repeat → candidate response</code></pre>
               <template v-else><p class="activity-feedback" :class="{ 'is-correct': sortChoice === currentSortCard.answer }"><strong>{{ sortChoice === currentSortCard.answer ? 'Correct.' : 'Review the workflow.' }}</strong> {{ currentSortCard.explanation }}</p><button v-if="sortIndex < sortCards.length - 1" type="button" class="next-link" @click="nextSortCard">Sort the next item</button><p v-else class="block__takeaway">Every AI workflow needs all three: suitable input, a meaningful output, and evaluation of whether that output is useful.</p></template>
             </section>
 
+            <section v-if="currentModule.id === 'modern-landscape'" class="block game-block microgame-block">
+              <p class="block__eyebrow">Mini game · input detective {{ inputDetectiveIndex + 1 }} of {{ inputDetectiveCards.length }}</p>
+              <h2>What information does the system need?</h2>
+              <p>{{ currentInputDetective.prompt }}</p>
+              <div class="choice-column"><button v-for="(option, index) in currentInputDetective.options" :key="option" type="button" :class="{ 'is-selected': inputDetectiveChoice === index }" :disabled="inputDetectiveSubmitted" @click="inputDetectiveChoice = index">{{ option }}</button></div>
+              <button v-if="!inputDetectiveSubmitted" type="button" class="submit-btn" :disabled="inputDetectiveChoice === null" @click="submitInputDetective">Check input</button>
+              <template v-else><p class="activity-feedback" :class="{ 'is-correct': inputDetectiveChoice === currentInputDetective.correct }"><strong>{{ inputDetectiveChoice === currentInputDetective.correct ? 'Correct.' : 'Compare task and input again.' }}</strong> {{ currentInputDetective.explanation }}</p><button v-if="inputDetectiveIndex < inputDetectiveCards.length - 1" type="button" class="next-link" @click="nextInputDetective">Next system</button><p v-else class="block__takeaway">The best input depends on the task. “AI” is not one kind of information or one type of output.</p></template>
+            </section>
+
             <section v-if="currentModule.id === 'models-world'" class="block game-block">
               <p class="block__eyebrow">Matching game · {{ matchIndex + 1 }} of {{ matchPrompts.length }}</p>
               <h2>Match capability to a documented model family</h2>
@@ -1082,6 +1183,15 @@ repeat → candidate response</code></pre>
               <div class="choice-row"><button v-for="option in ['GPT-4', 'Gemini', 'Claude']" :key="option" type="button" :class="{ 'is-selected': matchChoice === option }" :disabled="matchSubmitted" @click="matchChoice = option">{{ option }}</button></div>
               <button v-if="!matchSubmitted" type="button" class="submit-btn" :disabled="!matchChoice" @click="submitMatch">Check match</button>
               <template v-else><p class="activity-feedback" :class="{ 'is-correct': matchChoice === currentMatchPrompt.answer }"><strong>{{ matchChoice === currentMatchPrompt.answer ? 'Correct.' : 'Review the description.' }}</strong> {{ currentMatchPrompt.explanation }}</p><button v-if="matchIndex < matchPrompts.length - 1" type="button" class="next-link" @click="nextMatchPrompt">Match the next capability</button><p v-else class="block__takeaway">A name is not a guarantee. The practical question is always whether the capability, inputs, checks, and safeguards fit the task.</p></template>
+            </section>
+
+            <section v-if="currentModule.id === 'models-world'" class="block game-block microgame-block">
+              <p class="block__eyebrow">Mini game · evidence check</p>
+              <h2>Which claim gives you the strongest reason to use a model?</h2>
+              <p>Imagine a team wants to use a model for a real workflow. Choose the statement that gives the strongest evidence to proceed carefully.</p>
+              <div class="choice-column"><button v-for="option in evidenceCheckOptions" :key="option.id" type="button" :class="{ 'is-selected': evidenceCheckChoice === option.id }" :disabled="evidenceCheckSubmitted" @click="evidenceCheckChoice = option.id">{{ option.label }}</button></div>
+              <button v-if="!evidenceCheckSubmitted" type="button" class="submit-btn" :disabled="!evidenceCheckChoice" @click="submitEvidenceCheck">Check evidence</button>
+              <p v-if="evidenceCheckSubmitted" class="activity-feedback" :class="{ 'is-correct': evidenceCheckChoice === 'task-test' }"><strong>{{ evidenceCheckChoice === 'task-test' ? 'Strongest choice.' : 'Useful clue, not enough evidence.' }}</strong> {{ evidenceCheckOptions.find((item) => item.id === evidenceCheckChoice)?.result }}</p>
             </section>
 
             <section v-if="currentModule.id === 'know-ai'" class="block scenario-block">
@@ -1944,6 +2054,38 @@ repeat → candidate response</code></pre>
 .bridge { padding: 16px 0 16px 18px; border-left: 3px solid var(--co-blue); background: transparent; }
 
 .has-scroll-reveal .rise-reveal.is-pending { opacity: 0; transform: translateY(8px); transition: opacity 200ms ease-out, transform 200ms ease-out; }
+
+/* Visual expansion reminder: concrete evidence has a clear caption and a quiet
+   reveal. Motion explains progress and feedback; it never delays reading. */
+:root { --course-motion-fast: 140ms; --course-motion-normal: 240ms; --course-motion-slow: 420ms; --course-ease: cubic-bezier(.16, 1, .3, 1); --course-lift: 8px; }
+.source-evidence { max-width: 780px; margin: 48px 0; padding: 26px 0; border-top: 1px solid var(--co-line); border-bottom: 1px solid var(--co-line); }
+.source-evidence__intro { max-width: 650px; }
+.source-evidence__intro h2 { margin: 0 0 12px !important; }
+.source-evidence__intro > p:not(.block__eyebrow) { margin: 0; color: var(--co-muted); font-size: 16px; line-height: 1.65; }
+.source-evidence__media { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+.source-evidence figure { margin: 0; background: #f7f9fc; }
+.source-evidence figure img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.source-evidence--history figure:first-child img { object-position: 50% 20%; }
+.source-evidence--systems figure:first-child img { object-fit: contain; background: #fff; }
+.source-evidence figcaption { padding: 13px 14px 15px; color: var(--co-muted); font-size: 13.5px; line-height: 1.55; }
+.source-evidence__credit { margin: 14px 0 0; color: var(--co-muted); font-size: 12px; line-height: 1.55; }
+.source-evidence__feature { display: grid; grid-template-columns: 1.25fr .75fr; gap: 18px; align-items: stretch; margin-top: 24px; background: #f7f9fc; }
+.source-evidence__feature img { display: block; width: 100%; min-height: 260px; height: 100%; object-fit: cover; }
+.source-evidence__feature > div { padding: 22px 20px; }
+.source-evidence__feature b { display: block; margin-bottom: 12px; font-size: 17px; }
+.source-evidence__feature ul { display: grid; gap: 10px; margin: 0; padding-left: 18px; color: var(--co-muted); font-size: 14px; line-height: 1.5; }
+.editorial-visual--expansion img { object-position: center; }
+.microgame-block { position: relative; overflow: hidden; }
+.microgame-block::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 3px; background: linear-gradient(var(--co-blue), #725ad7); }
+.microgame-block .choice-column { margin-top: 20px; }
+.continue-block, .submit-btn, .next-link, .choice-column button, .choice-row button, .timeline-nav button, .drawer-row, .course__hamburger { transition: transform var(--course-motion-fast) var(--course-ease), color var(--course-motion-fast) var(--course-ease), background-color var(--course-motion-fast) var(--course-ease), border-color var(--course-motion-fast) var(--course-ease), opacity var(--course-motion-normal) var(--course-ease); }
+.continue-block:hover:not(:disabled), .submit-btn:hover:not(:disabled), .next-link:hover:not(:disabled) { transform: translateY(-2px); }
+.continue-block:active:not(:disabled), .submit-btn:active:not(:disabled), .next-link:active:not(:disabled), .choice-column button:active:not(:disabled), .choice-row button:active:not(:disabled) { transform: scale(.98); }
+.choice-column button:hover:not(:disabled), .choice-row button:hover:not(:disabled), .timeline-nav button:hover:not(:disabled) { border-color: var(--co-blue); transform: translateY(-1px); }
+.activity-feedback { animation: courseFeedbackIn var(--course-motion-normal) var(--course-ease) both; }
+.source-evidence, .editorial-visual, .visual-explainer, .game-block { animation: courseBlockIn var(--course-motion-slow) var(--course-ease) both; }
+@keyframes courseBlockIn { from { opacity: 0; transform: translateY(var(--course-lift)); } to { opacity: 1; transform: translateY(0); } }
+@keyframes courseFeedbackIn { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: translateX(0); } }
 @media (max-width: 760px) {
   .course__bar, .course__subbar { padding-left: 16px; padding-right: 16px; }
   .cover { padding: 0 0 60px; }
@@ -1956,5 +2098,13 @@ repeat → candidate response</code></pre>
   .rise-process-block__steps { overflow-x: auto; }
   .rise-process-block__steps button { min-width: 116px; }
   .rise-process-block__panel { min-height: 180px; }
+  .source-evidence__media, .source-evidence__feature { grid-template-columns: 1fr; }
+  .source-evidence__feature img { min-height: 0; aspect-ratio: 16 / 10; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .source-evidence, .editorial-visual, .visual-explainer, .game-block, .activity-feedback { animation: none; }
+  .continue-block, .submit-btn, .next-link, .choice-column button, .choice-row button, .timeline-nav button, .drawer-row, .course__hamburger { transition: none; }
+  .continue-block:hover:not(:disabled), .submit-btn:hover:not(:disabled), .next-link:hover:not(:disabled), .choice-column button:hover:not(:disabled), .choice-row button:hover:not(:disabled), .timeline-nav button:hover:not(:disabled) { transform: none; }
 }
 </style>

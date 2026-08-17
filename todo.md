@@ -234,3 +234,13 @@
 - [x] Convert the AI course into sequential lessons with gated block disclosure, keeping its 7-lesson curriculum and prediction simulation coherent.
 - [x] Convert the instructional-design course into sequential lessons with gated block disclosure, preserving its beginner learning sequence, case practice, and final check.
 - [x] Validate all unlock paths, keyboard controls, persistence, responsive layouts, visual consistency, and production builds; then push the completed shared system to `main`.
+
+## Visual, explanatory, game, and motion expansion
+
+- [x] Research high-quality web-based e-learning examples and credible source material for expanded AI and instructional-design explanations, interactions, and visuals.
+- [x] Create an explicit visual storyboard for every course lesson or learning chapter, identifying multiple real-world images, original explanatory illustrations, diagrams, hooks, fact moments, and small games with a stated teaching purpose.
+- [x] Source and attribute a broad library of relevant public-domain, Creative Commons, or permissibly licensed real images and diagrams; generate a complementary original visual set where a specific concept cannot be taught clearly with real material.
+- [x] Expand the AI course throughout with richer explanations, real AI and research imagery, visual comparisons, hooks, concept facts, mini mobile games, and purposeful animated learning blocks.
+- [x] Expand the instructional-design course throughout with real workplace-learning imagery, analysis and design artefacts, visual examples, mini practice games, and purposeful animated learning blocks.
+- [x] Implement a shared Framer-like motion system for course state changes, learning blocks, mini games, navigation, and selected learning pathways across the site, including complete reduced-motion behaviour.
+- [x] Validate asset licensing and loading, instructional purpose, course unlocks, games, keyboard operation, motion accessibility, desktop/mobile visual quality, and production build; then push the completed expansion to `main`.

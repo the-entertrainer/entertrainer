@@ -47,6 +47,7 @@ const plan = reactive({ task: '', check: '', reviewer: '' })
 const courseCompleted = ref(false)
 const courseMain = ref<HTMLElement | null>(null)
 let revealObserver: IntersectionObserver | undefined
+const releasedBlock = ref<string | null>(null)
 const galleryIndex = ref(0)
 const quoteIndex = ref(0)
 const stackIndex = ref(0)
@@ -295,6 +296,7 @@ function scrollCourseToTop() {
 function go(index: number) {
   if (index > highestUnlocked.value) return
   current.value = index
+  releasedBlock.value = index >= 1 && index <= AI_MODULES.length ? `${AI_MODULES[index - 1].id}-0` : null
   if (index >= 0) markVisited(currentId.value)
   menuOpen.value = false
   openDetails.value = null
@@ -307,8 +309,16 @@ function previous() { if (current.value > -1) go(current.value - 1) }
 function advanceModuleBlock(nextStage: number) {
   if (!currentModule.value) return
   moduleStages.value = { ...moduleStages.value, [currentModule.value.id]: Math.max(currentModuleStage.value, nextStage) }
+  releasedBlock.value = `${currentModule.value.id}-${nextStage}`
   persist()
-  nextTick(() => requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-course-block="${currentModule.value?.id}-${nextStage}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })))
+  nextTick(() => requestAnimationFrame(() => {
+    const target = document.querySelector<HTMLElement>(`[data-course-block="${currentModule.value?.id}-${nextStage}"]`)
+    if (!target) return
+    const heading = target.querySelector<HTMLElement>('h2, h3')
+    heading?.setAttribute('tabindex', '-1')
+    heading?.focus({ preventScroll: true })
+    target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })
+  }))
 }
 function completeCurrent() {
   markVisited(currentId.value)
@@ -480,6 +490,7 @@ function resetCourse() {
   quizAnswers.value = []
   plan.task = ''; plan.check = ''; plan.reviewer = ''
   courseCompleted.value = false
+  releasedBlock.value = null
   resetOrderGame()
   shuffleMemoryGame()
   recapStep.value = 0
@@ -771,7 +782,7 @@ onBeforeUnmount(() => revealObserver?.disconnect())
           </article>
 
           <article v-else-if="currentModule" class="reading">
-            <section class="course-block course-block--active" :data-course-block="`${currentModule.id}-0`">
+            <section class="course-block course-block--active" :class="{ 'is-released': releasedBlock === `${currentModule.id}-0` }" :data-course-block="`${currentModule.id}-0`">
               <p class="course-block__meta">Block 1 of 3 · Core idea</p>
             <p>{{ currentModule.introduction[0] }}</p>
             <section class="info-note"><i aria-hidden="true">i</i><div><b>Learning objective</b><p>{{ currentModule.objective }}</p></div></section>
@@ -795,7 +806,7 @@ onBeforeUnmount(() => revealObserver?.disconnect())
             <aside v-if="currentModuleStage === 0" class="locked-preview"><span aria-hidden="true">⌄</span><div><b>Next: {{ nextModuleBlock }}</b><p>Complete the current block above to unlock the next part of this lesson.</p></div></aside>
 
             <template v-if="currentModuleStage >= 1">
-            <section class="course-block" :data-course-block="`${currentModule.id}-1`">
+            <section class="course-block" :class="{ 'is-released': releasedBlock === `${currentModule.id}-1` }" :data-course-block="`${currentModule.id}-1`">
               <p class="course-block__meta">Block 2 of 3 · Evidence and example</p>
             <section v-if="currentModule.id === 'before-chatbots'" class="rise-banner-block">
               <div><p class="block__eyebrow">Banner</p><h2>Modern AI is a chapter, not the opening page.</h2><p>Follow the story from early questions to modern systems before drawing conclusions about what AI is.</p></div>
@@ -1045,7 +1056,7 @@ repeat → candidate response</code></pre>
             </template>
 
             <template v-if="currentModuleStage >= 2">
-            <section class="course-block" :data-course-block="`${currentModule.id}-2`">
+            <section class="course-block" :class="{ 'is-released': releasedBlock === `${currentModule.id}-2` }" :data-course-block="`${currentModule.id}-2`">
               <p class="course-block__meta">Block 3 of 3 · Practice and connection</p>
             <section v-if="currentModule.id === 'before-chatbots'" class="block">
               <p class="block__eyebrow">Interactive timeline · {{ timelineStep + 1 }} of {{ historyEvents.length }}</p>
@@ -1670,13 +1681,18 @@ repeat → candidate response</code></pre>
 .continue-block:disabled { opacity: .42; cursor: not-allowed; }
 
 /* ── Shared sequential course progression ── */
-.course-block { margin-top: 30px; padding-left: 24px; border-left: 3px solid var(--co-blue); animation: course-block-in 220ms var(--ease-out); }
+.course-block { margin-top: 30px; padding-left: 24px; border-left: 3px solid var(--co-blue); }
 .course-block--active { margin-top: 0; }
+.course-block.is-released { animation: course-section-in var(--course-motion-slow) var(--course-ease) both; }
+.course-block.is-released > :is(.course-block__meta, h2, h3, p:first-of-type, .info-note) { animation: course-section-child-in var(--course-motion-normal) var(--course-ease) both; }
+.course-block.is-released > :is(.rise-banner-block, .rise-gallery-carousel, .source-evidence, .rise-two-column, .rise-process-block, .rise-audio-block, .rise-code-block, .rise-chart, .worked-example, .visual-explainer, .rise-grid, .prediction-lab, .game-block, .scenario-block, .microgame-block) { animation: course-section-child-in var(--course-motion-slow) var(--course-ease) both; animation-delay: 70ms; }
 .course-block__meta { margin: 0 0 12px; color: var(--co-blue); font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .locked-preview { display: flex; align-items: flex-start; gap: 14px; max-width: 780px; margin: 30px 0 0; padding: 18px 20px; color: #667085; background: #f7f9fc; border: 1px dashed #c7d0de; border-radius: 4px; font-family: var(--font-ui); }
 .locked-preview > span { display: grid; place-items: center; flex: none; width: 28px; height: 28px; color: #76869f; background: #e8edf5; border-radius: 50%; font-size: 15px; transform: rotate(-90deg); }
 .locked-preview b { display: block; color: #455366; font-size: 14px; }
 .locked-preview p { margin: 5px 0 0; font-family: var(--font-reading); font-size: 15px; line-height: 1.45; }
+@keyframes course-section-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes course-section-child-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .cover__outline button:disabled { color: #9aa3af; background: #f7f8fa; cursor: not-allowed; }
 @keyframes course-block-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -1936,7 +1952,8 @@ repeat → candidate response</code></pre>
 @media (prefers-reduced-motion: reduce) {
   .course-fade-enter-active, .course-fade-leave-active,
   .memory-card__face, .course__drawer, .course__progress-fill,
-  .has-scroll-reveal .rise-reveal.is-pending { transition: none; opacity: 1; transform: none; }
+  .has-scroll-reveal .rise-reveal.is-pending,
+  .course-block.is-released, .course-block.is-released > * { transition: none; animation: none; opacity: 1; transform: none; }
 }
 
 /* ── Rise fidelity rebuild ───────────────────────────────────────────────

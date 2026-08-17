@@ -244,3 +244,10 @@
 - [x] Expand the instructional-design course throughout with real workplace-learning imagery, analysis and design artefacts, visual examples, mini practice games, and purposeful animated learning blocks.
 - [x] Implement a shared Framer-like motion system for course state changes, learning blocks, mini games, navigation, and selected learning pathways across the site, including complete reduced-motion behaviour.
 - [x] Validate asset licensing and loading, instructional purpose, course unlocks, games, keyboard operation, motion accessibility, desktop/mobile visual quality, and production build; then push the completed expansion to `main`.
+
+## Section continuity and reveal refinement
+
+- [x] Audit the AI and instructional-design course templates for every major learning-section boundary, existing continuation control, and current reveal state.
+- [x] Define one shared Continue control and section-entry animation contract that preserves the sequential learning gates and reduced-motion behaviour.
+- [x] Add clear continuation controls between major learning sections and animate each newly released section in both courses.
+- [x] Validate keyboard and pointer continuation flows, section animation, reduced-motion fallback, responsive layout, and production build; then push to `main`.

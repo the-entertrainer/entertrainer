@@ -17,6 +17,9 @@ useSeoMeta({
 type SortBucket = 'learning' | 'environment'
 
 const STARTING_CHOICE = 'investigate'
+const PROGRESSION_STORAGE_KEY = 'entertrainer-instructional-design-progress-v1'
+const unlockedBlock = ref(0)
+const completedBlocks = ref<string[]>([])
 const startingChoice = ref<string | null>(null)
 const sortChoices = ref<Record<string, SortBucket | null>>({
   checklist: null,
@@ -37,11 +40,26 @@ const matchingAnswers = ref<Record<string, string | null>>({
 const matchingSubmitted = ref(false)
 
 const navItems = [
-  { id: 'start', label: 'Start' },
-  { id: 'analyse', label: 'Understand the need' },
-  { id: 'design', label: 'Plan the learning' },
-  { id: 'apply', label: 'Try a design decision' },
-  { id: 'check', label: 'Check your understanding' }
+  { id: 'start', label: 'Start', block: 0 },
+  { id: 'analyse', label: 'Understand the need', block: 2 },
+  { id: 'design', label: 'Plan the learning', block: 6 },
+  { id: 'apply', label: 'Try a design decision', block: 9 },
+  { id: 'check', label: 'Check your understanding', block: 10 }
+]
+
+const blockPath = [
+  { id: 'start', lesson: 'Introduction', title: 'Begin the module' },
+  { id: 'objectives', lesson: 'Introduction', title: 'Review the learning objectives' },
+  { id: 'need', lesson: 'Lesson 1', title: 'Start with the work' },
+  { id: 'definition', lesson: 'Lesson 1', title: 'Define instructional design' },
+  { id: 'cause', lesson: 'Lesson 1', title: 'Identify the real cause' },
+  { id: 'learner', lesson: 'Lesson 1', title: 'Understand the learner' },
+  { id: 'addie', lesson: 'Lesson 2', title: 'Use the ADDIE planning map' },
+  { id: 'objective', lesson: 'Lesson 2', title: 'Connect objective, practice, and evidence' },
+  { id: 'artefacts', lesson: 'Lesson 2', title: 'Review useful design artefacts' },
+  { id: 'scenario', lesson: 'Lesson 3', title: 'Make a sound design decision' },
+  { id: 'matching', lesson: 'Lesson 3', title: 'Match the design actions' },
+  { id: 'closing', lesson: 'Lesson 3', title: 'Complete the module' }
 ]
 
 const media = {
@@ -162,16 +180,10 @@ const sortedCount = computed(() => Object.values(sortChoices.value).filter(Boole
 const sortComplete = computed(() => sortedCount.value === sortItems.length)
 const sortCorrect = computed(() => sortItems.every((item) => sortChoices.value[item.id] === item.answer))
 const matchingCorrect = computed(() => matchingPrompts.every((prompt) => matchingAnswers.value[prompt.id] === prompt.answer))
-const progress = computed(() => {
-  const milestones = [
-    Boolean(startingChoice.value),
-    sortComplete.value,
-    Boolean(objectiveChoice.value),
-    Boolean(caseChoice.value),
-    matchingSubmitted.value && Boolean(finalChoice.value)
-  ]
-  return Math.round((milestones.filter(Boolean).length / milestones.length) * 100)
-})
+const progress = computed(() => Math.round((completedBlocks.value.length / (blockPath.length - 1)) * 100))
+const currentBlockInfo = computed(() => blockPath[Math.min(unlockedBlock.value, blockPath.length - 1)])
+const nextBlockInfo = computed(() => blockPath[Math.min(unlockedBlock.value + 1, blockPath.length - 1)])
+const courseComplete = computed(() => completedBlocks.value.includes('closing'))
 
 function chooseSort(itemId: string, bucket: SortBucket) {
   sortChoices.value[itemId] = bucket
@@ -186,9 +198,37 @@ function submitMatching() {
   matchingSubmitted.value = matchingPrompts.every((prompt) => matchingAnswers.value[prompt.id])
 }
 
+function persistProgress() {
+  if (!import.meta.client) return
+  localStorage.setItem(PROGRESSION_STORAGE_KEY, JSON.stringify({ unlockedBlock: unlockedBlock.value, completedBlocks: completedBlocks.value }))
+}
+
+function completeBlock(id: string, nextIndex: number) {
+  if (!completedBlocks.value.includes(id)) completedBlocks.value = [...completedBlocks.value, id]
+  unlockedBlock.value = Math.max(unlockedBlock.value, nextIndex)
+  persistProgress()
+  nextTick(() => document.getElementById(blockPath[nextIndex]?.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+}
+
+function startModule() {
+  completeBlock('start', 1)
+}
+
 function scrollToSection(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
+
+onMounted(() => {
+  const saved = localStorage.getItem(PROGRESSION_STORAGE_KEY)
+  if (!saved) return
+  try {
+    const state = JSON.parse(saved)
+    unlockedBlock.value = typeof state.unlockedBlock === 'number' ? Math.min(Math.max(state.unlockedBlock, 0), blockPath.length - 1) : 0
+    completedBlocks.value = Array.isArray(state.completedBlocks) ? state.completedBlocks.filter((id: unknown) => typeof id === 'string') : []
+  } catch {
+    localStorage.removeItem(PROGRESSION_STORAGE_KEY)
+  }
+})
 </script>
 
 <template>
@@ -214,16 +254,21 @@ function scrollToSection(id: string) {
         <p class="course-hero__eyebrow">Beginner module · 15–20 minutes</p>
         <h1 id="course-title">Introduction to<br>Instructional Design</h1>
         <p class="course-hero__deck">Instructional design is the work of helping people learn to do something real. Start with the problem, understand the people, then build and improve the support.</p>
-        <a class="course-hero__start" href="#objectives">Start the module <span aria-hidden="true">↓</span></a>
+        <button type="button" class="course-hero__start" @click="startModule">{{ unlockedBlock ? 'Resume the module' : 'Start the module' }} <span aria-hidden="true">↓</span></button>
       </div>
     </section>
 
     <nav class="course-sections" aria-label="Module sections">
-      <button v-for="item in navItems" :key="item.id" type="button" @click="scrollToSection(item.id)">{{ item.label }}</button>
+      <button v-for="item in navItems" :key="item.id" type="button" :disabled="item.block > unlockedBlock" :class="{ 'is-locked': item.block > unlockedBlock }" @click="scrollToSection(item.id)">{{ item.label }}<span v-if="item.block > unlockedBlock" aria-hidden="true"> · locked</span></button>
     </nav>
 
     <div class="lesson-canvas">
-      <section id="objectives" class="lesson-section lesson-section--objectives" aria-labelledby="objectives-title">
+      <aside class="progress-path" aria-live="polite">
+        <span class="progress-path__number">{{ String(Math.min(unlockedBlock + 1, blockPath.length)).padStart(2, '0') }}</span>
+        <div><b>{{ currentBlockInfo.lesson }}</b><p>Current block: {{ currentBlockInfo.title }}</p></div>
+      </aside>
+
+      <section v-if="unlockedBlock >= 1" id="objectives" class="lesson-section lesson-section--objectives unlock-block" :class="{ 'is-complete': completedBlocks.includes('objectives') }" aria-labelledby="objectives-title">
         <p class="section-kicker">Before you begin</p>
         <h2 id="objectives-title">By the End of this module, you will be able to:</h2>
         <ol class="objective-list">
@@ -232,9 +277,10 @@ function scrollToSection(id: string) {
           <li><span>3</span><p><b>Use</b> a simple five-step design cycle to plan a small learning experience.</p></li>
           <li><span>4</span><p><b>Write</b> one clear learning objective that connects to an activity and a check for understanding.</p></li>
         </ol>
+        <button v-if="!completedBlocks.includes('objectives')" type="button" class="continue-block" @click="completeBlock('objectives', 2)">Continue to Lesson 1 <span aria-hidden="true">↓</span></button>
       </section>
 
-      <section id="analyse" class="lesson-section" aria-labelledby="request-title">
+      <section v-if="unlockedBlock >= 2" id="analyse" class="lesson-section unlock-block" :class="{ 'is-complete': completedBlocks.includes('need') }" aria-labelledby="request-title">
         <p class="section-kicker">1. Start with the work</p>
         <h2 id="request-title">A request is not yet a solution.</h2>
         <p>Imagine that a café manager says, “New staff are making mistakes at closing time. Please make a training course.”</p>
@@ -255,9 +301,10 @@ function scrollToSection(id: string) {
           </div>
           <p v-if="startingFeedback" class="feedback" role="status"><b>{{ startingChoice === STARTING_CHOICE ? 'Correct.' : 'Not yet.' }}</b> {{ startingFeedback.replace(/^(Correct\.|Not yet\.)\s*/, '') }}</p>
         </div>
+        <button v-if="!completedBlocks.includes('need')" type="button" class="continue-block" :disabled="!startingChoice" @click="completeBlock('need', 3)">Continue to the definition <span aria-hidden="true">↓</span></button>
       </section>
 
-      <section class="lesson-section lesson-section--definition" aria-labelledby="definition-title">
+      <section v-if="unlockedBlock >= 3" id="definition" class="lesson-section lesson-section--definition unlock-block" :class="{ 'is-complete': completedBlocks.includes('definition') }" aria-labelledby="definition-title">
         <div class="lesson-split">
           <div>
             <p class="section-kicker">What it is</p>
@@ -274,9 +321,10 @@ function scrollToSection(id: string) {
           <span aria-hidden="true">01</span>
           <p><b>In simple words:</b> instructional design helps turn a real need into learning support that people can understand, practise, and use.</p>
         </div>
+        <button v-if="!completedBlocks.includes('definition')" type="button" class="continue-block" @click="completeBlock('definition', 4)">Continue to the cause check <span aria-hidden="true">↓</span></button>
       </section>
 
-      <section class="lesson-section" aria-labelledby="sort-title">
+      <section v-if="unlockedBlock >= 4" id="cause" class="lesson-section unlock-block" :class="{ 'is-complete': completedBlocks.includes('cause') }" aria-labelledby="sort-title">
         <p class="section-kicker">Look for the cause</p>
         <h2 id="sort-title">Not every problem needs training.</h2>
         <p>A course cannot replace missing equipment, an unclear process, or a checklist that nobody can find. Sort each café problem below. Decide whether learning support can help, or whether the work environment needs fixing first.</p>
@@ -292,9 +340,10 @@ function scrollToSection(id: string) {
           </article>
         </div>
         <p v-if="sortComplete" class="feedback" role="status"><b>{{ sortCorrect ? 'Correct.' : 'Review your choices.' }}</b> <template v-if="sortCorrect">Training is one part of performance support. Good analysis also checks tools, time, guidance, and the working environment.</template><template v-else>Ask: does the person need to learn a skill, or are they being blocked by the situation around the task?</template></p>
+        <button v-if="!completedBlocks.includes('cause')" type="button" class="continue-block" :disabled="!sortComplete" @click="completeBlock('cause', 5)">Continue to learner analysis <span aria-hidden="true">↓</span></button>
       </section>
 
-      <section class="lesson-section lesson-section--quiet" aria-labelledby="learner-title">
+      <section v-if="unlockedBlock >= 5" id="learner" class="lesson-section lesson-section--quiet unlock-block" :class="{ 'is-complete': completedBlocks.includes('learner') }" aria-labelledby="learner-title">
         <p class="section-kicker">Understand people and context</p>
         <h2 id="learner-title">Before you teach, learn about the learner.</h2>
         <p>People do not arrive as empty containers. They bring experience, prior knowledge, language, time limits, confidence, and different access to tools. Find out enough to make the learning useful and possible.</p>
@@ -312,9 +361,10 @@ function scrollToSection(id: string) {
             <p>Check time, access to equipment, language, accessibility, manager support, and whether learners can practise in the real setting.</p>
           </details>
         </div>
+        <button v-if="!completedBlocks.includes('learner')" type="button" class="continue-block" @click="completeBlock('learner', 6)">Continue to Lesson 2 <span aria-hidden="true">↓</span></button>
       </section>
 
-      <section id="design" class="lesson-section" aria-labelledby="addie-title">
+      <section v-if="unlockedBlock >= 6" id="design" class="lesson-section unlock-block" :class="{ 'is-complete': completedBlocks.includes('addie') }" aria-labelledby="addie-title">
         <p class="section-kicker">A simple planning map</p>
         <h2 id="addie-title">Use ADDIE to think through the work.</h2>
         <p><b>ADDIE</b> is short for Analyse, Design, Develop, Implement, and Evaluate. It helps designers remember the work that needs attention. It is not a strict straight line: you can return to an earlier step when you learn something new.</p>
@@ -341,9 +391,10 @@ function scrollToSection(id: string) {
             <p class="addie-explorer__output"><span>Useful output</span>{{ activeStageInfo.output }}</p>
           </article>
         </div>
+        <button v-if="!completedBlocks.includes('addie')" type="button" class="continue-block" @click="completeBlock('addie', 7)">Continue to alignment <span aria-hidden="true">↓</span></button>
       </section>
 
-      <section class="lesson-section" aria-labelledby="objective-title">
+      <section v-if="unlockedBlock >= 7" id="objective" class="lesson-section unlock-block" :class="{ 'is-complete': completedBlocks.includes('objective') }" aria-labelledby="objective-title">
         <p class="section-kicker">Make the learning visible</p>
         <h2 id="objective-title">A clear objective connects the course.</h2>
         <p>An objective says what a learner should be able to <b>do</b>. It helps you choose the right explanation, activity, and check for understanding.</p>
@@ -379,9 +430,10 @@ function scrollToSection(id: string) {
           <img :src="media.blooms" loading="lazy" alt="Bloom’s taxonomy diagram showing six levels: remember, understand, apply, analyse, evaluate, and create.">
           <figcaption>Real reference visual: MIT Digital Learning Toolkit’s Bloom’s taxonomy diagram, used under CC BY 4.0. It shows that objectives can ask for different kinds of performance, from remembering to creating.</figcaption>
         </figure>
+        <button v-if="!completedBlocks.includes('objective')" type="button" class="continue-block" :disabled="!objectiveChoice" @click="completeBlock('objective', 8)">Continue to design artefacts <span aria-hidden="true">↓</span></button>
       </section>
 
-      <section class="lesson-section lesson-section--artifacts" aria-labelledby="artefacts-title">
+      <section v-if="unlockedBlock >= 8" id="artefacts" class="lesson-section lesson-section--artifacts unlock-block" :class="{ 'is-complete': completedBlocks.includes('artefacts') }" aria-labelledby="artefacts-title">
         <div class="lesson-split lesson-split--flip">
           <figure class="course-figure course-figure--borderless">
             <img :src="media.artifacts" loading="lazy" alt="Hands arranging learner notes, a storyboard, a practice card, a job aid, and feedback notes on a worktable.">
@@ -399,9 +451,10 @@ function scrollToSection(id: string) {
             </ul>
           </div>
         </div>
+        <button v-if="!completedBlocks.includes('artefacts')" type="button" class="continue-block" @click="completeBlock('artefacts', 9)">Continue to Lesson 3 <span aria-hidden="true">↓</span></button>
       </section>
 
-      <section id="apply" class="lesson-section" aria-labelledby="apply-title">
+      <section v-if="unlockedBlock >= 9" id="apply" class="lesson-section unlock-block" :class="{ 'is-complete': completedBlocks.includes('scenario') }" aria-labelledby="apply-title">
         <p class="section-kicker">Put it together</p>
         <h2 id="apply-title">Make one sound design decision.</h2>
         <p>The café manager shares a report showing that closing mistakes happen most often on busy Fridays. Before building any learning material, what should you do next?</p>
@@ -411,9 +464,10 @@ function scrollToSection(id: string) {
           <button type="button" :class="{ 'is-selected': caseChoice === 'test' }" @click="caseChoice = 'test'"><span>C</span><b>Give every staff member a final test.</b><small>A test can check learning later; it cannot explain the problem now.</small></button>
         </div>
         <p v-if="caseFeedback" class="feedback" role="status"><b>{{ caseChoice === 'observe' ? 'Correct.' : 'Not yet.' }}</b> {{ caseFeedback.replace(/^(Correct\.|This may be useful later, but)\s*/, '') }}</p>
+        <button v-if="!completedBlocks.includes('scenario')" type="button" class="continue-block" :disabled="!caseChoice" @click="completeBlock('scenario', 10)">Continue to the final check <span aria-hidden="true">↓</span></button>
       </section>
 
-      <section id="check" class="lesson-section lesson-section--check" aria-labelledby="check-title">
+      <section v-if="unlockedBlock >= 10" id="check" class="lesson-section lesson-section--check unlock-block" :class="{ 'is-complete': completedBlocks.includes('matching') }" aria-labelledby="check-title">
         <p class="section-kicker">Check your understanding</p>
         <h2 id="check-title">Use the design language once more.</h2>
         <p>Match each design action to its purpose. Then answer one final question.</p>
@@ -429,7 +483,7 @@ function scrollToSection(id: string) {
           <p v-if="matchingSubmitted" class="feedback" role="status"><b>{{ matchingCorrect ? 'Correct.' : 'Review the matches.' }}</b> <template v-if="matchingCorrect">Analysis identifies the need, Design plans the learning, and Evaluation tells you what to improve.</template><template v-else>Look for the purpose of each stage, rather than the tool someone might use inside it.</template></p>
         </div>
 
-        <div class="knowledge-check knowledge-check--final" aria-labelledby="final-question">
+        <div v-if="matchingSubmitted" class="knowledge-check knowledge-check--final" aria-labelledby="final-question">
           <p class="knowledge-check__type">Final question</p>
           <h3 id="final-question">Which statement best describes instructional design?</h3>
           <div class="choice-list choice-list--stacked">
@@ -440,9 +494,10 @@ function scrollToSection(id: string) {
           <button type="button" class="submit-button" :disabled="!finalChoice" @click="showFinalFeedback = true">Submit answer</button>
           <p v-if="showFinalFeedback" class="feedback" role="status"><b>{{ finalChoice === 'process' ? 'Correct.' : 'Not yet.' }}</b> <template v-if="finalChoice === 'process'">Instructional design connects a real need, the learner, the activity, and evidence of learning. The screen is only one possible part of that work.</template><template v-else>The screen and the quiz may be useful tools. The work begins earlier: understand the need, plan the learning, and use evidence to improve it.</template></p>
         </div>
+        <button v-if="showFinalFeedback && !completedBlocks.includes('matching')" type="button" class="continue-block" @click="completeBlock('matching', 11)">Continue to the module close <span aria-hidden="true">↓</span></button>
       </section>
 
-      <section class="lesson-section lesson-section--closing" aria-labelledby="closing-title">
+      <section v-if="unlockedBlock >= 11" id="closing" class="lesson-section lesson-section--closing unlock-block" :class="{ 'is-complete': courseComplete }" aria-labelledby="closing-title">
         <p class="section-kicker">Take this with you</p>
         <h2 id="closing-title">Good learning design starts before the screen.</h2>
         <p>Find the real task. Understand the people doing it. Decide what successful performance looks like. Give learners a way to practise. Then use evidence to make the support better.</p>
@@ -450,9 +505,16 @@ function scrollToSection(id: string) {
           <span aria-hidden="true">✓</span>
           <p><b>Small first step:</b> the next time someone asks for a course, ask: “What should people be able to do differently after this?”</p>
         </div>
+        <button v-if="!courseComplete" type="button" class="continue-block" @click="completeBlock('closing', 11)">Mark module complete <span aria-hidden="true">✓</span></button>
+        <p v-else class="completion-note" role="status"><b>Module complete.</b> You can revisit any completed lesson from the path above.</p>
       </section>
 
-      <details class="sources-panel">
+      <aside v-if="unlockedBlock < blockPath.length - 1" class="locked-preview" aria-live="polite">
+        <span aria-hidden="true">⌄</span>
+        <div><b>Next: {{ nextBlockInfo.title }}</b><p>Complete the current block above to unlock this part of the module.</p></div>
+      </aside>
+
+      <details v-if="courseComplete" class="sources-panel">
         <summary>Sources and media credits <span aria-hidden="true">+</span></summary>
         <div class="sources-panel__body">
           <p>This module uses instructional-design sources for explanation, not as a substitute for professional consultation on a specific workplace problem.</p>
@@ -500,9 +562,27 @@ function scrollToSection(id: string) {
 .course-sections { position: sticky; z-index: 3; top: 62rem; display: flex; justify-content: center; gap: 4rem; overflow-x: auto; padding: 10rem 18rem; background: #fff; border-bottom: 1px solid #eaecf0; }
 .course-sections button { flex: none; padding: 7rem 10rem; color: var(--course-muted); border-radius: 4rem; font-family: var(--font-ui); font-size: 12rem; white-space: nowrap; transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
 .course-sections button:hover { background: var(--course-blue-soft); color: var(--course-blue); }
+.course-sections button:disabled { color: #9aa3af; cursor: not-allowed; }
+.course-sections button.is-locked { background: #f7f8fa; }
 
 .lesson-canvas { width: min(100% - 40rem, 820rem); margin: 0 auto; }
+.progress-path { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12rem; margin: 42rem 0 -24rem; padding: 14rem 16rem; color: #33445f; background: #f3f6fd; border: 1px solid #dce5f8; border-radius: 7rem; font-family: var(--font-ui); }
+.progress-path__number { display: grid; place-items: center; width: 30rem; height: 30rem; color: #fff; background: var(--course-blue); border-radius: 50%; font-family: var(--font-mono); font-size: 10rem; font-weight: 700; }
+.progress-path b { display: block; color: var(--course-blue); font-family: var(--font-mono); font-size: 10rem; letter-spacing: .07em; text-transform: uppercase; }
+.progress-path p { margin: 3rem 0 0; font-size: 13rem; font-weight: 700; }
 .lesson-section { padding: 90rem 0; border-bottom: 1px solid #e6e8ec; scroll-margin-top: 126rem; }
+.unlock-block { border-left: 3rem solid var(--course-blue); padding-left: 26rem; animation: course-block-in 240ms var(--ease-out); }
+.unlock-block.is-complete { border-left-color: #2f8b5d; }
+.continue-block { display: inline-flex; align-items: center; gap: 9rem; margin-top: 30rem; padding: 12rem 16rem; color: #fff; background: var(--course-blue); border: 0; border-radius: 5rem; font-family: var(--font-ui); font-size: 13rem; font-weight: 700; cursor: pointer; transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out); }
+.continue-block:hover:not(:disabled) { background: #274fa9; transform: translateY(-1rem); }
+.continue-block:disabled { opacity: .42; cursor: not-allowed; }
+.continue-block:active:not(:disabled) { transform: scale(.98); }
+.locked-preview { display: flex; align-items: flex-start; gap: 14rem; margin: 40rem 0 16rem; padding: 20rem; color: #667085; background: #f7f9fc; border: 1px dashed #c7d0de; border-radius: 7rem; font-family: var(--font-ui); }
+.locked-preview > span { display: grid; place-items: center; flex: none; width: 28rem; height: 28rem; color: #76869f; background: #e8edf5; border-radius: 50%; font-size: 15rem; transform: rotate(-90deg); }
+.locked-preview b { display: block; color: #455366; font-size: 14rem; }
+.locked-preview p { margin: 5rem 0 0; font-family: var(--font-reading); font-size: 15rem; line-height: 1.45; }
+.completion-note { margin: 30rem 0 0; padding: 15rem 17rem; color: #244332; background: #edf8f1; border-left: 3rem solid #2f8b5d; font-family: var(--font-ui); font-size: 14rem; }
+@keyframes course-block-in { from { opacity: 0; transform: translateY(10rem); } to { opacity: 1; transform: translateY(0); } }
 .lesson-section > h2 { max-width: 16ch; margin: 0; font-family: var(--font-ui); font-size: clamp(30rem, 4vw, 44rem); letter-spacing: -.052em; line-height: 1.06; }
 .lesson-section > p:not(.section-kicker):not(.feedback) { max-width: 61ch; margin: 22rem 0 0; color: #3c434c; font-family: var(--font-reading); font-size: 18rem; line-height: 1.65; }
 .lesson-section--objectives { margin-top: 56rem; padding: 36rem clamp(24rem, 5vw, 52rem) 42rem; background: var(--course-blue-soft); border: 0; border-radius: 8rem; }
@@ -640,7 +720,9 @@ function scrollToSection(id: string) {
   .course-hero__body { padding: 43rem 24rem 50rem; }
   .course-sections { justify-content: flex-start; top: 62rem; }
   .lesson-canvas { width: min(100% - 32rem, 820rem); }
+  .progress-path { margin-top: 30rem; }
   .lesson-section { padding: 64rem 0; }
+  .unlock-block { padding-left: 18rem; }
   .lesson-section--objectives, .lesson-section--quiet, .lesson-section--check { padding: 30rem 20rem; }
   .objective-list, .sort-board, .worked-example__grid { grid-template-columns: 1fr; }
   .worked-example__grid p { min-height: 0; border-right: 0; border-bottom: 1px solid #e1e4e9; }

@@ -18,6 +18,8 @@ type MatchPrompt = { prompt: string; answer: string; explanation: string }
 
 const STORAGE_KEY = 'entertrainer-ai-course-v9'
 const current = ref(-1)
+const highestUnlocked = ref(0)
+const moduleStages = ref<Record<string, number>>({})
 const menuOpen = ref(false)
 const openDetails = ref<string | null>(null)
 const visited = ref<string[]>([])
@@ -184,6 +186,9 @@ const quizQuestions: QuizQuestion[] = [
 ]
 
 const currentModule = computed<AiModule | undefined>(() => current.value >= 1 && current.value <= AI_MODULES.length ? AI_MODULES[current.value - 1] : undefined)
+const currentModuleStage = computed(() => currentModule.value ? (moduleStages.value[currentModule.value.id] ?? 0) : 0)
+const currentModuleBlock = computed(() => ['Core idea', 'Evidence and example', 'Practice and connection'][currentModuleStage.value] ?? 'Lesson complete')
+const nextModuleBlock = computed(() => ['Evidence and example', 'Practice and connection', 'Lesson complete'][currentModuleStage.value] ?? 'Next lesson')
 const currentId = computed<ScreenId>(() => {
   if (current.value === 0) return 'objectives'
   if (current.value >= 1 && current.value <= AI_MODULES.length) return AI_MODULES[current.value - 1].id
@@ -212,7 +217,7 @@ const supportingParagraphs = computed(() => [
 
 function persist() {
   if (!import.meta.client) return
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ current: current.value, visited: visited.value, quizAnswers: quizAnswers.value, completed: courseCompleted.value }))
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ current: current.value, highestUnlocked: highestUnlocked.value, moduleStages: moduleStages.value, visited: visited.value, quizAnswers: quizAnswers.value, completed: courseCompleted.value }))
 }
 function markVisited(id: string) {
   if (!visited.value.includes(id)) visited.value = [...visited.value, id]
@@ -252,6 +257,7 @@ function scrollCourseToTop() {
   }))
 }
 function go(index: number) {
+  if (index > highestUnlocked.value) return
   current.value = index
   if (index >= 0) markVisited(currentId.value)
   menuOpen.value = false
@@ -259,10 +265,22 @@ function go(index: number) {
   persist()
   scrollCourseToTop()
 }
-function startCourse() { go(0) }
-function next() { if (current.value < AI_MODULES.length + 3) go(current.value + 1) }
+function startCourse() { highestUnlocked.value = Math.max(highestUnlocked.value, 0); go(0) }
+function next() { if (current.value < highestUnlocked.value) go(current.value + 1) }
 function previous() { if (current.value > -1) go(current.value - 1) }
-function completeCurrent() { markVisited(currentId.value); next() }
+function advanceModuleBlock(nextStage: number) {
+  if (!currentModule.value) return
+  moduleStages.value = { ...moduleStages.value, [currentModule.value.id]: Math.max(currentModuleStage.value, nextStage) }
+  persist()
+  nextTick(() => requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-course-block="${currentModule.value?.id}-${nextStage}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })))
+}
+function completeCurrent() {
+  markVisited(currentId.value)
+  if (currentModule.value) moduleStages.value = { ...moduleStages.value, [currentModule.value.id]: 3 }
+  highestUnlocked.value = Math.max(highestUnlocked.value, current.value + 1)
+  persist()
+  go(current.value + 1)
+}
 function nextGalleryFrame(direction: number) {
   galleryIndex.value = (galleryIndex.value + direction + galleryFrames.length) % galleryFrames.length
 }
@@ -370,6 +388,7 @@ function nextQuizQuestion() {
     quizSubmitted.value = false
   } else {
     markVisited('quiz')
+    highestUnlocked.value = Math.max(highestUnlocked.value, AI_MODULES.length + 2)
     go(AI_MODULES.length + 2)
   }
   persist()
@@ -383,6 +402,8 @@ function finishCourse() {
 }
 function resetCourse() {
   current.value = -1
+  highestUnlocked.value = 0
+  moduleStages.value = {}
   visited.value = []
   predictionStep.value = 0
   predictionChoice.value = null
@@ -535,6 +556,9 @@ onMounted(() => {
     try {
       const state = JSON.parse(saved)
       current.value = typeof state.current === 'number' ? Math.min(state.current, AI_MODULES.length + 3) : -1
+      highestUnlocked.value = typeof state.highestUnlocked === 'number' ? Math.min(Math.max(state.highestUnlocked, 0), AI_MODULES.length + 3) : 0
+      moduleStages.value = state.moduleStages && typeof state.moduleStages === 'object' ? state.moduleStages : {}
+      if (current.value > highestUnlocked.value) current.value = highestUnlocked.value
       visited.value = Array.isArray(state.visited) ? state.visited : []
       quizAnswers.value = Array.isArray(state.quizAnswers) ? state.quizAnswers : []
       courseCompleted.value = Boolean(state.completed)
@@ -582,35 +606,35 @@ onBeforeUnmount(() => revealObserver?.disconnect())
       </div>
       <ol class="course__drawer-list">
         <li>
-          <button type="button" class="drawer-row" :class="{ 'is-active': current === 0 }" @click="go(0)">
+          <button type="button" class="drawer-row" :class="{ 'is-active': current === 0, 'is-locked': 0 > highestUnlocked }" :disabled="0 > highestUnlocked" @click="go(0)">
             <span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7" /></svg></span>
             <span class="drawer-row__label">Objectives</span>
             <span class="drawer-row__dot" :class="{ 'is-done': isComplete('objectives') }" aria-hidden="true" />
           </button>
         </li>
         <li v-for="(item, index) in AI_MODULES" :key="item.id">
-          <button type="button" class="drawer-row" :class="{ 'is-active': current === index + 1 }" @click="go(index + 1)">
+          <button type="button" class="drawer-row" :class="{ 'is-active': current === index + 1, 'is-locked': index + 1 > highestUnlocked }" :disabled="index + 1 > highestUnlocked" @click="go(index + 1)">
             <span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7M9 18h4" /></svg></span>
             <span class="drawer-row__label">{{ item.short }}</span>
             <span class="drawer-row__dot" :class="{ 'is-done': isComplete(item.id) }" aria-hidden="true" />
           </button>
         </li>
         <li>
-          <button type="button" class="drawer-row" :class="{ 'is-active': currentId === 'quiz' }" @click="go(AI_MODULES.length + 1)">
+          <button type="button" class="drawer-row" :class="{ 'is-active': currentId === 'quiz', 'is-locked': AI_MODULES.length + 1 > highestUnlocked }" :disabled="AI_MODULES.length + 1 > highestUnlocked" @click="go(AI_MODULES.length + 1)">
             <span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 4" /><circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none" /></svg></span>
             <span class="drawer-row__label">Knowledge check</span>
             <span class="drawer-row__dot" :class="{ 'is-done': isComplete('quiz') }" aria-hidden="true" />
           </button>
         </li>
         <li>
-          <button type="button" class="drawer-row" :class="{ 'is-active': currentId === 'match-game' }" @click="go(AI_MODULES.length + 2)">
+          <button type="button" class="drawer-row" :class="{ 'is-active': currentId === 'match-game', 'is-locked': AI_MODULES.length + 2 > highestUnlocked }" :disabled="AI_MODULES.length + 2 > highestUnlocked" @click="go(AI_MODULES.length + 2)">
             <span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4" /><circle cx="12" cy="12" r="4.5" /></svg></span>
             <span class="drawer-row__label">Bonus: Match the words</span>
             <span class="drawer-row__dot" :class="{ 'is-done': isComplete('match-game') }" aria-hidden="true" />
           </button>
         </li>
         <li>
-          <button type="button" class="drawer-row" :class="{ 'is-active': currentId === 'summary' }" @click="go(AI_MODULES.length + 3)">
+          <button type="button" class="drawer-row" :class="{ 'is-active': currentId === 'summary', 'is-locked': AI_MODULES.length + 3 > highestUnlocked }" :disabled="AI_MODULES.length + 3 > highestUnlocked" @click="go(AI_MODULES.length + 3)">
             <span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7M9 18h4" /></svg></span>
             <span class="drawer-row__label">Summary</span>
             <span class="drawer-row__dot" :class="{ 'is-done': isComplete('summary') }" aria-hidden="true" />
@@ -638,11 +662,11 @@ onBeforeUnmount(() => revealObserver?.disconnect())
             <div class="cover__panel">
               <h2 class="cover__panel-h">Course content</h2>
               <ol class="cover__outline">
-                <li><button type="button" @click="go(0)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7" /></svg></span><span>Objectives</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete('objectives') }" /></button></li>
-                <li v-for="(item, index) in AI_MODULES" :key="item.id"><button type="button" @click="go(index + 1)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7M9 18h4" /></svg></span><span>{{ item.short }}</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete(item.id) }" /></button></li>
-                <li><button type="button" @click="go(AI_MODULES.length + 1)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 4" /><circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none" /></svg></span><span>Knowledge check</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete('quiz') }" /></button></li>
-                <li><button type="button" @click="go(AI_MODULES.length + 2)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4" /><circle cx="12" cy="12" r="4.5" /></svg></span><span>Bonus: Match the words</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete('match-game') }" /></button></li>
-                <li><button type="button" @click="go(AI_MODULES.length + 3)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7M9 18h4" /></svg></span><span>Summary</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete('summary') }" /></button></li>
+                <li><button type="button" :disabled="0 > highestUnlocked" @click="go(0)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7" /></svg></span><span>Objectives</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete('objectives') }" /></button></li>
+                <li v-for="(item, index) in AI_MODULES" :key="item.id"><button type="button" :disabled="index + 1 > highestUnlocked" @click="go(index + 1)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7M9 18h4" /></svg></span><span>{{ item.short }}</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete(item.id) }" /></button></li>
+                <li><button type="button" :disabled="AI_MODULES.length + 1 > highestUnlocked" @click="go(AI_MODULES.length + 1)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 4" /><circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none" /></svg></span><span>Knowledge check</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete('quiz') }" /></button></li>
+                <li><button type="button" :disabled="AI_MODULES.length + 2 > highestUnlocked" @click="go(AI_MODULES.length + 2)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4" /><circle cx="12" cy="12" r="4.5" /></svg></span><span>Bonus: Match the words</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete('match-game') }" /></button></li>
+                <li><button type="button" :disabled="AI_MODULES.length + 3 > highestUnlocked" @click="go(AI_MODULES.length + 3)"><span class="drawer-row__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h11l3 3v13H5z" /><path d="M9 10h7M9 14h7M9 18h4" /></svg></span><span>Summary</span><span class="drawer-row__dot" :class="{ 'is-done': isComplete('summary') }" /></button></li>
               </ol>
             </div>
           </div>
@@ -687,6 +711,8 @@ onBeforeUnmount(() => revealObserver?.disconnect())
           </article>
 
           <article v-else-if="currentModule" class="reading">
+            <section class="course-block course-block--active" :data-course-block="`${currentModule.id}-0`">
+              <p class="course-block__meta">Block 1 of 3 · Core idea</p>
             <p>{{ currentModule.introduction[0] }}</p>
             <section class="info-note"><i aria-hidden="true">i</i><div><b>Learning objective</b><p>{{ currentModule.objective }}</p></div></section>
 
@@ -704,7 +730,13 @@ onBeforeUnmount(() => revealObserver?.disconnect())
               <template v-else-if="currentModule.diagram === 'capabilities'"><span>Input</span><i>→</i><span>Model</span><i>→</i><span>Candidate output</span><i>→</i><span>Evaluation</span></template>
               <template v-else><span>Bounded task</span><i>→</i><span>Protect information</span><i>→</i><span>Check output</span><i>→</i><span>Accountable person</span></template>
             </section>
+            </section>
+            <button v-if="currentModuleStage === 0" type="button" class="continue-block" @click="advanceModuleBlock(1)">Continue to evidence and examples <span aria-hidden="true">↓</span></button>
+            <aside v-if="currentModuleStage === 0" class="locked-preview"><span aria-hidden="true">⌄</span><div><b>Next: {{ nextModuleBlock }}</b><p>Complete the current block above to unlock the next part of this lesson.</p></div></aside>
 
+            <template v-if="currentModuleStage >= 1">
+            <section class="course-block" :data-course-block="`${currentModule.id}-1`">
+              <p class="course-block__meta">Block 2 of 3 · Evidence and example</p>
             <section v-if="currentModule.id === 'before-chatbots'" class="rise-banner-block">
               <div><p class="block__eyebrow">Banner</p><h2>Modern AI is a chapter, not the opening page.</h2><p>Follow the story from early questions to modern systems before drawing conclusions about what AI is.</p></div>
             </section>
@@ -924,7 +956,14 @@ repeat → candidate response</code></pre>
               </div>
               <p v-else class="labeled-graphic__hint">Tap a numbered point on the diagram above.</p>
             </section>
+            </section>
+            <button v-if="currentModuleStage === 1" type="button" class="continue-block" @click="advanceModuleBlock(2)">Continue to practice and connection <span aria-hidden="true">↓</span></button>
+            <aside v-if="currentModuleStage === 1" class="locked-preview"><span aria-hidden="true">⌄</span><div><b>Next: {{ nextModuleBlock }}</b><p>Complete the current block above to unlock the final practice and lesson connection.</p></div></aside>
+            </template>
 
+            <template v-if="currentModuleStage >= 2">
+            <section class="course-block" :data-course-block="`${currentModule.id}-2`">
+              <p class="course-block__meta">Block 3 of 3 · Practice and connection</p>
             <section v-if="currentModule.id === 'before-chatbots'" class="block">
               <p class="block__eyebrow">Interactive timeline · {{ timelineStep + 1 }} of {{ historyEvents.length }}</p>
               <h2>Trace the long route to modern AI</h2>
@@ -1062,7 +1101,9 @@ repeat → candidate response</code></pre>
 
             <section class="source-line"><strong>Source:</strong> <a :href="currentModule.sourceUrl" target="_blank" rel="noreferrer">{{ currentModule.sourceLabel }}</a> <span>· {{ currentModule.confidence }}</span></section>
             <section class="bridge"><b>Next connection</b><p>{{ currentModule.bridge }}</p></section>
+            </section>
             <button type="button" class="continue-block" @click="completeCurrent">{{ currentModule.number === '07' ? 'Continue to the knowledge check' : 'Continue to the next lesson' }}</button>
+            </template>
           </article>
 
           <article v-else-if="currentId === 'quiz'" class="reading quiz-screen">
@@ -1134,7 +1175,7 @@ repeat → candidate response</code></pre>
     <footer v-if="current >= 0" class="course__foot">
       <button type="button" class="foot-btn" :disabled="current < 0" @click="previous">← Previous</button>
       <span class="foot-pos">{{ current + 1 }} of {{ AI_MODULES.length + 4 }}</span>
-      <button type="button" class="foot-btn foot-btn--primary" :disabled="current >= AI_MODULES.length + 3" @click="next">Next →</button>
+      <button type="button" class="foot-btn foot-btn--primary" :disabled="current >= highestUnlocked || current >= AI_MODULES.length + 3" @click="next">Next →</button>
     </footer>
   </div>
 </template>
@@ -1233,6 +1274,8 @@ repeat → candidate response</code></pre>
 }
 .drawer-row:hover, .drawer-row.is-active { background: var(--co-blue-tint); }
 .drawer-row.is-active .drawer-row__label { color: var(--co-blue); font-weight: 800; }
+.drawer-row:disabled, .drawer-row.is-locked { color: #9aa3af; background: #f7f8fa; cursor: not-allowed; }
+.drawer-row:disabled .drawer-row__icon { color: #9aa3af; background: #eef1f5; }
 .drawer-row__icon {
   width: 26px; height: 26px; border-radius: var(--co-radius-s);
   display: flex; align-items: center; justify-content: center;
@@ -1514,6 +1557,18 @@ repeat → candidate response</code></pre>
   transition: background 0.15s;
 }
 .continue-block:hover { background: var(--co-blue-dark); }
+.continue-block:disabled { opacity: .42; cursor: not-allowed; }
+
+/* ── Shared sequential course progression ── */
+.course-block { margin-top: 30px; padding-left: 24px; border-left: 3px solid var(--co-blue); animation: course-block-in 220ms var(--ease-out); }
+.course-block--active { margin-top: 0; }
+.course-block__meta { margin: 0 0 12px; color: var(--co-blue); font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.locked-preview { display: flex; align-items: flex-start; gap: 14px; max-width: 780px; margin: 30px 0 0; padding: 18px 20px; color: #667085; background: #f7f9fc; border: 1px dashed #c7d0de; border-radius: 4px; font-family: var(--font-ui); }
+.locked-preview > span { display: grid; place-items: center; flex: none; width: 28px; height: 28px; color: #76869f; background: #e8edf5; border-radius: 50%; font-size: 15px; transform: rotate(-90deg); }
+.locked-preview b { display: block; color: #455366; font-size: 14px; }
+.locked-preview p { margin: 5px 0 0; font-family: var(--font-reading); font-size: 15px; line-height: 1.45; }
+.cover__outline button:disabled { color: #9aa3af; background: #f7f8fa; cursor: not-allowed; }
+@keyframes course-block-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ── Rise "Statement" block ── */
 .statement { max-width: 780px; margin: 8px 0 34px; }

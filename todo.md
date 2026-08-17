@@ -226,3 +226,11 @@
 - [x] Source copyright-appropriate real reference images and create original, text-free editorial illustrations or conceptual visuals where they teach more clearly.
 - [x] Rebuild `/instructional-design` as “Introduction to Instructional Design” with direct beginner language, accessible interactions, visible sources, and Rise-style visual restraint.
 - [x] Validate the rewritten module at desktop and mobile widths, test all interactions and source links, run a production build, and push the completed course to `main`.
+
+## Shared sequential-course progression
+
+- [x] Audit the AI and instructional-design course routes, identifying every existing lesson, explanatory block, interaction, gate, progress indicator, and saved-learning state.
+- [x] Define one accessible progression contract: direct reading completion, explicit “Continue” controls, interaction completion, lesson completion, unlocked-state feedback, and a reduced-motion-safe visual language shared by both courses.
+- [x] Convert the AI course into sequential lessons with gated block disclosure, keeping its 7-lesson curriculum and prediction simulation coherent.
+- [x] Convert the instructional-design course into sequential lessons with gated block disclosure, preserving its beginner learning sequence, case practice, and final check.
+- [x] Validate all unlock paths, keyboard controls, persistence, responsive layouts, visual consistency, and production builds; then push the completed shared system to `main`.

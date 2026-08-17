@@ -218,3 +218,11 @@
 - [x] Apply the Route Atlas system across the remaining public page families without reintroducing generic-template patterns.
 - [x] Implement the initial Route Atlas homepage composition and masthead route-navigation refinement.
 - [x] Validate the updated experience for visual polish, performance, mobile responsiveness, motion accessibility, and build health; then push to `main`.
+
+## Introduction to Instructional Design rebuild
+
+- [x] Research and cite a beginner-safe explanation of instructional design, its purpose, a simple design process, and practical examples from credible primary or academic sources.
+- [x] Study Rise-style structural patterns and produce a fresh course map with introductory screen, stated learning objectives, concise explanation blocks, purposeful practice, and a final knowledge check.
+- [x] Source copyright-appropriate real reference images and create original, text-free editorial illustrations or conceptual visuals where they teach more clearly.
+- [x] Rebuild `/instructional-design` as “Introduction to Instructional Design” with direct beginner language, accessible interactions, visible sources, and Rise-style visual restraint.
+- [x] Validate the rewritten module at desktop and mobile widths, test all interactions and source links, run a production build, and push the completed course to `main`.

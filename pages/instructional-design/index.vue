@@ -41,6 +41,10 @@ const matchingSubmitted = ref(false)
 const learnerContextChoice = ref<string | null>(null)
 const artifactChoice = ref<string | null>(null)
 const releasedSection = ref<string | null>(null)
+const routeGameIndex = ref(0)
+const routeGameChoice = ref<string | null>(null)
+const routeGameSubmitted = ref(false)
+const routeGameComplete = ref(false)
 
 const navItems = [
   { id: 'start', label: 'Start', block: 0 },
@@ -172,6 +176,45 @@ const addieStages = [
   }
 ]
 
+const routeGameRounds = [
+  {
+    id: 'notice',
+    stage: 'Analyse',
+    prompt: 'A café manager says, “New staff are missing cleaning steps when the counter is busy.” What is the best first move?',
+    hint: 'Do not choose a solution until you know what the work and the constraint look like.',
+    choices: [
+      { id: 'observe', label: 'Watch two busy closing shifts and ask staff where the step breaks down.', correct: true },
+      { id: 'video', label: 'Record a long video explaining every cleaning product.', correct: false },
+      { id: 'quiz', label: 'Build a quiz before speaking to anyone who does the work.', correct: false }
+    ],
+    feedback: 'Analyse first. Observe the work and speak with the people doing it before deciding whether training, a job aid, or a work-environment change will help.'
+  },
+  {
+    id: 'make',
+    stage: 'Design',
+    prompt: 'You find that staff know the steps but forget the order during a rush. Which design choice is most useful?',
+    hint: 'The support should help people perform the real task, not only read about it.',
+    choices: [
+      { id: 'practice', label: 'Plan a short counter-side checklist and a coached practice run during a quiet period.', correct: true },
+      { id: 'slides', label: 'Add more definitions to a presentation about food safety.', correct: false },
+      { id: 'poster', label: 'Print a poster that says “Remember the correct order.”', correct: false }
+    ],
+    feedback: 'Design connects the task, the learner, and the practice. A usable checklist plus a safe practice opportunity helps staff perform the actual sequence.'
+  },
+  {
+    id: 'check',
+    stage: 'Evaluate',
+    prompt: 'The checklist and practice have been used for one week. What evidence should you check next?',
+    hint: 'Look for evidence that the support changed real performance.',
+    choices: [
+      { id: 'evidence', label: 'Review whether the cleaning steps are completed correctly on later busy shifts.', correct: true },
+      { id: 'colour', label: 'Ask whether the checklist uses a more attractive colour.', correct: false },
+      { id: 'length', label: 'Count the number of screens in the short course.', correct: false }
+    ],
+    feedback: 'Evaluate with evidence from the work. Check whether the support improves performance, then revise what is not helping.'
+  }
+]
+
 const objectiveOptions = [
   { id: 'vague', text: 'Understand the café closing procedure.' },
   { id: 'strong', text: 'After observing the counter setup, complete the six closing steps in the correct order using the checklist.' },
@@ -191,6 +234,9 @@ const matchingChoices = [
 ]
 
 const activeStageInfo = computed(() => addieStages.find((stage) => stage.id === activeAddie.value) ?? addieStages[0])
+const activeRouteGameRound = computed(() => routeGameRounds[Math.min(routeGameIndex.value, routeGameRounds.length - 1)])
+const selectedRouteGameChoice = computed(() => activeRouteGameRound.value.choices.find((choice) => choice.id === routeGameChoice.value))
+const routeGameCorrect = computed(() => selectedRouteGameChoice.value?.correct === true)
 const startingFeedback = computed(() => {
   if (!startingChoice.value) return ''
   return startingChoice.value === STARTING_CHOICE
@@ -243,9 +289,36 @@ function submitMatching() {
   matchingSubmitted.value = matchingPrompts.every((prompt) => matchingAnswers.value[prompt.id])
 }
 
+function chooseRouteGameChoice(choiceId: string) {
+  if (routeGameSubmitted.value) return
+  routeGameChoice.value = choiceId
+}
+
+function submitRouteGameRound() {
+  if (!routeGameChoice.value) return
+  routeGameSubmitted.value = true
+}
+
+function continueRouteGame() {
+  if (!routeGameSubmitted.value) return
+  if (!routeGameCorrect.value) {
+    routeGameChoice.value = null
+    routeGameSubmitted.value = false
+    return
+  }
+  if (routeGameIndex.value === routeGameRounds.length - 1) {
+    routeGameComplete.value = true
+    persistProgress()
+    return
+  }
+  routeGameIndex.value += 1
+  routeGameChoice.value = null
+  routeGameSubmitted.value = false
+}
+
 function persistProgress() {
   if (!import.meta.client) return
-  localStorage.setItem(PROGRESSION_STORAGE_KEY, JSON.stringify({ unlockedBlock: unlockedBlock.value, completedBlocks: completedBlocks.value }))
+  localStorage.setItem(PROGRESSION_STORAGE_KEY, JSON.stringify({ unlockedBlock: unlockedBlock.value, completedBlocks: completedBlocks.value, routeGameComplete: routeGameComplete.value }))
 }
 
 function completeBlock(id: string, nextIndex: number) {
@@ -279,6 +352,7 @@ onMounted(() => {
     const state = JSON.parse(saved)
     unlockedBlock.value = typeof state.unlockedBlock === 'number' ? Math.min(Math.max(state.unlockedBlock, 0), blockPath.length - 1) : 0
     completedBlocks.value = Array.isArray(state.completedBlocks) ? state.completedBlocks.filter((id: unknown) => typeof id === 'string') : []
+    routeGameComplete.value = state.routeGameComplete === true
   } catch {
     localStorage.removeItem(PROGRESSION_STORAGE_KEY)
   }
@@ -460,7 +534,23 @@ onMounted(() => {
             <p class="addie-explorer__output"><span>Useful output</span>{{ activeStageInfo.output }}</p>
           </article>
         </div>
-        <button v-if="!completedBlocks.includes('addie')" type="button" class="continue-block" @click="completeBlock('addie', 7)">Continue to alignment <span aria-hidden="true">↓</span></button>
+        <section class="route-builder" aria-labelledby="route-builder-title">
+          <div class="route-builder__topline"><p class="knowledge-check__type">Mini mobile game · Route builder</p><span aria-label="Game progress">{{ routeGameComplete ? '3 / 3 complete' : `${routeGameIndex + 1} / ${routeGameRounds.length}` }}</span></div>
+          <h3 id="route-builder-title">Build one useful learning route.</h3>
+          <p class="route-builder__lead">Make one decision at a time. Each correct move shows how analysis, design, and evaluation connect to work people actually do.</p>
+          <template v-if="!routeGameComplete">
+            <div class="route-builder__stage"><span>{{ activeRouteGameRound.stage }}</span><b>Choose the next best move</b></div>
+            <p class="route-builder__prompt">{{ activeRouteGameRound.prompt }}</p>
+            <details class="route-builder__hint"><summary>Hint <span aria-hidden="true">+</span></summary><p>{{ activeRouteGameRound.hint }}</p></details>
+            <div class="route-builder__choices" :aria-label="`${activeRouteGameRound.stage} game choices`">
+              <button v-for="choice in activeRouteGameRound.choices" :key="choice.id" type="button" :disabled="routeGameSubmitted" :class="{ 'is-selected': routeGameChoice === choice.id, 'is-correct': routeGameSubmitted && choice.correct, 'is-incorrect': routeGameSubmitted && routeGameChoice === choice.id && !choice.correct }" @click="chooseRouteGameChoice(choice.id)">{{ choice.label }}</button>
+            </div>
+            <p v-if="routeGameSubmitted" class="feedback route-builder__feedback" role="status"><b>{{ routeGameCorrect ? 'Good decision.' : 'Try again.' }}</b> {{ routeGameCorrect ? activeRouteGameRound.feedback : 'Return to the cue in the hint. The first useful move should give you information about the task, support a real performance, or check whether performance improved.' }}</p>
+            <button type="button" class="route-builder__action" :disabled="!routeGameChoice" @click="routeGameSubmitted ? continueRouteGame() : submitRouteGameRound()">{{ routeGameSubmitted ? (routeGameCorrect ? (routeGameIndex === routeGameRounds.length - 1 ? 'Finish the route' : 'Next decision') : 'Choose again') : 'Check my decision' }} <span aria-hidden="true">→</span></button>
+          </template>
+          <p v-else class="route-builder__complete" role="status"><b>Route complete.</b> You used analysis to understand the task, design to plan useful support, and evaluation to check the real result.</p>
+        </section>
+        <button v-if="!completedBlocks.includes('addie')" type="button" class="continue-block" :disabled="!routeGameComplete" @click="completeBlock('addie', 7)">{{ routeGameComplete ? 'Continue to alignment' : 'Complete the Route Builder to continue' }} <span aria-hidden="true">↓</span></button>
       </section>
 
       <section v-if="unlockedBlock >= 7" id="objective" class="lesson-section unlock-block" :class="{ 'is-complete': completedBlocks.includes('objective'), 'is-released': releasedSection === 'objective' }" aria-labelledby="objective-title">
@@ -716,6 +806,35 @@ onMounted(() => {
 .mini-practice > p:not(.knowledge-check__type):not(.feedback) { max-width: 58ch; margin: 12rem 0 0; color: var(--course-muted); font-family: var(--font-reading); font-size: 16rem; line-height: 1.55; }
 .mini-practice .choice-list { margin-top: 20rem; }
 .mini-practice .feedback { animation: feedback-in var(--motion-normal) var(--motion-ease) both; }
+.route-builder { max-width: 700rem; margin-top: 38rem; padding: clamp(22rem, 5vw, 32rem); color: #253142; background: linear-gradient(145deg, #f3f6fd 0%, #fff 68%); border: 1px solid #cfdbf5; border-top: 4rem solid var(--course-blue); border-radius: 9rem; box-shadow: 0 18rem 42rem rgb(49 95 199 / 10%); animation: visual-block-in var(--motion-slow) var(--motion-ease) both; }
+.route-builder__topline { display: flex; align-items: center; justify-content: space-between; gap: 14rem; }
+.route-builder__topline .knowledge-check__type { margin: 0; }
+.route-builder__topline > span { padding: 5rem 8rem; color: #45609b; background: #e8efff; border-radius: 999rem; font-family: var(--font-mono); font-size: 10rem; font-weight: 700; }
+.route-builder h3 { max-width: 18ch; margin: 15rem 0 0; font-family: var(--font-ui); font-size: clamp(25rem, 4vw, 31rem); letter-spacing: -.04em; line-height: 1.08; }
+.route-builder__lead, .route-builder__prompt { max-width: 58ch; margin: 13rem 0 0; font-family: var(--font-reading); font-size: 16rem; line-height: 1.55; }
+.route-builder__lead { color: var(--course-muted); }
+.route-builder__stage { display: flex; align-items: center; gap: 10rem; margin-top: 24rem; color: #34445f; font-family: var(--font-ui); font-size: 13rem; }
+.route-builder__stage span { display: grid; place-items: center; min-width: 72rem; min-height: 29rem; padding: 4rem 8rem; color: #fff; background: var(--course-blue); border-radius: 999rem; font-family: var(--font-mono); font-size: 10rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.route-builder__hint { margin-top: 18rem; border-top: 1px solid #d7e0f2; border-bottom: 1px solid #d7e0f2; }
+.route-builder__hint summary { display: flex; align-items: center; justify-content: space-between; min-height: 48rem; font-family: var(--font-ui); font-size: 13rem; font-weight: 700; cursor: pointer; list-style: none; }
+.route-builder__hint summary::-webkit-details-marker { display: none; }
+.route-builder__hint summary span { color: var(--course-blue); font-size: 18rem; font-weight: 400; transition: transform var(--motion-fast) var(--motion-ease); }
+.route-builder__hint[open] summary span { transform: rotate(45deg); }
+.route-builder__hint p { margin: 0 0 15rem; color: var(--course-muted); font-family: var(--font-reading); font-size: 15rem; line-height: 1.5; }
+.route-builder__choices { display: grid; gap: 9rem; margin-top: 20rem; }
+.route-builder__choices button { display: flex; align-items: center; min-height: 62rem; padding: 14rem 16rem; color: #303842; background: #fff; border: 1px solid #c9d4e8; border-radius: 6rem; font-family: var(--font-ui); font-size: 14rem; font-weight: 600; line-height: 1.38; text-align: left; cursor: pointer; transition: transform var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease); }
+.route-builder__choices button:hover:not(:disabled) { border-color: var(--course-blue); transform: translateX(3rem); }
+.route-builder__choices button:focus-visible, .route-builder__action:focus-visible { outline: 3rem solid #f0bd35; outline-offset: 3rem; }
+.route-builder__choices button.is-selected { border-color: var(--course-blue); background: #e8efff; color: #254b9f; }
+.route-builder__choices button.is-correct { border-color: #2f8b5d; background: #edf8f1; color: #244332; }
+.route-builder__choices button.is-incorrect { border-color: #bd5757; background: #fff4f4; color: #813f3f; }
+.route-builder__choices button:disabled { cursor: default; }
+.route-builder__feedback { margin-top: 17rem; }
+.route-builder__action { display: inline-flex; align-items: center; gap: 9rem; min-height: 48rem; margin-top: 18rem; padding: 0 17rem; color: #fff; background: var(--course-blue); border: 0; border-radius: 5rem; font-family: var(--font-ui); font-size: 14rem; font-weight: 700; cursor: pointer; transition: transform var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease); }
+.route-builder__action:hover:not(:disabled) { background: #274fa9; transform: translateY(-1rem); }
+.route-builder__action:active:not(:disabled) { transform: scale(.98); }
+.route-builder__action:disabled { opacity: .45; cursor: not-allowed; }
+.route-builder__complete { margin: 25rem 0 0; padding: 16rem; color: #244332; background: #edf8f1; border-left: 3rem solid #2f8b5d; font-family: var(--font-ui); font-size: 14rem; line-height: 1.55; }
 @keyframes visual-block-in { from { opacity: 0; transform: translateY(10rem); } to { opacity: 1; transform: translateY(0); } }
 @keyframes feedback-in { from { opacity: 0; transform: translateX(-6rem); } to { opacity: 1; transform: translateX(0); } }
 .definition-callout { display: grid; grid-template-columns: auto 1fr; gap: 18rem; margin-top: 46rem; padding: 24rem 0 0; border-top: 1px solid var(--course-rule); }

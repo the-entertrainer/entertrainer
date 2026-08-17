@@ -251,3 +251,9 @@
 - [x] Define one shared Continue control and section-entry animation contract that preserves the sequential learning gates and reduced-motion behaviour.
 - [x] Add clear continuation controls between major learning sections and animate each newly released section in both courses.
 - [x] Validate keyboard and pointer continuation flows, section animation, reduced-motion fallback, responsive layout, and production build; then push to `main`.
+
+## Instructional-design mini game
+
+- [x] Choose and document the beginner instructional-design decision that the dedicated mini game will test, including its instructional placement and feedback logic.
+- [x] Build a touch-friendly mini game with clear instructions, hint, immediate feedback, accessible selection states, and a connection to the existing sequential course path.
+- [x] Validate the mini game’s desktop/mobile layout, keyboard operation, feedback, reduced-motion behaviour, progression state, and production build; then push it to `main`.

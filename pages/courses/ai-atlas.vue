@@ -237,7 +237,7 @@ onMounted(() => {
       <NuxtLink to="/lessons" class="ai-player__exit">All lessons</NuxtLink>
       <div class="ai-player__identity"><span aria-hidden="true">E</span><p>From No AI to Know AI</p></div>
       <div class="ai-player__progress" :aria-label="`${progress}% course complete`"><i><b :style="{ width: `${progress}%` }" /></i><span>{{ progress }}%</span></div>
-      <nav class="ai-player__steps" aria-label="Course screen navigation"><button type="button" :disabled="screenIndex === 0" aria-label="Previous screen" @click="moveTo(screenIndex - 1)">Back</button><span>{{ screenIndex + 1 }} / {{ screens.length }}</span><button type="button" :disabled="screenIndex >= furthestIndex || screenIndex === screens.length - 1" aria-label="Continue to next screen" @click="continueScreen">Continue</button></nav>
+      <nav class="ai-player__steps" aria-label="Course screen navigation"><button type="button" :disabled="screenIndex === 0" aria-label="Back" @click="moveTo(screenIndex - 1)">Back</button><span>{{ screenIndex + 1 }} / {{ screens.length }}</span><button type="button" :disabled="screenIndex >= furthestIndex || screenIndex === screens.length - 1" aria-label="Continue" @click="continueScreen">Continue</button></nav>
     </header>
 
     <section class="ai-player__stage" aria-live="polite">

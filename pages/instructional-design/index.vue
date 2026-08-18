@@ -327,7 +327,7 @@ onBeforeUnmount(() => document.removeEventListener('error', resolveCourseVisual,
       <NuxtLink to="/lessons" class="course-bar__back">All lessons</NuxtLink>
       <p>Introduction to Instructional Design</p>
       <div class="course-bar__progress" aria-label="Course progress"><i><b :style="{ width: `${progress}%` }" /></i><span>{{ progress }}%</span></div>
-      <nav class="course-bar__steps" aria-label="Screen navigation"><button type="button" :disabled="screenIndex === 0" aria-label="Previous screen" @click="moveTo(screenIndex - 1)">Back</button><span>{{ screenIndex + 1 }} / {{ screens.length }}</span><button type="button" :disabled="screenIndex >= furthestIndex || screenIndex === screens.length - 1" aria-label="Continue to next screen" @click="moveTo(screenIndex + 1)">Continue</button></nav>
+      <nav class="course-bar__steps" aria-label="Screen navigation"><button type="button" :disabled="screenIndex === 0" aria-label="Back" @click="moveTo(screenIndex - 1)">Back</button><span>{{ screenIndex + 1 }} / {{ screens.length }}</span><button type="button" :disabled="screenIndex >= furthestIndex || screenIndex === screens.length - 1" aria-label="Continue" @click="moveTo(screenIndex + 1)">Continue</button></nav>
     </header>
 
     <section class="course-stage" aria-live="polite">

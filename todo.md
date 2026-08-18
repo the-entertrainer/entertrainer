@@ -297,3 +297,9 @@
 - [x] Recompose both course players into comfortable learning chunks and replace every forward-action label with “Continue”.
 - [x] Apply the graceful motion contract across global site interactions, navigation, cards, course screens, and learning activities without introducing sluggishness or scroll jank.
 - [x] Validate learning pacing, one-word controls, forward/backward transitions, reduced motion, keyboard controls, mobile layout, and production build; then push to `main`.
+
+## Universal Continue-label correction
+
+- [x] Audit every public route, course screen, progression gate, activity flow, and responsive control for forward-navigation labels or destination-specific continuation wording.
+- [x] Replace every learner-facing forward-navigation label with the exact word “Continue,” including normal, disabled, unlocked, and mobile states.
+- [x] Validate all forward controls and their surrounding guidance, run the production build, and push the universal label correction to `main`.

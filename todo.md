@@ -257,3 +257,10 @@
 - [x] Choose and document the beginner instructional-design decision that the dedicated mini game will test, including its instructional placement and feedback logic.
 - [x] Build a touch-friendly mini game with clear instructions, hint, immediate feedback, accessible selection states, and a connection to the existing sequential course path.
 - [x] Validate the mini game’s desktop/mobile layout, keyboard operation, feedback, reduced-motion behaviour, progression state, and production build; then push it to `main`.
+
+## Compact instructional-design lesson architecture
+
+- [x] Audit the current instructional-design module and divide its content into concise, single-purpose learning screens with no long scrolling lesson pages.
+- [x] Define the screen-level learning path, one-action-per-screen pacing, sequential navigation, local persistence, return points, and accessible compact-screen treatment.
+- [x] Rebuild the instructional-design course as short Rise-style screens, keeping explanations, real media, the Route Builder, and knowledge checks in the most appropriate focused screen.
+- [x] Validate screen lengths, next/back navigation, screen completion, persistence, practice behaviour, 375px mobile flow, keyboard access, reduced motion, and production build; then push the redesign to `main`.

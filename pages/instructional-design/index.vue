@@ -1,14 +1,13 @@
 <script setup lang="ts">
 /**
- * Introduction to Instructional Design
- *
- * Course design reminder: this page follows a calm Rise-style learning canvas.
- * One idea is taught at a time, a visual or worked example does real explanatory
- * work, and every interaction follows explanation rather than interrupting it.
+ * Compact instructional-design player
+ * Design contract: one short teaching purpose per screen. Each screen carries a
+ * single explanation, visual, or practice moment; navigation is screen-level,
+ * saved locally, and never exposes a kilometre-long scrolling lesson.
  */
 useSeoMeta({
   title: 'Introduction to Instructional Design · Entertrainer',
-  description: 'A beginner e-learning module that explains what instructional design is, why it matters, and how to make the first sound design decisions.',
+  description: 'A compact beginner e-learning module about planning learning experiences that help people do real work.',
   ogTitle: 'Introduction to Instructional Design · Entertrainer',
   ogDescription: 'A beginner e-learning module about planning learning experiences that help people do real work.',
   ogUrl: 'https://entertrainer.in/instructional-design'
@@ -16,209 +15,69 @@ useSeoMeta({
 
 type SortBucket = 'learning' | 'environment'
 
-const STARTING_CHOICE = 'investigate'
-const PROGRESSION_STORAGE_KEY = 'entertrainer-instructional-design-progress-v1'
-const unlockedBlock = ref(0)
-const completedBlocks = ref<string[]>([])
+const STORAGE_KEY = 'entertrainer-instructional-design-screens-v2'
+const screenIndex = ref(0)
+const furthestIndex = ref(0)
+const screenHeading = ref<HTMLElement | null>(null)
+
 const startingChoice = ref<string | null>(null)
-const sortChoices = ref<Record<string, SortBucket | null>>({
-  checklist: null,
-  skill: null,
-  equipment: null,
-  procedure: null
-})
-const activeAddie = ref('analysis')
+const learnerChoice = ref<string | null>(null)
 const objectiveChoice = ref<string | null>(null)
-const caseChoice = ref<string | null>(null)
-const finalChoice = ref<string | null>(null)
-const showFinalFeedback = ref(false)
-const matchingAnswers = ref<Record<string, string | null>>({
-  analysis: null,
-  design: null,
-  evaluation: null
-})
-const matchingSubmitted = ref(false)
-const learnerContextChoice = ref<string | null>(null)
 const artifactChoice = ref<string | null>(null)
-const releasedSection = ref<string | null>(null)
-const routeGameIndex = ref(0)
-const routeGameChoice = ref<string | null>(null)
-const routeGameSubmitted = ref(false)
-const routeGameComplete = ref(false)
-
-const navItems = [
-  { id: 'start', label: 'Start', block: 0 },
-  { id: 'analyse', label: 'Understand the need', block: 2 },
-  { id: 'design', label: 'Plan the learning', block: 6 },
-  { id: 'apply', label: 'Try a design decision', block: 9 },
-  { id: 'check', label: 'Check your understanding', block: 10 }
-]
-
-const blockPath = [
-  { id: 'start', lesson: 'Introduction', title: 'Begin the module' },
-  { id: 'objectives', lesson: 'Introduction', title: 'Review the learning objectives' },
-  { id: 'need', lesson: 'Lesson 1', title: 'Start with the work' },
-  { id: 'definition', lesson: 'Lesson 1', title: 'Define instructional design' },
-  { id: 'cause', lesson: 'Lesson 1', title: 'Identify the real cause' },
-  { id: 'learner', lesson: 'Lesson 1', title: 'Understand the learner' },
-  { id: 'addie', lesson: 'Lesson 2', title: 'Use the ADDIE planning map' },
-  { id: 'objective', lesson: 'Lesson 2', title: 'Connect objective, practice, and evidence' },
-  { id: 'artefacts', lesson: 'Lesson 2', title: 'Review useful design artefacts' },
-  { id: 'scenario', lesson: 'Lesson 3', title: 'Make a sound design decision' },
-  { id: 'matching', lesson: 'Lesson 3', title: 'Match the design actions' },
-  { id: 'closing', lesson: 'Lesson 3', title: 'Complete the module' }
-]
-
-const sectionAnchors: Record<string, string> = {
-  start: 'start',
-  objectives: 'objectives',
-  need: 'analyse',
-  definition: 'definition',
-  cause: 'cause',
-  learner: 'learner',
-  addie: 'design',
-  objective: 'objective',
-  artefacts: 'artefacts',
-  scenario: 'apply',
-  matching: 'check',
-  closing: 'closing'
-}
+const scenarioChoice = ref<string | null>(null)
+const finalChoice = ref<string | null>(null)
+const finalSubmitted = ref(false)
+const sortChoices = ref<Record<string, SortBucket | null>>({ checklist: null, skill: null, equipment: null, procedure: null })
+const matchingAnswers = ref<Record<string, string | null>>({ analysis: null, design: null, evaluation: null })
+const matchingSubmitted = ref(false)
+const activeAddie = ref('analysis')
+const gameIndex = ref(0)
+const gameChoice = ref<string | null>(null)
+const gameSubmitted = ref(false)
+const gameComplete = ref(false)
 
 const media = {
   hero: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/sHIaqHUyLPpHlXwn.jpg',
   analysis: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/CLHikwLahcffypTI.jpg',
-  blooms: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/SjxuvaLcEiNASJWC.png',
+  collaboration: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/kxDxXEUdsOGXhYBN.jpeg',
   artifacts: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/ZKPOHGdqpXIWtQzC.jpg',
-  adultCollaboration: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/kxDxXEUdsOGXhYBN.jpeg',
-  technicalLearning: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/bcdzCJyXARgsjUzg.jpeg',
-  performanceGap: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/kxDxXEUdsOGXhYBN.jpeg',
-  storyboard: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/bcdzCJyXARgsjUzg.jpeg'
+  storyboard: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/bcdzCJyXARgsjUzg.jpeg',
+  blooms: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/SjxuvaLcEiNASJWC.png'
 }
 
-const learnerContextOptions = [
-  { id: 'time', label: 'How much uninterrupted time can a new team member realistically use for practice during a shift?', correct: true },
-  { id: 'colour', label: 'Which background colour will make the course look most modern?', correct: false },
-  { id: 'length', label: 'How many screens can be added before the course feels comprehensive?', correct: false }
-]
-const artifactOptions = [
-  { id: 'storyboard', label: 'A short storyboard showing the explanation, decision point, practice, and feedback before production begins.', correct: true },
-  { id: 'longer', label: 'A longer slide deck that repeats the closing policy in several fonts.', correct: false },
-  { id: 'poster', label: 'A poster that asks learners to remember the policy without a practice opportunity.', correct: false }
-]
-
-const sortItems = [
-  {
-    id: 'checklist',
-    title: 'The closing checklist is missing.',
-    detail: 'Staff already know the steps, but each shift has a different printed list.',
-    answer: 'environment' as const
-  },
-  {
-    id: 'skill',
-    title: 'New staff cannot explain the cleaning sequence.',
-    detail: 'They have the right equipment and a clear process, but need guided practice.',
-    answer: 'learning' as const
-  },
-  {
-    id: 'equipment',
-    title: 'The sanitising solution is often unavailable.',
-    detail: 'Staff know the procedure but cannot complete it when the supply cabinet is empty.',
-    answer: 'environment' as const
-  },
-  {
-    id: 'procedure',
-    title: 'Staff can do the task but make the same mistake in a new situation.',
-    detail: 'They need practice deciding what to do when the usual routine changes.',
-    answer: 'learning' as const
-  }
+const screens = [
+  { lesson: 'Welcome', label: 'Start', title: 'Introduction to Instructional Design' },
+  { lesson: 'Welcome', label: 'Objectives', title: 'What you will learn' },
+  { lesson: 'Lesson 1 · Understand the need', label: 'The request', title: 'A request is not yet a solution' },
+  { lesson: 'Lesson 1 · Understand the need', label: 'Definition', title: 'What instructional design is' },
+  { lesson: 'Lesson 1 · Understand the need', label: 'Cause check', title: 'Find the real cause' },
+  { lesson: 'Lesson 1 · Understand the need', label: 'Learner lens', title: 'Understand people and context' },
+  { lesson: 'Lesson 2 · Plan the learning', label: 'Planning map', title: 'Use ADDIE to think through the work' },
+  { lesson: 'Lesson 2 · Plan the learning', label: 'ADDIE in practice', title: 'Explore one stage at a time' },
+  { lesson: 'Lesson 2 · Plan the learning', label: 'Route Builder', title: 'Build one useful learning route' },
+  { lesson: 'Lesson 2 · Plan the learning', label: 'Alignment', title: 'Connect objective, practice, and evidence' },
+  { lesson: 'Lesson 2 · Plan the learning', label: 'Objective check', title: 'Write a useful objective' },
+  { lesson: 'Lesson 2 · Plan the learning', label: 'Design artefacts', title: 'Make useful things' },
+  { lesson: 'Lesson 2 · Plan the learning', label: 'Artefact choice', title: 'Choose the right planning artefact' },
+  { lesson: 'Lesson 3 · Apply the method', label: 'Design decision', title: 'Make one sound design decision' },
+  { lesson: 'Lesson 3 · Apply the method', label: 'Stage match', title: 'Check the design language' },
+  { lesson: 'Lesson 3 · Apply the method', label: 'Final check', title: 'What is instructional design?' },
+  { lesson: 'Close', label: 'Takeaway', title: 'Good learning design starts before the screen' }
 ]
 
 const addieStages = [
-  {
-    id: 'analysis',
-    letter: 'A',
-    title: 'Analyse',
-    lead: 'Understand the problem before deciding to make a course.',
-    example: 'Observe two closing shifts. Ask where mistakes happen and what gets in the way.',
-    output: 'A short problem statement and learner notes.'
-  },
-  {
-    id: 'design',
-    letter: 'D',
-    title: 'Design',
-    lead: 'Plan what learners will do, not just what they will read.',
-    example: 'Write one objective, choose a short demonstration, and plan a safe practice task.',
-    output: 'An objective, activity plan, and evidence plan.'
-  },
-  {
-    id: 'development',
-    letter: 'D',
-    title: 'Develop',
-    lead: 'Make the materials and test a small version.',
-    example: 'Create a one-page job aid, a short course, and a practice scenario.',
-    output: 'A reviewable prototype.'
-  },
-  {
-    id: 'implementation',
-    letter: 'I',
-    title: 'Implement',
-    lead: 'Put the learning support into the real setting.',
-    example: 'Give new staff time, equipment, and support to complete the practice.',
-    output: 'A practical delivery plan.'
-  },
-  {
-    id: 'evaluation',
-    letter: 'E',
-    title: 'Evaluate',
-    lead: 'Use evidence to decide what should change.',
-    example: 'Check the practice result, then see whether staff can complete the closing task on shift.',
-    output: 'A revision decision and follow-up support.'
-  }
+  { id: 'analysis', letter: 'A', title: 'Analyse', lead: 'Understand the problem before deciding to make a course.', example: 'Observe two closing shifts. Ask where mistakes happen and what gets in the way.', output: 'A short problem statement and learner notes.' },
+  { id: 'design', letter: 'D', title: 'Design', lead: 'Plan what learners will do, not just what they will read.', example: 'Write one objective, choose a short demonstration, and plan a safe practice task.', output: 'An objective, activity plan, and evidence plan.' },
+  { id: 'development', letter: 'D', title: 'Develop', lead: 'Make the materials and test a small version.', example: 'Create a one-page job aid, a short course, and a practice scenario.', output: 'A reviewable prototype.' },
+  { id: 'implementation', letter: 'I', title: 'Implement', lead: 'Put the learning support into the real setting.', example: 'Give new staff time, equipment, and support to complete the practice.', output: 'A practical delivery plan.' },
+  { id: 'evaluation', letter: 'E', title: 'Evaluate', lead: 'Use evidence to decide what should change.', example: 'Check the practice result, then see whether staff can complete the closing task on shift.', output: 'A revision decision and follow-up support.' }
 ]
 
-const routeGameRounds = [
-  {
-    id: 'notice',
-    stage: 'Analyse',
-    prompt: 'A café manager says, “New staff are missing cleaning steps when the counter is busy.” What is the best first move?',
-    hint: 'Do not choose a solution until you know what the work and the constraint look like.',
-    choices: [
-      { id: 'observe', label: 'Watch two busy closing shifts and ask staff where the step breaks down.', correct: true },
-      { id: 'video', label: 'Record a long video explaining every cleaning product.', correct: false },
-      { id: 'quiz', label: 'Build a quiz before speaking to anyone who does the work.', correct: false }
-    ],
-    feedback: 'Analyse first. Observe the work and speak with the people doing it before deciding whether training, a job aid, or a work-environment change will help.'
-  },
-  {
-    id: 'make',
-    stage: 'Design',
-    prompt: 'You find that staff know the steps but forget the order during a rush. Which design choice is most useful?',
-    hint: 'The support should help people perform the real task, not only read about it.',
-    choices: [
-      { id: 'practice', label: 'Plan a short counter-side checklist and a coached practice run during a quiet period.', correct: true },
-      { id: 'slides', label: 'Add more definitions to a presentation about food safety.', correct: false },
-      { id: 'poster', label: 'Print a poster that says “Remember the correct order.”', correct: false }
-    ],
-    feedback: 'Design connects the task, the learner, and the practice. A usable checklist plus a safe practice opportunity helps staff perform the actual sequence.'
-  },
-  {
-    id: 'check',
-    stage: 'Evaluate',
-    prompt: 'The checklist and practice have been used for one week. What evidence should you check next?',
-    hint: 'Look for evidence that the support changed real performance.',
-    choices: [
-      { id: 'evidence', label: 'Review whether the cleaning steps are completed correctly on later busy shifts.', correct: true },
-      { id: 'colour', label: 'Ask whether the checklist uses a more attractive colour.', correct: false },
-      { id: 'length', label: 'Count the number of screens in the short course.', correct: false }
-    ],
-    feedback: 'Evaluate with evidence from the work. Check whether the support improves performance, then revise what is not helping.'
-  }
-]
-
-const objectiveOptions = [
-  { id: 'vague', text: 'Understand the café closing procedure.' },
-  { id: 'strong', text: 'After observing the counter setup, complete the six closing steps in the correct order using the checklist.' },
-  { id: 'topic', text: 'Learn about safe café closing.' }
+const sortItems = [
+  { id: 'checklist', title: 'The closing checklist is missing.', detail: 'Staff already know the steps, but each shift has a different printed list.', answer: 'environment' as const },
+  { id: 'skill', title: 'New staff cannot explain the cleaning sequence.', detail: 'They have the right equipment and a clear process, but need guided practice.', answer: 'learning' as const },
+  { id: 'equipment', title: 'The sanitising solution is often unavailable.', detail: 'Staff know the procedure but cannot complete it when the supply cabinet is empty.', answer: 'environment' as const },
+  { id: 'procedure', title: 'Staff can do the task but make the same mistake in a new situation.', detail: 'They need practice deciding what to do when the usual routine changes.', answer: 'learning' as const }
 ]
 
 const matchingPrompts = [
@@ -233,51 +92,133 @@ const matchingChoices = [
   { id: 'improve', label: 'Use evidence to improve the support' }
 ]
 
-const activeStageInfo = computed(() => addieStages.find((stage) => stage.id === activeAddie.value) ?? addieStages[0])
-const activeRouteGameRound = computed(() => routeGameRounds[Math.min(routeGameIndex.value, routeGameRounds.length - 1)])
-const selectedRouteGameChoice = computed(() => activeRouteGameRound.value.choices.find((choice) => choice.id === routeGameChoice.value))
-const routeGameCorrect = computed(() => selectedRouteGameChoice.value?.correct === true)
-const startingFeedback = computed(() => {
-  if (!startingChoice.value) return ''
-  return startingChoice.value === STARTING_CHOICE
-    ? 'Correct. First, find out what the task looks like, what staff already know, and what is causing the error. A course may help, but it is not the only possible answer.'
-    : 'Not yet. A checklist, video, or meeting may be useful later. First, gather evidence about the task, the people doing it, and the cause of the problem.'
-})
-const objectiveFeedback = computed(() => {
-  if (!objectiveChoice.value) return ''
-  return objectiveChoice.value === 'strong'
-    ? 'Correct. This objective names an observable action, the situation, and the standard for a successful performance.'
-    : 'Try again. “Understand” and “learn about” do not tell us what a learner must be able to demonstrate.'
-})
-const caseFeedback = computed(() => {
-  if (!caseChoice.value) return ''
-  return caseChoice.value === 'observe'
-    ? 'Correct. The shift report tells you there is a problem. It does not yet tell you why. Observe the work and speak with the people who do it before proposing training.'
-    : 'This may be useful later, but it skips the evidence step. Start by finding the cause of the problem.'
-})
-const sortedCount = computed(() => Object.values(sortChoices.value).filter(Boolean).length)
-const sortComplete = computed(() => sortedCount.value === sortItems.length)
-const sortCorrect = computed(() => sortItems.every((item) => sortChoices.value[item.id] === item.answer))
-const matchingCorrect = computed(() => matchingPrompts.every((prompt) => matchingAnswers.value[prompt.id] === prompt.answer))
-const progress = computed(() => Math.round((completedBlocks.value.length / (blockPath.length - 1)) * 100))
-const currentBlockInfo = computed(() => blockPath[Math.min(unlockedBlock.value, blockPath.length - 1)])
-const nextBlockInfo = computed(() => blockPath[Math.min(unlockedBlock.value + 1, blockPath.length - 1)])
-const courseComplete = computed(() => completedBlocks.value.includes('closing'))
-const learnerContextFeedback = computed(() => {
-  if (!learnerContextChoice.value) return ''
-  return learnerContextChoice.value === 'time'
-    ? 'Correct. Time, access, language, confidence, and real working conditions can change what learning support is possible.'
-    : 'Look for information about the learner and the real work. Decorative choices and screen count do not explain whether people can learn and use the task.'
-})
-const artifactFeedback = computed(() => {
-  if (!artifactChoice.value) return ''
-  return artifactChoice.value === 'storyboard'
-    ? 'Correct. A storyboard makes the learning route reviewable before expensive build work starts. It can connect explanation, activity, feedback, and the task.'
-    : 'Not yet. More screens or a poster may carry information, but they do not show how a learner will practise the required decision or receive feedback.'
-})
+const gameRounds = [
+  {
+    stage: 'Analyse',
+    prompt: 'New staff miss cleaning steps when the counter is busy. What is the best first move?',
+    hint: 'Do not choose a solution until you know what the work and the constraint look like.',
+    choices: [
+      { id: 'observe', label: 'Watch two busy closing shifts and ask staff where the step breaks down.', correct: true },
+      { id: 'video', label: 'Record a long video explaining every cleaning product.', correct: false },
+      { id: 'quiz', label: 'Build a quiz before speaking to anyone who does the work.', correct: false }
+    ],
+    feedback: 'Analyse first. Observe the work and speak with the people doing it before deciding whether training, a job aid, or a work-environment change will help.'
+  },
+  {
+    stage: 'Design',
+    prompt: 'Staff know the steps but forget the order during a rush. Which design choice is most useful?',
+    hint: 'Support should help people perform the real task, not only read about it.',
+    choices: [
+      { id: 'practice', label: 'Plan a short counter-side checklist and a coached practice run during a quiet period.', correct: true },
+      { id: 'slides', label: 'Add more definitions to a presentation about food safety.', correct: false },
+      { id: 'poster', label: 'Print a poster that says “Remember the correct order.”', correct: false }
+    ],
+    feedback: 'Design connects the task, the learner, and the practice. A usable checklist plus a safe practice opportunity helps staff perform the actual sequence.'
+  },
+  {
+    stage: 'Evaluate',
+    prompt: 'The checklist and practice have been used for one week. What evidence should you check next?',
+    hint: 'Look for evidence that the support changed real performance.',
+    choices: [
+      { id: 'evidence', label: 'Review whether the cleaning steps are completed correctly on later busy shifts.', correct: true },
+      { id: 'colour', label: 'Ask whether the checklist uses a more attractive colour.', correct: false },
+      { id: 'length', label: 'Count the number of screens in the short course.', correct: false }
+    ],
+    feedback: 'Evaluate with evidence from the work. Check whether the support improves performance, then revise what is not helping.'
+  }
+]
 
-function chooseSort(itemId: string, bucket: SortBucket) {
-  sortChoices.value[itemId] = bucket
+const currentScreen = computed(() => screens[screenIndex.value])
+const progress = computed(() => Math.round((furthestIndex.value / (screens.length - 1)) * 100))
+const activeStage = computed(() => addieStages.find((stage) => stage.id === activeAddie.value) ?? addieStages[0])
+const activeGameRound = computed(() => gameRounds[Math.min(gameIndex.value, gameRounds.length - 1)])
+const chosenGameOption = computed(() => activeGameRound.value.choices.find((option) => option.id === gameChoice.value))
+const gameCorrect = computed(() => chosenGameOption.value?.correct === true)
+const sortComplete = computed(() => sortItems.every((item) => Boolean(sortChoices.value[item.id])))
+const sortCorrect = computed(() => sortItems.every((item) => sortChoices.value[item.id] === item.answer))
+const matchingComplete = computed(() => matchingPrompts.every((item) => Boolean(matchingAnswers.value[item.id])))
+const matchingCorrect = computed(() => matchingPrompts.every((item) => matchingAnswers.value[item.id] === item.answer))
+const screenReady = computed(() => {
+  const index = screenIndex.value
+  if ([0, 1, 3, 6, 7, 9, 11, 16].includes(index)) return true
+  if (index === 2) return Boolean(startingChoice.value)
+  if (index === 4) return sortComplete.value
+  if (index === 5) return Boolean(learnerChoice.value)
+  if (index === 8) return gameComplete.value
+  if (index === 10) return Boolean(objectiveChoice.value)
+  if (index === 12) return Boolean(artifactChoice.value)
+  if (index === 13) return Boolean(scenarioChoice.value)
+  if (index === 14) return matchingSubmitted.value
+  if (index === 15) return finalSubmitted.value
+  return false
+})
+const continueLabel = computed(() => {
+  if (screenIndex.value === screens.length - 1) return 'Mark module complete'
+  if (!screenReady.value) return 'Complete this screen to continue'
+  return `Continue to ${screens[screenIndex.value + 1].label}`
+})
+const startingFeedback = computed(() => startingChoice.value === 'investigate'
+  ? 'First, find out what the task looks like, what staff already know, and what is causing the error.'
+  : startingChoice.value ? 'Not yet. A checklist or video may be useful later. First, gather evidence about the task, the people doing it, and the cause of the problem.' : '')
+const learnerFeedback = computed(() => learnerChoice.value === 'time'
+  ? 'Correct. Time, access, language, confidence, and real working conditions change what learning support is possible.'
+  : learnerChoice.value ? 'Look for information about the learner and real work. Decorative choices and screen count do not explain whether people can use the task.' : '')
+const objectiveFeedback = computed(() => objectiveChoice.value === 'strong'
+  ? 'Correct. This objective names an observable action, the situation, and the standard for successful performance.'
+  : objectiveChoice.value ? 'Try again. “Understand” and “learn about” do not tell us what a learner must demonstrate.' : '')
+const artifactFeedback = computed(() => artifactChoice.value === 'storyboard'
+  ? 'Correct. A storyboard makes the learning route reviewable before expensive build work begins.'
+  : artifactChoice.value ? 'Not yet. More screens or a poster may carry information, but they do not show how a learner will practise the required decision.' : '')
+const scenarioFeedback = computed(() => scenarioChoice.value === 'observe'
+  ? 'Correct. The report tells you there is a problem. It does not yet tell you why. Observe the work and speak with the people who do it before proposing training.'
+  : scenarioChoice.value ? 'This may be useful later, but it skips the evidence step. Start by finding the cause of the problem.' : '')
+const finalFeedback = computed(() => finalChoice.value === 'process'
+  ? 'Correct. Instructional design connects a real need, the learner, the activity, and evidence of learning. The screen is only one possible part of that work.'
+  : finalChoice.value ? 'Not yet. Screens and quizzes may be useful tools. The work begins earlier: understand the need, plan support, and use evidence to improve it.' : '')
+
+function saveProgress() {
+  if (!import.meta.client) return
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    screenIndex: screenIndex.value,
+    furthestIndex: furthestIndex.value,
+    startingChoice: startingChoice.value,
+    learnerChoice: learnerChoice.value,
+    objectiveChoice: objectiveChoice.value,
+    artifactChoice: artifactChoice.value,
+    scenarioChoice: scenarioChoice.value,
+    finalChoice: finalChoice.value,
+    finalSubmitted: finalSubmitted.value,
+    sortChoices: sortChoices.value,
+    matchingAnswers: matchingAnswers.value,
+    matchingSubmitted: matchingSubmitted.value,
+    gameIndex: gameIndex.value,
+    gameChoice: gameChoice.value,
+    gameSubmitted: gameSubmitted.value,
+    gameComplete: gameComplete.value,
+    activeAddie: activeAddie.value
+  }))
+}
+
+function moveTo(index: number) {
+  if (index < 0 || index > furthestIndex.value) return
+  screenIndex.value = index
+}
+
+function continueScreen() {
+  if (!screenReady.value) return
+  if (screenIndex.value === screens.length - 1) {
+    furthestIndex.value = screens.length - 1
+    saveProgress()
+    return
+  }
+  const next = screenIndex.value + 1
+  furthestIndex.value = Math.max(furthestIndex.value, next)
+  screenIndex.value = next
+  saveProgress()
+}
+
+function selectSort(id: string, bucket: SortBucket) {
+  sortChoices.value[id] = bucket
 }
 
 function selectMatch(promptId: string, choiceId: string) {
@@ -286,691 +227,192 @@ function selectMatch(promptId: string, choiceId: string) {
 }
 
 function submitMatching() {
-  matchingSubmitted.value = matchingPrompts.every((prompt) => matchingAnswers.value[prompt.id])
+  if (matchingComplete.value) matchingSubmitted.value = true
 }
 
-function chooseRouteGameChoice(choiceId: string) {
-  if (routeGameSubmitted.value) return
-  routeGameChoice.value = choiceId
+function selectGameChoice(id: string) {
+  if (!gameSubmitted.value) gameChoice.value = id
 }
 
-function submitRouteGameRound() {
-  if (!routeGameChoice.value) return
-  routeGameSubmitted.value = true
+function submitGameTurn() {
+  if (gameChoice.value) gameSubmitted.value = true
 }
 
-function continueRouteGame() {
-  if (!routeGameSubmitted.value) return
-  if (!routeGameCorrect.value) {
-    routeGameChoice.value = null
-    routeGameSubmitted.value = false
+function continueGame() {
+  if (!gameSubmitted.value) return
+  if (!gameCorrect.value) {
+    gameChoice.value = null
+    gameSubmitted.value = false
     return
   }
-  if (routeGameIndex.value === routeGameRounds.length - 1) {
-    routeGameComplete.value = true
-    persistProgress()
+  if (gameIndex.value === gameRounds.length - 1) {
+    gameComplete.value = true
+    saveProgress()
     return
   }
-  routeGameIndex.value += 1
-  routeGameChoice.value = null
-  routeGameSubmitted.value = false
+  gameIndex.value += 1
+  gameChoice.value = null
+  gameSubmitted.value = false
 }
 
-function persistProgress() {
-  if (!import.meta.client) return
-  localStorage.setItem(PROGRESSION_STORAGE_KEY, JSON.stringify({ unlockedBlock: unlockedBlock.value, completedBlocks: completedBlocks.value, routeGameComplete: routeGameComplete.value }))
+function submitFinal() {
+  if (finalChoice.value) finalSubmitted.value = true
 }
 
-function completeBlock(id: string, nextIndex: number) {
-  if (!completedBlocks.value.includes(id)) completedBlocks.value = [...completedBlocks.value, id]
-  unlockedBlock.value = Math.max(unlockedBlock.value, nextIndex)
-  persistProgress()
-  const targetId = sectionAnchors[blockPath[nextIndex]?.id]
-  releasedSection.value = targetId ?? null
-  nextTick(() => {
-    const target = targetId ? document.getElementById(targetId) : null
-    if (!target) return
-    const heading = target.querySelector<HTMLElement>('h1, h2')
-    heading?.setAttribute('tabindex', '-1')
-    heading?.focus({ preventScroll: true })
-    target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })
-  })
-}
+watch(screenIndex, async () => {
+  saveProgress()
+  await nextTick()
+  window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
+  screenHeading.value?.focus({ preventScroll: true })
+})
 
-function startModule() {
-  completeBlock('start', 1)
-}
-
-function scrollToSection(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
+watch([startingChoice, learnerChoice, objectiveChoice, artifactChoice, scenarioChoice, finalChoice, finalSubmitted, sortChoices, matchingAnswers, matchingSubmitted, gameIndex, gameChoice, gameSubmitted, gameComplete, activeAddie], saveProgress, { deep: true })
 
 onMounted(() => {
-  const saved = localStorage.getItem(PROGRESSION_STORAGE_KEY)
+  const saved = localStorage.getItem(STORAGE_KEY)
   if (!saved) return
   try {
     const state = JSON.parse(saved)
-    unlockedBlock.value = typeof state.unlockedBlock === 'number' ? Math.min(Math.max(state.unlockedBlock, 0), blockPath.length - 1) : 0
-    completedBlocks.value = Array.isArray(state.completedBlocks) ? state.completedBlocks.filter((id: unknown) => typeof id === 'string') : []
-    routeGameComplete.value = state.routeGameComplete === true
+    furthestIndex.value = typeof state.furthestIndex === 'number' ? Math.min(Math.max(state.furthestIndex, 0), screens.length - 1) : 0
+    screenIndex.value = typeof state.screenIndex === 'number' ? Math.min(Math.max(state.screenIndex, 0), furthestIndex.value) : 0
+    startingChoice.value = state.startingChoice ?? null
+    learnerChoice.value = state.learnerChoice ?? null
+    objectiveChoice.value = state.objectiveChoice ?? null
+    artifactChoice.value = state.artifactChoice ?? null
+    scenarioChoice.value = state.scenarioChoice ?? null
+    finalChoice.value = state.finalChoice ?? null
+    finalSubmitted.value = state.finalSubmitted === true
+    sortChoices.value = { ...sortChoices.value, ...(state.sortChoices ?? {}) }
+    matchingAnswers.value = { ...matchingAnswers.value, ...(state.matchingAnswers ?? {}) }
+    matchingSubmitted.value = state.matchingSubmitted === true
+    gameIndex.value = typeof state.gameIndex === 'number' ? Math.min(Math.max(state.gameIndex, 0), gameRounds.length - 1) : 0
+    gameChoice.value = state.gameChoice ?? null
+    gameSubmitted.value = state.gameSubmitted === true
+    gameComplete.value = state.gameComplete === true
+    activeAddie.value = addieStages.some((stage) => stage.id === state.activeAddie) ? state.activeAddie : 'analysis'
   } catch {
-    localStorage.removeItem(PROGRESSION_STORAGE_KEY)
+    localStorage.removeItem(STORAGE_KEY)
   }
 })
 </script>
 
 <template>
-  <main class="course">
-    <header class="course-bar" aria-label="Course navigation">
+  <main class="compact-course">
+    <header class="course-bar" aria-label="Course controls">
       <NuxtLink to="/lessons" class="course-bar__back">All lessons</NuxtLink>
-      <p class="course-bar__title">Introduction to Instructional Design</p>
-      <div class="course-bar__progress" aria-label="Course activity progress">
-        <span class="course-bar__progress-track" aria-hidden="true"><i :style="{ width: `${progress}%` }" /></span>
-        <span>{{ progress }}%</span>
-      </div>
+      <p>Introduction to Instructional Design</p>
+      <div class="course-bar__progress" aria-label="Course progress"><i><b :style="{ width: `${progress}%` }" /></i><span>{{ progress }}%</span></div>
     </header>
 
-    <section class="course-hero" id="start" aria-labelledby="course-title">
-      <div class="course-hero__image-wrap">
-        <img
-          class="course-hero__image"
-          :src="media.hero"
-          alt="Three café employees reviewing a practical paper checklist together after a shift."
-        >
-      </div>
-      <div class="course-hero__body">
-        <p class="course-hero__eyebrow">Beginner module · 15–20 minutes</p>
-        <h1 id="course-title">Introduction to<br>Instructional Design</h1>
-        <p class="course-hero__deck">Instructional design is the work of helping people learn to do something real. Start with the problem, understand the people, then build and improve the support.</p>
-        <button type="button" class="course-hero__start" @click="startModule">{{ unlockedBlock ? 'Resume the module' : 'Start the module' }} <span aria-hidden="true">↓</span></button>
-      </div>
+    <section class="course-stage" aria-live="polite">
+      <div class="screen-meta"><span>{{ currentScreen.lesson }}</span><span>Screen {{ screenIndex + 1 }} of {{ screens.length }}</span></div>
+
+      <article :key="screenIndex" class="learning-screen screen--enter" :class="{ 'learning-screen--hero': screenIndex === 0 }">
+        <template v-if="screenIndex === 0">
+          <div class="hero-visual"><img :src="media.hero" alt="Three café employees reviewing a practical paper checklist together after a shift."></div>
+          <div class="hero-copy"><p class="eyebrow">Beginner module · 15–20 minutes</p><h1 ref="screenHeading" tabindex="-1">Introduction to<br>Instructional Design</h1><p>Instructional design is the work of helping people learn to do something real. Start with the problem, understand the people, then build and improve the support.</p></div>
+        </template>
+
+        <template v-else-if="screenIndex === 1">
+          <p class="eyebrow">Before you begin</p><h2 ref="screenHeading" tabindex="-1">By the end of this module, you will be able to:</h2>
+          <ol class="objective-list"><li><b>Explain</b> instructional design in simple words and identify its purpose.</li><li><b>Recognise</b> the difference between a learning need and a non-learning problem.</li><li><b>Use</b> a simple five-step design cycle to plan a small learning experience.</li><li><b>Write</b> one clear learning objective that connects to activity and evidence.</li></ol>
+        </template>
+
+        <template v-else-if="screenIndex === 2">
+          <p class="eyebrow">Start with the work</p><h2 ref="screenHeading" tabindex="-1">A request is not yet a solution.</h2><p class="lead">A café manager says, “New staff are making mistakes at closing time. Please make a training course.” That is a useful starting point—not enough information to design good learning.</p>
+          <div class="case-card"><b>The situation</b><p>One person skips equipment cleaning. Another cannot find the checklist. A third has never been shown the sequence.</p></div>
+          <section class="question-card"><p class="eyebrow">First decision</p><h3>What should happen first?</h3><button :class="{ 'is-selected': startingChoice === 'video' }" @click="startingChoice = 'video'">Record a short video of the closing steps.</button><button :class="{ 'is-selected': startingChoice === 'checklist' }" @click="startingChoice = 'checklist'">Write a new checklist immediately.</button><button :class="{ 'is-selected': startingChoice === 'investigate' }" @click="startingChoice = 'investigate'">Observe the task and find out what is causing the errors.</button><p v-if="startingFeedback" class="feedback"><b>{{ startingChoice === 'investigate' ? 'Correct.' : 'Not yet.' }}</b> {{ startingFeedback }}</p></section>
+        </template>
+
+        <template v-else-if="screenIndex === 3">
+          <div class="screen-split"><div><p class="eyebrow">What it is</p><h2 ref="screenHeading" tabindex="-1">Instructional design plans learning for a real purpose.</h2><p class="lead">It is a systematic way to create education or training that helps people build knowledge and skills they can use.</p><p class="callout"><b>In simple words:</b> turn a real need into support people can understand, practise, and use.</p></div><figure><img :src="media.analysis" alt="An instructional designer observing a café closing routine and gathering notes before creating training."><figcaption>Good design begins with evidence from the real task.</figcaption></figure></div>
+        </template>
+
+        <template v-else-if="screenIndex === 4">
+          <p class="eyebrow">Find the cause</p><h2 ref="screenHeading" tabindex="-1">Not every problem needs training.</h2><p class="lead">Sort each café problem. Does learning support help, or is the work environment blocking success?</p>
+          <div class="sort-grid"><article v-for="item in sortItems" :key="item.id"><h3>{{ item.title }}</h3><p>{{ item.detail }}</p><div><button :class="{ 'is-selected': sortChoices[item.id] === 'learning' }" @click="selectSort(item.id, 'learning')">Learning can help</button><button :class="{ 'is-selected': sortChoices[item.id] === 'environment' }" @click="selectSort(item.id, 'environment')">Fix the environment</button></div></article></div><p v-if="sortComplete" class="feedback"><b>{{ sortCorrect ? 'Correct.' : 'Review your choices.' }}</b> Good analysis checks skills, tools, time, guidance, and the working environment.</p>
+        </template>
+
+        <template v-else-if="screenIndex === 5">
+          <p class="eyebrow">Know the learner</p><h2 ref="screenHeading" tabindex="-1">Before you teach, learn about the learner.</h2><p class="lead">People bring experience, prior knowledge, language, time limits, confidence, and different access to tools.</p>
+          <div class="three-cues"><p><b>Role</b> What do they already know?</p><p><b>Task</b> What decisions and tools matter?</p><p><b>Context</b> What can stop them succeeding?</p></div><section class="question-card"><p class="eyebrow">Learner lens</p><h3>Which question gives a designer useful evidence?</h3><button :class="{ 'is-selected': learnerChoice === 'time' }" @click="learnerChoice = 'time'">How much uninterrupted time can a new team member realistically use for practice during a shift?</button><button :class="{ 'is-selected': learnerChoice === 'colour' }" @click="learnerChoice = 'colour'">Which background colour will make the course look most modern?</button><button :class="{ 'is-selected': learnerChoice === 'length' }" @click="learnerChoice = 'length'">How many screens can be added before the course feels comprehensive?</button><p v-if="learnerFeedback" class="feedback"><b>{{ learnerChoice === 'time' ? 'Correct.' : 'Look again.' }}</b> {{ learnerFeedback }}</p></section>
+        </template>
+
+        <template v-else-if="screenIndex === 6">
+          <p class="eyebrow">A planning map</p><h2 ref="screenHeading" tabindex="-1">Use ADDIE to think through the work.</h2><p class="lead"><b>ADDIE</b> means Analyse, Design, Develop, Implement, and Evaluate. It is a useful planning map, not a strict straight line.</p><div class="addie-map"><div v-for="(stage, index) in addieStages" :key="stage.id"><span>{{ stage.letter }}</span><b>{{ stage.title }}</b><i v-if="index < addieStages.length - 1">→</i></div></div><p class="callout">Evaluation sends evidence back to the beginning.</p>
+        </template>
+
+        <template v-else-if="screenIndex === 7">
+          <p class="eyebrow">ADDIE in practice</p><h2 ref="screenHeading" tabindex="-1">Explore one stage at a time.</h2><div class="addie-tabs" role="tablist" aria-label="ADDIE stages"><button v-for="stage in addieStages" :key="stage.id" role="tab" :aria-selected="activeAddie === stage.id" :class="{ 'is-active': activeAddie === stage.id }" @click="activeAddie = stage.id"><span>{{ stage.letter }}</span>{{ stage.title }}</button></div><section class="stage-card"><p>{{ activeStage.letter }} · {{ activeStage.title }}</p><h3>{{ activeStage.lead }}</h3><p><b>In the café:</b> {{ activeStage.example }}</p><p><span>Useful output</span>{{ activeStage.output }}</p></section>
+        </template>
+
+        <template v-else-if="screenIndex === 8">
+          <div class="game-top"><p class="eyebrow">Mini mobile game · Route Builder</p><span>{{ gameComplete ? '3 / 3 complete' : `${gameIndex + 1} / ${gameRounds.length}` }}</span></div><h2 ref="screenHeading" tabindex="-1">Build one useful learning route.</h2><p class="lead">Make one decision at a time. Each correct move shows how analysis, design, and evaluation connect to real work.</p>
+          <template v-if="!gameComplete"><p class="game-stage"><b>{{ activeGameRound.stage }}</b> Choose the next best move</p><p class="game-prompt">{{ activeGameRound.prompt }}</p><details><summary>Hint <span>+</span></summary><p>{{ activeGameRound.hint }}</p></details><div class="game-choices"><button v-for="choice in activeGameRound.choices" :key="choice.id" :disabled="gameSubmitted" :class="{ 'is-selected': gameChoice === choice.id, 'is-correct': gameSubmitted && choice.correct, 'is-incorrect': gameSubmitted && gameChoice === choice.id && !choice.correct }" @click="selectGameChoice(choice.id)">{{ choice.label }}</button></div><p v-if="gameSubmitted" class="feedback"><b>{{ gameCorrect ? 'Good decision.' : 'Try again.' }}</b> {{ gameCorrect ? activeGameRound.feedback : 'Return to the hint. Start with evidence, support a real performance, or check whether performance improved.' }}</p><button class="game-action" :disabled="!gameChoice" @click="gameSubmitted ? continueGame() : submitGameTurn()">{{ gameSubmitted ? (gameCorrect ? (gameIndex === gameRounds.length - 1 ? 'Finish the route' : 'Next decision') : 'Choose again') : 'Check my decision' }} →</button></template><p v-else class="feedback"><b>Route complete.</b> You used analysis to understand the task, design to plan support, and evaluation to check the result.</p>
+        </template>
+
+        <template v-else-if="screenIndex === 9">
+          <p class="eyebrow">Alignment</p><h2 ref="screenHeading" tabindex="-1">A clear objective connects the course.</h2><p class="lead">An objective says what a learner should be able to <b>do</b>. It guides the explanation, activity, and check for understanding.</p><div class="alignment"><div><span>1</span><b>Objective</b><p>What will the learner do?</p></div><i>→</i><div><span>2</span><b>Practice</b><p>How will they try it?</p></div><i>→</i><div><span>3</span><b>Evidence</b><p>How will we know?</p></div></div><p class="callout"><b>Worked example:</b> “After observing the counter setup, complete the six closing steps in the correct order using the checklist.”</p>
+        </template>
+
+        <template v-else-if="screenIndex === 10">
+          <p class="eyebrow">Objective check</p><h2 ref="screenHeading" tabindex="-1">Which objective is strongest?</h2><p class="lead">Choose the statement that names an observable performance.</p><div class="screen-split screen-split--objective"><section class="question-card"><button :class="{ 'is-selected': objectiveChoice === 'vague' }" @click="objectiveChoice = 'vague'">Understand the café closing procedure.</button><button :class="{ 'is-selected': objectiveChoice === 'strong' }" @click="objectiveChoice = 'strong'">After observing the counter setup, complete the six closing steps in the correct order using the checklist.</button><button :class="{ 'is-selected': objectiveChoice === 'topic' }" @click="objectiveChoice = 'topic'">Learn about safe café closing.</button><p v-if="objectiveFeedback" class="feedback"><b>{{ objectiveChoice === 'strong' ? 'Correct.' : 'Try again.' }}</b> {{ objectiveFeedback }}</p></section><figure><img :src="media.blooms" alt="Bloom’s taxonomy diagram showing remember, understand, apply, analyse, evaluate, and create."><figcaption>Real reference visual: MIT Digital Learning Toolkit, CC BY 4.0.</figcaption></figure></div>
+        </template>
+
+        <template v-else-if="screenIndex === 11">
+          <div class="screen-split"><figure><img :src="media.artifacts" alt="Hands arranging learner notes, a storyboard, a practice card, a job aid, and feedback notes on a worktable."><figcaption>Instructional design produces useful work objects, not only course screens.</figcaption></figure><div><p class="eyebrow">Useful artefacts</p><h2 ref="screenHeading" tabindex="-1">What does a designer actually make?</h2><p class="lead">The answer depends on the problem. A course can be one part of the solution.</p><ul class="artifact-list"><li><b>Learner notes</b> record what people need.</li><li><b>A storyboard</b> plans a learning route.</li><li><b>A job aid</b> supports the task at the moment it is done.</li><li><b>Evaluation notes</b> show what needs to change.</li></ul></div></div>
+        </template>
+
+        <template v-else-if="screenIndex === 12">
+          <p class="eyebrow">Artefact choice</p><h2 ref="screenHeading" tabindex="-1">Choose the right planning artefact.</h2><p class="lead">A team needs to review a proposed learning flow before it is built. What is most useful first?</p><div class="screen-split"><section class="question-card"><button :class="{ 'is-selected': artifactChoice === 'storyboard' }" @click="artifactChoice = 'storyboard'">A short storyboard showing the explanation, decision point, practice, and feedback before production begins.</button><button :class="{ 'is-selected': artifactChoice === 'longer' }" @click="artifactChoice = 'longer'">A longer slide deck that repeats the policy in several fonts.</button><button :class="{ 'is-selected': artifactChoice === 'poster' }" @click="artifactChoice = 'poster'">A poster that asks learners to remember the policy without practice.</button><p v-if="artifactFeedback" class="feedback"><b>{{ artifactChoice === 'storyboard' ? 'Correct.' : 'Not yet.' }}</b> {{ artifactFeedback }}</p></section><figure><img :src="media.storyboard" alt="Learners using laptops together in a technical learning environment."><figcaption>A storyboard makes the learner’s route visible before the course is built.</figcaption></figure></div>
+        </template>
+
+        <template v-else-if="screenIndex === 13">
+          <p class="eyebrow">Apply the method</p><h2 ref="screenHeading" tabindex="-1">Make one sound design decision.</h2><p class="lead">Closing mistakes happen most often on busy Fridays. Before building learning material, what should you do next?</p><div class="scenario-list"><button :class="{ 'is-selected': scenarioChoice === 'video' }" @click="scenarioChoice = 'video'"><span>A</span><b>Film a five-minute training video.</b><small>It may help later, but you do not know the cause yet.</small></button><button :class="{ 'is-selected': scenarioChoice === 'observe' }" @click="scenarioChoice = 'observe'"><span>B</span><b>Observe a busy Friday closing shift and talk with staff.</b><small>Find out what changes under pressure and what support is missing.</small></button><button :class="{ 'is-selected': scenarioChoice === 'test' }" @click="scenarioChoice = 'test'"><span>C</span><b>Give every staff member a final test.</b><small>A test can check learning later; it cannot explain the problem now.</small></button></div><p v-if="scenarioFeedback" class="feedback"><b>{{ scenarioChoice === 'observe' ? 'Correct.' : 'Not yet.' }}</b> {{ scenarioFeedback }}</p>
+        </template>
+
+        <template v-else-if="screenIndex === 14">
+          <p class="eyebrow">Stage match</p><h2 ref="screenHeading" tabindex="-1">Use the design language once more.</h2><p class="lead">Match each design action to its purpose.</p><div class="match-list"><section v-for="prompt in matchingPrompts" :key="prompt.id"><h3>{{ prompt.label }}</h3><div><button v-for="choice in matchingChoices" :key="choice.id" :class="{ 'is-selected': matchingAnswers[prompt.id] === choice.id }" @click="selectMatch(prompt.id, choice.id)">{{ choice.label }}</button></div></section></div><button class="game-action" :disabled="!matchingComplete" @click="submitMatching">Check matches</button><p v-if="matchingSubmitted" class="feedback"><b>{{ matchingCorrect ? 'Correct.' : 'Review the matches.' }}</b> {{ matchingCorrect ? 'Analysis identifies the need, Design plans learning, and Evaluation tells you what to improve.' : 'Look for the purpose of each stage, not only the tool used inside it.' }}</p>
+        </template>
+
+        <template v-else-if="screenIndex === 15">
+          <p class="eyebrow">Final check</p><h2 ref="screenHeading" tabindex="-1">Which statement best describes instructional design?</h2><div class="question-card"><button :class="{ 'is-selected': finalChoice === 'screens' }" @click="finalChoice = 'screens'">It is the process of making attractive e-learning screens.</button><button :class="{ 'is-selected': finalChoice === 'process' }" @click="finalChoice = 'process'">It is a systematic way to understand a learning need, plan support, create it, and improve it using evidence.</button><button :class="{ 'is-selected': finalChoice === 'quiz' }" @click="finalChoice = 'quiz'">It is a way to test whether learners remember facts at the end of a course.</button><button class="game-action" :disabled="!finalChoice" @click="submitFinal">Submit answer</button><p v-if="finalSubmitted" class="feedback"><b>{{ finalChoice === 'process' ? 'Correct.' : 'Not yet.' }}</b> {{ finalFeedback }}</p></div>
+        </template>
+
+        <template v-else>
+          <p class="eyebrow">Take this with you</p><h2 ref="screenHeading" tabindex="-1">Good learning design starts before the screen.</h2><p class="lead">Find the real task. Understand the people doing it. Decide what successful performance looks like. Give learners a way to practise. Then use evidence to make the support better.</p><div class="completion-card"><span>✓</span><p><b>Small first step:</b> when someone asks for a course, ask: “What should people be able to do differently after this?”</p></div><details class="source-panel"><summary>Sources and media credits <span>+</span></summary><ol><li><a href="https://www.td.org/talent-development-glossary-terms/what-is-instructional-design" target="_blank" rel="noreferrer">Association for Talent Development — What is Instructional Design?</a></li><li><a href="https://dltoolkit.mit.edu/online-course-design-guide/pre-design/learner-analysis/" target="_blank" rel="noreferrer">MIT Digital Learning Toolkit — Learner Analysis</a></li><li><a href="https://www.uwb.edu/it/addie" target="_blank" rel="noreferrer">University of Washington Bothell — ADDIE Model</a></li><li><a href="https://edtechbooks.org/id/task_and_content_analysis" target="_blank" rel="noreferrer">EdTech Books — Task Analysis</a></li><li><a href="https://www.cdc.gov/training-development/php/about/evaluate-training-measuring-effectiveness.html" target="_blank" rel="noreferrer">CDC — Evaluate Training</a></li><li>Bloom’s taxonomy diagram: MIT Digital Learning Toolkit, CC BY 4.0. Real learning-context photographs: Pexels License. Original course illustrations: Entertrainer.</li></ol></details>
+        </template>
+      </article>
+
+      <footer class="screen-controls">
+        <button class="back-button" :disabled="screenIndex === 0" @click="moveTo(screenIndex - 1)">← Back</button>
+        <button class="next-button" :disabled="!screenReady" @click="continueScreen">{{ continueLabel }} <span aria-hidden="true">→</span></button>
+      </footer>
+
+      <details class="screen-navigator"><summary>Module map <span>{{ furthestIndex + 1 }} of {{ screens.length }} available</span></summary><div><button v-for="(screen, index) in screens" :key="screen.label" :disabled="index > furthestIndex" :class="{ 'is-current': index === screenIndex, 'is-locked': index > furthestIndex }" @click="moveTo(index)"><span>{{ String(index + 1).padStart(2, '0') }}</span>{{ screen.label }}</button></div></details>
     </section>
-
-    <nav class="course-sections" aria-label="Module sections">
-      <button v-for="item in navItems" :key="item.id" type="button" :disabled="item.block > unlockedBlock" :class="{ 'is-locked': item.block > unlockedBlock }" @click="scrollToSection(item.id)">{{ item.label }}<span v-if="item.block > unlockedBlock" aria-hidden="true"> · locked</span></button>
-    </nav>
-
-    <div class="lesson-canvas">
-      <aside class="progress-path" aria-live="polite">
-        <span class="progress-path__number">{{ String(Math.min(unlockedBlock + 1, blockPath.length)).padStart(2, '0') }}</span>
-        <div><b>{{ currentBlockInfo.lesson }}</b><p>Current block: {{ currentBlockInfo.title }}</p></div>
-      </aside>
-
-      <section v-if="unlockedBlock >= 1" id="objectives" class="lesson-section lesson-section--objectives unlock-block" :class="{ 'is-complete': completedBlocks.includes('objectives'), 'is-released': releasedSection === 'objectives' }" aria-labelledby="objectives-title">
-        <p class="section-kicker">Before you begin</p>
-        <h2 id="objectives-title">By the End of this module, you will be able to:</h2>
-        <ol class="objective-list">
-          <li><span>1</span><p><b>Explain</b> instructional design in simple words and identify its purpose.</p></li>
-          <li><span>2</span><p><b>Recognise</b> the difference between a training need and a non-training problem.</p></li>
-          <li><span>3</span><p><b>Use</b> a simple five-step design cycle to plan a small learning experience.</p></li>
-          <li><span>4</span><p><b>Write</b> one clear learning objective that connects to an activity and a check for understanding.</p></li>
-        </ol>
-        <button v-if="!completedBlocks.includes('objectives')" type="button" class="continue-block" @click="completeBlock('objectives', 2)">Continue to Lesson 1 <span aria-hidden="true">↓</span></button>
-      </section>
-
-      <section v-if="unlockedBlock >= 2" id="analyse" class="lesson-section unlock-block" :class="{ 'is-complete': completedBlocks.includes('need'), 'is-released': releasedSection === 'analyse' }" aria-labelledby="request-title">
-        <p class="section-kicker">1. Start with the work</p>
-        <h2 id="request-title">A request is not yet a solution.</h2>
-        <p>Imagine that a café manager says, “New staff are making mistakes at closing time. Please make a training course.”</p>
-        <p>That is a useful starting point. It is not enough information to design a good course.</p>
-
-        <aside class="case-brief" aria-label="Café closing case">
-          <span class="case-brief__label">The situation</span>
-          <p>Three new team members leave the counter in different states at the end of the day. One skips equipment cleaning. Another cannot find the closing checklist. A third has never been shown the sequence.</p>
-        </aside>
-
-        <figure class="course-figure course-figure--wide expansion-figure">
-          <img :src="media.performanceGap" loading="lazy" alt="Adult learners collaborating with laptops and notes in a shared learning space.">
-          <figcaption><b>Think before building.</b> Real analysis starts with people, their task, and the setting. The same visible error can have different causes: a missing resource, an unclear process, or a skill that needs practice.</figcaption>
-        </figure>
-
-        <aside class="fact-hook"><span aria-hidden="true">?</span><p><b>Useful fact:</b> A course is one possible response to a performance problem. If the right solution is a stocked supply cupboard or a findable checklist, training alone cannot solve the problem.</p></aside>
-
-        <div class="knowledge-check" aria-labelledby="start-question">
-          <p class="knowledge-check__type">Knowledge check</p>
-          <h3 id="start-question">What should happen first?</h3>
-          <div class="choice-list">
-            <button type="button" :class="{ 'is-selected': startingChoice === 'video' }" @click="startingChoice = 'video'">Record a short video of the closing steps.</button>
-            <button type="button" :class="{ 'is-selected': startingChoice === 'checklist' }" @click="startingChoice = 'checklist'">Write a new checklist immediately.</button>
-            <button type="button" :class="{ 'is-selected': startingChoice === STARTING_CHOICE }" @click="startingChoice = STARTING_CHOICE">Observe the task and find out what is causing the errors.</button>
-          </div>
-          <p v-if="startingFeedback" class="feedback" role="status"><b>{{ startingChoice === STARTING_CHOICE ? 'Correct.' : 'Not yet.' }}</b> {{ startingFeedback.replace(/^(Correct\.|Not yet\.)\s*/, '') }}</p>
-        </div>
-        <button v-if="!completedBlocks.includes('need')" type="button" class="continue-block" :disabled="!startingChoice" @click="completeBlock('need', 3)">Continue to the definition <span aria-hidden="true">↓</span></button>
-      </section>
-
-      <section v-if="unlockedBlock >= 3" id="definition" class="lesson-section lesson-section--definition unlock-block" :class="{ 'is-complete': completedBlocks.includes('definition'), 'is-released': releasedSection === 'definition' }" aria-labelledby="definition-title">
-        <div class="lesson-split">
-          <div>
-            <p class="section-kicker">What it is</p>
-            <h2 id="definition-title">Instructional design plans learning for a real purpose.</h2>
-            <p>It is a systematic way to create education or training that helps people build knowledge and skills they can use. It is not only about slides, videos, or an online course.</p>
-            <p>An instructional designer asks three connected questions: <b>What do people need to do?</b> <b>What makes that difficult now?</b> and <b>What support will help them succeed?</b></p>
-          </div>
-          <figure class="course-figure course-figure--borderless">
-            <img :src="media.analysis" loading="lazy" alt="An instructional designer observing a café closing routine, speaking with staff, and gathering notes before creating training.">
-            <figcaption>Good design begins with evidence from the real task.</figcaption>
-          </figure>
-        </div>
-        <div class="definition-callout">
-          <span aria-hidden="true">01</span>
-          <p><b>In simple words:</b> instructional design helps turn a real need into learning support that people can understand, practise, and use.</p>
-        </div>
-        <aside class="fact-hook"><span aria-hidden="true">!</span><p><b>Do not confuse the screen with the design.</b> A video, job aid, workshop, practice task, or short course can all be part of instructional design when each one helps someone do the real work more reliably.</p></aside>
-        <button v-if="!completedBlocks.includes('definition')" type="button" class="continue-block" @click="completeBlock('definition', 4)">Continue to the cause check <span aria-hidden="true">↓</span></button>
-      </section>
-
-      <section v-if="unlockedBlock >= 4" id="cause" class="lesson-section unlock-block" :class="{ 'is-complete': completedBlocks.includes('cause'), 'is-released': releasedSection === 'cause' }" aria-labelledby="sort-title">
-        <p class="section-kicker">Look for the cause</p>
-        <h2 id="sort-title">Not every problem needs training.</h2>
-        <p>A course cannot replace missing equipment, an unclear process, or a checklist that nobody can find. Sort each café problem below. Decide whether learning support can help, or whether the work environment needs fixing first.</p>
-
-        <div class="sort-board">
-          <article v-for="item in sortItems" :key="item.id" class="sort-card" :class="{ 'is-set': sortChoices[item.id] }">
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.detail }}</p>
-            <div class="sort-card__actions" :aria-label="`Choose a response for: ${item.title}`">
-              <button type="button" :class="{ 'is-selected': sortChoices[item.id] === 'learning' }" @click="chooseSort(item.id, 'learning')">Learning can help</button>
-              <button type="button" :class="{ 'is-selected': sortChoices[item.id] === 'environment' }" @click="chooseSort(item.id, 'environment')">Fix the work environment</button>
-            </div>
-          </article>
-        </div>
-        <p v-if="sortComplete" class="feedback" role="status"><b>{{ sortCorrect ? 'Correct.' : 'Review your choices.' }}</b> <template v-if="sortCorrect">Training is one part of performance support. Good analysis also checks tools, time, guidance, and the working environment.</template><template v-else>Ask: does the person need to learn a skill, or are they being blocked by the situation around the task?</template></p>
-        <button v-if="!completedBlocks.includes('cause')" type="button" class="continue-block" :disabled="!sortComplete" @click="completeBlock('cause', 5)">Continue to learner analysis <span aria-hidden="true">↓</span></button>
-      </section>
-
-      <section v-if="unlockedBlock >= 5" id="learner" class="lesson-section lesson-section--quiet unlock-block" :class="{ 'is-complete': completedBlocks.includes('learner'), 'is-released': releasedSection === 'learner' }" aria-labelledby="learner-title">
-        <p class="section-kicker">Understand people and context</p>
-        <h2 id="learner-title">Before you teach, learn about the learner.</h2>
-        <p>People do not arrive as empty containers. They bring experience, prior knowledge, language, time limits, confidence, and different access to tools. Find out enough to make the learning useful and possible.</p>
-        <div class="reveal-list">
-          <details open>
-            <summary><span>Who are the learners?</span><i aria-hidden="true">+</i></summary>
-            <p>Look at their role, previous experience, confidence, and reason for taking the course. Do not assume everyone in a job title needs the same support.</p>
-          </details>
-          <details>
-            <summary><span>What does the task actually involve?</span><i aria-hidden="true">+</i></summary>
-            <p>Watch the task or speak with someone who does it well. Break it into the decisions, steps, tools, and conditions that matter.</p>
-          </details>
-          <details>
-            <summary><span>What could stop people from succeeding?</span><i aria-hidden="true">+</i></summary>
-            <p>Check time, access to equipment, language, accessibility, manager support, and whether learners can practise in the real setting.</p>
-          </details>
-        </div>
-        <div class="mini-practice" aria-labelledby="learner-mini-title">
-          <p class="knowledge-check__type">Mini practice · learner lens</p>
-          <h3 id="learner-mini-title">Which question gives a designer useful evidence?</h3>
-          <p>Choose the question that tells you something important about whether people can practise and use the task.</p>
-          <div class="choice-list choice-list--stacked"><button v-for="option in learnerContextOptions" :key="option.id" type="button" :class="{ 'is-selected': learnerContextChoice === option.id }" @click="learnerContextChoice = option.id">{{ option.label }}</button></div>
-          <p v-if="learnerContextFeedback" class="feedback" role="status"><b>{{ learnerContextChoice === 'time' ? 'Correct.' : 'Look again.' }}</b> {{ learnerContextFeedback.replace(/^(Correct\.|Look again\.)\s*/, '') }}</p>
-        </div>
-        <button v-if="!completedBlocks.includes('learner')" type="button" class="continue-block" @click="completeBlock('learner', 6)">Continue to Lesson 2 <span aria-hidden="true">↓</span></button>
-      </section>
-
-      <section v-if="unlockedBlock >= 6" id="design" class="lesson-section unlock-block" :class="{ 'is-complete': completedBlocks.includes('addie'), 'is-released': releasedSection === 'design' }" aria-labelledby="addie-title">
-        <p class="section-kicker">A simple planning map</p>
-        <h2 id="addie-title">Use ADDIE to think through the work.</h2>
-        <p><b>ADDIE</b> is short for Analyse, Design, Develop, Implement, and Evaluate. It helps designers remember the work that needs attention. It is not a strict straight line: you can return to an earlier step when you learn something new.</p>
-
-        <div class="process-map" role="img" aria-label="An iterative five-stage process: Analyse, Design, Develop, Implement, and Evaluate. The final stage sends feedback to the first stage.">
-          <div v-for="(stage, index) in addieStages" :key="stage.id" class="process-map__step">
-            <span>{{ stage.letter }}</span>
-            <b>{{ stage.title }}</b>
-            <i v-if="index < addieStages.length - 1" aria-hidden="true">→</i>
-          </div>
-          <p>Evaluation sends evidence back to the beginning.</p>
-        </div>
-
-        <div class="addie-explorer" aria-label="ADDIE stages">
-          <div class="addie-explorer__tabs" role="tablist" aria-label="Select an ADDIE stage">
-            <button v-for="stage in addieStages" :key="stage.id" type="button" role="tab" :aria-selected="activeAddie === stage.id" :class="{ 'is-active': activeAddie === stage.id }" @click="activeAddie = stage.id">
-              <span>{{ stage.letter }}</span>{{ stage.title }}
-            </button>
-          </div>
-          <article class="addie-explorer__panel" role="tabpanel">
-            <p class="addie-explorer__step">{{ activeStageInfo.letter }} · {{ activeStageInfo.title }}</p>
-            <h3>{{ activeStageInfo.lead }}</h3>
-            <p><b>In the café:</b> {{ activeStageInfo.example }}</p>
-            <p class="addie-explorer__output"><span>Useful output</span>{{ activeStageInfo.output }}</p>
-          </article>
-        </div>
-        <section class="route-builder" aria-labelledby="route-builder-title">
-          <div class="route-builder__topline"><p class="knowledge-check__type">Mini mobile game · Route builder</p><span aria-label="Game progress">{{ routeGameComplete ? '3 / 3 complete' : `${routeGameIndex + 1} / ${routeGameRounds.length}` }}</span></div>
-          <h3 id="route-builder-title">Build one useful learning route.</h3>
-          <p class="route-builder__lead">Make one decision at a time. Each correct move shows how analysis, design, and evaluation connect to work people actually do.</p>
-          <template v-if="!routeGameComplete">
-            <div class="route-builder__stage"><span>{{ activeRouteGameRound.stage }}</span><b>Choose the next best move</b></div>
-            <p class="route-builder__prompt">{{ activeRouteGameRound.prompt }}</p>
-            <details class="route-builder__hint"><summary>Hint <span aria-hidden="true">+</span></summary><p>{{ activeRouteGameRound.hint }}</p></details>
-            <div class="route-builder__choices" :aria-label="`${activeRouteGameRound.stage} game choices`">
-              <button v-for="choice in activeRouteGameRound.choices" :key="choice.id" type="button" :disabled="routeGameSubmitted" :class="{ 'is-selected': routeGameChoice === choice.id, 'is-correct': routeGameSubmitted && choice.correct, 'is-incorrect': routeGameSubmitted && routeGameChoice === choice.id && !choice.correct }" @click="chooseRouteGameChoice(choice.id)">{{ choice.label }}</button>
-            </div>
-            <p v-if="routeGameSubmitted" class="feedback route-builder__feedback" role="status"><b>{{ routeGameCorrect ? 'Good decision.' : 'Try again.' }}</b> {{ routeGameCorrect ? activeRouteGameRound.feedback : 'Return to the cue in the hint. The first useful move should give you information about the task, support a real performance, or check whether performance improved.' }}</p>
-            <button type="button" class="route-builder__action" :disabled="!routeGameChoice" @click="routeGameSubmitted ? continueRouteGame() : submitRouteGameRound()">{{ routeGameSubmitted ? (routeGameCorrect ? (routeGameIndex === routeGameRounds.length - 1 ? 'Finish the route' : 'Next decision') : 'Choose again') : 'Check my decision' }} <span aria-hidden="true">→</span></button>
-          </template>
-          <p v-else class="route-builder__complete" role="status"><b>Route complete.</b> You used analysis to understand the task, design to plan useful support, and evaluation to check the real result.</p>
-        </section>
-        <button v-if="!completedBlocks.includes('addie')" type="button" class="continue-block" :disabled="!routeGameComplete" @click="completeBlock('addie', 7)">{{ routeGameComplete ? 'Continue to alignment' : 'Complete the Route Builder to continue' }} <span aria-hidden="true">↓</span></button>
-      </section>
-
-      <section v-if="unlockedBlock >= 7" id="objective" class="lesson-section unlock-block" :class="{ 'is-complete': completedBlocks.includes('objective'), 'is-released': releasedSection === 'objective' }" aria-labelledby="objective-title">
-        <p class="section-kicker">Make the learning visible</p>
-        <h2 id="objective-title">A clear objective connects the course.</h2>
-        <p>An objective says what a learner should be able to <b>do</b>. It helps you choose the right explanation, activity, and check for understanding.</p>
-        <div class="alignment-map" role="img" aria-label="An instructional alignment diagram: a clear objective connects to a meaningful practice activity, which connects to evidence of learning.">
-          <div><span>1</span><b>Objective</b><p>What will the learner do?</p></div>
-          <i aria-hidden="true">→</i>
-          <div><span>2</span><b>Practice</b><p>How will they try it?</p></div>
-          <i aria-hidden="true">→</i>
-          <div><span>3</span><b>Evidence</b><p>How will we know?</p></div>
-        </div>
-        <p class="diagram-caption">Objective → practice → evidence. These three decisions should support each other.</p>
-
-        <div class="worked-example">
-          <div class="worked-example__header"><span>Worked example</span><b>From vague topic to useful objective</b></div>
-          <div class="worked-example__grid">
-            <p><span>Topic</span>Safe café closing</p>
-            <p><span>Objective</span>After observing the counter setup, complete the six closing steps in the correct order using the checklist.</p>
-            <p><span>Practice</span>Complete a guided closing run.</p>
-            <p><span>Evidence</span>Use the checklist to check the completed counter.</p>
-          </div>
-        </div>
-
-        <div class="knowledge-check" aria-labelledby="objective-question">
-          <p class="knowledge-check__type">Knowledge check</p>
-          <h3 id="objective-question">Which objective is strongest?</h3>
-          <div class="choice-list choice-list--stacked">
-            <button v-for="option in objectiveOptions" :key="option.id" type="button" :class="{ 'is-selected': objectiveChoice === option.id }" @click="objectiveChoice = option.id">{{ option.text }}</button>
-          </div>
-          <p v-if="objectiveFeedback" class="feedback" role="status"><b>{{ objectiveChoice === 'strong' ? 'Correct.' : 'Not yet.' }}</b> {{ objectiveFeedback.replace(/^(Correct\.|Try again\.)\s*/, '') }}</p>
-        </div>
-
-        <figure class="source-figure">
-          <img :src="media.blooms" loading="lazy" alt="Bloom’s taxonomy diagram showing six levels: remember, understand, apply, analyse, evaluate, and create.">
-          <figcaption>Real reference visual: MIT Digital Learning Toolkit’s Bloom’s taxonomy diagram, used under CC BY 4.0. It shows that objectives can ask for different kinds of performance, from remembering to creating.</figcaption>
-        </figure>
-        <button v-if="!completedBlocks.includes('objective')" type="button" class="continue-block" :disabled="!objectiveChoice" @click="completeBlock('objective', 8)">Continue to design artefacts <span aria-hidden="true">↓</span></button>
-      </section>
-
-      <section v-if="unlockedBlock >= 8" id="artefacts" class="lesson-section lesson-section--artifacts unlock-block" :class="{ 'is-complete': completedBlocks.includes('artefacts'), 'is-released': releasedSection === 'artefacts' }" aria-labelledby="artefacts-title">
-        <div class="lesson-split lesson-split--flip">
-          <figure class="course-figure course-figure--borderless">
-            <img :src="media.artifacts" loading="lazy" alt="Hands arranging learner notes, a storyboard, a practice card, a job aid, and feedback notes on a worktable.">
-            <figcaption>Instructional design produces useful work objects, not only course screens.</figcaption>
-          </figure>
-          <div>
-            <p class="section-kicker">Make useful things</p>
-            <h2 id="artefacts-title">What does an instructional designer actually make?</h2>
-            <p>The answer depends on the problem. A course can be one part of the solution. Designers also use learner notes, task analysis, objectives, storyboards, activities, job aids, and evaluation plans.</p>
-            <ul class="artifact-list">
-              <li><b>Learner notes</b> record what people already know and need.</li>
-              <li><b>A storyboard</b> plans a learning experience before expensive build work begins.</li>
-              <li><b>A job aid</b> supports the task at the moment it is done.</li>
-              <li><b>Evaluation notes</b> show what worked and what needs to change.</li>
-            </ul>
-          </div>
-        </div>
-        <figure class="course-figure course-figure--wide expansion-figure">
-          <img :src="media.storyboard" loading="lazy" alt="Learners using laptops together in a technical learning environment.">
-          <figcaption><b>Design for the setting where learning happens.</b> A storyboard is still a useful planning artefact because it makes the learner’s route visible before the course is built.</figcaption>
-        </figure>
-        <div class="mini-practice" aria-labelledby="artefact-mini-title">
-          <p class="knowledge-check__type">Mini practice · choose the artefact</p>
-          <h3 id="artefact-mini-title">A team needs to review a proposed learning flow before it is built. What is the most useful first artefact?</h3>
-          <div class="choice-list choice-list--stacked"><button v-for="option in artifactOptions" :key="option.id" type="button" :class="{ 'is-selected': artifactChoice === option.id }" @click="artifactChoice = option.id">{{ option.label }}</button></div>
-          <p v-if="artifactFeedback" class="feedback" role="status"><b>{{ artifactChoice === 'storyboard' ? 'Correct.' : 'Not yet.' }}</b> {{ artifactFeedback.replace(/^(Correct\.|Not yet\.)\s*/, '') }}</p>
-        </div>
-        <button v-if="!completedBlocks.includes('artefacts')" type="button" class="continue-block" @click="completeBlock('artefacts', 9)">Continue to Lesson 3 <span aria-hidden="true">↓</span></button>
-      </section>
-
-      <section v-if="unlockedBlock >= 9" id="apply" class="lesson-section unlock-block" :class="{ 'is-complete': completedBlocks.includes('scenario'), 'is-released': releasedSection === 'apply' }" aria-labelledby="apply-title">
-        <p class="section-kicker">Put it together</p>
-        <h2 id="apply-title">Make one sound design decision.</h2>
-        <p>The café manager shares a report showing that closing mistakes happen most often on busy Fridays. Before building any learning material, what should you do next?</p>
-        <div class="scenario-options">
-          <button type="button" :class="{ 'is-selected': caseChoice === 'video' }" @click="caseChoice = 'video'"><span>A</span><b>Film a five-minute training video.</b><small>It might be helpful, but you do not know the cause yet.</small></button>
-          <button type="button" :class="{ 'is-selected': caseChoice === 'observe' }" @click="caseChoice = 'observe'"><span>B</span><b>Observe a busy Friday closing shift and talk with staff.</b><small>Find out what changes under pressure and what support is missing.</small></button>
-          <button type="button" :class="{ 'is-selected': caseChoice === 'test' }" @click="caseChoice = 'test'"><span>C</span><b>Give every staff member a final test.</b><small>A test can check learning later; it cannot explain the problem now.</small></button>
-        </div>
-        <p v-if="caseFeedback" class="feedback" role="status"><b>{{ caseChoice === 'observe' ? 'Correct.' : 'Not yet.' }}</b> {{ caseFeedback.replace(/^(Correct\.|This may be useful later, but)\s*/, '') }}</p>
-        <button v-if="!completedBlocks.includes('scenario')" type="button" class="continue-block" :disabled="!caseChoice" @click="completeBlock('scenario', 10)">Continue to the final check <span aria-hidden="true">↓</span></button>
-      </section>
-
-      <section v-if="unlockedBlock >= 10" id="check" class="lesson-section lesson-section--check unlock-block" :class="{ 'is-complete': completedBlocks.includes('matching'), 'is-released': releasedSection === 'check' }" aria-labelledby="check-title">
-        <p class="section-kicker">Check your understanding</p>
-        <h2 id="check-title">Use the design language once more.</h2>
-        <p>Match each design action to its purpose. Then answer one final question.</p>
-
-        <div class="matching-check">
-          <div v-for="prompt in matchingPrompts" :key="prompt.id" class="matching-row">
-            <p>{{ prompt.label }}</p>
-            <div class="matching-row__choices" :aria-label="`Match ${prompt.label} to its purpose`">
-              <button v-for="choice in matchingChoices" :key="choice.id" type="button" :class="{ 'is-selected': matchingAnswers[prompt.id] === choice.id }" @click="selectMatch(prompt.id, choice.id)">{{ choice.label }}</button>
-            </div>
-          </div>
-          <button type="button" class="submit-button" :disabled="!matchingPrompts.every((prompt) => matchingAnswers[prompt.id])" @click="submitMatching">Check matches</button>
-          <p v-if="matchingSubmitted" class="feedback" role="status"><b>{{ matchingCorrect ? 'Correct.' : 'Review the matches.' }}</b> <template v-if="matchingCorrect">Analysis identifies the need, Design plans the learning, and Evaluation tells you what to improve.</template><template v-else>Look for the purpose of each stage, rather than the tool someone might use inside it.</template></p>
-        </div>
-
-        <div v-if="matchingSubmitted" class="knowledge-check knowledge-check--final" aria-labelledby="final-question">
-          <p class="knowledge-check__type">Final question</p>
-          <h3 id="final-question">Which statement best describes instructional design?</h3>
-          <div class="choice-list choice-list--stacked">
-            <button type="button" :class="{ 'is-selected': finalChoice === 'screens' }" @click="finalChoice = 'screens'">It is the process of making attractive e-learning screens.</button>
-            <button type="button" :class="{ 'is-selected': finalChoice === 'process' }" @click="finalChoice = 'process'">It is a systematic way to understand a learning need, plan support, create it, and improve it using evidence.</button>
-            <button type="button" :class="{ 'is-selected': finalChoice === 'quiz' }" @click="finalChoice = 'quiz'">It is a way to test whether learners remember facts at the end of a course.</button>
-          </div>
-          <button type="button" class="submit-button" :disabled="!finalChoice" @click="showFinalFeedback = true">Submit answer</button>
-          <p v-if="showFinalFeedback" class="feedback" role="status"><b>{{ finalChoice === 'process' ? 'Correct.' : 'Not yet.' }}</b> <template v-if="finalChoice === 'process'">Instructional design connects a real need, the learner, the activity, and evidence of learning. The screen is only one possible part of that work.</template><template v-else>The screen and the quiz may be useful tools. The work begins earlier: understand the need, plan the learning, and use evidence to improve it.</template></p>
-        </div>
-        <button v-if="showFinalFeedback && !completedBlocks.includes('matching')" type="button" class="continue-block" @click="completeBlock('matching', 11)">Continue to the module close <span aria-hidden="true">↓</span></button>
-      </section>
-
-      <section v-if="unlockedBlock >= 11" id="closing" class="lesson-section lesson-section--closing unlock-block" :class="{ 'is-complete': courseComplete, 'is-released': releasedSection === 'closing' }" aria-labelledby="closing-title">
-        <p class="section-kicker">Take this with you</p>
-        <h2 id="closing-title">Good learning design starts before the screen.</h2>
-        <p>Find the real task. Understand the people doing it. Decide what successful performance looks like. Give learners a way to practise. Then use evidence to make the support better.</p>
-        <div class="closing-card">
-          <span aria-hidden="true">✓</span>
-          <p><b>Small first step:</b> the next time someone asks for a course, ask: “What should people be able to do differently after this?”</p>
-        </div>
-        <button v-if="!courseComplete" type="button" class="continue-block" @click="completeBlock('closing', 11)">Mark module complete <span aria-hidden="true">✓</span></button>
-        <p v-else class="completion-note" role="status"><b>Module complete.</b> You can revisit any completed lesson from the path above.</p>
-      </section>
-
-      <aside v-if="unlockedBlock < blockPath.length - 1" class="locked-preview" aria-live="polite">
-        <span aria-hidden="true">⌄</span>
-        <div><b>Next: {{ nextBlockInfo.title }}</b><p>Complete the current block above to unlock this part of the module.</p></div>
-      </aside>
-
-      <details v-if="courseComplete" class="sources-panel">
-        <summary>Sources and media credits <span aria-hidden="true">+</span></summary>
-        <div class="sources-panel__body">
-          <p>This module uses instructional-design sources for explanation, not as a substitute for professional consultation on a specific workplace problem.</p>
-          <ol>
-            <li><a href="https://www.td.org/talent-development-glossary-terms/what-is-instructional-design" target="_blank" rel="noreferrer">Association for Talent Development — What is Instructional Design?</a></li>
-            <li><a href="https://dltoolkit.mit.edu/online-course-design-guide/pre-design/learner-analysis/" target="_blank" rel="noreferrer">MIT Digital Learning Toolkit — Learner Analysis</a></li>
-            <li><a href="https://www.uwb.edu/it/addie" target="_blank" rel="noreferrer">University of Washington Bothell — ADDIE Model</a></li>
-            <li><a href="https://edtechbooks.org/id/task_and_content_analysis" target="_blank" rel="noreferrer">EdTech Books — Using Task Analysis to Inform Instructional Design</a></li>
-            <li><a href="https://www.cdc.gov/training-development/php/about/evaluate-training-measuring-effectiveness.html" target="_blank" rel="noreferrer">CDC — Evaluate Training: Measuring Effectiveness</a></li>
-            <li><a href="https://dltoolkit.mit.edu/online-course-design-guide/design/objectives-outcomes/" target="_blank" rel="noreferrer">MIT Digital Learning Toolkit — Objectives & Outcomes</a></li>
-            <li><a href="https://www.articulatesupport.com/article/Rise-How-to-Use-Knowledge-Check-Blocks" target="_blank" rel="noreferrer">Articulate Support — Rise 360 Knowledge Check Blocks</a></li>
-            <li><a href="https://www.pexels.com/photo/colleagues-sitting-with-laptops-at-library-16420579/" target="_blank" rel="noreferrer">Pexels — Adult collaboration photograph</a> and <a href="https://www.pexels.com/photo/people-with-laptops-at-lecture-in-technical-school-19895774/" target="_blank" rel="noreferrer">Pexels — Technical learning photograph</a> (used under the Pexels License).</li>
-          </ol>
-          <p>Bloom’s taxonomy diagram: MIT Digital Learning Toolkit, CC BY 4.0. The two real learning-context photographs use the Pexels License; the remaining course illustrations are original Entertrainer artwork generated for this module.</p>
-        </div>
-      </details>
-    </div>
   </main>
 </template>
 
 <style scoped>
-/* Introduction to Instructional Design — Rise-style learning canvas.
-   Style contract: calm white single-column reading, one blue accent, functional
-   media, visible feedback, generous rhythm, and no motion that competes with teaching. */
-.course { --course-blue: #315fc7; --course-blue-soft: #edf2ff; --course-ink: #23272e; --course-muted: #5f6772; --course-rule: #d8dce2; --motion-fast: 140ms; --motion-normal: 240ms; --motion-slow: 420ms; --motion-ease: cubic-bezier(.16, 1, .3, 1); background: #fff; color: var(--course-ink); padding-bottom: 100rem; }
-.course-bar { position: sticky; z-index: calc(var(--z-chrome) - 1); top: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20rem; min-height: 62rem; padding: 0 max(24rem, calc((100vw - 1120rem) / 2)); background: rgb(255 255 255 / 94%); border-bottom: 1px solid #eaecf0; backdrop-filter: blur(12px); font-family: var(--font-ui); font-size: 12rem; }
-.course-bar__back { color: var(--course-muted); text-decoration: none; width: fit-content; }
-.course-bar__back::before { content: '← '; }
-.course-bar__back:hover { color: var(--course-blue); }
-.course-bar__title { margin: 0; font-weight: 700; color: var(--course-ink); white-space: nowrap; }
-.course-bar__progress { justify-self: end; display: flex; align-items: center; gap: 8rem; color: var(--course-muted); font-family: var(--font-mono); font-size: 10rem; }
-.course-bar__progress-track { width: 66rem; height: 4rem; overflow: hidden; background: #e8ebf0; border-radius: 999rem; }
-.course-bar__progress-track i { display: block; height: 100%; border-radius: inherit; background: var(--course-blue); transition: width 220ms var(--ease-out); }
-
-.course-hero { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(330rem, .92fr); min-height: 580rem; max-width: 1280rem; margin: 0 auto; background: #f5f4f1; }
-.course-hero__image-wrap { min-height: 100%; overflow: hidden; background: #e7e5df; }
-.course-hero__image { width: 100%; height: 100%; object-fit: cover; object-position: center; }
-.course-hero__body { display: flex; flex-direction: column; justify-content: center; padding: clamp(46rem, 7vw, 106rem) clamp(32rem, 6vw, 76rem); }
-.course-hero__eyebrow, .section-kicker, .knowledge-check__type { margin: 0 0 14rem; color: var(--course-blue); font-family: var(--font-mono); font-size: 11rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
-.course-hero h1 { max-width: 9ch; margin: 0; font-family: var(--font-ui); font-size: clamp(42rem, 5.4vw, 68rem); font-weight: 700; letter-spacing: -.065em; line-height: .99; }
-.course-hero__deck { max-width: 37ch; margin: 28rem 0 0; color: var(--course-muted); font-family: var(--font-reading); font-size: 18rem; line-height: 1.58; }
-.course-hero__start { display: inline-flex; gap: 11rem; width: fit-content; margin-top: 34rem; padding: 13rem 18rem; background: var(--course-blue); color: #fff; border-radius: 6rem; font-family: var(--font-ui); font-size: 14rem; font-weight: 700; text-decoration: none; transition: transform 160ms var(--ease-out), background 160ms var(--ease-out); }
-.course-hero__start:hover { background: #274fa9; transform: translateY(-2rem); }
-.course-hero__start:active, .submit-button:active { transform: scale(.98); }
-
-.course-sections { position: sticky; z-index: 3; top: 62rem; display: flex; justify-content: center; gap: 4rem; overflow-x: auto; padding: 10rem 18rem; background: #fff; border-bottom: 1px solid #eaecf0; }
-.course-sections button { flex: none; padding: 7rem 10rem; color: var(--course-muted); border-radius: 4rem; font-family: var(--font-ui); font-size: 12rem; white-space: nowrap; transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
-.course-sections button:hover { background: var(--course-blue-soft); color: var(--course-blue); }
-.course-sections button:disabled { color: #9aa3af; cursor: not-allowed; }
-.course-sections button.is-locked { background: #f7f8fa; }
-
-.lesson-canvas { width: min(100% - 40rem, 820rem); margin: 0 auto; }
-.progress-path { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12rem; margin: 42rem 0 -24rem; padding: 14rem 16rem; color: #33445f; background: #f3f6fd; border: 1px solid #dce5f8; border-radius: 7rem; font-family: var(--font-ui); }
-.progress-path__number { display: grid; place-items: center; width: 30rem; height: 30rem; color: #fff; background: var(--course-blue); border-radius: 50%; font-family: var(--font-mono); font-size: 10rem; font-weight: 700; }
-.progress-path b { display: block; color: var(--course-blue); font-family: var(--font-mono); font-size: 10rem; letter-spacing: .07em; text-transform: uppercase; }
-.progress-path p { margin: 3rem 0 0; font-size: 13rem; font-weight: 700; }
-.lesson-section { padding: 90rem 0; border-bottom: 1px solid #e6e8ec; scroll-margin-top: 126rem; }
-.unlock-block { border-left: 3rem solid var(--course-blue); padding-left: 26rem; }
-.unlock-block.is-complete { border-left-color: #2f8b5d; }
-.unlock-block.is-released { animation: section-release var(--motion-slow) var(--motion-ease) both; }
-.unlock-block.is-released > :is(.section-kicker, h2, .lesson-split) { animation: section-content-in var(--motion-normal) var(--motion-ease) both; }
-.unlock-block.is-released > :is(.case-brief, .course-figure, .fact-hook, .knowledge-check, .sort-board, .mini-practice, .addie-explorer, .alignment-map, .source-figure, .scenario-options, .matching-check, .closing-card) { animation: section-content-in var(--motion-slow) var(--motion-ease) both; animation-delay: 70ms; }
-.continue-block { display: inline-flex; align-items: center; gap: 9rem; margin-top: 30rem; padding: 12rem 16rem; color: #fff; background: var(--course-blue); border: 0; border-radius: 5rem; font-family: var(--font-ui); font-size: 13rem; font-weight: 700; cursor: pointer; transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out); }
-.continue-block:hover:not(:disabled) { background: #274fa9; transform: translateY(-1rem); }
-.continue-block:disabled { opacity: .42; cursor: not-allowed; }
-.continue-block:active:not(:disabled) { transform: scale(.98); }
-.locked-preview { display: flex; align-items: flex-start; gap: 14rem; margin: 40rem 0 16rem; padding: 20rem; color: #667085; background: #f7f9fc; border: 1px dashed #c7d0de; border-radius: 7rem; font-family: var(--font-ui); }
-.locked-preview > span { display: grid; place-items: center; flex: none; width: 28rem; height: 28rem; color: #76869f; background: #e8edf5; border-radius: 50%; font-size: 15rem; transform: rotate(-90deg); }
-.locked-preview b { display: block; color: #455366; font-size: 14rem; }
-.locked-preview p { margin: 5rem 0 0; font-family: var(--font-reading); font-size: 15rem; line-height: 1.45; }
-.completion-note { margin: 30rem 0 0; padding: 15rem 17rem; color: #244332; background: #edf8f1; border-left: 3rem solid #2f8b5d; font-family: var(--font-ui); font-size: 14rem; }
-@keyframes section-release { from { opacity: 0; transform: translateY(18rem); } to { opacity: 1; transform: translateY(0); } }
-@keyframes section-content-in { from { opacity: 0; transform: translateY(10rem); } to { opacity: 1; transform: translateY(0); } }
-@media (prefers-reduced-motion: reduce) {
-  .unlock-block.is-released, .unlock-block.is-released > * { animation: none; opacity: 1; transform: none; }
-}
-.lesson-section > h2 { max-width: 16ch; margin: 0; font-family: var(--font-ui); font-size: clamp(30rem, 4vw, 44rem); letter-spacing: -.052em; line-height: 1.06; }
-.lesson-section > p:not(.section-kicker):not(.feedback) { max-width: 61ch; margin: 22rem 0 0; color: #3c434c; font-family: var(--font-reading); font-size: 18rem; line-height: 1.65; }
-.lesson-section--objectives { margin-top: 56rem; padding: 36rem clamp(24rem, 5vw, 52rem) 42rem; background: var(--course-blue-soft); border: 0; border-radius: 8rem; }
-.lesson-section--objectives h2 { max-width: 26ch; font-size: clamp(25rem, 3.2vw, 33rem); }
-.objective-list { display: grid; grid-template-columns: 1fr 1fr; gap: 14rem 24rem; margin: 28rem 0 0; padding: 0; list-style: none; }
-.objective-list li { display: flex; align-items: flex-start; gap: 11rem; }
-.objective-list span { display: grid; flex: none; place-items: center; width: 25rem; height: 25rem; margin-top: 2rem; color: #fff; background: var(--course-blue); border-radius: 50%; font-family: var(--font-mono); font-size: 10rem; }
-.objective-list p { margin: 0; font-family: var(--font-ui); font-size: 14rem; line-height: 1.5; }
-
-.case-brief { max-width: 680rem; margin: 30rem 0; padding: 22rem 25rem; border-left: 4rem solid var(--course-blue); background: #f8f9fb; }
-.case-brief__label { display: block; margin-bottom: 8rem; color: var(--course-blue); font-family: var(--font-mono); font-size: 10rem; text-transform: uppercase; letter-spacing: .08em; }
-.case-brief p { margin: 0; color: #3c434c; font-family: var(--font-reading); font-size: 17rem; line-height: 1.6; }
-.knowledge-check { margin-top: 34rem; padding: clamp(24rem, 4vw, 36rem); background: #f8fafc; border: 1px solid #dfe4eb; border-radius: 9rem; }
-.knowledge-check h3 { max-width: 31ch; margin: 0; font-family: var(--font-ui); font-size: clamp(20rem, 2.5vw, 25rem); letter-spacing: -.03em; line-height: 1.2; }
-.choice-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10rem; margin-top: 22rem; }
-.choice-list--stacked { grid-template-columns: 1fr; }
-.choice-list button, .sort-card__actions button, .matching-row__choices button { min-height: 50rem; padding: 12rem 14rem; color: #303842; background: #fff; border: 1px solid #cfd6df; border-radius: 5rem; font-family: var(--font-ui); font-size: 14rem; font-weight: 600; line-height: 1.35; text-align: left; cursor: pointer; transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out); }
-.choice-list button:hover, .sort-card__actions button:hover, .matching-row__choices button:hover { border-color: var(--course-blue); color: var(--course-blue); }
-.choice-list button:hover, .sort-card__actions button:hover, .matching-row__choices button:hover, .course-sections button:hover:not(:disabled) { transform: translateY(-1rem); }
-.choice-list button:active, .sort-card__actions button:active, .matching-row__choices button:active { transform: scale(.98); }
-.choice-list button.is-selected, .sort-card__actions button.is-selected, .matching-row__choices button.is-selected { background: var(--course-blue); border-color: var(--course-blue); color: #fff; }
-.feedback { max-width: 62ch; margin: 20rem 0 0; padding: 14rem 16rem; color: #244332; background: #edf8f1; border-left: 3rem solid #2f8b5d; font-family: var(--font-ui); font-size: 14rem; line-height: 1.52; }
-
-.lesson-section--definition { padding-top: 100rem; }
-.lesson-split { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: clamp(32rem, 7vw, 72rem); }
-.lesson-split h2 { max-width: 11ch; margin: 0; font-family: var(--font-ui); font-size: clamp(30rem, 4vw, 44rem); letter-spacing: -.052em; line-height: 1.06; }
-.lesson-split p:not(.section-kicker) { margin: 20rem 0 0; color: #3c434c; font-family: var(--font-reading); font-size: 18rem; line-height: 1.62; }
-.course-figure { margin: 34rem 0 0; overflow: hidden; background: #f4f3ef; border: 1px solid #e2e4e8; border-radius: 8rem; }
-.course-figure--borderless { margin: 0; background: transparent; border: 0; border-radius: 0; }
-.course-figure--wide { margin-top: 32rem; }
-.course-figure img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
-.course-figure--wide img { aspect-ratio: 16 / 7; }
-.course-figure figcaption, .source-figure figcaption { padding: 11rem 14rem; color: var(--course-muted); background: #fff; font-family: var(--font-ui); font-size: 11.5rem; line-height: 1.45; }
-.course-figure--borderless figcaption { padding: 10rem 0 0; background: transparent; }
-.expansion-figure { margin-top: 38rem; animation: visual-block-in var(--motion-slow) var(--motion-ease) both; }
-.expansion-figure img { background: #eaf0fa; }
-.expansion-figure--split { max-width: 680rem; }
-.fact-hook { display: grid; grid-template-columns: 30rem 1fr; gap: 14rem; max-width: 680rem; margin-top: 30rem; padding: 18rem 20rem; color: #354253; background: #f3f6fd; border-left: 3rem solid var(--course-blue); font-family: var(--font-reading); font-size: 16rem; line-height: 1.55; animation: visual-block-in var(--motion-normal) var(--motion-ease) both; }
-.fact-hook > span { display: grid; place-items: center; width: 26rem; height: 26rem; color: var(--course-blue); border: 1px solid currentColor; border-radius: 50%; font-family: var(--font-ui); font-size: 14rem; font-weight: 700; }
-.fact-hook p { margin: 0; }
-.fact-hook b { font-family: var(--font-ui); }
-.mini-practice { max-width: 700rem; margin-top: 38rem; padding: 26rem; background: #fff; border: 1px solid #dbe1eb; border-left: 3rem solid var(--course-blue); border-radius: 7rem; animation: visual-block-in var(--motion-normal) var(--motion-ease) both; }
-.mini-practice h3 { max-width: 36ch; margin: 0; font-family: var(--font-ui); font-size: 22rem; letter-spacing: -.03em; line-height: 1.25; }
-.mini-practice > p:not(.knowledge-check__type):not(.feedback) { max-width: 58ch; margin: 12rem 0 0; color: var(--course-muted); font-family: var(--font-reading); font-size: 16rem; line-height: 1.55; }
-.mini-practice .choice-list { margin-top: 20rem; }
-.mini-practice .feedback { animation: feedback-in var(--motion-normal) var(--motion-ease) both; }
-.route-builder { max-width: 700rem; margin-top: 38rem; padding: clamp(22rem, 5vw, 32rem); color: #253142; background: linear-gradient(145deg, #f3f6fd 0%, #fff 68%); border: 1px solid #cfdbf5; border-top: 4rem solid var(--course-blue); border-radius: 9rem; box-shadow: 0 18rem 42rem rgb(49 95 199 / 10%); animation: visual-block-in var(--motion-slow) var(--motion-ease) both; }
-.route-builder__topline { display: flex; align-items: center; justify-content: space-between; gap: 14rem; }
-.route-builder__topline .knowledge-check__type { margin: 0; }
-.route-builder__topline > span { padding: 5rem 8rem; color: #45609b; background: #e8efff; border-radius: 999rem; font-family: var(--font-mono); font-size: 10rem; font-weight: 700; }
-.route-builder h3 { max-width: 18ch; margin: 15rem 0 0; font-family: var(--font-ui); font-size: clamp(25rem, 4vw, 31rem); letter-spacing: -.04em; line-height: 1.08; }
-.route-builder__lead, .route-builder__prompt { max-width: 58ch; margin: 13rem 0 0; font-family: var(--font-reading); font-size: 16rem; line-height: 1.55; }
-.route-builder__lead { color: var(--course-muted); }
-.route-builder__stage { display: flex; align-items: center; gap: 10rem; margin-top: 24rem; color: #34445f; font-family: var(--font-ui); font-size: 13rem; }
-.route-builder__stage span { display: grid; place-items: center; min-width: 72rem; min-height: 29rem; padding: 4rem 8rem; color: #fff; background: var(--course-blue); border-radius: 999rem; font-family: var(--font-mono); font-size: 10rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
-.route-builder__hint { margin-top: 18rem; border-top: 1px solid #d7e0f2; border-bottom: 1px solid #d7e0f2; }
-.route-builder__hint summary { display: flex; align-items: center; justify-content: space-between; min-height: 48rem; font-family: var(--font-ui); font-size: 13rem; font-weight: 700; cursor: pointer; list-style: none; }
-.route-builder__hint summary::-webkit-details-marker { display: none; }
-.route-builder__hint summary span { color: var(--course-blue); font-size: 18rem; font-weight: 400; transition: transform var(--motion-fast) var(--motion-ease); }
-.route-builder__hint[open] summary span { transform: rotate(45deg); }
-.route-builder__hint p { margin: 0 0 15rem; color: var(--course-muted); font-family: var(--font-reading); font-size: 15rem; line-height: 1.5; }
-.route-builder__choices { display: grid; gap: 9rem; margin-top: 20rem; }
-.route-builder__choices button { display: flex; align-items: center; min-height: 62rem; padding: 14rem 16rem; color: #303842; background: #fff; border: 1px solid #c9d4e8; border-radius: 6rem; font-family: var(--font-ui); font-size: 14rem; font-weight: 600; line-height: 1.38; text-align: left; cursor: pointer; transition: transform var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease); }
-.route-builder__choices button:hover:not(:disabled) { border-color: var(--course-blue); transform: translateX(3rem); }
-.route-builder__choices button:focus-visible, .route-builder__action:focus-visible { outline: 3rem solid #f0bd35; outline-offset: 3rem; }
-.route-builder__choices button.is-selected { border-color: var(--course-blue); background: #e8efff; color: #254b9f; }
-.route-builder__choices button.is-correct { border-color: #2f8b5d; background: #edf8f1; color: #244332; }
-.route-builder__choices button.is-incorrect { border-color: #bd5757; background: #fff4f4; color: #813f3f; }
-.route-builder__choices button:disabled { cursor: default; }
-.route-builder__feedback { margin-top: 17rem; }
-.route-builder__action { display: inline-flex; align-items: center; gap: 9rem; min-height: 48rem; margin-top: 18rem; padding: 0 17rem; color: #fff; background: var(--course-blue); border: 0; border-radius: 5rem; font-family: var(--font-ui); font-size: 14rem; font-weight: 700; cursor: pointer; transition: transform var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease); }
-.route-builder__action:hover:not(:disabled) { background: #274fa9; transform: translateY(-1rem); }
-.route-builder__action:active:not(:disabled) { transform: scale(.98); }
-.route-builder__action:disabled { opacity: .45; cursor: not-allowed; }
-.route-builder__complete { margin: 25rem 0 0; padding: 16rem; color: #244332; background: #edf8f1; border-left: 3rem solid #2f8b5d; font-family: var(--font-ui); font-size: 14rem; line-height: 1.55; }
-@keyframes visual-block-in { from { opacity: 0; transform: translateY(10rem); } to { opacity: 1; transform: translateY(0); } }
-@keyframes feedback-in { from { opacity: 0; transform: translateX(-6rem); } to { opacity: 1; transform: translateX(0); } }
-.definition-callout { display: grid; grid-template-columns: auto 1fr; gap: 18rem; margin-top: 46rem; padding: 24rem 0 0; border-top: 1px solid var(--course-rule); }
-.definition-callout span { color: var(--course-blue); font-family: var(--font-mono); font-size: 12rem; }
-.definition-callout p { max-width: 48ch; margin: 0; font-family: var(--font-reading); font-size: 22rem; line-height: 1.45; }
-
-.sort-board { display: grid; grid-template-columns: 1fr 1fr; gap: 14rem; margin-top: 32rem; }
-.sort-card { padding: 22rem; background: #fff; border: 1px solid #dfe3e9; border-radius: 7rem; }
-.sort-card.is-set { border-color: #b8c9ee; }
-.sort-card h3 { margin: 0; font-family: var(--font-ui); font-size: 16rem; letter-spacing: -.015em; }
-.sort-card p { margin: 9rem 0 0; color: var(--course-muted); font-family: var(--font-reading); font-size: 15rem; line-height: 1.5; }
-.sort-card__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8rem; margin-top: 17rem; }
-.sort-card__actions button { min-height: 45rem; padding: 8rem; font-size: 12rem; }
-.lesson-section--quiet { padding: 75rem clamp(24rem, 6vw, 62rem); background: #f7f7f5; border-bottom: 0; }
-.reveal-list { margin-top: 30rem; border-top: 1px solid #d8dadd; }
-.reveal-list details { border-bottom: 1px solid #d8dadd; }
-.reveal-list summary { display: flex; align-items: center; justify-content: space-between; gap: 16rem; min-height: 64rem; font-family: var(--font-ui); font-size: 16rem; font-weight: 700; cursor: pointer; list-style: none; }
-.reveal-list summary::-webkit-details-marker { display: none; }
-.reveal-list summary i { color: var(--course-blue); font-size: 20rem; font-style: normal; font-weight: 400; }
-.reveal-list details[open] summary i { transform: rotate(45deg); }
-.reveal-list details p { max-width: 59ch; margin: -4rem 0 21rem; color: #3e4650; font-family: var(--font-reading); font-size: 16rem; line-height: 1.6; }
-
-.addie-explorer { margin-top: 36rem; border: 1px solid #dce1e8; border-radius: 8rem; overflow: hidden; }
-.process-map { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8rem; position: relative; align-items: stretch; margin-top: 34rem; padding: 28rem 22rem 20rem; background: #f7f9fc; border: 1px solid #dbe1ea; border-radius: 8rem; }
-.process-map__step { position: relative; display: flex; min-height: 98rem; flex-direction: column; justify-content: center; gap: 7rem; padding: 14rem 10rem; background: #fff; border: 1px solid #d8dee8; border-radius: 6rem; text-align: center; }
-.process-map__step span { color: var(--course-blue); font-family: var(--font-mono); font-size: 12rem; font-weight: 700; }
-.process-map__step b { font-family: var(--font-ui); font-size: 14rem; }
-.process-map__step i { position: absolute; z-index: 1; top: 50%; right: -16rem; width: 23rem; color: var(--course-blue); background: #f7f9fc; font-family: var(--font-ui); font-size: 17rem; font-style: normal; transform: translateY(-50%); }
-.process-map > p { grid-column: 1 / -1; width: fit-content; margin: 10rem auto 0; padding: 6rem 10rem; color: #45609b; background: #e8efff; border-radius: 999rem; font-family: var(--font-ui); font-size: 11rem; }
-.addie-explorer__tabs { display: grid; grid-template-columns: repeat(5, 1fr); background: #f7f9fc; border-bottom: 1px solid #dce1e8; }
-.addie-explorer__tabs button { min-height: 71rem; padding: 10rem 6rem; color: var(--course-muted); border-right: 1px solid #dce1e8; font-family: var(--font-ui); font-size: 12rem; cursor: pointer; }
-.addie-explorer__tabs button:last-child { border-right: 0; }
-.addie-explorer__tabs button span { display: block; margin-bottom: 3rem; color: var(--course-blue); font-family: var(--font-mono); font-size: 10rem; }
-.addie-explorer__tabs button.is-active { background: var(--course-blue); color: #fff; }
-.addie-explorer__tabs button.is-active span { color: #dce8ff; }
-.addie-explorer__panel { padding: clamp(24rem, 5vw, 44rem); }
-.addie-explorer__step { margin: 0 0 9rem; color: var(--course-blue); font-family: var(--font-mono); font-size: 11rem; letter-spacing: .08em; text-transform: uppercase; }
-.addie-explorer__panel h3 { max-width: 30ch; margin: 0; font-family: var(--font-ui); font-size: 24rem; letter-spacing: -.035em; line-height: 1.18; }
-.addie-explorer__panel > p:not(.addie-explorer__step):not(.addie-explorer__output) { max-width: 62ch; margin: 18rem 0 0; color: #3f4750; font-family: var(--font-reading); font-size: 17rem; line-height: 1.6; }
-.addie-explorer__output { display: grid; grid-template-columns: 116rem 1fr; gap: 14rem; margin: 25rem 0 0; padding-top: 18rem; border-top: 1px solid #e3e6ea; color: #333b44; font-family: var(--font-ui); font-size: 14rem; line-height: 1.5; }
-.addie-explorer__output span { color: var(--course-muted); font-family: var(--font-mono); font-size: 10rem; text-transform: uppercase; }
-
-.worked-example { margin-top: 32rem; border: 1px solid #d7dce4; border-radius: 7rem; overflow: hidden; }
-.worked-example__header { display: flex; align-items: baseline; gap: 13rem; padding: 15rem 18rem; background: #f6f8fb; border-bottom: 1px solid #d7dce4; font-family: var(--font-ui); font-size: 15rem; }
-.worked-example__header span { color: var(--course-blue); font-family: var(--font-mono); font-size: 10rem; text-transform: uppercase; letter-spacing: .07em; }
-.worked-example__grid { display: grid; grid-template-columns: 1fr 1fr; }
-.worked-example__grid p { min-height: 104rem; margin: 0; padding: 18rem; border-right: 1px solid #e1e4e9; border-bottom: 1px solid #e1e4e9; color: #3a424c; font-family: var(--font-reading); font-size: 15rem; line-height: 1.48; }
-.worked-example__grid p:nth-child(2n) { border-right: 0; }
-.worked-example__grid p:nth-last-child(-n+2) { border-bottom: 0; }
-.worked-example__grid span { display: block; margin-bottom: 6rem; color: var(--course-blue); font-family: var(--font-mono); font-size: 10rem; text-transform: uppercase; }
-.alignment-map { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 8rem; margin-top: 34rem; padding: 22rem; background: #f7f9fc; border: 1px solid #dbe1ea; border-radius: 8rem; }
-.alignment-map > div { min-height: 132rem; padding: 17rem 13rem; background: #fff; border: 1px solid #d7dee9; border-radius: 6rem; }
-.alignment-map span { display: block; margin-bottom: 12rem; color: var(--course-blue); font-family: var(--font-mono); font-size: 11rem; }
-.alignment-map b { display: block; font-family: var(--font-ui); font-size: 15rem; }
-.alignment-map p { margin: 8rem 0 0; color: var(--course-muted); font-family: var(--font-reading); font-size: 13rem; line-height: 1.42; }
-.alignment-map > i { color: var(--course-blue); font-family: var(--font-ui); font-size: 20rem; font-style: normal; }
-.diagram-caption { margin: 10rem 0 0; color: var(--course-muted); font-family: var(--font-ui); font-size: 11.5rem; line-height: 1.45; }
-.source-figure { max-width: 620rem; margin: 36rem auto 0; overflow: hidden; background: #fff; border: 1px solid #e1e4e9; border-radius: 7rem; }
-.source-figure img { display: block; width: 100%; height: auto; }
-.source-figure figcaption { background: #fafafa; }
-
-.lesson-section--artifacts { padding: 100rem 0; }
-.artifact-list { display: grid; gap: 13rem; margin: 27rem 0 0; padding: 0; list-style: none; }
-.artifact-list li { padding-left: 19rem; border-left: 2rem solid #b9c8ef; color: #3f4750; font-family: var(--font-reading); font-size: 16rem; line-height: 1.55; }
-.artifact-list b { font-family: var(--font-ui); }
-
-.scenario-options { display: grid; gap: 10rem; margin-top: 30rem; }
-.scenario-options button { display: grid; grid-template-columns: 30rem 1fr; column-gap: 15rem; align-items: center; min-height: 90rem; padding: 18rem; color: #343d47; background: #fff; border: 1px solid #d3d8df; border-radius: 6rem; text-align: left; cursor: pointer; transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out); }
-.scenario-options button:hover { border-color: var(--course-blue); }
-.scenario-options button.is-selected { background: var(--course-blue-soft); border-color: var(--course-blue); }
-.scenario-options span { grid-row: span 2; display: grid; place-items: center; width: 28rem; height: 28rem; color: var(--course-blue); border: 1px solid currentColor; border-radius: 50%; font-family: var(--font-mono); font-size: 11rem; }
-.scenario-options b { font-family: var(--font-ui); font-size: 15rem; }
-.scenario-options small { margin-top: 4rem; color: var(--course-muted); font-family: var(--font-reading); font-size: 14rem; line-height: 1.4; }
-
-.lesson-section--check { padding: 82rem clamp(24rem, 6vw, 62rem); background: #f6f8fb; border-bottom: 0; }
-.matching-check { margin-top: 32rem; }
-.matching-row { display: grid; grid-template-columns: 120rem 1fr; gap: 18rem; align-items: center; margin-top: 12rem; padding: 14rem 0; border-top: 1px solid #dbe0e7; }
-.matching-row p { margin: 0; font-family: var(--font-ui); font-size: 15rem; font-weight: 700; }
-.matching-row__choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7rem; }
-.matching-row__choices button { min-height: 45rem; padding: 8rem; font-size: 11.5rem; }
-.submit-button { min-height: 46rem; margin-top: 22rem; padding: 0 18rem; color: #fff; background: var(--course-blue); border-radius: 5rem; font-family: var(--font-ui); font-size: 14rem; font-weight: 700; cursor: pointer; transition: transform 160ms var(--ease-out), background 160ms var(--ease-out); }
-.submit-button:hover:not(:disabled) { background: #264fae; }
-.submit-button:disabled { opacity: .45; cursor: not-allowed; }
-.knowledge-check--final { margin-top: 56rem; background: #fff; }
-.knowledge-check--final .submit-button { margin-top: 19rem; }
-
-.lesson-section--closing { padding: 100rem 0; border-bottom: 0; }
-.closing-card { display: grid; grid-template-columns: 34rem 1fr; gap: 16rem; max-width: 620rem; margin-top: 32rem; padding: 22rem; background: #fff9dc; border: 1px solid #ede0a1; border-radius: 7rem; }
-.closing-card span { display: grid; place-items: center; width: 27rem; height: 27rem; color: #785d00; background: #ffe67d; border-radius: 50%; font-family: var(--font-ui); font-size: 15rem; font-weight: 700; }
-.closing-card p { margin: 0; color: #51471d; font-family: var(--font-reading); font-size: 17rem; line-height: 1.55; }
-.sources-panel { margin-top: 22rem; border-top: 1px solid #e3e5e9; border-bottom: 1px solid #e3e5e9; }
-.sources-panel summary { display: flex; justify-content: space-between; gap: 16rem; min-height: 62rem; align-items: center; color: #37414a; font-family: var(--font-ui); font-size: 14rem; font-weight: 700; cursor: pointer; list-style: none; }
-.sources-panel summary::-webkit-details-marker { display: none; }
-.sources-panel[open] summary span { transform: rotate(45deg); }
-.sources-panel__body { max-width: 68ch; padding: 0 0 28rem; color: var(--course-muted); font-family: var(--font-reading); font-size: 15rem; line-height: 1.6; }
-.sources-panel__body p { margin: 0 0 14rem; }
-.sources-panel__body ol { display: grid; gap: 7rem; margin: 0; padding-left: 20rem; }
-.sources-panel__body a { color: var(--course-blue); text-underline-offset: 3rem; }
-
-@media (max-width: 760px) {
-  .course-bar { grid-template-columns: 1fr auto; padding: 0 18rem; }
-  .course-bar__title { display: none; }
-  .course-hero { grid-template-columns: 1fr; }
-  .course-hero__image-wrap { min-height: 300rem; }
-  .course-hero__body { padding: 43rem 24rem 50rem; }
-  .course-sections { justify-content: flex-start; top: 62rem; }
-  .lesson-canvas { width: min(100% - 32rem, 820rem); }
-  .progress-path { margin-top: 30rem; }
-  .lesson-section { padding: 64rem 0; }
-  .unlock-block { padding-left: 18rem; }
-  .lesson-section--objectives, .lesson-section--quiet, .lesson-section--check { padding: 30rem 20rem; }
-  .objective-list, .sort-board, .worked-example__grid { grid-template-columns: 1fr; }
-  .worked-example__grid p { min-height: 0; border-right: 0; border-bottom: 1px solid #e1e4e9; }
-  .worked-example__grid p:last-child { border-bottom: 0; }
-  .choice-list { grid-template-columns: 1fr; }
-  .lesson-split, .lesson-split--flip { grid-template-columns: 1fr; }
-  .lesson-split--flip > :first-child { order: 2; }
-  .course-figure--wide img { aspect-ratio: 3 / 2; }
-  .mini-practice { padding: 22rem 18rem; }
-  .fact-hook { grid-template-columns: 26rem 1fr; padding: 16rem; }
-  .process-map { grid-template-columns: 1fr; padding: 16rem; }
-  .process-map__step { min-height: 0; flex-direction: row; align-items: center; justify-content: flex-start; padding: 13rem; }
-  .process-map__step i { top: auto; right: auto; bottom: -15rem; left: 50%; transform: translateX(-50%) rotate(90deg); }
-  .alignment-map { grid-template-columns: 1fr; gap: 6rem; }
-  .alignment-map > div { min-height: 0; }
-  .alignment-map > i { justify-self: center; transform: rotate(90deg); }
-  .sort-card__actions { grid-template-columns: 1fr; }
-  .addie-explorer__tabs { grid-template-columns: 1fr; }
-  .addie-explorer__tabs button { display: flex; align-items: center; gap: 8rem; min-height: 43rem; padding: 9rem 14rem; border-right: 0; border-bottom: 1px solid #dce1e8; text-align: left; }
-  .addie-explorer__tabs button:last-child { border-bottom: 0; }
-  .addie-explorer__tabs button span { display: inline; margin: 0; }
-  .addie-explorer__output, .matching-row { grid-template-columns: 1fr; gap: 9rem; }
-  .matching-row__choices { grid-template-columns: 1fr; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .course *, .course *::before, .course *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
-}
+/* Compact player: this file deliberately prevents long, multi-section course pages. */
+.compact-course { --blue: #315fc7; --ink: #252a33; --muted: #657080; --rule: #dbe1e9; --paper: #fff; --blue-soft: #edf2ff; --ease: cubic-bezier(.16, 1, .3, 1); min-height: 100vh; padding-bottom: 72rem; color: var(--ink); background: #f6f7f9; }
+.course-bar { position: sticky; z-index: 8; top: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16rem; min-height: 58rem; padding: 0 max(20rem, calc((100vw - 1120rem) / 2)); color: var(--muted); background: rgb(255 255 255 / 94%); border-bottom: 1px solid #e5e8ed; backdrop-filter: blur(12px); font-family: var(--font-ui); font-size: 12rem; }
+.course-bar__back { color: inherit; text-decoration: none; }.course-bar__back::before { content: '← '; }.course-bar__back:hover { color: var(--blue); }.course-bar > p { margin: 0; color: var(--ink); font-weight: 700; }.course-bar__progress { justify-self: end; display: flex; align-items: center; gap: 8rem; font-family: var(--font-mono); font-size: 10rem; }.course-bar__progress i { width: 72rem; height: 4rem; overflow: hidden; background: #e4e8ee; border-radius: 999rem; }.course-bar__progress b { display: block; height: 100%; background: var(--blue); border-radius: inherit; transition: width 240ms var(--ease); }
+.course-stage { width: min(100% - 32rem, 960rem); margin: 0 auto; padding-top: clamp(24rem, 5vh, 50rem); }.screen-meta { display: flex; justify-content: space-between; gap: 18rem; margin-bottom: 13rem; color: #6680bd; font-family: var(--font-mono); font-size: 10rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.learning-screen { min-height: min(690rem, calc(100vh - 170rem)); padding: clamp(27rem, 5vw, 58rem); background: var(--paper); border: 1px solid #e1e5ea; border-top: 4rem solid var(--blue); border-radius: 10rem; box-shadow: 0 20rem 42rem rgb(30 45 74 / 7%); }.learning-screen--hero { display: grid; grid-template-columns: 1.05fr .95fr; padding: 0; overflow: hidden; background: #f4f2ee; border: 0; }.hero-visual img { display: block; width: 100%; height: 100%; object-fit: cover; }.hero-copy { display: flex; flex-direction: column; justify-content: center; padding: clamp(34rem, 6vw, 75rem); }.eyebrow { margin: 0 0 13rem; color: var(--blue); font-family: var(--font-mono); font-size: 10rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }.learning-screen h1, .learning-screen h2 { max-width: 15ch; margin: 0; font-family: var(--font-ui); font-size: clamp(34rem, 5vw, 57rem); letter-spacing: -.06em; line-height: 1.02; }.learning-screen h2 { font-size: clamp(28rem, 4.1vw, 42rem); }.hero-copy > p:last-child, .lead { max-width: 58ch; margin: 21rem 0 0; color: #424a55; font-family: var(--font-reading); font-size: 18rem; line-height: 1.58; }
+.objective-list { display: grid; grid-template-columns: 1fr 1fr; gap: 13rem 20rem; margin: 29rem 0 0; padding: 0; list-style: none; }.objective-list li { position: relative; padding: 16rem 16rem 16rem 45rem; background: #f5f7fc; border: 1px solid #dce5f8; border-radius: 6rem; font-family: var(--font-ui); font-size: 14rem; line-height: 1.45; }.objective-list li::before { content: counter(list-item); position: absolute; top: 16rem; left: 15rem; display: grid; place-items: center; width: 20rem; height: 20rem; color: #fff; background: var(--blue); border-radius: 50%; font-family: var(--font-mono); font-size: 9rem; }
+.case-card, .callout, .completion-card { max-width: 680rem; margin-top: 25rem; padding: 19rem 21rem; color: #39475b; background: #f3f6fd; border-left: 3rem solid var(--blue); font-family: var(--font-reading); font-size: 16rem; line-height: 1.55; }.case-card b { color: var(--blue); font-family: var(--font-mono); font-size: 10rem; letter-spacing: .06em; text-transform: uppercase; }.case-card p, .callout p, .completion-card p { margin: 6rem 0 0; }.callout { background: #f8f9fb; border-color: #8fa5d7; }.completion-card { display: grid; grid-template-columns: 32rem 1fr; gap: 12rem; margin-top: 28rem; color: #244332; background: #edf8f1; border-color: #2f8b5d; }.completion-card > span { display: grid; place-items: center; width: 28rem; height: 28rem; color: #fff; background: #2f8b5d; border-radius: 50%; font-family: var(--font-ui); font-weight: 700; }
+.question-card { max-width: 690rem; margin-top: 27rem; padding: 25rem; background: #f8fafc; border: 1px solid var(--rule); border-radius: 8rem; }.question-card h3 { max-width: 36ch; margin: 0 0 17rem; font-family: var(--font-ui); font-size: 21rem; letter-spacing: -.03em; line-height: 1.24; }.question-card > button, .game-choices button, .match-list button { display: block; width: 100%; min-height: 53rem; margin-top: 9rem; padding: 12rem 15rem; color: #303842; background: #fff; border: 1px solid #cfd6df; border-radius: 5rem; font-family: var(--font-ui); font-size: 14rem; font-weight: 600; line-height: 1.38; text-align: left; cursor: pointer; transition: transform 140ms var(--ease), border-color 140ms var(--ease), background 140ms var(--ease), color 140ms var(--ease); }.question-card > button:hover, .game-choices button:hover:not(:disabled), .match-list button:hover { border-color: var(--blue); color: var(--blue); transform: translateY(-1rem); }.question-card > button.is-selected, .game-choices button.is-selected, .match-list button.is-selected, .scenario-list button.is-selected, .sort-grid button.is-selected { color: #fff; background: var(--blue); border-color: var(--blue); }.feedback { max-width: 680rem; margin: 18rem 0 0; padding: 14rem 16rem; color: #244332; background: #edf8f1; border-left: 3rem solid #2f8b5d; font-family: var(--font-ui); font-size: 14rem; line-height: 1.5; }
+.screen-split { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: clamp(26rem, 6vw, 64rem); }.screen-split figure { margin: 0; overflow: hidden; background: #eef0f3; border-radius: 7rem; }.screen-split figure img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }.screen-split figure figcaption { padding: 10rem 12rem; color: var(--muted); background: #fff; font-family: var(--font-ui); font-size: 11rem; line-height: 1.4; }.screen-split--objective { align-items: stretch; margin-top: 25rem; }.screen-split--objective .question-card { margin-top: 0; }.screen-split--objective figure img { object-fit: contain; background: #fff; }
+.sort-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13rem; margin-top: 28rem; }.sort-grid article { padding: 18rem; background: #f8fafc; border: 1px solid var(--rule); border-radius: 7rem; }.sort-grid h3 { margin: 0; font-family: var(--font-ui); font-size: 15rem; line-height: 1.32; }.sort-grid p { margin: 8rem 0 0; color: var(--muted); font-family: var(--font-reading); font-size: 14rem; line-height: 1.45; }.sort-grid article > div { display: grid; grid-template-columns: 1fr 1fr; gap: 7rem; margin-top: 15rem; }.sort-grid button { min-height: 42rem; padding: 8rem; background: #fff; border: 1px solid #cfd6df; border-radius: 4rem; font-family: var(--font-ui); font-size: 11rem; font-weight: 700; line-height: 1.25; cursor: pointer; }
+.three-cues { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12rem; margin-top: 28rem; }.three-cues p { margin: 0; padding: 18rem; background: #f5f7fb; border-top: 3rem solid var(--blue); font-family: var(--font-reading); font-size: 15rem; line-height: 1.48; }.three-cues b { display: block; margin-bottom: 6rem; color: var(--blue); font-family: var(--font-ui); }
+.addie-map { display: flex; align-items: flex-start; justify-content: space-between; gap: 8rem; margin-top: 35rem; padding: 26rem 16rem; background: #f5f7fb; border: 1px solid #dce4f1; border-radius: 8rem; }.addie-map > div { position: relative; display: grid; flex: 1; justify-items: center; gap: 8rem; text-align: center; }.addie-map span { display: grid; place-items: center; width: 36rem; height: 36rem; color: #fff; background: var(--blue); border-radius: 50%; font-family: var(--font-mono); font-size: 13rem; font-weight: 700; }.addie-map b { font-family: var(--font-ui); font-size: 12rem; }.addie-map i { position: absolute; top: 9rem; right: -8rem; color: #7e91b9; font-style: normal; }.addie-tabs { display: flex; flex-wrap: wrap; gap: 7rem; margin-top: 30rem; }.addie-tabs button { display: inline-flex; align-items: center; gap: 7rem; min-height: 37rem; padding: 7rem 11rem; color: #536276; background: #f7f8fa; border: 1px solid #dce1e8; border-radius: 999rem; font-family: var(--font-ui); font-size: 12rem; font-weight: 700; cursor: pointer; }.addie-tabs button span { display: grid; place-items: center; width: 18rem; height: 18rem; color: inherit; border: 1px solid currentColor; border-radius: 50%; font-family: var(--font-mono); font-size: 9rem; }.addie-tabs button.is-active { color: #fff; background: var(--blue); border-color: var(--blue); }.stage-card { max-width: 680rem; margin-top: 18rem; padding: 25rem; background: #f5f7fb; border-left: 3rem solid var(--blue); }.stage-card > p { margin: 15rem 0 0; color: #3d4651; font-family: var(--font-reading); font-size: 16rem; line-height: 1.5; }.stage-card > p:first-child { margin: 0; color: var(--blue); font-family: var(--font-mono); font-size: 11rem; font-weight: 700; }.stage-card h3 { max-width: 28ch; margin: 10rem 0 0; font-family: var(--font-ui); font-size: 23rem; letter-spacing: -.03em; line-height: 1.2; }.stage-card > p:last-child { padding-top: 14rem; border-top: 1px solid #d9e1ef; }.stage-card > p:last-child span { display: block; margin-bottom: 5rem; color: var(--blue); font-family: var(--font-mono); font-size: 10rem; font-weight: 700; text-transform: uppercase; }
+.game-top { display: flex; align-items: center; justify-content: space-between; gap: 12rem; }.game-top .eyebrow { margin: 0; }.game-top > span { padding: 5rem 8rem; color: #45609b; background: #e8efff; border-radius: 999rem; font-family: var(--font-mono); font-size: 10rem; font-weight: 700; }.game-stage { display: flex; align-items: center; gap: 9rem; margin: 28rem 0 0; font-family: var(--font-ui); font-size: 13rem; font-weight: 700; }.game-stage b { padding: 5rem 9rem; color: #fff; background: var(--blue); border-radius: 999rem; font-family: var(--font-mono); font-size: 10rem; letter-spacing: .05em; text-transform: uppercase; }.game-prompt { max-width: 60ch; margin: 15rem 0 0; font-family: var(--font-reading); font-size: 17rem; line-height: 1.55; }.learning-screen details { max-width: 680rem; margin-top: 18rem; border-top: 1px solid #dae1ed; border-bottom: 1px solid #dae1ed; }.learning-screen summary { display: flex; justify-content: space-between; min-height: 45rem; align-items: center; font-family: var(--font-ui); font-size: 13rem; font-weight: 700; cursor: pointer; list-style: none; }.learning-screen summary::-webkit-details-marker { display: none; }.learning-screen details p { margin: 0 0 14rem; color: var(--muted); font-family: var(--font-reading); font-size: 15rem; line-height: 1.5; }.game-choices { display: grid; gap: 9rem; max-width: 700rem; margin-top: 19rem; }.game-choices button { min-height: 60rem; }.game-choices button.is-correct { color: #244332; background: #edf8f1; border-color: #2f8b5d; }.game-choices button.is-incorrect { color: #813f3f; background: #fff4f4; border-color: #bd5757; }.game-choices button:disabled { cursor: default; }.game-action, .next-button { display: inline-flex; align-items: center; justify-content: center; gap: 9rem; min-height: 47rem; margin-top: 19rem; padding: 0 17rem; color: #fff; background: var(--blue); border: 0; border-radius: 5rem; font-family: var(--font-ui); font-size: 13rem; font-weight: 700; cursor: pointer; transition: transform 140ms var(--ease), background 140ms var(--ease), opacity 140ms var(--ease); }.game-action:hover:not(:disabled), .next-button:hover:not(:disabled) { background: #274fa9; transform: translateY(-1rem); }.game-action:disabled, .next-button:disabled { opacity: .42; cursor: not-allowed; }
+.alignment { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 12rem; margin-top: 32rem; padding: 25rem; background: #f5f7fb; border: 1px solid #dce4f1; border-radius: 8rem; }.alignment > div { text-align: center; }.alignment span { display: grid; place-items: center; width: 28rem; height: 28rem; margin: 0 auto 8rem; color: #fff; background: var(--blue); border-radius: 50%; font-family: var(--font-mono); font-size: 10rem; }.alignment b { font-family: var(--font-ui); font-size: 14rem; }.alignment p { margin: 6rem 0 0; color: var(--muted); font-family: var(--font-reading); font-size: 13rem; line-height: 1.35; }.alignment i { color: #7e91b9; font-style: normal; }.artifact-list { margin: 22rem 0 0; padding: 0; list-style: none; }.artifact-list li { margin-top: 11rem; padding-left: 17rem; color: #414b57; font-family: var(--font-reading); font-size: 15rem; line-height: 1.42; border-left: 2rem solid #90a5d6; }.artifact-list b { font-family: var(--font-ui); }.scenario-list { display: grid; gap: 10rem; max-width: 720rem; margin-top: 28rem; }.scenario-list button { display: grid; grid-template-columns: 28rem 1fr; column-gap: 13rem; padding: 17rem; background: #f8fafc; border: 1px solid var(--rule); border-radius: 7rem; text-align: left; cursor: pointer; }.scenario-list span { grid-row: span 2; display: grid; place-items: center; width: 26rem; height: 26rem; color: var(--blue); background: #e7edfc; border-radius: 50%; font-family: var(--font-mono); font-size: 10rem; font-weight: 700; }.scenario-list b { font-family: var(--font-ui); font-size: 15rem; }.scenario-list small { margin-top: 5rem; color: var(--muted); font-family: var(--font-reading); font-size: 13rem; line-height: 1.4; }.scenario-list button.is-selected span { color: var(--blue); background: #fff; }.match-list { display: grid; gap: 12rem; max-width: 730rem; margin-top: 25rem; }.match-list section { display: grid; grid-template-columns: 110rem 1fr; gap: 14rem; align-items: start; padding: 15rem; background: #f8fafc; border: 1px solid var(--rule); border-radius: 7rem; }.match-list h3 { margin: 8rem 0 0; font-family: var(--font-ui); font-size: 15rem; }.match-list section > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7rem; }.match-list button { min-height: 46rem; margin: 0; padding: 8rem; font-size: 11rem; }
+.screen-controls { display: flex; justify-content: space-between; gap: 12rem; margin-top: 18rem; }.back-button { min-height: 47rem; padding: 0 15rem; color: #4f5d70; background: transparent; border: 1px solid #cfd6df; border-radius: 5rem; font-family: var(--font-ui); font-size: 13rem; font-weight: 700; cursor: pointer; }.back-button:disabled { opacity: .35; cursor: not-allowed; }.next-button { margin-top: 0; }.screen-navigator { margin-top: 25rem; background: #fff; border: 1px solid #e0e4ea; border-radius: 7rem; }.screen-navigator summary { display: flex; align-items: center; justify-content: space-between; min-height: 51rem; padding: 0 18rem; color: #3a4657; font-family: var(--font-ui); font-size: 13rem; font-weight: 700; cursor: pointer; list-style: none; }.screen-navigator summary::-webkit-details-marker { display: none; }.screen-navigator summary span { color: var(--muted); font-family: var(--font-mono); font-size: 10rem; font-weight: 500; }.screen-navigator > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7rem; padding: 0 14rem 14rem; }.screen-navigator button { display: flex; gap: 8rem; align-items: center; min-height: 38rem; padding: 7rem; color: #556276; background: #f8fafc; border: 1px solid #e0e5ec; border-radius: 4rem; font-family: var(--font-ui); font-size: 11rem; text-align: left; cursor: pointer; }.screen-navigator button span { color: var(--blue); font-family: var(--font-mono); font-size: 10rem; }.screen-navigator button.is-current { color: #fff; background: var(--blue); border-color: var(--blue); }.screen-navigator button.is-current span { color: #fff; }.screen-navigator button:disabled { color: #a2a9b3; background: #fafafa; cursor: not-allowed; }
+.source-panel { padding-top: 16rem; }.source-panel ol { padding-left: 20rem; }.source-panel li { margin-top: 8rem; font-family: var(--font-reading); font-size: 14rem; line-height: 1.42; }.source-panel a { color: var(--blue); }
+.screen--enter { animation: screen-in 420ms var(--ease) both; }.screen--enter > :not(.hero-visual) { animation: screen-content-in 380ms var(--ease) both; }.screen--enter > :nth-child(2) { animation-delay: 45ms; }.screen--enter > :nth-child(3) { animation-delay: 85ms; }@keyframes screen-in { from { opacity: 0; transform: translateY(16rem); } to { opacity: 1; transform: translateY(0); } }@keyframes screen-content-in { from { opacity: 0; transform: translateY(10rem); } to { opacity: 1; transform: translateY(0); } }
+button:focus-visible, summary:focus-visible, a:focus-visible { outline: 3rem solid #efbd37; outline-offset: 3rem; } @media (prefers-reduced-motion: reduce) { .screen--enter, .screen--enter > * { animation: none !important; transform: none !important; } * { scroll-behavior: auto !important; } }
+@media (max-width: 760px) { .course-bar { grid-template-columns: 1fr auto; min-height: 52rem; padding: 0 16rem; }.course-bar > p { display: none; }.course-bar__progress { grid-column: 2; }.course-stage { width: min(100% - 24rem, 580rem); padding-top: 18rem; }.screen-meta { margin-bottom: 10rem; font-size: 9rem; }.learning-screen { min-height: auto; padding: 24rem 18rem 27rem; }.learning-screen--hero { display: block; }.hero-visual { height: 235rem; }.hero-copy { padding: 30rem 21rem 35rem; }.learning-screen h1 { font-size: 42rem; }.learning-screen h2 { font-size: 30rem; }.hero-copy > p:last-child, .lead { font-size: 16rem; }.objective-list, .sort-grid, .three-cues, .screen-split { grid-template-columns: 1fr; }.objective-list { gap: 10rem; }.screen-split figure { order: -1; }.screen-split--objective figure { order: 0; }.sort-grid article > div { grid-template-columns: 1fr 1fr; }.addie-map { gap: 5rem; padding: 18rem 7rem; }.addie-map span { width: 28rem; height: 28rem; font-size: 11rem; }.addie-map b { font-size: 9rem; }.addie-map i { top: 6rem; right: -5rem; font-size: 12rem; }.alignment { grid-template-columns: 1fr; gap: 6rem; }.alignment i { transform: rotate(90deg); text-align: center; }.match-list section { grid-template-columns: 1fr; gap: 8rem; }.match-list h3 { margin: 0; }.match-list section > div { grid-template-columns: 1fr; }.screen-navigator > div { grid-template-columns: 1fr 1fr; }.learning-screen details { margin-top: 15rem; }.game-choices button { min-height: 62rem; }.screen-controls { position: sticky; bottom: 8rem; z-index: 2; padding: 10rem; background: rgb(246 247 249 / 92%); backdrop-filter: blur(9px); }.back-button, .next-button { flex: 1; min-width: 0; padding: 0 10rem; }.next-button { font-size: 12rem; }.screen-navigator { margin-bottom: 20rem; } }
 </style>

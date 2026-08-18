@@ -316,3 +316,16 @@
 - [x] Define a clearly distinct finite preloader scene that does not use the signal mark or route-line reveal as its main animation.
 - [x] Implement the paper-workspace assembly preloader with a responsive, reduced-motion-safe final state.
 - [x] Validate first paint, mobile dimensions, accessibility, and production build; then push the alternate preloader to `main`.
+
+## Preloader visibility lifecycle fix
+
+- [x] Inspect the exact mounting and dismissal lifecycle that prevents the finite preloader animation from being perceived.
+- [x] Add a reliable minimum visible duration and graceful handoff that preserves reduced-motion behaviour.
+- [x] Validate the full preloader sequence, mobile view, accessible status, and production build; then push the lifecycle fix to `main`.
+
+## Motion-design skill preloader rebuild
+
+- [x] Review the external skill’s installation method, documentation, and safety requirements before adding it to the workspace.
+- [x] Install and study the LottieFiles motion-design skill, recording the applicable preloader guidance.
+- [x] Rebuild the preloader as a skill-informed finite motion-graphics sequence with a minimum visible duration and accessible fallback.
+- [x] Validate animation completion, motion quality, mobile performance, reduced-motion behaviour, and production build; then push to `main`.

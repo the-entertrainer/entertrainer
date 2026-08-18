@@ -24,6 +24,7 @@ import { useThemeStore } from '~/stores/theme'
  */
 const r = useRoute()
 const theme = useThemeStore()
+const showPreloader = ref(true)
 
 // `/lab` itself is an index page and keeps the chrome; `/lab/g07` is an
 // artifact and does not.
@@ -41,6 +42,7 @@ onBeforeUnmount(() => theme.dispose())
 
 <template>
   <div id="app-root">
+    <EdPreloader v-if="showPreloader" @complete="showPreloader = false" />
     <template v-if="bare">
       <NuxtPage />
     </template>

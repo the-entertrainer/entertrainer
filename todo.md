@@ -281,3 +281,11 @@
 - [x] Implement the immersive course shell across both routes and integrate the expanded visual library without turning compact course screens into long scrolling pages.
 - [x] Rebuild the AI course’s long scrolling modules into concise fullscreen learning screens with one teaching purpose, visual, or activity per screen, while preserving its 7-lesson curriculum and prediction simulation.
 - [x] Validate no-footer immersive layouts, visual delivery, course navigation, mobile experience, accessibility, reduced motion, and production build; then push to `main`.
+
+## AI video evidence and directional card transitions
+
+- [x] Define short-video selection criteria, choose the precise compact AI screens that benefit from video evidence, and map every action that changes course screens.
+- [x] Research, verify, and cite a small curated set of high-quality short YouTube videos that directly strengthen the selected AI concepts.
+- [x] Design embedded video screens with learner guidance and a direction-aware card-stack transition contract for every next and previous action.
+- [x] Implement the curated video screens and distinct forward/backward card-stack transitions, including reduced-motion and keyboard-safe behaviour.
+- [x] Validate embedded video delivery, forward/backward action animation, touch and keyboard controls, mobile layout, reduced motion, and production build; then push to `main`.

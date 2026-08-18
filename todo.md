@@ -303,3 +303,10 @@
 - [x] Audit every public route, course screen, progression gate, activity flow, and responsive control for forward-navigation labels or destination-specific continuation wording.
 - [x] Replace every learner-facing forward-navigation label with the exact word “Continue,” including normal, disabled, unlocked, and mobile states.
 - [x] Validate all forward controls and their surrounding guidance, run the production build, and push the universal label correction to `main`.
+
+## Preloader animation redesign
+
+- [x] Audit the current preloader markup, timing, finite completion behaviour, and reduced-motion fallback.
+- [x] Define a more engaging course-aligned preloader sequence with a brief narrative, graceful timing, and no looping wait state.
+- [x] Implement the redesigned preloader and its responsive, reduced-motion-safe behaviour.
+- [x] Validate the preloader across public and course routes, mobile dimensions, keyboard/accessibility behaviour, and production build; then push to `main`.

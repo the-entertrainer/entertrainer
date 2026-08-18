@@ -289,3 +289,11 @@
 - [x] Design embedded video screens with learner guidance and a direction-aware card-stack transition contract for every next and previous action.
 - [x] Implement the curated video screens and distinct forward/backward card-stack transitions, including reduced-motion and keyboard-safe behaviour.
 - [x] Validate embedded video delivery, forward/backward action animation, touch and keyboard controls, mobile layout, reduced motion, and production build; then push to `main`.
+
+## Comfortable course pacing and graceful motion
+
+- [x] Audit the current instructional-design and AI screen players for over-fragmented learning chunks, forward-label variants, and overly fast motion; audit the shared site motion tokens and component timings.
+- [x] Define a balanced grouping map for both courses, a single-word “Continue” action rule, and a slower graceful motion contract with distinct navigation direction and complete reduced-motion coverage.
+- [x] Recompose both course players into comfortable learning chunks and replace every forward-action label with “Continue”.
+- [x] Apply the graceful motion contract across global site interactions, navigation, cards, course screens, and learning activities without introducing sluggishness or scroll jank.
+- [x] Validate learning pacing, one-word controls, forward/backward transitions, reduced motion, keyboard controls, mobile layout, and production build; then push to `main`.

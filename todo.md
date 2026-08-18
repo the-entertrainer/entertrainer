@@ -264,3 +264,11 @@
 - [x] Define the screen-level learning path, one-action-per-screen pacing, sequential navigation, local persistence, return points, and accessible compact-screen treatment.
 - [x] Rebuild the instructional-design course as short Rise-style screens, keeping explanations, real media, the Route Builder, and knowledge checks in the most appropriate focused screen.
 - [x] Validate screen lengths, next/back navigation, screen completion, persistence, practice behaviour, 375px mobile flow, keyboard access, reduced motion, and production build; then push the redesign to `main`.
+
+## Compact-course visual storytelling pass
+
+- [x] Audit every instructional-design learning screen for missing real imagery, visual explanation, interaction support, layout imbalance, weak hierarchy, and insufficient visual storytelling.
+- [x] Define a complete screen-by-screen visual plan with multiple source-backed photographs, original conceptual teaching visuals, deterministic diagrams, media placement, captions, and animation purpose.
+- [x] Source, attribute, and generate all required visuals as one coordinated educational visual library, using original generation for concepts that need a bespoke explanatory visual.
+- [x] Apply the full visual-storytelling redesign across the compact course without reintroducing long scrolling lessons or decorative-only media.
+- [x] Validate visual coverage, source delivery, screen balance, alt text, mobile composition, reduced-motion behaviour, activity flow, and production build; then push to `main`.

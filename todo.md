@@ -310,3 +310,9 @@
 - [x] Define a more engaging course-aligned preloader sequence with a brief narrative, graceful timing, and no looping wait state.
 - [x] Implement the redesigned preloader and its responsive, reduced-motion-safe behaviour.
 - [x] Validate the preloader across public and course routes, mobile dimensions, keyboard/accessibility behaviour, and production build; then push to `main`.
+
+## Alternative editorial-workspace preloader
+
+- [x] Define a clearly distinct finite preloader scene that does not use the signal mark or route-line reveal as its main animation.
+- [x] Implement the paper-workspace assembly preloader with a responsive, reduced-motion-safe final state.
+- [x] Validate first paint, mobile dimensions, accessibility, and production build; then push the alternate preloader to `main`.

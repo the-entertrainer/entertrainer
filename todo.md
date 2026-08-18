@@ -272,3 +272,12 @@
 - [x] Source, attribute, and generate all required visuals as one coordinated educational visual library, using original generation for concepts that need a bespoke explanatory visual.
 - [x] Apply the full visual-storytelling redesign across the compact course without reintroducing long scrolling lessons or decorative-only media.
 - [x] Validate visual coverage, source delivery, screen balance, alt text, mobile composition, reduced-motion behaviour, activity flow, and production build; then push to `main`.
+
+## Immersive fullscreen learning and expanded visual library
+
+- [x] Audit both learning routes for public-site header/footer leakage, screen-shell dimensions, visual repetition, and every missing original teaching visual.
+- [x] Define one shared immersive learning shell with a compact course-only top bar, no public footer, full-height screen behaviour, and a distinct visual plan for every AI and instructional-design screen.
+- [x] Generate and publish a broad, distinct original visual library for both courses, with one named teaching purpose and a durable CDN path for every asset.
+- [x] Implement the immersive course shell across both routes and integrate the expanded visual library without turning compact course screens into long scrolling pages.
+- [x] Rebuild the AI course’s long scrolling modules into concise fullscreen learning screens with one teaching purpose, visual, or activity per screen, while preserving its 7-lesson curriculum and prediction simulation.
+- [x] Validate no-footer immersive layouts, visual delivery, course navigation, mobile experience, accessibility, reduced motion, and production build; then push to `main`.

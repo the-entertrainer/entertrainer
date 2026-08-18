@@ -18,6 +18,9 @@ import { useThemeStore } from '~/stores/theme'
  * (the fifteen lab sketches, the glass lab) and the Strong module, which is a
  * course with its own player bar and its own exit. Wrapping either in a
  * masthead would be putting a magazine spine on a thing that is not a page.
+ * The two immersive e-learning routes use the same rule: their compact course
+ * bar is the entire learning chrome, so public navigation and footer content
+ * must never surround an active course screen.
  */
 const r = useRoute()
 const theme = useThemeStore()
@@ -28,7 +31,8 @@ const bare = computed(() =>
   r.path.startsWith('/lab/') ||
   r.path.startsWith('/glass-lab') ||
   r.path.startsWith('/my-work/strong') ||
-  r.path.startsWith('/courses/ai-atlas')
+  r.path.startsWith('/courses/ai-atlas') ||
+  r.path.startsWith('/instructional-design')
 )
 
 onMounted(() => theme.init())

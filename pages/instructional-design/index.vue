@@ -44,11 +44,32 @@ const media = {
   storyboard: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/bcdzCJyXARgsjUzg.jpeg',
   blooms: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/SjxuvaLcEiNASJWC.png',
   routeAnchor: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/NZECIjJPlXJahoST.jpg',
-  routeObjects: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/AeOTtEpKbhaRJHYH.jpg',
-  performanceGap: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/MECYwMQtIworaHsT.jpg',
-  addieWorkbench: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/fkghADLtHOimQLlL.jpg',
-  taskTrail: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/AsqxheXjRYnWHnLi.jpg',
-  evidenceLoop: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/MECYwMQtIworaHsT.jpg'
+  routeObjects: '/manus-storage/id-learner-route-objects-v2_b1a0a790.jpg',
+  performanceGap: '/manus-storage/id-performance-gap-field-v2_166021c1.jpg',
+  addieWorkbench: '/manus-storage/id-addie-workbench-v2_45a561d8.jpg',
+  taskTrail: '/manus-storage/id-task-trail-card-v2_b5f538ae.jpg',
+  evidenceLoop: '/manus-storage/id-storyboard-evidence-loop-v2_9e2240db.jpg',
+  objectiveCue: '/manus-storage/id-observable-objective-cue-v2_a9595e45.jpg',
+  feedbackStation: '/manus-storage/id-practice-feedback-station-v2_757831a1.jpg',
+  completionAtlas: '/manus-storage/id-course-completion-atlas-v2_82938466.jpg'
+}
+
+const fallbackMedia: Partial<Record<keyof typeof media, string>> = {
+  routeObjects: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/WrlRXcVdxcFexnYx.jpg',
+  performanceGap: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/aAATJhDCLsrFQAdo.jpg',
+  addieWorkbench: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/ZKPOHGdqpXIWtQzC.jpg',
+  taskTrail: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/KTmjoLZqKxHqxZGs.jpg',
+  evidenceLoop: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/bcdzCJyXARgsjUzg.jpeg',
+  objectiveCue: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/SjxuvaLcEiNASJWC.png',
+  feedbackStation: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/kxDxXEUdsOGXhYBN.jpeg',
+  completionAtlas: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/WrlRXcVdxcFexnYx.jpg'
+}
+
+function resolveCourseVisual(event: Event) {
+  const image = event.target as HTMLImageElement
+  const key = (Object.keys(fallbackMedia) as Array<keyof typeof fallbackMedia>).find((candidate) => image.src.includes(media[candidate]))
+  const fallback = key ? fallbackMedia[key] : undefined
+  if (fallback && image.src !== fallback) image.src = fallback
 }
 
 const screens = [
@@ -275,6 +296,7 @@ watch(screenIndex, async () => {
 watch([startingChoice, learnerChoice, objectiveChoice, artifactChoice, scenarioChoice, finalChoice, finalSubmitted, sortChoices, matchingAnswers, matchingSubmitted, gameIndex, gameChoice, gameSubmitted, gameComplete, activeAddie], saveProgress, { deep: true })
 
 onMounted(() => {
+  document.addEventListener('error', resolveCourseVisual, true)
   const saved = localStorage.getItem(STORAGE_KEY)
   if (!saved) return
   try {
@@ -300,6 +322,8 @@ onMounted(() => {
     localStorage.removeItem(STORAGE_KEY)
   }
 })
+
+onBeforeUnmount(() => document.removeEventListener('error', resolveCourseVisual, true))
 </script>
 
 <template>
@@ -308,6 +332,7 @@ onMounted(() => {
       <NuxtLink to="/lessons" class="course-bar__back">All lessons</NuxtLink>
       <p>Introduction to Instructional Design</p>
       <div class="course-bar__progress" aria-label="Course progress"><i><b :style="{ width: `${progress}%` }" /></i><span>{{ progress }}%</span></div>
+      <nav class="course-bar__steps" aria-label="Screen navigation"><button type="button" :disabled="screenIndex === 0" aria-label="Previous screen" @click="moveTo(screenIndex - 1)">←</button><span>{{ screenIndex + 1 }} / {{ screens.length }}</span><button type="button" :disabled="screenIndex >= furthestIndex || screenIndex === screens.length - 1" aria-label="Next available screen" @click="moveTo(screenIndex + 1)">→</button></nav>
     </header>
 
     <section class="course-stage" aria-live="polite">
@@ -362,7 +387,7 @@ onMounted(() => {
         </template>
 
         <template v-else-if="screenIndex === 10">
-          <p class="eyebrow">Objective check</p><h2 ref="screenHeading" tabindex="-1">Which objective is strongest?</h2><p class="lead">Choose the statement that names an observable performance.</p><div class="screen-split screen-split--objective"><section class="question-card"><div class="objective-cue" aria-hidden="true"><span>Observe</span><i>→</i><span>Do</span><i>→</i><span>Check</span></div><button :class="{ 'is-selected': objectiveChoice === 'vague' }" @click="objectiveChoice = 'vague'">Understand the café closing procedure.</button><button :class="{ 'is-selected': objectiveChoice === 'strong' }" @click="objectiveChoice = 'strong'">After observing the counter setup, complete the six closing steps in the correct order using the checklist.</button><button :class="{ 'is-selected': objectiveChoice === 'topic' }" @click="objectiveChoice = 'topic'">Learn about safe café closing.</button><p v-if="objectiveFeedback" class="feedback"><b>{{ objectiveChoice === 'strong' ? 'Correct.' : 'Try again.' }}</b> {{ objectiveFeedback }}</p></section><figure><img :src="media.blooms" alt="Bloom’s taxonomy diagram showing remember, understand, apply, analyse, evaluate, and create."><figcaption>Real reference visual: MIT Digital Learning Toolkit, CC BY 4.0.</figcaption></figure></div>
+          <p class="eyebrow">Objective check</p><h2 ref="screenHeading" tabindex="-1">Which objective is strongest?</h2><p class="lead">Choose the statement that names an observable performance.</p><div class="screen-split screen-split--objective"><section class="question-card"><div class="objective-cue" aria-hidden="true"><span>Observe</span><i>→</i><span>Do</span><i>→</i><span>Check</span></div><button :class="{ 'is-selected': objectiveChoice === 'vague' }" @click="objectiveChoice = 'vague'">Understand the café closing procedure.</button><button :class="{ 'is-selected': objectiveChoice === 'strong' }" @click="objectiveChoice = 'strong'">After observing the counter setup, complete the six closing steps in the correct order using the checklist.</button><button :class="{ 'is-selected': objectiveChoice === 'topic' }" @click="objectiveChoice = 'topic'">Learn about safe café closing.</button><p v-if="objectiveFeedback" class="feedback"><b>{{ objectiveChoice === 'strong' ? 'Correct.' : 'Try again.' }}</b> {{ objectiveFeedback }}</p></section><figure><img :src="media.objectiveCue" alt="Editorial paper illustration linking an observed task, practical action, and evidence check along a cobalt route."><figcaption>An objective names what a learner can do and how a designer can observe it.</figcaption></figure></div>
         </template>
 
         <template v-else-if="screenIndex === 11">
@@ -378,7 +403,7 @@ onMounted(() => {
         </template>
 
         <template v-else-if="screenIndex === 14">
-          <p class="eyebrow">Stage match</p><h2 ref="screenHeading" tabindex="-1">Use the design language once more.</h2><p class="lead">Match each design action to its purpose.</p><div class="mini-sequence" aria-hidden="true"><span class="mini-sequence__note" /><i>→</i><span class="mini-sequence__plan" /><i>→</i><span class="mini-sequence__evidence" /></div><div class="match-list"><section v-for="prompt in matchingPrompts" :key="prompt.id"><h3>{{ prompt.label }}</h3><div><button v-for="choice in matchingChoices" :key="choice.id" :class="{ 'is-selected': matchingAnswers[prompt.id] === choice.id }" @click="selectMatch(prompt.id, choice.id)">{{ choice.label }}</button></div></section></div><button class="game-action" :disabled="!matchingComplete" @click="submitMatching">Check matches</button><p v-if="matchingSubmitted" class="feedback"><b>{{ matchingCorrect ? 'Correct.' : 'Review the matches.' }}</b> {{ matchingCorrect ? 'Analysis identifies the need, Design plans learning, and Evaluation tells you what to improve.' : 'Look for the purpose of each stage, not only the tool used inside it.' }}</p>
+          <p class="eyebrow">Stage match</p><h2 ref="screenHeading" tabindex="-1">Use the design language once more.</h2><p class="lead">Match each design action to its purpose.</p><div class="mini-sequence" aria-hidden="true"><span class="mini-sequence__note" /><i>→</i><span class="mini-sequence__plan" /><i>→</i><span class="mini-sequence__evidence" /></div><figure class="visual-strip"><img :src="media.feedbackStation" alt="Editorial paper illustration of a learner completing a task, a coach providing feedback, and a revision marker looping back to practice."><figcaption>Practice improves when feedback returns to the real task while it still matters.</figcaption></figure><div class="match-list"><section v-for="prompt in matchingPrompts" :key="prompt.id"><h3>{{ prompt.label }}</h3><div><button v-for="choice in matchingChoices" :key="choice.id" :class="{ 'is-selected': matchingAnswers[prompt.id] === choice.id }" @click="selectMatch(prompt.id, choice.id)">{{ choice.label }}</button></div></section></div><button class="game-action" :disabled="!matchingComplete" @click="submitMatching">Check matches</button><p v-if="matchingSubmitted" class="feedback"><b>{{ matchingCorrect ? 'Correct.' : 'Review the matches.' }}</b> {{ matchingCorrect ? 'Analysis identifies the need, Design plans learning, and Evaluation tells you what to improve.' : 'Look for the purpose of each stage, not only the tool used inside it.' }}</p>
         </template>
 
         <template v-else-if="screenIndex === 15">
@@ -386,25 +411,19 @@ onMounted(() => {
         </template>
 
         <template v-else>
-          <div class="screen-split"><div><p class="eyebrow">Take this with you</p><h2 ref="screenHeading" tabindex="-1">Good learning design starts before the screen.</h2><p class="lead">Find the real task. Understand the people doing it. Decide what successful performance looks like. Give learners a way to practise. Then use evidence to make the support better.</p><div class="completion-card"><span>✓</span><p><b>Small first step:</b> when someone asks for a course, ask: “What should people be able to do differently after this?”</p></div></div><figure class="screen-visual close-visual"><img :src="media.routeAnchor" alt="An observation note, learner card, practice ticket, and evidence slip arranged along a completed blue route on a warm paper worktable."><figcaption>The route is complete when the work has been observed, practised, and checked with evidence.</figcaption></figure></div><details class="source-panel"><summary>Sources and media credits <span>+</span></summary><ol><li><a href="https://www.td.org/talent-development-glossary-terms/what-is-instructional-design" target="_blank" rel="noreferrer">Association for Talent Development — What is Instructional Design?</a></li><li><a href="https://dltoolkit.mit.edu/online-course-design-guide/pre-design/learner-analysis/" target="_blank" rel="noreferrer">MIT Digital Learning Toolkit — Learner Analysis</a></li><li><a href="https://www.uwb.edu/it/addie" target="_blank" rel="noreferrer">University of Washington Bothell — ADDIE Model</a></li><li><a href="https://edtechbooks.org/id/task_and_content_analysis" target="_blank" rel="noreferrer">EdTech Books — Task Analysis</a></li><li><a href="https://www.cdc.gov/training-development/php/about/evaluate-training-measuring-effectiveness.html" target="_blank" rel="noreferrer">CDC — Evaluate Training</a></li><li>Bloom’s taxonomy diagram: MIT Digital Learning Toolkit, CC BY 4.0. Real learning-context photographs: Pexels License. Original course illustrations: Entertrainer.</li></ol></details>
+          <div class="screen-split"><div><p class="eyebrow">Take this with you</p><h2 ref="screenHeading" tabindex="-1">Good learning design starts before the screen.</h2><p class="lead">Find the real task. Understand the people doing it. Decide what successful performance looks like. Give learners a way to practise. Then use evidence to make the support better.</p><div class="completion-card"><span>✓</span><p><b>Small first step:</b> when someone asks for a course, ask: “What should people be able to do differently after this?”</p></div></div><figure class="screen-visual close-visual"><img :src="media.completionAtlas" alt="Editorial paper illustration of task observation, learner context, practice, evidence, and a revision pencil arranged along a completed cobalt route."><figcaption>The route continues when the work is observed, practised, and checked with evidence.</figcaption></figure></div><details class="source-panel"><summary>Sources and media credits <span>+</span></summary><ol><li><a href="https://www.td.org/talent-development-glossary-terms/what-is-instructional-design" target="_blank" rel="noreferrer">Association for Talent Development — What is Instructional Design?</a></li><li><a href="https://dltoolkit.mit.edu/online-course-design-guide/pre-design/learner-analysis/" target="_blank" rel="noreferrer">MIT Digital Learning Toolkit — Learner Analysis</a></li><li><a href="https://www.uwb.edu/it/addie" target="_blank" rel="noreferrer">University of Washington Bothell — ADDIE Model</a></li><li><a href="https://edtechbooks.org/id/task_and_content_analysis" target="_blank" rel="noreferrer">EdTech Books — Task Analysis</a></li><li><a href="https://www.cdc.gov/training-development/php/about/evaluate-training-measuring-effectiveness.html" target="_blank" rel="noreferrer">CDC — Evaluate Training</a></li><li>Bloom’s taxonomy diagram: MIT Digital Learning Toolkit, CC BY 4.0. Real learning-context photographs: Pexels License. Original course illustrations: Entertrainer.</li></ol></details>
         </template>
       </article>
 
-      <footer class="screen-controls">
-        <button class="back-button" :disabled="screenIndex === 0" @click="moveTo(screenIndex - 1)">← Back</button>
-        <button class="next-button" :disabled="!screenReady" @click="continueScreen">{{ continueLabel }} <span aria-hidden="true">→</span></button>
-      </footer>
-
-      <details class="screen-navigator"><summary>Module map <span>{{ furthestIndex + 1 }} of {{ screens.length }} available</span></summary><div><button v-for="(screen, index) in screens" :key="screen.label" :disabled="index > furthestIndex" :class="{ 'is-current': index === screenIndex, 'is-locked': index > furthestIndex }" @click="moveTo(index)"><span>{{ String(index + 1).padStart(2, '0') }}</span>{{ screen.label }}</button></div></details>
     </section>
   </main>
 </template>
 
 <style scoped>
 /* Compact player: this file deliberately prevents long, multi-section course pages. */
-.compact-course { --blue: #315fc7; --ink: #252a33; --muted: #657080; --rule: #dbe1e9; --paper: #fff; --blue-soft: #edf2ff; --ease: cubic-bezier(.16, 1, .3, 1); min-height: 100vh; padding-bottom: 72rem; color: var(--ink); background: #f6f7f9; }
-.course-bar { position: sticky; z-index: 8; top: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16rem; min-height: 58rem; padding: 0 max(20rem, calc((100vw - 1120rem) / 2)); color: var(--muted); background: rgb(255 255 255 / 94%); border-bottom: 1px solid #e5e8ed; backdrop-filter: blur(12px); font-family: var(--font-ui); font-size: 12rem; }
-.course-bar__back { color: inherit; text-decoration: none; }.course-bar__back::before { content: '← '; }.course-bar__back:hover { color: var(--blue); }.course-bar > p { margin: 0; color: var(--ink); font-weight: 700; }.course-bar__progress { justify-self: end; display: flex; align-items: center; gap: 8rem; font-family: var(--font-mono); font-size: 10rem; }.course-bar__progress i { width: 72rem; height: 4rem; overflow: hidden; background: #e4e8ee; border-radius: 999rem; }.course-bar__progress b { display: block; height: 100%; background: var(--blue); border-radius: inherit; transition: width 240ms var(--ease); }
+.compact-course { --blue: #315fc7; --ink: #252a33; --muted: #657080; --rule: #dbe1e9; --paper: #fff; --blue-soft: #edf2ff; --ease: cubic-bezier(.16, 1, .3, 1); min-height: 100vh; padding-bottom: 28rem; color: var(--ink); background: #f6f7f9; }
+.course-bar { position: sticky; z-index: 8; top: 0; display: grid; grid-template-columns: 1fr auto 1fr auto; align-items: center; gap: 16rem; min-height: 58rem; padding: 0 max(20rem, calc((100vw - 1120rem) / 2)); color: var(--muted); background: rgb(255 255 255 / 94%); border-bottom: 1px solid #e5e8ed; backdrop-filter: blur(12px); font-family: var(--font-ui); font-size: 12rem; }
+.course-bar__back { color: inherit; text-decoration: none; }.course-bar__back::before { content: '← '; }.course-bar__back:hover { color: var(--blue); }.course-bar > p { margin: 0; color: var(--ink); font-weight: 700; }.course-bar__progress { justify-self: end; display: flex; align-items: center; gap: 8rem; font-family: var(--font-mono); font-size: 10rem; }.course-bar__progress i { width: 72rem; height: 4rem; overflow: hidden; background: #e4e8ee; border-radius: 999rem; }.course-bar__progress b { display: block; height: 100%; background: var(--blue); border-radius: inherit; transition: width 240ms var(--ease); }.course-bar__steps { display: flex; align-items: center; gap: 7rem; font-family: var(--font-mono); font-size: 10rem; }.course-bar__steps button { display: grid; place-items: center; width: 27rem; height: 27rem; color: var(--blue); background: #fff; border: 1px solid #d5dde8; border-radius: 3rem; font: 700 15rem var(--font-ui); cursor: pointer; }.course-bar__steps button:disabled { color: #c5cbd5; cursor: not-allowed; }
 .course-stage { width: min(100% - 32rem, 960rem); margin: 0 auto; padding-top: clamp(24rem, 5vh, 50rem); }.screen-meta { display: flex; justify-content: space-between; gap: 18rem; margin-bottom: 13rem; color: #6680bd; font-family: var(--font-mono); font-size: 10rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .learning-screen { min-height: min(690rem, calc(100vh - 170rem)); padding: clamp(27rem, 5vw, 58rem); background: var(--paper); border: 1px solid #e1e5ea; border-top: 4rem solid var(--blue); border-radius: 10rem; box-shadow: 0 20rem 42rem rgb(30 45 74 / 7%); }.learning-screen--hero { display: grid; grid-template-columns: 1.05fr .95fr; padding: 0; overflow: hidden; background: #f4f2ee; border: 0; }.hero-visual img { display: block; width: 100%; height: 100%; object-fit: cover; }.hero-copy { display: flex; flex-direction: column; justify-content: center; padding: clamp(34rem, 6vw, 75rem); }.eyebrow { margin: 0 0 13rem; color: var(--blue); font-family: var(--font-mono); font-size: 10rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }.learning-screen h1, .learning-screen h2 { max-width: 15ch; margin: 0; font-family: var(--font-ui); font-size: clamp(34rem, 5vw, 57rem); letter-spacing: -.06em; line-height: 1.02; }.learning-screen h2 { font-size: clamp(28rem, 4.1vw, 42rem); }.hero-copy > p:last-child, .lead { max-width: 58ch; margin: 21rem 0 0; color: #424a55; font-family: var(--font-reading); font-size: 18rem; line-height: 1.58; }
 .objective-list { display: grid; grid-template-columns: 1fr 1fr; gap: 13rem 20rem; margin: 29rem 0 0; padding: 0; list-style: none; }.objective-list li { position: relative; padding: 16rem 16rem 16rem 45rem; background: #f5f7fc; border: 1px solid #dce5f8; border-radius: 6rem; font-family: var(--font-ui); font-size: 14rem; line-height: 1.45; }.objective-list li::before { content: counter(list-item); position: absolute; top: 16rem; left: 15rem; display: grid; place-items: center; width: 20rem; height: 20rem; color: #fff; background: var(--blue); border-radius: 50%; font-family: var(--font-mono); font-size: 9rem; }

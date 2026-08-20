@@ -394,3 +394,10 @@
 - [x] Restore selected real media to the AI course, instructional-design course, project pages, and homepage work previews; use Paper Signal only as a framing and explanatory layer, not as a media replacement.
 - [x] Build an accessible editorial text-motion system for the homepage with staged headline choreography, word-level emphasis, scroll-linked reveals, and no motion-only information.
 - [x] Validate asset provenance, visual relevance, light/dark treatment, desktop/mobile performance, reduced motion, keyboard access, console health, and production build before pushing to `main`.
+
+## Actual-logo preloader, Route Builder repair, and scroll motion
+
+- [x] Diagnose and repair the unreadable selected-choice state in the Instructional Design Route Builder on compact mobile screens.
+- [x] Rebuild the light and dark preloaders around the actual shared Entertrainer wordmark, using a finite HTML/CSS motion-graphics reveal and retaining the page-completion gate.
+- [x] Add a library-driven, scroll-linked editorial text-motion system to homepage sections with distinct context for the hero, route chooser, and selected work.
+- [x] Validate mobile and desktop interaction readability, logo fidelity, three-second preloader handoff, scroll-motion performance, reduced motion, console health, and production build before pushing to `main`.

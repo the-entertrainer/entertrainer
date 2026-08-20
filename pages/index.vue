@@ -24,15 +24,84 @@ const selectedWork = computed(() => ITEMS.filter(item => ['ai-atlas', 'sewa-chro
 const workVisual: Record<string, 'process' | 'project'> = { 'ai-atlas': 'process', 'sewa-chronicles': 'project' }
 const workImageFailed = ref<Record<string, boolean>>({})
 const motionReady = ref(false)
-onMounted(() => requestAnimationFrame(() => { motionReady.value = true }))
+const homeRoot = ref<HTMLElement | null>(null)
+const heroTitle = ref<HTMLElement | null>(null)
+const directionsTitle = ref<HTMLElement | null>(null)
+const selectedTitle = ref<HTMLElement | null>(null)
+const routeGrid = ref<HTMLElement | null>(null)
+const workList = ref<HTMLElement | null>(null)
+let disposeMotion: (() => void) | undefined
+
+onMounted(async () => {
+  requestAnimationFrame(() => { motionReady.value = true })
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+  const [{ gsap }, { ScrollTrigger }, splitModule] = await Promise.all([
+    import('gsap'),
+    import('gsap/ScrollTrigger'),
+    import('split-type')
+  ])
+  const SplitType = splitModule.default
+  gsap.registerPlugin(ScrollTrigger)
+  const splitInstances: InstanceType<typeof SplitType>[] = []
+  const context = gsap.context(() => {
+    const heroWords = heroTitle.value?.querySelectorAll('.home-hero__word')
+    if (heroWords?.length) gsap.to(heroWords, {
+      yPercent: (index) => -8 - index * 3,
+      xPercent: (index) => index === 1 ? 3 : 0,
+      opacity: (index) => index === 1 ? .72 : .88,
+      ease: 'none',
+      scrollTrigger: { trigger: '.home-hero', start: 'top top', end: 'bottom top', scrub: .65 }
+    })
+
+    const revealHeading = (element: HTMLElement | null, origin: 'left' | 'right') => {
+      if (!element) return
+      const split = new SplitType(element, { types: 'words' })
+      splitInstances.push(split)
+      gsap.from(split.words, {
+        yPercent: 115,
+        x: origin === 'left' ? -16 : 16,
+        rotate: origin === 'left' ? -2 : 2,
+        opacity: 0,
+        duration: .82,
+        ease: 'power4.out',
+        stagger: .055,
+        scrollTrigger: { trigger: element, start: 'top 84%', once: true }
+      })
+    }
+    revealHeading(directionsTitle.value, 'left')
+    revealHeading(selectedTitle.value, 'right')
+
+    if (routeGrid.value) gsap.from(routeGrid.value.children, {
+      y: 34,
+      rotate: (index) => index === 1 ? 0 : index === 0 ? -1.2 : 1.2,
+      opacity: 0,
+      duration: .72,
+      ease: 'power3.out',
+      stagger: .12,
+      scrollTrigger: { trigger: routeGrid.value, start: 'top 80%', once: true }
+    })
+    if (workList.value) gsap.from(workList.value.children, {
+      x: (index) => index === 0 ? -26 : 26,
+      opacity: 0,
+      duration: .78,
+      ease: 'power3.out',
+      stagger: .16,
+      scrollTrigger: { trigger: workList.value, start: 'top 82%', once: true }
+    })
+  }, homeRoot)
+  disposeMotion = () => { context.revert(); splitInstances.forEach(instance => instance.revert()) }
+})
+
+onBeforeUnmount(() => disposeMotion?.())
 </script>
 
 <template>
-  <EdShell width="wide" :class="{ 'home--motion-ready': motionReady }">
+  <EdShell ref="homeRoot" width="wide" :class="{ 'home--motion-ready': motionReady }">
     <header class="home-hero" aria-labelledby="home-title">
       <div class="home-hero__intro">
         <p class="home-hero__kicker t-mono">Entertrainer · Naveen Jose</p>
-        <h1 id="home-title" class="home-hero__title t-display" aria-label="I make complicated work easier to understand."><span class="home-hero__word" aria-hidden="true"><span>I make</span></span><span class="home-hero__word home-hero__word--accent" aria-hidden="true"><span>complicated</span></span><span class="home-hero__word" aria-hidden="true"><span>work easier</span></span><span class="home-hero__word" aria-hidden="true"><span>to understand.</span></span></h1>
+        <h1 id="home-title" ref="heroTitle" class="home-hero__title t-display" aria-label="I make complicated work easier to understand."><span class="home-hero__word" aria-hidden="true"><span>I make</span></span><span class="home-hero__word home-hero__word--accent" aria-hidden="true"><span>complicated</span></span><span class="home-hero__word" aria-hidden="true"><span>work easier</span></span><span class="home-hero__word" aria-hidden="true"><span>to understand.</span></span></h1>
         <p class="home-hero__deck"><span>I make lessons, projects, and small tools for people who need a clearer way into difficult work.</span></p>
         <div class="home-hero__actions">
           <NuxtLink to="/instructional-design" class="ticket home-hero__primary">Start a short lesson <EdSignalIcon name="arrow" /></NuxtLink>
@@ -54,9 +123,9 @@ onMounted(() => requestAnimationFrame(() => { motionReady.value = true }))
     <section class="directions" aria-labelledby="directions-title">
       <div class="section-head">
         <p class="section-head__label t-mono">Choose a direction</p>
-        <h2 id="directions-title" class="section-head__title t-display">Start with what you need.</h2>
+        <h2 id="directions-title" ref="directionsTitle" class="section-head__title t-display">Start with what you need.</h2>
       </div>
-      <ul class="route-grid">
+      <ul ref="routeGrid" class="route-grid">
         <li v-for="(route, index) in routes" :key="route.title" :style="{ '--card-delay': `${index * 80}ms` }">
           <NuxtLink :to="route.href" class="route-card">
             <span class="route-card__top"><span class="route-card__number t-mono">{{ route.number }}</span><EdSignalIcon name="arrow" /></span>
@@ -70,8 +139,8 @@ onMounted(() => requestAnimationFrame(() => { motionReady.value = true }))
     </section>
 
     <section class="selected" aria-labelledby="selected-title">
-      <div class="section-head section-head--split"><div><p class="section-head__label t-mono">A few things I made</p><h2 id="selected-title" class="section-head__title t-display">Selected work</h2></div><NuxtLink to="/my-work" class="section-head__link">See all projects <EdSignalIcon name="arrow" /></NuxtLink></div>
-      <ul class="work-list">
+      <div class="section-head section-head--split"><div><p class="section-head__label t-mono">A few things I made</p><h2 id="selected-title" ref="selectedTitle" class="section-head__title t-display">Selected work</h2></div><NuxtLink to="/my-work" class="section-head__link">See all projects <EdSignalIcon name="arrow" /></NuxtLink></div>
+      <ul ref="workList" class="work-list">
         <li v-for="item in selectedWork" :key="item.id">
           <NuxtLink :to="item.href" class="work-list__item">
             <span class="work-list__art"><img v-if="item.image && !workImageFailed[item.id]" :src="item.image" :alt="item.alt ?? ''" loading="lazy" @error="workImageFailed[item.id] = true" /><EdPaperSignal v-else :variant="workVisual[item.id]" label="" /></span>

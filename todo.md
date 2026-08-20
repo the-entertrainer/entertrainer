@@ -387,3 +387,10 @@
 - [x] Rebuild the light and dark preloaders with a detailed three-second mark assembly, light pass, wordmark reveal, and fully gated page handoff.
 - [x] Validate individual illustrations for semantic fit and visual variation; remove or revise every repeated or generic surface found during review.
 - [x] Validate visual quality at desktop and mobile widths, light/dark themes, motion/reduced motion, keyboard operation, console health, and production build before pushing to `main`.
+
+## Real visual restoration and homepage text-motion pass
+
+- [x] Inventory the original project and learning media registry, identifying which real assets carry evidence, historical context, process demonstration, or project-specific storytelling.
+- [x] Restore selected real media to the AI course, instructional-design course, project pages, and homepage work previews; use Paper Signal only as a framing and explanatory layer, not as a media replacement.
+- [x] Build an accessible editorial text-motion system for the homepage with staged headline choreography, word-level emphasis, scroll-linked reveals, and no motion-only information.
+- [x] Validate asset provenance, visual relevance, light/dark treatment, desktop/mobile performance, reduced motion, keyboard access, console health, and production build before pushing to `main`.

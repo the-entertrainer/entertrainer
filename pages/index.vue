@@ -22,15 +22,18 @@ const routes = [
 
 const selectedWork = computed(() => ITEMS.filter(item => ['ai-atlas', 'sewa-chronicles'].includes(item.id)))
 const workVisual: Record<string, 'process' | 'project'> = { 'ai-atlas': 'process', 'sewa-chronicles': 'project' }
+const workImageFailed = ref<Record<string, boolean>>({})
+const motionReady = ref(false)
+onMounted(() => requestAnimationFrame(() => { motionReady.value = true }))
 </script>
 
 <template>
-  <EdShell width="wide">
+  <EdShell width="wide" :class="{ 'home--motion-ready': motionReady }">
     <header class="home-hero" aria-labelledby="home-title">
       <div class="home-hero__intro">
         <p class="home-hero__kicker t-mono">Entertrainer · Naveen Jose</p>
-        <h1 id="home-title" class="home-hero__title t-display">I make complicated work easier to understand.</h1>
-        <p class="home-hero__deck">I make lessons, projects, and small tools for people who need a clearer way into difficult work.</p>
+        <h1 id="home-title" class="home-hero__title t-display" aria-label="I make complicated work easier to understand."><span class="home-hero__word" aria-hidden="true"><span>I make</span></span><span class="home-hero__word home-hero__word--accent" aria-hidden="true"><span>complicated</span></span><span class="home-hero__word" aria-hidden="true"><span>work easier</span></span><span class="home-hero__word" aria-hidden="true"><span>to understand.</span></span></h1>
+        <p class="home-hero__deck"><span>I make lessons, projects, and small tools for people who need a clearer way into difficult work.</span></p>
         <div class="home-hero__actions">
           <NuxtLink to="/instructional-design" class="ticket home-hero__primary">Start a short lesson <EdSignalIcon name="arrow" /></NuxtLink>
           <NuxtLink to="/my-work" class="home-hero__secondary">Browse my work</NuxtLink>
@@ -71,7 +74,7 @@ const workVisual: Record<string, 'process' | 'project'> = { 'ai-atlas': 'process
       <ul class="work-list">
         <li v-for="item in selectedWork" :key="item.id">
           <NuxtLink :to="item.href" class="work-list__item">
-            <EdPaperSignal class="work-list__art" :variant="workVisual[item.id]" label="" />
+            <span class="work-list__art"><img v-if="item.image && !workImageFailed[item.id]" :src="item.image" :alt="item.alt ?? ''" loading="lazy" @error="workImageFailed[item.id] = true" /><EdPaperSignal v-else :variant="workVisual[item.id]" label="" /></span>
             <span class="work-list__content"><span class="work-list__meta t-mono">{{ item.stamp }}</span><span class="work-list__title t-display">{{ item.title }}</span><span class="work-list__dek">{{ item.dek }}</span></span>
             <EdSignalIcon class="work-list__action" name="external" />
           </NuxtLink>
@@ -95,4 +98,10 @@ const workVisual: Record<string, 'process' | 'project'> = { 'ai-atlas': 'process
 @media (max-width:850px) { .home-hero { grid-template-columns:1fr; min-height:auto; gap:42rem; }.home-hero__intro { max-width:680rem; }.home-hero__scene { width:min(100%, 660rem); }.home-hero__index { grid-template-columns:1fr; gap:14rem; }.route-grid { gap:14rem; }.route-card { padding:15rem 15rem 19rem; }.route-card__art { min-height:120rem; margin:20rem 0 18rem; }.work-list__item { grid-template-columns:190rem minmax(0, 1fr) 24rem; gap:26rem; } }
 @media (max-width:600px) { .home-hero { padding-top:45rem; padding-bottom:58rem; gap:38rem; }.home-hero__kicker { font-size:10rem; }.home-hero__title { max-width:8.8ch; margin-top:15rem; font-size:clamp(51rem, 14.4vw, 70rem); line-height:.9; }.home-hero__deck { max-width:31ch; font-size:19rem; line-height:1.48; }.home-hero__actions { gap:20rem; margin-top:30rem; }.home-hero__primary { min-height:50rem; padding-inline:21rem; }.home-hero__secondary { font-size:15rem; }.home-hero__art { aspect-ratio:1.18; box-shadow:9rem 9rem 0 var(--signal-sheet); }.home-hero__caption { max-width:26ch; line-height:1.45; }.home-hero__index { display:none; }.directions, .selected { padding:62rem 0; }.section-head { margin-bottom:30rem; }.section-head__title { font-size:46rem; }.route-grid { grid-template-columns:1fr; gap:13rem; }.route-card { display:grid; grid-template-columns:106rem minmax(0, 1fr); column-gap:16rem; min-height:0; padding:15rem; }.route-card__top { grid-column:1/-1; }.route-card__art { grid-column:1; grid-row:2/span 3; min-height:94rem; margin:18rem 0 0; }.route-card__title { grid-column:2; margin-top:20rem; font-size:33rem; }.route-card__body { grid-column:2; margin-top:8rem; font-size:15rem; }.route-card__action { grid-column:2; margin-top:0; padding-top:14rem; }.section-head--split { align-items:flex-start; flex-direction:column; gap:20rem; }.work-list__item { grid-template-columns:108rem minmax(0, 1fr) 20rem; gap:14rem; padding:18rem 0; }.work-list__art { min-height:102rem; }.work-list__title { font-size:34rem; }.work-list__dek { margin-top:8rem; font-size:15rem; }.work-list__action { grid-column:3; grid-row:1; } }
 @media (prefers-reduced-motion:reduce) { .home-hero__kicker, .home-hero__title, .home-hero__deck, .home-hero__actions, .home-hero__scene, .route-grid > li { animation:none; }.route-card, .work-list__item, .work-list__action { transition:none; } }
+
+/* Editorial showcase motion: text leads the page; artwork supports it. */
+.home-hero__title { position:relative; max-width:10ch; }.home-hero__word { display:block; overflow:hidden; padding:0 8rem 5rem 0; }.home-hero__word > span, .home-hero__deck > span { display:block; }.home-hero__word--accent { color:var(--signal-cobalt); }.home-hero__title::after { content:''; position:absolute; right:-5rem; bottom:10rem; width:10rem; height:10rem; background:var(--signal-cobalt); transform:scale(0) rotate(45deg); }.home-hero__deck { overflow:hidden; }.work-list__art { display:block; min-height:150rem; overflow:hidden; border:1rem solid var(--signal-rule); background:var(--signal-field); box-shadow:7rem 7rem 0 var(--signal-sheet); }.work-list__art :deep(.ps-art), .work-list__art > img { display:block; width:100%; height:100%; min-height:150rem; object-fit:cover; }.work-list__art > img { filter:saturate(.94) contrast(1.02); transition:transform var(--dur-slow) var(--ease-expo-out); }
+@keyframes home-word-reveal { from { opacity:0; transform:translate3d(0, 112%, 0) rotate(2deg); } to { opacity:1; transform:none; } } @keyframes home-title-mark { 0% { transform:scale(0) rotate(45deg); } 70% { transform:scale(1.18) rotate(45deg); } 100% { transform:scale(1) rotate(45deg); } }
+.home--motion-ready .home-hero__title { animation:none; }.home--motion-ready .home-hero__word > span { animation:home-word-reveal 760ms var(--ease-expo-out) both; }.home--motion-ready .home-hero__word:nth-child(1) > span { animation-delay:60ms; }.home--motion-ready .home-hero__word:nth-child(2) > span { animation-delay:145ms; }.home--motion-ready .home-hero__word:nth-child(3) > span { animation-delay:230ms; }.home--motion-ready .home-hero__word:nth-child(4) > span { animation-delay:315ms; }.home--motion-ready .home-hero__title::after { animation:home-title-mark 440ms var(--ease-expo-out) 800ms both; }.home--motion-ready .home-hero__deck { animation:none; }.home--motion-ready .home-hero__deck > span { animation:home-copy-enter 560ms var(--ease-out) 410ms both; }@media (hover:hover) { .work-list__item:hover .work-list__art > img { transform:scale(1.035); } }
+@media (max-width:600px) { .work-list__art, .work-list__art :deep(.ps-art), .work-list__art > img { min-height:102rem; } }.home--motion-ready .home-hero__kicker, .home--motion-ready .home-hero__actions, .home--motion-ready .home-hero__scene, .home--motion-ready .route-grid > li { will-change:transform, opacity; }@media (prefers-reduced-motion:reduce) { .home-hero__word > span, .home-hero__title::after, .home-hero__deck > span { animation:none !important; transform:none !important; opacity:1 !important; }.work-list__art > img { transition:none; } }
 </style>

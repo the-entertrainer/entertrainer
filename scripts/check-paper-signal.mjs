@@ -6,13 +6,18 @@ import { join, relative } from 'node:path'
  *
  * The approved visual system allows brand marks and controlled inline Paper
  * Signal SVGs. It rejects Unicode emoji in rendered source and ordinary `<img>`
- * elements everywhere else. Instructional Design is the one temporary, named
- * exception because it binds inlined Paper Signal data SVGs to the existing
- * accessible image captions.
+ * elements everywhere else. The named exceptions use assets documented in the
+ * provenance register: real instructional evidence, author-owned project work,
+ * and image previews with a Paper Signal fallback.
  */
 const root = process.cwd()
 const sourceRoots = ['pages', 'components', 'app', 'content', 'assets']
-const allowedImageFiles = new Set(['pages/instructional-design/index.vue'])
+const allowedImageFiles = new Set([
+  'pages/courses/ai-atlas.vue',
+  'pages/instructional-design/index.vue',
+  'pages/index.vue',
+  'components/ed/Card.vue'
+])
 const emoji = /[\u{1F000}-\u{1FAFF}]/u
 const issues = []
 

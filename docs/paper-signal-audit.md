@@ -39,6 +39,6 @@ The public structure has dedicated destination pages for lessons, work, tools, p
 
 ## Next audit actions
 
-1. Run `npm run check:paper-signal` before each visual release. The check prohibits Unicode emoji and ordinary rendered image elements, with one explicit exception for the Instructional Design player’s accessible inline Paper Signal SVG media binding.
+1. Run `npm run check:paper-signal` before each visual release. The check prohibits Unicode emoji and ordinary rendered image elements, with four explicit provenance-controlled exceptions: the AI and instructional-design players, homepage selected-work previews, and shared editorial cards. These locations may use only assets recorded in `docs/asset_licenses.md`, must retain meaningful alternative text, and use Paper Signal as framing or fallback rather than a decorative substitute.
 2. Map course visuals by instructional function: orientation, explanation, practice, evidence, feedback, or removal.
 3. Use Manim only where a time-based diagram improves understanding more than a static Paper Signal SVG.

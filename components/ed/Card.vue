@@ -20,6 +20,8 @@ const props = withDefaults(defineProps<{
 }>(), { variant: 'standard', chip: 'both' })
 
 const hasArt = computed(() => props.variant !== 'compact')
+const imageFailed = ref(false)
+watch(() => props.item.href, () => { imageFailed.value = false })
 const itemScene: Record<string, 'hero' | 'lesson' | 'project' | 'tool' | 'process' | 'evidence' | 'robot' | 'infrastructure' | 'profile' | 'route'> = {
   'ai-atlas': 'robot',
   'sewa-chronicles': 'project',
@@ -35,7 +37,7 @@ const signalVariant = computed(() => itemScene[props.item.id] ?? (props.item.cat
 <template>
   <article class="card" :class="[`card--${variant}`, { 'card--noart': !hasArt }]">
     <NuxtLink :to="item.href" class="card__hit">
-      <span v-if="hasArt" class="card__art"><EdPaperSignal :variant="signalVariant" label="" /></span>
+      <span v-if="hasArt" class="card__art"><img v-if="item.image && !imageFailed" :src="item.image" :alt="item.alt ?? ''" loading="lazy" @error="imageFailed = true" /><EdPaperSignal v-else :variant="signalVariant" label="" /></span>
 
       <span class="card__body">
         <component :is="variant === 'feature' ? 'h2' : 'h3'" class="card__title t-display">{{ item.title }}</component>
@@ -81,6 +83,8 @@ const signalVariant = computed(() => itemScene[props.item.id] ?? (props.item.cat
   overflow: hidden;
 }
 .card__art :deep(.ps-art) { width: 100%; height: 100%; min-height: 0; }
+.card__art > img { display:block; width:100%; height:100%; object-fit:cover; object-position:center; filter:saturate(.92) contrast(1.02); transition:transform var(--dur-slow) var(--ease-out), filter var(--dur-mid) var(--ease-out); }
+@media (hover:hover) { .card__hit:hover .card__art > img { transform:scale(1.025); filter:saturate(1) contrast(1.03); } }
 
 .card__body {
   display: flex; flex-direction: column; gap: 10rem;

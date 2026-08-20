@@ -12,7 +12,7 @@ const props = defineProps<{
   deck: string
   /** Supporting paragraph, set below the field where it does not delay the work. */
   intro?: string
-  /** One text-free editorial image that establishes the destination before the real work. */
+  /** Retained for route compatibility; displayed as a Paper Signal illustration. */
   visual?: { src: string; alt: string }
 }>()
 
@@ -27,9 +27,7 @@ const items = computed(() => byCategory(props.category))
       :deck="deck"
     />
 
-    <figure v-if="visual" :class="['sec__visual', category === 'projects' ? 'u-artifact-shift' : 'u-tool-assemble']">
-      <img :src="visual.src" :alt="visual.alt" loading="eager" decoding="async" />
-    </figure>
+    <EdPaperSignal v-if="visual" :class="['sec__visual', category === 'projects' ? 'u-artifact-shift' : 'u-tool-assemble']" :variant="category === 'projects' ? 'project' : category === 'tools' ? 'tool' : 'lesson'" :label="visual.alt" />
 
     <ul :class="['sec__grid', `sec__grid--${category}`]">
       <li v-for="(it, index) in items" :key="it.id" :class="`sec__item sec__item--${index + 1}`">
@@ -51,25 +49,12 @@ const items = computed(() => byCategory(props.category))
   grid-template-columns: repeat(auto-fit, minmax(300rem, 1fr));
 }
 .sec__grid > li { display: flex; min-width: 0; }
-.sec__visual { margin: 0 0 clamp(30rem, 5vw, 56rem); overflow: hidden; border: var(--stroke) solid var(--line); background: var(--paper-2); }
-.sec__visual img { display: block; width: 100%; aspect-ratio: 2.35 / 1; object-fit: cover; object-position: center 58%; }
+.sec__visual { width: 100%; min-height: 260rem; margin: 0 0 clamp(30rem, 5vw, 56rem); border: 0; }
 
-/* Route Atlas: projects are not a neutral inventory. One large workbench image
-   establishes the field, then the real pieces arrive with deliberate pauses. */
-.sec__grid--projects { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(20rem, 3vw, 38rem); }
-.sec__grid--projects .sec__item--1 { grid-column: span 8; }
-.sec__grid--projects .sec__item--2 { grid-column: span 4; margin-top: clamp(48rem, 9vw, 132rem); }
-.sec__grid--projects .sec__item--3 { grid-column: 3 / span 7; margin-top: clamp(-28rem, -2vw, -8rem); }
-.sec__grid--projects .sec__item:nth-child(n + 4) { grid-column: span 6; }
+.sec__grid--projects { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(20rem, 3vw, 32rem); }
+.sec__grid--projects .sec__item { grid-column: auto; margin-top: 0; }
 
-/* Tools keep their compact, practical reading rhythm, but are attached to one
-   visible route instead of a borderless repeated-card shelf. */
-.sec__grid--tools { position: relative; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 0; padding-left: clamp(30rem, 5vw, 64rem); border-top: var(--stroke) solid var(--line); }
-.sec__grid--tools::before { content: ''; position: absolute; left: 9rem; top: 0; bottom: 0; width: 3rem; background: linear-gradient(var(--violet), var(--blue)); transform-origin: top; animation: sec-route-grow 920ms var(--ease-expo-out) both; }
-.sec__grid--tools .sec__item { position: relative; grid-column: 1 / -1; padding: clamp(24rem, 3vw, 34rem) 0; border-bottom: var(--stroke) solid var(--line); }
-.sec__grid--tools .sec__item::before { content: ''; position: absolute; left: clamp(-64rem, -5vw, -30rem); top: clamp(34rem, 4vw, 48rem); width: 16rem; height: 16rem; border: 3rem solid var(--paper); border-radius: var(--radius-full); background: var(--blue); box-shadow: 0 0 0 2rem var(--ink); }
-.sec__grid--tools .sec__item--2::before { background: var(--violet); }.sec__grid--tools .sec__item--3::before { background: var(--yellow); }
-@keyframes sec-route-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.sec__grid--tools { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(20rem, 3vw, 32rem); }
 
 /* The supporting paragraph sits after the work, not before it. On a phone the
    old layout spent 460 of 844 pixels on preamble before the first card. */
@@ -85,10 +70,7 @@ const items = computed(() => byCategory(props.category))
 
 @media (max-width: 680px) {
   .sec__grid { grid-template-columns: minmax(0, 1fr); }
-  .sec__visual img { aspect-ratio: 16 / 9; }
-  .sec__grid--projects { grid-template-columns: minmax(0, 1fr); }
-  .sec__grid--projects .sec__item--1, .sec__grid--projects .sec__item--2, .sec__grid--projects .sec__item--3, .sec__grid--projects .sec__item:nth-child(n + 4) { grid-column: 1; margin-top: 0; }
-  .sec__grid--tools { padding-left: 32rem; }.sec__grid--tools::before { left: 8rem; }.sec__grid--tools .sec__item::before { left: -31rem; }
+  .sec__visual { min-height: 188rem; }
+  .sec__grid--projects, .sec__grid--tools { grid-template-columns: minmax(0, 1fr); }
 }
-@media (prefers-reduced-motion: reduce) { .sec__grid--tools::before { animation: none; } }
 </style>

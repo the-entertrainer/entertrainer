@@ -4,10 +4,8 @@ import type { EditorialItem } from '~/content/editorial'
 /**
  * A story card.
  *
- * Four variants, one object. The rule that shaped it: the card has to be
- * readable with the image missing, so the artwork is a band at the top rather
- * than a background the type sits on. Text over a photograph is a card that
- * becomes unreadable the moment the photograph is slow, dark, or absent.
+ * Four variants, one object. Every non-brand preview uses the same Paper
+ * Signal illustration rather than a photograph or unrelated card artwork.
  *
  * The whole card is one link. A card with a title link and a separate "Open"
  * link is two tab stops and two targets for one destination.
@@ -21,19 +19,20 @@ const props = withDefaults(defineProps<{
   chip?: 'both' | 'category' | 'media'
 }>(), { variant: 'standard', chip: 'both' })
 
-const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
+const hasArt = computed(() => props.variant !== 'compact')
+const signalVariant = computed(() => {
+  if (props.item.category === 'practice') return 'lesson'
+  if (props.item.category === 'projects') return 'project'
+  if (props.item.category === 'tools') return 'tool'
+  if (props.item.category === 'story') return 'evidence'
+  return 'process'
+})
 </script>
 
 <template>
   <article class="card" :class="[`card--${variant}`, { 'card--noart': !hasArt }]">
     <NuxtLink :to="item.href" class="card__hit">
-      <span v-if="hasArt" class="card__art">
-        <!-- The lead is above the fold on every viewport, so it is the one
-             image on the page that must not wait for the lazy-load pass. -->
-        <img :src="item.image" :alt="item.alt || ''" decoding="async"
-             :loading="variant === 'feature' ? 'eager' : 'lazy'"
-             :fetchpriority="variant === 'feature' ? 'high' : undefined" />
-      </span>
+      <span v-if="hasArt" class="card__art"><EdPaperSignal :variant="signalVariant" label="" /></span>
 
       <span class="card__body">
         <component :is="variant === 'feature' ? 'h2' : 'h3'" class="card__title t-display">{{ item.title }}</component>
@@ -64,12 +63,10 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
    thing being nudged rather than a div being animated. */
 @media (hover: hover) {
   .card__hit:hover { background: var(--paper-2); border-color: var(--ink); transform: translateY(-4rem) rotate(-.22deg); }
-  .card__hit:hover .card__art img { transform: scale(1.045) translateX(.8%); }
   .card__hit:hover .card__title { text-decoration-color: var(--blue); }
 }
 .card__hit:active { transform: translateY(0) scale(.985); transition-duration: var(--dur-tap); }
 .card__hit:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
-.card__hit:focus-visible .card__art img { transform: scale(1.035) translateX(.6%); }
 
 /* Artwork provides context; no labels or category frame sit over it. */
 .card__art {
@@ -80,16 +77,7 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
   border-bottom: var(--stroke) solid var(--line);
   overflow: hidden;
 }
-.card__art img {
-  width: 100%; height: 100%; object-fit: contain; display: block;
-  /* Every cover is a white sheet in both themes — they are printed pages, not
-     interface. The letterbox `contain` leaves on the variants whose frame is
-     not exactly 16:9 (the lead, and the wide cards) therefore has to be the
-     white of the sheet, not the theme's paper: with `var(--paper)` here, dark
-     mode drew black bars down either side of every cover, inside the accent. */
-  background: #FFFFFF;
-  transition: transform 520ms var(--ease-expo-out);
-}
+.card__art :deep(.ps-art) { width: 100%; height: 100%; min-height: 0; }
 
 .card__body {
   display: flex; flex-direction: column; gap: 10rem;
@@ -117,10 +105,8 @@ const hasArt = computed(() => props.variant !== 'compact' && !!props.item.image)
   padding: clamp(16rem, 2.4vw, 30rem);
 }
 .card--feature .card__body { flex: 1 1 48%; justify-content: center; gap: 14rem; padding: clamp(22rem, 3vw, 40rem); }
-/* The lead's headline is the longest on the site, and Bangers is a caps face:
-   at the full display size it set four lines of shouting with four accent
-   rules under them. One size down, and no underline — the solid chip directly
-   above it is already carrying the category colour. */
+/* The lead remains a concise proof point; the Paper Signal preview carries the
+   shared visual language without making the index depend on a raster cover. */
 .card--feature .card__title {
   font-size: clamp(30rem, 3.6vw, 54rem);
   text-decoration: none;

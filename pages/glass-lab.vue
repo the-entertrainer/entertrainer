@@ -267,7 +267,7 @@ onMounted(() => {
 
       <div class="out">
         <textarea readonly rows="4" class="glass-field" :value="configText" />
-        <button class="glass-chip" @click="copyConfig">{{ copied ? 'Copied ✓' : 'Copy config' }}</button>
+        <button class="glass-chip" @click="copyConfig">{{ copied ? 'Copied' : 'Copy config' }}</button>
       </div>
     </aside>
   </div>

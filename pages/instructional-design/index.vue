@@ -37,34 +37,13 @@ const gameChoice = ref<string | null>(null)
 const gameSubmitted = ref(false)
 const gameComplete = ref(false)
 
+/** Paper Signal is the sole non-brand illustration grammar for this course. */
+const paperSignal = (signal: 'circle' | 'square' = 'circle') => `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400"><rect width="640" height="400" fill="#EEF3FF"/><rect x="190" y="108" width="304" height="184" fill="#D6E5F7"/><rect x="168" y="84" width="304" height="184" fill="#fff" stroke="#18181A" stroke-width="3"/><path d="M210 132h174M210 164h136M210 196h92" stroke="#18181A" stroke-width="5"/>${signal === 'circle' ? '<circle cx="414" cy="204" r="25" fill="#2D2BE8"/>' : '<rect x="388" y="178" width="48" height="48" fill="#2D2BE8"/>'}</svg>`)}`
 const media = {
-  hero: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/sHIaqHUyLPpHlXwn.jpg',
-  analysis: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/CLHikwLahcffypTI.jpg',
-  collaboration: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/kxDxXEUdsOGXhYBN.jpeg',
-  artifacts: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/ZKPOHGdqpXIWtQzC.jpg',
-  storyboard: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/bcdzCJyXARgsjUzg.jpeg',
-  blooms: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/SjxuvaLcEiNASJWC.png',
-  routeAnchor: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/NZECIjJPlXJahoST.jpg',
-  routeObjects: '/manus-storage/id-learner-route-objects-v2_b1a0a790.jpg',
-  performanceGap: '/manus-storage/id-performance-gap-field-v2_166021c1.jpg',
-  addieWorkbench: '/manus-storage/id-addie-workbench-v2_45a561d8.jpg',
-  taskTrail: '/manus-storage/id-task-trail-card-v2_b5f538ae.jpg',
-  evidenceLoop: '/manus-storage/id-storyboard-evidence-loop-v2_9e2240db.jpg',
-  objectiveCue: '/manus-storage/id-observable-objective-cue-v2_a9595e45.jpg',
-  feedbackStation: '/manus-storage/id-practice-feedback-station-v2_757831a1.jpg',
-  completionAtlas: '/manus-storage/id-course-completion-atlas-v2_82938466.jpg'
+  hero: paperSignal('circle'), analysis: paperSignal('square'), collaboration: paperSignal('circle'), artifacts: paperSignal('square'), storyboard: paperSignal('circle'), blooms: paperSignal('square'), routeAnchor: paperSignal('circle'), routeObjects: paperSignal('square'), performanceGap: paperSignal('circle'), addieWorkbench: paperSignal('square'), taskTrail: paperSignal('circle'), evidenceLoop: paperSignal('square'), objectiveCue: paperSignal('circle'), feedbackStation: paperSignal('square'), completionAtlas: paperSignal('circle')
 }
 
-const fallbackMedia: Partial<Record<keyof typeof media, string>> = {
-  routeObjects: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/WrlRXcVdxcFexnYx.jpg',
-  performanceGap: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/aAATJhDCLsrFQAdo.jpg',
-  addieWorkbench: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/ZKPOHGdqpXIWtQzC.jpg',
-  taskTrail: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/KTmjoLZqKxHqxZGs.jpg',
-  evidenceLoop: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/bcdzCJyXARgsjUzg.jpeg',
-  objectiveCue: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/SjxuvaLcEiNASJWC.png',
-  feedbackStation: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/kxDxXEUdsOGXhYBN.jpeg',
-  completionAtlas: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/WrlRXcVdxcFexnYx.jpg'
-}
+const fallbackMedia: Partial<Record<keyof typeof media, string>> = {}
 
 function resolveCourseVisual(event: Event) {
   const image = event.target as HTMLImageElement
@@ -395,7 +374,7 @@ onBeforeUnmount(() => document.removeEventListener('error', resolveCourseVisual,
         </template>
 
         <template v-else>
-          <div class="screen-split"><div><p class="eyebrow">Take this with you</p><h2 ref="screenHeading" tabindex="-1">Good learning design starts before the screen.</h2><p class="lead">Find the real task. Understand the people doing it. Decide what successful performance looks like. Give learners a way to practise. Then use evidence to make the support better.</p><div class="completion-card"><span>✓</span><p><b>Small first step:</b> when someone asks for a course, ask: “What should people be able to do differently after this?”</p></div></div><figure class="screen-visual close-visual"><img :src="media.completionAtlas" alt="Editorial paper illustration of task observation, learner context, practice, evidence, and a revision pencil arranged along a completed cobalt route."><figcaption>The route continues when the work is observed, practised, and checked with evidence.</figcaption></figure></div><details class="source-panel"><summary>Sources and media credits <span>+</span></summary><ol><li><a href="https://www.td.org/talent-development-glossary-terms/what-is-instructional-design" target="_blank" rel="noreferrer">Association for Talent Development — What is Instructional Design?</a></li><li><a href="https://dltoolkit.mit.edu/online-course-design-guide/pre-design/learner-analysis/" target="_blank" rel="noreferrer">MIT Digital Learning Toolkit — Learner Analysis</a></li><li><a href="https://www.uwb.edu/it/addie" target="_blank" rel="noreferrer">University of Washington Bothell — ADDIE Model</a></li><li><a href="https://edtechbooks.org/id/task_and_content_analysis" target="_blank" rel="noreferrer">EdTech Books — Task Analysis</a></li><li><a href="https://www.cdc.gov/training-development/php/about/evaluate-training-measuring-effectiveness.html" target="_blank" rel="noreferrer">CDC — Evaluate Training</a></li><li>Bloom’s taxonomy diagram: MIT Digital Learning Toolkit, CC BY 4.0. Real learning-context photographs: Pexels License. Original course illustrations: Entertrainer.</li></ol></details>
+          <div class="screen-split"><div><p class="eyebrow">Take this with you</p><h2 ref="screenHeading" tabindex="-1">Good learning design starts before the screen.</h2><p class="lead">Find the real task. Understand the people doing it. Decide what successful performance looks like. Give learners a way to practise. Then use evidence to make the support better.</p><div class="completion-card"><EdSignalIcon name="check" /><p><b>Small first step:</b> when someone asks for a course, ask: “What should people be able to do differently after this?”</p></div></div><figure class="screen-visual close-visual"><img :src="media.completionAtlas" alt="Paper Signal illustration of task observation, learner context, practice, and evidence."><figcaption>The route continues when the work is observed, practised, and checked with evidence.</figcaption></figure></div><details class="source-panel"><summary>Sources and media credits <span>+</span></summary><ol><li><a href="https://www.td.org/talent-development-glossary-terms/what-is-instructional-design" target="_blank" rel="noreferrer">Association for Talent Development — What is Instructional Design?</a></li><li><a href="https://dltoolkit.mit.edu/online-course-design-guide/pre-design/learner-analysis/" target="_blank" rel="noreferrer">MIT Digital Learning Toolkit — Learner Analysis</a></li><li><a href="https://www.uwb.edu/it/addie" target="_blank" rel="noreferrer">University of Washington Bothell — ADDIE Model</a></li><li><a href="https://edtechbooks.org/id/task_and_content_analysis" target="_blank" rel="noreferrer">EdTech Books — Task Analysis</a></li><li><a href="https://www.cdc.gov/training-development/php/about/evaluate-training-measuring-effectiveness.html" target="_blank" rel="noreferrer">CDC — Evaluate Training</a></li><li>Paper Signal illustrations are original Entertrainer learning graphics.</li></ol></details>
         </template>
       </article>
       </Transition>

@@ -8,10 +8,8 @@
  * later slide under 0.5%. A career is a sequence you read, not a set you
  * operate.
  *
- * What changed in the redesign is the setting, not the substance: a narrow
- * reading measure in a serif, the chapter number and place hung in the margin
- * as apparatus, and each photograph given a full-bleed band of its own so the
- * page has chapters you can see from across the room.
+ * Paper Signal setting: a narrow reading measure and one quiet illustration
+ * grammar rather than mixed photographic chapter bands.
  */
 useSeoMeta({
   title: 'About — Naveen Jose · Entertrainer',
@@ -21,26 +19,25 @@ useSeoMeta({
   ogUrl: 'https://entertrainer.in/about'
 })
 
-interface Chapter { head: string; body: string; img: string; alt: string; place: string }
+interface Chapter { head: string; body: string; art: 'route' | 'lesson' | 'project' | 'tool' | 'evidence'; alt: string; place: string }
 
 const CHAPTERS: Chapter[] = [
   { head: 'It started in hospitality',
     body: 'I studied hotel management in Chennai and began on the floor. Hospitality is where I learned to notice the small things that make service feel human — the details nobody asks for but everybody remembers.',
-    img: '/about/about-housekeeper-1.webp', alt: 'On the hotel floor in the early hospitality years', place: 'Chennai · Hotel management' },
+    art: 'lesson', alt: 'Paper Signal chapter illustration for early hospitality work', place: 'Chennai · Hotel management' },
   { head: 'A comic, and a new path',
     body: 'At Club Mahindra I moved into learning and development, and drew The SEWA Chronicles — a small comic of real guest-experience stories. That was the moment design stopped being a side interest and became the plan.',
-    img: '/about/about-sewa-1.webp', alt: 'A page from The SEWA Chronicles comic', place: 'Club Mahindra · L&D' },
+    art: 'project', alt: 'Paper Signal chapter illustration for The SEWA Chronicles', place: 'Club Mahindra · L&D' },
   { head: 'Frontline to manager',
     body: 'As an L&D specialist at Courtyard by Marriott, I helped run certification programs for teams — frontline associates through to managers. I learned how a good program actually holds together.',
-    img: '/about/about-onboarding.webp', alt: 'Running a training session at Courtyard by Marriott', place: 'Courtyard by Marriott' },
+    art: 'evidence', alt: 'Paper Signal chapter illustration for training work', place: 'Courtyard by Marriott' },
   { head: 'I design, and I build',
     body: 'I build training in Articulate Storyline — but I also ship the tools around it. StoryGen, EasyMCQ, Cadence, this very site: designed and built by me, because the idea deserved to exist.',
-    img: '/about/about-ignite.webp', alt: 'A module in progress on the workbench', place: 'The workbench' },
+    art: 'tool', alt: 'Paper Signal chapter illustration for the workbench', place: 'The workbench' },
   { head: 'What I do now',
     body: 'I’m with the Training-as-a-Service team at Concentrix, turning operational detail into e-learning for teams around the world. I still reach for whatever is new — motion, WebGL, a little AI — on the days it makes the learning land better.',
-    img: '/about/about-concentrix.webp', alt: 'Portrait, present day, at Concentrix', place: 'Concentrix · Training-as-a-Service' }
+    art: 'route', alt: 'Paper Signal chapter illustration for current work', place: 'Concentrix · Training-as-a-Service' }
 ]
-const chapterPathArt = 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/AsqxheXjRYnWHnLi.jpg'
 </script>
 
 <template>
@@ -53,12 +50,12 @@ const chapterPathArt = 'https://files.manuscdn.com/user_upload_by_module/session
     <div class="ab__lede">
       <h2 class="t-display ab__h2 ab__h2--path">From hotel floors to making learning easier</h2>
     </div>
-    <figure class="ab__path-art u-paper-reveal"><img :src="chapterPathArt" alt="A hand-drawn route connecting a service bell, folded map, teaching card, and pencil" loading="eager" decoding="async" /></figure>
+    <EdPaperSignal class="ab__path-art u-paper-reveal" variant="route" label="A Paper Signal career route illustration" />
 
     <ol class="ab__story ab__story--path">
       <li v-for="(c, index) in CHAPTERS" :key="c.head" :class="['ch', index % 2 ? 'ch--even' : 'ch--odd']" :style="{ '--chapter-delay': `${index * 90}ms` }">
         <figure class="ch__fig">
-          <img :src="c.img" :alt="c.alt" loading="lazy" decoding="async" />
+          <EdPaperSignal :variant="c.art" :label="c.alt" />
           <figcaption class="t-mono ch__cap">{{ c.place }}</figcaption>
         </figure>
         <div class="ch__text ed">
@@ -83,28 +80,16 @@ const chapterPathArt = 'https://files.manuscdn.com/user_upload_by_module/session
 .ab__lede { margin: clamp(46rem, 7vw, 84rem) 0 clamp(44rem, 6vw, 76rem); }
 .ab__h2 { font-size: var(--type-display); margin: 0; }.ab__h2--path { animation: about-path-title 720ms var(--ease-expo-out) both; }
 @keyframes about-path-title { from { opacity: 0; transform: translateX(-16rem); clip-path: inset(0 100% 0 0); } to { opacity: 1; transform: none; clip-path: inset(0 0 0 0); } }
-.ab__path-art { margin: 0 0 clamp(68rem, 10vw, 128rem); overflow: hidden; border: var(--stroke) solid var(--line); background: var(--paper-2); }.ab__path-art img { display: block; width: 100%; aspect-ratio: 21 / 9; object-fit: cover; animation: about-route-art 13s var(--ease-in-out) both; }@keyframes about-route-art { from { transform: scale(1.035) translate3d(-.7%, 0, 0); } to { transform: none; } }
+.ab__path-art { min-height: 250rem; margin: 0 0 clamp(68rem, 10vw, 128rem); border: 0; }
 
-.ab__story { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: clamp(68rem, 11vh, 148rem); }.ab__story--path { position: relative; }.ab__story--path::before { content: ''; position: absolute; left: -18rem; top: 8rem; bottom: 12rem; width: 2rem; background: var(--blue); transform-origin: top; animation: about-route-grow 1.2s var(--ease-expo-out) both; }
-@keyframes about-route-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.ab__story { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: clamp(68rem, 11vh, 148rem); }
 
-/* Route Atlas chapters leave the full reading measure intact while offsetting
-   the image and copy around a stable path. The image is an anchor, not a
-   competing second column of prose. */
+/* Paper Signal chapters retain the reading measure and use a quiet visual
+   anchor instead of full-bleed photographs or a decorative route line. */
 .ch { position: relative; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(18rem, 3vw, 42rem); row-gap: clamp(22rem, 3vw, 34rem); }
-.ch::before { content: ''; position: absolute; left: -25rem; top: 14rem; width: 14rem; height: 14rem; border: 3rem solid var(--paper); border-radius: var(--radius-full); background: var(--blue); box-shadow: 0 0 0 2rem var(--ink); }
-.ch--even::before { background: var(--violet); }.ch--odd:nth-child(5)::before { background: var(--yellow); }
 .ch--odd .ch__fig { grid-column: 1 / span 8; }.ch--odd .ch__text { grid-column: 6 / span 7; margin-top: clamp(32rem, 7vw, 100rem); }
 .ch--even .ch__fig { grid-column: 5 / span 8; }.ch--even .ch__text { grid-column: 1 / span 7; margin-top: clamp(32rem, 7vw, 100rem); }
-.ch__fig { margin: 0; }
-.ch__fig img {
-  display: block; width: 100%; height: auto;
-  aspect-ratio: 16 / 9; object-fit: cover;
-  border: var(--stroke) solid var(--line);
-  border-radius: var(--radius-l);
-  background: var(--paper-2);
-  animation: chapter-photo 760ms var(--ease-expo-out) var(--chapter-delay, 0ms) both;
-}
+.ch__fig { margin: 0; animation: chapter-photo 760ms var(--ease-expo-out) var(--chapter-delay, 0ms) both; }.ch__fig :deep(.ps-art) { aspect-ratio: 16 / 9; min-height: 0; }
 .ch__cap { margin: 10rem 0 0; color: var(--muted); }
 
 .ch__text { --ed-text: 640rem; animation: chapter-text 560ms var(--ease-out) calc(var(--chapter-delay, 0ms) + 120ms) both; }
@@ -119,6 +104,6 @@ const chapterPathArt = 'https://files.manuscdn.com/user_upload_by_module/session
   justify-content: space-between;
 }
 .ab__cta { display: flex; flex-wrap: wrap; gap: 12rem; }
-@media (max-width: 680px) { .ab__path-art img { aspect-ratio: 16 / 9; }.ab__story--path::before { left: -12rem; }.ch { display: flex; flex-direction: column; gap: 22rem; }.ch::before { left: -19rem; }.ch--odd .ch__text, .ch--even .ch__text { margin-top: 0; } }
-@media (prefers-reduced-motion: reduce) { .ab__h2--path, .ab__path-art img, .ab__story--path::before, .ch__fig img, .ch__text { animation: none; } }
+@media (max-width: 680px) { .ab__path-art { min-height: 180rem; }.ch { display: flex; flex-direction: column; gap: 22rem; }.ch--odd .ch__text, .ch--even .ch__text { margin-top: 0; } }
+@media (prefers-reduced-motion: reduce) { .ab__h2--path, .ch__fig, .ch__text { animation: none; } }
 </style>

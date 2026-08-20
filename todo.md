@@ -368,3 +368,13 @@
 - [x] Rebuild the homepage as a compact route-led introduction with minimal, elegant sections and purposeful motion.
 - [x] Build smaller light and dark logo preloaders with an approximately three-second visible sequence and a guaranteed completion gate before site reveal.
 - [x] Validate desktop/mobile layout, theme behaviour, preloader timing and handoff, reduced motion, navigation access, and production build; then push to `main`.
+
+## Paper Signal visual-system migration
+
+- [x] Audit every non-brand image, emoji, pictographic glyph, external visual asset, repeated icon, and decorative animation across public pages and learning modules.
+- [x] Run the requested content-gap and SimilarWeb baseline research, recording evidence and any data limitations without inventing metrics.
+- [x] Establish shared Paper Signal tokens, components, icon rules, asset guidance, and an automated prohibition check for emoji and nonconforming visual assets.
+- [x] Rebuild the homepage and global chrome with the approved Paper Signal composition and remove obsolete Route Atlas imagery, paths, tiles, and duplicated content.
+- [x] Replace public-page and course visuals with original Paper Signal illustrations, diagrams, or purpose-built Manim explanatory assets where motion adds instructional value.
+- [x] Rebuild the preloader and first-paint fallback as a smaller light/dark Paper Signal sequence with an approximately three-second gated handoff.
+- [x] Validate light/dark, desktop/mobile, keyboard navigation, reduced motion, image-source compliance, emoji prohibition, production build, and visual consistency before pushing to `main`.

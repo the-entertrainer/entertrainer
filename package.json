@@ -10,7 +10,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "gifs": "node scripts/prefetch-gifs.mjs"
+    "gifs": "node scripts/prefetch-gifs.mjs",
+    "check:paper-signal": "node scripts/check-paper-signal.mjs"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",

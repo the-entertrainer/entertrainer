@@ -50,23 +50,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
       <div class="mh__end">
         <button type="button" class="mh__icon" @click="theme.toggle()"
                 :aria-label="`Switch to ${theme.theme === 'dark' ? 'light' : 'dark'} mode`">
-          <svg v-if="theme.theme === 'dark'" viewBox="0 0 24 24" width="17" height="17" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="4" /><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4" />
-          </svg>
-          <svg v-else viewBox="0 0 24 24" width="17" height="17" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />
-          </svg>
+          <EdSignalIcon :name="theme.theme === 'dark' ? 'sun' : 'moon'" />
         </button>
 
         <button ref="btn" type="button" class="mh__icon mh__icon--menu" @click="open = !open"
                 :aria-expanded="open" aria-controls="mh-sheet"
                 :aria-label="open ? 'Close menu' : 'Open menu'">
-          <svg v-if="!open" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
-          <svg v-else viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+          <EdSignalIcon :name="open ? 'close' : 'menu'" />
         </button>
       </div>
     </div>
@@ -80,8 +70,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         <NuxtLink v-for="l in NAV" :key="l.href" :to="l.href" class="mh__sheet-link"
                   :aria-current="isCurrent(l.href) ? 'page' : undefined">
           <span>{{ l.label }}</span>
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          <EdSignalIcon name="external" />
         </NuxtLink>
       </div>
     </div>
@@ -113,7 +102,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 .mh__brand { display: inline-flex; flex: none; }
 .mh__brand :deep(svg) { transition: transform var(--dur-mid) var(--ease-spring); }
-@media (hover: hover) { .mh__brand:hover :deep(svg) { transform: translateY(-1rem) rotate(-1.5deg); } }
+@media (hover: hover) { .mh__brand:hover :deep(svg) { transform: translateY(-1rem); } }
 
 .mh__nav { margin-left: auto; display: flex; align-items: center; gap: clamp(4rem, 1.2vw, 14rem); }
 .mh__link {
@@ -121,15 +110,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   padding: 8rem 10rem;
   font-size: 15rem; font-weight: 600;
   color: var(--ink);
-  border-radius: var(--radius-s);
+  border-radius: 0;
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
-@media (hover: hover) { .mh__link:hover { background: var(--paper-2); color: var(--blue); } }
+@media (hover: hover) { .mh__link:hover { background: var(--signal-field); color: var(--ink); } }
 /* The active section receives a short section of the same route line used in
    the Home atlas; it orients without adding a badge or a second label. */
 .mh__link[aria-current="page"]::after {
   content: ''; position: absolute; left: 10rem; right: 10rem; bottom: 2rem;
-  height: 3rem; background: linear-gradient(90deg, var(--violet), var(--blue)); border-radius: 2rem;
+  width: 8rem; right: auto; height: 8rem; background: var(--signal-cobalt); border-radius: 50%;
   transform-origin: left; animation: nav-route 460ms var(--ease-expo-out) both;
 }
 @keyframes nav-route { from { transform: scaleX(0); } to { transform: scaleX(1); } }
@@ -139,11 +128,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   width: 40rem; height: 40rem; flex: none;
   display: inline-flex; align-items: center; justify-content: center;
   border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-full);
+  border-radius: 0;
   background: var(--paper); color: var(--ink);
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring);
 }
-@media (hover: hover) { .mh__icon:hover { background: var(--yellow); color: var(--on-yellow); } }
+@media (hover: hover) { .mh__icon:hover { background: var(--signal-field); color: var(--ink); } }
 .mh__icon:active { transform: scale(.94); }
 .mh__icon svg { transition: transform var(--dur-mid) var(--ease-spring), opacity var(--dur-fast) var(--ease-out); }
 .mh__icon--menu[aria-expanded="true"] svg { transform: rotate(90deg) scale(.88); }

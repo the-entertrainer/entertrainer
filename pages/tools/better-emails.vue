@@ -355,7 +355,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
           <div class="be-card-header">
             <span class="glass-label be-card-label">Subject Line</span>
             <button class="glass-chip" :class="{ copied: copiedSubject }" @click="copySubject">
-              {{ copiedSubject ? 'Copied ✓' : 'Copy' }}
+              {{ copiedSubject ? 'Copied' : 'Copy' }}
             </button>
           </div>
           <p class="be-card-text be-subject">{{ subject }}</p>
@@ -366,10 +366,10 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
             <span class="glass-label be-card-label">Email Body</span>
             <div class="be-copy-group">
               <button class="glass-chip" :class="{ copied: copiedBody }" @click="copyBody">
-                {{ copiedBody ? 'Copied ✓' : 'Copy body' }}
+                {{ copiedBody ? 'Copied' : 'Copy body' }}
               </button>
               <button class="glass-chip" :class="{ copied: copiedFull }" @click="copyFull">
-                {{ copiedFull ? 'Copied ✓' : 'Copy full email' }}
+                {{ copiedFull ? 'Copied' : 'Copy full email' }}
               </button>
             </div>
           </div>

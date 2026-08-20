@@ -138,7 +138,7 @@ async function copy(text: string, i: number) {
           <span class="dg-result-letter">{{ ['A', 'B', 'C'][i] }}</span>
           <span class="dg-result-text">{{ d }}</span>
           <button class="glass-chip dg-copy" @click="copy(d, i)" :aria-label="'Copy distractor ' + ['A','B','C'][i]">
-            {{ copied === i ? '✓' : 'Copy' }}
+            {{ copied === i ? 'Copied' : 'Copy' }}
           </button>
         </div>
       </div>

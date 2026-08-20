@@ -80,7 +80,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     >
       <div class="cs__facts">
         <button class="cs__cover" @click="open(0, $event)" aria-label="Enlarge the cover">
-          <img src="/work/sewa/cover.webp" alt="The SEWA Chronicles cover" width="1400" height="1980" />
+          <EdPaperSignal variant="project" label="Paper Signal cover artefact for The SEWA Chronicles" />
         </button>
         <dl class="cs__meta">
           <div v-for="m in meta" :key="m.k">
@@ -110,7 +110,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <li v-for="(p, i) in pages" :key="p.src" class="u-reveal">
           <button class="sheet" @click="open(i, $event)" :aria-label="`Enlarge: ${p.cap}`">
             <span class="sheet__plate">
-              <img :src="`/work/sewa/${p.src}.webp`" :alt="p.alt" loading="lazy" decoding="async" width="1400" height="1980" />
+              <EdPaperSignal :variant="i % 2 ? 'evidence' : 'project'" :label="p.alt" />
             </span>
             <span class="sheet__cap">
               <strong>{{ p.cap }}</strong>
@@ -124,8 +124,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <footer class="cs__foot">
       <p class="t-hand">Learning people actually want to finish — that's the whole idea.</p>
       <div class="cs__links">
-        <NuxtLink to="/my-work" class="ticket ticket--ghost">← All work</NuxtLink>
-        <NuxtLink to="/tools" class="ticket">See the tools I build →</NuxtLink>
+        <NuxtLink to="/my-work" class="ticket ticket--ghost">All work</NuxtLink>
+        <NuxtLink to="/tools" class="ticket">See the tools I build <EdSignalIcon name="arrow" /></NuxtLink>
       </div>
     </footer>
 
@@ -140,7 +140,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7" /></svg>
         </button>
         <figure class="lb__fig">
-          <img :src="`/work/sewa/${pages[lightbox].src}.webp`" :alt="pages[lightbox].alt" />
+          <EdPaperSignal variant="project" :label="pages[lightbox].alt" />
           <figcaption class="t-mono">{{ pages[lightbox].cap }} · {{ pages[lightbox].tag }}</figcaption>
         </figure>
         <button class="lb__nav lb__nav--next" aria-label="Next page" @click.stop="step(1)">
@@ -165,7 +165,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) { .cs__cover:hover {   } }
-.cs__cover img { display: block; width: 100%; height: auto; }
+.cs__cover :deep(.ps-art) { min-height: 300rem; aspect-ratio: 5 / 7; }
 
 .cs__meta {
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -199,7 +199,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) { .sheet:hover .sheet__plate {   } }
-.sheet__plate img { display: block; width: 100%; height: auto; }
+.sheet__plate :deep(.ps-art) { min-height: 0; aspect-ratio: 5 / 7; }
 .sheet__cap { display: flex; flex-direction: column; gap: 4rem; }
 .sheet__cap strong { font-size: 16rem; font-weight: 700; }
 .sheet__tag { color: var(--muted); }
@@ -221,10 +221,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   background: color-mix(in srgb, var(--ink) 88%, transparent);
 }
 .lb__fig { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 12rem; min-width: 0; }
-.lb__fig img {
-  max-width: 100%; max-height: 78vh; object-fit: contain;
-  border: var(--stroke) solid var(--paper); border-radius: var(--radius-s); background: var(--paper);
-}
+.lb__fig :deep(.ps-art) { width: min(100%, 620rem); max-height: 78vh; aspect-ratio: 5 / 7; border: var(--stroke) solid var(--paper); }
 .lb__fig figcaption { color: var(--paper); }
 .lb__close {
   position: absolute; top: clamp(14rem, 3vw, 26rem); right: clamp(14rem, 3vw, 26rem);

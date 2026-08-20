@@ -711,8 +711,7 @@ onUnmounted(() => {
             @keydown.enter="openProject(p.id)"
           >
             <div class="sg-proj__thumb">
-              <img v-if="p.thumb" :src="p.thumb" alt="">
-              <ToolsStoryBrandMark v-else :size="40" class="sg-proj__thumb-fallback" />
+              <ToolsStoryBrandMark :size="40" class="sg-proj__thumb-fallback" />
             </div>
             <div class="sg-proj__meta">
               <strong>{{ p.title || 'Untitled Storyboard' }}</strong>
@@ -750,7 +749,7 @@ onUnmounted(() => {
         <span class="sg-wordmark__text">Story<em>Gen</em></span>
       </button>
       <input v-model="projectTitle" class="sg-title" placeholder="Untitled Storyboard" aria-label="Project title">
-      <span class="sg-saved" :class="{ 'sg-saved--on': savedFlash }">● Saved</span>
+      <span class="sg-saved" :class="{ 'sg-saved--on': savedFlash }">Saved</span>
 
       <button class="sg-tool sg-tool--wide sg-model-chip sg-desktop-only" title="Switch framework" @click="modelPicker = 'switch'">
         {{ activeModel.label }}

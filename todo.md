@@ -355,3 +355,9 @@
 - [x] Replace the editorial-workspace preloader scene with a finite logo-led Entertrainer signal sequence.
 - [x] Align the static first-paint template and Vue preloader with the same five-bar visual story and reduced-motion state.
 - [x] Validate the visible hold, handoff, desktop/mobile composition, accessibility, and production build; then push the preloader update to `main`.
+
+## Minimal logo-led preloader revision
+
+- [x] Remove orbit lines, route curves, sparks, and any other decorative geometry from the logo preloader.
+- [x] Retain only the animated five-bar mark, its supporting shadow, understated light treatment, and brand name in both loading states.
+- [x] Validate the simplified animation, finite handoff, reduced-motion state, and production build; then push the revision to `main`.

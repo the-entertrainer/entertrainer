@@ -336,3 +336,9 @@
 - [x] Define a LottieFiles motion-design skill-informed choreography for forward and backward card travel, including anticipation, staged secondary layers, and a gentle physical landing.
 - [x] Implement smoother direction-aware card-stack transitions in both learning modules while retaining immediate keyboard focus and no duplicate interactive content.
 - [x] Validate desktop/mobile transition quality, navigation timing, reduced motion, accessibility, and production build; then push to `main`.
+
+## Homepage moving-tile art layer
+
+- [x] Add a restrained, Route Atlas-aligned moving-tile layer to the homepage art using compositor-friendly motion.
+- [x] Ensure the tile treatment stays decorative, responsive, and fully disabled for reduced-motion preferences.
+- [x] Validate the homepage at desktop and mobile widths, then commit and push the update to `main`.

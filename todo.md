@@ -342,3 +342,10 @@
 - [x] Add a restrained, Route Atlas-aligned moving-tile layer to the homepage art using compositor-friendly motion.
 - [x] Ensure the tile treatment stays decorative, responsive, and fully disabled for reduced-motion preferences.
 - [x] Validate the homepage at desktop and mobile widths, then commit and push the update to `main`.
+
+## Animated logo and icon-system refresh
+
+- [x] Audit the shared wordmark, preloader mark, favicon, browser manifest icons, application metadata, and repeated interface icons for inconsistent branding.
+- [x] Build one Route Atlas-derived animated Entertrainer logo treatment with a complete reduced-motion state.
+- [x] Update browser-facing icons and shared interface symbols to use the unified visual system at the correct sizes and formats.
+- [x] Validate logo motion, favicon/app-icon metadata, contrast, keyboard usability, reduced motion, and production build; then push the refresh to `main`.

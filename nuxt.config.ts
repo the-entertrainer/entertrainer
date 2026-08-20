@@ -33,6 +33,7 @@ export default defineNuxtConfig({
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'Entertrainer' },
         { name: 'msapplication-TileColor', content: '#2C2BE8' },
+		{ name: 'msapplication-TileImage', content: '/mstile-150x150.png' },
         // Open Graph / Twitter — social share preview.
         { property: 'og:type', content: 'website' },
         { property: 'og:site_name', content: 'Entertrainer' },
@@ -54,6 +55,7 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+		{ rel: 'mask-icon', href: '/safari-pinned-tab.svg', color: '#315FC7' },
         // Two preloads. Archivo sets every interface string and Fraunces
         // sets the headline, so those two are on the critical path for the
         // first screen; the reading serif, the mono and every latin-ext cut
@@ -88,10 +90,11 @@ export default defineNuxtConfig({
       orientation: 'any',
       scope: '/',
       start_url: '/',
-      icons: [
-        { src: '/pwa-192.png', sizes: '192x192', type: 'image/png' },
-        { src: '/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
-      ],
+		icons: [
+		  { src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+		  { src: '/pwa-192.png', sizes: '192x192', type: 'image/png' },
+		  { src: '/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+		],
       shortcuts: [
         {
           name: 'StoryGen — Storyboard Studio',

@@ -378,3 +378,12 @@
 - [x] Replace public-page and course visuals with original Paper Signal illustrations, diagrams, or purpose-built Manim explanatory assets where motion adds instructional value.
 - [x] Rebuild the preloader and first-paint fallback as a smaller light/dark Paper Signal sequence with an approximately three-second gated handoff.
 - [x] Validate light/dark, desktop/mobile, keyboard navigation, reduced motion, image-source compliance, emoji prohibition, production build, and visual consistency before pushing to `main`.
+
+## Contextual Paper Signal corrective pass
+
+- [x] Audit the repeated-card failure and document a scene-by-scene visual brief so every illustration explains a specific page or learning concept.
+- [x] Create distinct Paper Signal illustrations for the homepage, work, tools, About, and both course narratives; prohibit generic text-line-card reuse outside its explicit explanatory context.
+- [x] Rebuild homepage spacing, type scale, responsive hierarchy, interaction details, and motion so the mobile and desktop composition has deliberate editorial rhythm.
+- [x] Rebuild the light and dark preloaders with a detailed three-second mark assembly, light pass, wordmark reveal, and fully gated page handoff.
+- [x] Validate individual illustrations for semantic fit and visual variation; remove or revise every repeated or generic surface found during review.
+- [x] Validate visual quality at desktop and mobile widths, light/dark themes, motion/reduced motion, keyboard operation, console health, and production build before pushing to `main`.

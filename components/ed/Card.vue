@@ -4,8 +4,8 @@ import type { EditorialItem } from '~/content/editorial'
 /**
  * A story card.
  *
- * Four variants, one object. Every non-brand preview uses the same Paper
- * Signal illustration rather than a photograph or unrelated card artwork.
+ * Four layout variants, one object. Every non-brand preview uses a Paper
+ * Signal scene selected for the item’s actual subject—not a generic category.
  *
  * The whole card is one link. A card with a title link and a separate "Open"
  * link is two tab stops and two targets for one destination.
@@ -20,13 +20,16 @@ const props = withDefaults(defineProps<{
 }>(), { variant: 'standard', chip: 'both' })
 
 const hasArt = computed(() => props.variant !== 'compact')
-const signalVariant = computed(() => {
-  if (props.item.category === 'practice') return 'lesson'
-  if (props.item.category === 'projects') return 'project'
-  if (props.item.category === 'tools') return 'tool'
-  if (props.item.category === 'story') return 'evidence'
-  return 'process'
-})
+const itemScene: Record<string, 'hero' | 'lesson' | 'project' | 'tool' | 'process' | 'evidence' | 'robot' | 'infrastructure' | 'profile' | 'route'> = {
+  'ai-atlas': 'robot',
+  'sewa-chronicles': 'project',
+  'better-emails': 'tool',
+  'easymcq': 'evidence',
+  'storygen': 'project',
+  'glass-lab': 'infrastructure',
+  'instructional-design': 'process'
+}
+const signalVariant = computed(() => itemScene[props.item.id] ?? (props.item.category === 'practice' ? 'lesson' : props.item.category === 'tools' ? 'tool' : props.item.category === 'story' ? 'evidence' : 'profile'))
 </script>
 
 <template>

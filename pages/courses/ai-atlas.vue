@@ -32,9 +32,9 @@ const quizChoice = ref<string | null>(null)
 const plan = reactive({ task: '', check: '', reviewer: '' })
 
 const media = {
-  cover: 'route', turing: 'evidence', eniac: 'evidence', earlyBench: 'project', signalBoard: 'process',
-  patternCards: 'lesson', context: 'process', fieldKit: 'tool', astrobee: 'evidence', evaluation: 'process',
-  serverRoom: 'project', responsible: 'evidence'
+  cover: 'hero', turing: 'evidence', eniac: 'infrastructure', earlyBench: 'project', signalBoard: 'process',
+  patternCards: 'project', context: 'route', fieldKit: 'tool', astrobee: 'robot', evaluation: 'evidence',
+  serverRoom: 'infrastructure', responsible: 'evidence'
 } as const
 
 const videos = {
@@ -221,7 +221,7 @@ onMounted(() => {
       <Transition :name="`ai-stack-${motionDirection}`">
       <article :key="screenIndex" class="ai-screen" :class="{ 'ai-screen--cover': currentScreen.kind === 'cover' }">
         <template v-if="currentScreen.kind === 'cover'">
-          <EdPaperSignal class="ai-cover" variant="route" label="A Paper Signal course cover with one cobalt AI route cue" />
+          <EdPaperSignal class="ai-cover" variant="hero" label="Working notes, a clarified learning brief, and a useful browser tool assembled into one Paper Signal AI course cover" />
           <div class="ai-cover__copy"><p class="ai-eyebrow">Beginner module · 35–45 minutes</p><h1 ref="screenHeading" tabindex="-1">{{ currentScreen.title }}</h1><p>{{ currentScreen.body[0] }}</p></div>
         </template>
 

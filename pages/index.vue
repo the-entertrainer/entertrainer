@@ -1,68 +1,78 @@
 <script setup lang="ts">
 /**
- * Paper Signal homepage.
- * Design reminder: the homepage is a concise chooser—one statement, three
- * directions, and two proof points. Every non-brand visual uses Paper Signal.
+ * Design contract — Paper Signal editorial homepage.
+ * Hero first: clear point of view, one contextual scene, then a compact set of
+ * choices. Every illustration explains a nearby subject; none is filler.
  */
 import { ITEMS } from '~/content/editorial'
 
 useSeoMeta({
   title: 'Entertrainer — Lessons, projects, and free tools by Naveen Jose',
-  description: 'Naveen Jose makes lessons, projects, and free tools that make complicated work easier to understand.',
+  description: 'Naveen Jose makes lessons, projects, and small tools that make complicated work easier to understand.',
   ogTitle: 'Entertrainer — Lessons, projects, and free tools by Naveen Jose',
   ogDescription: 'Lessons, projects, and free tools that make complicated work easier to understand.',
   ogUrl: 'https://entertrainer.in/'
 })
 
 const routes = [
-  { number: '01', title: 'Lessons', body: 'Short, practical learning experiences for people who are new to the subject.', href: '/lessons', action: 'See lessons', visual: 'lesson' },
-  { number: '02', title: 'Projects', body: 'Courses, comics, and explainers made to solve a real communication problem.', href: '/my-work', action: 'See projects', visual: 'project' },
-  { number: '03', title: 'Free tools', body: 'Small browser tools for planning, writing, quiz-making, and clearer work.', href: '/tools', action: 'Use a tool', visual: 'tool' }
+  { number: '01', title: 'Lessons', body: 'Short learning experiences that turn an unfamiliar topic into a clear next step.', href: '/lessons', action: 'Explore lessons', visual: 'lesson' },
+  { number: '02', title: 'Projects', body: 'Courses, comics, and explainers built around the actual communication problem.', href: '/my-work', action: 'Browse projects', visual: 'project' },
+  { number: '03', title: 'Free tools', body: 'Small browser tools for planning, writing, quiz-making, and clearer work.', href: '/tools', action: 'Open tools', visual: 'tool' }
 ] as const
 
 const selectedWork = computed(() => ITEMS.filter(item => ['ai-atlas', 'sewa-chronicles'].includes(item.id)))
-const workVisual: Record<string, 'process' | 'evidence'> = { 'ai-atlas': 'process', 'sewa-chronicles': 'evidence' }
+const workVisual: Record<string, 'process' | 'project'> = { 'ai-atlas': 'process', 'sewa-chronicles': 'project' }
 </script>
 
 <template>
   <EdShell width="wide">
     <header class="home-hero" aria-labelledby="home-title">
-      <div class="home-hero__copy">
+      <div class="home-hero__intro">
         <p class="home-hero__kicker t-mono">Entertrainer · Naveen Jose</p>
         <h1 id="home-title" class="home-hero__title t-display">I make complicated work easier to understand.</h1>
         <p class="home-hero__deck">I make lessons, projects, and small tools for people who need a clearer way into difficult work.</p>
         <div class="home-hero__actions">
-          <NuxtLink to="/instructional-design" class="ticket">Start a short lesson <EdSignalIcon name="arrow" /></NuxtLink>
-          <NuxtLink to="/my-work" class="home-hero__secondary u-underline">Browse my work</NuxtLink>
+          <NuxtLink to="/instructional-design" class="ticket home-hero__primary">Start a short lesson <EdSignalIcon name="arrow" /></NuxtLink>
+          <NuxtLink to="/my-work" class="home-hero__secondary">Browse my work</NuxtLink>
         </div>
       </div>
-      <EdPaperSignal class="home-hero__art" variant="route" label="A Paper Signal route card with three black rules and a cobalt route signal" />
+
+      <div class="home-hero__scene">
+        <EdPaperSignal class="home-hero__art" variant="hero" label="Working notes, a clarified learning brief, and a useful browser tool assembled into one Paper Signal scene" />
+        <p class="home-hero__caption t-mono"><span />From working notes to something people can use</p>
+      </div>
+
+      <aside class="home-hero__index" aria-label="Areas of work">
+        <p class="t-mono">Three ways in</p>
+        <ol><li>Learn</li><li>See the work</li><li>Use a tool</li></ol>
+      </aside>
     </header>
 
     <section class="directions" aria-labelledby="directions-title">
-      <div class="section-head"><p class="section-head__label t-mono">Choose a direction</p><h2 id="directions-title" class="section-head__title t-display">Start here.</h2></div>
-      <ul class="route-list">
-        <li v-for="route in routes" :key="route.title">
-          <NuxtLink :to="route.href" class="route-list__item">
-            <span class="route-list__number t-mono">{{ route.number }}</span>
-            <span class="route-list__marker" aria-hidden="true" />
-            <span class="route-list__title t-display">{{ route.title }}</span>
-            <span class="route-list__body">{{ route.body }}</span>
-            <span class="route-list__action">{{ route.action }} <EdSignalIcon name="arrow" /></span>
+      <div class="section-head">
+        <p class="section-head__label t-mono">Choose a direction</p>
+        <h2 id="directions-title" class="section-head__title t-display">Start with what you need.</h2>
+      </div>
+      <ul class="route-grid">
+        <li v-for="(route, index) in routes" :key="route.title" :style="{ '--card-delay': `${index * 80}ms` }">
+          <NuxtLink :to="route.href" class="route-card">
+            <span class="route-card__top"><span class="route-card__number t-mono">{{ route.number }}</span><EdSignalIcon name="arrow" /></span>
+            <EdPaperSignal class="route-card__art" :variant="route.visual" label="" />
+            <span class="route-card__title t-display">{{ route.title }}</span>
+            <span class="route-card__body">{{ route.body }}</span>
+            <span class="route-card__action">{{ route.action }}</span>
           </NuxtLink>
         </li>
       </ul>
     </section>
 
     <section class="selected" aria-labelledby="selected-title">
-      <div class="section-head section-head--split"><div><p class="section-head__label t-mono">A few things I made</p><h2 id="selected-title" class="section-head__title t-display">Selected work</h2></div><NuxtLink to="/my-work" class="section-head__link u-underline">See all projects</NuxtLink></div>
+      <div class="section-head section-head--split"><div><p class="section-head__label t-mono">A few things I made</p><h2 id="selected-title" class="section-head__title t-display">Selected work</h2></div><NuxtLink to="/my-work" class="section-head__link">See all projects <EdSignalIcon name="arrow" /></NuxtLink></div>
       <ul class="work-list">
         <li v-for="item in selectedWork" :key="item.id">
           <NuxtLink :to="item.href" class="work-list__item">
             <EdPaperSignal class="work-list__art" :variant="workVisual[item.id]" label="" />
-            <span class="work-list__meta t-mono">{{ item.stamp }}</span>
-            <span class="work-list__title t-display">{{ item.title }}</span>
-            <span class="work-list__dek">{{ item.dek }}</span>
+            <span class="work-list__content"><span class="work-list__meta t-mono">{{ item.stamp }}</span><span class="work-list__title t-display">{{ item.title }}</span><span class="work-list__dek">{{ item.dek }}</span></span>
             <EdSignalIcon class="work-list__action" name="external" />
           </NuxtLink>
         </li>
@@ -72,13 +82,17 @@ const workVisual: Record<string, 'process' | 'evidence'> = { 'ai-atlas': 'proces
 </template>
 
 <style scoped>
-/* Paper Signal homepage: a pale field, white panels, black rules, one cobalt cue, and no decorative raster art. */
-.home-hero { display: grid; grid-template-columns: minmax(0, .94fr) minmax(320rem, .7fr); align-items: center; gap: clamp(36rem, 8vw, 126rem); min-height: min(610rem, calc(100dvh - 83rem)); padding: clamp(58rem, 8vw, 108rem) 0 clamp(64rem, 8vw, 102rem); border-bottom: var(--stroke) solid var(--line); }.home-hero__copy { max-width: 620rem; }.home-hero__kicker, .section-head__label { margin: 0; color: var(--muted); font-size: 11rem; letter-spacing: .11em; text-transform: uppercase; }.home-hero__kicker { animation: hero-kicker 420ms var(--ease-out) both; }.home-hero__title { max-width: 9ch; margin: 16rem 0 20rem; font-size: clamp(52rem, 6.5vw, 100rem); line-height: .91; letter-spacing: -.025em; animation: hero-title 680ms var(--ease-expo-out) 70ms both; }.home-hero__deck { max-width: 43ch; margin: 0; color: var(--muted); font-family: var(--font-reading); font-size: clamp(18rem, 1.5vw, 21rem); line-height: 1.55; animation: hero-copy 520ms var(--ease-out) 160ms both; }.home-hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20rem; margin-top: 30rem; animation: hero-copy 520ms var(--ease-out) 240ms both; }.ticket :deep(.ps-icon) { margin-left: 1rem; }.home-hero__secondary { color: var(--ink); font-size: 15rem; font-weight: 700; }.home-hero__art { aspect-ratio: 5 / 4; min-height: 0; max-height: 410rem; border: 0; animation: art-arrive 680ms var(--ease-expo-out) 120ms both; }
-.directions, .selected { padding: clamp(56rem, 7vw, 94rem) 0; border-bottom: var(--stroke) solid var(--line); }.section-head { display: flex; align-items: end; justify-content: space-between; gap: 24rem; margin-bottom: 28rem; }.section-head__title { margin: 10rem 0 0; font-size: clamp(40rem, 4.4vw, 64rem); line-height: .95; }.section-head__link { color: var(--ink); font-size: 15rem; font-weight: 700; white-space: nowrap; }.route-list, .work-list { list-style: none; margin: 0; padding: 0; border-top: var(--stroke) solid var(--signal-rule); }.route-list__item { display: grid; grid-template-columns: 44rem 14rem minmax(145rem, .7fr) minmax(0, 1.3fr) auto; align-items: center; gap: 18rem; padding: 22rem 0; color: var(--ink); border-bottom: var(--stroke) solid var(--line); transition: padding var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out); }.route-list__number, .work-list__meta { color: var(--muted); font-size: 11rem; letter-spacing: .08em; }.route-list__marker { width: 10rem; height: 10rem; background: var(--signal-cobalt); border-radius: 50%; transition: transform var(--dur-fast) var(--ease-out); }.route-list__title { font-size: clamp(28rem, 2.7vw, 40rem); line-height: 1; }.route-list__body, .work-list__dek { max-width: 48ch; color: var(--muted); font-family: var(--font-reading); line-height: 1.5; }.route-list__action { display: inline-flex; align-items: center; gap: 7rem; font-size: 14rem; font-weight: 750; white-space: nowrap; }.route-list__action :deep(.ps-icon) { color: var(--signal-cobalt); transition: transform var(--dur-fast) var(--ease-out); }
-.work-list__item { display: grid; grid-template-columns: 150rem 130rem minmax(170rem, .8fr) minmax(0, 1.25fr) 22rem; align-items: center; gap: 24rem; padding: 24rem 0; color: var(--ink); border-bottom: var(--stroke) solid var(--line); transition: padding var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out); }.work-list__art { min-height: 96rem; width: 150rem; }.work-list__art :deep(.ps-art__paper) { min-height: 56rem; padding: 10rem 12rem; box-shadow: 7rem 7rem 0 var(--signal-sheet); }.work-list__art :deep(.ps-art__rule) { left: 12rem; height: 1rem; }.work-list__art :deep(.ps-art__rule--one) { top: 18rem; }.work-list__art :deep(.ps-art__rule--two) { top: 32rem; }.work-list__art :deep(.ps-art__rule--three) { top: 46rem; }.work-list__art :deep(.ps-art__signal) { right: 12rem; bottom: 12rem; width: 17rem; height: 17rem; }.work-list__title { font-size: clamp(28rem, 3vw, 44rem); line-height: .98; }.work-list__action { color: var(--signal-cobalt); transition: transform var(--dur-fast) var(--ease-out); }
-@media (hover: hover) { .route-list__item:hover, .work-list__item:hover { padding-left: 8rem; background: var(--signal-field); }.route-list__item:hover .route-list__marker { transform: translateX(4rem); }.route-list__item:hover :deep(.ps-icon), .work-list__item:hover .work-list__action { transform: translateX(4rem); } }.route-list__item:focus-visible, .work-list__item:focus-visible { outline: 2rem solid var(--focus); outline-offset: -2rem; }
-@keyframes hero-kicker { from { opacity: 0; transform: translateX(-8rem); } to { opacity: 1; transform: none; } } @keyframes hero-title { from { opacity: 0; transform: translateY(16rem); } to { opacity: 1; transform: none; } } @keyframes hero-copy { from { opacity: 0; transform: translateY(10rem); } to { opacity: 1; transform: none; } } @keyframes art-arrive { from { opacity: 0; transform: translateY(14rem) scale(.98); } to { opacity: 1; transform: none; } }
-@media (max-width: 820px) { .home-hero { grid-template-columns: minmax(0, 1fr); min-height: auto; gap: 38rem; }.home-hero__title { max-width: 10ch; }.home-hero__art { width: min(100%, 580rem); aspect-ratio: 16 / 10; max-height: none; }.route-list__item { grid-template-columns: 42rem 12rem minmax(130rem, .7fr) minmax(0, 1.3fr); }.route-list__action { grid-column: 3 / -1; }.work-list__item { grid-template-columns: 132rem minmax(150rem, .8fr) minmax(0, 1.2fr) 22rem; }.work-list__meta { grid-column: 2 / -1; }.work-list__art { grid-row: 1 / span 3; width: 132rem; } }
-@media (max-width: 560px) { .home-hero { padding-top: 48rem; padding-bottom: 60rem; }.home-hero__title { font-size: clamp(48rem, 14vw, 66rem); }.home-hero__actions { gap: 16rem; }.directions, .selected { padding: 52rem 0; }.section-head { align-items: flex-start; flex-direction: column; gap: 14rem; }.route-list__item { grid-template-columns: 30rem 12rem minmax(0, 1fr) auto; gap: 12rem; padding: 22rem 0; }.route-list__number { grid-column: 1; }.route-list__marker { grid-column: 2; }.route-list__title { grid-column: 3; }.route-list__body, .route-list__action { grid-column: 3 / -1; }.work-list__item { grid-template-columns: 100rem minmax(0, 1fr) 20rem; gap: 12rem; padding: 20rem 0; }.work-list__art { grid-row: 1 / span 3; width: 100rem; min-height: 80rem; }.work-list__meta { grid-column: 2 / -1; }.work-list__title { grid-column: 2; font-size: 31rem; }.work-list__dek { grid-column: 2 / -1; }.work-list__action { grid-column: 3; grid-row: 2; }.work-list__art :deep(.ps-art__paper) { width: 68%; } }
-@media (prefers-reduced-motion: reduce) { .home-hero__kicker, .home-hero__title, .home-hero__deck, .home-hero__actions, .home-hero__art { animation: none; }.route-list__item, .work-list__item, .route-list__marker, .route-list__action :deep(.ps-icon), .work-list__action { transition: none; } }
+/* Paper Signal homepage: editorial hierarchy, intentional whitespace, and one scene per proposition. */
+.home-hero { position: relative; display: grid; grid-template-columns: minmax(0, .94fr) minmax(360rem, .86fr); column-gap: clamp(44rem, 8vw, 132rem); row-gap: 26rem; min-height: min(680rem, calc(100dvh - 76rem)); padding: clamp(62rem, 9vw, 132rem) 0 clamp(70rem, 9vw, 122rem); border-bottom: 1rem solid var(--line); }.home-hero__intro { align-self: center; max-width: 620rem; }.home-hero__kicker, .section-head__label { margin: 0; color: var(--muted); font-size: 11rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }.home-hero__title { max-width: 9ch; margin: 18rem 0 24rem; font-size: clamp(54rem, 6.45vw, 104rem); letter-spacing: -.045em; line-height: .89; }.home-hero__deck { max-width: 43ch; margin: 0; color: var(--muted); font-family: var(--font-reading); font-size: clamp(18rem, 1.55vw, 22rem); line-height: 1.52; }.home-hero__actions { display:flex; align-items:center; flex-wrap:wrap; gap:24rem; margin-top:34rem; }.home-hero__primary { min-height: 52rem; padding-inline: 25rem; }.home-hero__primary :deep(.ps-icon), .section-head__link :deep(.ps-icon) { margin-left: 7rem; }.home-hero__secondary { color: var(--ink); font-size:16rem; font-weight:750; text-decoration: none; border-bottom:2rem solid var(--ink); padding-bottom: 3rem; }.home-hero__scene { align-self: center; min-width:0; }.home-hero__art { min-height: 0; aspect-ratio: 1.23; border: 1rem solid var(--signal-rule); box-shadow: 14rem 14rem 0 var(--signal-sheet); }.home-hero__caption { display:flex; align-items:center; gap:8rem; margin:16rem 0 0; color:var(--muted); font-size:10rem; letter-spacing:.04em; }.home-hero__caption span { display:block; width:28rem; height:2rem; background:var(--signal-cobalt); }.home-hero__index { grid-column: 1 / -1; display:grid; grid-template-columns: 1fr 2.08fr; gap:clamp(20rem, 5vw, 86rem); margin-top: clamp(6rem, 2vw, 24rem); padding-top: 18rem; border-top:1rem solid var(--line); }.home-hero__index p { margin:0; color:var(--muted); font-size:10rem; text-transform:uppercase; letter-spacing:.1em; }.home-hero__index ol { display:flex; gap:clamp(24rem, 6vw, 90rem); margin:0; padding:0; list-style:none; color:var(--ink); font-family:var(--font-reading); font-size:16rem; }.home-hero__index li::before { content: counter(list-item, decimal-leading-zero); margin-right:8rem; color:var(--signal-cobalt); font:700 10rem var(--font-mono); }
+
+.directions, .selected { padding: clamp(70rem, 9vw, 128rem) 0; border-bottom:1rem solid var(--line); }.section-head { max-width:670rem; margin-bottom:clamp(34rem, 5vw, 62rem); }.section-head__title { max-width: 11ch; margin:13rem 0 0; font-size:clamp(42rem, 5vw, 76rem); letter-spacing:-.04em; line-height:.92; }.route-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:clamp(16rem, 2.4vw, 34rem); margin:0; padding:0; list-style:none; }.route-card { position:relative; display:flex; flex-direction:column; align-items:flex-start; min-height: 100%; padding:18rem 18rem 22rem; color:var(--ink); border:1rem solid var(--signal-rule); background:var(--paper); box-shadow: 0 0 0 0 var(--signal-sheet); text-decoration:none; transition: transform var(--dur-mid) var(--ease-expo-out), box-shadow var(--dur-mid) var(--ease-expo-out), border-color var(--dur-fast) var(--ease-out); }.route-card__top { display:flex; align-items:center; justify-content:space-between; width:100%; color:var(--muted); font-size:10rem; }.route-card__top :deep(.ps-icon) { color:var(--signal-cobalt); }.route-card__art { width:100%; min-height:154rem; margin:26rem 0 22rem; border:0; }.route-card__title { font-size:clamp(30rem, 3vw, 45rem); letter-spacing:-.035em; line-height:.95; }.route-card__body { margin-top:12rem; color:var(--muted); font-family:var(--font-reading); line-height:1.48; }.route-card__action { margin-top:auto; padding-top:22rem; color:var(--ink); font-size:13rem; font-weight:750; }.selected { padding-bottom: clamp(88rem, 11vw, 148rem); }.section-head--split { display:flex; align-items:end; justify-content:space-between; max-width:none; gap:30rem; }.section-head__link { display:inline-flex; align-items:center; color:var(--ink); font-size:15rem; font-weight:750; text-decoration:none; border-bottom:2rem solid var(--ink); padding-bottom:3rem; white-space:nowrap; }.work-list { margin:0; padding:0; list-style:none; border-top:1rem solid var(--signal-rule); }.work-list__item { display:grid; grid-template-columns:clamp(170rem, 20vw, 250rem) minmax(0, 1fr) 28rem; align-items:center; gap:clamp(22rem, 4vw, 62rem); padding:22rem 0; color:var(--ink); border-bottom:1rem solid var(--line); text-decoration:none; transition:padding var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out); }.work-list__art { min-height:150rem; border:0; }.work-list__content { display:flex; flex-direction:column; align-items:flex-start; }.work-list__meta { color:var(--muted); font-size:10rem; letter-spacing:.08em; }.work-list__title { margin-top:9rem; font-size:clamp(31rem, 3.5vw, 56rem); letter-spacing:-.04em; line-height:.92; }.work-list__dek { max-width:56ch; margin-top:13rem; color:var(--muted); font-family:var(--font-reading); line-height:1.5; }.work-list__action { color:var(--signal-cobalt); transition:transform var(--dur-fast) var(--ease-out); }
+
+@media (hover:hover) { .route-card:hover { transform:translateY(-7rem); border-color:var(--ink); box-shadow:10rem 10rem 0 var(--signal-sheet); }.work-list__item:hover { padding-inline:10rem; background:var(--signal-field); }.work-list__item:hover .work-list__action { transform:translateX(5rem); } }.route-card:focus-visible, .work-list__item:focus-visible, .home-hero__secondary:focus-visible, .section-head__link:focus-visible { outline:3rem solid var(--focus); outline-offset:4rem; }
+
+@keyframes home-copy-enter { from { opacity:0; transform:translate3d(0, 18rem, 0); } to { opacity:1; transform:none; } } @keyframes home-art-enter { from { opacity:0; transform:translate3d(18rem, 12rem, 0) scale(.98); } to { opacity:1; transform:none; } }
+.home-hero__kicker { animation:home-copy-enter 420ms var(--ease-out) both; }.home-hero__title { animation:home-copy-enter 720ms var(--ease-expo-out) 90ms both; }.home-hero__deck { animation:home-copy-enter 560ms var(--ease-out) 180ms both; }.home-hero__actions { animation:home-copy-enter 520ms var(--ease-out) 250ms both; }.home-hero__scene { animation:home-art-enter 760ms var(--ease-expo-out) 140ms both; }.route-grid > li { animation:home-copy-enter 520ms var(--ease-out) var(--card-delay) both; }
+
+@media (max-width:850px) { .home-hero { grid-template-columns:1fr; min-height:auto; gap:42rem; }.home-hero__intro { max-width:680rem; }.home-hero__scene { width:min(100%, 660rem); }.home-hero__index { grid-template-columns:1fr; gap:14rem; }.route-grid { gap:14rem; }.route-card { padding:15rem 15rem 19rem; }.route-card__art { min-height:120rem; margin:20rem 0 18rem; }.work-list__item { grid-template-columns:190rem minmax(0, 1fr) 24rem; gap:26rem; } }
+@media (max-width:600px) { .home-hero { padding-top:45rem; padding-bottom:58rem; gap:38rem; }.home-hero__kicker { font-size:10rem; }.home-hero__title { max-width:8.8ch; margin-top:15rem; font-size:clamp(51rem, 14.4vw, 70rem); line-height:.9; }.home-hero__deck { max-width:31ch; font-size:19rem; line-height:1.48; }.home-hero__actions { gap:20rem; margin-top:30rem; }.home-hero__primary { min-height:50rem; padding-inline:21rem; }.home-hero__secondary { font-size:15rem; }.home-hero__art { aspect-ratio:1.18; box-shadow:9rem 9rem 0 var(--signal-sheet); }.home-hero__caption { max-width:26ch; line-height:1.45; }.home-hero__index { display:none; }.directions, .selected { padding:62rem 0; }.section-head { margin-bottom:30rem; }.section-head__title { font-size:46rem; }.route-grid { grid-template-columns:1fr; gap:13rem; }.route-card { display:grid; grid-template-columns:106rem minmax(0, 1fr); column-gap:16rem; min-height:0; padding:15rem; }.route-card__top { grid-column:1/-1; }.route-card__art { grid-column:1; grid-row:2/span 3; min-height:94rem; margin:18rem 0 0; }.route-card__title { grid-column:2; margin-top:20rem; font-size:33rem; }.route-card__body { grid-column:2; margin-top:8rem; font-size:15rem; }.route-card__action { grid-column:2; margin-top:0; padding-top:14rem; }.section-head--split { align-items:flex-start; flex-direction:column; gap:20rem; }.work-list__item { grid-template-columns:108rem minmax(0, 1fr) 20rem; gap:14rem; padding:18rem 0; }.work-list__art { min-height:102rem; }.work-list__title { font-size:34rem; }.work-list__dek { margin-top:8rem; font-size:15rem; }.work-list__action { grid-column:3; grid-row:1; } }
+@media (prefers-reduced-motion:reduce) { .home-hero__kicker, .home-hero__title, .home-hero__deck, .home-hero__actions, .home-hero__scene, .route-grid > li { animation:none; }.route-card, .work-list__item, .work-list__action { transition:none; } }
 </style>

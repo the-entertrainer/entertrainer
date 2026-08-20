@@ -349,3 +349,9 @@
 - [x] Build one Route Atlas-derived animated Entertrainer logo treatment with a complete reduced-motion state.
 - [x] Update browser-facing icons and shared interface symbols to use the unified visual system at the correct sizes and formats.
 - [x] Validate logo motion, favicon/app-icon metadata, contrast, keyboard usability, reduced motion, and production build; then push the refresh to `main`.
+
+## Logo-led preloader
+
+- [x] Replace the editorial-workspace preloader scene with a finite logo-led Entertrainer signal sequence.
+- [x] Align the static first-paint template and Vue preloader with the same five-bar visual story and reduced-motion state.
+- [x] Validate the visible hold, handoff, desktop/mobile composition, accessibility, and production build; then push the preloader update to `main`.

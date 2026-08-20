@@ -43,19 +43,21 @@ onBeforeUnmount(() => theme.dispose())
 <template>
   <div id="app-root">
     <EdPreloader v-if="showPreloader" @complete="showPreloader = false" />
-    <template v-if="bare">
-      <NuxtPage />
-    </template>
+    <template v-if="!showPreloader">
+      <template v-if="bare">
+        <NuxtPage />
+      </template>
 
-    <template v-else>
-      <EdMasthead />
-      <main id="main">
-        <NuxtPage :transition="{ name: 'page', mode: 'out-in' }" />
-      </main>
-      <EdFooter />
-    </template>
+      <template v-else>
+        <EdMasthead />
+        <main id="main">
+          <NuxtPage :transition="{ name: 'page', mode: 'out-in' }" />
+        </main>
+        <EdFooter />
+      </template>
 
-    <div class="u-grain" aria-hidden="true" />
+      <div class="u-grain" aria-hidden="true" />
+    </template>
   </div>
 </template>
 

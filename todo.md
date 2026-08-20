@@ -361,3 +361,10 @@
 - [x] Remove orbit lines, route curves, sparks, and any other decorative geometry from the logo preloader.
 - [x] Retain only the animated five-bar mark, its supporting shadow, understated light treatment, and brand name in both loading states.
 - [x] Validate the simplified animation, finite handoff, reduced-motion state, and production build; then push the revision to `main`.
+
+## Compact homepage and dual-theme preloader
+
+- [x] Audit homepage sections, content duplication, page length, spacing, and motion to identify what can be removed or consolidated.
+- [x] Rebuild the homepage as a compact route-led introduction with minimal, elegant sections and purposeful motion.
+- [x] Build smaller light and dark logo preloaders with an approximately three-second visible sequence and a guaranteed completion gate before site reveal.
+- [x] Validate desktop/mobile layout, theme behaviour, preloader timing and handoff, reduced motion, navigation access, and production build; then push to `main`.

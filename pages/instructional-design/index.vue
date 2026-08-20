@@ -19,6 +19,7 @@ const STORAGE_KEY = 'entertrainer-instructional-design-screens-v2'
 const screenIndex = ref(0)
 const furthestIndex = ref(0)
 const screenHeading = ref<HTMLElement | null>(null)
+const motionDirection = ref<'forward' | 'backward'>('forward')
 
 const startingChoice = ref<string | null>(null)
 const learnerChoice = ref<string | null>(null)
@@ -223,6 +224,7 @@ function saveProgress() {
 
 function moveTo(index: number) {
   if (index < 0 || index > furthestIndex.value) return
+  motionDirection.value = index < screenIndex.value ? 'backward' : 'forward'
   screenIndex.value = index
 }
 
@@ -234,6 +236,7 @@ function continueScreen() {
     return
   }
   const next = screenIndex.value + 1
+  motionDirection.value = 'forward'
   furthestIndex.value = Math.max(furthestIndex.value, next)
   screenIndex.value = next
   saveProgress()
@@ -333,6 +336,8 @@ onBeforeUnmount(() => document.removeEventListener('error', resolveCourseVisual,
     <section class="course-stage" aria-live="polite">
       <div class="screen-meta"><span>{{ currentScreen.lesson }}</span><span>Screen {{ screenIndex + 1 }} of {{ screens.length }}</span></div>
 
+      <div class="learning-screen-stack" :class="`learning-screen-stack--${motionDirection}`">
+      <Transition :name="`learning-stack-${motionDirection}`">
       <article :key="screenIndex" class="learning-screen screen--enter" :class="{ 'learning-screen--hero': screenIndex === 0 }">
         <template v-if="screenIndex === 0">
           <div class="hero-visual"><img :src="media.hero" alt="Three café employees reviewing a practical paper checklist together after a shift."><span class="hero-route" aria-hidden="true"><i /><i /><i /><i /><i /></span></div>
@@ -393,6 +398,8 @@ onBeforeUnmount(() => document.removeEventListener('error', resolveCourseVisual,
           <div class="screen-split"><div><p class="eyebrow">Take this with you</p><h2 ref="screenHeading" tabindex="-1">Good learning design starts before the screen.</h2><p class="lead">Find the real task. Understand the people doing it. Decide what successful performance looks like. Give learners a way to practise. Then use evidence to make the support better.</p><div class="completion-card"><span>✓</span><p><b>Small first step:</b> when someone asks for a course, ask: “What should people be able to do differently after this?”</p></div></div><figure class="screen-visual close-visual"><img :src="media.completionAtlas" alt="Editorial paper illustration of task observation, learner context, practice, evidence, and a revision pencil arranged along a completed cobalt route."><figcaption>The route continues when the work is observed, practised, and checked with evidence.</figcaption></figure></div><details class="source-panel"><summary>Sources and media credits <span>+</span></summary><ol><li><a href="https://www.td.org/talent-development-glossary-terms/what-is-instructional-design" target="_blank" rel="noreferrer">Association for Talent Development — What is Instructional Design?</a></li><li><a href="https://dltoolkit.mit.edu/online-course-design-guide/pre-design/learner-analysis/" target="_blank" rel="noreferrer">MIT Digital Learning Toolkit — Learner Analysis</a></li><li><a href="https://www.uwb.edu/it/addie" target="_blank" rel="noreferrer">University of Washington Bothell — ADDIE Model</a></li><li><a href="https://edtechbooks.org/id/task_and_content_analysis" target="_blank" rel="noreferrer">EdTech Books — Task Analysis</a></li><li><a href="https://www.cdc.gov/training-development/php/about/evaluate-training-measuring-effectiveness.html" target="_blank" rel="noreferrer">CDC — Evaluate Training</a></li><li>Bloom’s taxonomy diagram: MIT Digital Learning Toolkit, CC BY 4.0. Real learning-context photographs: Pexels License. Original course illustrations: Entertrainer.</li></ol></details>
         </template>
       </article>
+      </Transition>
+      </div>
 
     </section>
   </main>
@@ -435,5 +442,7 @@ button:focus-visible, summary:focus-visible, a:focus-visible { outline: 3rem sol
 .screen--enter > :nth-child(3) { animation-delay: 170ms; }
 .question-card > button, .game-choices button, .match-list button, .game-action, .next-button { transition-duration: var(--dur-fast); }
 @media (max-width: 760px) { .course-bar__steps button { min-width: 48rem; padding: 0 8rem; font-size: 10rem; } }
-@media (prefers-reduced-motion: reduce) { .screen--enter, .screen--enter > * { animation: none !important; transform: none !important; } }
+		/* Motion-design stack: the incoming screen leads, paper layers counter-shift, then content settles. */
+		.learning-screen-stack { position: relative; isolation: isolate; }.learning-screen-stack::before, .learning-screen-stack::after { position: absolute; content: ''; border: 1px solid #d6deeb; border-radius: 10rem; pointer-events: none; }.learning-screen-stack::before { inset: 9rem 13rem -8rem; z-index: -1; background: #e5ebf6; }.learning-screen-stack::after { inset: 16rem 22rem -14rem; z-index: -2; background: #dce4f1; opacity: .7; }.learning-screen-stack::before, .learning-screen-stack::after { transition: transform 560ms cubic-bezier(.22, .78, .2, 1), opacity 440ms cubic-bezier(.22, .78, .2, 1); }.learning-screen { position: relative; z-index: 2; will-change: transform, opacity; }.learning-stack-forward-enter-active, .learning-stack-backward-enter-active { z-index: 3; transition: transform 560ms cubic-bezier(.22, .78, .2, 1), opacity 560ms cubic-bezier(.22, .78, .2, 1), filter 560ms cubic-bezier(.22, .78, .2, 1); }.learning-stack-forward-leave-active, .learning-stack-backward-leave-active { position: absolute; inset: 0; z-index: 1; pointer-events: none; transition: transform 390ms cubic-bezier(.56, .05, .82, .4), opacity 390ms cubic-bezier(.56, .05, .82, .4), filter 390ms cubic-bezier(.56, .05, .82, .4); }.learning-stack-forward-enter-from { opacity: 0; transform: translate3d(30rem, 0, 0) scale(.986); filter: saturate(.88) blur(.3rem); }.learning-stack-forward-enter-to, .learning-stack-backward-enter-to { opacity: 1; transform: none; filter: none; }.learning-stack-forward-leave-to { opacity: 0; transform: translate3d(-20rem, 0, 0) scale(.978); filter: saturate(.84); }.learning-stack-backward-enter-from { opacity: 0; transform: translate3d(-30rem, 0, 0) scale(.986); filter: saturate(.88) blur(.3rem); }.learning-stack-backward-leave-to { opacity: 0; transform: translate3d(20rem, 0, 0) scale(.978); filter: saturate(.84); }.learning-stack-forward-enter-active > * { animation: learning-stack-content-forward 430ms cubic-bezier(.22, .78, .2, 1) 120ms both; }.learning-stack-backward-enter-active > * { animation: learning-stack-content-backward 430ms cubic-bezier(.22, .78, .2, 1) 120ms both; }.learning-screen-stack--forward::before { transform: translate3d(-10rem, 5rem, 0) rotate(.5deg); }.learning-screen-stack--forward::after { transform: translate3d(-5rem, 8rem, 0) rotate(.18deg); }.learning-screen-stack--backward::before { transform: translate3d(10rem, 5rem, 0) rotate(-.5deg); }.learning-screen-stack--backward::after { transform: translate3d(5rem, 8rem, 0) rotate(-.18deg); }@keyframes learning-stack-content-forward { from { opacity: .42; transform: translateX(8rem); } to { opacity: 1; transform: none; } }@keyframes learning-stack-content-backward { from { opacity: .42; transform: translateX(-8rem); } to { opacity: 1; transform: none; } }
+		@media (prefers-reduced-motion: reduce) { .screen--enter, .screen--enter > *, .learning-stack-forward-enter-active, .learning-stack-forward-leave-active, .learning-stack-backward-enter-active, .learning-stack-backward-leave-active, .learning-screen-stack::before, .learning-screen-stack::after { animation: none !important; transition: none !important; transform: none !important; } .learning-stack-forward-enter-active > *, .learning-stack-backward-enter-active > * { animation: none !important; } }
 </style>

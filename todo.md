@@ -329,3 +329,10 @@
 - [x] Install and study the LottieFiles motion-design skill, recording the applicable preloader guidance.
 - [x] Rebuild the preloader as a skill-informed finite motion-graphics sequence with a minimum visible duration and accessible fallback.
 - [x] Validate animation completion, motion quality, mobile performance, reduced-motion behaviour, and production build; then push to `main`.
+
+## Skill-informed learning card-stack refinement
+
+- [x] Audit the AI and instructional-design card-stack transitions for direction, layer depth, timing, focus handoff, and reduced-motion behaviour.
+- [x] Define a LottieFiles motion-design skill-informed choreography for forward and backward card travel, including anticipation, staged secondary layers, and a gentle physical landing.
+- [x] Implement smoother direction-aware card-stack transitions in both learning modules while retaining immediate keyboard focus and no duplicate interactive content.
+- [x] Validate desktop/mobile transition quality, navigation timing, reduced motion, accessibility, and production build; then push to `main`.

@@ -29,7 +29,7 @@ const lessons = [
   <EdShell width="page">
     <header class="lessons-head">
       <h1 class="lessons-head__title lessons-head__title--write t-display">Lessons</h1>
-      <p class="lessons-head__deck">Short, practical learning experiences for people who want to understand something clearly and try it for themselves.</p>
+      <p class="lessons-head__deck">Short lessons you can understand and try.</p>
       <EdPaperSignal class="lessons-head__art u-paper-reveal" variant="lesson" label="A Paper Signal lesson card with black instruction rules and a cobalt learning cue" />
     </header>
 

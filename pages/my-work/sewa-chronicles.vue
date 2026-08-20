@@ -122,7 +122,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     </section>
 
     <footer class="cs__foot">
-      <p class="t-hand">Learning people actually want to finish — that's the whole idea.</p>
+      <p class="t-hand">I design learning people want to finish.</p>
       <div class="cs__links">
         <NuxtLink to="/my-work" class="ticket ticket--ghost">All work</NuxtLink>
         <NuxtLink to="/tools" class="ticket">See the tools I build <EdSignalIcon name="arrow" /></NuxtLink>

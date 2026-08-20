@@ -4,7 +4,7 @@ import { ID_MODELS, MODEL_ORDER, modelOf } from '~/utils/idModels'
 import { parseFiles } from '~/utils/parseSource'
 import { aiGenerateStoryboard, type GeneratedStoryboard } from '~/utils/aiStoryboard'
 
-// "New storyboard with AI": real document parsing in the browser, then one
+// "Create storyboard with AI": real document parsing in the browser, then one
 // tightly-controlled Groq call that must return our exact card schema.
 const props = defineProps<{ defaultModel?: ModelId }>()
 const emit = defineEmits<{ close: []; done: [result: GeneratedStoryboard & { modelId: ModelId }] }>()
@@ -73,7 +73,7 @@ async function generate() {
     <div class="aig glass-panel" data-lenis-prevent>
       <header class="aig__head">
         <div>
-          <h2 class="aig__head-title"><ToolsStoryIcon name="sparkle" :size="16" /> New storyboard with AI</h2>
+          <h2 class="aig__head-title"><ToolsStoryIcon name="sparkle" :size="16" /> Create storyboard with AI</h2>
           <p>Drop in source material — the AI structures it into framework-shaped screen cards you fully control afterward.</p>
         </div>
         <button class="aig__close" aria-label="Close" :disabled="phase === 'generating'" @click="emit('close')"><ToolsStoryIcon name="close" :size="14" /></button>

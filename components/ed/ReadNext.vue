@@ -16,7 +16,7 @@ const items = computed(() => readNext(props.from, props.count))
   <section class="rn" aria-labelledby="rn-h">
     <div class="rn__head">
       <h2 id="rn-h" class="t-mono rn__title">{{ heading }}</h2>
-      <NuxtLink to="/" class="t-mono rn__all u-underline">All of it →</NuxtLink>
+      <NuxtLink to="/" class="t-mono rn__all u-underline">See all</NuxtLink>
     </div>
     <ul class="rn__grid">
       <li v-for="it in items" :key="it.id"><EdCard :item="it" variant="compact" /></li>

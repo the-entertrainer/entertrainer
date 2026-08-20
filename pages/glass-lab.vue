@@ -216,7 +216,7 @@ onMounted(() => {
 
     <aside class="glass-panel panel" :class="{ open: showPanel }">
       <h1>Glass Lab</h1>
-      <p class="hint">Tune freely. Colours are random — use Shuffle. Copy the config and paste it back to bake into the site.</p>
+      <p class="hint">Shuffle colours to generate new colours. Copy the config to save or restore these settings.</p>
 
       <div class="row seg">
         <button class="glass-chip" :class="{ active: params.theme === 'dark' }"  @click="params.theme = 'dark'">Dark</button>

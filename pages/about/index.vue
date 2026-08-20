@@ -44,7 +44,7 @@ const CHAPTERS: Chapter[] = [
   <EdShell width="page">
     <EdStoryHero
       title="Naveen Jose"
-      deck="I started on hotel floors. Now I make lessons, useful tools, and clearer ways to explain complicated work. This is how I got here."
+      deck="I started on hotel floors. Now I make lessons, useful tools, and clearer ways to explain complicated work. Here is my path."
     />
 
     <div class="ab__lede">
@@ -66,7 +66,7 @@ const CHAPTERS: Chapter[] = [
     </ol>
 
     <footer class="ab__close">
-      <EdNote label="Something I keep" accent="var(--purple)">
+      <EdNote label="A line I keep" accent="var(--purple)">
         <p>Asatoma Sadgamaya — from ignorance, toward truth.</p>
       </EdNote>
       <div class="ab__cta">

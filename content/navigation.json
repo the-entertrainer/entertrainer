@@ -81,7 +81,7 @@
     {
       "id": "better-emails",
       "label": "Draftly",
-      "description": "Paste a messy draft, get an email you would actually send.",
+      "description": "Paste a messy draft and get a send-ready email.",
       "href": "/tools/better-emails",
       "color": "#243F6A",
       "img": "/better-emails.png",

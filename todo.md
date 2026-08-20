@@ -401,3 +401,11 @@
 - [x] Rebuild the light and dark preloaders around the actual shared Entertrainer wordmark, using a finite HTML/CSS motion-graphics reveal and retaining the page-completion gate.
 - [x] Add a library-driven, scroll-linked editorial text-motion system to homepage sections with distinct context for the hero, route chooser, and selected work.
 - [x] Validate mobile and desktop interaction readability, logo fidelity, three-second preloader handoff, scroll-motion performance, reduced motion, console health, and production build before pushing to `main`.
+
+## Plain-language and ornamental-copy audit
+
+- [x] Research authoritative plain-language, UX-writing, and accessibility guidance and document the decision criteria for retaining, rewriting, or removing visible copy.
+- [x] Create a full inventory of visible non-content copy across pages, components, loading states, tools, and course interfaces, with an explicit disposition for every candidate.
+- [x] Remove the preloader’s supporting sentence, rule, and tick decoration; retain only the actual animated Entertrainer mark and required screen-reader loading status.
+- [x] Remove or rewrite generic, ornamental, redundant, or indirect wording where it is not needed for content, action, navigation, feedback, attribution, or accessibility.
+- [x] Validate user flows, screen-reader status, page hierarchy, copy accuracy, console health, and production build before pushing to `main`.

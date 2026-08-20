@@ -45,13 +45,12 @@ const secondaryLinks = [
           I use open-source type and original artwork. Read more about how the site is made in
           <NuxtLink to="/colophon" class="u-underline">How this site works</NuxtLink>.
         </p>
-        <p class="ft__fine">No analytics, no cookies, no database. Nothing you type in a tool leaves your browser.</p>
+        <p class="ft__fine">This site has no database or analytics. Your StoryGen projects stay in your browser.</p>
       </div>
     </div>
 
     <div class="ft__base">
       <p class="t-mono">© {{ year }} {{ store.name }} · Entertrainer</p>
-      <p class="t-mono">Built by hand, mostly in the evenings</p>
     </div>
   </footer>
 </template>

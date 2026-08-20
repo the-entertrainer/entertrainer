@@ -115,7 +115,6 @@ onBeforeUnmount(() => disposeMotion?.())
       </div>
 
       <aside class="home-hero__index" aria-label="Areas of work">
-        <p class="t-mono">Three ways in</p>
         <ol><li>Learn</li><li>See the work</li><li>Use a tool</li></ol>
       </aside>
     </header>
@@ -139,7 +138,7 @@ onBeforeUnmount(() => disposeMotion?.())
     </section>
 
     <section class="selected" aria-labelledby="selected-title">
-      <div class="section-head section-head--split"><div><p class="section-head__label t-mono">A few things I made</p><h2 id="selected-title" ref="selectedTitle" class="section-head__title t-display">Selected work</h2></div><NuxtLink to="/my-work" class="section-head__link">See all projects <EdSignalIcon name="arrow" /></NuxtLink></div>
+      <div class="section-head section-head--split"><div><h2 id="selected-title" ref="selectedTitle" class="section-head__title t-display">Selected work</h2></div><NuxtLink to="/my-work" class="section-head__link">See all projects <EdSignalIcon name="arrow" /></NuxtLink></div>
       <ul ref="workList" class="work-list">
         <li v-for="item in selectedWork" :key="item.id">
           <NuxtLink :to="item.href" class="work-list__item">

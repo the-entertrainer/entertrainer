@@ -75,7 +75,7 @@ export const ITEMS: EditorialItem[] = [
     href: '/instructional-design',
     image: '/instructional-design.png',
     alt: 'Cover artwork for the instructional design demonstration',
-    stamp: 'Play it in the page',
+    stamp: 'Try the lesson',
     minutes: 4,
     featured: true
   },
@@ -95,7 +95,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'strong',
     title: 'Strong',
-    dek: 'Why the same password takes a second or a century to crack, depending entirely on who is doing the cracking. A full module you can finish in ten minutes.',
+    dek: 'Why the same password takes a second or a century to crack, depending entirely on who is doing the cracking. A ten-minute module.',
     category: 'projects',
     media: 'interactive',
     href: '/my-work/strong',
@@ -121,7 +121,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'storygen',
     title: 'StoryGen',
-    dek: 'Storyboard on an infinite canvas — cards, flows, and a Word export at the end of it.',
+    dek: 'Storyboard on an infinite canvas with cards, flows, and Word export.',
     category: 'tools',
     media: 'free tool',
     href: '/tools/storygen',
@@ -132,7 +132,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'cadence',
     title: 'Cadence',
-    dek: 'Turn a list of topics into a monthly training calendar you can actually present.',
+    dek: 'Turn a list of topics into a presentable monthly training calendar.',
     category: 'tools',
     media: 'free tool',
     href: '/tools/cadence',
@@ -154,7 +154,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'better-emails',
     title: 'Draftly',
-    dek: 'Paste a messy draft, get an email you would actually send.',
+    dek: 'Paste a messy draft and get a send-ready email.',
     category: 'tools',
     media: 'free tool',
     href: '/tools/better-emails',
@@ -171,7 +171,7 @@ export const ITEMS: EditorialItem[] = [
     href: '/about',
     image: '/about-me.png',
     alt: 'Portrait of Naveen Jose',
-    stamp: 'About the person',
+    stamp: 'About Naveen',
     minutes: 4,
     size: 'wide'
   },

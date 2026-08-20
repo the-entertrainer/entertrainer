@@ -758,7 +758,7 @@ onUnmounted(() => {
       <div class="sg-topbar__group">
         <button class="sg-tool" :disabled="!canUndo" title="Undo (⌘Z)" @click="undo"><ToolsStoryIcon name="undo" :size="14" /></button>
         <button class="sg-tool" :disabled="!canRedo" title="Redo (⇧⌘Z)" @click="redo"><ToolsStoryIcon name="redo" :size="14" /></button>
-        <button class="sg-tool sg-desktop-only" title="Product tour" @click="startTour">?</button>
+        <button class="sg-tool sg-desktop-only" title="Show tour" @click="startTour">?</button>
       </div>
 
       <div class="sg-topbar__group sg-desktop-only">
@@ -768,12 +768,12 @@ onUnmounted(() => {
             @click="aiReady ? (showMenu = showMenu === 'ai' ? null : 'ai') : openAiSetup()"
           ><ToolsStoryIcon name="sparkle" :size="13" />{{ aiReady ? ' AI' : '' }}</button>
           <div v-if="showMenu === 'ai'" class="glass-panel sg-menu">
-            <button @click="openAiGenerate"><ToolsStoryIcon name="sparkle" :size="12" /> New storyboard with AI…</button>
+            <button @click="openAiGenerate"><ToolsStoryIcon name="sparkle" :size="12" /> Create storyboard with AI</button>
             <button :disabled="aiBusyField === 'mcqs'" @click="aiAddMcqs"><ToolsStoryIcon name="sparkle" :size="12" /> Add knowledge checks from content</button>
-            <button @click="openAiSetup">AI settings…</button>
+            <button @click="openAiSetup">AI settings</button>
           </div>
         </div>
-        <button v-if="isProcessModel" class="sg-tool sg-tool--wide" title="Design plan worksheet" @click="planOpen = true">Plan</button>
+        <button v-if="isProcessModel" class="sg-tool sg-tool--wide" title="Open design plan" @click="planOpen = true">Plan</button>
         <button class="sg-tool sg-tool--wide" @click="newProject">New</button>
         <label class="sg-tool sg-tool--wide sg-file-btn">Open<input type="file" accept=".sbf,.json" @change="importProject"></label>
         <div class="sg-menu-wrap">
@@ -794,9 +794,9 @@ onUnmounted(() => {
           <button @click="showMenu = null; modelPicker = 'switch'">Framework: {{ activeModel.label }}</button>
           <button v-if="isProcessModel" @click="showMenu = null; planOpen = true">Design plan…</button>
           <button @click="openAiSetup"><ToolsStoryIcon name="sparkle" :size="12" /> AI features: {{ aiReady ? 'On' : 'Off' }}…</button>
-          <button v-if="aiReady" @click="openAiGenerate"><ToolsStoryIcon name="sparkle" :size="12" /> New storyboard with AI…</button>
+          <button v-if="aiReady" @click="openAiGenerate"><ToolsStoryIcon name="sparkle" :size="12" /> Create storyboard with AI</button>
           <button v-if="aiReady" :disabled="aiBusyField === 'mcqs'" @click="aiAddMcqs"><ToolsStoryIcon name="sparkle" :size="12" /> Add knowledge checks</button>
-          <button @click="startTour">Show the tour</button>
+          <button @click="startTour">Tour</button>
           <button @click="newProject">New storyboard</button>
           <label class="sg-menu-file">Open project (.sbf)<input type="file" accept=".sbf,.json" @change="importProject"></label>
           <button @click="exportDocx">Export Word (.docx)</button>

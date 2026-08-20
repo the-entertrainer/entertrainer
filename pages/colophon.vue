@@ -43,17 +43,17 @@ const stack: Entry[] = [
   { k: 'Images', v: 'WebP and PNG, drawn or generated, then composited',
     note: 'Card artwork was generated and the titles set on top afterwards, because type rendered by an image model is type nobody proofread.' },
   { k: 'Hosting', v: 'Vercel, static output',
-    note: 'No database and no analytics. The only thing that reaches a server is the AI request a tool makes when you ask it to, and nothing is kept.' }
+    note: 'This site has no database or analytics. A tool sends only the AI request you make, and nothing is kept.' }
 ]
 
 const choices = [
   { h: 'It works without a pointer',
-    b: 'Every filter is a real radio group with arrow-key movement, every control has a visible focus ring, and the first thing in the tab order is a skip link to the content. This is not a courtesy. If a learning designer cannot make their own portfolio operable by keyboard, the claim to design accessible learning is decoration.' },
+    b: 'Every filter is a real radio group with arrow-key movement, every control has a visible focus ring, and the first thing in the tab order is a skip link to the content. If a learning designer cannot make their own portfolio operable by keyboard, the claim to design accessible learning is decoration.' },
   { h: 'It works without motion',
     b: 'Turn on reduced motion and the card lifts, the staggers and the page transitions all collapse to state changes. Nothing on this site is legible only while it is moving.' },
   { h: 'It works without images',
     b: 'Every card puts its artwork in a band above the type instead of behind it, so a slow, dark or missing image costs you a picture and never a headline. The front page is fully readable with images disabled.' },
-  { h: 'Nothing you type leaves your browser',
+  { h: 'Your StoryGen projects stay in your browser',
     b: 'StoryGen keeps your storyboards in your browser’s own storage, so they survive a refresh and never reach me. The others hold nothing at all. Where a tool calls a model it sends only the text you gave it for that one request, and nothing is kept on the way through.' }
 ]
 </script>
@@ -89,8 +89,8 @@ const choices = [
     </section>
 
     <footer class="co__foot">
-      <p>Built in the evenings, mostly. If something here is broken, I would genuinely like to know.</p>
-      <a class="ticket" :href="`mailto:${email}`">Tell me what broke</a>
+      <p>Found a problem?</p>
+      <a class="ticket" :href="`mailto:${email}`">Report a problem</a>
     </footer>
 
   </EdShell>

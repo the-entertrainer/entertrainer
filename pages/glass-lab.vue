@@ -209,22 +209,22 @@ onMounted(() => {
 <template>
   <div class="lab" :class="params.theme">
     <div class="stage" :class="{ phone: params.phone }">
-      <canvas ref="canvas" class="cv" />
+      <canvas ref="canvas" class="cv" role="img" aria-label="Interactive glass visual preview" />
     </div>
 
-    <button class="glass-btn glass-btn--ghost fab" style="position:fixed; bottom:20rem; right:20rem; z-index:100;" @click="showPanel = !showPanel">{{ showPanel ? 'Hide ▾' : 'Tune ▴' }}</button>
+    <button class="glass-btn glass-btn--ghost fab" style="position:fixed; bottom:20rem; right:20rem; z-index:100;" aria-controls="lab-settings" :aria-expanded="showPanel" @click="showPanel = !showPanel">Settings</button>
 
-    <aside class="glass-panel panel" :class="{ open: showPanel }">
+    <aside id="lab-settings" class="glass-panel panel" :class="{ open: showPanel }" aria-label="Glass Lab settings">
       <h1>Glass Lab</h1>
-      <p class="hint">Shuffle colours to generate new colours. Copy the config to save or restore these settings.</p>
+      <p class="hint">Change colours and copy the configuration to reuse these settings.</p>
 
       <div class="row seg">
-        <button class="glass-chip" :class="{ active: params.theme === 'dark' }"  @click="params.theme = 'dark'">Dark</button>
-        <button class="glass-chip" :class="{ active: params.theme === 'light' }" @click="params.theme = 'light'">Light</button>
+        <button class="glass-chip" :class="{ active: params.theme === 'dark' }" :aria-pressed="params.theme === 'dark'" @click="params.theme = 'dark'">Dark</button>
+        <button class="glass-chip" :class="{ active: params.theme === 'light' }" :aria-pressed="params.theme === 'light'" @click="params.theme = 'light'">Light</button>
       </div>
       <div class="row seg">
-        <button class="glass-chip" :class="{ active: params.algo === 0 }" @click="params.algo = 0">Blobs</button>
-        <button class="glass-chip" :class="{ active: params.algo === 1 }" @click="params.algo = 1">Ellipses</button>
+        <button class="glass-chip" :class="{ active: params.algo === 0 }" :aria-pressed="params.algo === 0" @click="params.algo = 0">Blobs</button>
+        <button class="glass-chip" :class="{ active: params.algo === 1 }" :aria-pressed="params.algo === 1" @click="params.algo = 1">Ellipses</button>
       </div>
 
       <label>Noise scale 1 <b>{{ params.noiseScale1.toFixed(2) }}</b>
@@ -266,9 +266,11 @@ onMounted(() => {
       </div>
 
       <div class="out">
-        <textarea readonly rows="4" class="glass-field" :value="configText" />
+        <label class="sr-only" for="lab-config">Configuration</label>
+        <textarea id="lab-config" readonly rows="4" class="glass-field" :value="configText" />
         <button class="glass-chip" @click="copyConfig">{{ copied ? 'Copied' : 'Copy config' }}</button>
       </div>
+      <p class="sr-only" role="status" aria-live="polite">{{ copied ? 'Configuration copied.' : '' }}</p>
     </aside>
   </div>
 </template>

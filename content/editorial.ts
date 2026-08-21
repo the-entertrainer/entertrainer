@@ -53,16 +53,16 @@ export interface CategoryMeta {
 export const CATEGORIES: CategoryMeta[] = [
   { id: 'practice', label: 'Try a lesson', accent: 'var(--cat-practice)', onAccent: 'var(--on-cat-practice)',
     blurb: 'A short lesson that shows how a confusing instruction becomes easier to follow.' },
-  { id: 'projects', label: 'Things I made', accent: 'var(--cat-projects)', onAccent: 'var(--on-cat-projects)',
-    blurb: 'Courses, comics, and interactive explainers made for real people to use.' },
+  { id: 'projects', label: 'Projects', accent: 'var(--cat-projects)', onAccent: 'var(--on-cat-projects)',
+    blurb: 'Courses, comics, and interactive explainers.' },
   { id: 'tools', label: 'Free tools', accent: 'var(--cat-tools)', onAccent: 'var(--on-cat-tools)',
     blurb: 'Free browser tools for writing, planning, quiz-making, and sketching ideas.' },
   { id: 'story', label: 'About me', accent: 'var(--cat-story)', onAccent: 'var(--on-cat-story)',
     blurb: 'How I got from hotel floors to making learning for people around the world.' },
   { id: 'lab', label: 'Experiments', accent: 'var(--cat-lab)', onAccent: 'var(--on-cat-lab)',
-    blurb: 'Small design experiments and the ideas that came out of trying them.' },
+    blurb: 'Small design experiments.' },
   { id: 'notes', label: 'How this site works', accent: 'var(--cat-notes)', onAccent: 'var(--on-cat-notes)',
-    blurb: 'A straightforward look at how the site, its tools, and its artwork are put together.' }
+    blurb: 'How the site, tools, and artwork are built.' }
 ]
 
 export const ITEMS: EditorialItem[] = [
@@ -114,7 +114,7 @@ export const ITEMS: EditorialItem[] = [
     href: '/courses/ai-atlas',
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/zByMCffPaXYvFeor.jpg',
     alt: 'An editorial illustration mapping the history of artificial intelligence',
-    stamp: 'Interactive course',
+    stamp: '',
     minutes: 95,
     size: 'wide'
   },
@@ -178,7 +178,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'colophon',
     title: 'How this site is built',
-    dek: 'A straightforward look at how this site, its tools, and its artwork are put together.',
+    dek: 'How this site, its tools, and its artwork are built.',
     category: 'notes',
     media: 'essay',
     href: '/colophon',
@@ -188,7 +188,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'lab',
     title: 'Homepage design experiments',
-    dek: 'Fifteen visual experiments made from the same interactive glass effect. Some worked better than others.',
+    dek: 'Fifteen visual experiments made from the same interactive glass effect.',
     category: 'lab',
     media: 'interactive',
     href: '/lab',

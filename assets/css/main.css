@@ -353,8 +353,8 @@ canvas { display: block; }
 img, svg, video { max-width: 100%; }
 
 :focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
   border-radius: var(--radius-xs);
 }
 
@@ -362,6 +362,10 @@ html.theme-anim, html.theme-anim * {
   transition:
     background-color .3s ease, color .3s ease, border-color .3s ease,
     fill .3s ease, stroke .3s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-anim, html.theme-anim * { transition: none !important; }
 }
 
 ::selection { background: var(--selection); color: var(--on-selection); }
@@ -561,7 +565,6 @@ p, li, dd, figcaption { text-wrap: pretty; }
 }
 .glass-field::placeholder { color: var(--gray-500); }
 .glass-field:focus {
-  outline: none;
   border-color: var(--focus);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 20%, transparent);
 }

@@ -673,7 +673,6 @@ onUnmounted(() => {
         <div class="sg-splash__orb sg-splash__orb--b" />
         <ToolsStoryBrandMark :size="116" animated class="sg-splash__mark" />
         <p class="sg-splash__name">Story<em>Gen</em></p>
-        <p class="sg-splash__tag">Storyboard studio for instructional designers</p>
         <span class="sg-splash__loader" aria-hidden="true"><i /><i /><i /></span>
         <button class="sg-ai-chip sg-splash__ai" @click.stop="view = 'home'; aiSetupOpen = true">
           <ToolsStoryIcon name="sparkle" :size="13" /> AI features: {{ aiReady ? 'On' : 'Off' }}
@@ -688,7 +687,6 @@ onUnmounted(() => {
           <ToolsStoryBrandMark :size="46" />
           <div>
             <h1>Story<em>Gen</em></h1>
-            <p>Pick a framework, wire the screens, export a polished storyboard.</p>
           </div>
           <button class="sg-ai-chip sg-home__ai" :class="{ 'sg-ai-chip--on': aiReady }" @click="aiSetupOpen = true">
             <ToolsStoryIcon name="sparkle" :size="13" /> AI {{ aiReady ? 'On' : 'Off' }}
@@ -721,7 +719,7 @@ onUnmounted(() => {
             <button class="sg-proj__del" title="Delete storyboard" @click.stop="deleteProjectEntry(p.id)"><ToolsStoryIcon name="trash" :size="12" /></button>
           </article>
         </div>
-        <p v-if="!projects.length" class="sg-home__empty">Nothing here yet. Your storyboards live on this device. Create the first one.</p>
+        <p v-if="!projects.length" class="sg-home__empty">No storyboards yet. Create one.</p>
       </div>
     </div>
 
@@ -756,9 +754,9 @@ onUnmounted(() => {
       </button>
 
       <div class="sg-topbar__group">
-        <button class="sg-tool" :disabled="!canUndo" title="Undo (⌘Z)" @click="undo"><ToolsStoryIcon name="undo" :size="14" /></button>
-        <button class="sg-tool" :disabled="!canRedo" title="Redo (⇧⌘Z)" @click="redo"><ToolsStoryIcon name="redo" :size="14" /></button>
-        <button class="sg-tool sg-desktop-only" title="Show tour" @click="startTour">?</button>
+        <button class="sg-tool" :disabled="!canUndo" title="Undo (⌘Z)" aria-label="Undo" @click="undo"><ToolsStoryIcon name="undo" :size="14" /></button>
+        <button class="sg-tool" :disabled="!canRedo" title="Redo (⇧⌘Z)" aria-label="Redo" @click="redo"><ToolsStoryIcon name="redo" :size="14" /></button>
+        <button class="sg-tool sg-desktop-only" title="Show tour" aria-label="Show tour" @click="startTour">?</button>
       </div>
 
       <div class="sg-topbar__group sg-desktop-only">
@@ -774,8 +772,8 @@ onUnmounted(() => {
           </div>
         </div>
         <button v-if="isProcessModel" class="sg-tool sg-tool--wide" title="Open design plan" @click="planOpen = true">Plan</button>
-        <button class="sg-tool sg-tool--wide" @click="newProject">New</button>
-        <label class="sg-tool sg-tool--wide sg-file-btn">Open<input type="file" accept=".sbf,.json" @change="importProject"></label>
+        <button class="sg-tool sg-tool--wide" @click="newProject">New storyboard</button>
+        <label class="sg-tool sg-tool--wide sg-file-btn">Open project<input type="file" accept=".sbf,.json" @change="importProject"></label>
         <div class="sg-menu-wrap">
           <button class="glass-btn sg-export-btn" @click="showMenu = showMenu === 'export' ? null : 'export'">Export <ToolsStoryIcon name="chevron-down" :size="11" /></button>
           <div v-if="showMenu === 'export'" class="glass-panel sg-menu">

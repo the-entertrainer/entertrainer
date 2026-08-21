@@ -50,7 +50,7 @@ onBeforeUnmount(() => theme.dispose())
 
       <template v-else>
         <EdMasthead />
-        <main id="main">
+        <main id="main" tabindex="-1">
           <NuxtPage :transition="{ name: 'page', mode: 'out-in' }" />
         </main>
         <EdFooter />

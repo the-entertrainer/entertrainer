@@ -67,18 +67,15 @@ async function copy(text: string, i: number) {
 
     <!-- Form / Loading -->
     <div class="glass-panel dg-form" :class="{ 'dg-form--loading': pending }">
-      <!-- Loading state (rich, matches Better Emails) -->
-      <div v-if="pending" class="dg-loading">
+      <div v-if="pending" class="dg-loading" role="status" aria-live="polite">
         <div class="dg-loading-spinner" />
-        <p class="dg-loading-title">Crafting clever distractors...</p>
-        <p class="dg-loading-subtitle">Generating plausible but incorrect options that test real understanding.</p>
-        <p class="dg-loading-hint">Just a moment.</p>
+        <p class="dg-loading-title">Generating distractors.</p>
       </div>
 
       <!-- Normal form -->
       <form v-else @submit.prevent="generate">
         <div style="margin-bottom:8rem;">
-          <span class="glass-label">Need inspiration? Try an example</span>
+          <span class="glass-label">Examples</span>
           <div style="display:flex; flex-wrap:wrap; gap:6rem; margin-top:4rem;">
             <button
               v-for="ex in EXAMPLE_PROMPTS"
@@ -123,13 +120,13 @@ async function copy(text: string, i: number) {
 
     <!-- Error -->
     <Transition name="fade">
-      <p v-if="error" class="glass-note glass-note--error dg-error">{{ error }}</p>
+      <p v-if="error" class="glass-note glass-note--error dg-error" role="alert">{{ error }}</p>
     </Transition>
 
     <!-- Results -->
     <Transition name="slide-up">
       <div v-if="results.length" class="dg-results">
-        <p class="glass-label dg-results-label">Three distractors, ready to drop in</p>
+        <p class="glass-label dg-results-label">Generated distractors</p>
         <div
           v-for="(d, i) in results"
           :key="i"
@@ -143,6 +140,7 @@ async function copy(text: string, i: number) {
         </div>
       </div>
     </Transition>
+    <p class="sr-only" role="status" aria-live="polite">{{ copied === null ? '' : `Distractor ${['A', 'B', 'C'][copied]} copied.` }}</p>
 
   </UiToolShell>
 </template>

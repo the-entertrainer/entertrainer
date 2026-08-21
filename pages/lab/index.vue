@@ -20,21 +20,15 @@ useSeoMeta({ title: 'Homepage concepts — Lab', robots: 'noindex' })
   <div class="lab">
     <EdShell width="read">
       <header class="lab__head">
-        <p class="t-mono lab__eyebrow">Design experiments</p>
-        <h1 class="lab__title t-display">Homepage design experiments</h1>
-        <p class="lab__deck">
-          Fifteen versions of one interactive glass effect. The interaction stays the same; the type,
-          colour, spacing, and layout change to test different visual directions.
-        </p>
+        <h1 class="lab__title t-display">Experiments</h1>
+        <p class="lab__deck">15 homepage concepts.</p>
       </header>
 
       <ol class="lab__grid">
         <li v-for="c in CONCEPTS" :key="c.slug" class="u-reveal">
           <NuxtLink :to="`/lab/${c.slug}`" class="lab__card">
-            <span class="t-mono lab__n">{{ c.n }}</span>
             <span class="lab__body">
               <strong class="lab__name">{{ c.name }}</strong>
-              <span class="lab__law">{{ c.note }}</span>
             </span>
             <span class="lab__arrow" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -51,7 +45,6 @@ useSeoMeta({ title: 'Homepage concepts — Lab', robots: 'noindex' })
 .lab { min-height: 100dvh; background: var(--paper); color: var(--ink); }
 
 .lab__head { padding-bottom: clamp(22rem, 3vw, 32rem); border-bottom: var(--stroke) solid var(--line); margin-bottom: clamp(24rem, 4vw, 40rem); }
-.lab__eyebrow { margin: 0 0 14rem; color: var(--muted); }
 .lab__title { font-size: var(--type-display); margin: 0; }
 .lab__deck {
   margin: 18rem 0 0; max-width: var(--measure-body);
@@ -60,7 +53,7 @@ useSeoMeta({ title: 'Homepage concepts — Lab', robots: 'noindex' })
 
 .lab__grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 10rem; }
 .lab__card {
-  display: grid; grid-template-columns: 40rem minmax(0, 1fr) 20rem;
+  display: grid; grid-template-columns: minmax(0, 1fr) 20rem;
   align-items: start; gap: 16rem;
   padding: 18rem 20rem;
   border: var(--stroke) solid var(--line);
@@ -72,10 +65,8 @@ useSeoMeta({ title: 'Homepage concepts — Lab', robots: 'noindex' })
   .lab__card:hover { background: var(--paper-2); border-color: var(--ink); transform: translateX(3rem); }
   .lab__card:hover .lab__arrow {  }
 }
-.lab__n { color: var(--muted); padding-top: 4rem; }
 .lab__body { display: grid; gap: 6rem; min-width: 0; }
 .lab__name { font-size: 18rem; font-weight: 700; }
-.lab__law { font-size: 14rem; line-height: 1.5; color: var(--muted); }
 .lab__arrow { color: var(--muted); padding-top: 3rem; transition: transform var(--dur-fast) var(--ease-out); }
 
 @media (prefers-reduced-motion: reduce) {

@@ -21,7 +21,7 @@ const secondaryLinks = [
       <div class="ft__brand">
         <EdWordmark :size="32" />
         <p class="ft__blurb">
-          I’m {{ store.name }}. I make lessons, useful tools, and clear explanations for complicated work.
+          Lessons, projects, and browser tools by {{ store.name }}.
         </p>
         <a class="ticket ticket--sm" :href="`mailto:${store.email}`">Start a conversation</a>
       </div>
@@ -32,7 +32,7 @@ const secondaryLinks = [
       </nav>
 
       <nav class="ft__col" aria-labelledby="ft-elsewhere">
-        <h2 id="ft-elsewhere" class="t-mono ft__h">Elsewhere</h2>
+        <h2 id="ft-elsewhere" class="t-mono ft__h">Links</h2>
         <a v-for="s in store.socialLinks" :key="s.platform" class="ft__link u-underline"
            :href="s.url" :target="s.platform === 'email' ? undefined : '_blank'"
            :rel="s.platform === 'email' ? undefined : 'noopener noreferrer'">{{ s.label }}</a>
@@ -78,7 +78,7 @@ const secondaryLinks = [
 
 .ft__col { display: flex; flex-direction: column; align-items: flex-start; gap: 10rem; }
 .ft__h { color: var(--muted); margin: 0 0 2rem; }
-.ft__link { font-size: 15.5rem; font-weight: 600; }
+.ft__link { display:inline-flex; align-items:center; min-height:28rem; font-size:15.5rem; font-weight:600; }
 .ft__fine { font-size: 13.5rem; line-height: 1.6; color: var(--muted); margin: 0; }
 .ft__fine code { font-family: var(--font-mono); font-size: 12.5rem; }
 

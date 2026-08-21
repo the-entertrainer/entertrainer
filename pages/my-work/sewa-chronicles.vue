@@ -68,6 +68,16 @@ function onKey(e: KeyboardEvent) {
   else if (e.key === 'ArrowRight') step(1)
   else if (e.key === 'ArrowLeft') step(-1)
 }
+
+function cycleDialogFocus(e: KeyboardEvent) {
+  const focusable = Array.from(dialog.value?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]') ?? [])
+  if (!focusable.length) return
+  const currentIndex = focusable.indexOf(document.activeElement as HTMLElement)
+  const nextIndex = e.shiftKey
+    ? (currentIndex <= 0 ? focusable.length - 1 : currentIndex - 1)
+    : (currentIndex === focusable.length - 1 ? 0 : currentIndex + 1)
+  focusable[nextIndex].focus()
+}
 onMounted(() => window.addEventListener('keydown', onKey))
 onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
@@ -122,7 +132,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     </section>
 
     <footer class="cs__foot">
-      <p class="t-hand">I design learning people want to finish.</p>
       <div class="cs__links">
         <NuxtLink to="/my-work" class="ticket ticket--ghost">All work</NuxtLink>
         <NuxtLink to="/tools" class="ticket">See the tools I build <EdSignalIcon name="arrow" /></NuxtLink>
@@ -132,7 +141,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <!-- Lightbox -->
     <Transition name="lb">
       <div v-if="lightbox !== null" ref="dialog" class="lb" role="dialog" aria-modal="true"
-           :aria-label="pages[lightbox].cap" @click.self="close()">
+           :aria-label="pages[lightbox].cap" @keydown.tab.prevent="cycleDialogFocus" @click.self="close()">
         <button class="lb__close" aria-label="Close" @click="close()">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18" /></svg>
         </button>

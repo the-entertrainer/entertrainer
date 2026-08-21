@@ -237,18 +237,16 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
       <div v-if="phase !== 'results'" key="form" class="glass-panel be-form">
 
         <!-- Loading state -->
-        <div v-if="phase === 'loading'" class="be-loading">
+        <div v-if="phase === 'loading'" class="be-loading" role="status" aria-live="polite">
           <div class="be-loading-spinner" />
-          <p class="be-loading-title">Polishing your email...</p>
-          <p class="be-loading-subtitle">Turning your thoughts into something clear, concise, and professional.</p>
-          <p class="be-loading-hint">This usually takes just a few seconds.</p>
+          <p class="be-loading-title">Optimizing email.</p>
         </div>
 
         <!-- Normal compose form -->
         <form v-else @submit.prevent="optimize">
 
           <div class="be-examples">
-            <span class="glass-label">Need inspiration? Try an example</span>
+            <span class="glass-label">Examples</span>
             <div class="be-example-chips">
               <button
                 v-for="ex in EXAMPLE_DRAFTS"
@@ -271,14 +269,14 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
             id="be-draft"
             v-model="draft"
             class="glass-field be-textarea"
-            placeholder="Paste your rough email here. Bullet points, fragments, all-caps rants, anything goes."
+            placeholder="Paste your draft email."
             rows="7"
             :disabled="phase === 'loading'"
           />
         </div>
 
         <div class="be-field">
-          <label class="glass-label" for="be-context">Context / Goal (optional but very helpful)</label>
+          <label class="glass-label" for="be-context">Context / goal (optional)</label>
           <textarea
             id="be-context"
             v-model="context"
@@ -306,8 +304,8 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
             </select>
           </div>
 
-          <div class="be-audience-wrap">
-            <label class="glass-label">Audience</label>
+          <div class="be-audience-wrap" role="group" aria-labelledby="be-audience-label">
+            <span id="be-audience-label" class="glass-label">Audience</span>
             <div class="be-audience-chips">
               <button
                 v-for="opt in AUDIENCE_OPTIONS"
@@ -315,6 +313,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
                 type="button"
                 class="glass-chip"
                 :class="{ active: audience === opt.value }"
+                :aria-pressed="audience === opt.value"
                 @click="audience = audience === opt.value ? '' : opt.value"
                 :disabled="phase === 'loading'"
               >
@@ -334,7 +333,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
 
         <!-- Error -->
         <Transition name="fade">
-          <p v-if="error" class="glass-note glass-note--error be-error">{{ error }}</p>
+          <p v-if="error" class="glass-note glass-note--error be-error" role="alert">{{ error }}</p>
         </Transition>
 
         </form>
@@ -345,7 +344,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
 
         <!-- Improvements (educational value) -->
         <div v-if="improvements.length" class="glass-panel be-improvements">
-          <span class="glass-label">What got better</span>
+          <span class="glass-label">Changes made</span>
           <ul>
             <li v-for="(imp, i) in improvements" :key="i">{{ imp }}</li>
           </ul>
@@ -385,16 +384,18 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
           </div>
 
           <div v-else class="glass-panel be-edit-panel">
-            <label class="glass-label">Subject</label>
+            <label class="glass-label" for="be-edited-subject">Subject</label>
             <input
+              id="be-edited-subject"
               v-model="editedSubject"
               class="glass-field"
               type="text"
               placeholder="Subject line"
             />
 
-            <label class="glass-label" style="margin-top: 12rem;">Body</label>
+            <label class="glass-label" for="be-edited-body" style="margin-top: 12rem;">Body</label>
             <textarea
+              id="be-edited-body"
               v-model="editedBody"
               class="glass-field"
               rows="6"

@@ -15,9 +15,9 @@ useSeoMeta({
 })
 
 const routes = [
-  { number: '01', title: 'Lessons', body: 'Short learning experiences that turn an unfamiliar topic into a clear next step.', href: '/lessons', action: 'Explore lessons', visual: 'lesson' },
-  { number: '02', title: 'Projects', body: 'Courses, comics, and explainers built around the actual communication problem.', href: '/my-work', action: 'Browse projects', visual: 'project' },
-  { number: '03', title: 'Free tools', body: 'Small browser tools for planning, writing, quiz-making, and clearer work.', href: '/tools', action: 'Open tools', visual: 'tool' }
+  { number: '01', title: 'Lessons', body: 'Short modules on clear instructions, instructional design, and AI.', href: '/lessons', action: 'Explore lessons', visual: 'lesson' },
+  { number: '02', title: 'Projects', body: 'Courses, comics, and explainers made for workplace communication.', href: '/my-work', action: 'Browse projects', visual: 'project' },
+  { number: '03', title: 'Free tools', body: 'Browser tools for planning, writing, and quiz-making.', href: '/tools', action: 'Open tools', visual: 'tool' }
 ] as const
 
 const selectedWork = computed(() => ITEMS.filter(item => ['ai-atlas', 'sewa-chronicles'].includes(item.id)))
@@ -131,7 +131,7 @@ onBeforeUnmount(() => disposeMotion?.())
         <li v-for="item in selectedWork" :key="item.id">
           <NuxtLink :to="item.href" class="work-list__item">
             <span class="work-list__art"><img v-if="item.image && !workImageFailed[item.id]" :src="item.image" :alt="item.alt ?? ''" loading="lazy" @error="workImageFailed[item.id] = true" /><EdPaperSignal v-else :variant="workVisual[item.id]" label="" /></span>
-            <span class="work-list__content"><span class="work-list__meta t-mono">{{ item.stamp }}</span><span class="work-list__title t-display">{{ item.title }}</span><span class="work-list__dek">{{ item.dek }}</span></span>
+            <span class="work-list__content"><span v-if="item.stamp" class="work-list__meta t-mono">{{ item.stamp }}</span><span class="work-list__title t-display">{{ item.title }}</span><span class="work-list__dek">{{ item.dek }}</span></span>
             <EdSignalIcon class="work-list__action" name="external" />
           </NuxtLink>
         </li>

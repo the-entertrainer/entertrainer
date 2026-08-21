@@ -421,3 +421,9 @@
 - [x] Diagnose and eliminate the duplicate or glitching preloader playback across the first-paint template, Vue lifecycle, and route navigation behaviour.
 - [x] Animate the actual Entertrainer five-bar mark with restrained HTML/CSS 3D depth and reveal the actual wordmark with a cinematic white-background treatment.
 - [x] Validate a single approximately three-second sequence, clean gated handoff, light and dark states, reduced motion, navigation behaviour, console health, and production build before pushing to `main`.
+
+## WCAG 2.2 and boilerplate-depth audit
+- [x] Confirm the current WCAG conformance baseline from W3C and document the success criteria and evaluation limits relevant to the site.
+- [x] Run layered automated and manual checks across public pages, tools, and immersive courses for keyboard operation, focus, headings, landmarks, contrast, names and labels, target size, status messages, motion, responsive reflow, and error states.
+- [x] Conduct a multi-level boilerplate audit of repeated, decorative, indirect, redundant, and generic wording across site shell, page structures, cards, tools, courses, states, and data sources; record a disposition for every candidate.
+- [x] Remediate clear code and copy defects, re-run the audit checks, validate a production build, and publish an actionable report with scoped remaining risks before pushing to `main`.

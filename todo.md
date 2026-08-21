@@ -434,3 +434,10 @@
 - [x] Restore the original artwork to the case-study page with concise factual captions and accessible alternatives.
 - [x] Build an accessible 3D book-reading interaction with tactile page turns, clear previous and next controls, keyboard support, and a reduced-motion alternative.
 - [x] Validate image loading, page navigation, focus behaviour, mobile layout, reduced motion, console health, and production build before pushing to `main`.
+
+## Immersive SEWA editorial book journey
+
+- [x] Research editorial-book interaction patterns and document a narrative sequence that portrays the personal risk, early-career craft, and housekeeper-to-comic-maker context without using generic portfolio language.
+- [x] Redesign every SEWA content segment as a purposeful book page or spread, including the cover, personal note, project brief, process, real comic artwork, outcomes, and closing reflection.
+- [x] Build one immersive PageFlip-led reading journey with an editorial magazine visual system, readable direct controls, keyboard support, a reduced-motion reading mode, and no duplicated scrolling case-study content.
+- [x] Validate narrative clarity, actual image provenance, page-turn behaviour, light/dark readability, mobile layout, reduced motion, console health, and production build before pushing to `main`.

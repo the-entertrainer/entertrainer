@@ -427,3 +427,10 @@
 - [x] Run layered automated and manual checks across public pages, tools, and immersive courses for keyboard operation, focus, headings, landmarks, contrast, names and labels, target size, status messages, motion, responsive reflow, and error states.
 - [x] Conduct a multi-level boilerplate audit of repeated, decorative, indirect, redundant, and generic wording across site shell, page structures, cards, tools, courses, states, and data sources; record a disposition for every candidate.
 - [x] Remediate clear code and copy defects, re-run the audit checks, validate a production build, and publish an actionable report with scoped remaining risks before pushing to `main`.
+
+## SEWA Chronicles original art and book reader
+
+- [x] Recover the original SEWA cover and comic-page artwork from the approved project registry and verify its provenance before rendering it again.
+- [x] Restore the original artwork to the case-study page with concise factual captions and accessible alternatives.
+- [x] Build an accessible 3D book-reading interaction with tactile page turns, clear previous and next controls, keyboard support, and a reduced-motion alternative.
+- [x] Validate image loading, page navigation, focus behaviour, mobile layout, reduced motion, console health, and production build before pushing to `main`.

@@ -50,7 +50,7 @@ const opener = ref<HTMLElement | null>(null)
 const dialog = ref<HTMLElement | null>(null)
 
 function open(i: number, e?: Event) {
-  opener.value = (e?.currentTarget as HTMLElement) ?? null
+  opener.value = (e?.currentTarget as HTMLElement) ?? document.activeElement as HTMLElement | null
   lightbox.value = i
   nextTick(() => dialog.value?.querySelector<HTMLButtonElement>('.lb__close')?.focus())
 }
@@ -90,7 +90,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     >
       <div class="cs__facts">
         <button class="cs__cover" @click="open(0, $event)" aria-label="Enlarge the cover">
-          <EdPaperSignal variant="project" label="Paper Signal cover artefact for The SEWA Chronicles" />
+          <img src="/work/sewa/cover.webp" alt="The SEWA Chronicles cover: four resort staff around the title, calling out Service, Empathy, Warmth and Attentiveness." />
         </button>
         <dl class="cs__meta">
           <div v-for="m in meta" :key="m.k">
@@ -116,19 +116,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
     <section class="cs__gallery" aria-labelledby="cs-pages">
       <h2 id="cs-pages" class="t-mono cs__label">Selected pages</h2>
-      <ul class="cs__grid">
-        <li v-for="(p, i) in pages" :key="p.src" class="u-reveal">
-          <button class="sheet" @click="open(i, $event)" :aria-label="`Enlarge: ${p.cap}`">
-            <span class="sheet__plate">
-              <EdPaperSignal :variant="i % 2 ? 'evidence' : 'project'" :label="p.alt" />
-            </span>
-            <span class="sheet__cap">
-              <strong>{{ p.cap }}</strong>
-              <span class="t-mono sheet__tag">{{ p.tag }}</span>
-            </span>
-          </button>
-        </li>
-      </ul>
+      <EdBookReader :pages="pages" label="The SEWA Chronicles comic reader" @open="open($event)" />
     </section>
 
     <footer class="cs__foot">
@@ -149,7 +137,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7" /></svg>
         </button>
         <figure class="lb__fig">
-          <EdPaperSignal variant="project" :label="pages[lightbox].alt" />
+          <img :src="`/work/sewa/${pages[lightbox].src}.webp`" :alt="pages[lightbox].alt" />
           <figcaption class="t-mono">{{ pages[lightbox].cap }} · {{ pages[lightbox].tag }}</figcaption>
         </figure>
         <button class="lb__nav lb__nav--next" aria-label="Next page" @click.stop="step(1)">
@@ -174,7 +162,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) { .cs__cover:hover {   } }
-.cs__cover :deep(.ps-art) { min-height: 300rem; aspect-ratio: 5 / 7; }
+.cs__cover img { display: block; width: 100%; height: auto; }
 
 .cs__meta {
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -195,23 +183,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 .cs__beat-h { font-size: var(--type-h2); margin: 0 0 12rem; }
 .cs__beat-b { margin: 0; max-width: var(--measure-body); }
 
-.cs__grid {
-  list-style: none; margin: 0; padding: 0;
-  display: grid; gap: clamp(18rem, 2.4vw, 28rem);
-  grid-template-columns: repeat(auto-fill, minmax(260rem, 1fr));
-}
-.sheet { display: flex; flex-direction: column; gap: 12rem; width: 100%; text-align: left; padding: 0; cursor: zoom-in; }
-.sheet__plate {
-  display: block; overflow: hidden; background: var(--paper-2);
-  border: var(--stroke) solid var(--line); border-radius: var(--radius-m);
-  
-  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
-}
-@media (hover: hover) { .sheet:hover .sheet__plate {   } }
-.sheet__plate :deep(.ps-art) { min-height: 0; aspect-ratio: 5 / 7; }
-.sheet__cap { display: flex; flex-direction: column; gap: 4rem; }
-.sheet__cap strong { font-size: 16rem; font-weight: 700; }
-.sheet__tag { color: var(--muted); }
 
 .cs__foot {
   margin-top: clamp(44rem, 7vh, 80rem); padding-top: 26rem;
@@ -230,7 +201,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   background: color-mix(in srgb, var(--ink) 88%, transparent);
 }
 .lb__fig { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 12rem; min-width: 0; }
-.lb__fig :deep(.ps-art) { width: min(100%, 620rem); max-height: 78vh; aspect-ratio: 5 / 7; border: var(--stroke) solid var(--paper); }
+.lb__fig img { max-width: 100%; max-height: 78vh; object-fit: contain; border: var(--stroke) solid var(--paper); background: var(--paper); }
 .lb__fig figcaption { color: var(--paper); }
 .lb__close {
   position: absolute; top: clamp(14rem, 3vw, 26rem); right: clamp(14rem, 3vw, 26rem);

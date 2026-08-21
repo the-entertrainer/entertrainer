@@ -441,3 +441,10 @@
 - [x] Redesign every SEWA content segment as a purposeful book page or spread, including the cover, personal note, project brief, process, real comic artwork, outcomes, and closing reflection.
 - [x] Build one immersive PageFlip-led reading journey with an editorial magazine visual system, readable direct controls, keyboard support, a reduced-motion reading mode, and no duplicated scrolling case-study content.
 - [x] Validate narrative clarity, actual image provenance, page-turn behaviour, light/dark readability, mobile layout, reduced motion, console health, and production build before pushing to `main`.
+
+## SEWA bound-page and narrative correction
+
+- [x] Audit the PageFlip sheet structure, cover layer, page-surface clipping, and every repeated or abstract line of book copy.
+- [x] Bind all narrative and comic content inside each PageFlip sheet so type, images, folios, and captions physically turn together without overlay leakage or detached text.
+- [x] Remove duplicated cover title treatment and rewrite every book page as a concrete escalation from the early-career decision, through real work, to an earned personal reflection.
+- [x] Validate page clipping, spread sequence, keyboard and reduced-motion readers, image provenance, console health, and production build before pushing to `main`.

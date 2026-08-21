@@ -116,11 +116,6 @@ onBeforeUnmount(() => {
           <section v-for="(page, index) in pages" :key="page.id" class="editorial-book__page" :class="`editorial-book__page--${page.kind}`" data-book-page>
             <template v-if="page.kind === 'cover'">
               <img class="editorial-book__cover-image" :src="`/work/sewa/${page.src}.webp`" :alt="page.alt" draggable="false" />
-              <div class="editorial-book__cover-type">
-                <p class="editorial-book__cover-eyebrow t-mono">{{ page.eyebrow }}</p>
-                <h1>{{ page.title }}</h1>
-                <p>{{ page.kicker }}</p>
-              </div>
             </template>
 
             <template v-else-if="page.kind === 'comic'">
@@ -155,11 +150,6 @@ onBeforeUnmount(() => {
         <section v-else class="editorial-book__still" :class="`editorial-book__page--${currentPage.kind}`" aria-live="polite">
           <template v-if="currentPage.kind === 'cover'">
             <img class="editorial-book__cover-image" :src="`/work/sewa/${currentPage.src}.webp`" :alt="currentPage.alt" />
-            <div class="editorial-book__cover-type">
-              <p class="editorial-book__cover-eyebrow t-mono">{{ currentPage.eyebrow }}</p>
-              <h1>{{ currentPage.title }}</h1>
-              <p>{{ currentPage.kicker }}</p>
-            </div>
           </template>
           <template v-else-if="currentPage.kind === 'comic'">
             <figure class="editorial-book__comic-figure">
@@ -208,14 +198,13 @@ onBeforeUnmount(() => {
 .editorial-book__stage { min-height: calc(100dvh - 150rem); display: grid; place-items: center; padding: clamp(18rem, 4vw, 54rem); background: radial-gradient(circle at 50% 25%, #fff 0, #f6f3ee 47%, #e8e1d7 100%); overflow: hidden; }
 .editorial-book__canvas { width: min(100%, 1120rem); height: min(72vw, 760rem); min-height: 480rem; }
 .editorial-book__page, .editorial-book__still { position: relative; overflow: hidden; background: #fcfaf6; color: #151314; }
-.editorial-book__page { width: 100%; height: 100%; }
+.editorial-book__page { width: 100%; height: 100%; box-sizing: border-box; contain: paint; clip-path: inset(0); isolation: isolate; transform: translateZ(0); backface-visibility: hidden; }
+.editorial-book__page > * { position: relative; z-index: 1; backface-visibility: hidden; transform: translateZ(0); }
+.editorial-book__canvas :deep(.stf__block), .editorial-book__canvas :deep(.stf__item) { overflow: hidden !important; isolation: isolate; transform-style: preserve-3d; backface-visibility: hidden; }
+.editorial-book__page--cover .editorial-book__folio, .editorial-book__still.editorial-book__page--cover .editorial-book__folio { display: none; }
 .editorial-book__still { width: min(100%, 560rem); min-height: min(132vw, 760rem); border: 1px solid #151314; box-shadow: 12rem 16rem 0 rgba(21,19,20,.16); }
 .editorial-book__folio { position: absolute; bottom: 14rem; right: 18rem; margin: 0; color: #807a76; font-size: 10rem; letter-spacing: .12em; }
 .editorial-book__cover-image { display: block; width: 100%; height: 100%; object-fit: cover; filter: saturate(.95) contrast(1.02); }
-.editorial-book__cover-type { position: absolute; inset: auto 0 0; padding: clamp(20rem, 4vw, 42rem); color: #fff9f0; background: linear-gradient(0deg, rgba(17,12,11,.85), transparent 78%); }
-.editorial-book__cover-eyebrow { margin: 0 0 12rem; font-size: 10rem; letter-spacing: .16em; }
-.editorial-book__cover-type h1 { max-width: 7ch; margin: 0; font-family: Fraunces, Georgia, serif; font-size: clamp(42rem, 8vw, 86rem); line-height: .88; letter-spacing: -.065em; }
-.editorial-book__cover-type > p:last-child { margin: 16rem 0 0; font-family: 'Source Serif 4', Georgia, serif; font-size: clamp(16rem, 2vw, 21rem); max-width: 27ch; }
 .editorial-book__paper { height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; padding: clamp(28rem, 5.2vw, 56rem); background: linear-gradient(105deg, #fffdf8 0%, #f8f2e9 100%); }
 .editorial-book__eyebrow { margin: 0 0 18rem; color: #a23f32; font-size: 10rem; letter-spacing: .17em; }
 .editorial-book__kicker { margin: 0 0 12rem; color: #6b6560; font-style: italic; font-family: 'Source Serif 4', Georgia, serif; }

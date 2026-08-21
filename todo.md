@@ -415,3 +415,9 @@
 - [x] Inventory homepage captions, kickers, ordinals, and shared presentation labels that narrate composition rather than supply content, destination, or action.
 - [x] Remove the marked hero caption and route-section kicker, and remove comparable redundant labels where a visible heading, item title, or control already communicates the same information.
 - [x] Preserve meaningful course sequence, project date, source, progress, accessibility, and navigation information; validate desktop/mobile hierarchy and production build before pushing to `main`.
+
+## Single-run cinematic logo preloader
+
+- [x] Diagnose and eliminate the duplicate or glitching preloader playback across the first-paint template, Vue lifecycle, and route navigation behaviour.
+- [x] Animate the actual Entertrainer five-bar mark with restrained HTML/CSS 3D depth and reveal the actual wordmark with a cinematic white-background treatment.
+- [x] Validate a single approximately three-second sequence, clean gated handoff, light and dark states, reduced motion, navigation behaviour, console health, and production build before pushing to `main`.

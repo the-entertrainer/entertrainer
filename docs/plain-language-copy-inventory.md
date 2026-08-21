@@ -55,3 +55,19 @@ The audit retains lesson explanations, questions, feedback, source captions, pro
 ## Visual validation notes
 
 On 20 August 2026, local browser verification confirmed that the first visible preloader state contains only the animated Entertrainer mark and the screen-reader-only preparation status. The visible support sentence, rule, and five ticks are absent. After its finite handoff, the homepage presents direct route names, selected-work heading, actions, project descriptions, and privacy disclosure without empty visual gaps. The Instructional Design course uses the same logo-only gate and opens to its original course cover, learner-facing introduction, progress controls, and teaching copy without a residual loading overlay. The AI course uses the same loader, retains its original course-cover artwork and learner controls, and opens with a direct course description and source-backed instructional narrative.
+
+On 21 August 2026, local homepage validation confirmed that the final hero proceeds directly from title and explanatory sentence to its two actions. The illustration caption, identity kicker, route-section headline, and card ordinals are absent. The following content starts with the three named route cards, followed by the direct “Selected work” section and its navigation control.
+
+## Stricter presentation-only second pass
+
+| Location | Text or pattern reviewed | Decision | Reason |
+|---|---|---|---|
+| Homepage hero art | “From working notes to something people can use” | Removed | It narrated the adjacent illustration without adding an action, fact, or decision. |
+| Homepage route section | “Choose a direction” and “Start with what you need.” | Removed | The three named route cards already identify available destinations; both labels only restated the layout. |
+| Homepage hero | “Entertrainer · Naveen Jose” | Removed | The masthead identifies the site and the page copy identifies the author elsewhere. |
+| Homepage route cards | `01`, `02`, and `03` | Removed | These were decorative ordinals; the route titles supply the usable hierarchy. |
+| Course panels | Lesson number, screen count, progress, task type, source, and feedback labels | Retained | They support orientation, task completion, learner feedback, attribution, or recovery. |
+| Case studies and project pages | Date, client, process, selected-pages, and media-caption labels | Retained | They provide evidence, provenance, or local navigation through the project story. |
+| Tools and lab interfaces | Field labels, status labels, input counts, file names, and tour progress | Retained | They explain a current state or control; removing them would impair tool use. |
+| Shared footer and navigation | Destination headings, contact labels, privacy disclosure, and copyright | Retained | They are direct navigation, legal, privacy, or contact information. |
+| StoryGen and Strong learning tool | Module, lesson, assessment, and result labels | Retained | They name the current learning activity and support orientation through multi-step content. |

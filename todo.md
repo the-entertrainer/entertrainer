@@ -409,3 +409,9 @@
 - [x] Remove the preloader’s supporting sentence, rule, and tick decoration; retain only the actual animated Entertrainer mark and required screen-reader loading status.
 - [x] Remove or rewrite generic, ornamental, redundant, or indirect wording where it is not needed for content, action, navigation, feedback, attribution, or accessibility.
 - [x] Validate user flows, screen-reader status, page hierarchy, copy accuracy, console health, and production build before pushing to `main`.
+
+## Presentation-only homepage copy cleanup
+
+- [x] Inventory homepage captions, kickers, ordinals, and shared presentation labels that narrate composition rather than supply content, destination, or action.
+- [x] Remove the marked hero caption and route-section kicker, and remove comparable redundant labels where a visible heading, item title, or control already communicates the same information.
+- [x] Preserve meaningful course sequence, project date, source, progress, accessibility, and navigation information; validate desktop/mobile hierarchy and production build before pushing to `main`.

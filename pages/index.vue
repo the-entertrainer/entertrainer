@@ -26,7 +26,6 @@ const workImageFailed = ref<Record<string, boolean>>({})
 const motionReady = ref(false)
 const homeRoot = ref<HTMLElement | null>(null)
 const heroTitle = ref<HTMLElement | null>(null)
-const directionsTitle = ref<HTMLElement | null>(null)
 const selectedTitle = ref<HTMLElement | null>(null)
 const routeGrid = ref<HTMLElement | null>(null)
 const workList = ref<HTMLElement | null>(null)
@@ -69,7 +68,6 @@ onMounted(async () => {
         scrollTrigger: { trigger: element, start: 'top 84%', once: true }
       })
     }
-    revealHeading(directionsTitle.value, 'left')
     revealHeading(selectedTitle.value, 'right')
 
     if (routeGrid.value) gsap.from(routeGrid.value.children, {
@@ -100,7 +98,6 @@ onBeforeUnmount(() => disposeMotion?.())
   <EdShell ref="homeRoot" width="wide" :class="{ 'home--motion-ready': motionReady }">
     <header class="home-hero" aria-labelledby="home-title">
       <div class="home-hero__intro">
-        <p class="home-hero__kicker t-mono">Entertrainer · Naveen Jose</p>
         <h1 id="home-title" ref="heroTitle" class="home-hero__title t-display" aria-label="I make complicated work easier to understand."><span class="home-hero__word" aria-hidden="true"><span>I make</span></span><span class="home-hero__word home-hero__word--accent" aria-hidden="true"><span>complicated</span></span><span class="home-hero__word" aria-hidden="true"><span>work easier</span></span><span class="home-hero__word" aria-hidden="true"><span>to understand.</span></span></h1>
         <p class="home-hero__deck"><span>I make lessons, projects, and small tools for people who need a clearer way into difficult work.</span></p>
         <div class="home-hero__actions">
@@ -111,23 +108,14 @@ onBeforeUnmount(() => disposeMotion?.())
 
       <div class="home-hero__scene">
         <EdPaperSignal class="home-hero__art" variant="hero" label="Working notes, a clarified learning brief, and a useful browser tool assembled into one Paper Signal scene" />
-        <p class="home-hero__caption t-mono"><span />From working notes to something people can use</p>
       </div>
-
-      <aside class="home-hero__index" aria-label="Areas of work">
-        <ol><li>Learn</li><li>See the work</li><li>Use a tool</li></ol>
-      </aside>
     </header>
 
-    <section class="directions" aria-labelledby="directions-title">
-      <div class="section-head">
-        <p class="section-head__label t-mono">Choose a direction</p>
-        <h2 id="directions-title" ref="directionsTitle" class="section-head__title t-display">Start with what you need.</h2>
-      </div>
+    <section class="directions" aria-label="Explore Entertrainer">
       <ul ref="routeGrid" class="route-grid">
         <li v-for="(route, index) in routes" :key="route.title" :style="{ '--card-delay': `${index * 80}ms` }">
           <NuxtLink :to="route.href" class="route-card">
-            <span class="route-card__top"><span class="route-card__number t-mono">{{ route.number }}</span><EdSignalIcon name="arrow" /></span>
+            <span class="route-card__top"><EdSignalIcon name="arrow" /></span>
             <EdPaperSignal class="route-card__art" :variant="route.visual" label="" />
             <span class="route-card__title t-display">{{ route.title }}</span>
             <span class="route-card__body">{{ route.body }}</span>

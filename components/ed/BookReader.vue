@@ -46,6 +46,8 @@ const currentPage = computed(() => props.pages[activeIndex.value])
 const pageNumber = computed(() => String(activeIndex.value + 1).padStart(2, '0'))
 const canPrevious = computed(() => activeIndex.value > 0)
 const canNext = computed(() => activeIndex.value < props.pages.length - 1)
+const flipState = ref('read')
+const touchStart = ref<{ x: number, y: number } | null>(null)
 
 const canvasSize = { width: 1120, height: 1520 }
 
@@ -194,6 +196,7 @@ async function startReader() {
   })
   pageFlip.value.loadFromImages(images)
   pageFlip.value.on('flip', (event: { data: number }) => { activeIndex.value = event.data })
+  pageFlip.value.on('changeState', (event: { data: string }) => { flipState.value = event.data })
   readerReady.value = true
 }
 
@@ -234,6 +237,32 @@ function focusReader(event: PointerEvent) {
   reader?.focus({ preventScroll: true })
 }
 
+function onTouchStart(event: TouchEvent) {
+  if (event.touches.length !== 1 || reducedMotion.value) return
+  const touch = event.touches[0]
+  touchStart.value = { x: touch.clientX, y: touch.clientY }
+}
+
+function onTouchEnd(event: TouchEvent) {
+  if (!touchStart.value || reducedMotion.value) return
+  const touch = event.changedTouches[0]
+  const start = touchStart.value
+  touchStart.value = null
+  if (!touch) return
+
+  const horizontalDistance = touch.clientX - start.x
+  const verticalDistance = touch.clientY - start.y
+  if (Math.abs(horizontalDistance) < 46 || Math.abs(horizontalDistance) <= Math.abs(verticalDistance)) return
+
+  const pageBeforeFallback = activeIndex.value
+  window.setTimeout(() => {
+    const engineDidNotTurn = flipState.value === 'read' && activeIndex.value === pageBeforeFallback
+    if (!engineDidNotTurn) return
+    if (horizontalDistance < 0) next()
+    else previous()
+  }, 140)
+}
+
 function onMotionChange(event: MediaQueryListEvent) {
   reducedMotion.value = event.matches
   window.location.reload()
@@ -261,7 +290,7 @@ onBeforeUnmount(() => {
     </header>
 
     <main class="sewa-publication__reader">
-      <section class="sewa-publication__stage" :class="{ 'sewa-publication__stage--ready': readerReady }" aria-roledescription="book" :aria-label="`${label}, page ${activeIndex + 1} of ${pages.length}`" @pointerdown="focusReader">
+      <section class="sewa-publication__stage" :class="{ 'sewa-publication__stage--ready': readerReady }" aria-roledescription="book" :aria-label="`${label}, page ${activeIndex + 1} of ${pages.length}`" @pointerdown="focusReader" @touchstart.passive="onTouchStart" @touchend.passive="onTouchEnd">
         <div v-if="!reducedMotion" ref="bookRoot" class="sewa-publication__flipbook" aria-hidden="true" />
 
         <section v-else class="sewa-publication__still" :class="`sewa-publication__still--${currentPage.kind}`">
@@ -310,9 +339,9 @@ onBeforeUnmount(() => {
 .sewa-publication__edition { margin: 0; font: 700 10rem/1.2 "IBM Plex Mono", monospace; letter-spacing: .16em; color: #7a6b62; }
 .sewa-publication__exit { justify-self: end; min-height: 44rem; display: inline-flex; align-items: center; border-bottom: 1px solid currentColor; font-family: "Libre Baskerville", Georgia, serif; font-size: 13rem; font-weight: 700; }
 .sewa-publication__reader { flex: 1; display: flex; flex-direction: column; }
-.sewa-publication__stage { position: relative; flex: 1; min-height: calc(100dvh - 72rem); display: grid; place-items: center; padding: clamp(22rem, 5vw, 68rem); overflow: hidden; background: radial-gradient(circle at 50% 26%, #fffdf8 0, #f5eee3 49%, #e0d4c2 100%); }
+.sewa-publication__stage { position: relative; flex: 1; min-height: calc(100dvh - 72rem); display: grid; place-items: center; padding: clamp(22rem, 5vw, 68rem); overflow: hidden; overscroll-behavior-x: contain; background: radial-gradient(circle at 50% 26%, #fffdf8 0, #f5eee3 49%, #e0d4c2 100%); }
 .sewa-publication__stage::before { content: ''; position: absolute; width: min(88vw, 900rem); height: min(78dvh, 820rem); border-radius: 50%; background: rgba(54,35,19,.14); filter: blur(38rem); transform: translateY(28rem) scale(.9); pointer-events: none; }
-.sewa-publication__flipbook { position: relative; z-index: 1; width: min(100%, 1120rem); height: min(82dvh, 760rem); min-height: 408rem; opacity: 0; transition: opacity 260ms ease; }
+.sewa-publication__flipbook { position: relative; z-index: 1; width: min(100%, 1120rem); height: min(82dvh, 760rem); min-height: 408rem; opacity: 0; touch-action: pan-y; -webkit-user-select: none; user-select: none; transition: opacity 260ms ease; }
 .sewa-publication__stage--ready .sewa-publication__flipbook { opacity: 1; }
 .sewa-publication__flipbook :deep(.stf__parent) { margin: 0 auto; }
 .sewa-publication__flipbook :deep(.stf__wrapper) { box-shadow: 0 24rem 44rem rgba(50,35,23,.24); }

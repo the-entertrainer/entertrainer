@@ -462,3 +462,9 @@
 - [x] Replace the current simulated sheet turn with the selected robust page-flip implementation and retain direct keyboard, pointer, touch, and reduced-motion reading paths.
 - [x] Apply a separate SEWA publication typography system that complements the original comic artwork while keeping the case-study copy readable and semantically structured.
 - [x] Validate realistic page physics, type rendering, comic-art fidelity, mobile and desktop input, reduced motion, console health, compliance guard, and production build before pushing to `main`.
+
+## SEWA mobile swipe repair
+
+- [x] Reproduce the page-turn failure on a mobile viewport using real touch or pointer gesture events and record the failing event path.
+- [x] Repair mobile swipe behavior while preserving corner dragging, click turns, keyboard navigation, and reduced-motion reading.
+- [x] Validate forward and backward mobile swipes, desktop turns, keyboard controls, console health, compliance guard, and production build before pushing to `main`.

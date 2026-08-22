@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { PageFlip } from 'page-flip'
-
 export type EditorialBookPage = {
   id: string
   kind: 'cover' | 'narrative' | 'process' | 'comic' | 'closing'
@@ -27,81 +25,102 @@ const props = withDefaults(defineProps<{
   returnLabel: 'All projects',
 })
 
-const bookRoot = ref<HTMLElement | null>(null)
-const pageFlip = shallowRef<PageFlip | null>(null)
 const activeIndex = ref(0)
 const reducedMotion = ref(false)
+const isTurning = ref(false)
+const turnDirection = ref<'next' | 'previous'>('next')
+const gestureStart = ref<number | null>(null)
+let lastPointerTurnAt = 0
 let motionQuery: MediaQueryList | undefined
-const onMotionChange = () => window.location.reload()
 
 const currentPage = computed(() => props.pages[activeIndex.value])
+const pageNumber = computed(() => String(activeIndex.value + 1).padStart(2, '0'))
 const canPrevious = computed(() => activeIndex.value > 0)
 const canNext = computed(() => activeIndex.value < props.pages.length - 1)
 
-function previous() {
-  if (!canPrevious.value) return
-  if (reducedMotion.value) activeIndex.value -= 1
-  else pageFlip.value?.flipPrev('bottom')
-}
-
-function next() {
-  if (!canNext.value) return
-  if (reducedMotion.value) activeIndex.value += 1
-  else pageFlip.value?.flipNext('bottom')
+function turn(direction: 'next' | 'previous') {
+  if (isTurning.value || (direction === 'next' && !canNext.value) || (direction === 'previous' && !canPrevious.value)) return
+  turnDirection.value = direction
+  isTurning.value = true
+  activeIndex.value += direction === 'next' ? 1 : -1
+  if (reducedMotion.value) isTurning.value = false
 }
 
 function restart() {
-  if (reducedMotion.value) activeIndex.value = 0
-  else pageFlip.value?.turnToPage(0)
+  if (isTurning.value || activeIndex.value === 0) return
+  turnDirection.value = 'previous'
+  isTurning.value = true
+  activeIndex.value = 0
+  if (reducedMotion.value) isTurning.value = false
 }
 
 function handleKey(event: KeyboardEvent) {
-  if (event.key === 'ArrowLeft') previous()
-  if (event.key === 'ArrowRight') next()
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault()
+    turn('previous')
+  }
+  if (event.key === 'ArrowRight' || event.key === ' ') {
+    event.preventDefault()
+    turn('next')
+  }
+  if (event.key === 'Home') {
+    event.preventDefault()
+    restart()
+  }
 }
 
-async function startPageFlip() {
-  if (reducedMotion.value || !bookRoot.value) return
-  await nextTick()
-  const sheets = Array.from(bookRoot.value.querySelectorAll<HTMLElement>('[data-book-page]'))
-  pageFlip.value?.destroy()
-  pageFlip.value = new PageFlip(bookRoot.value, {
-    width: 560,
-    height: 760,
-    size: 'stretch',
-    minWidth: 300,
-    maxWidth: 1120,
-    minHeight: 408,
-    maxHeight: 1520,
-    maxShadowOpacity: 0.46,
-    showCover: true,
-    mobileScrollSupport: false,
-    usePortrait: true,
-    drawShadow: true,
-    flippingTime: 940,
-    startZIndex: 10,
-  })
-  pageFlip.value.loadFromHTML(sheets)
-  pageFlip.value.on('flip', (event: { data: number }) => {
-    activeIndex.value = event.data
-  })
+function onPointerDown(event: PointerEvent) {
+  if ((event.target as HTMLElement).closest('a, button')) return
+  gestureStart.value = event.clientX
 }
 
-onMounted(async () => {
+function onPointerUp(event: PointerEvent) {
+  if (gestureStart.value === null) return
+  const delta = event.clientX - gestureStart.value
+  const boundary = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  gestureStart.value = null
+
+  if (Math.abs(delta) > 42) {
+    turn(delta < 0 ? 'next' : 'previous')
+    lastPointerTurnAt = Date.now()
+    return
+  }
+
+  const position = (event.clientX - boundary.left) / boundary.width
+  if (position > 0.68) {
+    turn('next')
+    lastPointerTurnAt = Date.now()
+  }
+  if (position < 0.32) {
+    turn('previous')
+    lastPointerTurnAt = Date.now()
+  }
+}
+
+function onStageClick(event: MouseEvent) {
+  if (Date.now() - lastPointerTurnAt < 420 || (event.target as HTMLElement).closest('a, button')) return
+  const boundary = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  const position = (event.clientX - boundary.left) / boundary.width
+  if (position > 0.68) turn('next')
+  if (position < 0.32) turn('previous')
+}
+
+function onMotionChange(event: MediaQueryListEvent) {
+  reducedMotion.value = event.matches
+  isTurning.value = false
+}
+
+onMounted(() => {
   motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
   reducedMotion.value = motionQuery.matches
   motionQuery.addEventListener('change', onMotionChange)
-  await startPageFlip()
 })
 
-onBeforeUnmount(() => {
-  motionQuery?.removeEventListener('change', onMotionChange)
-  pageFlip.value?.destroy()
-})
+onBeforeUnmount(() => motionQuery?.removeEventListener('change', onMotionChange))
 </script>
 
 <template>
-  <article class="editorial-book" :aria-label="label" @keydown.left.prevent="previous" @keydown.right.prevent="next">
+  <article class="editorial-book" :class="{ 'editorial-book--turning': isTurning }" :aria-label="label" tabindex="0" @keydown="handleKey">
     <header class="editorial-book__masthead">
       <NuxtLink to="/" class="editorial-book__brand" aria-label="Entertrainer home">
         <EdWordmark :animate="false" />
@@ -111,107 +130,92 @@ onBeforeUnmount(() => {
     </header>
 
     <main class="editorial-book__reader">
-      <div class="editorial-book__stage">
-        <div v-if="!reducedMotion" ref="bookRoot" class="editorial-book__canvas" aria-label="Use the page controls or drag a corner to turn the book">
-          <section v-for="(page, index) in pages" :key="page.id" class="editorial-book__page" :class="`editorial-book__page--${page.kind}`" data-book-page>
-            <template v-if="page.kind === 'cover'">
-              <img class="editorial-book__cover-image" :src="`/work/sewa/${page.src}.webp`" :alt="page.alt" draggable="false" />
+      <section
+        class="editorial-book__stage"
+        aria-roledescription="book"
+        :aria-label="`${label}, page ${activeIndex + 1} of ${pages.length}`"
+        aria-describedby="sewa-reader-help"
+        @pointerdown="onPointerDown"
+        @pointerup="onPointerUp"
+        @click="onStageClick"
+      >
+        <span class="editorial-book__edge editorial-book__edge--previous" aria-hidden="true" />
+        <span class="editorial-book__edge editorial-book__edge--next" aria-hidden="true" />
+
+        <Transition :name="turnDirection === 'next' ? 'book-turn-next' : 'book-turn-previous'" mode="out-in" @after-enter="isTurning = false">
+          <section :key="currentPage.id" class="editorial-book__sheet" :class="`editorial-book__sheet--${currentPage.kind}`">
+            <template v-if="currentPage.kind === 'cover'">
+              <img class="editorial-book__cover-image" :src="`/work/sewa/${currentPage.src}.webp`" :alt="currentPage.alt" draggable="false" />
             </template>
 
-            <template v-else-if="page.kind === 'comic'">
+            <template v-else-if="currentPage.kind === 'comic'">
               <figure class="editorial-book__comic-figure">
-                <img :src="`/work/sewa/${page.src}.webp`" :alt="page.alt" draggable="false" />
+                <img :src="`/work/sewa/${currentPage.src}.webp`" :alt="currentPage.alt" draggable="false" />
                 <figcaption>
-                  <span>{{ page.caption }}</span>
-                  <span class="t-mono">{{ page.tag }}</span>
+                  <span>{{ currentPage.caption }}</span>
+                  <span class="t-mono">{{ currentPage.tag }}</span>
                 </figcaption>
               </figure>
             </template>
 
             <template v-else>
               <div class="editorial-book__paper">
-                <p v-if="page.eyebrow" class="editorial-book__eyebrow t-mono">{{ page.eyebrow }}</p>
-                <p v-if="page.kicker" class="editorial-book__kicker">{{ page.kicker }}</p>
-                <h2>{{ page.title }}</h2>
-                <div v-if="page.body" class="editorial-book__copy t-read">
-                  <p v-for="paragraph in page.body" :key="paragraph">{{ paragraph }}</p>
+                <p v-if="currentPage.eyebrow" class="editorial-book__eyebrow t-mono">{{ currentPage.eyebrow }}</p>
+                <p v-if="currentPage.kicker" class="editorial-book__kicker">{{ currentPage.kicker }}</p>
+                <h1>{{ currentPage.title }}</h1>
+                <div v-if="currentPage.body" class="editorial-book__copy t-read">
+                  <p v-for="paragraph in currentPage.body" :key="paragraph">{{ paragraph }}</p>
                 </div>
-                <blockquote v-if="page.quote">{{ page.quote }}</blockquote>
-                <ol v-if="page.steps" class="editorial-book__steps">
-                  <li v-for="(step, stepIndex) in page.steps" :key="step"><span class="t-mono">0{{ stepIndex + 1 }}</span>{{ step }}</li>
+                <blockquote v-if="currentPage.quote">{{ currentPage.quote }}</blockquote>
+                <ol v-if="currentPage.steps" class="editorial-book__steps">
+                  <li v-for="(step, stepIndex) in currentPage.steps" :key="step"><span class="t-mono">0{{ stepIndex + 1 }}</span>{{ step }}</li>
                 </ol>
-                <p v-if="page.credit" class="editorial-book__credit t-mono">{{ page.credit }}</p>
+                <p v-if="currentPage.credit" class="editorial-book__credit t-mono">{{ currentPage.credit }}</p>
               </div>
             </template>
-            <p class="editorial-book__folio t-mono">{{ String(index + 1).padStart(2, '0') }}</p>
+            <p v-if="currentPage.kind !== 'cover'" class="editorial-book__folio t-mono">{{ pageNumber }}</p>
           </section>
-        </div>
+        </Transition>
+      </section>
 
-        <section v-else class="editorial-book__still" :class="`editorial-book__page--${currentPage.kind}`" aria-live="polite">
-          <template v-if="currentPage.kind === 'cover'">
-            <img class="editorial-book__cover-image" :src="`/work/sewa/${currentPage.src}.webp`" :alt="currentPage.alt" />
-          </template>
-          <template v-else-if="currentPage.kind === 'comic'">
-            <figure class="editorial-book__comic-figure">
-              <img :src="`/work/sewa/${currentPage.src}.webp`" :alt="currentPage.alt" />
-              <figcaption><span>{{ currentPage.caption }}</span><span class="t-mono">{{ currentPage.tag }}</span></figcaption>
-            </figure>
-          </template>
-          <template v-else>
-            <div class="editorial-book__paper">
-              <p v-if="currentPage.eyebrow" class="editorial-book__eyebrow t-mono">{{ currentPage.eyebrow }}</p>
-              <p v-if="currentPage.kicker" class="editorial-book__kicker">{{ currentPage.kicker }}</p>
-              <h2>{{ currentPage.title }}</h2>
-              <div v-if="currentPage.body" class="editorial-book__copy t-read"><p v-for="paragraph in currentPage.body" :key="paragraph">{{ paragraph }}</p></div>
-              <blockquote v-if="currentPage.quote">{{ currentPage.quote }}</blockquote>
-              <ol v-if="currentPage.steps" class="editorial-book__steps"><li v-for="(step, stepIndex) in currentPage.steps" :key="step"><span class="t-mono">0{{ stepIndex + 1 }}</span>{{ step }}</li></ol>
-              <p v-if="currentPage.credit" class="editorial-book__credit t-mono">{{ currentPage.credit }}</p>
-            </div>
-          </template>
-          <p class="editorial-book__folio t-mono">{{ String(activeIndex + 1).padStart(2, '0') }}</p>
-        </section>
-      </div>
-
-      <nav class="editorial-book__controls" aria-label="Book controls">
-        <button type="button" class="editorial-book__turn" :disabled="!canPrevious" @click="previous">Previous</button>
-        <p class="editorial-book__status t-mono" aria-live="polite">Page {{ activeIndex + 1 }} of {{ pages.length }}</p>
-        <button type="button" class="editorial-book__turn editorial-book__turn--next" :disabled="!canNext" @click="next">Next</button>
+      <p id="sewa-reader-help" class="editorial-book__sr-only">
+        Swipe left or tap the right page edge for the next page. Swipe right or tap the left page edge for the previous page. Use left and right arrow keys to turn pages. Press Home to return to the cover.
+      </p>
+      <p class="editorial-book__sr-only" role="status" aria-live="polite">Page {{ activeIndex + 1 }} of {{ pages.length }}. {{ currentPage.title || currentPage.caption }}</p>
+      <nav class="editorial-book__sr-only" aria-label="Book navigation">
+        <button type="button" :disabled="!canPrevious" @click="turn('previous')">Previous page</button>
+        <button type="button" :disabled="!canNext" @click="turn('next')">Next page</button>
+        <button type="button" @click="restart">Return to cover</button>
       </nav>
     </main>
-
-    <footer class="editorial-book__footer">
-      <p>{{ currentPage.caption || currentPage.title }}</p>
-      <button type="button" class="editorial-book__restart" @click="restart">Read from cover</button>
-    </footer>
   </article>
 </template>
 
 <style scoped>
-/* SEWA book journey: original comic pages in a quiet fashion-editorial reading room. */
-.editorial-book { min-height: 100dvh; color: #151314; background: #f6f3ee; display: flex; flex-direction: column; }
+/* SEWA reader: a single bound sheet with content-contained turns and gesture-led navigation. */
+.editorial-book { min-height: 100dvh; color: #151314; background: #f4f0e9; display: flex; flex-direction: column; outline: none; }
 .editorial-book__masthead { min-height: 72rem; padding: 14rem clamp(18rem, 4vw, 62rem); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; border-bottom: 1px solid #191719; background: #f6f3ee; }
 .editorial-book__brand { justify-self: start; color: #151314; }
 .editorial-book__brand :deep(.wordmark) { max-width: 185rem; }
 .editorial-book__edition { margin: 0; letter-spacing: .12em; font-size: 10rem; color: #6d6765; }
 .editorial-book__exit { justify-self: end; min-height: 44rem; display: inline-flex; align-items: center; border-bottom: 1px solid currentColor; font-size: 13rem; font-weight: 700; }
-.editorial-book__reader { flex: 1; display: grid; grid-template-rows: 1fr auto; }
-.editorial-book__stage { min-height: calc(100dvh - 150rem); display: grid; place-items: center; padding: clamp(18rem, 4vw, 54rem); background: radial-gradient(circle at 50% 25%, #fff 0, #f6f3ee 47%, #e8e1d7 100%); overflow: hidden; }
-.editorial-book__canvas { width: min(100%, 1120rem); height: min(72vw, 760rem); min-height: 480rem; }
-.editorial-book__page, .editorial-book__still { position: relative; overflow: hidden; background: #fcfaf6; color: #151314; }
-.editorial-book__page { width: 100%; height: 100%; box-sizing: border-box; contain: paint; clip-path: inset(0); isolation: isolate; transform: translateZ(0); backface-visibility: hidden; }
-.editorial-book__page > * { position: relative; z-index: 1; backface-visibility: hidden; transform: translateZ(0); }
-.editorial-book__canvas :deep(.stf__block), .editorial-book__canvas :deep(.stf__item) { overflow: hidden !important; isolation: isolate; transform-style: preserve-3d; backface-visibility: hidden; }
-.editorial-book__page--cover .editorial-book__folio, .editorial-book__still.editorial-book__page--cover .editorial-book__folio { display: none; }
-.editorial-book__still { width: min(100%, 560rem); min-height: min(132vw, 760rem); border: 1px solid #151314; box-shadow: 12rem 16rem 0 rgba(21,19,20,.16); }
-.editorial-book__folio { position: absolute; bottom: 14rem; right: 18rem; margin: 0; color: #807a76; font-size: 10rem; letter-spacing: .12em; }
+.editorial-book__reader { flex: 1; display: flex; flex-direction: column; }
+.editorial-book__stage { position: relative; flex: 1; min-height: calc(100dvh - 72rem); display: grid; place-items: center; padding: clamp(22rem, 5vw, 68rem); overflow: hidden; touch-action: pan-y; cursor: ew-resize; background: radial-gradient(circle at 50% 23%, #fff 0, #f5f1e9 47%, #e5ddd0 100%); }
+.editorial-book__stage::before { content: ''; position: absolute; width: min(92vw, 710rem); height: min(84dvh, 800rem); background: rgba(63,49,35,.13); filter: blur(34rem); transform: translateY(18rem) scale(.94); pointer-events: none; }
+.editorial-book__stage::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; background: linear-gradient(90deg, transparent 42%, rgba(19,14,11,.14) 50%, transparent 58%); transition: opacity 180ms ease; }
+.editorial-book--turning .editorial-book__stage::after { opacity: 1; }
+.editorial-book__sheet { position: relative; z-index: 1; width: min(100%, 620rem); height: min(82dvh, 760rem); min-height: min(132vw, 500rem); overflow: hidden; isolation: isolate; contain: paint; clip-path: inset(0); transform: translateZ(0); backface-visibility: hidden; transform-style: preserve-3d; background: #fcfaf6; color: #151314; box-shadow: 0 18rem 34rem rgba(50,39,29,.18), 6rem 8rem 0 rgba(50,39,29,.11); }
+.editorial-book__sheet > * { position: relative; z-index: 1; backface-visibility: hidden; transform: translateZ(0); }
+.editorial-book__sheet::before { content: ''; position: absolute; z-index: 2; inset: 0; pointer-events: none; border: 1px solid rgba(30,24,19,.16); box-shadow: inset 0 0 0 8rem rgba(255,255,255,.15); }
+.editorial-book__sheet--cover { background: #bf7b31; }
 .editorial-book__cover-image { display: block; width: 100%; height: 100%; object-fit: cover; filter: saturate(.95) contrast(1.02); }
-.editorial-book__paper { height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; padding: clamp(28rem, 5.2vw, 56rem); background: linear-gradient(105deg, #fffdf8 0%, #f8f2e9 100%); }
+.editorial-book__paper { height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; padding: clamp(32rem, 7vw, 68rem); background: linear-gradient(105deg, #fffdf8 0%, #f7f0e5 100%); }
 .editorial-book__eyebrow { margin: 0 0 18rem; color: #a23f32; font-size: 10rem; letter-spacing: .17em; }
 .editorial-book__kicker { margin: 0 0 12rem; color: #6b6560; font-style: italic; font-family: 'Source Serif 4', Georgia, serif; }
-.editorial-book__paper h2 { margin: 0; max-width: 8.7ch; font-family: Fraunces, Georgia, serif; font-size: clamp(32rem, 4.2vw, 52rem); letter-spacing: -.065em; line-height: .95; }
-.editorial-book__copy { margin-top: clamp(14rem, 2vw, 24rem); max-width: 32ch; font-size: clamp(16rem, 1.7vw, 19rem); line-height: 1.45; }
-.editorial-book__copy p { margin: 0 0 10rem; }
-.editorial-book__paper blockquote { margin: clamp(16rem, 2.5vw, 30rem) 0 0; padding: 14rem 0 0; border-top: 1px solid #151314; max-width: 20ch; font-family: Fraunces, Georgia, serif; font-size: clamp(21rem, 2.7vw, 31rem); line-height: 1.03; letter-spacing: -.04em; }
+.editorial-book__paper h1 { margin: 0; max-width: 8.8ch; font-family: Fraunces, Georgia, serif; font-size: clamp(34rem, 5vw, 58rem); letter-spacing: -.065em; line-height: .94; }
+.editorial-book__copy { margin-top: clamp(16rem, 2vw, 26rem); max-width: 33ch; font-size: clamp(16rem, 1.8vw, 20rem); line-height: 1.48; }
+.editorial-book__copy p { margin: 0 0 12rem; }
+.editorial-book__sheet blockquote { margin: clamp(18rem, 2.5vw, 30rem) 0 0; padding: 14rem 0 0; border-top: 1px solid #151314; max-width: 20ch; font-family: Fraunces, Georgia, serif; font-size: clamp(21rem, 2.7vw, 31rem); line-height: 1.03; letter-spacing: -.04em; }
 .editorial-book__steps { list-style: none; margin: 30rem 0 0; padding: 0; border-top: 1px solid #151314; }
 .editorial-book__steps li { display: grid; grid-template-columns: 36rem 1fr; gap: 12rem; padding: 12rem 0; border-bottom: 1px solid #d4cdc3; font-weight: 650; font-size: clamp(15rem, 1.7vw, 18rem); }
 .editorial-book__steps span { color: #a23f32; font-size: 10rem; letter-spacing: .08em; }
@@ -220,30 +224,36 @@ onBeforeUnmount(() => {
 .editorial-book__comic-figure img { display: block; width: 100%; height: 100%; object-fit: contain; background: #171415; }
 .editorial-book__comic-figure figcaption { display: flex; justify-content: space-between; gap: 12rem; padding: 12rem 16rem; color: #f6f3ee; background: #171415; font-size: 12rem; }
 .editorial-book__comic-figure figcaption span:last-child { text-align: right; color: #f5ac81; font-size: 10rem; letter-spacing: .08em; }
-.editorial-book__controls { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12rem; align-items: center; padding: 13rem clamp(18rem, 4vw, 62rem); border-top: 1px solid #151314; background: #fffdf8; }
-.editorial-book__turn { justify-self: start; min-height: 44rem; padding: 0 14rem; border: 1px solid #151314; font-weight: 700; background: transparent; }
-.editorial-book__turn--next { justify-self: end; color: #fffdf8; background: #151314; }
-.editorial-book__turn:disabled { opacity: .32; cursor: not-allowed; }
-.editorial-book__status { margin: 0; color: #716b66; font-size: 10rem; letter-spacing: .1em; }
-.editorial-book__footer { padding: 10rem clamp(18rem, 4vw, 62rem); display: flex; gap: 18rem; align-items: center; justify-content: space-between; background: #151314; color: #f6f3ee; }
-.editorial-book__footer p { margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 14rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.editorial-book__restart { min-height: 36rem; flex: none; border-bottom: 1px solid currentColor; font-size: 12rem; font-weight: 700; }
-.editorial-book__turn:focus-visible, .editorial-book__exit:focus-visible, .editorial-book__restart:focus-visible, .editorial-book__brand:focus-visible { outline: 3px solid #315fc7; outline-offset: 4rem; }
+.editorial-book__folio { position: absolute; z-index: 3; bottom: 14rem; right: 18rem; margin: 0; color: #807a76; font-size: 10rem; letter-spacing: .12em; }
+.editorial-book__edge { position: absolute; z-index: 0; top: 50%; width: 34rem; height: 86rem; transform: translateY(-50%); opacity: .5; pointer-events: none; }
+.editorial-book__edge--previous { left: max(12rem, calc(50% - 386rem)); border-left: 1px solid #151314; border-top: 1px solid #151314; transform: translateY(-50%) rotate(-45deg); }
+.editorial-book__edge--next { right: max(12rem, calc(50% - 386rem)); border-right: 1px solid #151314; border-bottom: 1px solid #151314; transform: translateY(-50%) rotate(-45deg); }
+.editorial-book__sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.editorial-book__brand:focus-visible, .editorial-book__exit:focus-visible, .editorial-book:focus-visible { outline: 3px solid #315fc7; outline-offset: 4rem; }
+
+.book-turn-next-enter-active, .book-turn-next-leave-active, .book-turn-previous-enter-active, .book-turn-previous-leave-active { transition: transform 620ms cubic-bezier(.22,.9,.23,1), opacity 420ms ease; transform-style: preserve-3d; backface-visibility: hidden; }
+.book-turn-next-leave-active { position: absolute; transform-origin: left center; }
+.book-turn-next-enter-active { transform-origin: right center; }
+.book-turn-next-leave-to { opacity: 0; transform: perspective(1800px) rotateY(-78deg) translateZ(-50rem); }
+.book-turn-next-enter-from { opacity: 0; transform: perspective(1800px) rotateY(38deg) translateX(5%) translateZ(-20rem); }
+.book-turn-previous-leave-active { position: absolute; transform-origin: right center; }
+.book-turn-previous-enter-active { transform-origin: left center; }
+.book-turn-previous-leave-to { opacity: 0; transform: perspective(1800px) rotateY(78deg) translateZ(-50rem); }
+.book-turn-previous-enter-from { opacity: 0; transform: perspective(1800px) rotateY(-38deg) translateX(-5%) translateZ(-20rem); }
 
 @media (max-width: 680px) {
   .editorial-book__masthead { grid-template-columns: 1fr auto; min-height: 60rem; }
   .editorial-book__edition { display: none; }
   .editorial-book__brand :deep(.wordmark) { max-width: 160rem; }
-  .editorial-book__stage { min-height: calc(100dvh - 140rem); padding: 14rem; }
-  .editorial-book__canvas { height: min(132vw, 720rem); min-height: 400rem; }
-  .editorial-book__paper { padding: 30rem 28rem; }
-  .editorial-book__paper h2 { font-size: clamp(34rem, 10vw, 54rem); }
+  .editorial-book__stage { min-height: calc(100dvh - 60rem); padding: 18rem 14rem; }
+  .editorial-book__sheet { width: min(100%, 560rem); height: min(79dvh, 720rem); min-height: 440rem; }
+  .editorial-book__paper { padding: 32rem 28rem; }
+  .editorial-book__paper h1 { font-size: clamp(34rem, 10vw, 54rem); }
   .editorial-book__copy { font-size: 17rem; }
-  .editorial-book__controls { grid-template-columns: 1fr auto 1fr; }
-  .editorial-book__footer p { max-width: 22ch; }
+  .editorial-book__edge { opacity: .32; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .editorial-book__still { box-shadow: none; }
+  .editorial-book__sheet, .editorial-book__stage::after { transition: none !important; animation: none !important; }
 }
 </style>

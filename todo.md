@@ -448,3 +448,10 @@
 - [x] Bind all narrative and comic content inside each PageFlip sheet so type, images, folios, and captions physically turn together without overlay leakage or detached text.
 - [x] Remove duplicated cover title treatment and rewrite every book page as a concrete escalation from the early-career decision, through real work, to an earned personal reflection.
 - [x] Validate page clipping, spread sequence, keyboard and reduced-motion readers, image provenance, console health, and production build before pushing to `main`.
+
+## SEWA immersive gesture-led reader correction
+
+- [x] Audit the live PageFlip failure that exposes and folds narrative text during turns, plus the persistent reader controls that interrupt the book experience.
+- [x] Replace the unstable text-through-sheet effect with page-turn behavior that keeps narrative and art visually intact throughout the motion.
+- [x] Remove persistent visible reader buttons and introduce book-edge gestures, click or tap zones, keyboard navigation, and a discoverable but unobtrusive accessible reader mode.
+- [x] Validate no text leakage, clean page turns, touch and keyboard navigation, reduced-motion reading, mobile layout, console health, and production build before pushing to `main`.

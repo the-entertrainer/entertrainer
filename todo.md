@@ -532,3 +532,9 @@
 - [x] Replace the initial narration with a slower, deeper, echo-treated promo delivery of the approved line.
 - [x] Integrate the replacement narration without changing the selected wordmark animation, its one-run guard, or the silent and reduced-motion fallbacks.
 - [x] Validate the new audio asset reference, blocked-autoplay handling, compliance guard, and production build before pushing to `main`.
+
+## Safari preloader-audio compatibility
+
+- [x] Research current iOS Safari audible-autoplay restrictions and identify the least intrusive standards-aligned user-gesture pattern for enabling the preloader narration.
+- [x] Add an accessible, optional sound-enable interaction that runs within a direct user gesture while preserving automatic visual loading and a usable silent fallback.
+- [x] Validate the sound interaction on mobile emulation, keyboard access, blocked-autoplay fallback, reduced motion, compliance guard, and production build before pushing to `main`.

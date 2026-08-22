@@ -551,3 +551,9 @@
 - [x] Add a slowly contour-following “tap to enter” instruction that visibly signals the required first interaction and works as a keyboard-accessible button.
 - [x] Start the deep echo narration and the finite hypnotic preloader sequence from the same direct tap or keyboard action, with a reduced-motion equivalent.
 - [x] Validate mobile touch, keyboard entry, audio timing, responsive layout, reduced motion, compliance guard, and production build before pushing to `main`.
+
+## Logo-led entry repair
+
+- [x] Replace the unavailable managed-image dependency with a self-contained compact e-and-rings mark that visibly renders on the live entry screen.
+- [x] Ensure the first tap or keyboard activation attempts native audio playback synchronously before building optional echo processing, so sound begins reliably on iPhone Safari.
+- [x] Validate mobile rendering, direct tap audio, keyboard entry, reduced motion, compliance guard, and production build before pushing to `main`.

@@ -31,7 +31,7 @@ export interface EditorialItem {
   image?: string
   alt?: string
   /** Honest metadata: a year, a format, a status. Never an invented date. */
-  stamp: string
+  stamp?: string
   /** Reading estimate, minutes. Omitted for anything you operate rather than read. */
   minutes?: number
   /** The lead. Exactly one item should carry this. */
@@ -51,17 +51,17 @@ export interface CategoryMeta {
 }
 
 export const CATEGORIES: CategoryMeta[] = [
-  { id: 'practice', label: 'Try a lesson', accent: 'var(--cat-practice)', onAccent: 'var(--on-cat-practice)',
+  { id: 'practice', label: 'Lessons', accent: 'var(--cat-practice)', onAccent: 'var(--on-cat-practice)',
     blurb: 'A short lesson that shows how a confusing instruction becomes easier to follow.' },
   { id: 'projects', label: 'Projects', accent: 'var(--cat-projects)', onAccent: 'var(--on-cat-projects)',
     blurb: 'Courses, comics, and interactive explainers.' },
-  { id: 'tools', label: 'Free tools', accent: 'var(--cat-tools)', onAccent: 'var(--on-cat-tools)',
+  { id: 'tools', label: 'Tools', accent: 'var(--cat-tools)', onAccent: 'var(--on-cat-tools)',
     blurb: 'Free browser tools for writing, planning, quiz-making, and sketching ideas.' },
-  { id: 'story', label: 'About me', accent: 'var(--cat-story)', onAccent: 'var(--on-cat-story)',
+  { id: 'story', label: 'Story', accent: 'var(--cat-story)', onAccent: 'var(--on-cat-story)',
     blurb: 'How I got from hotel floors to making learning for people around the world.' },
   { id: 'lab', label: 'Experiments', accent: 'var(--cat-lab)', onAccent: 'var(--on-cat-lab)',
     blurb: 'Small design experiments.' },
-  { id: 'notes', label: 'How this site works', accent: 'var(--cat-notes)', onAccent: 'var(--on-cat-notes)',
+  { id: 'notes', label: 'Documentation', accent: 'var(--cat-notes)', onAccent: 'var(--on-cat-notes)',
     blurb: 'How the site, tools, and artwork are built.' }
 ]
 
@@ -69,7 +69,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'instructional-design',
     title: 'How to make instructions easier to follow',
-    dek: 'Try a four-minute lesson about turning a hard-to-read instruction into something another person can use.',
+    dek: 'Turn a hard-to-read instruction into something another person can use.',
     category: 'practice',
     media: 'interactive',
     href: '/instructional-design',
@@ -108,20 +108,19 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'ai-atlas',
     title: 'From No AI to Know AI',
-    dek: 'A guided journey from AI’s long history to modern prediction, models, capabilities, and responsible use.',
+    dek: 'Where AI came from, how prediction works, and why its use matters.',
     category: 'projects',
     media: 'interactive',
     href: '/courses/ai-atlas',
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/zByMCffPaXYvFeor.jpg',
     alt: 'An editorial illustration mapping the history of artificial intelligence',
-    stamp: '',
     minutes: 95,
     size: 'wide'
   },
   {
     id: 'storygen',
     title: 'StoryGen',
-    dek: 'Storyboard on an infinite canvas with cards, flows, and Word export.',
+    dek: 'Plan visual stories on an infinite canvas with cards, connections, and Word export.',
     category: 'tools',
     media: 'free tool',
     href: '/tools/storygen',
@@ -132,7 +131,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'cadence',
     title: 'Cadence',
-    dek: 'Turn a list of topics into a presentable monthly training calendar.',
+    dek: 'Build a monthly training calendar from your topic list.',
     category: 'tools',
     media: 'free tool',
     href: '/tools/cadence',
@@ -143,7 +142,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'easymcq',
     title: 'EasyMCQ',
-    dek: 'Write the question and the right answer; the AI writes the wrong ones.',
+    dek: 'Write a question and answer; get three plausible wrong options.',
     category: 'tools',
     media: 'free tool',
     href: '/tools/easymcq',
@@ -154,7 +153,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'better-emails',
     title: 'Draftly',
-    dek: 'Paste a messy draft and get a send-ready email.',
+    dek: 'Clean up rough emails by fixing tone, grammar, and structure in one paste.',
     category: 'tools',
     media: 'free tool',
     href: '/tools/better-emails',

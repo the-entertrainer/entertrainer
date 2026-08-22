@@ -22,20 +22,20 @@ useSeoMeta({
 interface Chapter { head: string; body: string; art: 'route' | 'lesson' | 'project' | 'tool' | 'evidence'; alt: string; place: string }
 
 const CHAPTERS: Chapter[] = [
-  { head: 'It started in hospitality',
-    body: 'I studied hotel management in Chennai and began on the floor. Hospitality is where I learned to notice the small things that make service feel human — the details nobody asks for but everybody remembers.',
+  { head: 'On hotel floors',
+    body: 'I studied hotel management in Chennai and began on hotel floors. The work taught me to notice service details and respond when people needed help.',
     art: 'lesson', alt: 'Paper Signal chapter illustration for early hospitality work', place: 'Chennai · Hotel management' },
-  { head: 'A comic, and a new path',
-    body: 'At Club Mahindra I moved into learning and development, and drew The SEWA Chronicles — a small comic of real guest-experience stories. That was the moment design stopped being a side interest and became the plan.',
+  { head: 'Drawing comics and designing learning',
+    body: 'At Club Mahindra I moved into Learning and Development and drew The SEWA Chronicles from real guest-experience stories. It was the first project I took from workplace reporting to a finished comic.',
     art: 'project', alt: 'Paper Signal chapter illustration for The SEWA Chronicles', place: 'Club Mahindra · L&D' },
-  { head: 'Frontline to manager',
-    body: 'As an L&D specialist at Courtyard by Marriott, I helped run certification programs for teams — frontline associates through to managers. I learned how a good program actually holds together.',
+  { head: 'Running training programs',
+    body: 'As an L&D specialist at Courtyard by Marriott, I helped run certification programs for teams, from frontline associates through to managers. I learned how to plan a program that people could complete and use.',
     art: 'evidence', alt: 'Paper Signal chapter illustration for training work', place: 'Courtyard by Marriott' },
-  { head: 'I design, and I build',
-    body: 'I build training in Articulate Storyline — but I also ship the tools around it. StoryGen, EasyMCQ, Cadence, this very site: designed and built by me, because the idea deserved to exist.',
+  { head: 'Designing and shipping tools',
+    body: 'I build training in Articulate Storyline and the tools around it. StoryGen, EasyMCQ, Cadence, and this site are designed and built by me.',
     art: 'tool', alt: 'Paper Signal chapter illustration for the workbench', place: 'The workbench' },
-  { head: 'What I do now',
-    body: 'I’m with the Training-as-a-Service team at Concentrix, turning operational detail into e-learning for teams around the world. I still reach for whatever is new — motion, WebGL, a little AI — on the days it makes the learning land better.',
+  { head: 'Learning at scale',
+    body: 'I’m with the Training-as-a-Service team at Concentrix, turning operational detail into e-learning for teams around the world. I use motion, WebGL, and AI only when they help people understand or use the learning.',
     art: 'route', alt: 'Paper Signal chapter illustration for current work', place: 'Concentrix · Training-as-a-Service' }
 ]
 </script>
@@ -44,12 +44,9 @@ const CHAPTERS: Chapter[] = [
   <EdShell width="page">
     <EdStoryHero
       title="Naveen Jose"
-      deck="I started on hotel floors. Now I make lessons, useful tools, and clearer ways to explain complicated work. Here is my path."
+      deck="From hotel floors to learning at scale."
     />
 
-    <div class="ab__lede">
-      <h2 class="t-display ab__h2 ab__h2--path">From hotel floors to making learning easier</h2>
-    </div>
     <EdPaperSignal class="ab__path-art u-paper-reveal" variant="route" label="A Paper Signal career route illustration" />
 
     <ol class="ab__story ab__story--path">

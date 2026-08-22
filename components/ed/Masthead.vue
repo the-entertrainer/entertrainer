@@ -119,7 +119,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .mh__link[aria-current="page"]::after {
   content: ''; position: absolute; left: 10rem; right: 10rem; bottom: 2rem;
   width: 8rem; right: auto; height: 8rem; background: var(--signal-cobalt); border-radius: 50%;
-  transform-origin: left; animation: nav-route 460ms var(--ease-expo-out) both;
+  transform-origin: left; animation: nav-route 280ms var(--ease-out) both;
 }
 @keyframes nav-route { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
@@ -162,7 +162,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     border-bottom: var(--stroke) solid var(--line);
     background: var(--paper);
   }
-  .mh__sheet-link[aria-current="page"] { background: linear-gradient(90deg, color-mix(in srgb, var(--violet) 10%, var(--paper)), var(--paper-2)); box-shadow: inset 4rem 0 0 var(--blue); }
+  .mh__sheet-link[aria-current="page"] { background: linear-gradient(90deg, color-mix(in srgb, var(--signal-cobalt) 10%, var(--paper)), var(--paper-2)); box-shadow: inset 4rem 0 0 var(--signal-cobalt); }
   .mh__sheet-link svg { opacity: 0.45; }
 }
 

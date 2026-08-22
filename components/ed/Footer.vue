@@ -21,7 +21,7 @@ const secondaryLinks = [
       <div class="ft__brand">
         <EdWordmark :size="32" />
         <p class="ft__blurb">
-          Lessons, projects, and browser tools by {{ store.name }}.
+          Lessons, projects, and tools.
         </p>
         <a class="ticket ticket--sm" :href="`mailto:${store.email}`">Start a conversation</a>
       </div>

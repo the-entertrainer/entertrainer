@@ -488,3 +488,11 @@
 - [ ] Research relevant personal-project, editorial, craft-process, and visual-essay writing models from credible public examples.
 - [ ] Compare distinct narrative approaches against the SEWA story, identifying the voice, structure, strengths, risks, and anti-boilerplate constraints for each.
 - [ ] Present recommended style options with short original sample passages and wait for user approval before changing book copy.
+
+## No-image-change site polish from supplied audit
+
+- [x] Preserve every existing image, illustration, comic page, thumbnail, and image source exactly as-is; make no visual-asset substitutions, removals, crops, or regenerations.
+- [x] Rewrite homepage route-card descriptions, shared value-proposition variants, lesson descriptions, tool descriptions, category labels, and About chapter headings for direct parallel structure without losing functional metadata or SEO context.
+- [x] Improve text and link hierarchy, mobile route-card layout, mobile current-page navigation state, and restrained hover feedback without changing image content.
+- [x] Reduce unnecessary homepage scroll choreography and title-mark overshoot, retain useful interaction feedback, and keep a usable reduced-motion equivalent.
+- [x] Validate desktop and mobile rendering, keyboard and mobile navigation, reduced-motion behavior, no-image integrity, compliance guard, console health, and a production build before pushing to `main`.

@@ -14,12 +14,12 @@ useSeoMeta({
 const lessons = [
   {
     title: 'How to make instructions easier to follow',
-    description: 'A four-minute interactive lesson about turning a hard-to-read instruction into something another person can use.',
+    description: 'Turn a hard-to-read instruction into something another person can use.',
     detail: '4 min', action: 'Try the lesson', href: '/instructional-design', visual: 'lesson'
   },
   {
     title: 'From No AI to Know AI',
-    description: 'A longer course about where AI came from, how prediction works, and how to use modern AI with care.',
+    description: 'Where AI came from, how prediction works, and why its use matters.',
     detail: '95 min', action: 'Start the course', href: '/courses/ai-atlas', visual: 'process'
   }
 ]

@@ -541,8 +541,8 @@
 
 ## Compact e-and-circles logo exploration
 
-- [ ] Generate selectable compact logo marks that combine a readable lowercase e with the selected warm-yellow concentric-circle logic.
-- [ ] Present the marks directly in chat for approval, without replacing the selected full wordmark, header mark, favicon, or supporting artwork.
+- [x] Generate selectable compact logo marks that combine a readable lowercase e with the selected warm-yellow concentric-circle logic.
+- [x] Present the marks directly in chat for approval, without replacing the selected full wordmark, header mark, favicon, or supporting artwork.
 - [ ] Use the approved compact mark as the only starting point for a later coordinated identity rollout.
 
 ## Logo-led tap-to-enter preloader

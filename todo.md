@@ -557,3 +557,10 @@
 - [x] Replace the unavailable managed-image dependency with a self-contained compact e-and-rings mark that visibly renders on the live entry screen.
 - [x] Ensure the first tap or keyboard activation attempts native audio playback synchronously before building optional echo processing, so sound begins reliably on iPhone Safari.
 - [x] Validate mobile rendering, direct tap audio, keyboard entry, reduced motion, compliance guard, and production build before pushing to `main`.
+
+## Spatial entry-audio and alignment refinement
+
+- [x] Generate a brief ambient soundscape with warm room air, glass shimmer, and a low swell that supports the slow deep narration without beat, vocals, or percussion and ends cleanly with the preloader sequence.
+- [x] Add a restrained Web Audio hall and wide-surround treatment after native narration playback begins, with the ambient bed mixed beneath the voice.
+- [x] Make the compact e-and-rings logo and contour-following “tap to enter” instruction smaller, concentric, and precisely aligned on the plain entry screen.
+- [x] Validate touch and keyboard audio start, voice-over-bed balance, mobile and desktop alignment, reduced motion, compliance guard, and production build before pushing to `main`.

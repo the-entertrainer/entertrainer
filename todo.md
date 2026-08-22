@@ -538,3 +538,16 @@
 - [x] Research current iOS Safari audible-autoplay restrictions and identify the least intrusive standards-aligned user-gesture pattern for enabling the preloader narration.
 - [x] Add an accessible, optional sound-enable interaction that runs within a direct user gesture while preserving automatic visual loading and a usable silent fallback.
 - [x] Validate the sound interaction on mobile emulation, keyboard access, blocked-autoplay fallback, reduced motion, compliance guard, and production build before pushing to `main`.
+
+## Compact e-and-circles logo exploration
+
+- [ ] Generate selectable compact logo marks that combine a readable lowercase e with the selected warm-yellow concentric-circle logic.
+- [ ] Present the marks directly in chat for approval, without replacing the selected full wordmark, header mark, favicon, or supporting artwork.
+- [ ] Use the approved compact mark as the only starting point for a later coordinated identity rollout.
+
+## Logo-led tap-to-enter preloader
+
+- [x] Use the approved compact e-and-yellow-rings logo on a plain opening background without replacing the selected full wordmark elsewhere.
+- [x] Add a slowly contour-following “tap to enter” instruction that visibly signals the required first interaction and works as a keyboard-accessible button.
+- [x] Start the deep echo narration and the finite hypnotic preloader sequence from the same direct tap or keyboard action, with a reduced-motion equivalent.
+- [x] Validate mobile touch, keyboard entry, audio timing, responsive layout, reduced motion, compliance guard, and production build before pushing to `main`.

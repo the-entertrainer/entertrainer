@@ -564,3 +564,10 @@
 - [x] Add a restrained Web Audio hall and wide-surround treatment after native narration playback begins, with the ambient bed mixed beneath the voice.
 - [x] Make the compact e-and-rings logo and contour-following “tap to enter” instruction smaller, concentric, and precisely aligned on the plain entry screen.
 - [x] Validate touch and keyboard audio start, voice-over-bed balance, mobile and desktop alignment, reduced motion, compliance guard, and production build before pushing to `main`.
+
+## Yellow accent rollout without artwork changes
+
+- [x] Remove the spoken ElevenLabs narration and preserve the direct-click ambient soundscape entry experience.
+- [x] Establish the selected warm yellow as the global accent token and replace the current purple/blue interactive accent usage without modifying existing artwork assets.
+- [x] Apply the yellow accent consistently to navigation, focus states, buttons, links, progress indicators, and course/tool interaction states while maintaining accessible contrast.
+- [x] Validate ambient-only entry playback, mobile and desktop appearance, keyboard focus, reduced motion, the compliance guard, and production build before pushing to `main`.

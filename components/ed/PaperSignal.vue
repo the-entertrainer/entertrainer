@@ -29,6 +29,6 @@ withDefaults(defineProps<{ variant?: SignalScene, label?: string }>(), { variant
 </template>
 
 <style scoped>
-.ps-art { display:grid; place-items:center; min-height:220rem; margin:0; overflow:hidden; background:#eef3ff; }.ps-art svg { display:block; width:100%; height:100%; min-height:inherit; }.ps-art--hero { min-height:330rem; }
+.ps-art { display:grid; place-items:center; min-height:220rem; margin:0; overflow:hidden; background:#FFF8DE; }.ps-art svg { display:block; width:100%; height:100%; min-height:inherit; filter:hue-rotate(175deg) saturate(1.32); }.ps-art--hero { min-height:330rem; }
 @media (max-width:560px) { .ps-art { min-height:182rem; }.ps-art--hero { min-height:250rem; } }
 </style>

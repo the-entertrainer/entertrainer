@@ -1,7 +1,6 @@
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 
 const tracks: Record<string, string> = {
-  narration: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/stdGqWjSCMGhhsZs.mp3',
   ambient: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/sjbGflQLyvJrZlWl.mp3'
 }
 

@@ -4,13 +4,11 @@ const emit = defineEmits<{ complete: [] }>()
 const leaving = ref(false)
 const entered = ref(false)
 const reducedMotion = ref(false)
-const narration = ref<HTMLAudioElement | null>(null)
 const ambient = ref<HTMLAudioElement | null>(null)
 let finishTimer: ReturnType<typeof setTimeout> | undefined
 let removeTimer: ReturnType<typeof setTimeout> | undefined
 let completed = false
 let audioContext: AudioContext | undefined
-let narrationSource: MediaElementAudioSourceNode | undefined
 let ambientSource: MediaElementAudioSourceNode | undefined
 let audioNodes: AudioNode[] = []
 
@@ -27,62 +25,48 @@ const createHallImpulse = (context: AudioContext) => {
 const ensureSpatialMix = () => {
   if (audioContext) return audioContext
   const AudioContextConstructor = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
-  const voice = narration.value
   const bed = ambient.value
-  if (!AudioContextConstructor || !voice || !bed) return
+  if (!AudioContextConstructor || !bed) return
 
   const context = new AudioContextConstructor()
   const master = context.createGain()
-  const narrationGain = context.createGain()
   const ambientGain = context.createGain()
-  const narrationPan = context.createStereoPanner?.()
   const ambientPan = context.createStereoPanner?.()
-  const hallSend = context.createGain()
   const hall = context.createConvolver()
   const hallGain = context.createGain()
 
-  narrationSource = context.createMediaElementSource(voice)
   ambientSource = context.createMediaElementSource(bed)
-  narrationGain.gain.value = 0.98
-  ambientGain.gain.value = 0.16
-  hallSend.gain.value = 0.34
-  hallGain.gain.value = 0.18
+  ambientGain.gain.value = 0.26
+  hallGain.gain.value = 0.24
   master.gain.value = 0.92
   hall.buffer = createHallImpulse(context)
-  narrationPan && (narrationPan.pan.value = -0.06)
   ambientPan && (ambientPan.pan.value = 0.13)
-
-  narrationSource.connect(narrationGain)
-  if (narrationPan) { narrationGain.connect(narrationPan); narrationPan.connect(master) } else narrationGain.connect(master)
-  narrationGain.connect(hallSend)
-  hallSend.connect(hall)
-  hall.connect(hallGain)
-  hallGain.connect(master)
 
   ambientSource.connect(ambientGain)
   if (ambientPan) { ambientGain.connect(ambientPan); ambientPan.connect(master) } else ambientGain.connect(master)
+  ambientGain.connect(hall)
+  hall.connect(hallGain)
+  hallGain.connect(master)
   master.connect(context.destination)
-  ambientGain.gain.setValueAtTime(0.16, context.currentTime)
+  ambientGain.gain.setValueAtTime(0.26, context.currentTime)
   ambientGain.gain.linearRampToValueAtTime(0.0001, context.currentTime + 4.15)
 
-  audioNodes = [master, narrationGain, ambientGain, hallSend, hall, hallGain, narrationPan, ambientPan].filter(Boolean) as AudioNode[]
+  audioNodes = [master, ambientGain, hall, hallGain, ambientPan].filter(Boolean) as AudioNode[]
   audioContext = context
   return context
 }
 
-const playNarration = () => {
-  const voice = narration.value
+const playAmbient = () => {
   const bed = ambient.value
-  if (!voice || !bed) return
+  if (!bed) return
   try {
-    // All playback and Web Audio unlock work remains inside this direct visitor gesture.
+    // Ambient playback and the Web Audio unlock remain inside the direct visitor gesture.
     const context = ensureSpatialMix()
     void context?.resume().catch(() => undefined)
-    voice.pause(); bed.pause()
-    voice.currentTime = 0; bed.currentTime = 0
-    voice.muted = false; bed.muted = false
-    voice.volume = 1; bed.volume = 1
-    void voice.play().catch(() => undefined)
+    bed.pause()
+    bed.currentTime = 0
+    bed.muted = false
+    bed.volume = 1
     void bed.play().catch(() => undefined)
   } catch {
     // The visual handoff never depends on successful audio playback.
@@ -93,14 +77,13 @@ const finish = () => {
   if (completed) return
   completed = true
   leaving.value = true
-  narration.value?.pause()
   ambient.value?.pause()
   removeTimer = window.setTimeout(() => emit('complete'), 300)
 }
 
 const startExperience = () => {
   if (entered.value || completed) return
-  playNarration()
+  playAmbient()
   entered.value = true
   finishTimer = window.setTimeout(finish, reducedMotion.value ? 850 : 4400)
 }
@@ -112,9 +95,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (finishTimer) window.clearTimeout(finishTimer)
   if (removeTimer) window.clearTimeout(removeTimer)
-  narration.value?.pause()
   ambient.value?.pause()
-  narrationSource?.disconnect()
   ambientSource?.disconnect()
   audioNodes.forEach(node => node.disconnect())
   void audioContext?.close()
@@ -123,7 +104,6 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="preloader" :class="{ 'preloader--entered': entered, 'preloader--leaving': leaving }">
-    <audio ref="narration" class="preloader__audio" src="/api/entry-audio/narration" preload="auto" playsinline aria-hidden="true" />
     <audio ref="ambient" class="preloader__audio" src="/api/entry-audio/ambient" preload="auto" playsinline aria-hidden="true" />
 
     <button v-if="!entered" type="button" class="preloader__entry" aria-label="Tap to enter Entertrainer with sound" @click="startExperience">

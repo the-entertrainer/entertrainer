@@ -13,29 +13,29 @@
  */
 useSeoMeta({
   title: 'About — Naveen Jose · Entertrainer',
-  description: 'Naveen Jose’s story: from hotel floors to making lessons and useful tools for people around the world.',
+  description: 'Naveen Jose’s story, from hotel floors to learning at scale and the useful tools built along the way.',
   ogTitle: 'About — Naveen Jose',
-  ogDescription: 'From hotel floors to making lessons and useful tools for people around the world.',
+  ogDescription: 'From hotel floors to learning at scale, with a few useful tools built along the way.',
   ogUrl: 'https://entertrainer.in/about'
 })
 
 interface Chapter { head: string; body: string; art: 'route' | 'lesson' | 'project' | 'tool' | 'evidence'; alt: string; place: string }
 
 const CHAPTERS: Chapter[] = [
-  { head: 'On hotel floors',
-    body: 'I studied hotel management in Chennai and began on hotel floors. The work taught me to notice service details and respond when people needed help.',
+  { head: 'Starting on hotel floors',
+    body: 'I studied hotel management in Chennai and started on hotel floors. The work taught me to notice the small service details and respond when people actually needed help.',
     art: 'lesson', alt: 'Paper Signal chapter illustration for early hospitality work', place: 'Chennai · Hotel management' },
-  { head: 'Drawing comics and designing learning',
-    body: 'At Club Mahindra I moved into Learning and Development and drew The SEWA Chronicles from real guest-experience stories. It was the first project I took from workplace reporting to a finished comic.',
+  { head: 'Turning guest stories into learning',
+    body: 'At Club Mahindra, I moved into Learning and Development and drew The SEWA Chronicles from real guest-experience stories. It was the first project I carried from workplace reporting all the way to a finished comic. I turned a workplace report into a finished comic people could read.',
     art: 'project', alt: 'Paper Signal chapter illustration for The SEWA Chronicles', place: 'Club Mahindra · L&D' },
-  { head: 'Running training programs',
-    body: 'As an L&D specialist at Courtyard by Marriott, I helped run certification programs for teams, from frontline associates through to managers. I learned how to plan a program that people could complete and use.',
+  { head: 'Making training programs work',
+    body: 'As an L&D specialist at Courtyard by Marriott, I helped run certification programs for teams, from frontline associates through to managers. That taught me the practical part: a program has to be something people can complete and use after the training ends.',
     art: 'evidence', alt: 'Paper Signal chapter illustration for training work', place: 'Courtyard by Marriott' },
-  { head: 'Designing and shipping tools',
-    body: 'I build training in Articulate Storyline and the tools around it. StoryGen, EasyMCQ, Cadence, and this site are designed and built by me.',
+  { head: 'Building the tools around learning',
+    body: 'I build training in Articulate Storyline, along with the tools around it. StoryGen, EasyMCQ, Cadence, and this site are designed and built by me. If the same work keeps repeating, eventually I start building a tool for it.',
     art: 'tool', alt: 'Paper Signal chapter illustration for the workbench', place: 'The workbench' },
   { head: 'Learning at scale',
-    body: 'I’m with the Training-as-a-Service team at Concentrix, turning operational detail into e-learning for teams around the world. I use motion, WebGL, and AI only when they help people understand or use the learning.',
+    body: 'I’m with the Training-as-a-Service team at Concentrix, turning operational detail into e-learning for teams. I use motion, WebGL, and AI when they help people understand or use the learning, not merely because the technology is standing nearby.',
     art: 'route', alt: 'Paper Signal chapter illustration for current work', place: 'Concentrix · Training-as-a-Service' }
 ]
 </script>

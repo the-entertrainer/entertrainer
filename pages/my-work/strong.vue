@@ -43,9 +43,9 @@ useHead({
 })
 useSeoMeta({
   title: 'Strong — How Passwords Really Break · Entertrainer',
-  description: 'A short interactive module on the real math of password strength: entropy in bits, why length beats symbols, and why the same password is instant or eternal depending on the attacker.',
+  description: 'A short interactive module on the real maths of password strength: entropy in bits, why length beats symbols, and why the same password can be instant or eternal depending on the attacker.',
   ogTitle: 'Strong — how passwords really break',
-  ogDescription: 'The real math behind password strength, made playable. Nothing you type ever leaves your device.',
+  ogDescription: 'The real maths behind password strength, made playable. Nothing you type ever leaves your device.',
   ogUrl: 'https://entertrainer.in/my-work/strong'
 })
 

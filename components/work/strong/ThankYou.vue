@@ -19,7 +19,7 @@ const timeLabel = computed(() => {
 <template>
   <section class="st-card st-ty">
     <p class="st-eyebrow">Result</p>
-    <h2 class="st-h2">You can read a password now</h2>
+    <h2 class="st-h2">You can read a password now. More importantly, you can tell what makes it strong.</h2>
 
     <div class="st-ty__stats">
       <div class="st-ty__stat">
@@ -42,13 +42,13 @@ const timeLabel = computed(() => {
     <p class="st-lead st-ty__remark">{{ strengthRemark(store.bestBits) }}</p>
 
     <button type="button" class="st-reveal" :class="{ 'is-open': open }" @click="open = !open">
-      the three things worth keeping
+      The three things worth keeping
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
     </button>
     <ol v-if="open" class="st-ty__list st-revealbody">
-      <li><b>Strength is bits</b>, and each bit doubles the attacker's work.</li>
-      <li><b>Length buys the most bits</b>, because it is the exponent.</li>
-      <li><b>Unpredictability is everything.</b> A few random words beat any clever word.</li>
+      <li><b>Strength is measured in bits.</b> Every extra bit doubles the attacker’s work. Small number, serious consequence.</li>
+      <li><b>Length buys the most bits</b> because it is the exponent. In password maths, this is where the leverage lives.</li>
+      <li><b>Unpredictability is everything.</b> A few random words beat one clever word, because attackers do not get tired of cleverness.</li>
     </ol>
 
     <div class="st-ty__actions">

@@ -7,9 +7,9 @@
  */
 useSeoMeta({
   title: 'Introduction to Instructional Design · Entertrainer',
-  description: 'A compact beginner e-learning module about planning learning experiences that help people do real work.',
+  description: 'A compact beginner e-learning module about planning learning experiences that help people do real work, starting with the task rather than the course.',
   ogTitle: 'Introduction to Instructional Design · Entertrainer',
-  ogDescription: 'A beginner e-learning module about planning learning experiences that help people do real work.',
+  ogDescription: 'A beginner e-learning module for planning learning experiences that help people do real work. Start with the need, then work out the support.',
   ogUrl: 'https://entertrainer.in/instructional-design'
 })
 
@@ -46,12 +46,12 @@ const evidenceMedia = {
 
 const screens = [
   { lesson: 'Welcome', label: 'Start', title: 'Introduction to Instructional Design' },
-  { lesson: 'Welcome', label: 'Objectives', title: 'What you will learn' },
-  { lesson: 'Lesson 1 · Understand the need', label: 'The request', title: 'A request is not yet a solution' },
+  { lesson: 'Welcome', label: 'Objectives', title: 'What you should be able to do by the end' },
+  { lesson: 'Lesson 1 · Understand the need', label: 'The request', title: 'A request is a starting point, not a solution' },
   { lesson: 'Lesson 1 · Understand the need', label: 'Cause check', title: 'Find the real cause' },
-  { lesson: 'Lesson 1 · Understand the need', label: 'Learner lens', title: 'Understand people and context' },
-  { lesson: 'Lesson 2 · Plan the learning', label: 'ADDIE in practice', title: 'Use ADDIE to think through the work' },
-  { lesson: 'Lesson 2 · Plan the learning', label: 'Route Builder', title: 'Build one useful learning route' },
+  { lesson: 'Lesson 1 · Understand the need', label: 'Learner lens', title: 'Understand the learner and the context' },
+  { lesson: 'Lesson 2 · Plan the learning', label: 'ADDIE in practice', title: 'Use ADDIE as a map for the work' },
+  { lesson: 'Lesson 2 · Plan the learning', label: 'Route Builder', title: 'Build one learning route that works in the real world' },
   { lesson: 'Lesson 2 · Plan the learning', label: 'Alignment', title: 'Connect objective, practice, and evidence' },
   { lesson: 'Lesson 2 · Plan the learning', label: 'Design artefacts', title: 'Make useful things' },
   { lesson: 'Lesson 3 · Apply the method', label: 'Design decision', title: 'Make one sound design decision' },
@@ -61,11 +61,11 @@ const screens = [
 ]
 
 const addieStages = [
-  { id: 'analysis', letter: 'A', title: 'Analyse', lead: 'Understand the problem before deciding to make a course.', example: 'Observe two closing shifts. Ask where mistakes happen and what gets in the way.', output: 'A short problem statement and learner notes.' },
-  { id: 'design', letter: 'D', title: 'Design', lead: 'Plan what learners will do, not just what they will read.', example: 'Write one objective, choose a short demonstration, and plan a safe practice task.', output: 'An objective, activity plan, and evidence plan.' },
+  { id: 'analysis', letter: 'A', title: 'Analyse', lead: 'Understand the problem before deciding that the answer is a course.', example: 'Observe two closing shifts. Ask where mistakes happen and what gets in the way.', output: 'A short problem statement and learner notes.' },
+  { id: 'design', letter: 'D', title: 'Design', lead: 'Plan what learners will do, not only what they will read.', example: 'Write one objective, choose a short demonstration, and plan a safe practice task.', output: 'An objective, activity plan, and evidence plan.' },
   { id: 'development', letter: 'D', title: 'Develop', lead: 'Make the materials and test a small version.', example: 'Create a one-page job aid, a short course, and a practice scenario.', output: 'A reviewable prototype.' },
   { id: 'implementation', letter: 'I', title: 'Implement', lead: 'Put the learning support into the real setting.', example: 'Give new staff time, equipment, and support to complete the practice.', output: 'A practical delivery plan.' },
-  { id: 'evaluation', letter: 'E', title: 'Evaluate', lead: 'Use evidence to decide what should change.', example: 'Check the practice result, then see whether staff can complete the closing task on shift.', output: 'A revision decision and follow-up support.' }
+  { id: 'evaluation', letter: 'E', title: 'Evaluate', lead: 'Use evidence to decide what should change. The loop is the point.', example: 'Check the practice result, then see whether staff can complete the closing task on shift.', output: 'A revision decision and follow-up support.' }
 ]
 
 const sortItems = [
@@ -153,7 +153,7 @@ const continueLabel = computed(() => {
 })
 const startingFeedback = computed(() => startingChoice.value === 'investigate'
   ? 'First, find out what the task looks like, what staff already know, and what is causing the error.'
-  : startingChoice.value ? 'Not yet. A checklist or video may be useful later. First, gather evidence about the task, the people doing it, and the cause of the problem.' : '')
+  : startingChoice.value ? 'Not yet. A checklist or video may be useful later. First, gather evidence about the task, the people doing it, and the cause of the problem. Do not build the answer before meeting the problem.' : '')
 const learnerFeedback = computed(() => learnerChoice.value === 'time'
   ? 'Correct. Time, access, language, confidence, and real working conditions change what learning support is possible.'
   : learnerChoice.value ? 'Look for information about the learner and real work. Decorative choices and screen count do not explain whether people can use the task.' : '')
@@ -168,7 +168,7 @@ const scenarioFeedback = computed(() => scenarioChoice.value === 'observe'
   : scenarioChoice.value ? 'This may be useful later, but it skips the evidence step. Start by finding the cause of the problem.' : '')
 const finalFeedback = computed(() => finalChoice.value === 'process'
   ? 'Correct. Instructional design connects a real need, the learner, the activity, and evidence of learning. The screen is only one possible part of that work.'
-  : finalChoice.value ? 'Not yet. Screens and quizzes may be useful tools. The work begins earlier: understand the need, plan support, and use evidence to improve it.' : '')
+  : finalChoice.value ? 'Not yet. Screens and quizzes may be useful tools. The work begins earlier: understand the need, plan the support, and use evidence to improve it.' : '')
 
 function saveProgress() {
   if (!import.meta.client) return

@@ -4,8 +4,8 @@ import { OBJECTIVES } from '~/utils/strong/content'
 
 <template>
   <section class="st-card st-obj">
-    <p class="st-eyebrow">In five minutes</p>
-    <h2 class="st-h2">You will size up any password</h2>
+    <p class="st-eyebrow">In five minutes, you will know what to look for</p>
+    <h2 class="st-h2">You will size up any password. No guessing.</h2>
 
     <ol class="st-obj__list">
       <li v-for="(o, i) in OBJECTIVES" :key="i" class="st-obj__item">
@@ -14,7 +14,7 @@ import { OBJECTIVES } from '~/utils/strong/content'
       </li>
     </ol>
 
-    <p class="st-note st-obj__foot">A short lesson, a hands-on lab, and five questions. Move with the arrows below.</p>
+    <p class="st-note st-obj__foot">A short lesson, a hands-on lab, and five questions. Follow the arrows below and keep moving.</p>
   </section>
 </template>
 

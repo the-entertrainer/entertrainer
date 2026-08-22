@@ -503,3 +503,10 @@
 - [x] Diagnose and correct the low-resolution narrative-page rendering on mobile.
 - [x] Remove the white page bands by fitting the reader stage and PageFlip dimensions to the actual page aspect ratio at mobile and desktop widths.
 - [x] Validate narrative-page sharpness, art fidelity, page-turn interactions, keyboard support, reduced motion, console health, and a production build before pushing to `main`.
+
+## Say It Like Naveen site-wide content rewrite
+
+- [x] Inventory public-facing copy and assign the appropriate professional-but-personal Naveen voice intensity for navigation, landing pages, lessons, projects, tools, and supporting pages.
+- [x] Rewrite the shared site language and public page copy in the Say It Like Naveen voice, preserving concrete project facts, functional instructions, accessibility labels, search intent, and all existing image references.
+- [x] Review the rewrite for natural spoken rhythm, direct meaning, factual restraint, accessibility, link-label clarity, and consistency with the site’s anti-generic standards.
+- [x] Validate the revised site in browser, run the compliance guard and production build, then push the completed rewrite to `main`.

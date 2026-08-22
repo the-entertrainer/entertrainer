@@ -52,24 +52,24 @@ export interface CategoryMeta {
 
 export const CATEGORIES: CategoryMeta[] = [
   { id: 'practice', label: 'Lessons', accent: 'var(--cat-practice)', onAccent: 'var(--on-cat-practice)',
-    blurb: 'A short lesson that shows how a confusing instruction becomes easier to follow.' },
+    blurb: 'Short lessons for turning confusing instructions into something people can actually follow.' },
   { id: 'projects', label: 'Projects', accent: 'var(--cat-projects)', onAccent: 'var(--on-cat-projects)',
-    blurb: 'Courses, comics, and interactive explainers.' },
+    blurb: 'Courses, comics, and interactive explainers built from real work.' },
   { id: 'tools', label: 'Tools', accent: 'var(--cat-tools)', onAccent: 'var(--on-cat-tools)',
-    blurb: 'Free browser tools for writing, planning, quiz-making, and sketching ideas.' },
+    blurb: 'Free browser tools for writing, planning, making quizzes, and catching an idea before it disappears.' },
   { id: 'story', label: 'Story', accent: 'var(--cat-story)', onAccent: 'var(--on-cat-story)',
-    blurb: 'How I got from hotel floors to making learning for people around the world.' },
+    blurb: 'How I went from hotel floors to making learning design. The route was not exactly linear.' },
   { id: 'lab', label: 'Experiments', accent: 'var(--cat-lab)', onAccent: 'var(--on-cat-lab)',
-    blurb: 'Small design experiments.' },
+    blurb: 'Small design experiments for seeing what happens when one idea is pushed further.' },
   { id: 'notes', label: 'Documentation', accent: 'var(--cat-notes)', onAccent: 'var(--on-cat-notes)',
-    blurb: 'How the site, tools, and artwork are built.' }
+    blurb: 'How the site, tools, and artwork are built. Less mystery, more moving parts.' }
 ]
 
 export const ITEMS: EditorialItem[] = [
   {
     id: 'instructional-design',
-    title: 'How to make instructions easier to follow',
-    dek: 'Turn a hard-to-read instruction into something another person can use.',
+    title: 'How to make instructions people can actually follow',
+    dek: 'Take an instruction that makes people stop and reread it, then turn it into something they can use.',
     category: 'practice',
     media: 'interactive',
     href: '/instructional-design',
@@ -82,7 +82,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'sewa-chronicles',
     title: 'The SEWA Chronicles',
-    dek: 'Sixteen pages of true stories from the resort floor, drawn as comic strips and handed back to the teams they came from.',
+    dek: 'Sixteen true stories from the resort floor, drawn as comic strips and returned to the teams they came from. Real work, now with panels.',
     category: 'projects',
     media: 'project story',
     href: '/my-work/sewa-chronicles',
@@ -95,7 +95,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'strong',
     title: 'Strong',
-    dek: 'Why the same password takes a second or a century to crack, depending entirely on who is doing the cracking. A ten-minute module.',
+    dek: 'The same password can take a second or a century to crack, depending entirely on who is doing the cracking. A ten-minute module about that uncomfortable gap.',
     category: 'projects',
     media: 'interactive',
     href: '/my-work/strong',
@@ -108,7 +108,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'ai-atlas',
     title: 'From No AI to Know AI',
-    dek: 'Where AI came from, how prediction works, and why its use matters.',
+    dek: 'Where AI came from, how prediction works, and why its use matters. No magic fog, just the machinery underneath.',
     category: 'projects',
     media: 'interactive',
     href: '/courses/ai-atlas',
@@ -120,7 +120,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'storygen',
     title: 'StoryGen',
-    dek: 'Plan visual stories on an infinite canvas with cards, connections, and Word export.',
+    dek: 'Plan visual stories on an infinite canvas with cards, connections, and Word export. Put the chaos somewhere useful.',
     category: 'tools',
     media: 'free tool',
     href: '/tools/storygen',
@@ -131,7 +131,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'cadence',
     title: 'Cadence',
-    dek: 'Build a monthly training calendar from your topic list.',
+    dek: 'Turn your topic list into a monthly training calendar. The blank page can take a day off.',
     category: 'tools',
     media: 'free tool',
     href: '/tools/cadence',
@@ -142,7 +142,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'easymcq',
     title: 'EasyMCQ',
-    dek: 'Write a question and answer; get three plausible wrong options.',
+    dek: 'Write a question and answer; get three plausible wrong options. The distractors do the awkward part.',
     category: 'tools',
     media: 'free tool',
     href: '/tools/easymcq',
@@ -153,7 +153,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'better-emails',
     title: 'Draftly',
-    dek: 'Clean up rough emails by fixing tone, grammar, and structure in one paste.',
+    dek: 'Paste in a rough email and fix the tone, grammar, and structure in one go. Your first draft does not have to become public history.',
     category: 'tools',
     media: 'free tool',
     href: '/tools/better-emails',
@@ -163,8 +163,8 @@ export const ITEMS: EditorialItem[] = [
   },
   {
     id: 'about',
-    title: 'How I got from hospitality to learning design',
-    dek: 'I studied hotel management and started on the floor. The comic I drew at Club Mahindra is where design stopped being a side interest.',
+    title: 'How I went from hospitality to learning design',
+    dek: 'I studied hotel management and started on the floor. The comic I drew at Club Mahindra was where design stopped being a side interest and started asking for its own chair.',
     category: 'story',
     media: 'essay',
     href: '/about',
@@ -177,7 +177,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'colophon',
     title: 'How this site is built',
-    dek: 'How this site, its tools, and its artwork are built.',
+    dek: 'How this site, its tools, and its artwork are built. The nice surface has a wiring diagram underneath.',
     category: 'notes',
     media: 'essay',
     href: '/colophon',
@@ -187,7 +187,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'lab',
     title: 'Homepage design experiments',
-    dek: 'Fifteen visual experiments made from the same interactive glass effect.',
+    dek: 'Fifteen visual experiments made from the same interactive glass effect. One material, fifteen ways to make it misbehave.',
     category: 'lab',
     media: 'interactive',
     href: '/lab',

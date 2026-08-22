@@ -25,7 +25,7 @@ function retry() { answers.value = ASSESSMENT.map(() => null); qIndex.value = 0;
   <section class="st-card st-quiz">
     <template v-if="!finished">
       <div class="st-quiz__head">
-        <p class="st-eyebrow">Check · {{ qIndex + 1 }} of {{ ASSESSMENT.length }}</p>
+        <p class="st-eyebrow">Quick check · {{ qIndex + 1 }} of {{ ASSESSMENT.length }}</p>
         <div class="st-quiz__dots" aria-hidden="true">
           <i v-for="(_, i) in ASSESSMENT" :key="i" :class="{ 'is-done': i < qIndex, 'is-current': i === qIndex }" />
         </div>
@@ -44,7 +44,7 @@ function retry() { answers.value = ASSESSMENT.map(() => null); qIndex.value = 0;
       </div>
 
       <p v-if="submittedThis" class="st-quiz__fb" :class="{ 'is-right': chosen === q.correctIndex }">
-        {{ chosen === q.correctIndex ? 'Correct. ' : 'Not quite. ' }}{{ chosen === q.correctIndex ? '' : q.because }}
+        {{ chosen === q.correctIndex ? 'Correct. That one landed. ' : 'Not quite. The explanation below tells you why. ' }}{{ chosen === q.correctIndex ? '' : q.because }}
       </p>
 
       <div class="st-quiz__actions">
@@ -54,8 +54,8 @@ function retry() { answers.value = ASSESSMENT.map(() => null); qIndex.value = 0;
     </template>
 
     <template v-else>
-      <p class="st-eyebrow">Check</p>
-      <h2 class="st-h2">You scored {{ Math.round(score * 100) }} percent</h2>
+      <p class="st-eyebrow">Quick check</p>
+      <h2 class="st-h2">You scored {{ Math.round(score * 100) }} percent. There is the number.</h2>
       <p class="st-lead st-quiz__result">{{ passed ? 'That passes. Use the arrow to see your result.' : `A pass needs ${Math.round(PASS_MARK * 100)} percent.` }}</p>
       <button v-if="!passed" type="button" class="st-btn st-btn--ghost st-quiz__retry" @click="retry">Try again</button>
     </template>

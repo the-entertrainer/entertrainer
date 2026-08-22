@@ -4,7 +4,7 @@ useSeoMeta({
   title: 'EasyMCQ — Distractor Generator · Entertrainer',
   description: 'Give a question and its correct answer, and EasyMCQ writes three plausible wrong options that test real understanding. A free tool for L&D teams.',
   ogTitle: 'EasyMCQ — Distractor Generator',
-  ogDescription: 'Turn correct answers into brilliant, plausible wrong options.',
+  ogDescription: 'Turn correct answers into plausible wrong options. The distractors do the awkward part.',
   ogUrl: 'https://entertrainer.in/tools/easymcq'
 })
 
@@ -57,7 +57,7 @@ async function copy(text: string, i: number) {
 </script>
 
 <template>
-  <UiToolShell eyebrow="Distractor Generator" deck="Turn correct answers into brilliant wrong ones. Plausible options that test real understanding.">
+  <UiToolShell eyebrow="Distractor Generator" deck="Turn correct answers into plausible wrong ones. Options that test real understanding, not lucky guessing.">
     <template #title>
       <span class="mcq-lockup">
         <ToolsMcqBrandMark :size="46" class="mcq-lockup__mark" />

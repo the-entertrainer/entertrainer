@@ -18,9 +18,9 @@ import { aiRewriteField, aiSuggestOptions, aiGenerateMcqCards, type GeneratedSto
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'StoryGen — Storyboard Studio · Entertrainer',
-  description: 'Design instructional storyboards on an infinite canvas. Pick a framework, wire the screens, and export a polished storyboard to Word or Excel.',
+  description: 'Design instructional storyboards on an infinite canvas. Pick a framework, connect the screens, and export the working plan to Word or Excel.',
   ogTitle: 'StoryGen — Storyboard Studio',
-  ogDescription: 'Design instructional storyboards on an infinite canvas.',
+  ogDescription: 'Design instructional storyboards on an infinite canvas. Put the story somewhere you can actually inspect it.',
   ogUrl: 'https://entertrainer.in/tools/storygen'
 })
 
@@ -719,7 +719,7 @@ onUnmounted(() => {
             <button class="sg-proj__del" title="Delete storyboard" @click.stop="deleteProjectEntry(p.id)"><ToolsStoryIcon name="trash" :size="12" /></button>
           </article>
         </div>
-        <p v-if="!projects.length" class="sg-home__empty">No storyboards yet. Create one.</p>
+        <p v-if="!projects.length" class="sg-home__empty">No storyboards yet. Start with one messy idea and give it somewhere to go.</p>
       </div>
     </div>
 

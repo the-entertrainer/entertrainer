@@ -31,8 +31,8 @@ watch(effBits, (b) => {
 <template>
   <section class="st-card st-card--wide st-lab">
     <p class="st-eyebrow">Password lab</p>
-    <h2 class="st-h2">Build one, watch it break</h2>
-    <p class="st-lead st-lab__line">Reach {{ TARGET_BITS }} bits of real strength to continue. Try a clever short one, then a passphrase.</p>
+    <h2 class="st-h2">Build one. Watch it break.</h2>
+    <p class="st-lead st-lab__line">Reach {{ TARGET_BITS }} bits of real strength to continue. Try a clever short one first. Then try a passphrase; the difference is the whole lesson.</p>
 
     <div class="st-lab__field">
       <input
@@ -72,13 +72,13 @@ watch(effBits, (b) => {
       </div>
       <div v-else-if="isPhrase" class="st-lab__flag st-lab__flag--info">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>
-        <span>A naive meter would call this {{ Math.round(a.naiveBits) }} bits. It is really seven words, so its honest strength is {{ Math.round(effBits) }} bits. Strong, and memorable.</span>
+        <span>A naive meter would call this {{ Math.round(a.naiveBits) }} bits. But this is really seven words, so its honest strength is {{ Math.round(effBits) }} bits. Strong and memorable, which is a useful combination.</span>
       </div>
 
       <div class="st-lab__crack"><CrackTimes :bits="effBits" /></div>
     </div>
 
-    <div v-else class="st-lab__empty"><p class="st-note">Start typing, or generate a passphrase, to see the numbers.</p></div>
+    <div v-else class="st-lab__empty"><p class="st-note">Start typing, or generate a passphrase, and watch the numbers appear.</p></div>
 
     <div class="st-lab__goal" :class="{ 'is-met': passed }" role="status">
       <svg v-if="passed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-11"/></svg>

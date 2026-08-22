@@ -2,9 +2,9 @@
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'Cadence — Training Calendar Generator · Entertrainer',
-  description: 'Turn a list of topics into a ready-to-present monthly training calendar, laid out around your holidays, audiences and time slots. Exports to PowerPoint.',
+  description: 'Turn a topic list into a ready-to-present monthly training calendar, laid out around holidays, audiences, and time slots. Exports to PowerPoint.',
   ogTitle: 'Cadence — Training Calendar Generator',
-  ogDescription: 'Turn a list of topics into a ready-to-present monthly training calendar.',
+  ogDescription: 'Turn a topic list into a ready-to-present monthly training calendar. The blank month does not have to stay blank.',
   ogUrl: 'https://entertrainer.in/tools/cadence'
 })
 
@@ -573,7 +573,7 @@ function backToTable() {
 </script>
 
 <template>
-  <UiToolShell wide eyebrow="Training Calendar Generator" deck="Turn a list of topics into a ready-to-present monthly schedule, laid out around your holidays, audiences and time slots.">
+  <UiToolShell wide eyebrow="Training Calendar Generator" deck="Turn a topic list into a ready-to-present monthly schedule, laid out around your holidays, audiences, and time slots. The blank month can take a day off.">
     <template #title>
       <span class="cal-lockup">
         <ToolsCalBrandMark :size="46" class="cal-lockup__mark" />
@@ -1623,4 +1623,3 @@ function backToTable() {
 .fade-enter-active, .fade-leave-active { transition: opacity 0.22s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>
-

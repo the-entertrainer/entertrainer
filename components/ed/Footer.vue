@@ -21,7 +21,7 @@ const secondaryLinks = [
       <div class="ft__brand">
         <EdWordmark :size="32" />
         <p class="ft__blurb">
-          Lessons, projects, and tools.
+          Lessons, projects, and tools for understanding difficult work.
         </p>
         <a class="ticket ticket--sm" :href="`mailto:${store.email}`">Start a conversation</a>
       </div>
@@ -42,10 +42,10 @@ const secondaryLinks = [
       <div class="ft__col">
         <h2 class="t-mono ft__h">Privacy</h2>
         <p class="ft__fine">
-          I use open-source type and original artwork. Read more about how the site is made in
+          I use open-source type and original artwork. If you want the wiring diagram, read
           <NuxtLink to="/colophon" class="u-underline">How this site works</NuxtLink>.
         </p>
-        <p class="ft__fine">This site has no database or analytics. Your StoryGen projects stay in your browser.</p>
+        <p class="ft__fine">This site has no database or analytics. Your StoryGen projects stay in your browser, where they belong.</p>
       </div>
     </div>
 

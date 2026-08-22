@@ -5,21 +5,21 @@
  */
 useSeoMeta({
   title: 'Lessons by Naveen Jose · Entertrainer',
-  description: 'Try a short lesson about clear instructions or take a longer course about artificial intelligence.',
+  description: 'Try a short lesson on clear instructions, or take the longer course on artificial intelligence. Pick your route.',
   ogTitle: 'Lessons by Naveen Jose',
-  ogDescription: 'A short lesson about clear instructions and a longer course about artificial intelligence.',
+  ogDescription: 'One short lesson on clear instructions. One longer course on artificial intelligence. No need to overcomplicate the menu.',
   ogUrl: 'https://entertrainer.in/lessons'
 })
 
 const lessons = [
   {
-    title: 'How to make instructions easier to follow',
-    description: 'Turn a hard-to-read instruction into something another person can use.',
+    title: 'How to make instructions people can actually follow',
+    description: 'Take an instruction that makes people stop and reread it, then turn it into something another person can use.',
     detail: '4 min', action: 'Try the lesson', href: '/instructional-design', visual: 'lesson'
   },
   {
     title: 'From No AI to Know AI',
-    description: 'Where AI came from, how prediction works, and why its use matters.',
+    description: 'See where AI came from, how prediction works, and why its use matters. The machinery is less mysterious once you look at the moving parts.',
     detail: '95 min', action: 'Start the course', href: '/courses/ai-atlas', visual: 'process'
   }
 ]
@@ -29,7 +29,7 @@ const lessons = [
   <EdShell width="page">
     <header class="lessons-head">
       <h1 class="lessons-head__title lessons-head__title--write t-display">Lessons</h1>
-      <p class="lessons-head__deck">Short lessons you can understand and try.</p>
+      <p class="lessons-head__deck">Short lessons you can understand, try, and use.</p>
       <EdPaperSignal class="lessons-head__art u-paper-reveal" variant="lesson" label="A Paper Signal lesson card with black instruction rules and a cobalt learning cue" />
     </header>
 
@@ -49,7 +49,7 @@ const lessons = [
 
     <section class="lessons-note" aria-labelledby="lessons-note-title">
       <h2 id="lessons-note-title" class="t-mono">What to expect</h2>
-      <p>These lessons are made to be read, tried, and used. There is no sign-up, no score to chase, and no professional background required.</p>
+      <p>These lessons are made to be read, tried, and used. There is no sign-up, no score to chase, and no professional background required. You can start without prior experience: read the explanation, try the example, and use the method.</p>
     </section>
   </EdShell>
 </template>

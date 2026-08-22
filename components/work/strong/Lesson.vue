@@ -29,20 +29,20 @@ const weak = analyze('P@ssw0rd')
 
     <!-- 1: the haystack -->
     <template v-if="step === 1">
-      <h2 class="st-h2">Strength is the size of a&nbsp;haystack</h2>
-      <p class="st-lead st-lesson__line">The attacker guesses. So strength is just how many passwords they would have to try.</p>
+      <h2 class="st-h2">Strength is the size of the haystack</h2>
+      <p class="st-lead st-lesson__line">The attacker guesses. So password strength is simply how many tries the haystack demands.</p>
       <p class="st-lesson__formula st-num">pool<sup>length</sup></p>
-      <button type="button" class="st-reveal" :class="{ 'is-open': open }" @click="open = !open">
-        why those two things?
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      <button type="button" class="st-reveal" :class="{ 'is-open': open }" :aria-expanded="open" aria-controls="lesson-explanation" @click="open = !open">
+        Why those two things?
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </button>
-      <p v-if="open" class="st-body st-revealbody">The pool is how many different characters you draw from. The length is how many you use. Every possible password is one combination of the two, so the count is the pool raised to the length.</p>
+      <p v-if="open" id="lesson-explanation" class="st-body st-revealbody">The pool is how many different characters you can draw from. The length is how many you use. Every password is one combination of those two, so the count is the pool raised to the length. That is the whole machine.</p>
     </template>
 
     <!-- 2: count it -->
     <template v-else-if="step === 2">
       <h2 class="st-h2">Count the haystack</h2>
-      <p class="st-lead st-lesson__line">Add character types, drag the length. Watch length grow the count fastest.</p>
+      <p class="st-lead st-lesson__line">Add character types, then change the length. Watch which one makes the count grow faster.</p>
       <div class="st-calc">
         <div class="st-calc__classes">
           <button v-for="c in CHAR_CLASSES" :key="c.id" type="button" class="st-chip" :class="{ 'is-on': enabled[c.id] }" :aria-pressed="enabled[c.id]" @click="enabled[c.id] = !enabled[c.id]">{{ c.label }} <span class="st-chip__size st-num">+{{ c.size }}</span></button>
@@ -63,7 +63,7 @@ const weak = analyze('P@ssw0rd')
     <!-- 3: length wins -->
     <template v-else-if="step === 3">
       <h2 class="st-h2">Length beats symbols</h2>
-      <p class="st-lead st-lesson__line">A short password with every trick, against a longer one that is only lowercase.</p>
+      <p class="st-lead st-lesson__line">A short password using every trick, compared with a longer one made only of lowercase letters.</p>
       <div class="st-versus">
         <div class="st-versus__card">
           <p class="st-versus__label">8 chars, every type</p>
@@ -76,41 +76,41 @@ const weak = analyze('P@ssw0rd')
           <StrengthBar :bits="longBits" compact />
         </div>
       </div>
-      <button type="button" class="st-reveal" :class="{ 'is-open': open }" @click="open = !open">
-        why is it not close?
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      <button type="button" class="st-reveal" :class="{ 'is-open': open }" :aria-expanded="open" aria-controls="lesson-explanation" @click="open = !open">
+        Why isn’t it close?
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </button>
-      <p v-if="open" class="st-body st-revealbody">Adding a character type only widens the pool. Adding length raises that pool to a higher power. Length is the exponent, so it wins every time.</p>
+      <p v-if="open" id="lesson-explanation" class="st-body st-revealbody">Adding a character type widens the pool. Adding length raises that pool to a higher power. Length is the exponent. That is why it keeps winning.</p>
     </template>
 
     <!-- 4: three attackers -->
     <template v-else-if="step === 4">
       <h2 class="st-h2">Same password. Three&nbsp;attackers.</h2>
-      <p class="st-lead st-lesson__line">Crack time depends on how the site stored it, not just the password.</p>
+      <p class="st-lead st-lesson__line">Crack time depends on how the site stored the password, not just on the password itself.</p>
       <div class="st-lesson__panel">
         <p class="st-versus__pw st-num st-lesson__example">river9-KITE-mango</p>
         <CrackTimes :bits="naiveBits('river9-KITE-mango')" />
       </div>
-      <button type="button" class="st-reveal" :class="{ 'is-open': open }" @click="open = !open">
-        why so different?
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      <button type="button" class="st-reveal" :class="{ 'is-open': open }" :aria-expanded="open" aria-controls="lesson-explanation" @click="open = !open">
+        Why so different?
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </button>
-      <p v-if="open" class="st-body st-revealbody">A rate-limited login allows a few guesses a second. A leaked list of fast, unsalted hashes lets one graphics card try a hundred billion a second. Same haystack, wildly different speed.</p>
+      <p v-if="open" id="lesson-explanation" class="st-body st-revealbody">A rate-limited login allows only a few guesses per second. A leaked list of fast, unsalted hashes lets one graphics card try a hundred billion per second. Same haystack. Completely different speed.</p>
     </template>
 
     <!-- 5: the lie -->
     <template v-else>
-      <h2 class="st-h2">The math lies when it is guessable</h2>
-      <p class="st-lead st-lesson__line">Real passwords are not random, and crackers know it.</p>
+      <h2 class="st-h2">The math lies when the password is guessable</h2>
+      <p class="st-lead st-lesson__line">Real passwords are often not random. Crackers know that, and they start with the obvious guesses.</p>
       <div class="st-lesson__panel">
         <p class="st-versus__pw st-num st-lesson__example">P@ssw0rd</p>
         <StrengthBar :bits="weak.effBits" :naive="weak.naiveBits" />
       </div>
-      <button type="button" class="st-reveal" :class="{ 'is-open': open }" @click="open = !open">
-        why does it collapse?
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      <button type="button" class="st-reveal" :class="{ 'is-open': open }" :aria-expanded="open" aria-controls="lesson-explanation" @click="open = !open">
+        Why does it collapse?
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </button>
-      <p v-if="open" class="st-body st-revealbody">{{ weak.guessReason }} The way out is real unpredictability you can still remember: a few random words. You will build one next.</p>
+      <p v-if="open" id="lesson-explanation" class="st-body st-revealbody">{{ weak.guessReason }} The way out is real unpredictability you can still remember: a few random words. You will build one next.</p>
     </template>
   </section>
 </template>

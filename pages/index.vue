@@ -7,17 +7,17 @@
 import { ITEMS } from '~/content/editorial'
 
 useSeoMeta({
-  title: 'Entertrainer — Lessons, projects, and free tools by Naveen Jose',
-  description: 'Naveen Jose makes lessons, projects, and small tools that make complicated work easier to understand.',
-  ogTitle: 'Entertrainer — Lessons, projects, and free tools by Naveen Jose',
-  ogDescription: 'Lessons, projects, and free tools that make complicated work easier to understand.',
+  title: 'Entertrainer — Clearer lessons, practical projects, and free tools by Naveen Jose',
+  description: 'Naveen Jose makes lessons, projects, and small tools for making complicated work easier to understand. No heroic promises. Just clearer work.',
+  ogTitle: 'Entertrainer — Clearer lessons, practical projects, and free tools by Naveen Jose',
+  ogDescription: 'Lessons, projects, and free tools for getting a clearer grip on complicated work.',
   ogUrl: 'https://entertrainer.in/'
 })
 
 const routes = [
-  { number: '01', title: 'Lessons', body: 'Learn how to write clearer instructions, understand AI, and design learning.', href: '/lessons', action: 'Explore lessons', visual: 'lesson' },
-  { number: '02', title: 'Projects', body: 'Read courses, comics, and explainers made for workplace teams.', href: '/my-work', action: 'Browse projects', visual: 'project' },
-  { number: '03', title: 'Free tools', body: 'Plan, write, and make quizzes with free browser tools.', href: '/tools', action: 'Open tools', visual: 'tool' }
+  { number: '01', title: 'Lessons', body: 'Learn to write clearer instructions, make sense of AI, and design learning people can use.', href: '/lessons', action: 'Explore lessons', visual: 'lesson' },
+  { number: '02', title: 'Projects', body: 'Read courses, comics, and explainers about the work teams actually do.', href: '/my-work', action: 'Browse projects', visual: 'project' },
+  { number: '03', title: 'Free tools', body: 'Plan, write, and make quizzes with free browser tools. Open them in your browser and get started.', href: '/tools', action: 'Open tools', visual: 'tool' }
 ] as const
 
 const selectedWork = computed(() => ITEMS.filter(item => ['ai-atlas', 'sewa-chronicles'].includes(item.id)))
@@ -86,8 +86,8 @@ onBeforeUnmount(() => disposeMotion?.())
   <EdShell ref="homeRoot" width="wide" :class="{ 'home--motion-ready': motionReady }">
     <header class="home-hero" aria-labelledby="home-title">
       <div class="home-hero__intro">
-        <h1 id="home-title" ref="heroTitle" class="home-hero__title t-display" aria-label="I make complicated work easier to understand."><span class="home-hero__word" aria-hidden="true"><span>I make</span></span><span class="home-hero__word home-hero__word--accent" aria-hidden="true"><span>complicated</span></span><span class="home-hero__word" aria-hidden="true"><span>work easier</span></span><span class="home-hero__word" aria-hidden="true"><span>to understand.</span></span></h1>
-        <p class="home-hero__deck"><span>Lessons, projects, and small tools for people who need a clearer way into difficult work.</span></p>
+        <h1 id="home-title" ref="heroTitle" class="home-hero__title t-display" aria-label="I make complicated work easier to follow."><span class="home-hero__word" aria-hidden="true"><span>I make</span></span><span class="home-hero__word home-hero__word--accent" aria-hidden="true"><span>complicated</span></span><span class="home-hero__word" aria-hidden="true"><span>work easier</span></span><span class="home-hero__word" aria-hidden="true"><span>to follow.</span></span></h1>
+        <p class="home-hero__deck"><span>Lessons, projects, and small tools for making difficult work easier to understand.</span></p>
         <div class="home-hero__actions">
           <NuxtLink to="/instructional-design" class="ticket home-hero__primary">Start a short lesson <EdSignalIcon name="arrow" /></NuxtLink>
           <NuxtLink to="/my-work" class="home-hero__secondary">Browse my work</NuxtLink>

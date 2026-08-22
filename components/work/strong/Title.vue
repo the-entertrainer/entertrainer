@@ -10,9 +10,9 @@ function reroll() { demo.value = randomPassphrase(7) }
 
 <template>
   <section class="st-card st-cover">
-    <p class="st-eyebrow">Security · the real math</p>
+    <p class="st-eyebrow">Security, with the real maths behind it</p>
     <h1 class="st-h1">STRONG</h1>
-    <p class="st-lead st-cover__line">Strong is not a feeling. It is a number, and there is a formula behind it.</p>
+    <p class="st-lead st-cover__line">Strong is not a feeling. It is a number. And yes, there is a formula behind it.</p>
 
     <button type="button" class="st-btn st-btn--primary st-cover__cta" @click="emit('start')">
       Start
@@ -21,7 +21,7 @@ function reroll() { demo.value = randomPassphrase(7) }
 
     <div class="st-cover__demo">
       <div class="st-cover__demo-top">
-        <span class="st-cover__demo-label">a passphrase, seven random words</span>
+        <span class="st-cover__demo-label">A passphrase: seven random words</span>
         <button type="button" class="st-cover__reroll" aria-label="Generate another" @click="reroll">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>
         </button>
@@ -33,7 +33,7 @@ function reroll() { demo.value = randomPassphrase(7) }
 
     <p class="st-note st-cover__privacy">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-      Nothing you type here ever leaves your device.
+      Nothing you type here ever leaves your device. That part is non-negotiable.
     </p>
   </section>
 </template>

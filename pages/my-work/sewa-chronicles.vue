@@ -18,67 +18,66 @@ const pages = [
     alt: 'The SEWA Chronicles cover: four resort staff around the title, calling out Service, Empathy, Warmth and Attentiveness.',
   },
   {
-    id: 'opening', kind: 'narrative', eyebrow: 'BEFORE THE BOOK', title: 'I had never made anything this big.',
+    id: 'opening', kind: 'narrative', title: 'Club Mahindra asked me to make sixteen comic pages.',
     body: [
-      'I was working as a housekeeper when Club Mahindra asked for a sixteen-page comic. I was early in my career. The job was to take service stories and turn them into something people would actually read.',
-      'I did not have a ready-made system for it. I had a notebook, the people around me, and a decision to take the work seriously.'
+      'At the time, I was working as a housekeeper and was still early in my career.',
+      'The comic had to come from real service stories at the resort. I began by asking the people around me what had happened.'
     ]
   },
   {
-    id: 'brief', kind: 'narrative', eyebrow: 'THE BRIEF', title: 'The brief was simple. The work was not.',
+    id: 'brief', kind: 'narrative', title: 'The book had to turn real service moments into short stories.',
     body: [
-      'Find real service moments. Turn them into short comic stories. Make a book that could sit in a team space without feeling like another instruction sheet.',
-      'The values were already known. The challenge was showing how they looked when someone had to make a choice.'
+      'Club Mahindra wanted a comic that staff could read and discuss. Each page had to show what a service decision looked like in a specific moment.',
+      'The values were already written down. I needed the pages to show a guest, a problem, and what a colleague did next.'
     ], credit: 'CLUB MAHINDRA · LEARNING & DEVELOPMENT · 2023'
   },
   {
-    id: 'leap', kind: 'process', eyebrow: 'THE WORK', title: 'First, I needed stories that could carry a page.',
-    body: ['A good story did not need to be dramatic. It needed a clear person, a real problem, and one moment of care that changed what happened next.'],
-    steps: ['Talk to the people involved.', 'Write a short scene from what happened.', 'Plan the panel sequence.', 'Draw, letter, and lay out the final page.']
+    id: 'leap', kind: 'process', title: 'I began by asking staff what had happened.',
+    body: ['A usable page needed a person, a real problem, and one decision. I wrote the incident as a short scene before I drew anything.'],
+    steps: ['Talk to the person involved.', 'Write a short scene from what happened.', 'Plan the panel sequence.', 'Draw, letter, and lay out the page.']
   },
   {
-    id: 'floor', kind: 'narrative', eyebrow: 'THE MATERIAL', title: 'The stories were already there.',
+    id: 'floor', kind: 'narrative', title: 'A stranded guest. A missing bracelet. A child at dinner.',
     body: [
-      'A guest stuck on the road. A child having a difficult evening. A bracelet left behind. A rainy day that could have stayed grey.',
-      'These were not invented examples. They were moments from the resort floor. My job was to notice enough detail to make each one true on the page.'
+      'There was also a rainy afternoon, when colleagues gave guests colourful umbrellas. None of these incidents were invented for the comic.',
+      'They happened on the resort floor. My job was to notice enough detail to make each scene recognisable on the page.'
     ]
   },
   {
-    id: 'craft', kind: 'process', eyebrow: 'MAKING THE PAGES', title: 'The drawing came after the listening.',
-    body: ['I wrote the moment down first. Then came the thumbnail, the panels, the lines, the lettering, the colour, and the corrections. Sixteen pages meant doing that again and again until the book felt whole.'],
+    id: 'craft', kind: 'process', title: 'I wrote the moment down before I drew it.',
+    body: ['Then came the thumbnail, the panels, the lines, the lettering, the colour, and the corrections. I repeated that work sixteen times.'],
     steps: ['A real moment.', 'A readable sequence.', 'A rough storyboard.', 'A finished comic page.']
   },
   {
-    id: 'extra-mile', kind: 'comic', src: 'extra-mile', caption: 'Come Back to the Resort', tag: 'GOING THE EXTRA MILE',
+    id: 'extra-mile', kind: 'comic', src: 'extra-mile', caption: 'Come Back to the Resort',
     alt: 'Comic strip: a member’s car breaks down on the highway, and the front office arranges another car to bring him back to the resort.'
   },
   {
-    id: 'rain', kind: 'comic', src: 'colors-in-the-rain', caption: 'Colors in the Rain', tag: 'CREATIVE RESTLESSNESS',
+    id: 'rain', kind: 'comic', src: 'colors-in-the-rain', caption: 'Colors in the Rain',
     alt: 'Comic strip: staff hand out colourful umbrellas on a grey rainy day, and guests share photos of them.'
   },
   {
-    id: 'sesame', kind: 'comic', src: 'open-sesame', caption: 'Open Sesame', tag: 'CAN DO, WILL DO',
+    id: 'sesame', kind: 'comic', src: 'open-sesame', caption: 'Open Sesame',
     alt: 'Comic strip: a guest is locked out of a room, and a front-office colleague opens the door without damage using a simple trick.'
   },
   {
-    id: 'lost', kind: 'comic', src: 'lost-and-found', caption: 'Lost Yet Found', tag: 'OWNERSHIP',
+    id: 'lost', kind: 'comic', src: 'lost-and-found', caption: 'Lost Yet Found',
     alt: 'Comic strip: a housekeeper finds a guest’s lost bracelet and returns it safely.'
   },
   {
-    id: 'origami', kind: 'comic', src: 'towel-origami', caption: 'Towel Origami Magic', tag: 'ATTENTION TO DETAIL',
+    id: 'origami', kind: 'comic', src: 'towel-origami', caption: 'Towel Origami Magic',
     alt: 'Comic strip: staff calm a crying child at dinner by folding a towel into an origami rabbit.'
   },
   {
-    id: 'reflection', kind: 'narrative', eyebrow: 'AFTER THE LAST PAGE', title: 'Finishing it changed the next thing I said yes to.',
+    id: 'reflection', kind: 'narrative', title: 'Sixteen pages were finished.',
     body: [
-      'The book showed me that I could take a real experience, give it shape, and make something other people could hold onto. That mattered more than having a polished portfolio piece.',
-      'I still care about The SEWA Chronicles because I made it from the first conversation to the last page, while learning what I could handle by actually handling it.'
+      'The book was written, illustrated, and laid out for Club Mahindra Learning and Development.',
+      'It was the first time I took a commission from the first conversation through the final layout.'
     ]
   },
   {
-    id: 'back', kind: 'closing', eyebrow: 'CREDITS', title: 'The SEWA Chronicles',
-    body: ['Concept, writing, illustration, and layout by Naveen Jose for Club Mahindra Learning & Development. Original artwork from the 2023 comic magazine.'],
-    credit: 'READ FROM THE COVER ANY TIME'
+    id: 'back', kind: 'closing', title: 'Credits',
+    body: ['Concept, writing, illustration, and layout by Naveen Jose for Club Mahindra Learning and Development. Original artwork from the 2023 comic magazine.']
   },
 ] as const
 </script>

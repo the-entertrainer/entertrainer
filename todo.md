@@ -468,3 +468,23 @@
 - [x] Reproduce the page-turn failure on a mobile viewport using real touch or pointer gesture events and record the failing event path.
 - [x] Repair mobile swipe behavior while preserving corner dragging, click turns, keyboard navigation, and reduced-motion reading.
 - [x] Validate forward and backward mobile swipes, desktop turns, keyboard controls, console health, compliance guard, and production build before pushing to `main`.
+
+## Anti-generic content skill and SEWA cleanup
+
+- [x] Research credible human-centered writing, plain-language, and anti-generic design guidance to establish explicit quality standards.
+- [x] Create a reusable anti-generic-content quality-control skill with a repeatable inventory, rejection test, rewrite loop, and completion criteria.
+- [x] Run the skill against the SEWA book concept and existing narrative, removing named writing devices, abstract claims, inflated stakes, and content that does not move the post forward.
+- [x] Present the simplified, normal-human-post direction for user approval before changing the book’s published copy.
+
+## SEWA approved cleanup and UI refresh
+
+- [x] Apply the approved plain-language SEWA rewrite, removing named writing devices, abstract claims, value slogans, duplicate labels, and repeated titles while retaining facts, original-art captions, credit, and accessible instructions.
+- [x] Use the Magic Patterns connector to develop a focused publication UI refresh proposal for the SEWA reader without replacing the original comic artwork or physical page-flip implementation.
+- [x] Implement the approved refresh across the book frame, reader hierarchy, page composition, typography, and unobtrusive interaction cues.
+- [x] Validate narrative clarity, real-art fidelity, mobile and desktop reader behavior, keyboard and reduced-motion access, console health, compliance guard, and production build before pushing to `main`.
+
+## SEWA writing-style research and approval
+
+- [ ] Research relevant personal-project, editorial, craft-process, and visual-essay writing models from credible public examples.
+- [ ] Compare distinct narrative approaches against the SEWA story, identifying the voice, structure, strengths, risks, and anti-boilerplate constraints for each.
+- [ ] Present recommended style options with short original sample passages and wait for user approval before changing book copy.

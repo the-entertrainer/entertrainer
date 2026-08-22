@@ -101,24 +101,26 @@ function renderNarrativePage(page: EditorialBookPage, index: number) {
   context.fillStyle = 'rgba(100, 70, 45, .055)'
   for (let x = 42; x < width; x += 74) context.fillRect(x, 0, 1, height)
 
-  const margin = 112
-  let cursor = 170
-  context.fillStyle = '#a23f32'
-  context.font = '700 25px "IBM Plex Mono", monospace'
-  context.fillText(page.eyebrow || 'THE SEWA CHRONICLES', margin, cursor)
-  drawRule(context, cursor + 40)
-  cursor += 128
+  const margin = 126
+  let cursor = 176
+  if (page.eyebrow) {
+    context.fillStyle = '#7c3028'
+    context.font = '700 23px "IBM Plex Mono", monospace'
+    context.fillText(page.eyebrow, margin, cursor)
+    drawRule(context, cursor + 38)
+    cursor += 112
+  }
 
   context.fillStyle = '#181413'
-  context.font = '800 86px "Bodoni Moda", Didot, Georgia, serif'
-  cursor = drawWrappedText(context, page.title || '', margin, cursor, 800, 92)
-  cursor += 58
+  context.font = '800 82px "Bodoni Moda", Didot, Georgia, serif'
+  cursor = drawWrappedText(context, page.title || '', margin, cursor, 790, 88)
+  cursor += 54
 
   context.fillStyle = '#2b2522'
-  context.font = '400 34px "Libre Baskerville", Georgia, serif'
+  context.font = '400 32px "Libre Baskerville", Georgia, serif'
   for (const paragraph of page.body || []) {
-    cursor = drawWrappedText(context, paragraph, margin, cursor, 830, 54)
-    cursor += 28
+    cursor = drawWrappedText(context, paragraph, margin, cursor, 812, 52)
+    cursor += 30
   }
 
   if (page.steps?.length) {
@@ -146,7 +148,7 @@ function renderNarrativePage(page: EditorialBookPage, index: number) {
     context.fillText(page.credit, margin, height - 105)
   }
 
-  context.fillStyle = '#756a62'
+  context.fillStyle = '#88786d'
   context.font = '700 19px "IBM Plex Mono", monospace'
   context.textAlign = 'right'
   context.fillText(String(index + 1).padStart(2, '0'), width - margin, height - 72)
@@ -285,7 +287,6 @@ onBeforeUnmount(() => {
   <article class="sewa-publication" :aria-label="label" tabindex="0" @keydown="handleKey">
     <header class="sewa-publication__masthead">
       <NuxtLink to="/" class="sewa-publication__brand" aria-label="Entertrainer home"><EdWordmark :animate="false" /></NuxtLink>
-      <p class="sewa-publication__edition">THE SEWA CHRONICLES · 2023</p>
       <NuxtLink :to="returnTo" class="sewa-publication__exit">{{ returnLabel }}</NuxtLink>
     </header>
 
@@ -308,7 +309,7 @@ onBeforeUnmount(() => {
         <span class="sewa-publication__corner sewa-publication__corner--next" aria-hidden="true" />
       </section>
 
-      <p class="sewa-publication__sr-only" id="sewa-reader-help">Drag a corner, swipe, or tap the book to turn pages. Use Left and Right Arrow keys to move through the book. Press Home to return to the cover.</p>
+      <p class="sewa-publication__sr-only" id="sewa-reader-help">Swipe, drag a corner, or tap a page edge. Use Left and Right Arrow keys to turn pages. Press Home to return to the cover.</p>
       <p class="sewa-publication__sr-only" role="status" aria-live="polite">Page {{ activeIndex + 1 }} of {{ pages.length }}. {{ currentPage.title || currentPage.caption }}</p>
       <section class="sewa-publication__sr-only" aria-label="Book content" aria-describedby="sewa-reader-help">
         <template v-for="(page, index) in pages" :key="page.id">
@@ -332,19 +333,18 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /* SEWA publication: StPageFlip visual pages plus a semantic reading equivalent. */
-.sewa-publication { min-height: 100dvh; color: #15110f; background: #f4eee3; display: flex; flex-direction: column; outline: none; }
-.sewa-publication__masthead { min-height: 72rem; padding: 14rem clamp(18rem, 4vw, 62rem); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; border-bottom: 1px solid #191410; background: #f8f3ea; }
+.sewa-publication { min-height: 100dvh; color: #171210; background: #f2eadf; display: flex; flex-direction: column; outline: none; }
+.sewa-publication__masthead { min-height: 66rem; padding: 12rem clamp(18rem, 4vw, 62rem); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2b211c; background: rgba(250,247,240,.96); }
 .sewa-publication__brand { justify-self: start; color: #15110f; }
 .sewa-publication__brand :deep(.wordmark) { max-width: 185rem; }
-.sewa-publication__edition { margin: 0; font: 700 10rem/1.2 "IBM Plex Mono", monospace; letter-spacing: .16em; color: #7a6b62; }
-.sewa-publication__exit { justify-self: end; min-height: 44rem; display: inline-flex; align-items: center; border-bottom: 1px solid currentColor; font-family: "Libre Baskerville", Georgia, serif; font-size: 13rem; font-weight: 700; }
+.sewa-publication__exit { min-height: 44rem; display: inline-flex; align-items: center; border-bottom: 1px solid currentColor; font-family: "Libre Baskerville", Georgia, serif; font-size: 13rem; font-weight: 700; }
 .sewa-publication__reader { flex: 1; display: flex; flex-direction: column; }
-.sewa-publication__stage { position: relative; flex: 1; min-height: calc(100dvh - 72rem); display: grid; place-items: center; padding: clamp(22rem, 5vw, 68rem); overflow: hidden; overscroll-behavior-x: contain; background: radial-gradient(circle at 50% 26%, #fffdf8 0, #f5eee3 49%, #e0d4c2 100%); }
-.sewa-publication__stage::before { content: ''; position: absolute; width: min(88vw, 900rem); height: min(78dvh, 820rem); border-radius: 50%; background: rgba(54,35,19,.14); filter: blur(38rem); transform: translateY(28rem) scale(.9); pointer-events: none; }
+.sewa-publication__stage { position: relative; flex: 1; min-height: calc(100dvh - 66rem); display: grid; place-items: center; padding: clamp(22rem, 5vw, 68rem); overflow: hidden; overscroll-behavior-x: contain; background: radial-gradient(ellipse at 50% 18%, #fffdf8 0, #f6efe4 44%, #dfd0bc 100%); }
+.sewa-publication__stage::before { content: ''; position: absolute; width: min(88vw, 960rem); height: min(78dvh, 820rem); border-radius: 50%; background: rgba(61,35,22,.15); filter: blur(42rem); transform: translateY(34rem) scale(.9); pointer-events: none; }
 .sewa-publication__flipbook { position: relative; z-index: 1; width: min(100%, 1120rem); height: min(82dvh, 760rem); min-height: 408rem; opacity: 0; touch-action: pan-y; -webkit-user-select: none; user-select: none; transition: opacity 260ms ease; }
 .sewa-publication__stage--ready .sewa-publication__flipbook { opacity: 1; }
 .sewa-publication__flipbook :deep(.stf__parent) { margin: 0 auto; }
-.sewa-publication__flipbook :deep(.stf__wrapper) { box-shadow: 0 24rem 44rem rgba(50,35,23,.24); }
+.sewa-publication__flipbook :deep(.stf__wrapper) { box-shadow: 0 30rem 56rem rgba(50,35,23,.26), 0 0 0 1rem rgba(64,43,27,.1); }
 .sewa-publication__flipbook :deep(.stf__block) { background: #fffdf8; }
 .sewa-publication__corner { position: absolute; z-index: 0; top: 50%; width: 34rem; height: 84rem; opacity: .45; pointer-events: none; }
 .sewa-publication__corner--previous { left: max(14rem, calc(50% - 580rem)); border-left: 1px solid #4b3830; border-top: 1px solid #4b3830; transform: translateY(-50%) rotate(-45deg); }
@@ -358,8 +358,7 @@ onBeforeUnmount(() => {
 .sewa-publication__sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .sewa-publication:focus-visible, .sewa-publication__brand:focus-visible, .sewa-publication__exit:focus-visible { outline: 3px solid #315fc7; outline-offset: 4rem; }
 @media (max-width: 680px) {
-  .sewa-publication__masthead { grid-template-columns: 1fr auto; min-height: 60rem; }
-  .sewa-publication__edition { display: none; }
+  .sewa-publication__masthead { min-height: 60rem; }
   .sewa-publication__brand :deep(.wordmark) { max-width: 160rem; }
   .sewa-publication__stage { min-height: calc(100dvh - 60rem); padding: 18rem 14rem; }
   .sewa-publication__flipbook { height: min(79dvh, 720rem); min-height: 440rem; }

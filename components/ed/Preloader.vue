@@ -6,7 +6,38 @@ const narration = ref<HTMLAudioElement | null>(null)
 let finishTimer: ReturnType<typeof setTimeout> | undefined
 let removeTimer: ReturnType<typeof setTimeout> | undefined
 let audioTimer: ReturnType<typeof setTimeout> | undefined
+let audioContext: AudioContext | undefined
+let audioSource: MediaElementAudioSourceNode | undefined
 let completed = false
+
+const playNarration = async () => {
+  const audio = narration.value
+  if (!audio) return
+
+  try {
+    if (!audioContext) {
+      audioContext = new AudioContext()
+      audioSource = audioContext.createMediaElementSource(audio)
+      const echoDelay = audioContext.createDelay(0.72)
+      const echoFeedback = audioContext.createGain()
+      const echoLevel = audioContext.createGain()
+      echoDelay.delayTime.value = 0.34
+      echoFeedback.gain.value = 0.26
+      echoLevel.gain.value = 0.22
+      audioSource.connect(audioContext.destination)
+      audioSource.connect(echoDelay)
+      echoDelay.connect(echoLevel)
+      echoLevel.connect(audioContext.destination)
+      echoDelay.connect(echoFeedback)
+      echoFeedback.connect(echoDelay)
+    }
+    audio.volume = 0.94
+    await audioContext.resume()
+    await audio.play()
+  } catch {
+    // Unprompted audio can be blocked. The visual sequence remains complete.
+  }
+}
 
 const finish = () => {
   if (completed) return
@@ -22,7 +53,7 @@ onMounted(() => {
     audioTimer = window.setTimeout(() => {
       // Browsers may block sound before a visitor interacts. The visual sequence
       // always completes either way, without surfacing an intrusive permission UI.
-      narration.value?.play().catch(() => undefined)
+      void playNarration()
     }, 90)
   }
   finishTimer = window.setTimeout(finish, reduced ? 140 : 3400)
@@ -32,12 +63,14 @@ onBeforeUnmount(() => {
   if (removeTimer) window.clearTimeout(removeTimer)
   if (audioTimer) window.clearTimeout(audioTimer)
   narration.value?.pause()
+  audioSource?.disconnect()
+  void audioContext?.close()
 })
 </script>
 
 <template>
   <div class="preloader" :class="{ 'preloader--leaving': leaving }" role="status" aria-live="polite" aria-label="Preparing Entertrainer">
-    <audio ref="narration" class="preloader__audio" src="/manus-storage/tts_You_h_20260822_215853_7546256d.mp3" preload="auto" aria-hidden="true" />
+    <audio ref="narration" class="preloader__audio" src="/manus-storage/tts_You.._20260822_220754_82da6af5.mp3" preload="auto" aria-hidden="true" />
     <div class="preloader__stage" aria-hidden="true">
       <div class="preloader__rings"><i></i><i></i><i></i><i></i></div>
       <div class="preloader__brand-shell"><span class="preloader__word">entertrainer</span></div>

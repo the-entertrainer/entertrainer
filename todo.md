@@ -526,3 +526,9 @@
 - [x] Animate the yellow circles as a hypnotic, bounded preloader sequence while preserving the existing one-run guard, readable wordmark, responsive sizing, and reduced-motion fallback.
 - [x] Define a separate compact logo plan that combines a lowercase e with the yellow-circle logic; do not replace the selected wordmark or supporting artwork with it yet.
 - [x] Validate preloader timing, audio failure and blocked-autoplay handling, reduced motion, keyboard access, mobile layout, console health, compliance guard, and production build before pushing to `main`.
+
+## Hypnotic preloader narration refinement
+
+- [x] Replace the initial narration with a slower, deeper, echo-treated promo delivery of the approved line.
+- [x] Integrate the replacement narration without changing the selected wordmark animation, its one-run guard, or the silent and reduced-motion fallbacks.
+- [x] Validate the new audio asset reference, blocked-autoplay handling, compliance guard, and production build before pushing to `main`.

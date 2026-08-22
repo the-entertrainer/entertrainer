@@ -41,6 +41,7 @@ const activeIndex = ref(0)
 const reducedMotion = ref(false)
 const readerReady = ref(false)
 let motionQuery: MediaQueryList | undefined
+let densityObserver: ResizeObserver | undefined
 
 const currentPage = computed(() => props.pages[activeIndex.value])
 const pageNumber = computed(() => String(activeIndex.value + 1).padStart(2, '0'))
@@ -161,6 +162,32 @@ function visualSource(page: EditorialBookPage, index: number) {
   return renderNarrativePage(page, index)
 }
 
+function applyHighDensityCanvas() {
+  const canvas = bookRoot.value?.querySelector<HTMLCanvasElement>('.stf__canvas')
+  if (!canvas) return
+
+  const bounds = canvas.getBoundingClientRect()
+  const density = Math.min(window.devicePixelRatio || 1, 3)
+  const pixelWidth = Math.round(bounds.width * density)
+  const pixelHeight = Math.round(bounds.height * density)
+  if (!pixelWidth || !pixelHeight) return
+
+  if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+    canvas.width = pixelWidth
+    canvas.height = pixelHeight
+  }
+
+  const context = canvas.getContext('2d')
+  if (!context) return
+  context.setTransform(density, 0, 0, density, 0, 0)
+  context.imageSmoothingEnabled = true
+  context.imageSmoothingQuality = 'high'
+}
+
+function scheduleHighDensityCanvas() {
+  window.requestAnimationFrame(() => window.requestAnimationFrame(applyHighDensityCanvas))
+}
+
 async function startReader() {
   if (reducedMotion.value || !bookRoot.value) return
   await nextTick()
@@ -197,8 +224,13 @@ async function startReader() {
     disableFlipByClick: false,
   })
   pageFlip.value.loadFromImages(images)
+  pageFlip.value.on('init', scheduleHighDensityCanvas)
+  pageFlip.value.on('changeOrientation', scheduleHighDensityCanvas)
   pageFlip.value.on('flip', (event: { data: number }) => { activeIndex.value = event.data })
   pageFlip.value.on('changeState', (event: { data: string }) => { flipState.value = event.data })
+  densityObserver?.disconnect()
+  densityObserver = new ResizeObserver(scheduleHighDensityCanvas)
+  densityObserver.observe(bookRoot.value)
   readerReady.value = true
 }
 
@@ -279,6 +311,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   motionQuery?.removeEventListener('change', onMotionChange)
+  densityObserver?.disconnect()
   pageFlip.value?.destroy()
 })
 </script>
@@ -341,7 +374,7 @@ onBeforeUnmount(() => {
 .sewa-publication__reader { flex: 1; display: flex; flex-direction: column; }
 .sewa-publication__stage { position: relative; flex: 1; min-height: calc(100dvh - 66rem); display: grid; place-items: center; padding: clamp(22rem, 5vw, 68rem); overflow: hidden; overscroll-behavior-x: contain; background: radial-gradient(ellipse at 50% 18%, #fffdf8 0, #f6efe4 44%, #dfd0bc 100%); }
 .sewa-publication__stage::before { content: ''; position: absolute; width: min(88vw, 960rem); height: min(78dvh, 820rem); border-radius: 50%; background: rgba(61,35,22,.15); filter: blur(42rem); transform: translateY(34rem) scale(.9); pointer-events: none; }
-.sewa-publication__flipbook { position: relative; z-index: 1; width: min(100%, 1120rem); height: min(82dvh, 760rem); min-height: 408rem; opacity: 0; touch-action: pan-y; -webkit-user-select: none; user-select: none; transition: opacity 260ms ease; }
+.sewa-publication__flipbook { position: relative; z-index: 1; width: min(100%, 1120rem); height: auto; min-height: 0; max-height: none; aspect-ratio: 2240 / 1520; opacity: 0; touch-action: pan-y; -webkit-user-select: none; user-select: none; transition: opacity 260ms ease; }
 .sewa-publication__stage--ready .sewa-publication__flipbook { opacity: 1; }
 .sewa-publication__flipbook :deep(.stf__parent) { margin: 0 auto; }
 .sewa-publication__flipbook :deep(.stf__wrapper) { box-shadow: 0 30rem 56rem rgba(50,35,23,.26), 0 0 0 1rem rgba(64,43,27,.1); }
@@ -361,8 +394,8 @@ onBeforeUnmount(() => {
   .sewa-publication__masthead { min-height: 60rem; }
   .sewa-publication__brand :deep(.wordmark) { max-width: 160rem; }
   .sewa-publication__stage { min-height: calc(100dvh - 60rem); padding: 18rem 14rem; }
-  .sewa-publication__flipbook { height: min(79dvh, 720rem); min-height: 440rem; }
   .sewa-publication__corner { opacity: .3; }
 }
+@media (max-width: 628px) { .sewa-publication__flipbook { width: 100%; aspect-ratio: 1120 / 1520; } }
 @media (prefers-reduced-motion: reduce) { .sewa-publication__flipbook { transition: none; } }
 </style>

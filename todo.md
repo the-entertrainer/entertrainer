@@ -496,3 +496,10 @@
 - [x] Improve text and link hierarchy, mobile route-card layout, mobile current-page navigation state, and restrained hover feedback without changing image content.
 - [x] Reduce unnecessary homepage scroll choreography and title-mark overshoot, retain useful interaction feedback, and keep a usable reduced-motion equivalent.
 - [x] Validate desktop and mobile rendering, keyboard and mobile navigation, reduced-motion behavior, no-image integrity, compliance guard, console health, and a production build before pushing to `main`.
+
+## SEWA reader quality correction
+
+- [x] Preserve every original SEWA cover and comic-art asset exactly as-is; alter only reader rendering and layout behavior.
+- [x] Diagnose and correct the low-resolution narrative-page rendering on mobile.
+- [x] Remove the white page bands by fitting the reader stage and PageFlip dimensions to the actual page aspect ratio at mobile and desktop widths.
+- [x] Validate narrative-page sharpness, art fidelity, page-turn interactions, keyboard support, reduced motion, console health, and a production build before pushing to `main`.

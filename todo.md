@@ -455,3 +455,10 @@
 - [x] Replace the unstable text-through-sheet effect with page-turn behavior that keeps narrative and art visually intact throughout the motion.
 - [x] Remove persistent visible reader buttons and introduce book-edge gestures, click or tap zones, keyboard navigation, and a discoverable but unobtrusive accessible reader mode.
 - [x] Validate no text leakage, clean page turns, touch and keyboard navigation, reduced-motion reading, mobile layout, console health, and production build before pushing to `main`.
+
+## SEWA realistic publication reader
+
+- [x] Research and document open-source physical page-flip implementations from their maintained repositories, including motion behavior, Vue compatibility, input support, and accessibility trade-offs.
+- [x] Replace the current simulated sheet turn with the selected robust page-flip implementation and retain direct keyboard, pointer, touch, and reduced-motion reading paths.
+- [x] Apply a separate SEWA publication typography system that complements the original comic artwork while keeping the case-study copy readable and semantically structured.
+- [x] Validate realistic page physics, type rendering, comic-art fidelity, mobile and desktop input, reduced motion, console health, compliance guard, and production build before pushing to `main`.

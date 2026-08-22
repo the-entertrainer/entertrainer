@@ -1,35 +1,54 @@
-<!-- Actual Entertrainer wordmark: one finite cinematic reveal. -->
+<!-- Shockwave Type preloader: warm yellow rings, live wordmark, finite and reduced-motion safe. -->
 <script setup lang="ts">
 const emit = defineEmits<{ complete: [] }>()
 const leaving = ref(false)
+const narration = ref<HTMLAudioElement | null>(null)
 let finishTimer: ReturnType<typeof setTimeout> | undefined
 let removeTimer: ReturnType<typeof setTimeout> | undefined
+let audioTimer: ReturnType<typeof setTimeout> | undefined
 let completed = false
 
 const finish = () => {
   if (completed) return
   completed = true
   leaving.value = true
+  narration.value?.pause()
   removeTimer = window.setTimeout(() => emit('complete'), 300)
 }
 
 onMounted(() => {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  finishTimer = window.setTimeout(finish, reduced ? 140 : 2700)
+  if (!reduced) {
+    audioTimer = window.setTimeout(() => {
+      // Browsers may block sound before a visitor interacts. The visual sequence
+      // always completes either way, without surfacing an intrusive permission UI.
+      narration.value?.play().catch(() => undefined)
+    }, 90)
+  }
+  finishTimer = window.setTimeout(finish, reduced ? 140 : 3400)
 })
-onBeforeUnmount(() => { if (finishTimer) window.clearTimeout(finishTimer); if (removeTimer) window.clearTimeout(removeTimer) })
+onBeforeUnmount(() => {
+  if (finishTimer) window.clearTimeout(finishTimer)
+  if (removeTimer) window.clearTimeout(removeTimer)
+  if (audioTimer) window.clearTimeout(audioTimer)
+  narration.value?.pause()
+})
 </script>
 
 <template>
   <div class="preloader" :class="{ 'preloader--leaving': leaving }" role="status" aria-live="polite" aria-label="Preparing Entertrainer">
-    <div class="preloader__stage" aria-hidden="true"><div class="preloader__brand-shell"><EdWordmark class="preloader__brand" variant="full" :size="34" /></div></div>
+    <audio ref="narration" class="preloader__audio" src="/manus-storage/tts_You_h_20260822_215853_7546256d.mp3" preload="auto" aria-hidden="true" />
+    <div class="preloader__stage" aria-hidden="true">
+      <div class="preloader__rings"><i></i><i></i><i></i><i></i></div>
+      <div class="preloader__brand-shell"><span class="preloader__word">entertrainer</span></div>
+    </div>
     <span class="sr-only">Preparing Entertrainer</span>
   </div>
 </template>
 
 <style scoped>
-/* Premium sequence: five rigid signal bars land in depth, then the actual wordmark resolves. */
-.preloader { position:fixed; inset:0; z-index:5000; display:grid; place-items:center; overflow:hidden; background:#fff; color:#161618; transition:opacity 300ms cubic-bezier(.3,0,1,1), visibility 300ms step-end; }.preloader--leaving { opacity:0; visibility:hidden; pointer-events:none; }.preloader__stage { position:relative; z-index:1; display:grid; place-items:center; width:min(360rem,82vw); perspective:720rem; }.preloader__brand-shell { position:relative; display:grid; place-items:center; min-height:58rem; padding:14rem 18rem; opacity:0; transform:translate3d(0,12rem,0) scale(.975); animation:pl-shell-arrive 480ms cubic-bezier(.05,.7,.1,1) 70ms both; }.preloader__brand-shell::after { content:''; position:absolute; z-index:0; left:16%; right:8%; bottom:6rem; height:9rem; border-radius:50%; background:rgb(26 38 80 / .16); filter:blur(7rem); transform:scaleX(.55); opacity:0; animation:pl-shadow-land 780ms cubic-bezier(.16,1,.3,1) 250ms both; }.preloader__brand { --wm-size:34rem; position:relative; z-index:1; }.preloader__brand :deep(.wm) { gap:8rem; color:#161618; }.preloader__brand :deep(.wm__signal) { padding:3rem; border-radius:3rem; box-shadow:8rem 9rem 0 #d3e1f5; overflow:visible; transform-style:preserve-3d; }.preloader__brand :deep(.wm__signal i) { animation:pl-signal-bar 720ms cubic-bezier(.12,.78,.18,1) var(--pl-bar-delay) both !important; backface-visibility:hidden; transform-origin:center bottom; }.preloader__brand :deep(.wm__signal i:nth-child(1)) { --pl-bar-delay:120ms; }.preloader__brand :deep(.wm__signal i:nth-child(2)) { --pl-bar-delay:190ms; }.preloader__brand :deep(.wm__signal i:nth-child(3)) { --pl-bar-delay:260ms; }.preloader__brand :deep(.wm__signal i:nth-child(4)) { --pl-bar-delay:330ms; }.preloader__brand :deep(.wm__signal i:nth-child(5)) { --pl-bar-delay:400ms; }.preloader__brand :deep(.wm__word) { overflow:hidden; animation:pl-word-cinema 840ms cubic-bezier(.16,1,.3,1) 680ms both !important; }.preloader__brand :deep(.wm__word)::after { display:none; }
-@keyframes pl-shell-arrive { to { opacity:1; transform:none; } } @keyframes pl-shadow-land { 55% { opacity:.92; transform:scaleX(1.06); } to { opacity:.58; transform:scaleX(.92); } } @keyframes pl-signal-bar { from { opacity:0; transform:translate3d(0,28rem,42rem) rotateX(74deg) scaleY(.38); } 62% { opacity:1; transform:translate3d(0,-2rem,0) rotateX(-7deg) scaleY(1.035); } to { opacity:1; transform:none; } } @keyframes pl-word-cinema { from { opacity:0; clip-path:inset(0 100% 0 0); transform:translate3d(-14rem,0,0); filter:blur(3rem); } 72% { opacity:1; filter:blur(0); } to { opacity:1; clip-path:inset(0); transform:none; filter:none; } }
-@media (prefers-reduced-motion:reduce) { .preloader { transition-duration:80ms; }.preloader *, .preloader *::before, .preloader *::after { animation:none !important; }.preloader__brand-shell { opacity:1; transform:none; }.preloader__brand-shell::after { opacity:.5; transform:scaleX(.92); } }
+/* Selected identity: an explanatory shockwave, staged once and then removed. */
+.preloader { position:fixed; inset:0; z-index:5000; display:grid; place-items:center; overflow:hidden; background:#fffaf0; color:#15120f; transition:opacity 300ms cubic-bezier(.3,0,1,1), visibility 300ms step-end; }.preloader--leaving { opacity:0; visibility:hidden; pointer-events:none; }.preloader__audio { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }.preloader__stage { position:relative; display:grid; place-items:center; width:min(860rem,92vw); aspect-ratio:1.52; isolation:isolate; }.preloader__rings { position:absolute; z-index:0; inset:0; display:grid; place-items:center; }.preloader__rings i { position:absolute; box-sizing:border-box; border:clamp(22rem,3.1vw,48rem) solid #ffd43b; border-radius:50%; opacity:0; transform:scale(.42); animation:pl-ring-arrive 1500ms cubic-bezier(.16,1,.3,1) var(--pl-ring-delay) both, pl-ring-breathe 1750ms ease-in-out calc(1480ms + var(--pl-ring-delay)) 1 both; }.preloader__rings i:nth-child(1) { --pl-ring-delay:0ms; width:30%; aspect-ratio:1; }.preloader__rings i:nth-child(2) { --pl-ring-delay:110ms; width:48%; aspect-ratio:1; }.preloader__rings i:nth-child(3) { --pl-ring-delay:220ms; width:68%; aspect-ratio:1; }.preloader__rings i:nth-child(4) { --pl-ring-delay:330ms; width:88%; aspect-ratio:1; }.preloader__brand-shell { position:relative; z-index:1; display:grid; place-items:center; opacity:0; transform:scale(.94); animation:pl-word-arrive 760ms cubic-bezier(.16,1,.3,1) 540ms both; }.preloader__word { color:#15120f; font-family:var(--font-ui), Arial, sans-serif; font-size:clamp(52rem,9.4vw,142rem); font-weight:900; letter-spacing:-.082em; line-height:.82; text-wrap:nowrap; }.preloader__brand-shell::after { position:absolute; z-index:-1; right:6%; bottom:-18rem; width:32%; height:14rem; content:''; border-radius:50%; background:rgb(92 68 0 / .14); filter:blur(10rem); transform:scaleX(.6); opacity:0; animation:pl-shadow-arrive 800ms cubic-bezier(.16,1,.3,1) 760ms both; }
+@keyframes pl-ring-arrive { 0% { opacity:0; transform:scale(.36) rotate(-10deg); } 58% { opacity:1; transform:scale(1.035) rotate(1deg); } 100% { opacity:1; transform:scale(1) rotate(0); } } @keyframes pl-ring-breathe { 0%,100% { transform:scale(1); } 48% { transform:scale(1.035); } } @keyframes pl-word-arrive { 0% { opacity:0; transform:scale(.94) translateY(16rem); filter:blur(5rem); } 66% { opacity:1; filter:blur(0); } 100% { opacity:1; transform:none; filter:none; } } @keyframes pl-shadow-arrive { to { opacity:.78; transform:scaleX(1); } }
+@media (prefers-reduced-motion:reduce) { .preloader { transition-duration:80ms; }.preloader *, .preloader *::before, .preloader *::after { animation:none !important; }.preloader__rings i { opacity:1; transform:scale(1); }.preloader__brand-shell { opacity:1; transform:none; }.preloader__brand-shell::after { opacity:.55; transform:scaleX(1); } }
 </style>

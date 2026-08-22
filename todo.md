@@ -510,3 +510,19 @@
 - [x] Rewrite the shared site language and public page copy in the Say It Like Naveen voice, preserving concrete project facts, functional instructions, accessibility labels, search intent, and all existing image references.
 - [x] Review the rewrite for natural spoken rhythm, direct meaning, factual restraint, accessibility, link-label clarity, and consistency with the site’s anti-generic standards.
 - [x] Validate the revised site in browser, run the compliance guard and production build, then push the completed rewrite to `main`.
+
+## Yellow-accent Entertrainer brand exploration
+
+- [ ] Define a bright, eye-comfortable yellow editorial palette and twelve distinct wordmark concepts suited to infotainment, vlog, and web-article contexts.
+- [ ] Generate and review twelve selectable wordmark directions without changing the published site, existing logo, accent colour, or supporting artwork.
+- [ ] Present the numbered directions with concise usage notes and wait for the user’s selection before beginning any identity or artwork revamp.
+- [ ] Replace the first restrained concept set with twelve more expressive, more ownable yellow-accent wordmark directions using Nano Banana Pro, while keeping the live identity and artwork unchanged.
+- [ ] Present the creative replacement set directly as chat attachments rather than external links, then wait for the user’s selection.
+
+## Selected Shockwave Type preloader
+
+- [x] Preserve the selected Shockwave Type wordmark’s black lettering, warm yellow concentric-circle logic, and paper-like visual character in the new preloader.
+- [x] Integrate the requested ElevenLabs deep male line, “You have been hypnotised by... the Entertrainer,” with a user-respecting autoplay fallback and no impact on load completion.
+- [x] Animate the yellow circles as a hypnotic, bounded preloader sequence while preserving the existing one-run guard, readable wordmark, responsive sizing, and reduced-motion fallback.
+- [x] Define a separate compact logo plan that combines a lowercase e with the yellow-circle logic; do not replace the selected wordmark or supporting artwork with it yet.
+- [x] Validate preloader timing, audio failure and blocked-autoplay handling, reduced motion, keyboard access, mobile layout, console health, compliance guard, and production build before pushing to `main`.

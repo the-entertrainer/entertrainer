@@ -618,3 +618,9 @@
 - [x] Audit the new Three Es, Elevate, Empower, Educate, Games, About Me, navigation, footer, and newsletter copy for route narration, ornamental labels, self-aware jokes, AI-style abstractions, and text that does not help a normal visitor act or understand.
 - [x] Add a stricter interface-copy rejection rule to the reusable anti-generic content guideline, distinguishing a human personal voice from decorative commentary.
 - [x] Remove or replace every flagged line with the minimum direct human wording; validate no-emoji compliance and production build before pushing to `main`.
+
+## About Me as a first-person story
+
+- [x] Audit the current About Me chapter facts and remove the portfolio-style presentation that interrupts a natural first-person story.
+- [x] Rewrite and design About Me as a Say It Like Naveen blog-style narrative, retaining the hospitality, Club Mahindra, Courtyard by Marriott, Concentrix, tools, and SEWA facts without inflated claims or decorative interface framing.
+- [x] Validate voice, factual clarity, long-form reading layout, SEWA link, keyboard access, no-emoji compliance, and production build before pushing to `main`.

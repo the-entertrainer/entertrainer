@@ -57,7 +57,7 @@ const signalVariant = computed(() => itemScene[props.item.id] ?? (props.item.cat
   height: 100%;
   background: var(--paper);
   border: var(--stroke) solid var(--line);
-  border-radius: 0;
+  border-radius: var(--radius-l);
   overflow: hidden;
   color: var(--ink);
   
@@ -67,11 +67,11 @@ const signalVariant = computed(() => itemScene[props.item.id] ?? (props.item.cat
 /* Short travel, a degree of rotation, 160ms — the card behaves like a printed
    thing being nudged rather than a div being animated. */
 @media (hover: hover) {
-  .card__hit:hover { background: var(--paper-2); border-color: var(--ink); transform: translateY(-4rem) rotate(-.22deg); }
-  .card__hit:hover .card__title { text-decoration-color: var(--blue); }
+  .card__hit:hover { background: var(--paper-2); border-color: var(--accent); transform: translateY(-4rem) rotate(-.22deg); }
+  .card__hit:hover .card__title { text-decoration-color: var(--accent); }
 }
 .card__hit:active { transform: translateY(0) scale(.985); transition-duration: var(--dur-tap); }
-.card__hit:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.card__hit:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
 /* Artwork provides context; no labels or category frame sit over it. */
 .card__art {

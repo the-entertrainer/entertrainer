@@ -220,10 +220,10 @@
   --safe-right:  env(safe-area-inset-right, 0px);
 
   /* Small. A 20px radius on a content card is a 2010 app, not a publication. */
-  --radius-xs: 2rem;
-  --radius-s:  3rem;
-  --radius-m:  4rem;
-  --radius-l:  6rem;
+  --radius-xs: 4rem;
+  --radius-s:  8rem;
+  --radius-m:  11rem;
+  --radius-l:  15rem;
   --radius-full: 999rem;
 
   --stroke: 1px;

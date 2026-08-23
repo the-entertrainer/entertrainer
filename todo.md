@@ -571,3 +571,10 @@
 - [x] Establish the selected warm yellow as the global accent token and replace the current purple/blue interactive accent usage without modifying existing artwork assets.
 - [x] Apply the yellow accent consistently to navigation, focus states, buttons, links, progress indicators, and course/tool interaction states while maintaining accessible contrast.
 - [x] Validate ambient-only entry playback, mobile and desktop appearance, keyboard focus, reduced motion, the compliance guard, and production build before pushing to `main`.
+
+## Yellow identity refinement
+
+- [x] Make the “tap to enter” instruction complete a full, slow contour around a smaller centred compact e-and-rings mark.
+- [x] Use the approved compact mark in shared compact-logo locations, including the header, while keeping the adjacent Entertrainer wordmark as clean text without concentric circles behind it.
+- [x] Apply a restrained, warm rounded-corner system to shared controls and surfaces so the interface matches the compact mark without becoming pill-heavy or generic.
+- [x] Validate identity consistency across mobile and desktop routes, full contour legibility, keyboard and reduced-motion entry, compliance guard, and production build before pushing to `main`.

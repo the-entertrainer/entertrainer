@@ -110,7 +110,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   padding: 8rem 10rem;
   font-size: 15rem; font-weight: 600;
   color: var(--ink);
-  border-radius: 0;
+  border-radius: var(--radius-s);
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) { .mh__link:hover { background: var(--signal-field); color: var(--ink); } }
@@ -128,7 +128,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   width: 40rem; height: 40rem; flex: none;
   display: inline-flex; align-items: center; justify-content: center;
   border: var(--stroke) solid var(--ink);
-  border-radius: 0;
+  border-radius: var(--radius-s);
   background: var(--paper); color: var(--ink);
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring);
 }

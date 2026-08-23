@@ -624,3 +624,9 @@
 - [x] Audit the current About Me chapter facts and remove the portfolio-style presentation that interrupts a natural first-person story.
 - [x] Rewrite and design About Me as a Say It Like Naveen blog-style narrative, retaining the hospitality, Club Mahindra, Courtyard by Marriott, Concentrix, tools, and SEWA facts without inflated claims or decorative interface framing.
 - [x] Validate voice, factual clarity, long-form reading layout, SEWA link, keyboard access, no-emoji compliance, and production build before pushing to `main`.
+
+## About Me destination previews
+
+- [x] Review the actual SEWA Chronicles reader and Elevate hub so both About Me links can present truthful destination details before navigation.
+- [x] Replace the plain SEWA and Elevate links with accessible previews that use the original comic cover and the current Elevate feature, without altering original project art.
+- [x] Validate desktop and mobile behavior, keyboard access, no-emoji compliance, and the production build before pushing the focused update to `main`.

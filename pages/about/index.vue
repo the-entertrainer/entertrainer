@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { FEATURED_BLOG } from '~/content/blogs'
+
 useSeoMeta({
   title: 'About Me · Naveen Jose · Entertrainer',
   description: 'Naveen Jose writes about moving from hotel operations into learning design, building tools, and making The SEWA Chronicles.',
@@ -46,12 +48,17 @@ useSeoMeta({
       </p>
 
       <aside id="sewa-chronicles" class="about-story__sewa" aria-labelledby="sewa-title">
-        <EdPaperSignal variant="project" label="A yellow Paper Signal illustration for The SEWA Chronicles" />
-        <div>
-          <h2 id="sewa-title">The SEWA Chronicles</h2>
-          <p>A sixteen-page comic based on real resort service stories at Club Mahindra.</p>
-          <NuxtLink to="/my-work/sewa-chronicles" class="ticket">Read The SEWA Chronicles</NuxtLink>
-        </div>
+        <NuxtLink to="/my-work/sewa-chronicles" class="about-story__destination about-story__destination--sewa" aria-labelledby="sewa-title" aria-describedby="sewa-description">
+          <figure class="about-story__destination-visual">
+            <EdEditorialImage src="/work/sewa/cover.webp" alt="The SEWA Chronicles comic cover, showing four resort staff around the words Service, Empathy, Warmth and Attentiveness." />
+          </figure>
+          <div class="about-story__destination-copy">
+            <p class="about-story__destination-label">Comic preview</p>
+            <h2 id="sewa-title">The SEWA Chronicles</h2>
+            <p id="sewa-description">A sixteen-page comic based on real resort service stories at Club Mahindra.</p>
+            <span class="about-story__destination-action">Open The SEWA Chronicles</span>
+          </div>
+        </NuxtLink>
       </aside>
 
       <h2>Training has to survive real life.</h2>
@@ -88,7 +95,17 @@ useSeoMeta({
       <EdNote label="A line I keep" accent="var(--signal-cobalt)">
         <p>Asatoma Sadgamaya — from ignorance, toward truth.</p>
       </EdNote>
-      <NuxtLink to="/elevate" class="ticket">Read Elevate</NuxtLink>
+      <NuxtLink to="/elevate" class="about-story__destination about-story__destination--elevate" aria-labelledby="elevate-preview-title" aria-describedby="elevate-preview-description">
+        <figure class="about-story__destination-visual">
+          <EdEditorialImage :src="FEATURED_BLOG.hero" :alt="FEATURED_BLOG.heroAlt" />
+        </figure>
+        <div class="about-story__destination-copy">
+          <p class="about-story__destination-label">Elevate</p>
+          <h2 id="elevate-preview-title">{{ FEATURED_BLOG.title }}</h2>
+          <p id="elevate-preview-description">{{ FEATURED_BLOG.dek }}</p>
+          <span class="about-story__destination-action">Open Elevate</span>
+        </div>
+      </NuxtLink>
     </footer>
   </main>
 </template>
@@ -107,11 +124,22 @@ useSeoMeta({
 .about-story__figure--wide { width: min(100%, 640rem); margin-left: calc(clamp(0rem, 8vw, 110rem) * -1); }
 .about-story__figure :deep(.ps-art) { min-height: 230rem; border-radius: var(--radius-m); }
 .about-story__figure figcaption { margin-top: 10rem; color: var(--ink-soft); font: 700 11rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
-.about-story__sewa { display: grid; grid-template-columns: minmax(180rem, .72fr) minmax(0, 1.28fr); gap: clamp(24rem, 5vw, 54rem); align-items: center; margin: clamp(54rem, 9vw, 100rem) calc(clamp(0rem, 5vw, 68rem) * -1); padding: clamp(22rem, 5vw, 46rem); border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); background: var(--signal-field); }
-.about-story__sewa :deep(.ps-art) { min-height: 180rem; border-radius: var(--radius-m); }
-.about-story__sewa h2 { margin: 0 0 14rem; font-size: clamp(34rem, 4vw, 56rem); }
-.about-story__sewa p { max-width: 40ch; margin: 0; font: 400 17rem/1.5 var(--font-reading); }
-.about-story__sewa .ticket { display: inline-flex; margin-top: 22rem; }
-.about-story__close { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 22rem; max-width: 720rem; margin: clamp(64rem, 10vw, 118rem) auto 0; padding-top: 30rem; border-top: var(--stroke) solid var(--ink); }
-@media (max-width: 700px) { .about-story__hero { grid-template-columns: 1fr; }.about-story__hero-art { min-height: 200rem; }.about-story__article { margin-top: 52rem; }.about-story__figure, .about-story__figure--wide { width: 100%; margin-left: 0; }.about-story__sewa { grid-template-columns: 1fr; margin-left: 0; margin-right: 0; }.about-story__sewa :deep(.ps-art) { min-height: 160rem; } }
+.about-story__sewa { margin: clamp(54rem, 9vw, 100rem) calc(clamp(0rem, 5vw, 68rem) * -1); }
+.about-story__destination { display: grid; grid-template-columns: minmax(180rem, .72fr) minmax(0, 1.28fr); color: var(--ink); overflow: hidden; border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); background: var(--signal-field); text-decoration: none; transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring); }
+.about-story__destination-visual { min-height: 260rem; margin: 0; overflow: hidden; border-right: var(--stroke) solid var(--ink); background: var(--paper-2); }
+.about-story__destination-visual :deep(.ed-editorial-image), .about-story__destination-visual :deep(img) { width: 100%; height: 100%; object-fit: cover; }
+.about-story__destination--sewa .about-story__destination-visual :deep(img) { object-position: center; }
+.about-story__destination-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(24rem, 5vw, 48rem); }
+.about-story__destination-label { margin: 0 0 16rem; color: var(--ink-soft); font: 700 11rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.about-story__destination h2 { max-width: 16ch; margin: 0; font: 500 clamp(34rem, 4.2vw, 58rem)/.95 var(--font-display); letter-spacing: -.055em; }
+.about-story__destination-copy > p:not(.about-story__destination-label) { max-width: 43ch; margin: 16rem 0 0; font: 400 17rem/1.5 var(--font-reading); }
+.about-story__destination-action { display: inline-flex; margin-top: 24rem; padding: 10rem 14rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-s); font: 800 14rem/1.1 var(--font-body); transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring); }
+.about-story__destination:hover, .about-story__destination:focus-visible { background: var(--paper); transform: translateY(-3rem); }
+.about-story__destination:hover .about-story__destination-action, .about-story__destination:focus-visible .about-story__destination-action { background: var(--signal-cobalt); transform: translateY(-2rem); }
+.about-story__destination:focus-visible { outline: 3rem solid var(--signal-cobalt); outline-offset: 5rem; }
+.about-story__close { display: grid; gap: 28rem; max-width: 720rem; margin: clamp(64rem, 10vw, 118rem) auto 0; padding-top: 30rem; border-top: var(--stroke) solid var(--ink); }
+.about-story__destination--elevate { grid-template-columns: minmax(220rem, .86fr) minmax(0, 1.14fr); background: var(--paper); }
+.about-story__destination--elevate .about-story__destination-visual { min-height: 230rem; }
+@media (max-width: 700px) { .about-story__hero { grid-template-columns: 1fr; }.about-story__hero-art { min-height: 200rem; }.about-story__article { margin-top: 52rem; }.about-story__figure, .about-story__figure--wide { width: 100%; margin-left: 0; }.about-story__sewa { margin-left: 0; margin-right: 0; }.about-story__destination, .about-story__destination--elevate { grid-template-columns: 1fr; }.about-story__destination-visual, .about-story__destination--elevate .about-story__destination-visual { min-height: 230rem; border-right: 0; border-bottom: var(--stroke) solid var(--ink); }.about-story__destination-copy { padding: 28rem; } }
+@media (prefers-reduced-motion: reduce) { .about-story__destination, .about-story__destination-action { transition: none; } }
 </style>

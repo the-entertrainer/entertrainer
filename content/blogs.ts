@@ -13,7 +13,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'you-are-not-lazy-you-are-helping-the-universe-extend-its-life',
     title: 'You Are Not Lazy. You Are Helping the Universe Extend Its Life.',
-    dek: 'A thermodynamic joke about rest, useful energy, deleted files, and why the universe is not actually waiting for your alarm.',
+    dek: 'A small physics story about rest, hot tea, batteries, deleted files, and why the universe likes to spread things out.',
     category: 'Physics & everyday life',
     minutes: 8,
     hero: 'https://entertrainer.in/api/social-card/entropy-laziness.png',

@@ -12,7 +12,7 @@
  * grammar rather than mixed photographic chapter bands.
  */
 useSeoMeta({
-  title: 'About — Naveen Jose · Entertrainer',
+  title: 'About Me — Naveen Jose · Entertrainer',
   description: 'Naveen Jose’s story, from hotel floors to learning at scale and the useful tools built along the way.',
   ogTitle: 'About — Naveen Jose',
   ogDescription: 'From hotel floors to learning at scale, with a few useful tools built along the way.',
@@ -62,13 +62,18 @@ const CHAPTERS: Chapter[] = [
       </li>
     </ol>
 
+    <section id="sewa-chronicles" class="ab__sewa" aria-labelledby="sewa-title">
+      <p class="t-mono">A project I still care about</p>
+      <h2 id="sewa-title">The SEWA Chronicles</h2>
+      <p>A sixteen-page comic made from real resort service stories at Club Mahindra. It began as a workplace report and became the first project I took all the way from reporting to drawing to a finished publication. Essentially, one small work report refused to remain a work report.</p>
+      <NuxtLink to="/my-work/sewa-chronicles" class="ticket">Read the SEWA Chronicles</NuxtLink>
+    </section>
+
     <footer class="ab__close">
       <EdNote label="A line I keep" accent="var(--purple)">
         <p>Asatoma Sadgamaya — from ignorance, toward truth.</p>
       </EdNote>
-      <div class="ab__cta">
-        <NuxtLink to="/my-work" class="ticket">See projects</NuxtLink>
-      </div>
+      <div class="ab__cta"><NuxtLink to="/elevate" class="ticket">Read Elevate</NuxtLink></div>
     </footer>
   </EdShell>
 </template>
@@ -100,6 +105,7 @@ const CHAPTERS: Chapter[] = [
   display: flex; flex-wrap: wrap; align-items: center; gap: clamp(20rem, 3vw, 36rem);
   justify-content: space-between;
 }
+.ab__sewa { max-width: 760rem; margin: clamp(78rem, 12vw, 150rem) 0 0 auto; padding: clamp(28rem, 5vw, 56rem); border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); background: var(--signal-field); }.ab__sewa > p:first-child { margin: 0; color: var(--ink-soft); font-size: 11rem; letter-spacing: .08em; text-transform: uppercase; }.ab__sewa h2 { margin: 13rem 0; font: 500 clamp(38rem, 5vw, 68rem)/.9 var(--font-display); letter-spacing: -.05em; }.ab__sewa > p:not(:first-child) { max-width: 58ch; margin: 0; font-family: var(--font-reading); font-size: 18rem; line-height: 1.55; }.ab__sewa .ticket { display: inline-flex; margin-top: 24rem; }
 .ab__cta { display: flex; flex-wrap: wrap; gap: 12rem; }
 @media (max-width: 680px) { .ab__path-art { min-height: 180rem; }.ch { display: flex; flex-direction: column; gap: 22rem; }.ch--odd .ch__text, .ch--even .ch__text { margin-top: 0; } }
 @media (prefers-reduced-motion: reduce) { .ab__h2--path, .ch__fig, .ch__text { animation: none; } }

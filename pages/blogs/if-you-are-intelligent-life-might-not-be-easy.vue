@@ -18,9 +18,9 @@ const references = [
 ]
 
 const visuals = {
-  hero: '/manus-storage/blog-intelligence-hero_3af246a1.png',
-  branches: '/manus-storage/blog-intelligence-branches_555efcf1.png',
-  reflection: '/manus-storage/blog-intelligence-reflection_5dc798e2.png'
+  hero: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/aQLfZtFcKJUyNvVk.jpg',
+  branches: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/WqdJLFbfsztOTpSx.jpeg',
+  reflection: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/RSegpXnWnjysAAht.jpg'
 }
 </script>
 
@@ -34,7 +34,7 @@ const visuals = {
     </header>
 
     <figure class="feature__hero">
-      <EdEditorialImage :src="visuals.hero" alt="An editorial illustration of a person at a bus stop with warm yellow concentric circles and branching paths behind them" />
+      <EdEditorialImage :src="visuals.hero" alt="A person reflected in a bus window, looking out onto a city street" />
       <figcaption>There is a difference between seeing a possibility and being required to live inside it.</figcaption>
     </figure>
 
@@ -61,7 +61,7 @@ const visuals = {
         <p>Basically: thinking deeply and being trapped in thinking are not identical twins. They are more like cousins who become unbearable when they stay too long at the same family function.</p>
 
         <figure class="feature__inline-art feature__inline-art--portrait">
-          <EdEditorialImage :src="visuals.branches" alt="A tea glass on a cafe table with yellow pathways rising as steam" />
+          <EdEditorialImage :src="visuals.branches" alt="People waiting at a bus stop in black and white" />
           <figcaption>A possibility is useful when it helps you decide. It becomes expensive when it asks to be revisited forever.</figcaption>
         </figure>
 
@@ -81,7 +81,7 @@ const visuals = {
         <p>Eg: You make a mistake in a presentation. Reflection might identify one slide to revise and one awkward moment to laugh about later. Brooding turns the event into a full archaeological dig of every embarrassing thing you have done since school assembly. Same brain. Entirely different travel plan.</p>
 
         <figure class="feature__inline-art">
-          <EdEditorialImage :src="visuals.reflection" alt="A folded paper on a dark desk with a yellow circular sketch on one side and a fading grey scribble on the other" />
+          <EdEditorialImage :src="visuals.reflection" alt="A solitary person waiting on a high terrace above Prague" />
           <figcaption>The useful question is not “Do I think a lot?” It is “Does this thought take me somewhere?”</figcaption>
         </figure>
 

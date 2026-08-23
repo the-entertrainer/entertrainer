@@ -220,9 +220,9 @@ export function readNext(id: string, count = 3): EditorialItem[] {
 
 /** The masthead's primary navigation. */
 export const NAV = [
-  { label: 'Lessons', href: '/lessons' },
-  { label: 'Projects', href: '/my-work' },
-  { label: 'Blogs', href: '/blogs' },
-  { label: 'Free tools', href: '/tools' },
-  { label: 'About', href: '/about' }
+  { label: 'Elevate', href: '/elevate' },
+  { label: 'Empower', href: '/empower' },
+  { label: 'Educate', href: '/educate' },
+  { label: 'Games', href: '/games' },
+  { label: 'About me', href: '/about' }
 ]

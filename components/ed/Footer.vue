@@ -4,11 +4,11 @@ import { useContentStore } from '~/stores/content'
 const store = useContentStore()
 const year = new Date().getFullYear()
 const sectionLinks = [
-  { label: 'Lessons', href: '/lessons' },
-  { label: 'Projects', href: '/my-work' },
-  { label: 'Blogs', href: '/blogs' },
-  { label: 'Free tools', href: '/tools' },
-  { label: 'About', href: '/about' }
+  { label: 'Elevate', href: '/elevate' },
+  { label: 'Empower', href: '/empower' },
+  { label: 'Educate', href: '/educate' },
+  { label: 'Games', href: '/games' },
+  { label: 'About me', href: '/about' }
 ]
 const secondaryLinks = [
   { label: 'Homepage design experiments', href: '/lab' },
@@ -22,7 +22,7 @@ const secondaryLinks = [
       <div class="ft__brand">
         <EdWordmark :size="32" />
         <p class="ft__blurb">
-          Lessons, projects, and tools for understanding difficult work.
+          Stories, tools, and courses for understanding difficult work.
         </p>
         <a class="ticket ticket--sm" :href="`mailto:${store.email}`">Start a conversation</a>
       </div>

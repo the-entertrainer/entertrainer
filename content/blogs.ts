@@ -16,8 +16,8 @@ export const BLOG_POSTS: BlogPost[] = [
     dek: 'Not because intelligence is a curse. Because a mind that can model more possibilities can also get stuck living in the model.',
     category: 'Mind & meaning',
     minutes: 9,
-    hero: '/manus-storage/blog-intelligence-hero_3af246a1.png',
-    heroAlt: 'An editorial illustration of a person at a bus stop with warm yellow concentric circles and branching paths behind them',
+    hero: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/aQLfZtFcKJUyNvVk.jpg',
+    heroAlt: 'A person reflected in a city bus window',
     status: 'published'
   }
 ]

@@ -591,3 +591,12 @@
 - [x] Inspect existing site form, contact, and blog-layout patterns to select an honest subscription interaction without pretending a mailing-list provider is connected.
 - [x] Design and add a rounded, warm-yellow newsletter widget that uses the compact brand mark and magazine typography while remaining visually distinct from a generic sign-up card.
 - [x] Validate keyboard labels, focus states, error and success communication, mobile layout, compliance guard, and production build before pushing to `main`.
+
+## The Three Es site restructuring
+
+- [x] Audit existing home, blog, tool, lesson, project, About, SEWA, Strong, and shared-navigation routes to map a safe migration into Elevate, Empower, Educate, Games, and About Me.
+- [x] Source relevant real or newly generated editorial images for the intelligence feature, documenting image provenance and replacing the abstract blog-image treatment.
+- [x] Rebuild Home around The Three Es: Elevate as the blog destination with a large moving-tile banner, Empower as the utility-app destination, and Educate as the course destination.
+- [x] Add a Games destination prepared for later content, consolidate personal story and SEWA under About Me, and remove Strong from public navigation and landing-page hierarchy without breaking its existing direct route.
+- [x] Update shared navigation, footer, page metadata, internal links, and accessible labels for the new hierarchy; validate desktop and mobile layouts, images, keyboard behaviour, compliance guard, and production build before pushing to `main`.
+- [x] Review every newly introduced public-facing line in the Three Es structure against Say It Like Naveen, while preserving direct labels, factual claims, accessibility text, and navigation clarity.

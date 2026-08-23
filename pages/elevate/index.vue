@@ -18,31 +18,23 @@ const bannerStyle = { '--elevate-image': "url('https://files.manuscdn.com/user_u
     <section class="elevate__banner" :style="bannerStyle" aria-labelledby="elevate-title">
       <div class="elevate__tiles" aria-hidden="true"><span v-for="n in 21" :key="n"></span></div>
       <div class="elevate__banner-copy">
-        <p class="elevate__eyebrow">The Entertrainer Blogs</p>
         <h1 id="elevate-title">Elevate</h1>
-        <p>Some things look ordinary until you stare at them for fifteen minutes. Then they become a whole situation.</p>
+        <p>Articles about work, learning, technology, and the questions that stay with you.</p>
       </div>
-      <p class="elevate__banner-note">Mind · meaning · useful curiosity</p>
     </section>
 
     <section class="elevate__entry" aria-labelledby="first-feature-title">
-      <p class="elevate__section-label">First feature</p>
       <NuxtLink :to="`/blogs/${FEATURED_BLOG.slug}`" class="elevate__feature">
         <div class="elevate__feature-copy">
           <p class="elevate__meta">{{ FEATURED_BLOG.category }} <span aria-hidden="true">·</span> {{ FEATURED_BLOG.minutes }} min read</p>
           <h2 id="first-feature-title">{{ FEATURED_BLOG.title }}</h2>
           <p>{{ FEATURED_BLOG.dek }}</p>
-          <span class="elevate__read">Read the feature <span aria-hidden="true">↗</span></span>
+          <span class="elevate__read">Read the feature</span>
         </div>
         <figure class="elevate__feature-image">
           <EdEditorialImage :src="FEATURED_BLOG.hero" :alt="FEATURED_BLOG.heroAlt" />
         </figure>
       </NuxtLink>
-    </section>
-
-    <section class="elevate__manifesto" aria-label="What Elevate is for">
-      <p class="elevate__section-label">What this is for</p>
-      <p class="elevate__manifesto-copy">Not advice wearing a lab coat. Not facts poured into a soup and served with a life lesson. Just good questions, evidence, and enough thinking to return to ordinary life a little less confused.</p>
     </section>
 
     <EdNewsletter class="elevate__newsletter" />

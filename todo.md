@@ -612,3 +612,9 @@
 - [x] Reduce the competing masthead, hero, hub-mark, ticket, border, and shadow treatments identified in the mobile screenshot.
 - [x] Replace the tall route-card stack with a compact mobile route chooser that establishes one heading, one navigation surface, and one restrained identity cue.
 - [x] Validate the corrected phone and desktop composition, keyboard reachability, no-emoji policy, compliance guard, and production build before pushing to `main`.
+
+## Strict interface-copy cleanup
+
+- [x] Audit the new Three Es, Elevate, Empower, Educate, Games, About Me, navigation, footer, and newsletter copy for route narration, ornamental labels, self-aware jokes, AI-style abstractions, and text that does not help a normal visitor act or understand.
+- [x] Add a stricter interface-copy rejection rule to the reusable anti-generic content guideline, distinguishing a human personal voice from decorative commentary.
+- [x] Remove or replace every flagged line with the minimum direct human wording; validate no-emoji compliance and production build before pushing to `main`.

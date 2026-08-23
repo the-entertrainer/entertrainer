@@ -8,42 +8,35 @@ useSeoMeta({
 })
 
 const routes = [
-  { code: 'E01', name: 'Elevate', type: 'Stories', href: '/elevate', note: 'Look at an ordinary thing long enough. It starts talking back.' },
-  { code: 'E02', name: 'Empower', type: 'Tools', href: '/empower', note: 'Small utilities for the work that has already asked twice.' },
-  { code: 'E03', name: 'Educate', type: 'Courses', href: '/educate', note: 'Hard ideas, explained without a slide full of arrows.' },
-  { code: 'G04', name: 'Games', type: 'Soon', href: '/games', note: 'Useful things are allowed to be fun. It is not illegal.' },
-  { code: 'A05', name: 'About me', type: 'Story', href: '/about', note: 'The work, the person, and the comic that refused to stay a report.' }
+  { name: 'Elevate', type: 'Stories', href: '/elevate' },
+  { name: 'Empower', type: 'Tools', href: '/empower' },
+  { name: 'Educate', type: 'Courses', href: '/educate' },
+  { name: 'Games', type: 'Coming soon', href: '/games' },
+  { name: 'About me', type: 'About', href: '/about' }
 ]
 </script>
 
 <template>
   <main id="main" class="route-index">
     <header class="route-index__intro">
-      <p class="route-index__kicker">Entertrainer / route index</p>
-      <h1>Pick a direction.</h1>
-      <p>I make stories, tools, and learning for the parts of work and life that should have made sense already.</p>
+      <h1>Stories, tools, and courses.</h1>
     </header>
 
     <nav class="route-index__switchboard" aria-label="Entertrainer sections">
       <div class="route-index__hub" aria-hidden="true">
         <EdWordmark variant="mark" :size="94" />
-        <span>The Three Es</span>
       </div>
 
       <ol class="route-index__routes">
-        <li v-for="route in routes" :key="route.href" :class="`route-index__route route-index__route--${route.code.slice(0, 1).toLowerCase()}`">
+        <li v-for="route in routes" :key="route.href" class="route-index__route">
           <NuxtLink :to="route.href">
-            <span class="route-index__code">{{ route.code }}</span>
             <span class="route-index__type">{{ route.type }}</span>
             <strong>{{ route.name }}</strong>
-            <span class="route-index__note">{{ route.note }}</span>
-            <span class="route-index__action">Enter {{ route.name }}</span>
           </NuxtLink>
         </li>
       </ol>
     </nav>
 
-    <p class="route-index__footnote">Start anywhere. The map is not offended.</p>
   </main>
 </template>
 
@@ -51,10 +44,8 @@ const routes = [
 /* Compact home: a tactile route switchboard around the yellow e mark. The experience is compact by default and turns into a clear ticket list on smaller screens. */
 .route-index { max-width: var(--shell-wide); min-height: min(720rem, calc(100dvh - 130rem)); margin: 0 auto; padding: clamp(36rem, 6vw, 82rem) var(--shell-gutter) clamp(54rem, 7vw, 96rem); display: grid; align-content: center; gap: clamp(30rem, 5vw, 68rem); }
 .route-index__intro { max-width: 720rem; }
-.route-index__kicker, .route-index__code, .route-index__type, .route-index__hub span { margin: 0; font: 700 11rem/1.1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
-.route-index__kicker { color: var(--signal-cobalt); }
-.route-index h1 { margin: 14rem 0 16rem; font: 500 clamp(58rem, 8vw, 122rem)/.83 var(--font-display); letter-spacing: -.075em; }
-.route-index__intro > p:last-child { max-width: 50ch; margin: 0; font-size: clamp(17rem, 1.65vw, 21rem); line-height: 1.45; }
+.route-index__type { margin: 0; font: 700 11rem/1.1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
+.route-index h1 { margin: 0; font: 500 clamp(58rem, 8vw, 122rem)/.83 var(--font-display); letter-spacing: -.075em; }
 
 .route-index__switchboard { position: relative; display: grid; grid-template-columns: minmax(190rem, .62fr) minmax(0, 1.38fr); gap: clamp(22rem, 5vw, 78rem); align-items: center; padding: clamp(20rem, 3vw, 38rem); border: var(--stroke) solid var(--ink); border-radius: var(--radius-xl); background: var(--paper-2); box-shadow: 10rem 10rem 0 color-mix(in srgb, var(--signal-cobalt) 26%, transparent); overflow: hidden; }
 .route-index__switchboard::before { content: ''; position: absolute; inset: auto -16% -68% auto; width: min(480rem, 54vw); aspect-ratio: 1; border: 38rem solid color-mix(in srgb, var(--signal-cobalt) 28%, transparent); border-radius: 50%; pointer-events: none; }
@@ -62,35 +53,23 @@ const routes = [
 .route-index__hub::before, .route-index__hub::after { content: ''; position: absolute; inset: 18%; border: var(--stroke) solid var(--ink); border-radius: 50%; opacity: .14; }
 .route-index__hub::after { inset: 34%; }
 .route-index__hub :deep(.wordmark) { position: relative; z-index: 1; }
-.route-index__hub span { position: absolute; bottom: 26rem; color: var(--ink); }
 .route-index__routes { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10rem; padding: 0; margin: 0; list-style: none; }
 .route-index__route:last-child { grid-column: span 2; }
-.route-index__route a { position: relative; display: grid; min-height: 150rem; grid-template-columns: auto 1fr; grid-template-rows: auto auto 1fr auto; column-gap: 10rem; align-items: start; padding: 16rem 18rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); color: var(--ink); background: color-mix(in srgb, var(--paper) 92%, transparent); overflow: hidden; transition: transform var(--dur-fast) var(--ease-spring), background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out); }
-.route-index__route a::after { content: ''; position: absolute; right: 14rem; top: 14rem; width: 9rem; height: 9rem; border-radius: 50%; background: var(--signal-cobalt); }
-.route-index__route--g a::after { border-radius: 2rem; }
-.route-index__code { color: var(--signal-cobalt); }
+.route-index__route a { position: relative; display: grid; min-height: 118rem; grid-template-columns: 1fr auto; align-items: start; padding: 18rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); color: var(--ink); background: color-mix(in srgb, var(--paper) 92%, transparent); overflow: hidden; transition: transform var(--dur-fast) var(--ease-spring), background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out); }
 .route-index__type { justify-self: end; color: var(--ink-soft); }
-.route-index__route strong { grid-column: span 2; margin-top: 16rem; font: 500 clamp(28rem, 3vw, 42rem)/.88 var(--font-display); letter-spacing: -.055em; }
-.route-index__note { grid-column: span 2; align-self: end; max-width: 29ch; margin-top: 9rem; font: 14rem/1.35 var(--font-reading); }
-.route-index__action { grid-column: span 2; margin-top: 13rem; font: 700 11rem/1.1 var(--font-mono); letter-spacing: .07em; text-transform: uppercase; }
+.route-index__route strong { grid-column: 1 / 3; margin-top: 16rem; font: 500 clamp(28rem, 3vw, 42rem)/.88 var(--font-display); letter-spacing: -.055em; }
 @media (hover: hover) { .route-index__route a:hover { background: var(--signal-field); transform: translate(-3rem, -3rem); box-shadow: 5rem 5rem 0 var(--ink); } }
 .route-index__route a:focus-visible { outline: 3rem solid var(--focus); outline-offset: 4rem; }
-.route-index__footnote { margin: 0; color: var(--ink-soft); font: 15rem/1.4 var(--font-reading); }
 @media (max-width: 780px) {
   .route-index { min-height: auto; gap: 26rem; }
   .route-index__switchboard { display: block; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; }
   .route-index__switchboard::before { display: none; }
   .route-index__hub { display: none; }
-  .route-index__hub::before { inset: 20%; }.route-index__hub::after { inset: 36%; }
   .route-index__routes { display: block; border-top: var(--stroke) solid var(--ink); }
   .route-index__route, .route-index__route:last-child { display: block; }
-  .route-index__route a { min-height: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto auto; gap: 0 10rem; padding: 16rem 4rem; border: 0; border-bottom: var(--stroke) solid var(--ink); border-radius: 0; background: transparent; overflow: visible; }
-  .route-index__route a::after { position: relative; right: auto; top: auto; grid-column: 3; grid-row: 1; width: 7rem; height: 7rem; align-self: center; }
-  .route-index__code { grid-column: 1; grid-row: 1; align-self: center; font-size: 10rem; }
-  .route-index__type { grid-column: 2; grid-row: 1; justify-self: end; align-self: center; font-size: 10rem; }
-  .route-index__route strong { grid-column: 1 / 4; grid-row: 2; margin: 6rem 0 0; font-size: clamp(32rem, 9vw, 42rem); }
-  .route-index__note, .route-index__action { display: none; }
-  .route-index__footnote { margin-top: 4rem; }
+  .route-index__route a { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; gap: 0 10rem; padding: 16rem 4rem; border: 0; border-bottom: var(--stroke) solid var(--ink); border-radius: 0; background: transparent; overflow: visible; }
+  .route-index__type { grid-column: 2; grid-row: 1; align-self: center; font-size: 10rem; }
+  .route-index__route strong { grid-column: 1 / 3; grid-row: 2; margin: 6rem 0 0; font-size: clamp(32rem, 9vw, 42rem); }
 }
-@media (max-width: 460px) { .route-index { padding-top: 24rem; gap: 22rem; }.route-index h1 { font-size: clamp(50rem, 15vw, 62rem); margin-top: 10rem; }.route-index__intro > p:last-child { font-size: 16.5rem; line-height: 1.42; }.route-index__route a { padding: 14rem 2rem; }.route-index__route strong { font-size: 34rem; } }
+@media (max-width: 460px) { .route-index { padding-top: 24rem; gap: 22rem; }.route-index h1 { font-size: clamp(50rem, 15vw, 62rem); }.route-index__route a { padding: 14rem 2rem; }.route-index__route strong { font-size: 34rem; } }
 </style>

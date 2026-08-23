@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Educate · Courses and lessons by Entertrainer',
-  description: 'Interactive lessons and courses for difficult subjects that deserve a little more patience than a rushed explanation.',
+  description: 'Courses on artificial intelligence and instructional design.',
   ogUrl: 'https://entertrainer.in/educate'
 })
 
@@ -14,16 +14,15 @@ const lessons = [
 <template>
   <main id="main" class="educate">
     <header class="educate__hero">
-      <p class="educate__eyebrow">The Three Es</p>
       <h1>Educate</h1>
-      <p>Interactive learning for the things that usually get explained too quickly, preferably on a slide with fourteen arrows.</p>
+      <p>Courses on artificial intelligence and instructional design.</p>
       <EdPaperSignal class="educate__art" variant="lesson" label="A warm yellow Paper Signal learning card" />
     </header>
     <ol class="educate__list">
       <li v-for="lesson in lessons" :key="lesson.href">
         <NuxtLink :to="lesson.href" class="educate__lesson">
           <EdPaperSignal :variant="lesson.visual" label="" />
-          <div><p>{{ lesson.detail }}</p><h2>{{ lesson.title }}</h2><span>{{ lesson.description }}</span><strong>{{ lesson.action }} <i aria-hidden="true">↗</i></strong></div>
+          <div><p>{{ lesson.detail }}</p><h2>{{ lesson.title }}</h2><span>{{ lesson.description }}</span><strong>{{ lesson.action }}</strong></div>
         </NuxtLink>
       </li>
     </ol>

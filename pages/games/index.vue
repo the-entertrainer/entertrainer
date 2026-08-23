@@ -1,14 +1,13 @@
 <script setup lang="ts">
-useSeoMeta({ title: 'Games · Entertrainer', description: 'Small playable ideas from Entertrainer. The first ones are on their way, doing their mysterious little loading thing.', ogUrl: 'https://entertrainer.in/games' })
+useSeoMeta({ title: 'Games · Entertrainer', description: 'Games from Entertrainer. New games will be added here.', ogUrl: 'https://entertrainer.in/games' })
 </script>
 
 <template>
   <main id="main" class="games">
     <section class="games__stage" aria-labelledby="games-title">
       <div class="games__tiles" aria-hidden="true"><i v-for="n in 42" :key="n"></i></div>
-      <p>The Entertrainer arcade</p>
-      <h1 id="games-title">Games are loading.</h1>
-      <span>Small things to play with. Useful things are allowed to be fun. It is not illegal.</span>
+      <h1 id="games-title">Games</h1>
+      <span>New games will be added here.</span>
     </section>
   </main>
 </template>

@@ -63,9 +63,8 @@ const CHAPTERS: Chapter[] = [
     </ol>
 
     <section id="sewa-chronicles" class="ab__sewa" aria-labelledby="sewa-title">
-      <p class="t-mono">A project I still care about</p>
       <h2 id="sewa-title">The SEWA Chronicles</h2>
-      <p>A sixteen-page comic made from real resort service stories at Club Mahindra. It began as a workplace report and became the first project I took all the way from reporting to drawing to a finished publication. Essentially, one small work report refused to remain a work report.</p>
+      <p>A sixteen-page comic based on real resort service stories at Club Mahindra. I reported, wrote, illustrated, and laid out the publication.</p>
       <NuxtLink to="/my-work/sewa-chronicles" class="ticket">Read the SEWA Chronicles</NuxtLink>
     </section>
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Empower · Free tools by Entertrainer',
-  description: 'Small browser tools for the pieces of work that keep coming back even after you have politely ignored them.',
+  description: 'Browser tools for common writing, planning, and learning tasks.',
   ogUrl: 'https://entertrainer.in/empower'
 })
 </script>
@@ -10,8 +10,8 @@ useSeoMeta({
   <EdSection
     category="tools"
     title="Empower"
-    deck="Small utility apps for the pieces of work that keep coming back. Open one, make the first pass, and keep the useful part."
-    intro="They run in your browser. They are here to remove a repetitive task, not become another thing sending you notifications."
+    deck="Tools for common writing, planning, and learning tasks."
+    intro="They run in your browser."
     :visual="{ src: '', alt: 'A Paper Signal workbench for useful browser tools' }"
   />
 </template>

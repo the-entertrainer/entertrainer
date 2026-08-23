@@ -17,15 +17,15 @@ function subscribe() {
   <section class="newsletter" aria-labelledby="newsletter-title">
     <div class="newsletter__mark" aria-hidden="true"><EdWordmark variant="mark" :size="54" /></div>
     <div class="newsletter__copy">
-      <p class="newsletter__kicker">The next issue</p>
-      <h2 id="newsletter-title">Keep a useful oddity in your inbox.</h2>
-      <p>One thoughtful piece when there is something worth sending. No content treadmill, no manufactured urgency.</p>
+      <p class="newsletter__kicker">Newsletter</p>
+      <h2 id="newsletter-title">Get new posts by email.</h2>
+      <p>Occasional updates when a new post is published.</p>
     </div>
     <form ref="form" class="newsletter__form" @submit.prevent="subscribe">
       <label for="newsletter-email">Email address</label>
       <div class="newsletter__field">
         <input id="newsletter-email" v-model="email" type="email" inputmode="email" autocomplete="email" required placeholder="you@example.com">
-        <button type="submit">Subscribe <span aria-hidden="true">↗</span></button>
+        <button type="submit">Subscribe</button>
       </div>
       <p class="newsletter__fine">This opens a prepared email to subscribe. Your address is not saved in the browser.</p>
       <p v-if="status" class="newsletter__status" role="status">{{ status }}</p>

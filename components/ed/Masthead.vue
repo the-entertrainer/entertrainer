@@ -39,7 +39,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
     <div class="mh__bar">
       <NuxtLink to="/" class="mh__brand" aria-label="Entertrainer — home">
-        <EdWordmark :size="30" sticker />
+        <EdWordmark variant="full" :size="30" />
       </NuxtLink>
 
       <nav class="mh__nav" aria-label="Main navigation">
@@ -141,10 +141,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .mh__sheet { display: none; }
 
 @media (max-width: 860px) {
-  .mh__bar { min-height: 58rem; padding-top: 8rem; padding-bottom: 8rem; }
+  .mh__bar { min-height: 54rem; padding-top: 6rem; padding-bottom: 6rem; gap: 12rem; }
+  .mh__brand { min-width: 166rem; }
+  .mh__brand :deep(.wm) { gap: 7rem; white-space: nowrap; }
+  .mh__brand :deep(.wm__word) { display: inline-block; opacity: 1 !important; transform: none !important; font-size: 26rem; animation: none !important; }
+  .mh__brand :deep(.wm__mark) { width: 25rem; height: 25rem; }
   .mh__nav { display: none; }
   .mh__icon--menu { display: inline-flex; }
   .mh__end { margin-left: auto; }
+  .mh__icon { width: 36rem; height: 36rem; border-radius: 11rem; }
 
   .mh__sheet {
     display: grid;

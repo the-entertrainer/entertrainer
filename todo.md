@@ -606,3 +606,9 @@
 - [x] Audit the new hierarchy and shared components for decorative emoji or emoji-like glyphs that violate the site’s strict no-emoji visual rule.
 - [x] Replace the long Three Es homepage card stack with a compact, creative, keyboard-accessible navigation mechanism for Elevate, Empower, Educate, Games, and About Me.
 - [x] Validate the redesigned home at mobile and desktop widths, rerun the compliance guard and production build, then push the correction to `main`.
+
+## Mobile home hierarchy repair
+
+- [x] Reduce the competing masthead, hero, hub-mark, ticket, border, and shadow treatments identified in the mobile screenshot.
+- [x] Replace the tall route-card stack with a compact mobile route chooser that establishes one heading, one navigation surface, and one restrained identity cue.
+- [x] Validate the corrected phone and desktop composition, keyboard reachability, no-emoji policy, compliance guard, and production build before pushing to `main`.

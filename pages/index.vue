@@ -76,6 +76,21 @@ const routes = [
 @media (hover: hover) { .route-index__route a:hover { background: var(--signal-field); transform: translate(-3rem, -3rem); box-shadow: 5rem 5rem 0 var(--ink); } }
 .route-index__route a:focus-visible { outline: 3rem solid var(--focus); outline-offset: 4rem; }
 .route-index__footnote { margin: 0; color: var(--ink-soft); font: 15rem/1.4 var(--font-reading); }
-@media (max-width: 780px) { .route-index { min-height: auto; }.route-index__switchboard { grid-template-columns: 1fr; }.route-index__hub { width: 154rem; }.route-index__hub span { bottom: 16rem; font-size: 9rem; }.route-index__routes { grid-template-columns: 1fr; }.route-index__route:last-child { grid-column: auto; }.route-index__route a { min-height: 128rem; }.route-index__route strong { margin-top: 11rem; }.route-index__note { max-width: 36ch; }.route-index__switchboard::before { width: 300rem; bottom: -125rem; } }
-@media (max-width: 460px) { .route-index { padding-top: 30rem; gap: 28rem; }.route-index h1 { font-size: clamp(54rem, 16vw, 71rem); }.route-index__switchboard { padding: 14rem; border-radius: var(--radius-l); }.route-index__hub { width: 132rem; }.route-index__routes { gap: 8rem; }.route-index__route a { min-height: 120rem; padding: 15rem; }.route-index__route strong { font-size: 31rem; }.route-index__note { font-size: 13.5rem; } }
+@media (max-width: 780px) {
+  .route-index { min-height: auto; gap: 26rem; }
+  .route-index__switchboard { display: block; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; }
+  .route-index__switchboard::before { display: none; }
+  .route-index__hub { display: none; }
+  .route-index__hub::before { inset: 20%; }.route-index__hub::after { inset: 36%; }
+  .route-index__routes { display: block; border-top: var(--stroke) solid var(--ink); }
+  .route-index__route, .route-index__route:last-child { display: block; }
+  .route-index__route a { min-height: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto auto; gap: 0 10rem; padding: 16rem 4rem; border: 0; border-bottom: var(--stroke) solid var(--ink); border-radius: 0; background: transparent; overflow: visible; }
+  .route-index__route a::after { position: relative; right: auto; top: auto; grid-column: 3; grid-row: 1; width: 7rem; height: 7rem; align-self: center; }
+  .route-index__code { grid-column: 1; grid-row: 1; align-self: center; font-size: 10rem; }
+  .route-index__type { grid-column: 2; grid-row: 1; justify-self: end; align-self: center; font-size: 10rem; }
+  .route-index__route strong { grid-column: 1 / 4; grid-row: 2; margin: 6rem 0 0; font-size: clamp(32rem, 9vw, 42rem); }
+  .route-index__note, .route-index__action { display: none; }
+  .route-index__footnote { margin-top: 4rem; }
+}
+@media (max-width: 460px) { .route-index { padding-top: 24rem; gap: 22rem; }.route-index h1 { font-size: clamp(50rem, 15vw, 62rem); margin-top: 10rem; }.route-index__intro > p:last-child { font-size: 16.5rem; line-height: 1.42; }.route-index__route a { padding: 14rem 2rem; }.route-index__route strong { font-size: 34rem; } }
 </style>

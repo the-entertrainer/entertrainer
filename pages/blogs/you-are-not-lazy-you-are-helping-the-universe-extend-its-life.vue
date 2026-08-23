@@ -20,6 +20,12 @@ const references = [
   { id: 3, title: 'Landauer principle and thermodynamics of computation', source: 'Reports on Progress in Physics, 2025', href: 'https://iopscience.iop.org/article/10.1088/1361-6633/add6b3/meta' },
   { id: 4, title: 'Ask an Astrophysicist: Cosmology', source: 'NASA Goddard Space Flight Center', href: 'https://imagine.gsfc.nasa.gov/ask_astro/cosmology.html' }
 ]
+
+const visuals = {
+  tea: '/manus-storage/entropy-tea-heat-flow_1a9b1f65.jpg',
+  differences: '/manus-storage/entropy-useful-differences_58dc4cfe.jpg',
+  phone: '/manus-storage/entropy-phone-physical-world_4a5a614f.jpg'
+}
 </script>
 
 <template>
@@ -46,10 +52,21 @@ const references = [
         <p>The tea did not lose all its energy. It gave some of its warmth to the cooler room. The room changed by a tiny amount. The tea changed enough for you to notice. That is the whole problem.</p>
         <p>Scientists have a word for this sort of spreading out: <strong>entropy</strong>. It sounds like a difficult word. The idea is not. When something useful is uneven, it can make something happen. When it becomes even, there is less left to do.</p>
 
+        <figure class="entropy__visual entropy__visual--tea">
+          <EdEditorialImage :src="visuals.tea" alt="A hot cup of tea on a table, with visible warmth spreading into the cooler room." />
+          <span class="entropy__heat-loop" aria-hidden="true"><i></i><i></i><i></i></span>
+          <figcaption>A hot cup and a cool room begin different. Over time, the warmth spreads out.</figcaption>
+        </figure>
+
         <h2>Why a hot cup, a battery, and a waterfall are all cousins</h2>
         <p>Hot tea beside a cool room has a difference. A charged battery has a difference. Water sitting high above the ground has a difference. That difference is the useful part. Heat can move. A battery can run your phone. Falling water can turn a turbine.</p>
         <p>Then the difference slowly disappears. The tea cools. The battery goes flat. The water reaches the bottom. Nothing has vanished. It has simply become less useful for making something else happen.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
         <p>Basically, the universe likes to smooth things out. Hot things cool down. Full batteries become empty batteries. A room with a window open eventually stops having one side that is dramatically colder than the other. The fancy name for this general direction is the second law of thermodynamics. You do not need to memorise it. You have watched it happen to your coffee.</p>
+
+        <figure class="entropy__visual entropy__visual--differences">
+          <EdEditorialImage :src="visuals.differences" alt="A charged battery and a waterfall, each showing how an uneven starting point can create movement." />
+          <figcaption>A charged battery and raised water can do something because they begin uneven.</figcaption>
+        </figure>
 
         <figure class="entropy__gradient" aria-label="A simple thermodynamic sequence showing a hot object, a useful temperature difference, and a cooler equilibrium state.">
           <div class="entropy__gradient-cell entropy__gradient-cell--hot"><span>hot</span></div>
@@ -75,6 +92,11 @@ const references = [
         <h2>Even deleting a file involves the real world</h2>
         <p>Your phone looks like it is dealing with invisible things: photos, messages, passwords, bad drafts, screenshots you should probably not keep. But the phone is a physical object. It moves tiny amounts of electricity around. It warms up. It needs to be charged again.</p>
         <p>Scientists have shown that resetting information has a tiny minimum energy cost. In real machines, the cost is much bigger and messier than the neat textbook version. The simple point is enough: information is not floating in space. Somebody, somewhere, is paying for it in electricity and heat.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+
+        <figure class="entropy__visual entropy__visual--phone">
+          <EdEditorialImage :src="visuals.phone" alt="A phone resting beside a charging cable, a mug, and a lamp, showing that digital actions happen in a physical device using electricity and giving off warmth." />
+          <figcaption>Your photos and messages feel invisible. The device holding them is still using electricity, warming up, and asking to be charged.</figcaption>
+        </figure>
 
         <h2>The long version of the universe is very quiet</h2>
         <p>If you keep following this idea for an absurdly long time, you reach a strange picture of the future. No big differences left. No easy fuel. No bright stars doing their usual work. This possible ending is often called heat death.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
@@ -131,6 +153,17 @@ const references = [
 .entropy__gradient-copy strong { font: 500 clamp(26rem, 3vw, 38rem)/.94 var(--font-display); letter-spacing: -.04em; }
 .entropy__gradient-copy span { font: 400 12rem/1.35 var(--font-mono); color: var(--ink-soft); }
 .entropy__gradient figcaption { grid-column: 1 / -1; padding: 0 4rem; }
+.entropy__visual { position: relative; margin: 48rem 0 58rem; }
+.entropy__visual :deep(.ed-editorial-image) { display: block; overflow: hidden; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--paper-2); }
+.entropy__visual :deep(img) { width: 100%; height: auto; object-fit: cover; }
+.entropy__visual--tea :deep(.ed-editorial-image), .entropy__visual--differences :deep(.ed-editorial-image) { aspect-ratio: 16 / 9; }
+.entropy__visual--phone { max-width: 530rem; margin-left: auto; margin-right: 0; }
+.entropy__visual--phone :deep(.ed-editorial-image) { aspect-ratio: 4 / 3; }
+.entropy__heat-loop { position: absolute; left: 48%; top: 26%; display: flex; gap: 8rem; transform: translateX(-50%); pointer-events: none; }
+.entropy__heat-loop i { width: 10rem; aspect-ratio: 1; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4rem color-mix(in srgb, var(--accent) 24%, transparent); opacity: .5; animation: entropy-heat-rise 3s ease-in-out infinite; }
+.entropy__heat-loop i:nth-child(2) { animation-delay: .45s; }
+.entropy__heat-loop i:nth-child(3) { animation-delay: .9s; }
+@keyframes entropy-heat-rise { 0%, 100% { opacity: .15; transform: translateY(16rem) scale(.78); } 46% { opacity: .9; transform: translateY(-30rem) scale(1); } }
 .entropy__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 clamp(26rem, 3vw, 40rem)/1.08 var(--font-display); letter-spacing: -.04em; }
 .entropy__sources { max-width: 1100rem; margin: clamp(64rem, 10vw, 130rem) auto 0; padding: 34rem var(--shell-gutter) 0; border-top: var(--stroke) solid var(--ink); }
 .entropy__sources h2 { margin: 12rem 0 30rem; font-size: clamp(33rem, 4vw, 48rem); line-height: .95; }
@@ -149,5 +182,11 @@ const references = [
   .entropy__prose h2 { margin-top: 52rem; }
   .entropy__gradient { grid-template-columns: 1fr; }
   .entropy__gradient-cell, .entropy__gradient-copy { min-height: 112rem; }
+  .entropy__visual { margin: 36rem 0 48rem; }
+  .entropy__visual--phone { max-width: none; }
+  .entropy__visual--phone :deep(.ed-editorial-image) { aspect-ratio: 16 / 10; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .entropy__heat-loop i { animation: none; }
 }
 </style>

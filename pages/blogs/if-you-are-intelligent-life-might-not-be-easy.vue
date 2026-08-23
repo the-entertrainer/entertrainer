@@ -103,6 +103,8 @@ const visuals = {
         </li>
       </ol>
     </section>
+
+    <div class="feature__newsletter-wrap"><EdNewsletter /></div>
   </main>
 </template>
 
@@ -143,6 +145,7 @@ const visuals = {
 .feature__sources a { color: inherit; }
 .feature__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .feature__sources em { color: var(--ink-soft); }
+.feature__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
 @media (max-width: 760px) {
   .feature__hero { padding: 0; }
   .feature__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }

@@ -585,3 +585,9 @@
 - [x] Write the first cited feature article, “If you are an intelligent person, life might not be easy for you. Here’s why,” in the Naveen curiosity-science voice with factual restraint and a useful conclusion.
 - [x] Generate original, context-specific e-magazine imagery and create a mobile- and desktop-optimised blog index plus article reading layout.
 - [x] Validate citations, layout, image policy, keyboard and reduced-motion behaviour, compliance guard, and production build before pushing The Entertrainer Blogs to `main`.
+
+## Entertrainer Blogs newsletter widget
+
+- [x] Inspect existing site form, contact, and blog-layout patterns to select an honest subscription interaction without pretending a mailing-list provider is connected.
+- [x] Design and add a rounded, warm-yellow newsletter widget that uses the compact brand mark and magazine typography while remaining visually distinct from a generic sign-up card.
+- [x] Validate keyboard labels, focus states, error and success communication, mobile layout, compliance guard, and production build before pushing to `main`.

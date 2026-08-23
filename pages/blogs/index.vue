@@ -53,6 +53,8 @@ useSeoMeta({
       <p class="blogs-index__kicker">More is coming</p>
       <p>There are already too many questions on the table. That is a fairly good problem for a blog to have.</p>
     </aside>
+
+    <EdNewsletter class="blogs-index__newsletter" />
   </main>
 </template>
 
@@ -84,6 +86,7 @@ useSeoMeta({
 .blogs-index__arrow { text-align: right; }
 .blogs-index__next { max-width: 570rem; padding: 26rem 0 0; border-top: var(--stroke) solid var(--ink); font-size: 20rem; line-height: 1.4; }
 .blogs-index__next p:last-child { margin-bottom: 0; }
+.blogs-index__newsletter { margin-top: clamp(52rem, 8vw, 104rem); }
 @media (max-width: 760px) {
   .blogs-index { padding-top: 30rem; }
   .blogs-index__feature { grid-template-columns: 1fr; }

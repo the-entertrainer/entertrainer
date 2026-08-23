@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Design reminder — The Learning Atlas course is a self-contained, evidence-led player.
 import { useThemeStore } from '~/stores/theme'
+import { getSocialImage, getSocialPreview, SITE_URL } from '~/content/social-previews'
 
 /**
  * The publication shell.
@@ -25,6 +26,28 @@ import { useThemeStore } from '~/stores/theme'
 const r = useRoute()
 const theme = useThemeStore()
 const showPreloader = ref(true)
+const socialPreview = computed(() => getSocialPreview(r.path))
+const socialImage = computed(() => getSocialImage(socialPreview.value))
+
+useSeoMeta({
+  title: () => socialPreview.value.title,
+  description: () => socialPreview.value.description,
+  ogType: () => socialPreview.value.type ?? 'website',
+  ogTitle: () => socialPreview.value.title,
+  ogDescription: () => socialPreview.value.description,
+  ogUrl: () => `${SITE_URL}${r.path}`,
+  ogImage: () => socialImage.value,
+  ogImageAlt: () => socialPreview.value.imageAlt ?? `Entertrainer preview: ${socialPreview.value.title}`,
+  twitterCard: 'summary_large_image',
+  twitterTitle: () => socialPreview.value.title,
+  twitterDescription: () => socialPreview.value.description,
+  twitterImage: () => socialImage.value,
+  twitterImageAlt: () => socialPreview.value.imageAlt ?? `Entertrainer preview: ${socialPreview.value.title}`
+})
+
+useHead({
+  link: () => [{ key: 'canonical', rel: 'canonical', href: `${SITE_URL}${r.path}` }]
+})
 
 // `/lab` itself is an index page and keeps the chrome; `/lab/g07` is an
 // artifact and does not.
@@ -44,7 +67,7 @@ onBeforeUnmount(() => theme.dispose())
 <template>
   <div id="app-root">
     <EdPreloader v-if="showPreloader" @complete="showPreloader = false" />
-    <template v-if="!showPreloader">
+    <div v-show="!showPreloader" :inert="showPreloader ? '' : undefined">
       <template v-if="bare">
         <NuxtPage />
       </template>
@@ -58,7 +81,7 @@ onBeforeUnmount(() => theme.dispose())
       </template>
 
       <div class="u-grain" aria-hidden="true" />
-    </template>
+    </div>
   </div>
 </template>
 

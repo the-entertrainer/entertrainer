@@ -630,3 +630,9 @@
 - [x] Review the actual SEWA Chronicles reader and Elevate hub so both About Me links can present truthful destination details before navigation.
 - [x] Replace the plain SEWA and Elevate links with accessible previews that use the original comic cover and the current Elevate feature, without altering original project art.
 - [x] Validate desktop and mobile behavior, keyboard access, no-emoji compliance, and the production build before pushing the focused update to `main`.
+
+## Route-specific social previews
+
+- [x] Audit generated title, description, canonical URL, Open Graph, and Twitter metadata for blog posts and public hub pages; identify why crawlers receive generic fallback previews.
+- [x] Add accurate route-specific sharing metadata and matching preview images, prioritising individual blog posts and then the public routes linked across the site.
+- [x] Validate rendered metadata and image accessibility, production build, and push the focused sharing-preview fix to `main`.

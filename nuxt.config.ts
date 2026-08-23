@@ -35,20 +35,9 @@ export default defineNuxtConfig({
         { name: 'apple-mobile-web-app-title', content: 'Entertrainer' },
         { name: 'msapplication-TileColor', content: '#2C2BE8' },
 		{ name: 'msapplication-TileImage', content: '/mstile-150x150.png' },
-        // Open Graph / Twitter — social share preview.
-        { property: 'og:type', content: 'website' },
+        // Site identity only. Route-specific previews are declared by each
+        // page through useSeoMeta so pasted links never inherit the home card.
         { property: 'og:site_name', content: 'Entertrainer' },
-        { property: 'og:title', content: 'Entertrainer — Making complicated things easier to learn' },
-        { property: 'og:description', content: 'Lessons, useful little tools, and clear explanations by Naveen Jose.' },
-        { property: 'og:url', content: 'https://entertrainer.in/' },
-        { property: 'og:image', content: 'https://entertrainer.in/og-card.png' },
-        { property: 'og:image:width', content: '2400' },
-        { property: 'og:image:height', content: '1260' },
-        { property: 'og:image:alt', content: 'Entertrainer — lessons, useful little tools, and clear explanations by Naveen Jose' },
-        { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: 'Entertrainer — Making complicated things easier to learn' },
-        { name: 'twitter:description', content: 'Lessons, useful little tools, and clear explanations by Naveen Jose.' },
-        { name: 'twitter:image', content: 'https://entertrainer.in/og-card.png' }
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
@@ -157,11 +146,10 @@ export default defineNuxtConfig({
     client: { installPrompt: false },
     devOptions: { enabled: false }
   },
-  ssr: false,
-  // With ssr:false nothing is painted until the Vue bundle boots. This inlines
-  // app/spa-loading-template.html into index.html so the first frame is the
-  // brand rather than a white flash; UiPreloader then takes over from it.
-  spaLoadingTemplate: true,
+  // Social crawlers read the server response and do not wait for the client
+  // bundle. Route rendering makes each page's useSeoMeta values visible in the
+  // first response, so pasted links describe the page being shared.
+  ssr: true,
   routeRules: {
     '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } },
     '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } }

@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { FEATURED_BLOG } from '~/content/blogs'
+import { INTELLIGENCE_BLOG } from '~/content/blogs'
 
 useSeoMeta({
-  title: `${FEATURED_BLOG.title} · The Entertrainer Blogs`,
-  description: FEATURED_BLOG.dek,
-  ogTitle: FEATURED_BLOG.title,
-  ogDescription: FEATURED_BLOG.dek,
-  ogUrl: `https://entertrainer.in/blogs/${FEATURED_BLOG.slug}`,
-  ogImage: FEATURED_BLOG.hero
+  title: `${INTELLIGENCE_BLOG.title} · The Entertrainer Blogs`,
+  description: INTELLIGENCE_BLOG.dek,
+  ogTitle: INTELLIGENCE_BLOG.title,
+  ogDescription: INTELLIGENCE_BLOG.dek,
+  ogUrl: `https://entertrainer.in/blogs/${INTELLIGENCE_BLOG.slug}`,
+  ogImage: INTELLIGENCE_BLOG.hero
 })
 
 const references = [

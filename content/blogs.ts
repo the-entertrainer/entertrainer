@@ -11,6 +11,16 @@ export interface BlogPost {
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: 'you-are-not-lazy-you-are-helping-the-universe-extend-its-life',
+    title: 'You Are Not Lazy. You Are Helping the Universe Extend Its Life.',
+    dek: 'A thermodynamic joke about rest, useful energy, deleted files, and why the universe is not actually waiting for your alarm.',
+    category: 'Physics & everyday life',
+    minutes: 8,
+    hero: 'https://entertrainer.in/api/social-card/entropy-laziness.png',
+    heroAlt: 'A yellow Entertrainer editorial card for an article about entropy, rest, and useful energy.',
+    status: 'published'
+  },
+  {
     slug: 'if-you-are-intelligent-life-might-not-be-easy',
     title: 'If you are an intelligent person, life might not be easy for you. Here’s why',
     dek: 'Not because intelligence is a curse. Because a mind that can model more possibilities can also get stuck living in the model.',
@@ -22,4 +32,6 @@ export const BLOG_POSTS: BlogPost[] = [
   }
 ]
 
-export const FEATURED_BLOG = BLOG_POSTS[0]
+export const ENTROPY_BLOG = BLOG_POSTS[0]
+export const INTELLIGENCE_BLOG = BLOG_POSTS[1]
+export const FEATURED_BLOG = ENTROPY_BLOG

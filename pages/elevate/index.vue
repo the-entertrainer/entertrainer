@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FEATURED_BLOG } from '~/content/blogs'
+import { BLOG_POSTS } from '~/content/blogs'
 
 useSeoMeta({
   title: 'Elevate · The Entertrainer Blogs',
@@ -23,16 +23,17 @@ const bannerStyle = { '--elevate-image': "url('https://files.manuscdn.com/user_u
       </div>
     </section>
 
-    <section class="elevate__entry" aria-labelledby="first-feature-title">
-      <NuxtLink :to="`/blogs/${FEATURED_BLOG.slug}`" class="elevate__feature">
+    <section class="elevate__entry" aria-labelledby="articles-title">
+      <h2 id="articles-title" class="elevate__section-label">Articles</h2>
+      <NuxtLink v-for="post in BLOG_POSTS" :key="post.slug" :to="`/blogs/${post.slug}`" class="elevate__feature" :aria-labelledby="`article-${post.slug}`">
         <div class="elevate__feature-copy">
-          <p class="elevate__meta">{{ FEATURED_BLOG.category }} <span aria-hidden="true">·</span> {{ FEATURED_BLOG.minutes }} min read</p>
-          <h2 id="first-feature-title">{{ FEATURED_BLOG.title }}</h2>
-          <p>{{ FEATURED_BLOG.dek }}</p>
-          <span class="elevate__read">Read the feature</span>
+          <p class="elevate__meta">{{ post.category }} <span aria-hidden="true">·</span> {{ post.minutes }} min read</p>
+          <h3 :id="`article-${post.slug}`">{{ post.title }}</h3>
+          <p>{{ post.dek }}</p>
+          <span class="elevate__read">Read</span>
         </div>
         <figure class="elevate__feature-image">
-          <EdEditorialImage :src="FEATURED_BLOG.hero" :alt="FEATURED_BLOG.heroAlt" />
+          <EdEditorialImage :src="post.hero" :alt="post.heroAlt" />
         </figure>
       </NuxtLink>
     </section>
@@ -59,9 +60,10 @@ const bannerStyle = { '--elevate-image': "url('https://files.manuscdn.com/user_u
 .elevate__entry { padding: clamp(64rem, 10vw, 132rem) 0 0; }
 .elevate__section-label { color: var(--signal-cobalt); margin-bottom: 18rem; }
 .elevate__feature { display: grid; grid-template-columns: minmax(0, .92fr) minmax(360rem, 1.08fr); color: var(--ink); overflow: hidden; border-top: var(--stroke) solid var(--ink); border-bottom: var(--stroke) solid var(--ink); }
+.elevate__feature + .elevate__feature { border-top: 0; }
 .elevate__feature-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; padding: clamp(28rem, 5vw, 66rem); }
 .elevate__meta { color: var(--ink-soft); }
-.elevate h2 { max-width: 700rem; margin: 20rem 0; font: 500 clamp(39rem, 4.5vw, 70rem)/.95 var(--font-display); letter-spacing: -.05em; }
+.elevate h3 { max-width: 700rem; margin: 20rem 0; font: 500 clamp(39rem, 4.5vw, 70rem)/.95 var(--font-display); letter-spacing: -.05em; }
 .elevate__feature-copy > p:not(.elevate__meta) { max-width: 480rem; margin: 0; font-size: 19rem; line-height: 1.5; }
 .elevate__read { display: inline-flex; margin-top: 28rem; padding: 10rem 14rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-s); font-weight: 800; transition: transform var(--dur-fast) var(--ease-spring), background var(--dur-fast) var(--ease-out); }
 .elevate__feature:hover .elevate__read { background: var(--signal-cobalt); transform: translateY(-2rem); }

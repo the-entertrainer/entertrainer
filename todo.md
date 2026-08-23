@@ -636,3 +636,24 @@
 - [x] Audit generated title, description, canonical URL, Open Graph, and Twitter metadata for blog posts and public hub pages; identify why crawlers receive generic fallback previews.
 - [x] Add accurate route-specific sharing metadata and matching preview images, prioritising individual blog posts and then the public routes linked across the site.
 - [x] Validate rendered metadata and image accessibility, production build, and push the focused sharing-preview fix to `main`.
+
+## Newsletter automation
+
+- [x] Compare free newsletter providers that can be managed through an available integration or API, including recipient limits, scheduled-send support, and subscriber consent requirements.
+- [ ] Recommend a provider and define a Monday 9:00 AM newsletter workflow that includes newly published posts and site updates without inventing content or subscriber data.
+- [ ] After approval and account connection, configure the subscription form, consent language, sender details, list, and weekly schedule; verify the first automated send path.
+
+## MailerLite verification blocker
+
+- [x] Identify whether the current failure concerns MailerLite account access, the Outlook sender verification, or the form activation flow, then follow the provider’s current corrective path without weakening consent safeguards. The connector confirmed that `iamnaveenjose@outlook.com` is not yet verified as either a sender or reply-to identity.
+- [ ] Confirm whether the Outlook inbox can complete MailerLite's sender-email verification during the permitted setup window; otherwise present a clearly labelled non-sending interim state until a custom-domain inbox exists.
+- [x] Inventory the current `entertrainer.in` DNS configuration and create a non-authoritative Cloudflare zone as a contingency; no nameservers were changed and the current Vercel build and deployment workflow remains untouched.
+- [ ] Obtain the exact MailerLite DKIM, SPF, and verification records, then add them in the existing Vercel DNS management path without changing nameservers or hosting.
+- [ ] Confirm whether the existing iCloud mail configuration can receive `newsletter@entertrainer.in`, or configure the available Vercel-DNS-compatible sender verification path before activating newsletter delivery.
+
+## Elevate article: entropy and laziness
+
+- [x] Extract the usable argument from `Pasted_content_04.txt`, distinguishing established thermodynamics from comic extrapolation and avoiding practical claims about individual inactivity changing the universe.
+- [x] Research and cross-check the second law, entropy, Landauer's principle, local order, and heat-death framing against current primary, review, and institutional sources.
+- [x] Write and integrate an original, public-safe Elevate article in Naveen's voice with inline citations, a route-specific title, description, canonical URL, and social preview.
+- [ ] Validate content quality, visual presentation, no-emoji compliance, crawler metadata, production build, and push the completed post to `main`.

@@ -1,4 +1,4 @@
-import { FEATURED_BLOG } from './blogs'
+import { ENTROPY_BLOG, INTELLIGENCE_BLOG } from './blogs'
 
 export const SITE_URL = 'https://entertrainer.in'
 
@@ -35,13 +35,22 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/oLmjqBPjwBxcOjsd.jpg',
     imageAlt: 'Night city lights for the Elevate blog section.'
   },
-  [`/blogs/${FEATURED_BLOG.slug}`]: {
+  [`/blogs/${ENTROPY_BLOG.slug}`]: {
+    key: 'entropy-laziness',
+    label: ENTROPY_BLOG.category,
+    title: ENTROPY_BLOG.title,
+    description: ENTROPY_BLOG.dek,
+    image: ENTROPY_BLOG.hero,
+    imageAlt: ENTROPY_BLOG.heroAlt,
+    type: 'article'
+  },
+  [`/blogs/${INTELLIGENCE_BLOG.slug}`]: {
     key: 'intelligence-blog',
-    label: FEATURED_BLOG.category,
-    title: FEATURED_BLOG.title,
-    description: FEATURED_BLOG.dek,
-    image: FEATURED_BLOG.hero,
-    imageAlt: FEATURED_BLOG.heroAlt,
+    label: INTELLIGENCE_BLOG.category,
+    title: INTELLIGENCE_BLOG.title,
+    description: INTELLIGENCE_BLOG.dek,
+    image: INTELLIGENCE_BLOG.hero,
+    imageAlt: INTELLIGENCE_BLOG.heroAlt,
     type: 'article'
   },
   '/empower': {

@@ -17,6 +17,7 @@ const allowedImageFiles = new Set([
   'pages/instructional-design/index.vue',
   'pages/index.vue',
   'components/ed/Card.vue',
+  'components/ed/EditorialImage.vue',
   'pages/my-work/sewa-chronicles.vue',
   'components/ed/BookReader.vue'
 ])

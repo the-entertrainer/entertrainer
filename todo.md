@@ -578,3 +578,10 @@
 - [x] Use the approved compact mark in shared compact-logo locations, including the header, while keeping the adjacent Entertrainer wordmark as clean text without concentric circles behind it.
 - [x] Apply a restrained, warm rounded-corner system to shared controls and surfaces so the interface matches the compact mark without becoming pill-heavy or generic.
 - [x] Validate identity consistency across mobile and desktop routes, full contour legibility, keyboard and reduced-motion entry, compliance guard, and production build before pushing to `main`.
+
+## The Entertrainer Blogs launch
+
+- [x] Research the first article’s question, distinguishing high analytical ability from a diagnosis and recording evidence, limitations, and citations for all central claims.
+- [x] Write the first cited feature article, “If you are an intelligent person, life might not be easy for you. Here’s why,” in the Naveen curiosity-science voice with factual restraint and a useful conclusion.
+- [x] Generate original, context-specific e-magazine imagery and create a mobile- and desktop-optimised blog index plus article reading layout.
+- [x] Validate citations, layout, image policy, keyboard and reduced-motion behaviour, compliance guard, and production build before pushing The Entertrainer Blogs to `main`.

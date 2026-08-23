@@ -600,3 +600,9 @@
 - [x] Add a Games destination prepared for later content, consolidate personal story and SEWA under About Me, and remove Strong from public navigation and landing-page hierarchy without breaking its existing direct route.
 - [x] Update shared navigation, footer, page metadata, internal links, and accessible labels for the new hierarchy; validate desktop and mobile layouts, images, keyboard behaviour, compliance guard, and production build before pushing to `main`.
 - [x] Review every newly introduced public-facing line in the Three Es structure against Say It Like Naveen, while preserving direct labels, factual claims, accessibility text, and navigation clarity.
+
+## Compact Three Es home and no-emoji correction
+
+- [x] Audit the new hierarchy and shared components for decorative emoji or emoji-like glyphs that violate the site’s strict no-emoji visual rule.
+- [x] Replace the long Three Es homepage card stack with a compact, creative, keyboard-accessible navigation mechanism for Elevate, Empower, Educate, Games, and About Me.
+- [x] Validate the redesigned home at mobile and desktop widths, rerun the compliance guard and production build, then push the correction to `main`.

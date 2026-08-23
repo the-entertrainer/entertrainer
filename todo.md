@@ -656,4 +656,4 @@
 - [x] Extract the usable argument from `Pasted_content_04.txt`, distinguishing established thermodynamics from comic extrapolation and avoiding practical claims about individual inactivity changing the universe.
 - [x] Research and cross-check the second law, entropy, Landauer's principle, local order, and heat-death framing against current primary, review, and institutional sources.
 - [x] Write and integrate an original, public-safe Elevate article in Naveen's voice with inline citations, a route-specific title, description, canonical URL, and social preview.
-- [ ] Validate content quality, visual presentation, no-emoji compliance, crawler metadata, production build, and push the completed post to `main`.
+- [x] Validate content quality, visual presentation, no-emoji compliance, crawler metadata, production build, and push the completed post to `main`.

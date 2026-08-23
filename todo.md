@@ -663,3 +663,9 @@
 - [x] Re-read the reader-voice and anti-generic standards, then identify every passage that assumes prior physics knowledge or interrupts the story with a disclaimer.
 - [x] Rewrite the article around familiar examples, explain entropy before using the word repeatedly, and retain only the science needed for the story to make sense.
 - [x] Review the revised reading flow with first-time-reader standards, validate the route and sharing preview, then push the focused rewrite to `main`.
+
+## Entropy article: visual storytelling
+
+- [x] Identify the exact reader questions that benefit from a visual explanation: heat spreading from tea, useful differences in batteries and falling water, and the physical work behind everyday phone use.
+- [x] Create or source three factual, distinct visual explanations in the article’s warm editorial language, with useful captions and alt text rather than generic decoration.
+- [x] Integrate the visuals into the relevant paragraphs, then validate their meaning, mobile layout, no-emoji compliance, production build, and main-branch release.

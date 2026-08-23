@@ -657,3 +657,9 @@
 - [x] Research and cross-check the second law, entropy, Landauer's principle, local order, and heat-death framing against current primary, review, and institutional sources.
 - [x] Write and integrate an original, public-safe Elevate article in Naveen's voice with inline citations, a route-specific title, description, canonical URL, and social preview.
 - [x] Validate content quality, visual presentation, no-emoji compliance, crawler metadata, production build, and push the completed post to `main`.
+
+## Entropy article: plain-language revision
+
+- [x] Re-read the reader-voice and anti-generic standards, then identify every passage that assumes prior physics knowledge or interrupts the story with a disclaimer.
+- [x] Rewrite the article around familiar examples, explain entropy before using the word repeatedly, and retain only the science needed for the story to make sense.
+- [x] Review the revised reading flow with first-time-reader standards, validate the route and sharing preview, then push the focused rewrite to `main`.

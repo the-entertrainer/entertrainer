@@ -24,7 +24,8 @@ const references = [
 const visuals = {
   tea: '/manus-storage/entropy-tea-heat-flow_1a9b1f65.jpg',
   differences: '/manus-storage/entropy-useful-differences_58dc4cfe.jpg',
-  phone: '/manus-storage/entropy-phone-physical-world_4a5a614f.jpg'
+  phone: '/manus-storage/entropy-phone-physical-world_4a5a614f.jpg',
+  universe: '/manus-storage/hubble-ultra-deep-field-nasa_01b69516.jpg'
 }
 </script>
 
@@ -68,11 +69,11 @@ const visuals = {
           <figcaption>A charged battery and raised water can do something because they begin uneven.</figcaption>
         </figure>
 
-        <figure class="entropy__gradient" aria-label="A simple thermodynamic sequence showing a hot object, a useful temperature difference, and a cooler equilibrium state.">
+        <figure class="entropy__gradient" aria-label="A simple sequence showing a hot object and a cool object becoming more alike over time.">
           <div class="entropy__gradient-cell entropy__gradient-cell--hot"><span>hot</span></div>
-          <div class="entropy__gradient-copy"><strong>difference</strong><span>useful work is possible</span></div>
+          <div class="entropy__gradient-copy"><strong>the useful gap</strong><span>heat has somewhere to go</span></div>
           <div class="entropy__gradient-cell entropy__gradient-cell--cool"><span>cooler</span></div>
-          <figcaption>When the temperature difference disappears, there is less heat available to move from one place to another.</figcaption>
+          <figcaption>The bigger the gap, the more change is possible. As the two sides become alike, there is less left for the heat to do.</figcaption>
         </figure>
 
         <h2>So, does staying in bed help?</h2>
@@ -100,6 +101,12 @@ const visuals = {
 
         <h2>The long version of the universe is very quiet</h2>
         <p>If you keep following this idea for an absurdly long time, you reach a strange picture of the future. No big differences left. No easy fuel. No bright stars doing their usual work. This possible ending is often called heat death.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+
+        <figure class="entropy__visual entropy__visual--universe">
+          <EdEditorialImage :src="visuals.universe" alt="NASA and ESA Hubble Ultra Deep Field image showing thousands of galaxies as small bright points and smudges against a dark background." />
+          <figcaption>One small patch of sky, seen by Hubble: roughly 10,000 galaxies. Image: <a href="https://science.nasa.gov/asset/hubble/hubble-ultra-deep-field/" target="_blank" rel="noreferrer">NASA, ESA, S. Beckwith and the HUDF Team, and B. Mobasher</a>.</figcaption>
+        </figure>
+
         <p>That is not something to worry about while deciding whether to get out of bed. It is simply the largest version of the same thing your tea is doing on the table: a useful difference slowly becoming ordinary.</p>
         <p class="entropy__closing">So yes, the universe is spreading things out. Your tea is cooling. Your battery is draining. Your phone is warm for no reason you asked for. And you are allowed to take a nap before replying to that message.</p>
       </div>
@@ -157,8 +164,9 @@ const visuals = {
 .entropy__visual :deep(.ed-editorial-image) { display: block; overflow: hidden; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--paper-2); }
 .entropy__visual :deep(img) { width: 100%; height: auto; object-fit: cover; }
 .entropy__visual--tea :deep(.ed-editorial-image), .entropy__visual--differences :deep(.ed-editorial-image) { aspect-ratio: 16 / 9; }
-.entropy__visual--phone { max-width: 530rem; margin-left: auto; margin-right: 0; }
+.entropy__visual--phone, .entropy__visual--universe { max-width: 530rem; margin-left: auto; margin-right: 0; }
 .entropy__visual--phone :deep(.ed-editorial-image) { aspect-ratio: 4 / 3; }
+.entropy__visual--universe :deep(.ed-editorial-image) { aspect-ratio: 1; }
 .entropy__heat-loop { position: absolute; left: 48%; top: 26%; display: flex; gap: 8rem; transform: translateX(-50%); pointer-events: none; }
 .entropy__heat-loop i { width: 10rem; aspect-ratio: 1; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4rem color-mix(in srgb, var(--accent) 24%, transparent); opacity: .5; animation: entropy-heat-rise 3s ease-in-out infinite; }
 .entropy__heat-loop i:nth-child(2) { animation-delay: .45s; }
@@ -183,7 +191,7 @@ const visuals = {
   .entropy__gradient { grid-template-columns: 1fr; }
   .entropy__gradient-cell, .entropy__gradient-copy { min-height: 112rem; }
   .entropy__visual { margin: 36rem 0 48rem; }
-  .entropy__visual--phone { max-width: none; }
+  .entropy__visual--phone, .entropy__visual--universe { max-width: none; }
   .entropy__visual--phone :deep(.ed-editorial-image) { aspect-ratio: 16 / 10; }
 }
 @media (prefers-reduced-motion: reduce) {

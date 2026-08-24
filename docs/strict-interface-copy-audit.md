@@ -30,3 +30,7 @@ The article title, factual project details, course names, tool names, image alte
 ## Reusable Rule Added
 
 The anti-generic content skill now rejects route narration, ornamental breadcrumbs, decorative codes, faux editorial labels, self-aware jokes, and commentary on the page’s own layout unless the copy changes what a visitor can do or is required for accessibility or law.
+
+## Related Visual Rule
+
+Public articles also follow the project’s [Visual Evidence Standard](./visual-evidence-standard.md): when the content benefits from being seen, it must use a relevant external image, original illustration, or explanatory diagram with a clear teaching purpose.

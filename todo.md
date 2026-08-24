@@ -669,3 +669,9 @@
 - [x] Identify the exact reader questions that benefit from a visual explanation: heat spreading from tea, useful differences in batteries and falling water, and the physical work behind everyday phone use.
 - [x] Create or source three factual, distinct visual explanations in the article’s warm editorial language, with useful captions and alt text rather than generic decoration.
 - [x] Integrate the visuals into the relevant paragraphs, then validate their meaning, mobile layout, no-emoji compliance, production build, and main-branch release.
+
+## Evidence-led visual publishing rule
+
+- [x] Add a project-level publishing standard: use a relevant external image, original illustration, or explanatory diagram whenever an article refers to a real object, place, mechanism, scientific idea, historical event, or process that readers benefit from seeing.
+- [x] Audit the entropy article against the new standard, then add attributed external visual evidence and purpose-built diagrams where the existing illustrations alone do not show the real-world subject clearly enough.
+- [x] Validate credits, alternative text, visual relevance, responsive reading, policy compliance, production build, and the main-branch release.

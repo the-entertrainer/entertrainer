@@ -250,6 +250,12 @@ onUnmounted(() => {
           <div class="ekans__gridlines" aria-hidden="true"></div>
 
           <div
+            v-for="(w, i) in state.walls" :key="`wall-${i}`"
+            class="ekans__wall"
+            :style="segStyle(w)"
+          />
+
+          <div
             v-for="seg in displaySegments"
             :key="seg.id"
             class="ekans__seg"
@@ -449,6 +455,22 @@ onUnmounted(() => {
     linear-gradient(to right, var(--line) 1px, transparent 1px),
     linear-gradient(to bottom, var(--line) 1px, transparent 1px);
   background-size: calc(100% / 9) 100%, 100% calc(100% / 15);
+}
+
+.ekans__wall {
+  position: absolute; top: 0; left: 0; pointer-events: none;
+}
+.ekans__wall::after {
+  content: ''; position: absolute; inset: 1.5px; border-radius: 3px;
+  background-color: color-mix(in srgb, var(--fg) 9%, transparent);
+  background-image: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--fg) 20%, transparent) 0px,
+    color-mix(in srgb, var(--fg) 20%, transparent) 2px,
+    transparent 2px,
+    transparent 6px
+  );
+  border: 1px solid var(--faint);
 }
 
 .ekans__seg {

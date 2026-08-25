@@ -23,15 +23,14 @@ export interface Cell { r: number; c: number }
 
 export interface ModeInfo {
   label: string
-  blurb: string
   target: number
   margin: number
 }
 
 export const MODES: Record<Mode, ModeInfo> = {
-  learn:    { label: 'Learn',    blurb: 'Commits to food. Easiest to read.',        target: 8,  margin: 0 },
-  standard: { label: 'Standard', blurb: 'Leaves room for a trap, won’t hand you one.', target: 14, margin: 3 },
-  expert:   { label: 'Expert',   blurb: 'Guards open space. Plan further ahead.',    target: 20, margin: 6 }
+  learn:    { label: 'Learn',    target: 8,  margin: 0 },
+  standard: { label: 'Standard', target: 11, margin: 2 },
+  expert:   { label: 'Expert',   target: 15, margin: 4 }
 }
 
 export interface TurnRecord {
@@ -56,6 +55,7 @@ export interface EkansState {
   target: number
   turn: number
   status: 'placing' | 'moving' | 'trapped' | 'escaped'
+  walls: Cell[]        // permanent obstacles, laid out once at createRun
 }
 
 const DIRS: Cell[] = [{ r: -1, c: 0 }, { r: 1, c: 0 }, { r: 0, c: -1 }, { r: 0, c: 1 }]
@@ -157,6 +157,66 @@ function floodCount(start: Cell, blocked: Set<number>, cols: number, rows: numbe
   return count
 }
 
+// --- maze walls -------------------------------------------------------
+
+/**
+ * Trapping the snake on a fully open board turns out to need a several-move
+ * spiral planned from the first placement — real, but not something a player
+ * finds by feel. A handful of short walls gives the board actual choke
+ * points and dead-end pockets: places a player can *see* are dangerous and
+ * lure the snake into, instead of having to build a trap from nothing.
+ * Denser on Learn (more of the trap is done for you), sparse on Expert
+ * (the AI is also the most careful, so it still has to be earned).
+ */
+const WALL_TARGET: Record<Mode, number> = { learn: 16, standard: 13, expert: 8 }
+const WALL_MIN_KEEP = 0.6 // a candidate wall segment must leave this share of open cells reachable
+
+function generateWalls(mode: Mode, seed: number, body: Cell[], cols: number, rows: number): Cell[] {
+  const rng = mulberry32((seed ^ 0x9e3779b9) >>> 0)
+  const head = body[0]
+  const forbidden = new Set(body.map(cellKey))
+  for (const b of body) {
+    for (const n of neighborsOf(b, cols, rows)) forbidden.add(cellKey(n))
+  }
+
+  const totalOpen = cols * rows - body.length
+  const walls: Cell[] = []
+  const wallKeys = new Set<number>()
+  let attempts = 0
+
+  while (walls.length < WALL_TARGET[mode] && attempts < WALL_TARGET[mode] * 60) {
+    attempts++
+    const horizontal = rng() < 0.5
+    const len = 2 + Math.floor(rng() * 4) // 2–5 cells
+    const r0 = Math.floor(rng() * rows)
+    const c0 = Math.floor(rng() * cols)
+    const segment: Cell[] = []
+    let ok = true
+    for (let i = 0; i < len; i++) {
+      const cell = horizontal ? { r: r0, c: c0 + i } : { r: r0 + i, c: c0 }
+      const k = inBounds(cell, cols, rows) ? cellKey(cell) : -1
+      if (k === -1 || forbidden.has(k) || wallKeys.has(k)) { ok = false; break }
+      segment.push(cell)
+    }
+    if (!ok) continue
+
+    const trial = new Set(wallKeys)
+    segment.forEach((c) => trial.add(cellKey(c)))
+    const reachable = floodCount(head, trial, cols, rows)
+    if (reachable < totalOpen * WALL_MIN_KEEP) continue // would seal off too much of the board
+
+    segment.forEach((c) => { wallKeys.add(cellKey(c)); walls.push(c) })
+  }
+  return walls
+}
+
+/** Body (tail excluded) plus the run's permanent walls — the blocked set every move check starts from. */
+function baseBlocked(state: EkansState): Set<number> {
+  const blocked = tailFreeBlockedSet(state.body)
+  for (const w of state.walls) blocked.add(cellKey(w))
+  return blocked
+}
+
 // --- run setup ------------------------------------------------------------
 
 export const BOARD_COLS = 9
@@ -173,9 +233,10 @@ export function createRun(mode: Mode, seedLabel?: string): EkansState {
     { r: midRow, c: startCol - 1 },
     { r: midRow, c: startCol - 2 }
   ]
+  const seed = hashSeed(label.toUpperCase())
   return {
     cols, rows, mode,
-    seed: hashSeed(label.toUpperCase()),
+    seed,
     seedLabel: label.toUpperCase(),
     body,
     dir: { r: 0, c: 1 },
@@ -183,7 +244,8 @@ export function createRun(mode: Mode, seedLabel?: string): EkansState {
     eaten: 0,
     target: MODES[mode].target,
     turn: 0,
-    status: 'placing'
+    status: 'placing',
+    walls: generateWalls(mode, seed, body, cols, rows)
   }
 }
 
@@ -199,7 +261,8 @@ export function canPlace(state: EkansState, cell: Cell): boolean {
   if (state.status !== 'placing') return false
   if (!inBounds(cell, state.cols, state.rows)) return false
   if (state.body.some((b) => cellsEqual(b, cell))) return false
-  const blocked = tailFreeBlockedSet(state.body)
+  if (state.walls.some((w) => cellsEqual(w, cell))) return false
+  const blocked = baseBlocked(state)
   return bfsPath(state.body[0], cell, blocked, state.cols, state.rows) !== null
 }
 
@@ -237,7 +300,7 @@ function pickSafest(
 export function decideStep(state: EkansState): StepResult {
   const head = state.body[0]
   const tail = state.body[state.body.length - 1]
-  const blocked = tailFreeBlockedSet(state.body)
+  const blocked = baseBlocked(state)
   const legal = neighborsOf(head, state.cols, state.rows).filter((n) => !blocked.has(cellKey(n)))
   const rng = mulberry32((state.seed ^ (state.turn * 7919) ^ (state.body.length * 104729)) >>> 0)
 
@@ -283,7 +346,7 @@ export function decideStep(state: EkansState): StepResult {
 
 function hasAnyLegalMove(state: EkansState): boolean {
   const head = state.body[0]
-  const blocked = tailFreeBlockedSet(state.body)
+  const blocked = baseBlocked(state)
   return neighborsOf(head, state.cols, state.rows).some((n) => !blocked.has(cellKey(n)))
 }
 

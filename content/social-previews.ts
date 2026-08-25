@@ -121,6 +121,12 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     title: 'Games · Entertrainer',
     description: 'Games from Entertrainer. New games will be added here.'
   },
+  '/games/ekans': {
+    key: 'ekans',
+    label: 'Game',
+    title: 'EKANS · Entertrainer',
+    description: 'You don’t steer the snake. You place what it eats, and try to close every route it has left. A Snake tribute, inverted.'
+  },
   '/my-work/sewa-chronicles': {
     key: 'sewa-chronicles',
     label: 'Comic',

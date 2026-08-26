@@ -38,7 +38,11 @@ const ICON_COIL = [
 
 const LIVE_TICK_MS = 150
 const DEMO_TICK_MS = 125
-const DEMO_PLACE_HOLD_MS = 460
+const DEMO_PLACE_HOLD_MS = 300
+// The guided walkthrough points before it acts: long enough to read the
+// target, short enough that a nine-move line never drags.
+const DEMO_AIM_MS = 820
+const DEMO_PRESS_MS = 180
 
 const phase = ref<Phase>('menu')
 const mode = ref<Mode>('standard')
@@ -61,6 +65,10 @@ const demoKind = ref<DemoKind>('solution')
 const demoLine = ref<Cell[]>([])
 const demoIndex = ref(0)
 const demoDone = ref(false)
+// The walkthrough's pointing finger: the cell it is about to tap, and the
+// moment the tap lands.
+const demoAim = ref<Cell | null>(null)
+const demoPressing = ref(false)
 
 // Shared animation state — only one run animates at a time.
 const bodyIds = ref<number[]>([])
@@ -285,6 +293,8 @@ function startPlayback(line: Cell[], kind: DemoKind) {
   demoLine.value = line
   demoIndex.value = 0
   demoDone.value = false
+  demoAim.value = null
+  demoPressing.value = false
   resetIds(run.body)
   phase.value = 'demo'
   tickTimer = window.setTimeout(pumpDemo, 520)
@@ -295,12 +305,14 @@ function pumpDemo() {
   if (!run || phase.value !== 'demo') return
 
   if (run.status === 'placing') {
+    // Point first, then tap. Showing the target before the food appears is
+    // what turns a playback into an answer key — you learn where to press,
+    // not just what happened.
     const cell = demoLine.value[demoIndex.value]
-    if (!cell || !placeFood(run, cell)) { finishDemo(); return }
-    demoIndex.value++
-    rippleTiles(cell)
-    sfx('place')
-    tickTimer = window.setTimeout(pumpDemo, DEMO_PLACE_HOLD_MS)
+    if (!cell) { finishDemo(); return }
+    demoAim.value = cell
+    demoPressing.value = false
+    tickTimer = window.setTimeout(() => pressDemoTap(cell), DEMO_AIM_MS)
     return
   }
 
@@ -321,8 +333,28 @@ function pumpDemo() {
   finishDemo()
 }
 
+/** The simulated tap: the reticle snaps shut, then the food lands. */
+function pressDemoTap(cell: Cell) {
+  const run = demoRun.value
+  if (!run || phase.value !== 'demo') return
+  demoPressing.value = true
+  sfx('place'); haptic(9)
+
+  tickTimer = window.setTimeout(() => {
+    if (!demoRun.value || phase.value !== 'demo') return
+    if (!placeFood(run, cell)) { finishDemo(); return }
+    demoIndex.value++
+    demoAim.value = null
+    demoPressing.value = false
+    rippleTiles(cell)
+    tickTimer = window.setTimeout(pumpDemo, DEMO_PLACE_HOLD_MS)
+  }, DEMO_PRESS_MS)
+}
+
 function finishDemo() {
   demoDone.value = true
+  demoAim.value = null
+  demoPressing.value = false
   const run = demoRun.value
   if (run?.status === 'trapped') { flashTrap(); sfx('win'); haptic([0, 45, 70, 45, 70, 120]) }
 }
@@ -395,6 +427,15 @@ const headFacing = computed(() => {
 
 const isTrapped = computed(() => view.value.status === 'trapped')
 
+/**
+ * A trap in the player's own game is their win. A trap inside the SOLUTION
+ * walkthrough is a demonstration, so it states what happened to the snake
+ * rather than congratulating anyone.
+ */
+const stampText = computed(() =>
+  (phase.value === 'demo' && demoKind.value === 'solution') ? 'TRAPPED' : 'YOU WIN'
+)
+
 function segStyle(cell: { r: number; c: number }) {
   return {
     width: `${100 / BOARD_COLS}%`,
@@ -416,7 +457,7 @@ onMounted(() => {
   document.body.style.overflow = 'hidden'
   document.documentElement.style.overscrollBehavior = 'none'
   if (import.meta.dev) {
-    (window as any).__ekansDebug = { state, phase, history, demoRun, demoDone, demoIndex, solving, solveFailed }
+    (window as any).__ekansDebug = { state, phase, history, demoRun, demoDone, demoIndex, demoAim, demoPressing, solving, solveFailed }
   }
 })
 onUnmounted(() => {
@@ -498,8 +539,20 @@ onUnmounted(() => {
             :style="{ left: w.x + '%', top: w.y + '%' }"
           ><i></i><i></i><i></i></span>
 
+          <!-- Answer key: point at the cell, then tap it. -->
+          <div
+            v-if="demoAim"
+            class="ekans__aim" :class="{ 'is-press': demoPressing }"
+            :style="segStyle(demoAim)"
+            aria-hidden="true"
+          >
+            <span class="ekans__aim-halo"></span>
+            <span class="ekans__aim-ring"></span>
+            <span class="ekans__aim-dot">{{ demoIndex + 1 }}</span>
+          </div>
+
           <Transition name="stamp">
-            <div v-if="trapFlash" class="ekans__stamp" aria-hidden="true">TRAPPED</div>
+            <div v-if="trapFlash" class="ekans__stamp" aria-hidden="true">{{ stampText }}</div>
           </Transition>
 
           <Transition name="hint">
@@ -575,7 +628,7 @@ onUnmounted(() => {
             <svg v-if="playerWon" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
             <svg v-else viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
           </div>
-          <h2 class="ekans__sheet-title">{{ playerWon ? 'TRAPPED!' : 'ESCAPED' }}</h2>
+          <h2 class="ekans__sheet-title">{{ playerWon ? 'YOU WIN' : 'YOU LOSE' }}</h2>
 
           <div class="ekans__result-stats">
             <div class="ekans__result-stat"><b>{{ history.length }}</b><span>MOVES</span></div>
@@ -794,6 +847,40 @@ onUnmounted(() => {
   100% { transform: rotate(var(--ang)) translateY(-22px) scale(.15) rotate(140deg); opacity: 0; }
 }
 
+/* Answer-key reticle: a target that pulses on the cell, then snaps shut as
+   the simulated tap lands. */
+.ekans__aim { position: absolute; top: 0; left: 0; display: grid; place-items: center; pointer-events: none; z-index: 3; }
+.ekans__aim-halo,
+.ekans__aim-ring,
+.ekans__aim-dot { position: absolute; border-radius: 50%; }
+.ekans__aim-halo {
+  width: 190%; height: 190%;
+  background: radial-gradient(circle, rgba(234, 185, 0, .30) 0%, transparent 68%);
+  animation: ekans-aim-halo 1.15s ease-in-out infinite;
+}
+.ekans__aim-ring {
+  width: 128%; height: 128%; box-sizing: border-box;
+  border: 2.5px dashed var(--accent-strong);
+  animation: ekans-aim-ring 1.15s ease-in-out infinite;
+}
+/* The step number lives inside the marker: a badge hung off the corner gets
+   clipped by the board on edge cells, and edges are exactly where traps
+   get built. */
+.ekans__aim-dot {
+  display: grid; place-items: center;
+  width: 62%; height: 62%; background: var(--ink); color: var(--accent);
+  font: 800 11px/1 var(--font-mono);
+  box-shadow: 0 0 0 2.5px var(--accent-strong);
+  animation: ekans-aim-dot 1.15s ease-in-out infinite;
+}
+@keyframes ekans-aim-halo { 0%, 100% { opacity: .5; transform: scale(.82); } 50% { opacity: 1; transform: scale(1.04); } }
+@keyframes ekans-aim-ring { 0%, 100% { transform: scale(1) rotate(0deg); opacity: .8; } 50% { transform: scale(.84) rotate(45deg); opacity: 1; } }
+@keyframes ekans-aim-dot { 0%, 100% { transform: scale(.9); } 50% { transform: scale(1.06); } }
+/* The tap itself: everything collapses onto the cell. */
+.ekans__aim.is-press .ekans__aim-ring { animation: none; transform: scale(.62); opacity: 1; border-style: solid; }
+.ekans__aim.is-press .ekans__aim-dot { animation: none; transform: scale(1.28); }
+.ekans__aim.is-press .ekans__aim-halo { animation: none; opacity: 1; transform: scale(1.25); }
+
 .ekans__stamp {
   position: absolute; inset: auto 0 auto 0; top: 50%; margin-top: -22px;
   text-align: center; font: 800 30px/1 inherit; letter-spacing: .06em;
@@ -937,7 +1024,8 @@ onUnmounted(() => {
 @media (prefers-reduced-motion: reduce) {
   .ekans__seg, .ekans__seg::after, .ekans__food-dot, .ekans__wave i, .ekans__burst i,
   .ekans__mark-seg::after, .ekans__shock::after, .ekans__face i, .ekans__hint,
-  .ekans__stamp, .is-shaking .ekans__board {
+  .ekans__stamp, .is-shaking .ekans__board,
+  .ekans__aim-halo, .ekans__aim-ring, .ekans__aim-dot {
     animation: none !important; transition: none !important;
   }
 }

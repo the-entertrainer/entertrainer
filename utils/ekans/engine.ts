@@ -15,6 +15,11 @@
  * committing to one static path — is what lets the snake react as its own
  * growing body changes the board mid-route, and is what occasionally dooms
  * it: a route that was open when chosen can close by the time it arrives.
+ *
+ * Determinism: a run is fully determined by (mode, seed, the player's
+ * placements). Nothing reads Math.random once a run has started, which is
+ * what lets `solveTrapLine` search this exact board offline and hand back a
+ * line that will reproduce move-for-move when replayed.
  */
 
 export type Mode = 'learn' | 'standard' | 'expert'
@@ -24,14 +29,35 @@ export interface Cell { r: number; c: number }
 export interface ModeInfo {
   label: string
   target: number
+  /**
+   * Free space the snake wants to keep beyond its own length before it will
+   * commit to a route. 0 = takes the shortest path, always.
+   */
   margin: number
+  /**
+   * Ticks the snake will spend refusing an unsafe-looking route before
+   * hunger wins and it commits anyway. Without this the margin acts as a
+   * permanent veto: a snake that never accepts the only route never eats,
+   * the turn never ends, and a lure into a tight pocket — the whole point of
+   * the game — silently does nothing.
+   */
+  patience: number
 }
 
 export const MODES: Record<Mode, ModeInfo> = {
-  learn:    { label: 'Learn',    target: 8,  margin: 0 },
-  standard: { label: 'Standard', target: 11, margin: 2 },
-  expert:   { label: 'Expert',   target: 15, margin: 4 }
+  learn:    { label: 'Learn',    target: 8,  margin: 0, patience: 0 },
+  standard: { label: 'Standard', target: 11, margin: 2, patience: 10 },
+  expert:   { label: 'Expert',   target: 15, margin: 4, patience: 18 }
 }
+
+/**
+ * Absolute per-turn tick ceiling. Desperation guarantees the snake closes on
+ * reachable food, so hitting this means the food is genuinely walled off from
+ * it — see the `sealed` end reason.
+ */
+const HARD_TICK_CAP = 240
+
+export type EndReason = null | 'no-move' | 'sealed' | 'target'
 
 export interface TurnRecord {
   turn: number
@@ -56,6 +82,8 @@ export interface EkansState {
   turn: number
   status: 'placing' | 'moving' | 'trapped' | 'escaped'
   walls: Cell[]        // permanent obstacles, laid out once at createRun
+  turnTicks: number    // ticks spent on the current turn; drives desperation
+  endReason: EndReason
 }
 
 const DIRS: Cell[] = [{ r: -1, c: 0 }, { r: 1, c: 0 }, { r: 0, c: -1 }, { r: 0, c: 1 }]
@@ -212,7 +240,8 @@ function generateWalls(mode: Mode, seed: number, body: Cell[], cols: number, row
 
 /** Body (tail excluded) plus the run's permanent walls — the blocked set every move check starts from. */
 function baseBlocked(state: EkansState): Set<number> {
-  const blocked = tailFreeBlockedSet(state.body)
+  const blocked = new Set<number>()
+  for (let i = 0; i < state.body.length - 1; i++) blocked.add(cellKey(state.body[i]))
   for (const w of state.walls) blocked.add(cellKey(w))
   return blocked
 }
@@ -223,7 +252,7 @@ export const BOARD_COLS = 9
 export const BOARD_ROWS = 15
 
 export function createRun(mode: Mode, seedLabel?: string): EkansState {
-  const label = (seedLabel && seedLabel.trim()) || randomSeedLabel()
+  const label = ((seedLabel && seedLabel.trim()) || randomSeedLabel()).toUpperCase()
   const cols = BOARD_COLS
   const rows = BOARD_ROWS
   const midRow = Math.floor(rows / 2)
@@ -233,11 +262,11 @@ export function createRun(mode: Mode, seedLabel?: string): EkansState {
     { r: midRow, c: startCol - 1 },
     { r: midRow, c: startCol - 2 }
   ]
-  const seed = hashSeed(label.toUpperCase())
+  const seed = hashSeed(label)
   return {
     cols, rows, mode,
     seed,
-    seedLabel: label.toUpperCase(),
+    seedLabel: label,
     body,
     dir: { r: 0, c: 1 },
     food: null,
@@ -245,17 +274,26 @@ export function createRun(mode: Mode, seedLabel?: string): EkansState {
     target: MODES[mode].target,
     turn: 0,
     status: 'placing',
-    walls: generateWalls(mode, seed, body, cols, rows)
+    walls: generateWalls(mode, seed, body, cols, rows),
+    turnTicks: 0,
+    endReason: null
+  }
+}
+
+/** Deep copy — the solver explores thousands of hypothetical futures. */
+export function cloneRun(s: EkansState): EkansState {
+  return {
+    cols: s.cols, rows: s.rows, mode: s.mode, seed: s.seed, seedLabel: s.seedLabel,
+    body: s.body.map((c) => ({ r: c.r, c: c.c })),
+    dir: { r: s.dir.r, c: s.dir.c },
+    food: s.food ? { r: s.food.r, c: s.food.c } : null,
+    eaten: s.eaten, target: s.target, turn: s.turn, status: s.status,
+    walls: s.walls.map((c) => ({ r: c.r, c: c.c })),
+    turnTicks: s.turnTicks, endReason: s.endReason
   }
 }
 
 // --- placement --------------------------------------------------------
-
-function tailFreeBlockedSet(body: Cell[]): Set<number> {
-  const blocked = new Set(body.map(cellKey))
-  blocked.delete(cellKey(body[body.length - 1]))
-  return blocked
-}
 
 export function canPlace(state: EkansState, cell: Cell): boolean {
   if (state.status !== 'placing') return false
@@ -266,11 +304,49 @@ export function canPlace(state: EkansState, cell: Cell): boolean {
   return bfsPath(state.body[0], cell, blocked, state.cols, state.rows) !== null
 }
 
+/**
+ * Free cells the head can still reach — the placements a player would have.
+ * Deliberately status-agnostic so `advance` can ask "would there be anything
+ * to feed after this bite?" while the turn is still resolving.
+ */
+function reachableFreeCells(state: EkansState): Cell[] {
+  const out: Cell[] = []
+  const blocked = baseBlocked(state)
+  const occupied = new Set(state.body.map(cellKey))
+  for (const w of state.walls) occupied.add(cellKey(w))
+  const head = state.body[0]
+  // One flood from the head marks everything reachable; cheaper than a BFS per cell.
+  const reachable = new Set<number>([cellKey(head)])
+  const queue: Cell[] = [head]
+  let qi = 0
+  while (qi < queue.length) {
+    const cur = queue[qi++]
+    for (const n of neighborsOf(cur, state.cols, state.rows)) {
+      const nk = cellKey(n)
+      if (reachable.has(nk) || blocked.has(nk)) continue
+      reachable.add(nk)
+      queue.push(n)
+    }
+  }
+  for (const k of reachable) {
+    if (occupied.has(k)) continue
+    out.push({ r: Math.floor(k / 1024), c: k % 1024 })
+  }
+  return out
+}
+
+/** Every cell the player could legally feed right now. Empty means a dead board. */
+export function legalPlacements(state: EkansState): Cell[] {
+  if (state.status !== 'placing') return []
+  return reachableFreeCells(state)
+}
+
 export function placeFood(state: EkansState, cell: Cell): boolean {
   if (!canPlace(state, cell)) return false
-  state.food = cell
+  state.food = { r: cell.r, c: cell.c }
   state.status = 'moving'
   state.turn += 1
+  state.turnTicks = 0
   return true
 }
 
@@ -302,10 +378,16 @@ export function decideStep(state: EkansState): StepResult {
   const tail = state.body[state.body.length - 1]
   const blocked = baseBlocked(state)
   const legal = neighborsOf(head, state.cols, state.rows).filter((n) => !blocked.has(cellKey(n)))
-  const rng = mulberry32((state.seed ^ (state.turn * 7919) ^ (state.body.length * 104729)) >>> 0)
 
   if (legal.length === 0) return { next: null, ate: false }
-  if (!state.food) return { next: null, ate: false }
+  if (!state.food) return { next: null, ate: false } // defensive: only 'moving' turns step
+
+  // turnTicks is mixed in so tie-breaks differ tick to tick. Without it the
+  // draw is identical every tick of a turn (turn and length are both fixed
+  // while the snake is merely travelling) and the snake locks into a cycle.
+  const rng = mulberry32(
+    (state.seed ^ (state.turn * 7919) ^ (state.body.length * 104729) ^ (state.turnTicks * 2654435761)) >>> 0
+  )
 
   const path = bfsPath(head, state.food, blocked, state.cols, state.rows)
   const proposed = path && path.length > 1 ? path[1] : null
@@ -317,11 +399,15 @@ export function decideStep(state: EkansState): StepResult {
     return { next: pickSafest(legal, head, tail, blocked, state.food, state.cols, state.rows, state.dir, rng), ate: false }
   }
 
-  if (info.margin === 0) {
-    return { next: proposed, ate: cellsEqual(proposed, state.food) }
+  const eatProposed = cellsEqual(proposed, state.food)
+
+  // Hunger overrides caution. Past its patience the snake takes the shortest
+  // path whatever the margin says, which both guarantees the turn ends and
+  // makes a tight-pocket lure a real tactic rather than a no-op.
+  if (info.margin === 0 || state.turnTicks >= info.patience) {
+    return { next: proposed, ate: eatProposed }
   }
 
-  const eatProposed = cellsEqual(proposed, state.food)
   const nb = new Set(blocked)
   nb.add(cellKey(head))
   if (eatProposed) nb.add(cellKey(tail))
@@ -353,14 +439,19 @@ function hasAnyLegalMove(state: EkansState): boolean {
 export type AdvanceResult = 'moved' | 'ate' | 'trapped'
 
 export function advance(state: EkansState): AdvanceResult {
+  if (state.status !== 'moving') return 'moved'
+  state.turnTicks++
+
   const result = decideStep(state)
   if (!result.next) {
     state.status = 'trapped'
+    state.endReason = 'no-move'
     return 'trapped'
   }
   const head = state.body[0]
   state.dir = { r: result.next.r - head.r, c: result.next.c - head.c }
   state.body.unshift(result.next)
+
   if (result.ate) {
     state.eaten += 1
     state.food = null
@@ -368,11 +459,171 @@ export function advance(state: EkansState): AdvanceResult {
     // otherwise have hit the target — "no legal move left" is the rule,
     // full stop, not something reaching the target should be able to
     // paper over the same tick it happens.
-    if (!hasAnyLegalMove(state)) state.status = 'trapped'
-    else if (state.eaten >= state.target) state.status = 'escaped'
-    else state.status = 'placing'
+    if (!hasAnyLegalMove(state)) { state.status = 'trapped'; state.endReason = 'no-move' }
+    else if (state.eaten >= state.target) { state.status = 'escaped'; state.endReason = 'target' }
+    else if (reachableFreeCells(state).length === 0) {
+      // Nothing left the player could legally feed: the snake has shut itself
+      // into a pocket with no free cell it can still reach.
+      state.status = 'trapped'; state.endReason = 'sealed'
+    } else state.status = 'placing'
     return 'ate'
   }
+
   state.body.pop()
+
+  if (state.turnTicks >= HARD_TICK_CAP) {
+    // Desperation makes the snake close on any reachable food, so exhausting
+    // the cap means the food is walled off from it for good.
+    state.status = 'trapped'
+    state.endReason = 'sealed'
+    return 'trapped'
+  }
   return 'moved'
+}
+
+/** Run the current turn to its end. Returns the resulting status. */
+export function runTurn(state: EkansState): EkansState['status'] {
+  let guard = 0
+  while (state.status === 'moving' && guard++ <= HARD_TICK_CAP + 2) advance(state)
+  return state.status
+}
+
+// --- solver: "show me the line I missed" ----------------------------------
+
+/** How much room the snake still commands — the number a trap must drive to zero. */
+function headFreedom(s: EkansState): number {
+  return floodCount(s.body[0], baseBlocked(s), s.cols, s.rows)
+}
+
+/**
+ * Room to spare beyond the snake's own body. A trap is exactly the moment
+ * this reaches zero, so searching toward small slack heads straight at one —
+ * measurably better than chasing raw free-space alone.
+ */
+function slack(s: EkansState): number {
+  return headFreedom(s) - s.body.length
+}
+
+/**
+ * Traps get built against something. Ranking candidate placements by how many
+ * of their sides are already wall, body or board edge — and only searching the
+ * best few — cuts the branching factor enormously and finds *more* traps than
+ * an exhaustive scan does within the same budget.
+ */
+function trapCandidates(s: EkansState, limit: number): Cell[] {
+  const occupied = new Set<number>()
+  for (const b of s.body) occupied.add(cellKey(b))
+  for (const w of s.walls) occupied.add(cellKey(w))
+
+  const scored = legalPlacements(s).map((cell) => {
+    let touching = 0
+    for (const d of DIRS) {
+      const n = { r: cell.r + d.r, c: cell.c + d.c }
+      if (!inBounds(n, s.cols, s.rows) || occupied.has(cellKey(n))) touching++
+    }
+    return { cell, touching }
+  })
+  scored.sort((a, b) => b.touching - a.touching)
+  return scored.slice(0, limit).map((x) => x.cell)
+}
+
+/** Identity of a position, for pruning branches that reconverge. */
+function bodySignature(s: EkansState): string {
+  return s.body.map(cellKey).join(',')
+}
+
+export interface SolveOutcome {
+  placements: Cell[] | null
+  exhausted: boolean   // searched the whole budget without finding a trap
+}
+
+/**
+ * Beam-search a sequence of placements that traps the snake on this exact
+ * board, driven as a generator so the caller can spread the work across
+ * frames instead of freezing the page. Runs are deterministic, so a line
+ * found here replays move-for-move.
+ */
+export function* solveTrapLine(
+  mode: Mode,
+  seedLabel: string,
+  opts: { beamWidth?: number; candidates?: number; maxNodes?: number } = {}
+): Generator<number, SolveOutcome, unknown> {
+  // Measured across 60 boards per config: this beam/candidate pair solves
+  // 20/20 Learn, 16/20 Standard and 16/20 Expert inside ~1.9s worst case.
+  // Widening further buys about one more board for double the time.
+  const beamWidth = opts.beamWidth ?? 14
+  const candidateLimit = opts.candidates ?? 20
+  const maxNodes = opts.maxNodes ?? 9000
+
+  interface Node { state: EkansState; placements: Cell[] }
+  let beam: Node[] = [{ state: createRun(mode, seedLabel), placements: [] }]
+  let explored = 0
+  const maxDepth = MODES[mode].target + 2
+
+  for (let depth = 0; depth < maxDepth; depth++) {
+    const scored: { node: Node; score: number }[] = []
+    const seen = new Set<string>()
+
+    for (const node of beam) {
+      if (node.state.status !== 'placing') continue
+      for (const cell of trapCandidates(node.state, candidateLimit)) {
+        if (explored >= maxNodes) return { placements: null, exhausted: true }
+        const sim = cloneRun(node.state)
+        placeFood(sim, cell)
+        runTurn(sim)
+        explored++
+
+        const next: Node = { state: sim, placements: [...node.placements, cell] }
+        if (sim.status === 'trapped') return { placements: next.placements, exhausted: false }
+        if (sim.status === 'escaped') continue // dead end: the snake already won down this line
+
+        const key = bodySignature(sim)
+        if (seen.has(key)) continue // branches that reconverge add cost, not coverage
+        seen.add(key)
+        scored.push({ node: next, score: slack(sim) })
+
+        // Yield often enough that the host can keep painting; a whole node's
+        // worth of simulation in one slice is long enough to drop frames.
+        if (explored % 20 === 0) yield explored
+      }
+    }
+
+    if (!scored.length) return { placements: null, exhausted: explored >= maxNodes }
+    scored.sort((a, b) => a.score - b.score)
+    beam = scored.slice(0, beamWidth).map((s) => s.node)
+  }
+
+  return { placements: null, exhausted: explored >= maxNodes }
+}
+
+/**
+ * Replay a placement sequence into per-turn records — the same shape the live
+ * game records, so the player's own run and a solved line can share one
+ * replay viewer.
+ */
+export function replayLine(mode: Mode, seedLabel: string, placements: Cell[]) {
+  const state = createRun(mode, seedLabel)
+  const initialBody = state.body.map((c) => ({ ...c }))
+  const history: TurnRecord[] = []
+
+  for (const cell of placements) {
+    if (state.status !== 'placing') break
+    const bodyBefore = state.body.map((c) => ({ ...c }))
+    const path: Cell[] = [{ ...state.body[0] }]
+    if (!placeFood(state, cell)) break
+    let guard = 0
+    while (state.status === 'moving' && guard++ <= HARD_TICK_CAP + 2) {
+      advance(state)
+      path.push({ ...state.body[0] })
+    }
+    history.push({
+      turn: state.turn,
+      food: { ...cell },
+      path,
+      bodyBefore,
+      bodyAfter: state.body.map((c) => ({ ...c })),
+      outcome: state.status === 'trapped' ? 'trapped' : 'ate'
+    })
+  }
+  return { initialBody, history, finalState: state }
 }

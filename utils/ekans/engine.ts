@@ -546,7 +546,7 @@ export interface SolveOutcome {
 export function* solveTrapLine(
   mode: Mode,
   seedLabel: string,
-  opts: { beamWidth?: number; candidates?: number; maxNodes?: number } = {}
+  opts: { beamWidth?: number; candidates?: number; maxNodes?: number; from?: EkansState } = {}
 ): Generator<number, SolveOutcome, unknown> {
   // Measured across 60 boards per config: this beam/candidate pair solves
   // 20/20 Learn, 16/20 Standard and 16/20 Expert inside ~1.9s worst case.
@@ -556,9 +556,13 @@ export function* solveTrapLine(
   const maxNodes = opts.maxNodes ?? 9000
 
   interface Node { state: EkansState; placements: Cell[] }
-  let beam: Node[] = [{ state: createRun(mode, seedLabel), placements: [] }]
+  // `from` lets the search answer "what should I tap *now*", mid-game, rather
+  // than only "how would this board have been won from the start".
+  const root = opts.from ? cloneRun(opts.from) : createRun(mode, seedLabel)
+  if (root.status !== 'placing') return { placements: null, exhausted: false }
+  let beam: Node[] = [{ state: root, placements: [] }]
   let explored = 0
-  const maxDepth = MODES[mode].target + 2
+  const maxDepth = Math.max(1, root.target - root.eaten) + 2
 
   for (let depth = 0; depth < maxDepth; depth++) {
     const scored: { node: Node; score: number }[] = []

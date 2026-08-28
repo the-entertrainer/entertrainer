@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {
-  type Cell, type Mode, type TurnRecord, type EkansState,
+  type Cell, type Mode, type TurnRecord,
   MODES, BOARD_COLS, BOARD_ROWS,
   createRun, canPlace, placeFood, advance, randomSeedLabel, solveTrapLine
 } from '~/utils/ekans/engine'
@@ -26,8 +26,7 @@ useSeoMeta({
   robots: 'index, follow'
 })
 
-type Phase = 'menu' | 'playing' | 'result' | 'demo'
-type DemoKind = 'solution' | 'replay'
+type Phase = 'menu' | 'playing' | 'result'
 
 const DIFFICULTY: Record<Mode, number> = { learn: 1, standard: 2, expert: 3 }
 const MODE_TAG: Record<Mode, string> = { learn: 'EASY', standard: 'NORMAL', expert: 'HARD' }
@@ -37,12 +36,6 @@ const ICON_COIL = [
 ]
 
 const LIVE_TICK_MS = 150
-const DEMO_TICK_MS = 125
-const DEMO_PLACE_HOLD_MS = 300
-// The guided walkthrough points before it acts: long enough to read the
-// target, short enough that a nine-move line never drags.
-const DEMO_AIM_MS = 820
-const DEMO_PRESS_MS = 180
 
 const phase = ref<Phase>('menu')
 const mode = ref<Mode>('standard')
@@ -58,17 +51,15 @@ let turnPath: Cell[] = []
 let turnBodyBefore: Cell[] = []
 let turnFood: Cell | null = null
 
-// Playback (the solved line, or the player's own run) drives its own run so
-// the finished game stays intact behind it.
-const demoRun = ref<EkansState | null>(null)
-const demoKind = ref<DemoKind>('solution')
-const demoLine = ref<Cell[]>([])
-const demoIndex = ref(0)
-const demoDone = ref(false)
-// The walkthrough's pointing finger: the cell it is about to tap, and the
-// moment the tap lands.
-const demoAim = ref<Cell | null>(null)
-const demoPressing = ref(false)
+/**
+ * The hint marks the next click and then gets out of the way — the player
+ * still makes every move. `guided` just means the hint re-arms itself each
+ * turn instead of being asked for one move at a time.
+ */
+const hintCell = ref<Cell | null>(null)
+const hintBusy = ref(false)
+const hintFailed = ref(false)
+const guided = ref(false)
 
 // Shared animation state — only one run animates at a time.
 const bodyIds = ref<number[]>([])
@@ -86,12 +77,8 @@ let tickTimer: ReturnType<typeof window.setTimeout> | null = null
 let bulgeTimer: ReturnType<typeof window.setInterval> | null = null
 let solveTimer: ReturnType<typeof window.setTimeout> | null = null
 
-const solving = ref(false)
-const solveFailed = ref(false)
-const solvePass = ref(0)
 
-/** Whichever run is on screen: the live game, or a playback of one. */
-const view = computed(() => (phase.value === 'demo' && demoRun.value) ? demoRun.value : state.value)
+const view = computed(() => state.value)
 
 const modeTag = computed(() => MODE_TAG[view.value.mode])
 const modeInitial = computed(() => MODE_TAG[view.value.mode][0])
@@ -115,8 +102,15 @@ function clearTimers() {
   if (tickTimer) { window.clearTimeout(tickTimer); tickTimer = null }
   if (bulgeTimer) { window.clearInterval(bulgeTimer); bulgeTimer = null }
   if (solveTimer) { window.clearTimeout(solveTimer); solveTimer = null }
-  solving.value = false
+  hintBusy.value = false
   bulgeAt.value = null
+}
+
+/** One place that retires the marker, so it can never outlive its board. */
+function clearHint() {
+  hintCell.value = null
+  hintBusy.value = false
+  hintFailed.value = false
 }
 
 // --- shared board effects ---------------------------------------------------
@@ -203,16 +197,20 @@ function startRun() {
   clearTimers()
   const s = createRun(mode.value, seedInput.value)
   state.value = s
-  demoRun.value = null
   resetIds(s.body)
   history.value = []
-  solveFailed.value = false
+  clearHint()
   phase.value = 'playing'
 }
 
-function retrySeed() { seedInput.value = state.value.seedLabel; startRun() }
-function newSeed() { seedInput.value = randomSeedLabel(); startRun() }
-function backToMenu() { sfx('tap'); haptic(10); clearTimers(); demoRun.value = null; phase.value = 'menu' }
+function retrySeed() { guided.value = false; seedInput.value = state.value.seedLabel; startRun() }
+function newSeed() { guided.value = false; seedInput.value = randomSeedLabel(); startRun() }
+function backToMenu() {
+  sfx('tap'); haptic(10)
+  clearTimers(); clearHint()
+  guided.value = false
+  phase.value = 'menu'
+}
 function pickMode(key: Mode) { sfx('select'); haptic(8); mode.value = key }
 
 function recordTurn(outcome: 'ate' | 'trapped') {
@@ -247,7 +245,11 @@ function runTicks() {
       window.setTimeout(() => { phase.value = 'result' }, 900)
       return
     }
-    if (s.status === 'placing') { recordTurn('ate'); return }
+    if (s.status === 'placing') {
+      recordTurn('ate')
+      if (guided.value) requestHint()
+      return
+    }
     tickTimer = window.setTimeout(step, LIVE_TICK_MS)
   }
   tickTimer = window.setTimeout(step, LIVE_TICK_MS)
@@ -274,6 +276,9 @@ function onBoardTap(e: MouseEvent) {
     return
   }
 
+  // The marker has done its job the moment the player commits a move.
+  clearHint()
+
   turnBodyBefore = s.body.map((cc) => ({ ...cc }))
   turnPath = [{ ...s.body[0] }]
   turnFood = { r, c }
@@ -283,123 +288,63 @@ function onBoardTap(e: MouseEvent) {
   runTicks()
 }
 
-// --- playback: the solved line, or the player's own run ----------------------
-
-function startPlayback(line: Cell[], kind: DemoKind) {
-  clearTimers()
-  const run = createRun(state.value.mode, state.value.seedLabel)
-  demoRun.value = run
-  demoKind.value = kind
-  demoLine.value = line
-  demoIndex.value = 0
-  demoDone.value = false
-  demoAim.value = null
-  demoPressing.value = false
-  resetIds(run.body)
-  phase.value = 'demo'
-  tickTimer = window.setTimeout(pumpDemo, 520)
-}
-
-function pumpDemo() {
-  const run = demoRun.value
-  if (!run || phase.value !== 'demo') return
-
-  if (run.status === 'placing') {
-    // Point first, then tap. Showing the target before the food appears is
-    // what turns a playback into an answer key — you learn where to press,
-    // not just what happened.
-    const cell = demoLine.value[demoIndex.value]
-    if (!cell) { finishDemo(); return }
-    demoAim.value = cell
-    demoPressing.value = false
-    tickTimer = window.setTimeout(() => pressDemoTap(cell), DEMO_AIM_MS)
-    return
-  }
-
-  if (run.status === 'moving') {
-    const before = run.eaten
-    advance(run)
-    pushHeadId(run.body.length)
-    if (run.eaten > before) {
-      const eaten = demoLine.value[demoIndex.value - 1]
-      if (eaten) burstAt(eaten)
-      chomp(); swallow(run.body.length); sfx('crunch')
-    }
-    if (run.status === 'moving') { tickTimer = window.setTimeout(pumpDemo, DEMO_TICK_MS); return }
-    tickTimer = window.setTimeout(pumpDemo, 260)
-    return
-  }
-
-  finishDemo()
-}
-
-/** The simulated tap: the reticle snaps shut, then the food lands. */
-function pressDemoTap(cell: Cell) {
-  const run = demoRun.value
-  if (!run || phase.value !== 'demo') return
-  demoPressing.value = true
-  sfx('place'); haptic(9)
-
-  tickTimer = window.setTimeout(() => {
-    if (!demoRun.value || phase.value !== 'demo') return
-    if (!placeFood(run, cell)) { finishDemo(); return }
-    demoIndex.value++
-    demoAim.value = null
-    demoPressing.value = false
-    rippleTiles(cell)
-    tickTimer = window.setTimeout(pumpDemo, DEMO_PLACE_HOLD_MS)
-  }, DEMO_PRESS_MS)
-}
-
-function finishDemo() {
-  demoDone.value = true
-  demoAim.value = null
-  demoPressing.value = false
-  const run = demoRun.value
-  if (run?.status === 'trapped') { flashTrap(); sfx('win'); haptic([0, 45, 70, 45, 70, 120]) }
-}
-
-function replayDemo() { sfx('tap'); startPlayback(demoLine.value, demoKind.value) }
-function closeDemo() { sfx('tap'); clearTimers(); demoRun.value = null; phase.value = 'result' }
-function watchOwnRun() { sfx('tap'); haptic(8); startPlayback(history.value.map((h) => h.food), 'replay') }
-
-// --- solver -----------------------------------------------------------------
+// --- hint: show the next click, nothing more --------------------------------
 
 const SOLVE_PASSES = [
   { beamWidth: 14, candidates: 20, maxNodes: 9000 },
   { beamWidth: 30, candidates: 32, maxNodes: 40000 }
 ]
 
-function showTheLine() {
-  if (solving.value) return
-  sfx('tap'); haptic(8)
-  solving.value = true
-  solveFailed.value = false
-  solvePass.value = 0
-  runSolvePass(0)
+/**
+ * Search from the position on the board right now and mark the first move of
+ * a line that traps the snake. The player still taps it themselves — nothing
+ * here advances the game.
+ */
+function requestHint() {
+  const s = state.value
+  if (hintBusy.value || phase.value !== 'playing' || s.status !== 'placing') return
+  arcade.unlock()
+  hintCell.value = null
+  hintFailed.value = false
+  hintBusy.value = true
+  runHintPass(0)
 }
 
-function runSolvePass(passIndex: number) {
+function runHintPass(passIndex: number) {
   const cfg = SOLVE_PASSES[passIndex]
-  if (!cfg) { solving.value = false; solveFailed.value = true; return }
-  solvePass.value = passIndex
+  if (!cfg) { hintBusy.value = false; hintFailed.value = true; return }
 
-  const iter = solveTrapLine(state.value.mode, state.value.seedLabel, cfg)
+  const iter = solveTrapLine(state.value.mode, state.value.seedLabel, { ...cfg, from: state.value })
   const pump = () => {
-    if (!solving.value) return // cancelled by leaving the screen
+    // Anything that ended the turn or left the screen invalidates this search.
+    if (!hintBusy.value || phase.value !== 'playing' || state.value.status !== 'placing') {
+      hintBusy.value = false
+      return
+    }
     const started = performance.now()
     let res = iter.next()
     while (!res.done && performance.now() - started < 12) res = iter.next()
     if (!res.done) { solveTimer = window.setTimeout(pump, 0); return }
 
     const line = res.value.placements
-    if (!line) { runSolvePass(passIndex + 1); return }
-    solving.value = false
+    if (!line || !line.length) { runHintPass(passIndex + 1); return }
+    hintBusy.value = false
+    hintCell.value = line[0]
     sfx('reveal')
-    startPlayback(line, 'solution')
   }
   solveTimer = window.setTimeout(pump, 0)
 }
+
+/** Replay this exact board from the start, marking each next click as it goes. */
+function startGuided() {
+  sfx('tap'); haptic(8)
+  guided.value = true
+  seedInput.value = state.value.seedLabel
+  startRun()
+  requestHint()
+}
+
+function askHint() { sfx('tap'); haptic(8); requestHint() }
 
 // --- rendering ---------------------------------------------------------------
 
@@ -427,14 +372,7 @@ const headFacing = computed(() => {
 
 const isTrapped = computed(() => view.value.status === 'trapped')
 
-/**
- * A trap in the player's own game is their win. A trap inside the SOLUTION
- * walkthrough is a demonstration, so it states what happened to the snake
- * rather than congratulating anyone.
- */
-const stampText = computed(() =>
-  (phase.value === 'demo' && demoKind.value === 'solution') ? 'TRAPPED' : 'YOU WIN'
-)
+const stampText = computed(() => 'YOU WIN')
 
 function segStyle(cell: { r: number; c: number }) {
   return {
@@ -457,7 +395,7 @@ onMounted(() => {
   document.body.style.overflow = 'hidden'
   document.documentElement.style.overscrollBehavior = 'none'
   if (import.meta.dev) {
-    (window as any).__ekansDebug = { state, phase, history, demoRun, demoDone, demoIndex, demoAim, demoPressing, solving, solveFailed }
+    (window as any).__ekansDebug = { state, phase, history, hintCell, hintBusy, hintFailed, guided }
   }
 })
 onUnmounted(() => {
@@ -472,15 +410,25 @@ onUnmounted(() => {
   <div class="ekans" :class="{ 'is-shaking': shaking, 'is-trapflash': trapFlash }">
     <div class="ekans__scene" v-if="phase !== 'menu'">
       <header class="ekans__hud">
-        <button class="ekans__icon-btn" @click="phase === 'demo' ? closeDemo() : backToMenu()" aria-label="Back">
+        <button class="ekans__icon-btn" @click="backToMenu" aria-label="Back">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
         </button>
 
-        <div class="ekans__hud-chip" :class="{ 'is-demo': phase === 'demo' }">
+        <div class="ekans__hud-chip" :class="{ 'is-demo': guided }">
           <span class="ekans__hud-mode">{{ modeInitial }}</span>
           <i class="ekans__hud-diamond" aria-hidden="true"></i>
           <span class="ekans__hud-count">{{ view.eaten }}/{{ view.target }}</span>
         </div>
+
+        <button
+          class="ekans__icon-btn"
+          :class="{ 'is-armed': !!hintCell }"
+          :disabled="hintBusy || state.status !== 'placing'"
+          @click="askHint" aria-label="Hint"
+        >
+          <svg v-if="!hintBusy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.4.3.6.8.6 1.2h6c0-.4.2-.9.6-1.2A6 6 0 0 0 12 3z" /></svg>
+          <svg v-else class="ekans__spin" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 3a9 9 0 0 1 9 9" /></svg>
+        </button>
 
         <button class="ekans__icon-btn" @click="toggleMute" :aria-label="muted ? 'Sound on' : 'Sound off'">
           <svg v-if="!muted" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9v6h4l5 4V5L9 9H5z" /><path d="M17 9a4 4 0 0 1 0 6" /></svg>
@@ -539,16 +487,16 @@ onUnmounted(() => {
             :style="{ left: w.x + '%', top: w.y + '%' }"
           ><i></i><i></i><i></i></span>
 
-          <!-- Answer key: point at the cell, then tap it. -->
+          <!-- The hint: where to tap next. The player still taps it. -->
           <div
-            v-if="demoAim"
-            class="ekans__aim" :class="{ 'is-press': demoPressing }"
-            :style="segStyle(demoAim)"
+            v-if="hintCell && phase === 'playing' && state.status === 'placing'"
+            class="ekans__aim"
+            :style="segStyle(hintCell)"
             aria-hidden="true"
           >
             <span class="ekans__aim-halo"></span>
             <span class="ekans__aim-ring"></span>
-            <span class="ekans__aim-dot">{{ demoIndex + 1 }}</span>
+            <span class="ekans__aim-dot">{{ history.length + 1 }}</span>
           </div>
 
           <Transition name="stamp">
@@ -561,15 +509,12 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- Playback bar. Icons and a counter; the board is the message. -->
       <footer class="ekans__foot">
-        <div v-if="phase === 'demo'" class="ekans__demobar">
-          <span class="ekans__demotag">{{ demoKind === 'solution' ? 'SOLUTION' : 'REPLAY' }}</span>
-          <span class="ekans__democount">{{ demoIndex }}/{{ demoLine.length }}</span>
-          <button class="ekans__icon-btn ekans__icon-btn--solid" @click="replayDemo" aria-label="Play again">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5" /></svg>
-          </button>
+        <div v-if="guided" class="ekans__demobar">
+          <span class="ekans__demotag">GUIDE</span>
+          <span class="ekans__democount">{{ history.length + 1 }}</span>
         </div>
+        <p v-else-if="hintFailed" class="ekans__demotag">NO HINT</p>
       </footer>
     </div>
 
@@ -636,12 +581,10 @@ onUnmounted(() => {
             <div class="ekans__result-stat"><b>{{ modeTag }}</b><span>MODE</span></div>
           </div>
 
-          <button v-if="!playerWon" class="ekans__play ekans__play--sheet" @click="showTheLine" :disabled="solving">
-            <svg v-if="!solving" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" /></svg>
-            <svg v-else class="ekans__spin" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 3a9 9 0 0 1 9 9" /></svg>
-            {{ solving ? 'SOLVING' : 'SOLUTION' }}
+          <button v-if="!playerWon" class="ekans__play ekans__play--sheet" @click="startGuided">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.4.3.6.8.6 1.2h6c0-.4.2-.9.6-1.2A6 6 0 0 0 12 3z" /></svg>
+            SHOW ME
           </button>
-          <p v-if="solveFailed" class="ekans__note">NO SOLUTION FOUND</p>
 
           <button class="ekans__play ekans__play--sheet" :class="{ 'ekans__play--ghost': !playerWon }" @click="newSeed">
             <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M7 4l13 8-13 8V4z" /></svg>
@@ -649,10 +592,6 @@ onUnmounted(() => {
           </button>
 
           <div class="ekans__result-row">
-            <button v-if="playerWon" class="ekans__chip-btn" @click="watchOwnRun" aria-label="Replay">
-              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M10 9l5 3-5 3V9z" fill="currentColor" stroke="none" /></svg>
-              REPLAY
-            </button>
             <button class="ekans__chip-btn" @click="retrySeed" aria-label="Retry">
               <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5" /></svg>
               RETRY
@@ -705,6 +644,8 @@ onUnmounted(() => {
 }
 .ekans__icon-btn:active { transform: scale(.9); background: var(--accent-soft); }
 .ekans__icon-btn--solid { background: var(--accent); border-color: var(--ink); }
+.ekans__icon-btn.is-armed { background: var(--accent); border-color: var(--ink); }
+.ekans__icon-btn:disabled { opacity: .4; }
 .ekans__hud-chip {
   display: flex; align-items: center; gap: 7px;
   padding: 7px 12px 7px 8px; border-radius: 999px;
@@ -876,10 +817,6 @@ onUnmounted(() => {
 @keyframes ekans-aim-halo { 0%, 100% { opacity: .5; transform: scale(.82); } 50% { opacity: 1; transform: scale(1.04); } }
 @keyframes ekans-aim-ring { 0%, 100% { transform: scale(1) rotate(0deg); opacity: .8; } 50% { transform: scale(.84) rotate(45deg); opacity: 1; } }
 @keyframes ekans-aim-dot { 0%, 100% { transform: scale(.9); } 50% { transform: scale(1.06); } }
-/* The tap itself: everything collapses onto the cell. */
-.ekans__aim.is-press .ekans__aim-ring { animation: none; transform: scale(.62); opacity: 1; border-style: solid; }
-.ekans__aim.is-press .ekans__aim-dot { animation: none; transform: scale(1.28); }
-.ekans__aim.is-press .ekans__aim-halo { animation: none; opacity: 1; transform: scale(1.25); }
 
 .ekans__stamp {
   position: absolute; inset: auto 0 auto 0; top: 50%; margin-top: -22px;

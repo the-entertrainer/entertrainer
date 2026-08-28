@@ -25,7 +25,7 @@ const bannerStyle = { '--elevate-image': "url('https://files.manuscdn.com/user_u
 
     <section class="elevate__entry" aria-labelledby="articles-title">
       <h2 id="articles-title" class="elevate__section-label">Articles</h2>
-      <NuxtLink v-for="post in BLOG_POSTS" :key="post.slug" :to="`/blogs/${post.slug}`" class="elevate__feature" :aria-labelledby="`article-${post.slug}`">
+      <NuxtLink v-for="post in BLOG_POSTS" :key="post.slug" :to="`/elevate/${post.slug}`" class="elevate__feature" :aria-labelledby="`article-${post.slug}`">
         <div class="elevate__feature-copy">
           <p class="elevate__meta">{{ post.category }} <span aria-hidden="true">·</span> {{ post.minutes }} min read</p>
           <h3 :id="`article-${post.slug}`">{{ post.title }}</h3>

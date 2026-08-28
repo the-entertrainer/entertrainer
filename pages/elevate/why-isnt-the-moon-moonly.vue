@@ -6,7 +6,7 @@ useSeoMeta({
   description: MOONLY_BLOG.dek,
   ogTitle: MOONLY_BLOG.title,
   ogDescription: MOONLY_BLOG.dek,
-  ogUrl: `https://entertrainer.in/blogs/${MOONLY_BLOG.slug}`,
+  ogUrl: `https://entertrainer.in/elevate/${MOONLY_BLOG.slug}`,
   ogImage: MOONLY_BLOG.hero,
   twitterCard: 'summary_large_image',
   twitterTitle: MOONLY_BLOG.title,

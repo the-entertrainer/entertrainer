@@ -6,7 +6,7 @@ useSeoMeta({
   description: INTELLIGENCE_BLOG.dek,
   ogTitle: INTELLIGENCE_BLOG.title,
   ogDescription: INTELLIGENCE_BLOG.dek,
-  ogUrl: `https://entertrainer.in/blogs/${INTELLIGENCE_BLOG.slug}`,
+  ogUrl: `https://entertrainer.in/elevate/${INTELLIGENCE_BLOG.slug}`,
   ogImage: INTELLIGENCE_BLOG.hero
 })
 

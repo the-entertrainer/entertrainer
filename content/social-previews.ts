@@ -35,7 +35,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/oLmjqBPjwBxcOjsd.jpg',
     imageAlt: 'Night city lights for the Elevate blog section.'
   },
-  [`/blogs/${ENTROPY_BLOG.slug}`]: {
+  [`/elevate/${ENTROPY_BLOG.slug}`]: {
     key: 'entropy-laziness',
     label: ENTROPY_BLOG.category,
     title: ENTROPY_BLOG.title,
@@ -44,7 +44,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     imageAlt: ENTROPY_BLOG.heroAlt,
     type: 'article'
   },
-  [`/blogs/${INTELLIGENCE_BLOG.slug}`]: {
+  [`/elevate/${INTELLIGENCE_BLOG.slug}`]: {
     key: 'intelligence-blog',
     label: INTELLIGENCE_BLOG.category,
     title: INTELLIGENCE_BLOG.title,
@@ -53,7 +53,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     imageAlt: INTELLIGENCE_BLOG.heroAlt,
     type: 'article'
   },
-  [`/blogs/${MOONLY_BLOG.slug}`]: {
+  [`/elevate/${MOONLY_BLOG.slug}`]: {
     key: 'moon-moonly',
     label: MOONLY_BLOG.category,
     title: MOONLY_BLOG.title,

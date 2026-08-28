@@ -6,7 +6,7 @@ useSeoMeta({
   description: ENTROPY_BLOG.dek,
   ogTitle: ENTROPY_BLOG.title,
   ogDescription: ENTROPY_BLOG.dek,
-  ogUrl: `https://entertrainer.in/blogs/${ENTROPY_BLOG.slug}`,
+  ogUrl: `https://entertrainer.in/elevate/${ENTROPY_BLOG.slug}`,
   ogImage: ENTROPY_BLOG.hero,
   twitterCard: 'summary_large_image',
   twitterTitle: ENTROPY_BLOG.title,

@@ -1,22 +1,29 @@
 /**
- * EKANS sound — a tiny Web Audio chiptune synth.
+ * EKANS sound — a tiny Web Audio chiptune synth, plus one real sample.
  *
- * Everything is generated at runtime: square and triangle oscillators, pitch
- * sweeps and filtered noise, all with very short envelopes. No sample files
- * means nothing to download, nothing to cache, and no external request from
- * a page that is otherwise entirely self-contained.
+ * Nearly everything is generated at runtime: square and triangle
+ * oscillators, pitch sweeps and filtered noise, all with very short
+ * envelopes. The one exception is the bite — thirteen individual chews cut
+ * from a single field recording, played back at random so the same crunch
+ * never lands twice in a row. They're tiny (a few KB each) and fetched
+ * lazily on first use, so a page that never eats never downloads them.
  *
  * Browsers refuse to start audio outside a user gesture, so the context is
  * created lazily on the first tap and resumed if it was suspended.
  */
 
 const STORE_KEY = 'ekans-muted'
+const CHEW_COUNT = 13
+const CHEW_URL = (n: number) => `/sounds/ekans/chew/chew-${String(n).padStart(2, '0')}.mp3`
 
 class ArcadeAudio {
   private ctx: AudioContext | null = null
   private master: GainNode | null = null
   private _muted = false
   private _ready = false
+  private chewBuffers: AudioBuffer[] = []
+  private chewLoadStarted = false
+  private lastChewIndex = -1
 
   get muted() { return this._muted }
 
@@ -46,6 +53,7 @@ class ArcadeAudio {
         this.master.gain.value = this._muted ? 0 : 0.9
         this.master.connect(this.ctx.destination)
         this._ready = true
+        void this.loadChewBuffers()
       } catch { this.ctx = null }
     }
     if (this.ctx?.state === 'suspended') void this.ctx.resume().catch(() => undefined)
@@ -54,6 +62,42 @@ class ArcadeAudio {
   dispose() {
     try { void this.ctx?.close() } catch { /* already gone */ }
     this.ctx = null; this.master = null; this._ready = false
+    this.chewBuffers = []; this.chewLoadStarted = false; this.lastChewIndex = -1
+  }
+
+  /** Fetch and decode the thirteen chew clips once, in the background. */
+  private async loadChewBuffers() {
+    if (this.chewLoadStarted || !this.ctx) return
+    this.chewLoadStarted = true
+    const ctx = this.ctx
+    const clips = await Promise.all(
+      Array.from({ length: CHEW_COUNT }, async (_, i) => {
+        try {
+          const res = await fetch(CHEW_URL(i + 1))
+          const bytes = await res.arrayBuffer()
+          return await ctx.decodeAudioData(bytes)
+        } catch { return null }
+      })
+    )
+    this.chewBuffers = clips.filter((clip): clip is AudioBuffer => clip != null)
+  }
+
+  /** One random chew clip, never the same one twice in a row. */
+  private playChew() {
+    if (!this.live() || !this.chewBuffers.length) return false
+    const ctx = this.ctx!
+    let index = Math.floor(Math.random() * this.chewBuffers.length)
+    if (this.chewBuffers.length > 1 && index === this.lastChewIndex) index = (index + 1) % this.chewBuffers.length
+    this.lastChewIndex = index
+    const src = ctx.createBufferSource()
+    src.buffer = this.chewBuffers[index]
+    src.playbackRate.value = 0.94 + Math.random() * 0.12
+    const gain = ctx.createGain()
+    gain.gain.value = 0.8 + Math.random() * 0.2
+    src.connect(gain); gain.connect(this.master!)
+    src.start()
+    src.onended = () => { src.disconnect(); gain.disconnect() }
+    return true
   }
 
   private get t() { return this.ctx ? this.ctx.currentTime : 0 }
@@ -124,12 +168,15 @@ class ArcadeAudio {
   deny() { this.tone({ from: 180, to: 90, dur: 0.13, type: 'square', vol: 0.13, glideCurve: 'lin' }) }
 
   /**
-   * The bite. Two noise bursts a beat apart read as a crunch rather than a
-   * click, with a short low body under them for weight.
+   * The bite. A random real chew if the samples have loaded, a synthesized
+   * two-burst crunch if they haven't yet — either way, a short low body
+   * underneath for weight.
    */
   crunch() {
-    this.noise({ dur: 0.055, from: 2600, to: 700, vol: 0.15, q: 1.1 })
-    this.noise({ dur: 0.07, from: 1500, to: 380, vol: 0.11, q: 1.6, delay: 0.045 })
+    if (!this.playChew()) {
+      this.noise({ dur: 0.055, from: 2600, to: 700, vol: 0.15, q: 1.1 })
+      this.noise({ dur: 0.07, from: 1500, to: 380, vol: 0.11, q: 1.6, delay: 0.045 })
+    }
     this.tone({ from: 300, to: 150, dur: 0.10, type: 'triangle', vol: 0.13, glideCurve: 'lin' })
     this.tone({ from: 1100, to: 1500, dur: 0.05, vol: 0.05, delay: 0.02 })
   }

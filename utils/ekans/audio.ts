@@ -1,12 +1,18 @@
 /**
- * EKANS sound — a tiny Web Audio chiptune synth, plus one real sample.
+ * EKANS sound — a tiny Web Audio synth, plus one real sample.
  *
- * Nearly everything is generated at runtime: square and triangle
- * oscillators, pitch sweeps and filtered noise, all with very short
- * envelopes. The one exception is the bite — thirteen individual chews cut
- * from a single field recording, played back at random so the same crunch
- * never lands twice in a row. They're tiny (a few KB each) and fetched
- * lazily on first use, so a page that never eats never downloads them.
+ * Nearly everything is generated at runtime: triangle oscillators (warmer
+ * and rounder than a square wave — softer, on purpose) and filtered noise,
+ * all with very short envelopes. The one exception is the bite — thirteen
+ * individual chews cut from a single field recording, played back at random
+ * so the same crunch never lands twice in a row. They're tiny (a few KB
+ * each) and fetched lazily on first use, so a page that never eats never
+ * downloads them.
+ *
+ * Every other sound in the kit is built the same two ways every time: a
+ * triangle tone for pitch, plus a whisper of `grain()` — the same filtered
+ * noise texture the bite uses, just much quieter and shorter — so a tap, a
+ * chirp and a bite all read as one material, not three different toys.
  *
  * Browsers refuse to start audio outside a user gesture, so the context is
  * created lazily on the first tap and resumed if it was suspended.
@@ -112,7 +118,7 @@ class ArcadeAudio {
     const ctx = this.ctx!, start = this.t + (opts.delay ?? 0)
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
-    osc.type = opts.type ?? 'square'
+    osc.type = opts.type ?? 'triangle'
     osc.frequency.setValueAtTime(opts.from, start)
     if (opts.to != null && opts.to !== opts.from) {
       if (opts.glideCurve === 'lin') osc.frequency.linearRampToValueAtTime(opts.to, start + opts.dur)
@@ -120,7 +126,7 @@ class ArcadeAudio {
     }
     const peak = opts.vol ?? 0.18
     gain.gain.setValueAtTime(0.0001, start)
-    gain.gain.linearRampToValueAtTime(peak, start + 0.008)
+    gain.gain.linearRampToValueAtTime(peak, start + 0.014)
     gain.gain.exponentialRampToValueAtTime(0.0001, start + opts.dur)
     osc.connect(gain); gain.connect(this.master!)
     osc.start(start); osc.stop(start + opts.dur + 0.02)
@@ -150,22 +156,38 @@ class ArcadeAudio {
     src.onended = () => { src.disconnect(); filter.disconnect(); gain.disconnect() }
   }
 
-  // --- the kit ------------------------------------------------------------
-
-  /** Generic UI press. */
-  tap() { this.tone({ from: 620, to: 880, dur: 0.06, vol: 0.10 }) }
-
-  /** Mode / option change — a step up the scale. */
-  select() { this.tone({ from: 520, to: 780, dur: 0.07, type: 'square', vol: 0.11 }) }
-
-  /** Food dropped on the board: a bright two-step blip. */
-  place() {
-    this.tone({ from: 880, dur: 0.045, vol: 0.10 })
-    this.tone({ from: 1320, dur: 0.06, vol: 0.085, delay: 0.045 })
+  /**
+   * A whisper of the bite's own texture — short filtered noise at a fraction
+   * of its volume. Layered under a tone, it's what keeps a UI tap from
+   * sounding like a bare synth beep next to the real chew samples.
+   */
+  private grain(opts: { vol?: number; delay?: number; from?: number; to?: number } = {}) {
+    this.noise({ dur: 0.032, from: opts.from ?? 2100, to: opts.to ?? 850, vol: opts.vol ?? 0.045, delay: opts.delay ?? 0, q: 1.2 })
   }
 
-  /** Illegal tap. */
-  deny() { this.tone({ from: 180, to: 90, dur: 0.13, type: 'square', vol: 0.13, glideCurve: 'lin' }) }
+  // --- the kit ------------------------------------------------------------
+  // Every sound below pairs a round triangle tone with a touch of grain, the
+  // same two ingredients the bite is built from — one shared material, not a
+  // clean synth kit bolted onto a real recording.
+
+  /** Generic UI press. */
+  tap() { this.tone({ from: 620, to: 860, dur: 0.07, vol: 0.10 }); this.grain({ vol: 0.03 }) }
+
+  /** Mode / option change — a step up the scale. */
+  select() { this.tone({ from: 520, to: 760, dur: 0.08, vol: 0.11 }); this.grain({ vol: 0.035 }) }
+
+  /** Food dropped on the board: a soft two-step blip. */
+  place() {
+    this.tone({ from: 860, dur: 0.05, vol: 0.10 })
+    this.tone({ from: 1280, dur: 0.07, vol: 0.08, delay: 0.05 })
+    this.grain({ vol: 0.035 })
+  }
+
+  /** Illegal tap — a low, muted thud rather than a sharp buzz. */
+  deny() {
+    this.tone({ from: 170, to: 90, dur: 0.15, vol: 0.12, glideCurve: 'lin' })
+    this.grain({ from: 1100, to: 350, vol: 0.06 })
+  }
 
   /**
    * The bite. A random real chew if the samples have loaded, a synthesized
@@ -177,52 +199,59 @@ class ArcadeAudio {
       this.noise({ dur: 0.055, from: 2600, to: 700, vol: 0.15, q: 1.1 })
       this.noise({ dur: 0.07, from: 1500, to: 380, vol: 0.11, q: 1.6, delay: 0.045 })
     }
-    this.tone({ from: 300, to: 150, dur: 0.10, type: 'triangle', vol: 0.13, glideCurve: 'lin' })
+    this.tone({ from: 300, to: 150, dur: 0.10, vol: 0.13, glideCurve: 'lin' })
     this.tone({ from: 1100, to: 1500, dur: 0.05, vol: 0.05, delay: 0.02 })
   }
 
   /** Run starts. */
   start() {
     const notes = [523, 659, 784, 1047]
-    notes.forEach((f, i) => this.tone({ from: f, dur: 0.09, vol: 0.12, delay: i * 0.055 }))
+    notes.forEach((f, i) => this.tone({ from: f, dur: 0.10, vol: 0.12, delay: i * 0.06 }))
+    this.grain({ vol: 0.03, delay: 0.02 })
   }
 
   /** The snake is trapped — the player won. */
   win() {
     const notes = [523, 659, 784, 1047, 1319]
-    notes.forEach((f, i) => this.tone({ from: f, dur: 0.16, vol: 0.14, delay: i * 0.075 }))
-    this.tone({ from: 1047, dur: 0.42, type: 'triangle', vol: 0.10, delay: 0.42 })
+    notes.forEach((f, i) => this.tone({ from: f, dur: 0.17, vol: 0.14, delay: i * 0.078 }))
+    this.tone({ from: 1047, dur: 0.42, vol: 0.10, delay: 0.42 })
+    this.grain({ vol: 0.05, delay: 0.42 })
   }
 
   /** The snake made its target — the player lost. */
   lose() {
     const notes = [440, 392, 330, 247]
-    notes.forEach((f, i) => this.tone({ from: f, dur: 0.20, type: 'square', vol: 0.12, delay: i * 0.10 }))
-    this.tone({ from: 180, to: 90, dur: 0.5, type: 'triangle', vol: 0.10, delay: 0.42, glideCurve: 'lin' })
+    notes.forEach((f, i) => this.tone({ from: f, dur: 0.21, vol: 0.12, delay: i * 0.105 }))
+    this.tone({ from: 180, to: 90, dur: 0.5, vol: 0.10, delay: 0.44, glideCurve: 'lin' })
+    this.grain({ from: 900, to: 250, vol: 0.05, delay: 0.44 })
   }
 
   /** Solver found a line. */
   reveal() {
     const notes = [784, 988, 1319]
-    notes.forEach((f, i) => this.tone({ from: f, dur: 0.11, vol: 0.11, delay: i * 0.06 }))
+    notes.forEach((f, i) => this.tone({ from: f, dur: 0.12, vol: 0.11, delay: i * 0.065 }))
+    this.grain({ vol: 0.03 })
   }
 
   /** Powerup: scan the board — a quick two-step upward chirp. */
   scan() {
-    this.tone({ from: 1200, to: 1800, dur: 0.05, vol: 0.09 })
-    this.tone({ from: 1800, to: 2400, dur: 0.05, vol: 0.07, delay: 0.05 })
+    this.tone({ from: 1200, to: 1750, dur: 0.055, vol: 0.09 })
+    this.tone({ from: 1750, to: 2300, dur: 0.055, vol: 0.07, delay: 0.055 })
+    this.grain({ vol: 0.03 })
   }
 
   /** Powerup: rewind a turn — time folding back on itself. */
   rewindTurn() {
-    this.tone({ from: 900, to: 260, dur: 0.16, type: 'triangle', vol: 0.12, glideCurve: 'exp' })
-    this.tone({ from: 260, to: 700, dur: 0.10, type: 'triangle', vol: 0.08, delay: 0.14 })
+    this.tone({ from: 900, to: 260, dur: 0.16, vol: 0.12, glideCurve: 'exp' })
+    this.tone({ from: 260, to: 700, dur: 0.10, vol: 0.08, delay: 0.14 })
+    this.grain({ from: 1500, to: 500, vol: 0.04 })
   }
 
   /** A campaign level was just cleared for the first time. */
   levelUnlock() {
     const notes = [659, 880, 1109]
-    notes.forEach((f, i) => this.tone({ from: f, dur: 0.13, vol: 0.13, delay: i * 0.07 }))
+    notes.forEach((f, i) => this.tone({ from: f, dur: 0.14, vol: 0.13, delay: i * 0.075 }))
+    this.grain({ vol: 0.04, delay: 0.15 })
   }
 }
 

@@ -206,6 +206,24 @@ class ArcadeAudio {
     const notes = [784, 988, 1319]
     notes.forEach((f, i) => this.tone({ from: f, dur: 0.11, vol: 0.11, delay: i * 0.06 }))
   }
+
+  /** Powerup: scan the board — a quick two-step upward chirp. */
+  scan() {
+    this.tone({ from: 1200, to: 1800, dur: 0.05, vol: 0.09 })
+    this.tone({ from: 1800, to: 2400, dur: 0.05, vol: 0.07, delay: 0.05 })
+  }
+
+  /** Powerup: rewind a turn — time folding back on itself. */
+  rewindTurn() {
+    this.tone({ from: 900, to: 260, dur: 0.16, type: 'triangle', vol: 0.12, glideCurve: 'exp' })
+    this.tone({ from: 260, to: 700, dur: 0.10, type: 'triangle', vol: 0.08, delay: 0.14 })
+  }
+
+  /** A campaign level was just cleared for the first time. */
+  levelUnlock() {
+    const notes = [659, 880, 1109]
+    notes.forEach((f, i) => this.tone({ from: f, dur: 0.13, vol: 0.13, delay: i * 0.07 }))
+  }
 }
 
 export const arcade = new ArcadeAudio()

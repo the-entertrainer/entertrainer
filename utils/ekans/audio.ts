@@ -30,8 +30,11 @@ class ArcadeAudio {
   private chewBuffers: AudioBuffer[] = []
   private chewLoadStarted = false
   private lastChewIndex = -1
+  /** Pink theme gets its own sound bank — sine bells and sparkle instead of triangle and grain. */
+  private cute = false
 
   get muted() { return this._muted }
+  setTheme(theme: 'yellow' | 'pink') { this.cute = theme === 'pink' }
 
   /** Read the stored preference. Safe to call before any gesture. */
   restore() {
@@ -165,39 +168,71 @@ class ArcadeAudio {
     this.noise({ dur: 0.032, from: opts.from ?? 2100, to: opts.to ?? 850, vol: opts.vol ?? 0.045, delay: opts.delay ?? 0, q: 1.2 })
   }
 
+  /** The pink kit's texture: a very short, very high shimmer instead of a crunchy grain. */
+  private sparkle(opts: { vol?: number; delay?: number } = {}) {
+    this.noise({ dur: 0.022, from: 5200, to: 6800, vol: opts.vol ?? 0.03, delay: opts.delay ?? 0, q: 2.4 })
+  }
+
   // --- the kit ------------------------------------------------------------
   // Every sound below pairs a round triangle tone with a touch of grain, the
   // same two ingredients the bite is built from — one shared material, not a
-  // clean synth kit bolted onto a real recording.
+  // clean synth kit bolted onto a real recording. The pink theme swaps that
+  // pairing for sine bells and sparkle, its own equally-consistent material.
 
   /** Generic UI press. */
-  tap() { this.tone({ from: 620, to: 860, dur: 0.07, vol: 0.10 }); this.grain({ vol: 0.03 }) }
+  tap() {
+    if (this.cute) { this.tone({ from: 1100, to: 1420, dur: 0.06, type: 'sine', vol: 0.10 }); this.sparkle({ vol: 0.02 }); return }
+    this.tone({ from: 620, to: 860, dur: 0.07, vol: 0.10 }); this.grain({ vol: 0.03 })
+  }
 
   /** Mode / option change — a step up the scale. */
-  select() { this.tone({ from: 520, to: 760, dur: 0.08, vol: 0.11 }); this.grain({ vol: 0.035 }) }
+  select() {
+    if (this.cute) {
+      this.tone({ from: 1050, dur: 0.05, type: 'sine', vol: 0.09 })
+      this.tone({ from: 1560, dur: 0.06, type: 'sine', vol: 0.08, delay: 0.05 })
+      return
+    }
+    this.tone({ from: 520, to: 760, dur: 0.08, vol: 0.11 }); this.grain({ vol: 0.035 })
+  }
 
   /** Food dropped on the board: a soft two-step blip. */
   place() {
+    if (this.cute) {
+      this.tone({ from: 1500, dur: 0.05, type: 'sine', vol: 0.09 })
+      this.tone({ from: 2000, dur: 0.06, type: 'sine', vol: 0.075, delay: 0.05 })
+      this.sparkle({ vol: 0.03 })
+      return
+    }
     this.tone({ from: 860, dur: 0.05, vol: 0.10 })
     this.tone({ from: 1280, dur: 0.07, vol: 0.08, delay: 0.05 })
     this.grain({ vol: 0.035 })
   }
 
-  /** Illegal tap — a low, muted thud rather than a sharp buzz. */
+  /** Illegal tap. */
   deny() {
+    if (this.cute) {
+      this.tone({ from: 700, to: 520, dur: 0.09, type: 'sine', vol: 0.08 })
+      this.tone({ from: 520, to: 420, dur: 0.10, type: 'sine', vol: 0.06, delay: 0.09 })
+      return
+    }
     this.tone({ from: 170, to: 90, dur: 0.15, vol: 0.12, glideCurve: 'lin' })
     this.grain({ from: 1100, to: 350, vol: 0.06 })
   }
 
   /**
    * The bite. A random real chew if the samples have loaded, a synthesized
-   * two-burst crunch if they haven't yet — either way, a short low body
-   * underneath for weight.
+   * two-burst crunch if they haven't yet — either way, a short body
+   * underneath: low and round for yellow, a bright little "nom" for pink.
    */
   crunch() {
     if (!this.playChew()) {
       this.noise({ dur: 0.055, from: 2600, to: 700, vol: 0.15, q: 1.1 })
       this.noise({ dur: 0.07, from: 1500, to: 380, vol: 0.11, q: 1.6, delay: 0.045 })
+    }
+    if (this.cute) {
+      this.tone({ from: 1500, to: 1900, dur: 0.06, type: 'sine', vol: 0.08, delay: 0.03 })
+      this.sparkle({ vol: 0.035, delay: 0.05 })
+      return
     }
     this.tone({ from: 300, to: 150, dur: 0.10, vol: 0.13, glideCurve: 'lin' })
     this.tone({ from: 1100, to: 1500, dur: 0.05, vol: 0.05, delay: 0.02 })
@@ -205,6 +240,12 @@ class ArcadeAudio {
 
   /** Run starts. */
   start() {
+    if (this.cute) {
+      const notes = [784, 988, 1245, 1568]
+      notes.forEach((f, i) => this.tone({ from: f, dur: 0.09, type: 'sine', vol: 0.11, delay: i * 0.05 }))
+      this.sparkle({ vol: 0.025, delay: 0.02 })
+      return
+    }
     const notes = [523, 659, 784, 1047]
     notes.forEach((f, i) => this.tone({ from: f, dur: 0.10, vol: 0.12, delay: i * 0.06 }))
     this.grain({ vol: 0.03, delay: 0.02 })
@@ -212,6 +253,12 @@ class ArcadeAudio {
 
   /** The snake is trapped — the player won. */
   win() {
+    if (this.cute) {
+      const notes = [784, 988, 1245, 1568, 1976]
+      notes.forEach((f, i) => this.tone({ from: f, dur: 0.15, type: 'sine', vol: 0.13, delay: i * 0.065 }))
+      this.sparkle({ vol: 0.05, delay: 0.35 }); this.sparkle({ vol: 0.04, delay: 0.43 })
+      return
+    }
     const notes = [523, 659, 784, 1047, 1319]
     notes.forEach((f, i) => this.tone({ from: f, dur: 0.17, vol: 0.14, delay: i * 0.078 }))
     this.tone({ from: 1047, dur: 0.42, vol: 0.10, delay: 0.42 })
@@ -220,6 +267,11 @@ class ArcadeAudio {
 
   /** The snake made its target — the player lost. */
   lose() {
+    if (this.cute) {
+      const notes = [660, 587, 523, 440]
+      notes.forEach((f, i) => this.tone({ from: f, dur: 0.19, type: 'sine', vol: 0.10, delay: i * 0.095 }))
+      return
+    }
     const notes = [440, 392, 330, 247]
     notes.forEach((f, i) => this.tone({ from: f, dur: 0.21, vol: 0.12, delay: i * 0.105 }))
     this.tone({ from: 180, to: 90, dur: 0.5, vol: 0.10, delay: 0.44, glideCurve: 'lin' })
@@ -228,6 +280,12 @@ class ArcadeAudio {
 
   /** Solver found a line. */
   reveal() {
+    if (this.cute) {
+      const notes = [1245, 1568, 1976]
+      notes.forEach((f, i) => this.tone({ from: f, dur: 0.10, type: 'sine', vol: 0.10, delay: i * 0.06 }))
+      this.sparkle({ vol: 0.03 })
+      return
+    }
     const notes = [784, 988, 1319]
     notes.forEach((f, i) => this.tone({ from: f, dur: 0.12, vol: 0.11, delay: i * 0.065 }))
     this.grain({ vol: 0.03 })
@@ -235,6 +293,12 @@ class ArcadeAudio {
 
   /** Powerup: scan the board — a quick two-step upward chirp. */
   scan() {
+    if (this.cute) {
+      this.tone({ from: 1800, to: 2400, dur: 0.05, type: 'sine', vol: 0.08 })
+      this.tone({ from: 2400, to: 3000, dur: 0.05, type: 'sine', vol: 0.06, delay: 0.05 })
+      this.sparkle({ vol: 0.03 })
+      return
+    }
     this.tone({ from: 1200, to: 1750, dur: 0.055, vol: 0.09 })
     this.tone({ from: 1750, to: 2300, dur: 0.055, vol: 0.07, delay: 0.055 })
     this.grain({ vol: 0.03 })
@@ -242,6 +306,11 @@ class ArcadeAudio {
 
   /** Powerup: rewind a turn — time folding back on itself. */
   rewindTurn() {
+    if (this.cute) {
+      this.tone({ from: 1400, to: 700, dur: 0.13, type: 'sine', vol: 0.10, glideCurve: 'exp' })
+      this.tone({ from: 700, to: 1200, dur: 0.09, type: 'sine', vol: 0.07, delay: 0.12 })
+      return
+    }
     this.tone({ from: 900, to: 260, dur: 0.16, vol: 0.12, glideCurve: 'exp' })
     this.tone({ from: 260, to: 700, dur: 0.10, vol: 0.08, delay: 0.14 })
     this.grain({ from: 1500, to: 500, vol: 0.04 })
@@ -249,6 +318,12 @@ class ArcadeAudio {
 
   /** A campaign level was just cleared for the first time. */
   levelUnlock() {
+    if (this.cute) {
+      const notes = [988, 1245, 1568, 1976]
+      notes.forEach((f, i) => this.tone({ from: f, dur: 0.12, type: 'sine', vol: 0.12, delay: i * 0.06 }))
+      this.sparkle({ vol: 0.05, delay: 0.12 }); this.sparkle({ vol: 0.04, delay: 0.22 })
+      return
+    }
     const notes = [659, 880, 1109]
     notes.forEach((f, i) => this.tone({ from: f, dur: 0.14, vol: 0.13, delay: i * 0.075 }))
     this.grain({ vol: 0.04, delay: 0.15 })

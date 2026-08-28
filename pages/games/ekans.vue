@@ -28,7 +28,7 @@ useSeoMeta({
   robots: 'index, follow'
 })
 
-type Phase = 'menu' | 'campaign' | 'playing' | 'result'
+type Phase = 'menu' | 'campaign' | 'rules' | 'playing' | 'result'
 
 const DIFFICULTY: Record<Mode, number> = { learn: 1, standard: 2, expert: 3 }
 const MODE_TAG: Record<Mode, string> = { learn: 'EASY', standard: 'NORMAL', expert: 'HARD' }
@@ -85,8 +85,9 @@ function loadTheme() {
   try { if (window.localStorage.getItem('ekans-theme') === 'pink') theme.value = 'pink' } catch { /* private mode */ }
 }
 function toggleTheme() {
-  sfx('select'); haptic(8)
   theme.value = theme.value === 'pink' ? 'yellow' : 'pink'
+  arcade.setTheme(theme.value)
+  sfx('select'); haptic(8)
   try { window.localStorage.setItem('ekans-theme', theme.value) } catch { /* private mode */ }
 }
 
@@ -95,7 +96,7 @@ function toggleTheme() {
 // turn — so a run's designed difficulty can't be shortcut by using them.
 const scanCharges = ref(0)
 const rewindCharges = ref(0)
-const scanResults = ref<{ cell: Cell; trapped: boolean }[] | null>(null)
+const scanResults = ref<{ cell: Cell; trapped: boolean; heat: number }[] | null>(null)
 let lastTurnSnapshot: EkansState | null = null
 
 // A plain ref (not shallowRef) so Vue proxies it with reactive() — the engine
@@ -126,7 +127,9 @@ const shaking = ref(false)
 const trapFlash = ref(false)
 const waves = ref<{ id: number; x: number; y: number; bad: boolean }[]>([])
 const shocks = ref<{ id: number; r: number; c: number; delay: number }[]>([])
-const bursts = ref<{ id: number; r: number; c: number }[]>([])
+interface Crumb { dx: number; dy: number; rot: number; delay: number }
+const bursts = ref<{ id: number; r: number; c: number; crumbs: Crumb[] }[]>([])
+const impacts = ref<{ id: number; r: number; c: number }[]>([])
 let fxId = 0
 
 let tickTimer: ReturnType<typeof window.setTimeout> | null = null
@@ -205,10 +208,28 @@ function chomp() {
   window.setTimeout(() => { chomping.value = false }, 260)
 }
 
+/**
+ * Crumbs from the bite. Randomised drift and fall rather than eight crumbs
+ * radiating out on a perfect 45° wheel — an even spread reads as a light
+ * show, not the aftermath of biting down on something with actual force.
+ */
 function burstAt(cell: Cell) {
   const id = fxId++
-  bursts.value.push({ id, ...cell })
-  window.setTimeout(() => { bursts.value = bursts.value.filter((b) => b.id !== id) }, 520)
+  const crumbs: Crumb[] = Array.from({ length: 9 }, () => ({
+    dx: (Math.random() - 0.5) * 34,
+    dy: 16 + Math.random() * 22,
+    rot: (Math.random() - 0.5) * 360,
+    delay: Math.random() * 40
+  }))
+  bursts.value.push({ id, ...cell, crumbs })
+  window.setTimeout(() => { bursts.value = bursts.value.filter((b) => b.id !== id) }, 620)
+}
+
+/** A brief impact flash at the bite point — the "force" half of the crunch. */
+function impactAt(cell: Cell) {
+  const id = fxId++
+  impacts.value.push({ id, ...cell })
+  window.setTimeout(() => { impacts.value = impacts.value.filter((i) => i.id !== id) }, 260)
 }
 
 /**
@@ -297,6 +318,7 @@ function pickMode(key: Mode) { sfx('select'); haptic(8); mode.value = key }
 // --- campaign -----------------------------------------------------------
 
 function openCampaign() { sfx('tap'); haptic(8); campaignTier.value = mode.value; phase.value = 'campaign' }
+function openRules() { sfx('tap'); haptic(8); phase.value = 'rules' }
 function pickTier(key: Mode) { sfx('select'); haptic(8); campaignTier.value = key }
 
 function startLevel(tier: Mode, index: number) {
@@ -341,7 +363,7 @@ function runTicks() {
     pushHeadId(s.body.length)
 
     if (s.eaten > before) {
-      if (turnFood) burstAt(turnFood)
+      if (turnFood) { impactAt(turnFood); burstAt(turnFood) }
       chomp(); swallow(s.body.length); sfx('crunch'); haptic(16)
     }
 
@@ -459,17 +481,55 @@ function askHint() { sfx('tap'); haptic(8); requestHint() }
 
 // --- powerups -------------------------------------------------------------
 
-/** Simulate every legal placement one turn ahead and mark the ones that trap right now. */
+/**
+ * How enclosed a cell already is — the same "touching" idea engine.ts's own
+ * trapCandidates() ranks the solver's search with: count how many of its
+ * four neighbours are already a wall, the snake's body, or the board edge.
+ * Unlike total reachable room, this is a local reading, so it's not flat on
+ * an early, wide-open board — a cell against a wall or in a corner reads
+ * hotter than one in open water on move one, before the flood-fill signal
+ * below has anything to say yet.
+ */
+function enclosure(cell: Cell, s: EkansState): number {
+  const blocked = new Set<number>()
+  for (const w of s.walls) blocked.add(w.r * 1024 + w.c)
+  for (const b of s.body) blocked.add(b.r * 1024 + b.c)
+  const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+  let touching = 0
+  for (const [dr, dc] of dirs) {
+    const nr = cell.r + dr, nc = cell.c + dc
+    if (nr < 0 || nr >= BOARD_ROWS || nc < 0 || nc >= BOARD_COLS || blocked.has(nr * 1024 + nc)) touching++
+  }
+  return touching / 4
+}
+
+/**
+ * Simulate every legal placement one turn ahead. Two signals are blended:
+ * enclosure() above, which is always locally meaningful even on an open
+ * board, and how much room simulating the bite actually leaves the snake —
+ * which is what does the real work once the board isn't one big open
+ * region anymore. Using only the second one turned out to be uninformative
+ * for most of a run: on an open board, "total reachable free cells" comes
+ * back nearly identical from every candidate, because it's all one
+ * connected area — accurate, but it made the whole tool read as broken.
+ */
 function scanBoard() {
   if (scanCharges.value <= 0 || state.value.status !== 'placing') return
   sfx('scan'); haptic(8)
   const s = state.value
-  scanResults.value = legalPlacements(s).map((cell) => {
+  const ROOM_CAP = 20
+  const evaluated = legalPlacements(s).map((cell) => {
     const sim = cloneRun(s)
     placeFood(sim, cell)
     runTurn(sim)
-    return { cell, trapped: sim.status === 'trapped' }
+    const trapped = sim.status === 'trapped'
+    // 'escaped' (snake reached its target this bite) is the coldest possible outcome for the trapper.
+    const room = trapped ? 0 : sim.status === 'escaped' ? ROOM_CAP : legalPlacements(sim).length
+    const roomScore = Math.max(0, 1 - Math.min(room, ROOM_CAP) / ROOM_CAP)
+    const heat = trapped ? 1 : Math.min(1, 0.35 * enclosure(cell, s) + 0.65 * roomScore)
+    return { cell, trapped, heat }
   })
+  scanResults.value = evaluated
   scanCharges.value--
 }
 
@@ -530,6 +590,7 @@ onMounted(() => {
   arcade.restore()
   muted.value = arcade.muted
   loadTheme()
+  arcade.setTheme(theme.value)
   loadProgress()
   prevOverflow = document.body.style.overflow
   prevOverscroll = document.documentElement.style.overscrollBehavior
@@ -623,8 +684,13 @@ onUnmounted(() => {
             </div>
           </Transition>
 
+          <div v-for="im in impacts" :key="im.id" class="ekans__impact" :style="segStyle(im)" />
+
           <div v-for="b in bursts" :key="b.id" class="ekans__burst" :style="segStyle(b)">
-            <i v-for="n in 8" :key="n" :style="{ '--ang': `${n * 45}deg` }" />
+            <i
+              v-for="(cr, n) in b.crumbs" :key="n"
+              :style="{ '--dx': cr.dx + 'px', '--dy': cr.dy + 'px', '--rot': cr.rot + 'deg', animationDelay: cr.delay + 'ms' }"
+            />
           </div>
 
           <span
@@ -633,10 +699,13 @@ onUnmounted(() => {
             :style="{ left: w.x + '%', top: w.y + '%' }"
           ><i></i><i></i><i></i></span>
 
-          <!-- Scan: every legal cell that would trap the snake this instant. -->
+          <!-- Scan: a heat reading of every legal cell — how much room the
+               snake would have left after that bite, hottest where it has
+               the least, plus a distinct ring on anything that traps it now. -->
           <div
-            v-for="sr in (scanResults || []).filter((r) => r.trapped)" :key="`scan-${sr.cell.r}-${sr.cell.c}`"
-            class="ekans__scan-mark" :style="segStyle(sr.cell)" aria-hidden="true"
+            v-for="sr in (scanResults || [])" :key="`scan-${sr.cell.r}-${sr.cell.c}`"
+            class="ekans__scan-mark" :class="{ 'is-trap': sr.trapped }"
+            :style="{ ...segStyle(sr.cell), '--heat': sr.heat }" aria-hidden="true"
           ><i></i></div>
 
           <!-- The hint: where to tap next. The player still taps it. -->
@@ -682,6 +751,9 @@ onUnmounted(() => {
 
     <Transition name="sheet">
       <div v-if="phase === 'menu'" class="ekans__menu">
+        <button class="ekans__icon-btn ekans__rules-corner" @click="openRules" aria-label="How to play">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 4" /><path d="M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>
+        </button>
         <button class="ekans__icon-btn ekans__theme-corner" @click="toggleTheme" :aria-label="theme === 'pink' ? 'Switch to yellow theme' : 'Switch to pink theme'">
           <span class="ekans__theme-dot"></span>
         </button>
@@ -776,6 +848,45 @@ onUnmounted(() => {
             <span v-else class="ekans__level-name">{{ lvl.name }}</span>
           </button>
         </div>
+      </div>
+    </Transition>
+
+    <Transition name="sheet">
+      <div v-if="phase === 'rules'" class="ekans__campaign ekans__rules">
+        <header class="ekans__campaign-head">
+          <button class="ekans__icon-btn" @click="backToMenu" aria-label="Back">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+          </button>
+          <h2>How It Works</h2>
+          <span aria-hidden="true" style="width: 34px"></span>
+        </header>
+
+        <section class="ekans__rule">
+          <h3>The trap</h3>
+          <p>You never move the snake. You place one piece of food at a time — it finds its own way there. You win the instant it has nowhere left to go.</p>
+        </section>
+        <section class="ekans__rule">
+          <h3>How it thinks</h3>
+          <p>Every step, it takes whichever legal move leaves it the most open room to keep moving — not just the shortest way to the food.</p>
+          <p>But it gets impatient. The longer a turn drags on, the less it checks its own safety, until it stops caring entirely and beelines straight for the food. That drop in caution is the opening you're playing for.</p>
+        </section>
+        <section class="ekans__rule">
+          <h3>The board</h3>
+          <p>Walls are fixed the moment a run starts — they never move. Use them to pinch its space into a dead end instead of building a trap from nothing.</p>
+        </section>
+        <section class="ekans__rule">
+          <h3>Losing</h3>
+          <p>If it reaches its food target before it runs out of room, it escapes. That's a loss — SHOW ME will replay the exact board with the line you missed marked out.</p>
+        </section>
+        <section class="ekans__rule">
+          <h3>Powerups</h3>
+          <p><b>SCAN</b> shows how much room the snake would have left after each legal placement, right now — hotter cells leave it less room, a ringed cell traps it on the spot.</p>
+          <p><b>REWIND</b> undoes the turn that just finished. Once.</p>
+        </section>
+        <section class="ekans__rule">
+          <h3>Campaign</h3>
+          <p>Each level shows a PAR — the fewest moves the level was verified solvable in. Beat it and the sheet says so. Clearing a level unlocks the next.</p>
+        </section>
       </div>
     </Transition>
 
@@ -977,11 +1088,11 @@ onUnmounted(() => {
 /* Swallow: the bite travels down the body. */
 .ekans__seg.is-bulge::after { transform: scale(1.22); border-radius: 40%; }
 /* Chomp: the head bites down on contact. */
-.ekans__seg.is-chomp::after { animation: ekans-chomp 260ms cubic-bezier(.2, .9, .3, 1); }
+.ekans__seg.is-chomp::after { animation: ekans-chomp 240ms cubic-bezier(.2, .9, .3, 1); }
 @keyframes ekans-chomp {
   0%   { transform: scale(1); }
-  28%  { transform: scale(1.34, .74); }
-  60%  { transform: scale(.9, 1.18); }
+  22%  { transform: scale(1.44, .6); }
+  58%  { transform: scale(.86, 1.22); }
   100% { transform: scale(1); }
 }
 /* Caught: the head pulses where it ran out of room. */
@@ -1010,6 +1121,20 @@ onUnmounted(() => {
 .ekans__face.is-down i:nth-child(2) { left: 56%; }
 @keyframes ekans-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.15); } }
 
+/* Pink theme only: bigger eyes, plus a bold lash wedge over each. The eye
+   is tiny on screen — a thin outlined arc disappeared at that size, so this
+   is a solid filled shape instead. Rides the same element the eye animates
+   on, so it blinks in sync for free. */
+.ekans.is-pink .ekans__face i { width: 26%; height: 26%; box-shadow: 0 0 0 1.4px var(--ink); }
+.ekans.is-pink .ekans__face i::before {
+  content: ''; position: absolute; top: -78%; left: 30%; width: 18%; height: 55%;
+  background: var(--accent-strong); border-radius: 50% 50% 20% 20%;
+  transform-origin: bottom center;
+  pointer-events: none;
+}
+.ekans.is-pink .ekans__face i:nth-child(1)::before { transform: rotate(-28deg); }
+.ekans.is-pink .ekans__face i:nth-child(2)::before { transform: rotate(24deg); }
+
 .ekans__food { position: absolute; top: 0; left: 0; display: grid; place-items: center; pointer-events: none; }
 .ekans__food-dot {
   width: 46%; height: 46%; border-radius: 50%;
@@ -1022,15 +1147,30 @@ onUnmounted(() => {
 .food-leave-active { transition: opacity 90ms; }
 .food-leave-to { opacity: 0; }
 
-/* Crumbs from the bite. */
+/* The impact: a hard, brief flash right on the bite — force, not decoration. */
+.ekans__impact { position: absolute; top: 0; left: 0; pointer-events: none; }
+.ekans__impact::after {
+  content: ''; position: absolute; inset: -22%; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent-strong) 60%, transparent) 0%, transparent 70%);
+  animation: ekans-impact 240ms cubic-bezier(.15, .8, .3, 1) forwards;
+}
+@keyframes ekans-impact {
+  0%   { opacity: 0; transform: scale(.35); }
+  25%  { opacity: .95; transform: scale(1.15); }
+  100% { opacity: 0; transform: scale(1.8); }
+}
+
+/* Crumbs from the bite: an initial scatter from the force of it, then real
+   gravity — falling and tumbling rather than radiating out on a neat wheel. */
 .ekans__burst { position: absolute; top: 0; left: 0; display: grid; place-items: center; pointer-events: none; }
 .ekans__burst i {
   position: absolute; width: 5px; height: 5px; background: var(--accent-strong); border-radius: 1.5px;
-  animation: ekans-burst 520ms cubic-bezier(.15, .75, .3, 1) forwards;
+  animation: ekans-burst 600ms cubic-bezier(.32, 0, .4, 1) both;
 }
 @keyframes ekans-burst {
-  0%   { transform: rotate(var(--ang)) translateY(0) scale(1) ; opacity: 1; }
-  100% { transform: rotate(var(--ang)) translateY(-22px) scale(.15) rotate(140deg); opacity: 0; }
+  0%   { transform: translate(0, 0) scale(1.15) rotate(0deg); opacity: 1; }
+  32%  { transform: translate(calc(var(--dx) * .55), calc(var(--dy) * -.4)) scale(1) rotate(calc(var(--rot) * .3)); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(.3) rotate(var(--rot)); opacity: 0; }
 }
 
 /* Answer-key reticle: a target that pulses on the cell, then snaps shut as
@@ -1063,10 +1203,18 @@ onUnmounted(() => {
 @keyframes ekans-aim-ring { 0%, 100% { transform: scale(1) rotate(0deg); opacity: .8; } 50% { transform: scale(.84) rotate(45deg); opacity: 1; } }
 @keyframes ekans-aim-dot { 0%, 100% { transform: scale(.9); } 50% { transform: scale(1.06); } }
 
-/* Scan: a lighter mark than the hint — every legal cell that would trap the
-   snake right now, all at once, with no ranking or "next move" implied. */
+/* Scan: a heat reading on every legal cell — how little room the snake would
+   have left after that bite, not just a binary "wins right now" flag. Most
+   cells light up some amount; only the ones that actually trap it get the
+   ringed, pulsing marker on top. */
 .ekans__scan-mark { position: absolute; top: 0; left: 0; display: grid; place-items: center; pointer-events: none; z-index: 2; }
-.ekans__scan-mark i {
+.ekans__scan-mark::after {
+  content: ''; position: absolute; inset: 2.5px; border-radius: 5px;
+  background: var(--accent-strong);
+  opacity: calc(var(--heat) * .58);
+}
+.ekans__scan-mark i { width: 0; height: 0; }
+.ekans__scan-mark.is-trap i {
   width: 46%; height: 46%; border-radius: 50%; box-sizing: border-box;
   border: 2px solid var(--accent-strong);
   background: color-mix(in srgb, var(--accent) 32%, transparent);
@@ -1140,6 +1288,7 @@ onUnmounted(() => {
 .ekans__mute-corner { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 16px); right: 18px; }
 .ekans__theme-corner { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 16px); right: 60px; }
 .ekans__theme-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 1px solid var(--ink); }
+.ekans__rules-corner { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 16px); left: 18px; }
 .ekans__mark { position: relative; width: clamp(96px, 28vw, 132px); aspect-ratio: 1; margin-bottom: 14px; }
 .ekans__mark-glow {
   position: absolute; inset: -34%; border-radius: 50%;
@@ -1263,10 +1412,19 @@ onUnmounted(() => {
 .ekans__level-lock { color: var(--ink-soft); }
 .ekans__level-star { position: absolute; top: 5px; right: 7px; font-size: 10px; line-height: 1; color: var(--accent-strong); }
 
+/* Rules: the same full-screen sheet as the campaign map, plain reading type. */
+.ekans__rules { gap: 4px; }
+.ekans__rule { padding: 16px 0; border-top: 1px solid var(--edge); }
+.ekans__rule:first-of-type { border-top: 1px solid var(--edge); margin-top: 6px; }
+.ekans__rule h3 { margin: 0 0 8px; font: 800 15px/1 inherit; letter-spacing: -.01em; }
+.ekans__rule p { margin: 0; font: 400 14px/1.55 inherit; color: var(--ink-soft); }
+.ekans__rule p + p { margin-top: 8px; }
+.ekans__rule b { color: var(--ink); }
+
 @media (prefers-reduced-motion: reduce) {
   .ekans__seg, .ekans__seg::after, .ekans__food-dot, .ekans__wave i, .ekans__burst i,
   .ekans__mark-seg::after, .ekans__shock::after, .ekans__face i, .ekans__hint,
-  .ekans__stamp, .is-shaking .ekans__board,
+  .ekans__stamp, .is-shaking .ekans__board, .ekans__impact::after,
   .ekans__aim-halo, .ekans__aim-ring, .ekans__aim-dot, .ekans__scan-mark i {
     animation: none !important; transition: none !important;
   }

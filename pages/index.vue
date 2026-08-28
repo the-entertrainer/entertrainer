@@ -11,7 +11,7 @@ const routes = [
   { name: 'Elevate', type: 'Stories', href: '/elevate' },
   { name: 'Empower', type: 'Tools', href: '/empower' },
   { name: 'Educate', type: 'Courses', href: '/educate' },
-  { name: 'Games', type: 'Coming soon', href: '/games' },
+  { name: 'Games', type: 'Play', href: '/games' },
   { name: 'About me', type: 'About', href: '/about' }
 ]
 </script>

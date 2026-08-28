@@ -1,4 +1,4 @@
-import { ENTROPY_BLOG, INTELLIGENCE_BLOG } from './blogs'
+import { ENTROPY_BLOG, INTELLIGENCE_BLOG, MOONLY_BLOG } from './blogs'
 
 export const SITE_URL = 'https://entertrainer.in'
 
@@ -51,6 +51,14 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     description: INTELLIGENCE_BLOG.dek,
     image: INTELLIGENCE_BLOG.hero,
     imageAlt: INTELLIGENCE_BLOG.heroAlt,
+    type: 'article'
+  },
+  [`/blogs/${MOONLY_BLOG.slug}`]: {
+    key: 'moon-moonly',
+    label: MOONLY_BLOG.category,
+    title: MOONLY_BLOG.title,
+    description: MOONLY_BLOG.dek,
+    imageAlt: MOONLY_BLOG.heroAlt,
     type: 'article'
   },
   '/empower': {

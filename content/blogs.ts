@@ -29,9 +29,20 @@ export const BLOG_POSTS: BlogPost[] = [
     hero: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/aQLfZtFcKJUyNvVk.jpg',
     heroAlt: 'A person reflected in a city bus window',
     status: 'published'
+  },
+  {
+    slug: 'why-isnt-the-moon-moonly',
+    title: 'Friend, friendly. Love, lovely. So why isn’t the Moon moonly?',
+    dek: 'English will build an adjective out of almost any noun, then quietly refuse for the Moon, the Sun and your own teeth. The reason is older than English.',
+    category: 'Language & meaning',
+    minutes: 7,
+    hero: 'https://entertrainer.in/api/social-card/moon-moonly.png',
+    heroAlt: 'A yellow Entertrainer editorial card for an article about collateral adjectives in English.',
+    status: 'published'
   }
 ]
 
 export const ENTROPY_BLOG = BLOG_POSTS[0]
 export const INTELLIGENCE_BLOG = BLOG_POSTS[1]
+export const MOONLY_BLOG = BLOG_POSTS[2]
 export const FEATURED_BLOG = ENTROPY_BLOG

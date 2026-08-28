@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import {
-  type Cell, type Mode, type TurnRecord, type EkansState,
+  type Cell, type Mode, type Dir, type SnakeState,
   MODES, BOARD_COLS, BOARD_ROWS,
-  createRun, cloneRun, canPlace, placeFood, advance, runTurn, legalPlacements,
-  randomSeedLabel, solveTrapLine
+  createRun, tick, setDirection, armGhost, currentTickMs
 } from '~/utils/ekans/engine'
-import { CAMPAIGN, LEVELS_PER_TIER } from '~/utils/ekans/levels'
+import { CAMPAIGN, LEVELS_PER_TIER, levelDef, type CampaignLevel } from '~/utils/ekans/levels'
 import { arcade } from '~/utils/ekans/audio'
 
 /**
@@ -14,16 +13,17 @@ import { arcade } from '~/utils/ekans/audio'
  * regardless of the site's light/dark setting: a game cabinet in the
  * publication's accent colour, not a themed section of the editorial shell.
  *
- * Screens carry labels, not prose. The board teaches the rule — tap, watch,
- * see what happens — so the chrome stays at the level an arcade cabinet uses:
- * a word, a number, an icon.
+ * It's a real Snake: swipe, tap the pad, or use arrow keys to steer, eat to
+ * grow, don't hit a wall or your own tail. Screens carry labels, not prose —
+ * the chrome stays at the level an arcade cabinet uses: a word, a number, an
+ * icon.
  */
 definePageMeta({ layout: false })
 useSeoMeta({
   title: 'EKANS · Entertrainer',
-  description: 'You don’t steer the snake. You place what it eats, and try to close every route it has left. A Snake tribute, inverted.',
-  ogTitle: 'EKANS — a Snake game, inverted',
-  ogDescription: 'The snake finds its own way. You choose where it eats — and decide where it slowly runs out of room.',
+  description: 'A real Snake: steer with a swipe, arrow keys, or the on-screen pad. Eat to grow, don’t hit the walls or your own tail.',
+  ogTitle: 'EKANS — steer, eat, don’t crash',
+  ogDescription: 'Classic Snake with a campaign of 39 obstacle courses, a free-run endless mode, and two powerups that never touch the board itself.',
   ogUrl: 'https://entertrainer.in/games/ekans',
   robots: 'index, follow'
 })
@@ -38,26 +38,25 @@ const ICON_COIL = [
 ]
 
 /** How many charges of each powerup a run starts with — tighter on harder tiers. */
-const POWERUP_CHARGES: Record<Mode, { scan: number; rewind: number }> = {
-  learn: { scan: 5, rewind: 2 },
-  standard: { scan: 3, rewind: 1 },
-  expert: { scan: 2, rewind: 1 }
+const POWERUP_CHARGES: Record<Mode, { slowmo: number; ghost: number }> = {
+  learn: { slowmo: 3, ghost: 2 },
+  standard: { slowmo: 2, ghost: 1 },
+  expert: { slowmo: 1, ghost: 1 }
 }
-
-const LIVE_TICK_MS = 150
+const SLOWMO_DURATION_MS = 3500
+const SLOWMO_FACTOR = 1.7
 
 const phase = ref<Phase>('menu')
 const mode = ref<Mode>('standard')
-const seedInput = ref(randomSeedLabel())
 const muted = ref(false)
 const theme = ref<'yellow' | 'pink'>('yellow')
 
 // Campaign: which tier the level-select sheet is showing, and which level
-// (if any) the current run belongs to. `null` means a freeplay run — the
-// original random-seed mode, unchanged.
+// (if any) the current run belongs to. `null` means a freeplay run — endless,
+// no target, ended only by a crash.
 const campaignTier = ref<Mode>('learn')
 const activeLevel = ref<{ tier: Mode; index: number } | null>(null)
-const activeLevelInfo = computed(() => activeLevel.value ? CAMPAIGN[activeLevel.value.tier].levels[activeLevel.value.index] : null)
+const activeLevelInfo = computed<CampaignLevel | null>(() => activeLevel.value ? CAMPAIGN[activeLevel.value.tier].levels[activeLevel.value.index] : null)
 const hasNextLevel = computed(() => !!activeLevel.value && activeLevel.value.index + 1 < LEVELS_PER_TIER)
 
 function defaultProgress(): Record<Mode, boolean[]> {
@@ -81,6 +80,22 @@ function saveProgress() {
   try { window.localStorage.setItem('ekans-progress', JSON.stringify(progress.value)) } catch { /* private mode */ }
 }
 
+function defaultHighScores(): Record<Mode, number> { return { learn: 0, standard: 0, expert: 0 } }
+const highScores = ref<Record<Mode, number>>(defaultHighScores())
+function loadHighScores() {
+  try {
+    const raw = window.localStorage.getItem('ekans-highscores')
+    if (!raw) return
+    const parsed = JSON.parse(raw)
+    const next = defaultHighScores()
+    for (const tier of ['learn', 'standard', 'expert'] as Mode[]) if (Number.isFinite(parsed?.[tier])) next[tier] = parsed[tier]
+    highScores.value = next
+  } catch { /* private mode or corrupt data */ }
+}
+function saveHighScores() {
+  try { window.localStorage.setItem('ekans-highscores', JSON.stringify(highScores.value)) } catch { /* private mode */ }
+}
+
 function loadTheme() {
   try { if (window.localStorage.getItem('ekans-theme') === 'pink') theme.value = 'pink' } catch { /* private mode */ }
 }
@@ -91,32 +106,20 @@ function toggleTheme() {
   try { window.localStorage.setItem('ekans-theme', theme.value) } catch { /* private mode */ }
 }
 
-// Powerups. Neither one touches walls or the target — SCAN is a read-only
-// simulation of every legal cell, REWIND is a single-level undo of the last
-// turn — so a run's designed difficulty can't be shortcut by using them.
-const scanCharges = ref(0)
-const rewindCharges = ref(0)
-const scanResults = ref<{ cell: Cell; trapped: boolean; heat: number }[] | null>(null)
-let lastTurnSnapshot: EkansState | null = null
+// Powerups. Neither one touches the walls, the target, or the food's
+// position — SLOW-MO widens the tick interval for a few seconds, GHOST
+// forgives exactly one crash — so a level's obstacle course is never
+// actually shortcut, only survived more easily.
+const slowmoCharges = ref(0)
+const ghostCharges = ref(0)
+const slowmoActive = ref(false)
+const ghostFlash = ref(false)
+let slowmoTimer: ReturnType<typeof window.setTimeout> | null = null
 
 // A plain ref (not shallowRef) so Vue proxies it with reactive() — the engine
 // mutates body/status/food in place (unshift/pop/assign), and that proxy is
 // what makes those in-place mutations show up in the template automatically.
-const state = ref(createRun('standard')) // placeholder until first real run; overwritten by startRun
-const history = ref<TurnRecord[]>([])
-let turnPath: Cell[] = []
-let turnBodyBefore: Cell[] = []
-let turnFood: Cell | null = null
-
-/**
- * The hint marks the next click and then gets out of the way — the player
- * still makes every move. `guided` just means the hint re-arms itself each
- * turn instead of being asked for one move at a time.
- */
-const hintCell = ref<Cell | null>(null)
-const hintBusy = ref(false)
-const hintFailed = ref(false)
-const guided = ref(false)
+const state = ref<SnakeState>(createRun('standard')) // placeholder until first real run; overwritten by beginRun
 
 // Shared animation state — only one run animates at a time.
 const bodyIds = ref<number[]>([])
@@ -124,9 +127,7 @@ let nextId = 1
 const bulgeAt = ref<number | null>(null)
 const chomping = ref(false)
 const shaking = ref(false)
-const trapFlash = ref(false)
-const waves = ref<{ id: number; x: number; y: number; bad: boolean }[]>([])
-const shocks = ref<{ id: number; r: number; c: number; delay: number }[]>([])
+const clearFlash = ref(false)
 interface Crumb { dx: number; dy: number; rot: number; delay: number }
 const bursts = ref<{ id: number; r: number; c: number; crumbs: Crumb[] }[]>([])
 const impacts = ref<{ id: number; r: number; c: number }[]>([])
@@ -134,20 +135,17 @@ let fxId = 0
 
 let tickTimer: ReturnType<typeof window.setTimeout> | null = null
 let bulgeTimer: ReturnType<typeof window.setInterval> | null = null
-let solveTimer: ReturnType<typeof window.setTimeout> | null = null
-
 
 const view = computed(() => state.value)
 
 const modeTag = computed(() => MODE_TAG[view.value.mode])
 const modeInitial = computed(() => MODE_TAG[view.value.mode][0])
-const playerWon = computed(() => state.value.status === 'trapped')
-const fillPercent = computed(() => Math.round((state.value.body.length / (BOARD_COLS * BOARD_ROWS)) * 100))
-const showFirstHint = computed(() => phase.value === 'playing' && state.value.eaten === 0 && state.value.status === 'placing')
-const beatPar = computed(() => playerWon.value && !!activeLevelInfo.value && history.value.length <= activeLevelInfo.value.par)
+const cleared = computed(() => state.value.status === 'cleared')
+const isDead = computed(() => state.value.status === 'dead')
+const beatHighScore = computed(() => isDead.value && !activeLevel.value && state.value.eaten > 0 && state.value.eaten >= (highScores.value[mode.value] ?? 0))
 
 function haptic(p: number | number[]) { try { navigator.vibrate?.(p) } catch { /* unsupported */ } }
-function sfx(name: 'tap' | 'select' | 'place' | 'deny' | 'crunch' | 'start' | 'win' | 'lose' | 'reveal' | 'scan' | 'rewindTurn' | 'levelUnlock') {
+function sfx(name: 'tap' | 'select' | 'crunch' | 'start' | 'clear' | 'crash' | 'slowmo' | 'ghost' | 'ghostSave' | 'levelUnlock' | 'highScore') {
   arcade.unlock()
   arcade[name]()
 }
@@ -161,17 +159,9 @@ function toggleMute() {
 function clearTimers() {
   if (tickTimer) { window.clearTimeout(tickTimer); tickTimer = null }
   if (bulgeTimer) { window.clearInterval(bulgeTimer); bulgeTimer = null }
-  if (solveTimer) { window.clearTimeout(solveTimer); solveTimer = null }
-  hintBusy.value = false
+  if (slowmoTimer) { window.clearTimeout(slowmoTimer); slowmoTimer = null }
   bulgeAt.value = null
-}
-
-/** One place that retires every per-turn marker, so none can outlive its board. */
-function clearHint() {
-  hintCell.value = null
-  hintBusy.value = false
-  hintFailed.value = false
-  scanResults.value = null
+  slowmoActive.value = false
 }
 
 // --- shared board effects ---------------------------------------------------
@@ -232,81 +222,46 @@ function impactAt(cell: Cell) {
   window.setTimeout(() => { impacts.value = impacts.value.filter((i) => i.id !== id) }, 260)
 }
 
-/**
- * Ripple: two wave fronts crossing the tiles, each cell delayed by its
- * distance from the tap. Deliberately near-threshold — you should feel the
- * board answer the touch, not watch a light show.
- */
-function rippleTiles(origin: Cell) {
-  const RADIUS = 4
-  const added: number[] = []
-  for (let front = 0; front < 2; front++) {
-    for (let r = origin.r - RADIUS; r <= origin.r + RADIUS; r++) {
-      for (let c = origin.c - RADIUS; c <= origin.c + RADIUS; c++) {
-        if (r < 0 || r >= BOARD_ROWS || c < 0 || c >= BOARD_COLS) continue
-        const dist = Math.abs(r - origin.r) + Math.abs(c - origin.c)
-        if (dist > RADIUS) continue
-        const id = fxId++
-        added.push(id)
-        shocks.value.push({ id, r, c, delay: dist * 42 + front * 300 })
-      }
-    }
-  }
-  window.setTimeout(() => {
-    const drop = new Set(added)
-    shocks.value = shocks.value.filter((s) => !drop.has(s.id))
-  }, 1500)
+function flashClear() {
+  clearFlash.value = true
+  window.setTimeout(() => { clearFlash.value = false }, 1500)
 }
 
-function ringWave(xPct: number, yPct: number, bad: boolean) {
-  const id = fxId++
-  waves.value.push({ id, x: xPct, y: yPct, bad })
-  window.setTimeout(() => { waves.value = waves.value.filter((w) => w.id !== id) }, 1200)
-}
-
-function flashTrap() {
-  trapFlash.value = true
-  window.setTimeout(() => { trapFlash.value = false }, 1500)
+function flashGhostSave() {
+  ghostFlash.value = true
+  window.setTimeout(() => { ghostFlash.value = false }, 500)
 }
 
 // --- live run ----------------------------------------------------------------
 
 /**
  * The one place a run actually starts, freeplay or campaign. `level` is null
- * for a random-seed freeplay board; set for a campaign level, which is what
- * lets the result sheet offer "next level" and persist completion.
+ * for an endless freeplay run; set for a campaign level, which is what lets
+ * the result sheet offer "next level" and persist completion.
  */
-function beginRun(tier: Mode, seedLabel: string, level: { tier: Mode; index: number } | null) {
+function beginRun(tier: Mode, level: { tier: Mode; index: number } | null) {
   sfx('start'); haptic(12)
   clearTimers()
-  guided.value = false
   mode.value = tier
   activeLevel.value = level
-  const s = createRun(tier, seedLabel)
+  const def = level ? levelDef(level.tier, level.index) : undefined
+  const s = createRun(tier, def)
   state.value = s
   resetIds(s.body)
-  history.value = []
-  clearHint()
-  lastTurnSnapshot = null
   const charges = POWERUP_CHARGES[tier]
-  scanCharges.value = charges.scan
-  rewindCharges.value = charges.rewind
+  slowmoCharges.value = charges.slowmo
+  ghostCharges.value = charges.ghost
   phase.value = 'playing'
+  scheduleTick()
 }
 
-function startRun() { beginRun(mode.value, seedInput.value, null) }
-
-function retrySeed() {
-  if (activeLevel.value) beginRun(activeLevel.value.tier, state.value.seedLabel, activeLevel.value)
-  else { seedInput.value = state.value.seedLabel; startRun() }
-}
-function newSeed() { seedInput.value = randomSeedLabel(); startRun() }
+function startRun() { beginRun(mode.value, null) }
+function retryRun() { if (activeLevel.value) beginRun(activeLevel.value.tier, activeLevel.value); else beginRun(mode.value, null) }
 
 /** Leave a run for wherever it came from: the level map for a campaign run, the main menu for freeplay. */
 function exitRun() {
   sfx('tap'); haptic(10)
-  clearTimers(); clearHint()
-  guided.value = false
+  clearTimers()
   const wasLevel = activeLevel.value
   activeLevel.value = null
   if (wasLevel) { campaignTier.value = wasLevel.tier; phase.value = 'campaign' }
@@ -323,9 +278,7 @@ function pickTier(key: Mode) { sfx('select'); haptic(8); campaignTier.value = ke
 
 function startLevel(tier: Mode, index: number) {
   if (!isUnlocked(tier, index)) return
-  const level = CAMPAIGN[tier].levels[index]
-  seedInput.value = level.seed
-  beginRun(tier, level.seed, { tier, index })
+  beginRun(tier, { tier, index })
 }
 
 function markComplete(tier: Mode, index: number) {
@@ -335,7 +288,7 @@ function markComplete(tier: Mode, index: number) {
   sfx('levelUnlock')
 }
 
-/** From a won campaign level: mark it done, then move to the next one or back to the map. */
+/** From a cleared campaign level: mark it done, then move to the next one or back to the map. */
 function nextLevel() {
   if (!activeLevel.value) return
   const { tier, index } = activeLevel.value
@@ -345,204 +298,115 @@ function nextLevel() {
   else { campaignTier.value = tier; phase.value = 'campaign' }
 }
 
-function recordTurn(outcome: 'ate' | 'trapped') {
+// --- the loop ------------------------------------------------------------
+
+function scheduleTick() {
+  if (tickTimer) { window.clearTimeout(tickTimer); tickTimer = null }
   const s = state.value
-  history.value.push({
-    turn: s.turn, food: turnFood!, path: turnPath,
-    bodyBefore: turnBodyBefore, bodyAfter: s.body.map((c) => ({ ...c })), outcome
-  })
+  if (s.status !== 'playing') return
+  const base = currentTickMs(s)
+  const interval = slowmoActive.value ? base * SLOWMO_FACTOR : base
+  tickTimer = window.setTimeout(runTick, interval)
 }
 
-function runTicks() {
-  const step = () => {
-    const s = state.value
-    if (s.status !== 'moving') return
-    const before = s.eaten
-    advance(s)
-    turnPath.push({ ...s.body[0] })
-    pushHeadId(s.body.length)
+function runTick() {
+  const s = state.value
+  if (s.status !== 'playing') return
+  const result = tick(s)
+  pushHeadId(s.body.length)
 
-    if (s.eaten > before) {
-      if (turnFood) { impactAt(turnFood); burstAt(turnFood) }
-      chomp(); swallow(s.body.length); sfx('crunch'); haptic(16)
-    }
-
-    if (s.status === 'trapped') {
-      recordTurn('trapped'); flashTrap(); sfx('win'); haptic([0, 45, 70, 45, 70, 120])
-      window.setTimeout(() => { phase.value = 'result' }, 1250)
-      return
-    }
-    if (s.status === 'escaped') {
-      recordTurn('ate'); sfx('lose')
-      window.setTimeout(() => { phase.value = 'result' }, 900)
-      return
-    }
-    if (s.status === 'placing') {
-      recordTurn('ate')
-      if (guided.value) requestHint()
-      return
-    }
-    tickTimer = window.setTimeout(step, LIVE_TICK_MS)
+  if (result === 'ate' || result === 'ghosted') {
+    const headCell = s.body[0]
+    impactAt(headCell); burstAt(headCell)
+    chomp(); swallow(s.body.length); sfx('crunch'); haptic(16)
   }
-  tickTimer = window.setTimeout(step, LIVE_TICK_MS)
-}
+  if (result === 'ghosted') {
+    flashGhostSave(); sfx('ghostSave'); haptic([0, 20, 40, 20])
+  }
 
-function onBoardTap(e: MouseEvent) {
-  arcade.unlock()
-  const s = state.value
-  if (phase.value !== 'playing' || s.status !== 'placing') return
-  const el = e.currentTarget as HTMLElement
-  const rect = el.getBoundingClientRect()
-  const x = e.clientX - rect.left
-  const y = e.clientY - rect.top
-  const c = Math.floor((x / rect.width) * BOARD_COLS)
-  const r = Math.floor((y / rect.height) * BOARD_ROWS)
-  const ok = canPlace(s, { r, c })
-
-  ringWave((x / rect.width) * 100, (y / rect.height) * 100, !ok)
-
-  if (!ok) {
-    sfx('deny'); haptic([0, 12, 35, 12])
+  if (result === 'dead') {
+    sfx('crash'); haptic([0, 45, 70, 45, 70, 120])
     shaking.value = true
-    window.setTimeout(() => { shaking.value = false }, 220)
+    window.setTimeout(() => { shaking.value = false }, 260)
+    if (!activeLevel.value && s.eaten > (highScores.value[s.mode] ?? 0)) {
+      highScores.value[s.mode] = s.eaten
+      saveHighScores()
+    }
+    finishRun()
     return
   }
-
-  // The marker has done its job the moment the player commits a move.
-  clearHint()
-  lastTurnSnapshot = cloneRun(s)
-
-  turnBodyBefore = s.body.map((cc) => ({ ...cc }))
-  turnPath = [{ ...s.body[0] }]
-  turnFood = { r, c }
-  placeFood(s, { r, c })
-  rippleTiles({ r, c })
-  sfx('place'); haptic(9)
-  runTicks()
-}
-
-// --- hint: show the next click, nothing more --------------------------------
-
-const SOLVE_PASSES = [
-  { beamWidth: 14, candidates: 20, maxNodes: 9000 },
-  { beamWidth: 30, candidates: 32, maxNodes: 40000 }
-]
-
-/**
- * Search from the position on the board right now and mark the first move of
- * a line that traps the snake. The player still taps it themselves — nothing
- * here advances the game.
- */
-function requestHint() {
-  const s = state.value
-  if (hintBusy.value || phase.value !== 'playing' || s.status !== 'placing') return
-  arcade.unlock()
-  hintCell.value = null
-  hintFailed.value = false
-  hintBusy.value = true
-  runHintPass(0)
-}
-
-function runHintPass(passIndex: number) {
-  const cfg = SOLVE_PASSES[passIndex]
-  if (!cfg) { hintBusy.value = false; hintFailed.value = true; return }
-
-  const iter = solveTrapLine(state.value.mode, state.value.seedLabel, { ...cfg, from: state.value })
-  const pump = () => {
-    // Anything that ended the turn or left the screen invalidates this search.
-    if (!hintBusy.value || phase.value !== 'playing' || state.value.status !== 'placing') {
-      hintBusy.value = false
-      return
-    }
-    const started = performance.now()
-    let res = iter.next()
-    while (!res.done && performance.now() - started < 12) res = iter.next()
-    if (!res.done) { solveTimer = window.setTimeout(pump, 0); return }
-
-    const line = res.value.placements
-    if (!line || !line.length) { runHintPass(passIndex + 1); return }
-    hintBusy.value = false
-    hintCell.value = line[0]
-    sfx('reveal')
+  if (result === 'cleared') {
+    if (activeLevel.value) markComplete(activeLevel.value.tier, activeLevel.value.index)
+    sfx('clear'); flashClear(); haptic([0, 40, 60, 40, 60, 100])
+    finishRun()
+    return
   }
-  solveTimer = window.setTimeout(pump, 0)
+  scheduleTick()
 }
 
-/** Replay this exact board from the start, marking each next click as it goes. */
-function startGuided() {
-  sfx('tap'); haptic(8)
-  if (activeLevel.value) beginRun(activeLevel.value.tier, state.value.seedLabel, activeLevel.value)
-  else { seedInput.value = state.value.seedLabel; startRun() }
-  guided.value = true
-  requestHint()
+function finishRun() {
+  clearTimers()
+  window.setTimeout(() => { phase.value = 'result' }, 1100)
 }
 
-function askHint() { sfx('tap'); haptic(8); requestHint() }
+// --- input -----------------------------------------------------------------
+
+function turn(dir: Dir) {
+  if (phase.value !== 'playing') return
+  setDirection(state.value, dir)
+}
+
+const KEY_DIR: Record<string, Dir> = {
+  ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+  w: 'up', s: 'down', a: 'left', d: 'right', W: 'up', S: 'down', A: 'left', D: 'right'
+}
+function onKeydown(e: KeyboardEvent) {
+  const dir = KEY_DIR[e.key]
+  if (!dir) return
+  if (phase.value !== 'playing') return
+  e.preventDefault()
+  turn(dir)
+}
+
+let touchStart: { x: number; y: number } | null = null
+function onTouchStart(e: TouchEvent) {
+  const t = e.touches[0]
+  if (t) touchStart = { x: t.clientX, y: t.clientY }
+}
+function onTouchEnd(e: TouchEvent) {
+  if (!touchStart) return
+  const t = e.changedTouches[0]
+  const dx = t.clientX - touchStart.x, dy = t.clientY - touchStart.y
+  touchStart = null
+  if (Math.hypot(dx, dy) < 18) return // too small to be a deliberate swipe
+  if (Math.abs(dx) > Math.abs(dy)) turn(dx > 0 ? 'right' : 'left')
+  else turn(dy > 0 ? 'down' : 'up')
+}
+
+function onVisibilityChange() {
+  if (document.hidden) {
+    if (tickTimer) { window.clearTimeout(tickTimer); tickTimer = null }
+  } else if (phase.value === 'playing' && state.value.status === 'playing' && !tickTimer) {
+    scheduleTick()
+  }
+}
 
 // --- powerups -------------------------------------------------------------
 
-/**
- * How enclosed a cell already is — the same "touching" idea engine.ts's own
- * trapCandidates() ranks the solver's search with: count how many of its
- * four neighbours are already a wall, the snake's body, or the board edge.
- * Unlike total reachable room, this is a local reading, so it's not flat on
- * an early, wide-open board — a cell against a wall or in a corner reads
- * hotter than one in open water on move one, before the flood-fill signal
- * below has anything to say yet.
- */
-function enclosure(cell: Cell, s: EkansState): number {
-  const blocked = new Set<number>()
-  for (const w of s.walls) blocked.add(w.r * 1024 + w.c)
-  for (const b of s.body) blocked.add(b.r * 1024 + b.c)
-  const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]]
-  let touching = 0
-  for (const [dr, dc] of dirs) {
-    const nr = cell.r + dr, nc = cell.c + dc
-    if (nr < 0 || nr >= BOARD_ROWS || nc < 0 || nc >= BOARD_COLS || blocked.has(nr * 1024 + nc)) touching++
-  }
-  return touching / 4
+function useSlowmo() {
+  if (slowmoCharges.value <= 0 || phase.value !== 'playing' || state.value.status !== 'playing') return
+  sfx('slowmo'); haptic(10)
+  slowmoCharges.value--
+  slowmoActive.value = true
+  if (slowmoTimer) window.clearTimeout(slowmoTimer)
+  slowmoTimer = window.setTimeout(() => { slowmoActive.value = false }, SLOWMO_DURATION_MS)
 }
 
-/**
- * Simulate every legal placement one turn ahead. Two signals are blended:
- * enclosure() above, which is always locally meaningful even on an open
- * board, and how much room simulating the bite actually leaves the snake —
- * which is what does the real work once the board isn't one big open
- * region anymore. Using only the second one turned out to be uninformative
- * for most of a run: on an open board, "total reachable free cells" comes
- * back nearly identical from every candidate, because it's all one
- * connected area — accurate, but it made the whole tool read as broken.
- */
-function scanBoard() {
-  if (scanCharges.value <= 0 || state.value.status !== 'placing') return
-  sfx('scan'); haptic(8)
-  const s = state.value
-  const ROOM_CAP = 20
-  const evaluated = legalPlacements(s).map((cell) => {
-    const sim = cloneRun(s)
-    placeFood(sim, cell)
-    runTurn(sim)
-    const trapped = sim.status === 'trapped'
-    // 'escaped' (snake reached its target this bite) is the coldest possible outcome for the trapper.
-    const room = trapped ? 0 : sim.status === 'escaped' ? ROOM_CAP : legalPlacements(sim).length
-    const roomScore = Math.max(0, 1 - Math.min(room, ROOM_CAP) / ROOM_CAP)
-    const heat = trapped ? 1 : Math.min(1, 0.35 * enclosure(cell, s) + 0.65 * roomScore)
-    return { cell, trapped, heat }
-  })
-  scanResults.value = evaluated
-  scanCharges.value--
-}
-
-/** Undo the turn that just finished — one level of undo, consumed on use. */
-function rewindTurn() {
-  if (!lastTurnSnapshot || rewindCharges.value <= 0 || state.value.status !== 'placing') return
-  sfx('rewindTurn'); haptic([0, 10, 30, 10])
-  state.value = lastTurnSnapshot
-  lastTurnSnapshot = null
-  resetIds(state.value.body)
-  history.value.pop()
-  rewindCharges.value--
-  clearHint()
+function useGhost() {
+  if (ghostCharges.value <= 0 || phase.value !== 'playing' || state.value.status !== 'playing') return
+  sfx('ghost'); haptic(10)
+  ghostCharges.value--
+  armGhost(state.value)
 }
 
 // --- rendering ---------------------------------------------------------------
@@ -569,9 +433,9 @@ const headFacing = computed(() => {
   return 'right'
 })
 
-const isTrapped = computed(() => view.value.status === 'trapped')
+const isDeadHead = computed(() => view.value.status === 'dead')
 
-const stampText = computed(() => 'YOU WIN')
+const stampText = computed(() => 'CLEARED!')
 
 function segStyle(cell: { r: number; c: number }) {
   return {
@@ -592,48 +456,43 @@ onMounted(() => {
   loadTheme()
   arcade.setTheme(theme.value)
   loadProgress()
+  loadHighScores()
   prevOverflow = document.body.style.overflow
   prevOverscroll = document.documentElement.style.overscrollBehavior
   document.body.style.overflow = 'hidden'
   document.documentElement.style.overscrollBehavior = 'none'
+  window.addEventListener('keydown', onKeydown)
+  document.addEventListener('visibilitychange', onVisibilityChange)
   if (import.meta.dev) {
     (window as any).__ekansDebug = {
-      state, phase, history, hintCell, hintBusy, hintFailed, guided,
-      campaignTier, activeLevel, progress, scanResults, scanCharges, rewindCharges
+      state, phase, campaignTier, activeLevel, progress, highScores,
+      slowmoCharges, ghostCharges, slowmoActive
     }
   }
 })
 onUnmounted(() => {
   clearTimers()
   arcade.dispose()
+  window.removeEventListener('keydown', onKeydown)
+  document.removeEventListener('visibilitychange', onVisibilityChange)
   document.body.style.overflow = prevOverflow
   document.documentElement.style.overscrollBehavior = prevOverscroll
 })
 </script>
 
 <template>
-  <div class="ekans" :class="{ 'is-shaking': shaking, 'is-trapflash': trapFlash, 'is-pink': theme === 'pink' }">
+  <div class="ekans" :class="{ 'is-shaking': shaking, 'is-clearflash': clearFlash, 'is-pink': theme === 'pink' }">
     <div class="ekans__scene" v-if="phase === 'playing' || phase === 'result'">
       <header class="ekans__hud">
         <button class="ekans__icon-btn" @click="exitRun" aria-label="Back">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
         </button>
 
-        <div class="ekans__hud-chip" :class="{ 'is-demo': guided }">
+        <div class="ekans__hud-chip">
           <span class="ekans__hud-mode">{{ modeInitial }}</span>
           <i class="ekans__hud-diamond" aria-hidden="true"></i>
-          <span class="ekans__hud-count">{{ view.eaten }}/{{ view.target }}</span>
+          <span class="ekans__hud-count">{{ view.eaten }}<template v-if="activeLevelInfo">/{{ activeLevelInfo.target }}</template></span>
         </div>
-
-        <button
-          class="ekans__icon-btn"
-          :class="{ 'is-armed': !!hintCell }"
-          :disabled="hintBusy || state.status !== 'placing'"
-          @click="askHint" aria-label="Hint"
-        >
-          <svg v-if="!hintBusy" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.4.3.6.8.6 1.2h6c0-.4.2-.9.6-1.2A6 6 0 0 0 12 3z" /></svg>
-          <svg v-else class="ekans__spin" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 3a9 9 0 0 1 9 9" /></svg>
-        </button>
 
         <button class="ekans__icon-btn" @click="toggleMute" :aria-label="muted ? 'Sound on' : 'Sound off'">
           <svg v-if="!muted" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9v6h4l5 4V5L9 9H5z" /><path d="M17 9a4 4 0 0 1 0 6" /></svg>
@@ -641,24 +500,20 @@ onUnmounted(() => {
         </button>
       </header>
 
-      <div v-if="activeLevelInfo" class="ekans__level-strip">{{ activeLevelInfo.name }} <span>· PAR {{ activeLevelInfo.par }}</span></div>
+      <div v-if="activeLevelInfo" class="ekans__level-strip">{{ activeLevelInfo.name }} <span>· TARGET {{ activeLevelInfo.target }}</span></div>
+      <div v-else class="ekans__level-strip">BEST <span>{{ highScores[mode] || 0 }}</span></div>
 
       <div class="ekans__stage">
         <div
           class="ekans__board"
-          role="grid"
-          aria-label="EKANS board. Tap an empty cell to place food."
-          @click="onBoardTap"
+          role="img"
+          aria-label="EKANS board"
+          @touchstart.passive="onTouchStart"
+          @touchend="onTouchEnd"
         >
           <div class="ekans__gridlines" aria-hidden="true"></div>
 
           <div v-for="(w, i) in view.walls" :key="`wall-${i}`" class="ekans__wall" :style="segStyle(w)" />
-
-          <span
-            v-for="sk in shocks" :key="sk.id"
-            class="ekans__shock"
-            :style="{ ...segStyle(sk), animationDelay: sk.delay + 'ms' }"
-          />
 
           <div
             v-for="seg in segments"
@@ -669,7 +524,7 @@ onUnmounted(() => {
               'ekans__seg--tail': seg.isTail,
               'is-bulge': seg.bulge,
               'is-chomp': seg.isHead && chomping,
-              'is-caught': seg.isHead && isTrapped
+              'is-caught': seg.isHead && isDeadHead
             }"
             :style="segStyle(seg)"
           >
@@ -693,58 +548,41 @@ onUnmounted(() => {
             />
           </div>
 
-          <span
-            v-for="w in waves" :key="w.id"
-            class="ekans__wave" :class="{ 'is-bad': w.bad }"
-            :style="{ left: w.x + '%', top: w.y + '%' }"
-          ><i></i><i></i><i></i></span>
-
-          <!-- Scan: a heat reading of every legal cell — how much room the
-               snake would have left after that bite, hottest where it has
-               the least, plus a distinct ring on anything that traps it now. -->
-          <div
-            v-for="sr in (scanResults || [])" :key="`scan-${sr.cell.r}-${sr.cell.c}`"
-            class="ekans__scan-mark" :class="{ 'is-trap': sr.trapped }"
-            :style="{ ...segStyle(sr.cell), '--heat': sr.heat }" aria-hidden="true"
-          ><i></i></div>
-
-          <!-- The hint: where to tap next. The player still taps it. -->
-          <div
-            v-if="hintCell && phase === 'playing' && state.status === 'placing'"
-            class="ekans__aim"
-            :style="segStyle(hintCell)"
-            aria-hidden="true"
-          >
-            <span class="ekans__aim-halo"></span>
-            <span class="ekans__aim-ring"></span>
-            <span class="ekans__aim-dot">{{ history.length + 1 }}</span>
-          </div>
-
           <Transition name="stamp">
-            <div v-if="trapFlash" class="ekans__stamp" aria-hidden="true">{{ stampText }}</div>
+            <div v-if="clearFlash" class="ekans__stamp" aria-hidden="true">{{ stampText }}</div>
           </Transition>
 
-          <Transition name="hint">
-            <p v-if="showFirstHint" class="ekans__hint">TAP TO FEED</p>
-          </Transition>
+          <div v-if="ghostFlash" class="ekans__ghost-flash" aria-hidden="true"></div>
         </div>
       </div>
 
       <footer class="ekans__foot">
-        <div v-if="guided" class="ekans__demobar">
-          <span class="ekans__demotag">GUIDE</span>
-          <span class="ekans__democount">{{ history.length + 1 }}</span>
-        </div>
-        <div v-else-if="phase === 'playing'" class="ekans__powerbar">
-          <button class="ekans__power-btn" :disabled="scanCharges <= 0 || state.status !== 'placing'" @click="scanBoard">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></svg>
-            SCAN <span class="ekans__power-count">{{ scanCharges }}</span>
-          </button>
-          <button class="ekans__power-btn" :disabled="rewindCharges <= 0 || history.length === 0 || state.status !== 'placing'" @click="rewindTurn">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5" /></svg>
-            REWIND <span class="ekans__power-count">{{ rewindCharges }}</span>
-          </button>
-          <span v-if="hintFailed" class="ekans__demotag ekans__demotag--inline">NO HINT</span>
+        <div class="ekans__controls">
+          <div class="ekans__dpad" aria-label="Directional controls">
+            <button class="ekans__dpad-btn ekans__dpad-btn--up" @click="turn('up')" aria-label="Up">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6" /></svg>
+            </button>
+            <button class="ekans__dpad-btn ekans__dpad-btn--left" @click="turn('left')" aria-label="Left">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
+            </button>
+            <button class="ekans__dpad-btn ekans__dpad-btn--right" @click="turn('right')" aria-label="Right">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            </button>
+            <button class="ekans__dpad-btn ekans__dpad-btn--down" @click="turn('down')" aria-label="Down">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M18 13l-6 6-6-6" /></svg>
+            </button>
+          </div>
+
+          <div class="ekans__powerbar ekans__powerbar--stack">
+            <button class="ekans__power-btn" :class="{ 'is-active': slowmoActive }" :disabled="slowmoCharges <= 0 || state.status !== 'playing'" @click="useSlowmo">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3.5 2" /></svg>
+              SLOW-MO <span class="ekans__power-count">{{ slowmoCharges }}</span>
+            </button>
+            <button class="ekans__power-btn" :disabled="ghostCharges <= 0 || state.status !== 'playing'" @click="useGhost">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20V10a6 6 0 0 1 12 0v10l-3-2-3 2-3-2-3 2Z" /></svg>
+              GHOST <span class="ekans__power-count">{{ ghostCharges }}</span>
+            </button>
+          </div>
         </div>
       </footer>
     </div>
@@ -779,7 +617,7 @@ onUnmounted(() => {
           </button>
 
           <div class="ekans__freeplay">
-            <p class="ekans__freeplay-label">FREEPLAY</p>
+            <p class="ekans__freeplay-label">FREEPLAY · ENDLESS</p>
             <div class="ekans__modes" role="tablist">
               <button
                 v-for="(info, key) in MODES" :key="key"
@@ -792,20 +630,12 @@ onUnmounted(() => {
               </button>
             </div>
 
+            <p class="ekans__best">BEST <b>{{ highScores[mode] || 0 }}</b></p>
+
             <button class="ekans__play ekans__play--ghost" @click="startRun">
               <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M7 4l13 8-13 8V4z" /></svg>
               PLAY
             </button>
-
-            <div class="ekans__seedbar">
-              <input
-                v-model="seedInput" class="ekans__seedinput" aria-label="Seed"
-                maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false"
-              />
-              <button class="ekans__seed-shuffle" @click="sfx('select'); seedInput = randomSeedLabel()" aria-label="Shuffle seed">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5" /></svg>
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -862,30 +692,26 @@ onUnmounted(() => {
         </header>
 
         <section class="ekans__rule">
-          <h3>The trap</h3>
-          <p>You never move the snake. You place one piece of food at a time — it finds its own way there. You win the instant it has nowhere left to go.</p>
+          <h3>Steering</h3>
+          <p>Swipe on the board, tap the on-screen pad, or use arrow keys / WASD. You can't reverse straight into your own neck — that input's just ignored.</p>
         </section>
         <section class="ekans__rule">
-          <h3>How it thinks</h3>
-          <p>Every step, it takes whichever legal move leaves it the most open room to keep moving — not just the shortest way to the food.</p>
-          <p>But it gets impatient. The longer a turn drags on, the less it checks its own safety, until it stops caring entirely and beelines straight for the food. That drop in caution is the opening you're playing for.</p>
+          <h3>Growing</h3>
+          <p>Eat to grow — and to speed up. The longer a run goes, the faster the tick, until it caps out at that difficulty's fastest pace.</p>
         </section>
         <section class="ekans__rule">
-          <h3>The board</h3>
-          <p>Walls are fixed the moment a run starts — they never move. Use them to pinch its space into a dead end instead of building a trap from nothing.</p>
+          <h3>Dying</h3>
+          <p>Hit a wall, the edge of the board, or your own body, and the run ends. Nothing forgives that except GHOST, and only once.</p>
         </section>
         <section class="ekans__rule">
-          <h3>Losing</h3>
-          <p>If it reaches its food target before it runs out of room, it escapes. That's a loss — SHOW ME will replay the exact board with the line you missed marked out.</p>
+          <h3>Campaign vs. Freeplay</h3>
+          <p>Campaign levels have a wall layout and a target — eat that much without dying and you clear it, which unlocks the next one.</p>
+          <p>Freeplay has no walls and no ceiling. It's endless: it ends when you do, and your best score for that difficulty is saved on this device.</p>
         </section>
         <section class="ekans__rule">
           <h3>Powerups</h3>
-          <p><b>SCAN</b> shows how much room the snake would have left after each legal placement, right now — hotter cells leave it less room, a ringed cell traps it on the spot.</p>
-          <p><b>REWIND</b> undoes the turn that just finished. Once.</p>
-        </section>
-        <section class="ekans__rule">
-          <h3>Campaign</h3>
-          <p>Each level shows a PAR — the fewest moves the level was verified solvable in. Beat it and the sheet says so. Clearing a level unlocks the next.</p>
+          <p><b>SLOW-MO</b> widens the tick for a few seconds — more time to react, not a different game.</p>
+          <p><b>GHOST</b> forgives your very next crash. Once. Doesn't care when you cash it in.</p>
         </section>
       </div>
     </Transition>
@@ -893,37 +719,39 @@ onUnmounted(() => {
     <Transition name="sheet">
       <div v-if="phase === 'result'" class="ekans__backdrop">
         <div class="ekans__sheet">
-          <div class="ekans__result-icon" :class="{ 'is-win': playerWon }">
-            <svg v-if="playerWon" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+          <div class="ekans__result-icon" :class="{ 'is-win': cleared }">
+            <svg v-if="cleared" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
             <svg v-else viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
           </div>
-          <h2 class="ekans__sheet-title">{{ playerWon ? 'YOU WIN' : 'YOU LOSE' }}</h2>
-          <p v-if="activeLevelInfo" class="ekans__level-tag">{{ activeLevelInfo.name }} · PAR {{ activeLevelInfo.par }}</p>
+          <h2 class="ekans__sheet-title">{{ cleared ? 'LEVEL CLEAR' : 'GAME OVER' }}</h2>
+          <p v-if="activeLevelInfo" class="ekans__level-tag">{{ activeLevelInfo.name }} · TARGET {{ activeLevelInfo.target }}</p>
 
           <div class="ekans__result-stats">
-            <div class="ekans__result-stat"><b>{{ history.length }}</b><span>MOVES</span></div>
-            <div class="ekans__result-stat"><b>{{ fillPercent }}%</b><span>FILLED</span></div>
+            <div class="ekans__result-stat"><b>{{ view.eaten }}</b><span>EATEN</span></div>
+            <div class="ekans__result-stat"><b>{{ view.body.length }}</b><span>LENGTH</span></div>
             <div class="ekans__result-stat"><b>{{ modeTag }}</b><span>MODE</span></div>
           </div>
-          <p v-if="beatPar" class="ekans__par-badge">★ PAR OR BETTER</p>
-
-          <button v-if="!playerWon" class="ekans__play ekans__play--sheet" @click="startGuided">
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.4.3.6.8.6 1.2h6c0-.4.2-.9.6-1.2A6 6 0 0 0 12 3z" /></svg>
-            SHOW ME
-          </button>
+          <p v-if="beatHighScore" class="ekans__par-badge">★ NEW BEST</p>
 
           <button
-            v-if="!(activeLevel && !playerWon)"
+            v-if="cleared && activeLevel"
             class="ekans__play ekans__play--sheet"
-            :class="{ 'ekans__play--ghost': !playerWon }"
-            @click="playerWon && activeLevel ? nextLevel() : newSeed()"
+            @click="nextLevel"
           >
             <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M7 4l13 8-13 8V4z" /></svg>
-            {{ playerWon && activeLevel ? (hasNextLevel ? 'NEXT LEVEL' : 'BACK TO MAP') : 'NEXT' }}
+            {{ hasNextLevel ? 'NEXT LEVEL' : 'BACK TO MAP' }}
+          </button>
+          <button
+            v-else-if="!activeLevel"
+            class="ekans__play ekans__play--sheet"
+            @click="startRun"
+          >
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M7 4l13 8-13 8V4z" /></svg>
+            PLAY AGAIN
           </button>
 
           <div class="ekans__result-row">
-            <button class="ekans__chip-btn" @click="retrySeed" aria-label="Retry">
+            <button class="ekans__chip-btn" @click="retryRun" aria-label="Retry">
               <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5" /></svg>
               RETRY
             </button>
@@ -990,15 +818,12 @@ onUnmounted(() => {
   transition: transform 120ms ease, background 120ms ease;
 }
 .ekans__icon-btn:active { transform: scale(.93); background: var(--accent-soft); }
-.ekans__icon-btn--solid { background: var(--accent); border-color: color-mix(in srgb, var(--ink) 24%, transparent); }
-.ekans__icon-btn.is-armed { background: var(--accent); border-color: color-mix(in srgb, var(--ink) 24%, transparent); }
 .ekans__icon-btn:disabled { opacity: .4; }
 .ekans__hud-chip {
   display: flex; align-items: center; gap: 7px;
   padding: 7px 12px 7px 8px; border-radius: 999px;
   background: var(--panel); border: 1px solid var(--edge);
 }
-.ekans__hud-chip.is-demo { border-color: var(--accent-strong); background: var(--accent-soft); }
 .ekans__hud-mode {
   display: grid; place-items: center; width: 19px; height: 19px; border-radius: 8px;
   background: var(--accent); font: 800 10px/1 var(--font-mono); color: var(--ink);
@@ -1017,12 +842,12 @@ onUnmounted(() => {
 .ekans__board {
   position: relative; width: 100%; max-width: 480px;
   aspect-ratio: 9 / 15; max-height: 100%;
-  border-radius: 22px; overflow: hidden;
+  border-radius: 22px; overflow: hidden; touch-action: none;
   background: var(--panel); border: 1px solid var(--edge);
   box-shadow: 0 18px 36px -20px rgba(22, 22, 24, .28);
   transition: box-shadow 260ms ease;
 }
-.is-trapflash .ekans__board {
+.is-clearflash .ekans__board {
   box-shadow: 0 0 0 2px var(--accent-strong), 0 0 30px 6px color-mix(in srgb, var(--accent-strong) 40%, transparent), 0 18px 36px -20px rgba(22, 22, 24, .28);
 }
 .ekans__gridlines {
@@ -1041,40 +866,10 @@ onUnmounted(() => {
     135deg, rgba(22, 22, 24, .08) 0px, rgba(22, 22, 24, .08) 2px, transparent 2px, transparent 6px);
 }
 
-/* Ripple across the tiles. Peak opacity is deliberately tiny — the board
-   should seem to breathe, not blink. */
-.ekans__shock { position: absolute; top: 0; left: 0; pointer-events: none; }
-.ekans__shock::after {
-  content: ''; position: absolute; inset: 1.5px; border-radius: 4px;
-  background: var(--accent-strong);
-  opacity: 0;
-  animation: ekans-shock 760ms cubic-bezier(.33, .7, .4, 1) both;
-}
-@keyframes ekans-shock {
-  0%   { opacity: 0; transform: scale(.9); }
-  30%  { opacity: .13; transform: scale(1); }
-  100% { opacity: 0; transform: scale(.95); }
-}
-
-/* Concentric wave rings from the touch point. */
-.ekans__wave { position: absolute; pointer-events: none; }
-.ekans__wave i {
-  position: absolute; border-radius: 50%; border: 1.5px solid var(--accent-strong);
-  width: 34px; height: 34px; margin: -17px 0 0 -17px; opacity: 0;
-  animation: ekans-wave 1100ms cubic-bezier(.2, .7, .3, 1) both;
-}
-.ekans__wave i:nth-child(2) { animation-delay: 150ms; }
-.ekans__wave i:nth-child(3) { animation-delay: 300ms; }
-.ekans__wave.is-bad i { border-color: var(--ink-soft); }
-@keyframes ekans-wave {
-  0%   { opacity: .34; transform: scale(.35); }
-  100% { opacity: 0; transform: scale(2.4); }
-}
-
 /* The snake: rounded, chunky, a face on the head. */
 .ekans__seg {
   position: absolute; top: 0; left: 0;
-  transition: transform 140ms cubic-bezier(.3, .7, .4, 1);
+  transition: transform 120ms linear;
 }
 .ekans__seg::after {
   content: ''; position: absolute; inset: 1.5px; border-radius: 8px;
@@ -1095,8 +890,8 @@ onUnmounted(() => {
   58%  { transform: scale(.86, 1.22); }
   100% { transform: scale(1); }
 }
-/* Caught: the head pulses where it ran out of room. */
-.ekans__seg.is-caught::after { animation: ekans-caught 700ms ease-in-out 3; }
+/* Dead: the head flashes where it crashed. */
+.ekans__seg.is-caught::after { animation: ekans-caught 700ms ease-in-out 2; }
 @keyframes ekans-caught {
   0%, 100% { box-shadow: 0 0 0 2px var(--accent); }
   50%      { box-shadow: 0 0 0 5px var(--accent-strong); }
@@ -1173,54 +968,14 @@ onUnmounted(() => {
   100% { transform: translate(var(--dx), var(--dy)) scale(.3) rotate(var(--rot)); opacity: 0; }
 }
 
-/* Answer-key reticle: a target that pulses on the cell, then snaps shut as
-   the simulated tap lands. */
-.ekans__aim { position: absolute; top: 0; left: 0; display: grid; place-items: center; pointer-events: none; z-index: 3; }
-.ekans__aim-halo,
-.ekans__aim-ring,
-.ekans__aim-dot { position: absolute; border-radius: 50%; }
-.ekans__aim-halo {
-  width: 190%; height: 190%;
-  background: radial-gradient(circle, rgba(234, 185, 0, .30) 0%, transparent 68%);
-  animation: ekans-aim-halo 1.15s ease-in-out infinite;
+/* Ghost save: a quick cool flash across the whole board — a different
+   register from the crash shake, so a forgiven hit reads as a reprieve. */
+.ekans__ghost-flash {
+  position: absolute; inset: 0; pointer-events: none;
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  animation: ekans-ghost-flash 480ms ease-out forwards;
 }
-.ekans__aim-ring {
-  width: 128%; height: 128%; box-sizing: border-box;
-  border: 2.5px dashed var(--accent-strong);
-  animation: ekans-aim-ring 1.15s ease-in-out infinite;
-}
-/* The step number lives inside the marker: a badge hung off the corner gets
-   clipped by the board on edge cells, and edges are exactly where traps
-   get built. */
-.ekans__aim-dot {
-  display: grid; place-items: center;
-  width: 62%; height: 62%; background: var(--ink); color: var(--accent);
-  font: 800 11px/1 var(--font-mono);
-  box-shadow: 0 0 0 2.5px var(--accent-strong);
-  animation: ekans-aim-dot 1.15s ease-in-out infinite;
-}
-@keyframes ekans-aim-halo { 0%, 100% { opacity: .5; transform: scale(.82); } 50% { opacity: 1; transform: scale(1.04); } }
-@keyframes ekans-aim-ring { 0%, 100% { transform: scale(1) rotate(0deg); opacity: .8; } 50% { transform: scale(.84) rotate(45deg); opacity: 1; } }
-@keyframes ekans-aim-dot { 0%, 100% { transform: scale(.9); } 50% { transform: scale(1.06); } }
-
-/* Scan: a heat reading on every legal cell — how little room the snake would
-   have left after that bite, not just a binary "wins right now" flag. Most
-   cells light up some amount; only the ones that actually trap it get the
-   ringed, pulsing marker on top. */
-.ekans__scan-mark { position: absolute; top: 0; left: 0; display: grid; place-items: center; pointer-events: none; z-index: 2; }
-.ekans__scan-mark::after {
-  content: ''; position: absolute; inset: 2.5px; border-radius: 5px;
-  background: var(--accent-strong);
-  opacity: calc(var(--heat) * .58);
-}
-.ekans__scan-mark i { width: 0; height: 0; }
-.ekans__scan-mark.is-trap i {
-  width: 46%; height: 46%; border-radius: 50%; box-sizing: border-box;
-  border: 2px solid var(--accent-strong);
-  background: color-mix(in srgb, var(--accent) 32%, transparent);
-  animation: ekans-scan-pulse 1.3s ease-in-out infinite;
-}
-@keyframes ekans-scan-pulse { 0%, 100% { opacity: .55; transform: scale(.86); } 50% { opacity: 1; transform: scale(1.05); } }
+@keyframes ekans-ghost-flash { 0% { opacity: .9; } 100% { opacity: 0; } }
 
 .ekans__stamp {
   position: absolute; inset: auto 0 auto 0; top: 50%; margin-top: -22px;
@@ -1237,46 +992,46 @@ onUnmounted(() => {
   100% { transform: scale(1) rotate(0); opacity: 1; }
 }
 
-.ekans__hint {
-  position: absolute; inset: auto 0 14px 0; margin: 0; text-align: center;
-  font: 700 11px/1 var(--font-mono); letter-spacing: .18em; color: var(--ink-soft);
-  animation: ekans-hintpulse 1.6s ease-in-out infinite; pointer-events: none;
-}
-@keyframes ekans-hintpulse { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
-.hint-leave-active { transition: opacity 200ms ease; }
-.hint-leave-to { opacity: 0; }
-
-.is-shaking .ekans__board { animation: ekans-shake 220ms ease-in-out; }
+.is-shaking .ekans__board { animation: ekans-shake 260ms ease-in-out; }
 @keyframes ekans-shake {
-  0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); }
+  0%, 100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 45% { transform: translateX(6px); } 70% { transform: translateX(-4px); } 90% { transform: translateX(3px); }
 }
 
-.ekans__foot {
-  min-height: 58px; display: grid; place-items: center;
-  padding: 8px 16px calc(env(safe-area-inset-bottom, 0px) + 14px);
+.ekans__foot { padding: 10px 16px calc(env(safe-area-inset-bottom, 0px) + 16px); }
+.ekans__controls { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+
+/* D-pad: a 3x3 grid, only the cross cells populated. */
+.ekans__dpad {
+  display: grid; grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 44px); gap: 4px;
+  flex-shrink: 0;
 }
-.ekans__demobar {
-  display: flex; align-items: center; gap: 10px;
-  padding: 6px 6px 6px 14px; border-radius: 999px;
-  background: var(--panel); border: 1px solid var(--edge);
+.ekans__dpad-btn {
+  display: grid; place-items: center; border-radius: 12px;
+  background: var(--panel); border: 1px solid var(--edge); color: var(--ink);
+  transition: transform 90ms ease, background 90ms ease;
 }
-.ekans__demotag { font: 800 10px/1 var(--font-mono); letter-spacing: .16em; color: var(--ink-soft); }
-.ekans__democount { font: 800 13px/1 var(--font-mono); }
-.ekans__demotag--inline { margin-left: 2px; }
+.ekans__dpad-btn:active { transform: scale(.92); background: var(--accent-soft); }
+.ekans__dpad-btn--up { grid-column: 2; grid-row: 1; }
+.ekans__dpad-btn--left { grid-column: 1; grid-row: 2; }
+.ekans__dpad-btn--right { grid-column: 3; grid-row: 2; }
+.ekans__dpad-btn--down { grid-column: 2; grid-row: 3; }
 
 .ekans__powerbar { display: flex; align-items: center; gap: 8px; }
+.ekans__powerbar--stack { flex-direction: column; align-items: stretch; gap: 6px; }
 .ekans__power-btn {
-  display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px;
+  display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 14px; border-radius: 999px;
   background: var(--panel); border: 1px solid var(--edge); color: var(--ink);
   font: 800 10.5px/1 var(--font-mono); letter-spacing: .07em;
   transition: transform 100ms ease, background 100ms ease;
 }
 .ekans__power-btn:active:not(:disabled) { transform: scale(.94); background: var(--accent-soft); }
 .ekans__power-btn:disabled { opacity: .38; }
+.ekans__power-btn.is-active { background: var(--accent); border-color: color-mix(in srgb, var(--ink) 24%, transparent); }
 .ekans__power-count {
   display: grid; place-items: center; min-width: 16px; height: 16px; padding: 0 3px; border-radius: 999px;
   background: var(--accent); color: var(--ink); font-size: 9px;
 }
+.ekans__power-btn.is-active .ekans__power-count { background: var(--panel); }
 
 /* Menu */
 .ekans__menu {
@@ -1306,6 +1061,8 @@ onUnmounted(() => {
 .ekans__menu-controls { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 340px; }
 .ekans__freeplay { display: flex; flex-direction: column; gap: 10px; padding-top: 10px; border-top: 1px dashed var(--edge); }
 .ekans__freeplay-label { margin: 0; text-align: center; font: 800 10px/1 var(--font-mono); letter-spacing: .18em; color: var(--ink-soft); }
+.ekans__best { margin: 0; text-align: center; font: 700 12px/1 var(--font-mono); letter-spacing: .06em; color: var(--ink-soft); }
+.ekans__best b { color: var(--accent-strong); font-size: 15px; }
 
 .ekans__modes { display: flex; gap: 6px; padding: 4px; border-radius: 999px; background: var(--panel); border: 1px solid var(--edge); }
 .ekans__mode-pill {
@@ -1334,15 +1091,6 @@ onUnmounted(() => {
 .ekans__spin { animation: ekans-spin .9s linear infinite; }
 @keyframes ekans-spin { to { transform: rotate(360deg); } }
 
-.ekans__seedbar { display: flex; align-items: center; gap: 6px; align-self: center; }
-.ekans__seedinput {
-  width: 92px; padding: 7px 4px; text-align: center; border-radius: 8px;
-  border: 1px solid transparent; background: transparent; color: var(--ink-soft);
-  font: 700 12px/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase;
-}
-.ekans__seedinput:focus { outline: none; border-color: var(--edge); color: var(--ink); background: var(--panel); }
-.ekans__seed-shuffle { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 999px; color: var(--ink-soft); }
-
 /* Result sheet */
 .ekans__backdrop {
   position: absolute; inset: 0; z-index: 10;
@@ -1367,7 +1115,6 @@ onUnmounted(() => {
 .ekans__result-stat span { font: 700 9px/1 var(--font-mono); letter-spacing: .12em; color: var(--ink-soft); }
 .ekans__par-badge { margin: -6px 0 0; font: 800 10px/1 var(--font-mono); letter-spacing: .1em; color: var(--accent-strong); }
 .ekans__play--sheet { width: 100%; margin-top: 2px; }
-.ekans__note { margin: 0; font: 800 10px/1 var(--font-mono); letter-spacing: .16em; color: var(--ink-soft); }
 .ekans__result-row { display: flex; gap: 8px; width: 100%; }
 .ekans__chip-btn {
   flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;
@@ -1385,7 +1132,7 @@ onUnmounted(() => {
 .ekans__backdrop.sheet-enter-from .ekans__sheet { transform: translateY(24px); }
 
 /* Campaign: the level map. A tier picker over a grid of numbered stops —
-   locked, unlocked, or cleared — instead of a single free-seed board. */
+   locked, unlocked, or cleared. */
 .ekans__campaign {
   position: absolute; inset: 0; z-index: 6;
   display: flex; flex-direction: column; gap: 14px;
@@ -1422,10 +1169,9 @@ onUnmounted(() => {
 .ekans__rule b { color: var(--ink); }
 
 @media (prefers-reduced-motion: reduce) {
-  .ekans__seg, .ekans__seg::after, .ekans__food-dot, .ekans__wave i, .ekans__burst i,
-  .ekans__mark-seg::after, .ekans__shock::after, .ekans__face i, .ekans__hint,
-  .ekans__stamp, .is-shaking .ekans__board, .ekans__impact::after,
-  .ekans__aim-halo, .ekans__aim-ring, .ekans__aim-dot, .ekans__scan-mark i {
+  .ekans__seg, .ekans__seg::after, .ekans__food-dot, .ekans__burst i,
+  .ekans__mark-seg::after, .ekans__face i,
+  .ekans__stamp, .is-shaking .ekans__board, .ekans__impact::after, .ekans__ghost-flash {
     animation: none !important; transition: none !important;
   }
 }

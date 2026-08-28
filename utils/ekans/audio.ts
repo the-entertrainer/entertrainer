@@ -195,30 +195,6 @@ class ArcadeAudio {
     this.tone({ from: 520, to: 760, dur: 0.08, vol: 0.11 }); this.grain({ vol: 0.035 })
   }
 
-  /** Food dropped on the board: a soft two-step blip. */
-  place() {
-    if (this.cute) {
-      this.tone({ from: 1500, dur: 0.05, type: 'sine', vol: 0.09 })
-      this.tone({ from: 2000, dur: 0.06, type: 'sine', vol: 0.075, delay: 0.05 })
-      this.sparkle({ vol: 0.03 })
-      return
-    }
-    this.tone({ from: 860, dur: 0.05, vol: 0.10 })
-    this.tone({ from: 1280, dur: 0.07, vol: 0.08, delay: 0.05 })
-    this.grain({ vol: 0.035 })
-  }
-
-  /** Illegal tap. */
-  deny() {
-    if (this.cute) {
-      this.tone({ from: 700, to: 520, dur: 0.09, type: 'sine', vol: 0.08 })
-      this.tone({ from: 520, to: 420, dur: 0.10, type: 'sine', vol: 0.06, delay: 0.09 })
-      return
-    }
-    this.tone({ from: 170, to: 90, dur: 0.15, vol: 0.12, glideCurve: 'lin' })
-    this.grain({ from: 1100, to: 350, vol: 0.06 })
-  }
-
   /**
    * The bite. A random real chew if the samples have loaded, a synthesized
    * two-burst crunch if they haven't yet — either way, a short body
@@ -251,8 +227,8 @@ class ArcadeAudio {
     this.grain({ vol: 0.03, delay: 0.02 })
   }
 
-  /** The snake is trapped — the player won. */
-  win() {
+  /** A campaign level's target is reached. */
+  clear() {
     if (this.cute) {
       const notes = [784, 988, 1245, 1568, 1976]
       notes.forEach((f, i) => this.tone({ from: f, dur: 0.15, type: 'sine', vol: 0.13, delay: i * 0.065 }))
@@ -265,58 +241,56 @@ class ArcadeAudio {
     this.grain({ vol: 0.05, delay: 0.42 })
   }
 
-  /** The snake made its target — the player lost. */
-  lose() {
+  /** The snake hit a wall, itself, or the edge. Game over. */
+  crash() {
     if (this.cute) {
       const notes = [660, 587, 523, 440]
       notes.forEach((f, i) => this.tone({ from: f, dur: 0.19, type: 'sine', vol: 0.10, delay: i * 0.095 }))
       return
     }
+    this.noise({ dur: 0.09, from: 1400, to: 200, vol: 0.14, q: 0.9 })
     const notes = [440, 392, 330, 247]
     notes.forEach((f, i) => this.tone({ from: f, dur: 0.21, vol: 0.12, delay: i * 0.105 }))
     this.tone({ from: 180, to: 90, dur: 0.5, vol: 0.10, delay: 0.44, glideCurve: 'lin' })
     this.grain({ from: 900, to: 250, vol: 0.05, delay: 0.44 })
   }
 
-  /** Solver found a line. */
-  reveal() {
+  /** Powerup: SLOW-MO armed — the world downshifts. */
+  slowmo() {
+    if (this.cute) {
+      this.tone({ from: 1800, to: 900, dur: 0.16, type: 'sine', vol: 0.09, glideCurve: 'exp' })
+      this.sparkle({ vol: 0.03, delay: 0.05 })
+      return
+    }
+    this.tone({ from: 900, to: 320, dur: 0.2, vol: 0.11, glideCurve: 'exp' })
+    this.grain({ from: 1400, to: 400, vol: 0.04 })
+  }
+
+  /** Powerup: GHOST armed — the next crash is forgiven. */
+  ghost() {
+    if (this.cute) {
+      this.tone({ from: 1400, to: 2000, dur: 0.10, type: 'sine', vol: 0.09 })
+      this.sparkle({ vol: 0.04, delay: 0.06 })
+      return
+    }
+    this.tone({ from: 500, to: 1300, dur: 0.14, vol: 0.11 })
+    this.grain({ from: 3000, to: 1600, vol: 0.04 })
+  }
+
+  /** GHOST actually saved the run — a distinct little "whew." */
+  ghostSave() {
     if (this.cute) {
       const notes = [1245, 1568, 1976]
-      notes.forEach((f, i) => this.tone({ from: f, dur: 0.10, type: 'sine', vol: 0.10, delay: i * 0.06 }))
-      this.sparkle({ vol: 0.03 })
+      notes.forEach((f, i) => this.tone({ from: f, dur: 0.09, type: 'sine', vol: 0.11, delay: i * 0.05 }))
+      this.sparkle({ vol: 0.05, delay: 0.1 })
       return
     }
-    const notes = [784, 988, 1319]
-    notes.forEach((f, i) => this.tone({ from: f, dur: 0.12, vol: 0.11, delay: i * 0.065 }))
-    this.grain({ vol: 0.03 })
+    const notes = [660, 880, 1175]
+    notes.forEach((f, i) => this.tone({ from: f, dur: 0.1, vol: 0.12, delay: i * 0.055 }))
+    this.grain({ vol: 0.04 })
   }
 
-  /** Powerup: scan the board — a quick two-step upward chirp. */
-  scan() {
-    if (this.cute) {
-      this.tone({ from: 1800, to: 2400, dur: 0.05, type: 'sine', vol: 0.08 })
-      this.tone({ from: 2400, to: 3000, dur: 0.05, type: 'sine', vol: 0.06, delay: 0.05 })
-      this.sparkle({ vol: 0.03 })
-      return
-    }
-    this.tone({ from: 1200, to: 1750, dur: 0.055, vol: 0.09 })
-    this.tone({ from: 1750, to: 2300, dur: 0.055, vol: 0.07, delay: 0.055 })
-    this.grain({ vol: 0.03 })
-  }
-
-  /** Powerup: rewind a turn — time folding back on itself. */
-  rewindTurn() {
-    if (this.cute) {
-      this.tone({ from: 1400, to: 700, dur: 0.13, type: 'sine', vol: 0.10, glideCurve: 'exp' })
-      this.tone({ from: 700, to: 1200, dur: 0.09, type: 'sine', vol: 0.07, delay: 0.12 })
-      return
-    }
-    this.tone({ from: 900, to: 260, dur: 0.16, vol: 0.12, glideCurve: 'exp' })
-    this.tone({ from: 260, to: 700, dur: 0.10, vol: 0.08, delay: 0.14 })
-    this.grain({ from: 1500, to: 500, vol: 0.04 })
-  }
-
-  /** A campaign level was just cleared for the first time. */
+  /** A campaign level was cleared for the first time. */
   levelUnlock() {
     if (this.cute) {
       const notes = [988, 1245, 1568, 1976]
@@ -327,6 +301,19 @@ class ArcadeAudio {
     const notes = [659, 880, 1109]
     notes.forEach((f, i) => this.tone({ from: f, dur: 0.14, vol: 0.13, delay: i * 0.075 }))
     this.grain({ vol: 0.04, delay: 0.15 })
+  }
+
+  /** A new personal best in freeplay. */
+  highScore() {
+    if (this.cute) {
+      const notes = [988, 1245, 1568, 1976, 2349]
+      notes.forEach((f, i) => this.tone({ from: f, dur: 0.13, type: 'sine', vol: 0.13, delay: i * 0.06 }))
+      this.sparkle({ vol: 0.06, delay: 0.3 }); this.sparkle({ vol: 0.05, delay: 0.4 })
+      return
+    }
+    const notes = [659, 831, 988, 1245, 1568]
+    notes.forEach((f, i) => this.tone({ from: f, dur: 0.15, vol: 0.14, delay: i * 0.065 }))
+    this.grain({ vol: 0.05, delay: 0.3 })
   }
 }
 

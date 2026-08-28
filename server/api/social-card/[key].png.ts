@@ -1,5 +1,19 @@
-import { createError, defineEventHandler, getRequestURL, setResponseHeader } from 'h3'
 import { getSocialPreviewByKey } from '~/content/social-previews'
+
+/**
+ * No `import ... from 'h3'` here, and no h3 request/response helpers
+ * (getRequestURL, setResponseHeader) at all — on purpose. A stray dev
+ * dependency (`@nuxt/devtools` -> `h3@2.0.1-rc.22`) gets hoisted to the
+ * top-level node_modules/h3, shadowing the h3 1.x that Nitro's runtime
+ * actually builds its event objects with. That mismatch isn't limited to
+ * explicit imports: Nitro's *auto-import* for h3 utilities resolves the
+ * same bare `h3` specifier, so `setResponseHeader` broke too even though
+ * nothing here named it directly (every request 500'd, in dev and in the
+ * production build, since it's the same node_modules resolution). The
+ * fix is to route request/response access through the plain Node request
+ * (`event.path`) and response (`event.node.res`) instead, which are the
+ * same on every h3 major version this project could resolve to.
+ */
 
 const fontCache = new Map<string, ArrayBuffer>()
 
@@ -38,7 +52,7 @@ function trim(value: string, limit: number): string {
 }
 
 export default defineEventHandler(async (event) => {
-  const key = getRequestURL(event).pathname.split('/').pop()?.replace(/\.png$/, '') ?? ''
+  const key = event.path.split('?')[0].split('/').pop()?.replace(/\.png$/, '') ?? ''
   const preview = getSocialPreviewByKey(key)
   if (!preview) throw createError({ statusCode: 404, statusMessage: 'Social preview not found' })
 
@@ -85,7 +99,9 @@ export default defineEventHandler(async (event) => {
   })
   const png = Buffer.from(new Resvg(svg).render().asPng())
 
-  setResponseHeader(event, 'Content-Type', 'image/png')
-  setResponseHeader(event, 'Cache-Control', 'public, max-age=0, s-maxage=86400, stale-while-revalidate=604800')
+  // event.node.res.setHeader (the raw Node response), not h3's
+  // setResponseHeader — same mismatched-h3 crash as above, one function later.
+  event.node.res.setHeader('Content-Type', 'image/png')
+  event.node.res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=86400, stale-while-revalidate=604800')
   return png
 })

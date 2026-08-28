@@ -39,10 +39,21 @@ export const BLOG_POSTS: BlogPost[] = [
     hero: 'https://entertrainer.in/api/social-card/moon-moonly.png',
     heroAlt: 'A yellow Entertrainer editorial card for an article about collateral adjectives in English.',
     status: 'published'
+  },
+  {
+    slug: 'does-ai-understand-you',
+    title: 'Does AI Understand You? Bloom’s Taxonomy Says Otherwise',
+    dek: 'An instructional designer walks the word “understand” through Bloom’s Taxonomy, and finds a very fast, very fluent machine that never quite arrives at the state the word describes.',
+    category: 'Learning design & AI',
+    minutes: 10,
+    hero: 'https://entertrainer.in/api/social-card/ai-understand.png',
+    heroAlt: 'A yellow Entertrainer editorial card for an article asking whether AI understands you, framed through Bloom’s Taxonomy.',
+    status: 'published'
   }
 ]
 
 export const ENTROPY_BLOG = BLOG_POSTS[0]
 export const INTELLIGENCE_BLOG = BLOG_POSTS[1]
 export const MOONLY_BLOG = BLOG_POSTS[2]
+export const AI_UNDERSTAND_BLOG = BLOG_POSTS[3]
 export const FEATURED_BLOG = ENTROPY_BLOG

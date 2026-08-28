@@ -1,4 +1,4 @@
-import { ENTROPY_BLOG, INTELLIGENCE_BLOG, MOONLY_BLOG } from './blogs'
+import { ENTROPY_BLOG, INTELLIGENCE_BLOG, MOONLY_BLOG, AI_UNDERSTAND_BLOG } from './blogs'
 
 export const SITE_URL = 'https://entertrainer.in'
 
@@ -59,6 +59,14 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     title: MOONLY_BLOG.title,
     description: MOONLY_BLOG.dek,
     imageAlt: MOONLY_BLOG.heroAlt,
+    type: 'article'
+  },
+  [`/elevate/${AI_UNDERSTAND_BLOG.slug}`]: {
+    key: 'ai-understand',
+    label: AI_UNDERSTAND_BLOG.category,
+    title: AI_UNDERSTAND_BLOG.title,
+    description: AI_UNDERSTAND_BLOG.dek,
+    imageAlt: AI_UNDERSTAND_BLOG.heroAlt,
     type: 'article'
   },
   '/empower': {

@@ -209,15 +209,18 @@ function chomp() {
 }
 
 /**
- * Crumbs from the bite. Randomised drift and fall rather than eight crumbs
- * radiating out on a perfect 45° wheel — an even spread reads as a light
- * show, not the aftermath of biting down on something with actual force.
+ * Crumbs from the bite. This is a top-down board — food sitting under the
+ * snake can't send debris up over its own body, so every crumb's vertical
+ * drift stays positive (down and out from the bite point), never negative.
+ * Randomised drift and fall rather than eight crumbs radiating out on a
+ * perfect 45° wheel — an even spread reads as a light show, not the
+ * aftermath of biting down on something with actual force.
  */
 function burstAt(cell: Cell) {
   const id = fxId++
   const crumbs: Crumb[] = Array.from({ length: 9 }, () => ({
     dx: (Math.random() - 0.5) * 34,
-    dy: 16 + Math.random() * 22,
+    dy: 14 + Math.random() * 24,
     rot: (Math.random() - 0.5) * 360,
     delay: Math.random() * 40
   }))
@@ -1124,16 +1127,36 @@ onUnmounted(() => {
 /* Pink theme only: bigger eyes, plus a bold lash wedge over each. The eye
    is tiny on screen — a thin outlined arc disappeared at that size, so this
    is a solid filled shape instead. Rides the same element the eye animates
-   on, so it blinks in sync for free. */
+   on, so it blinks in sync for free.
+   The lash's own left/right offset and tilt have to change with facing:
+   is-right/is-left stack the two eyes vertically (one head-side each), but
+   is-up/is-down sit them side by side — a single fixed offset only reads
+   correctly for whichever layout it was tuned against. */
 .ekans.is-pink .ekans__face i { width: 26%; height: 26%; box-shadow: 0 0 0 1.4px var(--ink); }
 .ekans.is-pink .ekans__face i::before {
-  content: ''; position: absolute; top: -78%; left: 30%; width: 18%; height: 55%;
+  content: ''; position: absolute; top: -78%; width: 18%; height: 55%;
   background: var(--accent-strong); border-radius: 50% 50% 20% 20%;
   transform-origin: bottom center;
   pointer-events: none;
 }
-.ekans.is-pink .ekans__face i:nth-child(1)::before { transform: rotate(-28deg); }
-.ekans.is-pink .ekans__face i:nth-child(2)::before { transform: rotate(24deg); }
+
+/* Right-facing: eyes stacked vertically on the head's right side. */
+.ekans.is-pink .ekans__face.is-right i::before { left: 30%; }
+.ekans.is-pink .ekans__face.is-right i:nth-child(1)::before { transform: rotate(-28deg); }
+.ekans.is-pink .ekans__face.is-right i:nth-child(2)::before { transform: rotate(24deg); }
+
+/* Left-facing: the mirror image — eyes sit on the head's left side, so the
+   lash sits toward the eye's own left edge and tilts the opposite way. */
+.ekans.is-pink .ekans__face.is-left i::before { right: 30%; }
+.ekans.is-pink .ekans__face.is-left i:nth-child(1)::before { transform: rotate(28deg); }
+.ekans.is-pink .ekans__face.is-left i:nth-child(2)::before { transform: rotate(-24deg); }
+
+/* Up/down-facing: eyes sit side by side, not stacked — the left eye's lash
+   sweeps toward the head's left edge, the right eye's toward its right. */
+.ekans.is-pink .ekans__face.is-up i:nth-child(1)::before,
+.ekans.is-pink .ekans__face.is-down i:nth-child(1)::before { right: 30%; transform: rotate(-26deg); }
+.ekans.is-pink .ekans__face.is-up i:nth-child(2)::before,
+.ekans.is-pink .ekans__face.is-down i:nth-child(2)::before { left: 30%; transform: rotate(26deg); }
 
 .ekans__food { position: absolute; top: 0; left: 0; display: grid; place-items: center; pointer-events: none; }
 .ekans__food-dot {
@@ -1169,7 +1192,7 @@ onUnmounted(() => {
 }
 @keyframes ekans-burst {
   0%   { transform: translate(0, 0) scale(1.15) rotate(0deg); opacity: 1; }
-  32%  { transform: translate(calc(var(--dx) * .55), calc(var(--dy) * -.4)) scale(1) rotate(calc(var(--rot) * .3)); opacity: 1; }
+  32%  { transform: translate(calc(var(--dx) * .55), calc(var(--dy) * .38)) scale(1) rotate(calc(var(--rot) * .3)); opacity: 1; }
   100% { transform: translate(var(--dx), var(--dy)) scale(.3) rotate(var(--rot)); opacity: 0; }
 }
 

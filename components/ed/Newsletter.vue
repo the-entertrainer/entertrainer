@@ -1,15 +1,43 @@
 <script setup lang="ts">
 const email = ref('')
 const status = ref('')
+const failed = ref(false)
+const submitting = ref(false)
 const form = ref<HTMLFormElement | null>(null)
 
-function subscribe() {
-  if (!form.value?.reportValidity()) return
-
+function subscribeByMailto() {
   const subject = encodeURIComponent('Entertrainer Blogs subscription')
   const body = encodeURIComponent(`Please add ${email.value.trim()} to The Entertrainer Blogs list.`)
   status.value = 'Your email app is opening with a prepared subscription message. Send it to join the list.'
+  failed.value = false
   window.location.href = `mailto:iamnaveenjose@outlook.com?subject=${subject}&body=${body}`
+}
+
+async function subscribe() {
+  if (!form.value?.reportValidity() || submitting.value) return
+
+  submitting.value = true
+  try {
+    const result = await $fetch<{ ok: boolean; configured: boolean; message: string }>('/api/newsletter-subscribe', {
+      method: 'POST',
+      body: { email: email.value.trim() }
+    })
+    if (result.ok) {
+      status.value = result.message
+      failed.value = false
+      email.value = ''
+    } else if (!result.configured) {
+      // No provider configured server-side yet — fall back to the mailto flow.
+      subscribeByMailto()
+    } else {
+      status.value = result.message
+      failed.value = true
+    }
+  } catch {
+    subscribeByMailto()
+  } finally {
+    submitting.value = false
+  }
 }
 </script>
 
@@ -24,11 +52,11 @@ function subscribe() {
     <form ref="form" class="newsletter__form" @submit.prevent="subscribe">
       <label for="newsletter-email">Email address</label>
       <div class="newsletter__field">
-        <input id="newsletter-email" v-model="email" type="email" inputmode="email" autocomplete="email" required placeholder="you@example.com">
-        <button type="submit">Subscribe</button>
+        <input id="newsletter-email" v-model="email" type="email" inputmode="email" autocomplete="email" required placeholder="you@example.com" :disabled="submitting">
+        <button type="submit" :disabled="submitting">{{ submitting ? 'Sending…' : 'Subscribe' }}</button>
       </div>
-      <p class="newsletter__fine">This opens a prepared email to subscribe. Your address is not saved in the browser.</p>
-      <p v-if="status" class="newsletter__status" role="status">{{ status }}</p>
+      <p class="newsletter__fine">No spam, no selling your address. Unsubscribe with one click, any time.</p>
+      <p v-if="status" class="newsletter__status" :class="{ 'is-error': failed }" role="status">{{ status }}</p>
     </form>
   </section>
 </template>
@@ -50,9 +78,12 @@ function subscribe() {
 .newsletter button { flex: none; padding: 11rem 15rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-s); color: var(--ink); background: var(--signal-cobalt); font: 800 14rem/1 var(--font-ui); transition: transform var(--dur-fast) var(--ease-spring), background var(--dur-fast) var(--ease-out); }
 .newsletter button:hover { transform: translateY(-2rem); background: color-mix(in srgb, var(--signal-cobalt) 78%, white); }
 .newsletter button:active { transform: translateY(1rem) scale(.97); }
+.newsletter input:disabled, .newsletter button:disabled { opacity: .6; cursor: default; }
+.newsletter button:disabled:hover { transform: none; background: var(--signal-cobalt); }
 .newsletter__fine, .newsletter__status { margin: 10rem 0 0; font: 400 12rem/1.35 var(--font-body); }
 .newsletter__fine { color: var(--ink-soft); }
 .newsletter__status { padding: 8rem 10rem; background: var(--paper); border-radius: var(--radius-s); }
+.newsletter__status.is-error { background: color-mix(in srgb, #d64545 14%, var(--paper)); color: #9a2f2f; }
 @media (max-width: 1000px) { .newsletter { grid-template-columns: auto 1fr; } .newsletter__form { grid-column: 1 / -1; } }
 @media (max-width: 580px) { .newsletter { grid-template-columns: 1fr; gap: 16rem; padding: 25rem; } .newsletter__mark { width: 64rem; height: 64rem; box-shadow: 4rem 4rem 0 var(--ink); } .newsletter__field { display: grid; } .newsletter button { min-height: 46rem; } .newsletter::after { right: -310rem; } }
 </style>

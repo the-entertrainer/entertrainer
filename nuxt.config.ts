@@ -10,7 +10,11 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // Server-only — set via GIPHY_API_KEY env var (Vercel project settings).
     // When absent, /api/giphy serves a curated fallback manifest.
-    giphyApiKey: process.env.GIPHY_API_KEY || ''
+    giphyApiKey: process.env.GIPHY_API_KEY || '',
+    // Server-only — set via MAILERLITE_API_KEY env var (Vercel project settings).
+    // When absent, /api/newsletter-subscribe reports itself unconfigured so
+    // the widget can fall back to the mailto flow instead of breaking.
+    mailerliteApiKey: process.env.MAILERLITE_API_KEY || ''
   },
   app: {
     head: {

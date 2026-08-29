@@ -23,7 +23,7 @@ async function subscribe() {
       body: { email: email.value.trim() }
     })
     if (result.ok) {
-      status.value = result.message
+      status.value = `${result.message} Check your spam or junk folder for the welcome email — first messages from a new sender sometimes land there.`
       failed.value = false
       email.value = ''
     } else if (!result.configured) {

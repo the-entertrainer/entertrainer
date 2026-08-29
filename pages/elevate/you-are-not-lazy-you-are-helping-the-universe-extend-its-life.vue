@@ -7,11 +7,11 @@ useSeoMeta({
   ogTitle: ENTROPY_BLOG.title,
   ogDescription: ENTROPY_BLOG.dek,
   ogUrl: `https://entertrainer.in/elevate/${ENTROPY_BLOG.slug}`,
-  ogImage: ENTROPY_BLOG.hero,
+  ogImage: `https://entertrainer.in${ENTROPY_BLOG.hero}`,
   twitterCard: 'summary_large_image',
   twitterTitle: ENTROPY_BLOG.title,
   twitterDescription: ENTROPY_BLOG.dek,
-  twitterImage: ENTROPY_BLOG.hero
+  twitterImage: `https://entertrainer.in${ENTROPY_BLOG.hero}`
 })
 
 const references = [

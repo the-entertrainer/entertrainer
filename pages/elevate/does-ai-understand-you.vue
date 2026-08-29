@@ -7,11 +7,11 @@ useSeoMeta({
   ogTitle: AI_UNDERSTAND_BLOG.title,
   ogDescription: AI_UNDERSTAND_BLOG.dek,
   ogUrl: `https://entertrainer.in/elevate/${AI_UNDERSTAND_BLOG.slug}`,
-  ogImage: AI_UNDERSTAND_BLOG.hero,
+  ogImage: `https://entertrainer.in${AI_UNDERSTAND_BLOG.hero}`,
   twitterCard: 'summary_large_image',
   twitterTitle: AI_UNDERSTAND_BLOG.title,
   twitterDescription: AI_UNDERSTAND_BLOG.dek,
-  twitterImage: AI_UNDERSTAND_BLOG.hero
+  twitterImage: `https://entertrainer.in${AI_UNDERSTAND_BLOG.hero}`
 })
 
 const references = [
@@ -62,6 +62,10 @@ const comparison = [
       <h1>Does AI Understand You? Bloom’s Taxonomy Says Otherwise</h1>
       <p class="understand__dek">{{ AI_UNDERSTAND_BLOG.dek }}</p>
     </header>
+
+    <figure class="understand__hero">
+      <EdEditorialImage :src="AI_UNDERSTAND_BLOG.hero" :alt="AI_UNDERSTAND_BLOG.heroAlt" />
+    </figure>
 
     <article class="understand__article">
       <aside class="understand__margin-note" aria-label="Reading note">
@@ -183,6 +187,8 @@ const comparison = [
 .understand h1, .understand h2 { font-family: var(--font-display); font-weight: 500; letter-spacing: -.05em; }
 .understand h1 { max-width: 1080rem; margin: 0; font-size: clamp(40rem, 6.6vw, 100rem); line-height: .95; text-wrap: balance; }
 .understand__dek { max-width: 700rem; margin: 30rem 0 0; font: 400 clamp(19rem, 2.25vw, 27rem)/1.4 var(--font-body); }
+.understand__hero { max-width: 1400rem; margin: 0 auto; padding: 0 var(--shell-gutter); }
+.understand__hero :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 8.5; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; background: var(--signal-field); }
 .understand figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
 .understand figcaption a { color: var(--signal-cobalt); text-decoration: none; }
 .understand__article { max-width: 1100rem; margin: clamp(20rem, 4vw, 44rem) auto 0; padding: 0 var(--shell-gutter); display: grid; grid-template-columns: 190rem minmax(0, 690rem); justify-content: space-between; gap: clamp(28rem, 6vw, 100rem); }
@@ -240,6 +246,8 @@ const comparison = [
 .understand__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
 
 @media (max-width: 760px) {
+  .understand__hero { padding: 0; }
+  .understand__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }
   .understand__article { display: block; }
   .understand__margin-note { position: static; margin-bottom: 36rem; }
   .understand__prose h2 { margin-top: 52rem; }

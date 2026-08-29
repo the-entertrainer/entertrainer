@@ -40,7 +40,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: ENTROPY_BLOG.category,
     title: ENTROPY_BLOG.title,
     description: ENTROPY_BLOG.dek,
-    image: ENTROPY_BLOG.hero,
+    image: `${SITE_URL}${ENTROPY_BLOG.hero}`,
     imageAlt: ENTROPY_BLOG.heroAlt,
     type: 'article'
   },
@@ -49,7 +49,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: INTELLIGENCE_BLOG.category,
     title: INTELLIGENCE_BLOG.title,
     description: INTELLIGENCE_BLOG.dek,
-    image: INTELLIGENCE_BLOG.hero,
+    image: `${SITE_URL}${INTELLIGENCE_BLOG.hero}`,
     imageAlt: INTELLIGENCE_BLOG.heroAlt,
     type: 'article'
   },
@@ -58,6 +58,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: MOONLY_BLOG.category,
     title: MOONLY_BLOG.title,
     description: MOONLY_BLOG.dek,
+    image: `${SITE_URL}${MOONLY_BLOG.hero}`,
     imageAlt: MOONLY_BLOG.heroAlt,
     type: 'article'
   },
@@ -66,6 +67,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: AI_UNDERSTAND_BLOG.category,
     title: AI_UNDERSTAND_BLOG.title,
     description: AI_UNDERSTAND_BLOG.dek,
+    image: `${SITE_URL}${AI_UNDERSTAND_BLOG.hero}`,
     imageAlt: AI_UNDERSTAND_BLOG.heroAlt,
     type: 'article'
   },

@@ -46,7 +46,6 @@ const vuFamily = [
 
     <figure class="jv__hero">
       <EdEditorialImage :src="JAMAIS_VU_BLOG.hero" :alt="JAMAIS_VU_BLOG.heroAlt" />
-      <figcaption>AI-generated illustration, created for this article. Not a photograph of any real document or object.</figcaption>
     </figure>
 
     <article class="jv__article">
@@ -107,7 +106,7 @@ const vuFamily = [
 
         <figure class="jv__loop" aria-label="An original schematic diagram showing a signal path from the temporal lobe to the frontal lobe, where it is checked and returned as either a deja vu or jamais vu misfire.">
           <EdEditorialImage src="/blog/jamais-vu/checking-loop.svg" alt="A simplified original diagram: the temporal lobe sends a familiarity signal to the frontal lobe, which checks it against memory. A confirmed match is ordinary recognition. A signal with no matching memory is labelled deja vu. A weakened signal from a familiar, over-repeated input is labelled jamais vu." />
-          <figcaption>Original schematic diagram drawn for this article, simplified for clarity — not an anatomical or clinical reference. © The Entertrainer, 2026. Based on the error-checking account described in the sources above.<a href="#ref-4" aria-label="Reference 4">[4]</a></figcaption>
+          <figcaption>How a familiar signal gets checked — and where the check can misfire.<a href="#ref-4" aria-label="Reference 4">[4]</a></figcaption>
         </figure>
 
         <h2>Where the tidy story gets complicated</h2>
@@ -134,7 +133,6 @@ const vuFamily = [
           <a :href="reference.href" target="_blank" rel="noreferrer"><span>[{{ reference.id }}]</span> {{ reference.title }} <em>{{ reference.source }}</em></a>
         </li>
       </ol>
-      <p class="jv__image-credit">Hero illustration: AI-generated for this article using Gamma, and original to The Entertrainer. Checking-loop diagram: hand-drawn schematic, original to The Entertrainer, © 2026 — simplified for clarity and not an anatomical or medical reference.</p>
     </section>
 
     <div class="jv__newsletter-wrap"><EdNewsletter /></div>
@@ -199,7 +197,6 @@ const vuFamily = [
 .jv__sources a { color: inherit; }
 .jv__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .jv__sources em { color: var(--ink-soft); }
-.jv__image-credit { max-width: 760rem; margin: 26rem 0 0; padding-top: 20rem; border-top: var(--stroke) solid var(--line); font: 400 13rem/1.5 var(--font-mono); color: var(--ink-soft); }
 .jv__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
 
 @media (max-width: 760px) {

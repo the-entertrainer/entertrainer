@@ -7,11 +7,11 @@ useSeoMeta({
   ogTitle: MOONLY_BLOG.title,
   ogDescription: MOONLY_BLOG.dek,
   ogUrl: `https://entertrainer.in/elevate/${MOONLY_BLOG.slug}`,
-  ogImage: MOONLY_BLOG.hero,
+  ogImage: `https://entertrainer.in${MOONLY_BLOG.hero}`,
   twitterCard: 'summary_large_image',
   twitterTitle: MOONLY_BLOG.title,
   twitterDescription: MOONLY_BLOG.dek,
-  twitterImage: MOONLY_BLOG.hero
+  twitterImage: `https://entertrainer.in${MOONLY_BLOG.hero}`
 })
 
 const references = [
@@ -53,6 +53,10 @@ const tiers = [
       <h1>Friend, friendly. Love, lovely. So why isn’t the Moon moonly?</h1>
       <p class="moonly__dek">{{ MOONLY_BLOG.dek }}</p>
     </header>
+
+    <figure class="moonly__hero">
+      <EdEditorialImage :src="MOONLY_BLOG.hero" :alt="MOONLY_BLOG.heroAlt" />
+    </figure>
 
     <article class="moonly__article">
       <aside class="moonly__margin-note" aria-label="Reading note">
@@ -194,6 +198,8 @@ const tiers = [
 .moonly h1, .moonly h2 { font-family: var(--font-display); font-weight: 500; letter-spacing: -.05em; }
 .moonly h1 { max-width: 1080rem; margin: 0; font-size: clamp(44rem, 7.4vw, 112rem); line-height: .93; text-wrap: balance; }
 .moonly__dek { max-width: 700rem; margin: 30rem 0 0; font: 400 clamp(19rem, 2.25vw, 27rem)/1.4 var(--font-body); }
+.moonly__hero { max-width: 1400rem; margin: 0 auto; padding: 0 var(--shell-gutter); }
+.moonly__hero :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 8.5; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; background: var(--signal-field); }
 .moonly figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
 .moonly figcaption a { color: var(--signal-cobalt); text-decoration: none; }
 .moonly__article { max-width: 1100rem; margin: clamp(20rem, 4vw, 44rem) auto 0; padding: 0 var(--shell-gutter); display: grid; grid-template-columns: 190rem minmax(0, 690rem); justify-content: space-between; gap: clamp(28rem, 6vw, 100rem); }
@@ -255,6 +261,8 @@ const tiers = [
 .moonly__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
 
 @media (max-width: 760px) {
+  .moonly__hero { padding: 0; }
+  .moonly__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }
   .moonly__article { display: block; }
   .moonly__margin-note { position: static; margin-bottom: 36rem; }
   .moonly__prose h2 { margin-top: 52rem; }

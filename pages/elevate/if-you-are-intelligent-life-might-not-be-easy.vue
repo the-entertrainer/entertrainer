@@ -7,7 +7,7 @@ useSeoMeta({
   ogTitle: INTELLIGENCE_BLOG.title,
   ogDescription: INTELLIGENCE_BLOG.dek,
   ogUrl: `https://entertrainer.in/elevate/${INTELLIGENCE_BLOG.slug}`,
-  ogImage: INTELLIGENCE_BLOG.hero
+  ogImage: `https://entertrainer.in${INTELLIGENCE_BLOG.hero}`
 })
 
 const references = [
@@ -18,7 +18,6 @@ const references = [
 ]
 
 const visuals = {
-  hero: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/aQLfZtFcKJUyNvVk.jpg',
   branches: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/WqdJLFbfsztOTpSx.jpeg',
   reflection: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/RSegpXnWnjysAAht.jpg'
 }
@@ -34,7 +33,7 @@ const visuals = {
     </header>
 
     <figure class="feature__hero">
-      <EdEditorialImage :src="visuals.hero" alt="A person reflected in a bus window, looking out onto a city street" />
+      <EdEditorialImage :src="INTELLIGENCE_BLOG.hero" :alt="INTELLIGENCE_BLOG.heroAlt" />
       <figcaption>There is a difference between seeing a possibility and being required to live inside it.</figcaption>
     </figure>
 

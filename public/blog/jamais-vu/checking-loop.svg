@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 480" role="img" aria-labelledby="loopTitle loopDesc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" role="img" aria-labelledby="loopTitle loopDesc">
   <title id="loopTitle">A schematic loop between the temporal lobe and the frontal lobe</title>
   <desc id="loopDesc">A simplified original diagram, not an anatomical scan, showing a signal path: the temporal lobe sends a familiarity or novelty signal to the frontal lobe, which checks it against memory and returns a verdict. Jamais vu and deja vu are labelled as the two ways this check can misfire.</desc>
   <defs>
@@ -7,7 +7,7 @@
     </marker>
   </defs>
 
-  <rect x="0" y="0" width="900" height="480" fill="#fffaf0"></rect>
+  <rect x="0" y="0" width="900" height="420" fill="#fffaf0"></rect>
 
   <!-- head outline -->
   <path d="M150,390 C90,350 70,255 110,175 C150,95 250,60 340,75 C420,87 470,135 480,195 C520,190 555,210 560,245 C563,267 548,283 522,287 C528,325 500,365 450,385 C420,397 250,405 150,390 Z"
@@ -52,8 +52,4 @@
   <text x="24" y="367" font-family="DM Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#1a56db">jamais vu</text>
   <text x="24" y="385" font-family="DM Sans, Arial, sans-serif" font-size="12" fill="#49433b">signal weakens under repetition,</text>
   <text x="24" y="400" font-family="DM Sans, Arial, sans-serif" font-size="12" fill="#49433b">before any check takes place</text>
-
-  <!-- caption strip -->
-  <rect x="0" y="440" width="900" height="40" fill="#fffaf0"></rect>
-  <text x="30" y="463" font-family="DM Mono, monospace" font-size="13" fill="#625c52">Original schematic diagram — not an anatomical or clinical reference.</text>
 </svg>

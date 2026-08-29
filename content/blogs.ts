@@ -49,6 +49,16 @@ export const BLOG_POSTS: BlogPost[] = [
     hero: 'https://entertrainer.in/api/social-card/ai-understand.png',
     heroAlt: 'A yellow Entertrainer editorial card for an article asking whether AI understands you, framed through Bloom’s Taxonomy.',
     status: 'published'
+  },
+  {
+    slug: 'jamais-vu-why-words-stop-meaning-anything',
+    title: 'Why Staring at a Word Long Enough Can Make It Stop Being a Word',
+    dek: 'One evening at work I stared at the word "door" until it stopped looking like English. That glitch has a name, an Ig Nobel Prize, and a family of stranger cousins.',
+    category: 'Mind & memory',
+    minutes: 9,
+    hero: '/blog/jamais-vu/hero-word-fade.jpg',
+    heroAlt: 'An AI-generated illustration of the word DOOR repeated five times, each repetition fragmenting further into loose black and cobalt-blue shapes, as if the word is dissolving.',
+    status: 'published'
   }
 ]
 
@@ -56,4 +66,5 @@ export const ENTROPY_BLOG = BLOG_POSTS[0]
 export const INTELLIGENCE_BLOG = BLOG_POSTS[1]
 export const MOONLY_BLOG = BLOG_POSTS[2]
 export const AI_UNDERSTAND_BLOG = BLOG_POSTS[3]
+export const JAMAIS_VU_BLOG = BLOG_POSTS[4]
 export const FEATURED_BLOG = ENTROPY_BLOG

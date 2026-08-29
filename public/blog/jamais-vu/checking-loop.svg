@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 480" role="img" aria-labelledby="loopTitle loopDesc">
+  <title id="loopTitle">A schematic loop between the temporal lobe and the frontal lobe</title>
+  <desc id="loopDesc">A simplified original diagram, not an anatomical scan, showing a signal path: the temporal lobe sends a familiarity or novelty signal to the frontal lobe, which checks it against memory and returns a verdict. Jamais vu and deja vu are labelled as the two ways this check can misfire.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a56db"></path>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="480" fill="#fffaf0"></rect>
+
+  <!-- head outline -->
+  <path d="M150,390 C90,350 70,255 110,175 C150,95 250,60 340,75 C420,87 470,135 480,195 C520,190 555,210 560,245 C563,267 548,283 522,287 C528,325 500,365 450,385 C420,397 250,405 150,390 Z"
+        fill="none" stroke="#15120f" stroke-width="6" stroke-linejoin="round"></path>
+
+  <!-- temporal lobe region -->
+  <ellipse cx="255" cy="275" rx="95" ry="58" fill="#ffe07a" stroke="#15120f" stroke-width="4"></ellipse>
+  <text x="255" y="271" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="19" font-weight="700" fill="#15120f">Temporal lobe</text>
+  <text x="255" y="294" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="13" fill="#49433b">reads: familiar? new?</text>
+
+  <!-- frontal lobe region -->
+  <ellipse cx="390" cy="150" rx="88" ry="52" fill="#a9c6ff" stroke="#15120f" stroke-width="4"></ellipse>
+  <text x="390" y="146" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="19" font-weight="700" fill="#15120f">Frontal lobe</text>
+  <text x="390" y="169" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="13" fill="#49433b">checks the signal</text>
+
+  <!-- signal path temporal -> frontal -->
+  <path d="M305,235 C325,215 340,200 345,185" fill="none" stroke="#1a56db" stroke-width="4" marker-end="url(#arrow)"></path>
+  <text x="240" y="222" font-family="DM Mono, monospace" font-size="13" fill="#1a56db">signal</text>
+
+  <!-- verdict path frontal -> out -->
+  <path d="M472,158 C555,158 610,178 630,215" fill="none" stroke="#1a56db" stroke-width="4" marker-end="url(#arrow)"></path>
+  <text x="500" y="148" font-family="DM Mono, monospace" font-size="13" fill="#1a56db">verdict</text>
+
+  <!-- outcome boxes -->
+  <g>
+    <rect x="595" y="220" width="160" height="58" rx="10" fill="#fffaf0" stroke="#15120f" stroke-width="3"></rect>
+    <text x="675" y="245" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#15120f">Match confirmed</text>
+    <text x="675" y="263" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="12" fill="#49433b">ordinary recognition</text>
+  </g>
+
+  <g>
+    <rect x="595" y="298" width="160" height="58" rx="10" fill="#fbe6e0" stroke="#15120f" stroke-width="3"></rect>
+    <text x="675" y="321" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#15120f">No prior memory</text>
+    <text x="675" y="339" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="12" fill="#49433b">yet feels familiar</text>
+  </g>
+  <path d="M675,356 L675,380" fill="none" stroke="#1a56db" stroke-width="3" marker-end="url(#arrow)"></path>
+  <text x="675" y="403" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#1a56db">déjà vu</text>
+
+  <!-- jamais vu: signal weakening right at the temporal lobe, before any check happens.
+       Drawn last, positioned clear of every other shape's bounding box. -->
+  <path d="M145,345 C120,320 130,285 172,265" fill="none" stroke="#1a56db" stroke-width="3" stroke-dasharray="2 7" marker-end="url(#arrow)"></path>
+  <text x="24" y="367" font-family="DM Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#1a56db">jamais vu</text>
+  <text x="24" y="385" font-family="DM Sans, Arial, sans-serif" font-size="12" fill="#49433b">signal weakens under repetition,</text>
+  <text x="24" y="400" font-family="DM Sans, Arial, sans-serif" font-size="12" fill="#49433b">before any check takes place</text>
+
+  <!-- caption strip -->
+  <rect x="0" y="440" width="900" height="40" fill="#fffaf0"></rect>
+  <text x="30" y="463" font-family="DM Mono, monospace" font-size="13" fill="#625c52">Original schematic diagram — not an anatomical or clinical reference.</text>
+</svg>

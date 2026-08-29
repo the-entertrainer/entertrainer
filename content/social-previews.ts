@@ -1,4 +1,4 @@
-import { ENTROPY_BLOG, INTELLIGENCE_BLOG, MOONLY_BLOG, AI_UNDERSTAND_BLOG } from './blogs'
+import { ENTROPY_BLOG, INTELLIGENCE_BLOG, MOONLY_BLOG, AI_UNDERSTAND_BLOG, JAMAIS_VU_BLOG } from './blogs'
 
 export const SITE_URL = 'https://entertrainer.in'
 
@@ -67,6 +67,15 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     title: AI_UNDERSTAND_BLOG.title,
     description: AI_UNDERSTAND_BLOG.dek,
     imageAlt: AI_UNDERSTAND_BLOG.heroAlt,
+    type: 'article'
+  },
+  [`/elevate/${JAMAIS_VU_BLOG.slug}`]: {
+    key: 'jamais-vu',
+    label: JAMAIS_VU_BLOG.category,
+    title: JAMAIS_VU_BLOG.title,
+    description: JAMAIS_VU_BLOG.dek,
+    image: `${SITE_URL}${JAMAIS_VU_BLOG.hero}`,
+    imageAlt: JAMAIS_VU_BLOG.heroAlt,
     type: 'article'
   },
   '/empower': {

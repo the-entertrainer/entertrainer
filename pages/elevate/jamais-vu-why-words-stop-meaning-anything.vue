@@ -56,14 +56,19 @@ const vuFamily = [
       </aside>
 
       <div class="jv__prose">
-        <p class="jv__lead">I recently moved into a new role at work. Among other things, I am now a CQA auditor — a job that mostly means reading the same training module four or five times in a row, hunting for the one wrong word sitting quietly inside forty right ones.</p>
+        <p class="jv__lead">I recently moved into a new role at work. Among other things, I am now a CQA auditor.</p>
+        <p>Which mostly means reading the same training module four or five times in a row, hunting for the one wrong word sitting quietly inside forty right ones.</p>
         <p>One evening I had been staring at a single module for twenty minutes. I landed on one sentence, then on one word inside it. <em>Door.</em> Door. Door.</p>
-        <p>By the eighth pass, something went wrong. The double <em>o</em> started looking absurd — two confused eyes staring back. The sound in my head turned into a flat, alien grunt. I knew exactly what a door was, and for about ten seconds my brain looked at four letters and asked, with real suspicion, whether "door" was even a real English word.</p>
-        <p>I hadn't forgotten how to spell. I had walked headfirst into a glitch with a name, a research literature, and — as of 2023 — an Ig Nobel Prize.</p>
+        <p>By the eighth pass, something went wrong. The double <em>o</em> started looking absurd — two confused eyes staring back. The sound in my head turned into a flat, alien grunt. I knew exactly what a door was.</p>
+        <p>And for about ten seconds, my brain looked at four letters and asked, with real suspicion, whether "door" was even a real English word.</p>
+        <p>I hadn't forgotten how to spell.</p>
+        <p>I had walked headfirst into a glitch with a name, a research literature, and — as of 2023 — an Ig Nobel Prize.</p>
 
         <h2>The question underneath the glitch</h2>
-        <p>Here is what actually bothered me about it. Meaning feels like something a word <em>carries</em> — cargo you pick up the instant your eyes land on the letters. But if that were true, meaning shouldn't be able to leak out through repetition. You didn't forget English between the first "door" and the eighth. You looked at the identical four letters, at the identical volume of knowledge, and the cargo came up empty.</p>
-        <p>Which suggests meaning isn't cargo at all. It's something closer to a live feed — a connection your brain re-establishes between the shape of a word and its concept, freshly, more or less every time you read it. Most of the time that feed is instant and invisible, so you never notice it's a process rather than a fact. Stare at one word sixty times and you can watch the feed itself go down.</p>
+        <p>Actually, here's what bothered me about it. Meaning feels like something a word <em>carries</em> — cargo you pick up the instant your eyes land on the letters. But if that were true, meaning shouldn't be able to leak out through repetition. You didn't forget English between the first "door" and the eighth. Same four letters. Same volume of knowledge.</p>
+        <p>The cargo just... came up empty.</p>
+        <p>Which suggests meaning isn't cargo at all. It's something closer to a live feed — a connection your brain re-establishes between the shape of a word and its concept, freshly, more or less every time you read it. Most of the time that feed is instant and invisible, so you never notice it's a process rather than a fact.</p>
+        <p>Stare at one word sixty times, though, and you can actually watch the feed drop.</p>
 
         <figure class="jv__fade" aria-label="The word door repeated six times, each repetition drawn fainter and more spaced out, to show the word losing its grip as a repeated word gets stared at.">
           <span v-for="n in 6" :key="n" class="jv__fade-word" :style="{ opacity: 1 - (n - 1) * 0.15, letterSpacing: `${(n - 1) * 0.09}em` }">door</span>
@@ -72,7 +77,8 @@ const vuFamily = [
 
         <h2>A glitch old enough to predate its own name</h2>
         <p>This effect is called <strong>semantic satiation</strong>: repetition or prolonged staring causing a word to temporarily lose its meaning, leaving behind what feels like a string of meaningless sound or shape.<a href="#ref-2" aria-label="Reference 2">[2]</a> The psychologist Edward Titchener noted the experience informally in the late 1800s, and it collected several working names — "verbal satiation," "lapse of meaning," plain old "mental fatigue" — before Leon Jakobovits James gave it its current name in his 1962 doctoral dissertation at McGill, framing it as a kind of reactive inhibition building up in the neural circuits that keep firing the same signal.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
-        <p>So the wall I hit over "door" already had a name before I was born. That is, honestly, a little deflating. It is also reassuring: an entire minor field of psychology exists because this happens to enough people, reliably enough, to be worth measuring.</p>
+        <p>So the wall I hit over "door" already had a name before I was born. That is, honestly, a little deflating.</p>
+        <p>It is also reassuring: an entire minor field of psychology exists because this happens to enough people, reliably enough, to be worth measuring. I am not malfunctioning. I am, apparently, a well-documented case.</p>
 
         <h2>The study that actually measured it</h2>
         <p>In 2023, a team led by Chris Moulin, with Nicole Bell and Akira O'Connor at the University of St Andrews, won the Ig Nobel Prize in Literature for a study that did exactly what I'd done by accident, except on purpose and with a stopwatch.<a href="#ref-1" aria-label="Reference 1">[1]</a> Ninety-four undergraduates were asked to copy out a word by hand, over and over, and to stop whenever it started to feel wrong. Some words were ordinary ("door"), some deliberately obscure ("sward"). Across two experiments, roughly two-thirds of participants reported the word turning strange — typically after about 30 repetitions, inside a single minute.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
@@ -111,10 +117,12 @@ const vuFamily = [
 
         <h2>What this is actually about</h2>
         <p>This was never really about the word "door."</p>
-        <p>My new job is, in a very literal sense, staring at things until they either hold up or don't. Turns out the machine doing the staring has a documented failure mode — one where the words keep working perfectly for a coworker glancing at the same page for the first time, and quietly stop working for me on the fifth pass, for reasons that have nothing to do with my competence and everything to do with how repetition interacts with a checking system that was never built to run in a loop.</p>
-        <p>You've likely felt a smaller version of this without a job title attached to it: walking into your own living room after a long trip and feeling, for a few seconds, like a guest in someone else's house. Looking at a close friend's face until the features stop assembling into "them" and just sit there as features. That's jamais vu, running on a room or a face instead of a word — the same signal, briefly declining to confirm what it already knows.</p>
+        <p>My new job is, in a very literal sense, staring at things until they either hold up or don't. Turns out the machine doing the staring has a documented failure mode — one where the words keep working perfectly for a coworker glancing at the same page for the first time, and quietly stop working for me on the fifth pass. Nothing to do with my competence. Everything to do with how repetition interacts with a checking system that was never built to run in a loop.</p>
+        <p>You've likely felt a smaller version of this without a job title attached to it. Imagine: walking into your own living room after a long trip and feeling, for a few seconds, like a guest in someone else's house. Looking at a close friend's face until the features stop assembling into "them" and just sit there as features.</p>
+        <p>That's jamais vu, running on a room or a face instead of a word — the same signal, briefly declining to confirm what it already knows.</p>
         <p>So why did "door" stop looking like a word? Not because I forgot English. Because the specific, moment-to-moment feeling of recognising a word is generated fresh, almost every time, by a system that gets measurably worse at its job the moment you make it run the same check thirty times in a row.</p>
         <p class="jv__closing">Which is a strange thing to learn about your own mind from an auditing job — that the part of you checking for errors is, itself, running on a system that develops its own errors the harder you make it look.</p>
+        <p>So the next time a word looks wrong on the fifth read: don't panic, don't Google your symptoms. Just blink, look away, look back. The feed reconnects. It always does.</p>
       </div>
     </article>
 

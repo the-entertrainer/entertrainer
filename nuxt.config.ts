@@ -37,7 +37,7 @@ export default defineNuxtConfig({
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'Entertrainer' },
-        { name: 'msapplication-TileColor', content: '#2C2BE8' },
+        { name: 'msapplication-TileColor', content: '#161618' },
 		{ name: 'msapplication-TileImage', content: '/mstile-150x150.png' },
         // Site identity only. Route-specific previews are declared by each
         // page through useSeoMeta so pasted links never inherit the home card.
@@ -49,7 +49,7 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
-		{ rel: 'mask-icon', href: '/safari-pinned-tab.svg', color: '#315FC7' },
+		{ rel: 'mask-icon', href: '/safari-pinned-tab.svg', color: '#FFD43B' },
         // Two preloads. Archivo sets every interface string and Fraunces
         // sets the headline, so those two are on the critical path for the
         // first screen; the reading serif, the mono and every latin-ext cut

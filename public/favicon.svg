@@ -1,9 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title">
   <title id="title">Entertrainer</title>
-  <rect x="8" y="8" width="112" height="112" rx="28" fill="#171717"/>
-  <rect x="27" y="31" width="12" height="66" rx="3" fill="#4E28D8"/>
-  <rect x="43" y="31" width="12" height="66" rx="3" fill="#6458E4"/>
-  <rect x="59" y="31" width="12" height="66" rx="3" fill="#5D79E9"/>
-  <rect x="75" y="31" width="12" height="66" rx="3" fill="#5299E8"/>
-  <rect x="91" y="31" width="12" height="66" rx="3" fill="#8BC5F2"/>
+  <rect x="0" y="0" width="240" height="240" rx="54" fill="#161618"/>
+  <circle cx="120" cy="120" r="94" fill="none" stroke="#FFD43B" stroke-width="18"/>
+  <circle cx="120" cy="120" r="62" fill="none" stroke="#FFD43B" stroke-width="18"/>
+  <circle cx="120" cy="120" r="30" fill="none" stroke="#FFD43B" stroke-width="18"/>
+  <text x="120" y="162" text-anchor="middle" font-family="Arial, Helvetica, 'Liberation Sans', sans-serif" font-weight="900" font-size="144" letter-spacing="-8" fill="#FFFAF0">e</text>
 </svg>

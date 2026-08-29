@@ -1,3 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <path d="M27 31h12v66H27zm16 0h12v66H43zm16 0h12v66H59zm16 0h12v66H75zm16 0h12v66H91z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <path fill-rule="evenodd" d="
+    M120,26 a94,94 0 1 0 0.1,0 Z
+    M120,58 a62,62 0 1 0 0.1,0 Z
+    M120,90 a30,30 0 1 0 0.1,0 Z
+    M120,44 a76,76 0 1 1 -0.1,0 Z
+    M120,76 a44,44 0 1 1 -0.1,0 Z
+  "/>
 </svg>

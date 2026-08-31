@@ -1,4 +1,4 @@
-import { ENTROPY_BLOG, INTELLIGENCE_BLOG, MOONLY_BLOG, AI_UNDERSTAND_BLOG, JAMAIS_VU_BLOG } from './blogs'
+import { ENTROPY_BLOG, INTELLIGENCE_BLOG, MOONLY_BLOG, AI_UNDERSTAND_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG } from './blogs'
 
 export const SITE_URL = 'https://entertrainer.in'
 
@@ -78,6 +78,15 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     description: JAMAIS_VU_BLOG.dek,
     image: `${SITE_URL}${JAMAIS_VU_BLOG.hero}`,
     imageAlt: JAMAIS_VU_BLOG.heroAlt,
+    type: 'article'
+  },
+  [`/elevate/${LIFE_MIDPOINT_BLOG.slug}`]: {
+    key: 'life-midpoint',
+    label: LIFE_MIDPOINT_BLOG.category,
+    title: LIFE_MIDPOINT_BLOG.title,
+    description: LIFE_MIDPOINT_BLOG.dek,
+    image: `${SITE_URL}${LIFE_MIDPOINT_BLOG.hero}`,
+    imageAlt: LIFE_MIDPOINT_BLOG.heroAlt,
     type: 'article'
   },
   '/empower': {

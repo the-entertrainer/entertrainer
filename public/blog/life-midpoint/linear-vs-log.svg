@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 340" role="img" aria-labelledby="lvlTitle lvlDesc">
+  <title id="lvlTitle">Two number lines for an 81-year life: a linear scale and a logarithmic scale</title>
+  <desc id="lvlDesc">An original diagram. The top line spaces ages 0 to 81 evenly and marks the midpoint at age 40. The bottom line spaces the same ages logarithmically, starting at age 4 when reliable memory begins, and shows that age 18 falls exactly at the midpoint of that scale.</desc>
+  <defs>
+    <marker id="lvlArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#15120f"></path>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="820" height="340" fill="#fffaf0"></rect>
+
+  <text x="50" y="24" font-family="DM Mono, monospace" font-size="13" font-weight="700" letter-spacing="1" fill="#625c52">LINEAR — EQUAL YEARS, EQUAL SPACE</text>
+  <text x="396" y="56" text-anchor="middle" fill="#1a56db" font-weight="700" font-family="DM Sans, Arial, sans-serif" font-size="15">40 (midpoint)</text>
+  <line x1="50" y1="88" x2="750" y2="88" stroke="#15120f" stroke-width="3" marker-end="url(#lvlArrow)"></line>
+  <g font-family="DM Sans, Arial, sans-serif" font-size="14" fill="#15120f">
+    <line x1="50" y1="82" x2="50" y2="94" stroke="#15120f" stroke-width="2"></line>
+    <text x="50" y="114" text-anchor="middle">0</text>
+    <line x1="223" y1="82" x2="223" y2="94" stroke="#15120f" stroke-width="2"></line>
+    <text x="223" y="114" text-anchor="middle">20</text>
+    <line x1="396" y1="76" x2="396" y2="100" stroke="#1a56db" stroke-width="3"></line>
+    <line x1="569" y1="82" x2="569" y2="94" stroke="#15120f" stroke-width="2"></line>
+    <text x="569" y="114" text-anchor="middle">60</text>
+    <line x1="750" y1="82" x2="750" y2="94" stroke="#15120f" stroke-width="2"></line>
+    <text x="750" y="114" text-anchor="middle">81</text>
+  </g>
+
+  <text x="50" y="176" font-family="DM Mono, monospace" font-size="13" font-weight="700" letter-spacing="1" fill="#625c52">LOGARITHMIC — EQUAL RATIOS, EQUAL SPACE</text>
+  <text x="400" y="208" text-anchor="middle" fill="#1a56db" font-weight="700" font-family="DM Sans, Arial, sans-serif" font-size="16">18 (midpoint)</text>
+  <line x1="50" y1="240" x2="750" y2="240" stroke="#15120f" stroke-width="3" marker-end="url(#lvlArrow)"></line>
+  <g font-family="DM Sans, Arial, sans-serif" font-size="14" fill="#15120f">
+    <line x1="50" y1="234" x2="50" y2="246" stroke="#15120f" stroke-width="2"></line>
+    <text x="50" y="266" text-anchor="middle">4</text>
+    <text x="50" y="284" text-anchor="middle" font-size="11" fill="#625c52">memory starts</text>
+    <line x1="400" y1="228" x2="400" y2="252" stroke="#1a56db" stroke-width="3"></line>
+    <line x1="586" y1="234" x2="586" y2="246" stroke="#15120f" stroke-width="2"></line>
+    <text x="586" y="266" text-anchor="middle">40</text>
+    <line x1="750" y1="234" x2="750" y2="246" stroke="#15120f" stroke-width="2"></line>
+    <text x="750" y="266" text-anchor="middle">81</text>
+  </g>
+
+  <text x="50" y="316" font-family="DM Sans, Arial, sans-serif" font-size="13" fill="#49433b">Same 77 years. On the bottom line, "40" has already drifted past the three-quarter mark.</text>
+</svg>

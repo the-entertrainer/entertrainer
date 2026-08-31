@@ -59,6 +59,16 @@ export const BLOG_POSTS: BlogPost[] = [
     hero: '/blog/jamais-vu/hero-word-fade.jpg',
     heroAlt: 'The word DOOR repeated five times, each repetition fragmenting further into loose black and cobalt-blue shapes, as if the word is dissolving.',
     status: 'published'
+  },
+  {
+    slug: 'the-midpoint-of-your-life-isnt-40-its-18',
+    title: "The Midpoint of Your Life Isn't 40. It's 18.",
+    dek: 'A video I watched claimed the real midpoint of an 81-year life is age 18, not 40. The maths behind it is genuine, two centuries old — and shakier than the confident voiceover made it sound.',
+    category: 'Mind & time',
+    minutes: 8,
+    hero: '/blog/life-midpoint/hero.jpg',
+    heroAlt: 'The number 40 struck through in black, with the number 18 in bold cobalt blue beneath it and a small hourglass icon with unevenly pooled sand.',
+    status: 'published'
   }
 ]
 
@@ -67,4 +77,5 @@ export const INTELLIGENCE_BLOG = BLOG_POSTS[1]
 export const MOONLY_BLOG = BLOG_POSTS[2]
 export const AI_UNDERSTAND_BLOG = BLOG_POSTS[3]
 export const JAMAIS_VU_BLOG = BLOG_POSTS[4]
+export const LIFE_MIDPOINT_BLOG = BLOG_POSTS[5]
 export const FEATURED_BLOG = ENTROPY_BLOG

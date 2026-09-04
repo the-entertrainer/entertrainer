@@ -10,6 +10,10 @@ useSeoMeta({
   ogImage: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/oLmjqBPjwBxcOjsd.jpg'
 })
 
+useHead({
+  link: [{ rel: 'alternate', type: 'application/rss+xml', title: 'Elevate · The Entertrainer Blogs', href: 'https://entertrainer.in/elevate.xml' }]
+})
+
 const bannerStyle = { '--elevate-image': "url('https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/oLmjqBPjwBxcOjsd.jpg')" }
 </script>
 

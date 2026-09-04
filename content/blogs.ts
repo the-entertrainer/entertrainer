@@ -7,6 +7,7 @@ export interface BlogPost {
   hero: string
   heroAlt: string
   status: 'published' | 'upcoming'
+  publishedAt: string
 }
 
 export const BLOG_POSTS: BlogPost[] = [
@@ -18,7 +19,8 @@ export const BLOG_POSTS: BlogPost[] = [
     minutes: 8,
     hero: '/blog/entropy-laziness/hero.jpg',
     heroAlt: 'A steaming teacup at the center of concentric black and cobalt-blue rings, dissolving outward into scattered dots and dashes as the warmth spreads and fades.',
-    status: 'published'
+    status: 'published',
+    publishedAt: '2026-08-23T22:14:08+00:00'
   },
   {
     slug: 'if-you-are-intelligent-life-might-not-be-easy',
@@ -28,7 +30,8 @@ export const BLOG_POSTS: BlogPost[] = [
     minutes: 9,
     hero: '/blog/intelligence/hero.jpg',
     heroAlt: 'A black silhouette of a head in profile with a tangled maze of branching paths spilling out from it, one single path breaking free in cobalt blue and running straight off the edge of the frame.',
-    status: 'published'
+    status: 'published',
+    publishedAt: '2026-08-23T23:02:40+00:00'
   },
   {
     slug: 'why-isnt-the-moon-moonly',
@@ -38,7 +41,8 @@ export const BLOG_POSTS: BlogPost[] = [
     minutes: 7,
     hero: '/blog/moonly/hero.jpg',
     heroAlt: 'The word MOONLY struck through in black, with the word LUNAR in bold cobalt blue beneath it and a small crescent moon in the corner.',
-    status: 'published'
+    status: 'published',
+    publishedAt: '2026-08-28T12:54:49+00:00'
   },
   {
     slug: 'does-ai-understand-you',
@@ -48,7 +52,8 @@ export const BLOG_POSTS: BlogPost[] = [
     minutes: 10,
     hero: '/blog/ai-understand/hero.jpg',
     heroAlt: 'Two head silhouettes facing each other, one filled with an organic black brain shape, the other with a rigid cobalt-blue circuit-grid pattern, with small square tiles floating between them.',
-    status: 'published'
+    status: 'published',
+    publishedAt: '2026-08-28T15:44:02+00:00'
   },
   {
     slug: 'jamais-vu-why-words-stop-meaning-anything',
@@ -58,7 +63,8 @@ export const BLOG_POSTS: BlogPost[] = [
     minutes: 9,
     hero: '/blog/jamais-vu/hero-word-fade.jpg',
     heroAlt: 'The word DOOR repeated five times, each repetition fragmenting further into loose black and cobalt-blue shapes, as if the word is dissolving.',
-    status: 'published'
+    status: 'published',
+    publishedAt: '2026-08-29T22:10:40+00:00'
   },
   {
     slug: 'the-midpoint-of-your-life-isnt-40-its-18',
@@ -68,7 +74,8 @@ export const BLOG_POSTS: BlogPost[] = [
     minutes: 8,
     hero: '/blog/life-midpoint/hero.jpg',
     heroAlt: 'The number 40 struck through in black, with the number 18 in bold cobalt blue beneath it and a small hourglass icon with unevenly pooled sand.',
-    status: 'published'
+    status: 'published',
+    publishedAt: '2026-08-31T20:00:14+00:00'
   }
 ]
 

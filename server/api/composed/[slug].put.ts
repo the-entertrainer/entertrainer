@@ -1,4 +1,4 @@
-import { getComposedPost, upsertComposedPost } from '../../utils/composed-store'
+import { loadComposedPosts, persistComposedUpsert } from '../../utils/github-composed-store'
 import type { ComposedPost } from '~/types/composed'
 
 export default defineEventHandler(async (event) => {
@@ -6,7 +6,8 @@ export default defineEventHandler(async (event) => {
   if (!slug) throw createError({ statusCode: 400, statusMessage: 'slug required' })
 
   const body = await readBody<Partial<ComposedPost>>(event)
-  const existing = getComposedPost(slug)
+  const posts = await loadComposedPosts()
+  const existing = posts.find((item) => item.slug === slug)
   if (!existing && !body.title) {
     throw createError({ statusCode: 404, statusMessage: 'Post not found' })
   }
@@ -34,6 +35,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'title is required' })
   }
 
-  const saved = upsertComposedPost(merged)
-  return { post: saved }
+  const saved = await persistComposedUpsert(merged)
+  return {
+    post: saved.post,
+    committed: saved.committed,
+    commitUrl: saved.commitUrl
+  }
 })

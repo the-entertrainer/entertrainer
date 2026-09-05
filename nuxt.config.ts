@@ -21,7 +21,14 @@ export default defineNuxtConfig({
     groqApiKey: process.env.GROQ_API_KEY || '',
     groqModel: process.env.GROQ_MODEL || 'groq/compound',
     geminiApiKey: process.env.GEMINI_API_KEY || '',
-    geminiModel: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite'
+    geminiModel: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
+    // Server-only — persist /compose publishes via GitHub Contents API so Vercel
+    // redeploys with content/composed-posts.json. Prefer COMPOSE_GITHUB_TOKEN;
+    // fall back to GITHUB_TOKEN. Never expose to the client.
+    composeGithubToken: process.env.COMPOSE_GITHUB_TOKEN || '',
+    githubToken: process.env.GITHUB_TOKEN || '',
+    composeGithubRepo: process.env.COMPOSE_GITHUB_REPO || 'the-entertrainer/entertrainer',
+    composeGithubBranch: process.env.COMPOSE_GITHUB_BRANCH || 'main'
   },
   app: {
     head: {

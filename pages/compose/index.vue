@@ -165,18 +165,28 @@ async function persist(status: 'draft' | 'published') {
   }
 
   try {
-    const res = await $fetch<{ post: ComposedPost }>('/api/composed', {
+    const res = await $fetch<{ post: ComposedPost; committed?: boolean; commitUrl?: string }>('/api/composed', {
       method: 'POST',
       body: draft.value
     })
     draft.value = res.post
     activeSlug.value = res.post.slug
     await loadLibrary()
-    statusMessage.value = status === 'published'
-      ? `Published. Live at /elevate/${res.post.slug} (and on the Elevate listing). Commit content/composed-posts.json when deploying.`
-      : `Draft saved as ${res.post.slug}.`
+    if (status === 'published') {
+      statusMessage.value = res.committed
+        ? `Published — committing to GitHub; Vercel will redeploy in a minute. View live may 404 until then: /elevate/${res.post.slug}`
+        : `Published locally as ${res.post.slug}. Add COMPOSE_GITHUB_TOKEN (or GITHUB_TOKEN) on Vercel so publishes persist and redeploy.`
+    } else {
+      statusMessage.value = res.committed
+        ? `Draft saved + committed to GitHub as ${res.post.slug}.`
+        : `Draft saved locally as ${res.post.slug}.`
+    }
   } catch (err: any) {
-    statusMessage.value = `Could not write to the store (${err?.statusMessage || err?.message || 'error'}). Kept a local backup in this browser.`
+    const msg = err?.data?.statusMessage || err?.statusMessage || err?.message || 'error'
+    const missingToken = /COMPOSE_GITHUB_TOKEN|GITHUB_TOKEN/i.test(String(msg))
+    statusMessage.value = missingToken
+      ? `Publish needs COMPOSE_GITHUB_TOKEN (or GITHUB_TOKEN) with repo contents:write. Set it on Vercel, redeploy, then try again. (${msg}) Local backup kept in this browser.`
+      : `Could not write to the store (${msg}). Kept a local backup in this browser.`
   } finally {
     saving.value = false
   }
@@ -446,6 +456,7 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
             <button type="button" class="compose__btn" :disabled="saving" @click="persist('draft')">Save draft</button>
             <button type="button" class="compose__btn compose__btn--signal" :disabled="saving" @click="persist('published')">Publish</button>
             <NuxtLink v-if="previewHref && draft.status === 'published'" :to="previewHref" class="compose__btn">View live</NuxtLink>
+            <p v-if="draft.status === 'published'" class="compose__hint">View live may 404 until the Vercel redeploy finishes.</p>
           </div>
         </section>
       </div>
@@ -649,6 +660,13 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
 }
 .compose__icon-btn:disabled { opacity: .35; cursor: default; }
 .compose__footer-actions { margin-top: 24rem; }
+.compose__hint {
+  flex: 1 1 100%;
+  margin: 4rem 0 0;
+  font-size: 13rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
 
 
 .compose__ai {

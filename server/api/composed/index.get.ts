@@ -1,8 +1,8 @@
-import { readComposedStore } from '../../utils/composed-store'
+import { loadComposedPosts } from '../../utils/github-composed-store'
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  const posts = readComposedStore()
+  const posts = await loadComposedPosts()
   if (query.includeDrafts === '1') {
     return { posts }
   }

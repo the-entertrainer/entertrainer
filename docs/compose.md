@@ -1,6 +1,6 @@
 # Elevate composer (`/compose`)
 
-Gate keyword: `iamguru` (session unlock). Drafts and publishes write `content/composed-posts.json`.
+Gate keyword: `iamguru` (session unlock). Drafts and publishes update `content/composed-posts.json` — locally via the filesystem in `nuxt dev`, and in production by committing to GitHub so Vercel redeploys.
 
 ## AI draft (one-click)
 
@@ -56,3 +56,31 @@ Requires at least one server-only key:
 - Production: Vercel project → Settings → Environment Variables → add the keys above → redeploy
 
 Never commit `.env` or expose keys to the client (`runtimeConfig.groqApiKey` / `groqModel` / `geminiApiKey` / `geminiModel` are server-only).
+
+
+## Persistence (GitHub → Vercel)
+
+On Vercel the serverless filesystem is ephemeral, so writes to `content/composed-posts.json` alone disappear. When `COMPOSE_GITHUB_TOKEN` (or `GITHUB_TOKEN`) is set, Save draft / Publish / Delete:
+
+1. GET the latest `content/composed-posts.json` from GitHub (Contents API)
+2. Upsert or remove the post
+3. PUT the file back with the previous SHA (commit on `main`)
+4. Vercel redeploys from that commit — `/elevate/<slug>` and the Elevate listing pick up the post
+
+Without a token:
+
+- **Local `nuxt dev`**: filesystem write only (previous behavior)
+- **Production publish**: API returns **503** asking for `COMPOSE_GITHUB_TOKEN` / `GITHUB_TOKEN`
+
+| Variable | Required | Default |
+|---|---|---|
+| `COMPOSE_GITHUB_TOKEN` | for prod publish (preferred) | — |
+| `GITHUB_TOKEN` | fallback if compose token unset | — |
+| `COMPOSE_GITHUB_REPO` | optional | `the-entertrainer/entertrainer` |
+| `COMPOSE_GITHUB_BRANCH` | optional | `main` |
+
+Token needs **Contents: Read and write** on that repo (fine-grained or classic PAT). Set it in Vercel → Settings → Environment Variables (server-only; never `NUXT_PUBLIC_*`). After adding the token, reopen `/compose`, restore the draft from browser `localStorage` if needed, and Publish again.
+
+View live may 404 for ~1 minute until the redeploy finishes.
+
+Also never expose `composeGithubToken` / `githubToken` to the client.

@@ -1,6 +1,6 @@
 import { BLOG_POSTS } from '~/content/blogs'
 import { composedToBlogPost, getPublishedComposedPosts } from '~/content/composed'
-import { readComposedStore } from '../utils/composed-store'
+import { loadComposedPosts } from '../utils/github-composed-store'
 
 const SITE_URL = 'https://entertrainer.in'
 
@@ -13,14 +13,14 @@ function escapeXml(value: string) {
     .replace(/'/g, '&apos;')
 }
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   setResponseHeader(event, 'content-type', 'application/rss+xml; charset=utf-8')
   setResponseHeader(event, 'cache-control', 'public, max-age=300, s-maxage=300')
 
   const seen = new Set(BLOG_POSTS.map((post) => post.slug))
   let composedPublished = getPublishedComposedPosts()
   try {
-    composedPublished = readComposedStore().filter((post) => post.status === 'published')
+    composedPublished = (await loadComposedPosts()).filter((post) => post.status === 'published')
   } catch {
     // fall back to committed JSON import
   }

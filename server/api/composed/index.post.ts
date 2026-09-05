@@ -1,4 +1,4 @@
-import { upsertComposedPost, getComposedPost } from '../../utils/composed-store'
+import { persistComposedUpsert } from '../../utils/github-composed-store'
 import type { ComposedPost } from '~/types/composed'
 
 export default defineEventHandler(async (event) => {
@@ -7,12 +7,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'slug and title are required' })
   }
 
-  const existing = getComposedPost(body.slug)
-  if (existing && body.status === 'draft' && existing.status === 'published') {
-    // Allow overwrite; composer owns the record.
-  }
-
-  const saved = upsertComposedPost({
+  const saved = await persistComposedUpsert({
     ...body,
     updatedAt: new Date().toISOString(),
     publishedAt: body.status === 'published'
@@ -20,5 +15,9 @@ export default defineEventHandler(async (event) => {
       : (body.publishedAt || new Date().toISOString())
   })
 
-  return { post: saved }
+  return {
+    post: saved.post,
+    committed: saved.committed,
+    commitUrl: saved.commitUrl
+  }
 })

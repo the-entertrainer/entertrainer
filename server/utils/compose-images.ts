@@ -24,6 +24,14 @@ const UA = 'EntertrainerComposeBot/1.0 (https://entertrainer.in; elevate-compose
 const GAMMA_BASE = 'https://public-api.gamma.app/v1.0'
 const DEFAULT_GEMINI_IMAGE_MODEL = 'gemini-2.5-flash-image'
 
+/** Vercel gateway is ~60s; keep AI image phase well under after text completes. */
+export const IMAGE_PHASE_BUDGET_MS = 22_000
+export const GAMMA_POLL_MS = 2_000
+export const GAMMA_PER_IMAGE_DEADLINE_MS = 22_000
+export const GEMINI_PER_IMAGE_DEADLINE_MS = 20_000
+/** Prefer fewer AI images under time pressure: 1 hero + 1 figure. */
+export const MAX_AI_IMAGES = 2
+
 const ELEVATE_STYLE =
   'Elevate editorial style: cream paper background, black ink linework, cobalt blue accents, ' +
   'clean magazine illustration, thoughtful and spare, no text overlays, no logos, no watermarks'
@@ -53,6 +61,36 @@ function stableCommonsUrl(url: string): string {
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function remainingMs(deadlineAt: number, floor = 500): number {
+  return Math.max(floor, deadlineAt - Date.now())
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+    promise.then(
+      (value) => {
+        clearTimeout(timer)
+        resolve(value)
+      },
+      (err) => {
+        clearTimeout(timer)
+        reject(err)
+      }
+    )
+  })
+}
+
+function clampAiJobs<T extends { role: 'hero' | 'figure' }>(jobs: T[], maxImages = MAX_AI_IMAGES): T[] {
+  const hero = jobs.find((j) => j.role === 'hero')
+  const figures = jobs.filter((j) => j.role === 'figure')
+  const out: T[] = []
+  if (hero) out.push(hero)
+  const figureSlots = Math.max(0, maxImages - out.length)
+  out.push(...figures.slice(0, figureSlots))
+  return out
 }
 
 async function searchCommons(query: string, limit = 6): Promise<ImageHit[]> {
@@ -247,48 +285,79 @@ async function findGeminiImages(
   count: number,
   apiKey: string,
   model: string,
-  figureHints: string[]
-): Promise<ImageHit[]> {
-  const hits: ImageHit[] = []
-  const jobs: Array<{ role: 'hero' | 'figure'; index: number; hint?: string; aspect: string }> = [
-    { role: 'hero', index: 0, aspect: '16:9' }
-  ]
-  for (let i = 0; i < count; i++) {
-    jobs.push({
-      role: 'figure',
-      index: i + 1,
-      hint: figureHints[i],
-      aspect: i % 2 === 0 ? '4:3' : '3:2'
-    })
-  }
+  figureHints: string[],
+  budgetMs = IMAGE_PHASE_BUDGET_MS
+): Promise<{ hits: ImageHit[]; timedOut: boolean; errors: string[] }> {
+  const figureSlots = Math.min(Math.max(0, count), Math.max(0, MAX_AI_IMAGES - 1))
+  const jobs = clampAiJobs(
+    [
+      { role: 'hero' as const, index: 0, aspect: '16:9' },
+      ...Array.from({ length: figureSlots }, (_, i) => ({
+        role: 'figure' as const,
+        index: i + 1,
+        hint: figureHints[i],
+        aspect: i % 2 === 0 ? '4:3' : '3:2'
+      }))
+    ],
+    MAX_AI_IMAGES
+  )
 
-  // Sequential to stay polite on free-tier quotas
-  for (const job of jobs) {
-    try {
+  const phaseDeadline = Date.now() + budgetMs
+  const errors: string[] = []
+  let timedOut = false
+
+  const settled = await Promise.allSettled(
+    jobs.map(async (job) => {
+      const perImage = Math.min(GEMINI_PER_IMAGE_DEADLINE_MS, remainingMs(phaseDeadline))
+      if (Date.now() >= phaseDeadline) {
+        timedOut = true
+        throw new Error('Gemini image phase budget exhausted')
+      }
       const prompt = buildFigurePrompt(topic, job.role, job.index, job.hint)
-      const img = await generateGeminiImage({
-        apiKey,
-        model,
-        prompt,
-        aspectRatio: job.aspect
-      })
-      if (!img) continue
-      hits.push({
-        src: img.dataUrl,
-        credit: `Gemini · ${model}`,
-        license: 'AI-generated',
-        title: job.role === 'hero' ? `${topic} hero` : `${topic} figure ${job.index}`
-      })
-    } catch (err: any) {
-      if (!hits.length) throw err
-      break
-    }
-  }
+      const img = await withTimeout(
+        generateGeminiImage({
+          apiKey,
+          model,
+          prompt,
+          aspectRatio: job.aspect
+        }),
+        perImage,
+        `Gemini ${job.role}`
+      )
+      if (!img) throw new Error(`Gemini returned no image for ${job.role}`)
+      return {
+        order: job.role === 'hero' ? 0 : job.index,
+        hit: {
+          src: img.dataUrl,
+          credit: `Gemini · ${model}`,
+          license: 'AI-generated',
+          title: job.role === 'hero' ? `${topic} hero` : `${topic} figure ${job.index}`
+        } satisfies ImageHit
+      }
+    })
+  )
 
-  return hits
+  const ordered: Array<{ order: number; hit: ImageHit } | null> = jobs.map(() => null)
+  settled.forEach((result, idx) => {
+    if (result.status === 'fulfilled') {
+      ordered[idx] = result.value
+    } else {
+      const msg = String(result.reason?.message || result.reason || 'error')
+      errors.push(msg)
+      if (/timed out|budget exhausted/i.test(msg)) timedOut = true
+    }
+  })
+
+  const hits = ordered.filter(Boolean).map((row) => row!.hit)
+  return { hits, timedOut, errors }
 }
 
-async function createGammaImage(apiKey: string, prompt: string, sizePreset: string): Promise<string> {
+async function createGammaImage(
+  apiKey: string,
+  prompt: string,
+  sizePreset: string,
+  deadlineMs = GAMMA_PER_IMAGE_DEADLINE_MS
+): Promise<string> {
   const createRes = await fetch(`${GAMMA_BASE}/images`, {
     method: 'POST',
     headers: {
@@ -313,9 +382,13 @@ async function createGammaImage(apiKey: string, prompt: string, sizePreset: stri
   const id = created?.imageGenerationId
   if (!id) throw new Error('Gamma image response missing imageGenerationId')
 
-  const deadline = Date.now() + 120_000
+  const deadline = Date.now() + Math.max(1_000, deadlineMs)
+  // First poll quickly; then every ~2s (not 5s / 120s).
+  let waited = false
   while (Date.now() < deadline) {
-    await sleep(5000)
+    if (waited) await sleep(GAMMA_POLL_MS)
+    else waited = true
+
     const pollRes = await fetch(`${GAMMA_BASE}/images/${encodeURIComponent(id)}`, {
       headers: {
         Accept: 'application/json',
@@ -341,45 +414,68 @@ async function createGammaImage(apiKey: string, prompt: string, sizePreset: stri
       throw new Error(status.error?.message || 'Gamma image generation failed')
     }
   }
-  throw new Error('Gamma image generation timed out')
+  throw new Error(`Gamma image generation timed out after ${deadlineMs}ms`)
 }
 
 async function findGammaImages(
   topic: string,
   count: number,
   apiKey: string,
-  figureHints: string[]
-): Promise<ImageHit[]> {
-  const hits: ImageHit[] = []
-  const jobs: Array<{ role: 'hero' | 'figure'; index: number; hint?: string; size: string }> = [
-    { role: 'hero', index: 0, size: 'banner' }
-  ]
-  for (let i = 0; i < count; i++) {
-    jobs.push({
-      role: 'figure',
-      index: i + 1,
-      hint: figureHints[i],
-      size: 'slide'
-    })
-  }
+  figureHints: string[],
+  budgetMs = IMAGE_PHASE_BUDGET_MS
+): Promise<{ hits: ImageHit[]; timedOut: boolean; errors: string[] }> {
+  const figureSlots = Math.min(Math.max(0, count), Math.max(0, MAX_AI_IMAGES - 1))
+  const jobs = clampAiJobs(
+    [
+      { role: 'hero' as const, index: 0, size: 'banner' },
+      ...Array.from({ length: figureSlots }, (_, i) => ({
+        role: 'figure' as const,
+        index: i + 1,
+        hint: figureHints[i],
+        size: 'slide'
+      }))
+    ],
+    MAX_AI_IMAGES
+  )
 
-  for (const job of jobs) {
-    try {
+  const phaseDeadline = Date.now() + budgetMs
+  const errors: string[] = []
+  let timedOut = false
+
+  const settled = await Promise.allSettled(
+    jobs.map(async (job) => {
+      const perImage = Math.min(GAMMA_PER_IMAGE_DEADLINE_MS, remainingMs(phaseDeadline))
+      if (Date.now() >= phaseDeadline) {
+        timedOut = true
+        throw new Error('Gamma image phase budget exhausted')
+      }
       const prompt = buildFigurePrompt(topic, job.role, job.index, job.hint)
-      const url = await createGammaImage(apiKey, prompt, job.size)
-      hits.push({
-        src: url,
-        credit: 'Gamma · AI illustration',
-        license: 'AI-generated',
-        title: job.role === 'hero' ? `${topic} hero` : `${topic} figure ${job.index}`
-      })
-    } catch (err: any) {
-      if (!hits.length) throw err
-      break
-    }
-  }
+      const url = await createGammaImage(apiKey, prompt, job.size, perImage)
+      return {
+        order: job.role === 'hero' ? 0 : job.index,
+        hit: {
+          src: url,
+          credit: 'Gamma · AI illustration',
+          license: 'AI-generated',
+          title: job.role === 'hero' ? `${topic} hero` : `${topic} figure ${job.index}`
+        } satisfies ImageHit
+      }
+    })
+  )
 
-  return hits
+  const ordered: Array<{ order: number; hit: ImageHit } | null> = jobs.map(() => null)
+  settled.forEach((result, idx) => {
+    if (result.status === 'fulfilled') {
+      ordered[idx] = result.value
+    } else {
+      const msg = String(result.reason?.message || result.reason || 'error')
+      errors.push(msg)
+      if (/timed out|budget exhausted/i.test(msg)) timedOut = true
+    }
+  })
+
+  const hits = ordered.filter(Boolean).map((row) => row!.hit)
+  return { hits, timedOut, errors }
 }
 
 export function applyImagesToFigures(
@@ -434,9 +530,43 @@ export function normalizeImageSource(raw: unknown): ComposeImageSource {
   return 'commons'
 }
 
+async function fillMissingWithCommons(
+  topic: string,
+  partial: ImageHit[],
+  wantTotal: number
+): Promise<ImageHit[]> {
+  if (partial.length >= wantTotal) return partial.slice(0, wantTotal)
+  const extras = await findTopicImages(topic, wantTotal - partial.length + 1)
+  const seen = new Set(partial.map((h) => h.src))
+  const merged = [...partial]
+  for (const hit of extras) {
+    if (seen.has(hit.src)) continue
+    seen.add(hit.src)
+    merged.push(hit)
+    if (merged.length >= wantTotal) break
+  }
+  return merged
+}
+
+function buildAiImageWarning(
+  provider: 'Gemini' | 'Gamma',
+  timedOut: boolean,
+  mixed: boolean,
+  errors: string[]
+): string | undefined {
+  if (timedOut || mixed) {
+    return `${provider} images were time-budgeted on Vercel; slow gens fell back to Commons for remaining slots.`
+  }
+  if (errors.length) {
+    return `Some ${provider} images failed (${errors[0]}) — filled gaps from Commons.`
+  }
+  return undefined
+}
+
 /**
- * Resolve images for a draft. Gemini/Gamma fall back to Commons on failure
- * and surface a warning string for the UI status line.
+ * Resolve images for a draft. Gemini/Gamma are time-budgeted (Vercel ~60s);
+ * slow gens fall back to Commons for missing slots and surface imageWarning.
+ * Never throws for timeout alone — callers always get images + optional warning.
  */
 export async function enrichComposeImages(opts: {
   topic: string
@@ -446,15 +576,19 @@ export async function enrichComposeImages(opts: {
   geminiApiKey?: string
   geminiImageModel?: string
   gammaApiKey?: string
+  /** Overall AI image phase budget after text completes (default ~22s). */
+  budgetMs?: number
 }): Promise<EnrichImagesResult> {
   const source = normalizeImageSource(opts.imageSource)
   const wantFigures = Math.min(4, Math.max(1, opts.figureCount || 2))
+  const wantTotal = wantFigures + 1 // hero + figures
   const hints = (opts.figureHints || []).map((h) => String(h || '').trim()).filter(Boolean)
+  const budgetMs = Math.max(3_000, opts.budgetMs ?? IMAGE_PHASE_BUDGET_MS)
 
   if (source === 'gemini') {
     const key = String(opts.geminiApiKey || '').trim()
     if (!key) {
-      const images = await findTopicImages(opts.topic, wantFigures + 1)
+      const images = await findTopicImages(opts.topic, wantTotal)
       return {
         images,
         sourceUsed: 'commons',
@@ -463,11 +597,24 @@ export async function enrichComposeImages(opts: {
     }
     try {
       const model = String(opts.geminiImageModel || DEFAULT_GEMINI_IMAGE_MODEL).trim() || DEFAULT_GEMINI_IMAGE_MODEL
-      const images = await findGeminiImages(opts.topic, wantFigures, key, model, hints)
-      if (!images.length) throw new Error('Gemini returned no images')
-      return { images, sourceUsed: 'gemini' }
+      const aiFigures = Math.min(wantFigures, MAX_AI_IMAGES - 1)
+      const result = await withTimeout(
+        findGeminiImages(opts.topic, aiFigures, key, model, hints, budgetMs),
+        budgetMs + 1_500,
+        'Gemini image phase'
+      )
+      if (!result.hits.length) {
+        throw new Error(result.errors[0] || 'Gemini returned no images')
+      }
+      const images = await fillMissingWithCommons(opts.topic, result.hits, wantTotal)
+      const mixed = images.length > result.hits.length || result.hits.length < Math.min(wantTotal, MAX_AI_IMAGES)
+      return {
+        images,
+        sourceUsed: 'gemini',
+        warning: buildAiImageWarning('Gemini', result.timedOut, mixed, result.errors)
+      }
     } catch (err: any) {
-      const images = await findTopicImages(opts.topic, wantFigures + 1)
+      const images = await findTopicImages(opts.topic, wantTotal)
       return {
         images,
         sourceUsed: 'commons',
@@ -479,7 +626,7 @@ export async function enrichComposeImages(opts: {
   if (source === 'gamma') {
     const key = String(opts.gammaApiKey || '').trim()
     if (!key) {
-      const images = await findTopicImages(opts.topic, wantFigures + 1)
+      const images = await findTopicImages(opts.topic, wantTotal)
       return {
         images,
         sourceUsed: 'commons',
@@ -487,11 +634,24 @@ export async function enrichComposeImages(opts: {
       }
     }
     try {
-      const images = await findGammaImages(opts.topic, wantFigures, key, hints)
-      if (!images.length) throw new Error('Gamma returned no images')
-      return { images, sourceUsed: 'gamma' }
+      const aiFigures = Math.min(wantFigures, MAX_AI_IMAGES - 1)
+      const result = await withTimeout(
+        findGammaImages(opts.topic, aiFigures, key, hints, budgetMs),
+        budgetMs + 1_500,
+        'Gamma image phase'
+      )
+      if (!result.hits.length) {
+        throw new Error(result.errors[0] || 'Gamma returned no images')
+      }
+      const images = await fillMissingWithCommons(opts.topic, result.hits, wantTotal)
+      const mixed = images.length > result.hits.length || result.hits.length < Math.min(wantTotal, MAX_AI_IMAGES)
+      return {
+        images,
+        sourceUsed: 'gamma',
+        warning: buildAiImageWarning('Gamma', result.timedOut, mixed, result.errors)
+      }
     } catch (err: any) {
-      const images = await findTopicImages(opts.topic, wantFigures + 1)
+      const images = await findTopicImages(opts.topic, wantTotal)
       return {
         images,
         sourceUsed: 'commons',
@@ -500,8 +660,8 @@ export async function enrichComposeImages(opts: {
     }
   }
 
-  const images = await findTopicImages(opts.topic, wantFigures + 1)
+  const images = await findTopicImages(opts.topic, wantTotal)
   return { images, sourceUsed: 'commons' }
 }
 
-export { DEFAULT_GEMINI_IMAGE_MODEL }
+export { DEFAULT_GEMINI_IMAGE_MODEL, createGammaImage }

@@ -3,6 +3,7 @@ import {
   applyHeroFromImages,
   applyImagesToFigures,
   enrichComposeImages,
+  IMAGE_PHASE_BUDGET_MS,
   normalizeImageSource
 } from '../../utils/compose-images'
 import {
@@ -14,6 +15,9 @@ import {
   type ComposedPost,
   type ComposedReference
 } from '~/types/composed'
+
+/** Align with nitro.vercel.functions.maxDuration (global 60s). */
+export const maxDuration = 60
 
 const BLOCK_TYPES = new Set<ComposedBlockType>([
   'lead', 'paragraph', 'heading', 'blockquote', 'callout', 'figure', 'list', 'closing'
@@ -441,7 +445,7 @@ export default defineEventHandler(async (event) => {
   let imageWarning: string | undefined
   let imageSourceUsed = imageSource
 
-  // Image enrichment AFTER text — never block generation if images fail.
+  // Image enrichment AFTER text — time-budgeted; never fail the draft when LLM succeeded.
   try {
     const figureBlocks = post.blocks.filter((b) => b.type === 'figure')
     const figureCount = figureBlocks.length
@@ -453,7 +457,8 @@ export default defineEventHandler(async (event) => {
       imageSource,
       geminiApiKey,
       geminiImageModel,
-      gammaApiKey
+      gammaApiKey,
+      budgetMs: IMAGE_PHASE_BUDGET_MS
     })
     imageSourceUsed = enriched.sourceUsed
     imageWarning = enriched.warning
@@ -465,8 +470,13 @@ export default defineEventHandler(async (event) => {
       post.heroAlt = enriched.images[0].title || `Editorial image related to ${topic}`
     }
   } catch (err: any) {
-    applyImagesToFigures(post.blocks, [])
-    imageWarning = `Image enrichment failed: ${err?.message || 'error'}`
+    // Still return the text draft; leave figure srcs empty / Commons later.
+    try {
+      applyImagesToFigures(post.blocks, [])
+    } catch {
+      /* ignore */
+    }
+    imageWarning = `Image enrichment skipped (${err?.message || 'error'}); draft text is ready — add images manually or retry with Commons.`
   }
 
   post.status = 'draft'

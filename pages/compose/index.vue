@@ -282,7 +282,12 @@ async function generateDraft() {
     const warn = res.imageWarning ? ` Warning: ${res.imageWarning}` : ''
     statusMessage.value = `AI draft ready via ${usedProvider} (${usedModel}), images: ${usedImages} — polish then Save draft / Publish.${warn}`
   } catch (err: any) {
-    const msg = err?.data?.statusMessage || err?.statusMessage || err?.message || 'Generation failed.'
+    const status = Number(err?.statusCode || err?.status || err?.response?.status || 0)
+    let msg = err?.data?.statusMessage || err?.statusMessage || err?.message || 'Generation failed.'
+    if (status === 504 || /\b504\b|gateway timeout|timeout/i.test(String(msg))) {
+      msg =
+        'The server timed out before finishing (often slow AI images). Try again with Images → Commons, or retry — drafts now budget image time and should return text even when images fall back.'
+    }
     aiError.value = msg
     statusMessage.value = `AI draft failed: ${msg}`
   } finally {

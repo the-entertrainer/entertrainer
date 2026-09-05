@@ -20,6 +20,7 @@ After unlock, use the **AI draft** panel: pick a provider, enter a topic (option
   - **Gamma**: `GAMMA_API_KEY` via standalone `POST https://public-api.gamma.app/v1.0/images` (poll `GET /v1.0/images/{id}` for `image.url`)
 - Pass `imageSource?: 'commons' | 'gemini' | 'gamma'` on generate; UI stores choice in `localStorage` as `et-compose-image-source`
 - If Gemini/Gamma fails or the key is missing, falls back to Commons and returns `imageWarning`
+- Gamma/Gemini images are budgeted on Vercel (~20–25s after text, parallel, fewer slots); slow gens may fall back to Commons
 - If the model refuses or returns empty JSON, the API retries once with a scientific / cognitive-psychology reframe
 
 ### Free-tier notes — Groq (from live probes)

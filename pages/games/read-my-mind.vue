@@ -150,8 +150,8 @@ function playAgain() {
           <div v-if="step === 1" class="mind-reader__instruction">
             <div class="mind-reader__instruction-mark">01</div>
             <p class="mind-reader__eyebrow">First, choose quietly</p>
-            <h2>Think of any<br /><span>two-digit number.</span></h2>
-            <p class="mind-reader__instruction-copy">Pick one between 10 and 99. Keep it to yourself. There is no field to fill in and nothing to send.</p>
+            <h2>Choose a<br /><span>two-digit number.</span></h2>
+            <p class="mind-reader__instruction-copy">Pick any number from 10 to 99. Hold it in your head; there is nothing to type.</p>
             <button class="mind-reader__step-button" type="button" @click="nextStep">
               I have my number
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" /></svg>
@@ -161,13 +161,13 @@ function playAgain() {
           <div v-else-if="step === 2" class="mind-reader__instruction">
             <div class="mind-reader__instruction-mark">02</div>
             <p class="mind-reader__eyebrow">Now, make one small move</p>
-            <h2>Take away<br /><span>both of its digits.</span></h2>
-            <div class="mind-reader__math-example" aria-label="Example: fifty-four becomes forty-five">
+            <h2>Subtract<br /><span>each digit.</span></h2>
+            <div class="mind-reader__math-example" aria-label="Example: fifty-four minus five minus four equals forty-five">
               <strong>54</strong>
-              <span>becomes</span>
+              <span>− 5 − 4 =</span>
               <strong>45</strong>
             </div>
-            <p class="mind-reader__instruction-copy">Do the same with your number. When you have the result, continue to the board.</p>
+            <p class="mind-reader__instruction-copy">Subtract the first digit, then the second. For 54, that is 54 − 5 − 4 = 45. Now do the same with your number.</p>
             <div class="mind-reader__button-row">
               <button class="mind-reader__back-button" type="button" @click="previousStep">Back</button>
               <button class="mind-reader__step-button" type="button" @click="nextStep">
@@ -182,9 +182,9 @@ function playAgain() {
               <div>
                 <div class="mind-reader__instruction-mark">03</div>
                 <p class="mind-reader__eyebrow">One last thing</p>
-                <h2>Find your<br /><span>number below.</span></h2>
+                <h2>Find your<br /><span>result below.</span></h2>
               </div>
-              <p class="mind-reader__board-prompt">Keep the mark beside it in mind.</p>
+              <p class="mind-reader__board-prompt">When you find it, remember the mark beside it.</p>
             </div>
 
             <div class="mind-reader__grid-label"><span>Find your result</span><span>100 positions</span></div>

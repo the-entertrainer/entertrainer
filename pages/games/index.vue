@@ -1,11 +1,13 @@
 <script setup lang="ts">
-useSeoMeta({ title: 'Games · Entertrainer', description: 'Games from Entertrainer, starting with EKANS — a Snake tribute, inverted.', ogUrl: 'https://entertrainer.in/games' })
+useSeoMeta({ title: 'Games · Entertrainer', description: 'Games from Entertrainer, including EKANS and Read My Mind — a quick flash number trick.', ogUrl: 'https://entertrainer.in/games' })
 
 // The same coiled shape the game uses for its own mark, on a 4×4 grid.
 const EKANS_COIL = [
   { r: 0, c: 0 }, { r: 0, c: 1 }, { r: 0, c: 2 }, { r: 0, c: 3 },
   { r: 1, c: 3 }, { r: 2, c: 3 }, { r: 2, c: 2 }, { r: 2, c: 1 }, { r: 3, c: 1 }
 ]
+
+const MIND_READER_SYMBOLS = ['✦', '◈', '✚', '◌', '◆']
 </script>
 
 <template>
@@ -13,7 +15,7 @@ const EKANS_COIL = [
     <section class="games__stage" aria-labelledby="games-title">
       <div class="games__tiles" aria-hidden="true"><i v-for="n in 42" :key="n"></i></div>
       <h1 id="games-title">Games</h1>
-      <span>One so far. More when they're ready.</span>
+      <span>Small games for quick detours.</span>
     </section>
 
     <ol class="games__grid">
@@ -29,6 +31,21 @@ const EKANS_COIL = [
           <span class="games__card-text">
             <strong class="games__card-name">EKANS</strong>
             <span class="games__card-blurb">Snake, inverted. You place the food — the snake picks its own route, and can run out of one.</span>
+          </span>
+          <span class="games__card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </span>
+        </NuxtLink>
+      </li>
+      <li class="u-reveal">
+        <NuxtLink to="/games/read-my-mind" class="games__card games__card--mind-reader">
+          <span class="games__icon games__icon--mind-reader" aria-hidden="true">
+            <i v-for="(symbol, i) in MIND_READER_SYMBOLS" :key="i">{{ symbol }}</i>
+          </span>
+          <span class="games__card-text">
+            <strong class="games__card-name">Read My Mind</strong>
+            <span class="games__card-blurb">Choose a number, follow the maths, and let a shuffled field of symbols do the impossible-looking bit.</span>
           </span>
           <span class="games__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -81,6 +98,11 @@ const EKANS_COIL = [
   content: ''; position: absolute; inset: 7%; border-radius: 26%; background: #161618;
 }
 .games__icon-seg--head::after { box-shadow: 0 0 0 1.5rem var(--accent); }
+.games__icon--mind-reader { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 1rem; padding: 7rem; color: var(--ink); background: var(--accent); }
+.games__icon--mind-reader i { display: grid; place-items: center; font: 800 13rem/1 var(--font-ui); font-style: normal; }
+.games__icon--mind-reader i:nth-child(2n) { color: var(--signal-cobalt); }
+.games__icon--mind-reader i:nth-child(3n) { color: var(--paper); }
+
 
 .games__card-text {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 4rem 12rem; min-width: 0;

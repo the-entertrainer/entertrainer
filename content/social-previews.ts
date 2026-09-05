@@ -163,6 +163,12 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     title: 'EKANS · Entertrainer',
     description: 'You don’t steer the snake. You place what it eats, and try to close every route it has left. A Snake tribute, inverted.'
   },
+  '/games/read-my-mind': {
+    key: 'read-my-mind',
+    label: 'Game',
+    title: 'Read My Mind · Entertrainer Games',
+    description: 'A quick flash mind-reader trick: choose a two-digit number, follow the subtraction, and let the symbols do the rest.'
+  },
   '/my-work/sewa-chronicles': {
     key: 'sewa-chronicles',
     label: 'Comic',

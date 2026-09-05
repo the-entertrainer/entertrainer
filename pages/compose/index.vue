@@ -17,8 +17,10 @@ const GATE_KEY = 'iamguru'
 const GATE_STORAGE = 'et-compose-unlocked'
 const DRAFT_STORAGE = 'et-compose-working'
 const PROVIDER_STORAGE = 'et-compose-provider'
+const IMAGE_SOURCE_STORAGE = 'et-compose-image-source'
 
 type ComposeProvider = 'groq' | 'gemini'
+type ComposeImageSource = 'commons' | 'gemini' | 'gamma'
 
 const unlocked = ref(false)
 const gateInput = ref('')
@@ -31,6 +33,7 @@ const activeSlug = ref<string | null>(null)
 const aiTopic = ref('')
 const aiNotes = ref('')
 const aiProvider = ref<ComposeProvider>('groq')
+const aiImageSource = ref<ComposeImageSource>('commons')
 const aiLoading = ref(false)
 const aiError = ref('')
 
@@ -54,6 +57,10 @@ onMounted(() => {
     if (cached) draft.value = JSON.parse(cached) as ComposedPost
     const savedProvider = localStorage.getItem(PROVIDER_STORAGE)
     if (savedProvider === 'groq' || savedProvider === 'gemini') aiProvider.value = savedProvider
+    const savedImageSource = localStorage.getItem(IMAGE_SOURCE_STORAGE)
+    if (savedImageSource === 'commons' || savedImageSource === 'gemini' || savedImageSource === 'gamma') {
+      aiImageSource.value = savedImageSource
+    }
   } catch { /* ignore */ }
   if (unlocked.value) void loadLibrary()
 })
@@ -62,8 +69,24 @@ watch(aiProvider, (value) => {
   try { localStorage.setItem(PROVIDER_STORAGE, value) } catch { /* ignore */ }
 })
 
+watch(aiImageSource, (value) => {
+  try { localStorage.setItem(IMAGE_SOURCE_STORAGE, value) } catch { /* ignore */ }
+})
+
+function draftForLocalStorage(value: ComposedPost): ComposedPost {
+  // Gemini image drafts may embed data: URLs — too large for localStorage.
+  const copy = structuredClone(value)
+  if (typeof copy.hero === 'string' && copy.hero.startsWith('data:image/')) copy.hero = ''
+  for (const block of copy.blocks || []) {
+    if (block.type === 'figure' && typeof block.src === 'string' && block.src.startsWith('data:image/')) {
+      block.src = ''
+    }
+  }
+  return copy
+}
+
 watch(draft, (value) => {
-  try { localStorage.setItem(DRAFT_STORAGE, JSON.stringify(value)) } catch { /* ignore */ }
+  try { localStorage.setItem(DRAFT_STORAGE, JSON.stringify(draftForLocalStorage(value))) } catch { /* ignore */ }
 }, { deep: true })
 
 function tryUnlock() {
@@ -165,21 +188,31 @@ async function persist(status: 'draft' | 'published') {
   }
 
   try {
-    const res = await $fetch<{ post: ComposedPost; committed?: boolean; commitUrl?: string }>('/api/composed', {
+    const res = await $fetch<{
+      post: ComposedPost
+      committed?: boolean
+      commitUrl?: string
+      imagesCommitted?: number
+      imageWarnings?: string[]
+    }>('/api/composed', {
       method: 'POST',
       body: draft.value
     })
     draft.value = res.post
     activeSlug.value = res.post.slug
     await loadLibrary()
+    const imgBit = typeof res.imagesCommitted === 'number' && res.imagesCommitted > 0
+      ? ` Images committed to public/blog/${res.post.slug}/ (${res.imagesCommitted}).`
+      : ''
+    const warnBit = res.imageWarnings?.length ? ` Note: ${res.imageWarnings.join(' ')}` : ''
     if (status === 'published') {
       statusMessage.value = res.committed
-        ? `Published — committing to GitHub; Vercel will redeploy in a minute. View live may 404 until then: /elevate/${res.post.slug}`
-        : `Published locally as ${res.post.slug}. Add COMPOSE_GITHUB_TOKEN (or GITHUB_TOKEN) on Vercel so publishes persist and redeploy.`
+        ? `Published — post JSON + images committed to GitHub; Vercel will redeploy in a minute.${imgBit} View live may 404 until then: /elevate/${res.post.slug}${warnBit}`
+        : `Published locally as ${res.post.slug}.${imgBit} Add COMPOSE_GITHUB_TOKEN (or GITHUB_TOKEN) on Vercel so publishes persist and redeploy.${warnBit}`
     } else {
       statusMessage.value = res.committed
-        ? `Draft saved + committed to GitHub as ${res.post.slug}.`
-        : `Draft saved locally as ${res.post.slug}.`
+        ? `Draft saved + committed to GitHub as ${res.post.slug}.${imgBit}${warnBit}`
+        : `Draft saved locally as ${res.post.slug}.${imgBit}${warnBit}`
     }
   } catch (err: any) {
     const msg = err?.data?.statusMessage || err?.statusMessage || err?.message || 'error'
@@ -214,17 +247,27 @@ async function generateDraft() {
 
   const provider = aiProvider.value
   const providerLabel = provider === 'groq' ? 'Groq' : 'Gemini'
+  const imageSource = aiImageSource.value
+  const imageLabel =
+    imageSource === 'gemini' ? 'Gemini images' : imageSource === 'gamma' ? 'Gamma images' : 'Commons / Openverse'
   aiLoading.value = true
   aiError.value = ''
-  statusMessage.value = `Generating Elevate draft with ${providerLabel}…`
+  statusMessage.value = `Generating Elevate draft with ${providerLabel} + ${imageLabel}…`
 
   try {
-    const res = await $fetch<{ post: ComposedPost; provider?: string; model?: string }>('/api/compose/generate', {
+    const res = await $fetch<{
+      post: ComposedPost
+      provider?: string
+      model?: string
+      imageSource?: string
+      imageWarning?: string
+    }>('/api/compose/generate', {
       method: 'POST',
       body: {
         topic,
         notes: aiNotes.value.trim() || undefined,
-        provider
+        provider,
+        imageSource
       }
     })
     const copy = structuredClone(res.post)
@@ -235,7 +278,9 @@ async function generateDraft() {
     activeSlug.value = null
     const usedProvider = res.provider || provider
     const usedModel = res.model || (usedProvider === 'groq' ? 'groq/compound' : 'gemini-3.5-flash-lite')
-    statusMessage.value = `AI draft ready via ${usedProvider} (${usedModel}) — polish then Save draft / Publish.`
+    const usedImages = res.imageSource || imageSource
+    const warn = res.imageWarning ? ` Warning: ${res.imageWarning}` : ''
+    statusMessage.value = `AI draft ready via ${usedProvider} (${usedModel}), images: ${usedImages} — polish then Save draft / Publish.${warn}`
   } catch (err: any) {
     const msg = err?.data?.statusMessage || err?.statusMessage || err?.message || 'Generation failed.'
     aiError.value = msg
@@ -288,12 +333,12 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
         <div class="compose__ai-head">
           <p class="compose__eyebrow">AI draft</p>
           <h2 class="compose__ai-title">One-click Elevate draft</h2>
-          <p class="compose__ai-copy">Type a topic. Pick <strong>Groq</strong> (<code>compound</code>) or <strong>Gemini</strong> (<code>gemini-3.5-flash-lite</code>) — research structure + Naveen voice land in the composer for polish, then publish.</p>
+          <p class="compose__ai-copy">Type a topic. Pick a <strong>text</strong> provider (Groq / Gemini) and an <strong>image</strong> source (Commons, Gemini, or Gamma). Draft lands here for polish; Publish downloads images into <code>public/blog/&lt;slug&gt;/</code> and commits them with the post JSON.</p>
         </div>
         <div class="compose__ai-form">
           <fieldset class="compose__provider compose__span-2" :disabled="aiLoading">
-            <legend>Provider</legend>
-            <div class="compose__provider-seg" role="radiogroup" aria-label="AI provider">
+            <legend>Text provider</legend>
+            <div class="compose__provider-seg" role="radiogroup" aria-label="AI text provider">
               <label class="compose__provider-opt" :class="{ 'is-active': aiProvider === 'groq' }">
                 <input v-model="aiProvider" type="radio" name="compose-provider" value="groq">
                 <span>Groq</span>
@@ -301,6 +346,23 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
               <label class="compose__provider-opt" :class="{ 'is-active': aiProvider === 'gemini' }">
                 <input v-model="aiProvider" type="radio" name="compose-provider" value="gemini">
                 <span>Gemini</span>
+              </label>
+            </div>
+          </fieldset>
+          <fieldset class="compose__provider compose__span-2" :disabled="aiLoading">
+            <legend>Images</legend>
+            <div class="compose__provider-seg compose__provider-seg--wrap" role="radiogroup" aria-label="Image source">
+              <label class="compose__provider-opt" :class="{ 'is-active': aiImageSource === 'commons' }">
+                <input v-model="aiImageSource" type="radio" name="compose-image-source" value="commons">
+                <span>Commons</span>
+              </label>
+              <label class="compose__provider-opt" :class="{ 'is-active': aiImageSource === 'gemini' }">
+                <input v-model="aiImageSource" type="radio" name="compose-image-source" value="gemini">
+                <span>Gemini</span>
+              </label>
+              <label class="compose__provider-opt" :class="{ 'is-active': aiImageSource === 'gamma' }">
+                <input v-model="aiImageSource" type="radio" name="compose-image-source" value="gamma">
+                <span>Gamma</span>
               </label>
             </div>
           </fieldset>
@@ -759,6 +821,12 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
   color: var(--paper);
 }
 .compose__provider:disabled .compose__provider-opt { opacity: .55; cursor: wait; }
+.compose__provider-seg--wrap {
+  flex-wrap: wrap;
+}
+.compose__provider-seg--wrap .compose__provider-opt {
+  border-bottom: var(--stroke) solid var(--ink);
+}
 
 @media (max-width: 760px) {
   .compose__layout { grid-template-columns: 1fr; }

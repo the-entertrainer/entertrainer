@@ -1,5 +1,8 @@
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import type { ComposedPost } from '~/types/composed'
 import { readComposedStore, writeComposedStore } from './composed-store'
+import { localizePostImages, type LocalizedImageFile } from './compose-image-commit'
 
 const CONTENT_PATH = 'content/composed-posts.json'
 
@@ -45,8 +48,12 @@ function githubHeaders(token: string): HeadersInit {
   }
 }
 
-function contentsUrl(cfg: ComposeGithubConfig) {
-  return `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${CONTENT_PATH}`
+function contentsUrl(cfg: ComposeGithubConfig, path = CONTENT_PATH) {
+  return `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${path}`
+}
+
+function apiUrl(cfg: ComposeGithubConfig, suffix: string) {
+  return `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/${suffix}`
 }
 
 function parsePosts(raw: unknown): ComposedPost[] {
@@ -64,6 +71,22 @@ function bestEffortLocalWrite(posts: ComposedPost[]) {
 export type GithubComposedFile = {
   posts: ComposedPost[]
   sha: string | null
+}
+
+async function safeErrorText(res: Response) {
+  try {
+    const raw = await res.text()
+    try {
+      const json = JSON.parse(raw) as { message?: string }
+      if (json?.message) return json.message
+    } catch {
+      /* not JSON */
+    }
+    if (raw) return raw.slice(0, 240)
+  } catch {
+    /* ignore */
+  }
+  return res.statusText || 'unknown error'
 }
 
 /** Read latest composed-posts.json from GitHub Contents API. */
@@ -166,20 +189,161 @@ export async function commitComposedPosts(
   }
 }
 
-async function safeErrorText(res: Response) {
-  try {
-    const raw = await res.text()
-    try {
-      const json = JSON.parse(raw) as { message?: string }
-      if (json?.message) return json.message
-    } catch {
-      /* not JSON */
-    }
-    if (raw) return raw.slice(0, 240)
-  } catch {
-    /* ignore */
+/**
+ * Atomically commit multiple files via Git Data API (blobs → tree → commit → ref).
+ * Used when publishing images + composed-posts.json together.
+ */
+export async function commitFilesToGithub(
+  files: Array<{ path: string; bytes: Buffer }>,
+  message: string
+): Promise<{ sha: string; htmlUrl?: string }> {
+  const cfg = getComposeGithubConfig()
+  if (!cfg.enabled) {
+    throw createError({
+      statusCode: 503,
+      statusMessage: 'COMPOSE_GITHUB_TOKEN (or GITHUB_TOKEN) is required to persist composed posts to GitHub'
+    })
   }
-  return res.statusText || 'unknown error'
+  if (!files.length) {
+    throw createError({ statusCode: 400, statusMessage: 'No files to commit' })
+  }
+
+  const headers = {
+    ...githubHeaders(cfg.token),
+    'Content-Type': 'application/json'
+  }
+
+  // 1) Resolve branch HEAD
+  const refRes = await fetch(apiUrl(cfg, `git/ref/heads/${encodeURIComponent(cfg.branch)}`), {
+    headers: githubHeaders(cfg.token)
+  })
+  if (!refRes.ok) {
+    const detail = await safeErrorText(refRes)
+    throw createError({
+      statusCode: 502,
+      statusMessage: `GitHub ref read failed (${refRes.status}): ${detail}`
+    })
+  }
+  const refData = (await refRes.json()) as { object?: { sha?: string } }
+  const headSha = refData.object?.sha
+  if (!headSha) {
+    throw createError({ statusCode: 502, statusMessage: 'GitHub ref missing commit SHA' })
+  }
+
+  // 2) Parent commit → base tree
+  const commitRes = await fetch(apiUrl(cfg, `git/commits/${headSha}`), {
+    headers: githubHeaders(cfg.token)
+  })
+  if (!commitRes.ok) {
+    const detail = await safeErrorText(commitRes)
+    throw createError({
+      statusCode: 502,
+      statusMessage: `GitHub commit read failed (${commitRes.status}): ${detail}`
+    })
+  }
+  const commitData = (await commitRes.json()) as { tree?: { sha?: string } }
+  const baseTreeSha = commitData.tree?.sha
+  if (!baseTreeSha) {
+    throw createError({ statusCode: 502, statusMessage: 'GitHub commit missing tree SHA' })
+  }
+
+  // 3) Create a blob per file
+  const treeItems: Array<{ path: string; mode: '100644'; type: 'blob'; sha: string }> = []
+  for (const file of files) {
+    const blobRes = await fetch(apiUrl(cfg, 'git/blobs'), {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        content: file.bytes.toString('base64'),
+        encoding: 'base64'
+      })
+    })
+    if (!blobRes.ok) {
+      const detail = await safeErrorText(blobRes)
+      throw createError({
+        statusCode: 502,
+        statusMessage: `GitHub blob create failed for ${file.path} (${blobRes.status}): ${detail}`
+      })
+    }
+    const blob = (await blobRes.json()) as { sha?: string }
+    if (!blob.sha) {
+      throw createError({ statusCode: 502, statusMessage: `GitHub blob missing sha for ${file.path}` })
+    }
+    treeItems.push({
+      path: file.path,
+      mode: '100644',
+      type: 'blob',
+      sha: blob.sha
+    })
+  }
+
+  // 4) Create tree
+  const treeRes = await fetch(apiUrl(cfg, 'git/trees'), {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      base_tree: baseTreeSha,
+      tree: treeItems
+    })
+  })
+  if (!treeRes.ok) {
+    const detail = await safeErrorText(treeRes)
+    throw createError({
+      statusCode: 502,
+      statusMessage: `GitHub tree create failed (${treeRes.status}): ${detail}`
+    })
+  }
+  const treeData = (await treeRes.json()) as { sha?: string }
+  if (!treeData.sha) {
+    throw createError({ statusCode: 502, statusMessage: 'GitHub tree missing sha' })
+  }
+
+  // 5) Create commit
+  const newCommitRes = await fetch(apiUrl(cfg, 'git/commits'), {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      message,
+      tree: treeData.sha,
+      parents: [headSha]
+    })
+  })
+  if (!newCommitRes.ok) {
+    const detail = await safeErrorText(newCommitRes)
+    throw createError({
+      statusCode: 502,
+      statusMessage: `GitHub commit create failed (${newCommitRes.status}): ${detail}`
+    })
+  }
+  const newCommit = (await newCommitRes.json()) as { sha?: string; html_url?: string }
+  if (!newCommit.sha) {
+    throw createError({ statusCode: 502, statusMessage: 'GitHub commit missing sha' })
+  }
+
+  // 6) Move branch ref (no force)
+  const updateRefRes = await fetch(apiUrl(cfg, `git/refs/heads/${encodeURIComponent(cfg.branch)}`), {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify({ sha: newCommit.sha, force: false })
+  })
+  if (updateRefRes.status === 422) {
+    throw createError({
+      statusCode: 409,
+      statusMessage: 'GitHub content conflict — retry with a fresh SHA'
+    })
+  }
+  if (!updateRefRes.ok) {
+    const detail = await safeErrorText(updateRefRes)
+    throw createError({
+      statusCode: 502,
+      statusMessage: `GitHub ref update failed (${updateRefRes.status}): ${detail}`
+    })
+  }
+
+  return {
+    sha: newCommit.sha,
+    htmlUrl: newCommit.html_url || `https://github.com/${cfg.owner}/${cfg.repo}/commit/${newCommit.sha}`
+  }
 }
 
 /**
@@ -218,43 +382,118 @@ export function deleteFromPosts(posts: ComposedPost[], slug: string): ComposedPo
   return next
 }
 
+function bestEffortLocalImages(files: LocalizedImageFile[]) {
+  try {
+    for (const file of files) {
+      const full = join(process.cwd(), file.path)
+      mkdirSync(dirname(full), { recursive: true })
+      writeFileSync(full, file.bytes)
+    }
+  } catch {
+    /* ignore on Vercel */
+  }
+}
+
 /**
- * Upsert a post. When a GitHub token is present, merge against the latest
- * GitHub file then commit. Always best-effort writes local FS for nuxt dev.
+ * Upsert a post. When a GitHub token is present, localize remote/data images,
+ * merge against the latest GitHub file, then commit JSON (+ image files).
  */
 export async function persistComposedUpsert(post: ComposedPost): Promise<{
   post: ComposedPost
   committed: boolean
   commitUrl?: string
+  imageWarnings?: string[]
+  imagesCommitted?: number
 }> {
   const cfg = getComposeGithubConfig()
-  const nextPost = { ...post, updatedAt: new Date().toISOString() }
+  let working = { ...post, updatedAt: new Date().toISOString() }
+  let imageFiles: LocalizedImageFile[] = []
+  let imageWarnings: string[] = []
+
+  // Localize images whenever we have remote/data URLs (publish or draft).
+  try {
+    const localized = await localizePostImages(working)
+    working = localized.post
+    imageFiles = localized.files
+    imageWarnings = localized.warnings
+  } catch (err: any) {
+    imageWarnings = [`Image localization skipped: ${err?.message || 'error'}`]
+  }
 
   if (cfg.enabled) {
-    const verb = nextPost.status === 'published' ? 'Publish' : 'Save draft'
+    const verb = working.status === 'published' ? 'Publish' : 'Save draft'
     let lastError: unknown
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const { posts, sha } = await fetchComposedPostsFromGithub()
-        const merged = upsertIntoPosts(posts, nextPost)
-        const saved = merged.find((item) => item.slug === nextPost.slug) || nextPost
-        const result = await commitComposedPosts(
-          merged,
-          `compose: ${verb} ${saved.slug}`,
-          sha
+        const merged = upsertIntoPosts(posts, working)
+        const saved = merged.find((item) => item.slug === working.slug) || working
+
+        const jsonBytes = Buffer.from(`${JSON.stringify(merged, null, 2)}\n`, 'utf8')
+        const filesToCommit: Array<{ path: string; bytes: Buffer }> = [
+          { path: CONTENT_PATH, bytes: jsonBytes },
+          ...imageFiles.map((f) => ({ path: f.path, bytes: f.bytes }))
+        ]
+
+        const imageNote = imageFiles.length
+          ? ` + ${imageFiles.length} image${imageFiles.length === 1 ? '' : 's'}`
+          : ''
+        const result = await commitFilesToGithub(
+          filesToCommit,
+          `compose: ${verb} ${saved.slug}${imageNote}`
         )
+
         bestEffortLocalWrite(merged)
-        return { post: saved, committed: true, commitUrl: result.htmlUrl }
+        bestEffortLocalImages(imageFiles)
+        return {
+          post: saved,
+          committed: true,
+          commitUrl: result.htmlUrl,
+          imageWarnings,
+          imagesCommitted: imageFiles.length
+        }
       } catch (err: any) {
         lastError = err
-        if (err?.statusCode !== 409) throw err
+        if (err?.statusCode !== 409) {
+          // If multi-file commit fails for a non-conflict reason but we only
+          // needed JSON, fall back to single-file Contents API so publish
+          // still lands the post (images may remain remote).
+          if (imageFiles.length && err?.statusCode === 502) {
+            try {
+              const { posts, sha } = await fetchComposedPostsFromGithub()
+              const merged = upsertIntoPosts(posts, working)
+              const saved = merged.find((item) => item.slug === working.slug) || working
+              const result = await commitComposedPosts(
+                merged,
+                `compose: ${verb} ${saved.slug} (JSON only; image commit failed)`,
+                sha
+              )
+              bestEffortLocalWrite(merged)
+              return {
+                post: saved,
+                committed: true,
+                commitUrl: result.htmlUrl,
+                imageWarnings: [
+                  ...imageWarnings,
+                  `Image files not committed (${err?.statusMessage || err?.message || 'error'}); JSON saved.`
+                ],
+                imagesCommitted: 0
+              }
+            } catch (fallbackErr: any) {
+              if (fallbackErr?.statusCode !== 409) throw fallbackErr
+              lastError = fallbackErr
+              continue
+            }
+          }
+          throw err
+        }
       }
     }
     throw lastError
   }
 
   // Local-only path (nuxt dev without token)
-  if (nextPost.status === 'published' && isComposeProductionRuntime()) {
+  if (working.status === 'published' && isComposeProductionRuntime()) {
     throw createError({
       statusCode: 503,
       statusMessage:
@@ -263,10 +502,16 @@ export async function persistComposedUpsert(post: ComposedPost): Promise<{
   }
 
   const local = readComposedStore()
-  const merged = upsertIntoPosts(local, nextPost)
-  const saved = merged.find((item) => item.slug === nextPost.slug) || nextPost
+  const merged = upsertIntoPosts(local, working)
+  const saved = merged.find((item) => item.slug === working.slug) || working
   writeComposedStore(merged)
-  return { post: saved, committed: false }
+  bestEffortLocalImages(imageFiles)
+  return {
+    post: saved,
+    committed: false,
+    imageWarnings,
+    imagesCommitted: imageFiles.length
+  }
 }
 
 export async function persistComposedDelete(slug: string): Promise<{

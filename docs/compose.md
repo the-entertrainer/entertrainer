@@ -14,7 +14,12 @@ After unlock, use the **AI draft** panel: pick a provider, enter a topic (option
 - UI choice is persisted in `localStorage` as `et-compose-provider`
 - Skills: condensed `naveen-curiosity-science-blog` + `say-it-like-naveen` in `server/prompts/`
 - Returns `{ post, provider, model }` into the composer for polish — does **not** auto-publish
-- Figure blocks are enriched afterward with CC0/PD (or clearly credited CC) images from Wikimedia Commons / Openverse when available (non-blocking)
+- Figure/hero images are enriched afterward (non-blocking) from the **Images** control:
+  - **Commons** (default): Wikimedia Commons / Openverse CC0–PD (or clearly credited CC)
+  - **Gemini**: `GEMINI_API_KEY` + image model (`GEMINI_IMAGE_MODEL`, default `gemini-2.5-flash-image`)
+  - **Gamma**: `GAMMA_API_KEY` via standalone `POST https://public-api.gamma.app/v1.0/images` (poll `GET /v1.0/images/{id}` for `image.url`)
+- Pass `imageSource?: 'commons' | 'gemini' | 'gamma'` on generate; UI stores choice in `localStorage` as `et-compose-image-source`
+- If Gemini/Gamma fails or the key is missing, falls back to Commons and returns `imageWarning`
 - If the model refuses or returns empty JSON, the API retries once with a scientific / cognitive-psychology reframe
 
 ### Free-tier notes — Groq (from live probes)
@@ -49,8 +54,10 @@ Requires at least one server-only key:
 |---|---|---|
 | `GROQ_API_KEY` | for Groq | — |
 | `GROQ_MODEL` | optional | `groq/compound` |
-| `GEMINI_API_KEY` | for Gemini | — |
+| `GEMINI_API_KEY` | for Gemini text + Gemini images | — |
 | `GEMINI_MODEL` | optional | `gemini-3.5-flash-lite` |
+| `GEMINI_IMAGE_MODEL` | optional (image source = Gemini) | `gemini-2.5-flash-image` |
+| `GAMMA_API_KEY` | for Gamma images (`X-API-KEY`) | — |
 
 - Local: `.env` (gitignored; see `.env.example`)
 - Production: Vercel project → Settings → Environment Variables → add the keys above → redeploy
@@ -62,10 +69,11 @@ Never commit `.env` or expose keys to the client (`runtimeConfig.groqApiKey` / `
 
 On Vercel the serverless filesystem is ephemeral, so writes to `content/composed-posts.json` alone disappear. When `COMPOSE_GITHUB_TOKEN` (or `GITHUB_TOKEN`) is set, Save draft / Publish / Delete:
 
-1. GET the latest `content/composed-posts.json` from GitHub (Contents API)
-2. Upsert or remove the post
-3. PUT the file back with the previous SHA (commit on `main`)
-4. Vercel redeploys from that commit — `/elevate/<slug>` and the Elevate listing pick up the post
+1. For the post being saved, download any absolute `http(s)` (or `data:image/…`) hero/figure URLs into `public/blog/<slug>/` (`hero.<ext>`, `figure-01.<ext>`, …), rewrite paths to `/blog/<slug>/…`, keep captions/credits. Skip srcs already under `/blog/<slug>/`. Prefer jpeg/png/webp; reject files over ~8MB. Failed downloads leave that src as-is and continue.
+2. GET the latest `content/composed-posts.json` from GitHub
+3. Upsert or remove the post
+4. Commit **JSON + image files** on `main` via the Git Data API (blobs → tree → commit → ref). If image blobs fail, still attempt a JSON-only Contents API commit.
+5. Vercel redeploys — `/elevate/<slug>` and the Elevate listing pick up the post and local images
 
 Without a token:
 
@@ -83,4 +91,4 @@ Token needs **Contents: Read and write** on that repo (fine-grained or classic P
 
 View live may 404 for ~1 minute until the redeploy finishes.
 
-Also never expose `composeGithubToken` / `githubToken` to the client.
+Also never expose `composeGithubToken` / `githubToken` / `gammaApiKey` / `geminiApiKey` to the client.

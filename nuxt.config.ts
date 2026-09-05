@@ -22,6 +22,10 @@ export default defineNuxtConfig({
     groqModel: process.env.GROQ_MODEL || 'groq/compound',
     geminiApiKey: process.env.GEMINI_API_KEY || '',
     geminiModel: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
+    // Server-only — Gemini image model for /compose imageSource=gemini.
+    geminiImageModel: process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image',
+    // Server-only — Gamma standalone image API (X-API-KEY). Never expose to client.
+    gammaApiKey: process.env.GAMMA_API_KEY || '',
     // Server-only — persist /compose publishes via GitHub Contents API so Vercel
     // redeploys with content/composed-posts.json. Prefer COMPOSE_GITHUB_TOKEN;
     // fall back to GITHUB_TOKEN. Never expose to the client.

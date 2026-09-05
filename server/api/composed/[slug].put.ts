@@ -39,6 +39,8 @@ export default defineEventHandler(async (event) => {
   return {
     post: saved.post,
     committed: saved.committed,
-    commitUrl: saved.commitUrl
+    commitUrl: saved.commitUrl,
+    imageWarnings: saved.imageWarnings,
+    imagesCommitted: saved.imagesCommitted
   }
 })

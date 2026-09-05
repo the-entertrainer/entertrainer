@@ -1,5 +1,10 @@
 import { buildComposeSystemPrompt } from '../../prompts/load-prompts'
-import { applyImagesToFigures, findTopicImages } from '../../utils/compose-images'
+import {
+  applyHeroFromImages,
+  applyImagesToFigures,
+  enrichComposeImages,
+  normalizeImageSource
+} from '../../utils/compose-images'
 import {
   emptyComposedPost,
   newBlockId,
@@ -300,6 +305,10 @@ export default defineEventHandler(async (event) => {
   const groqModel = String(config.groqModel || process.env.GROQ_MODEL || DEFAULT_GROQ_MODEL).trim() || DEFAULT_GROQ_MODEL
   const geminiApiKey = String(config.geminiApiKey || process.env.GEMINI_API_KEY || '').trim()
   const geminiModel = String(config.geminiModel || process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL).trim() || DEFAULT_GEMINI_MODEL
+  const geminiImageModel = String(
+    config.geminiImageModel || process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image'
+  ).trim() || 'gemini-2.5-flash-image'
+  const gammaApiKey = String(config.gammaApiKey || process.env.GAMMA_API_KEY || '').trim()
 
   let body: any
   try {
@@ -311,6 +320,7 @@ export default defineEventHandler(async (event) => {
   const topic = String(body?.topic ?? '').trim()
   const notes = String(body?.notes ?? '').trim()
   const provider = resolveProvider(body?.provider, groqApiKey, geminiApiKey)
+  const imageSource = normalizeImageSource(body?.imageSource)
 
   if (!topic) {
     throw createError({ statusCode: 400, statusMessage: 'topic is required' })
@@ -428,21 +438,45 @@ export default defineEventHandler(async (event) => {
 
   const post = draftFromModel(parsed, topic)
 
+  let imageWarning: string | undefined
+  let imageSourceUsed = imageSource
+
   // Image enrichment AFTER text — never block generation if images fail.
   try {
-    const figureCount = post.blocks.filter((b) => b.type === 'figure').length
-    const want = Math.min(4, Math.max(2, figureCount || 2))
-    const images = await findTopicImages(topic, want)
-    applyImagesToFigures(post.blocks, images)
-    if (!post.heroAlt && images[0]) {
-      post.heroAlt = images[0].title || `Editorial image related to ${topic}`
+    const figureBlocks = post.blocks.filter((b) => b.type === 'figure')
+    const figureCount = figureBlocks.length
+    const figureHints = figureBlocks.map((b) => b.alt || b.caption || b.text || '').filter(Boolean)
+    const enriched = await enrichComposeImages({
+      topic,
+      figureCount: Math.min(4, Math.max(2, figureCount || 2)),
+      figureHints,
+      imageSource,
+      geminiApiKey,
+      geminiImageModel,
+      gammaApiKey
+    })
+    imageSourceUsed = enriched.sourceUsed
+    imageWarning = enriched.warning
+    applyHeroFromImages(post, enriched.images)
+    applyImagesToFigures(post.blocks, enriched.images, {
+      skipHeroSlot: enriched.images.length > 1
+    })
+    if (!post.heroAlt && enriched.images[0]) {
+      post.heroAlt = enriched.images[0].title || `Editorial image related to ${topic}`
     }
-  } catch {
+  } catch (err: any) {
     applyImagesToFigures(post.blocks, [])
+    imageWarning = `Image enrichment failed: ${err?.message || 'error'}`
   }
 
   post.status = 'draft'
   post.updatedAt = new Date().toISOString()
 
-  return { post, provider, model }
+  return {
+    post,
+    provider,
+    model,
+    imageSource: imageSourceUsed,
+    imageWarning: imageWarning || undefined
+  }
 })

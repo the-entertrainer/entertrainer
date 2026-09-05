@@ -166,8 +166,8 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   '/games/read-my-mind': {
     key: 'read-my-mind',
     label: 'Game',
-    title: 'Read My Mind · Entertrainer Games',
-    description: 'A quick flash mind-reader trick: choose a two-digit number, follow the subtraction, and let the symbols do the rest.'
+    title: 'The Mind Reader · Entertrainer Games',
+    description: 'A guided number illusion from Entertrainer. Choose a number, follow three quiet steps, and keep one mark in mind.'
   },
   '/my-work/sewa-chronicles': {
     key: 'sewa-chronicles',

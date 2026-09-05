@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useSeoMeta({ title: 'Games · Entertrainer', description: 'Games from Entertrainer, including EKANS and Read My Mind — a quick flash number trick.', ogUrl: 'https://entertrainer.in/games' })
+useSeoMeta({ title: 'Games · Entertrainer', description: 'Games from Entertrainer, including EKANS and The Mind Reader.', ogUrl: 'https://entertrainer.in/games' })
 
 // The same coiled shape the game uses for its own mark, on a 4×4 grid.
 const EKANS_COIL = [
@@ -50,7 +50,7 @@ const MIND_READER_SYMBOLS = [
             <i v-for="(symbol, i) in MIND_READER_SYMBOLS" :key="i"><svg viewBox="0 0 24 24" aria-hidden="true" v-html="symbol"></svg></i>
           </span>
           <span class="games__card-text">
-            <strong class="games__card-name">Read My Mind</strong>
+            <strong class="games__card-name">The Mind Reader</strong>
             <span class="games__card-blurb">A quick number game with a graphic twist. Keep your eyes open.</span>
           </span>
           <span class="games__card-arrow" aria-hidden="true">

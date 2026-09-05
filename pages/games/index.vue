@@ -7,7 +7,13 @@ const EKANS_COIL = [
   { r: 1, c: 3 }, { r: 2, c: 3 }, { r: 2, c: 2 }, { r: 2, c: 1 }, { r: 3, c: 1 }
 ]
 
-const MIND_READER_SYMBOLS = ['✦', '◈', '✚', '◌', '◆']
+const MIND_READER_SYMBOLS = [
+  '<circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="7" r="2.2" fill="currentColor"/>',
+  '<path d="m12 2 8 4.7v9.6L12 21l-8-4.7V6.7L12 2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+  '<path d="M4 18a11 11 0 0 1 16 0M7 14a7 7 0 0 1 10 0M10 10a3 3 0 0 1 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  '<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2" fill="currentColor"/>',
+  '<path d="m12 2 1.8 7.2L21 11l-7.2 1.8L12 20l-1.8-7.2L3 11l7.2-1.8L12 2Z" fill="currentColor"/>'
+]
 </script>
 
 <template>
@@ -41,11 +47,11 @@ const MIND_READER_SYMBOLS = ['✦', '◈', '✚', '◌', '◆']
       <li class="u-reveal">
         <NuxtLink to="/games/read-my-mind" class="games__card games__card--mind-reader">
           <span class="games__icon games__icon--mind-reader" aria-hidden="true">
-            <i v-for="(symbol, i) in MIND_READER_SYMBOLS" :key="i">{{ symbol }}</i>
+            <i v-for="(symbol, i) in MIND_READER_SYMBOLS" :key="i"><svg viewBox="0 0 24 24" aria-hidden="true" v-html="symbol"></svg></i>
           </span>
           <span class="games__card-text">
             <strong class="games__card-name">Read My Mind</strong>
-            <span class="games__card-blurb">Choose a number, follow the maths, and let a shuffled field of symbols do the impossible-looking bit.</span>
+            <span class="games__card-blurb">A quick number game with a graphic twist. Keep your eyes open.</span>
           </span>
           <span class="games__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -99,9 +105,10 @@ const MIND_READER_SYMBOLS = ['✦', '◈', '✚', '◌', '◆']
 }
 .games__icon-seg--head::after { box-shadow: 0 0 0 1.5rem var(--accent); }
 .games__icon--mind-reader { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 1rem; padding: 7rem; color: var(--ink); background: var(--accent); }
-.games__icon--mind-reader i { display: grid; place-items: center; font: 800 13rem/1 var(--font-ui); font-style: normal; }
+.games__icon--mind-reader i { display: grid; place-items: center; color: var(--ink); }
 .games__icon--mind-reader i:nth-child(2n) { color: var(--signal-cobalt); }
 .games__icon--mind-reader i:nth-child(3n) { color: var(--paper); }
+.games__icon--mind-reader svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
 
 
 .games__card-text {

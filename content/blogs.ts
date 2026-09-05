@@ -76,8 +76,20 @@ export const BLOG_POSTS: BlogPost[] = [
     heroAlt: 'The number 40 struck through in black, with the number 18 in bold cobalt blue beneath it and a small hourglass icon with unevenly pooled sand.',
     status: 'published',
     publishedAt: '2026-08-31T20:00:14+00:00'
+  },
+  {
+    slug: 'how-to-lie-perfectly',
+    title: 'What It Would Take to Lie Perfectly',
+    dek: 'Perfect lying sounds like calm eyes and a locked story. Cognitive science suggests it is mostly a bandwidth problem — and that many imperfect lies succeed because listeners start in truth-default.',
+    category: 'Mind & meaning',
+    minutes: 9,
+    hero: '/blog/how-to-lie-perfectly/hero.jpg',
+    heroAlt: 'A black silhouette of a head in profile on a cream background; tangled black dashed-road speech paths swirl from the mouth while one straight cobalt-blue path runs forward, with a small cobalt crossed-fingers icon between them.',
+    status: 'published',
+    publishedAt: '2026-09-05T20:57:02+00:00'
   }
 ]
+
 
 export const ENTROPY_BLOG = BLOG_POSTS[0]
 export const INTELLIGENCE_BLOG = BLOG_POSTS[1]
@@ -85,4 +97,5 @@ export const MOONLY_BLOG = BLOG_POSTS[2]
 export const AI_UNDERSTAND_BLOG = BLOG_POSTS[3]
 export const JAMAIS_VU_BLOG = BLOG_POSTS[4]
 export const LIFE_MIDPOINT_BLOG = BLOG_POSTS[5]
+export const LIE_PERFECTLY_BLOG = BLOG_POSTS[6]
 export const FEATURED_BLOG = ENTROPY_BLOG

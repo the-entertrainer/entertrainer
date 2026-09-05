@@ -14,7 +14,12 @@ export default defineNuxtConfig({
     // Server-only — set via MAILERLITE_API_KEY env var (Vercel project settings).
     // When absent, /api/newsletter-subscribe reports itself unconfigured so
     // the widget can fall back to the mailto flow instead of breaking.
-    mailerliteApiKey: process.env.MAILERLITE_API_KEY || ''
+    mailerliteApiKey: process.env.MAILERLITE_API_KEY || '',
+    // Server-only — set via GROQ_API_KEY / optional GROQ_MODEL (Vercel project settings).
+    // Powers /api/compose/generate. Default model: groq/compound (free-tier probe).
+    // Never expose to client.
+    groqApiKey: process.env.GROQ_API_KEY || '',
+    groqModel: process.env.GROQ_MODEL || 'groq/compound'
   },
   app: {
     head: {

@@ -25,6 +25,11 @@ const saving = ref(false)
 const library = ref<ComposedPost[]>([])
 const activeSlug = ref<string | null>(null)
 
+const aiTopic = ref('')
+const aiNotes = ref('')
+const aiLoading = ref(false)
+const aiError = ref('')
+
 const draft = ref<ComposedPost>(emptyComposedPost())
 
 const blockTypes: { type: ComposedBlockType; label: string }[] = [
@@ -179,6 +184,42 @@ async function removePost(slug: string) {
   }
 }
 
+
+async function generateDraft() {
+  const topic = aiTopic.value.trim()
+  if (!topic) {
+    aiError.value = 'Add a topic first.'
+    return
+  }
+
+  aiLoading.value = true
+  aiError.value = ''
+  statusMessage.value = 'Generating Elevate draft with Groq (compound)…'
+
+  try {
+    const res = await $fetch<{ post: ComposedPost }>('/api/compose/generate', {
+      method: 'POST',
+      body: {
+        topic,
+        notes: aiNotes.value.trim() || undefined
+      }
+    })
+    const copy = structuredClone(res.post)
+    if (!copy.marginNote) copy.marginNote = { label: 'One useful idea.', body: '' }
+    if (!copy.blocks) copy.blocks = []
+    if (!copy.references) copy.references = []
+    draft.value = copy
+    activeSlug.value = null
+    statusMessage.value = 'AI draft ready — polish then Save draft / Publish.'
+  } catch (err: any) {
+    const msg = err?.data?.statusMessage || err?.statusMessage || err?.message || 'Generation failed.'
+    aiError.value = msg
+    statusMessage.value = `AI draft failed: ${msg}`
+  } finally {
+    aiLoading.value = false
+  }
+}
+
 const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.slug}` : null)
 </script>
 
@@ -217,6 +258,47 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
       </header>
 
       <p v-if="statusMessage" class="compose__status" role="status">{{ statusMessage }}</p>
+
+      <section class="compose__ai" aria-label="AI draft">
+        <div class="compose__ai-head">
+          <p class="compose__eyebrow">AI draft</p>
+          <h2 class="compose__ai-title">One-click Elevate draft</h2>
+          <p class="compose__ai-copy">Type a topic. Groq <code>compound</code> drafts research structure + Naveen voice into the composer — you polish, then publish.</p>
+        </div>
+        <div class="compose__ai-form">
+          <label class="compose__span-2">
+            <span>Topic</span>
+            <input
+              v-model="aiTopic"
+              class="compose__input"
+              type="text"
+              maxlength="300"
+              placeholder="e.g. Why déjà vu feels like a glitch in time"
+              :disabled="aiLoading"
+              @keydown.enter.prevent="generateDraft"
+            >
+          </label>
+          <label class="compose__span-2">
+            <span>Notes (optional)</span>
+            <textarea
+              v-model="aiNotes"
+              class="compose__input compose__textarea"
+              rows="3"
+              placeholder="Angle, audience, claims to include or avoid…"
+              :disabled="aiLoading"
+            ></textarea>
+          </label>
+          <div class="compose__ai-actions">
+            <button
+              type="button"
+              class="compose__btn compose__btn--signal"
+              :disabled="aiLoading || !aiTopic.trim()"
+              @click="generateDraft"
+            >{{ aiLoading ? 'Generating…' : 'Generate draft' }}</button>
+          </div>
+          <p v-if="aiError" class="compose__error" role="alert">{{ aiError }}</p>
+        </div>
+      </section>
 
       <div class="compose__layout">
         <aside class="compose__library" aria-label="Saved posts">
@@ -540,9 +622,56 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
 .compose__icon-btn:disabled { opacity: .35; cursor: default; }
 .compose__footer-actions { margin-top: 24rem; }
 
+
+.compose__ai {
+  margin: 22rem 0 0;
+  padding: 18rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-m);
+  background: var(--paper-2);
+}
+.compose__ai-title {
+  margin: 0;
+  font: 500 clamp(24rem, 4vw, 36rem)/1.05 var(--font-display);
+  letter-spacing: -.04em;
+}
+.compose__ai-copy {
+  margin: 10rem 0 0;
+  max-width: 62ch;
+  font-size: 15rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+.compose__ai-copy code {
+  font: 700 12rem/1.2 var(--font-mono);
+  letter-spacing: .02em;
+}
+.compose__ai-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12rem;
+  margin-top: 16rem;
+}
+.compose__ai-form label {
+  display: flex;
+  flex-direction: column;
+  font: 700 11rem/1.2 var(--font-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.compose__ai-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rem;
+  align-items: center;
+}
+
 @media (max-width: 760px) {
   .compose__layout { grid-template-columns: 1fr; }
   .compose__meta-grid { grid-template-columns: 1fr; }
+  .compose__ai-form { grid-template-columns: 1fr; }
   .compose__top-actions { width: 100%; }
   .compose__btn { flex: 1 1 auto; }
 }

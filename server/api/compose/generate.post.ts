@@ -14,8 +14,19 @@ const BLOCK_TYPES = new Set<ComposedBlockType>([
   'lead', 'paragraph', 'heading', 'blockquote', 'callout', 'figure', 'list', 'closing'
 ])
 
-const DEFAULT_MODEL = 'groq/compound'
-const MAX_TOKENS = 7000
+const DEFAULT_GROQ_MODEL = 'groq/compound'
+const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite'
+const GROQ_MAX_TOKENS = 7000
+const GEMINI_MAX_TOKENS = 8192
+
+type ProviderId = 'groq' | 'gemini'
+
+type ProviderCallResult = {
+  content: string
+  status: number
+  errText: string
+  rate?: Record<string, string>
+}
 
 /** H3/Nitro body parse workaround used elsewhere in this codebase. */
 function parseBody(event: any): Promise<any> {
@@ -158,7 +169,7 @@ async function callGroq(opts: {
   model: string
   systemPrompt: string
   userPrompt: string
-}): Promise<{ content: string; status: number; errText: string; rate: Record<string, string> }> {
+}): Promise<ProviderCallResult> {
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -173,10 +184,9 @@ async function callGroq(opts: {
         { role: 'system', content: opts.systemPrompt },
         { role: 'user', content: opts.userPrompt }
       ],
-      // compound supports structured JSON well; keep json_object when possible
       response_format: { type: 'json_object' },
       temperature: 0.7,
-      max_tokens: MAX_TOKENS
+      max_tokens: GROQ_MAX_TOKENS
     })
   })
 
@@ -201,6 +211,59 @@ async function callGroq(opts: {
   return { content, status: res.status, errText: '', rate }
 }
 
+function extractGeminiText(payload: any): string {
+  const parts = payload?.candidates?.[0]?.content?.parts
+  if (!Array.isArray(parts)) return ''
+  return parts
+    .map((part: any) => (typeof part?.text === 'string' ? part.text : ''))
+    .filter(Boolean)
+    .join('\n')
+    .trim()
+}
+
+async function callGemini(opts: {
+  apiKey: string
+  model: string
+  systemPrompt: string
+  userPrompt: string
+}): Promise<ProviderCallResult> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(opts.model)}:generateContent`
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'x-goog-api-key': opts.apiKey,
+      'User-Agent': 'EntertrainerComposeBot/1.0 (https://entertrainer.in; elevate-composer)'
+    },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [{ text: opts.systemPrompt }]
+      },
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: opts.userPrompt }]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: GEMINI_MAX_TOKENS,
+        responseMimeType: 'application/json'
+      }
+    })
+  })
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '')
+    return { content: '', status: res.status, errText }
+  }
+
+  const payload = await res.json() as any
+  const content = extractGeminiText(payload)
+  return { content, status: res.status, errText: '' }
+}
+
 function tryParseDraft(content: string): any | null {
   if (!content || looksLikeRefusal(content)) return null
   try {
@@ -215,18 +278,28 @@ function tryParseDraft(content: string): any | null {
   }
 }
 
+function resolveProvider(
+  requested: unknown,
+  groqKey: string,
+  geminiKey: string
+): ProviderId {
+  const raw = String(requested || '').trim().toLowerCase()
+  if (raw === 'groq' || raw === 'gemini') return raw as ProviderId
+  if (groqKey) return 'groq'
+  if (geminiKey) return 'gemini'
+  throw createError({
+    statusCode: 503,
+    statusMessage:
+      'No AI provider configured. Set GROQ_API_KEY and/or GEMINI_API_KEY in Vercel → Settings → Environment Variables (or local .env) and redeploy.'
+  })
+}
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const apiKey = String(config.groqApiKey || process.env.GROQ_API_KEY || '').trim()
-  const model = String(config.groqModel || process.env.GROQ_MODEL || DEFAULT_MODEL).trim() || DEFAULT_MODEL
-
-  if (!apiKey) {
-    throw createError({
-      statusCode: 503,
-      statusMessage:
-        'GROQ_API_KEY is not configured on the server. Add it in Vercel → Settings → Environment Variables (or local .env) and redeploy.'
-    })
-  }
+  const groqApiKey = String(config.groqApiKey || process.env.GROQ_API_KEY || '').trim()
+  const groqModel = String(config.groqModel || process.env.GROQ_MODEL || DEFAULT_GROQ_MODEL).trim() || DEFAULT_GROQ_MODEL
+  const geminiApiKey = String(config.geminiApiKey || process.env.GEMINI_API_KEY || '').trim()
+  const geminiModel = String(config.geminiModel || process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL).trim() || DEFAULT_GEMINI_MODEL
 
   let body: any
   try {
@@ -237,6 +310,7 @@ export default defineEventHandler(async (event) => {
 
   const topic = String(body?.topic ?? '').trim()
   const notes = String(body?.notes ?? '').trim()
+  const provider = resolveProvider(body?.provider, groqApiKey, geminiApiKey)
 
   if (!topic) {
     throw createError({ statusCode: 400, statusMessage: 'topic is required' })
@@ -244,6 +318,26 @@ export default defineEventHandler(async (event) => {
   if (topic.length > 300) {
     throw createError({ statusCode: 400, statusMessage: 'topic is too long' })
   }
+
+  if (provider === 'groq' && !groqApiKey) {
+    throw createError({
+      statusCode: 503,
+      statusMessage:
+        'GROQ_API_KEY is not configured on the server. Add it in Vercel → Settings → Environment Variables (or local .env) and redeploy.'
+    })
+  }
+  if (provider === 'gemini' && !geminiApiKey) {
+    throw createError({
+      statusCode: 503,
+      statusMessage:
+        'GEMINI_API_KEY is not configured on the server. Add it in Vercel → Settings → Environment Variables (or local .env) and redeploy.'
+    })
+  }
+
+  const model = provider === 'groq' ? groqModel : geminiModel
+  const apiKey = provider === 'groq' ? groqApiKey : geminiApiKey
+  const callProvider = provider === 'groq' ? callGroq : callGemini
+  const providerLabel = provider === 'groq' ? 'Groq' : 'Gemini'
 
   const systemPrompt = buildComposeSystemPrompt()
   const primaryUser = [
@@ -257,7 +351,7 @@ export default defineEventHandler(async (event) => {
   let parsed: any = null
 
   try {
-    const first = await callGroq({
+    const first = await callProvider({
       apiKey,
       model,
       systemPrompt,
@@ -268,12 +362,16 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 429,
         statusMessage:
-          'Groq free-tier rate limit hit. Wait a minute and retry. compound usually has ~250 RPM / ~70k TPM; smaller models can be ~8k TPM.'
+          provider === 'groq'
+            ? 'Groq free-tier rate limit hit. Wait a minute and retry. compound usually has ~250 RPM / ~70k TPM; smaller models can be ~8k TPM.'
+            : 'Gemini rate limit / quota hit. Wait a minute and retry, or switch to Groq.'
       })
     }
 
-    if (first.status >= 400) {
-      lastError = `Groq error ${first.status}: ${first.errText.slice(0, 240) || 'request failed'}`
+    if (first.status === 503 && provider === 'gemini') {
+      lastError = `Gemini high demand (503): ${first.errText.slice(0, 240) || 'try again or set GEMINI_MODEL to gemini-3.5-flash-lite'}`
+    } else if (first.status >= 400) {
+      lastError = `${providerLabel} error ${first.status}: ${first.errText.slice(0, 240) || 'request failed'}`
     } else {
       parsed = tryParseDraft(first.content)
       if (!parsed) {
@@ -285,7 +383,7 @@ export default defineEventHandler(async (event) => {
 
     // One retry with an explicit scientific reframe (helps when framing looks like harm/deception how-to).
     if (!parsed) {
-      const retry = await callGroq({
+      const retry = await callProvider({
         apiKey,
         model,
         systemPrompt,
@@ -296,12 +394,14 @@ export default defineEventHandler(async (event) => {
         throw createError({
           statusCode: 429,
           statusMessage:
-            'Groq free-tier rate limit hit on retry. Wait a minute, then try a narrower scientific angle.'
+            provider === 'groq'
+              ? 'Groq free-tier rate limit hit on retry. Wait a minute, then try a narrower scientific angle.'
+              : 'Gemini rate limit / quota hit on retry. Wait a minute, then try again or switch provider.'
         })
       }
 
       if (retry.status >= 400) {
-        lastError = `Retry Groq error ${retry.status}: ${retry.errText.slice(0, 240) || 'request failed'}`
+        lastError = `Retry ${providerLabel} error ${retry.status}: ${retry.errText.slice(0, 240) || 'request failed'}`
       } else {
         parsed = tryParseDraft(retry.content)
         if (!parsed) {
@@ -315,7 +415,7 @@ export default defineEventHandler(async (event) => {
     if (err?.statusCode) throw err
     throw createError({
       statusCode: 502,
-      statusMessage: `Groq request failed: ${err?.message || 'network error'}`
+      statusMessage: `${providerLabel} request failed: ${err?.message || 'network error'}`
     })
   }
 
@@ -344,5 +444,5 @@ export default defineEventHandler(async (event) => {
   post.status = 'draft'
   post.updatedAt = new Date().toISOString()
 
-  return { post }
+  return { post, provider, model }
 })

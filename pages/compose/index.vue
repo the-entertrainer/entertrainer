@@ -16,6 +16,9 @@ useSeoMeta({
 const GATE_KEY = 'iamguru'
 const GATE_STORAGE = 'et-compose-unlocked'
 const DRAFT_STORAGE = 'et-compose-working'
+const PROVIDER_STORAGE = 'et-compose-provider'
+
+type ComposeProvider = 'groq' | 'gemini'
 
 const unlocked = ref(false)
 const gateInput = ref('')
@@ -27,6 +30,7 @@ const activeSlug = ref<string | null>(null)
 
 const aiTopic = ref('')
 const aiNotes = ref('')
+const aiProvider = ref<ComposeProvider>('groq')
 const aiLoading = ref(false)
 const aiError = ref('')
 
@@ -48,8 +52,14 @@ onMounted(() => {
     if (sessionStorage.getItem(GATE_STORAGE) === '1') unlocked.value = true
     const cached = localStorage.getItem(DRAFT_STORAGE)
     if (cached) draft.value = JSON.parse(cached) as ComposedPost
+    const savedProvider = localStorage.getItem(PROVIDER_STORAGE)
+    if (savedProvider === 'groq' || savedProvider === 'gemini') aiProvider.value = savedProvider
   } catch { /* ignore */ }
   if (unlocked.value) void loadLibrary()
+})
+
+watch(aiProvider, (value) => {
+  try { localStorage.setItem(PROVIDER_STORAGE, value) } catch { /* ignore */ }
 })
 
 watch(draft, (value) => {
@@ -192,16 +202,19 @@ async function generateDraft() {
     return
   }
 
+  const provider = aiProvider.value
+  const providerLabel = provider === 'groq' ? 'Groq' : 'Gemini'
   aiLoading.value = true
   aiError.value = ''
-  statusMessage.value = 'Generating Elevate draft with Groq (compound)…'
+  statusMessage.value = `Generating Elevate draft with ${providerLabel}…`
 
   try {
-    const res = await $fetch<{ post: ComposedPost }>('/api/compose/generate', {
+    const res = await $fetch<{ post: ComposedPost; provider?: string; model?: string }>('/api/compose/generate', {
       method: 'POST',
       body: {
         topic,
-        notes: aiNotes.value.trim() || undefined
+        notes: aiNotes.value.trim() || undefined,
+        provider
       }
     })
     const copy = structuredClone(res.post)
@@ -210,7 +223,9 @@ async function generateDraft() {
     if (!copy.references) copy.references = []
     draft.value = copy
     activeSlug.value = null
-    statusMessage.value = 'AI draft ready — polish then Save draft / Publish.'
+    const usedProvider = res.provider || provider
+    const usedModel = res.model || (usedProvider === 'groq' ? 'groq/compound' : 'gemini-3.5-flash-lite')
+    statusMessage.value = `AI draft ready via ${usedProvider} (${usedModel}) — polish then Save draft / Publish.`
   } catch (err: any) {
     const msg = err?.data?.statusMessage || err?.statusMessage || err?.message || 'Generation failed.'
     aiError.value = msg
@@ -263,9 +278,22 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
         <div class="compose__ai-head">
           <p class="compose__eyebrow">AI draft</p>
           <h2 class="compose__ai-title">One-click Elevate draft</h2>
-          <p class="compose__ai-copy">Type a topic. Groq <code>compound</code> drafts research structure + Naveen voice into the composer — you polish, then publish.</p>
+          <p class="compose__ai-copy">Type a topic. Pick <strong>Groq</strong> (<code>compound</code>) or <strong>Gemini</strong> (<code>gemini-3.5-flash-lite</code>) — research structure + Naveen voice land in the composer for polish, then publish.</p>
         </div>
         <div class="compose__ai-form">
+          <fieldset class="compose__provider compose__span-2" :disabled="aiLoading">
+            <legend>Provider</legend>
+            <div class="compose__provider-seg" role="radiogroup" aria-label="AI provider">
+              <label class="compose__provider-opt" :class="{ 'is-active': aiProvider === 'groq' }">
+                <input v-model="aiProvider" type="radio" name="compose-provider" value="groq">
+                <span>Groq</span>
+              </label>
+              <label class="compose__provider-opt" :class="{ 'is-active': aiProvider === 'gemini' }">
+                <input v-model="aiProvider" type="radio" name="compose-provider" value="gemini">
+                <span>Gemini</span>
+              </label>
+            </div>
+          </fieldset>
           <label class="compose__span-2">
             <span>Topic</span>
             <input
@@ -667,6 +695,52 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
   gap: 8rem;
   align-items: center;
 }
+.compose__provider {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.compose__provider legend {
+  padding: 0;
+  font: 700 11rem/1.2 var(--font-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.compose__provider-seg {
+  display: inline-flex;
+  margin-top: 8rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  background: var(--paper);
+}
+.compose__provider-opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 10rem 16rem;
+  border-right: var(--stroke) solid var(--ink);
+  cursor: pointer;
+  font: 700 12rem/1 var(--font-mono);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: transparent;
+}
+.compose__provider-opt:last-child { border-right: 0; }
+.compose__provider-opt input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.compose__provider-opt.is-active {
+  background: var(--signal-cobalt);
+  color: var(--paper);
+}
+.compose__provider:disabled .compose__provider-opt { opacity: .55; cursor: wait; }
 
 @media (max-width: 760px) {
   .compose__layout { grid-template-columns: 1fr; }

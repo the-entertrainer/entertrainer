@@ -15,11 +15,13 @@ export default defineNuxtConfig({
     // When absent, /api/newsletter-subscribe reports itself unconfigured so
     // the widget can fall back to the mailto flow instead of breaking.
     mailerliteApiKey: process.env.MAILERLITE_API_KEY || '',
-    // Server-only — set via GROQ_API_KEY / optional GROQ_MODEL (Vercel project settings).
-    // Powers /api/compose/generate. Default model: groq/compound (free-tier probe).
+    // Server-only — GROQ_API_KEY / GEMINI_API_KEY (+ optional model overrides).
+    // Powers /api/compose/generate. Defaults: groq/compound, gemini-3.5-flash-lite.
     // Never expose to client.
     groqApiKey: process.env.GROQ_API_KEY || '',
-    groqModel: process.env.GROQ_MODEL || 'groq/compound'
+    groqModel: process.env.GROQ_MODEL || 'groq/compound',
+    geminiApiKey: process.env.GEMINI_API_KEY || '',
+    geminiModel: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite'
   },
   app: {
     head: {

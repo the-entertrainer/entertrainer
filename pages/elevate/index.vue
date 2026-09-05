@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { BLOG_POSTS } from '~/content/blogs'
+import { BLOG_POSTS, type BlogPost } from '~/content/blogs'
+import { composedToBlogPost, getPublishedComposedPosts } from '~/content/composed'
+import type { ComposedPost } from '~/types/composed'
 
 useSeoMeta({
   title: 'Elevate · The Entertrainer Blogs',
@@ -15,6 +17,23 @@ useHead({
 })
 
 const bannerStyle = { '--elevate-image': "url('https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/oLmjqBPjwBxcOjsd.jpg')" }
+
+const { data: liveComposed } = await useAsyncData('elevate-composed-listing', async () => {
+  try {
+    const res = await $fetch<{ posts: ComposedPost[] }>('/api/composed')
+    return res.posts ?? []
+  } catch {
+    return getPublishedComposedPosts()
+  }
+})
+
+const posts = computed<BlogPost[]>(() => {
+  const seen = new Set(BLOG_POSTS.map((post) => post.slug))
+  const extras = (liveComposed.value ?? [])
+    .filter((post) => post.status === 'published' && !seen.has(post.slug))
+    .map(composedToBlogPost)
+  return [...BLOG_POSTS, ...extras]
+})
 </script>
 
 <template>
@@ -29,7 +48,7 @@ const bannerStyle = { '--elevate-image': "url('https://files.manuscdn.com/user_u
 
     <section class="elevate__entry" aria-labelledby="articles-title">
       <h2 id="articles-title" class="elevate__section-label">Articles</h2>
-      <NuxtLink v-for="post in BLOG_POSTS" :key="post.slug" :to="`/elevate/${post.slug}`" class="elevate__feature" :aria-labelledby="`article-${post.slug}`">
+      <NuxtLink v-for="post in posts" :key="post.slug" :to="`/elevate/${post.slug}`" class="elevate__feature" :aria-labelledby="`article-${post.slug}`">
         <div class="elevate__feature-copy">
           <p class="elevate__meta">{{ post.category }} <span aria-hidden="true">·</span> {{ post.minutes }} min read</p>
           <h3 :id="`article-${post.slug}`">{{ post.title }}</h3>

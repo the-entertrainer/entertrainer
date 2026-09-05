@@ -1,4 +1,6 @@
 import { BLOG_POSTS } from '~/content/blogs'
+import { composedToBlogPost, getPublishedComposedPosts } from '~/content/composed'
+import { readComposedStore } from '../utils/composed-store'
 
 const SITE_URL = 'https://entertrainer.in'
 
@@ -15,8 +17,20 @@ export default defineEventHandler((event) => {
   setResponseHeader(event, 'content-type', 'application/rss+xml; charset=utf-8')
   setResponseHeader(event, 'cache-control', 'public, max-age=300, s-maxage=300')
 
-  const items = BLOG_POSTS
-    .filter((post) => post.status === 'published')
+  const seen = new Set(BLOG_POSTS.map((post) => post.slug))
+  let composedPublished = getPublishedComposedPosts()
+  try {
+    composedPublished = readComposedStore().filter((post) => post.status === 'published')
+  } catch {
+    // fall back to committed JSON import
+  }
+
+  const listing = [
+    ...BLOG_POSTS.filter((post) => post.status === 'published'),
+    ...composedPublished.filter((post) => !seen.has(post.slug)).map(composedToBlogPost)
+  ]
+
+  const items = listing
     .map((post) => {
       const url = `${SITE_URL}/elevate/${post.slug}`
       const description = `${post.dek} Read time: ${post.minutes} minutes.`

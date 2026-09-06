@@ -417,12 +417,5 @@
         "href": "https://doi.org/10.1093/cysec/yxy005"
       }
     ]
-  },
-  {
-    "slug": "should-fail",
-    "title": "x",
-    "updatedAt": "2026-09-06T02:44:14.098Z",
-    "publishedAt": "2026-09-06T02:44:13.954Z",
-    "blocks": []
   }
 ]

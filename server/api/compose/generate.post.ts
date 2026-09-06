@@ -1,12 +1,12 @@
 import { buildComposeSystemPrompt } from '../../prompts/load-prompts'
 import {
-import { assertComposeAccess } from '../../utils/compose-request'
   applyImagesToFigures,
   enrichComposeImages,
   IMAGE_PHASE_BUDGET_MS,
   normalizeImageSource
 } from '../../utils/compose-images'
 import { generateElevateHero, parseHeroBrief, pickHeroBrief } from '../../utils/elevate-hero'
+import { assertComposeAccess } from '../../utils/compose-request'
 import {
   emptyComposedPost,
   newBlockId,

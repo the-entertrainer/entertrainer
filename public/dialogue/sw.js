@@ -1,23 +1,23 @@
 /* Dialogue service worker — cache app shell + fonts + icons. Do NOT cache user comic blobs. */
-const CACHE = 'dialogue-shell-v1';
+const CACHE = 'dialogue-shell-v2';
 const SHELL = [
-  './',
-  './index.html',
-  './manifest.webmanifest',
-  './css/dialogue.css',
-  './js/utils.js',
-  './js/formats.js',
-  './js/db.js',
-  './js/history.js',
-  './js/export.js',
-  './js/demo.js',
-  './js/editor.js',
-  './js/app.js',
-  './icons/d-mark.svg',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/maskable-512.png',
-  './icons/apple-touch-icon.png',
+  '/dialogue/',
+  '/dialogue/index.html',
+  '/dialogue/manifest.webmanifest',
+  '/dialogue/css/dialogue.css',
+  '/dialogue/js/utils.js',
+  '/dialogue/js/formats.js',
+  '/dialogue/js/db.js',
+  '/dialogue/js/history.js',
+  '/dialogue/js/export.js',
+  '/dialogue/js/demo.js',
+  '/dialogue/js/editor.js',
+  '/dialogue/js/app.js',
+  '/dialogue/icons/d-mark.svg',
+  '/dialogue/icons/icon-192.png',
+  '/dialogue/icons/icon-512.png',
+  '/dialogue/icons/maskable-512.png',
+  '/dialogue/icons/apple-touch-icon.png',
 ];
 
 self.addEventListener('install', (event) => {
@@ -61,7 +61,7 @@ self.addEventListener('fetch', (event) => {
           return res;
         } catch (err) {
           if (same && req.mode === 'navigate') {
-            return cache.match('./index.html');
+            return cache.match('/dialogue/index.html');
           }
           throw err;
         }

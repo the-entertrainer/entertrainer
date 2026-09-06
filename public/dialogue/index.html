@@ -7,13 +7,36 @@
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="description" content="Dialogue — Comics from your pocket."/>
-  <link rel="manifest" href="./manifest.webmanifest"/>
-  <link rel="icon" href="./icons/d-mark.svg" type="image/svg+xml"/>
-  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png"/>
+  <link rel="manifest" href="/dialogue/manifest.webmanifest"/>
+  <link rel="icon" href="/dialogue/icons/d-mark.svg" type="image/svg+xml"/>
+  <link rel="apple-touch-icon" href="/dialogue/icons/apple-touch-icon.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Comic+Neue:wght@400;700&family=Inter:wght@400;600;700&family=Kosugi+Maru&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="./css/dialogue.css"/>
+  <style>
+    /* Critical shell — never show Times New Roman wireframe if CSS 404s */
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background: #F6F1E8;
+      color: #12110F;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+    }
+    .screen { display: none !important; }
+    .screen.active { display: flex !important; flex-direction: column; }
+    .btn-primary {
+      background: #FF4D2E;
+      color: #fff;
+      font-weight: 700;
+      border: 0;
+      border-radius: 999px;
+      min-height: 56px;
+      padding: 0 22px;
+      cursor: pointer;
+    }
+  </style>
+  <link rel="stylesheet" href="/dialogue/css/dialogue.css"/>
   <title>Dialogue — Comics from your pocket.</title>
 </head>
 <body>
@@ -22,7 +45,15 @@
 
     <section class="screen active" data-screen="home">
       <div class="brand">
-        <img src="./icons/d-mark.svg" alt="Dialogue"/>
+        <span class="brand-mark" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="44" height="44" role="img" aria-label="Dialogue">
+            <rect x="48" y="16" width="416" height="480" rx="28" fill="#12110F"/>
+            <rect x="64" y="32" width="384" height="448" rx="20" fill="#F6F1E8"/>
+            <path fill="#FF4D2E" d="M256 120c-78 0-140 52-140 120 0 42 24 78 62 100l-48 78c-4 6 2 14 9 11l92-36c8 2 17 3 25 3 78 0 140-52 140-120S334 120 256 120z"/>
+            <ellipse cx="268" cy="230" rx="58" ry="68" fill="#F6F1E8"/>
+          </svg>
+        </span>
+        <img class="brand-img" src="/dialogue/icons/d-mark.svg" alt="" width="44" height="44" onerror="this.style.display='none'"/>
         <div>
           <div class="name">Dialogue</div>
           <div class="tag">Comics from your pocket.</div>
@@ -42,14 +73,14 @@
         <span style="width:56px"></span>
       </div>
       <div class="shelf">
-        <h2>Format</h2>
+        <h2 class="section-label">Format</h2>
         <div class="chips" id="wizard-formats">
           <button type="button" class="chip active" data-id="webtoon">Webtoon 800×∞</button>
           <button type="button" class="chip" data-id="shorts">Shorts 1080×1920</button>
           <button type="button" class="chip" data-id="square">Square 1080×1080</button>
           <button type="button" class="chip" data-id="page">Page 2480×3508</button>
         </div>
-        <h2>Layout</h2>
+        <h2 class="section-label">Layout</h2>
         <div class="chips" id="wizard-layouts">
           <button type="button" class="chip" data-id="splash1">1 splash</button>
           <button type="button" class="chip" data-id="stack2">2 stack</button>
@@ -57,7 +88,7 @@
           <button type="button" class="chip" data-id="grid4">4 grid</button>
           <button type="button" class="chip" data-id="blank">Blank</button>
         </div>
-        <h2>Start with</h2>
+        <h2 class="section-label">Start with</h2>
         <div class="chips" id="wizard-start">
           <button type="button" class="chip" data-id="camera">Camera</button>
           <button type="button" class="chip" data-id="photos">Photos</button>
@@ -122,7 +153,7 @@
     <textarea id="lettering-text" placeholder="Say something"></textarea>
     <div style="display:flex;gap:8px;margin-top:12px">
       <button type="button" class="btn-primary" id="lettering-save" style="flex:1">Done</button>
-      <button type="button" id="lettering-cancel">Cancel</button>
+      <button type="button" class="btn-ghost" id="lettering-cancel">Cancel</button>
     </div>
   </div>
 
@@ -152,13 +183,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-  <script src="./js/utils.js"></script>
-  <script src="./js/formats.js"></script>
-  <script src="./js/db.js"></script>
-  <script src="./js/history.js"></script>
-  <script src="./js/export.js"></script>
-  <script src="./js/demo.js"></script>
-  <script src="./js/editor.js"></script>
-  <script src="./js/app.js"></script>
+  <script src="/dialogue/js/utils.js"></script>
+  <script src="/dialogue/js/formats.js"></script>
+  <script src="/dialogue/js/db.js"></script>
+  <script src="/dialogue/js/history.js"></script>
+  <script src="/dialogue/js/export.js"></script>
+  <script src="/dialogue/js/demo.js"></script>
+  <script src="/dialogue/js/editor.js"></script>
+  <script src="/dialogue/js/app.js"></script>
 </body>
 </html>

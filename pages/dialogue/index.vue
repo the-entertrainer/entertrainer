@@ -2,7 +2,14 @@
   <div>
     <button type="button" class="icon-btn fab-settings" aria-label="Settings" @click="navigateTo('/dialogue/settings')">⚙</button>
     <div class="brand">
-      <img src="/dialogue/icons/d-mark.svg" alt="Dialogue" width="40" height="40" />
+      <span class="brand-mark" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="44" height="44" role="img" aria-label="Dialogue">
+          <rect x="48" y="16" width="416" height="480" rx="28" fill="#12110F"/>
+          <rect x="64" y="32" width="384" height="448" rx="20" fill="#F6F1E8"/>
+          <path fill="#FF4D2E" d="M256 120c-78 0-140 52-140 120 0 42 24 78 62 100l-48 78c-4 6 2 14 9 11l92-36c8 2 17 3 25 3 78 0 140-52 140-120S334 120 256 120z"/>
+          <ellipse cx="268" cy="230" rx="58" ry="68" fill="#F6F1E8"/>
+        </svg>
+      </span>
       <div>
         <div class="name">Dialogue</div>
         <div class="tag">Comics from your pocket.</div>

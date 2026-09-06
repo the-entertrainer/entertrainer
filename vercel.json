@@ -1,4 +1,11 @@
 {
   "buildCommand": "npm run build",
-  "framework": "nuxtjs"
+  "framework": "nuxtjs",
+  "redirects": [
+    {
+      "source": "/dialogue",
+      "destination": "/dialogue/",
+      "permanent": true
+    }
+  ]
 }

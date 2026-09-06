@@ -182,7 +182,9 @@ export default defineNuxtConfig({
   ssr: true,
   routeRules: {
     '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } },
-    '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } }
+    '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } },
+    // Trailing slash required so static /dialogue/index.html assets resolve under /dialogue/.
+    '/dialogue': { redirect: { to: '/dialogue/', statusCode: 308 } },
   },
   nitro: {
     preset: 'vercel',

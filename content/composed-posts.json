@@ -417,5 +417,12 @@
         "href": "https://doi.org/10.1093/cysec/yxy005"
       }
     ]
+  },
+  {
+    "slug": "audit-probe",
+    "title": "x",
+    "updatedAt": "2026-09-06T02:30:46.289Z",
+    "publishedAt": "2026-09-06T02:30:46.138Z",
+    "blocks": []
   }
 ]

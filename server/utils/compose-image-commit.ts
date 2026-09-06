@@ -124,12 +124,13 @@ function decodeDataUrl(dataUrl: string): { bytes: Buffer; ext: string } | null {
   const m = dataUrl.trim().match(/^data:(image\/[a-z0-9.+-]+);base64,(.+)$/i)
   if (!m) return null
   const mime = m[1].toLowerCase()
-  if (mime.includes('svg')) return null
   const ext = extFromMime(mime, '')
   if (!ext) return null
   try {
     const bytes = Buffer.from(m[2], 'base64')
     if (!bytes.length || bytes.length > MAX_BYTES) return null
+    // SVG is text — skip binary sniff; raster formats prefer magic bytes.
+    if (ext === 'svg') return { bytes, ext: 'svg' }
     return { bytes, ext: sniffExt(bytes) || ext }
   } catch {
     return null

@@ -288,21 +288,21 @@ async function findGeminiImages(
   apiKey: string,
   model: string,
   figureHints: string[],
-  budgetMs = IMAGE_PHASE_BUDGET_MS
+  budgetMs = IMAGE_PHASE_BUDGET_MS,
+  includeHero = true
 ): Promise<{ hits: ImageHit[]; timedOut: boolean; errors: string[] }> {
-  const figureSlots = Math.min(Math.max(0, count), Math.max(0, MAX_AI_IMAGES - 1))
-  const jobs = clampAiJobs(
-    [
-      { role: 'hero' as const, index: 0, aspect: '16:9' },
-      ...Array.from({ length: figureSlots }, (_, i) => ({
-        role: 'figure' as const,
-        index: i + 1,
-        hint: figureHints[i],
-        aspect: i % 2 === 0 ? '4:3' : '3:2'
-      }))
-    ],
-    MAX_AI_IMAGES
-  )
+  const maxFigures = includeHero ? Math.max(0, MAX_AI_IMAGES - 1) : MAX_AI_IMAGES
+  const figureSlots = Math.min(Math.max(0, count), maxFigures)
+  const rawJobs = [
+    ...(includeHero ? [{ role: 'hero' as const, index: 0, aspect: '16:9' }] : []),
+    ...Array.from({ length: figureSlots }, (_, i) => ({
+      role: 'figure' as const,
+      index: i + 1,
+      hint: figureHints[i],
+      aspect: i % 2 === 0 ? '4:3' : '3:2'
+    }))
+  ]
+  const jobs = clampAiJobs(rawJobs, MAX_AI_IMAGES)
 
   const phaseDeadline = Date.now() + budgetMs
   const errors: string[] = []
@@ -424,21 +424,21 @@ async function findGammaImages(
   count: number,
   apiKey: string,
   figureHints: string[],
-  budgetMs = IMAGE_PHASE_BUDGET_MS
+  budgetMs = IMAGE_PHASE_BUDGET_MS,
+  includeHero = true
 ): Promise<{ hits: ImageHit[]; timedOut: boolean; errors: string[] }> {
-  const figureSlots = Math.min(Math.max(0, count), Math.max(0, MAX_AI_IMAGES - 1))
-  const jobs = clampAiJobs(
-    [
-      { role: 'hero' as const, index: 0, size: 'banner' },
-      ...Array.from({ length: figureSlots }, (_, i) => ({
-        role: 'figure' as const,
-        index: i + 1,
-        hint: figureHints[i],
-        size: 'slide'
-      }))
-    ],
-    MAX_AI_IMAGES
-  )
+  const maxFigures = includeHero ? Math.max(0, MAX_AI_IMAGES - 1) : MAX_AI_IMAGES
+  const figureSlots = Math.min(Math.max(0, count), maxFigures)
+  const rawJobs = [
+    ...(includeHero ? [{ role: 'hero' as const, index: 0, size: 'banner' }] : []),
+    ...Array.from({ length: figureSlots }, (_, i) => ({
+      role: 'figure' as const,
+      index: i + 1,
+      hint: figureHints[i],
+      size: 'slide'
+    }))
+  ]
+  const jobs = clampAiJobs(rawJobs, MAX_AI_IMAGES)
 
   const phaseDeadline = Date.now() + budgetMs
   const errors: string[] = []
@@ -582,10 +582,13 @@ export async function enrichComposeImages(opts: {
   gammaApiKey?: string
   /** Overall AI image phase budget after text completes (default ~22s). */
   budgetMs?: number
+  /** When false, skip hero slot (procedural Elevate hero owns the cover). Default true. */
+  includeHero?: boolean
 }): Promise<EnrichImagesResult> {
   const source = normalizeImageSource(opts.imageSource)
+  const includeHero = opts.includeHero !== false
   const wantFigures = Math.min(4, Math.max(1, opts.figureCount || 2))
-  const wantTotal = wantFigures + 1 // hero + figures
+  const wantTotal = wantFigures + (includeHero ? 1 : 0)
   const hints = (opts.figureHints || []).map((h) => String(h || '').trim()).filter(Boolean)
   const budgetMs = Math.max(3_000, opts.budgetMs ?? IMAGE_PHASE_BUDGET_MS)
 
@@ -601,9 +604,9 @@ export async function enrichComposeImages(opts: {
     }
     try {
       const model = String(opts.geminiImageModel || DEFAULT_GEMINI_IMAGE_MODEL).trim() || DEFAULT_GEMINI_IMAGE_MODEL
-      const aiFigures = Math.min(wantFigures, MAX_AI_IMAGES - 1)
+      const aiFigures = Math.min(wantFigures, includeHero ? MAX_AI_IMAGES - 1 : MAX_AI_IMAGES)
       const result = await withTimeout(
-        findGeminiImages(opts.topic, aiFigures, key, model, hints, budgetMs),
+        findGeminiImages(opts.topic, aiFigures, key, model, hints, budgetMs, includeHero),
         budgetMs + 1_500,
         'Gemini image phase'
       )
@@ -638,9 +641,9 @@ export async function enrichComposeImages(opts: {
       }
     }
     try {
-      const aiFigures = Math.min(wantFigures, MAX_AI_IMAGES - 1)
+      const aiFigures = Math.min(wantFigures, includeHero ? MAX_AI_IMAGES - 1 : MAX_AI_IMAGES)
       const result = await withTimeout(
-        findGammaImages(opts.topic, aiFigures, key, hints, budgetMs),
+        findGammaImages(opts.topic, aiFigures, key, hints, budgetMs, includeHero),
         budgetMs + 1_500,
         'Gamma image phase'
       )

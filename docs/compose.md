@@ -14,11 +14,12 @@ After unlock, use the **AI draft** panel: pick a provider, enter a topic (option
 - UI choice is persisted in `localStorage` as `et-compose-provider`
 - Skills: condensed `naveen-curiosity-science-blog` + `say-it-like-naveen` in `server/prompts/`
 - Returns `{ post, provider, model }` into the composer for polish — does **not** auto-publish
-- Figure/hero images are enriched afterward (non-blocking) from the **Images** control:
-  - **Commons** (default): Wikimedia Commons / Openverse CC0–PD (or clearly credited CC); first hit becomes `post.hero`
-  - **Gemini**: Elevate-style hero/cover (cream `#F7F1E4`, black + cobalt `#2F5BD8`) via `GEMINI_API_KEY` + `GEMINI_IMAGE_MODEL` (default `gemini-2.5-flash-image`)
-  - **Gamma**: banner hero via `GAMMA_API_KEY` (`POST https://public-api.gamma.app/v1.0/images`, poll for `image.url`)
-- Generate always tries to set `post.hero` + `heroAlt` so the editor shows an immediate preview (`http(s)`, `/…`, or `data:`)
+- **Procedural Elevate hero** (always): `server/utils/elevate-hero.ts` builds a cream/ink/cobalt cover from topic+slug seed — motif families (ribbons, ripples, orbits, dual profiles, fragments, grid, Voronoi, flows), value/simplex noise, Bézier geometry. Rasterized to PNG via `@resvg/resvg-js` when available (else SVG `data:`). Sets `post.hero` + `heroAlt` on every successful Generate.
+- Figure images are enriched afterward (non-blocking) from the **Images** control (hero slot skipped — procedural owns the cover):
+  - **Commons** (default): Wikimedia Commons / Openverse CC0–PD (or clearly credited CC) for inline figures
+  - **Gemini**: Elevate-style figures via `GEMINI_API_KEY` + `GEMINI_IMAGE_MODEL` (default `gemini-2.5-flash-image`)
+  - **Gamma**: figures via `GAMMA_API_KEY` (`POST https://public-api.gamma.app/v1.0/images`, poll for `image.url`)
+- Generate always sets `post.hero` + `heroAlt` so the editor shows an immediate preview (`data:image/png` / `data:image/svg+xml`). Publish localizes to `public/blog/<slug>/hero.png` (or `.svg`)
 - Pass `imageSource?: 'commons' | 'gemini' | 'gamma'` on generate; UI stores choice in `localStorage` as `et-compose-image-source`
 - If Gemini/Gamma fails or the key is missing, falls back to Commons and returns `imageWarning`
 - Gamma/Gemini images are budgeted on Vercel (~20–25s after text, parallel, fewer slots); slow gens may fall back to Commons
@@ -72,7 +73,7 @@ Never commit `.env` or expose keys to the client (`runtimeConfig.groqApiKey` / `
 
 On Vercel the serverless filesystem is ephemeral, so writes to `content/composed-posts.json` alone disappear. When `COMPOSE_GITHUB_TOKEN` (or `GITHUB_TOKEN`) is set, Save draft / Publish / Delete:
 
-1. For the post being saved, download any absolute `http(s)` (or `data:image/…`) hero/figure URLs into `public/blog/<slug>/` (`hero.<ext>`, `figure-01.<ext>`, …), rewrite paths to `/blog/<slug>/…`, keep captions/credits. Skip srcs already under `/blog/<slug>/`. Prefer jpeg/png/webp; reject files over ~8MB. Failed downloads leave that src as-is and continue.
+1. For the post being saved, download any absolute `http(s)` (or `data:image/…`) hero/figure URLs into `public/blog/<slug>/` (`hero.<ext>`, `figure-01.<ext>`, …), rewrite paths to `/blog/<slug>/…`, keep captions/credits. Skip srcs already under `/blog/<slug>/`. Prefer png/jpeg/webp/svg for heroes; reject files over ~8MB. Failed downloads leave that src as-is and continue.
 2. GET the latest `content/composed-posts.json` from GitHub
 3. Upsert or remove the post
 4. Commit **JSON + image files** on `main` via the Git Data API (blobs → tree → commit → ref). If image blobs fail, still attempt a JSON-only Contents API commit.

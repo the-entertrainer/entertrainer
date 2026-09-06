@@ -1,6 +1,5 @@
 import { buildComposeSystemPrompt } from '../../prompts/load-prompts'
 import {
-  applyHeroFromImages,
   applyImagesToFigures,
   enrichComposeImages,
   IMAGE_PHASE_BUDGET_MS,
@@ -446,7 +445,17 @@ export default defineEventHandler(async (event) => {
   let imageWarning: string | undefined
   let imageSourceUsed = imageSource
 
-  // Image enrichment AFTER text — time-budgeted; never fail the draft when LLM succeeded.
+  // Procedural Elevate hero ALWAYS — cream/ink/cobalt math art (not Gemini/Gamma).
+  try {
+    const hero = await generateElevateHero({ topic, slug: post.slug })
+    post.hero = hero.dataUrl
+    post.heroAlt = hero.alt
+  } catch (heroErr: any) {
+    imageWarning = heroErr?.message || 'Procedural Elevate hero failed'
+  }
+
+  // Figure enrichment AFTER text — time-budgeted; never fail the draft when LLM succeeded.
+  // Heroes are procedural above; Commons/Gemini/Gamma only fill inline figures.
   try {
     const figureBlocks = post.blocks.filter((b) => b.type === 'figure')
     const figureCount = figureBlocks.length
@@ -459,51 +468,26 @@ export default defineEventHandler(async (event) => {
       geminiApiKey,
       geminiImageModel,
       gammaApiKey,
-      budgetMs: IMAGE_PHASE_BUDGET_MS
+      budgetMs: IMAGE_PHASE_BUDGET_MS,
+      includeHero: false
     })
     imageSourceUsed = enriched.sourceUsed
-    imageWarning = enriched.warning
-    applyHeroFromImages(post, enriched.images)
-    // Procedural Elevate cover always wins for hero (deterministic cream/ink/cobalt art).
-    try {
-      const hero = generateElevateHero(topic, post.slug)
-      post.hero = hero.dataUrl
-      post.heroAlt = hero.alt
-    } catch (heroErr: any) {
-      imageWarning = imageWarning || heroErr?.message || 'Procedural hero failed'
+    if (enriched.warning) {
+      imageWarning = imageWarning ? `${imageWarning}; ${enriched.warning}` : enriched.warning
     }
-    applyImagesToFigures(post.blocks, enriched.images, {
-      // First image is always reserved for hero/cover when present.
-      skipHeroSlot: enriched.images.length > 0
-    })
-    // Guarantees post.hero is set whenever any image was produced (preview + publish).
-    if (!String(post.hero || '').trim() && enriched.images[0]) {
-      post.hero = enriched.images[0].src
-    }
-    if (!String(post.heroAlt || '').trim() && enriched.images[0]) {
-      post.heroAlt = enriched.images[0].title || `Editorial image related to ${topic}`
-    }
+    applyImagesToFigures(post.blocks, enriched.images, { skipHeroSlot: false })
   } catch (err: any) {
-    // Still return the text draft; leave figure srcs empty / Commons later.
     try {
       applyImagesToFigures(post.blocks, [])
     } catch {
       /* ignore */
     }
-    imageWarning = `Image enrichment skipped (${err?.message || 'error'}); draft text is ready — add images manually or retry with Commons.`
+    const skip = `Image enrichment skipped (${err?.message || 'error'}); draft text is ready — add images manually or retry with Commons.`
+    imageWarning = imageWarning ? `${imageWarning}; ${skip}` : skip
   }
 
   post.status = 'draft'
   post.updatedAt = new Date().toISOString()
-
-  // Always ensure a procedural Elevate hero (works even when image APIs fail).
-  try {
-    const hero = generateElevateHero(topic, post.slug)
-    post.hero = hero.dataUrl
-    post.heroAlt = hero.alt
-  } catch {
-    /* keep whatever hero we have */
-  }
 
   return {
     post,

@@ -533,7 +533,7 @@ export async function persistComposedUpsert(post: ComposedPost): Promise<{
           imageWarnings,
           imagesCommitted: imageFiles.length
         }
-      } catch (err: any) {      } catch (err: any) {
+      } catch (err: any) {
         lastError = err
         // Auth / missing-token errors — do not pretend a Contents fallback will help.
         if (err?.statusCode === 503 || err?.statusCode === 413) throw err

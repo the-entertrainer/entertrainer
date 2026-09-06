@@ -57,8 +57,13 @@
         </div>
       </div>
       <div class="shelf">
-        <button type="button" class="btn-primary large" id="btn-new"><span data-icon="plus" class="ico"></span> New comic</button>
+        <div class="home-actions">
+          <button type="button" class="btn-primary large" id="btn-new"><span data-icon="plus" class="ico"></span> New comic</button>
+          <button type="button" class="btn-secondary large" id="btn-new-story"><span data-icon="chat" class="ico"></span> New story</button>
+        </div>
         <div id="empty-state" class="empty-state hidden">Your first balloon is one tap away.</div>
+        <div class="section-label story-shelf-label hidden" id="stories-label">Stories</div>
+        <div class="recents stories-recents" id="stories-recents"></div>
         <div class="recents" id="recents"></div>
       </div>
     </section>
@@ -120,6 +125,59 @@
           <button type="button" data-dock="balloon"><span class="ico" data-icon="balloon"></span>Balloon</button>
           <button type="button" data-dock="stickers"><span class="ico" data-icon="stickers"></span>Stickers</button>
         </nav>
+      </div>
+    </section>
+
+
+    <section class="screen" data-screen="story-chat">
+      <div class="topbar">
+        <button type="button" class="icon-btn" id="story-chat-back" aria-label="Back" data-icon="back"></button>
+        <h1 id="story-chat-title">New story</h1>
+        <span style="width:48px"></span>
+      </div>
+      <div class="story-scroll" id="story-chat-scroll">
+        <div class="story-intro" id="story-intro">
+          <p class="story-lede">Describe a plot in a sentence or two. AI expands it into chapters and scenes you can tweak.</p>
+          <label class="story-field-label" for="story-plot">Plot</label>
+          <textarea id="story-plot" class="story-textarea" rows="4" maxlength="800" placeholder="A night-shift barista discovers their regulars are rewriting the city one coffee at a time…"></textarea>
+          <label class="story-field-label" for="story-tone">Tone (optional)</label>
+          <input id="story-tone" class="story-input" type="text" maxlength="80" placeholder="wistful, lightly funny"/>
+          <button type="button" class="btn-primary large" id="story-expand">Expand with AI</button>
+        </div>
+        <div class="story-messages" id="story-messages" hidden></div>
+        <div class="story-outline-card" id="story-outline-card" hidden></div>
+      </div>
+      <div class="story-composer" id="story-composer" hidden>
+        <input type="text" id="story-chat-input" class="story-input" maxlength="400" placeholder="Tweak: make chapter 2 shorter…" autocomplete="off"/>
+        <button type="button" class="btn-primary" id="story-chat-send">Send</button>
+        <button type="button" class="btn-primary" id="story-approve" disabled>Approve</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="story-bible">
+      <div class="topbar">
+        <button type="button" class="icon-btn" id="story-bible-back" aria-label="Back" data-icon="back"></button>
+        <h1>Story Bible</h1>
+        <span style="width:48px"></span>
+      </div>
+      <div class="story-scroll" id="story-bible-scroll">
+        <div class="story-busy" id="story-bible-busy">Building bible…</div>
+        <div id="story-bible-body" hidden></div>
+      </div>
+      <div class="wizard-footer">
+        <button type="button" class="btn-primary large" id="story-gen-pages" disabled>Generate pages</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="story-pages">
+      <div class="topbar">
+        <button type="button" class="icon-btn" id="story-pages-back" aria-label="Back" data-icon="back"></button>
+        <h1 id="story-pages-title">Pages</h1>
+        <span style="width:48px"></span>
+      </div>
+      <div class="story-scroll" id="story-pages-scroll">
+        <div class="story-busy" id="story-pages-busy">Generating panels…</div>
+        <div id="story-pages-body" hidden></div>
       </div>
     </section>
 
@@ -214,6 +272,8 @@
     <div class="scroll" id="reader-scroll"></div>
   </div>
 
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
   <script src="https://unpkg.com/konva@10/konva.min.js"></script>
   <script src="https://unpkg.com/dexie@4/dist/dexie.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -226,6 +286,7 @@
   <script src="/dialogue/js/export.js"></script>
   <script src="/dialogue/js/demo.js"></script>
   <script src="/dialogue/js/editor.js"></script>
+  <script src="/dialogue/js/story.js"></script>
   <script src="/dialogue/js/app.js"></script>
 </body>
 </html>

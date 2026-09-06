@@ -34,3 +34,10 @@ konva@10, dexie@4, jspdf umd, jszip 3.10.1, FileSaver 2.0.5; fonts Bangers Comic
 Dexie dialogue-db: Project, Page, Panel, Node, Asset — see types/dialogue.ts
 
 Camera copy: Dialogue uses the camera only to put a photo on your panel. Nothing leaves this phone.
+
+
+## AI Story Mode
+Home → **New story** → plot prompt → expand / chat → Approve → Story Bible → Generate pages → Copy image prompt / Open in editor.
+
+API: `POST /api/dialogue/story` with `action`: `expand` | `chat` | `bible` | `pages`. Health: `GET /api/dialogue/story`.
+Requires `GROQ_API_KEY` and/or `GEMINI_API_KEY` (prefers Groq). SW shell cache: dialogue-shell-v5.

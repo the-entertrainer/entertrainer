@@ -13,7 +13,10 @@
   const state = {
     route: 'home',
     projects: [],
+    stories: [],
     currentId: null,
+    currentStoryId: null,
+    storyBusy: false,
     editor: null,
     wizard: { formatId: 'webtoon', layoutId: 'stack3', start: null },
     ctxProjectId: null,
@@ -82,7 +85,10 @@
   function showScreen(name) {
     state.route = name;
     $$('.screen').forEach((s) => s.classList.toggle('active', s.dataset.screen === name));
-    if (name === 'home') refreshShelf();
+    if (name === 'home') {
+      refreshShelf();
+      refreshStoriesShelf();
+    }
     if (name === 'settings') renderSettings();
     // Hide settings fab on non-home via CSS :has — also toggle class for older browsers
     const fab = $('#btn-settings');
@@ -169,6 +175,26 @@
 
   function bindUI() {
     $('#btn-new').addEventListener('click', () => openWizard());
+    const btnNewStory = $('#btn-new-story');
+    if (btnNewStory) btnNewStory.addEventListener('click', () => openStoryChat());
+    const storyChatBack = $('#story-chat-back');
+    if (storyChatBack) storyChatBack.addEventListener('click', () => showScreen('home'));
+    const storyExpand = $('#story-expand');
+    if (storyExpand) storyExpand.addEventListener('click', () => expandStory());
+    const storySend = $('#story-chat-send');
+    if (storySend) storySend.addEventListener('click', () => sendStoryChat());
+    const storyInput = $('#story-chat-input');
+    if (storyInput) storyInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); sendStoryChat(); }
+    });
+    const storyApprove = $('#story-approve');
+    if (storyApprove) storyApprove.addEventListener('click', () => approveOutline());
+    const storyBibleBack = $('#story-bible-back');
+    if (storyBibleBack) storyBibleBack.addEventListener('click', () => showScreen('story-chat'));
+    const storyGenPages = $('#story-gen-pages');
+    if (storyGenPages) storyGenPages.addEventListener('click', () => generateStoryPages());
+    const storyPagesBack = $('#story-pages-back');
+    if (storyPagesBack) storyPagesBack.addEventListener('click', () => showScreen('story-bible'));
     $('#btn-settings').addEventListener('click', () => showScreen('settings'));
     $('#settings-back').addEventListener('click', () => showScreen('home'));
     $('#wizard-cancel').addEventListener('click', () => showScreen('home'));
@@ -497,6 +523,9 @@
         <div class="tray-section">Opacity</div>
         <label class="tray-slider">Art <input type="range" id="tray-opacity" min="10" max="100" step="1" value="${opacity}"/><span id="tray-opacity-val">${opacity}%</span></label>
         <button type="button" data-act="clear-art">${iconHtml('delete')} Clear art</button>
+        ${(panel && panel.imagePrompt) ? `<div class="tray-section">AI prompt</div>
+        <p class="tray-note" style="margin:0 0 6px;max-height:4.5em;overflow:auto">${escapeHtml(panel.imagePrompt)}</p>
+        <button type="button" data-act="copy-prompt">${iconHtml('copy')} Copy prompt</button>` : ''}
         <p class="tray-note">Dialogue uses the camera only to put a photo on your panel. Nothing leaves this phone.</p>`;
     } else if (mode === 'balloon') {
       html = `
@@ -569,6 +598,12 @@
     if (act === 'fill') { ed.setFit('cover'); renderTray(); }
     if (act === 'stretch') { ed.setFit('stretch'); renderTray(); }
     if (act === 'clear-art') { ed.clearArt(); haptic(10); renderTray(); }
+    if (act === 'copy-prompt') {
+      const s = ed.getSelection();
+      const b = ed.getBundle();
+      const p = (b.panels || []).find((x) => x.id === s.id);
+      if (p && p.imagePrompt) copyPrompt(p.imagePrompt);
+    }
     if (act === 'speech') { ed.addBalloon('speech'); haptic(10); }
     if (act === 'thought') { ed.addBalloon('thought'); haptic(10); }
     if (act === 'caption') { ed.addBalloon('caption'); haptic(10); }
@@ -807,7 +842,423 @@
     }
   }
 
-  window.DialogueAppActions = {
+
+  function toast(msg) {
+    const el = $('#toast');
+    if (!el) return;
+    el.textContent = msg || '';
+    el.hidden = false;
+    el.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => { el.hidden = true; }, 220);
+    }, 1800);
+  }
+
+  async function copyPrompt(text) {
+    const t = String(text || '').trim();
+    if (!t) return;
+    try {
+      await navigator.clipboard.writeText(t);
+      toast('Prompt copied');
+      haptic(10);
+    } catch (_) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = t;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        toast('Prompt copied');
+        haptic(10);
+      } catch (err) {
+        toast('Copy failed');
+      }
+    }
+  }
+
+  async function refreshStoriesShelf() {
+    const grid = $('#stories-recents');
+    const label = $('#stories-label');
+    if (!grid) return;
+    state.stories = await DialogueDB.listStories();
+    grid.innerHTML = '';
+    if (!state.stories.length) {
+      if (label) label.classList.add('hidden');
+      return;
+    }
+    if (label) label.classList.remove('hidden');
+    for (const s of state.stories) {
+      const card = document.createElement('button');
+      card.className = 'comic-card story-card';
+      card.type = 'button';
+      const status = s.status || 'draft';
+      card.innerHTML = `<img class="cover" alt="" src="/dialogue/icons/ui/book.svg"/><div class="meta">${escapeHtml(s.title || 'Untitled Story')}<br/><span style="color:var(--muted);font-size:0.75rem;font-weight:600">${escapeHtml(status)}</span></div>`;
+      card.addEventListener('click', () => resumeStory(s.id));
+      grid.appendChild(card);
+    }
+  }
+
+  async function openStoryChat(existingId) {
+    haptic(10);
+    if (existingId) {
+      const story = await DialogueDB.getStory(existingId);
+      if (!story) return;
+      state.currentStoryId = story.id;
+      showScreen('story-chat');
+      renderStoryChat(story);
+      return;
+    }
+    const story = DialogueDB.emptyStory({ title: 'Untitled Story', status: 'draft' });
+    await DialogueDB.saveStory(story);
+    state.currentStoryId = story.id;
+    showScreen('story-chat');
+    renderStoryChat(story);
+  }
+
+  async function resumeStory(id) {
+    const story = await DialogueDB.getStory(id);
+    if (!story) return;
+    state.currentStoryId = id;
+    if (story.status === 'pages' || story.status === 'ready') {
+      showScreen('story-pages');
+      renderStoryPages(story);
+      return;
+    }
+    if (story.status === 'bible' && story.bible) {
+      showScreen('story-bible');
+      renderStoryBible(story);
+      return;
+    }
+    showScreen('story-chat');
+    renderStoryChat(story);
+  }
+
+  function renderStoryChat(story) {
+    const title = $('#story-chat-title');
+    if (title) title.textContent = (story.outline && story.outline.title) || story.title || 'New story';
+    const intro = $('#story-intro');
+    const messagesEl = $('#story-messages');
+    const outlineCard = $('#story-outline-card');
+    const composer = $('#story-composer');
+    const approve = $('#story-approve');
+    const hasOutline = !!(story.outline && story.outline.chapters && story.outline.chapters.length);
+    if (intro) intro.hidden = hasOutline;
+    if (composer) composer.hidden = !hasOutline;
+    if (approve) approve.disabled = !hasOutline || state.storyBusy;
+    if (!hasOutline) {
+      if ($('#story-plot')) $('#story-plot').value = story.plot || '';
+      if ($('#story-tone')) $('#story-tone').value = story.tone || '';
+      if (messagesEl) { messagesEl.hidden = true; messagesEl.innerHTML = ''; }
+      if (outlineCard) { outlineCard.hidden = true; outlineCard.innerHTML = ''; }
+      return;
+    }
+    if (messagesEl) {
+      messagesEl.hidden = false;
+      messagesEl.innerHTML = (story.messages || []).map((m) => {
+        const role = m.role === 'user' ? 'user' : (m.role === 'error' ? 'error' : 'assistant');
+        return `<div class="story-bubble ${role}">${escapeHtml(m.content || '')}</div>`;
+      }).join('');
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+    if (outlineCard) {
+      outlineCard.hidden = false;
+      outlineCard.innerHTML = outlineHtml(story.outline);
+    }
+    const scroll = $('#story-chat-scroll');
+    if (scroll) scroll.scrollTop = scroll.scrollHeight;
+  }
+
+  function outlineHtml(outline) {
+    if (!outline) return '';
+    const chapters = outline.chapters || [];
+    const chHtml = chapters.map((ch, i) => {
+      const scenes = (ch.scenes || []).map((sc) => `<li>${escapeHtml(sc.summary || sc.id)}</li>`).join('');
+      return `<div class="story-chapter"><h3>${i + 1}. ${escapeHtml(ch.title || 'Chapter')}</h3><p>${escapeHtml(ch.summary || '')}</p>${scenes ? `<ul>${scenes}</ul>` : ''}</div>`;
+    }).join('');
+    return `<h2>${escapeHtml(outline.title || 'Untitled')}</h2>
+      <p class="logline">${escapeHtml(outline.logline || '')}</p>
+      <div class="meta-row"><span>${chapters.length} chapters</span><span>~${escapeHtml(String(outline.suggestedPages || '?'))} pages</span></div>
+      ${chHtml}
+      ${outline.rationale ? `<p class="logline">${escapeHtml(outline.rationale)}</p>` : ''}`;
+  }
+
+  async function getCurrentStory() {
+    if (!state.currentStoryId) return null;
+    return DialogueDB.getStory(state.currentStoryId);
+  }
+
+  function setStoryBusy(busy) {
+    state.storyBusy = !!busy;
+    ['story-expand', 'story-chat-send', 'story-approve', 'story-gen-pages'].forEach((id) => {
+      const el = $('#' + id);
+      if (!el) return;
+      if (busy) {
+        el.disabled = true;
+        return;
+      }
+      // Callers re-enable approve / gen-pages when content is ready.
+      if (id === 'story-expand' || id === 'story-chat-send') el.disabled = false;
+    });
+  }
+
+  async function expandStory() {
+    if (state.storyBusy) return;
+    const plot = ($('#story-plot') && $('#story-plot').value || '').trim();
+    const tone = ($('#story-tone') && $('#story-tone').value || '').trim();
+    if (!plot) {
+      toast('Enter a plot first');
+      return;
+    }
+    const story = await getCurrentStory();
+    if (!story) return;
+    setStoryBusy(true);
+    story.plot = plot;
+    story.tone = tone;
+    story.messages = (story.messages || []).concat([{ role: 'user', content: plot }]);
+    await DialogueDB.saveStory(story);
+    renderStoryChat(Object.assign({}, story, { outline: story.outline }));
+    // show composer area with pending state via messages
+    const intro = $('#story-intro');
+    if (intro) intro.hidden = true;
+    const messagesEl = $('#story-messages');
+    if (messagesEl) {
+      messagesEl.hidden = false;
+      messagesEl.innerHTML = `<div class="story-bubble user">${escapeHtml(plot)}</div><div class="story-bubble assistant">Expanding outline…</div>`;
+    }
+    try {
+      const res = await DialogueStory.expand(plot, tone);
+      story.outline = res.outline;
+      story.title = (res.outline && res.outline.title) || story.title;
+      story.messages.push({ role: 'assistant', content: res.message || 'Outline ready.' });
+      story.status = 'draft';
+      await DialogueDB.saveStory(story);
+      const composer = $('#story-composer');
+      if (composer) composer.hidden = false;
+      renderStoryChat(story);
+      haptic(10);
+    } catch (err) {
+      const msg = (err && err.message) || 'Expand failed';
+      story.messages.push({ role: 'error', content: msg });
+      await DialogueDB.saveStory(story);
+      if (messagesEl) {
+        messagesEl.innerHTML += `<div class="story-bubble error">${escapeHtml(msg)}</div>`;
+      }
+      if (intro) intro.hidden = false;
+      toast(msg.slice(0, 80));
+    } finally {
+      setStoryBusy(false);
+      const approve = $('#story-approve');
+      if (approve) approve.disabled = !(story.outline && story.outline.chapters && story.outline.chapters.length);
+    }
+  }
+
+  async function sendStoryChat() {
+    if (state.storyBusy) return;
+    const input = $('#story-chat-input');
+    const text = (input && input.value || '').trim();
+    if (!text) return;
+    const story = await getCurrentStory();
+    if (!story || !story.outline) return;
+    if (input) input.value = '';
+    setStoryBusy(true);
+    story.messages = (story.messages || []).concat([{ role: 'user', content: text }]);
+    await DialogueDB.saveStory(story);
+    renderStoryChat(story);
+    const messagesEl = $('#story-messages');
+    if (messagesEl) messagesEl.innerHTML += `<div class="story-bubble assistant">Updating…</div>`;
+    try {
+      const res = await DialogueStory.chat(story.messages, story.outline);
+      story.outline = res.outline;
+      story.title = (res.outline && res.outline.title) || story.title;
+      story.messages.push({ role: 'assistant', content: res.message || 'Updated.' });
+      await DialogueDB.saveStory(story);
+      renderStoryChat(story);
+      haptic(10);
+    } catch (err) {
+      const msg = (err && err.message) || 'Chat failed';
+      story.messages.push({ role: 'error', content: msg });
+      await DialogueDB.saveStory(story);
+      renderStoryChat(story);
+      toast(msg.slice(0, 80));
+    } finally {
+      setStoryBusy(false);
+      const approve = $('#story-approve');
+      if (approve) approve.disabled = !(story.outline && story.outline.chapters && story.outline.chapters.length);
+    }
+  }
+
+  async function approveOutline() {
+    if (state.storyBusy) return;
+    const story = await getCurrentStory();
+    if (!story || !story.outline) return;
+    setStoryBusy(true);
+    showScreen('story-bible');
+    const busy = $('#story-bible-busy');
+    const body = $('#story-bible-body');
+    const genBtn = $('#story-gen-pages');
+    if (busy) { busy.hidden = false; busy.textContent = 'Building bible…'; }
+    if (body) { body.hidden = true; body.innerHTML = ''; }
+    if (genBtn) genBtn.disabled = true;
+    try {
+      const res = await DialogueStory.bible(story.outline);
+      story.bible = res.bible;
+      story.status = 'bible';
+      await DialogueDB.saveStory(story);
+      renderStoryBible(story);
+      haptic(10);
+    } catch (err) {
+      const msg = (err && err.message) || 'Bible failed';
+      if (busy) busy.textContent = msg;
+      toast(msg.slice(0, 80));
+    } finally {
+      setStoryBusy(false);
+    }
+  }
+
+  function renderStoryBible(story) {
+    const busy = $('#story-bible-busy');
+    const body = $('#story-bible-body');
+    const genBtn = $('#story-gen-pages');
+    const bible = story.bible;
+    if (!bible) {
+      if (busy) { busy.hidden = false; busy.textContent = 'No bible yet.'; }
+      if (body) body.hidden = true;
+      if (genBtn) genBtn.disabled = true;
+      return;
+    }
+    if (busy) busy.hidden = true;
+    if (body) {
+      body.hidden = false;
+      const chars = (bible.characters || []).map((c) => `
+        <div class="story-char">
+          <div class="name">${escapeHtml(c.name || '')} <span class="id">${escapeHtml(c.id || '')}</span></div>
+          <p><strong>${escapeHtml(c.role || '')}</strong> — ${escapeHtml(c.appearance || '')}</p>
+          <p>${escapeHtml(c.personality || '')}${c.relationships ? ' · ' + escapeHtml(c.relationships) : ''}</p>
+        </div>`).join('');
+      const locs = (bible.locations || []).map((l) => `
+        <div class="story-char">
+          <div class="name">${escapeHtml(l.name || '')} <span class="id">${escapeHtml(l.id || '')}</span></div>
+          <p>${escapeHtml(l.description || '')}</p>
+        </div>`).join('');
+      body.innerHTML = `
+        <div class="story-bible-block"><h2><span data-icon="book" class="ico"></span> Visual style</h2><p>${escapeHtml(bible.visualStyle || '')}</p><p class="logline">${escapeHtml(bible.toneNotes || '')}</p></div>
+        <div class="story-bible-block"><h2>Characters</h2>${chars || '<p class="logline">None</p>'}</div>
+        <div class="story-bible-block"><h2>Locations</h2>${locs || '<p class="logline">None</p>'}</div>`;
+      hydrateIcons(body);
+    }
+    if (genBtn) genBtn.disabled = false;
+  }
+
+  async function generateStoryPages() {
+    if (state.storyBusy) return;
+    const story = await getCurrentStory();
+    if (!story || !story.outline || !story.bible) return;
+    setStoryBusy(true);
+    showScreen('story-pages');
+    const busy = $('#story-pages-busy');
+    const body = $('#story-pages-body');
+    const title = $('#story-pages-title');
+    if (title) title.textContent = story.title || 'Pages';
+    if (busy) { busy.hidden = false; busy.textContent = 'Generating panels…'; }
+    if (body) { body.hidden = true; body.innerHTML = ''; }
+    try {
+      const res = await DialogueStory.pages(story.outline, story.bible);
+      story.pages = res.pages || [];
+      story.status = 'ready';
+      await DialogueDB.saveStory(story);
+      renderStoryPages(story);
+      haptic(10);
+    } catch (err) {
+      const msg = (err && err.message) || 'Pages failed';
+      if (busy) busy.textContent = msg;
+      toast(msg.slice(0, 80));
+    } finally {
+      setStoryBusy(false);
+    }
+  }
+
+  function renderStoryPages(story) {
+    const busy = $('#story-pages-busy');
+    const body = $('#story-pages-body');
+    const title = $('#story-pages-title');
+    if (title) title.textContent = story.title || 'Pages';
+    const pages = story.pages || [];
+    if (!pages.length) {
+      if (busy) { busy.hidden = false; busy.textContent = 'No pages yet.'; }
+      if (body) body.hidden = true;
+      return;
+    }
+    if (busy) busy.hidden = true;
+    if (!body) return;
+    body.hidden = false;
+    const charMap = DialogueStory.charLookup(story.bible);
+    body.innerHTML = pages.map((pg) => {
+      const panels = (pg.panels || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+      const panelsHtml = panels.map((pan, idx) => {
+        const lines = (pan.dialogue || []).map((d) => {
+          const who = d.speakerId && charMap[d.speakerId] ? charMap[d.speakerId].name : '';
+          const cls = d.balloon === 'caption' ? 'caption' : '';
+          return `<div class="story-balloon-line ${cls}">${who ? `<span class="who">${escapeHtml(who)}</span>` : ''}${escapeHtml(d.text || '')}</div>`;
+        }).join('');
+        return `<div class="story-panel" data-page-id="${escapeHtml(pg.id)}" data-panel-id="${escapeHtml(pan.id || String(idx))}">
+          <div class="slug">${escapeHtml(pan.scene || ('Panel ' + (idx + 1)))}</div>
+          <div class="art-ph">Image placeholder</div>
+          ${lines}
+          <div class="story-panel-actions">
+            <button type="button" data-copy-prompt="${escapeHtml(pg.id)}::${escapeHtml(pan.id || String(idx))}">${iconHtml('copy')} Copy image prompt</button>
+          </div>
+        </div>`;
+      }).join('');
+      return `<article class="story-page-card" data-page-id="${escapeHtml(pg.id)}">
+        <div class="page-head"><h2>${escapeHtml(pg.title || pg.id)}</h2><span class="kind-pill">${escapeHtml(pg.kind || 'story')}</span></div>
+        ${panelsHtml}
+        <button type="button" class="open-editor-btn" data-open-page="${escapeHtml(pg.id)}">Open in editor</button>
+      </article>`;
+    }).join('');
+
+    body.querySelectorAll('[data-copy-prompt]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const key = btn.getAttribute('data-copy-prompt') || '';
+        const [pageId, panelId] = key.split('::');
+        const page = pages.find((p) => p.id === pageId);
+        const pan = page && (page.panels || []).find((x) => String(x.id) === String(panelId));
+        if (pan && pan.imagePrompt) copyPrompt(pan.imagePrompt);
+        else toast('No prompt on this panel');
+      });
+    });
+    body.querySelectorAll('[data-open-page]').forEach((btn) => {
+      btn.addEventListener('click', () => openStoryPageInEditor(story.id, btn.getAttribute('data-open-page')));
+    });
+  }
+
+  async function openStoryPageInEditor(storyId, pageId) {
+    const story = await DialogueDB.getStory(storyId);
+    if (!story) return;
+    const storyPage = (story.pages || []).find((p) => p.id === pageId);
+    if (!storyPage) return;
+    haptic(10);
+    let projectId = story.projectLinks && story.projectLinks[pageId];
+    if (projectId) {
+      const existing = await DialogueDB.getProjectBundle(projectId);
+      if (existing) {
+        await openEditor(projectId);
+        return;
+      }
+    }
+    const bundle = DialogueStory.buildProjectFromStoryPage(story, storyPage);
+    await DialogueDB.saveProjectBundle(bundle);
+    if (!story.projectLinks) story.projectLinks = {};
+    story.projectLinks[pageId] = bundle.project.id;
+    await DialogueDB.saveStory(story);
+    await openEditor(bundle.project.id);
+  }
+
+    window.DialogueAppActions = {
     async duplicate() {
       if (!state.ctxProjectId) return;
       await DialogueDB.duplicateProject(state.ctxProjectId);

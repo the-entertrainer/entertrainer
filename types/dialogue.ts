@@ -93,3 +93,64 @@ export interface DialogueSettings {
   reduceMotion: boolean;
   exportQuality: number;
 }
+
+
+/** AI Story Mode — stored in IndexedDB `stories` (Dexie v2) */
+export interface DialogueStoryCharacter {
+  id: string;
+  name: string;
+  role: string;
+  appearance: string;
+  personality: string;
+  relationships: string;
+}
+
+export interface DialogueStoryOutline {
+  title: string;
+  logline: string;
+  chapters: Array<{
+    id: string;
+    title: string;
+    summary: string;
+    scenes: Array<{ id: string; summary: string; pageHint: number }>;
+  }>;
+  suggestedPages: number;
+  rationale: string;
+}
+
+export interface DialogueStoryPageSpec {
+  id: string;
+  chapterId: string | null;
+  title: string;
+  kind: 'story' | 'cover' | 'back';
+  panels: Array<{
+    id: string;
+    order: number;
+    scene: string;
+    characters: string[];
+    dialogue: Array<{ speakerId: string | null; text: string; balloon: 'speech' | 'thought' | 'caption' }>;
+    imagePrompt: string;
+    notes: string;
+  }>;
+}
+
+export interface DialogueStoryDoc {
+  id: string;
+  title: string;
+  status: 'draft' | 'bible' | 'pages' | 'ready';
+  plot: string;
+  tone: string;
+  messages: Array<{ role: string; content: string }>;
+  outline: DialogueStoryOutline | null;
+  bible: {
+    characters: DialogueStoryCharacter[];
+    locations: Array<{ id: string; name: string; description: string }>;
+    visualStyle: string;
+    toneNotes: string;
+    chapters: Array<{ id: string; title: string; summary: string }>;
+  } | null;
+  pages: DialogueStoryPageSpec[];
+  projectLinks: Record<string, string>;
+  createdAt: number;
+  updatedAt: number;
+}

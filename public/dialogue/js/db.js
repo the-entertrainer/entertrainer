@@ -14,6 +14,16 @@
       assets: 'id, projectId, createdAt',
       meta: 'key',
     });
+    // v2: AI Story Mode docs (outline, bible, generated pages)
+    db.version(2).stores({
+      projects: 'id, updatedAt, createdAt, title',
+      pages: 'id, projectId, order',
+      panels: 'id, pageId, order',
+      nodes: 'id, panelId, pageId, type',
+      assets: 'id, projectId, createdAt',
+      meta: 'key',
+      stories: 'id, updatedAt, createdAt, title, status',
+    });
     return db;
   }
 
@@ -129,7 +139,6 @@
       const id = nid(a.id);
       return Object.assign({}, a, { id, projectId: project.id });
     });
-    // fix asset refs on nodes after assets mapped
     for (const n of nodes) {
       if (n.assetId && map[n.assetId]) n.assetId = map[n.assetId];
     }
@@ -147,6 +156,43 @@
     return getDb().assets.get(id);
   }
 
+  function emptyStory(partial) {
+    const id = U().uid('story');
+    const t = U().now();
+    return Object.assign({
+      id,
+      title: 'Untitled Story',
+      status: 'draft', // draft | bible | pages | ready
+      plot: '',
+      tone: '',
+      messages: [],
+      outline: null,
+      bible: null,
+      pages: [],
+      projectLinks: {}, // storyPageId -> dialogue projectId
+      createdAt: t,
+      updatedAt: t,
+    }, partial || {});
+  }
+
+  async function listStories() {
+    return getDb().stories.orderBy('updatedAt').reverse().toArray();
+  }
+
+  async function getStory(id) {
+    return getDb().stories.get(id);
+  }
+
+  async function saveStory(story) {
+    story.updatedAt = U().now();
+    await getDb().stories.put(story);
+    return story;
+  }
+
+  async function deleteStory(id) {
+    await getDb().stories.delete(id);
+  }
+
   async function resetAll() {
     await getDb().delete();
     db = null;
@@ -156,5 +202,6 @@
   global.DialogueDB = {
     getDb, getMeta, setMeta, emptyProject, listProjects, getProjectBundle,
     saveProjectBundle, deleteProject, duplicateProject, putAsset, getAsset, resetAll,
+    emptyStory, listStories, getStory, saveStory, deleteStory,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

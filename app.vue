@@ -21,8 +21,7 @@ import { getSocialImage, getSocialPreview, SITE_URL } from '~/content/social-pre
  * masthead would be putting a magazine spine on a thing that is not a page.
  * The two immersive e-learning routes use the same rule: their compact course
  * bar is the entire learning chrome, so public navigation and footer content
- * must never surround an active course screen. EKANS follows it too: it is a
- * full-screen mobile game with its own HUD, not a page in the publication.
+ * must never surround an active course screen.
  */
 const r = useRoute()
 const theme = useThemeStore()
@@ -58,8 +57,7 @@ const bare = computed(() =>
   r.path.startsWith('/my-work/strong') ||
   r.path.startsWith('/my-work/sewa-chronicles') ||
   r.path.startsWith('/courses/ai-atlas') ||
-  r.path.startsWith('/instructional-design') ||
-  r.path.startsWith('/games/ekans')
+  r.path.startsWith('/instructional-design')
 )
 
 onMounted(() => theme.init())

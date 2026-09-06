@@ -1,11 +1,5 @@
 <script setup lang="ts">
-useSeoMeta({ title: 'Games · Entertrainer', description: 'Games from Entertrainer, including EKANS and The Mind Reader.', ogUrl: 'https://entertrainer.in/games' })
-
-// The same coiled shape the game uses for its own mark, on a 4×4 grid.
-const EKANS_COIL = [
-  { r: 0, c: 0 }, { r: 0, c: 1 }, { r: 0, c: 2 }, { r: 0, c: 3 },
-  { r: 1, c: 3 }, { r: 2, c: 3 }, { r: 2, c: 2 }, { r: 2, c: 1 }, { r: 3, c: 1 }
-]
+useSeoMeta({ title: 'Games · Entertrainer', description: 'Games from Entertrainer, including The Mind Reader.', ogUrl: 'https://entertrainer.in/games' })
 
 const MIND_READER_SYMBOLS = [
   '<circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="7" r="2.2" fill="currentColor"/>',
@@ -26,25 +20,6 @@ const MIND_READER_SYMBOLS = [
     />
 
     <ol class="games__grid">
-      <li class="u-reveal">
-        <NuxtLink to="/games/ekans" class="games__card">
-          <span class="games__icon" aria-hidden="true">
-            <i
-              v-for="(cell, i) in EKANS_COIL" :key="i"
-              class="games__icon-seg" :class="{ 'games__icon-seg--head': i === EKANS_COIL.length - 1 }"
-              :style="{ transform: `translate(${cell.c * 100}%, ${cell.r * 100}%)` }"
-            />
-          </span>
-          <span class="games__card-text">
-            <strong class="games__card-name">EKANS</strong>
-            <span class="games__card-blurb">Snake, inverted. You place the food — the snake picks its own route, and can run out of one.</span>
-          </span>
-          <span class="games__card-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
-          </span>
-        </NuxtLink>
-      </li>
       <li class="u-reveal">
         <NuxtLink to="/games/read-my-mind" class="games__card games__card--mind-reader">
           <span class="games__icon games__icon--mind-reader" aria-hidden="true">
@@ -113,26 +88,6 @@ const MIND_READER_SYMBOLS = [
   background: var(--accent);
   border: var(--stroke) solid var(--ink);
 }
-
-.games__icon-seg {
-  position: absolute;
-  top: 9rem;
-  left: 9rem;
-  width: calc((100% - 18rem) / 4);
-  height: calc((100% - 18rem) / 4);
-}
-
-/* The tile is always yellow, so the snake on it is always dark ink —
-   not the theme's --ink, which inverts to near-white in dark mode. */
-.games__icon-seg::after {
-  content: '';
-  position: absolute;
-  inset: 7%;
-  border-radius: 26%;
-  background: #161618;
-}
-
-.games__icon-seg--head::after { box-shadow: 0 0 0 1.5rem var(--accent); }
 
 .games__icon--mind-reader {
   display: grid;

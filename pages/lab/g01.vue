@@ -29,7 +29,7 @@ useHead({ link: [{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?f
 
       <div class="bar" data-glass data-lift="0.8" data-tint="0.05">
         <span>Instructional design · built end to end</span>
-        <a href="mailto:iamnaveenjose@outlook.com" class="bar__cta">Start a project</a>
+        <a href="mailto:mail@entertrainer.in" class="bar__cta">Start a project</a>
       </div>
     </div>
   </LabGlass>

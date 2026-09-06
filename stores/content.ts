@@ -11,10 +11,10 @@ export const useContentStore = defineStore('content', {
     brand: 'Entertrainer',
     tagline: 'Certified Instructional Design Specialist',
     yearsExperience: '4.0+',
-    email: 'iamnaveenjose@outlook.com',
+    email: 'mail@entertrainer.in',
     socialLinks: [
       { platform: 'linkedin', label: 'LinkedIn', url: 'https://linkedin.com/in/entertrainer' },
-      { platform: 'email',    label: 'Email',    url: 'mailto:iamnaveenjose@outlook.com' }
+      { platform: 'email',    label: 'Email',    url: 'mailto:mail@entertrainer.in' }
     ]
   }),
   getters: {

@@ -10,7 +10,7 @@ function subscribeByMailto() {
   const body = encodeURIComponent(`Please add ${email.value.trim()} to The Entertrainer Blogs list.`)
   status.value = 'Your email app is opening with a prepared subscription message. Send it to join the list.'
   failed.value = false
-  window.location.href = `mailto:iamnaveenjose@outlook.com?subject=${subject}&body=${body}`
+  window.location.href = `mailto:mail@entertrainer.in?subject=${subject}&body=${body}`
 }
 
 async function subscribe() {

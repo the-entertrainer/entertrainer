@@ -13,11 +13,13 @@ const lessons = [
 
 <template>
   <main id="main" class="educate">
-    <header class="educate__hero">
-      <h1>Educate</h1>
-      <p>Courses on artificial intelligence and instructional design.</p>
-      <EdPaperSignal class="educate__art" variant="lesson" label="A warm yellow Paper Signal learning card" />
-    </header>
+    <EdStageHero
+      class="educate__stage"
+      variant="ripples"
+      title="Educate"
+      title-id="educate-title"
+      deck="Courses on artificial intelligence and instructional design."
+    />
     <ol class="educate__list">
       <li v-for="lesson in lessons" :key="lesson.href">
         <NuxtLink :to="lesson.href" class="educate__lesson">
@@ -31,5 +33,5 @@ const lessons = [
 
 <style scoped>
 /* Educate: yellow editorial course shelf, high-clarity lesson cards, and readable learning cues. */
-.educate { max-width: var(--shell-page); margin: 0 auto; padding: clamp(52rem, 9vw, 130rem) var(--shell-gutter) 120rem; }.educate__hero { border-bottom: var(--stroke) solid var(--ink); }.educate__eyebrow, .educate__lesson p { margin: 0; color: var(--signal-cobalt); font: 700 11rem/1.2 var(--font-mono); letter-spacing: .09em; text-transform: uppercase; }.educate h1 { margin: 14rem 0 16rem; font: 500 clamp(65rem, 10vw, 136rem)/.82 var(--font-display); letter-spacing: -.07em; }.educate__hero > p:last-of-type { max-width: 520rem; margin: 0; font-size: clamp(19rem, 2.1vw, 25rem); line-height: 1.45; }.educate__art { min-height: 230rem; margin: 42rem 0 0; border: 0; }.educate__list { padding: 0; margin: 0; list-style: none; }.educate__list li { border-bottom: var(--stroke) solid var(--line); }.educate__lesson { display: grid; grid-template-columns: .7fr 1.3fr; color: var(--ink); }.educate__lesson :deep(.ps-art) { min-height: 280rem; border-right: var(--stroke) solid var(--ink); }.educate__lesson > div { display: flex; flex-direction: column; align-items: flex-start; padding: clamp(28rem, 4vw, 56rem); }.educate h2 { max-width: 15ch; margin: 14rem 0; font: 500 clamp(33rem, 4vw, 60rem)/.95 var(--font-display); letter-spacing: -.045em; }.educate__lesson span { max-width: 48ch; font-family: var(--font-body); line-height: 1.5; }.educate__lesson strong { margin-top: 24rem; font-size: 14rem; }.educate__lesson i { color: var(--signal-cobalt); font-style: normal; } @media (hover:hover) { .educate__lesson:hover { background: var(--signal-field); } }.educate__lesson:focus-visible { outline: 3rem solid var(--focus); outline-offset: -3rem; } @media (max-width:680px) { .educate__lesson { grid-template-columns: 1fr; }.educate__lesson :deep(.ps-art) { min-height: 175rem; border-right: 0; border-bottom: var(--stroke) solid var(--ink); } }
+.educate { max-width: var(--shell-page); margin: 0 auto; padding: clamp(52rem, 9vw, 130rem) var(--shell-gutter) 120rem; }.educate__stage { margin-bottom: clamp(28rem, 4vw, 48rem); min-height: min(320rem, 48vw); }.educate__lesson p { margin: 0; color: var(--signal-cobalt); font: 700 11rem/1.2 var(--font-mono); letter-spacing: .09em; text-transform: uppercase; }.educate__stage :deep(h1) { font: 500 clamp(65rem, 10vw, 136rem)/.82 var(--font-display); letter-spacing: -.07em; }.educate__stage :deep(.stage__deck) { max-width: 520rem; font-size: clamp(19rem, 2.1vw, 25rem); line-height: 1.45; }.educate__list { padding: 0; margin: 0; list-style: none; }.educate__list li { border-bottom: var(--stroke) solid var(--line); }.educate__lesson { display: grid; grid-template-columns: .7fr 1.3fr; color: var(--ink); }.educate__lesson :deep(.ps-art) { min-height: 280rem; border-right: var(--stroke) solid var(--ink); }.educate__lesson > div { display: flex; flex-direction: column; align-items: flex-start; padding: clamp(28rem, 4vw, 56rem); }.educate h2 { max-width: 15ch; margin: 14rem 0; font: 500 clamp(33rem, 4vw, 60rem)/.95 var(--font-display); letter-spacing: -.045em; }.educate__lesson span { max-width: 48ch; font-family: var(--font-body); line-height: 1.5; }.educate__lesson strong { margin-top: 24rem; font-size: 14rem; }.educate__lesson i { color: var(--signal-cobalt); font-style: normal; } @media (hover:hover) { .educate__lesson:hover { background: var(--signal-field); } }.educate__lesson:focus-visible { outline: 3rem solid var(--focus); outline-offset: -3rem; } @media (max-width:680px) { .educate__lesson { grid-template-columns: 1fr; }.educate__lesson :deep(.ps-art) { min-height: 175rem; border-right: 0; border-bottom: var(--stroke) solid var(--ink); } }
 </style>

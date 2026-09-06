@@ -24,11 +24,12 @@ const tools = computed(() =>
 
 <template>
   <main id="main" class="empower">
-    <section class="empower__stage" aria-labelledby="empower-title">
-      <div class="empower__tiles" aria-hidden="true"><i v-for="n in 42" :key="n"></i></div>
-      <h1 id="empower-title">Empower</h1>
-      <span>Browser tools for writing, planning, and learning — open and get on with it.</span>
-    </section>
+    <EdStageHero
+      variant="lattice"
+      title="Empower"
+      title-id="empower-title"
+      deck="Browser tools for writing, planning, and learning — open and get on with it."
+    />
 
     <ol class="empower__grid">
       <li v-for="item in tools" :key="item.id" class="u-reveal">
@@ -67,58 +68,6 @@ const tools = computed(() =>
   padding: clamp(24rem, 4vw, 56rem) var(--shell-gutter);
 }
 
-.empower__stage {
-  position: relative;
-  display: grid;
-  min-height: min(420rem, calc(100dvh - 320rem));
-  align-content: center;
-  justify-items: start;
-  overflow: hidden;
-  padding: clamp(34rem, 7vw, 96rem);
-  color: var(--ink);
-  background: var(--signal-field);
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-l);
-}
-
-.empower__tiles {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  grid-template-rows: repeat(6, 1fr);
-  opacity: .46;
-}
-
-.empower__tiles i {
-  border: 1rem solid color-mix(in srgb, var(--ink) 14%, transparent);
-}
-
-.empower__tiles i:nth-child(3n) {
-  background: color-mix(in srgb, var(--signal-cobalt) 42%, transparent);
-}
-
-.empower__tiles i:nth-child(5n) {
-  background: color-mix(in srgb, var(--accent) 28%, transparent);
-}
-
-.empower__stage > *:not(.empower__tiles) {
-  position: relative;
-}
-
-.empower__stage h1 {
-  max-width: 800rem;
-  margin: 18rem 0;
-  font: 500 clamp(65rem, 12vw, 180rem)/.82 var(--font-display);
-  letter-spacing: -.08em;
-}
-
-.empower__stage > span {
-  max-width: 480rem;
-  font-size: 20rem;
-  line-height: 1.4;
-}
-
 .empower__grid {
   list-style: none;
   margin: clamp(20rem, 3vw, 32rem) 0 0;
@@ -151,6 +100,11 @@ const tools = computed(() =>
   .empower__card:hover .empower__card-arrow {
     transform: translate(2rem, -2rem);
   }
+}
+
+.empower__card:focus-visible {
+  outline: 3rem solid var(--focus);
+  outline-offset: 3rem;
 }
 
 .empower__icon {

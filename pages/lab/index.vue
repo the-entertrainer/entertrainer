@@ -19,10 +19,13 @@ useSeoMeta({ title: 'Homepage concepts — Lab', robots: 'noindex' })
 <template>
   <div class="lab">
     <EdShell width="read">
-      <header class="lab__head">
-        <h1 class="lab__title t-display">Experiments</h1>
-        <p class="lab__deck">15 homepage concepts.</p>
-      </header>
+      <EdStageHero
+        class="lab__stage"
+        variant="lattice"
+        title="Experiments"
+        title-id="lab-title"
+        deck="15 homepage concepts."
+      />
 
       <ol class="lab__grid">
         <li v-for="c in CONCEPTS" :key="c.slug" class="u-reveal">
@@ -44,12 +47,9 @@ useSeoMeta({ title: 'Homepage concepts — Lab', robots: 'noindex' })
 <style scoped>
 .lab { min-height: 100dvh; background: var(--paper); color: var(--ink); }
 
-.lab__head { padding-bottom: clamp(22rem, 3vw, 32rem); border-bottom: var(--stroke) solid var(--line); margin-bottom: clamp(24rem, 4vw, 40rem); }
-.lab__title { font-size: var(--type-display); margin: 0; }
-.lab__deck {
-  margin: 18rem 0 0; max-width: var(--measure-body);
-  font-family: var(--font-reading); font-size: 17rem; line-height: 1.6; color: var(--muted);
-}
+.lab__stage { margin-bottom: clamp(24rem, 4vw, 40rem); min-height: min(280rem, 40vw); }
+.lab__stage :deep(h1) { font-size: var(--type-display); line-height: .9; letter-spacing: -.06em; }
+.lab__stage :deep(.stage__deck) { font-family: var(--font-reading); font-size: 17rem; line-height: 1.6; color: var(--muted); max-width: var(--measure-body); }
 
 .lab__grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 10rem; }
 .lab__card {

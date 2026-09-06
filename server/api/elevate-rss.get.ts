@@ -1,5 +1,5 @@
-import { BLOG_POSTS } from '~/content/blogs'
-import { composedToBlogPost, getPublishedComposedPosts } from '~/content/composed'
+import { BLOG_POSTS } from '../../content/blogs'
+import { composedToBlogPost, getPublishedComposedPosts } from '../../content/composed'
 
 const SITE_URL = 'https://entertrainer.in'
 
@@ -26,25 +26,20 @@ function safePubDate(value: string) {
   return d.toUTCString()
 }
 
-export default defineEventHandler((event) => {
-  setResponseHeader(event, 'content-type', 'application/rss+xml; charset=utf-8')
-  setResponseHeader(event, 'cache-control', 'public, max-age=300, s-maxage=300')
+function buildRss() {
+  const seen = new Set(BLOG_POSTS.map((post) => post.slug))
+  const composedPublished = getPublishedComposedPosts()
+  const listing = [
+    ...BLOG_POSTS.filter((post) => post.status === 'published'),
+    ...composedPublished.filter((post) => !seen.has(post.slug)).map(composedToBlogPost)
+  ]
 
-  try {
-    const seen = new Set(BLOG_POSTS.map((post) => post.slug))
-    const composedPublished = getPublishedComposedPosts()
-
-    const listing = [
-      ...BLOG_POSTS.filter((post) => post.status === 'published'),
-      ...composedPublished.filter((post) => !seen.has(post.slug)).map(composedToBlogPost)
-    ]
-
-    const items = listing
-      .map((post) => {
-        const url = `${SITE_URL}/elevate/${post.slug}`
-        const description = `${post.dek || ''} Read time: ${post.minutes || 1} minutes.`
-        const hero = absoluteAsset(post.hero)
-        return `
+  const items = listing
+    .map((post) => {
+      const url = `${SITE_URL}/elevate/${post.slug}`
+      const description = `${post.dek || ''} Read time: ${post.minutes || 1} minutes.`
+      const hero = absoluteAsset(post.hero)
+      return `
     <item>
       <title>${escapeXml(post.title)}</title>
       <link>${url}</link>
@@ -55,10 +50,10 @@ export default defineEventHandler((event) => {
       <media:content url="${escapeXml(hero)}" medium="image" />
       <media:thumbnail url="${escapeXml(hero)}" />
     </item>`
-      })
-      .join('')
+    })
+    .join('')
 
-    return `<?xml version="1.0" encoding="UTF-8"?>
+  return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
     <title>Elevate · The Entertrainer Blogs</title>
@@ -72,9 +67,16 @@ export default defineEventHandler((event) => {
     </image>${items}
   </channel>
 </rss>`
+}
+
+export default defineEventHandler((event) => {
+  setHeader(event, 'Content-Type', 'application/rss+xml; charset=utf-8')
+  setHeader(event, 'Cache-Control', 'public, max-age=300, s-maxage=300')
+  try {
+    return buildRss()
   } catch {
     return `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
+<rss version="2.0">
   <channel>
     <title>Elevate · The Entertrainer Blogs</title>
     <link>${SITE_URL}/elevate</link>

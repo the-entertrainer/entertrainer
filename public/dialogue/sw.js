@@ -1,5 +1,5 @@
 /* Dialogue service worker — cache app shell + fonts + icons. Do NOT cache user comic blobs. */
-const CACHE = 'dialogue-shell-v2';
+const CACHE = 'dialogue-shell-v3';
 const SHELL = [
   '/dialogue/',
   '/dialogue/index.html',
@@ -18,10 +18,28 @@ const SHELL = [
   '/dialogue/icons/icon-512.png',
   '/dialogue/icons/maskable-512.png',
   '/dialogue/icons/apple-touch-icon.png',
+  '/dialogue/stickers/burst.svg',
+  '/dialogue/stickers/heart.svg',
+  '/dialogue/stickers/pow.svg',
+  '/dialogue/stickers/bam.svg',
+  '/dialogue/stickers/sweat.svg',
+  '/dialogue/stickers/speed-lines.svg',
+  '/dialogue/stickers/sparkle.svg',
+  '/dialogue/stickers/exclaim.svg',
+  '/dialogue/stickers/question.svg',
+  '/dialogue/stickers/impact-lines.svg',
+  '/dialogue/stickers/anger-vein.svg',
+  '/dialogue/stickers/music-note.svg',
+  '/dialogue/stickers/zzzz.svg',
+  '/dialogue/stickers/cloud-puff.svg',
+  '/dialogue/stickers/motion-arc.svg',
+  '/dialogue/stickers/hearts-mini.svg',
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  event.waitUntil(
+    caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (event) => {
@@ -33,7 +51,6 @@ self.addEventListener('activate', (event) => {
 });
 
 function isUserBlob(url) {
-  // IndexedDB is SoT — never cache opaque comic data URLs or upload posts
   return url.startsWith('blob:') || url.includes('indexeddb');
 }
 
@@ -43,7 +60,6 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (isUserBlob(url.href)) return;
 
-  // Cache-first for same-origin shell + stickers + icons
   const same = url.origin === self.location.origin;
   const isFont = url.hostname.includes('fonts.g') || url.pathname.includes('font');
   const isCdn = url.hostname.includes('unpkg.com') || url.hostname.includes('cdnjs.cloudflare.com');

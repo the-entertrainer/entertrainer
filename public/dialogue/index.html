@@ -14,26 +14,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Comic+Neue:wght@400;700&family=Inter:wght@400;600;700&family=Kosugi+Maru&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet"/>
   <style>
-    /* Critical shell — never show Times New Roman wireframe if CSS 404s */
     html, body {
-      margin: 0;
-      padding: 0;
-      min-height: 100%;
-      background: #F6F1E8;
-      color: #12110F;
+      margin: 0; padding: 0; min-height: 100%;
+      background: #F6F1E8; color: #12110F;
       font-family: Inter, system-ui, -apple-system, sans-serif;
     }
     .screen { display: none !important; }
     .screen.active { display: flex !important; flex-direction: column; }
     .btn-primary {
-      background: #FF4D2E;
-      color: #fff;
-      font-weight: 700;
-      border: 0;
-      border-radius: 999px;
-      min-height: 56px;
-      padding: 0 22px;
-      cursor: pointer;
+      background: #FF4D2E; color: #fff; font-weight: 700;
+      border: 0; border-radius: 999px; min-height: 56px;
+      padding: 0 22px; cursor: pointer;
     }
   </style>
   <link rel="stylesheet" href="/dialogue/css/dialogue.css"/>
@@ -53,7 +44,6 @@
             <ellipse cx="268" cy="230" rx="58" ry="68" fill="#F6F1E8"/>
           </svg>
         </span>
-        <img class="brand-img" src="/dialogue/icons/d-mark.svg" alt="" width="44" height="44" onerror="this.style.display='none'"/>
         <div>
           <div class="name">Dialogue</div>
           <div class="tag">Comics from your pocket.</div>
@@ -72,7 +62,7 @@
         <h1>New comic</h1>
         <span style="width:56px"></span>
       </div>
-      <div class="shelf">
+      <div class="shelf wizard-body">
         <h2 class="section-label">Format</h2>
         <div class="chips" id="wizard-formats">
           <button type="button" class="chip active" data-id="webtoon">Webtoon 800×∞</button>
@@ -92,15 +82,17 @@
         <div class="chips" id="wizard-start">
           <button type="button" class="chip" data-id="camera">Camera</button>
           <button type="button" class="chip" data-id="photos">Photos</button>
-          <button type="button" class="chip" data-id="script">Script (Soon)</button>
+          <button type="button" class="chip chip-disabled" data-id="script" disabled aria-disabled="true">Script (Soon)</button>
         </div>
         <p class="camera-note">Dialogue uses the camera only to put a photo on your panel. Nothing leaves this phone.</p>
+      </div>
+      <div class="wizard-footer">
         <button type="button" class="btn-primary large" id="wizard-create">Create</button>
       </div>
     </section>
 
     <section class="screen" data-screen="editor">
-      <div class="topbar">
+      <div class="topbar editor-topbar">
         <button type="button" class="icon-btn" id="editor-back" aria-label="Back">←</button>
         <button type="button" class="title" id="editor-title">Untitled</button>
         <button type="button" class="icon-btn" id="btn-undo" aria-label="Undo">↶</button>
@@ -111,14 +103,15 @@
       <div class="editor-wrap">
         <div id="stage-host"><div id="konva-container"></div></div>
         <div class="filmstrip" id="filmstrip"></div>
-        <div class="tray" id="tray"></div>
+        <div class="tray" id="tray">
+          <div class="tray-grab" aria-hidden="true"></div>
+          <div class="tray-body" id="tray-body"></div>
+        </div>
         <nav class="dock" aria-label="Tools">
-          <button type="button" data-dock="panels" class="active"><span class="ico">▦</span>Panels</button>
+          <button type="button" data-dock="panels"><span class="ico">▦</span>Panels</button>
           <button type="button" data-dock="art"><span class="ico">🖼</span>Art</button>
           <button type="button" data-dock="balloon"><span class="ico">💬</span>Balloon</button>
-          <button type="button" data-dock="type"><span class="ico">T</span>Type</button>
           <button type="button" data-dock="stickers"><span class="ico">★</span>Stickers</button>
-          <button type="button" data-dock="frames"><span class="ico">▭</span>Frames</button>
         </nav>
       </div>
     </section>
@@ -147,27 +140,54 @@
     <button type="button" id="ctx-close">Close</button>
   </div>
 
-  <div class="sheet" id="lettering-sheet">
+  <div class="sheet-dimmer" id="sheet-dimmer" hidden></div>
+
+  <div class="sheet" id="lettering-sheet" role="dialog" aria-labelledby="lettering-title">
     <div class="grab"></div>
-    <h2>Lettering</h2>
-    <textarea id="lettering-text" placeholder="Say something"></textarea>
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button type="button" class="btn-primary" id="lettering-save" style="flex:1">Done</button>
+    <h2 id="lettering-title">Lettering</h2>
+    <textarea id="lettering-text" placeholder="Say something" rows="4"></textarea>
+    <div class="size-chips" id="lettering-sizes" role="group" aria-label="Text size">
+      <button type="button" class="chip size-chip" data-size="18">S</button>
+      <button type="button" class="chip size-chip active" data-size="22">M</button>
+      <button type="button" class="chip size-chip" data-size="28">L</button>
+    </div>
+    <div class="sheet-actions">
+      <button type="button" class="btn-primary" id="lettering-save">Done</button>
       <button type="button" class="btn-ghost" id="lettering-cancel">Cancel</button>
     </div>
   </div>
 
-  <div class="sheet" id="export-sheet">
+  <div class="sheet" id="export-sheet" role="dialog" aria-labelledby="export-title">
     <div class="grab"></div>
-    <h2>Export</h2>
+    <h2 id="export-title">Export</h2>
     <div class="progress"><i id="export-progress"></i></div>
     <p id="export-status">Choose a format</p>
-    <button type="button" class="row" onclick="DialogueAppActions.runExport('png')">PNG strip</button>
-    <button type="button" class="row" onclick="DialogueAppActions.runExport('jpg')">JPG</button>
-    <button type="button" class="row" onclick="DialogueAppActions.runExport('webtoon')">WEBTOON slices ZIP</button>
-    <button type="button" class="row" onclick="DialogueAppActions.runExport('pdf')">PDF</button>
-    <button type="button" class="row" onclick="DialogueAppActions.runExport('dialogue')">.dialogue archive</button>
+    <button type="button" class="row export-row" data-export="png">PNG strip</button>
+    <button type="button" class="row export-row" data-export="jpg">JPG</button>
+    <button type="button" class="row export-row" data-export="webtoon">WEBTOON slices ZIP</button>
+    <button type="button" class="row export-row" data-export="pdf">PDF</button>
+    <button type="button" class="row export-row" data-export="dialogue">.dialogue archive</button>
     <button type="button" class="row" id="export-close">Close</button>
+  </div>
+
+  <div class="sheet" id="rename-sheet" role="dialog" aria-labelledby="rename-title">
+    <div class="grab"></div>
+    <h2 id="rename-title">Rename</h2>
+    <input type="text" id="rename-input" class="sheet-input" maxlength="80" autocomplete="off"/>
+    <div class="sheet-actions">
+      <button type="button" class="btn-primary" id="rename-save">Save</button>
+      <button type="button" class="btn-ghost" id="rename-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <div class="sheet" id="confirm-sheet" role="dialog" aria-labelledby="confirm-title">
+    <div class="grab"></div>
+    <h2 id="confirm-title">Delete?</h2>
+    <p id="confirm-message" class="sheet-message">This cannot be undone.</p>
+    <div class="sheet-actions">
+      <button type="button" class="btn-danger" id="confirm-yes">Delete</button>
+      <button type="button" class="btn-ghost" id="confirm-no">Cancel</button>
+    </div>
   </div>
 
   <div class="reader" id="reader">

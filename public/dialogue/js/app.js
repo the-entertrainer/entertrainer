@@ -4,6 +4,12 @@
   const U = () => DialogueUtils;
   const F = () => DialogueFormats;
 
+  const STICKERS = [
+    'burst.svg', 'heart.svg', 'pow.svg', 'bam.svg', 'sweat.svg', 'speed-lines.svg',
+    'sparkle.svg', 'exclaim.svg', 'question.svg', 'impact-lines.svg', 'anger-vein.svg',
+    'music-note.svg', 'zzzz.svg', 'cloud-puff.svg', 'motion-arc.svg', 'hearts-mini.svg',
+  ];
+
   const state = {
     route: 'home',
     projects: [],
@@ -12,6 +18,12 @@
     wizard: { formatId: 'webtoon', layoutId: 'stack3', start: null },
     ctxProjectId: null,
     letteringNodeId: null,
+    letteringSize: 22,
+    dockTool: null,
+    trayOpen: false,
+    exporting: false,
+    renameTarget: null, // 'project' | 'title' | ctx
+    confirmAction: null,
     settings: {
       theme: 'system',
       defaultFormat: 'webtoon',
@@ -21,11 +33,20 @@
     },
   };
 
+  function haptic(ms) {
+    try {
+      if (navigator.vibrate) navigator.vibrate(ms || 10);
+    } catch (_) {}
+  }
+
   function showScreen(name) {
     state.route = name;
     $$('.screen').forEach((s) => s.classList.toggle('active', s.dataset.screen === name));
     if (name === 'home') refreshShelf();
     if (name === 'settings') renderSettings();
+    // Hide settings fab on non-home via CSS :has — also toggle class for older browsers
+    const fab = $('#btn-settings');
+    if (fab) fab.classList.toggle('hidden', name !== 'home');
   }
 
   async function init() {
@@ -46,7 +67,9 @@
       if (state.editor) state.editor.flushAutosave();
     });
     if ('serviceWorker' in navigator) {
-      try { await navigator.serviceWorker.register('./sw.js', { scope: './' }); } catch (_) {}
+      try {
+        await navigator.serviceWorker.register('/dialogue/sw.js', { scope: '/dialogue/' });
+      } catch (_) {}
     }
   }
 
@@ -60,10 +83,33 @@
     applySettings(state.settings);
   }
   function applySettings(s) {
-    document.documentElement.dataset.theme = s.theme === 'system' ? '' : s.theme;
     if (s.theme === 'system') delete document.documentElement.dataset.theme;
     else document.documentElement.dataset.theme = s.theme;
     document.documentElement.dataset.reduceMotion = s.reduceMotion ? '1' : '0';
+  }
+
+  function openSheet(id) {
+    closeAllSheets();
+    const dim = $('#sheet-dimmer');
+    dim.hidden = false;
+    requestAnimationFrame(() => dim.classList.add('show'));
+    $('#' + id).classList.add('open');
+  }
+  function closeSheet(id) {
+    const el = $('#' + id);
+    if (el) el.classList.remove('open');
+    const anyOpen = $$('.sheet.open').length > 0;
+    if (!anyOpen) {
+      const dim = $('#sheet-dimmer');
+      dim.classList.remove('show');
+      setTimeout(() => { if (!$$('.sheet.open').length) dim.hidden = true; }, 200);
+    }
+  }
+  function closeAllSheets() {
+    $$('.sheet.open').forEach((s) => s.classList.remove('open'));
+    const dim = $('#sheet-dimmer');
+    dim.classList.remove('show');
+    dim.hidden = true;
   }
 
   function bindUI() {
@@ -75,16 +121,39 @@
     $('#editor-back').addEventListener('click', async () => {
       if (state.editor) state.editor.flushAutosave();
       destroyEditor();
+      closeTray();
       showScreen('home');
     });
-    $('#btn-undo').addEventListener('click', () => state.editor && state.editor.undo());
-    $('#btn-redo').addEventListener('click', () => state.editor && state.editor.redo());
+    $('#btn-undo').addEventListener('click', () => { if (state.editor) { state.editor.undo(); haptic(8); } });
+    $('#btn-redo').addEventListener('click', () => { if (state.editor) { state.editor.redo(); haptic(8); } });
     $('#btn-preview').addEventListener('click', () => openReader());
     $('#btn-export').addEventListener('click', () => openExportSheet());
-    $$('.dock button').forEach((b) => b.addEventListener('click', () => setDock(b.dataset.dock)));
+    $$('.dock button').forEach((b) => b.addEventListener('click', () => toggleDock(b.dataset.dock)));
+
     $('#lettering-save').addEventListener('click', saveLettering);
-    $('#lettering-cancel').addEventListener('click', () => $('#lettering-sheet').classList.remove('open'));
-    $('#export-close').addEventListener('click', () => $('#export-sheet').classList.remove('open'));
+    $('#lettering-cancel').addEventListener('click', () => closeSheet('lettering-sheet'));
+    $$('#lettering-sizes .size-chip').forEach((c) => c.addEventListener('click', () => {
+      $$('#lettering-sizes .size-chip').forEach((x) => x.classList.remove('active'));
+      c.classList.add('active');
+      state.letteringSize = Number(c.dataset.size) || 22;
+    }));
+
+    $('#export-close').addEventListener('click', () => { if (!state.exporting) closeSheet('export-sheet'); });
+    $$('.export-row').forEach((row) => row.addEventListener('click', () => {
+      const kind = row.dataset.export;
+      if (kind) runExport(kind);
+    }));
+
+    $('#rename-save').addEventListener('click', commitRename);
+    $('#rename-cancel').addEventListener('click', () => closeSheet('rename-sheet'));
+    $('#confirm-yes').addEventListener('click', commitConfirm);
+    $('#confirm-no').addEventListener('click', () => closeSheet('confirm-sheet'));
+
+    $('#sheet-dimmer').addEventListener('click', () => {
+      if (state.exporting) return;
+      closeAllSheets();
+    });
+
     $('#ctx-close').addEventListener('click', () => $('#ctx-menu').classList.remove('open'));
     $('#restore-yes').addEventListener('click', async () => {
       const id = $('#restore-banner').dataset.projectId;
@@ -102,7 +171,7 @@
         $('#ctx-menu').classList.remove('open');
       }
     });
-    // wizard chips
+
     $$('#wizard-formats .chip').forEach((c) => c.addEventListener('click', () => {
       $$('#wizard-formats .chip').forEach((x) => x.classList.remove('active'));
       c.classList.add('active');
@@ -114,10 +183,18 @@
       state.wizard.layoutId = c.dataset.id;
     }));
     $$('#wizard-start .chip').forEach((c) => c.addEventListener('click', () => {
+      if (c.disabled) return;
       $$('#wizard-start .chip').forEach((x) => x.classList.remove('active'));
       c.classList.add('active');
       state.wizard.start = c.dataset.id;
     }));
+
+    const title = $('#editor-title');
+    title.addEventListener('click', () => {
+      if (!state.editor) return;
+      const b = state.editor.getBundle();
+      openRenameSheet(b.project.title, 'title');
+    });
   }
 
   async function refreshShelf() {
@@ -139,14 +216,15 @@
         const a = await DialogueDB.getAsset(p.coverAssetId);
         if (a && a.dataURL) cover = a.dataURL;
       }
-      card.innerHTML = `<img class="cover" alt="" src="${cover || './icons/icon-512.png'}"/><div class="meta">${escapeHtml(p.title)}</div>`;
+      const fallback = '/dialogue/icons/icon-512.png';
+      card.innerHTML = `<img class="cover" alt="" src="${cover || fallback}"/><div class="meta">${escapeHtml(p.title)}</div>`;
       card.addEventListener('click', () => openEditor(p.id));
       let pressTimer;
       const openMenu = (e) => {
         e.preventDefault();
         state.ctxProjectId = p.id;
-        const menu = $('#ctx-menu');
-        menu.classList.add('open');
+        $('#ctx-menu').classList.add('open');
+        haptic(12);
       };
       card.addEventListener('contextmenu', openMenu);
       card.addEventListener('touchstart', (e) => {
@@ -162,12 +240,37 @@
     return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
+  function syncWizardChips() {
+    $$('#wizard-formats .chip').forEach((c) => {
+      c.classList.toggle('active', c.dataset.id === state.wizard.formatId);
+    });
+    $$('#wizard-layouts .chip').forEach((c) => {
+      c.classList.toggle('active', c.dataset.id === state.wizard.layoutId);
+    });
+    $$('#wizard-start .chip').forEach((c) => {
+      const isScript = c.dataset.id === 'script';
+      if (isScript) {
+        c.disabled = true;
+        c.classList.add('chip-disabled');
+        c.classList.remove('active');
+        return;
+      }
+      c.classList.toggle('active', c.dataset.id === state.wizard.start);
+    });
+  }
+
   function openWizard() {
-    state.wizard = { formatId: state.settings.defaultFormat || 'webtoon', layoutId: 'stack3', start: null };
+    state.wizard = {
+      formatId: state.settings.defaultFormat || 'webtoon',
+      layoutId: 'stack3',
+      start: null,
+    };
+    syncWizardChips();
     showScreen('wizard');
   }
 
   async function createFromWizard() {
+    haptic(10);
     const format = F().FORMATS[state.wizard.formatId] || F().FORMATS.webtoon;
     const layout = F().LAYOUTS[state.wizard.layoutId] || F().LAYOUTS.stack3;
     const rects = F().layoutRects(format, layout);
@@ -192,16 +295,15 @@
       placeholderColor: '#d5cbbd',
     }));
     await DialogueDB.saveProjectBundle({ project, pages: [page], panels, nodes: [], assets: [] });
+    await openEditor(project.id);
     if (state.wizard.start === 'camera' || state.wizard.start === 'photos') {
-      // open editor then prompt file
-      await openEditor(project.id);
       setTimeout(() => {
-        setDock('art');
-        if (state.wizard.start === 'camera') $('#file-camera')?.click();
-        else $('#file-photos')?.click();
-      }, 400);
-    } else {
-      await openEditor(project.id);
+        openDock('art');
+        setTimeout(() => {
+          if (state.wizard.start === 'camera') $('#file-camera')?.click();
+          else $('#file-photos')?.click();
+        }, 120);
+      }, 350);
     }
   }
 
@@ -214,6 +316,10 @@
     const host = $('#konva-container');
     host.innerHTML = '';
     destroyEditor();
+    closeTray();
+    state.dockTool = null;
+    $$('.dock button').forEach((b) => b.classList.remove('active'));
+
     state.editor = DialogueEditor.createEditor(host, {
       autosaveEnabled: state.settings.autosave,
       onDirty() {
@@ -225,14 +331,20 @@
         await DialogueDB.setMeta('restoreBanner', { projectId: b.project.id, at: Date.now() });
         $('#editor-title').textContent = b.project.title;
       },
-      onSelect() { renderTray(); renderFilmstrip(); },
+      onSelect() { renderFilmstrip(); },
       onRedraw(b) { renderFilmstrip(b); },
       onBalloonTap() {},
       onBalloonEdit(n) { openLettering(n); },
     });
+    await state.editor.whenReady();
     state.editor.loadBundle(bundle);
-    setDock('panels');
+    // Force a refit after layout settles (tray closed = max canvas)
+    requestAnimationFrame(() => {
+      if (state.editor) state.editor.resize();
+    });
     renderFilmstrip(bundle);
+    $('#btn-undo').disabled = true;
+    $('#btn-redo').disabled = true;
   }
 
   function destroyEditor() {
@@ -242,18 +354,48 @@
     }
   }
 
-  function setDock(name) {
+  function closeTray() {
+    state.trayOpen = false;
+    const tray = $('#tray');
+    tray.classList.remove('open');
+    $$('.dock button').forEach((b) => {
+      if (b.dataset.dock !== state.dockTool) b.classList.remove('active');
+      if (!state.dockTool) b.classList.remove('active');
+    });
+    if (state.editor) {
+      requestAnimationFrame(() => state.editor && state.editor.resize());
+    }
+  }
+
+  function openDock(name) {
+    state.dockTool = name;
+    state.trayOpen = true;
     $$('.dock button').forEach((b) => b.classList.toggle('active', b.dataset.dock === name));
     const tray = $('#tray');
     tray.classList.add('open');
     tray.dataset.mode = name;
     renderTray();
+    if (state.editor) {
+      requestAnimationFrame(() => state.editor && state.editor.resize());
+    }
+  }
+
+  function toggleDock(name) {
+    // Second tap on same tool closes tray
+    if (state.trayOpen && state.dockTool === name) {
+      state.dockTool = null;
+      closeTray();
+      $$('.dock button').forEach((b) => b.classList.remove('active'));
+      haptic(8);
+      return;
+    }
+    openDock(name);
+    haptic(8);
   }
 
   function renderTray() {
-    const tray = $('#tray');
-    const mode = tray.dataset.mode || 'panels';
-    const sel = state.editor ? state.editor.getSelection() : {};
+    const body = $('#tray-body');
+    const mode = $('#tray').dataset.mode || 'panels';
     let html = '';
     if (mode === 'panels') {
       html = `
@@ -268,27 +410,24 @@
         <label class="file-btn">Photos<input id="file-photos" class="sr-only" type="file" accept="image/*" multiple/></label>
         <button type="button" data-act="fit">Fit</button>
         <button type="button" data-act="fill">Fill</button>
-        <p class="camera-note">Dialogue uses the camera only to put a photo on your panel. Nothing leaves this phone.</p>`;
+        <p class="tray-note">Dialogue uses the camera only to put a photo on your panel. Nothing leaves this phone.</p>`;
     } else if (mode === 'balloon') {
       html = `
         <button type="button" data-act="speech">Speech</button>
         <button type="button" data-act="thought">Thought</button>
         <button type="button" data-act="caption">Caption</button>
         <button type="button" data-act="edit-text">Edit text</button>`;
-    } else if (mode === 'type') {
-      html = `<button type="button" data-act="edit-text">Lettering sheet</button>
-        <button type="button" class="soon" disabled>Fonts Soon</button>`;
     } else if (mode === 'stickers') {
-      const names = ['burst.svg','heart.svg','pow.svg','bam.svg','sweat.svg','speed-lines.svg','sparkle.svg','exclaim.svg','question.svg','impact-lines.svg','anger-vein.svg','music-note.svg','zzzz.svg','cloud-puff.svg','motion-arc.svg','hearts-mini.svg'];
-      html = names.map((n) => `<button type="button" data-sticker="./stickers/${n}" title="${n}"><img src="./stickers/${n}" alt="" width="36" height="36"/></button>`).join('');
-    } else if (mode === 'frames') {
-      html = `<button type="button" class="soon" disabled>Frames Soon</button>
-        <button type="button" class="soon" disabled>Borders Soon</button>`;
+      html = STICKERS.map((n) =>
+        `<button type="button" data-sticker="/dialogue/stickers/${n}" title="${n}"><img src="/dialogue/stickers/${n}" alt="" width="36" height="36"/></button>`
+      ).join('');
     }
-    tray.innerHTML = html;
-    tray.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', onTrayAct));
-    tray.querySelectorAll('[data-sticker]').forEach((b) => b.addEventListener('click', () => {
+    body.innerHTML = html;
+    body.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', onTrayAct));
+    body.querySelectorAll('[data-sticker]').forEach((b) => b.addEventListener('click', () => {
+      if (!state.editor) return;
       state.editor.addSticker(b.dataset.sticker);
+      haptic(10);
     }));
     const cam = $('#file-camera');
     const photos = $('#file-photos');
@@ -300,22 +439,22 @@
     const act = e.currentTarget.dataset.act;
     const ed = state.editor;
     if (!ed) return;
-    if (act === 'add-panel') ed.addPanel();
-    if (act === 'dup-panel') ed.duplicatePanel();
-    if (act === 'del') ed.deleteSelected();
+    if (act === 'add-panel') { ed.addPanel(); haptic(10); }
+    if (act === 'dup-panel') { ed.duplicatePanel(); haptic(10); }
+    if (act === 'del') { ed.deleteSelected(); haptic(10); }
     if (act === 'up') {
       const s = ed.getSelection();
-      if (s.kind === 'panel') ed.reorderPanel(s.id, -1);
+      if (s.kind === 'panel') { ed.reorderPanel(s.id, -1); haptic(10); }
     }
     if (act === 'down') {
       const s = ed.getSelection();
-      if (s.kind === 'panel') ed.reorderPanel(s.id, 1);
+      if (s.kind === 'panel') { ed.reorderPanel(s.id, 1); haptic(10); }
     }
     if (act === 'fit') ed.setFit('contain');
     if (act === 'fill') ed.setFit('cover');
-    if (act === 'speech') ed.addBalloon('speech');
-    if (act === 'thought') ed.addBalloon('thought');
-    if (act === 'caption') ed.addBalloon('caption');
+    if (act === 'speech') { ed.addBalloon('speech'); haptic(10); }
+    if (act === 'thought') { ed.addBalloon('thought'); haptic(10); }
+    if (act === 'caption') { ed.addBalloon('caption'); haptic(10); }
     if (act === 'edit-text') {
       const s = ed.getSelection();
       const b = ed.getBundle();
@@ -327,7 +466,8 @@
   async function handleFiles(fileList) {
     if (!fileList || !fileList.length || !state.editor) return;
     const files = Array.from(fileList);
-    for (const file of files) {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
       const dataURL = await U().blobToDataURL(file);
       const asset = {
         id: U().uid('asset'),
@@ -337,39 +477,72 @@
         dataURL,
         createdAt: U().now(),
       };
+      // ensurePanelForArt is inside setPanelArt
       state.editor.setPanelArt(asset, 'cover');
-      // for multi, add panel then art
-      if (files.indexOf(file) < files.length - 1) state.editor.addPanel();
+      haptic(10);
+      if (i < files.length - 1) state.editor.addPanel();
     }
   }
 
   function renderFilmstrip(b) {
     const strip = $('#filmstrip');
     const bundle = b || (state.editor && state.editor.getBundle());
-    if (!bundle) { strip.innerHTML = ''; return; }
+    if (!bundle || !state.editor) { strip.innerHTML = ''; return; }
     const sel = state.editor.getSelection();
-    strip.innerHTML = (bundle.panels || []).slice().sort((a, c) => a.order - c.order).map((p) => {
+    const panels = (bundle.panels || []).slice().sort((a, c) => a.order - c.order);
+    let html = panels.map((p, i) => {
       const active = sel.kind === 'panel' && sel.id === p.id ? 'active' : '';
-      const bg = p.placeholderColor || '#ccc';
-      return `<button type="button" class="thumb ${active}" data-id="${p.id}" style="background:${bg}"></button>`;
+      let thumbInner = '';
+      if (p.artAssetId) {
+        const a = (bundle.assets || []).find((x) => x.id === p.artAssetId);
+        if (a && a.dataURL) {
+          thumbInner = `<img alt="" src="${a.dataURL}"/><span class="idx">${i + 1}</span>`;
+        } else {
+          thumbInner = `<span class="idx">${i + 1}</span>`;
+        }
+      } else {
+        thumbInner = `<span class="idx">${i + 1}</span>`;
+      }
+      const bg = p.artAssetId ? '' : `style="background:${p.placeholderColor || '#cfc4b4'}"`;
+      return `<button type="button" class="thumb ${active}" data-id="${p.id}" ${bg}>${thumbInner}</button>`;
     }).join('');
-    strip.querySelectorAll('.thumb').forEach((t) => t.addEventListener('click', () => {
+    html += `<button type="button" class="thumb thumb-add" data-add="1" aria-label="Add panel">＋</button>`;
+    strip.innerHTML = html;
+    strip.querySelectorAll('.thumb[data-id]').forEach((t) => t.addEventListener('click', () => {
       state.editor.select('panel', t.dataset.id);
+      state.editor.scrollToPanel(t.dataset.id);
+      haptic(8);
     }));
+    const addBtn = strip.querySelector('[data-add]');
+    if (addBtn) addBtn.addEventListener('click', () => {
+      state.editor.addPanel();
+      haptic(10);
+    });
   }
 
   function openLettering(n) {
     state.letteringNodeId = n.id;
+    state.letteringSize = n.fontSize || 22;
     $('#lettering-text').value = n.text === 'Say something' ? '' : (n.text || '');
-    $('#lettering-sheet').classList.add('open');
-    $('#lettering-text').focus();
+    $$('#lettering-sizes .size-chip').forEach((c) => {
+      c.classList.toggle('active', Number(c.dataset.size) === state.letteringSize);
+    });
+    openSheet('lettering-sheet');
+    setTimeout(() => {
+      const ta = $('#lettering-text');
+      ta.focus();
+      const len = ta.value.length;
+      try { ta.setSelectionRange(len, len); } catch (_) {}
+    }, 80);
   }
+
   function saveLettering() {
     const text = $('#lettering-text').value.trim() || 'Say something';
     if (state.editor && state.letteringNodeId) {
-      state.editor.setBalloonText(state.letteringNodeId, text);
+      state.editor.setBalloonText(state.letteringNodeId, text, state.letteringSize);
+      haptic(10);
     }
-    $('#lettering-sheet').classList.remove('open');
+    closeSheet('lettering-sheet');
   }
 
   async function openReader() {
@@ -386,13 +559,18 @@
   }
 
   function openExportSheet() {
-    $('#export-sheet').classList.add('open');
+    state.exporting = false;
     $('#export-progress').style.width = '0%';
     $('#export-status').textContent = 'Choose a format';
+    $$('.export-row').forEach((r) => { r.disabled = false; });
+    openSheet('export-sheet');
   }
 
   async function runExport(kind) {
-    if (!state.editor) return;
+    if (!state.editor || state.exporting) return;
+    state.exporting = true;
+    $$('.export-row').forEach((r) => { r.disabled = true; });
+    $('#export-close').disabled = true;
     state.editor.flushAutosave();
     const bundle = state.editor.getBundle();
     const assetMap = {};
@@ -401,7 +579,7 @@
     const onProgress = (p) => {
       $('#export-progress').style.width = Math.round(p * 100) + '%';
     };
-    $('#export-status').textContent = 'Exporting…';
+    $('#export-status').textContent = 'Inking the pages…';
     try {
       let blob, name;
       if (kind === 'png') {
@@ -423,38 +601,90 @@
       onProgress(1);
       U().downloadBlob(blob, name);
       $('#export-status').textContent = 'Saved ' + name;
+      haptic(10);
     } catch (err) {
       console.error(err);
       $('#export-status').textContent = 'Export failed: ' + (err && err.message ? err.message : err);
+    } finally {
+      state.exporting = false;
+      $$('.export-row').forEach((r) => { r.disabled = false; });
+      $('#export-close').disabled = false;
     }
   }
 
-  // context menu actions
+  function openRenameSheet(current, target) {
+    state.renameTarget = target;
+    $('#rename-input').value = current || '';
+    openSheet('rename-sheet');
+    setTimeout(() => {
+      const inp = $('#rename-input');
+      inp.focus();
+      inp.select();
+    }, 80);
+  }
+
+  async function commitRename() {
+    const title = ($('#rename-input').value || '').trim();
+    if (!title) { closeSheet('rename-sheet'); return; }
+    haptic(10);
+    if (state.renameTarget === 'title' && state.editor) {
+      const b = state.editor.getBundle();
+      b.project.title = title;
+      $('#editor-title').textContent = title;
+      state.editor.markDirty();
+      await DialogueDB.saveProjectBundle(b, { replaceChildren: true });
+    } else if (state.renameTarget === 'ctx' && state.ctxProjectId) {
+      const bundle = await DialogueDB.getProjectBundle(state.ctxProjectId);
+      if (bundle) {
+        bundle.project.title = title;
+        await DialogueDB.saveProjectBundle(bundle);
+        refreshShelf();
+      }
+    }
+    closeSheet('rename-sheet');
+    $('#ctx-menu').classList.remove('open');
+  }
+
+  function openConfirm(title, message, action) {
+    state.confirmAction = action;
+    $('#confirm-title').textContent = title;
+    $('#confirm-message').textContent = message;
+    openSheet('confirm-sheet');
+  }
+
+  async function commitConfirm() {
+    const action = state.confirmAction;
+    state.confirmAction = null;
+    closeSheet('confirm-sheet');
+    if (typeof action === 'function') {
+      haptic(10);
+      await action();
+    }
+  }
+
   window.DialogueAppActions = {
     async duplicate() {
       if (!state.ctxProjectId) return;
       await DialogueDB.duplicateProject(state.ctxProjectId);
       $('#ctx-menu').classList.remove('open');
+      haptic(10);
       refreshShelf();
     },
     async rename() {
       if (!state.ctxProjectId) return;
       const bundle = await DialogueDB.getProjectBundle(state.ctxProjectId);
-      const title = prompt('Rename comic', bundle.project.title);
-      if (title) {
-        bundle.project.title = title.trim() || bundle.project.title;
-        await DialogueDB.saveProjectBundle(bundle);
-      }
       $('#ctx-menu').classList.remove('open');
-      refreshShelf();
+      if (!bundle) return;
+      openRenameSheet(bundle.project.title, 'ctx');
     },
     async remove() {
       if (!state.ctxProjectId) return;
-      if (confirm('Delete this comic?')) {
-        await DialogueDB.deleteProject(state.ctxProjectId);
-      }
+      const id = state.ctxProjectId;
       $('#ctx-menu').classList.remove('open');
-      refreshShelf();
+      openConfirm('Delete comic?', 'This cannot be undone.', async () => {
+        await DialogueDB.deleteProject(id);
+        refreshShelf();
+      });
     },
     async exportProj() {
       const id = state.ctxProjectId;
@@ -484,6 +714,7 @@
       <div class="row"><label>Reduce motion</label><input type="checkbox" id="set-motion" ${s.reduceMotion?'checked':''}/></div>
       <div class="row"><label>Export quality</label>
         <input type="range" id="set-quality" min="0.6" max="1" step="0.02" value="${s.exportQuality}"/></div>
+      <div class="row soon"><label>Frames</label><span>Soon</span></div>
       <div class="row"><button type="button" id="set-reset" class="btn-primary">Reset local data</button></div>
       <div class="row soon"><label>Cloud sync</label><span>Soon</span></div>
       <div class="row soon"><label>Pressure pen</label><span>Soon</span></div>
@@ -495,28 +726,15 @@
     $('#set-autosave').onchange = async (e) => { s.autosave = e.target.checked; await saveSettings(); };
     $('#set-motion').onchange = async (e) => { s.reduceMotion = e.target.checked; await saveSettings(); };
     $('#set-quality').oninput = async (e) => { s.exportQuality = Number(e.target.value); await saveSettings(); };
-    $('#set-reset').onclick = async () => {
-      if (confirm('Erase all local Dialogue comics and settings?')) {
+    $('#set-reset').onclick = () => {
+      openConfirm('Reset local data?', 'Erase all local Dialogue comics and settings?', async () => {
         await DialogueDB.resetAll();
         location.reload();
-      }
+      });
     };
   }
 
-  // title edit
   document.addEventListener('DOMContentLoaded', () => {
     init().catch((e) => console.error(e));
-    const title = $('#editor-title');
-    title.addEventListener('click', async () => {
-      if (!state.editor) return;
-      const b = state.editor.getBundle();
-      const next = prompt('Title', b.project.title);
-      if (next != null) {
-        b.project.title = next.trim() || b.project.title;
-        title.textContent = b.project.title;
-        state.editor.markDirty();
-        await DialogueDB.saveProjectBundle(b, { replaceChildren: true });
-      }
-    });
   });
 })();

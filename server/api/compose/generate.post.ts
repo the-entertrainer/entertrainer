@@ -1,5 +1,6 @@
 import { buildComposeSystemPrompt } from '../../prompts/load-prompts'
 import {
+import { assertComposeAccess } from '../../utils/compose-request'
   applyImagesToFigures,
   enrichComposeImages,
   IMAGE_PHASE_BUDGET_MS,
@@ -304,6 +305,7 @@ function resolveProvider(
 }
 
 export default defineEventHandler(async (event) => {
+  assertComposeAccess(event)
   const config = useRuntimeConfig()
   const groqApiKey = String(config.groqApiKey || process.env.GROQ_API_KEY || '').trim()
   const groqModel = String(config.groqModel || process.env.GROQ_MODEL || DEFAULT_GROQ_MODEL).trim() || DEFAULT_GROQ_MODEL

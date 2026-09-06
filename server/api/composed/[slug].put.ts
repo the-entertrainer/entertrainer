@@ -1,7 +1,9 @@
 import { loadComposedPosts, persistComposedUpsert } from '../../utils/github-composed-store'
 import type { ComposedPost } from '~/types/composed'
+import { assertComposeAccess } from '../../utils/compose-request'
 
 export default defineEventHandler(async (event) => {
+  assertComposeAccess(event)
   const slug = getRouterParam(event, 'slug')
   if (!slug) throw createError({ statusCode: 400, statusMessage: 'slug required' })
 

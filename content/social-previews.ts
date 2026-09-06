@@ -32,8 +32,8 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'The Entertrainer Blogs',
     title: 'Elevate · The Entertrainer Blogs',
     description: 'Articles about work, learning, technology, and the questions that stay with you.',
-    image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/oLmjqBPjwBxcOjsd.jpg',
-    imageAlt: 'Night city lights for the Elevate blog section.'
+    image: `${SITE_URL}/og-card.png`,
+    imageAlt: 'Entertrainer Elevate — essays and curiosity pieces.'
   },
   [`/elevate/${ENTROPY_BLOG.slug}`]: {
     key: 'entropy-laziness',

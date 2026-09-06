@@ -1,4 +1,6 @@
 <script setup lang="ts">
+useSeoMeta({ title: 'Glass lab', robots: 'noindex, nofollow' })
+
 // Hidden developer playground for tuning the fractal-glass backdrop live.
 // Navigate to /glass-lab directly. Colours stay random (Shuffle); the "Copy
 // config" button emits the non-colour settings to paste back so the live

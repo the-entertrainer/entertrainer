@@ -1,10 +1,11 @@
 import { asComposeError, COMPOSE_BODY_MAX_BYTES, composeThrow, utf8ByteLength } from '../../utils/compose-errors'
-import { safeReadJsonBody } from '../../utils/compose-request'
+import { safeReadJsonBody, assertComposeAccess } from '../../utils/compose-request'
 import { persistComposedUpsert } from '../../utils/github-composed-store'
 import type { ComposedPost } from '~/types/composed'
 
 /** POST /api/compose/posts — upsert draft/published post. */
 export default defineEventHandler(async (event) => {
+  assertComposeAccess(event)
   try {
     const body = (await safeReadJsonBody(event)) as ComposedPost
     if (!body?.slug || !body?.title) {

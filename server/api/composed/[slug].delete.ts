@@ -1,6 +1,8 @@
 import { persistComposedDelete } from '../../utils/github-composed-store'
+import { assertComposeAccess } from '../../utils/compose-request'
 
 export default defineEventHandler(async (event) => {
+  assertComposeAccess(event)
   const slug = getRouterParam(event, 'slug')
   if (!slug) throw createError({ statusCode: 400, statusMessage: 'slug required' })
   const result = await persistComposedDelete(slug)

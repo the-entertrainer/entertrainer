@@ -1,5 +1,10 @@
 User-agent: *
 Allow: /
 Disallow: /glass-lab
+Disallow: /compose
+Disallow: /lab
+Disallow: /api/test-groq
+Disallow: /api/test-error
+Disallow: /api/ping
 
 Sitemap: https://entertrainer.in/sitemap.xml

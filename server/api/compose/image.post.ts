@@ -3,7 +3,7 @@ import {
   normalizeImageSource,
   type ComposeImageSource
 } from '../../utils/compose-images'
-import { safeReadJsonBody } from '../../utils/compose-request'
+import { safeReadJsonBody, assertComposeAccess } from '../../utils/compose-request'
 
 /** Align with nitro.vercel.functions.maxDuration (global 60s). */
 export const maxDuration = 60
@@ -14,6 +14,7 @@ export const maxDuration = 60
  * Returns a single image for a figure or alternate cover slot.
  */
 export default defineEventHandler(async (event) => {
+  assertComposeAccess(event)
   const config = useRuntimeConfig()
   const geminiApiKey = String(config.geminiApiKey || process.env.GEMINI_API_KEY || '').trim()
   const geminiImageModel = String(

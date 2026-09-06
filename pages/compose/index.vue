@@ -15,6 +15,11 @@ useSeoMeta({
 
 const GATE_KEY = 'iamguru'
 const GATE_STORAGE = 'et-compose-unlocked'
+
+/** Sent on compose mutate/draft APIs — must match server assertComposeAccess. */
+function composeHeaders(): Record<string, string> {
+  return { 'x-compose-key': GATE_KEY }
+}
 const DRAFT_STORAGE = 'et-compose-working'
 const DRAFT_SESSION = 'et-compose-working-session'
 const PROVIDER_STORAGE = 'et-compose-provider'
@@ -159,7 +164,7 @@ function lockAgain() {
 
 async function loadLibrary() {
   try {
-    const res = await $fetch<{ posts: ComposedPost[] }>('/api/compose/posts', { query: { includeDrafts: '1' } })
+    const res = await $fetch<{ posts: ComposedPost[] }>('/api/compose/posts', { query: { includeDrafts: '1' }, headers: composeHeaders() })
     library.value = res.posts ?? []
   } catch {
     library.value = []
@@ -289,6 +294,7 @@ async function persist(status: 'draft' | 'published') {
       imageWarnings?: string[]
     }>('/api/compose/posts', {
       method: 'POST',
+      headers: composeHeaders(),
       body: draft.value
     })
     draft.value = res.post
@@ -321,7 +327,7 @@ async function persist(status: 'draft' | 'published') {
 async function removePost(slug: string) {
   if (!confirm(`Delete “${slug}”?`)) return
   try {
-    await $fetch(`/api/composed/${slug}`, { method: 'DELETE' })
+    await $fetch(`/api/composed/${slug}`, { method: 'DELETE', headers: composeHeaders() })
     if (activeSlug.value === slug) startNew()
     await loadLibrary()
     statusMessage.value = 'Deleted.'
@@ -356,6 +362,7 @@ async function generateDraft() {
       heroBrief?: { metaphor?: string; motif?: string }
     }>('/api/compose/generate', {
       method: 'POST',
+      headers: composeHeaders(),
       body: {
         topic,
         notes: aiNotes.value.trim() || undefined,
@@ -414,6 +421,7 @@ async function regenerateHero() {
       heroBrief?: { metaphor?: string; motif?: string; cobaltRole?: string }
     }>('/api/compose/generate', {
       method: 'POST',
+      headers: composeHeaders(),
       body: {
         heroOnly: true,
         topic,
@@ -459,6 +467,7 @@ async function requestComposeImage(opts: {
     warning?: string
   }>('/api/compose/image', {
     method: 'POST',
+    headers: composeHeaders(),
     body: {
       topic: topic || title,
       title: title || undefined,

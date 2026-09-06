@@ -32,7 +32,9 @@ export default defineNuxtConfig({
     composeGithubToken: process.env.COMPOSE_GITHUB_TOKEN || '',
     githubToken: process.env.GITHUB_TOKEN || '',
     composeGithubRepo: process.env.COMPOSE_GITHUB_REPO || 'the-entertrainer/entertrainer',
-    composeGithubBranch: process.env.COMPOSE_GITHUB_BRANCH || 'main'
+    composeGithubBranch: process.env.COMPOSE_GITHUB_BRANCH || 'main',
+    // Optional stronger compose API gate (defaults to client gate keyword if unset)
+    composeApiSecret: process.env.COMPOSE_API_SECRET || ''
   },
   app: {
     head: {

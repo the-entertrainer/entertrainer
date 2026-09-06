@@ -78,3 +78,32 @@ export async function safeReadJsonBody(event: any): Promise<any> {
     }
   }
 }
+
+
+/** Same keyword as pages/compose gate — lightweight shared secret for write APIs. */
+export const COMPOSE_GATE_KEY = 'iamguru'
+export const COMPOSE_KEY_HEADER = 'x-compose-key'
+
+/**
+ * Require the compose gate key (or optional COMPOSE_API_SECRET) on mutate / draft APIs.
+ * Matches the client-side /compose unlock keyword so Nikita's UX stays the same once unlocked.
+ */
+export function assertComposeAccess(event: any) {
+  const config = useRuntimeConfig()
+  const expectedSecret = String(
+    (config as any).composeApiSecret || process.env.COMPOSE_API_SECRET || ''
+  ).trim()
+  const expected = expectedSecret || COMPOSE_GATE_KEY
+
+  const headers = event?.node?.req?.headers || event?.req?.headers || {}
+  const raw =
+    headers[COMPOSE_KEY_HEADER] ||
+    headers['X-Compose-Key'] ||
+    headers['x-compose-key'] ||
+    ''
+  const provided = String(Array.isArray(raw) ? raw[0] : raw).trim()
+
+  if (!provided || provided !== expected) {
+    throw createError({ statusCode: 401, statusMessage: 'Compose access required' })
+  }
+}

@@ -22,10 +22,10 @@ const references = [
 ]
 
 const visuals = {
-  tea: '/manus-storage/entropy-tea-heat-flow_1a9b1f65.jpg',
-  differences: '/manus-storage/entropy-useful-differences_58dc4cfe.jpg',
-  phone: '/manus-storage/entropy-phone-physical-world_4a5a614f.jpg',
-  universe: '/manus-storage/hubble-ultra-deep-field-nasa_01b69516.jpg'
+  tea: '/blog/entropy-laziness/tea-heat-flow.jpg',
+  differences: '/blog/entropy-laziness/useful-differences.jpg',
+  phone: '/blog/entropy-laziness/phone-physical-world.jpg',
+  universe: '/blog/entropy-laziness/hubble-ultra-deep-field.jpg'
 }
 </script>
 
@@ -103,7 +103,7 @@ const visuals = {
         <p>If you keep following this idea for an absurdly long time, you reach a strange picture of the future. No big differences left. No easy fuel. No bright stars doing their usual work. This possible ending is often called heat death.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
 
         <figure class="entropy__visual entropy__visual--universe">
-          <EdEditorialImage :src="visuals.universe" alt="NASA and ESA Hubble Ultra Deep Field image showing thousands of galaxies as small bright points and smudges against a dark background." />
+          <EdEditorialImage :src="visuals.universe" alt="Deep space filled with distant galaxies — a reminder that the universe runs on gradients, not stillness." />
           <figcaption>One small patch of sky, seen by Hubble: roughly 10,000 galaxies. Image: <a href="https://science.nasa.gov/asset/hubble/hubble-ultra-deep-field/" target="_blank" rel="noreferrer">NASA, ESA, S. Beckwith and the HUDF Team, and B. Mobasher</a>.</figcaption>
         </figure>
 

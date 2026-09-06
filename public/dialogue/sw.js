@@ -1,5 +1,5 @@
 /* Dialogue service worker — cache app shell + fonts + icons. Do NOT cache user comic blobs. */
-const CACHE = 'dialogue-shell-v6';
+const CACHE = 'dialogue-shell-v7';
 const SHELL = [
   '/dialogue/',
   '/dialogue/index.html',
@@ -13,6 +13,7 @@ const SHELL = [
   '/dialogue/js/demo.js',
   '/dialogue/js/editor.js',
   '/dialogue/js/story.js',
+  '/dialogue/js/art-queue.js',
   '/dialogue/js/app.js',
   '/dialogue/icons/d-mark.svg',
   '/dialogue/icons/icon-192.png',
@@ -47,6 +48,9 @@ const SHELL = [
   '/dialogue/icons/ui/photos.svg',
   '/dialogue/icons/ui/plus.svg',
   '/dialogue/icons/ui/preview.svg',
+  '/dialogue/icons/ui/queue.svg',
+  '/dialogue/icons/ui/external-link.svg',
+  '/dialogue/icons/ui/paste.svg',
   '/dialogue/icons/ui/redo.svg',
   '/dialogue/icons/ui/rename.svg',
   '/dialogue/icons/ui/settings.svg',

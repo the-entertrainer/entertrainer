@@ -79,6 +79,27 @@
     });
   }
 
+  function enrichBible(bibleDoc, outline, density) {
+    return call('enrich_bible', {
+      bible: bibleDoc,
+      outline,
+      density: density || (outline && outline.density) || 'studio',
+    });
+  }
+
+  const BIBLE_MIN_CHARS = { draft: 4, studio: 6, epic: 8 };
+  const BIBLE_MIN_LOCS = { draft: 3, studio: 5, epic: 6 };
+
+  function bibleMinChars(density) {
+    const d = density || 'studio';
+    return BIBLE_MIN_CHARS[d] || BIBLE_MIN_CHARS.studio;
+  }
+
+  function bibleNeedsEnrich(bibleDoc, density) {
+    const chars = (bibleDoc && bibleDoc.characters) || [];
+    return chars.length < bibleMinChars(density);
+  }
+
   function pages(outline, bibleDoc, chapterId, density) {
     return call('pages', {
       outline,
@@ -157,9 +178,27 @@
     };
     const panels = [];
     const nodes = [];
+    const assets = [];
+    const storyAssets = (story && story.assets) || [];
     let y = g;
     const w = format.width - g * 2;
     const chars = charLookup(story.bible);
+
+    function adoptAsset(assetId) {
+      if (!assetId) return null;
+      if (assets.find((a) => a.id === assetId)) return assetId;
+      const src = storyAssets.find((a) => a.id === assetId);
+      if (!src || !src.dataURL) return null;
+      assets.push({
+        id: src.id,
+        projectId: project.id,
+        mime: src.mime || 'image/png',
+        name: src.name || 'mage-art.png',
+        dataURL: src.dataURL,
+        createdAt: src.createdAt || U().now(),
+      });
+      return src.id;
+    }
 
     if (!panelSpecs.length) {
       panels.push({
@@ -177,6 +216,7 @@
     } else {
       panelSpecs.forEach((spec, i) => {
         const h = panelH;
+        const artId = adoptAsset(spec.artAssetId);
         const panel = {
           id: U().uid('panel'),
           pageId: page.id,
@@ -186,8 +226,10 @@
           placeholderColor: i % 2 ? '#d5cbbd' : '#cfc4b4',
           imagePrompt: spec.imagePrompt || '',
           scene: spec.scene || '',
+          shot: spec.shot || 'medium',
           storyPanelId: spec.id || null,
           storyCharacters: spec.characters || [],
+          artAssetId: artId || null,
         };
         panels.push(panel);
 
@@ -227,10 +269,13 @@
 
     page.height = y;
     project.height = y;
-    return { project, pages: [page], panels, nodes, assets: [] };
+    if (assets.length && !project.coverAssetId) project.coverAssetId = assets[0].id;
+    return { project, pages: [page], panels, nodes, assets };
   }
 
   global.DialogueStory = {
-    health, call, expand, chat, densify, bible, pages, pagesForStory, buildProjectFromStoryPage, charLookup, API,
+    health, call, expand, chat, densify, bible, enrichBible, bibleNeedsEnrich, bibleMinChars,
+    BIBLE_MIN_CHARS, BIBLE_MIN_LOCS,
+    pages, pagesForStory, buildProjectFromStoryPage, charLookup, API,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

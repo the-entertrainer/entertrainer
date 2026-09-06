@@ -144,7 +144,7 @@
             <button type="button" class="chip active" data-density="studio">Studio</button>
             <button type="button" class="chip" data-density="epic">Epic</button>
           </div>
-          <p class="story-density-hint" id="story-density-hint">Studio · 12–24 panels/chapter</p>
+          <p class="story-density-hint" id="story-density-hint">Studio · 4–6 ch · 6–10 scenes · 12–24 panels/chapter</p>
           <label class="story-field-label" for="story-plot">Plot</label>
           <textarea id="story-plot" class="story-textarea" rows="4" maxlength="800" placeholder="A night-shift barista discovers their regulars are rewriting the city one coffee at a time…"></textarea>
           <label class="story-field-label" for="story-tone">Tone (optional)</label>
@@ -172,7 +172,8 @@
         <div class="story-busy" id="story-bible-busy">Building bible…</div>
         <div id="story-bible-body" hidden></div>
       </div>
-      <div class="wizard-footer">
+      <div class="wizard-footer story-bible-footer">
+        <button type="button" class="btn-secondary" id="story-enrich-cast" hidden>Enrich cast</button>
         <button type="button" class="btn-primary large" id="story-gen-pages" disabled>Generate pages</button>
       </div>
     </section>
@@ -181,7 +182,7 @@
       <div class="topbar">
         <button type="button" class="icon-btn" id="story-pages-back" aria-label="Back" data-icon="back"></button>
         <h1 id="story-pages-title">Pages</h1>
-        <span style="width:48px"></span>
+        <button type="button" class="icon-btn" id="btn-art-queue-story" aria-label="Art Queue" data-icon="queue" title="Art Queue"></button>
       </div>
       <div class="story-scroll" id="story-pages-scroll">
         <div class="story-busy" id="story-pages-busy">Generating panels…</div>
@@ -280,6 +281,30 @@
     <div class="scroll" id="reader-scroll"></div>
   </div>
 
+
+  <div class="art-queue" id="art-queue" hidden role="dialog" aria-modal="true" aria-labelledby="art-queue-title">
+    <div class="art-queue-bar">
+      <button type="button" class="icon-btn" id="art-queue-close" aria-label="Close" data-icon="close"></button>
+      <strong id="art-queue-title">Art Queue</strong>
+      <span class="art-queue-progress" id="art-queue-progress">0 / 0</span>
+    </div>
+    <div class="art-queue-body" id="art-queue-body"></div>
+    <div class="art-queue-actions" id="art-queue-actions">
+      <div class="aq-row">
+        <button type="button" class="btn-secondary" id="aq-copy"><span data-icon="copy" class="ico"></span> Copy prompt</button>
+        <button type="button" class="btn-primary" id="aq-mage"><span data-icon="external-link" class="ico"></span> Open Mage</button>
+      </div>
+      <div class="aq-row">
+        <button type="button" class="btn-secondary" id="aq-paste"><span data-icon="paste" class="ico"></span> Paste / Upload image</button>
+        <input id="art-queue-file" class="sr-only" type="file" accept="image/*"/>
+      </div>
+      <div class="aq-row aq-nav">
+        <button type="button" class="btn-ghost" id="aq-back"><span data-icon="back" class="ico"></span> Back</button>
+        <button type="button" class="btn-ghost" id="aq-skip">Skip</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <script src="https://unpkg.com/konva@10/konva.min.js"></script>
@@ -295,6 +320,7 @@
   <script src="/dialogue/js/demo.js"></script>
   <script src="/dialogue/js/editor.js"></script>
   <script src="/dialogue/js/story.js"></script>
+  <script src="/dialogue/js/art-queue.js"></script>
   <script src="/dialogue/js/app.js"></script>
 </body>
 </html>

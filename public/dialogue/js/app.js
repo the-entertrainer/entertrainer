@@ -102,6 +102,7 @@
     applySettings(await loadSettings());
     await DialogueDemo.ensureDemo();
     bindUI();
+    initArtQueue();
     showScreen('home');
     const draft = await DialogueDB.getMeta('restoreBanner', null);
     if (draft && draft.projectId) {
@@ -199,8 +200,12 @@
     if (storyBibleBack) storyBibleBack.addEventListener('click', () => showScreen('story-chat'));
     const storyGenPages = $('#story-gen-pages');
     if (storyGenPages) storyGenPages.addEventListener('click', () => generateStoryPages());
+    const storyEnrichCast = $('#story-enrich-cast');
+    if (storyEnrichCast) storyEnrichCast.addEventListener('click', () => enrichStoryCast());
     const storyPagesBack = $('#story-pages-back');
     if (storyPagesBack) storyPagesBack.addEventListener('click', () => showScreen('story-bible'));
+    const btnArtQueueStory = $('#btn-art-queue-story');
+    if (btnArtQueueStory) btnArtQueueStory.addEventListener('click', () => openArtQueueFromStory());
     $('#btn-settings').addEventListener('click', () => showScreen('settings'));
     $('#settings-back').addEventListener('click', () => showScreen('home'));
     $('#wizard-cancel').addEventListener('click', () => showScreen('home'));
@@ -529,10 +534,13 @@
         <div class="tray-section">Opacity</div>
         <label class="tray-slider">Art <input type="range" id="tray-opacity" min="10" max="100" step="1" value="${opacity}"/><span id="tray-opacity-val">${opacity}%</span></label>
         <button type="button" data-act="clear-art">${iconHtml('delete')} Clear art</button>
+        <div class="tray-section">Mage Art Queue</div>
+        <button type="button" data-act="art-queue">${iconHtml('queue')} Art Queue</button>
+        <button type="button" data-act="requeue-panel">${iconHtml('queue')} Re-queue this panel</button>
         ${(panel && panel.imagePrompt) ? `<div class="tray-section">AI prompt</div>
         <p class="tray-note" style="margin:0 0 6px;max-height:4.5em;overflow:auto">${escapeHtml(panel.imagePrompt)}</p>
         <button type="button" data-act="copy-prompt">${iconHtml('copy')} Copy prompt</button>` : ''}
-        <p class="tray-note">Dialogue uses the camera only to put a photo on your panel. Nothing leaves this phone.</p>`;
+        <p class="tray-note">Dialogue uses the camera only to put a photo on your panel. Nothing leaves this phone. Mage.space art is manual (copy → generate → paste).</p>`;
     } else if (mode === 'balloon') {
       html = `
         <div class="tray-section">Style</div>
@@ -609,6 +617,14 @@
       const b = ed.getBundle();
       const p = (b.panels || []).find((x) => x.id === s.id);
       if (p && p.imagePrompt) copyPrompt(p.imagePrompt);
+    }
+    if (act === 'art-queue') {
+      openArtQueueFromEditor();
+    }
+    if (act === 'requeue-panel') {
+      const s = ed.getSelection();
+      if (s.kind === 'panel' && s.id) openArtQueueFromEditor({ requeue: true, focusPanelId: s.id });
+      else toast('Select a panel first');
     }
     if (act === 'speech') { ed.addBalloon('speech'); haptic(10); }
     if (act === 'thought') { ed.addBalloon('thought'); haptic(10); }
@@ -910,9 +926,9 @@
   }
 
   const DENSITY_HINTS = {
-    draft: 'Draft · 4–8 panels/chapter',
-    studio: 'Studio · 12–24 panels/chapter',
-    epic: 'Epic · 24–40 panels/chapter (batched)',
+    draft: 'Draft · 3–4 ch · 4–6 scenes · 4–8 panels/chapter',
+    studio: 'Studio · 4–6 ch · 6–10 scenes · 12–24 panels/chapter',
+    epic: 'Epic · 5–8 ch · 8–12 scenes · 24–40 panels/chapter (batched)',
   };
 
   function setStoryDensity(d) {
@@ -1051,7 +1067,7 @@
 
   function setStoryBusy(busy) {
     state.storyBusy = !!busy;
-    ['story-expand', 'story-chat-send', 'story-densify', 'story-approve', 'story-gen-pages'].forEach((id) => {
+    ['story-expand', 'story-chat-send', 'story-densify', 'story-approve', 'story-gen-pages', 'story-enrich-cast'].forEach((id) => {
       const el = $('#' + id);
       if (!el) return;
       if (busy) {
@@ -1204,13 +1220,26 @@
     const busy = $('#story-bible-busy');
     const body = $('#story-bible-body');
     const genBtn = $('#story-gen-pages');
+    const enrichBtn = $('#story-enrich-cast');
     if (busy) { busy.hidden = false; busy.textContent = 'Building bible…'; }
     if (body) { body.hidden = true; body.innerHTML = ''; }
     if (genBtn) genBtn.disabled = true;
+    if (enrichBtn) enrichBtn.hidden = true;
     try {
-      const res = await DialogueStory.bible(story.outline, story.density || state.storyDensity);
+      const density = story.density || state.storyDensity || 'studio';
+      const res = await DialogueStory.bible(story.outline, density);
       story.bible = res.bible;
       story.status = 'bible';
+      // Client-side enrich once if cast still thin (server also auto-enriches)
+      if (DialogueStory.bibleNeedsEnrich(story.bible, density)) {
+        if (busy) busy.textContent = 'Expanding cast…';
+        try {
+          const enriched = await DialogueStory.enrichBible(story.bible, story.outline, density);
+          if (enriched && enriched.bible) story.bible = enriched.bible;
+        } catch (enrichErr) {
+          console.warn('enrich_bible failed', enrichErr);
+        }
+      }
       await DialogueDB.saveStory(story);
       renderStoryBible(story);
       haptic(10);
@@ -1223,24 +1252,65 @@
     }
   }
 
+  async function enrichStoryCast() {
+    if (state.storyBusy) return;
+    const story = await getCurrentStory();
+    if (!story || !story.outline || !story.bible) return;
+    setStoryBusy(true);
+    const busy = $('#story-bible-busy');
+    const body = $('#story-bible-body');
+    if (busy) { busy.hidden = false; busy.textContent = 'Expanding cast…'; }
+    if (body) body.hidden = true;
+    try {
+      const density = story.density || state.storyDensity || 'studio';
+      const res = await DialogueStory.enrichBible(story.bible, story.outline, density);
+      story.bible = res.bible;
+      story.status = 'bible';
+      await DialogueDB.saveStory(story);
+      renderStoryBible(story);
+      haptic(10);
+      toast('Cast enriched');
+    } catch (err) {
+      const msg = (err && err.message) || 'Enrich failed';
+      if (busy) { busy.hidden = false; busy.textContent = msg; }
+      if (body) body.hidden = false;
+      toast(msg.slice(0, 80));
+    } finally {
+      setStoryBusy(false);
+    }
+  }
+
   function renderStoryBible(story) {
     const busy = $('#story-bible-busy');
     const body = $('#story-bible-body');
     const genBtn = $('#story-gen-pages');
+    const enrichBtn = $('#story-enrich-cast');
     const bible = story.bible;
     if (!bible) {
       if (busy) { busy.hidden = false; busy.textContent = 'No bible yet.'; }
       if (body) body.hidden = true;
       if (genBtn) genBtn.disabled = true;
+      if (enrichBtn) enrichBtn.hidden = true;
       return;
     }
     if (busy) busy.hidden = true;
+    const density = story.density || state.storyDensity || 'studio';
+    const charCount = (bible.characters || []).length;
+    const locCount = (bible.locations || []).length;
+    const minChars = DialogueStory.bibleMinChars(density);
+    const needsEnrich = charCount < minChars;
+    if (enrichBtn) {
+      enrichBtn.hidden = false;
+      enrichBtn.disabled = !!state.storyBusy;
+      enrichBtn.textContent = needsEnrich ? 'Enrich cast' : 'Enrich cast';
+    }
     if (body) {
       body.hidden = false;
       const vs = bible.visualStyle;
       const vsText = (vs && typeof vs === 'object')
         ? [vs.medium, vs.line, vs.lighting, vs.palette, vs.cameraGrammar].filter(Boolean).join(' · ')
         : (bible.visualStyleFlat || vs || '');
+      const castBadge = `<span class="cast-badge${needsEnrich ? ' cast-thin' : ''}" title="Minimum ${minChars} for ${density}">${charCount} cast · ${locCount} locs</span>`;
       const chars = (bible.characters || []).map((c, idx) => {
         const dna = c.visualDNA || {};
         const colors = dna.colorHex || [];
@@ -1278,11 +1348,12 @@
       const rules = (bible.rules || []).map((r) => `<li>${escapeHtml(r)}</li>`).join('');
       const motifs = (bible.motifs || []).map((m) => `<span class="motif-chip">${escapeHtml(m)}</span>`).join('');
       body.innerHTML = `
+        <div class="story-bible-meta">${castBadge}${needsEnrich ? '<span class="cast-hint">Cast thin — enrich recommended</span>' : ''}</div>
         <div class="story-bible-block"><h2><span data-icon="book" class="ico"></span> Visual style</h2>
           <p>${escapeHtml(vsText)}</p>
           <p class="logline">${escapeHtml(bible.toneNotes || '')}${bible.maturity ? ' · ' + escapeHtml(bible.maturity) : ''}</p>
         </div>
-        <div class="story-bible-block"><h2>Characters</h2><div class="char-grid">${chars || '<p class="logline">None</p>'}</div></div>
+        <div class="story-bible-block"><h2>Characters ${castBadge}</h2><div class="char-grid">${chars || '<p class="logline">None</p>'}</div></div>
         <div class="story-bible-block"><h2>Locations</h2><div class="loc-grid">${locs || '<p class="logline">None</p>'}</div></div>
         ${rules ? `<div class="story-bible-block"><h2>World rules</h2><ul class="rules-list">${rules}</ul></div>` : ''}
         ${motifs ? `<div class="story-bible-block"><h2>Motifs</h2><div class="motif-row">${motifs}</div></div>` : ''}`;
@@ -1344,7 +1415,13 @@
     if (!body) return;
     body.hidden = false;
     const charMap = DialogueStory.charLookup(story.bible);
-    body.innerHTML = pages.map((pg) => {
+    const assetMap = {};
+    (story.assets || []).forEach((a) => { assetMap[a.id] = a; });
+    const missing = pages.reduce((n, pg) => n + ((pg.panels || []).filter((p) => !p.artAssetId).length || 0), 0);
+    const queueCta = `<div class="story-pages-actions">
+      <button type="button" class="btn-secondary" id="story-pages-art-queue">${iconHtml('queue')} Art Queue${missing ? ` · ${missing} left` : ' · done'}</button>
+    </div>`;
+    body.innerHTML = queueCta + pages.map((pg) => {
       const panels = (pg.panels || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
       const panelsHtml = panels.map((pan, idx) => {
         const lines = (pan.dialogue || []).map((d) => {
@@ -1356,7 +1433,9 @@
         const act = pan.action ? `<p class="panel-action">${escapeHtml(pan.action)}</p>` : '';
         return `<div class="story-panel" data-page-id="${escapeHtml(pg.id)}" data-panel-id="${escapeHtml(pan.id || String(idx))}">
           <div class="slug">${shotBadge(pan.shot)} ${escapeHtml(pan.scene || ('Panel ' + (idx + 1)))}</div>
-          <div class="art-ph">Forge prompt ready</div>
+          ${pan.artAssetId && assetMap[pan.artAssetId] && assetMap[pan.artAssetId].dataURL
+            ? `<div class="art-ph has-art"><img alt="" src="${assetMap[pan.artAssetId].dataURL}"/></div>`
+            : `<div class="art-ph">Forge prompt ready</div>`}
           ${act}${sub}
           ${lines}
           <div class="story-panel-actions">
@@ -1396,6 +1475,48 @@
     body.querySelectorAll('[data-open-page]').forEach((btn) => {
       btn.addEventListener('click', () => openStoryPageInEditor(story.id, btn.getAttribute('data-open-page')));
     });
+    const aqBtn = body.querySelector('#story-pages-art-queue');
+    if (aqBtn) aqBtn.addEventListener('click', () => openArtQueueFromStory(story.id));
+  }
+
+
+  async function syncStoryArtIntoBundle(story, storyPage, bundle) {
+    if (!story || !storyPage || !bundle) return;
+    const storyAssets = story.assets || [];
+    const panels = (bundle.panels || []).slice().sort((a, b) => a.order - b.order);
+    const specs = (storyPage.panels || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+    let changed = false;
+    if (!bundle.assets) bundle.assets = [];
+    for (let i = 0; i < specs.length; i++) {
+      const spec = specs[i];
+      if (!spec.artAssetId) continue;
+      let panel =
+        panels.find((p) => p.storyPanelId && String(p.storyPanelId) === String(spec.id)) ||
+        panels[i];
+      if (!panel) continue;
+      if (panel.artAssetId === spec.artAssetId) continue;
+      const src = storyAssets.find((a) => a.id === spec.artAssetId);
+      if (!src || !src.dataURL) continue;
+      if (!bundle.assets.find((a) => a.id === src.id)) {
+        bundle.assets.push({
+          id: src.id,
+          projectId: bundle.project.id,
+          mime: src.mime || 'image/png',
+          name: src.name || 'mage-art.png',
+          dataURL: src.dataURL,
+          createdAt: src.createdAt || DialogueUtils.now(),
+        });
+      }
+      panel.artAssetId = src.id;
+      panel.fit = panel.fit || 'cover';
+      changed = true;
+    }
+    if (changed) {
+      if (!bundle.project.coverAssetId && bundle.assets[0]) {
+        bundle.project.coverAssetId = bundle.assets[0].id;
+      }
+      await DialogueDB.saveProjectBundle(bundle);
+    }
   }
 
   async function openStoryPageInEditor(storyId, pageId) {
@@ -1408,6 +1529,7 @@
     if (projectId) {
       const existing = await DialogueDB.getProjectBundle(projectId);
       if (existing) {
+        await syncStoryArtIntoBundle(story, storyPage, existing);
         await openEditor(projectId);
         return;
       }
@@ -1420,7 +1542,69 @@
     await openEditor(bundle.project.id);
   }
 
-    window.DialogueAppActions = {
+  
+  function initArtQueue() {
+    if (!window.DialogueArtQueue) return;
+    DialogueArtQueue.init({
+      toast,
+      copyPrompt,
+      iconHtml,
+      escapeHtml,
+      haptic,
+      getEditor: () => state.editor,
+      getEditorBundle: () => (state.editor ? state.editor.getBundle() : null),
+      onStoryUpdated: async (storyId) => {
+        if (state.currentStoryId === storyId || !storyId) {
+          const story = await DialogueDB.getStory(storyId || state.currentStoryId);
+          if (story && state.route === 'story-pages') renderStoryPages(story);
+        }
+      },
+      onProjectUpdated: async () => {
+        if (state.editor) {
+          state.editor.flushAutosave();
+          renderFilmstrip();
+        }
+      },
+      onClose: async (mode, storyId) => {
+        if (mode === 'story' && storyId) {
+          const story = await DialogueDB.getStory(storyId);
+          if (story && state.route === 'story-pages') renderStoryPages(story);
+        }
+        if (mode === 'project' && state.editor) {
+          renderFilmstrip();
+          if (state.dockTool === 'art') renderTray();
+        }
+      },
+    });
+    hydrateIcons(document.getElementById('art-queue'));
+  }
+
+  async function openArtQueueFromStory(storyId) {
+    const id = storyId || state.currentStoryId;
+    if (!id) {
+      toast('No story open');
+      return;
+    }
+    if (!window.DialogueArtQueue) {
+      toast('Art Queue unavailable');
+      return;
+    }
+    await DialogueArtQueue.openFromStory(id);
+  }
+
+  async function openArtQueueFromEditor(opts) {
+    if (!state.currentId) {
+      toast('No comic open');
+      return;
+    }
+    if (!window.DialogueArtQueue) {
+      toast('Art Queue unavailable');
+      return;
+    }
+    await DialogueArtQueue.openFromProject(state.currentId, opts || {});
+  }
+
+  window.DialogueAppActions = {
     async duplicate() {
       if (!state.ctxProjectId) return;
       await DialogueDB.duplicateProject(state.ctxProjectId);

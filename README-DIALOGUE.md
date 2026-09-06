@@ -55,5 +55,9 @@ Home → **New story** → Power mode (**Draft / Studio / Epic**, default Studio
 
 API: `POST /api/dialogue/story` with `action`: `expand` | `chat` | `densify` | `bible` | `pages` and optional `density`. Health: `GET /api/dialogue/story`.
 Provider policy: **Groq** preferred for expand/chat (speed); **Gemini** preferred for densify/bible/pages (long JSON) when both keys exist.
-Temps: expand 0.8 · densify 0.55 · bible 0.4 · pages 0.6. Dexie stories v3 (`density`, `beatGraph`). SW: dialogue-shell-v6.
+Temps: expand 0.8 · densify 0.55 · bible 0.4 · pages 0.6. Dexie stories v3 (`density`, `beatGraph`). SW: dialogue-shell-v7.
 Requires `GROQ_API_KEY` and/or `GEMINI_API_KEY`.
+
+## Mage Art Queue
+Manual by design: copy a panel prompt → generate on [Mage.space](https://www.mage.space/) in your browser → paste/upload the image back into Dialogue. Mage ToS forbids automation and there is no public API — Dialogue never automates Mage.
+Story pages and the editor Art tray expose **Art Queue** (one panel at a time, reading order). Optional **Re-queue this panel** clears art and focuses that panel again.

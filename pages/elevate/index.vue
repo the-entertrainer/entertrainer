@@ -88,6 +88,22 @@ function setQuery(next: { category?: string; sort?: SortMode }) {
   if (s && s !== 'newest') query.sort = s
   router.replace({ query })
 }
+
+const filtersOpen = ref(false)
+
+const sortLabel = computed(() => {
+  if (sort.value === 'oldest') return 'Oldest'
+  if (sort.value === 'title') return 'A–Z'
+  return 'Newest'
+})
+
+const categoryLabel = computed(() => (category.value === 'all' ? 'All' : category.value))
+
+const filterSummary = computed(() => `${categoryLabel.value} · ${sortLabel.value}`)
+
+function toggleFilters() {
+  filtersOpen.value = !filtersOpen.value
+}
 </script>
 
 <template>
@@ -102,7 +118,27 @@ function setQuery(next: { category?: string; sort?: SortMode }) {
 
     <section class="elevate__entry" aria-labelledby="articles-title">
       <div class="elevate__toolbar">
-        <h2 id="articles-title" class="elevate__section-label">Articles</h2>
+        <div class="elevate__toolbar-lead">
+          <h2 id="articles-title" class="elevate__section-label">Articles</h2>
+          <p class="elevate__filter-summary" aria-live="polite">{{ filterSummary }}</p>
+        </div>
+        <button
+          type="button"
+          class="elevate__filters-toggle"
+          :aria-expanded="filtersOpen"
+          aria-controls="elevate-filters"
+          @click="toggleFilters"
+        >
+          <span class="elevate__filters-toggle-label">{{ filtersOpen ? 'Hide filters' : 'Filters' }}</span>
+          <span class="elevate__filters-toggle-icon" aria-hidden="true">{{ filtersOpen ? '−' : '+' }}</span>
+        </button>
+      </div>
+
+      <div
+        v-show="filtersOpen"
+        id="elevate-filters"
+        class="elevate__filters-panel"
+      >
         <div class="elevate__sort" role="group" aria-label="Sort articles">
           <button
             type="button"
@@ -123,33 +159,33 @@ function setQuery(next: { category?: string; sort?: SortMode }) {
             @click="setQuery({ sort: 'title' })"
           >Title A–Z</button>
         </div>
-      </div>
 
-      <div class="elevate__filters" role="radiogroup" aria-label="Filter by category">
-        <button
-          type="button"
-          class="elevate__chip"
-          role="radio"
-          :aria-checked="category === 'all'"
-          @click="setQuery({ category: 'all' })"
-        >
-          <span class="elevate__chip-dot" aria-hidden="true" />
-          All
-          <span class="elevate__chip-n">{{ posts.length }}</span>
-        </button>
-        <button
-          v-for="cat in categories"
-          :key="cat.id"
-          type="button"
-          class="elevate__chip"
-          role="radio"
-          :aria-checked="category === cat.id"
-          @click="setQuery({ category: cat.id })"
-        >
-          <span class="elevate__chip-dot" aria-hidden="true" />
-          {{ cat.id }}
-          <span class="elevate__chip-n">{{ cat.count }}</span>
-        </button>
+        <div class="elevate__filters" role="radiogroup" aria-label="Filter by category">
+          <button
+            type="button"
+            class="elevate__chip"
+            role="radio"
+            :aria-checked="category === 'all'"
+            @click="setQuery({ category: 'all' })"
+          >
+            <span class="elevate__chip-dot" aria-hidden="true" />
+            All
+            <span class="elevate__chip-n">{{ posts.length }}</span>
+          </button>
+          <button
+            v-for="cat in categories"
+            :key="cat.id"
+            type="button"
+            class="elevate__chip"
+            role="radio"
+            :aria-checked="category === cat.id"
+            @click="setQuery({ category: cat.id })"
+          >
+            <span class="elevate__chip-dot" aria-hidden="true" />
+            {{ cat.id }}
+            <span class="elevate__chip-n">{{ cat.count }}</span>
+          </button>
+        </div>
       </div>
 
       <ul class="elevate__list" aria-live="polite">
@@ -196,10 +232,19 @@ function setQuery(next: { category?: string; sort?: SortMode }) {
 .elevate__toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 12rem 24rem;
-  margin-bottom: 14rem;
+  gap: 10rem 16rem;
+  margin-bottom: 0;
+  padding: 0 0 14rem;
+  border-bottom: var(--stroke) solid var(--line);
+}
+.elevate__toolbar-lead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8rem 12rem;
+  min-width: 0;
 }
 .elevate__section-label {
   margin: 0;
@@ -208,7 +253,58 @@ function setQuery(next: { category?: string; sort?: SortMode }) {
   letter-spacing: .08em;
   text-transform: uppercase;
 }
+.elevate__filter-summary {
+  margin: 0;
+  color: var(--ink-soft);
+  font: 600 12rem/1.2 var(--font-mono);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: min(48ch, 70vw);
+}
+.elevate__filters-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rem;
+  min-height: 36rem;
+  padding: 6rem 12rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-full);
+  background: var(--paper);
+  color: var(--ink);
+  font: 600 11rem/1 var(--font-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.elevate__filters-toggle[aria-expanded="true"] {
+  background: var(--accent);
+  color: var(--accent-ink, #161618);
+}
+.elevate__filters-toggle-icon {
+  font-size: 14rem;
+  line-height: 1;
+  font-weight: 700;
+}
+@media (hover: hover) {
+  .elevate__filters-toggle:hover { background: var(--paper-2); }
+  .elevate__filters-toggle[aria-expanded="true"]:hover { background: var(--accent); }
+}
+.elevate__filters-toggle:focus-visible {
+  outline: 3rem solid var(--focus, var(--accent));
+  outline-offset: 3rem;
+}
 
+.elevate__filters-panel {
+  display: grid;
+  gap: 12rem;
+  padding: 14rem 0 18rem;
+  border-bottom: var(--stroke) solid var(--line);
+  margin-bottom: 6rem;
+}
 .elevate__sort { display: inline-flex; flex-wrap: wrap; gap: 6rem; }
 .elevate__sort-btn {
   min-height: 32rem;
@@ -236,9 +332,8 @@ function setQuery(next: { category?: string; sort?: SortMode }) {
   display: flex;
   flex-wrap: wrap;
   gap: 8rem;
-  padding: 0 0 18rem;
-  border-bottom: var(--stroke) solid var(--line);
-  margin-bottom: 6rem;
+  padding: 0;
+  margin: 0;
 }
 .elevate__chip {
   display: inline-flex;
@@ -278,7 +373,7 @@ function setQuery(next: { category?: string; sort?: SortMode }) {
 
 .elevate__list {
   list-style: none;
-  margin: 0;
+  margin: 6rem 0 0;
   padding: 0;
 }
 .elevate__row {
@@ -395,6 +490,8 @@ function setQuery(next: { category?: string; sort?: SortMode }) {
   .elevate { padding-top: 18rem; }
   .elevate__stage { min-height: 320rem; }
   .elevate__stage :deep(h1) { font-size: clamp(88rem, 25vw, 160rem); }
+  .elevate__toolbar { gap: 8rem 12rem; }
+  .elevate__filters-toggle { min-height: 40rem; }
   .elevate__row { grid-template-columns: 88rem minmax(0, 1fr); gap: 12rem; }
   .elevate__thumb { width: 88rem; height: 60rem; }
   .elevate__row-dek { -webkit-line-clamp: 3; }
@@ -404,6 +501,7 @@ function setQuery(next: { category?: string; sort?: SortMode }) {
   .elevate__thumb :deep(.ed-editorial-image),
   .elevate__sort-btn,
   .elevate__chip,
+  .elevate__filters-toggle,
   .elevate__row { transition: none; }
   .elevate__row:hover .elevate__thumb :deep(.ed-editorial-image) { transform: none; }
 }

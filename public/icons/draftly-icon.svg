@@ -11,6 +11,6 @@
   <rect x="176" y="152" width="120" height="10" rx="5" fill="#0B0B0C" opacity="0.28"/>
   <rect x="176" y="174" width="88" height="10" rx="5" fill="#0B0B0C" opacity="0.18"/>
   <!-- Polish stroke -->
-  <path d="M318 318 C352 292 392 286 424 304" fill="none" stroke="#2F5BD8" stroke-width="14" stroke-linecap="round"/>
-  <path d="M404 288 l28 8 -18 24" fill="none" stroke="#2F5BD8" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M318 318 C352 292 392 286 424 304" fill="none" stroke="#FFD43B" stroke-width="14" stroke-linecap="round"/>
+  <path d="M404 288 l28 8 -18 24" fill="none" stroke="#FFD43B" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

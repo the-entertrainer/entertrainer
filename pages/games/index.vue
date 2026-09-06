@@ -145,7 +145,7 @@ const MIND_READER_SYMBOLS = [
 }
 
 .games__icon--mind-reader i { display: grid; place-items: center; color: var(--ink); }
-.games__icon--mind-reader i:nth-child(2n) { color: var(--cobalt, #2F5BD8); }
+.games__icon--mind-reader i:nth-child(2n) { color: var(--cobalt, #FFD43B); }
 .games__icon--mind-reader i:nth-child(3n) { color: var(--paper); }
 .games__icon--mind-reader svg {
   width: 100%;

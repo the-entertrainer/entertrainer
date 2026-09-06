@@ -71,11 +71,11 @@
   --yellow: var(--accent);
   --cyan:   #22B8D8;
 
-  /* Paper Signal / Elevate DNA: cream fields, ink rules, true cobalt. */
-  --cobalt: #2F5BD8;
-  --signal-field: #EEF3FF;
-  --signal-sheet: #D6E5F7;
-  --signal-cobalt: var(--cobalt);
+  /* Paper Signal / Elevate DNA: cream fields, ink rules, yellow signal (never blue). */
+  --cobalt: var(--accent); /* alias kept for legacy selectors; brand accent is yellow */
+  --signal-field: #FFF3B8;
+  --signal-sheet: #F0E08A;
+  --signal-cobalt: var(--accent);
   --signal-rule: #18181A;
   --ink-soft: var(--muted);
 
@@ -131,12 +131,11 @@
   --yellow: var(--accent);
   --cyan:   #38C6E8;
 
-  /* The same paper signal system on dark stock: the surface lightens while
-     the field remains quiet and the cobalt signal stays unmistakable. */
-  --cobalt: #5B7EF0;
-  --signal-field: #171A24;
-  --signal-sheet: #273149;
-  --signal-cobalt: var(--cobalt);
+  /* Same paper signal system on dark stock — yellow signal, no blue field. */
+  --cobalt: var(--accent);
+  --signal-field: #3A3210;
+  --signal-sheet: #5A4A14;
+  --signal-cobalt: var(--accent);
   --signal-rule: #F2F2F4;
   --ink-soft: var(--muted);
 

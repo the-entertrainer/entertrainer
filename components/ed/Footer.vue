@@ -10,10 +10,6 @@ const sectionLinks = [
   { label: 'Games', href: '/games' },
   { label: 'About me', href: '/about' }
 ]
-const secondaryLinks = [
-  { label: 'Homepage design experiments', href: '/lab' },
-  { label: 'How this site works', href: '/colophon' }
-]
 </script>
 
 <template>
@@ -30,14 +26,6 @@ const secondaryLinks = [
       <nav class="ft__col" aria-labelledby="ft-sections">
         <h2 id="ft-sections" class="t-mono ft__h">Start here</h2>
         <NuxtLink v-for="link in sectionLinks" :key="link.href" class="ft__link u-underline" :to="link.href">{{ link.label }}</NuxtLink>
-      </nav>
-
-      <nav class="ft__col" aria-labelledby="ft-elsewhere">
-        <h2 id="ft-elsewhere" class="t-mono ft__h">Links</h2>
-        <a v-for="s in store.socialLinks" :key="s.platform" class="ft__link u-underline"
-           :href="s.url" :target="s.platform === 'email' ? undefined : '_blank'"
-           :rel="s.platform === 'email' ? undefined : 'noopener noreferrer'">{{ s.label }}</a>
-        <NuxtLink v-for="link in secondaryLinks" :key="link.href" class="ft__link u-underline" :to="link.href">{{ link.label }}</NuxtLink>
       </nav>
 
       <div class="ft__col">
@@ -66,7 +54,7 @@ const secondaryLinks = [
   max-width: var(--shell-wide); margin: 0 auto;
   padding: clamp(36rem, 6vw, 64rem) var(--shell-gutter);
   display: grid; gap: clamp(28rem, 4vw, 48rem);
-  grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.2fr);
 }
 @media (max-width: 900px) { .ft__inner { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .ft__inner { grid-template-columns: minmax(0, 1fr); } }

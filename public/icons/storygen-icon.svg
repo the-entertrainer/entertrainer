@@ -4,16 +4,16 @@
   <rect x="36" y="36" width="440" height="440" rx="96" fill="#FFFBF3" stroke="#0B0B0C" stroke-width="3"/>
   <!-- Story card A -->
   <rect x="78" y="112" width="168" height="124" rx="28" fill="#FFFFFF" stroke="#0B0B0C" stroke-width="10"/>
-  <rect x="104" y="142" width="88" height="14" rx="7" fill="#2F5BD8"/>
+  <rect x="104" y="142" width="88" height="14" rx="7" fill="#FFD43B"/>
   <rect x="104" y="170" width="116" height="10" rx="5" fill="#0B0B0C" opacity="0.22"/>
   <rect x="104" y="192" width="96" height="10" rx="5" fill="#0B0B0C" opacity="0.22"/>
   <!-- Story card B -->
   <rect x="266" y="276" width="168" height="124" rx="28" fill="#FFFFFF" stroke="#0B0B0C" stroke-width="10"/>
-  <rect x="292" y="306" width="88" height="14" rx="7" fill="#2F5BD8"/>
+  <rect x="292" y="306" width="88" height="14" rx="7" fill="#FFD43B"/>
   <rect x="292" y="334" width="116" height="10" rx="5" fill="#0B0B0C" opacity="0.22"/>
   <rect x="292" y="356" width="96" height="10" rx="5" fill="#0B0B0C" opacity="0.22"/>
   <!-- Connector on top so nodes stay visible -->
-  <path d="M246 174 C300 174 214 338 266 338" fill="none" stroke="#2F5BD8" stroke-width="14" stroke-linecap="round"/>
-  <circle cx="246" cy="174" r="16" fill="#2F5BD8" stroke="#F7F1E4" stroke-width="4"/>
-  <circle cx="266" cy="338" r="16" fill="#2F5BD8" stroke="#F7F1E4" stroke-width="4"/>
+  <path d="M246 174 C300 174 214 338 266 338" fill="none" stroke="#FFD43B" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="246" cy="174" r="16" fill="#FFD43B" stroke="#F7F1E4" stroke-width="4"/>
+  <circle cx="266" cy="338" r="16" fill="#FFD43B" stroke="#F7F1E4" stroke-width="4"/>
 </svg>

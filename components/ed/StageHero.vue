@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Elevate-DNA stage heroes — cream paper, ink, cobalt vector art.
+ * Elevate-DNA stage heroes — cream paper, ink, yellow accent vector art.
  * CSS/SVG animation only; respects prefers-reduced-motion.
  */
 type StageVariant = 'ribbons' | 'orbits' | 'ripples' | 'lattice' | 'flow'
@@ -128,7 +128,7 @@ withDefaults(defineProps<{
 .stage {
   --stage-cream: #F7F1E4;
   --stage-ink: #161618;
-  --stage-cobalt: var(--cobalt, #2F5BD8);
+  --stage-cobalt: var(--cobalt, #FFD43B);
   position: relative;
   display: grid;
   min-height: min(420rem, calc(100dvh - 320rem));

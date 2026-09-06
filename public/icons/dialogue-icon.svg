@@ -3,7 +3,7 @@
   <rect width="512" height="512" rx="116" fill="#F7F1E4"/>
   <rect x="36" y="36" width="440" height="440" rx="96" fill="#FFFBF3" stroke="#0B0B0C" stroke-width="3"/>
   <!-- Speech bubble -->
-  <path d="M128 140h256c28 0 48 20 48 48v128c0 28-20 48-48 48H248l-56 64c-6 7-18 2-18-8v-56h-46c-28 0-48-20-48-48V188c0-28 20-48 48-48z" fill="#2F5BD8"/>
+  <path d="M128 140h256c28 0 48 20 48 48v128c0 28-20 48-48 48H248l-56 64c-6 7-18 2-18-8v-56h-46c-28 0-48-20-48-48V188c0-28 20-48 48-48z" fill="#FFD43B"/>
   <!-- Two pause dots = conversation resting -->
   <circle cx="220" cy="248" r="20" fill="#F7F1E4"/>
   <circle cx="292" cy="248" r="20" fill="#F7F1E4"/>

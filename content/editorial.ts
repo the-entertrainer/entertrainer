@@ -183,16 +183,6 @@ export const ITEMS: EditorialItem[] = [
     href: '/colophon',
     stamp: 'Colophon',
     minutes: 6
-  },
-  {
-    id: 'lab',
-    title: 'Homepage design experiments',
-    dek: 'Fifteen visual experiments made from the same interactive glass effect. One material, fifteen ways to make it misbehave.',
-    category: 'lab',
-    media: 'interactive',
-    href: '/lab',
-    stamp: 'Unlisted · WebGL',
-    minutes: 2
   }
 ]
 

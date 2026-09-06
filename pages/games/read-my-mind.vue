@@ -23,14 +23,14 @@ type GridCard = {
 }
 
 const SYMBOLS: SymbolDef[] = [
-  { id: 'orbit', label: 'orbit', color: '#2453D4', svg: '<circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="7" r="2.2" fill="currentColor"/>' },
+  { id: 'orbit', label: 'orbit', color: '#FFD43B', svg: '<circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="7" r="2.2" fill="currentColor"/>' },
   { id: 'prism', label: 'prism', color: '#D84A27', svg: '<path d="m12 2 9 5v10l-9 5-9-5V7l9-5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m3 7 9 5 9-5M12 12v10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>' },
   { id: 'arc', label: 'arc', color: '#B77A00', svg: '<path d="M4 18a11 11 0 0 1 16 0M7 14a7 7 0 0 1 10 0M10 10a3 3 0 0 1 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' },
   { id: 'node', label: 'node', color: '#178C78', svg: '<path d="M7 7h10M7 17h10M7 7v10M17 7v10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="7" r="2.2" fill="currentColor"/><circle cx="17" cy="7" r="2.2" fill="currentColor"/><circle cx="7" cy="17" r="2.2" fill="currentColor"/><circle cx="17" cy="17" r="2.2" fill="currentColor"/>' },
   { id: 'halo', label: 'halo', color: '#6D45B5', svg: '<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/>' },
   { id: 'bracket', label: 'bracket', color: '#B93465', svg: '<path d="M8 4H5v16h3M16 4h3v16h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 12h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' },
   { id: 'spark', label: 'spark', color: '#18181A', svg: '<path d="m12 2 1.8 7.2L21 11l-7.2 1.8L12 20l-1.8-7.2L3 11l7.2-1.8L12 2Z" fill="currentColor"/>' },
-  { id: 'wave', label: 'wave', color: '#256A9C', svg: '<path d="M3 13c2.7 0 2.7-4 5.5-4s2.8 6 5.5 6 2.8-6 5.5-6c.9 0 1.7.5 2.5 1.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' },
+  { id: 'wave', label: 'wave', color: '#B77A00', svg: '<path d="M3 13c2.7 0 2.7-4 5.5-4s2.8 6 5.5 6 2.8-6 5.5-6c.9 0 1.7.5 2.5 1.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' },
   { id: 'hex', label: 'hex', color: '#9B5A2E', svg: '<path d="m12 2 8 4.7v9.6L12 21l-8-4.7V6.7L12 2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m8.5 12 2.4 2.4 4.8-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' }
 ]
 
@@ -226,7 +226,7 @@ function playAgain() {
 </template>
 
 <style scoped>
-.mind-reader { --mr-yellow: var(--signal-field, #f7d74b); --mr-paper: var(--paper, #fbf8ef); --mr-paper-2: var(--paper-2, #f0eadb); --mr-ink: var(--ink, #171719); --mr-cobalt: var(--signal-cobalt, #2453d4); min-height: calc(100dvh - 74rem); padding: clamp(18rem, 3vw, 42rem) var(--shell-gutter) 86rem; background: color-mix(in srgb, var(--mr-yellow) 18%, var(--mr-paper)); }
+.mind-reader { --mr-yellow: var(--signal-field, #f7d74b); --mr-paper: var(--paper, #fbf8ef); --mr-paper-2: var(--paper-2, #f0eadb); --mr-ink: var(--ink, #171719); --mr-cobalt: var(--signal-cobalt, #FFD43B); min-height: calc(100dvh - 74rem); padding: clamp(18rem, 3vw, 42rem) var(--shell-gutter) 86rem; background: color-mix(in srgb, var(--mr-yellow) 18%, var(--mr-paper)); }
 .mind-reader__shell { width: min(100%, 1000rem); margin: 0 auto; }
 .mind-reader__header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16rem; min-height: 48rem; margin-bottom: clamp(16rem, 3vw, 30rem); color: var(--mr-ink); font: 700 11rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
 .mind-reader__back { justify-self: start; display: inline-flex; align-items: center; gap: 8rem; color: inherit; }

@@ -5,7 +5,7 @@
       "label": "About Me",
       "description": "The story behind Entertrainer, from hotel floors to learning design.",
       "href": "/about",
-      "color": "#243F6A",
+      "color": "#FFD43B",
       "img": "/about-me.png",
       "meta": "Story"
     },
@@ -14,7 +14,7 @@
       "label": "Instructional Design",
       "description": "An interactive demonstration of instructional design principles.",
       "href": "/instructional-design",
-      "color": "#243F6A",
+      "color": "#FFD43B",
       "img": "/instructional-design.png",
       "meta": "Practice"
     },
@@ -23,7 +23,7 @@
       "label": "My Work",
       "description": "Selected instructional design projects, with the thinking behind each.",
       "href": "/my-work",
-      "color": "#243F6A",
+      "color": "#FFD43B",
       "img": "/my-work.png",
       "meta": "Projects"
     },
@@ -32,7 +32,7 @@
       "label": "Web Apps",
       "description": "Free web apps for instructional designers and L&D teams.",
       "href": "/tools",
-      "color": "#243F6A",
+      "color": "#FFD43B",
       "img": "/web-apps.png",
       "meta": "Free tools"
     }
@@ -45,7 +45,7 @@
       "label": "The SEWA Chronicles",
       "description": "A comic magazine for Club Mahindra, teaching service values through true stories from the resort floor.",
       "href": "/my-work/sewa-chronicles",
-      "color": "#243F6A",
+      "color": "#FFD43B",
       "img": "/work-01.png",
       "meta": "Comic \u00b7 Club Mahindra"
     },
@@ -54,7 +54,7 @@
       "label": "Strong",
       "description": "Why the same password can take a second or a century to crack, depending entirely on who is doing the cracking.",
       "href": "/my-work/strong",
-      "color": "#243F6A",
+      "color": "#FFD43B",
       "img": "/strong.png",
       "meta": "Interactive explainer"
     }
@@ -65,7 +65,7 @@
       "label": "EasyMCQ",
       "description": "Write the question and the right answer; the AI writes the wrong ones.",
       "href": "/tools/easymcq",
-      "color": "#243F6A",
+      "color": "#FFD43B",
       "img": "/easymcq.png",
       "meta": "Assessment"
     },
@@ -74,7 +74,7 @@
       "label": "Cadence",
       "description": "Turn a list of topics into a monthly training calendar you can present.",
       "href": "/tools/cadence",
-      "color": "#243F6A",
+      "color": "#FFD43B",
       "img": "/training-cal-gen.png",
       "meta": "Planning"
     },
@@ -83,7 +83,7 @@
       "label": "Draftly",
       "description": "Paste a messy draft and get a send-ready email.",
       "href": "/tools/better-emails",
-      "color": "#243F6A",
+      "color": "#FFD43B",
       "img": "/better-emails.png",
       "meta": "Writing"
     },
@@ -92,7 +92,7 @@
       "label": "StoryGen",
       "description": "Storyboard on an infinite canvas \u2014 cards, flows, and a Word export.",
       "href": "/tools/storygen",
-      "color": "#243F6A",
+      "color": "#FFD43B",
       "img": "/storygen.png",
       "meta": "Storyboarding"
     }
@@ -103,7 +103,7 @@
       "label": "Templates",
       "description": "Ready-to-use L&D templates",
       "href": "/downloads/templates",
-      "color": "#243F6A",
+      "color": "#FFD43B",
       "img": "/templates.png",
       "meta": "Pack"
     },
@@ -112,7 +112,7 @@
       "label": "Frameworks",
       "description": "ID frameworks & storyboard guides",
       "href": "/downloads/frameworks",
-      "color": "#243F6A",
+      "color": "#FFD43B",
       "img": "/frameworks.png",
       "meta": "Reference"
     },
@@ -121,7 +121,7 @@
       "label": "Resources",
       "description": "Curated L&D resources",
       "href": "/downloads/resources",
-      "color": "#243F6A",
+      "color": "#FFD43B",
       "img": "/resources.png",
       "meta": "Links"
     }

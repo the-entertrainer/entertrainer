@@ -100,7 +100,7 @@ onMounted(() => {
     105deg,
     var(--ink) 0%,
     var(--ink) 38%,
-    var(--cobalt, #2F5BD8) 50%,
+    var(--cobalt, #FFD43B) 50%,
     var(--ink) 62%,
     var(--ink) 100%
   );
@@ -125,9 +125,9 @@ onMounted(() => {
   border-radius: 999rem;
   background: linear-gradient(
     90deg,
-    color-mix(in srgb, var(--cobalt, #2F5BD8) 15%, transparent),
-    var(--cobalt, #2F5BD8),
-    color-mix(in srgb, var(--cobalt, #2F5BD8) 15%, transparent)
+    color-mix(in srgb, var(--cobalt, #FFD43B) 15%, transparent),
+    var(--cobalt, #FFD43B),
+    color-mix(in srgb, var(--cobalt, #FFD43B) 15%, transparent)
   );
   background-size: 200% 100%;
   opacity: .55;
@@ -167,13 +167,13 @@ onMounted(() => {
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-xl);
   background: color-mix(in srgb, #F7F1E4 70%, var(--paper-2));
-  box-shadow: 10rem 10rem 0 color-mix(in srgb, var(--cobalt, #2F5BD8) 22%, transparent);
+  box-shadow: 10rem 10rem 0 color-mix(in srgb, var(--cobalt, #FFD43B) 22%, transparent);
   overflow: hidden;
 }
 
 [data-theme="dark"] .route-index__switchboard {
   background: var(--paper-2);
-  box-shadow: 10rem 10rem 0 color-mix(in srgb, var(--cobalt, #5B7EF0) 28%, transparent);
+  box-shadow: 10rem 10rem 0 color-mix(in srgb, var(--cobalt, #FFD43B) 28%, transparent);
 }
 
 .route-index__switchboard::before {
@@ -182,7 +182,7 @@ onMounted(() => {
   inset: auto -16% -68% auto;
   width: min(480rem, 54vw);
   aspect-ratio: 1;
-  border: 38rem solid color-mix(in srgb, var(--cobalt, #2F5BD8) 22%, transparent);
+  border: 38rem solid color-mix(in srgb, var(--cobalt, #FFD43B) 22%, transparent);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -323,7 +323,7 @@ onMounted(() => {
 @media (prefers-reduced-motion: reduce) {
   .route-index__accent {
     animation: none !important;
-    color: var(--cobalt, #2F5BD8);
+    color: var(--cobalt, #FFD43B);
     background: none;
     -webkit-background-clip: unset;
     background-clip: unset;

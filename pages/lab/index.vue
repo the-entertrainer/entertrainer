@@ -4,9 +4,8 @@ import { CONCEPTS } from '~/utils/labNav'
 /**
  * The lab index.
  *
- * Unlisted and noindex, but not hidden: it is linked from the front page's
- * archive and from the footer, because fifteen discarded directions are more
- * honest evidence of how the work happens than the one that shipped.
+ * Unlisted and noindex. Kept for direct URL access only — not linked from
+ * the public nav or footer.
  *
  * The sketches themselves are untouched by the editorial rebuild — they are
  * self-contained WebGL artifacts with their own art direction, and app.vue

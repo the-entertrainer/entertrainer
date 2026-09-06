@@ -154,7 +154,7 @@ const visuals = {
 .entropy__gradient { display: grid; grid-template-columns: minmax(110rem, .75fr) minmax(130rem, 1fr) minmax(110rem, .75fr); gap: 12rem; align-items: stretch; margin: 52rem 0; padding: 12rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--paper-2); }
 .entropy__gradient-cell, .entropy__gradient-copy { min-height: 170rem; display: flex; flex-direction: column; justify-content: flex-end; padding: 16rem; border-radius: calc(var(--radius-m) - 4rem); }
 .entropy__gradient-cell { border: 1rem solid var(--ink); font: 700 13rem/1.2 var(--font-mono); text-transform: uppercase; letter-spacing: .08em; }
-.entropy__gradient-cell--hot { background: var(--signal-cobalt); color: var(--paper); }
+.entropy__gradient-cell--hot { background: var(--signal-cobalt); color: var(--ink); }
 .entropy__gradient-cell--cool { background: color-mix(in srgb, var(--signal-field) 62%, var(--paper)); }
 .entropy__gradient-copy { justify-content: center; align-items: center; gap: 7rem; text-align: center; }
 .entropy__gradient-copy strong { font: 500 clamp(26rem, 3vw, 38rem)/.94 var(--font-display); letter-spacing: -.04em; }

@@ -1146,7 +1146,7 @@ const selectedFigure = computed(() =>
   cursor: pointer;
 }
 .compose__btn:disabled { opacity: .5; cursor: wait; }
-.compose__btn--signal { background: var(--signal-cobalt); color: var(--paper); border-color: var(--ink); }
+.compose__btn--signal { background: var(--signal-cobalt); color: var(--ink); border-color: var(--ink); }
 .compose__btn--ghost { background: transparent; }
 .compose__btn--small { padding: 8rem 10rem; font-size: 11rem; }
 .compose__error { margin: 12rem 0 0; color: #b00020; font: 700 13rem/1.3 var(--font-mono); }
@@ -1197,7 +1197,7 @@ const selectedFigure = computed(() =>
 .compose__mode-btn:last-child { border-right: 0; }
 .compose__mode-btn.is-active {
   background: var(--signal-cobalt);
-  color: var(--paper);
+  color: var(--ink);
 }
 .compose__preview {
   display: grid;
@@ -1455,7 +1455,7 @@ const selectedFigure = computed(() =>
 }
 .compose__provider-opt.is-active {
   background: var(--signal-cobalt);
-  color: var(--paper);
+  color: var(--ink);
 }
 .compose__provider:disabled .compose__provider-opt { opacity: .55; cursor: wait; }
 .compose__provider-seg--wrap {

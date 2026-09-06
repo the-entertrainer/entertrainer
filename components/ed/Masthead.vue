@@ -149,7 +149,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .mh__nav { display: none; }
   .mh__icon--menu { display: inline-flex; }
   .mh__end { margin-left: auto; }
-  .mh__icon { width: 36rem; height: 36rem; border-radius: 11rem; }
+  .mh__icon { width: 36rem; height: 36rem; border-radius: var(--radius-m); }
 
   .mh__sheet {
     display: grid;

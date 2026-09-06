@@ -71,11 +71,13 @@
   --yellow: var(--accent);
   --cyan:   #22B8D8;
 
-  /* Paper Signal: the only permitted non-brand illustration grammar. */
+  /* Paper Signal / Elevate DNA: cream fields, ink rules, true cobalt. */
+  --cobalt: #2F5BD8;
   --signal-field: #EEF3FF;
   --signal-sheet: #D6E5F7;
-  --signal-cobalt: var(--accent);
+  --signal-cobalt: var(--cobalt);
   --signal-rule: #18181A;
+  --ink-soft: var(--muted);
 
   /* Measured, not assumed. The three light accents carry ink and the three
      dark ones carry white; picking per-accent is what let green and cyan stay
@@ -131,10 +133,12 @@
 
   /* The same paper signal system on dark stock: the surface lightens while
      the field remains quiet and the cobalt signal stays unmistakable. */
+  --cobalt: #5B7EF0;
   --signal-field: #171A24;
   --signal-sheet: #273149;
-  --signal-cobalt: var(--accent);
+  --signal-cobalt: var(--cobalt);
   --signal-rule: #F2F2F4;
+  --ink-soft: var(--muted);
 
   --on-blue:   #0B0B0C;
   --on-red:    #0B0B0C;
@@ -178,6 +182,7 @@
 :root {
   --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-ui:      "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body:   var(--font-ui);
   --font-reading: "Source Serif 4", Georgia, serif;
   --font-mono:    "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
@@ -210,6 +215,7 @@
 
 :root {
   --shell-max:  1180rem;
+  --shell-page: 980rem;
   --shell-wide: 1400rem;
   --shell-gutter: clamp(18rem, 4vw, 48rem);
   --page-top: calc(88rem + var(--safe-top));
@@ -224,6 +230,7 @@
   --radius-s:  8rem;
   --radius-m:  11rem;
   --radius-l:  15rem;
+  --radius-xl: 22rem;
   --radius-full: 999rem;
 
   --stroke: 1px;

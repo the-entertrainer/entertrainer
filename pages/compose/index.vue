@@ -35,6 +35,10 @@ const activeSlug = ref<string | null>(null)
 const editorMode = ref<EditorMode>('canvas')
 const selectedFigureId = ref<string | null>(null)
 const heroBusy = ref(false)
+const coverBusy = ref(false)
+const figureBusyId = ref<string | null>(null)
+const figureBusySource = ref<ComposeImageSource | null>(null)
+const coverBusySource = ref<ComposeImageSource | null>(null)
 
 const aiTopic = ref('')
 const aiNotes = ref('')
@@ -433,6 +437,96 @@ async function regenerateHero() {
   }
 }
 
+
+function imageSourceLabel(source: ComposeImageSource) {
+  return source === 'gemini' ? 'Gemini' : source === 'gamma' ? 'Gamma' : 'Commons'
+}
+
+async function requestComposeImage(opts: {
+  role: 'figure' | 'hero'
+  imageSource: ComposeImageSource
+  hint?: string
+}) {
+  const topic = (aiTopic.value.trim() || draft.value.title || draft.value.slug || '').trim()
+  const title = draft.value.title.trim()
+  const hint = String(opts.hint || '').trim()
+  if (!topic && !title && !hint) {
+    throw new Error('Add a title, AI topic, or figure caption/hint first.')
+  }
+  const res = await $fetch<{
+    image: { src: string; credit?: string; title?: string; license?: string }
+    sourceUsed?: ComposeImageSource
+    warning?: string
+  }>('/api/compose/image', {
+    method: 'POST',
+    body: {
+      topic: topic || title,
+      title: title || undefined,
+      hint: hint || undefined,
+      imageSource: opts.imageSource,
+      role: opts.role
+    }
+  })
+  return res
+}
+
+async function generateFigureImage(block: ComposedBlock, source?: ComposeImageSource) {
+  const imageSource = source || aiImageSource.value
+  if (figureBusyId.value) return
+  figureBusyId.value = block.id
+  figureBusySource.value = imageSource
+  statusMessage.value = `Generating figure via ${imageSourceLabel(imageSource)}…`
+  try {
+    const hint = (block.caption || block.alt || '').trim()
+    const res = await requestComposeImage({ role: 'figure', imageSource, hint })
+    const hit = res.image
+    block.src = hit.src
+    const baseCaption = (block.caption || block.alt || hit.title || 'Illustration').trim()
+    if (/—|credit|wikimedia|openverse|gemini|gamma/i.test(baseCaption)) {
+      block.caption = baseCaption
+    } else {
+      block.caption = `${baseCaption} — ${hit.credit || imageSourceLabel(res.sourceUsed || imageSource)}`
+    }
+    if (!block.alt) block.alt = hit.title || baseCaption
+    selectedFigureId.value = block.id
+    const warn = res.warning ? ` Warning: ${res.warning}` : ''
+    statusMessage.value = `Figure image set via ${res.sourceUsed || imageSource}.${warn}`
+  } catch (err: any) {
+    const msg = err?.data?.statusMessage || err?.statusMessage || err?.message || 'Figure image failed.'
+    statusMessage.value = `Figure image failed: ${msg}`
+  } finally {
+    figureBusyId.value = null
+    figureBusySource.value = null
+  }
+}
+
+async function generateCoverImage(source?: ComposeImageSource) {
+  const imageSource = source || aiImageSource.value
+  if (coverBusy.value || heroBusy.value) return
+  coverBusy.value = true
+  coverBusySource.value = imageSource
+  statusMessage.value = `Generating cover via ${imageSourceLabel(imageSource)}…`
+  try {
+    const res = await requestComposeImage({
+      role: 'hero',
+      imageSource,
+      hint: draft.value.dek || draft.value.title
+    })
+    draft.value.hero = res.image.src
+    if (!String(draft.value.heroAlt || '').trim()) {
+      draft.value.heroAlt = res.image.title || draft.value.title || 'Editorial hero illustration'
+    }
+    const warn = res.warning ? ` Warning: ${res.warning}` : ''
+    statusMessage.value = `Cover image set via ${res.sourceUsed || imageSource}.${warn}`
+  } catch (err: any) {
+    const msg = err?.data?.statusMessage || err?.statusMessage || err?.message || 'Cover image failed.'
+    statusMessage.value = `Cover image failed: ${msg}`
+  } finally {
+    coverBusy.value = false
+    coverBusySource.value = null
+  }
+}
+
 function clearFigure(block: ComposedBlock) {
   block.src = ''
   block.alt = block.alt || ''
@@ -549,14 +643,8 @@ const selectedFigure = computed(() =>
                 <input v-model="aiImageSource" type="radio" name="compose-image-source" value="gamma">
                 <span>Gamma</span>
               </label>
-              <span
-                class="compose__provider-opt compose__provider-opt--disabled"
-                title="Mage Space has no public API (invite-only beta; automation forbidden). Contact mage@mage.space for API beta."
-              >
-                <span>Mage Space · contact for API beta</span>
-              </span>
             </div>
-            <p class="compose__mage-note">Heroes are procedural Elevate covers (not Mage). Figures: Commons / Gemini / Gamma only.</p>
+            <p class="compose__image-note">Default for draft figures. Heroes stay procedural (Regenerate hero); optional cover from Commons / Gemini / Gamma below.</p>
           </fieldset>
           <label class="compose__span-2">
             <span>Topic</span>
@@ -649,9 +737,28 @@ const selectedFigure = computed(() =>
               <p>No hero yet — Generate draft or Regenerate hero.</p>
             </div>
             <div class="compose__hero-controls">
-              <button type="button" class="compose__btn compose__btn--small" :disabled="heroBusy" @click="regenerateHero">
+              <button type="button" class="compose__btn compose__btn--small" :disabled="heroBusy || coverBusy" @click="regenerateHero">
                 {{ heroBusy ? 'Regenerating…' : 'Regenerate hero' }}
               </button>
+              <span class="compose__gen-label">Generate cover</span>
+              <button
+                type="button"
+                class="compose__btn compose__btn--small"
+                :disabled="heroBusy || coverBusy"
+                @click="generateCoverImage('commons')"
+              >{{ coverBusy && coverBusySource === 'commons' ? 'Commons…' : 'Commons' }}</button>
+              <button
+                type="button"
+                class="compose__btn compose__btn--small"
+                :disabled="heroBusy || coverBusy"
+                @click="generateCoverImage('gemini')"
+              >{{ coverBusy && coverBusySource === 'gemini' ? 'Gemini…' : 'Gemini' }}</button>
+              <button
+                type="button"
+                class="compose__btn compose__btn--small"
+                :disabled="heroBusy || coverBusy"
+                @click="generateCoverImage('gamma')"
+              >{{ coverBusy && coverBusySource === 'gamma' ? 'Gamma…' : 'Gamma' }}</button>
               <input
                 v-model="draft.heroAlt"
                 class="compose__input compose__input--inline"
@@ -746,6 +853,25 @@ const selectedFigure = computed(() =>
                     <input v-model="block.src" class="compose__input compose__input--inline" placeholder="Image src / URL">
                     <input v-model="block.alt" class="compose__input compose__input--inline" placeholder="Alt">
                     <button type="button" class="compose__btn compose__btn--small" @click.stop="pasteFigureUrl(block)">Paste URL</button>
+                    <span class="compose__gen-label">Generate</span>
+                    <button
+                      type="button"
+                      class="compose__btn compose__btn--small"
+                      :disabled="!!figureBusyId"
+                      @click.stop="generateFigureImage(block, 'commons')"
+                    >{{ figureBusyId === block.id && figureBusySource === 'commons' ? 'Commons…' : 'Commons' }}</button>
+                    <button
+                      type="button"
+                      class="compose__btn compose__btn--small"
+                      :disabled="!!figureBusyId"
+                      @click.stop="generateFigureImage(block, 'gemini')"
+                    >{{ figureBusyId === block.id && figureBusySource === 'gemini' ? 'Gemini…' : 'Gemini' }}</button>
+                    <button
+                      type="button"
+                      class="compose__btn compose__btn--small"
+                      :disabled="!!figureBusyId"
+                      @click.stop="generateFigureImage(block, 'gamma')"
+                    >{{ figureBusyId === block.id && figureBusySource === 'gamma' ? 'Gamma…' : 'Gamma' }}</button>
                     <button type="button" class="compose__btn compose__btn--small" @click.stop="clearFigure(block)">Remove image</button>
                   </div>
                 </div>
@@ -824,14 +950,26 @@ const selectedFigure = computed(() =>
               <span>Hero alt</span>
               <input v-model="draft.heroAlt" class="compose__input">
             </label>
-            <div v-if="isPreviewableSrc(draft.hero)" class="compose__preview compose__span-2">
-              <p class="compose__preview-label">Hero preview</p>
-              <div class="compose__preview-frame compose__preview-frame--hero">
+            <div class="compose__preview compose__span-2">
+              <p class="compose__preview-label">Hero</p>
+              <div v-if="isPreviewableSrc(draft.hero)" class="compose__preview-frame compose__preview-frame--hero">
                 <EdEditorialImage :key="draft.hero" :src="draft.hero" :alt="draft.heroAlt || 'Hero preview'" />
               </div>
-              <button type="button" class="compose__btn compose__btn--small" :disabled="heroBusy" @click="regenerateHero">
-                {{ heroBusy ? 'Regenerating…' : 'Regenerate hero' }}
-              </button>
+              <div class="compose__hero-controls">
+                <button type="button" class="compose__btn compose__btn--small" :disabled="heroBusy || coverBusy" @click="regenerateHero">
+                  {{ heroBusy ? 'Regenerating…' : 'Regenerate hero' }}
+                </button>
+                <span class="compose__gen-label">Generate cover</span>
+                <button type="button" class="compose__btn compose__btn--small" :disabled="heroBusy || coverBusy" @click="generateCoverImage('commons')">
+                  {{ coverBusy && coverBusySource === 'commons' ? 'Commons…' : 'Commons' }}
+                </button>
+                <button type="button" class="compose__btn compose__btn--small" :disabled="heroBusy || coverBusy" @click="generateCoverImage('gemini')">
+                  {{ coverBusy && coverBusySource === 'gemini' ? 'Gemini…' : 'Gemini' }}
+                </button>
+                <button type="button" class="compose__btn compose__btn--small" :disabled="heroBusy || coverBusy" @click="generateCoverImage('gamma')">
+                  {{ coverBusy && coverBusySource === 'gamma' ? 'Gamma…' : 'Gamma' }}
+                </button>
+              </div>
             </div>
             <label>
               <span>Margin note label</span>
@@ -893,6 +1031,25 @@ const selectedFigure = computed(() =>
                 <input v-model="block.caption" class="compose__input" placeholder="Caption">
                 <div class="compose__figure-tools">
                   <button type="button" class="compose__btn compose__btn--small" @click="pasteFigureUrl(block)">Paste URL</button>
+                  <span class="compose__gen-label">Generate</span>
+                  <button
+                    type="button"
+                    class="compose__btn compose__btn--small"
+                    :disabled="!!figureBusyId"
+                    @click="generateFigureImage(block, 'commons')"
+                  >{{ figureBusyId === block.id && figureBusySource === 'commons' ? 'Commons…' : 'Commons' }}</button>
+                  <button
+                    type="button"
+                    class="compose__btn compose__btn--small"
+                    :disabled="!!figureBusyId"
+                    @click="generateFigureImage(block, 'gemini')"
+                  >{{ figureBusyId === block.id && figureBusySource === 'gemini' ? 'Gemini…' : 'Gemini' }}</button>
+                  <button
+                    type="button"
+                    class="compose__btn compose__btn--small"
+                    :disabled="!!figureBusyId"
+                    @click="generateFigureImage(block, 'gamma')"
+                  >{{ figureBusyId === block.id && figureBusySource === 'gamma' ? 'Gamma…' : 'Gamma' }}</button>
                   <button type="button" class="compose__btn compose__btn--small" @click="clearFigure(block)">Remove image</button>
                 </div>
               </template>
@@ -1291,19 +1448,6 @@ const selectedFigure = computed(() =>
   background: var(--signal-cobalt);
   color: var(--paper);
 }
-.compose__provider-opt--disabled {
-  cursor: not-allowed;
-  opacity: .55;
-  background: var(--paper-2);
-  color: var(--ink-soft);
-  font-size: 10rem;
-  letter-spacing: .03em;
-  text-transform: none;
-  max-width: 220rem;
-  text-align: center;
-  line-height: 1.25;
-  padding: 8rem 10rem;
-}
 .compose__provider:disabled .compose__provider-opt { opacity: .55; cursor: wait; }
 .compose__provider-seg--wrap {
   flex-wrap: wrap;
@@ -1311,10 +1455,16 @@ const selectedFigure = computed(() =>
 .compose__provider-seg--wrap .compose__provider-opt {
   border-bottom: var(--stroke) solid var(--ink);
 }
-.compose__mage-note {
+.compose__image-note {
   margin: 8rem 0 0;
   font-size: 12rem;
   line-height: 1.4;
+  color: var(--ink-soft);
+}
+.compose__gen-label {
+  font: 700 10rem/1.2 var(--font-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
   color: var(--ink-soft);
 }
 

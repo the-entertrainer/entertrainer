@@ -6,10 +6,10 @@ Gate keyword: `iamguru` (session unlock). Drafts and publishes update `content/c
 
 Default mode is **Canvas** — a live article surface that mirrors Elevate reading rhythm:
 
-- Large hero at the top (`EdEditorialImage`, ~16:8.5) with **Regenerate hero**
+- Large hero at the top (`EdEditorialImage`, ~16:8.5) with **Regenerate hero** (procedural) plus optional **Generate cover** from Commons / Gemini / Gamma
 - Inline title / dek fields styled like the published article
 - Sticky margin note + prose blocks
-- **Figures show full inline images**; click a figure to edit caption/alt/src in place (Paste URL / Remove image)
+- **Figures show full inline images**; click a figure to edit caption/alt/src in place (Paste URL / **Generate Commons|Gemini|Gamma** / Remove image)
 - Dual mode: **Canvas** (default) ↔ **Fields** (classic meta grid + block cards). Choice persists in `localStorage` as `et-compose-mode`
 
 Mobile-first: single column under ~760px; hero goes edge-to-edge.
@@ -58,13 +58,15 @@ If Gemini/Gamma fails or the key is missing, falls back to Commons and returns `
 
 Editor: hero + figure blocks show `<EdEditorialImage>` previews. `localStorage` strips `data:image/` for quota; `sessionStorage` keeps them for in-tab refresh until Publish commits to `/blog/<slug>/…`.
 
-### Mage Space — not integrated
+### Generate one image (figure or alternate cover)
 
-**Mage Space has no public API** (invite-only beta; automation / scraping is forbidden). Do **not** scrape Mage or attempt unofficial clients.
-
-- To enable later: request API beta from **mage@mage.space**
-- Composer UI shows a disabled row: “Mage Space · contact for API beta”
-- Keep Gemini / Gamma / Commons for figures; heroes remain procedural Elevate covers
+- Route: `POST /api/compose/image`
+- Body: `{ topic?, title?, hint?, imageSource: 'commons' | 'gemini' | 'gamma', role: 'figure' | 'hero' }`
+- Returns `{ image: { src, credit, license, title? }, sourceUsed, role, warning? }`
+- Reuses `server/utils/compose-images.ts` helpers (`composeOneImage`): one Commons hit, one Gemini, or one Gamma
+- `role: 'hero'` with Gemini/Gamma uses the Elevate-style cover prompt; Commons picks the best free image
+- Prefer **Regenerate hero** for conceptual procedural covers; use Generate cover when you want an alternate Commons / Gemini / Gamma image
+- Canvas + Fields figure tools expose **Generate Commons | Gemini | Gamma**; busy state + `statusMessage` on failure
 
 ### Free-tier notes — Groq (from live probes)
 

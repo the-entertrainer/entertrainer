@@ -671,4 +671,118 @@ export async function enrichComposeImages(opts: {
   return { images, sourceUsed: 'commons' }
 }
 
+/**
+ * Resolve a single image for one figure or hero slot (Compose "Generate image" buttons).
+ * Reuses Commons / one Gemini / one Gamma — no Mage.
+ */
+export async function composeOneImage(opts: {
+  topic?: string
+  title?: string
+  hint?: string
+  imageSource?: ComposeImageSource | string
+  role: 'figure' | 'hero'
+  geminiApiKey?: string
+  geminiImageModel?: string
+  gammaApiKey?: string
+  budgetMs?: number
+}): Promise<{ image: ImageHit; sourceUsed: ComposeImageSource; warning?: string }> {
+  const role = opts.role === 'hero' ? 'hero' : 'figure'
+  const topic = String(opts.topic || opts.title || opts.hint || '').trim() || 'editorial illustration'
+  const title = String(opts.title || '').trim()
+  const hint = String(opts.hint || '').trim()
+  const subject = hint || title || topic
+  const source = normalizeImageSource(opts.imageSource)
+  const budgetMs = Math.max(3_000, opts.budgetMs ?? (role === 'hero' ? 25_000 : IMAGE_PHASE_BUDGET_MS))
+
+  if (source === 'gemini') {
+    const key = String(opts.geminiApiKey || '').trim()
+    if (!key) {
+      const images = await findTopicImages(subject, 1)
+      if (!images[0]) throw new Error('No Commons image found (GEMINI_API_KEY missing).')
+      return {
+        image: images[0],
+        sourceUsed: 'commons',
+        warning: 'GEMINI_API_KEY missing — used Commons / Openverse instead.'
+      }
+    }
+    const model =
+      String(opts.geminiImageModel || DEFAULT_GEMINI_IMAGE_MODEL).trim() || DEFAULT_GEMINI_IMAGE_MODEL
+    try {
+      const prompt = buildFigurePrompt(topic, role, 1, subject)
+      const img = await withTimeout(
+        generateGeminiImage({
+          apiKey: key,
+          model,
+          prompt,
+          aspectRatio: role === 'hero' ? '16:9' : '4:3'
+        }),
+        Math.min(GEMINI_PER_IMAGE_DEADLINE_MS, budgetMs),
+        `Gemini ${role}`
+      )
+      if (!img) throw new Error('Gemini returned no image')
+      return {
+        image: {
+          src: img.dataUrl,
+          credit: `Gemini · ${model}`,
+          license: 'AI-generated',
+          title: role === 'hero' ? `${subject} hero` : `${subject} figure`
+        },
+        sourceUsed: 'gemini'
+      }
+    } catch (err: any) {
+      const images = await findTopicImages(subject, 1)
+      if (!images[0]) throw new Error(err?.message || 'Gemini image failed')
+      return {
+        image: images[0],
+        sourceUsed: 'commons',
+        warning: `Gemini failed (${err?.message || 'error'}) — used Commons.`
+      }
+    }
+  }
+
+  if (source === 'gamma') {
+    const key = String(opts.gammaApiKey || '').trim()
+    if (!key) {
+      const images = await findTopicImages(subject, 1)
+      if (!images[0]) throw new Error('No Commons image found (GAMMA_API_KEY missing).')
+      return {
+        image: images[0],
+        sourceUsed: 'commons',
+        warning: 'GAMMA_API_KEY missing — used Commons / Openverse instead.'
+      }
+    }
+    try {
+      const prompt = buildFigurePrompt(topic, role, 1, subject)
+      const url = await createGammaImage(
+        key,
+        prompt,
+        role === 'hero' ? 'banner' : 'slide',
+        Math.min(GAMMA_PER_IMAGE_DEADLINE_MS, budgetMs)
+      )
+      return {
+        image: {
+          src: url,
+          credit: 'Gamma · AI illustration',
+          license: 'AI-generated',
+          title: role === 'hero' ? `${subject} hero` : `${subject} figure`
+        },
+        sourceUsed: 'gamma'
+      }
+    } catch (err: any) {
+      const images = await findTopicImages(subject, 1)
+      if (!images[0]) throw new Error(err?.message || 'Gamma image failed')
+      return {
+        image: images[0],
+        sourceUsed: 'commons',
+        warning: `Gamma failed (${err?.message || 'error'}) — used Commons.`
+      }
+    }
+  }
+
+  const images = await findTopicImages(subject, 1)
+  if (!images[0]) throw new Error('No free Commons / Openverse image found for that topic.')
+  return { image: images[0], sourceUsed: 'commons' }
+}
+
 export { DEFAULT_GEMINI_IMAGE_MODEL, createGammaImage }
+

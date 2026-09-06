@@ -13,6 +13,7 @@ useHead({
   ],
   link: [
     { rel: 'manifest', href: '/dialogue/manifest.webmanifest' },
+    { rel: 'stylesheet', href: '/dialogue/css/dialogue.css' },
     { rel: 'apple-touch-icon', href: '/dialogue/icons/apple-touch-icon.png' },
     {
       rel: 'stylesheet',

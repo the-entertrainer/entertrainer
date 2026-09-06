@@ -5,6 +5,7 @@ import {
   GEMINI_MAX_TOKENS,
   TEMPERATURE,
   DENSITY_TARGETS,
+  BIBLE_MINS,
   PANEL_BATCH_SIZE,
   normalizeDensity,
   preferredProviderForAction,
@@ -15,10 +16,12 @@ import {
   normalizeBible,
   normalizePages,
   mergePageBatches,
-  countStoryPanels
+  countStoryPanels,
+  bibleMeetsMinimums,
+  outlineMeetsFloors
 } from '../../utils/dialogue-canon'
 
-/** Dialogue Canon Engine — expand / chat / densify / bible / pages */
+/** Dialogue Canon Engine — expand / chat / densify / bible / enrich_bible / pages */
 export const maxDuration = 120
 
 
@@ -291,10 +294,10 @@ export default defineEventHandler(async (event) => {
   }
 
   const action = String(body?.action || '').trim().toLowerCase()
-  if (!['expand', 'chat', 'densify', 'bible', 'pages'].includes(action)) {
+  if (!['expand', 'chat', 'densify', 'bible', 'enrich_bible', 'pages'].includes(action)) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'action must be one of: expand, chat, densify, bible, pages'
+      statusMessage: 'action must be one of: expand, chat, densify, bible, enrich_bible, pages'
     })
   }
 
@@ -311,6 +314,9 @@ export default defineEventHandler(async (event) => {
   }
   if (action === 'bible' && !body?.outline) {
     throw createError({ statusCode: 400, statusMessage: 'outline is required for bible' })
+  }
+  if (action === 'enrich_bible' && (!body?.bible || !body?.outline)) {
+    throw createError({ statusCode: 400, statusMessage: 'bible and outline are required for enrich_bible' })
   }
   if (action === 'pages' && (!body?.outline || !body?.bible)) {
     throw createError({ statusCode: 400, statusMessage: 'outline and bible are required for pages' })
@@ -357,7 +363,15 @@ export default defineEventHandler(async (event) => {
     })
 
     if (action === 'expand' || action === 'chat' || action === 'densify') {
-      const outline = normalizeOutline(parsed.outline || parsed, density)
+      let outline = normalizeOutline(parsed.outline || parsed, density)
+      // densify must never shrink; if still under floors, surface a hint (client may re-densify)
+      if (action === 'densify' && !outlineMeetsFloors(outline, density)) {
+        const floors = `Need ≥${density === 'draft' ? 3 : density === 'epic' ? 5 : 4} chapters with denser scenes`
+        const msgExtra = ` Still thin vs ${density} floors — ${floors}.`
+        const defaultMsg = `Densified “${outline.title}” — sharper conflicts, more scenes.` + msgExtra
+        const message = String(parsed.message || defaultMsg).trim()
+        return { message, outline, density, provider, model, thin: true }
+      }
       const defaultMsg =
         action === 'expand'
           ? `Here's a ${density} beat graph for “${outline.title}”.`
@@ -368,9 +382,51 @@ export default defineEventHandler(async (event) => {
       return { message, outline, density, provider, model }
     }
 
-    if (action === 'bible') {
-      const bible = normalizeBible(parsed, body.outline)
-      return { bible, density, provider, model }
+    if (action === 'bible' || action === 'enrich_bible') {
+      let bible = normalizeBible(
+        action === 'enrich_bible' ? (parsed.bible || parsed) : parsed,
+        body.outline
+      )
+      let enriched = action === 'enrich_bible'
+      let check = bibleMeetsMinimums(bible, density)
+
+      // Prefer second LLM pass when cast is thin (bible action only; enrich is already that pass)
+      if (action === 'bible' && !check.ok) {
+        try {
+          const enrichParsed = await generateJson({
+            provider,
+            apiKey,
+            model,
+            systemPrompt: systemForAction('enrich_bible', density),
+            userPrompt: buildUserPrompt('enrich_bible', { bible, outline: body.outline }, density),
+            temperature: TEMPERATURE.enrich_bible ?? 0.4,
+            providerLabel
+          })
+          bible = normalizeBible(enrichParsed.bible || enrichParsed, body.outline)
+          enriched = true
+          check = bibleMeetsMinimums(bible, density)
+        } catch {
+          // fall through — return what we have with thin flag
+        }
+      }
+
+      if (!check.ok && action === 'enrich_bible') {
+        const mins = BIBLE_MINS[density]
+        throw createError({
+          statusCode: 422,
+          statusMessage: `Bible cast still thin for ${density}: need ≥${mins.characters} characters and ≥${mins.locations} locations with full visualDNA. Retry enrich_bible.`
+        })
+      }
+
+      return {
+        bible,
+        density,
+        provider,
+        model,
+        enriched: enriched || undefined,
+        thin: check.ok ? undefined : true,
+        bibleMins: BIBLE_MINS[density]
+      }
     }
 
     throw createError({ statusCode: 400, statusMessage: 'Unknown action' })

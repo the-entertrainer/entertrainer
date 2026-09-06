@@ -6,19 +6,25 @@ export default defineEventHandler(() => {
   return {
     ok: true,
     service: 'dialogue-canon',
-    version: 2,
-    actions: ['expand', 'chat', 'densify', 'bible', 'pages'],
+    version: 3,
+    actions: ['expand', 'chat', 'densify', 'bible', 'enrich_bible', 'pages'],
     densities: ['draft', 'studio', 'epic'],
     densityTargets: {
-      draft: '4–8 panels/chapter',
-      studio: '12–24 panels/chapter',
-      epic: '24–40 panels/chapter (batched ≤8)'
+      draft: '3–4 ch · 4–6 scenes · 4–8 panels/chapter',
+      studio: '4–6 ch · 6–10 scenes · 12–24 panels/chapter',
+      epic: '5–8 ch · 8–12 scenes · 24–40 panels/chapter (batched ≤8)'
+    },
+    bibleMins: {
+      draft: { characters: 4, locations: 3 },
+      studio: { characters: 6, locations: 5 },
+      epic: { characters: 8, locations: 6 }
     },
     providerPolicy: {
       expand: 'groq-preferred (speed)',
       chat: 'groq-preferred (speed)',
       densify: 'gemini-preferred (long JSON)',
       bible: 'gemini-preferred (long JSON)',
+      enrich_bible: 'gemini-preferred (long JSON)',
       pages: 'gemini-preferred (long JSON)'
     },
     providers: {

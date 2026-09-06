@@ -14,6 +14,23 @@ export const DENSITY_TARGETS: Record<Density, { min: number; max: number; label:
   epic: { min: 24, max: 40, label: 'Epic · 24–40 panels/chapter' }
 }
 
+/** Chapter / scene floors for slower, earned pacing (never shrink below). */
+export const OUTLINE_FLOORS: Record<
+  Density,
+  { minChapters: number; maxChapters: number; minScenes: number; maxScenes: number; pageHintMin: number; pageHintMax: number }
+> = {
+  draft: { minChapters: 3, maxChapters: 4, minScenes: 4, maxScenes: 6, pageHintMin: 1, pageHintMax: 3 },
+  studio: { minChapters: 4, maxChapters: 6, minScenes: 6, maxScenes: 10, pageHintMin: 1, pageHintMax: 3 },
+  epic: { minChapters: 5, maxChapters: 8, minScenes: 8, maxScenes: 12, pageHintMin: 1, pageHintMax: 3 }
+}
+
+/** Full-cast bible minimums (supporting + antagonist + foil included). */
+export const BIBLE_MINS: Record<Density, { characters: number; locations: number }> = {
+  draft: { characters: 4, locations: 3 },
+  studio: { characters: 6, locations: 5 },
+  epic: { characters: 8, locations: 6 }
+}
+
 export const PANEL_BATCH_SIZE = 8
 
 export const TEMPERATURE: Record<string, number> = {
@@ -21,6 +38,7 @@ export const TEMPERATURE: Record<string, number> = {
   chat: 0.8,
   densify: 0.55,
   bible: 0.4,
+  enrich_bible: 0.4,
   pages: 0.6
 }
 
@@ -45,7 +63,7 @@ export function preferredProviderForAction(
     if (raw === 'groq' && groqKey) return 'groq'
     if (raw === 'gemini' && geminiKey) return 'gemini'
   }
-  const longJson = action === 'bible' || action === 'pages' || action === 'densify'
+  const longJson = action === 'bible' || action === 'enrich_bible' || action === 'pages' || action === 'densify'
   if (longJson && geminiKey) return 'gemini'
   if (!longJson && groqKey) return 'groq'
   if (groqKey) return 'groq'
@@ -86,14 +104,22 @@ Write with adult/YA sophistication by default (subtext, stakes, sensory detail) 
 
 function densityGuidance(density: Density): string {
   const t = DENSITY_TARGETS[density]
+  const f = OUTLINE_FLOORS[density]
+  const b = BIBLE_MINS[density]
   if (density === 'draft') {
-    return `Density=draft: lean beat graph, ${t.min}–${t.max} story panels per chapter later. Still include beat/conflict/emotion on every scene.`
+    return `Density=draft: SLOWER pacing — ${f.minChapters}–${f.maxChapters} chapters, ${f.minScenes}–${f.maxScenes} scenes/chapter, pageHint often 2+. Target ${t.min}–${t.max} story panels/chapter later. Bible mins: ≥${b.characters} characters, ≥${b.locations} locations. Still include beat/conflict/emotion on every scene.`
   }
   if (density === 'epic') {
-    return `Density=epic: maximal densification — many scenes with sharp conflicts, ${t.min}–${t.max} panels/chapter target. Webtoon episode pacing (40–80 panels/episode industry norm → we target chapter-level).`
+    return `Density=epic: maximal SLOW densification — ${f.minChapters}–${f.maxChapters} chapters, ${f.minScenes}–${f.maxScenes} scenes/chapter, each scene pageHint 1–3. Target ${t.min}–${t.max} panels/chapter. Bible mins: ≥${b.characters} characters, ≥${b.locations} locations. Webtoon episode pacing (linger on emotional beats).`
   }
-  return `Density=studio (default): production-ready beat graph, ${t.min}–${t.max} panels/chapter. Industry Character Bible / event-graph density.`
+  return `Density=studio (default): production SLOW beat graph — ${f.minChapters}–${f.maxChapters} chapters, ${f.minScenes}–${f.maxScenes} scenes/chapter, each scene pageHint 1–3. Target ${t.min}–${t.max} panels/chapter. Bible mins: ≥${b.characters} characters, ≥${b.locations} locations.`
 }
+
+const PACING_RULES = `PACING (CRITICAL — FORBID RUSHING):
+- NEVER teleport through plot; each chapter needs beginning / middle / cliffhanger ending.
+- Scenes must EARN page space — prefer lingering emotional beats, subtext, sensory dwell over plot teleportation.
+- Raise pageHint (often 2+, up to 3) when a beat deserves more panels; do not leave everything at 1.
+- Never shrink structure below density floors.`
 
 export function systemForAction(action: string, density: Density = 'studio'): string {
   const dg = densityGuidance(density)
@@ -133,10 +159,11 @@ Return JSON:
     "rationale": "why this structure / density"
   }
 }
+${PACING_RULES}
 Rules:
-- draft: 2–3 chapters, 2–4 scenes each. studio: 3–5 chapters, 3–6 scenes. epic: 4–6 chapters, 5–8 scenes.
-- Every scene MUST include beat, conflict, emotion, pageHint ≥ 1.
-- Chapters MUST include arcRole.
+- draft: 3–4 chapters, 4–6 scenes each, pageHint often 2+. studio: 4–6 chapters, 6–10 scenes, pageHint 1–3. epic: 5–8 chapters, 8–12 scenes, pageHint 1–3.
+- Every scene MUST include beat, conflict, emotion, pageHint ≥ 1 (prefer ≥2 for emotional beats).
+- Chapters MUST include arcRole and end on a hook/cliffhanger where appropriate.
 - Prefer webtoon vertical storytelling; forbid bland children's-book flatness unless plot asks for kids.`
   }
 
@@ -145,22 +172,31 @@ Rules:
 
 ACTION chat — revise an existing outline from user feedback. Preserve density=${density}.
 ${dg}
+${PACING_RULES}
 Return JSON:
 {
   "message": "what you changed, conversational",
   "outline": { same shape as expand.outline, including beat/conflict/emotion/pageHint and chapter arcRole }
 }
 Preserve chapter/scene ids when possible; invent new ids only for new items.
+Never shrink below density floors unless the user explicitly asks to shorten.
 Keep suggestedPages synced to scene weight.`
   }
 
   if (action === 'densify') {
+    const f = OUTLINE_FLOORS[density]
     return `${SYSTEM_BASE}
 
-ACTION densify — CRITIC PASS. Take an outline and return a denser, sharper outline.
-FORBIDDEN: kiddie blandness, generic "then they became friends", empty travel montages, moral-of-the-story lectures.
+ACTION densify — CRITIC PASS. Take an outline and return a denser, SLOWER outline.
+FORBIDDEN: kiddie blandness, generic "then they became friends", empty travel montages, moral-of-the-story lectures, rushing, shrinking chapter/scene counts.
 DEMAND: subtext, concrete stakes, sensory detail, sharper conflicts, adult/YA sophistication unless outline maturityHint or user plot clearly asks for kids/all-ages.
 ${dg}
+${PACING_RULES}
+HARD FLOORS (MUST meet or exceed — NEVER shrink):
+- chapters ≥ ${f.minChapters} (target ${f.minChapters}–${f.maxChapters})
+- scenes per chapter ≥ ${f.minScenes} (target ${f.minScenes}–${f.maxScenes})
+- if chapters < floor OR scenes thin: MUST add scenes and raise pageHints; never remove scenes/chapters to "tighten"
+- Raise pageHints on emotional/setup beats (often 2+, up to ${f.pageHintMax}).
 Add scenes where chapters feel thin. Split weak scenes. Raise conflict specificity. Keep ids stable when possible; new scenes get new ids.
 Return JSON:
 {
@@ -223,10 +259,24 @@ Return JSON:
 }
 Rules:
 - Character ids: char_<slug>, unique lowercase underscore.
-- visualDNA must be specific enough for external image tools (SD / IP-Adapter style prompts).
-- Include 2–8 characters, 1–6 locations.
+- visualDNA must be specific enough for external image tools (SD / IP-Adapter style prompts) — NEVER leave face/hair/body/skin/distinctiveMarks empty.
+- FULL CAST by density: draft ≥4 characters, studio ≥6, epic ≥8 (include supporting + antagonist + foil).
+- Locations: draft ≥3, studio ≥5, epic ≥6.
+- EVERY character must have complete visualDNA, psychology (want/need/wound/lie/fear), voice, and ≥1 relationship edge.
 - Also fill legacy appearance/personality/description fields for backward compatibility.
 - visualStyle may also be accepted as a flat string by the normalizer if the model slips.`
+  }
+
+  if (action === 'enrich_bible') {
+    const b = BIBLE_MINS[density]
+    return `${SYSTEM_BASE}
+
+ACTION enrich_bible — expand a thin Story Bible to meet full-cast minimums. Do NOT rewrite existing characters unless fixing empty visualDNA/psychology/voice/relationships.
+Input: existing bible + outline. Output the COMPLETE bible JSON (same shape as bible action) with ALL prior cast preserved PLUS new supporting / antagonist / foil / location entries until floors are met.
+${dg}
+HARD MINIMUMS: ≥${b.characters} characters, ≥${b.locations} locations.
+Every character (old and new) MUST have non-empty visualDNA (face, hair, body, skin, distinctiveMarks, wardrobeLocked, colorHex), psychology, voice, and ≥1 relationship edge (targetId pointing at another char id).
+Return JSON in the same bible shape (characters, locations, rules, motifs, timeline, visualStyle, toneNotes, maturity, chapters).`
   }
 
   if (action === 'pages') {
@@ -310,10 +360,22 @@ export function buildUserPrompt(action: string, body: any, density: Density): st
     ].filter(Boolean).join('\n\n')
   }
   if (action === 'bible') {
+    const b = BIBLE_MINS[density]
     return [
       `Density: ${density}`,
+      `Minimum cast: ≥${b.characters} characters, ≥${b.locations} locations (supporting + antagonist + foil required).`,
       `Approved outline JSON:\n${JSON.stringify(body?.outline || {})}`,
-      'Create the DEEP Visual DNA Story Bible JSON now.'
+      'Create the DEEP Visual DNA Story Bible JSON now. Full cast with complete visualDNA on every character.'
+    ].join('\n\n')
+  }
+  if (action === 'enrich_bible') {
+    const b = BIBLE_MINS[density]
+    return [
+      `Density: ${density}`,
+      `HARD MINIMUMS: ≥${b.characters} characters, ≥${b.locations} locations.`,
+      `Existing bible JSON:\n${JSON.stringify(body?.bible || {})}`,
+      `Outline JSON (context):\n${JSON.stringify(body?.outline || {})}`,
+      'Return the COMPLETE enriched bible JSON. Preserve existing cast; add missing characters/locations with full DNA. Fix any empty visualDNA/psychology/voice/relationships on existing characters.'
     ].join('\n\n')
   }
   if (action === 'pages') {
@@ -352,6 +414,77 @@ function asShot(v: any): ShotKind {
   return (SHOTS.includes(s as ShotKind) ? s : 'medium') as ShotKind
 }
 
+
+export function outlineFloorStats(outline: any): { chapters: number; minScenesInChapter: number; avgPageHint: number } {
+  const chapters = Array.isArray(outline?.chapters) ? outline.chapters : []
+  const sceneCounts = chapters.map((ch: any) => (Array.isArray(ch?.scenes) ? ch.scenes.length : 0))
+  const hints: number[] = []
+  for (const ch of chapters) {
+    for (const sc of ch?.scenes || []) hints.push(Math.max(1, Number(sc?.pageHint) || 1))
+  }
+  const avgPageHint = hints.length ? hints.reduce((a, b) => a + b, 0) / hints.length : 0
+  return {
+    chapters: chapters.length,
+    minScenesInChapter: sceneCounts.length ? Math.min(...sceneCounts) : 0,
+    avgPageHint
+  }
+}
+
+export function outlineMeetsFloors(outline: any, density: Density): boolean {
+  const f = OUTLINE_FLOORS[density]
+  const s = outlineFloorStats(outline)
+  return s.chapters >= f.minChapters && s.minScenesInChapter >= f.minScenes
+}
+
+/** Raise pageHints on thin scenes; never lower. Used after densify/expand normalize. */
+export function raiseOutlinePageHints(outline: any, density: Density): any {
+  const f = OUTLINE_FLOORS[density]
+  const prefer = Math.min(f.pageHintMax, Math.max(2, f.pageHintMin + 1))
+  const chapters = (outline?.chapters || []).map((ch: any) => ({
+    ...ch,
+    scenes: (ch.scenes || []).map((sc: any, j: number, arr: any[]) => {
+      let hint = Math.max(1, Number(sc.pageHint) || 1)
+      // Prefer lingering: emotional/setup/hook beats and mid-chapter scenes get ≥prefer when currently 1
+      const emotional = /emotion|fear|love|grief|doubt|trust|shame|hope/i.test(String(sc.emotion || ''))
+      const beat = String(sc.beat || '')
+      if (hint < prefer && (emotional || beat === 'setup' || beat === 'hook' || j === 0 || j === arr.length - 1)) {
+        hint = prefer
+      }
+      return { ...sc, pageHint: Math.min(f.pageHintMax, hint) }
+    })
+  }))
+  const pageWeight = chapters.reduce(
+    (n: number, ch: any) => n + (ch.scenes || []).reduce((m: number, sc: any) => m + (sc.pageHint || 1), 0),
+    0
+  )
+  return {
+    ...outline,
+    chapters,
+    suggestedPages: Math.max(Number(outline?.suggestedPages) || 0, pageWeight, 1)
+  }
+}
+
+export function characterHasCompleteDna(c: any): boolean {
+  const dna = c?.visualDNA || {}
+  return Boolean(
+    String(dna.face || '').trim() &&
+    String(dna.hair || '').trim() &&
+    String(dna.body || '').trim() &&
+    String(dna.skin || '').trim()
+  )
+}
+
+export function bibleMeetsMinimums(bible: any, density: Density): { ok: boolean; needChars: number; needLocs: number; thinDna: number } {
+  const mins = BIBLE_MINS[density]
+  const chars = Array.isArray(bible?.characters) ? bible.characters : []
+  const locs = Array.isArray(bible?.locations) ? bible.locations : []
+  const thinDna = chars.filter((c: any) => !characterHasCompleteDna(c)).length
+  const needChars = Math.max(0, mins.characters - chars.length)
+  const needLocs = Math.max(0, mins.locations - locs.length)
+  const ok = needChars === 0 && needLocs === 0 && thinDna === 0
+  return { ok, needChars, needLocs, thinDna }
+}
+
 export function normalizeOutline(raw: any, density: Density): any {
   const chapters = Array.isArray(raw?.chapters)
     ? raw.chapters.map((ch: any, i: number) => {
@@ -379,7 +512,7 @@ export function normalizeOutline(raw: any, density: Density): any {
     (n: number, ch: any) => n + (ch.scenes || []).reduce((m: number, sc: any) => m + (sc.pageHint || 1), 0),
     0
   )
-  return {
+  const base = {
     title: String(raw?.title || 'Untitled Story').trim() || 'Untitled Story',
     logline: String(raw?.logline || '').trim(),
     density,
@@ -390,6 +523,7 @@ export function normalizeOutline(raw: any, density: Density): any {
     suggestedPages: Math.max(1, Number(raw?.suggestedPages) || pageWeight || sceneCount || 1),
     rationale: String(raw?.rationale || '').trim()
   }
+  return raiseOutlinePageHints(base, density)
 }
 
 function slugId(prefix: string, name: string, i: number): string {
@@ -453,7 +587,7 @@ export function normalizeBible(raw: any, outline: any): any {
           : (c?.relationships
               ? [{ targetId: '', type: 'ally', tension: String(c.relationships) }]
               : [])
-        const visualDNA = {
+        let visualDNA = {
           face: String(dna.face || '').trim(),
           hair: String(dna.hair || '').trim(),
           body: String(dna.body || '').trim(),
@@ -465,6 +599,18 @@ export function normalizeBible(raw: any, outline: any): any {
         }
         const appearanceLegacy = String(c?.appearance || '').trim()
           || [visualDNA.face, visualDNA.hair, visualDNA.body, visualDNA.skin, wardrobeLocked.join(', ')].filter(Boolean).join('; ')
+        // Fill empty DNA slots from legacy appearance so post-normalize never ships blanks
+        if (!visualDNA.face && appearanceLegacy) visualDNA = { ...visualDNA, face: appearanceLegacy.slice(0, 160) }
+        if (!visualDNA.hair) visualDNA = { ...visualDNA, hair: visualDNA.hair || 'hair as in appearance' }
+        if (!visualDNA.body) visualDNA = { ...visualDNA, body: visualDNA.body || 'build as in appearance' }
+        if (!visualDNA.skin) visualDNA = { ...visualDNA, skin: visualDNA.skin || 'skin tone unspecified' }
+        if (!visualDNA.distinctiveMarks) visualDNA = { ...visualDNA, distinctiveMarks: 'none noted' }
+        if (!visualDNA.wardrobeLocked.length && appearanceLegacy) {
+          visualDNA = { ...visualDNA, wardrobeLocked: [appearanceLegacy.slice(0, 80)] }
+        }
+        if (!visualDNA.colorHex.length) {
+          visualDNA = { ...visualDNA, colorHex: ['#1A1A2E', '#E8DCC8'] }
+        }
         return {
           id,
           name,
@@ -492,6 +638,29 @@ export function normalizeBible(raw: any, outline: any): any {
         }
       })
     : []
+
+  // Ensure every character has ≥1 relationship edge when cast ≥2
+  if (characters.length >= 2) {
+    for (let i = 0; i < characters.length; i++) {
+      const c = characters[i]
+      const hasEdge = (c.relationships || []).some((r: any) => String(r?.targetId || '').trim())
+      if (!hasEdge) {
+        const other = characters[(i + 1) % characters.length]
+        c.relationships = [{
+          targetId: other.id,
+          type: i === 0 ? 'ally' : 'rival',
+          tension: `Linked to ${other.name}`
+        }]
+      }
+      // Psychology / voice stubs if empty
+      if (!c.psychology.want) c.psychology.want = `Pursue what ${c.name} believes will fix the wound`
+      if (!c.psychology.need) c.psychology.need = 'Accept the truth beneath the lie'
+      if (!c.psychology.wound) c.psychology.wound = 'A past failure still shapes choices'
+      if (!c.psychology.lie) c.psychology.lie = 'Believes control equals safety'
+      if (!c.psychology.fear) c.psychology.fear = 'Being truly seen'
+      if (!c.voice.diction) c.voice.diction = c.personality || 'distinct speaking rhythm'
+    }
+  }
 
   const locations = Array.isArray(raw?.locations)
     ? raw.locations.map((l: any, i: number) => {

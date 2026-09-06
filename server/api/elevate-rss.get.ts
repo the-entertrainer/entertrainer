@@ -1,5 +1,5 @@
-import { BLOG_POSTS } from '../../content/blogs'
-import { composedToBlogPost, getPublishedComposedPosts } from '../../content/composed'
+import { BLOG_POSTS } from '~/content/blogs'
+import { composedToBlogPost, getPublishedComposedPosts } from '~/content/composed'
 
 const SITE_URL = 'https://entertrainer.in'
 

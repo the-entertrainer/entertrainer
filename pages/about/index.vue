@@ -6,7 +6,8 @@ useSeoMeta({
   description: 'Naveen Jose on growing up in a Kerala farming village, learning from machines, housekeeping at Club Mahindra, making The SEWA Chronicles, and building Entertrainer as instructional design.',
   ogTitle: 'About Me · Naveen Jose',
   ogDescription: 'From a Kerala cocoon to machines, hotel floors, The SEWA Chronicles, and learning design. The longer route behind Entertrainer.',
-  ogUrl: 'https://entertrainer.in/about'
+  ogUrl: 'https://entertrainer.in/about',
+  ogImage: 'https://entertrainer.in/about/naveen-portrait.jpg'
 })
 </script>
 
@@ -17,7 +18,12 @@ useSeoMeta({
         <h1>Zero dreams. A thousand fears.</h1>
         <p class="about-story__deck">Then machines. Then hotel floors. Then comics. Then this.</p>
       </div>
-      <EdPaperSignal class="about-story__hero-art" variant="route" label="A yellow Paper Signal illustration for Naveen Jose's career story" />
+      <figure class="about-story__hero-art">
+        <EdEditorialImage
+          src="/about/naveen-portrait.jpg"
+          alt="Illustrated portrait of Naveen Jose in ink and cobalt on cream paper, adjusting sunglasses."
+        />
+      </figure>
     </header>
 
     <article class="about-story__article">
@@ -189,7 +195,23 @@ useSeoMeta({
 .about-story__hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260rem, .85fr); gap: clamp(32rem, 8vw, 120rem); align-items: end; padding-bottom: clamp(46rem, 8vw, 86rem); border-bottom: var(--stroke) solid var(--ink); }
 .about-story h1 { max-width: 14ch; margin: 0; font: 500 clamp(66rem, 11vw, 152rem)/.79 var(--font-display); letter-spacing: -.08em; }
 .about-story__deck { max-width: 32ch; margin: 22rem 0 0; font: 400 clamp(20rem, 2.3vw, 28rem)/1.3 var(--font-reading); }
-.about-story__hero-art { min-height: 250rem; border: 0; }
+.about-story__hero-art {
+  margin: 0;
+  min-height: 280rem;
+  overflow: hidden;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-l);
+  background: #F7F1E4;
+}
+.about-story__hero-art :deep(.ed-editorial-image),
+.about-story__hero-art :deep(img) {
+  width: 100%;
+  height: 100%;
+  min-height: 280rem;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
 .about-story__article { max-width: 720rem; margin: clamp(54rem, 9vw, 118rem) auto 0; font: 400 clamp(18rem, 1.85vw, 22rem)/1.62 var(--font-reading); }
 .about-story__article > p { max-width: 62ch; margin: 0 0 24rem; }
 .about-story__article h2 { max-width: 28ch; margin: clamp(54rem, 9vw, 96rem) 0 20rem; font: 500 clamp(36rem, 5.5vw, 68rem)/.94 var(--font-display); letter-spacing: -.055em; }
@@ -213,6 +235,6 @@ useSeoMeta({
 .about-story__close { display: grid; gap: 28rem; max-width: 720rem; margin: clamp(64rem, 10vw, 118rem) auto 0; padding-top: 30rem; border-top: var(--stroke) solid var(--ink); }
 .about-story__destination--elevate { grid-template-columns: minmax(220rem, .86fr) minmax(0, 1.14fr); background: var(--paper); }
 .about-story__destination--elevate .about-story__destination-visual { min-height: 230rem; }
-@media (max-width: 700px) { .about-story__hero { grid-template-columns: 1fr; }.about-story__hero-art { min-height: 200rem; }.about-story__article { margin-top: 52rem; }.about-story__figure, .about-story__figure--wide { width: 100%; margin-left: 0; }.about-story__sewa { margin-left: 0; margin-right: 0; }.about-story__destination, .about-story__destination--elevate { grid-template-columns: 1fr; }.about-story__destination-visual, .about-story__destination--elevate .about-story__destination-visual { min-height: 230rem; border-right: 0; border-bottom: var(--stroke) solid var(--ink); }.about-story__destination-copy { padding: 28rem; } }
+@media (max-width: 700px) { .about-story__hero { grid-template-columns: 1fr; }.about-story__hero-art { min-height: 220rem; }.about-story__hero-art :deep(.ed-editorial-image), .about-story__hero-art :deep(img) { min-height: 220rem; }.about-story__article { margin-top: 52rem; }.about-story__figure, .about-story__figure--wide { width: 100%; margin-left: 0; }.about-story__sewa { margin-left: 0; margin-right: 0; }.about-story__destination, .about-story__destination--elevate { grid-template-columns: 1fr; }.about-story__destination-visual, .about-story__destination--elevate .about-story__destination-visual { min-height: 230rem; border-right: 0; border-bottom: var(--stroke) solid var(--ink); }.about-story__destination-copy { padding: 28rem; } }
 @media (prefers-reduced-motion: reduce) { .about-story__destination, .about-story__destination-action { transition: none; } }
 </style>

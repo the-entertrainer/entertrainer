@@ -25,7 +25,9 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'about',
     label: 'About Me',
     title: 'About Me · Naveen Jose',
-    description: 'Naveen Jose on growing up in a Kerala farming village, learning from machines, housekeeping at Club Mahindra, making The SEWA Chronicles, and building Entertrainer as instructional design.'
+    description: 'Naveen Jose on growing up in a Kerala farming village, learning from machines, housekeeping at Club Mahindra, making The SEWA Chronicles, and building Entertrainer as instructional design.',
+    image: `${SITE_URL}/about/naveen-portrait.jpg`,
+    imageAlt: 'Illustrated portrait of Naveen Jose on cream paper.'
   },
   '/elevate': {
     key: 'elevate',

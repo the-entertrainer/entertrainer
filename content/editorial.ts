@@ -168,7 +168,7 @@ export const ITEMS: EditorialItem[] = [
     category: 'story',
     media: 'essay',
     href: '/about',
-    image: '/about-me.png',
+    image: '/about/naveen-portrait.jpg',
     alt: 'Portrait of Naveen Jose',
     stamp: 'About Naveen',
     minutes: 8,

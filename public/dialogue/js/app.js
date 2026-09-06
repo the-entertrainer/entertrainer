@@ -30,13 +30,53 @@
       autosave: true,
       reduceMotion: false,
       exportQuality: 0.92,
+      haptic: true,
     },
+    letteringAlign: 'center',
+    letteringCaps: false,
   };
 
+  function icon(name, cls) {
+    const span = document.createElement('span');
+    span.className = cls || 'ico';
+    span.setAttribute('aria-hidden', 'true');
+    const img = document.createElement('img');
+    img.src = '/dialogue/icons/ui/' + name + '.svg';
+    img.alt = '';
+    img.width = 24;
+    img.height = 24;
+    img.decoding = 'async';
+    span.appendChild(img);
+    return span;
+  }
+  function iconHtml(name, cls) {
+    const c = cls ? ' class="' + cls + '"' : ' class="ico"';
+    return '<span' + c + ' aria-hidden="true"><img src="/dialogue/icons/ui/' + name + '.svg" alt="" width="24" height="24"/></span>';
+  }
+  function hydrateIcons(root) {
+    (root || document).querySelectorAll('[data-icon]').forEach((el) => {
+      const name = el.getAttribute('data-icon');
+      if (!name) return;
+      if (el.tagName === 'BUTTON' || el.tagName === 'LABEL') {
+        if (!el.querySelector('img[src*="/icons/ui/"]')) el.prepend(icon(name));
+        el.removeAttribute('data-icon');
+      } else if (el.classList.contains('ico') || el.tagName === 'SPAN') {
+        el.innerHTML = '<img src="/dialogue/icons/ui/' + name + '.svg" alt="" width="24" height="24"/>';
+        el.removeAttribute('data-icon');
+      }
+    });
+  }
   function haptic(ms) {
     try {
+      if (state.settings.haptic === false) return;
       if (navigator.vibrate) navigator.vibrate(ms || 10);
     } catch (_) {}
+  }
+  function hideSplash() {
+    const splash = document.getElementById('splash');
+    if (!splash || splash.classList.contains('hide')) return;
+    splash.classList.add('hide');
+    setTimeout(() => { try { splash.remove(); } catch (_) {} }, 400);
   }
 
   function showScreen(name) {
@@ -50,6 +90,8 @@
   }
 
   async function init() {
+    const t0 = performance.now();
+    hydrateIcons(document);
     applySettings(await loadSettings());
     await DialogueDemo.ensureDemo();
     bindUI();
@@ -71,6 +113,19 @@
         await navigator.serviceWorker.register('/dialogue/sw.js', { scope: '/dialogue/' });
       } catch (_) {}
     }
+    const wait = Math.max(0, 700 - (performance.now() - t0));
+    const maxWait = Math.max(0, 2000 - (performance.now() - t0));
+    await new Promise((r) => setTimeout(r, Math.min(wait, maxWait) || wait));
+    // Wait for fonts if available, but never past ~2s total
+    try {
+      if (document.fonts && document.fonts.ready) {
+        await Promise.race([
+          document.fonts.ready,
+          new Promise((r) => setTimeout(r, Math.max(0, 2000 - (performance.now() - t0)))),
+        ]);
+      }
+    } catch (_) {}
+    hideSplash();
   }
 
   async function loadSettings() {
@@ -137,6 +192,17 @@
       c.classList.add('active');
       state.letteringSize = Number(c.dataset.size) || 22;
     }));
+    $$('#lettering-align .size-chip').forEach((c) => c.addEventListener('click', () => {
+      $$('#lettering-align .size-chip').forEach((x) => x.classList.remove('active'));
+      c.classList.add('active');
+      state.letteringAlign = c.dataset.align || 'center';
+    }));
+    const capsBtn = $('#lettering-caps');
+    if (capsBtn) capsBtn.addEventListener('click', () => {
+      state.letteringCaps = !state.letteringCaps;
+      capsBtn.classList.toggle('active', state.letteringCaps);
+      capsBtn.setAttribute('aria-pressed', state.letteringCaps ? 'true' : 'false');
+    });
 
     $('#export-close').addEventListener('click', () => { if (!state.exporting) closeSheet('export-sheet'); });
     $$('.export-row').forEach((row) => row.addEventListener('click', () => {
@@ -283,6 +349,8 @@
       formatId: format.id,
       width: format.width,
       height: format.infinite ? height : format.height,
+      gutter: g,
+      borderWidth: 4,
     });
     const page = {
       id: U().uid('page'), projectId: project.id, order: 0,
@@ -396,27 +464,58 @@
   function renderTray() {
     const body = $('#tray-body');
     const mode = $('#tray').dataset.mode || 'panels';
+    const ed = state.editor;
+    const bundle = ed && ed.getBundle();
+    const sel = ed ? ed.getSelection() : {};
+    const panel = bundle && sel.kind === 'panel' ? (bundle.panels || []).find((p) => p.id === sel.id) : null;
+    const gutter = (bundle && bundle.project && bundle.project.gutter) || 24;
+    const borderW = (bundle && bundle.project && bundle.project.borderWidth) || 4;
     let html = '';
     if (mode === 'panels') {
       html = `
-        <button type="button" data-act="add-panel">Add panel</button>
-        <button type="button" data-act="dup-panel">Duplicate</button>
-        <button type="button" data-act="del">Delete</button>
+        <div class="tray-section">Panels</div>
+        <button type="button" data-act="add-panel">${iconHtml('add-panel')} Add</button>
+        <button type="button" data-act="dup-panel">${iconHtml('duplicate')} Dup</button>
+        <button type="button" data-act="del">${iconHtml('delete')} Delete</button>
         <button type="button" data-act="up">Move up</button>
-        <button type="button" data-act="down">Move down</button>`;
+        <button type="button" data-act="down">Move down</button>
+        <div class="tray-section">Gutter</div>
+        <label class="tray-slider">Width <input type="range" id="tray-gutter" min="12" max="40" step="1" value="${gutter}"/><span id="tray-gutter-val">${gutter}</span></label>
+        <div class="tray-section">Border</div>
+        <label class="tray-slider">Thickness <input type="range" id="tray-border" min="1" max="12" step="1" value="${borderW}"/><span id="tray-border-val">${borderW}</span></label>`;
     } else if (mode === 'art') {
+      const fit = (panel && panel.fit) || 'cover';
+      const opacity = Math.round(((panel && panel.artOpacity != null) ? panel.artOpacity : 1) * 100);
       html = `
-        <label class="file-btn">Camera<input id="file-camera" class="sr-only" type="file" accept="image/*" capture="environment"/></label>
-        <label class="file-btn">Photos<input id="file-photos" class="sr-only" type="file" accept="image/*" multiple/></label>
-        <button type="button" data-act="fit">Fit</button>
-        <button type="button" data-act="fill">Fill</button>
+        <div class="tray-section">Source</div>
+        <label class="file-btn">${iconHtml('camera')} Camera<input id="file-camera" class="sr-only" type="file" accept="image/*" capture="environment"/></label>
+        <label class="file-btn">${iconHtml('photos')} Photos<input id="file-photos" class="sr-only" type="file" accept="image/*" multiple/></label>
+        <div class="tray-section">Fit</div>
+        <button type="button" data-act="fit" class="${fit==='contain'?'active-chip':''}">${iconHtml('fit')} Fit</button>
+        <button type="button" data-act="fill" class="${fit==='cover'?'active-chip':''}">${iconHtml('fill')} Fill</button>
+        <button type="button" data-act="stretch" class="${fit==='stretch'?'active-chip':''}">${iconHtml('stretch')} Stretch</button>
+        <div class="tray-section">Opacity</div>
+        <label class="tray-slider">Art <input type="range" id="tray-opacity" min="10" max="100" step="1" value="${opacity}"/><span id="tray-opacity-val">${opacity}%</span></label>
+        <button type="button" data-act="clear-art">${iconHtml('delete')} Clear art</button>
         <p class="tray-note">Dialogue uses the camera only to put a photo on your panel. Nothing leaves this phone.</p>`;
     } else if (mode === 'balloon') {
       html = `
-        <button type="button" data-act="speech">Speech</button>
-        <button type="button" data-act="thought">Thought</button>
-        <button type="button" data-act="caption">Caption</button>
-        <button type="button" data-act="edit-text">Edit text</button>`;
+        <div class="tray-section">Style</div>
+        <button type="button" data-act="speech">${iconHtml('speech')} Speech</button>
+        <button type="button" data-act="thought">${iconHtml('thought')} Thought</button>
+        <button type="button" data-act="caption">${iconHtml('caption')} Caption</button>
+        <button type="button" data-act="whisper">${iconHtml('whisper')} Whisper</button>
+        <button type="button" data-act="shout">${iconHtml('shout')} Shout</button>
+        <div class="tray-section">Selected</div>
+        <button type="button" data-act="edit-text">${iconHtml('rename')} Edit text</button>
+        <button type="button" data-act="balloon-size-s">S</button>
+        <button type="button" data-act="balloon-size-m">M</button>
+        <button type="button" data-act="balloon-size-l">L</button>
+        <button type="button" data-act="balloon-size-xl">XL</button>
+        <button type="button" data-act="align-left">${iconHtml('alignleft')}</button>
+        <button type="button" data-act="align-center">${iconHtml('aligncenter')}</button>
+        <button type="button" data-act="align-right">${iconHtml('alignright')}</button>
+        <button type="button" data-act="toggle-caps">ALL CAPS</button>`;
     } else if (mode === 'stickers') {
       html = STICKERS.map((n) =>
         `<button type="button" data-sticker="/dialogue/stickers/${n}" title="${n}"><img src="/dialogue/stickers/${n}" alt="" width="36" height="36"/></button>`
@@ -433,6 +532,22 @@
     const photos = $('#file-photos');
     if (cam) cam.addEventListener('change', (e) => handleFiles(e.target.files));
     if (photos) photos.addEventListener('change', (e) => handleFiles(e.target.files));
+    const gIn = $('#tray-gutter');
+    if (gIn) gIn.addEventListener('input', () => {
+      $('#tray-gutter-val').textContent = gIn.value;
+      if (state.editor) state.editor.setGutter(Number(gIn.value));
+    });
+    const bIn = $('#tray-border');
+    if (bIn) bIn.addEventListener('input', () => {
+      $('#tray-border-val').textContent = bIn.value;
+      if (state.editor) state.editor.setBorderWidth(Number(bIn.value));
+    });
+    const oIn = $('#tray-opacity');
+    if (oIn) oIn.addEventListener('input', () => {
+      const v = Number(oIn.value);
+      $('#tray-opacity-val').textContent = v + '%';
+      if (state.editor) state.editor.setArtOpacity(v / 100);
+    });
   }
 
   async function onTrayAct(e) {
@@ -450,11 +565,28 @@
       const s = ed.getSelection();
       if (s.kind === 'panel') { ed.reorderPanel(s.id, 1); haptic(10); }
     }
-    if (act === 'fit') ed.setFit('contain');
-    if (act === 'fill') ed.setFit('cover');
+    if (act === 'fit') { ed.setFit('contain'); renderTray(); }
+    if (act === 'fill') { ed.setFit('cover'); renderTray(); }
+    if (act === 'stretch') { ed.setFit('stretch'); renderTray(); }
+    if (act === 'clear-art') { ed.clearArt(); haptic(10); renderTray(); }
     if (act === 'speech') { ed.addBalloon('speech'); haptic(10); }
     if (act === 'thought') { ed.addBalloon('thought'); haptic(10); }
     if (act === 'caption') { ed.addBalloon('caption'); haptic(10); }
+    if (act === 'whisper') { ed.addBalloon('whisper'); haptic(10); }
+    if (act === 'shout') { ed.addBalloon('shout'); haptic(10); }
+    if (act === 'balloon-size-s') ed.updateSelectedBalloon({ fontSize: 18 });
+    if (act === 'balloon-size-m') ed.updateSelectedBalloon({ fontSize: 22 });
+    if (act === 'balloon-size-l') ed.updateSelectedBalloon({ fontSize: 28 });
+    if (act === 'balloon-size-xl') ed.updateSelectedBalloon({ fontSize: 36 });
+    if (act === 'align-left') ed.updateSelectedBalloon({ align: 'left' });
+    if (act === 'align-center') ed.updateSelectedBalloon({ align: 'center' });
+    if (act === 'align-right') ed.updateSelectedBalloon({ align: 'right' });
+    if (act === 'toggle-caps') {
+      const s = ed.getSelection();
+      const b = ed.getBundle();
+      const n = (b.nodes || []).find((x) => x.id === s.id);
+      if (n) ed.updateSelectedBalloon({ allCaps: !n.allCaps });
+    }
     if (act === 'edit-text') {
       const s = ed.getSelection();
       const b = ed.getBundle();
@@ -506,7 +638,7 @@
       const bg = p.artAssetId ? '' : `style="background:${p.placeholderColor || '#cfc4b4'}"`;
       return `<button type="button" class="thumb ${active}" data-id="${p.id}" ${bg}>${thumbInner}</button>`;
     }).join('');
-    html += `<button type="button" class="thumb thumb-add" data-add="1" aria-label="Add panel">＋</button>`;
+    html += `<button type="button" class="thumb thumb-add" data-add="1" aria-label="Add panel">${iconHtml('filmstrip-plus')}</button>`;
     strip.innerHTML = html;
     strip.querySelectorAll('.thumb[data-id]').forEach((t) => t.addEventListener('click', () => {
       state.editor.select('panel', t.dataset.id);
@@ -523,10 +655,20 @@
   function openLettering(n) {
     state.letteringNodeId = n.id;
     state.letteringSize = n.fontSize || 22;
+    state.letteringAlign = n.align || 'center';
+    state.letteringCaps = !!n.allCaps;
     $('#lettering-text').value = n.text === 'Say something' ? '' : (n.text || '');
     $$('#lettering-sizes .size-chip').forEach((c) => {
       c.classList.toggle('active', Number(c.dataset.size) === state.letteringSize);
     });
+    $$('#lettering-align .size-chip').forEach((c) => {
+      c.classList.toggle('active', c.dataset.align === state.letteringAlign);
+    });
+    const capsBtn = $('#lettering-caps');
+    if (capsBtn) {
+      capsBtn.classList.toggle('active', state.letteringCaps);
+      capsBtn.setAttribute('aria-pressed', state.letteringCaps ? 'true' : 'false');
+    }
     openSheet('lettering-sheet');
     setTimeout(() => {
       const ta = $('#lettering-text');
@@ -539,7 +681,10 @@
   function saveLettering() {
     const text = $('#lettering-text').value.trim() || 'Say something';
     if (state.editor && state.letteringNodeId) {
-      state.editor.setBalloonText(state.letteringNodeId, text, state.letteringSize);
+      state.editor.setBalloonText(state.letteringNodeId, text, state.letteringSize, {
+        align: state.letteringAlign,
+        allCaps: state.letteringCaps,
+      });
       haptic(10);
     }
     closeSheet('lettering-sheet');
@@ -712,12 +857,10 @@
         </select></div>
       <div class="row"><label>Autosave</label><input type="checkbox" id="set-autosave" ${s.autosave?'checked':''}/></div>
       <div class="row"><label>Reduce motion</label><input type="checkbox" id="set-motion" ${s.reduceMotion?'checked':''}/></div>
+      <div class="row"><label>Haptics</label><input type="checkbox" id="set-haptic" ${s.haptic!==false?'checked':''}/></div>
       <div class="row"><label>Export quality</label>
         <input type="range" id="set-quality" min="0.6" max="1" step="0.02" value="${s.exportQuality}"/></div>
-      <div class="row soon"><label>Frames</label><span>Soon</span></div>
       <div class="row"><button type="button" id="set-reset" class="btn-primary">Reset local data</button></div>
-      <div class="row soon"><label>Cloud sync</label><span>Soon</span></div>
-      <div class="row soon"><label>Pressure pen</label><span>Soon</span></div>
       <div class="row"><label>About</label><span>Dialogue — Comics from your pocket.</span></div>
       <p class="camera-note">Camera: Dialogue uses the camera only to put a photo on your panel. Nothing leaves this phone.</p>
     `;
@@ -725,6 +868,7 @@
     $('#set-format').onchange = async (e) => { s.defaultFormat = e.target.value; await saveSettings(); };
     $('#set-autosave').onchange = async (e) => { s.autosave = e.target.checked; await saveSettings(); };
     $('#set-motion').onchange = async (e) => { s.reduceMotion = e.target.checked; await saveSettings(); };
+    $('#set-haptic').onchange = async (e) => { s.haptic = e.target.checked; await saveSettings(); };
     $('#set-quality').oninput = async (e) => { s.exportQuality = Number(e.target.value); await saveSettings(); };
     $('#set-reset').onclick = () => {
       openConfirm('Reset local data?', 'Erase all local Dialogue comics and settings?', async () => {

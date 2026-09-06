@@ -61,8 +61,11 @@
     const w = srcW * s, h = srcH * s;
     return { w, h, x: (boxW - w) / 2, y: (boxH - h) / 2, scale: s };
   }
+  function fitStretch(srcW, srcH, boxW, boxH) {
+    return { w: boxW, h: boxH, x: 0, y: 0, scale: 1 };
+  }
   global.DialogueUtils = {
     uid, now, clamp, deepClone, sliceWebtoon, comicInfoXml, escapeXml,
-    blobToDataURL, dataURLToBlob, downloadBlob, fitContain, fitCover,
+    blobToDataURL, dataURLToBlob, downloadBlob, fitContain, fitCover, fitStretch,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

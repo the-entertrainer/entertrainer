@@ -9,9 +9,9 @@
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#F6F1E8';
+    ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, w, h);
-    ctx.strokeStyle = '#12110F';
+    ctx.strokeStyle = '#161618';
     ctx.lineWidth = 4;
     (panels || []).forEach((p) => {
       ctx.fillStyle = '#e5ddd0';
@@ -24,8 +24,8 @@
     (nodes || []).forEach((n) => {
       if (n.type !== 'balloon' && n.type !== 'caption') return;
       const x = n.x || 0, y = n.y || 0, bw = n.w || 160, bh = n.h || 80;
-      ctx.fillStyle = n.type === 'caption' ? '#F5C518' : '#fff';
-      ctx.strokeStyle = '#12110F';
+      ctx.fillStyle = n.type === 'caption' ? '#FFD43B' : '#fff';
+      ctx.strokeStyle = '#161618';
       ctx.lineWidth = 3;
       if (n.shape === 'thought') {
         roundRect(ctx, x, y, bw, bh, 24);
@@ -35,7 +35,7 @@
         ellipse(ctx, x, y, bw, bh);
       }
       ctx.fill(); ctx.stroke();
-      ctx.fillStyle = '#12110F';
+      ctx.fillStyle = '#161618';
       ctx.font = '20px Comic Neue, sans-serif';
       wrapText(ctx, n.text || 'Say something', x + 12, y + 28, bw - 24, 24);
       if (n.tail && n.shape !== 'caption') {
@@ -90,7 +90,7 @@
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#F6F1E8';
+    ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, w, h);
 
     for (const p of panels) {
@@ -104,18 +104,22 @@
         const asset = assetMap[p.artAssetId];
         const img = await loadImage(asset.dataURL || asset.blob);
         const mode = p.fit || 'cover';
-        const fit = mode === 'contain'
-          ? U().fitContain(img.width, img.height, p.w, p.h)
-          : U().fitCover(img.width, img.height, p.w, p.h);
+        let fit;
+        if (mode === 'stretch') fit = { x: 0, y: 0, w: p.w, h: p.h };
+        else if (mode === 'contain') fit = U().fitContain(img.width, img.height, p.w, p.h);
+        else fit = U().fitCover(img.width, img.height, p.w, p.h);
         const ox = p.artX || 0, oy = p.artY || 0, sc = p.artScale || 1;
+        const prevAlpha = ctx.globalAlpha;
+        ctx.globalAlpha = (p.artOpacity != null ? p.artOpacity : 1);
         ctx.drawImage(img, p.x + fit.x + ox, p.y + fit.y + oy, fit.w * sc, fit.h * sc);
+        ctx.globalAlpha = prevAlpha;
       } else if (p.placeholderColor) {
         ctx.fillStyle = p.placeholderColor;
         ctx.fillRect(p.x, p.y, p.w, p.h);
       }
       ctx.restore();
-      ctx.strokeStyle = '#12110F';
-      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#161618';
+      ctx.lineWidth = (bundle.project && bundle.project.borderWidth) || 4;
       ctx.strokeRect(p.x, p.y, p.w, p.h);
     }
 
@@ -130,8 +134,8 @@
       }
       if (n.type !== 'balloon' && n.type !== 'caption') continue;
       const x = n.x || 0, y = n.y || 0, bw = n.w || 160, bh = n.h || 80;
-      ctx.fillStyle = n.type === 'caption' ? '#F5C518' : '#ffffff';
-      ctx.strokeStyle = '#12110F';
+      ctx.fillStyle = n.type === 'caption' ? '#FFD43B' : '#ffffff';
+      ctx.strokeStyle = '#161618';
       ctx.lineWidth = 3;
       if (n.shape === 'thought') roundRect(ctx, x, y, bw, bh, 28);
       else if (n.type === 'caption') roundRect(ctx, x, y, bw, bh, 8);
@@ -146,7 +150,7 @@
         ctx.fillStyle = '#fff';
         ctx.fill(); ctx.stroke();
       }
-      ctx.fillStyle = '#12110F';
+      ctx.fillStyle = '#161618';
       ctx.font = `${n.fontSize || 22}px Comic Neue, sans-serif`;
       wrapText(ctx, n.text || 'Say something', x + 14, y + 30, bw - 28, (n.fontSize || 22) + 4);
     }

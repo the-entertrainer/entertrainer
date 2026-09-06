@@ -294,7 +294,7 @@
       // Reset panel border strokes without destroying art
       if (panelLayer) {
         panelLayer.find('.panel-border').forEach((b) => {
-          b.stroke('#12110F');
+          b.stroke('#161618');
           b.strokeWidth(4);
         });
         panelLayer.find('.art').forEach((a) => { a.draggable(false); });
@@ -319,7 +319,7 @@
         if (group) {
           const border = group.findOne('.panel-border');
           if (border) {
-            border.stroke('#FF4D2E');
+            border.stroke('#FFD43B');
             border.strokeWidth(6);
           }
           const art = group.findOne('.art');
@@ -336,7 +336,7 @@
           const h = (n && n.h) || bh;
           group.find('.sel-ring').forEach((r) => r.destroy());
           group.add(new Konva.Rect({
-            width: w, height: h, stroke: '#FF4D2E', strokeWidth: 2,
+            width: w, height: h, stroke: '#FFD43B', strokeWidth: 2,
             dash: [6, 4], listening: false, name: 'sel-ring',
           }));
           const tip = group.findOne('.tail-tip');
@@ -364,7 +364,7 @@
       const w = bundle.project.width || 800;
       const h = Math.max(bundle.project.height || 1200, 400);
       panelLayer.add(new Konva.Rect({
-        x: 0, y: 0, width: w, height: h, fill: '#F6F1E8', name: 'page-bg',
+        x: 0, y: 0, width: w, height: h, fill: '#FFFFFF', name: 'page-bg',
       }));
 
       const panels = (bundle.panels || []).slice().sort((a, b) => a.order - b.order);
@@ -394,7 +394,7 @@
         const inset = 16;
         group.add(new Konva.Rect({
           x: inset, y: inset, width: p.w - inset * 2, height: p.h - inset * 2,
-          stroke: '#12110F', strokeWidth: 2, dash: [10, 8],
+          stroke: '#161618', strokeWidth: 2, dash: [10, 8],
           opacity: 0.35, listening: false, name: 'empty-dash',
         }));
         group.add(new Konva.Text({
@@ -402,7 +402,7 @@
           text: 'Drop a photo or shoot',
           fontSize: Math.min(28, Math.max(16, p.w / 18)),
           fontFamily: 'Comic Neue, Kosugi Maru, sans-serif',
-          fill: '#12110F', opacity: 0.45, align: 'center',
+          fill: '#161618', opacity: 0.45, align: 'center',
           listening: false, name: 'empty-label',
         }));
       } else {
@@ -416,15 +416,21 @@
             // Remove prior art if any
             g.find('.art').forEach((a) => a.destroy());
             const mode = p.fit || 'cover';
-            const fit = mode === 'contain'
-              ? U().fitContain(img.width, img.height, p.w, p.h)
-              : U().fitCover(img.width, img.height, p.w, p.h);
+            let fit;
+            if (mode === 'stretch') {
+              fit = { x: 0, y: 0, w: p.w, h: p.h, scale: 1 };
+            } else if (mode === 'contain') {
+              fit = U().fitContain(img.width, img.height, p.w, p.h);
+            } else {
+              fit = U().fitCover(img.width, img.height, p.w, p.h);
+            }
             const kImg = new Konva.Image({
               image: img,
               x: fit.x + (p.artX || 0),
               y: fit.y + (p.artY || 0),
               width: fit.w * (p.artScale || 1),
               height: fit.h * (p.artScale || 1),
+              opacity: (p.artOpacity != null ? p.artOpacity : 1),
               name: 'art',
               draggable: selectedId === p.id && selectedKind === 'panel',
             });
@@ -441,10 +447,11 @@
         }
       }
 
+      const baseBorder = (bundle.project && bundle.project.borderWidth) || 4;
       const border = new Konva.Rect({
         width: p.w, height: p.h,
-        stroke: selectedId === p.id && selectedKind === 'panel' ? '#FF4D2E' : '#12110F',
-        strokeWidth: selectedId === p.id && selectedKind === 'panel' ? 6 : 4,
+        stroke: selectedId === p.id && selectedKind === 'panel' ? '#FFD43B' : '#161618',
+        strokeWidth: selectedId === p.id && selectedKind === 'panel' ? Math.max(baseBorder + 2, 6) : baseBorder,
         listening: false,
         name: 'panel-border',
       });
@@ -467,7 +474,7 @@
           group.add(new Konva.Image({ image: img, width: n.w || 80, height: n.h || 80, name: 'sticker-img' }));
           if (selectedId === n.id && selectedKind === 'node') {
             group.add(new Konva.Rect({
-              width: n.w || 80, height: n.h || 80, stroke: '#FF4D2E',
+              width: n.w || 80, height: n.h || 80, stroke: '#FFD43B',
               strokeWidth: 2, dash: [6, 4], listening: false, name: 'sel-ring',
             }));
           }
@@ -497,34 +504,47 @@
       });
       const bw = n.w || 160, bh = n.h || 80;
       let shape;
-      if (n.type === 'caption') {
+      if (n.type === 'caption' || n.shape === 'caption') {
         shape = new Konva.Rect({
-          width: bw, height: bh, fill: '#F5C518', stroke: '#12110F',
-          strokeWidth: 3, cornerRadius: 8, name: 'balloon-shape',
+          width: bw, height: bh, fill: '#FFD43B', stroke: '#161618',
+          strokeWidth: 3, cornerRadius: 6, name: 'balloon-shape',
         });
       } else if (n.shape === 'thought') {
         shape = new Konva.Rect({
-          width: bw, height: bh, fill: '#fff', stroke: '#12110F',
+          width: bw, height: bh, fill: '#fff', stroke: '#161618',
           strokeWidth: 3, cornerRadius: 28, name: 'balloon-shape',
+        });
+      } else if (n.shape === 'shout') {
+        shape = new Konva.Line({
+          points: [bw*0.12,0, bw*0.35,bh*0.12, bw*0.5,0, bw*0.65,bh*0.12, bw*0.88,0,
+                   bw,bh*0.28, bw*0.9,bh*0.5, bw,bh*0.72, bw*0.88,bh,
+                   bw*0.65,bh*0.88, bw*0.5,bh, bw*0.35,bh*0.88, bw*0.12,bh,
+                   0,bh*0.72, bw*0.1,bh*0.5, 0,bh*0.28],
+          fill: '#fff', stroke: '#161618', strokeWidth: 3, closed: true, name: 'balloon-shape',
+        });
+      } else if (n.shape === 'whisper') {
+        shape = new Konva.Ellipse({
+          x: bw / 2, y: bh / 2, radiusX: bw / 2, radiusY: bh / 2,
+          fill: '#fff', stroke: '#161618', strokeWidth: 2, dash: [6, 5], name: 'balloon-shape',
         });
       } else {
         shape = new Konva.Ellipse({
           x: bw / 2, y: bh / 2, radiusX: bw / 2, radiusY: bh / 2,
-          fill: '#fff', stroke: '#12110F', strokeWidth: 3, name: 'balloon-shape',
+          fill: '#fff', stroke: '#161618', strokeWidth: 3, name: 'balloon-shape',
         });
       }
       group.add(shape);
-      if (n.tail && n.type === 'balloon') {
+      if (n.tail && n.type === 'balloon' && n.shape !== 'caption') {
         const tail = new Konva.Line({
           points: [bw * 0.42, bh - 2, n.tail.x - n.x, n.tail.y - n.y, bw * 0.58, bh - 2],
-          fill: '#fff', stroke: '#12110F', strokeWidth: 3, closed: true, name: 'tail',
+          fill: '#fff', stroke: '#161618', strokeWidth: 3, closed: true, name: 'tail',
         });
         group.add(tail);
         const tipSelected = selectedId === n.id && selectedKind === 'node';
         const tip = new Konva.Circle({
           x: n.tail.x - n.x, y: n.tail.y - n.y,
           radius: tipSelected ? 14 : 10,
-          fill: '#FF4D2E',
+          fill: '#FFD43B',
           opacity: tipSelected ? 1 : 0.001,
           stroke: tipSelected ? '#fff' : undefined,
           strokeWidth: tipSelected ? 3 : 0,
@@ -542,13 +562,14 @@
         tip.on('mousedown touchstart', (e) => { e.cancelBubble = true; });
         group.add(tip);
       }
+      const rawText = n.text || 'Say something';
       const text = new Konva.Text({
         x: 12, y: 16, width: bw - 24,
-        text: n.text || 'Say something',
+        text: n.allCaps ? String(rawText).toUpperCase() : rawText,
         fontSize: n.fontSize || 22,
         fontFamily: 'Comic Neue, Kosugi Maru, sans-serif',
-        fill: '#12110F',
-        align: 'center',
+        fill: '#161618',
+        align: n.align || 'center',
         listening: false,
         name: 'balloon-text',
       });
@@ -568,7 +589,7 @@
       });
       if (selectedId === n.id && selectedKind === 'node') {
         group.add(new Konva.Rect({
-          width: n.w || bw, height: n.h || bh, stroke: '#FF4D2E', strokeWidth: 2,
+          width: n.w || bw, height: n.h || bh, stroke: '#FFD43B', strokeWidth: 2,
           dash: [6, 4], listening: false, name: 'sel-ring',
         }));
       }
@@ -646,7 +667,7 @@
     }
 
     function reflowVerticalStrip() {
-      const g = global.DialogueFormats.gutterForWidth(bundle.project.width || 800);
+      const g = (bundle.project && bundle.project.gutter) || global.DialogueFormats.gutterForWidth(bundle.project.width || 800);
       const panels = (bundle.panels || []).slice().sort((a, b) => a.order - b.order);
       let y = g;
       panels.forEach((p, i) => {
@@ -665,7 +686,7 @@
 
     function addPanel() {
       const panels = bundle.panels || [];
-      const g = global.DialogueFormats.gutterForWidth(bundle.project.width || 800);
+      const g = (bundle.project && bundle.project.gutter) || global.DialogueFormats.gutterForWidth(bundle.project.width || 800);
       const w = (bundle.project.width || 800) - g * 2;
       const sorted = panels.slice().sort((a, b) => a.order - b.order);
       const last = sorted[sorted.length - 1];
@@ -732,18 +753,21 @@
         ? bundle.panels.find((p) => p.id === selectedId)
         : (bundle.panels || []).slice().sort((a, b) => a.order - b.order)[0];
       if (!panel) return null;
+      const kind = shape || 'speech';
       const n = {
         id: U().uid('node'),
-        type: shape === 'caption' ? 'caption' : 'balloon',
-        shape: shape || 'speech',
+        type: kind === 'caption' ? 'caption' : 'balloon',
+        shape: kind,
         panelId: panel.id,
         pageId: panel.pageId,
         x: panel.x + 40,
         y: panel.y + 40,
         w: 200, h: 90,
-        text: 'Say something',
-        fontSize: 22,
-        tail: shape === 'caption' ? null : { x: panel.x + 100, y: panel.y + 160 },
+        text: kind === 'shout' ? 'Hey!' : 'Say something',
+        fontSize: kind === 'shout' ? 28 : (kind === 'whisper' ? 18 : 22),
+        align: 'center',
+        allCaps: kind === 'shout',
+        tail: kind === 'caption' ? null : { x: panel.x + 100, y: panel.y + 160 },
       };
       bundle.nodes.push(n);
       markDirty(); redraw(true); select('node', n.id);
@@ -751,14 +775,65 @@
       return n;
     }
 
-    function setBalloonText(id, text, fontSize) {
+    function setBalloonText(id, text, fontSize, opts) {
       const n = bundle.nodes.find((x) => x.id === id);
       if (!n) return;
       n.text = text || 'Say something';
       if (fontSize) n.fontSize = fontSize;
+      if (opts) {
+        if (opts.align) n.align = opts.align;
+        if (typeof opts.allCaps === 'boolean') n.allCaps = opts.allCaps;
+      }
       markDirty('lettering');
       redraw(true);
       select('node', id);
+    }
+
+    function updateSelectedBalloon(patch) {
+      if (selectedKind !== 'node' || !selectedId) return;
+      const n = bundle.nodes.find((x) => x.id === selectedId);
+      if (!n || (n.type !== 'balloon' && n.type !== 'caption')) return;
+      Object.assign(n, patch || {});
+      markDirty('balloon-style');
+      redraw(true);
+      select('node', n.id);
+    }
+
+    function clearArt() {
+      if (selectedKind !== 'panel' || !selectedId) return;
+      const p = bundle.panels.find((x) => x.id === selectedId);
+      if (!p) return;
+      p.artAssetId = null;
+      p.artX = 0; p.artY = 0; p.artScale = 1; p.artOpacity = 1;
+      markDirty(); redraw(true);
+    }
+
+    function setArtOpacity(op) {
+      if (selectedKind !== 'panel' || !selectedId) return;
+      const p = bundle.panels.find((x) => x.id === selectedId);
+      if (!p) return;
+      p.artOpacity = Math.max(0.05, Math.min(1, op));
+      markDirty('art-opacity');
+      // live update without full redraw if possible
+      const g = panelLayer && panelLayer.findOne('#panel-' + p.id);
+      if (g) {
+        const art = g.findOne('.art');
+        if (art) { art.opacity(p.artOpacity); panelLayer.batchDraw(); return; }
+      }
+      redraw(true);
+    }
+
+    function setGutter(px) {
+      if (!bundle.project) return;
+      bundle.project.gutter = Math.max(12, Math.min(40, Math.round(px)));
+      reflowVerticalStrip();
+      markDirty(); redraw(true);
+    }
+
+    function setBorderWidth(px) {
+      if (!bundle.project) return;
+      bundle.project.borderWidth = Math.max(1, Math.min(12, Math.round(px)));
+      markDirty(); redraw(true);
     }
 
     function ensurePanelForArt() {
@@ -843,7 +918,8 @@
     return {
       loadBundle, getBundle, exportState, redraw, fitView, resize, undo, redo,
       addPanel, duplicatePanel, deleteSelected, reorderPanel, reflowVerticalStrip,
-      addBalloon, setBalloonText, setPanelArt, setFit, addSticker,
+      addBalloon, setBalloonText, updateSelectedBalloon, setPanelArt, setFit, addSticker,
+      clearArt, setArtOpacity, setGutter, setBorderWidth,
       select, scrollToPanel, flushAutosave, destroy, markDirty, ensurePanelForArt,
       canUndo: () => history.canUndo(), canRedo: () => history.canRedo(),
       getSelection: () => ({ kind: selectedKind, id: selectedId }),

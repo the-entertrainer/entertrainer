@@ -18,8 +18,8 @@ const references = [
 ]
 
 const visuals = {
-  branches: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/WqdJLFbfsztOTpSx.jpeg',
-  reflection: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/RSegpXnWnjysAAht.jpg'
+  branches: '/blog/intelligence/bus-stop.jpg',
+  reflection: '/blog/intelligence/reflection.jpg'
 }
 </script>
 

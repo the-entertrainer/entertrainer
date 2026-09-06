@@ -85,6 +85,11 @@ const tiers = [
           <figcaption>The suffix is free and sitting right there. English uses it, then stops without explaining why.</figcaption>
         </figure>
 
+        <figure class="moonly__visual">
+          <EdEditorialImage src="/blog/moonly/crescent-moon.jpg" alt="Crescent Moon photographed from space against a dark sky" />
+          <figcaption>The Moon gets two English adjectives — and neither is “moonly.” (NASA / public domain)</figcaption>
+        </figure>
+
         <h2>The rule that suddenly develops opinions</h2>
         <p>This is the part that bothers me. It is not that English ran out of ways to make the word. Moonly is easy to say. You understood it instantly just now, and you have never once heard it in your life.</p>
         <p>Instead English hands you a completely unrelated word. Lunar. A word with no visible connection to the moon at all, unless you happen to know Latin.</p>
@@ -216,6 +221,9 @@ const tiers = [
 .moonly blockquote p { margin: 0; }
 
 /* The -ly ladder */
+
+.moonly__visual { margin: 54rem 0; }
+.moonly__visual :deep(.ed-editorial-image) { display: block; width: 100%; max-height: 480rem; object-fit: cover; border-radius: var(--radius-m); border: var(--stroke) solid var(--ink); overflow: hidden; }
 .moonly__ladder { margin: 48rem 0 54rem; padding: 12rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--paper-2); }
 .moonly__ladder ul { margin: 0; padding: 0; list-style: none; }
 .moonly__ladder li { display: grid; grid-template-columns: minmax(78rem, 1fr) 24rem minmax(96rem, 1.3fr) minmax(84rem, 1fr); align-items: baseline; gap: 8rem; padding: 11rem 12rem; border-radius: calc(var(--radius-m) - 5rem); font: 400 16rem/1.3 var(--font-mono); }

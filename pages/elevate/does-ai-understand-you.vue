@@ -120,6 +120,11 @@ const comparison = [
           <p>Fluent about a thing is not the same as in contact with a thing. Devraj’s paragraph on balance is extraordinary. It is not Devraj tasting anything.</p>
         </blockquote>
 
+        <figure class="understand__visual">
+          <EdEditorialImage src="/blog/ai-understand/vintage-terminal.jpg" alt="A vintage computer workstation with a CRT terminal" />
+          <figcaption>Symbols on a screen can look fluent for a long time before anyone asks what they are grounded in. (CC BY 2.0)</figcaption>
+        </figure>
+
         <p>John Searle made a version of this same point a decade earlier, in what is now the most argued-over thought experiment in the philosophy of mind.<a href="#ref-5" aria-label="Reference 5">[5]</a> Picture a man locked in a room who does not speak a word of Chinese. He’s handed a rulebook, in English, that says: when you see this shape, write down that shape. Chinese characters slide in through a slot; following the rulebook perfectly, he slides correct Chinese answers back out. To anyone outside, the room appears fluent.</p>
         <p>The man never understands a single word of Chinese. He is matching shapes to shapes, at speed, with an excellent rulebook. Searle’s point wasn’t that the room answers wrong — it can answer perfectly. His point is that getting the <em>syntax</em> right, matching the correct symbol to the correct symbol, is a completely different achievement from grasping the <em>semantics</em>: knowing what the symbols mean.<a href="#ref-5" aria-label="Reference 5">[5]</a> A system can win the shape-matching game forever and never once cross over into meaning it.</p>
         <p>Modern AI research has its own, blunter name for this same worry: some researchers describe large language models as “stochastic parrots” — systems that stitch together plausible-sounding sequences with no grounding in what the words actually refer to.<a href="#ref-7" aria-label="Reference 7">[7]</a></p>
@@ -205,6 +210,8 @@ const comparison = [
 .understand blockquote p { margin: 0; }
 
 /* Bloom's ladder */
+.understand__visual { margin: 54rem 0; }
+.understand__visual :deep(.ed-editorial-image) { display: block; width: 100%; max-height: 480rem; object-fit: cover; border-radius: var(--radius-m); border: var(--stroke) solid var(--ink); overflow: hidden; }
 .understand__bloom { margin: 48rem 0 54rem; padding: 12rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--paper-2); }
 .understand__bloom-row { display: grid; grid-template-columns: 30rem 150rem 1fr; align-items: baseline; gap: 8rem; padding: 11rem 12rem; border-radius: calc(var(--radius-m) - 5rem); font: 400 16rem/1.3 var(--font-mono); }
 .understand__bloom-row + .understand__bloom-row { margin-top: 4rem; }

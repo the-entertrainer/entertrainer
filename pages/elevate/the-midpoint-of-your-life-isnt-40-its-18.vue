@@ -74,6 +74,11 @@ const sensitivity = [
           <EdEditorialImage src="/blog/life-midpoint/linear-vs-log.svg" alt="An original diagram comparing a linear number line from 0 to 81 with the midpoint at 40, against a logarithmic number line from 4 to 81 with the midpoint at 18." />
         </figure>
 
+        <figure class="mid__visual">
+          <EdEditorialImage src="/blog/life-midpoint/hourglass.jpg" alt="An hourglass with sand flowing unevenly between chambers" />
+          <figcaption>Same grains of sand. Different felt length depending on how much life is already behind you. (CC BY 2.0)</figcaption>
+        </figure>
+
         <h2>Where the "18" actually comes from</h2>
         <p>Midway on a logarithmic scale isn't the average of the two ends. It's the <strong>geometric mean</strong> — the number you'd multiply by itself to land exactly between them. For a scale running from a start age <em>s</em> to a life expectancy <em>L</em>, that midpoint is <code>√(s × L)</code>.</p>
         <p>Now the honest part: a pure logarithm has no zero. You can't start the scale at birth, because log(0) doesn't exist — mathematically, an infinite stretch of subjective time would sit between age 0 and age 1. So every version of this calculation quietly picks a starting age instead of using birth. The video used age 4, roughly where reliable autobiographical memory is usually said to begin.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
@@ -163,6 +168,8 @@ const sensitivity = [
 .mid blockquote p { margin: 0; }
 
 /* Original number-line diagram */
+.mid__visual { margin: 54rem 0; }
+.mid__visual :deep(.ed-editorial-image) { display: block; width: 100%; max-height: 480rem; object-fit: cover; border-radius: var(--radius-m); border: var(--stroke) solid var(--ink); overflow: hidden; }
 .mid__diagram { margin: 50rem 0 20rem; padding: 12rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--paper-2); }
 .mid__diagram :deep(.ed-editorial-image) { display: block; width: 100%; height: auto; background: var(--paper-2); }
 .mid__diagram :deep(img) { width: 100%; height: auto; object-fit: contain; }

@@ -19,9 +19,11 @@ const DRAFT_STORAGE = 'et-compose-working'
 const DRAFT_SESSION = 'et-compose-working-session'
 const PROVIDER_STORAGE = 'et-compose-provider'
 const IMAGE_SOURCE_STORAGE = 'et-compose-image-source'
+const MODE_STORAGE = 'et-compose-mode'
 
 type ComposeProvider = 'groq' | 'gemini'
 type ComposeImageSource = 'commons' | 'gemini' | 'gamma'
+type EditorMode = 'canvas' | 'fields'
 
 const unlocked = ref(false)
 const gateInput = ref('')
@@ -30,6 +32,9 @@ const statusMessage = ref('')
 const saving = ref(false)
 const library = ref<ComposedPost[]>([])
 const activeSlug = ref<string | null>(null)
+const editorMode = ref<EditorMode>('canvas')
+const selectedFigureId = ref<string | null>(null)
+const heroBusy = ref(false)
 
 const aiTopic = ref('')
 const aiNotes = ref('')
@@ -81,7 +86,6 @@ const blockTypes: { type: ComposedBlockType; label: string }[] = [
 onMounted(() => {
   try {
     if (sessionStorage.getItem(GATE_STORAGE) === '1') unlocked.value = true
-    // Prefer session draft (keeps data: image previews); fall back to stripped localStorage.
     const sessionCached = sessionStorage.getItem(DRAFT_SESSION)
     const cached = sessionCached || localStorage.getItem(DRAFT_STORAGE)
     if (cached) draft.value = JSON.parse(cached) as ComposedPost
@@ -91,6 +95,8 @@ onMounted(() => {
     if (savedImageSource === 'commons' || savedImageSource === 'gemini' || savedImageSource === 'gamma') {
       aiImageSource.value = savedImageSource
     }
+    const savedMode = localStorage.getItem(MODE_STORAGE)
+    if (savedMode === 'canvas' || savedMode === 'fields') editorMode.value = savedMode
   } catch { /* ignore */ }
   if (unlocked.value) {
     void loadLibrary()
@@ -106,8 +112,11 @@ watch(aiImageSource, (value) => {
   try { localStorage.setItem(IMAGE_SOURCE_STORAGE, value) } catch { /* ignore */ }
 })
 
+watch(editorMode, (value) => {
+  try { localStorage.setItem(MODE_STORAGE, value) } catch { /* ignore */ }
+})
+
 function draftForLocalStorage(value: ComposedPost): ComposedPost {
-  // Gemini image drafts may embed data: URLs — too large for localStorage.
   const copy = structuredClone(value)
   if (typeof copy.hero === 'string' && copy.hero.startsWith('data:image/')) copy.hero = ''
   for (const block of copy.blocks || []) {
@@ -120,7 +129,6 @@ function draftForLocalStorage(value: ComposedPost): ComposedPost {
 
 watch(draft, (value) => {
   try { localStorage.setItem(DRAFT_STORAGE, JSON.stringify(draftForLocalStorage(value))) } catch { /* ignore */ }
-  // Session keeps data: URLs so hero/figure previews survive in-tab refresh.
   try { sessionStorage.setItem(DRAFT_SESSION, JSON.stringify(value)) } catch {
     try { sessionStorage.setItem(DRAFT_SESSION, JSON.stringify(draftForLocalStorage(value))) } catch { /* ignore */ }
   }
@@ -167,7 +175,6 @@ async function loadGithubStatus() {
   }
 }
 
-/** True when hero/figure src can render in an <img> / EdEditorialImage. */
 function isPreviewableSrc(src?: string | null) {
   const value = String(src || '').trim()
   if (!value) return false
@@ -182,6 +189,7 @@ function isPreviewableSrc(src?: string | null) {
 function startNew() {
   draft.value = emptyComposedPost()
   activeSlug.value = null
+  selectedFigureId.value = null
   statusMessage.value = 'New draft.'
 }
 
@@ -192,6 +200,7 @@ function loadPost(post: ComposedPost) {
   if (!copy.references) copy.references = []
   draft.value = copy
   activeSlug.value = post.slug
+  selectedFigureId.value = null
   statusMessage.value = `Loaded “${post.title || post.slug}”.`
 }
 
@@ -210,12 +219,14 @@ function addBlock(type: ComposedBlockType) {
     block.src = ''
     block.alt = ''
     block.caption = ''
+    selectedFigureId.value = block.id
   }
   draft.value.blocks.push(block)
 }
 
 function removeBlock(id: string) {
   draft.value.blocks = draft.value.blocks.filter((block) => block.id !== id)
+  if (selectedFigureId.value === id) selectedFigureId.value = null
 }
 
 function moveBlock(index: number, delta: number) {
@@ -233,6 +244,10 @@ function listText(block: ComposedBlock) {
 
 function setListText(block: ComposedBlock, value: string) {
   block.items = value.split('\n')
+}
+
+function findBlock(id: string) {
+  return draft.value.blocks.find((b) => b.id === id)
 }
 
 async function persist(status: 'draft' | 'published') {
@@ -311,7 +326,6 @@ async function removePost(slug: string) {
   }
 }
 
-
 async function generateDraft() {
   const topic = aiTopic.value.trim()
   if (!topic) {
@@ -335,6 +349,7 @@ async function generateDraft() {
       model?: string
       imageSource?: string
       imageWarning?: string
+      heroBrief?: { metaphor?: string; motif?: string }
     }>('/api/compose/generate', {
       method: 'POST',
       body: {
@@ -348,7 +363,6 @@ async function generateDraft() {
     if (!copy.marginNote) copy.marginNote = { label: 'One useful idea.', body: '' }
     if (!copy.blocks) copy.blocks = []
     if (!copy.references) copy.references = []
-    // If the API set figures but missed hero, promote first figure/image into hero for preview.
     if (!String(copy.hero || '').trim()) {
       const fig = (copy.blocks || []).find((b) => b.type === 'figure' && isPreviewableSrc(b.src))
       if (fig?.src) {
@@ -358,11 +372,14 @@ async function generateDraft() {
     }
     draft.value = copy
     activeSlug.value = null
+    selectedFigureId.value = null
+    editorMode.value = 'canvas'
     const usedProvider = res.provider || provider
     const usedModel = res.model || (usedProvider === 'groq' ? 'groq/compound' : 'gemini-3.5-flash-lite')
     const usedImages = res.imageSource || imageSource
+    const metaphor = res.heroBrief?.metaphor ? ` Hero metaphor: ${res.heroBrief.metaphor}.` : ''
     const warn = res.imageWarning ? ` Warning: ${res.imageWarning}` : ''
-    statusMessage.value = `AI draft ready via ${usedProvider} (${usedModel}), images: ${usedImages} — polish then Save draft / Publish.${warn}`
+    statusMessage.value = `AI draft ready via ${usedProvider} (${usedModel}), images: ${usedImages}.${metaphor} Polish on the canvas, then Save / Publish.${warn}`
   } catch (err: any) {
     const status = Number(err?.statusCode || err?.status || err?.response?.status || 0)
     let msg = err?.data?.statusMessage || err?.statusMessage || err?.message || 'Generation failed.'
@@ -377,7 +394,63 @@ async function generateDraft() {
   }
 }
 
+async function regenerateHero() {
+  ensureSlug()
+  const topic = (aiTopic.value.trim() || draft.value.title || draft.value.slug || '').trim()
+  if (!topic && !draft.value.title) {
+    statusMessage.value = 'Add a title or AI topic before regenerating the hero.'
+    return
+  }
+  heroBusy.value = true
+  statusMessage.value = 'Regenerating conceptual Elevate hero…'
+  try {
+    const res = await $fetch<{
+      hero: string
+      heroAlt: string
+      heroBrief?: { metaphor?: string; motif?: string; cobaltRole?: string }
+    }>('/api/compose/generate', {
+      method: 'POST',
+      body: {
+        heroOnly: true,
+        topic,
+        title: draft.value.title,
+        dek: draft.value.dek,
+        slug: draft.value.slug,
+        seed: Date.now()
+      }
+    })
+    draft.value.hero = res.hero
+    draft.value.heroAlt = res.heroAlt || draft.value.heroAlt
+    const meta = res.heroBrief?.metaphor
+      ? ` Metaphor: ${res.heroBrief.metaphor}${res.heroBrief.motif ? ` (${res.heroBrief.motif})` : ''}.`
+      : ''
+    statusMessage.value = `Hero regenerated.${meta}`
+  } catch (err: any) {
+    const msg = err?.data?.statusMessage || err?.statusMessage || err?.message || 'Hero regen failed.'
+    statusMessage.value = `Hero regen failed: ${msg}`
+  } finally {
+    heroBusy.value = false
+  }
+}
+
+function clearFigure(block: ComposedBlock) {
+  block.src = ''
+  block.alt = block.alt || ''
+  block.caption = block.caption || ''
+}
+
+function pasteFigureUrl(block: ComposedBlock) {
+  const url = window.prompt('Paste image URL (https://… or /blog/…)', block.src || '')
+  if (url == null) return
+  const trimmed = url.trim()
+  if (!trimmed) return
+  block.src = trimmed
+}
+
 const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.slug}` : null)
+const selectedFigure = computed(() =>
+  selectedFigureId.value ? findBlock(selectedFigureId.value) || null : null
+)
 </script>
 
 <template>
@@ -408,6 +481,20 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
           <h1>Write</h1>
         </div>
         <div class="compose__top-actions">
+          <div class="compose__mode" role="group" aria-label="Editor mode">
+            <button
+              type="button"
+              class="compose__mode-btn"
+              :class="{ 'is-active': editorMode === 'canvas' }"
+              @click="editorMode = 'canvas'"
+            >Canvas</button>
+            <button
+              type="button"
+              class="compose__mode-btn"
+              :class="{ 'is-active': editorMode === 'fields' }"
+              @click="editorMode = 'fields'"
+            >Fields</button>
+          </div>
           <button type="button" class="compose__btn" :disabled="saving" @click="persist('draft')">Save draft</button>
           <button type="button" class="compose__btn compose__btn--signal" :disabled="saving" @click="persist('published')">Publish</button>
           <button type="button" class="compose__btn compose__btn--ghost" @click="lockAgain">Lock</button>
@@ -428,7 +515,10 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
         <div class="compose__ai-head">
           <p class="compose__eyebrow">AI draft</p>
           <h2 class="compose__ai-title">One-click Elevate draft</h2>
-          <p class="compose__ai-copy">Type a topic. Pick a <strong>text</strong> provider (Groq / Gemini) and an <strong>image</strong> source (Commons, Gemini, or Gamma). Draft lands here for polish; Publish downloads images into <code>public/blog/&lt;slug&gt;/</code> and commits them with the post JSON.</p>
+          <p class="compose__ai-copy">
+            Topic → structured blocks + <strong>conceptual hero</strong> (cream/ink/cobalt metaphor) + figure images.
+            Canvas mode shows the article as readers will see it. Publish commits JSON + images to <code>public/blog/&lt;slug&gt;/</code>.
+          </p>
         </div>
         <div class="compose__ai-form">
           <fieldset class="compose__provider compose__span-2" :disabled="aiLoading">
@@ -445,7 +535,7 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
             </div>
           </fieldset>
           <fieldset class="compose__provider compose__span-2" :disabled="aiLoading">
-            <legend>Images</legend>
+            <legend>Figure images</legend>
             <div class="compose__provider-seg compose__provider-seg--wrap" role="radiogroup" aria-label="Image source">
               <label class="compose__provider-opt" :class="{ 'is-active': aiImageSource === 'commons' }">
                 <input v-model="aiImageSource" type="radio" name="compose-image-source" value="commons">
@@ -459,7 +549,14 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
                 <input v-model="aiImageSource" type="radio" name="compose-image-source" value="gamma">
                 <span>Gamma</span>
               </label>
+              <span
+                class="compose__provider-opt compose__provider-opt--disabled"
+                title="Mage Space has no public API (invite-only beta; automation forbidden). Contact mage@mage.space for API beta."
+              >
+                <span>Mage Space · contact for API beta</span>
+              </span>
             </div>
+            <p class="compose__mage-note">Heroes are procedural Elevate covers (not Mage). Figures: Commons / Gemini / Gamma only.</p>
           </fieldset>
           <label class="compose__span-2">
             <span>Topic</span>
@@ -511,9 +608,193 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
             </li>
           </ul>
           <p v-else class="compose__empty">No composed posts yet.</p>
+
+          <div class="compose__blocks-toolbar compose__blocks-toolbar--side">
+            <p class="compose__eyebrow">Add block</p>
+            <div class="compose__block-add">
+              <button
+                v-for="item in blockTypes"
+                :key="item.type"
+                type="button"
+                class="compose__chip"
+                @click="addBlock(item.type)"
+              >{{ item.label }}</button>
+            </div>
+          </div>
         </aside>
 
-        <section class="compose__editor" aria-label="Post editor">
+        <!-- ═══ WYSIWYG CANVAS (default) ═══ -->
+        <section v-if="editorMode === 'canvas'" class="compose__canvas" aria-label="Article canvas">
+          <div class="compose__canvas-meta">
+            <label>
+              <span>Category</span>
+              <input v-model="draft.category" class="compose__input compose__input--inline">
+            </label>
+            <label>
+              <span>Minutes</span>
+              <input v-model.number="draft.minutes" type="number" min="1" class="compose__input compose__input--inline">
+            </label>
+            <label>
+              <span>Slug</span>
+              <input v-model="draft.slug" class="compose__input compose__input--inline" placeholder="auto-from-title" @blur="ensureSlug">
+            </label>
+          </div>
+
+          <!-- Hero -->
+          <figure class="compose__hero">
+            <div v-if="isPreviewableSrc(draft.hero)" class="compose__hero-frame">
+              <EdEditorialImage :key="draft.hero" :src="draft.hero" :alt="draft.heroAlt || draft.title || 'Hero'" />
+            </div>
+            <div v-else class="compose__hero-empty">
+              <p>No hero yet — Generate draft or Regenerate hero.</p>
+            </div>
+            <div class="compose__hero-controls">
+              <button type="button" class="compose__btn compose__btn--small" :disabled="heroBusy" @click="regenerateHero">
+                {{ heroBusy ? 'Regenerating…' : 'Regenerate hero' }}
+              </button>
+              <input
+                v-model="draft.heroAlt"
+                class="compose__input compose__input--inline"
+                placeholder="Hero alt text"
+                aria-label="Hero alt"
+              >
+            </div>
+          </figure>
+
+          <!-- Title / dek as inline fields -->
+          <header class="compose__canvas-head">
+            <input
+              v-model="draft.title"
+              class="compose__title-input"
+              placeholder="Title"
+              @blur="ensureSlug"
+            >
+            <textarea
+              v-model="draft.dek"
+              class="compose__dek-input"
+              rows="2"
+              placeholder="Dek — one or two sentences that open the curiosity gap"
+            ></textarea>
+          </header>
+
+          <div class="compose__article-grid">
+            <aside class="compose__margin" aria-label="Margin note">
+              <input v-model="draft.marginNote!.label" class="compose__margin-label" placeholder="One useful idea.">
+              <textarea v-model="draft.marginNote!.body" class="compose__margin-body" rows="4" placeholder="Crisp takeaway…"></textarea>
+            </aside>
+
+            <div class="compose__prose">
+              <div
+                v-for="(block, index) in draft.blocks"
+                :key="block.id"
+                class="compose__canvas-block"
+                :class="{ 'is-figure-selected': block.type === 'figure' && selectedFigureId === block.id }"
+              >
+                <div class="compose__canvas-block-bar">
+                  <span>{{ block.type }}</span>
+                  <div class="compose__block-moves">
+                    <button type="button" class="compose__icon-btn" :disabled="index === 0" @click="moveBlock(index, -1)">↑</button>
+                    <button type="button" class="compose__icon-btn" :disabled="index === draft.blocks.length - 1" @click="moveBlock(index, 1)">↓</button>
+                    <button type="button" class="compose__icon-btn" @click="removeBlock(block.id)">×</button>
+                  </div>
+                </div>
+
+                <textarea
+                  v-if="block.type === 'lead'"
+                  v-model="block.text"
+                  class="compose__lead-input"
+                  rows="4"
+                  placeholder="Lead paragraph…"
+                ></textarea>
+
+                <textarea
+                  v-else-if="block.type === 'heading'"
+                  v-model="block.text"
+                  class="compose__heading-input"
+                  rows="2"
+                  placeholder="Section heading"
+                ></textarea>
+
+                <textarea
+                  v-else-if="block.type === 'blockquote'"
+                  v-model="block.text"
+                  class="compose__quote-input"
+                  rows="3"
+                  placeholder="Pull quote"
+                ></textarea>
+
+                <div v-else-if="block.type === 'callout'" class="compose__callout-edit">
+                  <input v-model="block.label" class="compose__input compose__input--inline" placeholder="Callout label">
+                  <textarea v-model="block.text" class="compose__input compose__textarea" rows="3" placeholder="Callout body"></textarea>
+                </div>
+
+                <div
+                  v-else-if="block.type === 'figure'"
+                  class="compose__figure-edit"
+                  @click="selectedFigureId = block.id"
+                >
+                  <div v-if="isPreviewableSrc(block.src)" class="compose__figure-frame">
+                    <EdEditorialImage :key="block.src" :src="block.src!" :alt="block.alt || block.caption || 'Figure'" />
+                  </div>
+                  <div v-else class="compose__figure-empty">Drop a URL or paste below — figure shows inline here.</div>
+                  <input
+                    v-model="block.caption"
+                    class="compose__caption-input"
+                    placeholder="Caption (editable in place)"
+                  >
+                  <div class="compose__figure-tools">
+                    <input v-model="block.src" class="compose__input compose__input--inline" placeholder="Image src / URL">
+                    <input v-model="block.alt" class="compose__input compose__input--inline" placeholder="Alt">
+                    <button type="button" class="compose__btn compose__btn--small" @click.stop="pasteFigureUrl(block)">Paste URL</button>
+                    <button type="button" class="compose__btn compose__btn--small" @click.stop="clearFigure(block)">Remove image</button>
+                  </div>
+                </div>
+
+                <textarea
+                  v-else-if="block.type === 'list'"
+                  class="compose__list-input"
+                  rows="4"
+                  placeholder="One item per line"
+                  :value="listText(block)"
+                  @input="setListText(block, ($event.target as HTMLTextAreaElement).value)"
+                ></textarea>
+
+                <textarea
+                  v-else-if="block.type === 'closing'"
+                  v-model="block.text"
+                  class="compose__closing-input"
+                  rows="3"
+                  placeholder="Closing beat"
+                ></textarea>
+
+                <textarea
+                  v-else
+                  v-model="block.text"
+                  class="compose__body-input"
+                  rows="4"
+                  placeholder="Paragraph"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="selectedFigure" class="compose__inspector" aria-label="Selected figure">
+            <p class="compose__eyebrow">Figure inspector</p>
+            <input v-model="selectedFigure.src" class="compose__input" placeholder="src">
+            <input v-model="selectedFigure.alt" class="compose__input" placeholder="alt">
+            <input v-model="selectedFigure.caption" class="compose__input" placeholder="caption">
+          </div>
+
+          <div class="compose__footer-actions">
+            <button type="button" class="compose__btn" :disabled="saving" @click="persist('draft')">Save draft</button>
+            <button type="button" class="compose__btn compose__btn--signal" :disabled="saving" @click="persist('published')">Publish</button>
+            <NuxtLink v-if="previewHref && draft.status === 'published'" :to="previewHref" class="compose__btn">View live</NuxtLink>
+            <p v-if="draft.status === 'published'" class="compose__hint">View live may 404 until the Vercel redeploy finishes.</p>
+          </div>
+        </section>
+
+        <!-- ═══ FIELDS MODE (power edit) ═══ -->
+        <section v-else class="compose__editor" aria-label="Post editor fields">
           <div class="compose__meta-grid">
             <label>
               <span>Title</span>
@@ -548,6 +829,9 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
               <div class="compose__preview-frame compose__preview-frame--hero">
                 <EdEditorialImage :key="draft.hero" :src="draft.hero" :alt="draft.heroAlt || 'Hero preview'" />
               </div>
+              <button type="button" class="compose__btn compose__btn--small" :disabled="heroBusy" @click="regenerateHero">
+                {{ heroBusy ? 'Regenerating…' : 'Regenerate hero' }}
+              </button>
             </div>
             <label>
               <span>Margin note label</span>
@@ -599,14 +883,17 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
               ></textarea>
 
               <template v-else-if="block.type === 'figure'">
-                <input v-model="block.src" class="compose__input" placeholder="Image src">
-                <input v-model="block.alt" class="compose__input" placeholder="Alt text">
-                <input v-model="block.caption" class="compose__input" placeholder="Caption">
                 <div v-if="isPreviewableSrc(block.src)" class="compose__preview">
-                  <p class="compose__preview-label">Figure preview</p>
                   <div class="compose__preview-frame">
                     <EdEditorialImage :key="block.src" :src="block.src!" :alt="block.alt || block.caption || 'Figure preview'" />
                   </div>
+                </div>
+                <input v-model="block.src" class="compose__input" placeholder="Image src">
+                <input v-model="block.alt" class="compose__input" placeholder="Alt text">
+                <input v-model="block.caption" class="compose__input" placeholder="Caption">
+                <div class="compose__figure-tools">
+                  <button type="button" class="compose__btn compose__btn--small" @click="pasteFigureUrl(block)">Paste URL</button>
+                  <button type="button" class="compose__btn compose__btn--small" @click="clearFigure(block)">Remove image</button>
                 </div>
               </template>
 
@@ -625,7 +912,6 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
             <button type="button" class="compose__btn" :disabled="saving" @click="persist('draft')">Save draft</button>
             <button type="button" class="compose__btn compose__btn--signal" :disabled="saving" @click="persist('published')">Publish</button>
             <NuxtLink v-if="previewHref && draft.status === 'published'" :to="previewHref" class="compose__btn">View live</NuxtLink>
-            <p v-if="draft.status === 'published'" class="compose__hint">View live may 404 until the Vercel redeploy finishes.</p>
           </div>
         </section>
       </div>
@@ -635,7 +921,7 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
 
 <style scoped>
 .compose {
-  max-width: 1100rem;
+  max-width: 1200rem;
   margin: 0 auto;
   padding: clamp(22rem, 4vw, 48rem) var(--shell-gutter) 90rem;
 }
@@ -671,6 +957,11 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
   background: var(--paper);
   color: var(--ink);
   font: 400 16rem/1.4 var(--font-body);
+}
+.compose__input--inline {
+  margin-top: 0;
+  padding: 8rem 10rem;
+  font-size: 14rem;
 }
 .compose__textarea { resize: vertical; min-height: 72rem; }
 .compose__btn {
@@ -720,6 +1011,28 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
   background: color-mix(in srgb, #b00020 10%, var(--paper));
   color: #7a0016;
 }
+.compose__mode {
+  display: inline-flex;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+}
+.compose__mode-btn {
+  padding: 10rem 12rem;
+  border: 0;
+  border-right: var(--stroke) solid var(--ink);
+  background: var(--paper);
+  font: 700 11rem/1 var(--font-mono);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+.compose__mode-btn:last-child { border-right: 0; }
+.compose__mode-btn.is-active {
+  background: var(--signal-cobalt);
+  color: var(--paper);
+}
 .compose__preview {
   display: grid;
   gap: 8rem;
@@ -765,10 +1078,11 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
   display: flex;
   flex-wrap: wrap;
   gap: 8rem;
+  align-items: center;
 }
 .compose__layout {
   display: grid;
-  grid-template-columns: minmax(180rem, 240rem) minmax(0, 1fr);
+  grid-template-columns: minmax(160rem, 220rem) minmax(0, 1fr);
   gap: 22rem;
   margin-top: 22rem;
 }
@@ -834,6 +1148,7 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
 }
 .compose__span-2 { grid-column: 1 / -1; }
 .compose__blocks-toolbar { margin: 28rem 0 12rem; }
+.compose__blocks-toolbar--side { margin: 20rem 0 0; }
 .compose__block-add { display: flex; flex-wrap: wrap; gap: 8rem; }
 .compose__chip {
   padding: 8rem 10rem;
@@ -886,7 +1201,6 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
   line-height: 1.4;
   color: var(--ink-soft);
 }
-
 
 .compose__ai {
   margin: 22rem 0 0;
@@ -977,6 +1291,19 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
   background: var(--signal-cobalt);
   color: var(--paper);
 }
+.compose__provider-opt--disabled {
+  cursor: not-allowed;
+  opacity: .55;
+  background: var(--paper-2);
+  color: var(--ink-soft);
+  font-size: 10rem;
+  letter-spacing: .03em;
+  text-transform: none;
+  max-width: 220rem;
+  text-align: center;
+  line-height: 1.25;
+  padding: 8rem 10rem;
+}
 .compose__provider:disabled .compose__provider-opt { opacity: .55; cursor: wait; }
 .compose__provider-seg--wrap {
   flex-wrap: wrap;
@@ -984,12 +1311,274 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
 .compose__provider-seg--wrap .compose__provider-opt {
   border-bottom: var(--stroke) solid var(--ink);
 }
+.compose__mage-note {
+  margin: 8rem 0 0;
+  font-size: 12rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+/* ── Canvas (WYSIWYG) ───────────────────────────────────────────────────── */
+.compose__canvas {
+  min-width: 0;
+  padding-bottom: 40rem;
+}
+.compose__canvas-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rem;
+  margin-bottom: 14rem;
+}
+.compose__canvas-meta label {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  font: 700 10rem/1.2 var(--font-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  min-width: 120rem;
+  flex: 1 1 140rem;
+}
+.compose__hero {
+  margin: 0 0 22rem;
+}
+.compose__hero-frame {
+  overflow: hidden;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-m);
+  background: #F7F1E4;
+  aspect-ratio: 16 / 8.5;
+}
+.compose__hero-frame :deep(.ed-editorial-image),
+.compose__hero-frame :deep(img) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.compose__hero-empty {
+  display: grid;
+  place-items: center;
+  min-height: 180rem;
+  padding: 24rem;
+  border: var(--stroke) dashed var(--ink);
+  border-radius: var(--radius-m);
+  background: var(--paper-2);
+  color: var(--ink-soft);
+  text-align: center;
+}
+.compose__hero-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rem;
+  align-items: center;
+  margin-top: 10rem;
+}
+.compose__canvas-head { margin: 0 0 28rem; }
+.compose__title-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 0;
+  border-bottom: var(--stroke) solid transparent;
+  background: transparent;
+  padding: 0 0 8rem;
+  font: 500 clamp(32rem, 5.5vw, 64rem)/.95 var(--font-display);
+  letter-spacing: -.05em;
+  color: var(--ink);
+}
+.compose__title-input:focus {
+  outline: none;
+  border-bottom-color: var(--signal-cobalt);
+}
+.compose__dek-input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 16rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  resize: vertical;
+  font: 400 clamp(17rem, 2vw, 22rem)/1.4 var(--font-body);
+  color: var(--ink);
+}
+.compose__dek-input:focus { outline: none; }
+.compose__article-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 170rem) minmax(0, 1fr);
+  gap: clamp(18rem, 4vw, 48rem);
+}
+.compose__margin {
+  align-self: start;
+  position: sticky;
+  top: 88rem;
+  padding: 14rem;
+  background: var(--signal-field);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-m);
+  display: grid;
+  gap: 8rem;
+}
+.compose__margin-label {
+  border: 0;
+  background: transparent;
+  font: 700 11rem/1.2 var(--font-mono);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--ink);
+  padding: 0;
+}
+.compose__margin-body {
+  border: 0;
+  background: transparent;
+  resize: vertical;
+  font: 400 14rem/1.45 var(--font-body);
+  color: var(--ink);
+  padding: 0;
+  min-height: 80rem;
+}
+.compose__prose { min-width: 0; display: grid; gap: 18rem; }
+.compose__canvas-block {
+  position: relative;
+  padding: 8rem 0 4rem;
+  border-top: var(--stroke) solid color-mix(in srgb, var(--ink) 12%, transparent);
+}
+.compose__canvas-block.is-figure-selected {
+  outline: 2px solid var(--signal-cobalt);
+  outline-offset: 4px;
+  border-radius: var(--radius-s);
+}
+.compose__canvas-block-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6rem;
+  font: 700 10rem/1 var(--font-mono);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--signal-cobalt);
+  opacity: .85;
+}
+.compose__lead-input,
+.compose__body-input,
+.compose__heading-input,
+.compose__quote-input,
+.compose__closing-input,
+.compose__list-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 0;
+  background: transparent;
+  resize: vertical;
+  padding: 0;
+  color: var(--ink);
+}
+.compose__lead-input,
+.compose__body-input {
+  font: 400 clamp(17rem, 1.8vw, 20rem)/1.62 var(--font-body);
+  min-height: 96rem;
+}
+.compose__heading-input {
+  font: 500 clamp(26rem, 3.2vw, 40rem)/1.05 var(--font-display);
+  letter-spacing: -.04em;
+  min-height: 56rem;
+}
+.compose__quote-input {
+  padding: 18rem 20rem;
+  border-left: 8rem solid var(--signal-cobalt);
+  background: var(--paper-2);
+  border-radius: 0 var(--radius-m) var(--radius-m) 0;
+  font: 500 clamp(20rem, 2.4vw, 28rem)/1.15 var(--font-display);
+  letter-spacing: -.03em;
+  min-height: 88rem;
+}
+.compose__closing-input {
+  margin-top: 8rem;
+  padding-top: 20rem;
+  border-top: var(--stroke) solid var(--ink);
+  font: 500 clamp(20rem, 2.4vw, 30rem)/1.15 var(--font-display);
+  letter-spacing: -.035em;
+  min-height: 72rem;
+}
+.compose__list-input {
+  font: 400 17rem/1.55 var(--font-body);
+  padding-left: 1em;
+  min-height: 88rem;
+}
+.compose__callout-edit {
+  padding: 14rem;
+  background: var(--signal-field);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-m);
+  display: grid;
+  gap: 8rem;
+}
+.compose__figure-edit {
+  padding: 12rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-m);
+  background: var(--paper-2);
+  display: grid;
+  gap: 10rem;
+  cursor: pointer;
+}
+.compose__figure-frame {
+  overflow: hidden;
+  border-radius: var(--radius-s);
+  background: #F7F1E4;
+  aspect-ratio: 16 / 9;
+}
+.compose__figure-frame :deep(.ed-editorial-image),
+.compose__figure-frame :deep(img) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.compose__figure-empty {
+  display: grid;
+  place-items: center;
+  min-height: 140rem;
+  padding: 16rem;
+  border: var(--stroke) dashed var(--ink);
+  border-radius: var(--radius-s);
+  color: var(--ink-soft);
+  text-align: center;
+  font-size: 14rem;
+}
+.compose__caption-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 0;
+  border-bottom: var(--stroke) solid var(--line);
+  background: transparent;
+  padding: 4rem 0;
+  font: 400 13rem/1.35 var(--font-mono);
+  color: var(--ink-soft);
+}
+.compose__figure-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rem;
+  align-items: center;
+}
+.compose__inspector {
+  margin-top: 22rem;
+  padding: 14rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-m);
+  background: var(--paper-2);
+  display: grid;
+  gap: 8rem;
+}
 
 @media (max-width: 760px) {
   .compose__layout { grid-template-columns: 1fr; }
-  .compose__meta-grid { grid-template-columns: 1fr; }
-  .compose__ai-form { grid-template-columns: 1fr; }
-  .compose__top-actions { width: 100%; }
-  .compose__btn { flex: 1 1 auto; }
+  .compose__meta-grid, .compose__ai-form { grid-template-columns: 1fr; }
+  .compose__span-2 { grid-column: auto; }
+  .compose__article-grid { grid-template-columns: 1fr; }
+  .compose__margin { position: static; }
+  .compose__hero-frame { aspect-ratio: 4 / 3; border-radius: 0; }
+  .compose__title-input { font-size: clamp(28rem, 9vw, 42rem); }
 }
 </style>

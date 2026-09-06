@@ -5,7 +5,7 @@ import {
   IMAGE_PHASE_BUDGET_MS,
   normalizeImageSource
 } from '../../utils/compose-images'
-import { generateElevateHero } from '../../utils/elevate-hero'
+import { generateElevateHero, parseHeroBrief, pickHeroBrief } from '../../utils/elevate-hero'
 import {
   emptyComposedPost,
   newBlockId,
@@ -321,10 +321,52 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Could not read request body.' })
   }
 
-  const topic = String(body?.topic ?? '').trim()
+  const topic = String(body?.topic ?? body?.title ?? '').trim()
   const notes = String(body?.notes ?? '').trim()
-  const provider = resolveProvider(body?.provider, groqApiKey, geminiApiKey)
+  const heroOnly = Boolean(body?.heroOnly)
   const imageSource = normalizeImageSource(body?.imageSource)
+
+  // ── Hero-only regenerate (no full draft LLM) ──────────────────────────────
+  if (heroOnly) {
+    const title = String(body?.title ?? topic).trim()
+    const dek = String(body?.dek ?? '').trim()
+    const slug = String(body?.slug ?? '').trim() || 'draft'
+    const seedRaw = body?.seed
+    const seed =
+      typeof seedRaw === 'number'
+        ? seedRaw
+        : typeof seedRaw === 'string' && seedRaw.trim()
+          ? seedRaw
+          : Date.now()
+    if (!topic && !title) {
+      throw createError({ statusCode: 400, statusMessage: 'topic or title is required for hero regeneration' })
+    }
+    const briefFromBody = parseHeroBrief(body?.heroBrief)
+    try {
+      const hero = await generateElevateHero({
+        topic: topic || title,
+        slug,
+        title,
+        dek,
+        seed,
+        brief: briefFromBody
+      })
+      return {
+        hero: hero.dataUrl,
+        heroAlt: hero.alt,
+        heroBrief: hero.brief,
+        motif: hero.motif,
+        heroOnly: true
+      }
+    } catch (heroErr: any) {
+      throw createError({
+        statusCode: 502,
+        statusMessage: heroErr?.message || 'Hero regeneration failed'
+      })
+    }
+  }
+
+  const provider = resolveProvider(body?.provider, groqApiKey, geminiApiKey)
 
   if (!topic) {
     throw createError({ statusCode: 400, statusMessage: 'topic is required' })
@@ -445,11 +487,20 @@ export default defineEventHandler(async (event) => {
   let imageWarning: string | undefined
   let imageSourceUsed = imageSource
 
-  // Procedural Elevate hero ALWAYS — cream/ink/cobalt math art (not Gemini/Gamma).
+  // Conceptual Elevate hero ALWAYS — topic-driven metaphor (not Gemini/Gamma noise).
+  // Prefer LLM heroBrief from the draft JSON; fall back to heuristic pickHeroBrief.
+  let heroBriefUsed = parseHeroBrief(parsed?.heroBrief) || pickHeroBrief(topic, post.slug, post.title, post.dek)
   try {
-    const hero = await generateElevateHero({ topic, slug: post.slug })
+    const hero = await generateElevateHero({
+      topic,
+      slug: post.slug,
+      title: post.title,
+      dek: post.dek,
+      brief: heroBriefUsed
+    })
     post.hero = hero.dataUrl
-    post.heroAlt = hero.alt
+    post.heroAlt = hero.alt || post.heroAlt
+    heroBriefUsed = hero.brief
   } catch (heroErr: any) {
     imageWarning = heroErr?.message || 'Procedural Elevate hero failed'
   }
@@ -494,6 +545,7 @@ export default defineEventHandler(async (event) => {
     provider,
     model,
     imageSource: imageSourceUsed,
-    imageWarning: imageWarning || undefined
+    imageWarning: imageWarning || undefined,
+    heroBrief: heroBriefUsed
   }
 })

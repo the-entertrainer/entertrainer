@@ -2,29 +2,69 @@
 
 Gate keyword: `iamguru` (session unlock). Drafts and publishes update `content/composed-posts.json` — locally via the filesystem in `nuxt dev`, and in production by committing to GitHub so Vercel redeploys.
 
+## WYSIWYG editor
+
+Default mode is **Canvas** — a live article surface that mirrors Elevate reading rhythm:
+
+- Large hero at the top (`EdEditorialImage`, ~16:8.5) with **Regenerate hero**
+- Inline title / dek fields styled like the published article
+- Sticky margin note + prose blocks
+- **Figures show full inline images**; click a figure to edit caption/alt/src in place (Paste URL / Remove image)
+- Dual mode: **Canvas** (default) ↔ **Fields** (classic meta grid + block cards). Choice persists in `localStorage` as `et-compose-mode`
+
+Mobile-first: single column under ~760px; hero goes edge-to-edge.
+
+Keep the iamguru gate, AI generate panel, and publish to `POST /api/compose/posts`.
+
 ## AI draft (one-click)
 
 After unlock, use the **AI draft** panel: pick a provider, enter a topic (optional notes), and click **Generate draft**.
 
-- Route: `POST /api/compose/generate` with `{ topic, notes?, provider?: 'groq' | 'gemini' }`
+- Route: `POST /api/compose/generate` with `{ topic, notes?, provider?: 'groq' | 'gemini', imageSource?, heroOnly? }`
 - Providers:
   - **Groq** (default when `GROQ_API_KEY` is set): model **`groq/compound`** (override via `GROQ_MODEL`)
   - **Gemini**: model **`gemini-3.5-flash-lite`** (override via `GEMINI_MODEL`)
 - If `provider` is omitted, the API picks Groq when its key is present, otherwise Gemini
 - UI choice is persisted in `localStorage` as `et-compose-provider`
 - Skills: condensed `naveen-curiosity-science-blog` + `say-it-like-naveen` in `server/prompts/`
-- Returns `{ post, provider, model }` into the composer for polish — does **not** auto-publish
-- **Procedural Elevate hero** (always): `server/utils/elevate-hero.ts` builds a cream/ink/cobalt cover from topic+slug seed — motif families (ribbons, ripples, orbits, dual profiles, fragments, grid, Voronoi, flows), value/simplex noise, Bézier geometry. Rasterized to PNG via `@resvg/resvg-js` when available (else SVG `data:`). Sets `post.hero` + `heroAlt` on every successful Generate.
-- Figure images are enriched afterward (non-blocking) from the **Images** control (hero slot skipped — procedural owns the cover):
-  - **Commons** (default): Wikimedia Commons / Openverse CC0–PD (or clearly credited CC) for inline figures
-  - **Gemini**: Elevate-style figures via `GEMINI_API_KEY` + `GEMINI_IMAGE_MODEL` (default `gemini-2.5-flash-image`)
-  - **Gamma**: figures via `GAMMA_API_KEY` (`POST https://public-api.gamma.app/v1.0/images`, poll for `image.url`)
-- Generate always sets `post.hero` + `heroAlt` so the editor shows an immediate preview (`data:image/png` / `data:image/svg+xml`). Publish localizes to `public/blog/<slug>/hero.png` (or `.svg`)
-- Pass `imageSource?: 'commons' | 'gemini' | 'gamma'` on generate; UI stores choice in `localStorage` as `et-compose-image-source`
-- If Gemini/Gamma fails or the key is missing, falls back to Commons and returns `imageWarning`
-- Gamma/Gemini images are budgeted on Vercel (~20–25s after text, parallel, fewer slots); slow gens may fall back to Commons
-- Editor: hero + figure blocks show `<EdEditorialImage>` previews. `localStorage` strips `data:image/` for quota; `sessionStorage` keeps them for in-tab refresh until Publish commits to `/blog/<slug>/…`
+- Returns `{ post, provider, model, heroBrief?, imageWarning? }` into the composer for polish — does **not** auto-publish
 - If the model refuses or returns empty JSON, the API retries once with a scientific / cognitive-psychology reframe
+
+### Hero pipeline (conceptual, not decorative)
+
+Heroes are **always** procedural Elevate covers from `server/utils/elevate-hero.ts` — cream `#F7F1E4` / ink `#0B0B0C` / cobalt `#2F5BD8`, flat editorial, **one clear metaphor** matching `public/blog/*/hero.jpg` DNA (e.g. head → tangled roads vs one cobalt path).
+
+1. LLM draft JSON includes optional `heroBrief`: `{ metaphor, motif, focal, cobaltRole }`
+2. Server resolves brief (LLM → heuristic from title/dek/topic → default tangled-paths)
+3. Motif renderer builds structured SVG (silhouettes, Bézier “roads”, orbits, scales, ripples…) — **not** random fBm sludge
+4. Rasterize PNG via `@resvg/resvg-js` when available (else SVG `data:`)
+5. Always set `post.hero` + `heroAlt`; figures stay Commons / Gemini / Gamma
+
+Motif families: `tangled-paths` · `ripples` · `orbits` · `dual-minds` · `balance` · `shatter` · `grid-anomaly` · `flow-thread`
+
+**Regenerate hero only:** `POST /api/compose/generate` with `{ heroOnly: true, topic|title, dek?, slug?, seed?, heroBrief? }` → `{ hero, heroAlt, heroBrief, motif, heroOnly: true }` (no full draft LLM, no figure enrichment).
+
+### Figure images
+
+Figure enrichment runs after text (non-blocking) from the **Images** control (hero slot skipped — procedural owns the cover):
+
+- **Commons** (default): Wikimedia Commons / Openverse CC0–PD (or clearly credited CC)
+- **Gemini**: Elevate-style figures via `GEMINI_API_KEY` + `GEMINI_IMAGE_MODEL` (default `gemini-2.5-flash-image`)
+- **Gamma**: figures via `GAMMA_API_KEY` (`POST https://public-api.gamma.app/v1.0/images`, poll for `image.url`)
+
+Pass `imageSource?: 'commons' | 'gemini' | 'gamma'` on generate; UI stores choice in `localStorage` as `et-compose-image-source`.
+
+If Gemini/Gamma fails or the key is missing, falls back to Commons and returns `imageWarning`. Gamma/Gemini images are budgeted on Vercel (~20–25s after text); slow gens may fall back to Commons.
+
+Editor: hero + figure blocks show `<EdEditorialImage>` previews. `localStorage` strips `data:image/` for quota; `sessionStorage` keeps them for in-tab refresh until Publish commits to `/blog/<slug>/…`.
+
+### Mage Space — not integrated
+
+**Mage Space has no public API** (invite-only beta; automation / scraping is forbidden). Do **not** scrape Mage or attempt unofficial clients.
+
+- To enable later: request API beta from **mage@mage.space**
+- Composer UI shows a disabled row: “Mage Space · contact for API beta”
+- Keep Gemini / Gamma / Commons for figures; heroes remain procedural Elevate covers
 
 ### Free-tier notes — Groq (from live probes)
 

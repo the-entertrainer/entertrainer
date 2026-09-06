@@ -3,9 +3,9 @@ import { FEATURED_BLOG } from '~/content/blogs'
 
 useSeoMeta({
   title: 'About Me · Naveen Jose · Entertrainer',
-  description: 'Naveen Jose writes about moving from hotel operations into learning design, building tools, and making The SEWA Chronicles.',
+  description: 'Naveen Jose on growing up in a Kerala farming village, learning from machines, housekeeping at Club Mahindra, making The SEWA Chronicles, and building Entertrainer as instructional design.',
   ogTitle: 'About Me · Naveen Jose',
-  ogDescription: 'From hotel operations to learning design, tools, and The SEWA Chronicles.',
+  ogDescription: 'From a Kerala cocoon to machines, hotel floors, The SEWA Chronicles, and learning design. The longer route behind Entertrainer.',
   ogUrl: 'https://entertrainer.in/about'
 })
 </script>
@@ -14,37 +14,121 @@ useSeoMeta({
   <main id="main" class="about-story">
     <header class="about-story__hero">
       <div class="about-story__intro">
-        <h1>I started on hotel floors.</h1>
-        <p class="about-story__deck">Now I build learning, tools, and the occasional comic.</p>
+        <h1>Zero dreams. A thousand fears.</h1>
+        <p class="about-story__deck">Then machines. Then hotel floors. Then comics. Then this.</p>
       </div>
       <EdPaperSignal class="about-story__hero-art" variant="route" label="A yellow Paper Signal illustration for Naveen Jose's career story" />
     </header>
 
     <article class="about-story__article">
       <p>
-        People often see the learning modules, the tools, or the website first. Fair enough. They are easier to put in a link.
-        But the part that explains how I work began in hotels, where you learn very quickly that a small detail can change somebody’s entire day.
+        People usually meet the site first. The modules. The tools. The neat little Entertrainer logo.
+        Fair enough. Those are easier to put in a link.
+      </p>
+      <p>
+        The part that explains how I work started much earlier — and with a lot less confidence.
       </p>
 
-      <h2>Hotel work taught me to notice.</h2>
+      <h2>I was a severe introvert with nothing to prove.</h2>
       <p>
-        I studied hotel management in Chennai and started on hotel floors. The job was not dramatic. It was service work: notice what is missing, respond before a small problem becomes a long conversation, and remember that a guest is usually carrying more than the thing they are complaining about.
+        Childhood: zero dreams, a thousand fears. Confronting people felt like walking into weather I had not packed for.
+        Anxiety sat in the room before I did.
       </p>
       <p>
-        That stayed with me. A confusing instruction, a badly timed training session, or a tool that asks somebody to think harder than necessary is also a service problem. It just happens on a screen instead of at a reception desk.
+        Farmers family. A village in central Kerala. My father is a farmer — sharp, intelligent, and quietly dangerous in the best way.
+        His habit was unlocking extra doors. Same problem, different thought process. That one habit shaped more of my later life than any career brochure ever did.
       </p>
 
       <figure class="about-story__figure about-story__figure--wide">
-        <EdPaperSignal variant="lesson" label="A yellow Paper Signal illustration for hospitality work and learning" />
-        <figcaption>Chennai · hotel management</figcaption>
+        <EdPaperSignal variant="lesson" label="A yellow Paper Signal illustration for Kerala village beginnings" />
+        <figcaption>Central Kerala · farmers family</figcaption>
       </figure>
 
-      <h2>The report became a comic.</h2>
+      <h2>School felt like weaving a cocoon.</h2>
       <p>
-        At Club Mahindra, I moved into Learning and Development while working as a housekeeper. I was asked to work with real resort service stories. Somewhere in that process, the report became a sixteen-page comic called <em>The SEWA Chronicles</em>.
+        There was a lot of indirect discrimination. The kind that comes with “didn’t mean it.”
+        Academics dropped. The first thirteen years or so felt like a caterpillar weaving a cocoon — not for drama, for survival.
       </p>
       <p>
-        I reported the stories, wrote the script, drew the pages, and laid out the publication. It was an early project, so naturally I tried to do several jobs at once. In hindsight, that was either commitment or poor resource planning. Both can look identical from a distance.
+        I found peace in being alone. The calm you can’t really share, because it comes from solitude.
+        Alone in the universe, I thought. That was the first reading of the cocoon.
+      </p>
+      <p>
+        Then my father flipped the metaphor.
+      </p>
+      <p>
+        The cocoon is not exile. It is cover. Space to try and fail without an audience taking notes.
+        Once I heard it that way, everything changed. Quietly. Permanently.
+      </p>
+
+      <h2>Machines made excellent company.</h2>
+      <p>
+        Computers were still a novelty then. And machines, bless them, have no mind.
+        They obey written rules. They do not form emotional judgements about whether you are interesting enough today.
+      </p>
+      <p>
+        Best companion to work on yourself.
+      </p>
+      <p>
+        I explored machines, the internet, books. Closed up learning, reading, exploring, teaching myself.
+        The hardest distractions, I later realised, are humans. Glad I did not have much of that then.
+      </p>
+      <p>
+        I got addicted to logic. Rules. The base of programming.
+        Every machine is logic and instructions. Later I learned minds work similarly — messier compiler, same hunger for structure.
+      </p>
+
+      <figure class="about-story__figure">
+        <EdPaperSignal variant="evidence" label="A yellow Paper Signal illustration for learning with machines" />
+        <figcaption>Machines · logic · self-teaching</figcaption>
+      </figure>
+
+      <h2>After school, I needed a degree that earns a job.</h2>
+      <p>
+        Zero idea of career. No real guidance. Practical question only: what degree gets you employed.
+        Answer: hospitality.
+      </p>
+      <p>
+        IHMCT&amp;AN, Chennai. Prestigious. Often called the number one hotel management institute.
+        In the final year I was selected as a Club Mahindra (MHRIL) Management Trainee — housekeeping.
+      </p>
+      <p>
+        First deployment: Udaipur, Rajasthan. Cleaned rooms. Mopped floors and stairs.
+        Fifteen to eighteen hours a day. All days. No weekly offs.
+      </p>
+      <p>
+        Hotels are unforgiving at first. Then they give you a discipline you do not get from corporates.
+        Somewhere in that stretch I heard myself think: I can do this all day.
+      </p>
+      <p>
+        South Goa, Varca: supervisor. I still love housekeeping as art plus science.
+        There is beauty in details — the kind guests notice without knowing they noticed.
+      </p>
+
+      <figure class="about-story__figure about-story__figure--wide">
+        <EdPaperSignal variant="route" label="A yellow Paper Signal illustration for hotel operations work" />
+        <figcaption>Udaipur · Varca · hotel floors</figcaption>
+      </figure>
+
+      <h2>Then someone asked for a culture we could call ours.</h2>
+      <p>
+        Coorg. I was handpicked by Mr. Prakash Aranha — corporate L&amp;D for resort operations.
+        His dream: something cultural Club Mahindra could call “ours.”
+        SEWA — Service with Empathy, Warmth and Attentiveness — told as illustrated employee appreciation.
+      </p>
+      <p>
+        I responded.
+      </p>
+      <p>
+        After about three months, the first volume of <em>The SEWA Chronicles</em>:
+        ten selected stories from seventy-plus resorts across India. Printed. Real.
+      </p>
+      <p>
+        Why it hit was not just the visuals.
+        The stories were sourced from company portal logs from the start.
+        I picked impactful ones where the employee was still in the company, contacted them without revealing the purpose,
+        spoke to managers and colleagues to verify — then printed.
+        Design met Aranha’s vision. That combination is what made the thing land.
       </p>
 
       <aside id="sewa-chronicles" class="about-story__sewa" aria-labelledby="sewa-title">
@@ -55,45 +139,34 @@ useSeoMeta({
           <div class="about-story__destination-copy">
             <p class="about-story__destination-label">Comic preview</p>
             <h2 id="sewa-title">The SEWA Chronicles</h2>
-            <p id="sewa-description">A sixteen-page comic based on real resort service stories at Club Mahindra.</p>
+            <p id="sewa-description">First volume: ten verified SEWA stories from seventy-plus Club Mahindra resorts, printed as employee appreciation.</p>
             <span class="about-story__destination-action">Open The SEWA Chronicles</span>
           </div>
         </NuxtLink>
       </aside>
 
-      <h2>Training has to survive real life.</h2>
+      <h2>Hotel floors kept teaching. Then I chased learning design.</h2>
       <p>
-        Later, at Courtyard by Marriott, I worked on certification programmes for teams from frontline associates to managers. That made the rule even clearer: a training programme is not successful because it has been launched. It has to be finished, understood, and used after the session ends.
+        I continued with Mahindra until I became Assistant L&amp;D Manager at Courtyard by Marriott, Mahabaleshwar.
+        Genius minds around the table. Running HR department responsibility shaped me more than any soft skill workshop.
       </p>
       <p>
-        It sounds obvious when written down. A lot of things do. Then somebody puts a twenty-seven-step process into a slide deck and suddenly the obvious has escaped the building.
-      </p>
-
-      <figure class="about-story__figure">
-        <EdPaperSignal variant="evidence" label="A yellow Paper Signal illustration for practical training work" />
-        <figcaption>Courtyard by Marriott · learning and development</figcaption>
-      </figure>
-
-      <h2>I started building the missing tools.</h2>
-      <p>
-        I build learning in Articulate Storyline and I build the small tools around the work as well. StoryGen, EasyMCQ, Cadence, and this site exist because repetitive work has a way of introducing itself every Monday as if we have never met before.
+        Then I chased Instructional Design properly.
+        Now I am at Concentrix, creating work that matters — turning operational detail into learning people can actually use.
       </p>
       <p>
-        I do not build tools because every task needs an app. I build them when the same useful step keeps getting buried under copying, checking, formatting, or remembering where the previous version went.
-      </p>
-
-      <h2>Where I am now.</h2>
-      <p>
-        I work with the Training-as-a-Service team at Concentrix, turning operational detail into e-learning for teams. I use motion, WebGL, and AI when they make an explanation clearer or a task easier to complete. If they do not, they are just furniture with electricity.
+        This blog. This site. Entertrainer.
+        The place where the cocoon, the machines, the hotels, the comics, and the learning design finally share one address.
       </p>
       <p>
-        That is also what Entertrainer is for: a place to put the stories, tools, courses, and experiments that come out of this work. Some will be useful immediately. Some will need time. Both are allowed.
+        Some pieces will be useful immediately. Some will need time.
+        Both are allowed. I am still weaving. Just with better light.
       </p>
     </article>
 
     <footer class="about-story__close">
       <EdNote label="A line I keep" accent="var(--signal-cobalt)">
-        <p>Asatoma Sadgamaya — from ignorance, toward truth.</p>
+        <p>The cocoon was never the end of the story. It was the room where I learned to begin.</p>
       </EdNote>
       <NuxtLink to="/elevate" class="about-story__destination about-story__destination--elevate" aria-labelledby="elevate-preview-title" aria-describedby="elevate-preview-description">
         <figure class="about-story__destination-visual">
@@ -114,12 +187,12 @@ useSeoMeta({
 /* About Me: first-person editorial story with a narrow reading rhythm, quiet diagrams, and no portfolio-card choreography. */
 .about-story { max-width: var(--shell-page); margin: 0 auto; padding: clamp(44rem, 8vw, 112rem) var(--shell-gutter) clamp(70rem, 10vw, 130rem); }
 .about-story__hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260rem, .85fr); gap: clamp(32rem, 8vw, 120rem); align-items: end; padding-bottom: clamp(46rem, 8vw, 86rem); border-bottom: var(--stroke) solid var(--ink); }
-.about-story h1 { max-width: 8ch; margin: 0; font: 500 clamp(66rem, 11vw, 152rem)/.79 var(--font-display); letter-spacing: -.08em; }
-.about-story__deck { max-width: 26ch; margin: 22rem 0 0; font: 400 clamp(20rem, 2.3vw, 28rem)/1.3 var(--font-reading); }
+.about-story h1 { max-width: 14ch; margin: 0; font: 500 clamp(66rem, 11vw, 152rem)/.79 var(--font-display); letter-spacing: -.08em; }
+.about-story__deck { max-width: 32ch; margin: 22rem 0 0; font: 400 clamp(20rem, 2.3vw, 28rem)/1.3 var(--font-reading); }
 .about-story__hero-art { min-height: 250rem; border: 0; }
 .about-story__article { max-width: 720rem; margin: clamp(54rem, 9vw, 118rem) auto 0; font: 400 clamp(18rem, 1.85vw, 22rem)/1.62 var(--font-reading); }
 .about-story__article > p { max-width: 62ch; margin: 0 0 24rem; }
-.about-story__article h2 { max-width: 18ch; margin: clamp(54rem, 9vw, 96rem) 0 20rem; font: 500 clamp(36rem, 5.5vw, 68rem)/.94 var(--font-display); letter-spacing: -.055em; }
+.about-story__article h2 { max-width: 28ch; margin: clamp(54rem, 9vw, 96rem) 0 20rem; font: 500 clamp(36rem, 5.5vw, 68rem)/.94 var(--font-display); letter-spacing: -.055em; }
 .about-story__figure { width: min(100%, 560rem); margin: clamp(42rem, 7vw, 80rem) 0 clamp(50rem, 8vw, 92rem) auto; }
 .about-story__figure--wide { width: min(100%, 640rem); margin-left: calc(clamp(0rem, 8vw, 110rem) * -1); }
 .about-story__figure :deep(.ps-art) { min-height: 230rem; border-radius: var(--radius-m); }
@@ -131,7 +204,7 @@ useSeoMeta({
 .about-story__destination--sewa .about-story__destination-visual :deep(img) { object-position: center; }
 .about-story__destination-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(24rem, 5vw, 48rem); }
 .about-story__destination-label { margin: 0 0 16rem; color: var(--ink-soft); font: 700 11rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
-.about-story__destination h2 { max-width: 16ch; margin: 0; font: 500 clamp(34rem, 4.2vw, 58rem)/.95 var(--font-display); letter-spacing: -.055em; }
+.about-story__destination h2 { max-width: 18ch; margin: 0; font: 500 clamp(34rem, 4.2vw, 58rem)/.95 var(--font-display); letter-spacing: -.055em; }
 .about-story__destination-copy > p:not(.about-story__destination-label) { max-width: 43ch; margin: 16rem 0 0; font: 400 17rem/1.5 var(--font-reading); }
 .about-story__destination-action { display: inline-flex; margin-top: 24rem; padding: 10rem 14rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-s); font: 800 14rem/1.1 var(--font-body); transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring); }
 .about-story__destination:hover, .about-story__destination:focus-visible { background: var(--paper); transform: translateY(-3rem); }

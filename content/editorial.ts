@@ -58,7 +58,7 @@ export const CATEGORIES: CategoryMeta[] = [
   { id: 'tools', label: 'Tools', accent: 'var(--cat-tools)', onAccent: 'var(--on-cat-tools)',
     blurb: 'Free browser tools for writing, planning, making quizzes, and catching an idea before it disappears.' },
   { id: 'story', label: 'Story', accent: 'var(--cat-story)', onAccent: 'var(--on-cat-story)',
-    blurb: 'How I went from hotel floors to making learning design. The route was not exactly linear.' },
+    blurb: 'From a Kerala cocoon to machines, hotel floors, comics, and learning design. The route was not exactly linear.' },
   { id: 'lab', label: 'Experiments', accent: 'var(--cat-lab)', onAccent: 'var(--on-cat-lab)',
     blurb: 'Small design experiments for seeing what happens when one idea is pushed further.' },
   { id: 'notes', label: 'Documentation', accent: 'var(--cat-notes)', onAccent: 'var(--on-cat-notes)',
@@ -163,15 +163,15 @@ export const ITEMS: EditorialItem[] = [
   },
   {
     id: 'about',
-    title: 'How I went from hospitality to learning design',
-    dek: 'I studied hotel management and started on the floor. The comic I drew at Club Mahindra was where design stopped being a side interest and started asking for its own chair.',
+    title: 'Zero dreams. A thousand fears. Then this.',
+    dek: 'Kerala village, machines as companions, Club Mahindra housekeeping, The SEWA Chronicles, Marriott L&D, and instructional design at Concentrix — the longer route behind Entertrainer.',
     category: 'story',
     media: 'essay',
     href: '/about',
     image: '/about-me.png',
     alt: 'Portrait of Naveen Jose',
     stamp: 'About Naveen',
-    minutes: 4,
+    minutes: 8,
     size: 'wide'
   },
   {

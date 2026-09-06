@@ -49,10 +49,13 @@ const githubStatus = ref<GithubPublishStatus | null>(null)
 const githubStatusLabel = computed(() => {
   const s = githubStatus.value
   if (!s) return 'GitHub publish: checking…'
-  if (!s.githubConfigured) return 'GitHub publish: not configured (set COMPOSE_GITHUB_TOKEN on Vercel)'
-  if (s.githubOk === false) return `GitHub publish: token invalid (${s.detail || 'check PAT contents:write'})`
-  if (s.githubOk === true) return `GitHub publish: ready → ${s.repo}@${s.branch}`
-  return `GitHub publish: configured → ${s.repo}@${s.branch}`
+  if (!s.githubConfigured) return 'GitHub publish: not configured'
+  if (s.githubOk === false) {
+    const detail = s.detail ? ` (${s.detail})` : ''
+    return `GitHub publish: token invalid — update COMPOSE_GITHUB_TOKEN on Vercel${detail}`
+  }
+  if (s.githubOk === true) return `GitHub publish: ready (${s.repo} @ ${s.branch})`
+  return `GitHub publish: configured (${s.repo} @ ${s.branch})`
 })
 const githubStatusTone = computed(() => {
   const s = githubStatus.value
@@ -237,6 +240,17 @@ async function persist(status: 'draft' | 'published') {
   if (!draft.value.title.trim()) {
     statusMessage.value = 'Add a title first.'
     return
+  }
+
+  if (
+    status === 'published' &&
+    githubStatus.value?.githubConfigured &&
+    githubStatus.value.githubOk === false
+  ) {
+    const ok = confirm(
+      'GitHub publish token looks invalid. Publish will likely fail until COMPOSE_GITHUB_TOKEN is updated on Vercel. Continue anyway?'
+    )
+    if (!ok) return
   }
 
   saving.value = true
@@ -720,18 +734,22 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
 }
 .compose__preview-frame {
   overflow: hidden;
+  max-height: 180px;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
   background: #F7F1E4;
   aspect-ratio: 4 / 3;
 }
 .compose__preview-frame--hero {
+  max-height: 220px;
   aspect-ratio: 16 / 9;
 }
 .compose__preview-frame :deep(.ed-editorial-image),
 .compose__preview-frame :deep(img) {
+  display: block;
   width: 100%;
   height: 100%;
+  max-height: inherit;
   object-fit: cover;
 }
 .compose__top {

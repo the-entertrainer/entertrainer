@@ -48,24 +48,77 @@
     return data || {};
   }
 
-  function expand(plot, tone) {
-    return call('expand', { plot, tone: tone || undefined });
+  function expand(plot, tone, density) {
+    return call('expand', {
+      plot,
+      tone: tone || undefined,
+      density: density || 'studio',
+    });
   }
 
-  function chat(messages, outline) {
-    return call('chat', { messages, outline });
+  function chat(messages, outline, density) {
+    return call('chat', {
+      messages,
+      outline,
+      density: density || (outline && outline.density) || 'studio',
+    });
   }
 
-  function bible(outline) {
-    return call('bible', { outline });
+  function densify(outline, density, plot) {
+    return call('densify', {
+      outline,
+      density: density || (outline && outline.density) || 'studio',
+      plot: plot || undefined,
+    });
   }
 
-  function pages(outline, bibleDoc, chapterId) {
+  function bible(outline, density) {
+    return call('bible', {
+      outline,
+      density: density || (outline && outline.density) || 'studio',
+    });
+  }
+
+  function pages(outline, bibleDoc, chapterId, density) {
     return call('pages', {
       outline,
       bible: bibleDoc,
       chapterId: chapterId || undefined,
+      density: density || (outline && outline.density) || 'studio',
     });
+  }
+
+  /** Studio/epic: generate per chapter and merge. Draft: one shot. */
+  async function pagesForStory(outline, bibleDoc, density) {
+    const d = density || (outline && outline.density) || 'studio';
+    const chapters = (outline && outline.chapters) || [];
+    if (d === 'draft' || !chapters.length) {
+      return pages(outline, bibleDoc, undefined, d);
+    }
+    const allPages = [];
+    const seen = new Set();
+    for (let i = 0; i < chapters.length; i++) {
+      const ch = chapters[i];
+      const res = await pages(outline, bibleDoc, ch.id, d);
+      const chunk = res.pages || [];
+      for (const pg of chunk) {
+        // Keep first cover, last back; skip duplicate covers from later chapters
+        if (pg.kind === 'cover' && seen.has('__cover__')) continue;
+        if (pg.kind === 'cover') seen.add('__cover__');
+        if (pg.kind === 'back') {
+          // defer backs until end
+          continue;
+        }
+        if (!pg.chapterId && pg.kind === 'story') pg.chapterId = ch.id;
+        allPages.push(pg);
+      }
+      // Collect back from last chapter only
+      if (i === chapters.length - 1) {
+        const backs = chunk.filter((p) => p.kind === 'back');
+        allPages.push(...backs);
+      }
+    }
+    return { pages: allPages };
   }
 
   function charLookup(bibleDoc) {
@@ -178,6 +231,6 @@
   }
 
   global.DialogueStory = {
-    health, call, expand, chat, bible, pages, buildProjectFromStoryPage, charLookup, API,
+    health, call, expand, chat, densify, bible, pages, pagesForStory, buildProjectFromStoryPage, charLookup, API,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

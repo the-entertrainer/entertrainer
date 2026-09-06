@@ -137,7 +137,14 @@
       </div>
       <div class="story-scroll" id="story-chat-scroll">
         <div class="story-intro" id="story-intro">
-          <p class="story-lede">Describe a plot in a sentence or two. AI expands it into chapters and scenes you can tweak.</p>
+          <p class="story-lede">Canon Engine expands your plot into a beat graph — conflicts, emotion, webtoon density — then a Visual DNA bible and forge-quality panel prompts.</p>
+          <label class="story-field-label">Power mode</label>
+          <div class="chips density-chips" id="story-density" role="group" aria-label="Power mode">
+            <button type="button" class="chip" data-density="draft">Draft</button>
+            <button type="button" class="chip active" data-density="studio">Studio</button>
+            <button type="button" class="chip" data-density="epic">Epic</button>
+          </div>
+          <p class="story-density-hint" id="story-density-hint">Studio · 12–24 panels/chapter</p>
           <label class="story-field-label" for="story-plot">Plot</label>
           <textarea id="story-plot" class="story-textarea" rows="4" maxlength="800" placeholder="A night-shift barista discovers their regulars are rewriting the city one coffee at a time…"></textarea>
           <label class="story-field-label" for="story-tone">Tone (optional)</label>
@@ -150,6 +157,7 @@
       <div class="story-composer" id="story-composer" hidden>
         <input type="text" id="story-chat-input" class="story-input" maxlength="400" placeholder="Tweak: make chapter 2 shorter…" autocomplete="off"/>
         <button type="button" class="btn-primary" id="story-chat-send">Send</button>
+        <button type="button" class="btn-secondary" id="story-densify" disabled><span data-icon="panels" class="ico"></span> Densify</button>
         <button type="button" class="btn-primary" id="story-approve" disabled>Approve</button>
       </div>
     </section>

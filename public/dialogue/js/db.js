@@ -24,6 +24,16 @@
       meta: 'key',
       stories: 'id, updatedAt, createdAt, title, status',
     });
+    // v3: Canon Engine — density, beatGraph, deep bible/pages on story docs
+    db.version(3).stores({
+      projects: 'id, updatedAt, createdAt, title',
+      pages: 'id, projectId, order',
+      panels: 'id, pageId, order',
+      nodes: 'id, panelId, pageId, type',
+      assets: 'id, projectId, createdAt',
+      meta: 'key',
+      stories: 'id, updatedAt, createdAt, title, status, density',
+    });
     return db;
   }
 
@@ -163,10 +173,12 @@
       id,
       title: 'Untitled Story',
       status: 'draft', // draft | bible | pages | ready
+      density: 'studio', // draft | studio | epic
       plot: '',
       tone: '',
       messages: [],
       outline: null,
+      beatGraph: null, // alias / densified beat graph mirror of outline
       bible: null,
       pages: [],
       projectLinks: {}, // storyPageId -> dialogue projectId

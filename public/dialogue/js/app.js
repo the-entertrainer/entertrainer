@@ -17,6 +17,7 @@
     currentId: null,
     currentStoryId: null,
     storyBusy: false,
+    storyDensity: 'studio',
     editor: null,
     wizard: { formatId: 'webtoon', layoutId: 'stack3', start: null },
     ctxProjectId: null,
@@ -187,8 +188,13 @@
     if (storyInput) storyInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); sendStoryChat(); }
     });
+    const storyDensify = $('#story-densify');
+    if (storyDensify) storyDensify.addEventListener('click', () => densifyStory());
     const storyApprove = $('#story-approve');
     if (storyApprove) storyApprove.addEventListener('click', () => approveOutline());
+    $$('#story-density .chip').forEach((chip) => {
+      chip.addEventListener('click', () => setStoryDensity(chip.getAttribute('data-density') || 'studio'));
+    });
     const storyBibleBack = $('#story-bible-back');
     if (storyBibleBack) storyBibleBack.addEventListener('click', () => showScreen('story-chat'));
     const storyGenPages = $('#story-gen-pages');
@@ -903,6 +909,42 @@
     }
   }
 
+  const DENSITY_HINTS = {
+    draft: 'Draft · 4–8 panels/chapter',
+    studio: 'Studio · 12–24 panels/chapter',
+    epic: 'Epic · 24–40 panels/chapter (batched)',
+  };
+
+  function setStoryDensity(d) {
+    const density = (d === 'draft' || d === 'epic') ? d : 'studio';
+    state.storyDensity = density;
+    $$('#story-density .chip').forEach((c) => {
+      c.classList.toggle('active', c.getAttribute('data-density') === density);
+    });
+    const hint = $('#story-density-hint');
+    if (hint) hint.textContent = DENSITY_HINTS[density] || DENSITY_HINTS.studio;
+  }
+
+  function syncDensityFromStory(story) {
+    const d = (story && story.density) || (story && story.outline && story.outline.density) || state.storyDensity || 'studio';
+    setStoryDensity(d);
+  }
+
+  function swatchHtml(colors) {
+    if (!colors || !colors.length) return '';
+    return `<div class="swatches">${colors.map((c) => `<span class="swatch" style="background:${escapeHtml(c)}" title="${escapeHtml(c)}"></span>`).join('')}</div>`;
+  }
+
+  function beatBadge(beat) {
+    const b = String(beat || 'setup');
+    return `<span class="beat-pill beat-${escapeHtml(b)}">${escapeHtml(b)}</span>`;
+  }
+
+  function shotBadge(shot) {
+    const s = String(shot || 'medium');
+    return `<span class="shot-pill">${escapeHtml(s)}</span>`;
+  }
+
   async function openStoryChat(existingId) {
     haptic(10);
     if (existingId) {
@@ -910,13 +952,15 @@
       if (!story) return;
       state.currentStoryId = story.id;
       showScreen('story-chat');
+      syncDensityFromStory(story);
       renderStoryChat(story);
       return;
     }
-    const story = DialogueDB.emptyStory({ title: 'Untitled Story', status: 'draft' });
+    const story = DialogueDB.emptyStory({ title: 'Untitled Story', status: 'draft', density: state.storyDensity || 'studio' });
     await DialogueDB.saveStory(story);
     state.currentStoryId = story.id;
     showScreen('story-chat');
+    syncDensityFromStory(story);
     renderStoryChat(story);
   }
 
@@ -924,6 +968,7 @@
     const story = await DialogueDB.getStory(id);
     if (!story) return;
     state.currentStoryId = id;
+    syncDensityFromStory(story);
     if (story.status === 'pages' || story.status === 'ready') {
       showScreen('story-pages');
       renderStoryPages(story);
@@ -946,10 +991,13 @@
     const outlineCard = $('#story-outline-card');
     const composer = $('#story-composer');
     const approve = $('#story-approve');
+    const densifyBtn = $('#story-densify');
     const hasOutline = !!(story.outline && story.outline.chapters && story.outline.chapters.length);
+    syncDensityFromStory(story);
     if (intro) intro.hidden = hasOutline;
     if (composer) composer.hidden = !hasOutline;
     if (approve) approve.disabled = !hasOutline || state.storyBusy;
+    if (densifyBtn) densifyBtn.disabled = !hasOutline || state.storyBusy;
     if (!hasOutline) {
       if ($('#story-plot')) $('#story-plot').value = story.plot || '';
       if ($('#story-tone')) $('#story-tone').value = story.tone || '';
@@ -976,13 +1024,22 @@
   function outlineHtml(outline) {
     if (!outline) return '';
     const chapters = outline.chapters || [];
+    const density = outline.density || state.storyDensity || 'studio';
     const chHtml = chapters.map((ch, i) => {
-      const scenes = (ch.scenes || []).map((sc) => `<li>${escapeHtml(sc.summary || sc.id)}</li>`).join('');
-      return `<div class="story-chapter"><h3>${i + 1}. ${escapeHtml(ch.title || 'Chapter')}</h3><p>${escapeHtml(ch.summary || '')}</p>${scenes ? `<ul>${scenes}</ul>` : ''}</div>`;
+      const scenes = (ch.scenes || []).map((sc) => {
+        const meta = [
+          sc.beat ? beatBadge(sc.beat) : '',
+          sc.conflict ? `<span class="beat-meta"><strong>Conflict</strong> ${escapeHtml(sc.conflict)}</span>` : '',
+          sc.emotion ? `<span class="beat-meta"><strong>Emotion</strong> ${escapeHtml(sc.emotion)}</span>` : '',
+        ].filter(Boolean).join(' ');
+        return `<li class="beat-li"><div class="beat-sum">${escapeHtml(sc.summary || sc.id)}</div>${meta ? `<div class="beat-row">${meta}</div>` : ''}</li>`;
+      }).join('');
+      const arc = ch.arcRole ? `<span class="arc-pill">${escapeHtml(ch.arcRole)}</span>` : '';
+      return `<div class="story-chapter"><h3>${i + 1}. ${escapeHtml(ch.title || 'Chapter')} ${arc}</h3><p>${escapeHtml(ch.summary || '')}</p>${scenes ? `<ul class="beat-list">${scenes}</ul>` : ''}</div>`;
     }).join('');
     return `<h2>${escapeHtml(outline.title || 'Untitled')}</h2>
       <p class="logline">${escapeHtml(outline.logline || '')}</p>
-      <div class="meta-row"><span>${chapters.length} chapters</span><span>~${escapeHtml(String(outline.suggestedPages || '?'))} pages</span></div>
+      <div class="meta-row"><span class="density-pill">${escapeHtml(density)}</span><span>${chapters.length} chapters</span><span>~${escapeHtml(String(outline.suggestedPages || '?'))} pages</span></div>
       ${chHtml}
       ${outline.rationale ? `<p class="logline">${escapeHtml(outline.rationale)}</p>` : ''}`;
   }
@@ -994,14 +1051,14 @@
 
   function setStoryBusy(busy) {
     state.storyBusy = !!busy;
-    ['story-expand', 'story-chat-send', 'story-approve', 'story-gen-pages'].forEach((id) => {
+    ['story-expand', 'story-chat-send', 'story-densify', 'story-approve', 'story-gen-pages'].forEach((id) => {
       const el = $('#' + id);
       if (!el) return;
       if (busy) {
         el.disabled = true;
         return;
       }
-      // Callers re-enable approve / gen-pages when content is ready.
+      // Callers re-enable approve / gen-pages / densify when content is ready.
       if (id === 'story-expand' || id === 'story-chat-send') el.disabled = false;
     });
   }
@@ -1031,8 +1088,12 @@
       messagesEl.innerHTML = `<div class="story-bubble user">${escapeHtml(plot)}</div><div class="story-bubble assistant">Expanding outline…</div>`;
     }
     try {
-      const res = await DialogueStory.expand(plot, tone);
+      const density = state.storyDensity || 'studio';
+      story.density = density;
+      const res = await DialogueStory.expand(plot, tone, density);
       story.outline = res.outline;
+      story.beatGraph = res.outline;
+      story.density = (res.outline && res.outline.density) || density;
       story.title = (res.outline && res.outline.title) || story.title;
       story.messages.push({ role: 'assistant', content: res.message || 'Outline ready.' });
       story.status = 'draft';
@@ -1052,8 +1113,11 @@
       toast(msg.slice(0, 80));
     } finally {
       setStoryBusy(false);
+      const ready = !!(story.outline && story.outline.chapters && story.outline.chapters.length);
       const approve = $('#story-approve');
-      if (approve) approve.disabled = !(story.outline && story.outline.chapters && story.outline.chapters.length);
+      const densifyBtn = $('#story-densify');
+      if (approve) approve.disabled = !ready;
+      if (densifyBtn) densifyBtn.disabled = !ready;
     }
   }
 
@@ -1072,8 +1136,10 @@
     const messagesEl = $('#story-messages');
     if (messagesEl) messagesEl.innerHTML += `<div class="story-bubble assistant">Updating…</div>`;
     try {
-      const res = await DialogueStory.chat(story.messages, story.outline);
+      const res = await DialogueStory.chat(story.messages, story.outline, story.density || state.storyDensity);
       story.outline = res.outline;
+      story.beatGraph = res.outline;
+      story.density = (res.outline && res.outline.density) || story.density;
       story.title = (res.outline && res.outline.title) || story.title;
       story.messages.push({ role: 'assistant', content: res.message || 'Updated.' });
       await DialogueDB.saveStory(story);
@@ -1087,8 +1153,45 @@
       toast(msg.slice(0, 80));
     } finally {
       setStoryBusy(false);
+      const ready = !!(story.outline && story.outline.chapters && story.outline.chapters.length);
       const approve = $('#story-approve');
-      if (approve) approve.disabled = !(story.outline && story.outline.chapters && story.outline.chapters.length);
+      const densifyBtn = $('#story-densify');
+      if (approve) approve.disabled = !ready;
+      if (densifyBtn) densifyBtn.disabled = !ready;
+    }
+  }
+
+  async function densifyStory() {
+    if (state.storyBusy) return;
+    const story = await getCurrentStory();
+    if (!story || !story.outline) return;
+    setStoryBusy(true);
+    const messagesEl = $('#story-messages');
+    if (messagesEl) messagesEl.innerHTML += `<div class="story-bubble assistant">Densifying beat graph…</div>`;
+    try {
+      const density = story.density || state.storyDensity || 'studio';
+      const res = await DialogueStory.densify(story.outline, density, story.plot);
+      story.outline = res.outline;
+      story.beatGraph = res.outline;
+      story.density = (res.outline && res.outline.density) || density;
+      story.messages = (story.messages || []).concat([{ role: 'assistant', content: res.message || 'Densified.' }]);
+      await DialogueDB.saveStory(story);
+      renderStoryChat(story);
+      haptic(10);
+      toast('Densified');
+    } catch (err) {
+      const msg = (err && err.message) || 'Densify failed';
+      story.messages = (story.messages || []).concat([{ role: 'error', content: msg }]);
+      await DialogueDB.saveStory(story);
+      renderStoryChat(story);
+      toast(msg.slice(0, 80));
+    } finally {
+      setStoryBusy(false);
+      const approve = $('#story-approve');
+      const densifyBtn = $('#story-densify');
+      const ready = !!(story.outline && story.outline.chapters && story.outline.chapters.length);
+      if (approve) approve.disabled = !ready;
+      if (densifyBtn) densifyBtn.disabled = !ready;
     }
   }
 
@@ -1105,7 +1208,7 @@
     if (body) { body.hidden = true; body.innerHTML = ''; }
     if (genBtn) genBtn.disabled = true;
     try {
-      const res = await DialogueStory.bible(story.outline);
+      const res = await DialogueStory.bible(story.outline, story.density || state.storyDensity);
       story.bible = res.bible;
       story.status = 'bible';
       await DialogueDB.saveStory(story);
@@ -1134,22 +1237,64 @@
     if (busy) busy.hidden = true;
     if (body) {
       body.hidden = false;
-      const chars = (bible.characters || []).map((c) => `
-        <div class="story-char">
-          <div class="name">${escapeHtml(c.name || '')} <span class="id">${escapeHtml(c.id || '')}</span></div>
-          <p><strong>${escapeHtml(c.role || '')}</strong> — ${escapeHtml(c.appearance || '')}</p>
-          <p>${escapeHtml(c.personality || '')}${c.relationships ? ' · ' + escapeHtml(c.relationships) : ''}</p>
-        </div>`).join('');
+      const vs = bible.visualStyle;
+      const vsText = (vs && typeof vs === 'object')
+        ? [vs.medium, vs.line, vs.lighting, vs.palette, vs.cameraGrammar].filter(Boolean).join(' · ')
+        : (bible.visualStyleFlat || vs || '');
+      const chars = (bible.characters || []).map((c, idx) => {
+        const dna = c.visualDNA || {};
+        const colors = dna.colorHex || [];
+        const wardrobe = (dna.wardrobeLocked || []).join(', ');
+        const psych = c.psychology || {};
+        const detailId = 'char-detail-' + idx;
+        const dnaLine = [dna.face, dna.hair, dna.body, dna.skin, dna.distinctiveMarks].filter(Boolean).join('; ');
+        return `<div class="story-char-card">
+          <div class="char-card-head">
+            <div>
+              <div class="name">${escapeHtml(c.name || '')} <span class="id">${escapeHtml(c.id || '')}</span></div>
+              <div class="role-line">${escapeHtml(c.role || '')}${c.ageRange ? ' · ' + escapeHtml(c.ageRange) : ''}</div>
+            </div>
+            ${swatchHtml(colors)}
+          </div>
+          <p class="dna-summary">${escapeHtml(dnaLine || c.appearance || '')}</p>
+          ${wardrobe ? `<p class="wardrobe"><strong>Wardrobe lock</strong> ${escapeHtml(wardrobe)}</p>` : ''}
+          <button type="button" class="btn-ghost char-expand" data-expand="${detailId}">Expand detail</button>
+          <div class="char-detail" id="${detailId}" hidden>
+            <p><strong>Want</strong> ${escapeHtml(psych.want || '—')} · <strong>Need</strong> ${escapeHtml(psych.need || '—')}</p>
+            <p><strong>Wound</strong> ${escapeHtml(psych.wound || '—')} · <strong>Lie</strong> ${escapeHtml(psych.lie || '—')}</p>
+            <p><strong>Fear</strong> ${escapeHtml(psych.fear || '—')}</p>
+            <p><strong>Voice</strong> ${escapeHtml((c.voice && c.voice.diction) || c.personality || '—')}</p>
+            <p><strong>Arc</strong> ${escapeHtml(c.arc || '—')}</p>
+          </div>
+        </div>`;
+      }).join('');
       const locs = (bible.locations || []).map((l) => `
-        <div class="story-char">
+        <div class="story-loc-card">
           <div class="name">${escapeHtml(l.name || '')} <span class="id">${escapeHtml(l.id || '')}</span></div>
-          <p>${escapeHtml(l.description || '')}</p>
+          ${swatchHtml(l.palette || [])}
+          <p>${escapeHtml(l.sensory || l.description || '')}</p>
+          ${(l.recurringMotifs || []).length ? `<p class="motifs">${(l.recurringMotifs || []).map((m) => escapeHtml(m)).join(' · ')}</p>` : ''}
         </div>`).join('');
+      const rules = (bible.rules || []).map((r) => `<li>${escapeHtml(r)}</li>`).join('');
+      const motifs = (bible.motifs || []).map((m) => `<span class="motif-chip">${escapeHtml(m)}</span>`).join('');
       body.innerHTML = `
-        <div class="story-bible-block"><h2><span data-icon="book" class="ico"></span> Visual style</h2><p>${escapeHtml(bible.visualStyle || '')}</p><p class="logline">${escapeHtml(bible.toneNotes || '')}</p></div>
-        <div class="story-bible-block"><h2>Characters</h2>${chars || '<p class="logline">None</p>'}</div>
-        <div class="story-bible-block"><h2>Locations</h2>${locs || '<p class="logline">None</p>'}</div>`;
+        <div class="story-bible-block"><h2><span data-icon="book" class="ico"></span> Visual style</h2>
+          <p>${escapeHtml(vsText)}</p>
+          <p class="logline">${escapeHtml(bible.toneNotes || '')}${bible.maturity ? ' · ' + escapeHtml(bible.maturity) : ''}</p>
+        </div>
+        <div class="story-bible-block"><h2>Characters</h2><div class="char-grid">${chars || '<p class="logline">None</p>'}</div></div>
+        <div class="story-bible-block"><h2>Locations</h2><div class="loc-grid">${locs || '<p class="logline">None</p>'}</div></div>
+        ${rules ? `<div class="story-bible-block"><h2>World rules</h2><ul class="rules-list">${rules}</ul></div>` : ''}
+        ${motifs ? `<div class="story-bible-block"><h2>Motifs</h2><div class="motif-row">${motifs}</div></div>` : ''}`;
       hydrateIcons(body);
+      body.querySelectorAll('[data-expand]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const el = document.getElementById(btn.getAttribute('data-expand'));
+          if (!el) return;
+          el.hidden = !el.hidden;
+          btn.textContent = el.hidden ? 'Expand detail' : 'Hide detail';
+        });
+      });
     }
     if (genBtn) genBtn.disabled = false;
   }
@@ -1167,7 +1312,9 @@
     if (busy) { busy.hidden = false; busy.textContent = 'Generating panels…'; }
     if (body) { body.hidden = true; body.innerHTML = ''; }
     try {
-      const res = await DialogueStory.pages(story.outline, story.bible);
+      const density = story.density || state.storyDensity || 'studio';
+      if (busy) busy.textContent = density === 'draft' ? 'Generating panels…' : `Generating ${density} panels by chapter…`;
+      const res = await DialogueStory.pagesForStory(story.outline, story.bible, density);
       story.pages = res.pages || [];
       story.status = 'ready';
       await DialogueDB.saveStory(story);
@@ -1205,19 +1352,25 @@
           const cls = d.balloon === 'caption' ? 'caption' : '';
           return `<div class="story-balloon-line ${cls}">${who ? `<span class="who">${escapeHtml(who)}</span>` : ''}${escapeHtml(d.text || '')}</div>`;
         }).join('');
+        const sub = pan.subtext ? `<p class="panel-subtext">${escapeHtml(pan.subtext)}</p>` : '';
+        const act = pan.action ? `<p class="panel-action">${escapeHtml(pan.action)}</p>` : '';
         return `<div class="story-panel" data-page-id="${escapeHtml(pg.id)}" data-panel-id="${escapeHtml(pan.id || String(idx))}">
-          <div class="slug">${escapeHtml(pan.scene || ('Panel ' + (idx + 1)))}</div>
-          <div class="art-ph">Image placeholder</div>
+          <div class="slug">${shotBadge(pan.shot)} ${escapeHtml(pan.scene || ('Panel ' + (idx + 1)))}</div>
+          <div class="art-ph">Forge prompt ready</div>
+          ${act}${sub}
           ${lines}
           <div class="story-panel-actions">
-            <button type="button" data-copy-prompt="${escapeHtml(pg.id)}::${escapeHtml(pan.id || String(idx))}">${iconHtml('copy')} Copy image prompt</button>
+            <button type="button" data-copy-prompt="${escapeHtml(pg.id)}::${escapeHtml(pan.id || String(idx))}">${iconHtml('copy')} Copy prompt</button>
           </div>
         </div>`;
       }).join('');
       return `<article class="story-page-card" data-page-id="${escapeHtml(pg.id)}">
         <div class="page-head"><h2>${escapeHtml(pg.title || pg.id)}</h2><span class="kind-pill">${escapeHtml(pg.kind || 'story')}</span></div>
         ${panelsHtml}
-        <button type="button" class="open-editor-btn" data-open-page="${escapeHtml(pg.id)}">Open in editor</button>
+        <div class="page-actions-row">
+          <button type="button" class="btn-secondary" data-copy-all="${escapeHtml(pg.id)}">${iconHtml('copy')} Copy all prompts</button>
+          <button type="button" class="open-editor-btn" data-open-page="${escapeHtml(pg.id)}">Open in editor</button>
+        </div>
       </article>`;
     }).join('');
 
@@ -1229,6 +1382,15 @@
         const pan = page && (page.panels || []).find((x) => String(x.id) === String(panelId));
         if (pan && pan.imagePrompt) copyPrompt(pan.imagePrompt);
         else toast('No prompt on this panel');
+      });
+    });
+    body.querySelectorAll('[data-copy-all]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const pageId = btn.getAttribute('data-copy-all');
+        const page = pages.find((p) => p.id === pageId);
+        const prompts = ((page && page.panels) || []).map((p, i) => `--- Panel ${i + 1} (${p.shot || 'medium'}) ---\n${p.imagePrompt || ''}`).filter((t) => t.includes('---'));
+        if (!prompts.length) { toast('No prompts on this page'); return; }
+        copyPrompt(prompts.join('\n\n'));
       });
     });
     body.querySelectorAll('[data-open-page]').forEach((btn) => {

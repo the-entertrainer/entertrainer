@@ -1,5 +1,5 @@
 /* Dialogue service worker — cache app shell + fonts + icons. Do NOT cache user comic blobs. */
-const CACHE = 'dialogue-shell-v5';
+const CACHE = 'dialogue-shell-v6';
 const SHELL = [
   '/dialogue/',
   '/dialogue/index.html',

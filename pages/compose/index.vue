@@ -16,6 +16,7 @@ useSeoMeta({
 const GATE_KEY = 'iamguru'
 const GATE_STORAGE = 'et-compose-unlocked'
 const DRAFT_STORAGE = 'et-compose-working'
+const DRAFT_SESSION = 'et-compose-working-session'
 const PROVIDER_STORAGE = 'et-compose-provider'
 const IMAGE_SOURCE_STORAGE = 'et-compose-image-source'
 
@@ -37,6 +38,30 @@ const aiImageSource = ref<ComposeImageSource>('commons')
 const aiLoading = ref(false)
 const aiError = ref('')
 
+type GithubPublishStatus = {
+  githubConfigured: boolean
+  githubOk?: boolean
+  repo: string
+  branch: string
+  detail?: string
+}
+const githubStatus = ref<GithubPublishStatus | null>(null)
+const githubStatusLabel = computed(() => {
+  const s = githubStatus.value
+  if (!s) return 'GitHub publish: checking…'
+  if (!s.githubConfigured) return 'GitHub publish: not configured (set COMPOSE_GITHUB_TOKEN on Vercel)'
+  if (s.githubOk === false) return `GitHub publish: token invalid (${s.detail || 'check PAT contents:write'})`
+  if (s.githubOk === true) return `GitHub publish: ready → ${s.repo}@${s.branch}`
+  return `GitHub publish: configured → ${s.repo}@${s.branch}`
+})
+const githubStatusTone = computed(() => {
+  const s = githubStatus.value
+  if (!s) return 'pending'
+  if (!s.githubConfigured || s.githubOk === false) return 'bad'
+  if (s.githubOk === true) return 'good'
+  return 'pending'
+})
+
 const draft = ref<ComposedPost>(emptyComposedPost())
 
 const blockTypes: { type: ComposedBlockType; label: string }[] = [
@@ -53,7 +78,9 @@ const blockTypes: { type: ComposedBlockType; label: string }[] = [
 onMounted(() => {
   try {
     if (sessionStorage.getItem(GATE_STORAGE) === '1') unlocked.value = true
-    const cached = localStorage.getItem(DRAFT_STORAGE)
+    // Prefer session draft (keeps data: image previews); fall back to stripped localStorage.
+    const sessionCached = sessionStorage.getItem(DRAFT_SESSION)
+    const cached = sessionCached || localStorage.getItem(DRAFT_STORAGE)
     if (cached) draft.value = JSON.parse(cached) as ComposedPost
     const savedProvider = localStorage.getItem(PROVIDER_STORAGE)
     if (savedProvider === 'groq' || savedProvider === 'gemini') aiProvider.value = savedProvider
@@ -62,7 +89,10 @@ onMounted(() => {
       aiImageSource.value = savedImageSource
     }
   } catch { /* ignore */ }
-  if (unlocked.value) void loadLibrary()
+  if (unlocked.value) {
+    void loadLibrary()
+    void loadGithubStatus()
+  }
 })
 
 watch(aiProvider, (value) => {
@@ -87,6 +117,10 @@ function draftForLocalStorage(value: ComposedPost): ComposedPost {
 
 watch(draft, (value) => {
   try { localStorage.setItem(DRAFT_STORAGE, JSON.stringify(draftForLocalStorage(value))) } catch { /* ignore */ }
+  // Session keeps data: URLs so hero/figure previews survive in-tab refresh.
+  try { sessionStorage.setItem(DRAFT_SESSION, JSON.stringify(value)) } catch {
+    try { sessionStorage.setItem(DRAFT_SESSION, JSON.stringify(draftForLocalStorage(value))) } catch { /* ignore */ }
+  }
 }, { deep: true })
 
 function tryUnlock() {
@@ -95,6 +129,7 @@ function tryUnlock() {
     gateError.value = ''
     try { sessionStorage.setItem(GATE_STORAGE, '1') } catch { /* ignore */ }
     void loadLibrary()
+    void loadGithubStatus()
   } else {
     gateError.value = 'Still locked.'
     unlocked.value = false
@@ -114,6 +149,31 @@ async function loadLibrary() {
   } catch {
     library.value = []
   }
+}
+
+async function loadGithubStatus() {
+  try {
+    githubStatus.value = await $fetch<GithubPublishStatus>('/api/compose/status')
+  } catch {
+    githubStatus.value = {
+      githubConfigured: false,
+      repo: 'the-entertrainer/entertrainer',
+      branch: 'main',
+      detail: 'status check failed'
+    }
+  }
+}
+
+/** True when hero/figure src can render in an <img> / EdEditorialImage. */
+function isPreviewableSrc(src?: string | null) {
+  const value = String(src || '').trim()
+  if (!value) return false
+  return (
+    value.startsWith('http://') ||
+    value.startsWith('https://') ||
+    value.startsWith('/') ||
+    value.startsWith('data:image/')
+  )
 }
 
 function startNew() {
@@ -274,6 +334,14 @@ async function generateDraft() {
     if (!copy.marginNote) copy.marginNote = { label: 'One useful idea.', body: '' }
     if (!copy.blocks) copy.blocks = []
     if (!copy.references) copy.references = []
+    // If the API set figures but missed hero, promote first figure/image into hero for preview.
+    if (!String(copy.hero || '').trim()) {
+      const fig = (copy.blocks || []).find((b) => b.type === 'figure' && isPreviewableSrc(b.src))
+      if (fig?.src) {
+        copy.hero = fig.src
+        if (!copy.heroAlt) copy.heroAlt = fig.alt || fig.caption || 'Editorial hero illustration'
+      }
+    }
     draft.value = copy
     activeSlug.value = null
     const usedProvider = res.provider || provider
@@ -333,6 +401,14 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
       </header>
 
       <p v-if="statusMessage" class="compose__status" role="status">{{ statusMessage }}</p>
+      <p
+        class="compose__gh-status"
+        :class="{
+          'is-good': githubStatusTone === 'good',
+          'is-bad': githubStatusTone === 'bad'
+        }"
+        role="status"
+      >{{ githubStatusLabel }}</p>
 
       <section class="compose__ai" aria-label="AI draft">
         <div class="compose__ai-head">
@@ -447,12 +523,18 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
             </label>
             <label>
               <span>Hero path</span>
-              <input v-model="draft.hero" class="compose__input" placeholder="/blog/slug/hero.jpg">
+              <input v-model="draft.hero" class="compose__input" placeholder="/blog/slug/hero.jpg or https://…">
             </label>
             <label>
               <span>Hero alt</span>
               <input v-model="draft.heroAlt" class="compose__input">
             </label>
+            <div v-if="isPreviewableSrc(draft.hero)" class="compose__preview compose__span-2">
+              <p class="compose__preview-label">Hero preview</p>
+              <div class="compose__preview-frame compose__preview-frame--hero">
+                <EdEditorialImage :key="draft.hero" :src="draft.hero" :alt="draft.heroAlt || 'Hero preview'" />
+              </div>
+            </div>
             <label>
               <span>Margin note label</span>
               <input v-model="draft.marginNote!.label" class="compose__input">
@@ -506,6 +588,12 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
                 <input v-model="block.src" class="compose__input" placeholder="Image src">
                 <input v-model="block.alt" class="compose__input" placeholder="Alt text">
                 <input v-model="block.caption" class="compose__input" placeholder="Caption">
+                <div v-if="isPreviewableSrc(block.src)" class="compose__preview">
+                  <p class="compose__preview-label">Figure preview</p>
+                  <div class="compose__preview-frame">
+                    <EdEditorialImage :key="block.src" :src="block.src!" :alt="block.alt || block.caption || 'Figure preview'" />
+                  </div>
+                </div>
               </template>
 
               <textarea
@@ -599,6 +687,52 @@ const previewHref = computed(() => draft.value.slug ? `/elevate/${draft.value.sl
   background: var(--signal-field);
   font-size: 14rem;
   line-height: 1.4;
+}
+.compose__gh-status {
+  margin: 0 0 18rem;
+  padding: 10rem 14rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-s);
+  background: var(--paper-2);
+  font: 700 12rem/1.35 var(--font-mono);
+  letter-spacing: .03em;
+  color: var(--ink-soft);
+}
+.compose__gh-status.is-good {
+  background: color-mix(in srgb, var(--signal-cobalt) 12%, var(--paper));
+  color: var(--ink);
+}
+.compose__gh-status.is-bad {
+  background: color-mix(in srgb, #b00020 10%, var(--paper));
+  color: #7a0016;
+}
+.compose__preview {
+  display: grid;
+  gap: 8rem;
+  margin-top: 4rem;
+}
+.compose__preview-label {
+  margin: 0;
+  font: 700 10rem/1.2 var(--font-mono);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--signal-cobalt);
+}
+.compose__preview-frame {
+  overflow: hidden;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-s);
+  background: #F7F1E4;
+  aspect-ratio: 4 / 3;
+}
+.compose__preview-frame--hero {
+  aspect-ratio: 16 / 9;
+}
+.compose__preview-frame :deep(.ed-editorial-image),
+.compose__preview-frame :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .compose__top {
   display: flex;

@@ -464,9 +464,14 @@ export default defineEventHandler(async (event) => {
     imageWarning = enriched.warning
     applyHeroFromImages(post, enriched.images)
     applyImagesToFigures(post.blocks, enriched.images, {
-      skipHeroSlot: enriched.images.length > 1
+      // First image is always reserved for hero/cover when present.
+      skipHeroSlot: enriched.images.length > 0
     })
-    if (!post.heroAlt && enriched.images[0]) {
+    // Guarantees post.hero is set whenever any image was produced (preview + publish).
+    if (!String(post.hero || '').trim() && enriched.images[0]) {
+      post.hero = enriched.images[0].src
+    }
+    if (!String(post.heroAlt || '').trim() && enriched.images[0]) {
       post.heroAlt = enriched.images[0].title || `Editorial image related to ${topic}`
     }
   } catch (err: any) {

@@ -89,6 +89,37 @@ async function safeErrorText(res: Response) {
   return res.statusText || 'unknown error'
 }
 
+
+/** Probe GitHub with the configured token. Never returns the token. */
+export async function probeComposeGithub(): Promise<{ ok: boolean; detail?: string }> {
+  const cfg = getComposeGithubConfig()
+  if (!cfg.enabled) {
+    return { ok: false, detail: 'not configured' }
+  }
+  try {
+    // Lightweight contents probe — same permission needed to publish.
+    const url = `${contentsUrl(cfg)}?ref=${encodeURIComponent(cfg.branch)}`
+    const res = await fetch(url, { headers: githubHeaders(cfg.token) })
+    if (res.status === 404) {
+      // Repo reachable; file may not exist yet — still OK to publish (create).
+      return { ok: true }
+    }
+    if (res.status === 401 || res.status === 403) {
+      return {
+        ok: false,
+        detail: res.status === 401 ? 'token invalid' : 'token lacks contents access'
+      }
+    }
+    if (!res.ok) {
+      const detail = await safeErrorText(res)
+      return { ok: false, detail: `GitHub ${res.status}: ${detail}` }
+    }
+    return { ok: true }
+  } catch (err: any) {
+    return { ok: false, detail: err?.message || 'network error' }
+  }
+}
+
 /** Read latest composed-posts.json from GitHub Contents API. */
 export async function fetchComposedPostsFromGithub(): Promise<GithubComposedFile> {
   const cfg = getComposeGithubConfig()
@@ -104,6 +135,14 @@ export async function fetchComposedPostsFromGithub(): Promise<GithubComposedFile
 
   if (res.status === 404) {
     return { posts: [], sha: null }
+  }
+
+  if (res.status === 401 || res.status === 403) {
+    throw createError({
+      statusCode: 503,
+      statusMessage:
+        'COMPOSE_GITHUB_TOKEN is invalid or lacks contents:write on the repo. Update the PAT on Vercel and redeploy.'
+    })
   }
 
   if (!res.ok) {
@@ -167,6 +206,14 @@ export async function commitComposedPosts(
     body: JSON.stringify(body)
   })
 
+  if (res.status === 401 || res.status === 403) {
+    throw createError({
+      statusCode: 503,
+      statusMessage:
+        'COMPOSE_GITHUB_TOKEN is invalid or lacks contents:write on the repo. Update the PAT on Vercel and redeploy.'
+    })
+  }
+
   if (res.status === 409 || res.status === 422) {
     throw createError({
       statusCode: 409,
@@ -217,6 +264,13 @@ export async function commitFilesToGithub(
   const refRes = await fetch(apiUrl(cfg, `git/ref/heads/${encodeURIComponent(cfg.branch)}`), {
     headers: githubHeaders(cfg.token)
   })
+  if (refRes.status === 401 || refRes.status === 403) {
+    throw createError({
+      statusCode: 503,
+      statusMessage:
+        'COMPOSE_GITHUB_TOKEN is invalid or lacks contents:write on the repo. Update the PAT on Vercel and redeploy.'
+    })
+  }
   if (!refRes.ok) {
     const detail = await safeErrorText(refRes)
     throw createError({
@@ -454,38 +508,42 @@ export async function persistComposedUpsert(post: ComposedPost): Promise<{
         }
       } catch (err: any) {
         lastError = err
+        // Auth / missing-token errors — do not pretend a Contents fallback will help.
+        if (err?.statusCode === 503) throw err
         if (err?.statusCode !== 409) {
-          // If multi-file commit fails for a non-conflict reason but we only
-          // needed JSON, fall back to single-file Contents API so publish
-          // still lands the post (images may remain remote).
-          if (imageFiles.length && err?.statusCode === 502) {
-            try {
-              const { posts, sha } = await fetchComposedPostsFromGithub()
-              const merged = upsertIntoPosts(posts, working)
-              const saved = merged.find((item) => item.slug === working.slug) || working
-              const result = await commitComposedPosts(
-                merged,
-                `compose: ${verb} ${saved.slug} (JSON only; image commit failed)`,
-                sha
-              )
-              bestEffortLocalWrite(merged)
-              return {
-                post: saved,
-                committed: true,
-                commitUrl: result.htmlUrl,
-                imageWarnings: [
-                  ...imageWarnings,
-                  `Image files not committed (${err?.statusMessage || err?.message || 'error'}); JSON saved.`
-                ],
-                imagesCommitted: 0
-              }
-            } catch (fallbackErr: any) {
-              if (fallbackErr?.statusCode !== 409) throw fallbackErr
-              lastError = fallbackErr
-              continue
+          // Git Data API multi-file commits can be flaky (blob/tree/ref). Always
+          // fall back to JSON-only Contents API so the post still hits main.
+          try {
+            const { posts, sha } = await fetchComposedPostsFromGithub()
+            const merged = upsertIntoPosts(posts, working)
+            const saved = merged.find((item) => item.slug === working.slug) || working
+            const jsonOnlyNote = imageFiles.length
+              ? ` (JSON only; image commit failed)`
+              : ''
+            const result = await commitComposedPosts(
+              merged,
+              `compose: ${verb} ${saved.slug}${jsonOnlyNote}`,
+              sha
+            )
+            bestEffortLocalWrite(merged)
+            return {
+              post: saved,
+              committed: true,
+              commitUrl: result.htmlUrl,
+              imageWarnings: imageFiles.length
+                ? [
+                    ...imageWarnings,
+                    `Image files not committed (${err?.statusMessage || err?.message || 'error'}); JSON saved.`
+                  ]
+                : imageWarnings,
+              imagesCommitted: 0
             }
+          } catch (fallbackErr: any) {
+            if (fallbackErr?.statusCode === 503) throw fallbackErr
+            if (fallbackErr?.statusCode !== 409) throw fallbackErr
+            lastError = fallbackErr
+            continue
           }
-          throw err
         }
       }
     }

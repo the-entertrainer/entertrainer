@@ -33,8 +33,9 @@ export const GEMINI_PER_IMAGE_DEADLINE_MS = 20_000
 export const MAX_AI_IMAGES = 2
 
 const ELEVATE_STYLE =
-  'Elevate editorial style: cream paper background, black ink linework, cobalt blue accents, ' +
-  'clean magazine illustration, thoughtful and spare, no text overlays, no logos, no watermarks'
+  'Elevate editorial magazine style matching entertrainer.in/elevate covers: cream paper background #F7F1E4, ' +
+  'black ink linework #0B0B0C, cobalt blue accents #2F5BD8, flat conceptual illustration, spare thoughtful composition, ' +
+  'no text overlays, no logos, no watermarks, no photorealism'
 
 function isLikelyFree(license: string): boolean {
   const l = license.toLowerCase()
@@ -221,8 +222,9 @@ function buildFigurePrompt(topic: string, role: 'hero' | 'figure', index: number
   const subject = (hint || topic).replace(/\s+/g, ' ').trim().slice(0, 180)
   if (role === 'hero') {
     return (
-      `Editorial hero illustration for an essay about “${subject}”. ` +
-      `${ELEVATE_STYLE}. Wide contemplative composition, soft cream field, one strong idea.`
+      `Wide editorial hero/cover illustration for an Elevate essay about “${subject}”. ` +
+      `${ELEVATE_STYLE}. Banner-like 16:9 contemplative cover art on a soft cream #F7F1E4 field, ` +
+      `one strong conceptual idea, black + cobalt #2F5BD8 only, matching existing /public/blog/*/hero.jpg language.`
     )
   }
   return (
@@ -514,10 +516,12 @@ export function applyHeroFromImages(
   const heroHit = images[0]
   if (!heroHit) return
   const current = String(post.hero || '').trim()
-  if (!current || /^https?:\/\//i.test(current) || current.startsWith('data:image/')) {
+  // Keep committed site-relative paths; otherwise always set so the editor preview works.
+  const isLocalSitePath = current.startsWith('/') && !current.startsWith('//')
+  if (!isLocalSitePath) {
     post.hero = heroHit.src
   }
-  if (!post.heroAlt) {
+  if (!String(post.heroAlt || '').trim()) {
     post.heroAlt = heroHit.title || 'Editorial hero illustration'
   }
 }

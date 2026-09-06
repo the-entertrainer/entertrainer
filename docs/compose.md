@@ -15,12 +15,14 @@ After unlock, use the **AI draft** panel: pick a provider, enter a topic (option
 - Skills: condensed `naveen-curiosity-science-blog` + `say-it-like-naveen` in `server/prompts/`
 - Returns `{ post, provider, model }` into the composer for polish — does **not** auto-publish
 - Figure/hero images are enriched afterward (non-blocking) from the **Images** control:
-  - **Commons** (default): Wikimedia Commons / Openverse CC0–PD (or clearly credited CC)
-  - **Gemini**: `GEMINI_API_KEY` + image model (`GEMINI_IMAGE_MODEL`, default `gemini-2.5-flash-image`)
-  - **Gamma**: `GAMMA_API_KEY` via standalone `POST https://public-api.gamma.app/v1.0/images` (poll `GET /v1.0/images/{id}` for `image.url`)
+  - **Commons** (default): Wikimedia Commons / Openverse CC0–PD (or clearly credited CC); first hit becomes `post.hero`
+  - **Gemini**: Elevate-style hero/cover (cream `#F7F1E4`, black + cobalt `#2F5BD8`) via `GEMINI_API_KEY` + `GEMINI_IMAGE_MODEL` (default `gemini-2.5-flash-image`)
+  - **Gamma**: banner hero via `GAMMA_API_KEY` (`POST https://public-api.gamma.app/v1.0/images`, poll for `image.url`)
+- Generate always tries to set `post.hero` + `heroAlt` so the editor shows an immediate preview (`http(s)`, `/…`, or `data:`)
 - Pass `imageSource?: 'commons' | 'gemini' | 'gamma'` on generate; UI stores choice in `localStorage` as `et-compose-image-source`
 - If Gemini/Gamma fails or the key is missing, falls back to Commons and returns `imageWarning`
 - Gamma/Gemini images are budgeted on Vercel (~20–25s after text, parallel, fewer slots); slow gens may fall back to Commons
+- Editor: hero + figure blocks show `<EdEditorialImage>` previews. `localStorage` strips `data:image/` for quota; `sessionStorage` keeps them for in-tab refresh until Publish commits to `/blog/<slug>/…`
 - If the model refuses or returns empty JSON, the API retries once with a scientific / cognitive-psychology reframe
 
 ### Free-tier notes — Groq (from live probes)
@@ -88,7 +90,18 @@ Without a token:
 | `COMPOSE_GITHUB_REPO` | optional | `the-entertrainer/entertrainer` |
 | `COMPOSE_GITHUB_BRANCH` | optional | `main` |
 
-Token needs **Contents: Read and write** on that repo (fine-grained or classic PAT). Set it in Vercel → Settings → Environment Variables (server-only; never `NUXT_PUBLIC_*`). After adding the token, reopen `/compose`, restore the draft from browser `localStorage` if needed, and Publish again.
+Token needs **Contents: Read and write** on that repo (fine-grained or classic PAT). Set it in Vercel → Settings → Environment Variables (server-only; never `NUXT_PUBLIC_*`). **Vercel must have a valid `COMPOSE_GITHUB_TOKEN`** (or `GITHUB_TOKEN`) or Publish cannot commit to `main` and will not trigger a redeploy. After adding the token, reopen `/compose`, restore the draft from browser storage if needed, and Publish again.
+
+### Publish readiness check
+
+- Route: `GET /api/compose/status`
+- Returns `{ githubConfigured: boolean, githubOk?: boolean, repo, branch }` (optional `detail` when not ok). **Never returns the token.**
+- The composer surfaces this as “GitHub publish: ready / not configured / token invalid” before you Publish.
+- On production, missing or invalid token → clear **503** from Save/Publish.
+
+### Commit fallback
+
+Multi-file Git Data API commits (JSON + images) can be flaky. If that path fails, Publish always falls back to a **JSON-only Contents API** commit so `content/composed-posts.json` still lands on `main` (images may remain remote until a later successful image commit).
 
 View live may 404 for ~1 minute until the redeploy finishes.
 

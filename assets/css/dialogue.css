@@ -1,0 +1,9 @@
+/* Re-export / mirror of public/dialogue/css/dialogue.css for Nuxt assets pipeline.
+   Prefer linking the public copy at runtime; this file keeps brand tokens available to SFCs. */
+@import url('/dialogue/css/dialogue.css');
+
+.dialogue-shell {
+  min-height: 100dvh;
+  background: var(--paper, #F6F1E8);
+  color: var(--ink, #12110F);
+}

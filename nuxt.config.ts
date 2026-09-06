@@ -136,6 +136,14 @@ export default defineNuxtConfig({
           url: '/tools/better-emails',
           icons: [{ src: '/draftly-icon-192.png', sizes: '192x192', type: 'image/png' }]
         }
+        ,
+        {
+          name: 'Dialogue — Comics from your pocket',
+          short_name: 'Dialogue',
+          description: 'Vertical webcomic studio for phones',
+          url: '/dialogue/',
+          icons: [{ src: '/dialogue/icons/icon-192.png', sizes: '192x192', type: 'image/png' }]
+        }
       ]
     },
     workbox: {

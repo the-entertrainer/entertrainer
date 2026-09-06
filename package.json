@@ -11,7 +11,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "gifs": "node scripts/prefetch-gifs.mjs",
-    "check:paper-signal": "node scripts/check-paper-signal.mjs"
+    "check:paper-signal": "node scripts/check-paper-signal.mjs",
+    "smoke:dialogue": "node scripts/dialogue-smoke.mjs"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",
@@ -37,7 +38,10 @@
     "satori": "^0.26.0",
     "split-type": "^0.3.4",
     "tesseract.js": "^7.0.0",
-    "three": "^0.163.0"
+    "three": "^0.163.0",
+    "konva": "^10.0.0",
+    "vue-konva": "^3.2.0",
+    "dexie": "^4.0.0"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",

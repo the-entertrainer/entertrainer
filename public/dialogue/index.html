@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0D0C0A"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="description" content="Dialogue — Comics from your pocket."/>
+  <link rel="manifest" href="./manifest.webmanifest"/>
+  <link rel="icon" href="./icons/d-mark.svg" type="image/svg+xml"/>
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Comic+Neue:wght@400;700&family=Inter:wght@400;600;700&family=Kosugi+Maru&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="./css/dialogue.css"/>
+  <title>Dialogue — Comics from your pocket.</title>
+</head>
+<body>
+  <div class="app" id="app">
+    <button type="button" class="icon-btn fab-settings" id="btn-settings" aria-label="Settings">⚙</button>
+
+    <section class="screen active" data-screen="home">
+      <div class="brand">
+        <img src="./icons/d-mark.svg" alt="Dialogue"/>
+        <div>
+          <div class="name">Dialogue</div>
+          <div class="tag">Comics from your pocket.</div>
+        </div>
+      </div>
+      <div class="shelf">
+        <button type="button" class="btn-primary large" id="btn-new">＋ New comic</button>
+        <div id="empty-state" class="empty-state hidden">Your first balloon is one tap away.</div>
+        <div class="recents" id="recents"></div>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="wizard">
+      <div class="topbar">
+        <button type="button" class="icon-btn" id="wizard-cancel" aria-label="Back">←</button>
+        <h1>New comic</h1>
+        <span style="width:56px"></span>
+      </div>
+      <div class="shelf">
+        <h2>Format</h2>
+        <div class="chips" id="wizard-formats">
+          <button type="button" class="chip active" data-id="webtoon">Webtoon 800×∞</button>
+          <button type="button" class="chip" data-id="shorts">Shorts 1080×1920</button>
+          <button type="button" class="chip" data-id="square">Square 1080×1080</button>
+          <button type="button" class="chip" data-id="page">Page 2480×3508</button>
+        </div>
+        <h2>Layout</h2>
+        <div class="chips" id="wizard-layouts">
+          <button type="button" class="chip" data-id="splash1">1 splash</button>
+          <button type="button" class="chip" data-id="stack2">2 stack</button>
+          <button type="button" class="chip active" data-id="stack3">3 stack</button>
+          <button type="button" class="chip" data-id="grid4">4 grid</button>
+          <button type="button" class="chip" data-id="blank">Blank</button>
+        </div>
+        <h2>Start with</h2>
+        <div class="chips" id="wizard-start">
+          <button type="button" class="chip" data-id="camera">Camera</button>
+          <button type="button" class="chip" data-id="photos">Photos</button>
+          <button type="button" class="chip" data-id="script">Script (Soon)</button>
+        </div>
+        <p class="camera-note">Dialogue uses the camera only to put a photo on your panel. Nothing leaves this phone.</p>
+        <button type="button" class="btn-primary large" id="wizard-create">Create</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="editor">
+      <div class="topbar">
+        <button type="button" class="icon-btn" id="editor-back" aria-label="Back">←</button>
+        <button type="button" class="title" id="editor-title">Untitled</button>
+        <button type="button" class="icon-btn" id="btn-undo" aria-label="Undo">↶</button>
+        <button type="button" class="icon-btn" id="btn-redo" aria-label="Redo">↷</button>
+        <button type="button" class="icon-btn" id="btn-preview" aria-label="Preview">👁</button>
+        <button type="button" class="icon-btn" id="btn-export" aria-label="Export">⇪</button>
+      </div>
+      <div class="editor-wrap">
+        <div id="stage-host"><div id="konva-container"></div></div>
+        <div class="filmstrip" id="filmstrip"></div>
+        <div class="tray" id="tray"></div>
+        <nav class="dock" aria-label="Tools">
+          <button type="button" data-dock="panels" class="active"><span class="ico">▦</span>Panels</button>
+          <button type="button" data-dock="art"><span class="ico">🖼</span>Art</button>
+          <button type="button" data-dock="balloon"><span class="ico">💬</span>Balloon</button>
+          <button type="button" data-dock="type"><span class="ico">T</span>Type</button>
+          <button type="button" data-dock="stickers"><span class="ico">★</span>Stickers</button>
+          <button type="button" data-dock="frames"><span class="ico">▭</span>Frames</button>
+        </nav>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="settings">
+      <div class="topbar">
+        <button type="button" class="icon-btn" id="settings-back" aria-label="Back">←</button>
+        <h1>Settings</h1>
+        <span style="width:56px"></span>
+      </div>
+      <div class="settings-list" id="settings-body"></div>
+    </section>
+  </div>
+
+  <div class="banner" id="restore-banner" role="status">
+    <span style="flex:1">Restore unsaved comic?</span>
+    <button type="button" id="restore-yes">Restore</button>
+    <button type="button" id="restore-no">Dismiss</button>
+  </div>
+
+  <div class="ctx-menu" id="ctx-menu" role="menu">
+    <button type="button" onclick="DialogueAppActions.duplicate()">Duplicate</button>
+    <button type="button" onclick="DialogueAppActions.rename()">Rename</button>
+    <button type="button" onclick="DialogueAppActions.remove()">Delete</button>
+    <button type="button" onclick="DialogueAppActions.exportProj()">Export</button>
+    <button type="button" id="ctx-close">Close</button>
+  </div>
+
+  <div class="sheet" id="lettering-sheet">
+    <div class="grab"></div>
+    <h2>Lettering</h2>
+    <textarea id="lettering-text" placeholder="Say something"></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button type="button" class="btn-primary" id="lettering-save" style="flex:1">Done</button>
+      <button type="button" id="lettering-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <div class="sheet" id="export-sheet">
+    <div class="grab"></div>
+    <h2>Export</h2>
+    <div class="progress"><i id="export-progress"></i></div>
+    <p id="export-status">Choose a format</p>
+    <button type="button" class="row" onclick="DialogueAppActions.runExport('png')">PNG strip</button>
+    <button type="button" class="row" onclick="DialogueAppActions.runExport('jpg')">JPG</button>
+    <button type="button" class="row" onclick="DialogueAppActions.runExport('webtoon')">WEBTOON slices ZIP</button>
+    <button type="button" class="row" onclick="DialogueAppActions.runExport('pdf')">PDF</button>
+    <button type="button" class="row" onclick="DialogueAppActions.runExport('dialogue')">.dialogue archive</button>
+    <button type="button" class="row" id="export-close">Close</button>
+  </div>
+
+  <div class="reader" id="reader">
+    <div class="bar">
+      <button type="button" class="icon-btn" id="reader-close" aria-label="Close">←</button>
+      <strong style="flex:1">Preview</strong>
+    </div>
+    <div class="scroll" id="reader-scroll"></div>
+  </div>
+
+  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
+  <script src="https://unpkg.com/dexie@4/dist/dexie.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="./js/utils.js"></script>
+  <script src="./js/formats.js"></script>
+  <script src="./js/db.js"></script>
+  <script src="./js/history.js"></script>
+  <script src="./js/export.js"></script>
+  <script src="./js/demo.js"></script>
+  <script src="./js/editor.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>

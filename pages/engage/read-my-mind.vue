@@ -2,9 +2,9 @@
 import { computed, ref } from 'vue'
 
 useSeoMeta({
-  title: 'The Mind Reader · Entertrainer Games',
+  title: 'The Mind Reader · Engage',
   description: 'A guided number illusion from Entertrainer. Choose a number, follow three quiet steps, and keep one mark in mind.',
-  ogUrl: 'https://entertrainer.in/games/read-my-mind'
+  ogUrl: 'https://entertrainer.in/engage/read-my-mind'
 })
 
 type SymbolKind = 'orbit' | 'prism' | 'arc' | 'node' | 'halo' | 'bracket' | 'spark' | 'wave' | 'hex'
@@ -91,11 +91,11 @@ function playAgain() {
   <main id="main" class="mind-reader">
     <div class="mind-reader__shell">
       <header class="mind-reader__header">
-        <NuxtLink to="/games" class="mind-reader__back">
+        <NuxtLink to="/engage" class="mind-reader__back">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 5 5 19M5 19V8M5 19h11" /></svg>
-          <span>Games</span>
+          <span>Engage</span>
         </NuxtLink>
-        <span class="mind-reader__brand">Entertrainer / Games</span>
+        <span class="mind-reader__brand">Entertrainer / Engage</span>
         <span class="mind-reader__eye" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12s3.8-7 10.5-7 10.5 7 10.5 7-3.8 7-10.5 7S1.5 12 1.5 12Z" /><circle cx="12" cy="12" r="2.8" /></svg>
         </span>

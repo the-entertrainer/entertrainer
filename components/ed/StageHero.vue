@@ -292,7 +292,7 @@ withDefaults(defineProps<{
   to { transform: translate3d(-2%, 1%, 0); }
 }
 
-/* Compact stage for educate-style pages that already have page chrome */
+/* Compact stage for section pages that already have page chrome */
 .stage--compact {
   min-height: min(280rem, 42vw);
   margin-bottom: clamp(28rem, 4vw, 48rem);

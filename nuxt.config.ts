@@ -187,6 +187,12 @@ export default defineNuxtConfig({
     '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } },
     // Trailing slash required so static /dialogue/index.html assets resolve under /dialogue/.
     '/dialogue': { redirect: { to: '/dialogue/', statusCode: 308 } },
+    // Educate section removed — keep old links from 404ing.
+    '/educate': { redirect: { to: '/', statusCode: 301 } },
+    '/educate/**': { redirect: { to: '/', statusCode: 301 } },
+    // Games renamed to Engage.
+    '/games': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/**': { redirect: { to: '/engage/**', statusCode: 301 } },
   },
   nitro: {
     preset: 'vercel',

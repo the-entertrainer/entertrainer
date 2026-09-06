@@ -1,17 +1,16 @@
 <script setup lang="ts">
 useSeoMeta({
-  title: 'Entertrainer · Elevate, Empower, Educate',
-  description: 'Stories for the questions that keep returning, tools for the work that keeps repeating, and courses for the things nobody explained properly the first time.',
+  title: 'Entertrainer · Elevate, Empower, Engage',
+  description: 'Stories for the questions that keep returning, tools for the work that keeps repeating, and small games for quick detours.',
   ogTitle: 'Entertrainer · The Three Es',
-  ogDescription: 'Elevate, Empower, Educate.',
+  ogDescription: 'Elevate, Empower, Engage.',
   ogUrl: 'https://entertrainer.in/'
 })
 
 const routes = [
   { name: 'Elevate', type: 'Stories', href: '/elevate' },
   { name: 'Empower', type: 'Tools', href: '/empower' },
-  { name: 'Educate', type: 'Courses', href: '/educate' },
-  { name: 'Games', type: 'Play', href: '/games' },
+  { name: 'Engage', type: 'Play', href: '/engage' },
   { name: 'About me', type: 'About', href: '/about' }
 ]
 
@@ -225,8 +224,6 @@ onMounted(() => {
   list-style: none;
 }
 
-.route-index__route:last-child { grid-column: span 2; }
-
 .route-index__route a {
   position: relative;
   display: grid;
@@ -282,8 +279,7 @@ onMounted(() => {
   .route-index__switchboard::before { display: none; }
   .route-index__hub { display: none; }
   .route-index__routes { display: block; border-top: var(--stroke) solid var(--ink); }
-  .route-index__route,
-  .route-index__route:last-child { display: block; }
+  .route-index__route { display: block; }
   .route-index__route a {
     min-height: 0;
     display: grid;

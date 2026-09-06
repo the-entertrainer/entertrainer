@@ -15,11 +15,11 @@ export type SocialPreview = {
 export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   '/': {
     key: 'home',
-    label: 'Stories, tools, and courses',
-    title: 'Entertrainer · Elevate, Empower, Educate',
-    description: 'Stories for the questions that keep returning, tools for the work that keeps repeating, and courses for the things nobody explained properly the first time.',
+    label: 'Stories, tools, and play',
+    title: 'Entertrainer · Elevate, Empower, Engage',
+    description: 'Stories for the questions that keep returning, tools for the work that keeps repeating, and small games for quick detours.',
     image: `${SITE_URL}/og-card.png`,
-    imageAlt: 'Entertrainer home: stories, tools, and courses by Naveen Jose.'
+    imageAlt: 'Entertrainer home: stories, tools, and play by Naveen Jose.'
   },
   '/about': {
     key: 'about',
@@ -127,12 +127,6 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     title: 'Draftly · Email Polisher',
     description: 'Turn messy drafts into clear, professional emails, with a plain-language note on what changed and why.'
   },
-  '/educate': {
-    key: 'educate',
-    label: 'Courses and lessons',
-    title: 'Educate · Courses and lessons by Entertrainer',
-    description: 'Courses and lessons by Naveen Jose, built to make complicated subjects easier to understand and use.'
-  },
   '/courses/ai-atlas': {
     key: 'ai-atlas',
     label: 'Course',
@@ -153,16 +147,16 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     title: 'Lessons by Naveen Jose · Entertrainer',
     description: 'A short lesson on clear instructions and a longer course on artificial intelligence.'
   },
-  '/games': {
-    key: 'games',
-    label: 'Games',
-    title: 'Games · Entertrainer',
-    description: 'Games from Entertrainer. New games will be added here.'
+  '/engage': {
+    key: 'engage',
+    label: 'Engage',
+    title: 'Engage · Entertrainer',
+    description: 'Playful experiments from Entertrainer, including The Mind Reader.'
   },
-  '/games/read-my-mind': {
+  '/engage/read-my-mind': {
     key: 'read-my-mind',
     label: 'Game',
-    title: 'The Mind Reader · Entertrainer Games',
+    title: 'The Mind Reader · Engage',
     description: 'A guided number illusion from Entertrainer. Choose a number, follow three quiet steps, and keep one mark in mind.'
   },
   '/my-work/sewa-chronicles': {

@@ -6,8 +6,7 @@ const year = new Date().getFullYear()
 const sectionLinks = [
   { label: 'Elevate', href: '/elevate' },
   { label: 'Empower', href: '/empower' },
-  { label: 'Educate', href: '/educate' },
-  { label: 'Games', href: '/games' },
+  { label: 'Engage', href: '/engage' },
   { label: 'About me', href: '/about' }
 ]
 </script>
@@ -18,7 +17,7 @@ const sectionLinks = [
       <div class="ft__brand">
         <EdWordmark :size="32" />
         <p class="ft__blurb">
-          Stories, tools, and courses.
+          Stories, tools, and playful experiments.
         </p>
         <a class="ticket ticket--sm" :href="`mailto:${store.email}`">Start a conversation</a>
       </div>

@@ -212,7 +212,6 @@ export function readNext(id: string, count = 3): EditorialItem[] {
 export const NAV = [
   { label: 'Elevate', href: '/elevate' },
   { label: 'Empower', href: '/empower' },
-  { label: 'Educate', href: '/educate' },
-  { label: 'Games', href: '/games' },
+  { label: 'Engage', href: '/engage' },
   { label: 'About me', href: '/about' }
 ]

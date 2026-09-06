@@ -3,10 +3,10 @@
     "slug": "why-your-brain-is-hardwired-to-commit-monumental-stupidity",
     "title": "Why Your Brain Is Hardwired to Commit Monumental Stupidity",
     "dek": "We spend our lives chasing peak cognitive performance, but historical catastrophes reveal a terrifying truth: advanced intellect is often the exact machinery that enables catastrophic error.",
-    "category": "Mind & meaning",
+    "category": "Cognition & science",
     "minutes": 7,
     "hero": "/blog/why-your-brain-is-hardwired-to-commit-monumental-stupidity/hero.png",
-    "heroAlt": "Flat editorial illustration of tangled black ink paths with one cobalt ribbon, about 5 most stupid blunders ever recorded in history",
+    "heroAlt": "Open black head on cream paper with tangled dashed roads spilling out; one cobalt path runs straight across the field.",
     "status": "published",
     "publishedAt": "2026-09-06T00:47:05.466Z",
     "updatedAt": "2026-09-06T00:47:05.955Z",
@@ -129,16 +129,21 @@
         "source": "Ridderinkhof, K. R., et al. (2004). Science, 306(5695), 443-447.",
         "href": "https://doi.org/10.1126/science.1103892"
       }
+    ],
+    "tags": [
+      "cognition",
+      "science",
+      "bias"
     ]
   },
   {
     "slug": "why-your-brain-might-be-hiding-the-most-important-part-of-your-life",
     "title": "Why Your Brain Might Be Hiding the Most Important Part of Your Life",
     "dek": "We spend roughly a third of our existence unconscious, constructing elaborate, high-definition hallucinations. Modern neuroscience is finally figuring out why our nocturnal theatre is an evolutionary necessity.",
-    "category": "Mind & meaning",
+    "category": "Science & sleep",
     "minutes": 8,
     "hero": "/blog/why-your-brain-might-be-hiding-the-most-important-part-of-your-life/hero.png",
-    "heroAlt": "Flat editorial illustration of tangled black ink paths with one cobalt ribbon, about Why do we dream?",
+    "heroAlt": "Nested orbital ellipses around a black crescent on cream paper; one cobalt orbit carries a small cobalt node.",
     "status": "published",
     "publishedAt": "2026-09-06T01:28:25.443Z",
     "updatedAt": "2026-09-06T01:28:25.926Z",
@@ -262,16 +267,21 @@
         "source": "Rasch, B., et al. (2007). Science, 315(5816), 1426-1429.",
         "href": "https://doi.org/10.1126/science.1135818"
       }
+    ],
+    "tags": [
+      "science",
+      "sleep",
+      "cognition"
     ]
   },
   {
     "slug": "what-is-your-otp",
     "title": "What Is Your OTP?",
     "dek": "Why a six-digit code sent to your phone is the fragile fence keeping your digital identity from dissolving into the ether—and what it reveals about the strange physics of modern trust.",
-    "category": "Mind & security",
+    "category": "Tech & security",
     "minutes": 7,
     "hero": "/blog/what-is-your-otp/hero.png",
-    "heroAlt": "Flat editorial illustration on cream paper: Organic mind meeting geometric machine across a bridge (dual-minds; dual-profiles; cobalt = Machine profile and the pixel bridge between them). About What is your OTP?.",
+    "heroAlt": "Cream field with a measured black grid, ink cells, and one cobalt anomaly path cutting through the structure.",
     "status": "published",
     "publishedAt": "2026-09-06T02:04:17.094Z",
     "updatedAt": "2026-09-06T02:04:17.842Z",
@@ -416,6 +426,11 @@
         "source": "Journal of Cybersecurity, Vol. 4, Issue 1, 2018",
         "href": "https://doi.org/10.1093/cysec/yxy005"
       }
+    ],
+    "tags": [
+      "tech",
+      "security",
+      "cryptography"
     ]
   }
 ]

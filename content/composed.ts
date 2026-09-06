@@ -23,6 +23,7 @@ export function composedToBlogPost(post: ComposedPost): BlogPost {
     title: post.title,
     dek: post.dek,
     category: post.category,
+    tags: post.tags,
     minutes: post.minutes,
     hero: post.hero,
     heroAlt: post.heroAlt,

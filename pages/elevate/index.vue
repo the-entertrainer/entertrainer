@@ -32,6 +32,62 @@ const posts = computed<BlogPost[]>(() => {
     .map(composedToBlogPost)
   return [...BLOG_POSTS, ...extras]
 })
+
+type SortMode = 'newest' | 'oldest' | 'title'
+
+const route = useRoute()
+const router = useRouter()
+
+const category = computed(() => {
+  const raw = String(route.query.category || 'all').trim()
+  return raw || 'all'
+})
+
+const sort = computed<SortMode>(() => {
+  const raw = String(route.query.sort || 'newest').trim()
+  if (raw === 'oldest' || raw === 'title') return raw
+  return 'newest'
+})
+
+const categories = computed(() => {
+  const counts = new Map<string, number>()
+  for (const post of posts.value) {
+    counts.set(post.category, (counts.get(post.category) || 0) + 1)
+  }
+  return [...counts.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([id, count]) => ({ id, count }))
+})
+
+const filteredPosts = computed(() => {
+  let list = posts.value.slice()
+  if (category.value !== 'all') {
+    list = list.filter((post) => post.category === category.value)
+  }
+  if (sort.value === 'oldest') {
+    list.sort((a, b) => +new Date(a.publishedAt) - +new Date(b.publishedAt))
+  } else if (sort.value === 'title') {
+    list.sort((a, b) => a.title.localeCompare(b.title))
+  } else {
+    list.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt))
+  }
+  return list
+})
+
+function formatDate(iso: string) {
+  const d = new Date(iso)
+  if (Number.isNaN(+d)) return ''
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function setQuery(next: { category?: string; sort?: SortMode }) {
+  const query: Record<string, string> = {}
+  const cat = next.category ?? category.value
+  const s = next.sort ?? sort.value
+  if (cat && cat !== 'all') query.category = cat
+  if (s && s !== 'newest') query.sort = s
+  router.replace({ query })
+}
 </script>
 
 <template>
@@ -45,18 +101,80 @@ const posts = computed<BlogPost[]>(() => {
     />
 
     <section class="elevate__entry" aria-labelledby="articles-title">
-      <h2 id="articles-title" class="elevate__section-label">Articles</h2>
-      <NuxtLink v-for="post in posts" :key="post.slug" :to="`/elevate/${post.slug}`" class="elevate__feature" :aria-labelledby="`article-${post.slug}`">
-        <div class="elevate__feature-copy">
-          <p class="elevate__meta">{{ post.category }} <span aria-hidden="true">·</span> {{ post.minutes }} min read</p>
-          <h3 :id="`article-${post.slug}`">{{ post.title }}</h3>
-          <p>{{ post.dek }}</p>
-          <span class="elevate__read">Read</span>
+      <div class="elevate__toolbar">
+        <h2 id="articles-title" class="elevate__section-label">Articles</h2>
+        <div class="elevate__sort" role="group" aria-label="Sort articles">
+          <button
+            type="button"
+            class="elevate__sort-btn"
+            :aria-pressed="sort === 'newest'"
+            @click="setQuery({ sort: 'newest' })"
+          >Newest</button>
+          <button
+            type="button"
+            class="elevate__sort-btn"
+            :aria-pressed="sort === 'oldest'"
+            @click="setQuery({ sort: 'oldest' })"
+          >Oldest</button>
+          <button
+            type="button"
+            class="elevate__sort-btn"
+            :aria-pressed="sort === 'title'"
+            @click="setQuery({ sort: 'title' })"
+          >Title A–Z</button>
         </div>
-        <figure class="elevate__feature-image">
-          <EdEditorialImage :src="post.hero" :alt="post.heroAlt" />
-        </figure>
-      </NuxtLink>
+      </div>
+
+      <div class="elevate__filters" role="radiogroup" aria-label="Filter by category">
+        <button
+          type="button"
+          class="elevate__chip"
+          role="radio"
+          :aria-checked="category === 'all'"
+          @click="setQuery({ category: 'all' })"
+        >
+          <span class="elevate__chip-dot" aria-hidden="true" />
+          All
+          <span class="elevate__chip-n">{{ posts.length }}</span>
+        </button>
+        <button
+          v-for="cat in categories"
+          :key="cat.id"
+          type="button"
+          class="elevate__chip"
+          role="radio"
+          :aria-checked="category === cat.id"
+          @click="setQuery({ category: cat.id })"
+        >
+          <span class="elevate__chip-dot" aria-hidden="true" />
+          {{ cat.id }}
+          <span class="elevate__chip-n">{{ cat.count }}</span>
+        </button>
+      </div>
+
+      <ul class="elevate__list" aria-live="polite">
+        <li v-for="post in filteredPosts" :key="post.slug">
+          <NuxtLink :to="`/elevate/${post.slug}`" class="elevate__row" :aria-labelledby="`article-${post.slug}`">
+            <figure class="elevate__thumb">
+              <EdEditorialImage :src="post.hero" :alt="post.heroAlt" />
+            </figure>
+            <div class="elevate__row-copy">
+              <div class="elevate__row-meta">
+                <span class="elevate__cat">{{ post.category }}</span>
+                <span v-if="formatDate(post.publishedAt)" class="elevate__date">{{ formatDate(post.publishedAt) }}</span>
+                <span class="elevate__mins">{{ post.minutes }} min</span>
+              </div>
+              <h3 :id="`article-${post.slug}`" class="elevate__row-title">{{ post.title }}</h3>
+              <p class="elevate__row-dek">{{ post.dek }}</p>
+              <ul v-if="post.tags?.length" class="elevate__tags" aria-label="Tags">
+                <li v-for="tag in post.tags" :key="tag">{{ tag }}</li>
+              </ul>
+            </div>
+          </NuxtLink>
+        </li>
+      </ul>
+
+      <p v-if="!filteredPosts.length" class="elevate__empty">No articles in this category yet.</p>
     </section>
 
     <EdNewsletter class="elevate__newsletter" />
@@ -64,28 +182,229 @@ const posts = computed<BlogPost[]>(() => {
 </template>
 
 <style scoped>
-/* Elevate: Elevate-DNA flow stage + magazine article shelf. */
-.elevate { max-width: var(--shell-wide); margin: 0 auto; padding: clamp(22rem, 4vw, 56rem) var(--shell-gutter) 110rem; }
-.elevate__stage { min-height: min(520rem, calc(100dvh - 160rem)); }
+/* Elevate index: cream/ink + yellow accent; dense article rows. */
+.elevate {
+  max-width: var(--shell-wide);
+  margin: 0 auto;
+  padding: clamp(22rem, 4vw, 56rem) var(--shell-gutter) 110rem;
+}
+.elevate__stage { min-height: min(420rem, calc(100dvh - 180rem)); }
 .elevate__stage :deep(h1) { font: 500 clamp(88rem, 18vw, 250rem)/.72 var(--font-display); letter-spacing: -.085em; }
 .elevate__stage :deep(.stage__deck) { max-width: 400rem; font: 400 clamp(18rem, 2vw, 25rem)/1.35 var(--font-body); }
-.elevate__section-label, .elevate__meta { margin: 0; font: 700 12rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
-.elevate__entry { padding: clamp(64rem, 10vw, 132rem) 0 0; }
-.elevate__section-label { color: var(--signal-cobalt); margin-bottom: 18rem; }
-.elevate__feature { display: grid; grid-template-columns: minmax(0, .92fr) minmax(360rem, 1.08fr); color: var(--ink); overflow: hidden; border-top: var(--stroke) solid var(--ink); border-bottom: var(--stroke) solid var(--ink); }
-.elevate__feature + .elevate__feature { border-top: 0; }
-.elevate__feature-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; padding: clamp(28rem, 5vw, 66rem); }
-.elevate__meta { color: var(--ink-soft); }
-.elevate h3 { max-width: 700rem; margin: 20rem 0; font: 500 clamp(39rem, 4.5vw, 70rem)/.95 var(--font-display); letter-spacing: -.05em; }
-.elevate__feature-copy > p:not(.elevate__meta) { max-width: 480rem; margin: 0; font-size: 19rem; line-height: 1.5; }
-.elevate__read { display: inline-flex; margin-top: 28rem; padding: 10rem 14rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-s); font-weight: 800; transition: transform var(--dur-fast) var(--ease-spring), background var(--dur-fast) var(--ease-out); }
-.elevate__feature:hover .elevate__read { background: var(--signal-cobalt); transform: translateY(-2rem); }
-.elevate__feature-image { min-height: 500rem; margin: 0; overflow: hidden; border-left: var(--stroke) solid var(--ink); }
-.elevate__feature-image :deep(.ed-editorial-image) { width: 100%; height: 100%; object-fit: cover; transition: transform 600ms var(--ease-out); }
-.elevate__feature:hover :deep(.ed-editorial-image) { transform: scale(1.025); }
-.elevate__manifesto { display: grid; grid-template-columns: .31fr .69fr; gap: clamp(28rem, 8vw, 130rem); padding: clamp(72rem, 11vw, 144rem) 0; border-bottom: var(--stroke) solid var(--ink); }
-.elevate__manifesto-copy { max-width: 760rem; margin: 0; font: 500 clamp(30rem, 4.5vw, 58rem)/1.02 var(--font-display); letter-spacing: -.045em; }
+
+.elevate__entry { padding: clamp(40rem, 7vw, 88rem) 0 0; }
+.elevate__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12rem 24rem;
+  margin-bottom: 14rem;
+}
+.elevate__section-label {
+  margin: 0;
+  color: var(--accent);
+  font: 700 12rem/1.2 var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.elevate__sort { display: inline-flex; flex-wrap: wrap; gap: 6rem; }
+.elevate__sort-btn {
+  min-height: 32rem;
+  padding: 6rem 12rem;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--radius-full);
+  background: var(--paper);
+  color: var(--ink-soft);
+  font: 600 11rem/1 var(--font-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.elevate__sort-btn[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--ink);
+  color: var(--accent-ink, #161618);
+}
+@media (hover: hover) {
+  .elevate__sort-btn:hover { border-color: var(--ink); color: var(--ink); }
+}
+
+.elevate__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rem;
+  padding: 0 0 18rem;
+  border-bottom: var(--stroke) solid var(--line);
+  margin-bottom: 6rem;
+}
+.elevate__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rem;
+  min-height: 36rem;
+  padding: 7rem 12rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-full);
+  background: var(--paper);
+  color: var(--ink);
+  font: 600 11rem/1.2 var(--font-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.elevate__chip-dot {
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid var(--ink);
+  flex: none;
+}
+.elevate__chip-n { color: var(--muted); font-variant-numeric: tabular-nums; }
+.elevate__chip[aria-checked="true"] {
+  background: var(--accent);
+  color: var(--accent-ink, #161618);
+}
+.elevate__chip[aria-checked="true"] .elevate__chip-dot { background: var(--accent-ink, #161618); }
+.elevate__chip[aria-checked="true"] .elevate__chip-n { color: inherit; opacity: .72; }
+@media (hover: hover) {
+  .elevate__chip:hover { background: var(--paper-2); }
+  .elevate__chip[aria-checked="true"]:hover { background: var(--accent); }
+}
+
+.elevate__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.elevate__row {
+  display: grid;
+  grid-template-columns: 112rem minmax(0, 1fr);
+  gap: clamp(14rem, 2.5vw, 22rem);
+  align-items: start;
+  padding: 14rem 0;
+  border-bottom: var(--stroke) solid var(--line);
+  color: var(--ink);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) {
+  .elevate__row:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .elevate__row:hover .elevate__thumb :deep(.ed-editorial-image) { transform: scale(1.04); }
+}
+.elevate__row:focus-visible {
+  outline: 3rem solid var(--focus, var(--accent));
+  outline-offset: 3rem;
+}
+
+.elevate__thumb {
+  margin: 0;
+  width: 112rem;
+  height: 72rem;
+  overflow: hidden;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-s);
+  background: var(--paper-2);
+}
+.elevate__thumb :deep(.ed-editorial-image) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 500ms var(--ease-out);
+}
+
+.elevate__row-copy { min-width: 0; padding-top: 2rem; }
+.elevate__row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6rem 10rem;
+  align-items: center;
+  margin: 0 0 6rem;
+  font: 600 11rem/1.2 var(--font-mono);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.elevate__cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rem;
+  padding: 3rem 8rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-full);
+  background: var(--paper);
+  color: var(--ink);
+}
+.elevate__cat::before {
+  content: '';
+  width: 7rem;
+  height: 7rem;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid var(--ink);
+}
+.elevate__date, .elevate__mins { color: var(--muted); }
+
+.elevate__row-title {
+  margin: 0;
+  max-width: 52ch;
+  font: 500 clamp(20rem, 2.4vw, 28rem)/1.15 var(--font-display);
+  letter-spacing: -.03em;
+}
+.elevate__row-dek {
+  margin: 6rem 0 0;
+  max-width: 62ch;
+  font-size: 15rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.elevate__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6rem;
+  list-style: none;
+  margin: 10rem 0 0;
+  padding: 0;
+}
+.elevate__tags li {
+  padding: 2rem 8rem;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--radius-full);
+  font: 600 10rem/1.4 var(--font-mono);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.elevate__empty {
+  margin: 28rem 0 0;
+  color: var(--muted);
+  font-size: 16rem;
+}
 .elevate__newsletter { margin-top: clamp(55rem, 8vw, 104rem); }
-@media (max-width: 740px) { .elevate { padding-top: 18rem; }.elevate__stage { min-height: 360rem; }.elevate__stage :deep(h1) { font-size: clamp(88rem, 25vw, 160rem); }.elevate__feature { grid-template-columns: 1fr; }.elevate__feature-image { min-height: 330rem; order: -1; border: 0; border-bottom: var(--stroke) solid var(--ink); }.elevate__feature-copy { padding: 30rem 0; }.elevate__manifesto { grid-template-columns: 1fr; gap: 18rem; } }
-@media (prefers-reduced-motion: reduce) { .elevate__feature-image :deep(.ed-editorial-image), .elevate__read { transition: none; } }
+
+@media (max-width: 640px) {
+  .elevate { padding-top: 18rem; }
+  .elevate__stage { min-height: 320rem; }
+  .elevate__stage :deep(h1) { font-size: clamp(88rem, 25vw, 160rem); }
+  .elevate__row { grid-template-columns: 88rem minmax(0, 1fr); gap: 12rem; }
+  .elevate__thumb { width: 88rem; height: 60rem; }
+  .elevate__row-dek { -webkit-line-clamp: 3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .elevate__thumb :deep(.ed-editorial-image),
+  .elevate__sort-btn,
+  .elevate__chip,
+  .elevate__row { transition: none; }
+  .elevate__row:hover .elevate__thumb :deep(.ed-editorial-image) { transform: none; }
+}
 </style>

@@ -196,6 +196,24 @@ export function pickHeroBrief(topic: string, slug: string, title = '', dek = '')
 
   const rules: Array<{ re: RegExp; brief: HeroBrief }> = [
     {
+      re: /\b(dream|dreaming|rem|sleep|nocturnal|nightmare)\b/,
+      brief: {
+        metaphor: 'Nocturnal orbits rehearsing waking life while the body stays still',
+        motif: 'orbits',
+        focal: 'crescent',
+        cobaltRole: 'The privileged dream orbit looping around a quiet center'
+      }
+    },
+    {
+      re: /\b(otp|password|auth|security|cryptograph|quantum|totp|login)\b/,
+      brief: {
+        metaphor: 'A measured security grid interrupted by one fleeting authenticating pulse',
+        motif: 'grid-anomaly',
+        focal: 'grid',
+        cobaltRole: 'The short-lived code path cutting through the grid'
+      }
+    },
+    {
       re: /\b(lie|deceiv|truth|fiction|honesty|falsehood)\b/,
       brief: {
         metaphor: 'Curated simplicity of a lie versus tangled complexity of reality',

@@ -42,6 +42,8 @@ export interface ComposedPost {
   title: string
   dek: string
   category: string
+  /** Optional topical tags. */
+  tags?: string[]
   minutes: number
   hero: string
   heroAlt: string
@@ -60,6 +62,7 @@ export function emptyComposedPost(partial?: Partial<ComposedPost>): ComposedPost
     title: '',
     dek: '',
     category: 'Mind & meaning',
+    tags: [],
     minutes: 5,
     hero: '',
     heroAlt: '',

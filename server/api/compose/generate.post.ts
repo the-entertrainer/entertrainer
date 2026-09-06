@@ -154,6 +154,9 @@ function draftFromModel(parsed: any, topic: string): ComposedPost {
     slug,
     dek: String(parsed?.dek || '').trim(),
     category: String(parsed?.category || 'Mind & meaning').trim() || 'Mind & meaning',
+    tags: Array.isArray(parsed?.tags)
+      ? parsed.tags.map((tag: unknown) => String(tag || '').trim()).filter(Boolean).slice(0, 6)
+      : [],
     minutes: Math.max(1, Math.min(30, Number(parsed?.minutes) || 8)),
     hero: '',
     heroAlt: String(parsed?.heroAlt || '').trim(),

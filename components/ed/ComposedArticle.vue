@@ -13,6 +13,9 @@ defineProps<{
       <p class="ca__meta">{{ post.category }} <span aria-hidden="true">·</span> {{ post.minutes }} min read</p>
       <h1>{{ post.title }}</h1>
       <p class="ca__dek">{{ post.dek }}</p>
+      <ul v-if="post.tags?.length" class="ca__tags" aria-label="Tags">
+        <li v-for="tag in post.tags" :key="tag">{{ tag }}</li>
+      </ul>
     </header>
 
     <figure v-if="post.hero" class="ca__hero">
@@ -81,6 +84,19 @@ defineProps<{
 .ca__meta { margin: clamp(46rem, 8vw, 104rem) 0 16rem; color: var(--signal-cobalt); }
 .ca h1, .ca h2 { font-family: var(--font-display); font-weight: 500; letter-spacing: -.05em; }
 .ca h1 { max-width: 1080rem; margin: 0; font-size: clamp(40rem, 6.6vw, 100rem); line-height: .95; text-wrap: balance; }
+.ca__tags {
+  display: flex; flex-wrap: wrap; gap: 6rem;
+  list-style: none; margin: 14rem 0 0; padding: 0;
+}
+.ca__tags li {
+  padding: 3rem 9rem;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--radius-full);
+  font: 600 10rem/1.4 var(--font-mono);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
 .ca__dek { max-width: 700rem; margin: 30rem 0 0; font: 400 clamp(19rem, 2.25vw, 27rem)/1.4 var(--font-body); }
 .ca__hero { max-width: 1400rem; margin: 0 auto; padding: 0 var(--shell-gutter); }
 .ca__hero :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 8.5; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; background: var(--signal-field); }

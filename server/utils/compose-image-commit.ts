@@ -13,7 +13,8 @@ const ALLOWED_MIME: Record<string, string> = {
   'image/jpg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
-  'image/gif': 'gif'
+  'image/gif': 'gif',
+  'image/svg+xml': 'svg'
 }
 
 export type LocalizedImageFile = {
@@ -110,7 +111,7 @@ async function fetchHttpImage(url: string): Promise<{ bytes: Buffer; ext: string
     const fromMime = mime ? extFromMime(mime, '') : ''
     const fromUrl = extFromUrl(url)
     const ext = sniffed || fromMime || fromUrl
-    if (!ext || !['jpg', 'png', 'webp', 'gif'].includes(ext)) return null
+    if (!ext || !['jpg', 'png', 'webp', 'gif', 'svg'].includes(ext)) return null
     return { bytes, ext }
   } catch {
     return null

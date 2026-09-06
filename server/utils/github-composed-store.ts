@@ -3,6 +3,14 @@ import { dirname, join } from 'node:path'
 import type { ComposedPost } from '~/types/composed'
 import { readComposedStore, writeComposedStore } from './composed-store'
 import { localizePostImages, type LocalizedImageFile } from './compose-image-commit'
+import {
+  COMPOSE_JSON_MAX_BYTES,
+  asComposeError,
+  composeThrow,
+  decodeBase64Utf8,
+  encodeUtf8Base64,
+  utf8ByteLength
+} from './compose-errors'
 
 const CONTENT_PATH = 'content/composed-posts.json'
 
@@ -159,14 +167,11 @@ export async function fetchComposedPostsFromGithub(): Promise<GithubComposedFile
   }
 
   try {
-    const decoded = Buffer.from(data.content.replace(/\n/g, ''), 'base64').toString('utf8')
+    const decoded = decodeBase64Utf8(data.content)
     const parsed = JSON.parse(decoded)
     return { posts: parsePosts(parsed), sha: data.sha }
-  } catch {
-    throw createError({
-      statusCode: 502,
-      statusMessage: 'GitHub composed-posts.json is not valid JSON'
-    })
+  } catch (err: any) {
+    composeThrow(502, 'GitHub composed-posts.json is not valid JSON', err?.message)
   }
 }
 
@@ -190,9 +195,18 @@ export async function commitComposedPosts(
     currentSha = latest.sha
   }
 
+  const jsonText = `${JSON.stringify(posts, null, 2)}\n`
+  const jsonBytes = utf8ByteLength(jsonText)
+  if (jsonBytes > COMPOSE_JSON_MAX_BYTES) {
+    composeThrow(
+      413,
+      `Composed store JSON is too large (${jsonBytes} bytes). Strip data: image URLs before publish — images must be files under public/blog/.`,
+      `jsonBytes=${jsonBytes} limit=${COMPOSE_JSON_MAX_BYTES}`
+    )
+  }
   const body: Record<string, string> = {
     message,
-    content: Buffer.from(`${JSON.stringify(posts, null, 2)}\n`, 'utf8').toString('base64'),
+    content: encodeUtf8Base64(jsonText),
     branch: cfg.branch
   }
   if (currentSha) body.sha = currentSha
@@ -483,20 +497,33 @@ export async function persistComposedUpsert(post: ComposedPost): Promise<{
         const merged = upsertIntoPosts(posts, working)
         const saved = merged.find((item) => item.slug === working.slug) || working
 
+        // Prefer Contents API for JSON-only (same permission surface as status).
+        if (!imageFiles.length) {
+          const result = await commitComposedPosts(
+            merged,
+            `compose: ${verb} ${saved.slug}`,
+            sha
+          )
+          bestEffortLocalWrite(merged)
+          return {
+            post: saved,
+            committed: true,
+            commitUrl: result.htmlUrl,
+            imageWarnings,
+            imagesCommitted: 0
+          }
+        }
+
         const jsonBytes = Buffer.from(`${JSON.stringify(merged, null, 2)}\n`, 'utf8')
         const filesToCommit: Array<{ path: string; bytes: Buffer }> = [
           { path: CONTENT_PATH, bytes: jsonBytes },
           ...imageFiles.map((f) => ({ path: f.path, bytes: f.bytes }))
         ]
-
-        const imageNote = imageFiles.length
-          ? ` + ${imageFiles.length} image${imageFiles.length === 1 ? '' : 's'}`
-          : ''
+        const imageNote = ` + ${imageFiles.length} image${imageFiles.length === 1 ? '' : 's'}`
         const result = await commitFilesToGithub(
           filesToCommit,
           `compose: ${verb} ${saved.slug}${imageNote}`
         )
-
         bestEffortLocalWrite(merged)
         bestEffortLocalImages(imageFiles)
         return {
@@ -506,10 +533,10 @@ export async function persistComposedUpsert(post: ComposedPost): Promise<{
           imageWarnings,
           imagesCommitted: imageFiles.length
         }
-      } catch (err: any) {
+      } catch (err: any) {      } catch (err: any) {
         lastError = err
         // Auth / missing-token errors — do not pretend a Contents fallback will help.
-        if (err?.statusCode === 503) throw err
+        if (err?.statusCode === 503 || err?.statusCode === 413) throw err
         if (err?.statusCode !== 409) {
           // Git Data API multi-file commits can be flaky (blob/tree/ref). Always
           // fall back to JSON-only Contents API so the post still hits main.
@@ -539,15 +566,15 @@ export async function persistComposedUpsert(post: ComposedPost): Promise<{
               imagesCommitted: 0
             }
           } catch (fallbackErr: any) {
-            if (fallbackErr?.statusCode === 503) throw fallbackErr
-            if (fallbackErr?.statusCode !== 409) throw fallbackErr
+            if (fallbackErr?.statusCode === 503 || fallbackErr?.statusCode === 413) throw fallbackErr
+            if (fallbackErr?.statusCode !== 409) asComposeError(fallbackErr)
             lastError = fallbackErr
             continue
           }
         }
       }
     }
-    throw lastError
+    asComposeError(lastError)
   }
 
   // Local-only path (nuxt dev without token)

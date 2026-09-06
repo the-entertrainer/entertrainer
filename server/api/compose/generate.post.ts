@@ -6,6 +6,7 @@ import {
   IMAGE_PHASE_BUDGET_MS,
   normalizeImageSource
 } from '../../utils/compose-images'
+import { generateElevateHero } from '../../utils/elevate-hero'
 import {
   emptyComposedPost,
   newBlockId,
@@ -463,6 +464,14 @@ export default defineEventHandler(async (event) => {
     imageSourceUsed = enriched.sourceUsed
     imageWarning = enriched.warning
     applyHeroFromImages(post, enriched.images)
+    // Procedural Elevate cover always wins for hero (deterministic cream/ink/cobalt art).
+    try {
+      const hero = generateElevateHero(topic, post.slug)
+      post.hero = hero.dataUrl
+      post.heroAlt = hero.alt
+    } catch (heroErr: any) {
+      imageWarning = imageWarning || heroErr?.message || 'Procedural hero failed'
+    }
     applyImagesToFigures(post.blocks, enriched.images, {
       // First image is always reserved for hero/cover when present.
       skipHeroSlot: enriched.images.length > 0
@@ -486,6 +495,15 @@ export default defineEventHandler(async (event) => {
 
   post.status = 'draft'
   post.updatedAt = new Date().toISOString()
+
+  // Always ensure a procedural Elevate hero (works even when image APIs fail).
+  try {
+    const hero = generateElevateHero(topic, post.slug)
+    post.hero = hero.dataUrl
+    post.heroAlt = hero.alt
+  } catch {
+    /* keep whatever hero we have */
+  }
 
   return {
     post,

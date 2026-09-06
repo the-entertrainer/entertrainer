@@ -147,7 +147,7 @@ function lockAgain() {
 
 async function loadLibrary() {
   try {
-    const res = await $fetch<{ posts: ComposedPost[] }>('/api/composed', { query: { includeDrafts: '1' } })
+    const res = await $fetch<{ posts: ComposedPost[] }>('/api/compose/posts', { query: { includeDrafts: '1' } })
     library.value = res.posts ?? []
   } catch {
     library.value = []
@@ -268,7 +268,7 @@ async function persist(status: 'draft' | 'published') {
       commitUrl?: string
       imagesCommitted?: number
       imageWarnings?: string[]
-    }>('/api/composed', {
+    }>('/api/compose/posts', {
       method: 'POST',
       body: draft.value
     })
@@ -289,7 +289,7 @@ async function persist(status: 'draft' | 'published') {
         : `Draft saved locally as ${res.post.slug}.${imgBit}${warnBit}`
     }
   } catch (err: any) {
-    const msg = err?.data?.statusMessage || err?.statusMessage || err?.message || 'error'
+    const msg = err?.data?.detail || err?.data?.statusMessage || err?.statusMessage || err?.data?.message || err?.message || 'error'
     const missingToken = /COMPOSE_GITHUB_TOKEN|GITHUB_TOKEN/i.test(String(msg))
     statusMessage.value = missingToken
       ? `Publish needs COMPOSE_GITHUB_TOKEN (or GITHUB_TOKEN) with repo contents:write. Set it on Vercel, redeploy, then try again. (${msg}) Local backup kept in this browser.`

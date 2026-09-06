@@ -103,7 +103,6 @@ useSeoMeta({
           src="/about/club-mahindra-resort.jpg"
           alt="A multi-tier Club Mahindra resort building with a pool and lounge chairs in the foreground."
         />
-        <figcaption>Resort life · the kind of building that teaches you standards whether you asked or not</figcaption>
       </figure>
 
       <p>
@@ -116,7 +115,6 @@ useSeoMeta({
           src="/about/about-housekeeper-1.webp"
           alt="Naveen writing on a whiteboard resting on an under-maintenance game table in a hotel recreation area."
         />
-        <figcaption>Hotel floors · planning on whatever surface was free</figcaption>
       </figure>
 
       <h2>Then someone asked for a culture we could call ours.</h2>
@@ -145,7 +143,6 @@ useSeoMeta({
           src="/about/about-sewa-1.webp"
           alt="Printed SEWA Comics booklet and comic pages laid out on a white table."
         />
-        <figcaption>SEWA Chronicles · stories verified, then printed</figcaption>
       </figure>
 
       <aside id="sewa-chronicles" class="about-story__sewa" aria-labelledby="sewa-title">
@@ -173,7 +170,6 @@ useSeoMeta({
           src="/about/naveen-speaking-stage.jpg"
           alt="Naveen presenting with a handheld microphone to an audience in a wood-panelled training room."
         />
-        <figcaption>Training rooms · microphone in hand, left hand in pocket, trying not to bore the room</figcaption>
       </figure>
 
       <p>
@@ -186,7 +182,6 @@ useSeoMeta({
           src="/about/naveen-speaking-close.jpg"
           alt="Close portrait of Naveen speaking into a wireless microphone during a session."
         />
-        <figcaption>Concentrix days · same habit, different room</figcaption>
       </figure>
 
       <p>
@@ -199,7 +194,6 @@ useSeoMeta({
           src="/about/naveen-speaking-projector.jpg"
           alt="Naveen speaking to an audience with a projector visible in the foreground."
         />
-        <figcaption>Entertrainer · still teaching, still figuring out the next sentence</figcaption>
       </figure>
 
       <p>
@@ -267,7 +261,6 @@ useSeoMeta({
   border-radius: var(--radius-m);
   background: var(--paper-2);
 }
-.about-story__figure figcaption { margin-top: 10rem; color: var(--ink-soft); font: 700 11rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
 .about-story__sewa { margin: clamp(54rem, 9vw, 100rem) calc(clamp(0rem, 5vw, 68rem) * -1); }
 .about-story__destination { display: grid; grid-template-columns: minmax(180rem, .72fr) minmax(0, 1.28fr); color: var(--ink); overflow: hidden; border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); background: var(--signal-field); text-decoration: none; transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring); }
 .about-story__destination-visual { min-height: 260rem; margin: 0; overflow: hidden; border-right: var(--stroke) solid var(--ink); background: var(--paper-2); }

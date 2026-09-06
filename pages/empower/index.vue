@@ -8,10 +8,10 @@ useSeoMeta({
 })
 
 const ICON_BY_ID: Record<string, string> = {
-  storygen: '/storygen-icon-192.png',
-  cadence: '/cadence-icon-192.png',
-  easymcq: '/easymcq-icon-192.png',
-  'better-emails': '/draftly-icon-192.png'
+  storygen: '/storygen-icon.svg',
+  cadence: '/cadence-icon.svg',
+  easymcq: '/easymcq-icon.svg',
+  'better-emails': '/draftly-icon.svg'
 }
 
 const tools = computed(() =>

@@ -112,8 +112,8 @@ export const ITEMS: EditorialItem[] = [
     category: 'projects',
     media: 'interactive',
     href: '/courses/ai-atlas',
-    image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/zByMCffPaXYvFeor.jpg',
-    alt: 'An editorial illustration mapping the history of artificial intelligence',
+    image: '/work/ai-course-cover.png',
+    alt: 'From No AI to Know AI course cover',
     minutes: 95,
     size: 'wide'
   },
@@ -125,7 +125,7 @@ export const ITEMS: EditorialItem[] = [
     media: 'free tool',
     href: '/tools/storygen',
     image: '/storygen.png',
-    alt: 'StoryGen storyboard canvas',
+    alt: 'StoryGen icon — connected story cards on a canvas',
     stamp: 'Free · Plan a story'
   },
   {
@@ -136,7 +136,7 @@ export const ITEMS: EditorialItem[] = [
     media: 'free tool',
     href: '/tools/cadence',
     image: '/training-cal-gen.png',
-    alt: 'Cadence training calendar',
+    alt: 'Cadence icon — calendar grid with rhythm bars',
     stamp: 'Free · Make a calendar'
   },
   {
@@ -147,7 +147,7 @@ export const ITEMS: EditorialItem[] = [
     media: 'free tool',
     href: '/tools/easymcq',
     image: '/easymcq.png',
-    alt: 'EasyMCQ distractor generator',
+    alt: 'EasyMCQ icon — checklist with one correct mark',
     stamp: 'Free · Make a quiz'
   },
   {
@@ -158,7 +158,7 @@ export const ITEMS: EditorialItem[] = [
     media: 'free tool',
     href: '/tools/better-emails',
     image: '/better-emails.png',
-    alt: 'Draftly email polisher',
+    alt: 'Draftly icon — envelope with polish stroke',
     stamp: 'Free · Improve an email'
   },
   {

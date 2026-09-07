@@ -43,7 +43,9 @@ const stack: Entry[] = [
   { k: 'Images', v: 'WebP and PNG, drawn or generated, then composited',
     note: 'Card artwork was generated and the titles set on top afterwards, because type rendered by an image model is type nobody proofread. Images can improvise; headlines need proofreading.' },
   { k: 'Hosting', v: 'Vercel, static output',
-    note: 'This site has no database or analytics. A tool sends only the AI request you make, and nothing is kept.' }
+    note: 'This site has no database or analytics. A tool sends only the AI request you make, and nothing is kept.' },
+  { k: 'Opening sound', v: 'Pixabay ident by Diamond_Tunes',
+    note: 'One short welcome tone on tap-to-enter: “Digital Vibe (Podcast Intro Ident)” by Diamond_Tunes on Pixabay (Content License). Trimmed to the preloader window. Attribution is appreciated; the license does not require it. Device silent mode is respected — playback uses ordinary HTML audio inside the tap gesture and fails quietly if muted or blocked.' }
 ]
 
 const choices = [

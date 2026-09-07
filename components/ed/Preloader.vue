@@ -14,20 +14,27 @@ let completed = false
 
 const identSrc = computed(() => openingSoundSrc(settings.value.openingSound))
 
+/**
+ * Play the brand opening tone inside the tap-to-enter gesture only.
+ * Uses a plain HTMLAudioElement (no Web Audio / AudioContext hacks) so iOS
+ * can honour the hardware silent/ringer switch. If the device is muted,
+ * AudioContext would be blocked, or play() rejects — fail silently and
+ * continue the visual handoff.
+ */
 const playOpeningSound = () => {
   const el = ident.value
   const src = identSrc.value
-  if (!el || !src || settings.value.openingSound === 'off') return
+  if (!el || !src || settings.value.openingSound !== 'on') return
   try {
-    // Playback stays inside the direct visitor gesture.
     if (el.getAttribute('src') !== src) el.src = src
     el.pause()
     el.currentTime = 0
-    el.muted = false
+    // Do not force unmute or route around the silent switch.
     el.volume = 0.92
-    void el.play().catch(() => undefined)
+    const p = el.play()
+    if (p && typeof p.catch === 'function') p.catch(() => undefined)
   } catch {
-    // The visual handoff never depends on successful audio playback.
+    // Visual handoff never depends on audio.
   }
 }
 
@@ -87,7 +94,7 @@ onBeforeUnmount(() => {
       v-if="!entered"
       type="button"
       class="preloader__entry"
-      :aria-label="settings.openingSound !== 'off' ? 'Tap to enter Entertrainer with sound' : 'Tap to enter Entertrainer'"
+      :aria-label="settings.openingSound === 'on' ? 'Tap to enter Entertrainer with sound' : 'Tap to enter Entertrainer'"
       @click="startExperience"
     >
       <svg class="preloader__entry-logo" viewBox="0 0 240 240" aria-hidden="true">

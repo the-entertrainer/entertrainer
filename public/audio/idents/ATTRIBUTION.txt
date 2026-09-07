@@ -1,0 +1,11 @@
+Opening sound
+=============
+File: opening.mp3
+
+Source: "Digital Vibe (Podcast Intro Ident)" by Diamond_Tunes
+URL:    https://pixabay.com/sound-effects/musical-digital-vibe-podcast-intro-ident-180005/
+License: Pixabay Content License (free for use; attribution appreciated, not required)
+         https://pixabay.com/service/license-summary/
+
+Trimmed/faded with ffmpeg to ~3.35s stereo 44.1 kHz ~256 kbps MP3 for the
+Entertrainer preloader sync window.

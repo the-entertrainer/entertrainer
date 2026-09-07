@@ -1,42 +1,32 @@
 /**
- * Site-wide visitor preferences (opening sound, motion, article list).
+ * Site-wide visitor preferences (opening sound, motion, article list, word puzzle).
  * Persists under one localStorage key; SSR-safe defaults until client hydrate.
  */
 
 export type ElevateSortPref = 'newest' | 'oldest' | 'title'
 
-/** Stored opening-sound choice: off, or an ident id. */
-export type OpeningSoundId =
-  | 'off'
-  | 'soft-chime'
-  | 'warm-pulse'
-  | 'bright-spark'
-  | 'deep-note'
-  | 'quiet-hush'
-  | 'glass-tap'
+/** Opening sound: on (brand ident) or off. */
+export type OpeningSoundId = 'on' | 'off'
 
-export interface OpeningSoundOption {
-  id: OpeningSoundId
-  label: string
-  /** Public path when id !== 'off' */
-  src?: string
-}
+/** Legacy multi-ident ids — migrate to "on". */
+const LEGACY_IDENT_IDS = new Set([
+  'soft-chime',
+  'warm-pulse',
+  'bright-spark',
+  'deep-note',
+  'quiet-hush',
+  'glass-tap',
+  'on'
+])
 
-export const OPENING_SOUND_OPTIONS: OpeningSoundOption[] = [
-  { id: 'off', label: 'Off' },
-  { id: 'soft-chime', label: 'Soft chime', src: '/audio/idents/soft-chime.mp3' },
-  { id: 'warm-pulse', label: 'Warm pulse', src: '/audio/idents/warm-pulse.mp3' },
-  { id: 'bright-spark', label: 'Bright spark', src: '/audio/idents/bright-spark.mp3' },
-  { id: 'deep-note', label: 'Deep note', src: '/audio/idents/deep-note.mp3' },
-  { id: 'quiet-hush', label: 'Quiet hush', src: '/audio/idents/quiet-hush.mp3' },
-  { id: 'glass-tap', label: 'Glass tap', src: '/audio/idents/glass-tap.mp3' }
-]
-
-const OPENING_SOUND_IDS = new Set(OPENING_SOUND_OPTIONS.map((o) => o.id))
+/** Brand opening ident — Pixabay "Digital Vibe (Podcast Intro Ident)" by Diamond_Tunes. */
+export const OPENING_SOUND_SRC = '/audio/idents/opening.mp3'
 
 export interface SiteSettings {
-  /** Selected welcome/opening sound (replaces legacy logoSound boolean). */
+  /** Welcome tone on tap-to-enter: "on" | "off". */
   openingSound: OpeningSoundId
+  /** Show the daily scrambled-word splash (when not already solved/skipped today). */
+  wordOfTheDay: boolean
   reduceMotion: boolean
   hideElevateExcerpts: boolean
   elevateSort: ElevateSortPref
@@ -44,24 +34,27 @@ export interface SiteSettings {
 
 export const SITE_SETTINGS_KEY = 'entertrainer.settings'
 
-const DEFAULT_OPENING: OpeningSoundId = 'soft-chime'
+const DEFAULT_OPENING: OpeningSoundId = 'on'
 
 const defaults = (): SiteSettings => ({
   openingSound: DEFAULT_OPENING,
+  wordOfTheDay: true,
   reduceMotion: false,
   hideElevateExcerpts: false,
   elevateSort: 'newest'
 })
 
 function isOpeningSoundId(value: unknown): value is OpeningSoundId {
-  return typeof value === 'string' && OPENING_SOUND_IDS.has(value as OpeningSoundId)
+  return value === 'on' || value === 'off'
 }
 
-/** Resolve openingSound from stored JSON, migrating legacy `logoSound` boolean. */
+/** Resolve openingSound from stored JSON, migrating legacy logoSound / ident ids. */
 function resolveOpeningSound(parsed: Record<string, unknown>): OpeningSoundId {
-  if (isOpeningSoundId(parsed.openingSound)) return parsed.openingSound
-  // Legacy: logoSound false → Off; true / missing → Soft chime
-  if (parsed.logoSound === false) return 'off'
+  const raw = parsed.openingSound
+  if (raw === 'off' || parsed.logoSound === false) return 'off'
+  if (raw === 'on') return 'on'
+  if (typeof raw === 'string' && LEGACY_IDENT_IDS.has(raw)) return 'on'
+  // Legacy: logoSound true / missing → on
   return DEFAULT_OPENING
 }
 
@@ -72,6 +65,7 @@ function parseStored(raw: string | null): SiteSettings {
     const sort = parsed.elevateSort
     return {
       openingSound: resolveOpeningSound(parsed),
+      wordOfTheDay: parsed.wordOfTheDay !== false,
       reduceMotion: parsed.reduceMotion === true,
       hideElevateExcerpts: parsed.hideElevateExcerpts === true,
       elevateSort: sort === 'oldest' || sort === 'title' || sort === 'newest' ? sort : 'newest'
@@ -81,9 +75,9 @@ function parseStored(raw: string | null): SiteSettings {
   }
 }
 
+/** Src for the single brand ident when sound is on; null when off. */
 export function openingSoundSrc(id: OpeningSoundId): string | null {
-  const opt = OPENING_SOUND_OPTIONS.find((o) => o.id === id)
-  return opt?.src ?? null
+  return id === 'on' ? OPENING_SOUND_SRC : null
 }
 
 export function useSiteSettings() {
@@ -94,7 +88,6 @@ export function useSiteSettings() {
   function persist() {
     if (!import.meta.client) return
     try {
-      // Persist current schema only (no legacy logoSound key).
       localStorage.setItem(SITE_SETTINGS_KEY, JSON.stringify(settings.value))
     } catch { /* private mode / quota */ }
   }
@@ -125,6 +118,7 @@ export function useSiteSettings() {
   }
 
   function setOpeningSound(id: OpeningSoundId) { patch({ openingSound: id }) }
+  function setWordOfTheDay(on: boolean) { patch({ wordOfTheDay: on }) }
   function setReduceMotion(on: boolean) { patch({ reduceMotion: on }) }
   function setHideElevateExcerpts(on: boolean) { patch({ hideElevateExcerpts: on }) }
   function setElevateSort(sort: ElevateSortPref) { patch({ elevateSort: sort }) }
@@ -151,7 +145,7 @@ export function useSiteSettings() {
     }
   }
 
-  const openingSoundOn = computed(() => settings.value.openingSound !== 'off')
+  const openingSoundOn = computed(() => settings.value.openingSound === 'on')
 
   return {
     settings,
@@ -162,6 +156,7 @@ export function useSiteSettings() {
     applyToDom,
     patch,
     setOpeningSound,
+    setWordOfTheDay,
     setReduceMotion,
     setHideElevateExcerpts,
     setElevateSort,
@@ -172,7 +167,7 @@ export function useSiteSettings() {
     prefersReducedMotion,
     openingSoundOn,
     defaults,
-    OPENING_SOUND_OPTIONS,
-    openingSoundSrc
+    openingSoundSrc,
+    OPENING_SOUND_SRC
   }
 }

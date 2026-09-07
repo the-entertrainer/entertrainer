@@ -26,7 +26,14 @@ import { getSocialImage, getSocialPreview, SITE_URL } from '~/content/social-pre
 const r = useRoute()
 const theme = useThemeStore()
 const siteSettings = useSiteSettings()
+const dailyWord = useDailyWord()
 const showPreloader = ref(true)
+
+function onPreloaderComplete() {
+  showPreloader.value = false
+  // After the tap-to-enter handoff, offer today's scrambled word (if enabled / pending).
+  dailyWord.tryOpenAfterPreloader()
+}
 const socialPreview = computed(() => getSocialPreview(r.path))
 const socialImage = computed(() => getSocialImage(socialPreview.value))
 
@@ -70,7 +77,8 @@ onBeforeUnmount(() => theme.dispose())
 
 <template>
   <div id="app-root">
-    <EdPreloader v-if="showPreloader" @complete="showPreloader = false" />
+    <EdPreloader v-if="showPreloader" @complete="onPreloaderComplete" />
+    <EdDailyWordSplash />
     <EdSettingsPanel />
     <div v-show="!showPreloader" :inert="showPreloader ? '' : undefined">
       <template v-if="bare">

@@ -16,6 +16,7 @@ import { useThemeStore } from '~/stores/theme'
  */
 const route = useRoute()
 const theme = useThemeStore()
+const { panelOpen, togglePanel, openPanel } = useSiteSettings()
 const open = ref(false)
 
 const isCurrent = (href: string) =>
@@ -29,6 +30,11 @@ function onKey(e: KeyboardEvent) {
   if (e.key === 'Escape' && open.value) { open.value = false; btn.value?.focus() }
 }
 const btn = ref<HTMLButtonElement | null>(null)
+function openSettingsFromSheet() {
+  open.value = false
+  openPanel()
+}
+
 onMounted(() => window.addEventListener('keydown', onKey))
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
@@ -48,6 +54,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
       </nav>
 
       <div class="mh__end">
+        <button
+          type="button"
+          class="mh__icon"
+          :aria-expanded="panelOpen"
+          aria-controls="site-settings-panel"
+          aria-haspopup="dialog"
+          :aria-label="panelOpen ? 'Close settings' : 'Open settings'"
+          @click="togglePanel()"
+        >
+          <EdSignalIcon name="settings" />
+        </button>
+
         <button type="button" class="mh__icon" @click="theme.toggle()"
                 :aria-label="`Switch to ${theme.theme === 'dark' ? 'light' : 'dark'} mode`">
           <EdSignalIcon :name="theme.theme === 'dark' ? 'sun' : 'moon'" />
@@ -72,6 +90,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           <span>{{ l.label }}</span>
           <EdSignalIcon name="external" />
         </NuxtLink>
+        <button type="button" class="mh__sheet-link mh__sheet-settings" @click="openSettingsFromSheet">
+          <span>Settings</span>
+          <EdSignalIcon name="settings" />
+        </button>
       </div>
     </div>
   </header>
@@ -134,11 +156,21 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 @media (hover: hover) { .mh__icon:hover { background: var(--signal-field); color: var(--ink); } }
 .mh__icon:active { transform: scale(.94); }
+.mh__icon[aria-expanded="true"] { background: var(--accent); }
 .mh__icon svg { transition: transform var(--dur-mid) var(--ease-spring), opacity var(--dur-fast) var(--ease-out); }
 .mh__icon--menu[aria-expanded="true"] svg { transform: rotate(90deg) scale(.88); }
 .mh__icon--menu { display: none; }
 
 .mh__sheet { display: none; }
+.mh__sheet-settings {
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: var(--paper);
+}
 
 @media (max-width: 860px) {
   .mh__bar { min-height: 54rem; padding-top: 6rem; padding-bottom: 6rem; gap: 12rem; }

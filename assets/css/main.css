@@ -383,6 +383,12 @@ html.theme-anim, html.theme-anim * {
   html.theme-anim, html.theme-anim * { transition: none !important; }
 }
 
+/* Reader "Reduce motion" preference — mirrors prefers-reduced-motion for decorative motion. */
+html[data-reduce-motion="on"] .theme-anim,
+html[data-reduce-motion="on"].theme-anim,
+html[data-reduce-motion="on"].theme-anim * { transition: none !important; }
+
+
 ::selection { background: var(--selection); color: var(--on-selection); }
 
 /* ============================================================

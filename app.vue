@@ -25,6 +25,7 @@ import { getSocialImage, getSocialPreview, SITE_URL } from '~/content/social-pre
  */
 const r = useRoute()
 const theme = useThemeStore()
+const siteSettings = useSiteSettings()
 const showPreloader = ref(true)
 const socialPreview = computed(() => getSocialPreview(r.path))
 const socialImage = computed(() => getSocialImage(socialPreview.value))
@@ -60,13 +61,17 @@ const bare = computed(() =>
   r.path.startsWith('/instructional-design')
 )
 
-onMounted(() => theme.init())
+onMounted(() => {
+  theme.init()
+  siteSettings.hydrate()
+})
 onBeforeUnmount(() => theme.dispose())
 </script>
 
 <template>
   <div id="app-root">
     <EdPreloader v-if="showPreloader" @complete="showPreloader = false" />
+    <EdSettingsPanel />
     <div v-show="!showPreloader" :inert="showPreloader ? '' : undefined">
       <template v-if="bare">
         <NuxtPage />
@@ -102,4 +107,7 @@ onBeforeUnmount(() => theme.dispose())
   .page-enter-active, .page-leave-active { transition: opacity 120ms linear; }
   .page-enter-from { transform: none; }
 }
+html[data-reduce-motion="on"] .page-enter-active,
+html[data-reduce-motion="on"] .page-leave-active { transition: opacity 120ms linear; }
+html[data-reduce-motion="on"] .page-enter-from { transform: none; }
 </style>

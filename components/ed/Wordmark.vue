@@ -38,4 +38,6 @@ withDefaults(defineProps<{
 @keyframes wm-mark-arrive { from { opacity:0; transform:scale(.82) rotate(-8deg); } to { opacity:1; transform:none; } }
 @keyframes wm-word-arrive { from { opacity: 0; transform: translateX(-3rem); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .wm__mark, .wm__word { animation: none; } }
+:global(html[data-reduce-motion="on"]) .wm__mark,
+:global(html[data-reduce-motion="on"]) .wm__word { animation: none; }
 </style>

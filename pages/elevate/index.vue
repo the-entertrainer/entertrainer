@@ -37,6 +37,8 @@ type SortMode = 'newest' | 'oldest' | 'title'
 
 const route = useRoute()
 const router = useRouter()
+const { settings, hydrated, hydrate } = useSiteSettings()
+onMounted(() => hydrate())
 
 const category = computed(() => {
   const raw = String(route.query.category || 'all').trim()
@@ -44,9 +46,11 @@ const category = computed(() => {
 })
 
 const sort = computed<SortMode>(() => {
-  const raw = String(route.query.sort || 'newest').trim()
-  if (raw === 'oldest' || raw === 'title') return raw
-  return 'newest'
+  const raw = String(route.query.sort || '').trim()
+  if (raw === 'oldest' || raw === 'title' || raw === 'newest') return raw
+  // Match SSR default until client hydrate avoids a list-order mismatch.
+  if (!hydrated.value) return 'newest'
+  return settings.value.elevateSort || 'newest'
 })
 
 const categories = computed(() => {
@@ -84,8 +88,11 @@ function setQuery(next: { category?: string; sort?: SortMode }) {
   const query: Record<string, string> = {}
   const cat = next.category ?? category.value
   const s = next.sort ?? sort.value
+  const preferred = settings.value.elevateSort || 'newest'
   if (cat && cat !== 'all') query.category = cat
-  if (s && s !== 'newest') query.sort = s
+  // Omit sort when it matches the remembered default so a bare /elevate
+  // keeps using that preference; keep an explicit override in the URL.
+  if (s && s !== preferred) query.sort = s
   router.replace({ query })
 }
 
@@ -188,7 +195,11 @@ function toggleFilters() {
         </div>
       </div>
 
-      <ul class="elevate__list" aria-live="polite">
+      <ul
+        class="elevate__list"
+        :class="{ 'elevate__list--compact': hydrated && settings.hideElevateExcerpts }"
+        aria-live="polite"
+      >
         <li v-for="post in filteredPosts" :key="post.slug">
           <NuxtLink :to="`/elevate/${post.slug}`" class="elevate__row" :aria-labelledby="`article-${post.slug}`">
             <figure class="elevate__thumb">
@@ -201,8 +212,8 @@ function toggleFilters() {
                 <span class="elevate__mins">{{ post.minutes }} min</span>
               </div>
               <h3 :id="`article-${post.slug}`" class="elevate__row-title">{{ post.title }}</h3>
-              <p class="elevate__row-dek">{{ post.dek }}</p>
-              <ul v-if="post.tags?.length" class="elevate__tags" aria-label="Tags">
+              <p v-if="!(hydrated && settings.hideElevateExcerpts)" class="elevate__row-dek">{{ post.dek }}</p>
+              <ul v-if="!(hydrated && settings.hideElevateExcerpts) && post.tags?.length" class="elevate__tags" aria-label="Tags">
                 <li v-for="tag in post.tags" :key="tag">{{ tag }}</li>
               </ul>
             </div>
@@ -496,6 +507,20 @@ function toggleFilters() {
   .elevate__thumb { width: 88rem; height: 60rem; }
   .elevate__row-dek { -webkit-line-clamp: 3; }
 }
+
+.elevate__list--compact .elevate__row {
+  padding-top: 14rem;
+  padding-bottom: 14rem;
+  align-items: center;
+}
+.elevate__list--compact .elevate__thumb {
+  width: 72rem;
+  height: 48rem;
+}
+.elevate__list--compact .elevate__row-title {
+  font-size: clamp(17rem, 2vw, 22rem);
+}
+.elevate__list--compact .elevate__row-meta { margin-bottom: 2rem; }
 
 @media (prefers-reduced-motion: reduce) {
   .elevate__thumb :deep(.ed-editorial-image),

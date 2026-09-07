@@ -35,7 +35,19 @@ const finish = () => {
   if (completed) return
   completed = true
   leaving.value = true
-  ident.value?.pause()
+  // Fade the ident with the 300ms visual leave so the encoded tail resolves cleanly.
+  const el = ident.value
+  if (el) {
+    const startVol = el.volume
+    const t0 = performance.now()
+    const step = (now: number) => {
+      const u = Math.min(1, (now - t0) / 300)
+      el.volume = Math.max(0, startVol * (1 - u))
+      if (u < 1) requestAnimationFrame(step)
+      else el.pause()
+    }
+    requestAnimationFrame(step)
+  }
   removeTimer = window.setTimeout(() => emit('complete'), 300)
 }
 
@@ -43,8 +55,8 @@ const startExperience = () => {
   if (entered.value || completed) return
   playOpeningSound()
   entered.value = true
-  // Ident is ~1.5–3s; keep reveal timing so motion still lands cleanly.
-  finishTimer = window.setTimeout(finish, reducedMotion.value ? 850 : 3200)
+  // Sonic logos are ~3.25s; finish slightly after 3200ms so audio tail + visual leave align.
+  finishTimer = window.setTimeout(finish, reducedMotion.value ? 850 : 3250)
 }
 
 onMounted(() => {

@@ -1,74 +1,31 @@
-<!-- Shockwave Type entry: compact logo first, then finite wordmark reveal. -->
+<!-- Compact logo first, then finite wordmark reveal; optional short opening ident. -->
 <script setup lang="ts">
+import { openingSoundSrc } from '~/composables/useSiteSettings'
+
 const emit = defineEmits<{ complete: [] }>()
 const { settings, prefersReducedMotion, hydrate } = useSiteSettings()
 const leaving = ref(false)
 const entered = ref(false)
 const reducedMotion = ref(false)
-const ambient = ref<HTMLAudioElement | null>(null)
+const ident = ref<HTMLAudioElement | null>(null)
 let finishTimer: ReturnType<typeof setTimeout> | undefined
 let removeTimer: ReturnType<typeof setTimeout> | undefined
 let completed = false
-let audioContext: AudioContext | undefined
-let ambientSource: MediaElementAudioSourceNode | undefined
-let audioNodes: AudioNode[] = []
 
-const createHallImpulse = (context: AudioContext) => {
-  const length = Math.floor(context.sampleRate * 1.15)
-  const impulse = context.createBuffer(2, length, context.sampleRate)
-  for (let channel = 0; channel < impulse.numberOfChannels; channel += 1) {
-    const data = impulse.getChannelData(channel)
-    for (let index = 0; index < length; index += 1) data[index] = (Math.random() * 2 - 1) * Math.pow(1 - index / length, 2.8)
-  }
-  return impulse
-}
+const identSrc = computed(() => openingSoundSrc(settings.value.openingSound))
 
-const ensureSpatialMix = () => {
-  if (audioContext) return audioContext
-  const AudioContextConstructor = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
-  const bed = ambient.value
-  if (!AudioContextConstructor || !bed) return
-
-  const context = new AudioContextConstructor()
-  const master = context.createGain()
-  const ambientGain = context.createGain()
-  const ambientPan = context.createStereoPanner?.()
-  const hall = context.createConvolver()
-  const hallGain = context.createGain()
-
-  ambientSource = context.createMediaElementSource(bed)
-  ambientGain.gain.value = 0.26
-  hallGain.gain.value = 0.24
-  master.gain.value = 0.92
-  hall.buffer = createHallImpulse(context)
-  ambientPan && (ambientPan.pan.value = 0.13)
-
-  ambientSource.connect(ambientGain)
-  if (ambientPan) { ambientGain.connect(ambientPan); ambientPan.connect(master) } else ambientGain.connect(master)
-  ambientGain.connect(hall)
-  hall.connect(hallGain)
-  hallGain.connect(master)
-  master.connect(context.destination)
-  ambientGain.gain.setValueAtTime(0.26, context.currentTime)
-  ambientGain.gain.linearRampToValueAtTime(0.0001, context.currentTime + 4.15)
-
-  audioNodes = [master, ambientGain, hall, hallGain, ambientPan].filter(Boolean) as AudioNode[]
-  audioContext = context
-  return context
-}
-
-const playAmbient = () => {
-  const bed = ambient.value
-  if (!bed || !settings.value.logoSound) return
+const playOpeningSound = () => {
+  const el = ident.value
+  const src = identSrc.value
+  if (!el || !src || settings.value.openingSound === 'off') return
   try {
-    // Ambient playback and the Web Audio unlock remain inside the direct visitor gesture.
-    const context = ensureSpatialMix()
-    void context?.resume().catch(() => undefined)
-    bed.pause()
-    bed.currentTime = 0
-    bed.muted = false
-    bed.volume = 1
-    void bed.play().catch(() => undefined)
+    // Playback stays inside the direct visitor gesture.
+    if (el.getAttribute('src') !== src) el.src = src
+    el.pause()
+    el.currentTime = 0
+    el.muted = false
+    el.volume = 0.92
+    void el.play().catch(() => undefined)
   } catch {
     // The visual handoff never depends on successful audio playback.
   }
@@ -78,15 +35,16 @@ const finish = () => {
   if (completed) return
   completed = true
   leaving.value = true
-  ambient.value?.pause()
+  ident.value?.pause()
   removeTimer = window.setTimeout(() => emit('complete'), 300)
 }
 
 const startExperience = () => {
   if (entered.value || completed) return
-  playAmbient()
+  playOpeningSound()
   entered.value = true
-  finishTimer = window.setTimeout(finish, reducedMotion.value ? 850 : 4400)
+  // Ident is ~1.5–3s; keep reveal timing so motion still lands cleanly.
+  finishTimer = window.setTimeout(finish, reducedMotion.value ? 850 : 3200)
 }
 
 onMounted(() => {
@@ -97,18 +55,29 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (finishTimer) window.clearTimeout(finishTimer)
   if (removeTimer) window.clearTimeout(removeTimer)
-  ambient.value?.pause()
-  ambientSource?.disconnect()
-  audioNodes.forEach(node => node.disconnect())
-  void audioContext?.close()
+  ident.value?.pause()
 })
 </script>
 
 <template>
   <div class="preloader" :class="{ 'preloader--entered': entered, 'preloader--leaving': leaving }">
-    <audio ref="ambient" class="preloader__audio" src="/api/entry-audio/ambient" preload="auto" playsinline aria-hidden="true" />
+    <audio
+      v-if="identSrc"
+      ref="ident"
+      class="preloader__audio"
+      :src="identSrc"
+      preload="auto"
+      playsinline
+      aria-hidden="true"
+    />
 
-    <button v-if="!entered" type="button" class="preloader__entry" :aria-label="settings.logoSound ? 'Tap to enter Entertrainer with sound' : 'Tap to enter Entertrainer'" @click="startExperience">
+    <button
+      v-if="!entered"
+      type="button"
+      class="preloader__entry"
+      :aria-label="settings.openingSound !== 'off' ? 'Tap to enter Entertrainer with sound' : 'Tap to enter Entertrainer'"
+      @click="startExperience"
+    >
       <svg class="preloader__entry-logo" viewBox="0 0 240 240" aria-hidden="true">
         <circle class="preloader__entry-ring" cx="120" cy="120" r="94" />
         <circle class="preloader__entry-ring" cx="120" cy="120" r="62" />

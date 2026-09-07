@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import type { ElevateSortPref } from '~/composables/useSiteSettings'
+import type { ElevateSortPref, OpeningSoundId } from '~/composables/useSiteSettings'
+import { OPENING_SOUND_OPTIONS, openingSoundSrc } from '~/composables/useSiteSettings'
 
 /**
- * Reader settings: slide-over panel. Yellow/cream Elevate DNA, Escape to close,
+ * Visitor preferences: slide-over panel. Yellow/cream Elevate DNA, Escape to close,
  * focus returns to the opener. Changes apply immediately via useSiteSettings.
  */
 const {
   settings,
   panelOpen,
   closePanel,
-  setLogoSound,
+  setOpeningSound,
   setReduceMotion,
   setHideElevateExcerpts,
   setElevateSort,
@@ -19,6 +20,7 @@ const {
 const dialog = ref<HTMLElement | null>(null)
 const closeBtn = ref<HTMLButtonElement | null>(null)
 const previouslyFocused = ref<HTMLElement | null>(null)
+let previewAudio: HTMLAudioElement | null = null
 
 watch(panelOpen, async (open) => {
   if (!import.meta.client) return
@@ -29,10 +31,31 @@ watch(panelOpen, async (open) => {
     closeBtn.value?.focus()
   } else {
     document.documentElement.classList.remove('settings-panel-open')
+    stopPreview()
     previouslyFocused.value?.focus?.()
     previouslyFocused.value = null
   }
 })
+
+function stopPreview() {
+  if (!previewAudio) return
+  try {
+    previewAudio.pause()
+    previewAudio.src = ''
+  } catch { /* ignore */ }
+  previewAudio = null
+}
+
+function previewIdent(id: OpeningSoundId) {
+  if (!import.meta.client || id === 'off') return
+  const src = openingSoundSrc(id)
+  if (!src) return
+  stopPreview()
+  const audio = new Audio(src)
+  audio.volume = 0.9
+  previewAudio = audio
+  void audio.play().catch(() => undefined)
+}
 
 function onKey(e: KeyboardEvent) {
   if (!panelOpen.value) return
@@ -62,13 +85,20 @@ onMounted(() => window.addEventListener('keydown', onKey))
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', onKey)
   document.documentElement.classList.remove('settings-panel-open')
+  stopPreview()
 })
 
 const sortOptions: { value: ElevateSortPref; label: string }[] = [
-  { value: 'newest', label: 'Newest' },
-  { value: 'oldest', label: 'Oldest' },
-  { value: 'title', label: 'Title A–Z' }
+  { value: 'newest', label: 'Newest first' },
+  { value: 'oldest', label: 'Oldest first' },
+  { value: 'title', label: 'A to Z' }
 ]
+
+const soundOptions = OPENING_SOUND_OPTIONS
+
+function selectSound(id: OpeningSoundId) {
+  setOpeningSound(id)
+}
 </script>
 
 <template>
@@ -89,7 +119,7 @@ const sortOptions: { value: ElevateSortPref; label: string }[] = [
       >
         <header class="sp__head">
           <div class="sp__head-copy">
-            <p class="sp__eyebrow">Preferences</p>
+            <p class="sp__eyebrow">Your preferences</p>
             <h2 id="sp-title" class="sp__title">Settings</h2>
           </div>
           <button
@@ -104,35 +134,52 @@ const sortOptions: { value: ElevateSortPref; label: string }[] = [
         </header>
 
         <div class="sp__body">
-          <label class="sp__row">
+          <div class="sp__row sp__row--stack" role="radiogroup" aria-labelledby="sp-sound-label">
             <span class="sp__row-copy">
-              <span class="sp__row-label">Logo animation sound</span>
-              <span class="sp__row-hint">Play the entry shockwave bed when you tap the mark</span>
+              <span id="sp-sound-label" class="sp__row-label">Opening sound</span>
+              <span class="sp__row-hint">A short welcome tone when you tap to enter</span>
             </span>
-            <button
-              type="button"
-              class="sp__switch"
-              role="switch"
-              :aria-checked="settings.logoSound"
-              :aria-label="`Logo animation sound ${settings.logoSound ? 'on' : 'off'}`"
-              @click="setLogoSound(!settings.logoSound)"
-            >
-              <span class="sp__switch-knob" aria-hidden="true" />
-              <span class="sp__switch-state" aria-hidden="true">{{ settings.logoSound ? 'On' : 'Off' }}</span>
-            </button>
-          </label>
+            <ul class="sp__sound-list" role="list">
+              <li
+                v-for="opt in soundOptions"
+                :key="opt.id"
+                class="sp__sound-item"
+              >
+                <button
+                  type="button"
+                  class="sp__sound-choice"
+                  role="radio"
+                  :aria-checked="settings.openingSound === opt.id"
+                  :aria-label="`Opening sound: ${opt.label}`"
+                  @click="selectSound(opt.id)"
+                >
+                  <span class="sp__sound-radio" aria-hidden="true" />
+                  <span class="sp__sound-name">{{ opt.label }}</span>
+                </button>
+                <button
+                  v-if="opt.id !== 'off'"
+                  type="button"
+                  class="sp__preview"
+                  :aria-label="`Preview ${opt.label}`"
+                  @click.stop="previewIdent(opt.id)"
+                >
+                  Preview
+                </button>
+              </li>
+            </ul>
+          </div>
 
           <label class="sp__row">
             <span class="sp__row-copy">
-              <span class="sp__row-label">Reduce motion</span>
-              <span class="sp__row-hint">Calm StageHero, logo, and decorative motion</span>
+              <span class="sp__row-label">Calmer motion</span>
+              <span class="sp__row-hint">Less movement on the home stage and logo</span>
             </span>
             <button
               type="button"
               class="sp__switch"
               role="switch"
               :aria-checked="settings.reduceMotion"
-              :aria-label="`Reduce motion ${settings.reduceMotion ? 'on' : 'off'}`"
+              :aria-label="`Calmer motion ${settings.reduceMotion ? 'on' : 'off'}`"
               @click="setReduceMotion(!settings.reduceMotion)"
             >
               <span class="sp__switch-knob" aria-hidden="true" />
@@ -142,15 +189,15 @@ const sortOptions: { value: ElevateSortPref; label: string }[] = [
 
           <label class="sp__row">
             <span class="sp__row-copy">
-              <span class="sp__row-label">Hide Elevate excerpts</span>
-              <span class="sp__row-hint">Denser article list — titles and meta only</span>
+              <span class="sp__row-label">Hide article summaries</span>
+              <span class="sp__row-hint">Shorter list — titles and details only</span>
             </span>
             <button
               type="button"
               class="sp__switch"
               role="switch"
               :aria-checked="settings.hideElevateExcerpts"
-              :aria-label="`Hide Elevate excerpts ${settings.hideElevateExcerpts ? 'on' : 'off'}`"
+              :aria-label="`Hide article summaries ${settings.hideElevateExcerpts ? 'on' : 'off'}`"
               @click="setHideElevateExcerpts(!settings.hideElevateExcerpts)"
             >
               <span class="sp__switch-knob" aria-hidden="true" />
@@ -160,10 +207,10 @@ const sortOptions: { value: ElevateSortPref; label: string }[] = [
 
           <div class="sp__row sp__row--stack" role="group" aria-labelledby="sp-sort-label">
             <span class="sp__row-copy">
-              <span id="sp-sort-label" class="sp__row-label">Default Elevate sort</span>
-              <span class="sp__row-hint">Used when /elevate has no ?sort= query</span>
+              <span id="sp-sort-label" class="sp__row-label">Article order</span>
+              <span class="sp__row-hint">How articles appear when you open the list</span>
             </span>
-            <div class="sp__segment" role="radiogroup" aria-label="Default Elevate sort">
+            <div class="sp__segment" role="radiogroup" aria-label="Article order">
               <button
                 v-for="opt in sortOptions"
                 :key="opt.value"
@@ -171,6 +218,7 @@ const sortOptions: { value: ElevateSortPref; label: string }[] = [
                 class="sp__segment-btn"
                 role="radio"
                 :aria-checked="settings.elevateSort === opt.value"
+                :aria-label="opt.label"
                 @click="setElevateSort(opt.value)"
               >{{ opt.label }}</button>
             </div>
@@ -178,7 +226,7 @@ const sortOptions: { value: ElevateSortPref; label: string }[] = [
         </div>
 
         <footer class="sp__foot">
-          <button type="button" class="sp__reset" @click="reset()">Reset settings</button>
+          <button type="button" class="sp__reset" aria-label="Reset to defaults" @click="reset()">Reset to defaults</button>
         </footer>
       </div>
     </div>
@@ -281,6 +329,74 @@ const sortOptions: { value: ElevateSortPref; label: string }[] = [
 .sp__row-copy { min-width: 0; display: grid; gap: 4rem; }
 .sp__row-label { font: 650 15rem/1.25 var(--font-ui); color: var(--ink); }
 .sp__row-hint { font: 400 13rem/1.4 var(--font-ui); color: var(--ink-soft); }
+
+.sp__sound-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6rem;
+}
+
+.sp__sound-item {
+  display: flex;
+  align-items: center;
+  gap: 8rem;
+}
+
+.sp__sound-choice {
+  flex: 1;
+  min-width: 0;
+  min-height: 40rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 10rem;
+  padding: 0 12rem 0 10rem;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--radius-s);
+  background: var(--paper);
+  color: var(--ink-soft);
+  font: 650 14rem/1 var(--font-ui);
+  text-align: left;
+}
+.sp__sound-choice[aria-checked="true"] {
+  border-color: var(--ink);
+  background: var(--accent);
+  color: var(--ink);
+}
+.sp__sound-choice:hover { border-color: var(--ink); color: var(--ink); }
+.sp__sound-choice:focus-visible { outline: 3rem solid var(--ink); outline-offset: 2rem; }
+
+.sp__sound-radio {
+  width: 14rem;
+  height: 14rem;
+  flex: none;
+  border-radius: 50%;
+  border: var(--stroke) solid currentColor;
+  box-shadow: inset 0 0 0 2rem var(--paper);
+}
+.sp__sound-choice[aria-checked="true"] .sp__sound-radio {
+  background: var(--ink);
+  box-shadow: inset 0 0 0 3rem var(--accent);
+}
+
+.sp__sound-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.sp__preview {
+  flex: none;
+  min-height: 36rem;
+  padding: 0 12rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-full);
+  background: var(--paper);
+  color: var(--ink);
+  font: 650 12rem/1 var(--font-ui);
+  box-shadow: 2rem 2rem 0 var(--accent);
+}
+.sp__preview:hover { background: var(--signal-field); }
+.sp__preview:active { transform: translate(1rem, 1rem); box-shadow: 1rem 1rem 0 var(--accent); }
+.sp__preview:focus-visible { outline: 3rem solid var(--ink); outline-offset: 2rem; }
 
 .sp__switch {
   position: relative;
@@ -385,10 +501,11 @@ const sortOptions: { value: ElevateSortPref; label: string }[] = [
 
 @media (prefers-reduced-motion: reduce) {
   .sp__panel { animation: none; }
-  .sp__switch, .sp__switch-knob, .sp__reset { transition: none; }
+  .sp__switch, .sp__switch-knob, .sp__reset, .sp__preview { transition: none; }
 }
 :global(html[data-reduce-motion="on"]) .sp__panel { animation: none; }
 :global(html[data-reduce-motion="on"]) .sp__switch,
 :global(html[data-reduce-motion="on"]) .sp__switch-knob,
-:global(html[data-reduce-motion="on"]) .sp__reset { transition: none; }
+:global(html[data-reduce-motion="on"]) .sp__reset,
+:global(html[data-reduce-motion="on"]) .sp__preview { transition: none; }
 </style>

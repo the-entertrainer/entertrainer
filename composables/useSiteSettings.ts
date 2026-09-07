@@ -1,11 +1,42 @@
 /**
- * Site-wide reader preferences (logo sound, motion, Elevate list).
+ * Site-wide visitor preferences (opening sound, motion, article list).
  * Persists under one localStorage key; SSR-safe defaults until client hydrate.
  */
+
 export type ElevateSortPref = 'newest' | 'oldest' | 'title'
 
+/** Stored opening-sound choice: off, or an ident id. */
+export type OpeningSoundId =
+  | 'off'
+  | 'soft-chime'
+  | 'warm-pulse'
+  | 'bright-spark'
+  | 'deep-note'
+  | 'quiet-hush'
+  | 'glass-tap'
+
+export interface OpeningSoundOption {
+  id: OpeningSoundId
+  label: string
+  /** Public path when id !== 'off' */
+  src?: string
+}
+
+export const OPENING_SOUND_OPTIONS: OpeningSoundOption[] = [
+  { id: 'off', label: 'Off' },
+  { id: 'soft-chime', label: 'Soft chime', src: '/audio/idents/soft-chime.mp3' },
+  { id: 'warm-pulse', label: 'Warm pulse', src: '/audio/idents/warm-pulse.mp3' },
+  { id: 'bright-spark', label: 'Bright spark', src: '/audio/idents/bright-spark.mp3' },
+  { id: 'deep-note', label: 'Deep note', src: '/audio/idents/deep-note.mp3' },
+  { id: 'quiet-hush', label: 'Quiet hush', src: '/audio/idents/quiet-hush.mp3' },
+  { id: 'glass-tap', label: 'Glass tap', src: '/audio/idents/glass-tap.mp3' }
+]
+
+const OPENING_SOUND_IDS = new Set(OPENING_SOUND_OPTIONS.map((o) => o.id))
+
 export interface SiteSettings {
-  logoSound: boolean
+  /** Selected welcome/opening sound (replaces legacy logoSound boolean). */
+  openingSound: OpeningSoundId
   reduceMotion: boolean
   hideElevateExcerpts: boolean
   elevateSort: ElevateSortPref
@@ -13,20 +44,34 @@ export interface SiteSettings {
 
 export const SITE_SETTINGS_KEY = 'entertrainer.settings'
 
+const DEFAULT_OPENING: OpeningSoundId = 'soft-chime'
+
 const defaults = (): SiteSettings => ({
-  logoSound: true,
+  openingSound: DEFAULT_OPENING,
   reduceMotion: false,
   hideElevateExcerpts: false,
   elevateSort: 'newest'
 })
 
+function isOpeningSoundId(value: unknown): value is OpeningSoundId {
+  return typeof value === 'string' && OPENING_SOUND_IDS.has(value as OpeningSoundId)
+}
+
+/** Resolve openingSound from stored JSON, migrating legacy `logoSound` boolean. */
+function resolveOpeningSound(parsed: Record<string, unknown>): OpeningSoundId {
+  if (isOpeningSoundId(parsed.openingSound)) return parsed.openingSound
+  // Legacy: logoSound false → Off; true / missing → Soft chime
+  if (parsed.logoSound === false) return 'off'
+  return DEFAULT_OPENING
+}
+
 function parseStored(raw: string | null): SiteSettings {
   if (!raw) return defaults()
   try {
-    const parsed = JSON.parse(raw) as Partial<SiteSettings>
+    const parsed = JSON.parse(raw) as Record<string, unknown>
     const sort = parsed.elevateSort
     return {
-      logoSound: parsed.logoSound !== false,
+      openingSound: resolveOpeningSound(parsed),
       reduceMotion: parsed.reduceMotion === true,
       hideElevateExcerpts: parsed.hideElevateExcerpts === true,
       elevateSort: sort === 'oldest' || sort === 'title' || sort === 'newest' ? sort : 'newest'
@@ -34,6 +79,11 @@ function parseStored(raw: string | null): SiteSettings {
   } catch {
     return defaults()
   }
+}
+
+export function openingSoundSrc(id: OpeningSoundId): string | null {
+  const opt = OPENING_SOUND_OPTIONS.find((o) => o.id === id)
+  return opt?.src ?? null
 }
 
 export function useSiteSettings() {
@@ -44,6 +94,7 @@ export function useSiteSettings() {
   function persist() {
     if (!import.meta.client) return
     try {
+      // Persist current schema only (no legacy logoSound key).
       localStorage.setItem(SITE_SETTINGS_KEY, JSON.stringify(settings.value))
     } catch { /* private mode / quota */ }
   }
@@ -73,7 +124,7 @@ export function useSiteSettings() {
     applyToDom()
   }
 
-  function setLogoSound(on: boolean) { patch({ logoSound: on }) }
+  function setOpeningSound(id: OpeningSoundId) { patch({ openingSound: id }) }
   function setReduceMotion(on: boolean) { patch({ reduceMotion: on }) }
   function setHideElevateExcerpts(on: boolean) { patch({ hideElevateExcerpts: on }) }
   function setElevateSort(sort: ElevateSortPref) { patch({ elevateSort: sort }) }
@@ -100,6 +151,8 @@ export function useSiteSettings() {
     }
   }
 
+  const openingSoundOn = computed(() => settings.value.openingSound !== 'off')
+
   return {
     settings,
     panelOpen,
@@ -108,7 +161,7 @@ export function useSiteSettings() {
     persist,
     applyToDom,
     patch,
-    setLogoSound,
+    setOpeningSound,
     setReduceMotion,
     setHideElevateExcerpts,
     setElevateSort,
@@ -117,6 +170,9 @@ export function useSiteSettings() {
     closePanel,
     togglePanel,
     prefersReducedMotion,
-    defaults
+    openingSoundOn,
+    defaults,
+    OPENING_SOUND_OPTIONS,
+    openingSoundSrc
   }
 }

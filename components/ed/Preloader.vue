@@ -731,21 +731,8 @@ onBeforeUnmount(() => {
       :aria-label="soundOn ? 'Tap to enter Entertrainer with sound' : 'Tap to enter Entertrainer'"
       @click="startExperience"
     >
-      <span class="preloader__entry-dawn" aria-hidden="true">
-        <span class="preloader__entry-halo" />
-        <span class="preloader__entry-ring preloader__entry-ring--outer" />
-        <span class="preloader__entry-ring preloader__entry-ring--mid" />
-        <span class="preloader__entry-core" />
-      </span>
-      <span class="preloader__entry-copy">
-        <span class="preloader__entry-wordmark">entertrainer</span>
-        <span class="preloader__entry-invite">
-          <span class="preloader__entry-line" aria-hidden="true" />
-          <span class="preloader__entry-cta">Tap to enter</span>
-          <span class="preloader__entry-line" aria-hidden="true" />
-        </span>
-        <span class="preloader__entry-note">{{ soundOn ? 'Quiet dawn · then the opening' : 'Quiet dawn · short welcome' }}</span>
-      </span>
+      <span class="preloader__entry-mark" aria-hidden="true">e</span>
+      <span class="preloader__entry-cta">Tap to enter</span>
     </button>
 
     <div v-else class="preloader__stage" aria-hidden="true">
@@ -859,111 +846,66 @@ onBeforeUnmount(() => {
 .preloader__audio { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
 .preloader__entry {
-  position: relative;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   display: grid;
-  place-items: center;
-  gap: clamp(28rem, 6vh, 48rem);
-  width: min(420rem, 88vw);
-  padding: 24rem 16rem;
+  place-content: center;
+  justify-items: center;
+  gap: 14rem;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
   border: 0;
   background: transparent;
   color: #15120f;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.preloader__entry-dawn {
-  position: relative;
+.preloader__entry-mark {
   display: grid;
   place-items: center;
-  width: min(148rem, 38vw);
-  aspect-ratio: 1;
-}
-.preloader__entry-halo {
-  position: absolute;
-  inset: -18%;
+  width: 40rem;
+  height: 40rem;
   border-radius: 50%;
-  background: radial-gradient(circle, rgb(255 212 59 / .18) 0%, rgb(255 212 59 / .06) 42%, transparent 70%);
-  animation: pl-entry-halo 4.8s ease-in-out infinite;
-}
-.preloader__entry-ring {
-  position: absolute;
-  border-radius: 50%;
-  border: 1.5px solid rgb(21 18 15 / .16);
-  pointer-events: none;
-}
-.preloader__entry-ring--outer {
-  inset: 0;
-  border-color: rgb(21 18 15 / .14);
-}
-.preloader__entry-ring--mid {
-  inset: 18%;
-  border-color: rgb(255 212 59 / .55);
-  animation: pl-entry-ring-soft 5.2s ease-in-out infinite;
-}
-.preloader__entry-core {
-  width: 12rem;
-  height: 12rem;
-  border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #fff6d6 0%, #ffd43b 55%, #e6b800 100%);
-  box-shadow: 0 0 0 6rem rgb(255 212 59 / .12);
-  opacity: .92;
-  transform: scale(.92);
-  animation: pl-entry-core 3.6s ease-in-out infinite;
-}
-.preloader__entry-copy {
-  display: grid;
-  gap: 14rem;
-  justify-items: center;
-  text-align: center;
-}
-.preloader__entry-wordmark {
-  font-family: var(--font-ui), Arial, sans-serif;
-  font-size: clamp(28rem, 7vw, 42rem);
-  font-weight: 900;
-  letter-spacing: -.07em;
-  line-height: 1;
+  border: 1.5px solid rgb(21 18 15 / .18);
+  background: transparent;
   color: #15120f;
-}
-.preloader__entry-invite {
-  display: inline-flex;
-  align-items: center;
-  gap: 12rem;
-}
-.preloader__entry-line {
-  width: clamp(28rem, 8vw, 48rem);
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgb(21 18 15 / .35), transparent);
+  font-family: var(--font-ui), Arial, sans-serif;
+  font-size: 18rem;
+  font-weight: 800;
+  letter-spacing: -.06em;
+  line-height: 1;
+  opacity: .55;
+  transition: opacity 180ms ease, border-color 180ms ease;
 }
 .preloader__entry-cta {
-  font-family: var(--font-mono), monospace;
-  font-size: 11rem;
-  font-weight: 700;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: rgb(21 18 15 / .72);
-}
-.preloader__entry-note {
   font-family: var(--font-ui), Arial, sans-serif;
-  font-size: 12rem;
-  font-weight: 500;
-  letter-spacing: .02em;
-  color: rgb(21 18 15 / .42);
+  font-size: 13rem;
+  font-weight: 550;
+  letter-spacing: .04em;
+  color: rgb(21 18 15 / .45);
+  transition: color 180ms ease;
 }
-.preloader__entry:hover .preloader__entry-core,
-.preloader__entry:focus-visible .preloader__entry-core {
-  transform: scale(1);
-  box-shadow: 0 0 0 10rem rgb(255 212 59 / .16);
+.preloader__entry:hover .preloader__entry-mark,
+.preloader__entry:focus-visible .preloader__entry-mark {
+  opacity: .85;
+  border-color: rgb(21 18 15 / .35);
 }
 .preloader__entry:hover .preloader__entry-cta,
 .preloader__entry:focus-visible .preloader__entry-cta {
-  color: #15120f;
+  color: rgb(21 18 15 / .72);
 }
 .preloader__entry:focus-visible {
-  outline: 3rem solid #15120f;
-  outline-offset: 8rem;
-  border-radius: 16rem;
+  outline: none;
 }
-.preloader__entry:active .preloader__entry-dawn { transform: scale(.98); }
+.preloader__entry:focus-visible .preloader__entry-mark {
+  outline: 2rem solid #15120f;
+  outline-offset: 6rem;
+}
+.preloader__entry:active .preloader__entry-mark { opacity: 1; }
+
 
 .preloader__stage {
   position: relative;
@@ -1250,16 +1192,10 @@ onBeforeUnmount(() => {
   outline-offset: 3rem;
 }
 
-@keyframes pl-entry-halo {
-  0%, 100% { opacity: .7; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.04); }
 }
-@keyframes pl-entry-ring-soft {
-  0%, 100% { opacity: .55; transform: scale(1); }
   50% { opacity: .9; transform: scale(1.03); }
 }
-@keyframes pl-entry-core {
-  0%, 100% { opacity: .78; transform: scale(.9); }
   50% { opacity: 1; transform: scale(1); }
 }
 
@@ -1416,9 +1352,6 @@ onBeforeUnmount(() => {
   .preloader *,
   .preloader *::before,
   .preloader *::after { animation: none !important; }
-  .preloader__entry-halo,
-  .preloader__entry-ring--mid,
-  .preloader__entry-core { animation: none !important; }
   .preloader__ring {
     opacity: 1;
     stroke-dashoffset: 0;
@@ -1438,9 +1371,6 @@ onBeforeUnmount(() => {
 :global(html[data-reduce-motion="on"]) .preloader *,
 :global(html[data-reduce-motion="on"]) .preloader *::before,
 :global(html[data-reduce-motion="on"]) .preloader *::after { animation: none !important; }
-:global(html[data-reduce-motion="on"]) .preloader__entry-halo,
-:global(html[data-reduce-motion="on"]) .preloader__entry-ring--mid,
-:global(html[data-reduce-motion="on"]) .preloader__entry-core { animation: none !important; }
 :global(html[data-reduce-motion="on"]) .preloader__ring {
   opacity: 1;
   stroke-dashoffset: 0;

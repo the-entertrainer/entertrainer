@@ -2,7 +2,7 @@
 /**
  * Word of the Day — click-to-open scramble modal.
  * Cream / ink / yellow DNA. Clue always visible; Reveal after first miss.
- * Win or reveal → congratulate + dictionary meaning (API with bank fallback).
+ * Win or reveal → congratulate + plain meaning (API with bank fallback).
  */
 import type { WotdDefinition } from '~/composables/useDailyWord'
 
@@ -201,7 +201,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
             <p class="wotd__meaning-def">{{ meaning.definition }}</p>
             <p v-if="meaning.example" class="wotd__meaning-ex">“{{ meaning.example }}”</p>
             <p class="wotd__meaning-src">
-              {{ meaning.source === 'api' ? 'Definition via Free Dictionary API' : 'From the Entertrainer word bank' }}
+              {{ meaning.source === 'api' ? 'Free Dictionary API' : 'Definition' }}
             </p>
           </template>
         </div>

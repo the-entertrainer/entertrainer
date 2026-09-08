@@ -1,9 +1,14 @@
 <script setup lang="ts">
 /**
- * Word of the Day — tiny daily scramble game.
- * Clue → guess → reveal. Win or peek → short meaning. No corporate fluff.
+ * Word of the Day — arrange scrambled letter tiles into answer slots.
+ * Clue → tap/place letters → auto-check when full → meaning after win or peek.
  */
 import type { WotdDefinition } from '~/composables/useDailyWord'
+
+interface LetterTile {
+  id: string
+  ch: string
+}
 
 const {
   open,
@@ -19,26 +24,37 @@ const {
   refresh
 } = useDailyWord()
 
-const guess = ref('')
 const feedback = ref<'idle' | 'wrong' | 'ok' | 'revealed'>('idle')
 const failCount = ref(0)
-const inputEl = ref<HTMLInputElement | null>(null)
 const meaning = ref<WotdDefinition | null>(null)
 const meaningLoading = ref(false)
+const slots = ref<(LetterTile | null)[]>([])
+const tray = ref<LetterTile[]>([])
+const boardEl = ref<HTMLElement | null>(null)
+const shake = ref(false)
 
 const showReveal = computed(() => failCount.value >= 1 && feedback.value !== 'ok' && feedback.value !== 'revealed')
 const showMeaning = computed(() => feedback.value === 'ok' || feedback.value === 'revealed')
+const slotsFull = computed(() => slots.value.length > 0 && slots.value.every(Boolean))
+const placedCount = computed(() => slots.value.filter(Boolean).length)
 
-watch(open, async (v) => {
-  if (!v) return
-  refresh()
-  guess.value = ''
+function buildBoard() {
+  const letters = scrambled.split('')
+  tray.value = letters.map((ch, i) => ({ id: `t${i}-${ch}`, ch }))
+  slots.value = Array.from({ length: word.length }, () => null)
   feedback.value = 'idle'
   failCount.value = 0
   meaning.value = null
   meaningLoading.value = false
+  shake.value = false
+}
+
+watch(open, async (v) => {
+  if (!v) return
+  refresh()
+  buildBoard()
   await nextTick()
-  inputEl.value?.focus()
+  boardEl.value?.focus()
 })
 
 function normalize(s: string) {
@@ -54,9 +70,14 @@ async function loadMeaning() {
   }
 }
 
-async function submit() {
+function guessFromSlots() {
+  return slots.value.map((t) => t?.ch ?? '').join('')
+}
+
+async function checkAnswer() {
   if (showMeaning.value) return
-  const g = normalize(guess.value)
+  if (!slotsFull.value) return
+  const g = normalize(guessFromSlots())
   if (!g) return
   if (g === word) {
     feedback.value = 'ok'
@@ -66,12 +87,55 @@ async function submit() {
   }
   feedback.value = 'wrong'
   failCount.value += 1
+  shake.value = true
+  window.setTimeout(() => { shake.value = false }, 420)
+}
+
+async function maybeAutoCheck() {
+  if (slotsFull.value) await checkAnswer()
+}
+
+function placeTile(tile: LetterTile) {
+  if (showMeaning.value) return
+  const empty = slots.value.findIndex((s) => !s)
+  if (empty < 0) return
+  const ti = tray.value.findIndex((t) => t.id === tile.id)
+  if (ti < 0) return
+  tray.value = tray.value.filter((t) => t.id !== tile.id)
+  const next = slots.value.slice()
+  next[empty] = tile
+  slots.value = next
+  if (feedback.value === 'wrong') feedback.value = 'idle'
+  void maybeAutoCheck()
+}
+
+function returnSlot(index: number) {
+  if (showMeaning.value) return
+  const tile = slots.value[index]
+  if (!tile) return
+  const next = slots.value.slice()
+  next[index] = null
+  slots.value = next
+  tray.value = [...tray.value, tile]
+  if (feedback.value === 'wrong') feedback.value = 'idle'
+}
+
+/** Compact tray: move trailing empties by packing — already packed array. */
+function onTrayActivate(tile: LetterTile) {
+  placeTile(tile)
+}
+
+function onSlotActivate(index: number) {
+  returnSlot(index)
 }
 
 async function revealAnswer() {
   if (!showReveal.value) return
   feedback.value = 'revealed'
-  guess.value = word
+  // Place correct letters into slots; clear tray
+  const chars = word.split('')
+  slots.value = chars.map((ch, i) => ({ id: `reveal-${i}`, ch }))
+  tray.value = []
   markRevealed()
   await loadMeaning()
 }
@@ -89,6 +153,32 @@ function onKey(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     e.preventDefault()
     dismiss()
+    return
+  }
+  if (showMeaning.value) return
+
+  if (e.key === 'Backspace') {
+    e.preventDefault()
+    for (let i = slots.value.length - 1; i >= 0; i--) {
+      if (slots.value[i]) {
+        returnSlot(i)
+        break
+      }
+    }
+    return
+  }
+
+  if (e.key === 'Enter') {
+    e.preventDefault()
+    void checkAnswer()
+    return
+  }
+
+  const ch = e.key.toLowerCase()
+  if (ch.length === 1 && ch >= 'a' && ch <= 'z') {
+    e.preventDefault()
+    const tile = tray.value.find((t) => t.ch === ch)
+    if (tile) placeTile(tile)
   }
 }
 
@@ -108,67 +198,77 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
       @click.self="dismiss()"
     >
       <div
+        ref="boardEl"
         class="wotd__panel"
         role="dialog"
         aria-modal="true"
         aria-labelledby="wotd-title"
         aria-describedby="wotd-hint"
+        tabindex="-1"
       >
         <header class="wotd__head">
-          <p class="wotd__eyebrow">Today’s word · 1 round</p>
+          <p class="wotd__eyebrow">Today’s word · arrange</p>
           <h2 id="wotd-title" class="wotd__title">
             <template v-if="feedback === 'ok'">Got it!</template>
             <template v-else-if="feedback === 'revealed'">Here’s the word</template>
-            <template v-else>Unscramble</template>
+            <template v-else>Arrange the letters</template>
           </h2>
           <p id="wotd-hint" class="wotd__hint">
             <template v-if="showMeaning">Nice one — stash it for later</template>
-            <template v-else>Letters are mixed. Clue’s below. Go.</template>
+            <template v-else>Tap a letter into a slot. Tap a slot to undo.</template>
           </p>
         </header>
 
-        <p
-          v-if="!showMeaning"
-          class="wotd__scramble"
-          aria-label="Scrambled letters"
-        >{{ scrambled }}</p>
-
-        <p
-          v-else
-          class="wotd__answer"
-          aria-label="Today's word"
-        >{{ word }}</p>
-
         <p v-if="!showMeaning" class="wotd__clue" role="note">
           <span class="wotd__clue-label">Clue</span>
-          <span class="wotd__clue-text">{{ clue }}</span>
+          <span id="wotd-clue-text" class="wotd__clue-text">{{ clue }}</span>
         </p>
 
-        <form
-          v-if="!showMeaning"
-          class="wotd__form"
-          @submit.prevent="submit"
+        <!-- Answer slots / grid -->
+        <div
+          class="wotd__slots"
+          :class="{
+            'wotd__slots--shake': shake,
+            'wotd__slots--ok': feedback === 'ok' || feedback === 'revealed',
+            'wotd__slots--wrong': feedback === 'wrong',
+            'wotd__slots--long': word.length > 9
+          }"
+          role="group"
+          :aria-label="showMeaning ? `Today's word: ${word}` : `Answer slots, ${placedCount} of ${word.length} filled`"
         >
-          <label class="sr-only" for="wotd-guess">Your guess</label>
-          <input
-            id="wotd-guess"
-            ref="inputEl"
-            v-model="guess"
-            class="wotd__input"
-            type="text"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="none"
-            spellcheck="false"
-            maxlength="16"
-            placeholder="Type it"
-            :aria-invalid="feedback === 'wrong'"
-            :aria-describedby="feedback === 'wrong' ? 'wotd-feedback' : 'wotd-clue-text'"
+          <button
+            v-for="(slot, i) in slots"
+            :key="`slot-${i}`"
+            type="button"
+            class="wotd__slot"
+            :class="{ 'wotd__slot--filled': !!slot, 'wotd__slot--empty': !slot }"
+            :disabled="showMeaning || !slot"
+            :aria-label="slot ? `Slot ${i + 1}: ${slot.ch.toUpperCase()}. Activate to remove.` : `Empty slot ${i + 1}`"
+            @click="onSlotActivate(i)"
           >
-          <button type="submit" class="wotd__go" aria-label="Try this guess">
-            Try
+            <span v-if="slot" aria-hidden="true">{{ slot.ch }}</span>
           </button>
-        </form>
+        </div>
+
+        <!-- Scrambled tray -->
+        <div
+          v-if="!showMeaning"
+          class="wotd__tray"
+          role="group"
+          aria-label="Scrambled letters"
+        >
+          <button
+            v-for="tile in tray"
+            :key="tile.id"
+            type="button"
+            class="wotd__tile"
+            :aria-label="`Place letter ${tile.ch.toUpperCase()}`"
+            @click="onTrayActivate(tile)"
+          >
+            <span aria-hidden="true">{{ tile.ch }}</span>
+          </button>
+          <p v-if="!tray.length && !slotsFull" class="wotd__tray-empty">All placed</p>
+        </div>
 
         <p
           v-if="feedback === 'wrong'"
@@ -176,7 +276,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           class="wotd__feedback wotd__feedback--wrong"
           role="status"
         >
-          Nope — again!
+          Not quite — rearrange
         </p>
         <p
           v-else-if="feedback === 'ok'"
@@ -211,6 +311,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
             @click="revealAnswer()"
           >
             Peek
+          </button>
+          <button
+            v-if="!showMeaning && slotsFull"
+            type="button"
+            class="wotd__check"
+            @click="checkAnswer()"
+          >
+            Check
           </button>
           <button
             v-if="!showMeaning"
@@ -248,8 +356,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .wotd { place-items: center; }
 }
 .wotd__panel {
-  width: min(440rem, 100%);
-  padding: 26rem 22rem 20rem;
+  width: min(460rem, 100%);
+  padding: 28rem 22rem 22rem;
   background: var(--paper);
   color: var(--ink);
   border: var(--stroke) solid var(--ink);
@@ -258,7 +366,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   animation: wotd-in 280ms var(--ease-out) both;
 }
 @media (min-width: 560px) {
-  .wotd__panel { border-radius: var(--radius-l); }
+  .wotd__panel { border-radius: var(--radius-l); padding: 30rem 26rem 24rem; }
 }
 @keyframes wotd-in {
   from { opacity: 0; transform: translateY(16rem) scale(.98); }
@@ -268,7 +376,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   display: inline-flex;
   align-items: center;
   gap: 6rem;
-  margin: 0 0 8rem;
+  margin: 0 0 10rem;
   padding: 4rem 9rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-full);
@@ -280,7 +388,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 .wotd__title {
   margin: 0 0 6rem;
-  font: 600 clamp(28rem, 5vw, 36rem)/1.05 var(--font-display);
+  font: 600 clamp(26rem, 5vw, 34rem)/1.05 var(--font-display);
   letter-spacing: -.03em;
 }
 .wotd__hint {
@@ -288,31 +396,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font: 400 14rem/1.4 var(--font-ui);
   color: var(--ink-soft);
 }
-.wotd__scramble,
-.wotd__answer {
-  margin: 0 0 14rem;
-  padding: 16rem 14rem;
-  text-align: center;
-  font: 700 clamp(26rem, 7vw, 40rem)/1.1 var(--font-ui);
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--ink);
-  background: var(--accent);
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-s);
-}
-.wotd__answer {
-  letter-spacing: .12em;
-  background: color-mix(in srgb, var(--accent) 70%, var(--paper));
-}
 .wotd__clue {
   display: grid;
   gap: 4rem;
-  margin: 0 0 16rem;
-  padding: 12rem 14rem;
+  margin: 0 0 20rem;
+  padding: 14rem 16rem;
   border: var(--stroke) solid var(--line);
   border-radius: var(--radius-s);
-  background: color-mix(in srgb, var(--accent) 12%, var(--paper));
+  background: color-mix(in srgb, var(--accent) 14%, var(--paper));
 }
 .wotd__clue-label {
   font: 700 10rem/1.2 var(--font-mono);
@@ -321,59 +412,149 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   color: var(--muted);
 }
 .wotd__clue-text {
-  font: 500 14rem/1.4 var(--font-ui);
+  font: 500 15rem/1.4 var(--font-ui);
   color: var(--ink);
 }
-.wotd__form {
+
+/* Answer slots */
+.wotd__slots {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 8rem;
-  margin-bottom: 10rem;
+  margin: 0 0 22rem;
+  min-height: 52rem;
 }
-.wotd__input {
-  flex: 1;
-  min-width: 0;
-  min-height: 48rem;
-  padding: 0 14rem;
+.wotd__slots--long { gap: 6rem; }
+.wotd__slots--ok .wotd__slot {
+  background: var(--accent);
+  border-color: var(--ink);
+  box-shadow: 3rem 3rem 0 var(--ink);
+}
+.wotd__slots--wrong .wotd__slot--filled {
+  border-color: var(--ink);
+  background: color-mix(in srgb, var(--paper) 88%, #c44);
+}
+.wotd__slots--shake {
+  animation: wotd-shake 400ms var(--ease-out);
+}
+@keyframes wotd-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6rem); }
+  40% { transform: translateX(6rem); }
+  60% { transform: translateX(-4rem); }
+  80% { transform: translateX(3rem); }
+}
+.wotd__slot {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: clamp(36rem, 8vw, 48rem);
+  height: clamp(44rem, 9vw, 56rem);
+  min-width: 36rem;
+  min-height: 44rem;
+  padding: 0;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
-  background: var(--paper);
+  background: color-mix(in srgb, var(--paper) 92%, var(--ink));
   color: var(--ink);
-  font: 650 16rem/1 var(--font-ui);
+  font: 700 clamp(18rem, 4.2vw, 24rem)/1 var(--font-ui);
+  letter-spacing: 0;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 140ms ease, transform 120ms ease, box-shadow 120ms ease;
 }
-.wotd__input:focus-visible {
+.wotd__slots--long .wotd__slot {
+  width: clamp(30rem, 6.5vw, 40rem);
+  height: clamp(40rem, 8vw, 48rem);
+  min-width: 30rem;
+  min-height: 40rem;
+  font-size: clamp(15rem, 3.6vw, 20rem);
+}
+.wotd__slot--empty {
+  background: var(--paper);
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--ink) 35%, var(--line));
+  cursor: default;
+}
+.wotd__slot--filled:not(:disabled):hover {
+  transform: translateY(-1rem);
+  background: color-mix(in srgb, var(--accent) 28%, var(--paper));
+}
+.wotd__slot--filled:not(:disabled):active {
+  transform: translateY(1rem);
+}
+.wotd__slot:focus-visible {
   outline: 3rem solid var(--ink);
   outline-offset: 2rem;
 }
-.wotd__go,
-.wotd__done,
-.wotd__reveal {
-  flex: none;
+.wotd__slot:disabled {
+  cursor: default;
+}
+
+/* Scrambled tray tiles */
+.wotd__tray {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10rem;
+  margin: 0 0 16rem;
+  padding: 16rem 12rem;
+  min-height: 72rem;
+  border: var(--stroke) solid var(--line);
+  border-radius: var(--radius-s);
+  background: color-mix(in srgb, var(--accent) 10%, var(--paper));
+}
+.wotd__tile {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: clamp(44rem, 10vw, 52rem);
+  height: clamp(48rem, 11vw, 56rem);
+  min-width: 44rem;
   min-height: 48rem;
-  padding: 0 18rem;
+  padding: 0;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
   background: var(--accent);
   color: var(--ink);
-  font: 700 14rem/1 var(--font-ui);
+  font: 700 clamp(18rem, 4.2vw, 24rem)/1 var(--font-ui);
+  text-transform: uppercase;
+  cursor: pointer;
   box-shadow: 3rem 3rem 0 var(--ink);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 140ms ease;
 }
-.wotd__go:hover,
-.wotd__done:hover,
-.wotd__reveal:hover { background: var(--signal-field); }
-.wotd__go:active,
-.wotd__done:active,
-.wotd__reveal:active { transform: translate(1rem, 1rem); box-shadow: 2rem 2rem 0 var(--ink); }
-.wotd__go:focus-visible,
-.wotd__done:focus-visible,
-.wotd__reveal:focus-visible { outline: 3rem solid var(--ink); outline-offset: 2rem; }
+.wotd__tile:hover {
+  background: var(--signal-field, color-mix(in srgb, var(--accent) 70%, #fff));
+  transform: translate(-1rem, -1rem);
+  box-shadow: 4rem 4rem 0 var(--ink);
+}
+.wotd__tile:active {
+  transform: translate(1rem, 1rem);
+  box-shadow: 2rem 2rem 0 var(--ink);
+}
+.wotd__tile:focus-visible {
+  outline: 3rem solid var(--ink);
+  outline-offset: 2rem;
+}
+.wotd__tray-empty {
+  margin: auto;
+  font: 500 13rem/1.3 var(--font-ui);
+  color: var(--muted);
+}
+
 .wotd__feedback {
   margin: 0 0 12rem;
   min-height: 1.2em;
   font: 650 13rem/1.3 var(--font-ui);
 }
+.wotd__feedback--wrong { color: var(--ink); }
+.wotd__feedback--ok { color: var(--ink); }
 .wotd__meaning {
   margin: 0 0 14rem;
-  padding: 14rem;
+  padding: 16rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
   background: var(--paper-2, var(--paper));
@@ -407,9 +588,32 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   justify-content: space-between;
   align-items: center;
   margin-top: 8rem;
-  padding-top: 14rem;
+  padding-top: 16rem;
   border-top: var(--stroke) solid var(--line);
 }
+.wotd__check,
+.wotd__done,
+.wotd__reveal {
+  flex: none;
+  min-height: 48rem;
+  padding: 0 18rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-s);
+  background: var(--accent);
+  color: var(--ink);
+  font: 700 14rem/1 var(--font-ui);
+  box-shadow: 3rem 3rem 0 var(--ink);
+  cursor: pointer;
+}
+.wotd__check:hover,
+.wotd__done:hover,
+.wotd__reveal:hover { background: var(--signal-field, color-mix(in srgb, var(--accent) 70%, #fff)); }
+.wotd__check:active,
+.wotd__done:active,
+.wotd__reveal:active { transform: translate(1rem, 1rem); box-shadow: 2rem 2rem 0 var(--ink); }
+.wotd__check:focus-visible,
+.wotd__done:focus-visible,
+.wotd__reveal:focus-visible { outline: 3rem solid var(--ink); outline-offset: 2rem; }
 .wotd__skip {
   min-height: 40rem;
   padding: 0 12rem;
@@ -419,6 +623,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font: 650 13rem/1 var(--font-ui);
   text-decoration: underline;
   text-underline-offset: 3rem;
+  cursor: pointer;
 }
 .wotd__skip:hover { color: var(--ink); }
 .wotd__skip:focus-visible {
@@ -427,12 +632,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border-radius: var(--radius-s);
 }
 .wotd__reveal { margin-right: auto; }
+.wotd__check { margin-left: auto; }
 .wotd__done { margin-left: auto; width: 100%; }
 @media (min-width: 420px) {
   .wotd__done { width: auto; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .wotd__panel { animation: none; }
+  .wotd__panel,
+  .wotd__slots--shake { animation: none; }
+  .wotd__tile,
+  .wotd__slot { transition: none; }
 }
-:global(html[data-reduce-motion="on"]) .wotd__panel { animation: none; }
+:global(html[data-reduce-motion="on"]) .wotd__panel,
+:global(html[data-reduce-motion="on"]) .wotd__slots--shake { animation: none; }
 </style>

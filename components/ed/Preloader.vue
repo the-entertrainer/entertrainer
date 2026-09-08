@@ -227,20 +227,21 @@ const sizeRainCanvas = () => {
 
 const buildRainCols = (w: number, h: number): RainCol[] => {
   const cols: RainCol[] = []
-  const gap = Math.max(22, Math.min(36, Math.floor(w / 28)))
+  // Wide columns for huge readable glyphs — sparse so brand stays primary.
+  const gap = Math.max(56, Math.min(96, Math.floor(w / 10)))
   let phraseIdx = Math.floor(Math.random() * SANSKRIT_RAIN.length)
-  for (let x = gap * 0.4; x < w; x += gap) {
+  for (let x = gap * 0.45; x < w; x += gap) {
     const phrase = SANSKRIT_RAIN[phraseIdx % SANSKRIT_RAIN.length]!
     phraseIdx += 1
     // Split into glyph-ish chunks (space-aware) for a column stream
     const raw = phrase.replace(/\s+/g, '·').split('')
-    const chars = [...raw, ...'·'.repeat(4)]
+    const chars = [...raw, ...'·'.repeat(3)]
     cols.push({
       x,
-      y: Math.random() * -h,
-      speed: 18 + Math.random() * 42,
+      y: Math.random() * -h * 0.6,
+      speed: 10 + Math.random() * 22,
       chars,
-      opacity: 0.1 + Math.random() * 0.16
+      opacity: 0.04 + Math.random() * 0.05
     })
   }
   return cols
@@ -286,36 +287,38 @@ const tickRain = (now: number) => {
   const dt = rainLast ? Math.min(0.05, (now - rainLast) / 1000) : 0.016
   rainLast = now
 
-  // Soft fade trail — keep brand readable
-  ctx.fillStyle = 'rgba(255, 250, 240, 0.18)'
+  // Soft fade trail — keep brand readable over huge glyphs
+  ctx.fillStyle = 'rgba(255, 250, 240, 0.22)'
   ctx.fillRect(0, 0, w, h)
 
-  // Dim during brand moment after enter; a bit stronger on entry idle
-  const brandDim = entered.value && !leaving.value ? 0.55 : 1
-  ctx.font = `500 ${Math.max(10, Math.min(13, w / 90))}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`
+  // Huge readable type, very low contrast so rings/wordmark stay primary
+  const fontPx = Math.max(28, Math.min(52, Math.floor(w / 18)))
+  const step = Math.round(fontPx * 1.15)
+  ctx.font = `500 ${fontPx}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'top'
 
   for (const col of rainCols) {
-    col.y += col.speed * dt * 12
-    const step = 16
+    col.y += col.speed * dt * 10
     for (let i = 0; i < col.chars.length; i++) {
       const ch = col.chars[i]!
       const yy = col.y + i * step
-      if (yy < -20 || yy > h + 20) continue
+      if (yy < -fontPx || yy > h + fontPx) continue
       const head = i === col.chars.length - 1
-      const a = (head ? col.opacity * 1.55 : col.opacity * (0.35 + (i / col.chars.length) * 0.65)) * brandDim
+      const a = head
+        ? col.opacity * 1.35
+        : col.opacity * (0.4 + (i / col.chars.length) * 0.55)
       ctx.fillStyle = head
-        ? `rgba(92, 68, 0, ${Math.min(0.42, a)})`
-        : `rgba(21, 18, 15, ${Math.min(0.28, a)})`
+        ? `rgba(92, 68, 0, ${Math.min(0.14, a)})`
+        : `rgba(21, 18, 15, ${Math.min(0.09, a)})`
       ctx.fillText(ch, col.x, yy)
     }
     if (col.y - col.chars.length * step > h) {
-      col.y = -Math.random() * h * 0.4 - col.chars.length * step
-      col.speed = 18 + Math.random() * 42
+      col.y = -Math.random() * h * 0.35 - col.chars.length * step
+      col.speed = 10 + Math.random() * 22
       const phrase = SANSKRIT_RAIN[Math.floor(Math.random() * SANSKRIT_RAIN.length)]!
-      col.chars = [...phrase.replace(/\s+/g, '·').split(''), ...'·'.repeat(3)]
-      col.opacity = 0.1 + Math.random() * 0.16
+      col.chars = [...phrase.replace(/\s+/g, '·').split(''), ...'·'.repeat(2)]
+      col.opacity = 0.04 + Math.random() * 0.05
     }
   }
 
@@ -859,6 +862,8 @@ const startExperience = () => {
   // Continuous handoff: entry mark morphs into the first dawn-ring beat (no hard cut).
   handingOff.value = !reducedMotion.value
   entered.value = true
+  // Sanskrit matrix rain — only after user enters (not on idle entry screen).
+  if (!reducedMotion.value) startRain()
   if (handoffTimer !== undefined) window.clearTimeout(handoffTimer)
   if (handingOff.value) {
     handoffTimer = window.setTimeout(() => {
@@ -898,7 +903,7 @@ onMounted(() => {
   hydrate()
   reducedMotion.value = prefersReducedMotion()
   if (!reducedMotion.value) {
-    startRain()
+    // Matrix rain starts only after tap/enter (see startExperience) — not on idle.
     // Brief beat so the logo is seen, then the hand cue plays once.
     handTimer = window.setTimeout(() => {
       handTimer = undefined
@@ -946,7 +951,7 @@ onBeforeUnmount(() => {
       @ended="onAudioEnded"
     />
 
-    <!-- Sanskrit matrix rain (romanized) — subtle under brand; off when reduce-motion. -->
+    <!-- Sanskrit matrix rain (romanized) — post-tap only; huge+subtle under brand; off when reduce-motion. -->
     <canvas
       v-if="rainActive && !reducedMotion"
       ref="rainCanvas"
@@ -1178,10 +1183,10 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: .72;
+  /* Huge glyphs drawn with very low alpha — keep overall veil soft. */
+  opacity: .55;
   mix-blend-mode: multiply;
 }
-.preloader--entered .preloader__rain { opacity: .38; }
 .preloader--leaving .preloader__rain { opacity: 0; transition: opacity 280ms ease; }
 
 .preloader__hand {

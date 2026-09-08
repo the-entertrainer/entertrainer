@@ -3,6 +3,30 @@
 import { openingSoundSrc } from '~/composables/useSiteSettings'
 import { pickPreloaderQuote, type PreloaderQuote } from '~/utils/preloaderQuotes'
 
+/** Romanized Sanskrit (IAST-ish) for matrix rain — phrases, not English glosses. */
+const SANSKRIT_RAIN = [
+  'satyam eva jayate',
+  'vasudhaiva kutumbakam',
+  'yogah karmasu kaushalam',
+  'tamaso ma jyotir gamaya',
+  'vidya dadati vinayam',
+  'prajnanam brahma',
+  'ahimsa paramo dharmah',
+  'sarve bhavantu sukhinah',
+  'asato ma sad gamaya',
+  'neti neti',
+  'om shanti shanti shanti',
+  'ekam sat vipra bahudha vadanti',
+  'sa vidya ya vimuktaye',
+  'jnana paramam balam',
+  'shraddhavan labhate jnanam',
+  'karmanye vadhikaraste',
+  'atma deepo bhava',
+  'lokah samastah sukhino bhavantu',
+  'sat cit ananda',
+  'yatra naryastu pujyante'
+] as const
+
 const emit = defineEmits<{ complete: [] }>()
 const { settings, prefersReducedMotion, hydrate } = useSiteSettings()
 const leaving = ref(false)
@@ -12,6 +36,12 @@ const handingOff = ref(false)
 const reducedMotion = ref(false)
 const ident = ref<HTMLAudioElement | null>(null)
 const beatCanvas = ref<HTMLCanvasElement | null>(null)
+const rainCanvas = ref<HTMLCanvasElement | null>(null)
+const handCursor = ref<HTMLElement | null>(null)
+/** One-shot animated hand that clicks the entry mark, then fades. */
+const handPlaying = ref(false)
+const handDone = ref(false)
+const rainActive = ref(false)
 const ringEls = ref<(SVGCircleElement | null)[]>([])
 const wordShellEl = ref<HTMLElement | null>(null)
 const enterPartEl = ref<HTMLElement | null>(null)
@@ -26,7 +56,18 @@ let handoffTimer: ReturnType<typeof setTimeout> | undefined
 let completed = false
 let beatRaf = 0
 let beatCursor = 0
+let rainRaf = 0
+let handTimer: ReturnType<typeof setTimeout> | undefined
 let resizeObs: ResizeObserver | undefined
+let rainResizeObs: ResizeObserver | undefined
+
+interface RainCol {
+  x: number
+  y: number
+  speed: number
+  chars: string[]
+  opacity: number
+}
 
 /** Opening track duration (~8.93s); safety finish = duration + 400ms. */
 const MUSIC_DURATION_MS = 8930
@@ -167,6 +208,163 @@ interface Wash {
 
 const washes: Wash[] = []
 
+const sizeRainCanvas = () => {
+  const canvas = rainCanvas.value
+  if (!canvas) return
+  const root = canvas.closest('.preloader') ?? canvas.parentElement
+  if (!root) return
+  const rect = root.getBoundingClientRect()
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
+  const w = Math.max(1, Math.floor(rect.width))
+  const h = Math.max(1, Math.floor(rect.height))
+  canvas.width = Math.floor(w * dpr)
+  canvas.height = Math.floor(h * dpr)
+  canvas.style.width = `${w}px`
+  canvas.style.height = `${h}px`
+  const ctx = canvas.getContext('2d')
+  if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+}
+
+const buildRainCols = (w: number, h: number): RainCol[] => {
+  const cols: RainCol[] = []
+  const gap = Math.max(22, Math.min(36, Math.floor(w / 28)))
+  let phraseIdx = Math.floor(Math.random() * SANSKRIT_RAIN.length)
+  for (let x = gap * 0.4; x < w; x += gap) {
+    const phrase = SANSKRIT_RAIN[phraseIdx % SANSKRIT_RAIN.length]!
+    phraseIdx += 1
+    // Split into glyph-ish chunks (space-aware) for a column stream
+    const raw = phrase.replace(/\s+/g, '·').split('')
+    const chars = [...raw, ...'·'.repeat(4)]
+    cols.push({
+      x,
+      y: Math.random() * -h,
+      speed: 18 + Math.random() * 42,
+      chars,
+      opacity: 0.1 + Math.random() * 0.16
+    })
+  }
+  return cols
+}
+
+let rainCols: RainCol[] = []
+let rainLast = 0
+
+const stopRain = () => {
+  if (rainRaf) {
+    cancelAnimationFrame(rainRaf)
+    rainRaf = 0
+  }
+  rainActive.value = false
+  rainCols = []
+  const canvas = rainCanvas.value
+  const ctx = canvas?.getContext('2d')
+  if (canvas && ctx) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr)
+  }
+}
+
+const tickRain = (now: number) => {
+  if (!rainActive.value || leaving.value || reducedMotion.value) {
+    rainRaf = 0
+    return
+  }
+  const canvas = rainCanvas.value
+  if (!canvas) {
+    rainRaf = 0
+    return
+  }
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
+  const w = canvas.width / dpr
+  const h = canvas.height / dpr
+  const ctx = canvas.getContext('2d')
+  if (!ctx) {
+    rainRaf = 0
+    return
+  }
+  if (!rainCols.length) rainCols = buildRainCols(w, h)
+  const dt = rainLast ? Math.min(0.05, (now - rainLast) / 1000) : 0.016
+  rainLast = now
+
+  // Soft fade trail — keep brand readable
+  ctx.fillStyle = 'rgba(255, 250, 240, 0.18)'
+  ctx.fillRect(0, 0, w, h)
+
+  // Dim during brand moment after enter; a bit stronger on entry idle
+  const brandDim = entered.value && !leaving.value ? 0.55 : 1
+  ctx.font = `500 ${Math.max(10, Math.min(13, w / 90))}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'top'
+
+  for (const col of rainCols) {
+    col.y += col.speed * dt * 12
+    const step = 16
+    for (let i = 0; i < col.chars.length; i++) {
+      const ch = col.chars[i]!
+      const yy = col.y + i * step
+      if (yy < -20 || yy > h + 20) continue
+      const head = i === col.chars.length - 1
+      const a = (head ? col.opacity * 1.55 : col.opacity * (0.35 + (i / col.chars.length) * 0.65)) * brandDim
+      ctx.fillStyle = head
+        ? `rgba(92, 68, 0, ${Math.min(0.42, a)})`
+        : `rgba(21, 18, 15, ${Math.min(0.28, a)})`
+      ctx.fillText(ch, col.x, yy)
+    }
+    if (col.y - col.chars.length * step > h) {
+      col.y = -Math.random() * h * 0.4 - col.chars.length * step
+      col.speed = 18 + Math.random() * 42
+      const phrase = SANSKRIT_RAIN[Math.floor(Math.random() * SANSKRIT_RAIN.length)]!
+      col.chars = [...phrase.replace(/\s+/g, '·').split(''), ...'·'.repeat(3)]
+      col.opacity = 0.1 + Math.random() * 0.16
+    }
+  }
+
+  rainRaf = requestAnimationFrame(tickRain)
+}
+
+const startRain = () => {
+  if (reducedMotion.value || rainActive.value) return
+  rainActive.value = true
+  rainLast = 0
+  nextTick(() => {
+    sizeRainCanvas()
+    if (typeof ResizeObserver !== 'undefined' && rainCanvas.value) {
+      rainResizeObs?.disconnect()
+      rainResizeObs = new ResizeObserver(() => {
+        sizeRainCanvas()
+        const canvas = rainCanvas.value
+        if (!canvas) return
+        const dpr = Math.min(window.devicePixelRatio || 1, 2)
+        rainCols = buildRainCols(canvas.width / dpr, canvas.height / dpr)
+      })
+      const root = rainCanvas.value.closest('.preloader') ?? rainCanvas.value.parentElement
+      if (root) rainResizeObs.observe(root)
+    }
+    rainCols = []
+    rainRaf = requestAnimationFrame(tickRain)
+  })
+}
+
+const stopHand = () => {
+  if (handTimer !== undefined) {
+    window.clearTimeout(handTimer)
+    handTimer = undefined
+  }
+  handPlaying.value = false
+}
+
+/** One-shot: hand approaches logo, clicks once, fades. User can still tap anytime. */
+const playHandCue = () => {
+  if (reducedMotion.value || entered.value || completed || handDone.value) return
+  handPlaying.value = true
+  // Total choreography ~2.4s then fade; mark done so it never loops.
+  handTimer = window.setTimeout(() => {
+    handPlaying.value = false
+    handDone.value = true
+    handTimer = undefined
+  }, 2600)
+}
+
 const playOpeningSound = () => {
   const el = ident.value
   const src = identSrc.value
@@ -245,6 +443,8 @@ const finishLeave = () => {
   leaving.value = true
   breathing.value = false
   growing.value = false
+  stopRain()
+  stopHand()
   const el = ident.value
   if (el && !el.paused) {
     const startVol = el.volume
@@ -305,6 +505,7 @@ const skip = () => {
   stopOpeningSound()
   clearFinishTimer()
   stopBeatLoop()
+  stopHand()
   if (!entered.value) entered.value = true
   finishLeave()
 }
@@ -651,6 +852,8 @@ const revealStaticBrand = () => {
 
 const startExperience = () => {
   if (entered.value || completed) return
+  stopHand()
+  handDone.value = true
   activeQuote.value = pickPreloaderQuote()
   playOpeningSound()
   // Continuous handoff: entry mark morphs into the first dawn-ring beat (no hard cut).
@@ -694,6 +897,14 @@ const startExperience = () => {
 onMounted(() => {
   hydrate()
   reducedMotion.value = prefersReducedMotion()
+  if (!reducedMotion.value) {
+    startRain()
+    // Brief beat so the logo is seen, then the hand cue plays once.
+    handTimer = window.setTimeout(() => {
+      handTimer = undefined
+      playHandCue()
+    }, 520)
+  }
 })
 
 onBeforeUnmount(() => {
@@ -701,7 +912,10 @@ onBeforeUnmount(() => {
   if (removeTimer) window.clearTimeout(removeTimer)
   if (handoffTimer !== undefined) window.clearTimeout(handoffTimer)
   stopBeatLoop()
+  stopRain()
+  stopHand()
   resizeObs?.disconnect()
+  rainResizeObs?.disconnect()
   ident.value?.pause()
 })
 </script>
@@ -732,12 +946,20 @@ onBeforeUnmount(() => {
       @ended="onAudioEnded"
     />
 
+    <!-- Sanskrit matrix rain (romanized) — subtle under brand; off when reduce-motion. -->
+    <canvas
+      v-if="rainActive && !reducedMotion"
+      ref="rainCanvas"
+      class="preloader__rain"
+      aria-hidden="true"
+    />
+
     <button
       v-if="!entered || handingOff"
       type="button"
       class="preloader__entry"
       :class="{ 'entry--handoff': handingOff }"
-      :aria-label="soundOn ? 'Tap to enter Entertrainer with sound' : 'Tap to enter Entertrainer'"
+      :aria-label="soundOn ? 'Enter Entertrainer with sound' : 'Enter Entertrainer'"
       :tabindex="handingOff ? -1 : 0"
       :aria-hidden="handingOff ? 'true' : undefined"
       @click="startExperience"
@@ -750,8 +972,26 @@ onBeforeUnmount(() => {
           <text x="120" y="158" text-anchor="middle" class="preloader__entry-brand-e">e</text>
         </svg>
       </span>
-      <span class="preloader__entry-cta">Tap</span>
     </button>
+
+    <!-- One-shot hand cursor: approaches, clicks logo once, fades. No on-screen Tap label. -->
+    <div
+      v-if="handPlaying && !entered && !reducedMotion"
+      ref="handCursor"
+      class="preloader__hand"
+      aria-hidden="true"
+    >
+      <svg class="preloader__hand-svg" viewBox="0 0 64 64" fill="none">
+        <path
+          class="preloader__hand-shape"
+          d="M28 6c1.8 0 3.2 1.4 3.2 3.2V28l.4-.2c.7-1.2 2.1-1.7 3.4-1.3 1.5.4 2.3 1.9 1.9 3.3l-.3 1.1c.7-1 2-1.4 3.2-1 1.5.5 2.3 2 1.8 3.4l-.6 1.8c.6-.7 1.6-1 2.6-.7 1.4.4 2.2 1.8 1.8 3.2L42.2 48c-1.4 4.6-5.6 7.8-10.4 7.8h-3.2c-5.8 0-10.8-3.8-12.4-9.3L12.8 34.2c-.8-2.4.6-5 3-5.7 1.7-.5 3.5.2 4.5 1.6l2.5 3.6V9.2C22.8 7.4 24.2 6 26 6h2z"
+          fill="#fffaf0"
+          stroke="#15120f"
+          stroke-width="2.4"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </div>
 
     <!-- Full-viewport beat canvas (washes + exit ripples must not crop to stage). -->
     <canvas
@@ -844,7 +1084,7 @@ onBeforeUnmount(() => {
       Skip intro
     </button>
 
-    <span class="sr-only" role="status" aria-live="polite">{{ entered ? 'Preparing Entertrainer' : 'Tap to enter Entertrainer' }}</span>
+    <span class="sr-only" role="status" aria-live="polite">{{ entered ? 'Preparing Entertrainer' : 'Click the logo to enter Entertrainer' }}</span>
   </div>
 </template>
 
@@ -925,22 +1165,58 @@ onBeforeUnmount(() => {
   z-index: 1;
   transition: opacity 200ms ease, transform 200ms ease, color 200ms ease;
 }
-.preloader__entry-cta {
-  font-family: var(--font-ui), Arial, sans-serif;
-  font-size: 13rem;
-  font-weight: 550;
-  letter-spacing: .04em;
-  color: rgb(21 18 15 / .45);
-  transition: color 180ms ease, opacity 180ms ease, transform 180ms ease;
-}
 .preloader__entry:hover .preloader__entry-mark,
 .preloader__entry:focus-visible .preloader__entry-mark {
   opacity: .85;
   border-color: rgb(21 18 15 / .35);
 }
-.preloader__entry:hover .preloader__entry-cta,
-.preloader__entry:focus-visible .preloader__entry-cta {
-  color: rgb(21 18 15 / .72);
+
+.preloader__rain {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: .72;
+  mix-blend-mode: multiply;
+}
+.preloader--entered .preloader__rain { opacity: .38; }
+.preloader--leaving .preloader__rain { opacity: 0; transition: opacity 280ms ease; }
+
+.preloader__hand {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 50%;
+  width: 56rem;
+  height: 56rem;
+  margin: 0;
+  pointer-events: none;
+  transform: translate(72rem, 92rem) rotate(-18deg);
+  animation: pl-hand-approach 2.4s cubic-bezier(.22, 1, .36, 1) both;
+}
+.preloader__hand-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 2rem 0 rgb(21 18 15 / .18));
+  transform-origin: 30% 20%;
+  animation: pl-hand-click 2.4s cubic-bezier(.22, 1, .36, 1) both;
+}
+@keyframes pl-hand-approach {
+  0% { opacity: 0; transform: translate(110rem, 130rem) rotate(-28deg); }
+  18% { opacity: 1; }
+  55% { opacity: 1; transform: translate(18rem, 22rem) rotate(-12deg); }
+  62% { opacity: 1; transform: translate(14rem, 16rem) rotate(-10deg); }
+  70% { opacity: 1; transform: translate(18rem, 22rem) rotate(-12deg); }
+  88% { opacity: 1; transform: translate(22rem, 28rem) rotate(-14deg); }
+  100% { opacity: 0; transform: translate(28rem, 40rem) rotate(-16deg); }
+}
+@keyframes pl-hand-click {
+  0%, 54% { transform: scale(1); }
+  60% { transform: scale(.86); }
+  68% { transform: scale(1); }
+  100% { transform: scale(1); }
 }
 .preloader__entry:focus-visible {
   outline: none;
@@ -959,11 +1235,6 @@ onBeforeUnmount(() => {
 .preloader__entry.entry--handoff {
   pointer-events: none;
   z-index: 3;
-}
-.preloader__entry.entry--handoff .preloader__entry-cta {
-  opacity: 0;
-  transform: translateY(6rem);
-  transition: opacity 200ms ease, transform 280ms cubic-bezier(.22, 1, .36, 1);
 }
 .preloader__entry.entry--handoff .preloader__entry-mark {
   width: min(22vw, 168rem);
@@ -1438,8 +1709,9 @@ onBeforeUnmount(() => {
 
 @media (prefers-reduced-motion: reduce) {
   .preloader { transition-duration: 80ms; }
+  .preloader__rain,
+  .preloader__hand { display: none !important; }
   .preloader__entry.entry--handoff .preloader__entry-mark,
-  .preloader__entry.entry--handoff .preloader__entry-cta,
   .preloader__entry.entry--handoff .preloader__entry-mark-letter { transition: none !important; }
   .preloader *,
   .preloader *::before,
@@ -1460,6 +1732,8 @@ onBeforeUnmount(() => {
   .preloader__beat-canvas { display: none; }
 }
 :global(html[data-reduce-motion="on"]) .preloader { transition-duration: 80ms; }
+:global(html[data-reduce-motion="on"]) .preloader__rain,
+:global(html[data-reduce-motion="on"]) .preloader__hand { display: none !important; }
 :global(html[data-reduce-motion="on"]) .preloader *,
 :global(html[data-reduce-motion="on"]) .preloader *::before,
 :global(html[data-reduce-motion="on"]) .preloader *::after { animation: none !important; }

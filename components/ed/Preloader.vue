@@ -1,4 +1,4 @@
-<!-- Compact logo first, then beat-choreographed rings / enter→trainer / Sanskrit quote; optional opening music (~8.93s). -->
+<!-- Compact logo first, then beat-choreographed rings + atomic→orbital white particles / enter→trainer / Sanskrit quote; optional opening music (~8.93s). -->
 <script setup lang="ts">
 import { openingSoundSrc } from '~/composables/useSiteSettings'
 import { pickPreloaderQuote, type PreloaderQuote } from '~/utils/preloaderQuotes'
@@ -93,6 +93,28 @@ const BEAT_CHOREO: ChoreoStep[] = [
   /* 18 7.500 */ { kind: 'settle', rings: [0, 1, 2, 3] },
   /* 19 8.081 */ { kind: 'settle', rings: [1, 2], word: true },
   /* 20 8.382 */ { kind: 'settle', rings: [0, 1, 2, 3] }
+]
+
+/**
+ * Soft white orbital particles per ring (innermost → outermost).
+ * Ride mid-stroke of each yellow ring; outer rings drift slower.
+ * `start` = initial angle (deg); `dur` = orbital period (s); `atomic` = intro swirl period (s).
+ */
+const RING_PARTICLES: { start: number; dur: number; atomic: number }[][] = [
+  [{ start: 18, dur: 5.2, atomic: 0.95 }],
+  [
+    { start: 55, dur: 7.0, atomic: 1.05 },
+    { start: 215, dur: 8.4, atomic: 1.15 }
+  ],
+  [
+    { start: 100, dur: 9.6, atomic: 1.2 },
+    { start: 280, dur: 11.2, atomic: 1.35 }
+  ],
+  [
+    { start: 12, dur: 13.5, atomic: 1.45 },
+    { start: 138, dur: 15.8, atomic: 1.55 },
+    { start: 255, dur: 12.4, atomic: 1.4 }
+  ]
 ]
 
 const soundOn = computed(() => settings.value.openingSound === 'on')
@@ -319,7 +341,7 @@ const applyChoreo = (step: ChoreoStep) => {
 
 const onRingAnimEnd = (e: AnimationEvent, index: number) => {
   const el = ringEls.value[index]
-  if (!el) return
+  if (!el || e.target !== el) return
   const name = e.animationName
   if (name === 'pl-ring-arrive-beat') {
     el.classList.add('ring--settled')
@@ -726,7 +748,23 @@ onBeforeUnmount(() => {
           :ref="(el) => setRingEl(el, n - 1)"
           :class="{ 'ring--in': ringsIn[n - 1] }"
           @animationend="onRingAnimEnd($event, n - 1)"
-        />
+        >
+          <!-- Soft white discs: atomic 3D swirl on ring-in, then flat orbital drift. -->
+          <span class="ring__orbit-plane" aria-hidden="true" @animationend.stop>
+            <span
+              v-for="(p, pi) in RING_PARTICLES[n - 1]"
+              :key="pi"
+              class="ring__particle-arm"
+              :style="{
+                '--orbit-dur': p.dur + 's',
+                '--orbit-start': p.start + 'deg',
+                '--atomic-dur': p.atomic + 's'
+              }"
+            >
+              <span class="ring__particle" />
+            </span>
+          </span>
+        </i>
       </div>
       <div
         ref="wordShellEl"
@@ -832,7 +870,14 @@ onBeforeUnmount(() => {
   height: 100%;
   pointer-events: none;
 }
-.preloader__rings { position: absolute; z-index: 1; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.preloader__rings {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
 .preloader__rings i {
   position: absolute;
   box-sizing: border-box;
@@ -840,6 +885,8 @@ onBeforeUnmount(() => {
   border-radius: 50%;
   opacity: 0;
   transform: scale(.42);
+  perspective: 820px;
+  transform-style: preserve-3d;
   animation:
     pl-ring-arrive 1500ms cubic-bezier(.16, 1, .3, 1) var(--pl-ring-delay) both,
     pl-ring-breathe 1750ms ease-in-out calc(1480ms + var(--pl-ring-delay)) 1 both;
@@ -848,6 +895,59 @@ onBeforeUnmount(() => {
 .preloader__rings i:nth-child(2) { --pl-ring-delay: 110ms; width: 48%; aspect-ratio: 1; }
 .preloader__rings i:nth-child(3) { --pl-ring-delay: 220ms; width: 68%; aspect-ratio: 1; }
 .preloader__rings i:nth-child(4) { --pl-ring-delay: 330ms; width: 88%; aspect-ratio: 1; }
+
+/*
+ * Orbital particles — soft off-white discs mid-stroke on each yellow ring.
+ * Music-on beat path: tilted atomic swirl while the ring arrives, then flatten
+ * into steady flat orbits at staggered angular velocities.
+ * Music-off / reduced-motion: static or minimal flat drift (no 3D spin).
+ */
+.ring__orbit-plane {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+.ring__particle-arm {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--orbit-start, 0deg));
+  transform-style: preserve-3d;
+}
+.ring__particle {
+  position: absolute;
+  /* Mid-stroke of the thick yellow border (half of clamp(22–48rem)). */
+  top: clamp(11rem, 1.55vw, 24rem);
+  left: 50%;
+  width: clamp(6rem, .95vw, 12rem);
+  height: clamp(6rem, .95vw, 12rem);
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 32% 28%,
+      #fffef9 0%,
+      #f3eee4 52%,
+      #e4dccf 100%
+    );
+  box-shadow:
+    inset 0 -1.2px 2.5px rgb(21 18 15 / .1),
+    inset 0 1px 1.5px rgb(255 255 255 / .55),
+    0 1px 2px rgb(92 68 0 / .08);
+  transform: translate(-50%, -50%);
+  opacity: .82;
+  will-change: transform;
+}
+.preloader__rings i:nth-child(1) .ring__particle { width: clamp(5rem, .8vw, 9rem); height: clamp(5rem, .8vw, 9rem); }
+.preloader__rings i:nth-child(4) .ring__particle { width: clamp(7rem, 1.05vw, 13rem); height: clamp(7rem, 1.05vw, 13rem); }
+
+/* Music-off: gentle flat orbit after CSS ring-in — no atomic tilt. */
+.preloader:not(.preloader--beat) .ring__particle-arm {
+  animation: pl-arm-orbit var(--orbit-dur, 10s) linear infinite;
+}
+.preloader:not(.preloader--beat) .ring__orbit-plane {
+  transform: none;
+}
 .preloader__brand-shell {
   position: relative;
   z-index: 2;
@@ -912,6 +1012,36 @@ onBeforeUnmount(() => {
 }
 .preloader--beat .preloader__rings i.ring--in.ring--settled.ring--settle-breath {
   animation: pl-ring-settle-breath 720ms cubic-bezier(.22, 1, .36, 1);
+}
+
+/* Particles: hidden until ring-in; atomic tilt while arriving; flatten + orbit once settled. */
+.preloader--beat .ring__orbit-plane {
+  opacity: 0;
+  transform: rotateX(68deg) rotateZ(-28deg) scale(.72);
+}
+.preloader--beat .ring__particle {
+  opacity: 0;
+}
+.preloader--beat .preloader__rings i.ring--in:not(.ring--settled) .ring__orbit-plane {
+  opacity: 1;
+  animation: pl-atomic-plane-spin 1.05s linear infinite;
+}
+.preloader--beat .preloader__rings i.ring--in:not(.ring--settled) .ring__particle-arm {
+  animation: pl-arm-orbit var(--atomic-dur, 1.1s) linear infinite;
+}
+.preloader--beat .preloader__rings i.ring--in:not(.ring--settled) .ring__particle {
+  opacity: .88;
+  animation: pl-particle-bloom 420ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.preloader--beat .preloader__rings i.ring--in.ring--settled .ring__orbit-plane {
+  opacity: 1;
+  animation: pl-atomic-plane-flatten 1100ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.preloader--beat .preloader__rings i.ring--in.ring--settled .ring__particle-arm {
+  animation: pl-arm-orbit var(--orbit-dur, 10s) linear infinite;
+}
+.preloader--beat .preloader__rings i.ring--in.ring--settled .ring__particle {
+  opacity: .82;
 }
 .preloader--beat .preloader__brand-shell {
   /* Shell stays clear; halves animate independently. */
@@ -1033,6 +1163,27 @@ onBeforeUnmount(() => {
 }
 
 @keyframes pl-entry-orbit { to { transform: rotate(360deg); } }
+/* Electron-arm spin — start angle via --orbit-start on the element. */
+@keyframes pl-arm-orbit {
+  from { transform: rotate(var(--orbit-start, 0deg)); }
+  to { transform: rotate(calc(var(--orbit-start, 0deg) + 360deg)); }
+}
+/* Atomic intro: tilted elliptical plane (perspective parent → oval paths). */
+@keyframes pl-atomic-plane-spin {
+  0% { transform: rotateX(68deg) rotateZ(0deg) scale(.92); }
+  50% { transform: rotateX(58deg) rotateZ(180deg) scale(1); }
+  100% { transform: rotateX(68deg) rotateZ(360deg) scale(.92); }
+}
+@keyframes pl-atomic-plane-flatten {
+  0% { transform: rotateX(62deg) rotateZ(18deg) scale(1); }
+  55% { transform: rotateX(22deg) rotateZ(6deg) scale(1); }
+  100% { transform: rotateX(0deg) rotateZ(0deg) scale(1); }
+}
+@keyframes pl-particle-bloom {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.35); }
+  70% { opacity: .92; transform: translate(-50%, -50%) scale(1.08); }
+  100% { opacity: .88; transform: translate(-50%, -50%) scale(1); }
+}
 @keyframes pl-ring-arrive {
   0% { opacity: 0; transform: scale(.36) rotate(-10deg); }
   58% { opacity: 1; transform: scale(1.035) rotate(1deg); }
@@ -1100,6 +1251,9 @@ onBeforeUnmount(() => {
   .preloader *::after { animation: none !important; }
   .preloader__entry-orbit { transform: none; }
   .preloader__rings i { opacity: 1; transform: scale(1); }
+  .ring__orbit-plane { opacity: 1; transform: none; }
+  .ring__particle-arm { transform: rotate(var(--orbit-start, 0deg)); }
+  .ring__particle { opacity: .7; transform: translate(-50%, -50%); }
   .preloader__brand-shell { opacity: 1; transform: none; filter: none; }
   .preloader__brand-shell::after { opacity: .55; transform: scaleX(1); }
   .preloader__word-part { opacity: 1; transform: none; filter: none; }
@@ -1115,6 +1269,9 @@ onBeforeUnmount(() => {
 :global(html[data-reduce-motion="on"]) .preloader *::after { animation: none !important; }
 :global(html[data-reduce-motion="on"]) .preloader__entry-orbit { transform: none; }
 :global(html[data-reduce-motion="on"]) .preloader__rings i { opacity: 1; transform: scale(1); }
+:global(html[data-reduce-motion="on"]) .ring__orbit-plane { opacity: 1; transform: none; }
+:global(html[data-reduce-motion="on"]) .ring__particle-arm { transform: rotate(var(--orbit-start, 0deg)); }
+:global(html[data-reduce-motion="on"]) .ring__particle { opacity: .7; transform: translate(-50%, -50%); }
 :global(html[data-reduce-motion="on"]) .preloader__brand-shell { opacity: 1; transform: none; filter: none; }
 :global(html[data-reduce-motion="on"]) .preloader__brand-shell::after { opacity: .55; transform: scaleX(1); }
 :global(html[data-reduce-motion="on"]) .preloader__word-part { opacity: 1; transform: none; filter: none; }

@@ -1,109 +1,89 @@
 /**
- * Home rotating lines — knowledge quotes, Naveen-friendly.
- * Not LinkedIn. Not motivational wallpaper. Short thoughts that earn their place.
+ * Home rotating lines — authentic classical Sanskrit (IAST romanization).
+ * Well-known traditional phrases only; not modern paraphrases.
  */
 
 export const KNOWLEDGE_QUOTES: readonly string[] = [
-  "Your brain is not a filing cabinet. It is a weather system.",
-  "Curiosity is not a mood. It is a habit of asking one more question.",
-  "Most people stop at the first answer that feels finished.",
-  "Understanding is what remains after the jargon leaves the room.",
-  "A good explanation does not make you feel stupid for asking.",
-  "The map is not the territory. The slide deck is not the work.",
-  "You do not need more information. You need a better question.",
-  "Confusion is often just a missing metaphor.",
-  "If you cannot teach it simply, you do not own it yet.",
-  "Knowledge compounds. So does misunderstanding.",
-  "The universe does not care about your productivity app.",
-  "Entropy does not negotiate. It just spreads.",
-  "Rest is not laziness. Sometimes it is physics doing its job.",
-  "Hot tea cools. Batteries drain. Ideas fade if you never write them down.",
-  "We are all slightly behind our own lives. That is the latency.",
-  "Your senses draft a story. Your brain publishes it late.",
-  "Reality moves first. Consciousness follows with a receipt.",
-  "The Moon is lunar. The Sun is solar. English is inconsistent on purpose.",
-  "Words can stop meaning anything if you stare long enough. That glitch has a name.",
-  "A mind that models more futures can also get stuck living in the models.",
-  "Intelligence is not a curse. Bandwidth is a constraint.",
-  "Perfect lying is mostly a bandwidth problem.",
-  "Listeners start in truth-default. That is why imperfect lies often work.",
-  "Bloom would like a word with anyone who says the machine understands.",
-  "AI predicts the next token. Understanding is not a token.",
-  "A fluent answer is not the same as a true one.",
-  "Instructional design is the art of making the confusing part behave.",
-  "People do not fail instructions. Instructions fail people.",
-  "If the learner needs a decoder ring, rewrite the lesson.",
-  "A course is not a dump of slides. It is a guided change of mind.",
-  "Transfer is the only score that matters after the quiz ends.",
-  "Practice beats theory the moment the room gets noisy.",
-  "Tools should disappear into the work, not become the work.",
-  "Automate the boring part. Keep the judgment.",
-  "A calendar is a promise to your future self. Keep it kind.",
-  "Distractors in a quiz should be plausible, not cruel.",
-  "The blank page is a design problem, not a character flaw.",
-  "Write the rough email. Then make it sound like a human who slept.",
-  "Stories move people. Bullet points move slides.",
-  "Comics can carry truth that a memo cannot.",
-  "Housekeeping taught me that guests notice details they cannot name.",
-  "Hotels are unforgiving at first. Then they give you a discipline.",
-  "The cocoon was cover, not exile.",
-  "Machines make excellent company. They have no emotional judgements.",
-  "Logic is addictive once you taste clean rules.",
-  "Minds are messier compilers. Same hunger for structure.",
-  "Zero dreams. A thousand fears. Then work.",
-  "I could not afford to be slower.",
-  "Long way ahead. This is not the finish line.",
-  "Evidence first. Punchline second.",
-  "Soft landing after a sharp question.",
-  "Cobalt thoughts on cream paper.",
-  "Quiet systems for loud work.",
-  "Play for people who still notice.",
-  "Lessons that survive the commute.",
-  "Questions with better furniture.",
-  "Make the confusing part sit still.",
-  "The midpoint of a life is not where the calendar says.",
-  "Time feels uneven because attention is uneven.",
-  "Sleep is not optional firmware. It is the install.",
-  "Your OTP is a tiny ritual of trust with a stranger machine.",
-  "Security is a story we tell with keys and habits.",
-  "A brain that already has a story will treat disagreement as noise.",
-  "Monumental stupidity is often high-functioning cognition on the wrong track.",
-  "Doubt is a feature. Certainty is often a costume.",
-  "If it feels obvious, check who benefits from it feeling obvious.",
-  "Read slower when the claim is loud.",
-  "Science is a method, not a vibe.",
-  "A hypothesis is a polite way of saying I might be wrong.",
-  "Measurement without meaning is just numbers wearing a lab coat.",
-  "The universe likes to spread things out. So do bad meetings.",
-  "Latency is everywhere. Including between knowing and doing.",
-  "You are not behind. You are mid-compile.",
-  "Learning is dying a little in yesterday so today can load.",
-  "Keep one useful idea. Throw out the costume around it.",
-  "Elevate is not a content farm. It is a place for returning questions.",
-  "MUST: Mind. Universe. Science. Technology. Four doors. One paper.",
-  "Mind asks. Universe answers slowly. Science checks. Technology builds.",
-  "If the yellow feels loud, look again. It is a signal, not a scream.",
-  "Skip the corporate sermon. Keep the curious sentence.",
-  "A newsletter should arrive like a note from a friend who reads.",
-  "Subscribe if you want the next question before it gets polished to death.",
-  "The best tool is the one you open without bracing yourself.",
-  "Engage is the short detour. Empower is the toolbox. Elevate is the long walk.",
-  "About pages that sound like LinkedIn should be rewritten by a human who has mopped floors.",
-  "Respect the reader enough to cut the filler.",
-  "One concrete analogy beats three abstract nouns.",
-  "Say the ordinary thing. Then widen it. Then land.",
-  "Humour is a change of angle, not a constant stream of jokes.",
-  "Dramatic is fine. Empty grandeur is not.",
-  "If you need a thesaurus to sound smart, you are not being smart.",
-  "Keep the craft visible. Hide the scaffolding.",
-  "Yellow on cream needs ink nearby. Contrast is hospitality.",
-  "Reduce motion should calm the site, not erase it.",
-  "A preloader should welcome, not perform a fireworks audition.",
-  "The letter e is a mark. Treat it like one.",
-  "Categories should be few enough to remember on a bus.",
-  "Mind. Universe. Science. Technology. That is the whole shelf.",
-  "When in doubt, make it simpler. Then make it kinder.",
-  "The work continues. The coffee helps. The question stays.",
+  // Mundaka Upanishad 3.1.6
+  'satyam eva jayate',
+  // Maha Upanishad / Hitopadesha
+  'vasudhaiva kuṭumbakam',
+  // Bhagavad Gita 2.50
+  'yogaḥ karmasu kauśalam',
+  // Bṛhadāraṇyaka Upanishad 1.3.28
+  'tamaso mā jyotir gamaya',
+  // Bṛhadāraṇyaka Upanishad 1.3.28
+  'asato mā sad gamaya',
+  // Bṛhadāraṇyaka Upanishad 1.3.28
+  'mṛtyor mā amṛtaṃ gamaya',
+  // Bṛhadāraṇyaka Upanishad 1.4.10
+  'ahaṃ brahmāsmi',
+  // Chāndogya Upanishad 6.8.7
+  'tat tvam asi',
+  // Aitareya Upanishad 3.3
+  'prajñānaṃ brahma',
+  // Māṇḍūkya Upanishad 2
+  'ayam ātmā brahma',
+  // Chāndogya Upanishad 3.14.1
+  'sarvaṃ khalv idaṃ brahma',
+  // Īśā Upanishad 1
+  'īśāvāsyam idaṃ sarvam',
+  // Bhagavad Gita 2.47
+  'karmaṇy evādhikāras te mā phaleṣu kadācana',
+  // Bhagavad Gita 2.48
+  'yogasthaḥ kuru karmāṇi',
+  // Bhagavad Gita 6.5
+  'uddhared ātmanātmānaṃ',
+  // Bhagavad Gita 4.39
+  'śraddhāvān labhate jñānam',
+  // Bhagavad Gita 4.38
+  'na hi jñānena sadṛśaṃ pavitram iha vidyate',
+  // Bhagavad Gita 2.23
+  'nainaṃ chindanti śastrāṇi',
+  // Bhagavad Gita 3.35
+  'śreyān svadharmo viguṇaḥ',
+  // Mahābhārata (traditional maxim)
+  'ahiṃsā paramo dharmaḥ',
+  // Hitopadeśa / traditional
+  'vidyā dadāti vinayam',
+  // Traditional maṅgala / peace invocation
+  'sarve bhavantu sukhinaḥ',
+  // Traditional continuation of the peace invocation
+  'sarve santu nirāmayāḥ',
+  // Ṛgveda 1.164.46
+  'ekaṃ sad viprā bahudhā vadanti',
+  // Taittirīya Upanishad 1.11.1
+  'satyaṃ vada dharmaṃ cara',
+  // Taittirīya Upanishad 1.11.2
+  'mātṛdevo bhava',
+  // Taittirīya Upanishad 1.11.2
+  'pitṛdevo bhava',
+  // Taittirīya Upanishad 1.11.2
+  'ācāryadevo bhava',
+  // Manusmṛti 3.56
+  'yatra nāryas tu pūjyante ramante tatra devatāḥ',
+  // Viṣṇu Purāṇa (traditional)
+  'sā vidyā yā vimuktaye',
+  // Īśā / Bṛhadāraṇyaka śānti mantra
+  'oṃ pūrṇam adaḥ pūrṇam idam',
+  // Taittirīya śānti mantra
+  'saha nāv avatu',
+  // Traditional proverb (subhāṣita)
+  'paropakārāya phalanti vṛkṣāḥ',
+  // Bhagavad Gita 2.38
+  'sukha-duḥkhe same kṛtvā',
+  // Bhagavad Gita 6.29 (essence line traditionally cited)
+  'sarva-bhūtastham ātmānaṃ',
+  // Bhagavad Gita 18.66 (traditional citation)
+  'sarva-dharmān parityajya',
+  // Hitopadeśa / Pañcatantra tradition
+  'udyamaṃ sāhasaṃ dhairyam',
+  // Subhāṣita tradition
+  'vinayaṃ bhūṣaṇaṃ satām',
+  // Traditional maxim on speech
+  'satyaṃ brūyāt priyaṃ brūyāt',
+  // Kaṭha Upanishad 1.3.14
+  'uttiṣṭhata jāgrata',
 ] as const
 
 export function pickKnowledgeQuote(seed?: number): string {

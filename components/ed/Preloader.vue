@@ -1,11 +1,18 @@
-<!-- Dawn-on-cream sonic logo: beat reveal → grow from wordmark complete until track ends — no ripple/fade-out. -->
+<!-- Dawn-on-cream sonic logo: beat reveal → grow → clean fade outro with soft music echo trail. -->
 <script setup lang="ts">
 import { openingSoundSrc } from '~/composables/useSiteSettings'
 import { pickPreloaderQuote, type PreloaderQuote } from '~/utils/preloaderQuotes'
+import {
+  playIdentWithGraph,
+  fadeIdentWithEcho,
+  stopIdentNow,
+  disposeIdentTrail
+} from '~/utils/identAudioTrail'
 
 const emit = defineEmits<{ complete: [] }>()
 const { settings, prefersReducedMotion, hydrate } = useSiteSettings()
 const leaving = ref(false)
+const skipLeaving = ref(false)
 const entered = ref(false)
 /**
  * Entry overlay phase after tap:
@@ -28,6 +35,7 @@ const setRingEl = (el: Element | null | { $el?: Element }, index: number) => {
   ringEls.value[index] = node instanceof SVGCircleElement ? node : null
 }
 let finishTimer: ReturnType<typeof setTimeout> | undefined
+let outroTimer: ReturnType<typeof setTimeout> | undefined
 let removeTimer: ReturnType<typeof setTimeout> | undefined
 let wipeTimer: ReturnType<typeof setTimeout> | undefined
 let flipTimer: ReturnType<typeof setTimeout> | undefined
@@ -202,33 +210,21 @@ const playOpeningSound = () => {
   const el = ident.value
   const src = identSrc.value
   if (!el || !src || !soundOn.value) return
-  try {
-    if (el.getAttribute('src') !== src) el.src = src
-    el.pause()
-    el.currentTime = 0
-    el.volume = 0.92
-    const p = el.play()
-    if (p && typeof p.catch === 'function') p.catch(() => undefined)
-  } catch {
-    // Visual handoff never depends on audio.
-  }
+  playIdentWithGraph(el, src)
 }
 
 const stopOpeningSound = () => {
-  const el = ident.value
-  if (!el) return
-  try {
-    el.pause()
-    el.currentTime = 0
-  } catch {
-    /* ignore */
-  }
+  stopIdentNow()
 }
 
 const clearFinishTimer = () => {
   if (finishTimer !== undefined) {
     window.clearTimeout(finishTimer)
     finishTimer = undefined
+  }
+  if (outroTimer !== undefined) {
+    window.clearTimeout(outroTimer)
+    outroTimer = undefined
   }
 }
 
@@ -271,26 +267,30 @@ const FLIP_MS = 480
 /** CSS grow duration (ms) — matched to remaining music at grow start. */
 const growMs = ref(5200)
 
-const finishLeave = () => {
+const finishLeave = (opts: { skip?: boolean; naturalEnd?: boolean } = {}) => {
   if (leaving.value) return
   completed = true
+  skipLeaving.value = !!opts.skip
   leaving.value = true
   breathing.value = false
   growing.value = false
   stopHand()
-  const el = ident.value
-  if (el && !el.paused) {
-    const startVol = el.volume
-    const t0 = performance.now()
-    const step = (now: number) => {
-      const u = Math.min(1, (now - t0) / 300)
-      el.volume = Math.max(0, startVol * (1 - u))
-      if (u < 1) requestAnimationFrame(step)
-      else el.pause()
-    }
-    requestAnimationFrame(step)
-  }
-  removeTimer = window.setTimeout(() => emit('complete'), 320)
+  stopBeatLoop()
+
+  const skip = !!opts.skip
+  const naturalEnd = !!opts.naturalEnd
+  // Visual fade (CSS) starts immediately; music fades with a short echo trail.
+  // Stay mounted until the trail ends so Web Audio is not cut by unmount.
+  const timing = soundOn.value
+    ? fadeIdentWithEcho({ skip, naturalEnd, el: ident.value })
+    : { visualHintMs: skip ? 220 : 480, totalMs: skip ? 220 : 480 }
+
+  if (removeTimer) window.clearTimeout(removeTimer)
+  // Site reveals after the trail; UI itself is already opacity 0 from visualHintMs.
+  removeTimer = window.setTimeout(
+    () => emit('complete'),
+    Math.max(timing.visualHintMs + 40, timing.totalMs + 40),
+  )
 }
 
 /**
@@ -324,13 +324,16 @@ const beginGrow = () => {
 
 /** Safety / sound-off / reduced: leave only — never a timed grow-then-exit. */
 const finish = () => {
-  finishLeave()
+  const el = ident.value
+  const ended = !el || el.paused || el.ended
+  finishLeave(ended && soundOn.value ? { naturalEnd: true } : {})
 }
 
 const onAudioEnded = () => {
   if (!entered.value || leaving.value) return
   clearFinishTimer()
-  finishLeave()
+  // Track ended — visual fade + delay-line echo trail (no dry fade needed).
+  finishLeave({ naturalEnd: true })
 }
 
 const clearEntryTimers = () => {
@@ -346,14 +349,14 @@ const clearEntryTimers = () => {
 
 const skip = () => {
   if (leaving.value || completed) return
-  stopOpeningSound()
   clearFinishTimer()
   clearEntryTimers()
   stopBeatLoop()
   stopHand()
   entryPhase.value = 'gone'
   if (!entered.value) entered.value = true
-  finishLeave()
+  // Short fade + brief echo — do not hard-cut or leave a long trail.
+  finishLeave({ skip: true })
 }
 
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3
@@ -725,6 +728,12 @@ const startExperience = () => {
   entered.value = true
   beginEntryReveal()
   if (soundOn.value) {
+    // Begin fade+echo just before the track ends so the dry fade is audible.
+    const OUTRO_FADE_MS = 520
+    outroTimer = window.setTimeout(() => {
+      outroTimer = undefined
+      if (!leaving.value && !completed) finishLeave()
+    }, Math.max(800, MUSIC_DURATION_MS - OUTRO_FADE_MS))
     finishTimer = window.setTimeout(finish, MUSIC_SAFETY_MS)
     if (!reducedMotion.value) {
       startBeatLoop()
@@ -769,7 +778,8 @@ onBeforeUnmount(() => {
   stopBeatLoop()
   stopHand()
   resizeObs?.disconnect()
-  ident.value?.pause()
+  // Route change / hard unmount: never leave audio hanging.
+  stopIdentNow()
 })
 </script>
 
@@ -781,6 +791,7 @@ onBeforeUnmount(() => {
       'preloader--wipe': entryPhase === 'wipe',
       'preloader--flip': entryPhase === 'flip',
       'preloader--leaving': leaving,
+      'preloader--leaving-skip': leaving && skipLeaving,
       'preloader--music': soundOn && entered,
       'preloader--beat': beatDriven,
       'preloader--breathe': breathing && !leaving && !growing,
@@ -803,7 +814,7 @@ onBeforeUnmount(() => {
     <!--
       Cream entry veil sits ABOVE the dawn stage (z higher).
       On tap: stage/audio already running under; veil circle-wipes to the logo, then logo flip-fades.
-      Asset: /public/preloader/hand-click.webp — Kenney Cursor Pack, CC0 (see public/preloader/README.md).
+      Asset: /public/preloader/hand-{point,open,closed}.png — Kenney Cursor Pack, CC0 (see public/preloader/README.md).
     -->
     <button
       v-if="showEntry"
@@ -828,20 +839,38 @@ onBeforeUnmount(() => {
       </span>
     </button>
 
-    <!-- One-shot hand: Kenney CC0 animated cursor approaches, clicks once, fades. -->
+    <!-- One-shot hand: Kenney CC0 frames in order — point → open → closed → open → fade. -->
     <div
       v-if="handPlaying && !entered && !reducedMotion"
       class="preloader__hand"
       aria-hidden="true"
     >
-      <img
-        class="preloader__hand-img"
-        src="/preloader/hand-click.webp"
-        width="96"
-        height="96"
-        alt=""
-        draggable="false"
-      />
+      <span class="preloader__hand-frames">
+        <img
+          class="preloader__hand-frame preloader__hand-frame--point"
+          src="/preloader/hand-point.png"
+          width="96"
+          height="96"
+          alt=""
+          draggable="false"
+        />
+        <img
+          class="preloader__hand-frame preloader__hand-frame--open"
+          src="/preloader/hand-open.png"
+          width="96"
+          height="96"
+          alt=""
+          draggable="false"
+        />
+        <img
+          class="preloader__hand-frame preloader__hand-frame--closed"
+          src="/preloader/hand-closed.png"
+          width="96"
+          height="96"
+          alt=""
+          draggable="false"
+        />
+      </span>
     </div>
 
     <!-- Full-viewport beat canvas (washes + exit ripples must not crop to stage). -->
@@ -950,9 +979,12 @@ onBeforeUnmount(() => {
   overflow: hidden;
   background: #fffaf0;
   color: #15120f;
-  transition: opacity 300ms cubic-bezier(.3, 0, 1, 1), visibility 300ms step-end;
+  transition: opacity 480ms cubic-bezier(.22, 1, .36, 1), visibility 480ms step-end;
 }
 .preloader--leaving { opacity: 0; visibility: hidden; pointer-events: none; }
+.preloader--leaving-skip {
+  transition-duration: 220ms, 220ms;
+}
 .preloader__audio { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
 .preloader__entry {
@@ -1037,30 +1069,68 @@ onBeforeUnmount(() => {
   transform: translate(72rem, 92rem) rotate(-18deg);
   animation: pl-hand-approach 2.4s cubic-bezier(.22, 1, .36, 1) both;
   image-rendering: pixelated;
+  filter: drop-shadow(0 2rem 0 rgb(21 18 15 / .18));
 }
-.preloader__hand-img {
+.preloader__hand-frames {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 30% 20%;
+  animation: pl-hand-click 2.4s cubic-bezier(.22, 1, .36, 1) both;
+}
+.preloader__hand-frame {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 2rem 0 rgb(21 18 15 / .18));
-  transform-origin: 30% 20%;
-  animation: pl-hand-click 2.4s cubic-bezier(.22, 1, .36, 1) both;
+  opacity: 0;
+  image-rendering: pixelated;
   /* Kenney Cursor Pack — CC0; see public/preloader/README.md */
+}
+/* Ordered one-shot: point → open → closed → open → point (synced to approach/click). */
+.preloader__hand-frame--point {
+  animation: pl-hand-frame-point 2.4s linear both;
+}
+.preloader__hand-frame--open {
+  animation: pl-hand-frame-open 2.4s linear both;
+}
+.preloader__hand-frame--closed {
+  animation: pl-hand-frame-closed 2.4s linear both;
 }
 @keyframes pl-hand-approach {
   0% { opacity: 0; transform: translate(110rem, 130rem) rotate(-28deg); }
-  18% { opacity: 1; }
-  55% { opacity: 1; transform: translate(18rem, 22rem) rotate(-12deg); }
-  62% { opacity: 1; transform: translate(14rem, 16rem) rotate(-10deg); }
-  70% { opacity: 1; transform: translate(18rem, 22rem) rotate(-12deg); }
-  88% { opacity: 1; transform: translate(22rem, 28rem) rotate(-14deg); }
-  100% { opacity: 0; transform: translate(28rem, 40rem) rotate(-16deg); }
+  16% { opacity: 1; }
+  52% { opacity: 1; transform: translate(18rem, 22rem) rotate(-12deg); }
+  58% { opacity: 1; transform: translate(12rem, 14rem) rotate(-9deg); }
+  68% { opacity: 1; transform: translate(18rem, 22rem) rotate(-12deg); }
+  86% { opacity: 1; transform: translate(24rem, 30rem) rotate(-14deg); }
+  100% { opacity: 0; transform: translate(30rem, 42rem) rotate(-16deg); }
 }
 @keyframes pl-hand-click {
-  0%, 54% { transform: scale(1); }
-  60% { transform: scale(.86); }
+  0%, 52% { transform: scale(1); }
+  58% { transform: scale(.84); }
   68% { transform: scale(1); }
   100% { transform: scale(1); }
+}
+@keyframes pl-hand-frame-point {
+  0%, 46% { opacity: 1; }
+  46.01%, 72% { opacity: 0; }
+  72.01%, 88% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes pl-hand-frame-open {
+  0%, 46% { opacity: 0; }
+  46.01%, 54% { opacity: 1; }
+  54.01%, 66% { opacity: 0; }
+  66.01%, 72% { opacity: 1; }
+  72.01%, 100% { opacity: 0; }
+}
+@keyframes pl-hand-frame-closed {
+  0%, 54% { opacity: 0; }
+  54.01%, 66% { opacity: 1; }
+  66.01%, 100% { opacity: 0; }
 }
 .preloader__entry:focus-visible {
   outline: none;

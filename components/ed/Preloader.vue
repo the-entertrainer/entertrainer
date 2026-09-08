@@ -3,45 +3,22 @@
 import { openingSoundSrc } from '~/composables/useSiteSettings'
 import { pickPreloaderQuote, type PreloaderQuote } from '~/utils/preloaderQuotes'
 
-/** Romanized Sanskrit (IAST-ish) for matrix rain — phrases, not English glosses. */
-const SANSKRIT_RAIN = [
-  'satyam eva jayate',
-  'vasudhaiva kutumbakam',
-  'yogah karmasu kaushalam',
-  'tamaso ma jyotir gamaya',
-  'vidya dadati vinayam',
-  'prajnanam brahma',
-  'ahimsa paramo dharmah',
-  'sarve bhavantu sukhinah',
-  'asato ma sad gamaya',
-  'neti neti',
-  'om shanti shanti shanti',
-  'ekam sat vipra bahudha vadanti',
-  'sa vidya ya vimuktaye',
-  'jnana paramam balam',
-  'shraddhavan labhate jnanam',
-  'karmanye vadhikaraste',
-  'atma deepo bhava',
-  'lokah samastah sukhino bhavantu',
-  'sat cit ananda',
-  'yatra naryastu pujyante'
-] as const
-
 const emit = defineEmits<{ complete: [] }>()
 const { settings, prefersReducedMotion, hydrate } = useSiteSettings()
 const leaving = ref(false)
 const entered = ref(false)
-/** Brief post-tap morph from entry mark → first dawn ring (no hard cut). */
-const handingOff = ref(false)
+/**
+ * Entry overlay phase after tap:
+ * idle → wipe (circle-out to logo) → flip (logo flip-fade) → gone.
+ * Preloader under starts as soon as entered=true (during wipe).
+ */
+const entryPhase = ref<'idle' | 'wipe' | 'flip' | 'gone'>('idle')
 const reducedMotion = ref(false)
 const ident = ref<HTMLAudioElement | null>(null)
 const beatCanvas = ref<HTMLCanvasElement | null>(null)
-const rainCanvas = ref<HTMLCanvasElement | null>(null)
-const handCursor = ref<HTMLElement | null>(null)
-/** One-shot animated hand that clicks the entry mark, then fades. */
+/** One-shot animated hand (Kenney CC0) that clicks the entry mark, then fades. */
 const handPlaying = ref(false)
 const handDone = ref(false)
-const rainActive = ref(false)
 const ringEls = ref<(SVGCircleElement | null)[]>([])
 const wordShellEl = ref<HTMLElement | null>(null)
 const enterPartEl = ref<HTMLElement | null>(null)
@@ -52,22 +29,15 @@ const setRingEl = (el: Element | null | { $el?: Element }, index: number) => {
 }
 let finishTimer: ReturnType<typeof setTimeout> | undefined
 let removeTimer: ReturnType<typeof setTimeout> | undefined
-let handoffTimer: ReturnType<typeof setTimeout> | undefined
+let wipeTimer: ReturnType<typeof setTimeout> | undefined
+let flipTimer: ReturnType<typeof setTimeout> | undefined
 let completed = false
 let beatRaf = 0
 let beatCursor = 0
-let rainRaf = 0
 let handTimer: ReturnType<typeof setTimeout> | undefined
 let resizeObs: ResizeObserver | undefined
-let rainResizeObs: ResizeObserver | undefined
 
-interface RainCol {
-  x: number
-  y: number
-  speed: number
-  chars: string[]
-  opacity: number
-}
+const showEntry = computed(() => entryPhase.value !== 'gone')
 
 /** Opening track duration (~8.93s); safety finish = duration + 400ms. */
 const MUSIC_DURATION_MS = 8930
@@ -208,146 +178,6 @@ interface Wash {
 
 const washes: Wash[] = []
 
-const sizeRainCanvas = () => {
-  const canvas = rainCanvas.value
-  if (!canvas) return
-  const root = canvas.closest('.preloader') ?? canvas.parentElement
-  if (!root) return
-  const rect = root.getBoundingClientRect()
-  const dpr = Math.min(window.devicePixelRatio || 1, 2)
-  const w = Math.max(1, Math.floor(rect.width))
-  const h = Math.max(1, Math.floor(rect.height))
-  canvas.width = Math.floor(w * dpr)
-  canvas.height = Math.floor(h * dpr)
-  canvas.style.width = `${w}px`
-  canvas.style.height = `${h}px`
-  const ctx = canvas.getContext('2d')
-  if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-}
-
-const buildRainCols = (w: number, h: number): RainCol[] => {
-  const cols: RainCol[] = []
-  // Wide columns for huge readable glyphs — sparse so brand stays primary.
-  const gap = Math.max(56, Math.min(96, Math.floor(w / 10)))
-  let phraseIdx = Math.floor(Math.random() * SANSKRIT_RAIN.length)
-  for (let x = gap * 0.45; x < w; x += gap) {
-    const phrase = SANSKRIT_RAIN[phraseIdx % SANSKRIT_RAIN.length]!
-    phraseIdx += 1
-    // Split into glyph-ish chunks (space-aware) for a column stream
-    const raw = phrase.replace(/\s+/g, '·').split('')
-    const chars = [...raw, ...'·'.repeat(3)]
-    cols.push({
-      x,
-      y: Math.random() * -h * 0.6,
-      speed: 10 + Math.random() * 22,
-      chars,
-      opacity: 0.04 + Math.random() * 0.05
-    })
-  }
-  return cols
-}
-
-let rainCols: RainCol[] = []
-let rainLast = 0
-
-const stopRain = () => {
-  if (rainRaf) {
-    cancelAnimationFrame(rainRaf)
-    rainRaf = 0
-  }
-  rainActive.value = false
-  rainCols = []
-  const canvas = rainCanvas.value
-  const ctx = canvas?.getContext('2d')
-  if (canvas && ctx) {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2)
-    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr)
-  }
-}
-
-const tickRain = (now: number) => {
-  if (!rainActive.value || leaving.value || reducedMotion.value) {
-    rainRaf = 0
-    return
-  }
-  const canvas = rainCanvas.value
-  if (!canvas) {
-    rainRaf = 0
-    return
-  }
-  const dpr = Math.min(window.devicePixelRatio || 1, 2)
-  const w = canvas.width / dpr
-  const h = canvas.height / dpr
-  const ctx = canvas.getContext('2d')
-  if (!ctx) {
-    rainRaf = 0
-    return
-  }
-  if (!rainCols.length) rainCols = buildRainCols(w, h)
-  const dt = rainLast ? Math.min(0.05, (now - rainLast) / 1000) : 0.016
-  rainLast = now
-
-  // Soft fade trail — keep brand readable over huge glyphs
-  ctx.fillStyle = 'rgba(255, 250, 240, 0.22)'
-  ctx.fillRect(0, 0, w, h)
-
-  // Huge readable type, very low contrast so rings/wordmark stay primary
-  const fontPx = Math.max(28, Math.min(52, Math.floor(w / 18)))
-  const step = Math.round(fontPx * 1.15)
-  ctx.font = `500 ${fontPx}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'top'
-
-  for (const col of rainCols) {
-    col.y += col.speed * dt * 10
-    for (let i = 0; i < col.chars.length; i++) {
-      const ch = col.chars[i]!
-      const yy = col.y + i * step
-      if (yy < -fontPx || yy > h + fontPx) continue
-      const head = i === col.chars.length - 1
-      const a = head
-        ? col.opacity * 1.35
-        : col.opacity * (0.4 + (i / col.chars.length) * 0.55)
-      ctx.fillStyle = head
-        ? `rgba(92, 68, 0, ${Math.min(0.14, a)})`
-        : `rgba(21, 18, 15, ${Math.min(0.09, a)})`
-      ctx.fillText(ch, col.x, yy)
-    }
-    if (col.y - col.chars.length * step > h) {
-      col.y = -Math.random() * h * 0.35 - col.chars.length * step
-      col.speed = 10 + Math.random() * 22
-      const phrase = SANSKRIT_RAIN[Math.floor(Math.random() * SANSKRIT_RAIN.length)]!
-      col.chars = [...phrase.replace(/\s+/g, '·').split(''), ...'·'.repeat(2)]
-      col.opacity = 0.04 + Math.random() * 0.05
-    }
-  }
-
-  rainRaf = requestAnimationFrame(tickRain)
-}
-
-const startRain = () => {
-  if (reducedMotion.value || rainActive.value) return
-  rainActive.value = true
-  rainLast = 0
-  nextTick(() => {
-    sizeRainCanvas()
-    if (typeof ResizeObserver !== 'undefined' && rainCanvas.value) {
-      rainResizeObs?.disconnect()
-      rainResizeObs = new ResizeObserver(() => {
-        sizeRainCanvas()
-        const canvas = rainCanvas.value
-        if (!canvas) return
-        const dpr = Math.min(window.devicePixelRatio || 1, 2)
-        rainCols = buildRainCols(canvas.width / dpr, canvas.height / dpr)
-      })
-      const root = rainCanvas.value.closest('.preloader') ?? rainCanvas.value.parentElement
-      if (root) rainResizeObs.observe(root)
-    }
-    rainCols = []
-    rainRaf = requestAnimationFrame(tickRain)
-  })
-}
-
 const stopHand = () => {
   if (handTimer !== undefined) {
     window.clearTimeout(handTimer)
@@ -435,8 +265,9 @@ const stopBeatLoop = () => {
   beatCursor = 0
 }
 
-/** Entry mark → first ring continuous handoff. */
-const HANDOFF_MS = 560
+/** Circle wipe until logo framed, then flip-fade of entry mark. */
+const WIPE_MS = 780
+const FLIP_MS = 480
 /** CSS grow duration (ms) — matched to remaining music at grow start. */
 const growMs = ref(5200)
 
@@ -446,7 +277,6 @@ const finishLeave = () => {
   leaving.value = true
   breathing.value = false
   growing.value = false
-  stopRain()
   stopHand()
   const el = ident.value
   if (el && !el.paused) {
@@ -503,12 +333,25 @@ const onAudioEnded = () => {
   finishLeave()
 }
 
+const clearEntryTimers = () => {
+  if (wipeTimer !== undefined) {
+    window.clearTimeout(wipeTimer)
+    wipeTimer = undefined
+  }
+  if (flipTimer !== undefined) {
+    window.clearTimeout(flipTimer)
+    flipTimer = undefined
+  }
+}
+
 const skip = () => {
   if (leaving.value || completed) return
   stopOpeningSound()
   clearFinishTimer()
+  clearEntryTimers()
   stopBeatLoop()
   stopHand()
+  entryPhase.value = 'gone'
   if (!entered.value) entered.value = true
   finishLeave()
 }
@@ -853,48 +696,56 @@ const revealStaticBrand = () => {
   })
 }
 
+const beginEntryReveal = () => {
+  clearEntryTimers()
+  if (reducedMotion.value) {
+    // Short path: drop the veil without wipe/flip choreography.
+    entryPhase.value = 'gone'
+    return
+  }
+  // Preloader is already running under the cream veil; circle-out to the logo.
+  entryPhase.value = 'wipe'
+  wipeTimer = window.setTimeout(() => {
+    wipeTimer = undefined
+    entryPhase.value = 'flip'
+    flipTimer = window.setTimeout(() => {
+      flipTimer = undefined
+      entryPhase.value = 'gone'
+    }, FLIP_MS)
+  }, WIPE_MS)
+}
+
 const startExperience = () => {
   if (entered.value || completed) return
   stopHand()
   handDone.value = true
   activeQuote.value = pickPreloaderQuote()
   playOpeningSound()
-  // Continuous handoff: entry mark morphs into the first dawn-ring beat (no hard cut).
-  handingOff.value = !reducedMotion.value
+  // Start dawn / music path under the entry veil immediately.
   entered.value = true
-  // Sanskrit matrix rain — only after user enters (not on idle entry screen).
-  if (!reducedMotion.value) startRain()
-  if (handoffTimer !== undefined) window.clearTimeout(handoffTimer)
-  if (handingOff.value) {
-    handoffTimer = window.setTimeout(() => {
-      handoffTimer = undefined
-      handingOff.value = false
-    }, HANDOFF_MS)
-  }
+  beginEntryReveal()
   if (soundOn.value) {
     finishTimer = window.setTimeout(finish, MUSIC_SAFETY_MS)
     if (!reducedMotion.value) {
       startBeatLoop()
-      // After resetChoreo: soft seed bridges morphing mark → first dawn ring (beat 0).
-      if (handingOff.value) {
-        seedOn.value = true
-        seedSoft.value = true
-      }
+      // Soft seed under the wipe so first ring has a bridge when beat 0 lands.
+      seedOn.value = true
+      seedSoft.value = true
     } else revealStaticBrand()
   } else {
     // Short path: full wordmark via CSS; quote stays hidden.
-    // Delay ring/word CSS start slightly so mark→ring morph can lead.
     seedOn.value = false
     const kickShort = () => {
       wordEnterIn.value = true
       wordTrainerIn.value = true
       for (let i = 0; i < 4; i++) ringsIn[i] = true
     }
-    if (handingOff.value) window.setTimeout(kickShort, 220)
+    // Let the wipe lead slightly so rings bloom into the revealed field.
+    if (!reducedMotion.value) window.setTimeout(kickShort, 180)
     else kickShort()
     finishTimer = window.setTimeout(
       finish,
-      reducedMotion.value ? SHORT_REDUCED_MS : SHORT_NORMAL_MS + (handingOff.value ? 220 : 0)
+      reducedMotion.value ? SHORT_REDUCED_MS : SHORT_NORMAL_MS + 180
     )
   }
 }
@@ -903,7 +754,6 @@ onMounted(() => {
   hydrate()
   reducedMotion.value = prefersReducedMotion()
   if (!reducedMotion.value) {
-    // Matrix rain starts only after tap/enter (see startExperience) — not on idle.
     // Brief beat so the logo is seen, then the hand cue plays once.
     handTimer = window.setTimeout(() => {
       handTimer = undefined
@@ -915,12 +765,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   clearFinishTimer()
   if (removeTimer) window.clearTimeout(removeTimer)
-  if (handoffTimer !== undefined) window.clearTimeout(handoffTimer)
+  clearEntryTimers()
   stopBeatLoop()
-  stopRain()
   stopHand()
   resizeObs?.disconnect()
-  rainResizeObs?.disconnect()
   ident.value?.pause()
 })
 </script>
@@ -930,7 +778,8 @@ onBeforeUnmount(() => {
     class="preloader"
     :class="{
       'preloader--entered': entered,
-      'preloader--handoff': handingOff,
+      'preloader--wipe': entryPhase === 'wipe',
+      'preloader--flip': entryPhase === 'flip',
       'preloader--leaving': leaving,
       'preloader--music': soundOn && entered,
       'preloader--beat': beatDriven,
@@ -951,22 +800,22 @@ onBeforeUnmount(() => {
       @ended="onAudioEnded"
     />
 
-    <!-- Sanskrit matrix rain (romanized) — post-tap only; huge+subtle under brand; off when reduce-motion. -->
-    <canvas
-      v-if="rainActive && !reducedMotion"
-      ref="rainCanvas"
-      class="preloader__rain"
-      aria-hidden="true"
-    />
-
+    <!--
+      Cream entry veil sits ABOVE the dawn stage (z higher).
+      On tap: stage/audio already running under; veil circle-wipes to the logo, then logo flip-fades.
+      Asset: /public/preloader/hand-click.webp — Kenney Cursor Pack, CC0 (see public/preloader/README.md).
+    -->
     <button
-      v-if="!entered || handingOff"
+      v-if="showEntry"
       type="button"
       class="preloader__entry"
-      :class="{ 'entry--handoff': handingOff }"
+      :class="{
+        'entry--wipe': entryPhase === 'wipe',
+        'entry--flip': entryPhase === 'flip'
+      }"
       :aria-label="soundOn ? 'Enter Entertrainer with sound' : 'Enter Entertrainer'"
-      :tabindex="handingOff ? -1 : 0"
-      :aria-hidden="handingOff ? 'true' : undefined"
+      :tabindex="entryPhase === 'idle' ? 0 : -1"
+      :aria-hidden="entryPhase !== 'idle' ? 'true' : undefined"
       @click="startExperience"
     >
       <span class="preloader__entry-mark" aria-hidden="true">
@@ -979,23 +828,20 @@ onBeforeUnmount(() => {
       </span>
     </button>
 
-    <!-- One-shot hand cursor: approaches, clicks logo once, fades. No on-screen Tap label. -->
+    <!-- One-shot hand: Kenney CC0 animated cursor approaches, clicks once, fades. -->
     <div
       v-if="handPlaying && !entered && !reducedMotion"
-      ref="handCursor"
       class="preloader__hand"
       aria-hidden="true"
     >
-      <svg class="preloader__hand-svg" viewBox="0 0 64 64" fill="none">
-        <path
-          class="preloader__hand-shape"
-          d="M28 6c1.8 0 3.2 1.4 3.2 3.2V28l.4-.2c.7-1.2 2.1-1.7 3.4-1.3 1.5.4 2.3 1.9 1.9 3.3l-.3 1.1c.7-1 2-1.4 3.2-1 1.5.5 2.3 2 1.8 3.4l-.6 1.8c.6-.7 1.6-1 2.6-.7 1.4.4 2.2 1.8 1.8 3.2L42.2 48c-1.4 4.6-5.6 7.8-10.4 7.8h-3.2c-5.8 0-10.8-3.8-12.4-9.3L12.8 34.2c-.8-2.4.6-5 3-5.7 1.7-.5 3.5.2 4.5 1.6l2.5 3.6V9.2C22.8 7.4 24.2 6 26 6h2z"
-          fill="#fffaf0"
-          stroke="#15120f"
-          stroke-width="2.4"
-          stroke-linejoin="round"
-        />
-      </svg>
+      <img
+        class="preloader__hand-img"
+        src="/preloader/hand-click.webp"
+        width="96"
+        height="96"
+        alt=""
+        draggable="false"
+      />
     </div>
 
     <!-- Full-viewport beat canvas (washes + exit ripples must not crop to stage). -->
@@ -1112,7 +958,7 @@ onBeforeUnmount(() => {
 .preloader__entry {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 5;
   display: grid;
   place-content: center;
   justify-items: center;
@@ -1122,10 +968,13 @@ onBeforeUnmount(() => {
   margin: 0;
   padding: 0;
   border: 0;
-  background: transparent;
+  /* Opaque cream veil — covers dawn stage until circle wipe reveals it. */
+  background: #fffaf0;
   color: #15120f;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  clip-path: circle(150% at 50% 50%);
+  transition: none;
 }
 .preloader__entry-mark {
   position: relative;
@@ -1176,37 +1025,27 @@ onBeforeUnmount(() => {
   border-color: rgb(21 18 15 / .35);
 }
 
-.preloader__rain {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  /* Huge glyphs drawn with very low alpha — keep overall veil soft. */
-  opacity: .55;
-  mix-blend-mode: multiply;
-}
-.preloader--leaving .preloader__rain { opacity: 0; transition: opacity 280ms ease; }
-
 .preloader__hand {
   position: absolute;
-  z-index: 4;
+  z-index: 6;
   left: 50%;
   top: 50%;
-  width: 56rem;
-  height: 56rem;
+  width: 72rem;
+  height: 72rem;
   margin: 0;
   pointer-events: none;
   transform: translate(72rem, 92rem) rotate(-18deg);
   animation: pl-hand-approach 2.4s cubic-bezier(.22, 1, .36, 1) both;
+  image-rendering: pixelated;
 }
-.preloader__hand-svg {
+.preloader__hand-img {
   width: 100%;
   height: 100%;
+  object-fit: contain;
   filter: drop-shadow(0 2rem 0 rgb(21 18 15 / .18));
   transform-origin: 30% 20%;
   animation: pl-hand-click 2.4s cubic-bezier(.22, 1, .36, 1) both;
+  /* Kenney Cursor Pack — CC0; see public/preloader/README.md */
 }
 @keyframes pl-hand-approach {
   0% { opacity: 0; transform: translate(110rem, 130rem) rotate(-28deg); }
@@ -1233,42 +1072,44 @@ onBeforeUnmount(() => {
 .preloader__entry:active .preloader__entry-mark { opacity: 1; }
 
 /*
- * Tap handoff: brand mark clocks into the first dawn-ring beat.
- * Mark expands + fades; CTA fades; stage crossfades under — no decorative entry rings.
- * Timed to meet beat 0 (~0.51s) so it feels one continuous sequence.
+ * Tap handoff: opaque cream veil circle-wipes out until only the logo is framed,
+ * revealing the already-running dawn stage around it; then logo flip-fades away.
  */
-.preloader__entry.entry--handoff {
+.preloader__entry.entry--wipe,
+.preloader__entry.entry--flip {
   pointer-events: none;
-  z-index: 3;
+  cursor: default;
 }
-.preloader__entry.entry--handoff .preloader__entry-mark {
-  width: min(22vw, 168rem);
-  height: min(22vw, 168rem);
-  border-width: 4.5px;
-  border-color: #ffd43b;
-  background: radial-gradient(circle at 50% 50%,
-    rgb(255 212 59 / .22) 0%,
-    rgb(255 212 59 / .06) 42%,
-    transparent 68%);
-  box-shadow: 0 0 0 1px rgb(255 212 59 / .12);
-  opacity: 0;
-  transform: scale(1.08);
+.preloader__entry.entry--wipe {
+  /* Shrink cream circle to ~logo size — dawn shows in the revealed field. */
+  animation: pl-entry-circle-wipe 780ms cubic-bezier(.22, 1, .36, 1) both;
+}
+.preloader__entry.entry--flip {
+  /* Hold the logo-sized circle while the mark flips out. */
+  clip-path: circle(min(11vw, 40rem) at 50% 50%);
+  animation: pl-entry-veil-fade 480ms cubic-bezier(.22, 1, .36, 1) both;
+}
+.preloader__entry.entry--wipe .preloader__entry-mark,
+.preloader__entry.entry--flip .preloader__entry-mark {
   outline: none !important;
-  transition:
-    width 520ms cubic-bezier(.22, 1, .36, 1),
-    height 520ms cubic-bezier(.22, 1, .36, 1),
-    border-width 420ms cubic-bezier(.22, 1, .36, 1),
-    border-color 280ms ease,
-    background 360ms ease,
-    box-shadow 360ms ease,
-    opacity 560ms cubic-bezier(.22, 1, .36, 1) 40ms,
-    transform 520ms cubic-bezier(.22, 1, .36, 1);
 }
-.preloader__entry.entry--handoff .preloader__entry-brand,
-.preloader__entry.entry--handoff .preloader__entry-mark-letter {
-  opacity: 0;
-  transform: scale(.72);
-  transition: opacity 220ms ease, transform 320ms cubic-bezier(.22, 1, .36, 1);
+.preloader__entry.entry--flip .preloader__entry-mark {
+  animation: pl-entry-logo-flip 480ms cubic-bezier(.22, 1, .36, 1) both;
+  transform-style: preserve-3d;
+}
+@keyframes pl-entry-circle-wipe {
+  0% { clip-path: circle(150% at 50% 50%); }
+  100% { clip-path: circle(min(11vw, 40rem) at 50% 50%); }
+}
+@keyframes pl-entry-veil-fade {
+  0% { clip-path: circle(min(11vw, 40rem) at 50% 50%); opacity: 1; }
+  70% { opacity: 1; }
+  100% { clip-path: circle(0 at 50% 50%); opacity: 0; }
+}
+@keyframes pl-entry-logo-flip {
+  0% { opacity: 1; transform: perspective(600px) rotateY(0deg) scale(1); }
+  55% { opacity: 1; transform: perspective(600px) rotateY(95deg) scale(1.04); }
+  100% { opacity: 0; transform: perspective(600px) rotateY(180deg) scale(.92); }
 }
 
 .preloader__stage {
@@ -1281,13 +1122,13 @@ onBeforeUnmount(() => {
   isolation: isolate;
   overflow: visible;
 }
-/* During handoff, stage rises under the morphing mark (shared center). */
-.preloader--handoff .preloader__stage {
-  animation: pl-stage-handoff-in 480ms cubic-bezier(.22, 1, .36, 1) both;
+/* Stage is live under the cream veil during wipe — soft rise as it becomes visible. */
+.preloader--wipe .preloader__stage,
+.preloader--flip .preloader__stage {
+  animation: pl-stage-under-wipe 720ms cubic-bezier(.22, 1, .36, 1) both;
 }
-@keyframes pl-stage-handoff-in {
-  0% { opacity: 0; transform: scale(.96); }
-  40% { opacity: .55; }
+@keyframes pl-stage-under-wipe {
+  0% { opacity: .85; transform: scale(.985); }
   100% { opacity: 1; transform: scale(1); }
 }
 .preloader__beat-canvas {
@@ -1536,7 +1377,7 @@ onBeforeUnmount(() => {
 /* Ghost Skip pill — cream/ink DNA; almost invisible until hover/focus. */
 .preloader__skip {
   position: absolute;
-  z-index: 2;
+  z-index: 7;
   bottom: max(28rem, 4vh);
   left: 50%;
   transform: translateX(-50%);
@@ -1714,10 +1555,9 @@ onBeforeUnmount(() => {
 
 @media (prefers-reduced-motion: reduce) {
   .preloader { transition-duration: 80ms; }
-  .preloader__rain,
   .preloader__hand { display: none !important; }
-  .preloader__entry.entry--handoff .preloader__entry-mark,
-  .preloader__entry.entry--handoff .preloader__entry-mark-letter { transition: none !important; }
+  .preloader__entry.entry--wipe,
+  .preloader__entry.entry--flip { animation: none !important; opacity: 0 !important; }
   .preloader *,
   .preloader *::before,
   .preloader *::after { animation: none !important; }
@@ -1737,8 +1577,9 @@ onBeforeUnmount(() => {
   .preloader__beat-canvas { display: none; }
 }
 :global(html[data-reduce-motion="on"]) .preloader { transition-duration: 80ms; }
-:global(html[data-reduce-motion="on"]) .preloader__rain,
 :global(html[data-reduce-motion="on"]) .preloader__hand { display: none !important; }
+:global(html[data-reduce-motion="on"]) .preloader__entry.entry--wipe,
+:global(html[data-reduce-motion="on"]) .preloader__entry.entry--flip { animation: none !important; opacity: 0 !important; }
 :global(html[data-reduce-motion="on"]) .preloader *,
 :global(html[data-reduce-motion="on"]) .preloader *::before,
 :global(html[data-reduce-motion="on"]) .preloader *::after { animation: none !important; }

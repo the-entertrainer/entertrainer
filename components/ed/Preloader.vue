@@ -116,7 +116,11 @@ const BEAT_CHOREO: ChoreoStep[] = [
 const soundOn = computed(() => settings.value.openingSound === 'on')
 const identSrc = computed(() => openingSoundSrc(settings.value.openingSound))
 const showBeatCanvas = computed(
-  () => soundOn.value && entered.value && !reducedMotion.value && !leaving.value
+  () =>
+    soundOn.value &&
+    entered.value &&
+    !reducedMotion.value &&
+    (!leaving.value || exitRippling.value)
 )
 /** Music-on path uses beat classes; sound-off keeps CSS-delay sequence. */
 const beatDriven = computed(
@@ -130,7 +134,9 @@ const quoteIn = ref(false)
 const settling = ref(false)
 /** Soft continuous breathe after reveal (quote beat) until settle / leave. */
 const breathing = ref(false)
-/** Cold-open yellow seed — visible until first ring lands, then soft hold. */
+/** End ripple: rings expand + fade before leave. */
+const exitRippling = ref(false)
+/** Optional soft seed after first ring — never on cold open. */
 const seedOn = ref(false)
 const seedSoft = ref(false)
 /** Music-on only — hidden on the short music-off path. */
@@ -196,7 +202,8 @@ const resetChoreo = () => {
   quoteIn.value = false
   settling.value = false
   breathing.value = false
-  seedOn.value = true
+  exitRippling.value = false
+  seedOn.value = false
   seedSoft.value = false
   for (const el of ringEls.value) {
     el?.classList.remove(
@@ -221,12 +228,53 @@ const stopBeatLoop = () => {
   beatCursor = 0
 }
 
-const finish = () => {
-  if (completed) return
-  completed = true
-  clearFinishTimer()
-  stopBeatLoop()
+/** Outward ink-on-water ripple duration before leave. */
+const EXIT_RIPPLE_MS = 1100
+const EXIT_RIPPLE_REDUCED_MS = 180
+let exitRippleTimer: ReturnType<typeof setTimeout> | undefined
+
+const spawnExitRipples = () => {
+  const canvas = beatCanvas.value
+  if (!canvas) return
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
+  const w = canvas.width / dpr
+  const h = canvas.height / dpr
+  if (w <= 0 || h <= 0) return
+  const now = performance.now()
+  const minDim = Math.min(w, h)
+  // Staggered yellow rings — soft opacity falloff, ink-on-water.
+  for (let i = 0; i < 4; i++) {
+    washes.push({
+      kind: 'ripple',
+      born: now + i * 90,
+      life: 900 + i * 80,
+      x: w * 0.5,
+      y: h * 0.5,
+      r0: minDim * (0.12 + i * 0.04),
+      r1: minDim * (0.55 + i * 0.18),
+      strong: i === 0,
+      alt: 0
+    })
+    washes.push({
+      kind: 'wash',
+      born: now + i * 110,
+      life: 860 + i * 60,
+      x: w * 0.5,
+      y: h * 0.5,
+      r0: minDim * 0.08,
+      r1: minDim * (0.42 + i * 0.12),
+      strong: false,
+      alt: i % 2
+    })
+  }
+  while (washes.length > 20) washes.shift()
+}
+
+const finishLeave = () => {
+  if (leaving.value) return
   leaving.value = true
+  breathing.value = false
+  exitRippling.value = false
   const el = ident.value
   if (el && !el.paused) {
     const startVol = el.volume
@@ -239,7 +287,44 @@ const finish = () => {
     }
     requestAnimationFrame(step)
   }
-  removeTimer = window.setTimeout(() => emit('complete'), 300)
+  removeTimer = window.setTimeout(() => emit('complete'), 320)
+}
+
+const beginExitRipple = () => {
+  if (completed) return
+  completed = true
+  clearFinishTimer()
+  if (exitRippleTimer !== undefined) {
+    window.clearTimeout(exitRippleTimer)
+    exitRippleTimer = undefined
+  }
+  breathing.value = false
+  settling.value = true
+  seedOn.value = false
+
+  if (reducedMotion.value) {
+    stopBeatLoop()
+    finishLeave()
+    return
+  }
+
+  exitRippling.value = true
+  spawnExitRipples()
+  // Keep beat canvas alive briefly so exit washes can paint.
+  if (!beatRaf && beatDriven.value) {
+    beatRaf = requestAnimationFrame(tickBeats)
+  }
+  const wait = EXIT_RIPPLE_MS
+  exitRippleTimer = window.setTimeout(() => {
+    exitRippleTimer = undefined
+    stopBeatLoop()
+    finishLeave()
+  }, wait)
+}
+
+const finish = () => {
+  // Prefer exit ripple after settle / on track end; Skip still uses beginExitRipple lightly.
+  beginExitRipple()
 }
 
 const onAudioEnded = () => {
@@ -311,8 +396,9 @@ const applyChoreo = (step: ChoreoStep, now: number, w: number, h: number) => {
     for (const i of step.rings ?? []) {
       if (i >= 0 && i < 4) ringsIn[i] = true
     }
-    // First ring extinguishes the cold-open seed breath into a soft hold.
-    if (ringsIn[0]) {
+    // Soft seed may appear only once the first ring has landed — never cold-open.
+    if (ringsIn[0] && !seedOn.value) {
+      seedOn.value = true
       seedSoft.value = true
     }
     // Soft ink ripple behind each draw-on.
@@ -447,6 +533,7 @@ const drawWash = (
   dpr: number
 ) => {
   const age = now - p.born
+  if (age < 0) return
   const u = Math.min(1, age / p.life)
   const env = bloomEnvelope(u)
   if (env <= 0.001) return
@@ -496,7 +583,12 @@ const sizeCanvas = () => {
 }
 
 const tickBeats = (now: number) => {
-  if (completed || leaving.value || !beatDriven.value) {
+  // Keep painting while exit-rippling; stop once leaving or not beat-driven.
+  if (leaving.value || (!beatDriven.value && !exitRippling.value)) {
+    beatRaf = 0
+    return
+  }
+  if (completed && !exitRippling.value) {
     beatRaf = 0
     return
   }
@@ -509,7 +601,7 @@ const tickBeats = (now: number) => {
 
   // Clock from the <audio> element — avoids setTimeout drift.
   const t = audio && !audio.paused ? audio.currentTime : -1
-  if (t >= 0) {
+  if (t >= 0 && !exitRippling.value) {
     while (
       beatCursor < BEAT_TIMES.length &&
       BEAT_TIMES[beatCursor]! <= t + BEAT_LOOKAHEAD_S
@@ -601,6 +693,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   clearFinishTimer()
   if (removeTimer) window.clearTimeout(removeTimer)
+  if (exitRippleTimer !== undefined) window.clearTimeout(exitRippleTimer)
   stopBeatLoop()
   resizeObs?.disconnect()
   ident.value?.pause()
@@ -615,8 +708,9 @@ onBeforeUnmount(() => {
       'preloader--leaving': leaving,
       'preloader--music': soundOn && entered,
       'preloader--beat': beatDriven,
-      'preloader--breathe': breathing && !leaving,
-      'preloader--settle': settling
+      'preloader--breathe': breathing && !leaving && !exitRippling,
+      'preloader--settle': settling,
+      'preloader--exit-ripple': exitRippling
     }"
   >
     <audio
@@ -637,17 +731,21 @@ onBeforeUnmount(() => {
       :aria-label="soundOn ? 'Tap to enter Entertrainer with sound' : 'Tap to enter Entertrainer'"
       @click="startExperience"
     >
-      <svg class="preloader__entry-logo" viewBox="0 0 240 240" aria-hidden="true">
-        <circle class="preloader__entry-ring" cx="120" cy="120" r="94" />
-        <circle class="preloader__entry-ring" cx="120" cy="120" r="62" />
-        <circle class="preloader__entry-ring" cx="120" cy="120" r="30" />
-        <text class="preloader__entry-e" x="120" y="158" text-anchor="middle">e</text>
-      </svg>
-      <svg class="preloader__entry-orbit" viewBox="0 0 400 400" aria-hidden="true">
-        <defs><path id="entry-orbit-path" d="M 200,200 m -145,0 a 145,145 0 1,1 290,0 a 145,145 0 1,1 -290,0" /></defs>
-        <text><textPath href="#entry-orbit-path" startOffset="0%">TAP TO ENTER · TAP TO ENTER · TAP TO ENTER · TAP TO ENTER · TAP TO ENTER · TAP TO ENTER · TAP TO ENTER · TAP TO ENTER · TAP TO ENTER · TAP TO ENTER · </textPath></text>
-      </svg>
-      <span class="sr-only">Tap to enter</span>
+      <span class="preloader__entry-dawn" aria-hidden="true">
+        <span class="preloader__entry-halo" />
+        <span class="preloader__entry-ring preloader__entry-ring--outer" />
+        <span class="preloader__entry-ring preloader__entry-ring--mid" />
+        <span class="preloader__entry-core" />
+      </span>
+      <span class="preloader__entry-copy">
+        <span class="preloader__entry-wordmark">entertrainer</span>
+        <span class="preloader__entry-invite">
+          <span class="preloader__entry-line" aria-hidden="true" />
+          <span class="preloader__entry-cta">Tap to enter</span>
+          <span class="preloader__entry-line" aria-hidden="true" />
+        </span>
+        <span class="preloader__entry-note">{{ soundOn ? 'Quiet dawn · then the opening' : 'Quiet dawn · short welcome' }}</span>
+      </span>
     </button>
 
     <div v-else class="preloader__stage" aria-hidden="true">
@@ -662,7 +760,7 @@ onBeforeUnmount(() => {
       <div
         class="preloader__seed"
         :class="{
-          'seed--on': seedOn && beatDriven,
+          'seed--on': seedOn && beatDriven && seedSoft,
           'seed--soft': seedSoft
         }"
       />
@@ -764,22 +862,108 @@ onBeforeUnmount(() => {
   position: relative;
   display: grid;
   place-items: center;
-  width: min(236rem, 58vw);
-  aspect-ratio: 1;
-  padding: 0;
+  gap: clamp(28rem, 6vh, 48rem);
+  width: min(420rem, 88vw);
+  padding: 24rem 16rem;
   border: 0;
   background: transparent;
   color: #15120f;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
-.preloader__entry-logo { position: relative; z-index: 1; display: block; width: 80%; height: auto; overflow: visible; transition: transform 220ms cubic-bezier(.16, 1, .3, 1); }
-.preloader__entry-ring { fill: none; stroke: #ffd43b; stroke-width: 18; }
-.preloader__entry-e { fill: #15120f; font-family: var(--font-ui), Arial, sans-serif; font-size: 144rem; font-weight: 900; letter-spacing: -.1em; }
-.preloader__entry-orbit { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; animation: pl-entry-orbit 24s linear infinite; }
-.preloader__entry-orbit text { fill: #15120f; font-family: var(--font-mono), monospace; font-size: 10rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.preloader__entry:hover .preloader__entry-logo { transform: scale(1.025); }
-.preloader__entry:focus-visible { outline: 3rem solid #15120f; outline-offset: 10rem; border-radius: 50%; }
-.preloader__entry:active .preloader__entry-logo { transform: scale(.975); }
+.preloader__entry-dawn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(148rem, 38vw);
+  aspect-ratio: 1;
+}
+.preloader__entry-halo {
+  position: absolute;
+  inset: -18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 212 59 / .18) 0%, rgb(255 212 59 / .06) 42%, transparent 70%);
+  animation: pl-entry-halo 4.8s ease-in-out infinite;
+}
+.preloader__entry-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgb(21 18 15 / .16);
+  pointer-events: none;
+}
+.preloader__entry-ring--outer {
+  inset: 0;
+  border-color: rgb(21 18 15 / .14);
+}
+.preloader__entry-ring--mid {
+  inset: 18%;
+  border-color: rgb(255 212 59 / .55);
+  animation: pl-entry-ring-soft 5.2s ease-in-out infinite;
+}
+.preloader__entry-core {
+  width: 12rem;
+  height: 12rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fff6d6 0%, #ffd43b 55%, #e6b800 100%);
+  box-shadow: 0 0 0 6rem rgb(255 212 59 / .12);
+  opacity: .92;
+  transform: scale(.92);
+  animation: pl-entry-core 3.6s ease-in-out infinite;
+}
+.preloader__entry-copy {
+  display: grid;
+  gap: 14rem;
+  justify-items: center;
+  text-align: center;
+}
+.preloader__entry-wordmark {
+  font-family: var(--font-ui), Arial, sans-serif;
+  font-size: clamp(28rem, 7vw, 42rem);
+  font-weight: 900;
+  letter-spacing: -.07em;
+  line-height: 1;
+  color: #15120f;
+}
+.preloader__entry-invite {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rem;
+}
+.preloader__entry-line {
+  width: clamp(28rem, 8vw, 48rem);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(21 18 15 / .35), transparent);
+}
+.preloader__entry-cta {
+  font-family: var(--font-mono), monospace;
+  font-size: 11rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgb(21 18 15 / .72);
+}
+.preloader__entry-note {
+  font-family: var(--font-ui), Arial, sans-serif;
+  font-size: 12rem;
+  font-weight: 500;
+  letter-spacing: .02em;
+  color: rgb(21 18 15 / .42);
+}
+.preloader__entry:hover .preloader__entry-core,
+.preloader__entry:focus-visible .preloader__entry-core {
+  transform: scale(1);
+  box-shadow: 0 0 0 10rem rgb(255 212 59 / .16);
+}
+.preloader__entry:hover .preloader__entry-cta,
+.preloader__entry:focus-visible .preloader__entry-cta {
+  color: #15120f;
+}
+.preloader__entry:focus-visible {
+  outline: 3rem solid #15120f;
+  outline-offset: 8rem;
+  border-radius: 16rem;
+}
+.preloader__entry:active .preloader__entry-dawn { transform: scale(.98); }
 
 .preloader__stage {
   position: relative;
@@ -815,14 +999,9 @@ onBeforeUnmount(() => {
   transform: scale(.6);
   filter: blur(0.5px);
 }
-.preloader__seed.seed--on {
-  opacity: .85;
-  transform: scale(1);
-  animation: pl-seed-breath 1.6s ease-in-out infinite;
-}
 .preloader__seed.seed--on.seed--soft {
-  opacity: .28;
-  transform: scale(.72);
+  opacity: .22;
+  transform: scale(.7);
   animation: pl-seed-hold 2.4s ease-in-out infinite;
 }
 .preloader--settle .preloader__seed {
@@ -1071,7 +1250,48 @@ onBeforeUnmount(() => {
   outline-offset: 3rem;
 }
 
-@keyframes pl-entry-orbit { to { transform: rotate(360deg); } }
+@keyframes pl-entry-halo {
+  0%, 100% { opacity: .7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+@keyframes pl-entry-ring-soft {
+  0%, 100% { opacity: .55; transform: scale(1); }
+  50% { opacity: .9; transform: scale(1.03); }
+}
+@keyframes pl-entry-core {
+  0%, 100% { opacity: .78; transform: scale(.9); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+/* End: yellow rings expand + fade outwards like ink on cream. */
+.preloader--exit-ripple .preloader__rings {
+  animation: pl-exit-rings 1100ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.preloader--exit-ripple .preloader__ring.ring--in {
+  animation: pl-exit-ring-expand 1100ms cubic-bezier(.16, 1, .3, 1) both !important;
+  transform-origin: 50% 50%;
+}
+.preloader--exit-ripple .preloader__ring.ring--in:nth-child(1) { animation-delay: 0ms !important; }
+.preloader--exit-ripple .preloader__ring.ring--in:nth-child(2) { animation-delay: 70ms !important; }
+.preloader--exit-ripple .preloader__ring.ring--in:nth-child(3) { animation-delay: 140ms !important; }
+.preloader--exit-ripple .preloader__ring.ring--in:nth-child(4) { animation-delay: 210ms !important; }
+.preloader--exit-ripple .preloader__brand-shell,
+.preloader--exit-ripple .preloader__quote {
+  animation: pl-exit-fade 700ms ease both;
+}
+.preloader--exit-ripple .preloader__seed { opacity: 0 !important; animation: none !important; }
+@keyframes pl-exit-rings {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.55); }
+}
+@keyframes pl-exit-ring-expand {
+  0% { opacity: 1; transform: rotate(-90deg) scale(1); stroke-width: var(--ring-sw); }
+  55% { opacity: .55; transform: rotate(-90deg) scale(1.35); stroke-width: calc(var(--ring-sw) * 0.7); }
+  100% { opacity: 0; transform: rotate(-90deg) scale(1.7); stroke-width: calc(var(--ring-sw) * 0.35); }
+}
+@keyframes pl-exit-fade {
+  to { opacity: 0; filter: blur(2px); }
+}
 
 @keyframes pl-logo-breathe {
   0%, 100% { transform: scale(1); opacity: 1; }
@@ -1196,7 +1416,9 @@ onBeforeUnmount(() => {
   .preloader *,
   .preloader *::before,
   .preloader *::after { animation: none !important; }
-  .preloader__entry-orbit { transform: none; }
+  .preloader__entry-halo,
+  .preloader__entry-ring--mid,
+  .preloader__entry-core { animation: none !important; }
   .preloader__ring {
     opacity: 1;
     stroke-dashoffset: 0;
@@ -1216,7 +1438,9 @@ onBeforeUnmount(() => {
 :global(html[data-reduce-motion="on"]) .preloader *,
 :global(html[data-reduce-motion="on"]) .preloader *::before,
 :global(html[data-reduce-motion="on"]) .preloader *::after { animation: none !important; }
-:global(html[data-reduce-motion="on"]) .preloader__entry-orbit { transform: none; }
+:global(html[data-reduce-motion="on"]) .preloader__entry-halo,
+:global(html[data-reduce-motion="on"]) .preloader__entry-ring--mid,
+:global(html[data-reduce-motion="on"]) .preloader__entry-core { animation: none !important; }
 :global(html[data-reduce-motion="on"]) .preloader__ring {
   opacity: 1;
   stroke-dashoffset: 0;

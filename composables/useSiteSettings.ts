@@ -25,7 +25,7 @@ export const OPENING_SOUND_SRC = '/audio/idents/opening.mp3'
 export interface SiteSettings {
   /** Welcome tone on tap-to-enter: "on" | "off". */
   openingSound: OpeningSoundId
-  /** Show the daily scrambled-word splash (when not already solved/skipped today). */
+  /** Show the Word of the Day (WOTD) button in the masthead. */
   wordOfTheDay: boolean
   reduceMotion: boolean
   hideElevateExcerpts: boolean

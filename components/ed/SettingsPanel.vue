@@ -130,15 +130,15 @@ function toggleOpeningSound() {
 
           <label class="sp__row">
             <span class="sp__row-copy">
-              <span class="sp__row-label">Word of the day</span>
-              <span class="sp__row-hint">A quick scrambled-word warm-up after you enter</span>
+              <span class="sp__row-label">Word of the Day</span>
+              <span class="sp__row-hint">Show the WOTD button — a daily scramble you open when you like</span>
             </span>
             <button
               type="button"
               class="sp__switch"
               role="switch"
               :aria-checked="settings.wordOfTheDay"
-              :aria-label="`Word of the day ${settings.wordOfTheDay ? 'on' : 'off'}`"
+              :aria-label="`Word of the Day ${settings.wordOfTheDay ? 'on' : 'off'}`"
               @click="setWordOfTheDay(!settings.wordOfTheDay)"
             >
               <span class="sp__switch-knob" aria-hidden="true" />

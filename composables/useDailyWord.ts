@@ -1,60 +1,34 @@
 /**
- * Daily scrambled-word splash — one word per local calendar day.
- * Solved or "not today" suppresses until the next local YYYY-MM-DD.
+ * Word of the Day (WOTD) — daily scramble from a large curated bank.
+ * Click-to-open (no auto popup). Notification clears on solve / skip / reveal.
  */
 
+import {
+  WOTD_WORDS,
+  WOTD_WORD_COUNT,
+  type WotdEntry
+} from '~/content/wotd-words'
+
 export const DAILY_WORD_KEY = 'entertrainer.daily-word'
+export const WOTD_FEATURE_NAME = 'Word of the Day'
 
-/** Tasteful learning / curiosity / Entertrainer-adjacent words (5–10 letters). */
-export const DAILY_WORDS = [
-  'curious',
-  'insight',
-  'spark',
-  'learn',
-  'wonder',
-  'craft',
-  'mentor',
-  'story',
-  'atlas',
-  'focus',
-  'clarity',
-  'practice',
-  'design',
-  'listen',
-  'explore',
-  'habit',
-  'reflect',
-  'grow',
-  'teach',
-  'quest',
-  'idea',
-  'signal',
-  'paper',
-  'yellow',
-  'elevate',
-  'engage',
-  'empower',
-  'lesson',
-  'prompt',
-  'sketch',
-  'rhythm',
-  'memory',
-  'reason',
-  'gentle',
-  'bright',
-  'thrive',
-  'vision',
-  'create',
-  'nurture',
-  'wisdom'
-] as const
+/** @deprecated — kept for older imports; prefer WOTD_WORDS */
+export const DAILY_WORDS = WOTD_WORDS.map((e) => e.word)
 
-export type DailyWordStatus = 'pending' | 'solved' | 'skipped'
+export type DailyWordStatus = 'pending' | 'solved' | 'skipped' | 'revealed'
 
 export interface DailyWordRecord {
   date: string
   status: DailyWordStatus
   word?: string
+}
+
+export interface WotdDefinition {
+  word: string
+  pos?: string
+  definition: string
+  example?: string
+  source: 'api' | 'bank'
 }
 
 function localDateKey(d = new Date()): string {
@@ -64,26 +38,31 @@ function localDateKey(d = new Date()): string {
   return `${y}-${m}-${day}`
 }
 
-/** Deterministic pick from the list for a YYYY-MM-DD key. */
-export function wordForDate(dateKey: string): string {
+function hashKey(s: string): number {
   let h = 2166136261
-  for (let i = 0; i < dateKey.length; i++) {
-    h ^= dateKey.charCodeAt(i)
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i)
     h = Math.imul(h, 16777619)
   }
-  const idx = Math.abs(h) % DAILY_WORDS.length
-  return DAILY_WORDS[idx]
+  return h >>> 0
 }
 
-/** Fair scramble: reshuffle until different from original (and not a trivial reverse for short words). */
+/** Deterministic bank entry for a YYYY-MM-DD key (cycles after bank length). */
+export function entryForDate(dateKey: string): WotdEntry {
+  const idx = hashKey(dateKey) % WOTD_WORD_COUNT
+  return WOTD_WORDS[idx]!
+}
+
+/** @deprecated alias */
+export function wordForDate(dateKey: string): string {
+  return entryForDate(dateKey).word
+}
+
+/** Fair scramble: reshuffle until different from the answer. */
 export function scrambleWord(word: string, seed: string): string {
   const chars = word.split('')
   if (chars.length < 2) return word
-  let h = 2166136261
-  for (let i = 0; i < seed.length; i++) {
-    h ^= seed.charCodeAt(i)
-    h = Math.imul(h, 16777619)
-  }
+  let h = hashKey(seed) | 0
   const rand = () => {
     h ^= h << 13
     h ^= h >>> 17
@@ -91,21 +70,20 @@ export function scrambleWord(word: string, seed: string): string {
     return (h >>> 0) / 4294967296
   }
   let out = word
-  for (let attempt = 0; attempt < 24; attempt++) {
+  for (let attempt = 0; attempt < 32; attempt++) {
     const a = chars.slice()
     for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(rand() * (i + 1))
-      ;[a[i], a[j]] = [a[j], a[i]]
+      ;[a[i], a[j]] = [a[j]!, a[i]!]
     }
     out = a.join('')
-    if (out !== word && out !== [...word].reverse().join('')) break
+    if (out !== word) break
   }
   if (out === word) {
-    // Last resort swap first two distinct letters.
     const a = chars.slice()
     for (let i = 1; i < a.length; i++) {
       if (a[i] !== a[0]) {
-        ;[a[0], a[i]] = [a[i], a[0]]
+        ;[a[0], a[i]] = [a[i]!, a[0]!]
         break
       }
     }
@@ -134,11 +112,54 @@ function writeRecord(rec: DailyWordRecord) {
   } catch { /* private mode / quota */ }
 }
 
+/** Free Dictionary API with bank fallback. */
+export async function fetchWotdDefinition(entry: WotdEntry): Promise<WotdDefinition> {
+  const bank: WotdDefinition = {
+    word: entry.word,
+    pos: entry.pos,
+    definition: entry.definition,
+    example: entry.example,
+    source: 'bank'
+  }
+  if (!import.meta.client) return bank
+  const ctrl = new AbortController()
+  const timer = window.setTimeout(() => ctrl.abort(), 6000)
+  try {
+    const res = await fetch(
+      `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(entry.word)}`,
+      { signal: ctrl.signal }
+    )
+    if (!res.ok) return bank
+    const data = await res.json() as Array<{
+      meanings?: Array<{
+        partOfSpeech?: string
+        definitions?: Array<{ definition?: string; example?: string }>
+      }>
+    }>
+    const meaning = data?.[0]?.meanings?.[0]
+    const def = meaning?.definitions?.[0]
+    if (!def?.definition) return bank
+    return {
+      word: entry.word,
+      pos: meaning?.partOfSpeech || entry.pos,
+      definition: def.definition,
+      example: def.example || entry.example,
+      source: 'api'
+    }
+  } catch {
+    return bank
+  } finally {
+    window.clearTimeout(timer)
+  }
+}
+
 export function useDailyWord() {
   const { settings, hydrate } = useSiteSettings()
   const today = localDateKey()
-  const word = wordForDate(today)
+  const entry = entryForDate(today)
+  const word = entry.word
   const scrambled = scrambleWord(word, `${today}:${word}`)
+  const clue = entry.clue
 
   const record = useState<DailyWordRecord | null>('entertrainer-daily-word', () => null)
   const open = useState<boolean>('entertrainer-daily-word-open', () => false)
@@ -154,32 +175,50 @@ export function useDailyWord() {
     }
   }
 
-  /** Whether the splash should appear after the preloader. */
-  function shouldShow(): boolean {
-    if (!import.meta.client) return false
-    refresh()
+  /** True when today's puzzle is still pending (for notification dot). */
+  const hasNotification = computed(() => {
     if (!settings.value.wordOfTheDay) return false
     const r = record.value
     if (!r || r.date !== today) return true
     return r.status === 'pending'
+  })
+
+  const featureEnabled = computed(() => settings.value.wordOfTheDay)
+
+  /** @deprecated auto-popup removed — use openGame() from masthead / home. */
+  function shouldShow(): boolean {
+    return false
+  }
+
+  function markStatus(status: DailyWordStatus) {
+    const next: DailyWordRecord = { date: today, status, word }
+    record.value = next
+    writeRecord(next)
   }
 
   function markSolved() {
-    const next: DailyWordRecord = { date: today, status: 'solved', word }
-    record.value = next
-    writeRecord(next)
-    open.value = false
+    markStatus('solved')
   }
 
   function markSkipped() {
-    const next: DailyWordRecord = { date: today, status: 'skipped', word }
-    record.value = next
-    writeRecord(next)
+    markStatus('skipped')
     open.value = false
   }
 
+  function markRevealed() {
+    markStatus('revealed')
+  }
+
+  function openGame() {
+    if (!import.meta.client) return
+    refresh()
+    if (!settings.value.wordOfTheDay) return
+    open.value = true
+  }
+
+  /** No-op: auto popup after preloader was removed by design. */
   function tryOpenAfterPreloader() {
-    if (shouldShow()) open.value = true
+    /* intentionally empty */
   }
 
   function close() {
@@ -190,13 +229,21 @@ export function useDailyWord() {
     today,
     word,
     scrambled,
+    clue,
+    entry,
     record,
     open,
     refresh,
     shouldShow,
+    hasNotification,
+    featureEnabled,
     markSolved,
     markSkipped,
+    markRevealed,
+    openGame,
     tryOpenAfterPreloader,
-    close
+    close,
+    fetchWotdDefinition,
+    WOTD_WORD_COUNT
   }
 }

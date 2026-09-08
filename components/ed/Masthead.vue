@@ -17,6 +17,12 @@ import { useThemeStore } from '~/stores/theme'
 const route = useRoute()
 const theme = useThemeStore()
 const { panelOpen, togglePanel, openPanel } = useSiteSettings()
+const {
+  featureEnabled: wotdEnabled,
+  hasNotification: wotdDot,
+  openGame: openWotd,
+  refresh: refreshWotd
+} = useDailyWord()
 const open = ref(false)
 
 const isCurrent = (href: string) =>
@@ -35,7 +41,10 @@ function openSettingsFromSheet() {
   openPanel()
 }
 
-onMounted(() => window.addEventListener('keydown', onKey))
+onMounted(() => {
+  refreshWotd()
+  window.addEventListener('keydown', onKey)
+})
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
@@ -54,6 +63,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
       </nav>
 
       <div class="mh__end">
+        <button
+          v-if="wotdEnabled"
+          type="button"
+          class="mh__icon mh__icon--wotd"
+          aria-haspopup="dialog"
+          :aria-label="wotdDot ? 'Word of the Day — new for today' : 'Word of the Day'"
+          @click="openWotd()"
+        >
+          <EdSignalIcon name="word" />
+          <span v-if="wotdDot" class="mh__dot" aria-hidden="true" />
+        </button>
+
         <button
           type="button"
           class="mh__icon"
@@ -90,6 +111,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           <span>{{ l.label }}</span>
           <EdSignalIcon name="external" />
         </NuxtLink>
+        <button
+          v-if="wotdEnabled"
+          type="button"
+          class="mh__sheet-link mh__sheet-wotd"
+          @click="open = false; openWotd()"
+        >
+          <span>{{ wotdDot ? 'Word of the Day · new' : 'Word of the Day' }}</span>
+          <EdSignalIcon name="word" />
+        </button>
         <button type="button" class="mh__sheet-link mh__sheet-settings" @click="openSettingsFromSheet">
           <span>Settings</span>
           <EdSignalIcon name="settings" />
@@ -157,6 +187,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 @media (hover: hover) { .mh__icon:hover { background: var(--signal-field); color: var(--ink); } }
 .mh__icon:active { transform: scale(.94); }
 .mh__icon[aria-expanded="true"] { background: var(--accent); }
+.mh__icon--wotd { position: relative; }
+.mh__dot {
+  position: absolute; top: 5rem; right: 5rem;
+  width: 8rem; height: 8rem; border-radius: 50%;
+  background: var(--accent); border: 1.5rem solid var(--ink);
+  pointer-events: none;
+}
+.mh__sheet-wotd { width: 100%; border: 0; cursor: pointer; font: inherit; text-align: left; color: inherit; background: var(--paper); }
 .mh__icon svg { transition: transform var(--dur-mid) var(--ease-spring), opacity var(--dur-fast) var(--ease-out); }
 .mh__icon--menu[aria-expanded="true"] svg { transform: rotate(90deg) scale(.88); }
 .mh__icon--menu { display: none; }

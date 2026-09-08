@@ -1,4 +1,4 @@
-<!-- Compact logo first, then finite wordmark reveal; optional opening music (~8.93s) with beat-reactive canvas. -->
+<!-- Compact logo first, then beat-choreographed wordmark/rings; optional opening music (~8.93s). -->
 <script setup lang="ts">
 import { openingSoundSrc } from '~/composables/useSiteSettings'
 
@@ -9,6 +9,12 @@ const entered = ref(false)
 const reducedMotion = ref(false)
 const ident = ref<HTMLAudioElement | null>(null)
 const beatCanvas = ref<HTMLCanvasElement | null>(null)
+const ringEls = ref<(HTMLElement | null)[]>([])
+const wordShellEl = ref<HTMLElement | null>(null)
+const setRingEl = (el: Element | null | { $el?: Element }, index: number) => {
+  const node = el && '$el' in el ? el.$el : el
+  ringEls.value[index] = node instanceof HTMLElement ? node : null
+}
 let finishTimer: ReturnType<typeof setTimeout> | undefined
 let removeTimer: ReturnType<typeof setTimeout> | undefined
 let completed = false
@@ -25,7 +31,7 @@ const SHORT_REDUCED_MS = 850
 
 /**
  * Precomputed beat onsets (seconds) from public/audio/idents/opening.mp3.
- * Authoritative sync map — drive pulses from audio.currentTime via rAF.
+ * Authoritative sync map — drive choreography + pulses from audio.currentTime via rAF.
  */
 const BEAT_TIMES = [
   0.511, 1.091, 1.37, 1.974, 2.252, 2.833, 3.135, 3.413, 3.715, 4.296, 4.598,
@@ -35,11 +41,63 @@ const BEAT_TIMES = [
 /** Look-ahead so a beat near the frame boundary still fires cleanly. */
 const BEAT_LOOKAHEAD_S = 0.028
 
+/**
+ * Beat-index → brand choreography. Canvas motifs still spawn on every beat.
+ * Ring indices are 0–3 (innermost → outermost).
+ */
+type ChoreoKind =
+  | 'ring-in'
+  | 'word-in'
+  | 'pulse'
+  | 'settle'
+
+interface ChoreoStep {
+  kind: ChoreoKind
+  /** Which rings arrive or pulse (0–3). */
+  rings?: number[]
+  /** Subtle wordmark kick. */
+  word?: boolean
+  /** Stronger pulse intensity. */
+  strong?: boolean
+}
+
+const BEAT_CHOREO: ChoreoStep[] = [
+  /* 0  0.511 */ { kind: 'ring-in', rings: [0] },
+  /* 1  1.091 */ { kind: 'ring-in', rings: [1] },
+  /* 2  1.370 */ { kind: 'ring-in', rings: [2] },
+  /* 3  1.974 */ { kind: 'ring-in', rings: [3] },
+  /* 4  2.252 */ { kind: 'word-in' },
+  /* 5  2.833 */ { kind: 'pulse', rings: [0, 1, 2, 3], strong: true },
+  /* 6  3.135 */ { kind: 'pulse', rings: [0, 2] },
+  /* 7  3.413 */ { kind: 'pulse', rings: [1, 3] },
+  /* 8  3.715 */ { kind: 'pulse', rings: [0, 1, 2, 3], word: true },
+  /* 9  4.296 */ { kind: 'pulse', rings: [2, 3] },
+  /* 10 4.598 */ { kind: 'pulse', rings: [0, 1], word: true },
+  /* 11 5.178 */ { kind: 'pulse', rings: [0, 1, 2, 3], strong: true },
+  /* 12 5.457 */ { kind: 'pulse', rings: [1, 2] },
+  /* 13 5.759 */ { kind: 'pulse', rings: [0, 1, 2, 3], word: true },
+  /* 14 6.060 */ { kind: 'pulse', rings: [0, 3] },
+  /* 15 6.339 */ { kind: 'pulse', rings: [1, 2] },
+  /* 16 6.618 */ { kind: 'pulse', rings: [0, 1, 2, 3], word: true, strong: true },
+  /* 17 6.920 */ { kind: 'pulse', rings: [0, 1, 2, 3] },
+  /* 18 7.500 */ { kind: 'settle', rings: [0, 1, 2, 3] },
+  /* 19 8.081 */ { kind: 'settle', rings: [1, 2], word: true },
+  /* 20 8.382 */ { kind: 'settle', rings: [0, 1, 2, 3] }
+]
+
 const soundOn = computed(() => settings.value.openingSound === 'on')
 const identSrc = computed(() => openingSoundSrc(settings.value.openingSound))
 const showBeatCanvas = computed(
   () => soundOn.value && entered.value && !reducedMotion.value && !leaving.value
 )
+/** Music-on path uses beat classes; sound-off keeps CSS-delay sequence. */
+const beatDriven = computed(
+  () => soundOn.value && entered.value && !reducedMotion.value
+)
+
+const ringsIn = reactive([false, false, false, false])
+const wordIn = ref(false)
+const settling = ref(false)
 
 type PulseKind = 'ring' | 'orb' | 'ticks' | 'wash' | 'dots'
 
@@ -54,7 +112,6 @@ interface Pulse {
   rot: number
   strong: boolean
   alt: number
-  /** Tick/dot count for geometric blooms. */
   count: number
   radius: number
 }
@@ -93,6 +150,21 @@ const clearFinishTimer = () => {
     window.clearTimeout(finishTimer)
     finishTimer = undefined
   }
+}
+
+const resetChoreo = () => {
+  for (let i = 0; i < 4; i++) ringsIn[i] = false
+  wordIn.value = false
+  settling.value = false
+  for (const el of ringEls.value) {
+    el?.classList.remove(
+      'ring--pulse',
+      'ring--pulse-strong',
+      'ring--settle-breath',
+      'ring--settled'
+    )
+  }
+  wordShellEl.value?.classList.remove('word--kick', 'word--settled')
 }
 
 const stopBeatLoop = () => {
@@ -150,6 +222,82 @@ const bloomEnvelope = (u: number) => {
   return 1 - easeInOut((u - 0.42) / 0.58)
 }
 
+const restartClass = (el: HTMLElement | null | undefined, cls: string) => {
+  if (!el) return
+  el.classList.remove(cls)
+  // Force reflow so the same keyframe can re-fire on successive beats.
+  void el.offsetWidth
+  el.classList.add(cls)
+}
+
+const applyChoreo = (step: ChoreoStep) => {
+  if (step.kind === 'ring-in') {
+    for (const i of step.rings ?? []) {
+      if (i >= 0 && i < 4) ringsIn[i] = true
+    }
+    return
+  }
+  if (step.kind === 'word-in') {
+    wordIn.value = true
+    return
+  }
+  if (step.kind === 'settle') {
+    settling.value = true
+  }
+
+  // pulse + settle breath — lock arrive first so keyframes can re-fire cleanly
+  if (step.kind === 'pulse' || step.kind === 'settle') {
+    const pulseCls =
+      step.kind === 'settle'
+        ? 'ring--settle-breath'
+        : step.strong
+          ? 'ring--pulse-strong'
+          : 'ring--pulse'
+    for (const i of step.rings ?? []) {
+      if (!ringsIn[i]) continue
+      const el = ringEls.value[i]
+      if (!el) continue
+      el.classList.add('ring--settled')
+      el.classList.remove('ring--pulse', 'ring--pulse-strong', 'ring--settle-breath')
+      void el.offsetWidth
+      el.classList.add(pulseCls)
+    }
+    if (step.word && wordIn.value) {
+      wordShellEl.value?.classList.add('word--settled')
+      restartClass(wordShellEl.value, 'word--kick')
+    }
+  }
+}
+
+const onRingAnimEnd = (e: AnimationEvent, index: number) => {
+  const el = ringEls.value[index]
+  if (!el) return
+  const name = e.animationName
+  if (name === 'pl-ring-arrive-beat') {
+    el.classList.add('ring--settled')
+    return
+  }
+  if (
+    name === 'pl-ring-pulse-beat' ||
+    name === 'pl-ring-pulse-strong' ||
+    name === 'pl-ring-settle-breath'
+  ) {
+    el.classList.remove('ring--pulse', 'ring--pulse-strong', 'ring--settle-breath')
+  }
+}
+
+const onWordAnimEnd = (e: AnimationEvent) => {
+  const el = wordShellEl.value
+  if (!el) return
+  if (e.animationName === 'pl-word-arrive-beat') {
+    el.classList.add('word--settled')
+    return
+  }
+  if (e.animationName === 'pl-word-kick') {
+    el.classList.remove('word--kick')
+  }
+}
+
 const spawnBeat = (index: number, now: number, w: number, h: number) => {
   const cx = w * 0.5
   const cy = h * 0.5
@@ -158,7 +306,6 @@ const spawnBeat = (index: number, now: number, w: number, h: number) => {
   const alt = index % 2
   const minDim = Math.min(w, h)
 
-  // Soft yellow ring pulse — alternate layer scale
   pulses.push({
     kind: 'ring',
     born: now,
@@ -174,7 +321,6 @@ const spawnBeat = (index: number, now: number, w: number, h: number) => {
     radius: minDim * (0.22 + alt * 0.08)
   })
 
-  // Ink/yellow orb flash behind wordmark
   pulses.push({
     kind: 'orb',
     born: now,
@@ -190,7 +336,6 @@ const spawnBeat = (index: number, now: number, w: number, h: number) => {
     radius: minDim * (strong ? 0.18 : 0.12)
   })
 
-  // Geometric ticks / dashes that bloom then leave
   pulses.push({
     kind: 'ticks',
     born: now,
@@ -206,7 +351,6 @@ const spawnBeat = (index: number, now: number, w: number, h: number) => {
     radius: minDim * (0.28 + (index % 3) * 0.04)
   })
 
-  // Tiny orbiting dots — arrive outward then fade
   pulses.push({
     kind: 'dots',
     born: now,
@@ -222,7 +366,6 @@ const spawnBeat = (index: number, now: number, w: number, h: number) => {
     radius: minDim * (0.32 + alt * 0.05)
   })
 
-  // Radial wash / vignette breath on stronger beats
   if (strong) {
     pulses.push({
       kind: 'wash',
@@ -240,7 +383,6 @@ const spawnBeat = (index: number, now: number, w: number, h: number) => {
     })
   }
 
-  // Cap live pulses so the canvas never gets busy
   while (pulses.length > 48) pulses.shift()
 }
 
@@ -270,7 +412,6 @@ const drawPulse = (
       : `rgba(255, 212, 59, ${0.55 * env})`
     ctx.lineWidth = (p.strong ? 3.2 : 2.2) * dpr
     ctx.stroke()
-    // Inner hairline
     ctx.beginPath()
     ctx.arc(0, 0, r * 0.72, 0, Math.PI * 2)
     ctx.strokeStyle = `rgba(255, 212, 59, ${0.22 * env})`
@@ -359,25 +500,16 @@ const sizeCanvas = () => {
 }
 
 const tickBeats = (now: number) => {
-  if (completed || leaving.value || !showBeatCanvas.value) {
+  if (completed || leaving.value || !beatDriven.value) {
     beatRaf = 0
     return
   }
   const canvas = beatCanvas.value
   const audio = ident.value
-  if (!canvas) {
-    beatRaf = requestAnimationFrame(tickBeats)
-    return
-  }
-
   const dpr = Math.min(window.devicePixelRatio || 1, 2)
-  const w = canvas.width / dpr
-  const h = canvas.height / dpr
-  const ctx = canvas.getContext('2d')
-  if (!ctx) {
-    beatRaf = requestAnimationFrame(tickBeats)
-    return
-  }
+  const w = canvas ? canvas.width / dpr : 0
+  const h = canvas ? canvas.height / dpr : 0
+  const ctx = canvas && w > 0 ? canvas.getContext('2d') : null
 
   // Clock from the <audio> element — avoids setTimeout drift.
   const t = audio && !audio.paused ? audio.currentTime : -1
@@ -386,21 +518,27 @@ const tickBeats = (now: number) => {
       beatCursor < BEAT_TIMES.length &&
       BEAT_TIMES[beatCursor]! <= t + BEAT_LOOKAHEAD_S
     ) {
-      // Only fire if we haven't skipped past by more than a beat gap (seek/skip).
       const bt = BEAT_TIMES[beatCursor]!
-      if (t - bt < 0.12) spawnBeat(beatCursor, now, w, h)
+      const idx = beatCursor
+      if (t - bt < 0.12) {
+        const step = BEAT_CHOREO[idx]
+        if (step) applyChoreo(step)
+        if (ctx && w > 0 && h > 0) spawnBeat(idx, now, w, h)
+      }
       beatCursor += 1
     }
   }
 
-  ctx.clearRect(0, 0, w, h)
-  for (let i = pulses.length - 1; i >= 0; i--) {
-    const p = pulses[i]!
-    if (now - p.born >= p.life) {
-      pulses.splice(i, 1)
-      continue
+  if (ctx && canvas) {
+    ctx.clearRect(0, 0, w, h)
+    for (let i = pulses.length - 1; i >= 0; i--) {
+      const p = pulses[i]!
+      if (now - p.born >= p.life) {
+        pulses.splice(i, 1)
+        continue
+      }
+      drawPulse(ctx, p, now, dpr)
     }
-    drawPulse(ctx, p, now, dpr)
   }
 
   beatRaf = requestAnimationFrame(tickBeats)
@@ -408,7 +546,8 @@ const tickBeats = (now: number) => {
 
 const startBeatLoop = () => {
   stopBeatLoop()
-  if (!showBeatCanvas.value) return
+  resetChoreo()
+  if (!beatDriven.value) return
   nextTick(() => {
     sizeCanvas()
     if (typeof ResizeObserver !== 'undefined' && beatCanvas.value?.parentElement) {
@@ -455,7 +594,9 @@ onBeforeUnmount(() => {
     :class="{
       'preloader--entered': entered,
       'preloader--leaving': leaving,
-      'preloader--music': soundOn && entered
+      'preloader--music': soundOn && entered,
+      'preloader--beat': beatDriven,
+      'preloader--settle': settling
     }"
   >
     <audio
@@ -496,8 +637,21 @@ onBeforeUnmount(() => {
         class="preloader__beat-canvas"
         aria-hidden="true"
       />
-      <div class="preloader__rings"><i></i><i></i><i></i><i></i></div>
-      <div class="preloader__brand-shell">
+      <div class="preloader__rings">
+        <i
+          v-for="n in 4"
+          :key="n"
+          :ref="(el) => setRingEl(el, n - 1)"
+          :class="{ 'ring--in': ringsIn[n - 1] }"
+          @animationend="onRingAnimEnd($event, n - 1)"
+        />
+      </div>
+      <div
+        ref="wordShellEl"
+        class="preloader__brand-shell"
+        :class="{ 'word--in': wordIn }"
+        @animationend="onWordAnimEnd"
+      >
         <span class="preloader__word">entertrainer</span>
       </div>
     </div>
@@ -619,21 +773,62 @@ onBeforeUnmount(() => {
   animation: pl-shadow-arrive 800ms cubic-bezier(.16, 1, .3, 1) 760ms both;
 }
 
-/* Music-on timeline ~8.9s: slower arrive, longer hold/breathe to land with the track. */
-.preloader--music .preloader__rings i {
-  animation:
-    pl-ring-arrive 2600ms cubic-bezier(.16, 1, .3, 1) var(--pl-ring-delay) both,
-    pl-ring-breathe 2400ms ease-in-out calc(2500ms + var(--pl-ring-delay)) 2 both;
+/*
+ * Beat-driven music path: rings/word stay hidden until JS toggles classes
+ * when audio.currentTime crosses assigned beat times — no CSS-delay choreography.
+ */
+.preloader--beat .preloader__rings i {
+  animation: none;
+  opacity: 0;
+  transform: scale(.36) rotate(-10deg);
 }
-.preloader--music .preloader__rings i:nth-child(1) { --pl-ring-delay: 0ms; }
-.preloader--music .preloader__rings i:nth-child(2) { --pl-ring-delay: 180ms; }
-.preloader--music .preloader__rings i:nth-child(3) { --pl-ring-delay: 360ms; }
-.preloader--music .preloader__rings i:nth-child(4) { --pl-ring-delay: 540ms; }
-.preloader--music .preloader__brand-shell {
-  animation: pl-word-arrive 1400ms cubic-bezier(.16, 1, .3, 1) 1100ms both;
+.preloader--beat .preloader__rings i.ring--in:not(.ring--settled) {
+  animation: pl-ring-arrive-beat 680ms cubic-bezier(.16, 1, .3, 1) both;
 }
-.preloader--music .preloader__brand-shell::after {
-  animation: pl-shadow-arrive 1200ms cubic-bezier(.16, 1, .3, 1) 1800ms both;
+.preloader--beat .preloader__rings i.ring--in.ring--settled {
+  opacity: 1;
+  transform: scale(1) rotate(0);
+  animation: none;
+}
+.preloader--beat .preloader__rings i.ring--in.ring--settled.ring--pulse {
+  animation: pl-ring-pulse-beat 440ms cubic-bezier(.16, 1, .3, 1);
+}
+.preloader--beat .preloader__rings i.ring--in.ring--settled.ring--pulse-strong {
+  animation: pl-ring-pulse-strong 520ms cubic-bezier(.16, 1, .3, 1);
+}
+.preloader--beat .preloader__rings i.ring--in.ring--settled.ring--settle-breath {
+  animation: pl-ring-settle-breath 720ms cubic-bezier(.22, 1, .36, 1);
+}
+.preloader--beat .preloader__brand-shell {
+  animation: none;
+  opacity: 0;
+  transform: scale(.88) translateY(22rem);
+  filter: blur(8rem);
+}
+.preloader--beat .preloader__brand-shell.word--in:not(.word--settled) {
+  animation: pl-word-arrive-beat 900ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.preloader--beat .preloader__brand-shell.word--in.word--settled {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  animation: none;
+}
+.preloader--beat .preloader__brand-shell.word--in.word--settled.word--kick {
+  animation: pl-word-kick 380ms cubic-bezier(.16, 1, .3, 1);
+}
+.preloader--beat .preloader__brand-shell::after {
+  animation: none;
+  opacity: 0;
+  transform: scaleX(.55);
+}
+.preloader--beat .preloader__brand-shell.word--in::after {
+  animation: pl-shadow-arrive 700ms cubic-bezier(.16, 1, .3, 1) 180ms both;
+}
+.preloader--beat .preloader__brand-shell.word--in.word--settled::after {
+  opacity: .78;
+  transform: scaleX(1);
+  animation: none;
 }
 
 /* Ghost Skip pill — cream/ink DNA; almost invisible until hover/focus. */
@@ -676,14 +871,44 @@ onBeforeUnmount(() => {
   58% { opacity: 1; transform: scale(1.035) rotate(1deg); }
   100% { opacity: 1; transform: scale(1) rotate(0); }
 }
+@keyframes pl-ring-arrive-beat {
+  0% { opacity: 0; transform: scale(.32) rotate(-12deg); }
+  55% { opacity: 1; transform: scale(1.05) rotate(1.5deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
 @keyframes pl-ring-breathe {
   0%, 100% { transform: scale(1); }
   48% { transform: scale(1.035); }
+}
+@keyframes pl-ring-pulse-beat {
+  0% { opacity: 1; transform: scale(1) rotate(0); }
+  42% { opacity: 1; transform: scale(1.04) rotate(0.4deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes pl-ring-pulse-strong {
+  0% { opacity: 1; transform: scale(1) rotate(0); }
+  38% { opacity: 1; transform: scale(1.065) rotate(-0.6deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes pl-ring-settle-breath {
+  0% { opacity: 1; transform: scale(1); }
+  45% { opacity: 1; transform: scale(1.018); }
+  100% { opacity: 1; transform: scale(1); }
 }
 @keyframes pl-word-arrive {
   0% { opacity: 0; transform: scale(.94) translateY(16rem); filter: blur(5rem); }
   66% { opacity: 1; filter: blur(0); }
   100% { opacity: 1; transform: none; filter: none; }
+}
+@keyframes pl-word-arrive-beat {
+  0% { opacity: 0; transform: scale(.86) translateY(28rem); filter: blur(10rem); }
+  58% { opacity: 1; filter: blur(0); transform: scale(1.03) translateY(-2rem); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+@keyframes pl-word-kick {
+  0% { opacity: 1; transform: scale(1); filter: none; }
+  40% { opacity: 1; transform: scale(1.035); filter: none; }
+  100% { opacity: 1; transform: scale(1); filter: none; }
 }
 @keyframes pl-shadow-arrive { to { opacity: .78; transform: scaleX(1); } }
 
@@ -694,7 +919,7 @@ onBeforeUnmount(() => {
   .preloader *::after { animation: none !important; }
   .preloader__entry-orbit { transform: none; }
   .preloader__rings i { opacity: 1; transform: scale(1); }
-  .preloader__brand-shell { opacity: 1; transform: none; }
+  .preloader__brand-shell { opacity: 1; transform: none; filter: none; }
   .preloader__brand-shell::after { opacity: .55; transform: scaleX(1); }
   .preloader__beat-canvas { display: none; }
 }
@@ -704,7 +929,7 @@ onBeforeUnmount(() => {
 :global(html[data-reduce-motion="on"]) .preloader *::after { animation: none !important; }
 :global(html[data-reduce-motion="on"]) .preloader__entry-orbit { transform: none; }
 :global(html[data-reduce-motion="on"]) .preloader__rings i { opacity: 1; transform: scale(1); }
-:global(html[data-reduce-motion="on"]) .preloader__brand-shell { opacity: 1; transform: none; }
+:global(html[data-reduce-motion="on"]) .preloader__brand-shell { opacity: 1; transform: none; filter: none; }
 :global(html[data-reduce-motion="on"]) .preloader__brand-shell::after { opacity: .55; transform: scaleX(1); }
 :global(html[data-reduce-motion="on"]) .preloader__beat-canvas { display: none; }
 </style>

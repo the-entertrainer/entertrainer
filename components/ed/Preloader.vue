@@ -1,4 +1,4 @@
-<!-- Dawn-on-cream sonic logo: beat reveal → slow parallax grow until track ends — no ripple/fade-out. -->
+<!-- Dawn-on-cream sonic logo: beat reveal → grow from wordmark complete until track ends — no ripple/fade-out. -->
 <script setup lang="ts">
 import { openingSoundSrc } from '~/composables/useSiteSettings'
 import { pickPreloaderQuote, type PreloaderQuote } from '~/utils/preloaderQuotes'
@@ -23,7 +23,6 @@ const setRingEl = (el: Element | null | { $el?: Element }, index: number) => {
 let finishTimer: ReturnType<typeof setTimeout> | undefined
 let removeTimer: ReturnType<typeof setTimeout> | undefined
 let handoffTimer: ReturnType<typeof setTimeout> | undefined
-let settleExitTimer: ReturnType<typeof setTimeout> | undefined
 let completed = false
 let beatRaf = 0
 let beatCursor = 0
@@ -87,8 +86,9 @@ interface ChoreoStep {
 
 /**
  * Dawn-on-cream beat map (music-on):
- * cold open → draw-on ripples 0–3 → enter / trainer 4–5 → stop reactions
- * → quote ~8 → slow parallax grow until audio ended (no timed leave).
+ * cold open → draw-on ripples 0–3 → enter / trainer 4–5 → wordmark complete
+ * → beginGrow (stop living-middle) → quote ~8 may still fire once during grow
+ * → leave only on audio ended / skip / safety (no timed leave).
  * Beats 6–7 and 9–17 are idle; settle slots unused once grow owns the outro.
  */
 const REVEAL_LAST_BEAT = 8
@@ -245,10 +245,6 @@ const finishLeave = () => {
   leaving.value = true
   breathing.value = false
   growing.value = false
-  if (settleExitTimer !== undefined) {
-    window.clearTimeout(settleExitTimer)
-    settleExitTimer = undefined
-  }
   const el = ident.value
   if (el && !el.paused) {
     const startVol = el.volume
@@ -273,7 +269,8 @@ const beginGrow = () => {
   breathing.value = false
   settling.value = true
   seedOn.value = false
-  stopBeatLoop()
+  // Keep beat cursor/loop alive so quote-in can still fire once during grow.
+  washes.length = 0
 
   if (reducedMotion.value) return
 
@@ -403,22 +400,19 @@ const applyChoreo = (step: ChoreoStep, now: number, w: number, h: number) => {
     // Soft confirmation pulse only on the assemble beat — then no more beat reactions.
     if (step.rings?.length) pulseRings(step, false)
     breathing.value = false
+    // Wordmark complete → slow parallax grow until music ends (leave on ended/skip).
+    if (wordEnterIn.value && !completed && !growing.value) {
+      beginGrow()
+    }
     return
   }
   if (step.kind === 'quote-in') {
     quoteIn.value = true
-    if (step.word) kickWordmark()
-    // Reveal complete — stop beat reactions; slow parallax grow until music ends.
+    // Soft kick only if grow has not started — avoid fighting parallax grow.
+    if (step.word && !growing.value) kickWordmark()
     breathing.value = false
     wordShellEl.value?.classList.add('word--settled', 'word--assembled')
-    if (!completed && !growing.value) {
-      // Defer so the quote/kick can paint, then grow (leave only on ended/skip).
-      if (settleExitTimer !== undefined) window.clearTimeout(settleExitTimer)
-      settleExitTimer = window.setTimeout(() => {
-        settleExitTimer = undefined
-        beginGrow()
-      }, 280)
-    }
+    // May fire once during grow; do not restart living-middle or schedule beginGrow.
     return
   }
   if (step.kind === 'settle') {
@@ -562,7 +556,7 @@ const sizeCanvas = () => {
 }
 
 const tickBeats = (now: number) => {
-  if (leaving.value || growing.value || !beatDriven.value) {
+  if (leaving.value || !beatDriven.value) {
     beatRaf = 0
     return
   }
@@ -588,17 +582,22 @@ const tickBeats = (now: number) => {
       const idx = beatCursor
       if (t - bt < 0.12) {
         const step = BEAT_CHOREO[idx]
-        // Music sync for reveal only — after quote / grow, ignore remaining beats.
-        // Reveal-only choreography; quote-in schedules grow (leave on ended/skip).
-        if (step && !growing.value && !(idx > REVEAL_LAST_BEAT)) {
-          applyChoreo(step, now, w, h)
+        // Grow starts at trainer-in; quote-in may still fire once during grow.
+        if (step) {
+          if (growing.value) {
+            if (step.kind === 'quote-in' && !quoteIn.value) {
+              applyChoreo(step, now, w, h)
+            }
+          } else if (!(idx > REVEAL_LAST_BEAT)) {
+            applyChoreo(step, now, w, h)
+          }
         }
       }
       beatCursor += 1
     }
   }
 
-  if (ctx && canvas) {
+  if (ctx && canvas && !growing.value) {
     ctx.clearRect(0, 0, w, h)
     for (let i = washes.length - 1; i >= 0; i--) {
       const p = washes[i]!
@@ -608,6 +607,13 @@ const tickBeats = (now: number) => {
       }
       drawWash(ctx, p, now, dpr)
     }
+  }
+
+  // After grow + quote, no more choreography — stop the loop.
+  if (growing.value && quoteIn.value) {
+    washes.length = 0
+    beatRaf = 0
+    return
   }
 
   beatRaf = requestAnimationFrame(tickBeats)
@@ -694,7 +700,6 @@ onBeforeUnmount(() => {
   clearFinishTimer()
   if (removeTimer) window.clearTimeout(removeTimer)
   if (handoffTimer !== undefined) window.clearTimeout(handoffTimer)
-  if (settleExitTimer !== undefined) window.clearTimeout(settleExitTimer)
   stopBeatLoop()
   resizeObs?.disconnect()
   ident.value?.pause()
@@ -744,8 +749,6 @@ onBeforeUnmount(() => {
           <circle cx="120" cy="120" r="30" fill="none" stroke="currentColor" stroke-width="18" />
           <text x="120" y="158" text-anchor="middle" class="preloader__entry-brand-e">e</text>
         </svg>
-        <span class="preloader__entry-mark-ring preloader__entry-mark-ring--a" />
-        <span class="preloader__entry-mark-ring preloader__entry-mark-ring--b" />
       </span>
       <span class="preloader__entry-cta">Tap</span>
     </button>
@@ -922,15 +925,6 @@ onBeforeUnmount(() => {
   z-index: 1;
   transition: opacity 200ms ease, transform 200ms ease, color 200ms ease;
 }
-.preloader__entry-mark-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1.5px solid transparent;
-  pointer-events: none;
-  opacity: 0;
-  transform: scale(1);
-}
 .preloader__entry-cta {
   font-family: var(--font-ui), Arial, sans-serif;
   font-size: 13rem;
@@ -958,8 +952,8 @@ onBeforeUnmount(() => {
 .preloader__entry:active .preloader__entry-mark { opacity: 1; }
 
 /*
- * Tap handoff: entry mark clocks into the first dawn-ring beat.
- * Mark expands + yellows; quiet rings bloom; letter/CTA fade; stage crossfades under.
+ * Tap handoff: brand mark clocks into the first dawn-ring beat.
+ * Mark expands + fades; CTA fades; stage crossfades under — no decorative entry rings.
  * Timed to meet beat 0 (~0.51s) so it feels one continuous sequence.
  */
 .preloader__entry.entry--handoff {
@@ -999,19 +993,6 @@ onBeforeUnmount(() => {
   opacity: 0;
   transform: scale(.72);
   transition: opacity 220ms ease, transform 320ms cubic-bezier(.22, 1, .36, 1);
-}
-.preloader__entry.entry--handoff .preloader__entry-mark-ring--a {
-  border-color: rgb(255 212 59 / .55);
-  animation: pl-entry-handoff-ring 560ms cubic-bezier(.16, 1, .3, 1) both;
-}
-.preloader__entry.entry--handoff .preloader__entry-mark-ring--b {
-  border-color: rgb(255 212 59 / .28);
-  animation: pl-entry-handoff-ring 560ms cubic-bezier(.16, 1, .3, 1) 70ms both;
-}
-@keyframes pl-entry-handoff-ring {
-  0% { opacity: .7; transform: scale(1); }
-  55% { opacity: .45; transform: scale(1.55); }
-  100% { opacity: 0; transform: scale(2.05); }
 }
 
 .preloader__stage {

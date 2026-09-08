@@ -1,8 +1,7 @@
 <script setup lang="ts">
 /**
- * Word of the Day — click-to-open scramble modal.
- * Cream / ink / yellow DNA. Clue always visible; Reveal after first miss.
- * Win or reveal → congratulate + plain meaning (API with bank fallback).
+ * Word of the Day — tiny daily scramble game.
+ * Clue → guess → reveal. Win or peek → short meaning. No corporate fluff.
  */
 import type { WotdDefinition } from '~/composables/useDailyWord'
 
@@ -116,15 +115,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         aria-describedby="wotd-hint"
       >
         <header class="wotd__head">
-          <p class="wotd__eyebrow">Word of the Day · WOTD</p>
+          <p class="wotd__eyebrow">Today’s word · 1 round</p>
           <h2 id="wotd-title" class="wotd__title">
-            <template v-if="feedback === 'ok'">Nicely done</template>
-            <template v-else-if="feedback === 'revealed'">Here's today's word</template>
-            <template v-else>Unscramble this</template>
+            <template v-if="feedback === 'ok'">Got it!</template>
+            <template v-else-if="feedback === 'revealed'">Here’s the word</template>
+            <template v-else>Unscramble</template>
           </h2>
           <p id="wotd-hint" class="wotd__hint">
-            <template v-if="showMeaning">A useful word for your vocabulary shelf</template>
-            <template v-else>One uncommon-but-useful English word — for today only</template>
+            <template v-if="showMeaning">Nice one — stash it for later</template>
+            <template v-else>Letters are mixed. Clue’s below. Go.</template>
           </p>
         </header>
 
@@ -162,12 +161,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
             autocapitalize="none"
             spellcheck="false"
             maxlength="16"
-            placeholder="Your guess"
+            placeholder="Type it"
             :aria-invalid="feedback === 'wrong'"
             :aria-describedby="feedback === 'wrong' ? 'wotd-feedback' : 'wotd-clue-text'"
           >
-          <button type="submit" class="wotd__go" aria-label="Check answer">
-            Check
+          <button type="submit" class="wotd__go" aria-label="Try this guess">
+            Try
           </button>
         </form>
 
@@ -177,32 +176,30 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           class="wotd__feedback wotd__feedback--wrong"
           role="status"
         >
-          Not quite — try again
+          Nope — again!
         </p>
         <p
           v-else-if="feedback === 'ok'"
           class="wotd__feedback wotd__feedback--ok"
           role="status"
         >
-          You got it — well played
+          Yes! That’s the one
         </p>
         <p
           v-else-if="feedback === 'revealed'"
           class="wotd__feedback wotd__feedback--ok"
           role="status"
         >
-          Revealed — still worth knowing
+          Peeked — still counts as learning
         </p>
 
         <div v-if="showMeaning" class="wotd__meaning" aria-live="polite">
-          <p v-if="meaningLoading" class="wotd__meaning-loading">Looking up the meaning…</p>
+          <p v-if="meaningLoading" class="wotd__meaning-loading">Loading meaning…</p>
           <template v-else-if="meaning">
             <p class="wotd__meaning-pos">{{ meaning.pos }}</p>
             <p class="wotd__meaning-def">{{ meaning.definition }}</p>
             <p v-if="meaning.example" class="wotd__meaning-ex">“{{ meaning.example }}”</p>
-            <p class="wotd__meaning-src">
-              {{ meaning.source === 'api' ? 'Free Dictionary API' : 'Definition' }}
-            </p>
+            <p class="wotd__meaning-src">Meaning</p>
           </template>
         </div>
 
@@ -213,7 +210,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
             class="wotd__reveal"
             @click="revealAnswer()"
           >
-            Reveal answer
+            Peek
           </button>
           <button
             v-if="!showMeaning"
@@ -221,7 +218,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
             class="wotd__skip"
             @click="markSkipped()"
           >
-            Not today
+            Skip
           </button>
           <button
             v-else
@@ -229,7 +226,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
             class="wotd__done"
             @click="close()"
           >
-            Done
+            Played
           </button>
         </div>
       </div>
@@ -268,11 +265,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   to { opacity: 1; transform: none; }
 }
 .wotd__eyebrow {
-  margin: 0 0 6rem;
-  font: 700 11rem/1.2 var(--font-mono);
+  display: inline-flex;
+  align-items: center;
+  gap: 6rem;
+  margin: 0 0 8rem;
+  padding: 4rem 9rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  font: 700 10rem/1.2 var(--font-mono);
   letter-spacing: .08em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ink);
 }
 .wotd__title {
   margin: 0 0 6rem;

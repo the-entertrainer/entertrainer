@@ -1,6 +1,6 @@
 /**
- * Word of the Day (WOTD) — daily scramble from a large curated bank.
- * Click-to-open (no auto popup). Notification clears on solve / skip / reveal.
+ * Word of the Day — tiny daily scramble from a curated bank.
+ * Click-to-open (no auto popup). Dot clears on solve / skip / peek.
  */
 
 import {

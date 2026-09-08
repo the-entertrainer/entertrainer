@@ -121,7 +121,7 @@ function toggleOpeningSound() {
           <label class="sp__row">
             <span class="sp__row-copy">
               <span class="sp__row-label">Word of the Day</span>
-              <span class="sp__row-hint">Show the WOTD button — a daily scramble you open when you like</span>
+              <span class="sp__row-hint">Tiny daily scramble in the masthead — open when you feel like it</span>
             </span>
             <button
               type="button"

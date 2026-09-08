@@ -68,7 +68,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           type="button"
           class="mh__icon mh__icon--wotd"
           aria-haspopup="dialog"
-          :aria-label="wotdDot ? 'Word of the Day — new for today' : 'Word of the Day'"
+          :aria-label="wotdDot ? 'Word game — new for today' : 'Word game'"
           @click="openWotd()"
         >
           <span class="mh__wotd" aria-hidden="true">
@@ -121,7 +121,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           class="mh__sheet-link mh__sheet-wotd"
           @click="open = false; openWotd()"
         >
-          <span>{{ wotdDot ? 'Word of the Day · new' : 'Word of the Day' }}</span>
+          <span>{{ wotdDot ? 'Word game · new' : 'Word game' }}</span>
           <EdSignalIcon name="word" />
         </button>
         <button type="button" class="mh__sheet-link mh__sheet-settings" @click="openSettingsFromSheet">

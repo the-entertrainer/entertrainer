@@ -3,8 +3,8 @@ import { MUST_LETTERS, type ElevateCategory } from '~/content/elevate-categories
 
 const props = withDefaults(
   defineProps<{
-    /** `panel` = full yellow card (article footers). `bubble` = corner orb that expands. */
-    variant?: 'panel' | 'bubble'
+    /** `panel` = full yellow card (article footers). `bubble` = corner orb. `inline` = quiet Elevate subscribe. */
+    variant?: 'panel' | 'bubble' | 'inline'
     /** Active MUST category when used as Elevate hero bubble (for pressed state). */
     activeCategory?: ElevateCategory | 'all' | string
   }>(),
@@ -25,12 +25,35 @@ const root = ref<HTMLElement | null>(null)
 const panelEl = ref<HTMLElement | null>(null)
 const triggerBtn = ref<HTMLButtonElement | null>(null)
 
-const titleId = computed(() =>
-  props.variant === 'bubble' ? 'newsletter-bubble-title' : 'newsletter-title'
-)
-const emailId = computed(() =>
-  props.variant === 'bubble' ? 'newsletter-bubble-email' : 'newsletter-email'
-)
+const titleId = computed(() => {
+  if (props.variant === 'bubble') return 'newsletter-bubble-title'
+  if (props.variant === 'inline') return 'newsletter-inline-title'
+  return 'newsletter-title'
+})
+const emailId = computed(() => {
+  if (props.variant === 'bubble') return 'newsletter-bubble-email'
+  if (props.variant === 'inline') return 'newsletter-inline-email'
+  return 'newsletter-email'
+})
+
+const inlineOpen = ref(false)
+let inlineCollapseTimer: ReturnType<typeof setTimeout> | undefined
+
+function openInline() {
+  inlineOpen.value = true
+  nextTick(() => {
+    const input = root.value?.querySelector<HTMLInputElement>('input[type="email"]')
+    input?.focus()
+  })
+}
+
+function closeInline() {
+  inlineOpen.value = false
+  if (inlineCollapseTimer) {
+    clearTimeout(inlineCollapseTimer)
+    inlineCollapseTimer = undefined
+  }
+}
 
 function subscribeByMailto() {
   const subject = encodeURIComponent('Entertrainer weekly')
@@ -50,9 +73,19 @@ async function subscribe() {
       body: { email: email.value.trim() }
     })
     if (result.ok) {
-      status.value = `${result.message} If a welcome mail shows up in spam, blame the filters — not you.`
+      status.value = props.variant === 'inline'
+        ? 'You’re in. See you Friday.'
+        : `${result.message} If a welcome mail shows up in spam, blame the filters — not you.`
       failed.value = false
       email.value = ''
+      if (props.variant === 'inline') {
+        if (inlineCollapseTimer) clearTimeout(inlineCollapseTimer)
+        inlineCollapseTimer = setTimeout(() => {
+          inlineOpen.value = false
+          status.value = ''
+          inlineCollapseTimer = undefined
+        }, 2200)
+      }
     } else if (!result.configured) {
       subscribeByMailto()
     } else {
@@ -91,10 +124,15 @@ function onDocPointer(e: PointerEvent) {
 }
 
 function onKey(e: KeyboardEvent) {
-  if (!open.value || props.variant !== 'bubble') return
-  if (e.key === 'Escape') {
+  if (e.key !== 'Escape') return
+  if (props.variant === 'bubble' && open.value) {
     e.preventDefault()
     closeBubble()
+    return
+  }
+  if (props.variant === 'inline' && inlineOpen.value) {
+    e.preventDefault()
+    closeInline()
   }
 }
 
@@ -109,21 +147,75 @@ watch(open, async (isOpen) => {
 })
 
 onMounted(() => {
-  if (props.variant !== 'bubble') return
-  document.addEventListener('pointerdown', onDocPointer)
-  window.addEventListener('keydown', onKey)
+  if (props.variant === 'bubble') {
+    document.addEventListener('pointerdown', onDocPointer)
+    window.addEventListener('keydown', onKey)
+  } else if (props.variant === 'inline') {
+    window.addEventListener('keydown', onKey)
+  }
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', onDocPointer)
   window.removeEventListener('keydown', onKey)
+  if (inlineCollapseTimer) clearTimeout(inlineCollapseTimer)
 })
 </script>
 
 <template>
+  <!-- Quiet Elevate subscribe — button expands to email, no MUST tiles -->
+  <div
+    v-if="variant === 'inline'"
+    ref="root"
+    class="nl-inline"
+    :class="{ 'is-open': inlineOpen }"
+  >
+    <button
+      v-if="!inlineOpen"
+      type="button"
+      class="nl-inline__trigger"
+      aria-expanded="false"
+      aria-controls="newsletter-inline-panel"
+      @click="openInline"
+    >
+      Subscribe to our Friday Newsletter
+    </button>
+
+    <div
+      v-else
+      id="newsletter-inline-panel"
+      class="nl-inline__panel"
+      role="region"
+      :aria-labelledby="titleId"
+    >
+      <div class="nl-inline__head">
+        <p :id="titleId" class="nl-inline__title">Friday Newsletter</p>
+        <button type="button" class="nl-inline__close" aria-label="Close subscribe form" @click="closeInline">×</button>
+      </div>
+      <form ref="form" class="nl-inline__form" @submit.prevent="subscribe">
+        <label :for="emailId">Email address</label>
+        <div class="nl-inline__field">
+          <input
+            :id="emailId"
+            v-model="email"
+            type="email"
+            inputmode="email"
+            autocomplete="email"
+            required
+            placeholder="you@example.com"
+            :disabled="submitting"
+          >
+          <button type="submit" :disabled="submitting">{{ submitting ? 'Sending…' : 'Subscribe' }}</button>
+        </div>
+        <p class="nl-inline__fine">Occasional. No spam. One click to leave.</p>
+        <p v-if="status" class="nl-inline__status" :class="{ 'is-error': failed }" role="status">{{ status }}</p>
+      </form>
+    </div>
+  </div>
+
   <!-- Compact corner orb — expands into MUST + subscribe -->
   <div
-    v-if="variant === 'bubble'"
+    v-else-if="variant === 'bubble'"
     ref="root"
     class="nl-bubble"
     :class="{ 'is-open': open }"
@@ -225,6 +317,136 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+/* —— Quiet inline subscribe (Elevate hero) —— */
+.nl-inline {
+  width: max-content;
+  max-width: min(100%, 420rem);
+  margin-top: 18rem;
+}
+.nl-inline__trigger {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40rem;
+  padding: 8rem 16rem;
+  border: var(--stroke) solid color-mix(in srgb, var(--ink) 42%, transparent);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--ink);
+  font: 600 13rem/1.2 var(--font-ui);
+  letter-spacing: -.01em;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-spring);
+}
+@media (hover: hover) {
+  .nl-inline__trigger:hover {
+    background: color-mix(in srgb, var(--accent) 28%, var(--paper));
+    border-color: var(--ink);
+  }
+}
+.nl-inline__trigger:focus-visible {
+  outline: 3rem solid var(--ink);
+  outline-offset: 3rem;
+}
+.nl-inline__panel {
+  width: min(380rem, calc(100vw - 28rem));
+  padding: 14rem 14rem 12rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-m);
+  background: var(--paper);
+  box-shadow: 4rem 4rem 0 color-mix(in srgb, var(--ink) 12%, transparent);
+  animation: nl-inline-in 220ms var(--ease-spring, cubic-bezier(.2, .9, .2, 1));
+}
+.nl-inline__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10rem;
+  margin-bottom: 10rem;
+}
+.nl-inline__title {
+  margin: 0;
+  font: 700 12rem/1.2 var(--font-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.nl-inline__close {
+  flex: none;
+  width: 28rem;
+  height: 28rem;
+  border: var(--stroke) solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  font: 700 16rem/1 var(--font-ui);
+  cursor: pointer;
+}
+.nl-inline__form > label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.nl-inline__field {
+  display: flex;
+  gap: 6rem;
+  padding: 4rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-s);
+  background: color-mix(in srgb, var(--accent) 10%, var(--paper));
+}
+.nl-inline__field input {
+  width: 100%;
+  min-width: 0;
+  padding: 10rem;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font: 500 15rem/1.2 var(--font-ui);
+}
+.nl-inline__field button {
+  flex: none;
+  padding: 10rem 12rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-s);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: 800 13rem/1 var(--font-ui);
+  cursor: pointer;
+}
+.nl-inline__field input:disabled,
+.nl-inline__field button:disabled { opacity: .6; cursor: default; }
+.nl-inline__fine,
+.nl-inline__status {
+  margin: 8rem 0 0;
+  font: 400 12rem/1.35 var(--font-body);
+}
+.nl-inline__fine { color: var(--ink-soft); }
+.nl-inline__status {
+  padding: 8rem 10rem;
+  background: color-mix(in srgb, var(--accent) 12%, var(--paper));
+  border-radius: var(--radius-s);
+}
+.nl-inline__status.is-error {
+  background: color-mix(in srgb, #d64545 14%, var(--paper));
+  color: #9a2f2f;
+}
+@keyframes nl-inline-in {
+  from { opacity: 0; transform: translateY(-4rem); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nl-inline__panel { animation: none; }
+}
+:global(html[data-reduce-motion="on"]) .nl-inline__panel { animation: none; }
+
 /* —— Bubble orb + popover —— */
 .nl-bubble {
   position: relative;

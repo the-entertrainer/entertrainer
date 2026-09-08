@@ -110,29 +110,18 @@ function clearCategory() {
   setQuery({ category: 'all' })
 }
 
-/** Bubble discovery can still nudge the body filter. */
-function filterByMust(cat: ElevateCategory) {
-  setQuery({ category: cat })
-}
 </script>
 
 <template>
   <main id="main" class="elevate">
     <header class="elevate__hero" aria-labelledby="elevate-title">
-      <div class="elevate__hero-top">
-        <p class="elevate__eyebrow">The Entertrainer blogs</p>
-        <EdNewsletter
-          variant="bubble"
-          class="elevate__hero-bubble"
-          :active-category="category"
-          @select-category="filterByMust"
-        />
-      </div>
+      <p class="elevate__eyebrow">The Entertrainer blogs</p>
       <div class="elevate__hero-copy">
         <h1 id="elevate-title">Elevate</h1>
         <p class="elevate__deck">
           Questions that keep returning — curious pieces that stay with you.
         </p>
+        <EdNewsletter variant="inline" class="elevate__hero-subscribe" />
       </div>
     </header>
 
@@ -141,7 +130,7 @@ function filterByMust(cat: ElevateCategory) {
         <h2 id="articles-title" class="elevate__section-label">Articles</h2>
 
         <div class="elevate__controls">
-          <div class="elevate__must" role="group" aria-label="Filter by MUST letter">
+          <div class="elevate__must" role="group" aria-label="Filter by MUST: Mind, Universe, Science, Technology">
             <button
               v-for="item in MUST_LETTERS"
               :key="item.letter"
@@ -149,10 +138,11 @@ function filterByMust(cat: ElevateCategory) {
               class="elevate__must-tile"
               :aria-pressed="category === item.category"
               :aria-label="`${item.letter} — ${item.category}${category === item.category ? ', selected. Tap again to show all' : ''}`"
-              :title="item.category"
+              :title="`${item.letter} · ${item.category}`"
               @click="toggleLetter(item.category)"
             >
               <span class="elevate__must-letter">{{ item.letter }}</span>
+              <span class="elevate__must-name">{{ item.category }}</span>
             </button>
             <button
               v-if="category !== 'all'"
@@ -220,29 +210,19 @@ function filterByMust(cat: ElevateCategory) {
   border-bottom: var(--stroke) solid var(--ink);
 }
 
-.elevate__hero-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16rem;
-  min-height: 56rem;
-}
-
 .elevate__eyebrow {
   margin: 0;
-  padding-top: 18rem;
   color: var(--ink-soft);
   font: 700 11rem/1.2 var(--font-mono);
   letter-spacing: .1em;
   text-transform: uppercase;
 }
 
-.elevate__hero-bubble {
-  flex: none;
-  margin-left: auto;
-}
-
 .elevate__hero-copy { min-width: 0; }
+
+.elevate__hero-subscribe {
+  margin-top: 4rem;
+}
 
 .elevate__hero h1 {
   margin: 0;
@@ -306,10 +286,13 @@ function filterByMust(cat: ElevateCategory) {
 
 .elevate__must-tile {
   display: grid;
-  place-items: center;
-  width: 40rem;
-  height: 40rem;
-  padding: 0;
+  grid-template-rows: auto auto;
+  align-content: center;
+  justify-items: center;
+  gap: 2rem;
+  min-width: 58rem;
+  min-height: 48rem;
+  padding: 6rem 8rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
   background: var(--paper);
@@ -322,8 +305,14 @@ function filterByMust(cat: ElevateCategory) {
     box-shadow var(--dur-fast) var(--ease-out);
 }
 .elevate__must-letter {
-  font: 700 16rem/1 var(--font-display);
+  font: 700 15rem/1 var(--font-display);
   letter-spacing: -.02em;
+}
+.elevate__must-name {
+  font: 700 8rem/1.1 var(--font-mono);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  opacity: .78;
 }
 .elevate__must-tile[aria-pressed="true"] {
   background: var(--accent);
@@ -487,12 +476,11 @@ function filterByMust(cat: ElevateCategory) {
 
 @media (max-width: 640px) {
   .elevate { padding-top: 18rem; }
-  .elevate__hero-top { align-items: center; }
-  .elevate__eyebrow { padding-top: 0; }
   .elevate__hero h1 { font-size: clamp(64rem, 22vw, 120rem); }
   .elevate__toolbar { gap: 12rem; }
   .elevate__controls { width: 100%; justify-content: space-between; }
-  .elevate__must-tile { width: 44rem; height: 44rem; }
+  .elevate__must-tile { min-width: 52rem; min-height: 46rem; padding: 5rem 6rem; }
+  .elevate__must-name { font-size: 7rem; }
   .elevate__row { grid-template-columns: 88rem minmax(0, 1fr); gap: 12rem; }
   .elevate__thumb { width: 88rem; height: 60rem; }
   .elevate__row-dek { -webkit-line-clamp: 3; }

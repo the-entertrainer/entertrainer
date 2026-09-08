@@ -7,6 +7,8 @@ const emit = defineEmits<{ complete: [] }>()
 const { settings, prefersReducedMotion, hydrate } = useSiteSettings()
 const leaving = ref(false)
 const entered = ref(false)
+/** Brief post-tap morph from entry mark → first dawn ring (no hard cut). */
+const handingOff = ref(false)
 const reducedMotion = ref(false)
 const ident = ref<HTMLAudioElement | null>(null)
 const beatCanvas = ref<HTMLCanvasElement | null>(null)
@@ -20,6 +22,8 @@ const setRingEl = (el: Element | null | { $el?: Element }, index: number) => {
 }
 let finishTimer: ReturnType<typeof setTimeout> | undefined
 let removeTimer: ReturnType<typeof setTimeout> | undefined
+let handoffTimer: ReturnType<typeof setTimeout> | undefined
+let settleExitTimer: ReturnType<typeof setTimeout> | undefined
 let completed = false
 let beatRaf = 0
 let beatCursor = 0
@@ -228,9 +232,13 @@ const stopBeatLoop = () => {
   beatCursor = 0
 }
 
-/** Outward ink-on-water ripple duration before leave. */
-const EXIT_RIPPLE_MS = 1100
+/** Outward ink-on-water ripple duration before leave (slow water decay). */
+const EXIT_RIPPLE_MS = 1680
 const EXIT_RIPPLE_REDUCED_MS = 180
+/** Entry mark → first ring continuous handoff. */
+const HANDOFF_MS = 560
+/** After last settle beat, wait for settle-breath to land before exit ripple. */
+const SETTLE_TO_RIPPLE_MS = 480
 let exitRippleTimer: ReturnType<typeof setTimeout> | undefined
 
 const spawnExitRipples = () => {
@@ -242,27 +250,30 @@ const spawnExitRipples = () => {
   if (w <= 0 || h <= 0) return
   const now = performance.now()
   const minDim = Math.min(w, h)
-  // Staggered yellow rings — soft opacity falloff, ink-on-water.
+  // Reach ~0.72 of half-diagonal so fade completes before viewport edges.
+  const halfDiag = Math.hypot(w, h) * 0.5
+  const rMax = Math.min(halfDiag * 0.92, minDim * 0.72)
+  // Staggered yellow rings — slower water-ripple decay, in-frame fade.
   for (let i = 0; i < 4; i++) {
     washes.push({
       kind: 'ripple',
-      born: now + i * 90,
-      life: 900 + i * 80,
+      born: now + i * 140,
+      life: 1280 + i * 120,
       x: w * 0.5,
       y: h * 0.5,
-      r0: minDim * (0.12 + i * 0.04),
-      r1: minDim * (0.55 + i * 0.18),
+      r0: minDim * (0.08 + i * 0.03),
+      r1: rMax * (0.55 + i * 0.12),
       strong: i === 0,
       alt: 0
     })
     washes.push({
       kind: 'wash',
-      born: now + i * 110,
-      life: 860 + i * 60,
+      born: now + i * 160,
+      life: 1100 + i * 100,
       x: w * 0.5,
       y: h * 0.5,
-      r0: minDim * 0.08,
-      r1: minDim * (0.42 + i * 0.12),
+      r0: minDim * 0.06,
+      r1: rMax * (0.4 + i * 0.1),
       strong: false,
       alt: i % 2
     })
@@ -309,9 +320,11 @@ const beginExitRipple = () => {
   }
 
   exitRippling.value = true
+  // Re-measure to full preloader before spawning viewport-scale ripples.
+  sizeCanvas()
   spawnExitRipples()
   // Keep beat canvas alive briefly so exit washes can paint.
-  if (!beatRaf && beatDriven.value) {
+  if (!beatRaf) {
     beatRaf = requestAnimationFrame(tickBeats)
   }
   const wait = EXIT_RIPPLE_MS
@@ -350,6 +363,13 @@ const bloomEnvelope = (u: number) => {
   if (u < 0.18) return easeOutCubic(u / 0.18)
   if (u < 0.42) return 1
   return 1 - easeInOut((u - 0.42) / 0.58)
+}
+
+/** Water-ripple decay for exit washes — longer soft fade, gone before clip edges. */
+const waterRippleEnvelope = (u: number) => {
+  if (u < 0.12) return easeOutCubic(u / 0.12)
+  if (u < 0.32) return 1
+  return 1 - easeInOut((u - 0.32) / 0.68)
 }
 
 const restartClass = (el: Element | null | undefined, cls: string) => {
@@ -535,7 +555,7 @@ const drawWash = (
   const age = now - p.born
   if (age < 0) return
   const u = Math.min(1, age / p.life)
-  const env = bloomEnvelope(u)
+  const env = exitRippling.value ? waterRippleEnvelope(u) : bloomEnvelope(u)
   if (env <= 0.001) return
 
   const r = p.r0 + (p.r1 - p.r0) * easeOutCubic(Math.min(1, u * 1.08))
@@ -568,9 +588,10 @@ const drawWash = (
 const sizeCanvas = () => {
   const canvas = beatCanvas.value
   if (!canvas) return
-  const parent = canvas.parentElement
-  if (!parent) return
-  const rect = parent.getBoundingClientRect()
+  // Full preloader / viewport — exit ripples must not be cropped to the stage box.
+  const root = canvas.closest('.preloader') ?? canvas.parentElement
+  if (!root) return
+  const rect = root.getBoundingClientRect()
   const dpr = Math.min(window.devicePixelRatio || 1, 2)
   const w = Math.max(1, Math.floor(rect.width))
   const h = Math.max(1, Math.floor(rect.height))
@@ -613,6 +634,14 @@ const tickBeats = (now: number) => {
         // After quote reveal, ignore living-middle pulse slots — breathe until settle.
         if (step && !(idx > REVEAL_LAST_BEAT && step.kind === 'pulse')) {
           applyChoreo(step, now, w, h)
+          // Last settle beat — clock exit ripple after settle-breath lands (not mid-breathe).
+          if (idx === BEAT_TIMES.length - 1 && step.kind === 'settle') {
+            if (settleExitTimer !== undefined) window.clearTimeout(settleExitTimer)
+            settleExitTimer = window.setTimeout(() => {
+              settleExitTimer = undefined
+              if (!completed) beginExitRipple()
+            }, SETTLE_TO_RIPPLE_MS)
+          }
         }
       }
       beatCursor += 1
@@ -640,10 +669,11 @@ const startBeatLoop = () => {
   if (!beatDriven.value) return
   nextTick(() => {
     sizeCanvas()
-    if (typeof ResizeObserver !== 'undefined' && beatCanvas.value?.parentElement) {
+    if (typeof ResizeObserver !== 'undefined' && beatCanvas.value) {
       resizeObs?.disconnect()
       resizeObs = new ResizeObserver(() => sizeCanvas())
-      resizeObs.observe(beatCanvas.value.parentElement)
+      const root = beatCanvas.value.closest('.preloader') ?? beatCanvas.value.parentElement
+      if (root) resizeObs.observe(root)
     }
     beatRaf = requestAnimationFrame(tickBeats)
   })
@@ -667,20 +697,40 @@ const startExperience = () => {
   if (entered.value || completed) return
   activeQuote.value = pickPreloaderQuote()
   playOpeningSound()
+  // Continuous handoff: entry mark morphs into the first dawn-ring beat (no hard cut).
+  handingOff.value = !reducedMotion.value
   entered.value = true
+  if (handoffTimer !== undefined) window.clearTimeout(handoffTimer)
+  if (handingOff.value) {
+    handoffTimer = window.setTimeout(() => {
+      handoffTimer = undefined
+      handingOff.value = false
+    }, HANDOFF_MS)
+  }
   if (soundOn.value) {
     finishTimer = window.setTimeout(finish, MUSIC_SAFETY_MS)
-    if (!reducedMotion.value) startBeatLoop()
-    else revealStaticBrand()
+    if (!reducedMotion.value) {
+      startBeatLoop()
+      // After resetChoreo: soft seed bridges morphing mark → first dawn ring (beat 0).
+      if (handingOff.value) {
+        seedOn.value = true
+        seedSoft.value = true
+      }
+    } else revealStaticBrand()
   } else {
     // Short path: full wordmark via CSS; quote stays hidden.
+    // Delay ring/word CSS start slightly so mark→ring morph can lead.
     seedOn.value = false
-    wordEnterIn.value = true
-    wordTrainerIn.value = true
-    for (let i = 0; i < 4; i++) ringsIn[i] = true
+    const kickShort = () => {
+      wordEnterIn.value = true
+      wordTrainerIn.value = true
+      for (let i = 0; i < 4; i++) ringsIn[i] = true
+    }
+    if (handingOff.value) window.setTimeout(kickShort, 220)
+    else kickShort()
     finishTimer = window.setTimeout(
       finish,
-      reducedMotion.value ? SHORT_REDUCED_MS : SHORT_NORMAL_MS
+      reducedMotion.value ? SHORT_REDUCED_MS : SHORT_NORMAL_MS + (handingOff.value ? 220 : 0)
     )
   }
 }
@@ -694,6 +744,8 @@ onBeforeUnmount(() => {
   clearFinishTimer()
   if (removeTimer) window.clearTimeout(removeTimer)
   if (exitRippleTimer !== undefined) window.clearTimeout(exitRippleTimer)
+  if (handoffTimer !== undefined) window.clearTimeout(handoffTimer)
+  if (settleExitTimer !== undefined) window.clearTimeout(settleExitTimer)
   stopBeatLoop()
   resizeObs?.disconnect()
   ident.value?.pause()
@@ -705,6 +757,7 @@ onBeforeUnmount(() => {
     class="preloader"
     :class="{
       'preloader--entered': entered,
+      'preloader--handoff': handingOff,
       'preloader--leaving': leaving,
       'preloader--music': soundOn && entered,
       'preloader--beat': beatDriven,
@@ -725,24 +778,32 @@ onBeforeUnmount(() => {
     />
 
     <button
-      v-if="!entered"
+      v-if="!entered || handingOff"
       type="button"
       class="preloader__entry"
+      :class="{ 'entry--handoff': handingOff }"
       :aria-label="soundOn ? 'Tap to enter Entertrainer with sound' : 'Tap to enter Entertrainer'"
+      :tabindex="handingOff ? -1 : 0"
+      :aria-hidden="handingOff ? 'true' : undefined"
       @click="startExperience"
     >
-      <span class="preloader__entry-mark" aria-hidden="true">e</span>
+      <span class="preloader__entry-mark" aria-hidden="true">
+        <span class="preloader__entry-mark-letter">e</span>
+        <span class="preloader__entry-mark-ring preloader__entry-mark-ring--a" />
+        <span class="preloader__entry-mark-ring preloader__entry-mark-ring--b" />
+      </span>
       <span class="preloader__entry-cta">Tap to enter</span>
     </button>
 
-    <div v-else class="preloader__stage" aria-hidden="true">
-      <canvas
-        v-if="showBeatCanvas"
-        ref="beatCanvas"
-        class="preloader__beat-canvas"
-        aria-hidden="true"
-      />
+    <!-- Full-viewport beat canvas (washes + exit ripples must not crop to stage). -->
+    <canvas
+      v-if="showBeatCanvas"
+      ref="beatCanvas"
+      class="preloader__beat-canvas"
+      aria-hidden="true"
+    />
 
+    <div v-if="entered" class="preloader__stage" aria-hidden="true">
       <!-- Cold-open yellow seed / glow at locked center. -->
       <div
         class="preloader__seed"
@@ -842,6 +903,10 @@ onBeforeUnmount(() => {
   color: #15120f;
   transition: opacity 300ms cubic-bezier(.3, 0, 1, 1), visibility 300ms step-end;
 }
+/* Exit rings expand past the stage box — allow paint; fade completes in-frame. */
+.preloader--exit-ripple {
+  overflow: visible;
+}
 .preloader--leaving { opacity: 0; visibility: hidden; pointer-events: none; }
 .preloader__audio { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
@@ -864,6 +929,7 @@ onBeforeUnmount(() => {
   -webkit-tap-highlight-color: transparent;
 }
 .preloader__entry-mark {
+  position: relative;
   display: grid;
   place-items: center;
   width: 40rem;
@@ -878,7 +944,29 @@ onBeforeUnmount(() => {
   letter-spacing: -.06em;
   line-height: 1;
   opacity: .55;
-  transition: opacity 180ms ease, border-color 180ms ease;
+  transition:
+    opacity 180ms ease,
+    border-color 180ms ease,
+    border-width 180ms ease,
+    width 180ms ease,
+    height 180ms ease,
+    transform 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+.preloader__entry-mark-letter {
+  position: relative;
+  z-index: 1;
+  transition: opacity 200ms ease, transform 200ms ease, color 200ms ease;
+}
+.preloader__entry-mark-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(1);
 }
 .preloader__entry-cta {
   font-family: var(--font-ui), Arial, sans-serif;
@@ -886,7 +974,7 @@ onBeforeUnmount(() => {
   font-weight: 550;
   letter-spacing: .04em;
   color: rgb(21 18 15 / .45);
-  transition: color 180ms ease;
+  transition: color 180ms ease, opacity 180ms ease, transform 180ms ease;
 }
 .preloader__entry:hover .preloader__entry-mark,
 .preloader__entry:focus-visible .preloader__entry-mark {
@@ -906,14 +994,89 @@ onBeforeUnmount(() => {
 }
 .preloader__entry:active .preloader__entry-mark { opacity: 1; }
 
+/*
+ * Tap handoff: entry mark clocks into the first dawn-ring beat.
+ * Mark expands + yellows; quiet rings bloom; letter/CTA fade; stage crossfades under.
+ * Timed to meet beat 0 (~0.51s) so it feels one continuous sequence.
+ */
+.preloader__entry.entry--handoff {
+  pointer-events: none;
+  z-index: 3;
+}
+.preloader__entry.entry--handoff .preloader__entry-cta {
+  opacity: 0;
+  transform: translateY(6rem);
+  transition: opacity 200ms ease, transform 280ms cubic-bezier(.22, 1, .36, 1);
+}
+.preloader__entry.entry--handoff .preloader__entry-mark {
+  width: min(22vw, 168rem);
+  height: min(22vw, 168rem);
+  border-width: 4.5px;
+  border-color: #ffd43b;
+  background: radial-gradient(circle at 50% 50%,
+    rgb(255 212 59 / .22) 0%,
+    rgb(255 212 59 / .06) 42%,
+    transparent 68%);
+  box-shadow: 0 0 0 1px rgb(255 212 59 / .12);
+  opacity: 0;
+  transform: scale(1.08);
+  outline: none !important;
+  transition:
+    width 520ms cubic-bezier(.22, 1, .36, 1),
+    height 520ms cubic-bezier(.22, 1, .36, 1),
+    border-width 420ms cubic-bezier(.22, 1, .36, 1),
+    border-color 280ms ease,
+    background 360ms ease,
+    box-shadow 360ms ease,
+    opacity 560ms cubic-bezier(.22, 1, .36, 1) 40ms,
+    transform 520ms cubic-bezier(.22, 1, .36, 1);
+}
+.preloader__entry.entry--handoff .preloader__entry-mark-letter {
+  opacity: 0;
+  transform: scale(.72);
+  color: #ffd43b;
+  transition: opacity 220ms ease, transform 320ms cubic-bezier(.22, 1, .36, 1), color 200ms ease;
+}
+.preloader__entry.entry--handoff .preloader__entry-mark-ring--a {
+  border-color: rgb(255 212 59 / .55);
+  animation: pl-entry-handoff-ring 560ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.preloader__entry.entry--handoff .preloader__entry-mark-ring--b {
+  border-color: rgb(255 212 59 / .28);
+  animation: pl-entry-handoff-ring 560ms cubic-bezier(.16, 1, .3, 1) 70ms both;
+}
+@keyframes pl-entry-handoff-ring {
+  0% { opacity: .7; transform: scale(1); }
+  55% { opacity: .45; transform: scale(1.55); }
+  100% { opacity: 0; transform: scale(2.05); }
+}
 
 .preloader__stage {
   position: relative;
+  z-index: 1;
   display: grid;
   place-items: center;
   width: min(860rem, 92vw);
   aspect-ratio: 1.52;
   isolation: isolate;
+  overflow: visible;
+}
+/* During handoff, stage rises under the morphing mark (shared center). */
+.preloader--handoff .preloader__stage {
+  animation: pl-stage-handoff-in 480ms cubic-bezier(.22, 1, .36, 1) both;
+}
+@keyframes pl-stage-handoff-in {
+  0% { opacity: 0; transform: scale(.96); }
+  40% { opacity: .55; }
+  100% { opacity: 1; transform: scale(1); }
+}
+/* Exit: stage fills viewport so rings can ripple across without stage-box crop. */
+.preloader--exit-ripple .preloader__stage {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  aspect-ratio: auto;
+  overflow: visible;
 }
 .preloader__beat-canvas {
   position: absolute;
@@ -1192,38 +1355,35 @@ onBeforeUnmount(() => {
   outline-offset: 3rem;
 }
 
-  50% { opacity: 1; transform: scale(1.04); }
-}
-  50% { opacity: .9; transform: scale(1.03); }
-}
-  50% { opacity: 1; transform: scale(1); }
-}
-
-/* End: yellow rings expand + fade outwards like ink on cream. */
+/* End: yellow rings expand + fade like ink on water — slow decay, fade in-frame. */
 .preloader--exit-ripple .preloader__rings {
-  animation: pl-exit-rings 1100ms cubic-bezier(.16, 1, .3, 1) both;
+  overflow: visible;
+  animation: pl-exit-rings 1680ms cubic-bezier(.05, .55, .12, 1) both;
 }
 .preloader--exit-ripple .preloader__ring.ring--in {
-  animation: pl-exit-ring-expand 1100ms cubic-bezier(.16, 1, .3, 1) both !important;
+  animation: pl-exit-ring-expand 1680ms cubic-bezier(.05, .55, .12, 1) both !important;
   transform-origin: 50% 50%;
+  transform-box: fill-box;
 }
 .preloader--exit-ripple .preloader__ring.ring--in:nth-child(1) { animation-delay: 0ms !important; }
-.preloader--exit-ripple .preloader__ring.ring--in:nth-child(2) { animation-delay: 70ms !important; }
-.preloader--exit-ripple .preloader__ring.ring--in:nth-child(3) { animation-delay: 140ms !important; }
-.preloader--exit-ripple .preloader__ring.ring--in:nth-child(4) { animation-delay: 210ms !important; }
+.preloader--exit-ripple .preloader__ring.ring--in:nth-child(2) { animation-delay: 120ms !important; }
+.preloader--exit-ripple .preloader__ring.ring--in:nth-child(3) { animation-delay: 240ms !important; }
+.preloader--exit-ripple .preloader__ring.ring--in:nth-child(4) { animation-delay: 360ms !important; }
 .preloader--exit-ripple .preloader__brand-shell,
 .preloader--exit-ripple .preloader__quote {
-  animation: pl-exit-fade 700ms ease both;
+  animation: pl-exit-fade 900ms cubic-bezier(.22, 1, .36, 1) both;
 }
 .preloader--exit-ripple .preloader__seed { opacity: 0 !important; animation: none !important; }
 @keyframes pl-exit-rings {
   0% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.55); }
+  55% { opacity: .55; transform: scale(1.35); }
+  100% { opacity: 0; transform: scale(1.85); }
 }
 @keyframes pl-exit-ring-expand {
   0% { opacity: 1; transform: rotate(-90deg) scale(1); stroke-width: var(--ring-sw); }
-  55% { opacity: .55; transform: rotate(-90deg) scale(1.35); stroke-width: calc(var(--ring-sw) * 0.7); }
-  100% { opacity: 0; transform: rotate(-90deg) scale(1.7); stroke-width: calc(var(--ring-sw) * 0.35); }
+  28% { opacity: .85; transform: rotate(-90deg) scale(1.28); stroke-width: calc(var(--ring-sw) * 0.9); }
+  62% { opacity: .28; transform: rotate(-90deg) scale(1.95); stroke-width: calc(var(--ring-sw) * 0.45); }
+  100% { opacity: 0; transform: rotate(-90deg) scale(2.45); stroke-width: calc(var(--ring-sw) * 0.18); }
 }
 @keyframes pl-exit-fade {
   to { opacity: 0; filter: blur(2px); }
@@ -1349,6 +1509,9 @@ onBeforeUnmount(() => {
 
 @media (prefers-reduced-motion: reduce) {
   .preloader { transition-duration: 80ms; }
+  .preloader__entry.entry--handoff .preloader__entry-mark,
+  .preloader__entry.entry--handoff .preloader__entry-cta,
+  .preloader__entry.entry--handoff .preloader__entry-mark-letter { transition: none !important; }
   .preloader *,
   .preloader *::before,
   .preloader *::after { animation: none !important; }

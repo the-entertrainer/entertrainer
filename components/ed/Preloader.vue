@@ -1,4 +1,4 @@
-<!-- Dawn-on-cream-paper sonic logo: SVG ink-ripple rings + split wordmark + quote, beat-driven from audio.currentTime. -->
+<!-- Dawn-on-cream-paper sonic logo: SVG ink-ripple rings + split wordmark + quote; beat reveal then calm breathe. -->
 <script setup lang="ts">
 import { openingSoundSrc } from '~/composables/useSiteSettings'
 import { pickPreloaderQuote, type PreloaderQuote } from '~/utils/preloaderQuotes'
@@ -84,8 +84,10 @@ interface ChoreoStep {
 /**
  * Dawn-on-cream beat map (music-on):
  * cold open → draw-on ripples 0–3 → enter / trainer 4–5 → quote ~8
- * → living middle one-reaction-per-beat → settle 18–20.
+ * → calm breathe (no per-beat living-middle) → settle 18–20 ends breathe.
+ * Beats 9–17 are intentionally idle so the logo can rest on soft breath.
  */
+const REVEAL_LAST_BEAT = 8
 const BEAT_CHOREO: ChoreoStep[] = [
   /* 0  0.511 */ { kind: 'ring-in', rings: [0] },
   /* 1  1.091 */ { kind: 'ring-in', rings: [1] },
@@ -96,18 +98,19 @@ const BEAT_CHOREO: ChoreoStep[] = [
   /* 6  3.135 */ { kind: 'pulse', rings: [0], reaction: 'stroke' },
   /* 7  3.413 */ { kind: 'pulse', rings: [1, 3], reaction: 'stroke' },
   /* 8  3.715 */ { kind: 'quote-in', word: true, reaction: 'word' },
-  /* 9  4.296 */ { kind: 'pulse', rings: [2], reaction: 'stroke' },
-  /* 10 4.598 */ { kind: 'pulse', word: true, reaction: 'word' },
-  /* 11 5.178 */ { kind: 'pulse', rings: [0, 1, 2, 3], strong: true, reaction: 'wash' },
-  /* 12 5.457 */ { kind: 'pulse', rings: [1], reaction: 'stroke' },
-  /* 13 5.759 */ { kind: 'pulse', word: true, reaction: 'word' },
-  /* 14 6.060 */ { kind: 'pulse', rings: [0, 3], reaction: 'stroke' },
-  /* 15 6.339 */ { kind: 'pulse', reaction: 'wash' },
-  /* 16 6.618 */ { kind: 'pulse', rings: [0, 1, 2, 3], word: true, strong: true, reaction: 'stroke' },
-  /* 17 6.920 */ { kind: 'pulse', rings: [1, 2], reaction: 'stroke' },
+  /* 9–17 idle — breathe only */
+  /* 9  4.296 */ { kind: 'pulse' },
+  /* 10 4.598 */ { kind: 'pulse' },
+  /* 11 5.178 */ { kind: 'pulse' },
+  /* 12 5.457 */ { kind: 'pulse' },
+  /* 13 5.759 */ { kind: 'pulse' },
+  /* 14 6.060 */ { kind: 'pulse' },
+  /* 15 6.339 */ { kind: 'pulse' },
+  /* 16 6.618 */ { kind: 'pulse' },
+  /* 17 6.920 */ { kind: 'pulse' },
   /* 18 7.500 */ { kind: 'settle', rings: [0, 1, 2, 3] },
-  /* 19 8.081 */ { kind: 'settle', rings: [1, 2], word: true },
-  /* 20 8.382 */ { kind: 'settle', rings: [0, 1, 2, 3] }
+  /* 19 8.081 */ { kind: 'settle' },
+  /* 20 8.382 */ { kind: 'settle' }
 ]
 
 const soundOn = computed(() => settings.value.openingSound === 'on')
@@ -125,6 +128,8 @@ const wordEnterIn = ref(false)
 const wordTrainerIn = ref(false)
 const quoteIn = ref(false)
 const settling = ref(false)
+/** Soft continuous breathe after reveal (quote beat) until settle / leave. */
+const breathing = ref(false)
 /** Cold-open yellow seed — visible until first ring lands, then soft hold. */
 const seedOn = ref(false)
 const seedSoft = ref(false)
@@ -190,6 +195,7 @@ const resetChoreo = () => {
   wordTrainerIn.value = false
   quoteIn.value = false
   settling.value = false
+  breathing.value = false
   seedOn.value = true
   seedSoft.value = false
   for (const el of ringEls.value) {
@@ -344,52 +350,47 @@ const applyChoreo = (step: ChoreoStep, now: number, w: number, h: number) => {
     quoteIn.value = true
     if (step.rings?.length) pulseRings(step, false)
     if (step.word) kickWordmark()
+    // Reveal complete — leave beats behind for editorial calm breathe.
+    breathing.value = true
+    wordShellEl.value?.classList.add('word--settled', 'word--assembled')
     return
   }
   if (step.kind === 'settle') {
     settling.value = true
+    breathing.value = false
     seedOn.value = false
+    // Soft one-shot settle breath on rings, then hold still until leave.
+    if (step.rings?.length) pulseRings(step, true)
+    return
   }
 
-  // Living middle / settle: ONE clear reaction per beat.
-  if (step.kind === 'pulse' || step.kind === 'settle') {
-    const reaction = step.reaction
-    if (reaction === 'word' || (step.word && !reaction)) {
-      kickWordmark()
-    } else if (reaction === 'wash' && w > 0 && h > 0) {
-      const minDim = Math.min(w, h)
-      washes.push({
-        kind: 'wash',
-        born: now,
-        life: step.strong ? 900 : 700,
-        x: w * 0.5,
-        y: h * 0.5,
-        r0: minDim * 0.12,
-        r1: minDim * (step.strong ? 0.58 : 0.42),
-        strong: !!step.strong,
-        alt: 0
-      })
-      while (washes.length > 12) washes.shift()
-      if (step.rings?.length) pulseRings(step, step.kind === 'settle')
-    } else if (step.rings?.length) {
-      pulseRings(step, step.kind === 'settle')
-    } else if (step.kind === 'settle') {
-      // Final breath without ring list — gentle seed bloom.
-      if (w > 0 && h > 0) {
+  // Post-reveal pulse slots are intentionally idle (breathe only).
+  if (step.kind === 'pulse') {
+    // Pre-quote pulses (beats 6–7) still fire stroke reactions.
+    if (!breathing.value && !quoteIn.value) {
+      const reaction = step.reaction
+      if (reaction === 'word' || (step.word && !reaction)) {
+        kickWordmark()
+      } else if (reaction === 'wash' && w > 0 && h > 0) {
+        const minDim = Math.min(w, h)
         washes.push({
-          kind: 'seed-bloom',
+          kind: 'wash',
           born: now,
-          life: 860,
+          life: step.strong ? 900 : 700,
           x: w * 0.5,
           y: h * 0.5,
-          r0: Math.min(w, h) * 0.04,
-          r1: Math.min(w, h) * 0.22,
-          strong: false,
+          r0: minDim * 0.12,
+          r1: minDim * (step.strong ? 0.58 : 0.42),
+          strong: !!step.strong,
           alt: 0
         })
+        while (washes.length > 12) washes.shift()
+        if (step.rings?.length) pulseRings(step, false)
+      } else if (step.rings?.length) {
+        pulseRings(step, false)
       }
+      if (step.word && reaction && reaction !== 'word') kickWordmark()
     }
-    if (step.word && reaction && reaction !== 'word') kickWordmark()
   }
 }
 
@@ -517,7 +518,10 @@ const tickBeats = (now: number) => {
       const idx = beatCursor
       if (t - bt < 0.12) {
         const step = BEAT_CHOREO[idx]
-        if (step) applyChoreo(step, now, w, h)
+        // After quote reveal, ignore living-middle pulse slots — breathe until settle.
+        if (step && !(idx > REVEAL_LAST_BEAT && step.kind === 'pulse')) {
+          applyChoreo(step, now, w, h)
+        }
       }
       beatCursor += 1
     }
@@ -611,6 +615,7 @@ onBeforeUnmount(() => {
       'preloader--leaving': leaving,
       'preloader--music': soundOn && entered,
       'preloader--beat': beatDriven,
+      'preloader--breathe': breathing && !leaving,
       'preloader--settle': settling
     }"
   >
@@ -827,6 +832,24 @@ onBeforeUnmount(() => {
 .preloader--settle .preloader__ring.ring--settled {
   opacity: .88;
   transition: opacity 600ms ease;
+}
+
+/*
+ * Post-reveal calm: slow editorial breathe on ring group + wordmark.
+ * Not beat-locked — ~3.2s ease-in-out until settle / leave.
+ */
+.preloader--breathe:not(.preloader--settle) .preloader__rings {
+  transform-origin: 50% 50%;
+  animation: pl-logo-breathe 3.2s ease-in-out infinite;
+}
+.preloader--breathe:not(.preloader--settle) .preloader__brand-shell.word--assembled {
+  transform-origin: 50% 50%;
+  animation: pl-word-breathe 3.2s ease-in-out infinite;
+}
+.preloader--settle .preloader__rings,
+.preloader--settle .preloader__brand-shell {
+  animation: none;
+  transform: none;
 }
 
 /* SVG rings — elegant stroke draw-on, mid-stage diameters. */
@@ -1049,6 +1072,15 @@ onBeforeUnmount(() => {
 }
 
 @keyframes pl-entry-orbit { to { transform: rotate(360deg); } }
+
+@keyframes pl-logo-breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.012); opacity: .96; }
+}
+@keyframes pl-word-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.01); }
+}
 
 @keyframes pl-seed-breath {
   0%, 100% { opacity: .55; transform: scale(.85); }

@@ -81,7 +81,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
         <button
           type="button"
-          class="mh__icon"
+          class="mh__icon mh__icon--settings"
           :aria-expanded="panelOpen"
           aria-controls="site-settings-panel"
           aria-haspopup="dialog"
@@ -91,7 +91,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           <EdSignalIcon name="settings" />
         </button>
 
-        <button type="button" class="mh__icon" @click="theme.toggle()"
+        <button type="button" class="mh__icon mh__icon--theme" @click="theme.toggle()"
                 :aria-label="`Switch to ${theme.theme === 'dark' ? 'light' : 'dark'} mode`">
           <EdSignalIcon :name="theme.theme === 'dark' ? 'sun' : 'moon'" />
         </button>
@@ -224,6 +224,55 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .mh__wotd-tile { animation: none; }
 }
 :global(html[data-reduce-motion="on"]) .mh__wotd-tile { animation: none; }
+
+/* Settings — gentle gear tick (same idle spirit as WOTD tiles) */
+.mh__icon--settings :deep(svg) {
+  transform-origin: center;
+  animation: mh-gear-tick 5.6s ease-in-out infinite;
+}
+.mh__icon--settings[aria-expanded="true"] :deep(svg) { animation: none; }
+@keyframes mh-gear-tick {
+  0%, 62%, 100% { transform: rotate(0deg); }
+  72% { transform: rotate(14deg); }
+  82% { transform: rotate(10deg); }
+  90% { transform: rotate(14deg); }
+}
+
+/* Theme — soft rock / pulse */
+.mh__icon--theme :deep(svg) {
+  transform-origin: center;
+  animation: mh-theme-rock 5.2s ease-in-out infinite;
+}
+@keyframes mh-theme-rock {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  28% { transform: rotate(-7deg) scale(1.06); }
+  48% { transform: rotate(5deg) scale(1.02); }
+  68% { transform: rotate(0deg) scale(1); }
+}
+
+/* Menu — staggered line breathe */
+.mh__icon--menu :deep(.ps-icon__bar) {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.mh__icon--menu :deep(.ps-icon__bar--1) { animation: mh-menu-breathe 3.8s ease-in-out infinite; }
+.mh__icon--menu :deep(.ps-icon__bar--2) { animation: mh-menu-breathe 3.8s ease-in-out .18s infinite; }
+.mh__icon--menu :deep(.ps-icon__bar--3) { animation: mh-menu-breathe 3.8s ease-in-out .36s infinite; }
+.mh__icon--menu[aria-expanded="true"] :deep(.ps-icon__bar) { animation: none; }
+@keyframes mh-menu-breathe {
+  0%, 100% { transform: scaleX(1); opacity: 1; }
+  40% { transform: scaleX(0.68); opacity: 0.85; }
+  55% { transform: scaleX(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mh__icon--settings :deep(svg),
+  .mh__icon--theme :deep(svg),
+  .mh__icon--menu :deep(.ps-icon__bar) { animation: none; }
+}
+:global(html[data-reduce-motion="on"]) .mh__icon--settings :deep(svg),
+:global(html[data-reduce-motion="on"]) .mh__icon--theme :deep(svg),
+:global(html[data-reduce-motion="on"]) .mh__icon--menu :deep(.ps-icon__bar) { animation: none; }
 
 .mh__dot {
   position: absolute; top: 5rem; right: 5rem;

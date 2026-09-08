@@ -38,6 +38,20 @@ const showMeaning = computed(() => feedback.value === 'ok' || feedback.value ===
 const slotsFull = computed(() => slots.value.length > 0 && slots.value.every(Boolean))
 const placedCount = computed(() => slots.value.filter(Boolean).length)
 
+/** Size answer tiles so the row stays one line on phone-width cards. */
+const slotStyle = computed(() => {
+  const n = Math.max(word.length, 1)
+  const max = n <= 6 ? 48 : n <= 8 ? 42 : n <= 9 ? 34 : n <= 10 ? 30 : n <= 12 ? 26 : 22
+  const gap = n <= 6 ? 8 : n <= 8 ? 6 : n <= 9 ? 5 : n <= 10 ? 4 : n <= 12 ? 3 : 2
+  const fsMax = n <= 6 ? 22 : n <= 8 ? 20 : n <= 9 ? 17 : n <= 10 ? 15 : n <= 12 ? 13 : 12
+  return {
+    '--slot-count': String(n),
+    '--slot-gap': `${gap}rem`,
+    '--slot-max': `${max}rem`,
+    '--slot-fs-max': `${fsMax}rem`,
+  }
+})
+
 function buildBoard() {
   const letters = scrambled.split('')
   tray.value = letters.map((ch, i) => ({ id: `t${i}-${ch}`, ch }))
@@ -228,9 +242,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           :class="{
             'wotd__slots--shake': shake,
             'wotd__slots--ok': feedback === 'ok' || feedback === 'revealed',
-            'wotd__slots--wrong': feedback === 'wrong',
-            'wotd__slots--long': word.length > 9
+            'wotd__slots--wrong': feedback === 'wrong'
           }"
+          :style="slotStyle"
           role="group"
           :aria-label="showMeaning ? `Today's word: ${word}` : `Answer slots, ${placedCount} of ${word.length} filled`"
         >
@@ -386,16 +400,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   color: var(--ink);
 }
 
-/* Answer slots */
+/* Answer slots — always one horizontal line; tiles scale with word length */
 .wotd__slots {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
-  gap: 8rem;
+  align-items: center;
+  gap: var(--slot-gap, 6rem);
   margin: 0 0 22rem;
-  min-height: 52rem;
+  width: 100%;
+  container-type: inline-size;
+  container-name: wotd-slots;
 }
-.wotd__slots--long { gap: 6rem; }
 .wotd__slots--ok .wotd__slot {
   background: var(--accent);
   border-color: var(--ink);
@@ -419,28 +435,23 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   box-sizing: border-box;
   display: grid;
   place-items: center;
-  width: clamp(36rem, 8vw, 48rem);
-  height: clamp(44rem, 9vw, 56rem);
-  min-width: 36rem;
-  min-height: 44rem;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: var(--slot-max, 48rem);
+  width: auto;
+  aspect-ratio: 5 / 6;
+  height: auto;
   padding: 0;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
   background: color-mix(in srgb, var(--paper) 92%, var(--ink));
   color: var(--ink);
-  font: 700 clamp(18rem, 4.2vw, 24rem)/1 var(--font-ui);
+  font: 700 clamp(10rem, calc(52cqw / var(--slot-count, 8)), var(--slot-fs-max, 22rem))/1 var(--font-ui);
   letter-spacing: 0;
   text-transform: uppercase;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: background 140ms ease, transform 120ms ease, box-shadow 120ms ease;
-}
-.wotd__slots--long .wotd__slot {
-  width: clamp(30rem, 6.5vw, 40rem);
-  height: clamp(40rem, 8vw, 48rem);
-  min-width: 30rem;
-  min-height: 40rem;
-  font-size: clamp(15rem, 3.6vw, 20rem);
 }
 .wotd__slot--empty {
   background: var(--paper);

@@ -274,7 +274,7 @@ onBeforeUnmount(() => {
         </p>
       </div>
 
-      <p class="nl-bubble__dek">Get the next question by email. Occasional. Evidence first. No corporate sermon.</p>
+      <p class="nl-bubble__dek">Get the next question by email.</p>
       <form ref="form" class="nl-bubble__form" @submit.prevent="subscribe">
         <label :for="emailId">Email address</label>
         <div class="nl-bubble__field">
@@ -302,7 +302,6 @@ onBeforeUnmount(() => {
     <div class="newsletter__copy">
       <p class="newsletter__kicker">Friday notes</p>
       <h2 id="newsletter-title">Get the next question by email.</h2>
-      <p>Occasional. Evidence first. No corporate sermon.</p>
     </div>
     <form ref="form" class="newsletter__form" @submit.prevent="subscribe">
       <label for="newsletter-email">Email address</label>

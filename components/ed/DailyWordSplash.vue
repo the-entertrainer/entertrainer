@@ -203,19 +203,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         role="dialog"
         aria-modal="true"
         aria-labelledby="wotd-title"
-        aria-describedby="wotd-hint"
+        :aria-describedby="showMeaning ? undefined : 'wotd-hint'"
         tabindex="-1"
       >
         <header class="wotd__head">
-          <p class="wotd__eyebrow">Today’s word · arrange</p>
           <h2 id="wotd-title" class="wotd__title">
             <template v-if="feedback === 'ok'">Got it!</template>
             <template v-else-if="feedback === 'revealed'">Here’s the word</template>
             <template v-else>Arrange the letters</template>
           </h2>
-          <p id="wotd-hint" class="wotd__hint">
-            <template v-if="showMeaning">Nice one — stash it for later</template>
-            <template v-else>Tap a letter into a slot. Tap a slot to undo.</template>
+          <p v-if="!showMeaning" id="wotd-hint" class="wotd__hint">
+            Tap a letter into a slot. Tap a slot to undo.
           </p>
         </header>
 
@@ -277,20 +275,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           role="status"
         >
           Not quite — rearrange
-        </p>
-        <p
-          v-else-if="feedback === 'ok'"
-          class="wotd__feedback wotd__feedback--ok"
-          role="status"
-        >
-          Yes! That’s the one
-        </p>
-        <p
-          v-else-if="feedback === 'revealed'"
-          class="wotd__feedback wotd__feedback--ok"
-          role="status"
-        >
-          Peeked — still counts as learning
         </p>
 
         <div v-if="showMeaning" class="wotd__meaning" aria-live="polite">
@@ -371,20 +355,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 @keyframes wotd-in {
   from { opacity: 0; transform: translateY(16rem) scale(.98); }
   to { opacity: 1; transform: none; }
-}
-.wotd__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 6rem;
-  margin: 0 0 10rem;
-  padding: 4rem 9rem;
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-full);
-  background: var(--accent);
-  font: 700 10rem/1.2 var(--font-mono);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--ink);
 }
 .wotd__title {
   margin: 0 0 6rem;

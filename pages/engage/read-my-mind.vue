@@ -106,7 +106,6 @@ function playAgain() {
 
     <main class="mr__stage">
       <section v-if="phase === 'intro'" class="mr__intro">
-        <p class="mr__eyebrow">A quiet number trick</p>
         <h1>The<br /><span class="mr__accent-chip">Mind Reader</span></h1>
         <p class="mr__lede">Two digits. Two small moves. One mark you will swear I somehow knew.</p>
         <button class="mr__primary" type="button" @click="startGame">

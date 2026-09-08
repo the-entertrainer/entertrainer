@@ -85,7 +85,6 @@ function toggleOpeningSound() {
       >
         <header class="sp__head">
           <div class="sp__head-copy">
-            <p class="sp__eyebrow">A short list</p>
             <h2 id="sp-title" class="sp__title">Settings</h2>
           </div>
           <button
@@ -103,7 +102,6 @@ function toggleOpeningSound() {
           <label class="sp__row">
             <span class="sp__row-copy">
               <span class="sp__row-label">Opening sound</span>
-              <span class="sp__row-hint">Welcome music when you tap to enter</span>
             </span>
             <button
               type="button"
@@ -121,7 +119,6 @@ function toggleOpeningSound() {
           <label class="sp__row">
             <span class="sp__row-copy">
               <span class="sp__row-label">Word of the Day</span>
-              <span class="sp__row-hint">Tiny daily scramble in the masthead — open when you feel like it</span>
             </span>
             <button
               type="button"
@@ -139,7 +136,6 @@ function toggleOpeningSound() {
           <label class="sp__row">
             <span class="sp__row-copy">
               <span class="sp__row-label">Calmer motion</span>
-              <span class="sp__row-hint">Calm decorative motion. Layout stays readable.</span>
             </span>
             <button
               type="button"
@@ -203,14 +199,6 @@ function toggleOpeningSound() {
   border-bottom: var(--stroke) solid var(--line);
 }
 
-.sp__eyebrow {
-  margin: 0 0 4rem;
-  font: 700 11rem/1.2 var(--font-mono);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
 .sp__title {
   margin: 0;
   font: 600 clamp(28rem, 4vw, 34rem)/1.05 var(--font-display);
@@ -258,7 +246,6 @@ function toggleOpeningSound() {
 
 .sp__row-copy { min-width: 0; display: grid; gap: 4rem; }
 .sp__row-label { font: 650 15rem/1.25 var(--font-ui); color: var(--ink); }
-.sp__row-hint { font: 400 13rem/1.4 var(--font-ui); color: var(--ink-soft); }
 
 .sp__switch {
   position: relative;

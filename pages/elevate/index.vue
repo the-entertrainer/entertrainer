@@ -115,12 +115,8 @@ function clearCategory() {
 <template>
   <main id="main" class="elevate">
     <header class="elevate__hero" aria-labelledby="elevate-title">
-      <p class="elevate__eyebrow">The Entertrainer blogs</p>
       <div class="elevate__hero-copy">
         <h1 id="elevate-title">Elevate</h1>
-        <p class="elevate__deck">
-          Questions that keep returning — curious pieces that stay with you.
-        </p>
         <EdNewsletter variant="inline" class="elevate__hero-subscribe" />
       </div>
     </header>
@@ -190,7 +186,7 @@ function clearCategory() {
         </li>
       </ul>
 
-      <p v-if="!filteredPosts.length" class="elevate__empty">Nothing in this shelf yet. Try another letter.</p>
+      <p v-if="!filteredPosts.length" class="elevate__empty">Nothing yet. Try another letter.</p>
     </section>
   </main>
 </template>
@@ -210,14 +206,6 @@ function clearCategory() {
   border-bottom: var(--stroke) solid var(--ink);
 }
 
-.elevate__eyebrow {
-  margin: 0;
-  color: var(--ink-soft);
-  font: 700 11rem/1.2 var(--font-mono);
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
-
 .elevate__hero-copy { min-width: 0; }
 
 .elevate__hero-subscribe {
@@ -228,13 +216,6 @@ function clearCategory() {
   margin: 0;
   font: 500 clamp(72rem, 14vw, 168rem)/.78 var(--font-display);
   letter-spacing: -.08em;
-}
-
-.elevate__deck {
-  max-width: 36ch;
-  margin: 18rem 0 0;
-  font: 400 clamp(17rem, 2vw, 22rem)/1.4 var(--font-reading);
-  color: var(--ink);
 }
 
 .elevate__entry { padding: clamp(40rem, 7vw, 88rem) 0 0; }

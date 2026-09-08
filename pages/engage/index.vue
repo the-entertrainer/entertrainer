@@ -16,7 +16,6 @@ const MIND_READER_SYMBOLS = [
       variant="orbits"
       title="Engage"
       title-id="engage-title"
-      deck="Short detours. No leaderboard. Just a little mischief."
     />
 
     <ol class="engage__grid">

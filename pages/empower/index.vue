@@ -28,7 +28,6 @@ const tools = computed(() =>
       variant="lattice"
       title="Empower"
       title-id="empower-title"
-      deck="Open a tool. Do the awkward part. Get on with your day."
     />
 
     <ol class="empower__grid">

@@ -5,8 +5,7 @@ import { pickPreloaderQuote, type PreloaderQuote } from '~/utils/preloaderQuotes
 import {
   playIdentWithGraph,
   fadeIdentWithEcho,
-  stopIdentNow,
-  disposeIdentTrail
+  stopIdentNow
 } from '~/utils/identAudioTrail'
 
 const emit = defineEmits<{ complete: [] }>()
@@ -23,7 +22,7 @@ const entryPhase = ref<'idle' | 'wipe' | 'flip' | 'gone'>('idle')
 const reducedMotion = ref(false)
 const ident = ref<HTMLAudioElement | null>(null)
 const beatCanvas = ref<HTMLCanvasElement | null>(null)
-/** One-shot animated hand (Tisroc witch_hand CC0) that clicks the entry mark, then fades. */
+/** One-shot animated hand (Kenney Cursor Pack CC0) that clicks the entry mark, then fades. */
 const handPlaying = ref(false)
 const handDone = ref(false)
 const ringEls = ref<(SVGCircleElement | null)[]>([])
@@ -198,12 +197,12 @@ const stopHand = () => {
 const playHandCue = () => {
   if (reducedMotion.value || entered.value || completed || handDone.value) return
   handPlaying.value = true
-  // Total choreography ~2.4s then fade; mark done so it never loops.
+  // Approach → reach → closed hold ~500ms → fade (~2.6s). Mark done so it never loops.
   handTimer = window.setTimeout(() => {
     handPlaying.value = false
     handDone.value = true
     handTimer = undefined
-  }, 2600)
+  }, 2800)
 }
 
 const playOpeningSound = () => {
@@ -729,7 +728,7 @@ const startExperience = () => {
   beginEntryReveal()
   if (soundOn.value) {
     // Begin fade+echo just before the track ends so the dry fade is audible.
-    const OUTRO_FADE_MS = 520
+    const OUTRO_FADE_MS = 640
     outroTimer = window.setTimeout(() => {
       outroTimer = undefined
       if (!leaving.value && !completed) finishLeave()
@@ -814,7 +813,7 @@ onBeforeUnmount(() => {
     <!--
       Cream entry veil sits ABOVE the dawn stage (z higher).
       On tap: stage/audio already running under; veil circle-wipes to the logo, then logo flip-fades.
-      Asset: /public/preloader/hand-{point,open,closed}.png — Tisroc Spooky Cursors (witch_hand), CC0 (see public/preloader/README.md).
+      Asset: /public/preloader/hand-{point,open,closed}.png — Kenney Cursor Pack (Outline), CC0 (see public/preloader/README.md).
     -->
     <button
       v-if="showEntry"
@@ -839,7 +838,7 @@ onBeforeUnmount(() => {
       </span>
     </button>
 
-    <!-- One-shot hand: Tisroc witch_hand CC0 frames in order — point → open → closed → open → fade. -->
+    <!-- One-shot hand: Kenney CC0 — point (approach) → open (reach) → closed (hold ~500ms) → fade. -->
     <div
       v-if="handPlaying && !entered && !reducedMotion"
       class="preloader__hand"
@@ -1067,7 +1066,7 @@ onBeforeUnmount(() => {
   margin: 0;
   pointer-events: none;
   transform: translate(72rem, 92rem) rotate(-18deg);
-  animation: pl-hand-approach 2.4s cubic-bezier(.22, 1, .36, 1) both;
+  animation: pl-hand-approach 2.6s cubic-bezier(.22, 1, .36, 1) both;
   image-rendering: pixelated;
   filter: drop-shadow(0 2rem 0 rgb(21 18 15 / .18));
 }
@@ -1077,7 +1076,7 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   transform-origin: 30% 20%;
-  animation: pl-hand-click 2.4s cubic-bezier(.22, 1, .36, 1) both;
+  animation: pl-hand-click 2.6s cubic-bezier(.22, 1, .36, 1) both;
 }
 .preloader__hand-frame {
   position: absolute;
@@ -1087,50 +1086,48 @@ onBeforeUnmount(() => {
   object-fit: contain;
   opacity: 0;
   image-rendering: pixelated;
-  /* Tisroc Spooky Cursors (witch_hand) — CC0; see public/preloader/README.md */
+  /* Kenney Cursor Pack Outline — CC0; see public/preloader/README.md */
 }
-/* Ordered one-shot: point → open → closed → open → point (synced to approach/click). */
+/* One-shot: point (approach) → open (reach) → closed held ~500ms → fade. */
 .preloader__hand-frame--point {
-  animation: pl-hand-frame-point 2.4s linear both;
+  animation: pl-hand-frame-point 2.6s linear both;
 }
 .preloader__hand-frame--open {
-  animation: pl-hand-frame-open 2.4s linear both;
+  animation: pl-hand-frame-open 2.6s linear both;
 }
 .preloader__hand-frame--closed {
-  animation: pl-hand-frame-closed 2.4s linear both;
+  animation: pl-hand-frame-closed 2.6s linear both;
 }
 @keyframes pl-hand-approach {
-  0% { opacity: 0; transform: translate(110rem, 130rem) rotate(-28deg); }
-  16% { opacity: 1; }
-  52% { opacity: 1; transform: translate(18rem, 22rem) rotate(-12deg); }
-  58% { opacity: 1; transform: translate(12rem, 14rem) rotate(-9deg); }
-  68% { opacity: 1; transform: translate(18rem, 22rem) rotate(-12deg); }
-  86% { opacity: 1; transform: translate(24rem, 30rem) rotate(-14deg); }
-  100% { opacity: 0; transform: translate(30rem, 42rem) rotate(-16deg); }
+  /* Hover in from lower-right, settle on logo, hold through click, then fade. */
+  0% { opacity: 0; transform: translate(118rem, 138rem) rotate(-28deg); }
+  10% { opacity: 1; }
+  52% { opacity: 1; transform: translate(22rem, 28rem) rotate(-12deg); }
+  58% { opacity: 1; transform: translate(14rem, 16rem) rotate(-9deg); }
+  78% { opacity: 1; transform: translate(14rem, 16rem) rotate(-9deg); }
+  100% { opacity: 0; transform: translate(18rem, 22rem) rotate(-10deg); }
 }
 @keyframes pl-hand-click {
   0%, 52% { transform: scale(1); }
   58% { transform: scale(.84); }
-  68% { transform: scale(1); }
-  100% { transform: scale(1); }
+  78% { transform: scale(.84); }
+  100% { transform: scale(.9); }
 }
+/* 0–52% approach (~1.35s) · 52–58% reach · 58–78% closed hold (~520ms) · 78–100% fade */
 @keyframes pl-hand-frame-point {
-  0%, 46% { opacity: 1; }
-  46.01%, 72% { opacity: 0; }
-  72.01%, 88% { opacity: 1; }
-  100% { opacity: 0; }
+  0%, 52% { opacity: 1; }
+  52.01%, 100% { opacity: 0; }
 }
 @keyframes pl-hand-frame-open {
-  0%, 46% { opacity: 0; }
-  46.01%, 54% { opacity: 1; }
-  54.01%, 66% { opacity: 0; }
-  66.01%, 72% { opacity: 1; }
-  72.01%, 100% { opacity: 0; }
+  0%, 52% { opacity: 0; }
+  52.01%, 58% { opacity: 1; }
+  58.01%, 100% { opacity: 0; }
 }
 @keyframes pl-hand-frame-closed {
-  0%, 54% { opacity: 0; }
-  54.01%, 66% { opacity: 1; }
-  66.01%, 100% { opacity: 0; }
+  0%, 58% { opacity: 0; }
+  58.01%, 78% { opacity: 1; }
+  78.01%, 92% { opacity: 1; }
+  100% { opacity: 0; }
 }
 .preloader__entry:focus-visible {
   outline: none;

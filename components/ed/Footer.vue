@@ -16,9 +16,6 @@ const sectionLinks = [
     <div class="ft__inner">
       <div class="ft__brand">
         <EdWordmark :size="32" />
-        <p class="ft__blurb">
-          Stories that stay. Tools that behave. Small games for short detours.
-        </p>
         <a class="ticket ticket--sm" :href="`mailto:${store.email}`">Write to me</a>
       </div>
 
@@ -59,10 +56,6 @@ const sectionLinks = [
 @media (max-width: 560px) { .ft__inner { grid-template-columns: minmax(0, 1fr); } }
 
 .ft__brand { display: flex; flex-direction: column; align-items: flex-start; gap: 16rem; }
-.ft__blurb {
-  font-family: var(--font-reading);
-  font-size: 16rem; line-height: 1.6; color: var(--muted); max-width: 40ch; margin: 0;
-}
 
 .ft__col { display: flex; flex-direction: column; align-items: flex-start; gap: 10rem; }
 .ft__h { color: var(--muted); margin: 0 0 2rem; }

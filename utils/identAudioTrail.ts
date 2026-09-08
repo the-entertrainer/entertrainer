@@ -1,6 +1,7 @@
 /**
- * Web Audio helpers for the opening ident: GainNode fade + quiet feedback-delay echo.
- * Preloader stays mounted (UI already faded) until the trail ends, then emits complete.
+ * Web Audio helpers for the opening ident: GainNode fade + wet feedback-delay
+ * reverb/echo trail. Preloader stays mounted (UI already faded) until the trail
+ * ends, then emits complete. disposeIdentTrail clears everything on unmount.
  */
 
 type TrailState = {
@@ -10,7 +11,9 @@ type TrailState = {
   dry: GainNode | null
   wet: GainNode | null
   delay: DelayNode | null
+  delay2: DelayNode | null
   feedback: GainNode | null
+  feedback2: GainNode | null
   el: HTMLAudioElement | null
   echoTimer: ReturnType<typeof setTimeout> | undefined
 }
@@ -22,7 +25,9 @@ const trail: TrailState = {
   dry: null,
   wet: null,
   delay: null,
+  delay2: null,
   feedback: null,
+  feedback2: null,
   el: null,
   echoTimer: undefined
 }
@@ -41,7 +46,9 @@ export const disposeIdentTrail = (_opts: { force?: boolean } = {}) => {
     trail.dry?.disconnect()
     trail.wet?.disconnect()
     trail.delay?.disconnect()
+    trail.delay2?.disconnect()
     trail.feedback?.disconnect()
+    trail.feedback2?.disconnect()
     trail.source?.disconnect()
   } catch {
     /* ignore */
@@ -50,7 +57,9 @@ export const disposeIdentTrail = (_opts: { force?: boolean } = {}) => {
   trail.dry = null
   trail.wet = null
   trail.delay = null
+  trail.delay2 = null
   trail.feedback = null
+  trail.feedback2 = null
   trail.source = null
   if (trail.ctx) {
     const ctx = trail.ctx
@@ -87,7 +96,9 @@ const ensureGraph = (el: HTMLAudioElement) => {
       trail.dry?.disconnect()
       trail.wet?.disconnect()
       trail.delay?.disconnect()
+      trail.delay2?.disconnect()
       trail.feedback?.disconnect()
+      trail.feedback2?.disconnect()
       trail.source?.disconnect()
     } catch {
       /* ignore */
@@ -96,24 +107,37 @@ const ensureGraph = (el: HTMLAudioElement) => {
     trail.master = trail.ctx.createGain()
     trail.dry = trail.ctx.createGain()
     trail.wet = trail.ctx.createGain()
-    trail.delay = trail.ctx.createDelay(1.0)
+    // Dual delay = short slap + longer wash (readable wet reverb hang).
+    trail.delay = trail.ctx.createDelay(1.2)
+    trail.delay2 = trail.ctx.createDelay(1.2)
     trail.feedback = trail.ctx.createGain()
+    trail.feedback2 = trail.ctx.createGain()
 
     trail.master.gain.value = 0.92
     trail.dry.gain.value = 1
-    // Quiet wet — soft echo tail, never a blast.
-    trail.wet.gain.value = 0.16
-    trail.delay.delayTime.value = 0.15
-    trail.feedback.gain.value = 0.26
+    // Audible wet bed while playing; trail lift happens in fadeIdentWithEcho.
+    trail.wet.gain.value = 0.22
+    trail.delay.delayTime.value = 0.22
+    trail.delay2.delayTime.value = 0.48
+    trail.feedback.gain.value = 0.42
+    trail.feedback2.gain.value = 0.28
 
     trail.source.connect(trail.master)
     trail.master.connect(trail.dry)
     trail.dry.connect(trail.ctx.destination)
 
+    // Short echo loop
     trail.master.connect(trail.delay)
     trail.delay.connect(trail.feedback)
     trail.feedback.connect(trail.delay)
     trail.delay.connect(trail.wet)
+
+    // Longer wash loop (parallel)
+    trail.master.connect(trail.delay2)
+    trail.delay2.connect(trail.feedback2)
+    trail.feedback2.connect(trail.delay2)
+    trail.delay2.connect(trail.wet)
+
     trail.wet.connect(trail.ctx.destination)
 
     trail.el = el
@@ -132,7 +156,7 @@ export const playIdentWithGraph = (el: HTMLAudioElement, src: string) => {
     if (wired && trail.master && trail.ctx) {
       trail.master.gain.cancelScheduledValues(trail.ctx.currentTime)
       trail.master.gain.setValueAtTime(0.92, trail.ctx.currentTime)
-      if (trail.wet) trail.wet.gain.setValueAtTime(0.16, trail.ctx.currentTime)
+      if (trail.wet) trail.wet.gain.setValueAtTime(0.22, trail.ctx.currentTime)
     } else {
       el.volume = 0.92
     }
@@ -144,18 +168,21 @@ export const playIdentWithGraph = (el: HTMLAudioElement, src: string) => {
 }
 
 /**
- * Fade the dry path; leave a short wet echo after the UI fade.
- * Skip uses a tighter envelope so the trail does not hang.
+ * Fade the dry path; leave a clearer wet reverb/echo trail after the UI fade.
+ * Skip uses a tighter envelope. Natural end / near-end leave a soft hang.
+ * Always schedules dispose — never leaves audio running forever.
  */
 export const fadeIdentWithEcho = (
   opts: { skip?: boolean; naturalEnd?: boolean; el?: HTMLAudioElement | null } = {},
 ) => {
   const skip = !!opts.skip
   const naturalEnd = !!opts.naturalEnd
-  const fadeMs = skip ? 200 : naturalEnd ? 0 : 520
-  const echoMs = skip ? 140 : 580
+  // Dry fade, then wet hang after the UI is already gone.
+  const fadeMs = skip ? 200 : naturalEnd ? 160 : 640
+  const echoMs = skip ? 280 : naturalEnd ? 1800 : 1400
   const totalMs = fadeMs + echoMs
-  const visualHintMs = skip ? 220 : 480
+  // UI can vanish while wet trail continues (preloader stays mounted).
+  const visualHintMs = skip ? 220 : 520
   const el = opts.el || trail.el
 
   if (!el) {
@@ -173,8 +200,10 @@ export const fadeIdentWithEcho = (
       const wet = trail.wet?.gain
       g.cancelScheduledValues(now)
       if (naturalEnd) {
-        // Track already finished — tuck dry, let the delay line ring a soft tail.
-        g.setValueAtTime(0.0001, now)
+        // Track already finished — tuck dry quickly, let delay lines ring.
+        const cur = Math.max(0.0001, g.value || 0.92)
+        g.setValueAtTime(cur, now)
+        g.linearRampToValueAtTime(0.0001, now + fadeMs / 1000)
       } else {
         const cur = Math.max(0.0001, g.value || 0.92)
         g.setValueAtTime(cur, now)
@@ -182,15 +211,14 @@ export const fadeIdentWithEcho = (
       }
       if (wet) {
         wet.cancelScheduledValues(now)
-        const wCur = Math.max(0.0001, wet.value || 0.16)
+        const wCur = Math.max(0.0001, wet.value || 0.22)
         wet.setValueAtTime(wCur, now)
-        // Keep a whisper of wet through the trail after the dry path dies.
-        if (!naturalEnd) {
-          wet.linearRampToValueAtTime(skip ? 0.05 : 0.11, now + fadeMs / 1000)
-        } else {
-          // Slightly lift wet so the residual delay is audible, then tuck away.
-          wet.linearRampToValueAtTime(0.14, now + 0.05)
-        }
+        // Lift wet as dry dies so the reverb hang is clearly audible.
+        const peak = skip ? 0.14 : naturalEnd ? 0.4 : 0.36
+        wet.linearRampToValueAtTime(peak, now + Math.max(0.08, fadeMs / 1000))
+        // Soft exponential-ish tuck across the hang (two linear segments).
+        const mid = now + (fadeMs + echoMs * 0.45) / 1000
+        wet.linearRampToValueAtTime(peak * 0.45, mid)
         wet.linearRampToValueAtTime(0.0001, now + totalMs / 1000)
       }
       clearEchoTimer()
@@ -203,7 +231,7 @@ export const fadeIdentWithEcho = (
           /* ignore */
         }
         disposeIdentTrail({ force: true })
-      }, totalMs + 50)
+      }, totalMs + 80)
       return { fadeMs, totalMs, visualHintMs }
     }
   } catch {
@@ -213,7 +241,7 @@ export const fadeIdentWithEcho = (
   const startVol = el.volume || 0.92
   const t0 = performance.now()
   const step = (t: number) => {
-    const u = Math.min(1, (t - t0) / fadeMs)
+    const u = Math.min(1, (t - t0) / Math.max(1, fadeMs))
     el.volume = Math.max(0, startVol * (1 - u))
     if (u < 1) requestAnimationFrame(step)
     else {

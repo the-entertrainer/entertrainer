@@ -48,7 +48,6 @@ onBeforeUnmount(() => {
 <template>
   <main id="main" class="route-index">
     <header class="route-index__intro">
-      <p class="route-index__kicker">A line for the road</p>
       <h1 class="route-index__headline" :class="{ 'is-ready': quoteReady }">
         <span class="route-index__quote">{{ quote }}</span>
       </h1>
@@ -84,14 +83,6 @@ onBeforeUnmount(() => {
 }
 
 .route-index__intro { max-width: 920rem; }
-
-.route-index__kicker {
-  margin: 0 0 14rem;
-  color: var(--ink-soft);
-  font: 700 11rem/1.2 var(--font-mono);
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
 
 .route-index__headline {
   margin: 0;

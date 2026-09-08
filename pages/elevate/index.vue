@@ -3,7 +3,6 @@ import { BLOG_POSTS, type BlogPost } from '~/content/blogs'
 import { composedToBlogPost, getPublishedComposedPosts } from '~/content/composed'
 import {
   ELEVATE_CATEGORIES,
-  MUST_LETTERS,
   normalizeElevateCategory,
   type ElevateCategory
 } from '~/content/elevate-categories'
@@ -130,36 +129,21 @@ function filterByMust(cat: ElevateCategory) {
 <template>
   <main id="main" class="elevate">
     <header class="elevate__hero" aria-labelledby="elevate-title">
-      <div class="elevate__hero-copy">
+      <div class="elevate__hero-top">
         <p class="elevate__eyebrow">The Entertrainer blogs</p>
+        <EdNewsletter
+          variant="bubble"
+          class="elevate__hero-bubble"
+          :active-category="category"
+          @select-category="filterByMust"
+        />
+      </div>
+      <div class="elevate__hero-copy">
         <h1 id="elevate-title">Elevate</h1>
         <p class="elevate__deck">
-          Questions that keep returning — filed under four letters you can remember on a bus.
+          Questions that keep returning — curious pieces that stay with you.
         </p>
-
-        <div class="elevate__must" aria-label="MUST categories: Mind, Universe, Science, Technology">
-          <p class="elevate__must-hint">Spell it once.</p>
-          <ul class="elevate__must-row">
-            <li v-for="item in MUST_LETTERS" :key="item.letter">
-              <button
-                type="button"
-                class="elevate__must-tile"
-                :aria-pressed="category === item.category"
-                :aria-label="`${item.letter} is for ${item.category}`"
-                @click="filterByMust(item.category)"
-              >
-                <span class="elevate__must-letter">{{ item.letter }}</span>
-                <span class="elevate__must-name">{{ item.category }}</span>
-              </button>
-            </li>
-          </ul>
-          <p class="elevate__must-reveal" aria-hidden="true">
-            <span>M</span><span>U</span><span>S</span><span>T</span>
-          </p>
-        </div>
       </div>
-
-      <EdNewsletter class="elevate__hero-news" />
     </header>
 
     <section class="elevate__entry" aria-labelledby="articles-title">
@@ -255,21 +239,36 @@ function filterByMust(cat: ElevateCategory) {
 }
 
 .elevate__hero {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(280rem, .95fr);
-  gap: clamp(22rem, 4vw, 48rem);
-  align-items: end;
+  gap: clamp(10rem, 2vw, 18rem);
   padding: clamp(8rem, 2vw, 18rem) 0 clamp(28rem, 5vw, 52rem);
   border-bottom: var(--stroke) solid var(--ink);
 }
 
+.elevate__hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rem;
+  min-height: 56rem;
+}
+
 .elevate__eyebrow {
-  margin: 0 0 12rem;
+  margin: 0;
+  padding-top: 18rem;
   color: var(--ink-soft);
   font: 700 11rem/1.2 var(--font-mono);
   letter-spacing: .1em;
   text-transform: uppercase;
 }
+
+.elevate__hero-bubble {
+  flex: none;
+  margin-left: auto;
+}
+
+.elevate__hero-copy { min-width: 0; }
 
 .elevate__hero h1 {
   margin: 0;
@@ -282,112 +281,6 @@ function filterByMust(cat: ElevateCategory) {
   margin: 18rem 0 0;
   font: 400 clamp(17rem, 2vw, 22rem)/1.4 var(--font-reading);
   color: var(--ink);
-}
-
-.elevate__must {
-  margin-top: clamp(22rem, 4vw, 36rem);
-  max-width: 520rem;
-}
-
-.elevate__must-hint {
-  margin: 0 0 10rem;
-  color: var(--ink-soft);
-  font: 600 11rem/1.2 var(--font-mono);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
-.elevate__must-row {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8rem;
-}
-
-.elevate__must-tile {
-  display: grid;
-  gap: 6rem;
-  width: 100%;
-  min-height: 78rem;
-  padding: 12rem 10rem;
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-m);
-  background: var(--paper);
-  color: var(--ink);
-  text-align: left;
-  cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-out);
-}
-
-.elevate__must-tile[aria-pressed="true"] {
-  background: var(--accent);
-  color: var(--accent-ink);
-  box-shadow: 4rem 4rem 0 var(--ink);
-}
-
-.elevate__must-letter {
-  font: 800 clamp(26rem, 4vw, 34rem)/1 var(--font-display);
-  letter-spacing: -.04em;
-}
-
-.elevate__must-name {
-  font: 700 10rem/1.2 var(--font-mono);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: inherit;
-  opacity: .78;
-}
-
-@media (hover: hover) {
-  .elevate__must-tile:hover {
-    background: var(--signal-field);
-    transform: translate(-2rem, -2rem);
-    box-shadow: 4rem 4rem 0 var(--ink);
-  }
-  .elevate__must-tile[aria-pressed="true"]:hover { background: var(--accent); }
-}
-
-.elevate__must-tile:focus-visible {
-  outline: 3rem solid var(--ink);
-  outline-offset: 3rem;
-}
-
-.elevate__must-reveal {
-  display: flex;
-  gap: 2rem;
-  margin: 12rem 0 0;
-  font: 800 12rem/1 var(--font-mono);
-  letter-spacing: .42em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--ink) 28%, transparent);
-}
-
-.elevate__must-reveal span {
-  display: inline-grid;
-  place-items: center;
-  width: 1.4em;
-}
-
-.elevate__hero-news {
-  align-self: stretch;
-}
-
-.elevate__hero-news :deep(.newsletter) {
-  height: 100%;
-  grid-template-columns: 1fr;
-  align-content: center;
-  gap: 16rem;
-  padding: clamp(20rem, 3vw, 32rem);
-  box-shadow: 8rem 8rem 0 var(--ink);
-}
-
-.elevate__hero-news :deep(.newsletter::after) { display: none; }
-.elevate__hero-news :deep(.newsletter__mark) { display: none; }
-.elevate__hero-news :deep(h2) {
-  font-size: clamp(24rem, 2.6vw, 32rem);
-  max-width: 16ch;
 }
 
 .elevate__entry { padding: clamp(40rem, 7vw, 88rem) 0 0; }
@@ -620,15 +513,11 @@ function filterByMust(cat: ElevateCategory) {
 .elevate__list--compact .elevate__thumb { width: 72rem; height: 48rem; }
 .elevate__list--compact .elevate__row-title { font-size: clamp(17rem, 2vw, 22rem); }
 
-@media (max-width: 900px) {
-  .elevate__hero { grid-template-columns: 1fr; align-items: start; }
-}
-
 @media (max-width: 640px) {
   .elevate { padding-top: 18rem; }
+  .elevate__hero-top { align-items: center; }
+  .elevate__eyebrow { padding-top: 0; }
   .elevate__hero h1 { font-size: clamp(64rem, 22vw, 120rem); }
-  .elevate__must-row { gap: 6rem; }
-  .elevate__must-tile { min-height: 70rem; padding: 10rem 8rem; }
   .elevate__toolbar { gap: 8rem 12rem; }
   .elevate__filters-toggle { min-height: 40rem; }
   .elevate__row { grid-template-columns: 88rem minmax(0, 1fr); gap: 12rem; }
@@ -638,12 +527,9 @@ function filterByMust(cat: ElevateCategory) {
 
 @media (prefers-reduced-motion: reduce) {
   .elevate__thumb :deep(.ed-editorial-image),
-  .elevate__must-tile,
   .elevate__row { transition: none; }
   .elevate__row:hover .elevate__thumb :deep(.ed-editorial-image) { transform: none; }
-  .elevate__must-tile:hover { transform: none; }
 }
 :global(html[data-reduce-motion="on"]) .elevate__thumb :deep(.ed-editorial-image),
-:global(html[data-reduce-motion="on"]) .elevate__must-tile,
 :global(html[data-reduce-motion="on"]) .elevate__row { transition: none; }
 </style>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FEATURED_BLOG } from '~/content/blogs'
+import type { PhotoStackItem } from '~/components/ed/PhotoStack.vue'
 
 useSeoMeta({
   title: 'About Me · Naveen Jose · Entertrainer',
@@ -10,51 +11,62 @@ useSeoMeta({
   ogImage: 'https://entertrainer.in/about/naveen-portrait.jpg'
 })
 
-const marriottSlides = [
+const clubMahindraPhotos: PhotoStackItem[] = [
   {
-    src: '/about/naveen-speaking-stage.jpg',
-    alt: 'Naveen presenting with a handheld microphone to an audience in a wood-panelled room at Courtyard by Marriott, Mahabaleshwar.'
+    src: '/about/about-housekeeper-1.webp',
+    alt: 'Naveen bent over an under-maintenance game table, sketching on a whiteboard during the Club Mahindra years.',
+    fit: 'contain',
+    objectPosition: 'center center'
   },
   {
-    src: '/about/naveen-speaking-close.jpg',
-    alt: 'Close portrait of Naveen speaking into a wireless microphone during a session at Courtyard by Marriott, Mahabaleshwar.'
-  },
-  {
-    src: '/about/naveen-speaking-projector.jpg',
-    alt: 'Naveen speaking to an audience with a projector visible in the foreground at Courtyard by Marriott, Mahabaleshwar.'
-  },
-  {
-    src: '/about/about-cdt.webp',
-    alt: 'CDT Masterclass Training the Trainers collage from Courtyard by Marriott, Mahabaleshwar.'
-  },
-  {
-    src: '/about/about-ignite.webp',
-    alt: 'Ignite by Marriott International event collage at Courtyard by Marriott, Mahabaleshwar.'
-  },
-  {
-    src: '/about/about-onboarding.webp',
-    alt: 'Gurukul Heroes on Board workshop collage at Courtyard by Marriott, Mahabaleshwar.'
-  },
-  {
-    src: '/about/club-mahindra-resort.jpg',
-    alt: 'Pool and tiered facade of Courtyard by Marriott, Mahabaleshwar.'
+    src: '/about/about-sewa-2.webp',
+    alt: 'Printed SEWA comic draft pages spread across a round white table.',
+    fit: 'contain',
+    objectPosition: 'center center'
   }
 ]
 
-const slide = ref(0)
-let timer: ReturnType<typeof setInterval> | undefined
-
-function go(i: number) {
-  const n = marriottSlides.length
-  slide.value = ((i % n) + n) % n
-}
-
-onMounted(() => {
-  timer = window.setInterval(() => go(slide.value + 1), 5200)
-})
-onBeforeUnmount(() => {
-  if (timer !== undefined) window.clearInterval(timer)
-})
+const marriottPhotos: PhotoStackItem[] = [
+  {
+    src: '/about/naveen-speaking-stage.jpg',
+    alt: 'Naveen presenting with a handheld microphone to an audience in a wood-panelled room at Courtyard by Marriott, Mahabaleshwar.',
+    fit: 'contain',
+    objectPosition: 'center top'
+  },
+  {
+    src: '/about/naveen-speaking-close.jpg',
+    alt: 'Close portrait of Naveen speaking into a wireless microphone during a session at Courtyard by Marriott, Mahabaleshwar.',
+    fit: 'contain',
+    objectPosition: 'center top'
+  },
+  {
+    src: '/about/naveen-speaking-projector.jpg',
+    alt: 'Naveen speaking to an audience with a projector visible in the foreground at Courtyard by Marriott, Mahabaleshwar.',
+    fit: 'contain',
+    objectPosition: 'center center'
+  },
+  {
+    src: '/about/about-cdt.webp',
+    alt: 'CDT Masterclass Training the Trainers collage from Courtyard by Marriott, Mahabaleshwar.',
+    fit: 'contain'
+  },
+  {
+    src: '/about/about-ignite.webp',
+    alt: 'Ignite by Marriott International event collage at Courtyard by Marriott, Mahabaleshwar.',
+    fit: 'contain'
+  },
+  {
+    src: '/about/about-onboarding.webp',
+    alt: 'Gurukul Heroes on Board workshop collage at Courtyard by Marriott, Mahabaleshwar.',
+    fit: 'contain'
+  },
+  {
+    src: '/about/club-mahindra-resort.jpg',
+    alt: 'Pool and tiered facade of Courtyard by Marriott, Mahabaleshwar.',
+    fit: 'cover',
+    objectPosition: 'center 40%'
+  }
+]
 </script>
 
 <template>
@@ -74,110 +86,160 @@ onBeforeUnmount(() => {
 
     <article class="about-story__article">
       <p>
-        Most people meet the site first. The modules. The tools. The little yellow Entertrainer mark.
+        Most people meet the site first.
+        The modules. The tools. That little yellow Entertrainer mark.
+      </p>
+      <p>
         Fair enough. Those are easier to drop in a link.
       </p>
       <p>
-        The part that explains how I work started much earlier. And with a lot less confidence.
+        The part that actually explains how I work started much earlier.
+        And with a lot less confidence.
       </p>
 
       <h2>I was a severe introvert with nothing to prove.</h2>
       <p>
-        Childhood: zero dreams, a thousand fears. Talking to people felt like walking into weather I had not packed for.
+        Childhood: zero dreams, a thousand fears.
+      </p>
+      <p>
+        Talking to people felt like walking into weather I had not packed for.
         Anxiety sat in the room before I did.
       </p>
       <p>
-        Farmer family. A village in central Kerala. My father is a farmer — sharp, intelligent, and quietly dangerous in the best way.
+        Farmer family. A village in central Kerala.
+        My father is a farmer — sharp, intelligent, and quietly dangerous in the best way.
         His habit was unlocking extra doors. Same problem, different thought process.
+      </p>
+      <p>
         That one habit shaped more of my later life than any career brochure ever did.
       </p>
 
       <h2>School felt like weaving a cocoon.</h2>
       <p>
-        There was a lot of indirect discrimination. The kind that comes with “didn’t mean it.”
-        Academics dropped. The first thirteen years or so felt like a caterpillar weaving a cocoon — not for drama, for survival.
+        There was a lot of indirect discrimination.
+        The kind that comes with “didn’t mean it.”
       </p>
       <p>
-        I found peace in being alone. The calm you can’t really share, because it comes from solitude.
-        Alone in the universe, I thought. That was the first reading of the cocoon.
+        Academics dropped.
+        The first thirteen years or so felt like a caterpillar weaving a cocoon — not for drama, for survival.
+      </p>
+      <p>
+        I found peace in being alone.
+        The calm you can’t really share, because it comes from solitude.
+      </p>
+      <p>
+        Alone in the universe, I thought.
+        That was the first reading of the cocoon.
       </p>
       <p>Then my father flipped the metaphor.</p>
       <p>
-        The cocoon is not exile. It is cover. Space to try and fail without an audience taking notes.
-        Once I heard it that way, everything changed. Quietly. Permanently.
+        The cocoon is not exile. It is cover.
+        Space to try and fail without an audience taking notes.
+      </p>
+      <p>
+        Once I heard it that way, everything changed.
+        Quietly. Permanently.
       </p>
 
       <h2>Machines made excellent company.</h2>
       <p>
-        Computers were still a novelty then. And machines, bless them, have no mind.
-        They obey written rules. They do not form emotional judgements about whether you are interesting enough today.
+        Computers were still a novelty then.
+      </p>
+      <p>
+        And machines, bless them, have no mind.
+        They obey written rules.
+        They do not form emotional judgements about whether you are interesting enough today.
       </p>
       <p>Best companion to work on yourself.</p>
       <p>
-        I explored machines, the internet, books. Closed up learning, reading, exploring, teaching myself.
-        The hardest distractions, I later realised, are humans. Glad I did not have much of that then.
+        I explored machines, the internet, books.
+        Closed up — learning, reading, exploring, teaching myself.
+      </p>
+      <p>
+        The hardest distractions, I later realised, are humans.
+        Glad I did not have much of that then.
       </p>
       <p>
         I got addicted to logic. Rules. The base of programming.
-        Every machine is logic and instructions. Later I learned minds work similarly — messier compiler, same hunger for structure.
+      </p>
+      <p>
+        Every machine is logic and instructions.
+        Later I learned minds work similarly — messier compiler, same hunger for structure.
       </p>
 
       <h2>After school, I needed a degree that earns a job.</h2>
       <p>
-        Zero idea of career. No real guidance. Practical question only: what degree gets you employed.
-        Answer: hospitality.
+        Zero idea of career. No real guidance.
       </p>
       <p>
-        IHMCT&amp;AN, Chennai. Prestigious. Often called the number one hotel management institute.
+        Practical question only: what degree gets you employed.
+      </p>
+      <p>Answer: hospitality.</p>
+      <p>
+        IHMCT&amp;AN, Chennai. Prestigious.
+        Often called the number one hotel management institute.
+      </p>
+      <p>
         In the final year I was selected as a Club Mahindra (MHRIL) Management Trainee — housekeeping.
       </p>
       <p>
-        First deployment: Udaipur, Rajasthan. Cleaned rooms. Mopped floors and stairs.
+        First deployment: Udaipur, Rajasthan.
+        Cleaned rooms. Mopped floors and stairs.
         Fifteen to eighteen hours a day. All days. No weekly offs.
       </p>
       <p>
-        Hotels are unforgiving at first. Then they give you a discipline you do not get from corporates.
+        Hotels are unforgiving at first.
+        Then they give you a discipline you do not get from corporates.
+      </p>
+      <p>
         Somewhere in that stretch I heard myself think: I can do this all day.
       </p>
 
       <h2>Club Mahindra era — sketching on borrowed tables.</h2>
       <p>
-        South Goa, Varca: supervisor. I still love housekeeping as art plus science.
+        South Goa, Varca: supervisor.
+      </p>
+      <p>
+        I still love housekeeping as art plus science.
         There is beauty in details — the kind guests notice without knowing they noticed.
       </p>
 
-      <div class="about-story__pair" aria-label="Club Mahindra era photos">
-        <figure class="about-story__figure">
-          <EdEditorialImage
-            src="/about/about-housekeeper-1.webp"
-            alt="Naveen bent over an under-maintenance game table, sketching on a whiteboard during the Club Mahindra years."
-          />
-        </figure>
-        <figure class="about-story__figure">
-          <EdEditorialImage
-            src="/about/about-sewa-2.webp"
-            alt="Printed SEWA comic draft pages spread across a round white table."
-          />
-        </figure>
-      </div>
+      <EdPhotoStack
+        :photos="clubMahindraPhotos"
+        label="Club Mahindra era photos"
+        note="Club Mahindra — sketching on borrowed tables; SEWA drafts on the round table."
+        aspect="5 / 4"
+      />
 
       <h2>Then someone asked for a culture we could call ours.</h2>
       <p>
-        Coorg. I was handpicked by Mr. Prakash Aranha — corporate L&amp;D for resort operations.
+        Coorg.
+        I was handpicked by Mr. Prakash Aranha — corporate L&amp;D for resort operations.
+      </p>
+      <p>
         His dream: something cultural Club Mahindra could call “ours.”
+      </p>
+      <p>
         SEWA — Service with Empathy, Warmth and Attentiveness — told as illustrated employee appreciation.
       </p>
       <p>I responded.</p>
       <p>
         After about three months, the first volume of <em>The SEWA Chronicles</em>:
-        ten selected stories from seventy-plus resorts across India. Printed. Real.
+        ten selected stories from seventy-plus resorts across India.
       </p>
+      <p>Printed. Real.</p>
       <p>
         Why it hit was not just the visuals.
+      </p>
+      <p>
         The stories were sourced from company portal logs from the start.
-        I picked impactful ones where the employee was still in the company, contacted them without revealing the purpose,
+        I picked the impactful ones where the employee was still in the company,
+        contacted them without revealing the purpose,
         spoke to managers and colleagues to verify — then printed.
-        Design met Aranha’s vision. That combination is what made the thing land.
+      </p>
+      <p>
+        Design met Aranha’s vision.
+        That combination is what made the thing land.
       </p>
 
       <figure class="about-story__figure about-story__figure--wide">
@@ -204,50 +266,41 @@ onBeforeUnmount(() => {
       <h2>Courtyard by Marriott, Mahabaleshwar.</h2>
       <p>
         I continued with Mahindra until I became Assistant L&amp;D Manager at Courtyard by Marriott, Mahabaleshwar.
-        Genius minds around the table. Running HR department responsibility shaped me more than any soft skill workshop.
+      </p>
+      <p>
+        Genius minds around the table.
+        Running HR department responsibility shaped me more than any soft-skill workshop.
       </p>
 
-      <section class="about-story__carousel" aria-roledescription="carousel" aria-label="Courtyard by Marriott, Mahabaleshwar">
-        <div class="about-story__carousel-frame">
-          <figure
-            v-for="(item, i) in marriottSlides"
-            :key="item.src"
-            class="about-story__carousel-slide"
-            :class="{ 'is-active': slide === i }"
-            :aria-hidden="slide === i ? undefined : 'true'"
-          >
-            <EdEditorialImage :src="item.src" :alt="item.alt" />
-          </figure>
-        </div>
-        <div class="about-story__carousel-controls">
-          <button type="button" class="about-story__carousel-btn" aria-label="Previous photo" @click="go(slide - 1)">Prev</button>
-          <div class="about-story__carousel-dots" role="tablist" aria-label="Slides">
-            <button
-              v-for="(item, i) in marriottSlides"
-              :key="item.src + '-dot'"
-              type="button"
-              role="tab"
-              :aria-selected="slide === i"
-              :aria-label="`Show photo ${i + 1}`"
-              @click="go(i)"
-            />
-          </div>
-          <button type="button" class="about-story__carousel-btn" aria-label="Next photo" @click="go(slide + 1)">Next</button>
-        </div>
-        <p class="about-story__carousel-note">Courtyard by Marriott, Mahabaleshwar — mic sessions, training rooms, the building itself.</p>
-      </section>
+      <EdPhotoStack
+        :photos="marriottPhotos"
+        label="Courtyard by Marriott, Mahabaleshwar"
+        note="Courtyard by Marriott, Mahabaleshwar — mic sessions, training rooms, the building itself."
+        aspect="16 / 11"
+      />
 
       <p>
         Then I chased Instructional Design properly.
+      </p>
+      <p>
         Now I create work that matters — turning operational detail into learning people can actually use.
       </p>
       <p>
         This blog. This site. Entertrainer.
+      </p>
+      <p>
         The place where the cocoon, the machines, the hotels, the comics, and the learning design finally share one address.
       </p>
       <p>
-        Some pieces will be useful immediately. Some will need time.
-        Both are allowed. I am still weaving. Just with better light.
+        Some pieces will be useful immediately.
+        Some will need time.
+      </p>
+      <p>
+        Both are allowed.
+      </p>
+      <p>
+        I am still weaving.
+        Just with better light.
       </p>
     </article>
 
@@ -275,74 +328,59 @@ onBeforeUnmount(() => {
 .about-story__hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260rem, .85fr); gap: clamp(32rem, 8vw, 120rem); align-items: end; padding-bottom: clamp(46rem, 8vw, 86rem); border-bottom: var(--stroke) solid var(--ink); }
 .about-story h1 { max-width: 14ch; margin: 0; font: 500 clamp(66rem, 11vw, 152rem)/.79 var(--font-display); letter-spacing: -.08em; }
 .about-story__deck { max-width: 32ch; margin: 22rem 0 0; font: 400 clamp(20rem, 2.3vw, 28rem)/1.3 var(--font-reading); }
+
+/* Plain photo — rounded corners only, no heavy frame */
 .about-story__hero-art {
-  margin: 0; min-height: 280rem; overflow: hidden;
-  border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); background: #F7F1E4;
+  margin: 0;
+  min-height: 280rem;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-l);
+  background: #F7F1E4;
 }
 .about-story__hero-art :deep(.ed-editorial-image),
 .about-story__hero-art :deep(img) {
-  width: 100%; height: 100%; min-height: 280rem; object-fit: cover; object-position: center top; display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 280rem;
+  object-fit: contain;
+  object-position: center top;
+  display: block;
+  border: 0;
+  border-radius: var(--radius-l);
+  background: #F7F1E4;
 }
+
 .about-story__article { max-width: 720rem; margin: clamp(54rem, 9vw, 118rem) auto 0; font: 400 clamp(18rem, 1.85vw, 22rem)/1.62 var(--font-reading); }
-.about-story__article > p { max-width: 62ch; margin: 0 0 24rem; }
+.about-story__article > p { max-width: 42ch; margin: 0 0 18rem; }
 .about-story__article h2 { max-width: 28ch; margin: clamp(54rem, 9vw, 96rem) 0 20rem; font: 500 clamp(36rem, 5.5vw, 68rem)/.94 var(--font-display); letter-spacing: -.055em; }
-.about-story__figure { width: min(100%, 560rem); margin: clamp(42rem, 7vw, 80rem) 0 clamp(50rem, 8vw, 92rem) auto; }
-.about-story__figure--wide { width: min(100%, 640rem); margin-left: calc(clamp(0rem, 8vw, 110rem) * -1); }
+
+.about-story__figure {
+  width: min(100%, 560rem);
+  margin: clamp(42rem, 7vw, 80rem) 0 clamp(50rem, 8vw, 92rem) auto;
+}
+.about-story__figure--wide {
+  width: min(100%, 640rem);
+  margin-left: calc(clamp(0rem, 8vw, 110rem) * -1);
+}
 .about-story__figure :deep(.ed-editorial-image),
 .about-story__figure :deep(img) {
-  display: block; width: 100%; height: auto; min-height: 230rem; max-height: 520rem; object-fit: cover;
-  border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--paper-2);
-}
-.about-story__pair {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16rem;
-  margin: clamp(36rem, 6vw, 64rem) 0;
-}
-.about-story__pair .about-story__figure { width: 100%; margin: 0; }
-.about-story__pair .about-story__figure :deep(img) { min-height: 280rem; max-height: 420rem; }
-
-.about-story__carousel {
-  margin: clamp(36rem, 7vw, 72rem) calc(clamp(0rem, 6vw, 80rem) * -1);
-  padding: 0;
-}
-.about-story__carousel-frame {
-  position: relative;
-  min-height: min(520rem, 62vw);
-  overflow: hidden;
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-l);
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 520rem;
+  object-fit: contain;
+  object-position: center center;
+  border: 0;
+  border-radius: var(--radius-m);
   background: var(--paper-2);
-  box-shadow: 10rem 10rem 0 color-mix(in srgb, var(--accent) 35%, transparent);
 }
-.about-story__carousel-slide {
-  position: absolute; inset: 0; opacity: 0; transition: opacity 700ms var(--ease-out);
-  pointer-events: none;
-}
-.about-story__carousel-slide.is-active { opacity: 1; pointer-events: auto; }
-.about-story__carousel-slide :deep(.ed-editorial-image),
-.about-story__carousel-slide :deep(img) {
-  width: 100%; height: 100%; min-height: min(520rem, 62vw); object-fit: cover; display: block;
-}
-.about-story__carousel-controls {
-  display: flex; align-items: center; justify-content: space-between; gap: 12rem;
-  margin-top: 14rem;
-}
-.about-story__carousel-btn {
-  min-height: 36rem; padding: 0 14rem;
-  border: var(--stroke) solid var(--ink); border-radius: var(--radius-full);
-  background: var(--paper); color: var(--ink);
-  font: 700 11rem/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase;
-}
-.about-story__carousel-dots { display: flex; gap: 8rem; }
-.about-story__carousel-dots button {
-  width: 10rem; height: 10rem; border-radius: 50%;
-  border: 1.5rem solid var(--ink); background: transparent; padding: 0; cursor: pointer;
-}
-.about-story__carousel-dots button[aria-selected="true"] { background: var(--accent); }
-.about-story__carousel-note {
-  margin: 12rem 0 0;
-  color: var(--ink-soft);
-  font: 600 12rem/1.4 var(--font-mono);
-  letter-spacing: .04em;
+
+.about-story__article :deep(.photo-stack) {
+  margin-left: calc(clamp(0rem, 6vw, 80rem) * -1);
+  margin-right: calc(clamp(0rem, 6vw, 80rem) * -1);
+  width: auto;
+  max-width: none;
 }
 
 .about-story__sewa { margin: clamp(54rem, 9vw, 100rem) calc(clamp(0rem, 5vw, 68rem) * -1); }
@@ -359,19 +397,18 @@ onBeforeUnmount(() => {
 .about-story__close { display: grid; gap: 28rem; max-width: 720rem; margin: clamp(64rem, 10vw, 118rem) auto 0; padding-top: 30rem; border-top: var(--stroke) solid var(--ink); }
 .about-story__destination--elevate { grid-template-columns: minmax(220rem, .86fr) minmax(0, 1.14fr); background: var(--paper); }
 .about-story__destination--elevate .about-story__destination-visual { min-height: 230rem; }
+
 @media (max-width: 700px) {
   .about-story__hero { grid-template-columns: 1fr; }
   .about-story__hero-art { min-height: 220rem; }
-  .about-story__pair { grid-template-columns: 1fr; }
-  .about-story__carousel { margin-left: 0; margin-right: 0; }
   .about-story__figure, .about-story__figure--wide { width: 100%; margin-left: 0; }
+  .about-story__article :deep(.photo-stack) { margin-left: 0; margin-right: 0; }
   .about-story__sewa { margin-left: 0; margin-right: 0; }
   .about-story__destination, .about-story__destination--elevate { grid-template-columns: 1fr; }
   .about-story__destination-visual { border-right: 0; border-bottom: var(--stroke) solid var(--ink); }
 }
+
 @media (prefers-reduced-motion: reduce) {
-  .about-story__carousel-slide { transition: none; }
   .about-story__destination { transition: none; }
 }
-:global(html[data-reduce-motion="on"]) .about-story__carousel-slide { transition: none; }
 </style>

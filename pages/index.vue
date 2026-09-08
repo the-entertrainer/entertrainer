@@ -9,12 +9,53 @@ useSeoMeta({
   ogUrl: 'https://entertrainer.in/'
 })
 
-const routes = [
-  { name: 'Elevate', type: 'Stories', href: '/elevate' },
-  { name: 'Empower', type: 'Tools', href: '/empower' },
-  { name: 'Engage', type: 'Play', href: '/engage' },
-  { name: 'About me', type: 'About', href: '/about' }
+type HomeRoute = {
+  name: string
+  href: string
+  tip?: string
+}
+
+const routes: HomeRoute[] = [
+  {
+    name: 'Elevate',
+    href: '/elevate',
+    tip: 'Curious pieces that might teach you something.'
+  },
+  {
+    name: 'Empower',
+    href: '/empower',
+    tip: 'Tools for the awkward, repeating work.'
+  },
+  {
+    name: 'Engage',
+    href: '/engage',
+    tip: 'Short games and little detours.'
+  },
+  { name: 'About me', href: '/about' }
 ]
+
+const openTip = ref<string | null>(null)
+
+const tipId = (name: string) => `home-tip-${name.toLowerCase().replace(/\s+/g, '-')}`
+
+const toggleTip = (name: string, event: Event) => {
+  event.preventDefault()
+  event.stopPropagation()
+  openTip.value = openTip.value === name ? null : name
+}
+
+const closeTip = () => {
+  openTip.value = null
+}
+
+const onDocPointer = (event: Event) => {
+  const target = event.target as Element | null
+  if (!target?.closest?.('[data-route-tip]')) closeTip()
+}
+
+const onKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') closeTip()
+}
 
 // SSR-stable first quote; client picks once per home visit / visibility return — no interval rotation.
 const quote = ref(KNOWLEDGE_QUOTES[0] || '')
@@ -33,15 +74,20 @@ const onVisibility = () => {
 onMounted(() => {
   refreshQuote()
   document.addEventListener('visibilitychange', onVisibility)
+  document.addEventListener('pointerdown', onDocPointer)
+  document.addEventListener('keydown', onKeydown)
 })
 
 // Keep-alive return to home: treat as a fresh screen visit.
 onActivated(() => {
   refreshQuote()
+  closeTip()
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('visibilitychange', onVisibility)
+  document.removeEventListener('pointerdown', onDocPointer)
+  document.removeEventListener('keydown', onKeydown)
 })
 </script>
 
@@ -59,11 +105,38 @@ onBeforeUnmount(() => {
       </div>
 
       <ol class="route-index__routes">
-        <li v-for="route in routes" :key="route.href" class="route-index__route">
-          <NuxtLink :to="route.href">
-            <span class="route-index__type">{{ route.type }}</span>
-            <strong>{{ route.name }}</strong>
-          </NuxtLink>
+        <li
+          v-for="route in routes"
+          :key="route.href"
+          class="route-index__route"
+          :class="{ 'is-open': openTip === route.name }"
+        >
+          <div class="route-index__card">
+            <NuxtLink :to="route.href" class="route-index__link">
+              <strong>{{ route.name }}</strong>
+            </NuxtLink>
+            <button
+              v-if="route.tip"
+              type="button"
+              class="route-index__info"
+              data-route-tip
+              :aria-expanded="openTip === route.name"
+              :aria-controls="tipId(route.name)"
+              :aria-label="`About ${route.name}`"
+              @click="toggleTip(route.name, $event)"
+            >
+              <span aria-hidden="true">i</span>
+            </button>
+          </div>
+          <p
+            v-if="route.tip && openTip === route.name"
+            :id="tipId(route.name)"
+            class="route-index__tip"
+            data-route-tip
+            role="note"
+          >
+            {{ route.tip }}
+          </p>
         </li>
       </ol>
     </nav>
@@ -117,13 +190,6 @@ onBeforeUnmount(() => {
   0%, 22% { background-position: 100% 50%; }
   50% { background-position: 0% 50%; }
   78%, 100% { background-position: 100% 50%; }
-}
-
-.route-index__type {
-  margin: 0;
-  font: 700 11rem/1.1 var(--font-mono);
-  letter-spacing: .1em;
-  text-transform: uppercase;
 }
 
 .route-index__switchboard {
@@ -195,13 +261,18 @@ onBeforeUnmount(() => {
   list-style: none;
 }
 
-.route-index__route a {
+.route-index__route {
+  display: grid;
+  gap: 0;
+  align-content: start;
+}
+
+.route-index__card {
   position: relative;
   display: grid;
   min-height: 118rem;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
-  padding: 18rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-l);
   color: var(--ink);
@@ -213,26 +284,84 @@ onBeforeUnmount(() => {
     box-shadow var(--dur-fast) var(--ease-out);
 }
 
-.route-index__type { justify-self: end; color: var(--ink-soft); }
+.route-index__link {
+  display: grid;
+  grid-column: 1 / 2;
+  grid-row: 1;
+  align-content: end;
+  min-height: 118rem;
+  padding: 18rem;
+  padding-right: 48rem;
+  color: inherit;
+  text-decoration: none;
+}
 
 .route-index__route strong {
-  grid-column: 1 / 3;
-  margin-top: 16rem;
+  margin: 0;
   font: 500 clamp(28rem, 3vw, 42rem)/.88 var(--font-display);
   letter-spacing: -.055em;
 }
 
+.route-index__info {
+  position: absolute;
+  top: 14rem;
+  right: 14rem;
+  z-index: 2;
+  display: inline-grid;
+  place-items: center;
+  width: 26rem;
+  height: 26rem;
+  margin: 0;
+  padding: 0;
+  border: var(--stroke) solid var(--ink);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--paper) 88%, var(--accent));
+  color: var(--ink);
+  font: 700 12rem/1 var(--font-mono);
+  letter-spacing: 0;
+  text-transform: lowercase;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-spring);
+}
+
+.route-index__info:hover {
+  background: var(--signal-field);
+}
+
+.route-index__info:focus-visible {
+  outline: 3rem solid var(--focus);
+  outline-offset: 3rem;
+}
+
+.route-index__route.is-open .route-index__info {
+  background: var(--signal-field);
+}
+
+.route-index__tip {
+  margin: 8rem 2rem 0;
+  padding: 10rem 12rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-m, 10rem);
+  background: color-mix(in srgb, var(--paper) 94%, var(--accent));
+  color: var(--ink);
+  font: 500 13.5rem/1.45 var(--font-ui);
+  box-shadow: 3rem 3rem 0 color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
 @media (hover: hover) {
-  .route-index__route a:hover {
+  .route-index__card:has(.route-index__link:hover) {
     background: var(--signal-field);
     transform: translate(-3rem, -3rem);
     box-shadow: 5rem 5rem 0 var(--ink);
   }
 }
 
-.route-index__route a:focus-visible {
+.route-index__link:focus-visible {
   outline: 3rem solid var(--focus);
-  outline-offset: 4rem;
+  outline-offset: -4rem;
+  border-radius: inherit;
 }
 
 @media (max-width: 780px) {
@@ -251,28 +380,40 @@ onBeforeUnmount(() => {
   .route-index__hub { display: none; }
   .route-index__routes { display: block; border-top: var(--stroke) solid var(--ink); }
   .route-index__route { display: block; }
-  .route-index__route a {
+  .route-index__card {
     min-height: 0;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto auto;
-    gap: 0 10rem;
-    padding: 16rem 4rem;
     border: 0;
     border-bottom: var(--stroke) solid var(--ink);
     border-radius: 0;
     background: transparent;
     overflow: visible;
   }
-  .route-index__type { grid-column: 2; grid-row: 1; align-self: center; font-size: 10rem; }
+  .route-index__link {
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    padding: 16rem 4rem;
+    padding-right: 44rem;
+  }
   .route-index__route strong {
-    grid-column: 1 / 3;
-    grid-row: 2;
-    margin: 6rem 0 0;
+    margin: 0;
     font-size: clamp(32rem, 9vw, 42rem);
   }
+  .route-index__info {
+    position: absolute;
+    top: 50%;
+    right: 4rem;
+    transform: translateY(-50%);
+  }
+  .route-index__info:hover { transform: translateY(-50%); }
+  .route-index__tip {
+    margin: 0 0 12rem;
+    border-radius: var(--radius-m, 10rem);
+  }
   @media (hover: hover) {
-    .route-index__route a:hover {
+    .route-index__card:has(.route-index__link:hover) {
       transform: none;
       box-shadow: none;
       background: color-mix(in srgb, var(--signal-field) 70%, transparent);
@@ -283,8 +424,9 @@ onBeforeUnmount(() => {
 @media (max-width: 460px) {
   .route-index { padding-top: 24rem; gap: 22rem; }
   .route-index__headline { font-size: clamp(22rem, 7vw, 30rem); }
-  .route-index__route a { padding: 14rem 2rem; }
+  .route-index__link { padding: 14rem 2rem; padding-right: 40rem; }
   .route-index__route strong { font-size: 34rem; }
+  .route-index__info { right: 2rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -295,9 +437,11 @@ onBeforeUnmount(() => {
     -webkit-background-clip: unset;
     background-clip: unset;
   }
-  .route-index__route a { transition: none; }
-  .route-index__route a:hover { transform: none; }
+  .route-index__card,
+  .route-index__info { transition: none; }
+  .route-index__card:has(.route-index__link:hover) { transform: none; }
 }
+
 :global(html[data-reduce-motion="on"]) .route-index__quote {
   animation: none !important;
   color: var(--ink);
@@ -305,5 +449,6 @@ onBeforeUnmount(() => {
   -webkit-background-clip: unset;
   background-clip: unset;
 }
-:global(html[data-reduce-motion="on"]) .route-index__route a { transition: none; }
+:global(html[data-reduce-motion="on"]) .route-index__card,
+:global(html[data-reduce-motion="on"]) .route-index__info { transition: none; }
 </style>

@@ -16,7 +16,7 @@ const MIND_READER_SYMBOLS = [
       variant="orbits"
       title="Engage"
       title-id="engage-title"
-      deck="Small games for quick detours."
+      deck="Short detours. No leaderboard. Just a little mischief."
     />
 
     <ol class="engage__grid">
@@ -27,7 +27,7 @@ const MIND_READER_SYMBOLS = [
           </span>
           <span class="engage__card-text">
             <strong class="engage__card-name">The Mind Reader</strong>
-            <span class="engage__card-blurb">A quick number game with a graphic twist. Keep your eyes open.</span>
+            <span class="engage__card-blurb">Pick a number. Two small moves. One mark you will swear I somehow knew.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -100,7 +100,7 @@ const MIND_READER_SYMBOLS = [
 }
 
 .engage__icon--mind-reader i { display: grid; place-items: center; color: var(--ink); }
-.engage__icon--mind-reader i:nth-child(2n) { color: var(--cobalt, #FFD43B); }
+.engage__icon--mind-reader i:nth-child(2n) { color: var(--ink); }
 .engage__icon--mind-reader i:nth-child(3n) { color: var(--paper); }
 .engage__icon--mind-reader svg {
   width: 100%;

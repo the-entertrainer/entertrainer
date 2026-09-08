@@ -62,7 +62,8 @@ const bare = computed(() =>
   r.path.startsWith('/my-work/strong') ||
   r.path.startsWith('/my-work/sewa-chronicles') ||
   r.path.startsWith('/courses/ai-atlas') ||
-  r.path.startsWith('/instructional-design')
+  r.path.startsWith('/instructional-design') ||
+  r.path.startsWith('/engage/read-my-mind')
 )
 
 onMounted(() => {

@@ -61,7 +61,7 @@ export function buildComposeSystemPrompt(): string {
     '- Inline cite important claims in paragraph text as [1], [2], matching references[].id.',
     '- References must look real (credible titles, venues/years, DOI or reputable URLs). Prefer real well-known papers when the topic supports it; do not invent fake DOI numbers that look random.',
     '- minutes: realistic 6–12.',
-    '- category: short Elevate-style label (e.g. "Mind & meaning", "Physics & everyday life").',
+    '- category: exactly one of Mind, Universe, Science, Technology (MUST).',
     '- marginNote.label often "One useful idea." — body is one crisp takeaway.',
     '- Figure blocks need strong alt + caption describing what image would illustrate; leave src as "".',
     '- Do not auto-publish language; this is a draft for human polish.',

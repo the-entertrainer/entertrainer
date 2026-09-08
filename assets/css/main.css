@@ -63,6 +63,7 @@
   --accent-strong: #EAB900;
   --accent-soft: #FFF3B8;
   --accent-ink: #161618;
+  --accent-text: #8A6500; /* readable gold on cream */
   --blue:   var(--accent);
   --violet: var(--accent); /* Route Atlas companion: navigation traces and path transitions. */
   --red:    #E02D18;
@@ -383,10 +384,30 @@ html.theme-anim, html.theme-anim * {
   html.theme-anim, html.theme-anim * { transition: none !important; }
 }
 
-/* Reader "Reduce motion" preference — mirrors prefers-reduced-motion for decorative motion. */
+/* Reader "Reduce motion" preference — calm motion without hiding content. */
 html[data-reduce-motion="on"] .theme-anim,
 html[data-reduce-motion="on"].theme-anim,
-html[data-reduce-motion="on"].theme-anim * { transition: none !important; }
+html[data-reduce-motion="on"].theme-anim * {
+  transition-property: background-color, color, border-color, fill, stroke !important;
+  transition-duration: 1ms !important;
+}
+
+/* Force reveal utilities visible when the settings toggle kills animation. */
+html[data-reduce-motion="on"] .u-media-in,
+html[data-reduce-motion="on"] .u-editorial-enter,
+html[data-reduce-motion="on"] .u-paper-reveal,
+html[data-reduce-motion="on"] .u-artifact-shift,
+html[data-reduce-motion="on"] .u-tool-assemble,
+html[data-reduce-motion="on"] .u-reveal,
+html[data-reduce-motion="on"] .t-rise > span,
+html[data-reduce-motion="on"] .t-fade-up {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+  clip-path: none !important;
+}
+html[data-reduce-motion="on"] .u-chapter-path::before { animation: none !important; transform: none !important; }
 
 
 ::selection { background: var(--selection); color: var(--on-selection); }
@@ -723,7 +744,7 @@ p, li, dd, figcaption { text-wrap: pretty; }
 @media (prefers-reduced-motion: reduce) {
   .u-press, .u-lift, .u-tap, .ticket, .px-btn, .glass-btn, .u-underline::after { transition-duration: 1ms; }
   .t-rise > span, .t-fade-up { animation: t-plain 180ms linear both; animation-delay: 0ms; }
-  .u-media-in, .u-editorial-enter, .u-paper-reveal, .u-artifact-shift, .u-tool-assemble { animation: none; }
+  .u-media-in, .u-editorial-enter, .u-paper-reveal, .u-artifact-shift, .u-tool-assemble { animation: none; opacity: 1; transform: none; filter: none; clip-path: none; }
   .u-chapter-path::before { animation: none; }
   .ticket > span[aria-hidden="true"], .path__action, .tool-row__action, .lesson__action { transition: none; }
   @keyframes t-plain { from { opacity: 0 } to { opacity: 1 } }

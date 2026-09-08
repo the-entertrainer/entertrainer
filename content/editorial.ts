@@ -164,7 +164,7 @@ export const ITEMS: EditorialItem[] = [
   {
     id: 'about',
     title: 'Zero dreams. A thousand fears. Then this.',
-    dek: 'Kerala village, machines as companions, Club Mahindra housekeeping, The SEWA Chronicles, Marriott L&D, and instructional design at Concentrix — the longer route behind Entertrainer.',
+    dek: 'Kerala village, machines as companions, Club Mahindra housekeeping, The SEWA Chronicles, Courtyard by Marriott Mahabaleshwar, and learning design — the longer route behind Entertrainer.',
     category: 'story',
     media: 'essay',
     href: '/about',

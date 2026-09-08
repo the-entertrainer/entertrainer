@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { ElevateSortPref } from '~/composables/useSiteSettings'
-
 /**
  * Visitor preferences: slide-over panel. Yellow/cream Elevate DNA, Escape to close,
  * focus returns to the opener. Changes apply immediately via useSiteSettings.
@@ -12,8 +10,6 @@ const {
   setOpeningSound,
   setWordOfTheDay,
   setReduceMotion,
-  setHideElevateExcerpts,
-  setElevateSort,
   reset
 } = useSiteSettings()
 
@@ -65,12 +61,6 @@ onBeforeUnmount(() => {
   document.documentElement.classList.remove('settings-panel-open')
 })
 
-const sortOptions: { value: ElevateSortPref; label: string }[] = [
-  { value: 'newest', label: 'Newest first' },
-  { value: 'oldest', label: 'Oldest first' },
-  { value: 'title', label: 'A to Z' }
-]
-
 const openingOn = computed(() => settings.value.openingSound === 'on')
 function toggleOpeningSound() {
   setOpeningSound(openingOn.value ? 'off' : 'on')
@@ -95,7 +85,7 @@ function toggleOpeningSound() {
       >
         <header class="sp__head">
           <div class="sp__head-copy">
-            <p class="sp__eyebrow">Your preferences</p>
+            <p class="sp__eyebrow">A short list</p>
             <h2 id="sp-title" class="sp__title">Settings</h2>
           </div>
           <button
@@ -149,7 +139,7 @@ function toggleOpeningSound() {
           <label class="sp__row">
             <span class="sp__row-copy">
               <span class="sp__row-label">Calmer motion</span>
-              <span class="sp__row-hint">Less movement on the home stage and logo</span>
+              <span class="sp__row-hint">Calm decorative motion. Layout stays readable.</span>
             </span>
             <button
               type="button"
@@ -163,43 +153,6 @@ function toggleOpeningSound() {
               <span class="sp__switch-state" aria-hidden="true">{{ settings.reduceMotion ? 'On' : 'Off' }}</span>
             </button>
           </label>
-
-          <label class="sp__row">
-            <span class="sp__row-copy">
-              <span class="sp__row-label">Hide article summaries</span>
-              <span class="sp__row-hint">Shorter list — titles and details only</span>
-            </span>
-            <button
-              type="button"
-              class="sp__switch"
-              role="switch"
-              :aria-checked="settings.hideElevateExcerpts"
-              :aria-label="`Hide article summaries ${settings.hideElevateExcerpts ? 'on' : 'off'}`"
-              @click="setHideElevateExcerpts(!settings.hideElevateExcerpts)"
-            >
-              <span class="sp__switch-knob" aria-hidden="true" />
-              <span class="sp__switch-state" aria-hidden="true">{{ settings.hideElevateExcerpts ? 'On' : 'Off' }}</span>
-            </button>
-          </label>
-
-          <div class="sp__row sp__row--stack" role="group" aria-labelledby="sp-sort-label">
-            <span class="sp__row-copy">
-              <span id="sp-sort-label" class="sp__row-label">Article order</span>
-              <span class="sp__row-hint">How articles appear when you open the list</span>
-            </span>
-            <div class="sp__segment" role="radiogroup" aria-label="Article order">
-              <button
-                v-for="opt in sortOptions"
-                :key="opt.value"
-                type="button"
-                class="sp__segment-btn"
-                role="radio"
-                :aria-checked="settings.elevateSort === opt.value"
-                :aria-label="opt.label"
-                @click="setElevateSort(opt.value)"
-              >{{ opt.label }}</button>
-            </div>
-          </div>
         </div>
 
         <footer class="sp__foot">

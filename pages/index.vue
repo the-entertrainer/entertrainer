@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { KNOWLEDGE_QUOTES, pickKnowledgeQuote } from '~/content/knowledge-quotes'
+
 useSeoMeta({
   title: 'Entertrainer · Elevate, Empower, Engage',
-  description: 'Stories for the questions that keep returning, tools for the work that keeps repeating, and small games for quick detours.',
+  description: 'Stories for questions that keep returning, tools for work that keeps repeating, and small games for short detours.',
   ogTitle: 'Entertrainer · The Three Es',
   ogDescription: 'Elevate, Empower, Engage.',
   ogUrl: 'https://entertrainer.in/'
@@ -14,40 +16,30 @@ const routes = [
   { name: 'About me', type: 'About', href: '/about' }
 ]
 
-/** Naveen/Entertrainer voice — curious, sharp, not cringe. One pick per visit. */
-const HEADLINES: Array<{ before: string; accent: string; after: string }> = [
-  { before: 'Real ', accent: 'creative', after: ' stuff.' },
-  { before: '', accent: 'Stories', after: ' that won’t leave you alone.' },
-  { before: 'Tools for the work that ', accent: 'keeps repeating', after: '.' },
-  { before: 'Questions with ', accent: 'better furniture', after: '.' },
-  { before: 'Make the ', accent: 'confusing part', after: ' behave.' },
-  { before: '', accent: 'Cobalt thoughts', after: ' on cream paper.' },
-  { before: 'Curiosity with ', accent: 'a spine', after: '.' },
-  { before: 'Sharp questions, ', accent: 'soft landings', after: '.' },
-  { before: 'Lessons that ', accent: 'survive the commute', after: '.' },
-  { before: 'Play for people who ', accent: 'still notice', after: '.' },
-  { before: 'Evidence, then the ', accent: 'punchline', after: '.' },
-  { before: 'Quiet systems for ', accent: 'loud work', after: '.' }
-]
-
-// SSR + first paint: stable default. Client swaps once after mount (no hydration mismatch).
-const headline = ref(HEADLINES[0])
-const headlineReady = ref(false)
+// SSR-stable first quote; client rotates occasionally from the bank.
+const quote = ref(KNOWLEDGE_QUOTES[0] || '')
+const quoteReady = ref(false)
+let rotateTimer: ReturnType<typeof setInterval> | undefined
 
 onMounted(() => {
-  const pick = HEADLINES[Math.floor(Math.random() * HEADLINES.length)]!
-  headline.value = pick
-  headlineReady.value = true
+  quote.value = pickKnowledgeQuote()
+  quoteReady.value = true
+  rotateTimer = window.setInterval(() => {
+    quote.value = pickKnowledgeQuote()
+  }, 14000)
+})
+
+onBeforeUnmount(() => {
+  if (rotateTimer !== undefined) window.clearInterval(rotateTimer)
 })
 </script>
 
 <template>
   <main id="main" class="route-index">
     <header class="route-index__intro">
-      <h1 class="route-index__headline" :class="{ 'is-ready': headlineReady }">
-        <span class="route-index__headline-text">
-          {{ headline.before }}<span class="route-index__accent">{{ headline.accent }}</span>{{ headline.after }}
-        </span>
+      <p class="route-index__kicker">A line for the road</p>
+      <h1 class="route-index__headline" :class="{ 'is-ready': quoteReady }">
+        <span class="route-index__quote">{{ quote }}</span>
       </h1>
     </header>
 
@@ -69,7 +61,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Compact home: tactile route switchboard around the e mark; ticket list on small screens. */
+/* Compact home: knowledge quote + tactile route switchboard. */
 .route-index {
   max-width: var(--shell-wide);
   min-height: min(720rem, calc(100dvh - 130rem));
@@ -80,26 +72,31 @@ onMounted(() => {
   gap: clamp(30rem, 5vw, 68rem);
 }
 
-.route-index__intro { max-width: 820rem; }
+.route-index__intro { max-width: 920rem; }
+
+.route-index__kicker {
+  margin: 0 0 14rem;
+  color: var(--ink-soft);
+  font: 700 11rem/1.2 var(--font-mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
 
 .route-index__headline {
   margin: 0;
-  font: 500 clamp(48rem, 7.2vw, 110rem)/.86 var(--font-display);
-  letter-spacing: -.075em;
+  font: 500 clamp(28rem, 4.6vw, 52rem)/1.18 var(--font-display);
+  letter-spacing: -.035em;
   color: var(--ink);
+  max-width: 28ch;
 }
 
-.route-index__headline-text { display: inline; }
-
-/* Soft cobalt shimmer on the accent phrase; ink elsewhere. */
-.route-index__accent {
-  position: relative;
+.route-index__quote {
   display: inline;
   background-image: linear-gradient(
     105deg,
     var(--ink) 0%,
-    var(--ink) 38%,
-    var(--cobalt, #FFD43B) 50%,
+    var(--ink) 42%,
+    color-mix(in srgb, var(--accent-strong, #EAB900) 88%, var(--ink)) 52%,
     var(--ink) 62%,
     var(--ink) 100%
   );
@@ -110,43 +107,14 @@ onMounted(() => {
   color: transparent;
 }
 
-.route-index__headline.is-ready .route-index__accent {
-  animation: route-headline-shimmer 9s ease-in-out infinite;
+.route-index__headline.is-ready .route-index__quote {
+  animation: route-quote-shimmer 11s ease-in-out infinite;
 }
 
-.route-index__accent::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0.06em;
-  height: 0.09em;
-  border-radius: 999rem;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--cobalt, #FFD43B) 15%, transparent),
-    var(--cobalt, #FFD43B),
-    color-mix(in srgb, var(--cobalt, #FFD43B) 15%, transparent)
-  );
-  background-size: 200% 100%;
-  opacity: .55;
-  pointer-events: none;
-}
-
-.route-index__headline.is-ready .route-index__accent::after {
-  animation: route-underline-shift 9s ease-in-out infinite;
-}
-
-@keyframes route-headline-shimmer {
-  0%, 18% { background-position: 100% 50%; }
+@keyframes route-quote-shimmer {
+  0%, 22% { background-position: 100% 50%; }
   50% { background-position: 0% 50%; }
-  82%, 100% { background-position: 100% 50%; }
-}
-
-@keyframes route-underline-shift {
-  0%, 18% { background-position: 100% 50%; opacity: .4; }
-  50% { background-position: 0% 50%; opacity: .7; }
-  82%, 100% { background-position: 100% 50%; opacity: .4; }
+  78%, 100% { background-position: 100% 50%; }
 }
 
 .route-index__type {
@@ -166,13 +134,13 @@ onMounted(() => {
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-xl);
   background: color-mix(in srgb, #F7F1E4 70%, var(--paper-2));
-  box-shadow: 10rem 10rem 0 color-mix(in srgb, var(--cobalt, #FFD43B) 22%, transparent);
+  box-shadow: 10rem 10rem 0 color-mix(in srgb, var(--accent) 22%, transparent);
   overflow: hidden;
 }
 
 [data-theme="dark"] .route-index__switchboard {
   background: var(--paper-2);
-  box-shadow: 10rem 10rem 0 color-mix(in srgb, var(--cobalt, #FFD43B) 28%, transparent);
+  box-shadow: 10rem 10rem 0 color-mix(in srgb, var(--accent) 28%, transparent);
 }
 
 .route-index__switchboard::before {
@@ -181,7 +149,7 @@ onMounted(() => {
   inset: auto -16% -68% auto;
   width: min(480rem, 54vw);
   aspect-ratio: 1;
-  border: 38rem solid color-mix(in srgb, var(--cobalt, #FFD43B) 22%, transparent);
+  border: 38rem solid color-mix(in srgb, var(--accent) 22%, transparent);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -211,7 +179,8 @@ onMounted(() => {
 }
 
 .route-index__hub::after { inset: 34%; }
-.route-index__hub :deep(.wordmark) { position: relative; z-index: 1; }
+.route-index__hub :deep(.wordmark),
+.route-index__hub :deep(.wm) { position: relative; z-index: 1; }
 
 .route-index__routes {
   position: relative;
@@ -266,7 +235,7 @@ onMounted(() => {
 
 @media (max-width: 780px) {
   .route-index { min-height: auto; gap: 26rem; }
-  .route-index__headline { font-size: clamp(42rem, 11vw, 64rem); line-height: .9; }
+  .route-index__headline { font-size: clamp(24rem, 6.5vw, 34rem); max-width: none; }
   .route-index__switchboard {
     display: block;
     padding: 0;
@@ -311,21 +280,28 @@ onMounted(() => {
 
 @media (max-width: 460px) {
   .route-index { padding-top: 24rem; gap: 22rem; }
-  .route-index__headline { font-size: clamp(40rem, 13vw, 54rem); }
+  .route-index__headline { font-size: clamp(22rem, 7vw, 30rem); }
   .route-index__route a { padding: 14rem 2rem; }
   .route-index__route strong { font-size: 34rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .route-index__accent {
+  .route-index__quote {
     animation: none !important;
-    color: var(--cobalt, #FFD43B);
+    color: var(--ink);
     background: none;
     -webkit-background-clip: unset;
     background-clip: unset;
   }
-  .route-index__accent::after { animation: none !important; opacity: .55; }
   .route-index__route a { transition: none; }
   .route-index__route a:hover { transform: none; }
 }
+:global(html[data-reduce-motion="on"]) .route-index__quote {
+  animation: none !important;
+  color: var(--ink);
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+}
+:global(html[data-reduce-motion="on"]) .route-index__route a { transition: none; }
 </style>

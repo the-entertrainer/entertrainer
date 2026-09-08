@@ -71,7 +71,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           :aria-label="wotdDot ? 'Word of the Day — new for today' : 'Word of the Day'"
           @click="openWotd()"
         >
-          <EdSignalIcon name="word" />
+          <span class="mh__wotd" aria-hidden="true">
+            <span class="mh__wotd-tile mh__wotd-tile--a">W</span>
+            <span class="mh__wotd-tile mh__wotd-tile--b">O</span>
+            <span class="mh__wotd-tile mh__wotd-tile--c">D</span>
+          </span>
           <span v-if="wotdDot" class="mh__dot" aria-hidden="true" />
         </button>
 
@@ -187,7 +191,40 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 @media (hover: hover) { .mh__icon:hover { background: var(--signal-field); color: var(--ink); } }
 .mh__icon:active { transform: scale(.94); }
 .mh__icon[aria-expanded="true"] { background: var(--accent); }
-.mh__icon--wotd { position: relative; }
+.mh__icon--wotd { position: relative; overflow: hidden; }
+.mh__wotd {
+  position: relative;
+  display: grid;
+  width: 22rem;
+  height: 18rem;
+  place-items: center;
+}
+.mh__wotd-tile {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 11rem;
+  height: 12rem;
+  border: 1.5rem solid var(--ink);
+  border-radius: 2rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: 900 8rem/1 var(--font-mono);
+  box-shadow: 1rem 1rem 0 color-mix(in srgb, var(--ink) 25%, transparent);
+}
+.mh__wotd-tile--a { left: 0; top: 0; animation: mh-wotd-flip 4.8s ease-in-out infinite; }
+.mh__wotd-tile--b { left: 5rem; top: 3rem; background: var(--paper); animation: mh-wotd-flip 4.8s ease-in-out .4s infinite; }
+.mh__wotd-tile--c { left: 10rem; top: 6rem; animation: mh-wotd-flip 4.8s ease-in-out .8s infinite; }
+@keyframes mh-wotd-flip {
+  0%, 18% { transform: translateY(0) rotate(0deg); }
+  28% { transform: translateY(-2rem) rotate(-8deg); }
+  40%, 100% { transform: translateY(0) rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mh__wotd-tile { animation: none; }
+}
+:global(html[data-reduce-motion="on"]) .mh__wotd-tile { animation: none; }
+
 .mh__dot {
   position: absolute; top: 5rem; right: 5rem;
   width: 8rem; height: 8rem; border-radius: 50%;

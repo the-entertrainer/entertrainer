@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import { BLOG_POSTS, type BlogPost } from '~/content/blogs'
 import { composedToBlogPost, getPublishedComposedPosts } from '~/content/composed'
+import {
+  ELEVATE_CATEGORIES,
+  MUST_LETTERS,
+  normalizeElevateCategory,
+  type ElevateCategory
+} from '~/content/elevate-categories'
 import type { ComposedPost } from '~/types/composed'
 
 useSeoMeta({
   title: 'Elevate · The Entertrainer Blogs',
-  description: 'Curious, evidence-led pieces about minds, machines, learning, and the everyday questions that become stranger when examined properly.',
-  ogTitle: 'Elevate · The Entertrainer Blogs',
-  ogDescription: 'Essays for the question you almost asked yourself.',
+  description: 'Mind, Universe, Science, Technology — curious pieces about questions that stay with you.',
+  ogTitle: 'Elevate · MUST',
+  ogDescription: 'Mind · Universe · Science · Technology.',
   ogUrl: 'https://entertrainer.in/elevate',
-  ogImage: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/oLmjqBPjwBxcOjsd.jpg'
+  ogImage: 'https://entertrainer.in/og-card.png'
 })
 
 useHead({
@@ -25,12 +31,17 @@ const { data: liveComposed } = await useAsyncData('elevate-composed-listing', as
   }
 })
 
+function withMustCategory(post: BlogPost): BlogPost {
+  return { ...post, category: normalizeElevateCategory(post.category) }
+}
+
 const posts = computed<BlogPost[]>(() => {
   const seen = new Set(BLOG_POSTS.map((post) => post.slug))
   const extras = (liveComposed.value ?? [])
     .filter((post) => post.status === 'published' && !seen.has(post.slug))
     .map(composedToBlogPost)
-  return [...BLOG_POSTS, ...extras]
+    .map(withMustCategory)
+  return [...BLOG_POSTS.map(withMustCategory), ...extras]
 })
 
 type SortMode = 'newest' | 'oldest' | 'title'
@@ -42,31 +53,31 @@ onMounted(() => hydrate())
 
 const category = computed(() => {
   const raw = String(route.query.category || 'all').trim()
-  return raw || 'all'
+  if (raw === 'all' || !raw) return 'all'
+  return normalizeElevateCategory(raw)
 })
 
 const sort = computed<SortMode>(() => {
   const raw = String(route.query.sort || '').trim()
   if (raw === 'oldest' || raw === 'title' || raw === 'newest') return raw
-  // Match SSR default until client hydrate avoids a list-order mismatch.
   if (!hydrated.value) return 'newest'
   return settings.value.elevateSort || 'newest'
 })
 
 const categories = computed(() => {
-  const counts = new Map<string, number>()
+  const counts = new Map<ElevateCategory, number>()
+  for (const id of ELEVATE_CATEGORIES) counts.set(id, 0)
   for (const post of posts.value) {
-    counts.set(post.category, (counts.get(post.category) || 0) + 1)
+    const id = normalizeElevateCategory(post.category)
+    counts.set(id, (counts.get(id) || 0) + 1)
   }
-  return [...counts.entries()]
-    .sort((a, b) => a[0].localeCompare(b[0]))
-    .map(([id, count]) => ({ id, count }))
+  return ELEVATE_CATEGORIES.map((id) => ({ id, count: counts.get(id) || 0 }))
 })
 
 const filteredPosts = computed(() => {
   let list = posts.value.slice()
   if (category.value !== 'all') {
-    list = list.filter((post) => post.category === category.value)
+    list = list.filter((post) => normalizeElevateCategory(post.category) === category.value)
   }
   if (sort.value === 'oldest') {
     list.sort((a, b) => +new Date(a.publishedAt) - +new Date(b.publishedAt))
@@ -90,8 +101,6 @@ function setQuery(next: { category?: string; sort?: SortMode }) {
   const s = next.sort ?? sort.value
   const preferred = settings.value.elevateSort || 'newest'
   if (cat && cat !== 'all') query.category = cat
-  // Omit sort when it matches the remembered default so a bare /elevate
-  // keeps using that preference; keep an explicit override in the URL.
   if (s && s !== preferred) query.sort = s
   router.replace({ query })
 }
@@ -111,17 +120,47 @@ const filterSummary = computed(() => `${categoryLabel.value} · ${sortLabel.valu
 function toggleFilters() {
   filtersOpen.value = !filtersOpen.value
 }
+
+function filterByMust(cat: ElevateCategory) {
+  setQuery({ category: cat })
+  filtersOpen.value = true
+}
 </script>
 
 <template>
   <main id="main" class="elevate">
-    <EdStageHero
-      class="elevate__stage"
-      variant="flow"
-      title="Elevate"
-      title-id="elevate-title"
-      deck="Articles about work, learning, technology, and the questions that stay with you."
-    />
+    <header class="elevate__hero" aria-labelledby="elevate-title">
+      <div class="elevate__hero-copy">
+        <p class="elevate__eyebrow">The Entertrainer blogs</p>
+        <h1 id="elevate-title">Elevate</h1>
+        <p class="elevate__deck">
+          Questions that keep returning — filed under four letters you can remember on a bus.
+        </p>
+
+        <div class="elevate__must" aria-label="MUST categories: Mind, Universe, Science, Technology">
+          <p class="elevate__must-hint">Spell it once.</p>
+          <ul class="elevate__must-row">
+            <li v-for="item in MUST_LETTERS" :key="item.letter">
+              <button
+                type="button"
+                class="elevate__must-tile"
+                :aria-pressed="category === item.category"
+                :aria-label="`${item.letter} is for ${item.category}`"
+                @click="filterByMust(item.category)"
+              >
+                <span class="elevate__must-letter">{{ item.letter }}</span>
+                <span class="elevate__must-name">{{ item.category }}</span>
+              </button>
+            </li>
+          </ul>
+          <p class="elevate__must-reveal" aria-hidden="true">
+            <span>M</span><span>U</span><span>S</span><span>T</span>
+          </p>
+        </div>
+      </div>
+
+      <EdNewsletter class="elevate__hero-news" />
+    </header>
 
     <section class="elevate__entry" aria-labelledby="articles-title">
       <div class="elevate__toolbar">
@@ -147,24 +186,9 @@ function toggleFilters() {
         class="elevate__filters-panel"
       >
         <div class="elevate__sort" role="group" aria-label="Sort articles">
-          <button
-            type="button"
-            class="elevate__sort-btn"
-            :aria-pressed="sort === 'newest'"
-            @click="setQuery({ sort: 'newest' })"
-          >Newest</button>
-          <button
-            type="button"
-            class="elevate__sort-btn"
-            :aria-pressed="sort === 'oldest'"
-            @click="setQuery({ sort: 'oldest' })"
-          >Oldest</button>
-          <button
-            type="button"
-            class="elevate__sort-btn"
-            :aria-pressed="sort === 'title'"
-            @click="setQuery({ sort: 'title' })"
-          >Title A–Z</button>
+          <button type="button" class="elevate__sort-btn" :aria-pressed="sort === 'newest'" @click="setQuery({ sort: 'newest' })">Newest</button>
+          <button type="button" class="elevate__sort-btn" :aria-pressed="sort === 'oldest'" @click="setQuery({ sort: 'oldest' })">Oldest</button>
+          <button type="button" class="elevate__sort-btn" :aria-pressed="sort === 'title'" @click="setQuery({ sort: 'title' })">Title A–Z</button>
         </div>
 
         <div class="elevate__filters" role="radiogroup" aria-label="Filter by category">
@@ -213,31 +237,158 @@ function toggleFilters() {
               </div>
               <h3 :id="`article-${post.slug}`" class="elevate__row-title">{{ post.title }}</h3>
               <p v-if="!(hydrated && settings.hideElevateExcerpts)" class="elevate__row-dek">{{ post.dek }}</p>
-              <ul v-if="!(hydrated && settings.hideElevateExcerpts) && post.tags?.length" class="elevate__tags" aria-label="Tags">
-                <li v-for="tag in post.tags" :key="tag">{{ tag }}</li>
-              </ul>
             </div>
           </NuxtLink>
         </li>
       </ul>
 
-      <p v-if="!filteredPosts.length" class="elevate__empty">No articles in this category yet.</p>
+      <p v-if="!filteredPosts.length" class="elevate__empty">Nothing in this shelf yet. Try another letter.</p>
     </section>
-
-    <EdNewsletter class="elevate__newsletter" />
   </main>
 </template>
 
 <style scoped>
-/* Elevate index: cream/ink + yellow accent; dense article rows. */
 .elevate {
   max-width: var(--shell-wide);
   margin: 0 auto;
   padding: clamp(22rem, 4vw, 56rem) var(--shell-gutter) 110rem;
 }
-.elevate__stage { min-height: min(420rem, calc(100dvh - 180rem)); }
-.elevate__stage :deep(h1) { font: 500 clamp(88rem, 18vw, 250rem)/.72 var(--font-display); letter-spacing: -.085em; }
-.elevate__stage :deep(.stage__deck) { max-width: 400rem; font: 400 clamp(18rem, 2vw, 25rem)/1.35 var(--font-body); }
+
+.elevate__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(280rem, .95fr);
+  gap: clamp(22rem, 4vw, 48rem);
+  align-items: end;
+  padding: clamp(8rem, 2vw, 18rem) 0 clamp(28rem, 5vw, 52rem);
+  border-bottom: var(--stroke) solid var(--ink);
+}
+
+.elevate__eyebrow {
+  margin: 0 0 12rem;
+  color: var(--ink-soft);
+  font: 700 11rem/1.2 var(--font-mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.elevate__hero h1 {
+  margin: 0;
+  font: 500 clamp(72rem, 14vw, 168rem)/.78 var(--font-display);
+  letter-spacing: -.08em;
+}
+
+.elevate__deck {
+  max-width: 36ch;
+  margin: 18rem 0 0;
+  font: 400 clamp(17rem, 2vw, 22rem)/1.4 var(--font-reading);
+  color: var(--ink);
+}
+
+.elevate__must {
+  margin-top: clamp(22rem, 4vw, 36rem);
+  max-width: 520rem;
+}
+
+.elevate__must-hint {
+  margin: 0 0 10rem;
+  color: var(--ink-soft);
+  font: 600 11rem/1.2 var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.elevate__must-row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8rem;
+}
+
+.elevate__must-tile {
+  display: grid;
+  gap: 6rem;
+  width: 100%;
+  min-height: 78rem;
+  padding: 12rem 10rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-m);
+  background: var(--paper);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.elevate__must-tile[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 4rem 4rem 0 var(--ink);
+}
+
+.elevate__must-letter {
+  font: 800 clamp(26rem, 4vw, 34rem)/1 var(--font-display);
+  letter-spacing: -.04em;
+}
+
+.elevate__must-name {
+  font: 700 10rem/1.2 var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: inherit;
+  opacity: .78;
+}
+
+@media (hover: hover) {
+  .elevate__must-tile:hover {
+    background: var(--signal-field);
+    transform: translate(-2rem, -2rem);
+    box-shadow: 4rem 4rem 0 var(--ink);
+  }
+  .elevate__must-tile[aria-pressed="true"]:hover { background: var(--accent); }
+}
+
+.elevate__must-tile:focus-visible {
+  outline: 3rem solid var(--ink);
+  outline-offset: 3rem;
+}
+
+.elevate__must-reveal {
+  display: flex;
+  gap: 2rem;
+  margin: 12rem 0 0;
+  font: 800 12rem/1 var(--font-mono);
+  letter-spacing: .42em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 28%, transparent);
+}
+
+.elevate__must-reveal span {
+  display: inline-grid;
+  place-items: center;
+  width: 1.4em;
+}
+
+.elevate__hero-news {
+  align-self: stretch;
+}
+
+.elevate__hero-news :deep(.newsletter) {
+  height: 100%;
+  grid-template-columns: 1fr;
+  align-content: center;
+  gap: 16rem;
+  padding: clamp(20rem, 3vw, 32rem);
+  box-shadow: 8rem 8rem 0 var(--ink);
+}
+
+.elevate__hero-news :deep(.newsletter::after) { display: none; }
+.elevate__hero-news :deep(.newsletter__mark) { display: none; }
+.elevate__hero-news :deep(h2) {
+  font-size: clamp(24rem, 2.6vw, 32rem);
+  max-width: 16ch;
+}
 
 .elevate__entry { padding: clamp(40rem, 7vw, 88rem) 0 0; }
 .elevate__toolbar {
@@ -259,10 +410,21 @@ function toggleFilters() {
 }
 .elevate__section-label {
   margin: 0;
-  color: var(--accent);
+  color: var(--ink);
   font: 700 12rem/1.2 var(--font-mono);
   letter-spacing: .08em;
   text-transform: uppercase;
+}
+.elevate__section-label::before {
+  content: '';
+  display: inline-block;
+  width: 8rem;
+  height: 8rem;
+  margin-right: 8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid var(--ink);
+  vertical-align: 0;
 }
 .elevate__filter-summary {
   margin: 0;
@@ -289,23 +451,14 @@ function toggleFilters() {
   letter-spacing: .06em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 .elevate__filters-toggle[aria-expanded="true"] {
   background: var(--accent);
   color: var(--accent-ink, #161618);
 }
-.elevate__filters-toggle-icon {
-  font-size: 14rem;
-  line-height: 1;
-  font-weight: 700;
-}
-@media (hover: hover) {
-  .elevate__filters-toggle:hover { background: var(--paper-2); }
-  .elevate__filters-toggle[aria-expanded="true"]:hover { background: var(--accent); }
-}
+.elevate__filters-toggle-icon { font-size: 14rem; line-height: 1; font-weight: 700; }
 .elevate__filters-toggle:focus-visible {
-  outline: 3rem solid var(--focus, var(--accent));
+  outline: 3rem solid var(--ink);
   outline-offset: 3rem;
 }
 
@@ -327,72 +480,57 @@ function toggleFilters() {
   font: 600 11rem/1 var(--font-mono);
   letter-spacing: .06em;
   text-transform: uppercase;
-  cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 .elevate__sort-btn[aria-pressed="true"] {
-  background: var(--accent);
   border-color: var(--ink);
+  background: var(--accent);
   color: var(--accent-ink, #161618);
 }
-@media (hover: hover) {
-  .elevate__sort-btn:hover { border-color: var(--ink); color: var(--ink); }
-}
-
-.elevate__filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8rem;
-  padding: 0;
-  margin: 0;
-}
+.elevate__filters { display: flex; flex-wrap: wrap; gap: 8rem; }
 .elevate__chip {
   display: inline-flex;
   align-items: center;
   gap: 8rem;
-  min-height: 36rem;
-  padding: 7rem 12rem;
-  border: var(--stroke) solid var(--ink);
+  min-height: 34rem;
+  padding: 6rem 12rem;
+  border: var(--stroke) solid var(--line);
   border-radius: var(--radius-full);
   background: var(--paper);
-  color: var(--ink);
-  font: 600 11rem/1.2 var(--font-mono);
-  letter-spacing: .06em;
-  text-transform: uppercase;
+  color: var(--ink-soft);
+  font: 600 12rem/1 var(--font-ui);
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
-.elevate__chip-dot {
-  width: 8rem;
-  height: 8rem;
-  border-radius: 50%;
-  background: var(--accent);
-  border: 1px solid var(--ink);
-  flex: none;
-}
-.elevate__chip-n { color: var(--muted); font-variant-numeric: tabular-nums; }
 .elevate__chip[aria-checked="true"] {
+  border-color: var(--ink);
   background: var(--accent);
   color: var(--accent-ink, #161618);
 }
-.elevate__chip[aria-checked="true"] .elevate__chip-dot { background: var(--accent-ink, #161618); }
-.elevate__chip[aria-checked="true"] .elevate__chip-n { color: inherit; opacity: .72; }
-@media (hover: hover) {
-  .elevate__chip:hover { background: var(--paper-2); }
-  .elevate__chip[aria-checked="true"]:hover { background: var(--accent); }
+.elevate__chip-dot {
+  width: 7rem;
+  height: 7rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .35;
+}
+.elevate__chip[aria-checked="true"] .elevate__chip-dot {
+  background: var(--accent-ink, #161618);
+  opacity: 1;
+}
+.elevate__chip-n {
+  font: 700 10rem/1 var(--font-mono);
+  opacity: .7;
 }
 
 .elevate__list {
   list-style: none;
-  margin: 6rem 0 0;
+  margin: 8rem 0 0;
   padding: 0;
 }
 .elevate__row {
   display: grid;
   grid-template-columns: 112rem minmax(0, 1fr);
-  gap: clamp(14rem, 2.5vw, 22rem);
-  align-items: start;
-  padding: 14rem 0;
+  gap: 18rem;
+  padding: 18rem 4rem;
   border-bottom: var(--stroke) solid var(--line);
   color: var(--ink);
   transition: background var(--dur-fast) var(--ease-out);
@@ -402,10 +540,9 @@ function toggleFilters() {
   .elevate__row:hover .elevate__thumb :deep(.ed-editorial-image) { transform: scale(1.04); }
 }
 .elevate__row:focus-visible {
-  outline: 3rem solid var(--focus, var(--accent));
+  outline: 3rem solid var(--ink);
   outline-offset: 3rem;
 }
-
 .elevate__thumb {
   margin: 0;
   width: 112rem;
@@ -421,7 +558,6 @@ function toggleFilters() {
   object-fit: cover;
   transition: transform 500ms var(--ease-out);
 }
-
 .elevate__row-copy { min-width: 0; padding-top: 2rem; }
 .elevate__row-meta {
   display: flex;
@@ -453,7 +589,6 @@ function toggleFilters() {
   border: 1px solid var(--ink);
 }
 .elevate__date, .elevate__mins { color: var(--muted); }
-
 .elevate__row-title {
   margin: 0;
   max-width: 52ch;
@@ -471,41 +606,10 @@ function toggleFilters() {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
-.elevate__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6rem;
-  list-style: none;
-  margin: 10rem 0 0;
-  padding: 0;
-}
-.elevate__tags li {
-  padding: 2rem 8rem;
-  border: var(--stroke) solid var(--line);
-  border-radius: var(--radius-full);
-  font: 600 10rem/1.4 var(--font-mono);
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
 .elevate__empty {
   margin: 28rem 0 0;
   color: var(--muted);
   font-size: 16rem;
-}
-.elevate__newsletter { margin-top: clamp(55rem, 8vw, 104rem); }
-
-@media (max-width: 640px) {
-  .elevate { padding-top: 18rem; }
-  .elevate__stage { min-height: 320rem; }
-  .elevate__stage :deep(h1) { font-size: clamp(88rem, 25vw, 160rem); }
-  .elevate__toolbar { gap: 8rem 12rem; }
-  .elevate__filters-toggle { min-height: 40rem; }
-  .elevate__row { grid-template-columns: 88rem minmax(0, 1fr); gap: 12rem; }
-  .elevate__thumb { width: 88rem; height: 60rem; }
-  .elevate__row-dek { -webkit-line-clamp: 3; }
 }
 
 .elevate__list--compact .elevate__row {
@@ -513,21 +617,33 @@ function toggleFilters() {
   padding-bottom: 14rem;
   align-items: center;
 }
-.elevate__list--compact .elevate__thumb {
-  width: 72rem;
-  height: 48rem;
+.elevate__list--compact .elevate__thumb { width: 72rem; height: 48rem; }
+.elevate__list--compact .elevate__row-title { font-size: clamp(17rem, 2vw, 22rem); }
+
+@media (max-width: 900px) {
+  .elevate__hero { grid-template-columns: 1fr; align-items: start; }
 }
-.elevate__list--compact .elevate__row-title {
-  font-size: clamp(17rem, 2vw, 22rem);
+
+@media (max-width: 640px) {
+  .elevate { padding-top: 18rem; }
+  .elevate__hero h1 { font-size: clamp(64rem, 22vw, 120rem); }
+  .elevate__must-row { gap: 6rem; }
+  .elevate__must-tile { min-height: 70rem; padding: 10rem 8rem; }
+  .elevate__toolbar { gap: 8rem 12rem; }
+  .elevate__filters-toggle { min-height: 40rem; }
+  .elevate__row { grid-template-columns: 88rem minmax(0, 1fr); gap: 12rem; }
+  .elevate__thumb { width: 88rem; height: 60rem; }
+  .elevate__row-dek { -webkit-line-clamp: 3; }
 }
-.elevate__list--compact .elevate__row-meta { margin-bottom: 2rem; }
 
 @media (prefers-reduced-motion: reduce) {
   .elevate__thumb :deep(.ed-editorial-image),
-  .elevate__sort-btn,
-  .elevate__chip,
-  .elevate__filters-toggle,
+  .elevate__must-tile,
   .elevate__row { transition: none; }
   .elevate__row:hover .elevate__thumb :deep(.ed-editorial-image) { transform: none; }
+  .elevate__must-tile:hover { transform: none; }
 }
+:global(html[data-reduce-motion="on"]) .elevate__thumb :deep(.ed-editorial-image),
+:global(html[data-reduce-motion="on"]) .elevate__must-tile,
+:global(html[data-reduce-motion="on"]) .elevate__row { transition: none; }
 </style>

@@ -1,3 +1,4 @@
+import { normalizeElevateCategory } from '~/content/elevate-categories'
 import type { BlogPost } from '~/content/blogs'
 import type { ComposedPost } from '~/types/composed'
 import composedPosts from '~/content/composed-posts.json'
@@ -22,7 +23,7 @@ export function composedToBlogPost(post: ComposedPost): BlogPost {
     slug: post.slug,
     title: post.title,
     dek: post.dek,
-    category: post.category,
+    category: normalizeElevateCategory(post.category),
     tags: post.tags,
     minutes: post.minutes,
     hero: post.hero,

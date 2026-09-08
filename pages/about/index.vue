@@ -3,11 +3,57 @@ import { FEATURED_BLOG } from '~/content/blogs'
 
 useSeoMeta({
   title: 'About Me · Naveen Jose · Entertrainer',
-  description: 'Naveen Jose on growing up in a Kerala farming village, learning from machines, housekeeping at Club Mahindra, making The SEWA Chronicles, and building Entertrainer.',
+  description: 'Naveen Jose on a Kerala farming village, machines, Club Mahindra floors, The SEWA Chronicles, Courtyard by Marriott Mahabaleshwar, and building Entertrainer.',
   ogTitle: 'About Me · Naveen Jose',
-  ogDescription: 'From a Kerala cocoon to machines, hotel floors, The SEWA Chronicles, and learning design. The longer route behind Entertrainer.',
+  ogDescription: 'From a Kerala cocoon to machines, hotel floors, comics, Marriott rooms, and learning design.',
   ogUrl: 'https://entertrainer.in/about',
   ogImage: 'https://entertrainer.in/about/naveen-portrait.jpg'
+})
+
+const marriottSlides = [
+  {
+    src: '/about/naveen-speaking-stage.jpg',
+    alt: 'Naveen presenting with a handheld microphone to an audience in a wood-panelled room at Courtyard by Marriott, Mahabaleshwar.'
+  },
+  {
+    src: '/about/naveen-speaking-close.jpg',
+    alt: 'Close portrait of Naveen speaking into a wireless microphone during a session at Courtyard by Marriott, Mahabaleshwar.'
+  },
+  {
+    src: '/about/naveen-speaking-projector.jpg',
+    alt: 'Naveen speaking to an audience with a projector visible in the foreground at Courtyard by Marriott, Mahabaleshwar.'
+  },
+  {
+    src: '/about/about-cdt.webp',
+    alt: 'CDT Masterclass Training the Trainers collage from Courtyard by Marriott, Mahabaleshwar.'
+  },
+  {
+    src: '/about/about-ignite.webp',
+    alt: 'Ignite by Marriott International event collage at Courtyard by Marriott, Mahabaleshwar.'
+  },
+  {
+    src: '/about/about-onboarding.webp',
+    alt: 'Gurukul Heroes on Board workshop collage at Courtyard by Marriott, Mahabaleshwar.'
+  },
+  {
+    src: '/about/club-mahindra-resort.jpg',
+    alt: 'Pool and tiered facade of Courtyard by Marriott, Mahabaleshwar.'
+  }
+]
+
+const slide = ref(0)
+let timer: ReturnType<typeof setInterval> | undefined
+
+function go(i: number) {
+  const n = marriottSlides.length
+  slide.value = ((i % n) + n) % n
+}
+
+onMounted(() => {
+  timer = window.setInterval(() => go(slide.value + 1), 5200)
+})
+onBeforeUnmount(() => {
+  if (timer !== undefined) window.clearInterval(timer)
 })
 </script>
 
@@ -55,9 +101,7 @@ useSeoMeta({
         I found peace in being alone. The calm you can’t really share, because it comes from solitude.
         Alone in the universe, I thought. That was the first reading of the cocoon.
       </p>
-      <p>
-        Then my father flipped the metaphor.
-      </p>
+      <p>Then my father flipped the metaphor.</p>
       <p>
         The cocoon is not exile. It is cover. Space to try and fail without an audience taking notes.
         Once I heard it that way, everything changed. Quietly. Permanently.
@@ -68,9 +112,7 @@ useSeoMeta({
         Computers were still a novelty then. And machines, bless them, have no mind.
         They obey written rules. They do not form emotional judgements about whether you are interesting enough today.
       </p>
-      <p>
-        Best companion to work on yourself.
-      </p>
+      <p>Best companion to work on yourself.</p>
       <p>
         I explored machines, the internet, books. Closed up learning, reading, exploring, teaching myself.
         The hardest distractions, I later realised, are humans. Glad I did not have much of that then.
@@ -98,24 +140,26 @@ useSeoMeta({
         Somewhere in that stretch I heard myself think: I can do this all day.
       </p>
 
-      <figure class="about-story__figure about-story__figure--wide">
-        <EdEditorialImage
-          src="/about/club-mahindra-resort.jpg"
-          alt="A multi-tier Club Mahindra resort building with a pool and lounge chairs in the foreground."
-        />
-      </figure>
-
+      <h2>Club Mahindra era — sketching on borrowed tables.</h2>
       <p>
         South Goa, Varca: supervisor. I still love housekeeping as art plus science.
         There is beauty in details — the kind guests notice without knowing they noticed.
       </p>
 
-      <figure class="about-story__figure">
-        <EdEditorialImage
-          src="/about/about-housekeeper-1.webp"
-          alt="Naveen writing on a whiteboard resting on an under-maintenance game table in a hotel recreation area."
-        />
-      </figure>
+      <div class="about-story__pair" aria-label="Club Mahindra era photos">
+        <figure class="about-story__figure">
+          <EdEditorialImage
+            src="/about/about-housekeeper-1.webp"
+            alt="Naveen bent over an under-maintenance game table, sketching on a whiteboard during the Club Mahindra years."
+          />
+        </figure>
+        <figure class="about-story__figure">
+          <EdEditorialImage
+            src="/about/about-sewa-2.webp"
+            alt="Printed SEWA comic draft pages spread across a round white table."
+          />
+        </figure>
+      </div>
 
       <h2>Then someone asked for a culture we could call ours.</h2>
       <p>
@@ -123,9 +167,7 @@ useSeoMeta({
         His dream: something cultural Club Mahindra could call “ours.”
         SEWA — Service with Empathy, Warmth and Attentiveness — told as illustrated employee appreciation.
       </p>
-      <p>
-        I responded.
-      </p>
+      <p>I responded.</p>
       <p>
         After about three months, the first volume of <em>The SEWA Chronicles</em>:
         ten selected stories from seventy-plus resorts across India. Printed. Real.
@@ -159,43 +201,50 @@ useSeoMeta({
         </NuxtLink>
       </aside>
 
-      <h2>Hotel floors kept teaching. Then I chased learning design.</h2>
+      <h2>Courtyard by Marriott, Mahabaleshwar.</h2>
       <p>
         I continued with Mahindra until I became Assistant L&amp;D Manager at Courtyard by Marriott, Mahabaleshwar.
         Genius minds around the table. Running HR department responsibility shaped me more than any soft skill workshop.
       </p>
 
-      <figure class="about-story__figure about-story__figure--wide">
-        <EdEditorialImage
-          src="/about/naveen-speaking-stage.jpg"
-          alt="Naveen presenting with a handheld microphone to an audience in a wood-panelled training room."
-        />
-      </figure>
+      <section class="about-story__carousel" aria-roledescription="carousel" aria-label="Courtyard by Marriott, Mahabaleshwar">
+        <div class="about-story__carousel-frame">
+          <figure
+            v-for="(item, i) in marriottSlides"
+            :key="item.src"
+            class="about-story__carousel-slide"
+            :class="{ 'is-active': slide === i }"
+            :aria-hidden="slide === i ? undefined : 'true'"
+          >
+            <EdEditorialImage :src="item.src" :alt="item.alt" />
+          </figure>
+        </div>
+        <div class="about-story__carousel-controls">
+          <button type="button" class="about-story__carousel-btn" aria-label="Previous photo" @click="go(slide - 1)">Prev</button>
+          <div class="about-story__carousel-dots" role="tablist" aria-label="Slides">
+            <button
+              v-for="(item, i) in marriottSlides"
+              :key="item.src + '-dot'"
+              type="button"
+              role="tab"
+              :aria-selected="slide === i"
+              :aria-label="`Show photo ${i + 1}`"
+              @click="go(i)"
+            />
+          </div>
+          <button type="button" class="about-story__carousel-btn" aria-label="Next photo" @click="go(slide + 1)">Next</button>
+        </div>
+        <p class="about-story__carousel-note">Courtyard by Marriott, Mahabaleshwar — mic sessions, training rooms, the building itself.</p>
+      </section>
 
       <p>
         Then I chased Instructional Design properly.
-        Now I am at Concentrix, creating work that matters — turning operational detail into learning people can actually use.
+        Now I create work that matters — turning operational detail into learning people can actually use.
       </p>
-
-      <figure class="about-story__figure">
-        <EdEditorialImage
-          src="/about/naveen-speaking-close.jpg"
-          alt="Close portrait of Naveen speaking into a wireless microphone during a session."
-        />
-      </figure>
-
       <p>
         This blog. This site. Entertrainer.
         The place where the cocoon, the machines, the hotels, the comics, and the learning design finally share one address.
       </p>
-
-      <figure class="about-story__figure about-story__figure--wide">
-        <EdEditorialImage
-          src="/about/naveen-speaking-projector.jpg"
-          alt="Naveen speaking to an audience with a projector visible in the foreground."
-        />
-      </figure>
-
       <p>
         Some pieces will be useful immediately. Some will need time.
         Both are allowed. I am still weaving. Just with better light.
@@ -222,27 +271,17 @@ useSeoMeta({
 </template>
 
 <style scoped>
-/* About Me: first-person editorial story with a narrow reading rhythm and real photos. */
 .about-story { max-width: var(--shell-page); margin: 0 auto; padding: clamp(44rem, 8vw, 112rem) var(--shell-gutter) clamp(70rem, 10vw, 130rem); }
 .about-story__hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260rem, .85fr); gap: clamp(32rem, 8vw, 120rem); align-items: end; padding-bottom: clamp(46rem, 8vw, 86rem); border-bottom: var(--stroke) solid var(--ink); }
 .about-story h1 { max-width: 14ch; margin: 0; font: 500 clamp(66rem, 11vw, 152rem)/.79 var(--font-display); letter-spacing: -.08em; }
 .about-story__deck { max-width: 32ch; margin: 22rem 0 0; font: 400 clamp(20rem, 2.3vw, 28rem)/1.3 var(--font-reading); }
 .about-story__hero-art {
-  margin: 0;
-  min-height: 280rem;
-  overflow: hidden;
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-l);
-  background: #F7F1E4;
+  margin: 0; min-height: 280rem; overflow: hidden;
+  border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); background: #F7F1E4;
 }
 .about-story__hero-art :deep(.ed-editorial-image),
 .about-story__hero-art :deep(img) {
-  width: 100%;
-  height: 100%;
-  min-height: 280rem;
-  object-fit: cover;
-  object-position: center top;
-  display: block;
+  width: 100%; height: 100%; min-height: 280rem; object-fit: cover; object-position: center top; display: block;
 }
 .about-story__article { max-width: 720rem; margin: clamp(54rem, 9vw, 118rem) auto 0; font: 400 clamp(18rem, 1.85vw, 22rem)/1.62 var(--font-reading); }
 .about-story__article > p { max-width: 62ch; margin: 0 0 24rem; }
@@ -251,32 +290,88 @@ useSeoMeta({
 .about-story__figure--wide { width: min(100%, 640rem); margin-left: calc(clamp(0rem, 8vw, 110rem) * -1); }
 .about-story__figure :deep(.ed-editorial-image),
 .about-story__figure :deep(img) {
-  display: block;
-  width: 100%;
-  height: auto;
-  min-height: 230rem;
-  max-height: 520rem;
-  object-fit: cover;
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-m);
-  background: var(--paper-2);
+  display: block; width: 100%; height: auto; min-height: 230rem; max-height: 520rem; object-fit: cover;
+  border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--paper-2);
 }
+.about-story__pair {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16rem;
+  margin: clamp(36rem, 6vw, 64rem) 0;
+}
+.about-story__pair .about-story__figure { width: 100%; margin: 0; }
+.about-story__pair .about-story__figure :deep(img) { min-height: 280rem; max-height: 420rem; }
+
+.about-story__carousel {
+  margin: clamp(36rem, 7vw, 72rem) calc(clamp(0rem, 6vw, 80rem) * -1);
+  padding: 0;
+}
+.about-story__carousel-frame {
+  position: relative;
+  min-height: min(520rem, 62vw);
+  overflow: hidden;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-l);
+  background: var(--paper-2);
+  box-shadow: 10rem 10rem 0 color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.about-story__carousel-slide {
+  position: absolute; inset: 0; opacity: 0; transition: opacity 700ms var(--ease-out);
+  pointer-events: none;
+}
+.about-story__carousel-slide.is-active { opacity: 1; pointer-events: auto; }
+.about-story__carousel-slide :deep(.ed-editorial-image),
+.about-story__carousel-slide :deep(img) {
+  width: 100%; height: 100%; min-height: min(520rem, 62vw); object-fit: cover; display: block;
+}
+.about-story__carousel-controls {
+  display: flex; align-items: center; justify-content: space-between; gap: 12rem;
+  margin-top: 14rem;
+}
+.about-story__carousel-btn {
+  min-height: 36rem; padding: 0 14rem;
+  border: var(--stroke) solid var(--ink); border-radius: var(--radius-full);
+  background: var(--paper); color: var(--ink);
+  font: 700 11rem/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase;
+}
+.about-story__carousel-dots { display: flex; gap: 8rem; }
+.about-story__carousel-dots button {
+  width: 10rem; height: 10rem; border-radius: 50%;
+  border: 1.5rem solid var(--ink); background: transparent; padding: 0; cursor: pointer;
+}
+.about-story__carousel-dots button[aria-selected="true"] { background: var(--accent); }
+.about-story__carousel-note {
+  margin: 12rem 0 0;
+  color: var(--ink-soft);
+  font: 600 12rem/1.4 var(--font-mono);
+  letter-spacing: .04em;
+}
+
 .about-story__sewa { margin: clamp(54rem, 9vw, 100rem) calc(clamp(0rem, 5vw, 68rem) * -1); }
 .about-story__destination { display: grid; grid-template-columns: minmax(180rem, .72fr) minmax(0, 1.28fr); color: var(--ink); overflow: hidden; border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); background: var(--signal-field); text-decoration: none; transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring); }
 .about-story__destination-visual { min-height: 260rem; margin: 0; overflow: hidden; border-right: var(--stroke) solid var(--ink); background: var(--paper-2); }
 .about-story__destination-visual :deep(.ed-editorial-image), .about-story__destination-visual :deep(img) { width: 100%; height: 100%; object-fit: cover; }
-.about-story__destination--sewa .about-story__destination-visual :deep(img) { object-position: center; }
 .about-story__destination-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(24rem, 5vw, 48rem); }
 .about-story__destination-label { margin: 0 0 16rem; color: var(--ink-soft); font: 700 11rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
 .about-story__destination h2 { max-width: 18ch; margin: 0; font: 500 clamp(34rem, 4.2vw, 58rem)/.95 var(--font-display); letter-spacing: -.055em; }
 .about-story__destination-copy > p:not(.about-story__destination-label) { max-width: 43ch; margin: 16rem 0 0; font: 400 17rem/1.5 var(--font-reading); }
-.about-story__destination-action { display: inline-flex; margin-top: 24rem; padding: 10rem 14rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-s); font: 800 14rem/1.1 var(--font-body); transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring); }
+.about-story__destination-action { display: inline-flex; margin-top: 24rem; padding: 10rem 14rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-s); font: 800 14rem/1.1 var(--font-body); background: var(--accent); color: var(--accent-ink); }
 .about-story__destination:hover, .about-story__destination:focus-visible { background: var(--paper); transform: translateY(-3rem); }
-.about-story__destination:hover .about-story__destination-action, .about-story__destination:focus-visible .about-story__destination-action { background: var(--accent); transform: translateY(-2rem); }
-.about-story__destination:focus-visible { outline: 3rem solid var(--accent); outline-offset: 5rem; }
+.about-story__destination:focus-visible { outline: 3rem solid var(--ink); outline-offset: 5rem; }
 .about-story__close { display: grid; gap: 28rem; max-width: 720rem; margin: clamp(64rem, 10vw, 118rem) auto 0; padding-top: 30rem; border-top: var(--stroke) solid var(--ink); }
 .about-story__destination--elevate { grid-template-columns: minmax(220rem, .86fr) minmax(0, 1.14fr); background: var(--paper); }
 .about-story__destination--elevate .about-story__destination-visual { min-height: 230rem; }
-@media (max-width: 700px) { .about-story__hero { grid-template-columns: 1fr; }.about-story__hero-art { min-height: 220rem; }.about-story__hero-art :deep(.ed-editorial-image), .about-story__hero-art :deep(img) { min-height: 220rem; }.about-story__article { margin-top: 52rem; }.about-story__figure, .about-story__figure--wide { width: 100%; margin-left: 0; }.about-story__sewa { margin-left: 0; margin-right: 0; }.about-story__destination, .about-story__destination--elevate { grid-template-columns: 1fr; }.about-story__destination-visual, .about-story__destination--elevate .about-story__destination-visual { min-height: 230rem; border-right: 0; border-bottom: var(--stroke) solid var(--ink); }.about-story__destination-copy { padding: 28rem; } }
-@media (prefers-reduced-motion: reduce) { .about-story__destination, .about-story__destination-action { transition: none; } }
+@media (max-width: 700px) {
+  .about-story__hero { grid-template-columns: 1fr; }
+  .about-story__hero-art { min-height: 220rem; }
+  .about-story__pair { grid-template-columns: 1fr; }
+  .about-story__carousel { margin-left: 0; margin-right: 0; }
+  .about-story__figure, .about-story__figure--wide { width: 100%; margin-left: 0; }
+  .about-story__sewa { margin-left: 0; margin-right: 0; }
+  .about-story__destination, .about-story__destination--elevate { grid-template-columns: 1fr; }
+  .about-story__destination-visual { border-right: 0; border-bottom: var(--stroke) solid var(--ink); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .about-story__carousel-slide { transition: none; }
+  .about-story__destination { transition: none; }
+}
+:global(html[data-reduce-motion="on"]) .about-story__carousel-slide { transition: none; }
 </style>

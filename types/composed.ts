@@ -61,7 +61,7 @@ export function emptyComposedPost(partial?: Partial<ComposedPost>): ComposedPost
     slug: '',
     title: '',
     dek: '',
-    category: 'Mind & meaning',
+    category: 'Mind',
     tags: [],
     minutes: 5,
     hero: '',

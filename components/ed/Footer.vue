@@ -17,13 +17,13 @@ const sectionLinks = [
       <div class="ft__brand">
         <EdWordmark :size="32" />
         <p class="ft__blurb">
-          Stories, tools, and playful experiments.
+          Stories that stay. Tools that behave. Small games for short detours.
         </p>
-        <a class="ticket ticket--sm" :href="`mailto:${store.email}`">Start a conversation</a>
+        <a class="ticket ticket--sm" :href="`mailto:${store.email}`">Write to me</a>
       </div>
 
       <nav class="ft__col" aria-labelledby="ft-sections">
-        <h2 id="ft-sections" class="t-mono ft__h">Start here</h2>
+        <h2 id="ft-sections" class="t-mono ft__h">The three Es</h2>
         <NuxtLink v-for="link in sectionLinks" :key="link.href" class="ft__link u-underline" :to="link.href">{{ link.label }}</NuxtLink>
       </nav>
 

@@ -23,7 +23,7 @@ const entryPhase = ref<'idle' | 'wipe' | 'flip' | 'gone'>('idle')
 const reducedMotion = ref(false)
 const ident = ref<HTMLAudioElement | null>(null)
 const beatCanvas = ref<HTMLCanvasElement | null>(null)
-/** One-shot animated hand (Kenney CC0) that clicks the entry mark, then fades. */
+/** One-shot animated hand (Tisroc witch_hand CC0) that clicks the entry mark, then fades. */
 const handPlaying = ref(false)
 const handDone = ref(false)
 const ringEls = ref<(SVGCircleElement | null)[]>([])
@@ -814,7 +814,7 @@ onBeforeUnmount(() => {
     <!--
       Cream entry veil sits ABOVE the dawn stage (z higher).
       On tap: stage/audio already running under; veil circle-wipes to the logo, then logo flip-fades.
-      Asset: /public/preloader/hand-{point,open,closed}.png — Kenney Cursor Pack, CC0 (see public/preloader/README.md).
+      Asset: /public/preloader/hand-{point,open,closed}.png — Tisroc Spooky Cursors (witch_hand), CC0 (see public/preloader/README.md).
     -->
     <button
       v-if="showEntry"
@@ -839,7 +839,7 @@ onBeforeUnmount(() => {
       </span>
     </button>
 
-    <!-- One-shot hand: Kenney CC0 frames in order — point → open → closed → open → fade. -->
+    <!-- One-shot hand: Tisroc witch_hand CC0 frames in order — point → open → closed → open → fade. -->
     <div
       v-if="handPlaying && !entered && !reducedMotion"
       class="preloader__hand"
@@ -1087,7 +1087,7 @@ onBeforeUnmount(() => {
   object-fit: contain;
   opacity: 0;
   image-rendering: pixelated;
-  /* Kenney Cursor Pack — CC0; see public/preloader/README.md */
+  /* Tisroc Spooky Cursors (witch_hand) — CC0; see public/preloader/README.md */
 }
 /* Ordered one-shot: point → open → closed → open → point (synced to approach/click). */
 .preloader__hand-frame--point {

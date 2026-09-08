@@ -16,21 +16,32 @@ const routes = [
   { name: 'About me', type: 'About', href: '/about' }
 ]
 
-// SSR-stable first quote; client rotates occasionally from the bank.
+// SSR-stable first quote; client picks once per home visit / visibility return — no interval rotation.
 const quote = ref(KNOWLEDGE_QUOTES[0] || '')
 const quoteReady = ref(false)
-let rotateTimer: ReturnType<typeof setInterval> | undefined
 
-onMounted(() => {
+const refreshQuote = () => {
   quote.value = pickKnowledgeQuote()
   quoteReady.value = true
-  rotateTimer = window.setInterval(() => {
-    quote.value = pickKnowledgeQuote()
-  }, 14000)
+}
+
+const onVisibility = () => {
+  // Only when the tab/screen becomes visible again after being hidden.
+  if (document.visibilityState === 'visible') refreshQuote()
+}
+
+onMounted(() => {
+  refreshQuote()
+  document.addEventListener('visibilitychange', onVisibility)
+})
+
+// Keep-alive return to home: treat as a fresh screen visit.
+onActivated(() => {
+  refreshQuote()
 })
 
 onBeforeUnmount(() => {
-  if (rotateTimer !== undefined) window.clearInterval(rotateTimer)
+  document.removeEventListener('visibilitychange', onVisibility)
 })
 </script>
 

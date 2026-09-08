@@ -1,89 +1,69 @@
 /**
- * Home rotating lines — authentic classical Sanskrit (IAST romanization).
- * Well-known traditional phrases only; not modern paraphrases.
+ * Home knowledge lines — authentic English quotes on knowledge / wisdom / learning / truth.
+ * Mix of traditions; each entry has a source comment. Do not invent paraphrases.
  */
 
 export const KNOWLEDGE_QUOTES: readonly string[] = [
-  // Mundaka Upanishad 3.1.6
-  'satyam eva jayate',
-  // Maha Upanishad / Hitopadesha
-  'vasudhaiva kuṭumbakam',
-  // Bhagavad Gita 2.50
-  'yogaḥ karmasu kauśalam',
-  // Bṛhadāraṇyaka Upanishad 1.3.28
-  'tamaso mā jyotir gamaya',
-  // Bṛhadāraṇyaka Upanishad 1.3.28
-  'asato mā sad gamaya',
-  // Bṛhadāraṇyaka Upanishad 1.3.28
-  'mṛtyor mā amṛtaṃ gamaya',
-  // Bṛhadāraṇyaka Upanishad 1.4.10
-  'ahaṃ brahmāsmi',
-  // Chāndogya Upanishad 6.8.7
-  'tat tvam asi',
-  // Aitareya Upanishad 3.3
-  'prajñānaṃ brahma',
-  // Māṇḍūkya Upanishad 2
-  'ayam ātmā brahma',
-  // Chāndogya Upanishad 3.14.1
-  'sarvaṃ khalv idaṃ brahma',
-  // Īśā Upanishad 1
-  'īśāvāsyam idaṃ sarvam',
-  // Bhagavad Gita 2.47
-  'karmaṇy evādhikāras te mā phaleṣu kadācana',
-  // Bhagavad Gita 2.48
-  'yogasthaḥ kuru karmāṇi',
-  // Bhagavad Gita 6.5
-  'uddhared ātmanātmānaṃ',
-  // Bhagavad Gita 4.39
-  'śraddhāvān labhate jñānam',
+  // Mundaka Upanishad 3.1.6 (satyam eva jayate)
+  'Truth alone triumphs.',
+  // Bṛhadāraṇyaka Upanishad 1.3.28 (tamaso mā jyotir gamaya)
+  'Lead me from darkness to light.',
+  // Bṛhadāraṇyaka Upanishad 1.3.28 (asato mā sad gamaya)
+  'Lead me from the unreal to the real.',
   // Bhagavad Gita 4.38
-  'na hi jñānena sadṛśaṃ pavitram iha vidyate',
-  // Bhagavad Gita 2.23
-  'nainaṃ chindanti śastrāṇi',
-  // Bhagavad Gita 3.35
-  'śreyān svadharmo viguṇaḥ',
-  // Mahābhārata (traditional maxim)
-  'ahiṃsā paramo dharmaḥ',
-  // Hitopadeśa / traditional
-  'vidyā dadāti vinayam',
-  // Traditional maṅgala / peace invocation
-  'sarve bhavantu sukhinaḥ',
-  // Traditional continuation of the peace invocation
-  'sarve santu nirāmayāḥ',
-  // Ṛgveda 1.164.46
-  'ekaṃ sad viprā bahudhā vadanti',
-  // Taittirīya Upanishad 1.11.1
-  'satyaṃ vada dharmaṃ cara',
-  // Taittirīya Upanishad 1.11.2
-  'mātṛdevo bhava',
-  // Taittirīya Upanishad 1.11.2
-  'pitṛdevo bhava',
-  // Taittirīya Upanishad 1.11.2
-  'ācāryadevo bhava',
-  // Manusmṛti 3.56
-  'yatra nāryas tu pūjyante ramante tatra devatāḥ',
-  // Viṣṇu Purāṇa (traditional)
-  'sā vidyā yā vimuktaye',
-  // Īśā / Bṛhadāraṇyaka śānti mantra
-  'oṃ pūrṇam adaḥ pūrṇam idam',
-  // Taittirīya śānti mantra
-  'saha nāv avatu',
-  // Traditional proverb (subhāṣita)
-  'paropakārāya phalanti vṛkṣāḥ',
-  // Bhagavad Gita 2.38
-  'sukha-duḥkhe same kṛtvā',
-  // Bhagavad Gita 6.29 (essence line traditionally cited)
-  'sarva-bhūtastham ātmānaṃ',
-  // Bhagavad Gita 18.66 (traditional citation)
-  'sarva-dharmān parityajya',
-  // Hitopadeśa / Pañcatantra tradition
-  'udyamaṃ sāhasaṃ dhairyam',
-  // Subhāṣita tradition
-  'vinayaṃ bhūṣaṇaṃ satām',
-  // Traditional maxim on speech
-  'satyaṃ brūyāt priyaṃ brūyāt',
-  // Kaṭha Upanishad 1.3.14
-  'uttiṣṭhata jāgrata',
+  'There is nothing in this world so purifying as knowledge.',
+  // Bhagavad Gita 4.39
+  'The faithful one who is devoted and has mastered the senses gains knowledge.',
+  // Hitopadeśa / traditional (vidyā dadāti vinayam)
+  'Knowledge gives humility.',
+  // Proverbs 4:7 (KJV)
+  'Wisdom is the principal thing; therefore get wisdom.',
+  // Proverbs 18:15 (KJV)
+  'The heart of the prudent getteth knowledge.',
+  // John 8:32 (RSV)
+  'You will know the truth, and the truth will make you free.',
+  // Confucius, Analects 2.17
+  'When you know a thing, to hold that you know it; and when you do not know a thing, to allow that you do not know it—this is knowledge.',
+  // Confucius, Analects 2.15
+  'Learning without thought is labor lost; thought without learning is perilous.',
+  // Plato, Apology (Socrates)
+  'The unexamined life is not worth living.',
+  // Plato, Republic (on forced learning)
+  'Knowledge which is acquired under compulsion obtains no hold on the mind.',
+  // Aristotle, Metaphysics I.1
+  'All men by nature desire to know.',
+  // Dhammapada 63
+  'A fool who knows his foolishness is wise at least to that extent.',
+  // Dhammapada 5
+  'Hatred is never appeased by hatred in this world. By non-hatred alone is hatred appeased. This is an eternal law.',
+  // Tao Te Ching 71 (Laozi)
+  'To know that you do not know is best.',
+  // Pirkei Avot 4:1
+  'Who is wise? One who learns from every person.',
+  // Pirkei Avot 2:5
+  'The shy person cannot learn, and the impatient person cannot teach.',
+  // Qur'an 96:1
+  'Read in the name of your Lord who created.',
+  // Francis Bacon, Meditationes Sacrae (1597)
+  'Knowledge itself is power.',
+  // Isaac Newton, letter to Robert Hooke (1675)
+  'If I have seen further it is by standing on the shoulders of Giants.',
+  // Albert Einstein, interview with G.S. Viereck (1929)
+  'Imagination is more important than knowledge. Knowledge is limited. Imagination encircles the world.',
+  // Carl Sagan (Cosmos / related talks; widely attested)
+  'Somewhere, something incredible is waiting to be known.',
+  // Jalāl al-Dīn Rūmī (Masnavi tradition; widely attested English rendering)
+  'The wound is the place where the Light enters you.',
+  // William Shakespeare, Henry VI, Part 2, Act 4 Scene 7
+  'Ignorance is the curse of God; knowledge is the wing wherewith we fly to heaven.',
+  // Marcus Aurelius, Meditations 4.3 (standard English rendering)
+  'It is in your power to withdraw into yourself whenever you choose.',
+  // Heraclitus (DK B40; standard English)
+  'Much learning does not teach understanding.',
+  // Kaṭha Upanishad 1.3.14 (uttiṣṭhata jāgrata — common English rendering)
+  'Arise, awake, and learn by approaching the wise.',
+  // Ecclesiastes 7:12 (KJV)
+  'Wisdom is a defence, and money is a defence: but the excellency of knowledge is, that wisdom giveth life to them that have it.',
 ] as const
 
 export function pickKnowledgeQuote(seed?: number): string {

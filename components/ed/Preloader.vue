@@ -1,4 +1,4 @@
-<!-- Dawn-on-cream sonic logo: beat reveal → grow → clean fade outro with soft music echo trail. -->
+<!-- Dawn-on-cream sonic logo: beat reveal → grow → clean gain-fade outro (dry music). -->
 <script setup lang="ts">
 import { openingSoundSrc } from '~/composables/useSiteSettings'
 import { pickPreloaderQuote, type PreloaderQuote } from '~/utils/preloaderQuotes'
@@ -278,14 +278,14 @@ const finishLeave = (opts: { skip?: boolean; naturalEnd?: boolean } = {}) => {
 
   const skip = !!opts.skip
   const naturalEnd = !!opts.naturalEnd
-  // Visual fade (CSS) starts immediately; music fades with a short echo trail.
-  // Stay mounted until the trail ends so Web Audio is not cut by unmount.
+  // Visual fade (CSS) starts immediately; music does a clean gain fade (no delay mush).
+  // Stay mounted until the fade ends so Web Audio is not cut by unmount.
   const timing = soundOn.value
     ? fadeIdentWithEcho({ skip, naturalEnd, el: ident.value })
     : { visualHintMs: skip ? 220 : 480, totalMs: skip ? 220 : 480 }
 
   if (removeTimer) window.clearTimeout(removeTimer)
-  // Site reveals after the trail; UI itself is already opacity 0 from visualHintMs.
+  // Site reveals after the music fade; UI itself is already opacity 0 from visualHintMs.
   removeTimer = window.setTimeout(
     () => emit('complete'),
     Math.max(timing.visualHintMs + 40, timing.totalMs + 40),

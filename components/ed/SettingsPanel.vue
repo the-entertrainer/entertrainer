@@ -113,7 +113,7 @@ function toggleOpeningSound() {
           <label class="sp__row">
             <span class="sp__row-copy">
               <span class="sp__row-label">Opening sound</span>
-              <span class="sp__row-hint">A short welcome tone when you tap to enter</span>
+              <span class="sp__row-hint">Welcome music when you tap to enter</span>
             </span>
             <button
               type="button"

@@ -19,7 +19,7 @@ const LEGACY_IDENT_IDS = new Set([
   'on'
 ])
 
-/** Brand opening ident — Pixabay "Digital Vibe (Podcast Intro Ident)" by Diamond_Tunes. */
+/** Brand opening music — user-provided track with Sanskrit lyric lines (~8.93s). */
 export const OPENING_SOUND_SRC = '/audio/idents/opening.mp3'
 
 export interface SiteSettings {

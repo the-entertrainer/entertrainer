@@ -22,9 +22,6 @@ const entryPhase = ref<'idle' | 'wipe' | 'flip' | 'gone'>('idle')
 const reducedMotion = ref(false)
 const ident = ref<HTMLAudioElement | null>(null)
 const beatCanvas = ref<HTMLCanvasElement | null>(null)
-/** One-shot animated hand (Kenney Cursor Pack CC0) that clicks the entry mark, then fades. */
-const handPlaying = ref(false)
-const handDone = ref(false)
 const ringEls = ref<(SVGCircleElement | null)[]>([])
 const wordShellEl = ref<HTMLElement | null>(null)
 const enterPartEl = ref<HTMLElement | null>(null)
@@ -41,7 +38,6 @@ let flipTimer: ReturnType<typeof setTimeout> | undefined
 let completed = false
 let beatRaf = 0
 let beatCursor = 0
-let handTimer: ReturnType<typeof setTimeout> | undefined
 let resizeObs: ResizeObserver | undefined
 
 const showEntry = computed(() => entryPhase.value !== 'gone')
@@ -185,25 +181,6 @@ interface Wash {
 
 const washes: Wash[] = []
 
-const stopHand = () => {
-  if (handTimer !== undefined) {
-    window.clearTimeout(handTimer)
-    handTimer = undefined
-  }
-  handPlaying.value = false
-}
-
-/** One-shot: hand approaches logo, clicks once, fades. User can still tap anytime. */
-const playHandCue = () => {
-  if (reducedMotion.value || entered.value || completed || handDone.value) return
-  handPlaying.value = true
-  // Approach → reach → closed hold ~500ms → fade (~2.6s). Mark done so it never loops.
-  handTimer = window.setTimeout(() => {
-    handPlaying.value = false
-    handDone.value = true
-    handTimer = undefined
-  }, 2800)
-}
 
 const playOpeningSound = () => {
   const el = ident.value
@@ -273,7 +250,6 @@ const finishLeave = (opts: { skip?: boolean; naturalEnd?: boolean } = {}) => {
   leaving.value = true
   breathing.value = false
   growing.value = false
-  stopHand()
   stopBeatLoop()
 
   const skip = !!opts.skip
@@ -351,7 +327,6 @@ const skip = () => {
   clearFinishTimer()
   clearEntryTimers()
   stopBeatLoop()
-  stopHand()
   entryPhase.value = 'gone'
   if (!entered.value) entered.value = true
   // Short fade + brief echo — do not hard-cut or leave a long trail.
@@ -719,8 +694,6 @@ const beginEntryReveal = () => {
 
 const startExperience = () => {
   if (entered.value || completed) return
-  stopHand()
-  handDone.value = true
   activeQuote.value = pickPreloaderQuote()
   playOpeningSound()
   // Start dawn / music path under the entry veil immediately.
@@ -761,13 +734,6 @@ const startExperience = () => {
 onMounted(() => {
   hydrate()
   reducedMotion.value = prefersReducedMotion()
-  if (!reducedMotion.value) {
-    // Brief beat so the logo is seen, then the hand cue plays once.
-    handTimer = window.setTimeout(() => {
-      handTimer = undefined
-      playHandCue()
-    }, 520)
-  }
 })
 
 onBeforeUnmount(() => {
@@ -775,7 +741,6 @@ onBeforeUnmount(() => {
   if (removeTimer) window.clearTimeout(removeTimer)
   clearEntryTimers()
   stopBeatLoop()
-  stopHand()
   resizeObs?.disconnect()
   // Route change / hard unmount: never leave audio hanging.
   stopIdentNow()
@@ -813,7 +778,7 @@ onBeforeUnmount(() => {
     <!--
       Cream entry veil sits ABOVE the dawn stage (z higher).
       On tap: stage/audio already running under; veil circle-wipes to the logo, then logo flip-fades.
-      Asset: /public/preloader/hand-{point,open,closed}.png — Kenney Cursor Pack (Outline), CC0 (see public/preloader/README.md).
+      Idle cue: soft two-pulse breathe on the entry mark (no hand / tap label).
     -->
     <button
       v-if="showEntry"
@@ -828,7 +793,11 @@ onBeforeUnmount(() => {
       :aria-hidden="entryPhase !== 'idle' ? 'true' : undefined"
       @click="startExperience"
     >
-      <span class="preloader__entry-mark" aria-hidden="true">
+      <span
+        class="preloader__entry-mark"
+        :class="{ 'entry-mark--cue': entryPhase === 'idle' && !reducedMotion }"
+        aria-hidden="true"
+      >
         <svg class="preloader__entry-brand" viewBox="0 0 240 240">
           <circle cx="120" cy="120" r="94" fill="none" stroke="currentColor" stroke-width="18" />
           <circle cx="120" cy="120" r="62" fill="none" stroke="currentColor" stroke-width="18" />
@@ -838,39 +807,6 @@ onBeforeUnmount(() => {
       </span>
     </button>
 
-    <!-- One-shot hand: Kenney CC0 — point (approach) → open (reach) → closed (hold ~500ms) → fade. -->
-    <div
-      v-if="handPlaying && !entered && !reducedMotion"
-      class="preloader__hand"
-      aria-hidden="true"
-    >
-      <span class="preloader__hand-frames">
-        <img
-          class="preloader__hand-frame preloader__hand-frame--point"
-          src="/preloader/hand-point.png"
-          width="96"
-          height="96"
-          alt=""
-          draggable="false"
-        />
-        <img
-          class="preloader__hand-frame preloader__hand-frame--open"
-          src="/preloader/hand-open.png"
-          width="96"
-          height="96"
-          alt=""
-          draggable="false"
-        />
-        <img
-          class="preloader__hand-frame preloader__hand-frame--closed"
-          src="/preloader/hand-closed.png"
-          width="96"
-          height="96"
-          alt=""
-          draggable="false"
-        />
-      </span>
-    </div>
 
     <!-- Full-viewport beat canvas (washes + exit ripples must not crop to stage). -->
     <canvas
@@ -1056,78 +992,16 @@ onBeforeUnmount(() => {
   border-color: rgb(21 18 15 / .35);
 }
 
-.preloader__hand {
-  position: absolute;
-  z-index: 6;
-  left: 50%;
-  top: 50%;
-  width: 72rem;
-  height: 72rem;
-  margin: 0;
-  pointer-events: none;
-  transform: translate(72rem, 92rem) rotate(-18deg);
-  animation: pl-hand-approach 2.6s cubic-bezier(.22, 1, .36, 1) both;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 2rem 0 rgb(21 18 15 / .18));
+/* Idle cue: two soft breathes on the mark, then settle — no hand / tap chrome. */
+.preloader__entry-mark.entry-mark--cue {
+  animation: pl-entry-idle-breathe 4.8s cubic-bezier(.45, 0, .55, 1) .55s 1 both;
 }
-.preloader__hand-frames {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  transform-origin: 30% 20%;
-  animation: pl-hand-click 2.6s cubic-bezier(.22, 1, .36, 1) both;
-}
-.preloader__hand-frame {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  opacity: 0;
-  image-rendering: pixelated;
-  /* Kenney Cursor Pack Outline — CC0; see public/preloader/README.md */
-}
-/* One-shot: point (approach) → open (reach) → closed held ~500ms → fade. */
-.preloader__hand-frame--point {
-  animation: pl-hand-frame-point 2.6s linear both;
-}
-.preloader__hand-frame--open {
-  animation: pl-hand-frame-open 2.6s linear both;
-}
-.preloader__hand-frame--closed {
-  animation: pl-hand-frame-closed 2.6s linear both;
-}
-@keyframes pl-hand-approach {
-  /* Hover in from lower-right, settle on logo, hold through click, then fade. */
-  0% { opacity: 0; transform: translate(118rem, 138rem) rotate(-28deg); }
-  10% { opacity: 1; }
-  52% { opacity: 1; transform: translate(22rem, 28rem) rotate(-12deg); }
-  58% { opacity: 1; transform: translate(14rem, 16rem) rotate(-9deg); }
-  78% { opacity: 1; transform: translate(14rem, 16rem) rotate(-9deg); }
-  100% { opacity: 0; transform: translate(18rem, 22rem) rotate(-10deg); }
-}
-@keyframes pl-hand-click {
-  0%, 52% { transform: scale(1); }
-  58% { transform: scale(.84); }
-  78% { transform: scale(.84); }
-  100% { transform: scale(.9); }
-}
-/* 0–52% approach (~1.35s) · 52–58% reach · 58–78% closed hold (~520ms) · 78–100% fade */
-@keyframes pl-hand-frame-point {
-  0%, 52% { opacity: 1; }
-  52.01%, 100% { opacity: 0; }
-}
-@keyframes pl-hand-frame-open {
-  0%, 52% { opacity: 0; }
-  52.01%, 58% { opacity: 1; }
-  58.01%, 100% { opacity: 0; }
-}
-@keyframes pl-hand-frame-closed {
-  0%, 58% { opacity: 0; }
-  58.01%, 78% { opacity: 1; }
-  78.01%, 92% { opacity: 1; }
-  100% { opacity: 0; }
+@keyframes pl-entry-idle-breathe {
+  0% { opacity: .9; transform: scale(1); }
+  14% { opacity: 1; transform: scale(1.035); }
+  28% { opacity: .9; transform: scale(1); }
+  42% { opacity: 1; transform: scale(1.028); }
+  56%, 100% { opacity: .9; transform: scale(1); }
 }
 .preloader__entry:focus-visible {
   outline: none;
@@ -1622,7 +1496,6 @@ onBeforeUnmount(() => {
 
 @media (prefers-reduced-motion: reduce) {
   .preloader { transition-duration: 80ms; }
-  .preloader__hand { display: none !important; }
   .preloader__entry.entry--wipe,
   .preloader__entry.entry--flip { animation: none !important; opacity: 0 !important; }
   .preloader *,
@@ -1644,7 +1517,6 @@ onBeforeUnmount(() => {
   .preloader__beat-canvas { display: none; }
 }
 :global(html[data-reduce-motion="on"]) .preloader { transition-duration: 80ms; }
-:global(html[data-reduce-motion="on"]) .preloader__hand { display: none !important; }
 :global(html[data-reduce-motion="on"]) .preloader__entry.entry--wipe,
 :global(html[data-reduce-motion="on"]) .preloader__entry.entry--flip { animation: none !important; opacity: 0 !important; }
 :global(html[data-reduce-motion="on"]) .preloader *,

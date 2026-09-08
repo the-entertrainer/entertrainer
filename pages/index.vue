@@ -58,7 +58,7 @@ const onKeydown = (event: KeyboardEvent) => {
 }
 
 // SSR-stable first quote; client picks once per home visit / visibility return — no interval rotation.
-const quote = ref(KNOWLEDGE_QUOTES[0] || '')
+const quote = ref(KNOWLEDGE_QUOTES[0] ?? { text: '', attribution: '' })
 const quoteReady = ref(false)
 
 const refreshQuote = () => {
@@ -95,8 +95,9 @@ onBeforeUnmount(() => {
   <main id="main" class="route-index">
     <header class="route-index__intro">
       <h1 class="route-index__headline" :class="{ 'is-ready': quoteReady }">
-        <span class="route-index__quote">{{ quote }}</span>
+        <span class="route-index__quote">{{ quote.text }}</span>
       </h1>
+      <p v-if="quote.attribution" class="route-index__attribution">{{ quote.attribution }}</p>
     </header>
 
     <nav class="route-index__switchboard" aria-label="Entertrainer sections">
@@ -156,6 +157,15 @@ onBeforeUnmount(() => {
 }
 
 .route-index__intro { max-width: 920rem; }
+
+.route-index__attribution {
+  margin: 12rem 0 0;
+  max-width: 36ch;
+  color: var(--ink-soft);
+  font: 600 11rem/1.35 var(--font-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
 
 .route-index__headline {
   margin: 0;

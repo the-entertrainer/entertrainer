@@ -1,4 +1,4 @@
-<!-- Dawn-on-cream sonic logo: brand e entry, beat reveal, then slow parallax grow — no ripple-out. -->
+<!-- Dawn-on-cream sonic logo: beat reveal → slow parallax grow until track ends — no ripple/fade-out. -->
 <script setup lang="ts">
 import { openingSoundSrc } from '~/composables/useSiteSettings'
 import { pickPreloaderQuote, type PreloaderQuote } from '~/utils/preloaderQuotes'
@@ -87,9 +87,9 @@ interface ChoreoStep {
 
 /**
  * Dawn-on-cream beat map (music-on):
- * cold open → draw-on ripples 0–3 → enter / trainer 4–5 → quote ~8
- * → calm breathe (no per-beat living-middle) → settle 18–20 ends breathe.
- * Beats 9–17 are intentionally idle so the logo can rest on soft breath.
+ * cold open → draw-on ripples 0–3 → enter / trainer 4–5 → stop reactions
+ * → quote ~8 → slow parallax grow until audio ended (no timed leave).
+ * Beats 6–7 and 9–17 are idle; settle slots unused once grow owns the outro.
  */
 const REVEAL_LAST_BEAT = 8
 const BEAT_CHOREO: ChoreoStep[] = [
@@ -99,10 +99,11 @@ const BEAT_CHOREO: ChoreoStep[] = [
   /* 3  1.974 */ { kind: 'ring-in', rings: [3] },
   /* 4  2.252 */ { kind: 'enter-in' },
   /* 5  2.833 */ { kind: 'trainer-in', rings: [0, 1, 2, 3], strong: true, reaction: 'stroke' },
-  /* 6  3.135 */ { kind: 'pulse', rings: [0], reaction: 'stroke' },
-  /* 7  3.413 */ { kind: 'pulse', rings: [1, 3], reaction: 'stroke' },
+  /* 6–7 idle after wordmark — no beat reactions */
+  /* 6  3.135 */ { kind: 'pulse' },
+  /* 7  3.413 */ { kind: 'pulse' },
   /* 8  3.715 */ { kind: 'quote-in', word: true, reaction: 'word' },
-  /* 9–17 idle — breathe only */
+  /* 9–17 idle — grow fills rest of track */
   /* 9  4.296 */ { kind: 'pulse' },
   /* 10 4.598 */ { kind: 'pulse' },
   /* 11 5.178 */ { kind: 'pulse' },
@@ -235,18 +236,19 @@ const stopBeatLoop = () => {
 
 /** Entry mark → first ring continuous handoff. */
 const HANDOFF_MS = 560
-/** After wordmark is fully in: slow parallax grow, then leave (no ripple-out). */
-const GROW_MS = 2200
-const GROW_REDUCED_MS = 200
-/** After last settle / grow, brief hold before leave. */
-const GROW_TO_LEAVE_MS = 120
-let growTimer: ReturnType<typeof setTimeout> | undefined
+/** CSS grow duration (ms) — matched to remaining music at grow start. */
+const growMs = ref(5200)
 
 const finishLeave = () => {
   if (leaving.value) return
+  completed = true
   leaving.value = true
   breathing.value = false
   growing.value = false
+  if (settleExitTimer !== undefined) {
+    window.clearTimeout(settleExitTimer)
+    settleExitTimer = undefined
+  }
   const el = ident.value
   if (el && !el.paused) {
     const startVol = el.volume
@@ -262,52 +264,52 @@ const finishLeave = () => {
   removeTimer = window.setTimeout(() => emit('complete'), 320)
 }
 
-const beginGrowThenLeave = () => {
-  if (leaving.value) return
-  clearFinishTimer()
-  if (settleExitTimer !== undefined) {
-    window.clearTimeout(settleExitTimer)
-    settleExitTimer = undefined
-  }
+/**
+ * Slow parallax grow until the track ends / skip.
+ * Does NOT schedule leave — finishLeave only on ended / skip / safety.
+ */
+const beginGrow = () => {
+  if (leaving.value || growing.value || completed) return
   breathing.value = false
   settling.value = true
   seedOn.value = false
   stopBeatLoop()
 
-  if (reducedMotion.value) {
-    completed = true
-    finishLeave()
-    return
-  }
+  if (reducedMotion.value) return
 
-  if (!growing.value) growing.value = true
-  if (completed && growTimer !== undefined) return
-  completed = true
-  if (growTimer !== undefined) window.clearTimeout(growTimer)
-  const wait = GROW_MS + GROW_TO_LEAVE_MS
-  growTimer = window.setTimeout(() => {
-    growTimer = undefined
-    finishLeave()
-  }, wait)
+  const el = ident.value
+  let remaining = MUSIC_DURATION_MS
+  if (el) {
+    const t = Number.isFinite(el.currentTime) ? el.currentTime : 0
+    if (Number.isFinite(el.duration) && el.duration > 0) {
+      remaining = Math.max(0, (el.duration - t) * 1000)
+    } else {
+      remaining = Math.max(0, MUSIC_DURATION_MS - t * 1000)
+    }
+  }
+  // Keep a gentle floor so a late start still eases; leave still waits for ended/skip.
+  growMs.value = Math.max(1200, Math.round(remaining))
+  growing.value = true
 }
 
+/** Safety / sound-off / reduced: leave only — never a timed grow-then-exit. */
 const finish = () => {
-  beginGrowThenLeave()
+  finishLeave()
 }
 
 const onAudioEnded = () => {
-  if (!entered.value || completed) return
+  if (!entered.value || leaving.value) return
   clearFinishTimer()
-  finish()
+  finishLeave()
 }
 
 const skip = () => {
-  if (completed) return
+  if (leaving.value || completed) return
   stopOpeningSound()
   clearFinishTimer()
   stopBeatLoop()
   if (!entered.value) entered.value = true
-  finish()
+  finishLeave()
 }
 
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3
@@ -400,20 +402,21 @@ const applyChoreo = (step: ChoreoStep, now: number, w: number, h: number) => {
     }
     // Soft confirmation pulse only on the assemble beat — then no more beat reactions.
     if (step.rings?.length) pulseRings(step, false)
+    breathing.value = false
     return
   }
   if (step.kind === 'quote-in') {
     quoteIn.value = true
     if (step.word) kickWordmark()
-    // Reveal complete — stop beat reactions; slow parallax grow until leave.
+    // Reveal complete — stop beat reactions; slow parallax grow until music ends.
     breathing.value = false
     wordShellEl.value?.classList.add('word--settled', 'word--assembled')
-    if (!completed) {
-      // Defer so the assemble kick can paint one frame, then grow + leave.
+    if (!completed && !growing.value) {
+      // Defer so the quote/kick can paint, then grow (leave only on ended/skip).
       if (settleExitTimer !== undefined) window.clearTimeout(settleExitTimer)
       settleExitTimer = window.setTimeout(() => {
         settleExitTimer = undefined
-        beginGrowThenLeave()
+        beginGrow()
       }, 280)
     }
     return
@@ -427,33 +430,31 @@ const applyChoreo = (step: ChoreoStep, now: number, w: number, h: number) => {
     return
   }
 
-  // Post-reveal pulse slots are intentionally idle (breathe only).
+  // After trainer lands, pulse slots stay idle (quote-in still allowed separately).
   if (step.kind === 'pulse') {
-    // Pre-quote pulses (beats 6–7) still fire stroke reactions.
-    if (!breathing.value && !quoteIn.value) {
-      const reaction = step.reaction
-      if (reaction === 'word' || (step.word && !reaction)) {
-        kickWordmark()
-      } else if (reaction === 'wash' && w > 0 && h > 0) {
-        const minDim = Math.min(w, h)
-        washes.push({
-          kind: 'wash',
-          born: now,
-          life: step.strong ? 900 : 700,
-          x: w * 0.5,
-          y: h * 0.5,
-          r0: minDim * 0.12,
-          r1: minDim * (step.strong ? 0.58 : 0.42),
-          strong: !!step.strong,
-          alt: 0
-        })
-        while (washes.length > 12) washes.shift()
-        if (step.rings?.length) pulseRings(step, false)
-      } else if (step.rings?.length) {
-        pulseRings(step, false)
-      }
-      if (step.word && reaction && reaction !== 'word') kickWordmark()
+    if (wordTrainerIn.value || quoteIn.value || growing.value) return
+    const reaction = step.reaction
+    if (reaction === 'word' || (step.word && !reaction)) {
+      kickWordmark()
+    } else if (reaction === 'wash' && w > 0 && h > 0) {
+      const minDim = Math.min(w, h)
+      washes.push({
+        kind: 'wash',
+        born: now,
+        life: step.strong ? 900 : 700,
+        x: w * 0.5,
+        y: h * 0.5,
+        r0: minDim * 0.12,
+        r1: minDim * (step.strong ? 0.58 : 0.42),
+        strong: !!step.strong,
+        alt: 0
+      })
+      while (washes.length > 12) washes.shift()
+      if (step.rings?.length) pulseRings(step, false)
+    } else if (step.rings?.length) {
+      pulseRings(step, false)
     }
+    if (step.word && reaction && reaction !== 'word') kickWordmark()
   }
 }
 
@@ -588,7 +589,7 @@ const tickBeats = (now: number) => {
       if (t - bt < 0.12) {
         const step = BEAT_CHOREO[idx]
         // Music sync for reveal only — after quote / grow, ignore remaining beats.
-        // Reveal-only choreography; quote-in schedules grow/leave.
+        // Reveal-only choreography; quote-in schedules grow (leave on ended/skip).
         if (step && !growing.value && !(idx > REVEAL_LAST_BEAT)) {
           applyChoreo(step, now, w, h)
         }
@@ -692,7 +693,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   clearFinishTimer()
   if (removeTimer) window.clearTimeout(removeTimer)
-  if (growTimer !== undefined) window.clearTimeout(growTimer)
   if (handoffTimer !== undefined) window.clearTimeout(handoffTimer)
   if (settleExitTimer !== undefined) window.clearTimeout(settleExitTimer)
   stopBeatLoop()
@@ -714,6 +714,7 @@ onBeforeUnmount(() => {
       'preloader--settle': settling && !growing,
       'preloader--grow': growing && !leaving
     }"
+    :style="growing ? { '--pl-grow-ms': growMs + 'ms' } : undefined"
   >
     <audio
       v-if="identSrc"
@@ -1309,28 +1310,28 @@ onBeforeUnmount(() => {
   outline-offset: 3rem;
 }
 
-/* Post-reveal: slow parallax grow — wordmark slightly faster than rings; then leave. */
+/* Post-reveal: slow parallax grow until music ends — wordmark FG, rings BG; no fade-out. */
 .preloader--grow .preloader__seed { opacity: 0 !important; animation: none !important; }
 .preloader--grow .preloader__rings {
+  z-index: 1;
   transform-origin: 50% 50%;
-  animation: pl-grow-rings 2200ms cubic-bezier(.22, 1, .36, 1) both;
+  animation: pl-grow-rings var(--pl-grow-ms, 5200ms) cubic-bezier(.16, 1, .3, 1) both;
 }
 .preloader--grow .preloader__brand-shell {
+  z-index: 2;
   transform-origin: 50% 50%;
-  animation: pl-grow-word 2200ms cubic-bezier(.22, 1, .36, 1) both;
+  animation: pl-grow-word var(--pl-grow-ms, 5200ms) cubic-bezier(.16, 1, .3, 1) both;
 }
 .preloader--grow .preloader__quote {
-  animation: pl-grow-quote-fade 900ms ease both;
+  animation: pl-grow-quote-fade 1100ms ease both;
 }
 @keyframes pl-grow-rings {
   0% { transform: scale(1); opacity: 1; }
-  70% { transform: scale(1.08); opacity: .92; }
-  100% { transform: scale(1.14); opacity: 0; }
+  100% { transform: scale(1.14); opacity: .9; }
 }
 @keyframes pl-grow-word {
   0% { transform: scale(1); opacity: 1; }
-  55% { transform: scale(1.12); opacity: 1; }
-  100% { transform: scale(1.22); opacity: 0; }
+  100% { transform: scale(1.24); opacity: 1; }
 }
 @keyframes pl-grow-quote-fade {
   to { opacity: 0; transform: translateX(-50%) translateY(8rem); }

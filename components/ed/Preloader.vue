@@ -1,6 +1,7 @@
-<!-- Compact logo first, then beat-choreographed wordmark/rings; optional opening music (~8.93s). -->
+<!-- Compact logo first, then beat-choreographed rings / enter→trainer / Sanskrit quote; optional opening music (~8.93s). -->
 <script setup lang="ts">
 import { openingSoundSrc } from '~/composables/useSiteSettings'
+import { pickPreloaderQuote, type PreloaderQuote } from '~/utils/preloaderQuotes'
 
 const emit = defineEmits<{ complete: [] }>()
 const { settings, prefersReducedMotion, hydrate } = useSiteSettings()
@@ -11,6 +12,8 @@ const ident = ref<HTMLAudioElement | null>(null)
 const beatCanvas = ref<HTMLCanvasElement | null>(null)
 const ringEls = ref<(HTMLElement | null)[]>([])
 const wordShellEl = ref<HTMLElement | null>(null)
+const enterPartEl = ref<HTMLElement | null>(null)
+const trainerPartEl = ref<HTMLElement | null>(null)
 const setRingEl = (el: Element | null | { $el?: Element }, index: number) => {
   const node = el && '$el' in el ? el.$el : el
   ringEls.value[index] = node instanceof HTMLElement ? node : null
@@ -47,7 +50,9 @@ const BEAT_LOOKAHEAD_S = 0.028
  */
 type ChoreoKind =
   | 'ring-in'
-  | 'word-in'
+  | 'enter-in'
+  | 'trainer-in'
+  | 'quote-in'
   | 'pulse'
   | 'settle'
 
@@ -55,22 +60,27 @@ interface ChoreoStep {
   kind: ChoreoKind
   /** Which rings arrive or pulse (0–3). */
   rings?: number[]
-  /** Subtle wordmark kick. */
+  /** Subtle wordmark kick (both parts once assembled). */
   word?: boolean
   /** Stronger pulse intensity. */
   strong?: boolean
 }
 
+/**
+ * Beat map (music-on):
+ * 0–3 rings → 4 enter → 5 trainer (+ strong ring pulse) → 8 quote
+ * (+ word kick) → later pulses / settle. Word kicks pulse both halves.
+ */
 const BEAT_CHOREO: ChoreoStep[] = [
   /* 0  0.511 */ { kind: 'ring-in', rings: [0] },
   /* 1  1.091 */ { kind: 'ring-in', rings: [1] },
   /* 2  1.370 */ { kind: 'ring-in', rings: [2] },
   /* 3  1.974 */ { kind: 'ring-in', rings: [3] },
-  /* 4  2.252 */ { kind: 'word-in' },
-  /* 5  2.833 */ { kind: 'pulse', rings: [0, 1, 2, 3], strong: true },
+  /* 4  2.252 */ { kind: 'enter-in' },
+  /* 5  2.833 */ { kind: 'trainer-in', rings: [0, 1, 2, 3], strong: true },
   /* 6  3.135 */ { kind: 'pulse', rings: [0, 2] },
   /* 7  3.413 */ { kind: 'pulse', rings: [1, 3] },
-  /* 8  3.715 */ { kind: 'pulse', rings: [0, 1, 2, 3], word: true },
+  /* 8  3.715 */ { kind: 'quote-in', rings: [0, 1, 2, 3], word: true },
   /* 9  4.296 */ { kind: 'pulse', rings: [2, 3] },
   /* 10 4.598 */ { kind: 'pulse', rings: [0, 1], word: true },
   /* 11 5.178 */ { kind: 'pulse', rings: [0, 1, 2, 3], strong: true },
@@ -96,8 +106,14 @@ const beatDriven = computed(
 )
 
 const ringsIn = reactive([false, false, false, false])
-const wordIn = ref(false)
+const wordEnterIn = ref(false)
+const wordTrainerIn = ref(false)
+const quoteIn = ref(false)
 const settling = ref(false)
+/** Music-on only — hidden on the short music-off path. */
+const activeQuote = ref<PreloaderQuote>(pickPreloaderQuote())
+const showQuoteBlock = computed(() => soundOn.value && entered.value)
+const wordAssembled = computed(() => wordEnterIn.value && wordTrainerIn.value)
 
 type PulseKind = 'ring' | 'orb' | 'ticks' | 'wash' | 'dots'
 
@@ -154,7 +170,9 @@ const clearFinishTimer = () => {
 
 const resetChoreo = () => {
   for (let i = 0; i < 4; i++) ringsIn[i] = false
-  wordIn.value = false
+  wordEnterIn.value = false
+  wordTrainerIn.value = false
+  quoteIn.value = false
   settling.value = false
   for (const el of ringEls.value) {
     el?.classList.remove(
@@ -164,7 +182,10 @@ const resetChoreo = () => {
       'ring--settled'
     )
   }
-  wordShellEl.value?.classList.remove('word--kick', 'word--settled')
+  wordShellEl.value?.classList.remove('word--kick', 'word--settled', 'word--assembled')
+  for (const el of [enterPartEl.value, trainerPartEl.value]) {
+    el?.classList.remove('part--kick', 'part--settled')
+  }
 }
 
 const stopBeatLoop = () => {
@@ -230,6 +251,36 @@ const restartClass = (el: HTMLElement | null | undefined, cls: string) => {
   el.classList.add(cls)
 }
 
+const pulseRings = (step: ChoreoStep, settle: boolean) => {
+  const pulseCls = settle
+    ? 'ring--settle-breath'
+    : step.strong
+      ? 'ring--pulse-strong'
+      : 'ring--pulse'
+  for (const i of step.rings ?? []) {
+    if (!ringsIn[i]) continue
+    const el = ringEls.value[i]
+    if (!el) continue
+    el.classList.add('ring--settled')
+    el.classList.remove('ring--pulse', 'ring--pulse-strong', 'ring--settle-breath')
+    void el.offsetWidth
+    el.classList.add(pulseCls)
+  }
+}
+
+const kickWordmark = () => {
+  if (!wordAssembled.value) return
+  wordShellEl.value?.classList.add('word--settled', 'word--assembled')
+  restartClass(wordShellEl.value, 'word--kick')
+  // Slight stagger so the two halves feel like one logo, not a single slab.
+  restartClass(enterPartEl.value, 'part--kick')
+  const trainer = trainerPartEl.value
+  if (trainer) {
+    trainer.classList.remove('part--kick')
+    window.setTimeout(() => restartClass(trainer, 'part--kick'), 36)
+  }
+}
+
 const applyChoreo = (step: ChoreoStep) => {
   if (step.kind === 'ring-in') {
     for (const i of step.rings ?? []) {
@@ -237,8 +288,22 @@ const applyChoreo = (step: ChoreoStep) => {
     }
     return
   }
-  if (step.kind === 'word-in') {
-    wordIn.value = true
+  if (step.kind === 'enter-in') {
+    wordEnterIn.value = true
+    return
+  }
+  if (step.kind === 'trainer-in') {
+    wordTrainerIn.value = true
+    if (wordEnterIn.value) {
+      wordShellEl.value?.classList.add('word--assembled')
+    }
+    if (step.rings?.length) pulseRings(step, false)
+    return
+  }
+  if (step.kind === 'quote-in') {
+    quoteIn.value = true
+    if (step.rings?.length) pulseRings(step, false)
+    if (step.word) kickWordmark()
     return
   }
   if (step.kind === 'settle') {
@@ -247,25 +312,8 @@ const applyChoreo = (step: ChoreoStep) => {
 
   // pulse + settle breath — lock arrive first so keyframes can re-fire cleanly
   if (step.kind === 'pulse' || step.kind === 'settle') {
-    const pulseCls =
-      step.kind === 'settle'
-        ? 'ring--settle-breath'
-        : step.strong
-          ? 'ring--pulse-strong'
-          : 'ring--pulse'
-    for (const i of step.rings ?? []) {
-      if (!ringsIn[i]) continue
-      const el = ringEls.value[i]
-      if (!el) continue
-      el.classList.add('ring--settled')
-      el.classList.remove('ring--pulse', 'ring--pulse-strong', 'ring--settle-breath')
-      void el.offsetWidth
-      el.classList.add(pulseCls)
-    }
-    if (step.word && wordIn.value) {
-      wordShellEl.value?.classList.add('word--settled')
-      restartClass(wordShellEl.value, 'word--kick')
-    }
+    pulseRings(step, step.kind === 'settle')
+    if (step.word) kickWordmark()
   }
 }
 
@@ -289,12 +337,29 @@ const onRingAnimEnd = (e: AnimationEvent, index: number) => {
 const onWordAnimEnd = (e: AnimationEvent) => {
   const el = wordShellEl.value
   if (!el) return
-  if (e.animationName === 'pl-word-arrive-beat') {
-    el.classList.add('word--settled')
-    return
-  }
   if (e.animationName === 'pl-word-kick') {
     el.classList.remove('word--kick')
+  }
+}
+
+const onPartAnimEnd = (e: AnimationEvent, which: 'enter' | 'trainer') => {
+  const el = which === 'enter' ? enterPartEl.value : trainerPartEl.value
+  if (!el) return
+  if (e.animationName === 'pl-part-arrive-beat') {
+    el.classList.add('part--settled')
+    if (wordAssembled.value) {
+      wordShellEl.value?.classList.add('word--settled', 'word--assembled')
+    }
+    return
+  }
+  if (e.animationName === 'pl-part-kick') {
+    el.classList.remove('part--kick')
+  }
+}
+
+const onQuoteAnimEnd = (e: AnimationEvent) => {
+  if (e.animationName === 'pl-quote-arrive') {
+    ;(e.currentTarget as HTMLElement | null)?.classList.add('quote--settled')
   }
 }
 
@@ -559,14 +624,31 @@ const startBeatLoop = () => {
   })
 }
 
+const revealStaticBrand = () => {
+  for (let i = 0; i < 4; i++) ringsIn[i] = true
+  wordEnterIn.value = true
+  wordTrainerIn.value = true
+  quoteIn.value = soundOn.value
+  nextTick(() => {
+    wordShellEl.value?.classList.add('word--settled', 'word--assembled')
+    enterPartEl.value?.classList.add('part--settled')
+    trainerPartEl.value?.classList.add('part--settled')
+  })
+}
+
 const startExperience = () => {
   if (entered.value || completed) return
+  activeQuote.value = pickPreloaderQuote()
   playOpeningSound()
   entered.value = true
   if (soundOn.value) {
     finishTimer = window.setTimeout(finish, MUSIC_SAFETY_MS)
     if (!reducedMotion.value) startBeatLoop()
+    else revealStaticBrand()
   } else {
+    // Short path: full wordmark via CSS; quote stays hidden.
+    wordEnterIn.value = true
+    wordTrainerIn.value = true
     finishTimer = window.setTimeout(
       finish,
       reducedMotion.value ? SHORT_REDUCED_MS : SHORT_NORMAL_MS
@@ -649,11 +731,38 @@ onBeforeUnmount(() => {
       <div
         ref="wordShellEl"
         class="preloader__brand-shell"
-        :class="{ 'word--in': wordIn }"
+        :class="{
+          'word--in': wordEnterIn || wordTrainerIn,
+          'word--assembled': wordAssembled
+        }"
         @animationend="onWordAnimEnd"
       >
-        <span class="preloader__word">entertrainer</span>
+        <span class="preloader__word">
+          <span
+            ref="enterPartEl"
+            class="preloader__word-part preloader__word-part--enter"
+            :class="{ 'part--in': wordEnterIn }"
+            @animationend="onPartAnimEnd($event, 'enter')"
+          >enter</span><span
+            ref="trainerPartEl"
+            class="preloader__word-part preloader__word-part--trainer"
+            :class="{ 'part--in': wordTrainerIn }"
+            @animationend="onPartAnimEnd($event, 'trainer')"
+          >trainer</span>
+        </span>
       </div>
+    </div>
+
+    <!-- Cream band below rings / above Skip — music-on only. -->
+    <div
+      v-if="showQuoteBlock"
+      class="preloader__quote"
+      :class="{ 'quote--in': quoteIn }"
+      aria-hidden="true"
+      @animationend="onQuoteAnimEnd"
+    >
+      <p class="preloader__quote-sa" lang="sa">{{ activeQuote.sa }}</p>
+      <p class="preloader__quote-en">{{ activeQuote.en }}</p>
     </div>
 
     <button
@@ -757,6 +866,11 @@ onBeforeUnmount(() => {
   line-height: .82;
   text-wrap: nowrap;
 }
+.preloader__word-part {
+  display: inline-block;
+  /* Keep halves flush so tracking reads as one wordmark. */
+  letter-spacing: inherit;
+}
 .preloader__brand-shell::after {
   position: absolute;
   z-index: -1;
@@ -800,19 +914,28 @@ onBeforeUnmount(() => {
   animation: pl-ring-settle-breath 720ms cubic-bezier(.22, 1, .36, 1);
 }
 .preloader--beat .preloader__brand-shell {
+  /* Shell stays clear; halves animate independently. */
   animation: none;
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+.preloader--beat .preloader__word-part {
   opacity: 0;
   transform: scale(.88) translateY(22rem);
   filter: blur(8rem);
 }
-.preloader--beat .preloader__brand-shell.word--in:not(.word--settled) {
-  animation: pl-word-arrive-beat 900ms cubic-bezier(.16, 1, .3, 1) both;
+.preloader--beat .preloader__word-part.part--in:not(.part--settled) {
+  animation: pl-part-arrive-beat 820ms cubic-bezier(.16, 1, .3, 1) both;
 }
-.preloader--beat .preloader__brand-shell.word--in.word--settled {
+.preloader--beat .preloader__word-part.part--in.part--settled {
   opacity: 1;
   transform: none;
   filter: none;
   animation: none;
+}
+.preloader--beat .preloader__word-part.part--in.part--settled.part--kick {
+  animation: pl-part-kick 360ms cubic-bezier(.16, 1, .3, 1);
 }
 .preloader--beat .preloader__brand-shell.word--in.word--settled.word--kick {
   animation: pl-word-kick 380ms cubic-bezier(.16, 1, .3, 1);
@@ -822,13 +945,57 @@ onBeforeUnmount(() => {
   opacity: 0;
   transform: scaleX(.55);
 }
-.preloader--beat .preloader__brand-shell.word--in::after {
-  animation: pl-shadow-arrive 700ms cubic-bezier(.16, 1, .3, 1) 180ms both;
+.preloader--beat .preloader__brand-shell.word--assembled::after {
+  animation: pl-shadow-arrive 700ms cubic-bezier(.16, 1, .3, 1) 120ms both;
 }
-.preloader--beat .preloader__brand-shell.word--in.word--settled::after {
+.preloader--beat .preloader__brand-shell.word--assembled.word--settled::after {
   opacity: .78;
   transform: scaleX(1);
   animation: none;
+}
+
+/*
+ * Sanskrit quote — empty cream band BELOW the ring stage, ABOVE Skip.
+ * Secondary to the wordmark: soft ink, small type, wide tracking.
+ */
+.preloader__quote {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: clamp(72rem, 15vh, 132rem);
+  width: min(520rem, 88vw);
+  padding: 0 12rem;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%) translateY(14rem);
+}
+.preloader__quote.quote--in:not(.quote--settled) {
+  animation: pl-quote-arrive 900ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.preloader__quote.quote--in.quote--settled {
+  opacity: .72;
+  transform: translateX(-50%) translateY(0);
+  animation: none;
+}
+.preloader__quote-sa {
+  margin: 0;
+  color: rgb(21 18 15 / .48);
+  font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', 'Kohinoor Devanagari', 'Mangal', 'Arial Unicode MS', sans-serif;
+  font-size: clamp(13rem, 2.4vw, 18rem);
+  font-weight: 500;
+  letter-spacing: .06em;
+  line-height: 1.35;
+}
+.preloader__quote-en {
+  margin: 6rem 0 0;
+  color: rgb(21 18 15 / .34);
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(9rem, 1.6vw, 11rem);
+  font-weight: 500;
+  letter-spacing: .14em;
+  line-height: 1.4;
+  text-transform: uppercase;
 }
 
 /* Ghost Skip pill — cream/ink DNA; almost invisible until hover/focus. */
@@ -905,10 +1072,24 @@ onBeforeUnmount(() => {
   58% { opacity: 1; filter: blur(0); transform: scale(1.03) translateY(-2rem); }
   100% { opacity: 1; transform: none; filter: none; }
 }
+@keyframes pl-part-arrive-beat {
+  0% { opacity: 0; transform: scale(.86) translateY(24rem); filter: blur(8rem); }
+  58% { opacity: 1; filter: blur(0); transform: scale(1.025) translateY(-2rem); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+@keyframes pl-part-kick {
+  0% { opacity: 1; transform: scale(1); filter: none; }
+  40% { opacity: 1; transform: scale(1.04); filter: none; }
+  100% { opacity: 1; transform: scale(1); filter: none; }
+}
 @keyframes pl-word-kick {
   0% { opacity: 1; transform: scale(1); filter: none; }
   40% { opacity: 1; transform: scale(1.035); filter: none; }
   100% { opacity: 1; transform: scale(1); filter: none; }
+}
+@keyframes pl-quote-arrive {
+  0% { opacity: 0; transform: translateX(-50%) translateY(16rem); }
+  100% { opacity: .72; transform: translateX(-50%) translateY(0); }
 }
 @keyframes pl-shadow-arrive { to { opacity: .78; transform: scaleX(1); } }
 
@@ -921,6 +1102,11 @@ onBeforeUnmount(() => {
   .preloader__rings i { opacity: 1; transform: scale(1); }
   .preloader__brand-shell { opacity: 1; transform: none; filter: none; }
   .preloader__brand-shell::after { opacity: .55; transform: scaleX(1); }
+  .preloader__word-part { opacity: 1; transform: none; filter: none; }
+  .preloader__quote.quote--in {
+    opacity: .72;
+    transform: translateX(-50%) translateY(0);
+  }
   .preloader__beat-canvas { display: none; }
 }
 :global(html[data-reduce-motion="on"]) .preloader { transition-duration: 80ms; }
@@ -931,5 +1117,10 @@ onBeforeUnmount(() => {
 :global(html[data-reduce-motion="on"]) .preloader__rings i { opacity: 1; transform: scale(1); }
 :global(html[data-reduce-motion="on"]) .preloader__brand-shell { opacity: 1; transform: none; filter: none; }
 :global(html[data-reduce-motion="on"]) .preloader__brand-shell::after { opacity: .55; transform: scaleX(1); }
+:global(html[data-reduce-motion="on"]) .preloader__word-part { opacity: 1; transform: none; filter: none; }
+:global(html[data-reduce-motion="on"]) .preloader__quote.quote--in {
+  opacity: .72;
+  transform: translateX(-50%) translateY(0);
+}
 :global(html[data-reduce-motion="on"]) .preloader__beat-canvas { display: none; }
 </style>

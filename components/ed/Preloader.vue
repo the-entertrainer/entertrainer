@@ -1,4 +1,4 @@
-<!-- Compact logo first, then beat-choreographed rings + atomic→orbital white particles / enter→trainer / Sanskrit quote; optional opening music (~8.93s). -->
+<!-- Dawn-on-cream-paper sonic logo: SVG ink-ripple rings + split wordmark + quote, beat-driven from audio.currentTime. -->
 <script setup lang="ts">
 import { openingSoundSrc } from '~/composables/useSiteSettings'
 import { pickPreloaderQuote, type PreloaderQuote } from '~/utils/preloaderQuotes'
@@ -10,13 +10,13 @@ const entered = ref(false)
 const reducedMotion = ref(false)
 const ident = ref<HTMLAudioElement | null>(null)
 const beatCanvas = ref<HTMLCanvasElement | null>(null)
-const ringEls = ref<(HTMLElement | null)[]>([])
+const ringEls = ref<(SVGCircleElement | null)[]>([])
 const wordShellEl = ref<HTMLElement | null>(null)
 const enterPartEl = ref<HTMLElement | null>(null)
 const trainerPartEl = ref<HTMLElement | null>(null)
 const setRingEl = (el: Element | null | { $el?: Element }, index: number) => {
   const node = el && '$el' in el ? el.$el : el
-  ringEls.value[index] = node instanceof HTMLElement ? node : null
+  ringEls.value[index] = node instanceof SVGCircleElement ? node : null
 }
 let finishTimer: ReturnType<typeof setTimeout> | undefined
 let removeTimer: ReturnType<typeof setTimeout> | undefined
@@ -34,7 +34,7 @@ const SHORT_REDUCED_MS = 850
 
 /**
  * Precomputed beat onsets (seconds) from public/audio/idents/opening.mp3.
- * Authoritative sync map — drive choreography + pulses from audio.currentTime via rAF.
+ * Authoritative sync map — drive choreography + washes from audio.currentTime via rAF.
  */
 const BEAT_TIMES = [
   0.511, 1.091, 1.37, 1.974, 2.252, 2.833, 3.135, 3.413, 3.715, 4.296, 4.598,
@@ -45,9 +45,18 @@ const BEAT_TIMES = [
 const BEAT_LOOKAHEAD_S = 0.028
 
 /**
- * Beat-index → brand choreography. Canvas motifs still spawn on every beat.
- * Ring indices are 0–3 (innermost → outermost).
+ * SVG ring geometry in a 100×100 viewBox (innermost → outermost).
+ * Diameters keep the prior stage feel (~30 / 48 / 68 / 88% of stage).
  */
+const RING_GEOM = [
+  { r: 15, sw: 5.5 },
+  { r: 24, sw: 5.2 },
+  { r: 34, sw: 4.8 },
+  { r: 44, sw: 4.4 }
+] as const
+
+const ringCirc = (r: number) => 2 * Math.PI * r
+
 type ChoreoKind =
   | 'ring-in'
   | 'enter-in'
@@ -56,20 +65,26 @@ type ChoreoKind =
   | 'pulse'
   | 'settle'
 
+type Reaction =
+  | 'stroke'
+  | 'wash'
+  | 'word'
+  | 'seed'
+
 interface ChoreoStep {
   kind: ChoreoKind
-  /** Which rings arrive or pulse (0–3). */
   rings?: number[]
-  /** Subtle wordmark kick (both parts once assembled). */
+  /** Soft wordmark micro-kick once assembled. */
   word?: boolean
-  /** Stronger pulse intensity. */
   strong?: boolean
+  /** Living-middle single reaction (prefer one clear hit). */
+  reaction?: Reaction
 }
 
 /**
- * Beat map (music-on):
- * 0–3 rings → 4 enter → 5 trainer (+ strong ring pulse) → 8 quote
- * (+ word kick) → later pulses / settle. Word kicks pulse both halves.
+ * Dawn-on-cream beat map (music-on):
+ * cold open → draw-on ripples 0–3 → enter / trainer 4–5 → quote ~8
+ * → living middle one-reaction-per-beat → settle 18–20.
  */
 const BEAT_CHOREO: ChoreoStep[] = [
   /* 0  0.511 */ { kind: 'ring-in', rings: [0] },
@@ -77,44 +92,22 @@ const BEAT_CHOREO: ChoreoStep[] = [
   /* 2  1.370 */ { kind: 'ring-in', rings: [2] },
   /* 3  1.974 */ { kind: 'ring-in', rings: [3] },
   /* 4  2.252 */ { kind: 'enter-in' },
-  /* 5  2.833 */ { kind: 'trainer-in', rings: [0, 1, 2, 3], strong: true },
-  /* 6  3.135 */ { kind: 'pulse', rings: [0, 2] },
-  /* 7  3.413 */ { kind: 'pulse', rings: [1, 3] },
-  /* 8  3.715 */ { kind: 'quote-in', rings: [0, 1, 2, 3], word: true },
-  /* 9  4.296 */ { kind: 'pulse', rings: [2, 3] },
-  /* 10 4.598 */ { kind: 'pulse', rings: [0, 1], word: true },
-  /* 11 5.178 */ { kind: 'pulse', rings: [0, 1, 2, 3], strong: true },
-  /* 12 5.457 */ { kind: 'pulse', rings: [1, 2] },
-  /* 13 5.759 */ { kind: 'pulse', rings: [0, 1, 2, 3], word: true },
-  /* 14 6.060 */ { kind: 'pulse', rings: [0, 3] },
-  /* 15 6.339 */ { kind: 'pulse', rings: [1, 2] },
-  /* 16 6.618 */ { kind: 'pulse', rings: [0, 1, 2, 3], word: true, strong: true },
-  /* 17 6.920 */ { kind: 'pulse', rings: [0, 1, 2, 3] },
+  /* 5  2.833 */ { kind: 'trainer-in', rings: [0, 1, 2, 3], strong: true, reaction: 'stroke' },
+  /* 6  3.135 */ { kind: 'pulse', rings: [0], reaction: 'stroke' },
+  /* 7  3.413 */ { kind: 'pulse', rings: [1, 3], reaction: 'stroke' },
+  /* 8  3.715 */ { kind: 'quote-in', word: true, reaction: 'word' },
+  /* 9  4.296 */ { kind: 'pulse', rings: [2], reaction: 'stroke' },
+  /* 10 4.598 */ { kind: 'pulse', word: true, reaction: 'word' },
+  /* 11 5.178 */ { kind: 'pulse', rings: [0, 1, 2, 3], strong: true, reaction: 'wash' },
+  /* 12 5.457 */ { kind: 'pulse', rings: [1], reaction: 'stroke' },
+  /* 13 5.759 */ { kind: 'pulse', word: true, reaction: 'word' },
+  /* 14 6.060 */ { kind: 'pulse', rings: [0, 3], reaction: 'stroke' },
+  /* 15 6.339 */ { kind: 'pulse', reaction: 'wash' },
+  /* 16 6.618 */ { kind: 'pulse', rings: [0, 1, 2, 3], word: true, strong: true, reaction: 'stroke' },
+  /* 17 6.920 */ { kind: 'pulse', rings: [1, 2], reaction: 'stroke' },
   /* 18 7.500 */ { kind: 'settle', rings: [0, 1, 2, 3] },
   /* 19 8.081 */ { kind: 'settle', rings: [1, 2], word: true },
   /* 20 8.382 */ { kind: 'settle', rings: [0, 1, 2, 3] }
-]
-
-/**
- * Soft white orbital particles per ring (innermost → outermost).
- * Ride mid-stroke of each yellow ring; outer rings drift slower.
- * `start` = initial angle (deg); `dur` = orbital period (s); `atomic` = intro swirl period (s).
- */
-const RING_PARTICLES: { start: number; dur: number; atomic: number }[][] = [
-  [{ start: 18, dur: 5.2, atomic: 0.95 }],
-  [
-    { start: 55, dur: 7.0, atomic: 1.05 },
-    { start: 215, dur: 8.4, atomic: 1.15 }
-  ],
-  [
-    { start: 100, dur: 9.6, atomic: 1.2 },
-    { start: 280, dur: 11.2, atomic: 1.35 }
-  ],
-  [
-    { start: 12, dur: 13.5, atomic: 1.45 },
-    { start: 138, dur: 15.8, atomic: 1.55 },
-    { start: 255, dur: 12.4, atomic: 1.4 }
-  ]
 ]
 
 const soundOn = computed(() => settings.value.openingSound === 'on')
@@ -132,29 +125,30 @@ const wordEnterIn = ref(false)
 const wordTrainerIn = ref(false)
 const quoteIn = ref(false)
 const settling = ref(false)
+/** Cold-open yellow seed — visible until first ring lands, then soft hold. */
+const seedOn = ref(false)
+const seedSoft = ref(false)
 /** Music-on only — hidden on the short music-off path. */
 const activeQuote = ref<PreloaderQuote>(pickPreloaderQuote())
 const showQuoteBlock = computed(() => soundOn.value && entered.value)
 const wordAssembled = computed(() => wordEnterIn.value && wordTrainerIn.value)
 
-type PulseKind = 'ring' | 'orb' | 'ticks' | 'wash' | 'dots'
+/** Calm wash / ink-ripple motifs only — no ticks/dots clutter. */
+type WashKind = 'ripple' | 'wash' | 'seed-bloom'
 
-interface Pulse {
-  kind: PulseKind
+interface Wash {
+  kind: WashKind
   born: number
   life: number
   x: number
   y: number
-  scale0: number
-  scale1: number
-  rot: number
+  r0: number
+  r1: number
   strong: boolean
   alt: number
-  count: number
-  radius: number
 }
 
-const pulses: Pulse[] = []
+const washes: Wash[] = []
 
 const playOpeningSound = () => {
   const el = ident.value
@@ -196,6 +190,8 @@ const resetChoreo = () => {
   wordTrainerIn.value = false
   quoteIn.value = false
   settling.value = false
+  seedOn.value = true
+  seedSoft.value = false
   for (const el of ringEls.value) {
     el?.classList.remove(
       'ring--pulse',
@@ -215,7 +211,7 @@ const stopBeatLoop = () => {
     cancelAnimationFrame(beatRaf)
     beatRaf = 0
   }
-  pulses.length = 0
+  washes.length = 0
   beatCursor = 0
 }
 
@@ -265,11 +261,12 @@ const bloomEnvelope = (u: number) => {
   return 1 - easeInOut((u - 0.42) / 0.58)
 }
 
-const restartClass = (el: HTMLElement | null | undefined, cls: string) => {
+const restartClass = (el: Element | null | undefined, cls: string) => {
   if (!el) return
   el.classList.remove(cls)
   // Force reflow so the same keyframe can re-fire on successive beats.
-  void el.offsetWidth
+  if (el instanceof HTMLElement) void el.offsetWidth
+  else if (el instanceof SVGElement) void el.getBoundingClientRect()
   el.classList.add(cls)
 }
 
@@ -285,7 +282,7 @@ const pulseRings = (step: ChoreoStep, settle: boolean) => {
     if (!el) continue
     el.classList.add('ring--settled')
     el.classList.remove('ring--pulse', 'ring--pulse-strong', 'ring--settle-breath')
-    void el.offsetWidth
+    void el.getBoundingClientRect()
     el.classList.add(pulseCls)
   }
 }
@@ -303,10 +300,31 @@ const kickWordmark = () => {
   }
 }
 
-const applyChoreo = (step: ChoreoStep) => {
+const applyChoreo = (step: ChoreoStep, now: number, w: number, h: number) => {
   if (step.kind === 'ring-in') {
     for (const i of step.rings ?? []) {
       if (i >= 0 && i < 4) ringsIn[i] = true
+    }
+    // First ring extinguishes the cold-open seed breath into a soft hold.
+    if (ringsIn[0]) {
+      seedSoft.value = true
+    }
+    // Soft ink ripple behind each draw-on.
+    if (w > 0 && h > 0) {
+      const i = step.rings?.[0] ?? 0
+      const geom = RING_GEOM[i]!
+      washes.push({
+        kind: 'ripple',
+        born: now,
+        life: 780,
+        x: w * 0.5,
+        y: h * 0.5,
+        r0: (Math.min(w, h) * geom.r) / 100 * 0.55,
+        r1: (Math.min(w, h) * geom.r) / 100 * 1.35,
+        strong: false,
+        alt: i % 2
+      })
+      while (washes.length > 12) washes.shift()
     }
     return
   }
@@ -330,12 +348,48 @@ const applyChoreo = (step: ChoreoStep) => {
   }
   if (step.kind === 'settle') {
     settling.value = true
+    seedOn.value = false
   }
 
-  // pulse + settle breath — lock arrive first so keyframes can re-fire cleanly
+  // Living middle / settle: ONE clear reaction per beat.
   if (step.kind === 'pulse' || step.kind === 'settle') {
-    pulseRings(step, step.kind === 'settle')
-    if (step.word) kickWordmark()
+    const reaction = step.reaction
+    if (reaction === 'word' || (step.word && !reaction)) {
+      kickWordmark()
+    } else if (reaction === 'wash' && w > 0 && h > 0) {
+      const minDim = Math.min(w, h)
+      washes.push({
+        kind: 'wash',
+        born: now,
+        life: step.strong ? 900 : 700,
+        x: w * 0.5,
+        y: h * 0.5,
+        r0: minDim * 0.12,
+        r1: minDim * (step.strong ? 0.58 : 0.42),
+        strong: !!step.strong,
+        alt: 0
+      })
+      while (washes.length > 12) washes.shift()
+      if (step.rings?.length) pulseRings(step, step.kind === 'settle')
+    } else if (step.rings?.length) {
+      pulseRings(step, step.kind === 'settle')
+    } else if (step.kind === 'settle') {
+      // Final breath without ring list — gentle seed bloom.
+      if (w > 0 && h > 0) {
+        washes.push({
+          kind: 'seed-bloom',
+          born: now,
+          life: 860,
+          x: w * 0.5,
+          y: h * 0.5,
+          r0: Math.min(w, h) * 0.04,
+          r1: Math.min(w, h) * 0.22,
+          strong: false,
+          alt: 0
+        })
+      }
+    }
+    if (step.word && reaction && reaction !== 'word') kickWordmark()
   }
 }
 
@@ -343,7 +397,7 @@ const onRingAnimEnd = (e: AnimationEvent, index: number) => {
   const el = ringEls.value[index]
   if (!el || e.target !== el) return
   const name = e.animationName
-  if (name === 'pl-ring-arrive-beat') {
+  if (name === 'pl-ring-draw' || name === 'pl-ring-arrive-css') {
     el.classList.add('ring--settled')
     return
   }
@@ -367,7 +421,7 @@ const onWordAnimEnd = (e: AnimationEvent) => {
 const onPartAnimEnd = (e: AnimationEvent, which: 'enter' | 'trainer') => {
   const el = which === 'enter' ? enterPartEl.value : trainerPartEl.value
   if (!el) return
-  if (e.animationName === 'pl-part-arrive-beat') {
+  if (e.animationName === 'pl-part-arrive-beat' || e.animationName === 'pl-part-arrive-css') {
     el.classList.add('part--settled')
     if (wordAssembled.value) {
       wordShellEl.value?.classList.add('word--settled', 'word--assembled')
@@ -385,97 +439,9 @@ const onQuoteAnimEnd = (e: AnimationEvent) => {
   }
 }
 
-const spawnBeat = (index: number, now: number, w: number, h: number) => {
-  const cx = w * 0.5
-  const cy = h * 0.5
-  const strong = index % 2 === 0
-  const accent = index % 4 === 0
-  const alt = index % 2
-  const minDim = Math.min(w, h)
-
-  pulses.push({
-    kind: 'ring',
-    born: now,
-    life: strong ? 720 : 560,
-    x: cx,
-    y: cy,
-    scale0: 0.55 + alt * 0.08,
-    scale1: 1.08 + (strong ? 0.12 : 0.04) + alt * 0.06,
-    rot: (index % 3) * 0.35,
-    strong,
-    alt,
-    count: 0,
-    radius: minDim * (0.22 + alt * 0.08)
-  })
-
-  pulses.push({
-    kind: 'orb',
-    born: now,
-    life: 480,
-    x: cx + (alt ? -1 : 1) * minDim * 0.04,
-    y: cy + (index % 3 - 1) * minDim * 0.03,
-    scale0: 0.35,
-    scale1: strong ? 1.15 : 0.9,
-    rot: 0,
-    strong,
-    alt,
-    count: 0,
-    radius: minDim * (strong ? 0.18 : 0.12)
-  })
-
-  pulses.push({
-    kind: 'ticks',
-    born: now,
-    life: 640,
-    x: cx,
-    y: cy,
-    scale0: 0.7,
-    scale1: 1.05,
-    rot: (index * 0.47) % (Math.PI * 2),
-    strong,
-    alt,
-    count: strong ? 8 : 6,
-    radius: minDim * (0.28 + (index % 3) * 0.04)
-  })
-
-  pulses.push({
-    kind: 'dots',
-    born: now,
-    life: 700,
-    x: cx,
-    y: cy,
-    scale0: 0.6,
-    scale1: 1.12,
-    rot: -((index * 0.31) % (Math.PI * 2)),
-    strong,
-    alt,
-    count: accent ? 10 : 7,
-    radius: minDim * (0.32 + alt * 0.05)
-  })
-
-  if (strong) {
-    pulses.push({
-      kind: 'wash',
-      born: now,
-      life: accent ? 900 : 700,
-      x: cx,
-      y: cy,
-      scale0: 0.8,
-      scale1: 1.25,
-      rot: 0,
-      strong: accent,
-      alt,
-      count: 0,
-      radius: minDim * 0.55
-    })
-  }
-
-  while (pulses.length > 48) pulses.shift()
-}
-
-const drawPulse = (
+const drawWash = (
   ctx: CanvasRenderingContext2D,
-  p: Pulse,
+  p: Wash,
   now: number,
   dpr: number
 ) => {
@@ -484,85 +450,27 @@ const drawPulse = (
   const env = bloomEnvelope(u)
   if (env <= 0.001) return
 
-  const scale = p.scale0 + (p.scale1 - p.scale0) * easeOutCubic(Math.min(1, u * 1.15))
+  const r = p.r0 + (p.r1 - p.r0) * easeOutCubic(Math.min(1, u * 1.08))
   ctx.save()
   ctx.translate(p.x, p.y)
-  ctx.rotate(p.rot + u * (p.alt ? 0.12 : -0.08))
-  ctx.scale(scale, scale)
 
-  if (p.kind === 'ring') {
-    const r = p.radius
+  if (p.kind === 'ripple') {
     ctx.beginPath()
     ctx.arc(0, 0, r, 0, Math.PI * 2)
     ctx.strokeStyle = p.alt
-      ? `rgba(21, 18, 15, ${0.1 * env})`
-      : `rgba(255, 212, 59, ${0.55 * env})`
-    ctx.lineWidth = (p.strong ? 3.2 : 2.2) * dpr
+      ? `rgba(21, 18, 15, ${0.08 * env})`
+      : `rgba(255, 212, 59, ${0.42 * env})`
+    ctx.lineWidth = (p.strong ? 2.4 : 1.6) * dpr
     ctx.stroke()
-    ctx.beginPath()
-    ctx.arc(0, 0, r * 0.72, 0, Math.PI * 2)
-    ctx.strokeStyle = `rgba(255, 212, 59, ${0.22 * env})`
-    ctx.lineWidth = 1.1 * dpr
-    ctx.stroke()
-  } else if (p.kind === 'orb') {
-    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, p.radius)
-    if (p.alt) {
-      g.addColorStop(0, `rgba(21, 18, 15, ${0.12 * env})`)
-      g.addColorStop(0.45, `rgba(255, 212, 59, ${0.1 * env})`)
-      g.addColorStop(1, 'rgba(255, 212, 59, 0)')
-    } else {
-      g.addColorStop(0, `rgba(255, 212, 59, ${0.42 * env})`)
-      g.addColorStop(0.5, `rgba(255, 212, 59, ${0.14 * env})`)
-      g.addColorStop(1, 'rgba(255, 250, 240, 0)')
-    }
-    ctx.fillStyle = g
-    ctx.beginPath()
-    ctx.arc(0, 0, p.radius, 0, Math.PI * 2)
-    ctx.fill()
-  } else if (p.kind === 'ticks') {
-    const n = p.count
-    const r = p.radius
-    const len = r * 0.09
-    ctx.strokeStyle = p.strong
-      ? `rgba(21, 18, 15, ${0.28 * env})`
-      : `rgba(21, 18, 15, ${0.16 * env})`
-    ctx.lineWidth = 1.4 * dpr
-    ctx.lineCap = 'round'
-    for (let i = 0; i < n; i++) {
-      const a = (i / n) * Math.PI * 2
-      const cos = Math.cos(a)
-      const sin = Math.sin(a)
-      const inward = r * (0.02 + 0.04 * (1 - env))
-      ctx.beginPath()
-      ctx.moveTo(cos * (r - inward), sin * (r - inward))
-      ctx.lineTo(cos * (r - inward + len), sin * (r - inward + len))
-      ctx.stroke()
-    }
-  } else if (p.kind === 'dots') {
-    const n = p.count
-    const r = p.radius * (0.85 + 0.2 * easeOutCubic(u))
-    for (let i = 0; i < n; i++) {
-      const a = (i / n) * Math.PI * 2 + u * 0.35 * (p.alt ? 1 : -1)
-      const dotR = (p.strong ? 2.4 : 1.7) * dpr * (0.7 + 0.3 * env)
-      const x = Math.cos(a) * r
-      const y = Math.sin(a) * r
-      ctx.beginPath()
-      ctx.arc(x, y, dotR, 0, Math.PI * 2)
-      ctx.fillStyle =
-        i % 2 === 0
-          ? `rgba(255, 212, 59, ${0.7 * env})`
-          : `rgba(21, 18, 15, ${0.22 * env})`
-      ctx.fill()
-    }
-  } else if (p.kind === 'wash') {
-    const g = ctx.createRadialGradient(0, 0, p.radius * 0.15, 0, 0, p.radius)
-    const peak = p.strong ? 0.14 : 0.08
+  } else if (p.kind === 'wash' || p.kind === 'seed-bloom') {
+    const g = ctx.createRadialGradient(0, 0, r * 0.12, 0, 0, r)
+    const peak = p.kind === 'seed-bloom' ? 0.22 : p.strong ? 0.12 : 0.07
     g.addColorStop(0, `rgba(255, 212, 59, ${peak * env})`)
     g.addColorStop(0.55, `rgba(255, 212, 59, ${peak * 0.35 * env})`)
     g.addColorStop(1, 'rgba(255, 250, 240, 0)')
     ctx.fillStyle = g
     ctx.beginPath()
-    ctx.arc(0, 0, p.radius, 0, Math.PI * 2)
+    ctx.arc(0, 0, r, 0, Math.PI * 2)
     ctx.fill()
   }
 
@@ -609,8 +517,7 @@ const tickBeats = (now: number) => {
       const idx = beatCursor
       if (t - bt < 0.12) {
         const step = BEAT_CHOREO[idx]
-        if (step) applyChoreo(step)
-        if (ctx && w > 0 && h > 0) spawnBeat(idx, now, w, h)
+        if (step) applyChoreo(step, now, w, h)
       }
       beatCursor += 1
     }
@@ -618,13 +525,13 @@ const tickBeats = (now: number) => {
 
   if (ctx && canvas) {
     ctx.clearRect(0, 0, w, h)
-    for (let i = pulses.length - 1; i >= 0; i--) {
-      const p = pulses[i]!
+    for (let i = washes.length - 1; i >= 0; i--) {
+      const p = washes[i]!
       if (now - p.born >= p.life) {
-        pulses.splice(i, 1)
+        washes.splice(i, 1)
         continue
       }
-      drawPulse(ctx, p, now, dpr)
+      drawWash(ctx, p, now, dpr)
     }
   }
 
@@ -651,10 +558,12 @@ const revealStaticBrand = () => {
   wordEnterIn.value = true
   wordTrainerIn.value = true
   quoteIn.value = soundOn.value
+  seedOn.value = false
   nextTick(() => {
     wordShellEl.value?.classList.add('word--settled', 'word--assembled')
     enterPartEl.value?.classList.add('part--settled')
     trainerPartEl.value?.classList.add('part--settled')
+    for (const el of ringEls.value) el?.classList.add('ring--settled')
   })
 }
 
@@ -669,8 +578,10 @@ const startExperience = () => {
     else revealStaticBrand()
   } else {
     // Short path: full wordmark via CSS; quote stays hidden.
+    seedOn.value = false
     wordEnterIn.value = true
     wordTrainerIn.value = true
+    for (let i = 0; i < 4; i++) ringsIn[i] = true
     finishTimer = window.setTimeout(
       finish,
       reducedMotion.value ? SHORT_REDUCED_MS : SHORT_NORMAL_MS
@@ -741,31 +652,42 @@ onBeforeUnmount(() => {
         class="preloader__beat-canvas"
         aria-hidden="true"
       />
-      <div class="preloader__rings">
-        <i
-          v-for="n in 4"
-          :key="n"
-          :ref="(el) => setRingEl(el, n - 1)"
-          :class="{ 'ring--in': ringsIn[n - 1] }"
-          @animationend="onRingAnimEnd($event, n - 1)"
-        >
-          <!-- Soft white discs: atomic 3D swirl on ring-in, then flat orbital drift. -->
-          <span class="ring__orbit-plane" aria-hidden="true" @animationend.stop>
-            <span
-              v-for="(p, pi) in RING_PARTICLES[n - 1]"
-              :key="pi"
-              class="ring__particle-arm"
-              :style="{
-                '--orbit-dur': p.dur + 's',
-                '--orbit-start': p.start + 'deg',
-                '--atomic-dur': p.atomic + 's'
-              }"
-            >
-              <span class="ring__particle" />
-            </span>
-          </span>
-        </i>
-      </div>
+
+      <!-- Cold-open yellow seed / glow at locked center. -->
+      <div
+        class="preloader__seed"
+        :class="{
+          'seed--on': seedOn && beatDriven,
+          'seed--soft': seedSoft
+        }"
+      />
+
+      <!-- SVG ink-ripple rings — stroke-dash draw-on, not chunky borders. -->
+      <svg
+        class="preloader__rings"
+        viewBox="0 0 100 100"
+        aria-hidden="true"
+      >
+        <circle
+          v-for="(g, i) in RING_GEOM"
+          :key="i"
+          :ref="(el) => setRingEl(el, i)"
+          class="preloader__ring"
+          :class="{ 'ring--in': ringsIn[i] }"
+          cx="50"
+          cy="50"
+          :r="g.r"
+          fill="none"
+          :stroke-width="g.sw"
+          :style="{
+            '--ring-len': String(ringCirc(g.r)),
+            '--pl-ring-delay': `${i * 110}ms`,
+            '--ring-sw': g.sw + 'px'
+          }"
+          @animationend="onRingAnimEnd($event, i)"
+        />
+      </svg>
+
       <div
         ref="wordShellEl"
         class="preloader__brand-shell"
@@ -818,7 +740,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* Selected identity: a direct visitor gesture unlocks the sound and shockwave sequence. */
+/* Dawn on cream paper — editorial sonic logo; reveal-and-settle, not perpetual motion. */
 .preloader {
   position: fixed;
   inset: 0;
@@ -870,84 +792,75 @@ onBeforeUnmount(() => {
   height: 100%;
   pointer-events: none;
 }
+
+/* Cold-open seed — tiny yellow breath at locked center. */
+.preloader__seed {
+  position: absolute;
+  z-index: 1;
+  width: clamp(10rem, 1.6vw, 18rem);
+  height: clamp(10rem, 1.6vw, 18rem);
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%,
+      #ffd43b 0%,
+      rgb(255 212 59 / .55) 42%,
+      rgb(255 212 59 / 0) 72%);
+  opacity: 0;
+  transform: scale(.6);
+  filter: blur(0.5px);
+}
+.preloader__seed.seed--on {
+  opacity: .85;
+  transform: scale(1);
+  animation: pl-seed-breath 1.6s ease-in-out infinite;
+}
+.preloader__seed.seed--on.seed--soft {
+  opacity: .28;
+  transform: scale(.72);
+  animation: pl-seed-hold 2.4s ease-in-out infinite;
+}
+.preloader--settle .preloader__seed {
+  opacity: 0;
+  animation: none;
+}
+.preloader--settle .preloader__ring.ring--settled {
+  opacity: .88;
+  transition: opacity 600ms ease;
+}
+
+/* SVG rings — elegant stroke draw-on, mid-stage diameters. */
 .preloader__rings {
   position: absolute;
   z-index: 1;
   inset: 0;
-  display: grid;
-  place-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
   pointer-events: none;
 }
-.preloader__rings i {
-  position: absolute;
-  box-sizing: border-box;
-  border: clamp(22rem, 3.1vw, 48rem) solid #ffd43b;
-  border-radius: 50%;
+.preloader__ring {
+  stroke: #ffd43b;
+  stroke-width: var(--ring-sw);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  /* Rotate so stroke-dash reveal starts at 12 o'clock and draws clockwise. */
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+  transform: rotate(-90deg);
+  /* Hidden until path-specific rules reveal. */
   opacity: 0;
-  transform: scale(.42);
-  perspective: 820px;
-  transform-style: preserve-3d;
+  stroke-dasharray: var(--ring-len);
+  stroke-dashoffset: var(--ring-len);
+}
+
+/* Music-off short path: staggered CSS draw + overshoot settle. */
+.preloader:not(.preloader--beat) .preloader__ring {
   animation:
-    pl-ring-arrive 1500ms cubic-bezier(.16, 1, .3, 1) var(--pl-ring-delay) both,
-    pl-ring-breathe 1750ms ease-in-out calc(1480ms + var(--pl-ring-delay)) 1 both;
+    pl-ring-arrive-css 1500ms cubic-bezier(.16, 1, .3, 1) var(--pl-ring-delay) both,
+    pl-ring-breathe-css 1750ms ease-in-out calc(1480ms + var(--pl-ring-delay)) 1 both;
 }
-.preloader__rings i:nth-child(1) { --pl-ring-delay: 0ms; width: 30%; aspect-ratio: 1; }
-.preloader__rings i:nth-child(2) { --pl-ring-delay: 110ms; width: 48%; aspect-ratio: 1; }
-.preloader__rings i:nth-child(3) { --pl-ring-delay: 220ms; width: 68%; aspect-ratio: 1; }
-.preloader__rings i:nth-child(4) { --pl-ring-delay: 330ms; width: 88%; aspect-ratio: 1; }
 
-/*
- * Orbital particles — soft off-white discs mid-stroke on each yellow ring.
- * Music-on beat path: tilted atomic swirl while the ring arrives, then flatten
- * into steady flat orbits at staggered angular velocities.
- * Music-off / reduced-motion: static or minimal flat drift (no 3D spin).
- */
-.ring__orbit-plane {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  transform-style: preserve-3d;
-  pointer-events: none;
-}
-.ring__particle-arm {
-  position: absolute;
-  inset: 0;
-  transform: rotate(var(--orbit-start, 0deg));
-  transform-style: preserve-3d;
-}
-.ring__particle {
-  position: absolute;
-  /* Mid-stroke of the thick yellow border (half of clamp(22–48rem)). */
-  top: clamp(11rem, 1.55vw, 24rem);
-  left: 50%;
-  width: clamp(6rem, .95vw, 12rem);
-  height: clamp(6rem, .95vw, 12rem);
-  border-radius: 50%;
-  background:
-    radial-gradient(
-      circle at 32% 28%,
-      #fffef9 0%,
-      #f3eee4 52%,
-      #e4dccf 100%
-    );
-  box-shadow:
-    inset 0 -1.2px 2.5px rgb(21 18 15 / .1),
-    inset 0 1px 1.5px rgb(255 255 255 / .55),
-    0 1px 2px rgb(92 68 0 / .08);
-  transform: translate(-50%, -50%);
-  opacity: .82;
-  will-change: transform;
-}
-.preloader__rings i:nth-child(1) .ring__particle { width: clamp(5rem, .8vw, 9rem); height: clamp(5rem, .8vw, 9rem); }
-.preloader__rings i:nth-child(4) .ring__particle { width: clamp(7rem, 1.05vw, 13rem); height: clamp(7rem, 1.05vw, 13rem); }
-
-/* Music-off: gentle flat orbit after CSS ring-in — no atomic tilt. */
-.preloader:not(.preloader--beat) .ring__particle-arm {
-  animation: pl-arm-orbit var(--orbit-dur, 10s) linear infinite;
-}
-.preloader:not(.preloader--beat) .ring__orbit-plane {
-  transform: none;
-}
 .preloader__brand-shell {
   position: relative;
   z-index: 2;
@@ -968,7 +881,6 @@ onBeforeUnmount(() => {
 }
 .preloader__word-part {
   display: inline-block;
-  /* Keep halves flush so tracking reads as one wordmark. */
   letter-spacing: inherit;
 }
 .preloader__brand-shell::after {
@@ -991,60 +903,32 @@ onBeforeUnmount(() => {
  * Beat-driven music path: rings/word stay hidden until JS toggles classes
  * when audio.currentTime crosses assigned beat times — no CSS-delay choreography.
  */
-.preloader--beat .preloader__rings i {
+.preloader--beat .preloader__ring {
   animation: none;
   opacity: 0;
-  transform: scale(.36) rotate(-10deg);
+  stroke-dashoffset: var(--ring-len);
 }
-.preloader--beat .preloader__rings i.ring--in:not(.ring--settled) {
-  animation: pl-ring-arrive-beat 680ms cubic-bezier(.16, 1, .3, 1) both;
-}
-.preloader--beat .preloader__rings i.ring--in.ring--settled {
+.preloader--beat .preloader__ring.ring--in:not(.ring--settled) {
   opacity: 1;
-  transform: scale(1) rotate(0);
+  animation: pl-ring-draw 720ms cubic-bezier(.22, 1, .36, 1) both;
+}
+.preloader--beat .preloader__ring.ring--in.ring--settled {
+  opacity: 1;
+  stroke-dashoffset: 0;
+  transform: rotate(-90deg) scale(1);
   animation: none;
 }
-.preloader--beat .preloader__rings i.ring--in.ring--settled.ring--pulse {
+.preloader--beat .preloader__ring.ring--in.ring--settled.ring--pulse {
   animation: pl-ring-pulse-beat 440ms cubic-bezier(.16, 1, .3, 1);
 }
-.preloader--beat .preloader__rings i.ring--in.ring--settled.ring--pulse-strong {
+.preloader--beat .preloader__ring.ring--in.ring--settled.ring--pulse-strong {
   animation: pl-ring-pulse-strong 520ms cubic-bezier(.16, 1, .3, 1);
 }
-.preloader--beat .preloader__rings i.ring--in.ring--settled.ring--settle-breath {
+.preloader--beat .preloader__ring.ring--in.ring--settled.ring--settle-breath {
   animation: pl-ring-settle-breath 720ms cubic-bezier(.22, 1, .36, 1);
 }
 
-/* Particles: hidden until ring-in; atomic tilt while arriving; flatten + orbit once settled. */
-.preloader--beat .ring__orbit-plane {
-  opacity: 0;
-  transform: rotateX(68deg) rotateZ(-28deg) scale(.72);
-}
-.preloader--beat .ring__particle {
-  opacity: 0;
-}
-.preloader--beat .preloader__rings i.ring--in:not(.ring--settled) .ring__orbit-plane {
-  opacity: 1;
-  animation: pl-atomic-plane-spin 1.05s linear infinite;
-}
-.preloader--beat .preloader__rings i.ring--in:not(.ring--settled) .ring__particle-arm {
-  animation: pl-arm-orbit var(--atomic-dur, 1.1s) linear infinite;
-}
-.preloader--beat .preloader__rings i.ring--in:not(.ring--settled) .ring__particle {
-  opacity: .88;
-  animation: pl-particle-bloom 420ms cubic-bezier(.16, 1, .3, 1) both;
-}
-.preloader--beat .preloader__rings i.ring--in.ring--settled .ring__orbit-plane {
-  opacity: 1;
-  animation: pl-atomic-plane-flatten 1100ms cubic-bezier(.16, 1, .3, 1) both;
-}
-.preloader--beat .preloader__rings i.ring--in.ring--settled .ring__particle-arm {
-  animation: pl-arm-orbit var(--orbit-dur, 10s) linear infinite;
-}
-.preloader--beat .preloader__rings i.ring--in.ring--settled .ring__particle {
-  opacity: .82;
-}
 .preloader--beat .preloader__brand-shell {
-  /* Shell stays clear; halves animate independently. */
   animation: none;
   opacity: 1;
   transform: none;
@@ -1052,8 +936,9 @@ onBeforeUnmount(() => {
 }
 .preloader--beat .preloader__word-part {
   opacity: 0;
-  transform: scale(.88) translateY(22rem);
-  filter: blur(8rem);
+  transform: scale(.88) translateY(18rem);
+  filter: blur(6rem);
+  clip-path: inset(0 100% 0 0);
 }
 .preloader--beat .preloader__word-part.part--in:not(.part--settled) {
   animation: pl-part-arrive-beat 820ms cubic-bezier(.16, 1, .3, 1) both;
@@ -1062,6 +947,7 @@ onBeforeUnmount(() => {
   opacity: 1;
   transform: none;
   filter: none;
+  clip-path: none;
   animation: none;
 }
 .preloader--beat .preloader__word-part.part--in.part--settled.part--kick {
@@ -1163,70 +1049,99 @@ onBeforeUnmount(() => {
 }
 
 @keyframes pl-entry-orbit { to { transform: rotate(360deg); } }
-/* Electron-arm spin — start angle via --orbit-start on the element. */
-@keyframes pl-arm-orbit {
-  from { transform: rotate(var(--orbit-start, 0deg)); }
-  to { transform: rotate(calc(var(--orbit-start, 0deg) + 360deg)); }
+
+@keyframes pl-seed-breath {
+  0%, 100% { opacity: .55; transform: scale(.85); }
+  50% { opacity: .95; transform: scale(1.08); }
 }
-/* Atomic intro: tilted elliptical plane (perspective parent → oval paths). */
-@keyframes pl-atomic-plane-spin {
-  0% { transform: rotateX(68deg) rotateZ(0deg) scale(.92); }
-  50% { transform: rotateX(58deg) rotateZ(180deg) scale(1); }
-  100% { transform: rotateX(68deg) rotateZ(360deg) scale(.92); }
+@keyframes pl-seed-hold {
+  0%, 100% { opacity: .22; transform: scale(.68); }
+  50% { opacity: .34; transform: scale(.78); }
 }
-@keyframes pl-atomic-plane-flatten {
-  0% { transform: rotateX(62deg) rotateZ(18deg) scale(1); }
-  55% { transform: rotateX(22deg) rotateZ(6deg) scale(1); }
-  100% { transform: rotateX(0deg) rotateZ(0deg) scale(1); }
+
+/* Draw clockwise: dashoffset circumference → 0 with slight scale overshoot. */
+@keyframes pl-ring-draw {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: var(--ring-len);
+    transform: rotate(-90deg) scale(.92);
+  }
+  12% { opacity: 1; }
+  62% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+    transform: rotate(-90deg) scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+    transform: rotate(-90deg) scale(1);
+  }
 }
-@keyframes pl-particle-bloom {
-  0% { opacity: 0; transform: translate(-50%, -50%) scale(.35); }
-  70% { opacity: .92; transform: translate(-50%, -50%) scale(1.08); }
-  100% { opacity: .88; transform: translate(-50%, -50%) scale(1); }
+@keyframes pl-ring-arrive-css {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: var(--ring-len);
+    transform: rotate(-90deg) scale(.9);
+  }
+  58% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+    transform: rotate(-90deg) scale(1.035);
+  }
+  100% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+    transform: rotate(-90deg) scale(1);
+  }
 }
-@keyframes pl-ring-arrive {
-  0% { opacity: 0; transform: scale(.36) rotate(-10deg); }
-  58% { opacity: 1; transform: scale(1.035) rotate(1deg); }
-  100% { opacity: 1; transform: scale(1) rotate(0); }
-}
-@keyframes pl-ring-arrive-beat {
-  0% { opacity: 0; transform: scale(.32) rotate(-12deg); }
-  55% { opacity: 1; transform: scale(1.05) rotate(1.5deg); }
-  100% { opacity: 1; transform: scale(1) rotate(0); }
-}
-@keyframes pl-ring-breathe {
-  0%, 100% { transform: scale(1); }
-  48% { transform: scale(1.035); }
+@keyframes pl-ring-breathe-css {
+  0%, 100% { transform: rotate(-90deg) scale(1); }
+  48% { transform: rotate(-90deg) scale(1.02); }
 }
 @keyframes pl-ring-pulse-beat {
-  0% { opacity: 1; transform: scale(1) rotate(0); }
-  42% { opacity: 1; transform: scale(1.04) rotate(0.4deg); }
-  100% { opacity: 1; transform: scale(1) rotate(0); }
+  0% { opacity: 1; stroke-width: var(--ring-sw); transform: rotate(-90deg) scale(1); }
+  42% { opacity: 1; stroke-width: calc(var(--ring-sw) * 1.35); transform: rotate(-90deg) scale(1.025); }
+  100% { opacity: 1; stroke-width: var(--ring-sw); transform: rotate(-90deg) scale(1); }
 }
 @keyframes pl-ring-pulse-strong {
-  0% { opacity: 1; transform: scale(1) rotate(0); }
-  38% { opacity: 1; transform: scale(1.065) rotate(-0.6deg); }
-  100% { opacity: 1; transform: scale(1) rotate(0); }
+  0% { opacity: 1; stroke-width: var(--ring-sw); transform: rotate(-90deg) scale(1); }
+  38% { opacity: 1; stroke-width: calc(var(--ring-sw) * 1.55); transform: rotate(-90deg) scale(1.04); }
+  100% { opacity: 1; stroke-width: var(--ring-sw); transform: rotate(-90deg) scale(1); }
 }
 @keyframes pl-ring-settle-breath {
-  0% { opacity: 1; transform: scale(1); }
-  45% { opacity: 1; transform: scale(1.018); }
-  100% { opacity: 1; transform: scale(1); }
+  0% { opacity: 1; transform: rotate(-90deg) scale(1); }
+  45% { opacity: .92; transform: rotate(-90deg) scale(1.012); }
+  100% { opacity: 1; transform: rotate(-90deg) scale(1); }
 }
 @keyframes pl-word-arrive {
   0% { opacity: 0; transform: scale(.94) translateY(16rem); filter: blur(5rem); }
   66% { opacity: 1; filter: blur(0); }
   100% { opacity: 1; transform: none; filter: none; }
 }
-@keyframes pl-word-arrive-beat {
-  0% { opacity: 0; transform: scale(.86) translateY(28rem); filter: blur(10rem); }
-  58% { opacity: 1; filter: blur(0); transform: scale(1.03) translateY(-2rem); }
-  100% { opacity: 1; transform: none; filter: none; }
-}
 @keyframes pl-part-arrive-beat {
-  0% { opacity: 0; transform: scale(.86) translateY(24rem); filter: blur(8rem); }
-  58% { opacity: 1; filter: blur(0); transform: scale(1.025) translateY(-2rem); }
-  100% { opacity: 1; transform: none; filter: none; }
+  0% {
+    opacity: 0;
+    transform: scale(.88) translateY(18rem);
+    filter: blur(6rem);
+    clip-path: inset(0 100% 0 0);
+  }
+  55% {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1.04) translateY(-2rem);
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes pl-part-arrive-css {
+  0% { opacity: 0; transform: scale(.92) translateY(12rem); }
+  100% { opacity: 1; transform: none; }
 }
 @keyframes pl-part-kick {
   0% { opacity: 1; transform: scale(1); filter: none; }
@@ -1250,13 +1165,15 @@ onBeforeUnmount(() => {
   .preloader *::before,
   .preloader *::after { animation: none !important; }
   .preloader__entry-orbit { transform: none; }
-  .preloader__rings i { opacity: 1; transform: scale(1); }
-  .ring__orbit-plane { opacity: 1; transform: none; }
-  .ring__particle-arm { transform: rotate(var(--orbit-start, 0deg)); }
-  .ring__particle { opacity: .7; transform: translate(-50%, -50%); }
+  .preloader__ring {
+    opacity: 1;
+    stroke-dashoffset: 0;
+    transform: rotate(-90deg);
+  }
+  .preloader__seed { opacity: 0; }
   .preloader__brand-shell { opacity: 1; transform: none; filter: none; }
   .preloader__brand-shell::after { opacity: .55; transform: scaleX(1); }
-  .preloader__word-part { opacity: 1; transform: none; filter: none; }
+  .preloader__word-part { opacity: 1; transform: none; filter: none; clip-path: none; }
   .preloader__quote.quote--in {
     opacity: .72;
     transform: translateX(-50%) translateY(0);
@@ -1268,13 +1185,15 @@ onBeforeUnmount(() => {
 :global(html[data-reduce-motion="on"]) .preloader *::before,
 :global(html[data-reduce-motion="on"]) .preloader *::after { animation: none !important; }
 :global(html[data-reduce-motion="on"]) .preloader__entry-orbit { transform: none; }
-:global(html[data-reduce-motion="on"]) .preloader__rings i { opacity: 1; transform: scale(1); }
-:global(html[data-reduce-motion="on"]) .ring__orbit-plane { opacity: 1; transform: none; }
-:global(html[data-reduce-motion="on"]) .ring__particle-arm { transform: rotate(var(--orbit-start, 0deg)); }
-:global(html[data-reduce-motion="on"]) .ring__particle { opacity: .7; transform: translate(-50%, -50%); }
+:global(html[data-reduce-motion="on"]) .preloader__ring {
+  opacity: 1;
+  stroke-dashoffset: 0;
+  transform: rotate(-90deg);
+}
+:global(html[data-reduce-motion="on"]) .preloader__seed { opacity: 0; }
 :global(html[data-reduce-motion="on"]) .preloader__brand-shell { opacity: 1; transform: none; filter: none; }
 :global(html[data-reduce-motion="on"]) .preloader__brand-shell::after { opacity: .55; transform: scaleX(1); }
-:global(html[data-reduce-motion="on"]) .preloader__word-part { opacity: 1; transform: none; filter: none; }
+:global(html[data-reduce-motion="on"]) .preloader__word-part { opacity: 1; transform: none; filter: none; clip-path: none; }
 :global(html[data-reduce-motion="on"]) .preloader__quote.quote--in {
   opacity: .72;
   transform: translateX(-50%) translateY(0);

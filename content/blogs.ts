@@ -108,6 +108,18 @@ export const BLOG_POSTS: BlogPost[] = [
     heroAlt: 'A warm editorial illustration of a small press secretary at a desk inside a larger mind, surrounded by notes, memories, and quiet shapes.',
     status: 'published',
     publishedAt: '2026-09-05T12:00:00+00:00'
+  },
+  {
+    slug: 'you-are-the-centre-of-the-universe',
+    title: 'You Are the Centre of the Universe — and Here’s Why',
+    dek: 'Pick any galaxy as your frame of reference and the expanding universe appears to rush away from it. That optical honesty is shared by every observer — not a throne, a geometry.',
+    category: 'Universe',
+    tags: ['cosmology', 'expansion', 'science'],
+    minutes: 10,
+    hero: '/blog/centre-universe/hero.jpg',
+    heroAlt: 'Cream field densely packed with black dots; grey dashed rays radiate from one chosen centre marked by overlapping red and blue hollow rings, with a small yellow accent at the aligned galaxy.',
+    status: 'published',
+    publishedAt: '2026-09-09T19:06:00+00:00'
   }
 ]
 
@@ -120,4 +132,5 @@ export const JAMAIS_VU_BLOG = BLOG_POSTS[4]
 export const LIFE_MIDPOINT_BLOG = BLOG_POSTS[5]
 export const LIE_PERFECTLY_BLOG = BLOG_POSTS[6]
 export const INNER_SPEECH_BLOG = BLOG_POSTS[7]
+export const CENTRE_UNIVERSE_BLOG = BLOG_POSTS[8]
 export const FEATURED_BLOG = ENTROPY_BLOG

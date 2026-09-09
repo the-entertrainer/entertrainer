@@ -653,6 +653,7 @@ onBeforeUnmount(() => {
 @media (hover: hover) {
   .nl-bubble__must-tile:hover {
     background: var(--accent);
+    color: var(--accent-ink);
     transform: translate(-1rem, -1rem);
     box-shadow: 3rem 3rem 0 var(--ink);
   }

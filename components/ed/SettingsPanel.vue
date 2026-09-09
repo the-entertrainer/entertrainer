@@ -246,6 +246,7 @@ function toggleOpeningSound() {
 }
 .sp__switch[aria-checked="true"] {
   background: var(--accent);
+  color: var(--accent-ink);
   justify-content: flex-start;
   padding: 0 0 0 8rem;
 }
@@ -289,7 +290,7 @@ function toggleOpeningSound() {
 .sp__segment-btn[aria-checked="true"] {
   border-color: var(--ink);
   background: var(--accent);
-  color: var(--ink);
+  color: var(--accent-ink);
 }
 .sp__segment-btn:hover { border-color: var(--ink); color: var(--ink); }
 .sp__segment-btn:focus-visible { outline: 3rem solid var(--ink); outline-offset: 2rem; }

@@ -41,7 +41,7 @@ function onKeydown(e: KeyboardEvent, i: number) {
       type="button" class="fr__chip"
       role="radio" :aria-checked="model === o.id"
       :tabindex="model === o.id ? 0 : -1"
-      :style="{ '--accent': o.accent, '--on-accent': o.onAccent }"
+      :style="{ '--accent': o.accent, '--accent-ink': o.onAccent }"
       @click="model = o.id as Category | 'all'"
       @keydown="onKeydown($event, i)"
     >
@@ -73,9 +73,9 @@ function onKeydown(e: KeyboardEvent, i: number) {
 .fr__n { color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .fr__chip[aria-checked="true"] {
-  background: var(--accent); color: var(--on-accent);
+  background: var(--accent); color: var(--accent-ink);
   border-color: var(--ink);
 }
-.fr__chip[aria-checked="true"] .fr__dot { background: var(--on-accent); }
+.fr__chip[aria-checked="true"] .fr__dot { background: var(--accent-ink); }
 .fr__chip[aria-checked="true"] .fr__n { color: inherit; opacity: 0.7; }
 </style>

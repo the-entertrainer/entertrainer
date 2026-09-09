@@ -27,7 +27,7 @@ const showMedia = computed(() => !!props.media && props.show !== 'category')
 
 <template>
   <span class="cat" :class="`cat--${tone}`"
-        :style="{ '--accent': meta.accent, '--on-accent': meta.onAccent }">
+        :style="{ '--accent': meta.accent, '--accent-ink': meta.onAccent }">
     <span v-if="tone === 'outline'" class="cat__dot" aria-hidden="true" />
     <span v-if="showCategory" class="cat__label">{{ meta.label }}</span>
     <span v-if="showCategory && showMedia" class="cat__sep" aria-hidden="true">/</span>
@@ -48,7 +48,7 @@ const showMedia = computed(() => !!props.media && props.show !== 'category')
   white-space: nowrap;
 }
 .cat--outline { background: var(--paper); color: var(--ink); }
-.cat--solid { background: var(--accent); color: var(--on-accent); border-color: var(--ink); }
+.cat--solid { background: var(--accent); color: var(--accent-ink); border-color: var(--ink); }
 .cat__dot { width: 8rem; height: 8rem; border-radius: 50%; background: var(--accent); border: 1px solid var(--ink); flex: none; }
 .cat__sep { opacity: 0.4; }
 .cat__media { opacity: 0.72; }

@@ -96,6 +96,18 @@ export const BLOG_POSTS: BlogPost[] = [
     heroAlt: 'A black silhouette of a head in profile on a cream background; tangled black dashed-road speech paths swirl from the mouth while one straight cobalt-blue path runs forward, with a small cobalt crossed-fingers icon between them.',
     status: 'published',
     publishedAt: '2026-09-05T20:57:02+00:00'
+  },
+  {
+    slug: 'the-voice-in-your-head-is-not-the-whole-of-you',
+    title: 'The Voice in Your Head Is Not the Whole of You',
+    dek: 'That running commentary can rehearse a conversation, hold a phone number, and tell you not to send the message. Useful, yes. In charge of everything? Not quite.',
+    category: 'Mind & language',
+    tags: ['cognition', 'language', 'inner speech'],
+    minutes: 9,
+    hero: '/manus-storage/inner-speech-press-secretary_f953ca87.jpg',
+    heroAlt: 'A warm editorial illustration of a small press secretary at a desk inside a larger mind, surrounded by notes, memories, and quiet shapes.',
+    status: 'published',
+    publishedAt: '2026-09-05T12:00:00+00:00'
   }
 ]
 
@@ -107,4 +119,5 @@ export const AI_UNDERSTAND_BLOG = BLOG_POSTS[3]
 export const JAMAIS_VU_BLOG = BLOG_POSTS[4]
 export const LIFE_MIDPOINT_BLOG = BLOG_POSTS[5]
 export const LIE_PERFECTLY_BLOG = BLOG_POSTS[6]
+export const INNER_SPEECH_BLOG = BLOG_POSTS[7]
 export const FEATURED_BLOG = ENTROPY_BLOG

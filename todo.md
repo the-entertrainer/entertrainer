@@ -707,3 +707,11 @@
 - [x] Audit every About Me image treatment and correct bad crops, focal points, aspect ratios, and mobile behavior.
 - [x] Validate the revised page for accessibility, responsive layout, no-emoji compliance, and production build success.
 - [x] Commit and push the About Me refresh to main.
+
+
+## Inner-speech article release
+
+- [ ] Restore and audit the shelved inner-speech article, registry entry, and social-preview metadata.
+- [ ] Finish the article copy, explanatory visuals, stable asset paths, and Elevate listing integration.
+- [ ] Validate the article route, images, accessibility, mobile layout, crawler metadata, and production build.
+- [ ] Commit and push the finished inner-speech article to main.

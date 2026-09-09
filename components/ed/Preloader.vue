@@ -3,10 +3,12 @@
 import { openingSoundSrc } from '~/composables/useSiteSettings'
 import { pickPreloaderQuote, type PreloaderQuote } from '~/utils/preloaderQuotes'
 import {
-  playIdentWithGraph,
   fadeIdentWithEcho,
-  stopIdentNow
-} from '~/utils/identAudioTrail'
+  getIdentAudio,
+  playIdentWithGraph,
+  releaseIdentOnUnmount,
+  stopIdentNow,
+} from '~/utils/identAudioTrail' 
 
 const emit = defineEmits<{ complete: [] }>()
 const { settings, prefersReducedMotion, hydrate } = useSiteSettings()
@@ -20,7 +22,6 @@ const entered = ref(false)
  */
 const entryPhase = ref<'idle' | 'wipe' | 'flip' | 'gone'>('idle')
 const reducedMotion = ref(false)
-const ident = ref<HTMLAudioElement | null>(null)
 const beatCanvas = ref<HTMLCanvasElement | null>(null)
 const ringEls = ref<(SVGCircleElement | null)[]>([])
 const wordShellEl = ref<HTMLElement | null>(null)
@@ -183,10 +184,9 @@ const washes: Wash[] = []
 
 
 const playOpeningSound = () => {
-  const el = ident.value
   const src = identSrc.value
-  if (!el || !src || !soundOn.value) return
-  playIdentWithGraph(el, src)
+  if (!src || !soundOn.value) return
+  playIdentWithGraph(src, { onEnded: onAudioEnded })
 }
 
 const stopOpeningSound = () => {
@@ -254,17 +254,17 @@ const finishLeave = (opts: { skip?: boolean; naturalEnd?: boolean } = {}) => {
 
   const skip = !!opts.skip
   const naturalEnd = !!opts.naturalEnd
-  // Visual fade (CSS) starts immediately; music does a slow wet mellow dissolve.
+  // Visual fade (CSS) starts immediately; music does a long smooth dry fade under the next screen.
   // Stay mounted until the fade ends so Web Audio is not cut by unmount.
   const timing = soundOn.value
-    ? fadeIdentWithEcho({ skip, naturalEnd, el: ident.value })
+    ? fadeIdentWithEcho({ skip, naturalEnd })
     : { visualHintMs: skip ? 220 : 480, totalMs: skip ? 220 : 480 }
 
   if (removeTimer) window.clearTimeout(removeTimer)
-  // Site reveals after the music fade; UI itself is already opacity 0 from visualHintMs.
+  // Reveal the site on the visual cue; audio keeps fading underneath (trail owns disposal).
   removeTimer = window.setTimeout(
     () => emit('complete'),
-    Math.max(timing.visualHintMs + 40, timing.totalMs + 40),
+    timing.visualHintMs + 40,
   )
 }
 
@@ -282,7 +282,7 @@ const beginGrow = () => {
 
   if (reducedMotion.value) return
 
-  const el = ident.value
+  const el = getIdentAudio()
   let remaining = MUSIC_DURATION_MS
   if (el) {
     const t = Number.isFinite(el.currentTime) ? el.currentTime : 0
@@ -299,7 +299,7 @@ const beginGrow = () => {
 
 /** Safety / sound-off / reduced: leave only — never a timed grow-then-exit. */
 const finish = () => {
-  const el = ident.value
+  const el = getIdentAudio()
   const ended = !el || el.paused || el.ended
   finishLeave(ended && soundOn.value ? { naturalEnd: true } : {})
 }
@@ -589,7 +589,7 @@ const tickBeats = (now: number) => {
     return
   }
   const canvas = beatCanvas.value
-  const audio = ident.value
+  const audio = getIdentAudio()
   const dpr = Math.min(window.devicePixelRatio || 1, 2)
   const w = canvas ? canvas.width / dpr : 0
   const h = canvas ? canvas.height / dpr : 0
@@ -700,8 +700,8 @@ const startExperience = () => {
   entered.value = true
   beginEntryReveal()
   if (soundOn.value) {
-    // Begin wet fade early enough that the mellow dissolve is actually heard.
-    const OUTRO_FADE_MS = 2600
+    // Begin smooth dry fade early so it can dissolve across the site handoff.
+    const OUTRO_FADE_MS = 3800
     outroTimer = window.setTimeout(() => {
       outroTimer = undefined
       if (!leaving.value && !completed) finishLeave()
@@ -742,8 +742,8 @@ onBeforeUnmount(() => {
   clearEntryTimers()
   stopBeatLoop()
   resizeObs?.disconnect()
-  // Route change / hard unmount: never leave audio hanging.
-  stopIdentNow()
+  // Soft release: an in-flight smooth fade may outlive this component.
+  releaseIdentOnUnmount()
 })
 </script>
 
@@ -764,16 +764,6 @@ onBeforeUnmount(() => {
     }"
     :style="growing ? { '--pl-grow-ms': growMs + 'ms' } : undefined"
   >
-    <audio
-      v-if="identSrc"
-      ref="ident"
-      class="preloader__audio"
-      :src="identSrc"
-      preload="auto"
-      playsinline
-      aria-hidden="true"
-      @ended="onAudioEnded"
-    />
 
     <!--
       Cream entry veil sits ABOVE the dawn stage (z higher).

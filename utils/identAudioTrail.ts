@@ -1,29 +1,27 @@
 /**
- * Opening ident audio: dry path while playing, then a slow mellow fade with a
- * short wet delay trail so the song dissolves instead of cutting short.
- * Preloader stays mounted until the fade+trail ends.
+ * Opening ident audio lives in a module-owned <audio> + GainNode so a long
+ * smooth dry fade can continue after the preloader unmounts (screen handoff).
+ * No delay / reverb / echo — just an exponential dissolve.
  */
 
 type TrailState = {
   ctx: AudioContext | null
   source: MediaElementAudioSourceNode | null
   master: GainNode | null
-  wet: GainNode | null
-  delay: DelayNode | null
-  feedback: GainNode | null
   el: HTMLAudioElement | null
   fadeTimer: ReturnType<typeof setTimeout> | undefined
+  fading: boolean
+  endedHandler: ((ev: Event) => void) | null
 }
 
 const trail: TrailState = {
   ctx: null,
   source: null,
   master: null,
-  wet: null,
-  delay: null,
-  feedback: null,
   el: null,
-  fadeTimer: undefined
+  fadeTimer: undefined,
+  fading: false,
+  endedHandler: null
 }
 
 const clearFadeTimer = () => {
@@ -33,26 +31,41 @@ const clearFadeTimer = () => {
   }
 }
 
-const disconnectGraph = () => {
+const ensureElement = () => {
+  if (typeof window === 'undefined') return null
+  if (!trail.el) {
+    const el = new Audio()
+    el.preload = 'auto'
+    el.setAttribute('playsinline', '')
+    el.setAttribute('aria-hidden', 'true')
+    trail.el = el
+  }
+  return trail.el
+}
+
+export const getIdentAudio = () => trail.el
+
+export const disposeIdentTrail = (opts: { force?: boolean } = {}) => {
+  // Soft dispose during an active fade would cut the dissolve mid-handoff.
+  if (trail.fading && !opts.force) return
+  clearFadeTimer()
+  trail.fading = false
+  if (trail.el && trail.endedHandler) {
+    try {
+      trail.el.removeEventListener('ended', trail.endedHandler)
+    } catch {
+      /* ignore */
+    }
+  }
+  trail.endedHandler = null
   try {
-    trail.feedback?.disconnect()
-    trail.delay?.disconnect()
-    trail.wet?.disconnect()
     trail.master?.disconnect()
     trail.source?.disconnect()
   } catch {
     /* ignore */
   }
-  trail.feedback = null
-  trail.delay = null
-  trail.wet = null
   trail.master = null
   trail.source = null
-}
-
-export const disposeIdentTrail = (_opts: { force?: boolean } = {}) => {
-  clearFadeTimer()
-  disconnectGraph()
   if (trail.ctx) {
     const ctx = trail.ctx
     trail.ctx = null
@@ -61,12 +74,18 @@ export const disposeIdentTrail = (_opts: { force?: boolean } = {}) => {
   if (trail.el) {
     try {
       trail.el.pause()
-      trail.el.currentTime = 0
+      trail.el.removeAttribute('src')
+      trail.el.load()
     } catch {
       /* ignore */
     }
-    trail.el = null
   }
+}
+
+/** Unmount-safe: keep a running fade alive; otherwise hard-stop. */
+export const releaseIdentOnUnmount = () => {
+  if (trail.fading) return
+  disposeIdentTrail({ force: true })
 }
 
 const ensureGraph = (el: HTMLAudioElement) => {
@@ -77,109 +96,91 @@ const ensureGraph = (el: HTMLAudioElement) => {
 
   if (!trail.ctx || trail.ctx.state === 'closed') {
     trail.ctx = new AC()
-    disconnectGraph()
+    trail.source = null
+    trail.master = null
   }
   if (trail.ctx.state === 'suspended') void trail.ctx.resume().catch(() => undefined)
 
-  if (!trail.source || trail.el !== el) {
-    disconnectGraph()
+  // createMediaElementSource can only be called once per element — keep the pair.
+  if (!trail.source) {
     trail.source = trail.ctx.createMediaElementSource(el)
     trail.master = trail.ctx.createGain()
     trail.master.gain.value = 0.92
-
-    // Wet delay bed — silent until fade lifts it.
-    trail.delay = trail.ctx.createDelay(1.2)
-    trail.delay.delayTime.value = 0.22
-    trail.feedback = trail.ctx.createGain()
-    trail.feedback.gain.value = 0.32
-    trail.wet = trail.ctx.createGain()
-    trail.wet.gain.value = 0
-
     trail.source.connect(trail.master)
     trail.master.connect(trail.ctx.destination)
-
-    trail.master.connect(trail.delay)
-    trail.delay.connect(trail.feedback)
-    trail.feedback.connect(trail.delay)
-    trail.delay.connect(trail.wet)
-    trail.wet.connect(trail.ctx.destination)
-
-    trail.el = el
   }
   return true
 }
 
-export const playIdentWithGraph = (el: HTMLAudioElement, src: string) => {
+export const playIdentWithGraph = (
+  src: string,
+  opts: { onEnded?: () => void } = {},
+) => {
   disposeIdentTrail({ force: true })
+  const el = ensureElement()
+  if (!el || !src) return null
   try {
+    if (trail.endedHandler) {
+      el.removeEventListener('ended', trail.endedHandler)
+      trail.endedHandler = null
+    }
+    if (opts.onEnded) {
+      trail.endedHandler = () => opts.onEnded?.()
+      el.addEventListener('ended', trail.endedHandler)
+    }
     if (el.getAttribute('src') !== src) el.src = src
     el.pause()
     el.currentTime = 0
     el.volume = 1
     const wired = ensureGraph(el)
-    if (wired && trail.master && trail.wet && trail.ctx) {
-      const now = trail.ctx.currentTime
-      trail.master.gain.cancelScheduledValues(now)
-      trail.master.gain.setValueAtTime(0.92, now)
-      trail.wet.gain.cancelScheduledValues(now)
-      trail.wet.gain.setValueAtTime(0, now)
+    if (wired && trail.master && trail.ctx) {
+      trail.master.gain.cancelScheduledValues(trail.ctx.currentTime)
+      trail.master.gain.setValueAtTime(0.92, trail.ctx.currentTime)
     } else {
       el.volume = 0.92
     }
     const p = el.play()
     if (p && typeof p.catch === 'function') p.catch(() => undefined)
+    return el
   } catch {
-    /* Visual handoff never depends on audio. */
+    return null
   }
 }
 
 /**
- * Slow mellow fade with a wet delay dissolve.
- * Skip stays short. Natural/end starts early enough that the trail is heard.
+ * Long exponential dry fade — no echo. UI may leave early; audio keeps going.
  */
 export const fadeIdentWithEcho = (
-  opts: { skip?: boolean; naturalEnd?: boolean; el?: HTMLAudioElement | null } = {},
+  opts: { skip?: boolean; naturalEnd?: boolean } = {},
 ) => {
   const skip = !!opts.skip
   const naturalEnd = !!opts.naturalEnd
-  // Long gentle dry fade; wet hang lets the echo decay after dry hits silence.
-  const fadeMs = skip ? 280 : naturalEnd ? 1600 : 2400
-  const hangMs = skip ? 80 : naturalEnd ? 1100 : 1400
+  const fadeMs = skip ? 320 : naturalEnd ? 2800 : 3600
+  const hangMs = skip ? 40 : 160
   const totalMs = fadeMs + hangMs
-  const visualHintMs = skip ? 220 : Math.min(900, fadeMs * 0.35)
-  const el = opts.el || trail.el
+  const visualHintMs = skip ? 220 : 720
+  const el = trail.el || ensureElement()
 
   if (!el) {
     disposeIdentTrail({ force: true })
     return { fadeMs, totalMs, visualHintMs }
   }
 
-  trail.el = el
+  trail.fading = true
 
   try {
     if (trail.master && trail.ctx && trail.ctx.state !== 'closed') {
       const ctx = trail.ctx
       const now = ctx.currentTime
-      const dry = trail.master.gain
-      const wet = trail.wet?.gain
-      dry.cancelScheduledValues(now)
-      const cur = Math.max(0.0001, dry.value || 0.92)
-      dry.setValueAtTime(cur, now)
-      // Exponential-ish mellow: hold a beat, then ease to near-zero.
-      dry.setValueAtTime(cur, now + 0.08)
-      dry.exponentialRampToValueAtTime(0.0001, now + fadeMs / 1000)
-
-      if (wet) {
-        wet.cancelScheduledValues(now)
-        wet.setValueAtTime(Math.max(0.0001, wet.value || 0.0001), now)
-        // Lift wet briefly as dry falls, then dissolve.
-        wet.linearRampToValueAtTime(0.42, now + Math.min(0.45, fadeMs / 1000 / 3))
-        wet.exponentialRampToValueAtTime(0.0001, now + totalMs / 1000)
-      }
-
+      const g = trail.master.gain
+      g.cancelScheduledValues(now)
+      const cur = Math.max(0.0001, g.value || 0.92)
+      g.setValueAtTime(cur, now)
+      g.exponentialRampToValueAtTime(0.0001, now + fadeMs / 1000)
       clearFadeTimer()
       trail.fadeTimer = window.setTimeout(() => {
         trail.fadeTimer = undefined
+        trail.fading = false
         try {
           el.pause()
           el.currentTime = 0
@@ -187,7 +188,7 @@ export const fadeIdentWithEcho = (
           /* ignore */
         }
         disposeIdentTrail({ force: true })
-      }, totalMs + 120)
+      }, totalMs + 80)
       return { fadeMs, totalMs, visualHintMs }
     }
   } catch {
@@ -198,11 +199,11 @@ export const fadeIdentWithEcho = (
   const t0 = performance.now()
   const step = (t: number) => {
     const u = Math.min(1, (t - t0) / Math.max(1, fadeMs))
-    // Ease-out mellow curve
-    const eased = 1 - Math.pow(1 - u, 2.2)
+    const eased = 1 - Math.pow(1 - u, 3.2)
     el.volume = Math.max(0, startVol * (1 - eased))
     if (u < 1) requestAnimationFrame(step)
     else {
+      trail.fading = false
       try {
         el.pause()
         el.currentTime = 0
@@ -213,9 +214,10 @@ export const fadeIdentWithEcho = (
     }
   }
   requestAnimationFrame(step)
-  return { fadeMs, totalMs: fadeMs + hangMs, visualHintMs }
+  return { fadeMs, totalMs, visualHintMs }
 }
 
 export const stopIdentNow = () => {
+  trail.fading = false
   disposeIdentTrail({ force: true })
 }

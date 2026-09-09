@@ -120,11 +120,11 @@ onBeforeUnmount(() => {
       aria-controls="newsletter-inline-panel"
       @click="openInline"
     >
-      <span>Friday newsletter</span>
+      <span class="nl-inline__label">Friday newsletter</span>
       <span class="nl-inline__bell" aria-hidden="true">
-        <svg viewBox="0 0 16 16" width="14" height="14" fill="none">
-          <path d="M8 1.6c-1.7 0-3.1 1.3-3.1 3v1.4c0 .9-.3 1.7-.8 2.4l-.5.7c-.2.3 0 .8.4.8h8c.4 0 .6-.5.4-.8l-.5-.7c-.5-.7-.8-1.5-.8-2.4V4.6c0-1.7-1.4-3-3.1-3Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
-          <path d="M6.4 12.2a1.7 1.7 0 0 0 3.2 0" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+        <svg class="nl-inline__bell-svg" viewBox="0 0 24 24" width="15" height="15" fill="none">
+          <path d="M12 3.2c-2.4 0-4.3 1.9-4.3 4.2v1.6c0 1.2-.4 2.3-1.1 3.2l-.7.9c-.35.45-.03 1.1.55 1.1h11.1c.58 0 .9-.65.55-1.1l-.7-.9c-.7-.9-1.1-2-1.1-3.2V7.4c0-2.3-1.9-4.2-4.3-4.2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+          <path d="M9.6 17.2a2.5 2.5 0 0 0 4.8 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
         </svg>
       </span>
     </button>
@@ -189,13 +189,14 @@ onBeforeUnmount(() => {
 .nl-inline__trigger {
   display: inline-flex;
   align-items: center;
-  min-height: 40rem;
-  padding: 8rem 16rem;
+  gap: 10rem;
+  min-height: 42rem;
+  padding: 10rem 18rem 10rem 16rem;
   border: var(--stroke) solid color-mix(in srgb, var(--ink) 42%, transparent);
   border-radius: var(--radius-full);
   background: transparent;
   color: var(--ink);
-  font: 600 13rem/1.2 var(--font-ui);
+  font: 600 13rem/1 var(--font-ui);
   letter-spacing: -.01em;
   cursor: pointer;
   transition:
@@ -334,4 +335,46 @@ onBeforeUnmount(() => {
 .newsletter__status.is-error { background: color-mix(in srgb, #d64545 14%, var(--paper)); color: var(--danger); }
 @media (max-width: 1000px) { .newsletter { grid-template-columns: auto 1fr; } .newsletter__form { grid-column: 1 / -1; } }
 @media (max-width: 580px) { .newsletter { grid-template-columns: 1fr; gap: 16rem; padding: 25rem; } .newsletter__mark { width: 64rem; height: 64rem; box-shadow: 4rem 4rem 0 var(--ink); } .newsletter__field { display: grid; } .newsletter button { min-height: 46rem; } .newsletter::after { right: -310rem; } }
+
+.nl-inline__label {
+  display: inline-block;
+  line-height: 1;
+  transform: translateY(0.5px);
+}
+.nl-inline__bell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16rem;
+  height: 16rem;
+  flex: none;
+  color: var(--ink);
+  /* optical vertical align with cap-height of 13px UI text */
+  margin-top: 1px;
+}
+.nl-inline__bell-svg {
+  display: block;
+  width: 15rem;
+  height: 15rem;
+}
+</style>
+
+<style>
+/* Unscoped: scoped keyframes were never shipping, so the bell sat dead. */
+.nl-inline__bell-svg {
+  transform-origin: 50% 8%;
+  animation: nl-bell-ring 1.8s ease-in-out infinite;
+}
+@keyframes nl-bell-ring {
+  0%, 100% { transform: rotate(0deg); }
+  6% { transform: rotate(16deg); }
+  12% { transform: rotate(-14deg); }
+  18% { transform: rotate(12deg); }
+  24% { transform: rotate(-8deg); }
+  30% { transform: rotate(5deg); }
+  36%, 100% { transform: rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nl-inline__bell-svg { animation: none !important; }
+}
 </style>

@@ -778,7 +778,7 @@ onBeforeUnmount(() => {
     <!--
       Cream entry veil sits ABOVE the dawn stage (z higher).
       On tap: stage/audio already running under; veil circle-wipes to the logo, then logo flip-fades.
-      Idle cue: soft two-pulse breathe on the entry mark (no hand / tap label).
+      Idle cue: soft logo breathe + calm “tap anywhere” / Skip copy (no hand pointer).
     -->
     <button
       v-if="showEntry"
@@ -804,6 +804,20 @@ onBeforeUnmount(() => {
           <circle cx="120" cy="120" r="30" fill="none" stroke="currentColor" stroke-width="18" />
           <text x="120" y="158" text-anchor="middle" class="preloader__entry-brand-e">e</text>
         </svg>
+      </span>
+      <span
+        v-if="entryPhase === 'idle'"
+        class="preloader__entry-cue"
+        aria-hidden="true"
+      >
+        Tap anywhere to begin
+      </span>
+      <span
+        v-if="entryPhase === 'idle'"
+        class="preloader__entry-skip-hint"
+        aria-hidden="true"
+      >
+        Prefer to skip? Use <strong>Skip intro</strong> at the bottom — it ends this opening and opens the site.
       </span>
     </button>
 
@@ -893,13 +907,14 @@ onBeforeUnmount(() => {
       type="button"
       class="preloader__skip"
       :class="{ 'preloader__skip--on': true }"
-      aria-label="Skip intro"
+      aria-label="Skip intro — end the opening and go straight to the site"
+      title="Skip intro — end the opening and go straight to the site"
       @click.stop="skip"
     >
       Skip intro
     </button>
 
-    <span class="sr-only" role="status" aria-live="polite">{{ entered ? 'Preparing Entertrainer' : 'Click the logo to enter Entertrainer' }}</span>
+    <span class="sr-only" role="status" aria-live="polite">{{ entered ? 'Preparing Entertrainer' : 'Tap anywhere to begin. Skip intro at the bottom ends this opening and opens the site.' }}</span>
   </div>
 </template>
 
@@ -929,7 +944,7 @@ onBeforeUnmount(() => {
   display: grid;
   place-content: center;
   justify-items: center;
-  gap: 14rem;
+  gap: 18rem;
   width: 100%;
   height: 100%;
   margin: 0;
@@ -992,7 +1007,40 @@ onBeforeUnmount(() => {
   border-color: rgb(21 18 15 / .35);
 }
 
-/* Idle cue: two soft breathes on the mark, then settle — no hand / tap chrome. */
+/* Calm entry copy — stays readable with reduce-motion; no hand pointer. */
+.preloader__entry-cue {
+  margin: 0;
+  color: rgb(21 18 15 / .62);
+  font-family: var(--font-ui), Arial, sans-serif;
+  font-size: clamp(13rem, 2.1vw, 16rem);
+  font-weight: 600;
+  letter-spacing: .04em;
+  line-height: 1.25;
+  text-align: center;
+}
+.preloader__entry-skip-hint {
+  max-width: 34ch;
+  margin: 2rem 0 0;
+  color: rgb(21 18 15 / .42);
+  font-family: var(--font-ui), Arial, sans-serif;
+  font-size: clamp(11rem, 1.7vw, 13rem);
+  font-weight: 500;
+  letter-spacing: .02em;
+  line-height: 1.45;
+  text-align: center;
+}
+.preloader__entry-skip-hint strong {
+  font-weight: 700;
+  color: rgb(21 18 15 / .55);
+}
+.preloader__entry.entry--wipe .preloader__entry-cue,
+.preloader__entry.entry--flip .preloader__entry-cue,
+.preloader__entry.entry--wipe .preloader__entry-skip-hint,
+.preloader__entry.entry--flip .preloader__entry-skip-hint {
+  opacity: 0;
+}
+
+/* Idle cue: two soft breathes on the mark, then settle — no hand pointer. */
 .preloader__entry-mark.entry-mark--cue {
   animation: pl-entry-idle-breathe 4.8s cubic-bezier(.45, 0, .55, 1) .55s 1 both;
 }

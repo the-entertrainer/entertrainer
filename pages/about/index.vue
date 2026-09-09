@@ -14,66 +14,42 @@ useSeoMeta({
 const clubMahindraPhotos: PhotoTileItem[] = [
   {
     src: '/about/about-housekeeper-1.webp',
-    alt: 'Naveen bent over an under-maintenance game table in Coorg, sketching on a whiteboard during the Club Mahindra years.',
-    fit: 'contain',
-    objectPosition: 'center center',
-    span: 'wide'
+    alt: 'Naveen bent over an under-maintenance game table in Coorg, sketching on a whiteboard during the Club Mahindra years.'
   },
   {
     src: '/about/about-sewa-2.webp',
-    alt: 'Printed SEWA comic draft pages spread across a round white table in Coorg.',
-    fit: 'contain',
-    objectPosition: 'center center',
-    span: 'wide'
+    alt: 'Printed SEWA comic draft pages spread across a round white table in Coorg.'
   }
 ]
 
 const marriottPhotos: PhotoTileItem[] = [
   {
     src: '/about/naveen-speaking-stage.jpg',
-    alt: 'Naveen presenting with a handheld microphone to an audience in a wood-panelled room at Courtyard by Marriott, Mahabaleshwar.',
-    fit: 'cover',
-    objectPosition: 'center top',
-    span: 'hero'
+    alt: 'Naveen presenting with a handheld microphone to an audience in a wood-panelled room at Courtyard by Marriott, Mahabaleshwar.'
   },
   {
     src: '/about/naveen-speaking-close.jpg',
-    alt: 'Close portrait of Naveen speaking into a wireless microphone during a session at Courtyard by Marriott, Mahabaleshwar.',
-    fit: 'contain',
-    objectPosition: 'center top',
-    span: 'tall'
+    alt: 'Close portrait of Naveen speaking into a wireless microphone during a session at Courtyard by Marriott, Mahabaleshwar.'
   },
   {
     src: '/about/naveen-speaking-projector.jpg',
-    alt: 'Naveen speaking to an audience with a projector visible in the foreground at Courtyard by Marriott, Mahabaleshwar.',
-    fit: 'cover',
-    objectPosition: 'center center',
-    span: 'normal'
+    alt: 'Naveen speaking to an audience with a projector visible in the foreground at Courtyard by Marriott, Mahabaleshwar.'
   },
   {
     src: '/about/about-cdt.webp',
-    alt: 'CDT Masterclass Training the Trainers collage from Courtyard by Marriott, Mahabaleshwar.',
-    fit: 'contain',
-    span: 'wide'
+    alt: 'CDT Masterclass Training the Trainers collage from Courtyard by Marriott, Mahabaleshwar.'
   },
   {
     src: '/about/about-ignite.webp',
-    alt: 'Ignite by Marriott International event collage at Courtyard by Marriott, Mahabaleshwar.',
-    fit: 'contain',
-    span: 'normal'
+    alt: 'Ignite by Marriott International event collage at Courtyard by Marriott, Mahabaleshwar.'
   },
   {
     src: '/about/about-onboarding.webp',
-    alt: 'Gurukul Heroes on Board workshop collage at Courtyard by Marriott, Mahabaleshwar.',
-    fit: 'contain',
-    span: 'tall'
+    alt: 'Gurukul Heroes on Board workshop collage at Courtyard by Marriott, Mahabaleshwar.'
   },
   {
     src: '/about/club-mahindra-resort.jpg',
-    alt: 'Pool and tiered facade of Courtyard by Marriott, Mahabaleshwar.',
-    fit: 'cover',
-    objectPosition: 'center 40%',
-    span: 'wide'
+    alt: 'Pool and tiered facade of Courtyard by Marriott, Mahabaleshwar.'
   }
 ]
 </script>
@@ -82,8 +58,7 @@ const marriottPhotos: PhotoTileItem[] = [
   <main id="main" class="about-story">
     <header class="about-story__hero">
       <div class="about-story__intro">
-        <h1>I mopped floors before I designed learning.</h1>
-        <p class="about-story__deck">Udaipur stairs. Coorg phone calls. A Marriott mic. Then this.</p>
+        <h1>I am Naveen, I’m an instructional designer.</h1>
       </div>
       <figure class="about-story__hero-art">
         <EdEditorialImage
@@ -229,8 +204,7 @@ const marriottPhotos: PhotoTileItem[] = [
 <style scoped>
 .about-story { max-width: var(--shell-page); margin: 0 auto; padding: clamp(44rem, 8vw, 112rem) var(--shell-gutter) clamp(70rem, 10vw, 130rem); }
 .about-story__hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260rem, .85fr); gap: clamp(32rem, 8vw, 120rem); align-items: end; padding-bottom: clamp(46rem, 8vw, 86rem); border-bottom: var(--stroke) solid var(--ink); }
-.about-story h1 { max-width: 16ch; margin: 0; font: 500 clamp(58rem, 9.5vw, 132rem)/.82 var(--font-display); letter-spacing: -.08em; }
-.about-story__deck { max-width: 34ch; margin: 22rem 0 0; font: 400 clamp(20rem, 2.3vw, 28rem)/1.3 var(--font-reading); }
+.about-story h1 { max-width: 18ch; margin: 0; font: 500 clamp(42rem, 7.2vw, 92rem)/.92 var(--font-display); letter-spacing: -.06em; }
 
 /* Plain photo — rounded corners only, no heavy frame */
 .about-story__hero-art {

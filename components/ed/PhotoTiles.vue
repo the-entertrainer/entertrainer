@@ -2,9 +2,10 @@
 export type PhotoTileItem = {
   src: string
   alt: string
+  /** Prefer contain; cover only when intentionally framed. */
   fit?: 'contain' | 'cover'
   objectPosition?: string
-  /** Optional mosaic weight */
+  /** @deprecated Mosaic spans unused — tiles hug native image aspect. */
   span?: 'normal' | 'wide' | 'tall' | 'hero'
 }
 
@@ -31,20 +32,6 @@ onMounted(() => {
 })
 
 const count = computed(() => props.photos.length)
-
-function spanClass(photo: PhotoTileItem, i: number) {
-  if (expanded.value === i) return 'is-expanded'
-  const span = photo.span || defaultSpan(i, count.value)
-  return `photo-tiles__tile--${span}`
-}
-
-function defaultSpan(i: number, n: number): string {
-  if (n <= 2) return i === 0 ? 'wide' : 'wide'
-  if (n <= 3) return i === 0 ? 'hero' : 'normal'
-  // Marriott-ish mosaic: lead hero, then mix
-  const pattern = ['hero', 'tall', 'normal', 'wide', 'normal', 'tall', 'wide']
-  return pattern[i % pattern.length] || 'normal'
-}
 
 function toggle(i: number) {
   if (count.value <= 1) return
@@ -73,8 +60,7 @@ function onKey(e: KeyboardEvent, i: number) {
 
 function focusTile(i: number) {
   nextTick(() => {
-    const el = document.getElementById(`photo-tile-${i}`)
-    el?.focus()
+    document.getElementById(`photo-tile-${i}`)?.focus()
   })
 }
 
@@ -102,11 +88,11 @@ function isEager(i: number) {
       :key="photo.src"
       type="button"
       class="photo-tiles__tile"
-      :class="spanClass(photo, i)"
+      :class="{ 'is-expanded': expanded === i }"
       :aria-expanded="expanded === i"
       :aria-label="photo.alt"
       :style="{
-        '--fit': photo.fit || 'cover',
+        '--fit': photo.fit || 'contain',
         '--pos': photo.objectPosition || 'center center',
         '--i': String(i)
       }"
@@ -127,51 +113,60 @@ function isEager(i: number) {
 </template>
 
 <style scoped>
+/*
+ * Masonry that hugs each photo: CSS columns + natural image height.
+ * No fixed cell aspect → no cover-crop, no cream letterbox holes.
+ */
 .photo-tiles {
   --tile-gap: 10rem;
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  grid-auto-rows: minmax(88rem, 118rem);
-  gap: var(--tile-gap);
+  column-count: 2;
+  column-gap: var(--tile-gap);
   width: min(100%, 720rem);
   margin: clamp(36rem, 6vw, 64rem) 0;
   isolation: isolate;
 }
 
-.photo-tiles--pair {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: minmax(160rem, 220rem);
+.photo-tiles--solo {
+  column-count: 1;
+  width: min(100%, 480rem);
 }
 
-.photo-tiles--solo {
-  grid-template-columns: 1fr;
-  grid-auto-rows: minmax(200rem, 280rem);
+.photo-tiles--pair {
+  column-count: 2;
 }
 
 .photo-tiles__tile {
-  position: relative;
-  margin: 0;
+  display: block;
+  width: 100%;
+  margin: 0 0 var(--tile-gap);
   padding: 0;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   overflow: hidden;
-  background: #F7F1E4;
+  /* Only a hairline of paper — frame hugs the bitmap */
+  background: transparent;
   cursor: zoom-in;
   appearance: none;
   -webkit-appearance: none;
   color: inherit;
   font: inherit;
   text-align: left;
+  line-height: 0;
   transform-origin: center center;
   transition:
     transform 380ms var(--ease-spring, cubic-bezier(.2, .9, .2, 1)),
     box-shadow 280ms var(--ease-out, ease),
     border-color 200ms var(--ease-out, ease),
-    grid-column 380ms var(--ease-spring, cubic-bezier(.2, .9, .2, 1)),
-    grid-row 380ms var(--ease-spring, cubic-bezier(.2, .9, .2, 1)),
     filter 280ms var(--ease-out, ease);
   animation: photo-tile-settle 560ms var(--ease-spring, cubic-bezier(.2, .9, .2, 1)) both;
   animation-delay: calc(var(--i, 0) * 45ms);
+}
+
+.photo-tiles__tile:last-child {
+  margin-bottom: 0;
 }
 
 .photo-tiles__tile:focus-visible {
@@ -182,77 +177,39 @@ function isEager(i: number) {
 
 .photo-tiles__tile:hover {
   z-index: 3;
-  transform: translateY(-4rem) scale(1.02);
-  box-shadow: 0 14rem 28rem color-mix(in srgb, var(--ink) 18%, transparent);
+  transform: translateY(-3rem);
+  box-shadow: 0 12rem 24rem color-mix(in srgb, var(--ink) 16%, transparent);
   border-color: var(--accent);
 }
 
 .photo-tiles__tile.is-expanded {
   z-index: 5;
   cursor: zoom-out;
-  transform: translateY(-2rem) scale(1.01);
+  column-span: all;
+  width: 100%;
+  margin-bottom: var(--tile-gap);
   border-color: var(--accent);
   box-shadow:
     0 0 0 3rem var(--accent),
-    0 18rem 36rem color-mix(in srgb, var(--ink) 22%, transparent);
+    0 16rem 32rem color-mix(in srgb, var(--ink) 20%, transparent);
 }
 
 .photo-tiles--has-expanded .photo-tiles__tile:not(.is-expanded) {
-  filter: saturate(0.86) brightness(0.96);
+  filter: saturate(0.88) brightness(0.97);
 }
 
 .photo-tiles__tile img {
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: var(--fit, cover);
+  height: auto;
+  max-width: 100%;
+  /* Natural aspect — contain only if a parent ever constrains height */
+  object-fit: var(--fit, contain);
   object-position: var(--pos, center center);
   pointer-events: none;
   user-select: none;
-  background: #F7F1E4;
-  transition: transform 480ms var(--ease-spring, cubic-bezier(.2, .9, .2, 1));
-}
-
-.photo-tiles__tile:hover img,
-.photo-tiles__tile.is-expanded img {
-  transform: scale(1.04);
-}
-
-/* Mosaic spans — Windows-tile energy */
-.photo-tiles__tile--normal { grid-column: span 2; grid-row: span 2; }
-.photo-tiles__tile--wide { grid-column: span 3; grid-row: span 2; }
-.photo-tiles__tile--tall { grid-column: span 2; grid-row: span 3; }
-.photo-tiles__tile--hero { grid-column: span 4; grid-row: span 3; }
-
-.photo-tiles--pair .photo-tiles__tile--wide,
-.photo-tiles--pair .photo-tiles__tile--hero,
-.photo-tiles--pair .photo-tiles__tile--tall,
-.photo-tiles--pair .photo-tiles__tile--normal {
-  grid-column: span 1;
-  grid-row: span 1;
-}
-
-.photo-tiles__tile.is-expanded {
-  grid-column: 1 / -1;
-  grid-row: span 4;
-  min-height: 280rem;
-}
-
-.photo-tiles--pair .photo-tiles__tile.is-expanded {
-  grid-column: 1 / -1;
-  grid-row: span 1;
-  min-height: 260rem;
-}
-
-@keyframes photo-tile-settle {
-  from {
-    opacity: 0;
-    transform: translateY(10rem) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  background: transparent;
+  vertical-align: top;
 }
 
 .sr-only {
@@ -267,33 +224,41 @@ function isEager(i: number) {
   border: 0;
 }
 
+@keyframes photo-tile-settle {
+  from {
+    opacity: 0;
+    transform: translateY(8rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (min-width: 701px) {
+  .photo-tiles:not(.photo-tiles--solo):not(.photo-tiles--pair) {
+    column-count: 3;
+  }
+}
+
 @media (max-width: 700px) {
   .photo-tiles {
     width: 100%;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-auto-rows: minmax(76rem, 100rem);
+    column-count: 2;
     --tile-gap: 8rem;
   }
 
-  .photo-tiles__tile--normal { grid-column: span 2; grid-row: span 2; }
-  .photo-tiles__tile--wide { grid-column: span 4; grid-row: span 2; }
-  .photo-tiles__tile--tall { grid-column: span 2; grid-row: span 3; }
-  .photo-tiles__tile--hero { grid-column: span 4; grid-row: span 3; }
-
   .photo-tiles--pair {
-    grid-template-columns: 1fr;
-    grid-auto-rows: minmax(150rem, 190rem);
+    column-count: 1;
   }
 
-  .photo-tiles__tile.is-expanded {
-    min-height: 220rem;
-    grid-row: span 3;
+  .photo-tiles--solo {
+    column-count: 1;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .photo-tiles__tile,
-  .photo-tiles__tile img {
+  .photo-tiles__tile {
     transition: none;
     animation: none;
   }
@@ -301,23 +266,14 @@ function isEager(i: number) {
   .photo-tiles__tile.is-expanded {
     transform: none;
   }
-  .photo-tiles__tile:hover img,
-  .photo-tiles__tile.is-expanded img {
-    transform: none;
-  }
 }
 
-.photo-tiles--reduce .photo-tiles__tile,
-.photo-tiles--reduce .photo-tiles__tile img {
+.photo-tiles--reduce .photo-tiles__tile {
   transition: none;
   animation: none;
 }
 .photo-tiles--reduce .photo-tiles__tile:hover,
 .photo-tiles--reduce .photo-tiles__tile.is-expanded {
-  transform: none;
-}
-.photo-tiles--reduce .photo-tiles__tile:hover img,
-.photo-tiles--reduce .photo-tiles__tile.is-expanded img {
   transform: none;
 }
 </style>

@@ -262,18 +262,18 @@ const marriottPhotos: PhotoTileItem[] = [
 
       <EdNote label="A note from me">
         <p>
-          If you came looking for a neat arc — village kid, mop, comic, designer — close enough.
+          You define yourself — who you want to be.
+          Age, caste, creed, religion… none of that should stop you from knowledge.
         </p>
         <p>
-          The quieter continuity: I still trust systems that do not lie to me.
-          Floors. Logs. Lessons. A page that holds when someone checks.
+          Chase knowledge. It is the language of the gods.
         </p>
         <p>
-          That kid with a thousand fears did not become fearless.
-          He found better work for the fear — make something true enough that it can leave the room without you.
+          Once you have decided to chase it down, only the gods may stop you.
         </p>
-        <p>
-          Comic above. Thinking below. Either way — welcome.
+        <p class="about-story__signoff">
+          With love,<br>
+          Your Naveen
         </p>
       </EdNote>
     </article>
@@ -352,6 +352,11 @@ const marriottPhotos: PhotoTileItem[] = [
   margin-right: calc(clamp(0rem, 6vw, 80rem) * -1);
   width: auto;
   max-width: none;
+}
+
+.about-story__signoff {
+  margin-top: 22rem;
+  font: 500 17rem/1.45 var(--font-reading);
 }
 
 .about-story__article :deep(.note) {

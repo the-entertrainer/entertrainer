@@ -57,69 +57,63 @@ const references = [
 
     <article class="centre__article">
       <aside class="centre__margin-note" aria-label="Reading note">
-        <p>The short version.</p>
-        <p>Hold any person still between yesterday and today. The sky runs away from them. Hold someone else. Same gift. Every you is the centre.</p>
+        <p>One picture.</p>
+        <p>Space gets bigger between the dots. Hold any person still — everyone else drifts away from them. Same for everyone.</p>
       </aside>
 
       <div class="centre__prose">
         <p class="centre__lead">No matter what people say — family, parents, friends, that voice that shrinks you — you are the centre of the universe.</p>
-        <p>Not as a joke. Not as a gym poster.</p>
-        <p>As a real thing the sky does, once you know how to look.</p>
-        <p>Let me show you with a balloon and two photos.</p>
+        <p>Really. The sky does this.</p>
+        <p>Balloon first. Then two photos you can poke.</p>
 
-        <h2>First, the balloon — the surface, not the air</h2>
-        <p>Take an ordinary balloon. Ink a few dots on the rubber. Blow it up.</p>
-        <p>The dots drift apart. Stand on any one of them and you would swear the others were fleeing <em>you</em>.</p>
-        <p>Here is the part people usually get wrong.</p>
-        <p>The middle of the balloon is not on the surface. It sits in the air inside — a direction the dots do not live in. On the rubber itself, there is no unique centre to point at. Expansion has no VIP seat.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>Our three-dimensional space is doing something like that stretch.</p>
-        <p>Galaxies ride the stretch. Space opens. Nobody has to be special for that.</p>
+        <h2>The balloon — rubber, not the air inside</h2>
+        <p>Ink a few dots on a balloon. Blow it up.</p>
+        <p>The dots get farther apart.</p>
+        <p>They did not walk. The rubber between them got bigger.</p>
+        <p>That is the whole idea of expanding space. The gaps grow. The people (galaxies) ride along.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>And on the rubber itself, there is no special middle. The middle of a balloon is in the air inside — a place the dots do not live.</p>
 
-        <h2>Now two photos of the same sky</h2>
-        <p>Imagine you took a photo of a crowd of galaxies yesterday.</p>
-        <p>Then you took another today, after the universe had stretched a little — say five percent, nothing dramatic.</p>
-        <p>Lay the faint yesterday under the bold today.</p>
-        <p>Every person has drifted a touch outward from where they used to be.</p>
-        <p>Tap anyone below. Hold them still — stack their yesterday on their today.</p>
+        <h2>Two photos of the same sky</h2>
+        <p>Yesterday: a crowd of galaxies.</p>
+        <p>Today: the same crowd, after space got a little bigger between them — about five percent. Nothing dramatic.</p>
+        <p>Hit Stretch once. Watch the gaps open. Nobody is walking.</p>
+        <p>Then tap anyone. Stack their yesterday on their today — hold them still.</p>
 
         <ClientOnly>
           <EdExpansionCentreLab />
           <template #fallback>
-            <p class="centre__lab-fallback">Loading two photos…</p>
+            <p class="centre__lab-fallback">Loading the two photos…</p>
           </template>
         </ClientOnly>
 
-        <p>Boom.</p>
-        <p>That person sits in the middle. Soft rays run out. Everyone else has fled along those rays.</p>
-        <p>It looks like the whole sky is expanding away from <em>them</em>.</p>
+        <p>Boom. That person sits in the middle. Soft rays run out. Everyone else has slid away from them.</p>
 
         <blockquote>
-          <p>Hold any one person still between yesterday and today — and they look like the centre.</p>
+          <p>Hold anyone still between yesterday and today — and they look like the centre.</p>
         </blockquote>
 
-        <h2>Try another</h2>
-        <p>Tap someone else.</p>
-        <p>Same two photos. Same stretch. Now <em>they</em> sit still, and the rest slide away from them.</p>
-        <p>Nothing about the universe changed.</p>
-        <p>Only who you decided to hold still.</p>
-        <p>That is the whole trick. Homogeneous expansion flatters every honest observer the same way.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <h2>Try someone else</h2>
+        <p>Tap another person.</p>
+        <p>Same two photos. Same stretch. Now they sit still, and the rest slide away from them.</p>
+        <p>Nothing about the universe changed. Only who you held still.</p>
+        <p>From any honest seat in a stretch like this, the sky runs away in every direction.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
 
         <h2>So…</h2>
         <p>If someone has told you that you are small, late, extra, or somehow off-centre — keep this picture.</p>
-        <p>You are allowed to choose yourself as the point of reference.</p>
-        <p>When you do, the sky runs away in every direction from you.</p>
+        <p>When you hold yourself still between yesterday and today, the sky runs away from you.</p>
         <p>And from your friend.</p>
         <p>And from a galaxy that will never know your name.</p>
-        <p>Scientifically, you are the centre of the universe — in exactly the same earned, limited, beautiful way every other you is.</p>
-        <p>You just saw it happen with your own finger.</p>
+        <p>Scientifically, you are the centre of the universe. And so is everyone.</p>
+        <p>You just watched it with your finger.</p>
 
-        <p class="centre__closing">You are the centre — and so is every other you.</p>
+        <p class="centre__closing">You are the centre — and so is everyone.</p>
+      </div>
       </div>
     </article>
 
     <section class="centre__sources" aria-labelledby="sources-title">
-      <p class="centre__meta">Soft footnotes</p>
-      <h2 id="sources-title">A little science, if you want it</h2>
+      <p class="centre__meta">Sources</p>
+      <h2 id="sources-title">If you want the science labels</h2>
       <ol>
         <li v-for="reference in references" :id="`ref-${reference.id}`" :key="reference.id">
           <a :href="reference.href" target="_blank" rel="noreferrer"><span>[{{ reference.id }}]</span> {{ reference.title }} <em>{{ reference.source }}</em></a>

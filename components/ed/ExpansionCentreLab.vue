@@ -1,15 +1,15 @@
 <script setup lang="ts">
 /**
- * Two photos of the same sky: faint yesterday, bold today (~5% stretch).
- * Tap anyone so their yesterday and today stack — that point looks like the
- * centre; everyone else flees along soft rays. Photo trick, not lab chrome.
+ * Two photos: Stretch space (~5%), then tap anyone so yesterday/today stack.
+ * That person looks like the centre; everyone else flees along soft rays.
  */
+
 import { computed, onMounted, onBeforeUnmount, ref, shallowRef } from 'vue'
 
 type Dot = { id: number; x: number; y: number; r: number }
 
 const DOT_COUNT = 42
-const SCALE = 1.05
+const TARGET_SCALE = 1.05
 const FIELD_PAD = 0.1
 const HIT_PAD = 22
 
@@ -17,6 +17,10 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 const wrapRef = ref<HTMLElement | null>(null)
 const refId = ref<number | null>(null)
 const reducedMotion = ref(false)
+/** 1 = yesterday/today stacked; TARGET_SCALE = space already stretched. */
+const displayScale = ref(1)
+const stretched = ref(false)
+let stretchRaf = 0
 
 const dots = shallowRef<Dot[]>([])
 const viewW = ref(640)
@@ -92,18 +96,20 @@ function pastOf(d: Dot) {
 
 function presentOf(d: Dot) {
   const { cx, cy } = fieldCentre()
+  const s = displayScale.value
   return {
-    x: cx + (d.x - cx) * SCALE + dragTx.value,
-    y: cy + (d.y - cy) * SCALE + dragTy.value
+    x: cx + (d.x - cx) * s + dragTx.value,
+    y: cy + (d.y - cy) * s + dragTy.value
   }
 }
 
 /** Translation that stacks today onto yesterday for this person. */
 function requiredT(d: Dot) {
   const { cx, cy } = fieldCentre()
+  const s = displayScale.value
   return {
-    tx: (d.x - cx) * (1 - SCALE),
-    ty: (d.y - cy) * (1 - SCALE)
+    tx: (d.x - cx) * (1 - s),
+    ty: (d.y - cy) * (1 - s)
   }
 }
 
@@ -146,6 +152,44 @@ function setReference(id: number | null, animate = true) {
 
 function clearReference() {
   setReference(null, false)
+}
+
+function playStretch() {
+  if (stretchRaf) cancelAnimationFrame(stretchRaf)
+  setReference(null, false)
+  const from = displayScale.value
+  const to = TARGET_SCALE
+  if (reducedMotion.value || Math.abs(from - to) < 0.001) {
+    displayScale.value = to
+    stretched.value = true
+    draw()
+    return
+  }
+  const t0 = performance.now()
+  const dur = 1100
+  const step = (now: number) => {
+    const u = Math.min(1, (now - t0) / dur)
+    const ease = 1 - Math.pow(1 - u, 3)
+    displayScale.value = from + (to - from) * ease
+    draw()
+    if (u < 1) stretchRaf = requestAnimationFrame(step)
+    else {
+      stretchRaf = 0
+      displayScale.value = to
+      stretched.value = true
+      draw()
+    }
+  }
+  stretchRaf = requestAnimationFrame(step)
+}
+
+function resetAll() {
+  if (stretchRaf) cancelAnimationFrame(stretchRaf)
+  stretchRaf = 0
+  displayScale.value = 1
+  stretched.value = false
+  setReference(null, false)
+  draw()
 }
 
 function draw() {
@@ -366,20 +410,21 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   if (snapRaf) cancelAnimationFrame(snapRaf)
+  if (stretchRaf) cancelAnimationFrame(stretchRaf)
   resizeObs?.disconnect()
   window.removeEventListener('themechange' as keyof WindowEventMap, draw as EventListener)
 })
 
 const statusLabel = computed(() => {
-  if (refId.value == null) {
-    return 'Two photos of the same sky. Tap anyone to hold them still.'
-  }
-  return 'Held still. Everyone else drifts away from them.'
+  if (refId.value != null) return 'Held still. Everyone else drifts away from them.'
+  if (!stretched.value) return 'Yesterday and today start stacked. Stretch space once.'
+  return 'Space got bigger between them. Nobody walked.'
 })
 
 const hint = computed(() => {
-  if (refId.value == null) return 'Faint = yesterday. Bold = today. Tap a person.'
-  return 'Tap someone else — same trick, new middle.'
+  if (refId.value != null) return 'Tap someone else — same for them. That is everyone.'
+  if (!stretched.value) return 'Then tap anyone to hold them still.'
+  return 'Tap anyone — stack their yesterday on their today.'
 })
 </script>
 
@@ -413,14 +458,24 @@ const hint = computed(() => {
     <div class="ecl__foot">
       <p class="ecl__caption">{{ statusLabel }}</p>
       <p class="ecl__hint">{{ hint }}</p>
-      <button
-        v-if="refId != null"
-        type="button"
-        class="ecl__reset"
-        @click="clearReference"
-      >
-        Reset
-      </button>
+      <div class="ecl__actions">
+        <button
+          v-if="!stretched"
+          type="button"
+          class="ecl__stretch"
+          @click="playStretch"
+        >
+          Stretch
+        </button>
+        <button
+          v-else
+          type="button"
+          class="ecl__reset"
+          @click="resetAll"
+        >
+          Reset
+        </button>
+      </div>
     </div>
 
     <div class="ecl__sr">

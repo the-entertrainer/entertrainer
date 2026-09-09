@@ -112,12 +112,12 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'you-are-the-centre-of-the-universe',
     title: 'You Are the Centre of the Universe — and Here’s Why',
-    dek: 'Hold any person still between yesterday and today — and they look like the centre. Hold someone else. Same gift. Balloon surface, two photos, one quiet boom.',
+    dek: 'Space gets bigger between the galaxies — they are not walking. Hold anyone still and the sky runs away from them. Same for everyone.',
     category: 'Universe',
     tags: ['cosmology', 'expansion', 'science'],
     minutes: 8,
     hero: '/blog/centre-universe/hero.jpg',
-    heroAlt: 'Cream field of galaxy dots — faint yesterday ghosts under bold today marks — with soft dashed rays fleeing a yellow-held centre where one person’s two photos stack.',
+    heroAlt: 'Cream field of galaxy dots: faint yesterday under bold today, soft dashed rays from a yellow-held centre where one person’s two photos stack.',
     status: 'published',
     publishedAt: '2026-09-09T19:06:00+00:00'
   }

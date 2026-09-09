@@ -241,7 +241,7 @@ const stopBeatLoop = () => {
 const WIPE_MS = 780
 const FLIP_MS = 480
 /** Calm breathe after wordmark lands, before parallax grow. */
-const BREATHE_HOLD_MS = 3400
+const BREATHE_HOLD_MS = 3200
 /** CSS grow duration (ms) — matched to remaining music at grow start. */
 const growMs = ref(5200)
 let growDelayTimer: ReturnType<typeof setTimeout> | undefined
@@ -264,9 +264,9 @@ const finishLeave = (opts: { skip?: boolean; naturalEnd?: boolean } = {}) => {
   // Music: long dry fade under the next screen. Visual: match slow CSS leave.
   const timing = soundOn.value
     ? fadeIdentWithEcho({ skip, naturalEnd })
-    : { visualHintMs: skip ? 360 : 2400, totalMs: skip ? 360 : 2400 }
+    : { visualHintMs: skip ? 400 : 3000, totalMs: skip ? 400 : 3000 }
   // Prefer the slow visual leave duration (audio may keep dissolving after unmount).
-  const leaveVisualMs = skip ? 360 : Math.max(timing.visualHintMs, 2400)
+  const leaveVisualMs = skip ? 400 : Math.max(timing.visualHintMs, 3000)
 
   if (removeTimer) window.clearTimeout(removeTimer)
   removeTimer = window.setTimeout(
@@ -285,9 +285,9 @@ const beginGrow = () => {
     window.clearTimeout(growDelayTimer)
     growDelayTimer = undefined
   }
-  // Grow takes over — breathe already had its hold.
+  // Grow takes over after the breathe hold.
   breathing.value = false
-  settling.value = true
+  settling.value = false
   seedOn.value = false
   // Keep beat cursor/loop alive so quote-in can still fire once during grow.
   washes.length = 0
@@ -455,11 +455,9 @@ const applyChoreo = (step: ChoreoStep, now: number, w: number, h: number) => {
     return
   }
   if (step.kind === 'settle') {
-    settling.value = true
-    breathing.value = false
+    // Soft pulse only — do not kill editorial breathe / grow timeline.
     seedOn.value = false
-    // Soft one-shot settle breath on rings, then hold still until leave.
-    if (step.rings?.length) pulseRings(step, true)
+    if (step.rings?.length && !breathing.value) pulseRings(step, true)
     return
   }
 
@@ -715,8 +713,8 @@ const startExperience = () => {
   entered.value = true
   beginEntryReveal()
   if (soundOn.value) {
-    // Begin smooth dry fade early so it can dissolve across the site handoff.
-    const OUTRO_FADE_MS = 3800
+    // Leave late: breathe (~3.2s after wordmark) + grow need room before fade.
+    const OUTRO_FADE_MS = 2200
     outroTimer = window.setTimeout(() => {
       outroTimer = undefined
       if (!leaving.value && !completed) finishLeave()
@@ -938,11 +936,11 @@ onBeforeUnmount(() => {
   overflow: hidden;
   background: #fffaf0;
   color: #15120f;
-  transition: opacity 2400ms cubic-bezier(.22, 1, .36, 1), visibility 2400ms linear;
+  transition: opacity 3000ms cubic-bezier(.22, 1, .36, 1), visibility 3000ms linear;
 }
 .preloader--leaving { opacity: 0; visibility: hidden; pointer-events: none; }
 .preloader--leaving-skip {
-  transition-duration: 360ms, 360ms;
+  transition-duration: 400ms, 400ms;
 }
 .preloader__audio { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
@@ -1175,11 +1173,11 @@ onBeforeUnmount(() => {
  */
 .preloader--breathe:not(.preloader--settle) .preloader__rings {
   transform-origin: 50% 50%;
-  animation: pl-logo-breathe 2.8s ease-in-out infinite;
+  animation: pl-logo-breathe 1.8s ease-in-out infinite;
 }
 .preloader--breathe:not(.preloader--settle) .preloader__brand-shell.word--assembled {
   transform-origin: 50% 50%;
-  animation: pl-word-breathe 2.8s ease-in-out infinite;
+  animation: pl-word-breathe 1.8s ease-in-out infinite;
 }
 .preloader--settle .preloader__rings,
 .preloader--settle .preloader__brand-shell {
@@ -1435,11 +1433,11 @@ onBeforeUnmount(() => {
 
 @keyframes pl-logo-breathe {
   0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.045); opacity: .94; }
+  50% { transform: scale(1.08); opacity: .9; }
 }
 @keyframes pl-word-breathe {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.035); }
+  50% { transform: scale(1.06); }
 }
 
 @keyframes pl-seed-breath {

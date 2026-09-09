@@ -41,13 +41,6 @@ const showMeaning = computed(() => feedback.value === 'ok' || feedback.value ===
 const slotsFull = computed(() => slots.value.length > 0 && slots.value.every(Boolean))
 const placedCount = computed(() => slots.value.filter(Boolean).length)
 
-const statusWord = computed(() => {
-  if (feedback.value === 'wrong') return 'Wrong'
-  if (feedback.value === 'ok') return 'Solved'
-  if (feedback.value === 'revealed') return 'Answer'
-  return ''
-})
-
 /** Size answer + tray tiles so each row stays one line on phone-width cards. */
 const slotStyle = computed(() => {
   const n = Math.max(word.length, 1)
@@ -250,20 +243,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         tabindex="-1"
       >
         <header class="wotd__head">
-          <div class="wotd__head-copy">
-            <h2 id="wotd-title" class="wotd__title">WOTD</h2>
-            <p
-              v-if="statusWord"
-              class="wotd__status"
-              :class="{
-                'wotd__status--wrong': feedback === 'wrong',
-                'wotd__status--ok': feedback === 'ok' || feedback === 'revealed'
-              }"
-              role="status"
-            >
-              {{ statusWord }}
-            </p>
-          </div>
+          <h2 id="wotd-title" class="wotd__title">WOTD</h2>
           <button
             type="button"
             class="wotd__close u-icon-btn u-icon-btn--idle"
@@ -313,7 +293,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         </div>
 
         <div
-          v-if="!showMeaning"
+          v-if="!showMeaning && tray.length"
           class="wotd__tray"
           :style="slotStyle"
           role="group"
@@ -376,7 +356,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   z-index: calc(var(--z-overlay) + 30);
   display: grid;
   place-items: end center;
-  padding: max(16rem, var(--safe-top)) 16rem max(16rem, var(--safe-bottom));
+  padding: max(12rem, var(--safe-top)) 12rem max(12rem, var(--safe-bottom));
   background: color-mix(in srgb, var(--ink) 34%, transparent);
 }
 @media (min-width: 560px) {
@@ -384,59 +364,57 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 .wotd__panel {
   position: relative;
-  width: min(460rem, 100%);
-  padding: 24rem 22rem 22rem;
+  width: min(440rem, 100%);
+  padding: 18rem 18rem 16rem;
   background: var(--paper);
   color: var(--ink);
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-l) var(--radius-l) var(--radius-m) var(--radius-m);
-  box-shadow: 8rem 8rem 0 var(--accent);
-  animation: wotd-in 280ms var(--ease-out) both;
+  box-shadow: 4rem 4rem 0 color-mix(in srgb, var(--ink) 88%, transparent);
+  animation: wotd-in 220ms var(--ease-out) both;
 }
 @media (min-width: 560px) {
-  .wotd__panel { border-radius: var(--radius-l); padding: 28rem 26rem 24rem; }
+  .wotd__panel { border-radius: var(--radius-l); padding: 20rem 22rem 18rem; }
 }
 @keyframes wotd-in {
-  from { opacity: 0; transform: translateY(16rem) scale(.98); }
+  from { opacity: 0; transform: translateY(10rem) scale(.985); }
   to { opacity: 1; transform: none; }
 }
 
 .wotd__head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 12rem;
-  margin: 0 0 18rem;
-}
-.wotd__head-copy {
-  min-width: 0;
+  gap: 10rem;
+  margin: 0 0 12rem;
 }
 .wotd__title {
   margin: 0;
-  font: 600 clamp(26rem, 5vw, 34rem)/1.05 var(--font-display);
+  font: 600 clamp(24rem, 4.6vw, 30rem)/1.05 var(--font-display);
   letter-spacing: -.03em;
 }
-.wotd__status {
-  margin: 4rem 0 0;
-  font: 650 12rem/1.2 var(--font-ui);
-  color: var(--ink-soft);
-  letter-spacing: .02em;
-}
-.wotd__status--wrong { color: var(--ink); }
-.wotd__status--ok { color: var(--ink-soft); }
 .wotd__close {
   flex: none;
-  margin: -4rem -6rem 0 0;
+  margin: -2rem -4rem 0 0;
+  color: var(--ink-soft);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.wotd__close:hover {
+  color: var(--ink);
+  background: transparent;
+  border-color: transparent;
 }
 
 .wotd__clue {
   display: grid;
-  gap: 4rem;
-  margin: 0 0 20rem;
-  padding: 14rem 16rem;
+  gap: 2rem;
+  margin: 0 0 14rem;
+  padding: 10rem 12rem;
   border: var(--stroke) solid var(--line);
   border-radius: var(--radius-s);
-  background: color-mix(in srgb, var(--accent) 14%, var(--paper));
+  background: var(--paper-2, var(--paper));
 }
 .wotd__clue-label {
   font: 700 10rem/1.2 var(--font-mono);
@@ -445,7 +423,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   color: var(--muted);
 }
 .wotd__clue-text {
-  font: 500 15rem/1.4 var(--font-ui);
+  font: 500 14rem/1.35 var(--font-ui);
   color: var(--ink);
 }
 
@@ -456,7 +434,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   justify-content: center;
   align-items: center;
   gap: var(--slot-gap, 6rem);
-  margin: 0 0 22rem;
+  margin: 0 0 14rem;
   width: 100%;
   max-width: 100%;
   overflow: hidden;
@@ -467,21 +445,21 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   background: var(--accent);
   color: var(--accent-ink);
   border-color: var(--ink);
-  box-shadow: 3rem 3rem 0 var(--ink);
+  box-shadow: 2rem 2rem 0 var(--ink);
 }
 .wotd__slots--wrong .wotd__slot--filled {
   border-color: var(--ink);
   background: color-mix(in srgb, var(--paper) 88%, #c44);
 }
 .wotd__slots--shake {
-  animation: wotd-shake 400ms var(--ease-out);
+  animation: wotd-shake 380ms var(--ease-out);
 }
 @keyframes wotd-shake {
   0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-6rem); }
-  40% { transform: translateX(6rem); }
-  60% { transform: translateX(-4rem); }
-  80% { transform: translateX(3rem); }
+  20% { transform: translateX(-5rem); }
+  40% { transform: translateX(5rem); }
+  60% { transform: translateX(-3rem); }
+  80% { transform: translateX(2rem); }
 }
 .wotd__slot {
   box-sizing: border-box;
@@ -539,21 +517,20 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   cursor: default;
 }
 
-/* Scrambled tray tiles — single row; tiles shrink for long words */
+/* Scrambled tray — collapses when empty (v-if); no empty-state copy */
 .wotd__tray {
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
   gap: var(--tray-gap, 10rem);
-  margin: 0 0 16rem;
-  padding: 14rem 10rem;
-  min-height: 64rem;
+  margin: 0 0 12rem;
+  padding: 10rem 8rem;
   width: 100%;
   overflow: hidden;
   border: var(--stroke) solid var(--line);
   border-radius: var(--radius-s);
-  background: color-mix(in srgb, var(--accent) 10%, var(--paper));
+  background: var(--paper-2, var(--paper));
   container-type: inline-size;
   container-name: wotd-tray;
 }
@@ -575,7 +552,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font: 700 clamp(11rem, calc(48cqw / var(--tray-count, 8)), var(--tray-fs-max, 24rem))/1 var(--font-ui);
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 3rem 3rem 0 var(--ink);
+  box-shadow: 2rem 2rem 0 var(--ink);
   -webkit-tap-highlight-color: transparent;
   transition: transform 120ms ease, box-shadow 120ms ease, background 140ms ease, color 140ms ease;
 }
@@ -583,11 +560,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   background: var(--accent-soft);
   color: var(--accent-ink);
   transform: translate(-1rem, -1rem);
-  box-shadow: 4rem 4rem 0 var(--ink);
+  box-shadow: 3rem 3rem 0 var(--ink);
 }
 .wotd__tile:active {
   transform: translate(1rem, 1rem);
-  box-shadow: 2rem 2rem 0 var(--ink);
+  box-shadow: 1rem 1rem 0 var(--ink);
 }
 .wotd__tile:focus-visible {
   outline: 3rem solid var(--ink);
@@ -595,8 +572,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 
 .wotd__feedback {
-  margin: 0 0 10rem;
-  min-height: 1.2em;
+  margin: 0 0 8rem;
   font: 650 13rem/1.3 var(--font-ui);
   color: var(--ink);
   text-align: center;
@@ -604,7 +580,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 .wotd__show-answer {
   display: block;
-  margin: 0 auto 4rem;
+  margin: 0 auto 2rem;
   padding: 0;
   border: 0;
   background: transparent;
@@ -623,29 +599,29 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 .wotd__meaning {
   margin: 0;
-  padding: 16rem;
-  border: var(--stroke) solid var(--ink);
+  padding: 12rem 14rem;
+  border: var(--stroke) solid var(--line);
   border-radius: var(--radius-s);
   background: var(--paper-2, var(--paper));
 }
 .wotd__meaning-pos {
-  margin: 0 0 6rem;
-  font: 700 11rem/1.2 var(--font-mono);
+  margin: 0 0 4rem;
+  font: 700 10rem/1.2 var(--font-mono);
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--muted);
 }
 .wotd__meaning-def {
-  margin: 0 0 8rem;
-  font: 500 15rem/1.45 var(--font-ui);
+  margin: 0 0 6rem;
+  font: 500 15rem/1.4 var(--font-ui);
 }
 .wotd__meaning-ex {
-  margin: 0 0 14rem;
-  font: italic 400 13rem/1.4 var(--font-ui);
+  margin: 0 0 12rem;
+  font: italic 400 13rem/1.35 var(--font-ui);
   color: var(--ink-soft);
 }
 .wotd__meaning-loading {
-  margin: 0 0 14rem;
+  margin: 0 0 12rem;
   font: 400 13rem/1.3 var(--font-ui);
   color: var(--muted);
 }
@@ -653,7 +629,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   display: block;
   width: 100%;
   min-height: 48rem;
-  margin-top: 4rem;
+  margin-top: 2rem;
   padding: 0 18rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);

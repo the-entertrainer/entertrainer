@@ -190,7 +190,7 @@ onBeforeUnmount(() => {
     >
       <div class="nl-inline__head">
         <p :id="titleId" class="nl-inline__title">Friday Newsletter</p>
-        <button type="button" class="nl-inline__close" aria-label="Close subscribe form" @click="closeInline">×</button>
+        <button type="button" class="nl-inline__close u-icon-btn u-icon-btn--idle" aria-label="Close subscribe form" @click="closeInline">×</button>
       </div>
       <form ref="form" class="nl-inline__form" @submit.prevent="subscribe">
         <label :for="emailId">Email address</label>
@@ -251,7 +251,7 @@ onBeforeUnmount(() => {
           <p class="nl-bubble__kicker">Friday notes</p>
           <h2 :id="titleId">Spell it once.</h2>
         </div>
-        <button type="button" class="nl-bubble__close" aria-label="Close" @click="closeBubble">×</button>
+        <button type="button" class="nl-bubble__close u-icon-btn u-icon-btn--idle" aria-label="Close" @click="closeBubble">×</button>
       </div>
 
       <div class="nl-bubble__must" aria-label="MUST categories: Mind, Universe, Science, Technology">
@@ -435,7 +435,7 @@ onBeforeUnmount(() => {
 }
 .nl-inline__status.is-error {
   background: color-mix(in srgb, #d64545 14%, var(--paper));
-  color: #9a2f2f;
+  color: var(--danger);
 }
 @keyframes nl-inline-in {
   from { opacity: 0; transform: translateY(-4rem); }
@@ -745,7 +745,7 @@ onBeforeUnmount(() => {
 }
 .nl-bubble__status.is-error {
   background: color-mix(in srgb, #d64545 14%, var(--paper));
-  color: #9a2f2f;
+  color: var(--danger);
 }
 
 @keyframes nl-bubble-pulse {
@@ -794,7 +794,7 @@ onBeforeUnmount(() => {
 .newsletter__fine, .newsletter__status { margin: 10rem 0 0; font: 400 12rem/1.35 var(--font-body); }
 .newsletter__fine { color: var(--ink-soft); }
 .newsletter__status { padding: 8rem 10rem; background: var(--paper); border-radius: var(--radius-s); }
-.newsletter__status.is-error { background: color-mix(in srgb, #d64545 14%, var(--paper)); color: #9a2f2f; }
+.newsletter__status.is-error { background: color-mix(in srgb, #d64545 14%, var(--paper)); color: var(--danger); }
 @media (max-width: 1000px) { .newsletter { grid-template-columns: auto 1fr; } .newsletter__form { grid-column: 1 / -1; } }
 @media (max-width: 580px) { .newsletter { grid-template-columns: 1fr; gap: 16rem; padding: 25rem; } .newsletter__mark { width: 64rem; height: 64rem; box-shadow: 4rem 4rem 0 var(--ink); } .newsletter__field { display: grid; } .newsletter button { min-height: 46rem; } .newsletter::after { right: -310rem; } }
 </style>

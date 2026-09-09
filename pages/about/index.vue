@@ -298,26 +298,26 @@ const marriottPhotos: PhotoTileItem[] = [
 .about-story__hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260rem, .85fr); gap: clamp(32rem, 8vw, 120rem); align-items: end; padding-bottom: clamp(46rem, 8vw, 86rem); border-bottom: var(--stroke) solid var(--ink); }
 .about-story h1 { max-width: 18ch; margin: 0; font: 500 clamp(42rem, 7.2vw, 92rem)/.92 var(--font-display); letter-spacing: -.06em; }
 
-/* Plain photo — rounded corners only, no heavy frame */
+/* Plain photo — natural height, flush, no cream letterbox */
 .about-story__hero-art {
   margin: 0;
-  min-height: 280rem;
   overflow: hidden;
   border: 0;
   border-radius: var(--radius-l);
-  background: #F7F1E4;
+  background: transparent;
+  line-height: 0;
 }
 .about-story__hero-art :deep(.ed-editorial-image),
 .about-story__hero-art :deep(img) {
   width: 100%;
-  height: 100%;
-  min-height: 280rem;
-  object-fit: contain;
-  object-position: center top;
+  height: auto;
+  max-width: 100%;
   display: block;
   border: 0;
   border-radius: var(--radius-l);
-  background: #F7F1E4;
+  background: transparent;
+  object-fit: unset;
+  object-position: unset;
 }
 
 .about-story__article { max-width: 720rem; margin: clamp(54rem, 9vw, 118rem) auto 0; font: 400 clamp(18rem, 1.85vw, 22rem)/1.62 var(--font-reading); }
@@ -339,12 +339,12 @@ const marriottPhotos: PhotoTileItem[] = [
   display: block;
   width: 100%;
   height: auto;
-  max-height: 520rem;
-  object-fit: contain;
-  object-position: center center;
+  max-width: 100%;
   border: 0;
   border-radius: var(--radius-m);
-  background: var(--paper-2);
+  background: transparent;
+  object-fit: unset;
+  object-position: unset;
 }
 
 .about-story__article :deep(.photo-tiles) {
@@ -367,7 +367,7 @@ const marriottPhotos: PhotoTileItem[] = [
 .about-story__sewa { margin: clamp(54rem, 9vw, 100rem) calc(clamp(0rem, 5vw, 68rem) * -1); }
 .about-story__destination { display: grid; grid-template-columns: minmax(180rem, .72fr) minmax(0, 1.28fr); color: var(--ink); overflow: hidden; border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); background: var(--signal-field); text-decoration: none; transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring); }
 .about-story__destination-visual { min-height: 260rem; margin: 0; overflow: hidden; border-right: var(--stroke) solid var(--ink); background: var(--paper-2); }
-.about-story__destination-visual :deep(.ed-editorial-image), .about-story__destination-visual :deep(img) { width: 100%; height: 100%; object-fit: contain; }
+.about-story__destination-visual :deep(.ed-editorial-image), .about-story__destination-visual :deep(img) { width: 100%; height: 100%; object-fit: cover; object-position: center center; }
 .about-story__destination-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(24rem, 5vw, 48rem); }
 .about-story__destination h2 { max-width: 18ch; margin: 0; font: 500 clamp(34rem, 4.2vw, 58rem)/.95 var(--font-display); letter-spacing: -.055em; }
 .about-story__destination-copy > p { max-width: 43ch; margin: 16rem 0 0; font: 400 17rem/1.5 var(--font-reading); }
@@ -380,7 +380,6 @@ const marriottPhotos: PhotoTileItem[] = [
 
 @media (max-width: 700px) {
   .about-story__hero { grid-template-columns: 1fr; }
-  .about-story__hero-art { min-height: 220rem; }
   .about-story__figure, .about-story__figure--wide { width: 100%; margin-left: 0; }
   .about-story__article :deep(.photo-tiles) { margin-left: 0; margin-right: 0; }
   .about-story__sewa { margin-left: 0; margin-right: 0; }

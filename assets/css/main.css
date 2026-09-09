@@ -93,6 +93,7 @@
   --selection: var(--accent);
   --on-selection: #161618;
   --focus: #161618;
+  --danger: #C0392B; /* error text on cream/white — ≥4.5:1 */
 
   color-scheme: light;
 }
@@ -116,9 +117,10 @@
   --paper-2: var(--gray-100);
   --paper-3: var(--gray-200);
   --ink:     var(--gray-900);
-  --muted:   var(--gray-600);
-  --line:    var(--gray-300);
-  --line-strong: var(--gray-400);
+  /* Lifted for WCAG AA body/muted; UI borders need ≥3:1 non-text contrast. */
+  --muted:   #B0B0B8;
+  --line:    #5A5A62;
+  --line-strong: #7E7E87;
 
   --accent: #FFD43B;
   --accent-strong: #FFE38A;
@@ -150,6 +152,7 @@
   --selection: var(--accent);
   --on-selection: #0B0B0C;
   --focus: var(--accent);
+  --danger: #FF8A7A; /* error text on near-black — ≥4.5:1 */
 
   color-scheme: dark;
 }
@@ -517,6 +520,82 @@ p, li, dd, figcaption { text-wrap: pretty; }
 .ps-offset { position: absolute; inset: 14rem -14rem -14rem 14rem; z-index: -1; background: var(--signal-sheet); }
 .ps-icon { display: inline-flex; width: 18rem; height: 18rem; flex: none; color: currentColor; }
 .ps-icon svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: square; stroke-linejoin: miter; }
+
+/* ============================================================
+   Icon-as-button motion (quiet family — matches masthead idle spirit)
+   ------------------------------------------------------------
+   Apply `.u-icon-btn` to any icon-only control. Optional `.u-icon-btn--idle`
+   adds a soft glyph nudge. Masthead keeps bespoke idles; it still uses
+   `.u-icon-btn` for shared hover/press. Honors prefers-reduced-motion and
+   html[data-reduce-motion=on].
+   ============================================================ */
+.u-icon-btn {
+  position: relative;
+  transition:
+    transform var(--dur-fast) var(--ease-spring),
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+.u-icon-btn:active {
+  transform: scale(0.94);
+}
+@media (hover: hover) {
+  .u-icon-btn:hover {
+    transform: translateY(-1rem);
+  }
+  .u-icon-btn:hover:active {
+    transform: scale(0.94);
+  }
+}
+.u-icon-btn--idle .ps-icon,
+.u-icon-btn--idle > .ps-icon,
+.u-icon-btn--idle > svg,
+.u-icon-btn--idle > span[aria-hidden="true"] {
+  display: inline-flex;
+  transform-origin: center;
+  animation: u-icon-idle-nudge 5.4s ease-in-out infinite;
+}
+/* Text-glyph icon buttons (× ← ↑ ↓ ⚙) — nudge the control itself */
+.u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg)):not(:has(span[aria-hidden="true"])) {
+  transform-origin: center;
+  animation: u-icon-idle-nudge 5.4s ease-in-out infinite;
+}
+@media (hover: hover) {
+  .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg)):not(:has(span[aria-hidden="true"])):hover {
+    animation-play-state: paused;
+  }
+}
+@keyframes u-icon-idle-nudge {
+  0%, 62%, 100% { transform: rotate(0deg) scale(1); }
+  72% { transform: rotate(-7deg) scale(1.06); }
+  82% { transform: rotate(4deg) scale(1.02); }
+  90% { transform: rotate(-3deg) scale(1.04); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .u-icon-btn,
+  .u-icon-btn:hover,
+  .u-icon-btn:active { transition: none; transform: none; }
+  .u-icon-btn--idle .ps-icon,
+  .u-icon-btn--idle > .ps-icon,
+  .u-icon-btn--idle > svg,
+  .u-icon-btn--idle > span[aria-hidden="true"],
+  .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg)):not(:has(span[aria-hidden="true"])) { animation: none; }
+}
+html[data-reduce-motion="on"] .u-icon-btn,
+html[data-reduce-motion="on"] .u-icon-btn:hover,
+html[data-reduce-motion="on"] .u-icon-btn:active {
+  transition: none !important;
+  transform: none !important;
+}
+html[data-reduce-motion="on"] .u-icon-btn--idle .ps-icon,
+html[data-reduce-motion="on"] .u-icon-btn--idle > .ps-icon,
+html[data-reduce-motion="on"] .u-icon-btn--idle > svg,
+html[data-reduce-motion="on"] .u-icon-btn--idle > span[aria-hidden="true"],
+html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg)):not(:has(span[aria-hidden="true"])) {
+  animation: none !important;
+}
 
 /* ============================================================
    8 · Controls

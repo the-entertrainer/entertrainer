@@ -131,7 +131,7 @@ function clearCategory() {
               v-for="item in MUST_LETTERS"
               :key="item.letter"
               type="button"
-              class="elevate__must-tile"
+              class="elevate__must-tile u-icon-btn"
               :aria-pressed="category === item.category"
               :aria-label="`${item.letter} — ${item.category}${category === item.category ? ', selected. Tap again to show all' : ''}`"
               :title="`${item.letter} · ${item.category}`"
@@ -153,7 +153,7 @@ function clearCategory() {
 
           <button
             type="button"
-            class="elevate__sort-toggle"
+            class="elevate__sort-toggle u-icon-btn"
             :aria-pressed="sort === 'oldest'"
             :aria-label="`Sort order: ${sortLabel}. Activate to switch`"
             @click="cycleSort"
@@ -288,12 +288,27 @@ function clearCategory() {
 .elevate__must-letter {
   font: 700 15rem/1 var(--font-display);
   letter-spacing: -.02em;
+  display: inline-block;
+  transform-origin: center;
+  animation: u-icon-idle-nudge 5.8s ease-in-out infinite;
 }
+.elevate__must-tile:nth-child(1) .elevate__must-letter { animation-delay: 0s; }
+.elevate__must-tile:nth-child(2) .elevate__must-letter { animation-delay: .18s; }
+.elevate__must-tile:nth-child(3) .elevate__must-letter { animation-delay: .36s; }
+.elevate__must-tile:nth-child(4) .elevate__must-letter { animation-delay: .54s; }
+.elevate__must-tile[aria-pressed="true"] .elevate__must-letter { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .elevate__must-letter { animation: none; }
+}
+:global(html[data-reduce-motion="on"]) .elevate__must-letter { animation: none; }
 .elevate__must-name {
   font: 700 8rem/1.1 var(--font-mono);
   letter-spacing: .04em;
   text-transform: uppercase;
-  opacity: .78;
+  color: var(--muted);
+}
+.elevate__must-tile[aria-pressed="true"] .elevate__must-name {
+  color: var(--accent-ink);
 }
 .elevate__must-tile[aria-pressed="true"] {
   background: var(--accent);

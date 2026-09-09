@@ -66,7 +66,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         <button
           v-if="wotdEnabled"
           type="button"
-          class="mh__icon mh__icon--wotd"
+          class="mh__icon mh__icon--wotd u-icon-btn"
           aria-haspopup="dialog"
           :aria-label="wotdDot ? 'Word game — new for today' : 'Word game'"
           @click="openWotd()"
@@ -81,7 +81,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
         <button
           type="button"
-          class="mh__icon mh__icon--settings"
+          class="mh__icon mh__icon--settings u-icon-btn"
           :aria-expanded="panelOpen"
           aria-controls="site-settings-panel"
           aria-haspopup="dialog"
@@ -91,12 +91,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           <EdSignalIcon name="settings" />
         </button>
 
-        <button type="button" class="mh__icon mh__icon--theme" @click="theme.toggle()"
+        <button type="button" class="mh__icon mh__icon--theme u-icon-btn" @click="theme.toggle()"
                 :aria-label="`Switch to ${theme.theme === 'dark' ? 'light' : 'dark'} mode`">
           <EdSignalIcon :name="theme.theme === 'dark' ? 'sun' : 'moon'" />
         </button>
 
-        <button ref="btn" type="button" class="mh__icon mh__icon--menu" @click="open = !open"
+        <button ref="btn" type="button" class="mh__icon mh__icon--menu u-icon-btn" @click="open = !open"
                 :aria-expanded="open" aria-controls="mh-sheet"
                 :aria-label="open ? 'Close menu' : 'Open menu'">
           <EdSignalIcon :name="open ? 'close' : 'menu'" />

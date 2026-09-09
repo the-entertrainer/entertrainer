@@ -701,7 +701,7 @@ const selectedFigure = computed(() =>
                 <span class="compose__library-title">{{ post.title || post.slug }}</span>
                 <span class="compose__library-meta">{{ post.status }}</span>
               </button>
-              <button type="button" class="compose__icon-btn" :aria-label="`Delete ${post.slug}`" @click="removePost(post.slug)">×</button>
+              <button type="button" class="compose__icon-btn u-icon-btn u-icon-btn--idle" :aria-label="`Delete ${post.slug}`" @click="removePost(post.slug)">×</button>
             </li>
           </ul>
           <p v-else class="compose__empty">No composed posts yet.</p>
@@ -809,9 +809,9 @@ const selectedFigure = computed(() =>
                 <div class="compose__canvas-block-bar">
                   <span>{{ block.type }}</span>
                   <div class="compose__block-moves">
-                    <button type="button" class="compose__icon-btn" :disabled="index === 0" @click="moveBlock(index, -1)">↑</button>
-                    <button type="button" class="compose__icon-btn" :disabled="index === draft.blocks.length - 1" @click="moveBlock(index, 1)">↓</button>
-                    <button type="button" class="compose__icon-btn" @click="removeBlock(block.id)">×</button>
+                    <button type="button" class="compose__icon-btn u-icon-btn u-icon-btn--idle" :disabled="index === 0" @click="moveBlock(index, -1)">↑</button>
+                    <button type="button" class="compose__icon-btn u-icon-btn u-icon-btn--idle" :disabled="index === draft.blocks.length - 1" @click="moveBlock(index, 1)">↓</button>
+                    <button type="button" class="compose__icon-btn u-icon-btn u-icon-btn--idle" @click="removeBlock(block.id)">×</button>
                   </div>
                 </div>
 
@@ -1008,9 +1008,9 @@ const selectedFigure = computed(() =>
               <div class="compose__block-bar">
                 <span class="compose__block-type">{{ block.type }}</span>
                 <div class="compose__block-moves">
-                  <button type="button" class="compose__icon-btn" :disabled="index === 0" @click="moveBlock(index, -1)">↑</button>
-                  <button type="button" class="compose__icon-btn" :disabled="index === draft.blocks.length - 1" @click="moveBlock(index, 1)">↓</button>
-                  <button type="button" class="compose__icon-btn" @click="removeBlock(block.id)">×</button>
+                  <button type="button" class="compose__icon-btn u-icon-btn u-icon-btn--idle" :disabled="index === 0" @click="moveBlock(index, -1)">↑</button>
+                  <button type="button" class="compose__icon-btn u-icon-btn u-icon-btn--idle" :disabled="index === draft.blocks.length - 1" @click="moveBlock(index, 1)">↓</button>
+                  <button type="button" class="compose__icon-btn u-icon-btn u-icon-btn--idle" @click="removeBlock(block.id)">×</button>
                 </div>
               </div>
 

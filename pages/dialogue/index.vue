@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button type="button" class="icon-btn fab-settings" aria-label="Settings" @click="navigateTo('/dialogue/settings')">⚙</button>
+    <button type="button" class="icon-btn fab-settings u-icon-btn u-icon-btn--idle" aria-label="Settings" @click="navigateTo('/dialogue/settings')">⚙</button>
     <div class="brand">
       <span class="brand-mark" aria-hidden="true">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="44" height="44" role="img" aria-label="Dialogue">

@@ -90,7 +90,7 @@ function toggleOpeningSound() {
           <button
             ref="closeBtn"
             type="button"
-            class="sp__close"
+            class="sp__close u-icon-btn u-icon-btn--idle"
             aria-label="Close settings"
             @click="closePanel()"
           >

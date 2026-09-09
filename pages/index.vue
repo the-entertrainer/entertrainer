@@ -119,7 +119,7 @@ onBeforeUnmount(() => {
             <button
               v-if="route.tip"
               type="button"
-              class="route-index__info"
+              class="route-index__info u-icon-btn u-icon-btn--idle"
               data-route-tip
               :aria-expanded="openTip === route.name"
               :aria-controls="tipId(route.name)"
@@ -211,7 +211,7 @@ onBeforeUnmount(() => {
   padding: clamp(20rem, 3vw, 38rem);
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-xl);
-  background: color-mix(in srgb, #F7F1E4 70%, var(--paper-2));
+  background: color-mix(in srgb, var(--signal-field) 55%, var(--paper-2));
   box-shadow: 10rem 10rem 0 color-mix(in srgb, var(--accent) 22%, transparent);
   overflow: hidden;
 }

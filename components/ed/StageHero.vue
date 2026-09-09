@@ -126,9 +126,9 @@ withDefaults(defineProps<{
 
 <style scoped>
 .stage {
-  --stage-cream: #F7F1E4;
-  --stage-ink: #161618;
-  --stage-cobalt: var(--cobalt, #FFD43B);
+  --stage-cream: color-mix(in srgb, var(--signal-field) 35%, var(--paper));
+  --stage-ink: var(--ink);
+  --stage-cobalt: var(--accent);
   position: relative;
   display: grid;
   min-height: min(420rem, calc(100dvh - 320rem));
@@ -143,8 +143,8 @@ withDefaults(defineProps<{
 }
 
 [data-theme="dark"] .stage {
-  --stage-cream: #14131A;
-  --stage-ink: #F2F2F4;
+  --stage-cream: color-mix(in srgb, var(--signal-field) 40%, var(--paper));
+  --stage-ink: var(--ink);
   color: var(--stage-ink);
 }
 

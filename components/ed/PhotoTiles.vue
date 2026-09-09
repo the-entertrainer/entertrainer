@@ -2,7 +2,7 @@
 export type PhotoTileItem = {
   src: string
   alt: string
-  /** Prefer contain; cover only when intentionally framed. */
+  /** Kept for callers; grids use natural image height (no contain letterbox). */
   fit?: 'contain' | 'cover'
   objectPosition?: string
   /** @deprecated Mosaic spans unused — tiles hug native image aspect. */
@@ -23,13 +23,6 @@ const props = withDefaults(
 )
 
 const expanded = ref<number | null>(null)
-const reduceMotion = ref(false)
-
-onMounted(() => {
-  reduceMotion.value =
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
-    document.documentElement.getAttribute('data-reduce-motion') === 'on'
-})
 
 const count = computed(() => props.photos.length)
 
@@ -76,8 +69,7 @@ function isEager(i: number) {
     :class="{
       'photo-tiles--solo': photos.length === 1,
       'photo-tiles--pair': photos.length === 2,
-      'photo-tiles--has-expanded': expanded !== null,
-      'photo-tiles--reduce': reduceMotion
+      'photo-tiles--has-expanded': expanded !== null
     }"
     role="group"
     :aria-label="label"
@@ -91,11 +83,6 @@ function isEager(i: number) {
       :class="{ 'is-expanded': expanded === i }"
       :aria-expanded="expanded === i"
       :aria-label="photo.alt"
-      :style="{
-        '--fit': photo.fit || 'contain',
-        '--pos': photo.objectPosition || 'center center',
-        '--i': String(i)
-      }"
       @click="toggle(i)"
       @keydown="onKey($event, i)"
     >
@@ -114,39 +101,44 @@ function isEager(i: number) {
 
 <style scoped>
 /*
- * Masonry that hugs each photo: CSS columns + natural image height.
- * No fixed cell aspect → no cover-crop, no cream letterbox holes.
+ * Uniform columns, natural image heights.
+ * Each tile hugs the bitmap — no fixed cell height, no object-fit contain/cover
+ * letterboxing, no cream fill inside the frame.
  */
 .photo-tiles {
   --tile-gap: 10rem;
-  column-count: 2;
-  column-gap: var(--tile-gap);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--tile-gap);
+  align-items: start;
+  justify-items: stretch;
   width: min(100%, 720rem);
   margin: clamp(36rem, 6vw, 64rem) 0;
   isolation: isolate;
+  background: transparent;
 }
 
 .photo-tiles--solo {
-  column-count: 1;
+  grid-template-columns: minmax(0, 1fr);
   width: min(100%, 480rem);
 }
 
 .photo-tiles--pair {
-  column-count: 2;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .photo-tiles__tile {
   display: block;
+  box-sizing: border-box;
   width: 100%;
-  margin: 0 0 var(--tile-gap);
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
   padding: 0;
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  page-break-inside: avoid;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   overflow: hidden;
-  /* Only a hairline of paper — frame hugs the bitmap */
   background: transparent;
   cursor: zoom-in;
   appearance: none;
@@ -157,16 +149,10 @@ function isEager(i: number) {
   line-height: 0;
   transform-origin: center center;
   transition:
-    transform 380ms var(--ease-spring, cubic-bezier(.2, .9, .2, 1)),
-    box-shadow 280ms var(--ease-out, ease),
-    border-color 200ms var(--ease-out, ease),
-    filter 280ms var(--ease-out, ease);
-  animation: photo-tile-settle 560ms var(--ease-spring, cubic-bezier(.2, .9, .2, 1)) both;
-  animation-delay: calc(var(--i, 0) * 45ms);
-}
-
-.photo-tiles__tile:last-child {
-  margin-bottom: 0;
+    transform 280ms var(--ease-spring, cubic-bezier(.2, .9, .2, 1)),
+    box-shadow 220ms var(--ease-out, ease),
+    border-color 180ms var(--ease-out, ease),
+    filter 220ms var(--ease-out, ease);
 }
 
 .photo-tiles__tile:focus-visible {
@@ -177,25 +163,23 @@ function isEager(i: number) {
 
 .photo-tiles__tile:hover {
   z-index: 3;
-  transform: translateY(-3rem);
-  box-shadow: 0 12rem 24rem color-mix(in srgb, var(--ink) 16%, transparent);
+  transform: translateY(-2rem);
+  box-shadow: 0 10rem 20rem color-mix(in srgb, var(--ink) 14%, transparent);
   border-color: var(--accent);
 }
 
 .photo-tiles__tile.is-expanded {
   z-index: 5;
   cursor: zoom-out;
-  column-span: all;
-  width: 100%;
-  margin-bottom: var(--tile-gap);
+  grid-column: 1 / -1;
   border-color: var(--accent);
   box-shadow:
     0 0 0 3rem var(--accent),
-    0 16rem 32rem color-mix(in srgb, var(--ink) 20%, transparent);
+    0 14rem 28rem color-mix(in srgb, var(--ink) 18%, transparent);
 }
 
 .photo-tiles--has-expanded .photo-tiles__tile:not(.is-expanded) {
-  filter: saturate(0.88) brightness(0.97);
+  filter: saturate(0.9) brightness(0.98);
 }
 
 .photo-tiles__tile img {
@@ -203,9 +187,12 @@ function isEager(i: number) {
   width: 100%;
   height: auto;
   max-width: 100%;
-  /* Natural aspect — contain only if a parent ever constrains height */
-  object-fit: var(--fit, contain);
-  object-position: var(--pos, center center);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  /* Natural aspect — never contain/cover into a fixed box */
+  object-fit: unset;
+  object-position: unset;
   pointer-events: none;
   user-select: none;
   background: transparent;
@@ -224,56 +211,34 @@ function isEager(i: number) {
   border: 0;
 }
 
-@keyframes photo-tile-settle {
-  from {
-    opacity: 0;
-    transform: translateY(8rem);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
 @media (min-width: 701px) {
   .photo-tiles:not(.photo-tiles--solo):not(.photo-tiles--pair) {
-    column-count: 3;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 700px) {
   .photo-tiles {
     width: 100%;
-    column-count: 2;
     --tile-gap: 8rem;
   }
 
   .photo-tiles--pair {
-    column-count: 1;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .photo-tiles--solo {
-    column-count: 1;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .photo-tiles__tile {
     transition: none;
-    animation: none;
   }
   .photo-tiles__tile:hover,
   .photo-tiles__tile.is-expanded {
     transform: none;
   }
-}
-
-.photo-tiles--reduce .photo-tiles__tile {
-  transition: none;
-  animation: none;
-}
-.photo-tiles--reduce .photo-tiles__tile:hover,
-.photo-tiles--reduce .photo-tiles__tile.is-expanded {
-  transform: none;
 }
 </style>

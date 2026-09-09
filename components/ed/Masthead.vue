@@ -190,7 +190,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 @media (hover: hover) { .mh__icon:hover { background: var(--signal-field); color: var(--ink); } }
 .mh__icon:active { transform: scale(.94); }
-.mh__icon[aria-expanded="true"] { background: var(--accent); }
+.mh__icon[aria-expanded="true"] { background: var(--accent); color: var(--accent-ink); }
 .mh__icon--wotd { position: relative; overflow: hidden; }
 .mh__wotd {
   position: relative;
@@ -212,9 +212,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font: 900 8rem/1 var(--font-mono);
   box-shadow: 1rem 1rem 0 color-mix(in srgb, var(--ink) 25%, transparent);
 }
-.mh__wotd-tile--a { left: 0; top: 0; animation: mh-wotd-flip 2.8s ease-in-out infinite; }
-.mh__wotd-tile--b { left: 5rem; top: 3rem; background: var(--paper); animation: mh-wotd-flip 2.8s ease-in-out .25s infinite; }
-.mh__wotd-tile--c { left: 10rem; top: 6rem; animation: mh-wotd-flip 2.8s ease-in-out .5s infinite; }
+.mh__wotd-tile--a { left: 0; top: 0; animation: mh-wotd-flip 2.2s ease-in-out infinite; }
+.mh__wotd-tile--b { left: 5rem; top: 3rem; background: var(--paper); animation: mh-wotd-flip 2.2s ease-in-out .2s infinite; }
+.mh__wotd-tile--c { left: 10rem; top: 6rem; animation: mh-wotd-flip 2.2s ease-in-out .4s infinite; }
 @keyframes mh-wotd-flip {
   0%, 12% { transform: translateY(0) rotate(0deg); }
   28% { transform: translateY(-4rem) rotate(-12deg); }
@@ -234,28 +234,28 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   will-change: transform;
 }
 .mh__icon--settings :deep(.ps-icon) {
-  animation: mh-gear-tick 3.2s ease-in-out infinite;
+  animation: mh-gear-tick 2.4s ease-in-out infinite;
 }
 .mh__icon--settings[aria-expanded="true"] :deep(.ps-icon) { animation: none; }
 @keyframes mh-gear-tick {
-  0%, 55%, 100% { transform: rotate(0deg); }
-  68% { transform: rotate(28deg); }
-  78% { transform: rotate(18deg); }
-  88% { transform: rotate(28deg); }
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(22deg); }
+  35% { transform: rotate(-8deg); }
+  50% { transform: rotate(16deg); }
+  65% { transform: rotate(0deg); }
 }
 
 .mh__icon--theme :deep(.ps-icon) {
-  animation: mh-theme-rock 3s ease-in-out infinite;
+  animation: mh-theme-rock 2.2s ease-in-out infinite;
 }
 @keyframes mh-theme-rock {
   0%, 100% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(-14deg) scale(1.12); }
-  50% { transform: rotate(10deg) scale(1.06); }
-  75% { transform: rotate(-4deg) scale(1.02); }
+  30% { transform: rotate(-16deg) scale(1.14); }
+  60% { transform: rotate(12deg) scale(1.08); }
 }
 
 .mh__icon--menu :deep(.ps-icon) {
-  animation: mh-menu-pulse 2.6s ease-in-out infinite;
+  animation: mh-menu-pulse 1.8s ease-in-out infinite;
 }
 .mh__icon--menu[aria-expanded="true"] :deep(.ps-icon) { animation: none; }
 @keyframes mh-menu-pulse {
@@ -290,11 +290,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .mh__icon :deep(.ps-icon),
   .mh__icon--menu :deep(.ps-icon__bar) { animation: none !important; }
 }
-:global(html[data-reduce-motion="on"]) .mh__wotd-tile,
-:global(html[data-reduce-motion="on"]) .mh__icon :deep(.ps-icon),
-:global(html[data-reduce-motion="on"]) .mh__icon--menu :deep(.ps-icon__bar) {
-  animation: none !important;
-}
+/* One :global() per rule — Vue scoped was collapsing multi-selector globals to bare html{} */
+:global(html[data-reduce-motion="on"] .mh__wotd-tile) { animation: none !important; }
+:global(html[data-reduce-motion="on"] .mh__icon .ps-icon) { animation: none !important; }
+:global(html[data-reduce-motion="on"] .mh__icon--menu .ps-icon__bar) { animation: none !important; }
 
 .mh__dot {
   position: absolute; top: 5rem; right: 5rem;

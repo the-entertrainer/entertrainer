@@ -112,7 +112,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'you-are-the-centre-of-the-universe',
     title: 'You Are the Centre of the Universe — and Here’s Why',
-    dek: 'Pick any galaxy as your frame of reference and the expanding universe appears to rush away from it. That optical honesty is shared by every observer — not a throne, a geometry.',
+    dek: 'Look up and feel small if you want. Then try this: pick any galaxy as “you,” and the whole expansion looks like it’s running away from that spot. Same trick works for every other galaxy. Geometry is weirdly generous.',
     category: 'Universe',
     tags: ['cosmology', 'expansion', 'science'],
     minutes: 10,

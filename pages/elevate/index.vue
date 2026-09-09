@@ -186,7 +186,16 @@ function clearCategory() {
         </li>
       </ul>
 
-      <p v-if="!filteredPosts.length" class="elevate__empty">Nothing yet. Try another letter.</p>
+      <div v-if="!filteredPosts.length" class="elevate__empty" role="status">
+        <div class="elevate__empty-graphic" aria-hidden="true">
+          <span class="elevate__empty-orb"></span>
+          <span class="elevate__empty-orb elevate__empty-orb--b"></span>
+          <span class="elevate__empty-orb elevate__empty-orb--c"></span>
+          <span class="elevate__empty-spark">✦</span>
+        </div>
+        <p class="elevate__empty-line">new stuff coming in hot!</p>
+        <p class="elevate__empty-soon">Soon!</p>
+      </div>
     </section>
   </main>
 </template>
@@ -466,9 +475,93 @@ function clearCategory() {
   overflow: hidden;
 }
 .elevate__empty {
-  margin: 28rem 0 0;
-  color: var(--muted);
-  font-size: 16rem;
+  margin: 36rem 0 8rem;
+  display: grid;
+  justify-items: center;
+  gap: 10rem;
+  text-align: center;
+}
+.elevate__empty-graphic {
+  position: relative;
+  width: 88rem;
+  height: 88rem;
+  margin-bottom: 4rem;
+}
+.elevate__empty-orb {
+  position: absolute;
+  inset: 18rem;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: .9;
+  animation: elevate-empty-pulse 1.8s ease-in-out infinite;
+}
+.elevate__empty-orb--b {
+  inset: 8rem;
+  background: transparent;
+  border: 2rem solid color-mix(in srgb, var(--accent) 70%, var(--ink));
+  opacity: .7;
+  animation: elevate-empty-spin 3.2s linear infinite;
+}
+.elevate__empty-orb--c {
+  inset: 0;
+  background: transparent;
+  border: 1.5rem dashed color-mix(in srgb, var(--ink) 28%, transparent);
+  opacity: .55;
+  animation: elevate-empty-spin 5.5s linear infinite reverse;
+}
+.elevate__empty-spark {
+  position: absolute;
+  top: 6rem;
+  right: 10rem;
+  font-size: 18rem;
+  color: var(--accent-ink);
+  background: var(--accent);
+  width: 22rem;
+  height: 22rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+  animation: elevate-empty-spark 1.6s ease-in-out infinite;
+}
+.elevate__empty-line {
+  margin: 0;
+  font: 600 17rem/1.25 var(--font-ui);
+  letter-spacing: -.02em;
+  color: var(--ink);
+}
+.elevate__empty-soon {
+  margin: 0;
+  font: 800 22rem/1 var(--font-display);
+  letter-spacing: -.03em;
+  color: var(--accent-ink);
+  background: var(--accent);
+  padding: 6rem 12rem;
+  border-radius: 999rem;
+  border: var(--stroke) solid var(--ink);
+  animation: elevate-empty-bob 1.4s ease-in-out infinite;
+}
+@keyframes elevate-empty-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+@keyframes elevate-empty-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes elevate-empty-spark {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  50% { transform: translateY(-4rem) rotate(12deg) scale(1.08); }
+}
+@keyframes elevate-empty-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .elevate__empty-orb,
+  .elevate__empty-orb--b,
+  .elevate__empty-orb--c,
+  .elevate__empty-spark,
+  .elevate__empty-soon { animation: none; }
 }
 
 .elevate__list--compact .elevate__row {

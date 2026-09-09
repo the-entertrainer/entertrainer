@@ -120,7 +120,13 @@ onBeforeUnmount(() => {
       aria-controls="newsletter-inline-panel"
       @click="openInline"
     >
-      Friday newsletter
+      <span>Friday newsletter</span>
+      <span class="nl-inline__bell" aria-hidden="true">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none">
+          <path d="M8 1.6c-1.7 0-3.1 1.3-3.1 3v1.4c0 .9-.3 1.7-.8 2.4l-.5.7c-.2.3 0 .8.4.8h8c.4 0 .6-.5.4-.8l-.5-.7c-.5-.7-.8-1.5-.8-2.4V4.6c0-1.7-1.4-3-3.1-3Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+          <path d="M6.4 12.2a1.7 1.7 0 0 0 3.2 0" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+        </svg>
+      </span>
     </button>
 
     <div

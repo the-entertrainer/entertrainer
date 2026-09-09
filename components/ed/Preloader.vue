@@ -254,7 +254,7 @@ const finishLeave = (opts: { skip?: boolean; naturalEnd?: boolean } = {}) => {
 
   const skip = !!opts.skip
   const naturalEnd = !!opts.naturalEnd
-  // Visual fade (CSS) starts immediately; music does a clean gain fade (no delay mush).
+  // Visual fade (CSS) starts immediately; music does a slow wet mellow dissolve.
   // Stay mounted until the fade ends so Web Audio is not cut by unmount.
   const timing = soundOn.value
     ? fadeIdentWithEcho({ skip, naturalEnd, el: ident.value })
@@ -700,8 +700,8 @@ const startExperience = () => {
   entered.value = true
   beginEntryReveal()
   if (soundOn.value) {
-    // Begin fade+echo just before the track ends so the dry fade is audible.
-    const OUTRO_FADE_MS = 640
+    // Begin wet fade early enough that the mellow dissolve is actually heard.
+    const OUTRO_FADE_MS = 2600
     outroTimer = window.setTimeout(() => {
       outroTimer = undefined
       if (!leaving.value && !completed) finishLeave()

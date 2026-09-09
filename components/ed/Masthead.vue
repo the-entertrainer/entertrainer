@@ -334,32 +334,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   55% { transform: translateY(1px) rotate(6deg); }
 }
 
-/* Visible chrome pulse on the button itself — impossible to miss */
-.mh__icon--settings,
-.mh__icon--theme,
-.mh__icon--menu,
-.mh__icon--wotd {
-  animation: mh-idle-chrome 1.6s ease-in-out infinite;
-  /* Keep glow visible over .mh__icon / .u-icon-btn box-shadow transitions */
-  will-change: box-shadow;
-}
-.mh__icon--settings[aria-expanded="true"],
-.mh__icon--menu[aria-expanded="true"] {
-  animation: none;
-}
-@keyframes mh-idle-chrome {
-  0%, 100% {
-    box-shadow:
-      0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent),
-      inset 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent);
-  }
-  50% {
-    box-shadow:
-      0 0 0 4px color-mix(in srgb, var(--accent) 80%, transparent),
-      0 0 12px 2px color-mix(in srgb, var(--accent) 45%, transparent),
-      inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 70%, transparent);
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .mh__icon--settings .ps-icon,
@@ -367,11 +341,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .mh__icon--menu .ps-icon,
   .mh__wotd-tile--a,
   .mh__wotd-tile--b,
-  .mh__wotd-tile--c,
-  .mh__icon--settings,
-  .mh__icon--theme,
-  .mh__icon--menu,
-  .mh__icon--wotd {
+  .mh__wotd-tile--c {
     animation: none !important;
   }
 }

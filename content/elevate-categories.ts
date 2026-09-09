@@ -36,8 +36,8 @@ export function normalizeElevateCategory(raw: string | undefined | null): Elevat
   if (/\b(tech|ai|software|security|otp|machine|digital|code)\b/.test(s)) return 'Technology'
   // Universe: real space/cosmo cues — not bare "moon" (often English morphology)
   if (/\b(universe|cosmo|space|entropy|astronom|astrophys|galaxy|planet|laziness)\b/.test(s)) return 'Universe'
-  if (/\b(science|physics|biology|sleep|math|time|midpoint)\b/.test(s)) return 'Science'
-  if (/\b(mind|cognition|psych|memory|learn|lie|intelligent)\b/.test(s)) return 'Mind'
+  if (/\b(science|physics|biology|sleep|math)\b/.test(s)) return 'Science'
+  if (/\b(mind|cognition|psych|memory|learn|lie|intelligent|midpoint|time|brain)\b/.test(s)) return 'Mind'
 
   // Fallback heuristics by known legacy labels
   if (s.includes('tech') || s.includes('ai') || s.includes('security')) return 'Technology'

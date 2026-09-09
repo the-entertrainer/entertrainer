@@ -90,7 +90,6 @@ export interface DialogueSettings {
   theme: 'system' | 'light' | 'dark';
   defaultFormat: DialogueFormatId;
   autosave: boolean;
-  reduceMotion: boolean;
   exportQuality: number;
 }
 

@@ -9,7 +9,6 @@ export const useDialogueProjectsStore = defineStore('dialogueProjects', {
       theme: 'system',
       defaultFormat: 'webtoon',
       autosave: true,
-      reduceMotion: false,
       exportQuality: 0.92,
     } as DialogueSettings,
     ready: false,

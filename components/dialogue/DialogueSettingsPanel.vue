@@ -22,10 +22,6 @@
       <input v-model="store.settings.autosave" type="checkbox" @change="persist" />
     </div>
     <div class="row">
-      <label>Reduce motion</label>
-      <input v-model="store.settings.reduceMotion" type="checkbox" @change="persist" />
-    </div>
-    <div class="row">
       <label>Export quality</label>
       <input v-model.number="store.settings.exportQuality" type="range" min="0.6" max="1" step="0.02" @change="persist" />
     </div>
@@ -57,7 +53,11 @@ function applyTheme() {
   const t = store.settings.theme
   if (t === 'system') delete document.documentElement.dataset.theme
   else document.documentElement.dataset.theme = t
-  document.documentElement.dataset.reduceMotion = store.settings.reduceMotion ? '1' : '0'
+  try {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduce) document.documentElement.dataset.reduceMotion = '1'
+    else delete document.documentElement.dataset.reduceMotion
+  } catch { /* ignore */ }
 }
 async function reset() {
   if (!confirm('Erase all local Dialogue comics and settings?')) return

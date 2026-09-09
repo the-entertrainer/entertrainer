@@ -1,6 +1,7 @@
 /**
- * Site-wide visitor preferences (opening sound, motion, article list, word puzzle).
+ * Site-wide visitor preferences (opening sound, article list, word puzzle).
  * Persists under one localStorage key; SSR-safe defaults until client hydrate.
+ * Reduced motion follows the OS preference only (no site setting).
  */
 
 export type ElevateSortPref = 'newest' | 'oldest' | 'title'
@@ -27,7 +28,6 @@ export interface SiteSettings {
   openingSound: OpeningSoundId
   /** Show the Word of the Day (WOTD) button in the masthead. */
   wordOfTheDay: boolean
-  reduceMotion: boolean
   hideElevateExcerpts: boolean
   elevateSort: ElevateSortPref
 }
@@ -39,7 +39,6 @@ const DEFAULT_OPENING: OpeningSoundId = 'on'
 const defaults = (): SiteSettings => ({
   openingSound: DEFAULT_OPENING,
   wordOfTheDay: true,
-  reduceMotion: false,
   hideElevateExcerpts: false,
   elevateSort: 'newest'
 })
@@ -66,7 +65,6 @@ function parseStored(raw: string | null): SiteSettings {
     return {
       openingSound: resolveOpeningSound(parsed),
       wordOfTheDay: parsed.wordOfTheDay !== false,
-      reduceMotion: parsed.reduceMotion === true,
       hideElevateExcerpts: parsed.hideElevateExcerpts === true,
       elevateSort: sort === 'oldest' || sort === 'title' || sort === 'newest' ? sort : 'newest'
     }
@@ -80,6 +78,8 @@ export function openingSoundSrc(id: OpeningSoundId): string | null {
   return id === 'on' ? OPENING_SOUND_SRC : null
 }
 
+let motionListenerBound = false
+
 export function useSiteSettings() {
   const settings = useState<SiteSettings>('entertrainer-site-settings', () => defaults())
   const panelOpen = useState<boolean>('entertrainer-settings-panel', () => false)
@@ -92,11 +92,31 @@ export function useSiteSettings() {
     } catch { /* private mode / quota */ }
   }
 
-  function applyToDom() {
+  function applyOsReduceMotion() {
     if (!import.meta.client) return
     const el = document.documentElement
-    if (settings.value.reduceMotion) el.setAttribute('data-reduce-motion', 'on')
+    let reduce = false
+    try {
+      reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    } catch { /* ignore */ }
+    if (reduce) el.setAttribute('data-reduce-motion', 'on')
     else el.removeAttribute('data-reduce-motion')
+  }
+
+  function bindOsReduceMotion() {
+    if (!import.meta.client || motionListenerBound) return
+    motionListenerBound = true
+    try {
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+      const onChange = () => applyOsReduceMotion()
+      if (typeof mq.addEventListener === 'function') mq.addEventListener('change', onChange)
+      else mq.addListener(onChange)
+    } catch { /* ignore */ }
+  }
+
+  function applyToDom() {
+    applyOsReduceMotion()
+    bindOsReduceMotion()
   }
 
   function hydrate() {
@@ -106,6 +126,8 @@ export function useSiteSettings() {
     } catch {
       settings.value = defaults()
     }
+    // Drop legacy reduceMotion from stored JSON on next save
+    persist()
     applyToDom()
     hydrated.value = true
   }
@@ -119,7 +141,6 @@ export function useSiteSettings() {
 
   function setOpeningSound(id: OpeningSoundId) { patch({ openingSound: id }) }
   function setWordOfTheDay(on: boolean) { patch({ wordOfTheDay: on }) }
-  function setReduceMotion(on: boolean) { patch({ reduceMotion: on }) }
   function setHideElevateExcerpts(on: boolean) { patch({ hideElevateExcerpts: on }) }
   function setElevateSort(sort: ElevateSortPref) { patch({ elevateSort: sort }) }
 
@@ -134,9 +155,8 @@ export function useSiteSettings() {
   function closePanel() { panelOpen.value = false }
   function togglePanel() { panelOpen.value = !panelOpen.value }
 
-  /** Effective reduced-motion: explicit pref OR OS preference. */
+  /** OS prefers-reduced-motion only. */
   function prefersReducedMotion(): boolean {
-    if (settings.value.reduceMotion) return true
     if (!import.meta.client) return false
     try {
       return window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -157,7 +177,6 @@ export function useSiteSettings() {
     patch,
     setOpeningSound,
     setWordOfTheDay,
-    setReduceMotion,
     setHideElevateExcerpts,
     setElevateSort,
     reset,

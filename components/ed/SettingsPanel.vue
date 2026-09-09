@@ -9,7 +9,6 @@ const {
   closePanel,
   setOpeningSound,
   setWordOfTheDay,
-  setReduceMotion,
   reset
 } = useSiteSettings()
 
@@ -130,23 +129,6 @@ function toggleOpeningSound() {
             >
               <span class="sp__switch-knob" aria-hidden="true" />
               <span class="sp__switch-state" aria-hidden="true">{{ settings.wordOfTheDay ? 'On' : 'Off' }}</span>
-            </button>
-          </label>
-
-          <label class="sp__row">
-            <span class="sp__row-copy">
-              <span class="sp__row-label">Calmer motion</span>
-            </span>
-            <button
-              type="button"
-              class="sp__switch"
-              role="switch"
-              :aria-checked="settings.reduceMotion"
-              :aria-label="`Calmer motion ${settings.reduceMotion ? 'on' : 'off'}`"
-              @click="setReduceMotion(!settings.reduceMotion)"
-            >
-              <span class="sp__switch-knob" aria-hidden="true" />
-              <span class="sp__switch-state" aria-hidden="true">{{ settings.reduceMotion ? 'On' : 'Off' }}</span>
             </button>
           </label>
         </div>

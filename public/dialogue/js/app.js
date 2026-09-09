@@ -32,7 +32,6 @@
       theme: 'system',
       defaultFormat: 'webtoon',
       autosave: true,
-      reduceMotion: false,
       exportQuality: 0.92,
       haptic: true,
     },
@@ -148,7 +147,11 @@
   function applySettings(s) {
     if (s.theme === 'system') delete document.documentElement.dataset.theme;
     else document.documentElement.dataset.theme = s.theme;
-    document.documentElement.dataset.reduceMotion = s.reduceMotion ? '1' : '0';
+    try {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (reduce) document.documentElement.dataset.reduceMotion = '1'
+      else delete document.documentElement.dataset.reduceMotion
+    } catch (_) { /* ignore */ }
   }
 
   function openSheet(id) {
@@ -1653,7 +1656,6 @@
           ${Object.values(F().FORMATS).map((f)=>`<option value="${f.id}" ${s.defaultFormat===f.id?'selected':''}>${f.label}</option>`).join('')}
         </select></div>
       <div class="row"><label>Autosave</label><input type="checkbox" id="set-autosave" ${s.autosave?'checked':''}/></div>
-      <div class="row"><label>Reduce motion</label><input type="checkbox" id="set-motion" ${s.reduceMotion?'checked':''}/></div>
       <div class="row"><label>Haptics</label><input type="checkbox" id="set-haptic" ${s.haptic!==false?'checked':''}/></div>
       <div class="row"><label>Export quality</label>
         <input type="range" id="set-quality" min="0.6" max="1" step="0.02" value="${s.exportQuality}"/></div>
@@ -1664,7 +1666,6 @@
     $('#set-theme').onchange = async (e) => { s.theme = e.target.value; await saveSettings(); };
     $('#set-format').onchange = async (e) => { s.defaultFormat = e.target.value; await saveSettings(); };
     $('#set-autosave').onchange = async (e) => { s.autosave = e.target.checked; await saveSettings(); };
-    $('#set-motion').onchange = async (e) => { s.reduceMotion = e.target.checked; await saveSettings(); };
     $('#set-haptic').onchange = async (e) => { s.haptic = e.target.checked; await saveSettings(); };
     $('#set-quality').oninput = async (e) => { s.exportQuality = Number(e.target.value); await saveSettings(); };
     $('#set-reset').onclick = () => {

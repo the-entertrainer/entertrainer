@@ -357,13 +357,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   display: grid;
   place-items: end center;
   padding: max(12rem, var(--safe-top)) 12rem max(12rem, var(--safe-bottom));
-  background: color-mix(in srgb, var(--ink) 34%, transparent);
+  background: color-mix(in srgb, var(--ink) 58%, transparent);
+  backdrop-filter: blur(2px);
 }
 @media (min-width: 560px) {
   .wotd { place-items: center; }
 }
 .wotd__panel {
   position: relative;
+  isolation: isolate;
   width: min(440rem, 100%);
   padding: 18rem 18rem 16rem;
   background: var(--paper);
@@ -372,6 +374,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border-radius: var(--radius-l) var(--radius-l) var(--radius-m) var(--radius-m);
   box-shadow: 4rem 4rem 0 color-mix(in srgb, var(--ink) 88%, transparent);
   animation: wotd-in 220ms var(--ease-out) both;
+  /* Opaque sheet — body text must not show through */
+  opacity: 1;
 }
 @media (min-width: 560px) {
   .wotd__panel { border-radius: var(--radius-l); padding: 20rem 22rem 18rem; }

@@ -411,7 +411,7 @@ function clearCategory() {
 .elevate__row-copy { min-width: 0; padding-top: 2rem; }
 .elevate__row-meta {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6rem 10rem;
   align-items: center;
   margin: 0 0 6rem;
@@ -419,6 +419,12 @@ function clearCategory() {
   letter-spacing: .05em;
   text-transform: uppercase;
   color: var(--ink-soft);
+  min-width: 0;
+}
+.elevate__date,
+.elevate__mins {
+  flex: none;
+  white-space: nowrap;
 }
 .elevate__cat {
   display: inline-flex;
@@ -429,6 +435,9 @@ function clearCategory() {
   border-radius: var(--radius-full);
   background: var(--paper);
   color: var(--ink);
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 .elevate__cat::before {
   content: '';

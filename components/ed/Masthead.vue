@@ -191,7 +191,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 @media (hover: hover) { .mh__icon:hover { background: var(--signal-field); color: var(--ink); } }
 .mh__icon:active { transform: scale(.94); }
 .mh__icon[aria-expanded="true"] { background: var(--accent); color: var(--accent-ink); }
-.mh__icon--wotd { position: relative; overflow: hidden; }
+.mh__icon--wotd { position: relative; overflow: visible; }
 .mh__wotd {
   position: relative;
   display: grid;
@@ -222,78 +222,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   55%, 100% { transform: translateY(0) rotate(0deg); }
 }
 
-/*
- * Idle micro-animations target `.ps-icon` (HTML span), not SVG paths —
- * path/SVG transforms are unreliable on mobile Safari. Motion is visible
- * at phone icon size (~36px), still calm. OS reduce-motion still wins.
- */
-.mh__icon :deep(.ps-icon) {
-  display: inline-grid;
-  place-items: center;
-  transform-origin: center center;
-  will-change: transform;
-}
-.mh__icon--settings :deep(.ps-icon) {
-  animation: mh-gear-tick 2.4s ease-in-out infinite;
-}
-.mh__icon--settings[aria-expanded="true"] :deep(.ps-icon) { animation: none; }
-@keyframes mh-gear-tick {
-  0%, 100% { transform: rotate(0deg); }
-  20% { transform: rotate(22deg); }
-  35% { transform: rotate(-8deg); }
-  50% { transform: rotate(16deg); }
-  65% { transform: rotate(0deg); }
-}
-
-.mh__icon--theme :deep(.ps-icon) {
-  animation: mh-theme-rock 2.2s ease-in-out infinite;
-}
-@keyframes mh-theme-rock {
-  0%, 100% { transform: rotate(0deg) scale(1); }
-  30% { transform: rotate(-16deg) scale(1.14); }
-  60% { transform: rotate(12deg) scale(1.08); }
-}
-
-.mh__icon--menu :deep(.ps-icon) {
-  animation: mh-menu-pulse 1.8s ease-in-out infinite;
-}
-.mh__icon--menu[aria-expanded="true"] :deep(.ps-icon) { animation: none; }
-@keyframes mh-menu-pulse {
-  0%, 100% { transform: scaleY(1); }
-  40% { transform: scaleY(0.78); }
-  55% { transform: scaleY(1.06); }
-  70% { transform: scaleY(1); }
-}
-
-/* Stagger the three menu bars when closed (extra readable cue) */
-.mh__icon--menu :deep(.ps-icon__bar) {
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.mh__icon--menu:not([aria-expanded="true"]) :deep(.ps-icon__bar--1) {
-  animation: mh-menu-bar 2.6s ease-in-out infinite;
-}
-.mh__icon--menu:not([aria-expanded="true"]) :deep(.ps-icon__bar--2) {
-  animation: mh-menu-bar 2.6s ease-in-out .12s infinite;
-}
-.mh__icon--menu:not([aria-expanded="true"]) :deep(.ps-icon__bar--3) {
-  animation: mh-menu-bar 2.6s ease-in-out .24s infinite;
-}
-@keyframes mh-menu-bar {
-  0%, 100% { transform: translateX(0); opacity: 1; }
-  40% { transform: translateX(2px); opacity: 0.75; }
-  55% { transform: translateX(-1px); opacity: 1; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mh__wotd-tile,
-  .mh__icon :deep(.ps-icon),
-  .mh__icon--menu :deep(.ps-icon__bar) { animation: none !important; }
-}
-/* One :global() per rule — Vue scoped was collapsing multi-selector globals to bare html{} */
-:global(html[data-reduce-motion="on"] .mh__wotd-tile) { animation: none !important; }
-:global(html[data-reduce-motion="on"] .mh__icon .ps-icon) { animation: none !important; }
-:global(html[data-reduce-motion="on"] .mh__icon--menu .ps-icon__bar) { animation: none !important; }
+/* Idle motion lives in the unscoped block below (avoids Vue :deep / Safari bugs). */
 
 .mh__dot {
   position: absolute; top: 5rem; right: 5rem;
@@ -354,3 +283,86 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .mh__brand :deep(svg), .mh__icon, .mh__icon svg { transition: none; }
 }
 </style>
+
+<style>
+/* Unscoped on purpose: scoped :deep animations were not perceptible on live mobile Safari. */
+.mh__icon--settings .ps-icon {
+  display: inline-grid;
+  place-items: center;
+  transform-origin: center center;
+  animation: mh-idle-gear 1.8s ease-in-out infinite;
+}
+.mh__icon--settings[aria-expanded="true"] .ps-icon { animation: none; }
+@keyframes mh-idle-gear {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(30deg); }
+  50% { transform: rotate(-12deg); }
+  75% { transform: rotate(18deg); }
+}
+
+.mh__icon--theme .ps-icon {
+  display: inline-grid;
+  place-items: center;
+  transform-origin: center center;
+  animation: mh-idle-theme 1.6s ease-in-out infinite;
+}
+@keyframes mh-idle-theme {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  40% { transform: rotate(-18deg) scale(1.16); }
+  70% { transform: rotate(14deg) scale(1.08); }
+}
+
+.mh__icon--menu .ps-icon {
+  display: inline-grid;
+  place-items: center;
+  transform-origin: center center;
+  animation: mh-idle-menu 1.4s ease-in-out infinite;
+}
+.mh__icon--menu[aria-expanded="true"] .ps-icon { animation: none; transform: rotate(90deg) scale(.88); }
+@keyframes mh-idle-menu {
+  0%, 100% { transform: scaleY(1); }
+  45% { transform: scaleY(0.72); }
+  60% { transform: scaleY(1.08); }
+}
+
+.mh__wotd-tile--a { animation: mh-idle-wotd 1.6s ease-in-out infinite !important; }
+.mh__wotd-tile--b { animation: mh-idle-wotd 1.6s ease-in-out .15s infinite !important; }
+.mh__wotd-tile--c { animation: mh-idle-wotd 1.6s ease-in-out .3s infinite !important; }
+@keyframes mh-idle-wotd {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  35% { transform: translateY(-3px) rotate(-10deg); }
+  55% { transform: translateY(1px) rotate(6deg); }
+}
+
+/* Visible chrome pulse on the button itself — impossible to miss */
+.mh__icon--settings,
+.mh__icon--theme,
+.mh__icon--menu,
+.mh__icon--wotd {
+  animation: mh-idle-chrome 2s ease-in-out infinite;
+}
+.mh__icon--settings[aria-expanded="true"],
+.mh__icon--menu[aria-expanded="true"] {
+  animation: none;
+}
+@keyframes mh-idle-chrome {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); }
+  50% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 55%, transparent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mh__icon--settings .ps-icon,
+  .mh__icon--theme .ps-icon,
+  .mh__icon--menu .ps-icon,
+  .mh__wotd-tile--a,
+  .mh__wotd-tile--b,
+  .mh__wotd-tile--c,
+  .mh__icon--settings,
+  .mh__icon--theme,
+  .mh__icon--menu,
+  .mh__icon--wotd {
+    animation: none !important;
+  }
+}
+</style>
+

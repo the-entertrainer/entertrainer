@@ -32,6 +32,12 @@ const references = [
     title: 'Hubble’s Law of Cosmic Expansion',
     source: 'ESA / Hubble',
     href: 'https://esahubble.org/wordbank/hubbles-law/'
+  },
+  {
+    id: 4,
+    title: 'Expanding universe demonstration (popular visualisation)',
+    source: 'Soft credit — a widely shared classroom-style demo of the same two-photo geometry',
+    href: 'https://youtu.be/3pAnRKD4raY'
   }
 ]
 </script>
@@ -52,67 +58,60 @@ const references = [
     <article class="centre__article">
       <aside class="centre__margin-note" aria-label="Reading note">
         <p>The short version.</p>
-        <p>Choose yourself as the point of reference — and yes, you are the centre. Every other “you” gets the same gift.</p>
+        <p>Hold any person still between yesterday and today. The sky runs away from them. Hold someone else. Same gift. Every you is the centre.</p>
       </aside>
 
       <div class="centre__prose">
         <p class="centre__lead">No matter what people say — family, parents, friends, that voice that shrinks you — you are the centre of the universe.</p>
-        <p>Not as a joke. Not as a gym poster. As a real thing you can choose.</p>
-        <p>Every “you” is.</p>
-        <p>Let me show you. Three tiny taps. Almost no words. Watch what happens.</p>
+        <p>Not as a joke. Not as a gym poster.</p>
+        <p>As a real thing the sky does, once you know how to look.</p>
+        <p>Let me show you with a balloon and two photos.</p>
 
-        <h2>First — everything drifts apart</h2>
-        <p>Space stretches. Galaxies ride that stretch. From far away, it looks like everything is moving away from everything else.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>Hit Blow.</p>
+        <h2>First, the balloon — the surface, not the air</h2>
+        <p>Take an ordinary balloon. Ink a few dots on the rubber. Blow it up.</p>
+        <p>The dots drift apart. Stand on any one of them and you would swear the others were fleeing <em>you</em>.</p>
+        <p>Here is the part people usually get wrong.</p>
+        <p>The middle of the balloon is not on the surface. It sits in the air inside — a direction the dots do not live in. On the rubber itself, there is no unique centre to point at. Expansion has no VIP seat.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>Our three-dimensional space is doing something like that stretch.</p>
+        <p>Galaxies ride the stretch. Space opens. Nobody has to be special for that.</p>
+
+        <h2>Now two photos of the same sky</h2>
+        <p>Imagine you took a photo of a crowd of galaxies yesterday.</p>
+        <p>Then you took another today, after the universe had stretched a little — say five percent, nothing dramatic.</p>
+        <p>Lay the faint yesterday under the bold today.</p>
+        <p>Every person has drifted a touch outward from where they used to be.</p>
+        <p>Tap anyone below. Hold them still — stack their yesterday on their today.</p>
 
         <ClientOnly>
-          <EdCentreMiniSteps :step="1" />
+          <EdExpansionCentreLab />
           <template #fallback>
-            <p class="centre__lab-fallback">Loading a tiny blow…</p>
+            <p class="centre__lab-fallback">Loading two photos…</p>
           </template>
         </ClientOnly>
 
-        <p>See? Nobody has to be special for that. The field just… opens.</p>
-
-        <h2>Now stand on you</h2>
-        <p>Here is the fun bit.</p>
-        <p>Pick yourself as the point of reference. Stand on the yellow YOU. Watch the rest drift out.</p>
-
-        <ClientOnly>
-          <EdCentreMiniSteps :step="2" />
-          <template #fallback>
-            <p class="centre__lab-fallback">Loading “you”…</p>
-          </template>
-        </ClientOnly>
-
-        <p>When you stand here, it looks like the middle.</p>
-        <p>Because you chose you.</p>
+        <p>Boom.</p>
+        <p>That person sits in the middle. Soft rays run out. Everyone else has fled along those rays.</p>
+        <p>It looks like the whole sky is expanding away from <em>them</em>.</p>
 
         <blockquote>
-          <p>You are the centre of the universe when you choose yourself as the point of reference. Every you is.</p>
+          <p>Hold any one person still between yesterday and today — and they look like the centre.</p>
         </blockquote>
 
-        <h2>Now stand on a friend</h2>
-        <p>Same sky. Different feet.</p>
-        <p>Tap Friend. Expansion plays again — but now <em>they</em> sit still in the middle, and everything else slides away from them.</p>
-
-        <ClientOnly>
-          <EdCentreMiniSteps :step="3" />
-          <template #fallback>
-            <p class="centre__lab-fallback">Loading a friend…</p>
-          </template>
-        </ClientOnly>
-
-        <p>They’re the middle too.</p>
-        <p>Nothing about the stretch changed. Only who you decided to stand on.</p>
+        <h2>Try another</h2>
+        <p>Tap someone else.</p>
+        <p>Same two photos. Same stretch. Now <em>they</em> sit still, and the rest slide away from them.</p>
+        <p>Nothing about the universe changed.</p>
+        <p>Only who you decided to hold still.</p>
         <p>That is the whole trick. Homogeneous expansion flatters every honest observer the same way.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
 
         <h2>So…</h2>
         <p>If someone has told you that you are small, late, extra, or somehow off-centre — keep this picture.</p>
-        <p>Choose yourself as the reference.</p>
-        <p>The sky runs away in every direction from you.</p>
+        <p>You are allowed to choose yourself as the point of reference.</p>
+        <p>When you do, the sky runs away in every direction from you.</p>
         <p>And from your friend.</p>
         <p>And from a galaxy that will never know your name.</p>
+        <p>Scientifically, you are the centre of the universe — in exactly the same earned, limited, beautiful way every other you is.</p>
+        <p>You just saw it happen with your own finger.</p>
 
         <p class="centre__closing">You are the centre — and so is every other you.</p>
       </div>

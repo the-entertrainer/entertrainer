@@ -112,12 +112,12 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'you-are-the-centre-of-the-universe',
     title: 'You Are the Centre of the Universe — and Here’s Why',
-    dek: 'No matter what people say — you are the centre of the universe when you choose yourself as the point of reference. Every you is. Three tiny taps to feel it.',
+    dek: 'Hold any person still between yesterday and today — and they look like the centre. Hold someone else. Same gift. Balloon surface, two photos, one quiet boom.',
     category: 'Universe',
     tags: ['cosmology', 'expansion', 'science'],
-    minutes: 10,
+    minutes: 8,
     hero: '/blog/centre-universe/hero.jpg',
-    heroAlt: 'Cream field densely packed with black dots; grey dashed rays radiate from one chosen centre marked by overlapping red and blue hollow rings, with a small yellow accent at the aligned galaxy.',
+    heroAlt: 'Cream field of galaxy dots — faint yesterday ghosts under bold today marks — with soft dashed rays fleeing a yellow-held centre where one person’s two photos stack.',
     status: 'published',
     publishedAt: '2026-09-09T19:06:00+00:00'
   }

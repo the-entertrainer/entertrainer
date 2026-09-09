@@ -1386,7 +1386,7 @@ button {
   margin-left: 6px;
 }
 .beat-pill.beat-setup { background: #F6F1E8; }
-.beat-pill.beat-turn { background: var(--accent); }
+.beat-pill.beat-turn { background: var(--accent); color: var(--accent-ink); }
 .beat-pill.beat-payoff { background: #c8f0c8; }
 .beat-pill.beat-hook { background: #ffd0c8; }
 .shot-pill {

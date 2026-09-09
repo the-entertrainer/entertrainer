@@ -15,30 +15,9 @@ useSeoMeta({
 })
 
 const references = [
-  {
-    id: 1,
-    title: 'Cosmological Principle',
-    source: 'NASA / WMAP science overview',
-    href: 'https://map.gsfc.nasa.gov/universe/bb_concepts.html'
-  },
-  {
-    id: 2,
-    title: 'What is the Universe Expanding Into?',
-    source: 'NASA Space Place',
-    href: 'https://spaceplace.nasa.gov/expansion/en/'
-  },
-  {
-    id: 3,
-    title: 'Hubble’s Law of Cosmic Expansion',
-    source: 'ESA / Hubble',
-    href: 'https://esahubble.org/wordbank/hubbles-law/'
-  },
-  {
-    id: 4,
-    title: 'Expanding universe demonstration (popular visualisation)',
-    source: 'Soft credit — a widely shared classroom-style demo of the same two-photo geometry',
-    href: 'https://youtu.be/3pAnRKD4raY'
-  }
+  { id: 1, title: 'Cosmological Principle', source: 'NASA / WMAP science overview', href: 'https://map.gsfc.nasa.gov/universe/bb_concepts.html' },
+  { id: 2, title: 'What is the Universe Expanding Into?', source: 'NASA Space Place', href: 'https://spaceplace.nasa.gov/expansion/en/' },
+  { id: 3, title: 'Hubble’s Law of Cosmic Expansion', source: 'ESA / Hubble', href: 'https://esahubble.org/wordbank/hubbles-law/' }
 ]
 </script>
 
@@ -48,7 +27,7 @@ const references = [
       <NuxtLink to="/elevate" class="centre__back">The Entertrainer Blogs</NuxtLink>
       <p class="centre__meta">{{ CENTRE_UNIVERSE_BLOG.category }} <span aria-hidden="true">·</span> {{ CENTRE_UNIVERSE_BLOG.minutes }} min read</p>
       <h1>You Are the Centre of the Universe — and Here’s Why</h1>
-      <p class="centre__dek">{{ CENTRE_UNIVERSE_BLOG.dek }}</p>
+      <p class="centre__dek">Not because the universe picked you. Because in an expanding universe, every observer can make the same discovery.</p>
     </header>
 
     <figure class="centre__hero">
@@ -56,64 +35,50 @@ const references = [
     </figure>
 
     <article class="centre__article">
-      <aside class="centre__margin-note" aria-label="Reading note">
-        <p>One picture.</p>
-        <p>Space gets bigger between the dots. Hold any person still — everyone else drifts away from them. Same for everyone.</p>
+      <aside class="centre__margin-note" aria-label="The central idea">
+        <p>The short version</p>
+        <p>There is no special centre. From every galaxy, distant galaxies appear to move away in every direction.</p>
       </aside>
 
       <div class="centre__prose">
-        <p class="centre__lead">No matter what people say — family, parents, friends, that voice that shrinks you — you are the centre of the universe.</p>
-        <p>Really. The sky does this.</p>
-        <p>Balloon first. Then two photos you can poke.</p>
+        <p class="centre__lead">The universe is not expanding from one central point. It is expanding everywhere.</p>
+        <p>That sounds like a small correction. It changes the whole picture.</p>
 
-        <h2>The balloon — rubber, not the air inside</h2>
-        <p>Ink a few dots on a balloon. Blow it up.</p>
-        <p>The dots get farther apart.</p>
-        <p>They did not walk. The rubber between them got bigger.</p>
-        <p>That is the whole idea of expanding space. The gaps grow. The people (galaxies) ride along.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>And on the rubber itself, there is no special middle. The middle of a balloon is in the air inside — a place the dots do not live.</p>
+        <h2>Start with a balloon</h2>
+        <p>Draw dots on the surface of a balloon. Blow it up. Every dot sees the others move away as the surface stretches.</p>
+        <p>There is no special dot. No dot can point across the surface and say, “That is where the expansion began.” The surface has no centre on it. The centre is in the space inside the balloon, which the dots do not occupy.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
 
-        <h2>Two photos of the same sky</h2>
-        <p>Yesterday: a crowd of galaxies.</p>
-        <p>Today: the same crowd, after space got a little bigger between them — about five percent. Nothing dramatic.</p>
-        <p>Hit Stretch once. Watch the gaps open. Nobody is walking.</p>
-        <p>Then tap anyone. Stack their yesterday on their today — hold them still.</p>
+        <h2>Now watch the sky do the same thing</h2>
+        <p>Imagine two photographs of the same patch of sky. In the second photograph, the gaps between the galaxies are larger. Nobody has walked away. Space has stretched between them.</p>
+        <p>Press <strong>Stretch</strong>. Then hold one galaxy still. This is the part that matters: once you hold any galaxy still, every other galaxy appears to move away from it.</p>
 
         <ClientOnly>
           <EdExpansionCentreLab />
           <template #fallback>
-            <p class="centre__lab-fallback">Loading the two photos…</p>
+            <p class="centre__lab-fallback">Loading the galaxy demonstration…</p>
           </template>
         </ClientOnly>
 
-        <p>Boom. That person sits in the middle. Soft rays run out. Everyone else has slid away from them.</p>
-
+        <p>Now choose a different galaxy and hold that one still. The result does not break. The new observer also sees the rest receding in every direction.</p>
         <blockquote>
-          <p>Hold anyone still between yesterday and today — and they look like the centre.</p>
+          <p>Everyone gets the same view from home.</p>
         </blockquote>
 
-        <h2>Try someone else</h2>
-        <p>Tap another person.</p>
-        <p>Same two photos. Same stretch. Now they sit still, and the rest slide away from them.</p>
-        <p>Nothing about the universe changed. Only who you held still.</p>
-        <p>From any honest seat in a stretch like this, the sky runs away in every direction.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <h2>So are you really the centre?</h2>
+        <p><strong>Physically, no.</strong> The universe has no privileged central galaxy. That is the point of the demonstration, not a detail to hide.</p>
+        <p><strong>From your point of view, yes.</strong> Your address is the centre of the view you can make from your address. The same is true for your friend, a galaxy ten billion light-years away, and every other observer who can look out.</p>
+        <p>This is not proof that you are cosmically special. It is almost the opposite. The universe does not need one chosen centre because every place can describe the expansion in the same way.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
 
-        <h2>So…</h2>
-        <p>If someone has told you that you are small, late, extra, or somehow off-centre — keep this picture.</p>
-        <p>When you hold yourself still between yesterday and today, the sky runs away from you.</p>
-        <p>And from your friend.</p>
-        <p>And from a galaxy that will never know your name.</p>
-        <p>Scientifically, you are the centre of the universe. And so is everyone.</p>
-        <p>You just watched it with your finger.</p>
-
-        <p class="centre__closing">You are the centre — and so is everyone.</p>
-      </div>
+        <h2>The useful part</h2>
+        <p>When someone tells you that you are small, this will not refute them. You are small. So is Earth. So is the Sun compared with the universe.</p>
+        <p>But small is not the same as irrelevant. From where you stand, the whole sky opens outward. And it does the same for everyone else.</p>
+        <p class="centre__closing">You are not the universe’s chosen centre. You are standing in a universe with no chosen centre — and that gives everyone an equally good view.</p>
       </div>
     </article>
 
     <section class="centre__sources" aria-labelledby="sources-title">
       <p class="centre__meta">Sources</p>
-      <h2 id="sources-title">If you want the science labels</h2>
+      <h2 id="sources-title">The science behind the picture</h2>
       <ol>
         <li v-for="reference in references" :id="`ref-${reference.id}`" :key="reference.id">
           <a :href="reference.href" target="_blank" rel="noreferrer"><span>[{{ reference.id }}]</span> {{ reference.title }} <em>{{ reference.source }}</em></a>

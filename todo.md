@@ -710,8 +710,14 @@
 
 
 ## Inner-speech article release
-
 - [ ] Restore and audit the shelved inner-speech article, registry entry, and social-preview metadata.
 - [ ] Finish the article copy, explanatory visuals, stable asset paths, and Elevate listing integration.
 - [ ] Validate the article route, images, accessibility, mobile layout, crawler metadata, and production build.
 - [ ] Commit and push the finished inner-speech article to main.
+
+
+## Centre of the Universe article rewrite
+
+- [x] Sync the latest `main` branch and audit the current post’s thesis, evidence, pacing, and route metadata.
+- [x] Rewrite the article with minimal, direct language so each paragraph advances and demonstrates the central point.
+- [x] Validate the page, social metadata, mobile reading flow, no-emoji policy, production build, and push the focused rewrite to `main`.

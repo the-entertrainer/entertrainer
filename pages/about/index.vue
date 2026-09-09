@@ -4,9 +4,9 @@ import type { PhotoTileItem } from '~/components/ed/PhotoTiles.vue'
 
 useSeoMeta({
   title: 'About Me · Naveen Jose · Entertrainer',
-  description: 'Naveen Jose on a Kerala farming village, machines, Club Mahindra floors, The SEWA Chronicles in Coorg, Courtyard by Marriott Mahabaleshwar, and building Entertrainer.',
+  description: 'Naveen Jose: Udaipur housekeeping shifts, Coorg verification calls for The SEWA Chronicles, Marriott L&D in Mahabaleshwar, and building Entertrainer.',
   ogTitle: 'About Me · Naveen Jose',
-  ogDescription: 'From a Kerala village to hotel floors, a Coorg comic, Marriott rooms, and learning design.',
+  ogDescription: 'Stairs in Udaipur. Verification calls in Coorg. A mic in Mahabaleshwar. Then learning design.',
   ogUrl: 'https://entertrainer.in/about',
   ogImage: 'https://entertrainer.in/about/naveen-portrait.jpg'
 })
@@ -83,7 +83,7 @@ const marriottPhotos: PhotoTileItem[] = [
     <header class="about-story__hero">
       <div class="about-story__intro">
         <h1>I mopped floors before I designed learning.</h1>
-        <p class="about-story__deck">Village. Machines. Hotels. A comic in Coorg. Marriott. Now this.</p>
+        <p class="about-story__deck">Udaipur stairs. Coorg phone calls. A Marriott mic. Then this.</p>
       </div>
       <figure class="about-story__hero-art">
         <EdEditorialImage
@@ -95,74 +95,59 @@ const marriottPhotos: PhotoTileItem[] = [
 
     <article class="about-story__article">
       <p>
-        Most people hit the modules first.
-        Fair. Easier to drop a link than a biography.
+        Udaipur, year one as a Club Mahindra management trainee in housekeeping.
+        Sixteen hours in. The staircase still looked like a staircase that needed mopping.
       </p>
       <p>
-        How I actually work started earlier — and with a lot less swagger.
-      </p>
-
-      <h2>Central Kerala. Farmer family.</h2>
-      <p>
-        Father: farmer. Sharp. Quietly good at looking at the same problem from a side door.
+        Rooms. Floors. Stairs. Fifteen to eighteen hours. All days. No weekly offs.
+        Nobody asked what IHMCT&amp;AN Chennai taught me about service philosophy.
+        They asked if the landing was dry.
       </p>
       <p>
-        That habit stuck harder than any career brochure.
+        That is the part I trust. The rest of this page is just how that habit kept changing rooms.
       </p>
 
-      <h2>School was rough. I went quiet.</h2>
+      <h2>Before hotels, a village and a lot of silence.</h2>
       <p>
-        Severe introvert. Anxiety sat in the room before I did.
+        Central Kerala. Farming village. Father: farmer. Quietly good at looking at the same problem from a side door until it stopped looking stuck.
       </p>
       <p>
-        Plenty of that soft discrimination — the “didn’t mean it” kind.
-        Academics dropped.
+        I inherited the side-door habit. Not the farmland.
       </p>
       <p>
-        Roughly thirteen years mostly alone with computers, the internet, books, logic.
+        School was rough. Severe introvert. Anxiety sat down before I did.
+        Soft discrimination — the “didn’t mean it” kind. Academics dropped.
       </p>
       <p>
+        Roughly thirteen years alone with computers, books, logic.
         Machines were excellent company. No mood. No judgement. Just rules.
         I got addicted to that.
       </p>
       <p>
-        Later I noticed minds want structure too — messier compiler, same hunger.
+        Later I noticed minds want structure too. Messier compiler. Same hunger.
+      </p>
+      <p>
+        I needed a degree that gets you a job. No career map. Practical question: what pays.
+        Answer: hospitality. Then the floors.
       </p>
 
-      <h2>I needed a degree that gets you a job.</h2>
-      <p>
-        No career map. Practical question only: what pays.
-      </p>
-      <p>
-        Answer: hospitality. IHMCT&amp;AN, Chennai — often called the top hotel school.
-      </p>
-      <p>
-        Final year: Club Mahindra (MHRIL) Management Trainee, housekeeping.
-      </p>
-      <p>
-        Udaipur first. Rooms. Floors. Stairs. Fifteen to eighteen hours. All days. No weekly offs.
-      </p>
-      <p>
-        Hotels are brutal early. Then they hand you a discipline corporates rarely do.
-      </p>
-      <p>
-        Somewhere in that stretch: I can do this all day.
-      </p>
-
-      <h2>Then Goa. Then Coorg.</h2>
+      <h2>Goa, then Coorg — where the comic actually started.</h2>
       <p>
         South Goa, Varca: supervisor.
-        I still like housekeeping as art plus science — the details guests notice without knowing they noticed.
+        I still like housekeeping as art plus science — the details guests register without knowing they registered them.
       </p>
       <p>
-        Coorg is where the culture work started.
+        Coorg is where the culture work began.
       </p>
       <p>
         Prakash Aranha — corporate L&amp;D for resort ops — handpicked me.
-        His brief: something Club Mahindra could call ours.
+        Brief: something Club Mahindra could call ours.
+        SEWA — Service with Empathy, Warmth and Attentiveness — as illustrated employee appreciation.
       </p>
       <p>
-        SEWA — Service with Empathy, Warmth and Attentiveness — as illustrated employee appreciation.
+        My glamorous creative process: portal logs, then verification calls.
+        Manager on the line. Colleague on the line. “Did this actually happen?”
+        If the story survived the phone, it earned ink.
       </p>
 
       <EdPhotoTiles
@@ -176,10 +161,7 @@ const marriottPhotos: PhotoTileItem[] = [
         Ten stories from seventy-plus resorts. Printed. Real.
       </p>
       <p>
-        Not vibes. Portal logs. People still in the company. Managers and colleagues for verification. Then ink on paper.
-      </p>
-      <p>
-        Design met Aranha’s vision. That combo is why it landed.
+        Design met Aranha’s vision. That combo is why it landed — not vibes, not slogans, verified people still in the company.
       </p>
 
       <figure class="about-story__figure about-story__figure--wide">
@@ -202,12 +184,15 @@ const marriottPhotos: PhotoTileItem[] = [
         </NuxtLink>
       </aside>
 
-      <h2>Courtyard by Marriott, Mahabaleshwar.</h2>
+      <h2>Mahabaleshwar: different room, same job underneath.</h2>
       <p>
         Left Mahindra for Assistant L&amp;D Manager at Courtyard by Marriott, Mahabaleshwar.
       </p>
       <p>
-        Sharp people around the table.
+        Wood-panelled room. Handheld mic. People who already knew their jobs better than any slide deck.
+        My task was not to sound smart. It was to make the next shift slightly less chaotic than the last one.
+      </p>
+      <p>
         Carrying real HR-shaped responsibility taught me more than any soft-skill workshop.
       </p>
 
@@ -217,7 +202,7 @@ const marriottPhotos: PhotoTileItem[] = [
         :eager-count="4"
       />
 
-      <h2>Now: instructional design.</h2>
+      <h2>Now I design learning on purpose.</h2>
       <p>
         Concentrix by day. Entertrainer and Elevate on the side — turning operational detail into learning people can actually use.
       </p>
@@ -225,7 +210,7 @@ const marriottPhotos: PhotoTileItem[] = [
         (No Concentrix photo dump. You’re welcome.)
       </p>
       <p>
-        Some pieces help immediately. Some need time. Both fine.
+        If you came for the modules, open Elevate below. If you came for the comic, open SEWA above.
       </p>
     </article>
 

@@ -675,3 +675,35 @@
 - [x] Add a project-level publishing standard: use a relevant external image, original illustration, or explanatory diagram whenever an article refers to a real object, place, mechanism, scientific idea, historical event, or process that readers benefit from seeing.
 - [x] Audit the entropy article against the new standard, then add attributed external visual evidence and purpose-built diagrams where the existing illustrations alone do not show the real-world subject clearly enough.
 - [x] Validate credits, alternative text, visual relevance, responsive reading, policy compliance, production build, and the main-branch release.
+
+## Elevate article: the voice in your head
+
+- [ ] Extract the supplied video’s central ideas about inner speech, distinguish them from claims requiring independent research, and do not mention the source video in the published article.
+- [ ] Cross-check inner speech, anendophasia, private speech, working memory, intrusive thoughts, and thought suppression against credible research sources.
+- [ ] Create meaningful original editorial illustrations and an accurate explanatory diagram, with accessible captions, alt text, and any external credits required.
+- [ ] Write and integrate the original Elevate article with route-specific metadata and social preview, then validate, build, commit, and push to `main`.
+
+## Shelved: word-familiarity article
+
+- [ ] Revisit the abandoned word-familiarity article only if explicitly requested again.
+
+## Shelved: newsletter automation
+
+- [ ] Resume MailerLite sender verification and Monday scheduling only when explicitly requested again.
+
+## Shelved: Cloudflare DNS contingency
+
+- [ ] Do not change nameservers or DNS authority without explicit renewed approval; Vercel remains the active hosting and build path.
+
+## Evidence-led visual publishing rule
+
+- [ ] Apply the project rule that relevant external imagery, original illustrations, or explanatory diagrams are required whenever article content benefits from being seen.
+
+
+## About Me rewrite and image-crop repair
+
+- [x] Audit the current About Me copy for generic, portfolio-like, or AI-sounding phrasing.
+- [x] Rewrite the About Me story in first-person Say It Like Naveen voice while preserving verified career facts and the SEWA Chronicles route.
+- [x] Audit every About Me image treatment and correct bad crops, focal points, aspect ratios, and mobile behavior.
+- [x] Validate the revised page for accessibility, responsive layout, no-emoji compliance, and production build success.
+- [ ] Commit and push the About Me refresh to main.

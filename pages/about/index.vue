@@ -14,42 +14,51 @@ useSeoMeta({
 const clubMahindraPhotos: PhotoTileItem[] = [
   {
     src: '/about/about-housekeeper-1.webp',
-    alt: 'Naveen bent over an under-maintenance game table in Coorg, sketching on a whiteboard during the Club Mahindra years.'
+    alt: 'Naveen bent over an under-maintenance game table in Coorg, sketching on a whiteboard during the Club Mahindra years.',
+    objectPosition: 'center 30%'
   },
   {
     src: '/about/about-sewa-2.webp',
-    alt: 'Printed SEWA comic draft pages spread across a round white table in Coorg.'
+    alt: 'Printed SEWA comic draft pages spread across a round white table in Coorg.',
+    objectPosition: 'center 40%'
   }
 ]
 
 const marriottPhotos: PhotoTileItem[] = [
   {
     src: '/about/naveen-speaking-stage.jpg',
-    alt: 'Naveen presenting with a handheld microphone to an audience in a wood-panelled room at Courtyard by Marriott, Mahabaleshwar.'
+    alt: 'Naveen presenting with a handheld microphone to an audience in a wood-panelled room at Courtyard by Marriott, Mahabaleshwar.',
+    objectPosition: 'center 22%'
   },
   {
     src: '/about/naveen-speaking-close.jpg',
-    alt: 'Close portrait of Naveen speaking into a wireless microphone during a session at Courtyard by Marriott, Mahabaleshwar.'
+    alt: 'Close portrait of Naveen speaking into a wireless microphone during a session at Courtyard by Marriott, Mahabaleshwar.',
+    objectPosition: 'center 18%'
   },
   {
     src: '/about/naveen-speaking-projector.jpg',
-    alt: 'Naveen speaking to an audience with a projector visible in the foreground at Courtyard by Marriott, Mahabaleshwar.'
+    alt: 'Naveen speaking to an audience with a projector visible in the foreground at Courtyard by Marriott, Mahabaleshwar.',
+    objectPosition: 'center 24%'
   },
   {
     src: '/about/about-cdt.webp',
-    alt: 'CDT Masterclass Training the Trainers collage from Courtyard by Marriott, Mahabaleshwar.'
+    alt: 'CDT Masterclass Training the Trainers collage from Courtyard by Marriott, Mahabaleshwar.',
+    objectPosition: 'center 35%'
   },
   {
     src: '/about/about-ignite.webp',
-    alt: 'Ignite by Marriott International event collage at Courtyard by Marriott, Mahabaleshwar.'
+    alt: 'Ignite by Marriott International event collage at Courtyard by Marriott, Mahabaleshwar.',
+    objectPosition: 'center 40%'
   },
   {
     src: '/about/about-onboarding.webp',
-    alt: 'Gurukul Heroes on Board workshop collage at Courtyard by Marriott, Mahabaleshwar.'
+    alt: 'Gurukul Heroes on Board workshop collage at Courtyard by Marriott, Mahabaleshwar.',
+    objectPosition: 'center 38%'
   },
   {
     src: '/about/club-mahindra-resort.jpg',
-    alt: 'Pool and tiered facade of Courtyard by Marriott, Mahabaleshwar.'
+    alt: 'Pool and tiered facade of Courtyard by Marriott, Mahabaleshwar.',
+    objectPosition: 'center 45%'
   }
 ]
 </script>
@@ -298,26 +307,29 @@ const marriottPhotos: PhotoTileItem[] = [
 .about-story__hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260rem, .85fr); gap: clamp(32rem, 8vw, 120rem); align-items: end; padding-bottom: clamp(46rem, 8vw, 86rem); border-bottom: var(--stroke) solid var(--ink); }
 .about-story h1 { max-width: 18ch; margin: 0; font: 500 clamp(42rem, 7.2vw, 92rem)/.92 var(--font-display); letter-spacing: -.06em; }
 
-/* Plain photo — natural height, flush, no cream letterbox */
+/* Portrait fills its column — cover crop, bias toward face */
 .about-story__hero-art {
   margin: 0;
   overflow: hidden;
   border: 0;
   border-radius: var(--radius-l);
-  background: transparent;
+  background: var(--paper-2);
   line-height: 0;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: 420rem;
+  justify-self: end;
 }
 .about-story__hero-art :deep(.ed-editorial-image),
 .about-story__hero-art :deep(img) {
   width: 100%;
-  height: auto;
-  max-width: 100%;
+  height: 100%;
   display: block;
   border: 0;
   border-radius: var(--radius-l);
   background: transparent;
-  object-fit: unset;
-  object-position: unset;
+  object-fit: cover;
+  object-position: center 18%;
 }
 
 .about-story__article { max-width: 720rem; margin: clamp(54rem, 9vw, 118rem) auto 0; font: 400 clamp(18rem, 1.85vw, 22rem)/1.62 var(--font-reading); }
@@ -327,24 +339,30 @@ const marriottPhotos: PhotoTileItem[] = [
 .about-story__article h2.about-story__break::before { content: ''; display: block; width: 36rem; height: var(--stroke); background: var(--ink); margin: 0 0 14rem; opacity: .55; }
 
 .about-story__figure {
-  width: min(100%, 560rem);
-  margin: clamp(42rem, 7vw, 80rem) 0 clamp(50rem, 8vw, 92rem) auto;
+  width: 100%;
+  max-width: 640rem;
+  margin: clamp(42rem, 7vw, 80rem) 0 clamp(50rem, 8vw, 92rem);
+  overflow: hidden;
+  border-radius: var(--radius-m);
+  background: var(--paper-2);
+  aspect-ratio: 16 / 10;
+  line-height: 0;
 }
 .about-story__figure--wide {
-  width: min(100%, 640rem);
-  margin-left: calc(clamp(0rem, 8vw, 110rem) * -1);
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
 }
 .about-story__figure :deep(.ed-editorial-image),
 .about-story__figure :deep(img) {
   display: block;
   width: 100%;
-  height: auto;
-  max-width: 100%;
+  height: 100%;
   border: 0;
   border-radius: var(--radius-m);
   background: transparent;
-  object-fit: unset;
-  object-position: unset;
+  object-fit: cover;
+  object-position: center 42%;
 }
 
 .about-story__article :deep(.photo-tiles) {
@@ -380,6 +398,7 @@ const marriottPhotos: PhotoTileItem[] = [
 
 @media (max-width: 700px) {
   .about-story__hero { grid-template-columns: 1fr; }
+  .about-story__hero-art { justify-self: stretch; max-width: none; }
   .about-story__figure, .about-story__figure--wide { width: 100%; margin-left: 0; }
   .about-story__article :deep(.photo-tiles) { margin-left: 0; margin-right: 0; }
   .about-story__sewa { margin-left: 0; margin-right: 0; }

@@ -2,10 +2,11 @@
 export type PhotoTileItem = {
   src: string
   alt: string
-  /** Kept for callers; grids use natural image height (no contain letterbox). */
+  /** How the bitmap fills its cell. Default cover (clips carefully, no letterbox gaps). */
   fit?: 'contain' | 'cover'
+  /** CSS object-position — bias toward faces / focal point. */
   objectPosition?: string
-  /** @deprecated Mosaic spans unused — tiles hug native image aspect. */
+  /** @deprecated Unused — uniform cover cells + last-odd full bleed. */
   span?: 'normal' | 'wide' | 'tall' | 'hero'
 }
 
@@ -23,8 +24,12 @@ const props = withDefaults(
 )
 
 const expanded = ref<number | null>(null)
-
 const count = computed(() => props.photos.length)
+
+/** Lone tile in the last row spans full width — no half-empty gap. */
+function isLastOdd(i: number) {
+  return count.value > 1 && count.value % 2 === 1 && i === count.value - 1 && expanded.value !== i
+}
 
 function toggle(i: number) {
   if (count.value <= 1) return
@@ -60,6 +65,14 @@ function focusTile(i: number) {
 function isEager(i: number) {
   return i < props.eagerCount
 }
+
+function fitOf(photo: PhotoTileItem) {
+  return photo.fit === 'contain' ? 'contain' : 'cover'
+}
+
+function positionOf(photo: PhotoTileItem) {
+  return photo.objectPosition || 'center 28%'
+}
 </script>
 
 <template>
@@ -80,7 +93,10 @@ function isEager(i: number) {
       :key="photo.src"
       type="button"
       class="photo-tiles__tile"
-      :class="{ 'is-expanded': expanded === i }"
+      :class="{
+        'is-expanded': expanded === i,
+        'photo-tiles__tile--span': isLastOdd(i)
+      }"
       :aria-expanded="expanded === i"
       :aria-label="photo.alt"
       @click="toggle(i)"
@@ -93,6 +109,10 @@ function isEager(i: number) {
         :fetchpriority="i === 0 ? 'high' : undefined"
         decoding="async"
         draggable="false"
+        :style="{
+          objectFit: fitOf(photo),
+          objectPosition: positionOf(photo)
+        }"
       >
       <span class="sr-only">{{ photo.alt }}</span>
     </button>
@@ -101,16 +121,17 @@ function isEager(i: number) {
 
 <style scoped>
 /*
- * Uniform columns, natural image heights.
- * Each tile hugs the bitmap — no fixed cell height, no object-fit contain/cover
- * letterboxing, no cream fill inside the frame.
+ * Uniform cover cells — no masonry holes, no cream letterbox.
+ * Images scale + clip into equal frames; last odd tile spans the full row.
  */
 .photo-tiles {
   --tile-gap: 10rem;
+  --tile-ratio: 4 / 5;
+  --tile-ratio-span: 16 / 10;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--tile-gap);
-  align-items: start;
+  align-items: stretch;
   justify-items: stretch;
   width: min(100%, 720rem);
   margin: clamp(36rem, 6vw, 64rem) 0;
@@ -120,7 +141,8 @@ function isEager(i: number) {
 
 .photo-tiles--solo {
   grid-template-columns: minmax(0, 1fr);
-  width: min(100%, 480rem);
+  width: min(100%, 520rem);
+  --tile-ratio: 1 / 1;
 }
 
 .photo-tiles--pair {
@@ -131,15 +153,13 @@ function isEager(i: number) {
   display: block;
   box-sizing: border-box;
   width: 100%;
-  height: auto;
   min-width: 0;
-  min-height: 0;
   margin: 0;
   padding: 0;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   overflow: hidden;
-  background: transparent;
+  background: var(--paper-2);
   cursor: zoom-in;
   appearance: none;
   -webkit-appearance: none;
@@ -147,12 +167,18 @@ function isEager(i: number) {
   font: inherit;
   text-align: left;
   line-height: 0;
+  aspect-ratio: var(--tile-ratio);
   transform-origin: center center;
   transition:
     transform 280ms var(--ease-spring, cubic-bezier(.2, .9, .2, 1)),
     box-shadow 220ms var(--ease-out, ease),
     border-color 180ms var(--ease-out, ease),
     filter 220ms var(--ease-out, ease);
+}
+
+.photo-tiles__tile--span {
+  grid-column: 1 / -1;
+  aspect-ratio: var(--tile-ratio-span);
 }
 
 .photo-tiles__tile:focus-visible {
@@ -172,6 +198,8 @@ function isEager(i: number) {
   z-index: 5;
   cursor: zoom-out;
   grid-column: 1 / -1;
+  aspect-ratio: auto;
+  max-height: min(78vh, 720rem);
   border-color: var(--accent);
   box-shadow:
     0 0 0 3rem var(--accent),
@@ -185,18 +213,24 @@ function isEager(i: number) {
 .photo-tiles__tile img {
   display: block;
   width: 100%;
-  height: auto;
-  max-width: 100%;
+  height: 100%;
   margin: 0;
   padding: 0;
   border: 0;
-  /* Natural aspect — never contain/cover into a fixed box */
-  object-fit: unset;
-  object-position: unset;
+  object-fit: cover;
+  object-position: center 28%;
   pointer-events: none;
   user-select: none;
   background: transparent;
-  vertical-align: top;
+}
+
+.photo-tiles__tile.is-expanded img {
+  height: auto;
+  max-height: min(78vh, 720rem);
+  width: 100%;
+  object-fit: contain;
+  object-position: center center;
+  background: var(--paper);
 }
 
 .sr-only {
@@ -211,34 +245,20 @@ function isEager(i: number) {
   border: 0;
 }
 
-@media (min-width: 701px) {
-  .photo-tiles:not(.photo-tiles--solo):not(.photo-tiles--pair) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 700px) {
   .photo-tiles {
     width: 100%;
     --tile-gap: 8rem;
   }
-
-  .photo-tiles--pair {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .photo-tiles--solo {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .photo-tiles__tile {
-    transition: none;
-  }
+  .photo-tiles__tile { transition: none; }
   .photo-tiles__tile:hover,
-  .photo-tiles__tile.is-expanded {
-    transform: none;
-  }
+  .photo-tiles__tile.is-expanded { transform: none; }
+}
+
+:global(html[data-reduce-motion="on"]) .photo-tiles__tile {
+  transition: none;
 }
 </style>

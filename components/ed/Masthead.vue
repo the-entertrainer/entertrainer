@@ -212,67 +212,89 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font: 900 8rem/1 var(--font-mono);
   box-shadow: 1rem 1rem 0 color-mix(in srgb, var(--ink) 25%, transparent);
 }
-.mh__wotd-tile--a { left: 0; top: 0; animation: mh-wotd-flip 4.8s ease-in-out infinite; }
-.mh__wotd-tile--b { left: 5rem; top: 3rem; background: var(--paper); animation: mh-wotd-flip 4.8s ease-in-out .4s infinite; }
-.mh__wotd-tile--c { left: 10rem; top: 6rem; animation: mh-wotd-flip 4.8s ease-in-out .8s infinite; }
+.mh__wotd-tile--a { left: 0; top: 0; animation: mh-wotd-flip 2.8s ease-in-out infinite; }
+.mh__wotd-tile--b { left: 5rem; top: 3rem; background: var(--paper); animation: mh-wotd-flip 2.8s ease-in-out .25s infinite; }
+.mh__wotd-tile--c { left: 10rem; top: 6rem; animation: mh-wotd-flip 2.8s ease-in-out .5s infinite; }
 @keyframes mh-wotd-flip {
-  0%, 18% { transform: translateY(0) rotate(0deg); }
-  28% { transform: translateY(-2rem) rotate(-8deg); }
-  40%, 100% { transform: translateY(0) rotate(0deg); }
+  0%, 12% { transform: translateY(0) rotate(0deg); }
+  28% { transform: translateY(-4rem) rotate(-12deg); }
+  42% { transform: translateY(1rem) rotate(6deg); }
+  55%, 100% { transform: translateY(0) rotate(0deg); }
 }
-@media (prefers-reduced-motion: reduce) {
-  .mh__wotd-tile { animation: none; }
-}
-:global(html[data-reduce-motion="on"]) .mh__wotd-tile { animation: none; }
 
-/* Settings — gentle gear tick (same idle spirit as WOTD tiles) */
-.mh__icon--settings :deep(svg) {
-  transform-origin: center;
-  animation: mh-gear-tick 5.6s ease-in-out infinite;
+/*
+ * Idle micro-animations target `.ps-icon` (HTML span), not SVG paths —
+ * path/SVG transforms are unreliable on mobile Safari. Motion is visible
+ * at phone icon size (~36px), still calm. OS reduce-motion still wins.
+ */
+.mh__icon :deep(.ps-icon) {
+  display: inline-grid;
+  place-items: center;
+  transform-origin: center center;
+  will-change: transform;
 }
-.mh__icon--settings[aria-expanded="true"] :deep(svg) { animation: none; }
+.mh__icon--settings :deep(.ps-icon) {
+  animation: mh-gear-tick 3.2s ease-in-out infinite;
+}
+.mh__icon--settings[aria-expanded="true"] :deep(.ps-icon) { animation: none; }
 @keyframes mh-gear-tick {
-  0%, 62%, 100% { transform: rotate(0deg); }
-  72% { transform: rotate(14deg); }
-  82% { transform: rotate(10deg); }
-  90% { transform: rotate(14deg); }
+  0%, 55%, 100% { transform: rotate(0deg); }
+  68% { transform: rotate(28deg); }
+  78% { transform: rotate(18deg); }
+  88% { transform: rotate(28deg); }
 }
 
-/* Theme — soft rock / pulse */
-.mh__icon--theme :deep(svg) {
-  transform-origin: center;
-  animation: mh-theme-rock 5.2s ease-in-out infinite;
+.mh__icon--theme :deep(.ps-icon) {
+  animation: mh-theme-rock 3s ease-in-out infinite;
 }
 @keyframes mh-theme-rock {
   0%, 100% { transform: rotate(0deg) scale(1); }
-  28% { transform: rotate(-7deg) scale(1.06); }
-  48% { transform: rotate(5deg) scale(1.02); }
-  68% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-14deg) scale(1.12); }
+  50% { transform: rotate(10deg) scale(1.06); }
+  75% { transform: rotate(-4deg) scale(1.02); }
 }
 
-/* Menu — staggered line breathe */
+.mh__icon--menu :deep(.ps-icon) {
+  animation: mh-menu-pulse 2.6s ease-in-out infinite;
+}
+.mh__icon--menu[aria-expanded="true"] :deep(.ps-icon) { animation: none; }
+@keyframes mh-menu-pulse {
+  0%, 100% { transform: scaleY(1); }
+  40% { transform: scaleY(0.78); }
+  55% { transform: scaleY(1.06); }
+  70% { transform: scaleY(1); }
+}
+
+/* Stagger the three menu bars when closed (extra readable cue) */
 .mh__icon--menu :deep(.ps-icon__bar) {
   transform-box: fill-box;
   transform-origin: center;
 }
-.mh__icon--menu :deep(.ps-icon__bar--1) { animation: mh-menu-breathe 3.8s ease-in-out infinite; }
-.mh__icon--menu :deep(.ps-icon__bar--2) { animation: mh-menu-breathe 3.8s ease-in-out .18s infinite; }
-.mh__icon--menu :deep(.ps-icon__bar--3) { animation: mh-menu-breathe 3.8s ease-in-out .36s infinite; }
-.mh__icon--menu[aria-expanded="true"] :deep(.ps-icon__bar) { animation: none; }
-@keyframes mh-menu-breathe {
-  0%, 100% { transform: scaleX(1); opacity: 1; }
-  40% { transform: scaleX(0.68); opacity: 0.85; }
-  55% { transform: scaleX(1); opacity: 1; }
+.mh__icon--menu:not([aria-expanded="true"]) :deep(.ps-icon__bar--1) {
+  animation: mh-menu-bar 2.6s ease-in-out infinite;
+}
+.mh__icon--menu:not([aria-expanded="true"]) :deep(.ps-icon__bar--2) {
+  animation: mh-menu-bar 2.6s ease-in-out .12s infinite;
+}
+.mh__icon--menu:not([aria-expanded="true"]) :deep(.ps-icon__bar--3) {
+  animation: mh-menu-bar 2.6s ease-in-out .24s infinite;
+}
+@keyframes mh-menu-bar {
+  0%, 100% { transform: translateX(0); opacity: 1; }
+  40% { transform: translateX(2px); opacity: 0.75; }
+  55% { transform: translateX(-1px); opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mh__icon--settings :deep(svg),
-  .mh__icon--theme :deep(svg),
-  .mh__icon--menu :deep(.ps-icon__bar) { animation: none; }
+  .mh__wotd-tile,
+  .mh__icon :deep(.ps-icon),
+  .mh__icon--menu :deep(.ps-icon__bar) { animation: none !important; }
 }
-:global(html[data-reduce-motion="on"]) .mh__icon--settings :deep(svg),
-:global(html[data-reduce-motion="on"]) .mh__icon--theme :deep(svg),
-:global(html[data-reduce-motion="on"]) .mh__icon--menu :deep(.ps-icon__bar) { animation: none; }
+:global(html[data-reduce-motion="on"]) .mh__wotd-tile,
+:global(html[data-reduce-motion="on"]) .mh__icon :deep(.ps-icon),
+:global(html[data-reduce-motion="on"]) .mh__icon--menu :deep(.ps-icon__bar) {
+  animation: none !important;
+}
 
 .mh__dot {
   position: absolute; top: 5rem; right: 5rem;
@@ -281,8 +303,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   pointer-events: none;
 }
 .mh__sheet-wotd { width: 100%; border: 0; cursor: pointer; font: inherit; text-align: left; color: inherit; background: var(--paper); }
-.mh__icon svg { transition: transform var(--dur-mid) var(--ease-spring), opacity var(--dur-fast) var(--ease-out); }
-.mh__icon--menu[aria-expanded="true"] svg { transform: rotate(90deg) scale(.88); }
+.mh__icon :deep(.ps-icon) { transition: opacity var(--dur-fast) var(--ease-out); }
+.mh__icon--menu[aria-expanded="true"] :deep(.ps-icon) { transform: rotate(90deg) scale(.88); }
 .mh__icon--menu { display: none; }
 
 .mh__sheet { display: none; }

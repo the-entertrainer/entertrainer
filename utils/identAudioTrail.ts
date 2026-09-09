@@ -158,7 +158,7 @@ export const fadeIdentWithEcho = (
   const fadeMs = skip ? 320 : naturalEnd ? 2800 : 3600
   const hangMs = skip ? 40 : 160
   const totalMs = fadeMs + hangMs
-  const visualHintMs = skip ? 220 : 720
+  const visualHintMs = skip ? 360 : 2400
   const el = trail.el || ensureElement()
 
   if (!el) {

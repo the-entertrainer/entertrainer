@@ -240,8 +240,11 @@ const stopBeatLoop = () => {
 /** Circle wipe until logo framed, then flip-fade of entry mark. */
 const WIPE_MS = 780
 const FLIP_MS = 480
+/** Calm breathe after wordmark lands, before parallax grow. */
+const BREATHE_HOLD_MS = 3400
 /** CSS grow duration (ms) — matched to remaining music at grow start. */
 const growMs = ref(5200)
+let growDelayTimer: ReturnType<typeof setTimeout> | undefined
 
 const finishLeave = (opts: { skip?: boolean; naturalEnd?: boolean } = {}) => {
   if (leaving.value) return
@@ -254,17 +257,21 @@ const finishLeave = (opts: { skip?: boolean; naturalEnd?: boolean } = {}) => {
 
   const skip = !!opts.skip
   const naturalEnd = !!opts.naturalEnd
-  // Visual fade (CSS) starts immediately; music does a long smooth dry fade under the next screen.
-  // Stay mounted until the fade ends so Web Audio is not cut by unmount.
+  if (growDelayTimer !== undefined) {
+    window.clearTimeout(growDelayTimer)
+    growDelayTimer = undefined
+  }
+  // Music: long dry fade under the next screen. Visual: match slow CSS leave.
   const timing = soundOn.value
     ? fadeIdentWithEcho({ skip, naturalEnd })
-    : { visualHintMs: skip ? 220 : 480, totalMs: skip ? 220 : 480 }
+    : { visualHintMs: skip ? 360 : 2400, totalMs: skip ? 360 : 2400 }
+  // Prefer the slow visual leave duration (audio may keep dissolving after unmount).
+  const leaveVisualMs = skip ? 360 : Math.max(timing.visualHintMs, 2400)
 
   if (removeTimer) window.clearTimeout(removeTimer)
-  // Reveal the site on the visual cue; audio keeps fading underneath (trail owns disposal).
   removeTimer = window.setTimeout(
     () => emit('complete'),
-    timing.visualHintMs + 40,
+    leaveVisualMs + 60,
   )
 }
 
@@ -274,6 +281,11 @@ const finishLeave = (opts: { skip?: boolean; naturalEnd?: boolean } = {}) => {
  */
 const beginGrow = () => {
   if (leaving.value || growing.value || completed) return
+  if (growDelayTimer !== undefined) {
+    window.clearTimeout(growDelayTimer)
+    growDelayTimer = undefined
+  }
+  // Grow takes over — breathe already had its hold.
   breathing.value = false
   settling.value = true
   seedOn.value = false
@@ -421,12 +433,16 @@ const applyChoreo = (step: ChoreoStep, now: number, w: number, h: number) => {
     if (wordEnterIn.value) {
       wordShellEl.value?.classList.add('word--assembled')
     }
-    // Soft confirmation pulse only on the assemble beat — then no more beat reactions.
+    // Soft confirmation pulse, then editorial breathe before grow.
     if (step.rings?.length) pulseRings(step, false)
-    breathing.value = false
-    // Wordmark complete → slow parallax grow until music ends (leave on ended/skip).
-    if (wordEnterIn.value && !completed && !growing.value) {
-      beginGrow()
+    breathing.value = true
+    if (wordEnterIn.value && !completed && !growing.value && !leaving.value) {
+      if (growDelayTimer !== undefined) window.clearTimeout(growDelayTimer)
+      const hold = reducedMotion.value ? 200 : BREATHE_HOLD_MS
+      growDelayTimer = window.setTimeout(() => {
+        growDelayTimer = undefined
+        if (!leaving.value && !completed) beginGrow()
+      }, hold)
     }
     return
   }
@@ -434,9 +450,8 @@ const applyChoreo = (step: ChoreoStep, now: number, w: number, h: number) => {
     quoteIn.value = true
     // Soft kick only if grow has not started — avoid fighting parallax grow.
     if (step.word && !growing.value) kickWordmark()
-    breathing.value = false
+    if (!growing.value) breathing.value = true
     wordShellEl.value?.classList.add('word--settled', 'word--assembled')
-    // May fire once during grow; do not restart living-middle or schedule beginGrow.
     return
   }
   if (step.kind === 'settle') {
@@ -739,6 +754,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   clearFinishTimer()
   if (removeTimer) window.clearTimeout(removeTimer)
+  if (growDelayTimer !== undefined) {
+    window.clearTimeout(growDelayTimer)
+    growDelayTimer = undefined
+  }
   clearEntryTimers()
   stopBeatLoop()
   resizeObs?.disconnect()
@@ -919,11 +938,11 @@ onBeforeUnmount(() => {
   overflow: hidden;
   background: #fffaf0;
   color: #15120f;
-  transition: opacity 480ms cubic-bezier(.22, 1, .36, 1), visibility 480ms step-end;
+  transition: opacity 2400ms cubic-bezier(.22, 1, .36, 1), visibility 2400ms linear;
 }
 .preloader--leaving { opacity: 0; visibility: hidden; pointer-events: none; }
 .preloader--leaving-skip {
-  transition-duration: 220ms, 220ms;
+  transition-duration: 360ms, 360ms;
 }
 .preloader__audio { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
@@ -1156,11 +1175,11 @@ onBeforeUnmount(() => {
  */
 .preloader--breathe:not(.preloader--settle) .preloader__rings {
   transform-origin: 50% 50%;
-  animation: pl-logo-breathe 3.2s ease-in-out infinite;
+  animation: pl-logo-breathe 2.8s ease-in-out infinite;
 }
 .preloader--breathe:not(.preloader--settle) .preloader__brand-shell.word--assembled {
   transform-origin: 50% 50%;
-  animation: pl-word-breathe 3.2s ease-in-out infinite;
+  animation: pl-word-breathe 2.8s ease-in-out infinite;
 }
 .preloader--settle .preloader__rings,
 .preloader--settle .preloader__brand-shell {
@@ -1416,11 +1435,11 @@ onBeforeUnmount(() => {
 
 @keyframes pl-logo-breathe {
   0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.012); opacity: .96; }
+  50% { transform: scale(1.045); opacity: .94; }
 }
 @keyframes pl-word-breathe {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.01); }
+  50% { transform: scale(1.035); }
 }
 
 @keyframes pl-seed-breath {

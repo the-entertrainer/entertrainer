@@ -101,7 +101,7 @@ const MIND_READER_SYMBOLS = [
 
 .engage__icon--mind-reader i { display: grid; place-items: center; color: var(--accent-ink); }
 .engage__icon--mind-reader i:nth-child(2n) { color: var(--accent-ink); }
-.engage__icon--mind-reader i:nth-child(3n) { color: var(--paper); }
+.engage__icon--mind-reader i:nth-child(3n) { color: var(--accent-ink); }
 .engage__icon--mind-reader svg {
   width: 100%;
   height: 100%;

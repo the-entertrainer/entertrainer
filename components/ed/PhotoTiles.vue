@@ -225,12 +225,12 @@ function positionOf(photo: PhotoTileItem) {
 }
 
 .photo-tiles__tile.is-expanded img {
-  height: auto;
+  height: 100%;
   max-height: min(78vh, 720rem);
   width: 100%;
-  object-fit: contain;
-  object-position: center center;
-  background: var(--paper);
+  object-fit: cover;
+  object-position: center 28%;
+  background: transparent;
 }
 
 .sr-only {

@@ -184,7 +184,8 @@ withDefaults(defineProps<{
   font: 700 12rem/1.2 var(--font-mono);
   letter-spacing: .08em;
   text-transform: uppercase;
-  color: var(--stage-cobalt);
+  /* Ink on cream — yellow (--stage-cobalt / accent) fails contrast here. */
+  color: var(--ink-soft, var(--muted));
 }
 
 .stage__copy :deep(h1),

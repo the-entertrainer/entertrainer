@@ -1,40 +1,25 @@
 <script setup lang="ts">
-import { MUST_LETTERS, type ElevateCategory } from '~/content/elevate-categories'
-
 const props = withDefaults(
   defineProps<{
-    /** `panel` = full yellow card (article footers). `bubble` = corner orb. `inline` = quiet Elevate subscribe. */
-    variant?: 'panel' | 'bubble' | 'inline'
-    /** Active MUST category when used as Elevate hero bubble (for pressed state). */
-    activeCategory?: ElevateCategory | 'all' | string
+    /** `panel` = full yellow card (article footers). `inline` = quiet Elevate subscribe. */
+    variant?: 'panel' | 'inline'
   }>(),
-  { variant: 'panel', activeCategory: 'all' }
+  { variant: 'panel' }
 )
-
-const emit = defineEmits<{
-  'select-category': [category: ElevateCategory]
-}>()
 
 const email = ref('')
 const status = ref('')
 const failed = ref(false)
 const submitting = ref(false)
 const form = ref<HTMLFormElement | null>(null)
-const open = ref(false)
 const root = ref<HTMLElement | null>(null)
-const panelEl = ref<HTMLElement | null>(null)
-const triggerBtn = ref<HTMLButtonElement | null>(null)
 
-const titleId = computed(() => {
-  if (props.variant === 'bubble') return 'newsletter-bubble-title'
-  if (props.variant === 'inline') return 'newsletter-inline-title'
-  return 'newsletter-title'
-})
-const emailId = computed(() => {
-  if (props.variant === 'bubble') return 'newsletter-bubble-email'
-  if (props.variant === 'inline') return 'newsletter-inline-email'
-  return 'newsletter-email'
-})
+const titleId = computed(() => (
+  props.variant === 'inline' ? 'newsletter-inline-title' : 'newsletter-title'
+))
+const emailId = computed(() => (
+  props.variant === 'inline' ? 'newsletter-inline-email' : 'newsletter-email'
+))
 
 const inlineOpen = ref(false)
 let inlineCollapseTimer: ReturnType<typeof setTimeout> | undefined
@@ -99,71 +84,28 @@ async function subscribe() {
   }
 }
 
-function openBubble() {
-  open.value = true
-}
-
-function closeBubble() {
-  open.value = false
-  nextTick(() => triggerBtn.value?.focus())
-}
-
-function toggleBubble() {
-  if (open.value) closeBubble()
-  else openBubble()
-}
-
-function onMust(cat: ElevateCategory) {
-  emit('select-category', cat)
-}
-
-function onDocPointer(e: PointerEvent) {
-  if (!open.value || props.variant !== 'bubble') return
-  const t = e.target as Node | null
-  if (root.value && t && !root.value.contains(t)) closeBubble()
-}
-
 function onKey(e: KeyboardEvent) {
   if (e.key !== 'Escape') return
-  if (props.variant === 'bubble' && open.value) {
-    e.preventDefault()
-    closeBubble()
-    return
-  }
   if (props.variant === 'inline' && inlineOpen.value) {
     e.preventDefault()
     closeInline()
   }
 }
 
-watch(open, async (isOpen) => {
-  if (!import.meta.client || props.variant !== 'bubble') return
-  if (isOpen) {
-    await nextTick()
-    // Prefer focusing the MUST row first so discovery leads; email stays one tab away.
-    const firstMust = panelEl.value?.querySelector<HTMLButtonElement>('.nl-bubble__must-tile')
-    firstMust?.focus()
-  }
-})
-
 onMounted(() => {
-  if (props.variant === 'bubble') {
-    document.addEventListener('pointerdown', onDocPointer)
-    window.addEventListener('keydown', onKey)
-  } else if (props.variant === 'inline') {
+  if (props.variant === 'inline') {
     window.addEventListener('keydown', onKey)
   }
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('pointerdown', onDocPointer)
   window.removeEventListener('keydown', onKey)
   if (inlineCollapseTimer) clearTimeout(inlineCollapseTimer)
 })
 </script>
 
 <template>
-  <!-- Quiet Elevate subscribe — button expands to email, no MUST tiles -->
+  <!-- Quiet Elevate subscribe — button expands to email -->
   <div
     v-if="variant === 'inline'"
     ref="root"
@@ -209,88 +151,6 @@ onBeforeUnmount(() => {
         </div>
         <p class="nl-inline__fine">Occasional. No spam. One click to leave.</p>
         <p v-if="status" class="nl-inline__status" :class="{ 'is-error': failed }" role="status">{{ status }}</p>
-      </form>
-    </div>
-  </div>
-
-  <!-- Compact corner orb — expands into MUST + subscribe -->
-  <div
-    v-else-if="variant === 'bubble'"
-    ref="root"
-    class="nl-bubble"
-    :class="{ 'is-open': open }"
-  >
-    <button
-      ref="triggerBtn"
-      type="button"
-      class="nl-bubble__orb"
-      :aria-expanded="open"
-      aria-controls="newsletter-bubble-panel"
-      :aria-label="open ? 'Close Friday notes' : 'Open Friday notes'"
-      @click="toggleBubble"
-    >
-      <span class="nl-bubble__orb-glow" aria-hidden="true" />
-      <span class="nl-bubble__orb-mark" aria-hidden="true">M</span>
-      <span class="nl-bubble__orb-copy">
-        <span class="nl-bubble__orb-line">Friday notes</span>
-        <span class="nl-bubble__orb-line nl-bubble__orb-line--tap">Subscribe</span>
-      </span>
-    </button>
-
-    <div
-      v-show="open"
-      id="newsletter-bubble-panel"
-      ref="panelEl"
-      class="nl-bubble__panel"
-      role="dialog"
-      aria-modal="true"
-      :aria-labelledby="titleId"
-    >
-      <div class="nl-bubble__panel-head">
-        <div>
-          <h2 :id="titleId">Friday notes</h2>
-        </div>
-        <button type="button" class="nl-bubble__close u-icon-btn u-icon-btn--idle" aria-label="Close" @click="closeBubble">×</button>
-      </div>
-
-      <div class="nl-bubble__must" aria-label="MUST categories: Mind, Universe, Science, Technology">
-        <ul class="nl-bubble__must-row">
-          <li v-for="item in MUST_LETTERS" :key="item.letter">
-            <button
-              type="button"
-              class="nl-bubble__must-tile"
-              :aria-pressed="activeCategory === item.category"
-              :aria-label="`${item.letter} is for ${item.category}`"
-              @click="onMust(item.category)"
-            >
-              <span class="nl-bubble__must-letter">{{ item.letter }}</span>
-              <span class="nl-bubble__must-name">{{ item.category }}</span>
-            </button>
-          </li>
-        </ul>
-        <p class="nl-bubble__must-spell" aria-hidden="true">
-          <span>M</span><span>U</span><span>S</span><span>T</span>
-        </p>
-      </div>
-
-      <p class="nl-bubble__dek">Get the next question by email.</p>
-      <form ref="form" class="nl-bubble__form" @submit.prevent="subscribe">
-        <label :for="emailId">Email address</label>
-        <div class="nl-bubble__field">
-          <input
-            :id="emailId"
-            v-model="email"
-            type="email"
-            inputmode="email"
-            autocomplete="email"
-            required
-            placeholder="you@example.com"
-            :disabled="submitting"
-          >
-          <button type="submit" :disabled="submitting">{{ submitting ? 'Sending…' : 'Subscribe' }}</button>
-        </div>
-        <p class="nl-bubble__fine">No spam. No selling your address. One click to leave.</p>
-        <p v-if="status" class="nl-bubble__status" :class="{ 'is-error': failed }" role="status">{{ status }}</p>
       </form>
     </div>
   </div>
@@ -443,333 +303,6 @@ onBeforeUnmount(() => {
   .nl-inline__panel { animation: none; }
 }
 :global(html[data-reduce-motion="on"]) .nl-inline__panel { animation: none; }
-
-/* —— Bubble orb + popover —— */
-.nl-bubble {
-  position: relative;
-  z-index: 5;
-  width: max-content;
-  max-width: min(100%, 420rem);
-}
-
-.nl-bubble__orb {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 10rem;
-  min-height: 58rem;
-  padding: 8rem 18rem 8rem 8rem;
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-full);
-  background: var(--accent);
-  color: var(--accent-ink);
-  cursor: pointer;
-  box-shadow:
-    4rem 4rem 0 color-mix(in srgb, var(--ink) 18%, transparent),
-    0 0 0 0 transparent;
-  transition:
-    transform var(--dur-fast) var(--ease-spring),
-    box-shadow var(--dur-fast) var(--ease-out),
-    background var(--dur-fast) var(--ease-out);
-}
-
-.nl-bubble__orb-glow {
-  position: absolute;
-  inset: -7rem;
-  border-radius: inherit;
-  background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--accent) 60%, transparent), transparent 72%);
-  opacity: .55;
-  pointer-events: none;
-  animation: nl-bubble-pulse 2.8s var(--ease-out, ease) infinite;
-}
-
-.nl-bubble__orb-mark {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  width: 42rem;
-  height: 42rem;
-  border-radius: 50%;
-  border: var(--stroke) solid var(--ink);
-  background: var(--paper);
-  color: var(--ink);
-  font: 800 18rem/1 var(--font-display);
-  letter-spacing: -.04em;
-  flex: none;
-}
-
-.nl-bubble__orb-copy {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  gap: 2rem;
-  text-align: left;
-  line-height: 1.05;
-}
-
-.nl-bubble__orb-line {
-  font: 700 13rem/1.05 var(--font-ui);
-  letter-spacing: -.01em;
-}
-
-.nl-bubble__orb-line em {
-  font-style: normal;
-  font-weight: 800;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  background: var(--paper);
-  color: var(--ink);
-  padding: 1rem 5rem;
-  border-radius: 4rem;
-  border: 1.5rem solid var(--ink);
-  margin: 0 2rem;
-}
-
-.nl-bubble__orb-line--tap {
-  font-size: 12rem;
-  letter-spacing: .02em;
-  opacity: .85;
-}
-
-@media (hover: hover) {
-  .nl-bubble__orb:hover {
-    transform: translate(-2rem, -2rem);
-    box-shadow: 6rem 6rem 0 color-mix(in srgb, var(--ink) 22%, transparent);
-    background: var(--accent-strong, var(--accent));
-  }
-}
-
-.nl-bubble__orb:focus-visible {
-  outline: 3rem solid var(--ink);
-  outline-offset: 3rem;
-}
-
-.nl-bubble.is-open .nl-bubble__orb {
-  background: var(--paper);
-  box-shadow: 3rem 3rem 0 var(--ink);
-}
-
-.nl-bubble.is-open .nl-bubble__orb-glow { display: none; }
-
-.nl-bubble__panel {
-  position: absolute;
-  top: calc(100% + 12rem);
-  right: 0;
-  width: min(380rem, calc(100vw - 28rem));
-  padding: 18rem 18rem 16rem;
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-l);
-  background: var(--paper);
-  color: var(--ink);
-  box-shadow: 8rem 8rem 0 color-mix(in srgb, var(--accent) 55%, transparent);
-  animation: nl-bubble-in 240ms var(--ease-spring, cubic-bezier(.2, .9, .2, 1));
-}
-
-.nl-bubble__panel-head {
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 12rem;
-}
-
-.nl-bubble__kicker {
-  margin: 0 0 6rem;
-  color: var(--ink-soft);
-  font: 700 10rem/1.2 var(--font-mono);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
-.nl-bubble__panel h2 {
-  margin: 0;
-  max-width: 14ch;
-  font: 500 clamp(24rem, 3.2vw, 32rem)/1 var(--font-display);
-  letter-spacing: -.04em;
-}
-
-.nl-bubble__close {
-  flex: none;
-  width: 32rem;
-  height: 32rem;
-  border: var(--stroke) solid var(--ink);
-  border-radius: 50%;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font: 700 18rem/1 var(--font-ui);
-  cursor: pointer;
-}
-
-/* MUST discovery — only visible inside expand */
-.nl-bubble__must {
-  margin-top: 16rem;
-}
-
-.nl-bubble__must-row {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6rem;
-}
-
-.nl-bubble__must-tile {
-  display: grid;
-  gap: 4rem;
-  width: 100%;
-  min-height: 64rem;
-  padding: 10rem 6rem;
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-m);
-  background: color-mix(in srgb, var(--accent) 14%, var(--paper));
-  color: var(--ink);
-  text-align: left;
-  cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-out);
-}
-
-.nl-bubble__must-tile[aria-pressed="true"] {
-  background: var(--accent);
-  color: var(--accent-ink);
-  box-shadow: 3rem 3rem 0 var(--ink);
-}
-
-.nl-bubble__must-letter {
-  font: 800 22rem/1 var(--font-display);
-  letter-spacing: -.04em;
-}
-
-.nl-bubble__must-name {
-  font: 700 8rem/1.15 var(--font-mono);
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  opacity: .78;
-}
-
-@media (hover: hover) {
-  .nl-bubble__must-tile:hover {
-    background: var(--accent);
-    color: var(--accent-ink);
-    transform: translate(-1rem, -1rem);
-    box-shadow: 3rem 3rem 0 var(--ink);
-  }
-}
-
-.nl-bubble__must-tile:focus-visible {
-  outline: 3rem solid var(--ink);
-  outline-offset: 2rem;
-}
-
-.nl-bubble__must-spell {
-  display: flex;
-  gap: 2rem;
-  margin: 10rem 0 0;
-  font: 800 11rem/1 var(--font-mono);
-  letter-spacing: .4em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--ink) 28%, transparent);
-}
-
-.nl-bubble__must-spell span {
-  display: inline-grid;
-  place-items: center;
-  width: 1.35em;
-}
-
-.nl-bubble__dek {
-  margin: 16rem 0 0;
-  font-size: 14rem;
-  line-height: 1.4;
-  color: var(--ink-soft);
-}
-
-.nl-bubble__form { margin-top: 12rem; min-width: 0; }
-.nl-bubble__form > label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-
-.nl-bubble__field {
-  display: flex;
-  gap: 6rem;
-  padding: 5rem;
-  background: color-mix(in srgb, var(--accent) 16%, var(--paper));
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-m);
-}
-
-.nl-bubble__field input {
-  width: 100%;
-  min-width: 0;
-  padding: 10rem 10rem;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: var(--ink);
-  font: 500 15rem/1.2 var(--font-ui);
-}
-
-.nl-bubble__field button {
-  flex: none;
-  padding: 10rem 12rem;
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-s);
-  color: var(--accent-ink);
-  background: var(--accent);
-  font: 800 13rem/1 var(--font-ui);
-  cursor: pointer;
-}
-
-.nl-bubble__field input:disabled,
-.nl-bubble__field button:disabled { opacity: .6; cursor: default; }
-
-.nl-bubble__fine,
-.nl-bubble__status {
-  margin: 10rem 0 0;
-  font: 400 12rem/1.35 var(--font-body);
-}
-
-.nl-bubble__fine { color: var(--ink-soft); }
-.nl-bubble__status {
-  padding: 8rem 10rem;
-  background: color-mix(in srgb, var(--accent) 12%, var(--paper));
-  border-radius: var(--radius-s);
-}
-.nl-bubble__status.is-error {
-  background: color-mix(in srgb, #d64545 14%, var(--paper));
-  color: var(--danger);
-}
-
-@keyframes nl-bubble-pulse {
-  0%, 100% { opacity: .35; transform: scale(1); }
-  50% { opacity: .7; transform: scale(1.04); }
-}
-
-@keyframes nl-bubble-in {
-  from { opacity: 0; transform: translateY(-6rem) scale(.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@media (max-width: 420px) {
-  .nl-bubble__must-tile { min-height: 58rem; padding: 8rem 4rem; }
-  .nl-bubble__must-letter { font-size: 18rem; }
-  .nl-bubble__must-name { font-size: 7rem; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .nl-bubble__orb-glow,
-  .nl-bubble__panel { animation: none; }
-  .nl-bubble__orb,
-  .nl-bubble__must-tile { transition: none; }
-}
-:global(html[data-reduce-motion="on"]) .nl-bubble__orb-glow,
-:global(html[data-reduce-motion="on"]) .nl-bubble__panel { animation: none; }
 
 /* —— Full panel (article footers) —— */
 .newsletter { position: relative; display: grid; grid-template-columns: auto minmax(0, .8fr) minmax(360rem, 1.05fr); gap: clamp(20rem, 3.4vw, 48rem); align-items: center; padding: clamp(24rem, 4.5vw, 52rem); overflow: hidden; color: var(--ink); background: var(--signal-field); border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); }

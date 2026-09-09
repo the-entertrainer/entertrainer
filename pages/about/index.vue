@@ -4,9 +4,9 @@ import type { PhotoTileItem } from '~/components/ed/PhotoTiles.vue'
 
 useSeoMeta({
   title: 'About Me · Naveen Jose · Entertrainer',
-  description: 'Naveen Jose: Udaipur housekeeping shifts, Coorg verification calls for The SEWA Chronicles, Marriott L&D in Mahabaleshwar, and building Entertrainer.',
+  description: 'Naveen Jose: a farming village in central Kerala, Club Mahindra housekeeping, The SEWA Chronicles in Coorg, Marriott L&D in Mahabaleshwar, and building Entertrainer.',
   ogTitle: 'About Me · Naveen Jose',
-  ogDescription: 'Stairs in Udaipur. Verification calls in Coorg. A mic in Mahabaleshwar. Then learning design.',
+  ogDescription: 'Zero dreams, a thousand fears, then floors, verification calls, and learning design.',
   ogUrl: 'https://entertrainer.in/about',
   ogImage: 'https://entertrainer.in/about/naveen-portrait.jpg'
 })
@@ -70,58 +70,86 @@ const marriottPhotos: PhotoTileItem[] = [
 
     <article class="about-story__article">
       <p>
-        Udaipur, year one as a Club Mahindra management trainee in housekeeping.
-        Sixteen hours in. The staircase still looked like a staircase that needed mopping.
+        I was a kid with zero dreams and a thousand fears.
       </p>
       <p>
-        Rooms. Floors. Stairs. Fifteen to eighteen hours. All days. No weekly offs.
-        Nobody asked what IHMCT&amp;AN Chennai taught me about service philosophy.
-        They asked if the landing was dry. That was fair.
+        Severe introvert. Anxiety that showed up before people did.
+        Farming family. Village in central Kerala.
+        Father: farmer. Quietly sharp. The kind of mind that finds a side door in a problem until the problem stops looking stuck.
+        Later I understood he was my greatest influence. Not because he said so. Because the habit stuck.
       </p>
       <p>
-        That is the part I trust. The rest of this page is just how that habit kept changing rooms.
+        School was not great.
+        Soft discrimination — the “didn’t mean it” kind.
+        Academics dropped. I dropped with them.
       </p>
 
-      <h2>Before hotels, a village and a lot of silence.</h2>
+      <h2>Thirteen years inside a cocoon.</h2>
       <p>
-        Central Kerala. Farming village. Father: farmer. Quietly good at looking at the same problem from a side door until it stopped looking stuck.
+        The first thirteen years felt like a caterpillar weaving its own cover.
+        Alone. Peaceful in a way you cannot lend to anyone else.
+        That calm does not photograph well. It also does not explain itself at family functions.
       </p>
       <p>
-        I inherited the side-door habit. Not the farmland. That would have required a different CV.
+        My father read the cocoon differently.
+        Not “alone in a vast universe.”
+        Cover. A place to try and fail without an audience keeping score.
       </p>
       <p>
-        School was rough. Severe introvert. Anxiety sat down before I did.
-        Soft discrimination — the “didn’t mean it” kind. Academics dropped.
+        Computers were still a novelty then.
+        Machines have no mind. They obey rules. No emotional judgements.
+        Best companion if you are trying to work on yourself without performing it.
       </p>
       <p>
-        Roughly thirteen years alone with computers, books, logic.
-        Machines were excellent company. No mood. No judgement. Just rules.
-        I liked that they never asked me to make small talk.
+        So I closed up and learned.
+        Machines. Internet. Books. Exploring. Teaching myself.
+        Human distraction was the hard part. I am glad I did not have much of it then.
       </p>
       <p>
-        Later I noticed minds want structure too. Messier compiler. Same hunger.
-      </p>
-      <p>
-        I needed a degree that gets you a job. No career map. Practical question: what pays.
-        Answer: hospitality. Then the floors.
+        Logic became the addiction.
+        Rules. Instructions. The base of programming.
+        Machines run on that. Later I noticed minds want something similar — messier compiler, same hunger for structure.
       </p>
 
-      <h2>Goa, then Coorg — where the comic actually started.</h2>
+      <h2>No map. Just a degree that could earn a job.</h2>
+      <p>
+        Zero idea of career. No guidance worth the name.
+        Practical question only: what pays.
+        Answer: hospitality.
+      </p>
+      <p>
+        IHMCT&amp;AN Chennai. Prestigious. Often treated as the number one hotel-management college in the country.
+        I went. I studied. I still did not have a speech prepared about “calling.”
+      </p>
+      <p>
+        Final year: Club Mahindra — MHRIL — management trainee in housekeeping.
+        First posting: Udaipur.
+      </p>
+      <p>
+        Rooms. Mopping floors. Stairs.
+        Fifteen to eighteen hours. All days. No weekly offs.
+        Hotels were unforgiving then. That was the point.
+        Somewhere between the landings I thought, quietly: I can do this all day.
+      </p>
       <p>
         South Goa, Varca: supervisor.
-        I still like housekeeping as art plus science — the details guests register without knowing they registered them.
+        I still love housekeeping as art plus science — the details guests register without knowing they registered them.
       </p>
+
+      <h2>Coorg, and the calls that made the comic real.</h2>
       <p>
-        Coorg is where the culture work began.
+        Coorg was beautiful. That is the easy sentence.
       </p>
       <p>
         Prakash Aranha — corporate L&amp;D for resort ops — handpicked me.
         Brief: something Club Mahindra could call ours.
         SEWA — Service with Empathy, Warmth and Attentiveness — as illustrated employee appreciation.
+        I said yes before I had a neat plan. Plans arrive after you start answering the phone.
       </p>
       <p>
-        My glamorous creative process: portal logs, then verification calls.
-        Manager on the line. Colleague on the line. “Did this actually happen?”
+        My glamorous creative process: portal logs from day one.
+        Pick stories that actually moved someone — and only if that employee was still in the company.
+        Call without revealing the purpose. Manager. Colleague. “Did this happen?”
         If the story survived the phone, it earned ink.
       </p>
 
@@ -134,9 +162,8 @@ const marriottPhotos: PhotoTileItem[] = [
       <p>
         About three months in: first volume of <em>The SEWA Chronicles</em>.
         Ten stories from seventy-plus resorts. Printed. Real.
-      </p>
-      <p>
-        Design met Aranha’s vision. That combo is why it landed: the stories were real, and the people in them could recognise themselves.
+        Early creative project — my design, Aranha’s vision.
+        It hit because the verification was boring and ruthless. People could recognise themselves on the page.
       </p>
 
       <figure class="about-story__figure about-story__figure--wide">
@@ -161,14 +188,14 @@ const marriottPhotos: PhotoTileItem[] = [
 
       <h2>Mahabaleshwar: different room, same job underneath.</h2>
       <p>
-        Left Mahindra for Assistant L&amp;D Manager at Courtyard by Marriott, Mahabaleshwar.
+        I stayed with Mahindra until I moved as Assistant L&amp;D Manager at Courtyard by Marriott, Mahabaleshwar.
+        Rooms full of sharp people. Genius minds, if you want the short label.
+        Carrying real HR-shaped responsibility shaped me more than any soft-skill workshop.
       </p>
       <p>
-        Wood-panelled room. Handheld mic. People who already knew their jobs better than any slide deck.
-        My task was not to sound smart. It was to make the next shift slightly less chaotic than the last one.
-      </p>
-      <p>
-        Carrying real HR-shaped responsibility taught me more than any soft-skill workshop.
+        Wood-panelled room. Handheld mic.
+        My task was not to sound smart.
+        It was to make the next shift slightly less chaotic than the last one.
       </p>
 
       <EdPhotoTiles
@@ -177,13 +204,30 @@ const marriottPhotos: PhotoTileItem[] = [
         :eager-count="4"
       />
 
-      <h2>Now I design learning on purpose.</h2>
+      <h2>Now I chase work that matters.</h2>
       <p>
-        Concentrix by day. Entertrainer and Elevate on the side — turning operational detail into learning people can actually use.
+        Instructional design pulled me next — Concentrix by day.
+        Creating learning that has to survive contact with real people.
+        Entertrainer and Elevate are what you are reading now: the same habit, different room.
       </p>
-      <p>
-        If you came for the modules, open Elevate below. If you came for the comic, open SEWA above.
-      </p>
+
+      <EdNote label="A note from me">
+        <p>
+          If you came looking for a neat arc — village kid, mop, comic, designer — close enough.
+        </p>
+        <p>
+          The quieter continuity is this: I still trust systems that do not lie to me.
+          Floors. Logs. Lessons. A page that holds when someone checks.
+        </p>
+        <p>
+          That kid with a thousand fears did not become fearless.
+          He just found better work for the fear — make something true enough that it can leave the room without you.
+        </p>
+        <p>
+          If you want the comic, open SEWA above. If you want the thinking, open Elevate below.
+          Either way — welcome.
+        </p>
+      </EdNote>
     </article>
 
     <footer class="about-story__close">
@@ -258,6 +302,11 @@ const marriottPhotos: PhotoTileItem[] = [
   margin-right: calc(clamp(0rem, 6vw, 80rem) * -1);
   width: auto;
   max-width: none;
+}
+
+.about-story__article :deep(.note) {
+  max-width: 42ch;
+  margin: clamp(48rem, 8vw, 88rem) 0 clamp(24rem, 4vw, 40rem);
 }
 
 .about-story__sewa { margin: clamp(54rem, 9vw, 100rem) calc(clamp(0rem, 5vw, 68rem) * -1); }

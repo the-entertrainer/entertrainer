@@ -29,7 +29,7 @@ const logoMark = `
     <circle cx="170" cy="170" r="133" fill="none" stroke="${YELLOW}" stroke-width="25"/>
     <circle cx="170" cy="170" r="88" fill="none" stroke="${YELLOW}" stroke-width="25"/>
     <circle cx="170" cy="170" r="42" fill="none" stroke="${YELLOW}" stroke-width="25"/>
-    <text x="170" y="170" dy="0.35em" text-anchor="middle" font-family="Archivo" font-weight="900" font-size="168" fill="${INK}" letter-spacing="-0.08em">e</text>
+    <text x="170" y="170" dy="0.28em" text-anchor="middle" font-family="Archivo" font-weight="900" font-size="168" fill="${INK}" letter-spacing="-0.08em">e</text>
   </g>`
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">

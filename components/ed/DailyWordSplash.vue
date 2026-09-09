@@ -1,13 +1,15 @@
 <script setup lang="ts">
 /**
  * Word of the Day — arrange scrambled letter tiles into answer slots.
- * Clue → tap/place letters → auto-check when full → meaning after win or peek.
+ * Clue + locked letter hints from the start → tap/place → auto-check → meaning.
  */
 import type { WotdDefinition } from '~/composables/useDailyWord'
 
 interface LetterTile {
   id: string
   ch: string
+  /** Pre-filled answer letter — locked in place for the puzzle. */
+  locked?: boolean
 }
 
 const {
@@ -15,6 +17,7 @@ const {
   word,
   scrambled,
   clue,
+  hintIndices,
   entry,
   markSolved,
   markSkipped,
@@ -38,24 +41,44 @@ const showMeaning = computed(() => feedback.value === 'ok' || feedback.value ===
 const slotsFull = computed(() => slots.value.length > 0 && slots.value.every(Boolean))
 const placedCount = computed(() => slots.value.filter(Boolean).length)
 
-/** Size answer tiles so the row stays one line on phone-width cards. */
+/** Size answer + tray tiles so each row stays one line on phone-width cards. */
 const slotStyle = computed(() => {
   const n = Math.max(word.length, 1)
-  const max = n <= 6 ? 48 : n <= 8 ? 42 : n <= 9 ? 34 : n <= 10 ? 30 : n <= 12 ? 26 : 22
+  const trayN = Math.max(tray.value.length, 1)
+  const max = n <= 6 ? 48 : n <= 8 ? 42 : n <= 9 ? 34 : n <= 10 ? 30 : n <= 12 ? 26 : n <= 13 ? 22 : 20
   const gap = n <= 6 ? 8 : n <= 8 ? 6 : n <= 9 ? 5 : n <= 10 ? 4 : n <= 12 ? 3 : 2
-  const fsMax = n <= 6 ? 22 : n <= 8 ? 20 : n <= 9 ? 17 : n <= 10 ? 15 : n <= 12 ? 13 : 12
+  const fsMax = n <= 6 ? 22 : n <= 8 ? 20 : n <= 9 ? 17 : n <= 10 ? 15 : n <= 12 ? 13 : 11
+  const trayMax = trayN <= 6 ? 52 : trayN <= 8 ? 46 : trayN <= 10 ? 40 : trayN <= 12 ? 34 : 28
+  const trayGap = trayN <= 6 ? 10 : trayN <= 8 ? 8 : trayN <= 10 ? 6 : trayN <= 12 ? 4 : 3
+  const trayFs = trayN <= 6 ? 24 : trayN <= 8 ? 20 : trayN <= 10 ? 17 : trayN <= 12 ? 15 : 13
   return {
     '--slot-count': String(n),
     '--slot-gap': `${gap}rem`,
     '--slot-max': `${max}rem`,
     '--slot-fs-max': `${fsMax}rem`,
+    '--tray-count': String(trayN),
+    '--tray-gap': `${trayGap}rem`,
+    '--tray-max': `${trayMax}rem`,
+    '--tray-fs-max': `${trayFs}rem`,
   }
 })
 
 function buildBoard() {
   const letters = scrambled.split('')
-  tray.value = letters.map((ch, i) => ({ id: `t${i}-${ch}`, ch }))
-  slots.value = Array.from({ length: word.length }, () => null)
+  const trayTiles: LetterTile[] = letters.map((ch, i) => ({ id: `t${i}-${ch}`, ch }))
+  const nextSlots: (LetterTile | null)[] = Array.from({ length: word.length }, () => null)
+
+  for (const idx of hintIndices) {
+    if (idx < 0 || idx >= word.length) continue
+    const ch = word[idx]!
+    const ti = trayTiles.findIndex((t) => t.ch === ch)
+    if (ti < 0) continue
+    trayTiles.splice(ti, 1)
+    nextSlots[idx] = { id: `hint-${idx}-${ch}`, ch, locked: true }
+  }
+
+  tray.value = trayTiles
+  slots.value = nextSlots
   feedback.value = 'idle'
   failCount.value = 0
   meaning.value = null
@@ -126,7 +149,7 @@ function placeTile(tile: LetterTile) {
 function returnSlot(index: number) {
   if (showMeaning.value) return
   const tile = slots.value[index]
-  if (!tile) return
+  if (!tile || tile.locked) return
   const next = slots.value.slice()
   next[index] = null
   slots.value = next
@@ -174,7 +197,8 @@ function onKey(e: KeyboardEvent) {
   if (e.key === 'Backspace') {
     e.preventDefault()
     for (let i = slots.value.length - 1; i >= 0; i--) {
-      if (slots.value[i]) {
+      const t = slots.value[i]
+      if (t && !t.locked) {
         returnSlot(i)
         break
       }
@@ -217,7 +241,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         role="dialog"
         aria-modal="true"
         aria-labelledby="wotd-title"
-        :aria-describedby="showMeaning ? undefined : 'wotd-hint'"
+        :aria-describedby="showMeaning ? undefined : 'wotd-hint wotd-clue-text'"
         tabindex="-1"
       >
         <header class="wotd__head">
@@ -227,7 +251,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
             <template v-else>Arrange the letters</template>
           </h2>
           <p v-if="!showMeaning" id="wotd-hint" class="wotd__hint">
-            Tap a letter into a slot. Tap a slot to undo.
+            Some answer letters are given. Tap to place; tap a filled slot to undo.
           </p>
         </header>
 
@@ -253,9 +277,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
             :key="`slot-${i}`"
             type="button"
             class="wotd__slot"
-            :class="{ 'wotd__slot--filled': !!slot, 'wotd__slot--empty': !slot }"
-            :disabled="showMeaning || !slot"
-            :aria-label="slot ? `Slot ${i + 1}: ${slot.ch.toUpperCase()}. Activate to remove.` : `Empty slot ${i + 1}`"
+            :class="{
+              'wotd__slot--filled': !!slot && !slot.locked,
+              'wotd__slot--given': !!slot?.locked,
+              'wotd__slot--empty': !slot
+            }"
+            :disabled="showMeaning || !slot || !!slot.locked"
+            :aria-label="slot
+              ? (slot.locked
+                ? `Slot ${i + 1}: ${slot.ch.toUpperCase()}, given`
+                : `Slot ${i + 1}: ${slot.ch.toUpperCase()}. Activate to remove.`)
+              : `Empty slot ${i + 1}`"
             @click="onSlotActivate(i)"
           >
             <span v-if="slot" aria-hidden="true">{{ slot.ch }}</span>
@@ -266,6 +298,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         <div
           v-if="!showMeaning"
           class="wotd__tray"
+          :style="slotStyle"
           role="group"
           aria-label="Scrambled letters"
         >
@@ -409,6 +442,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   gap: var(--slot-gap, 6rem);
   margin: 0 0 22rem;
   width: 100%;
+  max-width: 100%;
+  overflow: hidden;
   container-type: inline-size;
   container-name: wotd-slots;
 }
@@ -459,6 +494,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border-color: color-mix(in srgb, var(--ink) 35%, var(--line));
   cursor: default;
 }
+.wotd__slot--given {
+  background: var(--accent);
+  border-style: solid;
+  border-color: var(--ink);
+  box-shadow: 2rem 2rem 0 color-mix(in srgb, var(--ink) 28%, transparent);
+  cursor: default;
+}
+.wotd__slots--wrong .wotd__slot--given {
+  background: var(--accent);
+  border-color: var(--ink);
+}
 .wotd__slot--filled:not(:disabled):hover {
   transform: translateY(-1rem);
   background: color-mix(in srgb, var(--accent) 28%, var(--paper));
@@ -474,33 +520,40 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   cursor: default;
 }
 
-/* Scrambled tray tiles */
+/* Scrambled tray tiles — single row; tiles shrink for long words */
 .wotd__tray {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
-  gap: 10rem;
+  align-items: center;
+  gap: var(--tray-gap, 10rem);
   margin: 0 0 16rem;
-  padding: 16rem 12rem;
-  min-height: 72rem;
+  padding: 14rem 10rem;
+  min-height: 64rem;
+  width: 100%;
+  overflow: hidden;
   border: var(--stroke) solid var(--line);
   border-radius: var(--radius-s);
   background: color-mix(in srgb, var(--accent) 10%, var(--paper));
+  container-type: inline-size;
+  container-name: wotd-tray;
 }
 .wotd__tile {
   box-sizing: border-box;
   display: grid;
   place-items: center;
-  width: clamp(44rem, 10vw, 52rem);
-  height: clamp(48rem, 11vw, 56rem);
-  min-width: 44rem;
-  min-height: 48rem;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: var(--tray-max, 52rem);
+  width: auto;
+  aspect-ratio: 5 / 6;
+  height: auto;
   padding: 0;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
   background: var(--accent);
   color: var(--ink);
-  font: 700 clamp(18rem, 4.2vw, 24rem)/1 var(--font-ui);
+  font: 700 clamp(11rem, calc(48cqw / var(--tray-count, 8)), var(--tray-fs-max, 24rem))/1 var(--font-ui);
   text-transform: uppercase;
   cursor: pointer;
   box-shadow: 3rem 3rem 0 var(--ink);

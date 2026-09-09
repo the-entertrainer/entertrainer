@@ -58,6 +58,41 @@ export function wordForDate(dateKey: string): string {
   return entryForDate(dateKey).word
 }
 
+/**
+ * How many answer letters to pre-fill as locked hints.
+ * Short ≤5 → ~2; medium 6–8 → ~3; longer → ceil(len/4).
+ * Always leave ≥ ~40% empty and never reveal the whole word.
+ */
+export function hintCountForLength(len: number): number {
+  if (len <= 1) return 0
+  let n: number
+  if (len <= 5) n = 2
+  else if (len <= 8) n = 3
+  else n = Math.ceil(len / 4)
+  const maxByEmpty = Math.floor(len * 0.6)
+  return Math.max(0, Math.min(n, maxByEmpty, len - 1))
+}
+
+/** Deterministic slot indices to pre-fill for a day+word seed. */
+export function hintIndicesForWord(word: string, seed: string): number[] {
+  const len = word.length
+  const count = hintCountForLength(len)
+  if (count <= 0) return []
+  let h = hashKey(`hint:${seed}`) | 0
+  const rand = () => {
+    h ^= h << 13
+    h ^= h >>> 17
+    h ^= h << 5
+    return (h >>> 0) / 4294967296
+  }
+  const idxs = Array.from({ length: len }, (_, i) => i)
+  for (let i = idxs.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1))
+    ;[idxs[i], idxs[j]] = [idxs[j]!, idxs[i]!]
+  }
+  return idxs.slice(0, count).sort((a, b) => a - b)
+}
+
 /** Fair scramble: reshuffle until different from the answer. */
 export function scrambleWord(word: string, seed: string): string {
   const chars = word.split('')
@@ -158,8 +193,10 @@ export function useDailyWord() {
   const today = localDateKey()
   const entry = entryForDate(today)
   const word = entry.word
-  const scrambled = scrambleWord(word, `${today}:${word}`)
+  const daySeed = `${today}:${word}`
+  const scrambled = scrambleWord(word, daySeed)
   const clue = entry.clue
+  const hintIndices = hintIndicesForWord(word, daySeed)
 
   const record = useState<DailyWordRecord | null>('entertrainer-daily-word', () => null)
   const open = useState<boolean>('entertrainer-daily-word-open', () => false)
@@ -230,6 +267,7 @@ export function useDailyWord() {
     word,
     scrambled,
     clue,
+    hintIndices,
     entry,
     record,
     open,

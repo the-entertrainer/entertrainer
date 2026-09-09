@@ -32,36 +32,6 @@ const references = [
     title: 'Hubble’s Law of Cosmic Expansion',
     source: 'ESA / Hubble',
     href: 'https://esahubble.org/wordbank/hubbles-law/'
-  },
-  {
-    id: 4,
-    title: 'Friedmann–Lemaître–Robertson–Walker metric',
-    source: 'Scholarpedia',
-    href: 'https://www.scholarpedia.org/article/Friedmann-Lemaitre-Robertson-Walker_metric'
-  },
-  {
-    id: 5,
-    title: 'Cosmic Microwave Background',
-    source: 'ESA Planck mission',
-    href: 'https://www.esa.int/Science_Exploration/Space_Science/Planck/Cosmic_Microwave_Background_CMB_radiation'
-  },
-  {
-    id: 6,
-    title: 'Is the Universe homogeneous and isotropic?',
-    source: 'American Museum of Natural History — Cosmic Horizons',
-    href: 'https://www.amnh.org/learn-teach/curriculum-collections/cosmic-horizons/the-cosmological-principle'
-  },
-  {
-    id: 7,
-    title: 'Tests of large-scale homogeneity',
-    source: 'Monthly Notices of the Royal Astronomical Society (overview via arXiv)',
-    href: 'https://arxiv.org/abs/1610.03071'
-  },
-  {
-    id: 8,
-    title: 'Expanding universe demonstration (popular visualisation)',
-    source: 'Soft credit for a widely shared classroom-style demo of the same geometry',
-    href: 'https://youtu.be/3pAnRKD4raY'
   }
 ]
 </script>
@@ -81,99 +51,76 @@ const references = [
 
     <article class="centre__article">
       <aside class="centre__margin-note" aria-label="Reading note">
-        <p>One useful distinction.</p>
-        <p><strong>Looking</strong> like the centre is not the same as <em>owning</em> the centre. Expansion flatters every honest observer the same way.</p>
+        <p>The short version.</p>
+        <p>Choose yourself as the point of reference — and yes, you are the centre. Every other “you” gets the same gift.</p>
       </aside>
 
       <div class="centre__prose">
-        <p class="centre__lead">Look up on a clear night and the sky does its usual trick.</p>
-        <p>It makes you feel tiny. Billions of stars. Galaxies behind those. Then so much empty that your vocabulary starts sweating.</p>
-        <p>So a title like this sounds like either a joke at your expense…</p>
-        <p>…or a motivational poster stuck on a gym wall.</p>
-        <p>It is neither.</p>
-        <p>It is a precise claim about geometry.</p>
-        <p>And once you see it, you cannot unsee it.</p>
+        <p class="centre__lead">No matter what people say — family, parents, friends, that voice that shrinks you — you are the centre of the universe.</p>
+        <p>Not as a joke. Not as a gym poster. As a real thing you can choose.</p>
+        <p>Every “you” is.</p>
+        <p>Let me show you. Three tiny taps. Almost no words. Watch what happens.</p>
 
-        <h2>The claim, said carefully</h2>
-        <p>You are not the <em>privileged</em> centre of the universe.</p>
-        <p>There is no throne in the middle of everything. No cosmic VIP lounge with your name on the door. Sorry.</p>
-        <p>But — and this is the fun part — if you pick yourself (or your galaxy) as the frame of reference, the expansion of space looks like it is rushing away from <em>you</em>.</p>
-        <p>Pick a different galaxy.</p>
-        <p>Same expansion. Now it looks like it is rushing away from <em>them</em>.</p>
-        <p>Every honest observer gets to feel central.</p>
-        <p>That is not mysticism.</p>
-        <p>That is what homogeneous expansion does.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-
-        <blockquote>
-          <p>Apparent centre ≠ privileged centre. The sky is allowed to flatter everyone at once.</p>
-        </blockquote>
-
-        <h2>Raisins, balloons, and a universe with no middle</h2>
-        <p>Imagine raisins sitting in bread dough.</p>
-        <p>The dough rises. Every raisin moves away from every other raisin. Stand on any raisin and you would swear the others were fleeing <em>you</em> specifically. Dramatic little raisin. Wrong, but understandable.</p>
-        <p>Or ink some dots on a balloon and blow it up.</p>
-        <p>The dots drift apart. The balloon’s “centre” is inside the rubber — in a direction the dots on the surface do not live in. On the surface itself, there is no unique middle to point at.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>Basically, our three-dimensional space is doing something like that.</p>
-        <p>Only without needing a kitchen and a rubber balloon.</p>
-        <p>Space itself stretches. Galaxies are not zooming through a fixed room so much as riding the stretch.</p>
-
-        <h2>Try it yourself</h2>
-        <p>Below is a small lab of the same idea.</p>
-        <p>Two layers of the same field of galaxies: a muted past, and a slightly expanded present.</p>
-        <p>Click any galaxy — or drag the present layer until the blue ring sits on that galaxy’s red past ring — and watch.</p>
+        <h2>First — everything drifts apart</h2>
+        <p>Space stretches. Galaxies ride that stretch. From far away, it looks like everything is moving away from everything else.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>Hit Blow.</p>
 
         <ClientOnly>
-          <EdExpansionCentreLab />
+          <EdCentreMiniSteps :step="1" />
           <template #fallback>
-            <p class="centre__lab-fallback">Loading the expansion lab…</p>
+            <p class="centre__lab-fallback">Loading a tiny blow…</p>
           </template>
         </ClientOnly>
 
-        <p>You know what happens?</p>
-        <p>The moment one galaxy’s past and present coincide, every other present-galaxy sits farther out along a ray from that point.</p>
-        <p>Change the reference.</p>
-        <p>A different galaxy becomes the “centre.”</p>
-        <p>Nothing else in the simulation changed.</p>
-        <p>Only who you decided to stand on.</p>
+        <p>See? Nobody has to be special for that. The field just… opens.</p>
 
-        <h2>What the textbooks actually say</h2>
-        <p>Cosmologists have a name for this: the <strong>cosmological principle</strong>.</p>
-        <p>On large enough scales, the universe looks much the same wherever you are, and in every direction — roughly homogeneous and isotropic.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-6" aria-label="Reference 6">[6]</a></p>
-        <p>That assumption is not a vibe.</p>
-        <p>It is the starting point for the simplest working models of the expanding cosmos — the Friedmann–Lemaître–Robertson–Walker geometry, if you like the full name, FLRW if you like breathing.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
-        <p>In those models, a single function of time — the scale factor <em>a(t)</em> — stretches distances between comoving points. As <em>a</em> grows, every pair of galaxies that are not glued together by local gravity drifts farther apart.</p>
-        <p>From that stretch you get Hubble’s law: recession speed proportional to distance. <em>v ∝ d</em>.</p>
-        <p>The constant is the same for every observer who is roughly at rest with the cosmic expansion.</p>
-        <p>Which is why the law does not secretly nominate Earth as special.</p>
-        <p>It nominates <em>nobody</em>.</p>
-        <p>Or everybody.</p>
-        <p>Depending on your mood.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <h2>Now stand on you</h2>
+        <p>Here is the fun bit.</p>
+        <p>Pick yourself as the point of reference. Stand on the yellow YOU. Watch the rest drift out.</p>
 
-        <h2>Where the story gets honest</h2>
-        <p>None of this means your bedroom is the geometric navel of reality.</p>
-        <p>Please do not put that on a T-shirt and argue with your landlord.</p>
-        <p>Locally, the universe is a mess. You live in a galaxy. The galaxy lives in a group. Groups gather into clusters and filaments, with emptier voids between them. Gravity binds the nearby stuff; it does not coast apart on the Hubble flow the way distant clusters do.</p>
-        <p>We also move.</p>
-        <p>The cosmic microwave background — leftover glow from when the universe was young and hot — is slightly warmer in one direction of the sky and cooler in the opposite. That dipole is largely <em>us</em> drifting through the cosmos, not a preferred centre carved for our feelings.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>
-        <p>And the cosmological principle is still being tested. Surveys keep asking how homogeneous the large-scale map really is, and at what distance the “average” picture kicks in.</p>
-        <p>So far the broad brush holds.</p>
-        <p>The footnotes keep scientists busy.<a href="#ref-7" aria-label="Reference 7">[7]</a></p>
+        <ClientOnly>
+          <EdCentreMiniSteps :step="2" />
+          <template #fallback>
+            <p class="centre__lab-fallback">Loading “you”…</p>
+          </template>
+        </ClientOnly>
 
-        <h2>What every galaxy sees</h2>
-        <p>Here is the part that stays with me after the equations go quiet.</p>
-        <p>Somewhere, hundreds of millions of light-years away, there is a spiral galaxy that will never know your name.</p>
-        <p>If anyone there is looking out tonight — or whatever “tonight” means for them — their sky also runs away in every direction.</p>
-        <p>Their telescopes would draw the same Hubble diagram.</p>
-        <p>Their children, if they have children, could write the same strange sentence: we appear to sit at the centre of the expansion.</p>
-        <p>They would be right in exactly the same limited, beautiful way you are.</p>
+        <p>When you stand here, it looks like the middle.</p>
+        <p>Because you chose you.</p>
 
-        <p class="centre__closing">So look up again. Feel small if you like. Then remember the other half: the universe does not have a unique middle to exile you from. Wherever you stand, the expansion writes you into the middle of the story — and then, politely, does the same for everyone else.</p>
+        <blockquote>
+          <p>You are the centre of the universe when you choose yourself as the point of reference. Every you is.</p>
+        </blockquote>
+
+        <h2>Now stand on a friend</h2>
+        <p>Same sky. Different feet.</p>
+        <p>Tap Friend. Expansion plays again — but now <em>they</em> sit still in the middle, and everything else slides away from them.</p>
+
+        <ClientOnly>
+          <EdCentreMiniSteps :step="3" />
+          <template #fallback>
+            <p class="centre__lab-fallback">Loading a friend…</p>
+          </template>
+        </ClientOnly>
+
+        <p>They’re the middle too.</p>
+        <p>Nothing about the stretch changed. Only who you decided to stand on.</p>
+        <p>That is the whole trick. Homogeneous expansion flatters every honest observer the same way.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+
+        <h2>So…</h2>
+        <p>If someone has told you that you are small, late, extra, or somehow off-centre — keep this picture.</p>
+        <p>Choose yourself as the reference.</p>
+        <p>The sky runs away in every direction from you.</p>
+        <p>And from your friend.</p>
+        <p>And from a galaxy that will never know your name.</p>
+
+        <p class="centre__closing">You are the centre — and so is every other you.</p>
       </div>
     </article>
 
     <section class="centre__sources" aria-labelledby="sources-title">
-      <p class="centre__meta">References</p>
-      <h2 id="sources-title">Sources used in this article</h2>
+      <p class="centre__meta">Soft footnotes</p>
+      <h2 id="sources-title">A little science, if you want it</h2>
       <ol>
         <li v-for="reference in references" :id="`ref-${reference.id}`" :key="reference.id">
           <a :href="reference.href" target="_blank" rel="noreferrer"><span>[{{ reference.id }}]</span> {{ reference.title }} <em>{{ reference.source }}</em></a>

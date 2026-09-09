@@ -15,14 +15,14 @@ const clubMahindraPhotos: PhotoTileItem[] = [
   {
     src: '/about/about-housekeeper-1.webp',
     alt: 'Naveen bent over an under-maintenance game table in Coorg, sketching on a whiteboard during the Club Mahindra years.',
-    fit: 'cover',
+    fit: 'contain',
     objectPosition: 'center center',
     span: 'wide'
   },
   {
     src: '/about/about-sewa-2.webp',
     alt: 'Printed SEWA comic draft pages spread across a round white table in Coorg.',
-    fit: 'cover',
+    fit: 'contain',
     objectPosition: 'center center',
     span: 'wide'
   }
@@ -39,7 +39,7 @@ const marriottPhotos: PhotoTileItem[] = [
   {
     src: '/about/naveen-speaking-close.jpg',
     alt: 'Close portrait of Naveen speaking into a wireless microphone during a session at Courtyard by Marriott, Mahabaleshwar.',
-    fit: 'cover',
+    fit: 'contain',
     objectPosition: 'center top',
     span: 'tall'
   },
@@ -53,19 +53,19 @@ const marriottPhotos: PhotoTileItem[] = [
   {
     src: '/about/about-cdt.webp',
     alt: 'CDT Masterclass Training the Trainers collage from Courtyard by Marriott, Mahabaleshwar.',
-    fit: 'cover',
+    fit: 'contain',
     span: 'wide'
   },
   {
     src: '/about/about-ignite.webp',
     alt: 'Ignite by Marriott International event collage at Courtyard by Marriott, Mahabaleshwar.',
-    fit: 'cover',
+    fit: 'contain',
     span: 'normal'
   },
   {
     src: '/about/about-onboarding.webp',
     alt: 'Gurukul Heroes on Board workshop collage at Courtyard by Marriott, Mahabaleshwar.',
-    fit: 'cover',
+    fit: 'contain',
     span: 'tall'
   },
   {
@@ -101,7 +101,7 @@ const marriottPhotos: PhotoTileItem[] = [
       <p>
         Rooms. Floors. Stairs. Fifteen to eighteen hours. All days. No weekly offs.
         Nobody asked what IHMCT&amp;AN Chennai taught me about service philosophy.
-        They asked if the landing was dry.
+        They asked if the landing was dry. That was fair.
       </p>
       <p>
         That is the part I trust. The rest of this page is just how that habit kept changing rooms.
@@ -112,7 +112,7 @@ const marriottPhotos: PhotoTileItem[] = [
         Central Kerala. Farming village. Father: farmer. Quietly good at looking at the same problem from a side door until it stopped looking stuck.
       </p>
       <p>
-        I inherited the side-door habit. Not the farmland.
+        I inherited the side-door habit. Not the farmland. That would have required a different CV.
       </p>
       <p>
         School was rough. Severe introvert. Anxiety sat down before I did.
@@ -121,7 +121,7 @@ const marriottPhotos: PhotoTileItem[] = [
       <p>
         Roughly thirteen years alone with computers, books, logic.
         Machines were excellent company. No mood. No judgement. Just rules.
-        I got addicted to that.
+        I liked that they never asked me to make small talk.
       </p>
       <p>
         Later I noticed minds want structure too. Messier compiler. Same hunger.
@@ -161,7 +161,7 @@ const marriottPhotos: PhotoTileItem[] = [
         Ten stories from seventy-plus resorts. Printed. Real.
       </p>
       <p>
-        Design met Aranha’s vision. That combo is why it landed — not vibes, not slogans, verified people still in the company.
+        Design met Aranha’s vision. That combo is why it landed: the stories were real, and the people in them could recognise themselves.
       </p>
 
       <figure class="about-story__figure about-story__figure--wide">
@@ -205,9 +205,6 @@ const marriottPhotos: PhotoTileItem[] = [
       <h2>Now I design learning on purpose.</h2>
       <p>
         Concentrix by day. Entertrainer and Elevate on the side — turning operational detail into learning people can actually use.
-      </p>
-      <p>
-        (No Concentrix photo dump. You’re welcome.)
       </p>
       <p>
         If you came for the modules, open Elevate below. If you came for the comic, open SEWA above.
@@ -292,7 +289,7 @@ const marriottPhotos: PhotoTileItem[] = [
 .about-story__sewa { margin: clamp(54rem, 9vw, 100rem) calc(clamp(0rem, 5vw, 68rem) * -1); }
 .about-story__destination { display: grid; grid-template-columns: minmax(180rem, .72fr) minmax(0, 1.28fr); color: var(--ink); overflow: hidden; border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); background: var(--signal-field); text-decoration: none; transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring); }
 .about-story__destination-visual { min-height: 260rem; margin: 0; overflow: hidden; border-right: var(--stroke) solid var(--ink); background: var(--paper-2); }
-.about-story__destination-visual :deep(.ed-editorial-image), .about-story__destination-visual :deep(img) { width: 100%; height: 100%; object-fit: cover; }
+.about-story__destination-visual :deep(.ed-editorial-image), .about-story__destination-visual :deep(img) { width: 100%; height: 100%; object-fit: contain; }
 .about-story__destination-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(24rem, 5vw, 48rem); }
 .about-story__destination h2 { max-width: 18ch; margin: 0; font: 500 clamp(34rem, 4.2vw, 58rem)/.95 var(--font-display); letter-spacing: -.055em; }
 .about-story__destination-copy > p { max-width: 43ch; margin: 16rem 0 0; font: 400 17rem/1.5 var(--font-reading); }

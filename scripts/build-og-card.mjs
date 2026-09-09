@@ -1,9 +1,6 @@
 /**
- * Renders public/og-card.png and public/og-card-2026.png — 1200×630 share cards.
- *
- * Cream paper, ink type, thin yellow accent. Right side: e-mark logo only
- * (rings + e) — no wordmark text on the right, no CTA pills / listicle chrome.
- *
+ * Renders public/og-card.png / og-card-2026*.png — 1200×630 share cards.
+ * Right: e-mark only (3 yellow rings + ink e), optically centered in the rings.
  *   node scripts/build-og-card.mjs /path/to/ttf-dir
  */
 import { Resvg } from '@resvg/resvg-js'
@@ -22,17 +19,17 @@ const W = 1200
 const H = 630
 
 const faintRings = Array.from({ length: 10 }, (_, i) => {
-  const r = 70 + i * 52
-  return `<circle cx="980" cy="300" r="${r}" fill="none" stroke="${INK}" stroke-opacity="0.09" stroke-width="2"/>`
+  const r = 90 + i * 46
+  return `<circle cx="980" cy="315" r="${r}" fill="none" stroke="${INK}" stroke-opacity="${i % 2 ? 0.06 : 0.1}" stroke-width="2"/>`
 }).join('\n  ')
 
-/** Site wordmark mark: three yellow rings + ink e (viewBox 0 0 240 240). */
+/* Mark centered at (980,315). SVG text y tuned for Archivo optical center (~dy -6). */
 const logoMark = `
-  <g transform="translate(840 160)">
-    <circle cx="120" cy="120" r="94" fill="none" stroke="${YELLOW}" stroke-width="18"/>
-    <circle cx="120" cy="120" r="62" fill="none" stroke="${YELLOW}" stroke-width="18"/>
-    <circle cx="120" cy="120" r="30" fill="none" stroke="${YELLOW}" stroke-width="18"/>
-    <text x="120" y="158" text-anchor="middle" font-family="Archivo" font-weight="900" font-size="144" fill="${INK}" letter-spacing="-0.1em">e</text>
+  <g transform="translate(810 145)">
+    <circle cx="170" cy="170" r="133" fill="none" stroke="${YELLOW}" stroke-width="25"/>
+    <circle cx="170" cy="170" r="88" fill="none" stroke="${YELLOW}" stroke-width="25"/>
+    <circle cx="170" cy="170" r="42" fill="none" stroke="${YELLOW}" stroke-width="25"/>
+    <text x="170" y="170" dy="0.35em" text-anchor="middle" font-family="Archivo" font-weight="900" font-size="168" fill="${INK}" letter-spacing="-0.08em">e</text>
   </g>`
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
@@ -56,4 +53,5 @@ const png = new Resvg(svg, {
 
 writeFileSync('public/og-card.png', png)
 writeFileSync('public/og-card-2026.png', png)
-console.log('wrote public/og-card.png and public/og-card-2026.png', png.length, 'bytes')
+writeFileSync('public/og-card-2026c.png', png)
+console.log('wrote og cards', png.length)

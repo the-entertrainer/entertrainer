@@ -18,7 +18,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'Stories, tools, and play',
     title: 'Entertrainer · Elevate, Empower, Engage',
     description: 'Essays, tools, and games from Naveen Jose.',
-    image: `${SITE_URL}/og-card-2026b.png`,
+    image: `${SITE_URL}/og-card-2026c.png`,
     imageAlt: 'Entertrainer e-mark with Elevate, Empower, Engage.'
   },
   '/about': {
@@ -34,7 +34,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'The Entertrainer Blogs',
     title: 'Elevate · The Entertrainer Blogs',
     description: 'Articles about work, learning, technology, and the questions that stay with you.',
-    image: `${SITE_URL}/og-card-2026b.png`,
+    image: `${SITE_URL}/og-card-2026c.png`,
     imageAlt: 'Entertrainer Elevate — essays and articles.'
   },
   [`/elevate/${ENTROPY_BLOG.slug}`]: {

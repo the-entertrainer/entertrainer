@@ -107,7 +107,7 @@ function playAgain() {
     <main class="mr__stage">
       <section v-if="phase === 'intro'" class="mr__intro">
         <h1>The<br /><span class="mr__accent-chip">Mind Reader</span></h1>
-        <p class="mr__lede">Two digits. Two small moves. One mark you will swear I somehow knew.</p>
+        <p class="mr__lede">Two digits. Two small moves. One mark.</p>
         <button class="mr__primary" type="button" @click="startGame">
           Begin
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" /></svg>

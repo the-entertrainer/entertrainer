@@ -15,7 +15,7 @@ export type SocialPreview = {
 export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   '/': {
     key: 'home',
-    label: 'Stories, tools, and play',
+    label: 'Entertrainer',
     title: 'Entertrainer · Elevate, Empower, Engage',
     description: 'Essays, tools, and games from Naveen Jose.',
     image: `${SITE_URL}/og-card-2026d.png`,
@@ -160,11 +160,11 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Playful experiments from Entertrainer, including The Mind Reader.'
+    description: 'Short games and little detours, starting with The Mind Reader.'
   },
   '/engage/read-my-mind': {
     key: 'read-my-mind',
-    label: 'Game',
+    label: 'Mind Reader',
     title: 'The Mind Reader · Engage',
     description: 'A guided number illusion from Entertrainer. Choose a number, follow three quiet steps, and keep one mark in mind.'
   },
@@ -179,7 +179,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   },
   '/my-work/strong': {
     key: 'strong',
-    label: 'Interactive learning',
+    label: 'Password game',
     title: 'Strong · How passwords really break',
     description: 'The real maths behind password strength, made playable. Nothing you type ever leaves your device.'
   },

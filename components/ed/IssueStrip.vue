@@ -1,11 +1,6 @@
 <script setup lang="ts">
 /**
- * The moment strip: what edition you are looking at, and what it is about.
- *
- * The edition label is generated from today's date rather than typed in, so it
- * cannot rot into a lie the first month nobody updates it. There is no issue
- * number, because there are no issues — inventing "No. 07" would be inventing
- * a publishing history this site does not have.
+ * Quiet date stamp for pages that want a "when" without inventing an issue number.
  */
 defineProps<{ note?: string }>()
 
@@ -19,7 +14,7 @@ onMounted(() => {
   <div class="strip">
     <span class="t-mono strip__edition">
       <span class="strip__dot" aria-hidden="true" />
-      Current edition<template v-if="stamp"> · {{ stamp }}</template>
+      <template v-if="stamp">{{ stamp }}</template>
     </span>
     <p v-if="note" class="strip__note t-hand">{{ note }}</p>
     <slot />

@@ -1,6 +1,6 @@
 /**
  * Word of the Day — tiny daily scramble from a curated bank.
- * Click-to-open (no auto popup). Dot clears on solve / skip / peek.
+ * Click-to-open (no auto popup). Dot clears on solve, skip, or reveal.
  */
 
 import {

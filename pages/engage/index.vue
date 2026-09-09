@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useSeoMeta({ title: 'Engage · Entertrainer', description: 'Playful experiments from Entertrainer, including The Mind Reader.', ogUrl: 'https://entertrainer.in/engage' })
+useSeoMeta({ title: 'Engage · Entertrainer', description: 'Short games and little detours, starting with The Mind Reader.', ogUrl: 'https://entertrainer.in/engage' })
 
 const MIND_READER_SYMBOLS = [
   '<circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="7" r="2.2" fill="currentColor"/>',
@@ -26,7 +26,7 @@ const MIND_READER_SYMBOLS = [
           </span>
           <span class="engage__card-text">
             <strong class="engage__card-name">The Mind Reader</strong>
-            <span class="engage__card-blurb">Pick a number. Two small moves. One mark you will swear I somehow knew.</span>
+            <span class="engage__card-blurb">Pick a number. Two small moves. One mark.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -85,6 +85,7 @@ const MIND_READER_SYMBOLS = [
   box-sizing: border-box;
   border-radius: var(--radius-s);
   background: var(--accent);
+  color: var(--accent-ink);
   border: var(--stroke) solid var(--ink);
 }
 

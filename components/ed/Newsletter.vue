@@ -178,7 +178,7 @@ onBeforeUnmount(() => {
       aria-controls="newsletter-inline-panel"
       @click="openInline"
     >
-      Subscribe to our Friday Newsletter
+      Friday newsletter
     </button>
 
     <div
@@ -189,7 +189,7 @@ onBeforeUnmount(() => {
       :aria-labelledby="titleId"
     >
       <div class="nl-inline__head">
-        <p :id="titleId" class="nl-inline__title">Friday Newsletter</p>
+        <p :id="titleId" class="nl-inline__title">Friday notes</p>
         <button type="button" class="nl-inline__close u-icon-btn u-icon-btn--idle" aria-label="Close subscribe form" @click="closeInline">×</button>
       </div>
       <form ref="form" class="nl-inline__form" @submit.prevent="subscribe">
@@ -226,14 +226,14 @@ onBeforeUnmount(() => {
       class="nl-bubble__orb"
       :aria-expanded="open"
       aria-controls="newsletter-bubble-panel"
-      :aria-label="open ? 'Close Friday Notes' : 'you MUST tap this! Open Friday Notes and MUST categories'"
+      :aria-label="open ? 'Close Friday notes' : 'Open Friday notes'"
       @click="toggleBubble"
     >
       <span class="nl-bubble__orb-glow" aria-hidden="true" />
-      <span class="nl-bubble__orb-mark" aria-hidden="true">!</span>
+      <span class="nl-bubble__orb-mark" aria-hidden="true">M</span>
       <span class="nl-bubble__orb-copy">
-        <span class="nl-bubble__orb-line">you <em>MUST</em></span>
-        <span class="nl-bubble__orb-line nl-bubble__orb-line--tap">tap this!</span>
+        <span class="nl-bubble__orb-line">Friday notes</span>
+        <span class="nl-bubble__orb-line nl-bubble__orb-line--tap">Subscribe</span>
       </span>
     </button>
 
@@ -248,8 +248,7 @@ onBeforeUnmount(() => {
     >
       <div class="nl-bubble__panel-head">
         <div>
-          <p class="nl-bubble__kicker">Friday notes</p>
-          <h2 :id="titleId">Spell it once.</h2>
+          <h2 :id="titleId">Friday notes</h2>
         </div>
         <button type="button" class="nl-bubble__close u-icon-btn u-icon-btn--idle" aria-label="Close" @click="closeBubble">×</button>
       </div>
@@ -300,7 +299,6 @@ onBeforeUnmount(() => {
   <section v-else class="newsletter" aria-labelledby="newsletter-title">
     <div class="newsletter__mark" aria-hidden="true"><EdWordmark variant="mark" :size="54" /></div>
     <div class="newsletter__copy">
-      <p class="newsletter__kicker">Friday notes</p>
       <h2 id="newsletter-title">Get the next question by email.</h2>
     </div>
     <form ref="form" class="newsletter__form" @submit.prevent="subscribe">
@@ -530,8 +528,7 @@ onBeforeUnmount(() => {
 
 .nl-bubble__orb-line--tap {
   font-size: 12rem;
-  letter-spacing: .04em;
-  text-transform: lowercase;
+  letter-spacing: .02em;
   opacity: .85;
 }
 
@@ -788,7 +785,7 @@ onBeforeUnmount(() => {
 .newsletter input { width: 100%; min-width: 0; padding: 11rem 12rem; color: var(--ink); border: 0; outline: 0; background: transparent; font: 500 16rem/1.2 var(--font-ui); }
 .newsletter input::placeholder { color: var(--ink-soft); opacity: .8; }
 .newsletter button { flex: none; padding: 11rem 15rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-s); color: var(--accent-ink); background: var(--accent); font: 800 14rem/1 var(--font-ui); transition: transform var(--dur-fast) var(--ease-spring), background var(--dur-fast) var(--ease-out); }
-.newsletter button:hover { transform: translateY(-2rem); background: var(--accent-strong); }
+.newsletter button:hover { transform: translateY(-2rem); background: var(--accent-strong); color: var(--accent-ink); }
 .newsletter button:active { transform: translateY(1rem) scale(.97); }
 .newsletter input:disabled, .newsletter button:disabled { opacity: .6; cursor: default; }
 .newsletter button:disabled:hover { transform: none; background: var(--accent); }

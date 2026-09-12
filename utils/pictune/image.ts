@@ -1,40 +1,3 @@
-import { HEADER_BYTES, MAX_SIDE, MIN_SIDE, WATERMARK_H } from "./protocol";
-import { capacityBytes as stegoCapacity } from "./stego";
-import { BITS_PER_SEC } from "./rvq";
-
-export { capacityBytes, usableHeight } from "./stego";
-
-export function holdableSeconds(width: number, height: number): number {
-  return Math.max(0, (stegoCapacity(width, height) - HEADER_BYTES) / (BITS_PER_SEC / 8));
-}
-
-export function psnrRgb(
-  a: Uint8ClampedArray | Uint8Array,
-  b: Uint8ClampedArray | Uint8Array,
-  width: number,
-  height: number,
-  channels = 4,
-  skipBottom = WATERMARK_H,
-): number {
-  const rows = Math.max(1, height - skipBottom);
-  let sse = 0;
-  let n = 0;
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < width; x++) {
-      const o = (y * width + x) * channels;
-      for (let c = 0; c < 3; c++) {
-        const d = (a[o + c] ?? 0) - (b[o + c] ?? 0);
-        sse += d * d;
-        n++;
-      }
-    }
-  }
-  if (n === 0) return 0;
-  const mse = sse / n;
-  if (mse < 1e-12) return 99;
-  return 10 * Math.log10((255 * 255) / mse);
-}
-
 export function bilinearResize(
   src: Uint8ClampedArray,
   sw: number,
@@ -70,41 +33,61 @@ export function bilinearResize(
   return out;
 }
 
-export function fitCanvas(width: number, height: number, needBytes: number): { width: number; height: number } {
-  let w = Math.max(MIN_SIDE, Math.min(MAX_SIDE, width));
-  let h = Math.max(MIN_SIDE, Math.min(MAX_SIDE, height));
-  const aspect = width / Math.max(1, height);
-  while (stegoCapacity(w, h) < needBytes) {
-    w = Math.min(MAX_SIDE, w + 64);
-    h = Math.min(MAX_SIDE, Math.round(w / aspect));
-    if (h < MIN_SIDE) h = MIN_SIDE;
-    if (w >= MAX_SIDE && stegoCapacity(w, h) < needBytes) h = Math.min(MAX_SIDE, h + 64);
-    if (w >= MAX_SIDE && h >= MAX_SIDE) break;
-  }
-  w = Math.floor(w / 8) * 8;
-  h = Math.floor(h / 8) * 8;
-  return { width: Math.max(8, w), height: Math.max(8, h) };
-}
-
-export function makeDemoPhoto(width = 960, height = 720): Uint8ClampedArray {
-  const out = new Uint8ClampedArray(width * height * 4);
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const u = x / width;
-      const v = y / height;
-      const r = Math.hypot(u - 0.38, v - 0.42);
-      const glow = Math.max(0, 1 - r * 1.7);
-      const lamp = Math.max(0, 1 - Math.hypot(u - 0.72, v - 0.28) * 3.4);
-      const grain = ((x * 374761 + y * 668265) >>> 0) % 17;
-      const R = Math.round(14 + glow * 210 + lamp * 40 + grain);
-      const G = Math.round(12 + glow * 118 + (1 - v) * 28 + grain * 0.4);
-      const B = Math.round(22 + (1 - glow) * 70 + v * 36);
-      const o = (y * width + x) * 4;
-      out[o] = Math.min(255, R);
-      out[o + 1] = Math.min(255, G);
-      out[o + 2] = Math.min(255, B);
-      out[o + 3] = 255;
+/** WhatsApp-ish: 4:2:0 chroma and coarse luma. */
+export function jpegish(rgba: Uint8ClampedArray, w: number, h: number): Uint8ClampedArray {
+  const out = new Uint8ClampedArray(rgba.length);
+  for (let y = 0; y < h; y += 2) {
+    for (let x = 0; x < w; x += 2) {
+      let ys = 0, cbs = 0, crs = 0, n = 0;
+      const pix: number[] = [];
+      for (let dy = 0; dy < 2; dy++) {
+        for (let dx = 0; dx < 2; dx++) {
+          const xx = Math.min(w - 1, x + dx);
+          const yy = Math.min(h - 1, y + dy);
+          const o = (yy * w + xx) * 4;
+          const r = rgba[o]!, g = rgba[o + 1]!, b = rgba[o + 2]!;
+          const Y = 0.299 * r + 0.587 * g + 0.114 * b;
+          pix.push(Y, r, g, b, o);
+          ys += Y;
+          cbs += 0.564 * (b - Y);
+          crs += 0.713 * (r - Y);
+          n++;
+        }
+      }
+      const cb = cbs / n;
+      const cr = crs / n;
+      for (let i = 0; i < 4; i++) {
+        const Y = Math.round(pix[i * 5]! / 6) * 6;
+        const o = pix[i * 5 + 4]!;
+        const r = Math.max(0, Math.min(255, Y + 1.403 * cr));
+        const g = Math.max(0, Math.min(255, Y - 0.344 * cb - 0.714 * cr));
+        const b = Math.max(0, Math.min(255, Y + 1.773 * cb));
+        out[o] = r;
+        out[o + 1] = g;
+        out[o + 2] = b;
+        out[o + 3] = 255;
+      }
     }
   }
   return out;
+}
+
+export function padImage(
+  rgba: Uint8ClampedArray,
+  w: number,
+  h: number,
+  pad: number,
+  fill = 90,
+): { rgba: Uint8ClampedArray; width: number; height: number } {
+  const nw = w + pad * 2;
+  const nh = h + pad * 2;
+  const out = new Uint8ClampedArray(nw * nh * 4);
+  out.fill(fill);
+  for (let i = 3; i < out.length; i += 4) out[i] = 255;
+  for (let y = 0; y < h; y++) {
+    const src = (y * w) * 4;
+    const dst = ((y + pad) * nw + pad) * 4;
+    out.set(rgba.subarray(src, src + w * 4), dst);
+  }
+  return { rgba: out, width: nw, height: nh };
 }

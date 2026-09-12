@@ -29,8 +29,8 @@ const MIND_READER_SYMBOLS = [
             </svg>
           </span>
           <span class="engage__card-text">
-            <strong class="engage__card-name">PicTune</strong>
-            <span class="engage__card-blurb">Drop the beat. Pick the pic.</span>
+            <strong class="engage__card-name">pictune</strong>
+            <span class="engage__card-blurb">A picture you can hear.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"

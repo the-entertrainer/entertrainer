@@ -160,7 +160,13 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours, starting with The Mind Reader.'
+    description: 'Short games and little detours — The Mind Reader, pictune.'
+  },
+  '/engage/pictune': {
+    key: 'pictune',
+    label: 'pictune',
+    title: 'pictune · Engage',
+    description: 'Hide a voice inside a photo. Record until you stop — the picture holds the take.'
   },
   '/engage/read-my-mind': {
     key: 'read-my-mind',

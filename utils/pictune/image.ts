@@ -1,15 +1,11 @@
-import { HEADER_BYTES, MAX_SIDE, MIN_SIDE, TARGET_RATE, WATERMARK_H } from "./protocol";
+import { HEADER_BYTES, MAX_SIDE, MIN_SIDE, WATERMARK_H } from "./protocol";
+import { capacityBytes as stegoCapacity } from "./stego";
+import { BITS_PER_SEC } from "./rvq";
 
-export function usableHeight(height: number): number {
-  return Math.max(8, height - WATERMARK_H);
-}
+export { capacityBytes, usableHeight } from "./stego";
 
-export function capacityBytes(width: number, height: number): number {
-  return Math.floor((width * usableHeight(height) * 3) / 8);
-}
-
-export function holdableSeconds(width: number, height: number, rate = TARGET_RATE): number {
-  return Math.max(0, capacityBytes(width, height) - HEADER_BYTES) / (2 * rate);
+export function holdableSeconds(width: number, height: number): number {
+  return Math.max(0, (stegoCapacity(width, height) - HEADER_BYTES) / (BITS_PER_SEC / 8));
 }
 
 export function psnrRgb(
@@ -75,19 +71,19 @@ export function bilinearResize(
 }
 
 export function fitCanvas(width: number, height: number, needBytes: number): { width: number; height: number } {
-  let w = Math.max(MIN_SIDE, width);
-  let h = Math.max(MIN_SIDE, height);
+  let w = Math.max(MIN_SIDE, Math.min(MAX_SIDE, width));
+  let h = Math.max(MIN_SIDE, Math.min(MAX_SIDE, height));
   const aspect = width / Math.max(1, height);
-  while (capacityBytes(w, h) < needBytes) {
+  while (stegoCapacity(w, h) < needBytes) {
     w = Math.min(MAX_SIDE, w + 64);
     h = Math.min(MAX_SIDE, Math.round(w / aspect));
     if (h < MIN_SIDE) h = MIN_SIDE;
-    if (w >= MAX_SIDE && capacityBytes(w, h) < needBytes) {
-      h = Math.min(MAX_SIDE, h + 64);
-    }
+    if (w >= MAX_SIDE && stegoCapacity(w, h) < needBytes) h = Math.min(MAX_SIDE, h + 64);
     if (w >= MAX_SIDE && h >= MAX_SIDE) break;
   }
-  return { width: w, height: h };
+  w = Math.floor(w / 8) * 8;
+  h = Math.floor(h / 8) * 8;
+  return { width: Math.max(8, w), height: Math.max(8, h) };
 }
 
 export function makeDemoPhoto(width = 960, height = 720): Uint8ClampedArray {

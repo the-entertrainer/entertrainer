@@ -59,7 +59,7 @@ function clock(ms: number): string {
 }
 
 function setVoiceFromPcm(pcm: Float32Array, sampleRate: number, channels: number) {
-  const prep = prepareVoice(pcm, sampleRate, channels)
+  const prep = prepareVoice(pcm, sampleRate, channels, holdableSeconds())
   voice.value = { pcm: prep.pcm, sampleRate: prep.sampleRate, durationMs: prep.durationMs }
   if (glyph.value?.url.startsWith('blob:')) URL.revokeObjectURL(glyph.value.url)
   glyph.value = null
@@ -70,6 +70,10 @@ async function onAudio(file: File) {
   try {
     const bytes = new Uint8Array(await file.arrayBuffer())
     const decoded = await decodeAudioFile(bytes, file.name, (buf) => getAudioContext().decodeAudioData(buf))
+    if (decoded.pcm.length < decoded.sampleRate * 0.3) {
+      error.value = 'that clip is too short.'
+      return
+    }
     setVoiceFromPcm(decoded.pcm, decoded.sampleRate, decoded.channels)
   } catch (err) {
     error.value = err instanceof Error ? err.message : "couldn't read that clip."
@@ -274,6 +278,7 @@ onBeforeUnmount(() => {
               {{ busy ?? 'make pictune' }}
             </button>
             <button type="button" class="pt__ghost" @click="void toggleRecord()">record again</button>
+            <button type="button" class="pt__ghost" @click="audioInput?.click()">or use a clip</button>
           </template>
           <template v-else>
             <button
@@ -291,8 +296,8 @@ onBeforeUnmount(() => {
               </span>
               <span class="pt__rec-label">{{ recState === 'recording' ? 'stop' : 'record' }}</span>
             </button>
-            <button v-if="recState === 'denied'" type="button" class="pt__ghost" @click="audioInput?.click()">use a clip</button>
-            <button v-else type="button" class="pt__ghost" @click="void trySample()">{{ busy ?? 'or try a sample' }}</button>
+            <button v-if="recState !== 'recording'" type="button" class="pt__ghost" @click="audioInput?.click()">or use a clip</button>
+            <button v-if="recState !== 'recording'" type="button" class="pt__ghost" @click="void trySample()">{{ busy ?? 'or try a sample' }}</button>
           </template>
         </template>
 

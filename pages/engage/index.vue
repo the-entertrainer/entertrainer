@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useSeoMeta({ title: 'Engage · Entertrainer', description: 'Short games and little detours, starting with The Mind Reader.', ogUrl: 'https://entertrainer.in/engage' })
+useSeoMeta({ title: 'Engage · Entertrainer', description: 'Short games and little detours — The Mind Reader, pictune.', ogUrl: 'https://entertrainer.in/engage' })
 
 const MIND_READER_SYMBOLS = [
   '<circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="7" r="2.2" fill="currentColor"/>',
@@ -19,6 +19,25 @@ const MIND_READER_SYMBOLS = [
     />
 
     <ol class="engage__grid">
+      <li class="u-reveal">
+        <NuxtLink to="/engage/pictune" class="engage__card">
+          <span class="engage__icon engage__icon--pictune" aria-hidden="true">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <rect x="4" y="4" width="5.2" height="24" rx="2.4" fill="currentColor" />
+              <rect x="4" y="4" width="24" height="5.2" rx="2.4" fill="currentColor" />
+              <circle cx="20.5" cy="16.5" r="7.2" fill="none" stroke="currentColor" stroke-width="4.4" />
+            </svg>
+          </span>
+          <span class="engage__card-text">
+            <strong class="engage__card-name">pictune</strong>
+            <span class="engage__card-blurb">Hide a voice inside a photo.</span>
+          </span>
+          <span class="engage__card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </span>
+        </NuxtLink>
+      </li>
       <li class="u-reveal">
         <NuxtLink to="/engage/read-my-mind" class="engage__card engage__card--mind-reader">
           <span class="engage__icon engage__icon--mind-reader" aria-hidden="true">
@@ -65,6 +84,14 @@ const MIND_READER_SYMBOLS = [
   background: var(--paper);
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
+
+
+.engage__icon--pictune {
+  display: grid;
+  place-items: center;
+  padding: 10rem;
+}
+.engage__icon--pictune svg { width: 100%; height: 100%; }
 
 @media (hover: hover) {
   .engage__card:hover { background: var(--paper-2); border-color: var(--ink); transform: translateX(3rem); }

@@ -2,15 +2,15 @@ import {
   HEADER_BYTES,
   PicTuneError,
   WATERMARK_H,
-  mulberry32,
   packHeader,
-  pcmCrc,
-  seedFromSize,
+  payloadCrc,
   unpackHeader,
   type PicTuneHeader,
 } from "./protocol";
-import { bilinearResize, capacityBytes, fitCanvas, psnrRgb, usableHeight } from "./image";
+import { bilinearResize, fitCanvas, psnrRgb } from "./image";
 import { encodePngRgb } from "./png";
+import { decodeRvq, encodeRvq, rvqDurationMs } from "./rvq";
+import { capacityBytes, embedPayload, extractPayload } from "./stego";
 
 export interface EncodeInput {
   rgba: Uint8ClampedArray;
@@ -39,121 +39,52 @@ export interface DecodeOutput {
   rgba: Uint8ClampedArray;
 }
 
-function shuffledOrder(width: number, height: number): Uint32Array {
-  const n = width * usableHeight(height);
-  const idx = new Uint32Array(n);
-  for (let i = 0; i < n; i++) idx[i] = i;
-  const rng = mulberry32(seedFromSize(width, height));
-  for (let i = n - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    const t = idx[i]!;
-    idx[i] = idx[j]!;
-    idx[j] = t;
-  }
-  return idx;
-}
-
-function setLsbMatch(value: number, bit: number, rand: number): number {
-  if ((value & 1) === bit) return value;
-  if (value === 0) return 1;
-  if (value === 255) return 254;
-  return value + (rand < 0.5 ? -1 : 1);
-}
-
-function embedBits(rgba: Uint8ClampedArray, width: number, height: number, payload: Uint8Array): void {
-  const order = shuffledOrder(width, height);
-  const rng = mulberry32(seedFromSize(width, height) ^ 0x9e3779b9);
-  let bitI = 0;
-  const totalBits = payload.length * 8;
-  for (let p = 0; p < order.length && bitI < totalBits; p++) {
-    const pix = order[p]!;
-    const o = pix * 4;
-    for (let c = 0; c < 3 && bitI < totalBits; c++) {
-      const byte = payload[bitI >> 3]!;
-      const bit = (byte >> (7 - (bitI & 7))) & 1;
-      rgba[o + c] = setLsbMatch(rgba[o + c]!, bit, rng());
-      bitI++;
-    }
-  }
-  if (bitI < totalBits) throw new PicTuneError("this photo is too small for that take.");
-}
-
-function extractBits(rgba: Uint8ClampedArray | Uint8Array, width: number, height: number, nBytes: number): Uint8Array {
-  const order = shuffledOrder(width, height);
-  const out = new Uint8Array(nBytes);
-  let bitI = 0;
-  const totalBits = nBytes * 8;
-  for (let p = 0; p < order.length && bitI < totalBits; p++) {
-    const pix = order[p]!;
-    const o = pix * 4;
-    for (let c = 0; c < 3 && bitI < totalBits; c++) {
-      const bit = rgba[o + c]! & 1;
-      out[bitI >> 3] |= bit << (7 - (bitI & 7));
-      bitI++;
-    }
-  }
-  return out;
-}
-
 function dimWatermarkBand(rgba: Uint8ClampedArray, width: number, height: number): void {
   const y0 = Math.max(0, height - WATERMARK_H);
   for (let y = y0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const o = (y * width + x) * 4;
-      rgba[o] = Math.round(rgba[o]! * 0.22);
-      rgba[o + 1] = Math.round(rgba[o + 1]! * 0.22);
-      rgba[o + 2] = Math.round(rgba[o + 2]! * 0.22);
+      rgba[o] = Math.round(rgba[o]! * 0.18);
+      rgba[o + 1] = Math.round(rgba[o + 1]! * 0.18);
+      rgba[o + 2] = Math.round(rgba[o + 2]! * 0.18);
       rgba[o + 3] = 255;
     }
   }
 }
 
-export function pngFromRgba(
-  rgba: Uint8ClampedArray | Uint8Array,
-  width: number,
-  height: number,
-): Uint8Array {
+export function pngFromRgba(rgba: Uint8ClampedArray | Uint8Array, width: number, height: number): Uint8Array {
   const rgb = new Uint8Array(width * height * 3);
   for (let i = 0, j = 0; i < rgba.length; i += 4, j += 3) {
     rgb[j] = rgba[i]!;
     rgb[j + 1] = rgba[i + 1]!;
     rgb[j + 2] = rgba[i + 2]!;
   }
-  return encodePngRgb(width, height, rgb, {
-    Software: "pictune",
-    "PT-Magic": "PICTUNE1",
-  });
+  return encodePngRgb(width, height, rgb, { Software: "PicTune", "PT-Magic": "PICTUNE2" });
 }
 
 export function encodePicTune(input: EncodeInput): EncodeOutput {
-  const payloadPcm = new Uint8Array(input.pcm.length * 2);
-  for (let i = 0; i < input.pcm.length; i++) {
-    const s = input.pcm[i]!;
-    payloadPcm[i * 2] = s & 0xff;
-    payloadPcm[i * 2 + 1] = (s >> 8) & 0xff;
-  }
+  const rvq = encodeRvq(input.pcm, input.sampleRate);
   const header = packHeader({
     sampleRate: input.sampleRate,
-    channels: 1,
     frameCount: input.pcm.length,
-    crc32: pcmCrc(input.pcm),
-    durationMs: Math.round((input.pcm.length / input.sampleRate) * 1000),
+    crc32: payloadCrc(rvq),
+    durationMs: rvqDurationMs(rvq),
+    payloadBytes: rvq.length,
   });
-  const blob = new Uint8Array(HEADER_BYTES + payloadPcm.length);
+  const blob = new Uint8Array(HEADER_BYTES + rvq.length);
   blob.set(header, 0);
-  blob.set(payloadPcm, HEADER_BYTES);
+  blob.set(rvq, HEADER_BYTES);
 
-  const need = blob.length;
-  const fitted = fitCanvas(input.width, input.height, need);
+  const fitted = fitCanvas(input.width, input.height, blob.length);
   let rgba =
     fitted.width === input.width && fitted.height === input.height
       ? input.rgba.slice()
       : bilinearResize(input.rgba, input.width, input.height, fitted.width, fitted.height);
   const original = rgba.slice();
-  if (capacityBytes(fitted.width, fitted.height) < need) {
+  if (capacityBytes(fitted.width, fitted.height) < blob.length) {
     throw new PicTuneError("this take is too long for that photo.");
   }
-  embedBits(rgba, fitted.width, fitted.height, blob);
+  embedPayload(rgba, fitted.width, fitted.height, blob);
   if (input.stampWatermark !== false) dimWatermarkBand(rgba, fitted.width, fitted.height);
   const parsed = unpackHeader(header);
   const psnr = psnrRgb(original, rgba, fitted.width, fitted.height);
@@ -166,21 +97,12 @@ export function decodePicTune(
   width: number,
   height: number,
 ): DecodeOutput {
-  const head = extractBits(rgba, width, height, HEADER_BYTES);
-  const header = unpackHeader(head);
-  const payloadBytes = header.frameCount * 2;
-  if (capacityBytes(width, height) < HEADER_BYTES + payloadBytes) {
-    throw new PicTuneError("this pictune looks cropped.");
-  }
-  const all = extractBits(rgba, width, height, HEADER_BYTES + payloadBytes);
-  const pcmBytes = all.subarray(HEADER_BYTES);
-  const pcm = new Int16Array(header.frameCount);
-  for (let i = 0; i < header.frameCount; i++) {
-    let v = pcmBytes[i * 2]! | (pcmBytes[i * 2 + 1]! << 8);
-    if (v & 0x8000) v |= ~0xffff;
-    pcm[i] = v;
-  }
-  const crcOk = pcmCrc(pcm) === header.crc32;
+  const all = extractPayload(rgba, width, height);
+  if (all.length < HEADER_BYTES) throw new PicTuneError("this pictune looks cropped.");
+  const header = unpackHeader(all.subarray(0, HEADER_BYTES));
+  const rvq = all.subarray(HEADER_BYTES, HEADER_BYTES + header.payloadBytes);
+  const crcOk = payloadCrc(rvq) === header.crc32;
+  const { pcm } = decodeRvq(rvq);
   const copy = rgba instanceof Uint8ClampedArray ? rgba : new Uint8ClampedArray(rgba);
   return { pcm, header, width, height, crcOk, rgba: copy };
 }

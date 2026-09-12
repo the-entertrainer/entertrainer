@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useSeoMeta({ title: 'Engage · Entertrainer', description: 'Short games and little detours — The Mind Reader, pictune.', ogUrl: 'https://entertrainer.in/engage' })
+useSeoMeta({ title: 'Engage · Entertrainer', description: 'Short games and little detours — The Mind Reader, PicTune.', ogUrl: 'https://entertrainer.in/engage' })
 
 const MIND_READER_SYMBOLS = [
   '<circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="7" r="2.2" fill="currentColor"/>',
@@ -23,14 +23,14 @@ const MIND_READER_SYMBOLS = [
         <NuxtLink to="/engage/pictune" class="engage__card">
           <span class="engage__icon engage__icon--pictune" aria-hidden="true">
             <svg viewBox="0 0 32 32" aria-hidden="true">
-              <rect x="4" y="4" width="5.2" height="24" rx="2.4" fill="currentColor" />
-              <rect x="4" y="4" width="24" height="5.2" rx="2.4" fill="currentColor" />
-              <circle cx="20.5" cy="16.5" r="7.2" fill="none" stroke="currentColor" stroke-width="4.4" />
+              <ellipse cx="11" cy="22" rx="6" ry="4.2" transform="rotate(-18 11 22)" fill="currentColor" />
+              <rect x="16.2" y="6" width="2.2" height="16" rx="1" fill="currentColor" />
+              <path d="M18.4 6.2c4.6 1.2 7.4 3.4 7.4 6.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
             </svg>
           </span>
           <span class="engage__card-text">
-            <strong class="engage__card-name">pictune</strong>
-            <span class="engage__card-blurb">Hide a voice inside a photo.</span>
+            <strong class="engage__card-name">PicTune</strong>
+            <span class="engage__card-blurb">Drop the beat. Pick the pic.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"

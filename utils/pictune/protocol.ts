@@ -1,12 +1,15 @@
 import { crc32 } from "./crc32";
 
-export const MAGIC = "PICTUNE1";
-export const VERSION = 1;
+export const MAGIC = "PICTUNE2";
+export const VERSION = 2;
 export const HEADER_BYTES = 48;
 export const TARGET_RATE = 16000;
-export const WATERMARK_H = 44;
-export const MIN_SIDE = 512;
-export const MAX_SIDE = 4096;
+export const WATERMARK_H = 52;
+export const MIN_SIDE = 640;
+export const MAX_SIDE = 1600; // WhatsApp resizes anything larger
+export const QIM_DELTA = 22;
+export const ECC_COPIES = 3;
+export const SYNC_BITS = 16;
 
 export class PicTuneError extends Error {
   constructor(message: string) {
@@ -23,9 +26,16 @@ export interface PicTuneHeader {
   frameCount: number;
   crc32: number;
   durationMs: number;
+  payloadBytes: number;
 }
 
-export function packHeader(h: Omit<PicTuneHeader, "magic" | "version">): Uint8Array {
+export function packHeader(h: {
+  sampleRate: number;
+  frameCount: number;
+  crc32: number;
+  durationMs: number;
+  payloadBytes: number;
+}): Uint8Array {
   const buf = new Uint8Array(HEADER_BYTES);
   const view = new DataView(buf.buffer);
   for (let i = 0; i < 8; i++) buf[i] = MAGIC.charCodeAt(i);
@@ -35,32 +45,37 @@ export function packHeader(h: Omit<PicTuneHeader, "magic" | "version">): Uint8Ar
   view.setUint32(12, h.frameCount, true);
   view.setUint32(16, h.crc32, true);
   view.setUint32(20, h.durationMs, true);
+  view.setUint32(24, h.payloadBytes, true);
   return buf;
 }
 
 export function unpackHeader(bytes: Uint8Array): PicTuneHeader {
   if (bytes.length < HEADER_BYTES) throw new PicTuneError("this photo isn't a pictune.");
   const magic = String.fromCharCode(...bytes.subarray(0, 8));
+  if (magic === "PICTUNE1") throw new PicTuneError("this pictune is from an older studio — etch a new one.");
   if (magic !== MAGIC) throw new PicTuneError("this photo isn't a pictune.");
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const version = view.getUint8(8);
   if (version !== VERSION) throw new PicTuneError("this pictune is from a newer studio.");
-  const channels = view.getUint8(9) as 1;
   const sampleRate = view.getUint16(10, true);
   const frameCount = view.getUint32(12, true);
   const sum = view.getUint32(16, true);
   const durationMs = view.getUint32(20, true);
-  if (!sampleRate || !frameCount) throw new PicTuneError("this pictune looks empty.");
-  return { magic, version, sampleRate, channels, frameCount, crc32: sum, durationMs };
+  const payloadBytes = view.getUint32(24, true);
+  if (!sampleRate || !payloadBytes) throw new PicTuneError("this pictune looks empty.");
+  return {
+    magic,
+    version,
+    sampleRate,
+    channels: 1,
+    frameCount,
+    crc32: sum,
+    durationMs,
+    payloadBytes,
+  };
 }
 
-export function pcmCrc(pcm: Int16Array): number {
-  const bytes = new Uint8Array(pcm.length * 2);
-  for (let i = 0; i < pcm.length; i++) {
-    const s = pcm[i]!;
-    bytes[i * 2] = s & 0xff;
-    bytes[i * 2 + 1] = (s >> 8) & 0xff;
-  }
+export function payloadCrc(bytes: Uint8Array): number {
   return crc32(bytes);
 }
 

@@ -26,7 +26,7 @@ import { getSocialImage, getSocialPreview, SITE_URL } from '~/content/social-pre
 const r = useRoute()
 const theme = useThemeStore()
 const siteSettings = useSiteSettings()
-const showPreloader = ref(true)
+const showPreloader = ref(!r.path.startsWith('/engage/pictune'))
 
 function onPreloaderComplete() {
   showPreloader.value = false

@@ -1,25 +1,18 @@
+import { encodePngRgb } from "./png";
+import { protect, recover } from "./ecc";
+import { dataCapacityBytes, gridForBytes, bytesToSymbols, symbolsToBytes } from "./grid";
+import { findFinders, sampleGrid } from "./locate";
 import {
   HEADER_BYTES,
+  MAX_GRID,
   PicTuneError,
-  WATERMARK_H,
   packHeader,
   payloadCrc,
   unpackHeader,
   type PicTuneHeader,
 } from "./protocol";
-import { bilinearResize, fitCanvas, psnrRgb } from "./image";
-import { encodePngRgb } from "./png";
-import { decodeRvq, encodeRvq, rvqDurationMs } from "./rvq";
-import { capacityBytes, embedPayload, extractPayload } from "./stego";
-
-export interface EncodeInput {
-  rgba: Uint8ClampedArray;
-  width: number;
-  height: number;
-  pcm: Int16Array;
-  sampleRate: number;
-  stampWatermark?: boolean;
-}
+import { renderGrid } from "./render";
+import { decodeRvq, encodeRvq, rvqDurationMs, BITS_PER_SEC } from "./rvq";
 
 export interface EncodeOutput {
   png: Uint8Array;
@@ -27,7 +20,7 @@ export interface EncodeOutput {
   width: number;
   height: number;
   header: PicTuneHeader;
-  psnr: number;
+  n: number;
 }
 
 export interface DecodeOutput {
@@ -39,19 +32,6 @@ export interface DecodeOutput {
   rgba: Uint8ClampedArray;
 }
 
-function dimWatermarkBand(rgba: Uint8ClampedArray, width: number, height: number): void {
-  const y0 = Math.max(0, height - WATERMARK_H);
-  for (let y = y0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const o = (y * width + x) * 4;
-      rgba[o] = Math.round(rgba[o]! * 0.18);
-      rgba[o + 1] = Math.round(rgba[o + 1]! * 0.18);
-      rgba[o + 2] = Math.round(rgba[o + 2]! * 0.18);
-      rgba[o + 3] = 255;
-    }
-  }
-}
-
 export function pngFromRgba(rgba: Uint8ClampedArray | Uint8Array, width: number, height: number): Uint8Array {
   const rgb = new Uint8Array(width * height * 3);
   for (let i = 0, j = 0; i < rgba.length; i += 4, j += 3) {
@@ -59,52 +39,7 @@ export function pngFromRgba(rgba: Uint8ClampedArray | Uint8Array, width: number,
     rgb[j + 1] = rgba[i + 1]!;
     rgb[j + 2] = rgba[i + 2]!;
   }
-  return encodePngRgb(width, height, rgb, { Software: "PicTune", "PT-Magic": "PICTUNE2" });
-}
-
-export function encodePicTune(input: EncodeInput): EncodeOutput {
-  const rvq = encodeRvq(input.pcm, input.sampleRate);
-  const header = packHeader({
-    sampleRate: input.sampleRate,
-    frameCount: input.pcm.length,
-    crc32: payloadCrc(rvq),
-    durationMs: rvqDurationMs(rvq),
-    payloadBytes: rvq.length,
-  });
-  const blob = new Uint8Array(HEADER_BYTES + rvq.length);
-  blob.set(header, 0);
-  blob.set(rvq, HEADER_BYTES);
-
-  const fitted = fitCanvas(input.width, input.height, blob.length);
-  let rgba =
-    fitted.width === input.width && fitted.height === input.height
-      ? input.rgba.slice()
-      : bilinearResize(input.rgba, input.width, input.height, fitted.width, fitted.height);
-  const original = rgba.slice();
-  if (capacityBytes(fitted.width, fitted.height) < blob.length) {
-    throw new PicTuneError("this take is too long for that photo.");
-  }
-  embedPayload(rgba, fitted.width, fitted.height, blob);
-  if (input.stampWatermark !== false) dimWatermarkBand(rgba, fitted.width, fitted.height);
-  const parsed = unpackHeader(header);
-  const psnr = psnrRgb(original, rgba, fitted.width, fitted.height);
-  const png = pngFromRgba(rgba, fitted.width, fitted.height);
-  return { png, rgba, width: fitted.width, height: fitted.height, header: parsed, psnr };
-}
-
-export function decodePicTune(
-  rgba: Uint8ClampedArray | Uint8Array,
-  width: number,
-  height: number,
-): DecodeOutput {
-  const all = extractPayload(rgba, width, height);
-  if (all.length < HEADER_BYTES) throw new PicTuneError("this pictune looks cropped.");
-  const header = unpackHeader(all.subarray(0, HEADER_BYTES));
-  const rvq = all.subarray(HEADER_BYTES, HEADER_BYTES + header.payloadBytes);
-  const crcOk = payloadCrc(rvq) === header.crc32;
-  const { pcm } = decodeRvq(rvq);
-  const copy = rgba instanceof Uint8ClampedArray ? rgba : new Uint8ClampedArray(rgba);
-  return { pcm, header, width, height, crcOk, rgba: copy };
+  return encodePngRgb(width, height, rgb, { Software: "PicTune", "PT-Magic": "PICTUNE3" });
 }
 
 export function rgbaFromRgb(rgb: Uint8Array, width: number, height: number): Uint8ClampedArray {
@@ -116,4 +51,56 @@ export function rgbaFromRgb(rgb: Uint8Array, width: number, height: number): Uin
     rgba[j + 3] = 255;
   }
   return rgba;
+}
+
+export function holdableSeconds(): number {
+  const cap = dataCapacityBytes(MAX_GRID);
+  const inner = Math.floor(cap / 2) - 8;
+  const payload = Math.max(0, inner - HEADER_BYTES);
+  return payload / (BITS_PER_SEC / 8);
+}
+
+export function encodePicTune(input: { pcm: Int16Array; sampleRate: number }): EncodeOutput {
+  const rvq = encodeRvq(input.pcm, input.sampleRate);
+  const header = packHeader({
+    sampleRate: input.sampleRate,
+    frameCount: input.pcm.length,
+    crc32: payloadCrc(rvq),
+    durationMs: rvqDurationMs(rvq),
+    payloadBytes: rvq.length,
+  });
+  const blob = new Uint8Array(HEADER_BYTES + rvq.length);
+  blob.set(header, 0);
+  blob.set(rvq, HEADER_BYTES);
+  const wrapped = protect(blob);
+  const n = gridForBytes(wrapped.length);
+  if (!n) throw new PicTuneError("that take is too long for a pictune.");
+  const symbols = bytesToSymbols(wrapped, n);
+  const img = renderGrid(symbols, n);
+  return {
+    png: pngFromRgba(img.rgba, img.width, img.height),
+    rgba: img.rgba,
+    width: img.width,
+    height: img.height,
+    header: unpackHeader(header),
+    n,
+  };
+}
+
+export function decodePicTune(
+  rgba: Uint8ClampedArray | Uint8Array,
+  width: number,
+  height: number,
+): DecodeOutput {
+  const copy = rgba instanceof Uint8ClampedArray ? rgba : new Uint8ClampedArray(rgba);
+  const finders = findFinders(copy, width, height);
+  const { grid, n } = sampleGrid(copy, width, height, finders);
+  const raw = symbolsToBytes(grid, n, dataCapacityBytes(n));
+  const blob = recover(raw);
+  if (!blob) throw new PicTuneError("couldn't hear this pictune. try the original image.");
+  const header = unpackHeader(blob);
+  const rvq = blob.subarray(HEADER_BYTES, HEADER_BYTES + header.payloadBytes);
+  const crcOk = payloadCrc(rvq) === header.crc32;
+  const { pcm } = decodeRvq(rvq);
+  return { pcm, header, width, height, crcOk, rgba: copy };
 }

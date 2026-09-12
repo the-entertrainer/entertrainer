@@ -1,5 +1,3 @@
 export * from "./protocol"
-export * from "./image"
-export * from "./audio"
 export * from "./codec"
-export * from "./watermark"
+export * from "./audio"

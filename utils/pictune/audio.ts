@@ -57,13 +57,18 @@ export function prepareVoice(
   pcm: Float32Array,
   sampleRate: number,
   channels: number,
+  maxSeconds?: number,
 ): {
   pcm: Int16Array;
   sampleRate: number;
   durationMs: number;
 } {
-  const mono = mixToMono(pcm, channels);
-  const resampled = fadeEdges(resample(mono, sampleRate, TARGET_RATE), TARGET_RATE);
+  let resampled = resample(mixToMono(pcm, channels), sampleRate, TARGET_RATE);
+  if (maxSeconds && maxSeconds > 0) {
+    const cap = Math.floor(maxSeconds * TARGET_RATE);
+    if (resampled.length > cap) resampled = resampled.subarray(0, cap);
+  }
+  resampled = fadeEdges(resampled, TARGET_RATE);
   const i16 = floatToInt16(resampled);
   return {
     pcm: i16,

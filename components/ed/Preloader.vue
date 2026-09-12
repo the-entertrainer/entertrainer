@@ -348,6 +348,19 @@ const skip = () => {
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3
 const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - ((-2 * t + 2) ** 2) / 2)
 
+function parseCssColor(input: string): [number, number, number] {
+  const m = input.match(/rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/)
+  if (m) return [Number(m[1]), Number(m[2]), Number(m[3])]
+  return [21, 18, 15]
+}
+
+function themeRgb() {
+  const root = document.querySelector('.preloader') as HTMLElement | null
+  if (!root) return { ink: [21, 18, 15] as [number, number, number], paper: [255, 250, 240] as [number, number, number] }
+  const cs = getComputedStyle(root)
+  return { ink: parseCssColor(cs.color), paper: parseCssColor(cs.backgroundColor) }
+}
+
 /** Soft envelope: rise fast, hold briefly, fade — for arrive-and-leave motifs. */
 const bloomEnvelope = (u: number) => {
   if (u < 0.18) return easeOutCubic(u / 0.18)
@@ -552,19 +565,21 @@ const drawWash = (
   ctx.translate(p.x, p.y)
 
   if (p.kind === 'ripple') {
+    const { ink } = themeRgb()
     ctx.beginPath()
     ctx.arc(0, 0, r, 0, Math.PI * 2)
     ctx.strokeStyle = p.alt
-      ? `rgba(21, 18, 15, ${0.08 * env})`
+      ? `rgba(${ink[0]}, ${ink[1]}, ${ink[2]}, ${0.08 * env})`
       : `rgba(255, 212, 59, ${0.42 * env})`
     ctx.lineWidth = (p.strong ? 2.4 : 1.6) * dpr
     ctx.stroke()
   } else if (p.kind === 'wash' || p.kind === 'seed-bloom') {
+    const { paper } = themeRgb()
     const g = ctx.createRadialGradient(0, 0, r * 0.12, 0, 0, r)
     const peak = p.kind === 'seed-bloom' ? 0.22 : p.strong ? 0.12 : 0.07
     g.addColorStop(0, `rgba(255, 212, 59, ${peak * env})`)
     g.addColorStop(0.55, `rgba(255, 212, 59, ${peak * 0.35 * env})`)
-    g.addColorStop(1, 'rgba(255, 250, 240, 0)')
+    g.addColorStop(1, `rgba(${paper[0]}, ${paper[1]}, ${paper[2]}, 0)`)
     ctx.fillStyle = g
     ctx.beginPath()
     ctx.arc(0, 0, r, 0, Math.PI * 2)
@@ -934,8 +949,8 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   overflow: hidden;
-  background: #fffaf0;
-  color: #15120f;
+  background: var(--paper);
+  color: var(--ink);
   transition: opacity 3000ms cubic-bezier(.22, 1, .36, 1), visibility 3000ms linear;
 }
 .preloader--leaving { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -957,9 +972,9 @@ onBeforeUnmount(() => {
   margin: 0;
   padding: 0;
   border: 0;
-  /* Opaque cream veil — covers dawn stage until circle wipe reveals it. */
-  background: #fffaf0;
-  color: #15120f;
+  /* Opaque paper veil — covers dawn stage until circle wipe reveals it. */
+  background: var(--paper);
+  color: var(--ink);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   clip-path: circle(150% at 50% 50%);
@@ -997,7 +1012,7 @@ onBeforeUnmount(() => {
   transition: opacity 200ms ease, transform 200ms ease;
 }
 .preloader__entry-brand-e {
-  fill: #15120f;
+  fill: var(--ink);
   font-family: var(--font-ui), Arial, sans-serif;
   font-size: 144px;
   font-weight: 900;
@@ -1011,13 +1026,13 @@ onBeforeUnmount(() => {
 .preloader__entry:hover .preloader__entry-mark,
 .preloader__entry:focus-visible .preloader__entry-mark {
   opacity: .85;
-  border-color: rgb(21 18 15 / .35);
+  border-color: color-mix(in oklab, var(--ink) 35%, transparent);
 }
 
 /* Calm entry copy — stays readable with reduce-motion; no hand pointer. */
 .preloader__entry-cue {
   margin: 0;
-  color: rgb(21 18 15 / .62);
+  color: color-mix(in oklab, var(--ink) 62%, transparent);
   font-family: var(--font-ui), Arial, sans-serif;
   font-size: clamp(13rem, 2.1vw, 16rem);
   font-weight: 600;
@@ -1028,7 +1043,7 @@ onBeforeUnmount(() => {
 .preloader__entry-skip-hint {
   max-width: 34ch;
   margin: 2rem 0 0;
-  color: rgb(21 18 15 / .42);
+  color: color-mix(in oklab, var(--ink) 42%, transparent);
   font-family: var(--font-ui), Arial, sans-serif;
   font-size: clamp(11rem, 1.7vw, 13rem);
   font-weight: 500;
@@ -1038,7 +1053,7 @@ onBeforeUnmount(() => {
 }
 .preloader__entry-skip-hint strong {
   font-weight: 700;
-  color: rgb(21 18 15 / .55);
+  color: color-mix(in oklab, var(--ink) 55%, transparent);
 }
 .preloader__entry.entry--wipe .preloader__entry-cue,
 .preloader__entry.entry--flip .preloader__entry-cue,
@@ -1062,7 +1077,7 @@ onBeforeUnmount(() => {
   outline: none;
 }
 .preloader__entry:focus-visible .preloader__entry-mark {
-  outline: 2rem solid #15120f;
+  outline: 2rem solid var(--ink);
   outline-offset: 6rem;
 }
 .preloader__entry:active .preloader__entry-mark { opacity: 1; }
@@ -1227,7 +1242,7 @@ onBeforeUnmount(() => {
   animation: pl-word-arrive 760ms cubic-bezier(.16, 1, .3, 1) 540ms both;
 }
 .preloader__word {
-  color: #15120f;
+  color: var(--ink);
   font-family: var(--font-ui), Arial, sans-serif;
   font-size: clamp(52rem, 9.4vw, 142rem);
   font-weight: 900;
@@ -1352,7 +1367,7 @@ onBeforeUnmount(() => {
 }
 .preloader__quote-sa {
   margin: 0;
-  color: rgb(21 18 15 / .48);
+  color: color-mix(in oklab, var(--ink) 48%, transparent);
   font-family: 'Noto Sans Devanagari', 'Noto Serif Devanagari', 'Kohinoor Devanagari', 'Mangal', 'Arial Unicode MS', sans-serif;
   font-size: clamp(13rem, 2.4vw, 18rem);
   font-weight: 500;
@@ -1361,7 +1376,7 @@ onBeforeUnmount(() => {
 }
 .preloader__quote-en {
   margin: 6rem 0 0;
-  color: rgb(21 18 15 / .34);
+  color: color-mix(in oklab, var(--ink) 34%, transparent);
   font-family: var(--font-mono), monospace;
   font-size: clamp(9rem, 1.6vw, 11rem);
   font-weight: 500;
@@ -1378,10 +1393,10 @@ onBeforeUnmount(() => {
   left: 50%;
   transform: translateX(-50%);
   padding: 8rem 16rem;
-  border: 1px solid rgb(21 18 15 / .08);
+  border: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
   border-radius: 999px;
-  background: rgb(255 250 240 / .35);
-  color: #15120f;
+  background: color-mix(in oklab, var(--paper) 35%, transparent);
+  color: var(--ink);
   font-family: var(--font-ui), Arial, sans-serif;
   font-size: 11rem;
   font-weight: 600;
@@ -1395,12 +1410,12 @@ onBeforeUnmount(() => {
 .preloader__skip:hover,
 .preloader__skip:focus-visible {
   opacity: .72;
-  background: rgb(255 250 240 / .85);
-  border-color: rgb(21 18 15 / .18);
+  background: color-mix(in oklab, var(--paper) 85%, transparent);
+  border-color: color-mix(in oklab, var(--ink) 18%, transparent);
   outline: none;
 }
 .preloader__skip:focus-visible {
-  outline: 2rem solid #15120f;
+  outline: 2rem solid var(--ink);
   outline-offset: 3rem;
 }
 

@@ -1,15 +1,20 @@
 import { crc32 } from "./crc32";
 
-export const MAGIC = "PICTUNE2";
-export const VERSION = 2;
+export const MAGIC = "PICTUNE3";
+export const VERSION = 3;
 export const HEADER_BYTES = 48;
 export const TARGET_RATE = 16000;
-export const WATERMARK_H = 52;
-export const MIN_SIDE = 640;
-export const MAX_SIDE = 1600; // WhatsApp resizes anything larger
-export const QIM_DELTA = 22;
-export const ECC_COPIES = 3;
-export const SYNC_BITS = 16;
+export const CANVAS = 1400;
+export const QUIET = 4;
+export const FINDER = 7;
+export const ALIGN = 5;
+export const CENTER = 11;
+export const BITS = 3;
+export const MIN_GRID = 64;
+export const MAX_GRID = 216;
+export const RS_DATA = 96;
+export const RS_SYM = 32;
+export const RS_BLOCK = RS_DATA + RS_SYM;
 
 export class PicTuneError extends Error {
   constructor(message: string) {
@@ -17,6 +22,18 @@ export class PicTuneError extends Error {
     this.name = "PicTuneError";
   }
 }
+
+/** 8 Lab-separated colors. Index is a 3-bit symbol. */
+export const PALETTE: readonly (readonly [number, number, number])[] = [
+  [11, 11, 12], // ink
+  [242, 242, 244], // paper
+  [255, 212, 59], // gold
+  [37, 99, 235], // blue
+  [224, 49, 49], // red
+  [15, 166, 122], // teal
+  [253, 126, 20], // orange
+  [34, 184, 207], // cyan
+];
 
 export interface PicTuneHeader {
   magic: string;
@@ -50,10 +67,12 @@ export function packHeader(h: {
 }
 
 export function unpackHeader(bytes: Uint8Array): PicTuneHeader {
-  if (bytes.length < HEADER_BYTES) throw new PicTuneError("this photo isn't a pictune.");
+  if (bytes.length < HEADER_BYTES) throw new PicTuneError("this isn't a pictune.");
   const magic = String.fromCharCode(...bytes.subarray(0, 8));
-  if (magic === "PICTUNE1") throw new PicTuneError("this pictune is from an older studio — etch a new one.");
-  if (magic !== MAGIC) throw new PicTuneError("this photo isn't a pictune.");
+  if (magic === "PICTUNE1" || magic === "PICTUNE2") {
+    throw new PicTuneError("this pictune is from an older studio — make a new one.");
+  }
+  if (magic !== MAGIC) throw new PicTuneError("this isn't a pictune.");
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const version = view.getUint8(8);
   if (version !== VERSION) throw new PicTuneError("this pictune is from a newer studio.");
@@ -79,17 +98,22 @@ export function payloadCrc(bytes: Uint8Array): number {
   return crc32(bytes);
 }
 
-export function mulberry32(seed: number): () => number {
-  let a = seed >>> 0;
-  return () => {
-    a += 0x6d2b79f5;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-export function seedFromSize(w: number, h: number): number {
-  return (0x50494354 ^ (w * 73856093) ^ (h * 19349663)) >>> 0;
+export function nearestPalette(r: number, g: number, b: number): number {
+  let best = 0;
+  let bestD = Infinity;
+  for (let i = 0; i < PALETTE.length; i++) {
+    const p = PALETTE[i]!;
+    const y = 0.299 * r + 0.587 * g + 0.114 * b;
+    const py = 0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2];
+    const cb = 0.564 * (b - y);
+    const cr = 0.713 * (r - y);
+    const pcb = 0.564 * (p[2] - py);
+    const pcr = 0.713 * (p[0] - py);
+    const d = (y - py) * (y - py) * 0.6 + (cb - pcb) * (cb - pcb) * 1.6 + (cr - pcr) * (cr - pcr) * 1.6;
+    if (d < bestD) {
+      bestD = d;
+      best = i;
+    }
+  }
+  return best;
 }

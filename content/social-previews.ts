@@ -166,7 +166,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'pictune',
     label: 'PicTune',
     title: 'PicTune · Engage',
-    description: 'Drop the beat. Pick the pic. Audio, etched into a photograph — even through WhatsApp.'
+    description: 'A pictune is a picture you can hear. Print it, screenshot it, send it.'
   },
   '/engage/read-my-mind': {
     key: 'read-my-mind',

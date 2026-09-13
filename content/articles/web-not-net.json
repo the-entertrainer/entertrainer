@@ -1,0 +1,224 @@
+{
+  "title": "You Closed the Browser. The Internet Is Still There.",
+  "dek": "A frozen website, a working connection, and the small distinction that changes what you mean by going online.",
+  "blocks": [
+    {
+      "type": "lead",
+      "text": "The laptop is on the kitchen table. A website has stopped loading."
+    },
+    {
+      "type": "paragraph",
+      "text": "You refresh. Nothing. You lean towards the router, which continues blinking with the confidence of an employee who has technically completed his part of the job."
+    },
+    {
+      "type": "paragraph",
+      "text": "The internet is gone, you announce."
+    },
+    {
+      "type": "paragraph",
+      "text": "That is a large accusation to make from one frozen tab."
+    },
+    {
+      "type": "paragraph",
+      "text": "The title of Vsauce’s video, The Web Is Not The Net, points to a distinction we usually skip. This essay takes that distinction as its starting point, with the mechanics checked against the sources below. It is an independent exploration, rather than a transcript of the video."
+    },
+    {
+      "type": "heading",
+      "text": "Close every window"
+    },
+    {
+      "type": "paragraph",
+      "text": "Try a thought experiment. Every browser on Earth closes at once. Nobody loses electricity. No cables snap. The computers keep running, and the networks connecting them remain in place."
+    },
+    {
+      "type": "paragraph",
+      "text": "Has the internet disappeared?"
+    },
+    {
+      "type": "paragraph",
+      "text": "No. You have closed one way of using it."
+    },
+    {
+      "type": "paragraph",
+      "text": "The internet connects networks so their devices can exchange data. The web is a system of linked resources that uses that connectivity. Your browser gives you a way to request and read those resources. Other services can use the same underlying internet. [1]"
+    },
+    {
+      "type": "paragraph",
+      "text": "Think of the road outside your house. Close the bookshop at the corner and the road remains. Vans can still pass. Someone can still deliver a parcel. You may have lost your reason for going out, but the municipality has not removed the street."
+    },
+    {
+      "type": "paragraph",
+      "text": "That is an analogy, with a useful limit: internet traffic consists of data moving between machines, not little delivery boys carrying miniature PDFs."
+    },
+    {
+      "type": "heading",
+      "text": "The road was there first"
+    },
+    {
+      "type": "paragraph",
+      "text": "This distinction has a history. ARPANET switched from its earlier host protocol to TCP/IP on 1 January 1983. The Internet Society’s account, written by people involved in developing the internet, describes years of planning behind that transition. Email was already an important use of computer networks. [2]"
+    },
+    {
+      "type": "paragraph",
+      "text": "Then came the web."
+    },
+    {
+      "type": "paragraph",
+      "text": "Tim Berners-Lee invented it at CERN in 1989, to help scientists share information. The first website explained the web project itself. On 30 April 1993, CERN released the web software into the public domain; an open-licence release followed. [3]"
+    },
+    {
+      "type": "paragraph",
+      "text": "There is something pleasing about that first website. Before restaurant menus and forgotten passwords, a website had to explain what a website was."
+    },
+    {
+      "type": "paragraph",
+      "text": "The web arrived on an existing network. Treating their invention as the same event erases the work that made the later idea possible."
+    },
+    {
+      "type": "heading",
+      "text": "The interesting part is the link"
+    },
+    {
+      "type": "paragraph",
+      "text": "A book can tell you to read another book. It cannot usually take you there."
+    },
+    {
+      "type": "paragraph",
+      "text": "A hyperlink can."
+    },
+    {
+      "type": "paragraph",
+      "text": "Berners-Lee’s original proposal dealt with a very ordinary organisational problem: information was being lost as people and projects changed. He proposed linked information that could describe relationships between documents, people and systems without forcing everything into one rigid hierarchy. [4]"
+    },
+    {
+      "type": "paragraph",
+      "text": "Anyone who has searched a shared drive for the actual final version of a file can appreciate the complaint. Somewhere, a document called final_final_approved_2 is quietly running a department."
+    },
+    {
+      "type": "paragraph",
+      "text": "The proposal matters because connecting machines does not automatically make their contents understandable. You still need a way to identify things and follow relationships between them. A connection gets you access. A link gives that access a direction."
+    },
+    {
+      "type": "paragraph",
+      "text": "That last sentence is an interpretation of the design, not a promise that every link leads somewhere useful. Some lead to a deleted page. Others lead to an argument you were better off missing."
+    },
+    {
+      "type": "heading",
+      "text": "What the browser actually asks for"
+    },
+    {
+      "type": "paragraph",
+      "text": "On the web, HTTP supplies rules for requests and responses. A client requests a resource; a server responds with a status and, where appropriate, content. The standard also defines intermediaries such as proxies and caches. [5]"
+    },
+    {
+      "type": "paragraph",
+      "text": "The address is not the document. It identifies what you are asking for."
+    },
+    {
+      "type": "paragraph",
+      "text": "A 404 response means the server did not find a current representation of the requested resource, or is unwilling to disclose that one exists. A 503 means the server is currently unable to handle the request, for example because of maintenance or overload. Neither status means the entire internet has vanished. [5]"
+    },
+    {
+      "type": "paragraph",
+      "text": "In fact, a fresh error response reaching your browser means some communication just succeeded. Your disappointing news had transport."
+    },
+    {
+      "type": "paragraph",
+      "text": "That is why the frozen tab is weak evidence. The fault might concern that site or its request path. A working Wi-Fi connection, meanwhile, establishes your local connection; it does not guarantee that your provider can get you to every destination. [1]"
+    },
+    {
+      "type": "heading",
+      "text": "Where the tidy split breaks"
+    },
+    {
+      "type": "paragraph",
+      "text": "You could draw two boxes on a sheet of paper, put the browser in the one marked web, put every other application in the one marked internet, and feel that you had finally sorted out the whole business."
+    },
+    {
+      "type": "paragraph",
+      "text": "Then open your mail."
+    },
+    {
+      "type": "paragraph",
+      "text": "A native application can use HTTP, the same application-level protocol used by browser clients. [5] So the icon tells you very little. You would have to look at what the software is asking for, and how."
+    },
+    {
+      "type": "paragraph",
+      "text": "SMTP specifies mail submission and transfer. No web page is required for that exchange. [6] Yet you can sit in a browser reading webmail while a mail system handles delivery behind it, combining a web interface with a service whose underlying transfer rules were designed separately."
+    },
+    {
+      "type": "paragraph",
+      "text": "There are layers here. The same action can involve several."
+    },
+    {
+      "type": "paragraph",
+      "text": "Nor does the distinction mean services are neatly independent in practice. A hypothetical application might depend on a web-based login before it lets you do anything else. Take that login away and the application can become unusable, even while its underlying network remains available."
+    },
+    {
+      "type": "paragraph",
+      "text": "That is the competing practical view: for the person trying to finish a task, losing access may feel exactly like losing the internet. The feeling is reasonable. It just cannot locate the fault."
+    },
+    {
+      "type": "heading",
+      "text": "Back to the blinking box"
+    },
+    {
+      "type": "paragraph",
+      "text": "You do not need to memorise protocol names to use this distinction. You need a smaller accusation."
+    },
+    {
+      "type": "paragraph",
+      "text": "This page failed. Can another page load? Does a different device have the same problem? Those questions separate observations that the sentence the internet is down bundles together."
+    },
+    {
+      "type": "paragraph",
+      "text": "They do not produce an instant diagnosis. They give whoever investigates something better to work with."
+    },
+    {
+      "type": "paragraph",
+      "text": "The thought experiment has its answer now. Close the browser and the infrastructure remains. Lose a particular service and your reason for using that infrastructure may disappear with it. Those are different losses, even when they spoil the same afternoon."
+    },
+    {
+      "type": "closing",
+      "text": "The router is still blinking. Before you unplug it, perhaps ask which part of the job it actually failed."
+    }
+  ],
+  "references": [
+    {
+      "id": 1,
+      "title": "How does the Internet work?",
+      "source": "MDN, updated 4 September 2026",
+      "href": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/How_does_the_Internet_work"
+    },
+    {
+      "id": 2,
+      "title": "A Brief History of the Internet",
+      "source": "Leiner and colleagues, Internet Society",
+      "href": "https://www.internetsociety.org/internet/history-internet/brief-history-internet/"
+    },
+    {
+      "id": 3,
+      "title": "The birth of the Web",
+      "source": "CERN",
+      "href": "https://home.cern/science/computing/the-birth-of-the-web/"
+    },
+    {
+      "id": 4,
+      "title": "Information Management: A Proposal",
+      "source": "Tim Berners-Lee, CERN, 1989; archived by W3C",
+      "href": "https://www.w3.org/History/1989/proposal.html"
+    },
+    {
+      "id": 5,
+      "title": "RFC 9110: HTTP Semantics",
+      "source": "Fielding, Nottingham and Reschke, 2022",
+      "href": "https://www.rfc-editor.org/rfc/rfc9110.html"
+    },
+    {
+      "id": 6,
+      "title": "RFC 5321: Simple Mail Transfer Protocol",
+      "source": "John Klensin, 2008",
+      "href": "https://www.rfc-editor.org/rfc/rfc5321.html"
+    }
+  ]
+}

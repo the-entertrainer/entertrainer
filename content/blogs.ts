@@ -132,6 +132,22 @@ export const BLOG_POSTS: BlogPost[] = [
     heroAlt: 'A black ink silhouette of a head in profile on cream paper; a zipper opens across the mind and reveals only empty dashed lines, with one cobalt-blue pull-tab.',
     status: 'published',
     publishedAt: '2026-09-13T10:15:00+00:00'
+  },
+  {
+    "slug": "you-closed-the-browser-the-internet-is-still-there",
+    "title": "You Closed the Browser. The Internet Is Still There.",
+    "dek": "A frozen website, a working connection, and the small distinction that changes what you mean by going online.",
+    "category": "Technology",
+    "tags": [
+      "internet",
+      "web",
+      "technology"
+    ],
+    "minutes": 6,
+    "hero": "/blog/web-not-net/hero.png",
+    "heroAlt": "Web clients and servers exchange HTTP traffic; mail systems exchange SMTP traffic over the same internet. A diagram in cobalt and black on cream.",
+    "status": "published",
+    "publishedAt": "2026-09-13T18:00:00+00:00"
   }
 ]
 
@@ -147,3 +163,5 @@ export const INNER_SPEECH_BLOG = BLOG_POSTS[7]
 export const CENTRE_UNIVERSE_BLOG = BLOG_POSTS[8]
 export const KNOWING_BLOG = BLOG_POSTS[9]
 export const FEATURED_BLOG = ENTROPY_BLOG
+
+export const WEB_NOT_NET_BLOG = BLOG_POSTS[BLOG_POSTS.length - 1]

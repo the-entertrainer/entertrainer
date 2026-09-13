@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="850" viewBox="0 0 1600 850" role="img" aria-labelledby="title desc">
+<title id="title">Different services, shared internet</title><desc id="desc">Web clients and servers exchange HTTP traffic over the internet. Mail systems exchange SMTP traffic over the same internet. These are logical service paths, not physical cables.</desc>
+<rect width="1600" height="850" fill="#f5f1e8"/>
+<g font-family="Arial, sans-serif" fill="#171717"><text x="90" y="110" font-size="25" letter-spacing="5">THE ENTERTRAINER / TECHNOLOGY</text><text x="90" y="210" font-size="68" font-weight="700">Different services.</text><text x="90" y="285" font-size="68" font-weight="700">Shared internet.</text></g>
+<rect x="555" y="360" width="490" height="355" rx="28" fill="#e5e7ef" stroke="#171717" stroke-width="3"/>
+<g stroke-width="4" fill="none"><path d="M370 443H1230" stroke="#2454e6"/><path d="M370 633H1230" stroke="#171717"/></g>
+<g fill="#f5f1e8" stroke-width="3"><rect x="90" y="390" width="280" height="105" rx="12" stroke="#2454e6"/><rect x="1230" y="390" width="280" height="105" rx="12" stroke="#2454e6"/><rect x="90" y="580" width="280" height="105" rx="12" stroke="#171717"/><rect x="1230" y="580" width="280" height="105" rx="12" stroke="#171717"/></g>
+<g font-family="Arial, sans-serif" text-anchor="middle" font-size="31"><text x="230" y="453" fill="#2454e6">Web client</text><text x="1370" y="453" fill="#2454e6">Web server</text><text x="230" y="643">Mail system</text><text x="1370" y="643">Mail system</text><text x="800" y="412" fill="#2454e6" font-size="25">HTTP / HTTPS</text><text x="800" y="548" font-size="38" font-weight="700">INTERNET</text><text x="800" y="605" font-size="25">SMTP</text></g>
+<text x="90" y="785" font-family="Arial, sans-serif" font-size="23" fill="#555">Logical service paths. Webmail can combine both; apps can also use HTTP.</text>
+</svg>

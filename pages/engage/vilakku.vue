@@ -48,8 +48,8 @@ onMounted(async () => {
     nuxt.style.background = '#000'
   }
   if (!host.value) return
-  const { createVilakku } = await import('../../vilakku/game.js')
-  handle = createVilakku(host.value)
+  const { createVilakku } = await import('../../vilakku/game')
+  handle = await createVilakku(host.value)
 })
 
 onUnmounted(() => {

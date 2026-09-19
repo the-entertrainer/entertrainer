@@ -1,23 +1,28 @@
-export type ScaleId = 'earth' | 'sun' | 'galaxy' | 'cosmos'
+export type ScaleId = 'earth' | 'sun' | 'galaxy' | 'cosmos' | 'helix'
 
 export interface ScaleDef {
   id: ScaleId
   name: string
   kicker: string
   kms: number
+  icon: string
+  equivalent: (kms: number) => string
   story: string[]
 }
+
+const EQ_KM = 40075
 
 export const SCALES: ScaleDef[] = [
   {
     id: 'earth',
     name: 'Earth spin',
-    kicker: 'You, on the surface',
+    kicker: 'Surface rotation',
     kms: 1670,
+    icon: 'spin',
+    equivalent: (kms) => `${(kms / EQ_KM).toFixed(2)} equator lengths / hour`,
     story: [
-      'The ground is already moving. At the equator the surface of the Earth travels about 1,670 kilometres an hour. That number falls with the cosine of latitude — Delhi sits near 1,470.',
-      'One blink, ten kilometres. You do not feel it because everything in the room is riding the same circle.',
-      'Drag the pin. The speed is yours, not a global average.',
+      'The ground is already moving. At the equator the surface travels about 1,670 kilometres an hour. That number falls with the cosine of latitude.',
+      'One blink, ten kilometres. You do not feel it because the room is on the same circle.',
     ],
   },
   {
@@ -25,29 +30,47 @@ export const SCALES: ScaleDef[] = [
     name: 'Solar orbit',
     kicker: 'Earth around the Sun',
     kms: 107000,
+    icon: 'orbit',
+    equivalent: (kms) => `${(kms / EQ_KM).toFixed(1)} equator lengths / hour`,
     story: [
-      'The planet is also falling around the Sun at about 107,000 kilometres an hour. A year is that orbit, nothing more ceremonial.',
-      'The seasons are a tilt, not a speed change. The number on the dial barely moves from January to July.',
+      'The planet is falling around the Sun at about 107,000 kilometres an hour. A year is that orbit.',
+      'The seasons are a tilt, not a speed change.',
     ],
   },
   {
     id: 'galaxy',
-    name: 'Milky Way',
+    name: 'Galactic orbit',
     kicker: 'Sun around the core',
     kms: 828000,
+    icon: 'arm',
+    equivalent: (kms) => `${(kms / EQ_KM).toFixed(0)} equator lengths / hour`,
     story: [
-      'The Sun is not parked. It is riding the disc of the Milky Way at about 828,000 kilometres an hour, one loop every 230 million years.',
-      'We have no photograph of that orbit from outside. The spiral is a reconstruction from motion and dust.',
+      'The Sun rides the disc at about 828,000 kilometres an hour. One loop takes about 230 million years.',
+      'The spiral is a reconstruction from motion and dust. We have no photograph from outside.',
     ],
   },
   {
     id: 'cosmos',
-    name: 'CMB frame',
-    kicker: 'Against the leftover light',
+    name: 'CMB flow',
+    kicker: 'Against leftover light',
     kms: 2200000,
+    icon: 'dipole',
+    equivalent: (kms) => `${(kms / 370).toFixed(0)} × 370 km/s rest-frame dipole`,
     story: [
-      'The microwave sky is slightly warmer in one direction. That dipole is our motion relative to the rest frame of the early universe — about 370 km/s, or 2.2 million km/h.',
-      'That is the largest speed on this dial. It is also the quietest: no wind, no sound, only a colour in the oldest light.',
+      'The microwave sky is slightly warmer in one direction. That dipole is our motion relative to the early-universe rest frame — about 370 km/s.',
+      'Warm trails mark the direction we are heading. Cool trails mark the direction we came from.',
+    ],
+  },
+  {
+    id: 'helix',
+    name: 'Helical path',
+    kicker: 'Sun through the disc',
+    kms: 828000,
+    icon: 'helix',
+    equivalent: () => 'orbit + bob of the disc, drawn as a corkscrew',
+    story: [
+      'The Sun does not sit still in the galactic plane. It bobbs above and below as it orbits, so the path through space is a long, shallow helix.',
+      'The corkscrew is the honest picture. The flat orbit is the projection.',
     ],
   },
 ]
@@ -73,6 +96,13 @@ export function formatSpeed(kms: number, unit: SpeedUnit, locale = 'en-US'): str
 
 export function speedForScale(id: ScaleId, lat: number): number {
   if (id === 'earth') return spinKms(lat)
-  const row = SCALES.find((s) => s.id === id)
-  return row?.kms ?? 0
+  return SCALES.find((s) => s.id === id)?.kms ?? 0
+}
+
+export function formatDistance(km: number, unit: SpeedUnit): string {
+  const n = unit === 'mph' ? km * 0.621371 : unit === 'km/s' ? km / 3600 : km
+  const label = unit === 'mph' ? 'mi' : unit === 'km/s' ? 'km' : 'km'
+  if (n > 1e6) return `${(n / 1e6).toFixed(3)} M${label}`
+  if (n > 1000) return `${(n / 1000).toFixed(2)} k${label}`
+  return `${n.toFixed(1)} ${label}`
 }

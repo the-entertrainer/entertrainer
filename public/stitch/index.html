@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#FFD43B"><meta name="description" content="Merge, reorder, select and rotate PDF pages privately in your browser. Stitch is a free, offline-ready Entertrainer tool.">
+<title>Stitch — PDF Combiner · Entertrainer</title>
+<link rel="canonical" href="https://www.entertrainer.in/stitch/">
+<link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="manifest" href="./manifest.webmanifest">
+<link rel="stylesheet" href="./style.css"><script type="module" src="./app.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to PDF workspace</a>
+<header class="masthead"><a href="/" class="wordmark">Entertrainer<span aria-hidden="true">.</span></a><nav aria-label="Main"><a href="/empower">← Empower</a><button id="theme" aria-label="Switch colour theme">Dark mode</button><button id="install" hidden>Install Stitch</button></nav></header>
+<main id="main">
+<header class="intro"><div><p class="eyebrow"><span class="chip">EMPOWER</span> A LITTLE TOOL FOR YOUR PDFs</p><h1>Stitch<span class="title-dot">.</span></h1><p class="deck">Separate files. One neat PDF.</p></div><div class="privacy"><span class="privacy-label">ON YOUR DEVICE</span><p>Your files stay in this browser.<br>No upload. No account.</p><span id="offline" role="status">Preparing offline access…</span></div></header>
+<div class="workbench">
+<section class="queue-panel" aria-labelledby="queue-heading">
+<div id="dropzone" class="dropzone"><span class="step">01 / GATHER</span><h2>Bring your PDFs together.</h2><p>Drop files or a folder here, then put everything in order.</p><div class="actions"><button id="add" class="primary">＋ Add PDFs</button><button id="folder">Choose a folder</button><button id="samples" class="text-button">Try sample files</button></div><p class="fine">PDF files only · Processing stays on this device</p><input hidden id="files" type="file" accept=".pdf,application/pdf" multiple><input hidden id="folders" type="file" webkitdirectory multiple></div>
+<div class="queue-heading"><div><span class="step">02 / ARRANGE</span><h2 id="queue-heading">Your stack <span id="file-count" class="count">0</span></h2></div><button id="clear" class="text-button" disabled>Clear all</button></div>
+<div id="toolbar" class="toolbar" hidden><label class="search-label"><span class="sr-only">Find a file in the stack</span><input id="search" type="search" placeholder="Find a file…"></label><label><span class="sr-only">Sort PDFs</span><select id="sort"><option value="">Sort files</option><option value="az">Name: A–Z</option><option value="za">Name: Z–A</option><option value="small">Size: smallest first</option><option value="large">Size: largest first</option></select></label><button id="reverse" title="Reverse the entire stack">Reverse</button></div>
+<p id="filter-note" class="fine" hidden>Search filters this list only. All files in the stack are included.</p>
+<div id="empty" class="empty"><span class="empty-number" aria-hidden="true">00</span><div><h3>A clean slate.</h3><p>Add PDFs above. Their pages will appear in your chosen order.</p></div></div>
+<ol id="queue" class="queue" aria-label="PDF merge order"></ol><p id="no-results" class="empty" hidden>No files match your search.</p><div id="pagination" class="pagination" hidden><button id="previous">Previous</button><span id="page-label"></span><button id="next">Next</button></div>
+</section>
+<aside class="output-panel" aria-labelledby="output-heading"><span class="step">03 / STITCH</span><h2 id="output-heading">The finished piece.</h2><dl class="totals"><div><dt>PDFs in your stack</dt><dd id="total-files">0</dd></div><div><dt>Selected pages</dt><dd id="total-pages">0</dd></div><div><dt>Source size</dt><dd id="total-size">0 B</dd></div></dl><label class="field-label" for="filename">Output filename</label><input id="filename" value="stitched-document.pdf" maxlength="180" autocomplete="off"><label class="check"><input id="skip-errors" type="checkbox"><span>Skip unreadable files<span class="fine">Review omitted files before downloading.</span></span></label><button id="merge" class="primary merge" disabled>Stitch PDFs <span aria-hidden="true">↗</span></button><p class="fine">Original files remain unchanged.</p>
+<div id="progress-section" hidden><div class="progress-heading"><strong id="progress-title">Stitching…</strong><button id="cancel" class="text-button">Cancel</button></div><progress id="progress" max="100" value="0" aria-label="Merge progress"></progress><p id="progress-file" class="fine"></p></div>
+<div id="result" class="result" hidden aria-live="polite"><h3 id="result-title">Your PDF is ready.</h3><p id="result-description"></p><a id="download" class="primary" download>Download PDF ↓</a></div>
+<details class="guide"><summary>A few useful details</summary><p>Use the move buttons, a position number, or drag the grip to reorder files. The stack runs from top to bottom.</p><p>Choose pages with <strong>1-3, 5</strong>. Reverse a range with <strong>5-1</strong>. Repeated page numbers repeat those pages. Leave the field blank for all pages.</p><p>Rotation applies to selected pages in that file. Password-protected PDFs need an unlocked copy.</p><p>Page content is copied. Document bookmarks, attachments, signatures and interactive form behaviour are not preserved.</p><p>Available memory limits file size. Close other tabs or split very large jobs. Files are held only for this session; closing or reloading clears the stack.</p><p>Once “Offline ready” appears, reopen this address without a connection. Your browser can remove offline storage; installation does not prevent that.</p></details></aside>
+</div>
+<section id="report" class="report" hidden aria-labelledby="report-heading"><h2 id="report-heading">Files left out</h2><p>These files are not in the finished PDF.</p><ul id="report-list"></ul></section>
+<p id="notice" class="notice" role="status" aria-live="polite"></p>
+<footer><span>Stitch / Made by Entertrainer</span><span>One less small task.</span></footer>
+</main>
+<dialog id="clear-dialog"><h2>Clear this stack?</h2><p>This removes the queued files and the current download. Your original files stay untouched.</p><form method="dialog" class="actions"><button value="cancel">Keep files</button><button value="clear" class="primary">Clear stack</button></form></dialog>
+<noscript><p>Enable JavaScript to combine PDFs locally in this browser.</p></noscript>
+</body></html>

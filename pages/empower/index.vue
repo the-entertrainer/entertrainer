@@ -8,6 +8,7 @@ useSeoMeta({
 })
 
 const ICON_BY_ID: Record<string, string> = {
+  stitch: '/stitch/icon.svg',
   storygen: '/storygen-icon.svg',
   cadence: '/cadence-icon.svg',
   easymcq: '/easymcq-icon.svg',

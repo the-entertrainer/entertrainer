@@ -118,6 +118,17 @@ export const ITEMS: EditorialItem[] = [
     size: 'wide'
   },
   {
+    id: 'stitch',
+    title: 'Stitch',
+    dek: 'Merge PDFs, choose pages, and put everything in order. Your files stay on your device, even offline.',
+    category: 'tools',
+    media: 'free tool',
+    href: '/tools/stitch',
+    image: '/stitch/icon.svg',
+    alt: 'Stitch — stacked PDF pages',
+    stamp: 'Free · Combine PDFs'
+  },
+  {
     id: 'storygen',
     title: 'StoryGen',
     dek: 'Plan visual stories on an infinite canvas with cards, connections, and Word export. Put the chaos somewhere useful.',

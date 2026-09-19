@@ -146,6 +146,13 @@ export default defineNuxtConfig({
 		],
       shortcuts: [
         {
+          name: 'Stitch — PDF Combiner',
+          short_name: 'Stitch',
+          description: 'Combine PDFs privately, even offline',
+          url: '/stitch/',
+          icons: [{ src: '/stitch/icon.svg', sizes: 'any', type: 'image/svg+xml' }]
+        },
+        {
           name: 'StoryGen — Storyboard Studio',
           short_name: 'StoryGen',
           description: 'Design instructional storyboards on an infinite canvas',
@@ -235,6 +242,7 @@ export default defineNuxtConfig({
     '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } },
     '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } },
     // Trailing slash required so static /dialogue/index.html assets resolve under /dialogue/.
+    '/stitch': { redirect: { to: '/stitch/', statusCode: 308 } },
     '/dialogue': { redirect: { to: '/dialogue/', statusCode: 308 } },
     // Educate section removed — keep old links from 404ing.
     '/educate': { redirect: { to: '/', statusCode: 301 } },

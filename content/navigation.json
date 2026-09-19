@@ -61,6 +61,15 @@
   ],
   "tools": [
     {
+      "id": "stitch",
+      "label": "Stitch",
+      "description": "Combine, reorder and rotate PDF pages privately, even offline.",
+      "href": "/tools/stitch",
+      "color": "#FFD43B",
+      "img": "/stitch/icon.svg",
+      "meta": "PDFs"
+    },
+    {
       "id": "easymcq",
       "label": "EasyMCQ",
       "description": "Write the question and the right answer; the AI writes the wrong ones.",

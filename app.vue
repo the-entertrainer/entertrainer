@@ -30,7 +30,8 @@ const showPreloader = ref(
   !(
     r.path.startsWith('/engage/astroclock') ||
     r.path.startsWith('/engage/velocity') ||
-    r.path.startsWith('/engage/read-my-mind')
+    r.path.startsWith('/engage/read-my-mind') ||
+    r.path.startsWith('/engage/vilakku')
   )
 )
 
@@ -71,7 +72,8 @@ const bare = computed(() =>
   r.path.startsWith('/instructional-design') ||
   r.path.startsWith('/engage/read-my-mind') ||
   r.path.startsWith('/engage/astroclock') ||
-  r.path.startsWith('/engage/velocity')
+  r.path.startsWith('/engage/velocity') ||
+  r.path.startsWith('/engage/vilakku')
 )
 
 onMounted(() => {

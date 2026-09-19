@@ -986,13 +986,15 @@ function injectCss() {
   const s = document.createElement('style')
   s.id = 'vk-css'
   s.textContent = `
-    .vk-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;background:#000}
-    .vk-overlay{position:absolute;inset:0;pointer-events:none;font-family:Georgia,"Times New Roman",serif;color:#e8e4d8}
+    html.vilakku-rem .sp,html.vilakku-rem .ed-preloader{display:none!important}
+    #vilakku-host,#vilakku-host *{box-sizing:border-box}
+    .vk-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;background:#000;z-index:0}
+    .vk-overlay{position:absolute;inset:0;pointer-events:none;z-index:2;font-family:Georgia,"Iowan Old Style","Times New Roman",serif;color:#e6dfd0}
     .vk-title{pointer-events:auto;position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-      background:#000;text-align:center;padding:24px;transition:opacity .6s ease}
-    .vk-title--out{opacity:0}
-    .vk-mark{font-size:22px;letter-spacing:.4em;opacity:.55;margin-bottom:8px}
-    .vk-title h1{font-weight:400;letter-spacing:.42em;font-size:clamp(28px,8vw,54px);margin:0 0 16px}
+      background:radial-gradient(ellipse at 50% 38%,#14110c 0%,#000 62%);text-align:center;padding:28px 22px;transition:opacity .7s ease}
+    .vk-title--out{opacity:0;pointer-events:none}
+    .vk-mark{font-size:15px;letter-spacing:.38em;opacity:.5;margin-bottom:10px}
+    .vk-title h1{font-weight:400;letter-spacing:.36em;font-size:34px;margin:0 0 18px;color:#f3ead8}
     .vk-title p{max-width:28ch;margin:0 auto 10px;font-size:14px;line-height:1.5;opacity:.8}
     .vk-warn{opacity:.45!important;font-size:12px!important}
     .vk-btn,.vk-prompt{pointer-events:auto;appearance:none;border:1px solid #cfc6a8;background:#0a0a0a;color:#cfc6a8;

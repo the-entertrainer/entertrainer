@@ -30,6 +30,7 @@ let prevNuxtBg = ''
 
 onMounted(async () => {
   const html = document.documentElement
+  html.classList.add('vilakku-rem')
   const existing = html.style.getPropertyValue('font-size')
   const existingPri = html.style.getPropertyPriority('font-size')
   if (existing && !(existing === '16px' && existingPri !== 'important')) {
@@ -55,6 +56,7 @@ onUnmounted(() => {
   handle?.dispose()
   handle = null
   const html = document.documentElement
+  html.classList.remove('vilakku-rem')
   html.style.removeProperty('font-size')
   if (prevHtmlFontSize != null) {
     html.style.setProperty('font-size', prevHtmlFontSize, prevHtmlFontSizePriority || undefined)

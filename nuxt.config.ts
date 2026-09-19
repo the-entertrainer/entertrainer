@@ -20,7 +20,7 @@ function astroclockReactJsx() {
         esbuild: {
           jsx: 'automatic',
           jsxImportSource: 'react',
-          include: /\.ts$|(?:^|[\\/])astroclock[\\/].*\.[jt]sx$/,
+          include: /\.ts$|(?:^|[\\/])(?:astroclock|velocity)[\\/].*\.[jt]sx$/,
         },
         optimizeDeps: {
           esbuildOptions: {
@@ -187,6 +187,13 @@ export default defineNuxtConfig({
           description: 'Birth place and time. A live dial. What today is doing.',
           url: '/engage/astroclock',
           icons: [{ src: '/astroclock-icon-192.png', sizes: '192x192', type: 'image/png' }]
+        },
+        {
+          name: 'Velocity — Cosmic speedometer',
+          short_name: 'Velocity',
+          description: 'The speeds you already have — spin, orbit, galaxy, leftover light.',
+          url: '/engage/velocity',
+          icons: [{ src: '/velocity-icon.svg', sizes: 'any', type: 'image/svg+xml' }]
         }
       ]
     },
@@ -240,11 +247,12 @@ export default defineNuxtConfig({
   },
   alias: {
     '@astroclock': fileURLToPath(new URL('./astroclock', import.meta.url)),
+    '@velocity': fileURLToPath(new URL('./velocity', import.meta.url)),
   },
   vite: {
     // Keep Vue JSX off the React island. Every .tsx in this repo is AstroClock.
     vueJsx: {
-      exclude: /(?:^|[\\/])astroclock[\\/]/,
+      exclude: /(?:^|[\\/])(?:astroclock|velocity)[\\/]/,
     },
     plugins: [
       astroclockReactJsx(),
@@ -258,6 +266,7 @@ export default defineNuxtConfig({
         'react/jsx-runtime',
         'react/jsx-dev-runtime',
         'lucide-react',
+        'three',
       ],
     },
   },

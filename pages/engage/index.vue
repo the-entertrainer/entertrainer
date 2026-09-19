@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — The Mind Reader and AstroClock.',
+  description: 'Short games and little detours — The Mind Reader, AstroClock, and Velocity.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -74,6 +74,23 @@ const MIND_READER_SYMBOLS = [
           <span class="engage__card-text">
             <strong class="engage__card-name">AstroClock</strong>
             <span class="engage__card-blurb">Birth place and time. A live dial. What today is doing.</span>
+          </span>
+          <span class="engage__card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </span>
+        </NuxtLink>
+      </li>
+      <li class="u-reveal">
+        <NuxtLink to="/engage/velocity" class="engage__card engage__card--velocity">
+          <span class="engage__icon engage__icon--velocity" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">
+              <path d="M7 25 L16 6 L25 25 L20.2 25 L16 15.2 L11.8 25 Z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="engage__card-text">
+            <strong class="engage__card-name">Velocity</strong>
+            <span class="engage__card-blurb">The speeds you already have — spin, orbit, galaxy, leftover light.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"

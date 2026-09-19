@@ -169,7 +169,13 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — The Mind Reader and AstroClock.'
+    description: 'Short games and little detours — The Mind Reader, AstroClock, and Velocity.'
+  },
+  '/engage/velocity': {
+    key: 'velocity',
+    label: 'Velocity',
+    title: 'Velocity · Engage',
+    description: 'The speeds you already have — Earth spin, solar orbit, galactic ride, CMB frame.'
   },
   '/engage/astroclock': {
     key: 'astroclock',

@@ -5,6 +5,8 @@ useSeoMeta({
   title: 'Vilakku · Engage',
   description: 'A locked room in a Kerala monsoon. 1994. The lamp is the only honest light.',
   ogUrl: 'https://entertrainer.in/engage/vilakku',
+  ogImage: 'https://entertrainer.in/og-vilakku.jpg',
+  twitterCard: 'summary_large_image',
 })
 
 useHead({

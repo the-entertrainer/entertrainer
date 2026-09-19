@@ -23,7 +23,7 @@ const references = [
 </script>
 
 <template>
-  <main id="main" class="voice">
+  <div class="voice">
     <header class="voice__head">
       <NuxtLink to="/elevate" class="voice__back">The Entertrainer Blogs</NuxtLink>
       <p class="voice__meta">{{ INNER_SPEECH_BLOG.category }} <span aria-hidden="true">·</span> {{ INNER_SPEECH_BLOG.minutes }} min read</p>
@@ -42,13 +42,13 @@ const references = [
       </aside>
 
       <div class="voice__prose">
-        <p class="voice__lead">You are reading this sentence in a voice that is not coming from the room.</p>
-        <p>It may sound like you. It may sound like a quicker, flatter version of you. It may not sound like anything at all. Perhaps the words simply arrive with their meaning attached.</p>
-        <p>That small difference is easy to miss because we spend most of our lives inside our own version of it. We call it thinking, planning, remembering, worrying, rehearsing. Psychologists usually call the language-like part <em>inner speech</em>: words experienced without anyone saying them out loud.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
-        <p>Mine is often busy. It reads messages before I send them, edits sentences while I am still saying them, and occasionally raises an objection after I have already made a decision. Very helpful. Also a little late to meetings.</p>
+        <p class="voice__lead">It is 1:00 a.m. The message is typed. The thumb is hovering.</p>
+        <p>The sentence in the box is the third version. The first was too sharp. The second was too soft. This one is doing that polite thing where it pretends not to care.</p>
+        <p>None of this is happening out loud. There is a small press secretary in the dark, running lines before they reach anyone else’s phone.</p>
+        <p>Psychologists usually call the language-like part <em>inner speech</em>: words experienced without anyone saying them out loud.<a href="#ref-4" aria-label="Reference 4">[4]</a> Mine reads messages before I send them, edits sentences while I am still saying them, and occasionally raises an objection after I have already made a decision. Very helpful. Also a little late to meetings.</p>
 
         <figure class="voice__visual">
-          <EdEditorialImage src="/manus-storage/inner-speech-press-secretary_f953ca87.jpg" alt="A warm editorial illustration of a small press secretary at a desk inside a larger mind, surrounded by notes, memories, and quiet shapes." />
+          <EdEditorialImage src="/blog/inner-speech/hero.jpg" alt="A black ink silhouette of an adult head with a tiny press-secretary desk inside it, notes stacked around a lamp, and one cobalt-blue path leaving the mouth." />
           <figcaption>The inner voice can prepare a sentence, review a memory, or make a case. It is a press secretary, not the whole government.</figcaption>
         </figure>
 
@@ -58,7 +58,7 @@ const references = [
         <p>It can also be a rehearsal room. Before a difficult conversation, you run through the opening line. Then the other person says something you did not write. Your imaginary version was very confident about this part.</p>
 
         <figure class="voice__visual">
-          <EdEditorialImage src="/manus-storage/inner-speech-rehearsal-loop_77d44028.jpg" alt="A warm editorial illustration showing a person rehearsing a conversation through looping speech bubbles, notes, and small changes to the same sentence." />
+          <EdEditorialImage src="/blog/inner-speech/rehearsal-loop.jpg" alt="An adult silhouette at a table with a phone, looping speech-shapes around the same unsent sentence, and one cobalt path leaving the frame." />
           <figcaption>Rehearsal does not predict the conversation. It gives the mind a first draft.</figcaption>
         </figure>
 
@@ -101,7 +101,7 @@ const references = [
         <p>That is why “What does your inner voice sound like?” is a more interesting question than “Do you have one?” The answer may be a full sentence, a few keywords, a visual scene, a feeling of direction, or a polite request to stop asking such complicated questions before breakfast.</p>
 
         <figure class="voice__visual">
-          <EdEditorialImage src="/manus-storage/inner-speech-quiet-mind_d07afab2.jpg" alt="A warm editorial illustration of two equally complete inner worlds, one represented with quiet words and one with visual, spatial, and sensory shapes." />
+          <EdEditorialImage src="/blog/inner-speech/quiet-mind.jpg" alt="One adult head silhouette split into two inner worlds: sparse ink marks on the left, spatial cobalt geometry on the right." />
           <figcaption>A quiet inner voice is not an empty mind. It may simply be a different route through the same complexity.</figcaption>
         </figure>
 
@@ -118,7 +118,7 @@ const references = [
         <p>Sometimes it is a rehearsal partner. Sometimes it is a memory aid. Sometimes it is a critic with excellent timing and no useful suggestions. It can help turn a vague intention into a sentence: call them, carry an umbrella, do not send that email yet.</p>
         <p>But the larger mind is doing more than narrating. It is recognising a face before naming it, feeling that a room is unsafe before explaining why, remembering the shape of a route, noticing a pattern, and making a decision that words only describe afterwards.</p>
         <p>You are not the voice. You are the whole room in which the voice is one person speaking.</p>
-        <p class="voice__closing">The next time the commentary becomes loud, you do not have to argue with every sentence. You can notice it, use it when it helps, and remember that silence is not the absence of thought.</p>
+        <p class="voice__closing">The press secretary will keep talking. That is the job. You do not have to put it in charge of the country.</p>
       </div>
     </article>
 
@@ -133,7 +133,7 @@ const references = [
     </section>
 
     <div class="voice__newsletter-wrap"><EdNewsletter /></div>
-  </main>
+  </div>
 </template>
 
 <style scoped>

@@ -1,10 +1,25 @@
 import * as THREE from 'three'
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import type { ScaleId } from './scales'
 
-const NASA_DAY = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg'
-const NASA_NIGHT = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-night.jpg'
-const NASA_BUMP = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-topology.png'
-const SDO_SUN = 'https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0304.jpg'
+/**
+ * 4K photoreal maps (Blue Marble / clouds / bump / specular via turban webgl-earth;
+ * night lights via three-globe; SDO AIA 304 for the solar disc; three.js moon).
+ * Loaded at runtime so the island stays small. Fall back to physical colours if a
+ * CDN is quiet.
+ */
+const TEX = {
+  day: 'https://cdn.jsdelivr.net/gh/turban/webgl-earth@master/images/2_no_clouds_4k.jpg',
+  clouds: 'https://cdn.jsdelivr.net/gh/turban/webgl-earth@master/images/fair_clouds_4k.png',
+  bump: 'https://cdn.jsdelivr.net/gh/turban/webgl-earth@master/images/elev_bump_4k.jpg',
+  spec: 'https://cdn.jsdelivr.net/gh/turban/webgl-earth@master/images/water_4k.png',
+  night: 'https://unpkg.com/three-globe@2.31.1/example/img/earth-night.jpg',
+  moon: 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r163/examples/textures/planets/moon_1024.jpg',
+  sun: 'https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0304.jpg',
+}
 
 export interface CreateEngineOpts {
   canvas: HTMLCanvasElement
@@ -26,12 +41,49 @@ export interface VelocityEngine {
   dispose: () => void
 }
 
-const FRAME: Record<ScaleId, [number, number, number]> = {
-  earth: [0, 0.2, 7.8],
-  sun: [0, 2.2, 12.4],
-  galaxy: [0, 11, 19],
-  cosmos: [0, 1.4, 22],
-  helix: [6.5, 3.2, 10],
+const FRAME: Record<ScaleId, { dist: number; pitch: number; fov: number }> = {
+  earth: { dist: 3.35, pitch: 0.18, fov: 32 },
+  sun: { dist: 7.4, pitch: 0.22, fov: 34 },
+  galaxy: { dist: 16.5, pitch: 0.55, fov: 38 },
+  cosmos: { dist: 18, pitch: 0.12, fov: 42 },
+  helix: { dist: 9.2, pitch: 0.08, fov: 36 },
+}
+
+function loadColor(url: string): Promise<THREE.Texture | null> {
+  return new Promise((resolve) => {
+    const loader = new THREE.TextureLoader()
+    loader.setCrossOrigin('anonymous')
+    loader.load(
+      url,
+      (t) => {
+        t.colorSpace = THREE.SRGBColorSpace
+        t.anisotropy = 16
+        t.minFilter = THREE.LinearMipmapLinearFilter
+        t.magFilter = THREE.LinearFilter
+        t.needsUpdate = true
+        resolve(t)
+      },
+      undefined,
+      () => resolve(null),
+    )
+  })
+}
+
+function loadData(url: string): Promise<THREE.Texture | null> {
+  return new Promise((resolve) => {
+    const loader = new THREE.TextureLoader()
+    loader.setCrossOrigin('anonymous')
+    loader.load(
+      url,
+      (t) => {
+        t.anisotropy = 8
+        t.needsUpdate = true
+        resolve(t)
+      },
+      undefined,
+      () => resolve(null),
+    )
+  })
 }
 
 function disc(size = 64): THREE.Texture {
@@ -40,7 +92,7 @@ function disc(size = 64): THREE.Texture {
   const g = c.getContext('2d')!
   const grd = g.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2)
   grd.addColorStop(0, 'rgba(255,255,255,1)')
-  grd.addColorStop(0.4, 'rgba(180,230,255,0.5)')
+  grd.addColorStop(0.35, 'rgba(210,230,255,0.55)')
   grd.addColorStop(1, 'rgba(0,0,0,0)')
   g.fillStyle = grd
   g.fillRect(0, 0, size, size)
@@ -49,30 +101,130 @@ function disc(size = 64): THREE.Texture {
   return t
 }
 
-function stars(n: number, r: number): THREE.Points {
-  const p = new Float32Array(n * 3)
-  for (let i = 0; i < n; i++) {
-    const th = Math.random() * Math.PI * 2
-    const ph = Math.acos(2 * Math.random() - 1)
-    const rr = r * (0.55 + Math.random() * 0.45)
-    p[i * 3] = rr * Math.sin(ph) * Math.cos(th)
-    p[i * 3 + 1] = rr * Math.cos(ph)
-    p[i * 3 + 2] = rr * Math.sin(ph) * Math.sin(th)
+function milkyWaySky(): THREE.CanvasTexture {
+  const w = 2048
+  const h = 1024
+  const c = document.createElement('canvas')
+  c.width = w
+  c.height = h
+  const ctx = c.getContext('2d')!
+  ctx.fillStyle = '#02040c'
+  ctx.fillRect(0, 0, w, h)
+  for (let i = 0; i < 12000; i++) {
+    const x = Math.random() * w
+    const y = Math.random() * h
+    const mag = Math.random()
+    const a = 0.12 + mag * 0.88
+    ctx.fillStyle = `rgba(${210 + mag * 45},${220 + mag * 30},255,${a})`
+    const s = mag > 0.985 ? 2.2 : mag > 0.92 ? 1.4 : 1
+    ctx.fillRect(x, y, s, s)
   }
-  const g = new THREE.BufferGeometry()
-  g.setAttribute('position', new THREE.BufferAttribute(p, 3))
-  return new THREE.Points(g, new THREE.PointsMaterial({
-    color: 0xcfe8ff, size: 0.09, map: disc(32), transparent: true, depthWrite: false, opacity: 0.75,
-  }))
+  for (let i = 0; i < 70000; i++) {
+    const x = Math.random() * w
+    const y = h * 0.5 + (Math.random() - 0.5) * h * 0.28 * Math.pow(Math.random(), 0.35)
+    const d = Math.abs(y - h * 0.5) / (h * 0.22)
+    const a = Math.max(0, 1 - d * d) * 0.07 * Math.random()
+    const warm = Math.random()
+    ctx.fillStyle = `rgba(${255},${200 + warm * 40},${160 + warm * 50},${a})`
+    ctx.fillRect(x, y, 1, 1)
+  }
+  const t = new THREE.CanvasTexture(c)
+  t.colorSpace = THREE.SRGBColorSpace
+  t.mapping = THREE.EquirectangularReflectionMapping
+  t.needsUpdate = true
+  return t
 }
 
-function glowRing(radius: number, color: number, tube = 0.008): THREE.Mesh {
-  const m = new THREE.Mesh(
-    new THREE.TorusGeometry(radius, tube, 10, 160),
-    new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.55 }),
+function atmosphereMat(): THREE.ShaderMaterial {
+  return new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    uniforms: {
+      glowColor: { value: new THREE.Color('#4ea9ff') },
+      coef: { value: 0.42 },
+      power: { value: 3.6 },
+    },
+    vertexShader: `
+      varying vec3 vNormal;
+      varying vec3 vView;
+      void main() {
+        vNormal = normalize(normalMatrix * normal);
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vView = normalize(-mv.xyz);
+        gl_Position = projectionMatrix * mv;
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 glowColor;
+      uniform float coef;
+      uniform float power;
+      varying vec3 vNormal;
+      varying vec3 vView;
+      void main() {
+        float f = pow(coef - dot(vNormal, vView), power);
+        gl_FragColor = vec4(glowColor, clamp(f, 0.0, 1.0));
+      }
+    `,
+  })
+}
+
+function galaxy(): THREE.Group {
+  const group = new THREE.Group()
+  const N = 48000
+  const pos = new Float32Array(N * 3)
+  const col = new Float32Array(N * 3)
+  for (let i = 0; i < N; i++) {
+    const arm = i % 4
+    const r = Math.pow(Math.random(), 0.55) * 8.4
+    const a = arm * (Math.PI / 2) + r * 0.46 + (Math.random() - 0.5) * (0.09 + r * 0.012)
+    const dust = Math.random() < 0.18
+    pos[i * 3] = Math.cos(a) * r + (dust ? (Math.random() - 0.5) * 0.4 : 0)
+    pos[i * 3 + 1] = (Math.random() - 0.5) * (0.06 + r * 0.014)
+    pos[i * 3 + 2] = Math.sin(a) * r
+    const core = Math.max(0, 1 - r / 8.4)
+    if (dust) {
+      col[i * 3] = 0.18 + core * 0.2
+      col[i * 3 + 1] = 0.14 + core * 0.1
+      col[i * 3 + 2] = 0.12
+    } else {
+      col[i * 3] = 0.55 + core * 0.45
+      col[i * 3 + 1] = 0.62 + core * 0.3
+      col[i * 3 + 2] = 1 - core * 0.25
+    }
+  }
+  const g = new THREE.BufferGeometry()
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3))
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3))
+  const pts = new THREE.Points(g, new THREE.PointsMaterial({
+    size: 0.038,
+    vertexColors: true,
+    map: disc(),
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    sizeAttenuation: true,
+  }))
+  pts.rotation.x = 0.62
+  group.add(pts)
+  const bulge = new THREE.Mesh(
+    new THREE.SphereGeometry(0.55, 32, 24),
+    new THREE.MeshBasicMaterial({ color: 0xffd6a0, transparent: true, opacity: 0.55 }),
   )
-  m.rotation.x = Math.PI / 2
-  return m
+  const halo = new THREE.Mesh(
+    new THREE.SphereGeometry(1.35, 24, 16),
+    new THREE.MeshBasicMaterial({
+      color: 0xffb060,
+      transparent: true,
+      opacity: 0.08,
+      side: THREE.BackSide,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    }),
+  )
+  group.add(bulge, halo)
+  return group
 }
 
 function trailPoints(count: number, color: number, size: number): THREE.Points {
@@ -84,242 +236,407 @@ function trailPoints(count: number, color: number, size: number): THREE.Points {
   }))
 }
 
-function galaxy(): THREE.Group {
-  const group = new THREE.Group()
-  const N = 7800
-  const pos = new Float32Array(N * 3)
-  const col = new Float32Array(N * 3)
-  for (let i = 0; i < N; i++) {
-    const arm = i % 4
-    const r = Math.pow(Math.random(), 0.6) * 7.6
-    const a = arm * (Math.PI / 2) + r * 0.44 + (Math.random() - 0.5) * 0.2
-    pos[i * 3] = Math.cos(a) * r
-    pos[i * 3 + 1] = (Math.random() - 0.5) * (0.1 + r * 0.016)
-    pos[i * 3 + 2] = Math.sin(a) * r
-    const core = Math.max(0, 1 - r / 8)
-    col[i * 3] = 0.45 + core * 0.55
-    col[i * 3 + 1] = 0.7 + core * 0.2
-    col[i * 3 + 2] = 1 - core * 0.15
-  }
-  const g = new THREE.BufferGeometry()
-  g.setAttribute('position', new THREE.BufferAttribute(pos, 3))
-  g.setAttribute('color', new THREE.BufferAttribute(col, 3))
-  const pts = new THREE.Points(g, new THREE.PointsMaterial({
-    size: 0.05, vertexColors: true, map: disc(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-  }))
-  pts.rotation.x = 0.58
-  group.add(pts)
-  const core = new THREE.Mesh(
-    new THREE.SphereGeometry(0.48, 24, 16),
-    new THREE.MeshBasicMaterial({ color: 0xffd08a, transparent: true, opacity: 0.55 }),
-  )
-  group.add(core)
-  return group
-}
-
 export function createEngine(opts: CreateEngineOpts): VelocityEngine {
-  const renderer = new THREE.WebGLRenderer({ canvas: opts.canvas, antialias: true, powerPreference: 'high-performance' })
+  const renderer = new THREE.WebGLRenderer({
+    canvas: opts.canvas,
+    antialias: true,
+    powerPreference: 'high-performance',
+    alpha: false,
+  })
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1))
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 0.95
+  renderer.toneMappingExposure = 0.92
+  renderer.setClearColor(0x02040c, 1)
 
   const scene = new THREE.Scene()
-  const bgD = new THREE.Color('#05070E')
-  const bgL = new THREE.Color('#E6E0D4')
-  scene.background = opts.theme === 'light' ? bgL : bgD
-  scene.fog = new THREE.FogExp2(opts.theme === 'light' ? 0xe6e0d4 : 0x05070e, 0.01)
-  scene.add(stars(1100, 46))
+  const sky = milkyWaySky()
+  scene.background = sky
+  scene.environment = sky
 
-  const camera = new THREE.PerspectiveCamera(26, 1, 0.08, 220)
+  const camera = new THREE.PerspectiveCamera(32, 1, 0.05, 400)
   const clock = new THREE.Clock()
-  const loader = new THREE.TextureLoader()
 
   let scale: ScaleId = opts.scale
   let rate = opts.rate
   let paused = opts.paused
   let pinLat = opts.lat
-  let yaw = 0.4
-  let pitch = 0.08
+  let yaw = 0.55
+  let pitch = FRAME[scale].pitch
+  let dist = FRAME[scale].dist
+  let targetDist = dist
   let disposed = false
   let simT = 0
+  let reduced = false
+  try {
+    reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  } catch { /* */ }
 
-  scene.add(new THREE.AmbientLight(0x4c6280, 0.32))
-  const key = new THREE.DirectionalLight(0xfff1d2, 1.6)
-  key.position.set(-6, 3.4, 5)
-  scene.add(key)
-  scene.add(new THREE.PointLight(0x4fd2ff, 0.55, 30).translateX(4).translateY(2))
+  const sunLight = new THREE.DirectionalLight(0xfff1d0, 2.35)
+  sunLight.position.set(-8, 3.2, 5.5)
+  scene.add(sunLight)
+  scene.add(new THREE.AmbientLight(0x1a2233, 0.18))
+  const fill = new THREE.PointLight(0x6aa4ff, 0.35, 40)
+  fill.position.set(6, 1.4, -4)
+  scene.add(fill)
 
   const groups: Record<ScaleId, THREE.Group> = {
-    earth: new THREE.Group(), sun: new THREE.Group(), galaxy: new THREE.Group(),
-    cosmos: new THREE.Group(), helix: new THREE.Group(),
+    earth: new THREE.Group(),
+    sun: new THREE.Group(),
+    galaxy: new THREE.Group(),
+    cosmos: new THREE.Group(),
+    helix: new THREE.Group(),
   }
-  Object.values(groups).forEach((g) => { g.visible = false; scene.add(g) })
+  Object.values(groups).forEach((g) => {
+    g.visible = false
+    scene.add(g)
+  })
 
-  const earthMat = new THREE.MeshStandardMaterial({ color: 0x8aa0b4, roughness: 0.76, metalness: 0.04 })
-  const earth = new THREE.Mesh(new THREE.SphereGeometry(1.02, 80, 60), earthMat)
-  const atmo = new THREE.Mesh(
-    new THREE.SphereGeometry(1.1, 48, 32),
-    new THREE.MeshBasicMaterial({ color: 0x4fd2ff, transparent: true, opacity: 0.1, side: THREE.BackSide }),
+  const earthPivot = new THREE.Group()
+  const earthMat = new THREE.MeshPhysicalMaterial({
+    color: 0x6d889c,
+    roughness: 0.62,
+    metalness: 0.04,
+    clearcoat: 0.08,
+    clearcoatRoughness: 0.7,
+    envMapIntensity: 0.35,
+  })
+  const earth = new THREE.Mesh(new THREE.SphereGeometry(1, 192, 128), earthMat)
+  const cloudsMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.42,
+    depthWrite: false,
+    roughness: 1,
+    metalness: 0,
+  })
+  const clouds = new THREE.Mesh(new THREE.SphereGeometry(1.018, 96, 64), cloudsMat)
+  const atmo = new THREE.Mesh(new THREE.SphereGeometry(1.08, 64, 48), atmosphereMat())
+  const latRing = new THREE.Mesh(
+    new THREE.TorusGeometry(1.02, 0.0045, 8, 192),
+    new THREE.MeshBasicMaterial({ color: 0x7ad4ff, transparent: true, opacity: 0.55 }),
   )
-  const latRing = glowRing(1.04, 0x4fd2ff, 0.006)
-  const pin = new THREE.Mesh(new THREE.SphereGeometry(0.028, 12, 12), new THREE.MeshBasicMaterial({ color: 0xffd36a }))
-  groups.earth.add(earth, atmo, latRing, pin)
-  loader.load(NASA_DAY, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; earthMat.map = t; earthMat.color.set(0xffffff); earthMat.needsUpdate = true })
-  loader.load(NASA_NIGHT, (t) => { t.colorSpace = THREE.SRGBColorSpace; earthMat.emissiveMap = t; earthMat.emissive = new THREE.Color(0x143056); earthMat.needsUpdate = true })
-  loader.load(NASA_BUMP, (t) => { earthMat.bumpMap = t; earthMat.bumpScale = 0.04 })
+  latRing.rotation.x = Math.PI / 2
+  const pin = new THREE.Mesh(
+    new THREE.SphereGeometry(0.018, 16, 16),
+    new THREE.MeshBasicMaterial({ color: 0xffd36a }),
+  )
+  earthPivot.add(earth, clouds, atmo)
+  groups.earth.add(earthPivot, latRing, pin)
 
-  const sunMat = new THREE.MeshStandardMaterial({ color: 0xffc56a, emissive: 0xff8a1a, emissiveIntensity: 0.85, roughness: 0.4 })
-  const sun = new THREE.Mesh(new THREE.SphereGeometry(0.58, 48, 32), sunMat)
+  const sunMat = new THREE.MeshStandardMaterial({
+    color: 0xffc56a,
+    emissive: 0xff7a18,
+    emissiveIntensity: 1.4,
+    roughness: 0.55,
+    metalness: 0,
+  })
+  const sun = new THREE.Mesh(new THREE.SphereGeometry(0.72, 96, 64), sunMat)
   const corona = new THREE.Mesh(
-    new THREE.SphereGeometry(0.95, 32, 24),
-    new THREE.MeshBasicMaterial({ color: 0xffb24a, transparent: true, opacity: 0.12, side: THREE.BackSide }),
+    new THREE.SphereGeometry(1.18, 48, 32),
+    new THREE.MeshBasicMaterial({
+      color: 0xffb24a,
+      transparent: true,
+      opacity: 0.16,
+      side: THREE.BackSide,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    }),
   )
-  const orbitRing = glowRing(2.2, 0x4fd2ff, 0.01)
-  const earthBead = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), new THREE.MeshStandardMaterial({ color: 0x4ea3ff, roughness: 0.4 }))
-  const moonBead = new THREE.Mesh(new THREE.SphereGeometry(0.025, 10, 10), new THREE.MeshBasicMaterial({ color: 0xd7dde8 }))
-  const sunTrail = trailPoints(90, 0x4fd2ff, 0.05)
-  groups.sun.add(sun, corona, orbitRing, earthBead, moonBead, sunTrail)
-  loader.load(SDO_SUN, (t) => { t.colorSpace = THREE.SRGBColorSpace; sunMat.map = t; sunMat.emissiveMap = t; sunMat.color.set(0xffffff); sunMat.needsUpdate = true }, undefined, () => {})
+  const sunGlow = new THREE.Mesh(
+    new THREE.SphereGeometry(1.7, 32, 24),
+    new THREE.MeshBasicMaterial({
+      color: 0xff8a30,
+      transparent: true,
+      opacity: 0.06,
+      side: THREE.BackSide,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    }),
+  )
+  const orbitRing = new THREE.Mesh(
+    new THREE.TorusGeometry(2.55, 0.006, 8, 256),
+    new THREE.MeshBasicMaterial({ color: 0x5ec8ff, transparent: true, opacity: 0.4 }),
+  )
+  orbitRing.rotation.x = Math.PI / 2
+  const earthBeadMat = new THREE.MeshPhysicalMaterial({
+    color: 0x3d8dff,
+    roughness: 0.35,
+    metalness: 0.08,
+    clearcoat: 0.4,
+  })
+  const earthBead = new THREE.Mesh(new THREE.SphereGeometry(0.09, 32, 24), earthBeadMat)
+  const moonMat = new THREE.MeshStandardMaterial({ color: 0xb8b4aa, roughness: 0.92, metalness: 0 })
+  const moonBead = new THREE.Mesh(new THREE.SphereGeometry(0.028, 16, 16), moonMat)
+  const sunTrail = trailPoints(120, 0x4fd2ff, 0.045)
+  groups.sun.add(sun, corona, sunGlow, orbitRing, earthBead, moonBead, sunTrail)
 
   const milky = galaxy()
-  const sunMark = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 10), new THREE.MeshBasicMaterial({ color: 0xffd36a }))
-  sunMark.position.set(4.5, 0.1, 0.35)
+  const sunMark = new THREE.Mesh(
+    new THREE.SphereGeometry(0.055, 12, 12),
+    new THREE.MeshBasicMaterial({ color: 0xffd36a }),
+  )
+  sunMark.position.set(4.6, 0.12, 0.4)
   milky.add(sunMark)
-  const flow = trailPoints(140, 0xff4fd0, 0.06)
+  const flow = trailPoints(180, 0xff6ad2, 0.05)
   groups.galaxy.add(milky, flow)
 
-  const warm = trailPoints(220, 0xff6b4a, 0.07)
-  const cool = trailPoints(220, 0x4fd2ff, 0.07)
+  const warm = trailPoints(280, 0xff6b4a, 0.065)
+  const cool = trailPoints(280, 0x4fd2ff, 0.065)
   groups.cosmos.add(warm, cool, galaxy())
 
-  const helixLine = new THREE.Line(
-    new THREE.BufferGeometry(),
-    new THREE.LineBasicMaterial({ color: 0x4fd2ff, transparent: true, opacity: 0.7 }),
-  )
-  const helixSun = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), new THREE.MeshBasicMaterial({ color: 0xffd36a }))
-  groups.helix.add(helixLine, helixSun)
   const helixPts: number[] = []
-  for (let i = 0; i <= 240; i++) {
-    const u = i / 240
+  for (let i = 0; i <= 360; i++) {
+    const u = i / 360
     const a = u * Math.PI * 6
-    helixPts.push(Math.cos(a) * (1.4 + u * 0.2), (u - 0.5) * 4.8, Math.sin(a) * (1.4 + u * 0.2))
+    helixPts.push(Math.cos(a) * (1.45 + u * 0.18), (u - 0.5) * 5.2, Math.sin(a) * (1.45 + u * 0.18))
   }
-  helixLine.geometry.setAttribute('position', new THREE.Float32BufferAttribute(helixPts, 3))
+  const helixGeom = new THREE.BufferGeometry()
+  helixGeom.setAttribute('position', new THREE.Float32BufferAttribute(helixPts, 3))
+  const helixLine = new THREE.Line(
+    helixGeom,
+    new THREE.LineBasicMaterial({ color: 0x6ad4ff, transparent: true, opacity: 0.75 }),
+  )
+  const helixSun = new THREE.Mesh(
+    new THREE.SphereGeometry(0.13, 24, 16),
+    new THREE.MeshBasicMaterial({ color: 0xffd36a }),
+  )
+  groups.helix.add(helixLine, helixSun)
+
+  function applyEarthMaps(
+    day: THREE.Texture | null,
+    night: THREE.Texture | null,
+    bump: THREE.Texture | null,
+    spec: THREE.Texture | null,
+    cloud: THREE.Texture | null,
+  ) {
+    if (day) {
+      earthMat.map = day
+      earthMat.color.set(0xffffff)
+    }
+    if (night) {
+      earthMat.emissiveMap = night
+      earthMat.emissive = new THREE.Color(0x1a3a68)
+      earthMat.emissiveIntensity = 1.15
+    }
+    if (bump) {
+      earthMat.bumpMap = bump
+      earthMat.bumpScale = 0.045
+    }
+    if (spec) {
+      earthMat.roughnessMap = spec
+      earthMat.roughness = 0.85
+      earthMat.metalness = 0.02
+    }
+    earthMat.needsUpdate = true
+    if (cloud) {
+      cloudsMat.map = cloud
+      cloudsMat.alphaMap = cloud
+      cloudsMat.opacity = 0.55
+      cloudsMat.needsUpdate = true
+    }
+  }
+
+  void Promise.all([
+    loadColor(TEX.day),
+    loadColor(TEX.night),
+    loadData(TEX.bump),
+    loadData(TEX.spec),
+    loadColor(TEX.clouds),
+    loadColor(TEX.sun),
+    loadColor(TEX.moon),
+  ]).then(([day, night, bump, spec, cloud, sunMap, moonMap]) => {
+    applyEarthMaps(day, night, bump, spec, cloud)
+    if (sunMap) {
+      sunMat.map = sunMap
+      sunMat.emissiveMap = sunMap
+      sunMat.color.set(0xffffff)
+      sunMat.emissive = new THREE.Color(0xff9a40)
+      sunMat.needsUpdate = true
+    }
+    if (moonMap) {
+      moonMat.map = moonMap
+      moonMat.color.set(0xffffff)
+      moonMat.needsUpdate = true
+    }
+    opts.onReady?.()
+  })
 
   function placePin() {
     const phi = THREE.MathUtils.degToRad(90 - pinLat)
-    pin.position.setFromSphericalCoords(1.06, phi, THREE.MathUtils.degToRad(77))
-    const r = Math.cos(THREE.MathUtils.degToRad(pinLat)) * 1.04
-    latRing.scale.setScalar(Math.max(0.08, r / 1.04))
-    latRing.position.y = Math.sin(THREE.MathUtils.degToRad(pinLat)) * 1.02
+    pin.position.setFromSphericalCoords(1.045, phi, THREE.MathUtils.degToRad(77))
+    const r = Math.cos(THREE.MathUtils.degToRad(pinLat)) * 1.02
+    latRing.scale.set(Math.max(0.08, r / 1.02), 1, Math.max(0.08, r / 1.02))
+    latRing.position.y = Math.sin(THREE.MathUtils.degToRad(pinLat)) * 1.0
   }
   placePin()
 
   function show(s: ScaleId) {
     scale = s
-    yaw = s === 'helix' ? 0.7 : 0.35
-    pitch = s === 'galaxy' ? 0.05 : 0.08
-    ;(Object.keys(groups) as ScaleId[]).forEach((k) => { groups[k].visible = k === s })
-    const c = FRAME[s]
-    camera.position.set(c[0], c[1], c[2])
-    camera.lookAt(0, s === 'earth' ? -0.12 : 0, 0)
+    pitch = FRAME[s].pitch
+    targetDist = FRAME[s].dist
+    dist = THREE.MathUtils.lerp(dist, targetDist, 0.4)
+    yaw = s === 'helix' ? 0.85 : 0.55
+    camera.fov = FRAME[s].fov
+    camera.updateProjectionMatrix()
+    ;(Object.keys(groups) as ScaleId[]).forEach((k) => {
+      groups[k].visible = k === s
+    })
   }
   show(scale)
 
+  const pointers = new Map<number, { x: number; y: number }>()
+  let pinch0 = 0
+  let moved = 0
   let dragging = false
   let lx = 0
   let ly = 0
-  let moved = 0
+
   const onDown = (e: PointerEvent) => {
-    dragging = true; moved = 0; lx = e.clientX; ly = e.clientY
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    if (pointers.size === 1) {
+      dragging = true
+      moved = 0
+      lx = e.clientX
+      ly = e.clientY
+    } else if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()]
+      pinch0 = Math.hypot(a.x - b.x, a.y - b.y)
+      dragging = false
+    }
     try { opts.canvas.setPointerCapture(e.pointerId) } catch { /* */ }
   }
   const onMove = (e: PointerEvent) => {
+    if (!pointers.has(e.pointerId)) return
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()]
+      const d = Math.hypot(a.x - b.x, a.y - b.y)
+      if (pinch0 > 0) {
+        const factor = pinch0 / Math.max(24, d)
+        targetDist = THREE.MathUtils.clamp(targetDist * factor, FRAME[scale].dist * 0.45, FRAME[scale].dist * 2.4)
+        pinch0 = d
+      }
+      return
+    }
     if (!dragging) return
     const dx = e.clientX - lx
     const dy = e.clientY - ly
-    lx = e.clientX; ly = e.clientY
+    lx = e.clientX
+    ly = e.clientY
     moved += Math.abs(dx) + Math.abs(dy)
-    yaw += dx * 0.0042
-    pitch = Math.max(-0.7, Math.min(0.7, pitch + dy * 0.003))
+    yaw -= dx * 0.0044
+    pitch = THREE.MathUtils.clamp(pitch + dy * 0.0032, -1.15, 1.15)
   }
   const onUp = (e: PointerEvent) => {
-    dragging = false
+    pointers.delete(e.pointerId)
+    if (pointers.size < 2) pinch0 = 0
+    if (pointers.size === 0) {
+      dragging = false
+      if (moved < 7) opts.onTapBody?.()
+    }
     try { opts.canvas.releasePointerCapture(e.pointerId) } catch { /* */ }
-    if (moved < 7) opts.onTapBody?.()
+  }
+  const onWheel = (e: WheelEvent) => {
+    e.preventDefault()
+    targetDist = THREE.MathUtils.clamp(targetDist + e.deltaY * 0.01, FRAME[scale].dist * 0.45, FRAME[scale].dist * 2.4)
   }
   opts.canvas.addEventListener('pointerdown', onDown)
   opts.canvas.addEventListener('pointermove', onMove)
   opts.canvas.addEventListener('pointerup', onUp)
+  opts.canvas.addEventListener('pointercancel', onUp)
+  opts.canvas.addEventListener('wheel', onWheel, { passive: false })
+
+  const composer = new EffectComposer(renderer)
+  const renderPass = new RenderPass(scene, camera)
+  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.42, 0.55, 0.84)
+  composer.addPass(renderPass)
+  composer.addPass(bloom)
+  composer.addPass(new OutputPass())
 
   const ro = new ResizeObserver(() => {
     const w = opts.canvas.clientWidth || 1
     const h = opts.canvas.clientHeight || 1
     renderer.setSize(w, h, false)
+    composer.setSize(w, h)
+    bloom.setSize(w, h)
     camera.aspect = w / h
     camera.updateProjectionMatrix()
   })
   ro.observe(opts.canvas)
-  const readyT = window.setTimeout(() => opts.onReady?.(), 650)
+  const readyT = window.setTimeout(() => opts.onReady?.(), 1400)
 
-  function writeTrail(pts: THREE.Points, fn: (i: number, t: number) => [number, number, number], t: number) {
+  function writeTrail(pts: THREE.Points, fn: (i: number, t: number) => [number, number, number]) {
     const arr = pts.geometry.getAttribute('position') as THREE.BufferAttribute
     for (let i = 0; i < arr.count; i++) {
-      const [x, y, z] = fn(i / arr.count, t)
+      const [x, y, z] = fn(i / arr.count, simT)
       arr.setXYZ(i, x, y, z)
     }
     arr.needsUpdate = true
   }
 
+  function placeCam() {
+    dist += (targetDist - dist) * 0.08
+    const sph = new THREE.Spherical(dist, Math.PI / 2 - pitch, yaw)
+    camera.position.setFromSpherical(sph)
+    camera.lookAt(0, scale === 'earth' ? -0.05 : 0, 0)
+  }
+
   renderer.setAnimationLoop(() => {
     if (disposed) return
     const dt = clock.getDelta()
-    if (!paused) simT += dt * rate
+    if (!paused && !reduced) simT += dt * rate
     const t = simT
-    const g = groups[scale]
-    g.rotation.y = yaw
-    g.rotation.x = pitch
+    placeCam()
+
     if (scale === 'earth') {
-      earth.rotation.y = t * 0.35
-      latRing.material.opacity = 0.35 + 0.25 * Math.sin(t * 3)
+      earth.rotation.y = t * 0.08
+      clouds.rotation.y = t * 0.095
+      sunLight.position.set(Math.cos(t * 0.08) * 8, 2.4, Math.sin(t * 0.08) * 8)
+      ;(latRing.material as THREE.MeshBasicMaterial).opacity = 0.35 + 0.2 * Math.sin(t * 2.2)
     }
     if (scale === 'sun') {
-      sun.rotation.y = t * 0.2
-      const a = t * 0.35
-      earthBead.position.set(Math.cos(a) * 2.2, Math.sin(a) * 0.08, Math.sin(a) * 2.2)
-      moonBead.position.copy(earthBead.position).add(new THREE.Vector3(Math.cos(t * 2.2) * 0.18, 0.02, Math.sin(t * 2.2) * 0.18))
+      sun.rotation.y = t * 0.12
+      const a = t * 0.22
+      earthBead.position.set(Math.cos(a) * 2.55, Math.sin(a) * 0.06, Math.sin(a) * 2.55)
+      moonBead.position.copy(earthBead.position).add(
+        new THREE.Vector3(Math.cos(t * 1.6) * 0.22, 0.02, Math.sin(t * 1.6) * 0.22),
+      )
       writeTrail(sunTrail, (u) => {
-        const b = a - u * 1.6
-        return [Math.cos(b) * 2.2, Math.sin(b) * 0.08, Math.sin(b) * 2.2]
-      }, t)
+        const b = a - u * 1.5
+        return [Math.cos(b) * 2.55, Math.sin(b) * 0.06, Math.sin(b) * 2.55]
+      })
     }
     if (scale === 'galaxy') {
-      milky.rotation.y = t * 0.05
+      milky.rotation.y = t * 0.028
       writeTrail(flow, (u) => {
-        const r = 1.2 + u * 4.2
-        const b = t * 0.4 + u * 6
-        return [Math.cos(b) * r, (u - 0.5) * 0.3, Math.sin(b) * r]
-      }, t)
+        const r = 1.3 + u * 4.4
+        const b = t * 0.28 + u * 6
+        return [Math.cos(b) * r, (u - 0.5) * 0.28, Math.sin(b) * r]
+      })
     }
     if (scale === 'cosmos') {
-      writeTrail(warm, (u) => [ -8 + u * 16, Math.sin(u * 8 + t) * 0.4, (u - 0.5) * 1.2 ], t)
-      writeTrail(cool, (u) => [ 8 - u * 16, Math.cos(u * 8 + t) * 0.4, (0.5 - u) * 1.2 ], t)
+      writeTrail(warm, (u) => [-9 + u * 18, Math.sin(u * 8 + t * 0.4) * 0.45, (u - 0.5) * 1.15])
+      writeTrail(cool, (u) => [9 - u * 18, Math.cos(u * 8 + t * 0.4) * 0.45, (0.5 - u) * 1.15])
     }
     if (scale === 'helix') {
-      const u = (t * 0.08) % 1
+      const u = (t * 0.05) % 1
       const a = u * Math.PI * 6
-      helixSun.position.set(Math.cos(a) * 1.5, (u - 0.5) * 4.8, Math.sin(a) * 1.5)
+      helixSun.position.set(Math.cos(a) * 1.52, (u - 0.5) * 5.2, Math.sin(a) * 1.52)
     }
-    renderer.render(scene, camera)
+
+    bloom.strength = scale === 'sun' ? 0.72 : scale === 'galaxy' ? 0.38 : 0.28
+    composer.render()
   })
 
   return {
     setScale: show,
-    setLat(v) { pinLat = v; placePin() },
-    setTheme(th) {
-      scene.background = th === 'light' ? bgL : bgD
-      scene.fog = new THREE.FogExp2(th === 'light' ? 0xe6e0d4 : 0x05070e, 0.01)
+    setLat(v) {
+      pinLat = v
+      placePin()
+    },
+    setTheme() {
+      /* Space stays black. Native chrome owns the UI, not a paper swap. */
     },
     setRate(r) { rate = r },
     setPaused(p) { paused = p },
@@ -331,7 +648,11 @@ export function createEngine(opts: CreateEngineOpts): VelocityEngine {
       opts.canvas.removeEventListener('pointerdown', onDown)
       opts.canvas.removeEventListener('pointermove', onMove)
       opts.canvas.removeEventListener('pointerup', onUp)
+      opts.canvas.removeEventListener('pointercancel', onUp)
+      opts.canvas.removeEventListener('wheel', onWheel)
+      composer.dispose()
       renderer.dispose()
+      sky.dispose()
     },
   }
 }

@@ -64,7 +64,7 @@ const marriottPhotos: PhotoTileItem[] = [
 </script>
 
 <template>
-  <main id="main" class="about-story">
+  <div class="about-story">
     <header class="about-story__hero">
       <div class="about-story__intro">
         <h1>I am Naveen, I’m an instructional designer.</h1>
@@ -299,7 +299,7 @@ const marriottPhotos: PhotoTileItem[] = [
         </div>
       </NuxtLink>
     </footer>
-  </main>
+  </div>
 </template>
 
 <style scoped>

@@ -1,4 +1,4 @@
-import { ENTROPY_BLOG, INTELLIGENCE_BLOG, MOONLY_BLOG, AI_UNDERSTAND_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, INNER_SPEECH_BLOG, KNOWING_BLOG } from './blogs'
+import { ENTROPY_BLOG, INTELLIGENCE_BLOG, MOONLY_BLOG, AI_UNDERSTAND_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, LIE_PERFECTLY_BLOG, INNER_SPEECH_BLOG, CENTRE_UNIVERSE_BLOG, KNOWING_BLOG } from './blogs'
 
 export const SITE_URL = 'https://entertrainer.in'
 
@@ -91,6 +91,15 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     imageAlt: LIFE_MIDPOINT_BLOG.heroAlt,
     type: 'article'
   },
+  [`/elevate/${LIE_PERFECTLY_BLOG.slug}`]: {
+    key: 'lie-perfectly',
+    label: LIE_PERFECTLY_BLOG.category,
+    title: LIE_PERFECTLY_BLOG.title,
+    description: LIE_PERFECTLY_BLOG.dek,
+    image: `${SITE_URL}${LIE_PERFECTLY_BLOG.hero}`,
+    imageAlt: LIE_PERFECTLY_BLOG.heroAlt,
+    type: 'article'
+  },
   [`/elevate/${INNER_SPEECH_BLOG.slug}`]: {
     key: 'inner-speech',
     label: INNER_SPEECH_BLOG.category,
@@ -98,6 +107,15 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     description: INNER_SPEECH_BLOG.dek,
     image: `${SITE_URL}${INNER_SPEECH_BLOG.hero}`,
     imageAlt: INNER_SPEECH_BLOG.heroAlt,
+    type: 'article'
+  },
+  [`/elevate/${CENTRE_UNIVERSE_BLOG.slug}`]: {
+    key: 'centre-universe',
+    label: CENTRE_UNIVERSE_BLOG.category,
+    title: CENTRE_UNIVERSE_BLOG.title,
+    description: CENTRE_UNIVERSE_BLOG.dek,
+    image: `${SITE_URL}${CENTRE_UNIVERSE_BLOG.hero}`,
+    imageAlt: CENTRE_UNIVERSE_BLOG.heroAlt,
     type: 'article'
   },
   [`/elevate/${KNOWING_BLOG.slug}`]: {
@@ -111,15 +129,19 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   },
   '/empower': {
     key: 'empower',
-    label: 'Free web apps',
-    title: 'Empower · Free tools by Entertrainer',
-    description: 'Small browser tools for writing, planning, quizzes, and the repetitive parts of learning work.'
+    label: 'Empower',
+    title: 'Empower · Tools by Entertrainer',
+    description: 'Small browser tools for the awkward, repeating work.',
+    image: `${SITE_URL}/og-engage.jpg`,
+    imageAlt: 'Four quiet tool marks on cream paper.'
   },
   '/tools': {
     key: 'tools',
-    label: 'Free web apps',
-    title: 'Free tools by Naveen Jose · Entertrainer',
-    description: 'Free browser tools for planning, writing, making quizzes, and sketching ideas.'
+    label: 'Empower',
+    title: 'Empower · Tools by Entertrainer',
+    description: 'Small browser tools for the awkward, repeating work.',
+    image: `${SITE_URL}/og-engage.jpg`,
+    imageAlt: 'Four quiet tool marks on cream paper.'
   },
   '/tools/storygen': {
     key: 'storygen',
@@ -169,13 +191,25 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — The Mind Reader, AstroClock, and Velocity.'
+    description: 'Short games and little detours — The Mind Reader, AstroClock, Velocity, and Vilakku.',
+    image: `${SITE_URL}/og-engage.jpg`,
+    imageAlt: 'Four Engage marks on cream paper: an eye, a clock, a chevron, a lamp.'
   },
   '/engage/velocity': {
     key: 'velocity',
     label: 'Velocity',
     title: 'Velocity · Engage',
-    description: 'The speeds you already have — Earth spin, solar orbit, galactic ride, CMB frame.'
+    description: 'The speeds you already have — Earth spin, solar orbit, galactic ride, CMB frame.',
+    image: `${SITE_URL}/og-velocity.jpg`,
+    imageAlt: 'Earth from orbit with a gold chevron of motion against black space.'
+  },
+  '/engage/vilakku': {
+    key: 'vilakku',
+    label: 'Vilakku',
+    title: 'Vilakku · Engage',
+    description: 'A locked room in a Kerala monsoon. 1994. The lamp is the only honest light.',
+    image: `${SITE_URL}/og-vilakku.jpg`,
+    imageAlt: 'Night Kerala window, brass lamp, monsoon rain. No people.'
   },
   '/engage/astroclock': {
     key: 'astroclock',

@@ -19,7 +19,7 @@ const routes: HomeRoute[] = [
   {
     name: 'Elevate',
     href: '/elevate',
-    tip: 'Curious pieces that might teach you something.'
+    tip: 'Essays that start in a room and refuse the tidy story.'
   },
   {
     name: 'Empower',
@@ -92,7 +92,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <main id="main" class="route-index">
+  <div class="route-index">
     <header class="route-index__intro">
       <h1 class="route-index__headline" :class="{ 'is-ready': quoteReady }">
         <span class="route-index__quote">{{ quote.text }}</span>
@@ -141,7 +141,7 @@ onBeforeUnmount(() => {
         </li>
       </ol>
     </nav>
-  </main>
+  </div>
 </template>
 
 <style scoped>

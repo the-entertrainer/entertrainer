@@ -17,17 +17,18 @@ useSeoMeta({
 const references = [
   { id: 1, title: 'Cosmological Principle', source: 'NASA / WMAP science overview', href: 'https://map.gsfc.nasa.gov/universe/bb_concepts.html' },
   { id: 2, title: 'What is the Universe Expanding Into?', source: 'NASA Space Place', href: 'https://spaceplace.nasa.gov/expansion/en/' },
-  { id: 3, title: 'Hubble’s Law of Cosmic Expansion', source: 'ESA / Hubble', href: 'https://esahubble.org/wordbank/hubbles-law/' }
+  { id: 3, title: 'Hubble’s Law of Cosmic Expansion', source: 'ESA / Hubble', href: 'https://esahubble.org/wordbank/hubbles-law/' },
+  { id: 4, title: 'A Relation between Distance and Radial Velocity among Extra-Galactic Nebulae', source: 'Hubble, PNAS 1929', href: 'https://www.pnas.org/doi/10.1073/pnas.15.3.168' }
 ]
 </script>
 
 <template>
-  <main id="main" class="centre">
+  <div class="centre">
     <header class="centre__head">
       <NuxtLink to="/elevate" class="centre__back">The Entertrainer Blogs</NuxtLink>
       <p class="centre__meta">{{ CENTRE_UNIVERSE_BLOG.category }} <span aria-hidden="true">·</span> {{ CENTRE_UNIVERSE_BLOG.minutes }} min read</p>
-      <h1>You Are the Centre of the Universe — and Here’s Why</h1>
-      <p class="centre__dek">Not because the universe picked you. Because in an expanding universe, every observer can make the same discovery.</p>
+      <h1>{{ CENTRE_UNIVERSE_BLOG.title }}</h1>
+      <p class="centre__dek">{{ CENTRE_UNIVERSE_BLOG.dek }}</p>
     </header>
 
     <figure class="centre__hero">
@@ -37,16 +38,19 @@ const references = [
     <article class="centre__article">
       <aside class="centre__margin-note" aria-label="The central idea">
         <p>The short version</p>
-        <p>There is no special centre. From every galaxy, distant galaxies appear to move away in every direction.</p>
+        <p>There is no special centre. The firework picture smuggles a room into a universe that does not have one.</p>
       </aside>
 
       <div class="centre__prose">
-        <p class="centre__lead">The universe is not expanding from one central point. It is expanding everywhere.</p>
-        <p>That sounds like a small correction. It changes the whole picture.</p>
+        <p class="centre__lead">Someone on the terrace after dinner is pointing at the dark. Not at a star. At the idea of the whole thing.</p>
+        <p>“If it started with a bang,” they say, “where is the bang now?”</p>
+        <p>It is a reasonable question. It is also the wrong picture. A firework happens in a room. It has a middle. Smoke travels out from that middle. You could, in principle, walk back to the match.</p>
+        <p>The universe is not a firework in a room.</p>
 
-        <h2>Start with a balloon</h2>
+        <h2>Start with a balloon, then notice where the analogy leaks</h2>
         <p>Draw dots on the surface of a balloon. Blow it up. Every dot sees the others move away as the surface stretches.</p>
         <p>There is no special dot. No dot can point across the surface and say, “That is where the expansion began.” The surface has no centre on it. The centre is in the space inside the balloon, which the dots do not occupy.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>That last sentence is the honest part. The balloon is a two-dimensional skin living in a room. Our space is not a skin on something else we can step into. The picture is useful, then it lies. Keep the useful bit: expansion is a change in distances, not a crowd walking away from a chosen square.</p>
 
         <h2>Now watch the sky do the same thing</h2>
         <p>Imagine two photographs of the same patch of sky. In the second photograph, the gaps between the galaxies are larger. Nobody has walked away. Space has stretched between them.</p>
@@ -65,14 +69,18 @@ const references = [
         </blockquote>
 
         <h2>So are you really the centre?</h2>
-        <p><strong>Physically, no.</strong> The universe has no privileged central galaxy. That is the point of the demonstration, not a detail to hide.</p>
-        <p><strong>From your point of view, yes.</strong> Your address is the centre of the view you can make from your address. The same is true for your friend, a galaxy ten billion light-years away, and every other observer who can look out.</p>
-        <p>This is not proof that you are cosmically special. It is almost the opposite. The universe does not need one chosen centre because every place can describe the expansion in the same way.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <p><strong>Physically, no.</strong> Hubble’s 1929 result was not “everything is fleeing from us.” It was a relation: more distant nebulae recede faster. Once you grant that the same relation holds for any observer, the privileged middle disappears.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <p>The cosmological principle is the boring, stubborn claim underneath. On large scales, no place is special. No direction is special. From every galaxy, distant galaxies appear to move away in every direction.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p><strong>From your point of view, yes.</strong> Your address is the centre of the view you can make from your address. The same is true for your friend, a galaxy ten billion light-years away, and every other observer who can look out. That is not a compliment. It is a symmetry.</p>
+
+        <h2>Where I have to be honest</h2>
+        <p>The terrace question still feels unanswered, because the firework picture smuggled a room into the sentence. If the bang happened <em>in</em> space, there would be a place. If space itself is what stretched, the “where” does not sit on the map.</p>
+        <p>We also do not have a photograph of the whole manifold from outside. The lab on this page is a reconstruction. So is every popular balloon. They are honest about the symmetry. They are not a view from the gods.</p>
 
         <h2>The useful part</h2>
         <p>When someone tells you that you are small, this will not refute them. You are small. So is Earth. So is the Sun compared with the universe.</p>
-        <p>But small is not the same as irrelevant. From where you stand, the whole sky opens outward. And it does the same for everyone else.</p>
-        <p class="centre__closing">You are not the universe’s chosen centre. You are standing in a universe with no chosen centre — and that gives everyone an equally good view.</p>
+        <p>But small is not the same as sitting at the edge of someone else’s explosion. From where you stand, the whole sky opens outward. And it does the same for everyone else.</p>
+        <p class="centre__closing">The bang is not somewhere else. There is no somewhere else of that kind.</p>
       </div>
     </article>
 
@@ -87,7 +95,7 @@ const references = [
     </section>
 
     <div class="centre__newsletter-wrap"><EdNewsletter /></div>
-  </main>
+  </div>
 </template>
 
 <style scoped>

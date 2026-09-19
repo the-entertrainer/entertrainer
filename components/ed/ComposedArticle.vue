@@ -7,7 +7,7 @@ defineProps<{
 </script>
 
 <template>
-  <main id="main" class="ca">
+  <div class="ca">
     <header class="ca__head">
       <NuxtLink to="/elevate" class="ca__back">The Entertrainer Blogs</NuxtLink>
       <p class="ca__meta">{{ post.category }} <span aria-hidden="true">·</span> {{ post.minutes }} min read</p>
@@ -72,7 +72,7 @@ defineProps<{
     </section>
 
     <div class="ca__newsletter-wrap"><EdNewsletter /></div>
-  </main>
+  </div>
 </template>
 
 <style scoped>

@@ -111,7 +111,7 @@ function onKey(e: KeyboardEvent) {
       </div>
     </header>
 
-    <main class="st-stage">
+    <div class="st-stage">
       <Transition :name="dir === 'fwd' ? 'st-fwd' : 'st-back'" mode="out-in">
         <div class="st-stage__slide" :key="current.id">
           <component
@@ -122,7 +122,7 @@ function onKey(e: KeyboardEvent) {
           />
         </div>
       </Transition>
-    </main>
+    </div>
 
     <StPlayerbar
       :index="index"

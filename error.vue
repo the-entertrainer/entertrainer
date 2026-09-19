@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useThemeStore } from '~/stores/theme'
-import { ITEMS } from '~/content/editorial'
+import { NAV } from '~/content/editorial'
 
 /**
  * Nuxt's app-wide error page. It replaces app.vue wholesale, so everything the
@@ -28,10 +28,9 @@ useHead({ title: isNotFound.value ? 'Page not found â€” Entertrainer' : 'Error â
     <main id="main">
       <UiContentShell :eyebrow="`Error ${error?.statusCode ?? ''}`" :title="title" :deck="deck">
         <ul class="err__list">
-          <li v-for="it in ITEMS.slice(0, 6)" :key="it.id">
+          <li v-for="it in NAV" :key="it.href">
             <NuxtLink :to="it.href" class="err__row">
-              <EdChip :category="it.category" />
-              <span class="err__t">{{ it.title }}</span>
+              <span class="err__t">{{ it.label }}</span>
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" /></svg>
             </NuxtLink>
@@ -51,7 +50,7 @@ useHead({ title: isNotFound.value ? 'Page not found â€” Entertrainer' : 'Error â
 
 .err__list { list-style: none; margin: 0 0 30rem; padding: 0; }
 .err__row {
-  display: grid; grid-template-columns: auto minmax(0, 1fr) 16rem;
+  display: grid; grid-template-columns: minmax(0, 1fr) 16rem;
   align-items: center; gap: 14rem;
   padding: 14rem 8rem;
   border-bottom: var(--stroke) solid var(--line);

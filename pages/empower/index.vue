@@ -23,7 +23,7 @@ const tools = computed(() =>
 </script>
 
 <template>
-  <main id="main" class="empower">
+  <div class="empower">
     <EdStageHero
       variant="lattice"
       title="Empower"
@@ -56,7 +56,7 @@ const tools = computed(() =>
         </NuxtLink>
       </li>
     </ol>
-  </main>
+  </div>
 </template>
 
 <style scoped>

@@ -30,11 +30,11 @@ const visuals = {
 </script>
 
 <template>
-  <main id="main" class="entropy">
+  <div class="entropy">
     <header class="entropy__head">
       <NuxtLink to="/elevate" class="entropy__back">The Entertrainer Blogs</NuxtLink>
       <p class="entropy__meta">{{ ENTROPY_BLOG.category }} <span aria-hidden="true">·</span> {{ ENTROPY_BLOG.minutes }} min read</p>
-      <h1>You Are Not Lazy. You Are Helping the Universe Extend Its Life.</h1>
+      <h1>{{ ENTROPY_BLOG.title }}</h1>
       <p class="entropy__dek">A small physics story about rest, hot tea, batteries, deleted files, and why the universe likes to spread things out.</p>
     </header>
 
@@ -123,7 +123,7 @@ const visuals = {
     </section>
 
     <div class="entropy__newsletter-wrap"><EdNewsletter /></div>
-  </main>
+  </div>
 </template>
 
 <style scoped>

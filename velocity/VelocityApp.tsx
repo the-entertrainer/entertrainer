@@ -24,7 +24,7 @@ export function VelocityApp() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [ready, setReady] = useState(false)
   const [story, setStory] = useState(false)
-  const [hint, setHint] = useState('Tap the globe. Swipe the dock.')
+  const [hint, setHint] = useState('Drag to turn. Tap the body for the note.')
 
   useEffect(() => {
     try {
@@ -38,7 +38,7 @@ export function VelocityApp() {
         navigator.geolocation.getCurrentPosition(
           (p) => setLat(p.coords.latitude),
           () => {},
-          { maximumAge: 86400000, timeout: 4000 },
+          { maximumAge: 86_400_000, timeout: 4000 },
         )
       }
     } catch { /* */ }
@@ -48,11 +48,9 @@ export function VelocityApp() {
     document.documentElement.dataset.theme = theme
     try { localStorage.setItem(THEME_KEY, theme) } catch { /* */ }
   }, [theme])
-
   useEffect(() => {
     try { localStorage.setItem(UNIT_KEY, unit) } catch { /* */ }
   }, [unit])
-
   useEffect(() => {
     try { localStorage.setItem(LAT_KEY, String(lat)) } catch { /* */ }
   }, [lat])
@@ -81,52 +79,71 @@ export function VelocityApp() {
   useEffect(() => { engineRef.current?.setTheme(theme) }, [theme])
 
   useEffect(() => {
-    setHint(scale === 'earth' ? 'Drag the gold pin. Tap for the story.' : 'Drag to turn. Tap the body for the story.')
-    const id = window.setTimeout(() => setHint(''), 4200)
+    setHint(scale === 'earth' ? 'Drag to orbit. Open the note for latitude.' : 'Drag to turn. Tap for the note.')
+    const id = window.setTimeout(() => setHint(''), 3800)
     return () => window.clearTimeout(id)
   }, [scale])
 
   const def = SCALES.find((s) => s.id === scale)!
   const kms = speedForScale(scale, lat)
+  const idx = SCALES.findIndex((s) => s.id === scale)
 
   return (
     <div className="vel-root" data-theme={theme}>
       <canvas ref={canvasRef} className="vel-canvas" aria-label="Velocity scene" />
       {!ready && <div className="vel-boot">Velocity</div>}
-      <header className="vel-hud">
+      <header className="vel-top">
         <button type="button" className="vel-mark" onClick={() => setStory(true)} aria-label="Open story">
-          <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
-            <path d="M6 26 L16 6 L26 26 L20 26 L16 16 L12 26 Z" fill="currentColor" />
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true">
+            <path d="M8 24 L16 8 L24 24 L20.6 24 L16 14.6 L11.4 24 Z" fill="currentColor" />
           </svg>
         </button>
-        <button type="button" className="vel-speed" onClick={() => setUnit((u) => NEXT_UNIT[u])}>
-          <span className="vel-kicker">{def.kicker}</span>
-          <strong>{formatSpeed(kms, unit)}</strong>
-        </button>
-        <button type="button" className="vel-theme" onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}>
-          {theme === 'dark' ? 'Light' : 'Dark'}
+        <div className="vel-brand">
+          <span>Velocity</span>
+          <em>{def.name}</em>
+        </div>
+        <button type="button" className="vel-ghost" onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}>
+          {theme === 'dark' ? 'Paper' : 'Ink'}
         </button>
       </header>
+      <button type="button" className="vel-readout" onClick={() => setUnit((u) => NEXT_UNIT[u])}>
+        <span className="vel-kicker">{def.kicker}</span>
+        <strong>{formatSpeed(kms, unit)}</strong>
+        <span className="vel-sub">{latHemisphere(lat)}</span>
+      </button>
       {hint && <p className="vel-hint">{hint}</p>}
-      <nav className="vel-dock" aria-label="Scales">
-        {SCALES.map((s) => (
-          <button key={s.id} type="button" className={s.id === scale ? 'is-on' : ''} onClick={() => { setScale(s.id); setStory(false) }}>
+      <nav className="vel-rail" aria-label="Scales">
+        {SCALES.map((s, i) => (
+          <button
+            key={s.id}
+            type="button"
+            className={s.id === scale ? 'is-on' : ''}
+            onClick={() => { setScale(s.id); setStory(false) }}
+          >
+            <i>{String(i + 1).padStart(2, '0')}</i>
             {s.name}
           </button>
         ))}
       </nav>
       <aside className={`vel-sheet ${story ? 'is-open' : ''}`} aria-hidden={!story}>
+        <button type="button" className="vel-handle" onClick={() => setStory(false)} aria-label="Close">
+          <span />
+        </button>
+        <p className="vel-kicker">{def.kicker}</p>
         <h1>{def.name}</h1>
         <p className="vel-meta">{latHemisphere(lat)} · {formatSpeed(kms, unit)}</p>
         {scale === 'earth' && (
-          <label className="vel-lat">Latitude
+          <label className="vel-lat">
+            Latitude
             <input type="range" min={-80} max={80} step={0.5} value={lat} onChange={(e) => setLat(Number(e.target.value))} />
           </label>
         )}
-        {def.story.map((p) => (<p key={p.slice(0, 24)}>{p}</p>))}
-        <p className="vel-credit">Earth textures via NASA Blue Marble / three-globe. Sun courtesy of NASA SDO when the feed is reachable.</p>
-        <button type="button" className="vel-close" onClick={() => setStory(false)}>Close</button>
+        {def.story.map((p) => <p key={p.slice(0, 28)}>{p}</p>)}
+        <p className="vel-credit">Blue Marble and night lights via NASA / three-globe. Sun from NASA SDO when the feed answers.</p>
       </aside>
+      <div className="vel-progress" aria-hidden="true">
+        {SCALES.map((s, i) => <i key={s.id} className={i === idx ? 'is-on' : ''} />)}
+      </div>
     </div>
   )
 }

@@ -1,284 +1,893 @@
+/* Velocity uses normal rem units inside its layoutless island. */
 .vel-app {
-  --gold: #e8c56b;
-  --cyan: #7ad4ff;
-  --ink: #05070c;
-  --glass: color-mix(in srgb, #05070c 58%, transparent);
-  position: fixed;
-  inset: 0;
-  color: #e8eef6;
-  font-family: Archivo, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
-  overflow: hidden;
-  background: #02040c;
+  --v-bg: #05080e;
+  --v-panel: #0d121a;
+  --v-ink: #f6f5f0;
+  --v-muted: #a5afbd;
+  --v-line: #303a47;
+  --v-yellow: #ffd43b;
+  min-height: 100dvh;
+  color: var(--v-ink);
+  background: var(--v-bg);
+  font:
+    400 1rem/1.55 Archivo,
+    Arial,
+    sans-serif;
+  overflow-x: hidden;
   color-scheme: dark;
-  -webkit-user-select: none;
-  user-select: none;
+}
+.vel-app * {
+  box-sizing: border-box;
+}
+.vel-app button,
+.vel-app select,
+.vel-app input {
+  font: inherit;
+}
+.vel-app button,
+.vel-app select {
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--v-line);
+  border-radius: 4px;
+  min-height: 44px;
+  padding: 9px 12px;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.vel-app button:hover,
+.vel-app select:hover {
+  border-color: #a5afbd;
+  background: #151d29;
+}
+.vel-app button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.vel-app a {
+  color: inherit;
+  text-decoration: none;
+}
+.vel-app :focus-visible {
+  outline: 2px solid var(--v-yellow);
+  outline-offset: 4px;
+}
+.vel-app button,
+.vel-app a {
+  touch-action: manipulation;
+}
+.vel-app h1,
+.vel-app h2,
+.vel-app h3,
+.vel-app p {
+  margin: 0;
+}
+.vel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px clamp(20px, 4vw, 64px);
+  border-bottom: 1px solid var(--v-line);
+  max-width: 1680px;
+  margin: auto;
+}
+.vel-back {
+  font-size: 0.875rem;
+}
+.vel-wordmark {
+  font:
+    700 1.5rem/1 Fraunces,
+    Georgia,
+    serif;
+  letter-spacing: -0.065em;
+}
+.vel-wordmark span {
+  color: var(--v-yellow);
+}
+.vel-app .vel-text {
+  border: 0;
+  padding: 8px 0;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  background: transparent;
+}
+.vel-main {
+  max-width: 1540px;
+  margin: auto;
+  padding: 38px clamp(20px, 4vw, 64px) 0;
+  display: grid;
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  gap: 34px 50px;
+}
+.vel-eyebrow,
+.vel-scene-index,
+.vel-takeaway-label {
+  font:
+    500 0.6875rem/1.4 "IBM Plex Mono",
+    monospace;
+  letter-spacing: 0.09em;
+}
+.vel-eyebrow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--v-muted);
+}
+.vel-eyebrow > span {
+  color: #161618;
+  background: var(--v-yellow);
+  border-radius: 3px;
+  padding: 5px 7px;
+}
+.vel-readout h1 {
+  font:
+    650 clamp(2rem, 3.2vw, 2.75rem)/1.07 Fraunces,
+    Georgia,
+    serif;
+  letter-spacing: -0.045em;
+  margin: 25px 0 18px;
+  max-width: 12ch;
+}
+.vel-intro {
+  color: var(--v-muted);
+  font-size: 0.875rem;
+}
+.vel-number {
+  display: flex;
+  gap: 9px;
+  align-items: baseline;
+  margin-top: 6px;
+  white-space: nowrap;
+}
+.vel-approx {
+  font-size: 1.65rem;
+  color: var(--v-yellow);
+}
+.vel-number strong {
+  font-size: clamp(2.3rem, 4.2vw, 3.7rem);
+  line-height: 1.18;
+  letter-spacing: -0.055em;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.vel-unit-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.vel-unit-row select {
+  border: 0;
+  padding: 3px 18px 3px 0;
+  font-weight: 600;
+  color: var(--v-yellow);
+  min-height: 36px;
+}
+.vel-unit-row > span {
+  font-size: 0.75rem;
+  color: var(--v-muted);
+}
+.vel-relative {
+  font-size: 0.875rem;
+  max-width: 35ch;
+  margin: 10px 0 18px !important;
+  color: var(--v-muted);
+}
+.vel-relative strong {
+  font-weight: 500;
+  color: var(--v-ink);
+}
+.vel-app .vel-location {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+  width: 100%;
+  padding: 12px 0;
+  border: 0;
+  border-top: 1px solid var(--v-line);
+  border-bottom: 1px solid var(--v-line);
+  border-radius: 0;
+  background: transparent;
+}
+.vel-location > span:nth-child(2) {
+  flex: 1;
+}
+.vel-location strong {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.vel-location small {
+  display: block;
+  color: var(--v-muted);
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+.vel-location-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--v-yellow);
+  flex-shrink: 0;
+}
+.vel-description {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: #c3cad5;
+  margin: 20px 0 !important;
+  max-width: 40ch;
+}
+.vel-moments {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid var(--v-line);
+}
+.vel-moments dt {
+  font-size: 0.75rem;
+  color: var(--v-muted);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  height: 28px;
+}
+.vel-moments dd {
+  margin: 7px 0 0;
+  font-size: 1.12rem;
+  font-variant-numeric: tabular-nums;
+}
+.vel-app .vel-moments button {
+  min-height: 28px;
+  padding: 0 6px;
+  border: 0;
+  font-size: 1rem;
+}
+.vel-clock {
+  display: flex;
+  gap: 6px;
+  flex-direction: column;
+  font-size: 0.6875rem;
+  color: var(--v-muted);
+}
+.vel-clock time {
+  font:
+    400 0.75rem "IBM Plex Mono",
+    monospace;
+}
+.vel-stage {
+  position: relative;
+  min-height: 580px;
+  background: #02050b;
+  border: 1px solid var(--v-line);
+  border-radius: 5px;
+  overflow: hidden;
+  isolation: isolate;
 }
 .vel-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  touch-action: none;
   display: block;
-}
-.vel-boot {
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  gap: 8px;
-  text-align: center;
-  z-index: 8;
-  background: #02040c;
-  letter-spacing: 0.42em;
-  text-transform: uppercase;
-  font-size: 11px;
-  color: var(--gold);
+  inset: 0 0 115px;
+  width: 100%;
+  height: calc(100% - 115px);
+  touch-action: none;
 }
-.vel-boot small {
-  letter-spacing: 0.18em;
-  opacity: 0.45;
-  font-size: 9px;
-}
-.vel-boot-mark {
-  width: 36px;
-  height: 36px;
-  margin: 0 auto 10px;
-  border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--gold) 55%, transparent);
-  box-shadow: 0 0 24px color-mix(in srgb, var(--gold) 35%, transparent);
-  background: radial-gradient(circle at 35% 30%, #ffe7a8, #c98420 55%, #3a2208);
-}
-.vel-status {
+.vel-scene-top {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 5;
+  top: 19px;
+  left: 22px;
+  right: 22px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: calc(8px + env(safe-area-inset-top)) 18px 8px;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  background: linear-gradient(to bottom, color-mix(in srgb, #02040c 78%, transparent), transparent);
+  gap: 16px;
+  pointer-events: none;
+  font-size: 0.8125rem;
+  color: var(--v-muted);
+}
+.vel-scene-index {
+  color: var(--v-yellow);
+}
+.vel-scene-top button {
+  pointer-events: auto;
+  margin-left: auto;
+  font-size: 0.75rem;
+  min-height: 36px;
+  padding: 5px 10px;
+  background: #070c14bb;
+}
+.vel-scene-bottom {
+  position: absolute;
+  bottom: 135px;
+  left: 22px;
+  right: 22px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
   pointer-events: none;
 }
-.vel-status-app {
-  font-weight: 600;
-  color: var(--gold);
+.vel-scene-bottom p {
+  font-size: 0.8125rem;
 }
-.vel-status-live {
-  opacity: 0.55;
+.vel-scene-bottom span {
+  font-size: 0.6875rem;
+  color: var(--v-muted);
 }
-.vel-status time {
-  margin-left: auto;
-  font-variant-numeric: tabular-nums;
-  opacity: 0.7;
-  letter-spacing: 0.08em;
+.vel-scene-bottom button {
+  font-size: 0.75rem;
+  pointer-events: auto;
+  background: #070c14bb;
+  min-height: 40px;
 }
-.vel-hud {
+.vel-scene-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
   position: absolute;
-  top: calc(52px + env(safe-area-inset-top));
+  bottom: 50px;
   left: 18px;
   right: 18px;
-  z-index: 4;
-  pointer-events: none;
-  max-width: 22rem;
+  padding-top: 14px;
+  border-top: 1px solid var(--v-line);
+  align-items: center;
 }
-.vel-kicker {
-  display: block;
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  opacity: 0.5;
-  margin: 0 0 6px;
+.vel-scene-controls > button {
+  margin-right: auto;
 }
-.vel-speed {
-  pointer-events: auto;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  padding: 0;
-  text-align: left;
-  font-size: clamp(28px, 7vw, 44px);
-  font-weight: 560;
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.05;
+.vel-scene-controls select {
+  font-size: 0.75rem;
+  max-width: 170px;
 }
-.vel-eq,
-.vel-odom {
-  margin: 8px 0 0;
-  font-size: 12px;
-  opacity: 0.72;
-  line-height: 1.35;
-  max-width: 28em;
+.vel-scene-controls button {
+  font-size: 0.75rem;
 }
-.vel-odom {
-  display: flex;
-  gap: 10px;
-  align-items: baseline;
-}
-.vel-odom code {
-  font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-  color: var(--cyan);
-  font-size: 13px;
-}
-.vel-lat {
-  pointer-events: auto;
-  display: grid;
-  gap: 6px;
-  margin-top: 14px;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.85;
-  max-width: 16rem;
-}
-.vel-lat input {
-  width: 100%;
-  accent-color: var(--gold);
-}
-.vel-dock {
+.vel-scene-note {
   position: absolute;
-  left: 50%;
-  bottom: calc(72px + env(safe-area-inset-bottom));
-  transform: translateX(-50%);
-  z-index: 5;
+  bottom: 13px;
+  left: 20px;
+  right: 20px;
+  font-size: 0.6875rem;
+  color: var(--v-muted);
+  line-height: 1.5;
+}
+.vel-loading {
+  position: absolute;
+  inset: 70px 0 120px;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 5px;
-  border-radius: 999px;
-  background: var(--glass);
-  border: 1px solid color-mix(in srgb, #fff 12%, transparent);
-  backdrop-filter: blur(18px) saturate(1.2);
-  -webkit-backdrop-filter: blur(18px) saturate(1.2);
-}
-.vel-dock button {
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 12px;
-  padding: 8px 10px;
-  border-radius: 999px;
-  opacity: 0.62;
-}
-.vel-dock button.is-on,
-.vel-dock-main {
-  opacity: 1;
-  color: var(--gold);
-}
-.vel-tabs {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 6;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  padding: 6px 8px calc(8px + env(safe-area-inset-bottom));
-  background: color-mix(in srgb, #05070c 82%, transparent);
-  border-top: 1px solid color-mix(in srgb, #fff 8%, transparent);
-  backdrop-filter: blur(22px) saturate(1.3);
-  -webkit-backdrop-filter: blur(22px) saturate(1.3);
-}
-.vel-tabs button {
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  opacity: 0.45;
-  display: grid;
-  justify-items: center;
-  gap: 3px;
-  padding: 6px 0 2px;
-}
-.vel-tabs button.is-on {
-  opacity: 1;
-  color: var(--gold);
-}
-.vel-tab-glyph {
-  font-size: 16px;
-  line-height: 1;
-}
-.vel-sheet {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  max-height: 58%;
-  padding: 6px 22px calc(96px + env(safe-area-inset-bottom));
-  background: color-mix(in srgb, #070a12 92%, transparent);
-  border-top: 1px solid color-mix(in srgb, var(--gold) 28%, transparent);
-  transform: translateY(110%);
-  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
-  z-index: 8;
-  overflow: auto;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  background: #02050bcc;
   pointer-events: none;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
 }
-.vel-sheet.is-open {
-  transform: none;
-  pointer-events: auto;
+.vel-loading strong {
+  font-size: 1rem;
+  font-weight: 500;
 }
-.vel-handle {
-  display: block;
-  width: 100%;
-  border: 0;
-  background: transparent;
-  padding: 12px 0;
+.vel-loading > span:last-child {
+  font-size: 0.75rem;
+  color: var(--v-muted);
 }
-.vel-handle span {
-  display: block;
-  width: 36px;
-  height: 4px;
-  margin: 0 auto;
-  border-radius: 99px;
-  background: color-mix(in srgb, currentColor 28%, transparent);
+.vel-loading-orbit {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #4c4f48;
+  border-top-color: var(--v-yellow);
+  border-radius: 50%;
+  animation: vel-load-spin 2s linear infinite;
 }
-.vel-sheet h1 {
-  font-family: Fraunces, Georgia, serif;
-  font-size: 26px;
-  margin: 0 0 12px;
-  font-weight: 560;
+.vel-scene-error {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 70px;
+  background: #111c2cef;
+  border: 1px solid var(--v-line);
+  padding: 16px;
+  font-size: 0.875rem;
+}
+.vel-scene-error button {
+  margin-top: 10px;
+}
+.vel-frames {
+  grid-column: 1/-1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.vel-app .vel-frames button {
+  min-width: 0;
+  text-align: left;
+  padding: 17px 19px 20px;
+  border-radius: 4px;
+  background: #0b1018;
+  position: relative;
+  transition:
+    border-color 0.18s,
+    background 0.18s;
+}
+.vel-app .vel-frames button.is-selected {
+  background: #191b13;
+  border-color: var(--v-yellow);
+}
+.vel-frame-top {
+  display: flex;
+  justify-content: space-between;
+  color: var(--v-muted);
+  font:
+    400 0.6875rem "IBM Plex Mono",
+    monospace;
+  margin-bottom: 13px;
+}
+.is-selected .vel-frame-top {
+  color: var(--v-yellow);
+}
+.vel-frames strong {
+  font:
+    600 1.4rem Fraunces,
+    Georgia,
+    serif;
   letter-spacing: -0.03em;
+  display: block;
+  margin-bottom: 8px;
 }
-.vel-sheet p {
-  font-size: 15px;
-  line-height: 1.5;
-  margin: 0 0 10px;
-  max-width: 36em;
+.vel-card-speed {
+  display: block;
+  font-size: 1rem;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
-.vel-credit {
-  font-size: 11px;
-  opacity: 0.5;
+.vel-card-speed small {
+  font-size: 0.75rem;
+  color: var(--v-muted);
 }
-@media (min-width: 860px) {
-  .vel-hud {
-    top: calc(64px + env(safe-area-inset-top));
-    left: 28px;
+.vel-card-caption {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--v-muted);
+  margin-top: 5px;
+}
+.vel-takeaway {
+  grid-column: 1/-1;
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: start;
+  padding: 20px 0 28px;
+  border-bottom: 1px solid var(--v-line);
+}
+.vel-takeaway-label {
+  color: var(--v-yellow);
+  max-width: 110px;
+  line-height: 1.7;
+}
+.vel-takeaway p {
+  font-size: 0.9375rem;
+  max-width: 68ch;
+  color: #c3cad5;
+}
+.vel-app .vel-takeaway button {
+  border: 0;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  min-height: 36px;
+}
+.vel-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 1540px;
+  margin: auto;
+  padding: 22px clamp(20px, 4vw, 64px) 28px;
+  font-size: 0.6875rem;
+  color: var(--v-muted);
+}
+.vel-dialog {
+  background: #10161f;
+  color: var(--v-ink);
+  border: 1px solid #566270;
+  border-radius: 6px;
+  max-width: 660px;
+  width: calc(100% - 32px);
+  max-height: 88dvh;
+  padding: 0;
+  overscroll-behavior: contain;
+}
+.vel-dialog::backdrop {
+  background: #000b;
+  backdrop-filter: blur(5px);
+}
+.vel-dialog-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 26px 18px;
+  position: sticky;
+  top: 0;
+  background: #10161f;
+  border-bottom: 1px solid var(--v-line);
+  z-index: 1;
+}
+.vel-dialog-head h2 {
+  font:
+    600 1.65rem/1.15 Fraunces,
+    Georgia,
+    serif;
+  letter-spacing: -0.025em;
+}
+.vel-dialog-head button {
+  font-size: 1.35rem;
+  padding: 1px 12px;
+  flex-shrink: 0;
+}
+.vel-dialog-content {
+  padding: 24px 26px 28px;
+  font-size: 0.9375rem;
+  color: #c3cad5;
+}
+.vel-dialog-content p {
+  margin: 0 0 18px;
+}
+.vel-dialog-content h3 {
+  font-size: 1.05rem;
+  color: var(--v-ink);
+  margin: 24px 0 12px;
+}
+.vel-dialog-content li {
+  margin-bottom: 10px;
+}
+.vel-dialog-content a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  color: #ffe58c;
+}
+.vel-field {
+  display: grid;
+  gap: 12px;
+  font-size: 0.875rem;
+  margin: 20px 0;
+}
+.vel-field select {
+  width: 100%;
+}
+.vel-field input {
+  width: 100%;
+  accent-color: var(--v-yellow);
+  height: 28px;
+}
+.vel-dialog-content .vel-primary {
+  background: var(--v-yellow);
+  color: #101010;
+  font-weight: 600;
+  border-color: var(--v-yellow);
+}
+.vel-small {
+  font-size: 0.8125rem;
+  color: var(--v-muted);
+  margin-top: 15px !important;
+}
+.vel-error {
+  color: #ffb7a7;
+  font-size: 0.875rem;
+}
+.vel-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.vel-skip {
+  position: absolute;
+  top: -100px;
+  z-index: 20;
+  background: var(--v-yellow);
+  color: #111 !important;
+  padding: 12px;
+}
+.vel-skip:focus {
+  top: 10px;
+}
+.vel-app select option {
+  background: #10161f;
+  color: #fff;
+}
+.vel-stage:fullscreen {
+  border: 0;
+  border-radius: 0;
+}
+.vel-scene-controls label {
+  min-width: 0;
+}
+@keyframes vel-load-spin {
+  to {
+    transform: rotate(360deg);
   }
-  .vel-tabs {
-    left: 50%;
-    right: auto;
-    bottom: 18px;
-    transform: translateX(-50%);
-    width: min(520px, 72vw);
-    border-radius: 18px;
-    border: 1px solid color-mix(in srgb, #fff 10%, transparent);
-    padding-bottom: 8px;
+}
+@media (min-width: 1500px) {
+  .vel-stage {
+    min-height: 640px;
   }
-  .vel-dock {
-    bottom: 108px;
+  .vel-readout {
+    padding-top: 12px;
+  }
+  .vel-description {
+    margin-top: 26px !important;
+  }
+}
+@media (max-width: 1100px) {
+  .vel-main {
+    gap: 26px;
+    grid-template-columns: 300px minmax(0, 1fr);
+    padding-top: 28px;
+  }
+  .vel-stage {
+    min-height: 590px;
+  }
+  .vel-scene-controls {
+    bottom: 67px;
+    gap: 5px;
+  }
+  .vel-scene-controls > button {
+    flex-basis: 100%;
+    margin: 0;
+    text-align: left;
+    padding: 6px 8px;
+    min-height: 36px;
+  }
+  .vel-scene-note {
+    bottom: 12px;
+  }
+  .vel-canvas {
+    height: calc(100% - 155px);
+  }
+  .vel-scene-bottom {
+    bottom: 175px;
+  }
+  .vel-scene-controls select {
+    max-width: 155px;
+  }
+  .vel-takeaway {
+    grid-template-columns: 110px 1fr;
+  }
+  .vel-takeaway button {
+    grid-column: 2;
+  }
+  .vel-frames {
+    gap: 8px;
+  }
+  .vel-app .vel-frames button {
+    padding: 14px;
+  }
+  .vel-card-speed {
+    font-size: 0.875rem;
+  }
+}
+@media (max-width: 800px) {
+  .vel-header {
+    padding: 14px 20px;
+    gap: 12px;
+  }
+  .vel-wordmark {
+    font-size: 1.3rem;
+  }
+  .vel-header .vel-text {
+    font-size: 0.75rem;
+  }
+  .vel-main {
+    grid-template-columns: 1fr;
+    padding: 24px 20px 0;
+    gap: 22px;
+  }
+  .vel-readout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 20px;
+  }
+  .vel-eyebrow,
+  .vel-readout h1,
+  .vel-intro,
+  .vel-number,
+  .vel-unit-row,
+  .vel-relative {
+    grid-column: 1;
+  }
+  .vel-readout h1 {
+    font-size: 2.25rem;
+    margin: 18px 0 14px;
+  }
+  .vel-number strong {
+    font-size: 2.7rem;
+  }
+  .vel-location {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+  }
+  .vel-description {
+    grid-column: 2;
+    grid-row: 3/7;
+    margin: 0 !important;
+    align-self: center;
+  }
+  .vel-moments {
+    grid-column: 1/-1;
+  }
+  .vel-clock {
+    grid-column: 1/-1;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .vel-stage {
+    min-height: 520px;
+  }
+  .vel-canvas {
+    height: calc(100% - 125px);
+  }
+  .vel-scene-bottom {
+    bottom: 146px;
+  }
+  .vel-scene-controls {
+    bottom: 53px;
+  }
+  .vel-scene-controls > button {
+    flex-basis: auto;
+    margin-right: auto;
+  }
+  .vel-scene-controls select {
+    max-width: 170px;
+  }
+  .vel-scene-note {
+    bottom: 10px;
+  }
+  .vel-frames {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .vel-frames strong {
+    font-size: 1.35rem;
+  }
+  .vel-card-speed {
+    font-size: 1.05rem;
+  }
+  .vel-takeaway {
+    display: block;
+  }
+  .vel-takeaway-label {
+    display: block;
+    max-width: none;
+    margin-bottom: 12px;
+  }
+  .vel-takeaway button {
+    margin-top: 12px;
+  }
+  .vel-footer {
+    padding: 22px 20px;
+    flex-wrap: wrap;
+  }
+  .vel-scene-top {
+    left: 16px;
+    right: 16px;
+    gap: 10px;
+  }
+  .vel-scene-top > span:nth-child(2) {
+    font-size: 0.75rem;
+  }
+  .vel-scene-bottom {
+    left: 16px;
+    right: 16px;
+  }
+}
+@media (max-width: 520px) {
+  .vel-header .vel-wordmark {
+    font-size: 1.15rem;
+  }
+  .vel-readout {
+    display: block;
+  }
+  .vel-readout h1 {
+    max-width: 14ch;
+    font-size: 2.55rem;
+  }
+  .vel-eyebrow {
+    font-size: 0.625rem;
+    gap: 10px;
+  }
+  .vel-number strong {
+    font-size: 3.3rem;
+  }
+  .vel-unit-row > span {
+    font-size: 0.75rem;
+  }
+  .vel-intro {
+    font-size: 0.875rem;
+  }
+  .vel-description {
+    margin: 16px 0 !important;
+    max-width: none;
+    font-size: 0.9375rem;
+  }
+  .vel-clock {
+    margin-top: 4px !important;
+    font-size: 0.625rem;
+  }
+  .vel-stage {
+    min-height: 470px;
+    margin: 0 -8px;
+  }
+  .vel-scene-top {
+    top: 12px;
+  }
+  .vel-scene-top > span:nth-child(2) {
+    max-width: 135px;
+    line-height: 1.3;
+  }
+  .vel-scene-bottom {
+    bottom: 162px;
+    display: block;
+  }
+  .vel-scene-bottom button {
+    margin-top: 8px;
+    min-height: 32px;
+    padding: 4px 8px;
+  }
+  .vel-canvas {
+    height: calc(100% - 140px);
+  }
+  .vel-scene-controls {
+    bottom: 70px;
+    left: 12px;
+    right: 12px;
+    gap: 6px;
+  }
+  .vel-scene-controls > button {
+    flex-basis: 100%;
+    text-align: left;
+    min-height: 32px;
+  }
+  .vel-scene-controls select {
+    font-size: 0.6875rem;
+    padding: 6px;
+    max-width: 165px;
+    min-height: 36px;
+  }
+  .vel-scene-note {
+    font-size: 0.625rem;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
+  .vel-card-caption {
+    font-size: 0.6875rem;
+  }
+  .vel-card-speed {
+    font-size: 0.875rem;
+  }
+  .vel-dialog-head {
+    padding: 18px;
+  }
+  .vel-dialog-head h2 {
+    font-size: 1.5rem;
+  }
+  .vel-dialog-content {
+    padding: 20px;
+  }
+  .vel-dialog-content ul {
+    padding-left: 20px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .vel-sheet { transition: none; }
+  .vel-loading-orbit {
+    animation: none;
+  }
+  .vel-app * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
 }

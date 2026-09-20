@@ -252,7 +252,7 @@ const finishLeave = (opts: { skip?: boolean; naturalEnd?: boolean } = {}) => {
   skipLeaving.value = !!opts.skip
   leaving.value = true
   breathing.value = false
-  growing.value = false
+  // Retain the grow transform during the exit fade; resetting it snaps rings inward.
   stopBeatLoop()
 
   const skip = !!opts.skip
@@ -792,7 +792,7 @@ onBeforeUnmount(() => {
       'preloader--beat': beatDriven,
       'preloader--breathe': breathing && !leaving && !growing,
       'preloader--settle': settling && !growing,
-      'preloader--grow': growing && !leaving
+      'preloader--grow': growing
     }"
     :style="growing ? { '--pl-grow-ms': growMs + 'ms' } : undefined"
   >
@@ -1200,7 +1200,7 @@ onBeforeUnmount(() => {
   transform: none;
 }
 
-/* SVG rings — elegant stroke draw-on, mid-stage diameters. */
+/* SVG rings: fixed centres; only their shared parent performs the final grow. */
 .preloader__rings {
   position: absolute;
   z-index: 1;
@@ -1217,7 +1217,7 @@ onBeforeUnmount(() => {
   stroke-linejoin: round;
   /* Rotate so stroke-dash reveal starts at 12 o'clock and draws clockwise. */
   transform-origin: 50% 50%;
-  transform-box: fill-box;
+  transform-box: view-box;
   transform: rotate(-90deg);
   /* Hidden until path-specific rules reveal. */
   opacity: 0;
@@ -1225,11 +1225,10 @@ onBeforeUnmount(() => {
   stroke-dashoffset: var(--ring-len);
 }
 
-/* Music-off short path: staggered CSS draw + overshoot settle. */
+/* One draw animation owns each circle. The SVG viewBox fixes its centre. */
 .preloader:not(.preloader--beat) .preloader__ring {
   animation:
-    pl-ring-arrive-css 1500ms cubic-bezier(.16, 1, .3, 1) var(--pl-ring-delay) both,
-    pl-ring-breathe-css 1750ms ease-in-out calc(1480ms + var(--pl-ring-delay)) 1 both;
+    pl-ring-arrive-css 1100ms cubic-bezier(.22, 1, .36, 1) var(--pl-ring-delay) both;
 }
 
 .preloader__brand-shell {
@@ -1447,8 +1446,8 @@ onBeforeUnmount(() => {
 }
 
 @keyframes pl-logo-breathe {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.08); opacity: .9; }
+  0%, 100% { opacity: 1; }
+  50% { opacity: .94; }
 }
 @keyframes pl-word-breathe {
   0%, 100% { transform: scale(1); }
@@ -1464,60 +1463,28 @@ onBeforeUnmount(() => {
   50% { opacity: .34; transform: scale(.78); }
 }
 
-/* Draw clockwise: dashoffset circumference → 0 with slight scale overshoot. */
+/* Draw at a fixed radius. No per-circle scale, overshoot, or shifting bounds. */
 @keyframes pl-ring-draw {
-  0% {
-    opacity: 0;
-    stroke-dashoffset: var(--ring-len);
-    transform: rotate(-90deg) scale(.92);
-  }
-  12% { opacity: 1; }
-  62% {
-    opacity: 1;
-    stroke-dashoffset: 0;
-    transform: rotate(-90deg) scale(1.04);
-  }
-  100% {
-    opacity: 1;
-    stroke-dashoffset: 0;
-    transform: rotate(-90deg) scale(1);
-  }
+  0% { opacity: 0; stroke-dashoffset: var(--ring-len); }
+  18% { opacity: 1; }
+  100% { opacity: 1; stroke-dashoffset: 0; }
 }
 @keyframes pl-ring-arrive-css {
-  0% {
-    opacity: 0;
-    stroke-dashoffset: var(--ring-len);
-    transform: rotate(-90deg) scale(.9);
-  }
-  58% {
-    opacity: 1;
-    stroke-dashoffset: 0;
-    transform: rotate(-90deg) scale(1.035);
-  }
-  100% {
-    opacity: 1;
-    stroke-dashoffset: 0;
-    transform: rotate(-90deg) scale(1);
-  }
-}
-@keyframes pl-ring-breathe-css {
-  0%, 100% { transform: rotate(-90deg) scale(1); }
-  48% { transform: rotate(-90deg) scale(1.02); }
+  0% { opacity: 0; stroke-dashoffset: var(--ring-len); }
+  22% { opacity: 1; }
+  100% { opacity: 1; stroke-dashoffset: 0; }
 }
 @keyframes pl-ring-pulse-beat {
-  0% { opacity: 1; stroke-width: var(--ring-sw); transform: rotate(-90deg) scale(1); }
-  42% { opacity: 1; stroke-width: calc(var(--ring-sw) * 1.35); transform: rotate(-90deg) scale(1.025); }
-  100% { opacity: 1; stroke-width: var(--ring-sw); transform: rotate(-90deg) scale(1); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: .86; }
 }
 @keyframes pl-ring-pulse-strong {
-  0% { opacity: 1; stroke-width: var(--ring-sw); transform: rotate(-90deg) scale(1); }
-  38% { opacity: 1; stroke-width: calc(var(--ring-sw) * 1.55); transform: rotate(-90deg) scale(1.04); }
-  100% { opacity: 1; stroke-width: var(--ring-sw); transform: rotate(-90deg) scale(1); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: .82; }
 }
 @keyframes pl-ring-settle-breath {
-  0% { opacity: 1; transform: rotate(-90deg) scale(1); }
-  45% { opacity: .92; transform: rotate(-90deg) scale(1.012); }
-  100% { opacity: 1; transform: rotate(-90deg) scale(1); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: .9; }
 }
 @keyframes pl-word-arrive {
   0% { opacity: 0; transform: scale(.94) translateY(16rem); filter: blur(5rem); }

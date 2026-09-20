@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — The Mind Reader, AstroClock, Velocity, and Vilakku.',
+  description: 'Short games and little detours — The Mind Reader, AstroClock, and Velocity.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -90,26 +90,7 @@ const MIND_READER_SYMBOLS = [
           </span>
           <span class="engage__card-text">
             <strong class="engage__card-name">Velocity</strong>
-            <span class="engage__card-blurb">The speeds you already have — spin, orbit, galaxy, leftover light.</span>
-          </span>
-          <span class="engage__card-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
-          </span>
-        </NuxtLink>
-      </li>
-      <li class="u-reveal">
-        <NuxtLink to="/engage/vilakku" class="engage__card engage__card--vilakku">
-          <span class="engage__icon engage__icon--vilakku" aria-hidden="true">
-            <svg viewBox="0 0 32 32" width="34" height="34" fill="none" aria-hidden="true">
-              <path d="M16 27c4.2 0 6.5-2.2 6.5-4.4 0-2.6-3-4.2-6.5-7.6C12.5 18.4 9.5 20 9.5 22.6 9.5 24.8 11.8 27 16 27Z" fill="currentColor" opacity=".9"/>
-              <path d="M16 4.5c.4 3.2 1.8 5.4 1.8 8.2S16.9 16.8 16 18.2c-.9-1.4-1.8-2.7-1.8-5.5S15.6 7.7 16 4.5Z" fill="currentColor"/>
-              <rect x="15.15" y="18.2" width="1.7" height="4.2" fill="currentColor"/>
-            </svg>
-          </span>
-          <span class="engage__card-text">
-            <strong class="engage__card-name">Vilakku</strong>
-            <span class="engage__card-blurb">Monsoon tharavadu, 1994. A locked window. A lamp you have to keep.</span>
+            <span class="engage__card-blurb">See how fast you are moving — around Earth, the Sun, and beyond.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -207,18 +188,6 @@ const MIND_READER_SYMBOLS = [
   height: 100%;
 }
 
-.engage__icon--vilakku {
-  display: grid;
-  place-items: center;
-  padding: 7rem;
-  color: var(--accent-ink);
-  background: var(--accent);
-}
-.engage__icon--vilakku svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
 
 .engage__card-text {
   display: flex;

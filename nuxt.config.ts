@@ -202,13 +202,6 @@ export default defineNuxtConfig({
           url: '/engage/velocity',
           icons: [{ src: '/velocity-icon.svg', sizes: 'any', type: 'image/svg+xml' }]
         },
-        {
-          name: 'Vilakku — Folk horror',
-          short_name: 'Vilakku',
-          description: 'A locked room in a Kerala monsoon. 1994. The lamp is the only honest light.',
-          url: '/engage/vilakku',
-          icons: [{ src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml' }]
-        }
       ]
     },
     workbox: {
@@ -219,7 +212,9 @@ export default defineNuxtConfig({
       skipWaiting: true,
       clientsClaim: true,
       cleanupOutdatedCaches: true,
-      globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+      globPatterns: ['**/*.{js,css,html,svg,png,woff2}', 'velocity/textures/*.{jpg,webp}', '**/_payload.json'],
+      // Cache the actual Velocity document, including its matching Nuxt payload.
+      modifyURLPrefix: { 'engage/velocity/index.html': 'engage/velocity', 'index.html': '/' },
       navigateFallback: '/',
       navigateFallbackDenylist: [/^\/api\//],
       maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
@@ -298,6 +293,7 @@ export default defineNuxtConfig({
   },
   nitro: {
     preset: 'vercel',
+    prerender: { routes: ['/', '/engage/velocity'], crawlLinks: false },
     externals: {
       // Keep Playwright deps external in case the pw backup is ever re-enabled
       external: ['playwright-core', '@sparticuz/chromium', 'satori', '@resvg/resvg-js', 'pdf-lib'],

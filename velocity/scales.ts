@@ -1,108 +1,113 @@
-export type ScaleId = 'earth' | 'sun' | 'galaxy' | 'cosmos' | 'helix'
-
+/** All model speeds are km/s. Formatting never changes stored distances. */
+export type ScaleId = "earth" | "sun" | "galaxy" | "cosmos";
+export type SpeedUnit = "km/h" | "km/s" | "mph";
 export interface ScaleDef {
-  id: ScaleId
-  name: string
-  kicker: string
-  kms: number
-  icon: string
-  equivalent: (kms: number) => string
-  story: string[]
+  id: ScaleId;
+  name: string;
+  label: string;
+  headline: string;
+  reference: string;
+  description: string;
+  sceneNote: string;
+  period: string;
+  animation: string;
+  fact: string;
 }
-
-const EQ_KM = 40075
-
 export const SCALES: ScaleDef[] = [
   {
-    id: 'earth',
-    name: 'Earth spin',
-    kicker: 'Surface rotation',
-    kms: 1670,
-    icon: 'spin',
-    equivalent: (kms) => `${(kms / EQ_KM).toFixed(2)} equator lengths / hour`,
-    story: [
-      'The ground is already moving. At the equator the surface travels about 1,670 kilometres an hour. That number falls with the cosine of latitude.',
-      'One blink, ten kilometres. You do not feel it because the room is on the same circle.',
-    ],
+    id: "earth",
+    name: "Earth",
+    label: "The ground beneath you",
+    headline: "Standing still. Still moving.",
+    reference: "Earth’s centre · non-rotating frame",
+    description:
+      "Earth turns, carrying you with it. Near the equator you travel farther with every turn. At the poles, that circle shrinks to almost nothing.",
+    sceneNote:
+      "Earth surface textures · illustrative clouds · accelerated rotation",
+    period: "One turn ≈ 23 h 56 min",
+    animation: "One Earth turn / 48 seconds",
+    fact: "You, the ground and most of the air are moving together. You do not feel speed itself; you feel changes in motion.",
   },
   {
-    id: 'sun',
-    name: 'Solar orbit',
-    kicker: 'Earth around the Sun',
-    kms: 107000,
-    icon: 'orbit',
-    equivalent: (kms) => `${(kms / EQ_KM).toFixed(1)} equator lengths / hour`,
-    story: [
-      'The planet is falling around the Sun at about 107,000 kilometres an hour. A year is that orbit.',
-      'The seasons are a tilt, not a speed change.',
-    ],
+    id: "sun",
+    name: "Sun",
+    label: "Our yearly journey",
+    headline: "A whole planet. In motion.",
+    reference: "The Sun",
+    description:
+      "While Earth spins, it also moves around the Sun. Its orbit is slightly oval, so our speed changes through the year. Your local rotation adds a smaller motion.",
+    sceneNote:
+      "Orbital shape retained · bodies enlarged · distances compressed",
+    period: "One orbit ≈ 365.26 days",
+    animation: "One Earth orbit / 60 seconds",
+    fact: "Earth moves faster near the Sun in January and slower in July. Seasons mostly come from the tilt of Earth’s axis.",
   },
   {
-    id: 'galaxy',
-    name: 'Galactic orbit',
-    kicker: 'Sun around the core',
-    kms: 828000,
-    icon: 'arm',
-    equivalent: (kms) => `${(kms / EQ_KM).toFixed(0)} equator lengths / hour`,
-    story: [
-      'The Sun rides the disc at about 828,000 kilometres an hour. One loop takes about 230 million years.',
-      'The spiral is a reconstruction from motion and dust. We have no photograph from outside.',
-    ],
+    id: "galaxy",
+    name: "Milky Way",
+    label: "Our neighbourhood moves too",
+    headline: "The Sun comes along.",
+    reference: "The centre of the Milky Way",
+    description:
+      "The Sun carries its planets around our galaxy. Earth’s orbit and your local spin change your speed relative to the galactic centre a little throughout the year.",
+    sceneNote:
+      "Illustrative barred-spiral reconstruction · not an outside photograph",
+    period: "One circuit ≈ 210 million years in this model",
+    animation: "One galactic circuit / 90 seconds",
+    fact: "We live inside the Milky Way. Its outside appearance is reconstructed from observations, not photographed from beyond it.",
   },
   {
-    id: 'cosmos',
-    name: 'CMB flow',
-    kicker: 'Against leftover light',
-    kms: 2200000,
-    icon: 'dipole',
-    equivalent: (kms) => `${(kms / 370).toFixed(0)} × 370 km/s rest-frame dipole`,
-    story: [
-      'The microwave sky is slightly warmer in one direction. That dipole is our motion relative to the early-universe rest frame — about 370 km/s.',
-      'Warm trails mark the direction we are heading. Cool trails mark the direction we came from.',
-    ],
+    id: "cosmos",
+    name: "Ancient light",
+    label: "A wider reference",
+    headline: "Even this view is moving.",
+    reference: "The cosmic microwave background (CMB)",
+    description:
+      "Ancient light fills the sky. It looks a little warmer in the direction our solar system is moving. That gives us another way to measure motion.",
+    sceneNote:
+      "Exaggerated temperature dipole · a reference sky, not a shell in space",
+    period: "Solar-system baseline ≈ 370 km/s",
+    animation: "Fixed CMB dipole · drag to inspect",
+    fact: "There is no single absolute speed through the Universe. Each number answers “moving relative to what?” These speeds must not simply be added.",
   },
-  {
-    id: 'helix',
-    name: 'Helical path',
-    kicker: 'Sun through the disc',
-    kms: 828000,
-    icon: 'helix',
-    equivalent: () => 'orbit + bob of the disc, drawn as a corkscrew',
-    story: [
-      'The Sun does not sit still in the galactic plane. It bobbs above and below as it orbits, so the path through space is a long, shallow helix.',
-      'The corkscrew is the honest picture. The flat orbit is the projection.',
-    ],
-  },
-]
-
-export const NEXT_UNIT = { 'km/h': 'mph', mph: 'km/s', 'km/s': 'km/h' } as const
-export type SpeedUnit = keyof typeof NEXT_UNIT
-
-export function spinKms(latDeg: number): number {
-  const lat = Math.max(-90, Math.min(90, latDeg))
-  return 1670 * Math.cos((lat * Math.PI) / 180)
+];
+export const NEXT_UNIT = {
+  "km/h": "km/s",
+  "km/s": "mph",
+  mph: "km/h",
+} as const;
+export function speedValue(kmPerSecond: number, unit: SpeedUnit): number {
+  return unit === "km/s"
+    ? kmPerSecond
+    : kmPerSecond * (unit === "mph" ? 3600 / 1.609344 : 3600);
 }
-
-export function latHemisphere(lat: number): string {
-  if (Math.abs(lat) < 0.4) return 'equator'
-  return lat >= 0 ? `${lat.toFixed(1)}°N` : `${Math.abs(lat).toFixed(1)}°S`
+export function formatSpeed(
+  speed: number,
+  unit: SpeedUnit,
+  approximate = false,
+): string {
+  const n = speedValue(speed, unit);
+  const digits = unit === "km/s" ? (n < 1 ? 3 : 1) : 0;
+  const value =
+    approximate && unit !== "km/s" ? Math.round(n / 1000) * 1000 : n;
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: digits,
+  }).format(Math.max(0, value));
 }
-
-export function formatSpeed(kms: number, unit: SpeedUnit, locale = 'en-US'): string {
-  const n = unit === 'mph' ? kms * 0.621371 : unit === 'km/s' ? kms / 3600 : kms
-  const digits = unit === 'km/s' ? (n >= 10 ? 0 : 2) : 0
-  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: digits }).format(n)} ${unit}`
-}
-
-export function speedForScale(id: ScaleId, lat: number): number {
-  if (id === 'earth') return spinKms(lat)
-  return SCALES.find((s) => s.id === id)?.kms ?? 0
-}
-
 export function formatDistance(km: number, unit: SpeedUnit): string {
-  const n = unit === 'mph' ? km * 0.621371 : unit === 'km/s' ? km / 3600 : km
-  const label = unit === 'mph' ? 'mi' : unit === 'km/s' ? 'km' : 'km'
-  if (n > 1e6) return `${(n / 1e6).toFixed(3)} M${label}`
-  if (n > 1000) return `${(n / 1000).toFixed(2)} k${label}`
-  return `${n.toFixed(1)} ${label}`
+  const value = Math.max(0, km) / (unit === "mph" ? 1.609344 : 1);
+  const label = unit === "mph" ? "mi" : "km";
+  return `${new Intl.NumberFormat("en-US", { maximumFractionDigits: value < 10 ? 2 : 0 }).format(value)} ${label}`;
 }
+export function latHemisphere(lat: number): string {
+  return `${Math.abs(lat).toFixed(1)}°${lat < 0 ? "S" : "N"}`;
+}
+export const LOCATIONS = [
+  { name: "Equator · example", lat: 0, lon: 0 },
+  { name: "Mumbai", lat: 19.076, lon: 72.8777 },
+  { name: "Kochi", lat: 9.9312, lon: 76.2673 },
+  { name: "London", lat: 51.5074, lon: -0.1278 },
+  { name: "New York", lat: 40.7128, lon: -74.006 },
+  { name: "Sydney", lat: -33.8688, lon: 151.2093 },
+  { name: "North Pole", lat: 90, lon: 0 },
+];

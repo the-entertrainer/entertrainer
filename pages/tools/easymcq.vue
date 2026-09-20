@@ -2,7 +2,7 @@
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'EasyMCQ — Distractor Generator · Entertrainer',
-  description: 'Give a question and its correct answer, and EasyMCQ writes three plausible wrong options that test real understanding. A free tool for L&D teams.',
+  description: 'Give a question and its correct answer, and EasyMCQ writes three plausible wrong options that test real understanding.',
   ogTitle: 'EasyMCQ — Distractor Generator',
   ogDescription: 'Turn correct answers into plausible wrong options. The distractors do the awkward part.',
   ogUrl: 'https://entertrainer.in/tools/easymcq'

@@ -201,6 +201,13 @@ export default defineNuxtConfig({
           description: 'The speeds you already have — spin, orbit, galaxy, leftover light.',
           url: '/engage/velocity',
           icons: [{ src: '/velocity-icon.svg', sizes: 'any', type: 'image/svg+xml' }]
+        },
+        {
+          name: 'Vilakku — Folk horror',
+          short_name: 'Vilakku',
+          description: 'A locked room in a Kerala monsoon. 1994. The lamp is the only honest light.',
+          url: '/engage/vilakku',
+          icons: [{ src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml' }]
         }
       ]
     },
@@ -241,6 +248,9 @@ export default defineNuxtConfig({
   routeRules: {
     '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } },
     '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } },
+    '/tools': { redirect: { to: '/empower', statusCode: 301 } },
+    '/blogs': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/blogs/**': { redirect: { to: '/elevate/**', statusCode: 301 } },
     // Trailing slash required so static /dialogue/index.html assets resolve under /dialogue/.
     '/stitch': { redirect: { to: '/stitch/', statusCode: 308 } },
     '/dialogue': { redirect: { to: '/dialogue/', statusCode: 308 } },

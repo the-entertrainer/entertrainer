@@ -323,7 +323,7 @@ onBeforeUnmount(() => {
       <NuxtLink :to="returnTo" class="sewa-publication__exit">{{ returnLabel }}</NuxtLink>
     </header>
 
-    <main class="sewa-publication__reader">
+    <div class="sewa-publication__reader">
       <section class="sewa-publication__stage" :class="{ 'sewa-publication__stage--ready': readerReady }" aria-roledescription="book" :aria-label="`${label}, page ${activeIndex + 1} of ${pages.length}`" @pointerdown="focusReader" @touchstart.passive="onTouchStart" @touchend.passive="onTouchEnd">
         <div v-if="!reducedMotion" ref="bookRoot" class="sewa-publication__flipbook" aria-hidden="true" />
 
@@ -360,7 +360,7 @@ onBeforeUnmount(() => {
         <button type="button" :disabled="!canNext" @click="next">Next page</button>
         <button type="button" @click="restart">Return to cover</button>
       </nav>
-    </main>
+    </div>
   </article>
 </template>
 

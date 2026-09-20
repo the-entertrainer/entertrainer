@@ -39,7 +39,7 @@ const visuals = {
 </script>
 
 <template>
-  <main id="main" class="know">
+  <div class="know">
     <header class="know__head">
       <NuxtLink to="/elevate" class="know__back">The Entertrainer Blogs</NuxtLink>
       <p class="know__meta">{{ KNOWING_BLOG.category }} <span aria-hidden="true">·</span> {{ KNOWING_BLOG.minutes }} min read</p>
@@ -169,7 +169,7 @@ const visuals = {
     </section>
 
     <div class="know__newsletter-wrap"><EdNewsletter /></div>
-  </main>
+  </div>
 </template>
 
 <style scoped>

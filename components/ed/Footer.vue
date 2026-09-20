@@ -20,7 +20,7 @@ const sectionLinks = [
       </div>
 
       <nav class="ft__col" aria-labelledby="ft-sections">
-        <h2 id="ft-sections" class="t-mono ft__h">The three Es</h2>
+        <h2 id="ft-sections" class="t-mono ft__h">On this site</h2>
         <NuxtLink v-for="link in sectionLinks" :key="link.href" class="ft__link u-underline" :to="link.href">{{ link.label }}</NuxtLink>
       </nav>
 

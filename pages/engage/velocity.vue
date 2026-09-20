@@ -7,29 +7,22 @@ useSeoMeta({
   title: 'Velocity · Engage',
   description: 'The speeds you already have — Earth spin, solar orbit, galactic ride, CMB frame.',
   ogUrl: 'https://entertrainer.in/engage/velocity',
+  ogImage: 'https://entertrainer.in/og-velocity.jpg',
+  twitterCard: 'summary_large_image',
 })
-
-const THEME_BG = { dark: '#0B0C10', light: '#F4F1EA' } as const
-
-function currentTheme(): 'dark' | 'light' {
-  if (!import.meta.client) return 'dark'
-  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
-}
-
-function themeBg() {
-  return THEME_BG[currentTheme()]
-}
 
 useHead({
   htmlAttrs: {
-    style: () => `background:${themeBg()};height:100%;font-size:16px`,
+    style: 'background:#02040c;height:100%;font-size:16px;color-scheme:dark',
   },
   bodyAttrs: {
-    style: () => `background:${themeBg()};margin:0;height:100%;overscroll-behavior:none`,
+    style: 'background:#02040c;margin:0;height:100%;overscroll-behavior:none',
   },
   meta: [
-    { name: 'theme-color', content: () => themeBg() },
-    { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
+    { name: 'theme-color', content: '#02040c' },
+    { name: 'apple-mobile-web-app-capable', content: 'yes' },
+    { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no' },
   ],
   link: [{ rel: 'icon', type: 'image/svg+xml', href: '/velocity-icon.svg' }],
 })
@@ -99,10 +92,8 @@ onUnmounted(() => {
   width: 100%;
   height: 100dvh;
   margin: 0;
-  background: #0b0c10;
+  background: #02040c;
   overflow: hidden;
-}
-:global(html[data-theme='light']) .velocity-host {
-  background: #f4f1ea;
+  touch-action: none;
 }
 </style>

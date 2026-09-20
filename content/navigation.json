@@ -29,9 +29,9 @@
     },
     {
       "id": "tools",
-      "label": "Web Apps",
-      "description": "Free web apps for instructional designers and L&D teams.",
-      "href": "/tools",
+      "label": "Empower",
+      "description": "Small browser tools for the awkward, repeating work.",
+      "href": "/empower",
       "color": "#FFD43B",
       "img": "/web-apps.png",
       "meta": "Free tools"

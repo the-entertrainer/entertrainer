@@ -10,7 +10,7 @@ import type { ComposedPost } from '~/types/composed'
 
 useSeoMeta({
   title: 'Elevate · The Entertrainer Blogs',
-  description: 'Mind, Universe, Science, Technology — curious pieces about questions that stay with you.',
+  description: 'Mind, Universe, Science, Technology — pieces that start in a room and refuse the tidy story.',
   ogTitle: 'Elevate · MUST',
   ogDescription: 'Mind · Universe · Science · Technology.',
   ogUrl: 'https://entertrainer.in/elevate',
@@ -113,7 +113,7 @@ function clearCategory() {
 </script>
 
 <template>
-  <main id="main" class="elevate">
+  <div class="elevate">
     <header class="elevate__hero" aria-labelledby="elevate-title">
       <div class="elevate__hero-copy">
         <h1 id="elevate-title">Elevate</h1>
@@ -193,11 +193,11 @@ function clearCategory() {
           <span class="elevate__empty-orb elevate__empty-orb--c"></span>
           <span class="elevate__empty-spark">✦</span>
         </div>
-        <p class="elevate__empty-line">new stuff coming in hot!</p>
-        <p class="elevate__empty-soon">Soon!</p>
+        <p class="elevate__empty-line">Nothing in this filter yet.</p>
+        <p class="elevate__empty-soon">Try another letter, or wait. New pieces land here.</p>
       </div>
     </section>
-  </main>
+  </div>
 </template>
 
 <style scoped>

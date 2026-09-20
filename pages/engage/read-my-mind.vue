@@ -248,7 +248,7 @@ function playAgain() {
       <span class="mr__title">Mind Reader</span>
     </header>
 
-    <main class="mr__stage">
+    <div class="mr__stage">
       <section v-if="phase === 'intro'" class="mr__intro">
         <h1>The<br /><span class="mr__accent-chip">Mind Reader</span></h1>
         <p class="mr__lede">Two digits. Two moves. One mark.</p>
@@ -350,7 +350,7 @@ function playAgain() {
           </div>
         </article>
       </section>
-    </main>
+    </div>
   </div>
 </template>
 

@@ -557,7 +557,7 @@ const selectedFigure = computed(() =>
 </script>
 
 <template>
-  <main id="main" class="compose">
+  <div class="compose">
     <div v-if="!unlocked" class="compose__gate">
       <p class="compose__eyebrow">Private</p>
       <h1>Compose</h1>
@@ -1082,7 +1082,7 @@ const selectedFigure = computed(() =>
         </section>
       </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <style scoped>

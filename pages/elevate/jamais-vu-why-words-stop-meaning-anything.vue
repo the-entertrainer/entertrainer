@@ -36,7 +36,7 @@ const vuFamily = [
 </script>
 
 <template>
-  <main id="main" class="jv">
+  <div class="jv">
     <header class="jv__head">
       <NuxtLink to="/elevate" class="jv__back">The Entertrainer Blogs</NuxtLink>
       <p class="jv__meta">{{ JAMAIS_VU_BLOG.category }} <span aria-hidden="true">·</span> {{ JAMAIS_VU_BLOG.minutes }} min read</p>
@@ -121,7 +121,6 @@ const vuFamily = [
         <p>That's jamais vu, running on a room or a face instead of a word — the same signal, briefly declining to confirm what it already knows.</p>
         <p>So why did "door" stop looking like a word? Not because I forgot English. Because the specific, moment-to-moment feeling of recognising a word is generated fresh, almost every time, by a system that gets measurably worse at its job the moment you make it run the same check thirty times in a row.</p>
         <p class="jv__closing">Which is a strange thing to learn about your own mind from an auditing job — that the part of you checking for errors is, itself, running on a system that develops its own errors the harder you make it look.</p>
-        <p>So the next time a word looks wrong on the fifth read: don't panic, don't Google your symptoms. Just blink, look away, look back. The feed reconnects. It always does.</p>
       </div>
     </article>
 
@@ -136,7 +135,7 @@ const vuFamily = [
     </section>
 
     <div class="jv__newsletter-wrap"><EdNewsletter /></div>
-  </main>
+  </div>
 </template>
 
 <style scoped>

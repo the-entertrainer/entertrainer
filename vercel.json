@@ -26,6 +26,36 @@
       "source": "/games/:path*",
       "destination": "/engage/:path*",
       "permanent": true
+    },
+    {
+      "source": "/engage/pictune",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/tools/training-cal-gen",
+      "destination": "/tools/cadence",
+      "permanent": true
+    },
+    {
+      "source": "/tools/storyforge-id",
+      "destination": "/tools/storygen",
+      "permanent": true
+    },
+    {
+      "source": "/tools",
+      "destination": "/empower",
+      "permanent": true
+    },
+    {
+      "source": "/blogs",
+      "destination": "/elevate",
+      "permanent": true
+    },
+    {
+      "source": "/blogs/:path*",
+      "destination": "/elevate/:path*",
+      "permanent": true
     }
   ],
   "rewrites": [

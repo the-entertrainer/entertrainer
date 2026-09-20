@@ -22,7 +22,7 @@ defineProps<{
       <header class="ts__head">
         <div class="ts__top">
           <EdChip category="tools" media="web app" tone="solid" />
-          <NuxtLink to="/tools" class="t-mono ts__back u-underline">← All web apps</NuxtLink>
+          <NuxtLink to="/empower" class="t-mono ts__back u-underline">← Empower</NuxtLink>
         </div>
         <h1 class="ts__title">
           <slot name="title">{{ title }}</slot>

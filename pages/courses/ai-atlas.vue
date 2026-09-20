@@ -216,7 +216,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="ai-player">
+  <div class="ai-player">
     <header class="ai-player__bar" aria-label="Course controls">
       <NuxtLink to="/lessons" class="ai-player__exit">All lessons</NuxtLink>
       <div class="ai-player__identity"><span aria-hidden="true">E</span><p>From No AI to Know AI</p></div>
@@ -287,7 +287,7 @@ onMounted(() => {
       </Transition>
       </div>
     </section>
-  </main>
+  </div>
 </template>
 
 <style scoped>

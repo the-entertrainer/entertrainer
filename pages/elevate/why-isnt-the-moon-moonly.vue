@@ -46,7 +46,7 @@ const tiers = [
 </script>
 
 <template>
-  <main id="main" class="moonly">
+  <div class="moonly">
     <header class="moonly__head">
       <NuxtLink to="/elevate" class="moonly__back">The Entertrainer Blogs</NuxtLink>
       <p class="moonly__meta">{{ MOONLY_BLOG.category }} <span aria-hidden="true">·</span> {{ MOONLY_BLOG.minutes }} min read</p>
@@ -189,7 +189,7 @@ const tiers = [
     </section>
 
     <div class="moonly__newsletter-wrap"><EdNewsletter /></div>
-  </main>
+  </div>
 </template>
 
 <style scoped>

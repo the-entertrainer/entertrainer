@@ -55,7 +55,7 @@ const comparison = [
 </script>
 
 <template>
-  <main id="main" class="understand">
+  <div class="understand">
     <header class="understand__head">
       <NuxtLink to="/elevate" class="understand__back">The Entertrainer Blogs</NuxtLink>
       <p class="understand__meta">{{ AI_UNDERSTAND_BLOG.category }} <span aria-hidden="true">·</span> {{ AI_UNDERSTAND_BLOG.minutes }} min read</p>
@@ -177,7 +177,7 @@ const comparison = [
     </section>
 
     <div class="understand__newsletter-wrap"><EdNewsletter /></div>
-  </main>
+  </div>
 </template>
 
 <style scoped>

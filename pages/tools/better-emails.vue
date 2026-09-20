@@ -2,7 +2,7 @@
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'Draftly — Email Polisher · Entertrainer',
-  description: 'Turn messy drafts into clear, professional emails, with a plain-language note on what changed and why. A free tool for L&D teams.',
+  description: 'Turn messy drafts into clear, professional emails, with a plain-language note on what changed and why.',
   ogTitle: 'Draftly — Email Polisher',
   ogDescription: 'Turn messy drafts into clear, professional emails. Your first draft does not have to become public history.',
   ogUrl: 'https://entertrainer.in/tools/better-emails'

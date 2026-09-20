@@ -294,7 +294,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="compact-course">
+  <div class="compact-course">
     <header class="course-bar" aria-label="Course controls">
       <NuxtLink to="/lessons" class="course-bar__back">All lessons</NuxtLink>
       <p>Introduction to Instructional Design</p>
@@ -371,7 +371,7 @@ onMounted(() => {
       </div>
 
     </section>
-  </main>
+  </div>
 </template>
 
 <style scoped>

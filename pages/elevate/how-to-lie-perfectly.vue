@@ -41,7 +41,7 @@ const visuals = {
 </script>
 
 <template>
-  <main id="main" class="lie">
+  <div class="lie">
     <header class="lie__head">
       <NuxtLink to="/elevate" class="lie__back">The Entertrainer Blogs</NuxtLink>
       <p class="lie__meta">{{ LIE_PERFECTLY_BLOG.category }} <span aria-hidden="true">·</span> {{ LIE_PERFECTLY_BLOG.minutes }} min read</p>
@@ -81,8 +81,8 @@ const visuals = {
         <p>A lot of research suggests that framing is incomplete.</p>
 
         <figure class="lie__visual lie__visual--wide">
-          <EdEditorialImage :src="visuals.conversation" alt="Two women sitting at a table outdoors, talking face to face against a city backdrop." />
-          <figcaption>Everyday talk is not an interrogation. Image: <a href="https://commons.wikimedia.org/wiki/File:Pexels-photo-1181717.jpg" target="_blank" rel="noreferrer">Christina Morillo / Pexels</a>, <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noreferrer">CC0</a> (published before July 2018).</figcaption>
+          <EdEditorialImage :src="visuals.conversation" alt="Two adult silhouettes at a table: one straight cobalt speech-path, one tangled dashed scribble." />
+          <figcaption>Everyday talk is not an interrogation.</figcaption>
         </figure>
 
         <h2>What intuition gets wrong</h2>
@@ -205,7 +205,7 @@ const visuals = {
     </section>
 
     <div class="lie__newsletter-wrap"><EdNewsletter /></div>
-  </main>
+  </div>
 </template>
 
 <style scoped>

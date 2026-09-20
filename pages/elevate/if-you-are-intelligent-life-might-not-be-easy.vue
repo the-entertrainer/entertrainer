@@ -24,12 +24,12 @@ const visuals = {
 </script>
 
 <template>
-  <main id="main" class="feature">
+  <div class="feature">
     <header class="feature__head">
-      <NuxtLink to="/blogs" class="feature__back">The Entertrainer Blogs <span aria-hidden="true">↗</span></NuxtLink>
+      <NuxtLink to="/elevate" class="feature__back">The Entertrainer Blogs <span aria-hidden="true">↗</span></NuxtLink>
       <p class="feature__meta">Mind & meaning <span aria-hidden="true">·</span> 9 min read</p>
-      <h1>If you are an intelligent person, life might not be easy for you. Here’s why</h1>
-      <p class="feature__dek">Not because intelligence is a curse. Because a mind that can model more possibilities can also get stuck living in the model.</p>
+      <h1>{{ INTELLIGENCE_BLOG.title }}</h1>
+      <p class="feature__dek">{{ INTELLIGENCE_BLOG.dek }}</p>
     </header>
 
     <figure class="feature__hero">
@@ -60,7 +60,7 @@ const visuals = {
         <p>Basically: thinking deeply and being trapped in thinking are not identical twins. They are more like cousins who become unbearable when they stay too long at the same family function.</p>
 
         <figure class="feature__inline-art feature__inline-art--portrait">
-          <EdEditorialImage :src="visuals.branches" alt="People waiting at a bus stop in black and white" />
+          <EdEditorialImage :src="visuals.branches" alt="A bus-stop canopy in black ink with three dashed routes, one cobalt path leaving the frame." />
           <figcaption>A possibility is useful when it helps you decide. It becomes expensive when it asks to be revisited forever.</figcaption>
         </figure>
 
@@ -104,7 +104,7 @@ const visuals = {
     </section>
 
     <div class="feature__newsletter-wrap"><EdNewsletter /></div>
-  </main>
+  </div>
 </template>
 
 <style scoped>

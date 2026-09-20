@@ -35,7 +35,7 @@ const sensitivity = [
 </script>
 
 <template>
-  <main id="main" class="mid">
+  <div class="mid">
     <header class="mid__head">
       <NuxtLink to="/elevate" class="mid__back">The Entertrainer Blogs</NuxtLink>
       <p class="mid__meta">{{ LIFE_MIDPOINT_BLOG.category }} <span aria-hidden="true">·</span> {{ LIFE_MIDPOINT_BLOG.minutes }} min read</p>
@@ -134,7 +134,7 @@ const sensitivity = [
     </section>
 
     <div class="mid__newsletter-wrap"><EdNewsletter /></div>
-  </main>
+  </div>
 </template>
 
 <style scoped>

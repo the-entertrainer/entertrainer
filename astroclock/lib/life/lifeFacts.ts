@@ -41,7 +41,7 @@ const YEARS: LifeFact[] = [
     approx: true,
   },
   {
-    text: 'Saturn advances only about 12° along the ecliptic in a calendar year.',
+    text: 'Saturn advances only about twelve degrees along the ecliptic in a calendar year.',
     approx: true,
   },
   {
@@ -57,7 +57,7 @@ const YEARS: LifeFact[] = [
     approx: true,
   },
   {
-    text: 'Jupiter moves about 30° — one zodiac sign — in roughly a year.',
+    text: 'Jupiter moves about thirty degrees — one zodiac sign — in roughly a year.',
     approx: true,
   },
 ];
@@ -135,7 +135,7 @@ const DAYS: LifeFact[] = [
     approx: true,
   },
   {
-    text: 'The Moon drifts about 13° east against the stars each day.',
+    text: 'The Moon drifts about thirteen degrees east against the stars each day.',
     approx: true,
   },
   {
@@ -170,7 +170,7 @@ const HOURS: LifeFact[] = [
     approx: true,
   },
   {
-    text: 'Earth rotates 15° of longitude — one time zone’s worth — each hour.',
+    text: 'Earth rotates fifteen degrees of longitude — one time zone’s worth — each hour.',
     approx: true,
   },
   {
@@ -229,7 +229,7 @@ const MINUTES: LifeFact[] = [
     approx: true,
   },
   {
-    text: 'Earth rotates about 0.25° in a minute — 27 km at the equator.',
+    text: 'Earth rotates about a quarter-degree in a minute — 27 km at the equator.',
     approx: true,
   },
   {

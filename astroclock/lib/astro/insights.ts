@@ -277,30 +277,30 @@ function climateFrom(
   if (exactHard >= 2 || (hard >= 4 && soft <= 1)) {
     return {
       climate: 'volatile',
-      note: 'Several hard edges at once — keep scope small and technique high.',
+      note: 'A few hard edges at once — keep the next hour small and careful.',
     };
   }
   if (soft + hard <= 1) {
     return {
       climate: 'quiet',
-      note: 'Sparse sky — good for deep work, weak for forced pivots.',
+      note: 'Quiet stretch — good for deep work, weak for forced pivots.',
     };
   }
   if (hrs >= 72 && soft >= hard) {
     return {
       climate: 'peak',
-      note: 'Soft links are loud — ship what is ready and collaborate.',
+      note: 'Good day to finish something and ask someone for help.',
     };
   }
   if (hard > soft + 1) {
     return {
       climate: 'tense',
-      note: 'Friction dominates — precision under pressure beats drama.',
+      note: 'Day feels tight — be precise, skip the drama.',
     };
   }
   return {
     climate: 'fluid',
-    note: 'Easier traffic — prefer alliance and polish over confrontation.',
+    note: 'Easier day — work with people and polish what’s open.',
   };
 }
 
@@ -359,15 +359,15 @@ function buildDaySummary(args: {
 
   let texture: string;
   if (args.climate === 'volatile') {
-    texture = 'The day feels volatile — a few sharp edges at once. Keep scope small and refuse to panic.';
+    texture = 'The day feels jumpy — a few hard edges at once. Keep the next hour small.';
   } else if (args.climate === 'quiet') {
     texture = 'The day feels quiet — good for deep work, weak for forced pivots.';
   } else if (args.climate === 'peak') {
-    texture = 'The day has an easy peak feel — ship what’s ready and collaborate.';
+    texture = 'Energy’s up today — finish what’s ready and ask someone for help.';
   } else if (args.climate === 'tense') {
-    texture = 'The day carries contested edges — precision under pressure beats drama.';
+    texture = 'The day feels tight — be precise, skip the drama.';
   } else {
-    texture = 'The day is relatively fluid — prefer alliance and polish over confrontation.';
+    texture = 'The day feels easier — work with people and polish what’s open.';
   }
   frags.push({ text: texture, specificity: 36, cite: `HRS ${args.hrs}` });
 
@@ -483,28 +483,28 @@ function buildCards(args: {
       id: 'texture-soft',
       tone: 'soft',
       title: 'Day texture · fluid',
-      body: `${args.soft} soft vs ${args.hard} hard contacts — prefer collaboration and finish what’s ready; skip picking a fight.`,
+      body: `${args.soft} soft vs ${args.hard} hard contacts — finish what’s ready and work with people; skip picking a fight.`,
     });
   } else if (args.hard > args.soft + 1) {
     cards.push({
       id: 'texture-hard',
       tone: 'hard',
       title: 'Day texture · edged',
-      body: `${args.hard} hard vs ${args.soft} soft contacts — precision under pressure; pause before sharp turns in talk.`,
+      body: `${args.hard} hard vs ${args.soft} soft contacts — go careful; pause before sharp turns in talk.`,
     });
   } else if (args.soft + args.hard <= 1) {
     cards.push({
       id: 'texture-quiet',
       tone: 'quiet',
       title: 'Day texture · quiet',
-      body: 'Few exact contacts — sparse sky. Deep work yes; forced pivots no.',
+      body: 'Few exact contacts — quiet day. Deep work yes; forced pivots no.',
     });
   } else {
     cards.push({
       id: 'texture-mixed',
       tone: 'sky',
       title: 'Day texture · mixed',
-      body: `${args.soft} soft · ${args.hard} hard contacts — alternate push and ease; name the main thread once.`,
+      body: `${args.soft} soft · ${args.hard} hard contacts — push a bit, then ease; name the main thread once.`,
     });
   }
 
@@ -563,7 +563,7 @@ function buildCards(args: {
       id: 'vol',
       tone: 'hard',
       title: 'Volatile window',
-      body: 'Multiple exact hard aspects — tighten scope; skip theatre.',
+      body: 'A few hard edges at once — keep the next hour small; skip the drama.',
     });
   }
 

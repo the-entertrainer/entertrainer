@@ -105,7 +105,7 @@ function turnOn() {
 }
 .ai__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12rem; }
 .ai__head h2 { font-size: 21rem; letter-spacing: -0.03em; margin-bottom: 6rem; }
-.ai__head-title { display: flex; align-items: center; gap: 8rem; color: #8B7CF6; }
+.ai__head-title { display: flex; align-items: center; gap: 8rem; color: var(--accent-text); }
 .ai__head p { font-size: 13rem; opacity: 0.65; line-height: 1.5; }
 .ai__close {
   width: 28rem; height: 28rem;

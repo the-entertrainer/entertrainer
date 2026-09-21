@@ -316,7 +316,6 @@ onBeforeUnmount(() => {
 .newsletter::after { content: ''; position: absolute; width: 440rem; height: 440rem; right: -200rem; top: 50%; border: 58rem solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 50%; transform: translateY(-50%); pointer-events: none; }
 .newsletter > * { position: relative; z-index: 1; }
 .newsletter__mark { display: grid; width: 82rem; height: 82rem; place-items: center; background: var(--paper); border: var(--stroke) solid var(--ink); border-radius: 50%; box-shadow: 5rem 5rem 0 var(--ink); }
-.newsletter__kicker { margin: 0 0 10rem; color: var(--ink-soft); font: 700 11rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
 .newsletter h2 { margin: 0; max-width: 410rem; font: 500 clamp(29rem, 3.2vw, 44rem)/.96 var(--font-display); letter-spacing: -.045em; }
 .newsletter__copy > p:last-child { max-width: 440rem; margin: 14rem 0 0; font-size: 16rem; line-height: 1.45; }
 .newsletter__form { min-width: 0; }

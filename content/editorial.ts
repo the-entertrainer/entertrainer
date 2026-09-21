@@ -2,10 +2,8 @@
  * The publication's index.
  *
  * Every card on the front page, every section listing and every "read next"
- * rail is generated from this one array. Before, the same four tools were
- * described in navigation.json, again in the PWA manifest, and a third time in
- * prose on /tools — so a description could be updated in one place and stay
- * wrong in two others.
+ * rail is generated from this one array. Tool cards, navigation, and the PWA shortcuts should stay in sync with this
+ * list — so a description updated here does not stay wrong in two other places.
  *
  * A deliberate omission: there are no invented publication dates. This is a
  * portfolio, not a dated feed, and stamping "12 Mar 2025" on a case study
@@ -56,7 +54,7 @@ export const CATEGORIES: CategoryMeta[] = [
   { id: 'projects', label: 'Projects', accent: 'var(--cat-projects)', onAccent: 'var(--on-cat-projects)',
     blurb: 'Courses, comics, and interactive explainers built from real work.' },
   { id: 'tools', label: 'Tools', accent: 'var(--cat-tools)', onAccent: 'var(--on-cat-tools)',
-    blurb: 'Free browser tools for writing, planning, making quizzes, and catching an idea before it disappears.' },
+    blurb: 'Free browser tools that earn their keep — quizzes and emails, without the ceremony.' },
   { id: 'story', label: 'Story', accent: 'var(--cat-story)', onAccent: 'var(--on-cat-story)',
     blurb: 'From a Kerala cocoon to machines, hotel floors, comics, and learning design. The route was not exactly linear.' },
   { id: 'lab', label: 'Experiments', accent: 'var(--cat-lab)', onAccent: 'var(--on-cat-lab)',
@@ -84,7 +82,7 @@ export const ITEMS: EditorialItem[] = [
     title: 'The SEWA Chronicles',
     dek: 'Sixteen true stories from the resort floor, drawn as comic strips and returned to the teams they came from. Real work, now with panels.',
     category: 'projects',
-    media: 'project story',
+    media: 'case study',
     href: '/my-work/sewa-chronicles',
     image: '/work-01.png',
     alt: 'The SEWA Chronicles comic cover',
@@ -118,48 +116,26 @@ export const ITEMS: EditorialItem[] = [
     size: 'wide'
   },
   {
-    id: 'storygen',
-    title: 'StoryGen',
-    dek: 'Plan visual stories on an infinite canvas with cards, connections, and Word export. Put the chaos somewhere useful.',
-    category: 'tools',
-    media: 'free tool',
-    href: '/tools/storygen',
-    image: '/storygen.png',
-    alt: 'StoryGen icon — connected story cards on a canvas',
-    stamp: 'Free · Plan a story'
-  },
-  {
-    id: 'cadence',
-    title: 'Cadence',
-    dek: 'Turn your topic list into a monthly training calendar. The blank page can take a day off.',
-    category: 'tools',
-    media: 'free tool',
-    href: '/tools/cadence',
-    image: '/training-cal-gen.png',
-    alt: 'Cadence icon — calendar grid with rhythm bars',
-    stamp: 'Free · Make a calendar'
-  },
-  {
     id: 'easymcq',
     title: 'EasyMCQ',
-    dek: 'Write a question and answer; get three plausible wrong options. The distractors do the awkward part.',
+    dek: 'Give the question and the right answer. Get three wrong options that still sound believable.',
     category: 'tools',
-    media: 'free tool',
+    media: 'web app',
     href: '/tools/easymcq',
     image: '/easymcq.png',
     alt: 'EasyMCQ icon — checklist with one correct mark',
-    stamp: 'Free · Make a quiz'
+    stamp: 'Free · Quiz distractors'
   },
   {
     id: 'better-emails',
     title: 'Draftly',
-    dek: 'Paste in a rough email and fix the tone, grammar, and structure in one go. Your first draft does not have to become public history.',
+    dek: 'Paste a rough email. Get a clearer one back, with a plain note on what changed.',
     category: 'tools',
-    media: 'free tool',
+    media: 'web app',
     href: '/tools/better-emails',
     image: '/better-emails.png',
     alt: 'Draftly icon — envelope with polish stroke',
-    stamp: 'Free · Improve an email'
+    stamp: 'Free · Email polish'
   },
   {
     id: 'about',

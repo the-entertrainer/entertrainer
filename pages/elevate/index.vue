@@ -123,7 +123,7 @@ function clearCategory() {
 
     <section class="elevate__entry" aria-labelledby="articles-title">
       <div class="elevate__toolbar">
-        <h2 id="articles-title" class="elevate__section-label">Articles</h2>
+        <h2 id="articles-title" class="elevate__section-label">Reading</h2>
 
         <div class="elevate__controls">
           <div class="elevate__must" role="group" aria-label="Filter by MUST: Mind, Universe, Science, Technology">

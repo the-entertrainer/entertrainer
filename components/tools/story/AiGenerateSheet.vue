@@ -145,7 +145,7 @@ async function generate() {
 }
 .aig__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12rem; }
 .aig__head h2 { font-size: 20rem; letter-spacing: -0.03em; margin-bottom: 6rem; }
-.aig__head-title { display: flex; align-items: center; gap: 8rem; color: #8B7CF6; }
+.aig__head-title { display: flex; align-items: center; gap: 8rem; color: var(--accent-text); }
 .aig__head p { font-size: 13rem; opacity: 0.65; line-height: 1.5; }
 .aig__close {
   width: 28rem; height: 28rem;

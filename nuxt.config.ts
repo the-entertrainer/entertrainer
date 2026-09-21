@@ -146,23 +146,9 @@ export default defineNuxtConfig({
 		],
       shortcuts: [
         {
-          name: 'StoryGen — Storyboard Studio',
-          short_name: 'StoryGen',
-          description: 'Design instructional storyboards on an infinite canvas',
-          url: '/tools/storygen',
-          icons: [{ src: '/storygen-icon-192.png', sizes: '192x192', type: 'image/png' }]
-        },
-        {
-          name: 'Cadence — Training Calendar',
-          short_name: 'Cadence',
-          description: 'Turn a list of topics into a ready-to-present monthly training calendar',
-          url: '/tools/cadence',
-          icons: [{ src: '/cadence-icon-192.png', sizes: '192x192', type: 'image/png' }]
-        },
-        {
           name: 'EasyMCQ — Distractor Generator',
           short_name: 'EasyMCQ',
-          description: 'Turn correct answers into brilliant, plausible wrong options',
+          description: 'Give the question and answer; get three plausible wrong options',
           url: '/tools/easymcq',
           icons: [{ src: '/easymcq-icon-192.png', sizes: '192x192', type: 'image/png' }]
         },
@@ -172,8 +158,7 @@ export default defineNuxtConfig({
           description: 'Turn messy drafts into clear, professional emails',
           url: '/tools/better-emails',
           icons: [{ src: '/draftly-icon-192.png', sizes: '192x192', type: 'image/png' }]
-        }
-        ,
+        },
         {
           name: 'Dialogue — Comics from your pocket',
           short_name: 'Dialogue',

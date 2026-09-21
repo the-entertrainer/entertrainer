@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // The Draftly mark: an envelope with a burst of polish sparkles — a rough
-// draft coming out clean. Same violet→blue→teal tile as StoryGen, Cadence
+// draft coming out clean. Same Entertrainer yellow tile as StoryGen, Cadence
 // and EasyMCQ so all four tools read as one family. `animated` pops the
 // envelope in, draws the flap, then twinkles the sparkles.
 defineProps<{ size?: number; animated?: boolean }>()
@@ -12,10 +12,10 @@ defineProps<{ size?: number; animated?: boolean }>()
     :class="{ 'df-mark--animated': animated }" class="df-mark"
   >
     <defs>
-      <linearGradient id="df-mark-g" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#8B7CF6" />
-        <stop offset="0.55" stop-color="#5B8DEF" />
-        <stop offset="1" stop-color="#2DD4BF" />
+            <linearGradient id="df-mark-g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#FFE38A" />
+        <stop offset="0.55" stop-color="#FFD43B" />
+        <stop offset="1" stop-color="#EAB900" />
       </linearGradient>
     </defs>
 
@@ -31,10 +31,10 @@ defineProps<{ size?: number; animated?: boolean }>()
 
     <!-- Polish sparkles -->
     <g class="df-mark__spark df-mark__spark--a" transform="translate(378,158)">
-      <path d="M0,-52 C6,-6 6,-6 52,0 C6,6 6,6 0,52 C-6,6 -6,6 -52,0 C-6,-6 -6,-6 0,-52 Z" fill="#14B8A6" />
+      <path d="M0,-52 C6,-6 6,-6 52,0 C6,6 6,6 0,52 C-6,6 -6,6 -52,0 C-6,-6 -6,-6 0,-52 Z" fill="#161618" />
     </g>
     <g class="df-mark__spark df-mark__spark--b" transform="translate(430,232)">
-      <path d="M0,-22 C2.4,-2.4 2.4,-2.4 22,0 C2.4,2.4 2.4,2.4 0,22 C-2.4,2.4 -2.4,2.4 -22,0 C-2.4,-2.4 -2.4,-2.4 0,-22 Z" fill="#8B5CF6" />
+      <path d="M0,-22 C2.4,-2.4 2.4,-2.4 22,0 C2.4,2.4 2.4,2.4 0,22 C-2.4,2.4 -2.4,2.4 -22,0 C-2.4,-2.4 -2.4,-2.4 0,-22 Z" fill="#EAB900" />
     </g>
   </svg>
 </template>
@@ -78,8 +78,8 @@ defineProps<{ size?: number; animated?: boolean }>()
   100% { opacity: 1; transform: scale(1) rotate(0deg); }
 }
 @keyframes df-mark-breathe {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(139, 124, 246, 0)); }
-  50%      { transform: scale(1.025); filter: drop-shadow(0 6rem 22rem rgba(139, 124, 246, 0.45)); }
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(234, 185, 0, 0)); }
+  50%      { transform: scale(1.025); filter: drop-shadow(0 6rem 22rem rgba(234, 185, 0, 0.4)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .df-mark--animated,

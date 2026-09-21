@@ -83,11 +83,12 @@
   /* Measured, not assumed. The three light accents carry ink and the three
      dark ones carry white; picking per-accent is what let green and cyan stay
      genuinely bright instead of being muddied down to hold white text. */
-  --on-blue:   #FFFFFF;   /* 8.0:1  */
+  /* blue/purple alias to yellow accent — ink on yellow, never white */
+  --on-blue:   var(--accent-ink); /* yellow fill */
   --on-red:    #FFFFFF;   /* 4.6:1  */
   --on-green:  #161618;   /* 8.9:1  */
-  --on-purple: #FFFFFF;   /* 5.9:1  */
-  --on-yellow: #161618;   /* 13.0:1 */
+  --on-purple: var(--accent-ink); /* yellow fill */
+  --on-yellow: var(--accent-ink); /* 13.0:1 */
   --on-cyan:   #161618;   /* 7.7:1  */
 
   --selection: var(--accent);
@@ -607,7 +608,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
   min-height: 44rem; padding: 11rem var(--btn-pad-x);
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-full);
-  background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
+  background: var(--accent); color: var(--accent-ink); border-color: var(--ink);
   font-family: var(--font-ui);
   font-size: 15rem; font-weight: 600; letter-spacing: 0;
   text-decoration: none; white-space: nowrap; cursor: pointer;
@@ -625,7 +626,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 .ticket:not(:disabled):active, .px-btn:not(:disabled):active, .glass-btn:not(:disabled):active { opacity: 0.85; }
 .ticket:disabled, .px-btn[disabled], .glass-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-.ticket--ink, .px-btn--solid { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.ticket--ink, .px-btn--solid { background: var(--accent); color: var(--accent-ink); border-color: var(--ink); }
 .ticket--ghost, .glass-btn--ghost, .px-btn--ghost {
   background: transparent; color: var(--ink); border-color: var(--line-strong);
 }

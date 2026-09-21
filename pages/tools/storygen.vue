@@ -1038,8 +1038,8 @@ onUnmounted(() => {
 .sg-splash__ai { margin-top: 10rem; animation: splash-text 0.7s 0.55s var(--ease-spring) both; }
 .sg-home__ai { margin-left: auto; flex-shrink: 0; }
 .sg-home__ai-new {
-  background: linear-gradient(120deg, #8B7CF6, #5B8DEF);
-  color: #fff;
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 .sg-home__new {
   border-color: color-mix(in srgb, #8B7CF6 40%, var(--color-glass-border));

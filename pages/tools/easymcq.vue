@@ -57,7 +57,7 @@ async function copy(text: string, i: number) {
 </script>
 
 <template>
-  <UiToolShell eyebrow="Distractor Generator" deck="Turn correct answers into plausible wrong ones. Options that test real understanding, not lucky guessing.">
+  <UiToolShell deck="Give the question and the right answer. Get three wrong options that still sound believable.">
     <template #title>
       <span class="mcq-lockup">
         <ToolsMcqBrandMark :size="46" class="mcq-lockup__mark" />

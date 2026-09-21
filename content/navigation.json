@@ -30,7 +30,7 @@
     {
       "id": "tools",
       "label": "Empower",
-      "description": "Small browser tools for the awkward, repeating work.",
+      "description": "Two free tools that earn their keep.",
       "href": "/empower",
       "color": "#FFD43B",
       "img": "/web-apps.png",
@@ -47,7 +47,7 @@
       "href": "/my-work/sewa-chronicles",
       "color": "#FFD43B",
       "img": "/work-01.png",
-      "meta": "Comic \u00b7 Club Mahindra"
+      "meta": "Comic · Club Mahindra"
     },
     {
       "id": "strong",
@@ -63,20 +63,11 @@
     {
       "id": "easymcq",
       "label": "EasyMCQ",
-      "description": "Write the question and the right answer; the AI writes the wrong ones.",
+      "description": "Write the question and the right answer; get three plausible wrong ones.",
       "href": "/tools/easymcq",
       "color": "#FFD43B",
       "img": "/easymcq.png",
       "meta": "Assessment"
-    },
-    {
-      "id": "training-cal-gen",
-      "label": "Cadence",
-      "description": "Turn a list of topics into a monthly training calendar you can present.",
-      "href": "/tools/cadence",
-      "color": "#FFD43B",
-      "img": "/training-cal-gen.png",
-      "meta": "Planning"
     },
     {
       "id": "better-emails",
@@ -86,15 +77,6 @@
       "color": "#FFD43B",
       "img": "/better-emails.png",
       "meta": "Writing"
-    },
-    {
-      "id": "storygen",
-      "label": "StoryGen",
-      "description": "Storyboard on an infinite canvas \u2014 cards, flows, and a Word export.",
-      "href": "/tools/storygen",
-      "color": "#FFD43B",
-      "img": "/storygen.png",
-      "meta": "Storyboarding"
     }
   ],
   "downloads": [

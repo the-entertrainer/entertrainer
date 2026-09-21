@@ -224,7 +224,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
 </script>
 
 <template>
-  <UiToolShell eyebrow="Email Polisher" deck="Turn messy drafts into clear, professional emails, with a note on what changed. The first draft can stay messy; it just does not have to leave the building that way.">
+  <UiToolShell deck="Paste a rough email. Get a clearer one back, with a plain note on what changed.">
     <template #title>
       <span class="draftly-lockup">
         <ToolsEmailBrandMark :size="46" class="draftly-lockup__mark" />

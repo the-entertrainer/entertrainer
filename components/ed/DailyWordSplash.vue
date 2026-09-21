@@ -1,14 +1,13 @@
 <script setup lang="ts">
 /**
- * Word of the Day — arrange scrambled letter tiles into answer slots.
- * Clue + locked letter hints from the start → tap/place → auto-check → meaning.
+ * Word of the Day — scramble tiles into answer slots.
+ * Clue + locked hints → place → auto-check → meaning.
  */
 import type { WotdDefinition } from '~/composables/useDailyWord'
 
 interface LetterTile {
   id: string
   ch: string
-  /** Pre-filled answer letter — locked in place for the puzzle. */
   locked?: boolean
 }
 
@@ -41,16 +40,16 @@ const showMeaning = computed(() => feedback.value === 'ok' || feedback.value ===
 const slotsFull = computed(() => slots.value.length > 0 && slots.value.every(Boolean))
 const placedCount = computed(() => slots.value.filter(Boolean).length)
 
-/** Size answer + tray tiles so each row stays one line on phone-width cards. */
+/** One-line tiles on phone-width cards — scale by letter count. */
 const slotStyle = computed(() => {
   const n = Math.max(word.length, 1)
   const trayN = Math.max(tray.value.length, 1)
-  const max = n <= 6 ? 48 : n <= 8 ? 42 : n <= 9 ? 34 : n <= 10 ? 30 : n <= 12 ? 26 : n <= 13 ? 22 : 20
-  const gap = n <= 6 ? 8 : n <= 8 ? 6 : n <= 9 ? 5 : n <= 10 ? 4 : n <= 12 ? 3 : 2
-  const fsMax = n <= 6 ? 22 : n <= 8 ? 20 : n <= 9 ? 17 : n <= 10 ? 15 : n <= 12 ? 13 : 11
-  const trayMax = trayN <= 6 ? 52 : trayN <= 8 ? 46 : trayN <= 10 ? 40 : trayN <= 12 ? 34 : 28
-  const trayGap = trayN <= 6 ? 10 : trayN <= 8 ? 8 : trayN <= 10 ? 6 : trayN <= 12 ? 4 : 3
-  const trayFs = trayN <= 6 ? 24 : trayN <= 8 ? 20 : trayN <= 10 ? 17 : trayN <= 12 ? 15 : 13
+  const max = n <= 5 ? 52 : n <= 7 ? 44 : n <= 9 ? 36 : n <= 11 ? 30 : n <= 13 ? 24 : 20
+  const gap = n <= 5 ? 8 : n <= 7 ? 6 : n <= 9 ? 5 : n <= 11 ? 4 : 3
+  const fsMax = n <= 5 ? 24 : n <= 7 ? 20 : n <= 9 ? 17 : n <= 11 ? 14 : 12
+  const trayMax = trayN <= 5 ? 54 : trayN <= 7 ? 46 : trayN <= 9 ? 38 : trayN <= 11 ? 32 : 26
+  const trayGap = trayN <= 5 ? 10 : trayN <= 7 ? 8 : trayN <= 9 ? 6 : 4
+  const trayFs = trayN <= 5 ? 24 : trayN <= 7 ? 20 : trayN <= 9 ? 16 : 13
   return {
     '--slot-count': String(n),
     '--slot-gap': `${gap}rem`,
@@ -243,7 +242,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         tabindex="-1"
       >
         <header class="wotd__head">
-          <h2 id="wotd-title" class="wotd__title">WOTD</h2>
+          <div class="wotd__brand" aria-hidden="true">
+            <span class="wotd__brand-tile">W</span>
+            <span class="wotd__brand-tile wotd__brand-tile--paper">O</span>
+            <span class="wotd__brand-tile">D</span>
+          </div>
+          <h2 id="wotd-title" class="wotd__title">Word of the day</h2>
           <button
             type="button"
             class="wotd__close u-icon-btn u-icon-btn--idle"
@@ -254,10 +258,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           </button>
         </header>
 
-        <p v-if="!showMeaning" class="wotd__clue" role="note">
-          <span class="wotd__clue-label">Clue</span>
-          <span id="wotd-clue-text" class="wotd__clue-text">{{ clue }}</span>
-        </p>
+        <p v-if="!showMeaning" id="wotd-clue-text" class="wotd__clue">{{ clue }}</p>
 
         <div
           class="wotd__slots"
@@ -317,7 +318,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           class="wotd__feedback"
           role="status"
         >
-          Try again
+          Not quite — try again
         </p>
 
         <button
@@ -330,9 +331,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         </button>
 
         <div v-if="showMeaning" class="wotd__meaning" aria-live="polite">
+          <p class="wotd__word">{{ word }}</p>
           <p v-if="meaningLoading" class="wotd__meaning-loading">Loading…</p>
           <template v-else-if="meaning">
-            <p class="wotd__meaning-pos">{{ meaning.pos }}</p>
+            <p v-if="meaning.pos" class="wotd__meaning-pos">{{ meaning.pos }}</p>
             <p class="wotd__meaning-def">{{ meaning.definition }}</p>
             <p v-if="meaning.example" class="wotd__meaning-ex">“{{ meaning.example }}”</p>
           </template>
@@ -341,7 +343,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
             class="wotd__done"
             @click="close()"
           >
-            Close
+            Nice — close
           </button>
         </div>
       </div>
@@ -357,8 +359,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   display: grid;
   place-items: end center;
   padding: max(12rem, var(--safe-top)) 12rem max(12rem, var(--safe-bottom));
-  background: color-mix(in srgb, var(--ink) 58%, transparent);
-  backdrop-filter: blur(2px);
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
+  backdrop-filter: blur(3px);
 }
 @media (min-width: 560px) {
   .wotd { place-items: center; }
@@ -366,36 +368,56 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .wotd__panel {
   position: relative;
   isolation: isolate;
-  width: min(440rem, 100%);
-  padding: 18rem 18rem 16rem;
+  width: min(420rem, 100%);
+  padding: 16rem 16rem 14rem;
   background: var(--paper);
   color: var(--ink);
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-l) var(--radius-l) var(--radius-m) var(--radius-m);
-  box-shadow: 4rem 4rem 0 color-mix(in srgb, var(--ink) 88%, transparent);
-  animation: wotd-in 220ms var(--ease-out) both;
-  /* Opaque sheet — body text must not show through */
+  box-shadow: 5rem 5rem 0 color-mix(in srgb, var(--ink) 88%, transparent);
+  animation: wotd-in 240ms var(--ease-out) both;
   opacity: 1;
 }
 @media (min-width: 560px) {
   .wotd__panel { border-radius: var(--radius-l); padding: 20rem 22rem 18rem; }
 }
 @keyframes wotd-in {
-  from { opacity: 0; transform: translateY(10rem) scale(.985); }
+  from { opacity: 0; transform: translateY(14rem) scale(.98); }
   to { opacity: 1; transform: none; }
 }
 
 .wotd__head {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
   gap: 10rem;
   margin: 0 0 12rem;
 }
+.wotd__brand {
+  position: relative;
+  width: 28rem;
+  height: 22rem;
+}
+.wotd__brand-tile {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 14rem;
+  height: 15rem;
+  border: 1.5rem solid var(--ink);
+  border-radius: 2.5rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: 900 9rem/1 var(--font-mono);
+  box-shadow: 1rem 1rem 0 color-mix(in srgb, var(--ink) 22%, transparent);
+}
+.wotd__brand-tile:nth-child(1) { left: 0; top: 0; }
+.wotd__brand-tile--paper { left: 7rem; top: 3rem; background: var(--paper); color: var(--ink); }
+.wotd__brand-tile:nth-child(3) { left: 14rem; top: 6rem; }
 .wotd__title {
   margin: 0;
-  font: 600 clamp(24rem, 4.6vw, 30rem)/1.05 var(--font-display);
-  letter-spacing: -.03em;
+  font: 600 clamp(18rem, 3.8vw, 22rem)/1.1 var(--font-display);
+  letter-spacing: -.02em;
 }
 .wotd__close {
   flex: none;
@@ -412,44 +434,39 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 
 .wotd__clue {
-  display: grid;
-  gap: 2rem;
   margin: 0 0 14rem;
-  padding: 10rem 12rem;
-  border: var(--stroke) solid var(--line);
-  border-radius: var(--radius-s);
-  background: var(--paper-2, var(--paper));
-}
-.wotd__clue-label {
-  font: 700 10rem/1.2 var(--font-mono);
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.wotd__clue-text {
-  font: 500 14rem/1.35 var(--font-ui);
+  font: 500 15rem/1.4 var(--font-ui);
   color: var(--ink);
 }
 
-/* Answer slots — always one horizontal line; tiles scale with word length */
 .wotd__slots {
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
   gap: var(--slot-gap, 6rem);
-  margin: 0 0 14rem;
+  margin: 0 0 12rem;
   width: 100%;
   max-width: 100%;
   overflow: hidden;
   container-type: inline-size;
-  container-name: wotd-slots;
 }
 .wotd__slots--ok .wotd__slot {
   background: var(--accent);
   color: var(--accent-ink);
   border-color: var(--ink);
   box-shadow: 2rem 2rem 0 var(--ink);
+  animation: wotd-pop 320ms var(--ease-out) both;
+}
+.wotd__slots--ok .wotd__slot:nth-child(2) { animation-delay: 40ms; }
+.wotd__slots--ok .wotd__slot:nth-child(3) { animation-delay: 80ms; }
+.wotd__slots--ok .wotd__slot:nth-child(4) { animation-delay: 120ms; }
+.wotd__slots--ok .wotd__slot:nth-child(5) { animation-delay: 160ms; }
+.wotd__slots--ok .wotd__slot:nth-child(n+6) { animation-delay: 200ms; }
+@keyframes wotd-pop {
+  from { transform: scale(.86); }
+  60% { transform: scale(1.06); }
+  to { transform: none; }
 }
 .wotd__slots--wrong .wotd__slot--filled {
   border-color: var(--ink);
@@ -517,26 +534,21 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   outline: 3rem solid var(--ink);
   outline-offset: 2rem;
 }
-.wotd__slot:disabled {
-  cursor: default;
-}
+.wotd__slot:disabled { cursor: default; }
 
-/* Scrambled tray — collapses when empty (v-if); no empty-state copy */
 .wotd__tray {
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
   gap: var(--tray-gap, 10rem);
-  margin: 0 0 12rem;
-  padding: 10rem 8rem;
+  margin: 0 0 10rem;
+  padding: 8rem 6rem;
   width: 100%;
   overflow: hidden;
-  border: var(--stroke) solid var(--line);
   border-radius: var(--radius-s);
-  background: var(--paper-2, var(--paper));
+  background: color-mix(in srgb, var(--accent) 14%, var(--paper));
   container-type: inline-size;
-  container-name: wotd-tray;
 }
 .wotd__tile {
   box-sizing: border-box;
@@ -558,7 +570,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   cursor: pointer;
   box-shadow: 2rem 2rem 0 var(--ink);
   -webkit-tap-highlight-color: transparent;
-  transition: transform 120ms ease, box-shadow 120ms ease, background 140ms ease, color 140ms ease;
+  transition: transform 120ms var(--ease-out), box-shadow 120ms ease, background 140ms ease;
 }
 .wotd__tile:hover {
   background: var(--accent-soft);
@@ -602,11 +614,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 
 .wotd__meaning {
-  margin: 0;
-  padding: 12rem 14rem;
-  border: var(--stroke) solid var(--line);
-  border-radius: var(--radius-s);
-  background: var(--paper-2, var(--paper));
+  margin: 4rem 0 0;
+  padding: 0;
+  text-align: center;
+}
+.wotd__word {
+  margin: 0 0 8rem;
+  font: 600 clamp(28rem, 6vw, 36rem)/1 var(--font-display);
+  letter-spacing: -.03em;
+  text-transform: lowercase;
 }
 .wotd__meaning-pos {
   margin: 0 0 4rem;
@@ -616,11 +632,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   color: var(--muted);
 }
 .wotd__meaning-def {
-  margin: 0 0 6rem;
+  margin: 0 auto 8rem;
+  max-width: 34ch;
   font: 500 15rem/1.4 var(--font-ui);
 }
 .wotd__meaning-ex {
-  margin: 0 0 12rem;
+  margin: 0 auto 14rem;
+  max-width: 34ch;
   font: italic 400 13rem/1.35 var(--font-ui);
   color: var(--ink-soft);
 }
@@ -659,13 +677,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 @media (prefers-reduced-motion: reduce) {
   .wotd__panel,
-  .wotd__slots--shake { animation: none; }
+  .wotd__slots--shake,
+  .wotd__slots--ok .wotd__slot { animation: none; }
   .wotd__tile,
   .wotd__slot,
   .wotd__done { transition: none; }
 }
 :global(html[data-reduce-motion="on"]) .wotd__panel,
-:global(html[data-reduce-motion="on"]) .wotd__slots--shake { animation: none; }
+:global(html[data-reduce-motion="on"]) .wotd__slots--shake,
+:global(html[data-reduce-motion="on"]) .wotd__slots--ok .wotd__slot { animation: none; }
 :global(html[data-reduce-motion="on"]) .wotd__tile,
 :global(html[data-reduce-motion="on"]) .wotd__slot,
 :global(html[data-reduce-motion="on"]) .wotd__done { transition: none; }

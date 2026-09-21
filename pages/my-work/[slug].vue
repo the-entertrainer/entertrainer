@@ -17,7 +17,7 @@ if (!item.value) throw createError({ statusCode: 404 })
 </script>
 
 <template>
-  <UiContentShell v-if="item" eyebrow="My Work" :title="item.label" :deck="item.description">
+  <UiContentShell v-if="item" :title="item.label" :deck="item.description">
     <UiConstructionZone />
   </UiContentShell>
 </template>

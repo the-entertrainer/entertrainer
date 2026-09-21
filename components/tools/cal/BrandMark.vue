@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // The Cadence mark: three session pills stepping diagonally down a month
 // grid — the "beat" of trainings falling into place across the weeks. On a
-// gradient tile drawn from the same violet→blue→teal family as StoryGen, so
+// gradient tile drawn from the same Entertrainer yellow family as StoryGen, so
 // the two tools read as siblings. `animated` turns it into a self-drawing
 // preloader: the column guides fade in, the pills drop in sequence (the
 // cadence), then the whole mark breathes — pure CSS/SMIL, no JS timers.
@@ -14,10 +14,10 @@ defineProps<{ size?: number; animated?: boolean }>()
     :class="{ 'cg-mark--animated': animated }" class="cg-mark"
   >
     <defs>
-      <linearGradient id="cg-mark-g" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#8B7CF6" />
-        <stop offset="0.55" stop-color="#5B8DEF" />
-        <stop offset="1" stop-color="#2DD4BF" />
+            <linearGradient id="cg-mark-g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#FFE38A" />
+        <stop offset="0.55" stop-color="#FFD43B" />
+        <stop offset="1" stop-color="#EAB900" />
       </linearGradient>
     </defs>
 
@@ -32,17 +32,17 @@ defineProps<{ size?: number; animated?: boolean }>()
     <!-- Three sessions, stepping down and to the right — the cadence -->
     <g class="cg-mark__pill cg-mark__pill--a">
       <rect x="72"  y="152" width="200" height="58" rx="18" fill="#fff" opacity="0.98" />
-      <circle cx="102" cy="181" r="12" fill="#8B5CF6" />
+      <circle cx="102" cy="181" r="12" fill="#161618" />
       <rect x="126" y="175" width="112" height="12" rx="6" fill="#0D0C0A" opacity="0.18" />
     </g>
     <g class="cg-mark__pill cg-mark__pill--b">
       <rect x="156" y="234" width="200" height="58" rx="18" fill="#fff" opacity="0.98" />
-      <circle cx="186" cy="263" r="12" fill="#3B82F6" />
+      <circle cx="186" cy="263" r="12" fill="#EAB900" />
       <rect x="210" y="257" width="112" height="12" rx="6" fill="#0D0C0A" opacity="0.18" />
     </g>
     <g class="cg-mark__pill cg-mark__pill--c">
       <rect x="240" y="316" width="200" height="58" rx="18" fill="#fff" opacity="0.98" />
-      <circle cx="270" cy="345" r="12" fill="#14B8A6" />
+      <circle cx="270" cy="345" r="12" fill="#161618" />
       <rect x="294" y="339" width="112" height="12" rx="6" fill="#0D0C0A" opacity="0.18" />
     </g>
   </svg>
@@ -73,8 +73,8 @@ defineProps<{ size?: number; animated?: boolean }>()
   to   { opacity: 0.16; }
 }
 @keyframes cg-mark-breathe {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(139, 124, 246, 0)); }
-  50%      { transform: scale(1.025); filter: drop-shadow(0 6rem 22rem rgba(139, 124, 246, 0.45)); }
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(234, 185, 0, 0)); }
+  50%      { transform: scale(1.025); filter: drop-shadow(0 6rem 22rem rgba(234, 185, 0, 0.4)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .cg-mark--animated,

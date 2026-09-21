@@ -26,17 +26,29 @@ import { getSocialImage, getSocialPreview, SITE_URL } from '~/content/social-pre
 const r = useRoute()
 const theme = useThemeStore()
 const siteSettings = useSiteSettings()
-const showPreloader = ref(
-  !(
-    r.path.startsWith('/engage/astroclock') ||
-    r.path.startsWith('/engage/velocity') ||
-    r.path.startsWith('/engage/read-my-mind') ||
-    r.path.startsWith('/engage/vilakku')
-  )
-)
+/** Preloader: home `/` only, once per tab session after dismiss. */
+const PRELOADER_DONE_KEY = 'entertrainer.preloader-done'
+function shouldRunPreloader(path: string) {
+  if (path !== '/') return false
+  if (import.meta.client) {
+    try {
+      if (sessionStorage.getItem(PRELOADER_DONE_KEY) === '1') return false
+    } catch {
+      /* private mode / blocked storage */
+    }
+  }
+  return true
+}
+const showPreloader = ref(shouldRunPreloader(r.path))
 
 function onPreloaderComplete() {
   showPreloader.value = false
+  if (!import.meta.client) return
+  try {
+    sessionStorage.setItem(PRELOADER_DONE_KEY, '1')
+  } catch {
+    /* ignore */
+  }
 }
 const socialPreview = computed(() => getSocialPreview(r.path))
 const socialImage = computed(() => getSocialImage(socialPreview.value))

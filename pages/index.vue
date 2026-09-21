@@ -24,7 +24,7 @@ const routes: HomeRoute[] = [
   {
     name: 'Empower',
     href: '/empower',
-    tip: 'Tools for the awkward, repeating work.'
+    tip: 'Two free tools that earn their keep.'
   },
   {
     name: 'Engage',

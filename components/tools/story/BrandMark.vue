@@ -13,22 +13,22 @@ defineProps<{ size?: number; animated?: boolean }>()
     :class="{ 'sg-mark--animated': animated }" class="sg-mark"
   >
     <defs>
-      <linearGradient id="sg-mark-g" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#8B7CF6" />
-        <stop offset="0.55" stop-color="#5B8DEF" />
-        <stop offset="1" stop-color="#2DD4BF" />
+            <linearGradient id="sg-mark-g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#FFE38A" />
+        <stop offset="0.55" stop-color="#FFD43B" />
+        <stop offset="1" stop-color="#EAB900" />
       </linearGradient>
     </defs>
     <rect width="512" height="512" rx="116" fill="url(#sg-mark-g)" />
     <g class="sg-mark__card sg-mark__card--a">
       <rect x="84" y="118" width="152" height="110" rx="26" fill="#fff" opacity="0.97" />
-      <rect x="104" y="144" width="76" height="13" rx="6.5" fill="#8B7CF6" opacity="0.55" />
+      <rect x="104" y="144" width="76" height="13" rx="6.5" fill="#161618" opacity="0.55" />
       <rect x="104" y="170" width="102" height="9" rx="4.5" fill="#0D0C0A" opacity="0.16" />
       <rect x="104" y="188" width="88" height="9" rx="4.5" fill="#0D0C0A" opacity="0.16" />
     </g>
     <g class="sg-mark__card sg-mark__card--b">
       <rect x="276" y="284" width="152" height="110" rx="26" fill="#fff" opacity="0.97" />
-      <rect x="296" y="310" width="76" height="13" rx="6.5" fill="#2DD4BF" opacity="0.7" />
+      <rect x="296" y="310" width="76" height="13" rx="6.5" fill="#161618" opacity="0.55" />
       <rect x="296" y="336" width="102" height="9" rx="4.5" fill="#0D0C0A" opacity="0.16" />
       <rect x="296" y="354" width="88" height="9" rx="4.5" fill="#0D0C0A" opacity="0.16" />
     </g>
@@ -70,8 +70,8 @@ defineProps<{ size?: number; animated?: boolean }>()
   to   { opacity: 1; transform: scale(1); }
 }
 @keyframes sg-mark-breathe {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(139, 124, 246, 0)); }
-  50%      { transform: scale(1.025); filter: drop-shadow(0 6rem 22rem rgba(139, 124, 246, 0.45)); }
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(234, 185, 0, 0)); }
+  50%      { transform: scale(1.025); filter: drop-shadow(0 6rem 22rem rgba(234, 185, 0, 0.4)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .sg-mark--animated, .sg-mark--animated .sg-mark__card, .sg-mark--animated .sg-mark__curve, .sg-mark--animated .sg-mark__dot {

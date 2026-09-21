@@ -1,9 +1,9 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Free tools by Naveen Jose · Entertrainer',
-  description: 'Free browser tools for planning, writing, making quizzes, and sketching ideas. No sign-up, no ceremony.',
+  description: 'Free browser tools for quiz distractors and email polish. No sign-up, no ceremony.',
   ogTitle: 'Free tools — by Naveen Jose',
-  ogDescription: 'Free browser tools for planning, writing, making quizzes, and sketching ideas. Open the browser and get on with it.',
+  ogDescription: 'Free browser tools for quiz distractors and email polish. Open the browser and get on with it.',
   ogUrl: 'https://entertrainer.in/tools'
 })
 </script>
@@ -12,7 +12,6 @@ useSeoMeta({
   <EdSection
     category="tools"
     title="Free tools"
-    deck="Browser tools for planning, writing, making quizzes, and sketching ideas. No sign-up. What you type stays in your browser."
-    :visual="{ src: 'https://files.manuscdn.com/user_upload_by_module/session_file/310419663032400460/MECYwMQtIworaHsT.jpg', alt: 'Hand-drawn toolkit of a calendar, cards, envelope, pencil, and utility shapes connected by cobalt lines' }"
+    deck="Two browser tools that earn their keep. No sign-up. What you type stays in your browser."
   />
 </template>

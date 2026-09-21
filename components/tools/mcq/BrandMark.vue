@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // The EasyMCQ mark: three answer options on the gradient tile, the middle
 // one marked correct — the question shape the tool works on. Same
-// violet→blue→teal tile as StoryGen and Cadence so all three tools read as
+// Entertrainer yellow tile as StoryGen and Cadence so all three tools read as
 // one family. `animated` pops the options in, then checks the answer.
 defineProps<{ size?: number; animated?: boolean }>()
 </script>
@@ -12,10 +12,10 @@ defineProps<{ size?: number; animated?: boolean }>()
     :class="{ 'mq-mark--animated': animated }" class="mq-mark"
   >
     <defs>
-      <linearGradient id="mq-mark-g" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#8B7CF6" />
-        <stop offset="0.55" stop-color="#5B8DEF" />
-        <stop offset="1" stop-color="#2DD4BF" />
+            <linearGradient id="mq-mark-g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#FFE38A" />
+        <stop offset="0.55" stop-color="#FFD43B" />
+        <stop offset="1" stop-color="#EAB900" />
       </linearGradient>
     </defs>
 
@@ -24,14 +24,14 @@ defineProps<{ size?: number; animated?: boolean }>()
     <!-- Option A -->
     <g class="mq-mark__opt mq-mark__opt--a">
       <rect x="96" y="140" width="320" height="64" rx="20" fill="#fff" opacity="0.98" />
-      <circle cx="130" cy="172" r="17" fill="none" stroke="#8B5CF6" stroke-width="7" />
+      <circle cx="130" cy="172" r="17" fill="none" stroke="#161618" stroke-width="7" />
       <rect x="168" y="166" width="176" height="12" rx="6" fill="#0D0C0A" opacity="0.16" />
     </g>
 
     <!-- Option B — the correct answer -->
     <g class="mq-mark__opt mq-mark__opt--b">
       <rect x="96" y="224" width="320" height="64" rx="20" fill="#fff" opacity="0.98" />
-      <circle cx="130" cy="256" r="18" fill="#14B8A6" />
+      <circle cx="130" cy="256" r="18" fill="#161618" />
       <path class="mq-mark__check" d="M120,256 l7,8 l14,-16" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" pathLength="1" />
       <rect x="168" y="250" width="150" height="12" rx="6" fill="#0D0C0A" opacity="0.16" />
     </g>
@@ -39,7 +39,7 @@ defineProps<{ size?: number; animated?: boolean }>()
     <!-- Option C -->
     <g class="mq-mark__opt mq-mark__opt--c">
       <rect x="96" y="308" width="320" height="64" rx="20" fill="#fff" opacity="0.98" />
-      <circle cx="130" cy="340" r="17" fill="none" stroke="#3B82F6" stroke-width="7" />
+      <circle cx="130" cy="340" r="17" fill="none" stroke="#161618" stroke-width="7" />
       <rect x="168" y="334" width="196" height="12" rx="6" fill="#0D0C0A" opacity="0.16" />
     </g>
   </svg>
@@ -74,8 +74,8 @@ defineProps<{ size?: number; animated?: boolean }>()
   to   { stroke-dashoffset: 0; }
 }
 @keyframes mq-mark-breathe {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(139, 124, 246, 0)); }
-  50%      { transform: scale(1.025); filter: drop-shadow(0 6rem 22rem rgba(139, 124, 246, 0.45)); }
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(234, 185, 0, 0)); }
+  50%      { transform: scale(1.025); filter: drop-shadow(0 6rem 22rem rgba(234, 185, 0, 0.4)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .mq-mark--animated,

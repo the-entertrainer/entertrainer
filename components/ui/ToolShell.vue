@@ -1,15 +1,9 @@
 <script setup lang="ts">
 /**
- * The frame the four web apps sit in.
- *
- * A tool is not an article, so this is not the story-page head: the title and
- * the one-line description are compact, and everything below them is the
- * application. What it does share with the rest of the publication is the
- * category chip, the frame, the gutter and the type — so opening EasyMCQ still
- * reads as a page of this site rather than a different product.
+ * Frame for Empower tools. Compact title + one-line deck, then the app.
+ * No category chip or kicker — the tool name is enough.
  */
 defineProps<{
-  eyebrow?: string
   title?: string
   deck?: string
   wide?: boolean
@@ -21,7 +15,6 @@ defineProps<{
     <div class="ts__inner">
       <header class="ts__head">
         <div class="ts__top">
-          <EdChip category="tools" media="web app" tone="solid" />
           <NuxtLink to="/empower" class="t-mono ts__back u-underline">← Empower</NuxtLink>
         </div>
         <h1 class="ts__title">
@@ -49,7 +42,7 @@ defineProps<{
   padding-bottom: clamp(18rem, 2.5vw, 26rem);
   border-bottom: var(--stroke) solid var(--line);
 }
-.ts__top { display: flex; align-items: center; justify-content: space-between; gap: 16rem; margin-bottom: 18rem; }
+.ts__top { display: flex; align-items: center; justify-content: flex-end; gap: 16rem; margin-bottom: 14rem; }
 .ts__back { color: var(--muted); font-family: var(--font-mono); font-size: var(--type-meta); letter-spacing: var(--tracking-meta); text-transform: uppercase; }
 .ts__title { font-size: var(--type-h1); line-height: 1.02; margin: 0; }
 .ts__deck {

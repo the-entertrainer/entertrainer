@@ -1,9 +1,12 @@
 /**
- * Tiny, very quiet mechanical gear / escapement clicks for AstroClock.
- * Web Audio only (no asset files). Respects prefs + tab visibility.
+ * Tiny, very quiet mechanical gear ticks for AstroClock.
+ * Same click every time, steady interval — like gearwork, not random rain.
  */
 
 export const GEAR_SOUND_KEY = 'entertrainer.astroclock.gearSound';
+
+/** Fixed tick spacing (ms) — uniform escapement. */
+const TICK_MS = 1000;
 
 export function loadGearSoundEnabled(): boolean {
   if (typeof window === 'undefined') return true;
@@ -37,10 +40,28 @@ type GearAmbience = {
 export function createGearAmbience(): GearAmbience {
   let ctx: AudioContext | null = null;
   let master: GainNode | null = null;
+  let clickBuf: AudioBuffer | null = null;
   let enabled = loadGearSoundEnabled();
   let running = false;
   let timer: number | null = null;
   let disposed = false;
+
+  function buildUniformClick(c: AudioContext): AudioBuffer {
+    const dur = 0.028;
+    const n = Math.floor(c.sampleRate * dur);
+    const buffer = c.createBuffer(1, n, c.sampleRate);
+    const data = buffer.getChannelData(0);
+    const f1 = 2100;
+    const f2 = 780;
+    for (let i = 0; i < n; i++) {
+      const t = i / c.sampleRate;
+      const env = Math.exp(-t * 95);
+      const a = Math.sin(2 * Math.PI * f1 * t) * 0.7;
+      const b = Math.sin(2 * Math.PI * f2 * t) * 0.35;
+      data[i] = (a + b) * env;
+    }
+    return buffer;
+  }
 
   const ensureCtx = () => {
     if (disposed || typeof window === 'undefined') return null;
@@ -52,69 +73,21 @@ export function createGearAmbience(): GearAmbience {
       if (!AC) return null;
       ctx = new AC();
       master = ctx.createGain();
-      // Extremely quiet — present only if you listen for it
-      master.gain.value = 0.028;
+      master.gain.value = 0.026;
       master.connect(ctx.destination);
+      clickBuf = buildUniformClick(ctx);
     }
     return ctx;
   };
 
   const click = () => {
     const c = ensureCtx();
-    if (!c || !master || c.state === 'closed') return;
+    if (!c || !master || !clickBuf || c.state === 'closed') return;
     if (c.state === 'suspended') void c.resume();
-
-    const t0 = c.currentTime;
-    // Soft metal tick: short noise + faint sine body
-    const bufLen = Math.floor(c.sampleRate * 0.018);
-    const buffer = c.createBuffer(1, bufLen, c.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufLen; i++) {
-      const env = Math.exp(-i / (bufLen * 0.18));
-      data[i] = (Math.random() * 2 - 1) * env;
-    }
-    const noise = c.createBufferSource();
-    noise.buffer = buffer;
-    const bp = c.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.frequency.value = 2400 + Math.random() * 900;
-    bp.Q.value = 4.5;
-    const ng = c.createGain();
-    ng.gain.value = 0.55;
-    noise.connect(bp);
-    bp.connect(ng);
-    ng.connect(master);
-
-    const osc = c.createOscillator();
-    osc.type = 'triangle';
-    osc.frequency.value = 890 + Math.random() * 80;
-    const og = c.createGain();
-    og.gain.setValueAtTime(0.0001, t0);
-    og.gain.exponentialRampToValueAtTime(0.12, t0 + 0.004);
-    og.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.045);
-    osc.connect(og);
-    og.connect(master);
-
-    noise.start(t0);
-    osc.start(t0);
-    noise.stop(t0 + 0.02);
-    osc.stop(t0 + 0.05);
-
-    // Occasional second tooth (gear mesh) — quieter, delayed
-    if (Math.random() < 0.35) {
-      const t1 = t0 + 0.038 + Math.random() * 0.02;
-      const osc2 = c.createOscillator();
-      osc2.type = 'sine';
-      osc2.frequency.value = 520 + Math.random() * 40;
-      const g2 = c.createGain();
-      g2.gain.setValueAtTime(0.0001, t1);
-      g2.gain.exponentialRampToValueAtTime(0.05, t1 + 0.003);
-      g2.gain.exponentialRampToValueAtTime(0.0001, t1 + 0.03);
-      osc2.connect(g2);
-      g2.connect(master);
-      osc2.start(t1);
-      osc2.stop(t1 + 0.035);
-    }
+    const src = c.createBufferSource();
+    src.buffer = clickBuf;
+    src.connect(master);
+    src.start(c.currentTime);
   };
 
   const schedule = () => {
@@ -125,9 +98,7 @@ export function createGearAmbience(): GearAmbience {
     if (!running || !enabled || disposed) return;
     if (typeof document !== 'undefined' && document.hidden) return;
     click();
-    // Slow, irregular escapement — not a metronome hammer
-    const wait = 720 + Math.random() * 680;
-    timer = window.setTimeout(schedule, wait);
+    timer = window.setTimeout(schedule, TICK_MS);
   };
 
   const start = () => {
@@ -174,6 +145,7 @@ export function createGearAmbience(): GearAmbience {
       void ctx?.close();
       ctx = null;
       master = null;
+      clickBuf = null;
     },
   };
 }

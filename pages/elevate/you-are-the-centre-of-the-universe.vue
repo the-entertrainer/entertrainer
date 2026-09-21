@@ -36,9 +36,9 @@ const references = [
     </figure>
 
     <article class="centre__article">
-      <aside class="centre__margin-note" aria-label="The central idea">
-        <p>The short version</p>
-        <p>There is no special centre. The firework picture smuggles a room into a universe that does not have one.</p>
+      <aside class="centre__margin-note" aria-label="Balloon aside">
+        <p>Balloon note</p>
+        <p>The middle of a balloon is in the air inside. The dots live on the rubber. Those are different places.</p>
       </aside>
 
       <div class="centre__prose">

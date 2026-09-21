@@ -5,7 +5,7 @@ export type DialFace =
   | 'flipping-to-sky';
 
 /** Staggered mechanical morph duration (ms). */
-export const FLIP_MS = 980;
+export const FLIP_MS = 1080;
 
 export function isFlipping(face: DialFace): boolean {
   return face === 'flipping-to-bauhaus' || face === 'flipping-to-sky';

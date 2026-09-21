@@ -72,12 +72,17 @@ function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
+/** Softer settle than cubic — morph layers ease without a hard stop. */
+function easeInOutQuint(t: number): number {
+  return t < 0.5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2;
+}
+
 /** Layer-local 0..1 with start/end delays on global morph t (grace + precision). */
 function stagger01(t: number, start: number, end: number): number {
   if (end <= start) return t >= end ? 1 : 0;
   if (t <= start) return 0;
   if (t >= end) return 1;
-  return easeInOutCubic((t - start) / (end - start));
+  return easeInOutQuint((t - start) / (end - start));
 }
 
 function clamp01(x: number): number {
@@ -94,32 +99,45 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-function makeGold(roughness = 0.28, metalness = 0.92): THREE.MeshPhysicalMaterial {
+/** Cap DPR on phones so glow FX stay cheap at 390×844. */
+function resolveDpr(): number {
+  if (typeof window === 'undefined') return 1;
+  const dpr = window.devicePixelRatio || 1;
+  const shortSide = Math.min(window.innerWidth, window.innerHeight);
+  if (shortSide <= 430) return Math.min(dpr, 1.5);
+  if (shortSide <= 820) return Math.min(dpr, 1.75);
+  return Math.min(dpr, 2);
+}
+
+function makeGold(roughness = 0.22, metalness = 0.95): THREE.MeshPhysicalMaterial {
   return new THREE.MeshPhysicalMaterial({
     color: GOLD,
     metalness,
     roughness,
-    clearcoat: 0.55,
-    clearcoatRoughness: 0.22,
-    envMapIntensity: 1.35,
+    clearcoat: 0.78,
+    clearcoatRoughness: 0.12,
+    envMapIntensity: 1.55,
+    sheen: 0.18,
+    sheenRoughness: 0.35,
+    sheenColor: new THREE.Color(0xffe6a8),
   });
 }
 
-function makeGunmetal(roughness = 0.38, metalness = 0.85): THREE.MeshStandardMaterial {
+function makeGunmetal(roughness = 0.34, metalness = 0.88): THREE.MeshStandardMaterial {
   return new THREE.MeshStandardMaterial({
     color: GUNMETAL,
     metalness,
     roughness,
-    envMapIntensity: 1.1,
+    envMapIntensity: 1.25,
   });
 }
 
 function makeFaceMat(): THREE.MeshStandardMaterial {
   return new THREE.MeshStandardMaterial({
     color: FACE,
-    metalness: 0.45,
-    roughness: 0.52,
-    envMapIntensity: 0.7,
+    metalness: 0.52,
+    roughness: 0.46,
+    envMapIntensity: 0.85,
   });
 }
 
@@ -127,27 +145,39 @@ function makeStretchMat(stretch: DayStretch): THREE.MeshPhysicalMaterial {
   const hex = STRETCH_COLOR[stretch];
   return new THREE.MeshPhysicalMaterial({
     color: new THREE.Color(hex),
-    metalness: 0.88,
-    roughness: 0.32,
-    clearcoat: 0.4,
-    clearcoatRoughness: 0.25,
-    envMapIntensity: 1.2,
+    metalness: 0.9,
+    roughness: 0.26,
+    clearcoat: 0.55,
+    clearcoatRoughness: 0.18,
+    envMapIntensity: 1.35,
   });
 }
 
 function makeGlassRing(color: number, opacity = 0.55): THREE.MeshPhysicalMaterial {
   return new THREE.MeshPhysicalMaterial({
     color,
-    metalness: 0.15,
-    roughness: 0.18,
-    transmission: 0.35,
-    thickness: 0.4,
+    metalness: 0.22,
+    roughness: 0.14,
+    transmission: 0.42,
+    thickness: 0.55,
     transparent: true,
     opacity,
-    clearcoat: 0.8,
-    clearcoatRoughness: 0.15,
-    envMapIntensity: 1.2,
+    clearcoat: 0.92,
+    clearcoatRoughness: 0.1,
+    envMapIntensity: 1.45,
     side: THREE.DoubleSide,
+  });
+}
+
+/** Soft additive corona — fake bloom without EffectComposer cost. */
+function makeGlowMat(color: THREE.Color | number, opacity = 0.28): THREE.MeshBasicMaterial {
+  return new THREE.MeshBasicMaterial({
+    color,
+    transparent: true,
+    opacity,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    toneMapped: false,
   });
 }
 
@@ -301,6 +331,7 @@ type PlanetParts = {
   arm: THREE.Mesh;
   bead: THREE.Mesh;
   glow: THREE.Mesh;
+  softGlow: THREE.Mesh;
   sprite: THREE.Sprite;
   retro: THREE.Sprite | null;
   color: THREE.Color;
@@ -388,10 +419,10 @@ export function SkyClock3D({
       /* Needed so screenshot/pixel audits can sample after rAF settle. */
       preserveDrawingBuffer: true,
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(resolveDpr());
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.08;
+    renderer.toneMappingExposure = 1.14;
     renderer.setClearColor(0x000000, 0);
 
     const scene = new THREE.Scene();
@@ -407,19 +438,23 @@ export function SkyClock3D({
     track({ dispose: () => envTex.dispose() });
     track({ dispose: () => pmrem.dispose() });
 
-    scene.add(new THREE.AmbientLight(0xfff6e8, 0.38));
-    const key = new THREE.DirectionalLight(0xfff2dc, 1.45);
+    scene.add(new THREE.AmbientLight(0xfff6e8, 0.34));
+    const key = new THREE.DirectionalLight(0xfff2dc, 1.55);
     key.position.set(3.2, 4.5, 5.5);
     scene.add(key);
-    const fill = new THREE.DirectionalLight(0xa8b4ff, 0.55);
+    const fill = new THREE.DirectionalLight(0xa8b4ff, 0.62);
     fill.position.set(-4.5, 1.2, 2.5);
     scene.add(fill);
-    const rim = new THREE.DirectionalLight(0xffd78a, 0.65);
+    const rim = new THREE.DirectionalLight(0xffd78a, 0.72);
     rim.position.set(-1.5, 2.2, -4.5);
     scene.add(rim);
-    const spark = new THREE.PointLight(0xffe6a8, 1.0, 12, 2);
+    const spark = new THREE.PointLight(0xffe6a8, 1.15, 14, 2);
     spark.position.set(1.8, 2.4, 3.2);
     scene.add(spark);
+    /* Travels mid-morph for specular sweep — cheap vs post bloom. */
+    const morphSpark = new THREE.PointLight(0xfff0c8, 0.0, 10, 2);
+    morphSpark.position.set(0, 0, 2.4);
+    scene.add(morphSpark);
 
     const flipGroup = new THREE.Group();
     scene.add(flipGroup);
@@ -539,16 +574,30 @@ export function SkyClock3D({
     skyRim.position.z = -DEPTH * 0.15;
     skyGroup.add(skyRim);
 
-    /* Rashi ring + ticks + labels */
+    /* Rashi ring + ticks + labels — outer depth plane */
     const rashiGroup = new THREE.Group();
-    rashiGroup.position.z = 0.02;
+    rashiGroup.position.z = 0.028;
     skyGroup.add(rashiGroup);
 
     const rashiTor = new THREE.Mesh(
-      track(new THREE.TorusGeometry(rRashi, 0.012, 10, 96)),
-      track(makeGlassRing(0xd4af37, 0.7)),
+      track(new THREE.TorusGeometry(rRashi, 0.014, 12, 96)),
+      track(makeGlassRing(0xd4af37, 0.78)),
     );
     rashiGroup.add(rashiTor);
+    const rashiDepth = new THREE.Mesh(
+      track(new THREE.TorusGeometry(rRashi, 0.008, 8, 72)),
+      track(
+        new THREE.MeshStandardMaterial({
+          color: 0x8a7020,
+          metalness: 0.85,
+          roughness: 0.4,
+          transparent: true,
+          opacity: 0.55,
+        }),
+      ),
+    );
+    rashiDepth.position.z = -0.018;
+    rashiGroup.add(rashiDepth);
 
     const tickMatMajor = track(
       new THREE.MeshStandardMaterial({
@@ -613,20 +662,35 @@ export function SkyClock3D({
       disposables.push({ dispose: () => label.userData.dispose?.() });
     }
 
-    /* Nakshatra ring */
+    /* Nakshatra ring — mid depth plane */
     const nakGroup = new THREE.Group();
-    nakGroup.position.z = 0.025;
+    nakGroup.position.z = 0.042;
     skyGroup.add(nakGroup);
     const nakTor = new THREE.Mesh(
-      track(new THREE.TorusGeometry(rNak, 0.01, 8, 96)),
-      track(makeGlassRing(0x64b5f6, 0.55)),
+      track(new THREE.TorusGeometry(rNak, 0.012, 10, 96)),
+      track(makeGlassRing(0x64b5f6, 0.62)),
     );
     nakGroup.add(nakTor);
     const nakInner = new THREE.Mesh(
-      track(new THREE.TorusGeometry(rNak - 0.1, 0.006, 8, 72)),
-      track(makeGlassRing(0x64b5f6, 0.25)),
+      track(new THREE.TorusGeometry(rNak - 0.1, 0.007, 8, 72)),
+      track(makeGlassRing(0x64b5f6, 0.32)),
     );
+    nakInner.position.z = -0.012;
     nakGroup.add(nakInner);
+    const nakDepth = new THREE.Mesh(
+      track(new THREE.TorusGeometry(rNak, 0.006, 8, 64)),
+      track(
+        new THREE.MeshStandardMaterial({
+          color: 0x2a5a8a,
+          metalness: 0.7,
+          roughness: 0.45,
+          transparent: true,
+          opacity: 0.4,
+        }),
+      ),
+    );
+    nakDepth.position.z = -0.02;
+    nakGroup.add(nakDepth);
 
     const nakTickMat = track(
       new THREE.MeshStandardMaterial({
@@ -662,9 +726,9 @@ export function SkyClock3D({
       }
     }
 
-    /* Gear escapement */
+    /* Gear escapement — sits between nak & planets */
     const gearGroup = new THREE.Group();
-    gearGroup.position.z = 0.015;
+    gearGroup.position.z = 0.02;
     skyGroup.add(gearGroup);
     const teeth = 48;
     const gearShape = new THREE.Shape();
@@ -702,12 +766,13 @@ export function SkyClock3D({
       track(
         new THREE.MeshPhysicalMaterial({
           color: 0xd4af37,
-          metalness: 0.9,
-          roughness: 0.35,
+          metalness: 0.92,
+          roughness: 0.28,
           transparent: true,
-          opacity: 0.16,
-          clearcoat: 0.4,
-          envMapIntensity: 1.1,
+          opacity: 0.22,
+          clearcoat: 0.55,
+          clearcoatRoughness: 0.18,
+          envMapIntensity: 1.35,
           side: THREE.DoubleSide,
         }),
       ),
@@ -856,9 +921,9 @@ export function SkyClock3D({
     );
     natalGroup.add(natalRing);
 
-    /* Planet arms + beads */
+    /* Planet arms + beads — PBR bead + dual soft additive glow (fake bloom) */
     const planetGroup = new THREE.Group();
-    planetGroup.position.z = 0.04;
+    planetGroup.position.z = 0.055;
     skyGroup.add(planetGroup);
     const planets: PlanetParts[] = [];
     for (const g of GRAHAS) {
@@ -868,80 +933,88 @@ export function SkyClock3D({
         track(
           new THREE.MeshStandardMaterial({
             color: col,
-            metalness: 0.55,
-            roughness: 0.35,
+            metalness: 0.62,
+            roughness: 0.3,
             emissive: col,
-            emissiveIntensity: 0.12,
+            emissiveIntensity: 0.16,
           }),
         ),
       );
       const bead = new THREE.Mesh(
-        track(new THREE.SphereGeometry(0.055, 16, 12)),
+        track(new THREE.SphereGeometry(0.055, 20, 16)),
         track(
           new THREE.MeshPhysicalMaterial({
             color: col,
-            metalness: 0.65,
-            roughness: 0.25,
-            clearcoat: 0.7,
-            clearcoatRoughness: 0.2,
+            metalness: 0.72,
+            roughness: 0.18,
+            clearcoat: 0.88,
+            clearcoatRoughness: 0.12,
             emissive: col,
-            emissiveIntensity: 0.18,
-            envMapIntensity: 1.3,
+            emissiveIntensity: 0.22,
+            envMapIntensity: 1.55,
           }),
         ),
       );
       const glow = new THREE.Mesh(
-        track(new THREE.SphereGeometry(0.12, 12, 10)),
-        track(
-          new THREE.MeshBasicMaterial({
-            color: col,
-            transparent: true,
-            opacity: 0.22,
-            depthWrite: false,
-          }),
-        ),
+        track(new THREE.SphereGeometry(0.11, 12, 10)),
+        track(makeGlowMat(col, 0.32)),
+      );
+      const softGlow = new THREE.Mesh(
+        track(new THREE.SphereGeometry(0.2, 10, 8)),
+        track(makeGlowMat(col, 0.12)),
       );
       const sprite = makeSymbolSprite(g.symbol, '#0B0C10', 0.14);
       disposables.push({ dispose: () => sprite.userData.dispose?.() });
-      planetGroup.add(arm, bead, glow, sprite);
+      planetGroup.add(arm, bead, glow, softGlow, sprite);
       planets.push({
         id: g.id,
         arm,
         bead,
         glow,
+        softGlow,
         sprite,
         retro: null,
         color: col,
       });
     }
 
-    /* Jewel hub */
+    /* Jewel hub + soft corona (performance-safe bloom stand-in) */
     const hubGroup = new THREE.Group();
-    hubGroup.position.z = 0.05;
+    hubGroup.position.z = 0.06;
     skyGroup.add(hubGroup);
     const hubOuter = new THREE.Mesh(
-      track(new THREE.SphereGeometry(rHub, 32, 24)),
+      track(new THREE.SphereGeometry(rHub, 36, 28)),
       track(
         new THREE.MeshPhysicalMaterial({
           color: 0x10121a,
-          metalness: 0.85,
-          roughness: 0.28,
+          metalness: 0.9,
+          roughness: 0.22,
           clearcoat: 1,
-          clearcoatRoughness: 0.12,
+          clearcoatRoughness: 0.08,
           emissive: 0xd4af37,
-          emissiveIntensity: 0.08,
-          envMapIntensity: 1.4,
+          emissiveIntensity: 0.12,
+          envMapIntensity: 1.65,
         }),
       ),
     );
     hubGroup.add(hubOuter);
+    const hubCorona = new THREE.Mesh(
+      track(new THREE.SphereGeometry(rHub * 1.55, 16, 12)),
+      track(makeGlowMat(0xd4af37, 0.16)),
+    );
+    hubGroup.add(hubCorona);
+    const hubCoronaSoft = new THREE.Mesh(
+      track(new THREE.SphereGeometry(rHub * 2.3, 12, 10)),
+      track(makeGlowMat(0xffe6a8, 0.07)),
+    );
+    hubGroup.add(hubCoronaSoft);
     const hubRing = new THREE.Mesh(
-      track(new THREE.TorusGeometry(rHub * 0.92, 0.012, 10, 48)),
+      track(new THREE.TorusGeometry(rHub * 0.92, 0.014, 12, 48)),
       goldMat,
     );
     hubGroup.add(hubRing);
     const hubCore = new THREE.Mesh(
-      track(new THREE.SphereGeometry(0.045, 16, 12)),
+      track(new THREE.SphereGeometry(0.045, 20, 16)),
       goldMat,
     );
     hubGroup.add(hubCore);
@@ -1201,17 +1274,18 @@ export function SkyClock3D({
     const applyMorph = (tRaw: number) => {
       const t = clamp01(tRaw);
       morphT = t;
-      /* Parallax delays: outer lead → hub last → reverse ribbon/hands in */
-      const tBezel = stagger01(t, 0.0, 0.38);
-      const tRashi = stagger01(t, 0.03, 0.44);
-      const tNak = stagger01(t, 0.09, 0.5);
-      const tGear = stagger01(t, 0.13, 0.54);
-      const tAspect = stagger01(t, 0.17, 0.48);
-      const tPlanet = stagger01(t, 0.22, 0.64);
-      const tHub = stagger01(t, 0.34, 0.74);
-      const tBack = stagger01(t, 0.4, 0.82);
-      const tRibbon = stagger01(t, 0.48, 0.9);
-      const tHands = stagger01(t, 0.54, 0.98);
+      /* Parallax delays: outer lead → hub last → reverse in.
+         Long overlap so mid-morph never blanks (sky readable while metal arrives). */
+      const tBezel = stagger01(t, 0.0, 0.72);
+      const tRashi = stagger01(t, 0.05, 0.76);
+      const tNak = stagger01(t, 0.1, 0.8);
+      const tGear = stagger01(t, 0.14, 0.82);
+      const tAspect = stagger01(t, 0.12, 0.7);
+      const tPlanet = stagger01(t, 0.18, 0.86);
+      const tHub = stagger01(t, 0.28, 0.9);
+      const tBack = stagger01(t, 0.08, 0.68);
+      const tRibbon = stagger01(t, 0.2, 0.82);
+      const tHands = stagger01(t, 0.28, 0.96);
       layerSnap = {
         bezel: tBezel,
         rashi: tRashi,
@@ -1228,44 +1302,44 @@ export function SkyClock3D({
       /* Outer bezel / rashi lead */
       skyBezel.scale.setScalar(1 + tBezel * 0.1);
       skyBezel.rotation.x = tBezel * 0.55;
-      skyBezel.visible = tBezel < 0.97;
-      skyBezelInner.scale.setScalar(Math.max(0.05, 1 - tBezel * 0.98));
-      skyBezelInner.visible = tBezel < 0.94;
-      skyRim.scale.setScalar(Math.max(0.08, 1 - tBezel * 0.95));
-      skyRim.visible = tBezel < 0.96;
+      skyBezel.visible = tBezel < 0.99;
+      skyBezelInner.scale.setScalar(Math.max(0.12, 1 - tBezel * 0.9));
+      skyBezelInner.visible = tBezel < 0.98;
+      skyRim.scale.setScalar(Math.max(0.14, 1 - tBezel * 0.88));
+      skyRim.visible = tBezel < 0.98;
 
       rashiGroup.rotation.x = tRashi * 0.95;
       rashiGroup.rotation.z = tRashi * 0.42;
-      rashiGroup.position.z = 0.02 - tRashi * 0.12;
-      rashiGroup.scale.setScalar(Math.max(0.04, 1 - tRashi * 0.97));
-      rashiGroup.visible = tRashi < 0.98;
+      rashiGroup.position.z = 0.028 - tRashi * 0.14;
+      rashiGroup.scale.setScalar(Math.max(0.14, 1 - tRashi * 0.88));
+      rashiGroup.visible = tRashi < 0.995;
 
       /* Nak / gear next */
       nakGroup.rotation.x = -tNak * 1.1;
       nakGroup.rotation.y = tNak * 0.25;
-      nakGroup.scale.setScalar(Math.max(0.04, 1 - tNak * 0.98));
-      nakGroup.visible = tNak < 0.98;
+      nakGroup.scale.setScalar(Math.max(0.14, 1 - tNak * 0.88));
+      nakGroup.visible = tNak < 0.995;
 
       gearGroup.rotation.z = tGear * 2.6;
       gearGroup.position.z = -tGear * 0.22;
-      gearGroup.scale.setScalar(Math.max(0.04, 1 - tGear * 0.98));
-      gearGroup.visible = tGear < 0.98;
+      gearGroup.scale.setScalar(Math.max(0.14, 1 - tGear * 0.88));
+      gearGroup.visible = tGear < 0.995;
 
       /* Aspect tubes / planet arms */
-      aspectGroup.visible = tAspect < 0.92;
-      aspectGroup.scale.setScalar(Math.max(0.04, 1 - tAspect * 1.05));
-      natalGroup.visible = tAspect < 0.85;
-      natalGroup.scale.setScalar(Math.max(0.04, 1 - tAspect * 1.05));
+      aspectGroup.visible = tAspect < 0.97;
+      aspectGroup.scale.setScalar(Math.max(0.12, 1 - tAspect * 0.92));
+      natalGroup.visible = tAspect < 0.94;
+      natalGroup.scale.setScalar(Math.max(0.12, 1 - tAspect * 0.92));
 
-      planetGroup.scale.setScalar(Math.max(0.04, 1 - tPlanet * 0.96));
+      planetGroup.scale.setScalar(Math.max(0.16, 1 - tPlanet * 0.86));
       planetGroup.position.z = tPlanet * -0.08;
-      planetGroup.visible = tPlanet < 0.98;
+      planetGroup.visible = tPlanet < 0.995;
 
       /* Hub last → merges toward clock hands */
       hubGroup.scale.setScalar(Math.max(0.12, 1 - tHub * 0.82));
       hubGroup.position.z = tHub * 0.04;
-      hubGroup.visible = tHub < 0.97;
-      lagnaGroup.visible = tHub < 0.88;
+      hubGroup.visible = tHub < 0.99;
+      lagnaGroup.visible = tHub < 0.95;
       lagnaGroup.scale.setScalar(Math.max(0.04, 1 - tHub * 1.15));
 
       skyGroup.traverse((obj) => {
@@ -1274,14 +1348,14 @@ export function SkyClock3D({
           m.opacity = 0.55 * (1 - stagger01(t, 0.05, 0.45));
         }
       });
-      plate.visible = tRashi < 0.85;
-      stars.visible = tBezel < 0.7;
-      backPlate.visible = tBezel < 0.88;
+      plate.visible = tRashi < 0.92;
+      stars.visible = tBezel < 0.85;
+      backPlate.visible = tBezel < 0.95;
 
       /* Reverse face elements stagger in */
-      backGroup.visible = tBack > 0.02;
-      backGroup.scale.setScalar(0.72 + 0.28 * tBack);
-      backGroup.position.z = DEPTH * 0.02 + (1 - tBack) * -0.06;
+      backGroup.visible = tBack > 0.01;
+      backGroup.scale.setScalar(0.78 + 0.22 * tBack);
+      backGroup.position.z = DEPTH * 0.02 + (1 - tBack) * -0.045;
       caseBody.scale.setScalar(0.9 + 0.1 * tBack);
       bezel.scale.setScalar(0.85 + 0.15 * tBack);
       step.scale.setScalar(0.85 + 0.15 * tBack);
@@ -1308,12 +1382,14 @@ export function SkyClock3D({
       bead.scale.setScalar(0.25 + 0.75 * tRibbon);
       pointer.scale.setScalar(0.25 + 0.75 * tRibbon);
 
-      /* Hard hide sky when fully metal */
-      if (t >= 0.985) skyGroup.visible = false;
+      /* Keep both faces overlapping mid-morph — never blank frame */
+      if (t >= 0.992) skyGroup.visible = false;
       else skyGroup.visible = true;
-      if (t <= 0.015) {
+      if (t <= 0.01) {
         skyGroup.visible = true;
         backGroup.visible = false;
+      } else if (t > 0.01 && t < 0.992) {
+        backGroup.visible = tBack > 0.015;
       }
     };
 
@@ -1366,6 +1442,7 @@ export function SkyClock3D({
       const rawH = square?.clientHeight || canvas.clientHeight || host.clientHeight || 0;
       const side = Math.round(Math.min(rawW, rawH) || Math.max(rawW, rawH) || 0);
       if (side < 2) return;
+      renderer.setPixelRatio(resolveDpr());
       renderer.setSize(side, side, false);
       camera.aspect = 1;
       const fit = 3.65;
@@ -1397,6 +1474,7 @@ export function SkyClock3D({
     let lastAspectPairs: { a: string; b: string; angle: number }[] = [];
     let lastJd = 0;
     let breathe = 0;
+    let lastSecArcSec = -1;
 
     (window as unknown as { __acSky3d?: object }).__acSky3d = {
       getRotationY: () => flipGroup.rotation.y,
@@ -1422,6 +1500,7 @@ export function SkyClock3D({
           h: renderer.domElement.height,
         },
         aspect: camera.aspect,
+        pixelRatio: renderer.getPixelRatio(),
       }),
       forceResize: () => resize(),
       /** Expected canvas-space angles (lonToAngle) for comparison */
@@ -1522,18 +1601,25 @@ export function SkyClock3D({
       const sel = selectedRef.current;
       const natal = natalRef.current;
       const tSec = ms / 1000;
-      breathe = reduceMotion ? 0 : Math.sin(tSec * 0.7) * 0.012;
+      breathe = reduceMotion
+        ? 0
+        : Math.sin(tSec * 0.55) * 0.009 + Math.sin(tSec * 0.92) * 0.004;
 
       /* Idle breathe on sky */
       if (morphT < 0.5 && !reduceMotion) {
         skyGroup.scale.setScalar(1 + breathe);
-        skyBezel.rotation.z = tSec * 0.015;
+        skyBezel.rotation.z = tSec * 0.012;
+        hubCorona.scale.setScalar(1 + breathe * 2.2);
+        hubCoronaSoft.scale.setScalar(1 + breathe * 1.6);
+      } else {
+        hubCorona.scale.setScalar(1);
+        hubCoronaSoft.scale.setScalar(1);
       }
 
-      /* Gear spin */
+      /* Gear spin — smooth constant angular velocity */
       if (!reduceMotion) {
-        gearMesh.rotation.z = (tSec * 0.05) % TWO_PI;
-        spokeGroup.rotation.z = -((tSec * 0.05 * 1.55) % TWO_PI);
+        gearMesh.rotation.z = (tSec * 0.042) % TWO_PI;
+        spokeGroup.rotation.z = -((tSec * 0.042 * 1.62) % TWO_PI);
       }
 
       /* Planets */
@@ -1585,8 +1671,13 @@ export function SkyClock3D({
         p.bead.scale.setScalar(tipR * (1 - morphT * 0.5));
         p.glow.position.copy(tip);
         p.glow.position.z = 0.04;
-        (p.glow.material as THREE.MeshBasicMaterial).opacity =
-          (isSel ? 0.35 : 0.18) * (1 - morphT);
+        const glowBase = (isSel ? 0.42 : 0.26) * (1 - morphT);
+        (p.glow.material as THREE.MeshBasicMaterial).opacity = glowBase;
+        p.softGlow.position.copy(tip);
+        p.softGlow.position.z = 0.03;
+        (p.softGlow.material as THREE.MeshBasicMaterial).opacity =
+          (isSel ? 0.18 : 0.1) * (1 - morphT);
+        p.softGlow.scale.setScalar(isSel ? 1.15 : 1);
         p.sprite.position.copy(tip);
         p.sprite.position.z = 0.08;
         p.sprite.scale.setScalar((isSel ? 0.16 : 0.13) * (1 - morphT * 0.6));
@@ -1698,26 +1789,29 @@ export function SkyClock3D({
       lagnaGem.position.copy(polar3(rRashi + 0.01, lagAng));
       lagnaGem.position.z = 0.05;
 
-      /* Hub LST bead + sec arc */
+      /* Hub LST bead + sec arc (rebuild geometry only on second change) */
       const msFrac = (ms % 1000) / 1000;
-      const secFrac = (date.getUTCSeconds() + msFrac) / 60;
+      const utcSec = date.getUTCSeconds();
+      const secFrac = (utcSec + msFrac) / 60;
       const lstFrac = (lstH % 24) / 24;
       const lstAng = -Math.PI / 2 + lstFrac * TWO_PI;
-      /* Canvas polar for hub uses same formula; Three needs Y flip */
       lstBead.position.set(
         Math.cos(lstAng) * (rHub - 0.025),
         -Math.sin(lstAng) * (rHub - 0.025),
         0.06,
       );
-      secArc.geometry.dispose();
-      secArc.geometry = new THREE.TorusGeometry(
-        rHub * 0.72,
-        0.01,
-        8,
-        48,
-        Math.max(0.05, secFrac * TWO_PI),
-      );
-      secArc.rotation.z = Math.PI / 2; /* start at 12 o'clock */
+      if (utcSec !== lastSecArcSec) {
+        lastSecArcSec = utcSec;
+        secArc.geometry.dispose();
+        secArc.geometry = new THREE.TorusGeometry(
+          rHub * 0.72,
+          0.01,
+          8,
+          48,
+          Math.max(0.05, secFrac * TWO_PI),
+        );
+      }
+      secArc.rotation.z = Math.PI / 2;
       (secArc.material as THREE.MeshBasicMaterial).opacity = reduceMotion
         ? 0.55
         : 0.45 + 0.25 * Math.sin(msFrac * TWO_PI);
@@ -1743,24 +1837,50 @@ export function SkyClock3D({
       /* Staggered mechanical morph — slight group tilt only (not a solid coin) */
       if (flipAnim) {
         const t = Math.min(1, (performance.now() - flipAnim.start) / flipAnim.duration);
-        /* Linear global clock so layer delays stay visible; each layer eases itself */
+        /* Soft-ended global clock: ease ends so morph doesn't pop; mid stays near-linear
+           so outer→inner stagger remaining readable. */
+        const tGrace = t < 0.12
+          ? easeInOutCubic(t / 0.12) * 0.12
+          : t > 0.88
+            ? 0.88 + easeInOutCubic((t - 0.88) / 0.12) * 0.12
+            : t;
         const morphNow =
-          flipAnim.morphFrom + (flipAnim.morphTo - flipAnim.morphFrom) * t;
+          flipAnim.morphFrom + (flipAnim.morphTo - flipAnim.morphFrom) * tGrace;
         applyMorph(morphNow);
         const dir = flipAnim.morphTo > flipAnim.morphFrom ? 1 : -1;
-        const sway = Math.sin(t * Math.PI);
-        flipGroup.rotation.y = sway * 0.28 * dir;
-        flipGroup.rotation.x = sway * 0.07;
-        flipGroup.position.z = sway * 0.2;
+        const sway = Math.sin(tGrace * Math.PI);
+        flipGroup.rotation.y = sway * 0.26 * dir;
+        flipGroup.rotation.x = sway * 0.08;
+        flipGroup.position.z = sway * 0.22;
+        /* Specular travel mid-morph — spark sweeps across dial */
+        const sweep = sway;
+        morphSpark.intensity = 0.35 + sweep * 1.55;
+        morphSpark.position.set(
+          Math.sin(tGrace * Math.PI * 1.15) * 2.2 * dir,
+          Math.cos(tGrace * Math.PI * 0.9) * 1.4,
+          2.2 + sweep * 0.6,
+        );
+        key.intensity = 1.55 + sweep * 0.35;
+        spark.intensity = 1.15 + sweep * 0.55;
+        renderer.toneMappingExposure = 1.14 + sweep * 0.08;
         if (t >= 1) {
           settlePose();
           applyMorph(flipAnim.morphTo);
+          morphSpark.intensity = 0;
+          key.intensity = 1.55;
+          spark.intensity = 1.15;
+          renderer.toneMappingExposure = 1.14;
           flipAnim = null;
         }
       } else {
         flipGroup.rotation.y *= 0.82;
         flipGroup.rotation.x *= 0.85;
         flipGroup.position.z *= 0.85;
+        morphSpark.intensity *= 0.85;
+        if (morphSpark.intensity < 0.02) morphSpark.intensity = 0;
+        key.intensity += (1.55 - key.intensity) * 0.12;
+        spark.intensity += (1.15 - spark.intensity) * 0.12;
+        renderer.toneMappingExposure += (1.14 - renderer.toneMappingExposure) * 0.12;
       }
 
       onFrameRef.current({
@@ -1794,6 +1914,11 @@ export function SkyClock3D({
       secArc.geometry.dispose();
       scene.environment = null;
       renderer.dispose();
+      try {
+        renderer.forceContextLoss();
+      } catch {
+        /* ignore */
+      }
       for (const d of disposables) {
         try {
           d.dispose();

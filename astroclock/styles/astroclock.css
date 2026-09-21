@@ -642,6 +642,23 @@ html[data-theme="light"] .astroclock-root .scrub::-moz-range-thumb {
 }
 
 /* Dial stage: keep a deep well so sky/metal dials stay legible on paper chrome */
+/* Sky/metal WebGL dial well — intentional inset on paper chrome */
+html[data-theme="light"] .astroclock-root .ac-sky3d-canvas,
+html[data-theme="light"] .astroclock-root .ac-metal3d-canvas {
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(28, 32, 48, 0.94) 0%, #12141c 55%, #0B0C10 100%);
+  border-radius: 1rem;
+  box-shadow:
+    inset 0 0 0 1px rgba(26, 28, 36, 0.18),
+    0 8px 28px rgba(26, 28, 36, 0.1);
+}
+
+html[data-theme="light"] .astroclock-root .ac-reverse-dock.ac-glass {
+  background: rgba(255, 252, 240, 0.94);
+  border-top: 1px solid rgba(26, 28, 36, 0.1);
+  box-shadow: 0 -6px 20px rgba(26, 28, 36, 0.06);
+}
+
 html[data-theme="light"] .astroclock-root #clockCanvas {
   background:
     radial-gradient(ellipse at 50% 42%, rgba(28, 32, 48, 0.92) 0%, #12141c 55%, #0B0C10 100%);

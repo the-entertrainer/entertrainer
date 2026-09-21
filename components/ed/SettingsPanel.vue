@@ -8,6 +8,7 @@ const {
   panelOpen,
   closePanel,
   setOpeningSound,
+  setAstroclockGearSound,
   setWordOfTheDay,
   reset
 } = useSiteSettings()
@@ -115,6 +116,23 @@ function toggleOpeningSound() {
             </button>
           </label>
 
+
+          <label class="sp__row">
+            <span class="sp__row-copy">
+              <span class="sp__row-label">AstroClock gear sound</span>
+            </span>
+            <button
+              type="button"
+              class="sp__switch"
+              role="switch"
+              :aria-checked="settings.astroclockGearSound"
+              :aria-label="`AstroClock gear sound ${settings.astroclockGearSound ? 'on' : 'off'}`"
+              @click="setAstroclockGearSound(!settings.astroclockGearSound)"
+            >
+              <span class="sp__switch-knob" aria-hidden="true" />
+              <span class="sp__switch-state" aria-hidden="true">{{ settings.astroclockGearSound ? 'On' : 'Off' }}</span>
+            </button>
+          </label>
           <label class="sp__row">
             <span class="sp__row-copy">
               <span class="sp__row-label">Word of the Day</span>

@@ -26,6 +26,8 @@ export const OPENING_SOUND_SRC = '/audio/idents/opening.mp3'
 export interface SiteSettings {
   /** Welcome tone on tap-to-enter: "on" | "off". */
   openingSound: OpeningSoundId
+  /** Quiet AstroClock gear/escapement clicks. */
+  astroclockGearSound: boolean
   /** Show the Word of the Day (WOTD) button in the masthead. */
   wordOfTheDay: boolean
   hideElevateExcerpts: boolean
@@ -38,6 +40,7 @@ const DEFAULT_OPENING: OpeningSoundId = 'on'
 
 const defaults = (): SiteSettings => ({
   openingSound: DEFAULT_OPENING,
+  astroclockGearSound: true,
   wordOfTheDay: true,
   hideElevateExcerpts: false,
   elevateSort: 'newest'
@@ -64,6 +67,7 @@ function parseStored(raw: string | null): SiteSettings {
     const sort = parsed.elevateSort
     return {
       openingSound: resolveOpeningSound(parsed),
+      astroclockGearSound: parsed.astroclockGearSound !== false,
       wordOfTheDay: parsed.wordOfTheDay !== false,
       hideElevateExcerpts: parsed.hideElevateExcerpts === true,
       elevateSort: sort === 'oldest' || sort === 'title' || sort === 'newest' ? sort : 'newest'
@@ -123,6 +127,12 @@ export function useSiteSettings() {
     if (!import.meta.client || hydrated.value) return
     try {
       settings.value = parseStored(localStorage.getItem(SITE_SETTINGS_KEY))
+      const gear = localStorage.getItem('entertrainer.astroclock.gearSound')
+      if (gear === 'off' || gear === '0' || gear === 'false') {
+        settings.value = { ...settings.value, astroclockGearSound: false }
+      } else if (gear === 'on' || gear === '1' || gear === 'true') {
+        settings.value = { ...settings.value, astroclockGearSound: true }
+      }
     } catch {
       settings.value = defaults()
     }
@@ -140,6 +150,15 @@ export function useSiteSettings() {
   }
 
   function setOpeningSound(id: OpeningSoundId) { patch({ openingSound: id }) }
+  function setAstroclockGearSound(on: boolean) {
+    patch({ astroclockGearSound: on })
+    if (import.meta.client) {
+      try {
+        localStorage.setItem('entertrainer.astroclock.gearSound', on ? 'on' : 'off')
+        window.dispatchEvent(new CustomEvent('astroclock-gear-sound', { detail: { on } }))
+      } catch { /* ignore */ }
+    }
+  }
   function setWordOfTheDay(on: boolean) { patch({ wordOfTheDay: on }) }
   function setHideElevateExcerpts(on: boolean) { patch({ hideElevateExcerpts: on }) }
   function setElevateSort(sort: ElevateSortPref) { patch({ elevateSort: sort }) }
@@ -149,6 +168,12 @@ export function useSiteSettings() {
     hydrated.value = true
     persist()
     applyToDom()
+    if (import.meta.client) {
+      try {
+        localStorage.setItem('entertrainer.astroclock.gearSound', 'on')
+        window.dispatchEvent(new CustomEvent('astroclock-gear-sound', { detail: { on: true } }))
+      } catch { /* ignore */ }
+    }
   }
 
   function openPanel() { panelOpen.value = true }
@@ -176,6 +201,7 @@ export function useSiteSettings() {
     applyToDom,
     patch,
     setOpeningSound,
+    setAstroclockGearSound,
     setWordOfTheDay,
     setHideElevateExcerpts,
     setElevateSort,

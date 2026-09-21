@@ -26,6 +26,10 @@ import {
   wholeSignHouse,
 } from '@astroclock/lib/astro';
 import { birthDateObj, clearConfig, loadConfig, saveConfig } from '@astroclock/lib/storage';
+import {
+  createGearAmbience,
+  loadGearSoundEnabled,
+} from '@astroclock/lib/gearAmbience';
 import { formatMsClock, scrubHint } from '@astroclock/lib/format';
 import { TopBar, type MainView } from './TopBar';
 import { ClockCanvas, type FrameCache } from './ClockCanvas';
@@ -59,6 +63,8 @@ export function AstroClockApp() {
   const [simTime, setSimTime] = useState(() => Date.now());
   const [selected, setSelected] = useState<GrahaId | null>(null);
   const [configOpen, setConfigOpen] = useState(false);
+  const [gearSoundOn, setGearSoundOn] = useState(true);
+  const gearRef = useRef<ReturnType<typeof createGearAmbience> | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [youOpen, setYouOpen] = useState(false);
   const [view, setView] = useState<MainView>('dial');
@@ -125,6 +131,27 @@ export function AstroClockApp() {
       setUseFlatSky(false);
     }
   }, []);
+
+
+  useEffect(() => {
+    setGearSoundOn(loadGearSoundEnabled());
+    const ambience = createGearAmbience();
+    gearRef.current = ambience;
+    const onPref = (e: Event) => {
+      const on = (e as CustomEvent<{ on: boolean }>).detail?.on;
+      if (typeof on === 'boolean') {
+        setGearSoundOn(on);
+        ambience.setEnabled(on);
+      }
+    };
+    window.addEventListener('astroclock-gear-sound', onPref as EventListener);
+    return () => {
+      window.removeEventListener('astroclock-gear-sound', onPref as EventListener);
+      ambience.dispose();
+      gearRef.current = null;
+    };
+  }, []);
+
 
   useEffect(() => {
     const onVis = () => setVisible(document.visibilityState === 'visible');
@@ -449,7 +476,10 @@ export function AstroClockApp() {
   }
 
   return (
-    <div className="astroclock-root bg-ink text-mist">
+    <div
+      className="astroclock-root bg-ink text-mist"
+      onPointerDownCapture={() => gearRef.current?.unlock()}
+    >
       <TopBar
         utc={utc}
         local={local}
@@ -636,6 +666,11 @@ export function AstroClockApp() {
         onClose={() => setConfigOpen(false)}
         onSave={handleSave}
         onReset={handleReset}
+        gearSoundOn={gearSoundOn}
+        onGearSoundChange={(on) => {
+          setGearSoundOn(on);
+          gearRef.current?.setEnabled(on);
+        }}
       />
 
       <WelcomeTour

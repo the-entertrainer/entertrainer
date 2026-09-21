@@ -17,6 +17,8 @@ interface ConfigDrawerProps {
   onClose: () => void;
   onSave: () => void;
   onReset: () => void;
+  gearSoundOn: boolean;
+  onGearSoundChange: (on: boolean) => void;
 }
 
 const PRESET_ORDER = ['delhi', 'tokyo', 'london', 'newyork', 'sf'] as const;
@@ -28,6 +30,8 @@ export function ConfigDrawer({
   onClose,
   onSave,
   onReset,
+  gearSoundOn,
+  onGearSoundChange,
 }: ConfigDrawerProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<GeocodeHit[]>([]);
@@ -331,6 +335,34 @@ export function ConfigDrawer({
                 className="w-full rounded-lg bg-black/55 border border-white/12 px-3 py-2.5 text-sm outline-none focus:border-gold/50 font-mono"
               />
             </label>
+          </div>
+
+
+          <div className="rounded-xl border border-white/10 bg-black/35 px-3 py-3 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-[13px] text-mist">Gear sound</div>
+                <p className="text-[10px] text-mist/45 leading-snug mt-0.5">
+                  Tiny quiet clicks while the dial runs. Off is silent.
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={gearSoundOn}
+                aria-label={`Gear sound ${gearSoundOn ? 'on' : 'off'}`}
+                onClick={() => onGearSoundChange(!gearSoundOn)}
+                className={`relative shrink-0 w-11 h-6 rounded-full transition ${
+                  gearSoundOn ? 'bg-gold/80' : 'bg-white/15'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-ink transition ${
+                    gearSoundOn ? 'translate-x-5' : ''
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           <p className="text-[10px] text-mist/40 leading-relaxed">

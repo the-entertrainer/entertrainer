@@ -20,7 +20,7 @@ function astroclockReactJsx() {
         esbuild: {
           jsx: 'automatic',
           jsxImportSource: 'react',
-          include: /\.ts$|(?:^|[\\/])(?:astroclock|velocity)[\\/].*\.[jt]sx$/,
+          include: /\.ts$|(?:^|[\\/])astroclock[\\/].*\.[jt]sx$/,
         },
         optimizeDeps: {
           esbuildOptions: {
@@ -172,20 +172,6 @@ export default defineNuxtConfig({
           description: 'Birth place and time. A live dial. What today is doing.',
           url: '/engage/astroclock',
           icons: [{ src: '/astroclock-icon-192.png', sizes: '192x192', type: 'image/png' }]
-        },
-        {
-          name: 'Velocity — Cosmic speedometer',
-          short_name: 'Velocity',
-          description: 'The speeds you already have — spin, orbit, galaxy, leftover light.',
-          url: '/engage/velocity',
-          icons: [{ src: '/velocity-icon.svg', sizes: 'any', type: 'image/svg+xml' }]
-        },
-        {
-          name: 'Vilakku — Folk horror',
-          short_name: 'Vilakku',
-          description: 'A locked room in a Kerala monsoon. 1994. The lamp is the only honest light.',
-          url: '/engage/vilakku',
-          icons: [{ src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml' }]
         }
       ]
     },
@@ -236,18 +222,20 @@ export default defineNuxtConfig({
     '/educate/**': { redirect: { to: '/', statusCode: 301 } },
     // PicTune removed — keep old links from 404ing.
     '/engage/pictune': { redirect: { to: '/engage', statusCode: 301 } },
+    // Velocity + Vilakku removed — keep old links from 404ing.
+    '/engage/velocity': { redirect: { to: '/engage', statusCode: 301 } },
+    '/engage/vilakku': { redirect: { to: '/engage', statusCode: 301 } },
     // Games renamed to Engage.
     '/games': { redirect: { to: '/engage', statusCode: 301 } },
     '/games/**': { redirect: { to: '/engage/**', statusCode: 301 } },
   },
   alias: {
     '@astroclock': fileURLToPath(new URL('./astroclock', import.meta.url)),
-    '@velocity': fileURLToPath(new URL('./velocity', import.meta.url)),
   },
   vite: {
     // Keep Vue JSX off the React island. Every .tsx in this repo is AstroClock.
     vueJsx: {
-      exclude: /(?:^|[\\/])(?:astroclock|velocity)[\\/]/,
+      exclude: /(?:^|[\\/])astroclock[\\/]/,
     },
     plugins: [
       astroclockReactJsx(),

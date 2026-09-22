@@ -191,25 +191,9 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — The Mind Reader, AstroClock, Velocity, and Vilakku.',
+    description: 'Short games and little detours — The Mind Reader and AstroClock.',
     image: `${SITE_URL}/og-engage.jpg`,
-    imageAlt: 'Four Engage marks on cream paper: an eye, a clock, a chevron, a lamp.'
-  },
-  '/engage/velocity': {
-    key: 'velocity',
-    label: 'Velocity',
-    title: 'Velocity · Engage',
-    description: 'The speeds you already have — Earth spin, solar orbit, galactic ride, CMB frame.',
-    image: `${SITE_URL}/og-velocity.jpg`,
-    imageAlt: 'Earth from orbit with a gold chevron of motion against black space.'
-  },
-  '/engage/vilakku': {
-    key: 'vilakku',
-    label: 'Vilakku',
-    title: 'Vilakku · Engage',
-    description: 'A locked room in a Kerala monsoon. 1994. The lamp is the only honest light.',
-    image: `${SITE_URL}/og-vilakku.jpg`,
-    imageAlt: 'Night Kerala window, brass lamp, monsoon rain. No people.'
+    imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },
   '/engage/astroclock': {
     key: 'astroclock',

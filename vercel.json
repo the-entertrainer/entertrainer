@@ -33,6 +33,16 @@
       "permanent": true
     },
     {
+      "source": "/engage/velocity",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/vilakku",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
       "source": "/tools/training-cal-gen",
       "destination": "/tools/cadence",
       "permanent": true

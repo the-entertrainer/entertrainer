@@ -1,28 +1,32 @@
-# Entertrainer — blog writing
+# Entertrainer — writing
 
-Any **new Elevate / science / curiosity blog post** must load and apply all four skills before drafting:
+**One writing skill only:** `naveen-writing` (id `naveen-wisdom-voice`).
 
-- `.claude/skills/naveen-curiosity-science-blog/SKILL.md`
-- `.claude/skills/say-it-like-naveen/SKILL.md`
-- `.claude/skills/human-not-model/SKILL.md`
-- `.claude/skills/imagegen/SKILL.md`
-- `.claude/skills/blog-social-hook/SKILL.md`
+Load it before any draft — chat, Elevate essays, About, UI copy, captions, social hooks.
 
-Order: research → draft in Naveen’s voice → **run the human-not-model gate** → craft `socialTitle` + `socialHook` (LinkedIn/OG; title alone must pull) → images. If the gate fails, rebuild from the outline. Do not synonym-swap. Do not “humanize” with typos, slang, or extra contractions.
+- Agent workflow: use skill `naveen-wisdom-voice`
+- Repo mirror: `.claude/skills/naveen-wisdom-voice/SKILL.md`
 
-Research the specific topic first. Do not draft from memory. Do not copy skill example titles.
+Retired (do not use for voice): `say-it-like-naveen`, `naveen-curiosity-science-blog`, `blog-social-hook`, `human-not-model`. Their folders remain only as redirects.
 
-## Do not publish
+## Voice
 
-- Pop-neuro title templates (“Why Your Brain Is Hardwired…”, “Why Your Brain Might Be Hiding…”, “the terrifying truth”).
-- Invented or mismatched citations.
-- Unearned topic detours (quantum, Q-Day, “evolutionary necessity”) that the hook does not require.
-- Generic explainers with no ordinary scene, no competing interpretation, and no useful landing.
-- Model-default register: *delve, tapestry, underscore, intricate, pivotal, realm, landscape, it’s important to note, whether you’re a, in today’s fast-paced*, metronomic paragraph length, or a draft whose sentence-length CV is below 0.55.
+Match the gold sample (phone-in-dark / rope conversational paragraphs). Plain words. Complete sentences. Concrete scenes.
 
-House style is the hand-authored Elevate essays (moonly, jamais vu, midpoint, lie perfectly, Bloom/AI). Compose drafts stay unpublished until they match that bar **and** pass `human-not-model`.
-
+Never textbook “Your X…”. Never abstract sketch/map metaphors. Never choppy Blah.Blah.Blah. Never cliché AI infographics.
 
 ## Social title + hook (required)
 
-Every published Elevate post needs `socialTitle` (~40–60 chars) and `socialHook` (~100–150 chars) in `content/blogs.ts`. LinkedIn mobile often hides the description — **`socialTitle` must carry the pull alone**. `socialHook` is still required for platforms that show `og:description`, and must **not** copy `dek`. Keep on-page H1 as `title`. See `docs/blog-social-hook.md` and `.claude/skills/blog-social-hook/SKILL.md`. Fail closed via `npm run check:social-hooks`. After deploy, refresh LinkedIn with Post Inspector.
+Every published Elevate post needs `socialTitle` (~40–60 chars) and `socialHook` (~100–150 chars) in `content/blogs.ts`. LinkedIn mobile often hides the description — **`socialTitle` must carry the pull alone**. `socialHook` must **not** copy `dek`. On-page H1 stays `title`. Fail closed via `npm run check:social-hooks`. After deploy, refresh LinkedIn with Post Inspector.
+
+Rules for hooks live inside `naveen-wisdom-voice` / `naveen-writing` — not in a separate social-hook skill.
+
+## Do not publish
+
+- Pop-neuro title templates (“Why Your Brain Is Hardwired…”, “the terrifying truth”).
+- Invented or mismatched citations.
+- Unearned topic detours the hook does not require.
+- Generic explainers with no ordinary scene and no useful landing.
+- Model-default register (*delve, tapestry, underscore, intricate, pivotal, realm, landscape*, metronomic paragraph length).
+
+Compose drafts stay unpublished until they match house Elevate essays **and** the naveen-writing gate.

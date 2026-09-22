@@ -139,7 +139,7 @@ export const ITEMS: EditorialItem[] = [
   },
   {
     id: 'about',
-    title: 'Zero dreams. A thousand fears. Then this.',
+    title: 'Floors in Udaipur. Verification calls in Coorg.',
     dek: 'Kerala village, machines as companions, Club Mahindra housekeeping, The SEWA Chronicles, Courtyard by Marriott Mahabaleshwar, and learning design — the longer route behind Entertrainer.',
     category: 'story',
     media: 'essay',

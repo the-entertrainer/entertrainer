@@ -186,7 +186,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'your-mouth-can-be-sure-for-reasons-your-eyes-never-had',
     title: 'Your Mouth Can Be Sure for Reasons Your Eyes Never Had',
-    dek: 'Surgeons cut the cable between the hemispheres for epilepsy. In the lab, the speaking half denied what the silent half had seen — then invented a chicken-shed reason for a shovel it never chose.',
+    dek: 'Surgeons cut the cable between the brain halves for epilepsy. In the lab, speech said it saw nothing. The left hand still found the match. Then the mouth invented a chicken-shed reason for a shovel.',
     socialHook: 'Lab flash. Speech says “nothing.” Left hand already pointed. Then the mouth invents a chicken-shed reason.',
     socialTitle: 'Your mouth was sure. Half of you never saw it.',
     category: 'Mind',

@@ -70,55 +70,59 @@ const references = [
     <article class="split__article">
       <aside class="split__margin-note" aria-label="Reading note">
         <p>Keep this straight.</p>
-        <p>The mouth reports what reached the speaking half. Another half can register something the mouth never got — and still move a hand.</p>
+        <p>Your mouth reports what the speaking half saw. The other half can see something else. That other half can still move a hand.</p>
       </aside>
 
       <div class="split__prose">
-        <p class="split__lead">Imagine you are staring at a tiny mark on a screen.</p>
-        <p>A picture flashes to the left of the mark — too quick for your eyes to cheat. Someone asks what you saw.</p>
+        <p class="split__lead">Look at a tiny mark on a screen.</p>
+        <p>A picture flashes to the left of the mark. The flash is very fast. Your eyes cannot cheat.</p>
+        <p>Someone asks what you saw.</p>
         <p>You say, honestly: “Nothing.”</p>
-        <p>Then your left hand, out of sight under a tray of objects, reaches over and picks the matching thing.</p>
-        <p>Not a party trick. A surgery. A cable cut for epilepsy. And a laboratory that made the gap between <em>seeing</em> and <em>telling</em> impossible to ignore.</p>
+        <p>Then your left hand reaches under a tray. It picks the matching object.</p>
+        <p>This is not a party trick. Surgeons cut a cable in the brain to treat epilepsy. Then scientists ran careful lab tests. The tests showed a gap between seeing and telling.</p>
 
         <h2>Why anyone cut the cable</h2>
-        <p>The corpus callosum is the thick bridge of fibres between the left and right cortical hemispheres — on the order of hundreds of millions of axons. In severe, drug-resistant epilepsy, a seizure can start on one side and race across that bridge into the other.</p>
-        <p>In the early 1960s in Los Angeles, neurosurgeons Phillip Vogel and Joseph Bogen sectioned that bridge (and sometimes related commissures) as a last-resort operation. The patients who reshaped cognitive science were then studied at Caltech with Roger Sperry and a young Michael Gazzaniga.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>Important: nobody removed a hemisphere. Subcortical routes stayed. After recovery, many patients looked almost ordinary in a casual conversation. The drama lived in the lab, where each half of the visual world could be delivered to only one side.</p>
-        <p>Sperry shared the 1981 Nobel Prize in Physiology or Medicine for work on hemispheric specialization. His lecture is still the cleanest primary overview from the discoverer’s side.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>Your brain has a left half and a right half. A thick bridge of fibres links them. That bridge is called the corpus callosum.</p>
+        <p>In some hard epilepsy cases, a seizure starts on one side. Then it races across the bridge. Doctors cut the bridge to stop that spread. This was a last-resort surgery.</p>
+        <p>In the early 1960s in Los Angeles, Phillip Vogel and Joseph Bogen did this work. Roger Sperry and Michael Gazzaniga later studied the patients at Caltech.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>Nobody removed a half of the brain. Many patients seemed almost ordinary in everyday talk. The surprising results showed up in the lab.</p>
+        <p>Sperry shared the 1981 Nobel Prize for this line of work. His Nobel lecture is still a clear first source.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
 
         <h2>A map you can hold in your head</h2>
-        <p>Each eye sees both left and right space. The wiring still crosses so that the <strong>left half of what you are looking at</strong> is handled mainly by the <strong>right hemisphere</strong>, and the right half by the left.</p>
-        <p>In everyday life your eyes move. Both hemispheres keep getting overlapping samples. The callosum keeps them in register. After section, that direct cortical sharing is gone — so a brief flash locked to one side of fixation can reach one half while the other stays dark.</p>
+        <p>Hold this map in mind.</p>
+        <p>Each eye sees left space and right space. The wiring still crosses. The <strong>left half of the scene</strong> goes mainly to the <strong>right half of the brain</strong>. The right half of the scene goes mainly to the left half of the brain.</p>
+        <p>In daily life your eyes keep moving. Both halves of the brain keep getting samples. The bridge keeps them in sync.</p>
+        <p>After the bridge is cut, that direct sharing is gone. A brief flash on one side can reach only one half.</p>
 
         <figure class="split__visual">
           <EdEditorialImage
             src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/vision-map.jpg"
             alt="Cartoon person at a night desk watching a monitor split between a snowy cabin and a chicken claw — a story scene, not a diagram."
           />
-          <figcaption>Left of gaze → right half. Right of gaze → left half. The speaking system usually sits with the left.</figcaption>
+          <figcaption>Left of the mark goes to the right half of the brain. Right of the mark goes to the left half. Speech usually lives with the left half.</figcaption>
         </figure>
 
         <h2>The flash that speech cannot name</h2>
-        <p>Protocol, in plain clothes:</p>
-        <p>Patient fixates a centre point. A word or picture is flashed for a fraction of a second entirely to the left or entirely to the right — historically with a tachistoscope, too brief for a voluntary eye movement to drag the image across.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>Then the experimenters ask for different kinds of answer: speech, or pointing with one hand, or matching by touch under a screen.</p>
-        <p>Classic pattern in right-handers: flash to the <strong>right</strong> field (left hemisphere) → names it. Flash to the <strong>left</strong> field (right hemisphere) → speech often says it saw nothing, or only a flash of light — while the <strong>left hand</strong> can still select the correct object.</p>
+        <p>Here is the test, step by step.</p>
+        <p>The patient looks at a centre mark. A word or picture flashes for a tiny moment. It sits fully on the left, or fully on the right. The flash is too short for a normal eye move to drag it across.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>Then the team asks for an answer. Sometimes they ask for speech. Sometimes they ask for a point with one hand. Sometimes they ask for a match by touch under a screen.</p>
+        <p>In many right-handed patients, this pattern appears. Flash on the <strong>right</strong> (left half of the brain). The mouth can name it. Flash on the <strong>left</strong> (right half of the brain). The mouth often says it saw nothing, or only a flash of light. The <strong>left hand</strong> can still pick the right object.</p>
 
         <figure class="split__visual">
           <EdEditorialImage
             src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/flash-test.jpg"
             alt="Cartoon lab scene: a confused character points at a glowing key on the table while an empty thought bubble floats above; the monitor still shows the key that flashed."
           />
-          <figcaption>Speech reports the speaking half. The left hand can answer for the half that never got a microphone.</figcaption>
+          <figcaption>Speech reports what the speaking half saw. The left hand can answer for the half that cannot speak.</figcaption>
         </figure>
 
-        <p>Sperry’s surprise, against older neurology, was how much the “mute” right side could comprehend and act — while the speaking left side stayed unaware of those performances.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>Older ideas treated the right half as almost useless for understanding. Sperry’s work showed the opposite. The quiet half could understand and act. The speaking half often did not know those acts had happened.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
 
         <h2>Chicken claw, snow shovel, chicken shed</h2>
-        <p>This is the trial people retell. Worth getting exact.</p>
-        <p>Patient P.S., in the Gazzaniga and LeDoux line of work: simultaneous half-field presentation. Right visual field (left hemisphere) gets a <strong>chicken claw</strong>. Left visual field (right hemisphere) gets a <strong>snow scene</strong>. Each hand chooses a related picture from an array.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-6" aria-label="Reference 6">[6]</a></p>
-        <p>Right hand picks a chicken. Left hand picks a snow shovel.</p>
-        <p>Asked why, the speaking left hemisphere — which saw only the claw, and can see both hands’ choices — answered along the lines of:</p>
+        <p>This is the famous trial. Get the details exact.</p>
+        <p>Patient P.S. sat for a dual flash. The right half of the screen showed a <strong>chicken claw</strong>. That went to the left half of the brain. The left half of the screen showed a <strong>snow scene</strong>. That went to the right half of the brain. Each hand then chose a related picture from a set.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-6" aria-label="Reference 6">[6]</a></p>
+        <p>The right hand picked a chicken. The left hand picked a snow shovel.</p>
+        <p>Then someone asked why. The speaking left half had seen only the claw. It could also see both hands’ choices. It answered along these lines:</p>
         <blockquote>
           <p>Oh, that’s simple. The chicken claw goes with the chicken, and you need a shovel to clean out the chicken shed.</p>
         </blockquote>
@@ -128,36 +132,36 @@ const references = [
             src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/chicken-shovel.jpg"
             alt="Cartoon character holds a snow-shovel card and a chicken card, looking confident, while a thought bubble shows a chicken shed with a shovel in the snow."
           />
-          <figcaption>The shovel belonged to the snow. Speech folded it into a claw story so the moment stayed coherent.</figcaption>
+          <figcaption>The shovel belonged with the snow. Speech folded it into a claw story so the moment still made sense.</figcaption>
         </figure>
 
-        <p>The shovel choice was driven by a snow scene the left hemisphere never received. Rather than say “I don’t know why my left hand did that,” speech <strong>rewrote the cause</strong>. Gazzaniga called that storytelling system the left-hemisphere <strong>interpreter</strong>.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a></p>
-        <p>Related demos: flash a command only to the right hemisphere (“walk,” “laugh”); the body complies; asked why, speech invents a reason. Action first. Narrative after.</p>
+        <p>The shovel choice came from the snow scene. The left half never got that scene. Speech did not say “I do not know.” Speech <strong>rewrote the cause</strong>. Gazzaniga called that storytelling system the left-hemisphere <strong>interpreter</strong>.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <p>Related tests flash a command only to the right half. Examples include “walk” or “laugh.” The body does the act. Asked why, speech invents a reason. Action comes first. The story comes after.</p>
 
         <figure class="split__visual">
           <EdEditorialImage
             src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/interpreter.jpg"
             alt="Inside a warm spotlight, a tiny human press secretary invents a story at a microphone while a snow shovel waits outside in the cold dark."
           />
-          <figcaption>Not a liar in the social sense. A system whose job is a story that holds.</figcaption>
+          <figcaption>This is not social lying. It is a system whose job is to keep a story that holds.</figcaption>
         </figure>
 
         <h2>What this does to “I saw it”</h2>
-        <p>Under half-field constraint, “I saw X” is a report about what entered the speech system — not a transparent readout of everything the brain registered.</p>
-        <p>That is the uncomfortable clarity. The voice that says “I” can be sure for reasons another stream of the same brain never had. Confidence is not a meter of causal access.</p>
-        <p>You do not need epilepsy surgery for the flavour of this. Everyday psychology already knows sincere wrong reasons — choice blindness, post-hoc justifications. Split-brain work is a neurological existence proof that fluent verbal causation can be invented.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <p>In these half-field tests, “I saw X” means something narrow. It means X reached the speech system. It does not mean every part of the brain saw X.</p>
+        <p>That is the hard clarity. The voice that says “I” can feel sure. Another stream in the same brain never had those reasons. Confidence is not a perfect meter of what caused the answer.</p>
+        <p>You do not need brain surgery to taste a milder version. Everyday psychology already shows sincere wrong reasons. Split-brain work is a clear neurological proof that fluent verbal causes can be invented.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
 
         <h2>Where I have to be careful</h2>
-        <p>These were not “two people” living in one skull, arguing over dinner. After recovery, casual meeting often failed to show anything odd. Eyes scan. People cue themselves. Unity looks intact until the lab forces lateralized input.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>Patients differ: extent of section, age, residual cross-talk, plastic change. P.S. later showed evolving right-hemisphere speech capacity in some reports. The classical literature rests on a small set of intensively studied individuals.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
-        <p>Modern reviews argue the popular “two conscious agents” packaging overshoots. One line of work frames a single conscious agent with <strong>split perception</strong> — streams that do not integrate, without Hollywood dual persons.<a href="#ref-5" aria-label="Reference 5">[5]</a> Gazzaniga’s mature framing is modular processing plus a left-sided interpreter that constructs authorship and continuity.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
-        <p>Sperry himself warned that left-brain / right-brain dichotomies are easy to run wild with. Specialization is real. The self-help poster is not.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>These patients were not “two people” arguing in one skull. After recovery, a casual meeting often looked normal. Eyes scan. People cue themselves. Unity looks intact until the lab forces one-sided input.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>Patients also differ. The cut can vary. Age can vary. Some leftover cross-talk can remain. The classic papers rest on a small set of carefully studied people.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <p>Modern reviews say the “two conscious agents” story goes too far. One careful frame is a single conscious agent with <strong>split perception</strong>. Streams do not join. That still is not Hollywood dual persons.<a href="#ref-5" aria-label="Reference 5">[5]</a> Gazzaniga’s later frame is modular processing plus a left-sided interpreter that builds authorship and continuity.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <p>Sperry himself warned against wild left-brain / right-brain posters. Specialization is real. The self-help cartoon is not.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
 
         <h2>The useful part</h2>
         <p>So what do you do with this on a Tuesday?</p>
-        <p>Maybe notice when your mouth is very sure, very fast. The sentence can feel like a camera feed. Sometimes it is a press release written after the hands have already moved.</p>
-        <p>That is not “nothing is real.” The snow scene was real. The claw was real. The shovel choice was real. What got stitched was the causal story that made them one plot.</p>
-        <p class="split__closing">Your mouth can be sure for reasons your eyes — on the other half of the brain — never had. The interesting question is not how many people you are. It is how much of “I saw it” was ever the whole sensorium, and how much was the narrator doing its job.</p>
+        <p>Notice when your mouth is very sure, very fast. The sentence can feel like a live camera. Sometimes it is a story written after the hands have already moved.</p>
+        <p>That does not mean nothing is real. The snow scene was real. The claw was real. The shovel choice was real. What got stitched was the cause story that made them one plot.</p>
+        <p class="split__closing">Your mouth can be sure for reasons your eyes — on the other half of the brain — never had. The useful question is not how many people you are. The useful question is how much of “I saw it” was the whole sensing brain, and how much was the narrator doing its job.</p>
       </div>
     </article>
 

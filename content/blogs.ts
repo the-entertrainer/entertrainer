@@ -185,10 +185,10 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'your-mouth-can-be-sure-for-reasons-your-eyes-never-had',
-    title: 'Interpreter',
+    title: 'How many of you, is actually inside you?',
     dek: 'Surgeons cut the cable between the brain halves for epilepsy. Speech said it saw nothing. The left hand still found the key. Then the mouth built a chicken-shed story for a shovel it never chose.',
     socialHook: 'They flashed a key to one half of a split brain. Speech said nothing. The left hand still found the key — then later invents a chicken-shed story for a shovel.',
-    socialTitle: 'Speech said nothing. The quiet half still knew.',
+    socialTitle: 'How many of you is actually inside you?',
     category: 'Mind',
     tags: ['cognition', 'neuroscience', 'consciousness'],
     minutes: 10,

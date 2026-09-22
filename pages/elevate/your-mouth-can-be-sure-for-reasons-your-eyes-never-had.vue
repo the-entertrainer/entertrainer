@@ -93,7 +93,7 @@ const references = [
         <figure class="split__visual">
           <EdEditorialImage
             src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/vision-map.jpg"
-            alt="Cartoon head split left and right with a cobalt cable across the midline; left visual field box with a star arrows to the right half; right visual field box arrows to the left half."
+            alt="Cartoon person at a night desk watching a monitor split between a snowy cabin and a chicken claw — a story scene, not a diagram."
           />
           <figcaption>Left of gaze → right half. Right of gaze → left half. The speaking system usually sits with the left.</figcaption>
         </figure>
@@ -107,7 +107,7 @@ const references = [
         <figure class="split__visual">
           <EdEditorialImage
             src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/flash-test.jpg"
-            alt="Lab screen with a fixation dot; a key flashes on the left; a silhouette says Nothing in a speech bubble while a left hand points to the matching key in a choice tray."
+            alt="Cartoon lab scene: a confused character points at a glowing key on the table while an empty thought bubble floats above; the monitor still shows the key that flashed."
           />
           <figcaption>Speech reports the speaking half. The left hand can answer for the half that never got a microphone.</figcaption>
         </figure>
@@ -126,7 +126,7 @@ const references = [
         <figure class="split__visual">
           <EdEditorialImage
             src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/chicken-shovel.jpg"
-            alt="Split panels: chicken claw to the left half, snow scene to the right half; right hand picks a chicken, left hand picks a cobalt shovel; speech bubble invents a chicken-shed story."
+            alt="Cartoon character holds a snow-shovel card and a chicken card, looking confident, while a thought bubble shows a chicken shed with a shovel in the snow."
           />
           <figcaption>The shovel belonged to the snow. Speech folded it into a claw story so the moment stayed coherent.</figcaption>
         </figure>
@@ -137,7 +137,7 @@ const references = [
         <figure class="split__visual">
           <EdEditorialImage
             src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/interpreter.jpg"
-            alt="Large head silhouette: cream left half contains a tiny press-secretary desk with a WHY bubble; black right half holds a cobalt eye; a cobalt arrow leaves the mouth."
+            alt="Inside a warm spotlight, a tiny human press secretary invents a story at a microphone while a snow shovel waits outside in the cold dark."
           />
           <figcaption>Not a liar in the social sense. A system whose job is a story that holds.</figcaption>
         </figure>

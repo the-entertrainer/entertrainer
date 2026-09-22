@@ -193,7 +193,7 @@ export const BLOG_POSTS: BlogPost[] = [
     tags: ['cognition', 'neuroscience', 'consciousness'],
     minutes: 10,
     hero: '/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/hero.jpg',
-    heroAlt: 'Two black silhouette heads on cream paper: left side labelled Speaks with a tiny desk and cobalt speech arrow; right side labelled Sees with an open cobalt eye and a dashed path to a pointing hand; a cut mark on the midline.',
+    heroAlt: 'Night cartoon of a curious person at a glowing desk, soft blue room, stars outside — the mood of a science story about to start.',
     status: 'published',
     publishedAt: '2026-09-22T15:45:00+00:00'
   }

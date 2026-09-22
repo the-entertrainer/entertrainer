@@ -182,6 +182,20 @@ export const BLOG_POSTS: BlogPost[] = [
     heroAlt: 'A cream editorial drawing of a simple cup with a cobalt stream flowing into a dark textured ground — appearance rising, living, and returning in one field.',
     status: 'published',
     publishedAt: '2026-09-22T08:24:00+00:00'
+  },
+  {
+    slug: 'your-mouth-can-be-sure-for-reasons-your-eyes-never-had',
+    title: 'Your Mouth Can Be Sure for Reasons Your Eyes Never Had',
+    dek: 'Surgeons cut the cable between the hemispheres for epilepsy. In the lab, the speaking half denied what the silent half had seen — then invented a chicken-shed reason for a shovel it never chose.',
+    socialHook: 'Lab flash. Speech says “nothing.” Left hand already pointed. Then the mouth invents a chicken-shed reason.',
+    socialTitle: 'Your mouth was sure. Half of you never saw it.',
+    category: 'Mind',
+    tags: ['cognition', 'neuroscience', 'consciousness'],
+    minutes: 10,
+    hero: '/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/hero.jpg',
+    heroAlt: 'Two black silhouette heads on cream paper: left side labelled Speaks with a tiny desk and cobalt speech arrow; right side labelled Sees with an open cobalt eye and a dashed path to a pointing hand; a cut mark on the midline.',
+    status: 'published',
+    publishedAt: '2026-09-22T15:45:00+00:00'
   }
 ]
 
@@ -197,4 +211,5 @@ export const INNER_SPEECH_BLOG = BLOG_POSTS[7]
 export const CENTRE_UNIVERSE_BLOG = BLOG_POSTS[8]
 export const KNOWING_BLOG = BLOG_POSTS[9]
 export const TAJJALAN_BLOG = BLOG_POSTS[10]
+export const SPLIT_BRAIN_BLOG = BLOG_POSTS[11]
 export const FEATURED_BLOG = ENTROPY_BLOG

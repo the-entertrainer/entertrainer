@@ -1,4 +1,4 @@
-import { ENTROPY_BLOG, INTELLIGENCE_BLOG, MOONLY_BLOG, AI_UNDERSTAND_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, LIE_PERFECTLY_BLOG, INNER_SPEECH_BLOG, CENTRE_UNIVERSE_BLOG, KNOWING_BLOG, TAJJALAN_BLOG } from './blogs'
+import { ENTROPY_BLOG, INTELLIGENCE_BLOG, MOONLY_BLOG, AI_UNDERSTAND_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, LIE_PERFECTLY_BLOG, INNER_SPEECH_BLOG, CENTRE_UNIVERSE_BLOG, KNOWING_BLOG, TAJJALAN_BLOG, SPLIT_BRAIN_BLOG } from './blogs'
 
 export const SITE_URL = 'https://entertrainer.in'
 
@@ -134,6 +134,16 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     description: TAJJALAN_BLOG.socialHook,
     image: `${SITE_URL}${TAJJALAN_BLOG.hero}`,
     imageAlt: TAJJALAN_BLOG.heroAlt,
+    type: 'article'
+  },
+
+  [`/elevate/${SPLIT_BRAIN_BLOG.slug}`]: {
+    key: 'split-brain-see-vs-tell',
+    label: SPLIT_BRAIN_BLOG.category,
+    title: SPLIT_BRAIN_BLOG.socialTitle,
+    description: SPLIT_BRAIN_BLOG.socialHook,
+    image: `${SITE_URL}${SPLIT_BRAIN_BLOG.hero}`,
+    imageAlt: SPLIT_BRAIN_BLOG.heroAlt,
     type: 'article'
   },
   '/empower': {

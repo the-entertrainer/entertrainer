@@ -210,7 +210,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — The Mind Reader and AstroClock.',
+    description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },
@@ -219,6 +219,12 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'AstroClock',
     title: 'AstroClock · Engage',
     description: 'Birth place and time. A live dial. What today is doing.'
+  },
+  '/engage/stack': {
+    key: 'stack',
+    label: 'Stack',
+    title: 'Stack · Engage',
+    description: 'Tap to drop. Only the overlap stays. A brutalist stacking arcade on Entertrainer.'
   },
   '/engage/read-my-mind': {
     key: 'read-my-mind',

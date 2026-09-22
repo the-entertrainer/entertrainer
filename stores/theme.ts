@@ -7,6 +7,11 @@ const LEGACY_KEY = 'et-theme'
 /** Explicit override for this tab/session only. */
 const SESSION_KEY = 'et-theme-session'
 
+/** Non-reactive MediaQuery handles — must not live on the Pinia actions object. */
+let mq: MediaQueryList | null = null
+let mqListener: ((e: MediaQueryListEvent) => void) | null = null
+let animTimer = 0 as ReturnType<typeof setTimeout> | number
+
 /**
  * Theme follows the OS on every fresh open / new tab.
  * A manual toggle sticks only for the browsing session (sessionStorage),
@@ -18,10 +23,6 @@ export const useThemeStore = defineStore('theme', {
     isDark: (state) => state.theme === 'dark'
   },
   actions: {
-    _mq: null as MediaQueryList | null,
-    _mqListener: null as ((e: MediaQueryListEvent) => void) | null,
-    _animTimer: 0 as any,
-
     set(t: Theme, animate = true) {
       this.theme = t
       if (!import.meta.client) return
@@ -29,8 +30,8 @@ export const useThemeStore = defineStore('theme', {
       const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
       if (animate && !reduce) {
         el.classList.add('theme-anim')
-        clearTimeout(this._animTimer)
-        this._animTimer = window.setTimeout(() => el.classList.remove('theme-anim'), 520)
+        clearTimeout(animTimer)
+        animTimer = window.setTimeout(() => el.classList.remove('theme-anim'), 520)
       }
       el.dataset.theme = t
     },
@@ -48,20 +49,36 @@ export const useThemeStore = defineStore('theme', {
     },
 
     _detachMq() {
-      if (this._mq && this._mqListener) {
-        this._mq.removeEventListener('change', this._mqListener)
-        this._mqListener = null
-        this._mq = null
+      if (mq && mqListener) {
+        try {
+          if (typeof mq.removeEventListener === 'function') {
+            mq.removeEventListener('change', mqListener)
+          } else if (typeof (mq as any).removeListener === 'function') {
+            ;(mq as any).removeListener(mqListener)
+          }
+        } catch { /* ignore broken matchMedia mocks */ }
       }
+      mqListener = null
+      mq = null
     },
 
     _attachMq() {
       this._detachMq()
-      this._mq = window.matchMedia('(prefers-color-scheme: dark)')
-      this._mqListener = (e) => {
+      if (!window.matchMedia) return
+      mq = window.matchMedia('(prefers-color-scheme: dark)')
+      mqListener = (e) => {
         if (!this.explicit) this.set(e.matches ? 'dark' : 'light')
       }
-      this._mq.addEventListener('change', this._mqListener)
+      try {
+        if (typeof mq.addEventListener === 'function') {
+          mq.addEventListener('change', mqListener)
+        } else if (typeof (mq as any).addListener === 'function') {
+          ;(mq as any).addListener(mqListener)
+        }
+      } catch {
+        mqListener = null
+        mq = null
+      }
     },
 
     init() {
@@ -80,7 +97,8 @@ export const useThemeStore = defineStore('theme', {
 
       this.explicit = false
       this._attachMq()
-      this.set(this._mq!.matches ? 'dark' : 'light', false)
+      const dark = mq?.matches ?? false
+      this.set(dark ? 'dark' : 'light', false)
     },
 
     dispose() {

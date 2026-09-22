@@ -3,14 +3,14 @@ import { LIFE_MIDPOINT_BLOG } from '~/content/blogs'
 
 useSeoMeta({
   title: `${LIFE_MIDPOINT_BLOG.title} · The Entertrainer Blogs`,
-  description: LIFE_MIDPOINT_BLOG.dek,
+  description: LIFE_MIDPOINT_BLOG.socialHook,
   ogTitle: LIFE_MIDPOINT_BLOG.title,
-  ogDescription: LIFE_MIDPOINT_BLOG.dek,
+  ogDescription: LIFE_MIDPOINT_BLOG.socialHook,
   ogUrl: `https://entertrainer.in/elevate/${LIFE_MIDPOINT_BLOG.slug}`,
   ogImage: `https://entertrainer.in${LIFE_MIDPOINT_BLOG.hero}`,
   twitterCard: 'summary_large_image',
   twitterTitle: LIFE_MIDPOINT_BLOG.title,
-  twitterDescription: LIFE_MIDPOINT_BLOG.dek,
+  twitterDescription: LIFE_MIDPOINT_BLOG.socialHook,
   twitterImage: `https://entertrainer.in${LIFE_MIDPOINT_BLOG.hero}`
 })
 

@@ -3,14 +3,14 @@ import { TAJJALAN_BLOG } from '~/content/blogs'
 
 useSeoMeta({
   title: `${TAJJALAN_BLOG.title} · The Entertrainer Blogs`,
-  description: TAJJALAN_BLOG.dek,
+  description: TAJJALAN_BLOG.socialHook,
   ogTitle: TAJJALAN_BLOG.title,
-  ogDescription: TAJJALAN_BLOG.dek,
+  ogDescription: TAJJALAN_BLOG.socialHook,
   ogUrl: `https://entertrainer.in/elevate/${TAJJALAN_BLOG.slug}`,
   ogImage: `https://entertrainer.in${TAJJALAN_BLOG.hero}`,
   twitterCard: 'summary_large_image',
   twitterTitle: TAJJALAN_BLOG.title,
-  twitterDescription: TAJJALAN_BLOG.dek,
+  twitterDescription: TAJJALAN_BLOG.socialHook,
   twitterImage: `https://entertrainer.in${TAJJALAN_BLOG.hero}`
 })
 

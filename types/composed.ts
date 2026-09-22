@@ -41,6 +41,8 @@ export interface ComposedPost {
   slug: string
   title: string
   dek: string
+  /** LinkedIn/OG/Twitter card hook — not a copy of dek. Required to publish. */
+  socialHook: string
   category: string
   /** Optional topical tags. */
   tags?: string[]
@@ -61,6 +63,7 @@ export function emptyComposedPost(partial?: Partial<ComposedPost>): ComposedPost
     slug: '',
     title: '',
     dek: '',
+    socialHook: '',
     category: 'Mind',
     tags: [],
     minutes: 5,

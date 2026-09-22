@@ -3,14 +3,14 @@ import { KNOWING_BLOG } from '~/content/blogs'
 
 useSeoMeta({
   title: `${KNOWING_BLOG.title} · The Entertrainer Blogs`,
-  description: KNOWING_BLOG.dek,
+  description: KNOWING_BLOG.socialHook,
   ogTitle: KNOWING_BLOG.title,
-  ogDescription: KNOWING_BLOG.dek,
+  ogDescription: KNOWING_BLOG.socialHook,
   ogUrl: `https://entertrainer.in/elevate/${KNOWING_BLOG.slug}`,
   ogImage: `https://entertrainer.in${KNOWING_BLOG.hero}`,
   twitterCard: 'summary_large_image',
   twitterTitle: KNOWING_BLOG.title,
-  twitterDescription: KNOWING_BLOG.dek,
+  twitterDescription: KNOWING_BLOG.socialHook,
   twitterImage: `https://entertrainer.in${KNOWING_BLOG.hero}`
 })
 

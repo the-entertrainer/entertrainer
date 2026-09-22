@@ -266,6 +266,23 @@ async function persist(status: 'draft' | 'published') {
     return
   }
 
+  if (status === 'published') {
+    const hook = (draft.value.socialHook || '').trim()
+    const dek = (draft.value.dek || '').trim()
+    if (!hook) {
+      statusMessage.value = 'Add a socialHook before publish (LinkedIn/OG — ~100–150 chars, not a copy of dek).'
+      return
+    }
+    if (hook === dek) {
+      statusMessage.value = 'socialHook must differ from dek — rewrite the LinkedIn/OG interruption line.'
+      return
+    }
+    if (hook.length < 80 || hook.length > 180) {
+      statusMessage.value = `socialHook length ${hook.length} is outside 80–180 (target ~100–150).`
+      return
+    }
+  }
+
   if (
     status === 'published' &&
     githubStatus.value?.githubConfigured &&
@@ -791,6 +808,14 @@ const selectedFigure = computed(() =>
               rows="2"
               placeholder="Dek — one or two sentences that open the curiosity gap"
             ></textarea>
+            <textarea
+              v-model="draft.socialHook"
+              class="compose__dek-input compose__social-hook-input"
+              rows="2"
+              placeholder="Social hook — LinkedIn/OG only, ~100–150 chars (not a copy of the dek)"
+              maxlength="180"
+            ></textarea>
+            <p class="compose__hint" style="margin-top:8px">{{ (draft.socialHook || '').length }}/150 social chars · must ≠ dek</p>
           </header>
 
           <div class="compose__article-grid">
@@ -940,8 +965,13 @@ const selectedFigure = computed(() =>
               <input v-model="draft.slug" class="compose__input" placeholder="auto-from-title">
             </label>
             <label class="compose__span-2">
-              <span>Dek</span>
+              <span>Dek (on-page standfirst)</span>
               <textarea v-model="draft.dek" class="compose__input compose__textarea" rows="2"></textarea>
+            </label>
+            <label class="compose__span-2">
+              <span>Social hook (LinkedIn / OG — ~100–150 chars, not a copy of dek)</span>
+              <textarea v-model="draft.socialHook" class="compose__input compose__textarea" rows="2" maxlength="180"></textarea>
+              <span class="compose__hint">{{ (draft.socialHook || '').length }}/150 · must differ from dek</span>
             </label>
             <label>
               <span>Category</span>

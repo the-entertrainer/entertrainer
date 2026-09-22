@@ -6,8 +6,9 @@ Any **new Elevate / science / curiosity blog post** must load and apply all four
 - `.claude/skills/say-it-like-naveen/SKILL.md`
 - `.claude/skills/human-not-model/SKILL.md`
 - `.claude/skills/imagegen/SKILL.md`
+- `.claude/skills/blog-social-hook/SKILL.md`
 
-Order: research → draft in Naveen’s voice → **run the human-not-model gate** → images. If the gate fails, rebuild from the outline. Do not synonym-swap. Do not “humanize” with typos, slang, or extra contractions.
+Order: research → draft in Naveen’s voice → **run the human-not-model gate** → craft `socialHook` (LinkedIn/OG, ≠ dek) → images. If the gate fails, rebuild from the outline. Do not synonym-swap. Do not “humanize” with typos, slang, or extra contractions.
 
 Research the specific topic first. Do not draft from memory. Do not copy skill example titles.
 
@@ -20,3 +21,8 @@ Research the specific topic first. Do not draft from memory. Do not copy skill e
 - Model-default register: *delve, tapestry, underscore, intricate, pivotal, realm, landscape, it’s important to note, whether you’re a, in today’s fast-paced*, metronomic paragraph length, or a draft whose sentence-length CV is below 0.55.
 
 House style is the hand-authored Elevate essays (moonly, jamais vu, midpoint, lie perfectly, Bloom/AI). Compose drafts stay unpublished until they match that bar **and** pass `human-not-model`.
+
+
+## Social hook (required)
+
+Every published Elevate post needs `socialHook` in `content/blogs.ts` (and composed JSON): LinkedIn/OG interruption copy, ~100–150 chars, **not** a copy of `dek`. See `docs/blog-social-hook.md` and `.claude/skills/blog-social-hook/SKILL.md`. Fail closed via `npm run check:social-hooks`. After deploy, refresh LinkedIn with Post Inspector.

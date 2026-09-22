@@ -23,6 +23,7 @@ export function composedToBlogPost(post: ComposedPost): BlogPost {
     slug: post.slug,
     title: post.title,
     dek: post.dek,
+    socialHook: post.socialHook || post.dek,
     category: normalizeElevateCategory(post.category),
     tags: post.tags,
     minutes: post.minutes,

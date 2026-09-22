@@ -3,14 +3,14 @@ import { AI_UNDERSTAND_BLOG } from '~/content/blogs'
 
 useSeoMeta({
   title: `${AI_UNDERSTAND_BLOG.title} · The Entertrainer Blogs`,
-  description: AI_UNDERSTAND_BLOG.dek,
+  description: AI_UNDERSTAND_BLOG.socialHook,
   ogTitle: AI_UNDERSTAND_BLOG.title,
-  ogDescription: AI_UNDERSTAND_BLOG.dek,
+  ogDescription: AI_UNDERSTAND_BLOG.socialHook,
   ogUrl: `https://entertrainer.in/elevate/${AI_UNDERSTAND_BLOG.slug}`,
   ogImage: `https://entertrainer.in${AI_UNDERSTAND_BLOG.hero}`,
   twitterCard: 'summary_large_image',
   twitterTitle: AI_UNDERSTAND_BLOG.title,
-  twitterDescription: AI_UNDERSTAND_BLOG.dek,
+  twitterDescription: AI_UNDERSTAND_BLOG.socialHook,
   twitterImage: `https://entertrainer.in${AI_UNDERSTAND_BLOG.hero}`
 })
 

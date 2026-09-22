@@ -3,14 +3,14 @@ import { MOONLY_BLOG } from '~/content/blogs'
 
 useSeoMeta({
   title: `${MOONLY_BLOG.title} · The Entertrainer Blogs`,
-  description: MOONLY_BLOG.dek,
+  description: MOONLY_BLOG.socialHook,
   ogTitle: MOONLY_BLOG.title,
-  ogDescription: MOONLY_BLOG.dek,
+  ogDescription: MOONLY_BLOG.socialHook,
   ogUrl: `https://entertrainer.in/elevate/${MOONLY_BLOG.slug}`,
   ogImage: `https://entertrainer.in${MOONLY_BLOG.hero}`,
   twitterCard: 'summary_large_image',
   twitterTitle: MOONLY_BLOG.title,
-  twitterDescription: MOONLY_BLOG.dek,
+  twitterDescription: MOONLY_BLOG.socialHook,
   twitterImage: `https://entertrainer.in${MOONLY_BLOG.hero}`
 })
 

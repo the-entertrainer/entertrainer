@@ -27,14 +27,14 @@ const post = computed(() => data.value as ComposedPost)
 
 useSeoMeta({
   title: () => `${post.value.title} · The Entertrainer Blogs`,
-  description: () => post.value.dek,
+  description: () => post.value.socialHook || post.value.dek,
   ogTitle: () => post.value.title,
-  ogDescription: () => post.value.dek,
+  ogDescription: () => post.value.socialHook || post.value.dek,
   ogUrl: () => `https://entertrainer.in/elevate/${post.value.slug}`,
   ogImage: () => post.value.hero ? `https://entertrainer.in${post.value.hero}` : undefined,
   twitterCard: 'summary_large_image',
   twitterTitle: () => post.value.title,
-  twitterDescription: () => post.value.dek,
+  twitterDescription: () => post.value.socialHook || post.value.dek,
   twitterImage: () => post.value.hero ? `https://entertrainer.in${post.value.hero}` : undefined
 })
 </script>

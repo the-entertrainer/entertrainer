@@ -1,4 +1,4 @@
-import { ENTROPY_BLOG, INTELLIGENCE_BLOG, MOONLY_BLOG, AI_UNDERSTAND_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, LIE_PERFECTLY_BLOG, INNER_SPEECH_BLOG, CENTRE_UNIVERSE_BLOG, KNOWING_BLOG } from './blogs'
+import { ENTROPY_BLOG, INTELLIGENCE_BLOG, MOONLY_BLOG, AI_UNDERSTAND_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, LIE_PERFECTLY_BLOG, INNER_SPEECH_BLOG, CENTRE_UNIVERSE_BLOG, KNOWING_BLOG, TAJJALAN_BLOG } from './blogs'
 
 export const SITE_URL = 'https://entertrainer.in'
 
@@ -41,7 +41,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'entropy-laziness',
     label: ENTROPY_BLOG.category,
     title: ENTROPY_BLOG.title,
-    description: ENTROPY_BLOG.dek,
+    description: ENTROPY_BLOG.socialHook,
     image: `${SITE_URL}${ENTROPY_BLOG.hero}`,
     imageAlt: ENTROPY_BLOG.heroAlt,
     type: 'article'
@@ -50,7 +50,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'intelligence-blog',
     label: INTELLIGENCE_BLOG.category,
     title: INTELLIGENCE_BLOG.title,
-    description: INTELLIGENCE_BLOG.dek,
+    description: INTELLIGENCE_BLOG.socialHook,
     image: `${SITE_URL}${INTELLIGENCE_BLOG.hero}`,
     imageAlt: INTELLIGENCE_BLOG.heroAlt,
     type: 'article'
@@ -59,7 +59,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'moon-moonly',
     label: MOONLY_BLOG.category,
     title: MOONLY_BLOG.title,
-    description: MOONLY_BLOG.dek,
+    description: MOONLY_BLOG.socialHook,
     image: `${SITE_URL}${MOONLY_BLOG.hero}`,
     imageAlt: MOONLY_BLOG.heroAlt,
     type: 'article'
@@ -68,7 +68,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'ai-understand',
     label: AI_UNDERSTAND_BLOG.category,
     title: AI_UNDERSTAND_BLOG.title,
-    description: AI_UNDERSTAND_BLOG.dek,
+    description: AI_UNDERSTAND_BLOG.socialHook,
     image: `${SITE_URL}${AI_UNDERSTAND_BLOG.hero}`,
     imageAlt: AI_UNDERSTAND_BLOG.heroAlt,
     type: 'article'
@@ -77,7 +77,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'jamais-vu',
     label: JAMAIS_VU_BLOG.category,
     title: JAMAIS_VU_BLOG.title,
-    description: JAMAIS_VU_BLOG.dek,
+    description: JAMAIS_VU_BLOG.socialHook,
     image: `${SITE_URL}${JAMAIS_VU_BLOG.hero}`,
     imageAlt: JAMAIS_VU_BLOG.heroAlt,
     type: 'article'
@@ -86,7 +86,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'life-midpoint',
     label: LIFE_MIDPOINT_BLOG.category,
     title: LIFE_MIDPOINT_BLOG.title,
-    description: LIFE_MIDPOINT_BLOG.dek,
+    description: LIFE_MIDPOINT_BLOG.socialHook,
     image: `${SITE_URL}${LIFE_MIDPOINT_BLOG.hero}`,
     imageAlt: LIFE_MIDPOINT_BLOG.heroAlt,
     type: 'article'
@@ -95,7 +95,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'lie-perfectly',
     label: LIE_PERFECTLY_BLOG.category,
     title: LIE_PERFECTLY_BLOG.title,
-    description: LIE_PERFECTLY_BLOG.dek,
+    description: LIE_PERFECTLY_BLOG.socialHook,
     image: `${SITE_URL}${LIE_PERFECTLY_BLOG.hero}`,
     imageAlt: LIE_PERFECTLY_BLOG.heroAlt,
     type: 'article'
@@ -104,7 +104,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'inner-speech',
     label: INNER_SPEECH_BLOG.category,
     title: INNER_SPEECH_BLOG.title,
-    description: INNER_SPEECH_BLOG.dek,
+    description: INNER_SPEECH_BLOG.socialHook,
     image: `${SITE_URL}${INNER_SPEECH_BLOG.hero}`,
     imageAlt: INNER_SPEECH_BLOG.heroAlt,
     type: 'article'
@@ -113,7 +113,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'centre-universe',
     label: CENTRE_UNIVERSE_BLOG.category,
     title: CENTRE_UNIVERSE_BLOG.title,
-    description: CENTRE_UNIVERSE_BLOG.dek,
+    description: CENTRE_UNIVERSE_BLOG.socialHook,
     image: `${SITE_URL}${CENTRE_UNIVERSE_BLOG.hero}`,
     imageAlt: CENTRE_UNIVERSE_BLOG.heroAlt,
     type: 'article'
@@ -122,9 +122,18 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'feeling-of-knowing',
     label: KNOWING_BLOG.category,
     title: KNOWING_BLOG.title,
-    description: KNOWING_BLOG.dek,
+    description: KNOWING_BLOG.socialHook,
     image: `${SITE_URL}${KNOWING_BLOG.hero}`,
     imageAlt: KNOWING_BLOG.heroAlt,
+    type: 'article'
+  },
+  [`/elevate/${TAJJALAN_BLOG.slug}`]: {
+    key: 'tajjalan',
+    label: TAJJALAN_BLOG.category,
+    title: TAJJALAN_BLOG.title,
+    description: TAJJALAN_BLOG.socialHook,
+    image: `${SITE_URL}${TAJJALAN_BLOG.hero}`,
+    imageAlt: TAJJALAN_BLOG.heroAlt,
     type: 'article'
   },
   '/empower': {

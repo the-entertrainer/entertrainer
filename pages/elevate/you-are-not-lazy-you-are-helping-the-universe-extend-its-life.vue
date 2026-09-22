@@ -3,14 +3,14 @@ import { ENTROPY_BLOG } from '~/content/blogs'
 
 useSeoMeta({
   title: `${ENTROPY_BLOG.title} · The Entertrainer Blogs`,
-  description: ENTROPY_BLOG.dek,
+  description: ENTROPY_BLOG.socialHook,
   ogTitle: ENTROPY_BLOG.title,
-  ogDescription: ENTROPY_BLOG.dek,
+  ogDescription: ENTROPY_BLOG.socialHook,
   ogUrl: `https://entertrainer.in/elevate/${ENTROPY_BLOG.slug}`,
   ogImage: `https://entertrainer.in${ENTROPY_BLOG.hero}`,
   twitterCard: 'summary_large_image',
   twitterTitle: ENTROPY_BLOG.title,
-  twitterDescription: ENTROPY_BLOG.dek,
+  twitterDescription: ENTROPY_BLOG.socialHook,
   twitterImage: `https://entertrainer.in${ENTROPY_BLOG.hero}`
 })
 

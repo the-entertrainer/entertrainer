@@ -27,9 +27,9 @@ import {
 } from '@astroclock/lib/astro';
 import { birthDateObj, clearConfig, loadConfig, saveConfig } from '@astroclock/lib/storage';
 import {
-  createGearAmbience,
+  createFlipSound,
   loadGearSoundEnabled,
-} from '@astroclock/lib/gearAmbience';
+} from '@astroclock/lib/flipSound';
 import { formatMsClock, scrubHint } from '@astroclock/lib/format';
 import { TopBar, type MainView } from './TopBar';
 import { ClockCanvas, type FrameCache } from './ClockCanvas';
@@ -64,7 +64,7 @@ export function AstroClockApp() {
   const [selected, setSelected] = useState<GrahaId | null>(null);
   const [configOpen, setConfigOpen] = useState(false);
   const [gearSoundOn, setGearSoundOn] = useState(true);
-  const gearRef = useRef<ReturnType<typeof createGearAmbience> | null>(null);
+  const flipSoundRef = useRef<ReturnType<typeof createFlipSound> | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [youOpen, setYouOpen] = useState(false);
   const [view, setView] = useState<MainView>('dial');
@@ -135,20 +135,20 @@ export function AstroClockApp() {
 
   useEffect(() => {
     setGearSoundOn(loadGearSoundEnabled());
-    const ambience = createGearAmbience();
-    gearRef.current = ambience;
+    const flipSound = createFlipSound();
+    flipSoundRef.current = flipSound;
     const onPref = (e: Event) => {
       const on = (e as CustomEvent<{ on: boolean }>).detail?.on;
       if (typeof on === 'boolean') {
         setGearSoundOn(on);
-        ambience.setEnabled(on);
+        flipSound.setEnabled(on);
       }
     };
     window.addEventListener('astroclock-gear-sound', onPref as EventListener);
     return () => {
       window.removeEventListener('astroclock-gear-sound', onPref as EventListener);
-      ambience.dispose();
-      gearRef.current = null;
+      flipSound.dispose();
+      flipSoundRef.current = null;
     };
   }, []);
 
@@ -189,6 +189,10 @@ export function AstroClockApp() {
         window.clearTimeout(flipTimerRef.current);
         flipTimerRef.current = null;
       }
+      /* Close planet details if they were opened from HUD / Today. */
+      setSelected(null);
+      setDetailOpen(false);
+      flipSoundRef.current?.play();
       if (prefersReducedMotion()) {
         setFace(to);
         return;
@@ -478,7 +482,7 @@ export function AstroClockApp() {
   return (
     <div
       className="astroclock-root bg-ink text-mist"
-      onPointerDownCapture={() => gearRef.current?.unlock()}
+      onPointerDownCapture={() => flipSoundRef.current?.unlock()}
     >
       <TopBar
         utc={utc}
@@ -516,7 +520,6 @@ export function AstroClockApp() {
                 face={face}
                 interactive={face === 'sky' || face === 'bauhaus'}
                 onFrame={onFrame}
-                onSelect={handleSelect}
                 onEmptyTap={face === 'sky' ? flipToBauhaus : undefined}
                 onFlipBack={flipToSky}
               />
@@ -545,7 +548,6 @@ export function AstroClockApp() {
                         selected={selected}
                         visible={visible && view === 'dial'}
                         onFrame={onFrame}
-                        onSelect={handleSelect}
                         onNatalLerpTick={() => {}}
                         onEmptyTap={face === 'sky' ? flipToBauhaus : undefined}
                         onCanvasEl={setSkyCanvas}
@@ -669,7 +671,7 @@ export function AstroClockApp() {
         gearSoundOn={gearSoundOn}
         onGearSoundChange={(on) => {
           setGearSoundOn(on);
-          gearRef.current?.setEnabled(on);
+          flipSoundRef.current?.setEnabled(on);
         }}
       />
 

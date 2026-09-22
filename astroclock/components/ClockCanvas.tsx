@@ -5,6 +5,7 @@ import {
   useRef,
   type PointerEvent as ReactPointerEvent,
 } from 'react';
+import { dialGestureShouldFlip } from '@astroclock/lib/flipSound';
 import {
   DEG,
   GRAHAS,
@@ -52,9 +53,8 @@ interface ClockCanvasProps {
   selected: GrahaId | null;
   visible: boolean;
   onFrame: (cache: FrameCache) => void;
-  onSelect: (id: GrahaId) => void;
   onNatalLerpTick: (t: number) => void;
-  /** Empty-canvas tap (no planet hit) — used to flip to day clock. */
+  /** Tap or horizontal swipe on the dial — flip to day clock. */
   onEmptyTap?: () => void;
   /** Expose the live canvas for WebGL front-face texturing. */
   onCanvasEl?: (el: HTMLCanvasElement | null) => void;
@@ -103,7 +103,6 @@ export function ClockCanvas({
   selected,
   visible,
   onFrame,
-  onSelect,
   onNatalLerpTick,
   onEmptyTap,
   onCanvasEl,
@@ -649,40 +648,38 @@ export function ClockCanvas({
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
-  const hitTest = (clientX: number, clientY: number): GrahaId | null => {
-    const hits = hitRef.current;
-    const canvas = canvasRef.current;
-    if (!hits || !canvas) return null;
-    const rect = canvas.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-    let best: GrahaId | null = null;
-    let bestDist = Infinity;
-    for (const h of hits) {
-      const tip = polar(h.cx, h.cy, h.r, h.angle);
-      const dist = Math.hypot(x - tip.x, y - tip.y);
-      const dx = x - h.cx;
-      const dy = y - h.cy;
-      const r = Math.hypot(dx, dy);
-      const ang = Math.atan2(dy, dx);
-      let dAng = Math.abs(ang - h.angle);
-      if (dAng > Math.PI) dAng = TWO_PI - dAng;
-      const onRing = Math.abs(r - h.r) < 28 && dAng < 0.18;
-      if (dist < 28 || onRing) {
-        const score = dist < 28 ? dist : dAng * 50;
-        if (score < bestDist) {
-          bestDist = score;
-          best = h.id;
-        }
-      }
-    }
-    return best;
-  };
+  const ptrStartRef = useRef<{ x: number; y: number; id: number } | null>(null);
 
   const onPointerDown = (e: ReactPointerEvent<HTMLCanvasElement>) => {
-    const id = hitTest(e.clientX, e.clientY);
-    if (id) onSelect(id);
-    else onEmptyTap?.();
+    ptrStartRef.current = { x: e.clientX, y: e.clientY, id: e.pointerId };
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const onPointerUp = (e: ReactPointerEvent<HTMLCanvasElement>) => {
+    const start = ptrStartRef.current;
+    if (!start || start.id !== e.pointerId) return;
+    ptrStartRef.current = null;
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+    if (
+      dialGestureShouldFlip(
+        { x: start.x, y: start.y },
+        { x: e.clientX, y: e.clientY },
+      )
+    ) {
+      onEmptyTap?.();
+    }
+  };
+
+  const onPointerCancel = (e: ReactPointerEvent<HTMLCanvasElement>) => {
+    if (ptrStartRef.current?.id === e.pointerId) ptrStartRef.current = null;
   };
 
   useEffect(() => {
@@ -695,8 +692,10 @@ export function ClockCanvas({
       ref={canvasRef}
       id="clockCanvas"
       className="touch-none block w-full h-full"
-      aria-label="Sky dial — tap empty area to flip"
+      aria-label="Sky dial — tap or swipe to switch clocks"
       onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerCancel}
     />
   );
 }

@@ -9,6 +9,7 @@ import {
   type StretchSegment,
 } from '@astroclock/lib/astro/hourQuality';
 import { FLIP_MS, type DialFace } from '@astroclock/lib/flip/types';
+import { dialGestureShouldFlip } from '@astroclock/lib/flipSound';
 
 interface MetalClock3DProps {
   simTime: number;
@@ -730,10 +731,49 @@ export function MetalClock3D({
           <canvas
             ref={canvasRef}
             className="touch-none block ac-canvas-layer ac-metal3d-canvas"
-            aria-label="Metal day clock"
+            aria-label="Metal day clock — tap or swipe to switch clocks"
             onPointerDown={(e) => {
               e.preventDefault();
-              if (face === 'bauhaus') handleBack();
+              const el = e.currentTarget;
+              el.dataset.ptrX = String(e.clientX);
+              el.dataset.ptrY = String(e.clientY);
+              el.dataset.ptrId = String(e.pointerId);
+              try {
+                el.setPointerCapture(e.pointerId);
+              } catch {
+                /* ignore */
+              }
+            }}
+            onPointerUp={(e) => {
+              const el = e.currentTarget;
+              if (el.dataset.ptrId !== String(e.pointerId)) return;
+              const sx = Number(el.dataset.ptrX);
+              const sy = Number(el.dataset.ptrY);
+              delete el.dataset.ptrX;
+              delete el.dataset.ptrY;
+              delete el.dataset.ptrId;
+              try {
+                el.releasePointerCapture(e.pointerId);
+              } catch {
+                /* ignore */
+              }
+              if (face !== 'bauhaus') return;
+              if (
+                dialGestureShouldFlip(
+                  { x: sx, y: sy },
+                  { x: e.clientX, y: e.clientY },
+                )
+              ) {
+                handleBack();
+              }
+            }}
+            onPointerCancel={(e) => {
+              const el = e.currentTarget;
+              if (el.dataset.ptrId === String(e.pointerId)) {
+                delete el.dataset.ptrX;
+                delete el.dataset.ptrY;
+                delete el.dataset.ptrId;
+              }
             }}
           />
         </div>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { dialGestureShouldFlip } from '@astroclock/lib/flipSound';
 import {
   STRETCH_COLOR,
   coalesceStretchSegments,
@@ -318,10 +319,48 @@ export function BauhausClock({
           <canvas
             ref={canvasRef}
             className="touch-none block ac-canvas-layer"
-            aria-label="Day clock face"
+            aria-label="Day clock face — tap or swipe to switch clocks"
             onPointerDown={(e) => {
               e.preventDefault();
-              handleBack();
+              const el = e.currentTarget;
+              el.dataset.ptrX = String(e.clientX);
+              el.dataset.ptrY = String(e.clientY);
+              el.dataset.ptrId = String(e.pointerId);
+              try {
+                el.setPointerCapture(e.pointerId);
+              } catch {
+                /* ignore */
+              }
+            }}
+            onPointerUp={(e) => {
+              const el = e.currentTarget;
+              if (el.dataset.ptrId !== String(e.pointerId)) return;
+              const sx = Number(el.dataset.ptrX);
+              const sy = Number(el.dataset.ptrY);
+              delete el.dataset.ptrX;
+              delete el.dataset.ptrY;
+              delete el.dataset.ptrId;
+              try {
+                el.releasePointerCapture(e.pointerId);
+              } catch {
+                /* ignore */
+              }
+              if (
+                dialGestureShouldFlip(
+                  { x: sx, y: sy },
+                  { x: e.clientX, y: e.clientY },
+                )
+              ) {
+                handleBack();
+              }
+            }}
+            onPointerCancel={(e) => {
+              const el = e.currentTarget;
+              if (el.dataset.ptrId === String(e.pointerId)) {
+                delete el.dataset.ptrX;
+                delete el.dataset.ptrY;
+                delete el.dataset.ptrId;
+              }
             }}
           />
         </div>

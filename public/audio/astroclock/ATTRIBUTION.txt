@@ -1,0 +1,16 @@
+AstroClock flip / transform sound
+=================================
+
+File: transform.mp3
+
+Title:  Mechanical, transformation, fast, Clicks, mechanism, press, gear # 3
+Author: julianmateo_
+Source: https://freesound.org/people/julianmateo_/sounds/636818/
+License: Creative Commons 0 (CC0 1.0 Universal)
+         https://creativecommons.org/publicdomain/zero/1.0/
+
+Original duration ~0.735s. Shipped copy is the Freesound HQ MP3 preview,
+gently loudness-normalized (~−16 LUFS) and silence-trimmed for a short
+one-shot that plays when the sky ↔ metal dial flips (~FLIP_MS = 1080).
+
+Not a looping tick: plays once per flip only.

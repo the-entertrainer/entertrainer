@@ -1,32 +1,15 @@
 # Entertrainer — writing
 
-**One writing skill only:** `naveen-writing` (id `naveen-wisdom-voice`).
+**No writing skills.** Do not load voice/skill packs for Elevate or site copy.
 
-Load it before any draft — chat, Elevate essays, About, UI copy, captions, social hooks.
+Write like a clear storyteller explaining real events:
+1. Who (name, age/background if known)
+2. What happened to them, and when
+3. What the researchers did (the setup)
+4. What happened next (results)
+5. What it means, in plain words
+6. Limits and sources
 
-- Agent workflow: use skill `naveen-wisdom-voice`
-- Repo mirror: `.claude/skills/naveen-wisdom-voice/SKILL.md`
+Simple language. Full sentences. No abstract poetry. No choppy slogan stacks. No textbook “Your brain…” fog. No AI essay chrome.
 
-Retired (do not use for voice): `say-it-like-naveen`, `naveen-curiosity-science-blog`, `blog-social-hook`, `human-not-model`. Their folders remain only as redirects.
-
-## Voice
-
-Match the gold sample (phone-in-dark / rope conversational paragraphs). Plain words. Complete sentences. Concrete scenes.
-
-Never textbook “Your X…”. Never abstract sketch/map metaphors. Never choppy Blah.Blah.Blah. Never cliché AI infographics.
-
-## Social title + hook (required)
-
-Every published Elevate post needs `socialTitle` (~40–60 chars) and `socialHook` (~100–150 chars) in `content/blogs.ts`. LinkedIn mobile often hides the description — **`socialTitle` must carry the pull alone**. `socialHook` must **not** copy `dek`. On-page H1 stays `title`. Fail closed via `npm run check:social-hooks`. After deploy, refresh LinkedIn with Post Inspector.
-
-Rules for hooks live inside `naveen-wisdom-voice` / `naveen-writing` — not in a separate social-hook skill.
-
-## Do not publish
-
-- Pop-neuro title templates (“Why Your Brain Is Hardwired…”, “the terrifying truth”).
-- Invented or mismatched citations.
-- Unearned topic detours the hook does not require.
-- Generic explainers with no ordinary scene and no useful landing.
-- Model-default register (*delve, tapestry, underscore, intricate, pivotal, realm, landscape*, metronomic paragraph length).
-
-Compose drafts stay unpublished until they match house Elevate essays **and** the naveen-writing gate.
+For science posts: structure first, story first, then the idea.

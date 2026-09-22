@@ -6,7 +6,7 @@ useSeoMeta({
   title: 'About Me · Naveen Jose · Entertrainer',
   description: 'Naveen Jose — central Kerala, Club Mahindra housekeeping, The SEWA Chronicles, Marriott L&D, Concentrix, Entertrainer.',
   ogTitle: 'About Me · Naveen Jose',
-  ogDescription: 'Zero dreams. A thousand fears. Then floors, verification calls, and learning that has to survive real people.',
+  ogDescription: 'Housekeeping floors, SEWA stories checked by phone, then instructional design.',
   ogUrl: 'https://entertrainer.in/about',
   ogImage: 'https://entertrainer.in/about/naveen-portrait.jpg'
 })
@@ -79,124 +79,90 @@ const marriottPhotos: PhotoTileItem[] = [
 
     <article class="about-story__article">
       <p>
-        The story starts in childhood.
+        I grew up in a farming family in a village in central Kerala.
+        As a kid I didn’t have a clear dream of what I’d become.
+        I was introverted, and talking to people — especially confrontation — made me anxious.
       </p>
       <p>
-        I used to be that kid with zero dreams and a thousand fears.
-        Yes — all through childhood.
-        A severe introvert. A lot of anxiety when I had to confront people.
+        My father is a farmer.
+        Even then I noticed how he thought.
+        He often found another way into the same problem, another door the rest of us weren’t looking at.
+        That habit influenced me more than any speech could have.
       </p>
       <p>
-        I hail from a farming family in a village in central Kerala.
-        My father is a farmer. A genius, sharp, intelligent farmer, I’d say.
-        Even as a child I used to think his perspectives were different from the rest.
-        He always unlocked extra doors that led to different thought processes for the same thing — for everything.
-        That habit is one of the greatest influencing factors in my later life.
+        School was hard.
+        I dealt with a lot of discrimination, mostly indirect — the kind that hurts and then pretends it didn’t mean to.
+        My academics suffered.
       </p>
       <p>
-        My school life was not that great.
-        I faced a lot of discrimination.
-        Mostly not direct — more the indirect kind, stabbing from the back and then claiming they didn’t mean it.
-        That led to a drop in my academics as well.
-      </p>
-
-      <h2 class="about-story__break">The cocoon years</h2>
-      <p>
-        For the first thirteen years of my life I lived like a caterpillar slowly weaving a cocoon around itself.
-        And in that cocoon I found peace — a kind of calm you cannot share, because the calmness comes from being alone.
+        For a long time I kept to myself.
+        Being alone felt peaceful in a way that’s hard to explain to someone who wants company.
+        It also meant I could try things and fail without an audience.
+        My father’s way of flipping a problem helped me see that: the quiet wasn’t only isolation.
+        It was space.
       </p>
       <p>
-        Instead of thinking I was all alone in this vast universe, my father’s style of thinking the other way around helped me here.
-        I realised that whatever I did inside the cocoon was hidden from the rest of the world.
-        I had plenty of space to try and fail without the fear of being judged.
+        Computers were still new around me then.
+        I liked that machines don’t judge you.
+        They follow rules.
+        That made them easy to learn with.
+        So I spent a lot of childhood closed in with machines, the internet, books, experiments, teaching myself.
       </p>
       <p>
-        Computers were a novelty back then.
-        I turned toward the machines and found they have no mind.
-        They obey written rules. They don’t form emotional judgements.
-        And wow — nothing beats that if you want a companion while you work on yourself.
+        I also learned what breaks learning: distraction.
+        People were the hardest distraction.
+        I didn’t have much of that then, and I’m glad.
       </p>
       <p>
-        I explored the machines, and the fabric that connects them all — the internet.
-        I had my books as well.
-        Childhood, for me, was closed up: learning, reading, exploring, trying new stuff, teaching myself.
-      </p>
-      <p>
-        I understood what comes in the way of learning or upgrading yourself: distractions.
-        The most difficult distractions to handle were humans.
-        I’m glad I didn’t have much of that back then.
-      </p>
-      <p>
-        I was addicted to logic. Yes.
-        Logic equals rules — the base of what we understand as programming.
-        Every machine, whatever language it’s written in or how it’s built, runs on logic: a set of instructions that dictates when to do what.
-        Later in life I learnt that it’s not just machines.
-        Our own minds work in a similar way.
+        I got interested in logic — rules, instructions, the base of programming.
+        Machines, whatever the language, are basically “when this, do that.”
+        Later I noticed minds aren’t that different: messier, but still hungry for structure.
       </p>
 
-      <h2 class="about-story__break">College, because I needed a job</h2>
+      <h2 class="about-story__break">College</h2>
       <p>
-        After school it was time for college.
-        To be honest, I had zero idea what I should do in life, what career to choose, and there was absolutely no one to guide me.
-        I was in desperate need of a degree that would earn me a job right after I graduated.
-        That brought me to the hotel industry. Yes — hospitality.
+        After school I needed a college path.
+        I didn’t know what career I wanted, and I didn’t have anyone guiding me.
+        I needed a degree that could lead to a job.
+        That led me to hospitality.
       </p>
       <p>
-        I did my college at IHMCT&amp;AN, Chennai — one of the most prestigious hotel-management institutes in the country, and often treated as number one.
-        Just like I wanted, in my final year I got selected for a management trainee program by Club Mahindra (MHRIL).
+        I studied at IHMCT&amp;AN, Chennai.
+        In my final year I was selected for Club Mahindra’s (MHRIL) management trainee program in housekeeping.
+        First posting: Udaipur, Rajasthan.
       </p>
       <p>
-        I joined as a management trainee in housekeeping.
-        My very first deployment was Udaipur, Rajasthan.
-        I cleaned rooms. I mopped floors and stairs.
-        Fifteen to eighteen hours a day, every day of the week, no weekly offs.
-      </p>
-      <p>
-        The hotel industry might look unforgiving in the beginning.
-        But once you settle, and all of this slowly becomes part of your life, you can say what the Captain said: “I can do this all day.”
-        The industry might lack in a lot of places.
-        When it comes to discipline, though, it taught me something I would never have learnt from the corporates.
+        I cleaned rooms and mopped floors and stairs.
+        Fifteen to eighteen hour days, seven days a week, no weekly offs at the start.
+        Hotel work is tough early on.
+        Once it becomes routine, you get a kind of stamina corporates don’t always teach.
+        Discipline was the real gift.
       </p>
 
-      <h2 class="about-story__break">South Goa, then Coorg</h2>
+      <h2 class="about-story__break">Goa, then Coorg</h2>
       <p>
-        Months passed. I moved to South Goa — Varca.
-        This time they made me a supervisor.
+        I moved to South Goa — Varca — as a supervisor.
+        I still like housekeeping as a subject.
+        It’s detail work: art and process together.
       </p>
       <p>
-        I love housekeeping as a subject.
-        It’s a perfect blend of art and science.
-        The beauty lies in the details.
-      </p>
-      <p>
-        After South Goa I reached Coorg — one of the most beautiful places I’ve lived — this time with a different task.
-        A novel ask.
+        Then Coorg, with a different brief.
       </p>
 
       <h2 class="about-story__break">The SEWA Chronicles</h2>
       <p>
-        I was one of the very few people handpicked by Mr. Prakash Aranha, who handled corporate L&amp;D for resort operations.
-        He had a dream.
-        He wanted something cultural that our company could unmistakably call “ours.”
-      </p>
-      <p>
-        Club Mahindra has a strong service culture called SEWA — Service with Empathy, Warmth and Attentiveness.
-        He wanted to showcase a few success stories of excellent customer service in illustrated form.
-        A unique attempt at employee appreciation.
-        He once asked the team for ideas on how to bring this into reality.
-      </p>
-      <p>
-        I responded. We connected immediately.
-        He spoke about his vision and asked if I could do it.
+        Mr. Prakash Aranha, who handled corporate L&amp;D for resort operations, handpicked a small group for a project.
+        He wanted something the company could call its own around SEWA — Service with Empathy, Warmth and Attentiveness — real service stories in illustrated form, as employee appreciation.
+        He asked for ideas.
+        I answered.
+        We talked.
+        He asked if I could do it.
         I said yes.
       </p>
       <p>
-        Here’s how the work actually went.
-        Club Mahindra had an online portal where people logged customer-service excellence stories.
-        I sourced from those logs right from the start of the company.
-        I selected the ten most impactful ones — but only if the employee who did it was still in the company.
-        Then I contacted them, one by one, without revealing the purpose.
-        I spoke with their managers and colleagues before we locked anything in, so we were appreciating the right talent.
+        Club Mahindra already logged strong customer-service stories in an online portal.
+        I went through those logs from the beginning of the company, picked ten that mattered, and only kept ones where the employee was still with us.
+        I called each person without saying why at first, and checked with managers and colleagues so we weren’t celebrating the wrong story.
       </p>
 
       <EdPhotoTiles
@@ -206,15 +172,9 @@ const marriottPhotos: PhotoTileItem[] = [
       />
 
       <p>
-        After three months, the first volume of <em>The SEWA Chronicles</em> came out — ten selected stories from seventy-plus resorts across India.
-        Yes, we printed it.
-      </p>
-      <p>
-        The comic book became an instant hit.
-        Not mainly because of the visual impact or the design.
-        Because of the effort that went into making sure the stories were real.
-        This was one of my very early creative projects.
-        My design, with the genius brain of Mr. Aranha — that’s what made it work.
+        About three months later we printed the first volume of <em>The SEWA Chronicles</em>: ten stories from seventy-plus resorts.
+        It did well — less because of how it looked, more because the stories had been checked.
+        Early creative project: my design, his direction.
       </p>
 
       <figure class="about-story__figure about-story__figure--wide">
@@ -237,11 +197,11 @@ const marriottPhotos: PhotoTileItem[] = [
         </NuxtLink>
       </aside>
 
-      <h2 class="about-story__break">Marriott, then Concentrix</h2>
+      <h2 class="about-story__break">Marriott and Concentrix</h2>
       <p>
-        I continued with Mahindra until an Assistant L&amp;D Manager role came up at Courtyard by Marriott, Mahabaleshwar.
-        I met a lot of sharp people there.
-        The increased responsibility of running the HR side of learning is a big part of what made me who I am today.
+        I stayed with Mahindra until an Assistant L&amp;D Manager role opened at Courtyard by Marriott, Mahabaleshwar.
+        More responsibility on the learning and HR side.
+        That stretch shaped a lot of how I work now.
       </p>
 
       <EdPhotoTiles
@@ -251,24 +211,18 @@ const marriottPhotos: PhotoTileItem[] = [
       />
 
       <p>
-        From that time I wanted to dive deep into learning as a science, and I decided to chase instructional design.
-        The next move was into Concentrix — as one.
-        I work at Concentrix now.
-        Creating stuff that actually matters.
+        I wanted to treat learning as a craft with a method — instructional design.
+        Next stop: Concentrix, where I still work, building learning that has to hold up with real people.
       </p>
       <p>
-        And now I have a place of my own for the questions that won’t leave me alone.
-        You’re reading it.
-      </p>
-      <p>
-        Entertrainer. Elevate is the writing room.
-        Same habit I learned on those floors and those phone calls: make something someone can actually use.
+        Entertrainer is this site.
+        Elevate is where the essays live.
+        Same thread as the floors and the phone calls: make something someone can actually use.
       </p>
       <p class="about-story__signoff">
-        With love,<br>
-        Your Naveen
+        — Naveen
       </p>
-    </article>
+        </article>
 
     <footer class="about-story__close">
       <NuxtLink to="/elevate" class="about-story__destination about-story__destination--elevate" aria-labelledby="elevate-preview-title" aria-describedby="elevate-preview-description">

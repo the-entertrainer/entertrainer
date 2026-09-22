@@ -3,14 +3,15 @@ AstroClock flip / transform sound
 
 File: transform.mp3
 
-Title:  Mechanical, transformation, fast, Clicks, mechanism, press, gear # 3
-Author: julianmateo_
-Source: https://freesound.org/people/julianmateo_/sounds/636818/
+Title:  Tibetan bowl struck #3
+Author: Joseph Sardin
+Source: https://bigsoundbank.com/sound-2554-tibetan-bowl-struck-3.html
 License: Creative Commons 0 (CC0 1.0 Universal)
          https://creativecommons.org/publicdomain/zero/1.0/
 
-Original duration ~0.735s. Shipped copy is the Freesound HQ MP3 preview,
-gently loudness-normalized (~−16 LUFS) and silence-trimmed for a short
-one-shot that plays when the sky ↔ metal dial flips (~FLIP_MS = 1080).
+Original ~9s studio recording. Shipped copy is trimmed to the soft strike
+and early ring (~1.4s), warmed in the low mids, gently rolled off on top,
+and loudness-normalized quietly (~−22 LUFS) so it reads as a subtle deep
+metallic ring under the sky ↔ metal dial flip — not a paper click, not a tick.
 
-Not a looping tick: plays once per flip only.
+Plays once per flip only.

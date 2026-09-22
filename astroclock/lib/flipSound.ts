@@ -67,7 +67,7 @@ export function createFlipSound(): FlipSound {
     if (!audio) {
       audio = new Audio(TRANSFORM_SRC);
       audio.preload = 'auto';
-      audio.volume = 0.55;
+      audio.volume = 0.38; // subtle metallic ring — not a paper slap
       audio.addEventListener('ended', () => {
         playing = false;
       });

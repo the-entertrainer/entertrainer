@@ -186,7 +186,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'your-mouth-can-be-sure-for-reasons-your-eyes-never-had',
     title: 'How many of you, is actually inside you?',
-    dek: 'Surgeons cut the cable between the brain halves for epilepsy. Speech said it saw nothing. The left hand still found the key. Then the mouth built a chicken-shed story for a shovel it never chose.',
+    dek: 'Surgeons cut the bridge between the brain halves to treat epilepsy. In the lab, speech said it saw nothing — while the left hand still found the match. Then the mouth invented a reason.',
     socialHook: 'They flashed a key to one half of a split brain. Speech said nothing. The left hand still found the key — then later invents a chicken-shed story for a shovel.',
     socialTitle: 'How many of you is actually inside you?',
     category: 'Mind',

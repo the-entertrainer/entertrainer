@@ -210,9 +210,15 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
+    description: 'Short games and little detours — Aether Lyre, Stack, The Mind Reader, and AstroClock.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
+  },
+  '/engage/aether-lyre': {
+    key: 'aether-lyre',
+    label: 'Aether Lyre',
+    title: 'Aether Lyre · Engage',
+    description: 'Sexagesimal just intonation and seven Sumerian tunings. Pure ratios, live harmonics, dry resonance.'
   },
   '/engage/astroclock': {
     key: 'astroclock',

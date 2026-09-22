@@ -132,6 +132,18 @@ export const BLOG_POSTS: BlogPost[] = [
     heroAlt: 'A black ink silhouette of a head in profile on cream paper; a zipper opens across the mind and reveals only empty dashed lines, with one cobalt-blue pull-tab.',
     status: 'published',
     publishedAt: '2026-09-13T10:15:00+00:00'
+  },
+  {
+    slug: 'tajjalan',
+    title: 'Tajjalan',
+    dek: 'An old word from the Chāndogya Upaniṣad: whatever shows up is born from That, lives in That, and returns into That.',
+    category: 'Mind',
+    tags: ['upanishad', 'consciousness', 'philosophy'],
+    minutes: 7,
+    hero: '/blog/tajjalan/hero.jpg',
+    heroAlt: 'A cream editorial drawing of a simple cup with a cobalt stream flowing into a dark textured ground — appearance rising, living, and returning in one field.',
+    status: 'published',
+    publishedAt: '2026-09-22T08:24:00+00:00'
   }
 ]
 
@@ -146,4 +158,5 @@ export const LIE_PERFECTLY_BLOG = BLOG_POSTS[6]
 export const INNER_SPEECH_BLOG = BLOG_POSTS[7]
 export const CENTRE_UNIVERSE_BLOG = BLOG_POSTS[8]
 export const KNOWING_BLOG = BLOG_POSTS[9]
+export const TAJJALAN_BLOG = BLOG_POSTS[10]
 export const FEATURED_BLOG = ENTROPY_BLOG

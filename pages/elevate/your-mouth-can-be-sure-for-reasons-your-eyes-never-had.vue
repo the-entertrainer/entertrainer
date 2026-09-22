@@ -41,15 +41,27 @@ const references = [
   },
   {
     id: 5,
-    title: 'The split-brain phenomenon revisited: A single conscious agent with split perception',
-    source: 'Pinto, Lamme, de Haan et al., Trends in Cognitive Sciences, 2017',
+    title: 'The Split-Brain Phenomenon Revisited: A Single Conscious Agent with Split Perception',
+    source: 'Pinto et al., Trends in Cognitive Sciences, 2017',
     href: 'https://www.cell.com/trends/cognitive-sciences/fulltext/S1364-6613(17)30190-0'
   },
   {
     id: 6,
-    title: 'Fifty years of split-brain research — a personal narrative and some implications',
-    source: 'Brain, 2017 (interpreter figure and P.S. trial wording in the anniversary discussion)',
-    href: 'https://academic.oup.com/brain/article/140/7/2051/3892700'
+    title: 'Split-Brain: What We Know Now and Why This is Important for Understanding Consciousness',
+    source: 'de Haan, Corballis et al., Neuropsychology Review, 2020',
+    href: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7305066/'
+  },
+  {
+    id: 7,
+    title: 'No disconnection syndrome after near-complete callosotomy',
+    source: 'Bekir et al., Communications Psychology, 2025',
+    href: 'https://www.nature.com/articles/s44271-025-00377-5'
+  },
+  {
+    id: 8,
+    title: 'The split brain: A tale of two halves',
+    source: 'Nature News feature on Gazzaniga / W.J. (Jenkins), 2012',
+    href: 'https://www.nature.com/news/the-split-brain-a-tale-of-two-halves-1.10213'
   }
 ]
 </script>
@@ -69,14 +81,28 @@ const references = [
 
     <article class="split__article">
       <aside class="split__margin-note" aria-label="Reading note">
-        <p>One fact to keep</p>
-        <p>Speech reports what reached the talking side of the brain. The other side can still see something and move a hand — without speech knowing.</p>
+        <p>Story spine</p>
+        <p>A real patient. A real surgery. Then the lab tests that made the result hard to ignore.</p>
       </aside>
 
       <div class="split__prose">
-        <p class="split__lead">Have you ever been totally sure you saw nothing… and then your hand somehow still finds the right object?</p>
-        <p>That is close to what happened in the classic split-brain lab tests. A person stares at a small mark on a screen. A picture flashes for a split second to the left of the mark — too fast for the eyes to cheat. Asked what they saw, they say “nothing.” Then the left hand, feeling under a tray, picks the matching object anyway.</p>
-        <p>This was not a magic show. Surgeons had cut the main cable between the two halves of the brain to treat severe epilepsy. Later, researchers used careful tests to ask a simple question: if the halves cannot talk to each other, what can each half still do?<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p class="split__lead">In the Second World War, an American paratrooper named William Jenkins jumped behind enemy lines. A German soldier hit him in the head with a rifle butt.</p>
+        <p>He survived. Later, the seizures began.</p>
+        <p>They got worse for years. Drugs did not stop them. By the early 1960s, Jenkins was living with epilepsy so severe that doctors considered a last-resort operation: cut the thick bridge of fibres that joins the left and right halves of the brain — the corpus callosum — so a seizure starting on one side would be less able to race into the other.</p>
+        <p>In February 1962, in Los Angeles, neurosurgeons Joseph Bogen and Philip Vogel did that surgery. Jenkins recovered. In ordinary conversation he seemed much like himself. The seizures eased.</p>
+        <p>Then a young researcher named Michael Gazzaniga, working with Roger Sperry at Caltech, began testing him in a lab. That is where the story turns strange.<a href="#ref-8" aria-label="Reference 8">[8]</a><a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+
+        <h2>What the doctors cut</h2>
+        <p>Your brain has two large halves. A cable of roughly two hundred million fibres connects them. That cable is the corpus callosum.</p>
+        <p>In some hard epilepsy cases, a seizure begins on one side and spreads across that bridge. Cutting the bridge was meant to stop the spread. Nobody removed a half of the brain. Everyday chat could still look normal. The odd results showed up when the lab sent information to only one side.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>Sperry later shared the 1981 Nobel Prize for this line of work.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+
+        <h2>How they tested Jenkins</h2>
+        <p>Vision is wired in a useful way for this kind of test. If you stare at a centre mark, the left half of the scene is handled mainly by the right half of the brain, and the right half of the scene by the left half of the brain.</p>
+        <p>In daily life your eyes keep moving, so both halves usually share the world. After the bridge is cut, a very brief flash locked to one side can reach only one half — too fast for the eyes to cheat.</p>
+        <p>Gazzaniga’s team used that. Flash a picture or word to one side. Ask the mouth what it saw. Or ask one hand to point or feel for a match under a screen.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>With Jenkins and later patients, a pattern kept returning. When the flash went to the right side of the screen (left half of the brain), speech could often name it. When the flash went to the left side (right half of the brain), speech often said “nothing” — or only that a light had flashed — while the left hand could still pick the matching object.</p>
+        <p>One half had seen it. The talking half had not. Both lived in the same skull.</p>
 
         <ClientOnly>
           <EdSplitBrainLab />
@@ -84,55 +110,35 @@ const references = [
             <p class="split__lab-fallback">Loading the split-brain lab…</p>
           </template>
         </ClientOnly>
+        <p class="split__lab-note">Step through the lab above to see the same layout: fixation mark, left/right flash, speech versus left hand.</p>
 
-        <h2>Why the cable was cut</h2>
-        <p>The brain has a left half and a right half. A thick bundle of fibres connects them. That bundle is called the corpus callosum.</p>
-        <p>In some epilepsy cases, a seizure starts on one side and races across that bridge into the other side. In the early 1960s, surgeons Phillip Vogel and Joseph Bogen sometimes cut the bridge as a last-resort treatment. Roger Sperry and Michael Gazzaniga then studied those patients at Caltech.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>Nobody removed a half of the brain. In ordinary conversation, many patients looked almost normal. The strange results showed up when the lab sent information to only one side.</p>
-        <p>Sperry shared the 1981 Nobel Prize for this work. His Nobel lecture is still a clear place to start.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-
-        <h2>How vision is split</h2>
-        <p>Here is the wiring map in plain terms.</p>
-        <p>Each eye sees both left and right space. But inside the brain, the <strong>left half of what you are looking at</strong> is handled mainly by the <strong>right half of the brain</strong>, and the right half of the scene is handled mainly by the left half of the brain.</p>
-        <p>In daily life your eyes keep moving, so both halves usually get overlapping samples, and the bridge keeps them coordinated. After the bridge is cut, a brief flash locked to one side of the fixation mark can reach only one half.</p>
-        <p class="split__lab-note">The lab above shows this map. Left of the mark goes to the right half. Right of the mark goes to the left half. Speech usually lives with the left half.</p>
-
-        <h2>The flash speech cannot name</h2>
-        <p>The basic test works like this. The patient looks at a centre mark. A word or picture flashes for a fraction of a second, fully on the left or fully on the right — too short for a normal eye movement to drag it across.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>Then the experimenters ask for different kinds of answers: speech, pointing with one hand, or matching by touch under a screen.</p>
-        <p>In many right-handed patients, a clear pattern showed up. Flash on the <strong>right</strong> (left half of the brain): the mouth can name it. Flash on the <strong>left</strong> (right half of the brain): the mouth often says it saw nothing, or only a flash of light — while the <strong>left hand</strong> can still pick the correct object.</p>
-        <p class="split__lab-note">Beat A in the lab is this test. Speech reports what the talking half saw. The left hand can answer for the half that cannot speak.</p>
-        <p>Older neurology had treated the right half as weak at understanding. Sperry’s work showed it could understand and act, while the speaking half often did not know those acts had happened.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-
-        <h2>Chicken claw, snow, and a shovel</h2>
-        <p>This is the famous trial. The details matter.</p>
-        <p>Patient P.S. got two pictures at once. On the right side of the screen: a <strong>chicken claw</strong> (to the left half of the brain). On the left side: a <strong>snow scene</strong> (to the right half of the brain). Each hand then chose a related picture from an array.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-6" aria-label="Reference 6">[6]</a></p>
+        <h2>Patient P.S. and the shovel story</h2>
+        <p>A later patient, known in the papers as P.S., was a teenager when Gazzaniga’s group studied him. In one famous trial, two pictures flashed at once.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <p>Right side of the screen: a chicken claw — to the speaking left half. Left side: a snow scene — to the right half. Each hand then chose a related picture from a set.</p>
         <p>The right hand picked a chicken. The left hand picked a snow shovel.</p>
-        <p>Asked why, the speaking left half — which had seen only the claw, but could see both hands’ choices — answered along these lines:</p>
+        <p>Asked why, the speaking half — which had seen only the claw — answered along these lines:</p>
         <blockquote>
           <p>Oh, that’s simple. The chicken claw goes with the chicken, and you need a shovel to clean out the chicken shed.</p>
         </blockquote>
-        <p class="split__lab-note">Beat B in the lab shows the two hand choices. The shovel belonged with the snow. Speech folded it into a chicken story so the moment still made sense.</p>
-        <p>The shovel choice was driven by the snow scene the left half never received. Speech did not say “I don’t know.” It invented a cause that fitted. Gazzaniga called that storytelling system the left-hemisphere <strong>interpreter</strong>.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a></p>
-        <p>Related tests flash a command only to the right half — “walk,” or “laugh.” The body does it. Asked why, speech invents a reason. Action first. Story after.</p>
-        <p class="split__lab-note">The last lab step is that interpreter. It is not social lying. It is a system whose job is to keep a story that holds together.</p>
+        <p>The shovel choice came from the snow. The speaking half never got the snow. It did not say “I don’t know.” It built a reason that made the moment sound whole. Gazzaniga called that storytelling system the left-hemisphere <strong>interpreter</strong>.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <p>Related tests flashed a command only to the right half — “walk,” or “laugh.” The body did it. Asked why, speech invented a reason. Action first. Story after.</p>
 
-        <h2>What “I saw it” means here</h2>
-        <p>In these tests, “I saw X” is really a report about what reached the speech system. It is not a full readout of everything the brain registered.</p>
-        <p>That is the uncomfortable part. The voice that says “I” can feel sure for reasons another part of the same brain never had. Feeling sure is not a perfect meter of what caused the answer.</p>
-        <p>You do not need this surgery to meet a milder version. Everyday psychology already shows sincere wrong reasons after the fact. Split-brain work is a clear neurological proof that fluent explanations can be invented.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <h2>What people still argue about</h2>
+        <p>For a long time the popular takeaway was “two minds in one head.” That oversells it.</p>
+        <p>After recovery, a casual meeting with these patients often looked ordinary. Eyes move. People cue themselves. The split shows up when the lab forces one-sided input.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>Around 2017, Yair Pinto and colleagues argued for a different frame: one conscious agent with <strong>split perception</strong> — two streams that do not join, without Hollywood dual persons.<a href="#ref-5" aria-label="Reference 5">[5]</a> Gazzaniga’s side has answered that some apparent unity may be cross-cueing: one side quietly tipping off the other. A 2020 review said the evidence is still not enough to settle the first-person question cleanly.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
 
-        <h2>Limits (important)</h2>
-        <p>These patients were not “two people” arguing inside one skull. After recovery, a casual meeting often looked normal. Eyes move. People cue themselves. The odd split shows up when the lab forces one-sided input.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>Patients also differ — how much was cut, age, leftover cross-talk, later change. The classic literature rests on a small number of carefully studied people.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
-        <p>Modern reviews say the popular “two conscious agents” packaging goes too far. One careful frame is a single conscious agent with <strong>split perception</strong> — streams that do not join, without Hollywood dual persons.<a href="#ref-5" aria-label="Reference 5">[5]</a> Gazzaniga’s later frame is modular processing plus a left-sided interpreter that builds a sense of authorship and continuity.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
-        <p>Sperry himself warned against wild left-brain / right-brain posters. Specialization is real. The self-help cartoon is not.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <h2>A new patient, 2025</h2>
+        <p>Here is a finding that is not the old chicken-claw loop.</p>
+        <p>In 2025, researchers reported a new adult callosotomy cohort. Three patients with a complete cut still showed the classic disconnection pattern across vision, touch, space, and language tasks.</p>
+        <p>One patient, called BT* in the paper, had a near-complete cut — about ninety percent of the callosum gone — but about one centimetre of the rear tip (the splenium) left. Tested years later, he showed <strong>no</strong> classic disconnection across those same domains. Behaviourally, he looked integrated, as if the tiny remaining bridge was enough to keep the sides working together.<a href="#ref-7" aria-label="Reference 7">[7]</a></p>
+        <p>That does not erase Jenkins or P.S. It sharpens the lesson: how much is cut, and what is left, can change the whole picture.</p>
 
-        <h2>Why this is useful</h2>
-        <p>So what do you take into an ordinary Tuesday?</p>
-        <p>Notice when your mouth is very sure, very fast. The sentence can feel like a live camera feed. Sometimes it is a story written after the hands have already moved.</p>
-        <p>That does not mean nothing is real. The snow was real. The claw was real. The shovel choice was real. What got stitched was the cause story that made them one plot.</p>
-        <p class="split__closing">The useful question is not “how many people am I?” It is how much of “I saw it” was the whole sensing brain… and how much was the narrator doing its job.</p>
+        <h2>Why the story matters</h2>
+        <p>The useful takeaway is not a poster about left-brain and right-brain personalities. Sperry himself warned against that cartoon.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>The useful takeaway is smaller and harder. The voice that says “I saw it” can feel sure. In these patients, that voice sometimes reported only what reached the speaking half — while another half had already acted on something else. Feeling sure is not a perfect meter of what caused the answer.</p>
+        <p>You do not need this surgery to meet a milder version in ordinary life: sincere reasons invented after the fact. Split-brain work is one clear neurological proof that fluent explanations can be built after the hands have moved.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <p class="split__closing">Start with Jenkins. Then the lab. Then the shovel story. Then the argument that is still open. The question in the title is not poetry. It is what the tests keep forcing back onto the table.</p>
       </div>
     </article>
 

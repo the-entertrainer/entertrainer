@@ -81,6 +81,13 @@ const references = [
         <p>Then your left hand reaches under a tray. It picks the matching object.</p>
         <p>This is not a party trick. Surgeons cut a cable in the brain to treat epilepsy. Then scientists ran careful lab tests. The tests showed a gap between seeing and telling.</p>
 
+        <ClientOnly>
+          <EdSplitBrainLab />
+          <template #fallback>
+            <p class="split__lab-fallback">Loading the split-brain lab…</p>
+          </template>
+        </ClientOnly>
+
         <h2>Why anyone cut the cable</h2>
         <p>Your brain has a left half and a right half. A thick bridge of fibres links them. That bridge is called the corpus callosum.</p>
         <p>In some hard epilepsy cases, a seizure starts on one side. Then it races across the bridge. Doctors cut the bridge to stop that spread. This was a last-resort surgery.</p>
@@ -94,13 +101,7 @@ const references = [
         <p>In daily life your eyes keep moving. Both halves of the brain keep getting samples. The bridge keeps them in sync.</p>
         <p>After the bridge is cut, that direct sharing is gone. A brief flash on one side can reach only one half.</p>
 
-        <figure class="split__visual">
-          <EdEditorialImage
-            src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/vision-map.jpg"
-            alt="Cartoon person at a night desk watching a monitor split between a snowy cabin and a chicken claw — a story scene, not a diagram."
-          />
-          <figcaption>Left of the mark goes to the right half of the brain. Right of the mark goes to the left half. Speech usually lives with the left half.</figcaption>
-        </figure>
+        <p class="split__lab-note">Use the lab above for this map. Left of the mark goes to the right half. Right of the mark goes to the left half. Speech usually lives with the left half.</p>
 
         <h2>The flash that speech cannot name</h2>
         <p>Here is the test, step by step.</p>
@@ -108,13 +109,7 @@ const references = [
         <p>Then the team asks for an answer. Sometimes they ask for speech. Sometimes they ask for a point with one hand. Sometimes they ask for a match by touch under a screen.</p>
         <p>In many right-handed patients, this pattern appears. Flash on the <strong>right</strong> (left half of the brain). The mouth can name it. Flash on the <strong>left</strong> (right half of the brain). The mouth often says it saw nothing, or only a flash of light. The <strong>left hand</strong> can still pick the right object.</p>
 
-        <figure class="split__visual">
-          <EdEditorialImage
-            src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/flash-test.jpg"
-            alt="Cartoon lab scene: a confused character points at a glowing key on the table while an empty thought bubble floats above; the monitor still shows the key that flashed."
-          />
-          <figcaption>Speech reports what the speaking half saw. The left hand can answer for the half that cannot speak.</figcaption>
-        </figure>
+        <p class="split__lab-note">Beat A in the lab shows this. Speech reports what the speaking half saw. The left hand can answer for the half that cannot speak.</p>
 
         <p>Older ideas treated the right half as almost useless for understanding. Sperry’s work showed the opposite. The quiet half could understand and act. The speaking half often did not know those acts had happened.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
 
@@ -127,24 +122,12 @@ const references = [
           <p>Oh, that’s simple. The chicken claw goes with the chicken, and you need a shovel to clean out the chicken shed.</p>
         </blockquote>
 
-        <figure class="split__visual">
-          <EdEditorialImage
-            src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/chicken-shovel.jpg"
-            alt="Cartoon character holds a snow-shovel card and a chicken card, looking confident, while a thought bubble shows a chicken shed with a shovel in the snow."
-          />
-          <figcaption>The shovel belonged with the snow. Speech folded it into a claw story so the moment still made sense.</figcaption>
-        </figure>
+        <p class="split__lab-note">Beat B in the lab shows the two hand choices. The shovel belonged with the snow. Speech folded it into a claw story so the moment still made sense.</p>
 
         <p>The shovel choice came from the snow scene. The left half never got that scene. Speech did not say “I do not know.” Speech <strong>rewrote the cause</strong>. Gazzaniga called that storytelling system the left-hemisphere <strong>interpreter</strong>.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a></p>
         <p>Related tests flash a command only to the right half. Examples include “walk” or “laugh.” The body does the act. Asked why, speech invents a reason. Action comes first. The story comes after.</p>
 
-        <figure class="split__visual">
-          <EdEditorialImage
-            src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/interpreter.jpg"
-            alt="Inside a warm spotlight, a tiny human press secretary invents a story at a microphone while a snow shovel waits outside in the cold dark."
-          />
-          <figcaption>This is not social lying. It is a system whose job is to keep a story that holds.</figcaption>
-        </figure>
+        <p class="split__lab-note">The last lab step is the interpreter. This is not social lying. It is a system whose job is to keep a story that holds.</p>
 
         <h2>What this does to “I saw it”</h2>
         <p>In these half-field tests, “I saw X” means something narrow. It means X reached the speech system. It does not mean every part of the brain saw X.</p>
@@ -205,6 +188,9 @@ const references = [
 .split blockquote p { margin: 0; }
 .split__visual { margin: 50rem 0 45rem; }
 .split__visual :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--signal-field); }
+.split__lab-fallback { margin: 36rem 0; padding: 18rem; border: var(--stroke) dashed var(--line); border-radius: var(--radius-m); color: var(--ink-soft); font: 400 14rem/1.4 var(--font-mono); }
+.split__lab-note { margin: 28rem 0 36rem !important; padding: 14rem 16rem; background: var(--signal-field); border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); font: 400 15rem/1.45 var(--font-body); }
+.split__prose :deep(.sbl) { margin-left: 0; margin-right: 0; }
 .split__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 clamp(22rem, 2.6vw, 34rem)/1.14 var(--font-display); letter-spacing: -.035em; }
 .split__sources { max-width: 1100rem; margin: clamp(64rem, 10vw, 130rem) auto 0; padding: 34rem var(--shell-gutter) 0; border-top: var(--stroke) solid var(--ink); }
 .split__sources h2 { margin: 12rem 0 30rem; font-size: clamp(33rem, 4vw, 48rem); line-height: .95; font-family: var(--font-display); font-weight: 500; letter-spacing: -.05em; }

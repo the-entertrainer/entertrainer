@@ -186,7 +186,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'your-mouth-can-be-sure-for-reasons-your-eyes-never-had',
     title: 'How many of you, is actually inside you?',
-    dek: 'William Jenkins, a WWII paratrooper, had the bridge between his brain halves cut for epilepsy in 1962. In the lab, speech said it saw nothing — while a hand still found the match. Then came the shovel story, and findings that still will not sit still.',,
+    dek: 'In 1962 surgeons cut the bridge between William Jenkins’s brain halves to treat epilepsy. In the lab, speech said it saw nothing — while a hand still found the match. Then the mouth invented a reason.',
     socialHook: 'They flashed a key to one half of a split brain. Speech said nothing. The left hand still found the key — then later invents a chicken-shed story for a shovel.',
     socialTitle: 'How many of you is actually inside you?',
     category: 'Mind',

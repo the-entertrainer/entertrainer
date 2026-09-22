@@ -185,10 +185,10 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'your-mouth-can-be-sure-for-reasons-your-eyes-never-had',
-    title: 'His Mouth Said Nothing. His Left Hand Still Found the Key.',
-    dek: 'Surgeons cut the cable between the brain halves for epilepsy. In the lab, speech said it saw nothing. The left hand still found the match. Then the mouth invented a chicken-shed reason for a shovel.',
+    title: 'Interpreter',
+    dek: 'Surgeons cut the cable between the brain halves for epilepsy. Speech said it saw nothing. The left hand still found the key. Then the mouth built a chicken-shed story for a shovel it never chose.',
     socialHook: 'They flashed a key to one half of a split brain. Speech said nothing. The left hand still found the key — then later invents a chicken-shed story for a shovel.',
-    socialTitle: 'Mouth said nothing. Left hand still found the key.',
+    socialTitle: 'Speech said nothing. The quiet half still knew.',
     category: 'Mind',
     tags: ['cognition', 'neuroscience', 'consciousness'],
     minutes: 10,

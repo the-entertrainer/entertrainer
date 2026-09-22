@@ -2,14 +2,14 @@
 import { INTELLIGENCE_BLOG } from '~/content/blogs'
 
 useSeoMeta({
-  title: `${INTELLIGENCE_BLOG.title} · The Entertrainer Blogs`,
+  title: `${INTELLIGENCE_BLOG.socialTitle} · The Entertrainer Blogs`,
   description: INTELLIGENCE_BLOG.socialHook,
-  ogTitle: INTELLIGENCE_BLOG.title,
+  ogTitle: INTELLIGENCE_BLOG.socialTitle,
   ogDescription: INTELLIGENCE_BLOG.socialHook,
   ogUrl: `https://entertrainer.in/elevate/${INTELLIGENCE_BLOG.slug}`,
   ogImage: `https://entertrainer.in${INTELLIGENCE_BLOG.hero}`,
   twitterCard: 'summary_large_image',
-  twitterTitle: INTELLIGENCE_BLOG.title,
+  twitterTitle: INTELLIGENCE_BLOG.socialTitle,
   twitterDescription: INTELLIGENCE_BLOG.socialHook,
   twitterImage: `https://entertrainer.in${INTELLIGENCE_BLOG.hero}`
 })

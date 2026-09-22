@@ -24,6 +24,7 @@ export function composedToBlogPost(post: ComposedPost): BlogPost {
     title: post.title,
     dek: post.dek,
     socialHook: post.socialHook || post.dek,
+    socialTitle: post.socialTitle || post.title,
     category: normalizeElevateCategory(post.category),
     tags: post.tags,
     minutes: post.minutes,

@@ -2,14 +2,14 @@
 import { JAMAIS_VU_BLOG } from '~/content/blogs'
 
 useSeoMeta({
-  title: `${JAMAIS_VU_BLOG.title} · The Entertrainer Blogs`,
+  title: `${JAMAIS_VU_BLOG.socialTitle} · The Entertrainer Blogs`,
   description: JAMAIS_VU_BLOG.socialHook,
-  ogTitle: JAMAIS_VU_BLOG.title,
+  ogTitle: JAMAIS_VU_BLOG.socialTitle,
   ogDescription: JAMAIS_VU_BLOG.socialHook,
   ogUrl: `https://entertrainer.in/elevate/${JAMAIS_VU_BLOG.slug}`,
   ogImage: `https://entertrainer.in${JAMAIS_VU_BLOG.hero}`,
   twitterCard: 'summary_large_image',
-  twitterTitle: JAMAIS_VU_BLOG.title,
+  twitterTitle: JAMAIS_VU_BLOG.socialTitle,
   twitterDescription: JAMAIS_VU_BLOG.socialHook,
   twitterImage: `https://entertrainer.in${JAMAIS_VU_BLOG.hero}`
 })

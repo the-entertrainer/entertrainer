@@ -26,14 +26,14 @@ if (error.value || !data.value) {
 const post = computed(() => data.value as ComposedPost)
 
 useSeoMeta({
-  title: () => `${post.value.title} · The Entertrainer Blogs`,
+  title: () => `${post.value.socialTitle || post.value.title} · The Entertrainer Blogs`,
   description: () => post.value.socialHook || post.value.dek,
-  ogTitle: () => post.value.title,
+  ogTitle: () => post.value.socialTitle || post.value.title,
   ogDescription: () => post.value.socialHook || post.value.dek,
   ogUrl: () => `https://entertrainer.in/elevate/${post.value.slug}`,
   ogImage: () => post.value.hero ? `https://entertrainer.in${post.value.hero}` : undefined,
   twitterCard: 'summary_large_image',
-  twitterTitle: () => post.value.title,
+  twitterTitle: () => post.value.socialTitle || post.value.title,
   twitterDescription: () => post.value.socialHook || post.value.dek,
   twitterImage: () => post.value.hero ? `https://entertrainer.in${post.value.hero}` : undefined
 })

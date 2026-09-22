@@ -281,6 +281,13 @@ async function persist(status: 'draft' | 'published') {
       statusMessage.value = `socialHook length ${hook.length} is outside 80–180 (target ~100–150).`
       return
     }
+    const socialTitle = (draft.value.socialTitle || '').trim()
+    if (socialTitle) {
+      if (socialTitle.length < 20 || socialTitle.length > 70) {
+        statusMessage.value = `socialTitle length ${socialTitle.length} is outside 20–70 (target ~40–60).`
+        return
+      }
+    }
   }
 
   if (

@@ -40,7 +40,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   [`/elevate/${ENTROPY_BLOG.slug}`]: {
     key: 'entropy-laziness',
     label: ENTROPY_BLOG.category,
-    title: ENTROPY_BLOG.title,
+    title: ENTROPY_BLOG.socialTitle,
     description: ENTROPY_BLOG.socialHook,
     image: `${SITE_URL}${ENTROPY_BLOG.hero}`,
     imageAlt: ENTROPY_BLOG.heroAlt,
@@ -49,7 +49,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   [`/elevate/${INTELLIGENCE_BLOG.slug}`]: {
     key: 'intelligence-blog',
     label: INTELLIGENCE_BLOG.category,
-    title: INTELLIGENCE_BLOG.title,
+    title: INTELLIGENCE_BLOG.socialTitle,
     description: INTELLIGENCE_BLOG.socialHook,
     image: `${SITE_URL}${INTELLIGENCE_BLOG.hero}`,
     imageAlt: INTELLIGENCE_BLOG.heroAlt,
@@ -58,7 +58,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   [`/elevate/${MOONLY_BLOG.slug}`]: {
     key: 'moon-moonly',
     label: MOONLY_BLOG.category,
-    title: MOONLY_BLOG.title,
+    title: MOONLY_BLOG.socialTitle,
     description: MOONLY_BLOG.socialHook,
     image: `${SITE_URL}${MOONLY_BLOG.hero}`,
     imageAlt: MOONLY_BLOG.heroAlt,
@@ -67,7 +67,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   [`/elevate/${AI_UNDERSTAND_BLOG.slug}`]: {
     key: 'ai-understand',
     label: AI_UNDERSTAND_BLOG.category,
-    title: AI_UNDERSTAND_BLOG.title,
+    title: AI_UNDERSTAND_BLOG.socialTitle,
     description: AI_UNDERSTAND_BLOG.socialHook,
     image: `${SITE_URL}${AI_UNDERSTAND_BLOG.hero}`,
     imageAlt: AI_UNDERSTAND_BLOG.heroAlt,
@@ -76,7 +76,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   [`/elevate/${JAMAIS_VU_BLOG.slug}`]: {
     key: 'jamais-vu',
     label: JAMAIS_VU_BLOG.category,
-    title: JAMAIS_VU_BLOG.title,
+    title: JAMAIS_VU_BLOG.socialTitle,
     description: JAMAIS_VU_BLOG.socialHook,
     image: `${SITE_URL}${JAMAIS_VU_BLOG.hero}`,
     imageAlt: JAMAIS_VU_BLOG.heroAlt,
@@ -85,7 +85,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   [`/elevate/${LIFE_MIDPOINT_BLOG.slug}`]: {
     key: 'life-midpoint',
     label: LIFE_MIDPOINT_BLOG.category,
-    title: LIFE_MIDPOINT_BLOG.title,
+    title: LIFE_MIDPOINT_BLOG.socialTitle,
     description: LIFE_MIDPOINT_BLOG.socialHook,
     image: `${SITE_URL}${LIFE_MIDPOINT_BLOG.hero}`,
     imageAlt: LIFE_MIDPOINT_BLOG.heroAlt,
@@ -94,7 +94,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   [`/elevate/${LIE_PERFECTLY_BLOG.slug}`]: {
     key: 'lie-perfectly',
     label: LIE_PERFECTLY_BLOG.category,
-    title: LIE_PERFECTLY_BLOG.title,
+    title: LIE_PERFECTLY_BLOG.socialTitle,
     description: LIE_PERFECTLY_BLOG.socialHook,
     image: `${SITE_URL}${LIE_PERFECTLY_BLOG.hero}`,
     imageAlt: LIE_PERFECTLY_BLOG.heroAlt,
@@ -103,7 +103,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   [`/elevate/${INNER_SPEECH_BLOG.slug}`]: {
     key: 'inner-speech',
     label: INNER_SPEECH_BLOG.category,
-    title: INNER_SPEECH_BLOG.title,
+    title: INNER_SPEECH_BLOG.socialTitle,
     description: INNER_SPEECH_BLOG.socialHook,
     image: `${SITE_URL}${INNER_SPEECH_BLOG.hero}`,
     imageAlt: INNER_SPEECH_BLOG.heroAlt,
@@ -112,7 +112,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   [`/elevate/${CENTRE_UNIVERSE_BLOG.slug}`]: {
     key: 'centre-universe',
     label: CENTRE_UNIVERSE_BLOG.category,
-    title: CENTRE_UNIVERSE_BLOG.title,
+    title: CENTRE_UNIVERSE_BLOG.socialTitle,
     description: CENTRE_UNIVERSE_BLOG.socialHook,
     image: `${SITE_URL}${CENTRE_UNIVERSE_BLOG.hero}`,
     imageAlt: CENTRE_UNIVERSE_BLOG.heroAlt,
@@ -121,7 +121,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   [`/elevate/${KNOWING_BLOG.slug}`]: {
     key: 'feeling-of-knowing',
     label: KNOWING_BLOG.category,
-    title: KNOWING_BLOG.title,
+    title: KNOWING_BLOG.socialTitle,
     description: KNOWING_BLOG.socialHook,
     image: `${SITE_URL}${KNOWING_BLOG.hero}`,
     imageAlt: KNOWING_BLOG.heroAlt,
@@ -130,7 +130,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   [`/elevate/${TAJJALAN_BLOG.slug}`]: {
     key: 'tajjalan',
     label: TAJJALAN_BLOG.category,
-    title: TAJJALAN_BLOG.title,
+    title: TAJJALAN_BLOG.socialTitle,
     description: TAJJALAN_BLOG.socialHook,
     image: `${SITE_URL}${TAJJALAN_BLOG.hero}`,
     imageAlt: TAJJALAN_BLOG.heroAlt,

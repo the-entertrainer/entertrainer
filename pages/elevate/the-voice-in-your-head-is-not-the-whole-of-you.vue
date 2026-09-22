@@ -2,14 +2,14 @@
 import { INNER_SPEECH_BLOG } from '~/content/blogs'
 
 useSeoMeta({
-  title: `${INNER_SPEECH_BLOG.title} · The Entertrainer Blogs`,
+  title: `${INNER_SPEECH_BLOG.socialTitle} · The Entertrainer Blogs`,
   description: INNER_SPEECH_BLOG.socialHook,
-  ogTitle: INNER_SPEECH_BLOG.title,
+  ogTitle: INNER_SPEECH_BLOG.socialTitle,
   ogDescription: INNER_SPEECH_BLOG.socialHook,
   ogUrl: `https://entertrainer.in/elevate/${INNER_SPEECH_BLOG.slug}`,
   ogImage: `https://entertrainer.in${INNER_SPEECH_BLOG.hero}`,
   twitterCard: 'summary_large_image',
-  twitterTitle: INNER_SPEECH_BLOG.title,
+  twitterTitle: INNER_SPEECH_BLOG.socialTitle,
   twitterDescription: INNER_SPEECH_BLOG.socialHook,
   twitterImage: `https://entertrainer.in${INNER_SPEECH_BLOG.hero}`
 })

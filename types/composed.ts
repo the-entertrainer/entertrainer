@@ -43,6 +43,11 @@ export interface ComposedPost {
   dek: string
   /** LinkedIn/OG/Twitter card hook — not a copy of dek. Required to publish. */
   socialHook: string
+  /**
+   * LinkedIn/OG/Twitter card title. Optional on composed drafts; falls back to `title`.
+   * Prefer ~40–60 chars when set — LinkedIn mobile often hides the description.
+   */
+  socialTitle?: string
   category: string
   /** Optional topical tags. */
   tags?: string[]
@@ -64,6 +69,7 @@ export function emptyComposedPost(partial?: Partial<ComposedPost>): ComposedPost
     title: '',
     dek: '',
     socialHook: '',
+    socialTitle: '',
     category: 'Mind',
     tags: [],
     minutes: 5,

@@ -2,38 +2,39 @@
 name: blog-social-hook
 description: >-
   Required for every new or revised Entertrainer Elevate blog. Crafts
-  LinkedIn/Open Graph socialHook copy (separate from on-page dek). Use before
-  shipping content/blogs.ts or publishing a composed post.
+  LinkedIn/Open Graph socialTitle + socialHook copy (separate from on-page
+  title/dek). Use before shipping content/blogs.ts or publishing a composed post.
 ---
 
-# Elevate socialHook (hardcoded norm)
+# Elevate socialTitle + socialHook (hardcoded norm)
 
-Every blog link pasted on socials — especially LinkedIn — must reveal a **hook**: a captivating paragraph/sentence that pulls readers. This is `socialHook`, not `dek`.
+Every blog link pasted on socials — especially LinkedIn — must reveal a **hook**. LinkedIn mobile often shows **only the title** (no description line). So `socialTitle` must carry the pull alone, and `socialHook` still fills `og:description` where platforms show it.
 
 ## Field split (fail closed)
 
 | Field | Use |
 |---|---|
+| `title` | On-page H1 only |
 | `dek` | On-page standfirst only |
+| `socialTitle` | LinkedIn / `og:title` / Twitter title only |
 | `socialHook` | LinkedIn / `og:description` / Twitter card description only |
 
 Rules:
 
-1. `socialHook` is **required** on every published `BlogPost` in `content/blogs.ts`.
-2. `socialHook` **must not** equal `dek` (or a trivial paraphrase that LinkedIn would treat as the same skim).
-3. Length **~100–150 characters** (hard check 80–180). Front-load the hook in the first ~100.
-4. Wire SEO via `socialHook` in `pages/elevate/*.vue` `useSeoMeta` (`description` / `ogDescription` / `twitterDescription`) and in `content/social-previews.ts` article `description`. Keep on-page UI on `dek`.
-5. Composed posts: same field; publish must refuse empty/`=== dek` hooks.
+1. `socialTitle` and `socialHook` are **required** on every published `BlogPost` in `content/blogs.ts`.
+2. `socialHook` **must not** equal `dek`. Length **~100–150 characters** (hard check 80–180). Front-load the hook in the first ~100.
+3. `socialTitle` length **~40–60 characters** (hard check 20–70). Front-load curiosity. For branded one-word titles (e.g. Tajjalan), `socialTitle` **must differ** and carry the essay hook.
+4. Wire SEO via `socialTitle` in `pages/elevate/*.vue` `useSeoMeta` (`title` / `ogTitle` / `twitterTitle`) and in `content/social-previews.ts` article `title`. Wire `socialHook` into descriptions. Keep on-page H1 / UI on `title` / `dek`.
+5. Composed posts: `socialHook` required; `socialTitle` optional (fallback to `title`) — still prefer writing one before publish.
 6. After deploy, clear LinkedIn cache with **Post Inspector** (`https://www.linkedin.com/post-inspector/`).
 
 Run: `npm run check:social-hooks`.
 
 ## Research to encode (LinkedIn / OG)
 
+- Mobile LinkedIn composer/feed **often omits `og:description`** — title-only preview is common.
 - `og:description` is for **social interruption**, not a copy of SEO meta / on-page dek.
-- Ideal ~100–150 chars; safe truncate ~160.
-- Benefit / curiosity / specificity beats summary. Micro-tension or concrete oddity > “learn about X”.
-- Title (~50–60) + description must each stand alone (mobile often hides description).
+- Title (~40–60) + description (~100–150) must each stand alone.
 - Server-rendered OG tags; LinkedIn caches — always note Post Inspector.
 
 ## Psychology levers (light, true)
@@ -52,13 +53,13 @@ Fail on: slogan stacks (“Three X. One Y.”), AI triplets, tech-bro wisdom, ph
 
 ## Workflow for a new blog
 
-1. Draft essay + on-page `dek`.
-2. Write `socialHook` last — after the spine is true.
-3. Count characters; front-load; ensure ≠ `dek`.
-4. Grep SEO paths: no `*.dek` in `ogDescription` / twitter description for article pages.
+1. Draft essay + on-page `title` + `dek`.
+2. Write `socialTitle` and `socialHook` last — after the spine is true. Assume description is hidden.
+3. Count characters; front-load; ensure hook ≠ `dek`; thin titles get a different `socialTitle`.
+4. Grep SEO paths: no `*.dek` in `ogDescription`; no bare thin `*.title` in `ogTitle`.
 5. `npm run check:social-hooks`.
 6. After production deploy: LinkedIn Post Inspector on the public URL.
 
 ## Pass bar
 
-A stranger mid-scroll stops because something concrete and unfinished got under their skin — and the essay pays it off.
+A stranger mid-scroll stops because the **title alone** is concrete and unfinished — and the essay pays it off.

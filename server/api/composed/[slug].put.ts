@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
     title: body.title ?? existing?.title ?? '',
     dek: body.dek ?? existing?.dek ?? '',
     socialHook: body.socialHook ?? existing?.socialHook ?? '',
+    socialTitle: body.socialTitle ?? existing?.socialTitle ?? '',
     category: body.category ?? existing?.category ?? 'Mind & meaning',
     minutes: body.minutes ?? existing?.minutes ?? 5,
     hero: body.hero ?? existing?.hero ?? '',

@@ -2,14 +2,14 @@
 import { LIE_PERFECTLY_BLOG } from '~/content/blogs'
 
 useSeoMeta({
-  title: `${LIE_PERFECTLY_BLOG.title} · The Entertrainer Blogs`,
+  title: `${LIE_PERFECTLY_BLOG.socialTitle} · The Entertrainer Blogs`,
   description: LIE_PERFECTLY_BLOG.socialHook,
-  ogTitle: LIE_PERFECTLY_BLOG.title,
+  ogTitle: LIE_PERFECTLY_BLOG.socialTitle,
   ogDescription: LIE_PERFECTLY_BLOG.socialHook,
   ogUrl: `https://entertrainer.in/elevate/${LIE_PERFECTLY_BLOG.slug}`,
   ogImage: `https://entertrainer.in${LIE_PERFECTLY_BLOG.hero}`,
   twitterCard: 'summary_large_image',
-  twitterTitle: LIE_PERFECTLY_BLOG.title,
+  twitterTitle: LIE_PERFECTLY_BLOG.socialTitle,
   twitterDescription: LIE_PERFECTLY_BLOG.socialHook,
   twitterImage: `https://entertrainer.in${LIE_PERFECTLY_BLOG.hero}`
 })

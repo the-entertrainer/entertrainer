@@ -2,14 +2,14 @@
 import { CENTRE_UNIVERSE_BLOG } from '~/content/blogs'
 
 useSeoMeta({
-  title: `${CENTRE_UNIVERSE_BLOG.title} · The Entertrainer Blogs`,
+  title: `${CENTRE_UNIVERSE_BLOG.socialTitle} · The Entertrainer Blogs`,
   description: CENTRE_UNIVERSE_BLOG.socialHook,
-  ogTitle: CENTRE_UNIVERSE_BLOG.title,
+  ogTitle: CENTRE_UNIVERSE_BLOG.socialTitle,
   ogDescription: CENTRE_UNIVERSE_BLOG.socialHook,
   ogUrl: `https://entertrainer.in/elevate/${CENTRE_UNIVERSE_BLOG.slug}`,
   ogImage: `https://entertrainer.in${CENTRE_UNIVERSE_BLOG.hero}`,
   twitterCard: 'summary_large_image',
-  twitterTitle: CENTRE_UNIVERSE_BLOG.title,
+  twitterTitle: CENTRE_UNIVERSE_BLOG.socialTitle,
   twitterDescription: CENTRE_UNIVERSE_BLOG.socialHook,
   twitterImage: `https://entertrainer.in${CENTRE_UNIVERSE_BLOG.hero}`
 })

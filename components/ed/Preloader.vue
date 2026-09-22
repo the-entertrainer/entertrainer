@@ -824,7 +824,10 @@ onBeforeUnmount(() => {
           <circle cx="120" cy="120" r="94" fill="none" stroke="currentColor" stroke-width="18" />
           <circle cx="120" cy="120" r="62" fill="none" stroke="currentColor" stroke-width="18" />
           <circle cx="120" cy="120" r="30" fill="none" stroke="currentColor" stroke-width="18" />
-          <text x="120" y="158" text-anchor="middle" class="preloader__entry-brand-e">e</text>
+          <path
+            class="preloader__entry-brand-e"
+            d="M169.3 115.82L169.3 124.18L100.64 124.18Q101.71 134.52 108.11 139.69Q114.5 144.86 125.99 144.86Q135.26 144.86 144.98 142.11Q154.7 139.36 164.95 133.78L164.95 156.42Q154.54 160.36 144.12 162.37Q133.7 164.38 123.28 164.38Q98.34 164.38 84.52 151.71Q70.7 139.03 70.7 116.14Q70.7 93.67 84.28 80.79Q97.85 67.91 121.64 67.91Q143.3 67.91 156.3 80.95Q169.3 94 169.3 115.82ZM139.11 106.05Q139.11 97.69 134.23 92.56Q129.35 87.43 121.48 87.43Q112.95 87.43 107.61 92.23Q102.28 97.03 100.97 106.05Z"
+          />
         </svg>
       </span>
       <span
@@ -1009,14 +1012,13 @@ onBeforeUnmount(() => {
   height: 100%;
   overflow: visible;
   color: #ffd43b;
+  text-transform: none;
   transition: opacity 200ms ease, transform 200ms ease;
 }
 .preloader__entry-brand-e {
   fill: var(--ink);
-  font-family: var(--font-ui), Arial, sans-serif;
-  font-size: 144px;
-  font-weight: 900;
-  letter-spacing: -.1em;
+  text-transform: lowercase !important;
+  font-variant: normal;
 }
 .preloader__entry-mark-letter {
   position: relative;

@@ -45,15 +45,31 @@ onMounted(() => {
   resize()
   window.addEventListener('resize', resize)
   window.addEventListener('orientationchange', resize)
-  drawIdle()
+  startTitleIdle()
 })
 
 onBeforeUnmount(() => {
   running = false
+  titleIdle = false
   cancelAnimationFrame(raf)
   window.removeEventListener('resize', resize)
   window.removeEventListener('orientationchange', resize)
 })
+
+let titleIdle = false
+let titleT = 0
+function startTitleIdle() {
+  titleIdle = true
+  titleT = 0
+  cancelAnimationFrame(raf)
+  const tick = (ts: number) => {
+    if (!titleIdle || phase.value !== 'title') return
+    titleT = ts
+    drawIdle(ts)
+    raf = requestAnimationFrame(tick)
+  }
+  raf = requestAnimationFrame(tick)
+}
 
 function resize() {
   const c = canvasRef.value
@@ -105,6 +121,7 @@ function tone(freq: number, dur = 0.06, type: OscillatorType = 'square', gain = 
 }
 
 function startGame() {
+  titleIdle = false
   ensureAudio()
   phase.value = 'playing'
   score.value = 0
@@ -288,17 +305,21 @@ function loop(ts: number) {
   raf = requestAnimationFrame(loop)
 }
 
-function drawIdle() {
+function drawIdle(ts = 0) {
   const c = canvasRef.value
   if (!c) return
   const ctx = c.getContext('2d')
   if (!ctx) return
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
   paintFrame(ctx)
-  // deco stack on title
+  // deco stack on title — soft brutalist idle drift
+  const reduce = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  const drift = reduce ? 0 : Math.sin(ts / 1400) * 5
+  const ghostX = reduce ? 0 : Math.sin(ts / 1100) * 10
   const bw = Math.min(200, W * 0.5)
   const bx = (W - bw) / 2
-  let by = H * 0.62
+  let by = H * 0.62 + drift
   const layers = [
     { w: bw, ink: true },
     { w: bw * 0.86, ink: false },
@@ -312,9 +333,9 @@ function drawIdle() {
     by -= BLOCK_H - 2
   }
   // floating ghost
-  ctx.globalAlpha = 0.35
+  ctx.globalAlpha = 0.28 + (reduce ? 0 : 0.08 * Math.sin(ts / 900))
   ctx.fillStyle = '#161618'
-  ctx.fillRect(bx - 40, by - 8, bw * 0.52, BLOCK_H - 2)
+  ctx.fillRect(bx - 40 + ghostX, by - 8 + drift * 0.4, bw * 0.52, BLOCK_H - 2)
   ctx.globalAlpha = 1
 }
 
@@ -376,16 +397,6 @@ function draw() {
 function paintFrame(ctx: CanvasRenderingContext2D) {
   ctx.fillStyle = '#FBF8EF'
   ctx.fillRect(0, 0, W, H)
-  // brutalist corner ticks
-  ctx.strokeStyle = '#161618'
-  ctx.lineWidth = 2
-  const t = 18
-  ctx.beginPath()
-  ctx.moveTo(12, 12 + t); ctx.lineTo(12, 12); ctx.lineTo(12 + t, 12)
-  ctx.moveTo(W - 12, 12 + t); ctx.lineTo(W - 12, 12); ctx.lineTo(W - 12 - t, 12)
-  ctx.moveTo(12, H - 12 - t); ctx.lineTo(12, H - 12); ctx.lineTo(12 + t, H - 12)
-  ctx.moveTo(W - 12, H - 12 - t); ctx.lineTo(W - 12, H - 12); ctx.lineTo(W - 12 - t, H - 12)
-  ctx.stroke()
 }
 
 function onPointer() {
@@ -404,52 +415,52 @@ function onPointer() {
 </script>
 
 <template>
-  <div class="st">
-    <header class="st__bar">
-      <NuxtLink to="/engage" class="st__back" aria-label="Back to Engage">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 9 12l6 6" /></svg>
-        <span>Back</span>
-      </NuxtLink>
-      <NuxtLink to="/" class="st__home" aria-label="Entertrainer home">
-        <EdWordmark variant="mark" :size="28" />
-      </NuxtLink>
-      <span class="st__title">Stack</span>
-    </header>
+  <div class="st" :data-phase="phase">
+    <!-- Floating chrome — no sticky bordered bar -->
+    <NuxtLink to="/engage" class="st__back" aria-label="Back to Engage">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 9 12l6 6" /></svg>
+      <span>Back</span>
+    </NuxtLink>
+    <NuxtLink to="/" class="st__home" aria-label="Entertrainer home">
+      <EdWordmark variant="mark" :size="26" />
+    </NuxtLink>
 
-    <div class="st__stage">
-      <div class="st__hud" aria-live="polite">
-        <div class="st__stat">
-          <span class="st__label">Score</span>
-          <strong>{{ score }}</strong>
-        </div>
-        <div class="st__stat st__stat--right">
-          <span class="st__label">Best</span>
-          <strong>{{ best }}</strong>
-        </div>
+    <div
+      class="st__hud"
+      :class="{ 'st__hud--on': phase === 'playing' }"
+      aria-live="polite"
+    >
+      <div class="st__stat">
+        <span class="st__label">Score</span>
+        <strong>{{ score }}</strong>
+      </div>
+      <div class="st__stat st__stat--right">
+        <span class="st__label">Best</span>
+        <strong>{{ best }}</strong>
+      </div>
+    </div>
+
+    <div class="st__stage" @pointerdown.prevent="onPointer">
+      <canvas ref="canvasRef" class="st__canvas" role="img" aria-label="Stack game board" />
+
+      <div v-if="phase === 'title'" class="st__overlay st__overlay--title">
+        <p class="st__eyebrow st__anim" style="--i:0">Engage</p>
+        <h1 class="st__anim" style="--i:1">STACK</h1>
+        <p class="st__lede st__anim" style="--i:2">Tap to drop.<br />Only the overlap stays.</p>
+        <button class="st__cta st__anim st__cta--pulse" style="--i:3" type="button">Play</button>
       </div>
 
-      <div class="st__play" @pointerdown.prevent="onPointer">
-        <canvas ref="canvasRef" class="st__canvas" role="img" aria-label="Stack game board" />
-
-        <div v-if="phase === 'title'" class="st__overlay st__overlay--title">
-          <p class="st__eyebrow">Engage</p>
-          <h1>STACK</h1>
-          <p class="st__lede">Tap to drop.<br />Only the overlap stays.</p>
-          <button class="st__cta" type="button">Play</button>
-        </div>
-
-        <div v-else-if="phase === 'over'" class="st__overlay st__overlay--over">
-          <p class="st__eyebrow">Done</p>
-          <h1>{{ score }}</h1>
-          <p class="st__lede">
-            <template v-if="score > 0 && score === best">New best.</template>
-            <template v-else>Best {{ best }}</template>
-          </p>
-          <button class="st__cta" type="button">Again</button>
-        </div>
-
-        <p v-else-if="lastPerfect" class="st__perfect" key="perfect">PERFECT</p>
+      <div v-else-if="phase === 'over'" class="st__overlay st__overlay--over">
+        <p class="st__eyebrow st__anim" style="--i:0">Done</p>
+        <h1 class="st__anim st__score-pop" style="--i:1">{{ score }}</h1>
+        <p class="st__lede st__anim" style="--i:2">
+          <template v-if="score > 0 && score === best">New best.</template>
+          <template v-else>Best {{ best }}</template>
+        </p>
+        <button class="st__cta st__anim" style="--i:3" type="button">Again</button>
       </div>
+
+      <p v-else-if="lastPerfect" class="st__perfect" key="perfect">PERFECT</p>
     </div>
   </div>
 </template>
@@ -459,101 +470,24 @@ function onPointer() {
   --st-paper: #fbf8ef;
   --st-ink: #161618;
   --st-yellow: #ffd43b;
-  min-height: 100dvh;
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  height: 100dvh;
+  max-height: 100dvh;
   background: var(--st-paper);
   color: var(--st-ink);
-  display: flex;
-  flex-direction: column;
+  overflow: hidden;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
-  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
 }
 
-.st__bar {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 12rem;
-  min-height: 56rem;
-  padding: 10rem clamp(14rem, 3vw, 28rem);
-  background: var(--st-paper);
-  border-bottom: 2rem solid var(--st-ink);
-}
-
-.st__back,
-.st__home,
-.st__title {
-  font: 700 12rem/1 var(--font-mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--st-ink);
-  text-decoration: none;
-}
-
-.st__back {
-  justify-self: start;
-  display: inline-flex;
-  align-items: center;
-  gap: 6rem;
-}
-.st__back svg {
-  width: 18rem;
-  height: 18rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.st__home { justify-self: center; display: inline-flex; }
-.st__title { justify-self: end; color: color-mix(in srgb, var(--st-ink) 55%, transparent); }
-
+/* Edge-to-edge canvas stage */
 .st__stage {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  width: min(100%, 480rem);
-  margin: 0 auto;
-  min-height: 0;
-}
-
-.st__hud {
-  display: flex;
-  justify-content: space-between;
-  padding: 14rem clamp(16rem, 4vw, 28rem) 0;
-  pointer-events: none;
-}
-
-.st__stat {
-  display: grid;
-  gap: 2rem;
-}
-.st__stat--right { text-align: right; }
-.st__label {
-  font: 700 10rem/1 var(--font-mono);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  opacity: 0.55;
-}
-.st__stat strong {
-  font: 700 28rem/1 var(--font-display);
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
-}
-
-.st__play {
-  position: relative;
-  flex: 1;
-  min-height: 520rem;
-  margin: 8rem clamp(10rem, 2vw, 18rem) 18rem;
-  border: 2rem solid var(--st-ink);
-  background: var(--st-paper);
-  overflow: hidden;
+  position: absolute;
+  inset: 0;
   cursor: pointer;
   touch-action: none;
 }
@@ -564,6 +498,91 @@ function onPointer() {
   height: 100%;
 }
 
+/* Floating ghost back — ink on paper, no bar */
+.st__back {
+  position: absolute;
+  top: max(12rem, env(safe-area-inset-top));
+  left: max(12rem, env(safe-area-inset-left));
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 4rem;
+  padding: 8rem 10rem;
+  font: 700 11rem/1 var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--st-ink) 72%, transparent);
+  text-decoration: none;
+  border-radius: 3rem;
+  background: color-mix(in srgb, var(--st-paper) 55%, transparent);
+  backdrop-filter: blur(4px);
+  transition: color 160ms ease, background 160ms ease;
+}
+.st__back:hover,
+.st__back:focus-visible {
+  color: var(--st-ink);
+  background: color-mix(in srgb, var(--st-paper) 82%, transparent);
+}
+.st__back svg {
+  width: 16rem;
+  height: 16rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Discreet home mark — fixed lowercase-e wordmark */
+.st__home {
+  position: absolute;
+  top: max(14rem, calc(env(safe-area-inset-top) + 2rem));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: inline-flex;
+  opacity: 0.72;
+  text-decoration: none;
+  transition: opacity 160ms ease;
+}
+.st__home:hover,
+.st__home:focus-visible { opacity: 1; }
+
+/* Playing HUD — floating corners, no boxes */
+.st__hud {
+  position: absolute;
+  top: max(52rem, calc(env(safe-area-inset-top) + 40rem));
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 max(16rem, env(safe-area-inset-right)) 0 max(16rem, env(safe-area-inset-left));
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-6rem);
+  transition: opacity 280ms ease, transform 280ms ease;
+}
+.st__hud--on {
+  opacity: 1;
+  transform: none;
+}
+
+.st__stat { display: grid; gap: 2rem; }
+.st__stat--right { text-align: right; }
+.st__label {
+  font: 700 10rem/1 var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+.st__stat strong {
+  font: 700 28rem/1 var(--font-display);
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Menus — fade+rise overlays, not bordered cards */
 .st__overlay {
   position: absolute;
   inset: 0;
@@ -572,10 +591,15 @@ function onPointer() {
   justify-items: center;
   gap: 10rem;
   padding: 28rem 24rem;
+  padding-top: max(28rem, env(safe-area-inset-top));
+  padding-bottom: max(28rem, env(safe-area-inset-bottom));
   text-align: center;
-  background: color-mix(in srgb, var(--st-paper) 78%, transparent);
-  backdrop-filter: blur(2px);
+  background: color-mix(in srgb, var(--st-paper) 72%, transparent);
+  backdrop-filter: blur(3px);
+  animation: st-overlay-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  pointer-events: none;
 }
+.st__overlay .st__cta { pointer-events: auto; }
 
 .st__eyebrow {
   margin: 0;
@@ -608,12 +632,33 @@ function onPointer() {
   text-transform: uppercase;
   padding: 16rem 28rem;
   border-radius: 3rem;
-  box-shadow: 4rem 4rem 0 var(--st-ink);
   cursor: pointer;
+  box-shadow: none;
+  transition: transform 120ms ease, background 120ms ease;
 }
 .st__cta:active {
-  transform: translate(2rem, 2rem);
-  box-shadow: 2rem 2rem 0 var(--st-ink);
+  transform: translateY(1rem) scale(0.98);
+}
+
+/* Staggered entrance */
+.st__anim {
+  animation: st-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms + 40ms);
+}
+
+.st__score-pop {
+  animation:
+    st-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    st-score-pop 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms + 40ms);
+}
+
+/* Soft idle CTA pulse — brutalist, not candy */
+.st__cta--pulse {
+  animation:
+    st-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    st-cta-pulse 2.8s ease-in-out 700ms infinite;
+  animation-delay: calc(var(--i, 0) * 70ms + 40ms), 700ms;
 }
 
 .st__perfect {
@@ -631,13 +676,43 @@ function onPointer() {
   animation: st-pop 0.55s ease-out both;
 }
 
+@keyframes st-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes st-rise {
+  from { opacity: 0; transform: translateY(14rem); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes st-score-pop {
+  0% { transform: scale(0.86); }
+  55% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+@keyframes st-cta-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
 @keyframes st-pop {
   0% { opacity: 0; transform: translateX(-50%) translateY(8rem) scale(0.92); }
   25% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
   100% { opacity: 0; transform: translateX(-50%) translateY(-12rem) scale(1); }
 }
 
-@media (min-width: 720px) {
-  .st__play { min-height: 640rem; }
+@media (prefers-reduced-motion: reduce) {
+  .st__overlay,
+  .st__anim,
+  .st__score-pop,
+  .st__cta--pulse,
+  .st__perfect,
+  .st__hud {
+    animation: none !important;
+    transition: none !important;
+  }
+  .st__hud { opacity: 0; transform: none; }
+  .st__hud--on { opacity: 1; }
+  .st__anim,
+  .st__score-pop,
+  .st__cta--pulse { opacity: 1; transform: none; }
 }
 </style>

@@ -82,35 +82,39 @@ const references = [
     <article class="split__article">
       <aside class="split__margin-note" aria-label="Reading note">
         <p>Hold this.</p>
-        <p>Speech can deny what another half of the same brain has already acted on. That is the finding.</p>
+        <p>Speech can deny what another half of the same brain has already acted on.</p>
       </aside>
 
       <div class="split__prose">
         <p class="split__lead">In 1962, surgeons cut the main bridge between the two halves of a man’s brain.</p>
-        <p>His name was William Jenkins. He was a World War II paratrooper. After a German soldier hit him in the head with a rifle butt, seizures took over his life. Drugs failed. As a last resort, Joseph Bogen and Philip Vogel sectioned his corpus callosum in Los Angeles. The seizures eased. In ordinary talk he seemed much like himself.</p>
-        <p>Then Michael Gazzaniga and Roger Sperry tested him in a lab at Caltech. That is where the story becomes impossible to ignore.<a href="#ref-8" aria-label="Reference 8">[8]</a><a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>His name was William Jenkins. He had been a World War II paratrooper. After a German soldier hit him in the head with a rifle butt, seizures took over his life. Drugs failed. As a last resort in Los Angeles, Joseph Bogen and Philip Vogel sectioned his corpus callosum so a seizure on one side would be less able to race into the other. The seizures eased. In ordinary conversation he seemed much like himself.</p>
+        <p>Then Michael Gazzaniga and Roger Sperry began testing him at Caltech. That is where the quiet recovery stopped looking ordinary.<a href="#ref-8" aria-label="Reference 8">[8]</a><a href="#ref-2" aria-label="Reference 2">[2]</a></p>
 
-        <h2>What is it?</h2>
-        <p>Split-brain research is the study of people whose corpus callosum — the thick fibre bridge between the left and right cerebral hemispheres — has been surgically cut, usually to stop severe epilepsy from spreading across both sides.</p>
-        <p>Nobody removes a half of the brain. The everyday person can still chat, walk, and joke. The odd results show up when the lab sends information to only one side of vision or touch.</p>
-        <p>Wiring helps the test. If you stare at a centre mark, the left half of the scene is handled mainly by the right half of the brain, and the right half of the scene by the left half. A flash too brief for the eyes to cheat can reach only one side.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <h2>What they cut, and why</h2>
+        <p>The corpus callosum is the thick fibre bridge between the left and right cerebral hemispheres. In some hard epilepsy cases, a seizure starts on one side and spreads across that bridge. Cutting it was a last-resort attempt to stop the spread. Nobody removed a half of the brain.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>Everyday chat could still look normal. The odd results showed up when the lab sent information to only one side.</p>
+
+        <h2>How the lab trapped one half at a time</h2>
+        <p>If you stare at a centre mark, the left half of the scene is handled mainly by the right half of the brain, and the right half of the scene by the left half. A flash too brief for the eyes to cheat can reach only one side.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
         <p>With Jenkins and later patients, a pattern returned. Flash on the right (left hemisphere): speech can often name it. Flash on the left (right hemisphere): speech often says “nothing,” while the left hand can still pick the matching object.</p>
-        <p>One half saw it. The talking half did not. Both lived in the same skull.</p>
+        <p>One half had seen it. The talking half had not. Both lived in the same skull. Sperry later shared the 1981 Nobel Prize for this line of work.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
 
-        <h2>Why is it significant?</h2>
-        <p>It shows that the voice saying “I saw it” is not a perfect readout of everything the brain registered.</p>
-        <p>A later patient, known as P.S., made that sharp. Two pictures flashed at once: a chicken claw to the speaking left half, a snow scene to the right half. The right hand picked a chicken. The left hand picked a snow shovel. Asked why, speech — which had seen only the claw — said something like: the claw goes with the chicken, and you need a shovel to clean the chicken shed.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
-        <p>The shovel belonged to the snow. The speaking half never got the snow. It invented a reason that made the moment sound whole. Gazzaniga called that storytelling system the left-hemisphere interpreter.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <h2>The shovel that got a chicken-shed story</h2>
+        <p>A later patient, known as P.S., made the finding sharp. Two pictures flashed at once: a chicken claw to the speaking left half, a snow scene to the right half. The right hand picked a chicken. The left hand picked a snow shovel.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <p>Asked why, speech — which had seen only the claw — answered along these lines: the claw goes with the chicken, and you need a shovel to clean the chicken shed.</p>
+        <p>The shovel belonged to the snow. The speaking half never got the snow. It did not say “I don’t know.” It invented a reason that made the moment sound whole. Gazzaniga called that storytelling system the left-hemisphere interpreter.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a></p>
         <p>Related tests flashed “walk” or “laugh” only to the right half. The body did it. Asked why, speech invents a reason. Action first. Story after.</p>
-        <p>That is why this matters outside the lab. Feeling sure is not the same as knowing what caused the answer. Everyday life already shows sincere wrong reasons after the fact. Split-brain work is a clear neurological proof that fluent explanations can be built after the hands have moved.</p>
 
-        <h2>Interesting facts and thoughts</h2>
-        <p>Sperry shared the 1981 Nobel Prize for this line of work. His Nobel lecture is still a clean first source.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>These patients were not “two people” arguing at dinner. After recovery, a casual meeting often looked normal. Eyes move. People cue themselves. The split shows up when the lab forces one-sided input.</p>
-        <p>The popular “two minds” packaging oversells it. Around 2017, Yair Pinto and colleagues argued for one conscious agent with split perception — two streams that do not join, without Hollywood dual persons.<a href="#ref-5" aria-label="Reference 5">[5]</a> Others say some apparent unity is cross-cueing: one side tipping the other off. A 2020 review said we still lack enough evidence to settle the first-person question cleanly.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
+        <h2>Where the tidy “two minds” story breaks</h2>
+        <p>These patients were not two people arguing at dinner. After recovery, a casual meeting often looked normal. Eyes move. People cue themselves. The split shows up when the lab forces one-sided input.</p>
+        <p>Around 2017, Yair Pinto and colleagues argued for one conscious agent with split perception — two streams that do not join, without Hollywood dual persons.<a href="#ref-5" aria-label="Reference 5">[5]</a> Others say some apparent unity is cross-cueing: one side tipping the other off. A 2020 review said we still lack enough evidence to settle the first-person question cleanly.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
         <p>In 2025, a new cohort sharpened the cut itself. Fully callosotomized patients still showed classic disconnection. One patient, BT*, had a near-complete cut but about one centimetre of the rear tip (splenium) left. Years later he showed no classic disconnection across vision, touch, space, and language tasks — as if that tiny remnant was enough to keep the sides working together.<a href="#ref-7" aria-label="Reference 7">[7]</a></p>
         <p>Sperry himself warned against wild left-brain / right-brain personality posters. Specialization is real. The self-help cartoon is not.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
 
+        <h2>What this is actually about</h2>
+        <p>Not a poster about personality types. Not a claim that everyone is two people.</p>
+        <p>It is a clearer, harder point: the voice that says “I saw it” can feel sure while reporting only what reached the speaking half — after another half has already acted. Feeling sure is not a perfect meter of what caused the answer.</p>
+        <p>Everyday life already shows sincere wrong reasons after the fact. Split-brain work is one clear neurological proof that fluent explanations can be built after the hands have moved.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
         <p class="split__closing">If the mouth can be sure for reasons another half of the same brain never had — how much of “I saw it” was the whole sensing brain, and how much was the narrator doing its job?</p>
       </div>
     </article>

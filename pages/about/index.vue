@@ -6,7 +6,7 @@ useSeoMeta({
   title: 'About Me · Naveen Jose · Entertrainer',
   description: 'Naveen Jose: a farming village in central Kerala, Club Mahindra housekeeping, The SEWA Chronicles in Coorg, Marriott L&D in Mahabaleshwar, Concentrix, and building Entertrainer.',
   ogTitle: 'About Me · Naveen Jose',
-  ogDescription: 'Zero dreams, a thousand fears, then floors, verification calls, and learning design.',
+  ogDescription: 'Floors in Udaipur. Verification calls in Coorg. Learning that has to survive real people.',
   ogUrl: 'https://entertrainer.in/about',
   ogImage: 'https://entertrainer.in/about/naveen-portrait.jpg'
 })
@@ -67,7 +67,7 @@ const marriottPhotos: PhotoTileItem[] = [
   <div class="about-story">
     <header class="about-story__hero">
       <div class="about-story__intro">
-        <h1>I am Naveen, I’m an instructional designer.</h1>
+        <h1>I am Naveen. I make learning that people can actually use.</h1>
       </div>
       <figure class="about-story__hero-art">
         <EdEditorialImage
@@ -79,110 +79,95 @@ const marriottPhotos: PhotoTileItem[] = [
 
     <article class="about-story__article">
       <p>
-        I was a kid with zero dreams and a thousand fears.
+        Have you ever met someone who looked quiet from the outside and loud from the inside?
+        That was me as a kid. Not “mysterious.” Just scared a lot of the time — introvert, anxiety that showed up before people did, the kind of confrontation that feels like weather you didn’t pack for.
       </p>
       <p>
-        Yes — all through childhood.
-        Severe introvert. Anxiety that showed up before people did.
-        Confronting anyone felt like walking into weather I had not packed for.
-      </p>
-      <p>
-        I hail from a farming family in a village in central Kerala.
-        My father is a farmer — sharp, intelligent, quietly dangerous in the best way.
-        Even as a child I could tell his perspectives were different.
-        Same problem, extra doors. Different thought processes until the stuck thing stopped looking stuck.
-        That habit is one of the greatest influencing factors in my later life.
-        Not because he announced it. Because it stuck.
+        I come from a farming family in a village in central Kerala.
+        My father is a farmer — sharp, and quietly dangerous in the best way.
+        Even as a child I could tell his mind worked differently. Same problem, extra doors.
+        He’d keep turning the stuck thing until it stopped looking stuck.
+        He never announced that as a lesson. It just stuck to me.
       </p>
       <p>
         School was not great.
-        Soft discrimination — the indirect kind that stabs from behind and claims it “didn’t mean it.”
-        Academics dropped. I dropped with them.
+        Soft discrimination — the indirect kind that stabs from behind and then says it didn’t mean it.
+        Grades dropped. I dropped with them.
       </p>
 
-      <h2 class="about-story__break">The cocoon years.</h2>
+      <h2 class="about-story__break">Quiet years</h2>
       <p>
-        For the first thirteen years I lived like a caterpillar slowly weaving a cocoon around itself.
-        And in that cocoon I found peace — a kind of calm you cannot share, because the calmness comes from being alone.
-      </p>
-      <p>
-        Alone in a vast universe, I thought.
-        Then my father’s style of thinking flipped it.
-        Whatever I did inside the cocoon was hidden from the rest of the world.
-        Plenty of space to try and fail without an audience keeping score.
-        Once I heard it that way, everything changed. Quietly. Permanently.
+        For a long stretch I pulled inward.
+        Alone felt peaceful in a way that is hard to share, because the peace came from not being watched.
+        Then my father’s way of thinking flipped something.
+        If I was alone, I also had room to try and fail without an audience keeping score.
+        Once I heard it that way, things changed. Quietly. Permanently.
       </p>
       <p>
         Computers were still a novelty then.
-        I turned toward the machines and found they have no mind.
-        They obey written rules. They do not form emotional judgements about whether you are interesting enough today.
-        Nothing beats that if you want to work on yourself without performing it.
+        I liked that machines don’t form emotional opinions about whether you’re interesting today.
+        They follow written rules.
+        If you want to work on yourself without performing it, that is a gift.
       </p>
       <p>
         So I closed up and learned.
-        Machines. The internet — the fabric that connects everything.
-        Books. Exploring. Trying stuff. Teaching myself.
+        Machines. The internet. Books. Trying stuff. Teaching myself.
+        Later I understood what gets in the way of upgrading yourself: distractions — and the hardest ones are often other humans.
+        I’m glad I didn’t have much of that then.
       </p>
       <p>
-        Later I understood what gets in the way of upgrading yourself: distractions.
-        The hardest ones are humans.
-        I am glad I did not have much of that then.
-      </p>
-      <p>
-        I got addicted to logic.
-        Logic equals rules — the base of what we call programming.
-        Every machine, whatever language or build, is instructions that dictate when to do what.
-        Later I learnt that minds want something similar.
-        Messier compiler. Same hunger for structure.
+        I got addicted to logic. Rules. The base of what we call programming.
+        Every machine, whatever the language, is instructions for when to do what.
+        Later I learned minds want something similar. Messier compiler. Same hunger for structure.
       </p>
 
-      <h2 class="about-story__break">A degree that could earn a job.</h2>
+      <h2 class="about-story__break">A degree that could earn a job</h2>
       <p>
-        After school: college time.
-        Honest version — zero idea what I should do with my life.
-        No career map. Absolutely no one to guide me worth the name.
-        Practical need only: a degree that earns a job right after graduating.
+        After school: college.
+        Honest version — I had no idea what I should do with my life.
+        No career map. No guide worth the name.
+        Practical need only: a degree that could earn a job right after graduating.
         That brought me to hospitality.
       </p>
       <p>
-        IHMCT&amp;AN, Chennai — one of the most prestigious, often treated as the number one hotel-management institute in the country.
+        IHMCT&amp;AN, Chennai.
         I went. I studied. I still did not have a speech prepared about “calling.”
       </p>
       <p>
-        Final year: selected for Club Mahindra (MHRIL) as a management trainee in housekeeping.
+        Final year: Club Mahindra (MHRIL) selected me as a management trainee in housekeeping.
         First deployment: Udaipur, Rajasthan.
       </p>
       <p>
-        Cleaned rooms. Mopped floors and stairs.
+        I cleaned rooms. Mopped floors and stairs.
         Fifteen to eighteen hours a day. All days. No weekly offs.
         The hotel industry looks unforgiving at the start.
-        Once it settles into your body, you hear that line in your head: I can do this all day.
+        Once it settles into your body, you hear a quieter line: I can do this all day.
         Corporates never taught me discipline like that.
       </p>
 
-      <h2 class="about-story__break">Then South Goa.</h2>
+      <h2 class="about-story__break">Then South Goa</h2>
       <p>
-        Months passed. South Goa — Varca.
+        Months later: South Goa — Varca.
         This time they made me a supervisor.
       </p>
       <p>
         I still love housekeeping as a subject.
-        Perfect blend of art and science.
-        The beauty sits in the details — the kind guests register without knowing they registered them.
-        Goa gave me that room to care about the craft before the work shifted again.
+        Art and science in the same mop bucket.
+        The beauty sits in details guests register without knowing they registered them.
+        Goa gave me room to care about that craft before the work shifted again.
       </p>
 
-      <h2 class="about-story__break">Coorg — where SEWA started.</h2>
+      <h2 class="about-story__break">Coorg — where SEWA started</h2>
       <p>
         After Goa I reached Coorg.
-        One of the most beautiful places I have lived.
-        Different task this time. A novel ask.
+        One of the most beautiful places I’ve lived.
+        Different task this time.
       </p>
       <p>
         I was one of the few people handpicked by Mr. Prakash Aranha — corporate L&amp;D for resort operations.
         He had a dream: something cultural Club Mahindra could unmistakably call ours.
         SEWA — Service with Empathy, Warmth and Attentiveness — told as illustrated employee appreciation.
-        A unique attempt at recognising real service, not slogans.
+        Real service, not slogans.
         He asked the team for ideas on how to bring it into reality.
       </p>
       <p>
@@ -193,7 +178,7 @@ const marriottPhotos: PhotoTileItem[] = [
       </p>
       <p>
         My glamorous creative process: portal logs from day one of the company.
-        Pick the stories that actually moved someone — and only if that employee was still with us.
+        Pick stories that actually moved someone — and only if that employee was still with us.
         Call without revealing the purpose. Manager. Colleague. “Did this happen?”
         If the story survived the phone, it earned ink.
       </p>
@@ -210,7 +195,7 @@ const marriottPhotos: PhotoTileItem[] = [
         Printed. Real.
       </p>
       <p>
-        Instant hit — not because the visuals alone were pretty.
+        It hit — not because the visuals alone were pretty.
         Because the verification was boring and ruthless.
         People could recognise themselves on the page.
         Early creative project: my design, Aranha’s vision.
@@ -237,14 +222,14 @@ const marriottPhotos: PhotoTileItem[] = [
         </NuxtLink>
       </aside>
 
-      <h2 class="about-story__break">Mahabaleshwar.</h2>
+      <h2 class="about-story__break">Mahabaleshwar</h2>
       <p>
         I stayed with Mahindra until an Assistant L&amp;D Manager role opened at Courtyard by Marriott, Mahabaleshwar.
         Different room. Same job underneath — help people do the next shift cleaner than the last one.
       </p>
       <p>
         Wood-panelled room. Handheld mic.
-        Genius minds around the table — people who already knew their jobs better than any slide deck.
+        People around the table who already knew their jobs better than any slide deck.
         My task was not to sound smart.
         It was to carry real HR-shaped responsibility without turning learning into theatre.
         That stretch shaped me more than any soft-skill workshop.
@@ -256,7 +241,7 @@ const marriottPhotos: PhotoTileItem[] = [
         :eager-count="4"
       />
 
-      <h2 class="about-story__break">Concentrix, and this.</h2>
+      <h2 class="about-story__break">Concentrix, and this</h2>
       <p>
         From Marriott I wanted to chase learning as a science — instructional design, properly.
         Next move: Concentrix.
@@ -264,27 +249,22 @@ const marriottPhotos: PhotoTileItem[] = [
         Days spent making learning that has to survive contact with real people — not deck theatre, not vibes.
       </p>
       <p>
-        Entertrainer and Elevate are what you are reading: the same habit in a different room.
-        Turning operational detail into something someone can actually use.
+        Entertrainer is what you’re on right now. Elevate is the writing room.
+        Same habit in a different place: turn operational detail into something someone can actually use.
         No Concentrix photo dump. You’re welcome.
       </p>
 
-      <EdNote label="A note from me">
-        <p>
-          You define yourself — who you want to be.
-          Age, caste, creed, religion… none of that should stop you from knowledge.
-        </p>
-        <p>
-          Chase knowledge. It is the language of the gods.
-        </p>
-        <p>
-          Once you have decided to chase it down, only the gods may stop you.
-        </p>
-        <p class="about-story__signoff">
-          With love,<br>
-          Your Naveen
-        </p>
-      </EdNote>
+      <p>
+        You get to define who you’re becoming.
+        Age, caste, creed, religion — none of that should be a gate on knowledge.
+      </p>
+      <p>
+        Chase knowledge. Once you’ve decided to chase it down, keep going.
+      </p>
+      <p class="about-story__signoff">
+        With love,<br>
+        Your Naveen
+      </p>
     </article>
 
     <footer class="about-story__close">
@@ -305,7 +285,7 @@ const marriottPhotos: PhotoTileItem[] = [
 <style scoped>
 .about-story { max-width: var(--shell-page); margin: 0 auto; padding: clamp(44rem, 8vw, 112rem) var(--shell-gutter) clamp(70rem, 10vw, 130rem); }
 .about-story__hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260rem, .85fr); gap: clamp(32rem, 8vw, 120rem); align-items: end; padding-bottom: clamp(46rem, 8vw, 86rem); border-bottom: var(--stroke) solid var(--ink); }
-.about-story h1 { max-width: 18ch; margin: 0; font: 500 clamp(42rem, 7.2vw, 92rem)/.92 var(--font-display); letter-spacing: -.06em; }
+.about-story h1 { max-width: 22ch; margin: 0; font: 500 clamp(42rem, 7.2vw, 92rem)/.92 var(--font-display); letter-spacing: -.06em; }
 
 /* Portrait fills its column — cover crop, bias toward face */
 .about-story__hero-art {

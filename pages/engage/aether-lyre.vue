@@ -3,15 +3,17 @@ definePageMeta({ layout: false })
 
 /**
  * Aether Lyre — Sexagesimal Resonance
- * Offline-first Engage experience: pure ratios, seven Sumerian tunings, Web Audio.
+ * Offline-first Engage experience: sexagesimal string lengths, seven tunings, Web Audio.
  */
 import {
   BASE_HZ_OPTIONS,
   TUNINGS,
   JUST_INTERVALS,
+  LAYER_RATIOS,
   getScale,
   getTuning,
   formatRatio,
+  buildSequencePath,
   type TuningId,
   type ScaleNote,
 } from '~/utils/aether-lyre/tunings'
@@ -20,7 +22,7 @@ import { createLyreEngine, type LyreEngine } from '~/utils/aether-lyre/synth'
 useSeoMeta({
   title: 'Aether Lyre · Engage',
   description:
-    'Sexagesimal just intonation and seven Sumerian tunings. Pure ratios, live harmonics, dry resonance — an Entertrainer Engage experience.',
+    'Sexagesimal string-length harmonics (L60…L30) and seven Sumerian tunings. Pitches only from base-60 arithmetic — an Entertrainer Engage experience.',
   ogUrl: 'https://entertrainer.in/engage/aether-lyre',
 })
 
@@ -208,16 +210,15 @@ async function startPlayback(opts?: { minutes?: number }) {
     e.playDrone(notes[0].hz, notes[0].label)
     activeLattice.value = new Set(['1:1'])
   } else if (mode.value === 'sequence') {
-    const ascending = notes.map((n) => n.hz)
-    const descending = notes.slice(0, -1).reverse().map((n) => n.hz)
-    const cycle = [...ascending, ...descending]
-    const labels = [...notes.map((n) => n.label), ...notes.slice(0, -1).reverse().map((n) => n.label)]
-    e.startSequence(cycle, 2.6, labels)
+    // Walk only sexagesimal degrees; prefer 3/2, 4/3, 5/4, 10/9, 5/3 leaps
+    const path = buildSequencePath(notes, 18)
+    e.startSequence(path.hz, 2.4, path.labels)
   } else if (mode.value === 'layers') {
     applyLayers()
   } else if (mode.value === 'session') {
     const mins = opts?.minutes ?? sessionMinutes.value
     sessionMinutes.value = mins
+    // Drone tonic + length-column pillars (3/2, 4/3) with breath; timed fade below
     e.playDrone(notes[0].hz, notes[0].label)
     beginSession(mins)
   }
@@ -228,25 +229,22 @@ async function startPlayback(opts?: { minutes?: number }) {
 
 function applyLayers() {
   const e = ensureEngine()
-  const layers: { id: string; n: number; d: number }[] = [
-    { id: '1:1', n: 1, d: 1 },
-    { id: '3:2', n: 3, d: 2 },
-    { id: '4:3', n: 4, d: 3 },
-    { id: '5:4', n: 5, d: 4 },
-  ]
-  layers.forEach((L) => {
+  // Stack length-column pillars relative to current mode tonic
+  const tonicHz = scale.value[0]?.hz ?? baseHz.value
+  LAYER_RATIOS.forEach((L) => {
     const on = layerOn[L.id]
-    const hz = baseHz.value * (L.n / L.d)
+    const hz = tonicHz * (L.ratio.n / L.ratio.d)
+    const label = `L${L.length} · ${formatRatio(L.ratio)}`
     if (on) {
-      e.setLayer(L.id, hz, L.id === '1:1' ? 0.48 : 0.28, `${L.n}/${L.d}`)
+      e.setLayer(L.id, hz, L.id === '1:1' ? 0.5 : 0.32, label)
     } else {
       e.fadeLayer(L.id, 0, 0.25)
     }
   })
-  const active = layers.filter((L) => layerOn[L.id])
+  const active = LAYER_RATIOS.filter((L) => layerOn[L.id])
   if (active[0]) {
-    currentHz.value = baseHz.value * (active[0].n / active[0].d)
-    currentRatio.value = `${active[0].n}/${active[0].d}`
+    currentHz.value = tonicHz * (active[0].ratio.n / active[0].ratio.d)
+    currentRatio.value = `L${active[0].length} · ${formatRatio(active[0].ratio)}`
   }
   activeLattice.value = new Set(active.map((L) => L.id))
 }
@@ -373,11 +371,13 @@ function lockDroneFromNote(note: ScaleNote) {
 function lockDroneFromLattice(intervalId: string) {
   const j = JUST_INTERVALS.find((x) => x.id === intervalId)
   if (!j) return
+  const length = j.length ?? 60
   const note: ScaleNote = {
     degree: 0,
+    length,
     ratio: j.ratio,
     hz: baseHz.value * (j.ratio.n / j.ratio.d),
-    label: formatRatio(j.ratio),
+    label: `L${length} · ${formatRatio(j.ratio)}`,
   }
   lockDroneFromNote(note)
 }
@@ -683,18 +683,18 @@ const radialStyle = computed(() => {
             @pointercancel="clearLongPress"
           >
             <circle
-              :cx="28 + (idx % 5) * 36"
-              :cy="idx < 5 ? 92 : 52"
-              r="10"
+              :cx="30 + (idx % 4) * 46"
+              :cy="idx < 4 ? 92 : 52"
+              r="11"
               :fill="activeLattice.has(node.id) ? '#C9A227' : 'rgba(237,230,214,0.08)'"
               :stroke="activeLattice.has(node.id) ? '#C4B49A' : 'rgba(196,180,154,0.35)'"
               stroke-width="1.4"
             />
             <text
-              :x="28 + (idx % 5) * 36"
-              :y="idx < 5 ? 95.5 : 55.5"
+              :x="30 + (idx % 4) * 46"
+              :y="idx < 4 ? 95.5 : 55.5"
               text-anchor="middle"
-              font-size="6.5"
+              font-size="6.2"
               :fill="activeLattice.has(node.id) ? '#0E0E10' : '#C4B49A'"
               font-family="var(--font-mono), monospace"
             >{{ node.id }}</text>
@@ -742,9 +742,10 @@ const radialStyle = computed(() => {
           :aria-label="`${hz} hertz`"
           @click="selectBase(hz)"
         >
-          {{ hz === 112.5 ? '112.5 Hz' : `${hz}` }}
+          {{ hz }} Hz
         </button>
       </section>
+      <p class="al__hint">Base Hz on the 60-grid · string lengths L60…L30</p>
 
       <!-- Scale degrees -->
       <section class="al__degrees" aria-label="Scale degrees">
@@ -759,7 +760,8 @@ const radialStyle = computed(() => {
           @pointerleave="clearLongPress"
           @pointercancel="clearLongPress"
         >
-          <span class="al__deg-label">{{ n.label }}</span>
+          <span class="al__deg-len">L{{ n.length }}</span>
+          <span class="al__deg-label">{{ n.ratio.n }}/{{ n.ratio.d }}</span>
           <span class="al__deg-hz">{{ n.hz.toFixed(1) }}</span>
         </button>
       </section>
@@ -783,15 +785,16 @@ const radialStyle = computed(() => {
       <!-- Mode panels -->
       <div v-if="mode === 'layers'" class="al__layers" role="group" aria-label="Layer stack">
         <button
-          v-for="id in ['1:1', '3:2', '4:3', '5:4']"
-          :key="id"
+          v-for="L in LAYER_RATIOS"
+          :key="L.id"
           type="button"
           class="al__layer"
-          :class="{ 'al__layer--on': layerOn[id] }"
-          :aria-pressed="layerOn[id]"
-          @click="toggleLayer(id)"
+          :class="{ 'al__layer--on': layerOn[L.id] }"
+          :aria-pressed="layerOn[L.id]"
+          :aria-label="`L${L.length} ${L.ratio.n}/${L.ratio.d}`"
+          @click="toggleLayer(L.id)"
         >
-          {{ id }}
+          L{{ L.length }} · {{ L.ratio.n }}/{{ L.ratio.d }}
         </button>
       </div>
 
@@ -1114,6 +1117,7 @@ const radialStyle = computed(() => {
   place-items: center;
   cursor: pointer;
 }
+.al__deg-len { font: 600 9rem/1 var(--font-mono); color: var(--al-sand); letter-spacing: 0.04em; }
 .al__deg-label { font: 600 11rem/1 var(--font-mono); color: var(--al-gold); }
 .al__deg-hz { font: 500 9rem/1 var(--font-mono); color: var(--al-muted); }
 

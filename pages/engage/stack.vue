@@ -3,7 +3,10 @@ definePageMeta({ layout: false })
 /**
  * STACK — brutalist portrait arcade for Engage.
  * Tap to drop. Only the overlap stays. No lore.
+ * Light/dark via useThemeStore; iOS-aware speaker haptics; paper/ink/yellow DNA.
  */
+import { useThemeStore } from '~/stores/theme'
+
 useSeoMeta({
   title: 'Stack · Engage',
   description: 'Tap to drop. Only the overlap stays. A brutalist stacking arcade on Entertrainer.',
@@ -12,14 +15,42 @@ useSeoMeta({
 
 type Phase = 'title' | 'playing' | 'over'
 type Block = { x: number; y: number; w: number; h: number; ink: boolean }
+type Palette = {
+  paper: string
+  ink: string
+  yellow: string
+  guide: string
+  chip: string
+}
 
 const BEST_KEY = 'entertrainer-stack-best'
 
+const PALETTE_LIGHT: Palette = {
+  paper: '#FBF8EF',
+  ink: '#161618',
+  yellow: '#FFD43B',
+  guide: 'rgba(22,22,24,0.18)',
+  chip: '#161618',
+}
+
+const PALETTE_DARK: Palette = {
+  paper: '#121214',
+  ink: '#EDE6D6',
+  yellow: '#E8C547',
+  guide: 'rgba(237,230,214,0.22)',
+  chip: '#EDE6D6',
+}
+
+const theme = useThemeStore()
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const phase = ref<Phase>('title')
 const score = ref(0)
 const best = ref(0)
 const lastPerfect = ref(false)
+/** Last perfect drop center — for flash ring art. */
+let flashCx = 0
+let flashCy = 0
+let flashR0 = 40
 
 let raf = 0
 let W = 390
@@ -40,7 +71,13 @@ const BLOCK_H = 28
 const START_W = 220
 const PERFECT_PX = 5
 
+function activePalette(): Palette {
+  return theme.isDark ? PALETTE_DARK : PALETTE_LIGHT
+}
+
 onMounted(() => {
+  // Bare layout still rides app.vue theme.init; re-init is idempotent for session key.
+  theme.init()
   best.value = Number(localStorage.getItem(BEST_KEY) || 0) || 0
   resize()
   window.addEventListener('resize', resize)
@@ -54,7 +91,17 @@ onBeforeUnmount(() => {
   cancelAnimationFrame(raf)
   window.removeEventListener('resize', resize)
   window.removeEventListener('orientationchange', resize)
+  stopWatch?.()
 })
+
+/** Redraw when site theme flips (masthead or in-game toggle). */
+const stopWatch = watch(
+  () => theme.theme,
+  () => {
+    if (phase.value === 'title' && titleIdle) drawIdle(titleT)
+    else draw()
+  },
+)
 
 let titleIdle = false
 let titleT = 0
@@ -89,12 +136,6 @@ function resize() {
   if (!running) drawIdle()
 }
 
-function haptic(pattern: number | number[]) {
-  try {
-    if (navigator.vibrate) navigator.vibrate(pattern)
-  } catch { /* ignore */ }
-}
-
 function ensureAudio() {
   if (audioCtx) return audioCtx
   const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
@@ -118,6 +159,147 @@ function tone(freq: number, dur = 0.06, type: OscillatorType = 'square', gain = 
   g.connect(ctx.destination)
   o.start(t0)
   o.stop(t0 + dur + 0.02)
+}
+
+/**
+ * Web Audio micro-transient — “speaker haptic” for Safari iOS where vibrate is a no-op.
+ * Very short click/thump/tick; shares AudioContext with game SFX.
+ */
+function speakerHaptic(kind: 'drop' | 'perfect' | 'miss' | 'over') {
+  const ctx = ensureAudio()
+  if (!ctx) return
+  if (ctx.state === 'suspended') void ctx.resume()
+  const t0 = ctx.currentTime
+
+  if (kind === 'drop') {
+    // Soft click + low thump
+    const o = ctx.createOscillator()
+    const g = ctx.createGain()
+    o.type = 'sine'
+    o.frequency.setValueAtTime(180, t0)
+    o.frequency.exponentialRampToValueAtTime(55, t0 + 0.045)
+    g.gain.setValueAtTime(0.07, t0)
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.05)
+    o.connect(g)
+    g.connect(ctx.destination)
+    o.start(t0)
+    o.stop(t0 + 0.06)
+    // hairline noise tick
+    burstNoise(ctx, t0, 0.012, 0.045)
+    return
+  }
+
+  if (kind === 'perfect') {
+    // Richer double-tick
+    burstNoise(ctx, t0, 0.01, 0.055)
+    const o1 = ctx.createOscillator()
+    const g1 = ctx.createGain()
+    o1.type = 'triangle'
+    o1.frequency.setValueAtTime(920, t0)
+    g1.gain.setValueAtTime(0.05, t0)
+    g1.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.04)
+    o1.connect(g1)
+    g1.connect(ctx.destination)
+    o1.start(t0)
+    o1.stop(t0 + 0.05)
+    const o2 = ctx.createOscillator()
+    const g2 = ctx.createGain()
+    o2.type = 'square'
+    o2.frequency.setValueAtTime(620, t0 + 0.028)
+    g2.gain.setValueAtTime(0.0001, t0)
+    g2.gain.setValueAtTime(0.038, t0 + 0.028)
+    g2.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.08)
+    o2.connect(g2)
+    g2.connect(ctx.destination)
+    o2.start(t0 + 0.028)
+    o2.stop(t0 + 0.09)
+    return
+  }
+
+  if (kind === 'miss') {
+    // Soft thud
+    const o = ctx.createOscillator()
+    const g = ctx.createGain()
+    o.type = 'sine'
+    o.frequency.setValueAtTime(90, t0)
+    o.frequency.exponentialRampToValueAtTime(38, t0 + 0.12)
+    g.gain.setValueAtTime(0.08, t0)
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.14)
+    o.connect(g)
+    g.connect(ctx.destination)
+    o.start(t0)
+    o.stop(t0 + 0.15)
+    burstNoise(ctx, t0, 0.03, 0.035)
+    return
+  }
+
+  // over — deeper soft thud
+  const o = ctx.createOscillator()
+  const g = ctx.createGain()
+  o.type = 'sine'
+  o.frequency.setValueAtTime(70, t0)
+  o.frequency.exponentialRampToValueAtTime(28, t0 + 0.18)
+  g.gain.setValueAtTime(0.09, t0)
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.2)
+  o.connect(g)
+  g.connect(ctx.destination)
+  o.start(t0)
+  o.stop(t0 + 0.22)
+  burstNoise(ctx, t0, 0.04, 0.03)
+}
+
+function burstNoise(ctx: AudioContext, t0: number, dur: number, gain: number) {
+  const n = Math.max(1, Math.floor(ctx.sampleRate * dur))
+  const buf = ctx.createBuffer(1, n, ctx.sampleRate)
+  const data = buf.getChannelData(0)
+  for (let i = 0; i < n; i++) {
+    const env = 1 - i / n
+    data[i] = (Math.random() * 2 - 1) * env * env
+  }
+  const src = ctx.createBufferSource()
+  src.buffer = buf
+  const g = ctx.createGain()
+  g.gain.setValueAtTime(gain, t0)
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur + 0.01)
+  // Mild highpass so it reads as a click, not rumble
+  const hp = ctx.createBiquadFilter()
+  hp.type = 'highpass'
+  hp.frequency.value = 600
+  src.connect(hp)
+  hp.connect(g)
+  g.connect(ctx.destination)
+  src.start(t0)
+  src.stop(t0 + dur + 0.02)
+}
+
+/**
+ * Best-effort haptic: vibrate on Android; always fire speaker transient for iOS Safari.
+ * Optional double-tap: audio + vibrate when vibrate exists.
+ */
+function haptic(kind: 'drop' | 'perfect' | 'miss' | 'over' | 'start', vibratePattern?: number | number[]) {
+  speakerHaptic(kind === 'start' ? 'drop' : kind)
+  if (vibratePattern !== undefined) {
+    try {
+      if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+        navigator.vibrate(vibratePattern)
+      }
+    } catch { /* ignore */ }
+  }
+}
+
+function fillBlock(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, fill: string, pal: Palette) {
+  ctx.fillStyle = fill
+  ctx.fillRect(x, y, w, h)
+  // 1px top highlight — depth without skeuomorphism
+  if (w > 2 && h > 2) {
+    ctx.fillStyle = fill === pal.ink
+      ? (theme.isDark ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.14)')
+      : (theme.isDark ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.35)')
+    ctx.fillRect(x, y, w, 1)
+    // hairline bottom edge into paper
+    ctx.fillStyle = theme.isDark ? 'rgba(0,0,0,0.35)' : 'rgba(0,0,0,0.12)'
+    ctx.fillRect(x, y + h - 1, w, 1)
+  }
 }
 
 function startGame() {
@@ -144,7 +326,7 @@ function startGame() {
   lastTs = 0
   cancelAnimationFrame(raf)
   raf = requestAnimationFrame(loop)
-  haptic(12)
+  haptic('start', 12)
   tone(180, 0.05, 'triangle', 0.03)
 }
 
@@ -168,7 +350,6 @@ function drop() {
   const overlap = right - left
 
   if (overlap <= 2) {
-    // total miss — fling the moving block as chips
     spawnChips(cur.x, cur.y, cur.w)
     cur = null
     endGame()
@@ -183,10 +364,12 @@ function drop() {
     lastPerfect.value = true
     window.setTimeout(() => { lastPerfect.value = false }, 560)
     flash = 1
+    flashCx = placed.x + placed.w / 2
+    flashCy = placed.y + placed.h / 2
+    flashR0 = Math.max(28, placed.w * 0.45)
     shake = 10
     score.value += 1
-    // bonus nudge — keep width, slight speed bump later
-    haptic([8, 30, 16])
+    haptic('perfect', [8, 30, 16])
     tone(520, 0.07, 'square', 0.045)
     tone(780, 0.09, 'triangle', 0.03)
   } else {
@@ -198,19 +381,17 @@ function drop() {
     placed = { x: left, y: cur.y, w: overlap, h: BLOCK_H, ink: !top.ink }
     shake = 6
     score.value += 1
-    haptic(18)
+    haptic('drop', 18)
     tone(140, 0.08, 'sawtooth', 0.035)
   }
 
   blocks.push(placed)
   cur = null
 
-  // camera follows upward growth
   const stackTop = placed.y
   const desired = H * 0.38
   if (stackTop < desired) camTarget = desired - stackTop
 
-  // ramp speed gently
   speed = Math.min(speed + 8 + score.value * 0.35, W * 1.35)
 
   if (placed.w < 18) {
@@ -240,7 +421,6 @@ function endGame() {
   phase.value = 'over'
   cur = null
   running = false
-  // Let chips finish falling for a beat, then freeze.
   const settleUntil = performance.now() + 700
   const settle = (ts: number) => {
     const dt = Math.min(0.033, (ts - (lastTs || ts)) / 1000)
@@ -266,10 +446,10 @@ function endGame() {
   if (score.value > best.value) {
     best.value = score.value
     localStorage.setItem(BEST_KEY, String(best.value))
-    haptic([20, 40, 20, 40, 40])
+    haptic('perfect', [20, 40, 20, 40, 40])
     tone(660, 0.12, 'square', 0.04)
   } else {
-    haptic([30, 40, 50])
+    haptic('over', [30, 40, 50])
     tone(90, 0.18, 'sawtooth', 0.04)
   }
 }
@@ -310,14 +490,16 @@ function drawIdle(ts = 0) {
   if (!c) return
   const ctx = c.getContext('2d')
   if (!ctx) return
+  const pal = activePalette()
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-  paintFrame(ctx)
-  // deco stack on title — soft brutalist idle drift
+  paintFrame(ctx, pal)
   const reduce = typeof window !== 'undefined'
     && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  // Breathing vertical drift + tiny scale breath on deco stack
   const drift = reduce ? 0 : Math.sin(ts / 1400) * 5
+  const breath = reduce ? 1 : 1 + Math.sin(ts / 1600) * 0.012
   const ghostX = reduce ? 0 : Math.sin(ts / 1100) * 10
-  const bw = Math.min(200, W * 0.5)
+  const bw = Math.min(200, W * 0.5) * breath
   const bx = (W - bw) / 2
   let by = H * 0.62 + drift
   const layers = [
@@ -328,14 +510,11 @@ function drawIdle(ts = 0) {
   ]
   for (const L of layers) {
     const x = (W - L.w) / 2
-    ctx.fillStyle = L.ink ? '#161618' : '#FFD43B'
-    ctx.fillRect(x, by, L.w, BLOCK_H - 2)
+    fillBlock(ctx, x, by, L.w, BLOCK_H - 2, L.ink ? pal.ink : pal.yellow, pal)
     by -= BLOCK_H - 2
   }
-  // floating ghost
   ctx.globalAlpha = 0.28 + (reduce ? 0 : 0.08 * Math.sin(ts / 900))
-  ctx.fillStyle = '#161618'
-  ctx.fillRect(bx - 40 + ghostX, by - 8 + drift * 0.4, bw * 0.52, BLOCK_H - 2)
+  fillBlock(ctx, bx - 40 + ghostX, by - 8 + drift * 0.4, bw * 0.52, BLOCK_H - 2, pal.ink, pal)
   ctx.globalAlpha = 1
 }
 
@@ -344,18 +523,18 @@ function draw() {
   if (!c) return
   const ctx = c.getContext('2d')
   if (!ctx) return
+  const pal = activePalette()
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-  paintFrame(ctx)
+  paintFrame(ctx, pal)
 
   const sx = shake ? (Math.random() - 0.5) * shake : 0
   const sy = shake ? (Math.random() - 0.5) * shake : 0
   ctx.save()
   ctx.translate(sx, sy + camY)
 
-  // ground rule
   if (blocks.length) {
     const base = blocks[0]
-    ctx.strokeStyle = '#161618'
+    ctx.strokeStyle = pal.ink
     ctx.lineWidth = 3
     ctx.beginPath()
     ctx.moveTo(24, base.y + BLOCK_H + 10)
@@ -364,16 +543,13 @@ function draw() {
   }
 
   for (const b of blocks) {
-    ctx.fillStyle = b.ink ? '#161618' : '#FFD43B'
-    ctx.fillRect(b.x, b.y, b.w, b.h - 1)
+    fillBlock(ctx, b.x, b.y, b.w, b.h - 1, b.ink ? pal.ink : pal.yellow, pal)
   }
 
   if (cur) {
-    ctx.fillStyle = cur.ink ? '#161618' : '#FFD43B'
-    ctx.fillRect(cur.x, cur.y, cur.w, cur.h - 1)
-    // hairline guide on previous top edges
+    fillBlock(ctx, cur.x, cur.y, cur.w, cur.h - 1, cur.ink ? pal.ink : pal.yellow, pal)
     const top = blocks[blocks.length - 1]
-    ctx.strokeStyle = 'rgba(22,22,24,0.18)'
+    ctx.strokeStyle = pal.guide
     ctx.lineWidth = 1
     ctx.setLineDash([4, 4])
     ctx.strokeRect(top.x, cur.y, top.w, cur.h - 1)
@@ -382,20 +558,43 @@ function draw() {
 
   for (const ch of chips) {
     ctx.globalAlpha = Math.max(0, ch.life * 1.4)
-    ctx.fillStyle = '#161618'
+    ctx.fillStyle = pal.chip
     ctx.fillRect(ch.x - ch.w / 2, ch.y - 6, ch.w, 12)
   }
   ctx.globalAlpha = 1
+
+  // Perfect flash ring in world space (follows camera)
+  if (flash > 0) {
+    const r = flashR0 + (1 - flash) * 52
+    ctx.strokeStyle = pal.yellow
+    ctx.globalAlpha = 0.55 * flash
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.arc(flashCx, flashCy, r, 0, Math.PI * 2)
+    ctx.stroke()
+    // ink hairline ring slightly inside
+    ctx.strokeStyle = pal.ink
+    ctx.globalAlpha = 0.35 * flash
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.arc(flashCx, flashCy, r * 0.82, 0, Math.PI * 2)
+    ctx.stroke()
+    ctx.globalAlpha = 1
+  }
+
   ctx.restore()
 
   if (flash > 0) {
-    ctx.fillStyle = `rgba(255,212,59,${0.18 * flash})`
+    const a = 0.18 * flash
+    ctx.fillStyle = theme.isDark
+      ? `rgba(232,197,71,${a})`
+      : `rgba(255,212,59,${a})`
     ctx.fillRect(0, 0, W, H)
   }
 }
 
-function paintFrame(ctx: CanvasRenderingContext2D) {
-  ctx.fillStyle = '#FBF8EF'
+function paintFrame(ctx: CanvasRenderingContext2D, pal: Palette) {
+  ctx.fillStyle = pal.paper
   ctx.fillRect(0, 0, W, H)
 }
 
@@ -412,10 +611,15 @@ function onPointer() {
     startGame()
   }
 }
+
+function onThemeToggle(e: Event) {
+  e.stopPropagation()
+  theme.toggle()
+}
 </script>
 
 <template>
-  <div class="st" :data-phase="phase">
+  <div class="st" :data-phase="phase" :data-st-theme="theme.theme">
     <!-- Floating chrome — no sticky bordered bar -->
     <NuxtLink to="/engage" class="st__back" aria-label="Back to Engage">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 9 12l6 6" /></svg>
@@ -424,6 +628,16 @@ function onPointer() {
     <NuxtLink to="/" class="st__home" aria-label="Entertrainer home">
       <EdWordmark variant="mark" :size="26" />
     </NuxtLink>
+
+    <button
+      type="button"
+      class="st__theme"
+      :aria-label="`Switch to ${theme.theme === 'dark' ? 'light' : 'dark'} mode`"
+      @pointerdown.stop.prevent="onThemeToggle"
+      @click.stop.prevent="onThemeToggle"
+    >
+      <EdSignalIcon :name="theme.theme === 'dark' ? 'sun' : 'moon'" />
+    </button>
 
     <div
       class="st__hud"
@@ -438,10 +652,13 @@ function onPointer() {
         <span class="st__label">Best</span>
         <strong>{{ best }}</strong>
       </div>
+      <div class="st__hud-rule" aria-hidden="true" />
     </div>
 
     <div class="st__stage" @pointerdown.prevent="onPointer">
       <canvas ref="canvasRef" class="st__canvas" role="img" aria-label="Stack game board" />
+      <div class="st__grain" aria-hidden="true" />
+      <div class="st__vignette" aria-hidden="true" />
 
       <div v-if="phase === 'title'" class="st__overlay st__overlay--title">
         <p class="st__eyebrow st__anim" style="--i:0">Engage</p>
@@ -470,6 +687,9 @@ function onPointer() {
   --st-paper: #fbf8ef;
   --st-ink: #161618;
   --st-yellow: #ffd43b;
+  /* Local ink for wordmark (uses --ink) when bare layout */
+  --ink: var(--st-ink);
+  --accent: var(--st-yellow);
   position: relative;
   width: 100%;
   height: 100svh;
@@ -482,6 +702,12 @@ function onPointer() {
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
+  transition: background 280ms ease, color 280ms ease;
+}
+.st[data-st-theme='dark'] {
+  --st-paper: #121214;
+  --st-ink: #ede6d6;
+  --st-yellow: #e8c547;
 }
 
 /* Edge-to-edge canvas stage */
@@ -496,6 +722,39 @@ function onPointer() {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+/* Soft paper grain — CSS only, subtle */
+.st__grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+.st[data-st-theme='dark'] .st__grain {
+  opacity: 0.07;
+  mix-blend-mode: screen;
+}
+
+.st__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 75% 70% at 50% 45%,
+    transparent 55%,
+    color-mix(in srgb, var(--st-ink) 6%, transparent) 100%
+  );
+}
+.st[data-st-theme='dark'] .st__vignette {
+  background: radial-gradient(
+    ellipse 75% 70% at 50% 45%,
+    transparent 50%,
+    color-mix(in srgb, #000 28%, transparent) 100%
+  );
 }
 
 /* Floating ghost back — ink on paper, no bar */
@@ -544,11 +803,51 @@ function onPointer() {
   opacity: 0.72;
   text-decoration: none;
   transition: opacity 160ms ease;
+  color: var(--st-ink);
 }
 .st__home:hover,
 .st__home:focus-visible { opacity: 1; }
 
-/* Playing HUD — floating corners, no boxes */
+/* Minimal circular theme control */
+.st__theme {
+  position: absolute;
+  top: max(12rem, env(safe-area-inset-top));
+  right: max(12rem, env(safe-area-inset-right));
+  z-index: 6;
+  width: 36rem;
+  height: 36rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1.5rem solid color-mix(in srgb, var(--st-ink) 28%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--st-paper) 70%, transparent);
+  color: var(--st-ink);
+  cursor: pointer;
+  appearance: none;
+  backdrop-filter: blur(4px);
+  transition: border-color 160ms ease, background 160ms ease, transform 120ms ease;
+}
+.st__theme:hover,
+.st__theme:focus-visible {
+  border-color: var(--st-ink);
+  background: color-mix(in srgb, var(--st-paper) 88%, transparent);
+}
+.st__theme:active {
+  transform: scale(0.94);
+}
+.st__theme :deep(svg) {
+  width: 16rem;
+  height: 16rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Playing HUD — floating type + faint rule, glass-less */
 .st__hud {
   position: absolute;
   top: max(52rem, calc(env(safe-area-inset-top) + 40rem));
@@ -566,6 +865,14 @@ function onPointer() {
 .st__hud--on {
   opacity: 1;
   transform: none;
+}
+.st__hud-rule {
+  position: absolute;
+  left: max(16rem, env(safe-area-inset-left));
+  right: max(16rem, env(safe-area-inset-right));
+  bottom: -10rem;
+  height: 1px;
+  background: color-mix(in srgb, var(--st-ink) 14%, transparent);
 }
 
 .st__stat { display: grid; gap: 2rem; }
@@ -714,5 +1021,6 @@ function onPointer() {
   .st__anim,
   .st__score-pop,
   .st__cta--pulse { opacity: 1; transform: none; }
+  .st { transition: none; }
 }
 </style>

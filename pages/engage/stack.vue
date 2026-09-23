@@ -1,15 +1,16 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 /**
- * STACK — brutalist portrait arcade for Engage.
+ * STACK — editorial portrait arcade for Engage.
  * Tap to drop. Only the overlap stays. No lore.
- * Light/dark via useThemeStore; iOS-aware speaker haptics; paper/ink/yellow DNA.
+ * Light/dark via useThemeStore; iOS-aware speaker haptics.
+ * Visual DNA: Tajjalan cream/ink/cobalt woodcut (same as blog/tajjalan covers).
  */
 import { useThemeStore } from '~/stores/theme'
 
 useSeoMeta({
   title: 'Stack · Engage',
-  description: 'Tap to drop. Only the overlap stays. A brutalist stacking arcade on Entertrainer.',
+  description: 'Tap to drop. Only the overlap stays. An editorial ink-on-cream stacking arcade on Entertrainer — Tajjalan art DNA.',
   ogUrl: 'https://entertrainer.in/engage/stack',
 })
 
@@ -18,27 +19,30 @@ type Block = { x: number; y: number; w: number; h: number; ink: boolean }
 type Palette = {
   paper: string
   ink: string
-  yellow: string
+  cobalt: string
   guide: string
   chip: string
 }
 
+/** Block render mode — placed tower alternates dense/open; live piece is cobalt. */
+type BlockStyle = 'dense' | 'open' | 'cobalt'
+
 const BEST_KEY = 'entertrainer-stack-best'
 
 const PALETTE_LIGHT: Palette = {
-  paper: '#FBF8EF',
-  ink: '#161618',
-  yellow: '#FFD43B',
-  guide: 'rgba(22,22,24,0.18)',
-  chip: '#161618',
+  paper: '#F7F1E4',
+  ink: '#0B0B0C',
+  cobalt: '#2F5BD8',
+  guide: 'rgba(11,11,12,0.18)',
+  chip: '#0B0B0C',
 }
 
 const PALETTE_DARK: Palette = {
-  paper: '#121214',
-  ink: '#EDE6D6',
-  yellow: '#E8C547',
-  guide: 'rgba(237,230,214,0.22)',
-  chip: '#EDE6D6',
+  paper: '#0B0B0C',
+  ink: '#F7F1E4',
+  cobalt: '#2F5BD8',
+  guide: 'rgba(247,241,228,0.22)',
+  chip: '#F7F1E4',
 }
 
 const theme = useThemeStore()
@@ -64,7 +68,7 @@ let camY = 0
 let camTarget = 0
 let shake = 0
 let flash = 0
-let chips: { x: number; y: number; vx: number; vy: number; life: number; w: number }[] = []
+let chips: { x: number; y: number; vx: number; vy: number; life: number; w: number; seed: number }[] = []
 let audioCtx: AudioContext | null = null
 let running = false
 const BLOCK_H = 28
@@ -287,19 +291,109 @@ function haptic(kind: 'drop' | 'perfect' | 'miss' | 'over' | 'start', vibratePat
   }
 }
 
-function fillBlock(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, fill: string, pal: Palette) {
-  ctx.fillStyle = fill
-  ctx.fillRect(x, y, w, h)
-  // 1px top highlight — depth without skeuomorphism
-  if (w > 2 && h > 2) {
-    ctx.fillStyle = fill === pal.ink
-      ? (theme.isDark ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.14)')
-      : (theme.isDark ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.35)')
-    ctx.fillRect(x, y, w, 1)
-    // hairline bottom edge into paper
-    ctx.fillStyle = theme.isDark ? 'rgba(0,0,0,0.35)' : 'rgba(0,0,0,0.12)'
-    ctx.fillRect(x, y + h - 1, w, 1)
+/**
+ * Hatched / stippled slab — Tajjalan woodcut language.
+ * Spacing ~4–5px so mobile stays smooth; no solid candy fills.
+ */
+function fillBlock(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  style: BlockStyle,
+  pal: Palette,
+) {
+  if (w <= 0.5 || h <= 0.5) return
+  const x0 = Math.floor(x)
+  const y0 = Math.floor(y)
+  const bw = Math.ceil(w)
+  const bh = Math.ceil(h)
+
+  ctx.save()
+  ctx.beginPath()
+  ctx.rect(x0, y0, bw, bh)
+  ctx.clip()
+
+  // Cream (or inverted paper) underlay keeps hatch readable
+  ctx.fillStyle = pal.paper
+  ctx.fillRect(x0, y0, bw, bh)
+
+  if (style === 'dense') {
+    // Dense diagonal + light cross-hatch in ink
+    ctx.strokeStyle = pal.ink
+    ctx.lineWidth = 1
+    const step = 4
+    const span = bw + bh + step
+    for (let i = -bh; i < span; i += step) {
+      ctx.beginPath()
+      ctx.moveTo(x0 + i, y0)
+      ctx.lineTo(x0 + i + bh, y0 + bh)
+      ctx.stroke()
+    }
+    ctx.globalAlpha = 0.55
+    for (let i = -bh; i < span; i += step * 2) {
+      ctx.beginPath()
+      ctx.moveTo(x0 + i + bh, y0)
+      ctx.lineTo(x0 + i, y0 + bh)
+      ctx.stroke()
+    }
+    ctx.globalAlpha = 1
+  } else if (style === 'open') {
+    // Lighter open hatch + stipple (cream-outline slab feel)
+    ctx.strokeStyle = pal.ink
+    ctx.lineWidth = 1
+    ctx.globalAlpha = 0.38
+    const step = 5
+    const span = bw + bh + step
+    for (let i = -bh; i < span; i += step) {
+      ctx.beginPath()
+      ctx.moveTo(x0 + i, y0)
+      ctx.lineTo(x0 + i + bh, y0 + bh)
+      ctx.stroke()
+    }
+    ctx.globalAlpha = 1
+    ctx.fillStyle = pal.ink
+    const s = 5
+    for (let py = y0 + 2; py < y0 + bh - 1; py += s) {
+      const row = Math.floor((py - y0) / s)
+      const ox = (row % 2) * (s * 0.5)
+      for (let px = x0 + 2 + ox; px < x0 + bw - 1; px += s) {
+        ctx.fillRect(px, py, 1.25, 1.25)
+      }
+    }
+  } else {
+    // Cobalt accent — grainy wash + cobalt hatch, ink outline outside
+    ctx.fillStyle = pal.cobalt
+    ctx.globalAlpha = 0.2
+    ctx.fillRect(x0, y0, bw, bh)
+    ctx.globalAlpha = 1
+    ctx.strokeStyle = pal.cobalt
+    ctx.lineWidth = 1.15
+    const step = 4
+    const span = bw + bh + step
+    for (let i = -bh; i < span; i += step) {
+      ctx.beginPath()
+      ctx.moveTo(x0 + i, y0)
+      ctx.lineTo(x0 + i + bh, y0 + bh)
+      ctx.stroke()
+    }
+    // Deterministic stipple grain (stable across frames)
+    ctx.fillStyle = pal.cobalt
+    for (let py = y0 + 1; py < y0 + bh; py += 3) {
+      for (let px = x0 + 1 + (py & 1); px < x0 + bw; px += 3) {
+        const n = ((px * 73856093) ^ (py * 19349663)) >>> 0
+        if ((n & 3) !== 0) ctx.fillRect(px, py, 1, 1)
+      }
+    }
   }
+
+  ctx.restore()
+
+  // Ink hairline outline — woodcut edge
+  ctx.strokeStyle = pal.ink
+  ctx.lineWidth = 1
+  ctx.strokeRect(x0 + 0.5, y0 + 0.5, bw - 1, bh - 1)
 }
 
 function startGame() {
@@ -413,6 +507,7 @@ function spawnChips(x: number, y: number, w: number) {
       vy: -80 - Math.random() * 220,
       life: 0.55 + Math.random() * 0.35,
       w: Math.max(6, w / n - 2),
+      seed: (Math.random() * 0xffffffff) >>> 0,
     })
   }
 }
@@ -510,11 +605,12 @@ function drawIdle(ts = 0) {
   ]
   for (const L of layers) {
     const x = (W - L.w) / 2
-    fillBlock(ctx, x, by, L.w, BLOCK_H - 2, L.ink ? pal.ink : pal.yellow, pal)
+    fillBlock(ctx, x, by, L.w, BLOCK_H - 2, L.ink ? 'dense' : 'open', pal)
     by -= BLOCK_H - 2
   }
-  ctx.globalAlpha = 0.28 + (reduce ? 0 : 0.08 * Math.sin(ts / 900))
-  fillBlock(ctx, bx - 40 + ghostX, by - 8 + drift * 0.4, bw * 0.52, BLOCK_H - 2, pal.ink, pal)
+  // Ghost moving hint — cobalt accent
+  ctx.globalAlpha = 0.42 + (reduce ? 0 : 0.1 * Math.sin(ts / 900))
+  fillBlock(ctx, bx - 40 + ghostX, by - 8 + drift * 0.4, bw * 0.52, BLOCK_H - 2, 'cobalt', pal)
   ctx.globalAlpha = 1
 }
 
@@ -543,11 +639,12 @@ function draw() {
   }
 
   for (const b of blocks) {
-    fillBlock(ctx, b.x, b.y, b.w, b.h - 1, b.ink ? pal.ink : pal.yellow, pal)
+    fillBlock(ctx, b.x, b.y, b.w, b.h - 1, b.ink ? 'dense' : 'open', pal)
   }
 
   if (cur) {
-    fillBlock(ctx, cur.x, cur.y, cur.w, cur.h - 1, cur.ink ? pal.ink : pal.yellow, pal)
+    // Live piece always cobalt — the one moving accent
+    fillBlock(ctx, cur.x, cur.y, cur.w, cur.h - 1, 'cobalt', pal)
     const top = blocks[blocks.length - 1]
     ctx.strokeStyle = pal.guide
     ctx.lineWidth = 1
@@ -556,25 +653,39 @@ function draw() {
     ctx.setLineDash([])
   }
 
+  // Miss chips — torn ink paper shards (not confetti)
   for (const ch of chips) {
-    ctx.globalAlpha = Math.max(0, ch.life * 1.4)
+    ctx.globalAlpha = Math.max(0, Math.min(1, ch.life * 1.4))
+    const hw = ch.w * 0.5
+    const hh = 7
+    // Stable jagged outline (seed fixed at spawn)
+    const j = (n: number) => ((ch.seed >> (n % 16)) & 7) / 7
+    ctx.beginPath()
+    ctx.moveTo(ch.x - hw, ch.y - hh * (0.4 + j(0) * 0.4))
+    ctx.lineTo(ch.x + hw * (0.55 + j(1) * 0.35), ch.y - hh * (0.7 + j(2) * 0.3))
+    ctx.lineTo(ch.x + hw, ch.y + hh * (0.15 + j(3) * 0.35))
+    ctx.lineTo(ch.x + hw * (0.1 + j(4) * 0.25), ch.y + hh)
+    ctx.lineTo(ch.x - hw * (0.7 + j(5) * 0.25), ch.y + hh * (0.35 + j(6) * 0.3))
+    ctx.closePath()
     ctx.fillStyle = pal.chip
-    ctx.fillRect(ch.x - ch.w / 2, ch.y - 6, ch.w, 12)
+    ctx.fill()
+    ctx.strokeStyle = pal.ink
+    ctx.lineWidth = 1
+    ctx.stroke()
   }
   ctx.globalAlpha = 1
 
-  // Perfect flash ring in world space (follows camera)
+  // Perfect flash ring — cobalt outer + ink hairline inner
   if (flash > 0) {
     const r = flashR0 + (1 - flash) * 52
-    ctx.strokeStyle = pal.yellow
-    ctx.globalAlpha = 0.55 * flash
+    ctx.strokeStyle = pal.cobalt
+    ctx.globalAlpha = 0.6 * flash
     ctx.lineWidth = 2
     ctx.beginPath()
     ctx.arc(flashCx, flashCy, r, 0, Math.PI * 2)
     ctx.stroke()
-    // ink hairline ring slightly inside
     ctx.strokeStyle = pal.ink
-    ctx.globalAlpha = 0.35 * flash
+    ctx.globalAlpha = 0.4 * flash
     ctx.lineWidth = 1
     ctx.beginPath()
     ctx.arc(flashCx, flashCy, r * 0.82, 0, Math.PI * 2)
@@ -585,10 +696,8 @@ function draw() {
   ctx.restore()
 
   if (flash > 0) {
-    const a = 0.18 * flash
-    ctx.fillStyle = theme.isDark
-      ? `rgba(232,197,71,${a})`
-      : `rgba(255,212,59,${a})`
+    const a = 0.12 * flash
+    ctx.fillStyle = `rgba(47,91,216,${a})`
     ctx.fillRect(0, 0, W, H)
   }
 }
@@ -684,8 +793,10 @@ function onThemeToggle(e: Event) {
 
 <style scoped>
 .st {
-  --st-paper: #fbf8ef;
-  --st-ink: #161618;
+  --st-paper: #f7f1e4;
+  --st-ink: #0b0b0c;
+  --st-cobalt: #2f5bd8;
+  /* Yellow stays for CTA chrome only — not game art */
   --st-yellow: #ffd43b;
   /* Local ink for wordmark (uses --ink) when bare layout */
   --ink: var(--st-ink);
@@ -705,9 +816,10 @@ function onThemeToggle(e: Event) {
   transition: background 280ms ease, color 280ms ease;
 }
 .st[data-st-theme='dark'] {
-  --st-paper: #121214;
-  --st-ink: #ede6d6;
-  --st-yellow: #e8c547;
+  --st-paper: #0b0b0c;
+  --st-ink: #f7f1e4;
+  --st-cobalt: #2f5bd8;
+  --st-yellow: #ffd43b;
 }
 
 /* Edge-to-edge canvas stage */
@@ -976,7 +1088,7 @@ function onThemeToggle(e: Event) {
   margin: 0;
   padding: 6rem 12rem;
   background: var(--st-ink);
-  color: var(--st-yellow);
+  color: var(--st-cobalt);
   font: 800 12rem/1 var(--font-mono);
   letter-spacing: 0.2em;
   pointer-events: none;

@@ -99,11 +99,29 @@ const references = [
         <p>With Jenkins and later patients, a pattern returned. Flash on the right (left hemisphere): speech can often name it. Flash on the left (right hemisphere): speech often says “nothing,” while the left hand can still pick the matching object.</p>
         <p>One half had seen it. The talking half had not. Both lived in the same skull. Sperry later shared the 1981 Nobel Prize for this line of work.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
 
+        <figure class="split__visual">
+          <EdEditorialImage
+            src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/visual-field.jpg"
+            alt="Cream-paper ink drawing of a face at a fixation cross: a cobalt key flashes only in the left visual field."
+          />
+          <figcaption>Left field flash → right hemisphere. Speech can say “nothing” while a hand still finds the match.</figcaption>
+        </figure>
+
+
         <h2>Patient P.S. and the interpreter</h2>
         <p>A later patient, known as P.S., made the finding sharp. Two pictures flashed at once: a chicken claw to the speaking left half, a snow scene to the right half. The right hand picked a chicken. The left hand picked a snow shovel.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
         <p>Asked why, speech — which had seen only the claw — answered along these lines: the claw goes with the chicken, and you need a shovel to clean the chicken shed.</p>
         <p>The shovel belonged to the snow. The speaking half never got the snow. It did not say “I don’t know.” It invented a reason that made the moment sound whole. Gazzaniga called that storytelling system the left-hemisphere interpreter.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a></p>
         <p>Related tests flashed “walk” or “laugh” only to the right half. The body did it. Asked why, speech invents a reason. Action first. Story after.</p>
+
+        <figure class="split__visual">
+          <EdEditorialImage
+            src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/interpreter.jpg"
+            alt="Cream-paper ink drawing: chicken claw and snow shovel linked by a cobalt scribble from a speaking mouth inventing a reason."
+          />
+          <figcaption>Claw to one half, snow to the other. The mouth never saw the snow — and still invents a shed story for the shovel.</figcaption>
+        </figure>
+
 
         <h2>Later debates and incomplete cuts</h2>
         <p>These patients were not two people arguing at dinner. After recovery, a casual meeting often looked normal. Eyes move. People cue themselves. The split shows up when the lab forces one-sided input.</p>
@@ -159,6 +177,7 @@ const references = [
 .split blockquote { margin: 45rem 0; padding: 24rem 26rem; border-left: 8rem solid var(--signal-cobalt); background: var(--paper-2); border-radius: 0 var(--radius-m) var(--radius-m) 0; font: 500 clamp(22rem, 2.6vw, 32rem)/1.12 var(--font-display); letter-spacing: -.03em; }
 .split blockquote p { margin: 0; }
 .split__visual { margin: 50rem 0 45rem; }
+.split__visual figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
 .split__visual :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--signal-field); }
 .split__prose :deep(.sbl) { margin-left: 0; margin-right: 0; }
 .split__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 clamp(22rem, 2.6vw, 34rem)/1.14 var(--font-display); letter-spacing: -.035em; }

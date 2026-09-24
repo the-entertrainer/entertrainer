@@ -6,7 +6,13 @@ definePageMeta({ layout: false })
  * overlap trim, falling overhangs, soft shadows, cream/ink/yellow DNA.
  */
 import { useThemeStore } from '~/stores/theme'
-import type { StackEngine, StackPhase } from '~/composables/stack/useStackEngine'
+import {
+  createStackEngine,
+  STACK_PALETTE_DARK,
+  STACK_PALETTE_LIGHT,
+  type StackEngine,
+  type StackPhase,
+} from '~/composables/stack/useStackEngine'
 
 useSeoMeta({
   title: 'Stack · Engage',
@@ -27,10 +33,6 @@ const newBest = ref(false)
 let engine: StackEngine | null = null
 let audioCtx: AudioContext | null = null
 let stopWatch: (() => void) | null = null
-
-let STACK_PALETTE_LIGHT: { paper: string; paperDeep: string; ink: string; yellow: string; cream: string; creamBlock: string }
-let STACK_PALETTE_DARK: typeof STACK_PALETTE_LIGHT
-let createStackEngine: typeof import('~/composables/stack/useStackEngine').createStackEngine
 
 function activePalette() {
   return theme.isDark ? STACK_PALETTE_DARK : STACK_PALETTE_LIGHT
@@ -193,11 +195,6 @@ onMounted(async () => {
   const c = canvasRef.value
   if (!c) return
 
-  const mod = await import('~/composables/stack/useStackEngine')
-  createStackEngine = mod.createStackEngine
-  STACK_PALETTE_LIGHT = mod.STACK_PALETTE_LIGHT
-  STACK_PALETTE_DARK = mod.STACK_PALETTE_DARK
-
   engine = createStackEngine(c, {
     onScore(n, perfect) {
       score.value = n
@@ -282,7 +279,10 @@ function onPointer() {
 
 function onThemeToggle(e: Event) {
   e.stopPropagation()
+  e.preventDefault()
   theme.toggle()
+  // Apply immediately — don't wait for the watcher (and never double-fire).
+  syncTheme()
 }
 </script>
 
@@ -301,7 +301,7 @@ function onThemeToggle(e: Event) {
       type="button"
       class="st__iconbtn st__theme"
       :aria-label="`Switch to ${theme.theme === 'dark' ? 'light' : 'dark'} mode`"
-      @pointerdown.stop.prevent="onThemeToggle"
+      @pointerdown.stop
       @click.stop.prevent="onThemeToggle"
     >
       <EdSignalIcon :name="theme.theme === 'dark' ? 'sun' : 'moon'" />
@@ -400,7 +400,7 @@ function onThemeToggle(e: Event) {
 
 .st__iconbtn {
   position: absolute;
-  z-index: 6;
+  z-index: 20;
   top: max(10rem, env(safe-area-inset-top));
   width: 44rem;
   height: 44rem;

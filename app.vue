@@ -52,6 +52,7 @@ function onPreloaderComplete() {
 }
 const socialPreview = computed(() => getSocialPreview(r.path))
 const socialImage = computed(() => getSocialImage(socialPreview.value))
+const isElevateArticle = computed(() => r.path.startsWith('/elevate/') && r.path !== '/elevate/')
 
 useSeoMeta({
   title: () => socialPreview.value.title,
@@ -110,6 +111,7 @@ onBeforeUnmount(() => theme.dispose())
         <main id="main" tabindex="-1">
           <NuxtPage :transition="{ name: 'page', mode: 'out-in' }" />
         </main>
+        <EdBlogReadingLayer v-if="isElevateArticle" />
         <EdFooter />
       </template>
 

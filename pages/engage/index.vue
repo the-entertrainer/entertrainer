@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Aether Lyre, Stack, The Mind Reader, and AstroClock.',
+  description: 'Short games and little detours — Aether Lyre, Myousic, Stack, The Mind Reader, and AstroClock.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -39,6 +39,26 @@ const MIND_READER_SYMBOLS = [
           <span class="engage__card-text">
             <strong class="engage__card-name">Aether Lyre</strong>
             <span class="engage__card-blurb">Pure ratios. Seven Sumerian tunings. Live harmonics.</span>
+          </span>
+          <span class="engage__card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </span>
+        </NuxtLink>
+      </li>
+      <li class="u-reveal">
+        <NuxtLink to="/engage/myousic" class="engage__card engage__card--myousic">
+          <span class="engage__icon engage__icon--myousic" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
+              <rect width="48" height="48" rx="6" fill="#F3EEE6"/>
+              <circle cx="24" cy="24" r="16" stroke="#1C1B19" stroke-width="1.4"/>
+              <path d="M18 31 V18 M24 33 V14 M30 31 V18 M16 31 H32" stroke="#1C1B19" stroke-width="1.4" stroke-linecap="round"/>
+              <circle cx="24" cy="14" r="1.6" fill="#A6843D"/>
+            </svg>
+          </span>
+          <span class="engage__card-text">
+            <strong class="engage__card-name">Myousic</strong>
+            <span class="engage__card-blurb">Color choices. A flute or violin answers, then shifts.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -233,6 +253,20 @@ const MIND_READER_SYMBOLS = [
   border-color: #C4B49A;
 }
 .engage__icon--aether svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(var(--radius-s) - 2rem);
+}
+
+.engage__icon--myousic {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: #F3EEE6;
+  border-color: #1C1B19;
+}
+.engage__icon--myousic svg {
   display: block;
   width: 100%;
   height: 100%;

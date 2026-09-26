@@ -4,7 +4,7 @@
  * Iso principle (Altshuler, 1948; Starcke & von Georgi, 2023): meet the
  * current state, then move. Already-pleasant readings are amplified, not
  * replaced. Agitation is settled — the pulse slows — rather than sped up.
- * A heavy reading stays low, then the drone rises by a just fifth (3/2).
+ * A heavy reading starts low and slow, then a later phrase may step up by a just fifth.
  */
 
 import { estimate, type Affect, type Swatch } from "./survey"
@@ -103,17 +103,17 @@ export function degreeWeight(ratio: number, valence: number, arousal: number): n
 const COPY: Record<Quadrant, { phrase: string; intent: string; tuningId: TuningId }> = {
   heavy: {
     phrase: "Quiet weight",
-    intent: "Low flute first. Then the drone rises by a just fifth.",
+    intent: "Slow phrases on open fifths. The major third arrives only as it lifts.",
     tuningId: "ishartum",
   },
   stirred: {
     phrase: "Stirred",
-    intent: "It meets that pace, then the breaths get longer.",
+    intent: "More motion at first. Then the phrases lengthen and settle.",
     tuningId: "qablitum",
   },
   open: {
     phrase: "Clear and still",
-    intent: "Spacious flute. The tone warms without rushing.",
+    intent: "A clear tune, unhurried, warming as it repeats.",
     tuningId: "embubum",
   },
   bright: {
@@ -142,9 +142,9 @@ export function strategyText(strategy: Strategy): string {
     case "amplify":
       return "The reading is already pleasant, so the music stays with it and lets a pure major third bloom. It does not yank you somewhere else."
     case "settle":
-      return "Raised energy with low pleasantness is treated as agitation. The pulse lengthens and the tone warms. Lifting, here, means settling — not playing faster."
+      return "Raised energy with low pleasantness is treated as agitation. The first phrases move, then the pulse eases and the lines get longer. Settling, not speeding up."
     case "lift":
-      return "Low pleasantness and low energy are met first. Then the drone rises by a just fifth, 3/2, the same ratio as string lengths 60 and 40, and the major third is allowed in."
+      return "Low pleasantness and low energy are met with a slow tune on open fifths. Later phrases allow the major third and may step up by a just fifth, 3/2."
   }
 }
 

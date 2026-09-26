@@ -4,7 +4,7 @@
  * Column L = [60, 54, 48, 45, 40, 36, 32, 30].
  * hz = baseHz * (60 / L), kept as a simplified rational.
  * Seven tunings rotate which degree is the tonic — the Mesopotamian
- * retuning cycle (Ishartum … Nishturim), as used by Aether Lyre.
+ * retuning cycle (Ishartum … Nishturim).
  * Partials are positive divisors of 60 only.
  */
 

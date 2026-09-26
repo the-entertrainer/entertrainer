@@ -2,8 +2,8 @@
 definePageMeta({ layout: false })
 
 /**
- * Myousic — color choices, then a just-intonation flute or violin.
- * Same sexagesimal column as Aether Lyre. Different question, different tone.
+ * Myousic — color choices, then a composed just-intonation tune.
+ * Flute or violin, plucked harmony, bass. Phrases, not a drone.
  */
 import {
   energyWord,
@@ -294,16 +294,27 @@ onBeforeUnmount(() => {
           condition.
         </p>
         <p>
-          Pitches are integer ratios from the base-60 string lengths 60, 54, 48, 45, 40, 36, 32 and 30 — unison,
+          Pitches are integer ratios from the base-60 string lengths 60, 54, 48, 45, 40, 36 and 32 — unison,
           10/9, 5/4, 4/3, 3/2, 5/3, 15/8. {{ tuning.name }}: {{ tuning.line }} The seven names are the Mesopotamian
-          retuning cycle, the same column Aether Lyre plays. It is a reconstruction, not a recovered recording.
-          Overtones are divisors of 60 only, so the tone stays harmonic instead of beating. The scale is a just
-          major column; a heavy reading simply withholds the major third until the line has somewhere to open.
+          retuning cycle. It is a reconstruction, not a recovered recording. Overtones are divisors of 60 only, so
+          the tone stays harmonic instead of beating.
         </p>
         <p>
-          {{ voice }} is synthesized here: sines, plus breath or bow noise. No samples, no tempo grid, no claimed
-          medical effect. The gold line is the shift from where you started toward the answer. It finishes in
-          about a minute and a half, then stays.
+          What plays is a tune in 4/4: a short idea, the same idea again, an answer, then a cadence home to the
+          tonic. Tempo and how many notes there are follow energy. Pleasantness decides whether the just major
+          third is in the chords yet. Those two levers — speed for energy, mode for pleasantness — are what
+          tempo and mode experiments find (Husain, Thompson, and Schellenberg, 2002). EEG studies measure the
+          same axes, not a hidden frequency: pleasant music shifts frontal asymmetry, and a faster event rate
+          rides with arousal (Schmidt and Trainor, 2001). A clear pulse is used because attention locks to
+          rhythm, not to a wash (Thaut). This page does not read brainwaves. It does not play binaural beats;
+          those effects are small and inconsistent. Harmonic expectation — the ear waiting for the cadence — is
+          the part that is actually well studied (Koelsch and colleagues).
+        </p>
+        <p>
+          {{ voice }} leads, with a soft plucked harmony and a bass. All synthesized: sines, breath or bow noise,
+          a short hall. No samples, no held drone. If the line lifts, a later phrase may step up by a just fifth,
+          3/2. The gold line is that shift. It takes about a minute and a half, then the tune stays in the mood it
+          arrived at and keeps varying. Nothing here treats a condition.
         </p>
       </details>
     </main>

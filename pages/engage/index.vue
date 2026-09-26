@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Aether Lyre, Myousic, Stack, The Mind Reader, and AstroClock.',
+  description: 'Short games and little detours — Myousic, Stack, The Mind Reader, and AstroClock.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -24,29 +24,6 @@ const MIND_READER_SYMBOLS = [
 
     <ol class="engage__grid">
       <li class="u-reveal">
-        <NuxtLink to="/engage/aether-lyre" class="engage__card engage__card--aether">
-          <span class="engage__icon engage__icon--aether" aria-hidden="true">
-            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
-              <rect width="48" height="48" rx="6" fill="#0E0E10"/>
-              <path d="M10 34c6-14 22-14 28 0" stroke="#C4B49A" stroke-width="2.2" stroke-linecap="round"/>
-              <path d="M14 32c4.5-10 15.5-10 20 0" stroke="#C9A227" stroke-width="1.6" stroke-linecap="round" opacity="0.9"/>
-              <line x1="16" y1="18" x2="16" y2="31" stroke="#C4B49A" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="24" y1="14" x2="24" y2="30" stroke="#C9A227" stroke-width="1.7" stroke-linecap="round"/>
-              <line x1="32" y1="18" x2="32" y2="31" stroke="#C4B49A" stroke-width="1.5" stroke-linecap="round"/>
-              <circle cx="24" cy="12.5" r="2.2" fill="#C9A227"/>
-            </svg>
-          </span>
-          <span class="engage__card-text">
-            <strong class="engage__card-name">Aether Lyre</strong>
-            <span class="engage__card-blurb">Pure ratios. Seven Sumerian tunings. Live harmonics.</span>
-          </span>
-          <span class="engage__card-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
-          </span>
-        </NuxtLink>
-      </li>
-      <li class="u-reveal">
         <NuxtLink to="/engage/myousic" class="engage__card engage__card--myousic">
           <span class="engage__icon engage__icon--myousic" aria-hidden="true">
             <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
@@ -58,7 +35,7 @@ const MIND_READER_SYMBOLS = [
           </span>
           <span class="engage__card-text">
             <strong class="engage__card-name">Myousic</strong>
-            <span class="engage__card-blurb">Color choices. A flute or violin answers, then shifts.</span>
+            <span class="engage__card-blurb">A color, then a tune that meets you and moves.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -241,23 +218,6 @@ const MIND_READER_SYMBOLS = [
   background: var(--ink);
 }
 .engage__icon--stack svg { display: block; width: 100%; height: 100%; }
-
-
-
-.engage__icon--aether {
-  display: grid;
-  place-items: center;
-  padding: 0;
-  color: #C4B49A;
-  background: #0E0E10;
-  border-color: #C4B49A;
-}
-.engage__icon--aether svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: calc(var(--radius-s) - 2rem);
-}
 
 .engage__icon--myousic {
   display: grid;

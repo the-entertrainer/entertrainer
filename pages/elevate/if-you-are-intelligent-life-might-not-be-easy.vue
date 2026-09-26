@@ -52,8 +52,7 @@ const references = [
         <p>That is useful. You catch contradictions. You see a consequence early. You ask the question the room stepped around.</p>
         <p>It does not hand you a legend for the map. Ten routes are not a decision.</p>
         <p>People turn this into a flattering myth: smart people suffer because they see too much. The sentence is tidy. It also lets intelligence explain anxiety, loneliness, the unread email, the whole week.</p>
-        <p>A 2024 review of gifted groups found no significant overall rise in anxiety or depression. The studies did not agree with each other, and they did not even share one definition of gifted.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>High ability is not a curse. The evidence is mixed on the details. It is not mixed on the movie version. The movie version loses.</p>
+        <p>A 2024 review of gifted groups found no significant overall rise in anxiety or depression. The studies did not agree with each other, and they did not even share one definition of gifted.<a href="#ref-2" aria-label="Reference 2">[2]</a> So the flattering myth is not a finding. It is still a story some people live inside, and these papers have not measured every kind of heavy day.</p>
 
         <figure class="taj__visual">
           <EdEditorialImage

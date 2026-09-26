@@ -162,6 +162,18 @@ verified alternative (a university-hosted copy of the Turing paper, and
 
 ---
 
+## Elevate — “Are we in a simulation?”
+
+Photographs and a published diagram used in `content/composed-posts.json`. Web-sized copies live under `public/blog/hidden-matrix/`. No crop that removes the subject. Credits sit in the captions and in the article’s source list.
+
+| File | What it is | Terms |
+|---|---|---|
+| `earth-apollo17.jpg` | Earth, Apollo 17, 7 December 1972 | NASA photograph, public domain. [Commons file page](https://commons.wikimedia.org/wiki/File:The_Earth_seen_from_Apollo_17.jpg). |
+| `finger-count.jpg` | Counting to twelve on the finger-bones | Rhetos, Mathe-AC Lernwerkstatt, Aachen, 2021. [CC0](https://creativecommons.org/publicdomain/zero/1.0/). [Commons file page](https://commons.wikimedia.org/wiki/File:Duodezimales_Fingerz%C3%A4hlen_(eine_Hand).jpg). |
+| `precession-1902.png` | Precession diagram | Simon Newcomb, *Astronomy for Everybody*, 1902, p. 43. Public domain. [Commons file page](https://commons.wikimedia.org/wiki/File:Astronomy_for_Everybody_(1902)_p043_Precession_of_the_Equinoxes.png). |
+| `pine-cone.jpg` | Pine cone from above | Richard Flink, 2008. [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). [Commons file page](https://commons.wikimedia.org/wiki/File:Pi%C3%B1a_Fibonacci.jpg). |
+| `chladni-plate.jpg` | Sand on a vibrating plate | High Contrast, 2011. [CC BY 3.0 DE](https://creativecommons.org/licenses/by/3.0/de/). [Commons file page](https://commons.wikimedia.org/wiki/File:Quadratic_Chladni_plate.JPG). |
+
 ## Code dependencies
 
 Runtime dependencies are declared in `package.json` and carry their own

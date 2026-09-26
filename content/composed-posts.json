@@ -1,173 +1,175 @@
 [
   {
     "slug": "are-72-432-and-25920-clues-or-just-numbers-we-learned-to-notice",
-    "title": "Are 72, 432 and 25,920 clues?",
-    "dek": "72, 432, and 25,920 show up in old maths and in the sky. That is a pattern worth checking. It is not proof of a hidden matrix.",
-    "socialHook": "72, 432, 25,920. Ancient numbers, geometry, pine cones, the speed of light. Is reality leaving clues — or are we connecting the furniture?",
-    "socialTitle": "Are 72, 432 and 25,920 clues?",
+    "title": "Are we in a simulation?",
+    "dek": "Twelve on a hand. Seventy-two years to one degree of sky. 432 squared sitting beside the speed of light. The same numbers, and two ways to read them.",
+    "socialHook": "72 years for one degree of sky. 25,920 for the full turn. 432 squared sits next to the speed of light. Are we in a simulation, or counting a clock we built?",
+    "socialTitle": "Are we in a simulation? The numbers won't say.",
     "category": "Universe",
     "tags": [
       "science",
       "numbers",
-      "ancient history",
-      "pattern perception"
+      "simulation",
+      "ancient history"
     ],
     "minutes": 9,
-    "hero": "/blog/hidden-matrix/hero.webp",
-    "heroAlt": "Cream paper, black ink: a hatched clay tablet beside one cobalt circle with tick marks and no digits.",
+    "hero": "/blog/hidden-matrix/earth-apollo17.jpg",
+    "heroAlt": "The Earth, fully lit, photographed by the Apollo 17 crew on the way to the Moon in December 1972.",
     "status": "published",
     "publishedAt": "2026-09-25T00:00:00+00:00",
-    "updatedAt": "2026-09-25T00:00:00+00:00",
+    "updatedAt": "2026-09-26T18:00:00+00:00",
     "marginNote": {
-      "label": "A pattern is not a code.",
-      "body": "An observation is not an explanation. A number that repeats is not yet a message."
+      "label": "Both doors stay open.",
+      "body": "A repeated number can be a tool we kept. It can also be a mark someone left. This piece does not pick."
     },
     "blocks": [
       {
         "id": "hm-01",
         "type": "lead",
-        "text": "Some numbers refuse to stay numbers."
+        "text": "Are we in a simulation?"
       },
       {
         "id": "hm-02",
         "type": "paragraph",
-        "text": "You meet one as a measurement. You meet it again in an old story, then in a circle, then in the sky. Suddenly it looks like a note someone left."
+        "text": "Not as a joke, and not as a verdict. As a question you can actually hold still for a few minutes."
       },
       {
         "id": "hm-03",
         "type": "paragraph",
-        "text": "The usual suspects are 72, 432, 60, 12, 360, and 25,920. They turn up in religion, old mathematics, astronomy, music, and the shape of a pine cone."
+        "text": "If a world were built, you might expect the builder to leave a grammar. Ratios. Counts. A few numbers that keep meeting each other in the sky, in the body, and in the old stories. People have been collecting those meetings for a long time. The usual ones are 12, 60, 72, 360, 432, and 25,920."
       },
       {
         "id": "hm-04",
         "type": "heading",
-        "text": "Base 60 still runs the clock"
+        "text": "The hand that counts to sixty"
       },
       {
         "id": "hm-05",
         "type": "paragraph",
-        "text": "Ancient Mesopotamian maths used base 60, not base 10. Sixty divides cleanly by 2, 3, 4, 5, 6, 10, 12, 15, 20, and 30. That is handy for fractions, trade, land, and the sky."
+        "text": "Ancient Mesopotamian mathematics used base 60, not base 10. Sixty divides cleanly by 2, 3, 4, 5, 6, 10, 12, 15, 20, and 30. Handy for fractions, for trade, for land, and for the sky."
       },
       {
         "id": "hm-06",
         "type": "paragraph",
-        "text": "We still live inside it. Sixty seconds. Sixty minutes. A circle of 360 degrees. One counting story says you tally twelve finger-bones with the thumb, and the other hand counts the fives. Twelve times five is 60."
+        "text": "We still live inside it. Sixty seconds. Sixty minutes. A circle of 360 degrees."
       },
       {
         "id": "hm-07",
         "type": "paragraph",
-        "text": "A useful counting system is not a cosmic blueprint. Sometimes a number survives because it works. People keep tools that work."
+        "text": "One old way of arriving at 60 is still on your hand. The thumb of one hand can touch twelve finger-bones, three on each of the other four fingers. The other hand counts the rounds, up to five. Twelve times five is 60."
       },
       {
         "id": "hm-08",
         "type": "figure",
-        "src": "/blog/hidden-matrix/sexagesimal-geometry.webp",
-        "alt": "Cover-look drawing: two ink hands on cream paper, one thumb marked in cobalt, counting finger segments.",
-        "caption": "A drawing of the hand-counting story for 12 and 60. It is not a photograph of a tablet, and it is not a reconstruction of one."
+        "src": "/blog/hidden-matrix/finger-count.jpg",
+        "alt": "A photograph of a hand counting to twelve by touching the finger-bones with the thumb.",
+        "caption": "Counting to twelve on the bones of one hand. Photo: Rhetos, Mathe-AC Lernwerkstatt, Aachen, 2021. CC0."
       },
       {
         "id": "hm-09",
         "type": "paragraph",
-        "text": "Earth spins once a day and goes around the Sun once a year. It also wobbles, slowly, like a spinning top. That wobble is the precession of the equinoxes. A common round number for the full cycle is 25,920 years."
+        "text": "A useful count can just be a tool that worked, so people kept it. It can also be a strange thing to find still running the clock, the compass, and the circle, thousands of years later. Both of those sentences can be true at once."
       },
       {
         "id": "hm-10",
-        "type": "paragraph",
-        "text": "Divide 25,920 by 12, 24, 36, 48, and 60. You get 2,160, 1,080, 720, 540, and 432. Neat. Then people notice that a day has 86,400 seconds, that the Sun’s diameter is often given as about 864,000 miles, and that the Moon’s diameter is about 2,160 miles. And 432 squared is 186,624, close to the speed of light in miles per second."
+        "type": "heading",
+        "text": "A degree every 72 years"
       },
       {
         "id": "hm-11",
         "type": "paragraph",
-        "text": "Those links mix physical measures, units we chose, round astronomical numbers, and rearrangements. Switch miles for kilometres and the pattern moves. The universe does not know that we like miles."
+        "text": "Earth spins once a day and goes around the Sun once a year. It also wobbles, slowly, like a top. The direction of that axis drifts. Astronomers call it the precession of the equinoxes."
       },
       {
         "id": "hm-12",
-        "type": "heading",
-        "text": "From a handy number to a visitor story"
+        "type": "paragraph",
+        "text": "A round number used for the full cycle is 25,920 years. Divide that by 360 degrees and you get 72. One degree of sky about every 72 years. Divide 25,920 by 12, 24, 36, 48, and 60 and you get 2,160, 1,080, 720, 540, and 432."
       },
       {
         "id": "hm-13",
-        "type": "paragraph",
-        "text": "The leap comes next. Sumer shows up in the story as a sudden pile of writing, wheels, boats, looms, ploughs, and organised maths, plus tales of knowledge coming down from the sky, and figures holding pouches or pine-cone shapes."
+        "type": "figure",
+        "src": "/blog/hidden-matrix/precession-1902.png",
+        "alt": "A 1902 printed diagram of the precession of the equinoxes, showing the slow wobble of Earth's axis.",
+        "caption": "Precession of the equinoxes, from Simon Newcomb, Astronomy for Everybody, 1902. Public domain."
       },
       {
         "id": "hm-14",
         "type": "paragraph",
-        "text": "From there it is a short step to a thrilling plot. We did not invent the system. Someone handed it to us. Gods. Visitors. A memory of people from somewhere else."
+        "text": "Then 432 shows up again, in a different costume. A day has 86,400 seconds. The Sun’s diameter is often given as about 864,000 miles. The Moon’s diameter is about 2,160 miles, the same number as 25,920 divided by 12. And 432 squared is 186,624, close to the speed of light in miles per second."
       },
       {
         "id": "hm-15",
         "type": "paragraph",
-        "text": "“It came from the sky” is a reading, not a measurement. Old texts often explain authority by saying it came from heaven. A myth is not automatically a disguised manual. Ancient mathematics can be impressive without visitors. Humans were already strange enough."
+        "text": "Miles and seconds are units we chose. Change the unit and some of those neighbours move apart. That belongs in the picture. So does the other fact: 12, 60, 72, 360, and 25,920 meet each other before anyone picks miles. A hand. A clock. A circle. A slow turn of the sky."
       },
       {
         "id": "hm-16",
-        "type": "paragraph",
-        "text": "Picture Earth as an escape room. Clocks, cones, ratios, and old symbols become breadcrumbs. The trouble is that an escape room has a confirmed exit. This one does not. Until it does, the matrix is a story about coincidences, not a description of how the world is built."
+        "type": "heading",
+        "text": "The cone, the tone, the old stories"
       },
       {
         "id": "hm-17",
-        "type": "figure",
-        "src": "/blog/hidden-matrix/earth-escape-room.webp",
-        "alt": "A small ink globe on cream paper with one cobalt path looping around it.",
-        "caption": "One path around a globe. A thought, not a photograph, and not a model of orbits."
+        "type": "paragraph",
+        "text": "Sumer arrives in this story as a sudden pile of writing, wheels, boats, looms, ploughs, and organised maths. The Sumerian King List speaks of kingship lowered from heaven. Stone figures carry a small bucket and a cone."
       },
       {
         "id": "hm-18",
-        "type": "heading",
-        "text": "A pine cone is not a receiver"
+        "type": "paragraph",
+        "text": "One reading is that the stories remember teachers, and that the knowledge was handed over rather than only invented. Another reading is that cities often explained power by saying it came from above. The texts support the wonder. They do not force you to stop wondering."
       },
       {
         "id": "hm-19",
         "type": "paragraph",
-        "text": "Fibonacci-like counts show up in leaves, seed heads, and shells because growth is not always random. A beautiful spiral does not require every shell to be a coded instruction. Seeing a pattern is an observation. Calling it a clue is a second step. Calling it a key to human consciousness is a third. They are not the same sentence."
+        "text": "The pine cone sits in the same conversation. Seed scales often pack in counts that follow the Fibonacci sequence. The pineal gland, deep in the brain, has struck people for centuries as a small echo of that cone. From there the thought grows: maybe the gland is a receiver, and maybe a tone is one of the signals."
       },
       {
         "id": "hm-20",
-        "type": "paragraph",
-        "text": "The pine cone sits where biology, symbol, and a look-alike meet. From there people jump to the pineal gland, a small gland in the brain, and then to an antenna. The resemblance is striking. The bridges in between are missing."
+        "type": "figure",
+        "src": "/blog/hidden-matrix/pine-cone.jpg",
+        "alt": "A pine cone photographed from above, its scales spiralling out from the centre.",
+        "caption": "A pine cone from above. Photo: Richard Flink, 2008. CC BY-SA 2.0."
       },
       {
         "id": "hm-21",
-        "type": "figure",
-        "src": "/blog/hidden-matrix/432-cymatics-pinecone.webp",
-        "alt": "Cover-look print: a black ink pinecone beside a round plate with a few circles, one of them cobalt, on cream paper.",
-        "caption": "A pine cone and a plate of ripples. Sound can make patterns. This drawing does not show that 432 Hz is special."
+        "type": "paragraph",
+        "text": "The tones people name are 144, 288, 360, and 432. Sound can organise matter. A plate of sand, set vibrating, draws a standing-wave figure. That is cymatics, and it is ordinary physics. Whether 432 Hz is a preferred tone of the world, or one tone among many that can draw a figure, is a question the plate leaves in your hands."
       },
       {
         "id": "hm-22",
-        "type": "paragraph",
-        "text": "Cymatics is real. A vibrating plate can push sand or liquid into standing-wave shapes. A pretty pattern shows that vibration moves matter. It does not, by itself, show that 432 Hz is the universe’s favourite frequency, that it talks to a gland, or that it opens a higher mind."
+        "type": "figure",
+        "src": "/blog/hidden-matrix/chladni-plate.jpg",
+        "alt": "A square metal plate with sand gathered into a symmetrical standing-wave pattern.",
+        "caption": "Sand on a vibrating Chladni plate. Photo: High Contrast, 2011. CC BY 3.0 DE."
       },
       {
         "id": "hm-23",
-        "type": "paragraph",
-        "text": "The experiment shows a physical effect. We supply the extra meaning. If we add the meaning, we should say who is holding the pen."
+        "type": "heading",
+        "text": "Two ways to hold it"
       },
       {
         "id": "hm-24",
         "type": "paragraph",
-        "text": "Where I have to be honest: the evidence is mixed only if you count “it feels connected” as evidence. The counts are real. The base-60 convenience is real. The precession cycle is real. The claim that they were planted as clues is not a measurement."
+        "text": "Way one: a built world would look a bit like this. A few ratios, reused. A clock that still matches the sky. A body that rhymes with a plant. Stories that say the knowledge came down. You would not get a signed letter. You would get a grammar."
       },
       {
         "id": "hm-25",
         "type": "paragraph",
-        "text": "We are pattern-making animals. That skill helped us find food, predict seasons, and cross oceans. It can also make two unrelated things look like they are texting."
+        "text": "Way two: we are pattern-making animals, and we are good at it. The same gift that found the seasons can also stitch a hand, a hymn, and a mile into one sentence. Some of the stitches depend on units we invented. Some do not."
       },
       {
         "id": "hm-26",
-        "type": "blockquote",
-        "text": "A compelling clue is not a confirmed key."
+        "type": "paragraph",
+        "text": "I can stand in either room without throwing the other one out. The counts are real. The wobble of the axis is real. The plate really draws. What the repetition means is still a choice you get to keep making."
       },
       {
         "id": "hm-27",
-        "type": "paragraph",
-        "text": "Ask which numbers were picked. Ask how many were ignored. Ask whether the pattern survives a change of units. Ask what would prove the story wrong. If a theory can explain every result, it is decorating the walls."
+        "type": "blockquote",
+        "text": "The numbers are really there. What they are doing is still open."
       },
       {
         "id": "hm-28",
         "type": "closing",
-        "text": "Maybe the universe is an escape room. Or maybe we are sharp guests in an ordinary room, trying to escape the furniture."
+        "text": "If the same counts can be a clock we kept and a note someone left, what would you need to see before you knew which one you were looking at?"
       }
     ],
     "references": [
@@ -212,6 +214,36 @@
         "title": "Speed of Light in Vacuum",
         "source": "NIST CODATA",
         "href": "https://physics.nist.gov/cgi-bin/cuu/Value?c"
+      },
+      {
+        "id": 8,
+        "title": "The Earth seen from Apollo 17",
+        "source": "NASA, 7 December 1972. Public domain.",
+        "href": "https://commons.wikimedia.org/wiki/File:The_Earth_seen_from_Apollo_17.jpg"
+      },
+      {
+        "id": 9,
+        "title": "Duodecimal counting on one hand",
+        "source": "Rhetos, Mathe-AC Lernwerkstatt, Aachen, 2021. CC0.",
+        "href": "https://commons.wikimedia.org/wiki/File:Duodezimales_Fingerz%C3%A4hlen_(eine_Hand).jpg"
+      },
+      {
+        "id": 10,
+        "title": "Precession of the Equinoxes",
+        "source": "Simon Newcomb, Astronomy for Everybody, 1902, p. 43. Public domain.",
+        "href": "https://commons.wikimedia.org/wiki/File:Astronomy_for_Everybody_(1902)_p043_Precession_of_the_Equinoxes.png"
+      },
+      {
+        "id": 11,
+        "title": "Pine cone from above",
+        "source": "Richard Flink, 2008. CC BY-SA 2.0.",
+        "href": "https://commons.wikimedia.org/wiki/File:Pi%C3%B1a_Fibonacci.jpg"
+      },
+      {
+        "id": 12,
+        "title": "A square Chladni plate",
+        "source": "High Contrast, 2011. CC BY 3.0 DE.",
+        "href": "https://commons.wikimedia.org/wiki/File:Quadratic_Chladni_plate.JPG"
       }
     ]
   }

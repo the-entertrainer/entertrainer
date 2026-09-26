@@ -17,6 +17,10 @@ Target: **Flesch-Kincaid grade 6–8**. The draft must also pass `server/utils/h
 
 Do not invent studies, numbers, names, or citations. If a claim is not in the source or its references, cut it.
 
+Leave live questions live. If a piece asks whether we are in a simulation, whether a machine understands, or whether a number is a clue, put both readings on the table and stop. Do not close with “this is not proof,” “the cartoon loses,” or a wink that picks the sceptical side. A limit in the evidence can be said plainly. A verdict the evidence does not force is bias.
+
+When a real photograph, manuscript, or published diagram exists and the licence is known, use it. Caption it with what it is and who made it, plus the licence. Do not write “this is not a real picture,” “not a reconstruction,” or “not a photograph.” If you drew it, say what the drawing is showing. Do not apologise for the drawing.
+
 ## Page shape (match `pages/elevate/tajjalan.vue`)
 
 Every refreshed essay uses this skeleton. Do not invent a fourth H2 for the argument. Sources is the only extra heading.

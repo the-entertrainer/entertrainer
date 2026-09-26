@@ -75,14 +75,14 @@ const references = [
         <p>The evidence is mixed, and the field says so out loud. Melanie Mitchell and David Krakauer, reviewing the fight in 2023, note the split: some researchers argue today’s large models are building real, if alien, understanding. Others argue we are still being fooled by fluency, the way people were fooled by simple chatbots in the 1960s.<a href="#ref-8" aria-label="Reference 8">[8]</a></p>
         <p>This is not settled. Anyone who tells you it is settled, on either side, is selling something.</p>
         <p>A 2021 paper put the warning in plainer clothes. A system can be dazzling at text and still have no stake in whether the sentence is true.<a href="#ref-7" aria-label="Reference 7">[7]</a></p>
-        <p>Where I have to be honest: you also cannot strictly prove to me that you understand this sentence. Philosophers call that the problem of other minds. I have direct access to one inner life — mine. Yours I infer from behaviour, the same way I would infer it from a convincing room.<a href="#ref-11" aria-label="Reference 11">[11]</a> Nobody has produced a knockdown solution. It is old, and still open, for a reason.</p>
-        <p>What lets you off the hook, and leaves the chatbot on it, is not proof. It is trust. I grant you an inner life because you are built like me, you flinch like me, and you have something to lose. I do not grant the model the same presumption. Nothing about it resembles the one inner life I actually have to work from.</p>
-        <p>Karl Friston’s free-energy idea is one way people talk about a nervous system that pays a price when its guess is wrong, over years of the world pushing back.<a href="#ref-10" aria-label="Reference 10">[10]</a> The model’s predictions can be exquisite. They have never once cost it anything. That is a gap of grounding, not a gap of speed.</p>
+        <p>Where I have to be honest: you also cannot strictly prove to me that you understand this sentence. Philosophers call that the problem of other minds. I have direct access to one inner life — mine. Yours I infer from behaviour. The model’s, too.<a href="#ref-11" aria-label="Reference 11">[11]</a> Nobody has produced a knockdown solution. It is old, and still open, for a reason.</p>
+        <p>Some people extend the presumption of an inner life only to a body like their own: something that flinches, something that can lose. Some people look at a system that built a working board from nothing but next-move guesses, and think understanding has already started. Both are readings. Neither one gets to end the other.</p>
+        <p>Karl Friston’s free-energy idea is one way people talk about a nervous system that pays a price when its guess is wrong.<a href="#ref-10" aria-label="Reference 10">[10]</a> A model can be read that way as well. Every unlikely next word was a cost in training. Whether that cost is anything like hunger, or only like arithmetic, is still an open question.</p>
         <blockquote>
-          <p>It predicts you, beautifully, at a speed that feels like being understood.</p>
+          <p>Speed can feel like being understood. It might also be understanding, arriving fast.</p>
         </blockquote>
-        <p class="taj__closing">If “it gets me” can be produced by the next likely word, how much of being understood was just speed?</p>
-        <p>The only real evidence I have that you understand this sentence is that I like you enough not to ask for proof.</p>
+        <p class="taj__closing">If a reply can be the next likely word and also feel like being known, what would you count as the difference?</p>
+        <p>Sit with both. The room has not voted.</p>
       </div>
     </article>
     <section class="taj__sources" aria-labelledby="sources-title">

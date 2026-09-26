@@ -23,70 +23,66 @@ const references = [
 </script>
 
 <template>
-  <div class="centre">
-    <header class="centre__head">
-      <NuxtLink to="/elevate" class="centre__back">The Entertrainer Blogs</NuxtLink>
-      <p class="centre__meta">{{ CENTRE_UNIVERSE_BLOG.category }} <span aria-hidden="true">·</span> {{ CENTRE_UNIVERSE_BLOG.minutes }} min read</p>
+<div class="taj">
+    <header class="taj__head">
+      <NuxtLink to="/elevate" class="taj__back">The Entertrainer Blogs</NuxtLink>
+      <p class="taj__meta">{{ CENTRE_UNIVERSE_BLOG.category }} <span aria-hidden="true">·</span> {{ CENTRE_UNIVERSE_BLOG.minutes }} min read</p>
       <h1>{{ CENTRE_UNIVERSE_BLOG.title }}</h1>
-      <p class="centre__dek">{{ CENTRE_UNIVERSE_BLOG.dek }}</p>
+      <p class="taj__dek">{{ CENTRE_UNIVERSE_BLOG.dek }}</p>
     </header>
 
-    <figure class="centre__hero">
+    <figure class="taj__hero">
       <EdEditorialImage :src="CENTRE_UNIVERSE_BLOG.hero" :alt="CENTRE_UNIVERSE_BLOG.heroAlt" />
     </figure>
 
-    <article class="centre__article">
-      <aside class="centre__margin-note" aria-label="Balloon aside">
-        <p>Balloon note</p>
-        <p>The middle of a balloon is in the air inside. The dots live on the rubber. Those are different places.</p>
+    <article class="taj__article">
+      <aside class="taj__margin-note" aria-label="Reading note">
+        <p>On the rubber, not in the air.</p>
+        <p>The middle of a balloon is inside it. The dots live on the skin. Those are different places.</p>
       </aside>
 
-      <div class="centre__prose">
-        <p class="centre__lead">Someone on the terrace after dinner is pointing at the dark. Not at a star. At the idea of the whole thing.</p>
+      <div class="taj__prose">
+        <p class="taj__lead">Someone on the terrace after dinner points at the dark.</p>
+        <p>Not at a star. At the whole idea of the thing.</p>
         <p>“If it started with a bang,” they say, “where is the bang now?”</p>
-        <p>It is a reasonable question. It is also the wrong picture. A firework happens in a room. It has a middle. Smoke travels out from that middle. You could, in principle, walk back to the match.</p>
-        <p>The universe is not a firework in a room.</p>
+        <p>Fair question. Wrong picture.</p>
+        <p>A firework happens in a room. Smoke leaves a middle. You could walk back to the match.</p>
 
-        <h2>Start with a balloon, then notice where the analogy leaks</h2>
-        <p>Draw dots on the surface of a balloon. Blow it up. Every dot sees the others move away as the surface stretches.</p>
-        <p>There is no special dot. No dot can point across the surface and say, “That is where the expansion began.” The surface has no centre on it. The centre is in the space inside the balloon, which the dots do not occupy.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>That last sentence is the honest part. The balloon is a two-dimensional skin living in a room. Our space is not a skin on something else we can step into. The picture is useful, then it lies. Keep the useful bit: expansion is a change in distances, not a crowd walking away from a chosen square.</p>
+        <h2>What is it?</h2>
+        <p>Space getting bigger between the galaxies. The galaxies are not walking.</p>
+        <p>Draw dots on a balloon. Blow it up. Every dot sees the others move away, because the rubber stretches.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>No dot gets to say, “The start was over there.” The surface has no centre on it. The centre of the balloon is in the air inside, and the dots do not live there.</p>
+        <p>In 1929 Hubble wrote down a plainer version of the same surprise. More distant nebulae recede faster. That is a relation between distance and speed. It is not a map with us in the middle.<a href="#ref-4" aria-label="Reference 4">[4]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <p>Take two photos of one patch of sky. In the second, the gaps are larger. Nobody packed a bag. The gaps grew.</p>
+        <p>Now hold one galaxy still. Every other one appears to move away from it. Hold a different galaxy still. Same result. The new observer also sees the rest receding in every direction.</p>
 
-        <h2>Now watch the sky do the same thing</h2>
-        <p>Imagine two photographs of the same patch of sky. In the second photograph, the gaps between the galaxies are larger. Nobody has walked away. Space has stretched between them.</p>
-        <p>Press <strong>Stretch</strong>. Then hold one galaxy still. This is the part that matters: once you hold any galaxy still, every other galaxy appears to move away from it.</p>
+        <h2>Why is it significant?</h2>
+        <p>The terrace question smuggles a room into the sentence.</p>
+        <p>If the bang happened in space, there would be a place you could point to. If space itself stretched, that “where” does not sit on the map.</p>
+        <p>So you are not standing at the edge of someone else’s explosion.</p>
+        <p>You are small. Earth is small. The Sun is small next to the rest of it. Small is not the same as off to the side.</p>
+        <p>From your address, the sky opens outward. From your friend’s address, it does the same. From a galaxy ten billion light-years away, too. That is not a compliment. It is a symmetry.</p>
+        <p>On large scales, no place is special and no direction is special. That stubborn claim has a name: the cosmological principle.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
 
-        <ClientOnly>
-          <EdExpansionCentreLab />
-          <template #fallback>
-            <p class="centre__lab-fallback">Loading the galaxy demonstration…</p>
-          </template>
-        </ClientOnly>
-
-        <p>Now choose a different galaxy and hold that one still. The result does not break. The new observer also sees the rest receding in every direction.</p>
         <blockquote>
-          <p>Everyone gets the same view from home.</p>
+          <p>Hold any galaxy still, and the sky runs away from it.</p>
         </blockquote>
 
-        <h2>So are you really the centre?</h2>
-        <p><strong>Physically, no.</strong> Hubble’s 1929 result was not “everything is fleeing from us.” It was a relation: more distant nebulae recede faster. Once you grant that the same relation holds for any observer, the privileged middle disappears.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a></p>
-        <p>The cosmological principle is the boring, stubborn claim underneath. On large scales, no place is special. No direction is special. From every galaxy, distant galaxies appear to move away in every direction.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p><strong>From your point of view, yes.</strong> Your address is the centre of the view you can make from your address. The same is true for your friend, a galaxy ten billion light-years away, and every other observer who can look out. That is not a compliment. It is a symmetry.</p>
+        <h2>Interesting facts and thoughts</h2>
+        <p>Where I have to be honest: the balloon is a toy, then it lies.</p>
+        <p>It is a two-dimensional skin sitting in a room. Our space is not a skin we can step off. Keep the useful bit. Drop the rest. Expansion is a change in distances, not a crowd leaving a chosen square.</p>
+        <p>We also do not have a photograph of the whole thing from outside. Every popular balloon, including this one, is a reconstruction. It can show the symmetry. It is not a view from the gods.</p>
+        <p>Physically, you are not the centre. Hubble’s result was never “everything is fleeing from us.” Once the same relation holds for any observer, the privileged middle disappears.</p>
+        <p>From your point of view, yes, your address is the centre of the view you can make from your address. So is everyone else’s.</p>
 
-        <h2>Where I have to be honest</h2>
-        <p>The terrace question still feels unanswered, because the firework picture smuggled a room into the sentence. If the bang happened <em>in</em> space, there would be a place. If space itself is what stretched, the “where” does not sit on the map.</p>
-        <p>We also do not have a photograph of the whole manifold from outside. The lab on this page is a reconstruction. So is every popular balloon. They are honest about the symmetry. They are not a view from the gods.</p>
-
-        <h2>The useful part</h2>
-        <p>When someone tells you that you are small, this will not refute them. You are small. So is Earth. So is the Sun compared with the universe.</p>
-        <p>But small is not the same as sitting at the edge of someone else’s explosion. From where you stand, the whole sky opens outward. And it does the same for everyone else.</p>
-        <p class="centre__closing">The bang is not somewhere else. There is no somewhere else of that kind.</p>
+        <p class="taj__closing">If every observer sees the sky running away, what exactly would a real middle look like — and who would be standing far enough outside to see it?</p>
+        <p>Sit with that. The bang is not somewhere else. There is no somewhere else of that kind.</p>
       </div>
     </article>
 
-    <section class="centre__sources" aria-labelledby="sources-title">
-      <p class="centre__meta">Sources</p>
-      <h2 id="sources-title">The science behind the picture</h2>
+    <section class="taj__sources" aria-labelledby="sources-title">
+      <p class="taj__meta">References</p>
+      <h2 id="sources-title">Sources used in this article</h2>
       <ol>
         <li v-for="reference in references" :id="`ref-${reference.id}`" :key="reference.id">
           <a :href="reference.href" target="_blank" rel="noreferrer"><span>[{{ reference.id }}]</span> {{ reference.title }} <em>{{ reference.source }}</em></a>
@@ -94,49 +90,55 @@ const references = [
       </ol>
     </section>
 
-    <div class="centre__newsletter-wrap"><EdNewsletter /></div>
+    <div class="taj__newsletter-wrap"><EdNewsletter /></div>
   </div>
 </template>
 
 <style scoped>
-.centre { padding-bottom: 112rem; }
-.centre__head { max-width: var(--shell-wide); margin: 0 auto; padding: clamp(26rem, 5vw, 64rem) var(--shell-gutter) clamp(36rem, 6vw, 76rem); }
-.centre__back, .centre__meta { font: 700 12rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
-.centre__back { color: var(--ink); }
-.centre__meta { margin: clamp(46rem, 8vw, 104rem) 0 16rem; color: var(--signal-cobalt); }
-.centre h1, .centre h2 { font-family: var(--font-display); font-weight: 500; letter-spacing: -.05em; }
-.centre h1 { max-width: 1080rem; margin: 0; font-size: clamp(48rem, 8vw, 122rem); line-height: .91; text-wrap: balance; }
-.centre__dek { max-width: 720rem; margin: 30rem 0 0; font: 400 clamp(19rem, 2.25vw, 27rem)/1.4 var(--font-body); }
-.centre__hero { max-width: 1400rem; margin: 0 auto; padding: 0 var(--shell-gutter); }
-.centre__hero :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 8.5; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; background: var(--signal-field); }
-.centre figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
-.centre__article { max-width: 1100rem; margin: clamp(44rem, 8vw, 112rem) auto 0; padding: 0 var(--shell-gutter); display: grid; grid-template-columns: 190rem minmax(0, 690rem); justify-content: space-between; gap: clamp(28rem, 6vw, 100rem); }
-.centre__margin-note { align-self: start; position: sticky; top: 106rem; padding: 16rem; background: var(--signal-field); border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); font: 400 14rem/1.45 var(--font-body); }
-.centre__margin-note p { margin: 0; }
-.centre__margin-note p + p { margin-top: 10rem; }
-.centre__margin-note p:first-child { font: 700 11rem/1.2 var(--font-mono); letter-spacing: .07em; text-transform: uppercase; }
-.centre__prose { font: 400 clamp(18rem, 1.9vw, 21rem)/1.62 var(--font-body); }
-.centre__prose p { margin: 0 0 24rem; }
-.centre__prose .centre__lead::first-letter { float: left; margin: 2rem 11rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--signal-cobalt); }
-.centre__prose a { color: inherit; text-decoration: underline; text-decoration-color: var(--signal-cobalt); text-decoration-thickness: 2px; text-underline-offset: 3px; }
-.centre__prose h2 { margin: 68rem 0 20rem; font-size: clamp(34rem, 4vw, 53rem); line-height: .98; }
-.centre blockquote { margin: 45rem 0; padding: 24rem 26rem; border-left: 8rem solid var(--signal-cobalt); background: var(--paper-2); border-radius: 0 var(--radius-m) var(--radius-m) 0; font: 500 clamp(25rem, 3vw, 37rem)/1.06 var(--font-display); letter-spacing: -.035em; }
-.centre blockquote p { margin: 0; }
-.centre__lab-fallback { margin: 36rem 0; padding: 24rem; border: var(--stroke) dashed var(--line); border-radius: var(--radius-m); color: var(--ink-soft); font: 400 14rem/1.4 var(--font-mono); }
-.centre__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 clamp(26rem, 3vw, 40rem)/1.08 var(--font-display); letter-spacing: -.04em; }
-.centre__sources { max-width: 1100rem; margin: clamp(64rem, 10vw, 130rem) auto 0; padding: 34rem var(--shell-gutter) 0; border-top: var(--stroke) solid var(--ink); }
-.centre__sources h2 { margin: 12rem 0 30rem; font-size: clamp(33rem, 4vw, 48rem); line-height: .95; font-family: var(--font-display); font-weight: 500; letter-spacing: -.05em; }
-.centre__sources ol { max-width: 760rem; padding: 0; list-style: none; }
-.centre__sources li { padding: 16rem 0; border-top: var(--stroke) solid var(--line); font-size: 15rem; line-height: 1.45; }
-.centre__sources a { color: inherit; }
-.centre__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
-.centre__sources em { color: var(--ink-soft); }
-.centre__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
+.taj { padding-bottom: 112rem; }
+.taj__head { max-width: var(--shell-wide); margin: 0 auto; padding: clamp(26rem, 5vw, 64rem) var(--shell-gutter) clamp(28rem, 5vw, 56rem); }
+.taj__back, .taj__meta { font: 700 12rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.taj__back { color: var(--ink); }
+.taj__meta { margin: clamp(46rem, 8vw, 104rem) 0 16rem; color: var(--signal-cobalt); }
+.taj h1, .taj h2 { font-family: var(--font-display); font-weight: 500; letter-spacing: -.05em; }
+.taj h1 { max-width: 1080rem; margin: 0; font-size: clamp(40rem, 6.6vw, 100rem); line-height: .95; text-wrap: balance; }
+.taj__dek { max-width: 700rem; margin: 30rem 0 0; font: 400 clamp(19rem, 2.25vw, 27rem)/1.4 var(--font-body); }
+.taj__hero { max-width: 1400rem; margin: 0 auto; padding: 0 var(--shell-gutter); }
+.taj__hero :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 8.5; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; background: var(--signal-field); }
+.taj figure figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
+.taj figure figcaption a { color: var(--signal-cobalt); text-decoration: none; }
+.taj__article { max-width: 1100rem; margin: clamp(36rem, 6vw, 76rem) auto 0; padding: 0 var(--shell-gutter); display: grid; grid-template-columns: 190rem minmax(0, 690rem); justify-content: space-between; gap: clamp(28rem, 6vw, 100rem); }
+.taj__margin-note { align-self: start; position: sticky; top: 106rem; padding: 16rem; background: var(--signal-field); border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); font: 400 14rem/1.45 var(--font-body); }
+.taj__margin-note p { margin: 0; }
+.taj__margin-note p + p { margin-top: 10rem; }
+.taj__margin-note p:first-child { font: 700 11rem/1.2 var(--font-mono); letter-spacing: .07em; text-transform: uppercase; }
+.taj__prose { font: 400 clamp(18rem, 1.9vw, 21rem)/1.62 var(--font-body); }
+.taj__prose p { margin: 0 0 24rem; }
+.taj__prose .taj__lead::first-letter { float: left; margin: 2rem 11rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--signal-cobalt); }
+.taj__prose a { color: inherit; text-decoration: underline; text-decoration-color: var(--signal-cobalt); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.taj__prose h2 { margin: 64rem 0 20rem; font-size: clamp(30rem, 3.6vw, 46rem); line-height: .98; }
+.taj blockquote { margin: 45rem 0; padding: 24rem 26rem; border-left: 8rem solid var(--signal-cobalt); background: var(--paper-2); border-radius: 0 var(--radius-m) var(--radius-m) 0; font: 500 clamp(22rem, 2.6vw, 32rem)/1.12 var(--font-display); letter-spacing: -.03em; }
+.taj blockquote p { margin: 0; }
+.taj__visual { margin: 50rem 0 45rem; }
+.taj__visual :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--signal-field); }
+.taj__visual--wide :deep(.ed-editorial-image) { aspect-ratio: 16 / 7; object-fit: cover; }
+.taj__visual--palm :deep(.ed-editorial-image) { aspect-ratio: 16 / 3.2; object-fit: cover; background: #f0e6d4; }
+.taj__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 clamp(22rem, 2.6vw, 34rem)/1.14 var(--font-display); letter-spacing: -.035em; }
+.taj__sources { max-width: 1100rem; margin: clamp(64rem, 10vw, 130rem) auto 0; padding: 34rem var(--shell-gutter) 0; border-top: var(--stroke) solid var(--ink); }
+.taj__sources h2 { margin: 12rem 0 30rem; font-size: clamp(33rem, 4vw, 48rem); line-height: .95; }
+.taj__sources ol { max-width: 760rem; padding: 0; list-style: none; }
+.taj__sources li { padding: 16rem 0; border-top: var(--stroke) solid var(--line); font-size: 15rem; line-height: 1.45; }
+.taj__sources a { color: inherit; }
+.taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
+.taj__sources em { color: var(--ink-soft); }
+.taj__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
 @media (max-width: 760px) {
-  .centre__hero { padding: 0; }
-  .centre__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }
-  .centre__article { display: block; }
-  .centre__margin-note { position: static; margin-bottom: 36rem; }
-  .centre__prose h2 { margin-top: 52rem; }
+  .taj__hero { padding: 0; }
+  .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }
+  .taj__article { display: block; }
+  .taj__margin-note { position: static; margin-bottom: 36rem; }
+  .taj__prose h2 { margin-top: 52rem; }
+  .taj__visual { margin-left: 0; margin-right: 0; }
+  .taj__visual--palm :deep(.ed-editorial-image) { aspect-ratio: 16 / 4.5; }
 }
 </style>

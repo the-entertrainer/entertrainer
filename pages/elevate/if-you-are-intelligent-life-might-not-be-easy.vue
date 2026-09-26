@@ -20,86 +20,77 @@ const references = [
   { id: 3, title: 'Living With the Gift of Giftedness: An Exploratory Study on the Well-Being of Intellectually Gifted Adults', source: 'Gifted Child Quarterly, 2025', href: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12413024/' },
   { id: 4, title: 'The association between mental health and cognitive ability: Evidence from the Understanding Society survey', source: 'PLOS ONE, 2025', href: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12507287/' }
 ]
-
-const visuals = {
-  branches: '/blog/intelligence/bus-stop.jpg',
-  reflection: '/blog/intelligence/reflection.jpg'
-}
 </script>
 
 <template>
-  <div class="feature">
-    <header class="feature__head">
-      <NuxtLink to="/elevate" class="feature__back">The Entertrainer Blogs <span aria-hidden="true">↗</span></NuxtLink>
-      <p class="feature__meta">Mind & meaning <span aria-hidden="true">·</span> 9 min read</p>
+  <div class="taj">
+    <header class="taj__head">
+      <NuxtLink to="/elevate" class="taj__back">The Entertrainer Blogs</NuxtLink>
+      <p class="taj__meta">{{ INTELLIGENCE_BLOG.category }} <span aria-hidden="true">·</span> {{ INTELLIGENCE_BLOG.minutes }} min read</p>
       <h1>{{ INTELLIGENCE_BLOG.title }}</h1>
-      <p class="feature__dek">{{ INTELLIGENCE_BLOG.dek }}</p>
+      <p class="taj__dek">{{ INTELLIGENCE_BLOG.dek }}</p>
     </header>
 
-    <figure class="feature__hero">
+    <figure class="taj__hero">
       <EdEditorialImage :src="INTELLIGENCE_BLOG.hero" :alt="INTELLIGENCE_BLOG.heroAlt" />
-      <figcaption>There is a difference between seeing a possibility and being required to live inside it.</figcaption>
     </figure>
 
-    <article class="feature__article">
-      <aside class="feature__margin-note" aria-label="Reading note">
-        <p>First, a small warning.</p>
-        <p>This is not a diagnosis. “Intelligent” is not a neat medical category, and a difficult life is not proof of high intelligence.</p>
+    <article class="taj__article">
+      <aside class="taj__margin-note" aria-label="Reading note">
+        <p>Not a diagnosis.</p>
+        <p>“Intelligent” is not a medical category. A hard life is not proof that someone is smart.</p>
       </aside>
 
-      <div class="feature__prose">
-        <p class="feature__lead">Imagine you are standing at a bus stop. The bus is late by six minutes. Most people are annoyed, then they open Instagram, then the bus comes.</p>
-        <p>You, meanwhile, have accidentally created a small simulation studio inside your skull. Maybe the driver took another route. Maybe there was an accident. Maybe this bus system has been designed by someone who has never waited for a bus. Maybe you should have walked. Maybe every decision you have made since 2017 has been a minor variation of this bus stop.</p>
-        <p>That is funny until it is not.</p>
-        <p>People often turn this experience into a flattering little myth: <em>smart people suffer because they see too much.</em> It is a good sentence. It is also suspiciously convenient. It lets intelligence become a glamorous explanation for anxiety, loneliness, sadness, insomnia, awkwardness, and the unread email from three weeks ago.</p>
-        <p>The research says something more interesting, and thankfully less cinematic. High cognitive ability is not a curse. It does not reliably predict higher anxiety or depression. A 2024 systematic review and meta-analysis found no significant overall increase in either among gifted groups, although results varied substantially across studies and definitions.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+      <div class="taj__prose">
+        <p class="taj__lead">The bus is six minutes late.</p>
+        <p>Most people get annoyed, open a phone, and wait.</p>
+        <p>You open a small studio in your skull. Maybe the driver took another road. Maybe there was a crash. Maybe you should have walked. Maybe every choice since 2017 was a cousin of this bus stop.</p>
+        <p>Funny. Then it isn’t.</p>
 
-        <h2>The problem is not seeing more. It is never leaving the control room.</h2>
-        <p>A capable mind can generate alternatives quickly. That is useful. It helps you notice patterns, catch contradictions, imagine consequences, and ask the irritating question that everyone else has politely stepped around.</p>
-        <p>But there is a tiny design problem here. A brain that can build ten possible futures may also keep all ten windows open. Not because it is superior. Because it has not been told which windows matter.</p>
+        <h2>What is it?</h2>
+        <p>A mind that can build more than one future, and then forgets to close the extra windows.</p>
+        <p>That is useful. You catch contradictions. You see a consequence early. You ask the question the room stepped around.</p>
+        <p>It does not hand you a legend for the map. Ten routes are not a decision.</p>
+        <p>People turn this into a flattering myth: smart people suffer because they see too much. The sentence is tidy. It also lets intelligence explain anxiety, loneliness, the unread email, the whole week.</p>
+        <p>A 2024 review of gifted groups found no significant overall rise in anxiety or depression. The studies did not agree with each other, and they did not even share one definition of gifted.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>High ability is not a curse. The evidence is mixed on the details. It is not mixed on the movie version. The movie version loses.</p>
+
+        <figure class="taj__visual">
+          <EdEditorialImage
+            src="/blog/intelligence/bus-stop.jpg"
+            alt="A bus stop drawn in black ink on cream paper, with many branching paths and one cobalt line that actually leaves."
+          />
+          <figcaption>More routes are not a plan. One of them has to be the bus you actually board.</figcaption>
+        </figure>
+
+        <h2>Why is it significant?</h2>
+        <p>Repetitive thinking is not one habit.</p>
+        <p>In a study of 751 young adults, reflective pondering — trying to understand what you feel — lined up with several intelligence measures, after depressive symptoms were accounted for. Brooding, the heavier loop that sits in the bad feeling, did not line up the same way.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>Thinking hard and being stuck are cousins. They become unbearable when they refuse to leave the table.</p>
+        <p>Someone replies “okay.” That can mean yes, or annoyance, or a kettle boiling. One reading may be wrong. Eight readings can just make you tired.</p>
+        <p>More models help when a choice is due. They exhaust you when every half-signal gets a meeting.</p>
+        <p>Life is full of half-signals. People are unclear. Work is vague. The future does not send a preview. “If I think hard enough, uncertainty will behave” has never worked. It just gives uncertainty a bigger office.</p>
+
+        <h2>Interesting facts and thoughts</h2>
+        <p>Feeling out of step in a room is a difference in pace, interest, or style. It is not a license to decide everyone else is shallow.</p>
+        <p>A 2025 study of 219 Canadian adults identified as intellectually gifted found a mess, not a curse. Lower income and twice-exceptionality went with higher risk. A relationship, and a sense that your ability was actually being used, went with better well-being.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <p>Context keeps ruining the simple story. Good. If intelligence alone made life hard, the only move would be to become a houseplant. If money, health, belonging, and habits matter, there are handles.</p>
+        <p>Reflection asks what happened, what you can learn, and what is next. It has an end time. Brooding asks why you are like this, and can we replay the evidence with worse lighting.</p>
+        <p>You botch one slide. Reflection revises the slide. Brooding digs up every embarrassing thing since school assembly. Same brain. Different trip.</p>
+        <p>Work on older adults finds thinking ability, mental health, friends, schooling, and plain circumstances tangled together, not lined up in one direction.<a href="#ref-4" aria-label="Reference 4">[4]</a> That study cannot tell a younger reader what their mind is doing to them. It does kill the one-variable story.</p>
+
         <blockquote>
-          <p>Intelligence gives you more possible routes. It does not automatically give you a map legend.</p>
+          <p>The useful question is not “Do I think a lot?” It is “Does this thought go anywhere?”</p>
         </blockquote>
-        <p>That distinction matters because repetitive thinking is not one thing. In a longitudinal study of 751 young adults, <em>reflective pondering</em>, the attempt to understand thoughts and feelings, was positively associated with several intelligence measures after depressive symptoms were accounted for. <em>Brooding</em>, the heavier loop of dwelling on negative feeling, was not associated with intelligence in the same way.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>Basically: thinking deeply and being trapped in thinking are not identical twins. They are more like cousins who become unbearable when they stay too long at the same family function.</p>
 
-        <figure class="feature__inline-art feature__inline-art--portrait">
-          <EdEditorialImage :src="visuals.branches" alt="A bus-stop canopy in black ink with three dashed routes, one cobalt path leaving the frame." />
-          <figcaption>A possibility is useful when it helps you decide. It becomes expensive when it asks to be revisited forever.</figcaption>
-        </figure>
-
-        <h2>Why ordinary uncertainty can feel so loud</h2>
-        <p>Suppose someone replies to your message with “okay.” That word can mean agreement, annoyance, distraction, exhaustion, a typo, or that they have put their phone down because their tea is boiling over. A person who notices only one explanation may be wrong. A person who notices eight explanations may be tired.</p>
-        <p>This is not proof that analytical ability causes suffering. It is a thought experiment about bandwidth. More models can be useful when there is a decision to make. They become exhausting when your nervous system treats every incomplete signal as a problem that needs a meeting.</p>
-        <p>And life is full of incomplete signals. People are unclear. Work is ambiguous. The future is rude enough not to send a preview. The old promise that “if I think hard enough, I can make uncertainty behave” has never really worked. It just gives uncertainty a larger office.</p>
-
-        <h2>Social mismatch is not a hierarchy</h2>
-        <p>There is another reason this topic gets messy. If you often think in abstractions, or arrive at the third implication of something while the conversation is still on the first, you may sometimes feel out of sync with a room. That is a difference in pace, context, interest, or communication style. It is not a license to decide that everyone else is shallow and you have been sent here as a cursed prophet with a LinkedIn account.</p>
-        <p>The available research on gifted adults points in the same direction: outcomes are heterogeneous. In a 2025 exploratory study of 219 Canadian adults identified as intellectually gifted, factors such as lower socioeconomic status and twice-exceptionality were linked with higher risk, while relationship status and perceived potential achievement were associated with better well-being.<a href="#ref-3" aria-label="Reference 3">[3]</a> In other words, context keeps showing up and ruining the simple story.</p>
-        <p>Which is good news. If intelligence alone caused a hard life, there would be very little to do about it except become a houseplant. If environment, support, health, money, belonging, and habits matter, then there are handles.</p>
-
-        <h2>Reflection needs an exit door</h2>
-        <p>Reflection asks: <em>What happened? What can I learn? What next?</em> It has a job and, ideally, an end time.</p>
-        <p>Brooding asks: <em>Why am I like this? What if this says everything about me? Can we replay the same evidence but with worse lighting?</em> It feels productive because it uses the same vocabulary as analysis. But it is not necessarily moving anywhere.</p>
-        <p>Eg: You make a mistake in a presentation. Reflection might identify one slide to revise and one awkward moment to laugh about later. Brooding turns the event into a full archaeological dig of every embarrassing thing you have done since school assembly. Same brain. Entirely different travel plan.</p>
-
-        <figure class="feature__inline-art">
-          <EdEditorialImage :src="visuals.reflection" alt="A solitary person waiting on a high terrace above Prague" />
-          <figcaption>The useful question is not “Do I think a lot?” It is “Does this thought take me somewhere?”</figcaption>
-        </figure>
-
-        <h2>So, is life harder if you are intelligent?</h2>
-        <p>Maybe some parts of it can be. A mind that notices patterns can notice the bad ones early. A mind that can imagine consequences can feel consequences before they exist. A mind that values clarity can get unusually irritated by vague people, vague jobs, vague relationships, and the phrase “let’s circle back.”</p>
-        <p>But none of that means intelligence condemns you to a difficult life. The better question is whether your thinking is serving your life or replacing it.</p>
-        <p>Research in older adults also finds cognition, mental health, social engagement, education, and demographic conditions tangled together rather than moving in one clean direction.<a href="#ref-4" aria-label="Reference 4">[4]</a> That study cannot tell a younger reader what their intelligence is doing to them. It does make the larger point: people are systems, not one-variable explanations.</p>
-        <p>Maybe intelligence is not the ability to have the final answer. Maybe it is noticing when you have built a very impressive machine for avoiding the next ordinary step.</p>
-        <p class="feature__closing">The bus will still arrive. The question is whether you can get on before your brain writes a white paper about the timetable.</p>
+        <p class="taj__closing">If a sharp mind can build a beautiful machine for avoiding the next ordinary step, which window are you going to close before the bus actually comes?</p>
+        <p>Get on. The white paper about the timetable can wait.</p>
       </div>
     </article>
 
-    <section class="feature__sources" aria-labelledby="sources-title">
-      <p class="feature__meta">Sources, not decoration</p>
-      <h2 id="sources-title">What this piece is standing on.</h2>
+    <section class="taj__sources" aria-labelledby="sources-title">
+      <p class="taj__meta">References</p>
+      <h2 id="sources-title">Sources used in this article</h2>
       <ol>
         <li v-for="reference in references" :id="`ref-${reference.id}`" :key="reference.id">
           <a :href="reference.href" target="_blank" rel="noreferrer"><span>[{{ reference.id }}]</span> {{ reference.title }} <em>{{ reference.source }}</em></a>
@@ -107,55 +98,55 @@ const visuals = {
       </ol>
     </section>
 
-    <div class="feature__newsletter-wrap"><EdNewsletter /></div>
+    <div class="taj__newsletter-wrap"><EdNewsletter /></div>
   </div>
 </template>
-
 <style scoped>
-/* First Entertrainer feature: yellow-paper e-magazine hierarchy, wide image breaks, a quiet reading column, and mobile-first line length. */
-.feature { padding-bottom: 112rem; }
-.feature__head { max-width: var(--shell-wide); margin: 0 auto; padding: clamp(26rem, 5vw, 64rem) var(--shell-gutter) clamp(36rem, 6vw, 76rem); }
-.feature__back, .feature__meta { font: 700 12rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
-.feature__back { display: inline-flex; gap: 8rem; color: var(--ink); }
-.feature__back span { color: var(--signal-cobalt); }
-.feature__meta { margin: clamp(46rem, 8vw, 104rem) 0 16rem; color: var(--signal-cobalt); }
-.feature h1, .feature h2 { font-family: var(--font-display); font-weight: 500; letter-spacing: -.05em; }
-.feature h1 { max-width: 1070rem; margin: 0; font-size: clamp(48rem, 8.3vw, 126rem); line-height: .91; text-wrap: balance; }
-.feature__dek { max-width: 690rem; margin: 30rem 0 0; font: 400 clamp(19rem, 2.25vw, 27rem)/1.4 var(--font-body); }
-.feature__hero { max-width: 1400rem; margin: 0 auto; padding: 0 var(--shell-gutter); }
-.feature__hero :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 8.5; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; }
-.feature figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
-.feature__article { max-width: 1100rem; margin: clamp(44rem, 8vw, 112rem) auto 0; padding: 0 var(--shell-gutter); display: grid; grid-template-columns: 190rem minmax(0, 690rem); justify-content: space-between; gap: clamp(28rem, 6vw, 100rem); }
-.feature__margin-note { align-self: start; position: sticky; top: 106rem; padding: 16rem; background: var(--signal-field); border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); font: 400 14rem/1.45 var(--font-body); }
-.feature__margin-note p { margin: 0; }
-.feature__margin-note p + p { margin-top: 10rem; }
-.feature__margin-note p:first-child { font: 700 11rem/1.2 var(--font-mono); letter-spacing: .07em; text-transform: uppercase; }
-.feature__prose { font: 400 clamp(18rem, 1.9vw, 21rem)/1.62 var(--font-body); }
-.feature__prose p { margin: 0 0 24rem; }
-.feature__prose .feature__lead::first-letter { float: left; margin: 2rem 11rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--signal-cobalt); }
-.feature__prose a { color: inherit; text-decoration: underline; text-decoration-color: var(--signal-cobalt); text-decoration-thickness: 2px; text-underline-offset: 3px; }
-.feature__prose h2 { margin: 68rem 0 20rem; font-size: clamp(34rem, 4vw, 53rem); line-height: .98; }
-.feature blockquote { margin: 45rem 0; padding: 24rem 26rem; border-left: 8rem solid var(--signal-cobalt); background: var(--paper-2); border-radius: 0 var(--radius-m) var(--radius-m) 0; font: 500 clamp(25rem, 3vw, 37rem)/1.06 var(--font-display); letter-spacing: -.035em; }
-.feature blockquote p { margin: 0; }
-.feature__inline-art { margin: 54rem 0; }
-.feature__inline-art :deep(.ed-editorial-image) { display: block; width: 100%; max-height: 530rem; object-fit: cover; border-radius: var(--radius-m); border: var(--stroke) solid var(--ink); overflow: hidden; }
-.feature__inline-art--portrait { max-width: 430rem; margin-left: auto; }
-.feature__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 clamp(26rem, 3vw, 40rem)/1.08 var(--font-display); letter-spacing: -.04em; }
-.feature__sources { max-width: 1100rem; margin: clamp(64rem, 10vw, 130rem) auto 0; padding: 34rem var(--shell-gutter) 0; border-top: var(--stroke) solid var(--ink); }
-.feature__sources h2 { margin: 12rem 0 30rem; font-size: clamp(33rem, 4vw, 48rem); line-height: .95; }
-.feature__sources ol { max-width: 760rem; padding: 0; list-style: none; counter-reset: refs; }
-.feature__sources li { padding: 16rem 0; border-top: var(--stroke) solid var(--line); font-size: 15rem; line-height: 1.45; }
-.feature__sources a { color: inherit; }
-.feature__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
-.feature__sources em { color: var(--ink-soft); }
-.feature__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
+.taj { padding-bottom: 112rem; }
+.taj__head { max-width: var(--shell-wide); margin: 0 auto; padding: clamp(26rem, 5vw, 64rem) var(--shell-gutter) clamp(28rem, 5vw, 56rem); }
+.taj__back, .taj__meta { font: 700 12rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.taj__back { color: var(--ink); }
+.taj__meta { margin: clamp(46rem, 8vw, 104rem) 0 16rem; color: var(--signal-cobalt); }
+.taj h1, .taj h2 { font-family: var(--font-display); font-weight: 500; letter-spacing: -.05em; }
+.taj h1 { max-width: 1080rem; margin: 0; font-size: clamp(40rem, 6.6vw, 100rem); line-height: .95; text-wrap: balance; }
+.taj__dek { max-width: 700rem; margin: 30rem 0 0; font: 400 clamp(19rem, 2.25vw, 27rem)/1.4 var(--font-body); }
+.taj__hero { max-width: 1400rem; margin: 0 auto; padding: 0 var(--shell-gutter); }
+.taj__hero :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 8.5; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; background: var(--signal-field); }
+.taj figure figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
+.taj figure figcaption a { color: var(--signal-cobalt); text-decoration: none; }
+.taj__article { max-width: 1100rem; margin: clamp(36rem, 6vw, 76rem) auto 0; padding: 0 var(--shell-gutter); display: grid; grid-template-columns: 190rem minmax(0, 690rem); justify-content: space-between; gap: clamp(28rem, 6vw, 100rem); }
+.taj__margin-note { align-self: start; position: sticky; top: 106rem; padding: 16rem; background: var(--signal-field); border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); font: 400 14rem/1.45 var(--font-body); }
+.taj__margin-note p { margin: 0; }
+.taj__margin-note p + p { margin-top: 10rem; }
+.taj__margin-note p:first-child { font: 700 11rem/1.2 var(--font-mono); letter-spacing: .07em; text-transform: uppercase; }
+.taj__prose { font: 400 clamp(18rem, 1.9vw, 21rem)/1.62 var(--font-body); }
+.taj__prose p { margin: 0 0 24rem; }
+.taj__prose .taj__lead::first-letter { float: left; margin: 2rem 11rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--signal-cobalt); }
+.taj__prose a { color: inherit; text-decoration: underline; text-decoration-color: var(--signal-cobalt); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.taj__prose h2 { margin: 64rem 0 20rem; font-size: clamp(30rem, 3.6vw, 46rem); line-height: .98; }
+.taj blockquote { margin: 45rem 0; padding: 24rem 26rem; border-left: 8rem solid var(--signal-cobalt); background: var(--paper-2); border-radius: 0 var(--radius-m) var(--radius-m) 0; font: 500 clamp(22rem, 2.6vw, 32rem)/1.12 var(--font-display); letter-spacing: -.03em; }
+.taj blockquote p { margin: 0; }
+.taj__visual { margin: 50rem 0 45rem; }
+.taj__visual :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--signal-field); }
+.taj__visual--wide :deep(.ed-editorial-image) { aspect-ratio: 16 / 7; object-fit: cover; }
+.taj__visual--palm :deep(.ed-editorial-image) { aspect-ratio: 16 / 3.2; object-fit: cover; background: #f0e6d4; }
+.taj__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 clamp(22rem, 2.6vw, 34rem)/1.14 var(--font-display); letter-spacing: -.035em; }
+.taj__sources { max-width: 1100rem; margin: clamp(64rem, 10vw, 130rem) auto 0; padding: 34rem var(--shell-gutter) 0; border-top: var(--stroke) solid var(--ink); }
+.taj__sources h2 { margin: 12rem 0 30rem; font-size: clamp(33rem, 4vw, 48rem); line-height: .95; }
+.taj__sources ol { max-width: 760rem; padding: 0; list-style: none; }
+.taj__sources li { padding: 16rem 0; border-top: var(--stroke) solid var(--line); font-size: 15rem; line-height: 1.45; }
+.taj__sources a { color: inherit; }
+.taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
+.taj__sources em { color: var(--ink-soft); }
+.taj__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
 @media (max-width: 760px) {
-  .feature__hero { padding: 0; }
-  .feature__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }
-  .feature__hero figcaption { padding: 0 var(--shell-gutter); }
-  .feature__article { display: block; }
-  .feature__margin-note { position: static; margin-bottom: 36rem; }
-  .feature__prose h2 { margin-top: 52rem; }
-  .feature__inline-art--portrait { max-width: none; margin-left: 0; }
+  .taj__hero { padding: 0; }
+  .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }
+  .taj__article { display: block; }
+  .taj__margin-note { position: static; margin-bottom: 36rem; }
+  .taj__prose h2 { margin-top: 52rem; }
+  .taj__visual { margin-left: 0; margin-right: 0; }
+  .taj__visual--palm :deep(.ed-editorial-image) { aspect-ratio: 16 / 4.5; }
 }
 </style>
+

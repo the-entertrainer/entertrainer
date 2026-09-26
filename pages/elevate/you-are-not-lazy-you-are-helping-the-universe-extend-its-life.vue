@@ -46,7 +46,7 @@ const references = [
         <p>Come back. It is disappointingly normal.</p>
         <p>The tea did not lose all its energy. It gave some warmth to the cooler room. The room barely changed. The cup changed enough for you to notice.</p>
 
-        <h2>What is it?</h2>
+        <h2>A difference you can spend</h2>
         <p>A difference you can spend.</p>
         <p>Hot tea beside a cool room has a difference. A charged battery has one. Water sitting high above the ground has one. Heat can move. The battery can run the phone. Falling water can turn a wheel.</p>
         <p>Then the difference thins out. The tea cools. The battery goes flat. The water reaches the bottom. Nothing vanished. It just got worse at making something else happen.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
@@ -61,7 +61,7 @@ const references = [
           <figcaption>A hot cup and a cool room start different. The warmth spreads. The useful gap shrinks.</figcaption>
         </figure>
 
-        <h2>Why is it significant?</h2>
+        <h2>The nap and the messy room</h2>
         <p>Here is the joke people want. Stay in bed, do less, help the universe last longer.</p>
         <p>A slower day usually burns less of the obvious stuff. Less walking. Less cooking. Fewer lights.</p>
         <p>You are not a phone on airplane mode while you lie there. You are still breathing, still warm, still thinking odd thoughts. The phone in your hand may be getting hot on its own. The universe will manage either way.</p>
@@ -70,7 +70,7 @@ const references = [
         <p>Physics does not care where the socks are. You can make one small patch more ordered any time you like. A fridge keeps its inside cool. A body keeps itself alive. Folding a shirt spends energy and sends some heat somewhere else.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
         <p>So clean the room. Entropy is not going to do it for you.</p>
 
-        <h2>Interesting facts and thoughts</h2>
+        <h2>A deleted file still makes heat</h2>
         <p>Your photos feel weightless. The phone holding them is a lump of matter moving tiny amounts of electricity around. It warms up. It asks to be charged.</p>
         <p>Resetting information has a tiny minimum energy cost. Real machines pay much more than the neat textbook floor, and they pay it messily. The simple point is enough. Information is not floating free. Somebody is paying for it in electricity and heat.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
 

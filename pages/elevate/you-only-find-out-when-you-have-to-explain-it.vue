@@ -47,7 +47,7 @@ const references = [
         <p>A fridge. A tax. Why the match was lost. How a zip actually closes. They say it the way people say their own name. No pause. No “I think.”</p>
         <p>Then someone asks them to walk through it. Not the slogan. The mechanism. What pushes what. What happens next.</p>
         <p>The sentence that felt like a building turns out to be a doorway with nothing behind it.</p>
-        <h2>What is it?</h2>
+        <h2>The zip you cannot draw</h2>
         <p>Try the zip. Explain it to someone who has never seen one. No diagram. No “it just meshes.” The slider pulls. The teeth do something. There is a wedge, maybe. The two sides are forced together, or pulled apart.</p>
         <p>You have used this object since you were a child. You can work it in the dark. Now draw the part that actually does the work. Most people stall around step two.</p>
         <p>Not because they are foolish. The mind stored a label, a gist, and a motor habit, then issued a feeling that those three things were a working model.</p>
@@ -57,13 +57,13 @@ const references = [
           <EdEditorialImage src="/blog/feeling-of-knowing/zipper.jpg" alt="A zipper drawn in black ink on cream paper, opening onto empty dashed lines, with one cobalt pull." />
           <figcaption>From a distance, a zip is one object. Up close, it is a sequence you never had to name.</figcaption>
         </figure>
-        <h2>Why is it significant?</h2>
+        <h2>The feeling is doing another job</h2>
         <p>Why issue a fake receipt? A plausible reading — an interpretation, not a little person in the skull — is that ordinary life rarely asks for the full model. The zip works. The fridge hums. Visible parts move, which is exactly when the illusion is strongest.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
         <p>What you often have is proximity. You have stood near the mechanism. You have heard the vocabulary. You can point. That is not nothing. It is also not the same as rebuilding the chain if the object vanished.</p>
         <p>You can use “it’s encrypted” as a social fact for years. Ask what a key is, who holds it, and what end-to-end actually forbids. Watch how fast the word becomes decoration.</p>
         <p>A 2024 set of preregistered studies still found the basic illusion for devices. Feeling powerful made people more generally overconfident. It barely changed the drop that appears once you have to explain the thing.<a href="#ref-8" aria-label="Reference 8">[8]</a></p>
         <p>Search makes the receipt cheaper. In nine experiments with more than a thousand people, Matthew Fisher, Mariel Goddu, and Frank Keil found that searching online inflated how much knowledge people believed was already inside their own heads.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
-        <h2>Interesting facts and thoughts</h2>
+        <h2>The cartoon does not survive</h2>
         <p>In 2013 Philip Fernbach and colleagues asked people about complex policies. Some had to explain the mechanism — how the policy would actually cause what it claimed. Some only listed reasons for liking or hating it. The mechanism group got less extreme.<a href="#ref-3" aria-label="Reference 3">[3]</a> Reasons feel like knowledge. A mechanism does not let you hide.</p>
         <p>The internet already named a villain: the Dunning–Kruger effect, from a 1999 paper about people who are unskilled and unaware of it.<a href="#ref-2" aria-label="Reference 2">[2]</a> Later work has been unkind to the cartoon. A 2020 paper argued the famous pattern is mostly a statistical artefact.<a href="#ref-5" aria-label="Reference 5">[5]</a> A 2022 registered report found it was driven overwhelmingly by performance scores, not by a unique failure of insight at the bottom.<a href="#ref-6" aria-label="Reference 6">[6]</a> In 2026 Chris Dawson and David de Meza re-analysed large replication sets with models that treat both the test and the self-prediction as noisy. Once that is respected, the popular picture does not just shrink. It comes apart.<a href="#ref-7" aria-label="Reference 7">[7]</a></p>
         <p>The evidence is mixed. Treat the insult version as a competing interpretation, not a replacement slogan. What survives is plainer. People misjudge what they know. The feeling is cheap, especially for mechanisms, especially after a search.</p>

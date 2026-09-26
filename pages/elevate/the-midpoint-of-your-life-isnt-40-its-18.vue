@@ -45,7 +45,7 @@ const references = [
       <div class="taj__prose">
         <p class="taj__lead">A video told me the middle of an 81-year life is 18, not 40.</p>
         <p>The maths is real. It is also about 150 years old. It was never really “discovered,” and the honest version has three asterisks the voiceover skipped.</p>
-        <h2>What is it?</h2>
+        <h2>A year is not always one year</h2>
         <p>We quietly assume a year is a year. Age 4 to 5 is one unit. Age 40 to 41 is one unit. A clock does not care how old you are.</p>
         <p>Felt time does. In 1877 the French philosopher Paul Janet proposed a simple account: the felt length of a year is proportional to how much life you have already lived.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
         <p>To a 10-year-old, one year is a tenth of everything they have known. To a 50-year-old, the same 365 days is a fiftieth. Same calendar year. Different denominator.</p>
@@ -56,12 +56,12 @@ const references = [
           <EdEditorialImage src="/blog/life-midpoint/linear-vs-log.svg" alt="Two timelines on cream paper: an even ruler marked 40, and a stretched ruler whose middle falls nearer 18." />
           <figcaption>Same life, two rulers. The even one puts the middle at 40. The stretched one, with these inputs, puts it at 18.</figcaption>
         </figure>
-        <h2>Why is it significant?</h2>
+        <h2>Eighteen is one answer, not the answer</h2>
         <p>The video presented 18 as if it were a constant of nature. It is the output of two choices: when memory starts, and how long you expect to live. Move either one and the “true midpoint” moves with it.</p>
         <p>Four is a commonly cited figure for the start of memory. It is contested. The traditional estimate for a person’s earliest memory sits closer to 3.5, and some newer work puts it younger still.<a href="#ref-3" aria-label="Reference 3">[3]</a> A longitudinal study that asked the same children again found they systematically postdated their earliest memories as they grew.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
         <p>Same formula. Same life expectancy. Four defensible starting ages. Eighteen is the one that happens to come out a whole number.</p>
         <p>Eighty-one is a reasonable round number, close to several wealthy countries. It is not a global constant. Current U.S. life expectancy sits nearer 80.<a href="#ref-8" aria-label="Reference 8">[8]</a> Swap in your own country’s figure and your personal 18 quietly becomes a 17 or a 19.</p>
-        <h2>Interesting facts and thoughts</h2>
+        <h2>Several explanations, no winner</h2>
         <p>The feeling underneath the video is older than the punchline. William Friedman and Steve Janssen asked nearly 1,900 adults, aged 16 to 80, how fast the past week, month, year, and ten years seemed to have gone.<a href="#ref-5" aria-label="Reference 5">[5]</a> People do report that longer stretches speed up. That is not the same as proving Janet’s fraction is the mechanism.</p>
         <p>Adrian Bejan offered a different physical story in 2019.<a href="#ref-6" aria-label="Reference 6">[6]</a> A 2023 mathematical review tested several competing models and did not crown a single winner.<a href="#ref-7" aria-label="Reference 7">[7]</a></p>
         <p>The evidence is mixed. Real phenomenon. Several plausible explanations. No single confirmed mechanism. That is an unglamorous sentence, and it is the accurate one.</p>

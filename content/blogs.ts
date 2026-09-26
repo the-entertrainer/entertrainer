@@ -31,7 +31,7 @@ export interface BlogPost {
 export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'you-are-not-lazy-you-are-helping-the-universe-extend-its-life',
-    title: 'Hot Tea, Dead Phones, and Why Rest Is Not a Moral Failure',
+    title: 'Why hot tea goes cold',
     dek: 'A small physics story about rest, hot tea, batteries, deleted files, and why the universe likes to spread things out.',
     socialHook: 'Hot tea cools. Phones die. Same boring physics. Rest isn’t a moral failure — it’s the universe preferring things spread out.',
     socialTitle: 'Hot tea cools. Phones die. Rest isn’t a moral failure.',
@@ -45,7 +45,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'if-you-are-intelligent-life-might-not-be-easy',
-    title: 'The Bus Is Late. Your Brain Opens Ten Windows.',
+    title: 'A sharp mind is not a curse',
     dek: 'A mind that can model more possibilities can also get stuck living in the model. The research is less cinematic than the myth.',
     socialHook: 'Bus is six minutes late. Your skull opens ten windows and won’t close them. The research is less flattering than the myth.',
     socialTitle: 'Bus late. Your skull opens ten windows and won’t close them.',
@@ -59,7 +59,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'why-isnt-the-moon-moonly',
-    title: 'Friend, friendly. Love, lovely. So why isn’t the Moon moonly?',
+    title: 'Why isn’t the Moon moonly?',
     dek: 'English will build an adjective out of almost any noun, then quietly refuse for the Moon, the Sun and your own teeth. The reason is older than English.',
     socialHook: 'Friend, friendly. Love, lovely. Moon… English builds adjectives freely, then quietly refuses. The reason is older than English.',
     socialTitle: 'Friend, friendly. Love, lovely. Why isn’t the Moon moonly?',
@@ -73,7 +73,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'does-ai-understand-you',
-    title: 'Does AI Understand You? Bloom’s Taxonomy Says Otherwise',
+    title: 'Does AI understand you?',
     dek: 'An instructional designer walks the word “understand” through Bloom’s Taxonomy, and finds a very fast, very fluent machine that never quite arrives at the state the word describes.',
     socialHook: 'You type a half-finished rant. The reply is so on-point you whisper “it gets me.” Bloom’s Taxonomy says it never quite arrives.',
     socialTitle: 'Does AI understand you? Bloom’s Taxonomy says otherwise.',
@@ -87,7 +87,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'jamais-vu-why-words-stop-meaning-anything',
-    title: 'Why Staring at a Word Long Enough Can Make It Stop Being a Word',
+    title: 'When a word stops being a word',
     dek: 'One evening at work I stared at the word "door" until it stopped looking like English. That glitch has a name, an Ig Nobel Prize, and a family of stranger cousins.',
     socialHook: 'I stared at “door” until it stopped looking like English. That glitch has a name, an Ig Nobel Prize, and stranger cousins.',
     socialTitle: 'Stare at a word long enough — it stops being a word.',
@@ -101,7 +101,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'the-midpoint-of-your-life-isnt-40-its-18',
-    title: "The Midpoint of Your Life Isn't 40. It's 18.",
+    title: 'The middle of your life is not 40',
     dek: 'A video I watched claimed the real midpoint of an 81-year life is age 18, not 40. The maths behind it is genuine, two centuries old — and shakier than the confident voiceover made it sound.',
     socialHook: 'A video claimed your life’s midpoint isn’t 40 — it’s 18. The maths is real, two centuries old, and shakier than the voiceover.',
     socialTitle: 'Your life’s midpoint isn’t 40. The maths says it’s 18.',
@@ -115,7 +115,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'how-to-lie-perfectly',
-    title: 'What It Would Take to Lie Perfectly',
+    title: 'What it would take to lie perfectly',
     dek: 'Perfect lying sounds like calm eyes and a locked story. Cognitive science suggests it is mostly a bandwidth problem — and that many imperfect lies succeed because listeners start in truth-default.',
     socialHook: 'Perfect lying looks like calm eyes. Cognitive science keeps calling it a bandwidth problem — and listeners who start by believing you.',
     socialTitle: 'What it would take to lie perfectly — mostly bandwidth.',
@@ -129,7 +129,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'the-voice-in-your-head-is-not-the-whole-of-you',
-    title: 'The Press Secretary in Your Head',
+    title: 'The press secretary in your head',
     dek: 'That running commentary can rehearse a conversation, hold a phone number, and talk you out of sending a message. Useful. Not in charge.',
     socialHook: 'That running commentary rehearses the text, holds the number, talks you out of sending it. Useful. Not the CEO of you.',
     socialTitle: 'The press secretary in your head is useful. Not the CEO.',
@@ -143,7 +143,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'you-are-the-centre-of-the-universe',
-    title: 'The Sky Runs Away From Everyone',
+    title: 'The sky runs away from everyone',
     dek: 'Space gets bigger between the galaxies — they are not walking. Hold anyone still and the sky runs away from them. Same for everyone.',
     socialHook: 'Hold still. The sky runs away from you. Hold anyone else still — same thing. Expanding space doesn’t pick a favourite.',
     socialTitle: 'Hold still. The sky runs away from you — and everyone.',
@@ -157,7 +157,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'you-only-find-out-when-you-have-to-explain-it',
-    title: 'You Only Find Out You Don’t Know It When You Have to Explain It',
+    title: 'You find out when you have to explain it',
     dek: 'The feeling of knowing arrives first, and cheaply. A zip, a policy, a search bar — they all sell you a working model. The model is often just a label with good lighting.',
     socialHook: 'The feeling of knowing arrives first, and cheaply. Ask someone to explain the zip — and the lighting goes out.',
     socialTitle: 'You only find out you don’t know it when you explain it.',
@@ -185,7 +185,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'your-mouth-can-be-sure-for-reasons-your-eyes-never-had',
-    title: 'How many of you, is actually inside you?',
+    title: 'How many of you is inside you?',
     dek: 'In 1962 surgeons cut the bridge between William Jenkins’s brain halves to treat epilepsy. In the lab, speech said it saw nothing — while a hand still found the match. Then the mouth invented a reason.',
     socialHook: 'They flashed a key to one half of a split brain. Speech said nothing. The left hand still found the key — then later invents a chicken-shed story for a shovel.',
     socialTitle: 'How many of you is actually inside you?',

@@ -48,7 +48,7 @@ const references = [
         <p>Fair question. Wrong picture.</p>
         <p>A firework happens in a room. Smoke leaves a middle. You could walk back to the match.</p>
 
-        <h2>What is it?</h2>
+        <h2>Dots on a balloon</h2>
         <p>Space getting bigger between the galaxies. The galaxies are not walking.</p>
         <p>Draw dots on a balloon. Blow it up. Every dot sees the others move away, because the rubber stretches.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
         <p>No dot gets to say, “The start was over there.” The surface has no centre on it. The centre of the balloon is in the air inside, and the dots do not live there.</p>
@@ -56,7 +56,7 @@ const references = [
         <p>Take two photos of one patch of sky. In the second, the gaps are larger. Nobody packed a bag. The gaps grew.</p>
         <p>Now hold one galaxy still. Every other one appears to move away from it. Hold a different galaxy still. Same result. The new observer also sees the rest receding in every direction.</p>
 
-        <h2>Why is it significant?</h2>
+        <h2>Every address gets the same sky</h2>
         <p>The terrace question smuggles a room into the sentence.</p>
         <p>If the bang happened in space, there would be a place you could point to. If space itself stretched, that “where” does not sit on the map.</p>
         <p>So you are not standing at the edge of someone else’s explosion.</p>
@@ -68,7 +68,7 @@ const references = [
           <p>Hold any galaxy still, and the sky runs away from it.</p>
         </blockquote>
 
-        <h2>Interesting facts and thoughts</h2>
+        <h2>The picture leaks</h2>
         <p>Where I have to be honest: the balloon is a toy, then it lies.</p>
         <p>It is a two-dimensional skin sitting in a room. Our space is not a skin we can step off. Keep the useful bit. Drop the rest. Expansion is a change in distances, not a crowd leaving a chosen square.</p>
         <p>We also do not have a photograph of the whole thing from outside. Every popular balloon, including this one, is a reconstruction. It can show the symmetry. It is not a view from the gods.</p>

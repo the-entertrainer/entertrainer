@@ -47,13 +47,13 @@ const references = [
         <p class="taj__lead">Friend, friendly. Love, lovely. Moon… and then your mouth goes empty.</p>
         <p>The suffix is sitting right there. English uses it all the time, then stops, and hands you a word with no visible link to the Moon at all. Lunar.</p>
         <p>Same trick for the sun, which gets solar. For teeth, which get dental. For a cat, which gets feline.</p>
-        <h2>What is it?</h2>
+        <h2>Cousin words, not child words</h2>
         <p>These pairs have a name. Collateral adjectives: adjectives tied to a noun by meaning, and unrelated to it by descent.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a></p>
         <p>Collateral is doing honest work. It means the same family stock, but not in a direct line. A cousin, not a child. Moon and lunar are not parent and child. They are two people who happen to have the same job.</p>
         <p>Suppose English passed a law at midnight: every adjective must grow from its own noun. Borrowed ones are deleted. Tomorrow, astronomers study the moonly surface. Engineers install sunly panels. You book a toothly surgeon. Your cat has excellent catly reflexes.</p>
         <p>Nothing there is broken. Every word obeys the rule you already use for friendly and lovely. It just sounds like a nine-year-old explaining space.</p>
         <p>If the words are well formed, and you understand them, what exactly did we lose?</p>
-        <h2>Why is it significant?</h2>
+        <h2>Moony already had a job</h2>
         <p>English did build the native adjective. Moony has been in the language since about 1586, and one listed meaning is, plainly, relating to or resembling the moon.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
         <p>You would still never write “a moony eclipse.” Moony drifted. It now mostly means dreamy, moonstruck, a bit absent — the face of someone in love, not the surface of a rock.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
         <p>English did not have a gap. It had a staffing decision. Lunar took the observatory. Moony took the poetry.</p>
@@ -63,7 +63,7 @@ const references = [
           <EdEditorialImage src="/blog/moonly/crescent-moon.jpg" alt="A small crescent drawn in black ink on cream paper, with one cobalt arc beside a struck-through word." />
           <figcaption>The Moon gets two English adjectives. Neither of them is “moonly.”</figcaption>
         </figure>
-        <h2>Interesting facts and thoughts</h2>
+        <h2>A clock and a lamp</h2>
         <p>The two words do not even answer the same question about the rock.</p>
         <p>Moon comes from a root meaning to measure. The thing that counts time. A clock.<a href="#ref-7" aria-label="Reference 7">[7]</a> Lunar comes through Latin luna, from a root meaning light, brightness. A lamp. The same root shows up in old Slavic and Irish words for moon and light.<a href="#ref-8" aria-label="Reference 8">[8]</a></p>
         <p>One set of ancestors looked up and saw a calendar. Another set looked up and saw a lamp. English kept both, and never announced it.</p>

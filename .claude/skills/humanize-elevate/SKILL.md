@@ -23,19 +23,19 @@ Every refreshed essay uses this skeleton. Do not invent a fourth H2 for the argu
 
 1. Back link: “The Entertrainer Blogs”.
 2. Category · minutes.
-3. Title and dek (dek is one concrete sentence, not a slogan).
+3. Title: short, plain, and specific. Say the thing. No colon-stacked subtitle, no “Bloom’s says otherwise,” no cute triple. Tajjalan can stay one word. A question is fine when the piece is a question. Dek stays one concrete sentence, not a slogan.
 4. Hero figure (`EdEditorialImage`).
 5. Sticky margin note: two short lines. What to hold while reading. Not a summary of the whole piece.
 6. Drop-cap lead: a scene or a hard fact in sentence one. No “have you ever”, no “in today’s world”.
-7. **What is it?** — name the thing in plain words. Mechanism, not mood.
+7. Two or three H2s that name what that section is actually about. Do not reuse “What is it? / Why is it significant? / Interesting facts and thoughts” on every post. Those labels were a template, not a rule. A word post might use “Four pieces of one word.” A physics post might use “A difference you can spend.” Write the heading a reader could use as a signpost.
 8. One or two figures that earn their place, with captions that say what the picture is and what it is not.
-9. **Why is it significant?** — what changes in ordinary life if the claim is true. A room, a bus stop, a cup, a phone. Not “the human condition”.
-10. **Interesting facts and thoughts** — the odd detail, the number, the limit. Include one honest crack: where the tidy story fails, what later work disagreed with, what the evidence does not show. Use a real limitation, not a fake balance.
+9. The middle section should say what changes in ordinary life if the claim is true. A room, a bus stop, a cup, a phone. Not “the human condition”.
+10. The last section holds the odd detail, the number, and the limit. Include one honest crack: where the tidy story fails, what later work disagreed with, what the evidence does not show. Use a real limitation, not a fake balance. Do not title that section “Where the tidy story breaks” or “What this is actually about.”
 11. One blockquote. One sentence. The line worth keeping.
 12. Closing question in `taj__closing`. Then one short line that tells the reader to sit with it. No “in conclusion”.
 13. References, numbered, same links as the source unless a link is dead.
 
-Concept posts and science posts both use these three H2s. Science still has to name the real mechanism inside “What is it?”. Do not go back to teaser headings (“Where the tidy story breaks”, “What this is actually about”).
+Do not paste the same three H2s onto every essay. Match the heading to the section. Sources stays “Sources used in this article.”
 
 Keep the Tajjalan CSS class names (`taj`, `taj__lead`, `taj__margin-note`, `taj__closing`, and the rest). Copy the `<style scoped>` block from `tajjalan.vue`. Do not restyle the site.
 

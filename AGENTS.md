@@ -2,7 +2,8 @@
 
 **One writing skill only:** [Humanize Elevate](.agents/skills/humanize-elevate/SKILL.md)
 
-- Every Elevate post uses the Tajjalan page shape: margin note, drop-cap lead, then **What is it? / Why is it significant? / Interesting facts and thoughts**, one blockquote, a closing question, then sources.
+- Every Elevate post uses the Tajjalan page shape: margin note, drop-cap lead, two or three headings that name the section, one blockquote, a closing question, then sources.
+- Titles stay short and plain. Do not reuse “What is it? / Why is it significant? / Interesting facts and thoughts” as the headings.
 - Proofread and rewrite through that skill. Grade 6–8. No invented studies.
 - Refresh an illustration only when it breaks the cover style. Keep real photographs.
 

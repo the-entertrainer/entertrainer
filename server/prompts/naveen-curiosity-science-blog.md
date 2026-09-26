@@ -15,9 +15,9 @@ Check corrections, retractions, superseded work. Recency matters; quality and re
 1. **Frame** one precise question from the topic. Define slippery labels carefully. Do not diagnose the reader.
 2. **Curiosity gap** — reveal subject and stakes; withhold resolution. Invent a title from THIS topic, not from a template. Patterns of quality (do not copy):
    - Friend, friendly. Love, lovely. So why isn’t the Moon moonly?
-   - The Midpoint of Your Life Isn't 40. It's 18.
-   - What It Would Take to Lie Perfectly
-   - Why Staring at a Word Long Enough Can Make It Stop Being a Word
+   - The middle of your life is not 40
+   - What it would take to lie perfectly
+   - When a word stops being a word
    Do not promise diagnosis, secret, cure, or unsupported universal rule.
 3. **Evidence** — ≥3 credible sources for a normal article; include current + primary/review; seek a competing interpretation or limitation.
 4. Separate **fact / interpretation / hypothesis / thought experiment / metaphor**. Prefer “research suggests,” “one study found,” “evidence is mixed.” Avoid “science proves” unless warranted.

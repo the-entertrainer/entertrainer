@@ -46,12 +46,12 @@ const references = [
       <div class="taj__prose">
         <p class="taj__lead">One evening at work I stared at the word “door” until it stopped looking like English.</p>
         <p>Same four letters. Suddenly a pile of shapes. I had walked into a glitch with a name, a research literature, and — as of 2023 — an Ig Nobel Prize.</p>
-        <h2>What is it?</h2>
+        <h2>The meaning drops out</h2>
         <p>The lab name for the staring trick is semantic satiation. Repeat a word, or look at it long enough, and the meaning drops out. What is left feels like sound, or ink, with nothing attached.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
         <p>Edward Titchener noted the feeling informally in the late 1800s. It picked up working names — verbal satiation, lapse of meaning, plain mental fatigue — before Leon Jakobovits James gave it the current name in his 1962 dissertation.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
         <p>So the wall I hit over “door” already had a name before I was born.</p>
         <p>Jamais vu is the stranger cousin: something you know feels unfamiliar, as if you are meeting it for the first time. Akira O’Connor put it this way: the strange feeling of finding something peculiar when we know it should be familiar.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <h2>Why is it significant?</h2>
+        <h2>Copy the word until it breaks</h2>
         <p>In 2023 Chris Moulin, Nicole Bell, and Akira O’Connor at the University of St Andrews won the Ig Nobel Prize in Literature for measuring the glitch on purpose, with a stopwatch.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
         <p>Ninety-four undergraduates copied a word by hand, over and over, and stopped when it started to feel wrong. Some words were ordinary (“door”). Some were obscure (“sward”). Across two experiments, roughly two-thirds of them reported the word turning strange — typically after about 30 repetitions, inside a single minute.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
         <p>The paper’s title tells the joke before you can: “The The The The Induction of Jamais Vu in the Laboratory.”</p>
@@ -60,7 +60,7 @@ const references = [
           <EdEditorialImage src="/blog/jamais-vu/checking-loop.svg" alt="A simple loop: see the word, check the meaning, see the word again, until the check comes back empty." />
           <figcaption>Repetition keeps asking “is this still a word?” until the answer briefly fails.</figcaption>
         </figure>
-        <h2>Interesting facts and thoughts</h2>
+        <h2>The rest of the family</h2>
         <p>The family is bigger than one glitch.</p>
         <p>Déjà vu is the mirror. A brand-new moment feels like a rerun. On one influential reading, that is a fact-checker catching a false alarm before it becomes a false memory.<a href="#ref-4" aria-label="Reference 4">[4]</a> That is an interpretation, not a settled law.</p>
         <p>Everyday déjà vu reports do not line up neatly with standard lab tests of recollection and familiarity for words. Polite version: the full mechanism is still open.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>

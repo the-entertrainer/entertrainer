@@ -47,7 +47,7 @@ const references = [
         <p>You open a small studio in your skull. Maybe the driver took another road. Maybe there was a crash. Maybe you should have walked. Maybe every choice since 2017 was a cousin of this bus stop.</p>
         <p>Funny. Then it isn’t.</p>
 
-        <h2>What is it?</h2>
+        <h2>Ten windows and no legend</h2>
         <p>A mind that can build more than one future, and then forgets to close the extra windows.</p>
         <p>That is useful. You catch contradictions. You see a consequence early. You ask the question the room stepped around.</p>
         <p>It does not hand you a legend for the map. Ten routes are not a decision.</p>
@@ -63,7 +63,7 @@ const references = [
           <figcaption>More routes are not a plan. One of them has to be the bus you actually board.</figcaption>
         </figure>
 
-        <h2>Why is it significant?</h2>
+        <h2>Thinking hard is not being stuck</h2>
         <p>Repetitive thinking is not one habit.</p>
         <p>In a study of 751 young adults, reflective pondering — trying to understand what you feel — lined up with several intelligence measures, after depressive symptoms were accounted for. Brooding, the heavier loop that sits in the bad feeling, did not line up the same way.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
         <p>Thinking hard and being stuck are cousins. They become unbearable when they refuse to leave the table.</p>
@@ -71,7 +71,7 @@ const references = [
         <p>More models help when a choice is due. They exhaust you when every half-signal gets a meeting.</p>
         <p>Life is full of half-signals. People are unclear. Work is vague. The future does not send a preview. “If I think hard enough, uncertainty will behave” has never worked. It just gives uncertainty a bigger office.</p>
 
-        <h2>Interesting facts and thoughts</h2>
+        <h2>The curse story does not hold</h2>
         <p>Feeling out of step in a room is a difference in pace, interest, or style. It is not a license to decide everyone else is shallow.</p>
         <p>A 2025 study of 219 Canadian adults identified as intellectually gifted found a mess, not a curse. Lower income and twice-exceptionality went with higher risk. A relationship, and a sense that your ability was actually being used, went with better well-being.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
         <p>Context keeps ruining the simple story. Good. If intelligence alone made life hard, the only move would be to become a houseplant. If money, health, belonging, and habits matter, there are handles.</p>

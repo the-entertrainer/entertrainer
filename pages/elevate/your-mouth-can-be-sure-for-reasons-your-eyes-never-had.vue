@@ -91,7 +91,7 @@ const references = [
         <p>In Los Angeles, Joseph Bogen and Philip Vogel cut his corpus callosum so a seizure on one side would have a harder time racing into the other. The seizures eased. In ordinary talk he seemed much like himself.</p>
         <p>Then Michael Gazzaniga and Roger Sperry tested him at Caltech. The quiet recovery stopped looking ordinary.<a href="#ref-8" aria-label="Reference 8">[8]</a><a href="#ref-2" aria-label="Reference 2">[2]</a></p>
 
-        <h2>What is it?</h2>
+        <h2>A bridge cut, not a half removed</h2>
         <p>The corpus callosum is the thick fibre bridge between the left and right halves of the brain. In hard epilepsy, a seizure can start on one side and cross that bridge. Cutting it was a last resort. Nobody removed half a brain.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
         <p>Everyday chat could still look normal. The odd results showed up when the lab sent a fact to only one side.</p>
         <p>Stare at a centre mark. The left half of the scene is handled mainly by the right half of the brain. The right half of the scene goes mainly to the left half. A flash too brief for the eyes to cheat can reach only one side.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
@@ -106,7 +106,7 @@ const references = [
           <figcaption>Left-field flash, right half of the brain. Speech can say “nothing” while a hand still finds the match.</figcaption>
         </figure>
 
-        <h2>Why is it significant?</h2>
+        <h2>The shovel and the chicken shed</h2>
         <p>A later patient, known as P.S., made it sharp. Two pictures at once: a chicken claw to the speaking left half, a snow scene to the right half. The right hand picked a chicken. The left hand picked a snow shovel.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
         <p>Asked why, speech — which had seen only the claw — answered along these lines: the claw goes with the chicken, and you need a shovel to clean the chicken shed.</p>
         <p>The shovel belonged to the snow. The speaking half never got the snow. It did not say “I don’t know.” It built a reason that made the moment sound whole. Gazzaniga called that storytelling habit the left-hemisphere interpreter.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a></p>
@@ -121,7 +121,7 @@ const references = [
           <figcaption>Claw to one half, snow to the other. The mouth never saw the snow, and still invents a shed for the shovel.</figcaption>
         </figure>
 
-        <h2>Interesting facts and thoughts</h2>
+        <h2>Sure is not the same as seen</h2>
         <p>The evidence is mixed on what the split means for “how many of you” there are. It is not mixed on the lab trick.</p>
         <p>Around 2017, Yair Pinto and colleagues argued for one conscious agent with split perception: two streams that do not join, without Hollywood dual persons.<a href="#ref-5" aria-label="Reference 5">[5]</a> Others say some apparent unity is cross-cueing, one side tipping the other off. A 2020 review said we still lack enough evidence to settle the first-person question cleanly.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
         <p>In 2025 a new group sharpened the cut itself. Fully callosotomized patients still showed the classic disconnection. One patient, BT*, had a near-complete cut but about one centimetre of the rear tip — the splenium — left. Years later he showed no classic disconnection across vision, touch, space, and language, as if that remnant was enough to keep the sides working together.<a href="#ref-7" aria-label="Reference 7">[7]</a></p>

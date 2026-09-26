@@ -53,7 +53,7 @@ const references = [
         <p>If this were a movie, the camera would already be circling, waiting for the tell. You watch the eyes anyway.</p>
         <p>Somewhere between school corridors and crime dramas you absorbed a rule: liars leak. Perfect liars don’t.</p>
         <p>Which raises a stranger question than “Is this person lying?” What would it take to lie perfectly?</p>
-        <h2>What is it?</h2>
+        <h2>What a perfect lie would need</h2>
         <p>Not charmingly. Not well enough. Perfectly: consistent under pressure, with the feeling under control, socially tuned, and invisible to the scrutiny humans think they are good at.</p>
         <p>Build it as a machine and you need at least four parts. Memory, so every invented detail survives the follow-up you forgot was coming. Emotion, so guilt or boredom does not freeze the face into an “I am being natural” mask. A live model of what the other person already knows, and what would sound too polished. And spare attention, so you can keep speaking while you also watch your story, their face, and the version of you on stage.</p>
         <p>That thought experiment assumes a perfect lie is mainly a performance. A lot of the research says everyday talk is not an interrogation.</p>
@@ -61,7 +61,7 @@ const references = [
         <p>Across 75 countries and 43 languages, the Global Deception Research Team found one dominant stereotype: liars avert their gaze.<a href="#ref-4" aria-label="Reference 4">[4]</a> People really do believe the eyes are the leak. Belief is not evidence.</p>
         <p>DePaulo and colleagues combined more than a thousand estimates across 158 possible tells. Many behaviours showed no clear link to deceit, or only a weak one. Liars were, on average, a bit less forthcoming, a bit less compelling, a bit more tense. Not cartoonishly shifty.<a href="#ref-3" aria-label="Reference 3">[3]</a> Gaze aversion, the world’s favourite tell, sits near the bottom. Later summaries put its average effect close to zero.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a></p>
         <p>Most people are trying to hide from cues that do not reliably exist. A huge amount of amateur lying energy is spent managing folklore.</p>
-        <h2>Why is it significant?</h2>
+        <h2>Lying takes longer</h2>
         <p>Lying is often extra work. A 2017 meta-analysis of 114 computerised reaction-time studies found a large average slowdown for lying versus truth-telling, even after a correction for publication bias.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>
         <p>A dual-task study made the tradeoff concrete. People answered interview questions while tracking a randomly moving dot with a mouse. The lie ate into how continuously they could follow the dot.<a href="#ref-8" aria-label="Reference 8">[8]</a> The wider idea is the same: raise the mental load, and fabrication has less room to hide.<a href="#ref-6" aria-label="Reference 6">[6]</a><a href="#ref-7" aria-label="Reference 7">[7]</a> Truth can often ride a memory. A lie has to be built while the conversation keeps moving.</p>
         <figure class="taj__visual">
@@ -71,7 +71,7 @@ const references = [
         <p>There is a social cheat code. In everyday talk, the thought “wait — is this false?” often does not even start. Listeners begin by treating what they hear as true.<a href="#ref-9" aria-label="Reference 9">[9]</a><a href="#ref-10" aria-label="Reference 10">[10]</a></p>
         <p>Across hundreds of studies, people asked to judge lies and truths in real time, without special aids, average about 54% accuracy. They correctly call truths more often than lies.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
         <p>A 2025 reanalysis argues that headline figure is easy to misread. It is tangled up with truth bias, the veracity effect, and lab setups that often force a 50/50 mix of lies and truths, which is not how ordinary days are built.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <h2>Interesting facts and thoughts</h2>
+        <h2>Harder is not a law</h2>
         <p>Where I have to be honest: “lying is always harder” is too neat.</p>
         <p>Information Manipulation Theory 2 treats deceptive talk as incremental problem-solving, not a pre-planned other universe. On that view, lying is not intrinsically always heavier than honesty. Later commentary says so directly. Deception need not, by nature, load the mind more.<a href="#ref-11" aria-label="Reference 11">[11]</a><a href="#ref-12" aria-label="Reference 12">[12]</a></p>
         <p>The evidence is mixed once you leave the lab’s forced choice. Cues can get a bit stronger when the stakes rise, which is not the same as a reliable tell.<a href="#ref-3" aria-label="Reference 3">[3]</a> A mind is not a clean editor. It is leaky, limited, and running conversation on a trust habit that assumes most of what it hears is fine.</p>

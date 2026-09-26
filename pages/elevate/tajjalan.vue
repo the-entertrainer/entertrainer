@@ -59,7 +59,7 @@ const references = [
         <p class="taj__lead">There is an old word most people never hear.</p>
         <p>Once you see what it is pointing at, something quiet shifts: the wall between “me” and “everything else” starts looking thinner than you were taught.</p>
 
-        <h2>What is it?</h2>
+        <h2>Four pieces of one word</h2>
         <p>Tajjalan.</p>
         <p>It comes from a short line in the Chāndogya Upaniṣad: all this is Brahman; sit with it calmly as <em>tajjalan</em>.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
         <p>The word itself is made of four pieces. That is the whole key.</p>
@@ -91,7 +91,7 @@ const references = [
           </figcaption>
         </figure>
 
-        <h2>Why is it significant?</h2>
+        <h2>Not a guest in a finished room</h2>
         <p>Most of us walk through life like guests who arrived late.</p>
         <p>The room was already set. The rules were already printed. We just try to cope.</p>
         <p>That feeling rests on a quiet story we almost never question: the stuff out there is one thing, and the mind in here is another, and they do not really meet.</p>
@@ -115,7 +115,7 @@ const references = [
           </figcaption>
         </figure>
 
-        <h2>Interesting facts and thoughts</h2>
+        <h2>Try it on one breath</h2>
         <p>The line is from Chāndogya Upaniṣad 3.14.1, in the teaching of Śāṇḍilya.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-3" aria-label="Reference 3">[3]</a> The four-piece reading (tat–ja–la–an) is how Śaṅkara opens the word; other teachers read it differently. The text is old. The look it asks for is still available.</p>
         <p>The instruction is calm on purpose. It does not say shout. It does not say put on a show. It says: be calm, and pay attention.</p>
         <p>Then it gets sharp about the mind. A person is made of what they hold firmly. What you keep treating as true slowly becomes the shape of your life. Your picture of reality is not decoration. It is training.</p>

@@ -46,7 +46,7 @@ const references = [
         <p>Third version. The first was too sharp. The second was too soft. This one pretends not to care.</p>
         <p>None of it is out loud. A small press secretary is running lines before they reach anyone else’s phone.</p>
 
-        <h2>What is it?</h2>
+        <h2>Words you do not say out loud</h2>
         <p>Words you experience without anyone saying them. Psychologists call that inner speech.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
         <p>It reads the text before you send it. It edits a sentence while you are still talking. Sometimes it objects after you already decided. Useful. A little late to the meeting.</p>
         <p>Try holding a phone number for ten seconds. You may repeat it silently. Try not to lose a name you just heard. You may say it once to yourself. The first draft of a hard explanation often happens in private.</p>
@@ -61,14 +61,14 @@ const references = [
           <figcaption>Rehearsal is a first draft. It does not predict what the other person will actually say.</figcaption>
         </figure>
 
-        <h2>Why is it significant?</h2>
+        <h2>A microphone, not a second person</h2>
         <p>The voice feels like a person because language has a speaker-shaped feel. It asks. It answers. It can be kind in the morning and a prosecutor at 1:00 a.m.</p>
         <p>A narrator-feeling does not prove a second narrator lives behind your eyes.</p>
         <p>Better picture: a microphone in a much larger room. Language, memory, pictures, habits, feelings, and the body can all take part. The sentence you “hear” is often just the part that reached the mic.</p>
         <p>For a long time people talked as if everyone had a running monologue. A 2024 study made that harder to keep. Adults who reported very little inner speech did worse on a verbal memory task and on rhyme judgments than adults who reported a lot of it. That is a difference in one tool. It is not a score for intelligence, and it is not proof that thought is missing.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
         <p>Someone may think in pictures, in the feel of a route, in a remembered voice, or in a mix that changes by the hour. You can know what you mean before the words show up. Some people never need the words to show up the same way.</p>
 
-        <h2>Interesting facts and thoughts</h2>
+        <h2>Do not think of a white bear</h2>
         <p>Tell yourself not to think of a white bear. The bear walks in.</p>
         <p>In Daniel Wegner’s suppression experiment, people trying not to think of a white bear reported the thought more than once a minute, on average.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
         <p>Avoiding a thought means checking whether it has appeared. The mind keeps opening the door to see if the guest is still outside. Terrible security.</p>

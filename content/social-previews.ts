@@ -242,7 +242,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'netagiri',
     label: 'Netagiri',
     title: 'Netagiri · Engage',
-    description: 'You are Prime Minister of India. Left is the straight answer. Right is the one you say. Four bars. Either end ends you.'
+    description: 'You are Prime Minister of India. Two orders. Four bars. Either end ends you.'
   },
   '/engage/read-my-mind': {
     key: 'read-my-mind',

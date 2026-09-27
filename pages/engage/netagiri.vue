@@ -3,19 +3,22 @@ definePageMeta({ layout: false })
 
 import { GAUGES, FACES, chairOf, type Gauge, type Side } from '~/utils/netagiri/cards'
 import { createNetagiri, ticks, clampYear, type Netagiri, type Snapshot } from '~/utils/netagiri/game'
+import { cueFor, createScore, type Score } from '~/utils/netagiri/score'
 import { useThemeStore } from '~/stores/theme'
 
 useSeoMeta({
   title: 'Netagiri · Engage',
-  description: 'You are Prime Minister of India. Left is the straight answer. Right is the one you say. Four bars. Either end ends you.',
+  description: 'You are Prime Minister of India. Two orders. Four bars. Either end ends you.',
   ogUrl: 'https://entertrainer.in/engage/netagiri'
 })
 
 const BEST_KEY = 'entertrainer-netagiri-best'
+const MUTE_KEY = 'entertrainer-netagiri-mute'
 const theme = useThemeStore()
 const name = ref('')
 const year = ref(2026)
 const best = ref(0)
+const muted = ref(false)
 const snap = ref<Snapshot | null>(null)
 const drag = ref(0)
 const flying = ref<'left' | 'right' | ''>('')
@@ -25,6 +28,7 @@ let game: Netagiri | null = null
 let startX = 0
 let dragging = false
 let audioCtx: AudioContext | null = null
+let score: Score | null = null
 
 const phase = computed(() => snap.value?.phase ?? 'title')
 const card = computed(() => snap.value?.card ?? null)
@@ -46,28 +50,76 @@ function refresh() {
   snap.value = game?.snapshot() ?? null
 }
 
-function rustle() {
-  if (!audioCtx) return
-  if (audioCtx.state === 'suspended') void audioCtx.resume()
-  const t0 = audioCtx.currentTime
-  const n = Math.floor(audioCtx.sampleRate * 0.05)
-  const buf = audioCtx.createBuffer(1, n, audioCtx.sampleRate)
-  const data = buf.getChannelData(0)
-  for (let i = 0; i < n; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / n)
-  const src = audioCtx.createBufferSource()
-  src.buffer = buf
-  const filter = audioCtx.createBiquadFilter()
-  filter.type = 'highpass'
-  filter.frequency.value = 900
-  const gain = audioCtx.createGain()
-  gain.gain.setValueAtTime(0.03, t0)
-  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.06)
-  src.connect(filter)
-  filter.connect(gain)
-  gain.connect(audioCtx.destination)
-  src.start(t0)
+function syncScore() {
+  const s = snap.value
+  if (!score || !s || s.phase !== 'play' || !s.card) return
+  score.setScene({
+    cue: cueFor(s.card),
+    year: s.calendar,
+    later: s.calendar > 2040,
+    danger: Object.values(s.gauges).some((n) => n <= 18 || n >= 82),
+    janta: s.gauges.janta,
+    khazana: s.gauges.khazana
+  })
 }
 
+function ensureAudio() {
+  if (!audioCtx) {
+    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    if (AC) audioCtx = new AC()
+  }
+  if (audioCtx && !score) score = createScore(audioCtx)
+  score?.setMuted(muted.value)
+  return audioCtx
+}
+
+function toggleMute() {
+  muted.value = !muted.value
+  score?.setMuted(muted.value)
+  try { localStorage.setItem(MUTE_KEY, muted.value ? '1' : '0') } catch { /* private mode */ }
+}
+
+function begin() {
+  ensureAudio()
+  score?.start(clampYear(Number(year.value)), Math.random())
+  game = createNetagiri()
+  game.start(name.value, Number(year.value))
+  flying.value = ''
+  drag.value = 0
+  refresh()
+  syncScore()
+}
+
+function rememberBest() {
+  const years = snap.value?.end?.years ?? 0
+  if (years > best.value) {
+    best.value = years
+    try { localStorage.setItem(BEST_KEY, String(years)) } catch { /* private mode */ }
+  }
+  if (snap.value?.phase === 'end') score?.sting(snap.value.end?.id === 'tea')
+}
+
+function pick(hand: 'left' | 'right') {
+  if (phase.value !== 'play' || flying.value) return
+  score?.punch()
+  try { navigator.vibrate?.(12) } catch { /* no actuator */ }
+  if (reduced.value) {
+    game?.choose(hand)
+    refresh()
+    syncScore()
+    rememberBest()
+    return
+  }
+  flying.value = hand
+  window.setTimeout(() => {
+    game?.choose(hand)
+    flying.value = ''
+    drag.value = 0
+    refresh()
+    syncScore()
+    rememberBest()
+  }, 220)
+}
 function preview(side: Side) {
   const d: Partial<Record<Gauge, number>> = { ...(side.d ?? {}) }
   const flags = snap.value?.flags ?? []
@@ -79,46 +131,6 @@ function preview(side: Side) {
   return GAUGES
     .map((g) => (d[g.key] ? { ...g, n: d[g.key] as number } : null))
     .filter((x): x is (typeof GAUGES)[number] & { n: number } => !!x)
-}
-
-function begin() {
-  if (!audioCtx) {
-    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-    if (AC) audioCtx = new AC()
-  }
-  game = createNetagiri()
-  game.start(name.value, Number(year.value))
-  flying.value = ''
-  drag.value = 0
-  refresh()
-}
-
-function pick(hand: 'left' | 'right') {
-  if (phase.value !== 'play' || flying.value) return
-  rustle()
-  try { navigator.vibrate?.(12) } catch { /* no actuator */ }
-  if (reduced.value) {
-    game?.choose(hand)
-    refresh()
-    const years = snap.value?.end?.years ?? 0
-    if (years > best.value) {
-      best.value = years
-      try { localStorage.setItem(BEST_KEY, String(years)) } catch { /* private mode */ }
-    }
-    return
-  }
-  flying.value = hand
-  window.setTimeout(() => {
-    game?.choose(hand)
-    flying.value = ''
-    drag.value = 0
-    refresh()
-    const years = snap.value?.end?.years ?? 0
-    if (years > best.value) {
-      best.value = years
-      try { localStorage.setItem(BEST_KEY, String(years)) } catch { /* private mode */ }
-    }
-  }, 220)
 }
 
 function onDown(event: PointerEvent) {
@@ -147,8 +159,11 @@ function danger(n: number) {
 
 onMounted(() => {
   try { best.value = Number(localStorage.getItem(BEST_KEY) || 0) || 0 } catch { best.value = 0 }
+  try { muted.value = localStorage.getItem(MUTE_KEY) === '1' } catch { muted.value = false }
   reduced.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 })
+
+onBeforeUnmount(() => score?.stop())
 </script>
 
 <template>
@@ -156,6 +171,18 @@ onMounted(() => {
     <NuxtLink to="/engage" class="ng__icon ng__back" aria-label="Back to Engage" @pointerdown.stop>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 9 12l6 6" /></svg>
     </NuxtLink>
+    <button
+      type="button"
+      class="ng__icon ng__mute"
+      :aria-label="muted ? 'Unmute the reel' : 'Mute the reel'"
+      @pointerdown.stop.prevent="toggleMute"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 10v4h3l4 3V7L7 10H4z" />
+        <path v-if="!muted" d="M16 9a4 4 0 0 1 0 6M18.5 7a7 7 0 0 1 0 10" />
+        <path v-else d="M16 10l5 5M21 10l-5 5" />
+      </svg>
+    </button>
     <button
       type="button"
       class="ng__icon ng__theme"
@@ -208,7 +235,7 @@ onMounted(() => {
         <span>Your name</span>
         <input v-model="name" maxlength="24" autocomplete="nickname" placeholder="Optional" />
       </label>
-      <p class="ng__fine">Left is the straight answer. Right is the one you say out loud. Janta, Khazana, Kursi, Kanoon. Empty or full, you are out.</p>
+      <p class="ng__fine">Two orders. They do not do the same job. Janta, Khazana, Kursi, Kanoon. Empty or full, you are out. The reel changes with the year and the room.</p>
       <button class="ng__cta" type="button" @click="begin">Take the chair</button>
       <p v-if="best" class="ng__best">Best · {{ best }} years</p>
     </section>
@@ -223,7 +250,7 @@ onMounted(() => {
     </section>
 
     <section v-else-if="card" class="ng__play">
-      <p v-if="snap?.turn === 0" class="ng__hint">Swipe left for the straight line. Swipe right to say it. A bar ends you at either end.</p>
+      <p v-if="snap?.turn === 0" class="ng__hint">Swipe either way. Both are orders. A bar ends you at empty or at full.</p>
       <article
         class="ng__card"
         :class="{ 'is-fly-left': flying === 'left', 'is-fly-right': flying === 'right' }"
@@ -240,8 +267,7 @@ onMounted(() => {
         </div>
       </article>
       <div class="ng__hands">
-        <button type="button" class="ng__hand" :aria-label="`Straight. ${card.left.text}`" @click="pick('left')">
-          <em>Straight</em>
+        <button type="button" class="ng__hand" :aria-label="card.left.text" @click="pick('left')">
           <span>{{ card.left.text }}</span>
           <span class="ng__shifts" aria-hidden="true">
             <i v-for="chip in preview(card.left)" :key="chip.key" :class="chip.n > 0 ? 'up' : 'down'">
@@ -249,8 +275,7 @@ onMounted(() => {
             </i>
           </span>
         </button>
-        <button type="button" class="ng__hand" :aria-label="`Say it. ${card.right.text}`" @click="pick('right')">
-          <em>Say it</em>
+        <button type="button" class="ng__hand" :aria-label="card.right.text" @click="pick('right')">
           <span>{{ card.right.text }}</span>
           <span class="ng__shifts" aria-hidden="true">
             <i v-for="chip in preview(card.right)" :key="chip.key" :class="chip.n > 0 ? 'up' : 'down'">
@@ -303,6 +328,8 @@ onMounted(() => {
 .ng__back { left: max(10rem, env(safe-area-inset-left)); }
 .ng__back svg { width: 20rem; height: 20rem; fill: none; stroke: currentColor; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }
 .ng__theme { right: max(10rem, env(safe-area-inset-right)); }
+.ng__mute { right: max(58rem, calc(env(safe-area-inset-right) + 48rem)); }
+.ng__mute svg { width: 18rem; height: 18rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ng__theme :deep(svg) { width: 18rem; height: 18rem; fill: none; stroke: currentColor; stroke-width: 1.75; }
 .ng__meters { width: min(440rem, 100%); margin-top: 42rem; }
 .ng__meter { display: grid; grid-template-columns: 72rem 1fr; gap: 8rem; align-items: center; margin-bottom: 6rem; }
@@ -398,15 +425,6 @@ onMounted(() => {
   padding: 12rem;
   cursor: pointer;
   font: 600 14rem/1.35 var(--font-display);
-}
-.ng__hand em {
-  display: block;
-  margin-bottom: 6rem;
-  font: 800 10rem/1 var(--font-mono);
-  font-style: normal;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.65;
 }
 .ng__shifts { display: flex; flex-wrap: wrap; gap: 4rem; margin-top: 8rem; }
 .ng__shifts i { font: 700 10rem/1 var(--font-mono); font-style: normal; letter-spacing: 0.04em; }

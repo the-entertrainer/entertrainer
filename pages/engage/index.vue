@@ -95,7 +95,7 @@ const MIND_READER_SYMBOLS = [
           </span>
           <span class="engage__card-text">
             <strong class="engage__card-name">Netagiri</strong>
-            <span class="engage__card-blurb">Prime Minister. Straight answer, or say it.</span>
+            <span class="engage__card-blurb">Prime Minister. Two orders. Four bars.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"

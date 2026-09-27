@@ -1,8 +1,8 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 
-import { GAUGES, FACES, chairOf, type Gauge, type Side } from '~/utils/netagiri/cards'
-import { createNetagiri, ticks, clampYear, type Netagiri, type Snapshot } from '~/utils/netagiri/game'
+import { GAUGES, FACES, chairOf, type Gauge } from '~/utils/netagiri/cards'
+import { createNetagiri, clampYear, type Netagiri, type Snapshot } from '~/utils/netagiri/game'
 import { createScore, type Score } from '~/utils/netagiri/score'
 import { useThemeStore } from '~/stores/theme'
 
@@ -24,6 +24,7 @@ const drag = ref(0)
 const flying = ref<'left' | 'right' | ''>('')
 const reduced = ref(false)
 const arriving = ref(false)
+const hover = ref<'left' | 'right' | ''>('')
 
 let game: Netagiri | null = null
 let startX = 0
@@ -95,17 +96,19 @@ function pick(hand: 'left' | 'right') {
     rememberBest()
   }, 240)
 }
-function preview(side: Side) {
-  const d: Partial<Record<Gauge, number>> = { ...(side.d ?? {}) }
-  const flags = snap.value?.flags ?? []
-  if (side.extraIf && flags.includes(side.extraIf.flag)) {
-    for (const key of Object.keys(side.extraIf.d) as Gauge[]) {
-      d[key] = (d[key] ?? 0) + (side.extraIf.d[key] ?? 0)
-    }
-  }
-  return GAUGES
-    .map((g) => (d[g.key] ? { ...g, n: d[g.key] as number } : null))
-    .filter((x): x is (typeof GAUGES)[number] & { n: number } => !!x)
+const aim = computed<'left' | 'right' | ''>(() => {
+  if (flying.value) return flying.value
+  if (drag.value > 16) return 'right'
+  if (drag.value < -16) return 'left'
+  return hover.value
+})
+
+function marked(key: Gauge) {
+  const hand = aim.value
+  const current = card.value
+  if (!hand || !current) return false
+  const side = current[hand]
+  return !!side.d?.[key]
 }
 
 function onDown(event: PointerEvent) {
@@ -171,7 +174,10 @@ onBeforeUnmount(() => score?.stop())
     <header v-if="phase !== 'title'" class="ng__meters" aria-label="Four bars. Empty or full, the run ends.">
       <div v-for="g in GAUGES" :key="g.key" class="ng__meter" :class="{ 'is-hot': snap && danger(snap.gauges[g.key]) }">
         <span class="ng__meter-name">{{ g.label }}</span>
-        <span class="ng__track"><span class="ng__fill" :style="{ width: `${snap?.gauges[g.key] ?? 50}%` }" /></span>
+        <span class="ng__track-wrap">
+          <i class="ng__pip" :class="{ on: marked(g.key) }" />
+          <span class="ng__track"><span class="ng__fill" :style="{ width: `${snap?.gauges[g.key] ?? 50}%` }" /></span>
+        </span>
       </div>
       <p v-if="phase === 'play'" class="ng__when">
         <span>{{ snap?.calendar }}</span>
@@ -211,7 +217,7 @@ onBeforeUnmount(() => score?.stop())
         <span>Your name</span>
         <input v-model="name" maxlength="24" autocomplete="nickname" placeholder="Optional" />
       </label>
-      <p class="ng__fine">Two orders. They do not do the same job. Empty or full, you are out. One song a term, at the speed it was written.</p>
+      <p class="ng__fine">Neither order is free. Empty or full, you are out. One song a term, at the speed it was written.</p>
       <button class="ng__cta" type="button" @click="begin">Take the chair</button>
       <p v-if="best" class="ng__best">Best · {{ best }} years</p>
     </section>
@@ -226,7 +232,7 @@ onBeforeUnmount(() => score?.stop())
     </section>
 
     <section v-else-if="card" class="ng__play">
-      <p v-if="snap?.turn === 0" class="ng__hint">Swipe either way. Both are orders. A bar ends you at empty or at full.</p>
+      <p v-if="snap?.turn === 0" class="ng__hint">Drag the card. A dot marks which bar is in play. It will not tell you which way.</p>
       <article
         :key="card.id"
         class="ng__card"
@@ -248,21 +254,31 @@ onBeforeUnmount(() => score?.stop())
         </div>
       </article>
       <div class="ng__hands">
-        <button type="button" class="ng__hand" :class="{ 'is-lean': drag < -28 }" :aria-label="card.left.text" @click="pick('left')">
+        <button
+          type="button"
+          class="ng__hand"
+          :class="{ 'is-lean': aim === 'left' }"
+          :aria-label="card.left.text"
+          @mouseenter="hover = 'left'"
+          @mouseleave="hover = hover === 'left' ? '' : hover"
+          @focus="hover = 'left'"
+          @blur="hover = ''"
+          @click="pick('left')"
+        >
           <span>{{ card.left.text }}</span>
-          <span class="ng__shifts" aria-hidden="true">
-            <i v-for="chip in preview(card.left)" :key="chip.key" :class="chip.n > 0 ? 'up' : 'down'">
-              {{ chip.label }} {{ chip.n > 0 ? '↑' : '↓' }}<template v-if="ticks(chip.n) === 2">{{ chip.n > 0 ? '↑' : '↓' }}</template>
-            </i>
-          </span>
         </button>
-        <button type="button" class="ng__hand" :class="{ 'is-lean': drag > 28 }" :aria-label="card.right.text" @click="pick('right')">
+        <button
+          type="button"
+          class="ng__hand"
+          :class="{ 'is-lean': aim === 'right' }"
+          :aria-label="card.right.text"
+          @mouseenter="hover = 'right'"
+          @mouseleave="hover = hover === 'right' ? '' : hover"
+          @focus="hover = 'right'"
+          @blur="hover = ''"
+          @click="pick('right')"
+        >
           <span>{{ card.right.text }}</span>
-          <span class="ng__shifts" aria-hidden="true">
-            <i v-for="chip in preview(card.right)" :key="chip.key" :class="chip.n > 0 ? 'up' : 'down'">
-              {{ chip.label }} {{ chip.n > 0 ? '↑' : '↓' }}<template v-if="ticks(chip.n) === 2">{{ chip.n > 0 ? '↑' : '↓' }}</template>
-            </i>
-          </span>
         </button>
       </div>
     </section>
@@ -313,8 +329,19 @@ onBeforeUnmount(() => score?.stop())
 .ng__mute svg { width: 18rem; height: 18rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ng__theme :deep(svg) { width: 18rem; height: 18rem; fill: none; stroke: currentColor; stroke-width: 1.75; }
 .ng__meters { width: min(440rem, 100%); margin-top: 42rem; }
-.ng__meter { display: grid; grid-template-columns: 72rem 1fr; gap: 8rem; align-items: center; margin-bottom: 6rem; }
-.ng__meter-name { font: 700 11rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.ng__meter { display: grid; grid-template-columns: 84rem 1fr; gap: 8rem; align-items: end; margin-bottom: 6rem; }
+.ng__meter-name { font: 700 11rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; padding-bottom: 2rem; }
+.ng__track-wrap { display: grid; gap: 3rem; }
+.ng__pip {
+  width: 8rem;
+  height: 8rem;
+  border-radius: 99px;
+  background: var(--ng-yellow);
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+.ng__pip.on { opacity: 1; transform: none; }
 .ng__track { height: 8rem; border-radius: 99px; background: color-mix(in srgb, var(--ng-ink) 16%, transparent); overflow: hidden; }
 .ng__fill {
   display: block;
@@ -429,12 +456,8 @@ onBeforeUnmount(() => score?.stop())
 .ng__hand.is-lean {
   transform: translateY(-3px);
   border-color: var(--ng-yellow);
-  background: color-mix(in srgb, var(--ng-yellow) 28%, transparent);
+  background: color-mix(in srgb, var(--ng-yellow) 22%, transparent);
 }
-.ng__shifts { display: flex; flex-wrap: wrap; gap: 4rem; margin-top: 8rem; }
-.ng__shifts i { font: 700 10rem/1 var(--font-mono); font-style: normal; letter-spacing: 0.04em; }
-.ng__shifts .up { color: var(--ng-ink); }
-.ng__shifts .down { opacity: 0.7; }
 .ng__icon:focus-visible, .ng__cta:focus-visible, .ng__hand:focus-visible { outline: 2px solid var(--ng-yellow); outline-offset: 3px; }
 @keyframes ng-in {
   from { opacity: 0; transform: translateY(22px) rotate(1.2deg) scale(0.98); }
@@ -450,7 +473,7 @@ onBeforeUnmount(() => score?.stop())
 }
 @media (max-width: 380px) {
   .ng__hand { font-size: 13rem; padding: 10rem; }
-  .ng__meter { grid-template-columns: 62rem 1fr; }
+  .ng__meter { grid-template-columns: 76rem 1fr; }
   .ng__say { font-size: 15rem; }
 }
 @media (max-height: 740px) {

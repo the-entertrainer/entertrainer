@@ -9,7 +9,7 @@ import { useThemeStore } from '~/stores/theme'
 
 useSeoMeta({
   title: 'Netagiri · Engage',
-  description: 'You are Prime Minister of India. Two orders. Four bars. Either end ends you.',
+  description: 'Balance the pillars. Survive your term. Swipe left to reject, swipe right to approve.',
   ogUrl: 'https://entertrainer.in/engage/netagiri'
 })
 
@@ -253,9 +253,9 @@ onBeforeUnmount(() => score?.stop())
         </svg>
         <h1 class="ng__word"><span>Neta</span>giri</h1>
       </div>
-      <p class="ng__lede">You take the chair in {{ displayYear }} as {{ shownName }} of {{ party || 'the Front' }}.</p>
+      <p class="ng__lede">Balance the pillars. Survive your term. You are Prime Minister {{ shownName }} of {{ party || 'the Front' }} in {{ displayYear }}.</p>
       <label class="ng__name">
-        <span>Year you take the chair</span>
+        <span>Year</span>
         <input
           v-model.number="year"
           type="number"
@@ -302,8 +302,8 @@ onBeforeUnmount(() => score?.stop())
           @click="party = p"
         >{{ p }}</button>
       </div>
-      <p class="ng__fine">Neither order is free. Empty or full, you are out. One song a term, at the speed it was written.</p>
-      <button class="ng__cta" type="button" @click="begin">Take the chair</button>
+      <p class="ng__fine">Swipe left to reject, swipe right to approve. Every decision shifts Janta, Khazana, Kursi, and Kanoon. Keep them out of the red, or the term ends.</p>
+      <button class="ng__cta" type="button" @click="begin">Take the Oath</button>
       <p v-if="best" class="ng__best">Best · {{ best }} years</p>
       <ol v-if="pastRuns.length" class="ng__runs">
         <li v-for="(run, i) in pastRuns" :key="i">{{ run.name }} · {{ run.party }} · {{ run.years }} yrs · {{ run.year }}</li>
@@ -315,7 +315,7 @@ onBeforeUnmount(() => score?.stop())
       <h1>{{ snap.end.headline }}</h1>
       <p class="ng__epitaph">{{ snap.end.epitaph }}</p>
       <p class="ng__lede">{{ snap.end.name }} of {{ snap.end.party }} left the chair in {{ snap.end.calendar }}.</p>
-      <button class="ng__cta" type="button" @click="begin">Again</button>
+      <button class="ng__cta" type="button" @click="begin">Face the Next Election</button>
       <p class="ng__best">Best · {{ best }} years</p>
     </section>
 

@@ -78,53 +78,53 @@ export const FACES: Record<Face, string> = {
 export const ENDINGS: Record<string, Ending> = {
   janta_low: {
     id: 'janta_low',
-    headline: 'They changed the channel',
-    epitaph: 'The rallies emptied. Your handle kept posting to a room that had gone home.'
+    headline: 'The streets are burning',
+    epitaph: 'A nationwide strike has paralyzed the capital. You have been forced to resign and flee via helicopter.'
   },
   janta_high: {
     id: 'janta_high',
-    headline: 'The stage broke',
-    epitaph: 'They came for a selfie and did not stop. The stage ran out of floor.'
+    headline: 'Mob rule',
+    epitaph: 'You gave them everything. The state is a populist utopia, but the institutions have collapsed under mob rule. The military has stepped in to restore order.'
   },
   janta_high_bulb: {
     id: 'janta_high_bulb',
-    headline: 'Unplugged',
-    epitaph: 'The bulb kept smiling after the crowd crushed the stage. Someone pulled the plug.'
+    headline: 'Mob rule',
+    epitaph: 'You gave them everything. The bulb kept smiling after the institutions collapsed. The military stepped in to restore order.'
   },
   khazana_low: {
     id: 'khazana_low',
-    headline: 'The bill came due',
-    epitaph: 'The coalition sent the bill. The slogan did not pay it.'
+    headline: 'Default',
+    epitaph: 'The treasury is empty. The IMF has taken over the national budget, and your government has defaulted. You are ousted in a vote of no confidence.'
   },
   khazana_high: {
     id: 'khazana_high',
-    headline: 'The pile',
-    epitaph: 'The chest got so full the counting machines asked for a minister of their own.'
+    headline: 'The hoard',
+    epitaph: 'You hoarded wealth like a medieval king while the country starved. A massive anti-corruption crusade has thrown you into federal prison.'
   },
   kursi_low: {
     id: 'kursi_low',
-    headline: 'Unfollowed',
-    epitaph: 'The party unfollowed you on television, while you were still talking.'
+    headline: 'Backbencher',
+    epitaph: 'Your coalition partners walked out. Your own party members passed a leadership challenge while you were sleeping. You are a backbencher now.'
   },
   kursi_low_nephew: {
     id: 'kursi_low_nephew',
-    headline: 'One line',
-    epitaph: 'Your nephew kept the chair. He thanks you once, near the end of the speech.'
+    headline: 'Backbencher',
+    epitaph: 'Your coalition walked out. Your nephew kept the stamp. You are a backbencher now.'
   },
   kursi_high: {
     id: 'kursi_high',
-    headline: 'You became the party',
-    epitaph: 'You became the party. The party then booked a ticket without you.'
+    headline: 'Retired for health',
+    epitaph: 'You became a tyrant. The High Command realized you were too powerful to control and orchestrated an internal coup. You have been retired for health reasons.'
   },
   kanoon_low: {
     id: 'kanoon_low',
-    headline: 'The cover opened',
-    epitaph: 'A sealed cover with your name on it reached the court. The court opened it.'
+    headline: 'Struck down',
+    epitaph: 'The Supreme Court has struck down your government as unconstitutional. You are facing twenty-four separate CBI probes and a lifetime ban from politics.'
   },
   kanoon_high: {
     id: 'kanoon_high',
-    headline: 'A form to wave',
-    epitaph: 'Every order now needs a form. You need a form just to wave at the crowd.'
+    headline: 'Gridlock',
+    epitaph: 'You followed the rulebook so strictly that nothing got done. Bureaucratic gridlock paralyzed the nation, and you were historically defeated in a snap election.'
   },
   tea: {
     id: 'tea',
@@ -139,6 +139,156 @@ export const ENDINGS: Record<string, Ending> = {
 }
 
 export const CARDS: StoryCard[] = [
+  {
+    id: 'media_inflation_1',
+    face: 'nandini',
+    speaker: 'Nandini',
+    role: 'Prime-Time Anchor',
+    weight: 8,
+    text: 'Inflation hit double digits this morning, Prime Minister. I can bury the story under a debate about the opposition\'s historical blunders, but my network needs the exclusive broadcast rights for the cricket league.',
+    left: s('Report the actual inflation numbers.', { janta: 10, kursi: -14, kanoon: 5 }),
+    right: s('Give her the cricket rights. Start the debate.', { janta: -10, khazana: -14, kursi: 14, kanoon: -10 })
+  },
+  {
+    id: 'bureau_files_1',
+    face: 'hakim',
+    speaker: 'Hakim',
+    role: 'Cabinet Secretary',
+    weight: 8,
+    text: 'The Supreme Court has demanded the original files on the telecom spectrum allocation. Unfortunately, the archives flooded last night and the files are pulp. Do I send the wet pulp, or inform them of a tragic electrical fire?',
+    left: s('Send the wet pulp. We hide nothing.', { janta: 5, kursi: -14, kanoon: 14 }),
+    right: s('Electrical fire. Draft a condolence tweet for the files.', { janta: -5, kursi: 14, kanoon: -14 })
+  },
+  {
+    id: 'party_rally_1',
+    face: 'pinky',
+    speaker: 'Pinky',
+    role: 'General Secretary',
+    weight: 8,
+    text: 'The rally crowd is thinning out, boss. The opposition is distributing free pressure cookers across the street. We can send the local police to seize their trucks, or announce a spontaneous cash handout right now.',
+    left: s('Send the police to seize the cookers.', { janta: -10, kursi: 14, kanoon: -14 }),
+    right: s('Open the treasury. Hand out cash.', { janta: 14, khazana: -14, kursi: 10, kanoon: -10 })
+  },
+  {
+    id: 'coalition_budget_1',
+    face: 'netaji',
+    speaker: 'Netaji',
+    role: 'Coalition Partner',
+    weight: 8,
+    text: 'My state needs a special economic development package of ten thousand crores. Issue the funds by tomorrow morning, or my twelve MPs are walking out of the monsoon session.',
+    left: s('Walk out. We do not negotiate with blackmailers.', { janta: 10, khazana: 14, kursi: -14, kanoon: 5 }),
+    right: s('Sign the package. Save the majority.', { janta: -5, khazana: -14, kursi: 14, kanoon: -5 })
+  },
+  {
+    id: 'religion_land_1',
+    face: 'baba',
+    speaker: 'Swami Anandeshwar',
+    role: 'Godman',
+    weight: 8,
+    text: 'My ashram\'s tax exemption expires this week. Renew it for a decade, and my disciples will vote en masse. Let it expire, and I will declare your government cursed on live television.',
+    left: s('Pay your taxes like everyone else.', { janta: 5, khazana: 10, kursi: -14, kanoon: 14 }),
+    right: s('Stamp the renewal. Keep the blessing.', { janta: -5, khazana: -14, kursi: 14, kanoon: -10 })
+  },
+  {
+    id: 'tycoon_tender_1',
+    face: 'lalaji',
+    speaker: 'Aditya',
+    role: 'Industrialist',
+    weight: 8,
+    text: 'My conglomerate is bidding for the new international airport. We are quoting double the market rate, but we also fully funded your last election campaign. I expect the envelope to be opened in my favor.',
+    left: s('Award the contract to the lowest valid bidder.', { janta: 10, khazana: 14, kursi: -14, kanoon: 10 }),
+    right: s('Award it to Aditya. Adjust the budget.', { janta: -14, khazana: -14, kursi: 14, kanoon: -14 })
+  },
+  {
+    id: 'law_protest_1',
+    face: 'captain',
+    speaker: 'DGP Sharma',
+    role: 'Director General of Police',
+    weight: 8,
+    text: 'The student unions are blocking the national highway demanding employment. I have water cannons and tear gas on standby. Give the word, and the highway will be clear in twenty minutes.',
+    left: s('Let them protest peacefully. Divert traffic.', { janta: 14, khazana: -5, kursi: -10, kanoon: 5 }),
+    right: s('Clear the highway. Use the cannons.', { janta: -14, khazana: 5, kursi: 10, kanoon: -10 })
+  },
+  {
+    id: 'foreign_envoy_1',
+    face: 'envoy',
+    speaker: 'The Envoy',
+    role: 'Foreign Diplomat',
+    weight: 8,
+    text: 'Prime Minister, my government is willing to lower tariffs on your agricultural exports. In return, we require you to abstain from the UN vote condemning our recent military exercises.',
+    left: s('We stand by international law. We will vote to condemn.', { janta: 10, khazana: -14, kursi: -5, kanoon: 14 }),
+    right: s('Abstain from the vote. Secure the tariffs.', { janta: -10, khazana: 14, kursi: 10, kanoon: -5 })
+  },
+  {
+    id: 'party_nepotism_1',
+    face: 'mausi',
+    speaker: 'Aunty',
+    role: 'Party Treasurer',
+    weight: 8,
+    text: 'Your sister\'s boy failed his civil services preliminary for the third time. The State Mining Corporation needs a new Managing Director anyway. I already have the rubber stamp.',
+    left: s('Tell him to study for the fourth attempt.', { janta: 5, kursi: -14, kanoon: 10 }),
+    right: s('Appoint him. Tell him not to speak to reporters.', { janta: -10, khazana: -10, kursi: 14, kanoon: -14 }, { set: ['nephew'] })
+  },
+  {
+    id: 'bureau_bridge_1',
+    face: 'hakim',
+    speaker: 'Hakim',
+    role: 'Cabinet Secretary',
+    weight: 8,
+    text: 'The new suspension bridge collapsed before the inauguration. The contractor used inferior steel. I can arrest the contractor, but he is Netaji\'s brother-in-law.',
+    left: s('Arrest the contractor immediately.', { janta: 14, khazana: 10, kursi: -14, kanoon: 14 }),
+    right: s('Blame an unprecedented seismic event.', { janta: -14, khazana: -14, kursi: 14, kanoon: -14 })
+  },
+  {
+    id: 'media_leak_1',
+    face: 'nandini',
+    speaker: 'Nandini',
+    role: 'Prime-Time Anchor',
+    weight: 8,
+    text: 'I received a leaked audio tape of your Defense Minister negotiating kickbacks. I can destroy the tape, but I want the first exclusive interview with you before the national elections.',
+    left: s('Run the tape. I will fire the Minister tonight.', { janta: 14, kursi: -14, kanoon: 14 }),
+    right: s('Destroy it. You have your exclusive interview.', { janta: -14, kursi: 14, kanoon: -14 })
+  },
+  {
+    id: 'tycoon_bailout_1',
+    face: 'lalaji',
+    speaker: 'Aditya',
+    role: 'Industrialist',
+    weight: 8,
+    text: 'My telecom company owes the government fifty thousand crores in licensing fees. If you don\'t convert this debt into equity by midnight, I will declare bankruptcy and fire fifty thousand employees.',
+    left: s('Let it fail. Seize the assets.', { janta: 14, khazana: 14, kursi: -14, kanoon: 10 }),
+    right: s('Bail him out. Convert the debt.', { janta: -14, khazana: -14, kursi: 14, kanoon: -10 })
+  },
+  {
+    id: 'party_statue_1',
+    face: 'pinky',
+    speaker: 'Pinky',
+    role: 'General Secretary',
+    weight: 8,
+    text: 'The municipal budget has a surplus. We can upgrade the district hospital\'s ICU, or build a 150-foot bronze statue of our party founder right in the city center.',
+    left: s('Upgrade the ICU. Save lives.', { janta: 14, khazana: -14, kursi: -10 }),
+    right: s('Build the statue. Secure the legacy.', { janta: -10, khazana: -14, kursi: 14 })
+  },
+  {
+    id: 'religion_curriculum_1',
+    face: 'baba',
+    speaker: 'Swami Anandeshwar',
+    role: 'Godman',
+    weight: 8,
+    text: 'The central education board is revising the history textbooks. Ensure my ashram\'s teachings are included in the mandatory syllabus, or my followers will burn the textbooks in the streets.',
+    left: s('Keep education secular. Reject the demand.', { janta: 10, kursi: -14, kanoon: 14 }),
+    right: s('Rewrite the syllabus. Include the teachings.', { janta: -14, khazana: -5, kursi: 14, kanoon: -14 })
+  },
+  {
+    id: 'law_pil_1',
+    face: 'justice',
+    speaker: 'Chief Justice',
+    role: 'Supreme Court',
+    weight: 8,
+    text: 'A Public Interest Litigation challenges your new executive order bypassing parliament. Withdraw the order, or we will strike it down and hold you in contempt.',
+    left: s('Withdraw the order. Respect the court.', { janta: 5, kursi: -14, kanoon: 14 }),
+    right: s('Ignore them. The mandate is mine.', { janta: -10, kursi: 14, kanoon: -14 })
+  },
   {
     id: 'oath_now',
     era: 'now',
@@ -163,6 +313,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'hundred',
+    weight: 0,
     era: 'now',
     minTerm: 1,
     face: 'hakim',
@@ -186,6 +337,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'rename_road',
+    weight: 0,
     era: 'now',
     minTerm: 1,
     face: 'pinky',
@@ -197,6 +349,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'broom',
+    weight: 0,
     era: 'now',
     minTerm: 1,
     face: 'nandini',
@@ -208,6 +361,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'statue',
+    weight: 0,
     era: 'now',
     minTerm: 2,
     face: 'lalaji',
@@ -231,6 +385,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'foreign',
+    weight: 0,
     era: 'now',
     minTerm: 2,
     face: 'envoy',
@@ -254,6 +409,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'tiger',
+    weight: 0,
     era: 'now',
     minTerm: 1,
     face: 'chintu',
@@ -265,6 +421,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'onions',
+    weight: 0,
     era: 'now',
     minTerm: 1,
     face: 'nandini',
@@ -276,6 +433,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'urea',
+    weight: 0,
     era: 'now',
     minTerm: 2,
     face: 'kisan',
@@ -287,6 +445,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'cylinder',
+    weight: 0,
     era: 'now',
     minTerm: 2,
     face: 'mausi',
@@ -298,6 +457,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'nephew',
+    weight: 0,
     era: 'now',
     minTerm: 3,
     face: 'mausi',
@@ -309,6 +469,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'cricket',
+    weight: 0,
     era: 'now',
     minTerm: 1,
     face: 'chintu',
@@ -320,6 +481,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'ribbon',
+    weight: 0,
     era: 'now',
     minTerm: 2,
     face: 'lalaji',
@@ -331,6 +493,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'committee',
+    weight: 0,
     era: 'now',
     minTerm: 2,
     face: 'justice',
@@ -342,6 +505,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'eight_pm',
+    weight: 0,
     era: 'now',
     minTerm: 3,
     face: 'hakim',
@@ -365,6 +529,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'mango',
+    weight: 0,
     era: 'now',
     minTerm: 2,
     face: 'nandini',
@@ -376,6 +541,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'garland',
+    weight: 0,
     era: 'now',
     minTerm: 1,
     face: 'mausi',
@@ -387,6 +553,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'survey',
+    weight: 0,
     era: 'now',
     minTerm: 3,
     face: 'netaji',
@@ -398,6 +565,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'poem',
+    weight: 0,
     era: 'now',
     minTerm: 2,
     face: 'nandini',
@@ -409,6 +577,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'millet',
+    weight: 0,
     era: 'now',
     minTerm: 2,
     face: 'envoy',
@@ -420,6 +589,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'forty_stops',
+    weight: 0,
     era: 'now',
     minTerm: 3,
     face: 'netaji',
@@ -431,6 +601,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'baba_box',
+    weight: 0,
     era: 'now',
     minTerm: 3,
     face: 'baba',
@@ -442,6 +613,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'convoy',
+    weight: 0,
     era: 'now',
     minTerm: 1,
     face: 'pinky',
@@ -453,6 +625,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'anchor',
+    weight: 0,
     era: 'now',
     minTerm: 1,
     face: 'nandini',
@@ -464,6 +637,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'blame',
+    weight: 0,
     era: 'now',
     minTerm: 2,
     face: 'chintu',
@@ -475,6 +649,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'yoga',
+    weight: 0,
     era: 'now',
     minTerm: 1,
     face: 'baba',
@@ -486,6 +661,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'no_questions',
+    weight: 0,
     era: 'now',
     minTerm: 2,
     face: 'justice',
@@ -509,6 +685,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'hologram',
+    weight: 0,
     era: 'later',
     minTerm: 1,
     face: 'chintu',
@@ -520,6 +697,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'seventh',
+    weight: 0,
     era: 'later',
     minTerm: 1,
     face: 'lalaji',
@@ -531,6 +709,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'mars_stone',
+    weight: 0,
     era: 'later',
     minTerm: 2,
     face: 'captain',
@@ -542,6 +721,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'noon_model',
+    weight: 0,
     era: 'later',
     minTerm: 1,
     face: 'nandini',
@@ -553,6 +733,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'chai_code',
+    weight: 0,
     era: 'later',
     minTerm: 1,
     face: 'kisan',
@@ -564,6 +745,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'leds',
+    weight: 0,
     era: 'later',
     minTerm: 2,
     face: 'hakim',
@@ -575,6 +757,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'generator',
+    weight: 0,
     era: 'later',
     minTerm: 2,
     face: 'envoy',
@@ -586,6 +769,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'buffer',
+    weight: 0,
     era: 'later',
     minTerm: 3,
     face: 'mausi',
@@ -597,6 +781,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'crater',
+    weight: 0,
     era: 'later',
     minTerm: 2,
     face: 'captain',
@@ -608,6 +793,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'blink',
+    weight: 0,
     era: 'later',
     minTerm: 2,
     face: 'chintu',
@@ -619,6 +805,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'robot_bill',
+    weight: 0,
     era: 'later',
     minTerm: 2,
     face: 'kisan',
@@ -630,6 +817,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'weightless',
+    weight: 0,
     era: 'later',
     minTerm: 3,
     face: 'hakim',
@@ -641,6 +829,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'two_clocks',
+    weight: 0,
     era: 'later',
     minTerm: 2,
     face: 'netaji',
@@ -652,6 +841,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'blame_later',
+    weight: 0,
     era: 'later',
     minTerm: 2,
     face: 'chintu',
@@ -663,6 +853,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'convoy_later',
+    weight: 0,
     era: 'later',
     minTerm: 1,
     face: 'captain',
@@ -674,6 +865,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'tiger_later',
+    weight: 0,
     era: 'later',
     minTerm: 1,
     block: ['tiger'],
@@ -686,6 +878,7 @@ export const CARDS: StoryCard[] = [
   },
   {
     id: 'copies',
+    weight: 0,
     era: 'later',
     priority: true,
     minTerm: 8,
@@ -881,7 +1074,7 @@ export const CARDS: StoryCard[] = [
     id: 'fill_power',
     era: 'now',
     repeat: true,
-    weight: 1,
+    weight: 0,
     face: 'hakim',
     speaker: 'Hakim',
     role: 'Cabinet secretary',
@@ -893,7 +1086,7 @@ export const CARDS: StoryCard[] = [
     id: 'fill_rain',
     era: 'now',
     repeat: true,
-    weight: 1,
+    weight: 0,
     minTerm: 1,
     face: 'chintu',
     speaker: 'Chintu',
@@ -906,7 +1099,7 @@ export const CARDS: StoryCard[] = [
     id: 'fill_biscuit',
     era: 'later',
     repeat: true,
-    weight: 1,
+    weight: 0,
     face: 'mausi',
     speaker: 'Aunty',
     role: 'Party treasurer',
@@ -918,7 +1111,7 @@ export const CARDS: StoryCard[] = [
     id: 'fill_lag',
     era: 'later',
     repeat: true,
-    weight: 1,
+    weight: 0,
     minTerm: 2,
     face: 'nandini',
     speaker: 'Nandini',
@@ -931,7 +1124,7 @@ export const CARDS: StoryCard[] = [
     id: 'fill_oxygen',
     era: 'later',
     repeat: true,
-    weight: 1,
+    weight: 0,
     face: 'captain',
     speaker: 'Captain',
     role: 'Dome and convoys',

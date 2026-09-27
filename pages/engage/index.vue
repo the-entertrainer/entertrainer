@@ -66,16 +66,11 @@ const MIND_READER_SYMBOLS = [
       <li class="u-reveal">
         <NuxtLink to="/engage/netagiri" class="engage__card engage__card--netagiri">
           <span class="engage__icon engage__icon--netagiri" aria-hidden="true">
-            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
-              <rect width="48" height="48" rx="6" fill="#F7F1E4"/>
-              <rect x="16" y="28" width="16" height="6" fill="#161618"/>
-              <rect x="19" y="22" width="10" height="6" fill="#161618"/>
-              <rect x="22" y="16" width="4" height="6" fill="#2F5BD8"/>
-            </svg>
+            <span class="netagiri-chair-icon" />
           </span>
           <span class="engage__card-text">
             <strong class="engage__card-name">Netagiri</strong>
-            <span class="engage__card-blurb">Prime Minister. Two orders. Four bars.</span>
+            <span class="engage__card-blurb">Five years. One chair. Earn a second mandate.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -289,4 +284,5 @@ const MIND_READER_SYMBOLS = [
   .engage__card, .engage__card-arrow { transition: none; }
   .engage__card:hover { transform: none; }
 }
+.netagiri-chair-icon { display: block; width: 34px; height: 34px; background: url("/netagiri/five-years/ui-atlas.png") 66.6667% 0 / 400% 400% no-repeat; }
 </style>

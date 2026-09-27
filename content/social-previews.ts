@@ -236,7 +236,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'netagiri',
     label: 'Netagiri',
     title: 'Netagiri · Engage',
-    description: 'You are Prime Minister of India. Two orders. Four bars. Either end ends you.'
+    description: 'Five years. One chair. Govern through 260 weekly decisions and earn a second mandate in this political satire game.'
   },
   '/engage/read-my-mind': {
     key: 'read-my-mind',

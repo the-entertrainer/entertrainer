@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Myousic, Stack, Squash, The Mind Reader, and AstroClock.',
+  description: 'Short games and little detours — Myousic, Stack, Squash, Netagiri, The Mind Reader, and AstroClock.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -76,6 +76,26 @@ const MIND_READER_SYMBOLS = [
           <span class="engage__card-text">
             <strong class="engage__card-name">Squash</strong>
             <span class="engage__card-blurb">Tap the brown ones. Never the glow.</span>
+          </span>
+          <span class="engage__card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </span>
+        </NuxtLink>
+      </li>
+      <li class="u-reveal">
+        <NuxtLink to="/engage/netagiri" class="engage__card engage__card--netagiri">
+          <span class="engage__icon engage__icon--netagiri" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
+              <rect width="48" height="48" rx="6" fill="#F7F1E4"/>
+              <rect x="16" y="28" width="16" height="6" fill="#161618"/>
+              <rect x="19" y="22" width="10" height="6" fill="#161618"/>
+              <rect x="22" y="16" width="4" height="6" fill="#2F5BD8"/>
+            </svg>
+          </span>
+          <span class="engage__card-text">
+            <strong class="engage__card-name">Netagiri</strong>
+            <span class="engage__card-blurb">Two answers. Four bars. Belpur keeps score.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -248,6 +268,20 @@ const MIND_READER_SYMBOLS = [
   border-color: #161618;
 }
 .engage__icon--squash svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(var(--radius-s) - 2rem);
+}
+
+.engage__icon--netagiri {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: #F7F1E4;
+  border-color: #161618;
+}
+.engage__icon--netagiri svg {
   display: block;
   width: 100%;
   height: 100%;

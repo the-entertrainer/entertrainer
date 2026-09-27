@@ -210,7 +210,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — Myousic, Stack, Squash, The Mind Reader, and AstroClock.',
+    description: 'Short games and little detours — Myousic, Stack, Squash, Netagiri, The Mind Reader, and AstroClock.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },
@@ -237,6 +237,12 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'Squash',
     title: 'Squash · Engage',
     description: 'Tap the brown ones. Never the glow. A one-thumb wall on Entertrainer.'
+  },
+  '/engage/netagiri': {
+    key: 'netagiri',
+    label: 'Netagiri',
+    title: 'Netagiri · Engage',
+    description: 'Two answers. Four bars. Belpur keeps score until one of them breaks.'
   },
   '/engage/read-my-mind': {
     key: 'read-my-mind',

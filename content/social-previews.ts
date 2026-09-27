@@ -210,7 +210,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — Myousic, Vybe, Stack, The Mind Reader, and AstroClock.',
+    description: 'Short games and little detours — Myousic, Stack, The Mind Reader, and AstroClock.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },
@@ -219,12 +219,6 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'Myousic',
     title: 'Myousic · Engage',
     description: 'Color choices, then a just-intonation tune. A flute or violin meets the reading and moves.'
-  },
-  '/engage/vybe': {
-    key: 'vybe',
-    label: 'Vybe',
-    title: 'Vybe · Engage',
-    description: 'A tactile synthesizer. The room goes in. A rhythm comes out. Audio stays on the device.'
   },
   '/engage/astroclock': {
     key: 'astroclock',

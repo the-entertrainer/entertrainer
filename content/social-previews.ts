@@ -210,7 +210,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — Stack, Squash, Netagiri, The Mind Reader, and AstroClock.',
+    description: 'Short games and little detours — Stack, Fever Dream, Netagiri, The Mind Reader, and AstroClock.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },
@@ -228,9 +228,15 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   },
   '/engage/squash': {
     key: 'squash',
-    label: 'Squash',
-    title: 'Squash · Engage',
-    description: 'Tap the brown ones. Never the glow. A one-thumb wall on Entertrainer.'
+    label: 'Fever Dream',
+    title: 'Fever Dream · Engage',
+    description: 'A banana hits the floor. Squeeze the brown roaches. The green ones want the wires.'
+  },
+  '/engage/fever': {
+    key: 'squash',
+    label: 'Fever Dream',
+    title: 'Fever Dream · Engage',
+    description: 'A banana hits the floor. Squeeze the brown roaches. The green ones want the wires.'
   },
   '/engage/netagiri': {
     key: 'netagiri',

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Fever Dream, Stack, Squash, Netagiri, The Mind Reader, and AstroClock.',
+  description: 'Short games and little detours — Stack, Fever Dream, Netagiri, The Mind Reader, and AstroClock.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -24,25 +24,6 @@ const MIND_READER_SYMBOLS = [
 
     <ol class="engage__grid">
       <li class="u-reveal">
-        <NuxtLink to="/engage/fever" class="engage__card engage__card--fever">
-          <span class="engage__icon engage__icon--fever" aria-hidden="true">
-            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
-              <rect width="48" height="48" rx="6" fill="#C4B8A4"/>
-              <path d="M10 30c6-2 8-10 14-12 4 6 8 8 14 6" stroke="#E6B325" stroke-width="4" stroke-linecap="round"/>
-              <circle cx="34" cy="14" r="3" fill="#B6FF3C"/>
-            </svg>
-          </span>
-          <span class="engage__card-text">
-            <strong class="engage__card-name">Fever Dream</strong>
-            <span class="engage__card-blurb">A banana hits the floor. Squeeze the brown ones.</span>
-          </span>
-          <span class="engage__card-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
-          </span>
-        </NuxtLink>
-      </li>
-      <li class="u-reveal">
         <NuxtLink to="/engage/stack" class="engage__card engage__card--stack">
           <span class="engage__icon engage__icon--stack" aria-hidden="true">
             <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
@@ -62,19 +43,17 @@ const MIND_READER_SYMBOLS = [
         </NuxtLink>
       </li>
       <li class="u-reveal">
-        <NuxtLink to="/engage/squash" class="engage__card engage__card--squash">
-          <span class="engage__icon engage__icon--squash" aria-hidden="true">
+        <NuxtLink to="/engage/squash" class="engage__card engage__card--fever">
+          <span class="engage__icon engage__icon--fever" aria-hidden="true">
             <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
-              <rect width="48" height="48" rx="6" fill="#FBF8EF"/>
-              <ellipse cx="22" cy="26" rx="10" ry="7" fill="#583E28"/>
-              <ellipse cx="32" cy="24" rx="5" ry="4" fill="#2A1C12"/>
-              <path d="M14 20 L8 14 M14 30 L8 36 M30 16 L36 10" stroke="#161618" stroke-width="1.6" stroke-linecap="round"/>
-              <circle cx="39" cy="16" r="3" fill="#FFD43B"/>
+              <rect width="48" height="48" rx="6" fill="#C4B8A4"/>
+              <path d="M10 30c6-2 8-10 14-12 4 6 8 8 14 6" stroke="#E6B325" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="34" cy="14" r="3" fill="#B6FF3C"/>
             </svg>
           </span>
           <span class="engage__card-text">
-            <strong class="engage__card-name">Squash</strong>
-            <span class="engage__card-blurb">Tap the brown ones. Never the glow.</span>
+            <strong class="engage__card-name">Fever Dream</strong>
+            <span class="engage__card-blurb">A banana hits the floor. Squeeze the brown ones.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -259,19 +238,6 @@ const MIND_READER_SYMBOLS = [
 }
 .engage__icon--stack svg { display: block; width: 100%; height: 100%; }
 
-.engage__icon--squash {
-  display: grid;
-  place-items: center;
-  padding: 0;
-  background: #FBF8EF;
-  border-color: #161618;
-}
-.engage__icon--squash svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: calc(var(--radius-s) - 2rem);
-}
 .engage__icon--fever {
   display: grid;
   place-items: center;

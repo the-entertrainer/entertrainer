@@ -2,9 +2,9 @@
 definePageMeta({ layout: false })
 
 useSeoMeta({
-  title: 'NETAGIRI · Five years. One chair.',
-  description: 'Swipe the file. Left refuses. Right signs. A pillar at zero ends the government.',
-  ogUrl: 'https://entertrainer.in/engage/netagiri'
+  title: 'Fever Dream · A banana hits the floor.',
+  description: 'Squeeze the brown roaches. The green ones want the wires.',
+  ogUrl: 'https://entertrainer.in/engage/fever'
 })
 </script>
 
@@ -13,8 +13,8 @@ useSeoMeta({
     <NuxtLink to="/engage" class="ng__back" aria-label="Back to Engage">←</NuxtLink>
     <iframe
       class="ng__frame"
-      src="/netagiri/swipe.html"
-      title="NETAGIRI"
+      src="/fever/index.html"
+      title="Fever Dream"
       allow="fullscreen"
     />
   </div>
@@ -25,7 +25,7 @@ useSeoMeta({
   position: relative;
   height: 100svh;
   height: 100dvh;
-  background: #080808;
+  background: #140e0c;
 }
 .ng__back {
   position: absolute;
@@ -48,6 +48,6 @@ useSeoMeta({
   width: 100%;
   height: 100%;
   border: 0;
-  background: #080808;
+  background: #140e0c;
 }
 </style>

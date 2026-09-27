@@ -1,6 +1,6 @@
 /**
  * Netagiri. The person on the card is in the room with you.
- * Talk the way a party office talks: Hindi and English in the same breath.
+ * Plain English. The person on the card is speaking to you.
  * Say the money, the vote, the court, the camera, or the crowd.
  * The two buttons are different orders. Deltas stay within -14..14.
  * No living politicians. No riddles.
@@ -51,10 +51,10 @@ export type Ending = { id: string; headline: string; epitaph: string }
 const s = (text: string, d?: Delta, rest?: Omit<Side, 'text' | 'd'>): Side => ({ text, d, ...rest })
 
 export const GAUGES: { key: Gauge; label: string; hint: string }[] = [
-  { key: 'janta', label: 'Janta', hint: 'The crowd' },
-  { key: 'khazana', label: 'Khazana', hint: 'The chest' },
-  { key: 'kursi', label: 'Kursi', hint: 'The party' },
-  { key: 'kanoon', label: 'Kanoon', hint: 'The file' }
+  { key: 'janta', label: 'People', hint: 'The crowd' },
+  { key: 'khazana', label: 'Treasury', hint: 'The chest' },
+  { key: 'kursi', label: 'Party', hint: 'The chair' },
+  { key: 'kanoon', label: 'Law', hint: 'The file' }
 ]
 
 export const FACES: Record<Face, string> = {
@@ -141,9 +141,9 @@ export const CARDS: StoryCard[] = [
     face: 'pinky',
     speaker: 'Pinky',
     role: 'General secretary',
-    text: 'Arre sir, result nikal gaya. Booth workers front row mein baithe hain, family ke saath. Ek speech desh ke naam hai. Doosri mein unke naam hain, ek ek karke. Camera unhi pe laga hai.',
-    left: s('Desh ko thank you. Baith jao.', { janta: 6, kursi: -4 }),
-    right: s('Naam padho. Saare ke saare.', { janta: 4, kursi: 8, kanoon: -6 }, { set: ['troll_voice'], queue: [['names_due', 2]] })
+    text: 'Sir, the count is in. The booth workers are in the front row, with their families. One speech thanks the country. The other reads their names, one by one. The camera is already on them.',
+    left: s('Thank the country. Then sit.', { janta: 6, kursi: -4 }),
+    right: s('Read every name.', { janta: 4, kursi: 8, kanoon: -6 }, { set: ['troll_voice'], queue: [['names_due', 2]] })
   },
   {
     id: 'oath_later',
@@ -152,9 +152,9 @@ export const CARDS: StoryCard[] = [
     face: 'captain',
     speaker: 'Captain',
     role: 'Dome and convoys',
-    text: 'Sir, counting chalis minute late khatam hui. Log isko progress bolenge. Mere paas oxygen ka bill hai, aur ek plan hai aapka chehra news se pehle poore dome pe laga dun.',
-    left: s('Oxygen ka bill padho.', { janta: 6, kanoon: 4, kursi: -4 }),
-    right: s('Chehra dome pe laga do.', { janta: 8, kursi: 6, kanoon: -6 }, { set: ['dome_face'], queue: [['vent_due', 2]] })
+    text: 'Sir, the count finished forty minutes late. People will call that progress. I have the oxygen bill, and a plan to put your face on the whole dome before the news does.',
+    left: s('Read the oxygen bill.', { janta: 6, kanoon: 4, kursi: -4 }),
+    right: s('Put my face on the dome.', { janta: 8, kursi: 6, kanoon: -6 }, { set: ['dome_face'], queue: [['vent_due', 2]] })
   },
   {
     id: 'hundred',
@@ -163,9 +163,9 @@ export const CARDS: StoryCard[] = [
     face: 'pinky',
     speaker: 'Pinky',
     role: 'General secretary',
-    text: 'Sir, cameras bahar khade hain. Unhe hundred days chahiye. Ek naali bol dun, aur uski tareekh. Ya poori list, bina tareekh ke?',
-    left: s('Ek naali. Ek tareekh.', { kanoon: 6, kursi: -4 }, { set: ['one_date'], queue: [['drain_due', 2]] }),
-    right: s('Poora desh. Abhi ke abhi.', { janta: 8, kursi: 6 }, { set: ['hundred'], queue: [['hundred_due', 2]] })
+    text: 'Sir, the cameras are outside. They want a hundred days. I can name one drain and a date. Or the whole list, with no date on it.',
+    left: s('One drain. One date.', { kanoon: 6, kursi: -4 }, { set: ['one_date'], queue: [['drain_due', 2]] }),
+    right: s('The whole list. No date.', { janta: 8, kursi: 6 }, { set: ['hundred'], queue: [['hundred_due', 2]] })
   },
   {
     id: 'hundred_due',
@@ -175,9 +175,9 @@ export const CARDS: StoryCard[] = [
     face: 'hakim',
     speaker: 'Hakim',
     role: 'Cabinet secretary',
-    text: 'Sir, aaj woh hundredva din hai. File abhi bhi day one likhi padi hai. Ticker pe sach bolun, ya bol dun yeh chand ke din the?',
-    left: s('Sach bolo. Date fisal gayi.', { janta: -4, kanoon: 8, kursi: -4 }),
-    right: s('Chand ke din the. Likh do.', { kursi: 6, kanoon: -8, janta: 2 })
+    text: 'Sir, today is day one hundred. The file still says day one. Do I put the truth on the ticker, or say the hundred days were never calendar days?',
+    left: s('Tell the truth. The date slipped.', { janta: -4, kanoon: 8, kursi: -4 }),
+    right: s('Say they were not real days.', { kursi: 6, kanoon: -8, janta: 2 })
   },
   {
     id: 'rename_road',
@@ -186,9 +186,9 @@ export const CARDS: StoryCard[] = [
     face: 'pinky',
     speaker: 'Pinky',
     role: 'General secretary',
-    text: 'Sir, yeh sadak ek gaddhe ki wajah se famous hai. Is hafte bhara sakte hain. Ya sadak aapke naam kar dun, gaddha jahan hai wahin rahe.',
-    left: s('Gaddha bharo. Naam mat badlo.', { khazana: -6, janta: 8, kursi: -4 }),
-    right: s('Naam badlo. Gaddha rehne do.', { janta: 4, kursi: 8 }, { set: ['renamed'], queue: [['hole_due', 2]] })
+    text: 'Sir, this road is famous for one pothole. We can fill it this week. Or name the road after you and leave the hole where it is.',
+    left: s('Fill the hole. Keep the name.', { khazana: -6, janta: 8, kursi: -4 }),
+    right: s('Change the name. Leave the hole.', { janta: 4, kursi: 8 }, { set: ['renamed'], queue: [['hole_due', 2]] })
   },
   {
     id: 'broom',
@@ -197,20 +197,20 @@ export const CARDS: StoryCard[] = [
     face: 'nandini',
     speaker: 'Nandini',
     role: 'Prime-time anchor',
-    text: 'Sir, hotel ke gate pe maine paanch sukhe patte giraye hain. Slow motion chal raha hai. Jhadu utha lijiye, clip ban jayegi. Ya boliye paisa safai walon ko jaye, aur main camera band karun.',
-    left: s('Paisa safai walon ko. Camera band.', { khazana: -6, kanoon: 6, kursi: -4, janta: 2 }),
-    right: s('Jhadu uthao. Clip chalao.', { janta: 8, kursi: 6 }, { set: ['broom'], queue: [['clip_due', 2]] })
+    text: 'Sir, I dropped five dry leaves at the hotel gate. Slow motion is rolling. Pick up the broom and I have a clip. Or send the money to the cleaners and I turn the camera off.',
+    left: s('Pay the cleaners. Camera off.', { khazana: -6, kanoon: 6, kursi: -4, janta: 2 }),
+    right: s('Pick up the broom. Run the clip.', { janta: 8, kursi: 6 }, { set: ['broom'], queue: [['clip_due', 2]] })
   },
   {
     id: 'statue',
     era: 'now',
     minTerm: 2,
     face: 'lalaji',
-    speaker: 'Lalaji',
+    speaker: 'The contractor',
     role: 'Contracts and cement',
-    text: 'Sahab, cement mere paas hai. Aapko patthar mein pichhle wale se lamba khada karun, ya clinic ki chhat pe daal dun? Clinic mere drawing mein hai hi nahi. Drawing ka paisa ho chuka hai.',
-    left: s('Clinic ki chhat. Murti nahi.', { khazana: -6, janta: 6, kursi: -6 }),
-    right: s('Murti aur lambi banao.', { kursi: 8, janta: 4, kanoon: -6 }, { set: ['statue'], queue: [['statue_bill', 2]] })
+    text: 'Sir, I have the cement. I can stand you in stone, taller than the last one. Or I put it on the clinic roof. The clinic is not in my drawing. The drawing is already paid for.',
+    left: s('The clinic roof. No statue.', { khazana: -6, janta: 6, kursi: -6 }),
+    right: s('Make the statue taller.', { kursi: 8, janta: 4, kanoon: -6 }, { set: ['statue'], queue: [['statue_bill', 2]] })
   },
   {
     id: 'statue_bill',
@@ -218,11 +218,11 @@ export const CARDS: StoryCard[] = [
     queueOnly: true,
     need: ['statue'],
     face: 'lalaji',
-    speaker: 'Lalaji',
+    speaker: 'The contractor',
     role: 'Contracts and cement',
-    text: 'Sahab, murti ne clinic ka budget kha liya. Ghutne pe rok ke clinic ko paise de dun? Ya ghutne ko phase two bol dun? Phase two mein mera hissa banta hai.',
-    left: s('Ghutne pe roko. Clinic ko do.', { khazana: -8, janta: 4, kursi: -4 }),
-    right: s('Phase two. Ghutne ka bill.', { khazana: -10, kursi: 8, kanoon: -6 })
+    text: 'Sir, the statue ate the clinic budget. I can stop at the knees and give the clinic the money. Or I call the knees phase two. Phase two is where I get paid.',
+    left: s('Stop at the knees. Pay the clinic.', { khazana: -8, janta: 4, kursi: -4 }),
+    right: s('Phase two. Bill the knees.', { khazana: -10, kursi: 8, kanoon: -6 })
   },
   {
     id: 'foreign',
@@ -231,9 +231,9 @@ export const CARDS: StoryCard[] = [
     face: 'envoy',
     speaker: 'The envoy',
     role: 'Trade draft',
-    text: 'Sir, mere paas ek kalam hai aur trade ka draft. Aapki party ne plane mein thirty-eight log bitha diye. Photographer bol raha hai woh zaroori staff hai.',
-    left: s('Sirf hum dono. Baaki utaro.', { kursi: -4, kanoon: 4, khazana: 6 }),
-    right: s('Thirty-eight. Kalam ka shot.', { khazana: -10, kursi: 6, janta: 4 }, { set: ['trip'], queue: [['mou', 2]] })
+    text: 'Sir, I have one pen and the trade draft. Your party put thirty-eight people on the plane. The photographer says they are essential staff.',
+    left: s('Just us two. Send the rest home.', { kursi: -4, kanoon: 4, khazana: 6 }),
+    right: s('All thirty-eight. Shoot the pen.', { khazana: -10, kursi: 6, janta: 4 }, { set: ['trip'], queue: [['mou', 2]] })
   },
   {
     id: 'mou',
@@ -243,9 +243,9 @@ export const CARDS: StoryCard[] = [
     face: 'hakim',
     speaker: 'Hakim',
     role: 'Cabinet secretary',
-    text: 'Sir, jo sign hua hai usme itna hai ki dono desh phir milenge. Bas. PDF waise hi chhodun, ya press ko historic handshake bata dun?',
-    left: s('PDF waise hi chhapo.', { kanoon: 6, janta: -2 }),
-    right: s('Historic handshake bolo.', { janta: 6, kursi: 6 })
+    text: 'Sir, what you signed says the two countries will meet again. That is all. Do I leave the PDF as it is, or tell the press it was a historic handshake?',
+    left: s('Print the PDF as it is.', { kanoon: 6, janta: -2 }),
+    right: s('Call it a historic handshake.', { janta: 6, kursi: 6 })
   },
   {
     id: 'tiger',
@@ -254,9 +254,9 @@ export const CARDS: StoryCard[] = [
     face: 'chintu',
     speaker: 'Chintu',
     role: 'Party socials',
-    text: 'Boss, uncle ka voice note aaya hai. Subah nashte se pehle aapne tiger se kushti ki. Lunch se pehle delete karun, ya pin karke ek aur tiger chipka dun?',
-    left: s('Delete karo. Abhi.', { kursi: -4, kanoon: 6 }),
-    right: s('Pin karo. Tiger aur badhao.', { janta: 8, kursi: 4, kanoon: -6 }, { set: ['tiger'] })
+    text: 'Boss, your uncle sent a voice note. It says you wrestled a tiger before breakfast. Do I delete it before lunch, or pin it and add another tiger?',
+    left: s('Delete it. Now.', { kursi: -4, kanoon: 6 }),
+    right: s('Pin it. Add another tiger.', { janta: 8, kursi: 4, kanoon: -6 }, { set: ['tiger'] })
   },
   {
     id: 'onions',
@@ -265,9 +265,9 @@ export const CARDS: StoryCard[] = [
     face: 'nandini',
     speaker: 'Nandini',
     role: 'Prime-time anchor',
-    text: 'Sir, pyaaz upar hai aur graphic mein aapke chehre pe aag lagi hai. Das second hain. Rate chalau, ya on air poochun kisne meri aag ke paise diye?',
-    left: s('Rate chalao. Pyaaz ka.', { janta: 2, kanoon: 6, kursi: -4 }),
-    right: s('Aag ka paisa poocho.', { janta: 6, kursi: 6, kanoon: -4 })
+    text: 'Sir, onions are up, and the graphic has your face on fire. I have ten seconds. Do I run the price, or ask on air who paid for my flames?',
+    left: s('Run the onion price.', { janta: 2, kanoon: 6, kursi: -4 }),
+    right: s('Ask who paid for the flames.', { janta: 6, kursi: 6, kanoon: -4 })
   },
   {
     id: 'urea',
@@ -276,31 +276,31 @@ export const CARDS: StoryCard[] = [
     face: 'kisan',
     speaker: 'The farmer',
     role: 'Brought the bill',
-    text: 'Sahab, urea khet mein aa gaya. Bill do baar aa gaya. Doosra kaat do. Ya mere muh pe bolo ki do baar dena hi reform hai.',
-    left: s('Doosra bill kaat do.', { khazana: -10, janta: 8, kursi: -4 }, { set: ['bill_cut'] }),
-    right: s('Bolo, yeh hi reform hai.', { kursi: 4, janta: -8 })
+    text: 'Sir, the urea reached the field. The bill arrived twice. Cancel the second one. Or tell me to my face that paying twice is the reform.',
+    left: s('Cancel the second bill.', { khazana: -10, janta: 8, kursi: -4 }, { set: ['bill_cut'] }),
+    right: s('Say paying twice is reform.', { kursi: 4, janta: -8 })
   },
   {
     id: 'cylinder',
     era: 'now',
     minTerm: 2,
     face: 'mausi',
-    speaker: 'Mausi',
+    speaker: 'Aunty',
     role: 'Party treasurer',
-    text: 'Beta, yeh cylinder aap pehle hi de chuke ho, log yaad rakhte hain. Wahi bhej dun, ya upar naya naam chhap ke function rakhun?',
-    left: s('Jo bola tha, woh bhejo.', { khazana: -10, janta: 6 }),
-    right: s('Naya naam. Function rakho.', { janta: 6, kursi: 6, khazana: -4 }, { set: ['acronym'], queue: [['gas_due', 2]] })
+    text: 'Listen. You already gave this cylinder. People remember. Do I send the same one, or print a new name on it and hold a function?',
+    left: s('Send what you promised.', { khazana: -10, janta: 6 }),
+    right: s('New name. Hold the function.', { janta: 6, kursi: 6, khazana: -4 }, { set: ['acronym'], queue: [['gas_due', 2]] })
   },
   {
     id: 'nephew',
     era: 'now',
     minTerm: 3,
     face: 'mausi',
-    speaker: 'Mausi',
+    speaker: 'Aunty',
     role: 'Party treasurer',
-    text: 'Beta, bhatije ka CV ek page hai. Uspe aapka surname bada likha hai. Exam mangalwar ko hai. Bhej dun, ya aaj raat sarkari company ka chairman bana dun? Board taali maar dega.',
-    left: s('Exam pe bhejo.', { kursi: -6, kanoon: 8 }),
-    right: s('Aaj raat chairman banao.', { kursi: 8, kanoon: -10, khazana: 4 }, { set: ['nephew'] })
+    text: 'Listen. Your nephew has a one-page CV, and your surname is the biggest line on it. The exam is on Tuesday. Do I send him, or make him chairman of the public company tonight? The board will clap.',
+    left: s('Send him to the exam.', { kursi: -6, kanoon: 8 }),
+    right: s('Make him chairman tonight.', { kursi: 8, kanoon: -10, khazana: 4 }, { set: ['nephew'] })
   },
   {
     id: 'cricket',
@@ -309,9 +309,9 @@ export const CARDS: StoryCard[] = [
     face: 'chintu',
     speaker: 'Chintu',
     role: 'Party socials',
-    text: 'Boss, match jeet gaye. Graphic ready hai. Well played likh ke chup ho jaun, ya doosri party se pehle cup aapki scheme ke naam kar dun?',
-    left: s('Well played. Bas.', { janta: 2 }),
-    right: s('Cup scheme ke naam karo.', { janta: 8, kursi: 4 })
+    text: 'Boss, we won the match. The graphic is ready. Do I write well played and stay quiet, or name the cup after your scheme before the other party does?',
+    left: s('Well played. That is all.', { janta: 2 }),
+    right: s('Name the cup after the scheme.', { janta: 8, kursi: 4 })
   },
   {
     id: 'ribbon',
@@ -320,9 +320,9 @@ export const CARDS: StoryCard[] = [
     face: 'pinky',
     speaker: 'Pinky',
     role: 'General secretary',
-    text: 'Sir, pul pe ribbon kat sakta hai. Scooter nahi nikal sakta. Scooter ke nikalne tak ruken, ya ribbon kaat ke scooter kheench ke shot mein le aayein?',
-    left: s('Scooter nikle, tab ribbon.', { khazana: -6, janta: 6, kursi: -6 }),
-    right: s('Ribbon kaato. Scooter ghaseeto.', { janta: 4, kursi: 8, kanoon: -6 }, { set: ['ribbon'], queue: [['scooter_due', 2]] })
+    text: 'Sir, we can cut the ribbon on the bridge. A scooter cannot cross it. Do we wait until a scooter can, or cut the ribbon and drag a scooter into the shot?',
+    left: s('Wait until a scooter crosses.', { khazana: -6, janta: 6, kursi: -6 }),
+    right: s('Cut the ribbon. Drag the scooter.', { janta: 4, kursi: 8, kanoon: -6 }, { set: ['ribbon'], queue: [['scooter_due', 2]] })
   },
   {
     id: 'committee',
@@ -331,9 +331,9 @@ export const CARDS: StoryCard[] = [
     face: 'hakim',
     speaker: 'Hakim',
     role: 'Cabinet secretary',
-    text: 'Sir, pul girne wali committee ko ek aur committee chahiye, apni hi jaanch ke liye. Thekedar ka naam loon, campaign usi ne fund kiya tha? Ya unhe ek doosre ke peeche daudne dun, file apne aap mar jayegi.',
-    left: s('Thekedar ka naam lo.', { kanoon: 8, kursi: -6 }),
-    right: s('Unhe ek doosre pe chhod do.', { kursi: 6, kanoon: -8 })
+    text: 'Sir, the committee on the fallen bridge wants another committee, to investigate itself. The contractor funded the campaign. Do I name him, or let them chase each other until the file dies?',
+    left: s('Name the contractor.', { kanoon: 8, kursi: -6 }),
+    right: s('Let them chase each other.', { kursi: 6, kanoon: -8 })
   },
   {
     id: 'eight_pm',
@@ -342,9 +342,9 @@ export const CARDS: StoryCard[] = [
     face: 'pinky',
     speaker: 'Pinky',
     role: 'General secretary',
-    text: 'Sir, aath baje desh rukega. Ek asli kaam, ek line mein bol dijiye. Ya ek app launch kar dun aur keh dun subah tak sab theek?',
-    left: s('Ek kaam. Ek line.', { kanoon: 6, kursi: -2 }, { set: ['plain_speech'], queue: [['line_due', 2]] }),
-    right: s('App chalu karo. Aaj raat.', { janta: 6, kursi: 6, kanoon: -6 }, { set: ['the_app'], queue: [['app_morning', 1]] })
+    text: 'Sir, at eight the country stops. Give me one real job, in one line. Or I launch an app and say everything will be fine by morning.',
+    left: s('One job. One line.', { kanoon: 6, kursi: -2 }, { set: ['plain_speech'], queue: [['line_due', 2]] }),
+    right: s('Launch the app tonight.', { janta: 6, kursi: 6, kanoon: -6 }, { set: ['the_app'], queue: [['app_morning', 1]] })
   },
   {
     id: 'app_morning',
@@ -354,9 +354,9 @@ export const CARDS: StoryCard[] = [
     face: 'chintu',
     speaker: 'Chintu',
     role: 'Party socials',
-    text: 'Boss, app aapka naam likhte hi crash ho jati hai. Trending isko masterstroke bol raha hai. Jab tak khule na, utaar dun? Ya bol dun log phone galat pakad rahe hain?',
-    left: s('Utaar do, jab tak khule.', { kanoon: 6, kursi: -6, janta: 2 }),
-    right: s('Bolo, phone galat pakda hai.', { kursi: 6, janta: -4, kanoon: -4 })
+    text: 'Boss, the app crashes as soon as someone types your name. Trending is calling that a masterstroke. Do I take it down until it opens, or say people are holding the phone wrong?',
+    left: s('Take it down until it opens.', { kanoon: 6, kursi: -6, janta: 2 }),
+    right: s('Say they hold the phone wrong.', { kursi: 6, janta: -4, kanoon: -4 })
   },
   {
     id: 'mango',
@@ -365,20 +365,20 @@ export const CARDS: StoryCard[] = [
     face: 'nandini',
     speaker: 'Nandini',
     role: 'Prime-time anchor',
-    text: 'Sir, aaj haftawar baat hai. Pyaaz mehnga hai, aam accha hai. Mujhe rate dijiye, main wahi chalaungi. Ya bees minute aam ki tareef kijiye, main sirf wahi kaatungi.',
-    left: s('Pyaaz ka rate bolo.', { janta: 6, kursi: -2 }),
-    right: s('Aam ki tareef. Bees minute.', { kursi: 6, janta: -4 })
+    text: 'Sir, the weekly chat is today. Onions are expensive. Mangoes are good. Give me the price and I will run that. Or praise mangoes for twenty minutes and I will only cut that.',
+    left: s('Give the onion price.', { janta: 6, kursi: -2 }),
+    right: s('Praise mangoes. Twenty minutes.', { kursi: 6, janta: -4 })
   },
   {
     id: 'garland',
     era: 'now',
     minTerm: 1,
     face: 'mausi',
-    speaker: 'Mausi',
+    speaker: 'Aunty',
     role: 'Party treasurer',
-    text: 'Beta, yeh mala us file se bhaari hai jo iske neeche dabi hai. Utaar ke padhiye. Ya live pe pehne rahiye. Phool, file se behtar dikhte hain.',
-    left: s('Mala utaro. File padho.', { kanoon: 4, janta: -2 }),
-    right: s('Pehen ke live ho jao.', { janta: 6, kursi: 4 })
+    text: 'Listen. This garland is heavier than the file under it. Take it off and read. Or wear it live. Flowers look better than a file.',
+    left: s('Take off the garland. Read.', { kanoon: 4, janta: -2 }),
+    right: s('Wear it. Go live.', { janta: 6, kursi: 4 })
   },
   {
     id: 'survey',
@@ -387,9 +387,9 @@ export const CARDS: StoryCard[] = [
     face: 'chintu',
     speaker: 'Chintu',
     role: 'Party socials',
-    text: 'Boss, survey ko round karke 112 percent khush kar diya. Asli number doosre phone pe hai. Meeting se pehle asli bhejun, ya 112 bold mein chhap dun?',
-    left: s('Asli number bhejo.', { kursi: -6, kanoon: 6 }),
-    right: s('112 chhapo. Bold mein.', { kursi: 8, janta: 4, kanoon: -6 })
+    text: 'Boss, I rounded the survey until 112 percent were happy. The real number is on the other phone. Do I send the real one before the meeting, or print 112 in bold?',
+    left: s('Send the real number.', { kursi: -6, kanoon: 6 }),
+    right: s('Print 112. In bold.', { kursi: 8, janta: 4, kanoon: -6 })
   },
   {
     id: 'poem',
@@ -398,9 +398,9 @@ export const CARDS: StoryCard[] = [
     face: 'nandini',
     speaker: 'Nandini',
     role: 'Prime-time anchor',
-    text: 'Sir, opposition ne aapki khamoshi pe kavita daal di. Rhyming hai, aur chal rahi hai. Chhod dun? Ya case karun aur ek sher wapas bhej dun?',
-    left: s('Kavita chhod do.', { kanoon: 2 }),
-    right: s('Case karo. Sher bhejo.', { kursi: 6, janta: 2, kanoon: -8 }, { set: ['couplet'], queue: [['poem_due', 2]] })
+    text: 'Sir, the opposition put a poem on your silence. It rhymes, and it is spreading. Do I leave it, or file a case and send a couplet back?',
+    left: s('Leave the poem.', { kanoon: 2 }),
+    right: s('File the case. Send a couplet.', { kursi: 6, janta: 2, kanoon: -8 }, { set: ['couplet'], queue: [['poem_due', 2]] })
   },
   {
     id: 'millet',
@@ -409,9 +409,9 @@ export const CARDS: StoryCard[] = [
     face: 'envoy',
     speaker: 'The envoy',
     role: 'Trade draft',
-    text: 'Sir, dinner pe bajra rakha hai, jaise office ne kaha tha. Parking mein Lalaji ka chef, fountain, aur drone wait kar rahe hain. Kitchen ko kya bolun?',
-    left: s('Bajra do. Ek baar samjhao.', { janta: 4, khazana: 2 }),
-    right: s('Chef bulao. Fountain bhi.', { khazana: -10, kursi: 6, janta: 2 })
+    text: 'Sir, dinner is millet, the way your office asked. The contractor has a chef, a fountain, and a drone waiting in the parking lot. What do I tell the kitchen?',
+    left: s('Serve the millet. Explain once.', { janta: 4, khazana: 2 }),
+    right: s('Call the chef. And the fountain.', { khazana: -10, kursi: 6, janta: 2 })
   },
   {
     id: 'forty_stops',
@@ -420,20 +420,20 @@ export const CARDS: StoryCard[] = [
     face: 'pinky',
     speaker: 'Pinky',
     role: 'General secretary',
-    text: 'Sir, is hafte chaalees stop hain. Teesre pe school ki chhat nahi hai. Barahve pe drone aur ribbon hai. Chhat karke tour kaat dun, ya chaalees ke chaalees, barahve ka video?',
-    left: s('Pehle chhat. Tour kaato.', { khazana: -8, janta: 8, kursi: -6 }),
-    right: s('Chaalees stop. Barahve pe drone.', { janta: 6, kursi: 8, khazana: -6 })
+    text: 'Sir, there are forty stops this week. The third has no school roof. The twelfth has a drone and a ribbon. Do I fix the roof and cut the tour, or do all forty and send the twelfth as the video?',
+    left: s('Fix the roof. Cut the tour.', { khazana: -8, janta: 8, kursi: -6 }),
+    right: s('All forty. Drone at twelve.', { janta: 6, kursi: 8, khazana: -6 })
   },
   {
     id: 'baba_box',
     era: 'now',
     minTerm: 3,
     face: 'baba',
-    speaker: 'Babaji',
-    role: 'Ashram and airtime',
-    text: 'Pradhan Mantri ji, guruvar ko live ashirwad dunga. Isme zameen ka patta chahiye, ashram ke naam. Aur live ka slot. Dabbe mein chanda hai, ashirwad nahi. Patta dein, ya guruvar cabinet ka rehne dein.',
-    left: s('Patta nahi. Guruvar cabinet ka.', { kursi: -6, kanoon: 6 }),
-    right: s('Patta do. Live ka slot do.', { janta: 6, kursi: 6, kanoon: -8, khazana: 4 }, { set: ['blessed'], queue: [['ashram_due', 2]] })
+    speaker: 'The guru',
+    role: 'Retreat and airtime',
+    text: 'Prime Minister, on Thursday I will bless you live. I need the land deed in the name of his retreat, and the live slot. The box is a donation, not a blessing. Give the deed, or keep Thursday for cabinet.',
+    left: s('No deed. Thursday stays cabinet.', { kursi: -6, kanoon: 6 }),
+    right: s('Give the deed and the slot.', { janta: 6, kursi: 6, kanoon: -8, khazana: 4 }, { set: ['blessed'], queue: [['ashram_due', 2]] })
   },
   {
     id: 'convoy',
@@ -442,9 +442,9 @@ export const CARDS: StoryCard[] = [
     face: 'pinky',
     speaker: 'Pinky',
     role: 'General secretary',
-    text: 'Sir, gaadiyan sadak pe hain. Peeche ambulance horn baja rahi hai. Camera sirf aapki gaadi pe hai. Side le lun, ya clip saaf rakhne ke liye chalte rahen?',
-    left: s('Side lo. Ambulance nikalne do.', { janta: 8, kursi: -4 }),
-    right: s('Chalte raho. Clip saaf rakho.', { kursi: 6, janta: -6 })
+    text: 'Sir, the cars are on the road. An ambulance is honking behind us. The camera is only on your car. Do I pull over, or keep moving so the clip stays clean?',
+    left: s('Pull over. Let the ambulance pass.', { janta: 8, kursi: -4 }),
+    right: s('Keep moving. Keep the clip clean.', { kursi: 6, janta: -6 })
   },
   {
     id: 'anchor',
@@ -453,9 +453,9 @@ export const CARDS: StoryCard[] = [
     face: 'nandini',
     speaker: 'Nandini',
     role: 'Prime-time anchor',
-    text: 'Sir, sawal yeh hai. Kal raat bijli gayi, aapke mohalle mein nahi gayi. Kyun? Banner pe maine likh diya hai, purani sarkar. Sach bolun, ya banner padhun?',
-    left: s('Sach bolo. Hamare yahan bhi gayi.', { kanoon: 6, kursi: -4 }),
-    right: s('Banner padho. Purani sarkar.', { janta: 6, kursi: 6 })
+    text: 'Sir, the question is this. The power went out last night. It did not go out in your lane. Why? My banner already says the last government. Do I tell the truth, or read the banner?',
+    left: s('Tell the truth. Ours went out too.', { kanoon: 6, kursi: -4 }),
+    right: s('Read the banner. Last government.', { janta: 6, kursi: 6 })
   },
   {
     id: 'blame',
@@ -464,20 +464,20 @@ export const CARDS: StoryCard[] = [
     face: 'chintu',
     speaker: 'Chintu',
     role: 'Party socials',
-    text: 'Boss, rally pe baarish ho gayi. Graphic mein pichhli sarkar badal pakde khadi hai. Mausam bolo, ya camera pe badal ki taraf ungli karo. Mausam bola to main bewakoof dikhunga.',
-    left: s('Bolo, yeh mausam hai.', { kanoon: 4, kursi: -4 }),
-    right: s('Badal ki taraf ungli karo.', { janta: 6, kursi: 8, kanoon: -4 }, { set: ['blamed'], queue: [['cloud_due', 2]] })
+    text: 'Boss, it rained on the rally. The graphic shows the last government holding the cloud. Do I say it was the weather, or point at the cloud on camera? If I say weather, I look like a fool.',
+    left: s('Say it is the weather.', { kanoon: 4, kursi: -4 }),
+    right: s('Point at the cloud.', { janta: 6, kursi: 8, kanoon: -4 }, { set: ['blamed'], queue: [['cloud_due', 2]] })
   },
   {
     id: 'yoga',
     era: 'now',
     minTerm: 1,
     face: 'baba',
-    speaker: 'Babaji',
-    role: 'Ashram and airtime',
-    text: 'Pradhan Mantri ji, camera bhagton se zyada paas aa gaye hain. Pyaaz wali meeting isi minute hai. Pose pakde rahiye jab tak trend na ho jaye, ya lawn chhod ke meeting mein chale jaiye.',
-    left: s('Lawn chhodo. Meeting lo.', { kanoon: 6, janta: -2, kursi: -2 }),
-    right: s('Pose pakdo, jab tak trend ho.', { janta: 8, kursi: 4 })
+    speaker: 'The guru',
+    role: 'Retreat and airtime',
+    text: 'Prime Minister, the cameras are closer than the devotees. The onion meeting is this same minute. Hold the pose until it trends, or leave the lawn and take the meeting.',
+    left: s('Leave the lawn. Take the meeting.', { kanoon: 6, janta: -2, kursi: -2 }),
+    right: s('Hold the pose until it trends.', { janta: 8, kursi: 4 })
   },
   {
     id: 'no_questions',
@@ -486,9 +486,9 @@ export const CARDS: StoryCard[] = [
     face: 'hakim',
     speaker: 'Hakim',
     role: 'Cabinet secretary',
-    text: 'Sir, press baith chuki hai. Podium pe note chipka hai, sawal nahi lene. Note aapki speech se bada hai. Teen sawal le lijiye, ya note padh ke nikal jaiye.',
-    left: s('Teen sawal le lo.', { kanoon: 6, kursi: -4 }),
-    right: s('Note padho. Nikal jao.', { kursi: 6, janta: -2, kanoon: -4 })
+    text: 'Sir, the press is seated. A note on the podium says no questions. The note is longer than your speech. Take three questions, or read the note and leave.',
+    left: s('Take three questions.', { kanoon: 6, kursi: -4 }),
+    right: s('Read the note. Leave.', { kursi: 6, janta: -2, kanoon: -4 })
   },
   {
     id: 'the_flip',
@@ -498,9 +498,9 @@ export const CARDS: StoryCard[] = [
     face: 'captain',
     speaker: 'Captain',
     role: 'Dome and convoys',
-    text: 'Sir, saal badal gaya. Gaddha nahi badla. Ab woh hawa mein latak raha hai, main usko sector bol raha hoon. Ribbon glove box mein padi hai. Bharun, ya hover ka udghatan karun?',
-    left: s('Yeh gaddha hai. Bharo.', { khazana: -6, janta: 8, kursi: -4 }),
-    right: s('Hover ka udghatan karo.', { kursi: 8, janta: 4 }, { set: ['hover'], queue: [['sector_due', 2]] })
+    text: 'Sir, the year changed. The pothole did not. It is hanging in the air now, and I am calling it a sector. The ribbon is in the glove box. Do I fill it, or inaugurate the hover?',
+    left: s('It is a pothole. Fill it.', { khazana: -6, janta: 8, kursi: -4 }),
+    right: s('Inaugurate the hover.', { kursi: 8, janta: 4 }, { set: ['hover'], queue: [['sector_due', 2]] })
   },
   {
     id: 'hologram',
@@ -509,20 +509,20 @@ export const CARDS: StoryCard[] = [
     face: 'chintu',
     speaker: 'Chintu',
     role: 'Party socials',
-    text: 'Boss, aaj raat aapka chehra chaar sau shehron mein khada kar sakta hoon. Muh teen second baad aayega. Ek sheher mein khud boliye, ya chaar sau bhej ke der ko main charisma bol dun?',
-    left: s('Ek sheher. Khud bolo.', { janta: 4, kursi: -4 }),
-    right: s('Chaar sau bhejo. Der rehne do.', { janta: 8, kursi: 6, kanoon: -4 }, { set: ['hologram'] })
+    text: 'Boss, tonight I can stand your face in four hundred cities. The mouth arrives three seconds late. Do you speak in one city yourself, or do I send all four hundred and call the delay charisma?',
+    left: s('One city. I speak myself.', { janta: 4, kursi: -4 }),
+    right: s('Send four hundred. Keep the delay.', { janta: 8, kursi: 6, kanoon: -4 }, { set: ['hologram'] })
   },
   {
     id: 'seventh',
     era: 'later',
     minTerm: 1,
     face: 'lalaji',
-    speaker: 'Lalaji',
+    speaker: 'The contractor',
     role: 'Contracts and cement',
-    text: 'Sahab, yeh wahi purani metro hai. Saatvi baar ribbon kaat rahe hain. Pehli chhe baar bhi historic thi. Gaadi tabhi chalti hai jab do intern dhakka dein aur koi shoot na kare. Chhupa ke dhakka, ya saatvi ribbon aur un chhe ko bulawa?',
-    left: s('Chhupa ke dhakka. Ribbon nahi.', { kanoon: 6, kursi: -4, khazana: -2 }),
-    right: s('Saatvi ribbon. Unhe bulao.', { kursi: 8, janta: 4 })
+    text: 'Sir, this is the same old metro. We are cutting the ribbon for the seventh time. The first six were historic too. The train only moves if two interns shove it and nobody is filming. A hidden shove, or a seventh ribbon and invitations to the other six?',
+    left: s('A hidden shove. No ribbon.', { kanoon: 6, kursi: -4, khazana: -2 }),
+    right: s('Seventh ribbon. Invite them.', { kursi: 8, janta: 4 })
   },
   {
     id: 'mars_stone',
@@ -531,9 +531,9 @@ export const CARDS: StoryCard[] = [
     face: 'captain',
     speaker: 'Captain',
     role: 'Dome and convoys',
-    text: 'Sir, dome chhota pad gaya. Aapki murti nahi. Engineer ka note pada hai, usme likha hai murti dome se lambi hai. Murti chhoti karun, ya dome uncha karke note bahar chhod dun?',
-    left: s('Murti chhoti karo.', { kanoon: 6, khazana: -4, kursi: -2 }),
-    right: s('Dome uncha karo. Note bahar.', { khazana: -8, kursi: 8, janta: 4, kanoon: -6 })
+    text: 'Sir, the dome is too small. Your statue is not. The engineer wrote that the statue is taller than the dome. Do I shrink the statue, or raise the dome and leave the note outside?',
+    left: s('Shrink the statue.', { kanoon: 6, khazana: -4, kursi: -2 }),
+    right: s('Raise the dome. Leave the note.', { khazana: -8, kursi: 8, janta: 4, kanoon: -6 })
   },
   {
     id: 'noon_model',
@@ -542,9 +542,9 @@ export const CARDS: StoryCard[] = [
     face: 'nandini',
     speaker: 'Nandini',
     role: 'Prime-time anchor',
-    text: 'Sir, dopahar ko ek model ne aapki speech padh di. Aapse saaf padhi. Desh ne taali maari. Bolun yeh aap nahi the, ya taali aap rakh lijiye aur writer ko main nikaal dun?',
-    left: s('Bolo, woh main nahi tha.', { janta: -4, kanoon: 8, kursi: -4 }),
-    right: s('Taali lo. Writer ko nikaalo.', { janta: 6, kursi: 6 }, { set: ['took_clap'] })
+    text: 'Sir, at noon a model read your speech. She read it more clearly than you. The country clapped. Do I say that was not you, or do you keep the applause and I fire the writer?',
+    left: s('Say that was not me.', { janta: -4, kanoon: 8, kursi: -4 }),
+    right: s('Keep the applause. Fire the writer.', { janta: 6, kursi: 6 }, { set: ['took_clap'] })
   },
   {
     id: 'chai_code',
@@ -553,9 +553,9 @@ export const CARDS: StoryCard[] = [
     face: 'kisan',
     speaker: 'The stall',
     role: 'Brought the bill',
-    text: 'Sahab, note ab nahi chalte. Phone pe code aata hai. Mere stall pe signal nahi hai, ketli bhari hai. Sikka dijiye. Update bolenge to chai thandi ho jayegi.',
-    left: s('Sikka do. Jo woh pakde.', { khazana: -4, janta: 8 }),
-    right: s('Bolo, stall update karo.', { kursi: 4, janta: -8 })
+    text: 'Sir, notes do not work anymore. Payment comes as a code on the phone. My stall has no signal, and the kettle is full. Give me a coin. If you say update, the tea goes cold.',
+    left: s('Give a coin he can hold.', { khazana: -4, janta: 8 }),
+    right: s('Tell the stall to update.', { kursi: 4, janta: -8 })
   },
   {
     id: 'leds',
@@ -564,9 +564,9 @@ export const CARDS: StoryCard[] = [
     face: 'hakim',
     speaker: 'Hakim',
     role: 'Cabinet secretary',
-    text: 'Sir, nadi abhi bhi naala hai. Lights lag gayi hain, raat ko lagta hai kaam ho gaya. Footage mere paas hai, paani nahi. Lights band karke naale ko paisa dun, ya isko riverfront bol ke chhod dun?',
-    left: s('Lights band. Naale ko paise.', { khazana: -8, janta: 6, kanoon: 4 }),
-    right: s('Footage chhodo. Riverfront bolo.', { janta: 6, kursi: 6, kanoon: -6 })
+    text: 'Sir, the river is still a drain. The lights are up, so at night it looks finished. I have the footage. I do not have the water. Do I switch the lights off and pay the drain, or call it a riverfront and leave it?',
+    left: s('Lights off. Pay the drain.', { khazana: -8, janta: 6, kanoon: 4 }),
+    right: s('Drop the footage. Call it a riverfront.', { janta: 6, kursi: 6, kanoon: -6 })
   },
   {
     id: 'generator',
@@ -575,20 +575,20 @@ export const CARDS: StoryCard[] = [
     face: 'envoy',
     speaker: 'The envoy',
     role: 'Trade draft',
-    text: 'Sir, climate wala kagaz sign ke liye ready hai. Stage ka generator aapke lafzon se zyada awaaz kar raha hai. Sign karke band karun, ya usse tez sign kar ke main uska naam hi na loon?',
-    left: s('Sign karo. Generator band.', { kanoon: 6, kursi: -4, janta: 2 }),
-    right: s('Generator se tez sign karo.', { kursi: 6, janta: 4 })
+    text: 'Sir, the climate paper is ready to sign. The stage generator is louder than your words. Do I sign and switch it off, or sign louder than it and never say its name?',
+    left: s('Sign it. Switch the generator off.', { kanoon: 6, kursi: -4, janta: 2 }),
+    right: s('Sign louder than the generator.', { kursi: 6, janta: 4 })
   },
   {
     id: 'buffer',
     era: 'later',
     minTerm: 3,
     face: 'mausi',
-    speaker: 'Mausi',
+    speaker: 'Aunty',
     role: 'Party treasurer',
-    text: 'Beta, bhatija ab saal bhar ka subscription hai. Company abhi bhi maang raha hai. Thank you bolte hi atak jata hai. Plan kaat dun, ya isi atke hue ko chairman bana dun?',
-    left: s('Subscription kaat do.', { kursi: -8, kanoon: 6 }),
-    right: s('Atke hue ko chairman banao.', { kursi: 8, kanoon: -8, khazana: 4 }, { set: ['nephew'] })
+    text: 'Listen. Your nephew is a year-long subscription now. The company is still asking for him. He freezes on the word thank you. Do I cancel the plan, or make the frozen one chairman?',
+    left: s('Cancel the subscription.', { kursi: -8, kanoon: 6 }),
+    right: s('Make the frozen one chairman.', { kursi: 8, kanoon: -8, khazana: 4 }, { set: ['nephew'] })
   },
   {
     id: 'crater',
@@ -597,9 +597,9 @@ export const CARDS: StoryCard[] = [
     face: 'captain',
     speaker: 'Captain',
     role: 'Dome and convoys',
-    text: 'Sir, chaand pe ek gaddhe ka koi naam nahi. Aapki ek scheme ka result bhi nahi. Gaddhe ka naam us scheme ke naam pe rakh dun? Chaand aitraaz likh ke nahi bhej sakta.',
-    left: s('Chaand ko akele chhod do.', { kanoon: 4 }),
-    right: s('Scheme ka naam uspe likh do.', { kursi: 8, janta: 4 })
+    text: 'Sir, a crater on the moon has no name. One of your schemes has no result either. Do I put the scheme name on the crater? The moon cannot write a complaint.',
+    left: s('Leave the moon alone.', { kanoon: 4 }),
+    right: s('Put the scheme name on it.', { kursi: 8, janta: 4 })
   },
   {
     id: 'blink',
@@ -608,9 +608,9 @@ export const CARDS: StoryCard[] = [
     face: 'chintu',
     speaker: 'Chintu',
     role: 'Party socials',
-    text: 'Boss, budget speech pe Mausi ka chehra laga sakta hoon. Comma pe woh palak jhapkengi. Log table se zyada palak maante hain. Asli Mausi aur asli table bhejun, ya palak chalne dun?',
-    left: s('Asli Mausi. Asli table.', { kanoon: 6, kursi: -4 }),
-    right: s('Palak jhapakne do.', { janta: 4, kursi: 6, kanoon: -8 })
+    text: 'Boss, I can put the face of Aunty on the budget speech. She will blink on every comma. People trust a blink more than a table. Do I send the real Aunty and the real table, or let the blink run?',
+    left: s('The real Aunty. The real table.', { kanoon: 6, kursi: -4 }),
+    right: s('Let her blink.', { janta: 4, kursi: 6, kanoon: -8 })
   },
   {
     id: 'robot_bill',
@@ -619,9 +619,9 @@ export const CARDS: StoryCard[] = [
     face: 'kisan',
     speaker: 'The farmer',
     role: 'Brought the bill',
-    text: 'Sahab, subsidy phone pe notification ban ke aayi. Use kha nahi sakta. Khet wala robot apna bill bhej raha hai, aur bill badtameez hai. Mujhe paise dijiye aur robot rok dijiye. Ya boliye robot hi reform hai.',
-    left: s('Unhe do. Robot ka bill roko.', { khazana: -8, janta: 8 }, { set: ['bill_cut'] }),
-    right: s('Bolo, robot hi reform hai.', { janta: -6, kursi: 6 })
+    text: 'Sir, the subsidy arrived as a phone notification. You cannot eat it. The field robot sent its own bill, and the bill is rude. Pay the farmer and stop the robot. Or say the robot is the reform.',
+    left: s('Pay them. Stop the robot bill.', { khazana: -8, janta: 8 }, { set: ['bill_cut'] }),
+    right: s('Say the robot is the reform.', { janta: -6, kursi: 6 })
   },
   {
     id: 'weightless',
@@ -630,9 +630,9 @@ export const CARDS: StoryCard[] = [
     face: 'hakim',
     speaker: 'Hakim',
     role: 'Cabinet secretary',
-    text: 'Sir, nayi colony mein gravity theek nahi chal rahi. Committee bana di hai, aur committee hawa mein hai. Is baar mazak nahi. Ek engineer neeche bhejun, ya photo hone tak unhe tairne dun?',
-    left: s('Ek engineer neeche bhejo.', { kanoon: 8, kursi: -4 }),
-    right: s('Photo tak unhe tairne do.', { kursi: 6, janta: 2 })
+    text: 'Sir, gravity is not working in the new colony. I formed a committee, and the committee is floating. This time it is not a joke. Do I send one engineer down, or let them float until the photo is done?',
+    left: s('Send one engineer down.', { kanoon: 8, kursi: -4 }),
+    right: s('Let them float for the photo.', { kursi: 6, janta: 2 })
   },
   {
     id: 'two_clocks',
@@ -641,9 +641,9 @@ export const CARDS: StoryCard[] = [
     face: 'pinky',
     speaker: 'Pinky',
     role: 'General secretary',
-    text: 'Sir, do ghadi chhap di hain. Ek desh ki. Ek rally ki, taaki aap na der se aayein na jaldi. Ek rakhun, ya rally wale time ko mood bata dun?',
-    left: s('Ek hi ghadi rakho.', { kursi: -4, kanoon: 6 }),
-    right: s('Dono chalao. Mood bolo.', { janta: 6, kursi: 6, kanoon: -4 })
+    text: 'Sir, two clocks are printed. One for the country. One for the rally, so you are never late and never early. Do I keep one, or call the rally time a mood?',
+    left: s('Keep one clock.', { kursi: -4, kanoon: 6 }),
+    right: s('Run both. Call it a mood.', { janta: 6, kursi: 6, kanoon: -4 })
   },
   {
     id: 'blame_later',
@@ -652,9 +652,9 @@ export const CARDS: StoryCard[] = [
     face: 'chintu',
     speaker: 'Chintu',
     role: 'Party socials',
-    text: 'Boss, meteor ne ribbon wala tent uda diya. Graphic mein pichhli sadi patthar pakde khadi hai. Patthar bolo, ya camera pe us sadi ki taraf ungli karo?',
-    left: s('Bolo, yeh patthar hai.', { kanoon: 4, kursi: -4 }),
-    right: s('Pichhli sadi ki taraf ungli.', { janta: 6, kursi: 8, kanoon: -4 })
+    text: 'Boss, a meteor tore the ribbon tent. The graphic shows the last century holding the rock. Do I say it was a rock, or point at that century on camera?',
+    left: s('Say it is a rock.', { kanoon: 4, kursi: -4 }),
+    right: s('Point at the last century.', { janta: 6, kursi: 8, kanoon: -4 })
   },
   {
     id: 'convoy_later',
@@ -663,9 +663,9 @@ export const CARDS: StoryCard[] = [
     face: 'captain',
     speaker: 'Captain',
     role: 'Dome and convoys',
-    text: 'Sir, aapke hologram sky lane pe khade hain. Peeche medical drone laal blink kar raha hai. Camera sirf hologram pakadta hai, drone ko nahi. Lane chhodun, ya shot rehne dun?',
-    left: s('Lane chhodo. Drone jaane do.', { janta: 8, kursi: -4 }),
-    right: s('Lane mat chhodo. Shot live hai.', { kursi: 6, janta: -6 })
+    text: 'Sir, your holograms are standing in the sky lane. A medical drone is blinking red behind them. The camera only catches the hologram, not the drone. Do I clear the lane, or keep the shot?',
+    left: s('Clear the lane. Let the drone through.', { janta: 8, kursi: -4 }),
+    right: s('Do not clear it. The shot is live.', { kursi: 6, janta: -6 })
   },
   {
     id: 'tiger_later',
@@ -675,9 +675,9 @@ export const CARDS: StoryCard[] = [
     face: 'chintu',
     speaker: 'Chintu',
     role: 'Party socials',
-    text: 'Boss, ek purana voice note aaya hai. Usme hai, nashte se pehle aapne tiger se kushti ki thi. Tiger ko retire karun, ya dinner se pehle dome pe pin kar dun?',
-    left: s('Tiger ko retire karo.', { kursi: -4, kanoon: 6 }),
-    right: s('Dome pe pin kar do.', { janta: 8, kursi: 4, kanoon: -6 }, { set: ['tiger'] })
+    text: 'Boss, an old voice note just arrived. It says you wrestled a tiger before breakfast. Do I retire the tiger, or pin it on the dome before dinner?',
+    left: s('Retire the tiger.', { kursi: -4, kanoon: 6 }),
+    right: s('Pin it on the dome.', { janta: 8, kursi: 4, kanoon: -6 }, { set: ['tiger'] })
   },
   {
     id: 'copies',
@@ -688,9 +688,9 @@ export const CARDS: StoryCard[] = [
     face: 'chintu',
     speaker: 'Chintu',
     role: 'Party socials',
-    text: 'Boss, aapke teen version trend pe hain. Tiger wala, dopahar wali speech, aur jo chaar sau shehron mein late pahunchta hai. Do extra se istifa likhun, ya teeno ko tankhwah pe rehne dun?',
-    left: s('Do extra se istifa likho.', {}, { ending: 'copies' }),
-    right: s('Teeno ko tankhwah pe rakho.', { janta: 8, kursi: 4, kanoon: -10 })
+    text: 'Boss, three versions of you are trending. The tiger one, the noon speech, and the one who arrives late in four hundred cities. Do I write resignations for the two extras, or keep all three on salary?',
+    left: s('Resign the two extras.', {}, { ending: 'copies' }),
+    right: s('Keep all three on salary.', { janta: 8, kursi: 4, kanoon: -10 })
   },
   {
     id: 'immortal',
@@ -700,9 +700,9 @@ export const CARDS: StoryCard[] = [
     face: 'captain',
     speaker: 'Captain',
     role: 'Dome and convoys',
-    text: 'Sir, kursi aapke baad bhi chal sakti hai. Ek bulb pe aapki muskurahat padi hai. Invoice clear ho to hi palak jhapakti hai. Band karke ghar bhej dun, ya bulb ko kursi pe baitha dun?',
-    left: s('Band karo. Ghar jao.', {}, { ending: 'tea' }),
-    right: s('Bulb ko kursi pe baitha do.', { kursi: 8, janta: -4, kanoon: -6 }, { set: ['bulb'] })
+    text: 'Sir, the chair can keep running after you. A bulb has your smile on it. It only blinks when the invoice clears. Do I switch it off and send you home, or sit the bulb in the chair?',
+    left: s('Switch it off. Go home.', {}, { ending: 'tea' }),
+    right: s('Sit the bulb in the chair.', { kursi: 8, janta: -4, kanoon: -6 }, { set: ['bulb'] })
   },
   {
     id: 'names_due',
@@ -712,9 +712,9 @@ export const CARDS: StoryCard[] = [
     face: 'chintu',
     speaker: 'Chintu',
     role: 'Party socials',
-    text: 'Boss, jo naam aapne padhe, unme se ek reh gaya. Ramesh. Uska beta bahar khada hai, live pe ro raha hai. Naam abhi jodun, ya bolun list poori thi?',
-    left: s('Ramesh ka naam jodo. Abhi.', { janta: 6, kursi: -6 }),
-    right: s('Bolo, list poori thi.', { kursi: 6, janta: -8, kanoon: -4 })
+    text: 'Boss, one name was missing from the list you read. Ramesh. His son is outside, crying on a live stream. Do I add the name now, or say the list was complete?',
+    left: s('Add Ramesh. Now.', { janta: 6, kursi: -6 }),
+    right: s('Say the list was complete.', { kursi: 6, janta: -8, kanoon: -4 })
   },
   {
     id: 'drain_due',
@@ -724,9 +724,9 @@ export const CARDS: StoryCard[] = [
     face: 'hakim',
     speaker: 'Hakim',
     role: 'Cabinet secretary',
-    text: 'Sir, woh tareekh aa gayi. Naali wahi ki wahi hai. Khabar mein aapki tareekh hai, aur ek photo hai, gadda. Tareekh aage karun, ya sach bolun naali nahi bani?',
-    left: s('Sach bolo. Naali nahi bani.', { janta: -4, kanoon: 8, kursi: -4 }),
-    right: s('Tareekh aage kar do.', { kursi: 4, kanoon: -6, janta: -2 })
+    text: 'Sir, the date has arrived. The drain is the same drain. The news has your date, and a photo of the puddle. Do I move the date, or say the drain was never built?',
+    left: s('Tell the truth. It was not built.', { janta: -4, kanoon: 8, kursi: -4 }),
+    right: s('Move the date.', { kursi: 4, kanoon: -6, janta: -2 })
   },
   {
     id: 'hole_due',
@@ -736,9 +736,9 @@ export const CARDS: StoryCard[] = [
     face: 'pinky',
     speaker: 'Pinky',
     role: 'General secretary',
-    text: 'Sir, board pe naya naam lag gaya. Aaj usi gaddhe ne ek scooter nigal liya. Ab bharna padega. Ya gaddhe pe bhi aapka naam likhun?',
-    left: s('Gaddha bharo. Aaj.', { khazana: -8, janta: 6, kursi: -4 }),
-    right: s('Gaddhe pe bhi naam likho.', { kursi: 6, janta: -6, kanoon: -4 })
+    text: 'Sir, the new name is on the board. Today that same hole swallowed a scooter. It has to be filled. Or do I put your name on the hole as well?',
+    left: s('Fill the hole. Today.', { khazana: -8, janta: 6, kursi: -4 }),
+    right: s('Put my name on the hole too.', { kursi: 6, janta: -6, kanoon: -4 })
   },
   {
     id: 'clip_due',
@@ -748,9 +748,9 @@ export const CARDS: StoryCard[] = [
     face: 'nandini',
     speaker: 'Nandini',
     role: 'Prime-time anchor',
-    text: 'Sir, jhadu wali clip har channel pe hai. Safai ka paisa abhi bhi pada hai, kharch nahi hua. Clip is hafte aur chalaun, ya hata ke paisa safai walon ko bhej dun?',
-    left: s('Clip hatao. Paisa safai ko do.', { khazana: -8, janta: 4, kursi: -4 }),
-    right: s('Is hafte aur chalao.', { janta: 4, kursi: 6, kanoon: -4 })
+    text: 'Sir, the broom clip is on every channel. The cleaning money is still sitting there, unspent. Do I run the clip another week, or pull it and send the money to the cleaners?',
+    left: s('Pull the clip. Pay the cleaners.', { khazana: -8, janta: 4, kursi: -4 }),
+    right: s('Run it another week.', { janta: 4, kursi: 6, kanoon: -4 })
   },
   {
     id: 'gas_due',
@@ -758,11 +758,11 @@ export const CARDS: StoryCard[] = [
     queueOnly: true,
     need: ['acronym'],
     face: 'mausi',
-    speaker: 'Mausi',
+    speaker: 'Aunty',
     role: 'Party treasurer',
-    text: 'Beta, naya naam cylinder pe chhap gaya. Gas andar nahi hai. Bharti karun, ya teesra naam rakh ke ek aur function?',
-    left: s('Gas bharo. Naam mat badlo.', { khazana: -8, janta: 6, kursi: -4 }),
-    right: s('Teesra naam. Ek aur function.', { kursi: 6, janta: -6, khazana: -4 })
+    text: 'Listen. The new name is printed on the cylinder. There is no gas inside. Do I fill it, or invent a third name and hold another function?',
+    left: s('Fill the gas. Keep the name.', { khazana: -8, janta: 6, kursi: -4 }),
+    right: s('A third name. Another function.', { kursi: 6, janta: -6, khazana: -4 })
   },
   {
     id: 'scooter_due',
@@ -772,9 +772,9 @@ export const CARDS: StoryCard[] = [
     face: 'pinky',
     speaker: 'Pinky',
     role: 'General secretary',
-    text: 'Sir, woh ghaseeti hui scooter har channel pe hai. Pul ab bhi scooter ka bhaar nahi leta. Sach mein kholun, ya channels pe case karun?',
-    left: s('Pul kholo. Scooter khud chale.', { khazana: -8, janta: 6, kursi: -6 }),
-    right: s('Channels pe case karo.', { kursi: 6, kanoon: -8, janta: -4 })
+    text: 'Sir, that dragged scooter is on every channel. The bridge still cannot take the weight of a scooter. Do I open it for real, or sue the channels?',
+    left: s('Open the bridge. Let it drive.', { khazana: -8, janta: 6, kursi: -6 }),
+    right: s('Sue the channels.', { kursi: 6, kanoon: -8, janta: -4 })
   },
   {
     id: 'cloud_due',
@@ -784,9 +784,9 @@ export const CARDS: StoryCard[] = [
     face: 'chintu',
     speaker: 'Chintu',
     role: 'Party socials',
-    text: 'Boss, woh badal wala graphic ab school ke group pe hai. Log pooch rahe hain, pichhli sarkar ne baarish kaise pakdi. Mausam maan lo, ya kisi mantri pe daal dun?',
-    left: s('Mausam maan lo.', { kanoon: 6, kursi: -6, janta: 2 }),
-    right: s('Kisi mantri pe daal do.', { kursi: 4, janta: -6, kanoon: -6 })
+    text: 'Boss, that cloud graphic is in school groups now. People are asking how the last government held the rain. Do we admit it was weather, or put it on a minister?',
+    left: s('Admit it was the weather.', { kanoon: 6, kursi: -6, janta: 2 }),
+    right: s('Put it on a minister.', { kursi: 4, janta: -6, kanoon: -6 })
   },
   {
     id: 'ashram_due',
@@ -794,11 +794,11 @@ export const CARDS: StoryCard[] = [
     queueOnly: true,
     need: ['blessed'],
     face: 'baba',
-    speaker: 'Babaji',
-    role: 'Ashram and airtime',
-    text: 'Pradhan Mantri ji, patta aa gaya, deewar bhi. Agle live ke liye doosra patta chahiye, parking ka. Deewar ke bahar log khade hain. Parking ka patta dein, ya agla live cancel kar dun?',
-    left: s('Doosra patta nahi. Live band.', { kursi: -6, kanoon: 6, janta: -4 }),
-    right: s('Parking ka patta bhi de do.', { janta: 4, kursi: 6, kanoon: -8, khazana: 4 })
+    speaker: 'The guru',
+    role: 'Retreat and airtime',
+    text: 'Prime Minister, the deed arrived, and so did the wall. The next live needs a second deed, for the parking. People are standing outside the wall. Give the parking deed, or I cancel the next live.',
+    left: s('No second deed. Cancel the live.', { kursi: -6, kanoon: 6, janta: -4 }),
+    right: s('Give the parking deed too.', { janta: 4, kursi: 6, kanoon: -8, khazana: 4 })
   },
   {
     id: 'poem_due',
@@ -808,9 +808,9 @@ export const CARDS: StoryCard[] = [
     face: 'nandini',
     speaker: 'Nandini',
     role: 'Prime-time anchor',
-    text: 'Sir, case ke baad woh kavita aur zyada chal rahi hai. Log sher yaad kar rahe hain, aapki speech nahi. Case wapas lun, ya doosra case aur doosra sher?',
-    left: s('Case wapas lo.', { kanoon: 6, kursi: -4, janta: 2 }),
-    right: s('Doosra case. Doosra sher.', { kursi: 6, kanoon: -8, janta: -2 })
+    text: 'Sir, after the case the poem is spreading more. People remember the couplet, not your speech. Do I withdraw the case, or file a second one and send a second couplet?',
+    left: s('Withdraw the case.', { kanoon: 6, kursi: -4, janta: 2 }),
+    right: s('A second case. A second couplet.', { kursi: 6, kanoon: -8, janta: -2 })
   },
   {
     id: 'line_due',
@@ -820,9 +820,9 @@ export const CARDS: StoryCard[] = [
     face: 'pinky',
     speaker: 'Pinky',
     role: 'General secretary',
-    text: 'Sir, woh ek line aapne aath baje boli thi. Virodh usi ko din bhar padh raha hai. Line pe kayam rahen, ya bolun aapko galat quote kiya gaya?',
-    left: s('Line pe tike raho.', { kanoon: 6, janta: 4, kursi: -4 }),
-    right: s('Bolo, galat quote tha.', { kursi: 4, kanoon: -6, janta: -4 })
+    text: 'Sir, that one line you said at eight. The opposition has been reading it all day. Do you stand by the line, or do I say you were misquoted?',
+    left: s('Stand by the line.', { kanoon: 6, janta: 4, kursi: -4 }),
+    right: s('Say I was misquoted.', { kursi: 4, kanoon: -6, janta: -4 })
   },
   {
     id: 'vent_due',
@@ -832,9 +832,9 @@ export const CARDS: StoryCard[] = [
     face: 'captain',
     speaker: 'Captain',
     role: 'Dome and convoys',
-    text: 'Sir, aapka chehra dome pe lag gaya. Usne oxygen ka vent dhak diya. Hospital ka bill aa gaya. Chehra hataun, ya bill ko kisi aur item ke naam pe daal dun?',
-    left: s('Chehra hatao. Bill bharo.', { khazana: -8, janta: 4, kursi: -4 }),
-    right: s('Bill kisi aur naam pe daal do.', { kursi: 6, kanoon: -8, janta: -4 })
+    text: 'Sir, your face is on the dome. It covered the oxygen vent. The hospital bill has arrived. Do I take the face down, or move the bill onto some other item?',
+    left: s('Take the face down. Pay the bill.', { khazana: -8, janta: 4, kursi: -4 }),
+    right: s('Move the bill to another name.', { kursi: 6, kanoon: -8, janta: -4 })
   },
   {
     id: 'sector_due',
@@ -844,9 +844,9 @@ export const CARDS: StoryCard[] = [
     face: 'captain',
     speaker: 'Captain',
     role: 'Dome and convoys',
-    text: 'Sir, hover ka udghatan ho gaya. Latakta hua gaddha ab bhi scooter nahi leta. Neeche utaar ke bharun, ya doosra sector bol ke ek aur ribbon?',
-    left: s('Neeche utaro. Bharo.', { khazana: -8, janta: 6, kursi: -4 }),
-    right: s('Doosra sector. Ek aur ribbon.', { kursi: 6, janta: -4, kanoon: -4 })
+    text: 'Sir, the hover was inaugurated. The hanging hole still cannot take a scooter. Do I bring it down and fill it, or call it a second sector and cut another ribbon?',
+    left: s('Bring it down. Fill it.', { khazana: -8, janta: 6, kursi: -4 }),
+    right: s('A second sector. Another ribbon.', { kursi: 6, janta: -4, kanoon: -4 })
   },
   {
     id: 'hole_flip',
@@ -856,9 +856,9 @@ export const CARDS: StoryCard[] = [
     face: 'captain',
     speaker: 'Captain',
     role: 'Dome and convoys',
-    text: 'Sir, saal badal gaya. Sadak ka naam bhi badal chuka hai. Wohi gaddha ab hawa mein latak raha hai, board ke neeche. Bharun, ya is latakte hue ka ribbon kaatun?',
-    left: s('Yeh wahi gaddha hai. Bharo.', { khazana: -8, janta: 8, kursi: -4 }),
-    right: s('Ribbon kaato. Gaddha rehne do.', { kursi: 8, janta: -4 }, { set: ['hover'], queue: [['sector_due', 2]] })
+    text: 'Sir, the year changed. The road name already changed. That same hole is hanging in the air, under the board. Do I fill it, or cut a ribbon on the thing that is hanging?',
+    left: s('It is the same hole. Fill it.', { khazana: -8, janta: 8, kursi: -4 }),
+    right: s('Cut the ribbon. Leave the hole.', { kursi: 8, janta: -4 }, { set: ['hover'], queue: [['sector_due', 2]] })
   },
   {
     id: 'bridge_flip',
@@ -868,9 +868,9 @@ export const CARDS: StoryCard[] = [
     face: 'captain',
     speaker: 'Captain',
     role: 'Dome and convoys',
-    text: 'Sir, saal badal gaya. Woh pul, jahan scooter ghaseet ke ribbon kati thi, ab hawa mein hai. Scooter ab bhi nahi chal rahi. Pul ka bhaar theek karun, ya dubara ribbon?',
-    left: s('Pul theek karo. Scooter chale.', { khazana: -8, janta: 8, kursi: -4 }),
-    right: s('Dubara ribbon. Scooter phir ghaseeto.', { kursi: 8, janta: -2, kanoon: -6 })
+    text: 'Sir, the year changed. The bridge where we dragged a scooter and cut a ribbon is in the air now. The scooter still does not run. Do I fix the weight, or cut the ribbon again?',
+    left: s('Fix the bridge. Let the scooter go.', { khazana: -8, janta: 8, kursi: -4 }),
+    right: s('Cut it again. Drag the scooter.', { kursi: 8, janta: -2, kanoon: -6 })
   },
   {
     id: 'fill_power',
@@ -880,9 +880,9 @@ export const CARDS: StoryCard[] = [
     face: 'hakim',
     speaker: 'Hakim',
     role: 'Cabinet secretary',
-    text: 'Sir, chaar se paanch cabinet mein light chali jati hai. Aap usi waqt faisla karte hain. Mombatti hai. Andhere mein chhota faisla kar lijiye, ya tube light ka intezaar, main press ko bata dunga humne wait kiya.',
-    left: s('Andhere mein kar lo. Chhota.', { kanoon: 4 }),
-    right: s('Light ka wait karo. Press ko bolo.', { kursi: 2, janta: -2 })
+    text: 'Sir, the lights die in cabinet between four and five. That is when you take decisions. There is a candle. Take a small decision in the dark, or wait for the tube light and I will tell the press we waited.',
+    left: s('Decide in the dark. Keep it small.', { kanoon: 4 }),
+    right: s('Wait for the light. Tell the press.', { kursi: 2, janta: -2 })
   },
   {
     id: 'fill_rain',
@@ -893,9 +893,9 @@ export const CARDS: StoryCard[] = [
     face: 'chintu',
     speaker: 'Chintu',
     role: 'Party socials',
-    text: 'Boss, match baarish se ruka pada hai. Desh tarpaulin dekh raha hai. Chup rahiye, baarish hai. Ya baarish ko thank you kar dijiye, doosri side se pehle.',
-    left: s('Chup raho. Baarish hai.', { kanoon: 2 }),
-    right: s('Baarish ko thank you. Post karo.', { janta: 4, kursi: 2 })
+    text: 'Boss, the match is stopped for rain. The country is watching a tarpaulin. Stay quiet, it is rain. Or thank the rain, before the other side does.',
+    left: s('Stay quiet. It is rain.', { kanoon: 2 }),
+    right: s('Thank the rain. Post it.', { janta: 4, kursi: 2 })
   },
   {
     id: 'fill_biscuit',
@@ -903,11 +903,11 @@ export const CARDS: StoryCard[] = [
     repeat: true,
     weight: 1,
     face: 'mausi',
-    speaker: 'Mausi',
+    speaker: 'Aunty',
     role: 'Party treasurer',
-    text: 'Beta, colony ki canteen mein wahi biscuit hai. Do ministry se purana. Chupke se badal dun, ya isko virasat bol ke paise loon?',
-    left: s('Chupke biscuit badal do.', { khazana: -2, janta: 2 }),
-    right: s('Virasat bolo. Paise lo.', { kursi: 4, janta: 2, khazana: 2 })
+    text: 'Listen. The colony canteen still has the same biscuit. It is older than two ministries. Do I change it quietly, or call it heritage and charge for it?',
+    left: s('Change the biscuit quietly.', { khazana: -2, janta: 2 }),
+    right: s('Call it heritage. Charge for it.', { kursi: 4, janta: 2, khazana: 2 })
   },
   {
     id: 'fill_lag',
@@ -918,9 +918,9 @@ export const CARDS: StoryCard[] = [
     face: 'nandini',
     speaker: 'Nandini',
     role: 'Prime-time anchor',
-    text: 'Sir, aapka shok teen second late aaya, phir dobara, phir teesri baar. Ek maafi aur loop kaat dun? Ya bolun teen baar isliye aaya kyunki aap sach mein dukhi hain?',
-    left: s('Ek maafi. Loop kaato.', { janta: 2, kanoon: 2 }),
-    right: s('Bolo, teen baar matlab sachcha dukh.', { kursi: 4, janta: -4 })
+    text: 'Sir, your condolence arrived three seconds late, then again, then a third time. Do I send one apology and kill the loop, or say it came three times because you were truly sad?',
+    left: s('One apology. Cut the loop.', { janta: 2, kanoon: 2 }),
+    right: s('Say three times means real grief.', { kursi: 4, janta: -4 })
   },
   {
     id: 'fill_oxygen',
@@ -930,9 +930,9 @@ export const CARDS: StoryCard[] = [
     face: 'captain',
     speaker: 'Captain',
     role: 'Dome and convoys',
-    text: 'Sir, bill pe oxygen phir aa gaya. Rally ne hospital se zyada kheench liya, maine line pe nishaan laga diya hai. Pehle wing ka bill bhijwaun, ya bolun rally bhi zaroori thi?',
-    left: s('Pehle hospital ka bill.', { khazana: -6, janta: 4, kursi: -2 }),
-    right: s('Bolo, rally bhi zaroori thi.', { kursi: 4, janta: -4, kanoon: -2 })
+    text: 'Sir, oxygen is on the bill again. The rally used more than the hospital. I have marked the line. Do I send the hospital wing bill first, or say the rally was necessary too?',
+    left: s('The hospital bill first.', { khazana: -6, janta: 4, kursi: -2 }),
+    right: s('Say the rally was necessary too.', { kursi: 4, janta: -4, kanoon: -2 })
   }
 ]
 

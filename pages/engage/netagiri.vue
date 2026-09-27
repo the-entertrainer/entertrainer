@@ -3,7 +3,7 @@ definePageMeta({ layout: false })
 
 import { GAUGES, FACES, chairOf, type Gauge, type Side } from '~/utils/netagiri/cards'
 import { createNetagiri, ticks, clampYear, type Netagiri, type Snapshot } from '~/utils/netagiri/game'
-import { cueFor, createScore, type Score } from '~/utils/netagiri/score'
+import { createScore, type Score } from '~/utils/netagiri/score'
 import { useThemeStore } from '~/stores/theme'
 
 useSeoMeta({
@@ -23,11 +23,11 @@ const snap = ref<Snapshot | null>(null)
 const drag = ref(0)
 const flying = ref<'left' | 'right' | ''>('')
 const reduced = ref(false)
+const arriving = ref(false)
 
 let game: Netagiri | null = null
 let startX = 0
 let dragging = false
-let audioCtx: AudioContext | null = null
 let score: Score | null = null
 
 const phase = computed(() => snap.value?.phase ?? 'title')
@@ -48,29 +48,7 @@ const eraLine = computed(() => {
 
 function refresh() {
   snap.value = game?.snapshot() ?? null
-}
-
-function syncScore() {
-  const s = snap.value
-  if (!score || !s || s.phase !== 'play' || !s.card) return
-  score.setScene({
-    cue: cueFor(s.card),
-    year: s.calendar,
-    later: s.calendar > 2040,
-    danger: Object.values(s.gauges).some((n) => n <= 18 || n >= 82),
-    janta: s.gauges.janta,
-    khazana: s.gauges.khazana
-  })
-}
-
-function ensureAudio() {
-  if (!audioCtx) {
-    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-    if (AC) audioCtx = new AC()
-  }
-  if (audioCtx && !score) score = createScore(audioCtx)
-  score?.setMuted(muted.value)
-  return audioCtx
+  arriving.value = true
 }
 
 function toggleMute() {
@@ -80,14 +58,14 @@ function toggleMute() {
 }
 
 function begin() {
-  ensureAudio()
-  score?.start(clampYear(Number(year.value)), Math.random())
+  score = score ?? createScore()
+  score.setMuted(muted.value)
+  score.start(clampYear(Number(year.value)), Math.random())
   game = createNetagiri()
   game.start(name.value, Number(year.value))
   flying.value = ''
   drag.value = 0
   refresh()
-  syncScore()
 }
 
 function rememberBest() {
@@ -96,17 +74,15 @@ function rememberBest() {
     best.value = years
     try { localStorage.setItem(BEST_KEY, String(years)) } catch { /* private mode */ }
   }
-  if (snap.value?.phase === 'end') score?.sting(snap.value.end?.id === 'tea')
+  if (snap.value?.phase === 'end') score?.soften()
 }
 
 function pick(hand: 'left' | 'right') {
   if (phase.value !== 'play' || flying.value) return
-  score?.punch()
   try { navigator.vibrate?.(12) } catch { /* no actuator */ }
   if (reduced.value) {
     game?.choose(hand)
     refresh()
-    syncScore()
     rememberBest()
     return
   }
@@ -116,9 +92,8 @@ function pick(hand: 'left' | 'right') {
     flying.value = ''
     drag.value = 0
     refresh()
-    syncScore()
     rememberBest()
-  }, 220)
+  }, 240)
 }
 function preview(side: Side) {
   const d: Partial<Record<Gauge, number>> = { ...(side.d ?? {}) }
@@ -135,6 +110,7 @@ function preview(side: Side) {
 
 function onDown(event: PointerEvent) {
   if (phase.value !== 'play' || flying.value) return
+  arriving.value = false
   dragging = true
   startX = event.clientX
   ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
@@ -235,7 +211,7 @@ onBeforeUnmount(() => score?.stop())
         <span>Your name</span>
         <input v-model="name" maxlength="24" autocomplete="nickname" placeholder="Optional" />
       </label>
-      <p class="ng__fine">Two orders. They do not do the same job. Janta, Khazana, Kursi, Kanoon. Empty or full, you are out. The reel changes with the year and the room.</p>
+      <p class="ng__fine">Two orders. They do not do the same job. Empty or full, you are out. One song a term, at the speed it was written.</p>
       <button class="ng__cta" type="button" @click="begin">Take the chair</button>
       <p v-if="best" class="ng__best">Best · {{ best }} years</p>
     </section>
@@ -252,9 +228,14 @@ onBeforeUnmount(() => score?.stop())
     <section v-else-if="card" class="ng__play">
       <p v-if="snap?.turn === 0" class="ng__hint">Swipe either way. Both are orders. A bar ends you at empty or at full.</p>
       <article
+        :key="card.id"
         class="ng__card"
-        :class="{ 'is-fly-left': flying === 'left', 'is-fly-right': flying === 'right' }"
-        :style="flying ? undefined : { transform: `translateX(${drag}px) rotate(${drag / 40}deg)` }"
+        :class="{
+          'is-in': arriving && !flying && drag === 0,
+          'is-fly-left': flying === 'left',
+          'is-fly-right': flying === 'right'
+        }"
+        :style="flying || arriving ? undefined : { transform: `translateX(${drag}px) rotate(${drag / 28}deg)` }"
         @pointerdown="onDown"
         @pointermove="onMove"
         @pointerup="onUp"
@@ -267,7 +248,7 @@ onBeforeUnmount(() => score?.stop())
         </div>
       </article>
       <div class="ng__hands">
-        <button type="button" class="ng__hand" :aria-label="card.left.text" @click="pick('left')">
+        <button type="button" class="ng__hand" :class="{ 'is-lean': drag < -28 }" :aria-label="card.left.text" @click="pick('left')">
           <span>{{ card.left.text }}</span>
           <span class="ng__shifts" aria-hidden="true">
             <i v-for="chip in preview(card.left)" :key="chip.key" :class="chip.n > 0 ? 'up' : 'down'">
@@ -275,7 +256,7 @@ onBeforeUnmount(() => score?.stop())
             </i>
           </span>
         </button>
-        <button type="button" class="ng__hand" :aria-label="card.right.text" @click="pick('right')">
+        <button type="button" class="ng__hand" :class="{ 'is-lean': drag > 28 }" :aria-label="card.right.text" @click="pick('right')">
           <span>{{ card.right.text }}</span>
           <span class="ng__shifts" aria-hidden="true">
             <i v-for="chip in preview(card.right)" :key="chip.key" :class="chip.n > 0 ? 'up' : 'down'">
@@ -335,9 +316,15 @@ onBeforeUnmount(() => score?.stop())
 .ng__meter { display: grid; grid-template-columns: 72rem 1fr; gap: 8rem; align-items: center; margin-bottom: 6rem; }
 .ng__meter-name { font: 700 11rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
 .ng__track { height: 8rem; border-radius: 99px; background: color-mix(in srgb, var(--ng-ink) 16%, transparent); overflow: hidden; }
-.ng__fill { display: block; height: 100%; background: var(--ng-ink); }
+.ng__fill {
+  display: block;
+  height: 100%;
+  background: var(--ng-ink);
+  transition: width 460ms cubic-bezier(0.2, 0, 0, 1), background-color 180ms ease;
+}
 .ng__meter.is-hot .ng__fill { background: var(--ng-yellow); }
 .ng__meter.is-hot .ng__meter-name { color: var(--ng-yellow); }
+.ng__meter.is-hot .ng__track { animation: ng-hot 1.1s ease-in-out infinite; }
 .ng__when {
   display: flex;
   justify-content: space-between;
@@ -348,12 +335,18 @@ onBeforeUnmount(() => score?.stop())
 }
 .ng__title, .ng__end {
   margin: auto;
-  width: min(420rem, 100%);
+  width: min(440rem, 100%);
   text-align: center;
   display: grid;
   justify-items: center;
   gap: 12rem;
+  animation: ng-rise 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+.ng__title > * { animation: ng-rise 380ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.ng__title > *:nth-child(2) { animation-delay: 40ms; }
+.ng__title > *:nth-child(3) { animation-delay: 70ms; }
+.ng__title > *:nth-child(4) { animation-delay: 100ms; }
+.ng__title > *:nth-child(n + 5) { animation-delay: 130ms; }
 .ng__eyebrow { margin: 0; font: 800 11rem/1 var(--font-mono); letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.7; }
 .ng h1 { margin: 0; font: 700 clamp(56rem, 14vw, 84rem)/0.9 var(--font-display); letter-spacing: -0.05em; }
 .ng__lede, .ng__epitaph { margin: 0; max-width: 34ch; font-size: 16rem; line-height: 1.45; }
@@ -379,7 +372,9 @@ onBeforeUnmount(() => score?.stop())
   font: 700 12rem/1 var(--font-mono);
   padding: 8rem 12rem;
   cursor: pointer;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1), background-color 160ms ease, color 160ms ease;
 }
+.ng__chip:active { transform: scale(0.96); }
 .ng__chip.is-on { background: var(--ng-ink); color: var(--ng-paper); }
 .ng__era, .ng__fine { margin: 0; max-width: 36ch; font-size: 14rem; line-height: 1.4; opacity: 0.8; }
 .ng__cta {
@@ -393,7 +388,9 @@ onBeforeUnmount(() => score?.stop())
   padding: 16rem 28rem;
   border-radius: 999px;
   cursor: pointer;
+  transition: transform 140ms cubic-bezier(0.2, 0, 0, 1);
 }
+.ng__cta:active { transform: scale(0.96); }
 .ng__best { margin: 0; font: 700 12rem/1 var(--font-mono); opacity: 0.7; }
 .ng__play { width: min(440rem, 100%); margin-top: 12rem; }
 .ng__hint { margin: 0 0 8rem; font-size: 13rem; line-height: 1.4; opacity: 0.75; }
@@ -406,8 +403,9 @@ onBeforeUnmount(() => score?.stop())
   touch-action: none;
   cursor: grab;
 }
-.ng__card.is-fly-left { transform: translateX(-120%) rotate(-8deg); transition: transform 220ms ease; }
-.ng__card.is-fly-right { transform: translateX(120%) rotate(8deg); transition: transform 220ms ease; }
+.ng__card.is-in { animation: ng-in 340ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.ng__card.is-fly-left { transform: translateX(-118%) rotate(-7deg); transition: transform 240ms cubic-bezier(0.4, 0, 1, 1); }
+.ng__card.is-fly-right { transform: translateX(118%) rotate(7deg); transition: transform 240ms cubic-bezier(0.4, 0, 1, 1); }
 .ng__face { display: block; width: 100%; aspect-ratio: 3 / 2.1; object-fit: cover; object-position: center 18%; background: #f7f1e4; }
 .ng__body { padding: 14rem 16rem 16rem; }
 .ng__who { margin: 0 0 8rem; display: flex; flex-wrap: wrap; gap: 6rem 10rem; align-items: baseline; }
@@ -425,13 +423,43 @@ onBeforeUnmount(() => score?.stop())
   padding: 12rem;
   cursor: pointer;
   font: 600 14rem/1.35 var(--font-display);
+  transition: transform 140ms cubic-bezier(0.2, 0, 0, 1), border-color 140ms ease, background-color 140ms ease;
+}
+.ng__hand:active { transform: scale(0.97); }
+.ng__hand.is-lean {
+  transform: translateY(-3px);
+  border-color: var(--ng-yellow);
+  background: color-mix(in srgb, var(--ng-yellow) 28%, transparent);
 }
 .ng__shifts { display: flex; flex-wrap: wrap; gap: 4rem; margin-top: 8rem; }
 .ng__shifts i { font: 700 10rem/1 var(--font-mono); font-style: normal; letter-spacing: 0.04em; }
 .ng__shifts .up { color: var(--ng-ink); }
 .ng__shifts .down { opacity: 0.7; }
 .ng__icon:focus-visible, .ng__cta:focus-visible, .ng__hand:focus-visible { outline: 2px solid var(--ng-yellow); outline-offset: 3px; }
+@keyframes ng-in {
+  from { opacity: 0; transform: translateY(22px) rotate(1.2deg) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ng-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ng-hot {
+  0%, 100% { transform: none; }
+  50% { transform: scaleY(1.35); }
+}
+@media (max-width: 380px) {
+  .ng__hand { font-size: 13rem; padding: 10rem; }
+  .ng__meter { grid-template-columns: 62rem 1fr; }
+  .ng__say { font-size: 15rem; }
+}
+@media (max-height: 740px) {
+  .ng__face { aspect-ratio: 16 / 9; }
+  .ng h1 { font-size: clamp(44rem, 12vw, 68rem); }
+  .ng__title, .ng__end { gap: 8rem; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .ng__card.is-fly-left, .ng__card.is-fly-right { transition: none; }
+  .ng__card.is-fly-left, .ng__card.is-fly-right, .ng__card.is-in, .ng__title, .ng__title > *, .ng__end, .ng__meter.is-hot .ng__track { animation: none; transition: none; }
+  .ng__fill, .ng__hand, .ng__cta, .ng__chip { transition: none; }
 }
 </style>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Myousic, Stack, The Mind Reader, and AstroClock.',
+  description: 'Short games and little detours — Myousic, Vybe, Stack, The Mind Reader, and AstroClock.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -36,6 +36,26 @@ const MIND_READER_SYMBOLS = [
           <span class="engage__card-text">
             <strong class="engage__card-name">Myousic</strong>
             <span class="engage__card-blurb">A color, then a tune that meets you and moves.</span>
+          </span>
+          <span class="engage__card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </span>
+        </NuxtLink>
+      </li>
+      <li class="u-reveal">
+        <NuxtLink to="/engage/vybe" class="engage__card engage__card--vybe">
+          <span class="engage__icon engage__icon--vybe" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
+              <rect width="48" height="48" rx="6" fill="#101012"/>
+              <circle cx="24" cy="24" r="7" fill="#ECEAE4"/>
+              <circle cx="24" cy="24" r="12" stroke="#ECEAE4" stroke-width="1.2" opacity="0.7"/>
+              <circle cx="24" cy="24" r="17" stroke="#ECEAE4" stroke-width="1" opacity="0.35"/>
+            </svg>
+          </span>
+          <span class="engage__card-text">
+            <strong class="engage__card-name">Vybe</strong>
+            <span class="engage__card-blurb">The room becomes a pulse. A rhythm, not a copy.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -227,6 +247,20 @@ const MIND_READER_SYMBOLS = [
   border-color: #1C1B19;
 }
 .engage__icon--myousic svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(var(--radius-s) - 2rem);
+}
+
+.engage__icon--vybe {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: #101012;
+  border-color: #101012;
+}
+.engage__icon--vybe svg {
   display: block;
   width: 100%;
   height: 100%;

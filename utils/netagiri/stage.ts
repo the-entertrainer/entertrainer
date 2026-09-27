@@ -1,5 +1,4 @@
 import type { Face, StoryCard } from './cards'
-import { FACES } from './cards'
 
 export type Mood = 'scheme' | 'heat'
 export type Scene =
@@ -43,9 +42,10 @@ export function sceneOf(card: StoryCard): Scene {
 }
 
 export function lookOf(card: StoryCard) {
+  const mood = moodOf(card)
   return {
-    src: FACES[card.face],
+    src: `/netagiri/cast/${card.face}-${mood}.png`,
     scene: sceneOf(card),
-    mood: moodOf(card)
+    mood
   }
 }

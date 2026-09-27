@@ -168,7 +168,7 @@ export const CARDS: StoryCard[] = [
     face: 'hakim',
     speaker: 'Hakim',
     role: 'Cabinet secretary',
-    text: 'Sir, the cameras have camped out for a hundred-day list. I have prepared one drain, with a date. The rest of the list I have left blank on purpose.',
+    text: '{you}, the cameras have camped out for a hundred-day list. I have prepared one drain, with a date. The rest of the list I have left blank on purpose.',
     left: s('One drain. One date.', { kanoon: 6, kursi: -4 }, { set: ['one_date'], queue: [['drain_due', 2]] }),
     right: s('Promise the whole list tonight.', { janta: 8, kursi: 6, kanoon: -4 }, { set: ['hundred'], queue: [['hundred_due', 2]] })
   },
@@ -180,7 +180,7 @@ export const CARDS: StoryCard[] = [
     face: 'hakim',
     speaker: 'Hakim',
     role: 'Cabinet secretary',
-    text: 'Sir, this is day one hundred. The file still says day one. The ticker is live, and the draft on my desk calls it a scheduling error.',
+    text: '{you}, this is day one hundred. The file still says day one. The ticker is live, and the draft on my desk calls it a scheduling error.',
     left: s('Say the date slipped.', { janta: -4, kanoon: 8, kursi: -4 }),
     right: s('Call it a scheduling error.', { kursi: 6, kanoon: -8, janta: -2 })
   },
@@ -191,7 +191,7 @@ export const CARDS: StoryCard[] = [
     face: 'pinky',
     speaker: 'Pinky',
     role: 'Fixer',
-    text: "Sir, this road is famous for one hole. The paint crew is here to put your name on it. The crew that fills holes is not on today's sheet.",
+    text: "{you}, this road is famous for one hole. The paint crew is here to put your name on it. The crew that fills holes is not on today's sheet.",
     left: s('Send the fill crew.', { khazana: -6, janta: 8, kursi: -4 }),
     right: s('Paint the name. Leave the hole.', { kursi: 8, janta: -4 }, { set: ['renamed'], queue: [['hole_due', 2]] })
   },
@@ -202,7 +202,7 @@ export const CARDS: StoryCard[] = [
     face: 'nandini',
     speaker: 'Nandini',
     role: 'Prime-time anchor',
-    text: 'Sir, five dry leaves are on the hotel steps and my camera is in slow motion. The cleaning money is still unspent. That is a worse picture than the leaves.',
+    text: '{you}, five dry leaves are on the hotel steps and my camera is in slow motion. The cleaning money is still unspent. That is a worse picture than the leaves.',
     left: s('Pay the cleaners. Kill the clip.', { khazana: -6, kanoon: 6, kursi: -4 }),
     right: s('Pick up the broom.', { janta: 8, kursi: 6, kanoon: -4 }, { set: ['broom'], queue: [['clip_due', 2]] })
   },
@@ -236,7 +236,7 @@ export const CARDS: StoryCard[] = [
     face: 'envoy',
     speaker: 'The envoy',
     role: 'Trade draft',
-    text: 'Sir, I have one pen and the trade draft. Your party has seated thirty-eight people on the plane. The photographer has listed every one of them as essential staff.',
+    text: '{you}, I have one pen and the trade draft. Your party has seated thirty-eight people on the plane. The photographer has listed every one of them as essential staff.',
     left: s('Just us two. Send them home.', { kursi: -6, kanoon: 4, khazana: 6 }),
     right: s('All thirty-eight. Film the pen.', { khazana: -10, kursi: 6, kanoon: -4 }, { set: ['trip'], queue: [['mou', 2]] })
   },
@@ -248,7 +248,7 @@ export const CARDS: StoryCard[] = [
     face: 'hakim',
     speaker: 'Hakim',
     role: 'Cabinet secretary',
-    text: 'Sir, the signed page says the two countries will meet again. Nothing more. The press line on my desk calls it a historic handshake. The PDF does not.',
+    text: '{you}, the signed page says the two countries will meet again. Nothing more. The press line on my desk calls it a historic handshake. The PDF does not.',
     left: s('Release the PDF unchanged.', { kanoon: 6, janta: -2, kursi: -2 }),
     right: s('Call it a historic handshake.', { janta: 4, kursi: 6, kanoon: -6 })
   },
@@ -347,7 +347,7 @@ export const CARDS: StoryCard[] = [
     face: 'hakim',
     speaker: 'Hakim',
     role: 'Cabinet secretary',
-    text: 'Sir, at eight the country stops. The file in my hand is one sentence and one real job. Your social team has already booked an app launch in that slot.',
+    text: '{you}, at eight the country stops. The file in my hand is one sentence and one real job. Your social team has already booked an app launch in that slot.',
     left: s('Say the one real job.', { kanoon: 6, kursi: -4 }, { set: ['plain_speech'], queue: [['line_due', 2]] }),
     right: s('Launch the app tonight.', { janta: 2, kursi: 6, kanoon: -6, khazana: -4 }, { set: ['the_app'], queue: [['app_morning', 1]] })
   },

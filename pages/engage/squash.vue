@@ -30,6 +30,15 @@ let shake = 0
 let audioCtx: AudioContext | null = null
 let popTimer = 0
 const images: Record<string, HTMLImageElement> = {}
+const buffers: Record<string, AudioBuffer> = {}
+let themeSource: AudioBufferSourceNode | null = null
+let themeGain: GainNode | null = null
+const muted = ref(false)
+const MUTE_KEY = 'entertrainer-squash-mute'
+const SFX = [
+  'squish_01', 'squish_02', 'squish_03', 'squish_04', 'squish_05', 'squish_06',
+  'squishpop', 'splat', 'theme'
+]
 
 const sources: Record<string, string> = {
   roach: '/squash/roach_crawl.png',
@@ -56,20 +65,61 @@ function loadImage(src: string) {
   })
 }
 
-function tone(freq: number, dur = 0.05, type: OscillatorType = 'square', gain = 0.045) {
-  if (!audioCtx) return
-  if (audioCtx.state === 'suspended') void audioCtx.resume()
-  const t0 = audioCtx.currentTime
-  const o = audioCtx.createOscillator()
-  const g = audioCtx.createGain()
-  o.type = type
-  o.frequency.setValueAtTime(freq, t0)
-  g.gain.setValueAtTime(gain, t0)
-  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur)
-  o.connect(g)
-  g.connect(audioCtx.destination)
-  o.start(t0)
-  o.stop(t0 + dur + 0.02)
+function ensureAudio() {
+  if (!audioCtx) {
+    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    if (AC) audioCtx = new AC()
+  }
+  if (audioCtx?.state === 'suspended') void audioCtx.resume()
+  return audioCtx
+}
+
+function playBuf(name: string, gain = 0.7) {
+  const ctx = ensureAudio()
+  const buf = buffers[name]
+  if (!ctx || !buf || muted.value) return
+  const src = ctx.createBufferSource()
+  const g = ctx.createGain()
+  src.buffer = buf
+  g.gain.value = gain
+  src.connect(g)
+  g.connect(ctx.destination)
+  src.start()
+}
+
+function squashHit(clean: boolean) {
+  const pool = clean
+    ? ['squishpop', 'splat', 'squish_03']
+    : ['squish_01', 'squish_02', 'squish_04', 'squish_05', 'squish_06']
+  playBuf(pool[Math.floor(Math.random() * pool.length)], clean ? 0.85 : 0.78)
+}
+
+function startTheme() {
+  const ctx = ensureAudio()
+  const buf = buffers.theme
+  if (!ctx || !buf) return
+  stopTheme()
+  themeGain = ctx.createGain()
+  themeGain.gain.value = muted.value ? 0 : 0.28
+  themeSource = ctx.createBufferSource()
+  themeSource.buffer = buf
+  themeSource.loop = true
+  themeSource.connect(themeGain)
+  themeGain.connect(ctx.destination)
+  themeSource.start()
+}
+
+function stopTheme() {
+  try { themeSource?.stop() } catch { /* already stopped */ }
+  themeSource = null
+}
+
+function toggleMute(event?: Event) {
+  event?.stopPropagation()
+  event?.preventDefault()
+  muted.value = !muted.value
+  if (themeGain) themeGain.gain.value = muted.value ? 0 : 0.28
+  try { localStorage.setItem(MUTE_KEY, muted.value ? '1' : '0') } catch { /* private */ }
 }
 
 function paintWall() {
@@ -162,12 +212,21 @@ function showPop(text: string) {
   }, 420)
 }
 
+function playNow() {
+  if (!game) return
+  ensureAudio()
+  game.start()
+  newBest.value = false
+  startTheme()
+  const snap = game.snapshot()
+  phase.value = snap.phase
+  score.value = snap.score
+}
+
 function onPointer(event: PointerEvent) {
   if (!game) return
-  if (!audioCtx) {
-    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-    if (AC) audioCtx = new AC()
-  }
+  if (phase.value !== 'playing') return
+  ensureAudio()
   const canvas = canvasRef.value
   if (!canvas) return
   const rect = canvas.getBoundingClientRect()
@@ -178,14 +237,15 @@ function onPointer(event: PointerEvent) {
   combo.value = snap.combo
   fever.value = snap.fever
   if (result.type === 'kill') {
-    shake = 0.08
-    tone(result.clean ? 740 : 480, 0.04, 'square', 0.04)
-    if (result.fever) tone(880, 0.08, 'triangle', 0.03)
+    shake = 0.1
+    squashHit(result.clean)
+    if (result.fever) playBuf('squishpop', 0.9)
     showPop(result.clean ? 'Clean' : `+${result.points}`)
-    try { navigator.vibrate?.(10) } catch { /* no actuator */ }
+    try { navigator.vibrate?.(14) } catch { /* no actuator */ }
   } else if (result.type === 'dead') {
-    shake = 0.16
-    tone(90, 0.18, 'sawtooth', 0.05)
+    shake = 0.2
+    playBuf('splat', 0.95)
+    stopTheme()
     if (score.value > best.value) {
       best.value = score.value
       newBest.value = true
@@ -193,12 +253,9 @@ function onPointer(event: PointerEvent) {
     } else {
       newBest.value = false
     }
-    try { navigator.vibrate?.(28) } catch { /* no actuator */ }
+    try { navigator.vibrate?.(32) } catch { /* no actuator */ }
   } else if (result.type === 'miss') {
-    tone(220, 0.03, 'triangle', 0.02)
-  } else if (result.type === 'start') {
-    newBest.value = false
-    tone(180, 0.05, 'triangle', 0.03)
+    playBuf('squish_05', 0.25)
   }
 }
 
@@ -222,12 +279,21 @@ onMounted(async () => {
   } catch {
     best.value = 0
   }
+  try { muted.value = localStorage.getItem(MUTE_KEY) === '1' } catch { muted.value = false }
   const canvas = canvasRef.value
   if (!canvas) return
   game = createSquash(canvas.clientWidth || 390, canvas.clientHeight || 700)
   await Promise.all(Object.entries(sources).map(async ([key, src]) => {
     images[key] = await loadImage(src)
   }))
+  const ctx = ensureAudio()
+  if (ctx) {
+    await Promise.all(SFX.map(async (name) => {
+      const res = await fetch(`/squash/sfx/${name}.mp3`)
+      const raw = await res.arrayBuffer()
+      buffers[name] = await ctx.decodeAudioData(raw.slice(0))
+    }))
+  }
   resize()
   window.addEventListener('resize', resize)
   raf = requestAnimationFrame(loop)
@@ -237,6 +303,7 @@ onBeforeUnmount(() => {
   cancelAnimationFrame(raf)
   window.removeEventListener('resize', resize)
   window.clearTimeout(popTimer)
+  stopTheme()
   if (audioCtx) void audioCtx.close().catch(() => {})
 })
 </script>
@@ -255,6 +322,17 @@ onBeforeUnmount(() => {
     >
       <span v-if="phase === 'paused'" class="sq__play" aria-hidden="true" />
       <span v-else class="sq__bars" aria-hidden="true" />
+    </button>
+    <button
+      type="button"
+      class="sq__icon sq__mute"
+      :aria-label="muted ? 'Unmute' : 'Mute'"
+      @pointerdown.stop.prevent="toggleMute"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path v-if="!muted" d="M4 10v4h3l4 3V7L7 10H4Zm11 1.5a2.5 2.5 0 0 1 0 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <path v-else d="M4 10v4h3l4 3V7L7 10H4ZM16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
     </button>
     <button
       type="button"
@@ -278,13 +356,13 @@ onBeforeUnmount(() => {
       <div v-if="phase === 'title'" class="sq__overlay">
         <p class="sq__eyebrow">Engage</p>
         <h1 class="sq__title">Squash</h1>
-        <p class="sq__lede">Tap the brown ones. Never the glow.</p>
-        <button class="sq__cta" type="button">Play</button>
+        <p class="sq__lede">Brown bugs score. The yellow glow ends the run. Best · {{ best }}</p>
+        <button class="sq__cta" type="button" @pointerdown.stop.prevent="playNow">Play</button>
       </div>
 
       <div v-else-if="phase === 'paused'" class="sq__overlay">
         <h1 class="sq__title sq__title--small">Paused</h1>
-        <button class="sq__cta" type="button">Resume</button>
+        <button class="sq__cta" type="button" @pointerdown.stop.prevent="onPause">Resume</button>
       </div>
 
       <div v-else-if="phase === 'over'" class="sq__overlay">
@@ -292,7 +370,7 @@ onBeforeUnmount(() => {
         <p v-else class="sq__eyebrow">The glow</p>
         <h1 class="sq__title sq__title--score">{{ score }}</h1>
         <p class="sq__lede">Best · {{ best }}</p>
-        <button class="sq__cta" type="button">Again</button>
+        <button class="sq__cta" type="button" @pointerdown.stop.prevent="playNow">Again</button>
       </div>
     </div>
   </div>
@@ -342,6 +420,8 @@ onBeforeUnmount(() => {
 }
 .sq__back { left: max(10rem, env(safe-area-inset-left)); }
 .sq__back svg { width: 20rem; height: 20rem; fill: none; stroke: currentColor; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }
+.sq__mute { right: max(62rem, calc(env(safe-area-inset-right) + 52rem)); }
+.sq__mute svg { width: 18rem; height: 18rem; }
 .sq__theme { right: max(10rem, env(safe-area-inset-right)); }
 .sq__theme :deep(svg) { width: 18rem; height: 18rem; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 .sq__pause { right: max(62rem, calc(env(safe-area-inset-right) + 52rem)); }

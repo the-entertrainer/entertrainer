@@ -39,6 +39,13 @@ const HIT: Record<Kind, { body: [number, number]; clean: [number, number] }> = {
   radio: { body: [42, 30], clean: [16, 12] }
 }
 
+function drawSize(kind: Kind, w: number, h: number) {
+  const short = Math.min(w, h)
+  const share = kind === 'nymph' ? 0.24 : kind === 'radio' ? 0.30 : 0.28
+  const floor = kind === 'nymph' ? 108 : 132
+  return Math.round(Math.max(floor, Math.min(200, short * share)))
+}
+
 export function headingOf(vx: number, vy: number) {
   const deg = (Math.atan2(vy, vx) * 180) / Math.PI
   return Math.round(((deg % 360) + 360) % 360 / 45) % 8
@@ -135,14 +142,17 @@ export function createSquash(width: number, height: number, random: () => number
       frameTime: 0,
       anim: 'crawl',
       alive: true,
-      draw: DRAW[kind]
+      draw: drawSize(kind, w, h)
     })
+  }
+
+  function beginRun() {
+    reset()
   }
 
   function tap(x: number, y: number): TapResult {
     if (phase === 'title' || phase === 'over') {
-      reset()
-      return { type: 'start' }
+      return { type: 'miss' }
     }
     if (phase === 'paused') {
       phase = 'playing'
@@ -157,8 +167,8 @@ export function createSquash(width: number, height: number, random: () => number
       const body = HIT[kind].body
       const rx = body[0] * scale
       const ry = body[1] * scale
-      const finger = 22
-      if (!ellipse(x, y, bug.x, bug.y, rx + finger * 0.35, ry + finger * 0.35)) continue
+      const finger = Math.max(28, Math.min(w, h) * 0.045)
+      if (!ellipse(x, y, bug.x, bug.y, rx + finger * 0.55, ry + finger * 0.55)) continue
       const cleanBox = HIT[kind].clean
       const clean = kind !== 'radio' && ellipse(x, y, bug.x, bug.y, cleanBox[0] * scale + 6, cleanBox[1] * scale + 6)
       const d = (x - bug.x) ** 2 + (y - bug.y) ** 2
@@ -277,6 +287,7 @@ export function createSquash(width: number, height: number, random: () => number
 
   return {
     tap,
+    start: beginRun,
     update,
     togglePause,
     resize(nw: number, nh: number) {

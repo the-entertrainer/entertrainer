@@ -4,7 +4,7 @@ import * as THREE from 'three';
 // Real world-space integration with shadow-map occlusion, rendered below native resolution.
 export function createVolumetricPipeline(renderer, camera, light) {
   const sceneTarget = new THREE.WebGLRenderTarget(1, 1, { depthBuffer: true });
-  sceneTarget.samples = renderer.capabilities.isWebGL2 ? 4 : 0;
+  sceneTarget.samples = 0;
   sceneTarget.depthTexture = new THREE.DepthTexture(1, 1, THREE.UnsignedIntType);
   const volumeTarget = new THREE.WebGLRenderTarget(1, 1, { depthBuffer: false });
   const quadScene = new THREE.Scene();
@@ -68,8 +68,8 @@ export function createVolumetricPipeline(renderer, camera, light) {
   });
   const composite = new THREE.ShaderMaterial({
     depthTest: false, depthWrite: false,
-    uniforms: { uColor:{value:sceneTarget.texture},uVolume:{value:volumeTarget.texture} }, vertexShader,
-    fragmentShader: `varying vec2 vUv;uniform sampler2D uColor,uVolume;void main(){gl_FragColor=vec4(texture2D(uColor,vUv).rgb+texture2D(uVolume,vUv).rgb,1.);#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}`.replace(';#include',';\n#include')
+    uniforms: { uColor:{value:sceneTarget.texture},uVolume:{value:volumeTarget.texture},uTime:{value:0} }, vertexShader,
+    fragmentShader: `varying vec2 vUv;uniform sampler2D uColor,uVolume;uniform float uTime;void main(){vec2 p=vUv-.5;vec3 c=texture2D(uColor,vUv).rgb+texture2D(uVolume,vUv).rgb;float grain=fract(sin(dot(vUv*831.,vec2(12.9898,78.233))+floor(uTime*24.))*43758.5453)-.5;c*=1.-.48*dot(p,p);c+=grain*.006;gl_FragColor=vec4(c,1.);#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}`.replace(';#include',';\n#include')
   });
   const quad = new THREE.Mesh(new THREE.PlaneGeometry(2,2),scatter);quad.frustumCulled=false;quadScene.add(quad);
   let quality='balanced';
@@ -78,6 +78,7 @@ export function createVolumetricPipeline(renderer, camera, light) {
     resize,
     setQuality(value){quality=value;resize();},
     render(scene,time){
+      composite.uniforms.uTime.value=time;
       renderer.setRenderTarget(sceneTarget);renderer.render(scene,camera);
       scatter.uniforms.uTime.value=time;scatter.uniforms.uShadow.value=light.shadow.map?.texture??sceneTarget.texture;scatter.uniforms.uHasShadow.value=light.shadow.map?1:0;
       quad.material=scatter;renderer.setRenderTarget(volumeTarget);renderer.render(quadScene,quadCamera);

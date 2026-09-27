@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Stack, Squash, Netagiri, The Mind Reader, and AstroClock.',
+  description: 'Short games and little detours — Stack, Fever Dream, Netagiri, The Mind Reader, and AstroClock.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -43,19 +43,17 @@ const MIND_READER_SYMBOLS = [
         </NuxtLink>
       </li>
       <li class="u-reveal">
-        <NuxtLink to="/engage/squash" class="engage__card engage__card--squash">
-          <span class="engage__icon engage__icon--squash" aria-hidden="true">
+        <NuxtLink to="/engage/squash" class="engage__card engage__card--fever">
+          <span class="engage__icon engage__icon--fever" aria-hidden="true">
             <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
-              <rect width="48" height="48" rx="6" fill="#FBF8EF"/>
-              <ellipse cx="22" cy="26" rx="10" ry="7" fill="#583E28"/>
-              <ellipse cx="32" cy="24" rx="5" ry="4" fill="#2A1C12"/>
-              <path d="M14 20 L8 14 M14 30 L8 36 M30 16 L36 10" stroke="#161618" stroke-width="1.6" stroke-linecap="round"/>
-              <circle cx="39" cy="16" r="3" fill="#FFD43B"/>
+              <rect width="48" height="48" rx="6" fill="#C4B8A4"/>
+              <path d="M10 30c6-2 8-10 14-12 4 6 8 8 14 6" stroke="#E6B325" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="34" cy="14" r="3" fill="#B6FF3C"/>
             </svg>
           </span>
           <span class="engage__card-text">
-            <strong class="engage__card-name">Squash</strong>
-            <span class="engage__card-blurb">Tap the brown ones. Never the glow.</span>
+            <strong class="engage__card-name">Fever Dream</strong>
+            <span class="engage__card-blurb">A banana hits the floor. Squeeze the brown ones.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -66,11 +64,16 @@ const MIND_READER_SYMBOLS = [
       <li class="u-reveal">
         <NuxtLink to="/engage/netagiri" class="engage__card engage__card--netagiri">
           <span class="engage__icon engage__icon--netagiri" aria-hidden="true">
-            <span class="netagiri-chair-icon" />
+            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
+              <rect width="48" height="48" rx="6" fill="#F7F1E4"/>
+              <rect x="16" y="28" width="16" height="6" fill="#161618"/>
+              <rect x="19" y="22" width="10" height="6" fill="#161618"/>
+              <rect x="22" y="16" width="4" height="6" fill="#2F5BD8"/>
+            </svg>
           </span>
           <span class="engage__card-text">
             <strong class="engage__card-name">Netagiri</strong>
-            <span class="engage__card-blurb">Five years. One chair. Earn a second mandate.</span>
+            <span class="engage__card-blurb">Two choices. Five years. Earn a second mandate.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -235,19 +238,20 @@ const MIND_READER_SYMBOLS = [
 }
 .engage__icon--stack svg { display: block; width: 100%; height: 100%; }
 
-.engage__icon--squash {
+.engage__icon--fever {
   display: grid;
   place-items: center;
   padding: 0;
-  background: #FBF8EF;
+  background: #C4B8A4;
   border-color: #161618;
 }
-.engage__icon--squash svg {
+.engage__icon--fever svg {
   display: block;
   width: 100%;
   height: 100%;
   border-radius: calc(var(--radius-s) - 2rem);
 }
+
 
 .engage__icon--netagiri {
   display: grid;
@@ -284,5 +288,4 @@ const MIND_READER_SYMBOLS = [
   .engage__card, .engage__card-arrow { transition: none; }
   .engage__card:hover { transform: none; }
 }
-.netagiri-chair-icon { display: block; width: 34px; height: 34px; background: url("/netagiri/five-years/ui-atlas.png") 66.6667% 0 / 400% 400% no-repeat; }
 </style>

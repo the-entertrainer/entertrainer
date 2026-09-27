@@ -2,9 +2,9 @@
 definePageMeta({ layout: false })
 
 useSeoMeta({
-  title: 'Fever Dream · Engage',
-  description: 'A banana hits the floor. Squeeze the brown roaches. The green ones want the wires.',
-  ogUrl: 'https://entertrainer.in/engage/squash'
+  title: 'Fever Dream · A banana hits the floor.',
+  description: 'Squeeze the brown roaches. The green ones want the wires.',
+  ogUrl: 'https://entertrainer.in/engage/fever'
 })
 </script>
 

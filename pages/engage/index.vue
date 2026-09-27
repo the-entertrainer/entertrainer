@@ -43,7 +43,7 @@ const MIND_READER_SYMBOLS = [
         </NuxtLink>
       </li>
       <li class="u-reveal">
-        <NuxtLink to="/engage/squash" class="engage__card engage__card--fever">
+        <NuxtLink to="/engage/fever" class="engage__card engage__card--fever">
           <span class="engage__icon engage__icon--fever" aria-hidden="true">
             <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
               <rect width="48" height="48" rx="6" fill="#C4B8A4"/>

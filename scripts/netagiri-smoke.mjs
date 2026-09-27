@@ -22,7 +22,7 @@ try {
     image.src = src
   }))))
   await frame.click('#start')
-  assert.equal(await frame.locator('[data-choice]').count(), 4)
+  assert.equal(await frame.locator('[data-choice]').count(), 2)
   assert.equal(await frame.evaluate(() => document.documentElement.scrollWidth > innerWidth), false)
   await frame.click('[data-choice="0"]')
   assert.deepEqual(await frame.evaluate(() => [state.week, !!state.receipt, state.ended]), [1, true, null])
@@ -37,6 +37,20 @@ try {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await resumed.click('[data-tab="desk"]')
   assert.equal(await resumed.locator('.talk').evaluate(el => getComputedStyle(el).animationName), 'none')
+  // A cancelled drag must never spend a week; a deliberate drag commits once.
+  const cardBox = await resumed.locator('#swipe-card').boundingBox()
+  const x = cardBox.x + cardBox.width / 2, y = cardBox.y + 70
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 25, y, { steps: 3 }); await page.mouse.up()
+  assert.equal(await resumed.evaluate(() => state.week), 1)
+  await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x - 120, y, { steps: 8 }); await page.mouse.up()
+  assert.equal(await resumed.evaluate(() => state.week), 2)
+  await resumed.click('#continue')
+  await resumed.locator('#swipe-card').click({ position: { x: 80, y: 70 } })
+  await page.keyboard.press('ArrowRight')
+  assert.equal(await resumed.evaluate(() => state.week), 3)
+  assert.equal(await resumed.evaluate(() => validSave({ ...fresh(), stats: [NaN, 55, 55, 55] })), false)
+  assert.equal(await resumed.evaluate(() => dominantChoice([0, 1, 1, 0])), 0)
+  assert.equal(await resumed.evaluate(() => dominantChoice([1, 0, 0, 1])), 1)
   const paths = await resumed.evaluate(() => {
     render = () => {}
     save = () => {}
@@ -48,12 +62,13 @@ try {
       for (let week = 0; week < 260 && !state.ended; week++) {
         const card = current()
         let best = -Infinity, choice = 0
-        for (let c = 0; c < 3; c++) {
+        for (let c = 0; c < card.options.length; c++) {
           const option = card.options[c]
           const predicted = state.stats.map((n, i) => clamp(n + option.effect[i]))
           let score = predicted.reduce((sum, n) => sum + Math.log(n + 1) * 20, 0)
           const route = ROUTES[target].key
           score += option.route === route && state.counts[route] < (target < 2 ? 16 : 14) ? 2.5 : 0
+          if (option.route === 'machine') score -= 20
           score += predicted[target] * .012
           if (score > best) { best = score; choice = c }
         }
@@ -63,6 +78,10 @@ try {
       }
       results.push({ target: ROUTES[target].name, week: state.week, end: state.ended, prematureWin })
     }
+    state = fresh(); state.started = true; state.week = 259
+    state.pending = [{due: 270, effect: [-200, 0, 0, 0], text: 'Outstanding audit'}]
+    resolve(0)
+    if (state.pending.length || state.ended.type !== 'collapse') throw Error('Final audit escaped election settlement')
     state = fresh(); state.started = true; state.week = 259
     resolve(0)
     results.push({ noRecord: state.ended.type })

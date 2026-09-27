@@ -1,53 +1,14 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
-
 useSeoMeta({
-  title: 'Fever Dream · A banana hits the floor.',
-  description: 'Squeeze the brown roaches. The green ones want the wires.',
+  title: 'Fever Dream · Entertrainer',
+  description: 'A 3D kitchen defence game. Squash brown roaches, build turrets, and protect one deeply unqualified banana.',
   ogUrl: 'https://entertrainer.in/engage/fever'
 })
 </script>
-
 <template>
-  <div class="ng">
-    <NuxtLink to="/engage" class="ng__back" aria-label="Back to Engage">←</NuxtLink>
-    <iframe
-      class="ng__frame"
-      src="/fever/index.html"
-      title="Fever Dream"
-      allow="fullscreen"
-    />
-  </div>
+  <iframe class="fever-game" src="/fever/index.html" title="Fever Dream — 3D kitchen defence" allow="fullscreen" />
 </template>
-
 <style scoped>
-.ng {
-  position: relative;
-  height: 100svh;
-  height: 100dvh;
-  background: #140e0c;
-}
-.ng__back {
-  position: absolute;
-  z-index: 4;
-  top: max(10rem, env(safe-area-inset-top));
-  left: max(10rem, env(safe-area-inset-left));
-  width: 42rem;
-  height: 42rem;
-  display: grid;
-  place-items: center;
-  border-radius: 12rem;
-  background: #ffffff08;
-  border: 1px solid #42423c;
-  color: #f7f1e4;
-  text-decoration: none;
-  font-size: 18rem;
-}
-.ng__frame {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background: #140e0c;
-}
+.fever-game { position: fixed; inset: 0; z-index: 20; display: block; width: 100%; height: 100dvh; border: 0; background: #191b20; }
 </style>

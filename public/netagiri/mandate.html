@@ -37,7 +37,7 @@ header{border-bottom:1px solid #4c422a;background:#100f0beb;z-index:2}
 'use strict';
 const ART={"idle":"/netagiri/art/idle.png","talk":"/netagiri/art/talk.png","ui":"/netagiri/art/ui.png","office":"/netagiri/art/office.png"};
 // Blob URLs keep large embedded PNGs below browser CSS-token size limits.
-for(const key of Object.keys(ART)){const bytes=Uint8Array.from(atob(ART[key].split(',')[1]),c=>c.charCodeAt(0));ART[key]=URL.createObjectURL(new Blob([bytes],{type:'image/png'}));}
+for(const key of Object.keys(ART)){if(!ART[key].startsWith('data:'))continue;const bytes=Uint8Array.from(atob(ART[key].split(',')[1]),c=>c.charCodeAt(0));ART[key]=URL.createObjectURL(new Blob([bytes],{type:'image/png'}));}
 document.documentElement.style.setProperty('--cast-idle',`url("${ART.idle}")`);document.documentElement.style.setProperty('--cast-talk',`url("${ART.talk}")`);document.documentElement.style.setProperty('--ui-atlas',`url("${ART.ui}")`);document.documentElement.style.setProperty('--office',`url("${ART.office}")`);
 const $=s=>document.querySelector(s), KEYS=['Janta','Khazana','Kursi','Kanoon'];
 const PEOPLE={pinky:['Pinky','General secretary'],hakim:['Hakim','Cabinet secretary'],nandini:['Nandini','Prime-time anchor'],netaji:['Netaji','Coalition partner'],chintu:['Chintu','Youth representative'],kisan:['Kisan','Farm union representative'],lalaji:['Lalaji','Industrialist'],justice:['Justice Rao','Constitutional adviser'],mausi:['Mausi','Party treasurer'],captain:['Captain','Security adviser'],envoy:['The Envoy','Trade negotiator'],baba:['Baba','Spiritual entrepreneur']};

@@ -18,6 +18,7 @@ export type RunEnd = Ending & {
   calendar: number
   chair: string
   name: string
+  party: string
 }
 
 type QueueItem = { id: string; at: number }
@@ -25,6 +26,7 @@ type QueueItem = { id: string; at: number }
 export type Snapshot = {
   phase: Phase
   name: string
+  party: string
   age: number
   calendar: number
   years: number
@@ -44,6 +46,29 @@ function blankGauges(): Record<Gauge, number> {
 export function clampYear(year: number) {
   if (!Number.isFinite(year)) return 2026
   return Math.max(2026, Math.min(9999, Math.round(year)))
+}
+
+export function leaderName(raw: string) {
+  const word = (raw || '').trim().split(/\s+/)[0] ?? ''
+  const letters = word.replace(/[^A-Za-z]/g, '')
+  if (!letters) return 'Neta Ji'
+  const titled = letters.charAt(0).toUpperCase() + letters.slice(1).toLowerCase()
+  if (/^ji$/i.test(titled)) return 'Neta Ji'
+  if (/ji$/i.test(titled) && titled.length > 2) return titled.replace(/ji$/i, '') + ' Ji'
+  return `${titled} Ji`
+}
+
+export function cleanParty(raw: string) {
+  const text = (raw || '').trim().replace(/\s+/g, ' ')
+  if (!text) return 'the Front'
+  return text.slice(0, 28)
+}
+
+export function speak(text: string, you: string, party: string) {
+  return text
+    .replaceAll('{you}', you)
+    .replaceAll('{party}', party)
+    .replace(/(^|[.!?]\s)Sir,/, `$1${you},`)
 }
 
 export function ticks(n: number): 1 | 2 {
@@ -96,6 +121,7 @@ function applySide(side: Side, gauges: Record<Gauge, number>, flags: Set<string>
 export function createNetagiri(random: () => number = Math.random) {
   let phase: Phase = 'title'
   let name = ''
+  let party = 'the Front'
   let calendar = 2026
   let turn = 0
   let gauges = blankGauges()
@@ -116,7 +142,8 @@ export function createNetagiri(random: () => number = Math.random) {
       age: calendar,
       calendar,
       chair: chairOf(flags),
-      name: name.trim() || 'You'
+      name: name.trim() || 'Neta Ji',
+      party
     }
     return end
   }
@@ -200,9 +227,10 @@ export function createNetagiri(random: () => number = Math.random) {
   }
 
   return {
-    start(playerName: string, year = 2026) {
+    start(playerName: string, year = 2026, partyName = 'the Front') {
       phase = 'play'
-      name = playerName
+      name = leaderName(playerName)
+      party = cleanParty(partyName)
       calendar = clampYear(year)
       turn = 0
       gauges = blankGauges()
@@ -241,6 +269,7 @@ export function createNetagiri(random: () => number = Math.random) {
       return {
         phase,
         name,
+        party,
         age: calendar,
         calendar,
         years: turn,

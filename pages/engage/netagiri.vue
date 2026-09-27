@@ -1,8 +1,9 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 
-import { GAUGES, FACES, chairOf, type Gauge } from '~/utils/netagiri/cards'
-import { createNetagiri, clampYear, type Netagiri, type Snapshot } from '~/utils/netagiri/game'
+import { GAUGES, chairOf, type Gauge } from '~/utils/netagiri/cards'
+import { createNetagiri, clampYear, leaderName, speak, type Netagiri, type Snapshot } from '~/utils/netagiri/game'
+import { lookOf } from '~/utils/netagiri/stage'
 import { createScore, type Score } from '~/utils/netagiri/score'
 import { useThemeStore } from '~/stores/theme'
 
@@ -14,9 +15,15 @@ useSeoMeta({
 
 const BEST_KEY = 'entertrainer-netagiri-best'
 const MUTE_KEY = 'entertrainer-netagiri-mute'
+const NAME_KEY = 'entertrainer-netagiri-name'
+const PARTY_KEY = 'entertrainer-netagiri-party'
+const RUNS_KEY = 'entertrainer-netagiri-runs'
 const theme = useThemeStore()
 const name = ref('')
+const party = ref('the Front')
 const year = ref(2026)
+const partyChips = ['the Front', 'Ribbon Front', 'National Chair', 'People\'s List', 'Clean Ticket']
+const pastRuns = ref<{ name: string; party: string; years: number; year: number }[]>([])
 const best = ref(0)
 const muted = ref(false)
 const snap = ref<Snapshot | null>(null)
@@ -25,6 +32,8 @@ const flying = ref<'left' | 'right' | ''>('')
 const reduced = ref(false)
 const arriving = ref(false)
 const hover = ref<'left' | 'right' | ''>('')
+const leanX = ref(0)
+const leanY = ref(0)
 
 let game: Netagiri | null = null
 let startX = 0
@@ -39,6 +48,24 @@ const displayYear = computed(() => {
   return Number.isFinite(n) ? Math.round(n) : '—'
 })
 const yearChips = [2026, 2038, 2100, 9999]
+const shownName = computed(() => leaderName(name.value))
+const look = computed(() => card.value ? lookOf(card.value) : null)
+const line = computed(() => {
+  if (!card.value || !snap.value) return ''
+  return speak(card.value.text, snap.value.name, snap.value.party)
+})
+const leftLine = computed(() => {
+  if (!card.value || !snap.value) return ''
+  return speak(card.value.left.text, snap.value.name, snap.value.party)
+})
+const rightLine = computed(() => {
+  if (!card.value || !snap.value) return ''
+  return speak(card.value.right.text, snap.value.name, snap.value.party)
+})
+const stageStyle = computed(() => ({
+  '--px': leanX.value.toFixed(3),
+  '--py': leanY.value.toFixed(3)
+}))
 const eraLine = computed(() => {
   const n = Number(year.value)
   if (!Number.isFinite(n) || n < 2026 || n > 9999) return 'The chair only opens from 2026 to 9999.'
@@ -63,10 +90,23 @@ function begin() {
   score.setMuted(muted.value)
   score.start(clampYear(Number(year.value)), Math.random())
   game = createNetagiri()
-  game.start(name.value, Number(year.value))
+  game.start(name.value, Number(year.value), party.value)
   flying.value = ''
   drag.value = 0
+  try {
+    localStorage.setItem(NAME_KEY, name.value)
+    localStorage.setItem(PARTY_KEY, party.value)
+  } catch { /* private mode */ }
   refresh()
+}
+
+function onName(event: Event) {
+  const raw = (event.target as HTMLInputElement).value
+  name.value = raw.replace(/[^A-Za-z]/g, '').slice(0, 16)
+}
+
+function initials(label: string) {
+  return label.split(/\s+/).filter(Boolean).map((w) => w[0]).join('').slice(0, 3).toUpperCase()
 }
 
 function rememberBest() {
@@ -75,7 +115,17 @@ function rememberBest() {
     best.value = years
     try { localStorage.setItem(BEST_KEY, String(years)) } catch { /* private mode */ }
   }
-  if (snap.value?.phase === 'end') score?.soften()
+  if (snap.value?.phase === 'end' && snap.value.end) {
+    score?.soften()
+    const row = {
+      name: snap.value.end.name,
+      party: snap.value.end.party,
+      years,
+      year: snap.value.end.calendar
+    }
+    pastRuns.value = [row, ...pastRuns.value.filter((r) => r.name !== row.name || r.year !== row.year)].slice(0, 6)
+    try { localStorage.setItem(RUNS_KEY, JSON.stringify(pastRuns.value)) } catch { /* private mode */ }
+  }
 }
 
 function pick(hand: 'left' | 'right') {
@@ -122,6 +172,9 @@ function onDown(event: PointerEvent) {
 function onMove(event: PointerEvent) {
   if (!dragging) return
   drag.value = event.clientX - startX
+  const box = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  leanX.value = ((event.clientX - box.left) / box.width - 0.5) * 2
+  leanY.value = ((event.clientY - box.top) / box.height - 0.5) * 2
 }
 
 function onUp() {
@@ -139,6 +192,9 @@ function danger(n: number) {
 onMounted(() => {
   try { best.value = Number(localStorage.getItem(BEST_KEY) || 0) || 0 } catch { best.value = 0 }
   try { muted.value = localStorage.getItem(MUTE_KEY) === '1' } catch { muted.value = false }
+  try { name.value = localStorage.getItem(NAME_KEY) || '' } catch { /* empty */ }
+  try { party.value = localStorage.getItem(PARTY_KEY) || 'the Front' } catch { /* empty */ }
+  try { pastRuns.value = JSON.parse(localStorage.getItem(RUNS_KEY) || '[]') } catch { pastRuns.value = [] }
   reduced.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 })
 
@@ -188,8 +244,16 @@ onBeforeUnmount(() => score?.stop())
 
     <section v-if="phase === 'title'" class="ng__title">
       <p class="ng__eyebrow">Engage</p>
-      <h1>Netagiri</h1>
-      <p class="ng__lede">You have been elected Prime Minister of India in {{ displayYear }}.</p>
+      <div class="ng__lockup" aria-hidden="true">
+        <svg class="ng__mark" viewBox="0 0 48 48" width="48" height="48">
+          <rect x="8" y="18" width="32" height="6" rx="1" fill="currentColor" />
+          <rect x="21" y="10" width="6" height="28" fill="currentColor" />
+          <path d="M10 38h28" stroke="currentColor" stroke-width="2" />
+          <path d="M18 14l12 20" stroke="currentColor" stroke-width="1.5" opacity="0.55" />
+        </svg>
+        <h1 class="ng__word"><span>Neta</span>giri</h1>
+      </div>
+      <p class="ng__lede">You take the chair in {{ displayYear }} as {{ shownName }} of {{ party || 'the Front' }}.</p>
       <label class="ng__name">
         <span>Year you take the chair</span>
         <input
@@ -214,19 +278,43 @@ onBeforeUnmount(() => score?.stop())
       </div>
       <p class="ng__era">{{ eraLine }}</p>
       <label class="ng__name">
-        <span>Your name</span>
-        <input v-model="name" maxlength="24" autocomplete="nickname" placeholder="Optional" />
+        <span>One-word name. Ji is added for you.</span>
+        <input
+          :value="name"
+          maxlength="16"
+          autocomplete="nickname"
+          placeholder="Ramesh"
+          @input="onName"
+        />
       </label>
+      <p class="ng__preview">On the card: <strong>{{ shownName }}</strong></p>
+      <label class="ng__name">
+        <span>Party</span>
+        <input v-model="party" maxlength="28" placeholder="the Front" />
+      </label>
+      <div class="ng__chips" role="group" aria-label="Party names">
+        <button
+          v-for="p in partyChips"
+          :key="p"
+          type="button"
+          class="ng__chip"
+          :class="{ 'is-on': party === p }"
+          @click="party = p"
+        >{{ p }}</button>
+      </div>
       <p class="ng__fine">Neither order is free. Empty or full, you are out. One song a term, at the speed it was written.</p>
       <button class="ng__cta" type="button" @click="begin">Take the chair</button>
       <p v-if="best" class="ng__best">Best · {{ best }} years</p>
+      <ol v-if="pastRuns.length" class="ng__runs">
+        <li v-for="(run, i) in pastRuns" :key="i">{{ run.name }} · {{ run.party }} · {{ run.years }} yrs · {{ run.year }}</li>
+      </ol>
     </section>
 
     <section v-else-if="phase === 'end' && snap?.end" class="ng__end">
       <p class="ng__eyebrow">{{ snap.end.chair }} · {{ snap.end.years }} years</p>
       <h1>{{ snap.end.headline }}</h1>
       <p class="ng__epitaph">{{ snap.end.epitaph }}</p>
-      <p class="ng__lede">{{ snap.end.name }} left the chair in {{ snap.end.calendar }}.</p>
+      <p class="ng__lede">{{ snap.end.name }} of {{ snap.end.party }} left the chair in {{ snap.end.calendar }}.</p>
       <button class="ng__cta" type="button" @click="begin">Again</button>
       <p class="ng__best">Best · {{ best }} years</p>
     </section>
@@ -247,10 +335,18 @@ onBeforeUnmount(() => score?.stop())
         @pointerup="onUp"
         @pointercancel="onUp"
       >
-        <img class="ng__face" :src="FACES[card.face]" :alt="card.speaker" />
+        <div class="ng__stage" :data-scene="look?.scene" :data-mood="look?.mood" :style="stageStyle">
+          <i class="ng__sky" />
+          <i class="ng__mid" />
+          <i class="ng__near" />
+          <div class="ng__bob">
+            <img class="ng__actor" :src="look?.src" :alt="card.speaker" />
+            <span class="ng__stamp">{{ initials(snap?.party || 'the Front') }}</span>
+          </div>
+        </div>
         <div class="ng__body">
           <p class="ng__who"><strong>{{ card.speaker }}</strong> <span>{{ card.role }}</span></p>
-          <p class="ng__say">{{ card.text }}</p>
+          <p class="ng__say">{{ line }}</p>
         </div>
       </article>
       <div class="ng__hands">
@@ -258,27 +354,27 @@ onBeforeUnmount(() => score?.stop())
           type="button"
           class="ng__hand"
           :class="{ 'is-lean': aim === 'left' }"
-          :aria-label="card.left.text"
+          :aria-label="leftLine"
           @mouseenter="hover = 'left'"
           @mouseleave="hover = hover === 'left' ? '' : hover"
           @focus="hover = 'left'"
           @blur="hover = ''"
           @click="pick('left')"
         >
-          <span>{{ card.left.text }}</span>
+          <span>{{ leftLine }}</span>
         </button>
         <button
           type="button"
           class="ng__hand"
           :class="{ 'is-lean': aim === 'right' }"
-          :aria-label="card.right.text"
+          :aria-label="rightLine"
           @mouseenter="hover = 'right'"
           @mouseleave="hover = hover === 'right' ? '' : hover"
           @focus="hover = 'right'"
           @blur="hover = ''"
           @click="pick('right')"
         >
-          <span>{{ card.right.text }}</span>
+          <span>{{ rightLine }}</span>
         </button>
       </div>
     </section>
@@ -434,6 +530,56 @@ onBeforeUnmount(() => score?.stop())
 .ng__card.is-fly-left { transform: translateX(-118%) rotate(-7deg); transition: transform 240ms cubic-bezier(0.4, 0, 1, 1); }
 .ng__card.is-fly-right { transform: translateX(118%) rotate(7deg); transition: transform 240ms cubic-bezier(0.4, 0, 1, 1); }
 .ng__face { display: block; width: 100%; aspect-ratio: 3 / 2.1; object-fit: cover; object-position: center 18%; background: #f7f1e4; }
+.ng__lockup { display: flex; align-items: center; gap: 12rem; }
+.ng__mark { width: 42rem; height: 42rem; color: var(--ng-ink); flex: none; }
+.ng__word { font: 800 36rem/1 var(--font-serif, Georgia, serif); letter-spacing: -0.03em; margin: 0; }
+.ng__word span { font-weight: 500; }
+.ng__preview { margin: 0; font: 400 13rem/1.4 var(--font-sans); opacity: 0.72; }
+.ng__runs { margin: 8rem 0 0; padding: 0; list-style: none; font: 400 12rem/1.5 var(--font-mono); opacity: 0.7; }
+.ng__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2.1;
+  overflow: hidden;
+  background: #d9c7a4;
+}
+.ng__sky, .ng__mid, .ng__near {
+  position: absolute; inset: -8%;
+  pointer-events: none;
+}
+.ng__sky {
+  background: linear-gradient(180deg, #f3e6c8, #c9b48a);
+  transform: translate3d(calc(var(--px, 0) * -6px), calc(var(--py, 0) * -4px), 0);
+}
+.ng__mid {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 18px, color-mix(in srgb, var(--ng-ink) 10%, transparent) 18px 20px),
+    linear-gradient(180deg, transparent 40%, color-mix(in srgb, #6b3b2a 28%, transparent));
+  transform: translate3d(calc(var(--px, 0) * -12px), calc(var(--py, 0) * -6px), 0);
+}
+.ng__near {
+  background: radial-gradient(120% 80% at 50% 120%, color-mix(in srgb, #1c1917 35%, transparent), transparent 55%);
+  transform: translate3d(calc(var(--px, 0) * -18px), calc(var(--py, 0) * -8px), 0);
+}
+.ng__stage[data-scene='studio'] .ng__sky { background: linear-gradient(180deg, #2a2a2e, #121214); }
+.ng__stage[data-scene='court'] .ng__sky { background: linear-gradient(180deg, #e8e0d2, #b7a48a); }
+.ng__stage[data-scene='dome'] .ng__sky { background: linear-gradient(180deg, #8fb7c9, #2c4a5a); }
+.ng__stage[data-scene='ashram'] .ng__sky { background: linear-gradient(180deg, #f0d9a0, #c9893a); }
+.ng__stage[data-scene='street'] .ng__sky { background: linear-gradient(180deg, #c9d6c0, #7a8a6a); }
+.ng__stage[data-scene='rally'] .ng__sky { background: linear-gradient(180deg, #f2c36b, #c45a2a); }
+.ng__bob { position: absolute; inset: 0; display: grid; place-items: end center; animation: ng-bob 3.6s ease-in-out infinite; }
+.ng__actor { width: 72%; max-height: 100%; object-fit: cover; object-position: center top; filter: drop-shadow(0 8px 18px rgba(0,0,0,.28)); }
+.ng__stage[data-mood='heat'] .ng__actor { filter: contrast(1.12) saturate(1.15) drop-shadow(0 8px 18px rgba(80,0,0,.35)); }
+.ng__stamp {
+  position: absolute; right: 10rem; bottom: 10rem;
+  font: 700 11rem/1 var(--font-mono); letter-spacing: 0.12em;
+  background: color-mix(in srgb, var(--ng-paper, #f4efe6) 86%, transparent);
+  padding: 4rem 6rem; border-radius: 3px;
+}
+@keyframes ng-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
 .ng__body { padding: 14rem 16rem 16rem; }
 .ng__who { margin: 0 0 8rem; display: flex; flex-wrap: wrap; gap: 6rem 10rem; align-items: baseline; }
 .ng__who strong { font: 600 18rem/1.2 var(--font-display); }

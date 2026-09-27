@@ -146,7 +146,7 @@ export const CARDS: StoryCard[] = [
     face: 'pinky',
     speaker: 'Pinky',
     role: 'Fixer',
-    text: 'Sir, the count is in. The booth workers are in the front row with their families. The camera is on their faces. A national address can wait.',
+    text: '{you}, the count is in for {party}. The booth workers are in the front row with their families. The camera is on their faces. A national address can wait.',
     left: s('Thank the country. Then sit.', { janta: 6, kursi: -6 }),
     right: s('Read every name on that list.', { kursi: 8, janta: -4 }, { set: ['troll_voice'], queue: [['names_due', 2]] })
   },
@@ -157,7 +157,7 @@ export const CARDS: StoryCard[] = [
     face: 'captain',
     speaker: 'Captain',
     role: 'Dome and convoys',
-    text: 'Sir, the count finished forty minutes late. I have the oxygen bill in one hand. In the other, a plate that puts your face across the dome before the news does.',
+    text: '{you}, the count finished forty minutes late. I have the oxygen bill in one hand. In the other, a plate that puts {party} across the dome before the news does.',
     left: s('Read the oxygen bill.', { janta: 6, kanoon: 4, kursi: -6 }),
     right: s('Put my face on the dome.', { janta: 6, kursi: 6, kanoon: -6 }, { set: ['dome_face'], queue: [['vent_due', 2]] })
   },

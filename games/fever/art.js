@@ -31,7 +31,7 @@ export function surface(kind, size = 256) {
 
 export function createBanana() {
   const group = new THREE.Group();
-  const material = new THREE.MeshPhysicalMaterial({ color: '#fff3a1', ...surface('peel',512), roughness:.49, bumpScale:.017, clearcoat:.14, clearcoatRoughness:.4 });
+  const material = new THREE.MeshPhysicalMaterial({ color: '#fff3a1', ...surface('peel',512), roughness:.49, envMapIntensity:.3, bumpScale:.017, clearcoat:.14, clearcoatRoughness:.4 });
   // Tapered, five-ridged peel with a curved centreline; UVs follow the fruit.
   const vertices=[], uv=[], indices=[], rings=64, sides=24;
   for(let i=0;i<=rings;i++) {
@@ -51,13 +51,13 @@ export function createBanana() {
   return group;
 }
 
-export function createSplatter(scene) {
+export function createSplatter(scene,dream) {
   const c=document.createElement('canvas');c.width=c.height=128;const ctx=c.getContext('2d');
   ctx.fillStyle='#fff';ctx.beginPath();
   for(let i=0;i<=64;i++){const a=i/64*Math.PI*2,r=22+8*Math.sin(i*2.7)+5*Math.cos(i*5.9);const x=64+Math.cos(a)*r,y=64+Math.sin(a)*r;i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.fill();
   for(let i=0;i<27;i++){const a=i*2.399,r=32+(i%5)*5;ctx.beginPath();ctx.ellipse(64+Math.cos(a)*r,64+Math.sin(a)*r,1+i%3,2+i%4,a,0,Math.PI*2);ctx.fill();}
-  const map=new THREE.CanvasTexture(c), geometry=new THREE.PlaneGeometry(1.7,1.7);
-  const pool=Array.from({length:40},()=>{const material=new THREE.MeshStandardMaterial({color:'#780b27',map,transparent:true,opacity:.9,depthWrite:false,roughness:.22,polygonOffset:true,polygonOffsetFactor:-2});const mesh=new THREE.Mesh(geometry,material);mesh.rotation.x=-Math.PI/2;mesh.visible=false;mesh.receiveShadow=true;scene.add(mesh);return mesh;});
+  const map=new THREE.CanvasTexture(c), geometry=new THREE.PlaneGeometry(1.7,1.7,8,8);
+  const pool=Array.from({length:40},()=>{const material=new THREE.MeshStandardMaterial({color:'#780b27',map,transparent:true,opacity:.9,depthWrite:false,roughness:.22,polygonOffset:true,polygonOffsetFactor:-2});const mesh=new THREE.Mesh(geometry,material);mesh.rotation.x=-Math.PI/2;mesh.visible=false;mesh.receiveShadow=true;scene.add(mesh);dream?.attach(mesh);return mesh;});
   let cursor=0;
   return { add(x,z,green=false){const m=pool[cursor++%pool.length];m.visible=true;m.position.set(x,.026+(cursor%4)*.0004,z);m.rotation.z=cursor*2.399;m.material.color.set(green?'#b2cf18':'#a00b32');m.scale.setScalar(.75+(cursor%5)*.09);},clear(){pool.forEach(m=>m.visible=false);cursor=0;},get count(){return Math.min(cursor,pool.length);} };
 }

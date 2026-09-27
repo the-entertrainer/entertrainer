@@ -7,6 +7,8 @@ export function createVolumetricPipeline(renderer, camera, light) {
   sceneTarget.samples = 0;
   sceneTarget.depthTexture = new THREE.DepthTexture(1, 1, THREE.UnsignedIntType);
   const volumeTarget = new THREE.WebGLRenderTarget(1, 1, { depthBuffer: false });
+  const bloomA=new THREE.WebGLRenderTarget(1,1,{depthBuffer:false});
+  const bloomB=new THREE.WebGLRenderTarget(1,1,{depthBuffer:false});
   const quadScene = new THREE.Scene();
   const quadCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   const vertexShader = 'varying vec2 vUv; void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}';
@@ -66,24 +68,52 @@ export function createVolumetricPipeline(renderer, camera, light) {
       }
     `
   });
+  const bloom = new THREE.ShaderMaterial({depthTest:false,depthWrite:false,vertexShader,
+    uniforms:{uSource:{value:sceneTarget.texture},uStep:{value:new THREE.Vector2()},uExtract:{value:1}},
+    fragmentShader:`varying vec2 vUv;uniform sampler2D uSource;uniform vec2 uStep;uniform float uExtract;
+    vec3 sampleBright(vec2 uv){vec3 c=texture2D(uSource,clamp(uv,.001,.999)).rgb;float b=max(c.r,max(c.g,c.b));return uExtract>.5?c*smoothstep(.45,.95,b):c;}
+    void main(){vec3 c=sampleBright(vUv)*.227027;c+=(sampleBright(vUv+uStep*1.384615)+sampleBright(vUv-uStep*1.384615))*.316216;c+=(sampleBright(vUv+uStep*3.230769)+sampleBright(vUv-uStep*3.230769))*.070270;gl_FragColor=vec4(c,1.);}`
+  });
   const composite = new THREE.ShaderMaterial({
-    depthTest: false, depthWrite: false,
-    uniforms: { uColor:{value:sceneTarget.texture},uVolume:{value:volumeTarget.texture},uTime:{value:0} }, vertexShader,
-    fragmentShader: `varying vec2 vUv;uniform sampler2D uColor,uVolume;uniform float uTime;void main(){vec2 p=vUv-.5;vec3 c=texture2D(uColor,vUv).rgb+texture2D(uVolume,vUv).rgb;float grain=fract(sin(dot(vUv*831.,vec2(12.9898,78.233))+floor(uTime*24.))*43758.5453)-.5;c*=1.-.48*dot(p,p);c+=grain*.006;gl_FragColor=vec4(c,1.);#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}`.replace(';#include',';\n#include')
+    depthTest:false,depthWrite:false,vertexShader,
+    uniforms:{uColor:{value:sceneTarget.texture},uVolume:{value:volumeTarget.texture},uBloom:{value:bloomB.texture},uTime:{value:0},uIntensity:{value:0},uMotion:{value:1},uBloomGain:{value:.3}},
+    fragmentShader:`varying vec2 vUv;uniform sampler2D uColor,uVolume,uBloom;uniform float uTime,uIntensity,uMotion,uBloomGain;
+    void main(){
+      vec2 p=vUv-.5;float dream=uMotion*(.18+uIntensity*.65);
+      vec2 uv=clamp(vUv+vec2(sin(vUv.y*16.+uTime*.7),cos(vUv.x*13.-uTime*.5))*.0018*dream,.005,.995);
+      float band=pow(max(0.,sin(vUv.y*22.+uTime*.65)),24.);
+      uv.x+=sin(uTime*1.7)*band*.003*uIntensity*uMotion;
+      vec2 fringe=p*(.002+uIntensity*.009)*uMotion;
+      vec3 c=vec3(texture2D(uColor,uv+fringe).r,texture2D(uColor,uv).g,texture2D(uColor,uv-fringe).b);
+      c+=texture2D(uVolume,uv).rgb+texture2D(uBloom,uv).rgb*uBloomGain;
+      float grain=fract(sin(dot(vUv*831.,vec2(12.9898,78.233))+floor(uTime*12.))*43758.5453)-.5;
+      c*=1.-.58*dot(p,p);c+=grain*.004*uMotion;
+      c=mix(c,c*vec3(1.08,.94,1.08),uIntensity*.25);
+      gl_FragColor=vec4(c,1.);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+    }`
   });
   const quad = new THREE.Mesh(new THREE.PlaneGeometry(2,2),scatter);quad.frustumCulled=false;quadScene.add(quad);
   let quality='balanced';
-  function resize(){const size=renderer.getDrawingBufferSize(new THREE.Vector2());sceneTarget.setSize(size.x,size.y);const scale=quality==='low'?.25:.5;volumeTarget.setSize(Math.max(1,Math.round(size.x*scale)),Math.max(1,Math.round(size.y*scale)));scatter.uniforms.uSteps.value=quality==='low'?12:quality==='high'?36:24;}
+  function resize(){const size=renderer.getDrawingBufferSize(new THREE.Vector2());sceneTarget.setSize(size.x,size.y);const scale=quality==='low'?.25:.5;volumeTarget.setSize(Math.max(1,Math.round(size.x*scale)),Math.max(1,Math.round(size.y*scale)));bloomA.setSize(Math.max(1,Math.round(size.x*.25)),Math.max(1,Math.round(size.y*.25)));bloomB.setSize(bloomA.width,bloomA.height);scatter.uniforms.uSteps.value=quality==='low'?12:quality==='high'?36:24;}
   return {
     resize,
+    setDream(intensity,motion){composite.uniforms.uIntensity.value=intensity;composite.uniforms.uMotion.value=motion?1:0;},
     setQuality(value){quality=value;resize();},
     render(scene,time){
+      renderer.info.reset();
       composite.uniforms.uTime.value=time;
       renderer.setRenderTarget(sceneTarget);renderer.render(scene,camera);
       scatter.uniforms.uTime.value=time;scatter.uniforms.uShadow.value=light.shadow.map?.texture??sceneTarget.texture;scatter.uniforms.uHasShadow.value=light.shadow.map?1:0;
       quad.material=scatter;renderer.setRenderTarget(volumeTarget);renderer.render(quadScene,quadCamera);
+      if(quality!=='low'){
+        quad.material=bloom;bloom.uniforms.uSource.value=sceneTarget.texture;bloom.uniforms.uExtract.value=1;bloom.uniforms.uStep.value.set(1/bloomA.width,0);renderer.setRenderTarget(bloomA);renderer.render(quadScene,quadCamera);
+        bloom.uniforms.uSource.value=bloomA.texture;bloom.uniforms.uExtract.value=0;bloom.uniforms.uStep.value.set(0,1/bloomA.height);renderer.setRenderTarget(bloomB);renderer.render(quadScene,quadCamera);
+      }
+      composite.uniforms.uBloomGain.value=quality==='low'?0:.3;
       quad.material=composite;renderer.setRenderTarget(null);renderer.render(quadScene,quadCamera);
     },
-    dispose(){sceneTarget.dispose();volumeTarget.dispose();scatter.dispose();composite.dispose();quad.geometry.dispose();}
+    dispose(){sceneTarget.dispose();volumeTarget.dispose();bloomA.dispose();bloomB.dispose();bloom.dispose();scatter.dispose();composite.dispose();quad.geometry.dispose();}
   };
 }

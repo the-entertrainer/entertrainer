@@ -9,6 +9,7 @@ import { createAudio } from './audio.js';
 import { createDream } from './dream.js';
 import { createRoach, damageRoach } from './roach.js';
 import { segmentDistance, nextCombo } from './combat.js';
+import { createBattle, createKillCam } from './battle.js';
 
 // Fever Dream: one-finger kitchen defence. Fixed-step simulation; local assets only.
 const $ = (s) => document.querySelector(s);
@@ -44,6 +45,8 @@ const mat = (color, roughness = .65, metalness = 0) => new THREE.MeshStandardMat
 const volume = createVolumetricPipeline(renderer, camera, sun);
 const dream=createDream(reduced);
 const soundscape=createAudio(message=>toast(message));
+const killCam=createKillCam(camera);
+const lookHome=new THREE.Vector3(0,0,-.1);
 let musicEnabled=true,sfxEnabled=true,dreamEnabled=!reduced;
 let slowTime=0,dreamPulse=0,attackCombo=0,lastAttack=-10000,attackKind='';
 const focusPoint=new THREE.Vector3();
@@ -118,6 +121,7 @@ const modelReady=Promise.allSettled([
   modelLoader.loadAsync('./models/plate-dinner.glb').then(g=>{const root=new THREE.Group();root.position.set(2.3,1.51,-4.0);root.add(fitModel(g.scene,.8));scene.add(root);loadedModels.push('Kenney plate');})
 ]);
 const roachPool=Array.from({length:24},(_,i)=>{const mesh=createRoach(i>=18);scene.add(mesh);return{mesh,active:false,green:i>=18,x:0,z:0,hp:1,bite:0,phase:Math.random()*6,dying:0};});
+const battle=createBattle(scene);
 function buildTurret(x,z){const g=new THREE.Group();scene.add(g);g.position.set(x,0,z);const base=mesh(new THREE.CylinderGeometry(.25,.3,.18,12),M.dark,g);base.position.y=.10;const ring=mesh(new THREE.TorusGeometry(.23,.04,6,16),M.yellow,g);ring.rotation.x=-Math.PI/2;ring.position.y=.18;const head=new THREE.Group();g.add(head);head.position.y=.25;ball(0,.08,0,.20,.16,.20,M.steel,head);const barrel=box(.13,.13,.46,M.yellow,0,.08,.24,head);box(.15,.15,.04,M.black,0,.08,.49,head);return {mesh:g,head,x,z,hp:6,cool:0};}
 const socketPositions=[[-2.5,-2.7],[2.5,-2.7]];
 const sockets=socketPositions.map(([x,z])=>{const g=new THREE.Group();scene.add(g);g.position.set(x,0,z);box(.5,.15,.4,M.cream,0,.1,0,g);for(const dx of[-.09,.09])box(.035,.02,.10,M.black,dx,.183,0,g);const led=ball(0,.18,.13,.045,.02,.035,M.green,g);return{mesh:g,led,x,z,hp:6};});
@@ -139,16 +143,17 @@ const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),floorPlane=new THREE.Pla
 function playSound(kind){soundscape.effect(kind);}
 function toast(message){$('#toast').textContent=message;state.toastUntil=performance.now()+2200;$('#toast').classList.add('on');}
 function burst(x,z,green=false){let n=0;for(const p of particles){if(p.life>0)continue;p.life=.45+random()*.25;p.mesh.visible=true;p.mesh.position.set(x,.15,z);p.mesh.material=green?ichor:blood;p.v.set((random()-.5)*2,1+random()*2,(random()-.5)*2);if(++n===16)break;}}
-function kill(r){if(!r.active||r.dying)return;r.dying=.65;splatter.add(r.x,r.z,r.green);trauma=reduced?0:.12;hitStop=reduced?0:.035;haptic(18);state.kills++;state.combo=state.time-state.lastKill<1.5?Math.min(5,state.combo+1):1;state.lastKill=state.time;state.coins+=r.green?3:1;state.score+=(r.green?40:10)*state.combo;burst(r.x,r.z,r.green);soundscape.crunch(true,r.x/3);dreamPulse=Math.min(1,dreamPulse+.35);if(state.kills===1)$('#hint').classList.add('off');}
+function killCamIfFree(r,length){if(held||state.placing||reduced||!dreamEnabled||state.paused)return;if(killCam.trigger(r.x,r.z,gameCamera,length))slowTime=Math.max(slowTime,.58);}
+function kill(r){if(!r.active||r.dying)return;r.dying=.65;splatter.add(r.x,r.z,r.green);trauma=reduced?0:.12;hitStop=reduced?0:.035;haptic(18);state.kills++;state.combo=state.time-state.lastKill<1.5?Math.min(5,state.combo+1):1;state.lastKill=state.time;state.coins+=r.green?3:1;state.score+=(r.green?40:10)*state.combo;burst(r.x,r.z,r.green);soundscape.crunch(true,r.x/3);dreamPulse=Math.min(1,dreamPulse+.35);if(attackKind==='SWIPE'||r.green||state.combo>=3)killCamIfFree(r,r.green?.98:.74);if(state.kills===1)$('#hint').classList.add('off');}
 function spawn(){const greens=state.time>16&&random()<Math.min(.30,.1+state.wave*.025);const r=roachPool.find(r=>!r.active&&r.green===greens);if(!r)return;let side=Math.floor(random()*4);r.x=side===0?-bounds.x:side===1?bounds.x:(random()-.5)*bounds.x*2;r.z=side===2?-bounds.z:side===3?bounds.z:(random()-.5)*bounds.z*2;r.hp=greens?2.8:1;r.bite=.7;r.active=true;r.dying=0;r.mesh.visible=true;r.mesh.scale.setScalar(1);damageRoach(r.mesh,0,0);}
 function validPlacement(x,z){return Math.abs(x)<2.45&&Math.abs(z)<2.7&&Math.hypot(x,z)>1.05&&state.turrets.every(t=>Math.hypot(t.x-x,t.z-z)>.85)&&sockets.every(t=>Math.hypot(t.x-x,t.z-z)>.5);}
-function start(){slowTime=0;dreamPulse=0;attackCombo=0;lastAttack=-10000;gesture.hits.clear();soundscape.setRunning(true);splatter.clear();banana.position.set(0,.04,0);banana.rotation.set(0,0,0);for(const r of roachPool){r.active=false;r.mesh.visible=false;}for(const t of state.turrets)scene.remove(t.mesh);for(const p of particles){p.life=0;p.mesh.visible=false;}for(const b of beams){b.life=0;b.mesh.visible=false;}Object.assign(state,{phase:'play',hp:8,coins:8,time:0,kills:0,wave:1,spawn:1.3,shield:0,over:0,placing:false,turrets:[],score:0,combo:0,lastKill:-10,paused:false});sockets.forEach(s=>{s.hp=6;s.led.material=M.green;});held=false;pointerId=null;lastGreenHint=-10;$('#overlay').hidden=true;$('#hud').hidden=false;$('#shop').hidden=false;$('#hint').classList.remove('off');$('#hint').innerHTML='<b>Tap twice. Swipe through. Chain hits fast.</b><br>Hold to crush · Green armour needs turrets.';$('#pause').disabled=false;toast('Protect the banana. It has no transferable skills.');updateHud();}
-function end(){if(state.phase!=='play')return;state.phase='over';soundscape.setRunning(false);held=false;state.placing=false;pointerRing.visible=false;state.best=Math.max(state.best,state.score);try{localStorage.setItem('entertrainer.fever.best.v2',String(state.best));}catch{}$('#pause').disabled=true;$('#shop').hidden=true;showOverlay('THE NIGHT SHIFT IS OVER','Banana. Gone.',`Wave ${state.wave} · ${state.kills} roaches · ${Math.floor(state.time)} seconds<br><strong>${state.score.toLocaleString()} points</strong> · Best ${state.best.toLocaleString()}`,'Drop another banana',beginIntro);}
-function setPaused(paused){if(state.phase!=='play'&&state.phase!=='intro')return;state.paused=paused;soundscape.setRunning(!paused);held=false;gesture.hits.clear();pointerId=null;pointerRing.visible=false;if(paused)showOverlay('TAKE A BREATHER','Kitchen closed.', 'The roaches can wait. Time and damage are paused.','Resume night shift',()=>setPaused(false));else $('#overlay').hidden=true;}
-function showOverlay(tag,title,body,label,action){$('#overlay').hidden=false;$('#overlay').innerHTML=`<section class="modal-card"><p class="eyebrow">${tag}</p><h1>${title}</h1><p class="intro-copy">${body}</p><button class="primary" id="action">${label} <span>→</span></button><a class="exit" href="/engage" target="_top">Back to Engage</a><a class="credits-link" href="./audio/credits.html" target="_blank" rel="noopener">Music &amp; sound credits</a></section>`;$('#action').onclick=action;$('#action').focus({preventScroll:true});}
-function buy(kind){if(state.phase!=='play'||state.paused)return;if(kind==='turret'){if(state.placing){state.placing=false;toast('Placement cancelled. Your coins are safe.');return;}if(state.coins<6||state.turrets.length>=3)return;state.placing=true;toast('Tap clear floor inside the yellow lines.');}
-if(kind==='over'){if(state.coins<5||state.over>0||!state.turrets.length||!sockets.some(s=>s.hp>0))return;state.coins-=5;state.over=8;playSound('zap');toast('Eight seconds of unreasonable electricity.');}
-if(kind==='wrap'){if(state.coins<8||state.shield>0)return;state.coins-=8;state.shield=3;toast('Three bites covered. This is not a warranty.');}updateHud();}
+function start(){slowTime=0;dreamPulse=0;attackCombo=0;lastAttack=-10000;gesture.hits.clear();killCam.cancel();battle.reset();soundscape.setRunning(true);splatter.clear();banana.position.set(0,.04,0);banana.rotation.set(0,0,0);for(const r of roachPool){r.active=false;r.mesh.visible=false;}for(const t of state.turrets)scene.remove(t.mesh);for(const p of particles){p.life=0;p.mesh.visible=false;}for(const b of beams){b.life=0;b.mesh.visible=false;}Object.assign(state,{phase:'play',hp:8,coins:8,time:0,kills:0,wave:1,spawn:1.3,shield:0,over:0,placing:false,turrets:[],score:0,combo:0,lastKill:-10,paused:false});sockets.forEach(s=>{s.hp=6;s.led.material=M.green;});held=false;pointerId=null;lastGreenHint=-10;$('#overlay').hidden=true;$('#hud').hidden=false;$('#shop').hidden=false;$('#hint').classList.remove('off');$('#hint').innerHTML='Tap · swipe · hold<br>Turrets for green';$('#pause').disabled=false;updateHud();}
+function end(){if(state.phase!=='play')return;state.phase='over';soundscape.setRunning(false);held=false;state.placing=false;pointerRing.visible=false;killCam.cancel();state.best=Math.max(state.best,state.score);try{localStorage.setItem('entertrainer.fever.best.v2',String(state.best));}catch{}$('#pause').disabled=true;$('#shop').hidden=true;showOverlay(`Fever<br><em>${state.score.toLocaleString()}</em>`,`Wave ${state.wave} · Best ${state.best.toLocaleString()}`,'Again',beginIntro);}
+function setPaused(paused){if(state.phase!=='play'&&state.phase!=='intro')return;state.paused=paused;soundscape.setRunning(!paused);held=false;gesture.hits.clear();battle.trailClear();pointerId=null;pointerRing.visible=false;if(paused)showOverlay('Paused','','Resume',()=>setPaused(false));else $('#overlay').hidden=true;}
+function showOverlay(title,meta,label,action){$('#overlay').hidden=false;$('#overlay').innerHTML=`<section class="modal-card"><h1>${title}</h1>${meta?`<p class="scoreline">${meta}</p>`:''}<button class="primary" id="action">${label}</button><a class="exit" href="/engage" target="_top">Exit</a></section>`;$('#action').onclick=action;$('#action').focus({preventScroll:true});}
+function buy(kind){if(state.phase!=='play'||state.paused)return;if(kind==='turret'){if(state.placing){state.placing=false;toast('Cancelled');return;}if(state.coins<6||state.turrets.length>=3)return;state.placing=true;toast('Tap floor');}
+if(kind==='over'){if(state.coins<5||state.over>0||!state.turrets.length||!sockets.some(s=>s.hp>0))return;state.coins-=5;state.over=8;playSound('zap');toast('Overcharge');}
+if(kind==='wrap'){if(state.coins<8||state.shield>0)return;state.coins-=8;state.shield=3;toast('Shield 3');}updateHud();}
 function projectPointer(e){const rect=canvas.getBoundingClientRect();ndc.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(ndc,camera);pointerHit=!!ray.ray.intersectPlane(floorPlane,pointer);return pointerHit;}
 function hit(r,amount,kind){
   if(!r.active||r.dying||r.green)return;
@@ -156,14 +161,21 @@ function hit(r,amount,kind){
   const now=performance.now();attackCombo=nextCombo(attackCombo,lastAttack,now);lastAttack=now;
   focusPoint.set(r.x,0,r.z);dreamPulse=Math.min(1,dreamPulse+.18);
   if(attackCombo>=2&&!reduced&&dreamEnabled)slowTime=.72;
+  if(kind==='SWIPE'){battle.slash(r.x,r.z,Math.atan2(pointer.x-gesture.lastX,pointer.z-gesture.lastY));soundscape.slash(r.x/3);}
   if(r.hp<=0)kill(r);else{soundscape.crunch(false,r.x/3);haptic(8);}
+}
+function bulletHit(r,amount,x,z){
+  if(!r.active||r.dying)return;
+  r.hp-=amount;focusPoint.set(r.x,0,r.z);dreamPulse=Math.min(1,dreamPulse+.12);
+  if(r.hp<=0){attackKind=r.green?'TURRET':'SHOT';kill(r);}
+  else{soundscape.spark(x/3);haptic(6);}
 }
 canvas.addEventListener('pointerdown',e=>{
   e.preventDefault();if(!e.isPrimary||e.button!==0||state.phase!=='play'||state.paused)return;
   projectPointer(e);
   if(state.placing){if(pointerHit&&validPlacement(pointer.x,pointer.z)&&state.coins>=6&&state.turrets.length<3){state.coins-=6;state.turrets.push(buildTurret(pointer.x,pointer.z));state.placing=false;playSound('zap');toast('Turret hired. No lunch break requested.');updateHud();}else toast('Leave space around the banana and other equipment.');return;}
   pointerId=e.pointerId;held=true;canvas.setPointerCapture(e.pointerId);
-  gesture.startX=e.clientX;gesture.startY=e.clientY;gesture.lastX=pointer.x;gesture.lastY=pointer.z;gesture.lastTime=e.timeStamp;gesture.hits.clear();
+  gesture.startX=e.clientX;gesture.startY=e.clientY;gesture.lastX=pointer.x;gesture.lastY=pointer.z;gesture.lastTime=e.timeStamp;gesture.hits.clear();gesture.swished=false;battle.trailClear();
   if(pointerHit){const target=roachPool.filter(r=>r.active&&!r.dying&&!r.green&&Math.hypot(r.x-pointer.x,r.z-pointer.z)<.55).sort((a,b)=>Math.hypot(a.x-pointer.x,a.z-pointer.z)-Math.hypot(b.x-pointer.x,b.z-pointer.z))[0];if(target)hit(target,.56,'TAP');}
 });
 canvas.addEventListener('pointermove',e=>{
@@ -173,12 +185,14 @@ canvas.addEventListener('pointermove',e=>{
   if(held&&pointerHit&&state.phase==='play'&&!state.paused){
     const travel=Math.hypot(e.clientX-gesture.startX,e.clientY-gesture.startY);
     if(travel>12){
+      if(!gesture.swished){gesture.swished=true;soundscape.swipe(pointer.x/3);}
+      battle.trailPush(pointer.x,pointer.z);
       for(const r of roachPool)if(r.active&&!r.dying&&!r.green&&!gesture.hits.has(r)&&segmentDistance(r.x,r.z,oldX,oldZ,pointer.x,pointer.z)<.48){gesture.hits.add(r);hit(r,1.05,'SWIPE');}
     }
     gesture.lastX=pointer.x;gesture.lastY=pointer.z;gesture.lastTime=e.timeStamp;
   }
 });
-function release(e){if(e.pointerId!==pointerId)return;held=false;pointerId=null;gesture.hits.clear();}
+function release(e){if(e.pointerId!==pointerId)return;held=false;pointerId=null;gesture.hits.clear();gesture.swished=false;}
 canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);
 $('#settings').onclick=()=>{const panel=$('#settings-panel');panel.hidden=!panel.hidden;$('#settings').setAttribute('aria-expanded',String(!panel.hidden));};
 $('#quality').onclick=()=>{graphics=graphics==='balanced'?'high':graphics==='high'?'low':'balanced';volume.setQuality(graphics);resize();$('#quality').textContent=graphics==='balanced'?'FX MED':graphics==='high'?'FX HIGH':'FX LOW';};
@@ -192,37 +206,38 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)setPaused(t
 window.addEventListener('blur',()=>{held=false;pointerId=null;if(state.phase==='play'||state.phase==='intro')setPaused(true);});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(state.placing){state.placing=false;updateHud();}else setPaused(!state.paused);}if(e.code==='Space'&&e.target===canvas){e.preventDefault();held=true;pointer.set(0,0,1);pointerHit=true;}});
 document.addEventListener('keyup',e=>{if(e.code==='Space')held=false;});
-canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();setPaused(true);showOverlay('GRAPHICS INTERRUPTED','The lights went out.','Your best score is safe. Reload to reconnect the kitchen.','Reload game',()=>location.reload());});
+canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();setPaused(true);showOverlay('Reload','','Reload',()=>location.reload());});
 
 function tick(dt){if(state.phase!=='play'||state.paused)return;state.time+=dt;state.wave=1+Math.floor(state.time/30);state.over=Math.max(0,state.over-dt);state.spawn-=dt;if(state.spawn<=0){spawn();state.spawn=Math.max(.40,1.45-state.wave*.13);}
   const speed=.28+Math.min(.7,state.wave*.065);
   for(const r of roachPool){if(!r.active)continue;if(r.dying){r.dying-=dt;if(r.dying<=0){r.active=false;r.mesh.visible=false;}continue;}
-    if(held&&pointerHit&&Math.hypot(r.x-pointer.x,r.z-pointer.z)<.52){if(r.green){if(state.time-lastGreenHint>3){toast('Green is shockproof to fingers. Use a turret.');lastGreenHint=state.time;}}else{r.hp-=dt*3.6;if(r.hp<=0){attackKind='CRUSH';kill(r);continue;}}}
+    if(held&&pointerHit&&Math.hypot(r.x-pointer.x,r.z-pointer.z)<.52){if(r.green){if(state.time-lastGreenHint>3){toast('Need turret');lastGreenHint=state.time;}}else{r.hp-=dt*3.6;if(r.hp<=0){attackKind='CRUSH';kill(r);continue;}}}
     const targets=state.turrets.filter(t=>t.hp>0).concat(sockets.filter(s=>s.hp>0));let target=r.green?targets.sort((a,b)=>Math.hypot(r.x-a.x,r.z-a.z)-Math.hypot(r.x-b.x,r.z-b.z))[0]:null;
     // With every wire destroyed, green roaches leave rather than creating an unwinnable soft lock.
     const tx=target?.x??0,tz=target?.z??0;
     if(r.green&&!target){r.hp-=dt;if(r.hp<=0){r.active=false;r.mesh.visible=false;}continue;}
     let dx=tx-r.x,dz=tz-r.z,dist=Math.hypot(dx,dz),limit=r.green?.40:.64;
-    if(dist>limit){r.x+=dx/dist*speed*dt;r.z+=dz/dist*speed*dt;}else{r.bite-=dt;if(r.bite<=0){r.bite=r.green?.65:1.15;if(r.green){target.hp--;if(target.hp<=0){if(target.led)target.led.material=M.black;else{scene.remove(target.mesh);state.turrets=state.turrets.filter(t=>t!==target);}toast(target.led?'Power socket lost. Keep the other one alive.':'Turret down. The union has declined comment.');}}else{if(state.shield>0)state.shield--;else state.hp--;playSound('bite');if(state.hp<=0){state.hp=0;end();return;}}}}
+    if(dist>limit){r.x+=dx/dist*speed*dt;r.z+=dz/dist*speed*dt;}else{r.bite-=dt;if(r.bite<=0){r.bite=r.green?.65:1.15;if(r.green){target.hp--;if(target.hp<=0){if(target.led)target.led.material=M.black;else{scene.remove(target.mesh);state.turrets=state.turrets.filter(t=>t!==target);}toast(target.led?'Socket lost':'Turret down');}}else{if(state.shield>0)state.shield--;else state.hp--;playSound('bite');if(state.hp<=0){state.hp=0;end();return;}}}}
     r.mesh.rotation.y=Math.atan2(dx,dz);
   }
   const power=sockets.some(s=>s.hp>0);
-  for(const t of state.turrets){t.cool-=dt;if(t.cool>0||!power)continue;const target=roachPool.filter(r=>r.active&&!r.dying).sort((a,b)=>Math.hypot(a.x-t.x,a.z-t.z)-Math.hypot(b.x-t.x,b.z-t.z))[0];if(!target||Math.hypot(target.x-t.x,target.z-t.z)>2.6)continue;t.cool=state.over>0?.18:.55;t.head.rotation.y=Math.atan2(target.x-t.x,target.z-t.z);target.hp-=state.over>0?1.1:.72;const beam=beams.find(b=>b.life<=0)||beams[0];beam.life=.09;beam.mesh.visible=true;const pos=beam.mesh.geometry.attributes.position;pos.setXYZ(0,t.x,.42,t.z);pos.setXYZ(1,target.x,.17,target.z);pos.needsUpdate=true;playSound('zap');if(target.hp<=0)kill(target);}
+  for(const t of state.turrets){t.cool-=dt;if(t.cool>0||!power)continue;const target=roachPool.filter(r=>r.active&&!r.dying).sort((a,b)=>Math.hypot(a.x-t.x,a.z-t.z)-Math.hypot(b.x-t.x,b.z-t.z))[0];if(!target||Math.hypot(target.x-t.x,target.z-t.z)>2.8)continue;t.cool=state.over>0?.14:.48;t.head.rotation.y=Math.atan2(target.x-t.x,target.z-t.z);const aimX=t.x+Math.sin(t.head.rotation.y)*.46,aimZ=t.z+Math.cos(t.head.rotation.y)*.46;battle.fire(aimX,.42,aimZ,target.x,.16,target.z,state.over>0?1.05:.68,state.over>0?.09:.03);soundscape.gun(t.x/3);}
+  battle.step(dt,roachPool,bulletHit,(x,z)=>{soundscape.ricochet((x||0)/3);});
 }
 let last=performance.now(),accumulator=0,uiTimer=0,elapsed=0;
 function updateHud(){const sec=Math.floor(state.time);$('#health').textContent=`${state.hp}/8`;$('#health-bar').style.width=`${state.hp/8*100}%`;$('#coins').textContent=state.coins;$('#wave').textContent=`WAVE ${String(state.wave).padStart(2,'0')}`;$('#clock').textContent=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;$('#score').textContent=state.score.toLocaleString();$('#power').textContent=`${sockets.filter(s=>s.hp>0).length}/2 POWER`;$('#turret').disabled=!state.placing&&(state.coins<6||state.turrets.length>=3);$('#turret .name').textContent=state.placing?'Cancel':'Turret';$('#turret .price').textContent=state.placing?'Tap clear floor':'6 coins';$('#over').disabled=state.coins<5||!state.turrets.length||state.over>0||!sockets.some(s=>s.hp>0);$('#over .price').textContent=state.over>0?`${Math.ceil(state.over)}s active`:'5 coins';$('#wrap').disabled=state.coins<8||state.shield>0;$('#wrap .price').textContent=state.shield?`${state.shield} bites left`:'8 coins';}
-function animate(now){const dt=Math.min((now-last)/1000,.05);last=now;if(!state.paused){slowTime=Math.max(0,slowTime-dt);dreamPulse=Math.max(0,dreamPulse-dt*.8);}const timeScale=slowTime>0?.32:1;const simDt=dt*timeScale;if(!state.paused)elapsed+=simDt;hitStop=Math.max(0,hitStop-dt);accumulator+=hitStop>0?0:simDt;let n=0;while(accumulator>=1/60&&n++<4){tick(1/60);accumulator-=1/60;}if(n>=4)accumulator=0;
+function animate(now){const dt=Math.min((now-last)/1000,state.phase==='intro'?.25:.05);last=now;if(!state.paused){slowTime=Math.max(0,slowTime-dt);dreamPulse=Math.max(0,dreamPulse-dt*.8);}const timeScale=slowTime>0?.32:1;const simDt=dt*timeScale;if(!state.paused)elapsed+=simDt;hitStop=Math.max(0,hitStop-dt);accumulator+=hitStop>0?0:simDt;let n=0;while(accumulator>=1/60&&n++<4){tick(1/60);accumulator-=1/60;}if(n>=4)accumulator=0;
   if(!state.paused){for(const r of roachPool){if(!r.active)continue;r.mesh.position.set(r.x,.035,r.z);damageRoach(r.mesh,r.dying?1:1-Math.max(0,r.hp)/(r.green?2.8:1),elapsed);if(r.dying)r.mesh.scale.set(1.15,Math.max(.06,r.dying/.65),1.15);else{r.mesh.scale.setScalar(1);r.mesh.userData.body.position.y=Math.sin(elapsed*16+r.phase)*.012;for(let i=0;i<6;i++)r.mesh.userData.legs[i].rotation.y=Math.sin(elapsed*20+i*.9+r.phase)*.30;}}for(const p of particles){if(p.life<=0)continue;p.life-=simDt;p.v.y-=simDt*5;p.mesh.position.addScaledVector(p.v,simDt);if(p.mesh.position.y<.04){p.mesh.position.y=.04;p.v.y=Math.abs(p.v.y)*.26;p.v.x*=.7;p.v.z*=.7;}p.mesh.scale.setScalar(Math.max(0,p.life*2));if(p.life<=0)p.mesh.visible=false;}for(const b of beams){b.life-=dt;b.mesh.visible=b.life>0;}}
   shield.visible=state.shield>0;pointerRing.visible=held&&pointerHit&&state.phase==='play'&&!state.paused;pointerRing.position.set(pointer.x,.04,pointer.z);pointerRing.scale.setScalar(.95+Math.sin(elapsed*9)*.04);placement.visible=state.placing&&pointerHit&&!state.paused;placement.position.set(pointer.x,.12,pointer.z);placement.material.color.set(validPlacement(pointer.x,pointer.z)?'#ffd43b':'#ed7158');
   if(!reduced&&state.phase==='title'){banana.rotation.y=Math.sin(elapsed*.35)*.1;banana.position.y=.05+Math.sin(elapsed*1.1)*.012;}else if(!cinematic.active)banana.rotation.y=0;
   if(!state.paused)cinematic.update(dt);
-  if(state.phase==='play'&&!state.paused){if(!held){camera.position.copy(gameCamera);const emphasis=dreamEnabled&&!reduced?Math.sin(Math.min(1,slowTime/.72)*Math.PI):0;camera.position.x+=emphasis*(focusPoint.x>=0?.55:-.55);camera.position.y-=emphasis*.25;camera.position.z+=emphasis*.2;}if(trauma>0){trauma=Math.max(0,trauma-dt);camera.position.x+=Math.sin(elapsed*113)*trauma*.3;camera.position.z+=Math.cos(elapsed*97)*trauma*.2;}camera.lookAt(0,0,-.1);}
+  if(state.phase==='play'&&!state.paused){const camLocked=killCam.update(dt,gameCamera,lookHome,held||state.placing);if(!camLocked){if(!held){camera.position.copy(gameCamera);const emphasis=dreamEnabled&&!reduced?Math.sin(Math.min(1,slowTime/.72)*Math.PI):0;camera.position.x+=emphasis*(focusPoint.x>=0?.55:-.55);camera.position.y-=emphasis*.25;camera.position.z+=emphasis*.2;}if(trauma>0){trauma=Math.max(0,trauma-dt);camera.position.x+=Math.sin(elapsed*113)*trauma*.3;camera.position.z+=Math.cos(elapsed*97)*trauma*.2;}camera.lookAt(lookHome);}}
   if(performance.now()>state.toastUntil)$('#toast').classList.remove('on');uiTimer+=dt;if(uiTimer>.12){uiTimer=0;updateHud();}
   const intensity=dreamEnabled&&!reduced?dreamPulse:0;
   dream.update(elapsed,dreamEnabled?1+intensity*.35:0);volume.setDream(intensity,dreamEnabled&&!reduced);
   if(!state.paused){rim.intensity=2.3+intensity*.8;acidLight.intensity=8+(dreamEnabled?Math.sin(elapsed*.8)*1.3:0)+intensity*3;}
   soundscape.update(slowTime>0);
-  const comboVisible=state.phase==='play'&&!state.paused&&performance.now()-lastAttack<1100&&attackCombo>=2;
+  const comboVisible=state.phase==='play'&&!state.paused&&performance.now()-lastAttack<1800&&attackCombo>=2;
   $('#combo').hidden=!comboVisible;$('#combo').textContent=`${attackCombo}× ${attackKind} / FEVER`;
   volume.render(scene,elapsed);requestAnimationFrame(animate);
 }
@@ -231,12 +246,12 @@ const cinematic=createCinematic({camera,banana,reduced,onImpact(){playSound('bit
 function beginIntro(){$('#settings-panel').hidden=true;$('#settings').setAttribute('aria-expanded','false');soundscape.setRunning(true);state.phase='intro';state.paused=false;$('#overlay').hidden=true;$('#hud').hidden=true;$('#shop').hidden=true;$('#pause').disabled=false;held=false;pointerId=null;cinematic.start();}
 $('#skip-intro').onclick=()=>{if(!state.paused)cinematic.skip();};
 for(const type of ['contextmenu','selectstart','dragstart'])document.addEventListener(type,e=>e.preventDefault());
-$('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{toast('Fullscreen is unavailable here. Add to Home Screen for more space.');}};
+$('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{toast('Fullscreen unavailable');}};
 document.addEventListener('fullscreenchange',()=>{$('#fullscreen').setAttribute('aria-pressed',String(!!document.fullscreenElement));resize();});
 function resize(){const w=innerWidth,h=innerHeight,aspect=w/h;renderer.setPixelRatio(Math.min(devicePixelRatio||1,graphics==='low'?1:graphics==='high'?2:1.4));renderer.setSize(w,h,false);camera.aspect=aspect;const distance=Math.max(10.1,6.8/(2*Math.tan(THREE.MathUtils.degToRad(44/2))*aspect));camera.position.set(.1,distance*.82,distance*.62);camera.lookAt(0,0,-.1);camera.updateProjectionMatrix();gameCamera.copy(camera.position);cinematic.resize(gameCamera);volume.resize();}
 window.addEventListener('resize',resize);resize();
 modelReady.then(results=>{$('#loading').hidden=true;if(results.some(r=>r.status==='rejected'))toast('Some kitchen props could not load. The game is still playable.');});
-showOverlay('ENTERTRAINER PRESENTS','Fever<br><em>Dream.</em>','One banana. An unreasonable number of roaches.<br>Tap, swipe, or hold to crush. Chain hits for fever time.<br>Turrets break green armour. Sound starts with play.','Drop into the nightmare',beginIntro);
+showOverlay('Fever<br><em>Dream.</em>','','Play',beginIntro);
 requestAnimationFrame(animate);
 // Read-only observability for smoke tests and diagnostics; no production cheats.
-window.feverSnapshot=()=>({phase:state.phase,paused:state.paused,time:state.time,hp:state.hp,coins:state.coins,kills:state.kills,wave:state.wave,placing:state.placing,turrets:state.turrets.length,renderer:'WebGL',camera:camera.type,models:loadedModels.slice(),volumetrics:'depth-clipped shadowed ray march',quality:graphics,audio:soundscape.snapshot(),attackCombo,attackKind,slowTime,dreamAmount:dream.amount,held,damaged:roachPool.filter(r=>r.active&&r.hp<(r.green?2.8:1)).length,splatters:splatter.count,introTime:cinematic.time,drawCalls:renderer.info.render.calls,active:roachPool.filter(r=>r.active&&!r.dying).map(r=>{const pos=new THREE.Vector3(r.x,.1,r.z).project(camera);return{green:r.green,x:(pos.x+1)*innerWidth/2,y:(1-pos.y)*innerHeight/2};})});
+window.feverSnapshot=()=>({phase:state.phase,paused:state.paused,time:state.time,hp:state.hp,coins:state.coins,kills:state.kills,wave:state.wave,placing:state.placing,turrets:state.turrets.length,renderer:'WebGL',camera:camera.type,models:loadedModels.slice(),volumetrics:'depth-clipped shadowed ray march',quality:graphics,audio:soundscape.snapshot(),attackCombo,attackKind,slowTime,dreamAmount:dream.amount,held,damaged:roachPool.filter(r=>r.active&&r.hp<(r.green?2.8:1)).length,splatters:splatter.count,introTime:cinematic.time,drawCalls:renderer.info.render.calls,killCam:killCam.active,bullets:battle.liveBullets,active:roachPool.filter(r=>r.active&&!r.dying).map(r=>{const cam=camera.clone();cam.position.copy(gameCamera);cam.lookAt(lookHome);cam.updateMatrixWorld();const pos=new THREE.Vector3(r.x,.1,r.z).project(cam);return{green:r.green,x:(pos.x+1)*innerWidth/2,y:(1-pos.y)*innerHeight/2};})});

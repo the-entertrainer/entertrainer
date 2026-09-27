@@ -34,6 +34,7 @@ renderer.info.autoReset=false;
 scene.background = new THREE.Color('#131019');
 scene.fog = new THREE.Fog('#191b20', 22, 44);
 const camera = new THREE.PerspectiveCamera(44, 1, .1, 65);
+const playCam = camera.clone();
 scene.add(new THREE.HemisphereLight('#fff1d4', '#24332e', .75));
 const sun = new THREE.DirectionalLight('#ffe2a8', 3.1);
 sun.position.set(-4, 7, -6); sun.castShadow = true;
@@ -120,7 +121,7 @@ const modelReady=Promise.allSettled([
   modelLoader.loadAsync('./models/bowl.glb').then(g=>{const root=new THREE.Group();root.position.set(.6,1.51,-4.0);root.add(fitModel(g.scene,.7));scene.add(root);loadedModels.push('Kenney bowl');}),
   modelLoader.loadAsync('./models/plate-dinner.glb').then(g=>{const root=new THREE.Group();root.position.set(2.3,1.51,-4.0);root.add(fitModel(g.scene,.8));scene.add(root);loadedModels.push('Kenney plate');})
 ]);
-const roachPool=Array.from({length:24},(_,i)=>{const mesh=createRoach(i>=18);scene.add(mesh);return{mesh,active:false,green:i>=18,x:0,z:0,hp:1,bite:0,phase:Math.random()*6,dying:0};});
+const roachPool=Array.from({length:24},(_,i)=>{const mesh=createRoach(i>=18);scene.add(mesh);return{mesh,active:false,green:i>=18,x:0,z:0,vx:0,vz:0,hp:1,bite:0,phase:Math.random()*6,dying:0};});
 const battle=createBattle(scene);
 function buildTurret(x,z){const g=new THREE.Group();scene.add(g);g.position.set(x,0,z);const base=mesh(new THREE.CylinderGeometry(.25,.3,.18,12),M.dark,g);base.position.y=.10;const ring=mesh(new THREE.TorusGeometry(.23,.04,6,16),M.yellow,g);ring.rotation.x=-Math.PI/2;ring.position.y=.18;const head=new THREE.Group();g.add(head);head.position.y=.25;ball(0,.08,0,.20,.16,.20,M.steel,head);const barrel=box(.13,.13,.46,M.yellow,0,.08,.24,head);box(.15,.15,.04,M.black,0,.08,.49,head);return {mesh:g,head,x,z,hp:6,cool:0};}
 const socketPositions=[[-2.5,-2.7],[2.5,-2.7]];
@@ -143,9 +144,9 @@ const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),floorPlane=new THREE.Pla
 function playSound(kind){soundscape.effect(kind);}
 function toast(message){$('#toast').textContent=message;state.toastUntil=performance.now()+2200;$('#toast').classList.add('on');}
 function burst(x,z,green=false){let n=0;for(const p of particles){if(p.life>0)continue;p.life=.45+random()*.25;p.mesh.visible=true;p.mesh.position.set(x,.15,z);p.mesh.material=green?ichor:blood;p.v.set((random()-.5)*2,1+random()*2,(random()-.5)*2);if(++n===16)break;}}
-function killCamIfFree(r,length){if(held||state.placing||reduced||!dreamEnabled||state.paused)return;if(killCam.trigger(r.x,r.z,gameCamera,length))slowTime=Math.max(slowTime,.58);}
+function killCamIfFree(r,length){if(held||state.placing||reduced||!dreamEnabled||state.paused)return;if(killCam.trigger(r.x,r.z,gameCamera,lookHome,length))slowTime=Math.max(slowTime,.58);}
 function kill(r){if(!r.active||r.dying)return;r.dying=.65;splatter.add(r.x,r.z,r.green);trauma=reduced?0:.12;hitStop=reduced?0:.035;haptic(18);state.kills++;state.combo=state.time-state.lastKill<1.5?Math.min(5,state.combo+1):1;state.lastKill=state.time;state.coins+=r.green?3:1;state.score+=(r.green?40:10)*state.combo;burst(r.x,r.z,r.green);soundscape.crunch(true,r.x/3);dreamPulse=Math.min(1,dreamPulse+.35);if(attackKind==='SWIPE'||r.green||state.combo>=3)killCamIfFree(r,r.green?.98:.74);if(state.kills===1)$('#hint').classList.add('off');}
-function spawn(){const greens=state.time>16&&random()<Math.min(.30,.1+state.wave*.025);const r=roachPool.find(r=>!r.active&&r.green===greens);if(!r)return;let side=Math.floor(random()*4);r.x=side===0?-bounds.x:side===1?bounds.x:(random()-.5)*bounds.x*2;r.z=side===2?-bounds.z:side===3?bounds.z:(random()-.5)*bounds.z*2;r.hp=greens?2.8:1;r.bite=.7;r.active=true;r.dying=0;r.mesh.visible=true;r.mesh.scale.setScalar(1);damageRoach(r.mesh,0,0);}
+function spawn(){const greens=state.time>16&&random()<Math.min(.30,.1+state.wave*.025);const r=roachPool.find(r=>!r.active&&r.green===greens);if(!r)return;let side=Math.floor(random()*4);r.x=side===0?-bounds.x:side===1?bounds.x:(random()-.5)*bounds.x*2;r.z=side===2?-bounds.z:side===3?bounds.z:(random()-.5)*bounds.z*2;r.hp=greens?2.8:1;r.bite=.7;r.vx=0;r.vz=0;r.active=true;r.dying=0;r.mesh.visible=true;r.mesh.scale.setScalar(1);damageRoach(r.mesh,0,0);}
 function validPlacement(x,z){return Math.abs(x)<2.45&&Math.abs(z)<2.7&&Math.hypot(x,z)>1.05&&state.turrets.every(t=>Math.hypot(t.x-x,t.z-z)>.85)&&sockets.every(t=>Math.hypot(t.x-x,t.z-z)>.5);}
 function start(){slowTime=0;dreamPulse=0;attackCombo=0;lastAttack=-10000;gesture.hits.clear();killCam.cancel();battle.reset();soundscape.setRunning(true);splatter.clear();banana.position.set(0,.04,0);banana.rotation.set(0,0,0);for(const r of roachPool){r.active=false;r.mesh.visible=false;}for(const t of state.turrets)scene.remove(t.mesh);for(const p of particles){p.life=0;p.mesh.visible=false;}for(const b of beams){b.life=0;b.mesh.visible=false;}Object.assign(state,{phase:'play',hp:8,coins:8,time:0,kills:0,wave:1,spawn:1.3,shield:0,over:0,placing:false,turrets:[],score:0,combo:0,lastKill:-10,paused:false});sockets.forEach(s=>{s.hp=6;s.led.material=M.green;});held=false;pointerId=null;lastGreenHint=-10;$('#overlay').hidden=true;$('#hud').hidden=false;$('#shop').hidden=false;$('#hint').classList.remove('off');$('#hint').innerHTML='Tap · swipe · hold<br>Turrets for green';$('#pause').disabled=false;updateHud();}
 function end(){if(state.phase!=='play')return;state.phase='over';soundscape.setRunning(false);held=false;state.placing=false;pointerRing.visible=false;killCam.cancel();state.best=Math.max(state.best,state.score);try{localStorage.setItem('entertrainer.fever.best.v2',String(state.best));}catch{}$('#pause').disabled=true;$('#shop').hidden=true;showOverlay(`Fever<br><em>${state.score.toLocaleString()}</em>`,`Wave ${state.wave} · Best ${state.best.toLocaleString()}`,'Again',beginIntro);}
@@ -154,14 +155,14 @@ function showOverlay(title,meta,label,action){$('#overlay').hidden=false;$('#ove
 function buy(kind){if(state.phase!=='play'||state.paused)return;if(kind==='turret'){if(state.placing){state.placing=false;toast('Cancelled');return;}if(state.coins<6||state.turrets.length>=3)return;state.placing=true;toast('Tap floor');}
 if(kind==='over'){if(state.coins<5||state.over>0||!state.turrets.length||!sockets.some(s=>s.hp>0))return;state.coins-=5;state.over=8;playSound('zap');toast('Overcharge');}
 if(kind==='wrap'){if(state.coins<8||state.shield>0)return;state.coins-=8;state.shield=3;toast('Shield 3');}updateHud();}
-function projectPointer(e){const rect=canvas.getBoundingClientRect();ndc.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(ndc,camera);pointerHit=!!ray.ray.intersectPlane(floorPlane,pointer);return pointerHit;}
+function projectPointer(e){const rect=canvas.getBoundingClientRect();ndc.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);playCam.position.copy(gameCamera);playCam.quaternion.copy(camera.quaternion);playCam.aspect=camera.aspect;playCam.fov=camera.fov;playCam.near=camera.near;playCam.far=camera.far;playCam.updateProjectionMatrix();playCam.lookAt(lookHome);playCam.updateMatrixWorld();ray.setFromCamera(ndc,playCam);pointerHit=!!ray.ray.intersectPlane(floorPlane,pointer);return pointerHit;}
 function hit(r,amount,kind){
   if(!r.active||r.dying||r.green)return;
   r.hp-=amount;attackKind=kind;
   const now=performance.now();attackCombo=nextCombo(attackCombo,lastAttack,now);lastAttack=now;
   focusPoint.set(r.x,0,r.z);dreamPulse=Math.min(1,dreamPulse+.18);
   if(attackCombo>=2&&!reduced&&dreamEnabled)slowTime=.72;
-  if(kind==='SWIPE'){battle.slash(r.x,r.z,Math.atan2(pointer.x-gesture.lastX,pointer.z-gesture.lastY));soundscape.slash(r.x/3);}
+  if(kind==='SWIPE'){battle.slash(r.x,r.z,Math.atan2(pointer.x-gesture.lastX,pointer.z-gesture.lastY),Math.hypot(pointer.x-gesture.lastX,pointer.z-gesture.lastY)*2);soundscape.slash(r.x/3);}
   if(r.hp<=0)kill(r);else{soundscape.crunch(false,r.x/3);haptic(8);}
 }
 function bulletHit(r,amount,x,z){
@@ -173,7 +174,7 @@ function bulletHit(r,amount,x,z){
 canvas.addEventListener('pointerdown',e=>{
   e.preventDefault();if(!e.isPrimary||e.button!==0||state.phase!=='play'||state.paused)return;
   projectPointer(e);
-  if(state.placing){if(pointerHit&&validPlacement(pointer.x,pointer.z)&&state.coins>=6&&state.turrets.length<3){state.coins-=6;state.turrets.push(buildTurret(pointer.x,pointer.z));state.placing=false;playSound('zap');toast('Turret hired. No lunch break requested.');updateHud();}else toast('Leave space around the banana and other equipment.');return;}
+  if(state.placing){if(pointerHit&&validPlacement(pointer.x,pointer.z)&&state.coins>=6&&state.turrets.length<3){state.coins-=6;state.turrets.push(buildTurret(pointer.x,pointer.z));state.placing=false;playSound('zap');toast('Turret up');updateHud();}else toast('No space');return;}
   pointerId=e.pointerId;held=true;canvas.setPointerCapture(e.pointerId);
   gesture.startX=e.clientX;gesture.startY=e.clientY;gesture.lastX=pointer.x;gesture.lastY=pointer.z;gesture.lastTime=e.timeStamp;gesture.hits.clear();gesture.swished=false;battle.trailClear();
   if(pointerHit){const target=roachPool.filter(r=>r.active&&!r.dying&&!r.green&&Math.hypot(r.x-pointer.x,r.z-pointer.z)<.55).sort((a,b)=>Math.hypot(a.x-pointer.x,a.z-pointer.z)-Math.hypot(b.x-pointer.x,b.z-pointer.z))[0];if(target)hit(target,.56,'TAP');}
@@ -217,11 +218,11 @@ function tick(dt){if(state.phase!=='play'||state.paused)return;state.time+=dt;st
     const tx=target?.x??0,tz=target?.z??0;
     if(r.green&&!target){r.hp-=dt;if(r.hp<=0){r.active=false;r.mesh.visible=false;}continue;}
     let dx=tx-r.x,dz=tz-r.z,dist=Math.hypot(dx,dz),limit=r.green?.40:.64;
-    if(dist>limit){r.x+=dx/dist*speed*dt;r.z+=dz/dist*speed*dt;}else{r.bite-=dt;if(r.bite<=0){r.bite=r.green?.65:1.15;if(r.green){target.hp--;if(target.hp<=0){if(target.led)target.led.material=M.black;else{scene.remove(target.mesh);state.turrets=state.turrets.filter(t=>t!==target);}toast(target.led?'Socket lost':'Turret down');}}else{if(state.shield>0)state.shield--;else state.hp--;playSound('bite');if(state.hp<=0){state.hp=0;end();return;}}}}
+    if(dist>limit){r.vx=dx/dist*speed;r.vz=dz/dist*speed;r.x+=r.vx*dt;r.z+=r.vz*dt;}else{r.vx=0;r.vz=0;r.bite-=dt;if(r.bite<=0){r.bite=r.green?.65:1.15;if(r.green){target.hp--;if(target.hp<=0){if(target.led)target.led.material=M.black;else{scene.remove(target.mesh);state.turrets=state.turrets.filter(t=>t!==target);}toast(target.led?'Socket lost':'Turret down');}}else{if(state.shield>0)state.shield--;else state.hp--;playSound('bite');if(state.hp<=0){state.hp=0;end();return;}}}}
     r.mesh.rotation.y=Math.atan2(dx,dz);
   }
   const power=sockets.some(s=>s.hp>0);
-  for(const t of state.turrets){t.cool-=dt;if(t.cool>0||!power)continue;const target=roachPool.filter(r=>r.active&&!r.dying).sort((a,b)=>Math.hypot(a.x-t.x,a.z-t.z)-Math.hypot(b.x-t.x,b.z-t.z))[0];if(!target||Math.hypot(target.x-t.x,target.z-t.z)>2.8)continue;t.cool=state.over>0?.14:.48;t.head.rotation.y=Math.atan2(target.x-t.x,target.z-t.z);const aimX=t.x+Math.sin(t.head.rotation.y)*.46,aimZ=t.z+Math.cos(t.head.rotation.y)*.46;battle.fire(aimX,.42,aimZ,target.x,.16,target.z,state.over>0?1.05:.68,state.over>0?.09:.03);soundscape.gun(t.x/3);}
+  for(const t of state.turrets){t.cool-=dt;if(t.cool>0||!power)continue;const target=roachPool.filter(r=>r.active&&!r.dying).sort((a,b)=>Math.hypot(a.x-t.x,a.z-t.z)-Math.hypot(b.x-t.x,b.z-t.z))[0];if(!target||Math.hypot(target.x-t.x,target.z-t.z)>2.8)continue;const range=Math.hypot(target.x-t.x,target.z-t.z);const lead=range/18;const aimAtX=target.x+(target.vx||0)*lead,aimAtZ=target.z+(target.vz||0)*lead;t.cool=state.over>0?.16:.5;t.head.rotation.y=Math.atan2(aimAtX-t.x,aimAtZ-t.z);const aimX=t.x+Math.sin(t.head.rotation.y)*.48,aimZ=t.z+Math.cos(t.head.rotation.y)*.48;if(battle.fire(aimX,.42,aimZ,aimAtX,.16,aimAtZ,state.over>0?1.05:.68,state.over>0?.07:.025))soundscape.gun(t.x/3);}
   battle.step(dt,roachPool,bulletHit,(x,z)=>{soundscape.ricochet((x||0)/3);});
 }
 let last=performance.now(),accumulator=0,uiTimer=0,elapsed=0;
@@ -238,12 +239,12 @@ function animate(now){const dt=Math.min((now-last)/1000,state.phase==='intro'?.2
   if(!state.paused){rim.intensity=2.3+intensity*.8;acidLight.intensity=8+(dreamEnabled?Math.sin(elapsed*.8)*1.3:0)+intensity*3;}
   soundscape.update(slowTime>0);
   const comboVisible=state.phase==='play'&&!state.paused&&performance.now()-lastAttack<1800&&attackCombo>=2;
-  $('#combo').hidden=!comboVisible;$('#combo').textContent=`${attackCombo}× ${attackKind} / FEVER`;
+  $('#combo').hidden=!comboVisible;$('#combo').textContent=`${attackCombo}× ${attackKind}`;
   volume.render(scene,elapsed);requestAnimationFrame(animate);
 }
 const gameCamera=new THREE.Vector3();
 const cinematic=createCinematic({camera,banana,reduced,onImpact(){playSound('bite');haptic([25,30,45]);document.querySelector('#cinema').classList.add('impact');},onComplete(){document.querySelector('#cinema').classList.remove('impact');start();}});
-function beginIntro(){$('#settings-panel').hidden=true;$('#settings').setAttribute('aria-expanded','false');soundscape.setRunning(true);state.phase='intro';state.paused=false;$('#overlay').hidden=true;$('#hud').hidden=true;$('#shop').hidden=true;$('#pause').disabled=false;held=false;pointerId=null;cinematic.start();}
+function beginIntro(){$('#settings-panel').hidden=true;$('#settings').setAttribute('aria-expanded','false');soundscape.setRunning(true);killCam.cancel();battle.reset();for(const r of roachPool){r.active=false;r.mesh.visible=false;}for(const t of state.turrets)scene.remove(t.mesh);state.turrets=[];for(const p of particles){p.life=0;p.mesh.visible=false;}for(const b of beams){b.life=0;b.mesh.visible=false;}state.phase='intro';state.paused=false;$('#overlay').hidden=true;$('#hud').hidden=true;$('#shop').hidden=true;$('#pause').disabled=false;held=false;pointerId=null;cinematic.start();}
 $('#skip-intro').onclick=()=>{if(!state.paused)cinematic.skip();};
 for(const type of ['contextmenu','selectstart','dragstart'])document.addEventListener(type,e=>e.preventDefault());
 $('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{toast('Fullscreen unavailable');}};

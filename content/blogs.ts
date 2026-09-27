@@ -196,6 +196,20 @@ export const BLOG_POSTS: BlogPost[] = [
     heroAlt: 'Cream-paper ink drawing: two heads divided by a cobalt seam, a hand finding a key on one side, a speaking mouth on the other.',
     status: 'published',
     publishedAt: '2026-09-22T15:45:00+00:00'
+  },
+  {
+    slug: 'can-you-reverse-the-spin-of-a-schwarz-surface',
+    title: 'Can you reverse the spin?',
+    dek: 'A short asks if a glowing lattice can turn the other way. The object is a Schwarz P surface — a soap film that tiles space — and the spin was never its idea.',
+    socialHook: 'A clip spins a glowing lattice and dares you to reverse it. The wall is three cosines adding to zero. Spin is the camera, not the surface.',
+    socialTitle: 'Can you reverse the spin of a Schwarz surface?',
+    category: 'Science',
+    tags: ['maths', 'geometry', 'minimal-surfaces'],
+    minutes: 6,
+    hero: '/blog/schwarz-surface/hero.jpg',
+    heroAlt: 'Cream field with nested ink ellipses and one gold ring, a quiet diagram of a repeating tunnel.',
+    status: 'published',
+    publishedAt: '2026-09-27T16:30:00+00:00'
   }
 ]
 
@@ -212,4 +226,5 @@ export const CENTRE_UNIVERSE_BLOG = BLOG_POSTS[8]
 export const KNOWING_BLOG = BLOG_POSTS[9]
 export const TAJJALAN_BLOG = BLOG_POSTS[10]
 export const SPLIT_BRAIN_BLOG = BLOG_POSTS[11]
+export const SCHWARZ_BLOG = BLOG_POSTS[12]
 export const FEATURED_BLOG = ENTROPY_BLOG

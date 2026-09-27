@@ -66,6 +66,8 @@ function eligible(
   if (era === 'later' && calendar < 2041) return false
   if (card.need && !card.need.every((f) => flags.has(f))) return false
   if (card.block && card.block.some((f) => flags.has(f))) return false
+  const flips = ['the_flip', 'hole_flip', 'bridge_flip']
+  if (flips.includes(card.id) && flips.some((id) => seen.has(id))) return false
   if (card.any && !card.any.some((f) => flags.has(f))) return false
   if (card.maxGauge) {
     for (const key of Object.keys(card.maxGauge) as Gauge[]) {
@@ -145,7 +147,14 @@ export function createNetagiri(random: () => number = Math.random) {
 
   function spineId(): string | null {
     if (turn === 0) return calendar <= 2040 ? 'oath_now' : 'oath_later'
-    if (flags.has('crossed') && !seen.has('the_flip')) return 'the_flip'
+    if (flags.has('crossed')) {
+      const flipped = seen.has('the_flip') || seen.has('hole_flip') || seen.has('bridge_flip')
+      if (!flipped) {
+        if (flags.has('renamed')) return 'hole_flip'
+        if (flags.has('ribbon')) return 'bridge_flip'
+        return 'the_flip'
+      }
+    }
     if (turn >= 36 && !seen.has('immortal')) return 'immortal'
     return null
   }

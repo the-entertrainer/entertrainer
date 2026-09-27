@@ -1,634 +1,322 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 
-import { GAUGES, chairOf, type Gauge } from '~/utils/netagiri/cards'
-import { createNetagiri, clampYear, leaderName, speak, type Netagiri, type Snapshot } from '~/utils/netagiri/game'
-import { lookOf } from '~/utils/netagiri/stage'
-import { createScore, type Score } from '~/utils/netagiri/score'
 import { useThemeStore } from '~/stores/theme'
 
 useSeoMeta({
-  title: 'Netagiri · Engage',
-  description: 'Balance the pillars. Survive your term. Swipe left to reject, swipe right to approve.',
+  title: 'NETAGIRI · Engage',
+  description: 'Balance the pillars. Survive your term.',
   ogUrl: 'https://entertrainer.in/engage/netagiri'
 })
 
-const BEST_KEY = 'entertrainer-netagiri-best'
-const MUTE_KEY = 'entertrainer-netagiri-mute'
-const NAME_KEY = 'entertrainer-netagiri-name'
-const PARTY_KEY = 'entertrainer-netagiri-party'
-const RUNS_KEY = 'entertrainer-netagiri-runs'
+type Side = { text: string; impact: number[] }
+type Card = { id: string; character: string; title: string; text: string; left: Side; right: Side }
+
+const DECK: Card[] = [
+  { id: 'media_inflation_1', character: 'Nandini', title: 'Prime-Time Anchor', text: "Inflation hit double digits this morning, Prime Minister. I can bury the story under a debate about the opposition's historical blunders, but my network needs the exclusive broadcast rights for the cricket league.", left: { text: 'Report the actual inflation numbers.', impact: [10, 0, -15, 5] }, right: { text: 'Give her the cricket rights. Start the debate.', impact: [-10, -15, 15, -10] } },
+  { id: 'bureau_files_1', character: 'Hakim', title: 'Cabinet Secretary', text: "The Supreme Court has demanded the original files on the telecom spectrum allocation. Unfortunately, the archives 'flooded' last night and the files are pulp. Do I send the wet pulp, or inform them of a tragic electrical fire?", left: { text: 'Send the wet pulp. We hide nothing.', impact: [5, 0, -15, 15] }, right: { text: 'Electrical fire. Draft a condolence tweet for the files.', impact: [-5, 0, 15, -20] } },
+  { id: 'party_rally_1', character: 'Pinky', title: 'General Secretary', text: 'The rally crowd is thinning out, boss. The opposition is distributing free pressure cookers across the street. We can send the local police to seize their trucks, or announce a spontaneous cash handout right now.', left: { text: 'Send the police to seize the cookers.', impact: [-10, 0, 15, -15] }, right: { text: 'Open the treasury. Hand out cash.', impact: [15, -20, 10, -10] } },
+  { id: 'coalition_budget_1', character: 'Netaji', title: 'Coalition Partner', text: 'My state needs a special economic development package of ten thousand crores. Issue the funds by tomorrow morning, or my twelve MPs are walking out of the monsoon session.', left: { text: 'Walk out. We do not negotiate with blackmailers.', impact: [10, 15, -30, 5] }, right: { text: 'Sign the package. Save the majority.', impact: [-5, -20, 20, -5] } },
+  { id: 'religion_land_1', character: 'Swami Anandeshwar', title: 'Godman', text: "My ashram's tax exemption expires this week. Renew it for a decade, and my disciples will vote en masse. Let it expire, and I will declare your government cursed on live television.", left: { text: 'Pay your taxes like everyone else.', impact: [5, 10, -20, 15] }, right: { text: 'Stamp the renewal. Keep the blessing.', impact: [-5, -15, 15, -10] } },
+  { id: 'tycoon_tender_1', character: 'Aditya', title: 'Industrialist', text: 'My conglomerate is bidding for the new international airport. We are quoting double the market rate, but we also fully funded your last election campaign. I expect the envelope to be opened in my favor.', left: { text: 'Award the contract to the lowest valid bidder.', impact: [10, 15, -25, 10] }, right: { text: 'Award it to Aditya. Adjust the budget.', impact: [-15, -20, 20, -15] } },
+  { id: 'law_protest_1', character: 'DGP Sharma', title: 'Director General of Police', text: 'The student unions are blocking the national highway demanding employment. I have water cannons and tear gas on standby. Give the word, and the highway will be clear in twenty minutes.', left: { text: 'Let them protest peacefully. Divert traffic.', impact: [15, -5, -10, 5] }, right: { text: 'Clear the highway. Use the cannons.', impact: [-20, 5, 10, -10] } },
+  { id: 'foreign_envoy_1', character: 'The Envoy', title: 'Foreign Diplomat', text: 'Prime Minister, my government is willing to lower tariffs on your agricultural exports. In return, we require you to abstain from the UN vote condemning our recent military exercises.', left: { text: 'We stand by international law. We will vote to condemn.', impact: [10, -15, -5, 15] }, right: { text: 'Abstain from the vote. Secure the tariffs.', impact: [-10, 20, 10, -5] } },
+  { id: 'party_nepotism_1', character: 'Aunty', title: 'Party Treasurer', text: "Your sister's boy failed his civil services preliminary for the third time. The State Mining Corporation needs a new Managing Director anyway. I already have the rubber stamp.", left: { text: 'Tell him to study for the fourth attempt.', impact: [5, 0, -15, 10] }, right: { text: 'Appoint him. Tell him not to speak to reporters.', impact: [-10, -10, 15, -15] } },
+  { id: 'bureau_bridge_1', character: 'Hakim', title: 'Cabinet Secretary', text: "The new suspension bridge collapsed before the inauguration. The contractor used inferior steel. I can arrest the contractor, but he is Netaji's brother-in-law.", left: { text: 'Arrest the contractor immediately.', impact: [15, 10, -25, 15] }, right: { text: 'Blame an unprecedented seismic event.', impact: [-20, -15, 15, -20] } },
+  { id: 'media_leak_1', character: 'Nandini', title: 'Prime-Time Anchor', text: 'I received a leaked audio tape of your Defense Minister negotiating kickbacks. I can destroy the tape, but I want the first exclusive interview with you before the national elections.', left: { text: 'Run the tape. I will fire the Minister tonight.', impact: [20, 0, -25, 15] }, right: { text: 'Destroy it. You have your exclusive interview.', impact: [-15, 0, 15, -15] } },
+  { id: 'tycoon_bailout_1', character: 'Aditya', title: 'Industrialist', text: "My telecom company owes the government fifty thousand crores in licensing fees. If you don't convert this debt into equity by midnight, I will declare bankruptcy and fire fifty thousand employees.", left: { text: 'Let it fail. Seize the assets.', impact: [15, 20, -20, 10] }, right: { text: 'Bail him out. Convert the debt.', impact: [-20, -25, 15, -10] } },
+  { id: 'party_statue_1', character: 'Pinky', title: 'General Secretary', text: "The municipal budget has a surplus. We can upgrade the district hospital's ICU, or build a 150-foot bronze statue of our party founder right in the city center.", left: { text: 'Upgrade the ICU. Save lives.', impact: [20, -15, -10, 0] }, right: { text: 'Build the statue. Secure the legacy.', impact: [-10, -15, 20, 0] } },
+  { id: 'religion_curriculum_1', character: 'Swami Anandeshwar', title: 'Godman', text: "The central education board is revising the history textbooks. Ensure my ashram's teachings are included in the mandatory syllabus, or my followers will burn the textbooks in the streets.", left: { text: 'Keep education secular. Reject the demand.', impact: [10, 0, -20, 15] }, right: { text: 'Rewrite the syllabus. Include the teachings.', impact: [-15, -5, 15, -15] } },
+  { id: 'law_pil_1', character: 'Chief Justice', title: 'Supreme Court', text: 'A Public Interest Litigation challenges your new executive order bypassing parliament. Withdraw the order, or we will strike it down and hold you in contempt.', left: { text: 'Withdraw the order. Respect the court.', impact: [5, 0, -15, 20] }, right: { text: 'Ignore them. The mandate is mine.', impact: [-10, 0, 20, -25] } }
+]
+
+const GAMEOVER: Record<string, string> = {
+  janta_0: 'The streets are burning. A nationwide strike has paralyzed the capital. You have been forced to resign and flee via helicopter.',
+  janta_100: "You gave them everything. The state is a populist utopia, but the institutions have collapsed under mob rule. The military has stepped in 'to restore order.'",
+  khazana_0: 'The treasury is empty. The IMF has taken over the national budget, and your government has defaulted. You are ousted in a vote of no confidence.',
+  khazana_100: 'You hoarded wealth like a medieval king while the country starved. A massive anti-corruption crusade has thrown you into federal prison.',
+  kursi_0: 'Your coalition partners walked out. Your own party members passed a leadership challenge while you were sleeping. You are a backbencher now.',
+  kursi_100: "You became a tyrant. The High Command realized you were too powerful to control and orchestrated an internal coup. You have been 'retired' for health reasons.",
+  kanoon_0: 'The Supreme Court has struck down your government as unconstitutional. You are facing twenty-four separate CBI probes and a lifetime ban from politics.',
+  kanoon_100: 'You followed the rulebook so strictly that nothing got done. Bureaucratic gridlock paralyzed the nation, and you were historically defeated in a snap election.'
+}
+
+const FACE: Record<string, string> = {
+  Nandini: '/netagiri/cast/nandini-scheme.png',
+  Hakim: '/netagiri/cast/hakim-scheme.png',
+  Pinky: '/netagiri/cast/pinky-scheme.png',
+  Netaji: '/netagiri/cast/netaji-scheme.png',
+  'Swami Anandeshwar': '/netagiri/cast/baba-scheme.png',
+  Aditya: '/netagiri/cast/lalaji-scheme.png',
+  'DGP Sharma': '/netagiri/cast/captain-scheme.png',
+  'The Envoy': '/netagiri/cast/envoy-scheme.png',
+  Aunty: '/netagiri/cast/mausi-scheme.png',
+  'Chief Justice': '/netagiri/cast/justice-scheme.png'
+}
+
+const KEYS = ['Janta', 'Khazana', 'Kursi', 'Kanoon'] as const
+const KEYLOW = ['janta', 'khazana', 'kursi', 'kanoon'] as const
+
 const theme = useThemeStore()
-const name = ref('')
-const party = ref('the Front')
-const year = ref(2026)
-const partyChips = ['the Front', 'Ribbon Front', 'National Chair', 'People\'s List', 'Clean Ticket']
-const pastRuns = ref<{ name: string; party: string; years: number; year: number }[]>([])
-const best = ref(0)
-const muted = ref(false)
-const snap = ref<Snapshot | null>(null)
+const screen = ref<'start' | 'game' | 'over'>('start')
+const stats = ref({ Janta: 50, Khazana: 50, Kursi: 50, Kanoon: 50 })
+const year = ref(1)
+const cur = ref<Card | null>(null)
+const queue = ref<Card[]>([])
+const overStory = ref('')
 const drag = ref(0)
-const flying = ref<'left' | 'right' | ''>('')
-const reduced = ref(false)
-const arriving = ref(false)
-const hover = ref<'left' | 'right' | ''>('')
-const leanX = ref(0)
-const leanY = ref(0)
-
-let game: Netagiri | null = null
-let startX = 0
+const flying = ref(0)
 let dragging = false
-let score: Score | null = null
+let startX = 0
 
-const phase = computed(() => snap.value?.phase ?? 'title')
-const card = computed(() => snap.value?.card ?? null)
-const chair = computed(() => (snap.value ? chairOf(new Set(snap.value.flags)) : 'Prime Minister'))
-const displayYear = computed(() => {
-  const n = Number(year.value)
-  return Number.isFinite(n) ? Math.round(n) : '—'
-})
-const yearChips = [2026, 2038, 2100, 9999]
-const shownName = computed(() => leaderName(name.value))
-const look = computed(() => card.value ? lookOf(card.value) : null)
-const line = computed(() => {
-  if (!card.value || !snap.value) return ''
-  return speak(card.value.text, snap.value.name, snap.value.party)
-})
-const leftLine = computed(() => {
-  if (!card.value || !snap.value) return ''
-  return speak(card.value.left.text, snap.value.name, snap.value.party)
-})
-const rightLine = computed(() => {
-  if (!card.value || !snap.value) return ''
-  return speak(card.value.right.text, snap.value.name, snap.value.party)
-})
-const stageStyle = computed(() => ({
-  '--px': leanX.value.toFixed(3),
-  '--py': leanY.value.toFixed(3)
-}))
-const eraLine = computed(() => {
-  const n = Number(year.value)
-  if (!Number.isFinite(n) || n < 2026 || n > 9999) return 'The chair only opens from 2026 to 9999.'
-  if (n > 2040) return 'Same jokes. Domes, holograms, and a ribbon.'
-  if (n >= 2036) return 'A few years of now. Then the year flips.'
-  return 'Onions, ribbons, and a hundred days.'
-})
-
-function refresh() {
-  snap.value = game?.snapshot() ?? null
-  arriving.value = true
+function shuffle(arr: Card[]) {
+  const a = arr.slice()
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const tmp = a[i]
+    a[i] = a[j]
+    a[j] = tmp
+  }
+  return a
 }
 
-function toggleMute() {
-  muted.value = !muted.value
-  score?.setMuted(muted.value)
-  try { localStorage.setItem(MUTE_KEY, muted.value ? '1' : '0') } catch { /* private mode */ }
+function meterColor(v: number) {
+  if (v <= 20 || v >= 80) return 'var(--ng-red)'
+  if (v <= 35 || v >= 65) return 'var(--accent)'
+  return 'var(--ng-green)'
 }
 
-function begin() {
-  score = score ?? createScore()
-  score.setMuted(muted.value)
-  score.start(clampYear(Number(year.value)), Math.random())
-  game = createNetagiri()
-  game.start(name.value, Number(year.value), party.value)
-  flying.value = ''
+function drawCard() {
+  if (!queue.value.length) queue.value = shuffle(DECK)
+  cur.value = queue.value.pop() ?? null
   drag.value = 0
-  try {
-    localStorage.setItem(NAME_KEY, name.value)
-    localStorage.setItem(PARTY_KEY, party.value)
-  } catch { /* private mode */ }
-  refresh()
+  flying.value = 0
 }
 
-function onName(event: Event) {
-  const raw = (event.target as HTMLInputElement).value
-  name.value = raw.replace(/[^A-Za-z]/g, '').slice(0, 16)
+function newGame() {
+  stats.value = { Janta: 50, Khazana: 50, Kursi: 50, Kanoon: 50 }
+  queue.value = shuffle(DECK)
+  year.value = 1
+  drag.value = 0
+  flying.value = 0
+  screen.value = 'game'
+  drawCard()
 }
 
-function initials(label: string) {
-  return label.split(/\s+/).filter(Boolean).map((w) => w[0]).join('').slice(0, 3).toUpperCase()
-}
-
-function rememberBest() {
-  const years = snap.value?.end?.years ?? 0
-  if (years > best.value) {
-    best.value = years
-    try { localStorage.setItem(BEST_KEY, String(years)) } catch { /* private mode */ }
+function checkOver() {
+  for (let i = 0; i < KEYS.length; i++) {
+    const v = stats.value[KEYS[i]]
+    if (v <= 0) return GAMEOVER[KEYLOW[i] + '_0']
+    if (v >= 100) return GAMEOVER[KEYLOW[i] + '_100']
   }
-  if (snap.value?.phase === 'end' && snap.value.end) {
-    score?.soften()
-    const row = {
-      name: snap.value.end.name,
-      party: snap.value.end.party,
-      years,
-      year: snap.value.end.calendar
-    }
-    pastRuns.value = [row, ...pastRuns.value.filter((r) => r.name !== row.name || r.year !== row.year)].slice(0, 6)
-    try { localStorage.setItem(RUNS_KEY, JSON.stringify(pastRuns.value)) } catch { /* private mode */ }
-  }
+  return null
 }
 
-function pick(hand: 'left' | 'right') {
-  if (phase.value !== 'play' || flying.value) return
-  try { navigator.vibrate?.(12) } catch { /* no actuator */ }
-  if (reduced.value) {
-    game?.choose(hand)
-    refresh()
-    rememberBest()
-    return
-  }
-  flying.value = hand
+function resolve(approve: boolean) {
+  if (!cur.value || flying.value) return
+  flying.value = approve ? 1 : -1
+  const choice = approve ? cur.value.right : cur.value.left
+  const next = { ...stats.value }
+  KEYS.forEach((k, i) => {
+    next[k] = Math.max(0, Math.min(100, next[k] + choice.impact[i]))
+  })
+  stats.value = next
+  const ended = checkOver()
   window.setTimeout(() => {
-    game?.choose(hand)
-    flying.value = ''
-    drag.value = 0
-    refresh()
-    rememberBest()
-  }, 240)
-}
-const aim = computed<'left' | 'right' | ''>(() => {
-  if (flying.value) return flying.value
-  if (drag.value > 16) return 'right'
-  if (drag.value < -16) return 'left'
-  return hover.value
-})
-
-function marked(key: Gauge) {
-  const hand = aim.value
-  const current = card.value
-  if (!hand || !current) return false
-  const side = current[hand]
-  return !!side.d?.[key]
+    if (ended) {
+      overStory.value = ended
+      screen.value = 'over'
+    } else {
+      year.value += 1
+      drawCard()
+    }
+  }, 280)
 }
 
-function onDown(event: PointerEvent) {
-  if (phase.value !== 'play' || flying.value) return
-  arriving.value = false
+function onDown(e: PointerEvent) {
+  if (flying.value) return
   dragging = true
-  startX = event.clientX
-  ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
+  startX = e.clientX
+  ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
 }
-
-function onMove(event: PointerEvent) {
+function onMove(e: PointerEvent) {
   if (!dragging) return
-  drag.value = event.clientX - startX
-  const box = (event.currentTarget as HTMLElement).getBoundingClientRect()
-  leanX.value = ((event.clientX - box.left) / box.width - 0.5) * 2
-  leanY.value = ((event.clientY - box.top) / box.height - 0.5) * 2
+  drag.value = e.clientX - startX
 }
-
 function onUp() {
   if (!dragging) return
   dragging = false
-  if (drag.value > 72) pick('right')
-  else if (drag.value < -72) pick('left')
+  if (drag.value > 90) resolve(true)
+  else if (drag.value < -90) resolve(false)
   else drag.value = 0
 }
 
-function danger(n: number) {
-  return n <= 18 || n >= 82
-}
-
-onMounted(() => {
-  try { best.value = Number(localStorage.getItem(BEST_KEY) || 0) || 0 } catch { best.value = 0 }
-  try { muted.value = localStorage.getItem(MUTE_KEY) === '1' } catch { muted.value = false }
-  try { name.value = localStorage.getItem(NAME_KEY) || '' } catch { /* empty */ }
-  try { party.value = localStorage.getItem(PARTY_KEY) || 'the Front' } catch { /* empty */ }
-  try { pastRuns.value = JSON.parse(localStorage.getItem(RUNS_KEY) || '[]') } catch { pastRuns.value = [] }
-  reduced.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const hint = computed(() => {
+  const t = Math.min(Math.abs(drag.value) / 100, 1)
+  return { l: drag.value < 0 ? t : 0, r: drag.value > 0 ? t : 0 }
 })
-
-onBeforeUnmount(() => score?.stop())
+const cardStyle = computed(() => {
+  if (flying.value) {
+    return {
+      transform: `translate(${flying.value * 500}px, -40px) rotate(${flying.value * 30}deg)`,
+      opacity: '0',
+      transition: 'transform .35s ease, opacity .35s ease'
+    }
+  }
+  return {
+    transform: `translate(${drag.value}px, 0) rotate(${drag.value / 18}deg)`,
+    transition: dragging ? 'none' : 'transform .3s ease'
+  }
+})
 </script>
 
 <template>
-  <div class="ng" :data-ng-theme="theme.theme">
-    <NuxtLink to="/engage" class="ng__icon ng__back" aria-label="Back to Engage" @pointerdown.stop>
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 9 12l6 6" /></svg>
+  <div class="ng" :data-theme="theme.theme">
+    <NuxtLink to="/engage" class="ng__icon ng__back" aria-label="Back to Engage">
+      <svg viewBox="0 0 24 24"><path d="M15 6 9 12l6 6" /></svg>
     </NuxtLink>
-    <button
-      type="button"
-      class="ng__icon ng__mute"
-      :aria-label="muted ? 'Unmute the reel' : 'Mute the reel'"
-      @pointerdown.stop.prevent="toggleMute"
-    >
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M4 10v4h3l4 3V7L7 10H4z" />
-        <path v-if="!muted" d="M16 9a4 4 0 0 1 0 6M18.5 7a7 7 0 0 1 0 10" />
-        <path v-else d="M16 10l5 5M21 10l-5 5" />
-      </svg>
-    </button>
-    <button
-      type="button"
-      class="ng__icon ng__theme"
-      :aria-label="`Switch to ${theme.theme === 'dark' ? 'light' : 'dark'} mode`"
-      @pointerdown.stop.prevent="theme.toggle()"
-    >
+    <button type="button" class="ng__icon ng__theme" :aria-label="`Switch to ${theme.theme === 'dark' ? 'light' : 'dark'} mode`" @click="theme.toggle()">
       <EdSignalIcon :name="theme.theme === 'dark' ? 'sun' : 'moon'" />
     </button>
 
-    <header v-if="phase !== 'title'" class="ng__meters" aria-label="Four bars. Empty or full, the run ends.">
-      <div v-for="g in GAUGES" :key="g.key" class="ng__meter" :class="{ 'is-hot': snap && danger(snap.gauges[g.key]) }">
-        <span class="ng__meter-name">{{ g.label }}</span>
-        <span class="ng__track-wrap">
-          <i class="ng__pip" :class="{ on: marked(g.key) }" />
-          <span class="ng__track"><span class="ng__fill" :style="{ width: `${snap?.gauges[g.key] ?? 50}%` }" /></span>
-        </span>
+    <section v-if="screen === 'start'" class="screen">
+      <h1 class="brand">NETAGIRI</h1>
+      <p class="subtitle">Balance the pillars. Survive your term.</p>
+      <p class="lede">You are the <b>Prime Minister</b>. Everyone wants something from you — the media, the police, the businessmen, the godmen, even your own party.<br><br>
+      Swipe <b>left</b> to reject a demand. Swipe <b>right</b> to approve it. Every choice moves the country. Keep all four pillars out of the red — or your term ends, badly.</p>
+      <div class="pillars">
+        <span>Janta (People)</span>
+        <span>Khazana (Treasury)</span>
+        <span>Kursi (Power)</span>
+        <span>Kanoon (Law)</span>
       </div>
-      <p v-if="phase === 'play'" class="ng__when">
-        <span>{{ snap?.calendar }}</span>
-        <span>{{ chair }}</span>
-        <span>Year {{ (snap?.years ?? 0) + 1 }}</span>
-      </p>
-    </header>
-
-    <section v-if="phase === 'title'" class="ng__title">
-      <p class="ng__eyebrow">Engage</p>
-      <div class="ng__lockup" aria-hidden="true">
-        <svg class="ng__mark" viewBox="0 0 48 48" width="48" height="48">
-          <rect x="8" y="18" width="32" height="6" rx="1" fill="currentColor" />
-          <rect x="21" y="10" width="6" height="28" fill="currentColor" />
-          <path d="M10 38h28" stroke="currentColor" stroke-width="2" />
-          <path d="M18 14l12 20" stroke="currentColor" stroke-width="1.5" opacity="0.55" />
-        </svg>
-        <h1 class="ng__word"><span>Neta</span>giri</h1>
-      </div>
-      <p class="ng__lede">Balance the pillars. Survive your term. You are Prime Minister {{ shownName }} of {{ party || 'the Front' }} in {{ displayYear }}.</p>
-      <label class="ng__name">
-        <span>Year</span>
-        <input
-          v-model.number="year"
-          type="number"
-          inputmode="numeric"
-          min="2026"
-          max="9999"
-          step="1"
-          @change="year = clampYear(Number(year))"
-        />
-      </label>
-      <div class="ng__chips" role="group" aria-label="Start years">
-        <button
-          v-for="y in yearChips"
-          :key="y"
-          type="button"
-          class="ng__chip"
-          :class="{ 'is-on': Number(year) === y }"
-          @click="year = y"
-        >{{ y }}</button>
-      </div>
-      <p class="ng__era">{{ eraLine }}</p>
-      <label class="ng__name">
-        <span>One-word name. Ji is added for you.</span>
-        <input
-          :value="name"
-          maxlength="16"
-          autocomplete="nickname"
-          placeholder="Ramesh"
-          @input="onName"
-        />
-      </label>
-      <p class="ng__preview">On the card: <strong>{{ shownName }}</strong></p>
-      <label class="ng__name">
-        <span>Party</span>
-        <input v-model="party" maxlength="28" placeholder="the Front" />
-      </label>
-      <div class="ng__chips" role="group" aria-label="Party names">
-        <button
-          v-for="p in partyChips"
-          :key="p"
-          type="button"
-          class="ng__chip"
-          :class="{ 'is-on': party === p }"
-          @click="party = p"
-        >{{ p }}</button>
-      </div>
-      <p class="ng__fine">Swipe left to reject, swipe right to approve. Every decision shifts Janta, Khazana, Kursi, and Kanoon. Keep them out of the red, or the term ends.</p>
-      <button class="ng__cta" type="button" @click="begin">Take the Oath</button>
-      <p v-if="best" class="ng__best">Best · {{ best }} years</p>
-      <ol v-if="pastRuns.length" class="ng__runs">
-        <li v-for="(run, i) in pastRuns" :key="i">{{ run.name }} · {{ run.party }} · {{ run.years }} yrs · {{ run.year }}</li>
-      </ol>
+      <button class="primary" type="button" @click="newGame">Take the Oath</button>
     </section>
 
-    <section v-else-if="phase === 'end' && snap?.end" class="ng__end">
-      <p class="ng__eyebrow">{{ snap.end.chair }} · {{ snap.end.years }} years</p>
-      <h1>{{ snap.end.headline }}</h1>
-      <p class="ng__epitaph">{{ snap.end.epitaph }}</p>
-      <p class="ng__lede">{{ snap.end.name }} of {{ snap.end.party }} left the chair in {{ snap.end.calendar }}.</p>
-      <button class="ng__cta" type="button" @click="begin">Face the Next Election</button>
-      <p class="ng__best">Best · {{ best }} years</p>
+    <section v-else-if="screen === 'game' && cur" class="screen game">
+      <div class="topbar">
+        <div class="year">Year {{ year }}</div>
+        <div class="year mute">NETAGIRI</div>
+      </div>
+      <div class="meters">
+        <div v-for="k in KEYS" :key="k" class="meter">
+          <div class="meter-label"><span>{{ k }}</span><span>{{ stats[k] }}</span></div>
+          <div class="track"><i :style="{ width: stats[k] + '%', background: meterColor(stats[k]) }" /></div>
+        </div>
+      </div>
+      <div class="stage">
+        <article class="card" :style="cardStyle" @pointerdown="onDown" @pointermove="onMove" @pointerup="onUp" @pointercancel="onUp">
+          <span class="hint left" :style="{ opacity: hint.l }">REJECT</span>
+          <span class="hint right" :style="{ opacity: hint.r }">APPROVE</span>
+          <header>
+            <img class="portrait" :src="FACE[cur.character]" :alt="cur.character" />
+            <strong>{{ cur.character }}</strong>
+            <em>{{ cur.title }}</em>
+          </header>
+          <p>{{ cur.text }}</p>
+        </article>
+      </div>
+      <div class="choices">
+        <div class="side l">{{ cur.left.text }}</div>
+        <div class="side r">{{ cur.right.text }}</div>
+      </div>
+      <div class="btns">
+        <button class="swipe no" type="button" aria-label="Reject" @click="resolve(false)">✕</button>
+        <button class="swipe yes" type="button" aria-label="Approve" @click="resolve(true)">✓</button>
+      </div>
     </section>
 
-    <section v-else-if="card" class="ng__play">
-      <p v-if="snap?.turn === 0" class="ng__hint">Drag the card. A dot marks which bar is in play. It will not tell you which way.</p>
-      <article
-        :key="card.id"
-        class="ng__card"
-        :class="{
-          'is-in': arriving && !flying && drag === 0,
-          'is-fly-left': flying === 'left',
-          'is-fly-right': flying === 'right'
-        }"
-        :style="flying || arriving ? undefined : { transform: `translateX(${drag}px) rotate(${drag / 28}deg)` }"
-        @pointerdown="onDown"
-        @pointermove="onMove"
-        @pointerup="onUp"
-        @pointercancel="onUp"
-      >
-        <div class="ng__stage" :data-scene="look?.scene" :data-mood="look?.mood" :style="stageStyle">
-          <i class="ng__sky" />
-          <i class="ng__mid" />
-          <i class="ng__near" />
-          <div class="ng__bob">
-            <img class="ng__actor" :src="look?.src" :alt="card.speaker" />
-            <span class="ng__stamp">{{ initials(snap?.party || 'the Front') }}</span>
-          </div>
-        </div>
-        <div class="ng__body">
-          <p class="ng__who"><strong>{{ card.speaker }}</strong> <span>{{ card.role }}</span></p>
-          <p class="ng__say">{{ line }}</p>
-        </div>
-      </article>
-      <div class="ng__hands">
-        <button
-          type="button"
-          class="ng__hand"
-          :class="{ 'is-lean': aim === 'left' }"
-          :aria-label="leftLine"
-          @mouseenter="hover = 'left'"
-          @mouseleave="hover = hover === 'left' ? '' : hover"
-          @focus="hover = 'left'"
-          @blur="hover = ''"
-          @click="pick('left')"
-        >
-          <span>{{ leftLine }}</span>
-        </button>
-        <button
-          type="button"
-          class="ng__hand"
-          :class="{ 'is-lean': aim === 'right' }"
-          :aria-label="rightLine"
-          @mouseenter="hover = 'right'"
-          @mouseleave="hover = hover === 'right' ? '' : hover"
-          @focus="hover = 'right'"
-          @blur="hover = ''"
-          @click="pick('right')"
-        >
-          <span>{{ rightLine }}</span>
-        </button>
-      </div>
+    <section v-else class="screen">
+      <h2 class="brand over">TERM ENDED</h2>
+      <p class="cause">How it ended</p>
+      <p class="story">{{ overStory }}</p>
+      <p class="years">You survived {{ year }} {{ year === 1 ? 'year' : 'years' }} in power.</p>
+      <button class="primary" type="button" @click="newGame">Face the Next Election</button>
     </section>
   </div>
 </template>
 
 <style scoped>
 .ng {
-  --ng-paper: #fbf8ef;
-  --ng-ink: #161618;
-  --ng-yellow: #ffd43b;
-  --ng-card: #f7f1e4;
+  --ng-red: var(--danger, #C0392B);
+  --ng-green: var(--green, #1FD07A);
   min-height: 100svh;
   min-height: 100dvh;
-  background: var(--ng-paper);
-  color: var(--ng-ink);
+  background: radial-gradient(circle at 50% -10%, var(--paper-2), var(--paper));
+  color: var(--ink);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: max(18rem, env(safe-area-inset-top)) 16rem max(20rem, env(safe-area-inset-bottom));
-  touch-action: manipulation;
   user-select: none;
+  touch-action: manipulation;
 }
-.ng[data-ng-theme='dark'] {
-  --ng-paper: #121214;
-  --ng-ink: #ede6d6;
-  --ng-yellow: #e8c547;
+.ng[data-theme='dark'] {
+  --ng-red: #FF6B55;
+  --ng-green: #2AD98A;
 }
 .ng__icon {
-  position: absolute;
-  z-index: 3;
+  position: absolute; z-index: 4;
   top: max(10rem, env(safe-area-inset-top));
-  width: 44rem;
-  height: 44rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--ng-paper) 70%, transparent);
-  color: var(--ng-ink);
-  text-decoration: none;
+  width: 44rem; height: 44rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; border-radius: 3rem;
+  background: color-mix(in srgb, var(--paper) 70%, transparent);
+  color: var(--ink); text-decoration: none;
 }
 .ng__back { left: max(10rem, env(safe-area-inset-left)); }
 .ng__back svg { width: 20rem; height: 20rem; fill: none; stroke: currentColor; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }
 .ng__theme { right: max(10rem, env(safe-area-inset-right)); }
-.ng__mute { right: max(58rem, calc(env(safe-area-inset-right) + 48rem)); }
-.ng__mute svg { width: 18rem; height: 18rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ng__theme :deep(svg) { width: 18rem; height: 18rem; fill: none; stroke: currentColor; stroke-width: 1.75; }
-.ng__meters { width: min(440rem, 100%); margin-top: 42rem; }
-.ng__meter { display: grid; grid-template-columns: 84rem 1fr; gap: 8rem; align-items: end; margin-bottom: 6rem; }
-.ng__meter-name { font: 700 11rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; padding-bottom: 2rem; }
-.ng__track-wrap { display: grid; gap: 3rem; }
-.ng__pip {
-  width: 8rem;
-  height: 8rem;
-  border-radius: 99px;
-  background: var(--ng-yellow);
-  opacity: 0;
-  transform: scale(0.4);
-  transition: opacity 140ms ease, transform 140ms ease;
+.screen {
+  width: 100%; max-width: 480rem; min-height: 100dvh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 56rem 20rem 24rem; text-align: center; gap: 16rem;
 }
-.ng__pip.on { opacity: 1; transform: none; }
-.ng__track { height: 8rem; border-radius: 99px; background: color-mix(in srgb, var(--ng-ink) 16%, transparent); overflow: hidden; }
-.ng__fill {
-  display: block;
-  height: 100%;
-  background: var(--ng-ink);
-  transition: width 460ms cubic-bezier(0.2, 0, 0, 1), background-color 180ms ease;
+.screen.game { justify-content: flex-start; padding-top: calc(52rem + env(safe-area-inset-top)); }
+.brand { margin: 0; font: 800 48rem/1 var(--font-display, Inter, sans-serif); letter-spacing: 0.04em; color: var(--ink); }
+.brand.over { font-size: 34rem; color: var(--ng-red); }
+.subtitle { margin: -8rem 0 4rem; font-size: 16rem; font-weight: 500; color: var(--muted); }
+.lede { margin: 0; font-size: 15rem; line-height: 1.55; max-width: 380rem; color: var(--ink); }
+.lede b { color: var(--ink); }
+.pillars { display: flex; flex-wrap: wrap; gap: 8rem; justify-content: center; }
+.pillars span { background: var(--paper-3); border: 1px solid var(--line); padding: 8rem 12rem; border-radius: 3rem; font-size: 13rem; }
+.primary {
+  margin-top: 8rem; background: var(--accent); color: var(--accent-ink);
+  border: none; padding: 16rem 38rem; font: 800 16rem/1 var(--font-sans);
+  letter-spacing: 0.04em; border-radius: 3rem; cursor: pointer;
 }
-.ng__meter.is-hot .ng__fill { background: var(--ng-yellow); }
-.ng__meter.is-hot .ng__meter-name { color: var(--ng-yellow); }
-.ng__meter.is-hot .ng__track { animation: ng-hot 1.1s ease-in-out infinite; }
-.ng__when {
-  display: flex;
-  justify-content: space-between;
-  margin: 8rem 0 0;
-  font: 600 12rem/1.3 var(--font-mono);
-  letter-spacing: 0.04em;
-  opacity: 0.75;
+.topbar { width: 100%; display: flex; justify-content: space-between; }
+.year { font-size: 13rem; font-weight: 700; color: var(--ink); background: var(--paper-3); border: 1px solid var(--line); padding: 6rem 14rem; border-radius: 3rem; }
+.year.mute { color: var(--muted); }
+.meters { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8rem 12rem; }
+.meter { background: var(--paper-3); border-radius: 3rem; padding: 7rem 9rem; border: 1px solid var(--line); }
+.meter-label { display: flex; justify-content: space-between; font-size: 11.5rem; font-weight: 700; margin-bottom: 4rem; }
+.track { height: 8rem; border-radius: 3rem; background: var(--line); overflow: hidden; }
+.track i { display: block; height: 100%; transition: width .35s ease, background .35s ease; }
+.stage { position: relative; width: 100%; max-width: 340rem; aspect-ratio: 3/4; margin: 6rem auto 8rem; flex: 1; }
+.card {
+  position: absolute; inset: 0; background: var(--paper); color: var(--ink);
+  border-radius: 6rem; border: 1px solid var(--line);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--ink) 12%, transparent);
+  display: flex; flex-direction: column; padding: 18rem 16rem; touch-action: none; cursor: grab;
 }
-.ng__title, .ng__end {
-  margin: auto;
-  width: min(440rem, 100%);
-  text-align: center;
-  display: grid;
-  justify-items: center;
-  gap: 12rem;
-  animation: ng-rise 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.ng__title > * { animation: ng-rise 380ms cubic-bezier(0.16, 1, 0.3, 1) both; }
-.ng__title > *:nth-child(2) { animation-delay: 40ms; }
-.ng__title > *:nth-child(3) { animation-delay: 70ms; }
-.ng__title > *:nth-child(4) { animation-delay: 100ms; }
-.ng__title > *:nth-child(n + 5) { animation-delay: 130ms; }
-.ng__eyebrow { margin: 0; font: 800 11rem/1 var(--font-mono); letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.7; }
-.ng h1 { margin: 0; font: 700 clamp(56rem, 14vw, 84rem)/0.9 var(--font-display); letter-spacing: -0.05em; }
-.ng__lede, .ng__epitaph { margin: 0; max-width: 34ch; font-size: 16rem; line-height: 1.45; }
-.ng__epitaph { font-size: 18rem; }
-.ng__name { display: grid; gap: 6rem; width: min(260rem, 100%); text-align: left; font: 700 11rem/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; }
-.ng__name input {
-  font: 500 16rem/1.3 var(--font-display);
-  letter-spacing: 0;
-  text-transform: none;
-  padding: 10rem 12rem;
-  border-radius: 12rem;
-  border: 1px solid color-mix(in srgb, var(--ng-ink) 30%, transparent);
-  background: transparent;
-  color: inherit;
-}
-.ng__chips { display: flex; flex-wrap: wrap; gap: 6rem; justify-content: center; }
-.ng__chip {
-  appearance: none;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--ng-ink) 30%, transparent);
-  background: transparent;
-  color: inherit;
-  font: 700 12rem/1 var(--font-mono);
-  padding: 8rem 12rem;
-  cursor: pointer;
-  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1), background-color 160ms ease, color 160ms ease;
-}
-.ng__chip:active { transform: scale(0.96); }
-.ng__chip.is-on { background: var(--ng-ink); color: var(--ng-paper); }
-.ng__era, .ng__fine { margin: 0; max-width: 36ch; font-size: 14rem; line-height: 1.4; opacity: 0.8; }
-.ng__cta {
-  appearance: none;
-  border: none;
-  background: var(--ng-yellow);
-  color: #161618;
-  font: 800 14rem/1 var(--font-mono);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  padding: 16rem 28rem;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: transform 140ms cubic-bezier(0.2, 0, 0, 1);
-}
-.ng__cta:active { transform: scale(0.96); }
-.ng__best { margin: 0; font: 700 12rem/1 var(--font-mono); opacity: 0.7; }
-.ng__play { width: min(440rem, 100%); margin-top: 12rem; }
-.ng__hint { margin: 0 0 8rem; font-size: 13rem; line-height: 1.4; opacity: 0.75; }
-.ng__card {
-  background: var(--ng-card);
-  color: #161618;
-  border-radius: 18rem;
-  overflow: hidden;
-  box-shadow: 0 16rem 40rem color-mix(in srgb, #000 18%, transparent);
-  touch-action: none;
-  cursor: grab;
-}
-.ng__card.is-in { animation: ng-in 340ms cubic-bezier(0.16, 1, 0.3, 1) both; }
-.ng__card.is-fly-left { transform: translateX(-118%) rotate(-7deg); transition: transform 240ms cubic-bezier(0.4, 0, 1, 1); }
-.ng__card.is-fly-right { transform: translateX(118%) rotate(7deg); transition: transform 240ms cubic-bezier(0.4, 0, 1, 1); }
-.ng__face { display: block; width: 100%; aspect-ratio: 3 / 2.1; object-fit: cover; object-position: center 18%; background: #f7f1e4; }
-.ng__lockup { display: flex; align-items: center; gap: 12rem; }
-.ng__mark { width: 42rem; height: 42rem; color: var(--ng-ink); flex: none; }
-.ng__word { font: 800 36rem/1 var(--font-serif, Georgia, serif); letter-spacing: -0.03em; margin: 0; }
-.ng__word span { font-weight: 500; }
-.ng__preview { margin: 0; font: 400 13rem/1.4 var(--font-sans); opacity: 0.72; }
-.ng__runs { margin: 8rem 0 0; padding: 0; list-style: none; font: 400 12rem/1.5 var(--font-mono); opacity: 0.7; }
-.ng__stage {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 3 / 2.1;
-  overflow: hidden;
-  background: #d9c7a4;
-}
-.ng__sky, .ng__mid, .ng__near {
-  position: absolute; inset: -8%;
-  pointer-events: none;
-}
-.ng__sky {
-  background: linear-gradient(180deg, #f3e6c8, #c9b48a);
-  transform: translate3d(calc(var(--px, 0) * -6px), calc(var(--py, 0) * -4px), 0);
-}
-.ng__mid {
-  background:
-    repeating-linear-gradient(90deg, transparent 0 18px, color-mix(in srgb, var(--ng-ink) 10%, transparent) 18px 20px),
-    linear-gradient(180deg, transparent 40%, color-mix(in srgb, #6b3b2a 28%, transparent));
-  transform: translate3d(calc(var(--px, 0) * -12px), calc(var(--py, 0) * -6px), 0);
-}
-.ng__near {
-  background: radial-gradient(120% 80% at 50% 120%, color-mix(in srgb, #1c1917 35%, transparent), transparent 55%);
-  transform: translate3d(calc(var(--px, 0) * -18px), calc(var(--py, 0) * -8px), 0);
-}
-.ng__stage[data-scene='studio'] .ng__sky { background: linear-gradient(180deg, #2a2a2e, #121214); }
-.ng__stage[data-scene='court'] .ng__sky { background: linear-gradient(180deg, #e8e0d2, #b7a48a); }
-.ng__stage[data-scene='dome'] .ng__sky { background: linear-gradient(180deg, #8fb7c9, #2c4a5a); }
-.ng__stage[data-scene='ashram'] .ng__sky { background: linear-gradient(180deg, #f0d9a0, #c9893a); }
-.ng__stage[data-scene='street'] .ng__sky { background: linear-gradient(180deg, #c9d6c0, #7a8a6a); }
-.ng__stage[data-scene='rally'] .ng__sky { background: linear-gradient(180deg, #f2c36b, #c45a2a); }
-.ng__bob { position: absolute; inset: 0; display: grid; place-items: end center; animation: ng-bob 3.6s ease-in-out infinite; }
-.ng__actor { width: 72%; max-height: 100%; object-fit: cover; object-position: center top; filter: drop-shadow(0 8px 18px rgba(0,0,0,.28)); }
-.ng__stage[data-mood='heat'] .ng__actor { filter: contrast(1.12) saturate(1.15) drop-shadow(0 8px 18px rgba(80,0,0,.35)); }
-.ng__stamp {
-  position: absolute; right: 10rem; bottom: 10rem;
-  font: 700 11rem/1 var(--font-mono); letter-spacing: 0.12em;
-  background: color-mix(in srgb, var(--ng-paper, #f4efe6) 86%, transparent);
-  padding: 4rem 6rem; border-radius: 3px;
-}
-@keyframes ng-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-.ng__body { padding: 14rem 16rem 16rem; }
-.ng__who { margin: 0 0 8rem; display: flex; flex-wrap: wrap; gap: 6rem 10rem; align-items: baseline; }
-.ng__who strong { font: 600 18rem/1.2 var(--font-display); }
-.ng__who span { font: 600 12rem/1 var(--font-mono); letter-spacing: 0.04em; opacity: 0.65; }
-.ng__say { margin: 0; font-size: 15.5rem; line-height: 1.45; }
-.ng__hands { display: grid; grid-template-columns: 1fr 1fr; gap: 8rem; margin-top: 10rem; }
-.ng__hand {
-  appearance: none;
-  text-align: left;
-  border-radius: 14rem;
-  border: 1px solid color-mix(in srgb, var(--ng-ink) 28%, transparent);
-  background: color-mix(in srgb, var(--ng-paper) 80%, transparent);
-  color: inherit;
-  padding: 12rem;
-  cursor: pointer;
-  font: 600 14rem/1.35 var(--font-display);
-  transition: transform 140ms cubic-bezier(0.2, 0, 0, 1), border-color 140ms ease, background-color 140ms ease;
-}
-.ng__hand:active { transform: scale(0.97); }
-.ng__hand.is-lean {
-  transform: translateY(-3px);
-  border-color: var(--ng-yellow);
-  background: color-mix(in srgb, var(--ng-yellow) 22%, transparent);
-}
-.ng__icon:focus-visible, .ng__cta:focus-visible, .ng__hand:focus-visible { outline: 2px solid var(--ng-yellow); outline-offset: 3px; }
-@keyframes ng-in {
-  from { opacity: 0; transform: translateY(22px) rotate(1.2deg) scale(0.98); }
-  to { opacity: 1; transform: none; }
-}
-@keyframes ng-rise {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: none; }
-}
-@keyframes ng-hot {
-  0%, 100% { transform: none; }
-  50% { transform: scaleY(1.35); }
-}
-@media (max-width: 380px) {
-  .ng__hand { font-size: 13rem; padding: 10rem; }
-  .ng__meter { grid-template-columns: 76rem 1fr; }
-  .ng__say { font-size: 15rem; }
-}
-@media (max-height: 740px) {
-  .ng__face { aspect-ratio: 16 / 9; }
-  .ng h1 { font-size: clamp(44rem, 12vw, 68rem); }
-  .ng__title, .ng__end { gap: 8rem; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ng__card.is-fly-left, .ng__card.is-fly-right, .ng__card.is-in, .ng__title, .ng__title > *, .ng__end, .ng__meter.is-hot .ng__track { animation: none; transition: none; }
-  .ng__fill, .ng__hand, .ng__cta, .ng__chip { transition: none; }
-}
+.card header { display: flex; flex-direction: column; align-items: center; gap: 4rem; border-bottom: 1px solid var(--line); padding-bottom: 10rem; margin-bottom: 12rem; }
+.portrait { width: 88rem; height: 88rem; object-fit: cover; object-position: center top; border-radius: 3rem; background: var(--paper-3); }
+.card strong { font-size: 18rem; }
+.card em { font-size: 12rem; color: var(--muted); font-style: normal; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.card p { margin: 0; flex: 1; font-size: 16rem; line-height: 1.5; font-weight: 500; display: flex; align-items: center; text-align: left; }
+.hint { position: absolute; top: 16rem; padding: 4rem 12rem; border: 2px solid; border-radius: 3rem; font-size: 14rem; font-weight: 800; letter-spacing: 0.08em; pointer-events: none; }
+.hint.left { left: 12rem; color: var(--ng-red); border-color: var(--ng-red); transform: rotate(-12deg); }
+.hint.right { right: 12rem; color: var(--ng-green); border-color: var(--ng-green); transform: rotate(12deg); }
+.choices { width: 100%; display: flex; gap: 10rem; font-size: 12.5rem; font-weight: 600; color: var(--muted); }
+.side { flex: 1; padding: 8rem 10rem; border-radius: 3rem; background: var(--paper-3); line-height: 1.35; }
+.side.l { text-align: left; border-left: 3px solid var(--ng-red); }
+.side.r { text-align: right; border-right: 3px solid var(--ng-green); }
+.btns { display: flex; gap: 26rem; margin: 8rem 0; }
+.swipe { width: 56rem; height: 56rem; border-radius: 3rem; border: none; font-size: 22rem; cursor: pointer; color: #fff; }
+.swipe.no { background: var(--ng-red); }
+.swipe.yes { background: var(--ng-green); }
+.cause { margin: 0; font-size: 13rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ng-red); }
+.story { margin: 0; font-size: 16rem; line-height: 1.6; max-width: 380rem; text-align: left; background: var(--paper-3); padding: 16rem 18rem; border-radius: 3rem; border: 1px solid var(--line); }
+.years { margin: 0; font-size: 15rem; color: var(--muted); }
 </style>

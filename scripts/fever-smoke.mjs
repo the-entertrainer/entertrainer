@@ -71,8 +71,10 @@ try {
     await page.setViewportSize(viewport)
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false)
     assert.ok(await page.locator('#turret').isVisible())
-    const boxes=await page.evaluate(()=>['pause','settings','fullscreen','hud'].map(id=>{const r=document.getElementById(id).getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}}))
-    assert.ok(boxes.slice(0,3).every(r=>r.w>=44&&r.h>=44&&r.y+r.h<=boxes[3].y),'Toolbar targets fit above HUD')
+    const boxes=await page.evaluate(()=>['pause','settings','fullscreen','turret'].map(id=>{const r=document.getElementById(id).getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}}))
+    assert.ok(boxes.every(r=>r.w>=48&&r.h>=48),'Thumb controls are at least 48px')
+    assert.ok(boxes.slice(0,3).every(r=>r.x<innerWidth*0.45&&r.y>innerHeight*0.45),'Utility controls sit in the left thumb zone')
+    assert.ok(boxes[3].x>innerWidth*0.45&&boxes[3].y>innerHeight*0.45,'Turret sits in the right thumb zone')
   }
   await page.setViewportSize({width:390,height:844})
   await page.evaluate(() => window.dispatchEvent(new Event('blur')))

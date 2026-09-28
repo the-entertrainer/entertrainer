@@ -224,6 +224,7 @@ export function createAudio(onError = () => {}) {
     gun(pan = 0) { fromBank('gun', 0.46, 0.88 + Math.random() * 0.28, pan); },
     ricochet(pan = 0) { fromBank('ricochet', 0.36, 0.9 + Math.random() * 0.32, pan); fromBank('spark', 0.2, 1, pan); },
     spark(pan = 0) { fromBank('spark', 0.28, 1 + Math.random() * 0.35, pan); },
+    ui() { fromBank('spark', 0.16, 1.35 + Math.random() * 0.4, 0); },
     effect(kind) { if (kind === 'bite') fromBank('crunch', 0.4, 0.52); else if (kind === 'zap') fromBank('gun', 0.3, 1.3); },
     setMusic(value) { musicOn = value; unlock(); sync(); },
     setSfx(value) { sfxOn = value; if (!value) stopVoices(); else unlock(); },

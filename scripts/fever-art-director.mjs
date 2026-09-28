@@ -28,8 +28,11 @@ else pass('CINEMA_COPY', 'Cinema copy is a single short line');
 if (/Turret hired|No lunch break|SWIPE \/ FEVER/.test(files.game + files.html)) fail('SLOP_COPY', 'Joke / debug chrome still ships');
 else pass('SLOP_COPY', 'No joke toast or debug combo chrome');
 
-if (!/min-width:44px/.test(files.css) || /min-width:40px/.test(files.css)) fail('TOUCH', 'Toolbar dropped below 44px');
-else pass('TOUCH', 'Toolbar stays 44px');
+if (!/min-width:\s*48px/.test(files.css) || /min-width:\s*40px/.test(files.css)) fail('TOUCH', 'Thumb targets dropped below 48px');
+else pass('TOUCH', 'Thumb targets stay at least 48px');
+
+if (!/thumb-left/.test(files.html) || !/thumb-right/.test(files.html) || !/border-image/.test(files.css)) fail('THUMB', 'HUD is still a top bar or flat card, not thumb plates');
+else pass('THUMB', 'Actions sit in thumb corners on 9-slice plates');
 
 if (!/grout|tileWear/.test(files.art)) fail('TILES', 'Floor is still raw noise with no grout');
 else pass('TILES', 'Tile materials carry grout / wear');

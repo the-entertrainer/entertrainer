@@ -62,17 +62,29 @@ export function createAudio(onError = () => {}) {
       }
       banks.crunch.push(bufferFrom(out));
     }
-    for (let k = 0; k < 24; k++) {
-      const n = Math.floor(rate * (0.08 + Math.random() * 0.09));
+    function bandPass(src, cutoff, q) {
+      let lp = 0, hp = 0;
+      const out = new Float32Array(src.length);
+      const f = 2 * Math.sin(Math.PI * Math.min(0.45, cutoff / rate));
+      for (let i = 0; i < src.length; i++) {
+        lp += f * (src[i] - lp);
+        hp = src[i] - lp;
+        out[i] = lp + hp * q;
+      }
+      return out;
+    }
+    for (let k = 0; k < 28; k++) {
+      const n = Math.floor(rate * (0.07 + Math.random() * 0.08));
       const air = noise(n, 'pink');
+      const grit = noise(n, 'white');
+      const whoosh = bandPass(air, 700 + k * 55, 0.35 + (k % 5) * 0.05);
+      const edge = bandPass(grit, 2400 + k * 40, 0.55);
       const out = new Float32Array(n);
-      const start = 180 + k * 17, end = 980 + k * 30;
       for (let i = 0; i < n; i++) {
         const t = i / n;
-        const freq = start + (end - start) * t;
-        const sweep = Math.sin(Math.PI * t) * (t < 0.18 ? t / 0.18 : Math.pow(1 - t, 1.1));
-        const tone = Math.sin(i / rate * freq * Math.PI * 2);
-        out[i] = (air[i] * 0.7 + tone * 0.22) * sweep * (0.42 + Math.random() * 0.16);
+        const gate = Math.sin(Math.PI * t) * (t < 0.12 ? t / 0.12 : Math.pow(1 - t, 0.85));
+        const steel = Math.sin(i / rate * (520 + k * 19) * Math.PI * 2) * Math.exp(-t * 7);
+        out[i] = (whoosh[i] * 0.72 + edge[i] * 0.22 + steel * 0.12) * gate * (0.5 + (k % 4) * 0.06);
       }
       banks.swish.push(bufferFrom(out));
     }
@@ -200,8 +212,15 @@ export function createAudio(onError = () => {}) {
         cropRecorded(`wet-${index}`, 0.2, 1.25 + Math.random() * 0.22, pan, 0.08);
       }
     },
-    swipe(pan = 0) { fromBank('swish', 0.44 + Math.random() * 0.16, 0.86 + Math.random() * 0.36, pan); },
-    slash(pan = 0) { fromBank('slash', 0.6, 0.9 + Math.random() * 0.28, pan); fromBank('crunch', 0.34, 1.08 + Math.random() * 0.2, pan); },
+    swipe(pan = 0, vigor = 1) {
+      const v = Math.max(0.35, Math.min(1.6, vigor));
+      fromBank('swish', 0.32 + v * 0.22, 0.78 + v * 0.28 + Math.random() * 0.08, pan);
+    },
+    slash(pan = 0) {
+      fromBank('slash', 0.58, 0.92 + Math.random() * 0.24, pan);
+      fromBank('swish', 0.22, 1.15 + Math.random() * 0.12, pan);
+      fromBank('crunch', 0.28, 1.1 + Math.random() * 0.18, pan);
+    },
     gun(pan = 0) { fromBank('gun', 0.46, 0.88 + Math.random() * 0.28, pan); },
     ricochet(pan = 0) { fromBank('ricochet', 0.36, 0.9 + Math.random() * 0.32, pan); fromBank('spark', 0.2, 1, pan); },
     spark(pan = 0) { fromBank('spark', 0.28, 1 + Math.random() * 0.35, pan); },

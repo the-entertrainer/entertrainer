@@ -4,16 +4,24 @@ import * as THREE from 'three';
 export function surface(kind, size = 256) {
   const canvas = document.createElement('canvas'); canvas.width = canvas.height = size;
   const ctx = canvas.getContext('2d'), data = ctx.createImageData(size, size);
-  let seed = 7491;
+  let seed = kind === 'tileA' ? 4211 : kind === 'tileB' ? 8821 : 7491;
   const rand = () => ((seed = (1664525 * seed + 1013904223) >>> 0) / 4294967296);
+  const grout = kind === 'tileA' || kind === 'tileB';
+  const tileWear = grout;
   for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
     const i = (y * size + x) * 4, n = rand();
     const ridge = Math.pow(Math.abs(Math.sin(y / size * Math.PI * 12)), 12);
     const stain = Math.sin(x * .041) * Math.sin(y * .063) * 15;
-    const base = kind === 'peel' ? [214, 177, 28] : kind === 'shell' ? [99, 43, 22] : [145, 147, 137];
-    const detail = kind === 'shell' ? ridge * 28 : stain;
+    const base = kind === 'peel' ? [214, 177, 28] : kind === 'shell' ? [99, 43, 22] : kind === 'tileA' ? [118, 112, 98] : kind === 'tileB' ? [58, 78, 82] : [145, 147, 137];
+    let detail = kind === 'shell' ? ridge * 28 : stain;
+    if (grout) {
+      const gx = Math.min(x, size - 1 - x), gy = Math.min(y, size - 1 - y);
+      const line = Math.min(gx, gy);
+      if (line < 7) detail -= (7 - line) * 9;
+      detail += Math.sin((x + y) * 0.11) * 8 + (n - 0.5) * 18;
+    }
     const pore = n > .985 ? .35 : .85 + n * .22;
-    for (let c = 0; c < 3; c++) data.data[i + c] = Math.max(0, (base[c] + detail) * pore);
+    for (let c = 0; c < 3; c++) data.data[i + c] = Math.max(0, Math.min(255, (base[c] + detail) * pore));
     data.data[i + 3] = 255;
   }
   ctx.putImageData(data, 0, 0);
@@ -21,6 +29,12 @@ export function surface(kind, size = 256) {
     for (let i = 0; i < 160; i++) {
       ctx.fillStyle = `rgba(65,35,12,${.1 + rand() * .5})`;
       ctx.beginPath(); ctx.ellipse(rand()*size,rand()*size,.3+rand()*2,.4+rand()*4,rand()*3,0,Math.PI*2);ctx.fill();
+    }
+  }
+  if (tileWear) {
+    for (let i = 0; i < 28; i++) {
+      ctx.fillStyle = `rgba(20,16,12,${0.04 + rand() * 0.12})`;
+      ctx.beginPath(); ctx.ellipse(rand()*size,rand()*size,8+rand()*18,4+rand()*10,rand()*3,0,Math.PI*2);ctx.fill();
     }
   }
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;

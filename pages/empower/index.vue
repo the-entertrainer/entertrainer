@@ -22,12 +22,12 @@ const tools = computed(() =>
 
 <template>
   <main id="main" class="empower">
-    <header class="empower__hero" aria-labelledby="empower-title">
-      <h1 id="empower-title">Empower</h1>
-      <p class="empower__lede">
-        Two free tools for work that keeps repeating. Open the browser and get on with it.
-      </p>
-    </header>
+    <EdStageHero
+      variant="flow"
+      title="Empower"
+      title-id="empower-title"
+      deck="Two free tools for work that keeps repeating. Open the browser and get on with it."
+    />
 
     <ol class="empower__grid">
       <li v-for="item in tools" :key="item.id" class="u-reveal">
@@ -67,26 +67,9 @@ const tools = computed(() =>
   padding: clamp(24rem, 4vw, 56rem) var(--shell-gutter) clamp(48rem, 8vw, 96rem);
 }
 
-.empower__hero {
-  padding-bottom: clamp(20rem, 3vw, 32rem);
-  border-bottom: var(--stroke) solid var(--ink);
-  margin-bottom: clamp(18rem, 3vw, 28rem);
-}
-.empower__hero h1 {
-  margin: 0;
-  font: 500 clamp(56rem, 12vw, 120rem)/.82 var(--font-display);
-  letter-spacing: -.06em;
-}
-.empower__lede {
-  margin: clamp(10rem, 2vw, 16rem) 0 0;
-  max-width: 42ch;
-  font: 400 clamp(16rem, 1.6vw, 19rem)/1.45 var(--font-reading);
-  color: var(--ink-soft);
-}
-
 .empower__grid {
   list-style: none;
-  margin: 0;
+  margin: clamp(20rem, 3vw, 32rem) 0 0;
   padding: 0;
   display: grid;
   gap: 12rem;

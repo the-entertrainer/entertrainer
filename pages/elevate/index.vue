@@ -114,12 +114,13 @@ function clearCategory() {
 
 <template>
   <div class="elevate">
-    <header class="elevate__hero" aria-labelledby="elevate-title">
-      <div class="elevate__hero-copy">
-        <h1 id="elevate-title">Elevate</h1>
-        <EdNewsletter variant="inline" class="elevate__hero-subscribe" />
-      </div>
-    </header>
+    <EdStageHero
+      variant="ribbons"
+      title="Elevate"
+      title-id="elevate-title"
+    >
+      <EdNewsletter variant="inline" />
+    </EdStageHero>
 
     <section class="elevate__entry" aria-labelledby="articles-title">
       <div class="elevate__toolbar">
@@ -207,27 +208,7 @@ function clearCategory() {
   padding: clamp(22rem, 4vw, 56rem) var(--shell-gutter) 110rem;
 }
 
-.elevate__hero {
-  position: relative;
-  display: grid;
-  gap: clamp(10rem, 2vw, 18rem);
-  padding: clamp(8rem, 2vw, 18rem) 0 clamp(28rem, 5vw, 52rem);
-  border-bottom: var(--stroke) solid var(--ink);
-}
-
-.elevate__hero-copy { min-width: 0; }
-
-.elevate__hero-subscribe {
-  margin-top: 4rem;
-}
-
-.elevate__hero h1 {
-  margin: 0;
-  font: 500 clamp(72rem, 14vw, 168rem)/.78 var(--font-display);
-  letter-spacing: -.08em;
-}
-
-.elevate__entry { padding: clamp(40rem, 7vw, 88rem) 0 0; }
+.elevate__entry { padding: clamp(20rem, 3vw, 32rem) 0 0; }
 
 .elevate__toolbar {
   display: flex;

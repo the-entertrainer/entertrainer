@@ -173,11 +173,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 /* The active section receives a short section of the same route line used in
    the Home atlas; it orients without adding a badge or a second label. */
 .mh__link[aria-current="page"]::after {
-  content: ''; position: absolute; left: 10rem; right: 10rem; bottom: 2rem;
-  width: 8rem; right: auto; height: 8rem; background: var(--signal-cobalt); border-radius: 50%;
-  transform-origin: left; animation: nav-route 280ms var(--ease-out) both;
+  content: ''; position: absolute; left: 10rem; bottom: 2rem;
+  width: 8rem; height: 8rem; background: var(--signal-cobalt); border-radius: 50%;
+  transform-origin: center; animation: nav-route 220ms var(--ease-out) both;
 }
-@keyframes nav-route { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes nav-route { from { transform: scale(0); } to { transform: scale(1); } }
 
 .mh__end { display: flex; align-items: center; gap: 6rem; margin-left: 4rem; }
 .mh__icon {
@@ -216,10 +216,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .mh__wotd-tile--b { left: 5rem; top: 3rem; background: var(--paper); animation: mh-wotd-flip 2.2s ease-in-out .2s infinite; }
 .mh__wotd-tile--c { left: 10rem; top: 6rem; animation: mh-wotd-flip 2.2s ease-in-out .4s infinite; }
 @keyframes mh-wotd-flip {
-  0%, 12% { transform: translateY(0) rotate(0deg); }
-  28% { transform: translateY(-4rem) rotate(-12deg); }
-  42% { transform: translateY(1rem) rotate(6deg); }
-  55%, 100% { transform: translateY(0) rotate(0deg); }
+  0%, 18% { transform: translateY(0) rotate(0deg); }
+  36% { transform: translateY(-3rem) rotate(-8deg); }
+  52%, 100% { transform: translateY(0) rotate(0deg); }
 }
 
 /* Idle motion lives in the unscoped block below (avoids Vue :deep / Safari bugs). */

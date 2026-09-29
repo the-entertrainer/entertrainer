@@ -225,14 +225,14 @@ const marriottPhotos: PhotoTileItem[] = [
         </article>
 
     <footer class="about-story__close">
-      <NuxtLink to="/elevate" class="about-story__destination about-story__destination--elevate" aria-labelledby="elevate-preview-title" aria-describedby="elevate-preview-description">
+      <NuxtLink :to="`/elevate/${FEATURED_BLOG.slug}`" class="about-story__destination about-story__destination--elevate" aria-labelledby="elevate-preview-title" aria-describedby="elevate-preview-description">
         <figure class="about-story__destination-visual">
           <EdEditorialImage :src="FEATURED_BLOG.hero" :alt="FEATURED_BLOG.heroAlt" />
         </figure>
         <div class="about-story__destination-copy">
           <h2 id="elevate-preview-title">{{ FEATURED_BLOG.title }}</h2>
           <p id="elevate-preview-description">{{ FEATURED_BLOG.dek }}</p>
-          <span class="about-story__destination-action">Open Elevate</span>
+          <span class="about-story__destination-action">Read this</span>
         </div>
       </NuxtLink>
     </footer>

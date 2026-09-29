@@ -28,22 +28,22 @@ const email = useContentStore().email
 interface Entry { k: string; v: string; note: string }
 
 const stack: Entry[] = [
-  { k: 'Framework', v: 'Nuxt 3, client-rendered',
-    note: 'One Vue app; four routes are full applications rather than pages. The content remains available as soon as each route mounts, without depending on animation or interaction. That distinction matters here.' },
-  { k: 'Design system', v: 'One CSS file, no framework',
-    note: 'Colour, type, surface and motion are defined once in assets/css/main.css and read by everything downstream. No Tailwind, no component library, about six hundred lines including the comments. One file doing the job is easier to inspect than a small forest of abstractions.' },
+  { k: 'Framework', v: 'Nuxt 3, server-rendered',
+    note: 'One Vue app. AstroClock is a React island. Stack is a small WebGL game. Pages are in the first response, so a link describes the page being opened. The content does not wait on an animation.' },
+  { k: 'Design system', v: 'One publication stylesheet',
+    note: 'Colour, type, surface and motion for the magazine live in assets/css/main.css. Tailwind is only inside AstroClock. The publication itself is not a component library.' },
   { k: 'Type', v: 'Four faces, four jobs',
     note: 'Fraunces for display, Archivo for interface, Source Serif 4 for reading, IBM Plex Mono for metadata. All SIL Open Font License, all self-hosted, three of the four variable — so the whole range is eight files. Chosen as the closest open equivalents to a commercial stack I could not license.' },
-  { k: 'Colour', v: 'White, near-black, six accents',
-    note: 'A neutral ramp from 50 to 1000 and six saturated accents, one per section. Every accent is paired with the one text colour that clears 4.5:1 on it, measured rather than assumed. That is why the green and cyan carry black text and the blue carries white.' },
-  { k: 'Surfaces', v: 'One hairline, 3-6px radii, no shadows',
-    note: 'An earlier version put a 2px outline, a 20px radius and a hard offset shadow on everything, three treatments doing the job type and space are supposed to do. There are now two shadows in the whole stylesheet, both for things that genuinely float. The rule and the space around it handle separation.' },
+  { k: 'Colour', v: 'Paper, ink, signal yellow',
+    note: 'The interface accent is signal yellow, paired with near-black text that clears 4.5:1. Essay pictures keep one cobalt. Other hues are for status, not decoration.' },
+  { k: 'Surfaces', v: 'Hairline first, shadow only when it lifts',
+    note: 'Most separation is a hairline and the space around it. A few tactile objects — the home switchboard, the category tiles — still carry a hard offset shadow, because they are meant to feel like pieces you can pick up.' },
   { k: 'Motion', v: 'Four durations, five curves',
     note: 'Every transition picks from the same short list, and things leave faster than they arrive. Scroll reveals are CSS scroll-driven animations, so the failure mode is "no animation" rather than "no content". If motion fails, the content is still there.' },
   { k: 'Images', v: 'WebP and PNG, drawn or generated, then composited',
     note: 'Card artwork was generated and the titles set on top afterwards, because type rendered by an image model is type nobody proofread. Images can improvise; headlines need proofreading.' },
-  { k: 'Hosting', v: 'Vercel, static output',
-    note: 'This site has no database or analytics. A tool sends only the AI request you make, and nothing is kept.' },
+  { k: 'Hosting', v: 'Vercel',
+    note: 'Pages are server-rendered. There is no analytics database. A tool sends only the request you make. StoryGen projects stay in the browser.' },
   { k: 'Opening sound', v: 'Pixabay ident by Diamond_Tunes',
     note: 'One short welcome tone on tap-to-enter: “Digital Vibe (Podcast Intro Ident)” by Diamond_Tunes on Pixabay (Content License). Trimmed to the preloader window. Attribution is appreciated; the license does not require it. Device silent mode is respected — playback uses ordinary HTML audio inside the tap gesture and fails quietly if muted or blocked.' }
 ]

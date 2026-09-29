@@ -327,11 +327,17 @@ function clearCategory() {
 @media (hover: hover) {
   .elevate__must-tile:hover {
     transform: translate(-1rem, -1rem);
+    translate: none;
     box-shadow: 3rem 3rem 0 color-mix(in srgb, var(--ink) 18%, transparent);
   }
   .elevate__must-tile[aria-pressed="true"]:hover {
     box-shadow: 3rem 3rem 0 var(--ink);
   }
+}
+.elevate__must-tile:active,
+.elevate__must-tile:hover:active {
+  translate: none;
+  scale: none;
 }
 .elevate__must-tile:focus-visible {
   outline: 3rem solid var(--ink);

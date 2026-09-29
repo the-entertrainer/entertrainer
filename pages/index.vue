@@ -129,15 +129,17 @@ onBeforeUnmount(() => {
               <span aria-hidden="true">i</span>
             </button>
           </div>
-          <p
-            v-if="route.tip && openTip === route.name"
-            :id="tipId(route.name)"
-            class="route-index__tip"
-            data-route-tip
-            role="note"
-          >
-            {{ route.tip }}
-          </p>
+          <Transition name="route-tip">
+            <p
+              v-if="route.tip && openTip === route.name"
+              :id="tipId(route.name)"
+              class="route-index__tip"
+              data-route-tip
+              role="note"
+            >
+              {{ route.tip }}
+            </p>
+          </Transition>
         </li>
       </ol>
     </nav>
@@ -340,6 +342,12 @@ onBeforeUnmount(() => {
   background: var(--signal-field);
 }
 
+.route-index__info::before {
+  content: '';
+  position: absolute;
+  inset: -12rem;
+}
+
 .route-index__info:focus-visible {
   outline: 3rem solid var(--focus);
   outline-offset: 3rem;
@@ -358,6 +366,16 @@ onBeforeUnmount(() => {
   color: var(--ink);
   font: 500 13.5rem/1.45 var(--font-ui);
   box-shadow: 3rem 3rem 0 color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.route-tip-enter-active,
+.route-tip-leave-active {
+  transition: opacity 160ms var(--ease-out), transform 160ms var(--ease-out);
+}
+.route-tip-enter-from,
+.route-tip-leave-to {
+  opacity: 0;
+  transform: translateY(-4rem);
 }
 
 @media (hover: hover) {
@@ -416,8 +434,16 @@ onBeforeUnmount(() => {
     top: 50%;
     right: 4rem;
     transform: translateY(-50%);
+    translate: none;
+    scale: none;
   }
-  .route-index__info:hover { transform: translateY(-50%); }
+  .route-index__info:hover,
+  .route-index__info:active,
+  .route-index__info:hover:active {
+    transform: translateY(-50%);
+    translate: none;
+    scale: none;
+  }
   .route-index__tip {
     margin: 0 0 12rem;
     border-radius: var(--radius-m, 10rem);
@@ -448,8 +474,12 @@ onBeforeUnmount(() => {
     background-clip: unset;
   }
   .route-index__card,
-  .route-index__info { transition: none; }
+  .route-index__info,
+  .route-tip-enter-active,
+  .route-tip-leave-active { transition: none; }
   .route-index__card:has(.route-index__link:hover) { transform: none; }
+  .route-tip-enter-from,
+  .route-tip-leave-to { opacity: 1; transform: none; }
 }
 
 :global(html[data-reduce-motion="on"]) .route-index__quote {

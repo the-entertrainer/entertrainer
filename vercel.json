@@ -66,6 +66,26 @@
       "source": "/blogs/:path*",
       "destination": "/elevate/:path*",
       "permanent": true
+    },
+    {
+      "source": "/engage/vybe",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/squash",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/fever",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/netagiri",
+      "destination": "/engage",
+      "permanent": true
     }
   ],
   "rewrites": [

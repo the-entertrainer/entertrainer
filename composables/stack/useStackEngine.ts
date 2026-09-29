@@ -108,8 +108,8 @@ export function createStackEngine(canvas: HTMLCanvasElement, hooks: StackEngineH
   key.shadow.camera.right = 10
   key.shadow.camera.top = 10
   key.shadow.camera.bottom = -10
-  key.shadow.bias = -0.0008
-  key.shadow.normalBias = 0.02
+  key.shadow.bias = -0.0004
+  key.shadow.normalBias = 0.04
   scene.add(key)
   scene.add(key.target)
 
@@ -167,6 +167,11 @@ export function createStackEngine(canvas: HTMLCanvasElement, hooks: StackEngineH
   let cssW = 390
   let cssH = 780
   let titleIdle = false
+  let towerYaw = 0
+
+  function damp(current: number, target: number, lambda: number, dt: number) {
+    return current + (target - current) * (1 - Math.exp(-lambda * dt))
+  }
 
   // Halo ring for perfect
   const haloGeo = new THREE.RingGeometry(0.9, 1.15, 48)
@@ -270,11 +275,13 @@ export function createStackEngine(canvas: HTMLCanvasElement, hooks: StackEngineH
   }
 
   function setSize(w: number, h: number) {
-    cssW = Math.max(280, Math.floor(w))
-    cssH = Math.max(420, Math.floor(h))
+    cssW = Math.max(280, w)
+    cssH = Math.max(420, h)
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
     renderer.setPixelRatio(dpr)
     renderer.setSize(cssW, cssH, false)
+    canvas.style.width = `${cssW}px`
+    canvas.style.height = `${cssH}px`
     updateCameraFrustum()
   }
 
@@ -310,6 +317,7 @@ export function createStackEngine(canvas: HTMLCanvasElement, hooks: StackEngineH
     camTargetY = 0
     camPull = 0
     camPullTarget = 0
+    updateCameraFrustum()
     // Idle showcase tower
     const layers = [
       { w: START_SIZE, d: START_SIZE, ink: true },
@@ -341,6 +349,7 @@ export function createStackEngine(canvas: HTMLCanvasElement, hooks: StackEngineH
     camTargetY = 0
     camPull = 0
     camPullTarget = 0
+    updateCameraFrustum()
 
     const mesh = makeSlabMesh(START_SIZE, START_SIZE, slabColor(true, 0))
     mesh.position.set(0, 0, 0)
@@ -547,27 +556,39 @@ export function createStackEngine(canvas: HTMLCanvasElement, hooks: StackEngineH
 
     if (titleIdle && phase === 'title') {
       const t = ts / 1000
-      const drift = Math.sin(t * 0.7) * 0.08
-      tower.rotation.y = drift
-      camY += (0 - camY) * Math.min(1, dt * 3)
+      towerYaw = Math.sin(t * 0.7) * 0.08
+      tower.rotation.y = towerYaw
+      camY = damp(camY, 0, 3, dt)
       placeCamera()
       renderer.render(scene, camera)
       raf = requestAnimationFrame(tick)
       return
     }
 
-    tower.rotation.y = 0
+    towerYaw = damp(towerYaw, 0, 8, dt)
+    tower.rotation.y = towerYaw
 
     if (phase === 'playing' && moving) {
+      const step = dir * speed * dt
       if (axis === 'x') {
-        moving.x += dir * speed * dt
-        if (dir > 0 && moving.x > MOVE_SPAN) dir = -1
-        if (dir < 0 && moving.x < -MOVE_SPAN) dir = 1
+        moving.x += step
+        if (moving.x > MOVE_SPAN) {
+          moving.x = MOVE_SPAN - (moving.x - MOVE_SPAN)
+          dir = -1
+        } else if (moving.x < -MOVE_SPAN) {
+          moving.x = -MOVE_SPAN + (-MOVE_SPAN - moving.x)
+          dir = 1
+        }
         moving.mesh.position.x = moving.x
       } else {
-        moving.z += dir * speed * dt
-        if (dir > 0 && moving.z > MOVE_SPAN) dir = -1
-        if (dir < 0 && moving.z < -MOVE_SPAN) dir = 1
+        moving.z += step
+        if (moving.z > MOVE_SPAN) {
+          moving.z = MOVE_SPAN - (moving.z - MOVE_SPAN)
+          dir = -1
+        } else if (moving.z < -MOVE_SPAN) {
+          moving.z = -MOVE_SPAN + (-MOVE_SPAN - moving.z)
+          dir = 1
+        }
         moving.mesh.position.z = moving.z
       }
     }
@@ -575,8 +596,8 @@ export function createStackEngine(canvas: HTMLCanvasElement, hooks: StackEngineH
     // Bounce on perfect
     for (const s of slabs) {
       if (s.bounce > 0) {
-        s.bounce = Math.max(0, s.bounce - dt * 4.2)
-        const punch = Math.sin(s.bounce * Math.PI) * 0.07
+        s.bounce = Math.max(0, s.bounce - dt * 3.4)
+        const punch = Math.sin(s.bounce * Math.PI) * 0.045
         s.mesh.scale.set(1 + punch, 1 + punch * 0.5, 1 + punch)
       }
     }
@@ -617,9 +638,12 @@ export function createStackEngine(canvas: HTMLCanvasElement, hooks: StackEngineH
       }
     }
 
-    camY += (camTargetY - camY) * Math.min(1, dt * 3.6)
-    camPull += (camPullTarget - camPull) * Math.min(1, dt * 2.4)
-    updateCameraFrustum()
+    const nextCam = damp(camY, camTargetY, 4.2, dt)
+    const nextPull = damp(camPull, camPullTarget, 2.6, dt)
+    const camMoved = Math.abs(nextCam - camY) > 0.0004 || Math.abs(nextPull - camPull) > 0.0004
+    camY = nextCam
+    camPull = nextPull
+    if (camMoved) updateCameraFrustum()
     placeCamera()
 
     renderer.render(scene, camera)

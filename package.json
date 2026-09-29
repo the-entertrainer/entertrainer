@@ -6,7 +6,7 @@
     "node": ">=20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "build": "npm run build:fever && nuxt build",
+    "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
@@ -14,8 +14,7 @@
     "check:paper-signal": "node scripts/check-paper-signal.mjs",
     "check:voice": "node --experimental-strip-types scripts/check-human-not-model.mjs",
     "smoke:dialogue": "node scripts/dialogue-smoke.mjs",
-    "check:social-hooks": "node scripts/check-social-hooks.mjs",
-    "build:fever": "node scripts/build-fever.mjs"
+    "check:social-hooks": "node scripts/check-social-hooks.mjs"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",

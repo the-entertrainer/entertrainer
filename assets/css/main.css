@@ -534,20 +534,27 @@ p, li, dd, figcaption { text-wrap: pretty; }
   position: relative;
   transition:
     transform var(--dur-fast) var(--ease-spring),
+    translate var(--dur-fast) var(--ease-spring),
+    scale var(--dur-fast) var(--ease-spring),
     background var(--dur-fast) var(--ease-out),
     color var(--dur-fast) var(--ease-out),
     border-color var(--dur-fast) var(--ease-out),
     box-shadow var(--dur-fast) var(--ease-out);
 }
+.u-icon-btn::before {
+  content: '';
+  position: absolute;
+  inset: -4rem;
+}
 .u-icon-btn:active {
-  transform: scale(0.94);
+  scale: 0.96;
 }
 @media (hover: hover) {
   .u-icon-btn:hover {
-    transform: translateY(-1rem);
+    translate: 0 -1rem;
   }
   .u-icon-btn:hover:active {
-    transform: scale(0.94);
+    scale: 0.96;
   }
 }
 .u-icon-btn--idle .ps-icon,
@@ -569,15 +576,14 @@ p, li, dd, figcaption { text-wrap: pretty; }
   }
 }
 @keyframes u-icon-idle-nudge {
-  0%, 62%, 100% { transform: rotate(0deg) scale(1); }
-  72% { transform: rotate(-7deg) scale(1.06); }
-  82% { transform: rotate(4deg) scale(1.02); }
-  90% { transform: rotate(-3deg) scale(1.04); }
+  0%, 72%, 100% { transform: rotate(0deg) scale(1); }
+  84% { transform: rotate(-4deg) scale(1.035); }
+  93% { transform: rotate(1.5deg) scale(1.01); }
 }
 @media (prefers-reduced-motion: reduce) {
   .u-icon-btn,
   .u-icon-btn:hover,
-  .u-icon-btn:active { transition: none; transform: none; }
+  .u-icon-btn:active { transition: none; translate: none; scale: none; }
   .u-icon-btn--idle .ps-icon,
   .u-icon-btn--idle > .ps-icon,
   .u-icon-btn--idle > svg,
@@ -588,7 +594,8 @@ html[data-reduce-motion="on"] .u-icon-btn,
 html[data-reduce-motion="on"] .u-icon-btn:hover,
 html[data-reduce-motion="on"] .u-icon-btn:active {
   transition: none !important;
-  transform: none !important;
+  translate: none !important;
+  scale: none !important;
 }
 html[data-reduce-motion="on"] .u-icon-btn--idle .ps-icon,
 html[data-reduce-motion="on"] .u-icon-btn--idle > .ps-icon,

@@ -183,7 +183,7 @@ export default defineNuxtConfig({
       skipWaiting: true,
       clientsClaim: true,
       cleanupOutdatedCaches: true,
-      globPatterns: ['**/*.{js,css,html,svg,png,woff2}', '**/fever/models/*.glb'],
+      globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
       navigateFallback: '/',
       navigateFallbackDenylist: [/^\/api\//],
       maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
@@ -227,6 +227,9 @@ export default defineNuxtConfig({
     '/engage/vilakku': { redirect: { to: '/engage', statusCode: 301 } },
     // Vybe removed — keep old links from 404ing.
     '/engage/vybe': { redirect: { to: '/engage', statusCode: 301 } },
+    '/engage/squash': { redirect: { to: '/engage', statusCode: 301 } },
+    '/engage/fever': { redirect: { to: '/engage', statusCode: 301 } },
+    '/engage/netagiri': { redirect: { to: '/engage', statusCode: 301 } },
     // Games renamed to Engage.
     '/games': { redirect: { to: '/engage', statusCode: 301 } },
     '/games/**': { redirect: { to: '/engage/**', statusCode: 301 } },

@@ -86,9 +86,7 @@ const bare = computed(() =>
   r.path.startsWith('/engage/read-my-mind') ||
   r.path.startsWith('/engage/astroclock') ||
   r.path.startsWith('/engage/stack') ||
-  r.path.startsWith('/engage/squash') ||
-  r.path.startsWith('/engage/fever') ||
-  r.path.startsWith('/engage/netagiri')
+  r.path.startsWith('/engage/squash')
 )
 
 onMounted(() => {

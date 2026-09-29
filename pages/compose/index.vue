@@ -13,12 +13,12 @@ useSeoMeta({
   robots: 'noindex, nofollow'
 })
 
-const GATE_KEY = 'iamguru'
-const GATE_STORAGE = 'et-compose-unlocked'
+const GATE_STORAGE = 'et-compose-key'
 
-/** Sent on compose mutate/draft APIs — must match server assertComposeAccess. */
+/** Sent on compose mutate/draft APIs. The expected value stays on the server. */
+const gateKey = ref('')
 function composeHeaders(): Record<string, string> {
-  return { 'x-compose-key': GATE_KEY }
+  return { 'x-compose-key': gateKey.value }
 }
 const DRAFT_STORAGE = 'et-compose-working'
 const DRAFT_SESSION = 'et-compose-working-session'
@@ -94,7 +94,11 @@ const blockTypes: { type: ComposedBlockType; label: string }[] = [
 
 onMounted(() => {
   try {
-    if (sessionStorage.getItem(GATE_STORAGE) === '1') unlocked.value = true
+    const savedGate = sessionStorage.getItem(GATE_STORAGE)
+    if (savedGate && savedGate !== '1') {
+      gateKey.value = savedGate
+      unlocked.value = true
+    }
     const sessionCached = sessionStorage.getItem(DRAFT_SESSION)
     const cached = sessionCached || localStorage.getItem(DRAFT_STORAGE)
     if (cached) draft.value = JSON.parse(cached) as ComposedPost
@@ -143,16 +147,28 @@ watch(draft, (value) => {
   }
 }, { deep: true })
 
-function tryUnlock() {
-  if (gateInput.value.trim() === GATE_KEY) {
-    unlocked.value = true
-    gateError.value = ''
-    try { sessionStorage.setItem(GATE_STORAGE, '1') } catch { /* ignore */ }
-    void loadLibrary()
-    void loadGithubStatus()
-  } else {
+async function tryUnlock() {
+  const key = gateInput.value.trim()
+  if (!key) {
     gateError.value = 'Still locked.'
     unlocked.value = false
+    return
+  }
+  try {
+    await $fetch('/api/compose/unlock', {
+      method: 'POST',
+      headers: { 'x-compose-key': key }
+    })
+    gateKey.value = key
+    unlocked.value = true
+    gateError.value = ''
+    try { sessionStorage.setItem(GATE_STORAGE, key) } catch { /* ignore */ }
+    void loadLibrary()
+    void loadGithubStatus()
+  } catch {
+    gateError.value = 'Still locked.'
+    unlocked.value = false
+    gateKey.value = ''
   }
 }
 

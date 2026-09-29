@@ -27,7 +27,7 @@ function goHome() {
     <p v-if="!isErrorPage" class="czone__note">{{ note }}</p>
     <UiNaveenStatus />
     <UiConstructionGame :autofocus="isErrorPage" />
-    <button type="button" class="glass-btn czone__home" @click="goHome">Back to the spiral</button>
+    <button type="button" class="glass-btn czone__home" @click="goHome">Back home</button>
   </div>
 </template>
 

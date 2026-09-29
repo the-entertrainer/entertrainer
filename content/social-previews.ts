@@ -210,7 +210,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — Stack, Fever Dream, Netagiri, The Mind Reader, and AstroClock.',
+    description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },
@@ -224,25 +224,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'stack',
     label: 'Stack',
     title: 'Stack · Engage',
-    description: 'Tap to drop. Only the overlap stays. A brutalist stacking arcade on Entertrainer.'
-  },
-  '/engage/squash': {
-    key: 'squash',
-    label: 'Fever Dream',
-    title: 'Fever Dream · Engage',
-    description: 'A banana hits the floor. Squeeze the brown roaches. The green ones want the wires.'
-  },
-  '/engage/fever': {
-    key: 'squash',
-    label: 'Fever Dream',
-    title: 'Fever Dream · Engage',
-    description: 'A banana hits the floor. Squeeze the brown roaches. The green ones want the wires.'
-  },
-  '/engage/netagiri': {
-    key: 'netagiri',
-    label: 'Netagiri',
-    title: 'Netagiri · Engage',
-    description: 'Five years. One chair. Govern through 260 weekly decisions and earn a second mandate in this political satire game.'
+    description: 'Tap to drop. Only the overlap stays. A stacking arcade on Entertrainer.'
   },
   '/engage/read-my-mind': {
     key: 'read-my-mind',

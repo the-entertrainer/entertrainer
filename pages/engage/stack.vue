@@ -28,6 +28,7 @@ const phase = ref<StackPhase>('title')
 const score = ref(0)
 const best = ref(0)
 const lastPerfect = ref(false)
+const perfectTick = ref(0)
 const newBest = ref(false)
 
 let engine: StackEngine | null = null
@@ -184,6 +185,12 @@ function resize() {
   engine.setSize(cssW, cssH)
 }
 
+let resizeRaf = 0
+function onResize() {
+  cancelAnimationFrame(resizeRaf)
+  resizeRaf = requestAnimationFrame(resize)
+}
+
 function syncTheme() {
   engine?.applyTheme(activePalette(), theme.isDark)
 }
@@ -200,8 +207,9 @@ onMounted(async () => {
       score.value = n
       phase.value = 'playing'
       if (perfect) {
+        perfectTick.value += 1
         lastPerfect.value = true
-        window.setTimeout(() => { lastPerfect.value = false }, 480)
+        window.setTimeout(() => { lastPerfect.value = false }, 520)
       } else {
         lastPerfect.value = false
       }
@@ -239,8 +247,8 @@ onMounted(async () => {
 
   syncTheme()
   resize()
-  window.addEventListener('resize', resize)
-  window.addEventListener('orientationchange', resize)
+  window.addEventListener('resize', onResize)
+  window.addEventListener('orientationchange', onResize)
 
   stopWatch = watch(
     () => theme.theme,
@@ -249,8 +257,9 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', resize)
-  window.removeEventListener('orientationchange', resize)
+  cancelAnimationFrame(resizeRaf)
+  window.removeEventListener('resize', onResize)
+  window.removeEventListener('orientationchange', onResize)
   stopWatch?.()
   engine?.dispose()
   engine = null
@@ -334,7 +343,7 @@ function onThemeToggle(e: Event) {
         <button class="st__cta st__anim" style="--i:3" type="button">Again</button>
       </div>
 
-      <p v-else-if="lastPerfect" class="st__perfect" key="perfect">PERFECT</p>
+      <p v-else-if="lastPerfect" class="st__perfect" :key="perfectTick">PERFECT</p>
     </div>
   </div>
 </template>
@@ -456,7 +465,7 @@ function onThemeToggle(e: Event) {
 
 .st__hud {
   position: absolute;
-  top: max(58rem, calc(env(safe-area-inset-top) + 48rem));
+  top: max(64rem, calc(env(safe-area-inset-top) + 56rem));
   left: 0;
   right: 0;
   z-index: 5;
@@ -565,7 +574,7 @@ function onThemeToggle(e: Event) {
   box-shadow:
     0 1rem 0 color-mix(in srgb, #161618 12%, transparent),
     0 8rem 20rem color-mix(in srgb, var(--st-ink) 10%, transparent);
-  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+  transition: transform 160ms ease, box-shadow 160ms ease;
 }
 .st__cta:active {
   transform: translateY(2rem) scale(0.98);

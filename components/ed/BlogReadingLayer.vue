@@ -28,7 +28,7 @@ function collectSections() {
   activeId.value = ''
   if (!isArticle.value || !import.meta.client) return
 
-  const prose = document.querySelector<HTMLElement>('.feature__prose, .ca__prose')
+  const prose = document.querySelector<HTMLElement>('.taj__prose, .ca__prose, .feature__prose')
   if (!prose) return
   const headings = Array.from(prose.querySelectorAll<HTMLElement>('h2'))
   sections.value = headings.map((element, index) => {
@@ -94,14 +94,18 @@ function toggleFocus() {
 
 onMounted(() => {
   window.addEventListener('scroll', updateProgress, { passive: true })
-  nextTick(collectSections)
+  nextTick(() => {
+    collectSections()
+    window.setTimeout(collectSections, 360)
+  })
 })
 
 watch(() => route.path, async () => {
   focusMode.value = false
   document.documentElement.removeAttribute('data-reading-focus')
   await nextTick()
-  window.setTimeout(collectSections, 120)
+  window.setTimeout(collectSections, 80)
+  window.setTimeout(collectSections, 360)
 })
 
 onBeforeUnmount(() => {
@@ -200,12 +204,16 @@ onBeforeUnmount(() => {
 html[data-reduce-motion="on"] .reading-layer__progress span { transition: none; }
 :global(html[data-reading-focus] .feature__margin-note),
 :global(html[data-reading-focus] .ca__margin-note),
+:global(html[data-reading-focus] .taj__margin-note),
 :global(html[data-reading-focus] .feature__sources),
 :global(html[data-reading-focus] .ca__sources),
+:global(html[data-reading-focus] .taj__sources),
 :global(html[data-reading-focus] .feature__newsletter-wrap),
-:global(html[data-reading-focus] .ca__newsletter-wrap) { opacity: .18; transition: opacity 240ms ease; }
+:global(html[data-reading-focus] .ca__newsletter-wrap),
+:global(html[data-reading-focus] .taj__newsletter-wrap) { opacity: .18; transition: opacity 240ms ease; }
 :global(html[data-reading-focus] .feature__prose),
-:global(html[data-reading-focus] .ca__prose) { max-width: 720rem; margin-inline: auto; }
+:global(html[data-reading-focus] .ca__prose),
+:global(html[data-reading-focus] .taj__prose) { max-width: 720rem; margin-inline: auto; }
 @media (prefers-reduced-motion: reduce) {
   :global(html[data-reading-focus] .feature__margin-note),
   :global(html[data-reading-focus] .ca__margin-note),

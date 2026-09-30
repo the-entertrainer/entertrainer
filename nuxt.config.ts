@@ -230,6 +230,12 @@ export default defineNuxtConfig({
     '/engage/squash': { redirect: { to: '/engage', statusCode: 301 } },
     '/engage/fever': { redirect: { to: '/engage', statusCode: 301 } },
     '/engage/netagiri': { redirect: { to: '/engage', statusCode: 301 } },
+    '/elevate/if-you-are-intelligent-life-might-not-be-easy': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/elevate/does-ai-understand-you': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/elevate/how-to-lie-perfectly': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/elevate/the-voice-in-your-head-is-not-the-whole-of-you': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/elevate/you-are-the-centre-of-the-universe': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/elevate/can-you-reverse-the-spin-of-a-schwarz-surface': { redirect: { to: '/elevate', statusCode: 301 } },
     // Games renamed to Engage.
     '/games': { redirect: { to: '/engage', statusCode: 301 } },
     '/games/**': { redirect: { to: '/engage/**', statusCode: 301 } },

@@ -1,4 +1,4 @@
-import { ENTROPY_BLOG, INTELLIGENCE_BLOG, MOONLY_BLOG, AI_UNDERSTAND_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, LIE_PERFECTLY_BLOG, INNER_SPEECH_BLOG, CENTRE_UNIVERSE_BLOG, KNOWING_BLOG, TAJJALAN_BLOG, SPLIT_BRAIN_BLOG } from './blogs'
+import { ENTROPY_BLOG, MOONLY_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, KNOWING_BLOG, TAJJALAN_BLOG, SPLIT_BRAIN_BLOG } from './blogs'
 
 export const SITE_URL = 'https://entertrainer.in'
 
@@ -46,15 +46,6 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     imageAlt: ENTROPY_BLOG.heroAlt,
     type: 'article'
   },
-  [`/elevate/${INTELLIGENCE_BLOG.slug}`]: {
-    key: 'intelligence-blog',
-    label: INTELLIGENCE_BLOG.category,
-    title: INTELLIGENCE_BLOG.socialTitle,
-    description: INTELLIGENCE_BLOG.socialHook,
-    image: `${SITE_URL}${INTELLIGENCE_BLOG.hero}`,
-    imageAlt: INTELLIGENCE_BLOG.heroAlt,
-    type: 'article'
-  },
   [`/elevate/${MOONLY_BLOG.slug}`]: {
     key: 'moon-moonly',
     label: MOONLY_BLOG.category,
@@ -62,15 +53,6 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     description: MOONLY_BLOG.socialHook,
     image: `${SITE_URL}${MOONLY_BLOG.hero}`,
     imageAlt: MOONLY_BLOG.heroAlt,
-    type: 'article'
-  },
-  [`/elevate/${AI_UNDERSTAND_BLOG.slug}`]: {
-    key: 'ai-understand',
-    label: AI_UNDERSTAND_BLOG.category,
-    title: AI_UNDERSTAND_BLOG.socialTitle,
-    description: AI_UNDERSTAND_BLOG.socialHook,
-    image: `${SITE_URL}${AI_UNDERSTAND_BLOG.hero}`,
-    imageAlt: AI_UNDERSTAND_BLOG.heroAlt,
     type: 'article'
   },
   [`/elevate/${JAMAIS_VU_BLOG.slug}`]: {
@@ -89,33 +71,6 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     description: LIFE_MIDPOINT_BLOG.socialHook,
     image: `${SITE_URL}${LIFE_MIDPOINT_BLOG.hero}`,
     imageAlt: LIFE_MIDPOINT_BLOG.heroAlt,
-    type: 'article'
-  },
-  [`/elevate/${LIE_PERFECTLY_BLOG.slug}`]: {
-    key: 'lie-perfectly',
-    label: LIE_PERFECTLY_BLOG.category,
-    title: LIE_PERFECTLY_BLOG.socialTitle,
-    description: LIE_PERFECTLY_BLOG.socialHook,
-    image: `${SITE_URL}${LIE_PERFECTLY_BLOG.hero}`,
-    imageAlt: LIE_PERFECTLY_BLOG.heroAlt,
-    type: 'article'
-  },
-  [`/elevate/${INNER_SPEECH_BLOG.slug}`]: {
-    key: 'inner-speech',
-    label: INNER_SPEECH_BLOG.category,
-    title: INNER_SPEECH_BLOG.socialTitle,
-    description: INNER_SPEECH_BLOG.socialHook,
-    image: `${SITE_URL}${INNER_SPEECH_BLOG.hero}`,
-    imageAlt: INNER_SPEECH_BLOG.heroAlt,
-    type: 'article'
-  },
-  [`/elevate/${CENTRE_UNIVERSE_BLOG.slug}`]: {
-    key: 'centre-universe',
-    label: CENTRE_UNIVERSE_BLOG.category,
-    title: CENTRE_UNIVERSE_BLOG.socialTitle,
-    description: CENTRE_UNIVERSE_BLOG.socialHook,
-    image: `${SITE_URL}${CENTRE_UNIVERSE_BLOG.hero}`,
-    imageAlt: CENTRE_UNIVERSE_BLOG.heroAlt,
     type: 'article'
   },
   [`/elevate/${KNOWING_BLOG.slug}`]: {

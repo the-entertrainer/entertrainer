@@ -44,20 +44,6 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: '2026-08-23T22:14:08+00:00'
   },
   {
-    slug: 'if-you-are-intelligent-life-might-not-be-easy',
-    title: 'A sharp mind is not a curse',
-    dek: 'A mind that opens ten versions of a late bus is not cursed. It forgot to close the extra windows.',
-    socialHook: 'Bus is six minutes late. Your skull opens ten windows and won’t close them. The research is less flattering than the myth.',
-    socialTitle: 'Bus late. Your skull opens ten windows and won’t close them.',
-    category: 'Mind',
-    tags: ['cognition', 'psychology'],
-    minutes: 9,
-    hero: '/blog/intelligence/hero.jpg',
-    heroAlt: 'A black silhouette of a head in profile with a tangled maze of branching paths spilling out from it, one single path breaking free in cobalt blue and running straight off the edge of the frame.',
-    status: 'published',
-    publishedAt: '2026-08-23T23:02:40+00:00'
-  },
-  {
     slug: 'why-isnt-the-moon-moonly',
     title: 'Why isn’t the Moon moonly?',
     dek: 'English could have grown “moonly.” Another word already had the science job. Move the noun and see who is left.',
@@ -70,20 +56,6 @@ export const BLOG_POSTS: BlogPost[] = [
     heroAlt: 'The word MOONLY struck through in black, with the word LUNAR in bold cobalt blue beneath it and a small crescent moon in the corner.',
     status: 'published',
     publishedAt: '2026-08-28T12:54:49+00:00'
-  },
-  {
-    slug: 'does-ai-understand-you',
-    title: 'Does AI understand you?',
-    dek: 'A fluent reply can feel like being known. Walk the six steps. The machine is still guessing the next word.',
-    socialHook: 'You type a half-finished rant. The reply is so on-point you whisper “it gets me.” Bloom’s Taxonomy says it never quite arrives.',
-    socialTitle: 'Does AI understand you? Bloom’s Taxonomy says otherwise.',
-    category: 'Technology',
-    tags: ['learning design', 'AI', 'teaching'],
-    minutes: 10,
-    hero: '/blog/ai-understand/hero.jpg',
-    heroAlt: 'Two head silhouettes facing each other, one filled with an organic black brain shape, the other with a rigid cobalt-blue circuit-grid pattern, with small square tiles floating between them.',
-    status: 'published',
-    publishedAt: '2026-08-28T15:44:02+00:00'
   },
   {
     slug: 'jamais-vu-why-words-stop-meaning-anything',
@@ -114,48 +86,6 @@ export const BLOG_POSTS: BlogPost[] = [
     publishedAt: '2026-08-31T20:00:14+00:00'
   },
   {
-    slug: 'how-to-lie-perfectly',
-    title: 'What it would take to lie perfectly',
-    dek: 'A perfect lie is leftover attention, not a calm pair of eyes. Take the spare away and watch the story slip.',
-    socialHook: 'Perfect lying looks like calm eyes. Cognitive science keeps calling it a bandwidth problem — and listeners who start by believing you.',
-    socialTitle: 'What it would take to lie perfectly — mostly bandwidth.',
-    category: 'Mind',
-    tags: ['cognition', 'psychology'],
-    minutes: 9,
-    hero: '/blog/how-to-lie-perfectly/hero.jpg',
-    heroAlt: 'A black silhouette of a head in profile on a cream background; tangled black dashed-road speech paths swirl from the mouth while one straight cobalt-blue path runs forward, with a small cobalt crossed-fingers icon between them.',
-    status: 'published',
-    publishedAt: '2026-09-05T20:57:02+00:00'
-  },
-  {
-    slug: 'the-voice-in-your-head-is-not-the-whole-of-you',
-    title: 'The press secretary in your head',
-    dek: 'The sentence in your head is a microphone in a larger room. It rehearses the text. It does not decide whether you send it.',
-    socialHook: 'That running commentary rehearses the text, holds the number, talks you out of sending it. Useful. Not the CEO of you.',
-    socialTitle: 'The press secretary in your head is useful. Not the CEO.',
-    category: 'Mind',
-    tags: ['cognition', 'language', 'inner speech'],
-    minutes: 9,
-    hero: '/blog/inner-speech/hero.jpg',
-    heroAlt: 'A black ink silhouette of an adult head with a tiny press-secretary desk inside it, notes stacked around a lamp, and one cobalt-blue path leaving the mouth.',
-    status: 'published',
-    publishedAt: '2026-09-05T12:00:00+00:00'
-  },
-  {
-    slug: 'you-are-the-centre-of-the-universe',
-    title: 'The sky runs away from everyone',
-    dek: 'Hold anyone still. The sky runs away from them. Change the person. The sky does not pick a favourite.',
-    socialHook: 'Hold still. The sky runs away from you. Hold anyone else still — same thing. Expanding space doesn’t pick a favourite.',
-    socialTitle: 'Hold still. The sky runs away from you — and everyone.',
-    category: 'Universe',
-    tags: ['cosmology', 'expansion', 'science'],
-    minutes: 9,
-    hero: '/blog/centre-universe/hero.jpg',
-    heroAlt: 'Cream field of galaxy dots: faint yesterday under bold today, soft dashed rays from a yellow-held centre where one person’s two photos stack.',
-    status: 'published',
-    publishedAt: '2026-09-09T19:06:00+00:00'
-  },
-  {
     slug: 'you-only-find-out-when-you-have-to-explain-it',
     title: 'You find out when you have to explain it',
     dek: 'You feel you know the zip until you have to say what pushes what. The feeling arrives before the model.',
@@ -171,10 +101,10 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'tajjalan',
-    title: 'Tajjalan',
-    dek: 'One old word for a thing you already do: it shows up, stays a while, and goes back into what it came from.',
-    socialHook: 'There’s an old Chāndogya word for a pressure: whatever shows up rises from That, lives in That, and returns into That.',
-    socialTitle: 'Tajjalan — born from That, lives in That, returns into That.',
+    title: 'The cup stays. The tea does not.',
+    dek: 'Watch one thing appear, stay, and go. The old name for that look comes after you have seen it.',
+    socialHook: 'You pour the tea. It shows up, it sits, it is gone. The cup never left. An old word is only the name for that look.',
+    socialTitle: 'The cup stays. The tea does not.',
     category: 'Mind',
     tags: ['upanishad', 'consciousness', 'philosophy'],
     minutes: 7,
@@ -197,34 +127,13 @@ export const BLOG_POSTS: BlogPost[] = [
     status: 'published',
     publishedAt: '2026-09-22T15:45:00+00:00'
   },
-  {
-    slug: 'can-you-reverse-the-spin-of-a-schwarz-surface',
-    title: 'Can you reverse the spin?',
-    dek: 'The lattice does not spin. You do. Drag the model backwards. The wall is still three cosines adding to zero.',
-    socialHook: 'A clip spins a glowing lattice and dares you to reverse it. The wall is three cosines adding to zero. Spin is the camera, not the surface.',
-    socialTitle: 'Can you reverse the spin of a Schwarz surface?',
-    category: 'Science',
-    tags: ['maths', 'geometry', 'minimal-surfaces'],
-    minutes: 6,
-    hero: '/blog/schwarz-surface/hero.jpg',
-    heroAlt: 'Cream field with nested ink ellipses and one gold ring, a quiet diagram of a repeating tunnel.',
-    status: 'published',
-    publishedAt: '2026-09-27T16:30:00+00:00'
-  }
 ]
 
-
 export const ENTROPY_BLOG = BLOG_POSTS[0]
-export const INTELLIGENCE_BLOG = BLOG_POSTS[1]
-export const MOONLY_BLOG = BLOG_POSTS[2]
-export const AI_UNDERSTAND_BLOG = BLOG_POSTS[3]
-export const JAMAIS_VU_BLOG = BLOG_POSTS[4]
-export const LIFE_MIDPOINT_BLOG = BLOG_POSTS[5]
-export const LIE_PERFECTLY_BLOG = BLOG_POSTS[6]
-export const INNER_SPEECH_BLOG = BLOG_POSTS[7]
-export const CENTRE_UNIVERSE_BLOG = BLOG_POSTS[8]
-export const KNOWING_BLOG = BLOG_POSTS[9]
-export const TAJJALAN_BLOG = BLOG_POSTS[10]
-export const SPLIT_BRAIN_BLOG = BLOG_POSTS[11]
-export const SCHWARZ_BLOG = BLOG_POSTS[12]
+export const MOONLY_BLOG = BLOG_POSTS[1]
+export const JAMAIS_VU_BLOG = BLOG_POSTS[2]
+export const LIFE_MIDPOINT_BLOG = BLOG_POSTS[3]
+export const KNOWING_BLOG = BLOG_POSTS[4]
+export const TAJJALAN_BLOG = BLOG_POSTS[5]
+export const SPLIT_BRAIN_BLOG = BLOG_POSTS[6]
 export const FEATURED_BLOG = ENTROPY_BLOG

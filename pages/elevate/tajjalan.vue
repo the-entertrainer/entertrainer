@@ -35,11 +35,11 @@ const references = [
   }
 ]
 
-const breath = ref(1)
+const breath = ref(0)
 const phases = [
-  { name: 'Ja', line: 'The breath shows up. It is born from the same air you are already in.' },
-  { name: 'An', line: 'It stays. For this moment it lives here, still made of that air.' },
-  { name: 'La', line: 'It goes back. Tajjalan is the whole path: from That, in That, into That.' }
+  { name: 'Shows up', line: 'The breath arrives. It was not here. Now it is. Same air you were already in.' },
+  { name: 'Stays', line: 'It sits for a moment. Still a visit. Still made of that air.' },
+  { name: 'Goes back', line: 'It leaves. You are still here. That whole path has a name. Tajjalan.' }
 ]
 const phase = computed(() => phases[breath.value] ?? phases[0])
 const breathLine = computed(() => phase.value?.line ?? '')
@@ -60,20 +60,21 @@ const breathLine = computed(() => phase.value?.line ?? '')
 
     <article class="taj__article">
       <aside class="taj__margin-note" aria-label="Reading note">
-        <p>Four pieces.</p>
-        <p><strong>Tat</strong> (That), <strong>Ja</strong> (born from), <strong>La</strong> (returns into), <strong>An</strong> (lives and breathes in). One word. One look you can try on a cup, a day, or a breath.</p>
+        <p>The cup stays.</p>
+        <p>What you watched was the visit. It showed up. It sat. It went.</p>
       </aside>
 
       <div class="taj__prose">
-        <p class="taj__lead">There is an old word most people never hear.</p>
-        <p>Once you see what it is pointing at, the wall between “me” and “everything else” starts looking thinner than you were taught.</p>
+        <p class="taj__lead">You pour the tea.</p>
+        <p>Steam. Heat. A colour in the cup.</p>
+        <p>Then it is ordinary water. Then it is gone. The cup did not go with it.</p>
 
         <EdTry v-model="breath" :min="0" :max="2" label="Where this breath is" :readout="phase?.name ?? ''">
           {{ breathLine }}
         </EdTry>
 
-        <h2>Four pieces of one word</h2>
-        <p>Tajjalan.</p>
+        <h2>Now the name</h2>
+        <p>There is an old word for that look. Tajjalan.</p>
         <p>It comes from a short line in the Chāndogya Upaniṣad: all this is Brahman; sit with it calmly as <em>tajjalan</em>.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
         <p>The word itself is made of four pieces. That is the whole key.</p>
         <p><strong>Tat</strong> means That — the ground of everything. <strong>Ja</strong> means born from, or coming out of. <strong>La</strong> means going back into, or dissolving into. <strong>An</strong> means living and breathing in.</p>

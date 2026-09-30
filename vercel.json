@@ -86,6 +86,36 @@
       "source": "/engage/netagiri",
       "destination": "/engage",
       "permanent": true
+    },
+    {
+      "source": "/elevate/if-you-are-intelligent-life-might-not-be-easy",
+      "destination": "/elevate",
+      "permanent": true
+    },
+    {
+      "source": "/elevate/does-ai-understand-you",
+      "destination": "/elevate",
+      "permanent": true
+    },
+    {
+      "source": "/elevate/how-to-lie-perfectly",
+      "destination": "/elevate",
+      "permanent": true
+    },
+    {
+      "source": "/elevate/the-voice-in-your-head-is-not-the-whole-of-you",
+      "destination": "/elevate",
+      "permanent": true
+    },
+    {
+      "source": "/elevate/you-are-the-centre-of-the-universe",
+      "destination": "/elevate",
+      "permanent": true
+    },
+    {
+      "source": "/elevate/can-you-reverse-the-spin-of-a-schwarz-surface",
+      "destination": "/elevate",
+      "permanent": true
     }
   ],
   "rewrites": [

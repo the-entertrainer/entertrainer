@@ -20,6 +20,11 @@ const references = [
   { id: 3, title: 'Hubble’s Law of Cosmic Expansion', source: 'ESA / Hubble', href: 'https://esahubble.org/wordbank/hubbles-law/' },
   { id: 4, title: 'A Relation between Distance and Radial Velocity among Extra-Galactic Nebulae', source: 'Hubble, PNAS 1929', href: 'https://www.pnas.org/doi/10.1073/pnas.15.3.168' }
 ]
+
+const who = ref(0)
+const observers = ['you, on the terrace', 'your friend, one city over', 'a galaxy ten billion light-years away']
+const observer = computed(() => observers[who.value] ?? observers[0])
+const skyLine = computed(() => `Hold ${observer.value} still. The sky runs away from them. Change who you hold. The sky does the same. No favourite middle.`)
 </script>
 
 <template>
@@ -46,6 +51,16 @@ const references = [
         <p>Not at a star. At the whole idea of the thing.</p>
         <p>“If it started with a bang,” they say, “where is the bang now?”</p>
         <p>Fair question. Wrong picture.</p>
+
+        <EdTry v-model="who" :min="0" :max="2" label="Who you hold still" :readout="observer ?? ''">
+          <template #stage>
+            <div class="sky" aria-hidden="true">
+              <i /><i /><i /><b />
+            </div>
+          </template>
+          {{ skyLine }}
+        </EdTry>
+
         <p>A firework happens in a room. Smoke leaves a middle. You could walk back to the match.</p>
 
         <h2>Dots on a balloon</h2>
@@ -132,6 +147,13 @@ const references = [
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
+.sky { position: relative; height: 72rem; }
+.sky i, .sky b { position: absolute; top: 50%; border-radius: 50%; transform: translate(-50%, -50%); }
+.sky b { left: 50%; width: 10rem; height: 10rem; background: var(--accent); border: var(--stroke) solid var(--ink); }
+.sky i { width: 8rem; height: 8rem; background: var(--ink); }
+.sky i:nth-child(1) { left: 22%; }
+.sky i:nth-child(2) { left: 72%; }
+.sky i:nth-child(3) { left: 84%; width: 5rem; height: 5rem; }
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }

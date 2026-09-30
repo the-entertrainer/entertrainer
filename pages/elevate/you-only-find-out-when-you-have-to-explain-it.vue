@@ -24,6 +24,16 @@ const references = [
   { id: 7, title: 'Talking the Talk, Not Walking the Walk: Coevolution of Overconfidence and Loss Aversion', source: 'Dawson & de Meza, Psychological Review, 2026', href: 'https://doi.org/10.1037/rev0000644' },
   { id: 8, title: 'Power and the illusion of explanatory depth', source: 'Körner, Schütz & Petersen, PLOS ONE, 2024', href: 'https://doi.org/10.1371/journal.pone.0297850' }
 ]
+
+const depth = ref(0)
+const zipSteps = [
+  'I know how a zip works. I have used one since I was small.',
+  'The slider moves. The teeth do something. I cannot say what.',
+  'There is a wedge. I think. I cannot draw it.',
+  'The two sides are forced together. I cannot say what pushes what.',
+  'The feeling was a label. The chain was never in the sentence. That gap has a name: the illusion of explanatory depth.'
+]
+const zipLine = computed(() => zipSteps[depth.value] ?? zipSteps[0])
 </script>
 
 <template>
@@ -47,6 +57,11 @@ const references = [
         <p>A fridge. A tax. Why the match was lost. How a zip actually closes. They say it the way people say their own name. No pause. No “I think.”</p>
         <p>Then someone asks them to walk through it. Not the slogan. The mechanism. What pushes what. What happens next.</p>
         <p>The sentence that felt like a building turns out to be a doorway with nothing behind it.</p>
+
+        <EdTry v-model="depth" :min="0" :max="4" label="How far you try to explain a zip" :readout="`step ${depth + 1}`">
+          {{ zipLine }}
+        </EdTry>
+
         <h2>The zip you cannot draw</h2>
         <p>Try the zip. Explain it to someone who has never seen one. No diagram. No “it just meshes.” The slider pulls. The teeth do something. There is a wedge, maybe. The two sides are forced together, or pulled apart.</p>
         <p>You have used this object since you were a child. You can work it in the dark. Now draw the part that actually does the work. Most people stall around step two.</p>

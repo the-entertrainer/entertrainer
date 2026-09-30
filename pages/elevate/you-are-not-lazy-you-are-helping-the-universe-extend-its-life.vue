@@ -20,6 +20,13 @@ const references = [
   { id: 3, title: 'Landauer principle and thermodynamics of computation', source: 'Reports on Progress in Physics, 2025', href: 'https://iopscience.iop.org/article/10.1088/1361-6633/add6b3/meta' },
   { id: 4, title: 'Ask an Astrophysicist: Cosmology', source: 'NASA Goddard Space Flight Center', href: 'https://imagine.gsfc.nasa.gov/ask_astro/cosmology.html' }
 ]
+
+const gap = ref(62)
+const heatLine = computed(() => {
+  if (gap.value >= 45) return 'The cup is still different from the room. You can spend that difference. It can warm a hand.'
+  if (gap.value >= 15) return 'The warmth is leaving the cup. Nothing vanished. It just got worse at doing work.'
+  return 'The cup and the room are almost the same. A spent difference has a name. Entropy.'
+})
 </script>
 
 <template>
@@ -42,16 +49,24 @@ const references = [
       </aside>
 
       <div class="taj__prose">
-        <p class="taj__lead">You make the tea properly hot, then get lost in your phone.</p>
-        <p>Come back. It is disappointingly normal.</p>
-        <p>The tea did not lose all its energy. It gave some warmth to the cooler room. The room barely changed. The cup changed enough for you to notice.</p>
+        <p class="taj__lead">You make the tea hot. Then you get lost in your phone.</p>
+        <p>Come back. The cup is ordinary.</p>
+        <p>The heat did not disappear. It moved into the cooler room. The room barely noticed. You did.</p>
+
+        <EdTry v-model="gap" :min="0" :max="70" label="How much hotter the cup still is" :readout="`${gap}°`">
+          <template #stage>
+            <div class="heat" aria-hidden="true">
+              <i :style="{ width: `${18 + gap * 1.1}%` }" />
+            </div>
+          </template>
+          {{ heatLine }}
+        </EdTry>
 
         <h2>A difference you can spend</h2>
-        <p>A difference you can spend.</p>
-        <p>Hot tea beside a cool room has a difference. A charged battery has one. Water sitting high above the ground has one. Heat can move. The battery can run the phone. Falling water can turn a wheel.</p>
-        <p>Then the difference thins out. The tea cools. The battery goes flat. The water reaches the bottom. Nothing vanished. It just got worse at making something else happen.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>That direction has a formal name: the second law of thermodynamics. You do not need the label. You have watched it happen to coffee.</p>
-        <p>Hot things cool. Full batteries become empty ones. A room with a window open stops having one side that is wildly colder than the other.</p>
+        <p>Hot tea next to a cool room is a difference. A charged battery is one. Water sitting above the ground is one.</p>
+        <p>Heat can move. The battery can run the phone. Falling water can turn a wheel.</p>
+        <p>Then the difference thins out. The tea cools. The battery goes flat. The water reaches the bottom. Nothing vanished. It got worse at making something else happen.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>That one-way spreading is the second law of thermodynamics. You do not need the label to recognise your coffee.</p>
 
         <figure class="taj__visual">
           <EdEditorialImage
@@ -61,18 +76,17 @@ const references = [
           <figcaption>A hot cup and a cool room start different. The warmth spreads. The useful gap shrinks.</figcaption>
         </figure>
 
-        <h2>The nap and the messy room</h2>
-        <p>Here is the joke people want. Stay in bed, do less, help the universe last longer.</p>
+        <h2>The nap is not a physics trick</h2>
+        <p>Here is the joke people want. Stay in bed. Do less. Help the universe last longer.</p>
         <p>A slower day usually burns less of the obvious stuff. Less walking. Less cooking. Fewer lights.</p>
-        <p>You are not a phone on airplane mode while you lie there. You are still breathing, still warm, still thinking odd thoughts. The phone in your hand may be getting hot on its own. The universe will manage either way.</p>
-        <p>Rest does not need a cosmic excuse. Sometimes you are tired. Sometimes your back would like a chair.</p>
-        <p>People hear the word and look at the bedroom. Mess looks random. A folded shirt looks like a win against physics.</p>
-        <p>Physics does not care where the socks are. You can make one small patch more ordered any time you like. A fridge keeps its inside cool. A body keeps itself alive. Folding a shirt spends energy and sends some heat somewhere else.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>So clean the room. Entropy is not going to do it for you.</p>
+        <p>You are not a phone on airplane mode. You are still breathing, still warm, still thinking. The phone in your hand may be getting hot on its own.</p>
+        <p>Rest does not need a cosmic excuse. Sometimes you are tired.</p>
+        <p>Mess is not the same thing. Physics does not care where the socks are. You can tidy one patch any time you like. A fridge keeps its inside cool. Folding a shirt spends energy and sends some heat somewhere else.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>So clean the room. Entropy is not going to do it for you. This ignores the long argument about whether the universe must end this way. That can wait. Your tea is already doing the small version.</p>
 
         <h2>A deleted file still makes heat</h2>
-        <p>Your photos feel weightless. The phone holding them is a lump of matter moving tiny amounts of electricity around. It warms up. It asks to be charged.</p>
-        <p>Resetting information has a tiny minimum energy cost. Real machines pay much more than the neat textbook floor, and they pay it messily. The simple point is enough. Information is not floating free. Somebody is paying for it in electricity and heat.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <p>Your photos feel weightless. The phone holding them is matter, moving tiny amounts of electricity. It warms up. It asks to be charged.</p>
+        <p>Resetting information has a tiny minimum energy cost. Real machines pay much more than that textbook floor. Information is not floating free. Someone pays for it in electricity and heat.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
 
         <figure class="taj__visual taj__visual--wide">
           <EdEditorialImage
@@ -83,13 +97,13 @@ const references = [
         </figure>
 
         <p>Follow the same idea for an absurdly long time and the picture gets quiet. No big differences left. No easy fuel. No bright stars doing their usual work. People call that possible ending heat death.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
-        <p>Where I have to be honest: that is not a reason to stay under the blanket this morning. It is the largest version of what your tea is already doing on the table.</p>
+        <p>That is not a reason to stay under the blanket this morning. It is your tea, drawn at the largest scale.</p>
 
         <blockquote>
           <p>A useful difference slowly becomes ordinary.</p>
         </blockquote>
 
-        <p class="taj__closing">If the universe is only smoothing things out, what are you actually protecting when you treat a nap as a moral failure?</p>
+        <p class="taj__closing">If the universe is only smoothing things out, what are you protecting when you treat a nap as a moral failure?</p>
         <p>Take the nap. Then reply to the message.</p>
       </div>
     </article>
@@ -146,6 +160,19 @@ const references = [
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
+.heat {
+  height: 22rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: 999rem;
+  background: var(--paper);
+  overflow: hidden;
+}
+.heat i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-right: var(--stroke) solid var(--ink);
+}
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }

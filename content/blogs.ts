@@ -32,7 +32,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'you-are-not-lazy-you-are-helping-the-universe-extend-its-life',
     title: 'Why hot tea goes cold',
-    dek: 'A small physics story about rest, hot tea, batteries, deleted files, and why the universe likes to spread things out.',
+    dek: 'The tea went cold because a difference you could use spread into the room. Drag the gap. Watch it stop being useful.',
     socialHook: 'Hot tea cools. Phones die. Same boring physics. Rest isn’t a moral failure — it’s the universe preferring things spread out.',
     socialTitle: 'Hot tea cools. Phones die. Rest isn’t a moral failure.',
     category: 'Universe',
@@ -46,7 +46,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'if-you-are-intelligent-life-might-not-be-easy',
     title: 'A sharp mind is not a curse',
-    dek: 'A mind that can model more possibilities can also get stuck living in the model. The research is less cinematic than the myth.',
+    dek: 'A mind that opens ten versions of a late bus is not cursed. It forgot to close the extra windows.',
     socialHook: 'Bus is six minutes late. Your skull opens ten windows and won’t close them. The research is less flattering than the myth.',
     socialTitle: 'Bus late. Your skull opens ten windows and won’t close them.',
     category: 'Mind',
@@ -60,7 +60,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'why-isnt-the-moon-moonly',
     title: 'Why isn’t the Moon moonly?',
-    dek: 'English will build an adjective out of almost any noun, then quietly refuse for the Moon, the Sun and your own teeth. The reason is older than English.',
+    dek: 'English could have grown “moonly.” Another word already had the science job. Move the noun and see who is left.',
     socialHook: 'Friend, friendly. Love, lovely. Moon… English builds adjectives freely, then quietly refuses. The reason is older than English.',
     socialTitle: 'Friend, friendly. Love, lovely. Why isn’t the Moon moonly?',
     category: 'Mind',
@@ -74,7 +74,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'does-ai-understand-you',
     title: 'Does AI understand you?',
-    dek: 'An instructional designer walks the word “understand” through Bloom’s Taxonomy, and finds a very fast, very fluent machine that never quite arrives at the state the word describes.',
+    dek: 'A fluent reply can feel like being known. Walk the six steps. The machine is still guessing the next word.',
     socialHook: 'You type a half-finished rant. The reply is so on-point you whisper “it gets me.” Bloom’s Taxonomy says it never quite arrives.',
     socialTitle: 'Does AI understand you? Bloom’s Taxonomy says otherwise.',
     category: 'Technology',
@@ -88,7 +88,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'jamais-vu-why-words-stop-meaning-anything',
     title: 'When a word stops being a word',
-    dek: 'One evening at work I stared at the word "door" until it stopped looking like English. That glitch has a name, an Ig Nobel Prize, and a family of stranger cousins.',
+    dek: 'Look at a word until it turns back into a shape. You have not forgotten it. The feeling just left.',
     socialHook: 'I stared at “door” until it stopped looking like English. That glitch has a name, an Ig Nobel Prize, and stranger cousins.',
     socialTitle: 'Stare at a word long enough — it stops being a word.',
     category: 'Mind',
@@ -102,7 +102,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'the-midpoint-of-your-life-isnt-40-its-18',
     title: 'The middle of your life is not 40',
-    dek: 'A video I watched claimed the real midpoint of an 81-year life is age 18, not 40. The maths behind it is genuine, two centuries old — and shakier than the confident voiceover made it sound.',
+    dek: 'Eighteen is not a law of life. It is what falls out when you pick age 4 and a life of 81. Move the start. The middle moves.',
     socialHook: 'A video claimed your life’s midpoint isn’t 40 — it’s 18. The maths is real, two centuries old, and shakier than the voiceover.',
     socialTitle: 'Your life’s midpoint isn’t 40. The maths says it’s 18.',
     category: 'Mind',
@@ -116,7 +116,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'how-to-lie-perfectly',
     title: 'What it would take to lie perfectly',
-    dek: 'Perfect lying sounds like calm eyes and a locked story. Cognitive science suggests it is mostly a bandwidth problem — and that many imperfect lies succeed because listeners start in truth-default.',
+    dek: 'A perfect lie is leftover attention, not a calm pair of eyes. Take the spare away and watch the story slip.',
     socialHook: 'Perfect lying looks like calm eyes. Cognitive science keeps calling it a bandwidth problem — and listeners who start by believing you.',
     socialTitle: 'What it would take to lie perfectly — mostly bandwidth.',
     category: 'Mind',
@@ -130,7 +130,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'the-voice-in-your-head-is-not-the-whole-of-you',
     title: 'The press secretary in your head',
-    dek: 'That running commentary can rehearse a conversation, hold a phone number, and talk you out of sending a message. Useful. Not in charge.',
+    dek: 'The sentence in your head is a microphone in a larger room. It rehearses the text. It does not decide whether you send it.',
     socialHook: 'That running commentary rehearses the text, holds the number, talks you out of sending it. Useful. Not the CEO of you.',
     socialTitle: 'The press secretary in your head is useful. Not the CEO.',
     category: 'Mind',
@@ -144,7 +144,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'you-are-the-centre-of-the-universe',
     title: 'The sky runs away from everyone',
-    dek: 'Space gets bigger between the galaxies — they are not walking. Hold anyone still and the sky runs away from them. Same for everyone.',
+    dek: 'Hold anyone still. The sky runs away from them. Change the person. The sky does not pick a favourite.',
     socialHook: 'Hold still. The sky runs away from you. Hold anyone else still — same thing. Expanding space doesn’t pick a favourite.',
     socialTitle: 'Hold still. The sky runs away from you — and everyone.',
     category: 'Universe',
@@ -158,7 +158,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'you-only-find-out-when-you-have-to-explain-it',
     title: 'You find out when you have to explain it',
-    dek: 'The feeling of knowing arrives first, and cheaply. A zip, a policy, a search bar — they all sell you a working model. The model is often just a label with good lighting.',
+    dek: 'You feel you know the zip until you have to say what pushes what. The feeling arrives before the model.',
     socialHook: 'The feeling of knowing arrives first, and cheaply. Ask someone to explain the zip — and the lighting goes out.',
     socialTitle: 'You only find out you don’t know it when you explain it.',
     category: 'Mind',
@@ -172,7 +172,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'tajjalan',
     title: 'Tajjalan',
-    dek: 'An old word from the Chāndogya Upaniṣad: whatever shows up is born from That, lives in That, and returns into That.',
+    dek: 'One old word for a thing you already do: it shows up, stays a while, and goes back into what it came from.',
     socialHook: 'There’s an old Chāndogya word for a pressure: whatever shows up rises from That, lives in That, and returns into That.',
     socialTitle: 'Tajjalan — born from That, lives in That, returns into That.',
     category: 'Mind',
@@ -186,7 +186,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'your-mouth-can-be-sure-for-reasons-your-eyes-never-had',
     title: 'How many of you is inside you?',
-    dek: 'In 1962 surgeons cut the bridge between William Jenkins’s brain halves to treat epilepsy. In the lab, speech said it saw nothing — while a hand still found the match. Then the mouth invented a reason.',
+    dek: 'Speech can be sure about a picture it never got. Send the flash to one side. Listen to the other.',
     socialHook: 'They flashed a key to one half of a split brain. Speech said nothing. The left hand still found the key — then later invents a chicken-shed story for a shovel.',
     socialTitle: 'How many of you is actually inside you?',
     category: 'Mind',
@@ -200,7 +200,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'can-you-reverse-the-spin-of-a-schwarz-surface',
     title: 'Can you reverse the spin?',
-    dek: 'A short asks if a glowing lattice can turn the other way. The object is a Schwarz P surface — a soap film that tiles space — and the spin was never its idea.',
+    dek: 'The lattice does not spin. You do. Drag the model backwards. The wall is still three cosines adding to zero.',
     socialHook: 'A clip spins a glowing lattice and dares you to reverse it. The wall is three cosines adding to zero. Spin is the camera, not the surface.',
     socialTitle: 'Can you reverse the spin of a Schwarz surface?',
     category: 'Science',

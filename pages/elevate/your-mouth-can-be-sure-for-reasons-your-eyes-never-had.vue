@@ -64,6 +64,13 @@ const references = [
     href: 'https://www.nature.com/news/the-split-brain-a-tale-of-two-halves-1.10213'
   }
 ]
+
+const field = ref(0)
+const splitLine = computed(() => (
+  field.value === 0
+    ? 'The flash lands in the left half of what you see, so the right half of the brain gets it. Speech says nothing. The left hand still finds the match.'
+    : 'The flash lands on the right, so the left half of the brain gets it. Speech can often name it. The mouth was not the half that saw the other picture.'
+))
 </script>
 
 <template>
@@ -87,6 +94,11 @@ const references = [
 
       <div class="taj__prose">
         <p class="taj__lead">In 1962, surgeons cut the main bridge between the two halves of a man’s brain.</p>
+
+        <EdTry v-model="field" :min="0" :max="1" label="Which half of the scene gets the flash" :readout="field === 0 ? 'left' : 'right'">
+          {{ splitLine }}
+        </EdTry>
+
         <p>His name was William Jenkins. He had been a World War II paratrooper. After a German soldier hit him in the head with a rifle butt, seizures took over his life. Drugs failed.</p>
         <p>In Los Angeles, Joseph Bogen and Philip Vogel cut his corpus callosum so a seizure on one side would have a harder time racing into the other. The seizures eased. In ordinary talk he seemed much like himself.</p>
         <p>Then Michael Gazzaniga and Roger Sperry tested him at Caltech. The quiet recovery stopped looking ordinary.<a href="#ref-8" aria-label="Reference 8">[8]</a><a href="#ref-2" aria-label="Reference 2">[2]</a></p>

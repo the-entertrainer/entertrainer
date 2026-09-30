@@ -24,6 +24,11 @@ const references = [
   { id: 7, title: 'On Soft Mathematical Models of Subjective Time Acceleration with Age', source: 'arXiv, 2023', href: 'https://arxiv.org/abs/2310.05945' },
   { id: 8, title: 'How does U.S. life expectancy compare to other countries?', source: 'Peterson-KFF Health System Tracker', href: 'https://www.healthsystemtracker.org/chart-collection/u-s-life-expectancy-compare-countries/' }
 ]
+
+const memoryStart = ref(4)
+const lifeYears = 81
+const feltMiddle = computed(() => Math.round(Math.sqrt(memoryStart.value * lifeYears) * 10) / 10)
+const midLine = computed(() => `Memory starts at ${memoryStart.value}. The life is ${lifeYears}. The felt middle is ${feltMiddle.value}. Eighteen is what you get when you pick 4. It is not a law.`)
 </script>
 
 <template>
@@ -51,6 +56,14 @@ const references = [
         <p>To a 10-year-old, one year is a tenth of everything they have known. To a 50-year-old, the same 365 days is a fiftieth. Same calendar year. Different denominator.</p>
         <p>On a scale like that, the middle is not the average of the two ends. You cannot start at birth, because the log of zero does not exist. An infinite stretch of felt time would sit between age 0 and age 1.</p>
         <p>The video started at age 4, roughly where reliable autobiographical memory is often said to begin, and it used a life of 81. Plug those in: the square root of 4 times 81 is the square root of 324, which is 18 exactly.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+
+        <EdTry v-model="memoryStart" :min="2" :max="10" label="Age you start counting memory" :readout="String(memoryStart)">
+          <template #stage>
+            <p class="mid" aria-hidden="true">{{ feltMiddle }}</p>
+          </template>
+          {{ midLine }}
+        </EdTry>
+
         <p>Real maths. Correctly done. Sitting on a personal-blog trace: a Logtime model built by an engineer, James Main Kenney, in the 1960s, who only later found that Janet had described the idea a century earlier.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
         <figure class="taj__visual">
           <EdEditorialImage src="/blog/life-midpoint/linear-vs-log.svg" alt="Two timelines on cream paper: an even ruler marked 40, and a stretched ruler whose middle falls nearer 18." />
@@ -124,6 +137,7 @@ const references = [
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
+.mid { margin: 0; text-align: center; font: 500 64rem/.9 var(--font-display); letter-spacing: -.06em; }
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }

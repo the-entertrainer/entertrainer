@@ -29,6 +29,13 @@ const references = [
   { id: 12, title: 'Can We Be Honest? Cognition, Intention, Speech Production, and the Future of Deception Research', source: 'Morrison & McCornack, Journal of Language and Social Psychology, 2025', href: 'https://doi.org/10.1177/0261927X251364005' },
   { id: 13, title: 'Learning to lie: Effects of practice on the cognitive cost of lying', source: 'Van Bockstaele et al., Frontiers in Psychology, 2012', href: 'https://doi.org/10.3389/fpsyg.2012.00526' }
 ]
+
+const spare = ref(70)
+const lieLine = computed(() => {
+  if (spare.value >= 60) return 'Plenty of spare attention. The invented detail survives the next question. The eyes can stay still. Stillness was never the expensive part.'
+  if (spare.value >= 30) return 'The lie is spending the attention the truth did not need. The timeline starts to thin.'
+  return 'Almost no spare attention left. The story slips. A perfect lie was a bandwidth problem, not a calm face.'
+})
 </script>
 
 <template>
@@ -53,6 +60,14 @@ const references = [
         <p>If this were a movie, the camera would already be circling, waiting for the tell. You watch the eyes anyway.</p>
         <p>Somewhere between school corridors and crime dramas you absorbed a rule: liars leak. Perfect liars don’t.</p>
         <p>Which raises a stranger question than “Is this person lying?” What would it take to lie perfectly?</p>
+
+        <EdTry v-model="spare" :min="0" :max="100" label="Spare attention left while you talk" :readout="`${spare}%`">
+          <template #stage>
+            <div class="budget" aria-hidden="true"><i :style="{ width: `${spare}%` }" /></div>
+          </template>
+          {{ lieLine }}
+        </EdTry>
+
         <h2>What a perfect lie would need</h2>
         <p>Not charmingly. Not well enough. Perfectly: consistent under pressure, with the feeling under control, socially tuned, and invisible to the scrutiny humans think they are good at.</p>
         <p>Build it as a machine and you need at least four parts. Memory, so every invented detail survives the follow-up you forgot was coming. Emotion, so guilt or boredom does not freeze the face into an “I am being natural” mask. A live model of what the other person already knows, and what would sound too polished. And spare attention, so you can keep speaking while you also watch your story, their face, and the version of you on stage.</p>
@@ -136,6 +151,8 @@ const references = [
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
+.budget { height: 18rem; border: var(--stroke) solid var(--ink); border-radius: 999rem; background: var(--paper); overflow: hidden; }
+.budget i { display: block; height: 100%; background: var(--accent); border-right: var(--stroke) solid var(--ink); }
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }

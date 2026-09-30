@@ -20,6 +20,12 @@ const references = [
   { id: 3, title: 'Suppressing the “white bears”', source: 'American Psychological Association, 2011', href: 'https://www.apa.org/monitor/2011/10/unwanted-thoughts' },
   { id: 4, title: 'Inner Speech', source: 'Stanford Encyclopedia of Philosophy, 2023', href: 'https://plato.stanford.edu/entries/inner-speech/' }
 ]
+
+const checks = ref(0)
+const bearLine = computed(() => {
+  if (checks.value === 0) return 'Do not think of a white bear. The instruction is the invitation.'
+  return `You checked ${checks.value} time${checks.value === 1 ? '' : 's'}. Checking is how the bear gets back in. The voice noticed. It did not hold the meeting.`
+})
 </script>
 
 <template>
@@ -45,6 +51,10 @@ const references = [
         <p class="taj__lead">It is 1:00 a.m. The message is typed. The thumb hovers.</p>
         <p>Third version. The first was too sharp. The second was too soft. This one pretends not to care.</p>
         <p>None of it is out loud. A small press secretary is running lines before they reach anyone else’s phone.</p>
+
+        <EdTry v-model="checks" :min="0" :max="12" label="Times you check whether the thought is gone" :readout="String(checks)">
+          {{ bearLine }}
+        </EdTry>
 
         <h2>Words you do not say out loud</h2>
         <p>Words you experience without anyone saying them. Psychologists call that inner speech.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>

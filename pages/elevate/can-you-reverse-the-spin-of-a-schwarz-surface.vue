@@ -43,9 +43,9 @@ const references = [
       </aside>
 
       <div class="taj__prose">
-        <p class="taj__lead">A clip asks if you can reverse the spin of a glowing lattice. The lattice does not care which way you look.</p>
-        <p>The object in the video is a Schwarz P surface. P for primitive. A soap film that does not stop at the rim of a wire. It keeps going, through the next cube, and the next, until the room is a corridor of tunnels.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-5" aria-label="Reference 5">[5]</a></p>
-        <p>People write Schwartz because English likes tz. The man who found the thing was Hermann Amandus Schwarz, working in Berlin in the 1860s and 1870s, on the question of the smallest skin a given edge can wear.</p>
+        <p class="taj__lead">A clip asks if you can reverse the spin. The lattice does not care which way you look.</p>
+        <p>The object is a Schwarz P surface. P for primitive. A soap film that does not stop at the rim of a wire. It keeps going, through the next cube, until the room is a corridor of tunnels.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-5" aria-label="Reference 5">[5]</a></p>
+        <p>People write Schwartz because English likes tz. The man was Hermann Amandus Schwarz, in Berlin in the 1860s and 1870s. He was asking what smallest skin a given edge can wear.</p>
 
         <h2>The cheapest skin</h2>
         <p>Dip a twisted wire in soapy water. The film that forms is lazy in a precise way. At every point the surface bends up as much as it bends down. Mean curvature zero. That is the whole local law.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
@@ -61,7 +61,7 @@ const references = [
           <p>cos x + cos y + cos z = 0</p>
         </blockquote>
         <p>Three cosines. Set their sum to zero. The points that obey it are the wall. Colour them and turn the room. You have not added physics. You have only walked around a level set.</p>
-        <p>Drag the picture sideways. The spin will follow your hand, including backwards. Reversing the spin is a camera trick. The surface did not change its mind.</p>
+        <p>Drag the picture. The spin follows your hand, including backwards. Reversing it is a camera trick. The surface did not change its mind. The wall is still the points where three cosines add to zero.</p>
 
         <h2>Why it looks alive</h2>
         <p>The short works because the eye wants a solid. A lattice with holes is a building. A building that also looks like a molecule is a magic trick. Alan Schoen, writing for NASA in 1970, gave these repeating films their modern names — P, D, gyroid — and pointed out that nature had been using the same habit in crystals and copolymers long before anyone rendered them in neon.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>

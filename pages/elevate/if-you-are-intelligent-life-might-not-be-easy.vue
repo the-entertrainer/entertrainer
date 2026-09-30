@@ -20,6 +20,13 @@ const references = [
   { id: 3, title: 'Living With the Gift of Giftedness: An Exploratory Study on the Well-Being of Intellectually Gifted Adults', source: 'Gifted Child Quarterly, 2025', href: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12413024/' },
   { id: 4, title: 'The association between mental health and cognitive ability: Evidence from the Understanding Society survey', source: 'PLOS ONE, 2025', href: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12507287/' }
 ]
+
+const windows = ref(4)
+const windowLine = computed(() => {
+  if (windows.value <= 2) return 'Two versions of the late bus. Close one. Board the other.'
+  if (windows.value <= 5) return 'You can see a consequence early. You still do not have a legend for the map.'
+  return `${windows.value} windows and no decision. A sharp mind can build a beautiful way to miss the bus.`
+})
 </script>
 
 <template>
@@ -44,15 +51,23 @@ const references = [
       <div class="taj__prose">
         <p class="taj__lead">The bus is six minutes late.</p>
         <p>Most people get annoyed, open a phone, and wait.</p>
-        <p>You open a small studio in your skull. Maybe the driver took another road. Maybe there was a crash. Maybe you should have walked. Maybe every choice since 2017 was a cousin of this bus stop.</p>
-        <p>Funny. Then it isn’t.</p>
+        <p>You open a small studio in your skull. Another road. A crash. You should have walked. Every choice since 2017 was a cousin of this stop.</p>
 
-        <h2>Ten windows and no legend</h2>
-        <p>A mind that can build more than one future, and then forgets to close the extra windows.</p>
-        <p>That is useful. You catch contradictions. You see a consequence early. You ask the question the room stepped around.</p>
-        <p>It does not hand you a legend for the map. Ten routes are not a decision.</p>
-        <p>People turn this into a flattering myth: smart people suffer because they see too much. The sentence is tidy. It also lets intelligence explain anxiety, loneliness, the unread email, the whole week.</p>
-        <p>A 2024 review of gifted groups found no significant overall rise in anxiety or depression. The studies did not agree with each other, and they did not even share one definition of gifted.<a href="#ref-2" aria-label="Reference 2">[2]</a> So the flattering myth is not a finding. It is still a story some people live inside, and these papers have not measured every kind of heavy day.</p>
+        <EdTry v-model="windows" :min="1" :max="10" label="Versions of the late bus you keep open" :readout="String(windows)">
+          <template #stage>
+            <div class="wins" aria-hidden="true">
+              <i v-for="n in windows" :key="n" :class="{ 'is-live': n === 1 }" />
+            </div>
+          </template>
+          {{ windowLine }}
+        </EdTry>
+
+        <h2>More routes are not a plan</h2>
+        <p>A mind that can build more than one future is useful. You catch a contradiction. You see a consequence early. You ask the question the room stepped around.</p>
+        <p>It does not hand you a legend. Ten routes are not a decision.</p>
+        <p>People turn this into a flattering myth. Smart people suffer because they see too much. The sentence is tidy. It also lets intelligence explain the whole week.</p>
+        <p>A 2024 review of gifted groups found no significant overall rise in anxiety or depression. The studies did not agree with each other. They did not share one definition of gifted.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>The myth is not a finding. It is still a story some people live inside. These papers have not measured every heavy day.</p>
 
         <figure class="taj__visual">
           <EdEditorialImage
@@ -64,25 +79,24 @@ const references = [
 
         <h2>Thinking hard is not being stuck</h2>
         <p>Repetitive thinking is not one habit.</p>
-        <p>In a study of 751 young adults, reflective pondering — trying to understand what you feel — lined up with several intelligence measures, after depressive symptoms were accounted for. Brooding, the heavier loop that sits in the bad feeling, did not line up the same way.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>Thinking hard and being stuck are cousins. They become unbearable when they refuse to leave the table.</p>
+        <p>In a study of 751 young adults, reflective pondering lined up with several intelligence measures, after depressive symptoms were accounted for. Brooding, the heavier loop that sits in the bad feeling, did not line up the same way.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>They are cousins. They become unbearable when they refuse to leave the table.</p>
         <p>Someone replies “okay.” That can mean yes, or annoyance, or a kettle boiling. One reading may be wrong. Eight readings can just make you tired.</p>
-        <p>More models help when a choice is due. They exhaust you when every half-signal gets a meeting.</p>
-        <p>Life is full of half-signals. People are unclear. Work is vague. The future does not send a preview. “If I think hard enough, uncertainty will behave” has never worked. It just gives uncertainty a bigger office.</p>
+        <p>More models help when a choice is due. They exhaust you when every half-signal gets a meeting. “If I think hard enough, uncertainty will behave” has never worked. It gives uncertainty a bigger office.</p>
 
         <h2>The curse story does not hold</h2>
-        <p>Feeling out of step in a room is a difference in pace, interest, or style. It is not a license to decide everyone else is shallow.</p>
-        <p>A 2025 study of 219 Canadian adults identified as intellectually gifted found a mess, not a curse. Lower income and twice-exceptionality went with higher risk. A relationship, and a sense that your ability was actually being used, went with better well-being.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
-        <p>Context keeps ruining the simple story. Good. If intelligence alone made life hard, the only move would be to become a houseplant. If money, health, belonging, and habits matter, there are handles.</p>
-        <p>Reflection asks what happened, what you can learn, and what is next. It has an end time. Brooding asks why you are like this, and can we replay the evidence with worse lighting.</p>
+        <p>Feeling out of step is a difference in pace or interest. It is not a licence to decide everyone else is shallow.</p>
+        <p>A 2025 study of 219 Canadian adults identified as gifted found a mess, not a curse. Lower income and twice-exceptionality went with higher risk. A relationship, and a sense that your ability was being used, went with better well-being.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <p>Good. If intelligence alone made life hard, the only move would be to become a houseplant. If money, health, belonging, and habits matter, there are handles.</p>
+        <p>Reflection asks what happened, what you can learn, and what is next. It has an end time. Brooding asks why you are like this, and replays the evidence with worse lighting.</p>
         <p>You botch one slide. Reflection revises the slide. Brooding digs up every embarrassing thing since school assembly. Same brain. Different trip.</p>
-        <p>Work on older adults finds thinking ability, mental health, friends, schooling, and plain circumstances tangled together, not lined up in one direction.<a href="#ref-4" aria-label="Reference 4">[4]</a> That study cannot tell a younger reader what their mind is doing to them. It does kill the one-variable story.</p>
+        <p>Work on older adults finds thinking ability, mental health, friends, schooling, and circumstances tangled together. Not one arrow.<a href="#ref-4" aria-label="Reference 4">[4]</a> That study cannot tell a younger reader what their mind is doing. It does kill the one-variable story.</p>
 
         <blockquote>
           <p>The useful question is not “Do I think a lot?” It is “Does this thought go anywhere?”</p>
         </blockquote>
 
-        <p class="taj__closing">If a sharp mind can build a beautiful machine for avoiding the next ordinary step, which window are you going to close before the bus actually comes?</p>
+        <p class="taj__closing">Which window are you going to close before the bus actually comes?</p>
         <p>Get on. The white paper about the timetable can wait.</p>
       </div>
     </article>
@@ -138,6 +152,9 @@ const references = [
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
+.wins { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4rem; }
+.wins i { display: block; height: 28rem; border: var(--stroke) solid var(--ink); border-radius: 3rem; background: var(--paper); }
+.wins i.is-live { background: var(--accent); }
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }

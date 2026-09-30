@@ -34,6 +34,15 @@ const references = [
     href: 'https://en.wikipedia.org/wiki/Chandogya_Upanishad'
   }
 ]
+
+const breath = ref(1)
+const phases = [
+  { name: 'Ja', line: 'The breath shows up. It is born from the same air you are already in.' },
+  { name: 'An', line: 'It stays. For this moment it lives here, still made of that air.' },
+  { name: 'La', line: 'It goes back. Tajjalan is the whole path: from That, in That, into That.' }
+]
+const phase = computed(() => phases[breath.value] ?? phases[0])
+const breathLine = computed(() => phase.value?.line ?? '')
 </script>
 
 <template>
@@ -57,7 +66,11 @@ const references = [
 
       <div class="taj__prose">
         <p class="taj__lead">There is an old word most people never hear.</p>
-        <p>Once you see what it is pointing at, something quiet shifts: the wall between “me” and “everything else” starts looking thinner than you were taught.</p>
+        <p>Once you see what it is pointing at, the wall between “me” and “everything else” starts looking thinner than you were taught.</p>
+
+        <EdTry v-model="breath" :min="0" :max="2" label="Where this breath is" :readout="phase?.name ?? ''">
+          {{ breathLine }}
+        </EdTry>
 
         <h2>Four pieces of one word</h2>
         <p>Tajjalan.</p>

@@ -25,6 +25,13 @@ const references = [
   { id: 8, title: 'The Opposite of Déjà Vu Exists — And It’s Even Stranger', source: 'ScienceAlert', href: 'https://www.sciencealert.com/dj-vu-has-a-stranger-lesser-known-opposite-and-scientists-may-have-just-found-where-it-starts' },
   { id: 9, title: 'Entropy, Amnesia, and Abnormal Déjà Experiences', source: 'Frontiers in Psychology, via PMC', href: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9364811/' }
 ]
+
+const reps = ref(1)
+const doorLine = computed(() => {
+  if (reps.value < 8) return 'Still a door. You can see the room it opens.'
+  if (reps.value < 24) return 'The letters are getting louder than the meaning. You have not forgotten the word.'
+  return 'It stopped feeling like a word. That glitch is called jamais vu. The knowing stays. The feeling leaves for a minute.'
+})
 </script>
 
 <template>
@@ -45,7 +52,16 @@ const references = [
       </aside>
       <div class="taj__prose">
         <p class="taj__lead">One evening at work I stared at the word “door” until it stopped looking like English.</p>
-        <p>Same four letters. Suddenly a pile of shapes. I had walked into a glitch with a name, a research literature, and — as of 2023 — an Ig Nobel Prize.</p>
+        <p>Same four letters. Suddenly a pile of shapes.</p>
+
+        <EdTry v-model="reps" :min="1" :max="40" label="Times you look at the word" :readout="String(reps)">
+          <template #stage>
+            <p class="door" aria-hidden="true" :style="{ letterSpacing: `${Math.min(reps, 28) * 0.04}em`, opacity: 1 - Math.min(reps, 36) / 90 }">door</p>
+          </template>
+          {{ doorLine }}
+        </EdTry>
+
+        <p>The wall I hit already had a name, a research literature, and — as of 2023 — an Ig Nobel Prize.</p>
         <h2>The meaning drops out</h2>
         <p>The lab name for the staring trick is semantic satiation. Repeat a word, or look at it long enough, and the meaning drops out. What is left feels like sound, or ink, with nothing attached.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
         <p>Edward Titchener noted the feeling informally in the late 1800s. It picked up working names — verbal satiation, lapse of meaning, plain mental fatigue — before Leon Jakobovits James gave it the current name in his 1962 dissertation.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
@@ -125,6 +141,7 @@ const references = [
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
+.door { margin: 0; text-align: center; font: 500 56rem/1 var(--font-display); letter-spacing: -.04em; }
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }

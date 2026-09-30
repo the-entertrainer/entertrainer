@@ -27,6 +27,22 @@ const references = [
   { id: 10, title: 'The free-energy principle: a unified brain theory?', source: 'Friston, Nature Reviews Neuroscience, 2010', href: 'https://www.nature.com/articles/nrn2787' },
   { id: 11, title: 'Other Minds', source: 'Stanford Encyclopedia of Philosophy', href: 'https://plato.stanford.edu/entries/other-minds/' }
 ]
+
+const blooms = [
+  { name: 'Remember', ask: 'Say the definition back.' },
+  { name: 'Understand', ask: 'Say it in one sentence of your own.' },
+  { name: 'Apply', ask: 'Use it on a new case.' },
+  { name: 'Analyse', ask: 'Take it apart.' },
+  { name: 'Evaluate', ask: 'Judge it.' },
+  { name: 'Create', ask: 'Make something the text did not contain.' }
+]
+const step = ref(2)
+const bloom = computed(() => blooms[(step.value - 1)] ?? blooms[0])
+const aiLine = computed(() => {
+  const item = bloom.value
+  if (!item) return ''
+  return `${item.name}. The ask is: ${item.ask} The reply is still a guess at the next word.`
+})
 </script>
 
 <template>
@@ -49,7 +65,17 @@ const references = [
         <p class="taj__lead">You type a half-finished rant into a chat box.</p>
         <p>The reply is so on the nose that you say it out loud, alone in the room: “Okay. It gets me.”</p>
         <p>It doesn’t. The reply can still be the best one you got all week. That is the problem.</p>
-        <p>I design courses. I get paid to worry about one word: understand. When a machine starts using that word about itself, I want the transcript.</p>
+        <p>I design courses. I get paid to worry about one word. Understand. When a machine uses that word about itself, I want the transcript.</p>
+
+        <EdTry v-model="step" :min="1" :max="6" label="What you asked the reply to do" :readout="bloom?.name ?? ''">
+          <template #stage>
+            <ol class="blooms" aria-hidden="true">
+              <li v-for="(item, index) in blooms" :key="item.name" :class="{ 'is-on': index < step }">{{ item.name }}</li>
+            </ol>
+          </template>
+          {{ aiLine }}
+        </EdTry>
+
         <h2>Four seconds of fluency</h2>
         <p>In 1956 Benjamin Bloom and a committee of examiners tried to make “understanding” something you could test. A 2001 revision by Lorin Anderson and David Krathwohl is what most people half-remember as Bloom’s Taxonomy: six things a mind can do with information, stacked from easier to harder.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a></p>
         <p>Understand sits second from the bottom. One step above simply remembering.</p>
@@ -136,6 +162,9 @@ const references = [
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
+.blooms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6rem; margin: 0; padding: 0; list-style: none; }
+.blooms li { padding: 8rem 6rem; border: var(--stroke) solid var(--line); border-radius: var(--radius-s); font: 600 12rem/1.2 var(--font-ui); color: var(--ink-soft); text-align: center; }
+.blooms li.is-on { border-color: var(--ink); background: var(--accent); color: var(--accent-ink); }
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }

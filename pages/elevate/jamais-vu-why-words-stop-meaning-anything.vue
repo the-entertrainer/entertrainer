@@ -25,13 +25,6 @@ const references = [
   { id: 8, title: 'The Opposite of Déjà Vu Exists — And It’s Even Stranger', source: 'ScienceAlert', href: 'https://www.sciencealert.com/dj-vu-has-a-stranger-lesser-known-opposite-and-scientists-may-have-just-found-where-it-starts' },
   { id: 9, title: 'Entropy, Amnesia, and Abnormal Déjà Experiences', source: 'Frontiers in Psychology, via PMC', href: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9364811/' }
 ]
-
-const reps = ref(1)
-const doorLine = computed(() => {
-  if (reps.value < 8) return 'Still a door. You can see the room it opens.'
-  if (reps.value < 24) return 'The letters are getting louder than the meaning. You have not forgotten the word.'
-  return 'It stopped feeling like a word. That glitch is called jamais vu. The knowing stays. The feeling leaves for a minute.'
-})
 </script>
 
 <template>
@@ -48,44 +41,32 @@ const doorLine = computed(() => {
     <article class="taj__article">
       <aside class="taj__margin-note" aria-label="Reading note">
         <p>The word stays a word.</p>
-        <p>Your knowledge that “door” is real does not change. For a minute, it just stops feeling like one.</p>
+        <p>The knowing stays. For a minute, the feeling leaves.</p>
       </aside>
       <div class="taj__prose">
         <p class="taj__lead">One evening at work I stared at the word “door” until it stopped looking like English.</p>
-        <p>Same four letters. Suddenly a pile of shapes.</p>
+        <p>Same four letters. Suddenly a pile of shapes. The wall I hit already had a name, a research literature, and — as of 2023 — an Ig Nobel Prize.</p>
 
-        <EdTry v-model="reps" :min="1" :max="40" label="Times you look at the word" :readout="String(reps)">
-          <template #stage>
-            <p class="door" aria-hidden="true" :style="{ letterSpacing: `${Math.min(reps, 28) * 0.04}em`, opacity: 1 - Math.min(reps, 36) / 90 }">door</p>
-          </template>
-          {{ doorLine }}
-        </EdTry>
-
-        <p>The wall I hit already had a name, a research literature, and — as of 2023 — an Ig Nobel Prize.</p>
-        <h2>The meaning drops out</h2>
+        <h2>Semantic satiation</h2>
         <p>The lab name for the staring trick is semantic satiation. Repeat a word, or look at it long enough, and the meaning drops out. What is left feels like sound, or ink, with nothing attached.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>Edward Titchener noted the feeling informally in the late 1800s. It picked up working names — verbal satiation, lapse of meaning, plain mental fatigue — before Leon Jakobovits James gave it the current name in his 1962 dissertation.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
-        <p>So the wall I hit over “door” already had a name before I was born.</p>
+        <p>Edward Titchener noted the feeling informally in the late 1800s. It picked up working names — verbal satiation, lapse of meaning, plain mental fatigue — before Leon Jakobovits James gave it the current name in his 1962 dissertation.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a> So the wall over “door” already had a name before I was born.</p>
         <p>Jamais vu is the stranger cousin: something you know feels unfamiliar, as if you are meeting it for the first time. Akira O’Connor put it this way: the strange feeling of finding something peculiar when we know it should be familiar.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <h2>Copy the word until it breaks</h2>
+
+        <h2>The St Andrews copying experiments</h2>
         <p>In 2023 Chris Moulin, Nicole Bell, and Akira O’Connor at the University of St Andrews won the Ig Nobel Prize in Literature for measuring the glitch on purpose, with a stopwatch.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>Ninety-four undergraduates copied a word by hand, over and over, and stopped when it started to feel wrong. Some words were ordinary (“door”). Some were obscure (“sward”). Across two experiments, roughly two-thirds of them reported the word turning strange — typically after about 30 repetitions, inside a single minute.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>The paper’s title tells the joke before you can: “The The The The Induction of Jamais Vu in the Laboratory.”</p>
+        <p>Ninety-four undergraduates copied a word by hand, over and over, and stopped when it started to feel wrong. Some words were ordinary (“door”). Some were obscure (“sward”). Across two experiments, roughly two-thirds of them reported the word turning strange — typically after about 30 repetitions, inside a single minute.<a href="#ref-1" aria-label="Reference 1">[1]</a> The paper’s title tells the joke before you can: “The The The The Induction of Jamais Vu in the Laboratory.”</p>
         <p>You do not forget the word. You still know “door” is English. For a stretch, the knowing and the feeling come apart.</p>
-        <figure class="taj__visual">
-          <EdEditorialImage src="/blog/jamais-vu/checking-loop.svg" alt="A simple loop: see the word, check the meaning, see the word again, until the check comes back empty." />
-          <figcaption>Repetition keeps asking “is this still a word?” until the answer briefly fails.</figcaption>
-        </figure>
-        <h2>The rest of the family</h2>
-        <p>The family is bigger than one glitch.</p>
-        <p>Déjà vu is the mirror. A brand-new moment feels like a rerun. On one influential reading, that is a fact-checker catching a false alarm before it becomes a false memory.<a href="#ref-4" aria-label="Reference 4">[4]</a> That is an interpretation, not a settled law.</p>
-        <p>Everyday déjà vu reports do not line up neatly with standard lab tests of recollection and familiarity for words. Polite version: the full mechanism is still open.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>
+
+        <h2>Déjà vu and related glitches</h2>
+        <p>The family is bigger than one glitch. Déjà vu is the mirror: a brand-new moment feels like a rerun. On one influential reading, that is a fact-checker catching a false alarm before it becomes a false memory.<a href="#ref-4" aria-label="Reference 4">[4]</a> That is an interpretation, not a settled law. Everyday déjà vu reports do not line up neatly with standard lab tests of recollection and familiarity for words; the full mechanism is still open.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>
         <p>Tip of the tongue is another cousin. You know you know the word, and the word will not arrive.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
-        <p>A 2024 paper used deep-learning models to poke at how satiation might work.<a href="#ref-7" aria-label="Reference 7">[7]</a> Where I have to be honest: that is a hypothesis built from an artificial model, not direct proof of a living brain, and it is one study. The evidence is mixed on the mechanism. It is not mixed on the feeling. Copy a word thirty times and a lot of people will tell you it went strange.</p>
+        <p>A 2024 paper used deep-learning models to poke at how satiation might work.<a href="#ref-7" aria-label="Reference 7">[7]</a> That is a hypothesis built from an artificial model, not direct proof of a living brain, and it is one study. The evidence is mixed on the mechanism. It is not mixed on the feeling. Copy a word thirty times and a lot of people will tell you it went strange.</p>
         <p>The opposite of déjà vu has its own small write-ups, and the stranger memory theories get tangled fast.<a href="#ref-8" aria-label="Reference 8">[8]</a><a href="#ref-9" aria-label="Reference 9">[9]</a> None of that cancels the copying result. It just refuses to turn one glitch into a complete map of memory.</p>
+
         <blockquote>
           <p>You still know the word. For a minute, it refuses to feel like one.</p>
         </blockquote>
+
         <p class="taj__closing">If thirty repetitions can make “door” feel like a stranger, what else in your day is only familiar because you stopped looking?</p>
         <p>Stare a little longer than habit wants. Then let the word come back.</p>
       </div>
@@ -128,10 +109,6 @@ const doorLine = computed(() => {
 .taj__prose h2 { margin: 64rem 0 20rem; font-size: clamp(30rem, 3.6vw, 46rem); line-height: .98; }
 .taj blockquote { margin: 45rem 0; padding: 24rem 26rem; border-left: 8rem solid var(--signal-cobalt); background: var(--paper-2); border-radius: 0 var(--radius-m) var(--radius-m) 0; font: 500 clamp(22rem, 2.6vw, 32rem)/1.12 var(--font-display); letter-spacing: -.03em; }
 .taj blockquote p { margin: 0; }
-.taj__visual { margin: 50rem 0 45rem; }
-.taj__visual :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--signal-field); }
-.taj__visual--wide :deep(.ed-editorial-image) { aspect-ratio: 16 / 7; object-fit: cover; }
-.taj__visual--palm :deep(.ed-editorial-image) { aspect-ratio: 16 / 3.2; object-fit: cover; background: #f0e6d4; }
 .taj__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 clamp(22rem, 2.6vw, 34rem)/1.14 var(--font-display); letter-spacing: -.035em; }
 .taj__sources { max-width: 1100rem; margin: clamp(64rem, 10vw, 130rem) auto 0; padding: 34rem var(--shell-gutter) 0; border-top: var(--stroke) solid var(--ink); }
 .taj__sources h2 { margin: 12rem 0 30rem; font-size: clamp(33rem, 4vw, 48rem); line-height: .95; }
@@ -141,14 +118,11 @@ const doorLine = computed(() => {
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
-.door { margin: 0; text-align: center; font: 500 56rem/1 var(--font-display); letter-spacing: -.04em; }
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }
   .taj__article { display: block; }
   .taj__margin-note { position: static; margin-bottom: 36rem; }
   .taj__prose h2 { margin-top: 52rem; }
-  .taj__visual { margin-left: 0; margin-right: 0; }
-  .taj__visual--palm :deep(.ed-editorial-image) { aspect-ratio: 16 / 4.5; }
 }
 </style>

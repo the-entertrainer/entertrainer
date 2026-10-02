@@ -64,13 +64,6 @@ const references = [
     href: 'https://www.nature.com/news/the-split-brain-a-tale-of-two-halves-1.10213'
   }
 ]
-
-const field = ref(0)
-const splitLine = computed(() => (
-  field.value === 0
-    ? 'The flash lands in the left half of what you see, so the right half of the brain gets it. Speech says nothing. The left hand still finds the match.'
-    : 'The flash lands on the right, so the left half of the brain gets it. Speech can often name it. The mouth was not the half that saw the other picture.'
-))
 </script>
 
 <template>
@@ -93,53 +86,25 @@ const splitLine = computed(() => (
       </aside>
 
       <div class="taj__prose">
-        <p class="taj__lead">In 1962, surgeons cut the main bridge between the two halves of a man’s brain.</p>
+        <p class="taj__lead">In 1962, surgeons cut the main bridge between the two halves of William Jenkins’s brain.</p>
+        <p>He had been a World War II paratrooper. After a German soldier hit him in the head with a rifle butt, seizures took over his life. Drugs failed. In Los Angeles, Joseph Bogen and Philip Vogel cut his corpus callosum so a seizure on one side would have a harder time racing into the other. The seizures eased. In ordinary talk he seemed much like himself. Then Michael Gazzaniga and Roger Sperry tested him at Caltech. The quiet recovery stopped looking ordinary.<a href="#ref-8" aria-label="Reference 8">[8]</a><a href="#ref-2" aria-label="Reference 2">[2]</a></p>
 
-        <EdTry v-model="field" :min="0" :max="1" label="Which half of the scene gets the flash" :readout="field === 0 ? 'left' : 'right'">
-          {{ splitLine }}
-        </EdTry>
-
-        <p>His name was William Jenkins. He had been a World War II paratrooper. After a German soldier hit him in the head with a rifle butt, seizures took over his life. Drugs failed.</p>
-        <p>In Los Angeles, Joseph Bogen and Philip Vogel cut his corpus callosum so a seizure on one side would have a harder time racing into the other. The seizures eased. In ordinary talk he seemed much like himself.</p>
-        <p>Then Michael Gazzaniga and Roger Sperry tested him at Caltech. The quiet recovery stopped looking ordinary.<a href="#ref-8" aria-label="Reference 8">[8]</a><a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-
-        <h2>A bridge cut, not a half removed</h2>
+        <h2>The corpus callosum</h2>
         <p>The corpus callosum is the thick fibre bridge between the left and right halves of the brain. In hard epilepsy, a seizure can start on one side and cross that bridge. Cutting it was a last resort. Nobody removed half a brain.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>Everyday chat could still look normal. The odd results showed up when the lab sent a fact to only one side.</p>
-        <p>Stare at a centre mark. The left half of the scene is handled mainly by the right half of the brain. The right half of the scene goes mainly to the left half. A flash too brief for the eyes to cheat can reach only one side.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>With Jenkins, and with later patients, a pattern returned. Flash on the right, so the left half gets it: speech can often name it. Flash on the left, so the right half gets it: speech often says “nothing,” while the left hand still picks the matching object.</p>
-        <p>One half had seen it. The talking half had not. Both lived in the same skull. Sperry later shared the 1981 Nobel Prize for this line of work.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>Everyday chat could still look normal. The odd results showed up when the lab sent a fact to only one side. Stare at a centre mark. The left half of the scene is handled mainly by the right half of the brain. The right half of the scene goes mainly to the left half. A flash too brief for the eyes to cheat can reach only one side.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
 
-        <figure class="taj__visual">
-          <EdEditorialImage
-            src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/visual-field.jpg"
-            alt="Cream-paper diagram: a left-field flash going to the right half of a head, speech blank, a hand still choosing."
-          />
-          <figcaption>Left-field flash, right half of the brain. Speech can say “nothing” while a hand still finds the match.</figcaption>
-        </figure>
+        <h2>Visual-field tests</h2>
+        <p>With Jenkins, and with later patients, a pattern returned. Flash on the right, so the left half gets it: speech can often name it. Flash on the left, so the right half gets it: speech often says “nothing,” while the left hand still picks the matching object. One half had seen it. The talking half had not. Both lived in the same skull. Sperry later shared the 1981 Nobel Prize for this line of work.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
 
-        <h2>The shovel and the chicken shed</h2>
+        <h2>Patient P.S. and the interpreter</h2>
         <p>A later patient, known as P.S., made it sharp. Two pictures at once: a chicken claw to the speaking left half, a snow scene to the right half. The right hand picked a chicken. The left hand picked a snow shovel.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
-        <p>Asked why, speech — which had seen only the claw — answered along these lines: the claw goes with the chicken, and you need a shovel to clean the chicken shed.</p>
-        <p>The shovel belonged to the snow. The speaking half never got the snow. It did not say “I don’t know.” It built a reason that made the moment sound whole. Gazzaniga called that storytelling habit the left-hemisphere interpreter.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a></p>
-        <p>Related tests flashed “walk” or “laugh” only to the right half. The body did it. Asked why, speech invented a reason. Action first. Story after.</p>
-        <p>These patients were not two people arguing at dinner. After recovery, a casual meeting often looked normal. Eyes move. People cue themselves. The split shows up when the lab forces one-sided input.</p>
+        <p>Asked why, speech — which had seen only the claw — answered along these lines: the claw goes with the chicken, and you need a shovel to clean the chicken shed. The shovel belonged to the snow. The speaking half never got the snow. It did not say “I don’t know.” It built a reason that made the moment sound whole. Gazzaniga called that storytelling habit the left-hemisphere interpreter.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <p>Related tests flashed “walk” or “laugh” only to the right half. The body did it. Asked why, speech invented a reason. Action first. Story after. These patients were not two people arguing at dinner. After recovery, a casual meeting often looked normal. Eyes move. People cue themselves. The split shows up when the lab forces one-sided input.</p>
 
-        <figure class="taj__visual">
-          <EdEditorialImage
-            src="/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/interpreter.jpg"
-            alt="Ink drawing of a speaking mouth inventing a reason while a hand holds a shovel the mouth never saw."
-          />
-          <figcaption>Claw to one half, snow to the other. The mouth never saw the snow, and still invents a shed for the shovel.</figcaption>
-        </figure>
-
-        <h2>Sure is not the same as seen</h2>
-        <p>The evidence is mixed on what the split means for “how many of you” there are. It is not mixed on the lab trick.</p>
-        <p>Around 2017, Yair Pinto and colleagues argued for one conscious agent with split perception: two streams that do not join, without Hollywood dual persons.<a href="#ref-5" aria-label="Reference 5">[5]</a> Others say some apparent unity is cross-cueing, one side tipping the other off. A 2020 review said we still lack enough evidence to settle the first-person question cleanly.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
+        <h2>Later debates and limits</h2>
+        <p>The evidence is mixed on what the split means for “how many of you” there are. It is not mixed on the lab trick. Around 2017, Yair Pinto and colleagues argued for one conscious agent with split perception: two streams that do not join, without Hollywood dual persons.<a href="#ref-5" aria-label="Reference 5">[5]</a> Others say some apparent unity is cross-cueing, one side tipping the other off. A 2020 review said we still lack enough evidence to settle the first-person question cleanly.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
         <p>In 2025 a new group sharpened the cut itself. Fully callosotomized patients still showed the classic disconnection. One patient, BT*, had a near-complete cut but about one centimetre of the rear tip — the splenium — left. Years later he showed no classic disconnection across vision, touch, space, and language, as if that remnant was enough to keep the sides working together.<a href="#ref-7" aria-label="Reference 7">[7]</a></p>
-        <p>Sperry himself warned against wild left-brain / right-brain personality posters. Specialization is real. The self-help cartoon is not.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>Where I have to be honest: this is not a poster about personality types, and it is not a claim that everyone is two people. It is a harder point. The voice that says “I saw it” can feel sure while reporting only what reached the speaking half — after another half has already acted.</p>
-        <p>Everyday life already has sincere wrong reasons after the fact. Split-brain work is one clear neurological proof that a fluent explanation can be built after the hands have moved.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <p>Sperry himself warned against wild left-brain / right-brain personality posters. Specialization is real. The self-help cartoon is not.<a href="#ref-1" aria-label="Reference 1">[1]</a> This is not a poster about personality types, and it is not a claim that everyone is two people. It is a harder point. The voice that says “I saw it” can feel sure while reporting only what reached the speaking half — after another half has already acted. Everyday life already has sincere wrong reasons after the fact. Split-brain work is one clear neurological proof that a fluent explanation can be built after the hands have moved.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
 
         <blockquote>
           <p>Feeling sure is not a perfect meter of what caused the answer.</p>
@@ -188,10 +153,6 @@ const splitLine = computed(() => (
 .taj__prose h2 { margin: 64rem 0 20rem; font-size: clamp(30rem, 3.6vw, 46rem); line-height: .98; }
 .taj blockquote { margin: 45rem 0; padding: 24rem 26rem; border-left: 8rem solid var(--signal-cobalt); background: var(--paper-2); border-radius: 0 var(--radius-m) var(--radius-m) 0; font: 500 clamp(22rem, 2.6vw, 32rem)/1.12 var(--font-display); letter-spacing: -.03em; }
 .taj blockquote p { margin: 0; }
-.taj__visual { margin: 50rem 0 45rem; }
-.taj__visual :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--signal-field); }
-.taj__visual--wide :deep(.ed-editorial-image) { aspect-ratio: 16 / 7; object-fit: cover; }
-.taj__visual--palm :deep(.ed-editorial-image) { aspect-ratio: 16 / 3.2; object-fit: cover; background: #f0e6d4; }
 .taj__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 clamp(22rem, 2.6vw, 34rem)/1.14 var(--font-display); letter-spacing: -.035em; }
 .taj__sources { max-width: 1100rem; margin: clamp(64rem, 10vw, 130rem) auto 0; padding: 34rem var(--shell-gutter) 0; border-top: var(--stroke) solid var(--ink); }
 .taj__sources h2 { margin: 12rem 0 30rem; font-size: clamp(33rem, 4vw, 48rem); line-height: .95; }
@@ -207,8 +168,5 @@ const splitLine = computed(() => (
   .taj__article { display: block; }
   .taj__margin-note { position: static; margin-bottom: 36rem; }
   .taj__prose h2 { margin-top: 52rem; }
-  .taj__visual { margin-left: 0; margin-right: 0; }
-  .taj__visual--palm :deep(.ed-editorial-image) { aspect-ratio: 16 / 4.5; }
 }
 </style>
-

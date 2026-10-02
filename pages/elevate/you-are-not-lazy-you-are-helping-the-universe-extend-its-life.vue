@@ -20,13 +20,6 @@ const references = [
   { id: 3, title: 'Landauer principle and thermodynamics of computation', source: 'Reports on Progress in Physics, 2025', href: 'https://iopscience.iop.org/article/10.1088/1361-6633/add6b3/meta' },
   { id: 4, title: 'Ask an Astrophysicist: Cosmology', source: 'NASA Goddard Space Flight Center', href: 'https://imagine.gsfc.nasa.gov/ask_astro/cosmology.html' }
 ]
-
-const gap = ref(62)
-const heatLine = computed(() => {
-  if (gap.value >= 45) return 'The cup is still different from the room. You can spend that difference. It can warm a hand.'
-  if (gap.value >= 15) return 'The warmth is leaving the cup. Nothing vanished. It just got worse at doing work.'
-  return 'The cup and the room are almost the same. A spent difference has a name. Entropy.'
-})
 </script>
 
 <template>
@@ -45,48 +38,23 @@ const heatLine = computed(() => {
     <article class="taj__article">
       <aside class="taj__margin-note" aria-label="Reading note">
         <p>One useful word.</p>
-        <p>Entropy is the name for energy that has spread out and become harder to use.</p>
+        <p>Entropy names energy that has spread out and become harder to use.</p>
       </aside>
 
       <div class="taj__prose">
-        <p class="taj__lead">You make the tea hot. Then you get lost in your phone.</p>
-        <p>Come back. The cup is ordinary.</p>
-        <p>The heat did not disappear. It moved into the cooler room. The room barely noticed. You did.</p>
+        <p class="taj__lead">You make the tea hot, then get lost in your phone, and when you come back the cup is ordinary.</p>
+        <p>The heat did not disappear. It moved into the cooler room. The room barely noticed. You did. That one-way thinning of a useful difference is the everyday face of the second law of thermodynamics, and the name for what piles up as the difference fades is entropy.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
 
-        <EdTry v-model="gap" :min="0" :max="70" label="How much hotter the cup still is" :readout="`${gap}°`">
-          <template #stage>
-            <div class="heat" aria-hidden="true">
-              <i :style="{ width: `${18 + gap * 1.1}%` }" />
-            </div>
-          </template>
-          {{ heatLine }}
-        </EdTry>
+        <h2>Heat flow and the second law</h2>
+        <p>Hot tea next to a cool room is a difference you can spend. So is a charged battery, or water sitting above the ground. Heat can move, the battery can run the phone, and falling water can turn a wheel. Then the difference thins out. The tea cools, the battery goes flat, the water reaches the bottom. Nothing vanished; it got worse at making something else happen.</p>
+        <p>That one-way spreading is what physicists mean by the second law in ordinary language. You do not need the formal label to recognise your coffee. A useful temperature gap slowly becomes ordinary air.</p>
 
-        <h2>A difference you can spend</h2>
-        <p>Hot tea next to a cool room is a difference. A charged battery is one. Water sitting above the ground is one.</p>
-        <p>Heat can move. The battery can run the phone. Falling water can turn a wheel.</p>
-        <p>Then the difference thins out. The tea cools. The battery goes flat. The water reaches the bottom. Nothing vanished. It got worse at making something else happen.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>That one-way spreading is the second law of thermodynamics. You do not need the label to recognise your coffee.</p>
+        <h2>Local order and common misconceptions</h2>
+        <p>Here is the joke people want: stay in bed, do less, and help the universe last longer. A slower day usually burns less of the obvious stuff — less walking, less cooking, fewer lights — but you are not a phone on airplane mode. You are still breathing, still warm, still thinking, and the phone in your hand may be getting hot on its own. Rest does not need a cosmic excuse. Sometimes you are tired.</p>
+        <p>Mess is not the same thing. Physics does not care where the socks are. You can tidy one patch any time you like. A fridge keeps its inside cool by paying an energy cost somewhere else. Folding a shirt spends energy and sends some heat into the wider room.<a href="#ref-2" aria-label="Reference 2">[2]</a> So clean the room; entropy is not going to do it for you. That point also ignores the long argument about whether the universe must end this way. That can wait. Your tea is already doing the small version.</p>
 
-        <figure class="taj__visual">
-          <EdEditorialImage
-            src="/blog/entropy-laziness/tea-heat-flow.jpg"
-            alt="A steaming teacup on cream paper, black ink rings spreading outward as the heat leaves the cup."
-          />
-          <figcaption>A hot cup and a cool room start different. The warmth spreads. The useful gap shrinks.</figcaption>
-        </figure>
-
-        <h2>The nap is not a physics trick</h2>
-        <p>Here is the joke people want. Stay in bed. Do less. Help the universe last longer.</p>
-        <p>A slower day usually burns less of the obvious stuff. Less walking. Less cooking. Fewer lights.</p>
-        <p>You are not a phone on airplane mode. You are still breathing, still warm, still thinking. The phone in your hand may be getting hot on its own.</p>
-        <p>Rest does not need a cosmic excuse. Sometimes you are tired.</p>
-        <p>Mess is not the same thing. Physics does not care where the socks are. You can tidy one patch any time you like. A fridge keeps its inside cool. Folding a shirt spends energy and sends some heat somewhere else.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>So clean the room. Entropy is not going to do it for you. This ignores the long argument about whether the universe must end this way. That can wait. Your tea is already doing the small version.</p>
-
-        <h2>A deleted file still makes heat</h2>
-        <p>Your photos feel weightless. The phone holding them is matter, moving tiny amounts of electricity. It warms up. It asks to be charged.</p>
-        <p>Resetting information has a tiny minimum energy cost. Real machines pay much more than that textbook floor. Information is not floating free. Someone pays for it in electricity and heat.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <h2>Information, heat, and the far future</h2>
+        <p>Your photos feel weightless, but the phone holding them is matter moving tiny amounts of electricity. It warms up. It asks to be charged. Resetting information has a tiny minimum energy cost, and real machines pay much more than that textbook floor. Information is not floating free; someone pays for it in electricity and heat.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
 
         <figure class="taj__visual taj__visual--wide">
           <EdEditorialImage
@@ -96,8 +64,7 @@ const heatLine = computed(() => {
           <figcaption>One small patch of sky, seen by Hubble: roughly 10,000 galaxies. Image: NASA, ESA, S. Beckwith and the HUDF Team, and B. Mobasher.</figcaption>
         </figure>
 
-        <p>Follow the same idea for an absurdly long time and the picture gets quiet. No big differences left. No easy fuel. No bright stars doing their usual work. People call that possible ending heat death.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
-        <p>That is not a reason to stay under the blanket this morning. It is your tea, drawn at the largest scale.</p>
+        <p>Follow the same idea for an absurdly long time and the picture gets quiet: no big differences left, no easy fuel, no bright stars doing their usual work. People call that possible ending heat death.<a href="#ref-4" aria-label="Reference 4">[4]</a> That is not a reason to stay under the blanket this morning. It is your tea, drawn at the largest scale.</p>
 
         <blockquote>
           <p>A useful difference slowly becomes ordinary.</p>
@@ -150,7 +117,6 @@ const heatLine = computed(() => {
 .taj__visual { margin: 50rem 0 45rem; }
 .taj__visual :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--signal-field); }
 .taj__visual--wide :deep(.ed-editorial-image) { aspect-ratio: 16 / 7; object-fit: cover; }
-.taj__visual--palm :deep(.ed-editorial-image) { aspect-ratio: 16 / 3.2; object-fit: cover; background: #f0e6d4; }
 .taj__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 clamp(22rem, 2.6vw, 34rem)/1.14 var(--font-display); letter-spacing: -.035em; }
 .taj__sources { max-width: 1100rem; margin: clamp(64rem, 10vw, 130rem) auto 0; padding: 34rem var(--shell-gutter) 0; border-top: var(--stroke) solid var(--ink); }
 .taj__sources h2 { margin: 12rem 0 30rem; font-size: clamp(33rem, 4vw, 48rem); line-height: .95; }
@@ -160,19 +126,6 @@ const heatLine = computed(() => {
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
-.heat {
-  height: 22rem;
-  border: var(--stroke) solid var(--ink);
-  border-radius: 999rem;
-  background: var(--paper);
-  overflow: hidden;
-}
-.heat i {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-  border-right: var(--stroke) solid var(--ink);
-}
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }
@@ -180,6 +133,5 @@ const heatLine = computed(() => {
   .taj__margin-note { position: static; margin-bottom: 36rem; }
   .taj__prose h2 { margin-top: 52rem; }
   .taj__visual { margin-left: 0; margin-right: 0; }
-  .taj__visual--palm :deep(.ed-editorial-image) { aspect-ratio: 16 / 4.5; }
 }
 </style>

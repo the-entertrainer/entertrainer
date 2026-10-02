@@ -24,11 +24,6 @@ const references = [
   { id: 7, title: 'On Soft Mathematical Models of Subjective Time Acceleration with Age', source: 'arXiv, 2023', href: 'https://arxiv.org/abs/2310.05945' },
   { id: 8, title: 'How does U.S. life expectancy compare to other countries?', source: 'Peterson-KFF Health System Tracker', href: 'https://www.healthsystemtracker.org/chart-collection/u-s-life-expectancy-compare-countries/' }
 ]
-
-const memoryStart = ref(4)
-const lifeYears = 81
-const feltMiddle = computed(() => Math.round(Math.sqrt(memoryStart.value * lifeYears) * 10) / 10)
-const midLine = computed(() => `Memory starts at ${memoryStart.value}. The life is ${lifeYears}. The felt middle is ${feltMiddle.value}. Eighteen is what you get when you pick 4. It is not a law.`)
 </script>
 
 <template>
@@ -45,43 +40,31 @@ const midLine = computed(() => `Memory starts at ${memoryStart.value}. The life 
     <article class="taj__article">
       <aside class="taj__margin-note" aria-label="Reading note">
         <p>18 is an output.</p>
-        <p>It is what the formula says when you pick age 4 and a life of 81. Change either number and the middle moves.</p>
+        <p>Change the starting age or the life length and the middle moves.</p>
       </aside>
       <div class="taj__prose">
         <p class="taj__lead">A video told me the middle of an 81-year life is 18, not 40.</p>
         <p>The maths is real. It is also about 150 years old. It was never really “discovered,” and the honest version has three asterisks the voiceover skipped.</p>
-        <h2>A year is not always one year</h2>
-        <p>We quietly assume a year is a year. Age 4 to 5 is one unit. Age 40 to 41 is one unit. A clock does not care how old you are.</p>
-        <p>Felt time does. In 1877 the French philosopher Paul Janet proposed a simple account: the felt length of a year is proportional to how much life you have already lived.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>To a 10-year-old, one year is a tenth of everything they have known. To a 50-year-old, the same 365 days is a fiftieth. Same calendar year. Different denominator.</p>
-        <p>On a scale like that, the middle is not the average of the two ends. You cannot start at birth, because the log of zero does not exist. An infinite stretch of felt time would sit between age 0 and age 1.</p>
+
+        <h2>Paul Janet’s account of felt time</h2>
+        <p>We quietly assume a year is a year. Age 4 to 5 is one unit. Age 40 to 41 is one unit. A clock does not care how old you are. Felt time does. In 1877 the French philosopher Paul Janet proposed a simple account: the felt length of a year is proportional to how much life you have already lived.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>To a 10-year-old, one year is a tenth of everything they have known. To a 50-year-old, the same 365 days is a fiftieth. Same calendar year. Different denominator. On a scale like that, the middle is not the average of the two ends. You cannot start at birth, because the log of zero does not exist; an infinite stretch of felt time would sit between age 0 and age 1.</p>
+
+        <h2>The square-root midpoint</h2>
         <p>The video started at age 4, roughly where reliable autobiographical memory is often said to begin, and it used a life of 81. Plug those in: the square root of 4 times 81 is the square root of 324, which is 18 exactly.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
-
-        <EdTry v-model="memoryStart" :min="2" :max="10" label="Age you start counting memory" :readout="String(memoryStart)">
-          <template #stage>
-            <p class="mid" aria-hidden="true">{{ feltMiddle }}</p>
-          </template>
-          {{ midLine }}
-        </EdTry>
-
         <p>Real maths. Correctly done. Sitting on a personal-blog trace: a Logtime model built by an engineer, James Main Kenney, in the 1960s, who only later found that Janet had described the idea a century earlier.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <figure class="taj__visual">
-          <EdEditorialImage src="/blog/life-midpoint/linear-vs-log.svg" alt="Two timelines on cream paper: an even ruler marked 40, and a stretched ruler whose middle falls nearer 18." />
-          <figcaption>Same life, two rulers. The even one puts the middle at 40. The stretched one, with these inputs, puts it at 18.</figcaption>
-        </figure>
-        <h2>Eighteen is one answer, not the answer</h2>
-        <p>The video presented 18 as if it were a constant of nature. It is the output of two choices: when memory starts, and how long you expect to live. Move either one and the “true midpoint” moves with it.</p>
-        <p>Four is a commonly cited figure for the start of memory. It is contested. The traditional estimate for a person’s earliest memory sits closer to 3.5, and some newer work puts it younger still.<a href="#ref-3" aria-label="Reference 3">[3]</a> A longitudinal study that asked the same children again found they systematically postdated their earliest memories as they grew.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
-        <p>Same formula. Same life expectancy. Four defensible starting ages. Eighteen is the one that happens to come out a whole number.</p>
-        <p>Eighty-one is a reasonable round number, close to several wealthy countries. It is not a global constant. Current U.S. life expectancy sits nearer 80.<a href="#ref-8" aria-label="Reference 8">[8]</a> Swap in your own country’s figure and your personal 18 quietly becomes a 17 or a 19.</p>
-        <h2>Several explanations, no winner</h2>
+        <p>The video presented 18 as if it were a constant of nature. It is the output of two choices: when memory starts, and how long you expect to live. Move either one and the “true midpoint” moves with it. Four is a commonly cited figure for the start of memory, and it is contested. The traditional estimate for a person’s earliest memory sits closer to 3.5, and some newer work puts it younger still.<a href="#ref-3" aria-label="Reference 3">[3]</a> A longitudinal study that asked the same children again found they systematically postdated their earliest memories as they grew.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <p>Same formula. Same life expectancy. Four defensible starting ages. Eighteen is the one that happens to come out a whole number. Eighty-one is a reasonable round number, close to several wealthy countries, and it is not a global constant. Current U.S. life expectancy sits nearer 80.<a href="#ref-8" aria-label="Reference 8">[8]</a> Swap in your own country’s figure and your personal 18 quietly becomes a 17 or a 19.</p>
+
+        <h2>Competing explanations</h2>
         <p>The feeling underneath the video is older than the punchline. William Friedman and Steve Janssen asked nearly 1,900 adults, aged 16 to 80, how fast the past week, month, year, and ten years seemed to have gone.<a href="#ref-5" aria-label="Reference 5">[5]</a> People do report that longer stretches speed up. That is not the same as proving Janet’s fraction is the mechanism.</p>
-        <p>Adrian Bejan offered a different physical story in 2019.<a href="#ref-6" aria-label="Reference 6">[6]</a> A 2023 mathematical review tested several competing models and did not crown a single winner.<a href="#ref-7" aria-label="Reference 7">[7]</a></p>
-        <p>The evidence is mixed. Real phenomenon. Several plausible explanations. No single confirmed mechanism. That is an unglamorous sentence, and it is the accurate one.</p>
-        <p>Where I have to be honest: this was never really about proving 18, or 17, or 20. It was about noticing that a clock year and a felt year are not the same object.</p>
+        <p>Adrian Bejan offered a different physical story in 2019.<a href="#ref-6" aria-label="Reference 6">[6]</a> A 2023 mathematical review tested several competing models and did not crown a single winner.<a href="#ref-7" aria-label="Reference 7">[7]</a> The evidence is mixed: real phenomenon, several plausible explanations, no single confirmed mechanism. That is an unglamorous sentence, and it is the accurate one.</p>
+        <p>This was never really about proving 18, or 17, or 20. It was about noticing that a clock year and a felt year are not the same object.</p>
+
         <blockquote>
           <p>Eighteen is what falls out when you choose 4 and 81. It is not a law of life.</p>
         </blockquote>
+
         <p class="taj__closing">If the middle moves every time you change the starting age or the life you expect, whose midpoint were you actually being shown?</p>
         <p>Sit with the asterisks. The sand still falls. The ruler was optional.</p>
       </div>
@@ -124,10 +107,6 @@ const midLine = computed(() => `Memory starts at ${memoryStart.value}. The life 
 .taj__prose h2 { margin: 64rem 0 20rem; font-size: clamp(30rem, 3.6vw, 46rem); line-height: .98; }
 .taj blockquote { margin: 45rem 0; padding: 24rem 26rem; border-left: 8rem solid var(--signal-cobalt); background: var(--paper-2); border-radius: 0 var(--radius-m) var(--radius-m) 0; font: 500 clamp(22rem, 2.6vw, 32rem)/1.12 var(--font-display); letter-spacing: -.03em; }
 .taj blockquote p { margin: 0; }
-.taj__visual { margin: 50rem 0 45rem; }
-.taj__visual :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--signal-field); }
-.taj__visual--wide :deep(.ed-editorial-image) { aspect-ratio: 16 / 7; object-fit: cover; }
-.taj__visual--palm :deep(.ed-editorial-image) { aspect-ratio: 16 / 3.2; object-fit: cover; background: #f0e6d4; }
 .taj__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 clamp(22rem, 2.6vw, 34rem)/1.14 var(--font-display); letter-spacing: -.035em; }
 .taj__sources { max-width: 1100rem; margin: clamp(64rem, 10vw, 130rem) auto 0; padding: 34rem var(--shell-gutter) 0; border-top: var(--stroke) solid var(--ink); }
 .taj__sources h2 { margin: 12rem 0 30rem; font-size: clamp(33rem, 4vw, 48rem); line-height: .95; }
@@ -137,14 +116,11 @@ const midLine = computed(() => `Memory starts at ${memoryStart.value}. The life 
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
-.mid { margin: 0; text-align: center; font: 500 64rem/.9 var(--font-display); letter-spacing: -.06em; }
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }
   .taj__article { display: block; }
   .taj__margin-note { position: static; margin-bottom: 36rem; }
   .taj__prose h2 { margin-top: 52rem; }
-  .taj__visual { margin-left: 0; margin-right: 0; }
-  .taj__visual--palm :deep(.ed-editorial-image) { aspect-ratio: 16 / 4.5; }
 }
 </style>

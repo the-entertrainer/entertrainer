@@ -1,8 +1,16 @@
 <script setup lang="ts">
+definePageMeta({ layout: false })
+/**
+ * THE MIND READER — Engage parlor trick.
+ * Visual DNA shared with Stack: cream/ink/yellow, floating chrome, soft CTAs.
+ * Game logic (digit-sum force) stays intact.
+ */
+import { useThemeStore } from '~/stores/theme'
+
 useSeoMeta({
   title: 'The Mind Reader · Engage',
   description: 'Pick a two-digit number. Add the digits. Subtract that sum. Find your mark.',
-  ogUrl: 'https://entertrainer.in/engage/read-my-mind'
+  ogUrl: 'https://entertrainer.in/engage/read-my-mind',
 })
 
 type SymbolKind =
@@ -148,6 +156,7 @@ const SYMBOLS: SymbolDef[] = [
   }
 ]
 
+const theme = useThemeStore()
 const phase = ref<'intro' | 'guide'>('intro')
 const step = ref<GuideStep>(1)
 const revealed = ref(false)
@@ -159,7 +168,7 @@ const stepMeta: Record<GuideStep, { label: string; title: string }> = {
   1: { label: 'Pick', title: 'Hold a number' },
   2: { label: 'Add', title: 'Add the digits' },
   3: { label: 'Cut', title: 'Subtract the sum' },
-  4: { label: 'Find', title: 'Find your mark' }
+  4: { label: 'Find', title: 'Find your mark' },
 }
 
 function shuffle<T>(items: T[]) {
@@ -233,41 +242,62 @@ function playAgain() {
   step.value = 1
   revealed.value = false
 }
+
+function onThemeToggle(e: Event) {
+  e.stopPropagation()
+  e.preventDefault()
+  theme.toggle()
+}
+
+onMounted(() => {
+  theme.init()
+})
 </script>
 
 <template>
-  <div class="mr">
-    <header class="mr__bar">
-      <NuxtLink to="/engage" class="mr__back" aria-label="Back to Engage">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 9 12l6 6" /></svg>
-        <span>Back</span>
-      </NuxtLink>
-      <NuxtLink to="/" class="mr__home" aria-label="Entertrainer home">
-        <EdWordmark variant="mark" :size="28" />
-      </NuxtLink>
-      <span class="mr__title">Mind Reader</span>
-    </header>
+  <div class="mr" :data-phase="phase" :data-mr-theme="theme.theme">
+    <NuxtLink
+      to="/engage"
+      class="mr__iconbtn mr__back"
+      aria-label="Back to Engage"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 9 12l6 6" /></svg>
+    </NuxtLink>
+
+    <button
+      type="button"
+      class="mr__iconbtn mr__theme"
+      :aria-label="`Switch to ${theme.theme === 'dark' ? 'light' : 'dark'} mode`"
+      @click.stop.prevent="onThemeToggle"
+    >
+      <EdSignalIcon :name="theme.theme === 'dark' ? 'sun' : 'moon'" />
+    </button>
 
     <div class="mr__stage">
-      <section v-if="phase === 'intro'" class="mr__intro">
-        <h1>The<br /><span class="mr__accent-chip">Mind Reader</span></h1>
-        <p class="mr__lede">Two digits. Two moves. One mark.</p>
-        <button class="mr__primary" type="button" @click="startGame">
+      <div v-if="phase === 'intro'" class="mr__overlay mr__overlay--title">
+        <p class="mr__eyebrow mr__anim" style="--i:0">Engage</p>
+        <h1 class="mr__title mr__anim" style="--i:1">Mind<br />Reader</h1>
+        <p class="mr__lede mr__anim" style="--i:2">Two digits. Two moves. One mark.</p>
+        <button
+          class="mr__cta mr__anim mr__cta--pulse"
+          style="--i:3"
+          type="button"
+          @click="startGame"
+        >
           Begin
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" /></svg>
         </button>
-      </section>
+      </div>
 
       <section v-else class="mr__guide">
-        <div class="mr__guide-top">
+        <header class="mr__guide-top mr__anim" style="--i:0">
           <div>
             <p class="mr__eyebrow">Round {{ roundNumber }}</p>
-            <h1>{{ stepMeta[step].title }}</h1>
+            <h1 class="mr__guide-title">{{ stepMeta[step].title }}</h1>
           </div>
           <button class="mr__ghost" type="button" @click="playAgain">Restart</button>
-        </div>
+        </header>
 
-        <nav class="mr__steps" aria-label="Steps">
+        <nav class="mr__steps mr__anim" style="--i:1" aria-label="Steps">
           <button
             v-for="item in ([1, 2, 3, 4] as GuideStep[])"
             :key="item"
@@ -281,40 +311,42 @@ function playAgain() {
           </button>
         </nav>
 
-        <article class="mr__card" :class="{ 'mr__card--board': step === 4 }">
+        <article
+          class="mr__card mr__anim"
+          style="--i:2"
+          :class="{ 'mr__card--board': step === 4 }"
+        >
           <div v-if="step === 1" class="mr__panel">
             <div class="mr__badge">01</div>
-            <h2>Pick a <span class="mr__accent-chip">two-digit</span> number.</h2>
+            <h2>Pick a <em>two-digit</em> number.</h2>
             <p class="mr__copy">10 to 99. Just remember it.</p>
-            <button class="mr__primary" type="button" @click="nextStep">Got it</button>
+            <button class="mr__cta" type="button" @click="nextStep">Got it</button>
           </div>
 
           <div v-else-if="step === 2" class="mr__panel">
             <div class="mr__badge">02</div>
-            <h2>Add those <span class="mr__accent-chip">digits</span>.</h2>
+            <h2>Add those <em>digits</em>.</h2>
             <p class="mr__copy">Hold the sum.</p>
             <div class="mr__actions">
               <button class="mr__ghost" type="button" @click="previousStep">Back</button>
-              <button class="mr__primary" type="button" @click="nextStep">Sum ready</button>
+              <button class="mr__cta" type="button" @click="nextStep">Sum ready</button>
             </div>
           </div>
 
           <div v-else-if="step === 3" class="mr__panel">
             <div class="mr__badge">03</div>
-            <h2>Subtract that sum from your <span class="mr__accent-chip">original</span>.</h2>
+            <h2>Subtract that sum from your <em>original</em>.</h2>
             <p class="mr__copy">Keep the result.</p>
             <div class="mr__actions">
               <button class="mr__ghost" type="button" @click="previousStep">Back</button>
-              <button class="mr__primary" type="button" @click="nextStep">Ready</button>
+              <button class="mr__cta" type="button" @click="nextStep">Ready</button>
             </div>
           </div>
 
           <div v-else class="mr__board">
             <div class="mr__board-head">
-              <div>
-                <div class="mr__badge">04</div>
-                <h2>Find your number. Note the mark.</h2>
-              </div>
+              <div class="mr__badge">04</div>
+              <h2>Find your number. Note the mark.</h2>
             </div>
             <div class="mr__grid" role="grid" aria-label="Number board">
               <div
@@ -335,17 +367,20 @@ function playAgain() {
             </div>
             <div class="mr__actions mr__actions--spread">
               <button class="mr__ghost" type="button" @click="previousStep">Back</button>
-              <button class="mr__primary" type="button" @click="revealed = true">Reveal</button>
+              <button class="mr__cta" type="button" @click="revealed = true">Reveal</button>
             </div>
 
             <div v-if="revealed" class="mr__reveal" role="status" aria-live="polite">
+              <p class="mr__reveal-label mr__anim" style="--i:0">Your mark</p>
               <svg
-                class="mr__reveal-symbol"
+                class="mr__reveal-symbol mr__anim mr__score-pop"
                 viewBox="0 0 48 48"
-                :style="{ color: targetSymbol.color }"
+                :style="{ color: targetSymbol.color, '--i': 1 }"
                 v-html="targetSymbol.svg"
               />
-              <button class="mr__again" type="button" @click="playAgain">Again</button>
+              <button class="mr__cta mr__anim" style="--i:2" type="button" @click="playAgain">
+                Again
+              </button>
             </div>
           </div>
         </article>
@@ -357,220 +392,480 @@ function playAgain() {
 <style scoped>
 .mr {
   --mr-paper: #fbf8ef;
-  --mr-ink: #171719;
+  --mr-ink: #161618;
   --mr-yellow: #ffd43b;
-  --mr-gold: #b77a00;
-  --mr-veil: color-mix(in srgb, var(--mr-paper) 72%, #e8d9a8);
+  --ink: var(--mr-ink);
+  --accent: var(--mr-yellow);
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
   min-height: 100dvh;
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, color-mix(in srgb, var(--mr-yellow) 35%, transparent), transparent 70%),
-    color-mix(in srgb, var(--mr-yellow) 12%, var(--mr-paper));
+  background: var(--mr-paper);
   color: var(--mr-ink);
-  display: flex;
-  flex-direction: column;
-}
-.mr__bar {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 12rem;
-  min-height: 56rem;
-  padding: 10rem clamp(14rem, 3vw, 28rem);
-  background: color-mix(in srgb, var(--mr-paper) 92%, transparent);
-  border-bottom: 2rem solid var(--mr-ink);
-  backdrop-filter: blur(8px);
-}
-.mr__back, .mr__home, .mr__title {
-  font: 700 12rem/1 var(--font-mono);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--mr-ink);
-}
-.mr__back {
-  justify-self: start;
-  display: inline-flex;
-  align-items: center;
-  gap: 6rem;
-}
-.mr__back svg { width: 18rem; height: 18rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.mr__home { justify-self: center; display: inline-flex; }
-.mr__title { justify-self: end; color: color-mix(in srgb, var(--mr-ink) 55%, transparent); }
-
-.mr__stage {
-  flex: 1;
-  width: min(100%, 980rem);
-  margin: 0 auto;
-  padding: clamp(18rem, 3vw, 36rem) clamp(14rem, 3vw, 28rem) 48rem;
+  overflow-x: hidden;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 280ms ease, color 280ms ease;
 }
 
-.mr__intro {
-  min-height: min(640rem, calc(100dvh - 120rem));
-  display: grid;
-  align-content: center;
-  gap: 16rem;
-  padding: clamp(28rem, 6vw, 64rem);
-  background:
-    linear-gradient(160deg, color-mix(in srgb, var(--mr-yellow) 92%, #fff) 0%, var(--mr-yellow) 55%, color-mix(in srgb, var(--mr-gold) 28%, var(--mr-yellow)) 100%);
-  border: 2rem solid var(--mr-ink);
-  border-radius: 28rem;
-  box-shadow: 10rem 10rem 0 var(--mr-ink);
+.mr[data-mr-theme='dark'] {
+  --mr-paper: #121214;
+  --mr-ink: #ede6d6;
+  --mr-yellow: #e8c547;
 }
-.mr__eyebrow {
-  margin: 0;
-  font: 800 11rem/1.2 var(--font-mono);
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--mr-ink);
-}
-.mr__intro h1, .mr__guide-top h1, .mr__panel h2, .mr__board-head h2 {
-  margin: 0;
-  font: 500 clamp(42rem, 8vw, 84rem)/.88 var(--font-display);
-  letter-spacing: -.06em;
-  text-transform: uppercase;
-}
-.mr__accent-chip {
-  display: inline-block;
-  padding: 0.04em 0.18em;
-  border-radius: 0.12em;
-  background: var(--mr-yellow);
-  color: var(--accent-ink, #161618);
-}
-.mr__intro .mr__accent-chip {
-  background: var(--mr-ink);
-  color: var(--mr-yellow);
-}
-.mr__lede, .mr__copy {
-  margin: 0;
-  max-width: 38ch;
-  font-size: clamp(16rem, 2vw, 20rem);
-  line-height: 1.45;
-  color: color-mix(in srgb, var(--mr-ink) 78%, transparent);
-}
-.mr__copy--tight { max-width: 26ch; font-size: 15rem; }
 
-.mr__primary, .mr__ghost, .mr__again {
+.mr[data-phase='intro'] {
+  height: 100svh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+.mr__iconbtn {
+  position: absolute;
+  z-index: 20;
+  top: max(10rem, env(safe-area-inset-top));
+  width: 44rem;
+  height: 44rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10rem;
-  min-height: 46rem;
-  padding: 0 18rem;
-  border: 2rem solid var(--mr-ink);
-  border-radius: 999rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mr-paper) 55%, transparent);
+  color: color-mix(in srgb, var(--mr-ink) 70%, transparent);
+  text-decoration: none;
   cursor: pointer;
-  font: 800 14rem/1 var(--font-ui);
-  transition: transform .18s ease, box-shadow .18s ease;
+  appearance: none;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: color 160ms ease, background 160ms ease, transform 120ms ease;
 }
-.mr__primary { color: var(--mr-ink); background: var(--mr-paper); box-shadow: 4rem 4rem 0 var(--mr-ink); }
-.mr__primary:hover { transform: translate(-1rem, -1rem); box-shadow: 5rem 5rem 0 var(--mr-ink); }
-.mr__primary svg { width: 16rem; height: 16rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.mr__ghost { background: transparent; color: var(--mr-ink); }
-.mr__again {
-  min-height: 40rem;
-  padding: 0 16rem;
-  background: transparent;
+.mr__iconbtn:hover,
+.mr__iconbtn:focus-visible {
   color: var(--mr-ink);
-  font: 700 12rem/1 var(--font-mono);
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  border-width: 1.5rem;
-  opacity: .72;
+  background: color-mix(in srgb, var(--mr-paper) 82%, transparent);
 }
-.mr__again:hover { opacity: 1; }
-.mr__intro .mr__primary { margin-top: 8rem; width: fit-content; }
+.mr__iconbtn:focus-visible {
+  outline: 2rem solid var(--mr-yellow);
+  outline-offset: 2rem;
+}
+.mr__iconbtn:active {
+  transform: scale(0.94);
+}
 
-.mr__guide-top { display: flex; align-items: end; justify-content: space-between; gap: 16rem; margin-bottom: 18rem; }
+.mr__back {
+  left: max(10rem, env(safe-area-inset-left));
+}
+.mr__back svg {
+  width: 20rem;
+  height: 20rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mr__theme {
+  right: max(10rem, env(safe-area-inset-right));
+}
+.mr__theme :deep(svg) {
+  width: 18rem;
+  height: 18rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mr__stage {
+  position: relative;
+  width: 100%;
+  min-height: inherit;
+}
+
+.mr__overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 12rem;
+  padding: 28rem 24rem;
+  padding-top: max(28rem, env(safe-area-inset-top));
+  padding-bottom: max(28rem, env(safe-area-inset-bottom));
+  text-align: center;
+  background: color-mix(in srgb, var(--mr-paper) 55%, transparent);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: mr-overlay-in 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mr__eyebrow {
+  margin: 0;
+  font: 800 11rem/1 var(--font-mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.mr__title {
+  margin: 0;
+  font: 700 clamp(64rem, 18vw, 112rem)/0.82 var(--font-display);
+  letter-spacing: -0.07em;
+  text-transform: uppercase;
+}
+
+.mr__lede,
+.mr__copy {
+  margin: 0 0 6rem;
+  font-size: 15rem;
+  line-height: 1.4;
+  max-width: 28ch;
+  letter-spacing: 0.01em;
+  opacity: 0.82;
+}
+
+.mr__cta {
+  appearance: none;
+  border: none;
+  background: var(--mr-yellow);
+  color: #161618;
+  font: 800 15rem/1 var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 18rem 36rem;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow:
+    0 1rem 0 color-mix(in srgb, #161618 12%, transparent),
+    0 8rem 20rem color-mix(in srgb, var(--mr-ink) 10%, transparent);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.mr__cta:hover,
+.mr__cta:focus-visible {
+  transform: translateY(-1rem);
+}
+.mr__cta:focus-visible {
+  outline: 2rem solid var(--mr-ink);
+  outline-offset: 3rem;
+}
+.mr__cta:active {
+  transform: translateY(2rem) scale(0.98);
+  box-shadow:
+    0 0 0 transparent,
+    0 2rem 8rem color-mix(in srgb, var(--mr-ink) 8%, transparent);
+}
+
+.mr__ghost {
+  appearance: none;
+  border: none;
+  background: color-mix(in srgb, var(--mr-paper) 70%, transparent);
+  color: color-mix(in srgb, var(--mr-ink) 72%, transparent);
+  font: 800 12rem/1 var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 12rem 18rem;
+  border-radius: 999px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: color 160ms ease, background 160ms ease, transform 120ms ease;
+}
+.mr__ghost:hover,
+.mr__ghost:focus-visible {
+  color: var(--mr-ink);
+  background: color-mix(in srgb, var(--mr-paper) 90%, transparent);
+}
+.mr__ghost:focus-visible {
+  outline: 2rem solid var(--mr-yellow);
+  outline-offset: 2rem;
+}
+.mr__ghost:active {
+  transform: scale(0.96);
+}
+
+.mr__anim {
+  animation: mr-rise 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 65ms + 30ms);
+}
+
+.mr__score-pop {
+  animation:
+    mr-rise 480ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    mr-score-pop 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 65ms + 30ms);
+}
+
+.mr__cta--pulse {
+  animation:
+    mr-rise 480ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    mr-cta-pulse 2.6s ease-in-out 650ms infinite;
+  animation-delay: calc(var(--i, 0) * 65ms + 30ms), 650ms;
+}
+
+/* —— Guide flow —— */
+.mr__guide {
+  width: min(100%, 920rem);
+  margin: 0 auto;
+  padding:
+    max(64rem, calc(env(safe-area-inset-top) + 56rem))
+    clamp(16rem, 3vw, 28rem)
+    max(40rem, env(safe-area-inset-bottom));
+}
+
+.mr__guide-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16rem;
+  margin-bottom: 20rem;
+}
+
+.mr__guide-title {
+  margin: 6rem 0 0;
+  font: 700 clamp(36rem, 8vw, 64rem)/0.88 var(--font-display);
+  letter-spacing: -0.06em;
+  text-transform: uppercase;
+}
+
 .mr__steps {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0;
+  gap: 6rem;
   margin-bottom: 18rem;
-  border-top: 2rem solid color-mix(in srgb, var(--mr-ink) 20%, transparent);
-  border-bottom: 2rem solid color-mix(in srgb, var(--mr-ink) 20%, transparent);
 }
 .mr__steps button {
   display: flex;
   align-items: center;
   gap: 8rem;
-  padding: 12rem 8rem;
-  border: 0;
-  background: transparent;
+  padding: 10rem 12rem;
+  border: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mr-ink) 4%, transparent);
   color: color-mix(in srgb, var(--mr-ink) 50%, transparent);
   cursor: pointer;
   text-align: left;
+  transition: color 160ms ease, background 160ms ease, transform 120ms ease;
 }
-.mr__steps button.active { color: var(--mr-ink); box-shadow: inset 0 -3rem 0 var(--mr-yellow); }
+.mr__steps button:hover,
+.mr__steps button:focus-visible {
+  color: var(--mr-ink);
+  background: color-mix(in srgb, var(--mr-ink) 8%, transparent);
+}
+.mr__steps button:focus-visible {
+  outline: 2rem solid var(--mr-yellow);
+  outline-offset: 2rem;
+}
+.mr__steps button.active {
+  color: #161618;
+  background: var(--mr-yellow);
+}
+.mr__steps button.complete:not(.active) {
+  color: color-mix(in srgb, var(--mr-ink) 78%, transparent);
+}
+.mr__steps button:active {
+  transform: scale(0.97);
+}
 .mr__steps span {
-  display: grid; place-items: center; width: 24rem; height: 24rem;
-  border: 2rem solid currentColor; border-radius: 50%;
+  display: grid;
+  place-items: center;
+  width: 22rem;
+  height: 22rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 14%, transparent);
   font: 800 9rem/1 var(--font-mono);
 }
-.mr__steps strong { font: 800 10rem/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
+.mr__steps button.active span {
+  background: color-mix(in srgb, #161618 12%, transparent);
+}
+.mr__steps strong {
+  font: 800 10rem/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
 .mr__card {
   position: relative;
-  min-height: 420rem;
-  padding: clamp(22rem, 4vw, 48rem);
-  background: var(--mr-veil);
-  border: 2rem solid var(--mr-ink);
-  border-radius: 28rem;
-  box-shadow: 8rem 8rem 0 var(--mr-ink);
+  min-height: 380rem;
+  padding: clamp(22rem, 4vw, 40rem);
+  background: color-mix(in srgb, var(--mr-paper) 88%, var(--mr-ink));
+  border-radius: 24rem;
+  box-shadow:
+    0 1rem 0 color-mix(in srgb, var(--mr-ink) 6%, transparent),
+    0 12rem 32rem color-mix(in srgb, var(--mr-ink) 8%, transparent);
   overflow: hidden;
 }
-.mr__card--board { min-height: 0; padding: clamp(16rem, 3vw, 28rem); }
-.mr__panel { display: grid; gap: 18rem; max-width: 560rem; align-content: center; min-height: 320rem; }
-.mr__badge {
-  display: grid; place-items: center; width: 42rem; height: 42rem;
-  border-radius: 50%; background: var(--mr-ink); color: var(--mr-yellow);
-  font: 800 11rem/1 var(--font-mono);
+.mr[data-mr-theme='dark'] .mr__card {
+  background: color-mix(in srgb, var(--mr-paper) 92%, #fff);
+}
+.mr__card--board {
+  min-height: 0;
+  padding: clamp(16rem, 3vw, 24rem);
 }
 
-.mr__actions { display: flex; align-items: center; gap: 12rem; flex-wrap: wrap; margin-top: 4rem; }
-.mr__actions--spread { justify-content: space-between; }
+.mr__panel {
+  display: grid;
+  gap: 18rem;
+  max-width: 520rem;
+  align-content: center;
+  min-height: 280rem;
+}
+.mr__panel h2,
+.mr__board-head h2 {
+  margin: 0;
+  font: 700 clamp(28rem, 5.5vw, 44rem)/0.92 var(--font-display);
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+}
+.mr__panel h2 em,
+.mr__board-head h2 em {
+  font-style: normal;
+  color: color-mix(in srgb, var(--mr-ink) 55%, var(--mr-yellow));
+  background: linear-gradient(
+    180deg,
+    transparent 62%,
+    color-mix(in srgb, var(--mr-yellow) 55%, transparent) 62%
+  );
+}
 
-.mr__board-head { display: flex; justify-content: space-between; gap: 16rem; align-items: end; margin-bottom: 16rem; }
+.mr__badge {
+  display: grid;
+  place-items: center;
+  width: 40rem;
+  height: 40rem;
+  border-radius: 999px;
+  background: var(--mr-ink);
+  color: var(--mr-yellow);
+  font: 800 11rem/1 var(--font-mono);
+  letter-spacing: 0.06em;
+}
+
+.mr__actions {
+  display: flex;
+  align-items: center;
+  gap: 12rem;
+  flex-wrap: wrap;
+  margin-top: 4rem;
+}
+.mr__actions--spread {
+  justify-content: space-between;
+  margin-top: 16rem;
+}
+
+.mr__board-head {
+  display: flex;
+  align-items: center;
+  gap: 14rem;
+  margin-bottom: 14rem;
+}
+
 .mr__grid {
   display: grid;
   grid-template-columns: repeat(10, minmax(0, 1fr));
   gap: 3rem;
-  padding: 10rem 0;
-  border-top: 1rem solid color-mix(in srgb, var(--mr-ink) 22%, transparent);
-  border-bottom: 1rem solid color-mix(in srgb, var(--mr-ink) 22%, transparent);
+  padding: 8rem 0;
 }
 .mr__cell {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem;
-  min-height: 48rem; border: 1rem solid color-mix(in srgb, var(--mr-ink) 12%, transparent);
-  background: color-mix(in srgb, var(--mr-paper) 78%, transparent);
-  font: 800 10rem/1 var(--font-mono); color: color-mix(in srgb, var(--mr-ink) 60%, transparent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  min-height: 48rem;
+  border-radius: 6rem;
+  background: color-mix(in srgb, var(--mr-paper) 70%, transparent);
+  font: 800 10rem/1 var(--font-mono);
+  color: color-mix(in srgb, var(--mr-ink) 55%, transparent);
 }
-.mr__cell svg { width: 18rem; height: 18rem; }
+.mr__cell svg {
+  width: 18rem;
+  height: 18rem;
+}
 
 .mr__reveal {
-  position: absolute; inset: 0; z-index: 3;
-  display: grid; place-content: center; justify-items: center; gap: 28rem;
-  background: color-mix(in srgb, var(--mr-yellow) 90%, var(--mr-paper));
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 20rem;
+  padding: 28rem 24rem;
+  background: color-mix(in srgb, var(--mr-paper) 72%, transparent);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: mr-overlay-in 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.mr__reveal-label {
+  margin: 0;
+  font: 800 10rem/1 var(--font-mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 6rem 10rem;
+  border-radius: 999px;
+  background: var(--mr-ink);
+  color: var(--mr-yellow);
 }
 .mr__reveal-symbol {
   width: min(160rem, 42vw);
   height: min(160rem, 42vw);
-  filter: drop-shadow(0 8rem 18rem color-mix(in srgb, var(--mr-ink) 18%, transparent));
+  filter: drop-shadow(0 8rem 18rem color-mix(in srgb, var(--mr-ink) 14%, transparent));
+}
+
+@keyframes mr-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes mr-rise {
+  from { opacity: 0; transform: translateY(12rem); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mr-score-pop {
+  0% { transform: scale(0.88); }
+  55% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+@keyframes mr-cta-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.025); }
 }
 
 @media (max-width: 720px) {
   .mr__steps strong { display: none; }
-  .mr__board-head { flex-direction: column; align-items: start; }
-  .mr__intro { min-height: calc(100dvh - 120rem); }
+  .mr__steps button { justify-content: center; padding: 10rem; }
+  .mr__board-head { flex-direction: column; align-items: flex-start; gap: 10rem; }
   .mr__grid { gap: 2rem; }
   .mr__cell { min-height: 38rem; }
   .mr__cell svg { width: 14rem; height: 14rem; }
+  .mr__guide-top { align-items: flex-start; }
 }
+
 @media (prefers-reduced-motion: reduce) {
-  .mr__primary, .mr__ghost, .mr__again { transition: none; }
-  .mr__primary:hover { transform: none; }
+  .mr__overlay,
+  .mr__anim,
+  .mr__score-pop,
+  .mr__cta--pulse,
+  .mr__reveal {
+    animation: none !important;
+    transition: none !important;
+  }
+  .mr__anim,
+  .mr__score-pop,
+  .mr__cta--pulse {
+    opacity: 1;
+    transform: none;
+  }
+  .mr,
+  .mr__iconbtn,
+  .mr__cta,
+  .mr__ghost,
+  .mr__steps button {
+    transition: none;
+  }
   .mr__reveal-symbol { filter: none; }
 }
 </style>

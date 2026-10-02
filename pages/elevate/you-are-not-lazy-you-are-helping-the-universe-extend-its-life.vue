@@ -37,23 +37,23 @@ const references = [
 
     <article class="taj__article">
       <aside class="taj__margin-note" aria-label="Reading note">
-        <p>One useful word.</p>
-        <p>Entropy names energy that has spread out and become harder to use.</p>
+        <p>The heat did not vanish.</p>
+        <p>Watch where a useful difference goes when nobody is spending it.</p>
       </aside>
 
       <div class="taj__prose">
         <p class="taj__lead">You make the tea hot, then get lost in your phone, and when you come back the cup is ordinary.</p>
-        <p>The heat did not disappear. It moved into the cooler room. The room barely noticed. You did. That one-way thinning of a useful difference is the everyday face of the second law of thermodynamics, and the name for what piles up as the difference fades is entropy.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>The heat did not disappear. It moved into the cooler room. The room barely noticed. You did. That one-way thinning of a useful difference is the everyday face of the second law of thermodynamics.<a href="#ref-1" aria-label="Reference 1">[1]</a> Physicists have a short name for what piles up as the difference fades. Hold the cup first. The label can wait a paragraph.</p>
 
-        <h2>Heat flow and the second law</h2>
+        <h2>A difference you can spend</h2>
         <p>Hot tea next to a cool room is a difference you can spend. So is a charged battery, or water sitting above the ground. Heat can move, the battery can run the phone, and falling water can turn a wheel. Then the difference thins out. The tea cools, the battery goes flat, the water reaches the bottom. Nothing vanished; it got worse at making something else happen.</p>
-        <p>That one-way spreading is what physicists mean by the second law in ordinary language. You do not need the formal label to recognise your coffee. A useful temperature gap slowly becomes ordinary air.</p>
+        <p>That one-way spreading is what the second law means in ordinary language. The name for the thinning is entropy: energy that has spread out and become harder to put to work.<a href="#ref-1" aria-label="Reference 1">[1]</a> You do not need the formal label to recognise your coffee. A useful temperature gap slowly becomes ordinary air.</p>
 
-        <h2>Local order and common misconceptions</h2>
+        <h2>Rest is not cosmic charity</h2>
         <p>Here is the joke people want: stay in bed, do less, and help the universe last longer. A slower day usually burns less of the obvious stuff — less walking, less cooking, fewer lights — but you are not a phone on airplane mode. You are still breathing, still warm, still thinking, and the phone in your hand may be getting hot on its own. Rest does not need a cosmic excuse. Sometimes you are tired.</p>
         <p>Mess is not the same thing. Physics does not care where the socks are. You can tidy one patch any time you like. A fridge keeps its inside cool by paying an energy cost somewhere else. Folding a shirt spends energy and sends some heat into the wider room.<a href="#ref-2" aria-label="Reference 2">[2]</a> So clean the room; entropy is not going to do it for you. That point also ignores the long argument about whether the universe must end this way. That can wait. Your tea is already doing the small version.</p>
 
-        <h2>Information, heat, and the far future</h2>
+        <h2>Your photos still cost heat</h2>
         <p>Your photos feel weightless, but the phone holding them is matter moving tiny amounts of electricity. It warms up. It asks to be charged. Resetting information has a tiny minimum energy cost, and real machines pay much more than that textbook floor. Information is not floating free; someone pays for it in electricity and heat.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
 
         <figure class="taj__visual taj__visual--wide">
@@ -70,7 +70,7 @@ const references = [
           <p>A useful difference slowly becomes ordinary.</p>
         </blockquote>
 
-        <p class="taj__closing">If the universe is only smoothing things out, what are you protecting when you treat a nap as a moral failure?</p>
+        <p class="taj__closing">If every useful gap is only waiting to thin out, what exactly are you punishing when you treat a nap as a moral failure?</p>
         <p>Take the nap. Then reply to the message.</p>
       </div>
     </article>

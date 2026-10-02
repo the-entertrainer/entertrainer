@@ -32,7 +32,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'you-are-not-lazy-you-are-helping-the-universe-extend-its-life',
     title: 'Why hot tea goes cold',
-    dek: 'Hot tea cools because a useful temperature gap spreads into the room. That thinning has a name: entropy.',
+    dek: 'You make the tea hot. You look away. The cup is ordinary again — and the heat did not disappear.',
     socialHook: 'Hot tea cools. Phones die. Same boring physics. Rest isn’t a moral failure — it’s the universe preferring things spread out.',
     socialTitle: 'Hot tea cools. Phones die. Rest isn’t a moral failure.',
     category: 'Universe',
@@ -46,7 +46,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'why-isnt-the-moon-moonly',
     title: 'Why isn’t the Moon moonly?',
-    dek: 'English could have grown “moonly.” Lunar already had the science job, and moony drifted into poetry.',
+    dek: 'Friend becomes friendly. Love becomes lovely. English builds that ending freely — then quietly refuses it for the Moon.',
     socialHook: 'Friend, friendly. Love, lovely. Moon… English builds adjectives freely, then quietly refuses. The reason is older than English.',
     socialTitle: 'Friend, friendly. Love, lovely. Why isn’t the Moon moonly?',
     category: 'Mind',
@@ -60,7 +60,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'jamais-vu-why-words-stop-meaning-anything',
     title: 'When a word stops being a word',
-    dek: 'Stare at a familiar word long enough and the meaning drops out. You have not forgotten it. The feeling just left.',
+    dek: 'Stare at a familiar word long enough and the letters stay — but the meaning walks out of the room.',
     socialHook: 'I stared at “door” until it stopped looking like English. That glitch has a name, an Ig Nobel Prize, and stranger cousins.',
     socialTitle: 'Stare at a word long enough — it stops being a word.',
     category: 'Mind',
@@ -74,7 +74,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'the-midpoint-of-your-life-isnt-40-its-18',
     title: 'The middle of your life is not 40',
-    dek: 'Eighteen is what falls out when you pick age 4 and a life of 81. Move either number and the middle moves with it.',
+    dek: 'A clock year and a felt year are not the same object. Change when memory starts, or how long you expect to live, and the “middle” moves.',
     socialHook: 'A video claimed your life’s midpoint isn’t 40 — it’s 18. The maths is real, two centuries old, and shakier than the voiceover.',
     socialTitle: 'Your life’s midpoint isn’t 40. The maths says it’s 18.',
     category: 'Mind',
@@ -88,7 +88,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'you-only-find-out-when-you-have-to-explain-it',
     title: 'You find out when you have to explain it',
-    dek: 'You feel you know how a zip works until you have to say what pushes what. The feeling arrives before the model.',
+    dek: 'You can work a zip in the dark. Ask what the slider does to the teeth — and the feeling of knowing goes dark too.',
     socialHook: 'The feeling of knowing arrives first, and cheaply. Ask someone to explain the zip — and the lighting goes out.',
     socialTitle: 'You only find out you don’t know it when you explain it.',
     category: 'Mind',
@@ -102,7 +102,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'tajjalan',
     title: 'The cup stays. The tea does not.',
-    dek: 'Watch one thing appear, stay, and go. Tajjalan is the old name for that look.',
+    dek: 'You pour the tea. It shows up, it sits, it is gone. The cup never left. Sit with that look before you name it.',
     socialHook: 'You pour the tea. It shows up, it sits, it is gone. The cup never left. An old word is only the name for that look.',
     socialTitle: 'The cup stays. The tea does not.',
     category: 'Mind',
@@ -116,7 +116,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'your-mouth-can-be-sure-for-reasons-your-eyes-never-had',
     title: 'How many of you is inside you?',
-    dek: 'Speech can be sure about a picture it never got. A flash to one half, a story from the other.',
+    dek: 'One hand picks a shovel for a snow scene the mouth never saw. Speech invents a chicken shed anyway — and feels sure.',
     socialHook: 'They flashed a key to one half of a split brain. Speech said nothing. The left hand still found the key — then later invents a chicken-shed story for a shovel.',
     socialTitle: 'How many of you is actually inside you?',
     category: 'Mind',

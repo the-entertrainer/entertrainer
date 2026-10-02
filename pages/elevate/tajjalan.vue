@@ -57,10 +57,10 @@ const references = [
 
       <div class="taj__prose">
         <p class="taj__lead">You pour the tea.</p>
-        <p>Steam. Heat. A colour in the cup. Then it is ordinary water. Then it is gone. The cup did not go with it. There is an old word for that look. Tajjalan.</p>
+        <p>Steam. Heat. A colour in the cup. Then it is ordinary water. Then it is gone. The cup did not go with it. Stay with that look for a moment — the visit, not the vessel. An old line has a short word for the look. Hold the tea first.</p>
 
-        <h2>What is it?</h2>
-        <p>It comes from a short line in the Chāndogya Upaniṣad: all this is Brahman; sit with it calmly as <em>tajjalan</em>.<a href="#ref-1" aria-label="Reference 1">[1]</a> The word itself is made of four pieces. That is the whole key.</p>
+        <h2>Four pieces of one word</h2>
+        <p>The word is <em>tajjalan</em>. It comes from a short line in the Chāndogya Upaniṣad: all this is Brahman; sit with it calmly as tajjalan.<a href="#ref-1" aria-label="Reference 1">[1]</a> The word itself is made of four pieces. That is the whole key.</p>
         <p><strong>Tat</strong> means That — the ground of everything. <strong>Ja</strong> means born from, or coming out of. <strong>La</strong> means going back into, or dissolving into. <strong>An</strong> means living and breathing in.</p>
         <p>So Śaṅkara reads the word like this: whatever shows up is born from That, lives and breathes in That, and goes back into That.<a href="#ref-2" aria-label="Reference 2">[2]</a> Tajjalan is not a fancy name for God. It is a four-part way of looking at anything you can point at — a cup, your body, a thought, a whole day.</p>
         <p>Where did this come from? Where does it go when it ends? What is it living in while it is here? Those three questions are just the four pieces of the word, turned into a look you can actually use. If the answers keep landing in the same place, the old habit of “holy over here, ordinary over there” starts looking like a habit, not a truth.</p>
@@ -78,7 +78,7 @@ const references = [
           </figcaption>
         </figure>
 
-        <h2>Why is it significant?</h2>
+        <h2>Not a guest in a finished building</h2>
         <p>Most of us walk through life like guests who arrived late. The room was already set. The rules were already printed. We just try to cope. That feeling rests on a quiet story we almost never question: the stuff out there is one thing, and the mind in here is another, and they do not really meet.</p>
         <p>It sounds grown-up. It also misses something you already know from living. Everything you have ever known came to you as experience — a sound, a colour, a weight, a fear, a love, a stretch of time. You never meet a “world” outside that. You meet experience, and you call some of it the world.</p>
         <p>Tajjalan sits right on that point. If everything that shows up comes from one ground, stays in it, and returns to it, then your living is not a small side story stuck onto a dead outside. On this teaching, the living is the main stage. You are not a guest in a finished building. You are inside the thing that is also making and taking back every room. That changes how careful you get with what you put into the day — what you think, what you look at, what you mean — because those are not smoke floating above life. They are movements inside it.</p>
@@ -96,7 +96,7 @@ const references = [
           </figcaption>
         </figure>
 
-        <h2>Interesting facts and thoughts</h2>
+        <h2>Calm attention, firm holding</h2>
         <p>The line is from Chāndogya Upaniṣad 3.14.1, in the teaching of Śāṇḍilya.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-3" aria-label="Reference 3">[3]</a> The four-piece reading (tat–ja–la–an) is how Śaṅkara opens the word; other teachers read it differently. The text is old. The look it asks for is still available.</p>
         <p>The instruction is calm on purpose. It does not say shout. It does not say put on a show. It says: be calm, and pay attention. Then it gets sharp about the mind. A person is made of what they hold firmly. What you keep treating as true slowly becomes the shape of your life. Your picture of reality is not decoration. It is training.</p>
         <p>Treat the world as dead stuff you are only passing through, and you will live like a passer-by. Treat what appears as belonging to one living ground, and you start watching differently. You can try the look on one breath. There was a waiting before it. There is a moving while it lasts. There is a going when it ends. Ask: what is this breath appearing in? What is holding the appearing? Stay a little longer than habit wants. The story of a sealed private universe gets harder to believe.</p>

@@ -47,17 +47,17 @@ const references = [
         <p class="taj__lead">One evening at work I stared at the word “door” until it stopped looking like English.</p>
         <p>Same four letters. Suddenly a pile of shapes. I still knew it was a word. I just could not feel that anymore. The wall I hit already had a research literature — and, as of 2023, an Ig Nobel Prize.</p>
 
-        <h2>When the meaning drops out</h2>
+        <h2>Semantic satiation</h2>
         <p>The lab name for the staring trick is semantic satiation. Repeat a word, or look at it long enough, and the meaning drops out. What is left feels like sound, or ink, with nothing attached.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
         <p>Edward Titchener noted the feeling informally in the late 1800s. It picked up working names — verbal satiation, lapse of meaning, plain mental fatigue — before Leon Jakobovits James gave it the current name in his 1962 dissertation.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a> So the wall over “door” already had a name before I was born.</p>
         <p>Jamais vu is the stranger cousin: something you know feels unfamiliar, as if you are meeting it for the first time. Akira O’Connor put it this way: the strange feeling of finding something peculiar when we know it should be familiar.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
 
-        <h2>Copying “door” thirty times</h2>
+        <h2>Laboratory copying experiments</h2>
         <p>In 2023 Chris Moulin, Nicole Bell, and Akira O’Connor at the University of St Andrews won the Ig Nobel Prize in Literature for measuring the glitch on purpose, with a stopwatch.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
         <p>Ninety-four undergraduates copied a word by hand, over and over, and stopped when it started to feel wrong. Some words were ordinary (“door”). Some were obscure (“sward”). Across two experiments, roughly two-thirds of them reported the word turning strange — typically after about 30 repetitions, inside a single minute.<a href="#ref-1" aria-label="Reference 1">[1]</a> The paper’s title tells the joke before you can: “The The The The Induction of Jamais Vu in the Laboratory.”</p>
         <p>You do not forget the word. You still know “door” is English. For a stretch, the knowing and the feeling come apart.</p>
 
-        <h2>Mirror glitches</h2>
+        <h2>Déjà vu and related glitches</h2>
         <p>The family is bigger than one glitch. Déjà vu is the mirror: a brand-new moment feels like a rerun. On one influential reading, that is a fact-checker catching a false alarm before it becomes a false memory.<a href="#ref-4" aria-label="Reference 4">[4]</a> That is an interpretation, not a settled law. Everyday déjà vu reports do not line up neatly with standard lab tests of recollection and familiarity for words; the full mechanism is still open.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>
         <p>Tip of the tongue is another cousin. You know you know the word, and the word will not arrive.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
         <p>A 2024 paper used deep-learning models to poke at how satiation might work.<a href="#ref-7" aria-label="Reference 7">[7]</a> That is a hypothesis built from an artificial model, not direct proof of a living brain, and it is one study. The evidence is mixed on the mechanism. It is not mixed on the feeling. Copy a word thirty times and a lot of people will tell you it went strange.</p>

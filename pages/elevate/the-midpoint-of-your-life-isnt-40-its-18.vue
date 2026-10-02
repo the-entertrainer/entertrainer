@@ -46,17 +46,17 @@ const references = [
         <p class="taj__lead">On one old account of felt time, the middle of an ordinary long life is not forty. It lands near eighteen.</p>
         <p>The maths is real. It is also about 150 years old. A viral video treated the number like a constant of nature. The honest version has three asterisks the voiceover skipped.</p>
 
-        <h2>A year that shrinks as you live</h2>
+        <h2>Felt time and Paul Janet</h2>
         <p>We quietly assume a year is a year. Age 4 to 5 is one unit. Age 40 to 41 is one unit. A clock does not care how old you are. Felt time does. In 1877 the French philosopher Paul Janet proposed a simple account: the felt length of a year is proportional to how much life you have already lived.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
         <p>To a 10-year-old, one year is a tenth of everything they have known. To a 50-year-old, the same 365 days is a fiftieth. Same calendar year. Different denominator. On a scale like that, the middle is not the average of the two ends. You cannot start at birth, because the log of zero does not exist; an infinite stretch of felt time would sit between age 0 and age 1.</p>
 
-        <h2>Why the video got 18</h2>
+        <h2>The square-root midpoint</h2>
         <p>The viral version started at age 4, roughly where reliable autobiographical memory is often said to begin, and it used a life of 81. Plug those in: the square root of 4 times 81 is the square root of 324, which is 18 exactly.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
         <p>Real maths. Correctly done. Sitting on a personal-blog trace: a Logtime model built by an engineer, James Main Kenney, in the 1960s, who only later found that Janet had described the idea a century earlier.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
         <p>Eighteen is the output of two choices: when memory starts, and how long you expect to live. Move either one and the “true midpoint” moves with it. Four is a commonly cited figure for the start of memory, and it is contested. The traditional estimate for a person’s earliest memory sits closer to 3.5, and some newer work puts it younger still.<a href="#ref-3" aria-label="Reference 3">[3]</a> A longitudinal study that asked the same children again found they systematically postdated their earliest memories as they grew.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
         <p>Same formula. Same life expectancy. Four defensible starting ages. Eighteen is the one that happens to come out a whole number. Eighty-one is a reasonable round number, close to several wealthy countries, and it is not a global constant. Current U.S. life expectancy sits nearer 80.<a href="#ref-8" aria-label="Reference 8">[8]</a> Swap in your own country’s figure and your personal 18 quietly becomes a 17 or a 19.</p>
 
-        <h2>Other stories for the same speed-up</h2>
+        <h2>Competing explanations</h2>
         <p>The feeling underneath the punchline is older than the video. William Friedman and Steve Janssen asked nearly 1,900 adults, aged 16 to 80, how fast the past week, month, year, and ten years seemed to have gone.<a href="#ref-5" aria-label="Reference 5">[5]</a> People do report that longer stretches speed up. That is not the same as proving Janet’s fraction is the mechanism.</p>
         <p>Adrian Bejan offered a different physical story in 2019.<a href="#ref-6" aria-label="Reference 6">[6]</a> A 2023 mathematical review tested several competing models and did not crown a single winner.<a href="#ref-7" aria-label="Reference 7">[7]</a> The evidence is mixed: real phenomenon, several plausible explanations, no single confirmed mechanism. That is an unglamorous sentence, and it is the accurate one.</p>
         <p>This was never really about proving 18, or 17, or 20. It was about noticing that a clock year and a felt year are not the same object.</p>

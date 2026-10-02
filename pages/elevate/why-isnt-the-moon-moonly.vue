@@ -47,16 +47,16 @@ const references = [
         <p class="taj__lead">Friend becomes friendly. Love becomes lovely. Moon does not become moonly.</p>
         <p>The ending is sitting right there. English uses it all the time. Then it stops, and hands you a word with no visible link to the Moon: lunar. The same trick shows up for the sun (solar), for teeth (dental), and for a cat (feline). The pattern looks like a glitch until you see it was a staffing decision.</p>
 
-        <h2>A cousin, not a child</h2>
+        <h2>What is it?</h2>
         <p>These pairs have a name: collateral adjectives. An adjective tied to a noun by meaning, and unrelated to it by descent.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a> Collateral means the same family stock, but not in a straight line — a cousin, not a child. Moon and lunar are two words that happen to share a job.</p>
         <p>Suppose English passed a law that every adjective must grow from its own noun, and borrowed ones are deleted. Tomorrow, astronomers study the moonly surface, engineers install sunly panels, you book a toothly surgeon, and your cat has excellent catly reflexes. Nothing there is broken. Every word obeys the rule you already use for friendly. It just sounds like a nine-year-old explaining space.</p>
 
-        <h2>Why moony took the poetry</h2>
+        <h2>Why is it significant?</h2>
         <p>English did build a native adjective. Moony has been in the language since about 1586, and one listed meaning is, plainly, relating to the moon.<a href="#ref-6" aria-label="Reference 6">[6]</a> You would still never write “a moony eclipse.” Moony drifted. It now mostly means dreamy, a bit absent — the face of someone in love, not the surface of a rock.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
         <p>English did not have a gap. It had a staffing decision. Lunar took the observatory. Moony took the poetry. Old English was already here; then Norman French; then a flood of Latin, often through French, for the table, the church, the law, and the new sciences.<a href="#ref-3" aria-label="Reference 3">[3]</a> When the Renaissance needed a serious adjective for the Moon, it reached for Latin. Lunar entered English in the early 1400s meaning crescent-shaped, and settled into the scientific job.</p>
         <p>Linguists call the traffic warden blocking. If a word already holds a slot, a new well-formed word often fails to take it. Mark Aronoff described the idea in 1976.<a href="#ref-4" aria-label="Reference 4">[4]</a> Later work keeps arguing about how hard the block really is.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>
 
-        <h2>A clock and a lamp</h2>
+        <h2>Interesting facts and thoughts</h2>
         <p>The two words do not even answer the same question about the rock. Moon comes from a root meaning to measure — the thing that counts time, a clock.<a href="#ref-7" aria-label="Reference 7">[7]</a> Lunar comes through Latin <em>luna</em>, from a root meaning light — a lamp. The same root shows up in old Slavic and Irish words for moon and light.<a href="#ref-8" aria-label="Reference 8">[8]</a> One set of ancestors looked up and saw a calendar. Another set looked up and saw a lamp. English kept both, and never announced it.</p>
         <p>The ending has a small secret. That <em>-ly</em> comes from Old English <em>-lic</em>, from a root meaning appearance, form, body.<a href="#ref-9" aria-label="Reference 9">[9]</a> Friendly did not originally mean “full of friendship.” It meant something closer to friend-shaped.</p>
         <p>This was never only about the Moon. English is several centuries of arrivals, still holding their old jobs. We raise a cow and eat beef: one word from the field, one from the table. The evidence is mixed on how strictly blocking works in a living language. It is not mixed on the staffing. Science got lunar. Longing kept moony.</p>

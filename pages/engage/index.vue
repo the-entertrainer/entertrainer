@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, and The Gateway.',
+  description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, The Gateway, and Third Eye.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -118,6 +118,25 @@ const MIND_READER_SYMBOLS = [
           </span>
         </NuxtLink>
       </li>
+      <li class="u-reveal">
+        <NuxtLink to="/engage/third-eye" class="engage__card engage__card--third-eye">
+          <span class="engage__icon engage__icon--third-eye" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
+              <path d="M6 24c5.4-7.4 11.2-11 18-11s12.6 3.6 18 11c-5.4 7.4-11.2 11-18 11S11.4 31.4 6 24Z" stroke="var(--paper)" stroke-width="2.6" stroke-linejoin="round"/>
+              <circle cx="24" cy="24" r="5.5" stroke="#2F5BD8" stroke-width="2.6"/>
+              <circle cx="24" cy="24" r="1.7" fill="#2F5BD8"/>
+            </svg>
+          </span>
+          <span class="engage__card-text">
+            <strong class="engage__card-name">Third Eye</strong>
+            <span class="engage__card-blurb">Twelve breaths. Then a tone.</span>
+          </span>
+          <span class="engage__card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </span>
+        </NuxtLink>
+      </li>
     </ol>
   </div>
 </template>
@@ -225,6 +244,15 @@ const MIND_READER_SYMBOLS = [
   background: var(--ink);
 }
 .engage__icon--gateway svg { display: block; width: 100%; height: 100%; }
+
+.engage__icon--third-eye {
+  display: grid;
+  place-items: center;
+  padding: 7rem;
+  color: var(--accent-ink);
+  background: var(--ink);
+}
+.engage__icon--third-eye svg { display: block; width: 100%; height: 100%; }
 
 .engage__card-text {
   display: flex;

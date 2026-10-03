@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
+  description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, and The Gateway.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -93,6 +93,24 @@ const MIND_READER_SYMBOLS = [
           <span class="engage__card-text">
             <strong class="engage__card-name">AstroClock</strong>
             <span class="engage__card-blurb">Birth place and time. A live dial. What today is doing.</span>
+          </span>
+          <span class="engage__card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </span>
+        </NuxtLink>
+      </li>
+      <li class="u-reveal">
+        <NuxtLink to="/engage/gateway" class="engage__card engage__card--gateway">
+          <span class="engage__icon engage__icon--gateway" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
+              <path d="M15 40V22c0-9 4.2-14 9-14" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+              <path d="M33 40V22c0-9-4.2-14-9-14" stroke="var(--accent)" stroke-width="3.2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="engage__card-text">
+            <strong class="engage__card-name">The Gateway</strong>
+            <span class="engage__card-blurb">One tap. A quieter, sharper mind.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -198,6 +216,15 @@ const MIND_READER_SYMBOLS = [
   background: var(--ink);
 }
 .engage__icon--stack svg { display: block; width: 100%; height: 100%; }
+
+.engage__icon--gateway {
+  display: grid;
+  place-items: center;
+  padding: 7rem;
+  color: var(--accent-ink);
+  background: var(--ink);
+}
+.engage__icon--gateway svg { display: block; width: 100%; height: 100%; }
 
 .engage__card-text {
   display: flex;

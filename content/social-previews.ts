@@ -165,7 +165,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
+    description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, and The Gateway.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },
@@ -186,6 +186,12 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'Mind Reader',
     title: 'The Mind Reader · Engage',
     description: 'A guided number illusion from Entertrainer. Choose a number, follow three quiet steps, and keep one mark in mind.'
+  },
+  '/engage/gateway': {
+    key: 'gateway',
+    label: 'The Gateway',
+    title: 'The Gateway · Engage',
+    description: 'Headphones on. One tap. The tone does the work.'
   },
   '/my-work/sewa-chronicles': {
     key: 'sewa-chronicles',

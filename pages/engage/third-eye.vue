@@ -576,9 +576,9 @@ onBeforeUnmount(() => {
     @pointerdown="onDesktopPointer"
   >
     <div class="te__wall" aria-hidden="true" />
+    <div class="te__horizon" aria-hidden="true" />
     <div class="te__grain" aria-hidden="true" />
     <div class="te__warm" :data-on="lightOn ? 'yes' : 'no'" aria-hidden="true" />
-    <div ref="flashEl" class="te__flash" aria-hidden="true" />
 
     <div class="te__stage">
       <section
@@ -595,10 +595,9 @@ onBeforeUnmount(() => {
             </svg>
           </span>
           <h1 class="te__wintitle" @dblclick="toggleMax">Third Eye</h1>
-          <button type="button" class="te__back" @click="requestExit">Back to Engage</button>
           <div class="te__caps">
             <button type="button" class="te__cap" aria-label="Minimize" @click="minimizeWindow">
-              <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5h8" /></svg>
+              <span class="te__glyph"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 5h8" /></svg></span>
             </button>
             <button
               type="button"
@@ -606,21 +605,17 @@ onBeforeUnmount(() => {
               :aria-label="maximized ? 'Restore' : 'Maximize'"
               @click="toggleMax"
             >
-              <svg v-if="!maximized" viewBox="0 0 12 12" aria-hidden="true">
-                <rect x="2.25" y="2.25" width="7.5" height="7.5" />
-              </svg>
-              <svg v-else viewBox="0 0 12 12" aria-hidden="true">
-                <rect x="3.6" y="1.6" width="6.6" height="6.6" />
-                <path d="M1.8 4.2V10h5.6" />
-              </svg>
+              <span v-if="!maximized" class="te__glyph"><svg viewBox="0 0 10 10" aria-hidden="true"><rect x="1.15" y="1.15" width="7.7" height="7.7" /></svg></span>
+              <span v-else class="te__glyph"><svg viewBox="0 0 10 10" aria-hidden="true"><rect x="2.6" y="1.05" width="6.2" height="6.2" /><path d="M1.15 3.35V8.85h5.5" /></svg></span>
             </button>
             <button type="button" class="te__cap te__cap--close" aria-label="Close" @click="requestExit">
-              <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3 3 9" /></svg>
+              <span class="te__glyph"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 2l6 6M8 2 2 8" /></svg></span>
             </button>
           </div>
         </header>
 
         <div class="te__body">
+          <div ref="flashEl" class="te__flash" aria-hidden="true" />
           <div v-if="phase === 'land'" class="te__land">
             <p class="te__lede">Headphones on, screen bright, eyes closed when the light starts.</p>
             <button class="te__cta" type="button" @click="begin(true)">Begin</button>
@@ -690,43 +685,55 @@ onBeforeUnmount(() => {
     </div>
 
     <footer class="te__taskbar">
-      <div class="te__startwrap">
+      <div class="te__dock">
+        <div class="te__startwrap">
+          <button
+            type="button"
+            class="te__tb te__start"
+            aria-label="Start"
+            :aria-expanded="startOpen"
+            @click="toggleStart"
+          >
+            <svg viewBox="0 0 18 18" aria-hidden="true">
+              <path d="M1 1h7v7H1V1zm9 0h7v7h-7V1zM1 10h7v7H1v-7zm9 0h7v7h-7v-7z" />
+            </svg>
+          </button>
+          <div v-if="startOpen" class="te__fly te__fly--start" role="menu">
+            <p class="te__flylabel">Pinned</p>
+            <button type="button" class="te__flyitem" role="menuitem" @click="requestExit">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M2.5 12S6.5 6.5 12 6.5 21.5 12 21.5 12 17.5 17.5 12 17.5 2.5 12 2.5 12Z" />
+                <circle cx="12" cy="12" r="2.35" />
+              </svg>
+              <span>Back to Engage</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="te__search" aria-hidden="true">
+          <span class="te__searchface">
+            <svg viewBox="0 0 16 16">
+              <circle cx="7" cy="7" r="4.15" />
+              <path d="M10.2 10.2 13.1 13.1" />
+            </svg>
+            <span class="te__searchtext">Search</span>
+          </span>
+        </div>
+
         <button
           type="button"
-          class="te__tb te__start"
-          aria-label="Start"
-          :aria-expanded="startOpen"
-          @click="toggleStart"
+          class="te__tb te__pin"
+          :class="{ 'is-on': !minimized }"
+          aria-label="Third Eye"
+          :aria-pressed="!minimized"
+          @click="restoreWindow"
         >
-          <svg viewBox="0 0 18 18" aria-hidden="true">
-            <path d="M1 1h7v7H1V1zm9 0h7v7h-7V1zM1 10h7v7H1v-7zm9 0h7v7h-7v-7z" />
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M2.5 12S6.5 6.5 12 6.5 21.5 12 21.5 12 17.5 17.5 12 17.5 2.5 12 2.5 12Z" />
+            <circle cx="12" cy="12" r="2.35" />
           </svg>
         </button>
-        <div v-if="startOpen" class="te__fly te__fly--start" role="menu">
-          <p class="te__flylabel">Pinned</p>
-          <button type="button" class="te__flyitem" role="menuitem" @click="requestExit">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M2.5 12S6.5 6.5 12 6.5 21.5 12 21.5 12 17.5 17.5 12 17.5 2.5 12 2.5 12Z" />
-              <circle cx="12" cy="12" r="2.35" />
-            </svg>
-            <span>Back to Engage</span>
-          </button>
-        </div>
       </div>
-
-      <button
-        type="button"
-        class="te__tb te__pin"
-        :class="{ 'is-on': !minimized }"
-        aria-label="Third Eye"
-        :aria-pressed="!minimized"
-        @click="restoreWindow"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M2.5 12S6.5 6.5 12 6.5 21.5 12 21.5 12 17.5 17.5 12 17.5 2.5 12 2.5 12Z" />
-          <circle cx="12" cy="12" r="2.35" />
-        </svg>
-      </button>
 
       <div class="te__tray">
         <button
@@ -795,11 +802,17 @@ onBeforeUnmount(() => {
   --te-btn: #fbfbfb;
   --te-btn-border: #d0d0d0;
   --te-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 1px 1px rgba(0, 0, 0, 0.04),
-    0 8px 16px rgba(0, 0, 0, 0.08),
-    0 24px 48px rgba(15, 23, 42, 0.16);
+    0 0 0 1px rgba(0, 0, 0, 0.18),
+    0 1px 1px rgba(0, 0, 0, 0.28),
+    0 4px 8px rgba(15, 23, 42, 0.12),
+    0 18px 36px rgba(15, 23, 42, 0.16),
+    0 46px 90px rgba(15, 23, 42, 0.22);
+  --te-shadow-start:
+    0 0 0 1px rgba(0, 0, 0, 0.08),
+    0 1px 1px rgba(0, 0, 0, 0.08),
+    0 3px 6px rgba(15, 23, 42, 0.05),
+    0 8px 16px rgba(15, 23, 42, 0.06),
+    0 14px 24px rgba(15, 23, 42, 0.06);
   position: relative;
   width: 100%;
   height: 100svh;
@@ -834,18 +847,23 @@ onBeforeUnmount(() => {
   --te-btn: #2c2c2c;
   --te-btn-border: #4a4a4a;
   --te-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.4),
-    0 10px 24px rgba(0, 0, 0, 0.38),
-    0 28px 64px rgba(0, 0, 0, 0.5);
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.55),
+    0 6px 12px rgba(0, 0, 0, 0.35),
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 48px 96px rgba(0, 0, 0, 0.55);
+  --te-shadow-start:
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 1px 1px rgba(0, 0, 0, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.18),
+    0 8px 16px rgba(0, 0, 0, 0.16),
+    0 14px 24px rgba(0, 0, 0, 0.16);
   color-scheme: dark;
 }
 
 .te__wall,
 .te__grain,
-.te__warm,
-.te__flash {
+.te__warm {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -854,23 +872,36 @@ onBeforeUnmount(() => {
 .te__wall {
   z-index: 0;
   background:
-    radial-gradient(ellipse 58% 42% at 14% 0%, rgba(255, 255, 255, 0.72), transparent 68%),
-    radial-gradient(ellipse 46% 36% at 86% 8%, rgba(255, 255, 255, 0.28), transparent 70%),
-    radial-gradient(ellipse 80% 46% at 50% 118%, rgba(156, 174, 188, 0.45), transparent 62%),
-    linear-gradient(168deg, #d5e3ee 0%, #e7eef3 38%, #c5d3de 100%);
+    radial-gradient(ellipse 78% 62% at 0% 0%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.28) 34%, transparent 68%),
+    radial-gradient(ellipse 50% 40% at 78% 6%, rgba(255, 255, 255, 0.22), transparent 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 28%, rgba(92, 114, 132, 0.05) 58%, rgba(70, 92, 110, 0.22) 100%),
+    linear-gradient(168deg, #e4eef5 0%, #d4e2ec 36%, #c3d2de 68%, #b4c4d2 100%);
 }
 
 .te[data-te-theme='dark'] .te__wall {
   background:
-    radial-gradient(ellipse 52% 38% at 16% 0%, rgba(186, 206, 222, 0.16), transparent 70%),
-    radial-gradient(ellipse 40% 30% at 84% 6%, rgba(120, 146, 168, 0.08), transparent 72%),
-    radial-gradient(ellipse 90% 42% at 50% 120%, rgba(0, 0, 0, 0.35), transparent 60%),
-    linear-gradient(168deg, #1a2430 0%, #141a22 46%, #0d1116 100%);
+    radial-gradient(ellipse 72% 56% at 0% 0%, rgba(198, 216, 230, 0.2), rgba(198, 216, 230, 0.05) 36%, transparent 68%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 26%, rgba(0, 0, 0, 0.12) 62%, rgba(0, 0, 0, 0.38) 100%),
+    linear-gradient(168deg, #243140 0%, #1a242f 42%, #121820 100%);
+}
+
+.te__horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  height: calc(108rem + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(86, 104, 120, 0) 0%, rgba(86, 104, 120, 0.07) 38%, rgba(62, 78, 94, 0.22) 100%);
+}
+.te[data-te-theme='dark'] .te__horizon {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.16) 42%, rgba(0, 0, 0, 0.42) 100%);
 }
 
 .te__grain {
-  z-index: 1;
-  opacity: 0.2;
+  z-index: 2;
+  opacity: 0.12;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   background-size: 180rem 180rem;
@@ -882,7 +913,7 @@ onBeforeUnmount(() => {
 }
 
 .te__warm {
-  z-index: 2;
+  z-index: 4;
   background: #f4f7fb;
   opacity: 0;
 }
@@ -890,13 +921,16 @@ onBeforeUnmount(() => {
 .te__warm[data-on='yes'] { opacity: 1; }
 
 .te__flash {
-  z-index: 3;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   opacity: 0;
+  pointer-events: none;
 }
 
 .te__stage {
   position: relative;
-  z-index: 4;
+  z-index: 5;
   min-height: 0;
   display: grid;
   place-items: center;
@@ -904,16 +938,31 @@ onBeforeUnmount(() => {
 }
 
 .te__window {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: min(840rem, calc(100% - 8rem));
   height: min(600rem, calc(100% - 8rem));
   border-radius: 8rem;
-  overflow: hidden;
+  overflow: visible;
   background: transparent;
   border: 1px solid var(--te-edge);
   box-shadow: var(--te-shadow);
   transform-origin: center center;
+}
+.te__window::before {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 10rem;
+  right: 10rem;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95) 14%, rgba(255, 255, 255, 0.95) 86%, transparent);
+}
+.te[data-te-theme='dark'] .te__window::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28) 16%, rgba(255, 255, 255, 0.28) 84%, transparent);
 }
 
 .te__window.is-max {
@@ -930,17 +979,20 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 8rem;
   height: 48rem;
-  padding: 0 0 0 12rem;
+  padding: 0 4rem 0 12rem;
   flex: 0 0 auto;
-  background: var(--te-mica);
-  backdrop-filter: blur(28px) saturate(1.4);
-  -webkit-backdrop-filter: blur(28px) saturate(1.4);
-  border-bottom: 1px solid var(--te-line);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  border-radius: 7rem 7rem 0 0;
+  background: rgba(255, 255, 255, 0.34);
+  backdrop-filter: blur(42px) saturate(1.7);
+  -webkit-backdrop-filter: blur(42px) saturate(1.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.38);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
 .te[data-te-theme='dark'] .te__titlebar {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: rgba(28, 30, 34, 0.42);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .te__appico {
@@ -972,36 +1024,19 @@ onBeforeUnmount(() => {
   color: var(--te-text);
 }
 
-.te__back {
-  appearance: none;
-  min-height: 44rem;
-  margin-right: 4rem;
-  padding: 0 12rem;
-  border: none;
-  border-radius: 4rem;
-  background: transparent;
-  color: var(--te-text);
-  font: 400 14rem/1 "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
-  cursor: pointer;
-}
-.te__back:hover,
-.te__back:focus-visible { background: var(--te-hover); }
-.te__back:focus-visible {
-  outline: 2rem solid var(--te-accent);
-  outline-offset: -2rem;
-}
-
 .te__caps {
   display: flex;
-  align-self: stretch;
+  align-items: center;
+  align-self: center;
   flex: 0 0 auto;
+  height: 44rem;
 }
 
 .te__cap {
   appearance: none;
-  width: 46rem;
-  min-width: 46rem;
-  height: 100%;
+  width: 44rem;
+  min-width: 44rem;
+  height: 44rem;
   min-height: 44rem;
   display: inline-flex;
   align-items: center;
@@ -1011,20 +1046,29 @@ onBeforeUnmount(() => {
   background: transparent;
   color: var(--te-text);
   cursor: pointer;
-  transition: background 120ms ease;
 }
-.te__cap svg {
-  width: 12rem;
-  height: 12rem;
+.te__glyph {
+  width: 32rem;
+  height: 32rem;
+  display: grid;
+  place-items: center;
+  border-radius: 4rem;
+  transition: background 120ms ease, color 120ms ease;
+}
+.te__glyph svg {
+  width: 10rem;
+  height: 10rem;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1;
+  stroke-width: 0.7;
+  stroke-linecap: square;
 }
-.te__cap:hover,
-.te__cap:focus-visible { background: var(--te-hover); }
-.te__cap:focus-visible { outline: 2rem solid var(--te-accent); outline-offset: -2rem; }
-.te__cap--close:hover,
-.te__cap--close:focus-visible {
+.te__cap:hover .te__glyph,
+.te__cap:focus-visible .te__glyph { background: var(--te-hover); }
+.te__cap:focus-visible { outline: none; }
+.te__cap:focus-visible .te__glyph { outline: 2rem solid var(--te-accent); outline-offset: -2rem; }
+.te__cap--close:hover .te__glyph,
+.te__cap--close:focus-visible .te__glyph {
   background: #c42b1c;
   color: #ffffff;
 }
@@ -1033,14 +1077,10 @@ onBeforeUnmount(() => {
   position: relative;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
+  border-radius: 0 0 7rem 7rem;
   background: var(--te-bg);
   color: var(--te-text);
-}
-
-.te[data-phase='hold'] .te__body,
-.te[data-phase='field'] .te__body,
-.te[data-phase='leaving'] .te__body {
-  background: transparent;
 }
 
 .te__land,
@@ -1048,6 +1088,7 @@ onBeforeUnmount(() => {
 .te__hold,
 .te__open {
   position: absolute;
+  z-index: 2;
   inset: 0;
   overflow: auto;
   display: grid;
@@ -1242,19 +1283,31 @@ onBeforeUnmount(() => {
   position: relative;
   z-index: 6;
   display: flex;
-  align-items: center;
-  gap: 4rem;
+  align-items: flex-start;
+  justify-content: flex-end;
   height: calc(48rem + env(safe-area-inset-bottom, 0px));
-  padding: 0 10rem env(safe-area-inset-bottom, 0px) 10rem;
-  background: var(--te-mica);
-  backdrop-filter: blur(30px) saturate(1.5);
-  -webkit-backdrop-filter: blur(30px) saturate(1.5);
-  border-top: 1px solid var(--te-edge);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  padding: 0 8rem env(safe-area-inset-bottom, 0px) 8rem;
+  background: rgba(243, 243, 243, 0.55);
+  backdrop-filter: blur(40px) saturate(1.6);
+  -webkit-backdrop-filter: blur(40px) saturate(1.6);
+  border-top: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+.te[data-te-theme='dark'] .te__taskbar {
+  background: rgba(32, 32, 32, 0.55);
+  border-top-color: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-.te[data-te-theme='dark'] .te__taskbar {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+.te__dock {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 48rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  transform: translateX(-50%);
 }
 
 .te__tb {
@@ -1288,7 +1341,7 @@ onBeforeUnmount(() => {
   content: "";
   position: absolute;
   left: 50%;
-  bottom: 3rem;
+  bottom: 4rem;
   width: 0;
   height: 3rem;
   border-radius: 999px;
@@ -1296,7 +1349,36 @@ onBeforeUnmount(() => {
   transform: translateX(-50%);
   transition: width 160ms ease;
 }
-.te__pin.is-on::after { width: 16rem; }
+.te__pin.is-on::after { width: 8rem; }
+
+.te__search { height: 44rem; display: flex; align-items: center; }
+.te__searchface {
+  height: 32rem;
+  min-width: 168rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8rem;
+  padding: 0 14rem 0 12rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 1px rgba(0, 0, 0, 0.04);
+  color: #3a3a3a;
+  font-size: 14rem;
+}
+.te[data-te-theme='dark'] .te__searchface {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  color: #f2f2f2;
+}
+.te__searchface svg {
+  width: 15rem;
+  height: 15rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+}
 
 .te__theme :deep(svg) {
   width: 16rem;
@@ -1309,11 +1391,13 @@ onBeforeUnmount(() => {
 }
 
 .te__tray {
+  position: relative;
+  z-index: 1;
   margin-left: auto;
   display: flex;
   align-items: center;
   gap: 2rem;
-  height: 100%;
+  height: 48rem;
 }
 
 .te__volwrap,
@@ -1382,17 +1466,21 @@ onBeforeUnmount(() => {
 .te__vol--fly { width: 180rem; }
 
 @keyframes te-open {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: none; }
+  from { opacity: 0; transform: scale(0.96); box-shadow: var(--te-shadow-start); }
+  to { opacity: 1; transform: none; box-shadow: var(--te-shadow); }
+}
+
+@media (max-width: 640px) {
+  .te__searchtext { display: none; }
+  .te__searchface { min-width: 0; width: 32rem; padding: 0; justify-content: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .te__window.is-pop { animation: none; }
-  .te__cap,
+  .te__glyph,
   .te__cta,
   .te__quiet,
-  .te__pin::after,
-  .te__back { transition: none; }
+  .te__pin::after { transition: none; }
   .te__cta:active { transform: none; }
 }
 

@@ -25,20 +25,6 @@ const references = [
   { id: 8, title: 'lunar, etymology', source: 'Online Etymology Dictionary', href: 'https://www.etymonline.com/word/lunar' },
   { id: 9, title: '-ly, suffix etymology', source: 'Online Etymology Dictionary', href: 'https://www.etymonline.com/word/-ly' }
 ]
-
-const pairs = [
-  { noun: 'moon', native: 'moonly', hired: 'lunar', job: 'the observatory' },
-  { noun: 'sun', native: 'sunly', hired: 'solar', job: 'the panels' },
-  { noun: 'tooth', native: 'toothly', hired: 'dental', job: 'the clinic' },
-  { noun: 'cat', native: 'catly', hired: 'feline', job: 'the textbook' }
-]
-const pick = ref(0)
-const pair = computed(() => pairs[pick.value] ?? pairs[0])
-const moonLine = computed(() => {
-  const item = pair.value
-  if (!item) return ''
-  return `${item.noun} could have grown “${item.native}.” “${item.hired}” already had ${item.job}. The homemade word did not get the job.`
-})
 </script>
 
 <template>
@@ -54,56 +40,33 @@ const moonLine = computed(() => {
     </figure>
     <article class="taj__article">
       <aside class="taj__margin-note" aria-label="Reading note">
-        <p>Two jobs.</p>
-        <p>Moony took the poetry. Lunar took the observatory. Nobody asked the Moon.</p>
+        <p>The ending works.</p>
+        <p>English just refuses to use it for this one rock.</p>
       </aside>
       <div class="taj__prose">
         <p class="taj__lead">Friend becomes friendly. Love becomes lovely. Moon does not become moonly.</p>
-        <p>The ending is sitting right there. English uses it all the time. Then it stops, and hands you a word with no visible link to the Moon. Lunar.</p>
-        <p>Same trick for the sun, which gets solar. For teeth, which get dental. For a cat, which gets feline.</p>
+        <p>The ending is sitting right there. English uses it all the time. Then it stops, and hands you a word with no visible link to the Moon: lunar. The same trick shows up for the sun (solar), for teeth (dental), and for a cat (feline). The pattern looks like a glitch until you see it was a staffing decision.</p>
 
-        <EdTry v-model="pick" :min="0" :max="3" label="The noun" :readout="pair?.noun ?? ''">
-          <template #stage>
-            <p class="pair" aria-hidden="true"><s>{{ pair?.native }}</s><span>{{ pair?.hired }}</span></p>
-          </template>
-          {{ moonLine }}
-        </EdTry>
+        <h2>What is it?</h2>
+        <p>These pairs have a name: collateral adjectives. An adjective tied to a noun by meaning, and unrelated to it by descent.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a> Collateral means the same family stock, but not in a straight line — a cousin, not a child. Moon and lunar are two words that happen to share a job.</p>
+        <p>Suppose English passed a law that every adjective must grow from its own noun, and borrowed ones are deleted. Tomorrow, astronomers study the moonly surface, engineers install sunly panels, you book a toothly surgeon, and your cat has excellent catly reflexes. Nothing there is broken. Every word obeys the rule you already use for friendly. It just sounds like a nine-year-old explaining space.</p>
 
-        <h2>A cousin, not a child</h2>
-        <p>These pairs have a name. Collateral adjectives. An adjective tied to a noun by meaning, and unrelated to it by descent.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>Collateral means the same family stock, but not in a straight line. A cousin, not a child. Moon and lunar are two words that happen to have the same job.</p>
-        <p>Suppose English passed a law at midnight. Every adjective must grow from its own noun. Borrowed ones are deleted.</p>
-        <p>Tomorrow, astronomers study the moonly surface. Engineers install sunly panels. You book a toothly surgeon. Your cat has excellent catly reflexes.</p>
-        <p>Nothing there is broken. Every word obeys the rule you already use for friendly. It just sounds like a nine-year-old explaining space.</p>
-
-        <h2>Moony already had a job</h2>
-        <p>English did build the native adjective. Moony has been in the language since about 1586. One listed meaning is, plainly, relating to the moon.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
-        <p>You would still never write “a moony eclipse.” Moony drifted. It now mostly means dreamy, a bit absent. The face of someone in love, not the surface of a rock.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
-        <p>English did not have a gap. It had a staffing decision. Lunar took the observatory. Moony took the poetry.</p>
-        <p>Old English was already here. Then Norman French. Then a flood of Latin, often through French, for the table, the church, the law, and the new sciences.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
-        <p>When the Renaissance needed a serious adjective for the Moon, it did not reach for the farmyard shelf. It reached for Latin. Lunar entered English in the early 1400s meaning crescent-shaped, and settled into the scientific job.</p>
+        <h2>Why is it significant?</h2>
+        <p>English did build a native adjective. Moony has been in the language since about 1586, and one listed meaning is, plainly, relating to the moon.<a href="#ref-6" aria-label="Reference 6">[6]</a> You would still never write “a moony eclipse.” Moony drifted. It now mostly means dreamy, a bit absent — the face of someone in love, not the surface of a rock.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
+        <p>English did not have a gap. It had a staffing decision. Lunar took the observatory. Moony took the poetry. Old English was already here; then Norman French; then a flood of Latin, often through French, for the table, the church, the law, and the new sciences.<a href="#ref-3" aria-label="Reference 3">[3]</a> When the Renaissance needed a serious adjective for the Moon, it reached for Latin. Lunar entered English in the early 1400s meaning crescent-shaped, and settled into the scientific job.</p>
         <p>Linguists call the traffic warden blocking. If a word already holds a slot, a new well-formed word often fails to take it. Mark Aronoff described the idea in 1976.<a href="#ref-4" aria-label="Reference 4">[4]</a> Later work keeps arguing about how hard the block really is.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>
 
-        <figure class="taj__visual">
-          <EdEditorialImage src="/blog/moonly/crescent-moon.jpg" alt="A small crescent drawn in black ink on cream paper, with one cobalt arc beside a struck-through word." />
-          <figcaption>The Moon gets two English adjectives. Neither of them is “moonly.”</figcaption>
-        </figure>
-
-        <h2>A clock and a lamp</h2>
-        <p>The two words do not even answer the same question about the rock.</p>
-        <p>Moon comes from a root meaning to measure. The thing that counts time. A clock.<a href="#ref-7" aria-label="Reference 7">[7]</a></p>
-        <p>Lunar comes through Latin luna, from a root meaning light. A lamp. The same root shows up in old Slavic and Irish words for moon and light.<a href="#ref-8" aria-label="Reference 8">[8]</a></p>
-        <p>One set of ancestors looked up and saw a calendar. Another set looked up and saw a lamp. English kept both, and never announced it.</p>
-        <p>The ending has a small secret. That -ly comes from Old English -lic, from a root meaning appearance, form, body.<a href="#ref-9" aria-label="Reference 9">[9]</a> Friendly did not originally mean “full of friendship.” It meant something closer to friend-shaped.</p>
-        <p>This was never only about the Moon. English is several centuries of arrivals, still holding their old jobs. We raise a cow and eat beef. One word from the field. One from the table.</p>
-        <p>The evidence is mixed on how strictly blocking works in a living language. It is not mixed on the staffing. Science got lunar. Longing kept moony.</p>
+        <h2>Interesting facts and thoughts</h2>
+        <p>The two words do not even answer the same question about the rock. Moon comes from a root meaning to measure — the thing that counts time, a clock.<a href="#ref-7" aria-label="Reference 7">[7]</a> Lunar comes through Latin <em>luna</em>, from a root meaning light — a lamp. The same root shows up in old Slavic and Irish words for moon and light.<a href="#ref-8" aria-label="Reference 8">[8]</a> One set of ancestors looked up and saw a calendar. Another set looked up and saw a lamp. English kept both, and never announced it.</p>
+        <p>The ending has a small secret. That <em>-ly</em> comes from Old English <em>-lic</em>, from a root meaning appearance, form, body.<a href="#ref-9" aria-label="Reference 9">[9]</a> Friendly did not originally mean “full of friendship.” It meant something closer to friend-shaped.</p>
+        <p>This was never only about the Moon. English is several centuries of arrivals, still holding their old jobs. We raise a cow and eat beef: one word from the field, one from the table. The evidence is mixed on how strictly blocking works in a living language. It is not mixed on the staffing. Science got lunar. Longing kept moony.</p>
 
         <blockquote>
           <p>Same rock. One word for a clock, one word for a lamp.</p>
         </blockquote>
 
-        <p class="taj__closing">What job was left for “moonly” to do?</p>
-        <p>Moony is still around. It just took the poetry. For something that hangs over the sea doing nothing in particular, that is a very moony career.</p>
+        <p class="taj__closing">If lunar already held the observatory and moony kept the dreamy face, what job was left for “moonly” to do?</p>
+        <p>Sit with the refusal. English still builds the ending. It just will not spend it here.</p>
       </div>
     </article>
     <section class="taj__sources" aria-labelledby="sources-title">
@@ -144,10 +107,6 @@ const moonLine = computed(() => {
 .taj__prose h2 { margin: 64rem 0 20rem; font-size: clamp(30rem, 3.6vw, 46rem); line-height: .98; }
 .taj blockquote { margin: 45rem 0; padding: 24rem 26rem; border-left: 8rem solid var(--signal-cobalt); background: var(--paper-2); border-radius: 0 var(--radius-m) var(--radius-m) 0; font: 500 clamp(22rem, 2.6vw, 32rem)/1.12 var(--font-display); letter-spacing: -.03em; }
 .taj blockquote p { margin: 0; }
-.taj__visual { margin: 50rem 0 45rem; }
-.taj__visual :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); background: var(--signal-field); }
-.taj__visual--wide :deep(.ed-editorial-image) { aspect-ratio: 16 / 7; object-fit: cover; }
-.taj__visual--palm :deep(.ed-editorial-image) { aspect-ratio: 16 / 3.2; object-fit: cover; background: #f0e6d4; }
 .taj__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 clamp(22rem, 2.6vw, 34rem)/1.14 var(--font-display); letter-spacing: -.035em; }
 .taj__sources { max-width: 1100rem; margin: clamp(64rem, 10vw, 130rem) auto 0; padding: 34rem var(--shell-gutter) 0; border-top: var(--stroke) solid var(--ink); }
 .taj__sources h2 { margin: 12rem 0 30rem; font-size: clamp(33rem, 4vw, 48rem); line-height: .95; }
@@ -157,16 +116,11 @@ const moonLine = computed(() => {
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: 1100rem; margin: clamp(54rem, 8vw, 100rem) auto 0; padding: 0 var(--shell-gutter); }
-.pair { display: flex; justify-content: space-between; align-items: baseline; margin: 0; font: 500 28rem/1 var(--font-display); letter-spacing: -.04em; }
-.pair s { color: var(--ink-soft); text-decoration-thickness: 2rem; }
-.pair span { color: var(--ink); background: var(--accent); padding: 0 6rem; }
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: 4 / 3; }
   .taj__article { display: block; }
   .taj__margin-note { position: static; margin-bottom: 36rem; }
   .taj__prose h2 { margin-top: 52rem; }
-  .taj__visual { margin-left: 0; margin-right: 0; }
-  .taj__visual--palm :deep(.ed-editorial-image) { aspect-ratio: 16 / 4.5; }
 }
 </style>

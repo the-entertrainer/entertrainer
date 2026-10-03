@@ -104,7 +104,7 @@ const MIND_READER_SYMBOLS = [
         <NuxtLink to="/engage/gateway" class="engage__card engage__card--gateway">
           <span class="engage__icon engage__icon--gateway" aria-hidden="true">
             <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
-              <path d="M15 40V22c0-9 4.2-14 9-14" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+              <path d="M15 40V22c0-9 4.2-14 9-14" stroke="var(--paper)" stroke-width="3.2" stroke-linecap="round"/>
               <path d="M33 40V22c0-9-4.2-14-9-14" stroke="var(--accent)" stroke-width="3.2" stroke-linecap="round"/>
             </svg>
           </span>

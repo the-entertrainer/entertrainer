@@ -1,4 +1,4 @@
-import { ENTROPY_BLOG, MOONLY_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, KNOWING_BLOG, TAJJALAN_BLOG, SPLIT_BRAIN_BLOG } from './blogs'
+import { ENTROPY_BLOG, MOONLY_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, KNOWING_BLOG, TAJJALAN_BLOG, SPLIT_BRAIN_BLOG, SACRED_FREQUENCIES_BLOG } from './blogs'
 
 export const SITE_URL = 'https://entertrainer.in'
 
@@ -99,6 +99,16 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     description: SPLIT_BRAIN_BLOG.socialHook,
     image: `${SITE_URL}${SPLIT_BRAIN_BLOG.hero}`,
     imageAlt: SPLIT_BRAIN_BLOG.heroAlt,
+    type: 'article'
+  },
+
+  [`/elevate/${SACRED_FREQUENCIES_BLOG.slug}`]: {
+    key: 'sacred-frequencies',
+    label: SACRED_FREQUENCIES_BLOG.category,
+    title: SACRED_FREQUENCIES_BLOG.socialTitle,
+    description: SACRED_FREQUENCIES_BLOG.socialHook,
+    image: `${SITE_URL}${SACRED_FREQUENCIES_BLOG.hero}`,
+    imageAlt: SACRED_FREQUENCIES_BLOG.heroAlt,
     type: 'article'
   },
   '/empower': {

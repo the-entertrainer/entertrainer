@@ -23,10 +23,9 @@ defineProps<{
     </figure>
 
     <article class="ca__article">
-      <aside v-if="post.marginNote?.body" class="ca__margin-note" aria-label="Reading note">
-        <p>{{ post.marginNote.label || 'One useful idea.' }}</p>
+      <EdMarginNote v-if="post.marginNote?.body" :label="post.marginNote.label || 'One useful idea.'">
         <p class="ca__margin-body">{{ post.marginNote.body }}</p>
-      </aside>
+      </EdMarginNote>
 
       <div class="ca__prose">
         <template v-for="block in post.blocks" :key="block.id">
@@ -102,11 +101,7 @@ defineProps<{
 .ca__hero :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: var(--crop); object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; background: var(--signal-field); }
 .ca figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
 .ca__article { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-34) auto 0; padding: 0 var(--shell-gutter); display: block; }
-.ca__margin-note { position: static; max-width: var(--measure); margin: 0 0 var(--space-21); padding: var(--space-13); background: var(--accent); color: var(--accent-ink); border: var(--stroke) solid var(--ink); border-radius: 0; font: 400 var(--type-body)/1.45 var(--font-body); }
-.ca__margin-note p { margin: 0; }
-.ca__margin-note p + p { margin-top: 10rem; }
 .ca__margin-body { white-space: pre-wrap; }
-.ca__margin-note p:first-child { font: 500 var(--type-meta)/1.2 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
 .ca__prose { max-width: var(--measure); font: 400 var(--type-body)/1.55 var(--font-body); min-width: 0; }
 .ca__prose > p { margin: 0 0 var(--space-21); }
 .ca__lead::first-letter { float: left; margin: 2rem 11rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--signal-cobalt); }
@@ -134,7 +129,6 @@ defineProps<{
   .ca__hero { padding: 0; }
   .ca__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: var(--crop); }
   .ca__article { display: block; }
-  .ca__margin-note { position: static; margin-bottom: var(--space-21); }
   .ca__prose h2 { margin-top: 52rem; }
 }
 </style>

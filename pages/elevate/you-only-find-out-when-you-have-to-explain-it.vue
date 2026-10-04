@@ -38,10 +38,9 @@ const references = [
       <EdEditorialImage :src="KNOWING_BLOG.hero" :alt="KNOWING_BLOG.heroAlt" />
     </figure>
     <article class="taj__article">
-      <aside class="taj__margin-note" aria-label="Reading note">
-        <p>A receipt, not a model.</p>
+      <EdMarginNote label="A receipt, not a model.">
         <p>Familiarity is not the same as rebuilding the mechanism.</p>
-      </aside>
+      </EdMarginNote>
       <div class="taj__prose">
         <p class="taj__lead">You have used a zip your whole life. You can work it in the dark. Ask what the slider actually does to the teeth — and watch the lighting go out.</p>
         <p>In 2002 Leonid Rozenblit and Frank Keil measured that blank. They asked people how well they understood everyday devices — zippers, toilets, speedometers, cylinder locks, helicopters — then asked for a detailed causal explanation, and a second rating. Understanding scores dropped. The drop was much larger for how things work than for facts, stories, or procedures.<a href="#ref-1" aria-label="Reference 1">[1]</a> They called it the illusion of explanatory depth. You do not find out you don’t know it by sitting with the feeling. You find out when the feeling has to become a sentence.</p>
@@ -95,10 +94,6 @@ const references = [
 .taj figure figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
 .taj figure figcaption a { color: var(--signal-cobalt); text-decoration: none; }
 .taj__article { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-34) auto 0; padding: 0 var(--shell-gutter); display: block; }
-.taj__margin-note { position: static; max-width: var(--measure); margin: 0 0 var(--space-21); padding: var(--space-13); background: var(--accent); color: var(--accent-ink); border: var(--stroke) solid var(--ink); border-radius: 0; font: 400 var(--type-body)/1.45 var(--font-body); }
-.taj__margin-note p { margin: 0; }
-.taj__margin-note p + p { margin-top: 10rem; }
-.taj__margin-note p:first-child { font: 500 var(--type-meta)/1.2 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
 .taj__prose { max-width: var(--measure); font: 400 var(--type-body)/1.55 var(--font-body); }
 .taj__prose p { margin: 0 0 var(--space-21); }
 .taj__prose .taj__lead::first-letter { float: left; margin: 2rem 11rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--signal-cobalt); }
@@ -119,7 +114,6 @@ const references = [
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: var(--crop); }
   .taj__article { display: block; }
-  .taj__margin-note { position: static; margin-bottom: var(--space-21); }
   .taj__prose h2 { margin-top: 52rem; }
 }
 </style>

@@ -23,13 +23,13 @@ defineProps<{
 
 <style scoped>
 .cs {
-  padding-bottom: clamp(20rem, 3vw, 30rem);
-  margin-bottom: clamp(24rem, 4vw, 40rem);
-  border-bottom: var(--stroke) solid var(--line);
+  padding-bottom: var(--space-21);
+  margin-bottom: var(--space-34);
+  border-bottom: var(--stroke) solid var(--ink);
 }
-.cs__title { font-size: var(--type-h2); margin: 0; max-width: 22ch; }
+.cs__title { font-size: var(--type-h1); margin: 0; max-width: 22ch; }
 .cs__deck {
-  margin: 14rem 0 0; max-width: 52ch;
-  font-family: var(--font-reading); font-size: 17rem; line-height: 1.6; color: var(--muted);
+  margin: var(--space-13) 0 0; max-width: var(--measure);
+  font-family: var(--font-reading); font-size: var(--type-dek); line-height: 1.35; color: var(--ink);
 }
 </style>

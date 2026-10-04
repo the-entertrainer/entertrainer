@@ -1,4 +1,6 @@
 <template>
+  <!-- Dialogue is its own player. Publication type and space live in main.css; this layout does not retune the comic. -->
+
   <div class="dialogue-shell app" data-dialogue-layout>
     <slot />
   </div>

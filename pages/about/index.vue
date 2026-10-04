@@ -240,9 +240,9 @@ const marriottPhotos: PhotoTileItem[] = [
 </template>
 
 <style scoped>
-.about-story { max-width: var(--shell-page); margin: 0 auto; padding: clamp(44rem, 8vw, 112rem) var(--shell-gutter) clamp(70rem, 10vw, 130rem); }
-.about-story__hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260rem, .85fr); gap: clamp(32rem, 8vw, 120rem); align-items: end; padding-bottom: clamp(46rem, 8vw, 86rem); border-bottom: var(--stroke) solid var(--ink); }
-.about-story h1 { max-width: 22ch; margin: 0; font: 500 clamp(42rem, 7.2vw, 92rem)/.92 var(--font-display); letter-spacing: -.06em; }
+.about-story { max-width: var(--shell-max); margin: 0 auto; padding: var(--space-55) var(--shell-gutter) var(--space-89); }
+.about-story__hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260rem, .85fr); gap: var(--space-55); align-items: end; padding-bottom: var(--space-55); border-bottom: var(--stroke) solid var(--ink); }
+.about-story h1 { max-width: 18ch; margin: 0; font: 500 var(--type-h1)/.98 var(--font-display); letter-spacing: -.03em; }
 
 /* Portrait fills its column — cover crop, bias toward face */
 .about-story__hero-art {
@@ -269,10 +269,10 @@ const marriottPhotos: PhotoTileItem[] = [
   object-position: center 18%;
 }
 
-.about-story__article { max-width: 720rem; margin: clamp(54rem, 9vw, 118rem) auto 0; font: 400 clamp(18rem, 1.85vw, 22rem)/1.62 var(--font-reading); }
-.about-story__article > p { max-width: 42ch; margin: 0 0 18rem; }
-.about-story__article h2 { max-width: 28ch; margin: clamp(54rem, 9vw, 96rem) 0 20rem; font: 500 clamp(36rem, 5.5vw, 68rem)/.94 var(--font-display); letter-spacing: -.055em; }
-.about-story__article h2.about-story__break { max-width: 22ch; margin: clamp(44rem, 7vw, 72rem) 0 16rem; font: 500 clamp(26rem, 3.6vw, 40rem)/1.05 var(--font-display); letter-spacing: -.04em; color: var(--ink); }
+.about-story__article { max-width: var(--column); margin: var(--space-55) auto 0; font: 400 var(--type-body)/1.55 var(--font-reading); }
+.about-story__article > p { max-width: var(--measure); margin: 0 0 var(--space-21); }
+.about-story__article h2 { max-width: 22ch; margin: var(--space-55) 0 var(--space-13); font: 500 var(--type-h2)/1.05 var(--font-display); letter-spacing: -.02em; }
+.about-story__article h2.about-story__break { max-width: 22ch; margin: var(--space-55) 0 var(--space-13); font: 500 var(--type-h2)/1.05 var(--font-display); letter-spacing: -.02em; color: var(--ink); }
 .about-story__article h2.about-story__break::before { content: ''; display: block; width: 36rem; height: var(--stroke); background: var(--ink); margin: 0 0 14rem; opacity: .55; }
 
 .about-story__figure {
@@ -282,7 +282,7 @@ const marriottPhotos: PhotoTileItem[] = [
   overflow: hidden;
   border-radius: var(--radius-m);
   background: var(--paper-2);
-  aspect-ratio: 16 / 10;
+  aspect-ratio: var(--crop);
   line-height: 0;
 }
 .about-story__figure--wide {
@@ -324,8 +324,8 @@ const marriottPhotos: PhotoTileItem[] = [
 .about-story__destination-visual { min-height: 260rem; margin: 0; overflow: hidden; border-right: var(--stroke) solid var(--ink); background: var(--paper-2); }
 .about-story__destination-visual :deep(.ed-editorial-image), .about-story__destination-visual :deep(img) { width: 100%; height: 100%; object-fit: cover; object-position: center center; }
 .about-story__destination-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(24rem, 5vw, 48rem); }
-.about-story__destination h2 { max-width: 18ch; margin: 0; font: 500 clamp(34rem, 4.2vw, 58rem)/.95 var(--font-display); letter-spacing: -.055em; }
-.about-story__destination-copy > p { max-width: 43ch; margin: 16rem 0 0; font: 400 17rem/1.5 var(--font-reading); }
+.about-story__destination h2 { max-width: 18ch; margin: 0; font: 500 var(--type-h2)/1.05 var(--font-display); letter-spacing: -.02em; }
+.about-story__destination-copy > p { max-width: var(--measure); margin: var(--space-13) 0 0; font: 400 var(--type-body)/1.5 var(--font-reading); }
 .about-story__destination-action { display: inline-flex; margin-top: 24rem; padding: 10rem 14rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-s); font: 800 14rem/1.1 var(--font-body); background: var(--accent); color: var(--accent-ink); }
 .about-story__destination:hover, .about-story__destination:focus-visible { background: var(--paper); transform: translateY(-3rem); }
 .about-story__destination:focus-visible { outline: 3rem solid var(--ink); outline-offset: 5rem; }

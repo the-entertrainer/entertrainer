@@ -19,6 +19,10 @@
                                              optical-size axis.
      Atlas Typewriter      → IBM Plex Mono   metadata mono.
 
+   The Measure uses these four families and no others. Sizes live in
+   main.css: meta 11, body 18, dek/card/h2 29, page title 47, home display 76.
+   The voices do not change with the scale.
+
    All four are SIL Open Font License 1.1 — commercial use permitted, no
    attribution required. Licence texts are in docs/licenses/. Files were
    fetched from fonts.gstatic.com and are unmodified.

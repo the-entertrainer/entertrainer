@@ -62,25 +62,25 @@ const tools = computed(() =>
 <style scoped>
 .empower {
   min-height: calc(100dvh - 74rem);
-  max-width: var(--shell-wide);
+  max-width: var(--shell-max);
   margin: 0 auto;
-  padding: clamp(24rem, 4vw, 56rem) var(--shell-gutter) clamp(48rem, 8vw, 96rem);
+  padding: var(--space-34) var(--shell-gutter) var(--space-89);
 }
 
 .empower__grid {
   list-style: none;
-  margin: clamp(20rem, 3vw, 32rem) 0 0;
+  margin: var(--space-21) 0 0;
   padding: 0;
   display: grid;
-  gap: 12rem;
+  gap: var(--space-13);
 }
 
 .empower__card {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) 22rem;
   align-items: center;
-  gap: clamp(16rem, 2.5vw, 28rem);
-  padding: clamp(18rem, 2.5vw, 26rem) clamp(18rem, 2.5vw, 24rem);
+  gap: var(--space-21);
+  padding: var(--space-21);
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   background: var(--paper);
@@ -147,7 +147,7 @@ const tools = computed(() =>
 }
 
 .empower__card-name {
-  font: 600 clamp(22rem, 3vw, 28rem)/1.15 var(--font-display);
+  font: 500 var(--type-body)/1.2 var(--font-display);
   letter-spacing: -.02em;
 }
 

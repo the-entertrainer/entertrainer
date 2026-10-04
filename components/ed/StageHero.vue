@@ -131,11 +131,11 @@ withDefaults(defineProps<{
   --stage-cobalt: var(--accent);
   position: relative;
   display: grid;
-  min-height: min(420rem, calc(100dvh - 320rem));
+  min-height: 0;
   align-content: center;
   justify-items: start;
   overflow: hidden;
-  padding: clamp(34rem, 7vw, 96rem);
+  padding: var(--space-55) var(--space-34);
   color: var(--stage-ink);
   background: var(--stage-cream);
   border: var(--stroke) solid var(--ink);
@@ -192,8 +192,8 @@ withDefaults(defineProps<{
 .stage__copy > h1 {
   max-width: 800rem;
   margin: 12rem 0 18rem;
-  font: 500 clamp(65rem, 12vw, 180rem)/.82 var(--font-display);
-  letter-spacing: -.08em;
+  font: 500 var(--type-h1)/.98 var(--font-display);
+  letter-spacing: -.03em;
   color: var(--ink);
 }
 
@@ -206,8 +206,8 @@ withDefaults(defineProps<{
 .stage__copy :deep(.stage__deck) {
   max-width: 480rem;
   margin: 0;
-  font-size: 20rem;
-  line-height: 1.4;
+  font-size: var(--type-dek);
+  line-height: 1.35;
   color: var(--ink);
 }
 
@@ -295,8 +295,8 @@ withDefaults(defineProps<{
 
 /* Compact stage for section pages that already have page chrome */
 .stage--compact {
-  min-height: min(280rem, 42vw);
-  margin-bottom: clamp(28rem, 4vw, 48rem);
+  min-height: 0;
+  margin-bottom: var(--space-34);
 }
 
 @media (max-width: 640px) {
@@ -305,7 +305,7 @@ withDefaults(defineProps<{
     padding: clamp(28rem, 6vw, 48rem);
   }
   .stage__art { opacity: .72; }
-  .stage__deck { font-size: 17rem; max-width: 36ch; }
+  .stage__deck { font-size: var(--type-dek); max-width: 36ch; }
 }
 
 @media (prefers-reduced-motion: reduce) {

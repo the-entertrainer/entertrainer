@@ -80,6 +80,8 @@ let graphNodes: AudioNode[] = []
 let master: GainNode | null = null
 let drumBus: GainNode | null = null
 let musicBus: GainNode | null = null
+let chordFilter: BiquadFilterNode | null = null
+let chordDuck: GainNode | null = null
 let noiseBuf: AudioBuffer | null = null
 let live: LiveNote[] = []
 let generation = 0
@@ -128,6 +130,8 @@ function disconnectGraph() {
   master = null
   drumBus = null
   musicBus = null
+  chordFilter = null
+  chordDuck = null
 }
 
 function teardown() {
@@ -305,7 +309,7 @@ function spawnTone(
 
   const filter = ctx.createBiquadFilter()
   filter.type = 'lowpass'
-  filter.frequency.setValueAtTime(kind === 'lead' ? 3800 : kind === 'bass' ? 320 : 1600, when)
+  filter.frequency.setValueAtTime(kind === 'lead' ? 3800 : kind === 'bass' ? 320 : 9000, when)
   filter.Q.setValueAtTime(0.45, when)
   filter.connect(gain)
 
@@ -335,8 +339,41 @@ function scheduleSong(ctx: AudioContext, song: Song, origin: number) {
     else if (event.voice === 'hat') spawnHat(ctx, drumBus, event, when, false)
     else if (event.voice === 'openhat') spawnHat(ctx, drumBus, event, when, true)
     else if (event.voice === 'bass') spawnTone(ctx, musicBus, event, when, eventLength(song, event), 'bass')
-    else if (event.voice === 'chord') spawnTone(ctx, musicBus, event, when, eventLength(song, event), 'chord')
+    else if (event.voice === 'chord' && chordFilter) spawnTone(ctx, chordFilter, event, when, eventLength(song, event), 'chord')
     else if (event.voice === 'lead') spawnTone(ctx, musicBus, event, when, eventLength(song, event), 'lead')
+  }
+}
+
+const SECTION_CUTOFF: Record<string, number> = {
+  intro: 680,
+  verse: 980,
+  chorus: 5200,
+  bridge: 840,
+  outro: 620,
+}
+
+// A few dB, about 80ms. The kick is the sidechain key; chords sit on chordDuck.
+const DUCK = 0.631
+
+function scheduleStudio(ctx: AudioContext, song: Song, origin: number) {
+  if (!chordFilter || !chordDuck) return
+  const beat = beatLength(song)
+  let prev = SECTION_CUTOFF.intro
+  chordFilter.frequency.setValueAtTime(prev, origin)
+  for (const section of song.sections) {
+    const when = origin + section.bar * 4 * beat
+    const target = SECTION_CUTOFF[section.name] || prev
+    chordFilter.frequency.setValueAtTime(Math.max(prev, 40), when)
+    chordFilter.frequency.exponentialRampToValueAtTime(target, when + Math.min(beat * 2, 0.45))
+    prev = target
+  }
+  for (const event of song.events) {
+    if (event.voice !== 'kick') continue
+    const when = origin + eventWhen(song, event)
+    if (when < ctx.currentTime - 0.02) continue
+    chordDuck.gain.setValueAtTime(1, when)
+    chordDuck.gain.linearRampToValueAtTime(DUCK, when + 0.01)
+    chordDuck.gain.linearRampToValueAtTime(1, when + 0.08)
   }
 }
 
@@ -344,8 +381,16 @@ function buildGraph(ctx: AudioContext) {
   const t = ctx.currentTime
   const drums = ctx.createGain()
   const music = ctx.createGain()
+  const filter = ctx.createBiquadFilter()
+  const duck = ctx.createGain()
   drums.gain.setValueAtTime(1, t)
   music.gain.setValueAtTime(1, t)
+  filter.type = 'lowpass'
+  filter.frequency.setValueAtTime(680, t)
+  filter.Q.setValueAtTime(0.7, t)
+  duck.gain.setValueAtTime(1, t)
+  filter.connect(duck)
+  duck.connect(music)
   const out = ctx.createGain()
   out.gain.cancelScheduledValues(t)
   out.gain.setValueAtTime(FLOOR, t)
@@ -355,8 +400,10 @@ function buildGraph(ctx: AudioContext) {
   out.connect(ctx.destination)
   drumBus = drums
   musicBus = music
+  chordFilter = filter
+  chordDuck = duck
   master = out
-  graphNodes = [drums, music, out]
+  graphNodes = [drums, music, filter, duck, out]
 }
 
 function sectionAt(song: Song, bar: number) {
@@ -409,6 +456,7 @@ function begin() {
   const song = composeSong(seed) as Song
   const origin = ctx.currentTime + 0.06
   buildGraph(ctx)
+  scheduleStudio(ctx, song, origin)
   scheduleSong(ctx, song, origin)
   phase.value = 'hold'
   playedOnce.value = true

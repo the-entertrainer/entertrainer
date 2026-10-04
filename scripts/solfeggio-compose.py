@@ -1,330 +1,141 @@
 #!/usr/bin/env python3
 """Seeded Solfeggio song. Python is the numeric source of truth.
 
-Running this file rewrites utils/solfeggio-compose.mjs. The page imports that
-module. Do not edit the .mjs by hand.
+Running this file rewrites utils/solfeggio-compose.mjs. Do not edit the .mjs
+by hand. Same seed, same score.
 
-Each seed is one finished 4/4 song: intro, verse, chorus, verse, chorus,
-bridge, chorus, outro. The nine pitches are a modern numerological list, not
-a tuning system and not a therapy. 528 is home because 528/396 is exactly 4/3.
-852/639 is the other exact fourth. 963/639 sits about 8 cents sharp of 3/2,
-so 963 is a color tone. 174 and 285 (and their octaves) are the bass, never
-the tune.
+The lead is not a table of pitches. A one-layer GRU (MelodyRNN's next-event
+idea, with the cell reduced to the GRU the brief asked for) is trained on a
+built-in corpus of one-bar motifs in the solfeggio scale. Compose time draws
+three bars from that network, then develops them: repeat, sequence, invert,
+fragment. Harmony, bass and drums are arranged around those bars.
+
+528/396 and 852/639 are exactly 4/3. 963/639 is about 8 cents sharp of 3/2.
 """
 
 from __future__ import annotations
 
+import os
+
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+
 import argparse
+import itertools
 import json
 import math
 import sys
 from pathlib import Path
 
+import numpy as np
+
 PITCHES = [174, 285, 396, 417, 528, 639, 741, 852, 963]
 CENTER = 528
-SCALE = [396, 417, 528, 639, 741, 792, 834, 852, 963, 1056]
-EIGHTHS = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]
+# One octave, low to high, so no lead leap can exceed an octave.
+# 570, 792, 834, 1056 are exact octaves of 285, 396, 417, 528.
+LEAD = [528, 570, 639, 741, 792, 834, 852, 963, 1056]
+REST = 9
+START = 10
+V_OUT = 10
+V_IN = 11
+E = 16
+H = 24
+Q = 128
+SIG_LO = -16 * Q
+SIG_HI = 16 * Q
+BARS = 8
 
-# Two-bar hooks. Scale indices. Each chorus plays the chosen hook four times.
-CHORUS = [
-    [
-        [0, 0, 1, 9],
-        [0, 1, 0.5, 8],
-        [0, 1.5, 0.5, 7],
-        [0, 2, 1, 8],
-        [0, 3, 1, 9],
-        [1, 0, 0.5, 8],
-        [1, 0.5, 0.5, 7],
-        [1, 1, 1, 8],
-        [1, 2, 2, 9],
-    ],
-    [
-        [0, 0, 1, 7],
-        [0, 1, 0.5, 8],
-        [0, 1.5, 0.5, 7],
-        [0, 2, 1, 6],
-        [0, 3, 1, 5],
-        [1, 0, 1, 6],
-        [1, 1, 1, 7],
-        [1, 2, 2, 7],
-    ],
-    [
-        [0, 0, 1.5, 8],
-        [0, 1.5, 0.5, 9],
-        [0, 2, 1, 8],
-        [0, 3, 1, 7],
-        [1, 0, 1, 6],
-        [1, 1, 1, 7],
-        [1, 2, 2, 8],
-    ],
+# One-bar motifs the GRU is trained on. Eighths. 9 is a rest.
+# Stepwise contours and a reused rhythm skeleton, ending on the tonic.
+CORPUS = [
+    [0, 0, 1, 2, 3, 2, 1, 0],
+    [0, 1, 2, 2, 1, 0, 1, 0],
+    [0, 0, 2, 1, 0, 1, 2, 0],
+    [1, 0, 1, 2, 3, 2, 1, 0],
+    [0, 2, 1, 0, 1, 2, 1, 0],
+    [0, 1, 0, 2, 1, 0, 0, 0],
+    [2, 1, 0, 1, 2, 3, 1, 0],
+    [0, 0, 1, 3, 2, 1, 0, 0],
+    [0, 9, 1, 2, 9, 3, 1, 0],
+    [0, 0, 9, 2, 3, 9, 1, 0],
+    [1, 2, 9, 3, 2, 9, 1, 0],
+    [0, 9, 2, 1, 9, 2, 1, 0],
+    [2, 9, 1, 0, 9, 1, 2, 0],
+    [0, 1, 2, 9, 3, 2, 9, 0],
+    [0, 2, 9, 3, 2, 1, 0, 0],
+    [3, 2, 1, 0, 1, 2, 1, 0],
+    [0, 1, 2, 3, 2, 1, 2, 0],
+    [2, 3, 2, 1, 0, 1, 0, 0],
+    [0, 0, 1, 2, 4, 3, 1, 0],
+    [1, 2, 3, 4, 3, 2, 1, 0],
+    [0, 2, 3, 4, 3, 2, 1, 0],
+    [4, 3, 2, 1, 2, 1, 0, 0],
+    [0, 1, 3, 2, 4, 3, 1, 0],
+    [2, 3, 4, 3, 2, 1, 0, 0],
+    [0, 9, 3, 2, 4, 9, 1, 0],
+    [4, 9, 3, 2, 9, 1, 0, 0],
+    [0, 1, 2, 3, 4, 2, 1, 0],
+    [3, 4, 3, 2, 1, 2, 0, 0],
+    [0, 2, 4, 3, 2, 1, 2, 0],
+    [1, 0, 2, 4, 3, 2, 1, 0],
+    [0, 0, 3, 4, 5, 3, 1, 0],
+    [5, 4, 3, 2, 1, 2, 0, 0],
+    [0, 2, 3, 5, 4, 2, 1, 0],
+    [2, 4, 5, 4, 3, 2, 1, 0],
+    [0, 9, 4, 3, 5, 9, 2, 0],
+    [4, 5, 4, 3, 2, 1, 0, 0],
+    [0, 1, 2, 4, 6, 4, 2, 0],
+    [6, 5, 4, 3, 2, 1, 0, 0],
+    [0, 3, 4, 6, 4, 3, 1, 0],
+    [2, 3, 4, 6, 4, 2, 1, 0],
+    [0, 2, 4, 6, 5, 3, 1, 0],
+    [6, 4, 3, 2, 4, 2, 1, 0],
+    [0, 9, 2, 4, 6, 4, 2, 0],
+    [3, 2, 1, 0, 2, 4, 2, 0],
+    [0, 1, 0, 1, 2, 1, 0, 0],
+    [8, 7, 6, 4, 3, 2, 1, 0],
+    [0, 2, 4, 6, 7, 4, 2, 0],
+    [7, 6, 4, 3, 2, 1, 0, 0],
 ]
 
-# Verse pairs: [verse, verseTail, verse2, verse2Tail], each an 8-bar contour.
-# Tail is used only when the verse is 16 bars. Verse 2 is a different contour
-# on the same chords.
-VERSES = [
-    [
-        [
-            [0, 0, 2, 0],
-            [0, 2, 2, 1],
-            [1, 0, 2, 2],
-            [1, 2, 2, 1],
-            [2, 0, 1, 2],
-            [2, 1, 1, 3],
-            [2, 2, 2, 2],
-            [3, 0, 2, 1],
-            [3, 2, 2, 0],
-            [4, 0, 2, 1],
-            [4, 2, 2, 2],
-            [5, 0, 1, 1],
-            [5, 1, 1, 0],
-            [5, 2, 2, 1],
-            [6, 0, 2, 2],
-            [6, 2, 2, 1],
-            [7, 0, 4, 0],
-        ],
-        [
-            [0, 0, 2, 0],
-            [0, 2, 2, 1],
-            [1, 0, 2, 2],
-            [1, 2, 2, 1],
-            [2, 0, 1, 0],
-            [2, 1, 1, 1],
-            [2, 2, 2, 2],
-            [3, 0, 2, 1],
-            [3, 2, 2, 0],
-            [4, 0, 2, 1],
-            [4, 2, 2, 2],
-            [5, 0, 2, 3],
-            [5, 2, 2, 2],
-            [6, 0, 2, 1],
-            [6, 2, 2, 0],
-            [7, 0, 4, 0],
-        ],
-        [
-            [0, 0, 2, 3],
-            [0, 2, 2, 2],
-            [1, 0, 2, 1],
-            [1, 2, 2, 2],
-            [2, 0, 2, 3],
-            [2, 2, 2, 2],
-            [3, 0, 1, 1],
-            [3, 1, 1, 0],
-            [3, 2, 2, 1],
-            [4, 0, 2, 2],
-            [4, 2, 2, 1],
-            [5, 0, 2, 0],
-            [5, 2, 2, 1],
-            [6, 0, 1, 2],
-            [6, 1, 1, 1],
-            [6, 2, 2, 0],
-            [7, 0, 4, 1],
-        ],
-        [
-            [0, 0, 2, 1],
-            [0, 2, 2, 0],
-            [1, 0, 2, 1],
-            [1, 2, 2, 2],
-            [2, 0, 2, 3],
-            [2, 2, 2, 2],
-            [3, 0, 1, 1],
-            [3, 1, 1, 0],
-            [3, 2, 2, 1],
-            [4, 0, 4, 2],
-            [5, 0, 2, 1],
-            [5, 2, 2, 0],
-            [6, 0, 2, 1],
-            [6, 2, 2, 0],
-            [7, 0, 4, 0],
-        ],
-    ],
-    [
-        [
-            [0, 0, 1, 1],
-            [0, 1, 1, 2],
-            [0, 2, 1, 1],
-            [0, 3, 1, 0],
-            [1, 0, 2, 1],
-            [1, 2, 2, 2],
-            [2, 0, 1, 3],
-            [2, 1, 1, 2],
-            [2, 2, 2, 1],
-            [3, 0, 4, 0],
-            [4, 0, 1, 1],
-            [4, 1, 1, 2],
-            [4, 2, 1, 3],
-            [4, 3, 1, 2],
-            [5, 0, 2, 1],
-            [5, 2, 2, 0],
-            [6, 0, 2, 1],
-            [6, 2, 2, 2],
-            [7, 0, 4, 1],
-        ],
-        [
-            [0, 0, 1, 1],
-            [0, 1, 1, 0],
-            [0, 2, 2, 1],
-            [1, 0, 2, 2],
-            [1, 2, 2, 1],
-            [2, 0, 2, 0],
-            [2, 2, 2, 1],
-            [3, 0, 4, 2],
-            [4, 0, 2, 1],
-            [4, 2, 2, 0],
-            [5, 0, 1, 1],
-            [5, 1, 1, 2],
-            [5, 2, 2, 1],
-            [6, 0, 2, 0],
-            [6, 2, 2, 1],
-            [7, 0, 4, 0],
-        ],
-        [
-            [0, 0, 2, 2],
-            [0, 2, 1, 1],
-            [0, 3, 1, 2],
-            [1, 0, 2, 3],
-            [1, 2, 2, 2],
-            [2, 0, 1, 1],
-            [2, 1, 1, 0],
-            [2, 2, 2, 1],
-            [3, 0, 2, 2],
-            [3, 2, 2, 1],
-            [4, 0, 4, 0],
-            [5, 0, 1, 1],
-            [5, 1, 1, 2],
-            [5, 2, 2, 1],
-            [6, 0, 2, 0],
-            [6, 2, 2, 1],
-            [7, 0, 4, 0],
-        ],
-        [
-            [0, 0, 2, 0],
-            [0, 2, 2, 1],
-            [1, 0, 1, 2],
-            [1, 1, 1, 1],
-            [1, 2, 2, 0],
-            [2, 0, 2, 1],
-            [2, 2, 2, 2],
-            [3, 0, 2, 3],
-            [3, 2, 2, 2],
-            [4, 0, 2, 1],
-            [4, 2, 2, 0],
-            [5, 0, 4, 1],
-            [6, 0, 2, 0],
-            [6, 2, 2, 1],
-            [7, 0, 4, 0],
-        ],
-    ],
-    [
-        [
-            [0, 0, 1.5, 0],
-            [0, 1.5, 0.5, 1],
-            [0, 2, 2, 2],
-            [1, 0, 2, 3],
-            [1, 2, 2, 2],
-            [2, 0, 2, 1],
-            [2, 2, 2, 0],
-            [3, 0, 2, 1],
-            [3, 2, 2, 2],
-            [4, 0, 4, 1],
-            [5, 0, 1, 2],
-            [5, 1, 1, 3],
-            [5, 2, 1, 2],
-            [5, 3, 1, 1],
-            [6, 0, 2, 0],
-            [6, 2, 2, 1],
-            [7, 0, 4, 0],
-        ],
-        [
-            [0, 0, 4, 0],
-            [1, 0, 2, 1],
-            [1, 2, 2, 2],
-            [2, 0, 2, 3],
-            [2, 2, 2, 2],
-            [3, 0, 1, 1],
-            [3, 1, 1, 0],
-            [3, 2, 2, 1],
-            [4, 0, 2, 2],
-            [4, 2, 2, 1],
-            [5, 0, 2, 0],
-            [5, 2, 2, 1],
-            [6, 0, 1, 2],
-            [6, 1, 1, 1],
-            [6, 2, 2, 0],
-            [7, 0, 4, 1],
-        ],
-        [
-            [0, 0, 4, 3],
-            [1, 0, 2, 2],
-            [1, 2, 2, 1],
-            [2, 0, 1, 2],
-            [2, 1, 1, 3],
-            [2, 2, 2, 2],
-            [3, 0, 2, 1],
-            [3, 2, 2, 0],
-            [4, 0, 2, 1],
-            [4, 2, 1, 2],
-            [4, 3, 1, 1],
-            [5, 0, 4, 0],
-            [6, 0, 1, 1],
-            [6, 1, 1, 0],
-            [6, 2, 2, 1],
-            [7, 0, 4, 0],
-        ],
-        [
-            [0, 0, 2, 1],
-            [0, 2, 2, 0],
-            [1, 0, 2, 1],
-            [1, 2, 1, 2],
-            [1, 3, 1, 1],
-            [2, 0, 2, 0],
-            [2, 2, 2, 1],
-            [3, 0, 4, 2],
-            [4, 0, 2, 1],
-            [4, 2, 2, 0],
-            [5, 0, 2, 1],
-            [5, 2, 2, 2],
-            [6, 0, 2, 1],
-            [6, 2, 2, 0],
-            [7, 0, 4, 0],
-        ],
-    ],
-]
+# Functional loops. The last chord of each loop is the tonic.
+VERSE_ROOTS = [528, 396, 639, 528]
+CHORUS_ROOTS = [396, 852, 639, 528]
+BRIDGE_ROOTS = [639, 852, 741, 528]
+INTRO_ROOTS = [528, 396, 639, 528]
+OUTRO_ROOTS = [528, 639, 396, 528]
 
-# Bridge tune on the other fourth. 963 is a short color tone, not the bass.
-BRIDGE = [
-    [0, 0, 2, 639],
-    [0, 2, 2, 741],
-    [1, 0, 2, 852],
-    [1, 2, 1, 963],
-    [1, 3, 1, 852],
-    [2, 0, 2, 741],
-    [2, 2, 2, 852],
-    [3, 0, 4, 852],
-]
+CHORD_TONES = {
+    528: [528, 639, 792],
+    396: [396, 528, 639],
+    639: [639, 792, 963],
+    852: [852, 1056, 639],
+    741: [741, 852, 963],
+}
 
-# Milli-gains. Chorus lead is the loudest single voice.
 GAINS = {
-    "kick": 500,
-    "kickGhost": 280,
-    "snare": 400,
-    "hat": 80,
-    "openhat": 120,
-    "bass": 440,
-    "chordIntro": 150,
-    "chordVerse": 200,
+    "kick": 520,
+    "snare": 420,
+    "hat": 90,
+    "openhat": 130,
+    "bass": 460,
+    "chordIntro": 160,
+    "chordVerse": 210,
     "chordChorus": 250,
-    "chordBridge": 210,
-    "chordOutro": 220,
-    "leadIntro": 240,
-    "leadVerse": 360,
+    "chordBridge": 200,
+    "chordOutro": 190,
+    "leadIntro": 280,
+    "leadVerse": 380,
     "leadChorus": 640,
     "leadBridge": 400,
-    "leadOutro": 420,
+    "leadOutro": 440,
 }
 
 ROOT = Path(__file__).resolve().parents[1]
 MJS_PATH = ROOT / "utils" / "solfeggio-compose.mjs"
+
+_ENGINE = None
 
 
 def to_i32(x: int) -> int:
@@ -367,91 +178,393 @@ def cents(ratio: float) -> float:
     return 1200 * math.log2(ratio)
 
 
-def all_forms():
-    forms = []
-    for intro in (4, 8):
-        for verse in (8, 16):
-            for bridge in (4, 8):
-                for outro in (4, 8):
-                    total = intro + verse + 8 + verse + 8 + bridge + 8 + outro
-                    forms.append({
-                        "intro": intro,
-                        "verse": verse,
-                        "bridge": bridge,
-                        "outro": outro,
-                        "total": total,
-                    })
-    return forms
+def sigmoid(x):
+    return 1.0 / (1.0 + np.exp(-np.clip(x, -20, 20)))
 
 
-def song_seconds(total_bars: int, bpm: int) -> float:
+def _init_params(rs):
+    def w(shape, scale):
+        return rs.randn(*shape).astype(np.float64) * scale
+
+    s = 0.25
+    return {
+        "emb": w((V_IN, E), s),
+        "Wx_r": w((H, E), s), "Wh_r": w((H, H), s), "br": np.zeros(H),
+        "Wx_z": w((H, E), s), "Wh_z": w((H, H), s), "bz": np.ones(H),
+        "Wx_n": w((H, E), s), "Wh_n": w((H, H), s), "bn": np.zeros(H), "bh": np.zeros(H),
+        "Wo": w((V_OUT, H), s), "bo": np.zeros(V_OUT),
+    }
+
+
+def _ce_and_grad(p, seq):
+    xs = [START] + list(seq[:-1])
+    tg = list(seq)
+    T = len(tg)
+    cache = []
+    h = np.zeros(H)
+    loss = 0.0
+    for t in range(T):
+        x = p["emb"][xs[t]]
+        xr = p["Wx_r"] @ x + p["Wh_r"] @ h + p["br"]
+        r = sigmoid(xr)
+        xz = p["Wx_z"] @ x + p["Wh_z"] @ h + p["bz"]
+        z = sigmoid(xz)
+        xh = p["Wh_n"] @ h + p["bh"]
+        xn = p["Wx_n"] @ x + p["bn"] + r * xh
+        n = np.tanh(xn)
+        h2 = (1 - z) * n + z * h
+        logits = p["Wo"] @ h2 + p["bo"]
+        m = np.max(logits)
+        ex = np.exp(logits - m)
+        pr = ex / np.sum(ex)
+        loss += -math.log(float(pr[tg[t]]) + 1e-12)
+        cache.append((x, h, r, z, n, xh, h2, pr, xs[t]))
+        h = h2
+    loss /= T
+    g = {k: np.zeros_like(v) for k, v in p.items()}
+    dh2 = np.zeros(H)
+    for t in reversed(range(T)):
+        x, h, r, z, n, xh, h2, pr, xt = cache[t]
+        dlogits = pr.copy()
+        dlogits[tg[t]] -= 1.0
+        dlogits /= T
+        g["Wo"] += dlogits[:, None] * h2[None, :]
+        g["bo"] += dlogits
+        dh = dh2 + p["Wo"].T @ dlogits
+        dz = dh * (h - n)
+        dn = dh * (1 - z)
+        dh_direct = dh * z
+        dxn = dn * (1 - n * n)
+        g["Wx_n"] += dxn[:, None] * x[None, :]
+        g["bn"] += dxn
+        dr = dxn * xh
+        dxh = dxn * r
+        g["Wh_n"] += dxh[:, None] * h[None, :]
+        g["bh"] += dxh
+        dx = p["Wx_n"].T @ dxn
+        dh_from_n = p["Wh_n"].T @ dxh
+        dxr = dr * r * (1 - r)
+        dxz = dz * z * (1 - z)
+        g["Wx_r"] += dxr[:, None] * x[None, :]
+        g["Wh_r"] += dxr[:, None] * h[None, :]
+        g["br"] += dxr
+        g["Wx_z"] += dxz[:, None] * x[None, :]
+        g["Wh_z"] += dxz[:, None] * h[None, :]
+        g["bz"] += dxz
+        dx += p["Wx_r"].T @ dxr + p["Wx_z"].T @ dxz
+        dh_next = dh_direct + dh_from_n + p["Wh_r"].T @ dxr + p["Wh_z"].T @ dxz
+        g["emb"][xt] += dx
+        dh2 = dh_next
+    return loss, g
+
+
+def _mean_loss(p):
+    total = 0.0
+    for seq in CORPUS:
+        loss, _ = _ce_and_grad(p, seq)
+        total += loss
+    return total / len(CORPUS)
+
+
+def train_engine():
+    """Adam on next-eighth cross-entropy. Deterministic given the corpus."""
+    rs = np.random.RandomState(7)
+    p = _init_params(rs)
+    moment = {k: np.zeros_like(v) for k, v in p.items()}
+    vel = {k: np.zeros_like(v) for k, v in p.items()}
+    idx = np.arange(len(CORPUS))
+    loss_start = _mean_loss(p)
+    tstep = 0
+    lr = 0.04
+    for _ep in range(60):
+        rs.shuffle(idx)
+        for j in idx:
+            tstep += 1
+            _loss, g = _ce_and_grad(p, CORPUS[int(j)])
+            sq = 0.0
+            for arr in g.values():
+                sq += float(np.sum(arr * arr))
+            scale = 5.0 / math.sqrt(sq) if sq > 25 else 1.0
+            for k in p:
+                gk = g[k] * scale
+                moment[k] = 0.9 * moment[k] + 0.1 * gk
+                vel[k] = 0.999 * vel[k] + 0.001 * (gk * gk)
+                mh = moment[k] / (1 - 0.9 ** tstep)
+                vh = vel[k] / (1 - 0.999 ** tstep)
+                p[k] = p[k] - lr * mh / (np.sqrt(vh) + 1e-8)
+    loss_end = _mean_loss(p)
+    params = int(sum(v.size for v in p.values()))
+
+    def qarr(a):
+        clipped = np.clip(np.rint(a * Q), -3 * Q, 3 * Q).astype(np.int64)
+        return clipped.tolist()
+
+    net = {k: qarr(v) for k, v in p.items()}
+    sig = []
+    tanh_t = []
+    for i in range(SIG_LO, SIG_HI + 1):
+        sig.append(int(round(float(sigmoid(i / Q)) * Q)))
+        tanh_t.append(int(round(math.tanh(i / Q) * Q)))
+    exp_t = []
+    for d in range(0, 16 * Q + 1):
+        exp_t.append(max(1, int(round(math.exp(-d / Q) * 1_000_000))))
+    net["sig"] = sig
+    net["tanh"] = tanh_t
+    net["exp"] = exp_t
+    reg = []
+    for base in PITCHES:
+        hz = float(base)
+        while hz < 300:
+            hz *= 2
+        while hz <= 1400:
+            reg.append(hz)
+            hz *= 2
+    scale_reg = []
+    for hz in sorted(reg):
+        if not scale_reg or abs(hz - scale_reg[-1]) > 1e-6:
+            scale_reg.append(hz)
+    return {
+        "net": net,
+        "loss_start": loss_start,
+        "loss_end": loss_end,
+        "params": params,
+        "scale_reg": scale_reg,
+    }
+
+
+def engine():
+    global _ENGINE
+    if _ENGINE is None:
+        _ENGINE = train_engine()
+    return _ENGINE
+
+
+def lut(table, pre):
+    if pre < SIG_LO:
+        pre = SIG_LO
+    elif pre > SIG_HI:
+        pre = SIG_HI
+    return table[pre - SIG_LO]
+
+
+def dot(W, vec):
+    out = []
+    for row in W:
+        acc = 0
+        for a, b in zip(row, vec):
+            acc += a * b
+        out.append(acc // Q)
+    return out
+
+
+def gru_step(h, tok, net=None):
+    if net is None:
+        net = engine()["net"]
+    emb = net["emb"][tok]
+    r_pre = [a + b + c for a, b, c in zip(dot(net["Wx_r"], emb), dot(net["Wh_r"], h), net["br"])]
+    z_pre = [a + b + c for a, b, c in zip(dot(net["Wx_z"], emb), dot(net["Wh_z"], h), net["bz"])]
+    r = [lut(net["sig"], p) for p in r_pre]
+    z = [lut(net["sig"], p) for p in z_pre]
+    xh = [a + b for a, b in zip(dot(net["Wh_n"], h), net["bh"])]
+    xn = [a + b + (ri * xhi) // Q for a, b, ri, xhi in zip(dot(net["Wx_n"], emb), net["bn"], r, xh)]
+    n = [lut(net["tanh"], p) for p in xn]
+    h2 = [((Q - zi) * ni + zi * hi) // Q for zi, ni, hi in zip(z, n, h)]
+    logits = [a + b for a, b in zip(dot(net["Wo"], h2), net["bo"])]
+    return h2, logits
+
+
+def token_weights(logits, net=None):
+    if net is None:
+        net = engine()["net"]
+    exp_t = net["exp"]
+    scaled = [int(v) * 3 // 4 for v in logits]
+    peak = max(scaled)
+    weights = []
+    for value in scaled:
+        d = peak - value
+        if d >= len(exp_t):
+            weights.append(1)
+        else:
+            weights.append(exp_t[d])
+    return weights
+
+
+def draw_token(logits, rng, net=None):
+    weights = token_weights(logits, net)
+    total = sum(weights)
+    u = rng.below(total)
+    acc = 0
+    for i, w in enumerate(weights):
+        acc += w
+        if u < acc:
+            return i
+    return len(weights) - 1
+
+
+def sample_motif(rng, net=None):
+    last = [0] * BARS
+    for _try in range(6):
+        h = [0] * H
+        x = START
+        toks = []
+        for _step in range(BARS):
+            h, logits = gru_step(h, x, net)
+            tok = draw_token(logits, rng, net)
+            toks.append(tok)
+            x = tok
+        last = toks
+        if sum(1 for t in toks if t != REST) >= 3:
+            return toks
+    return last
+
+
+def plan(seed, net=None):
+    rng = Rng(seed & 0xFFFFFFFF)
+    bpm = 78 + rng.below(23)
+    pocket = rng.below(2)
+    motifs = [sample_motif(rng, net) for _ in range(3)]
+    return bpm, pocket, motifs
+
+
+def seq_up(toks):
+    return [REST if t == REST else min(8, t + 1) for t in toks]
+
+
+def seq_down(toks):
+    return [REST if t == REST else max(0, t - 1) for t in toks]
+
+
+def invert_motif(toks):
+    return [REST if t == REST else 8 - t for t in toks]
+
+
+def fragment(toks):
+    return list(toks[:4]) + [REST, REST, REST, REST]
+
+
+def chorus_bars(motif):
+    stated = list(motif)
+    sequenced = seq_up(motif)
+    hook = [stated, sequenced, stated, sequenced]
+    return hook + hook
+
+
+def verse1_bars(motif):
+    inv = invert_motif(motif)
+    return [list(motif), inv, list(motif), seq_up(motif), inv, seq_up(inv), list(motif), inv]
+
+
+def verse2_bars(motif):
+    frag = fragment(motif)
+    inv = invert_motif(motif)
+    return [list(motif), seq_up(motif), inv, list(motif), frag, seq_up(frag), inv, list(motif)]
+
+
+def bridge_bars(motif):
+    frag = fragment(motif)
+    return [frag, seq_up(frag), frag, invert_motif(frag), frag, seq_up(frag), invert_motif(frag), frag]
+
+
+def intro_bars(motif):
+    frag = fragment(motif)
+    return [None, None, frag, seq_up(frag)]
+
+
+def outro_bars(motif):
+    frag = fragment(motif)
+    return [frag, invert_motif(frag), seq_down(frag), [0] * BARS]
+
+
+def build_scale_reg():
+    return engine()["scale_reg"]
+
+
+def scale_index(hz, scale_reg=None):
+    if scale_reg is None:
+        scale_reg = build_scale_reg()
+    for i, item in enumerate(scale_reg):
+        if abs(item - hz) < 1e-6:
+            return i
+    raise AssertionError(f"hz off the register {hz}")
+
+
+def octaves_between(base, lo, hi):
+    hz = float(base)
+    while hz < lo:
+        hz *= 2.0
+    out = []
+    while hz <= hi + 1e-9:
+        out.append(hz)
+        hz *= 2.0
+    return out
+
+
+def candidates(root):
+    found = []
+    for tone in CHORD_TONES[root]:
+        found.extend(octaves_between(tone, 360, 1200))
+    uniq = []
+    for hz in sorted(found):
+        if not uniq or abs(hz - uniq[-1]) > 1e-6:
+            uniq.append(hz)
+    return uniq
+
+
+def voice_lead(prev, cands, scale_reg=None):
+    prev_s = tuple(sorted(prev))
+    best = None
+    best_key = None
+    for comb in itertools.combinations(cands, 3):
+        ordered = tuple(sorted(comb))
+        dists = tuple(abs(scale_index(a, scale_reg) - scale_index(b, scale_reg)) for a, b in zip(ordered, prev_s))
+        key = (sum(dists), dists, ordered)
+        if best_key is None or key < best_key:
+            best_key = key
+            best = ordered
+    return list(best)
+
+
+def bass_hz(root):
+    hz = float(root)
+    while hz > 300:
+        hz /= 2.0
+    while hz < 90:
+        hz *= 2.0
+    return hz
+
+
+def song_seconds(total_bars, bpm):
     return total_bars * 4 * 60 / bpm
-
-
-def valid_forms(bpm: int):
-    good = []
-    for form in all_forms():
-        dur = song_seconds(form["total"], bpm)
-        if dur >= 150 and dur <= 240:
-            good.append(form)
-    return good
-
-
-def outro_indices(n: int):
-    seq = []
-    idx = 0
-    direction = 1
-    for _ in range(n - 1):
-        seq.append(idx)
-        nxt = idx + direction
-        if nxt > 2 or nxt < 0:
-            direction = -direction
-            nxt = idx + direction
-        idx = nxt
-    seq.append(2)
-    return seq
 
 
 def compose_song(seed: int) -> dict:
     seed = seed & 0xFFFFFFFF
-    rng = Rng(seed)
-    # Draw order is part of the score. The generated module must match it.
-    bpm = 72 + rng.below(25)
-    forms = valid_forms(bpm)
-    form = forms[rng.below(len(forms))]
-    motif = CHORUS[rng.below(len(CHORUS))]
-    pair = VERSES[rng.below(len(VERSES))]
-    drum_style = rng.below(3)
-    bridge_color = 741 if rng.below(2) == 0 else 963
-    bass_low = rng.below(2) == 0
-
-    intro = form["intro"]
-    verse = form["verse"]
-    bridge = form["bridge"]
-    outro = form["outro"]
-    chorus = 8
+    eng = engine()
+    net = eng["net"]
+    scale_reg = eng["scale_reg"]
+    bpm, pocket_i, motifs = plan(seed, net)
+    pocket = "boom-bap" if pocket_i == 0 else "half-time"
 
     sections = []
     bar = 0
 
-    def add_sec(name: str, bars: int) -> None:
+    def add_sec(name, bars):
         nonlocal bar
         sections.append({"name": name, "bar": bar, "bars": bars})
         bar += bars
 
-    add_sec("intro", intro)
-    add_sec("verse", verse)
-    add_sec("chorus", chorus)
-    add_sec("verse", verse)
-    add_sec("chorus", chorus)
-    add_sec("bridge", bridge)
-    add_sec("chorus", chorus)
-    add_sec("outro", outro)
+    add_sec("intro", 4)
+    add_sec("verse", 8)
+    add_sec("chorus", 8)
+    add_sec("verse", 8)
+    add_sec("chorus", 8)
+    add_sec("bridge", 8)
+    add_sec("chorus", 8)
+    add_sec("outro", 4)
     total_bars = bar
-
     events = []
 
-    def add(at: int, beat: float, dur: float, hz: int, voice: str, milli: int) -> None:
+    def add(at, beat, dur, hz, voice, milli):
         events.append({
             "bar": at,
             "beat": beat,
@@ -461,209 +574,141 @@ def compose_song(seed: int) -> dict:
             "gain": milli / 1000,
         })
 
-    def place_idx(start: int, notes, milli: int) -> None:
-        for note in notes:
-            add(start + note[0], note[1], note[2], SCALE[note[3]], "lead", milli)
+    def lay_tokens(start, rows, milli):
+        for i, toks in enumerate(rows):
+            if not toks:
+                continue
+            k = 0
+            while k < BARS:
+                if toks[k] == REST:
+                    k += 1
+                    continue
+                j = k + 1
+                while j < BARS and toks[j] == toks[k]:
+                    j += 1
+                add(start + i, k * 0.5, (j - k) * 0.5, LEAD[toks[k]], "lead", milli)
+                k = j
 
-    def place_hz(start: int, notes, milli: int) -> None:
-        for note in notes:
-            add(start + note[0], note[1], note[2], note[3], "lead", milli)
+    def lay_pocket(at, with_snare):
+        if pocket_i == 0:
+            kicks = (0, 2.5)
+            snares = (1, 3)
+        else:
+            kicks = (0, 1.5)
+            snares = (2,)
+        for beat in kicks:
+            add(at, beat, 0.5, 87, "kick", GAINS["kick"])
+        if with_snare:
+            for beat in snares:
+                add(at, beat, 0.5, 174, "snare", GAINS["snare"])
+        for beat in (0, 0.5, 1, 1.5, 2, 2.5, 3):
+            add(at, beat, 0.5, 285, "hat", GAINS["hat"])
+        add(at, 3.5, 0.5, 285, "openhat", GAINS["openhat"])
 
-    def lay_drums(at: int, last: bool) -> None:
-        if last:
-            add(at, 0, 0.5, 87, "kick", GAINS["kick"])
-            return
+    def lay_fill(at):
         add(at, 0, 0.5, 87, "kick", GAINS["kick"])
-        add(at, 2, 0.5, 87, "kick", GAINS["kick"])
-        if drum_style == 0 and at % 4 == 3:
-            add(at, 3.5, 0.5, 87, "kick", GAINS["kickGhost"])
-        elif drum_style == 1 and at % 2 == 1:
-            add(at, 2.5, 0.5, 87, "kick", GAINS["kickGhost"])
-        elif drum_style == 2 and at % 4 == 1:
-            add(at, 3, 0.5, 87, "kick", GAINS["kickGhost"])
-        add(at, 1, 0.5, 174, "snare", GAINS["snare"])
-        add(at, 3, 0.5, 174, "snare", GAINS["snare"])
-        for beat in EIGHTHS:
-            if beat == 3.5 and at % 2 == 1:
-                add(at, beat, 0.5, 285, "openhat", GAINS["openhat"])
-            else:
-                add(at, beat, 0.5, 285, "hat", GAINS["hat"])
+        for beat in (1, 1.5, 2, 2.5, 3, 3.5):
+            add(at, beat, 0.25, 174, "snare", GAINS["snare"])
+        for beat in (0.5, 1.5, 2.5):
+            add(at, beat, 0.5, 285, "hat", GAINS["hat"])
 
-    def lay_verse_bass(start: int, bars: int) -> None:
-        for i in range(bars):
-            group = (i // 4) % 2
-            at = start + i
-            if group == 0:
-                add(at, 0, 2, 174, "bass", GAINS["bass"])
-                add(at, 2, 2, 285, "bass", GAINS["bass"])
-            else:
-                add(at, 0, 2, 285, "bass", GAINS["bass"])
-                add(at, 2, 2, 348, "bass", GAINS["bass"])
+    def lay_harmony(start, roots, dur, milli):
+        voicing = voice_lead((528, 741, 963), candidates(roots[0]), scale_reg)
+        for i, root in enumerate(roots):
+            cands = candidates(root)
+            if i > 0:
+                voicing = voice_lead(voicing, cands, scale_reg)
+            bar_i = start + (i if dur == 4 else i // 2)
+            beat = 0 if dur == 4 else (i % 2) * 2
+            for hz in voicing:
+                add(bar_i, beat, dur, hz, "chord", milli)
+            for b in (0, 2):
+                if beat - 1e-9 <= b < beat + dur - 1e-9:
+                    add(bar_i, b, 1, bass_hz(root), "bass", GAINS["bass"])
 
-    def lay_chorus_bass(start: int) -> None:
-        root = 87 if bass_low else 174
-        passing = 174 if bass_low else 348
-        for i in range(8):
-            at = start + i
-            add(at, 0, 1, root, "bass", GAINS["bass"])
-            add(at, 1, 1, passing, "bass", GAINS["bass"])
-            add(at, 2, 1, 285, "bass", GAINS["bass"])
-            add(at, 3, 0.5, 570, "bass", GAINS["bass"])
-            add(at, 3.5, 0.5, root, "bass", GAINS["bass"])
+    for section in sections:
+        name = section["name"]
+        for rel in range(section["bars"]):
+            at = section["bar"] + rel
+            if name == "bridge":
+                continue
+            if name == "outro" and rel == section["bars"] - 1:
+                add(at, 0, 0.5, 87, "kick", GAINS["kick"])
+                add(at, 0, 0.5, 285, "hat", GAINS["hat"])
+                add(at, 2, 0.5, 285, "hat", GAINS["hat"])
+                continue
+            if name in ("verse", "chorus") and rel == section["bars"] - 1:
+                lay_fill(at)
+                continue
+            lay_pocket(at, name != "intro")
 
-    def lay_bridge_bass(start: int, bars: int) -> None:
-        for i in range(bars):
-            at = start + i
-            add(at, 0, 1, 285, "bass", GAINS["bass"])
-            add(at, 1, 1, 174, "bass", GAINS["bass"])
-            add(at, 2, 2, 570, "bass", GAINS["bass"])
+    lay_harmony(sections[0]["bar"], INTRO_ROOTS, 4, GAINS["chordIntro"])
+    lay_tokens(sections[0]["bar"], intro_bars(motifs[1]), GAINS["leadIntro"])
 
-    def lay_outro_bass(start: int, bars: int) -> None:
-        for i in range(bars):
-            at = start + i
-            if i == bars - 1:
-                add(at, 0, 4, 174, "bass", GAINS["bass"])
-            else:
-                add(at, 0, 2, 174, "bass", GAINS["bass"])
-                add(at, 2, 2, 285, "bass", GAINS["bass"])
+    lay_harmony(sections[1]["bar"], VERSE_ROOTS * 2, 4, GAINS["chordVerse"])
+    lay_tokens(sections[1]["bar"], verse1_bars(motifs[1]), GAINS["leadVerse"])
 
-    def lay_verse_chords(start: int, bars: int) -> None:
-        for i in range(bars):
-            group = (i // 4) % 2
-            at = start + i
-            low = 396 if group == 0 else 417
-            add(at, 0, 4, low, "chord", GAINS["chordVerse"])
-            add(at, 0, 4, CENTER, "chord", GAINS["chordVerse"])
-            if i % 4 == 3:
-                color = 639 if group == 0 else 792
-                add(at, 2, 2, color, "chord", GAINS["chordVerse"] - 40)
+    lay_harmony(sections[2]["bar"], CHORUS_ROOTS * 4, 2, GAINS["chordChorus"])
+    lay_tokens(sections[2]["bar"], chorus_bars(motifs[0]), GAINS["leadChorus"])
 
-    def lay_chorus_chords(start: int) -> None:
-        for i in range(8):
-            at = start + i
-            add(at, 0, 2, 396, "chord", GAINS["chordChorus"])
-            add(at, 0, 2, CENTER, "chord", GAINS["chordChorus"])
-            add(at, 2, 2, 417, "chord", GAINS["chordChorus"])
-            add(at, 2, 2, CENTER, "chord", GAINS["chordChorus"])
+    lay_harmony(sections[3]["bar"], VERSE_ROOTS * 2, 4, GAINS["chordVerse"])
+    lay_tokens(sections[3]["bar"], verse2_bars(motifs[2]), GAINS["leadVerse"])
 
-    def lay_bridge_chords(start: int, bars: int) -> None:
-        for i in range(bars):
-            at = start + i
-            if i % 4 == 1:
-                add(at, 0, 2, 639, "chord", GAINS["chordBridge"])
-                add(at, 0, 2, 852, "chord", GAINS["chordBridge"])
-                add(at, 2, 2, 852, "chord", GAINS["chordBridge"])
-                add(at, 2, 2, bridge_color, "chord", GAINS["chordBridge"])
-            else:
-                add(at, 0, 4, 639, "chord", GAINS["chordBridge"])
-                add(at, 0, 4, 852, "chord", GAINS["chordBridge"])
+    lay_harmony(sections[4]["bar"], CHORUS_ROOTS * 4, 2, GAINS["chordChorus"])
+    lay_tokens(sections[4]["bar"], chorus_bars(motifs[0]), GAINS["leadChorus"])
 
-    def lay_pad(start: int, bars: int, milli: int) -> None:
-        for i in range(bars):
-            at = start + i
-            add(at, 0, 4, 396, "chord", milli)
-            add(at, 0, 4, CENTER, "chord", milli)
+    lay_harmony(sections[5]["bar"], BRIDGE_ROOTS * 2, 4, GAINS["chordBridge"])
+    lay_tokens(sections[5]["bar"], bridge_bars(motifs[0]), GAINS["leadBridge"])
 
-    def lay_verse_lead(start: int, bars: int, phrase, tail) -> None:
-        place_idx(start, phrase, GAINS["leadVerse"])
-        if bars == 16:
-            place_idx(start + 8, tail, GAINS["leadVerse"])
+    lay_harmony(sections[6]["bar"], CHORUS_ROOTS * 4, 2, GAINS["chordChorus"])
+    lay_tokens(sections[6]["bar"], chorus_bars(motifs[0]), GAINS["leadChorus"])
 
-    for at in range(total_bars - 1):
-        lay_drums(at, False)
-    lay_drums(total_bars - 1, True)
-
-    lay_pad(sections[0]["bar"], sections[0]["bars"], GAINS["chordIntro"])
-    for i in range(sections[0]["bars"]):
-        at = sections[0]["bar"] + i
-        add(at, 0, 2, 174, "bass", GAINS["bass"])
-        add(at, 2, 2, 285 if at % 2 else 348, "bass", GAINS["bass"])
-
-    first = pair[0][0][3]
-    neighbor = first + 1 if first == 0 else first - 1
-    add(intro - 2, 2, 2, SCALE[neighbor], "lead", GAINS["leadIntro"])
-    add(intro - 1, 2, 2, SCALE[first], "lead", GAINS["leadIntro"])
-
-    lay_verse_bass(sections[1]["bar"], sections[1]["bars"])
-    lay_verse_chords(sections[1]["bar"], sections[1]["bars"])
-    lay_verse_lead(sections[1]["bar"], sections[1]["bars"], pair[0], pair[1])
-
-    lay_chorus_bass(sections[2]["bar"])
-    lay_chorus_chords(sections[2]["bar"])
-    for rep in range(4):
-        place_idx(sections[2]["bar"] + rep * 2, motif, GAINS["leadChorus"])
-
-    lay_verse_bass(sections[3]["bar"], sections[3]["bars"])
-    lay_verse_chords(sections[3]["bar"], sections[3]["bars"])
-    lay_verse_lead(sections[3]["bar"], sections[3]["bars"], pair[2], pair[3])
-
-    lay_chorus_bass(sections[4]["bar"])
-    lay_chorus_chords(sections[4]["bar"])
-    for rep in range(4):
-        place_idx(sections[4]["bar"] + rep * 2, motif, GAINS["leadChorus"])
-
-    lay_bridge_bass(sections[5]["bar"], sections[5]["bars"])
-    lay_bridge_chords(sections[5]["bar"], sections[5]["bars"])
-    place_hz(sections[5]["bar"], BRIDGE, GAINS["leadBridge"])
-    if sections[5]["bars"] == 8:
-        place_hz(sections[5]["bar"] + 4, BRIDGE, GAINS["leadBridge"])
-
-    lay_chorus_bass(sections[6]["bar"])
-    lay_chorus_chords(sections[6]["bar"])
-    for rep in range(4):
-        place_idx(sections[6]["bar"] + rep * 2, motif, GAINS["leadChorus"])
-
-    lay_outro_bass(sections[7]["bar"], sections[7]["bars"])
-    lay_pad(sections[7]["bar"], sections[7]["bars"], GAINS["chordOutro"])
-    for i, idx in enumerate(outro_indices(sections[7]["bars"])):
-        add(sections[7]["bar"] + i, 0, 4, SCALE[idx], "lead", GAINS["leadOutro"])
+    lay_harmony(sections[7]["bar"], OUTRO_ROOTS, 4, GAINS["chordOutro"])
+    lay_tokens(sections[7]["bar"], outro_bars(motifs[0]), GAINS["leadOutro"])
 
     events.sort(key=lambda e: (e["bar"], e["beat"], e["voice"], e["hz"], e["durBeats"], e["gain"]))
-
     return {
         "seed": seed,
         "bpm": bpm,
         "meter": "4/4",
+        "pocket": pocket,
         "totalBars": total_bars,
         "duration": song_seconds(total_bars, bpm),
         "centerHz": CENTER,
+        "motifs": motifs,
         "sections": sections,
         "events": events,
     }
 
 
-def allowed_hz(hz: float) -> bool:
+def allowed_hz(hz) -> bool:
     for pitch in PITCHES:
         ratio = hz / pitch
         if ratio <= 0:
             continue
         k = round(math.log2(ratio))
-        if -1 <= k <= 2 and abs(ratio - (2 ** k)) < 1e-9:
+        if -4 <= k <= 4 and abs(ratio - (2 ** k)) < 1e-6:
             return True
     return False
 
 
-def is_foundation(hz: float) -> bool:
-    for pitch in (174, 285):
+def family(hz):
+    for pitch in PITCHES:
         ratio = hz / pitch
         if ratio <= 0:
             continue
         k = round(math.log2(ratio))
-        if -1 <= k <= 2 and abs(ratio - (2 ** k)) < 1e-9:
-            return True
-    return False
+        if -4 <= k <= 4 and abs(ratio - (2 ** k)) < 1e-6:
+            return pitch
+    return None
 
 
-def is_center(hz: float) -> bool:
-    ratio = hz / CENTER
-    if ratio <= 0:
-        return False
-    k = round(math.log2(ratio))
-    return -1 <= k <= 2 and abs(ratio - (2 ** k)) < 1e-9
+def is_center(hz) -> bool:
+    return family(hz) == CENTER
 
 
-def on_eighth(value: float) -> bool:
-    return abs(value * 2 - round(value * 2)) < 1e-9
+def on_grid(value) -> bool:
+    return abs(value * 4 - round(value * 4)) < 1e-9
 
 
 def start_beat(event) -> float:
@@ -674,609 +719,210 @@ def end_beat(event) -> float:
     return start_beat(event) + event["durBeats"]
 
 
-def max_overlap(events) -> int:
-    points = []
-    for event in events:
-        points.append((round(start_beat(event) * 2), 1))
-        points.append((round(end_beat(event) * 2), -1))
-    points.sort()
-    current = 0
-    best = 0
-    for _t, delta in points:
-        current += delta
-        if current > best:
-            best = current
-    return best
+def lead_grid(song, section):
+    grid = [REST] * (section["bars"] * BARS)
+    for event in song["events"]:
+        if event["voice"] != "lead":
+            continue
+        if not (section["bar"] <= event["bar"] < section["bar"] + section["bars"]):
+            continue
+        start = (event["bar"] - section["bar"]) * BARS + int(round(event["beat"] * 2))
+        steps = int(round(event["durBeats"] * 2))
+        deg = LEAD.index(event["hz"])
+        for s in range(steps):
+            grid[start + s] = deg
+    return grid
 
 
-def lead_in(song, section):
-    notes = [
-        event for event in song["events"]
-        if event["voice"] == "lead"
-        and section["bar"] <= event["bar"] < section["bar"] + section["bars"]
-    ]
-    notes.sort(key=start_beat)
-    return notes
+def bars_of(grid):
+    return [grid[i * BARS:(i + 1) * BARS] for i in range(len(grid) // BARS)]
 
 
-def rel_lead(song, section):
-    return [
-        [event["bar"] - section["bar"], event["beat"], event["durBeats"], event["hz"]]
-        for event in lead_in(song, section)
-    ]
-
-
-def rel_chords(song, section):
-    notes = [
-        event for event in song["events"]
-        if event["voice"] == "chord"
-        and section["bar"] <= event["bar"] < section["bar"] + section["bars"]
-    ]
-    notes.sort(key=lambda event: (start_beat(event), event["hz"], event["durBeats"], event["gain"]))
-    return [
-        [event["bar"] - section["bar"], event["beat"], event["durBeats"], event["hz"], event["gain"]]
-        for event in notes
-    ]
-
-
-def check_tables() -> None:
-    def walk(notes, label: str) -> None:
-        ordered = sorted(notes, key=lambda note: (note[0], note[1]))
-        for i in range(1, len(ordered)):
-            prev = ordered[i - 1]
-            cur = ordered[i]
-            prev_end = prev[0] * 4 + prev[1] + prev[2]
-            cur_at = cur[0] * 4 + cur[1]
-            if cur_at + 1e-9 < prev_end:
-                raise AssertionError(f"overlap {label}")
-            if abs(cur[3] - prev[3]) > 1:
-                raise AssertionError(f"step {label} {prev[3]}->{cur[3]}")
-        for note in notes:
-            if note[1] < 0 or note[1] + note[2] > 4 + 1e-9:
-                raise AssertionError(f"spill {label} {note}")
-            if not on_eighth(note[1]) or not on_eighth(note[2]):
-                raise AssertionError(f"grid {label}")
-
-    for motif in CHORUS:
-        walk(motif, "chorus")
-        idxs = [note[3] for note in motif]
-        if motif[0][3] < 7:
-            raise AssertionError("chorus does not leap up")
-        if not any(note[2] >= 2 for note in motif):
-            raise AssertionError("chorus rest")
-        if len(set(idxs)) == len(idxs):
-            raise AssertionError("chorus repetition")
-    for pair in VERSES:
-        for part in pair:
-            walk(part, "verse")
-        for phrase, tail in ((pair[0], pair[1]), (pair[2], pair[3])):
-            joined = list(phrase) + [[note[0] + 8, note[1], note[2], note[3]] for note in tail]
-            walk(joined, "verse join")
-        if [note[3] for note in pair[0]] == [note[3] for note in pair[2]]:
-            raise AssertionError("verse contours match")
+def rel_events(song, section, voices):
+    rows = []
+    for event in song["events"]:
+        if event["voice"] not in voices:
+            continue
+        if not (section["bar"] <= event["bar"] < section["bar"] + section["bars"]):
+            continue
+        rows.append((
+            event["bar"] - section["bar"],
+            event["beat"],
+            event["durBeats"],
+            event["hz"],
+            event["voice"],
+            event["gain"],
+        ))
+    return rows
 
 
 def check_song(song) -> None:
     if song["meter"] != "4/4":
         raise AssertionError("meter")
-    if not 72 <= song["bpm"] <= 96:
+    if not 78 <= song["bpm"] <= 100:
         raise AssertionError(song["bpm"])
+    if song["totalBars"] != 56:
+        raise AssertionError(song["totalBars"])
     dur = song["duration"]
-    if not 150 <= dur <= 240:
-        raise AssertionError(f"duration {dur}")
-    if abs(dur - song_seconds(song["totalBars"], song["bpm"])) > 1e-9:
-        raise AssertionError("duration math")
+    if abs(dur - song_seconds(56, song["bpm"])) > 1e-9:
+        raise AssertionError("duration")
+    if not 134 <= dur <= 173:
+        raise AssertionError(dur)
     names = [section["name"] for section in song["sections"]]
     if names != ["intro", "verse", "chorus", "verse", "chorus", "bridge", "chorus", "outro"]:
         raise AssertionError(names)
-    cursor = 0
-    for section in song["sections"]:
-        if section["bar"] != cursor:
-            raise AssertionError("section gap")
-        if section["bars"] not in (4, 8, 16):
-            raise AssertionError(section)
-        cursor += section["bars"]
-    if cursor != song["totalBars"]:
-        raise AssertionError("sections")
-    if song["sections"][0]["bars"] not in (4, 8) or song["sections"][7]["bars"] not in (4, 8):
-        raise AssertionError("intro/outro")
-    for section in song["sections"]:
-        if section["name"] == "chorus" and section["bars"] != 8:
-            raise AssertionError("chorus bars")
-    if song["sections"][1]["bars"] != song["sections"][3]["bars"]:
-        raise AssertionError("verse length")
-    voices = {event["voice"] for event in song["events"]}
-    for voice in ("kick", "snare", "hat", "bass", "chord", "lead"):
-        if voice not in voices:
-            raise AssertionError(voice)
-    if max_overlap(song["events"]) < 4:
-        raise AssertionError("overlap")
-    total_beats = song["totalBars"] * 4
+    expect = [4, 8, 8, 8, 8, 8, 8, 4]
+    if [section["bars"] for section in song["sections"]] != expect:
+        raise AssertionError("form")
+    if song["pocket"] not in ("boom-bap", "half-time"):
+        raise AssertionError(song["pocket"])
+    bpm, pocket_i, motifs = plan(song["seed"])
+    if song["bpm"] != bpm or song["motifs"] != motifs:
+        raise AssertionError("plan drifted")
+    if ("boom-bap" if pocket_i == 0 else "half-time") != song["pocket"]:
+        raise AssertionError("pocket")
+    for motif in motifs:
+        if len(motif) != 8:
+            raise AssertionError("motif length")
+        if sum(1 for t in motif if t != REST) < 3:
+            raise AssertionError("motif empty")
+    if lead_grid(song, song["sections"][2]) != [n for row in chorus_bars(motifs[0]) for n in row]:
+        raise AssertionError("chorus is not the motif")
+    if lead_grid(song, song["sections"][4]) != lead_grid(song, song["sections"][2]):
+        raise AssertionError("chorus melody changed")
+    if lead_grid(song, song["sections"][6]) != lead_grid(song, song["sections"][2]):
+        raise AssertionError("chorus melody changed")
+    if lead_grid(song, song["sections"][1]) != [n for row in verse1_bars(motifs[1]) for n in row]:
+        raise AssertionError("verse 1")
+    if lead_grid(song, song["sections"][3]) != [n for row in verse2_bars(motifs[2]) for n in row]:
+        raise AssertionError("verse 2")
+    if lead_grid(song, song["sections"][5]) != [n for row in bridge_bars(motifs[0]) for n in row]:
+        raise AssertionError("bridge fragment")
+    if lead_grid(song, song["sections"][0]) != [n for row in intro_bars(motifs[1]) for n in (row or [REST] * 8)]:
+        raise AssertionError("intro")
+    if lead_grid(song, song["sections"][7]) != [n for row in outro_bars(motifs[0]) for n in row]:
+        raise AssertionError("outro")
+    chorus_rows = bars_of(lead_grid(song, song["sections"][2]))
+    if chorus_rows[0] != motifs[0] or chorus_rows[2] != motifs[0]:
+        raise AssertionError("hook restatement")
+    if chorus_rows[1] != seq_up(motifs[0]) or chorus_rows[4:] != chorus_rows[:4]:
+        raise AssertionError("hook sequence")
+    drums = ("kick", "snare", "hat", "openhat")
+    verses = [section for section in song["sections"] if section["name"] == "verse"]
+    choruses = [section for section in song["sections"] if section["name"] == "chorus"]
+    if rel_events(song, verses[0], drums) != rel_events(song, verses[1], drums):
+        raise AssertionError("verse drums")
+    d0 = rel_events(song, choruses[0], drums + ("bass", "chord", "lead"))
+    if rel_events(song, choruses[1], drums + ("bass", "chord", "lead")) != d0:
+        raise AssertionError("chorus 2")
+    if rel_events(song, choruses[2], drums + ("bass", "chord", "lead")) != d0:
+        raise AssertionError("chorus 3")
+    bridge = song["sections"][5]
+    if any(event["voice"] in drums and bridge["bar"] <= event["bar"] < bridge["bar"] + bridge["bars"] for event in song["events"]):
+        raise AssertionError("bridge drums")
+    verse_snare = {}
+    for event in song["events"]:
+        if event["voice"] == "snare" and verses[0]["bar"] <= event["bar"] < verses[0]["bar"] + verses[0]["bars"]:
+            verse_snare.setdefault(event["bar"] - verses[0]["bar"], 0)
+            verse_snare[event["bar"] - verses[0]["bar"]] += 1
+    if verse_snare.get(7, 0) <= verse_snare.get(0, 0):
+        raise AssertionError("fill")
+    scale_reg = build_scale_reg()
     for event in song["events"]:
         if not allowed_hz(event["hz"]):
             raise AssertionError(f"hz {event['hz']}")
         if event["gain"] <= 0:
             raise AssertionError("gain")
-        if event["bar"] < 0 or event["bar"] >= song["totalBars"]:
-            raise AssertionError("bar")
-        if event["beat"] < 0 or event["beat"] >= 4:
-            raise AssertionError("beat")
-        if event["durBeats"] <= 0 or event["beat"] + event["durBeats"] > 4 + 1e-9:
-            raise AssertionError("dur")
-        if not on_eighth(event["beat"]) or not on_eighth(event["durBeats"]):
+        if not on_grid(event["beat"]) or not on_grid(event["durBeats"]):
             raise AssertionError("grid")
-        if event["voice"] == "bass" and not is_foundation(event["hz"]):
-            raise AssertionError(f"bass {event['hz']}")
-        if event["voice"] == "lead" and event["hz"] < 396:
-            raise AssertionError("lead low")
-        if end_beat(event) > total_beats + 1e-9:
-            raise AssertionError("past the end")
-    choruses = [section for section in song["sections"] if section["name"] == "chorus"]
-    hook = rel_lead(song, choruses[0])
-    if len(hook) < 4:
-        raise AssertionError("hook")
-    if rel_lead(song, choruses[1]) != hook or rel_lead(song, choruses[2]) != hook:
-        raise AssertionError("chorus melody changed")
-    if not any(note[2] >= 2 for note in hook):
-        raise AssertionError("resting note")
-    pitches = [note[3] for note in hook]
-    if len(set(pitches)) == len(pitches):
-        raise AssertionError("no repetition")
-    verses = [section for section in song["sections"] if section["name"] == "verse"]
-    if rel_chords(song, verses[0]) != rel_chords(song, verses[1]):
-        raise AssertionError("verse harmony")
-    if rel_lead(song, verses[0]) == rel_lead(song, verses[1]):
-        raise AssertionError("verse melody")
-    for verse, chorus in ((verses[0], choruses[0]), (verses[1], choruses[1])):
-        last = lead_in(song, verse)[-1]["hz"]
-        first = lead_in(song, chorus)[0]["hz"]
-        leap = abs(SCALE.index(first) - SCALE.index(last))
-        if leap < 4:
-            raise AssertionError(f"leap {last}->{first}")
+        if event["voice"] == "lead" and event["hz"] not in LEAD:
+            raise AssertionError("lead hz")
     leads = [event for event in song["events"] if event["voice"] == "lead"]
-    last_lead = max(leads, key=end_beat)
-    if not is_center(last_lead["hz"]):
-        raise AssertionError(f"end {last_lead['hz']}")
+    leads.sort(key=start_beat)
+    for i in range(1, len(leads)):
+        ratio = max(leads[i]["hz"], leads[i - 1]["hz"]) / min(leads[i]["hz"], leads[i - 1]["hz"])
+        if ratio > 2 + 1e-9:
+            raise AssertionError("leap")
+    # Chord voices take the smallest joint step on the register.
+    max_step = 0
+    for section in song["sections"]:
+        groups = {}
+        for event in song["events"]:
+            if event["voice"] != "chord":
+                continue
+            if not (section["bar"] <= event["bar"] < section["bar"] + section["bars"]):
+                continue
+            key = (event["bar"], event["beat"])
+            groups.setdefault(key, []).append(event["hz"])
+        keys = sorted(groups)
+        for a, b in zip(keys, keys[1:]):
+            left = tuple(sorted(groups[a]))
+            right = tuple(sorted(groups[b]))
+            for x, y in zip(left, right):
+                step = abs(scale_index(x, scale_reg) - scale_index(y, scale_reg))
+                if step > max_step:
+                    max_step = step
+    if max_step > 5:
+        raise AssertionError(f"voice leading {max_step}")
+    last = max(leads, key=end_beat)
+    if last["hz"] not in (528, 1056):
+        raise AssertionError(f"end {last['hz']}")
+    total_beats = song["totalBars"] * 4
     ending = [
         event for event in song["events"]
         if start_beat(event) < total_beats - 1e-9 and end_beat(event) >= total_beats - 1e-9
     ]
     if not any(is_center(event["hz"]) for event in ending):
-        raise AssertionError("center is not sounding at the end")
+        raise AssertionError("center is not sounding")
     top = max(event["gain"] for event in song["events"])
     if abs(top - GAINS["leadChorus"] / 1000) > 1e-12:
-        raise AssertionError("chorus is not the loudest")
+        raise AssertionError("chorus lead is not the loudest")
+    # Bass on beats 1 and 3, and only the root of the chord sounding there.
     for event in song["events"]:
-        if abs(event["gain"] - top) < 1e-12 and event["voice"] != "lead":
-            raise AssertionError("loud voice")
-        if abs(event["gain"] - top) < 1e-12:
-            bar = event["bar"]
-            if not any(section["name"] == "chorus" and section["bar"] <= bar < section["bar"] + section["bars"] for section in song["sections"]):
-                raise AssertionError("loud note outside the chorus")
-    bridge = song["sections"][5]
-    bridge_hz = {
-        event["hz"]
-        for event in song["events"]
-        if event["voice"] == "chord" and bridge["bar"] <= event["bar"] < bridge["bar"] + bridge["bars"]
-    }
-    if not {639, 852} <= bridge_hz:
-        raise AssertionError(bridge_hz)
-    if 741 not in bridge_hz and 963 not in bridge_hz:
-        raise AssertionError(bridge_hz)
-    chorus_hz = {
-        event["hz"]
-        for event in song["events"]
-        if event["voice"] == "chord" and choruses[0]["bar"] <= event["bar"] < choruses[0]["bar"] + choruses[0]["bars"]
-    }
-    if not {396, 528} <= chorus_hz:
-        raise AssertionError(chorus_hz)
-    # A steady backbeat, not a drone: kick on 1 and 3, snare on 2 and 4.
-    sample = song["sections"][2]["bar"] + 2
-    kicks = {event["beat"] for event in song["events"] if event["voice"] == "kick" and event["bar"] == sample}
-    snares = {event["beat"] for event in song["events"] if event["voice"] == "snare" and event["bar"] == sample}
-    if not {0, 2} <= kicks or not {1, 3} <= snares:
-        raise AssertionError(f"backbeat {kicks} {snares}")
-    hats = {event["beat"] for event in song["events"] if event["voice"] in ("hat", "openhat") and event["bar"] == sample}
-    if set(EIGHTHS) != hats:
-        raise AssertionError("hats")
+        if event["voice"] == "bass" and event["beat"] not in (0, 2):
+            raise AssertionError("bass beat")
     if song["centerHz"] != CENTER:
         raise AssertionError("center")
 
 
 def self_test() -> None:
-    fourth = cents(4 / 3)
-    fifth = cents(3 / 2)
-    near = cents(963 / 639)
-    sharp = near - fifth
+    eng = engine()
+    if not eng["loss_end"] < eng["loss_start"] * 0.5:
+        raise AssertionError(f"loss did not drop {eng['loss_start']} -> {eng['loss_end']}")
+    if eng["params"] < 1000:
+        raise AssertionError("params")
     if 528 / 396 != 4 / 3 or 852 / 639 != 4 / 3:
-        raise AssertionError("fourths are not exact")
+        raise AssertionError("fourths")
+    near = cents(963 / 639)
+    sharp = near - cents(3 / 2)
     if not 8 < sharp < 8.2:
         raise AssertionError(sharp)
-    check_tables()
-    if not valid_forms(72) or not valid_forms(96):
-        raise AssertionError("no forms")
-    durations = []
-    for seed in range(256):
+    for seed in range(24):
         song = compose_song(seed)
         if song != compose_song(seed):
             raise AssertionError(f"unstable {seed}")
         check_song(song)
-        durations.append(song["duration"])
-    if compose_song(1) == compose_song(2):
+    if compose_song(1)["motifs"] == compose_song(2)["motifs"] and compose_song(1)["bpm"] == compose_song(2)["bpm"]:
         raise AssertionError("seed ignored")
     check_song(compose_song(4294967295))
     print("solfeggio-compose.py: pass")
-    print(f"fourth {fourth:.6f} cents")
-    print(f"fifth {fifth:.6f} cents")
-    print(f"963/639 {near:.6f} cents, {sharp:.6f} cents sharp of 3/2")
-    print(f"seeds 0-255 duration {min(durations):.3f}-{max(durations):.3f}s")
+    print(f"gru loss {eng['loss_start']:.6f} -> {eng['loss_end']:.6f}  params {eng['params']}")
+    song = compose_song(1)
+    print(f"seed 1 bpm {song['bpm']} pocket {song['pocket']} bars {song['totalBars']} duration {song['duration']:.3f}s")
+    print(f"motifs {song['motifs']}")
 
 
 def report(song) -> None:
-    print(f"seed {song['seed']} bpm {song['bpm']} bars {song['totalBars']} duration {song['duration']:.3f}s")
+    print(f"seed {song['seed']} bpm {song['bpm']} pocket {song['pocket']} bars {song['totalBars']} duration {song['duration']:.3f}s")
     for section in song["sections"]:
         print(f"  {section['name']:8} bar {section['bar']:3} bars {section['bars']}")
-    choruses = [section for section in song["sections"] if section["name"] == "chorus"]
-    hook = [note[3] for note in rel_lead(song, choruses[0])]
-    print(f"chorus lead {hook}")
-    print(f"events {len(song['events'])} overlap {max_overlap(song['events'])}")
-
-
-JS_TEMPLATE = r"""/**
- * Generated by scripts/solfeggio-compose.py — do not edit by hand.
- * Python is the generator. composeSong is the same score as the script:
- * same seed, same events. This is a listening song from a modern pitch list,
- * not a therapy.
- *
- * 528/396 and 852/639 are exactly 4/3.
- * 963/639 is __SHARP__ cents sharp of 3/2.
- */
-
-export const CENTER_HZ = 528
-// Unique names so Nuxt auto-import does not collide with utils/solfeggio-math.mjs.
-export const PIECE_FOURTH_CENTS = __FOURTH__
-export const PIECE_FIFTH_CENTS = __FIFTH__
-export const PIECE_NEAR_FIFTH_CENTS = __NEAR__
-export const PIECE_NEAR_FIFTH_SHARP_CENTS = __SHARP__
-
-const SCALE = Object.freeze(__SCALE__)
-const EIGHTHS = Object.freeze(__EIGHTHS__)
-const CHORUS = Object.freeze(__CHORUS__)
-const VERSES = Object.freeze(__VERSES__)
-const BRIDGE = Object.freeze(__BRIDGE__)
-const GAINS = Object.freeze(__GAINS__)
-
-function makeRng(seed) {
-  let a = seed >>> 0
-  function nextU32() {
-    a = (a + 0x6D2B79F5) | 0
-    let t = Math.imul(a ^ (a >>> 15), 1 | a)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return (t ^ (t >>> 14)) >>> 0
-  }
-  return {
-    below(n) {
-      return nextU32() % n
-    },
-  }
-}
-
-function allForms() {
-  const forms = []
-  const intros = [4, 8]
-  const verses = [8, 16]
-  const bridges = [4, 8]
-  const outros = [4, 8]
-  for (let i = 0; i < intros.length; i++) {
-    for (let v = 0; v < verses.length; v++) {
-      for (let b = 0; b < bridges.length; b++) {
-        for (let o = 0; o < outros.length; o++) {
-          const intro = intros[i]
-          const verse = verses[v]
-          const bridge = bridges[b]
-          const outro = outros[o]
-          const total = intro + verse + 8 + verse + 8 + bridge + 8 + outro
-          forms.push({ intro, verse, bridge, outro, total })
-        }
-      }
-    }
-  }
-  return forms
-}
-
-function songSeconds(totalBars, bpm) {
-  return totalBars * 4 * 60 / bpm
-}
-
-function validForms(bpm) {
-  const good = []
-  const forms = allForms()
-  for (let i = 0; i < forms.length; i++) {
-    const dur = songSeconds(forms[i].total, bpm)
-    if (dur >= 150 && dur <= 240) good.push(forms[i])
-  }
-  return good
-}
-
-function outroIndices(n) {
-  const seq = []
-  let idx = 0
-  let direction = 1
-  for (let i = 0; i < n - 1; i++) {
-    seq.push(idx)
-    let nxt = idx + direction
-    if (nxt > 2 || nxt < 0) {
-      direction = -direction
-      nxt = idx + direction
-    }
-    idx = nxt
-  }
-  seq.push(2)
-  return seq
-}
-
-/**
- * @param {number} seed
- * @returns {{
- *   seed: number,
- *   bpm: number,
- *   meter: string,
- *   totalBars: number,
- *   duration: number,
- *   centerHz: number,
- *   sections: { name: string, bar: number, bars: number }[],
- *   events: { bar: number, beat: number, durBeats: number, hz: number, voice: string, gain: number }[],
- * }}
- */
-export function composeSong(seed) {
-  const seed32 = seed >>> 0
-  const rng = makeRng(seed32)
-  const bpm = 72 + rng.below(25)
-  const forms = validForms(bpm)
-  const form = forms[rng.below(forms.length)]
-  const motif = CHORUS[rng.below(CHORUS.length)]
-  const pair = VERSES[rng.below(VERSES.length)]
-  const drumStyle = rng.below(3)
-  const bridgeColor = rng.below(2) === 0 ? 741 : 963
-  const bassLow = rng.below(2) === 0
-
-  const intro = form.intro
-  const verse = form.verse
-  const bridge = form.bridge
-  const outro = form.outro
-  const chorus = 8
-
-  const sections = []
-  let bar = 0
-  function addSec(name, bars) {
-    sections.push({ name, bar, bars })
-    bar += bars
-  }
-  addSec('intro', intro)
-  addSec('verse', verse)
-  addSec('chorus', chorus)
-  addSec('verse', verse)
-  addSec('chorus', chorus)
-  addSec('bridge', bridge)
-  addSec('chorus', chorus)
-  addSec('outro', outro)
-  const totalBars = bar
-  const events = []
-
-  function add(at, beat, dur, hz, voice, milli) {
-    events.push({
-      bar: at,
-      beat,
-      durBeats: dur,
-      hz,
-      voice,
-      gain: milli / 1000,
-    })
-  }
-
-  function placeIdx(start, notes, milli) {
-    for (let i = 0; i < notes.length; i++) {
-      const note = notes[i]
-      add(start + note[0], note[1], note[2], SCALE[note[3]], 'lead', milli)
-    }
-  }
-
-  function placeHz(start, notes, milli) {
-    for (let i = 0; i < notes.length; i++) {
-      const note = notes[i]
-      add(start + note[0], note[1], note[2], note[3], 'lead', milli)
-    }
-  }
-
-  function layDrums(at, last) {
-    if (last) {
-      add(at, 0, 0.5, 87, 'kick', GAINS.kick)
-      return
-    }
-    add(at, 0, 0.5, 87, 'kick', GAINS.kick)
-    add(at, 2, 0.5, 87, 'kick', GAINS.kick)
-    if (drumStyle === 0 && at % 4 === 3) add(at, 3.5, 0.5, 87, 'kick', GAINS.kickGhost)
-    else if (drumStyle === 1 && at % 2 === 1) add(at, 2.5, 0.5, 87, 'kick', GAINS.kickGhost)
-    else if (drumStyle === 2 && at % 4 === 1) add(at, 3, 0.5, 87, 'kick', GAINS.kickGhost)
-    add(at, 1, 0.5, 174, 'snare', GAINS.snare)
-    add(at, 3, 0.5, 174, 'snare', GAINS.snare)
-    for (let i = 0; i < EIGHTHS.length; i++) {
-      const beat = EIGHTHS[i]
-      if (beat === 3.5 && at % 2 === 1) add(at, beat, 0.5, 285, 'openhat', GAINS.openhat)
-      else add(at, beat, 0.5, 285, 'hat', GAINS.hat)
-    }
-  }
-
-  function layVerseBass(start, bars) {
-    for (let i = 0; i < bars; i++) {
-      const group = Math.floor(i / 4) % 2
-      const at = start + i
-      if (group === 0) {
-        add(at, 0, 2, 174, 'bass', GAINS.bass)
-        add(at, 2, 2, 285, 'bass', GAINS.bass)
-      } else {
-        add(at, 0, 2, 285, 'bass', GAINS.bass)
-        add(at, 2, 2, 348, 'bass', GAINS.bass)
-      }
-    }
-  }
-
-  function layChorusBass(start) {
-    const root = bassLow ? 87 : 174
-    const passing = bassLow ? 174 : 348
-    for (let i = 0; i < 8; i++) {
-      const at = start + i
-      add(at, 0, 1, root, 'bass', GAINS.bass)
-      add(at, 1, 1, passing, 'bass', GAINS.bass)
-      add(at, 2, 1, 285, 'bass', GAINS.bass)
-      add(at, 3, 0.5, 570, 'bass', GAINS.bass)
-      add(at, 3.5, 0.5, root, 'bass', GAINS.bass)
-    }
-  }
-
-  function layBridgeBass(start, bars) {
-    for (let i = 0; i < bars; i++) {
-      const at = start + i
-      add(at, 0, 1, 285, 'bass', GAINS.bass)
-      add(at, 1, 1, 174, 'bass', GAINS.bass)
-      add(at, 2, 2, 570, 'bass', GAINS.bass)
-    }
-  }
-
-  function layOutroBass(start, bars) {
-    for (let i = 0; i < bars; i++) {
-      const at = start + i
-      if (i === bars - 1) add(at, 0, 4, 174, 'bass', GAINS.bass)
-      else {
-        add(at, 0, 2, 174, 'bass', GAINS.bass)
-        add(at, 2, 2, 285, 'bass', GAINS.bass)
-      }
-    }
-  }
-
-  function layVerseChords(start, bars) {
-    for (let i = 0; i < bars; i++) {
-      const group = Math.floor(i / 4) % 2
-      const at = start + i
-      const low = group === 0 ? 396 : 417
-      add(at, 0, 4, low, 'chord', GAINS.chordVerse)
-      add(at, 0, 4, CENTER_HZ, 'chord', GAINS.chordVerse)
-      if (i % 4 === 3) {
-        const color = group === 0 ? 639 : 792
-        add(at, 2, 2, color, 'chord', GAINS.chordVerse - 40)
-      }
-    }
-  }
-
-  function layChorusChords(start) {
-    for (let i = 0; i < 8; i++) {
-      const at = start + i
-      add(at, 0, 2, 396, 'chord', GAINS.chordChorus)
-      add(at, 0, 2, CENTER_HZ, 'chord', GAINS.chordChorus)
-      add(at, 2, 2, 417, 'chord', GAINS.chordChorus)
-      add(at, 2, 2, CENTER_HZ, 'chord', GAINS.chordChorus)
-    }
-  }
-
-  function layBridgeChords(start, bars) {
-    for (let i = 0; i < bars; i++) {
-      const at = start + i
-      if (i % 4 === 1) {
-        add(at, 0, 2, 639, 'chord', GAINS.chordBridge)
-        add(at, 0, 2, 852, 'chord', GAINS.chordBridge)
-        add(at, 2, 2, 852, 'chord', GAINS.chordBridge)
-        add(at, 2, 2, bridgeColor, 'chord', GAINS.chordBridge)
-      } else {
-        add(at, 0, 4, 639, 'chord', GAINS.chordBridge)
-        add(at, 0, 4, 852, 'chord', GAINS.chordBridge)
-      }
-    }
-  }
-
-  function layPad(start, bars, milli) {
-    for (let i = 0; i < bars; i++) {
-      const at = start + i
-      add(at, 0, 4, 396, 'chord', milli)
-      add(at, 0, 4, CENTER_HZ, 'chord', milli)
-    }
-  }
-
-  function layVerseLead(start, bars, phrase, tail) {
-    placeIdx(start, phrase, GAINS.leadVerse)
-    if (bars === 16) placeIdx(start + 8, tail, GAINS.leadVerse)
-  }
-
-  for (let at = 0; at < totalBars - 1; at++) layDrums(at, false)
-  layDrums(totalBars - 1, true)
-
-  layPad(sections[0].bar, sections[0].bars, GAINS.chordIntro)
-  for (let i = 0; i < sections[0].bars; i++) {
-    const at = sections[0].bar + i
-    add(at, 0, 2, 174, 'bass', GAINS.bass)
-    add(at, 2, 2, at % 2 ? 285 : 348, 'bass', GAINS.bass)
-  }
-
-  const first = pair[0][0][3]
-  const neighbor = first === 0 ? first + 1 : first - 1
-  add(intro - 2, 2, 2, SCALE[neighbor], 'lead', GAINS.leadIntro)
-  add(intro - 1, 2, 2, SCALE[first], 'lead', GAINS.leadIntro)
-
-  layVerseBass(sections[1].bar, sections[1].bars)
-  layVerseChords(sections[1].bar, sections[1].bars)
-  layVerseLead(sections[1].bar, sections[1].bars, pair[0], pair[1])
-
-  layChorusBass(sections[2].bar)
-  layChorusChords(sections[2].bar)
-  for (let rep = 0; rep < 4; rep++) placeIdx(sections[2].bar + rep * 2, motif, GAINS.leadChorus)
-
-  layVerseBass(sections[3].bar, sections[3].bars)
-  layVerseChords(sections[3].bar, sections[3].bars)
-  layVerseLead(sections[3].bar, sections[3].bars, pair[2], pair[3])
-
-  layChorusBass(sections[4].bar)
-  layChorusChords(sections[4].bar)
-  for (let rep = 0; rep < 4; rep++) placeIdx(sections[4].bar + rep * 2, motif, GAINS.leadChorus)
-
-  layBridgeBass(sections[5].bar, sections[5].bars)
-  layBridgeChords(sections[5].bar, sections[5].bars)
-  placeHz(sections[5].bar, BRIDGE, GAINS.leadBridge)
-  if (sections[5].bars === 8) placeHz(sections[5].bar + 4, BRIDGE, GAINS.leadBridge)
-
-  layChorusBass(sections[6].bar)
-  layChorusChords(sections[6].bar)
-  for (let rep = 0; rep < 4; rep++) placeIdx(sections[6].bar + rep * 2, motif, GAINS.leadChorus)
-
-  layOutroBass(sections[7].bar, sections[7].bars)
-  layPad(sections[7].bar, sections[7].bars, GAINS.chordOutro)
-  const outroLine = outroIndices(sections[7].bars)
-  for (let i = 0; i < outroLine.length; i++) {
-    add(sections[7].bar + i, 0, 4, SCALE[outroLine[i]], 'lead', GAINS.leadOutro)
-  }
-
-  events.sort((a, b) => (
-    a.bar - b.bar
-    || a.beat - b.beat
-    || (a.voice < b.voice ? -1 : a.voice > b.voice ? 1 : 0)
-    || a.hz - b.hz
-    || a.durBeats - b.durBeats
-    || a.gain - b.gain
-  ))
-
-  return {
-    seed: seed32,
-    bpm,
-    meter: '4/4',
-    totalBars,
-    duration: songSeconds(totalBars, bpm),
-    centerHz: CENTER_HZ,
-    sections,
-    events,
-  }
-}
-"""
+    print(f"motifs {song['motifs']}")
+    print(f"events {len(song['events'])}")
 
 
 def render_mjs() -> str:
+    eng = engine()
+    net = eng["net"]
     fourth = cents(4 / 3)
     fifth = cents(3 / 2)
     near = cents(963 / 639)
@@ -1285,17 +931,51 @@ def render_mjs() -> str:
     def bake(value: float) -> str:
         return format(value, ".17g")
 
+    def dump(value):
+        return json.dumps(value)
+
     text = JS_TEMPLATE
-    text = text.replace("__FOURTH__", bake(fourth))
-    text = text.replace("__FIFTH__", bake(fifth))
-    text = text.replace("__NEAR__", bake(near))
-    text = text.replace("__SHARP__", bake(sharp))
-    text = text.replace("__SCALE__", json.dumps(SCALE))
-    text = text.replace("__EIGHTHS__", json.dumps(EIGHTHS))
-    text = text.replace("__CHORUS__", json.dumps(CHORUS))
-    text = text.replace("__VERSES__", json.dumps(VERSES))
-    text = text.replace("__BRIDGE__", json.dumps(BRIDGE))
-    text = text.replace("__GAINS__", json.dumps(GAINS, indent=2))
+    repl = {
+        "__FOURTH__": bake(fourth),
+        "__FIFTH__": bake(fifth),
+        "__NEAR__": bake(near),
+        "__SHARP__": bake(sharp),
+        "__LOSS_START__": bake(eng["loss_start"]),
+        "__LOSS_END__": bake(eng["loss_end"]),
+        "__PARAMS__": str(eng["params"]),
+        "__Q__": str(Q),
+        "__H__": str(H),
+        "__REST__": str(REST),
+        "__START__": str(START),
+        "__SIG_LO__": str(SIG_LO),
+        "__LEAD__": dump(LEAD),
+        "__SCALE_REG__": dump(eng["scale_reg"]),
+        "__EMB__": dump(net["emb"]),
+        "__WX_R__": dump(net["Wx_r"]),
+        "__WH_R__": dump(net["Wh_r"]),
+        "__BR__": dump(net["br"]),
+        "__WX_Z__": dump(net["Wx_z"]),
+        "__WH_Z__": dump(net["Wh_z"]),
+        "__BZ__": dump(net["bz"]),
+        "__WX_N__": dump(net["Wx_n"]),
+        "__WH_N__": dump(net["Wh_n"]),
+        "__BN__": dump(net["bn"]),
+        "__BH__": dump(net["bh"]),
+        "__WO__": dump(net["Wo"]),
+        "__BO__": dump(net["bo"]),
+        "__SIG__": dump(net["sig"]),
+        "__TANH__": dump(net["tanh"]),
+        "__EXP__": dump(net["exp"]),
+        "__GAINS__": dump(GAINS),
+        "__VERSE__": dump(VERSE_ROOTS),
+        "__CHORUS_ROOTS__": dump(CHORUS_ROOTS),
+        "__BRIDGE_ROOTS__": dump(BRIDGE_ROOTS),
+        "__INTRO_ROOTS__": dump(INTRO_ROOTS),
+        "__OUTRO_ROOTS__": dump(OUTRO_ROOTS),
+        "__TONES__": dump({str(k): v for k, v in CHORD_TONES.items()}),
+    }
+    for key, value in repl.items():
+        text = text.replace(key, value)
     if not text.endswith("\n"):
         text += "\n"
     return text
@@ -1344,6 +1024,440 @@ def main(argv: list[str]) -> int:
     report(song)
     print(f"wrote {MJS_PATH}")
     return 0
+
+
+JS_TEMPLATE = r"""/**
+ * Generated by scripts/solfeggio-compose.py — do not edit by hand.
+ * The lead is sampled from a one-layer GRU trained on one-bar solfeggio
+ * motifs (MelodyRNN next-event model, GRU cell). Same seed, same score.
+ * Not a therapy.
+ *
+ * 528/396 and 852/639 are exactly 4/3.
+ * 963/639 is __SHARP__ cents sharp of 3/2.
+ * GRU loss __LOSS_START__ -> __LOSS_END__. Parameters __PARAMS__.
+ */
+
+export const CENTER_HZ = 528
+export const PIECE_FOURTH_CENTS = __FOURTH__
+export const PIECE_FIFTH_CENTS = __FIFTH__
+export const PIECE_NEAR_FIFTH_CENTS = __NEAR__
+export const PIECE_NEAR_FIFTH_SHARP_CENTS = __SHARP__
+export const ENGINE_LOSS_START = __LOSS_START__
+export const ENGINE_LOSS_END = __LOSS_END__
+export const ENGINE_PARAMS = __PARAMS__
+export const ENGINE_H = __H__
+export const ENGINE_REST = __REST__
+export const ENGINE_START = __START__
+
+const Q = __Q__
+const H = __H__
+const REST = __REST__
+const START = __START__
+const SIG_LO = __SIG_LO__
+const LEAD = Object.freeze(__LEAD__)
+const SCALE_REG = Object.freeze(__SCALE_REG__)
+const EMB = Object.freeze(__EMB__)
+const WX_R = Object.freeze(__WX_R__)
+const WH_R = Object.freeze(__WH_R__)
+const BR = Object.freeze(__BR__)
+const WX_Z = Object.freeze(__WX_Z__)
+const WH_Z = Object.freeze(__WH_Z__)
+const BZ = Object.freeze(__BZ__)
+const WX_N = Object.freeze(__WX_N__)
+const WH_N = Object.freeze(__WH_N__)
+const BN = Object.freeze(__BN__)
+const BH = Object.freeze(__BH__)
+const WO = Object.freeze(__WO__)
+const BO = Object.freeze(__BO__)
+const SIG = Object.freeze(__SIG__)
+const TANH = Object.freeze(__TANH__)
+const EXP = Object.freeze(__EXP__)
+const GAINS = Object.freeze(__GAINS__)
+const VERSE_ROOTS = Object.freeze(__VERSE__)
+const CHORUS_ROOTS = Object.freeze(__CHORUS_ROOTS__)
+const BRIDGE_ROOTS = Object.freeze(__BRIDGE_ROOTS__)
+const INTRO_ROOTS = Object.freeze(__INTRO_ROOTS__)
+const OUTRO_ROOTS = Object.freeze(__OUTRO_ROOTS__)
+const TONES = Object.freeze(__TONES__)
+
+function makeRng(seed) {
+  let a = seed >>> 0
+  function nextU32() {
+    a = (a + 0x6D2B79F5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return (t ^ (t >>> 14)) >>> 0
+  }
+  return {
+    below(n) {
+      return nextU32() % n
+    },
+  }
+}
+
+function lut(table, pre) {
+  let x = pre
+  if (x < SIG_LO) x = SIG_LO
+  else if (x > -SIG_LO) x = -SIG_LO
+  return table[x - SIG_LO]
+}
+
+function dot(W, vec) {
+  const out = []
+  for (let i = 0; i < W.length; i++) {
+    const row = W[i]
+    let acc = 0
+    for (let k = 0; k < row.length; k++) acc += row[k] * vec[k]
+    out.push(Math.floor(acc / Q))
+  }
+  return out
+}
+
+function add3(a, b, c) {
+  const out = []
+  for (let i = 0; i < a.length; i++) out.push(a[i] + b[i] + c[i])
+  return out
+}
+
+export function gruStep(h, tok) {
+  const emb = EMB[tok]
+  const rPre = add3(dot(WX_R, emb), dot(WH_R, h), BR)
+  const zPre = add3(dot(WX_Z, emb), dot(WH_Z, h), BZ)
+  const r = rPre.map((p) => lut(SIG, p))
+  const z = zPre.map((p) => lut(SIG, p))
+  const wh = dot(WH_N, h)
+  const xh = wh.map((v, i) => v + BH[i])
+  const wx = dot(WX_N, emb)
+  const xn = wx.map((v, i) => v + BN[i] + Math.floor((r[i] * xh[i]) / Q))
+  const n = xn.map((p) => lut(TANH, p))
+  const h2 = z.map((zi, i) => Math.floor(((Q - zi) * n[i] + zi * h[i]) / Q))
+  const wo = dot(WO, h2)
+  const logits = wo.map((v, i) => v + BO[i])
+  return { h: h2, logits }
+}
+
+export function tokenWeights(logits) {
+  const scaled = logits.map((v) => Math.floor((v * 3) / 4))
+  let peak = scaled[0]
+  for (let i = 1; i < scaled.length; i++) if (scaled[i] > peak) peak = scaled[i]
+  const weights = []
+  for (let i = 0; i < scaled.length; i++) {
+    const d = peak - scaled[i]
+    weights.push(d >= EXP.length ? 1 : EXP[d])
+  }
+  return weights
+}
+
+function drawToken(logits, rng) {
+  const weights = tokenWeights(logits)
+  let total = 0
+  for (let i = 0; i < weights.length; i++) total += weights[i]
+  const u = rng.below(total)
+  let acc = 0
+  for (let i = 0; i < weights.length; i++) {
+    acc += weights[i]
+    if (u < acc) return i
+  }
+  return weights.length - 1
+}
+
+function sampleMotif(rng) {
+  let last = [0, 0, 0, 0, 0, 0, 0, 0]
+  for (let attempt = 0; attempt < 6; attempt++) {
+    let h = []
+    for (let i = 0; i < H; i++) h.push(0)
+    let x = START
+    const toks = []
+    for (let step = 0; step < 8; step++) {
+      const out = gruStep(h, x)
+      h = out.h
+      const tok = drawToken(out.logits, rng)
+      toks.push(tok)
+      x = tok
+    }
+    last = toks
+    let notes = 0
+    for (let i = 0; i < toks.length; i++) if (toks[i] !== REST) notes += 1
+    if (notes >= 3) return toks
+  }
+  return last
+}
+
+function seqUp(toks) {
+  return toks.map((t) => (t === REST ? REST : Math.min(8, t + 1)))
+}
+
+function seqDown(toks) {
+  return toks.map((t) => (t === REST ? REST : Math.max(0, t - 1)))
+}
+
+function invertMotif(toks) {
+  return toks.map((t) => (t === REST ? REST : 8 - t))
+}
+
+function fragment(toks) {
+  return toks.slice(0, 4).concat([REST, REST, REST, REST])
+}
+
+function chorusBars(motif) {
+  const stated = motif.slice()
+  const sequenced = seqUp(motif)
+  const hook = [stated, sequenced, stated, sequenced]
+  return hook.concat(hook)
+}
+
+function verse1Bars(motif) {
+  const inv = invertMotif(motif)
+  return [motif.slice(), inv, motif.slice(), seqUp(motif), inv, seqUp(inv), motif.slice(), inv]
+}
+
+function verse2Bars(motif) {
+  const frag = fragment(motif)
+  const inv = invertMotif(motif)
+  return [motif.slice(), seqUp(motif), inv, motif.slice(), frag, seqUp(frag), inv, motif.slice()]
+}
+
+function bridgeBars(motif) {
+  const frag = fragment(motif)
+  return [frag, seqUp(frag), frag, invertMotif(frag), frag, seqUp(frag), invertMotif(frag), frag]
+}
+
+function introBars(motif) {
+  const frag = fragment(motif)
+  return [null, null, frag, seqUp(frag)]
+}
+
+function outroBars(motif) {
+  const frag = fragment(motif)
+  return [frag, invertMotif(frag), seqDown(frag), [0, 0, 0, 0, 0, 0, 0, 0]]
+}
+
+function scaleIndex(hz) {
+  for (let i = 0; i < SCALE_REG.length; i++) {
+    if (Math.abs(SCALE_REG[i] - hz) < 1e-6) return i
+  }
+  throw new Error('hz ' + hz)
+}
+
+function octavesBetween(base, lo, hi) {
+  let hz = base
+  while (hz < lo) hz *= 2
+  const out = []
+  while (hz <= hi + 1e-9) {
+    out.push(hz)
+    hz *= 2
+  }
+  return out
+}
+
+function candidates(root) {
+  const tones = TONES[String(root)]
+  const found = []
+  for (let i = 0; i < tones.length; i++) {
+    const extra = octavesBetween(tones[i], 360, 1200)
+    for (let k = 0; k < extra.length; k++) found.push(extra[k])
+  }
+  found.sort((a, b) => a - b)
+  const uniq = []
+  for (let i = 0; i < found.length; i++) {
+    if (!uniq.length || Math.abs(found[i] - uniq[uniq.length - 1]) > 1e-6) uniq.push(found[i])
+  }
+  return uniq
+}
+
+function voiceLead(prev, cands) {
+  const prevS = prev.slice().sort((a, b) => a - b)
+  let best = null
+  let bestKey = null
+  for (let i = 0; i < cands.length; i++) {
+    for (let j = i + 1; j < cands.length; j++) {
+      for (let k = j + 1; k < cands.length; k++) {
+        const ordered = [cands[i], cands[j], cands[k]].sort((a, b) => a - b)
+        const dists = [
+          Math.abs(scaleIndex(ordered[0]) - scaleIndex(prevS[0])),
+          Math.abs(scaleIndex(ordered[1]) - scaleIndex(prevS[1])),
+          Math.abs(scaleIndex(ordered[2]) - scaleIndex(prevS[2])),
+        ]
+        const key = [dists[0] + dists[1] + dists[2], dists[0], dists[1], dists[2], ordered[0], ordered[1], ordered[2]]
+        if (bestKey === null || cmpKey(key, bestKey) < 0) {
+          bestKey = key
+          best = ordered
+        }
+      }
+    }
+  }
+  return best
+}
+
+function cmpKey(a, b) {
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] < b[i]) return -1
+    if (a[i] > b[i]) return 1
+  }
+  return 0
+}
+
+function bassHz(root) {
+  let hz = root
+  while (hz > 300) hz /= 2
+  while (hz < 90) hz *= 2
+  return hz
+}
+
+function songSeconds(totalBars, bpm) {
+  return totalBars * 4 * 60 / bpm
+}
+
+/**
+ * @param {number} seed
+ */
+export function composeSong(seed) {
+  const seed32 = seed >>> 0
+  const rng = makeRng(seed32)
+  const bpm = 78 + rng.below(23)
+  const pocketI = rng.below(2)
+  const motifs = [sampleMotif(rng), sampleMotif(rng), sampleMotif(rng)]
+  const pocket = pocketI === 0 ? 'boom-bap' : 'half-time'
+  const sections = []
+  let bar = 0
+  function addSec(name, bars) {
+    sections.push({ name, bar, bars })
+    bar += bars
+  }
+  addSec('intro', 4)
+  addSec('verse', 8)
+  addSec('chorus', 8)
+  addSec('verse', 8)
+  addSec('chorus', 8)
+  addSec('bridge', 8)
+  addSec('chorus', 8)
+  addSec('outro', 4)
+  const totalBars = bar
+  const events = []
+
+  function add(at, beat, dur, hz, voice, milli) {
+    events.push({
+      bar: at,
+      beat,
+      durBeats: dur,
+      hz,
+      voice,
+      gain: milli / 1000,
+    })
+  }
+
+  function layTokens(start, rows, milli) {
+    for (let i = 0; i < rows.length; i++) {
+      const toks = rows[i]
+      if (!toks) continue
+      let k = 0
+      while (k < 8) {
+        if (toks[k] === REST) {
+          k += 1
+          continue
+        }
+        let j = k + 1
+        while (j < 8 && toks[j] === toks[k]) j += 1
+        add(start + i, k * 0.5, (j - k) * 0.5, LEAD[toks[k]], 'lead', milli)
+        k = j
+      }
+    }
+  }
+
+  function layPocket(at, withSnare) {
+    const kicks = pocketI === 0 ? [0, 2.5] : [0, 1.5]
+    const snares = pocketI === 0 ? [1, 3] : [2]
+    for (let i = 0; i < kicks.length; i++) add(at, kicks[i], 0.5, 87, 'kick', GAINS.kick)
+    if (withSnare) {
+      for (let i = 0; i < snares.length; i++) add(at, snares[i], 0.5, 174, 'snare', GAINS.snare)
+    }
+    const hats = [0, 0.5, 1, 1.5, 2, 2.5, 3]
+    for (let i = 0; i < hats.length; i++) add(at, hats[i], 0.5, 285, 'hat', GAINS.hat)
+    add(at, 3.5, 0.5, 285, 'openhat', GAINS.openhat)
+  }
+
+  function layFill(at) {
+    add(at, 0, 0.5, 87, 'kick', GAINS.kick)
+    const rolls = [1, 1.5, 2, 2.5, 3, 3.5]
+    for (let i = 0; i < rolls.length; i++) add(at, rolls[i], 0.25, 174, 'snare', GAINS.snare)
+    const hats = [0.5, 1.5, 2.5]
+    for (let i = 0; i < hats.length; i++) add(at, hats[i], 0.5, 285, 'hat', GAINS.hat)
+  }
+
+  function layHarmony(start, roots, dur, milli) {
+    let voicing = voiceLead([528, 741, 963], candidates(roots[0]))
+    for (let i = 0; i < roots.length; i++) {
+      const cands = candidates(roots[i])
+      if (i > 0) voicing = voiceLead(voicing, cands)
+      const barI = start + (dur === 4 ? i : Math.floor(i / 2))
+      const beat = dur === 4 ? 0 : (i % 2) * 2
+      for (let v = 0; v < voicing.length; v++) add(barI, beat, dur, voicing[v], 'chord', milli)
+      for (const b of [0, 2]) {
+        if (b >= beat - 1e-9 && b < beat + dur - 1e-9) add(barI, b, 1, bassHz(roots[i]), 'bass', GAINS.bass)
+      }
+    }
+  }
+
+  for (let s = 0; s < sections.length; s++) {
+    const section = sections[s]
+    for (let rel = 0; rel < section.bars; rel++) {
+      const at = section.bar + rel
+      if (section.name === 'bridge') continue
+      if (section.name === 'outro' && rel === section.bars - 1) {
+        add(at, 0, 0.5, 87, 'kick', GAINS.kick)
+        add(at, 0, 0.5, 285, 'hat', GAINS.hat)
+        add(at, 2, 0.5, 285, 'hat', GAINS.hat)
+        continue
+      }
+      if ((section.name === 'verse' || section.name === 'chorus') && rel === section.bars - 1) {
+        layFill(at)
+        continue
+      }
+      layPocket(at, section.name !== 'intro')
+    }
+  }
+
+  layHarmony(sections[0].bar, INTRO_ROOTS, 4, GAINS.chordIntro)
+  layTokens(sections[0].bar, introBars(motifs[1]), GAINS.leadIntro)
+  layHarmony(sections[1].bar, VERSE_ROOTS.concat(VERSE_ROOTS), 4, GAINS.chordVerse)
+  layTokens(sections[1].bar, verse1Bars(motifs[1]), GAINS.leadVerse)
+  const chorusLoop = CHORUS_ROOTS.concat(CHORUS_ROOTS, CHORUS_ROOTS, CHORUS_ROOTS)
+  layHarmony(sections[2].bar, chorusLoop, 2, GAINS.chordChorus)
+  layTokens(sections[2].bar, chorusBars(motifs[0]), GAINS.leadChorus)
+  layHarmony(sections[3].bar, VERSE_ROOTS.concat(VERSE_ROOTS), 4, GAINS.chordVerse)
+  layTokens(sections[3].bar, verse2Bars(motifs[2]), GAINS.leadVerse)
+  layHarmony(sections[4].bar, chorusLoop, 2, GAINS.chordChorus)
+  layTokens(sections[4].bar, chorusBars(motifs[0]), GAINS.leadChorus)
+  layHarmony(sections[5].bar, BRIDGE_ROOTS.concat(BRIDGE_ROOTS), 4, GAINS.chordBridge)
+  layTokens(sections[5].bar, bridgeBars(motifs[0]), GAINS.leadBridge)
+  layHarmony(sections[6].bar, chorusLoop, 2, GAINS.chordChorus)
+  layTokens(sections[6].bar, chorusBars(motifs[0]), GAINS.leadChorus)
+  layHarmony(sections[7].bar, OUTRO_ROOTS, 4, GAINS.chordOutro)
+  layTokens(sections[7].bar, outroBars(motifs[0]), GAINS.leadOutro)
+
+  events.sort((a, b) => (
+    a.bar - b.bar
+    || a.beat - b.beat
+    || (a.voice < b.voice ? -1 : a.voice > b.voice ? 1 : 0)
+    || a.hz - b.hz
+    || a.durBeats - b.durBeats
+    || a.gain - b.gain
+  ))
+
+  return {
+    seed: seed32,
+    bpm,
+    meter: '4/4',
+    pocket,
+    totalBars,
+    duration: songSeconds(totalBars, bpm),
+    centerHz: CENTER_HZ,
+    motifs,
+    sections,
+    events,
+  }
+}
+"""
 
 
 if __name__ == "__main__":

@@ -165,7 +165,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, The Gateway, and Third Eye.',
+    description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, The Gateway, Third Eye, and Solfeggio.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },
@@ -198,6 +198,12 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'Third Eye',
     title: 'Third Eye · Engage',
     description: 'Headphones on, screen bright. Twelve breaths, then a tone.'
+  },
+  '/engage/solfeggio': {
+    key: 'solfeggio',
+    label: 'Solfeggio',
+    title: 'Solfeggio · Engage',
+    description: 'A slow tune from nine pitches.'
   },
   '/my-work/sewa-chronicles': {
     key: 'sewa-chronicles',

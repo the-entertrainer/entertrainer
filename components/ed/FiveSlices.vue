@@ -389,7 +389,7 @@ onBeforeUnmount(() => {
 }
 .fs__art {
   flex: 1 1 auto;
-  min-height: 96rem;
+  min-height: 132rem;
   margin: 8rem 0;
 }
 .fs__labels {
@@ -517,7 +517,7 @@ onBeforeUnmount(() => {
 
 @media (max-height: 700px) {
   .fs__headline { font-size: 26rem; }
-  .fs__art { min-height: 72rem; }
+  .fs__art { min-height: 104rem; }
   .fs__frame {
     padding-bottom: calc(96rem + var(--safe-bottom));
   }

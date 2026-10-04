@@ -308,8 +308,8 @@ onBeforeUnmount(() => {
   .route-index__figure {
     display: block;
     grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: end;
+    grid-row: 1;
+    align-self: center;
     justify-self: end;
   }
 }

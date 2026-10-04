@@ -132,7 +132,7 @@ onBeforeUnmount(() => theme.dispose())
    is a millisecond the reader is looking at neither page. */
 .page-enter-active { transition: opacity var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out); }
 .page-leave-active { transition: opacity var(--dur-fast) var(--ease-in); }
-.page-enter-from { opacity: 0; transform: translateY(8rem); }
+.page-enter-from { opacity: 0; transform: translateY(var(--space-8)); }
 .page-leave-to { opacity: 0; }
 
 @media (prefers-reduced-motion: reduce) {

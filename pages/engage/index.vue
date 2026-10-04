@@ -63,7 +63,7 @@ const MIND_READER_SYMBOLS = [
             <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
               <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="1.6" opacity="0.35"/>
               <circle cx="24" cy="24" r="15.5" stroke="currentColor" stroke-width="2.2"/>
-              <circle cx="24" cy="24" r="10.5" stroke="#64B5F6" stroke-width="1.3" opacity="0.85"/>
+              <circle cx="24" cy="24" r="10.5" stroke="currentColor" stroke-width="1.3" opacity="0.85"/>
               <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
                 <line x1="24" y1="5.5" x2="24" y2="9.2"/>
                 <line x1="24" y1="38.8" x2="24" y2="42.5"/>
@@ -74,7 +74,7 @@ const MIND_READER_SYMBOLS = [
                 <line x1="36.8" y1="11.2" x2="34.2" y2="13.8"/>
                 <line x1="13.8" y1="34.2" x2="11.2" y2="36.8"/>
               </g>
-              <g fill="#64B5F6" opacity="0.9">
+              <g fill="currentColor" opacity="0.9">
                 <circle cx="24" cy="13.5" r="1.1"/>
                 <circle cx="31.5" cy="16.8" r="0.95"/>
                 <circle cx="34.5" cy="24" r="1.1"/>
@@ -85,7 +85,7 @@ const MIND_READER_SYMBOLS = [
                 <circle cx="16.5" cy="16.8" r="0.95"/>
               </g>
               <line x1="24" y1="24" x2="24" y2="12.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-              <circle cx="24" cy="12.5" r="1.8" fill="#64B5F6"/>
+              <circle cx="24" cy="12.5" r="1.8" fill="currentColor"/>
               <circle cx="24" cy="24" r="3.2" fill="currentColor"/>
               <circle cx="24" cy="24" r="1.35" fill="var(--accent)"/>
             </svg>
@@ -123,8 +123,8 @@ const MIND_READER_SYMBOLS = [
           <span class="engage__icon engage__icon--third-eye" aria-hidden="true">
             <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
               <path d="M6 24c5.4-7.4 11.2-11 18-11s12.6 3.6 18 11c-5.4 7.4-11.2 11-18 11S11.4 31.4 6 24Z" stroke="var(--paper)" stroke-width="2.6" stroke-linejoin="round"/>
-              <circle cx="24" cy="24" r="5.5" stroke="#2F5BD8" stroke-width="2.6"/>
-              <circle cx="24" cy="24" r="1.7" fill="#2F5BD8"/>
+              <circle cx="24" cy="24" r="5.5" stroke="var(--accent)" stroke-width="2.6"/>
+              <circle cx="24" cy="24" r="1.7" fill="var(--accent)"/>
             </svg>
           </span>
           <span class="engage__card-text">
@@ -143,26 +143,26 @@ const MIND_READER_SYMBOLS = [
 
 <style scoped>
 .engage {
-  min-height: calc(100dvh - 74rem);
-  max-width: var(--shell-wide);
+  min-height: calc(100dvh - var(--nav-h));
+  max-width: var(--shell-max);
   margin: 0 auto;
-  padding: clamp(24rem, 4vw, 56rem) var(--shell-gutter);
+  padding: var(--space-34) var(--shell-gutter) var(--space-89);
 }
 
 .engage__grid {
   list-style: none;
-  margin: clamp(20rem, 3vw, 32rem) 0 0;
+  margin: var(--space-21) 0 0;
   padding: 0;
   display: grid;
-  gap: 10rem;
+  gap: var(--space-13);
 }
 
 .engage__card {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) 20rem;
   align-items: center;
-  gap: clamp(16rem, 2.5vw, 24rem);
-  padding: 20rem 22rem;
+  gap: var(--space-21);
+  padding: var(--space-21);
   border: var(--stroke) solid var(--line);
   border-radius: var(--radius-m);
   background: var(--paper);
@@ -182,9 +182,9 @@ const MIND_READER_SYMBOLS = [
 .engage__icon {
   position: relative;
   flex-shrink: 0;
-  width: 52rem;
-  height: 52rem;
-  padding: 9rem;
+  width: var(--space-55);
+  height: var(--space-55);
+  padding: var(--space-8);
   box-sizing: border-box;
   border-radius: var(--radius-s);
   background: var(--accent);
@@ -262,12 +262,12 @@ const MIND_READER_SYMBOLS = [
   min-width: 0;
 }
 
-.engage__card-name { font: 600 19rem/1.2 var(--font-display); flex-shrink: 0; }
-.engage__card-blurb { flex: 1 1 260rem; min-width: 0; font-size: 14rem; line-height: 1.4; color: var(--muted); }
+.engage__card-name { font: 500 var(--type-body)/1.2 var(--font-display); flex-shrink: 0; }
+.engage__card-blurb { flex: 1 1 260rem; min-width: 0; font-size: var(--type-small); line-height: 1.4; color: var(--muted); }
 .engage__card-arrow { color: var(--muted); transition: transform var(--dur-fast) var(--ease-out); }
 
 @media (max-width: 640px) {
-  .engage__card { align-items: start; gap: 14rem; }
+  .engage__card { align-items: start; gap: var(--space-13); }
   .engage__card-arrow { align-self: center; }
 }
 

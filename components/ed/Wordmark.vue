@@ -15,7 +15,7 @@ withDefaults(defineProps<{
   variant?: 'full' | 'mark'
   /** Cap-height target in pixels. The signal scales from the same value. */
   size?: number
-}>(), { variant: 'full', size: 30 })
+}>(), { variant: 'full', size: 34 })
 </script>
 
 <template>

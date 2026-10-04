@@ -54,7 +54,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
     <div class="mh__bar">
       <NuxtLink to="/" class="mh__brand" aria-label="Entertrainer — home">
-        <EdWordmark variant="full" :size="30" />
+        <EdWordmark variant="full" :size="34" />
       </NuxtLink>
 
       <nav class="mh__nav" aria-label="Main navigation">
@@ -151,37 +151,41 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .mh__skip:focus-visible { transform: none; }
 
 .mh__bar {
-  max-width: var(--shell-wide); margin: 0 auto;
-  padding: 12rem var(--shell-gutter);
-  display: flex; align-items: center; gap: clamp(14rem, 2.5vw, 32rem);
+  max-width: var(--shell-max); margin: 0 auto;
+  min-height: var(--nav-h);
+  padding: 0 var(--shell-gutter);
+  display: flex; align-items: center; gap: var(--space-21);
 }
 
 .mh__brand { display: inline-flex; flex: none; }
 .mh__brand :deep(svg) { transition: transform var(--dur-mid) var(--ease-spring); }
 @media (hover: hover) { .mh__brand:hover :deep(svg) { transform: translateY(-1rem); } }
 
-.mh__nav { margin-left: auto; display: flex; align-items: center; gap: clamp(4rem, 1.2vw, 14rem); }
+.mh__nav { margin-left: auto; display: flex; align-items: center; gap: var(--space-21); }
 .mh__link {
   position: relative;
-  padding: 8rem 10rem;
-  font-size: 15rem; font-weight: 600;
+  padding: var(--space-8) 0;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta); font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--ink);
-  border-radius: var(--radius-s);
+  border-radius: 0;
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) { .mh__link:hover { background: var(--signal-field); color: var(--ink); } }
 /* The active section receives a short section of the same route line used in
    the Home atlas; it orients without adding a badge or a second label. */
 .mh__link[aria-current="page"]::after {
-  content: ''; position: absolute; left: 10rem; bottom: 2rem;
-  width: 8rem; height: 8rem; background: var(--signal-cobalt); border-radius: 50%;
-  transform-origin: center; animation: nav-route 220ms var(--ease-out) both;
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+  height: 2px; background: var(--ink);
+  animation: nav-route 220ms var(--ease-out) both;
 }
-@keyframes nav-route { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes nav-route { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
-.mh__end { display: flex; align-items: center; gap: 6rem; margin-left: 4rem; }
+.mh__end { display: flex; align-items: center; gap: var(--space-8); margin-left: var(--space-13); }
 .mh__icon {
-  width: 40rem; height: 40rem; flex: none;
+  width: var(--icon); height: var(--icon); flex: none;
   display: inline-flex; align-items: center; justify-content: center;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
@@ -246,7 +250,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 
 @media (max-width: 860px) {
-  .mh__bar { min-height: 54rem; padding-top: 6rem; padding-bottom: 6rem; gap: 12rem; }
+  .mh__bar { min-height: var(--nav-h); padding-top: 0; padding-bottom: 0; gap: var(--space-13); }
   .mh__brand { min-width: 166rem; }
   .mh__brand :deep(.wm) { gap: 7rem; white-space: nowrap; }
   .mh__brand :deep(.wm__word) { display: inline-block; opacity: 1 !important; transform: none !important; font-size: 26rem; animation: none !important; }
@@ -254,7 +258,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .mh__nav { display: none; }
   .mh__icon--menu { display: inline-flex; }
   .mh__end { margin-left: auto; }
-  .mh__icon { width: 36rem; height: 36rem; border-radius: var(--radius-m); }
+  .mh__icon { width: var(--icon); height: var(--icon); border-radius: var(--radius-s); }
 
   .mh__sheet {
     display: grid;
@@ -267,8 +271,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .mh__sheet-inner { min-height: 0; overflow: hidden; }
   .mh__sheet-link {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 15rem var(--shell-gutter);
-    font-size: 19rem; font-weight: 600;
+    padding: var(--space-13) var(--shell-gutter);
+    font-size: var(--type-dek); font-weight: 500;
     border-bottom: var(--stroke) solid var(--line);
     background: var(--paper);
   }

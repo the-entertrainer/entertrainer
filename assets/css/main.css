@@ -1,7 +1,7 @@
 /* ============================================================================
    ENTERTRAINER — editorial design system
    ----------------------------------------------------------------------------
-   One file, no framework. Colour, type, surface and motion are defined here and
+   One file, no framework. The Measure (φ, whole pixels) sets type, space, the 1180 shell, the 729 column, the 66-character line, the 729×451 crop, and the 34/21 icon. Colour, type, surface and motion are defined here and
    read by everything downstream — the front page, the section indexes, the case
    studies, the AI course and the four tool apps.
 
@@ -196,21 +196,26 @@
   --display-soft: 24;
   --display-wonk: 1;
 
-  --type-hero:    clamp(44px, 7vw, 104px);
-  --type-display: clamp(34px, 4.4vw, 62px);
-  --type-h1:      clamp(28px, 3.2vw, 46px);
-  --type-h2:      clamp(22px, 2.2vw, 32px);
-  --type-card:    clamp(19px, 1.7vw, 25px);
-  --type-body:    clamp(16px, 1.1vw, 18px);
-  --type-small:   clamp(14px, 1vw, 15px);
-  --type-meta:    clamp(11px, 0.78vw, 12px);
+  /* The Measure. φ = 1.618, rounded to whole pixels: 18 → 29 → 47 → 76.
+     Meta is the downward step (18 / φ). One scale. html font-size stays 1px. */
+  --type-meta:    11px;
+  --type-body:    18px;
+  --type-small:   13px; /* Fibonacci step between meta and body, for controls only */
+  --type-dek:     29px;
+  --type-card:    29px;
+  --type-h2:      29px;
+  --type-h1:      47px;
+  --type-display: 47px;
+  --type-hero:    76px; /* home display only */
 
   --tracking-meta: 0.08em;
-  --tracking-display: -0.015em;
+  --tracking-display: -0.03em;
 
-  --measure-deck: 34ch;
-  --measure-body: 68ch;
-  --measure-note: 44ch;
+  --measure-deck: 36ch;
+  --measure-body: 66ch;
+  --measure:      66ch;
+  --measure-note: 34ch;
+  --measure-px:   640rem;
 }
 
 /* ============================================================
@@ -218,11 +223,26 @@
    ============================================================ */
 
 :root {
+  /* Shell stays 1180. Column is 1180 / φ = 729. Side margins split the rest. */
   --shell-max:  1180rem;
-  --shell-page: 980rem;
-  --shell-wide: 1400rem;
-  --shell-gutter: clamp(18rem, 4vw, 48rem);
-  --page-top: calc(88rem + var(--safe-top));
+  --shell-page: 1180rem;
+  --shell-wide: 1180rem;
+  --column:     729rem;
+  --margin-start: 225rem;
+  --margin-end:   226rem;
+  --shell-gutter: clamp(21rem, calc((min(100vw, 1180rem) - 729rem) / 2), 225rem);
+  --page-top: calc(var(--nav-h, 55rem) + var(--safe-top));
+  --nav-h: 55rem;
+  --crop: 729 / 451;
+  --icon: 34rem;
+  --icon-division: 21rem;
+
+  --space-8:  8rem;
+  --space-13: 13rem;
+  --space-21: 21rem;
+  --space-34: 34rem;
+  --space-55: 55rem;
+  --space-89: 89rem;
 
   --safe-top:    env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -311,22 +331,22 @@
   --text-h1: var(--type-display);
   --text-h2: var(--type-h2);
   --text-h3: var(--type-card);
-  --text-lead: clamp(17px, 1.5vw, 21px);
+  --text-lead: var(--type-dek);
   --text-body: var(--type-body);
   --text-sm: var(--type-small);
   --text-label: var(--type-meta);
   --tracking-label: var(--tracking-meta);
 
-  --gap-xs: 10rem; --gap-s: 15rem; --gap-m: 30rem; --gap-l: 60rem;
-  --gap-xl: 90rem; --gap-xxl: 120rem; --gap-xxxl: 180rem;
-  --gap-20: 20rem; --gap-45: 45rem;
-  --chrome-offset: 18rem;
-  --chrome-size: 44rem;
-  --btn-pad-y: 11rem;
-  --btn-pad-x: 20rem;
+  --gap-xs: var(--space-8); --gap-s: var(--space-13); --gap-m: var(--space-21); --gap-l: var(--space-34);
+  --gap-xl: var(--space-55); --gap-xxl: var(--space-89); --gap-xxxl: var(--space-89);
+  --gap-20: var(--space-21); --gap-45: var(--space-55);
+  --chrome-offset: var(--space-13);
+  --chrome-size: var(--nav-h);
+  --btn-pad-y: var(--space-13);
+  --btn-pad-x: var(--space-21);
   --btn-press: 0.98;
   --z-canvas: 0; --z-page-ui: 10; --z-menu: 40; --z-loader: 1000;
-  --grid-margin: 30rem; --grid-gutter: 16rem;
+  --grid-margin: var(--space-21); --grid-gutter: var(--space-13);
   --ease-quad-in-out: var(--ease-in-out);
 
   --lx: 0.5; --ly: 0.42; --lxc: 0; --lyc: -0.16; --lit: 0;
@@ -372,10 +392,10 @@ canvas { display: block; }
 img, svg, video { max-width: 100%; }
 
 :focus-visible {
-  outline: 3px solid var(--focus);
+  outline: 2px solid var(--ink);
   outline-offset: 3px;
   border-radius: var(--radius-xs);
-  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 72%, transparent);
+  box-shadow: none;
 }
 
 html.theme-anim, html.theme-anim * {
@@ -519,8 +539,8 @@ p, li, dd, figcaption { text-wrap: pretty; }
 .ps-rule { display: block; height: 2rem; background: var(--signal-rule); }
 .ps-dot { display: block; width: 34rem; height: 34rem; border-radius: 50%; background: var(--signal-cobalt); }
 .ps-offset { position: absolute; inset: 14rem -14rem -14rem 14rem; z-index: -1; background: var(--signal-sheet); }
-.ps-icon { display: inline-flex; width: 18rem; height: 18rem; flex: none; color: currentColor; }
-.ps-icon svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: square; stroke-linejoin: miter; }
+.ps-icon { display: inline-flex; width: var(--icon); height: var(--icon); flex: none; align-items: center; justify-content: center; color: currentColor; }
+.ps-icon svg { display: block; width: var(--icon-division); height: var(--icon-division); fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linecap: square; stroke-linejoin: miter; }
 
 /* ============================================================
    Icon-as-button motion (quiet family — matches masthead idle spirit)
@@ -612,12 +632,12 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 .ticket, .px-btn, .glass-btn {
   position: relative;
   display: inline-flex; align-items: center; justify-content: center; gap: 8rem;
-  min-height: 44rem; padding: 11rem var(--btn-pad-x);
+  min-height: var(--space-34); padding: var(--space-8) var(--btn-pad-x);
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-full);
   background: var(--accent); color: var(--accent-ink); border-color: var(--ink);
-  font-family: var(--font-ui);
-  font-size: 15rem; font-weight: 600; letter-spacing: 0;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta); font-weight: 500; letter-spacing: var(--tracking-meta); text-transform: uppercase;
   text-decoration: none; white-space: nowrap; cursor: pointer;
   transition:
     background var(--dur-fast) var(--ease-out),
@@ -642,7 +662,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
     background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink);
   }
 }
-.ticket--sm { min-height: 36rem; padding: 8rem 15rem; font-size: 13.5rem; }
+.ticket--sm { min-height: var(--space-34); padding: var(--space-8) var(--space-13); font-size: var(--type-meta); }
 
 /* Chip — category labels, filters, small toggles. */
 .chip, .glass-chip {
@@ -670,7 +690,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
   background: var(--paper);
   border: var(--stroke) solid var(--line);
   border-radius: var(--radius-l);
-  padding: 24rem;
+  padding: var(--space-21);
 }
 
 .glass-label {
@@ -731,8 +751,8 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 .ed {
   display: grid;
   grid-template-columns:
-    [text-start] minmax(0, var(--ed-text, 660rem))
-    [text-end] var(--ed-gap, clamp(24rem, 3.4vw, 56rem))
+    [text-start] minmax(0, var(--ed-text, var(--measure)))
+    [text-end] var(--ed-gap, var(--space-34))
     [note-start] minmax(0, 1fr) [note-end];
   align-items: start;
 }
@@ -742,18 +762,18 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 
 .ed-note {
   font-family: var(--font-ui);
-  font-size: 13.5rem; line-height: 1.55;
+  font-size: var(--type-body); line-height: 1.45;
   color: var(--muted);
   border-left: var(--stroke) solid var(--line);
-  padding-left: 14rem;
+  padding-left: var(--space-13);
   max-width: var(--measure-note);
 }
 .ed-note b {
   display: block;
   font-family: var(--font-mono); font-weight: 500;
-  font-size: 10.5rem; letter-spacing: var(--tracking-meta); text-transform: uppercase;
+  font-size: var(--type-meta); letter-spacing: var(--tracking-meta); text-transform: uppercase;
   color: var(--ink);
-  margin-bottom: 5rem;
+  margin-bottom: var(--space-8);
 }
 
 @media (max-width: 900px) {
@@ -853,8 +873,8 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
    12 · Responsive tuning
    ============================================================ */
 
-@media (max-width: 900px) { :root { --grid-margin: 20rem; --grid-gutter: 15rem; } }
+@media (max-width: 900px) { :root { --grid-margin: var(--space-21); --grid-gutter: var(--space-13); } }
 @media (max-width: 640px) {
-  :root { --page-top: calc(72rem + var(--safe-top)); }
-  .glass-panel { padding: 18rem 16rem; }
+  :root { --page-top: calc(var(--nav-h) + var(--safe-top)); }
+  .glass-panel { padding: var(--space-21) var(--space-13); }
 }

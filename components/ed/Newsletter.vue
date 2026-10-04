@@ -312,12 +312,12 @@ onBeforeUnmount(() => {
 :global(html[data-reduce-motion="on"]) .nl-inline__panel { animation: none; }
 
 /* —— Full panel (article footers) —— */
-.newsletter { position: relative; display: grid; grid-template-columns: auto minmax(0, .8fr) minmax(360rem, 1.05fr); gap: clamp(20rem, 3.4vw, 48rem); align-items: center; padding: clamp(24rem, 4.5vw, 52rem); overflow: hidden; color: var(--ink); background: var(--signal-field); border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); }
-.newsletter::after { content: ''; position: absolute; width: 440rem; height: 440rem; right: -200rem; top: 50%; border: 58rem solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 50%; transform: translateY(-50%); pointer-events: none; }
+.newsletter { position: relative; display: grid; grid-template-columns: auto minmax(0, .8fr) minmax(0, 1.05fr); gap: var(--space-34); align-items: center; padding: var(--space-34); overflow: hidden; color: var(--ink); background: var(--paper); border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); }
+.newsletter::after { content: none; }
 .newsletter > * { position: relative; z-index: 1; }
-.newsletter__mark { display: grid; width: 82rem; height: 82rem; place-items: center; background: var(--paper); border: var(--stroke) solid var(--ink); border-radius: 50%; box-shadow: 5rem 5rem 0 var(--ink); }
-.newsletter h2 { margin: 0; max-width: 410rem; font: 500 clamp(29rem, 3.2vw, 44rem)/.96 var(--font-display); letter-spacing: -.045em; }
-.newsletter__copy > p:last-child { max-width: 440rem; margin: 14rem 0 0; font-size: 16rem; line-height: 1.45; }
+.newsletter__mark { display: grid; width: var(--space-55); height: var(--space-55); place-items: center; background: var(--accent); border: var(--stroke) solid var(--ink); border-radius: 0; box-shadow: none; }
+.newsletter h2 { margin: 0; max-width: 22ch; font: 500 var(--type-h2)/1.05 var(--font-display); letter-spacing: -.02em; }
+.newsletter__copy > p:last-child { max-width: var(--measure); margin: var(--space-13) 0 0; font-size: var(--type-body); line-height: 1.45; }
 .newsletter__form { min-width: 0; }
 .newsletter__form > label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .newsletter__field { display: flex; gap: 8rem; padding: 7rem; background: var(--paper); border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); box-shadow: 5rem 5rem 0 color-mix(in srgb, var(--ink) 18%, transparent); }

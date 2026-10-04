@@ -203,12 +203,12 @@ function clearCategory() {
 
 <style scoped>
 .elevate {
-  max-width: var(--shell-wide);
+  max-width: var(--shell-max);
   margin: 0 auto;
-  padding: clamp(22rem, 4vw, 56rem) var(--shell-gutter) 110rem;
+  padding: var(--space-34) var(--shell-gutter) var(--space-89);
 }
 
-.elevate__entry { padding: clamp(20rem, 3vw, 32rem) 0 0; }
+.elevate__entry { padding: var(--space-34) 0 0; }
 
 .elevate__toolbar {
   display: flex;
@@ -224,7 +224,7 @@ function clearCategory() {
 .elevate__section-label {
   margin: 0;
   color: var(--ink);
-  font: 700 12rem/1.2 var(--font-mono);
+  font: 500 var(--type-meta)/1.2 var(--font-mono);
   letter-spacing: .08em;
   text-transform: uppercase;
 }
@@ -392,7 +392,8 @@ function clearCategory() {
 .elevate__thumb {
   margin: 0;
   width: 112rem;
-  height: 72rem;
+  aspect-ratio: var(--crop);
+  height: auto;
   overflow: hidden;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
@@ -411,7 +412,7 @@ function clearCategory() {
   gap: 6rem 10rem;
   align-items: center;
   margin: 0 0 6rem;
-  font: 600 11rem/1.2 var(--font-mono);
+  font: 500 var(--type-meta)/1.2 var(--font-mono);
   letter-spacing: .05em;
   text-transform: uppercase;
   color: var(--ink-soft);
@@ -447,13 +448,13 @@ function clearCategory() {
 .elevate__row-title {
   margin: 0;
   max-width: 52ch;
-  font: 500 clamp(20rem, 2.4vw, 28rem)/1.15 var(--font-display);
+  font: 500 var(--type-card)/1.15 var(--font-display);
   letter-spacing: -.03em;
 }
 .elevate__row-dek {
-  margin: 6rem 0 0;
-  max-width: 62ch;
-  font-size: 15rem;
+  margin: var(--space-8) 0 0;
+  max-width: var(--measure);
+  font-size: var(--type-body);
   line-height: 1.45;
   color: var(--ink-soft);
   display: -webkit-box;
@@ -557,11 +558,11 @@ function clearCategory() {
   align-items: center;
 }
 .elevate__list--compact .elevate__thumb { width: 72rem; height: 48rem; }
-.elevate__list--compact .elevate__row-title { font-size: clamp(17rem, 2vw, 22rem); }
+.elevate__list--compact .elevate__row-title { font-size: var(--type-body); }
 
 @media (max-width: 640px) {
   .elevate { padding-top: 18rem; }
-  .elevate__hero h1 { font-size: clamp(64rem, 22vw, 120rem); }
+  .elevate__hero h1 { font-size: var(--type-h1); }
   .elevate__toolbar { gap: 12rem; }
   .elevate__controls { width: 100%; justify-content: space-between; }
   .elevate__must-tile { min-width: 52rem; min-height: 46rem; padding: 5rem 6rem; }

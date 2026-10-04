@@ -1246,7 +1246,7 @@ onBeforeUnmount(() => {
 .preloader__word {
   color: var(--ink);
   font-family: var(--font-ui), Arial, sans-serif;
-  font-size: clamp(52rem, 9.4vw, 142rem);
+  font-size: var(--type-hero);
   font-weight: 900;
   letter-spacing: -.082em;
   line-height: .82;

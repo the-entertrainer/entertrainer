@@ -77,7 +77,7 @@ const signalVariant = computed(() => itemScene[props.item.id] ?? (props.item.cat
 .card__art {
   display: block; position: relative;
   flex: none;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: var(--crop);
   background: var(--paper-2);
   border-bottom: var(--stroke) solid var(--line);
   overflow: hidden;
@@ -87,8 +87,8 @@ const signalVariant = computed(() => itemScene[props.item.id] ?? (props.item.cat
 @media (hover:hover) { .card__hit:hover .card__art > img { transform:scale(1.025); filter:saturate(1) contrast(1.03); } }
 
 .card__body {
-  display: flex; flex-direction: column; gap: 10rem;
-  padding: 16rem 18rem 18rem;
+  display: flex; flex-direction: column; gap: var(--space-13);
+  padding: var(--space-21);
   flex: 1;
 }
 .card__title {
@@ -99,7 +99,7 @@ const signalVariant = computed(() => itemScene[props.item.id] ?? (props.item.cat
 }
 .card__dek {
   font-family: var(--font-reading);
-  font-size: 15.5rem; line-height: 1.55;
+  font-size: var(--type-body); line-height: 1.45;
   color: var(--muted);
 }
 
@@ -115,14 +115,14 @@ const signalVariant = computed(() => itemScene[props.item.id] ?? (props.item.cat
 /* The lead remains a concise proof point; the Paper Signal preview carries the
    shared visual language without making the index depend on a raster cover. */
 .card--feature .card__title {
-  font-size: clamp(30rem, 3.6vw, 54rem);
+  font-size: var(--type-h1);
   text-decoration: none;
 }
-.card--feature .card__dek { font-size: clamp(16rem, 1.5vw, 19rem); color: var(--ink); max-width: 44ch; }
+.card--feature .card__dek { font-size: var(--type-dek); color: var(--ink); max-width: var(--measure-deck); }
 
 @media (max-width: 820px) {
   .card--feature .card__hit { flex-direction: column; flex-wrap: nowrap; }
-  .card--feature .card__art { aspect-ratio: 16 / 9; min-height: 0; border-right: 0; border-bottom: var(--stroke) solid var(--line); }
+  .card--feature .card__art { aspect-ratio: var(--crop); min-height: 0; border-right: 0; border-bottom: var(--stroke) solid var(--line); }
 }
 
 /* ── Field variants ─────────────────────────────────────────────────────── */
@@ -144,7 +144,7 @@ const signalVariant = computed(() => itemScene[props.item.id] ?? (props.item.cat
 @media (max-width: 900px) {
   .card--wide .card__hit { flex-direction: column; flex-wrap: nowrap; }
   .card--wide .card__art {
-    flex: none; aspect-ratio: 16 / 9;
+    flex: none; aspect-ratio: var(--crop);
     border-right: 0; border-bottom: var(--stroke) solid var(--line);
   }
 }
@@ -158,10 +158,10 @@ const signalVariant = computed(() => itemScene[props.item.id] ?? (props.item.cat
 @media (hover: hover) {
   .card--compact .card__hit:hover { transform: none; box-shadow: none; border-color: var(--ink); background: var(--paper-2); }
 }
-.card--compact .card__body { padding: 16rem; gap: 8rem; }
-.card--compact .card__title { font-size: 21rem; }
+.card--compact .card__body { padding: var(--space-21); gap: var(--space-8); }
+.card--compact .card__title { font-size: var(--type-card); }
 .card--compact .card__dek {
-  font-size: 14.5rem;
+  font-size: var(--type-body);
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
 

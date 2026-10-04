@@ -41,17 +41,17 @@ defineProps<{
 
 <style scoped>
 .hero {
-  padding-bottom: clamp(24rem, 4vw, 40rem);
-  border-bottom: var(--stroke) solid var(--line);
-  margin-bottom: clamp(28rem, 5vw, 52rem);
+  padding-bottom: var(--space-34);
+  border-bottom: var(--stroke) solid var(--ink);
+  margin-bottom: var(--space-34);
 }
 /* Sized a rung under --type-display. Bangers is a caps face with no lowercase
    to give the eye a break, so a headline of more than about six words needs
    the smaller setting or it stops being a headline and becomes a wall. */
 .hero__title {
-  font-size: clamp(34rem, 4.6vw, 66rem);
+  font-size: var(--type-h1);
   margin: 0;
-  max-width: 20ch;
+  max-width: 22ch;
 }
 .hero--projects .hero__title { animation: hero-projects-title 620ms var(--ease-expo-out) both; }
 .hero--tools .hero__title { animation: hero-tools-title 560ms var(--ease-spring) both; }
@@ -69,14 +69,14 @@ defineProps<{
 }
 .hero__deck {
   font-family: var(--font-reading);
-  font-size: clamp(17rem, 1.7vw, 21rem); line-height: 1.55;
-  color: var(--muted);
-  max-width: 52ch;
-  margin: clamp(16rem, 2vw, 24rem) 0 0;
+  font-size: var(--type-dek); line-height: 1.35;
+  color: var(--ink);
+  max-width: 36ch;
+  margin: var(--space-21) 0 0;
 }
 .hero__meta {
-  margin-top: clamp(20rem, 3vw, 30rem);
-  display: flex; flex-wrap: wrap; align-items: center; gap: 14rem 24rem;
+  margin-top: var(--space-21);
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-13) var(--space-21);
 }
 .hero__stamp { margin: 0; color: var(--muted); }
 </style>

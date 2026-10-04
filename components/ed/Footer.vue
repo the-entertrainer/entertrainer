@@ -15,7 +15,7 @@ const sectionLinks = [
   <footer class="ft">
     <div class="ft__inner">
       <div class="ft__brand">
-        <EdWordmark :size="32" />
+        <EdWordmark :size="34" />
         <a class="ticket ticket--sm" :href="`mailto:${store.email}`">Write to me</a>
       </div>
 
@@ -42,32 +42,32 @@ const sectionLinks = [
 
 <style scoped>
 .ft {
-  border-top: var(--stroke) solid var(--line);
-  background: var(--paper-2);
-  margin-top: clamp(60rem, 10vh, 120rem);
+  border-top: var(--stroke) solid var(--ink);
+  background: var(--paper);
+  margin-top: var(--space-89);
 }
 .ft__inner {
-  max-width: var(--shell-wide); margin: 0 auto;
-  padding: clamp(36rem, 6vw, 64rem) var(--shell-gutter);
-  display: grid; gap: clamp(28rem, 4vw, 48rem);
+  max-width: var(--shell-max); margin: 0 auto;
+  padding: var(--space-55) var(--shell-gutter);
+  display: grid; gap: var(--space-34);
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.2fr);
 }
 @media (max-width: 900px) { .ft__inner { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .ft__inner { grid-template-columns: minmax(0, 1fr); } }
 
-.ft__brand { display: flex; flex-direction: column; align-items: flex-start; gap: 16rem; }
+.ft__brand { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-21); }
 
-.ft__col { display: flex; flex-direction: column; align-items: flex-start; gap: 10rem; }
+.ft__col { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-13); }
 .ft__h { color: var(--muted); margin: 0 0 2rem; }
-.ft__link { display:inline-flex; align-items:center; min-height:28rem; font-size:15.5rem; font-weight:600; }
-.ft__fine { font-size: 13.5rem; line-height: 1.6; color: var(--muted); margin: 0; }
-.ft__fine code { font-family: var(--font-mono); font-size: 12.5rem; }
+.ft__link { display:inline-flex; align-items:center; min-height:var(--space-34); font-size:var(--type-body); font-weight:500; }
+.ft__fine { font-size: var(--type-meta); line-height: 1.45; color: var(--muted); margin: 0; }
+.ft__fine code { font-family: var(--font-mono); font-size: var(--type-meta); }
 
 .ft__base {
   border-top: var(--stroke) solid var(--line);
-  max-width: var(--shell-wide); margin: 0 auto;
-  padding: 18rem var(--shell-gutter) calc(18rem + var(--safe-bottom));
-  display: flex; flex-wrap: wrap; gap: 10rem 24rem; justify-content: space-between;
+  max-width: var(--shell-max); margin: 0 auto;
+  padding: var(--space-21) var(--shell-gutter) calc(var(--space-21) + var(--safe-bottom));
+  display: flex; flex-wrap: wrap; gap: var(--space-13) var(--space-21); justify-content: space-between;
   color: var(--muted);
 }
 .ft__base p { margin: 0; }

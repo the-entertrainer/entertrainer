@@ -2,14 +2,12 @@
 /**
  * The page frame.
  *
- * One gutter and one page box for every editorial route, so the left edge does
- * not move as you navigate — the fault the old site had five different answers
- * to. The measure *inside* the frame still varies with intent (a case study
- * wants a narrower column than a section index); that is the job of the type,
- * not of the box.
+ * One gutter and one page box for every editorial route. The shell is 1180.
+ * The content column inside it is 729 (1180 / φ). Reading measure is 66
+ * characters, set by type, not by a second box.
  */
 withDefaults(defineProps<{
-  /** `wide` is the story field, `read` is a narrow reading measure. */
+  /** `wide` and `page` share the 1180 shell. `read` is the same shell; the column is 729. */
   width?: 'wide' | 'page' | 'read'
 }>(), { width: 'page' })
 </script>
@@ -24,9 +22,10 @@ withDefaults(defineProps<{
 .shell {
   width: 100%;
   margin: 0 auto;
-  padding: clamp(24rem, 4vw, 44rem) var(--shell-gutter) clamp(48rem, 8vh, 88rem);
+  padding: var(--space-34) var(--shell-gutter) var(--space-55);
 }
-.shell--wide { max-width: var(--shell-wide); }
-.shell--page { max-width: var(--shell-max); }
-.shell--read { max-width: 880rem; }
+.shell--wide,
+.shell--page,
+.shell--read { max-width: var(--shell-max); }
+.shell--read { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); }
 </style>

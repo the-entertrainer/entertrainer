@@ -165,7 +165,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, The Gateway, Third Eye, Solfeggio, and Brainwave.',
+    description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },
@@ -185,31 +185,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'read-my-mind',
     label: 'Mind Reader',
     title: 'The Mind Reader · Engage',
-    description: 'A guided number illusion from Entertrainer. Choose a number, follow three quiet steps, and keep one mark in mind.'
-  },
-  '/engage/gateway': {
-    key: 'gateway',
-    label: 'The Gateway',
-    title: 'The Gateway · Engage',
-    description: 'Headphones on. One tap. The tone does the work.'
-  },
-  '/engage/third-eye': {
-    key: 'third-eye',
-    label: 'Third Eye',
-    title: 'Third Eye · Engage',
-    description: 'Headphones on, screen bright. Twelve breaths, then a tone.'
-  },
-  '/engage/solfeggio': {
-    key: 'solfeggio',
-    label: 'Solfeggio',
-    title: 'Solfeggio · Engage',
-    description: 'A full song from nine pitches.'
-  },
-  '/engage/brainwave': {
-    key: 'brainwave',
-    label: 'Brainwave',
-    title: 'Brainwave · Engage',
-    description: 'A beat you tune, in hertz. Clearest in headphones.'
+    description: 'Example: 42. Add 4 + 2, subtract to get 36, and note the mark beside it.',
   },
   '/my-work/sewa-chronicles': {
     key: 'sewa-chronicles',

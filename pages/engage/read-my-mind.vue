@@ -9,7 +9,7 @@ import { useThemeStore } from '~/stores/theme'
 
 useSeoMeta({
   title: 'The Mind Reader · Engage',
-  description: 'Pick a two-digit number. Add the digits. Subtract that sum. Find your mark.',
+  description: 'Example: 42. Add 4 + 2, subtract to get 36, and note the mark beside it.',
   ogUrl: 'https://entertrainer.in/engage/read-my-mind',
 })
 
@@ -320,13 +320,23 @@ onMounted(() => {
             <div class="mr__badge">01</div>
             <h2>Pick a <em>two-digit</em> number.</h2>
             <p class="mr__copy">10 to 99. Just remember it.</p>
+            <p class="mr__example">
+              <span>Example</span>
+              <strong>42</strong>
+              <em>This is the number. Yours can be any other from 10 to 99.</em>
+            </p>
             <button class="mr__cta" type="button" @click="nextStep">Got it</button>
           </div>
 
           <div v-else-if="step === 2" class="mr__panel">
             <div class="mr__badge">02</div>
             <h2>Add those <em>digits</em>.</h2>
-            <p class="mr__copy">Hold the sum.</p>
+            <p class="mr__copy">Hold the sum. That is the first move.</p>
+            <p class="mr__example">
+              <span>Example</span>
+              <strong>4 + 2 = 6</strong>
+              <em>First move: add the two digits of 42. Hold 6.</em>
+            </p>
             <div class="mr__actions">
               <button class="mr__ghost" type="button" @click="previousStep">Back</button>
               <button class="mr__cta" type="button" @click="nextStep">Sum ready</button>
@@ -336,7 +346,12 @@ onMounted(() => {
           <div v-else-if="step === 3" class="mr__panel">
             <div class="mr__badge">03</div>
             <h2>Subtract that sum from your <em>original</em>.</h2>
-            <p class="mr__copy">Keep the result.</p>
+            <p class="mr__copy">Keep the result. That is the second move.</p>
+            <p class="mr__example">
+              <span>Example</span>
+              <strong>42 − 6 = 36</strong>
+              <em>Second move: take the sum off the number you picked.</em>
+            </p>
             <div class="mr__actions">
               <button class="mr__ghost" type="button" @click="previousStep">Back</button>
               <button class="mr__cta" type="button" @click="nextStep">Ready</button>
@@ -346,7 +361,14 @@ onMounted(() => {
           <div v-else class="mr__board">
             <div class="mr__board-head">
               <div class="mr__badge">04</div>
-              <h2>Find your number. Note the mark.</h2>
+              <div>
+                <h2>Find your number. Note the mark.</h2>
+                <p class="mr__example mr__example--board">
+                  <span>Example</span>
+                  <strong>36</strong>
+                  <em>Find 36. The symbol beside it is the mark.</em>
+                </p>
+              </div>
             </div>
             <div class="mr__grid" role="grid" aria-label="Number board">
               <div
@@ -756,9 +778,41 @@ onMounted(() => {
   margin-top: 16rem;
 }
 
+
+.mr__example {
+  display: grid;
+  gap: 6rem;
+  margin: 0;
+  max-width: 36ch;
+  padding: 14rem 16rem;
+  border-radius: 16rem;
+  background: var(--mr-yellow);
+  color: #161618;
+}
+.mr__example span {
+  font: 800 10rem/1 var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.mr__example strong {
+  font: 700 clamp(28rem, 5vw, 40rem)/0.95 var(--font-display);
+  letter-spacing: -0.04em;
+}
+.mr__example em {
+  font: 500 14rem/1.35 var(--font-reading, inherit);
+  font-style: normal;
+}
+.mr__example--board {
+  margin-top: 8rem;
+  max-width: none;
+}
+.mr[data-mr-theme='dark'] .mr__example {
+  color: #161618;
+}
+
 .mr__board-head {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 14rem;
   margin-bottom: 14rem;
 }

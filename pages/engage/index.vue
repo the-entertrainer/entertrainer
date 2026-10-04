@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, The Gateway, Third Eye, Solfeggio, and Brainwave.',
+  description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -23,7 +23,7 @@ const MIND_READER_SYMBOLS = [
     />
 
     <ol class="engage__grid">
-      <li class="u-reveal">
+      <li class="engage__step" style="--step: 0">
         <NuxtLink to="/engage/stack" class="engage__card engage__card--stack">
           <span class="engage__icon engage__icon--stack" aria-hidden="true">
             <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
@@ -33,7 +33,7 @@ const MIND_READER_SYMBOLS = [
             </svg>
           </span>
           <span class="engage__card-text">
-            <strong class="engage__card-name">Stack</strong>
+            <span class="engage__step-no">01</span><strong class="engage__card-name">Stack</strong>
             <span class="engage__card-blurb">Tap to drop. Only the overlap stays.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
@@ -42,14 +42,14 @@ const MIND_READER_SYMBOLS = [
           </span>
         </NuxtLink>
       </li>
-      <li class="u-reveal">
+      <li class="engage__step" style="--step: 1">
         <NuxtLink to="/engage/read-my-mind" class="engage__card engage__card--mind-reader">
           <span class="engage__icon engage__icon--mind-reader" aria-hidden="true">
             <i v-for="(symbol, i) in MIND_READER_SYMBOLS" :key="i"><svg viewBox="0 0 24 24" aria-hidden="true" v-html="symbol"></svg></i>
           </span>
           <span class="engage__card-text">
-            <strong class="engage__card-name">The Mind Reader</strong>
-            <span class="engage__card-blurb">Pick a number. Two small moves. One mark.</span>
+            <span class="engage__step-no">02</span><strong class="engage__card-name">The Mind Reader</strong>
+            <span class="engage__card-blurb">Example: 42. Add 4 + 2, subtract, and the mark is on 36.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -57,7 +57,7 @@ const MIND_READER_SYMBOLS = [
           </span>
         </NuxtLink>
       </li>
-      <li class="u-reveal">
+      <li class="engage__step" style="--step: 2">
         <NuxtLink to="/engage/astroclock" class="engage__card engage__card--astroclock">
           <span class="engage__icon engage__icon--astroclock" aria-hidden="true">
             <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
@@ -91,81 +91,8 @@ const MIND_READER_SYMBOLS = [
             </svg>
           </span>
           <span class="engage__card-text">
-            <strong class="engage__card-name">AstroClock</strong>
+            <span class="engage__step-no">03</span><strong class="engage__card-name">AstroClock</strong>
             <span class="engage__card-blurb">Birth place and time. A live dial. What today is doing.</span>
-          </span>
-          <span class="engage__card-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
-          </span>
-        </NuxtLink>
-      </li>
-      <li class="u-reveal">
-        <NuxtLink to="/engage/gateway" class="engage__card engage__card--gateway">
-          <span class="engage__icon engage__icon--gateway" aria-hidden="true">
-            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
-              <path d="M15 40V22c0-9 4.2-14 9-14" stroke="var(--paper)" stroke-width="3.2" stroke-linecap="round"/>
-              <path d="M33 40V22c0-9-4.2-14-9-14" stroke="var(--accent)" stroke-width="3.2" stroke-linecap="round"/>
-            </svg>
-          </span>
-          <span class="engage__card-text">
-            <strong class="engage__card-name">The Gateway</strong>
-            <span class="engage__card-blurb">One tap. A quieter, sharper mind.</span>
-          </span>
-          <span class="engage__card-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
-          </span>
-        </NuxtLink>
-      </li>
-      <li class="u-reveal">
-        <NuxtLink to="/engage/third-eye" class="engage__card engage__card--third-eye">
-          <span class="engage__icon engage__icon--third-eye" aria-hidden="true">
-            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
-              <path d="M6 24c5.4-7.4 11.2-11 18-11s12.6 3.6 18 11c-5.4 7.4-11.2 11-18 11S11.4 31.4 6 24Z" stroke="var(--paper)" stroke-width="2.6" stroke-linejoin="round"/>
-              <circle cx="24" cy="24" r="5.5" stroke="var(--accent)" stroke-width="2.6"/>
-              <circle cx="24" cy="24" r="1.7" fill="var(--accent)"/>
-            </svg>
-          </span>
-          <span class="engage__card-text">
-            <strong class="engage__card-name">Third Eye</strong>
-            <span class="engage__card-blurb">Twelve breaths. Then a tone.</span>
-          </span>
-          <span class="engage__card-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
-          </span>
-        </NuxtLink>
-      </li>
-      <li class="u-reveal">
-        <NuxtLink to="/engage/solfeggio" class="engage__card engage__card--solfeggio">
-          <span class="engage__icon engage__icon--solfeggio" aria-hidden="true">
-            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
-              <path d="M8 30c3.2-8 4.8-8 8 0s4.8 8 8 0 4.8-8 8 0 4.8 8 8 0" stroke="var(--paper)" stroke-width="2.4" stroke-linecap="round"/>
-              <circle cx="34" cy="16" r="2.3" fill="var(--accent)"/>
-            </svg>
-          </span>
-          <span class="engage__card-text">
-            <strong class="engage__card-name">Solfeggio</strong>
-            <span class="engage__card-blurb">A full song from nine pitches.</span>
-          </span>
-          <span class="engage__card-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
-          </span>
-        </NuxtLink>
-      </li>
-      <li class="u-reveal">
-        <NuxtLink to="/engage/brainwave" class="engage__card engage__card--brainwave">
-          <span class="engage__icon engage__icon--brainwave" aria-hidden="true">
-            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
-              <path d="M6 28c3-6 5-6 8 0s5 6 8 0 5-6 8 0 5 6 8 0" stroke="var(--paper)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M6 20c3-6 5-6 8 0s5 6 8 0 5-6 8 0 5 6 8 0" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          <span class="engage__card-text">
-            <strong class="engage__card-name">Brainwave</strong>
-            <span class="engage__card-blurb">A beat you tune, in hertz.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -272,35 +199,6 @@ const MIND_READER_SYMBOLS = [
 }
 .engage__icon--stack svg { display: block; width: 100%; height: 100%; }
 
-.engage__icon--gateway {
-  display: grid;
-  place-items: center;
-  padding: 7rem;
-  color: var(--accent-ink);
-  background: var(--ink);
-}
-.engage__icon--gateway svg { display: block; width: 100%; height: 100%; }
-
-.engage__icon--third-eye {
-  display: grid;
-  place-items: center;
-  padding: 7rem;
-  color: var(--accent-ink);
-  background: var(--ink);
-}
-.engage__icon--third-eye svg { display: block; width: 100%; height: 100%; }
-
-.engage__icon--solfeggio,
-.engage__icon--brainwave {
-  display: grid;
-  place-items: center;
-  padding: 7rem;
-  color: var(--accent-ink);
-  background: var(--ink);
-}
-.engage__icon--solfeggio svg,
-.engage__icon--brainwave svg { display: block; width: 100%; height: 100%; }
-
 .engage__card-text {
   display: flex;
   flex-wrap: wrap;
@@ -318,8 +216,54 @@ const MIND_READER_SYMBOLS = [
   .engage__card-arrow { align-self: center; }
 }
 
+/* One card settles before the next starts. 520ms move, 640ms gap. */
+.engage__step {
+  min-height: 0;
+  animation: engage-card-step 520ms var(--ease-out) backwards;
+  animation-delay: calc(var(--step) * 640ms);
+}
+@keyframes engage-card-step {
+  0% {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transform: translateY(10px);
+  }
+  16% { visibility: visible; }
+  100% {
+    opacity: 1;
+    max-height: 320px;
+    overflow: visible;
+    visibility: visible;
+    transform: none;
+  }
+}
+
+.engage__step-no {
+  display: inline-grid;
+  place-items: center;
+  min-width: 28rem;
+  height: 22rem;
+  padding: 0 6rem;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--accent);
+  font: 700 11rem/1 var(--font-mono);
+  letter-spacing: 0.08em;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .engage__step { animation: none; opacity: 1; transform: none; visibility: visible; }
   .engage__card, .engage__card-arrow { transition: none; }
   .engage__card:hover { transform: none; }
 }
+
+:global(html[data-reduce-motion="on"]) .engage__step {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
+}
+
 </style>

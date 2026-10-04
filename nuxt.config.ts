@@ -230,6 +230,11 @@ export default defineNuxtConfig({
     '/engage/squash': { redirect: { to: '/engage', statusCode: 301 } },
     '/engage/fever': { redirect: { to: '/engage', statusCode: 301 } },
     '/engage/netagiri': { redirect: { to: '/engage', statusCode: 301 } },
+    // Gateway, Third Eye, Solfeggio, and Brainwave removed — keep old links from 404ing.
+    '/engage/gateway': { redirect: { to: '/engage', statusCode: 301 } },
+    '/engage/third-eye': { redirect: { to: '/engage', statusCode: 301 } },
+    '/engage/solfeggio': { redirect: { to: '/engage', statusCode: 301 } },
+    '/engage/brainwave': { redirect: { to: '/engage', statusCode: 301 } },
     '/elevate/if-you-are-intelligent-life-might-not-be-easy': { redirect: { to: '/elevate', statusCode: 301 } },
     '/elevate/does-ai-understand-you': { redirect: { to: '/elevate', statusCode: 301 } },
     '/elevate/how-to-lie-perfectly': { redirect: { to: '/elevate', statusCode: 301 } },

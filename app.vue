@@ -86,10 +86,6 @@ const bare = computed(() =>
   r.path.startsWith('/engage/read-my-mind') ||
   r.path.startsWith('/engage/astroclock') ||
   r.path.startsWith('/engage/stack') ||
-  r.path.startsWith('/engage/gateway') ||
-  r.path.startsWith('/engage/third-eye') ||
-  r.path.startsWith('/engage/solfeggio') ||
-  r.path.startsWith('/engage/brainwave') ||
   r.path.startsWith('/engage/squash')
 )
 

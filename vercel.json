@@ -88,6 +88,26 @@
       "permanent": true
     },
     {
+      "source": "/engage/gateway",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/third-eye",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/solfeggio",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/brainwave",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
       "source": "/elevate/if-you-are-intelligent-life-might-not-be-easy",
       "destination": "/elevate",
       "permanent": true

@@ -127,6 +127,20 @@ export const BLOG_POSTS: BlogPost[] = [
     status: 'published',
     publishedAt: '2026-09-22T15:45:00+00:00'
   },
+  {
+    slug: 'stomach-ulcers-are-an-infection',
+    title: 'Stomach ulcers are an infection',
+    dek: 'Robin Warren kept finding a thin blue line on stomach biopsies in Perth. Colleagues said the stomach was sterile.',
+    socialHook: 'In 1984 Barry Marshall swallowed a culture from a Perth stomach biopsy. The illness was gastritis. The chronic ulcer was never his.',
+    socialTitle: 'He drank the stomach bacteria. He did not grow an ulcer.',
+    category: 'Science',
+    tags: ['medicine', 'microbiology', 'history'],
+    minutes: 10,
+    hero: '/blog/stomach-ulcers-are-an-infection/hero.jpg',
+    heroAlt: 'Cream paper, a black-ink petri dish with a few colonies, and one cobalt spiral — a curved bacterium, not a person.',
+    status: 'published',
+    publishedAt: '2026-10-04T15:15:00+00:00'
+  },
 ]
 
 export const ENTROPY_BLOG = BLOG_POSTS[0]
@@ -136,4 +150,5 @@ export const LIFE_MIDPOINT_BLOG = BLOG_POSTS[3]
 export const KNOWING_BLOG = BLOG_POSTS[4]
 export const TAJJALAN_BLOG = BLOG_POSTS[5]
 export const SPLIT_BRAIN_BLOG = BLOG_POSTS[6]
+export const ULCER_BLOG = BLOG_POSTS[7]
 export const FEATURED_BLOG = ENTROPY_BLOG

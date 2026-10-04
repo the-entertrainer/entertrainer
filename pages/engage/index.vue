@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, The Gateway, Third Eye, and Solfeggio.',
+  description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, The Gateway, Third Eye, Solfeggio, and Brainwave.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -155,6 +155,24 @@ const MIND_READER_SYMBOLS = [
           </span>
         </NuxtLink>
       </li>
+      <li class="u-reveal">
+        <NuxtLink to="/engage/brainwave" class="engage__card engage__card--brainwave">
+          <span class="engage__icon engage__icon--brainwave" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
+              <path d="M6 28c3-6 5-6 8 0s5 6 8 0 5-6 8 0 5 6 8 0" stroke="var(--paper)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 20c3-6 5-6 8 0s5 6 8 0 5-6 8 0 5 6 8 0" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="engage__card-text">
+            <strong class="engage__card-name">Brainwave</strong>
+            <span class="engage__card-blurb">A beat you tune, in hertz.</span>
+          </span>
+          <span class="engage__card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </span>
+        </NuxtLink>
+      </li>
     </ol>
   </div>
 </template>
@@ -272,14 +290,16 @@ const MIND_READER_SYMBOLS = [
 }
 .engage__icon--third-eye svg { display: block; width: 100%; height: 100%; }
 
-.engage__icon--solfeggio {
+.engage__icon--solfeggio,
+.engage__icon--brainwave {
   display: grid;
   place-items: center;
   padding: 7rem;
   color: var(--accent-ink);
   background: var(--ink);
 }
-.engage__icon--solfeggio svg { display: block; width: 100%; height: 100%; }
+.engage__icon--solfeggio svg,
+.engage__icon--brainwave svg { display: block; width: 100%; height: 100%; }
 
 .engage__card-text {
   display: flex;

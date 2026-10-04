@@ -147,7 +147,7 @@ const MIND_READER_SYMBOLS = [
           </span>
           <span class="engage__card-text">
             <strong class="engage__card-name">Solfeggio</strong>
-            <span class="engage__card-blurb">A short piece from nine pitches.</span>
+            <span class="engage__card-blurb">A full song from nine pitches.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"

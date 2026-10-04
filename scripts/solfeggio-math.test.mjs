@@ -16,6 +16,11 @@ import {
   schedulePiece,
   melodyLandingRate,
   minOnsetGap,
+  PHI,
+  PENTAGON_STEP,
+  phiRingRadii,
+  pentagonVertices,
+  goldenRectangleCorners,
 } from '../utils/solfeggio-math.mjs'
 
 assert.deepEqual([...PITCHES], [174, 285, 396, 417, 528, 639, 741, 852, 963])
@@ -96,6 +101,41 @@ for (let seed = 0; seed < 48; seed++) {
     }
   }
 }
+
+
+assert.ok(Math.abs(PHI - (1 + Math.sqrt(5)) / 2) < 1e-15)
+assert.ok(Math.abs(PHI - 1.6180339887) < 1e-10)
+assert.ok(Math.abs(Math.cos(PENTAGON_STEP) - (PHI - 1) / 2) < 1e-12)
+
+const rings = phiRingRadii(6, 8)
+assert.equal(rings.length, 6)
+assert.equal(rings[0], 8)
+for (let i = 1; i < rings.length; i++) {
+  assert.ok(Math.abs(rings[i] / rings[i - 1] - PHI) < 1e-12)
+  assert.ok(rings[i] > rings[i - 1])
+}
+
+const verts = pentagonVertices(100, -Math.PI / 2)
+assert.equal(verts.length, 5)
+for (let i = 1; i < verts.length; i++) {
+  assert.ok(Math.abs((verts[i].angle - verts[i - 1].angle) - PENTAGON_STEP) < 1e-12)
+  assert.ok(Math.abs((verts[i].angle - verts[i - 1].angle) - (72 * Math.PI / 180)) < 1e-12)
+}
+for (let i = 0; i < verts.length; i++) {
+  const a = verts[i]
+  const b = verts[(i + 1) % verts.length]
+  let turn = Math.atan2(b.y, b.x) - Math.atan2(a.y, a.x)
+  if (turn < 0) turn += Math.PI * 2
+  assert.ok(Math.abs(turn - (72 * Math.PI / 180)) < 1e-9)
+  assert.ok(Math.abs(Math.hypot(a.x, a.y) - 100) < 1e-9)
+}
+
+const rect = goldenRectangleCorners(4)
+assert.equal(rect.length, 4)
+const width = Math.abs(rect[1].x - rect[0].x)
+const height = Math.abs(rect[2].y - rect[1].y)
+assert.ok(Math.abs(width / height - PHI) < 1e-12)
+assert.ok(Math.abs(width / 4 - PHI) < 1e-12)
 
 const sample = schedulePiece(7)
 console.log('solfeggio-math: pass')

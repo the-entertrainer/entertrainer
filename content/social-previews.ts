@@ -203,7 +203,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'solfeggio',
     label: 'Solfeggio',
     title: 'Solfeggio · Engage',
-    description: 'A slow tune from nine pitches.'
+    description: 'A short piece from nine pitches.'
   },
   '/engage/brainwave': {
     key: 'brainwave',

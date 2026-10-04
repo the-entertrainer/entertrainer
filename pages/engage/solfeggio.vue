@@ -721,6 +721,9 @@ function scheduleSong(ctx: AudioContext, song: Song, origin: number) {
   }
 }
 
+// A few dB, about 80ms. The kick is the sidechain key; chords sit on chordDuck.
+const DUCK = 0.631
+
 const SECTION_CUTOFF: Record<string, number> = {
   intro: 880,
   theme: 1400,

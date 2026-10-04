@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, The Gateway, and Third Eye.',
+  description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, The Gateway, Third Eye, and Solfeggio.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -137,6 +137,24 @@ const MIND_READER_SYMBOLS = [
           </span>
         </NuxtLink>
       </li>
+      <li class="u-reveal">
+        <NuxtLink to="/engage/solfeggio" class="engage__card engage__card--solfeggio">
+          <span class="engage__icon engage__icon--solfeggio" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
+              <path d="M8 30c3.2-8 4.8-8 8 0s4.8 8 8 0 4.8-8 8 0 4.8 8 8 0" stroke="var(--paper)" stroke-width="2.4" stroke-linecap="round"/>
+              <circle cx="34" cy="16" r="2.3" fill="var(--accent)"/>
+            </svg>
+          </span>
+          <span class="engage__card-text">
+            <strong class="engage__card-name">Solfeggio</strong>
+            <span class="engage__card-blurb">A slow tune from nine pitches.</span>
+          </span>
+          <span class="engage__card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </span>
+        </NuxtLink>
+      </li>
     </ol>
   </div>
 </template>
@@ -253,6 +271,15 @@ const MIND_READER_SYMBOLS = [
   background: var(--ink);
 }
 .engage__icon--third-eye svg { display: block; width: 100%; height: 100%; }
+
+.engage__icon--solfeggio {
+  display: grid;
+  place-items: center;
+  padding: 7rem;
+  color: var(--accent-ink);
+  background: var(--ink);
+}
+.engage__icon--solfeggio svg { display: block; width: 100%; height: 100%; }
 
 .engage__card-text {
   display: flex;

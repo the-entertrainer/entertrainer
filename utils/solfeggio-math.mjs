@@ -166,3 +166,59 @@ export function minOnsetGap(events) {
   }
   return min
 }
+
+/** Golden ratio. cos(72°) = (φ − 1) / 2, so the pentagon is the same construction. */
+export const PHI = (1 + Math.sqrt(5)) / 2
+
+/** Interior step of a regular pentagon, in radians (72°). */
+export const PENTAGON_STEP = (2 * Math.PI) / 5
+
+/**
+ * Concentric radii that step by φ: inner, inner·φ, inner·φ², …
+ * @param {number} count
+ * @param {number} [inner]
+ * @returns {number[]}
+ */
+export function phiRingRadii(count, inner = 1) {
+  const radii = []
+  for (let i = 0; i < count; i++) radii.push(inner * PHI ** i)
+  return radii
+}
+
+/**
+ * Vertices of a regular pentagon on a circle. Successive `angle` values are 72° apart.
+ * Coordinates are centered on the origin; `rotation` is the first vertex (point-up is −π/2).
+ * @param {number} radius
+ * @param {number} [rotation]
+ * @returns {{ x: number, y: number, angle: number }[]}
+ */
+export function pentagonVertices(radius, rotation = -Math.PI / 2) {
+  const vertices = []
+  for (let i = 0; i < 5; i++) {
+    const angle = rotation + i * PENTAGON_STEP
+    vertices.push({
+      x: radius * Math.cos(angle),
+      y: radius * Math.sin(angle),
+      angle,
+    })
+  }
+  return vertices
+}
+
+/**
+ * Corners of a golden rectangle centered on the origin.
+ * The long side is horizontal, so width / height = φ.
+ * @param {number} shortSide
+ * @returns {{ x: number, y: number }[]}
+ */
+export function goldenRectangleCorners(shortSide) {
+  const longSide = shortSide * PHI
+  const hx = longSide / 2
+  const hy = shortSide / 2
+  return [
+    { x: -hx, y: -hy },
+    { x: hx, y: -hy },
+    { x: hx, y: hy },
+    { x: -hx, y: hy },
+  ]
+}

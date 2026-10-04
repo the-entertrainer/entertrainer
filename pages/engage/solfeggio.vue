@@ -6,7 +6,13 @@ definePageMeta({ layout: false })
  * Web Audio only. The pitch list is a modern numerological set, not a therapy.
  */
 import { useThemeStore } from '~/stores/theme'
-import { schedulePiece } from '~/utils/solfeggio-math.mjs'
+import {
+  schedulePiece,
+  PHI,
+  phiRingRadii,
+  pentagonVertices,
+  goldenRectangleCorners,
+} from '~/utils/solfeggio-math.mjs'
 
 useSeoMeta({
   title: 'Solfeggio · Engage',
@@ -43,6 +49,17 @@ const theme = useThemeStore()
 const phase = ref<Phase>('land')
 const sounding = ref(0)
 const playedOnce = ref(false)
+const vizEl = ref<HTMLCanvasElement | null>(null)
+
+let pieceEvents: Scheduled[] = []
+let pieceOrigin = 0
+let vizRaf = 0
+let vizAngle = 0
+let strokePhase = 0
+let lastAudioTime = -1
+let reduceMotion = false
+let motionQuery: MediaQueryList | null = null
+let resizeObserver: ResizeObserver | null = null
 
 let audioCtx: AudioContext | null = null
 let graphNodes: AudioNode[] = []
@@ -100,8 +117,12 @@ function disconnectGraph() {
 
 function teardown() {
   clearTimers()
+  stopVizLoop()
   stopLive()
   disconnectGraph()
+  pieceEvents = []
+  pieceOrigin = 0
+  lastAudioTime = -1
 }
 
 function connectPan(ctx: AudioContext, source: AudioNode, dest: AudioNode, pan: number, when: number) {
@@ -245,14 +266,24 @@ function begin() {
   buildGraph(ctx)
   phase.value = 'hold'
   playedOnce.value = true
+  pieceEvents = piece.events as Scheduled[]
+  pieceOrigin = ctx.currentTime + 0.05
+  vizAngle = 0
+  strokePhase = 0
+  lastAudioTime = -1
   sounding.value = piece.events[0]?.hz ?? piece.droneHz
-  runPiece(gen, piece.events as Scheduled[], ctx.currentTime + 0.05)
+  runPiece(gen, piece.events as Scheduled[], pieceOrigin)
+  startVizLoop()
+  paintViz(false)
 }
 
 function finishLeave(gen: number) {
   if (gen !== generation) return
   teardown()
+  vizAngle = 0
+  strokePhase = 0
   phase.value = 'land'
+  paintViz(false)
 }
 
 function leave() {
@@ -276,12 +307,214 @@ function onThemeToggle(e: Event) {
   theme.toggle()
 }
 
+function noteEnvelope(elapsed: number, dur: number) {
+  if (elapsed < 0) return 0
+  const releaseAt = Math.max(dur, ATTACK + 0.25)
+  const stopAt = releaseAt + RELEASE
+  if (elapsed >= stopAt) return 0
+  if (elapsed <= ATTACK) return FLOOR * (1 / FLOOR) ** (elapsed / ATTACK)
+  if (elapsed <= releaseAt) return 1
+  return FLOOR ** ((elapsed - releaseAt) / RELEASE)
+}
+
+function activeNote(audioTime: number) {
+  if (!pieceEvents.length || phase.value === 'land') return null
+  const now = audioTime - pieceOrigin
+  let active = pieceEvents[0]
+  for (const event of pieceEvents) {
+    if (event.t <= now + 0.03) active = event
+    else break
+  }
+  return {
+    hz: active.hz,
+    env: noteEnvelope(now - active.t, active.dur),
+  }
+}
+
+function advanceViz(audioTime: number, hz: number, env: number) {
+  if (lastAudioTime < 0) {
+    lastAudioTime = audioTime
+    return
+  }
+  const dt = Math.min(0.1, Math.max(0, audioTime - lastAudioTime))
+  lastAudioTime = audioTime
+  const pitch = hz > 0 ? hz : 396
+  const omega = (pitch / 528) * ((Math.PI * 2) / 36)
+  vizAngle += dt * omega * (0.25 + 0.75 * env)
+  strokePhase += dt * pitch * 0.02 * (0.3 + 0.7 * env)
+}
+
+function fitViz(canvas: HTMLCanvasElement) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
+  const w = Math.max(1, canvas.clientWidth)
+  const h = Math.max(1, canvas.clientHeight)
+  const pw = Math.round(w * dpr)
+  const ph = Math.round(h * dpr)
+  if (canvas.width !== pw || canvas.height !== ph) {
+    canvas.width = pw
+    canvas.height = ph
+  }
+  return dpr
+}
+
+function drawViz(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  angle: number,
+  env: number,
+  dash: number,
+  dark: boolean,
+  motion: boolean,
+) {
+  const paper = dark ? '#121214' : '#fbf8ef'
+  const ink = dark ? '#ede6d6' : '#161618'
+  const cobalt = '#2F5BD8'
+  ctx.fillStyle = paper
+  ctx.fillRect(0, 0, width, height)
+
+  const minSide = Math.min(width, height)
+  const count = 6
+  const outer = minSide * 0.48 * (0.94 + 0.06 * env)
+  const radii = phiRingRadii(count, outer / (PHI ** (count - 1)))
+  const cx = width / 2
+  const cy = height / 2
+
+  ctx.save()
+  ctx.translate(cx, cy)
+  ctx.rotate(angle)
+  ctx.lineJoin = 'miter'
+  ctx.lineCap = 'butt'
+
+  for (let i = 0; i < radii.length; i++) {
+    ctx.beginPath()
+    ctx.arc(0, 0, radii[i], 0, Math.PI * 2)
+    ctx.strokeStyle = i % 2 === 0 ? ink : cobalt
+    ctx.globalAlpha = 0.22 + 0.38 * (i / (count - 1))
+    ctx.lineWidth = i === count - 1 ? 1.4 : 1
+    ctx.stroke()
+  }
+
+  const drawStar = (radius: number, inkStroke: boolean) => {
+    const verts = pentagonVertices(radius, -Math.PI / 2)
+    ctx.beginPath()
+    verts.forEach((v, i) => (i === 0 ? ctx.moveTo(v.x, v.y) : ctx.lineTo(v.x, v.y)))
+    ctx.closePath()
+    ctx.setLineDash([])
+    ctx.strokeStyle = ink
+    ctx.globalAlpha = inkStroke ? 0.72 : 0.4
+    ctx.lineWidth = 1.2
+    ctx.stroke()
+
+    ctx.beginPath()
+    for (let i = 0; i <= 5; i++) {
+      const v = verts[(i * 2) % 5]
+      if (i === 0) ctx.moveTo(v.x, v.y)
+      else ctx.lineTo(v.x, v.y)
+    }
+    ctx.strokeStyle = cobalt
+    ctx.globalAlpha = 0.45 + 0.5 * env
+    ctx.lineWidth = 1.35
+    if (motion) {
+      ctx.setLineDash([5, 8])
+      ctx.lineDashOffset = -dash
+    } else {
+      ctx.setLineDash([])
+    }
+    ctx.stroke()
+    ctx.setLineDash([])
+  }
+
+  drawStar(radii[2], false)
+  drawStar(radii[4], true)
+
+  const rect = goldenRectangleCorners(radii[2] * 2)
+  ctx.beginPath()
+  rect.forEach((c, i) => (i === 0 ? ctx.moveTo(c.x, c.y) : ctx.lineTo(c.x, c.y)))
+  ctx.closePath()
+  ctx.strokeStyle = ink
+  ctx.globalAlpha = 0.78
+  ctx.lineWidth = 1.25
+  ctx.stroke()
+
+  ctx.restore()
+  ctx.globalAlpha = 1
+}
+
+function paintViz(advanceClock: boolean) {
+  const canvas = vizEl.value
+  if (!canvas) return
+  const dpr = fitViz(canvas)
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  const musical = audioCtx ? activeNote(audioCtx.currentTime) : null
+  if (advanceClock && musical && audioCtx && !reduceMotion) {
+    advanceViz(audioCtx.currentTime, musical.hz, musical.env)
+  }
+  const env = musical ? musical.env : 0
+  const hz = musical ? musical.hz : 0
+  const angle = reduceMotion ? ((hz || 0) / 963) * (Math.PI / 5) : vizAngle
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+  drawViz(
+    ctx,
+    canvas.clientWidth,
+    canvas.clientHeight,
+    angle,
+    reduceMotion ? (hz ? 1 : 0) : env,
+    reduceMotion ? 0 : strokePhase,
+    theme.theme === 'dark',
+    !reduceMotion && phase.value !== 'land',
+  )
+}
+
+function vizFrame() {
+  vizRaf = window.requestAnimationFrame(vizFrame)
+  paintViz(true)
+}
+
+function startVizLoop() {
+  if (reduceMotion || vizRaf) return
+  lastAudioTime = -1
+  vizRaf = window.requestAnimationFrame(vizFrame)
+}
+
+function stopVizLoop() {
+  if (!vizRaf) return
+  window.cancelAnimationFrame(vizRaf)
+  vizRaf = 0
+}
+
+function onMotionChange() {
+  reduceMotion = !!motionQuery?.matches
+  if (reduceMotion) stopVizLoop()
+  else if (phase.value === 'hold' || phase.value === 'leaving') startVizLoop()
+  paintViz(false)
+}
+
 onMounted(() => {
   theme.init()
+  motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+  reduceMotion = motionQuery.matches
+  motionQuery.addEventListener('change', onMotionChange)
+  nextTick(() => {
+    const canvas = vizEl.value
+    if (!canvas) return
+    resizeObserver = new ResizeObserver(() => paintViz(false))
+    resizeObserver.observe(canvas)
+    paintViz(false)
+  })
+})
+
+watch(() => theme.theme, () => paintViz(false))
+watch(sounding, () => {
+  if (reduceMotion) paintViz(false)
 })
 
 onBeforeUnmount(() => {
   generation += 1
+  motionQuery?.removeEventListener('change', onMotionChange)
+  resizeObserver?.disconnect()
+  resizeObserver = null
   teardown()
   if (audioCtx && audioCtx.state !== 'closed') {
     void audioCtx.close().catch(() => {})
@@ -292,6 +525,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="sf" :data-phase="phase" :data-sf-theme="theme.theme">
+    <canvas ref="vizEl" class="sf__viz" aria-hidden="true" />
     <NuxtLink
       to="/engage"
       class="sf__iconbtn sf__back"
@@ -325,7 +559,6 @@ onBeforeUnmount(() => {
     </div>
 
     <div v-else class="sf__hold" :class="{ 'sf__hold--leaving': phase === 'leaving' }">
-      <div class="sf__orb" aria-hidden="true" />
       <p class="sf__hz" aria-live="polite">
         <span class="sf__hz-num">{{ sounding }}</span><span class="sf__hz-unit"> Hz</span>
       </p>
@@ -347,6 +580,7 @@ onBeforeUnmount(() => {
 .sf {
   --sf-paper: #fbf8ef;
   --sf-ink: #161618;
+  --sf-cobalt: #2F5BD8;
   --sf-yellow: #ffd43b;
   --ink: var(--sf-ink);
   --accent: var(--sf-yellow);
@@ -425,9 +659,20 @@ onBeforeUnmount(() => {
   stroke-linejoin: round;
 }
 
+.sf__viz {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
 .sf__land,
 .sf__hold {
   position: absolute;
+  z-index: 1;
   inset: 0;
   display: grid;
   align-content: center;
@@ -452,6 +697,7 @@ onBeforeUnmount(() => {
   font: 700 clamp(52rem, 14vw, 104rem)/0.86 var(--font-display);
   letter-spacing: -0.06em;
   text-wrap: balance;
+  text-shadow: 0 0 18rem var(--sf-paper), 0 0 6rem var(--sf-paper);
 }
 
 .sf__lede {
@@ -505,23 +751,12 @@ onBeforeUnmount(() => {
   animation-delay: calc(var(--i, 0) * 65ms + 30ms), 650ms;
 }
 
-.sf__orb {
-  width: min(42vw, 200rem);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 38% 34%, #fff8d6 0%, var(--sf-yellow) 36%, color-mix(in srgb, var(--sf-yellow) 28%, transparent) 62%, transparent 72%);
-  box-shadow:
-    0 0 48rem color-mix(in srgb, var(--sf-yellow) 42%, transparent),
-    0 0 120rem color-mix(in srgb, var(--sf-yellow) 22%, transparent);
-  animation: sf-breathe 9s ease-in-out infinite;
-}
-
 .sf__hz {
   margin: 4rem 0 0;
   font: 700 clamp(56rem, 16vw, 96rem)/0.86 var(--font-display);
   letter-spacing: -0.06em;
   font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 16rem var(--sf-paper), 0 0 4rem var(--sf-paper);
 }
 .sf__hz-unit {
   font: 700 18rem/1 var(--font-mono);
@@ -563,7 +798,6 @@ onBeforeUnmount(() => {
   opacity: 0.45;
 }
 
-.sf__hold--leaving .sf__orb,
 .sf__hold--leaving .sf__hz {
   opacity: 0.35;
   transition: opacity 2s linear;
@@ -589,17 +823,10 @@ onBeforeUnmount(() => {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.025); }
 }
-@keyframes sf-breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.04); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .sf,
   .sf__anim,
   .sf__cta--pulse,
-  .sf__orb,
-  .sf__hold--leaving .sf__orb,
   .sf__hold--leaving .sf__hz {
     animation: none !important;
     transition: none !important;

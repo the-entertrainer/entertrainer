@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { KNOWLEDGE_QUOTES, pickKnowledgeQuote } from '~/content/knowledge-quotes'
 
+const pageRoute = useRoute()
+const sliceLink = computed(() => pageRoute.path === '/slices')
 useSeoMeta({
-  title: 'Entertrainer · Elevate, Empower, Engage',
-  description: 'Stories for questions that keep returning, tools for work that keeps repeating, and small games for short detours.',
-  ogTitle: 'Entertrainer · The Three Es',
-  ogDescription: 'Elevate, Empower, Engage.',
-  ogUrl: 'https://entertrainer.in/'
+  title: () => sliceLink.value ? '5 Slices · Entertrainer' : 'Entertrainer · Elevate, Empower, Engage',
+  description: () => sliceLink.value
+    ? 'A vertical reel of short stories. The newest opens first. Older stories open by date.'
+    : 'Stories for questions that keep returning, tools for work that keeps repeating, and small games for short detours.',
+  ogTitle: () => sliceLink.value ? '5 Slices · Entertrainer' : 'Entertrainer · The Three Es',
+  ogDescription: () => sliceLink.value
+    ? 'A vertical reel of short stories. The newest opens first. Older stories open by date.'
+    : 'Elevate, Empower, Engage.',
+  ogUrl: () => sliceLink.value ? 'https://entertrainer.in/slices' : 'https://entertrainer.in/'
 })
 
 type HomeRoute = {

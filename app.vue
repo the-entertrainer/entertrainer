@@ -24,6 +24,7 @@ import { getSocialImage, getSocialPreview, SITE_URL } from '~/content/social-pre
  * must never surround an active course screen.
  */
 const r = useRoute()
+const { open: slicesOpen } = useFiveSlices()
 const theme = useThemeStore()
 const siteSettings = useSiteSettings()
 /** Preloader: home `/` only, once per tab session after dismiss. */
@@ -99,7 +100,7 @@ onBeforeUnmount(() => theme.dispose())
 </script>
 
 <template>
-  <div id="app-root">
+  <div id="app-root" :inert="slicesOpen">
     <EdPreloader v-if="showPreloader" @complete="onPreloaderComplete" />
     <EdDailyWordSplash v-if="!bare" />
     <EdSettingsPanel />
@@ -120,6 +121,7 @@ onBeforeUnmount(() => theme.dispose())
       <div class="u-grain" aria-hidden="true" />
     </div>
   </div>
+  <EdFiveSlices />
 </template>
 
 <style>

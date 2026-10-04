@@ -161,6 +161,14 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     title: 'Lessons by Naveen Jose · Entertrainer',
     description: 'A short lesson on clear instructions and a longer course on artificial intelligence.'
   },
+  '/slices': {
+    key: 'five-slices',
+    label: '5 Slices',
+    title: '5 Slices · Entertrainer',
+    description: 'A vertical reel of short stories. The newest opens first. Older stories open by date.',
+    image: `${SITE_URL}/og-card-2026d.png`,
+    imageAlt: 'Entertrainer e-mark with Elevate, Empower, Engage.'
+  },
   '/engage': {
     key: 'engage',
     label: 'Engage',

@@ -24,6 +24,9 @@ const {
   refresh: refreshWotd
 } = useDailyWord()
 const open = ref(false)
+const slicesBtn = ref<HTMLButtonElement | null>(null)
+const { open: slicesOpen, openSlices, rememberTrigger } = useFiveSlices()
+watch(slicesBtn, (el) => { if (el) rememberTrigger(el) })
 
 const isCurrent = (href: string) =>
   href === '/' ? route.path === '/' : route.path.startsWith(href)
@@ -61,6 +64,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         <NuxtLink v-for="l in NAV" :key="l.href" :to="l.href" class="mh__link"
                   :aria-current="isCurrent(l.href) ? 'page' : undefined">{{ l.label }}</NuxtLink>
       </nav>
+
+      <button
+        ref="slicesBtn"
+        type="button"
+        class="mh__slices"
+        aria-haspopup="dialog"
+        aria-controls="five-slices"
+        :aria-expanded="slicesOpen"
+        @click="openSlices($event.currentTarget)"
+      >5 Slices</button>
 
       <div class="mh__end">
         <button
@@ -184,6 +197,30 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 @keyframes nav-route { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 .mh__end { display: flex; align-items: center; gap: var(--space-8); margin-left: var(--space-13); }
+.mh__slices {
+  min-width: 44rem;
+  min-height: 44rem;
+  padding: 0 12rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-s);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 11rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+@media (hover: hover) { .mh__slices:hover { background: var(--signal-field); } }
+.mh__slices[aria-expanded="true"] { background: var(--accent); color: var(--accent-ink); }
+@media (max-width: 1100px) {
+  .mh__bar { flex-wrap: wrap; row-gap: 0; }
+  .mh__slices { flex: 1 0 100%; order: 5; justify-content: flex-start; margin-bottom: 8rem; }
+}
 .mh__icon {
   width: var(--icon); height: var(--icon); flex: none;
   display: inline-flex; align-items: center; justify-content: center;
@@ -257,7 +294,26 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .mh__brand :deep(.wm__mark) { width: 25rem; height: 25rem; }
   .mh__nav { display: none; }
   .mh__icon--menu { display: inline-flex; }
-  .mh__end { margin-left: auto; }
+  .mh__bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "brand end" "slices slices";
+    align-items: center;
+    column-gap: var(--space-13);
+    row-gap: 0;
+  }
+  .mh__brand { grid-area: brand; }
+  .mh__end { grid-area: end; margin-left: 0; }
+  .mh__slices {
+    grid-area: slices;
+    width: 100%;
+    order: 0;
+    flex: none;
+    min-height: 44rem;
+    justify-content: flex-start;
+    border-top: var(--stroke) solid var(--line);
+    background: var(--paper);
+  }
   .mh__icon { width: var(--icon); height: var(--icon); border-radius: var(--radius-s); }
 
   .mh__sheet {

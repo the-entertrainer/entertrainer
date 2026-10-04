@@ -1,4 +1,4 @@
-import { ENTROPY_BLOG, MOONLY_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, KNOWING_BLOG, TAJJALAN_BLOG, SPLIT_BRAIN_BLOG } from './blogs'
+import { ENTROPY_BLOG, MOONLY_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, KNOWING_BLOG, TAJJALAN_BLOG, SPLIT_BRAIN_BLOG, ULCER_BLOG } from './blogs'
 
 export const SITE_URL = 'https://entertrainer.in'
 
@@ -99,6 +99,15 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     description: SPLIT_BRAIN_BLOG.socialHook,
     image: `${SITE_URL}${SPLIT_BRAIN_BLOG.hero}`,
     imageAlt: SPLIT_BRAIN_BLOG.heroAlt,
+    type: 'article'
+  },
+  [`/elevate/${ULCER_BLOG.slug}`]: {
+    key: 'stomach-ulcers',
+    label: ULCER_BLOG.category,
+    title: ULCER_BLOG.socialTitle,
+    description: ULCER_BLOG.socialHook,
+    image: `${SITE_URL}${ULCER_BLOG.hero}`,
+    imageAlt: ULCER_BLOG.heroAlt,
     type: 'article'
   },
   '/empower': {

@@ -241,6 +241,7 @@ export default defineNuxtConfig({
     '/elevate/the-voice-in-your-head-is-not-the-whole-of-you': { redirect: { to: '/elevate', statusCode: 301 } },
     '/elevate/you-are-the-centre-of-the-universe': { redirect: { to: '/elevate', statusCode: 301 } },
     '/elevate/can-you-reverse-the-spin-of-a-schwarz-surface': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/elevate/the-sacred-frequencies-are-not-a-scale': { redirect: { to: '/elevate/what-each-sacred-frequency-is-for', statusCode: 301 } },
     // Games renamed to Engage.
     '/games': { redirect: { to: '/engage', statusCode: 301 } },
     '/games/**': { redirect: { to: '/engage/**', statusCode: 301 } },

@@ -39,10 +39,9 @@ const references = [
       <EdEditorialImage :src="MOONLY_BLOG.hero" :alt="MOONLY_BLOG.heroAlt" />
     </figure>
     <article class="taj__article">
-      <aside class="taj__margin-note" aria-label="Reading note">
-        <p>The ending works.</p>
+      <EdMarginNote label="The ending works.">
         <p>English just refuses to use it for this one rock.</p>
-      </aside>
+      </EdMarginNote>
       <div class="taj__prose">
         <p class="taj__lead">Friend becomes friendly. Love becomes lovely. Moon does not become moonly.</p>
         <p>The ending is sitting right there. English uses it all the time. Then it stops, and hands you a word with no visible link to the Moon: lunar. The same trick shows up for the sun (solar), for teeth (dental), and for a cat (feline). The pattern looks like a glitch until you see it was a staffing decision.</p>
@@ -96,10 +95,6 @@ const references = [
 .taj figure figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
 .taj figure figcaption a { color: var(--signal-cobalt); text-decoration: none; }
 .taj__article { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-34) auto 0; padding: 0 var(--shell-gutter); display: block; }
-.taj__margin-note { position: static; max-width: var(--measure); margin: 0 0 var(--space-21); padding: var(--space-13); background: var(--accent); color: var(--accent-ink); border: var(--stroke) solid var(--ink); border-radius: 0; font: 400 var(--type-body)/1.45 var(--font-body); }
-.taj__margin-note p { margin: 0; }
-.taj__margin-note p + p { margin-top: 10rem; }
-.taj__margin-note p:first-child { font: 500 var(--type-meta)/1.2 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
 .taj__prose { max-width: var(--measure); font: 400 var(--type-body)/1.55 var(--font-body); }
 .taj__prose p { margin: 0 0 var(--space-21); }
 .taj__prose .taj__lead::first-letter { float: left; margin: 2rem 11rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--signal-cobalt); }
@@ -120,7 +115,6 @@ const references = [
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: var(--crop); }
   .taj__article { display: block; }
-  .taj__margin-note { position: static; margin-bottom: var(--space-21); }
   .taj__prose h2 { margin-top: 52rem; }
 }
 </style>

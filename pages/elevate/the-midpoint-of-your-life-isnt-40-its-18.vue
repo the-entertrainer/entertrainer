@@ -38,10 +38,9 @@ const references = [
       <EdEditorialImage :src="LIFE_MIDPOINT_BLOG.hero" :alt="LIFE_MIDPOINT_BLOG.heroAlt" />
     </figure>
     <article class="taj__article">
-      <aside class="taj__margin-note" aria-label="Reading note">
-        <p>Forty feels like the middle.</p>
+      <EdMarginNote label="Forty feels like the middle.">
         <p>Felt time does not always agree with the clock.</p>
-      </aside>
+      </EdMarginNote>
       <div class="taj__prose">
         <p class="taj__lead">On one old account of felt time, the middle of an ordinary long life is not forty. It lands near eighteen.</p>
         <p>The maths is real. It is also about 150 years old. A viral video treated the number like a constant of nature. The honest version has three asterisks the voiceover skipped.</p>
@@ -96,10 +95,6 @@ const references = [
 .taj figure figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
 .taj figure figcaption a { color: var(--signal-cobalt); text-decoration: none; }
 .taj__article { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-34) auto 0; padding: 0 var(--shell-gutter); display: block; }
-.taj__margin-note { position: static; max-width: var(--measure); margin: 0 0 var(--space-21); padding: var(--space-13); background: var(--accent); color: var(--accent-ink); border: var(--stroke) solid var(--ink); border-radius: 0; font: 400 var(--type-body)/1.45 var(--font-body); }
-.taj__margin-note p { margin: 0; }
-.taj__margin-note p + p { margin-top: 10rem; }
-.taj__margin-note p:first-child { font: 500 var(--type-meta)/1.2 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
 .taj__prose { max-width: var(--measure); font: 400 var(--type-body)/1.55 var(--font-body); }
 .taj__prose p { margin: 0 0 var(--space-21); }
 .taj__prose .taj__lead::first-letter { float: left; margin: 2rem 11rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--signal-cobalt); }
@@ -120,7 +115,6 @@ const references = [
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: var(--crop); }
   .taj__article { display: block; }
-  .taj__margin-note { position: static; margin-bottom: var(--space-21); }
   .taj__prose h2 { margin-top: 52rem; }
 }
 </style>

@@ -127,6 +127,20 @@ export const BLOG_POSTS: BlogPost[] = [
     status: 'published',
     publishedAt: '2026-09-22T15:45:00+00:00'
   },
+  {
+    slug: 'the-sacred-frequencies-are-not-a-scale',
+    title: 'The sacred frequencies are not a scale',
+    dek: 'Nine pure tones travel under a medieval singing name. That name never came with a count of cycles per second.',
+    socialHook: 'Play 396 hertz, then 528. That jump is a perfect fourth. The nine-tone list around it is still sold as a scale a medieval monk forgot.',
+    socialTitle: '396 to 528 is a fourth, not a lost scale',
+    category: 'Science',
+    tags: ['sound', 'music', 'history'],
+    minutes: 9,
+    hero: '/blog/sacred-frequencies/hero.jpg',
+    heroAlt: 'Cream paper, a hatched ink ground, nine evenly spaced ticks, and one cobalt sine wave above them.',
+    status: 'published',
+    publishedAt: '2026-10-04T19:40:00+00:00'
+  },
 ]
 
 export const ENTROPY_BLOG = BLOG_POSTS[0]
@@ -136,4 +150,5 @@ export const LIFE_MIDPOINT_BLOG = BLOG_POSTS[3]
 export const KNOWING_BLOG = BLOG_POSTS[4]
 export const TAJJALAN_BLOG = BLOG_POSTS[5]
 export const SPLIT_BRAIN_BLOG = BLOG_POSTS[6]
+export const SACRED_FREQUENCIES_BLOG = BLOG_POSTS[7]
 export const FEATURED_BLOG = ENTROPY_BLOG

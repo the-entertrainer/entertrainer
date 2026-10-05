@@ -39,10 +39,9 @@ const references = [
       <EdEditorialImage :src="JAMAIS_VU_BLOG.hero" :alt="JAMAIS_VU_BLOG.heroAlt" />
     </figure>
     <article class="taj__article">
-      <aside class="taj__margin-note" aria-label="Reading note">
-        <p>The letters stay.</p>
+      <EdMarginNote label="The letters stay.">
         <p>For a minute, the feeling that they mean something leaves.</p>
-      </aside>
+      </EdMarginNote>
       <div class="taj__prose">
         <p class="taj__lead">One evening at work I stared at the word “door” until it stopped looking like English.</p>
         <p>Same four letters. Suddenly a pile of shapes. I still knew it was a word. I just could not feel that anymore. The wall I hit already had a research literature — and, as of 2023, an Ig Nobel Prize.</p>
@@ -98,10 +97,6 @@ const references = [
 .taj figure figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
 .taj figure figcaption a { color: var(--signal-cobalt); text-decoration: none; }
 .taj__article { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-34) auto 0; padding: 0 var(--shell-gutter); display: block; }
-.taj__margin-note { position: static; max-width: var(--measure); margin: 0 0 var(--space-21); padding: var(--space-13); background: var(--accent); color: var(--accent-ink); border: var(--stroke) solid var(--ink); border-radius: 0; font: 400 var(--type-body)/1.45 var(--font-body); }
-.taj__margin-note p { margin: 0; }
-.taj__margin-note p + p { margin-top: 10rem; }
-.taj__margin-note p:first-child { font: 500 var(--type-meta)/1.2 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
 .taj__prose { max-width: var(--measure); font: 400 var(--type-body)/1.55 var(--font-body); }
 .taj__prose p { margin: 0 0 var(--space-21); }
 .taj__prose .taj__lead::first-letter { float: left; margin: 2rem 11rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--signal-cobalt); }
@@ -122,7 +117,6 @@ const references = [
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: var(--crop); }
   .taj__article { display: block; }
-  .taj__margin-note { position: static; margin-bottom: var(--space-21); }
   .taj__prose h2 { margin-top: 52rem; }
 }
 </style>

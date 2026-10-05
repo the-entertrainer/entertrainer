@@ -198,8 +198,8 @@ onBeforeUnmount(() => {
 .reading-layer__section--active .reading-layer__dot { background: var(--signal-cobalt); border-color: var(--signal-cobalt); }
 .reading-layer__actions { display: grid; gap: 5rem; margin-top: 10rem; padding-top: 10rem; border-top: var(--stroke) solid var(--ink); }
 .reading-layer__action { display: flex; justify-content: space-between; width: 100%; padding: 6rem 0; border: 0; background: none; color: var(--ink); cursor: pointer; text-align: left; font: 700 10rem/1.2 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; }
-@media (max-width: 1000px) { .reading-layer__rail { top: auto; right: 14rem; bottom: 14rem; width: min(280rem, calc(100vw - 28rem)); } }
-@media (max-width: 560px) { .reading-layer__toggle { box-shadow: 4rem 4rem 0 var(--ink); } .reading-layer__panel { max-height: 70vh; overflow: auto; } }
+/* Match MarginNote: under 1120px the floating Read map rail covers content. Keep only the thin top progress bar. */
+@media (max-width: 1119px) { .reading-layer__rail { display: none; } }
 @media (prefers-reduced-motion: reduce) { .reading-layer__progress span { transition: none; } }
 html[data-reduce-motion="on"] .reading-layer__progress span { transition: none; }
 :global(html[data-reading-focus] .feature__margin-note),

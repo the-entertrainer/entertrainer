@@ -2,8 +2,8 @@
   {
     "slug": "are-72-432-and-25920-clues-or-just-numbers-we-learned-to-notice",
     "title": "Are we in a simulation?",
-    "dek": "Twelve finger-bones make sixty. Seventy-two years for one degree of sky. The same counts keep meeting — and two ways to read them stay open.",
-    "socialHook": "72 years for one degree of sky. 25,920 for the full turn. 432 squared sits next to the speed of light. Simulation clue, or a clock we kept?",
+    "dek": "A scribe counted in sixties four thousand years ago, and the count still runs your clock. The same numbers keep meeting in the sky, and two readings stay open.",
+    "socialHook": "A Mesopotamian scribe set your phone’s clock. 72 years for one degree of sky, 25,920 for the full turn. A clock we kept, or a note someone left?",
     "socialTitle": "Are we in a simulation? The numbers will not say.",
     "category": "Universe",
     "tags": [
@@ -12,12 +12,12 @@
       "simulation",
       "ancient history"
     ],
-    "minutes": 9,
+    "minutes": 8,
     "hero": "/blog/hidden-matrix/earth-apollo17.jpg",
     "heroAlt": "The Earth, fully lit, photographed by the Apollo 17 crew on the way to the Moon in December 1972.",
     "status": "published",
     "publishedAt": "2026-09-25T00:00:00+00:00",
-    "updatedAt": "2026-09-26T18:00:00+00:00",
+    "updatedAt": "2026-10-06T04:30:00+00:00",
     "marginNote": {
       "label": "Both doors stay open.",
       "body": "A repeated number can be a tool we kept. It can also be a mark someone left. This piece does not pick."
@@ -26,81 +26,76 @@
       {
         "id": "hm-01",
         "type": "lead",
-        "text": "Twelve finger-bones. One hand. Sixty."
+        "text": "More than four thousand years ago, a scribe somewhere in Mesopotamia pressed a reed into wet clay and counted in sixties, and without meaning to, he set the clock on your phone."
       },
       {
         "id": "hm-02",
         "type": "paragraph",
-        "text": "Seventy-two years for one degree of sky. Twenty-five thousand nine hundred and twenty for the full turn. Four hundred thirty-two squared sits next to the speed of light in miles per second."
+        "text": "Sixty seconds. Sixty minutes. Three hundred and sixty degrees in a circle. We live inside his arithmetic every day and almost never notice it, the way you stop hearing the fridge. Once you start noticing, though, the old numbers turn up in stranger places: in the slow wobble of the sky, in the size of the Sun, in the speed of light. Seventy-two. Four hundred and thirty-two. Twenty-five thousand nine hundred and twenty."
       },
       {
         "id": "hm-03",
         "type": "paragraph",
-        "text": "The same counts keep meeting in the body, the clock, and the old stories. Are we in a simulation? Not as a joke, and not as a verdict. As a question you can hold still while you look at the meetings. If a world were built, you might expect the builder to leave a grammar: ratios, counts, a few numbers that keep finding each other. People have been collecting those meetings for a long time. The usual ones are 12, 60, 72, 360, 432, and 25,920."
+        "text": "Which raises a question I find impossible to leave alone. If a world were built, would the builder not leave a kind of grammar behind? A handful of numbers that keep finding each other? Are we in a simulation? Not as a joke, and not as a verdict. As a question you can hold still while you look at the meetings."
       },
       {
         "id": "hm-04",
         "type": "heading",
-        "text": "Sexagesimal counting on the hand"
+        "text": "Counting to sixty on one hand"
       },
       {
         "id": "hm-05",
         "type": "paragraph",
-        "text": "Ancient Mesopotamian mathematics used base 60, not base 10. Sixty divides cleanly by 2, 3, 4, 5, 6, 10, 12, 15, 20, and 30. Handy for fractions, for trade, for land, and for the sky."
+        "text": "Mesopotamian mathematics worked in base 60 rather than base 10. Sixty is a wonderfully obliging number. It splits cleanly by 2, 3, 4, 5, 6, 10, 12, 15, 20 and 30, which makes it a joy for anyone dividing up grain, land, silver or sky."
       },
       {
         "id": "hm-06",
         "type": "paragraph",
-        "text": "We still live inside it. Sixty seconds. Sixty minutes. A circle of 360 degrees."
-      },
-      {
-        "id": "hm-07",
-        "type": "paragraph",
-        "text": "One old way of arriving at 60 is still on your hand. The thumb of one hand can touch twelve finger-bones, three on each of the other four fingers. The other hand counts the rounds, up to five. Twelve times five is 60."
+        "text": "You can still find sixty on your own hand. Touch your thumb to each finger-bone in turn: three bones on each of four fingers makes twelve. Let the other hand keep count of the rounds, one finger at a time, up to five. Twelve times five is sixty. No abacus, no clay, just a body."
       },
       {
         "id": "hm-08",
         "type": "figure",
         "src": "/blog/hidden-matrix/finger-count.jpg",
         "alt": "A photograph of a hand counting to twelve by touching the finger-bones with the thumb.",
-        "caption": "Counting to twelve on the bones of one hand. Photo: Rhetos, Mathe-AC Lernwerkstatt, Aachen, 2021. CC0."
+        "caption": "Photo: Rhetos / Wikimedia Commons, Mathe-AC Lernwerkstatt, Aachen, 2021. CC0."
       },
       {
         "id": "hm-09",
         "type": "paragraph",
-        "text": "A useful count can just be a tool that worked, so people kept it. It can also be a strange thing to find still running the clock, the compass, and the circle, thousands of years later. Both of those sentences can be true at once."
+        "text": "Here is the fork in the road. A useful count might simply be a tool that worked, so people kept it, the way you keep a good knife. Or it might be a strange thing to find still running the clock, the compass and the circle thousands of years later. Both of those sentences can be true at once. Hold them both."
       },
       {
         "id": "hm-10",
         "type": "heading",
-        "text": "Precession and the 72-year degree"
+        "text": "The slow wobble of the sky"
       },
       {
         "id": "hm-11",
         "type": "paragraph",
-        "text": "Earth spins once a day and goes around the Sun once a year. It also wobbles, slowly, like a top. The direction of that axis drifts. Astronomers call it the precession of the equinoxes."
+        "text": "Earth spins once a day and circles the Sun once a year. It also does something lazier. Like a spinning top beginning to tire, its axis traces a slow circle against the stars. Astronomers call it the precession of the equinoxes, and it is why the pole star of the pyramid builders was not ours."
       },
       {
         "id": "hm-12",
         "type": "paragraph",
-        "text": "A round number used for the full cycle is 25,920 years. Divide that by 360 degrees and you get 72. One degree of sky about every 72 years. Divide 25,920 by 12, 24, 36, 48, and 60 and you get 2,160, 1,080, 720, 540, and 432."
+        "text": "One full wobble takes roughly twenty-six thousand years, and a round figure long used for it is 25,920. Divide that by the 360 degrees of a circle and you get 72: one degree of sky about every 72 years, which is, give or take, one human lifetime. Divide 25,920 by 12, 24, 36, 48 and 60 and out come 2,160, 1,080, 720, 540 and 432."
       },
       {
         "id": "hm-13",
         "type": "figure",
         "src": "/blog/hidden-matrix/precession-1902.png",
         "alt": "A 1902 printed diagram of the precession of the equinoxes, showing the slow wobble of Earth's axis.",
-        "caption": "Precession of the equinoxes, from Simon Newcomb, Astronomy for Everybody, 1902. Public domain."
+        "caption": "Image: Public Domain / Simon Newcomb, Astronomy for Everybody, 1902."
       },
       {
         "id": "hm-14",
         "type": "paragraph",
-        "text": "Then 432 shows up again, in a different costume. A day has 86,400 seconds. The Sun’s diameter is often given as about 864,000 miles. The Moon’s diameter is about 2,160 miles, the same number as 25,920 divided by 12. And 432 squared is 186,624, close to the speed of light in miles per second."
+        "text": "Then 432 turns up again in a different hat. A day has 86,400 seconds. The Sun’s diameter is often given as about 864,000 miles. The Moon’s diameter is about 2,160 miles, the same as 25,920 divided by 12. And 432 multiplied by itself is 186,624, which sits close to the speed of light in miles per second."
       },
       {
         "id": "hm-15",
         "type": "paragraph",
-        "text": "Miles and seconds are units we chose. Change the unit and some of those neighbours move apart. That belongs in the picture. So does the other fact: 12, 60, 72, 360, and 25,920 meet each other before anyone picks miles. A hand. A clock. A circle. A slow turn of the sky."
+        "text": "Miles and seconds are units we chose, and if you swap them some of these neighbours drift apart. That belongs in the picture. So does the other fact: 12, 60, 72, 360 and 25,920 had already found each other before anyone invented a mile. A hand. A clock. A circle. A slow turn of the sky."
       },
       {
         "id": "hm-16",
@@ -110,41 +105,46 @@
       {
         "id": "hm-17",
         "type": "paragraph",
-        "text": "Sumer arrives in this story as a sudden pile of writing, wheels, boats, looms, ploughs, and organised maths. The Sumerian King List speaks of kingship lowered from heaven. Stone figures carry a small bucket and a cone."
+        "text": "Sumer enters this story like a guest who arrives with far too many presents: writing, wheels, boats, looms, ploughs and organised mathematics, all showing up in the record with startling speed. The Sumerian King List opens by saying that kingship was lowered from heaven. Later Mesopotamian reliefs show winged figures carrying a small bucket and a cone, as if on an errand nobody ever explained."
       },
       {
         "id": "hm-18",
         "type": "paragraph",
-        "text": "One reading is that the stories remember teachers, and that the knowledge was handed over rather than only invented. Another reading is that cities often explained power by saying it came from above. The texts support the wonder. They do not force you to stop wondering."
+        "text": "One reading is that the stories remember teachers, and that knowledge was handed down rather than only invented. Another is that cities have always explained power by saying it came from above. The texts support the wonder. They do not force you to stop wondering."
       },
       {
         "id": "hm-19",
         "type": "paragraph",
-        "text": "The pine cone sits in the same conversation. Seed scales often pack in counts that follow the Fibonacci sequence. The pineal gland, deep in the brain, has struck people for centuries as a small echo of that cone. From there the thought grows: maybe the gland is a receiver, and maybe a tone is one of the signals."
+        "text": "The pine cone sits in the same conversation. Its seed scales often spiral in counts that follow the Fibonacci sequence. The pineal gland, tucked deep in the brain, has struck people for centuries as a small echo of that cone. From there the thought grows: perhaps the gland is a receiver, and perhaps a tone is one of the signals."
       },
       {
         "id": "hm-20",
         "type": "figure",
         "src": "/blog/hidden-matrix/pine-cone.jpg",
         "alt": "A pine cone photographed from above, its scales spiralling out from the centre.",
-        "caption": "A pine cone from above. Photo: Richard Flink, 2008. CC BY-SA 2.0."
+        "caption": "Photo: Richard Flink / Wikimedia Commons, 2008. CC BY-SA 2.0."
       },
       {
         "id": "hm-21",
         "type": "paragraph",
-        "text": "The tones people name are 144, 288, 360, and 432. Sound can organise matter. A plate of sand, set vibrating, draws a standing-wave figure. That is cymatics, and it is ordinary physics. Whether 432 Hz is a preferred tone of the world, or one tone among many that can draw a figure, is a question the plate leaves in your hands."
+        "text": "The tones people name in this conversation are 144, 288, 360 and 432. And sound really can arrange matter. Scatter sand on a metal plate, draw a violin bow along its edge, and the grains hurry into a crisp geometric figure, gathering along the lines where the plate stays still. That is cymatics, and it is ordinary physics you can try on a kitchen table. Whether 432 hertz is a favourite tone of the world, or one tone among thousands that can draw a pretty figure, is a question the plate politely leaves in your hands."
       },
       {
         "id": "hm-22",
         "type": "figure",
         "src": "/blog/hidden-matrix/chladni-plate.jpg",
         "alt": "A square metal plate with sand gathered into a symmetrical standing-wave pattern.",
-        "caption": "Sand on a vibrating Chladni plate. Photo: High Contrast, 2011. CC BY 3.0 DE."
+        "caption": "Photo: High Contrast / Wikimedia Commons, 2011. CC BY 3.0 DE."
       },
       {
         "id": "hm-23",
         "type": "heading",
         "text": "Two readings of the same counts"
+      },
+      {
+        "id": "hm-24a",
+        "type": "paragraph",
+        "text": "When people meet these numbers, they tend to land in one of three places. The first says a built world would look exactly like this. The second says we are pattern-hungry animals who could find a message in a bowl of noodles. The third shrugs, says it is all coincidence, and changes the subject. Notice what that third option does. It is so lazy that it makes the second sound rigorous, and it quietly ushers the first out of the room. It is a decoy. Set it aside and the conversation gets far more interesting."
       },
       {
         "id": "hm-24",
@@ -154,12 +154,12 @@
       {
         "id": "hm-25",
         "type": "paragraph",
-        "text": "Way two: we are pattern-making animals, and we are good at it. The same gift that found the seasons can also stitch a hand, a hymn, and a mile into one sentence. Some of the stitches depend on units we invented. Some do not."
+        "text": "Way two: we are pattern-making animals, and gloriously good at it. The same gift that found the seasons can also stitch a hand, a hymn and a mile into one sentence. Some of those stitches depend on units we invented. Some do not."
       },
       {
         "id": "hm-26",
         "type": "paragraph",
-        "text": "I can stand in either room without throwing the other one out. The counts are real. The wobble of the axis is real. The plate really draws. What the repetition means is still a choice you get to keep making."
+        "text": "I can stand in either room without throwing the other one out. The counts are real. The wobble of the axis is real. The sand on the plate really moves. What the repetition means is still a choice you get to keep making, and I am not sure the choosing is a weakness. It may be the most human thing in the whole story."
       },
       {
         "id": "hm-27",
@@ -169,7 +169,7 @@
       {
         "id": "hm-28",
         "type": "closing",
-        "text": "If the same counts can be a clock we kept and a note someone left, what would you need to see before you knew which one you were looking at?"
+        "text": "If the same count can be a clock we kept and a note someone left, perhaps the more interesting question is not which one it is, but why we need so badly to know."
       }
     ],
     "references": [

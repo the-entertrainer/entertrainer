@@ -182,7 +182,14 @@ onBeforeUnmount(() => {
   background: var(--signal-cobalt);
   transition: transform 180ms linear;
 }
-.reading-layer__rail { position: fixed; z-index: 81; top: 88rem; right: max(18rem, calc((100vw - var(--shell-wide)) / 2)); width: min(280rem, calc(100vw - 36rem)); }
+/*
+  The rail sits in the free right gutter, pinned to the viewport edge.
+  At 1180rem+ the prose right edge is about 50% + 317rem (shell gutter 225rem + 66ch measure ≈ 681rem),
+  so a 280rem rail 24rem from the edge clears the text with a 24rem gap only from ~1290rem (≈1305 with a scrollbar).
+  1440rem leaves ~90rem of slack for font and measure drift. Below that, only the top progress bar shows.
+*/
+.reading-layer__rail { display: none; position: fixed; z-index: 81; top: 88rem; right: 24rem; width: 280rem; }
+@media (min-width: 1440px) { .reading-layer__rail { display: block; } }
 .reading-layer__toggle, .reading-layer__panel { border: var(--stroke) solid var(--ink); background: color-mix(in srgb, var(--paper) 93%, transparent); box-shadow: 6rem 6rem 0 var(--ink); }
 .reading-layer__toggle { display: flex; align-items: center; gap: 9rem; width: 100%; padding: 9rem 11rem; color: var(--ink); cursor: pointer; text-align: left; font: 700 10rem/1.2 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
 .reading-layer__toggle:hover, .reading-layer__toggle:focus-visible, .reading-layer__action:hover, .reading-layer__action:focus-visible { background: var(--signal-field); }
@@ -198,8 +205,6 @@ onBeforeUnmount(() => {
 .reading-layer__section--active .reading-layer__dot { background: var(--signal-cobalt); border-color: var(--signal-cobalt); }
 .reading-layer__actions { display: grid; gap: 5rem; margin-top: 10rem; padding-top: 10rem; border-top: var(--stroke) solid var(--ink); }
 .reading-layer__action { display: flex; justify-content: space-between; width: 100%; padding: 6rem 0; border: 0; background: none; color: var(--ink); cursor: pointer; text-align: left; font: 700 10rem/1.2 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; }
-/* Match MarginNote: under 1120px the floating Read map rail covers content. Keep only the thin top progress bar. */
-@media (max-width: 1119px) { .reading-layer__rail { display: none; } }
 @media (prefers-reduced-motion: reduce) { .reading-layer__progress span { transition: none; } }
 html[data-reduce-motion="on"] .reading-layer__progress span { transition: none; }
 :global(html[data-reading-focus] .feature__margin-note),

@@ -195,7 +195,7 @@ const references = [
 .taj__proof li::before { content: counter(proof); color: var(--ink-soft); font: 400 13rem/1 var(--font-mono); }
 .taj__proof-eq { font: 500 21rem/1.3 var(--font-mono); letter-spacing: -.01em; white-space: nowrap; }
 .taj__proof-why { color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); text-align: right; }
-.taj__proof li.is-result .taj__proof-eq { color: var(--signal-cobalt); font-size: 34rem; }
+.taj__proof li.is-result .taj__proof-eq { color: var(--ink); font-size: 34rem; text-decoration: underline; text-decoration-color: var(--signal-cobalt); text-decoration-thickness: 5px; text-underline-offset: 7px; text-decoration-skip-ink: none; }
 .taj__gasp { margin: 0 0 var(--space-21) !important; font: 500 var(--type-h2)/1 var(--font-display); letter-spacing: -.04em; }
 .taj__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 var(--type-h2)/1.15 var(--font-display); letter-spacing: -.035em; }
 .taj__sources { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-55) auto 0; padding: var(--space-34) var(--shell-gutter) 0; border-top: var(--stroke) solid var(--ink); }
@@ -212,6 +212,7 @@ const references = [
   .taj__prose h2 { margin-top: 52rem; }
   .taj__proof li { grid-template-columns: 26rem minmax(0, 1fr); }
   .taj__proof-eq { font-size: 18rem; white-space: normal; }
+  .taj__proof li.is-result .taj__proof-eq { font-size: 28rem; }
   .taj__proof-why { grid-column: 2; text-align: left; margin-top: 2rem; }
 }
 </style>

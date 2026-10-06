@@ -39,32 +39,46 @@ const references = [
     </figure>
     <article class="taj__article">
       <EdMarginNote label="A receipt, not a model.">
-        <p>Familiarity is not the same as rebuilding the mechanism.</p>
+        <p>Feeling that you understand something is not the same as being able to rebuild it.</p>
       </EdMarginNote>
       <div class="taj__prose">
-        <p class="taj__lead">You have used a zip your whole life. You can work it in the dark. Ask what the slider actually does to the teeth — and watch the lighting go out.</p>
-        <p>In 2002 Leonid Rozenblit and Frank Keil measured that blank. They asked people how well they understood everyday devices — zippers, toilets, speedometers, cylinder locks, helicopters — then asked for a detailed causal explanation, and a second rating. Understanding scores dropped. The drop was much larger for how things work than for facts, stories, or procedures.<a href="#ref-1" aria-label="Reference 1">[1]</a> They called it the illusion of explanatory depth. You do not find out you don’t know it by sitting with the feeling. You find out when the feeling has to become a sentence.</p>
+        <p class="taj__lead">Around the turn of the millennium, in a psychology lab at Yale, volunteers were handed a list of ordinary objects, a zip, a flush toilet, a cylinder lock, a speedometer, and asked how well they understood each one.</p>
+        <p>Most rated themselves pretty well. Why not? They had used zips all their lives. They could work one in the dark, half asleep, in a hurry, wearing gloves. Then came the cruel part. The researchers, Leonid Rozenblit and Frank Keil, asked them to write out, step by step, exactly how the thing works. Then they asked for the rating again.</p>
+        <p>The scores dropped. Not a little. And the fall was much steeper for how-things-work questions than for facts, stories or procedures.<a href="#ref-1" aria-label="Reference 1">[1]</a> Rozenblit and Keil called it the illusion of explanatory depth. I prefer to think of it as the moment the lights go out in a room you were certain you knew.</p>
 
         <h2>The illusion of explanatory depth</h2>
-        <p>Try the zip out loud. Explain it to someone who has never seen one. No diagram. No “it just meshes.” The slider pulls. The teeth do something. There is a wedge, maybe. The two sides are forced together, or pulled apart. Now draw the part that actually does the work. Most people stall around step two.</p>
-        <p>Not because they are foolish. The mind stored a label, a gist, and a motor habit, then issued a feeling that those three things were a working model. Someone at the table can explain a fridge, a tax, or why the match was lost with the same confidence — until someone asks for the mechanism. What pushes what. What happens next. The sentence that felt like a building turns out to be a doorway with nothing behind it.</p>
+        <p>Try it yourself, out loud. Explain a zip to someone who has never seen one. No diagram, no waving of hands, no “it just sort of meshes.” The slider moves. The teeth… do something. There is a wedge, probably. The two sides get pushed together, or pulled apart, by, well. Now draw the part that actually does the work. Most of us stall around step two, wearing the confident face of someone who has just realised they are lost but would rather not say so in front of the children.</p>
+        <p>This is not because we are foolish. The mind stored a name, a rough gist and a habit of the hands, and then issued a feeling that those three things added up to understanding. It is a very convincing receipt. It just is not the item.</p>
+
+        <figure class="taj__visual taj__visual--archive taj__visual--portrait" style="--fig-ratio: 1143 / 1400">
+          <EdEditorialImage
+            src="/blog/you-only-find-out-when-you-have-to-explain-it/polvini-clock-movement-1745.jpg"
+            alt="An eighteenth-century table clock movement in a metal case, with a bell on top and an enamel dial."
+          />
+          <figcaption>
+            Image: Public Domain /
+            <a href="https://www.metmuseum.org/art/collection/search/238025" target="_blank" rel="noreferrer">The Metropolitan Museum of Art</a>,
+            Filippo Polvini, clock movement, 1745
+          </figcaption>
+        </figure>
 
         <h2>Familiarity and fluency</h2>
-        <p>Why issue a fake receipt? A plausible reading — an interpretation, not a little person in the skull — is that ordinary life rarely asks for the full model. The zip works. The fridge hums. Visible parts move, which is exactly when the illusion is strongest.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>What you often have is proximity. You have stood near the mechanism. You have heard the vocabulary. You can point. That is not nothing. It is also not the same as rebuilding the chain if the object vanished. You can use “it’s encrypted” as a social fact for years. Ask what a key is, who holds it, and what end-to-end actually forbids, and watch how fast the word becomes decoration.</p>
-        <p>A 2024 set of preregistered studies still found the basic illusion for devices. Feeling powerful made people more generally overconfident. It barely changed the drop that appears once you have to explain the thing.<a href="#ref-8" aria-label="Reference 8">[8]</a> Search makes the receipt cheaper. In nine experiments with more than a thousand people, Matthew Fisher, Mariel Goddu, and Frank Keil found that searching online inflated how much knowledge people believed was already inside their own heads.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <p>Why would the mind hand out fake receipts? One plausible reading is that daily life almost never asks for the full model. The zip works. The fridge hums. The clock on the wall tells the time without once showing you its insides. Gadgets with visible moving parts are where the illusion is strongest, because watching the parts move feels like watching how they work.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>What we usually have is proximity. We have stood near the mechanism. We know the vocabulary. We can point at it with confidence. That is not nothing. It is also not the same as being able to rebuild the thing if it vanished. You can say “it’s encrypted” at dinner parties for a decade. Ask what a key is, who holds it, and what end-to-end actually forbids, and watch the word quietly turn into decoration.</p>
+        <p>Search makes the receipt cheaper still. In nine experiments with more than a thousand people, Matthew Fisher, Mariel Goddu and Frank Keil found that simply searching online made people believe more knowledge was stored inside their own heads.<a href="#ref-4" aria-label="Reference 4">[4]</a> A 2024 set of studies found that feeling powerful made people more confident in general but barely touched the drop that arrives once they have to explain the gadget.<a href="#ref-8" aria-label="Reference 8">[8]</a> The illusion does not care about your job title.</p>
 
-        <h2>Explanations and overconfidence</h2>
-        <p>In 2013 Philip Fernbach and colleagues asked people about complex policies. Some had to explain the mechanism — how the policy would actually cause what it claimed. Some only listed reasons for liking or hating it. The mechanism group got less extreme.<a href="#ref-3" aria-label="Reference 3">[3]</a> Reasons feel like knowledge. A mechanism does not let you hide.</p>
-        <p>The internet already named a picture: the Dunning–Kruger effect, from a 1999 paper about people who are unskilled and unaware of it.<a href="#ref-2" aria-label="Reference 2">[2]</a> Later work asked whether that picture was the data, or the way the data was drawn. A 2020 paper argued the famous pattern is mostly a statistical artefact.<a href="#ref-5" aria-label="Reference 5">[5]</a> A 2022 registered report found it was driven overwhelmingly by performance scores, not by a unique failure of insight at the bottom.<a href="#ref-6" aria-label="Reference 6">[6]</a> In 2026 Chris Dawson and David de Meza re-analysed large replication sets with models that treat both the test and the self-prediction as noisy. On that reading the popular picture shrinks a great deal.<a href="#ref-7" aria-label="Reference 7">[7]</a></p>
-        <p>The 1999 claim and the later critiques are both still in the argument. What keeps showing up, under either reading, is smaller: people misjudge what they know. The feeling is cheap, especially for mechanisms, especially after a search. The test is not “do I feel sure.” Sure is the default of a mind that has seen the object before. The test is whether you can say the next three causal steps without using “basically” as a skip button. If you can’t, you do not have a crisis. You have a map with a blank.</p>
+        <h2>Explanations and confidence</h2>
+        <p>My favourite version involves politics, the one subject on which everyone is an expert. In 2013 Philip Fernbach and colleagues asked people about complicated policies. Some listed their reasons for loving or hating a policy. Others had to explain, step by step, how the policy would actually produce the result it promised. The mechanism group softened.<a href="#ref-3" aria-label="Reference 3">[3]</a> Reasons feel like knowledge. A mechanism leaves nowhere to hide.</p>
+        <p>Now imagine three people at a table, each holding forth on the same new tax. The first lists five reasons it is terrible. The second explains, haltingly, how it would change what a corner shop actually pays. The third has read one headline and is louder than both. The headline reader is the decoy. Next to him, the reasons person sounds thoughtful and the slow, honest mechanism explainer sounds unsure, which is exactly backwards.</p>
+        <p>You have probably met the Dunning–Kruger effect, from a 1999 paper about people who are unskilled and unaware of it.<a href="#ref-2" aria-label="Reference 2">[2]</a> Researchers have argued ever since about how much of that famous picture is about people and how much is about the way the data was drawn.<a href="#ref-5" aria-label="Reference 5">[5]</a><a href="#ref-6" aria-label="Reference 6">[6]</a><a href="#ref-7" aria-label="Reference 7">[7]</a> What survives every version is smaller and more useful: all of us misjudge what we know, and the feeling of knowing is cheapest exactly where a mechanism is hiding.</p>
+        <p>So the test is not whether you feel sure. Feeling sure is the factory setting of a mind that has seen something before. The test is whether you can say the next three steps without reaching for “basically” as a skip button. If you can’t, that is not a crisis. It is a map with a blank on it, and blanks are where the interesting walks begin.</p>
 
         <blockquote>
           <p>The feeling of knowing is cheap. The explanation is the invoice.</p>
         </blockquote>
 
-        <p class="taj__closing">If the feeling arrives before the model, what are you actually holding when nobody has asked you a follow-up?</p>
-        <p>Ask for the next step. Then sit with the blank.</p>
+        <p class="taj__closing">Maybe knowing is not something we have, like a coin in a pocket, but something we do, out loud, for exactly as long as someone keeps asking why.</p>
+        <p>Ask for the next step. Then enjoy the blank.</p>
       </div>
     </article>
     <section class="taj__sources" aria-labelledby="sources-title">
@@ -110,6 +124,12 @@ const references = [
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-55) auto 0; padding: 0 var(--shell-gutter); }
+/* Pen rewrite: archival figures keep their own proportions; credit links stay quiet ink. */
+.taj__visual { margin: 50rem 0 45rem; }
+.taj__visual--archive :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: var(--fig-ratio, var(--crop)); object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; background: var(--signal-field); }
+.taj__visual--portrait { max-width: 440rem; }
+.taj .taj__prose figure figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
+.taj .taj__prose figure figcaption a { color: inherit; text-decoration: underline; text-decoration-color: var(--line); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: var(--crop); }

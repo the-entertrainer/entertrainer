@@ -55,14 +55,13 @@ const references = [
       </EdMarginNote>
 
       <div class="taj__prose">
-        <p class="taj__lead">You pour the tea.</p>
-        <p>Steam. Heat. A colour in the cup. Then it is ordinary water. Then it is gone. The cup did not go with it. Stay with that look for a moment — the visit, not the vessel. An old line has a short word for the look. Hold the tea first.</p>
+        <p class="taj__lead">On a cold morning in Varanasi, an old man sits on the steps of a ghat with a clay cup of chai going lukewarm in his hands, and he watches the steam leave as if it owes him money.</p>
+        <p>The tea will not be there in half an hour. First the heat goes, then the tea, and then the little clay cup gets tossed onto a heap of others, to crumble back into the riverbank it was dug from. The cup simply takes longer. Stay with that look for a moment: the visit, rather than the visitor. A very old line has a very short word for exactly this kind of looking.</p>
 
-        <h2>What is it?</h2>
-        <p>The word is <em>tajjalan</em>. It comes from a short line in the Chāndogya Upaniṣad: all this is Brahman; sit with it calmly as tajjalan.<a href="#ref-1" aria-label="Reference 1">[1]</a> The word itself is made of four pieces. That is the whole key.</p>
-        <p><strong>Tat</strong> means That — the ground of everything. <strong>Ja</strong> means born from, or coming out of. <strong>La</strong> means going back into, or dissolving into. <strong>An</strong> means living and breathing in.</p>
-        <p>So Śaṅkara reads the word like this: whatever shows up is born from That, lives and breathes in That, and goes back into That.<a href="#ref-2" aria-label="Reference 2">[2]</a> Tajjalan is not a fancy name for God. It is a four-part way of looking at anything you can point at — a cup, your body, a thought, a whole day.</p>
-        <p>Where did this come from? Where does it go when it ends? What is it living in while it is here? Those three questions are just the four pieces of the word, turned into a look you can actually use. If the answers keep landing in the same place, the old habit of “holy over here, ordinary over there” starts looking like a habit, not a truth.</p>
+        <h2>The word tajjalan</h2>
+        <p>The word is <em>tajjalan</em>. It comes from a short line in the Chāndogya Upaniṣad: all this is Brahman; let a person sit with it calmly as tajjalan.<a href="#ref-1" aria-label="Reference 1">[1]</a> It looks like one word. It is actually four, folded together like a letter that has been riding in someone’s pocket for well over two thousand years.</p>
+        <p><strong>Tat</strong> means That, the ground of everything. <strong>Ja</strong> means born from. <strong>La</strong> means dissolving back into. <strong>An</strong> means breathing, living in. Read through Śaṅkara’s commentary, the word says: whatever shows up is born from That, lives and breathes in That, and goes back into That.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>So tajjalan is not a grand name for God that you are meant to bow to. It is a way of looking at anything you can point at. The tea. The cup. The old man. The river. You. Where did this come from? What is it living in while it is here? Where does it go when it is done? Three questions, folded into one small word.</p>
 
         <figure class="taj__visual taj__visual--wide">
           <EdEditorialImage
@@ -70,17 +69,17 @@ const references = [
             alt="Photograph of an 1849 CE Chandogya Upanishad manuscript page in Devanagari script, with aged paper and visible edge wear."
           />
           <figcaption>
-            Chāndogya Upaniṣad manuscript page (Devanagari, 1849 CE copy), Lalchand Research Library / DAV College Digital Library.
-            Photo: Ms Sarah Welch,
-            <a href="https://commons.wikimedia.org/wiki/File:Chandogya_Upanishad_verses_1.1.1-1.1.9,_Samaveda,_Sanskrit,_Devanagari_script,_1849_CE_manuscript.jpg" target="_blank" rel="noreferrer">Wikimedia Commons</a>
-            (CC BY-SA 4.0).
+            Image: Ms Sarah Welch /
+            <a href="https://commons.wikimedia.org/wiki/File:Chandogya_Upanishad_verses_1.1.1-1.1.9,_Samaveda,_Sanskrit,_Devanagari_script,_1849_CE_manuscript.jpg" target="_blank" rel="noreferrer">Wikimedia Commons</a>,
+            CC BY-SA 4.0, 1849 manuscript
           </figcaption>
         </figure>
 
-        <h2>Why is it significant?</h2>
-        <p>Most of us walk through life like guests who arrived late. The room was already set. The rules were already printed. We just try to cope. That feeling rests on a quiet story we almost never question: the stuff out there is one thing, and the mind in here is another, and they do not really meet.</p>
-        <p>It sounds grown-up. It also misses something you already know from living. Everything you have ever known came to you as experience — a sound, a colour, a weight, a fear, a love, a stretch of time. You never meet a “world” outside that. You meet experience, and you call some of it the world.</p>
-        <p>Tajjalan sits right on that point. If everything that shows up comes from one ground, stays in it, and returns to it, then your living is not a small side story stuck onto a dead outside. On this teaching, the living is the main stage. You are not a guest in a finished building. You are inside the thing that is also making and taking back every room. That changes how careful you get with what you put into the day — what you think, what you look at, what you mean — because those are not smoke floating above life. They are movements inside it.</p>
+        <h2>Holy and ordinary</h2>
+        <p>Here is where the old line gets mischievous. Most of us run our lives on a quiet sorting system. Over here, the holy things: the temple lamp, the wedding garland, a grandmother’s prayer book. Over there, the ordinary things: the office mug, the bus ticket, the Tuesday. We would never dream of mixing them up.</p>
+        <p>Picture three cups on a shelf. A silver cup that comes out once a year for a festival. A plain steel tumbler from your kitchen. And the same steel tumbler with a crack down its side. Ask which one is sacred and everyone points at the silver. Ask which one is ordinary and the cracked tumbler makes the plain one look positively respectable, while quietly confirming that the silver cup belongs to another world entirely. The cracked cup is doing all the work. It is there only to make the sorting feel natural.</p>
+        <p>Tajjalan politely declines to sort. If every one of those cups was born from the same ground, lives in it and goes back into it, then the line between the festival and the Tuesday starts to look less like a fact about the world and more like a habit of the eye. The silver cup is not made less holy. The steel tumbler is simply not less.</p>
+        <p>It sounds grown-up to say that mind is one thing and matter another, and that the two never quite meet. It also misses something you already know from living. Everything you have ever known reached you as experience: a sound, a colour, a weight, a fear, a love, a stretch of time. You have never once met a world outside that. On this teaching, your living is not a small side story glued onto a dead outside. It is the main stage.</p>
 
         <figure class="taj__visual taj__visual--palm">
           <EdEditorialImage
@@ -88,17 +87,16 @@ const references = [
             alt="Long narrow palm-leaf manuscript strip of a Chandogya Upanishad commentary in Grantha script from the Whish collection."
           />
           <figcaption>
-            Palm-leaf Chāndogyopaniṣad-vivaraṇa (Grantha script), Whish collection purchase, 1836 CE, Thanjavur.
-            Photo: Ms Sarah Welch,
-            <a href="https://commons.wikimedia.org/wiki/File:1836_CE_July_purchase,_Chandogya_Upanishad_vivarana,_Whish_manuscript_collection,_Kahle-Austin_Foundation,_Sanskrit,_Grantha_script.jpg" target="_blank" rel="noreferrer">Wikimedia Commons</a>
-            (CC BY-SA 4.0).
+            Image: Ms Sarah Welch /
+            <a href="https://commons.wikimedia.org/wiki/File:1836_CE_July_purchase,_Chandogya_Upanishad_vivarana,_Whish_manuscript_collection,_Kahle-Austin_Foundation,_Sanskrit,_Grantha_script.jpg" target="_blank" rel="noreferrer">Wikimedia Commons</a>,
+            CC BY-SA 4.0, palm leaf, 1836
           </figcaption>
         </figure>
 
-        <h2>Interesting facts and thoughts</h2>
-        <p>The line is from Chāndogya Upaniṣad 3.14.1, in the teaching of Śāṇḍilya.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-3" aria-label="Reference 3">[3]</a> The four-piece reading (tat–ja–la–an) is how Śaṅkara opens the word; other teachers read it differently. The text is old. The look it asks for is still available.</p>
-        <p>The instruction is calm on purpose. It does not say shout. It does not say put on a show. It says: be calm, and pay attention. Then it gets sharp about the mind. A person is made of what they hold firmly. What you keep treating as true slowly becomes the shape of your life. Your picture of reality is not decoration. It is training.</p>
-        <p>Treat the world as dead stuff you are only passing through, and you will live like a passer-by. Treat what appears as belonging to one living ground, and you start watching differently. You can try the look on one breath. There was a waiting before it. There is a moving while it lasts. There is a going when it ends. Ask: what is this breath appearing in? What is holding the appearing? Stay a little longer than habit wants. The story of a sealed private universe gets harder to believe.</p>
+        <h2>Śāṇḍilya’s teaching</h2>
+        <p>The line belongs to Chāndogya Upaniṣad 3.14.1, in the teaching of a sage called Śāṇḍilya.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-3" aria-label="Reference 3">[3]</a> The four-part reading is how Śaṅkara opens the word; other teachers read it differently. The text is old. The look it asks for is available on any ordinary morning.</p>
+        <p>The instruction is calm on purpose. It does not say shout, or perform, or prove. It says be peaceful, and look. Then, a breath later, the same verse turns sharp. A person, it says, is made of their resolve: as someone sets their will in this world, so they become.<a href="#ref-1" aria-label="Reference 1">[1]</a> What you keep treating as true slowly becomes the shape of your life. Your picture of reality is not decoration. It is training.</p>
+        <p>Treat the world as dead stuff you are passing through, and you will live like a passer-by. Treat what appears as belonging to one living ground, and you start watching differently. You can try it on a single breath. There was a waiting before it. There is a moving while it lasts. There is a going when it ends. Ask what the breath is appearing in. Stay a little longer than habit wants.</p>
 
         <figure class="taj__visual taj__visual--wide">
           <EdEditorialImage
@@ -106,21 +104,20 @@ const references = [
             alt="Sample page from an 1865 CE Chandogya Upanishad manuscript in Devanagari script on aged paper."
           />
           <figcaption>
-            Chāndogya Upaniṣad sample page (Devanagari, 1865 CE manuscript), Lalchand Research Library / DAV College Digital Library.
-            Photo: Ms Sarah Welch,
-            <a href="https://commons.wikimedia.org/wiki/File:Chandogya_Upanishad_sample_i,_Samaveda,_Sanskrit,_Devanagari_script,_1865_CE_manuscript.jpg" target="_blank" rel="noreferrer">Wikimedia Commons</a>
-            (CC BY-SA 4.0).
+            Image: Ms Sarah Welch /
+            <a href="https://commons.wikimedia.org/wiki/File:Chandogya_Upanishad_sample_i,_Samaveda,_Sanskrit,_Devanagari_script,_1865_CE_manuscript.jpg" target="_blank" rel="noreferrer">Wikimedia Commons</a>,
+            CC BY-SA 4.0, 1865 manuscript
           </figcaption>
         </figure>
 
-        <p>One more quiet fact: tajjalan does not ask you to leave ordinary life. The cup stays a cup. The day stays a day. The claim is only this — the wall between “holy” and “ordinary” may be thinner than it feels.</p>
+        <p>One small fact before the chai goes completely cold: tajjalan does not ask anyone to leave ordinary life. The cup stays a cup. The Tuesday stays a Tuesday. The claim is only that the wall between holy and ordinary may be much thinner than it feels.</p>
 
         <blockquote>
           <p>Whatever shows up is born from That, lives and breathes in That, and goes back into That.</p>
         </blockquote>
 
-        <p class="taj__closing">If everything you can know only ever shows up as experience — and experience itself is coming from, living in, and going back into one ground — what exactly are you standing outside of when you call something “just ordinary”?</p>
-        <p>Sit with that. Do not force an answer. See what the night does with it.</p>
+        <p class="taj__closing">The old man finishes his chai and sets the cup down on the step, and for a moment it is hard to say which of them is visiting which.</p>
+        <p>Sit with that. Do not force an answer. See what the morning does with it.</p>
       </div>
     </article>
 
@@ -172,6 +169,12 @@ const references = [
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-55) auto 0; padding: 0 var(--shell-gutter); }
+/* Pen rewrite: archival figures keep their own proportions; credit links stay quiet ink. */
+.taj__visual { margin: 50rem 0 45rem; }
+.taj__visual--archive :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: var(--fig-ratio, var(--crop)); object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; background: var(--signal-field); }
+.taj__visual--portrait { max-width: 440rem; }
+.taj .taj__prose figure figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
+.taj .taj__prose figure figcaption a { color: inherit; text-decoration: underline; text-decoration-color: var(--line); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: var(--crop); }

@@ -40,32 +40,45 @@ const references = [
     </figure>
     <article class="taj__article">
       <EdMarginNote label="The ending works.">
-        <p>English just refuses to use it for this one rock.</p>
+        <p>English just refuses to spend it on this one rock.</p>
       </EdMarginNote>
       <div class="taj__prose">
-        <p class="taj__lead">Friend becomes friendly. Love becomes lovely. Moon does not become moonly.</p>
-        <p>The ending is sitting right there. English uses it all the time. Then it stops, and hands you a word with no visible link to the Moon: lunar. The same trick shows up for the sun (solar), for teeth (dental), and for a cat (feline). The pattern looks like a glitch until you see it was a staffing decision.</p>
+        <p class="taj__lead">A seven-year-old at a crowded dinner table announces that the Moon has moonly mountains, and four adults correct him at once.</p>
+        <p>Lunar, they say. Lunar mountains. He asks why, which is the only question seven-year-olds truly know, and the table goes quiet. Somebody mutters something about Latin. Somebody else reaches for the rice. Nobody actually knows.</p>
+        <p>The boy has a point, and it is a good one. English hands out that ending like sweets. Friend becomes friendly. Love becomes lovely. Cost becomes costly. Then it arrives at the Moon, stops dead, and passes you a word that seems to have wandered in from another family altogether. The Sun gets the same treatment (solar). So do teeth (dental). So does your cat (feline).</p>
 
-        <h2>What is it?</h2>
-        <p>These pairs have a name: collateral adjectives. An adjective tied to a noun by meaning, and unrelated to it by descent.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a> Collateral means the same family stock, but not in a straight line — a cousin, not a child. Moon and lunar are two words that happen to share a job.</p>
-        <p>Suppose English passed a law that every adjective must grow from its own noun, and borrowed ones are deleted. Tomorrow, astronomers study the moonly surface, engineers install sunly panels, you book a toothly surgeon, and your cat has excellent catly reflexes. Nothing there is broken. Every word obeys the rule you already use for friendly. It just sounds like a nine-year-old explaining space.</p>
+        <h2>Collateral adjectives</h2>
+        <p>These mismatched pairs have a name that sounds like a bank product: collateral adjectives. An adjective tied to a noun by meaning but not by descent.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a> Collateral, in the family-tree sense, means the same stock but not in a straight line. A cousin, not a child. Moon and lunar share a job, not a bloodline.</p>
+        <p>Try a small experiment. Suppose a stern committee passed a law that every adjective must grow from its own noun, and every borrowed one is sent home. By Monday, astronomers are studying the moonly surface, engineers are fitting sunly panels, you are booking a toothly surgeon, and your cat has excellent catly reflexes. Nothing here is broken. Every word obeys the exact rule you already use for friendly. It just sounds like one nine-year-old explaining space to another.</p>
 
-        <h2>Why is it significant?</h2>
-        <p>English did build a native adjective. Moony has been in the language since about 1586, and one listed meaning is, plainly, relating to the moon.<a href="#ref-6" aria-label="Reference 6">[6]</a> You would still never write “a moony eclipse.” Moony drifted. It now mostly means dreamy, a bit absent — the face of someone in love, not the surface of a rock.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
-        <p>English did not have a gap. It had a staffing decision. Lunar took the observatory. Moony took the poetry. Old English was already here; then Norman French; then a flood of Latin, often through French, for the table, the church, the law, and the new sciences.<a href="#ref-3" aria-label="Reference 3">[3]</a> When the Renaissance needed a serious adjective for the Moon, it reached for Latin. Lunar entered English in the early 1400s meaning crescent-shaped, and settled into the scientific job.</p>
-        <p>Linguists call the traffic warden blocking. If a word already holds a slot, a new well-formed word often fails to take it. Mark Aronoff described the idea in 1976.<a href="#ref-4" aria-label="Reference 4">[4]</a> Later work keeps arguing about how hard the block really is.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>
+        <h2>Moony, lunar, and the staffing decision</h2>
+        <p>Here is the twist. English did grow its own adjective. Moony has been around since about 1586, and one of its listed meanings is, plainly, relating to the Moon.<a href="#ref-6" aria-label="Reference 6">[6]</a> Try writing “a moony eclipse” in a science report, though, and watch your editor’s eyebrows climb. Moony drifted. These days it mostly means dreamy and a little absent: the face of someone newly in love who keeps missing their bus stop.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
+        <p>So line up three ways to describe the grey plains up there. The lunar surface. The moony surface. The moonly surface. Moony is the decoy. It is so obviously soft and swoony that it makes lunar look sober and grown-up by comparison, and it quietly shuts the door on moonly before moonly ever gets a hearing.</p>
+        <p>Why lunar, though? Because English is less a language than a very old guesthouse. Old English checked in first. Norman French arrived in 1066 and took the best rooms. Then, for centuries, Latin kept pouring in, often by way of French, for the law, the church, the dinner table and the new sciences.<a href="#ref-3" aria-label="Reference 3">[3]</a> When educated speakers wanted a serious word for the Moon, they reached for Latin. Lunar entered English in the early 1400s, first meaning crescent-shaped, and slowly settled into the observatory job.<a href="#ref-8" aria-label="Reference 8">[8]</a></p>
+        <p>Linguists call the doorman blocking. When a word already holds a slot, a perfectly well-built rival often fails to get in. Mark Aronoff described the idea in 1976,<a href="#ref-4" aria-label="Reference 4">[4]</a> and people have argued ever since about how strict the doorman really is.<a href="#ref-5" aria-label="Reference 5">[5]</a> You can feel him working every time “moonly” makes you wince.</p>
 
-        <h2>Interesting facts and thoughts</h2>
-        <p>The two words do not even answer the same question about the rock. Moon comes from a root meaning to measure — the thing that counts time, a clock.<a href="#ref-7" aria-label="Reference 7">[7]</a> Lunar comes through Latin <em>luna</em>, from a root meaning light — a lamp. The same root shows up in old Slavic and Irish words for moon and light.<a href="#ref-8" aria-label="Reference 8">[8]</a> One set of ancestors looked up and saw a calendar. Another set looked up and saw a lamp. English kept both, and never announced it.</p>
-        <p>The ending has a small secret. That <em>-ly</em> comes from Old English <em>-lic</em>, from a root meaning appearance, form, body.<a href="#ref-9" aria-label="Reference 9">[9]</a> Friendly did not originally mean “full of friendship.” It meant something closer to friend-shaped.</p>
-        <p>This was never only about the Moon. English is several centuries of arrivals, still holding their old jobs. We raise a cow and eat beef: one word from the field, one from the table. The evidence is mixed on how strictly blocking works in a living language. It is not mixed on the staffing. Science got lunar. Longing kept moony.</p>
+        <figure class="taj__visual taj__visual--archive" style="--fig-ratio: 1800 / 894">
+          <EdEditorialImage
+            src="/blog/why-isnt-the-moon-moonly/rutherfurd-full-moon-1871.jpg"
+            alt="Stereograph card with two photographs of the full Moon side by side, mounted on an orange card."
+          />
+          <figcaption>
+            Image: Public Domain /
+            <a href="https://www.metmuseum.org/art/collection/search/813902" target="_blank" rel="noreferrer">The Metropolitan Museum of Art</a>,
+            Lewis Morris Rutherfurd, 1871
+          </figcaption>
+        </figure>
+
+        <h2>A clock and a lamp</h2>
+        <p>The best part is that the two words were never describing the same thing. Moon comes from an old root meaning to measure. The Moon was the thing that counted out the months: a clock hung in the sky.<a href="#ref-7" aria-label="Reference 7">[7]</a> Lunar comes through Latin <em>luna</em>, from a root meaning light. A lamp.<a href="#ref-8" aria-label="Reference 8">[8]</a> One set of ancestors looked up at night and saw a calendar. Another looked up at the same rock and saw a lantern. English kept both, filed them in different drawers, and never mentioned it to anyone.</p>
+        <p>Even the humble ending has a secret. That <em>-ly</em> comes from Old English <em>-lic</em>, from a root meaning body, form or appearance.<a href="#ref-9" aria-label="Reference 9">[9]</a> Friendly did not begin as “full of friendship.” It meant something closer to friend-shaped. When the boy said moonly, he was reaching for moon-shaped, which, if you think about it, was the most accurate adjective on the table.</p>
+        <p>None of this was ever only about the Moon. We raise a cow and eat beef. We keep a pig and serve pork. One word from the field, one from the banquet hall, still doing the jobs they were handed centuries ago.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
 
         <blockquote>
           <p>Same rock. One word for a clock, one word for a lamp.</p>
         </blockquote>
 
-        <p class="taj__closing">If lunar already held the observatory and moony kept the dreamy face, what job was left for “moonly” to do?</p>
-        <p>Sit with the refusal. English still builds the ending. It just will not spend it here.</p>
+        <p class="taj__closing">Every language is a house where the old guests still sleep in the rooms they claimed first. The boy at the table was not wrong. He was just several centuries late.</p>
       </div>
     </article>
     <section class="taj__sources" aria-labelledby="sources-title">
@@ -111,6 +124,12 @@ const references = [
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-55) auto 0; padding: 0 var(--shell-gutter); }
+/* Pen rewrite: archival figures keep their own proportions; credit links stay quiet ink. */
+.taj__visual { margin: 50rem 0 45rem; }
+.taj__visual--archive :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: var(--fig-ratio, var(--crop)); object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; background: var(--signal-field); }
+.taj__visual--portrait { max-width: 440rem; }
+.taj .taj__prose figure figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
+.taj .taj__prose figure figcaption a { color: inherit; text-decoration: underline; text-decoration-color: var(--line); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: var(--crop); }

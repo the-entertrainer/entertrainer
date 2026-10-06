@@ -141,6 +141,20 @@ export const BLOG_POSTS: BlogPost[] = [
     status: 'published',
     publishedAt: '2026-10-04T19:40:00+00:00'
   },
+  {
+    slug: 'one-equals-two-lets-break-maths',
+    title: '1=2: Let’s break maths',
+    dek: 'As a schoolboy I told my mother maths was the truth. Then pi refused to end, and five lines of algebra proved that 2 equals 1.',
+    socialHook: 'Start with a = b. Five tidy lines of school algebra later, 2 = 1. One quiet step is hiding a door that maths will not walk through.',
+    socialTitle: 'Five lines of school algebra that prove 2 = 1',
+    category: 'Universe',
+    tags: ['maths', 'pi', 'philosophy'],
+    minutes: 7,
+    hero: '/blog/one-equals-two/hero.jpg',
+    heroAlt: 'Cream paper, a hatched ink wheel on a ruler, and one cobalt line where the wheel unrolls once, stopping just past the third mark and scattering into dots.',
+    status: 'published',
+    publishedAt: '2026-10-06T16:45:00+00:00'
+  },
 ]
 
 export const ENTROPY_BLOG = BLOG_POSTS[0]
@@ -151,4 +165,5 @@ export const KNOWING_BLOG = BLOG_POSTS[4]
 export const TAJJALAN_BLOG = BLOG_POSTS[5]
 export const SPLIT_BRAIN_BLOG = BLOG_POSTS[6]
 export const SACRED_FREQUENCIES_BLOG = BLOG_POSTS[7]
+export const ONE_EQUALS_TWO_BLOG = BLOG_POSTS[8]
 export const FEATURED_BLOG = ENTROPY_BLOG

@@ -90,5 +90,15 @@
       <media:content url="https://entertrainer.in/blog/sacred-frequencies/hero.jpg" medium="image" />
       <media:thumbnail url="https://entertrainer.in/blog/sacred-frequencies/hero.jpg" />
     </item>
+    <item>
+      <title>Five lines of school algebra that prove 2 = 1</title>
+      <link>https://entertrainer.in/elevate/one-equals-two-lets-break-maths</link>
+      <guid isPermaLink="true">https://entertrainer.in/elevate/one-equals-two-lets-break-maths</guid>
+      <pubDate>Tue, 06 Oct 2026 16:45:00 +0000</pubDate>
+      <category>Universe</category>
+      <description>Start with a = b. Five tidy lines of school algebra later, 2 = 1. One quiet step is hiding a door that maths will not walk through. Read time: 7 minutes.</description>
+      <media:content url="https://entertrainer.in/blog/one-equals-two/hero.jpg" medium="image" />
+      <media:thumbnail url="https://entertrainer.in/blog/one-equals-two/hero.jpg" />
+    </item>
   </channel>
 </rss>

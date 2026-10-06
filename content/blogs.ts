@@ -130,9 +130,9 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'what-each-sacred-frequency-is-for',
     title: 'What each sacred frequency is for',
-    dek: 'Nine pure tones, from 174 to 963 hertz. Sound-healing practice gives each one a job — comfort, change, love, oneness.',
-    socialHook: 'Sound healers assign each of nine tones a job: ease pain, release fear, invite love. Press one. Hear what the practice means by it.',
-    socialTitle: 'What 528 Hz is said to do — and eight others',
+    dek: 'Nine pure tones, nine jobs, from comfort at 174 hertz to oneness at 963. The tricky part is admitting which one you need.',
+    socialHook: 'One tuning fork for fear, one for love. Guess which sells. What each of the nine sacred frequencies is said to do, and how to pick.',
+    socialTitle: 'Nobody buys the fear tone first. What all nine do',
     category: 'Mind',
     tags: ['sound', 'healing', 'practice'],
     minutes: 8,

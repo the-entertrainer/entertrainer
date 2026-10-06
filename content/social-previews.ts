@@ -1,4 +1,4 @@
-import { ENTROPY_BLOG, MOONLY_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, KNOWING_BLOG, TAJJALAN_BLOG, SPLIT_BRAIN_BLOG, SACRED_FREQUENCIES_BLOG } from './blogs'
+import { ENTROPY_BLOG, MOONLY_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, KNOWING_BLOG, TAJJALAN_BLOG, SPLIT_BRAIN_BLOG, SACRED_FREQUENCIES_BLOG, ONE_EQUALS_TWO_BLOG } from './blogs'
 
 export const SITE_URL = 'https://entertrainer.in'
 
@@ -109,6 +109,16 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     description: SACRED_FREQUENCIES_BLOG.socialHook,
     image: `${SITE_URL}${SACRED_FREQUENCIES_BLOG.hero}`,
     imageAlt: SACRED_FREQUENCIES_BLOG.heroAlt,
+    type: 'article'
+  },
+
+  [`/elevate/${ONE_EQUALS_TWO_BLOG.slug}`]: {
+    key: 'one-equals-two',
+    label: ONE_EQUALS_TWO_BLOG.category,
+    title: ONE_EQUALS_TWO_BLOG.socialTitle,
+    description: ONE_EQUALS_TWO_BLOG.socialHook,
+    image: `${SITE_URL}${ONE_EQUALS_TWO_BLOG.hero}`,
+    imageAlt: ONE_EQUALS_TWO_BLOG.heroAlt,
     type: 'article'
   },
   '/empower': {

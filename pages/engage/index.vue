@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
+  description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, and Circle.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -93,6 +93,25 @@ const MIND_READER_SYMBOLS = [
           <span class="engage__card-text">
             <span class="engage__step-no">03</span><strong class="engage__card-name">AstroClock</strong>
             <span class="engage__card-blurb">Birth place and time. A live dial. What today is doing.</span>
+          </span>
+          <span class="engage__card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </span>
+        </NuxtLink>
+      </li>
+
+      <li class="engage__step" style="--step: 3">
+        <NuxtLink to="/engage/circle" class="engage__card engage__card--circle">
+          <span class="engage__icon engage__icon--circle" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
+              <circle cx="24" cy="24" r="15" stroke="currentColor" stroke-width="2"/>
+              <path d="M24 14 34 32H14Z" fill="var(--accent)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="engage__card-text">
+            <span class="engage__step-no">04</span><strong class="engage__card-name">Circle</strong>
+            <span class="engage__card-blurb">A triangle walks the tiles. Five altars. Then a circle.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -198,6 +217,16 @@ const MIND_READER_SYMBOLS = [
   background: var(--ink);
 }
 .engage__icon--stack svg { display: block; width: 100%; height: 100%; }
+
+.engage__icon--circle {
+  display: grid;
+  place-items: center;
+  padding: 7rem;
+  color: var(--accent-ink);
+  background: var(--ink);
+}
+.engage__icon--circle svg { display: block; width: 100%; height: 100%; }
+
 
 .engage__card-text {
   display: flex;

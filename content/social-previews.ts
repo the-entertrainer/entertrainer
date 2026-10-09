@@ -185,7 +185,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
+    description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, and Circle.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },
@@ -206,6 +206,12 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'Mind Reader',
     title: 'The Mind Reader · Engage',
     description: 'Example: 42. Add 4 + 2, subtract to get 36, and note the mark beside it.',
+  },
+  '/engage/circle': {
+    key: 'circle',
+    label: 'Circle',
+    title: 'Circle · Engage',
+    description: 'A triangle walks the tiles. Five altars. Then a circle.',
   },
   '/my-work/sewa-chronicles': {
     key: 'sewa-chronicles',

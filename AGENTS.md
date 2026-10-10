@@ -17,3 +17,11 @@ Every illustration, mid-figure, Engage game visual, and editorial hero follows t
 - Black hatching / stipple for form; cobalt only for the conceptual accent
 - Flat editorial, negative space, one clear metaphor
 - Ban: anime, glossy 3D, neon candy, multi-accent rainbows
+
+## Cursor Cloud specific instructions
+
+- **Install:** `npm ci` (Node 22; matches CI).
+- **Dev server:** `NUXT_TELEMETRY_DISABLED=1 npm run dev -- --host 0.0.0.0 --port 3000` — telemetry prompts block non-interactive boots without the env var.
+- **Production build (CI parity):** `npm run build`
+- **Health check:** `GET /api/ping` → `{"ok":true}`
+- API keys in `.env.example` are optional for local browsing; copy to `.env` only when testing compose or newsletter flows.

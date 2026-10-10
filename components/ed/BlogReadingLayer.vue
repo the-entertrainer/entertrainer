@@ -7,7 +7,16 @@ const progress = ref(0)
 const isOpen = ref(false)
 const focusMode = ref(false)
 const saved = ref(false)
+const resumeAnnounced = ref(false)
 const isArticle = computed(() => route.path.startsWith('/elevate/') && route.path !== '/elevate/')
+
+const activeLabel = computed(
+  () => sections.value.find((section) => section.id === activeId.value)?.label ?? 'Read map'
+)
+
+function readingKey(suffix: string) {
+  return `entertrainer.reading.${route.path}.${suffix}`
+}
 
 let observer: IntersectionObserver | null = null
 let raf = 0
@@ -47,13 +56,47 @@ function collectSections() {
   }, { rootMargin: '-18% 0px -62% 0px', threshold: [0, 1] })
   sections.value.forEach(({ element }) => observer?.observe(element))
 
-  const storageKey = `entertrainer.reading.${route.path}`
   try {
-    saved.value = localStorage.getItem(`${storageKey}.saved`) === '1'
+    saved.value = localStorage.getItem(readingKey('saved')) === '1'
   } catch {
     saved.value = false
   }
   updateProgress()
+  tryResumeScroll()
+}
+
+let scrollSaveTimer: ReturnType<typeof setTimeout> | undefined
+let resumeScrollTimer: ReturnType<typeof setTimeout> | undefined
+let resumedScroll = false
+
+function tryResumeScroll() {
+  if (resumedScroll || !saved.value || !import.meta.client) return
+  let y = 0
+  try {
+    y = Number(localStorage.getItem(readingKey('scrollY')) || 0)
+  } catch {
+    return
+  }
+  if (y < 24) return
+  resumedScroll = true
+  if (resumeScrollTimer) window.clearTimeout(resumeScrollTimer)
+  resumeScrollTimer = window.setTimeout(() => {
+    window.scrollTo({ top: y, behavior: 'auto' })
+    resumeAnnounced.value = true
+    updateProgress()
+  }, 120)
+}
+
+function persistScrollSpot() {
+  if (!saved.value || !import.meta.client) return
+  if (scrollSaveTimer) window.clearTimeout(scrollSaveTimer)
+  scrollSaveTimer = window.setTimeout(() => {
+    try {
+      localStorage.setItem(readingKey('scrollY'), String(Math.round(window.scrollY)))
+    } catch {
+      /* Private mode */
+    }
+  }, 280)
 }
 
 function updateProgress() {
@@ -63,6 +106,7 @@ function updateProgress() {
     const root = document.documentElement
     const max = root.scrollHeight - window.innerHeight
     progress.value = max > 0 ? Math.min(100, Math.max(0, (window.scrollY / max) * 100)) : 0
+    persistScrollSpot()
   })
 }
 
@@ -81,7 +125,14 @@ function nextSection() {
 function toggleSaved() {
   saved.value = !saved.value
   try {
-    localStorage.setItem(`entertrainer.reading.${route.path}.saved`, saved.value ? '1' : '0')
+    localStorage.setItem(readingKey('saved'), saved.value ? '1' : '0')
+    if (saved.value) {
+      localStorage.setItem(readingKey('scrollY'), String(Math.round(window.scrollY)))
+    } else {
+      localStorage.removeItem(readingKey('scrollY'))
+      resumeAnnounced.value = false
+      resumedScroll = false
+    }
   } catch {
     /* Private mode or blocked storage: the control still works for this session. */
   }
@@ -103,6 +154,8 @@ onMounted(() => {
 watch(() => route.path, async () => {
   focusMode.value = false
   document.documentElement.removeAttribute('data-reading-focus')
+  resumedScroll = false
+  resumeAnnounced.value = false
   await nextTick()
   window.setTimeout(collectSections, 80)
   window.setTimeout(collectSections, 360)
@@ -111,6 +164,8 @@ watch(() => route.path, async () => {
 onBeforeUnmount(() => {
   observer?.disconnect()
   cancelAnimationFrame(raf)
+  if (scrollSaveTimer) window.clearTimeout(scrollSaveTimer)
+  if (resumeScrollTimer) window.clearTimeout(resumeScrollTimer)
   window.removeEventListener('scroll', updateProgress)
   document.documentElement.removeAttribute('data-reading-focus')
 })
@@ -131,7 +186,10 @@ onBeforeUnmount(() => {
         @click="isOpen = !isOpen"
       >
         <span class="reading-layer__ring" aria-hidden="true"><span :style="{ transform: `rotate(${progress * 3.6}deg)` }" /></span>
-        <span class="reading-layer__toggle-label">Read map</span>
+        <span class="reading-layer__toggle-copy">
+          <span class="reading-layer__toggle-label">Read map</span>
+          <span class="reading-layer__toggle-section">{{ activeLabel }}</span>
+        </span>
         <span class="reading-layer__percent">{{ Math.round(progress) }}%</span>
       </button>
 
@@ -154,7 +212,7 @@ onBeforeUnmount(() => {
         <div class="reading-layer__actions">
           <button type="button" class="reading-layer__action" @click="nextSection">Next idea <span aria-hidden="true">↓</span></button>
           <button type="button" class="reading-layer__action" :aria-pressed="saved" @click="toggleSaved">
-            {{ saved ? 'Spot saved' : 'Save this spot' }} <span aria-hidden="true">{{ saved ? '●' : '○' }}</span>
+            {{ saved ? 'Resume bookmark on' : 'Bookmark & resume here' }} <span aria-hidden="true">{{ saved ? '●' : '○' }}</span>
           </button>
           <button type="button" class="reading-layer__action" :aria-pressed="focusMode" @click="toggleFocus">
             {{ focusMode ? 'Exit focus' : 'Focus reading' }} <span aria-hidden="true">↗</span>
@@ -162,10 +220,19 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
+    <span v-if="resumeAnnounced" class="sr-only" role="status" aria-live="polite">Picked up where you left off.</span>
   </div>
 </template>
 
 <style scoped>
+/* Keep the margin lantern from sitting on the last lines of prose. */
+:global(body:has(.reading-layer) #main) {
+  padding-bottom: calc(96rem + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 1440px) {
+  :global(body:has(.reading-layer) #main) { padding-bottom: 0; }
+}
+
 .reading-layer__progress {
   position: fixed;
   z-index: 80;
@@ -188,15 +255,58 @@ onBeforeUnmount(() => {
   so a 280rem rail 24rem from the edge clears the text with a 24rem gap only from ~1290rem (≈1305 with a scrollbar).
   1440rem leaves ~90rem of slack for font and measure drift. Below that, only the top progress bar shows.
 */
-.reading-layer__rail { display: none; position: fixed; z-index: 81; top: 88rem; right: 24rem; width: 280rem; }
-@media (min-width: 1440px) { .reading-layer__rail { display: block; } }
+/* Margin lantern: compact dock on smaller viewports; full rail in the right gutter on wide screens. */
+.reading-layer__rail {
+  display: block;
+  position: fixed;
+  z-index: 81;
+  left: 50%;
+  right: auto;
+  bottom: max(16rem, env(safe-area-inset-bottom, 0px));
+  top: auto;
+  transform: translateX(-50%);
+  width: min(360rem, calc(100vw - 28rem));
+}
+@media (min-width: 1440px) {
+  .reading-layer__rail {
+    left: auto;
+    right: 24rem;
+    top: 88rem;
+    bottom: auto;
+    transform: none;
+    width: 280rem;
+  }
+}
 .reading-layer__toggle, .reading-layer__panel { border: var(--stroke) solid var(--ink); background: color-mix(in srgb, var(--paper) 93%, transparent); box-shadow: 6rem 6rem 0 var(--ink); }
 .reading-layer__toggle { display: flex; align-items: center; gap: 9rem; width: 100%; padding: 9rem 11rem; color: var(--ink); cursor: pointer; text-align: left; font: 700 10rem/1.2 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
+.reading-layer__toggle-copy { display: grid; gap: 2rem; min-width: 0; flex: 1; }
+.reading-layer__toggle-section {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-soft);
+  font: 600 12rem/1.2 var(--font-body);
+  letter-spacing: 0;
+  text-transform: none;
+}
+@media (min-width: 1440px) {
+  .reading-layer__toggle-section { display: none; }
+}
+.reading-layer__panel {
+  margin-top: 8rem;
+  padding: 15rem;
+  max-height: min(58vh, 420rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+@media (min-width: 1440px) {
+  .reading-layer__panel { max-height: none; overflow: visible; }
+}
 .reading-layer__toggle:hover, .reading-layer__toggle:focus-visible, .reading-layer__action:hover, .reading-layer__action:focus-visible { background: var(--signal-field); }
 .reading-layer__ring { display: grid; place-items: center; width: 18rem; height: 18rem; border: 2px solid var(--ink); border-radius: 50%; }
 .reading-layer__ring span { width: 5rem; height: 5rem; border-radius: 50%; background: var(--signal-cobalt); transform-origin: 9rem 9rem; }
 .reading-layer__percent { margin-left: auto; color: var(--signal-cobalt); }
-.reading-layer__panel { margin-top: 8rem; padding: 15rem; }
 .reading-layer__eyebrow { margin: 0 0 5rem; color: var(--signal-cobalt); font: 700 10rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
 .reading-layer__hint { margin: 0 0 13rem; font: 400 14rem/1.35 var(--font-body); }
 .reading-layer__section { display: flex; align-items: baseline; gap: 9rem; width: 100%; padding: 7rem 0; color: var(--ink-soft); border: 0; border-top: var(--stroke) solid var(--line); background: none; cursor: pointer; text-align: left; font: 600 12rem/1.25 var(--font-body); }

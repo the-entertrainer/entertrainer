@@ -13,7 +13,6 @@ import {
   VerticalAlign,
   WidthType
 } from 'docx'
-import { saveAs } from 'file-saver'
 import type { Connection, StoryCard } from '~/types/story'
 import type { IdModel } from './idModels'
 import { buildMcqRows, buildPlanRows, buildSections, hexShade, hexTint } from './storyExportShared'
@@ -230,5 +229,6 @@ export async function exportStoryDocx(input: DocxExportInput, filename: string) 
   })
 
   const blob = await Packer.toBlob(doc)
+  const { saveAs } = await import('file-saver')
   saveAs(blob, filename)
 }

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { saveAs } from 'file-saver'
 import type { CardKind, Connection, StoryCard, StoryGenProject } from '~/types/story'
 import { createCard, CARD_KINDS } from '~/utils/storyCards'
 import type { ModelId } from '~/utils/idModels'
@@ -606,12 +605,13 @@ function exportDiagram() {
     modelLabel: activeModel.value.stages.length ? activeModel.value.label : undefined
   }, `${safeName(projectTitle.value)}-flow.png`)
 }
-function exportSbf() {
+async function exportSbf() {
   showMenu.value = null
   const project: StoryGenProject = {
     version: '5.0', title: projectTitle.value, model: model.value, updated: new Date().toISOString(),
     cards: cards.value, connections: connections.value, plan: plan.value
   }
+  const { saveAs } = await import('file-saver')
   saveAs(new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' }), `${safeName(projectTitle.value)}.sbf`)
 }
 

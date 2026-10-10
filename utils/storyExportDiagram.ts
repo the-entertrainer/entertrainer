@@ -1,4 +1,3 @@
-import { saveAs } from 'file-saver'
 import type { Connection, StoryCard } from '~/types/story'
 import { bezierControls, bezierPointAt } from './storyBezier'
 import { CARD_KINDS, cardPreview } from './storyCards'
@@ -234,6 +233,7 @@ export function renderDiagram(input: DiagramInput, scale = 2): HTMLCanvasElement
 export function exportDiagramPng(input: DiagramInput, filename: string) {
   const canvas = renderDiagram(input, 2)
   canvas?.toBlob((blob) => {
-    if (blob) saveAs(blob, filename)
+    if (!blob) return
+    void import('file-saver').then(({ saveAs }) => saveAs(blob, filename))
   }, 'image/png')
 }

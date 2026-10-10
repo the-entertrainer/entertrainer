@@ -1,4 +1,3 @@
-import { saveAs } from 'file-saver'
 import type { Connection, StoryCard } from '~/types/story'
 import type { IdModel } from './idModels'
 import { buildMcqRows, buildPlanRows, buildSections, hexShade, hexTint } from './storyExportShared'
@@ -161,5 +160,6 @@ export async function exportStoryXlsx(input: XlsxExportInput, filename: string) 
   }
 
   const buffer = await wb.xlsx.writeBuffer()
+  const { saveAs } = await import('file-saver')
   saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), filename)
 }

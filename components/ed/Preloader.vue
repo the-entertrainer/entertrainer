@@ -759,12 +759,29 @@ const startExperience = () => {
   }
 }
 
+function onPreloaderKey(event: KeyboardEvent) {
+  if (leaving.value || completed) return
+  const target = event.target as HTMLElement | null
+  if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    skip()
+    return
+  }
+  if ((event.key === 's' || event.key === 'S') && !event.metaKey && !event.ctrlKey && !event.altKey) {
+    event.preventDefault()
+    skip()
+  }
+}
+
 onMounted(() => {
   hydrate()
   reducedMotion.value = prefersReducedMotion()
+  window.addEventListener('keydown', onPreloaderKey)
 })
 
 onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onPreloaderKey)
   clearFinishTimer()
   if (removeTimer) window.clearTimeout(removeTimer)
   if (growDelayTimer !== undefined) {
@@ -939,7 +956,7 @@ onBeforeUnmount(() => {
       Skip intro
     </button>
 
-    <span class="sr-only" role="status" aria-live="polite">{{ entered ? 'Preparing Entertrainer' : 'Tap anywhere to begin. Skip intro at the bottom ends this opening and opens the site.' }}</span>
+    <span class="sr-only" role="status" aria-live="polite">{{ entered ? 'Preparing Entertrainer' : 'Tap anywhere to begin. Skip intro at the bottom, or press Escape or S, ends this opening and opens the site.' }}</span>
   </div>
 </template>
 
@@ -1408,10 +1425,10 @@ onBeforeUnmount(() => {
   opacity: .28;
   transition: opacity 220ms ease, background 220ms ease, border-color 220ms ease;
 }
-.preloader__skip--on { opacity: .34; }
+.preloader__skip--on { opacity: .62; }
 .preloader__skip:hover,
 .preloader__skip:focus-visible {
-  opacity: .72;
+  opacity: 1;
   background: color-mix(in oklab, var(--paper) 85%, transparent);
   border-color: color-mix(in oklab, var(--ink) 18%, transparent);
   outline: none;

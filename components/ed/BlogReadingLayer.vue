@@ -225,6 +225,14 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+/* Keep the margin lantern from sitting on the last lines of prose. */
+:global(body:has(.reading-layer) #main) {
+  padding-bottom: calc(96rem + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 1440px) {
+  :global(body:has(.reading-layer) #main) { padding-bottom: 0; }
+}
+
 .reading-layer__progress {
   position: fixed;
   z-index: 80;

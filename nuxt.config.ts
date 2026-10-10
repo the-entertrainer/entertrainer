@@ -34,6 +34,7 @@ function astroclockReactJsx() {
 }
 
 export default defineNuxtConfig({
+  compatibilityDate: '2026-10-10',
   devtools: { enabled: false },
   // @vueuse/motion is gone with the reveal composable it powered: every
   // entrance on the site is now CSS (see .u-reveal / .t-fade-up in main.css),
@@ -279,7 +280,11 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
-    preset: 'vercel',
+    // Netlify preview builds set NETLIFY=true. A hardcoded Vercel preset
+    // publishes to .vercel/output, so Netlify's dist publish step fails and
+    // the Header rules / Pages changed / Redirect rules checks all report
+    // "Deploy failed" for the same deploy.
+    preset: process.env.NETLIFY ? 'netlify' : 'vercel',
     externals: {
       // Keep Playwright deps external in case the pw backup is ever re-enabled
       external: ['playwright-core', '@sparticuz/chromium', 'satori', '@resvg/resvg-js', 'pdf-lib'],

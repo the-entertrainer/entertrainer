@@ -1,0 +1,9 @@
+# Preview deploys. Production hosting stays on Vercel (see vercel.json).
+# Nitro's netlify preset writes the publish directory to dist/.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NUXT_TELEMETRY_DISABLED = "1"

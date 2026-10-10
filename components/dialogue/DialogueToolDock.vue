@@ -17,8 +17,8 @@ defineProps<{ modelValue: string }>()
 defineEmits(['update:modelValue'])
 const tools = [
   { id: 'panels', label: 'Panels', ico: '▦' },
-  { id: 'art', label: 'Art', ico: '🖼' },
-  { id: 'balloon', label: 'Balloon', ico: '💬' },
+  { id: 'art', label: 'Art', ico: '▣' },
+  { id: 'balloon', label: 'Balloon', ico: '◇' },
   { id: 'type', label: 'Type', ico: 'T' },
   { id: 'stickers', label: 'Stickers', ico: '★' },
   { id: 'frames', label: 'Frames', ico: '▭' },

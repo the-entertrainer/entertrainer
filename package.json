@@ -10,6 +10,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
+    "prepare": "nuxt prepare",
+    "check": "npm run check:paper-signal && npm run check:voice && npm run check:social-hooks && npm run smoke:dialogue",
     "gifs": "node scripts/prefetch-gifs.mjs",
     "check:paper-signal": "node scripts/check-paper-signal.mjs",
     "check:voice": "node --experimental-strip-types scripts/check-human-not-model.mjs",

@@ -16,10 +16,14 @@ const allowedImageFiles = new Set([
   'pages/courses/ai-atlas.vue',
   'pages/instructional-design/index.vue',
   'pages/index.vue',
+  'pages/empower/index.vue',
+  'pages/dialogue/index.vue',
   'components/ed/Card.vue',
   'components/ed/EditorialImage.vue',
-  'pages/my-work/sewa-chronicles.vue',
-  'components/ed/BookReader.vue'
+  'components/ed/PhotoTiles.vue',
+  'components/ed/BookReader.vue',
+  'components/dialogue/DialogueReader.vue',
+  'components/dialogue/DialogueTray.vue',
 ])
 const emoji = /[\u{1F000}-\u{1FAFF}]/u
 const issues = []

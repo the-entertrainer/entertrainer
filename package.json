@@ -23,7 +23,7 @@
     "@resvg/resvg-js": "^2.6.2",
     "@sparticuz/chromium": "^149.0.0",
     "dexie": "^4.0.0",
-    "docx": "^9.7.1",
+    "docx": "^9.9.0",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "gsap": "^3.15.0",

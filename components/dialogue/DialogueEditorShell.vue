@@ -5,7 +5,7 @@
       <button type="button" class="title" @click="rename">{{ title }}</button>
       <button type="button" class="icon-btn" aria-label="Undo" @click="ed()?.undo()">↶</button>
       <button type="button" class="icon-btn" aria-label="Redo" @click="ed()?.redo()">↷</button>
-      <button type="button" class="icon-btn" aria-label="Preview" @click="preview = true">👁</button>
+      <button type="button" class="icon-btn" aria-label="Preview" @click="preview = true">◎</button>
       <button type="button" class="icon-btn" aria-label="Export" @click="exportOpen = true">⇪</button>
     </div>
     <div class="editor-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column">

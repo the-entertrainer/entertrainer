@@ -17,3 +17,9 @@ Every illustration, mid-figure, Engage game visual, and editorial hero follows t
 - Black hatching / stipple for form; cobalt only for the conceptual accent
 - Flat editorial, negative space, one clear metaphor
 - Ban: anime, glossy 3D, neon candy, multi-accent rainbows
+
+## Repository maintenance
+
+- **Develop:** `npm ci` then `NUXT_TELEMETRY_DISABLED=1 npm run dev` — see [`CONTRIBUTING.md`](CONTRIBUTING.md).
+- **Before merge:** `npm run check` and `npm run build` (CI runs both on every PR).
+- **Backlog:** [`docs/BACKLOG.md`](docs/BACKLOG.md) (active); [`docs/archive/agent-todo-history.md`](docs/archive/agent-todo-history.md) (archived checklist).

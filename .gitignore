@@ -11,3 +11,6 @@ dist
 .env.*
 !.env.example
 artifacts/
+smoke.*
+*.dialogue
+.cursor/*.log

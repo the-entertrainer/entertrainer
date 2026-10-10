@@ -34,6 +34,7 @@ function astroclockReactJsx() {
 }
 
 export default defineNuxtConfig({
+  compatibilityDate: '2026-10-10',
   devtools: { enabled: false },
   // @vueuse/motion is gone with the reveal composable it powered: every
   // entrance on the site is now CSS (see .u-reveal / .t-fade-up in main.css),

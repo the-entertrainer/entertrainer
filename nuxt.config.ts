@@ -280,7 +280,11 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
-    preset: 'vercel',
+    // Netlify preview builds set NETLIFY=true. A hardcoded Vercel preset
+    // publishes to .vercel/output, so Netlify's dist publish step fails and
+    // the Header rules / Pages changed / Redirect rules checks all report
+    // "Deploy failed" for the same deploy.
+    preset: process.env.NETLIFY ? 'netlify' : 'vercel',
     externals: {
       // Keep Playwright deps external in case the pw backup is ever re-enabled
       external: ['playwright-core', '@sparticuz/chromium', 'satori', '@resvg/resvg-js', 'pdf-lib'],

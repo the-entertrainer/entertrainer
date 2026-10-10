@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
+  description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, and escape.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -93,6 +93,25 @@ const MIND_READER_SYMBOLS = [
           <span class="engage__card-text">
             <span class="engage__step-no">03</span><strong class="engage__card-name">AstroClock</strong>
             <span class="engage__card-blurb">Birth place and time. A live dial. What today is doing.</span>
+          </span>
+          <span class="engage__card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </span>
+        </NuxtLink>
+      </li>
+      <li class="engage__step" style="--step: 3">
+        <NuxtLink to="/engage/escape" class="engage__card engage__card--escape">
+          <span class="engage__icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
+              <rect x="8" y="10" width="32" height="28" stroke="currentColor" stroke-width="2"/>
+              <rect x="20" y="18" width="8" height="16" fill="var(--accent)"/>
+              <circle cx="34" cy="16" r="3" stroke="#385c84" stroke-width="2"/>
+            </svg>
+          </span>
+          <span class="engage__card-text">
+            <span class="engage__step-no">04</span><strong class="engage__card-name">escape</strong>
+            <span class="engage__card-blurb">Drag to walk. The warm door is the way out.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"

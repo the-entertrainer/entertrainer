@@ -58,7 +58,7 @@
     "@types/react-dom": "^19",
     "@types/three": "^0.163.0",
     "@vite-pwa/nuxt": "^1.1.1",
-    "nuxt": "^3.11.0",
+    "nuxt": "^4.6.0",
     "tailwindcss": "^4.1.8"
   }
 }

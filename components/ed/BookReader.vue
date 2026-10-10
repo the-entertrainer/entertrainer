@@ -369,6 +369,7 @@ onBeforeUnmount(() => {
 .sewa-publication { min-height: 100dvh; color: #171210; background: #f2eadf; display: flex; flex-direction: column; outline: none; }
 .sewa-publication__masthead { min-height: 66rem; padding: 12rem clamp(18rem, 4vw, 62rem); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2b211c; background: rgba(250,247,240,.96); }
 .sewa-publication__brand { justify-self: start; color: #15110f; }
+.sewa-publication__brand :deep(.wm) { color: #15110f; }
 .sewa-publication__brand :deep(.wordmark) { max-width: 185rem; }
 .sewa-publication__exit { min-height: 44rem; display: inline-flex; align-items: center; border-bottom: 1px solid currentColor; font-family: "Libre Baskerville", Georgia, serif; font-size: 13rem; font-weight: 700; }
 .sewa-publication__reader { flex: 1; display: flex; flex-direction: column; }

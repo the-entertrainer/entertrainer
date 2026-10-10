@@ -55,7 +55,7 @@ withDefaults(defineProps<{
 }
 .wm__ring { fill: none; stroke: var(--accent); stroke-width: 18; }
 .wm__e {
-  fill: var(--ink);
+  fill: currentColor;
   text-transform: lowercase !important;
   font-variant: normal;
 }

@@ -601,7 +601,7 @@ function backToTable() {
           <form @submit.prevent="parseTable">
 
             <!-- Calendar metadata -->
-            <div class="glass-label" style="font-weight:700; opacity:0.3; margin-bottom:4rem;">Calendar Details</div>
+            <div class="glass-label" style="font-weight:700; margin-bottom:4rem;">Calendar Details</div>
             <input
               v-model="calTitle"
               class="glass-field"
@@ -635,7 +635,7 @@ function backToTable() {
 
             <!-- Audiences -->
             <span class="glass-label" style="margin-top:12rem;">Target Audiences</span>
-            <p style="font-size:12rem; opacity:0.4; margin:-4rem 0 8rem; font-style:italic;">Add all the groups this calendar will cater to</p>
+            <p style="font-size:12rem; color:var(--muted); margin:-4rem 0 8rem; font-style:italic;">Add all the groups this calendar will cater to</p>
             <div class="tcg-chips" style="display:flex; flex-wrap:wrap; gap:6rem; margin-bottom:12rem;">
               <div v-for="(aud, i) in audiences" :key="aud" class="glass-chip" style="display:flex; align-items:center; gap:4rem;">
                 {{ aud }}
@@ -655,7 +655,7 @@ function backToTable() {
 
             <!-- Topics -->
             <label class="glass-label" for="tcg-topics">Training Topics</label>
-            <p style="font-size:12rem; opacity:0.4; margin:-4rem 0 8rem; font-style:italic;">One per line. Optional: <em>Topic | Hours</em></p>
+            <p style="font-size:12rem; color:var(--muted); margin:-4rem 0 8rem; font-style:italic;">One per line. Optional: <em>Topic | Hours</em></p>
             <textarea
               id="tcg-topics"
               v-model="topicsText"

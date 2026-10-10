@@ -315,7 +315,8 @@ onBeforeUnmount(() => {
 .newsletter { position: relative; display: grid; grid-template-columns: auto minmax(0, .8fr) minmax(0, 1.05fr); gap: var(--space-34); align-items: center; padding: var(--space-34); overflow: hidden; color: var(--ink); background: var(--paper); border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); }
 .newsletter::after { content: none; }
 .newsletter > * { position: relative; z-index: 1; }
-.newsletter__mark { display: grid; width: var(--space-55); height: var(--space-55); place-items: center; background: var(--accent); border: var(--stroke) solid var(--ink); border-radius: 0; box-shadow: none; }
+.newsletter__mark { display: grid; width: var(--space-55); height: var(--space-55); place-items: center; background: var(--accent); border: var(--stroke) solid var(--ink); border-radius: 0; box-shadow: none; color: var(--accent-ink); }
+.newsletter__mark :deep(.wm) { color: var(--accent-ink); }
 .newsletter h2 { margin: 0; max-width: 22ch; font: 500 var(--type-h2)/1.05 var(--font-display); letter-spacing: -.02em; }
 .newsletter__copy > p:last-child { max-width: var(--measure); margin: var(--space-13) 0 0; font-size: var(--type-body); line-height: 1.45; }
 .newsletter__form { min-width: 0; }

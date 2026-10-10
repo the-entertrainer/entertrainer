@@ -40,7 +40,7 @@ export function PlanetDrawer({ open, detail, onClose }: PlanetDrawerProps) {
         <div className="flex items-center justify-between mb-3">
           <h2
             className="text-lg font-semibold"
-            style={{ color: detail?.graha.color ?? '#D4AF37' }}
+            style={{ color: detail ? `var(--graha-${detail.graha.id.toLowerCase()})` : 'var(--graha-jupiter)' }}
           >
             {detail ? `${detail.graha.symbol} ${detail.graha.id}` : '—'}
           </h2>

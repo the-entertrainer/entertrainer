@@ -26,6 +26,15 @@ html.astroclock-rem {
 
 
 .astroclock-root {
+  --graha-sun: #FFB74D;
+  --graha-moon: #E0E2EC;
+  --graha-mars: #E57373;
+  --graha-mercury: #81C784;
+  --graha-jupiter: #D4AF37;
+  --graha-venus: #F48FB1;
+  --graha-saturn: #90A4AE;
+  --graha-rahu: #CE93D8;
+  --graha-ketu: #A1887F;
   -webkit-tap-highlight-color: transparent;
   box-sizing: border-box;
   position: relative;
@@ -564,6 +573,15 @@ html[data-theme="light"] .astroclock-host {
 }
 
 html[data-theme="light"] .astroclock-root {
+  --graha-sun: #7A5600;
+  --graha-moon: #3E4452;
+  --graha-mars: #9B2C2C;
+  --graha-mercury: #1B6B34;
+  --graha-jupiter: #7A5600;
+  --graha-venus: #8E294C;
+  --graha-saturn: #3E525C;
+  --graha-rahu: #693878;
+  --graha-ketu: #5C4038;
   background: #F4F1EA;
   color: #1A1C24;
   color-scheme: light;
@@ -625,8 +643,8 @@ html[data-theme="light"] .astroclock-root .ac-seg {
 }
 
 html[data-theme="light"] .astroclock-root .ac-seg-active {
-  background: #9A7B1A;
-  color: #FFFCF0;
+  background: #FFD43B;
+  color: #161618;
 }
 
 html[data-theme="light"] .astroclock-root .ac-seg-idle {
@@ -706,7 +724,7 @@ html[data-theme="light"] .astroclock-root .ac-moment-advice p {
 
 /* Tailwind mist utilities read as ink on light — keep gold readable */
 html[data-theme="light"] .astroclock-root .text-gold {
-  color: #9A7B1A;
+  color: #7A5600;
 }
 html[data-theme="light"] .astroclock-root .border-gold\/35 {
   border-color: rgba(154, 123, 26, 0.45);
@@ -720,20 +738,19 @@ html[data-theme="light"] .astroclock-root .text-mist\/90 {
 html[data-theme="light"] .astroclock-root .text-mist\/70 {
   color: rgba(26, 28, 36, 0.7);
 }
-html[data-theme="light"] .astroclock-root .text-mist\/50 {
-  color: rgba(26, 28, 36, 0.5);
+html[data-theme="light"] .astroclock-root .ac-chip.retro {
+  color: #9B2C2C;
 }
-html[data-theme="light"] .astroclock-root .text-mist\/45 {
-  color: rgba(26, 28, 36, 0.45);
+html[data-theme="light"] .astroclock-root .ac-chip .opacity-70 {
+  opacity: 1;
 }
-html[data-theme="light"] .astroclock-root .text-mist\/40 {
-  color: rgba(26, 28, 36, 0.4);
-}
-html[data-theme="light"] .astroclock-root .text-mist\/35 {
-  color: rgba(26, 28, 36, 0.35);
-}
+html[data-theme="light"] .astroclock-root .text-mist\/55,
+html[data-theme="light"] .astroclock-root .text-mist\/50,
+html[data-theme="light"] .astroclock-root .text-mist\/45,
+html[data-theme="light"] .astroclock-root .text-mist\/40,
+html[data-theme="light"] .astroclock-root .text-mist\/35,
 html[data-theme="light"] .astroclock-root .text-mist\/30 {
-  color: rgba(26, 28, 36, 0.3);
+  color: rgba(26, 28, 36, 0.72);
 }
 html[data-theme="light"] .astroclock-root .bg-white\/5 {
   background-color: rgba(26, 28, 36, 0.05);
@@ -742,7 +759,7 @@ html[data-theme="light"] .astroclock-root .ring-white\/10 {
   --tw-ring-color: rgba(26, 28, 36, 0.12);
 }
 html[data-theme="light"] .astroclock-root .text-amber-200\/90 {
-  color: #A16207;
+  color: #7A5600;
 }
 html[data-theme="light"] .astroclock-root .text-rose-300\/90 {
   color: #C0392B;

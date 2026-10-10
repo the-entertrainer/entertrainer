@@ -229,7 +229,7 @@ async function copy(text: string, i: number) {
   gap: 10rem;
   margin-top: 28rem;
 }
-.dg-results-label { margin: 0 0 4rem; padding-bottom: 0; opacity: 0.4; }
+.dg-results-label { margin: 0 0 4rem; padding-bottom: 0; color: var(--muted); }
 .dg-results .glass-panel:nth-child(2) { animation-delay: 0.05s; }
 .dg-results .glass-panel:nth-child(3) { animation-delay: 0.11s; }
 .dg-results .glass-panel:nth-child(4) { animation-delay: 0.17s; }
@@ -244,7 +244,7 @@ async function copy(text: string, i: number) {
   font-size: 11rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-  opacity: 0.4;
+  color: var(--muted);
   padding-top: 2rem;
   flex-shrink: 0;
   width: 12rem;

@@ -311,6 +311,7 @@ function toggleOpeningSound() {
   color: var(--accent-ink);
 }
 .sp__segment-btn:hover { border-color: var(--ink); color: var(--ink); }
+.sp__segment-btn[aria-checked="true"]:hover { background: var(--accent); color: var(--accent-ink); }
 .sp__segment-btn:focus-visible { outline: 3rem solid var(--ink); outline-offset: 2rem; }
 
 .sp__foot {

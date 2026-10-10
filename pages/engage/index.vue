@@ -161,11 +161,11 @@ const MIND_READER_SYMBOLS = [
   grid-template-rows: repeat(2, 1fr);
   gap: 1rem;
   padding: 7rem;
-  color: var(--accent);
-  background: var(--ink);
+  color: #FFD43B;
+  background: #161618;
 }
 
-.engage__icon--mind-reader i { display: grid; place-items: center; color: var(--accent); }
+.engage__icon--mind-reader i { display: grid; place-items: center; color: #FFD43B; }
 .engage__icon--mind-reader i:nth-child(2n) { color: var(--accent); }
 .engage__icon--mind-reader i:nth-child(3n) { color: var(--accent); }
 .engage__icon--mind-reader svg {
@@ -194,8 +194,8 @@ const MIND_READER_SYMBOLS = [
   display: grid;
   place-items: center;
   padding: 7rem;
-  color: var(--accent-ink);
-  background: var(--ink);
+  color: #FFD43B;
+  background: #161618;
 }
 .engage__icon--stack svg { display: block; width: 100%; height: 100%; }
 
@@ -247,8 +247,8 @@ const MIND_READER_SYMBOLS = [
   height: 22rem;
   padding: 0 6rem;
   border-radius: 999px;
-  background: var(--ink);
-  color: var(--accent);
+  background: #161618;
+  color: #FFD43B;
   font: 700 11rem/1 var(--font-mono);
   letter-spacing: 0.08em;
 }

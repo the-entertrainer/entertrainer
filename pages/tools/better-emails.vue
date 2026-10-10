@@ -476,7 +476,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
 }
 .be-wordcount {
   font-size: 11rem;
-  opacity: 0.5;
+  color: var(--muted);
   font-feature-settings: "tnum";
 }
 .be-textarea { resize: vertical; }

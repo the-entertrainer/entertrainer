@@ -96,7 +96,7 @@ export function HUD({
                   active ? 'active' : ''
                 } ${retro ? 'retro' : ''}`}
               >
-                <span style={{ color: g.color }}>{g.symbol}</span>
+                <span style={{ color: `var(--graha-${g.id.toLowerCase()})` }}>{g.symbol}</span>
                 <span>{g.id.slice(0, 2)}</span>
                 <span className="font-mono text-[8px] opacity-70">
                   {sp >= 0 ? 'D' : 'R'}

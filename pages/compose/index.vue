@@ -1199,10 +1199,10 @@ const selectedFigure = computed(() =>
   cursor: pointer;
 }
 .compose__btn:disabled { opacity: .5; cursor: wait; }
-.compose__btn--signal { background: var(--signal-cobalt); color: var(--ink); border-color: var(--ink); }
+.compose__btn--signal { background: var(--accent); color: var(--accent-ink); border-color: var(--ink); }
 .compose__btn--ghost { background: transparent; }
 .compose__btn--small { padding: 8rem 10rem; font-size: 11rem; }
-.compose__error { margin: 12rem 0 0; color: #b00020; font: 700 13rem/1.3 var(--font-mono); }
+.compose__error { margin: 12rem 0 0; color: var(--danger); font: 700 13rem/1.3 var(--font-mono); }
 .compose__status {
   margin: 18rem 0;
   padding: 12rem 14rem;
@@ -1227,8 +1227,8 @@ const selectedFigure = computed(() =>
   color: var(--ink);
 }
 .compose__gh-status.is-bad {
-  background: color-mix(in srgb, #b00020 10%, var(--paper));
-  color: #7a0016;
+  background: color-mix(in srgb, var(--danger) 14%, var(--paper));
+  color: var(--danger);
 }
 .compose__mode {
   display: inline-flex;
@@ -1249,8 +1249,8 @@ const selectedFigure = computed(() =>
 }
 .compose__mode-btn:last-child { border-right: 0; }
 .compose__mode-btn.is-active {
-  background: var(--signal-cobalt);
-  color: var(--ink);
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 .compose__preview {
   display: grid;
@@ -1507,8 +1507,8 @@ const selectedFigure = computed(() =>
   pointer-events: none;
 }
 .compose__provider-opt.is-active {
-  background: var(--signal-cobalt);
-  color: var(--ink);
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 .compose__provider:disabled .compose__provider-opt { opacity: .55; cursor: wait; }
 .compose__provider-seg--wrap {
@@ -1669,7 +1669,6 @@ const selectedFigure = computed(() =>
   letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--signal-cobalt);
-  opacity: .85;
 }
 .compose__lead-input,
 .compose__body-input,

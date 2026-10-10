@@ -632,7 +632,7 @@ onUnmounted(() => resizeObs?.disconnect())
   font-weight: 700;
   letter-spacing: 0.02em;
   color: #fff;
-  background: #d24d4d;
+  background: #B42318;
   box-shadow: 0 8rem 22rem -8rem rgba(0,0,0,0.6);
   z-index: 5;
   white-space: nowrap;

@@ -63,7 +63,8 @@
   --accent-strong: #EAB900;
   --accent-soft: #FFF3B8;
   --accent-ink: #161618;
-  --accent-text: #8A6500; /* readable gold on cream */
+  --accent-text: #8A6500; /* 5.3:1 on white, 4.7:1 on cream. Bright #FFD43B is a fill only. */
+  --on-danger: #FFFFFF;
   --blue:   var(--accent);
   --violet: var(--accent); /* Route Atlas companion: navigation traces and path transitions. */
   --red:    #E02D18;
@@ -76,7 +77,7 @@
   --cobalt: var(--accent); /* alias kept for legacy selectors; brand accent is yellow */
   --signal-field: #FFF3B8;
   --signal-sheet: #F0E08A;
-  --signal-cobalt: var(--accent);
+  --signal-cobalt: var(--accent-text);
   --signal-rule: #18181A;
   --ink-soft: var(--muted);
 
@@ -127,6 +128,8 @@
   --accent-strong: #FFE38A;
   --accent-soft: #4E3C00;
   --accent-ink: #0B0B0C;
+  --accent-text: #FFD43B; /* 13.8:1 on near-black. The light gold #8A6500 fails here. */
+  --on-danger: #161618;
   --blue:   var(--accent);
   --violet: var(--accent); /* Lifted for dark-paper contrast without adding a second palette. */
   --red:    #FF6B55;
@@ -139,7 +142,7 @@
   --cobalt: var(--accent);
   --signal-field: #3A3210;
   --signal-sheet: #5A4A14;
-  --signal-cobalt: var(--accent);
+  --signal-cobalt: var(--accent-text);
   --signal-rule: #F2F2F4;
   --ink-soft: var(--muted);
 
@@ -659,7 +662,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 }
 @media (hover: hover) {
   .ticket--ghost:not(:disabled):hover, .glass-btn--ghost:not(:disabled):hover, .px-btn--ghost:not(:disabled):hover {
-    background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink);
+    background: var(--accent-soft); border-color: var(--accent); color: var(--ink);
   }
 }
 .ticket--sm { min-height: var(--space-34); padding: var(--space-8) var(--space-13); font-size: var(--type-meta); }

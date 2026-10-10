@@ -271,7 +271,7 @@ button {
 }
 .btn-danger {
   background: var(--danger);
-  color: #fff;
+  color: var(--on-danger, #fff);
   font-weight: 700;
   padding: 0 22px;
   border-radius: var(--radius);

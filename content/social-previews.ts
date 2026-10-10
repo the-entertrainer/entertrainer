@@ -185,7 +185,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, and escape.',
+    description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },
@@ -200,12 +200,6 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'Stack',
     title: 'Stack · Engage',
     description: 'Tap to drop. Only the overlap stays. A stacking arcade on Entertrainer.'
-  },
-  '/engage/escape': {
-    key: 'escape',
-    label: 'escape',
-    title: 'escape · Engage',
-    description: 'A quiet concrete room. Walk with a drag. The door is warm.'
   },
   '/engage/read-my-mind': {
     key: 'read-my-mind',

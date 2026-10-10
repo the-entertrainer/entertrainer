@@ -141,6 +141,19 @@ function topicColor(topic: string, themeIdx: number): string {
   return palette[hash % palette.length]
 }
 
+/** Ink or white, whichever clears WCAG AA on this session fill. */
+function inkOn(hex: string): string {
+  const h = hex.replace('#', '')
+  const ch = (i: number) => {
+    const c = parseInt(h.slice(i, i + 2), 16) / 255
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  }
+  const L = 0.2126 * ch(0) + 0.7152 * ch(2) + 0.0722 * ch(4)
+  const onWhite = 1.05 / (L + 0.05)
+  const onInk = (L + 0.05) / 0.05
+  return onInk >= onWhite ? '#161618' : '#FFFFFF'
+}
+
 function buildCalendarGrid(year: number, month: number): CalDay[] {
   const daysInMonth  = new Date(year, month, 0).getDate()
   const firstWeekday = new Date(year, month - 1, 1).getDay()
@@ -874,7 +887,7 @@ function backToTable() {
                     v-for="session in day.sessions" :key="session.id"
                     class="tcg-session"
                     :class="{ 'tcg-session--selected': selectedSession?.session.id === session.id }"
-                    :style="{ background: session.color }"
+                    :style="{ background: session.color, color: inkOn(session.color) }"
                     draggable="true"
                     @dragstart.stop="onDragStart(session, day)"
                     @dragover.prevent.stop
@@ -1495,7 +1508,7 @@ function backToTable() {
 .tcg-session-topic {
   font-size: 9.5rem;
   font-weight: 700;
-  color: #fff;
+  color: inherit;
   line-height: 1.22;
   letter-spacing: -0.01em;
   display: -webkit-box;
@@ -1505,13 +1518,15 @@ function backToTable() {
 }
 .tcg-session-slot {
   font-size: 8rem;
-  color: rgba(255,255,255,0.82);
+  color: inherit;
+  opacity: 0.88;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 .tcg-session-dur {
   font-size: 8rem;
-  color: rgba(255,255,255,0.66);
+  color: inherit;
+  opacity: 0.78;
   font-weight: 500;
 }
 

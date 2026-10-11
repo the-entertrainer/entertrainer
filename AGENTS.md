@@ -9,6 +9,10 @@
 
 Retired: other writing and voice packs, including the old sand-workflow explain post. Do not reload them.
 
+## Sacred geometry
+
+When the user asks to explain, draw, or design from sacred geometry, the Flower of Life, or *The Sacred Geometry Movie*, use [Sacred geometry](.agents/skills/sacred-geometry/SKILL.md). Humanize Elevate still owns Elevate prose.
+
 ## Art direction (sitewide)
 
 Every illustration, mid-figure, Engage game visual, and editorial hero follows the **cover look** — same print as `public/blog/tajjalan/hero.jpg`, `breath.jpg`, `four-parts.jpg`.

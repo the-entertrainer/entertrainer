@@ -13,10 +13,13 @@ const props = withDefaults(defineProps<{
   revealed?: number
   /** Slow turn, for a loading state. */
   spin?: boolean
+  /** Stroke in viewBox units. Heavier when the mark is small. */
+  stroke?: number
 }>(), {
   size: 34,
   revealed: 7,
-  spin: false
+  spin: false,
+  stroke: 1.6
 })
 
 const circles = seedOfLife(50, 50, 16)
@@ -26,6 +29,7 @@ const circles = seedOfLife(50, 50, 16)
   <svg
     class="seed"
     :class="{ 'seed--spin': spin }"
+    :style="{ '--seed-stroke': stroke }"
     :width="size"
     :height="size"
     viewBox="0 0 100 100"
@@ -52,7 +56,7 @@ const circles = seedOfLife(50, 50, 16)
 .seed circle {
   fill: none;
   stroke: var(--accent);
-  stroke-width: 1.6;
+  stroke-width: var(--seed-stroke, 1.6);
 }
 .seed circle.is-center { stroke: var(--ink); }
 .seed--spin {

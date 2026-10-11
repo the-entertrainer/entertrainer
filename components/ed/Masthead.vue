@@ -24,13 +24,54 @@ const {
   refresh: refreshWotd
 } = useDailyWord()
 const open = ref(false)
+const navEl = ref<HTMLElement | null>(null)
+/** The section the pointer or keyboard is on. Empty means "use the current page." */
+const pointedHref = ref<string | null>(null)
 
 const isCurrent = (href: string) =>
   href === '/' ? route.path === '/' : route.path.startsWith(href)
 
+const HOME_LINE = 'Stories, tools, and short detours.'
+
+const pointed = computed(() => {
+  if (pointedHref.value) return NAV.find(l => l.href === pointedHref.value) ?? null
+  return NAV.find(l => isCurrent(l.href)) ?? null
+})
+
+const note = computed(() => pointed.value?.dek ?? HOME_LINE)
+
+const turn = computed(() => {
+  if (!pointed.value) return 0
+  const i = NAV.findIndex(l => l.href === pointed.value!.href)
+  return i < 0 ? 0 : i * 60
+})
+
+function pointAt(href: string) {
+  pointedHref.value = href
+}
+
+function releasePoint() {
+  const nav = navEl.value
+  if (nav && document.activeElement && nav.contains(document.activeElement)) return
+  pointedHref.value = null
+}
+
+function onNavFocusOut(e: FocusEvent) {
+  const next = e.relatedTarget
+  if (next instanceof Node && e.currentTarget instanceof Node && e.currentTarget.contains(next)) return
+  pointedHref.value = null
+}
+
 // Closing on navigation is the whole job of a nav sheet; keeping it open
 // across a route change is how you end up covering the page you asked for.
-watch(() => route.fullPath, () => { open.value = false })
+watch(() => route.fullPath, async () => {
+  open.value = false
+  pointedHref.value = null
+  await nextTick()
+  const hovered = navEl.value?.querySelector('a:hover')
+  const href = hovered?.getAttribute('href')
+  if (href) pointedHref.value = href
+})
 
 function onKey(e: KeyboardEvent) {
   if (e.key === 'Escape' && open.value) { open.value = false; btn.value?.focus() }
@@ -57,9 +98,25 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         <EdWordmark variant="full" :size="34" />
       </NuxtLink>
 
-      <nav class="mh__nav" aria-label="Main navigation">
-        <NuxtLink v-for="l in NAV" :key="l.href" :to="l.href" class="mh__link"
-                  :aria-current="isCurrent(l.href) ? 'page' : undefined">{{ l.label }}</NuxtLink>
+      <nav
+        ref="navEl"
+        class="mh__nav"
+        aria-label="Main navigation"
+        @mouseleave="releasePoint"
+        @focusout="onNavFocusOut"
+      >
+        <NuxtLink
+          v-for="l in NAV"
+          :key="l.href"
+          :to="l.href"
+          class="mh__link"
+          :aria-current="isCurrent(l.href) ? 'page' : undefined"
+          @mouseenter="pointAt(l.href)"
+          @focus="pointAt(l.href)"
+        >
+          {{ l.label }}
+          <span class="sr-only">. {{ l.dek }}</span>
+        </NuxtLink>
       </nav>
 
       <div class="mh__end">
@@ -104,16 +161,29 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
       </div>
     </div>
 
+    <div class="mh__note" aria-hidden="true">
+      <EdSeedMark class="mh__note-seed" :size="36" :stroke="3.4" :style="{ transform: `rotate(${turn}deg)` }" />
+      <p :key="note" class="mh__note-line">{{ note }}</p>
+    </div>
+
     <!-- The links live inside a single wrapper because the sheet animates with
          `grid-template-rows: 0fr → 1fr`, and that trick collapses exactly one
          row: with five children the first link closed and the other four
          stayed open on every phone. -->
     <div id="mh-sheet" class="mh__sheet" :class="{ 'is-open': open }" :inert="!open">
       <div class="mh__sheet-inner">
-        <NuxtLink v-for="l in NAV" :key="l.href" :to="l.href" class="mh__sheet-link"
-                  :aria-current="isCurrent(l.href) ? 'page' : undefined">
-          <span>{{ l.label }}</span>
-          <EdSignalIcon name="external" />
+        <NuxtLink
+          v-for="(l, i) in NAV"
+          :key="l.href"
+          :to="l.href"
+          class="mh__sheet-link"
+          :aria-current="isCurrent(l.href) ? 'page' : undefined"
+        >
+          <span class="mh__sheet-copy">
+            <span class="mh__sheet-label">{{ l.label }}</span>
+            <span class="mh__sheet-dek">{{ l.dek }}</span>
+          </span>
+          <EdSeedMark class="mh__sheet-seed" :size="36" :stroke="3.4" :style="{ transform: `rotate(${i * 60}deg)` }" />
         </NuxtLink>
         <button
           v-if="wotdEnabled"
@@ -152,7 +222,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 .mh__bar {
   max-width: var(--shell-max); margin: 0 auto;
-  min-height: var(--nav-h);
+  min-height: 55rem;
   padding: 0 var(--shell-gutter);
   display: flex; align-items: center; gap: var(--space-21);
 }
@@ -182,6 +252,33 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   animation: nav-route 220ms var(--ease-out) both;
 }
 @keyframes nav-route { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.mh__note {
+  display: flex;
+  align-items: center;
+  gap: 10rem;
+  max-width: var(--shell-max);
+  margin: 0 auto;
+  min-height: 44rem;
+  padding: 6rem var(--shell-gutter) 8rem;
+  border-top: var(--stroke) solid var(--line);
+}
+.mh__note-seed {
+  flex: none;
+  transition: transform 480ms var(--ease-out);
+}
+.mh__note-line {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--font-reading), Georgia, serif;
+  font-size: var(--type-small);
+  line-height: 1.3;
+  animation: mh-note-in 280ms var(--ease-out);
+}
+@keyframes mh-note-in {
+  from { opacity: 0; transform: translateY(4rem); }
+  to { opacity: 1; transform: none; }
+}
 
 .mh__end { display: flex; align-items: center; gap: var(--space-8); margin-left: var(--space-13); }
 .mh__icon {
@@ -256,6 +353,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .mh__brand :deep(.wm__word) { display: inline-block; opacity: 1 !important; transform: none !important; font-size: 26rem; animation: none !important; }
   .mh__brand :deep(.wm__mark) { width: 25rem; height: 25rem; }
   .mh__nav { display: none; }
+  .mh__note { display: none; }
   .mh__icon--menu { display: inline-flex; }
   .mh__end { margin-left: auto; }
   .mh__icon { width: var(--icon); height: var(--icon); border-radius: var(--radius-s); }
@@ -271,23 +369,42 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .mh__sheet-inner { min-height: 0; overflow: hidden; }
   .mh__sheet-link {
     display: flex; align-items: center; justify-content: space-between;
+    gap: var(--space-13);
     padding: var(--space-13) var(--shell-gutter);
     font-size: var(--type-dek); font-weight: 500;
     border-bottom: var(--stroke) solid var(--line);
     background: var(--paper);
   }
+  .mh__sheet-copy { display: flex; flex-direction: column; gap: 2rem; min-width: 0; }
+  .mh__sheet-label { font-size: var(--type-dek); font-weight: 560; line-height: 1.15; }
+  .mh__sheet-dek {
+    font-family: var(--font-reading), Georgia, serif;
+    font-size: var(--type-small);
+    font-weight: 400;
+    line-height: 1.35;
+    color: var(--muted);
+  }
+  .mh__sheet-seed { flex: none; }
   .mh__sheet-link[aria-current="page"] { background: linear-gradient(90deg, color-mix(in srgb, var(--signal-cobalt) 10%, var(--paper)), var(--paper-2)); box-shadow: inset 4rem 0 0 var(--signal-cobalt); }
+  .mh__sheet-link[aria-current="page"] .mh__sheet-dek { color: var(--ink); }
   .mh__sheet-link svg { opacity: 0.45; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mh__sheet { transition-duration: 1ms; }
   .mh__link[aria-current="page"]::after { animation: none; }
+  .mh__note-seed { transition: none; }
+  .mh__note-line { animation: none; }
   .mh__brand :deep(svg), .mh__icon, .mh__icon svg { transition: none; }
 }
 </style>
 
 <style>
+/* The note row lives only on wide screens, so the sticky offset grows with it. */
+@media (min-width: 861px) {
+  :root { --nav-h: 112rem; }
+}
+
 /* Unscoped on purpose: scoped :deep animations were not perceptible on live mobile Safari. */
 .mh__icon--settings .ps-icon {
   display: inline-grid;
@@ -347,6 +464,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .mh__wotd-tile--c {
     animation: none !important;
   }
+  .mh__note-seed { transition: none !important; }
+  .mh__note-line { animation: none !important; }
 }
 </style>
 

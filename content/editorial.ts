@@ -184,10 +184,10 @@ export function readNext(id: string, count = 3): EditorialItem[] {
   return [...near, ...far].slice(0, count)
 }
 
-/** The masthead's primary navigation. */
+/** The masthead's primary navigation. `dek` is the one line the menu speaks. */
 export const NAV = [
-  { label: 'Elevate', href: '/elevate' },
-  { label: 'Empower', href: '/empower' },
-  { label: 'Engage', href: '/engage' },
-  { label: 'About me', href: '/about' }
+  { label: 'Elevate', href: '/elevate', dek: 'Essays that start in a room and refuse the tidy story.' },
+  { label: 'Empower', href: '/empower', dek: 'Two free tools that earn their keep.' },
+  { label: 'Engage', href: '/engage', dek: 'Short games and little detours.' },
+  { label: 'About me', href: '/about', dek: 'Housekeeping floors, then this desk.' }
 ]

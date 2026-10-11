@@ -101,6 +101,7 @@ onBeforeUnmount(() => {
     </header>
 
     <nav class="route-index__switchboard" aria-label="Entertrainer sections">
+      <EdVesicaRule />
       <ol class="route-index__routes">
         <li
           v-for="route in routes"
@@ -182,7 +183,6 @@ onBeforeUnmount(() => {
   padding: 0;
   margin: 0;
   list-style: none;
-  border-top: var(--stroke) solid var(--ink);
 }
 
 .route-index__route { display: block; }

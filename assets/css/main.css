@@ -275,10 +275,12 @@
   --z-chrome: 40;
   --z-overlay: 60;
 
-  --dur-tap:  120ms;
-  --dur-fast: 220ms;
-  --dur-mid:  420ms;
-  --dur-slow: 700ms;
+  /* Fibonacci, the same steps as space. Life walking toward phi. */
+  --leading: 1.618;
+  --dur-tap:  144ms;
+  --dur-fast: 233ms;
+  --dur-mid:  377ms;
+  --dur-slow: 610ms;
   --ease-out: cubic-bezier(.22, .82, .32, 1);
   --ease-in:  cubic-bezier(.7, 0, .84, 0);
   --ease-in-out: cubic-bezier(.45, 0, .2, 1);
@@ -382,7 +384,7 @@ body {
   font-family: var(--font-ui);
   font-size: var(--type-body);
   font-weight: 400;
-  line-height: 1.55;
+  line-height: var(--leading);
   color: var(--ink);
   background: var(--paper);
   overflow-x: hidden;

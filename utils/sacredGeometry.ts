@@ -106,3 +106,29 @@ export function phiMark(length: number): { longer: number; shorter: number; rati
 
 /** Fibonacci steps the site already spends: life walking toward phi. */
 export const FIBONACCI_PX = [8, 13, 21, 34, 55, 89, 144] as const
+
+/**
+ * The site spends the same sequence the film spends.
+ * Type and space walk the Fibonacci steps. Time does too.
+ * Line height is phi. Do not invent a second scale.
+ */
+export const LEADING = 1.618
+
+export const MOTION_MS = {
+  tap: 144,
+  fast: 233,
+  mid: 377,
+  slow: 610
+} as const
+
+export type GeometryFigure = 'seed' | 'vesica' | 'fruit' | 'metatron'
+
+/** Circles for a figure, drawn around the origin. */
+export function figureCircles(figure: GeometryFigure): Circle[] {
+  if (figure === 'vesica') {
+    const first = firstCircle(-36, 0, 72)
+    return [first, secondCircle(first, 0)]
+  }
+  if (figure === 'fruit' || figure === 'metatron') return fruitOfLife(0, 0, 28)
+  return seedOfLife(0, 0, 56)
+}

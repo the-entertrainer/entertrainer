@@ -30,6 +30,18 @@ The geometry is copied as the film draws it. Design, writing, and code all call 
 
 **Code.** Import `~/utils/sacredGeometry`. Do not place circle centers by eye. `EdSeedMark` is the picture for a masthead, a preloader, a bare page, or a loading state. `revealed` draws the days one at a time. The preloader already does this on the beat map: still point, six movements, then the word.
 
+## Resonance
+
+The site is one construction at every scale. A new page does not invent a second rhythm.
+
+- **Size.** Space is 8, 13, 21, 34, 55, 89. Type is 11, 13, 18, 29, 47, 76. Time is 144, 233, 377, 610. Line height is phi, `--leading: 1.618`. These live in `assets/css/main.css` and `MOTION_MS` / `LEADING` / `FIBONACCI_PX`.
+- **The break.** A section ends on a straight line through a vesica. Use `EdVesicaRule`. The line is ink. One circle is ink. The other is the accent.
+- **The opener.** A section that needs a picture uses `EdGeometryField`: seed for essays, vesica for tools, fruit for games, Metatron's lines for a grid of relations. Same compass, same accent.
+- **The mark.** Openings, loaders, and the wordmark stay the Seed of Life.
+- **Both moves.** Curves hold the figure. Straight lines hold the type, the rules, and the grid. Do not drop either one.
+
+If a layout needs a number that is not on this scale, pick the nearest step. Do not add a new one.
+
 ## Stance
 
 Open with the film's rule when you are teaching this material: do not believe or disbelieve it. Have the experience, which for this film means **draw it**. Watching is "a very minuscule amount." The understanding starts when the compass moves.

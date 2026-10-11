@@ -13,6 +13,7 @@ const sectionLinks = [
 
 <template>
   <footer class="ft">
+    <EdVesicaRule />
     <div class="ft__inner">
       <div class="ft__brand">
         <EdWordmark :size="34" />
@@ -42,7 +43,6 @@ const sectionLinks = [
 
 <style scoped>
 .ft {
-  border-top: var(--stroke) solid var(--ink);
   background: var(--paper);
   margin-top: var(--space-89);
 }

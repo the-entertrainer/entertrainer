@@ -103,6 +103,7 @@ onBeforeUnmount(() => theme.dispose())
     <EdSettingsPanel />
     <div v-show="!showPreloader" :inert="showPreloader ? '' : undefined">
       <template v-if="bare">
+        <EdSeedMark class="bare-seed" :size="28" />
         <NuxtPage />
       </template>
 
@@ -123,6 +124,14 @@ onBeforeUnmount(() => theme.dispose())
 <style>
 #app-root { min-height: 100dvh; background: var(--paper); display: flex; flex-direction: column; }
 #main { flex: 1; }
+.bare-seed {
+  position: fixed;
+  z-index: 40;
+  top: max(12rem, env(safe-area-inset-top, 0px));
+  left: max(12rem, env(safe-area-inset-left, 0px));
+  opacity: 0.7;
+  pointer-events: none;
+}
 
 /* One page transition, and it is nearly nothing: a short fade with a few
    pixels of travel. A publication should feel like turning to a page, not like

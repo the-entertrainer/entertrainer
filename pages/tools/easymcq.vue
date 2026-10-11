@@ -68,7 +68,7 @@ async function copy(text: string, i: number) {
     <!-- Form / Loading -->
     <div class="glass-panel dg-form" :class="{ 'dg-form--loading': pending }">
       <div v-if="pending" class="dg-loading" role="status" aria-live="polite">
-        <div class="dg-loading-spinner" />
+        <EdSeedMark class="dg-loading-spinner" :size="36" spin />
         <p class="dg-loading-title">Generating distractors.</p>
       </div>
 
@@ -194,12 +194,6 @@ async function copy(text: string, i: number) {
   padding: 32rem 16rem;
 }
 .dg-loading-spinner {
-  width: 32rem;
-  height: 32rem;
-  border: 3rem solid var(--color-glass-border);
-  border-top-color: var(--color-accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
   margin-bottom: 16rem;
 }
 .dg-loading-title {

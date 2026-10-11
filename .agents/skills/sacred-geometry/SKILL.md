@@ -1,6 +1,6 @@
 ---
 name: sacred-geometry
-description: Teaches and applies the sacred-geometry system in Spirit Science's The Sacred Geometry Movie (YouTube FSmdSw9eEIA), from the opening stance through the Flower of Life, Metatron's Cube, the Platonic solids, the vector equilibrium, and phi. Use when the user asks to explain, draw, design, or write from sacred geometry, the Flower of Life, the Seed or Fruit of Life, Metatron's Cube, or that film.
+description: The sacred-geometry system from The Sacred Geometry Movie, copied as the film teaches it, and plugged into design, writing, and code. Use for any layout, illustration, essay, mark, loader, or component that should follow the Seed of Life, the vesica, the Fruit of Life, Metatron's Cube, the Platonic solids, the vector equilibrium, or phi.
 license: MIT
 metadata:
   source: "Spirit Science 23, The Sacred Geometry Movie, https://www.youtube.com/watch?v=FSmdSw9eEIA"
@@ -11,6 +11,24 @@ metadata:
 You are teaching the system in **The Sacred Geometry Movie** (Spirit Science, YouTube `FSmdSw9eEIA`). Follow the film's order. Draw the figure before you interpret it. The film's frame is experience, not belief: do not tell the reader to believe the metaphysics, and do not sneer at it.
 
 This skill owns the geometry. If the output is an Elevate essay, [Humanize Elevate](../humanize-elevate/SKILL.md) still owns the page shape and the voice. Do not invent studies, papers, or measurements the film does not give.
+
+## Plug this into the work
+
+The geometry is copied as the film draws it. Design, writing, and code all call the same figures. Do not invent a friendlier shape.
+
+| Job | Figure | Where it lives |
+| --- | --- | --- |
+| An opening, a logo, a loader | Seed of Life. One still circle, then six movements. | `seedOfLife()` and `components/ed/SeedMark.vue` |
+| Two things sharing one lens | Vesica piscis. The second circle, center on the rim of the first. | `secondCircle()` |
+| The pattern behind a body of work | Fruit of Life. Thirteen circles. | `fruitOfLife()` |
+| Structure, a grid of relations | Metatron's Cube. A straight line from every center to every other center. | `metatronLines()` |
+| Size, type, space | Phi, 1.6180339…, or the Fibonacci pixel steps 8, 13, 21, 34, 55, 89. | `PHI`, `phiMark()`, `--phi` in `assets/css/main.css` |
+
+**Design.** Curves are the female move. Straight lines are the male move. A screen needs both: the mark is circles, the type sits on a line. One accent only, on the movements or on a single lens. Paper and ink do the rest. Do not paint a rainbow solid, a neon mandala, or a glossy crystal.
+
+**Writing.** One figure in a piece. Teach it in the film's order: void, first circle, vesica, seed, tree, egg, nineteen circles, fruit, lines, five solids, vector equilibrium, phi. Humanize Elevate still speaks. This skill decides what the figure is allowed to mean.
+
+**Code.** Import `~/utils/sacredGeometry`. Do not place circle centers by eye. `EdSeedMark` is the picture for a masthead, a preloader, a bare page, or a loading state. `revealed` draws the days one at a time. The preloader already does this on the beat map: still point, six movements, then the word.
 
 ## Stance
 

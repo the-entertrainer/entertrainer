@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { openingSoundSrc } from '~/composables/useSiteSettings'
 import { pickPreloaderQuote, type PreloaderQuote } from '~/utils/preloaderQuotes'
+import { seedOfLife } from '~/utils/sacredGeometry'
 import {
   fadeIdentWithEcho,
   getIdentAudio,
@@ -63,15 +64,12 @@ const BEAT_TIMES = [
 const BEAT_LOOKAHEAD_S = 0.028
 
 /**
- * SVG ring geometry in a 100×100 viewBox (innermost → outermost).
- * Diameters keep the prior stage feel (~30 / 48 / 68 / 88% of stage).
+ * Seed of Life in a 100×100 viewBox.
+ * Circle 0 is the still point. Circles 1–6 are the six movements,
+ * each center one radius from the still point.
  */
-const RING_GEOM = [
-  { r: 15, sw: 5.5 },
-  { r: 24, sw: 5.2 },
-  { r: 34, sw: 4.8 },
-  { r: 44, sw: 4.4 }
-] as const
+const SEED = seedOfLife(50, 50, 18)
+const SEED_SW = 1.45
 
 const ringCirc = (r: number) => 2 * Math.PI * r
 
@@ -101,25 +99,22 @@ interface ChoreoStep {
 
 /**
  * Dawn-on-cream beat map (music-on):
- * cold open → draw-on ripples 0–3 → enter / trainer 4–5 → wordmark complete
- * → beginGrow (stop living-middle) → quote ~8 may still fire once during grow
- * → leave only on audio ended / skip / safety (no timed leave).
- * Beats 6–7 and 9–17 are idle; settle slots unused once grow owns the outro.
+ * cold open → six movements of the seed, then the wordmark, then the quote.
+ * Leave only on audio ended / skip / safety (no timed leave).
  */
-const REVEAL_LAST_BEAT = 8
+const REVEAL_LAST_BEAT = 9
 const BEAT_CHOREO: ChoreoStep[] = [
   /* 0  0.511 */ { kind: 'ring-in', rings: [0] },
   /* 1  1.091 */ { kind: 'ring-in', rings: [1] },
   /* 2  1.370 */ { kind: 'ring-in', rings: [2] },
   /* 3  1.974 */ { kind: 'ring-in', rings: [3] },
-  /* 4  2.252 */ { kind: 'enter-in' },
-  /* 5  2.833 */ { kind: 'trainer-in', rings: [0, 1, 2, 3], strong: true, reaction: 'stroke' },
-  /* 6–7 idle after wordmark — no beat reactions */
-  /* 6  3.135 */ { kind: 'pulse' },
-  /* 7  3.413 */ { kind: 'pulse' },
-  /* 8  3.715 */ { kind: 'quote-in', word: true, reaction: 'word' },
-  /* 9–17 idle — grow fills rest of track */
-  /* 9  4.296 */ { kind: 'pulse' },
+  /* 4  2.252 */ { kind: 'ring-in', rings: [4] },
+  /* 5  2.833 */ { kind: 'ring-in', rings: [5] },
+  /* 6  3.135 */ { kind: 'ring-in', rings: [6] },
+  /* 7  3.413 */ { kind: 'enter-in' },
+  /* 8  3.715 */ { kind: 'trainer-in', rings: [0, 1, 2, 3, 4, 5, 6], strong: true, reaction: 'stroke' },
+  /* 9  4.296 */ { kind: 'quote-in', word: true, reaction: 'word' },
+  /* 10–17 idle — grow fills rest of track */
   /* 10 4.598 */ { kind: 'pulse' },
   /* 11 5.178 */ { kind: 'pulse' },
   /* 12 5.457 */ { kind: 'pulse' },
@@ -128,7 +123,7 @@ const BEAT_CHOREO: ChoreoStep[] = [
   /* 15 6.339 */ { kind: 'pulse' },
   /* 16 6.618 */ { kind: 'pulse' },
   /* 17 6.920 */ { kind: 'pulse' },
-  /* 18 7.500 */ { kind: 'settle', rings: [0, 1, 2, 3] },
+  /* 18 7.500 */ { kind: 'settle', rings: [0, 1, 2, 3, 4, 5, 6] },
   /* 19 8.081 */ { kind: 'settle' },
   /* 20 8.382 */ { kind: 'settle' }
 ]
@@ -148,7 +143,7 @@ const beatDriven = computed(
   () => soundOn.value && entered.value && !reducedMotion.value
 )
 
-const ringsIn = reactive([false, false, false, false])
+const ringsIn = reactive([false, false, false, false, false, false, false])
 const wordEnterIn = ref(false)
 const wordTrainerIn = ref(false)
 const quoteIn = ref(false)
@@ -205,7 +200,7 @@ const clearFinishTimer = () => {
 }
 
 const resetChoreo = () => {
-  for (let i = 0; i < 4; i++) ringsIn[i] = false
+  for (let i = 0; i < 7; i++) ringsIn[i] = false
   wordEnterIn.value = false
   wordTrainerIn.value = false
   quoteIn.value = false
@@ -411,7 +406,7 @@ const kickWordmark = () => {
 const applyChoreo = (step: ChoreoStep, now: number, w: number, h: number) => {
   if (step.kind === 'ring-in') {
     for (const i of step.rings ?? []) {
-      if (i >= 0 && i < 4) ringsIn[i] = true
+      if (i >= 0 && i < 7) ringsIn[i] = true
     }
     // Soft seed may appear only once the first ring has landed — never cold-open.
     if (ringsIn[0] && !seedOn.value) {
@@ -421,7 +416,7 @@ const applyChoreo = (step: ChoreoStep, now: number, w: number, h: number) => {
     // Soft ink ripple behind each draw-on.
     if (w > 0 && h > 0) {
       const i = step.rings?.[0] ?? 0
-      const geom = RING_GEOM[i]!
+      const geom = SEED[i]!
       washes.push({
         kind: 'ripple',
         born: now,
@@ -688,7 +683,7 @@ const startBeatLoop = () => {
 }
 
 const revealStaticBrand = () => {
-  for (let i = 0; i < 4; i++) ringsIn[i] = true
+  for (let i = 0; i < 7; i++) ringsIn[i] = true
   wordEnterIn.value = true
   wordTrainerIn.value = true
   quoteIn.value = soundOn.value
@@ -747,7 +742,7 @@ const startExperience = () => {
     const kickShort = () => {
       wordEnterIn.value = true
       wordTrainerIn.value = true
-      for (let i = 0; i < 4; i++) ringsIn[i] = true
+      for (let i = 0; i < 7; i++) ringsIn[i] = true
     }
     // Let the wipe lead slightly so rings bloom into the revealed field.
     if (!reducedMotion.value) window.setTimeout(kickShort, 180)
@@ -820,10 +815,8 @@ onBeforeUnmount(() => {
         :class="{ 'entry-mark--cue': entryPhase === 'idle' && !reducedMotion }"
         aria-hidden="true"
       >
+        <EdSeedMark class="preloader__entry-seed" :size="72" />
         <svg class="preloader__entry-brand" viewBox="0 0 240 240">
-          <circle cx="120" cy="120" r="94" fill="none" stroke="currentColor" stroke-width="18" />
-          <circle cx="120" cy="120" r="62" fill="none" stroke="currentColor" stroke-width="18" />
-          <circle cx="120" cy="120" r="30" fill="none" stroke="currentColor" stroke-width="18" />
           <path
             class="preloader__entry-brand-e"
             d="M169.3 115.82L169.3 124.18L100.64 124.18Q101.71 134.52 108.11 139.69Q114.5 144.86 125.99 144.86Q135.26 144.86 144.98 142.11Q154.7 139.36 164.95 133.78L164.95 156.42Q154.54 160.36 144.12 162.37Q133.7 164.38 123.28 164.38Q98.34 164.38 84.52 151.71Q70.7 139.03 70.7 116.14Q70.7 93.67 84.28 80.79Q97.85 67.91 121.64 67.91Q143.3 67.91 156.3 80.95Q169.3 94 169.3 115.82ZM139.11 106.05Q139.11 97.69 134.23 92.56Q129.35 87.43 121.48 87.43Q112.95 87.43 107.61 92.23Q102.28 97.03 100.97 106.05Z"
@@ -872,20 +865,20 @@ onBeforeUnmount(() => {
         aria-hidden="true"
       >
         <circle
-          v-for="(g, i) in RING_GEOM"
+          v-for="(g, i) in SEED"
           :key="i"
           :ref="(el) => setRingEl(el, i)"
           class="preloader__ring"
-          :class="{ 'ring--in': ringsIn[i] }"
-          cx="50"
-          cy="50"
+          :class="{ 'ring--in': ringsIn[i], 'ring--center': i === 0 }"
+          :cx="g.cx"
+          :cy="g.cy"
           :r="g.r"
           fill="none"
-          :stroke-width="g.sw"
+          :stroke-width="SEED_SW"
           :style="{
             '--ring-len': String(ringCirc(g.r)),
             '--pl-ring-delay': `${i * 110}ms`,
-            '--ring-sw': g.sw + 'px'
+            '--ring-sw': SEED_SW + 'px'
           }"
           @animationend="onRingAnimEnd($event, i)"
         />
@@ -987,12 +980,12 @@ onBeforeUnmount(() => {
   position: relative;
   display: grid;
   place-items: center;
-  width: 56rem;
-  height: 56rem;
+  width: 72rem;
+  height: 72rem;
   border-radius: 50%;
   border: 0;
   background: transparent;
-  color: #ffd43b;
+  color: var(--ink);
   line-height: 1;
   opacity: .9;
   transition:
@@ -1005,13 +998,17 @@ onBeforeUnmount(() => {
     background 180ms ease,
     box-shadow 180ms ease;
 }
+.preloader__entry-seed,
 .preloader__entry-brand {
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+}
+.preloader__entry-brand {
+  z-index: 1;
   overflow: visible;
-  color: #ffd43b;
+  color: var(--ink);
   text-transform: none;
   transition: opacity 200ms ease, transform 200ms ease;
 }
@@ -1213,7 +1210,7 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 .preloader__ring {
-  stroke: #ffd43b;
+  stroke: var(--accent);
   stroke-width: var(--ring-sw);
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -1226,6 +1223,7 @@ onBeforeUnmount(() => {
   stroke-dasharray: var(--ring-len);
   stroke-dashoffset: var(--ring-len);
 }
+.preloader__ring.ring--center { stroke: var(--ink); }
 
 /* Music-off short path: staggered CSS draw + overshoot settle. */
 .preloader:not(.preloader--beat) .preloader__ring {

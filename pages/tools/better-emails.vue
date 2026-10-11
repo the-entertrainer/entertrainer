@@ -238,7 +238,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
 
         <!-- Loading state -->
         <div v-if="phase === 'loading'" class="be-loading" role="status" aria-live="polite">
-          <div class="be-loading-spinner" />
+          <EdSeedMark class="be-loading-spinner" :size="36" spin />
           <p class="be-loading-title">Optimizing email.</p>
         </div>
 
@@ -688,12 +688,6 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
   min-height: 180rem;
 }
 .be-loading-spinner {
-  width: 32rem;
-  height: 32rem;
-  border: 3rem solid var(--color-glass-border);
-  border-top-color: var(--color-accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
   margin-bottom: 16rem;
 }
 .be-loading-title {

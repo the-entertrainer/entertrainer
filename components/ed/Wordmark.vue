@@ -1,15 +1,16 @@
 <script setup lang="ts">
+import { seedOfLife } from '~/utils/sacredGeometry'
+
 /**
  * Entertrainer identity system.
- * The compact e-and-rings mark follows the selected warm-yellow identity system.
- * It gives the current wordmark a usable mark for a paper-and-ink publication
- * without placing a large circle treatment behind the live text. The lower-case
- * word remains live text for accessibility. The mark enters once; it never loops while a reader is
- * navigating, so the identity remains recognisable without becoming scenery.
+ * The mark is the Seed of Life: one still circle, six movements, the lowercase e
+ * in the middle. Same construction as the preloader. The lower-case word remains
+ * live text. The mark enters once and does not loop while a reader is navigating.
  *
  * The mark "e" is an SVG path (not <text>) so parent `text-transform: uppercase`
  * cannot force a capital E — a hard brand requirement.
  */
+const seed = seedOfLife(120, 120, 46)
 withDefaults(defineProps<{
   /** `full` combines the compact mark and clean text word; `mark` is used in tight spaces. */
   variant?: 'full' | 'mark'
@@ -21,9 +22,15 @@ withDefaults(defineProps<{
 <template>
   <span class="wm" :class="`wm--${variant}`" :style="{ '--wm-size': size + 'rem' }">
     <svg class="wm__mark" viewBox="0 0 240 240" aria-hidden="true">
-      <circle class="wm__ring" cx="120" cy="120" r="94" />
-      <circle class="wm__ring" cx="120" cy="120" r="62" />
-      <circle class="wm__ring" cx="120" cy="120" r="30" />
+      <circle
+        v-for="(c, i) in seed"
+        :key="i"
+        class="wm__ring"
+        :class="{ 'wm__ring--center': i === 0 }"
+        :cx="c.cx"
+        :cy="c.cy"
+        :r="c.r"
+      />
       <!-- Bold grotesque lowercase e as path — immune to CSS text-transform -->
       <path
         class="wm__e"
@@ -53,7 +60,8 @@ withDefaults(defineProps<{
   animation: wm-mark-arrive 520ms var(--ease-spring) both;
   text-transform: none;
 }
-.wm__ring { fill: none; stroke: var(--accent); stroke-width: 18; }
+.wm__ring { fill: none; stroke: var(--accent); stroke-width: 7; }
+.wm__ring--center { stroke: var(--ink); }
 .wm__e {
   fill: currentColor;
   text-transform: lowercase !important;

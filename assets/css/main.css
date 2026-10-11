@@ -199,8 +199,10 @@
   --display-soft: 24;
   --display-wonk: 1;
 
-  /* The Measure. φ = 1.618, rounded to whole pixels: 18 → 29 → 47 → 76.
-     Meta is the downward step (18 / φ). One scale. html font-size stays 1px. */
+  /* The Measure. φ from the film (1.6180339…), spent as whole pixels.
+     Type: 18 → 29 → 47 → 76. Space walks the Fibonacci steps toward φ.
+     The Seed of Life itself lives in utils/sacredGeometry.ts. */
+  --phi: 1.6180339;
   --type-meta:    11px;
   --type-body:    18px;
   --type-small:   13px; /* Fibonacci step between meta and body, for controls only */

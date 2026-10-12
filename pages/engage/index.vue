@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, and Whatto.',
+  description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
@@ -93,25 +93,6 @@ const MIND_READER_SYMBOLS = [
           <span class="engage__card-text">
             <span class="engage__step-no">03</span><strong class="engage__card-name">AstroClock</strong>
             <span class="engage__card-blurb">Birth place and time. A live dial. What today is doing.</span>
-          </span>
-          <span class="engage__card-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
-          </span>
-        </NuxtLink>
-      </li>
-      <li class="engage__step" style="--step: 3">
-        <NuxtLink to="/engage/whatto" class="engage__card engage__card--whatto">
-          <span class="engage__icon engage__icon--whatto" aria-hidden="true">
-            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
-              <circle cx="24" cy="24" r="19" fill="#FFB6C1" stroke="currentColor" stroke-width="2.2"/>
-              <path d="M10 19 17 27 22 23 27 31 38 15" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="38" cy="15" r="3.4" fill="#00BFFF" stroke="currentColor" stroke-width="2"/>
-            </svg>
-          </span>
-          <span class="engage__card-text">
-            <span class="engage__step-no">04</span><strong class="engage__card-name">Whatto</strong>
-            <span class="engage__card-blurb">A coin keeps falling. Live odds it bounces, with the numbers shown.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -218,14 +199,6 @@ const MIND_READER_SYMBOLS = [
 }
 .engage__icon--stack svg { display: block; width: 100%; height: 100%; }
 
-.engage__icon--whatto {
-  display: grid;
-  place-items: center;
-  padding: 7rem;
-  color: #161618;
-  background: #FFE1F0;
-}
-.engage__icon--whatto svg { display: block; width: 100%; height: 100%; }
 
 .engage__card-text {
   display: flex;

@@ -68,7 +68,7 @@ async function copy(text: string, i: number) {
     <!-- Form / Loading -->
     <div class="glass-panel dg-form" :class="{ 'dg-form--loading': pending }">
       <div v-if="pending" class="dg-loading" role="status" aria-live="polite">
-        <EdSeedMark class="dg-loading-spinner" :size="36" spin />
+        <EdMark class="dg-loading-spinner" :size="36" loading />
         <p class="dg-loading-title">Generating distractors.</p>
       </div>
 

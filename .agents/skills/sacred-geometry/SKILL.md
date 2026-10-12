@@ -18,7 +18,8 @@ The geometry is copied as the film draws it. Design, writing, and code all call 
 
 | Job | Figure | Where it lives |
 | --- | --- | --- |
-| An opening, a logo, a loader | Seed of Life. One still circle, then six movements. | `seedOfLife()` and `components/ed/SeedMark.vue` |
+| The site mark, the opening, a loader | The compass-built e: bowl r = R/φ inside the seal R, crossbar on the diameter, aperture cut by the vesica at 60°. | `eMark()` and `components/ed/Mark.vue` |
+| A pattern of six movements | Seed of Life. One still circle, then six movements. | `seedOfLife()` |
 | Two things sharing one lens | Vesica piscis. The second circle, center on the rim of the first. | `secondCircle()` |
 | The pattern behind a body of work | Fruit of Life. Thirteen circles. | `fruitOfLife()` |
 | Structure, a grid of relations | Metatron's Cube. A straight line from every center to every other center. | `metatronLines()` |
@@ -28,7 +29,7 @@ The geometry is copied as the film draws it. Design, writing, and code all call 
 
 **Writing.** One figure in a piece. Teach it in the film's order: void, first circle, vesica, seed, tree, egg, nineteen circles, fruit, lines, five solids, vector equilibrium, phi. Humanize Elevate still speaks. This skill decides what the figure is allowed to mean.
 
-**Code.** Import `~/utils/sacredGeometry`. Do not place circle centers by eye. `EdSeedMark` is the picture for a masthead, a preloader, a bare page, or a loading state. `revealed` draws the days one at a time. The preloader already does this on the beat map: still point, six movements, then the word.
+**Code.** Import `~/utils/sacredGeometry`. Do not place circle centers by eye. `EdMark` is the picture for a masthead, a footer, or a loading state (`loading` redraws the e). The preloader constructs it in the film's order: still point, straightedge, first circle, vesica, then the seal and the e; the construction fades and the mark stays.
 
 ## Stance
 

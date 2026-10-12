@@ -1,6 +1,6 @@
 /**
  * Renders public/og-card.png / og-card-2026*.png — 1200×630 share cards.
- * Right: e-mark only (3 yellow rings + ink e), optically centered in the rings.
+ * Right: the compass-built e-mark on its seal, with its construction as hairlines.
  *   node scripts/build-og-card.mjs /path/to/ttf-dir
  */
 import { Resvg } from '@resvg/resvg-js'
@@ -18,19 +18,23 @@ const YELLOW = '#FFD43B'
 const W = 1200
 const H = 630
 
-const faintRings = Array.from({ length: 10 }, (_, i) => {
-  const r = 90 + i * 46
-  return `<circle cx="980" cy="315" r="${r}" fill="none" stroke="${INK}" stroke-opacity="${i % 2 ? 0.06 : 0.1}" stroke-width="2"/>`
-}).join('\n  ')
+/* The mark (utils/sacredGeometry.ts → eMark): seal R, bowl r = R/φ, stroke r/φ²,
+   aperture cut by the vesica at 60°. Its construction stays as faint hairlines. */
+const PHI = 1.6180339887
+const CX = 960, CY = 315, R = 150
+const r = R / PHI, sw = r / (PHI * PHI)
+const f = (n) => +n.toFixed(2)
+const ex = CX + r * Math.cos(Math.PI / 3), ey = CY + r * Math.sin(Math.PI / 3)
+const faintRings = [
+  `<line x1="640" y1="${CY}" x2="1200" y2="${CY}" stroke="${INK}" stroke-opacity=".16" stroke-width="1.5"/>`,
+  ...[CX - r, CX + r].map((x) => `<circle cx="${f(x)}" cy="${CY}" r="${f(r)}" fill="none" stroke="${INK}" stroke-opacity=".16" stroke-width="1.5"/>`),
+  `<circle cx="${CX}" cy="${CY}" r="${f(R * PHI)}" fill="none" stroke="${INK}" stroke-opacity=".08" stroke-width="1.5"/>`
+].join('\n  ')
 
-/* Mark centered at (980,315). SVG text y tuned for Archivo optical center (~dy -6). */
 const logoMark = `
-  <g transform="translate(810 145)">
-    <circle cx="170" cy="170" r="133" fill="none" stroke="${YELLOW}" stroke-width="25"/>
-    <circle cx="170" cy="170" r="88" fill="none" stroke="${YELLOW}" stroke-width="25"/>
-    <circle cx="170" cy="170" r="42" fill="none" stroke="${YELLOW}" stroke-width="25"/>
-    <text x="170" y="170" dy="0.28em" text-anchor="middle" font-family="Archivo" font-weight="900" font-size="168" fill="${INK}" letter-spacing="-0.08em">e</text>
-  </g>`
+  <circle cx="${CX}" cy="${CY}" r="${R}" fill="${YELLOW}"/>
+  <path d="M${f(CX - r)} ${CY}H${f(CX + r)}A${f(r)} ${f(r)} 0 1 0 ${f(ex)} ${f(ey)}" fill="none" stroke="#161618" stroke-width="${f(sw)}" stroke-linejoin="miter"/>
+  ${[CX - r, CX, CX + r].map((x) => `<circle cx="${f(x)}" cy="${CY}" r="3" fill="${INK}" fill-opacity=".35"/>`).join('')}`
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <rect width="${W}" height="${H}" fill="${PAPER}"/>
@@ -51,7 +55,5 @@ const png = new Resvg(svg, {
   font: { fontDirs: [FONT_DIR], loadSystemFonts: false, defaultFontFamily: 'Archivo' }
 }).render().asPng()
 
-writeFileSync('public/og-card.png', png)
-writeFileSync('public/og-card-2026.png', png)
-writeFileSync('public/og-card-2026c.png', png)
+writeFileSync('public/og-card-2026e.png', png)
 console.log('wrote og cards', png.length)

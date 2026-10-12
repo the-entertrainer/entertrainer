@@ -93,7 +93,7 @@ export default defineNuxtConfig({
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'Entertrainer' },
-        { name: 'msapplication-TileColor', content: '#161618' },
+        { name: 'msapplication-TileColor', content: '#F7F1E4' },
 		{ name: 'msapplication-TileImage', content: '/mstile-150x150.png' },
         // Site identity only. Route-specific previews are declared by each
         // page through useSeoMeta so pasted links never inherit the home card.

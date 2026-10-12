@@ -26,20 +26,16 @@ import { getSocialImage, getSocialPreview, SITE_URL } from '~/content/social-pre
 const r = useRoute()
 const theme = useThemeStore()
 const siteSettings = useSiteSettings()
-/** Preloader: home `/` only, once per tab session after dismiss. */
+/**
+ * Preloader: home `/` only, once per tab session.
+ * Server and client agree on the first render (no hydration mismatch); an
+ * inline head script marks `html[data-preloader=done]` before paint when this
+ * tab has already seen it, CSS hides it, and onMounted drops it. Setup runs
+ * once per app instance, so client-side navigation can never bring it back,
+ * and a remount (AstroClock restore, PWA reload) finds the session flag.
+ */
 const PRELOADER_DONE_KEY = 'entertrainer.preloader-done'
-function shouldRunPreloader(path: string) {
-  if (path !== '/') return false
-  if (import.meta.client) {
-    try {
-      if (sessionStorage.getItem(PRELOADER_DONE_KEY) === '1') return false
-    } catch {
-      /* private mode / blocked storage */
-    }
-  }
-  return true
-}
-const showPreloader = ref(shouldRunPreloader(r.path))
+const showPreloader = ref(r.path === '/')
 
 function onPreloaderComplete() {
   showPreloader.value = false
@@ -49,7 +45,21 @@ function onPreloaderComplete() {
   } catch {
     /* ignore */
   }
+  document.documentElement.dataset.preloader = 'done'
 }
+onMounted(() => {
+  if (!showPreloader.value) return
+  // Only the boot-time flag counts: the preloader itself stamps sessionStorage
+  // as it starts (children mount first), so reading storage here would cancel it.
+  if (document.documentElement.dataset.preloader === 'done') showPreloader.value = false
+})
+useHead({
+  script: [{
+    key: 'preloader-gate',
+    tagPosition: 'head',
+    innerHTML: "try{if(sessionStorage.getItem('entertrainer.preloader-done')==='1')document.documentElement.dataset.preloader='done'}catch(e){}"
+  }]
+})
 const socialPreview = computed(() => getSocialPreview(r.path))
 const socialImage = computed(() => getSocialImage(socialPreview.value))
 const isElevateArticle = computed(() => r.path.startsWith('/elevate/') && r.path !== '/elevate/')
@@ -102,9 +112,8 @@ onBeforeUnmount(() => theme.dispose())
     <EdPreloader v-if="showPreloader" @complete="onPreloaderComplete" />
     <EdDailyWordSplash v-if="!bare" />
     <EdSettingsPanel />
-    <div v-show="!showPreloader" :inert="showPreloader ? '' : undefined">
+    <div :inert="showPreloader ? '' : undefined">
       <template v-if="bare">
-        <EdSeedMark class="bare-seed" :size="28" />
         <NuxtPage />
       </template>
 
@@ -125,14 +134,6 @@ onBeforeUnmount(() => theme.dispose())
 <style>
 #app-root { min-height: 100dvh; background: var(--paper); display: flex; flex-direction: column; }
 #main { flex: 1; }
-.bare-seed {
-  position: fixed;
-  z-index: 40;
-  top: max(12rem, env(safe-area-inset-top, 0px));
-  left: max(12rem, env(safe-area-inset-left, 0px));
-  opacity: 0.7;
-  pointer-events: none;
-}
 
 /* One page transition, and it is nearly nothing: a short fade with a few
    pixels of travel. A publication should feel like turning to a page, not like

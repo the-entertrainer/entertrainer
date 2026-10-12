@@ -106,3 +106,40 @@ export function phiMark(length: number): { longer: number; shorter: number; rati
 
 /** Fibonacci steps the site already spends: life walking toward phi. */
 export const FIBONACCI_PX = [8, 13, 21, 34, 55, 89, 144] as const
+
+/**
+ * The Entertrainer "e", built with compass and straightedge.
+ *
+ * 1. The seal: a circle of radius R (the yellow disk).
+ * 2. The bowl: a circle of radius r = R / φ, same centre.
+ * 3. The straightedge: the horizontal diameter of the bowl is the crossbar.
+ * 4. The vesica: a second circle of radius r on the bowl's right rim cuts the
+ *    bowl at ±60°. The lower cut is where the bowl stops, so the aperture is
+ *    exactly the vesica's lower horn (0° → 60°).
+ * 5. The stroke is r / φ², so counter, stroke and margin all step by φ.
+ *
+ * Returns SVG path data in a box centred on (cx, cy).
+ */
+export function eMark(cx: number, cy: number, R: number) {
+  const r = R / PHI
+  const stroke = r / (PHI * PHI)
+  const endX = cx + r * Math.cos(Math.PI / 3)
+  const endY = cy + r * Math.sin(Math.PI / 3)
+  const f = (n: number) => +n.toFixed(3)
+  /** Crossbar left → right, then the long way round (300°) to the vesica cut. */
+  const e = `M${f(cx - r)} ${f(cy)}H${f(cx + r)}A${f(r)} ${f(r)} 0 1 0 ${f(endX)} ${f(endY)}`
+  return {
+    R, r, stroke, e,
+    seal: { cx, cy, r: R } as Circle,
+    bowl: { cx, cy, r } as Circle,
+    /** Vesica partners on the bowl's rim: left (ink) and right (the cut). */
+    left: { cx: cx - r, cy, r } as Circle,
+    right: { cx: cx + r, cy, r } as Circle
+  }
+}
+
+/** SVG path data for a full circle, starting at 3 o'clock, drawn clockwise. */
+export function circlePath(c: Circle) {
+  const f = (n: number) => +n.toFixed(3)
+  return `M${f(c.cx + c.r)} ${f(c.cy)}A${f(c.r)} ${f(c.r)} 0 1 1 ${f(c.cx - c.r)} ${f(c.cy)}A${f(c.r)} ${f(c.r)} 0 1 1 ${f(c.cx + c.r)} ${f(c.cy)}Z`
+}

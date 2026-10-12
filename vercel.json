@@ -143,5 +143,16 @@
       "source": "/elevate.xml",
       "destination": "/api/elevate-rss"
     }
+  ],
+  "headers": [
+    {
+      "source": "/engage/whatto",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
   ]
 }

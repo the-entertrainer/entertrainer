@@ -173,13 +173,6 @@ export default defineNuxtConfig({
           description: 'Birth place and time. A live dial. What today is doing.',
           url: '/engage/astroclock',
           icons: [{ src: '/astroclock-icon-192.png', sizes: '192x192', type: 'image/png' }]
-        },
-        {
-          name: 'Whatto — Live rebound signals',
-          short_name: 'Whatto',
-          description: 'Live crypto rebound signals with the odds shown.',
-          url: '/engage/whatto',
-          icons: [{ src: '/whatto-icon-192.png', sizes: '192x192', type: 'image/png' }]
         }
       ]
     },
@@ -218,6 +211,8 @@ export default defineNuxtConfig({
   // first response, so pasted links describe the page being shared.
   ssr: true,
   routeRules: {
+    // Whatto is unlisted: reachable only by typing the URL, never indexed.
+    '/engage/whatto': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
     '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } },
     '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } },
     '/tools': { redirect: { to: '/empower', statusCode: 301 } },

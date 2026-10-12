@@ -11,6 +11,8 @@ useSeoMeta({
   title: 'Whatto · Engage',
   description: 'Live crypto rebound signals with the odds shown. Real Binance data, a backtested model, and plain words.',
   ogUrl: 'https://entertrainer.in/engage/whatto',
+  // Unlisted page: shareable by direct link, never indexed or followed.
+  robots: 'noindex, nofollow',
 })
 
 useHead({

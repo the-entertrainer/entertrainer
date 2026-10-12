@@ -173,6 +173,13 @@ export default defineNuxtConfig({
           description: 'Birth place and time. A live dial. What today is doing.',
           url: '/engage/astroclock',
           icons: [{ src: '/astroclock-icon-192.png', sizes: '192x192', type: 'image/png' }]
+        },
+        {
+          name: 'Whatto — Live rebound signals',
+          short_name: 'Whatto',
+          description: 'Live crypto rebound signals with the odds shown.',
+          url: '/engage/whatto',
+          icons: [{ src: '/whatto-icon-192.png', sizes: '192x192', type: 'image/png' }]
         }
       ]
     },

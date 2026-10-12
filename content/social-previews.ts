@@ -185,7 +185,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
+    description: 'Short games and little detours — Stack, The Mind Reader, AstroClock, and Whatto.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },
@@ -194,6 +194,12 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'AstroClock',
     title: 'AstroClock · Engage',
     description: 'Birth place and time. A live dial. What today is doing.'
+  },
+  '/engage/whatto': {
+    key: 'whatto',
+    label: 'Whatto',
+    title: 'Whatto · Engage',
+    description: 'Live crypto rebound signals with the odds shown. Real Binance data, a backtested model, and plain words.'
   },
   '/engage/stack': {
     key: 'stack',

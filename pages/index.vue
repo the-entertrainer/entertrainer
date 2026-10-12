@@ -15,6 +15,27 @@ type HomeRoute = {
   tip?: string
 }
 
+const notices = [
+  {
+    kicker: 'Essay',
+    title: '1 = 2',
+    dek: 'Five tidy lines of school algebra that say two equals one.',
+    href: '/elevate/one-equals-two-lets-break-maths'
+  },
+  {
+    kicker: 'Tool',
+    title: 'Draftly',
+    dek: 'Paste a rough email. Leave with a clearer one.',
+    href: '/tools/better-emails'
+  },
+  {
+    kicker: 'Game',
+    title: 'AstroClock',
+    dek: 'Birth place and time, then a dial for today.',
+    href: '/engage/astroclock'
+  }
+]
+
 const routes: HomeRoute[] = [
   {
     name: 'Elevate',
@@ -139,6 +160,19 @@ onBeforeUnmount(() => {
         </li>
       </ol>
     </nav>
+
+    <aside class="route-index__notices" aria-label="Also on the site">
+      <p class="route-index__notices-label">On the desk</p>
+      <ul class="route-index__notices-list">
+        <li v-for="notice in notices" :key="notice.href">
+          <NuxtLink :to="notice.href" class="route-index__notice">
+            <span class="route-index__notice-kicker">{{ notice.kicker }}</span>
+            <span class="route-index__notice-title">{{ notice.title }}</span>
+            <span class="route-index__notice-dek">{{ notice.dek }}</span>
+          </NuxtLink>
+        </li>
+      </ul>
+    </aside>
   </div>
 </template>
 
@@ -278,9 +312,69 @@ onBeforeUnmount(() => {
   outline-offset: 3rem;
 }
 
+.route-index__notices {
+  max-width: var(--column);
+  margin: 0;
+}
+
+.route-index__notices-label {
+  margin: 0 0 var(--space-13);
+  color: var(--muted);
+  font: 500 var(--type-meta)/1.2 var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.route-index__notices-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-13);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.route-index__notice {
+  display: grid;
+  align-content: start;
+  gap: 4rem;
+  min-height: 44rem;
+  padding: var(--space-13) var(--space-13) var(--space-13) 0;
+  border-top: 2rem solid var(--accent-text);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.route-index__notice-kicker {
+  color: var(--accent-text);
+  font: 700 var(--type-meta)/1.2 var(--font-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.route-index__notice-title {
+  font: 500 18rem/1.2 var(--font-display);
+  letter-spacing: -.02em;
+}
+
+.route-index__notice-dek {
+  color: var(--muted);
+  font: 400 14rem/1.4 var(--font-ui);
+}
+
+@media (hover: hover) {
+  .route-index__notice:hover { background: var(--paper-2); }
+}
+
+.route-index__notice:focus-visible {
+  outline: 2rem solid var(--ink);
+  outline-offset: 3rem;
+}
+
 @media (max-width: 780px) {
   .route-index { min-height: auto; gap: var(--space-34); padding-top: var(--space-34); }
   .route-index__headline { font-size: var(--type-h1); max-width: none; }
+  .route-index__notices-list { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

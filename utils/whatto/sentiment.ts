@@ -10,6 +10,7 @@
  *   coin = sum(item * w) / (sum(w) + 1),  w = relevance * exp(-age / 6h)
  *          relevance = 1 when the coin is named, 0.3 for market-wide items
  */
+import { coinName } from './coins'
 
 export const LEXICON: Record<string, number> = {
   // positive
@@ -70,9 +71,23 @@ export function scoreText(title: string, summary = ''): ScoredItem {
   return { score: raw / Math.sqrt(raw * raw + 15), words }
 }
 
+/**
+ * Words that mean "this coin" in a headline. Hand-picked for the original six; for any other
+ * coin, its CoinGecko name and its ticker, but short tickers (S, W, IO, ONE...) are too
+ * ambiguous in English, so a ticker only counts from 4 characters up.
+ */
+function aliasesFor(coin: string): string[] {
+  if (COIN_ALIASES[coin]) return COIN_ALIASES[coin]
+  const out: string[] = []
+  const name = coinName(coin)?.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim()
+  if (name && name.length >= 4) out.push(name)
+  if (coin.length >= 4 && /^[A-Z0-9]+$/.test(coin)) out.push(coin.toLowerCase())
+  return out
+}
+
 export function mentions(coin: string, text: string): 'coin' | 'market' | null {
   const low = ` ${text.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ')} `
-  if ((COIN_ALIASES[coin] ?? [coin.toLowerCase()]).some(a => low.includes(` ${a} `))) return 'coin'
+  if (aliasesFor(coin).some(a => low.includes(` ${a} `))) return 'coin'
   if (MARKET_WORDS.some(a => low.includes(` ${a} `)) || Object.values(COIN_ALIASES).some(al => al.some(a => low.includes(` ${a} `)))) return 'market'
   return null
 }

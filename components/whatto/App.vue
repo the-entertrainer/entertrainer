@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { useWhatto } from '~/composables/whatto/useWhatto'
+import { isCoinId } from '~/utils/whatto/coins'
 
 const api = useWhatto()
 provide('whatto', api)
 
-type Tab = 'home' | 'coin' | 'news' | 'history' | 'settings'
+type Tab = 'home' | 'coins' | 'coin' | 'news' | 'history' | 'settings'
 const tab = ref<Tab>('home')
 const focusCoin = ref('BTC')
+const coinsView = ref<'browse' | 'falling'>('browse')
+provide('whattoCoinsView', coinsView)
 provide('whattoNav', {
   openCoin: (c: string) => { focusCoin.value = c; tab.value = 'coin'; window.scrollTo({ top: 0 }) },
+  coins: (v: 'browse' | 'falling' = 'browse') => { coinsView.value = v; tab.value = 'coins'; window.scrollTo({ top: 0 }) },
   go: (t: Tab) => { tab.value = t; window.scrollTo({ top: 0 }) },
 })
 provide('whattoFocusCoin', focusCoin)
@@ -17,17 +21,20 @@ const started = ref(false)
 async function boot() {
   if (started.value) return
   started.value = true
-  if (!api.prefs.value.coins.includes(focusCoin.value)) focusCoin.value = api.prefs.value.coins[0]
+  const q = new URLSearchParams(location.search)
+  if (!q.get('coin') && !api.prefs.value.coins.includes(focusCoin.value)) focusCoin.value = api.prefs.value.coins[0]
   await api.start()
+  syncFocus()
 }
 
 onMounted(async () => {
   api.hydrate()
   const q = new URLSearchParams(location.search)
   const t = q.get('tab') as Tab | null
-  if (t && ['home', 'coin', 'news', 'history', 'settings'].includes(t)) tab.value = t
-  const c = q.get('coin')
-  if (c && api.prefs.value.coins.includes(c)) focusCoin.value = c
+  if (t && ['home', 'coins', 'coin', 'news', 'history', 'settings'].includes(t)) tab.value = t
+  if (q.get('view') === 'falling') coinsView.value = 'falling'
+  const c = q.get('coin')?.toUpperCase()
+  if (c && isCoinId(c)) focusCoin.value = c
   if (api.prefs.value.onboarded) await boot()
 })
 onBeforeUnmount(() => api.stop())
@@ -43,8 +50,16 @@ const statusLabel = computed(() => ({
 
 function selectTab(t: Tab) { tab.value = t; window.scrollTo({ top: 0 }) }
 
+// Stream the viewed coin on demand only while the Chart tab shows it; release it otherwise.
+function syncFocus() {
+  if (!started.value || !api.feed.value) return
+  void api.viewCoin(tab.value === 'coin' ? focusCoin.value : null)
+}
+watch([tab, focusCoin, () => api.prefs.value.coins.join()], syncFocus)
+
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'home', label: 'Home', icon: 'M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z' },
+  { id: 'coins', label: 'Coins', icon: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4' },
   { id: 'coin', label: 'Chart', icon: 'M4 19V5M4 19h16M8 15l3-4 3 2 5-6' },
   { id: 'news', label: 'News', icon: 'M5 5h11v14H6a1 1 0 0 1-1-1zM16 9h3v9a1 1 0 0 1-1 1h-2M8 9h5M8 13h5' },
   { id: 'history', label: 'Record', icon: 'M12 8v4l3 2M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4' },
@@ -85,6 +100,7 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
         </div>
 
         <WhattoHome v-if="tab === 'home'" />
+        <WhattoCoins v-else-if="tab === 'coins'" />
         <WhattoCoin v-else-if="tab === 'coin'" />
         <WhattoNews v-else-if="tab === 'news'" />
         <WhattoHistory v-else-if="tab === 'history'" />

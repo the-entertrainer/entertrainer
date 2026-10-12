@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { WhattoApi } from '~/composables/whatto/useWhatto'
-import { COINS } from '~/utils/whatto/coins'
+import { POPULAR, coinName } from '~/utils/whatto/coins'
 import { MODEL, RISK_PCT, type RiskLevel } from '~/utils/whatto/model'
 
 const emit = defineEmits<{ done: [] }>()
@@ -48,10 +48,10 @@ async function finish() {
     <section v-else-if="step === 1" class="wt-card ob__card wt-enter" aria-labelledby="ob-1">
       <p class="wt-kicker">Step 2 of 3</p>
       <h1 id="ob-1" class="ob__title">Pick your coins, {{ name.trim() }}</h1>
-      <p class="wt-muted wt-small">These six are the ones our model was trained and tested on. We'd rather say nothing than guess on coins we never tested.</p>
+      <p class="wt-muted wt-small">Start with a few big ones. After this you can browse and add any of the ~500 coins on Binance; odds only show where we tested them, and we'd rather say nothing than guess.</p>
       <div class="wt-choices" role="group" aria-label="Coins to watch">
-        <button v-for="c in COINS" :key="c.id" type="button" class="wt-choice" :aria-pressed="coins.includes(c.id)" @click="toggleCoin(c.id)">
-          <strong>{{ c.id }}</strong><span class="wt-muted wt-small">{{ c.name }}</span>
+        <button v-for="c in POPULAR" :key="c" type="button" class="wt-choice" :aria-pressed="coins.includes(c)" @click="toggleCoin(c)">
+          <strong>{{ c }}</strong><span class="wt-muted wt-small">{{ coinName(c) }}</span>
         </button>
       </div>
       <h2 class="ob__sub">How much risk per idea?</h2>

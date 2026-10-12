@@ -1,55 +1,55 @@
 /**
- * Whatto model training + walk-forward evaluation.
+ * Whatto model v2: one pooled model across a broad coin universe, with
+ * walk-forward evaluation per liquidity tier.
  *
- *   node --experimental-strip-types scripts/whatto-train.ts <dataDir> [outJson]
+ *   node --experimental-strip-types scripts/whatto-train.ts <zipDir> [outJson] [cacheDir]
  *
- * <dataDir> holds unzipped Binance public monthly 1m klines, e.g.
+ * <zipDir> holds Binance public monthly 1m kline zips named <PAIR>-1m-<YYYY-MM>.zip, e.g.
  *   https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-09.zip
- * (see docs/whatto/MODEL.md for the exact download list). Raw data is never committed.
+ * (see docs/whatto/MODEL.md for the download list). A pair is used only if EVERY month is
+ * present (history requirement). Raw data and the per-pair feature cache are never committed.
  *
- * Uses the SAME FeatureEngine as the live app (utils/whatto/features.ts).
+ * Uses the SAME FeatureEngine as the live app (utils/whatto/features.ts). Feature extraction
+ * runs one child process per pair (8 in parallel) and caches rows as Float64 binaries.
  */
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { execFileSync, spawn } from 'node:child_process'
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import {
   FeatureEngine, FEATURE_NAMES, HORIZON_MIN, REBOUND_K, SETUP_Z60, barFromKlineRow, type Bar,
 } from '../utils/whatto/features.ts'
+import { TIERS, tierOf } from '../utils/whatto/tiers.ts'
 
-const dataDir = process.argv[2] ?? '/workspace/whatto-research/data'
-const outPath = process.argv[3] ?? 'utils/whatto/model-v1.json'
 const STOP_K = 1.0
 const COOLDOWN = HORIZON_MIN
+const NF = FEATURE_NAMES.length
+/** row layout: t, y, stopFirst, fwd, close, rebound, qv24, x[NF] */
+const W = 7 + NF
 
-interface Row { coin: string; month: string; t: number; x: number[]; y: number; stopFirst: number; fwd: number; close: number; rebound: number }
+interface Row { coin: string; month: string; t: number; x: number[]; y: number; stopFirst: number; fwd: number; close: number; rebound: number; qv24: number; tier: string }
 
-const files = readdirSync(dataDir).filter(f => f.endsWith('.csv')).sort()
-const coins = [...new Set(files.map(f => f.split('USDT')[0]))]
-const months = [...new Set(files.map(f => f.match(/(\d{4}-\d{2})\.csv$/)![1]))].sort()
-console.error('coins', coins.join(','), 'months', months.join(','))
+function monthOf(t: number) { const d = new Date(t); return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}` }
 
-const rows: Row[] = []
-const setupCounts: Record<string, number> = {}
-let totalBars = 0
-for (const coin of coins) {
+/* ---------------- extraction (child mode) ---------------- */
+function extract(zipDir: string, pair: string, months: string[], out: string) {
   const bars: Bar[] = []
   for (const m of months) {
-    const f = join(dataDir, `${coin}USDT-1m-${m}.csv`)
-    let txt: string
-    try { txt = readFileSync(f, 'utf8') } catch { continue }
-    for (const line of txt.split('\n')) {
-      if (!line || !/^\d/.test(line)) continue
-      bars.push(barFromKlineRow(line.split(',')))
-    }
+    const txt = execFileSync('unzip', ['-p', join(zipDir, `${pair}-1m-${m}.zip`)], { maxBuffer: 1 << 30 }).toString('utf8')
+    for (const line of txt.split('\n')) if (line && /^\d/.test(line)) bars.push(barFromKlineRow(line.split(',')))
   }
   bars.sort((a, b) => a.t - b.t)
-  totalBars += bars.length
+  const vals: number[] = []
   const eng = new FeatureEngine(400)
+  // rolling 24h quote volume (same quantity as the live 24h ticker), contiguous-bar aware
+  let qvSum = 0, lo = 0
   for (let i = 0; i < bars.length; i++) {
+    qvSum += bars[i].qv
+    while (bars[lo].t <= bars[i].t - 86_400_000) qvSum -= bars[lo++].qv
     const snap = eng.push(bars[i])
     if (!snap || !snap.setup) continue
     if (i + HORIZON_MIN >= bars.length) break
-    // require contiguous future (no gaps)
     if (bars[i + HORIZON_MIN].t - bars[i].t !== HORIZON_MIN * 60000) continue
+    if (bars[i].t - bars[0].t < 86_400_000) continue // need a full day for qv24
     const c = snap.close
     const target = c * Math.exp(REBOUND_K * snap.sigmaL * Math.sqrt(HORIZON_MIN))
     const stop = c * Math.exp(-STOP_K * snap.sigmaL * Math.sqrt(HORIZON_MIN))
@@ -57,18 +57,60 @@ for (const coin of coins) {
     for (let j = i + 1; j <= i + HORIZON_MIN; j++) {
       const hitT = bars[j].h >= target, hitS = bars[j].l <= stop
       if (hitS && !hitT) { stopFirst = 1; break }
-      if (hitT) { y = 1; if (hitS) stopFirst = 1; break } // same bar: ambiguous, count stop as touched
+      if (hitT) { if (hitS) stopFirst = 1; break } // same bar: ambiguous, count stop as touched
     }
-    // y is "target reached within H" regardless of stop; recompute without stop break
-    y = 0
     for (let j = i + 1; j <= i + HORIZON_MIN; j++) if (bars[j].h >= target) { y = 1; break }
-    const d = new Date(bars[i].t)
-    const month = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`
-    rows.push({ coin, month, t: bars[i].t, x: snap.vector, y, stopFirst, fwd: Math.log(bars[i + HORIZON_MIN].c / c), close: c, rebound: snap.reboundFrac })
-    setupCounts[coin] = (setupCounts[coin] ?? 0) + 1
+    vals.push(bars[i].t, y, stopFirst, Math.log(bars[i + HORIZON_MIN].c / c), c, snap.reboundFrac, qvSum, ...snap.vector)
   }
+  writeFileSync(out, Buffer.from(new Float64Array(vals).buffer))
+  console.error(pair, 'bars', bars.length, 'rows', vals.length / W)
 }
-console.error('bars', totalBars, 'setup rows', rows.length, setupCounts)
+
+if (process.argv[2] === '--extract') {
+  extract(process.argv[3], process.argv[4], process.argv[5].split(','), process.argv[6])
+  process.exit(0)
+}
+
+const zipDir = process.argv[2] ?? '/workspace/whatto-research/data100'
+const outPath = process.argv[3] ?? 'utils/whatto/model-v2.json'
+const cacheDir = process.argv[4] ?? '/workspace/whatto-research/rows-v2'
+mkdirSync(cacheDir, { recursive: true })
+
+const files = readdirSync(zipDir).filter(f => f.endsWith('.zip'))
+const months = [...new Set(files.map(f => f.match(/(\d{4}-\d{2})\.zip$/)![1]))].sort()
+const pairsAll = [...new Set(files.map(f => f.split('-1m-')[0]))].sort()
+const pairs = pairsAll.filter(p => months.every(m => existsSync(join(zipDir, `${p}-1m-${m}.zip`))))
+console.error('pairs with full history', pairs.length, 'of', pairsAll.length, 'months', months.join(','))
+
+async function runPool() {
+  const todo = pairs.filter(p => !existsSync(join(cacheDir, `${p}.f64`)))
+  let next = 0
+  await Promise.all(Array.from({ length: 8 }, async () => {
+    while (next < todo.length) {
+      const p = todo[next++]
+      await new Promise<void>((resolve, reject) => {
+        const ch = spawn(process.execPath, ['--experimental-strip-types', '--max-old-space-size=1200', process.argv[1], '--extract', zipDir, p, months.join(','), join(cacheDir, `${p}.f64`)], { stdio: ['ignore', 'inherit', 'inherit'] })
+        ch.on('exit', code => (code === 0 ? resolve() : reject(new Error(`${p} exit ${code}`))))
+      })
+    }
+  }))
+}
+await runPool()
+
+const rows: Row[] = []
+const setupCounts: Record<string, number> = {}
+for (const pair of pairs) {
+  const buf = readFileSync(join(cacheDir, `${pair}.f64`))
+  const a = new Float64Array(buf.buffer, buf.byteOffset, buf.byteLength / 8)
+  const coin = pair.replace(/USDT$/, '')
+  for (let o = 0; o < a.length; o += W) {
+    const qv24 = a[o + 6]
+    rows.push({ coin, month: monthOf(a[o]), t: a[o], y: a[o + 1], stopFirst: a[o + 2], fwd: a[o + 3], close: a[o + 4], rebound: a[o + 5], qv24, tier: tierOf(qv24), x: Array.from(a.subarray(o + 7, o + W)) })
+  }
+  setupCounts[coin] = a.length / W
+}
+const coins = pairs.map(p => p.replace(/USDT$/, ''))
+console.error('setup rows', rows.length)
 
 /* ---------------- logistic regression (IRLS, L2) ---------------- */
 function standardize(X: number[][]) {
@@ -237,17 +279,42 @@ function summarize(sub: { r: Row; p: number; thr: number }[]) {
   }
 }
 const pooled = summarize(oos)
+const strip = (s: ReturnType<typeof summarize>) => { const { sigList: _s, ...rest } = s; return rest }
+// Edge rule (unchanged from v1, fixed before the run): enough signals, AUC above chance,
+// and the 95% Wilson lower bound of the hit rate beats the de-clustered base rate.
+const edgeOf = (s: ReturnType<typeof summarize>) => s.signals >= 30 && s.auc >= 0.55 && s.hitRateCI95[0] > s.baseRateDeclustered
+
+const perTier: Record<string, unknown> = {}
+for (const t of TIERS) {
+  const sub = oos.filter(o => o.r.tier === t.id)
+  if (!sub.length) { perTier[t.id] = { setups: 0, edge: false, coins: 0 }; continue }
+  const s = summarize(sub)
+  // Stability check (stricter, never looser): the tier must also beat its own base rate in at
+  // least 3 of the 4 test months, so one lucky month cannot carry a tier.
+  const byMonth = months.filter(m => sub.some(o => o.r.month === m)).map((m) => {
+    const ms = summarize(sub.filter(o => o.r.month === m))
+    return { month: m, signals: ms.signals, hitRate: ms.hitRate, baseRateDeclustered: ms.baseRateDeclustered, auc: ms.auc }
+  })
+  const stableMonths = byMonth.filter(x => x.hitRate > x.baseRateDeclustered).length
+  perTier[t.id] = { ...strip(s), coins: new Set(sub.map(o => o.r.coin)).size, byMonth, stableMonths, edge: edgeOf(s) && stableMonths >= Math.min(3, byMonth.length) }
+  console.error('tier', t.id, JSON.stringify(perTier[t.id]))
+}
+// Combined numbers for the tiers that get odds (note: the tiers were chosen on this same
+// out-of-sample period, so this summary is mildly optimistic; MODEL.md says so).
+const okTiers = new Set(TIERS.filter(t => (perTier[t.id] as { edge?: boolean }).edge).map(t => t.id))
+const eligibleSummary = strip(summarize(oos.filter(o => okTiers.has(o.r.tier))))
+// Per-coin numbers are informational only (n is small per coin); eligibility is by tier.
 const perCoin: Record<string, unknown> = {}
 const history: unknown[] = []
 for (const coin of coins) {
-  const s = summarize(oos.filter(o => o.r.coin === coin))
-  // Edge rule: enough signals, AUC above chance, and the 95% Wilson lower bound beats the declustered base rate.
-  const edge = s.signals >= 30 && s.auc >= 0.55 && s.hitRateCI95[0] > s.baseRateDeclustered
-  const { sigList, ...rest } = s
-  perCoin[coin] = { ...rest, edge }
-  for (const e of sigList.slice(-12)) history.push({ coin, t: e.r.t, close: e.r.close, p: +e.p.toFixed(4), rebounded: !!e.r.y, reboundFrac: +e.r.rebound.toFixed(5), fwd30: +e.r.fwd.toFixed(5) })
-  console.error(coin, JSON.stringify({ ...rest, edge }))
+  const sub = oos.filter(o => o.r.coin === coin)
+  if (!sub.length) continue
+  const s = summarize(sub)
+  const r = strip(s)
+  perCoin[coin] = { n: r.setups, auc: r.auc, brier: r.brier, brierBase: r.brierBase, signals: r.signals, hitRate: r.hitRate, baseRateDeclustered: r.baseRateDeclustered }
 }
+const allSig = summarize(oos).sigList.sort((a, b) => b.r.t - a.r.t).slice(0, 40)
+for (const e of allSig) history.push({ coin: e.r.coin, tier: e.r.tier, t: e.r.t, close: e.r.close, p: +e.p.toFixed(4), rebounded: !!e.r.y, reboundFrac: +e.r.rebound.toFixed(5), fwd30: +e.r.fwd.toFixed(5) })
 
 // reliability (pooled OOS), 10 equal-count bins
 const sorted = [...oos].sort((a, b) => a.p - b.p)
@@ -260,13 +327,12 @@ for (let b = 0; b < 10; b++) {
 
 // Final shipped model: train on all months but the last, Platt + threshold on the last month.
 const final = fitAll(rows.filter(r => r.month !== months[months.length - 1]), rows.filter(r => r.month === months[months.length - 1]))
-const { sigList: _drop, ...pooledRest } = pooled
 const model = {
   name: 'whatto-rebound-logit',
-  version: 1,
+  version: 2,
   trainedAt: new Date().toISOString(),
   source: 'Binance spot public 1m klines, data.binance.vision',
-  symbols: coins.map(c => `${c}USDT`),
+  symbols: pairs,
   months,
   horizonMin: HORIZON_MIN,
   reboundK: REBOUND_K,
@@ -282,8 +348,9 @@ const model = {
   platt: final.platt,
   threshold: final.threshold,
   topFraction: TOP_FRACTION,
-  evaluation: { method: 'expanding walk-forward by calendar month; train <m-1, Platt+threshold on m-1, test on m', folds, pooled: pooledRest, perCoin, reliability },
+  tiers: TIERS,
+  evaluation: { method: 'expanding walk-forward by calendar month; train <m-1, Platt+threshold on m-1, test on m; pooled across pairs, scored per 24h-quote-volume tier', folds, pooled: strip(pooled), eligible: { tiers: [...okTiers], ...eligibleSummary }, perTier, perCoin, reliability },
   historicalSignals: history,
 }
-writeFileSync(outPath, JSON.stringify(model, (k, v) => typeof v === 'number' ? +v.toPrecision(6) : v, 1))
-console.error('wrote', outPath, 'pooled', JSON.stringify(pooledRest))
+writeFileSync(outPath, JSON.stringify(model, (k, v) => typeof v === 'number' ? +v.toPrecision(5) : v))
+console.error('wrote', outPath, 'pooled', JSON.stringify(strip(pooled)))

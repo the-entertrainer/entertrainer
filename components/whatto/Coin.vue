@@ -2,15 +2,22 @@
 import type { WhattoApi } from '~/composables/whatto/useWhatto'
 import { MODEL } from '~/utils/whatto/model'
 import { coinNewsScore } from '~/utils/whatto/sentiment'
-import { COIN_BY_ID, fmtPrice, fmtTime } from '~/utils/whatto/coins'
+import { coinName, coinRank, fmtPrice, fmtSignedPct, fmtTime, fmtUsdCompact } from '~/utils/whatto/coins'
+import { eligibility } from '~/utils/whatto/model'
 
 const api = inject<WhattoApi>('whatto')!
 const focus = inject<Ref<string>>('whattoFocusCoin')!
 
-const coin = computed(() => (api.prefs.value.coins.includes(focus.value) ? focus.value : api.prefs.value.coins[0]))
+const nav = inject<{ coins: () => void }>('whattoNav')!
+const coin = computed(() => focus.value || api.prefs.value.coins[0])
+const picks = computed(() => (api.prefs.value.coins.includes(coin.value) ? api.prefs.value.coins : [...api.prefs.value.coins, coin.value]))
+const uniRow = computed(() => { void api.uni.version.value; return api.uni.get(coin.value) })
+const elig = computed(() => st.value?.elig ?? eligibility(coin.value, uniRow.value?.qv24))
+const watching = computed(() => api.prefs.value.coins.includes(coin.value))
 const st = computed(() => { void api.tick.value; return api.feed.value?.coins[coin.value] })
 const r = computed(() => { void api.tick.value; return st.value?.reading ?? null })
-const ev = computed(() => MODEL.evaluation.perCoin[coin.value])
+const ev = computed(() => elig.value.eval)
+const coinEv = computed(() => MODEL.evaluation.perCoin[coin.value])
 const news = computed(() => coinNewsScore(coin.value, api.news.value, api.now.value))
 const bp = (x: number) => `${(x * 10000).toPrecision(2)} bp`
 const maxContrib = computed(() => Math.max(0.05, ...(r.value?.contributions.map(c => Math.abs(c.logit)) ?? [0])))
@@ -20,15 +27,20 @@ const lastTrades = computed(() => { void api.tick.value; return (st.value?.trade
 <template>
   <div class="cd">
     <div class="wt-choices cd__pick" role="tablist" aria-label="Coin">
-      <button v-for="c in api.prefs.value.coins" :key="c" type="button" role="tab" class="wt-choice" :aria-selected="c === coin" :aria-pressed="c === coin" @click="focus = c">{{ c }}</button>
+      <button v-for="c in picks" :key="c" type="button" role="tab" class="wt-choice" :aria-selected="c === coin" :aria-pressed="c === coin" @click="focus = c">{{ c }}</button>
+      <button type="button" class="wt-choice cd__all" @click="nav.coins()">All coins →</button>
     </div>
+
+    <section v-if="!st" class="wt-card cd__chartcard"><p class="wt-muted"><span class="wt-skeleton" /> Connecting to {{ coin }}…</p></section>
 
     <template v-if="st">
       <section class="wt-card cd__chartcard wt-enter">
         <header class="cd__head">
           <div>
             <h1 class="cd__title">{{ coin }}<span class="wt-muted">/USDT</span></h1>
+            <p class="wt-tiny wt-muted cd__sub"><template v-if="coinRank(coin)">#{{ coinRank(coin) }} · </template>{{ coinName(coin) ?? 'ticker only' }}<template v-if="uniRow"> · <span :class="uniRow.pct24 >= 0 ? 'up' : 'down'">{{ fmtSignedPct(uniRow.pct24) }}</span> 24h · {{ fmtUsdCompact(uniRow.qv24) }}</template></p>
             <p class="num cd__px">{{ fmtPrice(coin, st.lastPrice) }}</p>
+            <button type="button" class="wt-btn wt-btn--sm cd__watch" :class="watching ? 'wt-btn--ghost' : 'wt-btn--blue'" :aria-pressed="watching" @click="api.toggleWatch(coin)">{{ watching ? '★ On watchlist' : '☆ Add to watchlist' }}</button>
           </div>
           <div class="cd__legend wt-tiny">
             <span><i class="sw sw--up" />up candle</span>
@@ -43,6 +55,11 @@ const lastTrades = computed(() => { void api.tick.value; return (st.value?.trade
       <div class="wt-grid2 cd__grid">
         <div>
           <WhattoSignalCard :state="st" :tick="api.tick.value" />
+          <section v-if="!elig.eligible" class="wt-card cd__noodds" aria-labelledby="cd-noodds">
+            <h2 id="cd-noodds" class="cd__h2">No odds for {{ coin }}</h2>
+            <p class="wt-small">{{ elig.why }}</p>
+            <p class="wt-tiny wt-muted">Charts, order book and trades below are live. We show a probability only where we tested one: {{ MODEL.symbols.length }} pairs with full history since {{ MODEL.months[0] }}, in liquidity tiers that beat their base rate out of sample. <template v-if="!watching">Signals and alerts only run for watchlisted coins.</template></p>
+          </section>
 
           <section class="wt-card" v-if="r">
             <h2 class="cd__h2">Why the model says {{ Math.round(r.pModel * 100) }}%</h2>
@@ -86,15 +103,16 @@ const lastTrades = computed(() => { void api.tick.value; return (st.value?.trade
             </ul>
           </section>
 
-          <section class="wt-card" v-if="ev">
-            <h2 class="cd__h2">How the model did on {{ coin }}</h2>
+          <section class="wt-card" v-if="ev && elig.eligible">
+            <h2 class="cd__h2">How the model did on tier {{ elig.tier }}</h2>
+            <p class="wt-tiny wt-muted">Coins trading {{ elig.tierLabel }} at the time ({{ ev.coins }} pairs), out of sample.</p>
             <dl class="cd__mini">
               <div><dt>AUC</dt><dd class="num">{{ ev.auc.toFixed(3) }}</dd></div>
               <div><dt>Brier (vs base)</dt><dd class="num">{{ ev.brier.toFixed(4) }} <small>({{ ev.brierBase.toFixed(4) }})</small></dd></div>
               <div><dt>Signal hit rate</dt><dd class="num">{{ Math.round(ev.hitRate * 100) }}% <small>n = {{ ev.signals }}</small></dd></div>
               <div><dt>Base rate</dt><dd class="num">{{ Math.round(ev.baseRateDeclustered * 100) }}% <small>n = {{ ev.setupsDeclustered }}</small></dd></div>
             </dl>
-            <p class="wt-tiny wt-muted">Out of sample, walk-forward by month. Edge flag: {{ ev.edge ? 'yes' : 'no, so signals stay off' }}.</p>
+            <p class="wt-tiny wt-muted">Walk-forward by month. Edge flag: {{ ev.edge ? 'yes' : 'no, so signals stay off' }}.<template v-if="coinEv"> {{ coin }} alone: AUC {{ coinEv.auc.toFixed(3) }}, {{ coinEv.signals }} signals, {{ Number.isFinite(coinEv.hitRate) ? Math.round(coinEv.hitRate * 100) + '% hit' : 'no hits to grade' }} vs {{ Math.round(coinEv.baseRateDeclustered * 100) }}% base (small n, shown for context).</template></p>
           </section>
 
           <section class="wt-card">
@@ -124,11 +142,17 @@ const lastTrades = computed(() => { void api.tick.value; return (st.value?.trade
 .cd__pick::-webkit-scrollbar { display: none; }
 .cd__pick .wt-choice { flex: 0 0 auto; }
 .cd__pick .wt-choice { min-height: 40px; padding: 8px 14px; }
+.cd__all { color: var(--wt-blue-deep); font-weight: 800; }
+.cd__sub { margin-top: 2px; }
+.cd__watch { margin-top: 8px; }
+.cd__noodds { margin-top: 14px; border: 2px dashed var(--wt-pink-soft); }
+.up { color: var(--wt-blue-deep); } .down { color: var(--wt-pink-deep); }
 .cd__chartcard { padding: 14px 12px 10px; }
 .cd__head { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; margin-bottom: 6px; }
 .cd__title { font-size: 22px; font-weight: 800; }
 .cd__px { font-size: 26px; font-weight: 700; }
-.cd__legend { display: grid; gap: 2px; justify-items: start; color: var(--wt-muted); font-weight: 600; }
+.cd__legend { display: grid; gap: 2px; justify-items: start; color: var(--wt-muted); font-weight: 600; white-space: nowrap; flex: 0 0 auto; }
+.cd__head > div:first-child { min-width: 0; }
 .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
 .sw--up { background: #1E90FF; } .sw--down { background: #FF69B4; } .sw--line { height: 2px; background: #1F1033; }
 .cd__chart { height: 300px; margin: 4px -4px 6px; }

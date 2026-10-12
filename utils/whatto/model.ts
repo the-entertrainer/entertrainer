@@ -1,13 +1,14 @@
 /**
- * Applies the offline-fitted logistic model (model-v1.json) to a live
+ * Applies the offline-fitted logistic model (model-v2.json) to a live
  * FeatureSnapshot and adds the two documented live-only adjustments:
  *   1. liquidity / order-book layer: can only SHRINK toward the base rate
  *   2. news sentiment: bounded logit nudge, |delta| <= NEWS_MAX_LOGIT
  * Neither adjustment can create a signal on its own: a signal needs the
  * backtested model probability AND the adjusted probability over threshold.
  */
-import modelJson from './model-v1.json'
+import modelJson from './model-v2.json'
 import { FEATURE_NAMES, type FeatureSnapshot } from './features'
+import { tierOf, type Tier } from './tiers'
 
 export interface CoinEval {
   setups: number
@@ -28,7 +29,10 @@ export interface CoinEval {
   edge: boolean
 }
 
-export interface HistoricalSignal { coin: string; t: number; close: number; p: number; rebounded: boolean; reboundFrac: number; fwd30: number }
+export interface TierEval extends CoinEval { coins: number }
+export interface CoinBrief { n: number; auc: number; brier: number; brierBase: number; signals: number; hitRate: number; baseRateDeclustered: number }
+
+export interface HistoricalSignal { coin: string; tier?: string; t: number; close: number; p: number; rebounded: boolean; reboundFrac: number; fwd30: number }
 
 export interface WhattoModel {
   name: string
@@ -50,17 +54,51 @@ export interface WhattoModel {
   coef: number[]
   platt: { a: number; b: number }
   threshold: number
+  tiers: Tier[]
   evaluation: {
     method: string
     folds: { test: string; n: number; auc: number; brier: number; baseRate: number; signals: number; hitRate: number; threshold: number }[]
     pooled: Omit<CoinEval, 'edge'>
-    perCoin: Record<string, CoinEval>
+    perTier: Record<string, TierEval>
+    perCoin: Record<string, CoinBrief>
     reliability: { meanP: number; observed: number; n: number }[]
   }
   historicalSignals: HistoricalSignal[]
 }
 
 export const MODEL = modelJson as unknown as WhattoModel
+const TRAINED = new Set(MODEL.symbols)
+
+export interface Eligibility {
+  eligible: boolean
+  tier: string
+  tierLabel: string
+  /** why there are no odds, in plain words (empty when eligible) */
+  why: string
+  eval: TierEval | undefined
+}
+
+/**
+ * Odds are shown only when BOTH hold:
+ *  - history: the pair was in the training universe (full 1m history over every training month);
+ *  - liquidity: its live 24h quote volume puts it in a tier that passed the edge rule out of sample.
+ * Everything else gets live data and an honest "no odds" state, never a number.
+ */
+export function eligibility(coin: string, quoteVol24h: number | null | undefined): Eligibility {
+  const qv = Number.isFinite(quoteVol24h as number) ? quoteVol24h as number : 0
+  const tier = tierOf(qv)
+  const t = MODEL.tiers.find(x => x.id === tier)
+  const ev = MODEL.evaluation.perTier[tier]
+  const base = { tier, tierLabel: t?.label ?? '', eval: ev?.setups ? ev : undefined }
+  if (!TRAINED.has(`${coin}USDT`)) {
+    return { ...base, eligible: false, why: `${coin} was not in the ${MODEL.symbols.length} pairs the model was trained and tested on (it needed full 1-minute history from ${MODEL.months[0]} and enough volume), so there is not enough history for odds.` }
+  }
+  if (!quoteVol24h) return { ...base, eligible: false, why: 'Waiting for 24-hour volume to place this coin in a liquidity tier.' }
+  if (!ev?.edge) {
+    return { ...base, eligible: false, why: `Right now ${coin} trades ${t?.label ?? ''}, and coins at that liquidity showed no reliable edge out of sample, so there is not enough liquidity for odds.` }
+  }
+  return { ...base, eligible: true, why: '' }
+}
 
 export const NEWS_MAX_LOGIT = 0.1
 export const NEWS_WEIGHT = 0.1
@@ -96,6 +134,7 @@ export interface ModelReading {
   threshold: number
   edge: boolean
   eval: CoinEval | undefined
+  tier: string
   isSignal: boolean
   reboundFrac: number
   stopFrac: number
@@ -120,7 +159,7 @@ export const FEATURE_LABELS: Record<string, string> = {
   regimeDrift: 'Regime drift',
 }
 
-export function evaluate(coin: string, snap: FeatureSnapshot, book: BookStats | null, newsScore: number | null): ModelReading {
+export function evaluate(coin: string, snap: FeatureSnapshot, book: BookStats | null, newsScore: number | null, elig: Eligibility): ModelReading {
   const m = MODEL
   let z = m.intercept
   const contributions: Contribution[] = []
@@ -131,7 +170,7 @@ export function evaluate(coin: string, snap: FeatureSnapshot, book: BookStats | 
     contributions.push({ name: FEATURE_NAMES[k], label: FEATURE_LABELS[FEATURE_NAMES[k]], value: snap.vector[k], logit: c })
   }
   const pModel = sigmoid(m.platt.a * z + m.platt.b)
-  const ev = m.evaluation.perCoin[coin]
+  const ev = elig.eval
   const base = ev?.baseRateDeclustered ?? m.evaluation.pooled.baseRateDeclustered
 
   // Liquidity layer: shrink toward base rate when the book is thin / wide or leaning against the bounce.
@@ -156,7 +195,7 @@ export function evaluate(coin: string, snap: FeatureSnapshot, book: BookStats | 
 
   const reboundFrac = snap.reboundFrac
   const stopFrac = 1 - Math.exp(-m.stopK * snap.sigmaL * Math.sqrt(m.horizonMin))
-  const edge = !!ev?.edge
+  const edge = elig.eligible
   let reason: ModelReading['reason'] = 'signal'
   if (!snap.setup) reason = 'not-falling'
   else if (!edge) reason = 'no-edge'
@@ -166,7 +205,7 @@ export function evaluate(coin: string, snap: FeatureSnapshot, book: BookStats | 
   return {
     coin, t: snap.t, close: snap.close, setup: snap.setup,
     pModel, pFinal: p, liquidityFactor, bookNote, newsLogit, contributions,
-    threshold: m.threshold, edge, eval: ev, isSignal: reason === 'signal',
+    threshold: m.threshold, edge, eval: ev, tier: elig.tier, isSignal: reason === 'signal',
     reboundFrac, stopFrac,
     targetPrice: snap.close * (1 + reboundFrac),
     stopPrice: snap.close * (1 - stopFrac),

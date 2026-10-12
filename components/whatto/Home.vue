@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { WhattoApi } from '~/composables/whatto/useWhatto'
 import { MODEL } from '~/utils/whatto/model'
-import { COIN_BY_ID, fmtPrice, fmtSignedPct, fmtAgo } from '~/utils/whatto/coins'
+import { coinName, fmtPrice, fmtSignedPct, fmtAgo } from '~/utils/whatto/coins'
 
 const api = inject<WhattoApi>('whatto')!
-const nav = inject<{ openCoin: (c: string) => void; go: (t: 'history') => void }>('whattoNav')!
+const nav = inject<{ openCoin: (c: string) => void; go: (t: 'history') => void; coins: (v?: 'browse' | 'falling') => void }>('whattoNav')!
 
 const coins = computed(() => { void api.tick.value; const f = api.feed.value; return f ? api.prefs.value.coins.map(c => f.coins[c]).filter(Boolean) : [] })
 const signals = computed(() => coins.value.filter(c => c.reading?.isSignal))
@@ -50,8 +50,8 @@ const hits = computed(() => graded.value.filter(h => h.outcome === 'rebounded').
               <strong>{{ c.coin }}</strong>
               <span class="num wt-small" :title="'60-minute move in volatility units'">{{ c.snapshot ? `${c.snapshot.values.z60 >= 0 ? '+' : ''}${c.snapshot.values.z60.toFixed(2)}σ` : '…' }}</span>
               <span class="hm__board-bar" aria-hidden="true"><i :style="{ width: `${Math.min(100, (c.reading?.pFinal ?? 0) * 100)}%` }" /><b :style="{ left: `${MODEL.threshold * 100}%` }" /></span>
-              <span class="num wt-small hm__board-p">{{ c.reading ? `${Math.round(c.reading.pFinal * 100)}%` : '…' }}</span>
-              <span class="wt-tiny hm__board-state">{{ !c.reading ? 'warming up' : c.reading.isSignal ? 'signal' : c.reading.setup ? 'scored' : 'not falling' }}</span>
+              <span class="num wt-small hm__board-p">{{ c.reading ? `${Math.round(c.reading.pFinal * 100)}%` : c.elig && !c.elig.eligible && c.historyLoaded ? '—' : '…' }}</span>
+              <span class="wt-tiny hm__board-state">{{ !c.reading ? (c.elig && !c.elig.eligible && c.historyLoaded ? 'no odds' : 'warming up') : c.reading.isSignal ? 'signal' : c.reading.setup ? 'scored' : 'not falling' }}</span>
             </li>
           </ul>
           <p class="wt-tiny wt-muted">Percent = model reading right now. It only counts when the coin is falling ("scored").</p>
@@ -59,11 +59,15 @@ const hits = computed(() => graded.value.filter(h => h.outcome === 'rebounded').
       </div>
 
       <div>
+        <div class="hm__browse">
+          <button type="button" class="wt-btn wt-btn--sm wt-btn--blue" @click="nav.coins('browse')">Browse every coin</button>
+          <button type="button" class="wt-btn wt-btn--sm wt-btn--ghost" @click="nav.coins('falling')">What is falling now?</button>
+        </div>
         <h2 class="wt-section-title"><span>Watchlist</span><span class="wt-tiny">tap for chart</span></h2>
         <ul class="hm__list">
           <li v-for="c in coins" :key="c.coin">
             <button type="button" class="hm__row" @click="nav.openCoin(c.coin)">
-              <span class="hm__id"><strong>{{ c.coin }}</strong><span class="wt-tiny wt-muted">{{ COIN_BY_ID[c.coin].name }}</span></span>
+              <span class="hm__id"><strong>{{ c.coin }}</strong><span class="wt-tiny wt-muted">{{ coinName(c.coin) ?? 'ticker only' }}</span></span>
               <span class="hm__spark"><WhattoSparkline :state="c" :tick="api.tick.value" /></span>
               <span class="hm__px">
                 <strong class="num">{{ fmtPrice(c.coin, c.lastPrice) }}</strong>
@@ -73,6 +77,7 @@ const hits = computed(() => graded.value.filter(h => h.outcome === 'rebounded').
                 <template v-if="c.reading?.isSignal"><span class="wt-chip wt-chip--blue">signal</span></template>
                 <template v-else-if="c.reading?.setup"><span class="wt-chip wt-chip--pink num">{{ Math.round(c.reading.pFinal * 100) }}%</span></template>
                 <template v-else-if="c.reading"><span class="wt-chip">calm</span></template>
+                <template v-else-if="c.elig && !c.elig.eligible && c.historyLoaded"><span class="wt-chip">no odds</span></template>
                 <template v-else><span class="wt-chip">…</span></template>
               </span>
             </button>
@@ -125,4 +130,5 @@ const hits = computed(() => graded.value.filter(h => h.outcome === 'rebounded').
 .hm__live { margin: 8px 4px 0; }
 .hm__record { display: grid; gap: 4px; width: 100%; margin-top: 14px; text-align: left; cursor: pointer; }
 .hm__record strong { font-size: 18px; }
+.hm__browse { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 16px; }
 </style>

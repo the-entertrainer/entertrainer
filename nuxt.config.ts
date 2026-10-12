@@ -213,6 +213,7 @@ export default defineNuxtConfig({
   routeRules: {
     // Whatto is unlisted: reachable only by typing the URL, never indexed.
     '/engage/whatto': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
+    '/api/whatto/**': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
     '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } },
     '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } },
     '/tools': { redirect: { to: '/empower', statusCode: 301 } },

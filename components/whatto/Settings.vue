@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { WhattoApi } from '~/composables/whatto/useWhatto'
-import { COINS } from '~/utils/whatto/coins'
+import { POPULAR } from '~/utils/whatto/coins'
+import { MAX_WATCH } from '~/composables/whatto/marketFeed'
 import { MODEL, RISK_PCT, type RiskLevel } from '~/utils/whatto/model'
 
 const api = inject<WhattoApi>('whatto')!
@@ -13,11 +14,8 @@ function saveAccount() {
   const v = Number(account.value.replace(/[^0-9.]/g, ''))
   void api.savePrefs({ account: v > 0 ? v : null })
 }
-function toggleCoin(id: string) {
-  const cur = api.prefs.value.coins
-  const next = cur.includes(id) ? cur.filter(c => c !== id) : [...cur, id]
-  if (next.length) void api.savePrefs({ coins: COINS.map(c => c.id).filter(c => next.includes(c)) })
-}
+const nav = inject<{ coins: () => void }>('whattoNav')!
+const extras = computed(() => POPULAR.filter(c => !api.prefs.value.coins.includes(c)))
 async function toggleNotify() {
   if (api.prefs.value.notify) { void api.savePrefs({ notify: false }); return }
   const ok = api.notifPermission.value === 'granted' || await api.requestNotifications()
@@ -51,9 +49,11 @@ const RISKS: RiskLevel[] = ['careful', 'balanced', 'bold']
     <section class="wt-card se__block">
       <h2 class="se__label">Watchlist</h2>
       <div class="wt-choices">
-        <button v-for="c in COINS" :key="c.id" type="button" class="wt-choice" :aria-pressed="api.prefs.value.coins.includes(c.id)" @click="toggleCoin(c.id)">{{ c.id }}</button>
+        <button v-for="c in api.prefs.value.coins" :key="c" type="button" class="wt-choice" aria-pressed="true" :aria-label="`Remove ${c}`" @click="api.toggleWatch(c)">{{ c }} <span aria-hidden="true">×</span></button>
+        <button v-for="c in extras" :key="c" type="button" class="wt-choice" aria-pressed="false" @click="api.toggleWatch(c)">+ {{ c }}</button>
       </div>
-      <p class="wt-tiny wt-muted">Only coins the model was tested on are offered. Keep at least one.</p>
+      <button type="button" class="wt-btn wt-btn--sm wt-btn--ghost" @click="nav.coins()">Find any coin…</button>
+      <p class="wt-tiny wt-muted">Up to {{ MAX_WATCH }} coins stream live; keep at least one. Signals and alerts run only for watchlisted coins that have odds.</p>
     </section>
 
     <section class="wt-card se__block">
@@ -85,7 +85,7 @@ const RISKS: RiskLevel[] = ['careful', 'balanced', 'bold']
       <h2 class="se__label">The model in one card</h2>
       <ul class="se__facts wt-small">
         <li>Logistic regression on {{ MODEL.features.length }} live features, calibrated with Platt scaling.</li>
-        <li>Trained on Binance 1-minute candles, {{ MODEL.months[0] }} to {{ MODEL.months[MODEL.months.length - 1] }}, six coins.</li>
+        <li>Trained on Binance 1-minute candles, {{ MODEL.months[0] }} to {{ MODEL.months[MODEL.months.length - 1] }}, one pooled model over {{ MODEL.symbols.length }} USDT pairs. Odds only for those pairs, in liquidity tiers that passed out of sample.</li>
         <li>Signal bar: {{ Math.round(MODEL.threshold * 100) }}% calibrated probability (top {{ 10 }}% of the calibration month).</li>
         <li>Order book and news only nudge a reading; they cannot create a signal.</li>
       </ul>

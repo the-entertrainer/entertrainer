@@ -49,3 +49,10 @@ Written before the architecture was locked. Each role argued for what it needed;
 - Headless Chrome against `nuxt dev` on port 3040 for several minutes: ticks arrive, charts redraw, a forced websocket drop reconnects, offline shows the banner and recovers, onboarding completes, zero console errors.
 - Screenshots at 390×844 and 1280×800 for every screen; review for overlap and clipping before shipping.
 - Production build and the repo's `npm run check` must pass.
+
+## v2: every coin (October 2026)
+- Ask: cover all coins, not just six, without inventing numbers.
+- Options weighed: (a) apply the six-coin model to everything, rejected: untested extrapolation, especially on thin books; (b) one model per coin, rejected: most pairs have ~100 signals in 4 test months, far too few; (c) **one pooled model on a broad universe, judged per liquidity tier**, chosen. It shares strength across coins, and the tier is something the app can observe live (24h quote volume).
+- Universe: every TRADING USDT pair for browsing (~500); 100 pairs with 7 full months of history for the model. Odds only where both history and a passing tier hold; everything else is live data with an explicit "no odds".
+- Names: CoinGecko's own Binance mapping, never a symbol lookup (tickers collide). Ranks from CoinGecko, cached server-side.
+- Market-wide "falling now" without hammering: the all-market miniTicker stream (free) for ranking, klines only for 12 candidates per minute.

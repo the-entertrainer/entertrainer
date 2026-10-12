@@ -92,6 +92,7 @@
   box-shadow: var(--wt-shadow);
 }
 .wt-tab {
+  min-width: 0;
   flex: 1; display: grid; justify-items: center; gap: 2px;
   padding: 7px 2px 6px; border: 0; border-radius: 999px; background: transparent;
   font-size: 11px; font-weight: 700; color: var(--wt-muted); cursor: pointer;

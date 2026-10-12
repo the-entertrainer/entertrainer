@@ -47,7 +47,12 @@ const rel = MODEL.evaluation.reliability
         <div><dt>Brier</dt><dd class="num">{{ pooled.brier.toFixed(4) }}</dd></div>
         <div><dt>Brier, base only</dt><dd class="num">{{ pooled.brierBase.toFixed(4) }}</dd></div>
       </dl>
-      <p class="wt-tiny wt-muted">Six coins, {{ MODEL.months[0] }} to {{ MODEL.months[MODEL.months.length - 1] }} 1-minute Binance data. Each month was predicted by a model that never saw it. A hit means the high touched +{{ MODEL.reboundK }}σ within {{ MODEL.horizonMin }} minutes; {{ fmtPct(pooled.stopFirstRate, 0) }} of signals touched the stop first, and the mean 30-minute return after a signal was {{ fmtSignedPct(pooled.meanFwdReturnSignals) }}, before fees.</p>
+      <p class="wt-tiny wt-muted">{{ MODEL.symbols.length }} USDT pairs (one pooled model), {{ MODEL.months[0] }} to {{ MODEL.months[MODEL.months.length - 1] }} 1-minute Binance data. Each month was predicted by a model that never saw it. A hit means the high touched +{{ MODEL.reboundK }}σ within {{ MODEL.horizonMin }} minutes; {{ fmtPct(pooled.stopFirstRate, 0) }} of signals touched the stop first, and the mean 30-minute return after a signal was {{ fmtSignedPct(pooled.meanFwdReturnSignals) }}, before fees.</p>
+
+      <h3 class="hi__h3">By liquidity tier (24h volume at the time)</h3>
+      <ul class="hi__folds num wt-small">
+        <li v-for="t in MODEL.tiers" :key="t.id"><strong>{{ t.id }} <span class="wt-tiny wt-muted">{{ t.label }}</span></strong><span>AUC {{ MODEL.evaluation.perTier[t.id].auc.toFixed(3) }}</span><span>{{ MODEL.evaluation.perTier[t.id].signals }} signals, {{ fmtPct(MODEL.evaluation.perTier[t.id].hitRate, 0) }} hit</span><span class="wt-muted">base {{ fmtPct(MODEL.evaluation.perTier[t.id].baseRateDeclustered, 0) }} · {{ MODEL.evaluation.perTier[t.id].edge ? 'odds on' : 'no odds' }}</span></li>
+      </ul>
 
       <h3 class="hi__h3">By month</h3>
       <ul class="hi__folds num wt-small">

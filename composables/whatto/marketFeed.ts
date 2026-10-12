@@ -8,13 +8,19 @@
  *   Coinbase has no taker-buy volume history, so the model pauses on fallback
  *   and the UI says so instead of guessing.
  *
+ * Streams: 3 per coin (aggTrade, depth20@100ms, kline_1m) on ONE combined connection.
+ * Coins = watchlist + at most one on-demand coin being viewed, capped at MAX_FEED_COINS
+ * (39 streams, far under Binance's 1024-per-connection limit). Viewing another coin
+ * sends SUBSCRIBE/UNSUBSCRIBE on the open socket (throttled well under 5 msgs/s) and
+ * drops that coin's state when you leave, so memory stays bounded.
+ *
  * Reliability: exponential backoff with jitter, 12 s staleness watchdog,
  * navigator.onLine handling, REST backfill of missed closed bars after every
  * reconnect so the feature engine never sees a gap it didn't know about.
  */
 import { FeatureEngine, barFromKlineRow, type Bar, type FeatureSnapshot } from '~/utils/whatto/features'
-import { evaluate, type BookStats, type ModelReading } from '~/utils/whatto/model'
-import { COIN_BY_ID } from '~/utils/whatto/coins'
+import { eligibility, evaluate, type BookStats, type Eligibility, type ModelReading } from '~/utils/whatto/model'
+import { pairOf } from '~/utils/whatto/coins'
 
 export type FeedStatus = 'idle' | 'connecting' | 'live' | 'stale' | 'reconnecting' | 'offline'
 export type FeedSource = 'binance' | 'coinbase'
@@ -39,6 +45,8 @@ export interface CoinState {
   book: BookStats | null
   snapshot: FeatureSnapshot | null
   reading: ModelReading | null
+  /** odds eligibility (history + liquidity tier); null until 24h volume is known */
+  elig: Eligibility | null
   historyLoaded: boolean
   error: string | null
 }
@@ -47,7 +55,12 @@ export interface FeedEvents {
   onTick?: () => void
   onBarClose?: (coin: string, reading: ModelReading | null) => void
   onStatus?: (s: FeedStatus) => void
+  /** live 24h quote volume for a coin (from the all-market ticker) */
+  quoteVol?: (coin: string) => number | undefined
 }
+
+export const MAX_WATCH = 12
+export const MAX_FEED_COINS = MAX_WATCH + 1
 
 const STALE_MS = 12_000
 const MAX_BACKOFF = 30_000
@@ -91,6 +104,12 @@ export class MarketFeed {
   private engines: Record<string, FeatureEngine> = {}
   private stopped = false
   private ev: FeedEvents
+  private focus: string | null = null
+  private watch: string[] = []
+  private subscribed = new Set<string>()
+  private ctlQueue: string[] = []
+  private ctlTimer: ReturnType<typeof setTimeout> | null = null
+  private ctlId = 1
 
   constructor(ev: FeedEvents = {}) {
     this.ev = ev
@@ -104,6 +123,8 @@ export class MarketFeed {
 
   async start(coins: string[]) {
     this.stopped = false
+    this.watch = coins.slice(0, MAX_WATCH)
+    coins = this.wanted()
     for (const c of coins) this.ensureCoin(c)
     window.addEventListener('online', this.onOnline)
     window.addEventListener('offline', this.onOffline)
@@ -119,25 +140,80 @@ export class MarketFeed {
     window.removeEventListener('offline', this.onOffline)
     if (this.watchdog) clearInterval(this.watchdog)
     if (this.retryTimer) clearTimeout(this.retryTimer)
+    if (this.ctlTimer) clearTimeout(this.ctlTimer)
+    this.ctlTimer = null
+    this.ctlQueue = []
     this.closeSocket()
     this.setStatus('idle')
   }
 
+  private wanted(): string[] {
+    const w = [...this.watch]
+    if (this.focus && !w.includes(this.focus)) w.push(this.focus)
+    return w.slice(0, MAX_FEED_COINS)
+  }
+
   /** Change the watchlist without losing state for coins that stay. */
   async setCoins(coins: string[]) {
-    for (const c of Object.keys(this.coins)) if (!coins.includes(c)) { delete this.coins[c]; delete this.engines[c] }
-    const added = coins.filter(c => !this.coins[c])
-    for (const c of added) this.ensureCoin(c)
-    if (added.length) await this.loadHistory(added)
-    this.closeSocket()
-    this.connect()
+    this.watch = coins.slice(0, MAX_WATCH)
+    await this.sync()
   }
+
+  /** Stream one more coin on demand (the coin being viewed); null releases it. */
+  async setFocus(coin: string | null) {
+    if (this.focus === coin) return
+    this.focus = coin
+    await this.sync()
+  }
+
+  private async sync() {
+    const want = this.wanted()
+    for (const c of Object.keys(this.coins)) if (!want.includes(c)) { delete this.coins[c]; delete this.engines[c]; delete this.newsScores[c] }
+    const added = want.filter(c => !this.coins[c])
+    for (const c of added) this.ensureCoin(c)
+    this.ev.onTick?.()
+    if (this.stopped) return
+    if (this.source === 'binance' && this.ws && this.ws.readyState === WebSocket.OPEN) {
+      // live re-subscription on the same connection
+      const want3 = new Set(want.flatMap(c => this.streamsFor(c)))
+      const unsub = [...this.subscribed].filter(s => !want3.has(s))
+      const sub = [...want3].filter(s => !this.subscribed.has(s))
+      if (unsub.length) this.control('UNSUBSCRIBE', unsub)
+      if (sub.length) this.control('SUBSCRIBE', sub)
+      if (added.length) await this.loadHistory(added)
+    } else {
+      if (added.length) await this.loadHistory(added)
+      this.closeSocket()
+      this.connect()
+    }
+  }
+
+  private streamsFor(coin: string): string[] {
+    const s = pairOf(coin).toLowerCase()
+    return [`${s}@aggTrade`, `${s}@depth20@100ms`, `${s}@kline_1m`]
+  }
+
+  /** Binance allows 5 incoming control messages per second per connection; we send at most ~3. */
+  private control(method: 'SUBSCRIBE' | 'UNSUBSCRIBE', params: string[]) {
+    for (const p of params) { if (method === 'SUBSCRIBE') this.subscribed.add(p); else this.subscribed.delete(p) }
+    this.ctlQueue.push(JSON.stringify({ method, params, id: this.ctlId++ }))
+    this.pumpControl()
+  }
+  private pumpControl() {
+    if (this.ctlTimer || !this.ctlQueue.length) return
+    const msg = this.ctlQueue.shift()!
+    try { this.ws?.send(msg) } catch { /* reconnect will resubscribe from scratch */ }
+    this.ctlTimer = setTimeout(() => { this.ctlTimer = null; this.pumpControl() }, 350)
+  }
+
+  /** Streams currently open on the socket (for QA / debugging). */
+  get streamCount() { return this.source === 'binance' ? this.subscribed.size : Object.keys(this.coins).length }
 
   private ensureCoin(coin: string) {
     if (this.coins[coin]) return
     this.coins[coin] = {
       coin, bars: [], forming: null, lastPrice: NaN, lastTradeAt: 0, trades: [], bids: [], asks: [],
-      book: null, snapshot: null, reading: null, historyLoaded: false, error: null,
+      book: null, snapshot: null, reading: null, elig: null, historyLoaded: false, error: null,
     }
     this.engines[coin] = new FeatureEngine(KEEP_BARS)
   }
@@ -183,14 +259,14 @@ export class MarketFeed {
   }
 
   private async binanceKlines(coin: string, startTime?: number): Promise<Bar[]> {
-    const sym = COIN_BY_ID[coin].symbol
+    const sym = encodeURIComponent(pairOf(coin))
     const url = `${BINANCE_REST}/klines?symbol=${sym}&interval=1m&limit=1000${startTime ? `&startTime=${startTime}` : ''}`
     const rows = await fetchJson<(string | number)[][]>(url)
     return rows.map(barFromKlineRow)
   }
 
   private async coinbaseCandles(coin: string): Promise<Bar[]> {
-    const prod = COIN_BY_ID[coin].coinbase
+    const prod = `${coin}-USD`
     // Coinbase returns [time(s), low, high, open, close, volume], newest first, max 300.
     const rows = await fetchJson<number[][]>(`${COINBASE_REST}/products/${prod}/candles?granularity=60`)
     return rows.map(r => ({ t: r[0] * 1000, l: r[1], h: r[2], o: r[3], c: r[4], v: r[5], qv: r[5] * r[4], tbv: NaN })).sort((a, b) => a.t - b.t)
@@ -263,11 +339,10 @@ export class MarketFeed {
     let ws: WebSocket
     try {
       if (this.source === 'binance') {
-        const streams = coins.flatMap((c) => {
-          const s = COIN_BY_ID[c].symbol.toLowerCase()
-          return [`${s}@aggTrade`, `${s}@depth20@100ms`, `${s}@kline_1m`]
-        })
-        ws = new WebSocket(BINANCE_WS + streams.join('/'))
+        const streams = coins.flatMap(c => this.streamsFor(c))
+        this.subscribed = new Set(streams)
+        this.ctlQueue = []
+        ws = new WebSocket(BINANCE_WS + streams.map(encodeURIComponent).join('/'))
       } else {
         ws = new WebSocket(COINBASE_WS)
       }
@@ -278,7 +353,7 @@ export class MarketFeed {
     this.ws = ws
     ws.onopen = () => {
       if (this.source === 'coinbase') {
-        ws.send(JSON.stringify({ type: 'subscribe', product_ids: coins.map(c => COIN_BY_ID[c].coinbase), channels: ['matches', 'heartbeat'] }))
+        ws.send(JSON.stringify({ type: 'subscribe', product_ids: coins.map(c => `${c}-USD`), channels: ['matches', 'heartbeat'] }))
       }
     }
     ws.onmessage = (e) => {
@@ -304,11 +379,12 @@ export class MarketFeed {
   }
 
   private coinFromSymbol(sym: string): string | null {
-    for (const c of Object.keys(this.coins)) if (COIN_BY_ID[c].symbol === sym.toUpperCase()) return c
+    for (const c of Object.keys(this.coins)) if (pairOf(c).toLowerCase() === sym) return c
     return null
   }
 
   private onBinance(msg: { stream: string; data: Record<string, unknown> }) {
+    if (!msg.stream) return // SUBSCRIBE/UNSUBSCRIBE acks: { result: null, id }
     const [symLower, kind] = msg.stream.split('@')
     const coin = this.coinFromSymbol(symLower)
     if (!coin) return
@@ -344,7 +420,7 @@ export class MarketFeed {
 
   private onCoinbase(msg: Record<string, any>) {
     if (msg.type !== 'match' && msg.type !== 'last_match') return
-    const coin = Object.keys(this.coins).find(c => COIN_BY_ID[c].coinbase === msg.product_id)
+    const coin = Object.keys(this.coins).find(c => `${c}-USD` === msg.product_id)
     if (!coin) return
     const st = this.coins[coin]
     const t = Date.parse(msg.time)
@@ -379,7 +455,9 @@ export class MarketFeed {
     const st = this.coins[coin]
     if (!st) return
     // Model only runs on Binance data (it needs taker-buy volume, which is what it was trained on).
-    if (this.source !== 'binance' || !st.snapshot) { st.reading = null; return }
-    st.reading = evaluate(coin, st.snapshot, st.book, this.newsScores[coin] ?? null)
+    st.elig = eligibility(coin, this.ev.quoteVol?.(coin))
+    // No odds for coins outside the eligible history/liquidity tiers: never a made-up number.
+    if (this.source !== 'binance' || !st.snapshot || !st.elig.eligible) { st.reading = null; return }
+    st.reading = evaluate(coin, st.snapshot, st.book, this.newsScores[coin] ?? null, st.elig)
   }
 }

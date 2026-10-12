@@ -1,9 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
-  <path fill-rule="evenodd" d="
-    M120,26 a94,94 0 1 0 0.1,0 Z
-    M120,58 a62,62 0 1 0 0.1,0 Z
-    M120,90 a30,30 0 1 0 0.1,0 Z
-    M120,44 a76,76 0 1 1 -0.1,0 Z
-    M120,76 a44,44 0 1 1 -0.1,0 Z
-  "/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><mask id="m"><circle cx="50" cy="50" r="50" fill="#fff"/><path d="M19.098 50H80.902A30.902 30.902 0 1 0 65.451 76.762" fill="none" stroke="#000" stroke-width="11.803" stroke-linejoin="miter" stroke-linecap="butt"/></mask><circle cx="50" cy="50" r="50" fill="#000" mask="url(#m)"/></svg>

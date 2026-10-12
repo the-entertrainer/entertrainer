@@ -45,7 +45,7 @@ const stack: Entry[] = [
   { k: 'Hosting', v: 'Vercel',
     note: 'Pages are server-rendered. There is no analytics database. A tool sends only the request you make. StoryGen projects stay in the browser.' },
   { k: 'Opening sound', v: 'Pixabay ident by Diamond_Tunes',
-    note: 'One short welcome tone on tap-to-enter: “Digital Vibe (Podcast Intro Ident)” by Diamond_Tunes on Pixabay (Content License). Trimmed to the preloader window. Attribution is appreciated; the license does not require it. Device silent mode is respected — playback uses ordinary HTML audio inside the tap gesture and fails quietly if muted or blocked.' }
+    note: 'One short welcome tone with the opening, when the browser allows sound before a tap: “Digital Vibe (Podcast Intro Ident)” by Diamond_Tunes on Pixabay (Content License). Attribution is appreciated; the license does not require it. Device silent mode is respected — playback uses ordinary HTML audio and fails quietly if muted or blocked.' }
 ]
 
 const choices = [

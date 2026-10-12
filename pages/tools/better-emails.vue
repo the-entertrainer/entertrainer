@@ -238,7 +238,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
 
         <!-- Loading state -->
         <div v-if="phase === 'loading'" class="be-loading" role="status" aria-live="polite">
-          <EdSeedMark class="be-loading-spinner" :size="36" spin />
+          <EdMark class="be-loading-spinner" :size="36" loading />
           <p class="be-loading-title">Optimizing email.</p>
         </div>
 

@@ -14,7 +14,7 @@ useSeoMeta({
   ogTitle: 'Elevate · MUST',
   ogDescription: 'Mind · Universe · Science · Technology.',
   ogUrl: 'https://entertrainer.in/elevate',
-  ogImage: 'https://entertrainer.in/og-card-2026d.png'
+  ogImage: 'https://entertrainer.in/og-card-2026e.png'
 })
 
 useHead({

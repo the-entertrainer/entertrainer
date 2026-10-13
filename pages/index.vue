@@ -100,6 +100,15 @@ onBeforeUnmount(() => {
       <p v-if="quote.attribution" class="route-index__attribution">{{ quote.attribution }}</p>
     </header>
 
+    <figure class="route-index__figure">
+      <img
+        src="/home/measure-compass.png"
+        alt="A drawing compass and one blue arc on blank paper."
+        width="900"
+        height="900"
+      >
+    </figure>
+
     <nav class="route-index__switchboard" aria-label="Entertrainer sections">
       <ol class="route-index__routes">
         <li
@@ -155,6 +164,17 @@ onBeforeUnmount(() => {
 }
 
 .route-index__intro { max-width: var(--column); }
+
+.route-index__figure {
+  display: none;
+  margin: 0;
+}
+
+.route-index__figure img {
+  display: block;
+  width: 280rem;
+  height: auto;
+}
 
 .route-index__attribution {
   margin: var(--space-21) 0 0;
@@ -278,9 +298,34 @@ onBeforeUnmount(() => {
   outline-offset: 3rem;
 }
 
+@media (min-width: 960px) {
+  .route-index {
+    max-width: var(--shell-max);
+    padding-inline: var(--space-34);
+    grid-template-columns: minmax(0, 1fr) 280rem;
+    column-gap: var(--space-34);
+    align-items: center;
+  }
+
+  .route-index__intro,
+  .route-index__switchboard { grid-column: 1; }
+
+  .route-index__figure {
+    display: block;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    justify-self: end;
+  }
+}
+
 @media (max-width: 780px) {
   .route-index { min-height: auto; gap: var(--space-34); padding-top: var(--space-34); }
   .route-index__headline { font-size: var(--type-h1); max-width: none; }
+}
+
+[data-theme="dark"] .route-index__figure img {
+  filter: invert(1) hue-rotate(180deg);
 }
 
 @media (prefers-reduced-motion: reduce) {

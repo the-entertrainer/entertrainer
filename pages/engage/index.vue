@@ -5,13 +5,6 @@ useSeoMeta({
   ogUrl: 'https://entertrainer.in/engage',
 })
 
-const MIND_READER_SYMBOLS = [
-  '<circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="7" r="2.2" fill="currentColor"/>',
-  '<path d="m12 2 8 4.7v9.6L12 21l-8-4.7V6.7L12 2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
-  '<path d="M4 18a11 11 0 0 1 16 0M7 14a7 7 0 0 1 10 0M10 10a3 3 0 0 1 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
-  '<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2" fill="currentColor"/>',
-  '<path d="m12 2 1.8 7.2L21 11l-7.2 1.8L12 20l-1.8-7.2L3 11l7.2-1.8L12 2Z" fill="currentColor"/>'
-]
 </script>
 
 <template>
@@ -44,8 +37,8 @@ const MIND_READER_SYMBOLS = [
       </li>
       <li class="engage__step" style="--step: 1">
         <NuxtLink to="/engage/read-my-mind" class="engage__card engage__card--mind-reader">
-          <span class="engage__icon engage__icon--mind-reader" aria-hidden="true">
-            <i v-for="(symbol, i) in MIND_READER_SYMBOLS" :key="i"><svg viewBox="0 0 24 24" aria-hidden="true" v-html="symbol"></svg></i>
+          <span class="engage__icon engage__icon--art" aria-hidden="true">
+            <EdEditorialImage src="/engage/mind-reader.webp" alt="" />
           </span>
           <span class="engage__card-text">
             <span class="engage__step-no">02</span><strong class="engage__card-name">The Mind Reader</strong>
@@ -59,36 +52,8 @@ const MIND_READER_SYMBOLS = [
       </li>
       <li class="engage__step" style="--step: 2">
         <NuxtLink to="/engage/astroclock" class="engage__card engage__card--astroclock">
-          <span class="engage__icon engage__icon--astroclock" aria-hidden="true">
-            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
-              <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="1.6" opacity="0.35"/>
-              <circle cx="24" cy="24" r="15.5" stroke="currentColor" stroke-width="2.2"/>
-              <circle cx="24" cy="24" r="10.5" stroke="currentColor" stroke-width="1.3" opacity="0.85"/>
-              <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-                <line x1="24" y1="5.5" x2="24" y2="9.2"/>
-                <line x1="24" y1="38.8" x2="24" y2="42.5"/>
-                <line x1="5.5" y1="24" x2="9.2" y2="24"/>
-                <line x1="38.8" y1="24" x2="42.5" y2="24"/>
-                <line x1="11.2" y1="11.2" x2="13.8" y2="13.8"/>
-                <line x1="34.2" y1="34.2" x2="36.8" y2="36.8"/>
-                <line x1="36.8" y1="11.2" x2="34.2" y2="13.8"/>
-                <line x1="13.8" y1="34.2" x2="11.2" y2="36.8"/>
-              </g>
-              <g fill="currentColor" opacity="0.9">
-                <circle cx="24" cy="13.5" r="1.1"/>
-                <circle cx="31.5" cy="16.8" r="0.95"/>
-                <circle cx="34.5" cy="24" r="1.1"/>
-                <circle cx="31.5" cy="31.2" r="0.95"/>
-                <circle cx="24" cy="34.5" r="1.1"/>
-                <circle cx="16.5" cy="31.2" r="0.95"/>
-                <circle cx="13.5" cy="24" r="1.1"/>
-                <circle cx="16.5" cy="16.8" r="0.95"/>
-              </g>
-              <line x1="24" y1="24" x2="24" y2="12.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-              <circle cx="24" cy="12.5" r="1.8" fill="currentColor"/>
-              <circle cx="24" cy="24" r="3.2" fill="currentColor"/>
-              <circle cx="24" cy="24" r="1.35" fill="var(--accent)"/>
-            </svg>
+          <span class="engage__icon engage__icon--art" aria-hidden="true">
+            <EdEditorialImage src="/engage/astroclock.webp" alt="" />
           </span>
           <span class="engage__card-text">
             <span class="engage__step-no">03</span><strong class="engage__card-name">AstroClock</strong>
@@ -189,6 +154,16 @@ const MIND_READER_SYMBOLS = [
   width: 100%;
   height: 100%;
 }
+
+/* Ink-and-cobalt cover art (Sogni MOSS Image SFT). Stack keeps its arcade tile. */
+.engage__icon--art {
+  width: var(--space-89, 89rem);
+  height: var(--space-89, 89rem);
+  padding: 0;
+  overflow: hidden;
+  background: #F7F1E4;
+}
+.engage__icon--art :deep(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 .engage__icon--stack {
   display: grid;

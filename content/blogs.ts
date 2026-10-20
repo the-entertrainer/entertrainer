@@ -53,7 +53,7 @@ export const BLOG_POSTS: BlogPost[] = [
     tags: ['language', 'linguistics', 'literature'],
     minutes: 5,
     hero: '/blog/moonly/hero.jpg',
-    heroAlt: 'The word MOONLY struck through in black, with the word LUNAR in bold cobalt blue beneath it and a small crescent moon in the corner.',
+    heroAlt: 'Cream-paper ink drawing: a cobalt crescent moon above a hatched horizon of low hills, with an old quill pen lying on the ground below.',
     status: 'published',
     publishedAt: '2026-08-28T12:54:49+00:00'
   },
@@ -123,7 +123,7 @@ export const BLOG_POSTS: BlogPost[] = [
     tags: ['cognition', 'neuroscience', 'consciousness'],
     minutes: 6,
     hero: '/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/hero.jpg',
-    heroAlt: 'Cream-paper ink drawing: two heads divided by a cobalt seam, a hand finding a key on one side, a speaking mouth on the other.',
+    heroAlt: 'Cream-paper ink drawing of a head in profile split by a cobalt seam: on one side a hatched brain whose hand holds a cobalt key, on the other a face speaking with confidence.',
     status: 'published',
     publishedAt: '2026-09-22T15:45:00+00:00'
   },
@@ -137,7 +137,7 @@ export const BLOG_POSTS: BlogPost[] = [
     tags: ['sound', 'healing', 'practice'],
     minutes: 8,
     hero: '/blog/sacred-frequencies/hero.jpg',
-    heroAlt: 'Cream paper, a hatched ink ground, nine evenly spaced ticks, and one cobalt sine wave above them.',
+    heroAlt: 'Cream-paper ink drawing of a hatched singing bowl with one cobalt sound wave rising from its rim and drifting across empty paper.',
     status: 'published',
     publishedAt: '2026-10-04T19:40:00+00:00'
   },
@@ -151,7 +151,7 @@ export const BLOG_POSTS: BlogPost[] = [
     tags: ['maths', 'pi', 'philosophy'],
     minutes: 7,
     hero: '/blog/one-equals-two/hero.jpg',
-    heroAlt: 'Cream paper, a hatched ink wheel on a ruler, and one cobalt line where the wheel unrolls once, stopping just past the third mark and scattering into dots.',
+    heroAlt: 'Cream-paper ink drawing of an old balance scale holding one stone on one pan and two on the other, sitting level, with a thin cobalt crack running down its post.',
     status: 'published',
     publishedAt: '2026-10-06T16:45:00+00:00'
   },

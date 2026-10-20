@@ -7,6 +7,13 @@ definePageMeta({ layout: false })
  */
 import { useThemeStore } from '~/stores/theme'
 
+useHead({
+  link: [
+    { rel: 'icon', type: 'image/svg+xml', href: '/mind-reader-icon.svg' },
+    { rel: 'apple-touch-icon', sizes: '180x180', href: '/mind-reader-icon-192.png' },
+  ],
+})
+
 useSeoMeta({
   title: 'The Mind Reader · Engage',
   description: 'Example: 42. Add 4 + 2, subtract to get 36, and note the mark beside it.',

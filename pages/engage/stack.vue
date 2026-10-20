@@ -14,6 +14,13 @@ import {
   type StackPhase,
 } from '~/composables/stack/useStackEngine'
 
+useHead({
+  link: [
+    { rel: 'icon', type: 'image/svg+xml', href: '/stack-icon.svg' },
+    { rel: 'apple-touch-icon', sizes: '180x180', href: '/stack-icon-192.png' },
+  ],
+})
+
 useSeoMeta({
   title: 'Stack · Engage',
   description: 'Tap to drop. Only the overlap stays. A stacking arcade on Entertrainer.',

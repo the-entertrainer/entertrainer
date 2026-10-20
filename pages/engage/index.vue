@@ -18,13 +18,7 @@ useSeoMeta({
     <ol class="engage__grid">
       <li class="engage__step" style="--step: 0">
         <NuxtLink to="/engage/stack" class="engage__card engage__card--stack">
-          <span class="engage__icon engage__icon--stack" aria-hidden="true">
-            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
-              <rect x="8" y="30" width="32" height="8" fill="currentColor"/>
-              <rect x="12" y="20" width="24" height="8" fill="currentColor"/>
-              <rect x="16" y="10" width="16" height="8" fill="var(--accent)" stroke="currentColor" stroke-width="2"/>
-            </svg>
-          </span>
+          <span class="engage__icon" aria-hidden="true"><EngageAppIcon app="stack" /></span>
           <span class="engage__card-text">
             <span class="engage__step-no">01</span><strong class="engage__card-name">Stack</strong>
             <span class="engage__card-blurb">Tap to drop. Only the overlap stays.</span>
@@ -37,9 +31,7 @@ useSeoMeta({
       </li>
       <li class="engage__step" style="--step: 1">
         <NuxtLink to="/engage/read-my-mind" class="engage__card engage__card--mind-reader">
-          <span class="engage__icon engage__icon--art" aria-hidden="true">
-            <EdEditorialImage src="/engage/mind-reader.webp" alt="" />
-          </span>
+          <span class="engage__icon" aria-hidden="true"><EngageAppIcon app="mind-reader" /></span>
           <span class="engage__card-text">
             <span class="engage__step-no">02</span><strong class="engage__card-name">The Mind Reader</strong>
             <span class="engage__card-blurb">Example: 42. Add 4 + 2, subtract, and the mark is on 36.</span>
@@ -52,9 +44,7 @@ useSeoMeta({
       </li>
       <li class="engage__step" style="--step: 2">
         <NuxtLink to="/engage/astroclock" class="engage__card engage__card--astroclock">
-          <span class="engage__icon engage__icon--art" aria-hidden="true">
-            <EdEditorialImage src="/engage/astroclock.webp" alt="" />
-          </span>
+          <span class="engage__icon" aria-hidden="true"><EngageAppIcon app="astroclock" /></span>
           <span class="engage__card-text">
             <span class="engage__step-no">03</span><strong class="engage__card-name">AstroClock</strong>
             <span class="engage__card-blurb">Birth place and time. A live dial. What today is doing.</span>
@@ -100,8 +90,8 @@ useSeoMeta({
 @media (hover: hover) {
   .engage__card:hover { background: var(--paper-2); border-color: var(--ink); transform: translateX(3rem); }
   .engage__card:hover .engage__card-arrow { transform: translate(2rem, -2rem); }
-  .engage__card:hover .engage__icon { transform: translate(-3rem, -3rem); box-shadow: 5rem 5rem 0 0 #2F5BD8; }
-  .engage__card:hover:active .engage__icon { transform: translate(1rem, 1rem); box-shadow: 0 0 0 0 #2F5BD8; }
+  .engage__card:hover .engage__icon { transform: translate(-3rem, -3rem); filter: drop-shadow(5rem 5rem 0 #2F5BD8); }
+  .engage__card:hover:active .engage__icon { transform: translate(1rem, 1rem); filter: drop-shadow(0 0 0 #2F5BD8); }
 }
 
 .engage__card:focus-visible {
@@ -112,75 +102,18 @@ useSeoMeta({
 .engage__icon {
   position: relative;
   flex-shrink: 0;
+  display: block;
   width: var(--space-55);
   height: var(--space-55);
-  padding: var(--space-8);
-  box-sizing: border-box;
-  border-radius: var(--radius-s);
-  background: var(--accent);
-  color: var(--accent-ink);
-  border: var(--stroke) solid var(--ink);
-  /* Signature: a cobalt misregistration, like a second print plate, slides out
-     on hover and the tile presses flat on tap like a stamp. */
-  box-shadow: 0 0 0 0 #2F5BD8;
-  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  /* App-icon tile (EngageAppIcon): yellow squircle, ink glyph. Signature: a
+     cobalt misregistration, like a second print plate, slides out under the
+     squircle on hover (drop-shadow follows its shape) and the tile presses
+     flat on tap like a stamp. */
+  filter: drop-shadow(0 0 0 #2F5BD8);
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), filter 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.engage__card:focus-visible .engage__icon { transform: translate(-3rem, -3rem); box-shadow: 5rem 5rem 0 0 #2F5BD8; }
-.engage__card:active .engage__icon { transform: translate(1rem, 1rem); box-shadow: 0 0 0 0 #2F5BD8; transition-duration: 90ms; }
-
-.engage__icon--mind-reader {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: 1rem;
-  padding: 7rem;
-  color: #FFD43B;
-  background: #161618;
-}
-
-.engage__icon--mind-reader i { display: grid; place-items: center; color: #FFD43B; }
-.engage__icon--mind-reader i:nth-child(2n) { color: var(--accent); }
-.engage__icon--mind-reader i:nth-child(3n) { color: var(--accent); }
-.engage__icon--mind-reader svg {
-  width: 100%;
-  height: 100%;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.engage__icon--astroclock {
-  display: grid;
-  place-items: center;
-  padding: 7rem;
-  color: var(--accent-ink);
-  background: var(--accent);
-}
-.engage__icon--astroclock svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-/* Ink-and-cobalt cover art (Sogni MOSS Image SFT). Stack keeps its arcade tile. */
-.engage__icon--art {
-  width: var(--space-89, 89rem);
-  height: var(--space-89, 89rem);
-  padding: 0;
-  overflow: hidden;
-  background: #F7F1E4;
-}
-.engage__icon--art :deep(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
-
-.engage__icon--stack {
-  display: grid;
-  place-items: center;
-  padding: 7rem;
-  color: #FFD43B;
-  background: #161618;
-}
-.engage__icon--stack svg { display: block; width: 100%; height: 100%; }
+.engage__card:focus-visible .engage__icon { transform: translate(-3rem, -3rem); filter: drop-shadow(5rem 5rem 0 #2F5BD8); }
+.engage__card:active .engage__icon { transform: translate(1rem, 1rem); filter: drop-shadow(0 0 0 #2F5BD8); transition-duration: 90ms; }
 
 
 .engage__card-text {

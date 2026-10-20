@@ -31,6 +31,7 @@ export const FIXTURE_CHARTS: FixtureChart[] = [
       lat: 28.6139,
       lon: 77.209,
       placeLabel: 'Delhi',
+      tz: 'UTC',
       isDemo: false, // treat as saved birth for profile/advice gates
     },
     expect: {
@@ -55,6 +56,7 @@ export const FIXTURE_CHARTS: FixtureChart[] = [
       lat: 19.076,
       lon: 72.8777,
       placeLabel: 'Mumbai',
+      tz: 'UTC',
       isDemo: false,
     },
     expect: {
@@ -79,6 +81,7 @@ export const FIXTURE_CHARTS: FixtureChart[] = [
       lat: 12.9716,
       lon: 77.5946,
       placeLabel: 'Bengaluru',
+      tz: 'UTC',
       isDemo: false,
     },
     expect: {
@@ -103,6 +106,7 @@ export const FIXTURE_CHARTS: FixtureChart[] = [
       lat: 13.0827,
       lon: 80.2707,
       placeLabel: 'Chennai',
+      tz: 'UTC',
       isDemo: false,
     },
     expect: {

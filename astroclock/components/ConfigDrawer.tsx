@@ -1,13 +1,24 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader2, MapPin, Search, X } from 'lucide-react';
-import { PRESETS, type BirthConfig } from '@astroclock/lib/astro';
+import { PRESETS, browserTimeZone, type BirthConfig } from '@astroclock/lib/astro';
+
+const TZ_OPTIONS: string[] = (() => {
+  try {
+    const fn = (Intl as unknown as { supportedValuesOf?: (k: string) => string[] }).supportedValuesOf;
+    const list = fn ? fn('timeZone') : [];
+    return list.length ? list : ['Asia/Kolkata', 'UTC'];
+  } catch {
+    return ['Asia/Kolkata', 'UTC'];
+  }
+})();
 
 interface GeocodeHit {
   displayName: string;
   lat: number;
   lon: number;
   type?: string;
+  countryCode?: string;
 }
 
 interface ConfigDrawerProps {
@@ -53,6 +64,7 @@ export function ConfigDrawer({
       lat: p.lat,
       lon: p.lon,
       placeLabel: p.label,
+      tz: p.tz,
     });
     setQuery('');
     setResults([]);
@@ -68,6 +80,7 @@ export function ConfigDrawer({
       lat: hit.lat,
       lon: hit.lon,
       placeLabel: short,
+      ...(hit.countryCode === 'in' ? { tz: 'Asia/Kolkata' } : {}),
     });
     setQuery('');
     setResults([]);
@@ -215,6 +228,21 @@ export function ConfigDrawer({
               />
             </label>
           </div>
+
+          <label className="block text-sm space-y-1.5">
+            <span className="text-mist/70 text-[13px]">Birth time zone (clock time on the birth certificate)</span>
+            <select
+              value={draft.tz || browserTimeZone()}
+              onChange={(e) => set('tz', e.target.value)}
+              className="w-full rounded-lg bg-black/55 border border-white/12 px-2 py-2.5 text-sm outline-none focus:border-gold/50 font-mono"
+            >
+              {(TZ_OPTIONS.includes(draft.tz || '') || !draft.tz ? TZ_OPTIONS : [draft.tz, ...TZ_OPTIONS]).map((z) => (
+                <option key={z} value={z}>
+                  {z}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -368,8 +396,8 @@ export function ConfigDrawer({
           <p className="text-[10px] text-mist/40 leading-relaxed">
             Demo birth (Delhi 1990-01-01 12:00) until you save. Place search via
             OpenStreetMap Nominatim. Sidereal Lahiri · Whole-sign houses · Dial:
-            Mesha at top (0°). Birth H:M:S treated as UTC for offline
-            determinism.
+            Mesha at top (0°). Birth time is read as local clock time in the
+            zone above.
           </p>
 
           <div className="flex gap-2 pt-1">

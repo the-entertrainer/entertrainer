@@ -5,6 +5,7 @@ import {
   type GrahaId,
   type LonMap,
 } from './constants';
+import { birthInstant } from './time';
 import { ascendant, julianDay, lst } from './math';
 import {
   computePlanets,
@@ -374,16 +375,7 @@ export function computeNatalProfile(
 ): NatalProfile | null {
   if (birth.isDemo) return null;
 
-  const birthDt = new Date(
-    Date.UTC(
-      +birth.date.slice(0, 4),
-      +birth.date.slice(5, 7) - 1,
-      +birth.date.slice(8, 10),
-      +birth.h,
-      +birth.m,
-      +birth.s,
-    ),
-  );
+  const birthDt = birthInstant(birth);
   const jd = julianDay(birthDt);
   const planets = computePlanets(jd);
   const speeds = computeSpeeds(jd);
@@ -657,16 +649,7 @@ export function computeNatalProfile(
 }
 
 export function natalLonMap(birth: BirthConfig): LonMap {
-  const birthDt = new Date(
-    Date.UTC(
-      +birth.date.slice(0, 4),
-      +birth.date.slice(5, 7) - 1,
-      +birth.date.slice(8, 10),
-      +birth.h,
-      +birth.m,
-      +birth.s,
-    ),
-  );
+  const birthDt = birthInstant(birth);
   const pl = computePlanets(julianDay(birthDt));
   const out = {} as LonMap;
   for (const g of GRAHAS) out[g.id] = pl[g.id].sidereal;

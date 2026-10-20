@@ -168,6 +168,16 @@ export function createStackEngine(canvas: HTMLCanvasElement, hooks: StackEngineH
   let cssH = 780
   let titleIdle = false
   let towerYaw = 0
+  // Signature: perfect-combo "chime cascade". A glint travels down the tower,
+  // one slab at a time, like a mallet run down a xylophone. Deeper with combo.
+  let waveT = -1
+  let waveTop = 0
+  let waveDepth = 0
+  const waveColor = new THREE.Color()
+  const reduceMotion = typeof window !== 'undefined'
+    && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  const WAVE_STEP = 0.045
+  const WAVE_LEN = 0.32
 
   function damp(current: number, target: number, lambda: number, dt: number) {
     return current + (target - current) * (1 - Math.exp(-lambda * dt))
@@ -341,6 +351,7 @@ export function createStackEngine(canvas: HTMLCanvasElement, hooks: StackEngineH
     phase = 'playing'
     clearTower()
     score = 0
+    waveT = -1
     combo = 0
     speed = 2.8
     dir = 1
@@ -491,6 +502,12 @@ export function createStackEngine(canvas: HTMLCanvasElement, hooks: StackEngineH
       flash = 1
       triggerHalo(newX, cur.y + SLAB_H * 0.55, newZ, Math.max(overlapW, overlapD))
       hooks.onPerfect?.()
+      if (combo >= 2 && !reduceMotion) {
+        waveT = 0
+        waveTop = slabs.length - 1
+        waveDepth = Math.min(slabs.length, 3 + combo * 3, 24)
+        waveColor.set(pal.yellow)
+      }
     }
 
     // Camera follow
@@ -625,6 +642,25 @@ export function createStackEngine(canvas: HTMLCanvasElement, hooks: StackEngineH
       }
       return true
     })
+
+    // Chime cascade (emissive glint, no geometry or layout change)
+    if (waveT >= 0) {
+      waveT += dt
+      let alive = false
+      for (let k = 0; k < waveDepth; k++) {
+        const s = slabs[waveTop - k]
+        if (!s) break
+        const local = (waveT - k * WAVE_STEP) / WAVE_LEN
+        const mat = s.mesh.material as THREE.MeshLambertMaterial
+        if (local < 0) { alive = true; continue }
+        if (local >= 1) { mat.emissive.setRGB(0, 0, 0); continue }
+        alive = true
+        const fade = 1 - k / (waveDepth + 1)
+        const g = Math.sin(local * Math.PI) * 0.55 * fade
+        mat.emissive.copy(waveColor).multiplyScalar(g)
+      }
+      if (!alive) waveT = -1
+    }
 
     // Halo fade
     if (flash > 0) {

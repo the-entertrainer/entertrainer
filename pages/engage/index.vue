@@ -100,6 +100,8 @@ useSeoMeta({
 @media (hover: hover) {
   .engage__card:hover { background: var(--paper-2); border-color: var(--ink); transform: translateX(3rem); }
   .engage__card:hover .engage__card-arrow { transform: translate(2rem, -2rem); }
+  .engage__card:hover .engage__icon { transform: translate(-3rem, -3rem); box-shadow: 5rem 5rem 0 0 #2F5BD8; }
+  .engage__card:hover:active .engage__icon { transform: translate(1rem, 1rem); box-shadow: 0 0 0 0 #2F5BD8; }
 }
 
 .engage__card:focus-visible {
@@ -118,7 +120,13 @@ useSeoMeta({
   background: var(--accent);
   color: var(--accent-ink);
   border: var(--stroke) solid var(--ink);
+  /* Signature: a cobalt misregistration, like a second print plate, slides out
+     on hover and the tile presses flat on tap like a stamp. */
+  box-shadow: 0 0 0 0 #2F5BD8;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
+.engage__card:focus-visible .engage__icon { transform: translate(-3rem, -3rem); box-shadow: 5rem 5rem 0 0 #2F5BD8; }
+.engage__card:active .engage__icon { transform: translate(1rem, 1rem); box-shadow: 0 0 0 0 #2F5BD8; transition-duration: 90ms; }
 
 .engage__icon--mind-reader {
   display: grid;
@@ -231,7 +239,7 @@ useSeoMeta({
 
 @media (prefers-reduced-motion: reduce) {
   .engage__step { animation: none; opacity: 1; transform: none; visibility: visible; }
-  .engage__card, .engage__card-arrow { transition: none; }
+  .engage__card, .engage__card-arrow, .engage__icon { transition: none; }
   .engage__card:hover { transform: none; }
 }
 

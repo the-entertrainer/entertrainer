@@ -24,6 +24,7 @@ useHead({
   ],
   link: [
     { rel: 'icon', type: 'image/svg+xml', href: '/whatto-icon.svg' },
+    { rel: 'icon', type: 'image/png', sizes: '192x192', href: '/whatto-icon-192.png' },
     { rel: 'apple-touch-icon', sizes: '180x180', href: '/whatto-icon-192.png' },
   ],
   bodyAttrs: { style: 'background:#FFF7FB' },

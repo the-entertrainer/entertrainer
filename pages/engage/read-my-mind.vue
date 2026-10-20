@@ -7,6 +7,13 @@ definePageMeta({ layout: false })
  */
 import { useThemeStore } from '~/stores/theme'
 
+useHead({
+  link: [
+    { rel: 'icon', type: 'image/svg+xml', href: '/mind-reader-icon.svg' },
+    { rel: 'apple-touch-icon', sizes: '180x180', href: '/mind-reader-icon-192.png' },
+  ],
+})
+
 useSeoMeta({
   title: 'The Mind Reader · Engage',
   description: 'Example: 42. Add 4 + 2, subtract to get 36, and note the mark beside it.',
@@ -163,6 +170,38 @@ const revealed = ref(false)
 const cards = ref<GridCard[]>([])
 const targetSymbol = ref<SymbolDef>(SYMBOLS[0]!)
 const roundNumber = ref(0)
+// Signature: "the séance". The board exhales outward from its centre, then the
+// mark is drawn by an unseen hand, stroke by stroke.
+const reading = ref(false)
+let readTimer: ReturnType<typeof setTimeout> | null = null
+
+function cellDelay(index: number) {
+  const r = Math.floor(index / 10) - 4.5
+  const c = (index % 10) - 4.5
+  return Math.round(Math.hypot(r, c) * 55)
+}
+
+function prefersReducedMotion() {
+  if (!import.meta.client) return true
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    || document.documentElement.dataset.reduceMotion === 'on'
+}
+
+function reveal() {
+  if (reading.value || revealed.value) return
+  if (prefersReducedMotion()) { revealed.value = true; return }
+  reading.value = true
+  readTimer = setTimeout(() => {
+    revealed.value = true
+    readTimer = null
+  }, 620)
+}
+
+function clearReading() {
+  if (readTimer) clearTimeout(readTimer)
+  readTimer = null
+  reading.value = false
+}
 
 const stepMeta: Record<GuideStep, { label: string; title: string }> = {
   1: { label: 'Pick', title: 'Hold a number' },
@@ -220,6 +259,7 @@ function buildRound() {
     return { number, symbol }
   })
   roundNumber.value += 1
+  clearReading()
   revealed.value = false
 }
 
@@ -234,6 +274,8 @@ function nextStep() {
 }
 
 function previousStep() {
+  clearReading()
+  revealed.value = false
   if (step.value > 1) step.value = (step.value - 1) as GuideStep
 }
 
@@ -252,6 +294,9 @@ function onThemeToggle(e: Event) {
 onMounted(() => {
   theme.init()
 })
+
+onBeforeUnmount(clearReading)
+watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false } })
 </script>
 
 <template>
@@ -370,12 +415,13 @@ onMounted(() => {
                 </p>
               </div>
             </div>
-            <div class="mr__grid" role="grid" aria-label="Number board">
+            <div class="mr__grid" :class="{ 'mr__grid--reading': reading }" role="grid" aria-label="Number board">
               <div
-                v-for="card in cards"
+                v-for="(card, index) in cards"
                 :key="`${roundNumber}-${card.number}`"
                 class="mr__cell"
                 role="gridcell"
+                :style="{ '--d': `${cellDelay(index)}ms` }"
                 :aria-label="`Number ${card.number}, ${card.symbol.label}`"
               >
                 <span>{{ card.number }}</span>
@@ -389,13 +435,13 @@ onMounted(() => {
             </div>
             <div class="mr__actions mr__actions--spread">
               <button class="mr__ghost" type="button" @click="previousStep">Back</button>
-              <button class="mr__cta" type="button" @click="revealed = true">Reveal</button>
+              <button class="mr__cta" type="button" @click="reveal">Reveal</button>
             </div>
 
             <div v-if="revealed" class="mr__reveal" role="status" aria-live="polite">
               <p class="mr__reveal-label mr__anim" style="--i:0">Your mark</p>
               <svg
-                class="mr__reveal-symbol mr__anim mr__score-pop"
+                class="mr__reveal-symbol mr__sigil"
                 viewBox="0 0 48 48"
                 :style="{ color: targetSymbol.color, '--i': 1 }"
                 v-html="targetSymbol.svg"
@@ -840,6 +886,36 @@ onMounted(() => {
   height: 18rem;
 }
 
+.mr__grid--reading .mr__cell {
+  animation: mr-exhale 520ms cubic-bezier(0.4, 0, 0.2, 1) var(--d, 0ms) both;
+}
+@keyframes mr-exhale {
+  0% { opacity: 1; transform: none; filter: blur(0); }
+  35% { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 0.12; transform: scale(0.82); filter: blur(1.5px); }
+}
+
+/* The mark is drawn, not popped: every stroke traces in, then fills settle. */
+.mr__sigil :deep([stroke]) {
+  stroke-dasharray: 160;
+  stroke-dashoffset: 160;
+  animation: mr-trace 900ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+.mr__sigil :deep([stroke]:nth-child(2)) { animation-delay: 140ms; }
+.mr__sigil :deep([stroke]:nth-child(3)) { animation-delay: 260ms; }
+.mr__sigil :deep([stroke]:nth-child(n+4)) { animation-delay: 360ms; }
+.mr__sigil :deep(:not([stroke])) {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mr-seed 360ms cubic-bezier(0.22, 1, 0.36, 1) 820ms forwards;
+}
+@keyframes mr-trace { to { stroke-dashoffset: 0; } }
+@keyframes mr-seed {
+  from { opacity: 0; transform: scale(0.2); }
+  to { opacity: 1; transform: none; }
+}
+
 .mr__reveal {
   position: absolute;
   inset: 0;
@@ -903,7 +979,9 @@ onMounted(() => {
   .mr__anim,
   .mr__score-pop,
   .mr__cta--pulse,
-  .mr__reveal {
+  .mr__reveal,
+  .mr__grid--reading .mr__cell,
+  .mr__sigil :deep(*) {
     animation: none !important;
     transition: none !important;
   }
@@ -921,5 +999,6 @@ onMounted(() => {
     transition: none;
   }
   .mr__reveal-symbol { filter: none; }
+  .mr__sigil :deep(*) { stroke-dashoffset: 0 !important; opacity: 1 !important; transform: none !important; }
 }
 </style>

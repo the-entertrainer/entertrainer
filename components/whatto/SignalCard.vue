@@ -33,7 +33,7 @@ const pct = (x: number) => `${Math.round(x * 100)}%`
     <header class="sc__head">
       <div>
         <h3 class="sc__coin">{{ state.coin }} <span class="wt-muted sc__name">{{ coinName(state.coin) ?? '' }}</span></h3>
-        <p class="num sc__price">{{ fmtPrice(state.coin, state.lastPrice) }} <span class="wt-muted wt-tiny">USDT</span></p>
+        <p class="num sc__price"><WhattoTicker :text="fmtPrice(state.coin, state.lastPrice)" :value="state.lastPrice" /> <span class="wt-muted wt-tiny">USDT</span></p>
       </div>
       <span class="wt-chip" :class="chip.cls">{{ chip.label }}</span>
     </header>

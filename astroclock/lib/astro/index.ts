@@ -6,3 +6,4 @@ export * from './insights';
 export * from './profile';
 export * from './influence';
 export * from './hourQuality';
+export * from './time';

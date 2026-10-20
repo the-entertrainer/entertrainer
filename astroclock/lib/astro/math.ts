@@ -1,3 +1,4 @@
+import * as Astronomy from 'astronomy-engine';
 import { DEG, RAD } from './constants';
 
 /** Julian Day Number (UTC) from Date — Meeus */
@@ -27,36 +28,63 @@ export function centuriesJ2000(jd: number): number {
   return (jd - 2451545.0) / 36525.0;
 }
 
-/** Greenwich Mean Sidereal Time in hours (Meeus approx) */
-export function gmst(jd: number): number {
-  const T = centuriesJ2000(jd);
-  let gst =
-    280.46061837 +
-    360.98564736629 * (jd - 2451545.0) +
-    0.000387933 * T * T -
-    (T * T * T) / 38710000;
-  gst = ((gst % 360) + 360) % 360;
-  return gst / 15;
+/** JD (UTC) → JS Date */
+export function jdToDate(jd: number): Date {
+  return new Date((jd - 2440587.5) * 86400000);
 }
 
-/** Local Sidereal Time in hours */
+/** astronomy-engine time (handles UTC→TT / ΔT internally) */
+export function astroTime(jd: number): Astronomy.AstroTime {
+  return Astronomy.MakeTime(jdToDate(jd));
+}
+
+/**
+ * Greenwich *apparent* sidereal time in hours (IAU 2006 ERA + equation of
+ * the equinoxes, via astronomy-engine).
+ */
+export function gmst(jd: number): number {
+  return Astronomy.SiderealTime(jdToDate(jd));
+}
+
+/** Local (apparent) Sidereal Time in hours */
 export function lst(jd: number, lonDeg: number): number {
   return (((gmst(jd) + lonDeg / 15) % 24) + 24) % 24;
 }
 
-/** Mean obliquity of ecliptic (degrees) — IAU approx */
+/** True obliquity of the ecliptic (degrees), IAU 2006 + nutation */
 export function obliquity(jd: number): number {
-  const T = centuriesJ2000(jd);
-  return 23.439291 - 0.0130042 * T - 0.00000016 * T * T + 0.000000504 * T * T * T;
+  return Astronomy.e_tilt(astroTime(jd)).tobl;
 }
 
+/** Nutation in longitude Δψ (degrees) */
+export function nutationLon(jd: number): number {
+  return Astronomy.e_tilt(astroTime(jd)).dpsi / 3600;
+}
+
+/** IAU 2006 general precession in longitude p_A (arcsec), T in Julian centuries TT */
+function generalPrecession(T: number): number {
+  return (
+    5028.796195 * T +
+    1.1054348 * T * T +
+    0.00007964 * T * T * T -
+    0.000023857 * T * T * T * T
+  );
+}
+
+/** Lahiri reference epoch (Swiss Ephemeris SE_SIDM_LAHIRI): 1956-09-22, 23°15'00.658" */
+const LAHIRI_T0_JD = 2435553.5;
+const LAHIRI_T0_AYA = 23.250182778;
+
 /**
- * Lahiri ayanamsha (degrees).
- * ~24.20° in 2025 with linear/quadratic fit.
+ * True Lahiri (Chitrapaksha) ayanamsha in degrees: mean value carried by
+ * IAU 2006 precession from the 1956 Indian Ephemeris anchor, plus nutation
+ * (so it subtracts cleanly from true-of-date longitudes).
  */
 export function lahiriAyanamsha(jd: number): number {
   const T = centuriesJ2000(jd);
-  return 23.852708 + 1.39697148 * T + 0.0003086 * T * T;
+  const T0 = centuriesJ2000(LAHIRI_T0_JD);
+  const mean = LAHIRI_T0_AYA + (generalPrecession(T) - generalPrecession(T0)) / 3600;
+  return mean + nutationLon(jd);
 }
 
 export function norm360(x: number): number {

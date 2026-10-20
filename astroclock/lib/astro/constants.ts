@@ -86,12 +86,12 @@ export const GRAHAS: GrahaDef[] = [
   { id: 'Ketu', color: '#A1887F', symbol: '☋', meanKey: 'ketu' },
 ];
 
-export const PRESETS: Record<string, { lat: number; lon: number; label: string }> = {
-  delhi: { lat: 28.6139, lon: 77.209, label: 'Delhi' },
-  tokyo: { lat: 35.6762, lon: 139.6503, label: 'Tokyo' },
-  london: { lat: 51.5074, lon: -0.1278, label: 'London' },
-  newyork: { lat: 40.7128, lon: -74.006, label: 'New York' },
-  sf: { lat: 37.7749, lon: -122.4194, label: 'San Francisco' },
+export const PRESETS: Record<string, { lat: number; lon: number; label: string; tz: string }> = {
+  delhi: { lat: 28.6139, lon: 77.209, label: 'Delhi', tz: 'Asia/Kolkata' },
+  tokyo: { lat: 35.6762, lon: 139.6503, label: 'Tokyo', tz: 'Asia/Tokyo' },
+  london: { lat: 51.5074, lon: -0.1278, label: 'London', tz: 'Europe/London' },
+  newyork: { lat: 40.7128, lon: -74.006, label: 'New York', tz: 'America/New_York' },
+  sf: { lat: 37.7749, lon: -122.4194, label: 'San Francisco', tz: 'America/Los_Angeles' },
 };
 
 export interface BirthConfig {
@@ -105,6 +105,8 @@ export interface BirthConfig {
   lon: number;
   /** Human-readable place from search or preset label */
   placeLabel?: string;
+  /** IANA zone the birth wall-clock time was recorded in (e.g. Asia/Kolkata) */
+  tz?: string;
   isDemo: boolean;
 }
 
@@ -118,6 +120,7 @@ export const DEMO_BIRTH: BirthConfig = {
   lat: 28.6139,
   lon: 77.209,
   placeLabel: 'Delhi',
+  tz: 'Asia/Kolkata',
   isDemo: true,
 };
 

@@ -24,6 +24,7 @@ import {
   signEn,
   vimshottari,
   wholeSignHouse,
+  browserTimeZone,
 } from '@astroclock/lib/astro';
 import { birthDateObj, clearConfig, loadConfig, saveConfig } from '@astroclock/lib/storage';
 import {
@@ -448,6 +449,7 @@ export function AstroClockApp() {
       lat: +draft.lat,
       lon: +draft.lon,
       placeLabel: draft.placeLabel,
+      tz: draft.tz || browserTimeZone(),
       isDemo: false,
     };
     setBirth(next);

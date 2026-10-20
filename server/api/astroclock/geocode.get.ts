@@ -19,6 +19,7 @@ export interface GeocodeHit {
   lat: number
   lon: number
   type?: string
+  countryCode?: string
 }
 
 function readQ(event: { node?: { req?: { url?: string } }; path?: string }): string {
@@ -73,6 +74,7 @@ export default defineEventHandler(async (event) => {
       lon?: string
       type?: string
       class?: string
+      address?: { country_code?: string }
     }>
 
     const results: GeocodeHit[] = (data || [])
@@ -81,6 +83,7 @@ export default defineEventHandler(async (event) => {
         lat: Number(row.lat),
         lon: Number(row.lon),
         type: row.type || row.class,
+        countryCode: row.address?.country_code,
       }))
       .filter(
         (r) =>

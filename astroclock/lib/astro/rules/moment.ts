@@ -1,3 +1,4 @@
+import { localWeekday } from '../time';
 /** P1 — moment sharpness helpers: panchanga-lite, orb bands, combustion, day volume */
 
 import { absShortest, norm360 } from '../math';
@@ -82,8 +83,9 @@ export function orbBandWording(band: OrbBand): { life: string; advice: string } 
   };
 }
 
-export function weekdayFromDate(d: Date): string {
-  return WEEKDAYS[d.getUTCDay()];
+/** Civil weekday at the viewer's (or given) time zone — not UTC. */
+export function weekdayFromDate(d: Date, tz?: string): string {
+  return WEEKDAYS[localWeekday(d, tz)];
 }
 
 /** Yoga from (Sun + Moon) sidereal / (360/27) — classical approximation */

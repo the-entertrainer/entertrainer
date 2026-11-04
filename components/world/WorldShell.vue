@@ -52,6 +52,8 @@ let returnFocus: HTMLElement | null = null
 let pendingReading = false
 let unbindNav: (() => void) | null = null
 let exitGen = 0
+let contextLosses = 0
+let restoreTimer = 0
 
 const readingAnchor = computed(() => (reading.value ? anchorById(reading.value) : null))
 const zoneAnchor = computed(() => anchorById(zone.value))
@@ -140,10 +142,10 @@ async function syncEngine() {
       },
       onProbe: (fps) => store.applyProbe(fps),
       onContextLost: () => {
-        dropToPoster()
+        onGlLost()
       },
       onContextRestored: () => {
-        /* Context loss stays on the poster. Do not bring GL back. */
+        onGlRestored()
       },
       onStats: (stats) => {
         triangles.value = stats.triangles
@@ -168,18 +170,69 @@ async function syncEngine() {
   }
 }
 
-function dropToPoster() {
+function focusAfterPoster() {
+  const active = document.activeElement
+  const zoneControl = active instanceof HTMLElement
+    && active.matches('[data-zone-control], [data-zone-link]')
+  const controlId = zoneControl
+    ? (active.getAttribute('data-zone-control') || active.getAttribute('data-zone-link') || zone.value)
+    : ''
+  const onMasthead = active instanceof HTMLElement
+    && !!active.closest('header')
+    && !active.closest('.world-shell')
+  nextTick(() => {
+    if (onMasthead) return
+    if (zoneControl) {
+      hostEl.value?.querySelector<HTMLElement>(`[data-zone-link="${controlId}"]`)?.focus()
+      return
+    }
+    hostEl.value?.querySelector<HTMLElement>('#nexus-motto')?.focus()
+  })
+}
+
+/** Spec §10.5: one restore. A second loss, a timeout, or a failed rebuild ends in the poster. */
+function onGlLost() {
+  contextLosses += 1
+  window.clearTimeout(restoreTimer)
+  if (contextLosses > 1) {
+    giveUpGl()
+    return
+  }
+  context.value = 'restoring'
+  store.setLoop('paused')
+  restoreTimer = window.setTimeout(() => giveUpGl(), 1500)
+}
+
+function onGlRestored() {
+  if (context.value !== 'restoring') return
+  window.clearTimeout(restoreTimer)
+  try {
+    handle?.tryResume()
+    context.value = 'ok'
+    statusText.value = 'The 3D view is back.'
+    const paused = hidden.value || offscreen.value
+    handle?.setPaused(paused)
+    store.setLoop(paused ? 'paused' : 'running')
+  } catch (error) {
+    console.warn('[satya] context restore failed', error)
+    giveUpGl()
+  }
+}
+
+function giveUpGl() {
+  if (context.value === 'lost') return
+  window.clearTimeout(restoreTimer)
   context.value = 'lost'
+  statusText.value = 'The 3D view stopped. Every zone is in the list below.'
   mountToken += 1
   const current = handle
   handle = null
-  current?.dispose(true)
-  store.setLoop('paused')
+  window.removeEventListener('deviceorientation', onOrient)
+  gyroState.value = 'hidden'
+  current?.dispose(false)
+  store.setLoop('idle')
   store.forceStatic('context lost')
-  const anchor = zone.value
-  nextTick(() => {
-    hostEl.value?.querySelector<HTMLElement>(`[data-zone-link="${anchor}"]`)?.focus()
-  })
+  focusAfterPoster()
 }
 
 function focusControl(id: AnchorId) {
@@ -501,7 +554,11 @@ onMounted(async () => {
   })
   await syncEngine()
   const at = Array.isArray(route.query.at) ? route.query.at[0] : route.query.at
-  if (isWorldAnchorId(at)) void lookAt(at)
+  if (isWorldAnchorId(at)) {
+    void lookAt(at)
+  } else if (store.tier === 0 && document.activeElement === document.body) {
+    hostEl.value?.querySelector<HTMLElement>('#nexus-motto')?.focus()
+  }
   publishMeasure()
 })
 
@@ -544,7 +601,7 @@ onBeforeUnmount(() => {
     :data-reason="store.reason"
   >
     <canvas
-      v-show="store.tier > 0"
+      v-if="store.tier > 0"
       ref="canvasEl"
       class="stage__canvas"
       role="img"
@@ -554,7 +611,9 @@ onBeforeUnmount(() => {
     />
     <WorldFallbackPoster
       v-if="store.tier === 0"
-      :failed="context === 'lost' || store.reason === 'WebGL failed'"
+      :notice="context === 'lost'
+        ? 'The 3D view stopped. Every zone is in the list below.'
+        : 'The 3D view did not start. Every zone is in the list below.'"
       :tier-label="`Tier ${store.tier} · ${tierLabel(store.tier)}`"
     />
     <p id="world-canvas-label" class="sr">{{ description }}</p>

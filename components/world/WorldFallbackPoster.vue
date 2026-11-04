@@ -2,8 +2,8 @@
 import { WORLD_ZONE_LINKS } from '~/composables/world/worldRoutes'
 
 defineProps<{
-  /** Shown after WebGL dies or never starts. Tier 0 by choice still lists the zones. */
-  failed?: boolean
+  /** First-paint failure, or the mid-session line from spec §10.5. */
+  notice?: string
   tierLabel?: string
 }>()
 </script>
@@ -51,9 +51,7 @@ defineProps<{
     </svg>
 
     <div class="fallback__dock">
-      <p class="fallback__note">
-        <template v-if="failed">The 3D view did not start. </template>Every zone is in the list below.
-      </p>
+      <p v-if="notice" class="fallback__note">{{ notice }}</p>
       <nav id="zones" class="fallback__links" aria-label="Zones">
         <a
           v-for="link in WORLD_ZONE_LINKS"

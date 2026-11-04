@@ -36,6 +36,27 @@ export interface TierDecision {
   flagship: boolean
 }
 
+/**
+ * One probe window.
+ * Any tier under 28 fps drops one step (spec §10.3).
+ * Tier 3 also drops to Tier 2 when the average is under 50 fps (frame time
+ * over 20ms). Tier 2 on the same machine holds 60, so the miss is the post
+ * chain, not the software rasterizer. A pinned `?tier=` does not drop.
+ */
+export function tierAfterProbe(tier: WorldTier, avgFps: number, pinned: boolean): { tier: WorldTier, reason: string | null } {
+  if (pinned) return { tier, reason: null }
+  if (tier === 3 && avgFps < 50) {
+    return {
+      tier: 2,
+      reason: `tier 3 frame ${(1000 / Math.max(avgFps, 1)).toFixed(1)}ms`,
+    }
+  }
+  if (avgFps < 28 && tier > 0) {
+    return { tier: (tier - 1) as WorldTier, reason: `fps probe ${avgFps.toFixed(1)} < 28` }
+  }
+  return { tier, reason: null }
+}
+
 export function parseTierQuery(raw: unknown): WorldTier | null {
   const value = Array.isArray(raw) ? raw[0] : raw
   if (value === 0 || value === '0') return 0

@@ -3,6 +3,7 @@ import {
   classifyTier,
   isSoftwareRenderer,
   parseTierQuery,
+  tierAfterProbe,
   type TierDecision,
   type TierSignals,
   type WorldTier,
@@ -162,11 +163,11 @@ export const useWorldTierStore = defineStore('worldTier', {
     applyProbe(avgFps: number) {
       this.fps = avgFps
       this.probing = false
-      if (this.override !== null) return
-      if (avgFps >= 28 || this.tier <= 0) return
-      this.tier = (this.tier - 1) as WorldTier
-      this.reason = `fps probe ${avgFps.toFixed(1)} < 28`
-      this.probing = this.tier > 0
+      const next = tierAfterProbe(this.tier, avgFps, this.override !== null)
+      if (!next.reason || next.tier === this.tier) return
+      this.tier = next.tier
+      this.reason = next.reason
+      this.probing = next.tier > 0 && avgFps < 28
     },
 
     forceStatic(reason: string) {

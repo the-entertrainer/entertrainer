@@ -73,7 +73,9 @@ export interface WorldHandle {
   pointerUp: () => void
   setGyro: (beta: number | null, gamma: number | null) => void
   clearGyro: () => void
-  /** releaseContext loses the GL context. Use that on route leave, not on a same-canvas remount that has already scheduled a new renderer. */
+  /** After webglcontextrestored: one frame on the same renderer. Throws if the context is still dead. */
+  tryResume: () => void
+  /** releaseContext loses a still-live GL context. Skip that when the browser has already lost it. */
   dispose: (releaseContext?: boolean) => void
 }
 
@@ -727,10 +729,20 @@ export function mountWorld(options: WorldMountOptions): WorldHandle {
         }
         mat.dispose()
       }
-      if (releaseContext) {
+      const gl = renderer.getContext()
+      const live = !!gl && !gl.isContextLost()
+      if (releaseContext && live) {
         try { renderer.forceContextLoss() } catch { /* context already gone */ }
       }
       renderer.dispose()
+    },
+    tryResume() {
+      if (disposed) throw new Error('disposed')
+      const gl = renderer.getContext()
+      if (!gl || gl.isContextLost()) throw new Error('context still lost')
+      lost = false
+      renderScene()
+      start()
     },
   }
 }

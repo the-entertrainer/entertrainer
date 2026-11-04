@@ -11,12 +11,25 @@
 
 ---
 
+## Decisions log
+
+Approved 2026-11-05. These are closed. They are not open questions.
+
+1. **Syne** is the World display face.
+2. Migrating off `html { font-size: 1px }` is approved. A rem-based scale (standard `16px` root) is a decided implementation requirement.
+3. EasyMCQ and Draftly are **deleted**, not folded into another tool. Their old routes are removed (§5.2): 301 to the closest hub, or 410. The status code is an engineering choice.
+4. WASM and model download sizes are **TBD**. Engineers measure them during the build. UI copy that states a size uses the placeholder `{size}`.
+5. `/my-work` is renamed to `/work` **now**. `/my-work` and every sub-path 301 to the matching `/work` path.
+6. Restyling the PaperSignal SVGs to cobalt is approved.
+
+---
+
 ## 0. How to read this spec
 
 1. **THE ONE CONCEPT** is an immersive, navigable 3D sci-fi world (Section 2). It is the creative north star for chrome, home, zone hubs, and transitions.
 2. **Reading Mode** is a calm, high-contrast 2D content layer for essays, courses, lessons, tools, and About. World → Reading Mode is a deliberate handoff, not a fight.
-3. Binding illustration DNA from `AGENTS.md` (cream / ink / one cobalt, hatching, bans) **governs Elevate heroes, Paper Signal diagrams, and Reading Mode surfaces**. The World Layer may use an expanded sci-fi palette and materials, but must never violate the bans on anime, neon-candy rainbows, or multi-accent decoration inside content.
-4. **Keep all existing content.** IA consolidates sprawl; redirects preserve every URL.
+3. Binding illustration DNA from `AGENTS.md` (cream / ink / one cobalt, hatching, bans) **governs Elevate heroes, Paper Signal diagrams, and Reading Mode surfaces**. PaperSignal SVGs are restyled to cobalt (decided). The World Layer may use an expanded sci-fi palette and materials, but must never violate the bans on anime, neon-candy rainbows, or multi-accent decoration inside content.
+4. **Keep existing content** other than the two Empower tools deleted in the Decisions log. IA consolidates sprawl. Surviving URLs redirect. `/my-work` and every sub-path 301 to `/work` now.
 5. Empower is rebuilt as **eight everyday client-side tools** (Section 7), offline-capable via PWA.
 
 ---
@@ -29,7 +42,7 @@ Entertrainer is Naveen Jose’s publication: **Elevate** (essays), **Empower** (
 
 | Layer | Source | Notes |
 |---|---|---|
-| Design tokens | `assets/css/main.css` | Editorial system; `html { font-size: 1px }` so `1rem ≈ 1px`. Live accent drifted to **signal yellow `#FFD43B`**; preloader still uses cream `#F7F1E4` + cobalt (`components/ed/Preloader.vue`). |
+| Design tokens | `assets/css/main.css` | Editorial system; `html { font-size: 1px }` so `1rem ≈ 1px`. **Decided:** migrate off this hack to a rem-based scale (§6.3, build order). Live accent drifted to **signal yellow `#FFD43B`**; preloader still uses cream `#F7F1E4` + cobalt (`components/ed/Preloader.vue`). |
 | Binding art direction | `AGENTS.md` | Cream `#F7F1E4` · ink `#0B0B0C` · cobalt `#2F5BD8`; hatching/stipple; ban anime / glossy-3D-kitsch / neon candy / multi-accent rainbows. |
 | Direction intent | `ideas.md` | Swiss editorial minimalism, five-bar signal, Fraunces / Archivo / Source Serif 4, “Clear, grounded, curious.” |
 | Fonts | `assets/css/fonts.css` | Self-hosted OFL: Fraunces, Archivo, Source Serif 4, IBM Plex Mono. |
@@ -44,7 +57,7 @@ Entertrainer is Naveen Jose’s publication: **Elevate** (essays), **Empower** (
 | Problem | Evidence | Impact |
 |---|---|---|
 | **Sprawl / duplication** | `/blogs`→`/elevate`, `/tools`→`/empower`, `/my-work`→about anchor, `/downloads`→`/`, dead Engage game redirects in `nuxt.config.ts` / `vercel.json`; tools also at `/tools/*` while hub is `/empower` | Confusing IA; SEO debt already patched with 301s but mental model is messy. |
-| **Inconsistent accent systems** | Yellow Paper Signal in `main.css` vs cobalt in `AGENTS.md` / preloader vs violet Route Atlas in older docs | Brand reads as three sites. |
+| **Inconsistent accent systems** | Yellow Paper Signal in `main.css` vs cobalt in `AGENTS.md` / preloader vs violet Route Atlas in older docs | Brand reads as three sites. **Decided:** restyle PaperSignal SVGs to cobalt. |
 | **Category colour sprawl** | `--cat-*` mapped many hues; several aliased to yellow | Category before content (`docs/whole-site-design-audit.md`). |
 | **Homepage jobs overload (historical)** | Audits; current `pages/index.vue` is a quieter quote + switchboard (good), but no memorable 3D identity | Live hero is knowledge quote (“Truth alone triumphs.” / Mundaka Upanishad) — strong voice, weak spatial memory. |
 | **Tools under-served for general audience** | Empower lists only EasyMCQ + Draftly (`pages/empower/index.vue`); Cadence/StoryGen exist as pages but aren’t hub-first; Dialogue/Whatto are side quests | L&D visitors can’t find “useful everyday tools.” |
@@ -220,15 +233,19 @@ Mobile: same graph as a **2D radial map sheet** (no forced 3D orbit); tap zone �
 
 **Desktop (World chrome + Reading Mode top bar):**  
 `Elevate` · `Empower` · `Engage` · `Learn` · `About`  
-Secondary (overflow / footer / map only): Work · Dialogue · Colophon · Downloads · Lab
+Secondary (overflow / footer / map only): `Work` (`/work`) · Dialogue · Colophon · Downloads · Lab
 
 **Mobile:**  
 Bottom bar (5): Elevate · Empower · Engage · Learn · Map  
-Overflow sheet: About, Work, Dialogue, Colophon, Settings
+Overflow sheet: About, Work (`/work`), Dialogue, Colophon, Settings
+
+Public links and labels use `/work` now. `/my-work` is not in the nav. `/my-work` and every `/my-work/*` sub-path 301 to the matching `/work` path.
 
 Rationale: L&D (`Learn`) is first-class; Empower is everyday-tools for everyone; Map replaces hamburger sprawl.
 
-### 5.2 Current → new home (no content lost)
+### 5.2 Current → new home
+
+Essays, games, courses, and case studies stay. `/my-work` is renamed to `/work` now, with a 301 from `/my-work` and every sub-path. Two current tool routes are **Removed** (deleted, not folded into a new tool).
 
 | Current | New home | Redirect |
 |---|---|---|
@@ -237,8 +254,8 @@ Rationale: L&D (`Learn`) is first-class; Empower is everyday-tools for everyone;
 | `/blogs`, `/blogs/*` | Elevate | keep existing 301s |
 | `/empower` | Workshop hub | keep |
 | `/tools` | `/empower` | keep 301 |
-| `/tools/easymcq` | Empower → Plain tools or legacy alias | 301 → `/empower/plain-speak` **or** keep path as alias to new tool if product decides; **spec default:** keep EasyMCQ at `/tools/easymcq` **and** list under Empower “Legacy” until feature-parity migration; Draftly same |
-| `/tools/better-emails` | keep + hub card | — |
+| `/tools/easymcq` | Removed | Deleted. 301 → `/empower` (closest hub) **or** 410. Engineering choice. |
+| `/tools/better-emails` | Removed | Deleted. 301 → `/empower` (closest hub) **or** 410. Engineering choice. |
 | `/tools/cadence`, `/tools/storygen` | Archive/Legacy under Empower “More” or Learn-adjacent | keep URLs; demote in hub |
 | **New** `/empower/:tool` | 8 tools below | add |
 | `/engage`, games | Play Sphere | keep |
@@ -247,9 +264,10 @@ Rationale: L&D (`Learn`) is first-class; Empower is everyday-tools for everyone;
 | `/lessons` | Learn Dock index | keep |
 | `/instructional-design` | Learn Dock | keep |
 | `/courses/ai-atlas` | Learn Dock | keep |
-| `/my-work` | `/work` (new alias) or About#projects | 301 `/my-work` → `/work` |
-| `/my-work/sewa-chronicles` | `/work/sewa-chronicles` | 301 old→new, keep old |
-| `/my-work/strong` | `/work/strong` + Learn | 301 |
+| `/my-work` | `/work` | 301 now |
+| `/my-work/sewa-chronicles` | `/work/sewa-chronicles` | 301 now |
+| `/my-work/strong` | `/work/strong` | 301 now (also linked from Learn) |
+| `/my-work/*` | `/work/*` | 301 now, every sub-path, path-for-path |
 | `/about` | About Orbit | keep |
 | `/dialogue/*` | Dialogue Bay | keep |
 | `/downloads/*` | `/archive/downloads` | 301 |
@@ -277,9 +295,10 @@ Rationale: L&D (`Learn`) is first-class; Empower is everyday-tools for everyone;
 /learn                  Lessons + courses index
 /instructional-design   (keep)
 /courses/ai-atlas       (keep)
-/work                   Projects index
+/work                   Projects index (public path now; replaces /my-work)
 /work/sewa-chronicles
 /work/strong
+# /my-work and /my-work/* 301 to /work and /work/*
 /dialogue/...
 /about
 /colophon
@@ -338,6 +357,8 @@ Dark Reading Mode: invert paper→`#16140F`, ink→cream, cobalt lift→`#7A9AE8
 
 World may use **warm hull undertones** and **one** emissive family (cobalt). No second accent rainbow.
 
+**PaperSignal SVGs (decided):** restyle yellow brand fills to cobalt (`#2F5BD8`) and cream. One accent only.
+
 ### 6.3 Typography
 
 **Reading Mode (keep self-hosted):**
@@ -353,11 +374,11 @@ World may use **warm hull undertones** and **one** emissive family (cobalt). No 
 
 | Role | Family | Why |
 |---|---|---|
-| World display | **Syne** (or **Outfit** if Syne unavailable) | Geometric, ultramodern, not Inter |
+| World display | **Syne** (decided) | Geometric, ultramodern, not Inter |
 | World UI | **IBM Plex Sans** | Technical calm; pairs with existing Mono |
 | Do not use | Inter, Space Grotesk, Roboto | Generic AI look |
 
-Fluid type (Reading Mode), assuming root is restored to standard `16px` for new Tailwind theme **or** keep 1px root and express px-equivalent clamps — **Open question:** migrate off `html { font-size: 1px }` during revamp (recommended). Spec assumes modern root:
+Fluid type (Reading Mode) is a **rem-based scale**. Migrating off `html { font-size: 1px }` is a decided implementation requirement: restore a standard `16px` root so `1rem = 16px`, and express type in rem. Do not keep the 1px root or px-equivalent clamps.
 
 ```css
 --text-meta: clamp(0.6875rem, 0.65rem + 0.15vw, 0.75rem);
@@ -376,7 +397,7 @@ Fluid type (Reading Mode), assuming root is restored to standard `16px` for new 
 - Breakpoints: `sm 640` · `md 768` · `lg 1024` · `xl 1280` · `2xl 1536`.  
 - Content max: Reading `66ch` body; shell `1200px`.  
 - Icons: stroke 1.25–1.5; Phosphor or custom SVG; **no emoji** (repo policy).  
-- Imagery: Elevate keeps hatch/stipple cobalt covers (`AGENTS.md`).
+- Imagery: Elevate keeps hatch/stipple cobalt covers (`AGENTS.md`). PaperSignal SVGs are restyled to cobalt (decided).
 
 ### 6.5 Tailwind v4 `@theme` block (ready)
 
@@ -427,12 +448,14 @@ Fluid type (Reading Mode), assuming root is restored to standard `16px` for new 
 
 Dark Reading Mode overrides on `[data-theme="dark"]` as in Section 6.2.
 
+**Root (decided):** do not set `html { font-size: 1px }`. Use the browser default `16px` root so the rem tokens above are a true rem scale.
+
 ---
 
 ## 7. Empower — eight everyday tools (full specs)
 
 **Positioning:** “Everyday tools for clearer thinking and work.” Useful to everyone; L&D gets extras (Goal Shaper learning-objective mode) without excluding general users.  
-**Hard requirements:** client-side · private · **offline** (PWA caches tool routes, WASM/models). Show **offline-ready** indicator + first-load download size messaging.
+**Hard requirements:** client-side · private · **offline** (PWA caches tool routes, WASM/models). Show an **offline-ready** indicator and first-load download messaging. WASM and model download sizes are **TBD** — engineers measure them during the build. UI copy that states a size uses `{size}`.
 
 ### 7.1 Hub UX (`/empower`)
 
@@ -440,8 +463,8 @@ Dark Reading Mode overrides on `[data-theme="dark"]` as in Section 6.2.
 - **Task groups:** Write · Read · Decide · Learn  
 - **Search** (filter by name/task)  
 - **Recently used** (IndexedDB via Dexie)  
-- **Offline pill:** `Ready offline` | `Needs download (≈X MB)` | `Offline — limited`  
-- **Legacy row:** EasyMCQ, Draftly, Cadence, StoryGen (keep URLs)
+- **Offline pill:** `Ready offline` | `Needs download ({size})` | `Offline — limited`  
+- **More:** Cadence, StoryGen (keep URLs; demoted on the hub)
 
 | Group | Tools |
 |---|---|
@@ -513,7 +536,7 @@ Avoid 3-equal-card rainbow grids; use **task rows** + asymmetric featured “Rec
 | **Inputs** | Camera capture / image upload |
 | **Outputs** | Editable text; copy; download `.txt` |
 | **Libs** | `tesseract.js` (WASM; cache in SW) |
-| **First-load** | Message: “OCR pack ≈ X MB — download once for offline use.” |
+| **First-load** | Message: “OCR pack {size} — download once for offline use.” Size is TBD until engineers measure it in the build. |
 | **Mobile** | Camera primary; permission copy honest |
 | **A11y** | Canvas/img alt = “Source photo”; results in textbox |
 | **Microcopy** | “Photo to text. Leaves your device.” |
@@ -565,12 +588,15 @@ Avoid 3-equal-card rainbow grids; use **task rows** + asymmetric featured “Rec
 
 - Precache tool shells + vendor chunks for pdfjs/tesseract/pdf-lib.  
 - UI: `Offline ready` checkmark in hub header after packs installed.  
-- If user opens Snap-to-Text offline without WASM: blocking empty state with “Connect once to download the OCR pack (≈X MB).”  
+- WASM and model pack sizes (tesseract, pdfjs, and any other downloads) are **TBD**. Engineers measure them during the build. Do not print a guessed number.  
+- If user opens Snap-to-Text offline without WASM: blocking empty state with “Connect once to download the OCR pack ({size}).”  
 - No account. No analytics DB (colophon promise).
 
 ### 7.5 Existing tools
 
-Keep EasyMCQ & Draftly working at current routes; show on hub under **Write** (legacy) until Plain-Speak covers overlapping “clarity” jobs. Cadence/StoryGen → Learn/More.
+EasyMCQ (`/tools/easymcq`) and Draftly (`/tools/better-emails`) are **deleted**. Do not fold them into Plain-Speak or any other tool. Remove their pages and hub cards. Old routes are Removed in §5.2 (301 to `/empower`, or 410 — engineering choice).
+
+Cadence and StoryGen keep their URLs and sit under Empower “More” or Learn-adjacent.
 
 ---
 
@@ -613,7 +639,7 @@ Tajjalan shape per `AGENTS.md`: margin note, drop-cap, 2–3 headings, blockquot
 
 ### 9.4 Empower hub + tools
 
-Per Section 7; Workshop skybox ambient only.
+Per Section 7; Workshop skybox ambient only. The eight tools only. No layout for the removed tool routes in §5.2.
 
 ### 9.5 Engage hub + games
 
@@ -623,9 +649,11 @@ Hub in Reading/World hybrid; games stay immersive canvases (Stack three.js) with
 
 List: Instructional Design (4 min), AI Atlas (95 min), Strong (10 min). Primary for L&D.
 
-### 9.7 Work / SEWA / Strong
+### 9.7 Work `/work`, `/work/sewa-chronicles`, `/work/strong`
 
-Case study Reading Mode; SEWA keeps BookReader; Strong keeps module player (chrome-less per `app.vue`).
+Public routes are `/work` now. Nav, in-page links, and headings use `/work`. `/my-work` and every `/my-work/*` sub-path 301 to the matching `/work` path.
+
+Case study Reading Mode; SEWA keeps BookReader at `/work/sewa-chronicles`; Strong keeps the module player at `/work/strong` (chrome-less per `app.vue`).
 
 ### 9.8 About / Colophon
 
@@ -752,14 +780,14 @@ Skip control always. Session flag keeps preloader once per tab (existing pattern
 ## 15. Implementation notes & phased build order
 
 ### Phase A — Foundations (FE)
-1. Token migration: Reading Mode cream/ink/cobalt; document yellow→cobalt change.  
-2. Decide `html` font-size strategy.  
-3. Tailwind `@theme` + dark variant.  
+1. Token migration: Reading Mode cream/ink/cobalt. Restyle PaperSignal SVGs from yellow to cobalt (decided).  
+2. Migrate off `html { font-size: 1px }` to a rem-based scale with a standard `16px` root (decided implementation requirement).  
+3. Tailwind `@theme` + dark variant. Ship **Syne** as the World display face (decided).  
 4. `ReadingFrame` + masthead modes.  
-5. Redirect table in `nuxt.config` / `vercel.json`.
+5. Redirect table in `nuxt.config` / `vercel.json`. `/my-work` and `/my-work/*` 301 to `/work` and `/work/*` now. Removed tool routes: 301 to `/empower` or 410 (engineering choice).
 
 ### Phase B — IA & Empower (FE)
-1. Learn + Work routes.  
+1. Learn routes. Ship `/work` now (index, SEWA, Strong) and 301 every `/my-work` path.  
 2. Empower hub + 8 tools scaffolding + Dexie + SW caching plan.  
 3. Offline indicators.
 
@@ -785,14 +813,8 @@ Skip control always. Session flag keeps preloader once per tab (existing pattern
 
 ### Open questions / blockers
 
-1. Confirm **Syne** (or Outfit) as World display face with Naveen.  
-2. Confirm migration off `font-size: 1px` root.  
-3. EasyMCQ/Draftly: stay forever vs fold into Plain-Speak Meter.  
-4. First-load MB budgets for tesseract/pdfjs — measure in build; print real numbers in UI.  
-5. Should `/work` replace `/my-work` publicly in copy immediately?  
-6. Compose/Lab remain noindex — confirm.  
-7. Brand yellow in PaperSignal SVGs: restyle to cobalt/cream in a dedicated visual pass? (**Recommended yes** for consistency with `AGENTS.md`.)  
-8. No repo access blocker — clone succeeded.
+1. Compose/Lab remain noindex — confirm.  
+2. No repo access blocker — clone succeeded.
 
 ---
 

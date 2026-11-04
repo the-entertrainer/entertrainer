@@ -200,16 +200,6 @@ const COVERS = [
   { file: 'public/training-cal-gen.png', accent: 'tools',
     eyebrow: 'WEB APP · PLANNING',
     lines: ['A list of topics in.', 'A |calendar| out.'],
-    meta: 'FREE · NOTHING LEAVES YOUR BROWSER' },
-
-  { file: 'public/easymcq.png', accent: 'tools',
-    eyebrow: 'WEB APP · ASSESSMENT',
-    lines: ['You write the right answer.', 'It writes the |wrong ones.|'],
-    meta: 'FREE · NOTHING LEAVES YOUR BROWSER' },
-
-  { file: 'public/better-emails.png', accent: 'tools',
-    eyebrow: 'WEB APP · WRITING',
-    lines: ['Messy draft in.', '|Sendable| email out.'],
     meta: 'FREE · NOTHING LEAVES YOUR BROWSER' }
 ]
 

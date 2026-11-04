@@ -53,6 +53,26 @@
       "permanent": true
     },
     {
+      "source": "/tools/easymcq",
+      "destination": "/empower",
+      "permanent": true
+    },
+    {
+      "source": "/tools/easymcq/:path*",
+      "destination": "/empower",
+      "permanent": true
+    },
+    {
+      "source": "/tools/better-emails",
+      "destination": "/empower",
+      "permanent": true
+    },
+    {
+      "source": "/tools/better-emails/:path*",
+      "destination": "/empower",
+      "permanent": true
+    },
+    {
       "source": "/tools",
       "destination": "/empower",
       "permanent": true

@@ -26,4 +26,4 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full maintenance workflow.
 
 ## Agent / editorial guidance
 
-Elevate explain posts: [`AGENTS.md`](AGENTS.md) and [Humanize Elevate](.agents/skills/humanize-elevate/SKILL.md).
+Elevate explain posts: [Humanize Elevate](.agents/skills/humanize-elevate/SKILL.md). Revamp decisions: [`docs/revamp/README.md`](docs/revamp/README.md).

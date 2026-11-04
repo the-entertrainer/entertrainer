@@ -25,8 +25,6 @@ watch(() => props.item.href, () => { imageFailed.value = false })
 const itemScene: Record<string, 'hero' | 'lesson' | 'project' | 'tool' | 'process' | 'evidence' | 'robot' | 'infrastructure' | 'profile' | 'route'> = {
   'ai-atlas': 'robot',
   'sewa-chronicles': 'project',
-  'better-emails': 'tool',
-  'easymcq': 'evidence',
   'storygen': 'project',
   'glass-lab': 'infrastructure',
   'instructional-design': 'process'

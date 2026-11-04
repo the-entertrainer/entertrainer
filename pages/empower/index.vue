@@ -3,19 +3,14 @@ import { byCategory, type EditorialItem } from '~/content/editorial'
 
 useSeoMeta({
   title: 'Empower · Free tools by Entertrainer',
-  description: 'Two free browser tools that earn their keep — quiz distractors and email polish. No sign-up.',
+  description: 'Free browser tools for work that keeps repeating.',
   ogUrl: 'https://entertrainer.in/empower'
 })
-
-const ICON_BY_ID: Record<string, string> = {
-  easymcq: '/easymcq-icon.svg',
-  'better-emails': '/draftly-icon.svg'
-}
 
 const tools = computed(() =>
   byCategory('tools').map((item: EditorialItem) => ({
     ...item,
-    icon: ICON_BY_ID[item.id] || item.image || ''
+    icon: item.image || ''
   }))
 )
 </script>
@@ -26,10 +21,12 @@ const tools = computed(() =>
       variant="flow"
       title="Empower"
       title-id="empower-title"
-      deck="Two free tools for work that keeps repeating. Open the browser and get on with it."
+      deck="Tools for work that keeps repeating."
     />
 
-    <ol class="empower__grid">
+    <p v-if="!tools.length" class="empower__empty">Nothing on the shelf yet.</p>
+
+    <ol v-else class="empower__grid">
       <li v-for="item in tools" :key="item.id" class="u-reveal">
         <NuxtLink :to="item.href" class="empower__card">
           <span class="empower__icon" aria-hidden="true">
@@ -65,6 +62,13 @@ const tools = computed(() =>
   max-width: var(--shell-max);
   margin: 0 auto;
   padding: var(--space-34) var(--shell-gutter) var(--space-89);
+}
+
+.empower__empty {
+  margin: var(--space-21) 0 0;
+  font-size: 17rem;
+  line-height: 1.45;
+  color: var(--muted);
 }
 
 .empower__grid {

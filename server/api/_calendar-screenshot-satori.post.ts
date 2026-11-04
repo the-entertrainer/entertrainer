@@ -1,10 +1,5 @@
 // Export calendar as PNG or PDF using Satori (pure-JS SVG renderer).
-// No Chromium binary — works on Vercel with zero cold-start penalty.
-//
-// Option B (external screenshot API) scaffold lives in
-// server/api/_calendar-screenshot-pw.post.ts — swap the endpoint URL in
-// the client and POST the same JSON body to Screenshotone / Browserless
-// if this approach needs replacing.
+// No Chromium binary. No page calls this route.
 
 import { defineEventHandler, readBody, setResponseHeader } from 'h3'
 

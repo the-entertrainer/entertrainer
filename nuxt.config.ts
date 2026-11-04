@@ -147,20 +147,6 @@ export default defineNuxtConfig({
 		],
       shortcuts: [
         {
-          name: 'EasyMCQ — Distractor Generator',
-          short_name: 'EasyMCQ',
-          description: 'Give the question and answer; get three plausible wrong options',
-          url: '/tools/easymcq',
-          icons: [{ src: '/easymcq-icon-192.png', sizes: '192x192', type: 'image/png' }]
-        },
-        {
-          name: 'Draftly — Email Polisher',
-          short_name: 'Draftly',
-          description: 'Turn messy drafts into clear, professional emails',
-          url: '/tools/better-emails',
-          icons: [{ src: '/draftly-icon-192.png', sizes: '192x192', type: 'image/png' }]
-        },
-        {
           name: 'Dialogue — Comics from your pocket',
           short_name: 'Dialogue',
           description: 'Vertical webcomic studio for phones',
@@ -216,6 +202,12 @@ export default defineNuxtConfig({
     '/api/whatto/**': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
     '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } },
     '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } },
+    // EasyMCQ and Draftly removed. Draftly's public route was /tools/better-emails.
+    // Neither page had child routes; the wildcards catch any stray sub-path.
+    '/tools/easymcq': { redirect: { to: '/empower', statusCode: 301 } },
+    '/tools/easymcq/**': { redirect: { to: '/empower', statusCode: 301 } },
+    '/tools/better-emails': { redirect: { to: '/empower', statusCode: 301 } },
+    '/tools/better-emails/**': { redirect: { to: '/empower', statusCode: 301 } },
     '/tools': { redirect: { to: '/empower', statusCode: 301 } },
     '/blogs': { redirect: { to: '/elevate', statusCode: 301 } },
     '/blogs/**': { redirect: { to: '/elevate/**', statusCode: 301 } },
@@ -289,8 +281,8 @@ export default defineNuxtConfig({
     // "Deploy failed" for the same deploy.
     preset: process.env.NETLIFY ? 'netlify' : 'vercel',
     externals: {
-      // Keep Playwright deps external in case the pw backup is ever re-enabled
-      external: ['playwright-core', '@sparticuz/chromium', 'satori', '@resvg/resvg-js', 'pdf-lib'],
+      // Native and heavy render deps stay outside the server bundle.
+      external: ['satori', '@resvg/resvg-js', 'pdf-lib'],
     },
     vercel: {
       functions: {

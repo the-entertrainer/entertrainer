@@ -27,6 +27,10 @@ Approved 2026-11-05. These are closed. They are not open questions.
 10. Contrast tokens are updated so normal text is at least 4.5:1, or the pair is limited to large text or non-text at 3:1. Table in §6.2. Dark muted is `#A89888`. Dark danger is `#E9786A`. Light danger is `#B33226`. World emissive is `#3D6AE0` and is not small text.
 11. The global 404, the WebGL / `WorldCanvas` fallback, and screen-reader announcements for 3D are specified in §9.11, §10.5, and §12.
 12. Compose, Lab, Glass Lab, and Whatto stay noindex.
+13. Canonical routes have **no trailing slash**, site-wide. `/dialogue` is canonical. `/dialogue/` is `statusCode: 301` to `/dialogue` in one hop. Nuxt and Vercel use `trailingSlash: false`. A trailing-slash URL whose path without the slash already redirects goes straight to that final target.
+14. A mid-session `webglcontextlost` swaps the live canvas to `WorldFallbackPoster`: `preventDefault`, at most one `webglcontextrestored` rebuild, then teardown. Announce on the live region. Keep focus and scroll. Dispose GL resources and remove the dead canvas (§10.5).
+15. `RmError` and `WorldFallbackPoster` share one `ZoneLinks` list, in this order: Nexus `/`, Elevate `/elevate`, Empower `/empower`, Engage `/engage`, Learn `/learn`, Work `/work`, Dialogue `/dialogue`, About `/about`, Archive `/archive`.
+16. Every path redirect in the matrix is `statusCode: 301` in both Nuxt `routeRules` and `vercel.json`. Do not use Vercel `"permanent": true` (that response is 308).
 
 ---
 
@@ -97,7 +101,8 @@ Entertrainer is Naveen Jose’s publication: **Elevate** (essays), **Empower** (
 | `/my-work/sewa-chronicles` | case study + book reader | SEWA Chronicles. Live **200**, in the sitemap. Not a redirect. | Yes |
 | `/my-work/strong` | Strong module | Password strength explainer. Live **200**, in the sitemap. Not a redirect. | Yes |
 | `/my-work/:slug` | ConstructionZone | Placeholder. Unknown slugs **404** (live `/my-work/missing`). | 404 |
-| `/dialogue/*` | comics app | Pocket comics (Dexie) | Yes (app chrome) |
+| `/dialogue` | routeRules | Live **308** → `/dialogue/`. Target IA flips this: `/dialogue` is canonical and `/dialogue/` 301s back. | Redirect today |
+| `/dialogue/` and child routes | comics app | Pocket comics (Dexie). Live **200** on the slash form. | Yes (app chrome) |
 | `/downloads` | `pages/downloads/index.vue` | Live **302** → `/`. | Redirect |
 | `/downloads/templates`, `/downloads/frameworks`, `/downloads/resources` | ConstructionZone stubs | Live **200**. Listed in `content/navigation.json`. | Yes |
 | `/tools/training-cal-gen` | routeRules + `vercel.json` | Live **301** → `/tools/cadence` | Redirect |
@@ -234,6 +239,22 @@ Imagine the Nexus as a still octahedral dock. Three large rings at 120°: Elevat
 
 Mobile: same graph as a **2D radial map sheet** (no forced 3D orbit); tap zone → transition → Reading Mode or game.
 
+### 4.4 ZoneLinks
+
+One shared list. `RmError` (§9.11) and `WorldFallbackPoster` (§10.5) both render it, in this order, with these canonical URLs (no trailing slash). Define it once, for example `content/zone-links.ts`, and import it. Do not hand-copy the rows into either component.
+
+| Order | Label | URL |
+|---|---|---|
+| 1 | Nexus | `/` |
+| 2 | Elevate | `/elevate` |
+| 3 | Empower | `/empower` |
+| 4 | Engage | `/engage` |
+| 5 | Learn | `/learn` |
+| 6 | Work | `/work` |
+| 7 | Dialogue | `/dialogue` |
+| 8 | About | `/about` |
+| 9 | Archive | `/archive` |
+
 ---
 
 ## 5. Proposed sitemap / IA
@@ -242,11 +263,13 @@ Mobile: same graph as a **2D radial map sheet** (no forced 3D orbit); tap zone �
 
 **Desktop (World chrome + Reading Mode top bar):**  
 `Elevate` · `Empower` · `Engage` · `Learn` · `About`  
-Secondary (overflow / footer / map only): `Work` (`/work`) · Dialogue · Colophon · Archive (`/archive`) · Lab
+Secondary (overflow / footer / map only): `Work` (`/work`) · Dialogue (`/dialogue`) · Colophon · Archive (`/archive`) · Lab
 
 **Mobile:**  
 Bottom bar (5): Elevate · Empower · Engage · Learn · Map  
-Overflow sheet: About, Work (`/work`), Dialogue, Colophon, Archive (`/archive`), Settings
+Overflow sheet: About, Work (`/work`), Dialogue (`/dialogue`), Colophon, Archive (`/archive`), Settings
+
+Nav, footer, map, and PWA shortcuts use these paths with no trailing slash. `/dialogue/` is not a public URL.
 
 `Learn` points at `/learn`. `/lessons` is not in the nav. Public links and labels use `/work` now. `/my-work` is not in the nav.
 
@@ -256,11 +279,17 @@ Rationale: L&D (`Learn`) is first-class; Empower is everyday-tools for everyone;
 
 This is the authoritative list for `nuxt.config.ts` `routeRules` and `vercel.json`. Put the same rows in both files. Sacred-freq is in Nuxt today and missing from `vercel.json`; this table is the one list.
 
-**Disposition:** `keep` (final 200) · `301` · `308` · `404` (final response, not another redirect).
+**Status code:** every path redirect is `statusCode: 301`. Nuxt: `redirect: { to, statusCode: 301 }`. `vercel.json`: `"statusCode": 301`. Do not set `"permanent": true`. Vercel serves `permanent: true` as **308**, and 308 is not this matrix.
 
-A `301` or `308` target is always a `keep` URL. Do not copy today’s blind `/blogs/**` → `/elevate/**` or `/games/**` → `/engage/**` patterns. Those chain when the slug is itself a redirect (`/games/pictune` → `/engage/pictune` → `/engage`). Star rows do not include the exact parent (`/downloads/*` is not `/downloads`).
+**Trailing slash:** canonical routes have no trailing slash, site-wide. Root `/` is the only path that is a slash by itself. Set Nuxt `trailingSlash: false` and Vercel `trailingSlash: false` (Nuxt Link `trailingSlash: 'remove'` as well).
 
-**Checked 2026-11-05.** Sources: `https://www.entertrainer.in/sitemap.xml` (apex `https://entertrainer.in/sitemap.xml` is only the host **308** to www), sampled live HEAD/GET responses, `pages/**`, `content/navigation.json`, `content/blogs.ts`, `content/composed-posts.json`, `nuxt.config.ts` `routeRules`, and `vercel.json`. The path graph below was checked for chains and loops: no redirect target is also a redirect source, and no source appears twice with different targets. The apex→www 308 is host canonical only. Path rules run on www and are one hop. `/downloads` does not pass through `/`. `/my-work` does not pass through `/about`.
+A trailing-slash request still reaches its final URL in one hop. If `P` is `keep`, `P/` is `statusCode: 301` to `P`. If `P` is already a 301 to final `F`, `P/` is `statusCode: 301` straight to `F`, not to `P`. Examples: `/dialogue/` → `/dialogue`; `/downloads/` → `/archive/downloads`; `/games/pictune/` → `/engage`; `/lessons/` → `/learn`; `/my-work/sewa-chronicles/` → `/work/sewa-chronicles`. Star rows do not include the slash form. This rule does.
+
+**Disposition:** `keep` (final 200) · `301` · `404` (final response, not another redirect).
+
+A 301 target is always a `keep` URL. Do not copy today’s blind `/blogs/**` → `/elevate/**` or `/games/**` → `/engage/**` patterns. Those chain when the slug is itself a redirect (`/games/pictune` → `/engage/pictune` → `/engage`). Star rows do not include the exact parent (`/downloads/*` is not `/downloads`).
+
+**Checked 2026-11-05, and re-checked after the trailing-slash rule.** Sources: `https://www.entertrainer.in/sitemap.xml` (apex `https://entertrainer.in/sitemap.xml` is only the host redirect to www), sampled live HEAD/GET responses, `pages/**`, `content/navigation.json`, `content/blogs.ts`, `content/composed-posts.json`, `nuxt.config.ts` `routeRules`, and `vercel.json`. The path graph, including every trailing-slash source, has no chains and no loops: each one lands on a keep URL in a single hop, and no redirect target is also a redirect source. The apex→www redirect is a domain rule outside this path matrix (live 308). Path rules on www are `statusCode: 301` only. `/downloads` does not pass through `/`. `/my-work` does not pass through `/about`. `/dialogue/` does not pass through any other path.
 
 #### Keep (final)
 
@@ -301,12 +330,12 @@ A `301` or `308` target is always a `keep` URL. Do not copy today’s blind `/bl
 | `/work` | keep | `/work` | New. Replaces `/my-work`. |
 | `/work/sewa-chronicles` | keep | same | Content that is live at `/my-work/sewa-chronicles`. |
 | `/work/strong` | keep | same | Content that is live at `/my-work/strong`. Also linked from Learn. |
-| `/dialogue/` | keep | `/dialogue/` | Live **200**. Trailing slash is canonical. |
+| `/dialogue` | keep | `/dialogue` | Canonical. No trailing slash. Live today answers at `/dialogue/` after a 308; that direction flips. |
 | `/dialogue/library` | keep | same | `pages/dialogue/library.vue` |
 | `/dialogue/new` | keep | same | `pages/dialogue/new.vue` |
 | `/dialogue/settings` | keep | same | `pages/dialogue/settings.vue` |
 | `/dialogue/c/:id` | keep | same | `pages/dialogue/c/[id].vue` |
-| `/dialogue/**` except bare `/dialogue` | keep | same | Other app routes from `pages/dialogue/[...slug].vue`. |
+| `/dialogue/**` except bare `/dialogue` and any trailing slash | keep | same | App routes from `pages/dialogue/[...slug].vue`. A trailing slash is never a keep URL. |
 | `/colophon` | keep | `/colophon` | Sitemap. |
 | `/archive` | keep | `/archive` | New. Archive Vault landing. |
 | `/archive/downloads` | keep | same | New. Final target of `/downloads`. |
@@ -364,7 +393,7 @@ A `301` or `308` target is always a `keep` URL. Do not copy today’s blind `/bl
 | `/downloads/frameworks` | 301 | `/archive/downloads/frameworks` | Live **200** stub. |
 | `/downloads/resources` | 301 | `/archive/downloads/resources` | Live **200** stub. |
 | `/downloads/*` | 301 | `/archive/downloads/*` | Any other slug, path-for-path, one hop. Unknown slugs 404 at the archive URL. |
-| `/dialogue` | 308 | `/dialogue/` | Already live. Trailing-slash canonical. |
+| `/dialogue/` | 301 | `/dialogue` | One hop to the no-slash canonical. Replaces the live 308 that points the other way. |
 | `/educate` | 301 | `/` | Already live. |
 | `/educate/*` | 301 | `/` | Already live, including `/educate/foo`. One hop to `/`, not to a child. |
 | `/games` | 301 | `/engage` | Already live. |
@@ -427,7 +456,7 @@ A `301` or `308` target is always a `keep` URL. Do not copy today’s blind `/bl
 /work                   Projects index
 /work/sewa-chronicles
 /work/strong
-/dialogue/              canonical trailing slash
+/dialogue               Dialogue (no trailing slash)
 /about
 /colophon
 /archive                Archive Vault
@@ -437,7 +466,7 @@ A `301` or `308` target is always a `keep` URL. Do not copy today’s blind `/bl
 /archive/downloads/resources
 ```
 
-Redirects are only in §5.2. `/lessons` → `/learn`. `/my-work` and `/my-work/*` → `/work` and `/work/*`. `/downloads` → `/archive/downloads`.
+Redirects are only in §5.2. Every one is `statusCode: 301`. `/lessons` → `/learn`. `/my-work` and `/my-work/*` → `/work` and `/work/*`. `/downloads` → `/archive/downloads`. `/dialogue/` → `/dialogue`. No canonical path in this list has a trailing slash.
 
 ---
 
@@ -785,7 +814,7 @@ Avoid 3-equal-card rainbow grids; use **task rows** + asymmetric featured “Rec
 
 ### 7.5 Existing tools
 
-EasyMCQ (`/tools/easymcq`) and Draftly (`/tools/better-emails`) are **deleted**. Do not fold them into Plain-Speak or any other tool. Remove their pages, hub cards, and the two PWA shortcuts in `nuxt.config` (`shortcuts` entries whose `url` is `/tools/easymcq` or `/tools/better-emails`). Keep the Dialogue and AstroClock shortcuts. Both old routes are **301 to `/empower`** (§5.2). Not 410.
+EasyMCQ (`/tools/easymcq`) and Draftly (`/tools/better-emails`) are **deleted**. Do not fold them into Plain-Speak or any other tool. Remove their pages, hub cards, and the two PWA shortcuts in `nuxt.config` (`shortcuts` entries whose `url` is `/tools/easymcq` or `/tools/better-emails`). Keep the Dialogue and AstroClock shortcuts. Point the Dialogue shortcut at `/dialogue` with no trailing slash. Both old routes are **301 to `/empower`** (§5.2). Not 410.
 
 Cadence and StoryGen keep their URLs and sit under Empower “More” or Learn-adjacent.
 
@@ -850,9 +879,9 @@ Case study Reading Mode; SEWA keeps BookReader at `/work/sewa-chronicles`; Stron
 
 Narrative + facts; portrait treatment once (audit).
 
-### 9.9 Dialogue
+### 9.9 Dialogue `/dialogue`
 
-Keep app shell; Bay transition into existing UI.
+Canonical URL is `/dialogue`, with no trailing slash. `/dialogue/` is `statusCode: 301` to `/dialogue` in one hop. Keep the app shell. The Bay transition opens this UI.
 
 ### 9.10 Archive `/archive`
 
@@ -866,7 +895,7 @@ Unmatched URLs render this page and stop. They do not redirect to `/`.
 - Eyebrow: `404`
 - Heading, focused on load: `This dock is empty.`
 - Body: `That address is not on the map.`
-- Stacked text links, 44px targets: Nexus `/`, Elevate `/elevate`, Empower `/empower`, Engage `/engage`, Learn `/learn`, Work `/work`, Archive `/archive`, About `/about`.
+- The link list is `ZoneLinks` (§4.4), stacked, 44px targets, in that order: Nexus `/`, Elevate `/elevate`, Empower `/empower`, Engage `/engage`, Learn `/learn`, Work `/work`, Dialogue `/dialogue`, About `/about`, Archive `/archive`.
 - `Open map` opens `WorldMapSheet` when the shell is up. When it is not, the same control is a link to `/`.
 
 **Desktop:** The same copy in a Reading Mode panel, max 66ch, centered over the world poster, or over the live void if WebGL is running. Links wrap in a row. Nexus is the primary link. `Open map` sits beside it.
@@ -928,13 +957,35 @@ The poster step is the `WorldFallbackPoster` in §10.5. The no-JS step is the sa
 
 If WebGL is missing, context creation throws, or the tier is 0, `WorldCanvas` does not mount. `WorldFallbackPoster` renders in its place. Reduced motion uses this poster from the first paint. It does not wait for an error.
 
-**What renders:** Void `#07070A`, a flat hatch poster, a cobalt beacon drawn as SVG (not WebGL), the motto “Truth alone triumphs.”, the attribution “Mundaka Upanishad”, and a zone list.
+**What renders:** Void `#07070A`, a flat hatch poster, a cobalt beacon drawn as SVG (not WebGL), the motto “Truth alone triumphs.”, the attribution “Mundaka Upanishad”, and `ZoneLinks` (§4.4).
 
-**Copy:** `The 3D view did not start. Every zone is in the list below.`
+**Copy (first paint):** `The 3D view did not start. Every zone is in the list below.`
 
-**Zone links:** Elevate `/elevate`, Empower `/empower`, Engage `/engage`, Learn `/learn`, Work `/work`, Dialogue `/dialogue/`, About `/about`, Archive `/archive`. Masthead links stay as well.
+**Zone links:** the shared `ZoneLinks` list, same component data as `RmError`, in this order: Nexus `/`, Elevate `/elevate`, Empower `/empower`, Engage `/engage`, Learn `/learn`, Work `/work`, Dialogue `/dialogue`, About `/about`, Archive `/archive`. Masthead links stay as well.
 
-**Focus:** When the poster replaces the canvas, move focus to its heading. The zone links are next in tab order. People can open every zone with the keyboard and without a pointer.
+**Focus:** When the poster replaces the canvas at first paint, move focus to its heading. The zone links are next in tab order. People can open every zone with the keyboard and without a pointer.
+
+#### Mid-session context loss
+
+After a successful mount, listen for `webglcontextlost` on the canvas.
+
+1. Call `preventDefault()` so the browser does not keep a dead context as the only UI.
+2. **Restore attempt (once):** wait for `webglcontextrestored`. If it fires and rebuilding geometries, materials, textures, and render targets succeeds, resume the same zone and camera. Announce `The 3D view is back.` on `#world-status` (`aria-live="polite"`). Keep scroll position and leave focus where it was.
+3. If restore does not fire, the rebuild throws, or a second `webglcontextlost` happens in the same page view, stop trying. Tear the GL world down and swap the canvas slot to `WorldFallbackPoster`. Do not attempt a third time.
+4. Announce `The 3D view stopped. Every zone is in the list below.` Poster copy uses that same sentence (not the first-paint line).
+5. **Focus and position:** do not move focus if it is already on a zone link, the masthead, or a Reading Mode control. If focus was on the canvas or its wrapper, move it to the poster heading. Keep the scroll position. The poster occupies the same slot, so the page does not jump.
+
+#### GL teardown
+
+Do this before the canvas node is removed, on context loss and whenever the world unmounts (route leave, tier drop, poster swap):
+
+- Cancel the animation frame.
+- Remove the `webglcontextlost`, `webglcontextrestored`, pointer, and gyro listeners.
+- Traverse the scene and `dispose()` geometries, materials, and textures. Dispose render targets and composer passes.
+- Call `renderer.dispose()`.
+- Call `renderer.forceContextLoss()` only when the context is still live. Skip it if the browser has already lost the context.
+- Drop the renderer, scene, and canvas references so they can be collected.
+- Remove the canvas node. Do not leave a dead canvas under the poster.
 
 ---
 
@@ -1007,8 +1058,9 @@ After the announcement, move focus to that zone’s h1 in Reading Mode. On the N
 | Component | Purpose | Variants / states | Where | Reuse? |
 |---|---|---|---|---|
 | `WorldCanvas` | three.js shell | tiers 0–3 | Nexus, zone hubs | **New** |
-| `WorldFallbackPoster` | WebGL / Tier 0 stand-in | poster, zone links, focus on heading | Nexus, zone hubs | **New** |
-| `RmError` | Global 404 and route error | 404, error | Unmatched routes | **New** |
+| `ZoneLinks` | Shared zone list | one order, no trailing slash | `RmError`, `WorldFallbackPoster` | **New** |
+| `WorldFallbackPoster` | WebGL / Tier 0 / context-loss stand-in | poster, `ZoneLinks`, focus on heading | Nexus, zone hubs | **New** |
+| `RmError` | Global 404 and route error | 404, error, same `ZoneLinks` | Unmatched routes | **New** |
 | `ZoneBeacon` | Zone entry | idle/hover/focus/active | Nexus | **New** |
 | `WorldMapSheet` | 2D/3D map | open/closed | Global | **New** |
 | `RmDock` / `ReadingFrame` | Content sheet | docked/expanded | Articles, tools, about | **New** (wraps Shell) |
@@ -1044,7 +1096,7 @@ After the announcement, move focus to that zone’s h1 in Reading Mode. On the N
 2. Migrate off `html { font-size: 1px }` to a rem-based scale with a standard `16px` root (decided implementation requirement).  
 3. Tailwind `@theme` + dark variant. Ship **Syne** as the World display face (decided).  
 4. `ReadingFrame` + masthead modes.  
-5. Redirect table in `nuxt.config` and `vercel.json`, copied from §5.2. One hop only. `/lessons` and `/lessons/*` 301 to `/learn` and `/learn/*`. `/my-work` and `/my-work/*` 301 to `/work` and `/work/*`. `/downloads` 301s to `/archive/downloads`. `/tools/easymcq` and `/tools/better-emails` 301 to `/empower`. Drop those two URLs from `pwa.manifest.shortcuts`.
+5. Redirect table in `nuxt.config` and `vercel.json`, copied from §5.2. Every path redirect uses `statusCode: 301` (Vercel `"statusCode": 301`, not `"permanent": true`). Set `trailingSlash: false` on Nuxt and Vercel. `/dialogue/` 301s to `/dialogue`. `/lessons` and `/lessons/*` 301 to `/learn` and `/learn/*`. `/my-work` and `/my-work/*` 301 to `/work` and `/work/*`. `/downloads` 301s to `/archive/downloads`. `/tools/easymcq` and `/tools/better-emails` 301 to `/empower`. A trailing-slash twin of a redirect goes straight to that final target. Drop the two deleted-tool URLs from `pwa.manifest.shortcuts`, and point the Dialogue shortcut at `/dialogue`.
 6. `RmError` and `WorldFallbackPoster`.
 
 ### Phase B — IA & Empower (FE)

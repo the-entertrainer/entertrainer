@@ -143,23 +143,11 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     title: 'StoryGen · Storyboard Studio',
     description: 'Design instructional storyboards on an infinite canvas. Pick a framework, connect the screens, and export the working plan to Word or Excel.'
   },
-  '/tools/easymcq': {
-    key: 'easymcq',
-    label: 'Distractor Generator',
-    title: 'EasyMCQ · Distractor Generator',
-    description: 'Give a question and its correct answer, and EasyMCQ writes three plausible wrong options that test real understanding.'
-  },
   '/tools/cadence': {
     key: 'cadence',
     label: 'Training Calendar Generator',
     title: 'Cadence · Training Calendar Generator',
     description: 'Turn a topic list into a ready-to-present monthly training calendar, laid out around holidays, audiences, and time slots.'
-  },
-  '/tools/better-emails': {
-    key: 'draftly',
-    label: 'Email Polisher',
-    title: 'Draftly · Email Polisher',
-    description: 'Turn messy drafts into clear, professional emails, with a plain-language note on what changed and why.'
   },
   '/courses/ai-atlas': {
     key: 'ai-atlas',

@@ -116,28 +116,6 @@ export const ITEMS: EditorialItem[] = [
     size: 'wide'
   },
   {
-    id: 'easymcq',
-    title: 'EasyMCQ',
-    dek: 'Give the question and the right answer. Get three wrong options that still sound believable.',
-    category: 'tools',
-    media: 'web app',
-    href: '/tools/easymcq',
-    image: '/easymcq.png',
-    alt: 'EasyMCQ icon — checklist with one correct mark',
-    stamp: 'Free · Quiz distractors'
-  },
-  {
-    id: 'better-emails',
-    title: 'Draftly',
-    dek: 'Paste a rough email. Get a clearer one back, with a plain note on what changed.',
-    category: 'tools',
-    media: 'web app',
-    href: '/tools/better-emails',
-    image: '/better-emails.png',
-    alt: 'Draftly icon — envelope with polish stroke',
-    stamp: 'Free · Email polish'
-  },
-  {
     id: 'about',
     title: 'Floors in Udaipur. Verification calls in Coorg.',
     dek: 'Kerala village, machines as companions, Club Mahindra housekeeping, The SEWA Chronicles, Courtyard by Marriott Mahabaleshwar, and learning design — the longer route behind Entertrainer.',

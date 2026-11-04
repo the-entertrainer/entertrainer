@@ -1,5 +1,6 @@
 <template>
-  <div class="screen active" style="display:flex;flex-direction:column;min-height:100dvh">
+  <DialogueLoadError v-if="loadError" @retry="boot" />
+  <div v-else class="screen active" style="display:flex;flex-direction:column;min-height:100dvh">
     <div class="topbar">
       <button type="button" class="icon-btn" aria-label="Back" @click="goBack">←</button>
       <button type="button" class="title" @click="rename">{{ title }}</button>
@@ -45,13 +46,29 @@ const selectedPanelId = ref<string | null>(null)
 const letteringId = ref<string | null>(null)
 const letteringText = ref('')
 const route = useRoute()
+const loadError = ref(false)
 
-onMounted(async () => {
-  await loadDeps()
+async function boot() {
+  loadError.value = false
+  try {
+    await loadDialogueEditorLibs()
+    await openProject()
+  } catch (error) {
+    console.error(error)
+    loadError.value = true
+  }
+}
+
+onMounted(boot)
+
+async function openProject() {
   const b = await (window as any).DialogueDB.getProjectBundle(props.projectId)
   bundle.value = b
   title.value = b?.project?.title || 'Untitled'
   if (route.query.export) exportOpen.value = true
+}
+
+onMounted(() => {
   // bridge for export sheet
   ;(window as any).DialogueAppActions = {
     runExport: async (kind: string) => {
@@ -123,19 +140,4 @@ function onTray(act: string, payload?: any) {
   else map[act]?.()
 }
 
-async function loadDeps() {
-  const load = (src: string) => new Promise<void>((res, rej) => {
-    const s = document.createElement('script'); s.src = src; s.onload = () => res(); s.onerror = () => rej(new Error(src)); document.head.appendChild(s)
-  })
-  const w = window as any
-  if (!w.Konva) await load('https://unpkg.com/konva@10/konva.min.js')
-  if (!w.Dexie) await load('https://unpkg.com/dexie@4/dist/dexie.js')
-  if (!w.JSZip) await load('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js')
-  if (!w.jspdf && !w.jsPDF) await load('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
-  if (!w.saveAs) await load('https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js')
-  for (const src of ['/dialogue/js/utils.js','/dialogue/js/formats.js','/dialogue/js/db.js','/dialogue/js/history.js','/dialogue/js/export.js','/dialogue/js/editor.js']) {
-    const leaf = src.split('/').pop()!
-    if (![...document.scripts].some((s) => s.src.includes(leaf))) await load(src)
-  }
-}
 </script>

@@ -13,7 +13,7 @@ Open http://127.0.0.1:4173/
 node scripts/dialogue-smoke.mjs
 
 ## Copy into Nuxt
-See PATCHES-nuxt.config.md. Deps: konva vue-konva dexie jspdf jszip file-saver
+Dialogue is already wired into the Nuxt app. Konva 10.9.1 and Dexie 4.4.7 are pinned under `public/dialogue/vendor/`. jsPDF, JSZip, and FileSaver still load from cdnjs. `file-saver` stays an npm dependency for StoryGen.
 
 ## Export presets
 PNG strip | JPG | WEBTOON ZIP (800x<=1280) | PDF | .dialogue archive

@@ -34,18 +34,6 @@ const TOOLS = [
     pngBase: 'cadence-icon',
     editorial: 'training-cal-gen.png',
   },
-  {
-    id: 'easymcq',
-    svg: 'easymcq-icon.svg',
-    pngBase: 'easymcq-icon',
-    editorial: 'easymcq.png',
-  },
-  {
-    id: 'draftly',
-    svg: 'draftly-icon.svg',
-    pngBase: 'draftly-icon',
-    editorial: 'better-emails.png',
-  },
 ]
 
 const DIALOGUE = {

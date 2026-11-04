@@ -41,6 +41,13 @@ export default defineNuxtConfig({
   // which cannot leave content invisible when JavaScript is slow or an
   // observer never fires.
   modules: ['@pinia/nuxt', '@vite-pwa/nuxt'],
+  experimental: {
+    defaults: {
+      nuxtLink: {
+        trailingSlash: 'remove',
+      },
+    },
+  },
   // Faces first, then the system that uses them.
   css: ['~/assets/css/fonts.css', '~/assets/css/main.css'],
   runtimeConfig: {
@@ -147,24 +154,10 @@ export default defineNuxtConfig({
 		],
       shortcuts: [
         {
-          name: 'EasyMCQ — Distractor Generator',
-          short_name: 'EasyMCQ',
-          description: 'Give the question and answer; get three plausible wrong options',
-          url: '/tools/easymcq',
-          icons: [{ src: '/easymcq-icon-192.png', sizes: '192x192', type: 'image/png' }]
-        },
-        {
-          name: 'Draftly — Email Polisher',
-          short_name: 'Draftly',
-          description: 'Turn messy drafts into clear, professional emails',
-          url: '/tools/better-emails',
-          icons: [{ src: '/draftly-icon-192.png', sizes: '192x192', type: 'image/png' }]
-        },
-        {
           name: 'Dialogue — Comics from your pocket',
           short_name: 'Dialogue',
           description: 'Vertical webcomic studio for phones',
-          url: '/dialogue/',
+          url: '/dialogue',
           icons: [{ src: '/dialogue/icons/icon-192.png', sizes: '192x192', type: 'image/png' }]
         },
         {
@@ -216,11 +209,18 @@ export default defineNuxtConfig({
     '/api/whatto/**': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
     '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } },
     '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } },
+    // EasyMCQ and Draftly removed. Draftly's public route was /tools/better-emails.
+    // Neither page had child routes; the wildcards catch any stray sub-path.
+    '/tools/easymcq': { redirect: { to: '/empower', statusCode: 301 } },
+    '/tools/easymcq/**': { redirect: { to: '/empower', statusCode: 301 } },
+    '/tools/better-emails': { redirect: { to: '/empower', statusCode: 301 } },
+    '/tools/better-emails/**': { redirect: { to: '/empower', statusCode: 301 } },
     '/tools': { redirect: { to: '/empower', statusCode: 301 } },
     '/blogs': { redirect: { to: '/elevate', statusCode: 301 } },
     '/blogs/**': { redirect: { to: '/elevate/**', statusCode: 301 } },
-    // Trailing slash required so static /dialogue/index.html assets resolve under /dialogue/.
-    '/dialogue': { redirect: { to: '/dialogue/', statusCode: 308 } },
+    // Page-level redirects, lifted here so a trailing slash resolves in one hop.
+    '/downloads': { redirect: { to: '/', statusCode: 301 } },
+    '/my-work': { redirect: { to: '/about#sewa-chronicles', statusCode: 301 } },
     // Educate section removed — keep old links from 404ing.
     '/educate': { redirect: { to: '/', statusCode: 301 } },
     '/educate/**': { redirect: { to: '/', statusCode: 301 } },
@@ -246,9 +246,27 @@ export default defineNuxtConfig({
     '/elevate/you-are-the-centre-of-the-universe': { redirect: { to: '/elevate', statusCode: 301 } },
     '/elevate/can-you-reverse-the-spin-of-a-schwarz-surface': { redirect: { to: '/elevate', statusCode: 301 } },
     '/elevate/the-sacred-frequencies-are-not-a-scale': { redirect: { to: '/elevate/what-each-sacred-frequency-is-for', statusCode: 301 } },
-    // Games renamed to Engage.
+    // Games renamed to Engage. Retired slugs skip /engage/<slug>, which is itself a 301.
     '/games': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/pictune': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/velocity': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/vilakku': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/vybe': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/squash': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/fever': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/netagiri': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/gateway': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/third-eye': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/solfeggio': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/brainwave': { redirect: { to: '/engage', statusCode: 301 } },
     '/games/**': { redirect: { to: '/engage/**', statusCode: 301 } },
+    '/blogs/if-you-are-intelligent-life-might-not-be-easy': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/blogs/does-ai-understand-you': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/blogs/how-to-lie-perfectly': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/blogs/the-voice-in-your-head-is-not-the-whole-of-you': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/blogs/you-are-the-centre-of-the-universe': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/blogs/can-you-reverse-the-spin-of-a-schwarz-surface': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/blogs/the-sacred-frequencies-are-not-a-scale': { redirect: { to: '/elevate/what-each-sacred-frequency-is-for', statusCode: 301 } },
   },
   alias: {
     '@astroclock': fileURLToPath(new URL('./astroclock', import.meta.url)),
@@ -287,10 +305,14 @@ export default defineNuxtConfig({
     // publishes to .vercel/output, so Netlify's dist publish step fails and
     // the Header rules / Pages changed / Redirect rules checks all report
     // "Deploy failed" for the same deploy.
-    preset: process.env.NETLIFY ? 'netlify' : 'vercel',
+    preset: process.env.NITRO_PRESET || (process.env.NETLIFY ? 'netlify' : 'vercel'),
+    alias: {
+      // Hoisted h3@2 (from @nuxt/devtools) breaks readBody on Nitro's h3@1 events.
+      'h3-nitro': fileURLToPath(new URL('./node_modules/nitropack/node_modules/h3/dist/index.mjs', import.meta.url)),
+    },
     externals: {
-      // Keep Playwright deps external in case the pw backup is ever re-enabled
-      external: ['playwright-core', '@sparticuz/chromium', 'satori', '@resvg/resvg-js', 'pdf-lib'],
+      // Native and heavy render deps stay outside the server bundle.
+      external: ['satori', '@resvg/resvg-js', 'pdf-lib'],
     },
     vercel: {
       functions: {

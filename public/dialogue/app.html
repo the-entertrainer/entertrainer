@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta name="theme-color" content="#161618"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="description" content="Dialogue — Comics from your pocket."/>
+  <link rel="manifest" href="/dialogue/manifest.webmanifest"/>
+  <link rel="icon" href="/dialogue/icons/d-mark.svg" type="image/svg+xml"/>
+  <link rel="apple-touch-icon" href="/dialogue/icons/apple-touch-icon.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Comic+Neue:wght@400;700&family=Inter:wght@400;600;700&family=Kosugi+Maru&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet"/>
+  <style>
+    html, body, #app {
+      margin: 0; padding: 0;
+      height: 100dvh; max-height: 100dvh;
+      overflow: hidden; overscroll-behavior: none;
+      background: #FFFFFF; color: #161618;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+    }
+    .screen { display: none !important; }
+    .screen.active { display: flex !important; flex-direction: column; }
+    .btn-primary {
+      background: #FFD43B; color: #161618; font-weight: 700;
+      border: 0; border-radius: 8px; min-height: 52px;
+      padding: 0 18px; cursor: pointer;
+    }
+  </style>
+  <link rel="stylesheet" href="/dialogue/css/dialogue.css"/>
+  <title>Dialogue — Comics from your pocket.</title>
+</head>
+<body>
+  <div id="splash" role="status" aria-live="polite">
+    <img class="splash-art" src="/dialogue/icons/splash.png" alt="" width="280" height="280" decoding="async"/>
+    <div class="splash-mark" aria-hidden="true">
+      <img src="/dialogue/icons/d-mark.svg" alt=""/>
+    </div>
+    <div class="splash-word">Dialogue</div>
+    <div class="splash-underline" aria-hidden="true"></div>
+    <div class="splash-tag">Comics from your pocket.</div>
+  </div>
+
+  <div class="app" id="app">
+    <button type="button" class="icon-btn fab-settings" id="btn-settings" aria-label="Settings" data-icon="settings"></button>
+
+    <section class="screen active" data-screen="home">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <img src="/dialogue/icons/d-mark.svg" width="44" height="44" alt=""/>
+        </span>
+        <div>
+          <div class="name">Dialogue</div>
+          <div class="tag">Comics from your pocket.</div>
+        </div>
+      </div>
+      <div class="shelf">
+        <div class="home-actions">
+          <button type="button" class="btn-primary large" id="btn-new"><span data-icon="plus" class="ico"></span> New comic</button>
+          <button type="button" class="btn-secondary large" id="btn-new-story"><span data-icon="chat" class="ico"></span> New story</button>
+        </div>
+        <div id="empty-state" class="empty-state hidden">Your first balloon is one tap away.</div>
+        <div class="section-label story-shelf-label hidden" id="stories-label">Stories</div>
+        <div class="recents stories-recents" id="stories-recents"></div>
+        <div class="recents" id="recents"></div>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="wizard">
+      <div class="topbar">
+        <button type="button" class="icon-btn" id="wizard-cancel" aria-label="Back" data-icon="back"></button>
+        <h1>New comic</h1>
+        <span style="width:48px"></span>
+      </div>
+      <div class="shelf wizard-body">
+        <h2 class="section-label">Format</h2>
+        <div class="chips" id="wizard-formats">
+          <button type="button" class="chip active" data-id="webtoon">Webtoon 800×∞</button>
+          <button type="button" class="chip" data-id="shorts">Shorts 1080×1920</button>
+          <button type="button" class="chip" data-id="square">Square 1080×1080</button>
+          <button type="button" class="chip" data-id="page">Page 2480×3508</button>
+        </div>
+        <h2 class="section-label">Layout</h2>
+        <div class="chips" id="wizard-layouts">
+          <button type="button" class="chip" data-id="splash1">1 splash</button>
+          <button type="button" class="chip" data-id="stack2">2 stack</button>
+          <button type="button" class="chip active" data-id="stack3">3 stack</button>
+          <button type="button" class="chip" data-id="grid4">4 grid</button>
+          <button type="button" class="chip" data-id="blank">Blank</button>
+        </div>
+        <h2 class="section-label">Start with</h2>
+        <div class="chips" id="wizard-start">
+          <button type="button" class="chip" data-id="camera">Camera</button>
+          <button type="button" class="chip" data-id="photos">Photos</button>
+          <button type="button" class="chip chip-disabled" data-id="script" disabled aria-disabled="true">Script (Soon)</button>
+        </div>
+        <p class="camera-note">Dialogue uses the camera only to put a photo on your panel. Nothing leaves this phone.</p>
+      </div>
+      <div class="wizard-footer">
+        <button type="button" class="btn-primary large" id="wizard-create">Create</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="editor">
+      <div class="topbar editor-topbar">
+        <button type="button" class="icon-btn" id="editor-back" aria-label="Back" data-icon="back"></button>
+        <button type="button" class="title" id="editor-title">Untitled</button>
+        <button type="button" class="icon-btn" id="btn-undo" aria-label="Undo" data-icon="undo"></button>
+        <button type="button" class="icon-btn" id="btn-redo" aria-label="Redo" data-icon="redo"></button>
+        <button type="button" class="icon-btn" id="btn-preview" aria-label="Preview" data-icon="preview"></button>
+        <button type="button" class="icon-btn" id="btn-export" aria-label="Export" data-icon="export"></button>
+      </div>
+      <div class="editor-wrap">
+        <div id="stage-host"><div id="konva-container"></div></div>
+        <div class="filmstrip" id="filmstrip"></div>
+        <div class="tray" id="tray">
+          <div class="tray-grab" aria-hidden="true"></div>
+          <div class="tray-body" id="tray-body"></div>
+        </div>
+        <nav class="dock" aria-label="Tools">
+          <button type="button" data-dock="panels"><span class="ico" data-icon="panels"></span>Panels</button>
+          <button type="button" data-dock="art"><span class="ico" data-icon="art"></span>Art</button>
+          <button type="button" data-dock="balloon"><span class="ico" data-icon="balloon"></span>Balloon</button>
+          <button type="button" data-dock="stickers"><span class="ico" data-icon="stickers"></span>Stickers</button>
+        </nav>
+      </div>
+    </section>
+
+
+    <section class="screen" data-screen="story-chat">
+      <div class="topbar">
+        <button type="button" class="icon-btn" id="story-chat-back" aria-label="Back" data-icon="back"></button>
+        <h1 id="story-chat-title">New story</h1>
+        <span style="width:48px"></span>
+      </div>
+      <div class="story-scroll" id="story-chat-scroll">
+        <div class="story-intro" id="story-intro">
+          <p class="story-lede">Canon Engine expands your plot into a beat graph — conflicts, emotion, webtoon density — then a Visual DNA bible and forge-quality panel prompts.</p>
+          <label class="story-field-label">Power mode</label>
+          <div class="chips density-chips" id="story-density" role="group" aria-label="Power mode">
+            <button type="button" class="chip" data-density="draft">Draft</button>
+            <button type="button" class="chip active" data-density="studio">Studio</button>
+            <button type="button" class="chip" data-density="epic">Epic</button>
+          </div>
+          <p class="story-density-hint" id="story-density-hint">Studio · 4–6 ch · 6–10 scenes · 12–24 panels/chapter</p>
+          <label class="story-field-label" for="story-plot">Plot</label>
+          <textarea id="story-plot" class="story-textarea" rows="4" maxlength="800" placeholder="A night-shift barista discovers their regulars are rewriting the city one coffee at a time…"></textarea>
+          <label class="story-field-label" for="story-tone">Tone (optional)</label>
+          <input id="story-tone" class="story-input" type="text" maxlength="80" placeholder="wistful, lightly funny"/>
+          <button type="button" class="btn-primary large" id="story-expand">Expand with AI</button>
+        </div>
+        <div class="story-messages" id="story-messages" hidden></div>
+        <div class="story-outline-card" id="story-outline-card" hidden></div>
+      </div>
+      <div class="story-composer" id="story-composer" hidden>
+        <input type="text" id="story-chat-input" class="story-input" maxlength="400" placeholder="Tweak: make chapter 2 shorter…" autocomplete="off"/>
+        <button type="button" class="btn-primary" id="story-chat-send">Send</button>
+        <button type="button" class="btn-secondary" id="story-densify" disabled><span data-icon="panels" class="ico"></span> Densify</button>
+        <button type="button" class="btn-primary" id="story-approve" disabled>Approve</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="story-bible">
+      <div class="topbar">
+        <button type="button" class="icon-btn" id="story-bible-back" aria-label="Back" data-icon="back"></button>
+        <h1>Story Bible</h1>
+        <span style="width:48px"></span>
+      </div>
+      <div class="story-scroll" id="story-bible-scroll">
+        <div class="story-busy" id="story-bible-busy">Building bible…</div>
+        <div id="story-bible-body" hidden></div>
+      </div>
+      <div class="wizard-footer story-bible-footer">
+        <button type="button" class="btn-secondary" id="story-enrich-cast" hidden>Enrich cast</button>
+        <button type="button" class="btn-primary large" id="story-gen-pages" disabled>Generate pages</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="story-pages">
+      <div class="topbar">
+        <button type="button" class="icon-btn" id="story-pages-back" aria-label="Back" data-icon="back"></button>
+        <h1 id="story-pages-title">Pages</h1>
+        <button type="button" class="icon-btn" id="btn-art-queue-story" aria-label="Art Queue" data-icon="queue" title="Art Queue"></button>
+      </div>
+      <div class="story-scroll" id="story-pages-scroll">
+        <div class="story-busy" id="story-pages-busy">Generating panels…</div>
+        <div id="story-pages-body" hidden></div>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="settings">
+      <div class="topbar">
+        <button type="button" class="icon-btn" id="settings-back" aria-label="Back" data-icon="back"></button>
+        <h1>Settings</h1>
+        <span style="width:48px"></span>
+      </div>
+      <div class="settings-list" id="settings-body"></div>
+    </section>
+  </div>
+
+  <div class="banner" id="restore-banner" role="status">
+    <span style="flex:1">Restore unsaved comic?</span>
+    <button type="button" id="restore-yes">Restore</button>
+    <button type="button" id="restore-no">Dismiss</button>
+  </div>
+
+  <div class="ctx-menu" id="ctx-menu" role="menu">
+    <button type="button" onclick="DialogueAppActions.duplicate()"><span class="ico" data-icon="duplicate"></span> Duplicate</button>
+    <button type="button" onclick="DialogueAppActions.rename()"><span class="ico" data-icon="rename"></span> Rename</button>
+    <button type="button" onclick="DialogueAppActions.remove()"><span class="ico" data-icon="delete"></span> Delete</button>
+    <button type="button" onclick="DialogueAppActions.exportProj()"><span class="ico" data-icon="export"></span> Export</button>
+    <button type="button" id="ctx-close"><span class="ico" data-icon="close"></span> Close</button>
+  </div>
+
+  <div class="sheet-dimmer" id="sheet-dimmer" hidden></div>
+
+  <div class="sheet" id="lettering-sheet" role="dialog" aria-labelledby="lettering-title">
+    <div class="grab"></div>
+    <h2 id="lettering-title">Lettering</h2>
+    <textarea id="lettering-text" placeholder="Say something" rows="4"></textarea>
+    <div class="size-chips" id="lettering-sizes" role="group" aria-label="Text size">
+      <button type="button" class="chip size-chip" data-size="18">S</button>
+      <button type="button" class="chip size-chip active" data-size="22">M</button>
+      <button type="button" class="chip size-chip" data-size="28">L</button>
+      <button type="button" class="chip size-chip" data-size="36">XL</button>
+    </div>
+    <div class="size-chips" id="lettering-align" role="group" aria-label="Align">
+      <button type="button" class="chip size-chip" data-align="left">Left</button>
+      <button type="button" class="chip size-chip active" data-align="center">Center</button>
+      <button type="button" class="chip size-chip" data-align="right">Right</button>
+    </div>
+    <div class="size-chips">
+      <button type="button" class="chip size-chip" id="lettering-caps" aria-pressed="false">ALL CAPS</button>
+    </div>
+    <div class="sheet-actions">
+      <button type="button" class="btn-primary" id="lettering-save">Done</button>
+      <button type="button" class="btn-ghost" id="lettering-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <div class="sheet" id="export-sheet" role="dialog" aria-labelledby="export-title">
+    <div class="grab"></div>
+    <h2 id="export-title">Export</h2>
+    <div class="progress"><i id="export-progress"></i></div>
+    <p id="export-status">Choose a format</p>
+    <button type="button" class="row export-row" data-export="png">PNG strip</button>
+    <button type="button" class="row export-row" data-export="jpg">JPG</button>
+    <button type="button" class="row export-row" data-export="webtoon">WEBTOON slices ZIP</button>
+    <button type="button" class="row export-row" data-export="pdf">PDF</button>
+    <button type="button" class="row export-row" data-export="dialogue">.dialogue archive</button>
+    <button type="button" class="row" id="export-close">Close</button>
+  </div>
+
+  <div class="sheet" id="rename-sheet" role="dialog" aria-labelledby="rename-title">
+    <div class="grab"></div>
+    <h2 id="rename-title">Rename</h2>
+    <input type="text" id="rename-input" class="sheet-input" maxlength="80" autocomplete="off"/>
+    <div class="sheet-actions">
+      <button type="button" class="btn-primary" id="rename-save">Save</button>
+      <button type="button" class="btn-ghost" id="rename-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <div class="sheet" id="confirm-sheet" role="dialog" aria-labelledby="confirm-title">
+    <div class="grab"></div>
+    <h2 id="confirm-title">Delete?</h2>
+    <p id="confirm-message" class="sheet-message">This cannot be undone.</p>
+    <div class="sheet-actions">
+      <button type="button" class="btn-danger" id="confirm-yes">Delete</button>
+      <button type="button" class="btn-ghost" id="confirm-no">Cancel</button>
+    </div>
+  </div>
+
+  <div class="reader" id="reader">
+    <div class="bar">
+      <button type="button" class="icon-btn" id="reader-close" aria-label="Close" data-icon="back"></button>
+      <strong style="flex:1">Preview</strong>
+    </div>
+    <div class="scroll" id="reader-scroll"></div>
+  </div>
+
+
+  <div class="art-queue" id="art-queue" hidden role="dialog" aria-modal="true" aria-labelledby="art-queue-title">
+    <div class="art-queue-bar">
+      <button type="button" class="icon-btn" id="art-queue-close" aria-label="Close" data-icon="close"></button>
+      <strong id="art-queue-title">Art Queue</strong>
+      <span class="art-queue-progress" id="art-queue-progress">0 / 0</span>
+    </div>
+    <div class="art-queue-body" id="art-queue-body"></div>
+    <div class="art-queue-actions" id="art-queue-actions">
+      <div class="aq-row">
+        <button type="button" class="btn-secondary" id="aq-copy"><span data-icon="copy" class="ico"></span> Copy prompt</button>
+        <button type="button" class="btn-primary" id="aq-mage"><span data-icon="external-link" class="ico"></span> Open Mage</button>
+      </div>
+      <div class="aq-row">
+        <button type="button" class="btn-secondary" id="aq-paste"><span data-icon="paste" class="ico"></span> Paste / Upload image</button>
+        <input id="art-queue-file" class="sr-only" type="file" accept="image/*"/>
+      </div>
+      <div class="aq-row aq-nav">
+        <button type="button" class="btn-ghost" id="aq-back"><span data-icon="back" class="ico"></span> Back</button>
+        <button type="button" class="btn-ghost" id="aq-skip">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <div id="vendor-error" hidden role="alert" style="margin:24px;padding:18px;border:2px solid #12110f;border-radius:12px;background:#f6f1e8;color:#12110f;font:16px/1.4 Inter,system-ui,sans-serif">
+    <p style="margin:0 0 14px">Dialogue couldn't load its drawing tools. Nothing was saved. Try again.</p>
+    <button type="button" id="vendor-retry" style="min-height:44px;padding:0 16px;border:0;border-radius:8px;background:#ffd43b;font-weight:700;cursor:pointer">Retry</button>
+  </div>
+  <script>
+    function dialogueVendorFailed() {
+      var el = document.getElementById('vendor-error');
+      if (el) el.hidden = false;
+      var splash = document.getElementById('splash');
+      if (splash) splash.classList.add('hide');
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      var btn = document.getElementById('vendor-retry');
+      if (btn) btn.addEventListener('click', function () { location.reload(); });
+    });
+  </script>
+  <script src="/dialogue/vendor/konva-10.9.1.min.js" onerror="dialogueVendorFailed()"></script>
+  <script src="/dialogue/vendor/dexie-4.4.7.js" onerror="dialogueVendorFailed()"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="/dialogue/js/utils.js"></script>
+  <script src="/dialogue/js/formats.js"></script>
+  <script src="/dialogue/js/db.js"></script>
+  <script src="/dialogue/js/history.js"></script>
+  <script src="/dialogue/js/export.js"></script>
+  <script src="/dialogue/js/demo.js"></script>
+  <script src="/dialogue/js/editor.js"></script>
+  <script src="/dialogue/js/story.js"></script>
+  <script src="/dialogue/js/art-queue.js"></script>
+  <script src="/dialogue/js/app.js"></script>
+</body>
+</html>

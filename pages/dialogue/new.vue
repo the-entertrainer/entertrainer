@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <DialogueLoadError v-if="loadError" @retry="retry" />
+  <div v-else>
     <div class="topbar">
       <button type="button" class="icon-btn u-icon-btn u-icon-btn--idle" aria-label="Back" @click="navigateTo('/dialogue')">←</button>
       <h1>New comic</h1>
@@ -11,9 +12,15 @@
 
 <script setup lang="ts">
 definePageMeta({ layout: 'dialogue' })
+const loadError = ref(false)
+
+function retry() {
+  loadError.value = false
+}
 
 async function onCreate(payload: { formatId: string; layoutId: string; start: string | null }) {
-  await ensureBridge()
+  try {
+    await loadDialogueNewLibs()
   const F = (window as any).DialogueFormats
   const U = (window as any).DialogueUtils
   const DB = (window as any).DialogueDB
@@ -35,14 +42,10 @@ async function onCreate(payload: { formatId: string; layoutId: string; start: st
   }))
   await DB.saveProjectBundle({ project, pages: [page], panels, nodes: [], assets: [] })
   navigateTo(`/dialogue/c/${project.id}`)
-}
-
-async function ensureBridge() {
-  if ((window as any).DialogueDB) return
-  for (const src of ['https://unpkg.com/dexie@4/dist/dexie.js', '/dialogue/js/utils.js', '/dialogue/js/formats.js', '/dialogue/js/db.js']) {
-    await new Promise<void>((res, rej) => {
-      const s = document.createElement('script'); s.src = src; s.onload = () => res(); s.onerror = () => rej(); document.head.appendChild(s)
-    })
+  } catch (error) {
+    console.error(error)
+    loadError.value = true
   }
 }
+
 </script>

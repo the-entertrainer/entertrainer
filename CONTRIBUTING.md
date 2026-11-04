@@ -52,7 +52,7 @@ CI runs the same checks plus a production build on every push to `main` and on p
 
 ## Elevate posts
 
-Follow [`AGENTS.md`](AGENTS.md) and the Humanize Elevate skill. Tajjalan page shape, grade 6–8, no invented studies.
+Follow the Humanize Elevate skill for Elevate posts. Revamp decisions live in [`docs/revamp/README.md`](docs/revamp/README.md).
 
 ## Backlog
 

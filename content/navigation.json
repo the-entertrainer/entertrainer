@@ -30,7 +30,7 @@
     {
       "id": "tools",
       "label": "Empower",
-      "description": "Two free tools that earn their keep.",
+      "description": "Tools for work that keeps repeating.",
       "href": "/empower",
       "color": "#FFD43B",
       "img": "/web-apps.png",
@@ -59,26 +59,7 @@
       "meta": "Interactive explainer"
     }
   ],
-  "tools": [
-    {
-      "id": "easymcq",
-      "label": "EasyMCQ",
-      "description": "Write the question and the right answer; get three plausible wrong ones.",
-      "href": "/tools/easymcq",
-      "color": "#FFD43B",
-      "img": "/easymcq.png",
-      "meta": "Assessment"
-    },
-    {
-      "id": "better-emails",
-      "label": "Draftly",
-      "description": "Paste a messy draft and get a send-ready email.",
-      "href": "/tools/better-emails",
-      "color": "#FFD43B",
-      "img": "/better-emails.png",
-      "meta": "Writing"
-    }
-  ],
+  "tools": [],
   "downloads": [
     {
       "id": "templates",

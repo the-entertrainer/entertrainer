@@ -4,6 +4,8 @@ Audit only. Nothing in the app was deleted, moved, or reconfigured. Measurements
 
 The ~315 MB figure matches the git pack, not the source tree. The tracked working tree is 71.5 MB (857 files). `.git/objects/pack` is a single 309 MB pack. A full checkout including `.git` is about 383 MB. `node_modules` is gitignored (858 MB after `npm ci`) and is not part of that number. `.nuxt`, `.output`, and `dist` are gitignored. No `node_modules`, `.nuxt`, or `.output` blob has ever been committed on `main`.
 
+`AGENTS.md`, `POLISH_PLAN.md`, and `ideas.md` are superseded. Nothing in this audit treats them as constraints on what the revamp may remove, rewrite, or redesign. Their verdicts are in section 7(b). This change does not delete them.
+
 ---
 
 ## 1. Top-level folders and files
@@ -15,13 +17,14 @@ Verdicts are about the current tree and whether build, runtime, scripts, or CI r
 | `Inspiration/` (5.3 MB) | Scraped technical dump of pacomepertant.com (Awwwards): minified bundles (`scripts/u9FHZ-Hh.js` is 2.8 MB and vendors Three, GSAP, and Lenis), CSS, ogg sounds, and replication notes. | Not imported by Nuxt, Vite, or CI. The only pointer is `.claude/commands/replicate-portfolio.md`. | Safe to remove from the app repo. It is third-party extracted source, not this site. |
 | `astroclock/` (968 KB) | React island for `/engage/astroclock`. Aliased as `@astroclock` in `nuxt.config.ts`. JSX is compiled with esbuild, not `@vitejs/plugin-react`. | Live. `pages/engage/astroclock.vue` mounts it. `astronomy-engine`, `react`, `react-dom`, `lucide-react`, and `three` are imported here. | Keep. This is a shipped Engage app, not clutter. |
 | `squash/` (1.9 MB) | Art pack and `MECHANICS.md` for a tap game that was never wired to a page. Sprite sheets overlap `public/squash/` (15 shared filenames). | No Vue/TS import. `/engage/squash` 301s to `/engage`. `app.vue` still special-cases that path, which the redirect never reaches. | Safe to remove with `public/squash/` and `utils/squash/game.ts` (also unimported). |
-| `docs/` (804 KB) | Project docs: backlog, licenses, Whatto model notes, course QA writeups. | Not bundled. `CONTRIBUTING.md` and `AGENTS.md` point at `docs/BACKLOG.md`. Scripts mention `docs/blog-social-hook.md` and `docs/whatto/MODEL.md` in comments only. CI does not read the folder. | Keep the folder. Many files are historical QA notes and can be archived later. They are not why the repo is large. |
-| `.agents/` (144 KB) | Agent skills. `AGENTS.md` and `README.md` point at `.agents/skills/humanize-elevate/SKILL.md`. `skills-lock.json` tracks the motion-design skill. | Not part of the site build. | Keep while agents use it. |
+| `docs/` (804 KB) | Project docs: backlog, licenses, Whatto model notes, course QA writeups. | Not bundled. `CONTRIBUTING.md` points at `docs/BACKLOG.md`. Scripts mention `docs/blog-social-hook.md` and `docs/whatto/MODEL.md` in comments only. CI does not read the folder. | Keep the folder. Many files are historical QA notes and can be archived later. They are not why the repo is large. |
+| `AGENTS.md` | Agent brief: Elevate page shape, sacred-geometry skill, cover-look art direction, plus pointers that also live in `CONTRIBUTING.md`. | Not read by the site build. Cursor loads it as a workspace rule for agents. | Superseded. Does not constrain cleanup. Verdict in section 7(b): rewrite for the revamp. |
+| `.agents/` (144 KB) | Skill files the old agent brief linked (humanize-elevate, sacred-geometry, motion-design). `README.md` also links the Elevate skill. `skills-lock.json` tracks motion-design. | Not part of the site build. | Not a runtime dependency. Whether the skill files stay follows the `AGENTS.md` rewrite in section 7(b), not the rules inside that file. |
 | `.claude/` (140 KB) | Second copy of some of those skills, plus `imagegen` and `commands/replicate-portfolio.md`. | Not part of the site build. | Optional. Duplicates `.agents` for humanize-elevate and sacred-geometry. Small. |
 | `_d.mjs`, `_v.mjs` | One-off Playwright screenshot scripts. Hard-coded paths under `/tmp/claude-0/...` and `/opt/pw-browsers/chromium`. | Not in `package.json` scripts or CI. | Safe to remove. |
 | `PATCHES-nuxt.config.md` | Drop-in notes for Dialogue (konva, dexie, jspdf, jszip, file-saver, PWA, routes). | Not read by the build. Dialogue already lives in the tree and loads those libraries from CDNs, not from this note. | Safe to archive or delete. Stale relative to the code. |
-| `POLISH_PLAN.md` | Finished GUI-polish checklist. Still names `rage-mail` and `distractor-gen` as if they were current pages. | Not read by the build. | Safe to archive. The rage-mail name is historical (see Empower section). |
-| `ideas.md` | Unused homepage art-direction note. | Not read by the build. | Safe to archive. |
+| `POLISH_PLAN.md` | Finished GUI-polish checklist. Names `rage-mail` and `distractor-gen`, which are not current pages. | Not read by the build. | Superseded. Does not constrain cleanup. Verdict in section 7(b): remove. |
+| `ideas.md` | Homepage art-direction note from an earlier pass. | Not read by the build. | Superseded. Does not constrain cleanup. Verdict in section 7(b): remove. |
 | `todo.md` | Pointer to `docs/BACKLOG.md`. | Not read by the build. 86 historical versions add about 3 MB inside git. | Safe to keep as a pointer, or fold into `CONTRIBUTING.md` and delete. |
 | `README-DIALOGUE.md` | Dialogue setup notes. | Not read by the build. `README.md` does not link it. | Keep next to Dialogue until that app is documented in `README.md`. |
 | `netlify.toml` | Preview-deploy config. Comment says production stays on Vercel. `publish = "dist"`. | CI does not use it. `nuxt.config.ts` switches Nitro to the Netlify preset when `NETLIFY=true`. | Not a forgotten file. See section 6. Remove only if Netlify previews are retired. |
@@ -290,7 +293,7 @@ Sizes are working-tree or install/deploy sizes. History savings need the rewrite
 
 Do these in ordinary commits. Run `npm run check` and `npm run build` after each group. None of them are imported by a live route.
 
-1. Scratch and stale notes: `_d.mjs`, `_v.mjs`, `PATCHES-nuxt.config.md`, `POLISH_PLAN.md`, `ideas.md`. A few KB.
+1. Scratch and stale notes: `_d.mjs`, `_v.mjs`, `PATCHES-nuxt.config.md`. A few KB. `AGENTS.md`, `POLISH_PLAN.md`, and `ideas.md` are not in this list. Section 7(b) has their verdicts.
 2. `Inspiration/` (5.3 MB) and the `.claude` command that points at it, if agents no longer need that reference.
 3. Squash leftovers: `squash/` (1.9 MB), `public/squash/` (1.9 MB), `utils/squash/game.ts`, and the `/engage/squash` branch in `app.vue`. Keep the 301 in `nuxt.config.ts` and `vercel.json` so old links still resolve.
 4. Unreferenced public images, after deleting the `navigation.json` / lab-nav fields that name them: the four `backdrop-*.png` files (7.4 MB), `downloads.png` (1.7 MB), `work-02.png`, `work-03.png` (2.7 MB). `public/engage/*.webp` (23 KB) are unreferenced and are why `/engage` 301s to `/engage/`. Removing that directory drops the extra slash. Confirm no external post links to the slash form if that matters.
@@ -302,6 +305,14 @@ Suggested order: notes, then Inspiration, then Squash, then images, then unused 
 Rough working-tree savings from (a): **about 20 MB** (Inspiration, Squash, backdrops, stray PNGs). Install savings from the unused packages: **about 50 MB**, almost all of it `jspdf` plus GSAP and html2canvas.
 
 ### (b) Needs sign-off
+
+Superseded rule files. The owner has retired these. They do not limit the cleanup. They stay on disk until someone acts on the verdict.
+
+| File | Verdict | Why |
+| --- | --- | --- |
+| `AGENTS.md` | Rewrite for the revamp | The Elevate shape, cover-look palette, and sacred-geometry instructions are the old editorial rules. Maintenance commands in the same file already live in `CONTRIBUTING.md`. The revamp needs a new agent brief in this path, because agents still load it. Write that brief from the revamp, not by extending the current rules. |
+| `POLISH_PLAN.md` | Remove | Completed checklist for a chrome pass that already landed. It still names `rage-mail` and `distractor-gen`. It is not a spec for the revamp. |
+| `ideas.md` | Remove | One homepage direction note. The live home does not read it. The revamp should not extend it. |
 
 | Change | Why it is not safe yet | Savings |
 | --- | --- | --- |
@@ -333,7 +344,7 @@ The owner is replacing every current Empower tool. On the site today, Empower is
 
 `/empower` builds that list from `content/editorial.ts` category `tools`. Those two items are the whole category. `pages/tools/index.vue` describes the same pair, and `/tools` 301s to `/empower`, so that file never renders.
 
-**Rage Mail is not a third tool.** It was the previous email app. Commit `b5fa4de` (23 Jun 2026), “Replace Rage Mail with Better Emails utility”, deleted `pages/tools/rage-mail.vue` and `server/api/rage-mail.post.ts`. Neither file is in the tree. No route, env var, component, or asset still uses that name. `POLISH_PLAN.md` still says `rage-mail` in an old padding note. Draftly is the successor. There is nothing left to delete except that stale sentence, and the blobs in git history (only relevant if section 3 happens).
+**Rage Mail is not a third tool.** It was the previous email app. Commit `b5fa4de` (23 Jun 2026), “Replace Rage Mail with Better Emails utility”, deleted `pages/tools/rage-mail.vue` and `server/api/rage-mail.post.ts`. Neither file is in the tree. No route, env var, component, or asset still uses that name. Draftly is the successor. Any leftover mention in `POLISH_PLAN.md` is not evidence and is not a cleanup task. That file’s verdict is in section 7(b).
 
 **Not Empower, do not remove in this pass**
 
@@ -375,7 +386,7 @@ Removing Empower does not make those libraries unused.
 | Tests | None. |
 | Libraries | No npm import. Same shell and glass classes. Same Groq HTTP API. |
 
-Copy that names the tools and is not runtime: `docs/no-miss-page-outlines.md`, `docs/wcag-22-audit.md`, `docs/boilerplate-depth-audit.md`, `docs/visual_asset_brief.md`, `docs/asset_licenses.md`, `docs/boilerplate-scaffolding-audit.json`, `POLISH_PLAN.md`. Updating those is optional and does not affect the build.
+Copy that names the tools and is not runtime: `docs/no-miss-page-outlines.md`, `docs/wcag-22-audit.md`, `docs/boilerplate-depth-audit.md`, `docs/visual_asset_brief.md`, `docs/asset_licenses.md`, `docs/boilerplate-scaffolding-audit.json`. Updating those is optional and does not affect the build. `POLISH_PLAN.md` is out of this list. Section 7(b) says to remove it rather than edit it.
 
 ### Libraries that become unused once Empower is gone
 

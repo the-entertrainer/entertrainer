@@ -6,9 +6,9 @@
  * The shell proposal listed `about` as the id; the spec wins, and the label
  * stays "About".
  *
- * Dialogue's path is `/dialogue/` because the spec marks that trailing slash
- * as canonical (live 200). Other paths are bare. `/learn`, `/work`, and
- * `/archive` are spec routes; the pages themselves are not created here.
+ * Dialogue's path is `/dialogue` with no trailing slash (spec §4.4 and §9.9).
+ * `/learn`, `/work`, and `/archive` are spec routes; this module does not
+ * create those pages.
  */
 
 export type WorldAnchorId =
@@ -38,13 +38,19 @@ export const WORLD_ANCHORS: readonly WorldZoneLink[] = [
   { id: 'engage', kind: 'zone', label: 'Engage', route: '/engage' },
   { id: 'learn', kind: 'dock', label: 'Learn', route: '/learn' },
   { id: 'work', kind: 'dock', label: 'Work', route: '/work' },
-  { id: 'dialogue', kind: 'dock', label: 'Dialogue', route: '/dialogue/' },
+  { id: 'dialogue', kind: 'dock', label: 'Dialogue', route: '/dialogue' },
   { id: 'story', kind: 'dock', label: 'About', route: '/about' },
   { id: 'archive', kind: 'dock', label: 'Archive', route: '/archive' },
 ]
 
-/** Same objects, same order, for the poster and for RmError. */
-export const WORLD_ZONE_LINKS: readonly WorldZoneLink[] = WORLD_ANCHORS
+/**
+ * Spec §4.4 calls this list ZoneLinks and shows `content/zone-links.ts` as
+ * one place it could live. The export name and file here are the shell
+ * contract: `{ id, label, route }` only, derived from WORLD_ANCHORS, no
+ * three.js and no side effects. RmError and WorldFallbackPoster both use it.
+ */
+export const WORLD_ZONE_LINKS: readonly { id: WorldAnchorId, label: string, route: string }[] =
+  WORLD_ANCHORS.map(({ id, label, route }) => ({ id, label, route }))
 
 const BY_ID = new Map(WORLD_ANCHORS.map((link) => [link.id, link]))
 

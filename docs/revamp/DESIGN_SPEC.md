@@ -17,10 +17,16 @@ Approved 2026-11-05. These are closed. They are not open questions.
 
 1. **Syne** is the World display face.
 2. Migrating off `html { font-size: 1px }` is approved. A rem-based scale (standard `16px` root) is a decided implementation requirement.
-3. EasyMCQ and Draftly are **deleted**, not folded into another tool. Their old routes are removed (§5.2): 301 to the closest hub, or 410. The status code is an engineering choice.
+3. EasyMCQ and Draftly are **deleted**, not folded into another tool. `/tools/easymcq` and `/tools/better-emails` are **301 to `/empower`**. Not 410. Also drop their PWA shortcuts in `nuxt.config`.
 4. WASM and model download sizes are **TBD**. Engineers measure them during the build. UI copy that states a size uses the placeholder `{size}`.
-5. `/my-work` is renamed to `/work` **now**. `/my-work` and every sub-path 301 to the matching `/work` path.
+5. `/my-work` is renamed to `/work` **now**. `/my-work` and every sub-path 301 to the matching `/work` path. The live index 302 to `/about#sewa-chronicles` is replaced by that 301. Sub-paths that are live 200s (`/my-work/sewa-chronicles`, `/my-work/strong`) move path-for-path.
 6. Restyling the PaperSignal SVGs to cobalt is approved.
+7. `/learn` is canonical. `/lessons` and every `/lessons/*` sub-path 301 to the matching `/learn` path.
+8. §5.2 is the one redirect list. One hop only, no loops. Checked 2026-11-05 against `https://www.entertrainer.in/sitemap.xml`, sampled live responses, `pages/**`, `content/navigation.json`, `nuxt.config.ts` `routeRules`, and `vercel.json`. `/downloads` goes straight to `/archive/downloads`. `/about/:slug` 301s to `/about`. Retired Elevate slugs, including `/elevate/the-sacred-frequencies-are-not-a-scale`, land on their final essay or the Elevate index. `/tools/training-cal-gen` 301s to `/tools/cadence`. `/tools/storyforge-id` 301s to `/tools/storygen`.
+9. Archive Vault lands at `/archive`.
+10. Contrast tokens are updated so normal text is at least 4.5:1, or the pair is limited to large text or non-text at 3:1. Table in §6.2. Dark muted is `#A89888`. Dark danger is `#E9786A`. Light danger is `#B33226`. World emissive is `#3D6AE0` and is not small text.
+11. The global 404, the WebGL / `WorldCanvas` fallback, and screen-reader announcements for 3D are specified in §9.11, §10.5, and §12.
+12. Compose, Lab, Glass Lab, and Whatto stay noindex.
 
 ---
 
@@ -56,7 +62,7 @@ Entertrainer is Naveen Jose’s publication: **Elevate** (essays), **Empower** (
 
 | Problem | Evidence | Impact |
 |---|---|---|
-| **Sprawl / duplication** | `/blogs`→`/elevate`, `/tools`→`/empower`, `/my-work`→about anchor, `/downloads`→`/`, dead Engage game redirects in `nuxt.config.ts` / `vercel.json`; tools also at `/tools/*` while hub is `/empower` | Confusing IA; SEO debt already patched with 301s but mental model is messy. |
+| **Sprawl / duplication** | `/blogs`→`/elevate`, `/tools`→`/empower`, `/my-work` index **302**→`/about#sewa-chronicles` while `/my-work/sewa-chronicles` and `/my-work/strong` are **200**, `/downloads` index **302**→`/` while `/downloads/templates`, `/frameworks`, and `/resources` are **200**, dead Engage game redirects in `nuxt.config.ts` / `vercel.json`; tools also at `/tools/*` while hub is `/empower` | Confusing IA; SEO debt already patched with 301s but mental model is messy. |
 | **Inconsistent accent systems** | Yellow Paper Signal in `main.css` vs cobalt in `AGENTS.md` / preloader vs violet Route Atlas in older docs | Brand reads as three sites. **Decided:** restyle PaperSignal SVGs to cobalt. |
 | **Category colour sprawl** | `--cat-*` mapped many hues; several aliased to yellow | Category before content (`docs/whole-site-design-audit.md`). |
 | **Homepage jobs overload (historical)** | Audits; current `pages/index.vue` is a quieter quote + switchboard (good), but no memorable 3D identity | Live hero is knowledge quote (“Truth alone triumphs.” / Mundaka Upanishad) — strong voice, weak spatial memory. |
@@ -83,16 +89,19 @@ Entertrainer is Naveen Jose’s publication: **Elevate** (essays), **Empower** (
 | `/engage/astroclock` | React island + three | Birth chart clock | Yes |
 | `/engage/whatto` | Whatto | Crypto signals; **noindex** | Unlisted |
 | `/about` | `pages/about/index.vue` | Naveen’s full narrative (Kerala → hotels → SEWA → Marriott → Concentrix) | Yes |
-| `/about/:slug` | slug page | Legacy | Keep via redirect map |
+| `/about/:slug` | `pages/about/[slug].vue` | `about` nav is empty. Unknown slugs **404** (live `/about/missing`). | 404 today |
 | `/instructional-design` | interactive lesson | Flagship ID demo (~4 min) | Yes |
-| `/lessons` | lessons landing | Links to ID lesson + AI Atlas | Yes |
-| `/courses/ai-atlas` | AI course player | “From No AI to Know AI” (~95 min) | Yes |
-| `/my-work` | redirect | → `/about#sewa-chronicles` | Redirect |
-| `/my-work/sewa-chronicles` | case study + book reader | SEWA Chronicles | Yes |
-| `/my-work/strong` | Strong module | Password strength explainer | Yes |
-| `/my-work/:slug` | ConstructionZone | Placeholder | Soft-retire |
+| `/lessons` | lessons landing | Live **200**. Links to the ID lesson and AI Atlas. Not in `sitemap.xml`. | Yes |
+| `/courses/ai-atlas` | AI course player | “From No AI to Know AI” (~95 min). Live **200**. Not in `sitemap.xml`. | Yes |
+| `/my-work` | `pages/my-work/index.vue` | Live **302** → `/about#sewa-chronicles`. Not a content page. | Redirect |
+| `/my-work/sewa-chronicles` | case study + book reader | SEWA Chronicles. Live **200**, in the sitemap. Not a redirect. | Yes |
+| `/my-work/strong` | Strong module | Password strength explainer. Live **200**, in the sitemap. Not a redirect. | Yes |
+| `/my-work/:slug` | ConstructionZone | Placeholder. Unknown slugs **404** (live `/my-work/missing`). | 404 |
 | `/dialogue/*` | comics app | Pocket comics (Dexie) | Yes (app chrome) |
-| `/downloads`, `/downloads/:slug` | redirect / stubs | Nav JSON still lists templates/frameworks/resources | Consolidate |
+| `/downloads` | `pages/downloads/index.vue` | Live **302** → `/`. | Redirect |
+| `/downloads/templates`, `/downloads/frameworks`, `/downloads/resources` | ConstructionZone stubs | Live **200**. Listed in `content/navigation.json`. | Yes |
+| `/tools/training-cal-gen` | routeRules + `vercel.json` | Live **301** → `/tools/cadence` | Redirect |
+| `/tools/storyforge-id` | routeRules + `vercel.json` | Live **301** → `/tools/storygen` | Redirect |
 | `/lab`, `/lab/g01`–`g15` | Liquid Glass concepts | noindex experiments | Sandbox |
 | `/glass-lab` | shader playground | noindex | Sandbox |
 | `/compose` | gated editor | noindex CMS | Private |
@@ -167,7 +176,7 @@ Visitors **travel** between zones with cinematic but interruptible transitions. 
 
 ### 3.2 Moodboard (verbal)
 
-- **World Layer:** near-black void `#07070A`, chalk-dust stars (sparse), cobalt emissive `#2F5BD8` / lifted `#7A9AE8` in dark, brushed-matte hulls (roughness high, metalness low), film grain 3–6%, subtle bloom on emissives only, rare chromatic aberration on transition peaks only.  
+- **World Layer:** near-black void `#07070A`, chalk-dust stars (sparse), beacon emissive `#3D6AE0` (fills and lines only) / text and soft glow `#7A9AE8`, brushed-matte hulls (roughness high, metalness low), film grain 3–6%, subtle bloom on emissives only, rare chromatic aberration on transition peaks only.  
 - **Nexus:** five-bar beacon extruded as a vertical light sculpture; motto set in display face, small.  
 - **Reading Mode:** cream `#F7F1E4` sheet sliding over the void; ink `#0B0B0C`; cobalt rules/links; Fraunces titles; Source Serif body.  
 - **Sound (optional, off by default):** low room tone + single soft “dock” transient on zone arrive; respect silent mode; preloader ident precedent in `utils/identAudioTrail.ts`.  
@@ -185,11 +194,11 @@ Visitors **travel** between zones with cinematic but interruptible transitions. 
 | `elevate` | Observatory | Essay index + articles (Reading Mode) | Essays · MUST |
 | `empower` | Workshop | Empower hub + 8 tools (Reading Mode app shells) | Everyday tools, offline |
 | `engage` | Play Sphere | Stack, Mind Reader, AstroClock (+ unlisted Whatto dock) | Short games |
-| `learn` | Learn Dock | `/lessons`, `/instructional-design`, `/courses/ai-atlas`, Strong | L&D primary |
+| `learn` | Learn Dock | `/learn` (canonical). Links onward to `/instructional-design`, `/courses/ai-atlas`, and Strong. `/lessons` 301s here. | L&D primary |
 | `work` | Work Ring | SEWA Chronicles, Strong case entry, selected projects | Portfolio proof |
 | `dialogue` | Dialogue Bay | Comics app | Pocket comics |
 | `story` | About Orbit | `/about`, `/colophon` | Naveen’s route |
-| `archive` | Archive Vault | Downloads pack, Lab link (noindex), Compose (auth) | Secondary |
+| `archive` | Archive Vault | `/archive` index. Downloads live at `/archive/downloads`. Lab and Compose stay linked and noindex. | Secondary |
 
 ### 4.2 Mermaid map
 
@@ -233,47 +242,165 @@ Mobile: same graph as a **2D radial map sheet** (no forced 3D orbit); tap zone �
 
 **Desktop (World chrome + Reading Mode top bar):**  
 `Elevate` · `Empower` · `Engage` · `Learn` · `About`  
-Secondary (overflow / footer / map only): `Work` (`/work`) · Dialogue · Colophon · Downloads · Lab
+Secondary (overflow / footer / map only): `Work` (`/work`) · Dialogue · Colophon · Archive (`/archive`) · Lab
 
 **Mobile:**  
 Bottom bar (5): Elevate · Empower · Engage · Learn · Map  
-Overflow sheet: About, Work (`/work`), Dialogue, Colophon, Settings
+Overflow sheet: About, Work (`/work`), Dialogue, Colophon, Archive (`/archive`), Settings
 
-Public links and labels use `/work` now. `/my-work` is not in the nav. `/my-work` and every `/my-work/*` sub-path 301 to the matching `/work` path.
+`Learn` points at `/learn`. `/lessons` is not in the nav. Public links and labels use `/work` now. `/my-work` is not in the nav.
 
 Rationale: L&D (`Learn`) is first-class; Empower is everyday-tools for everyone; Map replaces hamburger sprawl.
 
-### 5.2 Current → new home
+### 5.2 Redirect matrix (one hop)
 
-Essays, games, courses, and case studies stay. `/my-work` is renamed to `/work` now, with a 301 from `/my-work` and every sub-path. Two current tool routes are **Removed** (deleted, not folded into a new tool).
+This is the authoritative list for `nuxt.config.ts` `routeRules` and `vercel.json`. Put the same rows in both files. Sacred-freq is in Nuxt today and missing from `vercel.json`; this table is the one list.
 
-| Current | New home | Redirect |
-|---|---|---|
-| `/` | Nexus | — |
-| `/elevate`, `/elevate/*` | Observatory + Reading Mode | keep |
-| `/blogs`, `/blogs/*` | Elevate | keep existing 301s |
-| `/empower` | Workshop hub | keep |
-| `/tools` | `/empower` | keep 301 |
-| `/tools/easymcq` | Removed | Deleted. 301 → `/empower` (closest hub) **or** 410. Engineering choice. |
-| `/tools/better-emails` | Removed | Deleted. 301 → `/empower` (closest hub) **or** 410. Engineering choice. |
-| `/tools/cadence`, `/tools/storygen` | Archive/Legacy under Empower “More” or Learn-adjacent | keep URLs; demote in hub |
-| **New** `/empower/:tool` | 8 tools below | add |
-| `/engage`, games | Play Sphere | keep |
-| Retired engage games | `/engage` | keep 301s |
-| `/engage/whatto` | Archive dock, still noindex | keep |
-| `/lessons` | Learn Dock index | keep |
-| `/instructional-design` | Learn Dock | keep |
-| `/courses/ai-atlas` | Learn Dock | keep |
-| `/my-work` | `/work` | 301 now |
-| `/my-work/sewa-chronicles` | `/work/sewa-chronicles` | 301 now |
-| `/my-work/strong` | `/work/strong` | 301 now (also linked from Learn) |
-| `/my-work/*` | `/work/*` | 301 now, every sub-path, path-for-path |
-| `/about` | About Orbit | keep |
-| `/dialogue/*` | Dialogue Bay | keep |
-| `/downloads/*` | `/archive/downloads` | 301 |
-| `/colophon` | About Orbit secondary | keep |
-| `/lab/*`, `/glass-lab`, `/compose` | Archive / private | keep noindex |
-| `/educate/*` | `/` | keep 301 |
+**Disposition:** `keep` (final 200) · `301` · `308` · `404` (final response, not another redirect).
+
+A `301` or `308` target is always a `keep` URL. Do not copy today’s blind `/blogs/**` → `/elevate/**` or `/games/**` → `/engage/**` patterns. Those chain when the slug is itself a redirect (`/games/pictune` → `/engage/pictune` → `/engage`). Star rows do not include the exact parent (`/downloads/*` is not `/downloads`).
+
+**Checked 2026-11-05.** Sources: `https://www.entertrainer.in/sitemap.xml` (apex `https://entertrainer.in/sitemap.xml` is only the host **308** to www), sampled live HEAD/GET responses, `pages/**`, `content/navigation.json`, `content/blogs.ts`, `content/composed-posts.json`, `nuxt.config.ts` `routeRules`, and `vercel.json`. The path graph below was checked for chains and loops: no redirect target is also a redirect source, and no source appears twice with different targets. The apex→www 308 is host canonical only. Path rules run on www and are one hop. `/downloads` does not pass through `/`. `/my-work` does not pass through `/about`.
+
+#### Keep (final)
+
+| Source | Disposition | Final target | Note |
+|---|---|---|---|
+| `/` | keep | `/` | Sitemap. Nexus. |
+| `/elevate` | keep | `/elevate` | Sitemap. Observatory index. |
+| `/elevate/you-are-not-lazy-you-are-helping-the-universe-extend-its-life` | keep | same | Sitemap. |
+| `/elevate/why-isnt-the-moon-moonly` | keep | same | Sitemap. |
+| `/elevate/jamais-vu-why-words-stop-meaning-anything` | keep | same | Sitemap. |
+| `/elevate/the-midpoint-of-your-life-isnt-40-its-18` | keep | same | Sitemap. |
+| `/elevate/you-only-find-out-when-you-have-to-explain-it` | keep | same | Sitemap. |
+| `/elevate/tajjalan` | keep | same | Sitemap. |
+| `/elevate/your-mouth-can-be-sure-for-reasons-your-eyes-never-had` | keep | same | Sitemap. |
+| `/elevate/what-each-sacred-frequency-is-for` | keep | same | Sitemap. Home for the sacred-freq redirect. |
+| `/elevate/one-equals-two-lets-break-maths` | keep | same | Sitemap. |
+| `/elevate/are-72-432-and-25920-clues-or-just-numbers-we-learned-to-notice` | keep | same | Live **200**. Composed post. Not in the sitemap. |
+| `/empower` | keep | `/empower` | Sitemap. |
+| `/empower/plain-speak` | keep | same | New. |
+| `/empower/goal-shaper` | keep | same | New. |
+| `/empower/talk-track` | keep | same | New. |
+| `/empower/snap-to-text` | keep | same | New. |
+| `/empower/pdf-kit` | keep | same | New. |
+| `/empower/access-check` | keep | same | New. |
+| `/empower/recall-cards` | keep | same | New. |
+| `/empower/decision-matrix` | keep | same | New. |
+| `/tools/cadence` | keep | `/tools/cadence` | Sitemap. Demoted on the Empower hub. Final target of `training-cal-gen`. |
+| `/tools/storygen` | keep | `/tools/storygen` | Sitemap. Demoted on the Empower hub. Final target of `storyforge-id`. |
+| `/engage` | keep | `/engage` | Sitemap. |
+| `/engage/stack` | keep | same | Sitemap. |
+| `/engage/read-my-mind` | keep | same | Sitemap. |
+| `/engage/astroclock` | keep | same | Sitemap. |
+| `/engage/whatto` | keep | same | Live route. **noindex**. |
+| `/about` | keep | `/about` | Sitemap. |
+| `/instructional-design` | keep | same | Sitemap. Linked from `/learn`. |
+| `/courses/ai-atlas` | keep | same | Live **200**. Linked from `/learn`. Not in the sitemap. |
+| `/learn` | keep | `/learn` | New canonical Learn Dock. Replaces `/lessons`. |
+| `/work` | keep | `/work` | New. Replaces `/my-work`. |
+| `/work/sewa-chronicles` | keep | same | Content that is live at `/my-work/sewa-chronicles`. |
+| `/work/strong` | keep | same | Content that is live at `/my-work/strong`. Also linked from Learn. |
+| `/dialogue/` | keep | `/dialogue/` | Live **200**. Trailing slash is canonical. |
+| `/dialogue/library` | keep | same | `pages/dialogue/library.vue` |
+| `/dialogue/new` | keep | same | `pages/dialogue/new.vue` |
+| `/dialogue/settings` | keep | same | `pages/dialogue/settings.vue` |
+| `/dialogue/c/:id` | keep | same | `pages/dialogue/c/[id].vue` |
+| `/dialogue/**` except bare `/dialogue` | keep | same | Other app routes from `pages/dialogue/[...slug].vue`. |
+| `/colophon` | keep | `/colophon` | Sitemap. |
+| `/archive` | keep | `/archive` | New. Archive Vault landing. |
+| `/archive/downloads` | keep | same | New. Final target of `/downloads`. |
+| `/archive/downloads/templates` | keep | same | Moved from `/downloads/templates`. |
+| `/archive/downloads/frameworks` | keep | same | Moved from `/downloads/frameworks`. |
+| `/archive/downloads/resources` | keep | same | Moved from `/downloads/resources`. |
+| `/lab` | keep | `/lab` | Live **200**. **noindex**. |
+| `/lab/g01`–`/lab/g15` | keep | same | **noindex**. |
+| `/glass-lab` | keep | `/glass-lab` | Live **200**. **noindex**. |
+| `/compose` | keep | `/compose` | Live **200**. **noindex**. |
+
+#### Redirect and remove (one hop)
+
+| Source | Disposition | Final target | Note |
+|---|---|---|---|
+| `/lessons` | 301 | `/learn` | Live **200** index today. Canonical is `/learn`. |
+| `/lessons/*` | 301 | `/learn/*` | No child pages today. Any deep link still one hop. Unknown `/learn/*` is the 404 page, not a second redirect. |
+| `/my-work` | 301 | `/work` | Replaces the live **302** to `/about#sewa-chronicles`. |
+| `/my-work/sewa-chronicles` | 301 | `/work/sewa-chronicles` | Live **200**. Path-for-path. |
+| `/my-work/strong` | 301 | `/work/strong` | Live **200**. Path-for-path. |
+| `/my-work/*` | 301 | `/work/*` | Every other sub-path, path-for-path. Unknown slugs 404 at `/work/*` (live `/my-work/missing` is already 404). |
+| `/about/:slug` | 301 | `/about` | Explicit target. About nav is empty. Live unknown slugs 404. |
+| `/tools` | 301 | `/empower` | Already live. |
+| `/tools/easymcq` | 301 | `/empower` | Deleted. Locked 301. Live **200** today. In the sitemap. |
+| `/tools/better-emails` | 301 | `/empower` | Deleted. Locked 301. Live **200** today. In the sitemap. |
+| `/tools/training-cal-gen` | 301 | `/tools/cadence` | Already live. One hop to the kept URL. |
+| `/tools/storyforge-id` | 301 | `/tools/storygen` | Already live. One hop to the kept URL. |
+| `/blogs` | 301 | `/elevate` | Already live. |
+| `/blogs/you-are-not-lazy-you-are-helping-the-universe-extend-its-life` | 301 | `/elevate/you-are-not-lazy-you-are-helping-the-universe-extend-its-life` | Live essay. One hop. |
+| `/blogs/why-isnt-the-moon-moonly` | 301 | `/elevate/why-isnt-the-moon-moonly` | Live essay. |
+| `/blogs/jamais-vu-why-words-stop-meaning-anything` | 301 | `/elevate/jamais-vu-why-words-stop-meaning-anything` | Live essay. |
+| `/blogs/the-midpoint-of-your-life-isnt-40-its-18` | 301 | `/elevate/the-midpoint-of-your-life-isnt-40-its-18` | Live essay. |
+| `/blogs/you-only-find-out-when-you-have-to-explain-it` | 301 | `/elevate/you-only-find-out-when-you-have-to-explain-it` | Live essay. |
+| `/blogs/tajjalan` | 301 | `/elevate/tajjalan` | Live essay. Checked live. |
+| `/blogs/your-mouth-can-be-sure-for-reasons-your-eyes-never-had` | 301 | `/elevate/your-mouth-can-be-sure-for-reasons-your-eyes-never-had` | Live essay. |
+| `/blogs/what-each-sacred-frequency-is-for` | 301 | `/elevate/what-each-sacred-frequency-is-for` | Live essay. |
+| `/blogs/one-equals-two-lets-break-maths` | 301 | `/elevate/one-equals-two-lets-break-maths` | Live essay. |
+| `/blogs/are-72-432-and-25920-clues-or-just-numbers-we-learned-to-notice` | 301 | `/elevate/are-72-432-and-25920-clues-or-just-numbers-we-learned-to-notice` | Composed essay. |
+| `/blogs/the-sacred-frequencies-are-not-a-scale` | 301 | `/elevate/what-each-sacred-frequency-is-for` | Same final as the Elevate slug. Not via the old Elevate URL. |
+| `/elevate/the-sacred-frequencies-are-not-a-scale` | 301 | `/elevate/what-each-sacred-frequency-is-for` | In Nuxt `routeRules`. Add it to `vercel.json`. Checked live. |
+| `/blogs/if-you-are-intelligent-life-might-not-be-easy` | 301 | `/elevate` | Retired. Final index, one hop. |
+| `/elevate/if-you-are-intelligent-life-might-not-be-easy` | 301 | `/elevate` | Retired. |
+| `/blogs/does-ai-understand-you` | 301 | `/elevate` | Retired. |
+| `/elevate/does-ai-understand-you` | 301 | `/elevate` | Retired. |
+| `/blogs/how-to-lie-perfectly` | 301 | `/elevate` | Retired. |
+| `/elevate/how-to-lie-perfectly` | 301 | `/elevate` | Retired. |
+| `/blogs/the-voice-in-your-head-is-not-the-whole-of-you` | 301 | `/elevate` | Retired. |
+| `/elevate/the-voice-in-your-head-is-not-the-whole-of-you` | 301 | `/elevate` | Retired. |
+| `/blogs/you-are-the-centre-of-the-universe` | 301 | `/elevate` | Retired. |
+| `/elevate/you-are-the-centre-of-the-universe` | 301 | `/elevate` | Retired. |
+| `/blogs/can-you-reverse-the-spin-of-a-schwarz-surface` | 301 | `/elevate` | Retired. |
+| `/elevate/can-you-reverse-the-spin-of-a-schwarz-surface` | 301 | `/elevate` | Retired. |
+| `/downloads` | 301 | `/archive/downloads` | Replaces the live **302** to `/`. Direct. No chain through `/` or `/archive`. |
+| `/downloads/templates` | 301 | `/archive/downloads/templates` | Live **200** stub. |
+| `/downloads/frameworks` | 301 | `/archive/downloads/frameworks` | Live **200** stub. |
+| `/downloads/resources` | 301 | `/archive/downloads/resources` | Live **200** stub. |
+| `/downloads/*` | 301 | `/archive/downloads/*` | Any other slug, path-for-path, one hop. Unknown slugs 404 at the archive URL. |
+| `/dialogue` | 308 | `/dialogue/` | Already live. Trailing-slash canonical. |
+| `/educate` | 301 | `/` | Already live. |
+| `/educate/*` | 301 | `/` | Already live, including `/educate/foo`. One hop to `/`, not to a child. |
+| `/games` | 301 | `/engage` | Already live. |
+| `/games/stack` | 301 | `/engage/stack` | Live game. One hop. |
+| `/games/read-my-mind` | 301 | `/engage/read-my-mind` | Live game. |
+| `/games/astroclock` | 301 | `/engage/astroclock` | Live game. |
+| `/games/whatto` | 301 | `/engage/whatto` | Unlisted game stays. |
+| `/games/pictune` | 301 | `/engage` | Retired. Direct. Not `/engage/pictune`. |
+| `/engage/pictune` | 301 | `/engage` | Retired. |
+| `/games/velocity` | 301 | `/engage` | Retired. Direct. |
+| `/engage/velocity` | 301 | `/engage` | Retired. |
+| `/games/vilakku` | 301 | `/engage` | Retired. Direct. |
+| `/engage/vilakku` | 301 | `/engage` | Retired. |
+| `/games/vybe` | 301 | `/engage` | Retired. Direct. |
+| `/engage/vybe` | 301 | `/engage` | Retired. |
+| `/games/squash` | 301 | `/engage` | Retired. Direct. |
+| `/engage/squash` | 301 | `/engage` | Retired. |
+| `/games/fever` | 301 | `/engage` | Retired. Direct. |
+| `/engage/fever` | 301 | `/engage` | Retired. |
+| `/games/netagiri` | 301 | `/engage` | Retired. Direct. |
+| `/engage/netagiri` | 301 | `/engage` | Retired. |
+| `/games/gateway` | 301 | `/engage` | Retired. Direct. |
+| `/engage/gateway` | 301 | `/engage` | Retired. |
+| `/games/third-eye` | 301 | `/engage` | Retired. Direct. |
+| `/engage/third-eye` | 301 | `/engage` | Retired. |
+| `/games/solfeggio` | 301 | `/engage` | Retired. Direct. |
+| `/engage/solfeggio` | 301 | `/engage` | Retired. |
+| `/games/brainwave` | 301 | `/engage` | Retired. Direct. |
+| `/engage/brainwave` | 301 | `/engage` | Retired. |
+
+#### Terminal 404 (no redirect)
+
+| Source | Disposition | Final target | Note |
+|---|---|---|---|
+| `/tools/:slug` other than cadence, storygen, and the four redirected aliases | 404 | that URL | Do not catch these with a redirect to `/empower`. |
+| Any unmatched URL | 404 | that URL | Global 404 in §9.11. Not a redirect to `/`. |
 
 ### 5.3 URL scheme (target)
 
@@ -290,20 +417,27 @@ Essays, games, courses, and case studies stay. `/my-work` is renamed to `/work` 
 /empower/access-check
 /empower/recall-cards
 /empower/decision-matrix
+/tools/cadence          kept
+/tools/storygen         kept
 /engage                 Play Sphere
-/engage/:game           Games
-/learn                  Lessons + courses index
+/engage/:game           stack, read-my-mind, astroclock, whatto
+/learn                  Learn Dock (canonical)
 /instructional-design   (keep)
 /courses/ai-atlas       (keep)
-/work                   Projects index (public path now; replaces /my-work)
+/work                   Projects index
 /work/sewa-chronicles
 /work/strong
-# /my-work and /my-work/* 301 to /work and /work/*
-/dialogue/...
+/dialogue/              canonical trailing slash
 /about
 /colophon
+/archive                Archive Vault
 /archive/downloads
+/archive/downloads/templates
+/archive/downloads/frameworks
+/archive/downloads/resources
 ```
+
+Redirects are only in §5.2. `/lessons` → `/learn`. `/my-work` and `/my-work/*` → `/work` and `/work/*`. `/downloads` → `/archive/downloads`.
 
 ---
 
@@ -316,48 +450,100 @@ Essays, games, courses, and case studies stay. `/my-work` is renamed to `/work` 
 
 ### 6.2 Colour
 
+Ratios use the WCAG 2 relative-luminance formula. **AA normal** means at least 4.5:1. **AA large / non-text** means at least 3:1 and the pair is forbidden for normal-size text. Do not ship a pair under 3:1.
+
 #### Reading Mode (binding)
 
-| Token | Hex | OKLCH (approx) | Role |
+| Token | Hex | OKLCH | Role |
 |---|---|---|---|
-| `--rm-cream` | `#F7F1E4` | oklch(0.96 0.02 95) | Paper |
-| `--rm-cream-2` | `#EFE8D8` | oklch(0.93 0.025 95) | Sunken |
-| `--rm-ink` | `#0B0B0C` | oklch(0.12 0.005 280) | Text |
-| `--rm-muted` | `#5C574E` | oklch(0.45 0.015 85) | Secondary text |
-| `--rm-line` | `#C9C2B4` | oklch(0.82 0.02 95) | Hairline (non-text) |
-| `--rm-cobalt` | `#2F5BD8` | oklch(0.52 0.17 265) | **Only** accent |
-| `--rm-cobalt-ink` | `#1E3F9A` | oklch(0.42 0.15 265) | Text-on-cream links/buttons if needed |
-| `--rm-danger` | `#C0392B` | — | Errors (≥4.5:1 on cream) |
+| `--rm-cream` | `#F7F1E4` | oklch(0.96 0.018 86) | Paper, and dark-mode ink |
+| `--rm-cream-2` | `#EFE8D8` | oklch(0.93 0.022 87) | Sunken paper |
+| `--rm-ink` | `#0B0B0C` | oklch(0.15 0.002 286) | Text on cream |
+| `--rm-muted` | `#5C574E` | oklch(0.46 0.016 82) | Secondary text on cream only |
+| `--rm-line` | `#C9C2B4` | oklch(0.82 0.021 85) | Hairline. Non-text. |
+| `--rm-cobalt` | `#2F5BD8` | oklch(0.52 0.198 265) | Accent on cream. Links and large UI. |
+| `--rm-cobalt-ink` | `#1E3F9A` | oklch(0.40 0.154 265) | Darker cobalt text on cream |
+| `--rm-danger` | `#B33226` | oklch(0.51 0.168 29) | Error text on cream and cream-2 |
+| `--rm-paper-dark` | `#16140F` | oklch(0.19 0.010 89) | Dark Reading Mode paper |
+| `--rm-muted-dark` | `#A89888` | oklch(0.69 0.030 67) | Secondary text on dark paper |
+| `--rm-danger-dark` | `#E9786A` | oklch(0.70 0.142 29) | Error text on dark paper |
+| `--rm-cobalt-dark` | `#7A9AE8` | oklch(0.69 0.121 266) | Links and accent text on dark paper |
 
-**Contrast (WCAG AA):**
+Light muted `#5C574E` and light danger `#B33226` are **not used on dark paper**. They fail AA there (2.57:1 and 2.98:1). Dark mode swaps in `--rm-muted-dark` and `--rm-danger-dark`.
 
-| Pair | Ratio | AA normal |
-|---|---|---|
-| ink on cream | **17.48:1** | Pass |
-| muted on cream | **6.37:1** | Pass |
-| cobalt on cream | **5.17:1** | Pass (large+normal) |
-| white `#FFF` on cobalt | **5.82:1** | Pass |
-| cream on ink | **17.48:1** | Pass |
-| ink on cobalt | 3.38:1 | **Fail** for body — use white/cream on cobalt fills, not ink |
-
-Dark Reading Mode: invert paper→`#16140F`, ink→cream, cobalt lift→`#7A9AE8` (7.13:1 on ink).
+**PaperSignal SVGs (decided):** restyle yellow brand fills to reading cobalt `#2F5BD8` and cream. One accent only.
 
 #### World Layer
 
-| Token | Hex | Role |
+| Token | Hex | OKLCH | Role |
+|---|---|---|---|
+| `--wx-void` | `#07070A` | oklch(0.13 0.007 285) | Clear color / fog far |
+| `--wx-hull` | `#12131A` | oklch(0.19 0.014 279) | Architecture |
+| `--wx-hull-2` | `#1A1C28` | oklch(0.23 0.023 277) | Panels |
+| `--wx-emissive` | `#3D6AE0` | oklch(0.56 0.187 265) | Beacon fill and lines. **Not small text.** |
+| `--wx-emissive-soft` | `#7A9AE8` | oklch(0.69 0.121 266) | World text and secondary glow |
+| `--wx-star` | `#E8E4DC` | oklch(0.92 0.011 85) | Stars and world text |
+| `--wx-fog` | `#0B0C12` | oklch(0.16 0.013 277) | Exp fog. Non-text. |
+| `--wx-warning` | `#E8C547` | oklch(0.83 0.145 93) | Rare status text |
+
+World text is `--wx-star`, `--rm-cream`, or `--wx-emissive-soft`. `--wx-emissive` is fills, strokes, and beacons only. One emissive family. No second accent rainbow.
+
+#### Contrast (WCAG AA)
+
+Normal text pairs:
+
+| Pair | Ratio | Pass |
 |---|---|---|
-| `--wx-void` | `#07070A` | Clear color / fog far |
-| `--wx-hull` | `#12131A` | Architecture |
-| `--wx-hull-2` | `#1A1C28` | Panels |
-| `--wx-emissive` | `#2F5BD8` | Beacon / path |
-| `--wx-emissive-soft` | `#7A9AE8` | Secondary glow |
-| `--wx-star` | `#E8E4DC` | Sparse stars |
-| `--wx-fog` | `#0B0C12` | Exp fog |
-| `--wx-warning` | `#E8C547` | Rare status (not brand fill) |
+| ink `#0B0B0C` on cream `#F7F1E4` | 17.48:1 | AA normal |
+| ink `#0B0B0C` on cream-2 `#EFE8D8` | 16.12:1 | AA normal |
+| muted `#5C574E` on cream `#F7F1E4` | 6.37:1 | AA normal |
+| muted `#5C574E` on cream-2 `#EFE8D8` | 5.88:1 | AA normal |
+| cobalt `#2F5BD8` on cream `#F7F1E4` | 5.17:1 | AA normal |
+| cobalt `#2F5BD8` on cream-2 `#EFE8D8` | 4.77:1 | AA normal |
+| cobalt-ink `#1E3F9A` on cream `#F7F1E4` | 8.36:1 | AA normal |
+| cobalt-ink `#1E3F9A` on cream-2 `#EFE8D8` | 7.71:1 | AA normal |
+| white `#FFFFFF` on cobalt `#2F5BD8` | 5.82:1 | AA normal |
+| cream `#F7F1E4` on cobalt `#2F5BD8` | 5.17:1 | AA normal |
+| cream `#F7F1E4` on ink `#0B0B0C` | 17.48:1 | AA normal |
+| danger `#B33226` on cream `#F7F1E4` | 5.49:1 | AA normal |
+| danger `#B33226` on cream-2 `#EFE8D8` | 5.06:1 | AA normal |
+| white `#FFFFFF` on danger `#B33226` | 6.17:1 | AA normal |
+| cream `#F7F1E4` on danger `#B33226` | 5.49:1 | AA normal |
+| cream `#F7F1E4` on dark paper `#16140F` | 16.35:1 | AA normal |
+| muted-dark `#A89888` on dark paper `#16140F` | 6.58:1 | AA normal |
+| danger-dark `#E9786A` on dark paper `#16140F` | 6.45:1 | AA normal |
+| cobalt-dark `#7A9AE8` on dark paper `#16140F` | 6.67:1 | AA normal |
+| cobalt-dark `#7A9AE8` on ink `#0B0B0C` | 7.13:1 | AA normal |
+| white `#FFFFFF` on dark paper `#16140F` | 18.40:1 | AA normal |
+| star `#E8E4DC` on void `#07070A` | 15.87:1 | AA normal |
+| star `#E8E4DC` on hull `#12131A` | 14.61:1 | AA normal |
+| star `#E8E4DC` on hull-2 `#1A1C28` | 13.35:1 | AA normal |
+| cream `#F7F1E4` on void `#07070A` | 17.87:1 | AA normal |
+| cream `#F7F1E4` on hull `#12131A` | 16.46:1 | AA normal |
+| cream `#F7F1E4` on hull-2 `#1A1C28` | 15.04:1 | AA normal |
+| emissive-soft `#7A9AE8` on void `#07070A` | 7.30:1 | AA normal |
+| emissive-soft `#7A9AE8` on hull `#12131A` | 6.72:1 | AA normal |
+| emissive-soft `#7A9AE8` on hull-2 `#1A1C28` | 6.14:1 | AA normal |
+| warning `#E8C547` on void `#07070A` | 11.98:1 | AA normal |
+| warning `#E8C547` on hull `#12131A` | 11.03:1 | AA normal |
+| warning `#E8C547` on hull-2 `#1A1C28` | 10.08:1 | AA normal |
 
-World may use **warm hull undertones** and **one** emissive family (cobalt). No second accent rainbow.
+Restricted pairs. These stay in the system for fills, strokes, or large text only:
 
-**PaperSignal SVGs (decided):** restyle yellow brand fills to cobalt (`#2F5BD8`) and cream. One accent only.
+| Pair | Ratio | Allowed use |
+|---|---|---|
+| ink `#0B0B0C` on cobalt `#2F5BD8` | 3.38:1 | Large text (18pt / 14pt bold) or non-text. Not body, not small labels. On a cobalt fill, use white or cream. |
+| cobalt `#2F5BD8` on dark paper `#16140F` | 3.16:1 | Large text or non-text. Dark-mode links use `--rm-cobalt-dark`. |
+| emissive `#3D6AE0` on void `#07070A` | 4.15:1 | Non-text and large text only. Not small labels. |
+| emissive `#3D6AE0` on hull `#12131A` | 3.82:1 | Non-text and large text only. |
+| emissive `#3D6AE0` on hull-2 `#1A1C28` | 3.50:1 | Non-text and large text only. |
+
+Forbidden (under 3:1). Do not use:
+
+| Pair | Ratio | Why it is out |
+|---|---|---|
+| muted `#5C574E` on dark paper `#16140F` | 2.57:1 | Use `--rm-muted-dark` |
+| danger `#B33226` on dark paper `#16140F` | 2.98:1 | Use `--rm-danger-dark` |
 
 ### 6.3 Typography
 
@@ -391,7 +577,7 @@ Fluid type (Reading Mode) is a **rem-based scale**. Migrating off `html { font-s
 
 ### 6.4 Spacing, radii, elevation, grid
 
-- Spacing scale: 4 / 8 / 12 / 16 / 24 / 40 / 64 / 104 (φ-ish, aligns with existing 8–13–21–34–55–89).  
+- Spacing scale: 4 / 8 / 12 / 16 / 24 / 40 / 64 / 104 px. Old px-root values (where `Nrem` meant Npx) divide by 16 after the migration: 8→0.5rem, 13→0.8125rem, 21→1.3125rem, 34→2.125rem, 55→3.4375rem, 89→5.5625rem; the new scale is 0.25 / 0.5 / 0.75 / 1 / 1.5 / 2.5 / 4 / 6.5rem.  
 - Radii: Reading `4 / 8 / 12`; World architecture mostly **2–6px** or hard chamfer — avoid blob UI.  
 - Shadows: Reading — hairline + rare sticky; World — contact shadow in 3D, not CSS glow spam.  
 - Breakpoints: `sm 640` · `md 768` · `lg 1024` · `xl 1280` · `2xl 1536`.  
@@ -412,14 +598,19 @@ Fluid type (Reading Mode) is a **rem-based scale**. Migrating off `html { font-s
   --color-rm-line: #C9C2B4;
   --color-rm-cobalt: #2F5BD8;
   --color-rm-cobalt-ink: #1E3F9A;
-  --color-rm-danger: #C0392B;
+  --color-rm-danger: #B33226;
+  --color-rm-paper-dark: #16140F;
+  --color-rm-muted-dark: #A89888;
+  --color-rm-danger-dark: #E9786A;
+  --color-rm-cobalt-dark: #7A9AE8;
 
   --color-wx-void: #07070A;
   --color-wx-hull: #12131A;
   --color-wx-hull-2: #1A1C28;
-  --color-wx-emissive: #2F5BD8;
+  --color-wx-emissive: #3D6AE0;
   --color-wx-emissive-soft: #7A9AE8;
   --color-wx-star: #E8E4DC;
+  --color-wx-warning: #E8C547;
 
   --font-display: "Fraunces", Georgia, serif;
   --font-ui: "Archivo", "Helvetica Neue", Arial, sans-serif;
@@ -446,7 +637,7 @@ Fluid type (Reading Mode) is a **rem-based scale**. Migrating off `html { font-s
 }
 ```
 
-Dark Reading Mode overrides on `[data-theme="dark"]` as in Section 6.2.
+On `[data-theme="dark"]`, map paper to `--color-rm-paper-dark`, ink to `--color-rm-cream`, muted to `--color-rm-muted-dark`, danger to `--color-rm-danger-dark`, and cobalt text to `--color-rm-cobalt-dark`. Do not leave the light muted or light danger tokens on dark paper.
 
 **Root (decided):** do not set `html { font-size: 1px }`. Use the browser default `16px` root so the rem tokens above are a true rem scale.
 
@@ -594,7 +785,7 @@ Avoid 3-equal-card rainbow grids; use **task rows** + asymmetric featured “Rec
 
 ### 7.5 Existing tools
 
-EasyMCQ (`/tools/easymcq`) and Draftly (`/tools/better-emails`) are **deleted**. Do not fold them into Plain-Speak or any other tool. Remove their pages and hub cards. Old routes are Removed in §5.2 (301 to `/empower`, or 410 — engineering choice).
+EasyMCQ (`/tools/easymcq`) and Draftly (`/tools/better-emails`) are **deleted**. Do not fold them into Plain-Speak or any other tool. Remove their pages, hub cards, and the two PWA shortcuts in `nuxt.config` (`shortcuts` entries whose `url` is `/tools/easymcq` or `/tools/better-emails`). Keep the Dialogue and AstroClock shortcuts. Both old routes are **301 to `/empower`** (§5.2). Not 410.
 
 Cadence and StoryGen keep their URLs and sit under Empower “More” or Learn-adjacent.
 
@@ -647,7 +838,7 @@ Hub in Reading/World hybrid; games stay immersive canvases (Stack three.js) with
 
 ### 9.6 Learn `/learn`
 
-List: Instructional Design (4 min), AI Atlas (95 min), Strong (10 min). Primary for L&D.
+`/learn` is the only Learn index. `/lessons` and every `/lessons/*` sub-path 301 to the matching `/learn` path. The index lists Instructional Design (4 min, `/instructional-design`), AI Atlas (95 min, `/courses/ai-atlas`), and Strong (10 min, `/work/strong`). Those three URLs stay. Primary for L&D.
 
 ### 9.7 Work `/work`, `/work/sewa-chronicles`, `/work/strong`
 
@@ -663,9 +854,26 @@ Narrative + facts; portrait treatment once (audit).
 
 Keep app shell; Bay transition into existing UI.
 
-### 9.10 Archive / Downloads / Lab / Compose
+### 9.10 Archive `/archive`
 
-Utility Reading Mode; Lab remains noindex sandbox (Liquid Glass experiments inform shaders but are not the product UI).
+The Archive beacon opens `/archive`, a Reading Mode index. It links to `/archive/downloads` (templates, frameworks, resources), and, as quiet secondary links, to Lab and Compose. Lab, Glass Lab, and Compose stay noindex. `/downloads` 301s straight to `/archive/downloads`.
+
+### 9.11 Global 404 and route error (`RmError`)
+
+Unmatched URLs render this page and stop. They do not redirect to `/`.
+
+**Mobile:** A cream Reading Mode sheet, full width. No canvas required.
+- Eyebrow: `404`
+- Heading, focused on load: `This dock is empty.`
+- Body: `That address is not on the map.`
+- Stacked text links, 44px targets: Nexus `/`, Elevate `/elevate`, Empower `/empower`, Engage `/engage`, Learn `/learn`, Work `/work`, Archive `/archive`, About `/about`.
+- `Open map` opens `WorldMapSheet` when the shell is up. When it is not, the same control is a link to `/`.
+
+**Desktop:** The same copy in a Reading Mode panel, max 66ch, centered over the world poster, or over the live void if WebGL is running. Links wrap in a row. Nexus is the primary link. `Open map` sits beside it.
+
+**Route error** (same layout, different copy): eyebrow `Error`, heading `This page did not load.`, body `The link is fine. The page failed. Try again, or pick a zone.` Add `Try again` (reloads) and the same zone links.
+
+**Focus:** Move focus to the h1 (`tabindex="-1"`). The skip link still targets `#main`.
 
 ---
 
@@ -714,6 +922,20 @@ Utility Reading Mode; Lab remains noindex sandbox (Liquid Glass experiments info
 
 Full 3D → Lite 3D → Static poster (hatch/cobalt art) → CSS gradient void → no-JS SSR Reading HTML.
 
+The poster step is the `WorldFallbackPoster` in §10.5. The no-JS step is the same zone links as server-rendered HTML.
+
+### 10.5 WebGL failure and `WorldFallbackPoster`
+
+If WebGL is missing, context creation throws, or the tier is 0, `WorldCanvas` does not mount. `WorldFallbackPoster` renders in its place. Reduced motion uses this poster from the first paint. It does not wait for an error.
+
+**What renders:** Void `#07070A`, a flat hatch poster, a cobalt beacon drawn as SVG (not WebGL), the motto “Truth alone triumphs.”, the attribution “Mundaka Upanishad”, and a zone list.
+
+**Copy:** `The 3D view did not start. Every zone is in the list below.`
+
+**Zone links:** Elevate `/elevate`, Empower `/empower`, Engage `/engage`, Learn `/learn`, Work `/work`, Dialogue `/dialogue/`, About `/about`, Archive `/archive`. Masthead links stay as well.
+
+**Focus:** When the poster replaces the canvas, move focus to its heading. The zone links are next in tab order. People can open every zone with the keyboard and without a pointer.
+
 ---
 
 ## 11. Hero / intro storyboard
@@ -734,13 +956,49 @@ Skip control always. Session flag keeps preloader once per tab (existing pattern
 ## 12. Accessibility requirements
 
 - Skip link → `#main` focusable (`docs/wcag-22-audit.md`).  
-- World canvas: `role="img"` **or** application with accessible name; **visually hidden** text alternative describing zone and how to open Map.  
 - Keyboard: `Tab` chrome, arrow keys zone list in Map dialog, `Enter` to travel, `Esc` closes sheets; games document their own keys.  
-- Reading Mode: full screen reader path; headings hierarchy; 44×44 targets; focus 3px ink/cobalt.  
-- Don’t rely on gyro/color alone.  
+- Reading Mode: full screen reader path; headings hierarchy; 44×44 targets; focus 3px ink or cobalt.  
+- Don’t rely on gyro or color alone.  
 - Tool status via `aria-live`.  
 - Contrast pairs Section 6.2.  
-- Reduced motion / reduced transparency / more contrast media queries honored.
+- Reduced motion, reduced transparency, and more-contrast media queries are honored.
+
+### 12.1 Canvas, map, and zone announcements
+
+The canvas is `role="img"`. Do not use `role="application"`.
+
+```html
+<canvas role="img" aria-labelledby="world-canvas-label"></canvas>
+<p id="world-canvas-label" class="visually-hidden">
+  Satya Space. You are at the Nexus. Open the map to choose Elevate, Empower, Engage, Learn, Work, Dialogue, About, or Archive.
+</p>
+```
+
+The hidden name updates when the zone changes, using the same words as the live announcement.
+
+`WorldMapSheet` is `role="dialog"` and `aria-modal="true"`, labelled by its title. On open, move focus to the dialog title. `Esc` closes it and returns focus to the control that opened it.
+
+A polite live region sits on the Nexus and on every zone hub:
+
+```html
+<div id="world-status" aria-live="polite" aria-atomic="true" class="visually-hidden"></div>
+```
+
+Set its text when travel finishes. Under reduced motion, set it immediately. Do not update it on camera frames.
+
+| Zone | Announcement |
+|---|---|
+| Nexus | Entering the Nexus. |
+| Elevate | Entering Observatory. |
+| Empower | Entering Workshop. |
+| Engage | Entering Play Sphere. |
+| Learn | Entering Learn Dock. |
+| Work | Entering Work Ring. |
+| Dialogue | Entering Dialogue Bay. |
+| About | Entering About. |
+| Archive | Entering Archive. |
+
+After the announcement, move focus to that zone’s h1 in Reading Mode. On the Nexus, move focus to the motto heading. Do not leave focus on the canvas. The fallback poster in §10.5 uses the same zone names and the same focus rule.
 
 ---
 
@@ -749,6 +1007,8 @@ Skip control always. Session flag keeps preloader once per tab (existing pattern
 | Component | Purpose | Variants / states | Where | Reuse? |
 |---|---|---|---|---|
 | `WorldCanvas` | three.js shell | tiers 0–3 | Nexus, zone hubs | **New** |
+| `WorldFallbackPoster` | WebGL / Tier 0 stand-in | poster, zone links, focus on heading | Nexus, zone hubs | **New** |
+| `RmError` | Global 404 and route error | 404, error | Unmatched routes | **New** |
 | `ZoneBeacon` | Zone entry | idle/hover/focus/active | Nexus | **New** |
 | `WorldMapSheet` | 2D/3D map | open/closed | Global | **New** |
 | `RmDock` / `ReadingFrame` | Content sheet | docked/expanded | Articles, tools, about | **New** (wraps Shell) |
@@ -784,10 +1044,11 @@ Skip control always. Session flag keeps preloader once per tab (existing pattern
 2. Migrate off `html { font-size: 1px }` to a rem-based scale with a standard `16px` root (decided implementation requirement).  
 3. Tailwind `@theme` + dark variant. Ship **Syne** as the World display face (decided).  
 4. `ReadingFrame` + masthead modes.  
-5. Redirect table in `nuxt.config` / `vercel.json`. `/my-work` and `/my-work/*` 301 to `/work` and `/work/*` now. Removed tool routes: 301 to `/empower` or 410 (engineering choice).
+5. Redirect table in `nuxt.config` and `vercel.json`, copied from §5.2. One hop only. `/lessons` and `/lessons/*` 301 to `/learn` and `/learn/*`. `/my-work` and `/my-work/*` 301 to `/work` and `/work/*`. `/downloads` 301s to `/archive/downloads`. `/tools/easymcq` and `/tools/better-emails` 301 to `/empower`. Drop those two URLs from `pwa.manifest.shortcuts`.
+6. `RmError` and `WorldFallbackPoster`.
 
 ### Phase B — IA & Empower (FE)
-1. Learn routes. Ship `/work` now (index, SEWA, Strong) and 301 every `/my-work` path.  
+1. Ship `/learn` as the Learn index and `/archive` as the vault. Ship `/work` (index, SEWA, Strong).  
 2. Empower hub + 8 tools scaffolding + Dexie + SW caching plan.  
 3. Offline indicators.
 
@@ -795,7 +1056,7 @@ Skip control always. Session flag keeps preloader once per tab (existing pattern
 1. Tier detector.  
 2. Nexus scene + beacons.  
 3. Zone skyboxes.  
-4. Transitions + reduced-motion path.  
+4. Transitions + reduced-motion path, including the §12.1 zone announcement and focus move.  
 5. Gyro permission UX.  
 6. Postprocessing gated Tier 3.
 
@@ -813,8 +1074,7 @@ Skip control always. Session flag keeps preloader once per tab (existing pattern
 
 ### Open questions / blockers
 
-1. Compose/Lab remain noindex — confirm.  
-2. No repo access blocker — clone succeeded.
+None. Compose, Lab, Glass Lab, and Whatto stay noindex (§5.2).
 
 ---
 

@@ -307,8 +307,24 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="https://unpkg.com/konva@10/konva.min.js"></script>
-  <script src="https://unpkg.com/dexie@4/dist/dexie.js"></script>
+  <div id="vendor-error" hidden role="alert" style="margin:24px;padding:18px;border:2px solid #12110f;border-radius:12px;background:#f6f1e8;color:#12110f;font:16px/1.4 Inter,system-ui,sans-serif">
+    <p style="margin:0 0 14px">Dialogue couldn't load its drawing tools. Nothing was saved. Try again.</p>
+    <button type="button" id="vendor-retry" style="min-height:44px;padding:0 16px;border:0;border-radius:8px;background:#ffd43b;font-weight:700;cursor:pointer">Retry</button>
+  </div>
+  <script>
+    function dialogueVendorFailed() {
+      var el = document.getElementById('vendor-error');
+      if (el) el.hidden = false;
+      var splash = document.getElementById('splash');
+      if (splash) splash.classList.add('hide');
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      var btn = document.getElementById('vendor-retry');
+      if (btn) btn.addEventListener('click', function () { location.reload(); });
+    });
+  </script>
+  <script src="/dialogue/vendor/konva-10.9.1.min.js" onerror="dialogueVendorFailed()"></script>
+  <script src="/dialogue/vendor/dexie-4.4.7.js" onerror="dialogueVendorFailed()"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>

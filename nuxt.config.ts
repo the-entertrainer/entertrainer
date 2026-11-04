@@ -150,7 +150,7 @@ export default defineNuxtConfig({
           name: 'Dialogue — Comics from your pocket',
           short_name: 'Dialogue',
           description: 'Vertical webcomic studio for phones',
-          url: '/dialogue/',
+          url: '/dialogue',
           icons: [{ src: '/dialogue/icons/icon-192.png', sizes: '192x192', type: 'image/png' }]
         },
         {
@@ -211,8 +211,9 @@ export default defineNuxtConfig({
     '/tools': { redirect: { to: '/empower', statusCode: 301 } },
     '/blogs': { redirect: { to: '/elevate', statusCode: 301 } },
     '/blogs/**': { redirect: { to: '/elevate/**', statusCode: 301 } },
-    // Trailing slash required so static /dialogue/index.html assets resolve under /dialogue/.
-    '/dialogue': { redirect: { to: '/dialogue/', statusCode: 308 } },
+    // Page-level redirects, lifted here so a trailing slash resolves in one hop.
+    '/downloads': { redirect: { to: '/', statusCode: 302 } },
+    '/my-work': { redirect: { to: '/about#sewa-chronicles', statusCode: 302 } },
     // Educate section removed — keep old links from 404ing.
     '/educate': { redirect: { to: '/', statusCode: 301 } },
     '/educate/**': { redirect: { to: '/', statusCode: 301 } },
@@ -279,7 +280,11 @@ export default defineNuxtConfig({
     // publishes to .vercel/output, so Netlify's dist publish step fails and
     // the Header rules / Pages changed / Redirect rules checks all report
     // "Deploy failed" for the same deploy.
-    preset: process.env.NETLIFY ? 'netlify' : 'vercel',
+    preset: process.env.NITRO_PRESET || (process.env.NETLIFY ? 'netlify' : 'vercel'),
+    alias: {
+      // Hoisted h3@2 (from @nuxt/devtools) breaks readBody on Nitro's h3@1 events.
+      'h3-nitro': fileURLToPath(new URL('./node_modules/nitropack/node_modules/h3/dist/index.mjs', import.meta.url)),
+    },
     externals: {
       // Native and heavy render deps stay outside the server bundle.
       external: ['satori', '@resvg/resvg-js', 'pdf-lib'],

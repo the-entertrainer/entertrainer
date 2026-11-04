@@ -1,8 +1,9 @@
 /* Dialogue service worker — cache app shell + fonts + icons. Do NOT cache user comic blobs. */
-const CACHE = 'dialogue-shell-v7';
+const CACHE = 'dialogue-shell-v8';
 const SHELL = [
-  '/dialogue/',
-  '/dialogue/index.html',
+  '/dialogue/app.html',
+  '/dialogue/vendor/konva-10.9.1.min.js',
+  '/dialogue/vendor/dexie-4.4.7.js',
   '/dialogue/manifest.webmanifest',
   '/dialogue/css/dialogue.css',
   '/dialogue/js/utils.js',
@@ -123,7 +124,7 @@ self.addEventListener('fetch', (event) => {
           return res;
         } catch (err) {
           if (same && req.mode === 'navigate') {
-            return cache.match('/dialogue/index.html');
+            return cache.match('/dialogue/app.html');
           }
           throw err;
         }

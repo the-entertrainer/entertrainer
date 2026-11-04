@@ -10,7 +10,7 @@ definePageMeta({ layout: false })
 const route = useRoute()
 const src = computed(() => {
   const slug = Array.isArray(route.params.slug) ? route.params.slug.join('/') : route.params.slug
-  return `/dialogue/index.html#/${slug || ''}`
+  return `/dialogue/app.html#/${slug || ''}`
 })
 </script>
 

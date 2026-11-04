@@ -3,8 +3,8 @@
   "framework": "nuxtjs",
   "redirects": [
     {
-      "source": "/dialogue",
-      "destination": "/dialogue/",
+      "source": "/dialogue/",
+      "destination": "/dialogue",
       "permanent": true
     },
     {
@@ -15,6 +15,16 @@
     {
       "source": "/educate/:path*",
       "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/games/",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/games/:path(.*)/",
+      "destination": "/engage/:path",
       "permanent": true
     },
     {
@@ -78,6 +88,16 @@
       "permanent": true
     },
     {
+      "source": "/blogs/",
+      "destination": "/elevate",
+      "permanent": true
+    },
+    {
+      "source": "/blogs/:path(.*)/",
+      "destination": "/elevate/:path",
+      "permanent": true
+    },
+    {
       "source": "/blogs",
       "destination": "/elevate",
       "permanent": true
@@ -85,6 +105,56 @@
     {
       "source": "/blogs/:path*",
       "destination": "/elevate/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/my-work/",
+      "destination": "/about#sewa-chronicles",
+      "statusCode": 302
+    },
+    {
+      "source": "/my-work",
+      "destination": "/about#sewa-chronicles",
+      "statusCode": 302
+    },
+    {
+      "source": "/downloads/",
+      "destination": "/",
+      "statusCode": 302
+    },
+    {
+      "source": "/downloads",
+      "destination": "/",
+      "statusCode": 302
+    },
+    {
+      "source": "/educate/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/",
+      "destination": "/empower",
+      "permanent": true
+    },
+    {
+      "source": "/tools/training-cal-gen/",
+      "destination": "/tools/cadence",
+      "permanent": true
+    },
+    {
+      "source": "/tools/storyforge-id/",
+      "destination": "/tools/storygen",
+      "permanent": true
+    },
+    {
+      "source": "/tools/easymcq/",
+      "destination": "/empower",
+      "permanent": true
+    },
+    {
+      "source": "/tools/better-emails/",
+      "destination": "/empower",
       "permanent": true
     },
     {
@@ -155,6 +225,101 @@
     {
       "source": "/elevate/can-you-reverse-the-spin-of-a-schwarz-surface",
       "destination": "/elevate",
+      "permanent": true
+    },
+    {
+      "source": "/engage/pictune/",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/velocity/",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/vilakku/",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/vybe/",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/squash/",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/fever/",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/netagiri/",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/gateway/",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/third-eye/",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/solfeggio/",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/engage/brainwave/",
+      "destination": "/engage",
+      "permanent": true
+    },
+    {
+      "source": "/elevate/if-you-are-intelligent-life-might-not-be-easy/",
+      "destination": "/elevate",
+      "permanent": true
+    },
+    {
+      "source": "/elevate/does-ai-understand-you/",
+      "destination": "/elevate",
+      "permanent": true
+    },
+    {
+      "source": "/elevate/how-to-lie-perfectly/",
+      "destination": "/elevate",
+      "permanent": true
+    },
+    {
+      "source": "/elevate/the-voice-in-your-head-is-not-the-whole-of-you/",
+      "destination": "/elevate",
+      "permanent": true
+    },
+    {
+      "source": "/elevate/you-are-the-centre-of-the-universe/",
+      "destination": "/elevate",
+      "permanent": true
+    },
+    {
+      "source": "/elevate/can-you-reverse-the-spin-of-a-schwarz-surface/",
+      "destination": "/elevate",
+      "permanent": true
+    },
+    {
+      "source": "/elevate/the-sacred-frequencies-are-not-a-scale/",
+      "destination": "/elevate/what-each-sacred-frequency-is-for",
+      "permanent": true
+    },
+    {
+      "source": "/:path(.*)/",
+      "destination": "/:path",
       "permanent": true
     }
   ],

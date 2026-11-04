@@ -1676,7 +1676,21 @@
     };
   }
 
+  function showVendorError() {
+    const el = document.getElementById('vendor-error');
+    if (el) el.hidden = false;
+    const splash = document.getElementById('splash');
+    if (splash) splash.classList.add('hide');
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
-    init().catch((e) => console.error(e));
+    if (!window.Konva || !window.Dexie) {
+      showVendorError();
+      return;
+    }
+    init().catch((e) => {
+      console.error(e);
+      showVendorError();
+    });
   });
 })();

@@ -1,6 +1,6 @@
 /**
  * Canonical URLs have no trailing slash. `/dialogue/` and any other `/path/`
- * 308 once to the slashless path. The site root stays `/`.
+ * 301 once to the slashless path. The site root stays `/`.
  */
 export default defineEventHandler((event) => {
   const raw = event.node?.req?.url || event.path || '/'
@@ -9,7 +9,7 @@ export default defineEventHandler((event) => {
   const search = q === -1 ? '' : raw.slice(q)
   if (path.length <= 1 || !path.endsWith('/')) return
   const dest = (path.replace(/\/+$/, '') || '/') + search
-  event.node.res.statusCode = 308
+  event.node.res.statusCode = 301
   event.node.res.setHeader('location', dest)
   event.node.res.setHeader('content-type', 'text/html; charset=utf-8')
   const safe = dest.replace(/"/g, '%22')

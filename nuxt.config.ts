@@ -41,6 +41,13 @@ export default defineNuxtConfig({
   // which cannot leave content invisible when JavaScript is slow or an
   // observer never fires.
   modules: ['@pinia/nuxt', '@vite-pwa/nuxt'],
+  experimental: {
+    defaults: {
+      nuxtLink: {
+        trailingSlash: 'remove',
+      },
+    },
+  },
   // Faces first, then the system that uses them.
   css: ['~/assets/css/fonts.css', '~/assets/css/main.css'],
   runtimeConfig: {
@@ -212,8 +219,8 @@ export default defineNuxtConfig({
     '/blogs': { redirect: { to: '/elevate', statusCode: 301 } },
     '/blogs/**': { redirect: { to: '/elevate/**', statusCode: 301 } },
     // Page-level redirects, lifted here so a trailing slash resolves in one hop.
-    '/downloads': { redirect: { to: '/', statusCode: 302 } },
-    '/my-work': { redirect: { to: '/about#sewa-chronicles', statusCode: 302 } },
+    '/downloads': { redirect: { to: '/', statusCode: 301 } },
+    '/my-work': { redirect: { to: '/about#sewa-chronicles', statusCode: 301 } },
     // Educate section removed — keep old links from 404ing.
     '/educate': { redirect: { to: '/', statusCode: 301 } },
     '/educate/**': { redirect: { to: '/', statusCode: 301 } },
@@ -239,9 +246,27 @@ export default defineNuxtConfig({
     '/elevate/you-are-the-centre-of-the-universe': { redirect: { to: '/elevate', statusCode: 301 } },
     '/elevate/can-you-reverse-the-spin-of-a-schwarz-surface': { redirect: { to: '/elevate', statusCode: 301 } },
     '/elevate/the-sacred-frequencies-are-not-a-scale': { redirect: { to: '/elevate/what-each-sacred-frequency-is-for', statusCode: 301 } },
-    // Games renamed to Engage.
+    // Games renamed to Engage. Retired slugs skip /engage/<slug>, which is itself a 301.
     '/games': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/pictune': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/velocity': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/vilakku': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/vybe': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/squash': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/fever': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/netagiri': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/gateway': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/third-eye': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/solfeggio': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/brainwave': { redirect: { to: '/engage', statusCode: 301 } },
     '/games/**': { redirect: { to: '/engage/**', statusCode: 301 } },
+    '/blogs/if-you-are-intelligent-life-might-not-be-easy': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/blogs/does-ai-understand-you': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/blogs/how-to-lie-perfectly': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/blogs/the-voice-in-your-head-is-not-the-whole-of-you': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/blogs/you-are-the-centre-of-the-universe': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/blogs/can-you-reverse-the-spin-of-a-schwarz-surface': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/blogs/the-sacred-frequencies-are-not-a-scale': { redirect: { to: '/elevate/what-each-sacred-frequency-is-for', statusCode: 301 } },
   },
   alias: {
     '@astroclock': fileURLToPath(new URL('./astroclock', import.meta.url)),

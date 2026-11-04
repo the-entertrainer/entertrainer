@@ -39,7 +39,13 @@ export function slashlessTarget(path: string): string {
   if (path === '/tools/easymcq' || path.startsWith('/tools/easymcq/')) return '/empower'
   if (path === '/tools/better-emails' || path.startsWith('/tools/better-emails/')) return '/empower'
   if (path === '/educate' || path.startsWith('/educate/')) return '/'
-  if (path.startsWith('/blogs/')) return '/elevate' + path.slice('/blogs'.length)
-  if (path.startsWith('/games/')) return '/engage' + path.slice('/games'.length)
+  if (path.startsWith('/blogs/')) {
+    const elevated = '/elevate' + path.slice('/blogs'.length)
+    return EXACT[elevated] || elevated
+  }
+  if (path.startsWith('/games/')) {
+    const engaged = '/engage' + path.slice('/games'.length)
+    return EXACT[engaged] || engaged
+  }
   return path
 }

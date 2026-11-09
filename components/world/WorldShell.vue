@@ -432,6 +432,11 @@ function onKey(event: KeyboardEvent) {
     return
   }
   if (mapOpen.value) {
+    if (event.key === 'm' || event.key === 'M') {
+      event.preventDefault()
+      closeMap()
+      return
+    }
     trap(event, mapRef.value?.root)
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
       event.preventDefault()
@@ -500,8 +505,11 @@ function onVisibility() {
   hidden.value = document.hidden
 }
 
-watch(() => store.tier, () => {
+const qualityLabel = computed(() => (store.tier >= 3 ? 'Quality: High' : 'Quality: Standard'))
+
+watch(() => store.tier, (tier, previous) => {
   if (!acceptTierWatch) return
+  if (previous >= 3 && tier > 0 && tier < 3) statusText.value = qualityLabel.value
   void syncEngine()
 })
 
@@ -654,9 +662,10 @@ onBeforeUnmount(() => {
           v-if="store.flagship && store.override === null"
           type="button"
           class="quality"
-          @click="store.setQualityHigh(!store.qualityHigh)"
+          :aria-label="qualityLabel"
+          @click="store.setQualityHigh(store.tier < 3)"
         >
-          {{ store.qualityHigh ? 'Quality: High' : 'Quality: Standard' }}
+          {{ qualityLabel }}
         </button>
       </div>
     </div>

@@ -168,6 +168,10 @@ export const useWorldTierStore = defineStore('worldTier', {
       this.tier = next.tier
       this.reason = next.reason ?? this.reason
       this.probing = next.probing
+      if (this.tier < 3 && this.qualityHigh) {
+        this.qualityHigh = false
+        if (this.signals) this.signals = { ...this.signals, qualityHigh: false }
+      }
     },
 
     forceStatic(reason: string) {

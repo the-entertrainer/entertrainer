@@ -31,12 +31,24 @@ function lineOf(source, index) {
   return source.slice(0, index).split('\n').length
 }
 
+const keyboardHint = /\bpress(?:es|ed)?\s+(?:enter|esc|escape|space)\b/gi
+
+function flagged(text) {
+  const spoken = text.replace(keyboardHint, ' ')
+  return word.test(spoken)
+}
+
 function scan(source) {
   const hits = []
+  const seen = new Set()
   const note = (index, text) => {
     const trimmed = text.replace(/\s+/g, ' ').trim()
-    if (!trimmed || !word.test(trimmed)) return
-    hits.push({ line: lineOf(source, index), text: trimmed.slice(0, 160) })
+    const spoken = trimmed.replace(/^['"]+|['"]+$/g, '')
+    if (!spoken || !flagged(spoken)) return
+    const key = `${lineOf(source, index)}:${spoken}`
+    if (seen.has(key)) return
+    seen.add(key)
+    hits.push({ line: lineOf(source, index), text: spoken.slice(0, 160) })
   }
 
   const template = source.match(/<template[^>]*>[\s\S]*?<\/template>/)
@@ -75,6 +87,17 @@ for (const root of roots) {
       issues.push(`${relative(process.cwd(), file)}:${hit.line}: ${hit.text}`)
     }
   }
+}
+
+const sample = `<template>
+  <button :title="'Scrolled past'" :aria-label="'Press Esc'" aria-label="Scroll the map">Press Esc</button>
+  <p>Press the poster</p>
+</template>`
+const sampleHits = scan(sample).map((hit) => hit.text)
+const scrolled = sampleHits.filter((hit) => hit === 'Scrolled past')
+if (scrolled.length !== 1 || sampleHits.some((hit) => /\bpress esc\b/i.test(hit)) || !sampleHits.includes('Scroll the map') || !sampleHits.includes('Press the poster')) {
+  console.error('lint:copy self-check failed', sampleHits)
+  process.exit(1)
 }
 
 if (issues.length) {

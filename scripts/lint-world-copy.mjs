@@ -2,47 +2,79 @@
 /**
  * Flags pointer-only words in Satya Space copy.
  * Event handlers, CSS, and media queries are ignored.
+ * Line numbers are source lines, not offsets in the extracted text.
  */
 import { readdir, readFile } from 'node:fs/promises'
 import { join, relative } from 'node:path'
 
-const root = join(process.cwd(), 'components/world')
-const word = /\b(click|clicks|clicked|hover|hovers|hovered|tap|taps|tapped|drag|drags|dragged)\b/i
+const word = /\b(click|clicks|clicked|hover|hovers|hovered|tap|taps|tapped|drag|drags|dragged|swipe|swipes|swiped|press|presses|pressed|scroll|scrolls|scrolled)\b/i
 
-async function files(dir) {
+const roots = [
+  join(process.cwd(), 'components/world'),
+  join(process.cwd(), 'error.vue'),
+  join(process.cwd(), 'pages/index.vue'),
+]
+
+async function files(path) {
+  const stat = await readdir(path, { withFileTypes: true }).catch(() => null)
+  if (!stat) return [path]
   const out = []
-  for (const entry of await readdir(dir, { withFileTypes: true })) {
-    const path = join(dir, entry.name)
-    if (entry.isDirectory()) out.push(...await files(path))
-    else if (/\.(vue|ts)$/.test(entry.name)) out.push(path)
+  for (const entry of stat) {
+    const next = join(path, entry.name)
+    if (entry.isDirectory()) out.push(...await files(next))
+    else if (/\.(vue|ts)$/.test(entry.name)) out.push(next)
   }
   return out
 }
 
-function copyOf(source) {
-  const bits = []
-  const template = source.match(/<template[^>]*>([\s\S]*?)<\/template>/)
+function lineOf(source, index) {
+  return source.slice(0, index).split('\n').length
+}
+
+function scan(source) {
+  const hits = []
+  const note = (index, text) => {
+    const trimmed = text.replace(/\s+/g, ' ').trim()
+    if (!trimmed || !word.test(trimmed)) return
+    hits.push({ line: lineOf(source, index), text: trimmed.slice(0, 160) })
+  }
+
+  const template = source.match(/<template[^>]*>[\s\S]*?<\/template>/)
   if (template) {
-    bits.push(template[1].replace(/<[^>]+>/g, '\n'))
-    for (const attr of template[1].matchAll(/\b(?:aria-label|title|alt|placeholder)="([^"]*)"/g)) {
-      bits.push(attr[1])
+    const start = template.index ?? 0
+    const text = />([^<]+)</g
+    let match
+    while ((match = text.exec(template[0]))) note(start + match.index, match[1])
+    const attr = /\b(?:aria-label|title|alt|placeholder)="([^"]*)"/g
+    while ((match = attr.exec(template[0]))) note(start + match.index, match[1])
+    const bound = /\b(?:aria-label|title|alt|placeholder)="'([^']*)'"/g
+    while ((match = bound.exec(template[0]))) note(start + match.index, match[1])
+  }
+
+  const script = source.match(/<script[^>]*>[\s\S]*?<\/script>/)
+  const region = script
+    ? { start: script.index ?? 0, code: script[0] }
+    : template
+      ? null
+      : { start: 0, code: source }
+  if (region) {
+    const literal = /`([^`\\]*(?:\\.[^`\\]*)*)`|'([^'\\]*(?:\\.[^'\\]*)*)'|"([^"\\]*(?:\\.[^"\\]*)*)"/g
+    let match
+    while ((match = literal.exec(region.code))) {
+      note(region.start + match.index, match[1] ?? match[2] ?? match[3] ?? '')
     }
   }
-  const script = source.match(/<script[^>]*>([\s\S]*?)<\/script>/)
-  const code = script ? script[1] : source
-  for (const literal of code.matchAll(/`([^`\\]*(?:\\.[^`\\]*)*)`|'([^'\\]*(?:\\.[^'\\]*)*)'|"([^"\\]*(?:\\.[^"\\]*)*)"/g)) {
-    bits.push(literal[1] ?? literal[2] ?? literal[3] ?? '')
-  }
-  return bits.join('\n')
+  return hits
 }
 
 const issues = []
-for (const file of await files(root)) {
-  const text = copyOf(await readFile(file, 'utf8'))
-  const lines = text.split('\n')
-  lines.forEach((line, index) => {
-    if (word.test(line)) issues.push(`${relative(process.cwd(), file)}:${index + 1}: ${line.trim()}`)
-  })
+for (const root of roots) {
+  for (const file of await files(root)) {
+    const source = await readFile(file, 'utf8')
+    for (const hit of scan(source)) {
+      issues.push(`${relative(process.cwd(), file)}:${hit.line}: ${hit.text}`)
+    }
+  }
 }
 
 if (issues.length) {

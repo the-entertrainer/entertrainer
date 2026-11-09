@@ -41,17 +41,23 @@ if (probe.status !== 0) process.exit(probe.status ?? 1)
 let chromium
 try {
   ;({ chromium } = await import('playwright-core'))
-} catch {
-  console.log('world-context-loss: probe chain ok; browser checks need playwright-core, which this branch does not install')
-  process.exit(0)
+} catch (error) {
+  console.error('playwright-core is required. Install it as a devDependency.', error)
+  process.exit(1)
 }
 
 const base = process.env.BASE_URL || 'http://127.0.0.1:3000'
-const browser = await chromium.launch({
-  executablePath: process.env.CHROME || '/usr/bin/google-chrome',
-  headless: true,
-  args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-webgl', '--ignore-gpu-blocklist'],
-})
+let browser
+try {
+  browser = await chromium.launch({
+    executablePath: process.env.CHROME || '/usr/bin/google-chrome',
+    headless: true,
+    args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-webgl', '--ignore-gpu-blocklist'],
+  })
+} catch (error) {
+  console.error('Could not launch the browser. This script does not skip.', error)
+  process.exit(1)
+}
 
 async function open() {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
@@ -129,9 +135,196 @@ if (kept.focus !== 'engage') {
   process.exit(1)
 }
 console.log('anchor focus ok', kept)
-if (focused.errors.length || timeout.errors.length || restore.errors.length) {
-  console.error('page errors', restore.errors, timeout.errors, focused.errors)
-  process.exit(1)
+
+async function dismissMotion(page) {
+  const notNow = page.getByRole('button', { name: 'Not now' })
+  if (await notNow.count()) await notNow.click()
 }
-await browser.close()
-console.log('world-context-loss ok')
+
+async function spoofFlagship(page) {
+  await page.addInitScript(() => {
+    try {
+      Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, get: () => 16 })
+    } catch { /* already exposed */ }
+    try {
+      Object.defineProperty(navigator, 'deviceMemory', { configurable: true, get: () => 8 })
+    } catch { /* already exposed */ }
+    const orig = HTMLCanvasElement.prototype.getContext
+    HTMLCanvasElement.prototype.getContext = function (type, attrs) {
+      const gl = orig.call(this, type, attrs)
+      if (!gl || gl.__satyaSpoof || (type !== 'webgl' && type !== 'webgl2')) return gl
+      const getParameter = gl.getParameter.bind(gl)
+      const ext = gl.getExtension('WEBGL_debug_renderer_info')
+      gl.getParameter = (pname) => {
+        const renderer = ext ? ext.UNMASKED_RENDERER_WEBGL : 0x9246
+        const vendor = ext ? ext.UNMASKED_VENDOR_WEBGL : 0x9245
+        if (pname === renderer) return 'ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Direct3D11 vs_5_0 ps_5_0, D3D11)'
+        if (pname === vendor) return 'Google Inc. (NVIDIA)'
+        return getParameter(pname)
+      }
+      gl.__satyaSpoof = true
+      return gl
+    }
+  })
+}
+
+function track(page) {
+  const errors = []
+  page.on('pageerror', (err) => errors.push(String(err)))
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') errors.push(msg.text())
+  })
+  return errors
+}
+
+async function liveFrame(page, tier) {
+  await page.waitForFunction((want) => {
+    const stage = document.querySelector('.world-shell')
+    const canvas = stage?.querySelector('canvas')
+    const gl = canvas && (canvas.getContext('webgl2') || canvas.getContext('webgl'))
+    return stage?.dataset.tier === want
+      && stage.dataset.loop === 'running'
+      && Number(stage.dataset.calls) > 0
+      && canvas
+      && gl
+      && !gl.isContextLost()
+  }, tier, { timeout: 20000 })
+}
+
+async function flagshipPage(path) {
+  const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } })
+  const errors = track(page)
+  const client = await page.context().newCDPSession(page)
+  await client.send('Emulation.setHardwareConcurrencyOverride', { hardwareConcurrency: 16 })
+  await spoofFlagship(page)
+  await page.goto(`${base}${path}`, { waitUntil: 'networkidle', timeout: 60000 })
+  await dismissMotion(page)
+  return { page, errors }
+}
+
+try {
+  const map = await open()
+  await map.page.getByRole('button', { name: 'Map', exact: true }).click()
+  await map.page.waitForSelector('#satya-map-title')
+  await map.page.keyboard.press('Escape')
+  await map.page.waitForFunction(() => document.activeElement?.hasAttribute('data-map-button'))
+  await map.page.getByRole('button', { name: 'Map', exact: true }).click()
+  await map.page.waitForSelector('#satya-map-title')
+  await map.page.getByRole('button', { name: 'Close', exact: true }).click()
+  await map.page.waitForFunction(() => document.activeElement?.hasAttribute('data-map-button'))
+  console.log('map focus returns to the Map button')
+
+  const redirects = []
+  map.page.on('response', (res) => {
+    const status = res.status()
+    if (status >= 300 && status < 400 && res.url().includes('/dialogue')) {
+      redirects.push({ status, url: res.url(), location: res.headers()['location'] || '' })
+    }
+  })
+  await map.page.getByRole('button', { name: 'Dialogue', exact: true }).click()
+  await map.page.waitForURL((url) => url.pathname === '/dialogue', { timeout: 20000 })
+  if (redirects.length) {
+    console.error('Dialogue link redirected', redirects)
+    process.exit(1)
+  }
+  console.log('dialogue link ok', map.page.url())
+  await map.page.close()
+
+  const direct = await browser.newPage()
+  const directResponse = await direct.goto(`${base}/dialogue`, { waitUntil: 'domcontentloaded', timeout: 60000 })
+  const directPath = new URL(direct.url()).pathname
+  if (directPath !== '/dialogue' || directResponse?.request().redirectedFrom() || directResponse?.status() !== 200) {
+    console.error('GET /dialogue should be 200 with no redirect', directPath, directResponse?.status())
+    process.exit(1)
+  }
+  const slash = await direct.goto(`${base}/dialogue/`, { waitUntil: 'domcontentloaded', timeout: 60000 })
+  const slashPath = new URL(direct.url()).pathname
+  const slashFrom = slash?.request().redirectedFrom()
+  const slashStatus = (await slashFrom?.response())?.status()
+  if (slashPath !== '/dialogue' || slash?.status() !== 200 || slashStatus !== 301 || slashFrom?.redirectedFrom()) {
+    console.error('GET /dialogue/ should be a single 301 to /dialogue', slashPath, slash?.status(), slashStatus, Boolean(slashFrom?.redirectedFrom()))
+    process.exit(1)
+  }
+  console.log('dialogue slash redirects once')
+  await direct.close()
+
+  const probe = await flagshipPage('/?measure=1')
+  const started = await state(probe.page)
+  if (started.tier !== '2') {
+    console.error('spoofed flagship should start at tier 2', started)
+    process.exit(1)
+  }
+  await liveFrame(probe.page, '2')
+  await probe.page.evaluate(() => window.__satya.applyProbe(20))
+  await liveFrame(probe.page, '1')
+  await probe.page.waitForFunction(() => {
+    const stage = document.querySelector('.world-shell')
+    const canvas = stage?.querySelector('canvas')
+    const gl = canvas && (canvas.getContext('webgl2') || canvas.getContext('webgl'))
+    return stage?.dataset.tier === '1'
+      && stage.dataset.probing === 'false'
+      && Number(stage.dataset.fps) >= 28
+      && stage.dataset.loop === 'running'
+      && Number(stage.dataset.calls) > 0
+      && gl
+      && !gl.isContextLost()
+  }, { timeout: 20000 })
+  await liveFrame(probe.page, '1')
+  if (probe.errors.length) {
+    console.error('probe drop 2 to 1 logged errors', probe.errors)
+    process.exit(1)
+  }
+  console.log('probe drop 2 to 1 rendered', await state(probe.page))
+  await probe.page.close()
+
+  const quality = await flagshipPage('/')
+  await liveFrame(quality.page, '2')
+  await quality.page.getByRole('button', { name: 'Quality: Standard' }).click()
+  await liveFrame(quality.page, '3')
+  await quality.page.waitForFunction(() => {
+    const stage = document.querySelector('.world-shell')
+    const canvas = stage?.querySelector('canvas')
+    const gl = canvas && (canvas.getContext('webgl2') || canvas.getContext('webgl'))
+    const tier = stage?.dataset.tier
+    return (tier === '2' || tier === '3')
+      && stage?.dataset.probing === 'false'
+      && stage?.dataset.loop === 'running'
+      && Number(stage?.dataset.calls) > 0
+      && stage?.dataset.fps !== ''
+      && gl
+      && !gl.isContextLost()
+  }, { timeout: 20000 })
+  const end = await quality.page.evaluate(() => {
+    const stage = document.querySelector('.world-shell')
+    const canvas = stage?.querySelector('canvas')
+    const gl = canvas && (canvas.getContext('webgl2') || canvas.getContext('webgl'))
+    return {
+      tier: stage?.dataset.tier,
+      loop: stage?.dataset.loop,
+      calls: Number(stage?.dataset.calls || 0),
+      fps: stage?.dataset.fps,
+      lost: !gl || gl.isContextLost(),
+    }
+  })
+  if (end.tier === '0' || end.loop !== 'running' || end.calls < 1 || end.lost) {
+    console.error('quality toggle did not keep a rendering frame', end)
+    process.exit(1)
+  }
+  if (quality.errors.length) {
+    console.error('quality toggle logged errors', quality.errors)
+    process.exit(1)
+  }
+  console.log('quality toggle 2 to 3 rendered', end)
+
+  if (focused.errors.length || timeout.errors.length || restore.errors.length || map.errors.length) {
+    console.error('page errors', restore.errors, timeout.errors, focused.errors, map.errors)
+    process.exit(1)
+  }
+  console.log('world-context-loss ok')
+} catch (error) {
+  console.error('world-context-loss failed', error)
+  process.exitCode = 1
+} finally {
+  await browser.close()
+}
+process.exit(process.exitCode || 0)

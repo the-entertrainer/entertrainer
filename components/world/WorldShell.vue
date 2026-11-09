@@ -20,6 +20,8 @@ const store = useWorldTierStore()
 
 const hostEl = ref<HTMLElement | null>(null)
 const canvasEl = ref<HTMLCanvasElement | null>(null)
+const mapButton = ref<HTMLButtonElement | null>(null)
+const canvasKey = ref(0)
 const mapRef = ref<{ root: HTMLElement | null } | null>(null)
 const sheetRef = ref<{ root: HTMLElement | null } | null>(null)
 
@@ -88,32 +90,17 @@ function publishMeasure() {
     restore() {
       ext?.restoreContext()
     },
+    applyProbe(fps: number) {
+      store.applyProbe(fps)
+    },
   }
-}
-
-function waitForContextLoss(canvas: HTMLCanvasElement): Promise<void> {
-  const gl = canvas.getContext('webgl2') || canvas.getContext('webgl')
-  if (!gl || gl.isContextLost()) return Promise.resolve()
-  return new Promise((resolve) => {
-    let settled = false
-    const done = () => {
-      if (settled) return
-      settled = true
-      canvas.removeEventListener('webglcontextlost', done)
-      resolve()
-    }
-    canvas.addEventListener('webglcontextlost', done)
-    window.setTimeout(done, 120)
-  })
 }
 
 async function syncEngine() {
   const token = ++mountToken
   const previous = handle
   handle = null
-  const canvas = canvasEl.value
   previous?.dispose(true)
-  if (previous && canvas) await waitForContextLoss(canvas)
   if (token !== mountToken) return
   store.setLoop('idle')
   if (store.tier === 0) {
@@ -121,6 +108,10 @@ async function syncEngine() {
     if (context.value !== 'lost') context.value = 'ok'
     return
   }
+  // A lost context sticks to its canvas. Every mount gets a new element.
+  canvasKey.value += 1
+  calls.value = 0
+  triangles.value = 0
   await nextTick()
   if (token !== mountToken || store.tier === 0 || !canvasEl.value) return
   const tier = store.tier
@@ -332,6 +323,12 @@ function openMap() {
   })
 }
 
+function closeMap() {
+  if (!mapOpen.value) return
+  mapOpen.value = false
+  nextTick(() => mapButton.value?.focus())
+}
+
 function onSelect(id: AnchorId) {
   mapCursor.value = id
   void lookAt(id)
@@ -425,7 +422,7 @@ function onKey(event: KeyboardEvent) {
     }
     if (mapOpen.value) {
       event.preventDefault()
-      mapOpen.value = false
+      closeMap()
     }
     return
   }
@@ -464,7 +461,7 @@ function onKey(event: KeyboardEvent) {
 
   if (event.key === 'm' || event.key === 'M') {
     event.preventDefault()
-    if (mapOpen.value) mapOpen.value = false
+    if (mapOpen.value) closeMap()
     else openMap()
   }
 }
@@ -601,10 +598,12 @@ onBeforeUnmount(() => {
     :data-points="points"
     :data-dpr="dpr"
     :data-fps="store.fps ?? ''"
+    :data-probing="store.probing ? 'true' : 'false'"
     :data-reason="store.reason"
   >
     <canvas
       v-if="store.tier > 0"
+      :key="canvasKey"
       ref="canvasEl"
       class="stage__canvas"
       role="img"
@@ -645,7 +644,7 @@ onBeforeUnmount(() => {
           >
             {{ link.label }}
           </button>
-          <button type="button" @click="openMap">Map</button>
+          <button ref="mapButton" type="button" data-map-button @click="openMap">Map</button>
         </nav>
         <p class="meta">
           Tier {{ store.tier }} · {{ tierLabel(store.tier) }}
@@ -674,7 +673,7 @@ onBeforeUnmount(() => {
       ref="mapRef"
       :open="mapOpen"
       :current="mapCursor"
-      @close="mapOpen = false"
+      @close="closeMap"
       @select="onSelect"
     />
   </div>
@@ -757,7 +756,7 @@ onBeforeUnmount(() => {
   font-family: var(--font-mono), ui-monospace, monospace;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: 12px;
   color: #7A9AE8;
 }
 

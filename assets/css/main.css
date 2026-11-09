@@ -458,7 +458,7 @@ html[data-reduce-motion="on"] .u-chapter-path::before { animation: none !importa
 /* Metadata: issue numbers, dates, counts, category labels. */
 .t-mono {
   font-family: var(--font-mono);
-  font-size: var(--type-meta);
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: var(--tracking-meta);
   text-transform: uppercase;

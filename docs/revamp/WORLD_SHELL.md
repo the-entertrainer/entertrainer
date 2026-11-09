@@ -1,6 +1,6 @@
 # Satya Space world shell
 
-Production Nexus at `/`. The lab spike stays in its own draft PR. This branch was cut from `cursor/phase2-cleanup-95ad` (PR #76, still open when the branch was made) because that cleanup removes `ogl` and `konva`. Do not import `ogl`.
+Production Nexus at `/`. The lab spike stays in its own draft PR. This branch was rebased onto `main` after PR #76 merged as `28061bc`. Do not import `ogl`.
 
 The design spec on `main` (`docs/revamp/DESIGN_SPEC.md`, PR #75) is the source of truth. Two contract notes:
 
@@ -19,7 +19,9 @@ Tiers 0–3 use the spec’s detection order, the DPR caps (1 on Tier 1, 1.5 on 
 
 Context loss follows §10.5. The first `webglcontextlost` is `preventDefault`ed and the loop stops. If `webglcontextrestored` fires and one frame renders, the same zone resumes and the live region says “The 3D view is back.” A timeout, a failed rebuild, or a second loss in the same view disposes geometries, materials, textures, render targets, and the renderer (no `forceContextLoss` once the context is already dead), removes the canvas, and shows the poster with “The 3D view stopped. Every zone is in the list below.” Focus moves to that anchor’s poster link when a zone control had focus, otherwise to the motto heading. `scripts/world-context-loss.mjs` checks this with `WEBGL_lose_context`, plus the ZoneLinks order and the Tier 3 probe math. The loop also pauses when the tab is hidden or the shell is off screen.
 
-The canvas is `role="img"` with a visually hidden name. A live region announces arrivals. The zone list is real buttons (or links, on the poster). Arrow keys move through that list. `M` opens the map; Escape closes it; the map’s title takes focus.
+The canvas is `role="img"` with a visually hidden name. A live region announces arrivals. The zone list is real buttons (or links, on the poster). Arrow keys move through that list. `M` opens the map and the map’s title takes focus. Escape and Close return focus to the Map button.
+
+A tier change disposes the old renderer, then mounts the next tier on a new canvas element. A lost WebGL context stays lost on its canvas, so the next renderer never reuses that element. `scripts/world-context-loss.mjs` covers a probe drop from Tier 2 to Tier 1 and the Quality: High toggle from Tier 2 to Tier 3. Both must finish on a live frame with no console errors. The script exits non-zero when a case fails, the browser is missing, or an exception is thrown. It does not skip. `@playwright/test` (devDependency, from the #76 cleanup) supplies `playwright-core`. That package stays out of the Vercel function (`nitro.externals`).
 
 ## Files outside `components/world/` and `composables/world/`
 
@@ -28,9 +30,13 @@ The canvas is `role="img"` with a visually hidden name. A live region announces 
 | `pages/index.vue` | Mounts `WorldShell` on the client and `WorldFallbackPoster` as the server fallback. The wrapper reserves `calc(100dvh - var(--nav-h))` so the footer does not move on hydration. The existing `useSeoMeta` lines are unchanged. |
 | `error.vue` | The link list is `WORLD_ZONE_LINKS` instead of `NAV`. Rows are at least 44px tall. Nothing else on the page changed. |
 | `package.json` | `npm run check` also runs `lint:copy`. |
-| `scripts/lint-world-copy.mjs` | Flags click, hover, tap, and drag in world copy. |
-| `scripts/world-context-loss.mjs` | Context-loss browser checks, plus the 3 → 2 → 1 → 0 probe chain. |
+| `scripts/lint-world-copy.mjs` | Flags click, hover, tap, drag, swipe, press, and scroll in `components/world`, `error.vue`, and `pages/index.vue`. Line numbers are source lines. |
+| `scripts/world-context-loss.mjs` | Context-loss, map focus, probe remount, Quality: High remount, and the `/dialogue` link. Non-zero exit on any failure. |
 | `docs/revamp/WORLD_SHELL.md` | This report. |
+| `nuxt.config.ts` | Adds `playwright-core` to `nitro.externals` so the dev-only browser driver stays out of the Vercel function. |
+| `assets/css/main.css` | `.t-mono` is 12px. |
+| `components/ed/Footer.vue` | Fine print is 12px. |
+| `components/ed/Masthead.vue` | The word-of-the-day control’s accessible name and sheet label say WOD, matching the visible tiles. |
 
 ## Lighthouse mobile (`/?tier=0`, `nuxt dev`, 390×844)
 
@@ -98,4 +104,4 @@ Not measured: a physical phone, Safari, thermal throttling, or a discrete GPU. D
 - The shell links to `/dialogue`. `nuxt.config.ts` on this branch still 308s that path to `/dialogue/`. The spec now says the slash should 301 the other way. This PR does not edit route rules.
 - Workbox precaches every JS file, including the world engine, for every install.
 - No image textures yet. The spec does not set a texture byte cap.
-- PR #76 had not merged when this branch was cut. Rebase onto `main` and retarget the PR after it lands.
+- Rebased onto `main` at `28061bc` (PR #76). The PR base is `main`.

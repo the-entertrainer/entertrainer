@@ -111,7 +111,7 @@ defineProps<{
 .fallback__tier {
   margin: 4px 0 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #7A9AE8;

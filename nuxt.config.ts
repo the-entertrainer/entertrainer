@@ -315,7 +315,7 @@ export default defineNuxtConfig({
     },
     externals: {
       // Native and heavy render deps stay outside the server bundle.
-      external: ['satori', '@resvg/resvg-js', 'pdf-lib'],
+      external: ['satori', '@resvg/resvg-js', 'pdf-lib', 'playwright-core'],
     },
     vercel: {
       functions: {

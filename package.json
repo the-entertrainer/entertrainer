@@ -17,7 +17,7 @@
     "check:voice": "node --experimental-strip-types scripts/check-human-not-model.mjs",
     "smoke:dialogue": "node scripts/dialogue-smoke.mjs",
     "check:social-hooks": "node scripts/check-social-hooks.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "NITRO_PRESET=node-server nuxt build && playwright test"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",

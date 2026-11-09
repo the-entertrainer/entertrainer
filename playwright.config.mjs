@@ -1,7 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
 
-// Serves the production build (.output from `nuxt build`). Use
-// NITRO_PRESET=node-server so this process can boot the server locally.
+// Serves the production build. `npm run test:e2e` builds with
+// NITRO_PRESET=node-server first, so this server can boot locally.
+// The default `npm run build` stays on the Vercel preset.
 // @playwright/test stays a devDependency and is not imported by the app.
 export default defineConfig({
   testDir: 'e2e',

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useThemeStore } from '~/stores/theme'
-import { NAV } from '~/content/editorial'
+import { WORLD_ZONE_LINKS } from '~/composables/world/worldRoutes'
 
 /**
  * Nuxt's app-wide error page. It replaces app.vue wholesale, so everything the
@@ -28,8 +28,8 @@ useHead({ title: isNotFound.value ? 'Page not found â€” Entertrainer' : 'Error â
     <main id="main">
       <UiContentShell :eyebrow="`Error ${error?.statusCode ?? ''}`" :title="title" :deck="deck">
         <ul class="err__list">
-          <li v-for="it in NAV" :key="it.href">
-            <NuxtLink :to="it.href" class="err__row">
+          <li v-for="it in WORLD_ZONE_LINKS" :key="it.id">
+            <NuxtLink :to="it.route" class="err__row">
               <span class="err__t">{{ it.label }}</span>
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" /></svg>
@@ -52,6 +52,7 @@ useHead({ title: isNotFound.value ? 'Page not found â€” Entertrainer' : 'Error â
 .err__row {
   display: grid; grid-template-columns: minmax(0, 1fr) 16rem;
   align-items: center; gap: 14rem;
+  min-height: 44rem;
   padding: 14rem 8rem;
   border-bottom: var(--stroke) solid var(--line);
   transition: background var(--dur-fast) var(--ease-out);

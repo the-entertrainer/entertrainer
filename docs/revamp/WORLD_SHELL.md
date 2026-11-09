@@ -15,7 +15,7 @@ The design spec on `main` (`docs/revamp/DESIGN_SPEC.md`, PR #75) is the source o
 
 `travelTo(id)` only moves the camera. `enterReading(id)` plays that flight (a cut when reduced motion is on or the tier is 0), then `navigateTo`s the anchor route and moves focus to the destination `h1`. `/?at=<id>` restores the camera on that anchor and focuses its control.
 
-Tiers 0–3 use the spec’s detection order, the DPR caps (1 on Tier 1, 1.5 on Tier 2 and 3), and `?tier=0|1|2|3`. The FPS probe drops a tier when the average of 45 frames is under 28 fps. Tier 3 also drops to Tier 2 when that average is under 50 fps, because the post chain is what misses the desktop frame budget. `?tier=` stays pinned. Tier 0 is `WorldFallbackPoster` (section 10.5), including reduced motion. Post-processing runs on Tier 3 only. `WORLD_ZONE_LINKS` is spec §4.4’s ZoneLinks list. The spec’s example path is `content/zone-links.ts`; the export lives in `composables/world/worldRoutes.ts` so it stays next to the anchor registry and out of the three.js graph.
+Tiers 0–3 use the spec’s detection order, the DPR caps (1 on Tier 1, 1.5 on Tier 2 and 3), and `?tier=0|1|2|3`. The FPS probe drops one tier per window. Tier 3 drops to Tier 2 when the average is under 50 fps. Any tier under 28 fps drops one step. After every automatic drop, the probe re-arms while the tier is still above the poster, so a sustained 20 fps run goes 3 → 2 → 1 → 0. A pinned `?tier=` does not drop and does not re-arm. `scripts/world-context-loss.mjs` checks that chain. Tier 0 is `WorldFallbackPoster` (section 10.5), including reduced motion. Post-processing runs on Tier 3 only. `WORLD_ZONE_LINKS` is spec §4.4’s ZoneLinks list, also used by `error.vue`. The spec’s example path is `content/zone-links.ts`; the export lives in `composables/world/worldRoutes.ts`.
 
 Context loss follows §10.5. The first `webglcontextlost` is `preventDefault`ed and the loop stops. If `webglcontextrestored` fires and one frame renders, the same zone resumes and the live region says “The 3D view is back.” A timeout, a failed rebuild, or a second loss in the same view disposes geometries, materials, textures, render targets, and the renderer (no `forceContextLoss` once the context is already dead), removes the canvas, and shows the poster with “The 3D view stopped. Every zone is in the list below.” Focus moves to that anchor’s poster link when a zone control had focus, otherwise to the motto heading. `scripts/world-context-loss.mjs` checks this with `WEBGL_lose_context`, plus the ZoneLinks order and the Tier 3 probe math. The loop also pauses when the tab is hidden or the shell is off screen.
 
@@ -25,7 +25,23 @@ The canvas is `role="img"` with a visually hidden name. A live region announces 
 
 | File | Change |
 |---|---|
-| `pages/index.vue` | Replaced the quote switchboard with a single root that mounts `WorldShell` on the client and `WorldFallbackPoster` as the server fallback. The existing `useSeoMeta` lines are unchanged. |
+| `pages/index.vue` | Mounts `WorldShell` on the client and `WorldFallbackPoster` as the server fallback. The wrapper reserves `calc(100dvh - var(--nav-h))` so the footer does not move on hydration. The existing `useSeoMeta` lines are unchanged. |
+| `error.vue` | The link list is `WORLD_ZONE_LINKS` instead of `NAV`. Rows are at least 44px tall. Nothing else on the page changed. |
+| `package.json` | `npm run check` also runs `lint:copy`. |
+| `scripts/lint-world-copy.mjs` | Flags click, hover, tap, and drag in world copy. |
+| `scripts/world-context-loss.mjs` | Context-loss browser checks, plus the 3 → 2 → 1 → 0 probe chain. |
+| `docs/revamp/WORLD_SHELL.md` | This report. |
+
+## Lighthouse mobile (`/?tier=0`, `nuxt dev`, 390×844)
+
+Same machine, same flags, before and after the reserved shell height.
+
+| | Performance | CLS |
+|---|---|---|
+| Before | 21 | 0.701 |
+| After | 50 | 0 |
+
+The absolute Performance score is this dev server (QA’s earlier run was 35). The layout shift the audit named on `footer.ft` is gone.
 
 No `nuxt.config.ts` edit. The home route is already a dynamic import, and `mountWorld` is a second dynamic import that runs only when the tier is above 0.
 
@@ -76,7 +92,7 @@ Not measured: a physical phone, Safari, thermal throttling, or a discrete GPU. D
 ## Risks
 
 - `hardwareConcurrency <= 4` forces Tier 1. Many phones will never see Tier 2.
-- Unpinned Tier 3 now drops to Tier 2 when the probe is under 50 fps. A real GPU that holds 60 stays on Tier 3. Keep bloom off phones.
+- Unpinned Tier 3 drops to Tier 2 when the probe is under 50 fps, then the probe runs again. A real GPU that holds 60 stays on Tier 3. Keep bloom off phones.
 - The 180 KB budget is the three chunk. `Backdrop3d.vue` still namespace-imports three, which blocks tree-shaking. That file is outside this ownership.
 - `/learn`, `/work`, and `/archive` 404 until the frontend PR adds them. The handoff navigates there on purpose.
 - The shell links to `/dialogue`. `nuxt.config.ts` on this branch still 308s that path to `/dialogue/`. The spec now says the slash should 301 the other way. This PR does not edit route rules.

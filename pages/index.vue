@@ -28,3 +28,13 @@ const WorldShell = defineAsyncComponent({
     </ClientOnly>
   </div>
 </template>
+
+<style scoped>
+/* Same box as .stage in WorldShell, so the footer does not move when the
+   client shell replaces this SSR poster. */
+.world-home {
+  position: relative;
+  height: calc(100dvh - var(--nav-h, 55rem));
+  min-height: 560px;
+}
+</style>

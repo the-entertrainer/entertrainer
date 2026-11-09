@@ -59,7 +59,10 @@ const readingAnchor = computed(() => (reading.value ? anchorById(reading.value) 
 const zoneAnchor = computed(() => anchorById(zone.value))
 const description = computed(() => {
   const place = zoneAnchor.value.label
-  return `Satya Space, an orbital archive. You are at ${place}. Drag to look around, or open the map and choose a place. Choosing one opens a reading sheet. Tier ${store.tier}, ${tierLabel(store.tier)}.`
+  if (store.tier === 0) {
+    return `Satya Space, an orbital archive. You are at ${place}. Choose a zone from the list to open it.`
+  }
+  return `Satya Space, an orbital archive. You are at ${place}. Open the map and choose a place. Selecting one opens that section.`
 })
 const showGyro = computed(() => gyroState.value === 'ask' && store.tier >= 2 && !store.reducedMotion)
 
@@ -680,7 +683,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .stage {
   position: relative;
-  height: calc(100dvh - var(--nav-h, 0px));
+  height: 100%;
   min-height: 560px;
   background: #07070A;
   color: #E8E4DC;

@@ -57,6 +57,20 @@ export function tierAfterProbe(tier: WorldTier, avgFps: number, pinned: boolean)
   return { tier, reason: null }
 }
 
+/**
+ * One automatic step, then re-arm while anything above the poster remains.
+ * A pinned `?tier=` neither drops nor schedules another probe.
+ */
+export function probeFollowUp(tier: WorldTier, avgFps: number, pinned: boolean): { tier: WorldTier, reason: string | null, probing: boolean } {
+  const next = tierAfterProbe(tier, avgFps, pinned)
+  const dropped = next.tier !== tier
+  return {
+    tier: next.tier,
+    reason: next.reason,
+    probing: dropped && next.tier > 0,
+  }
+}
+
 export function parseTierQuery(raw: unknown): WorldTier | null {
   const value = Array.isArray(raw) ? raw[0] : raw
   if (value === 0 || value === '0') return 0

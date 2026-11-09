@@ -11,7 +11,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 // H3 v2 (Nuxt auto-imports) calls event.req.text() in readBody, but Nitro 2.x
 // creates H3 v1.x events where event.req is a Node.js IncomingMessage — not a
 // Web Request — so .text() doesn't exist. Read directly from the Node.js
-// stream to bypass this version mismatch (see better-emails.post.ts).
+// stream to bypass this version mismatch.
 function parseBody(event: any): Promise<any> {
   const req = event.node?.req ?? event.req
   return new Promise((resolve, reject) => {

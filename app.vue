@@ -60,7 +60,11 @@ useHead({
     innerHTML: "try{if(sessionStorage.getItem('entertrainer.preloader-done')==='1')document.documentElement.dataset.preloader='done'}catch(e){}"
   }]
 })
-const socialPreview = computed(() => getSocialPreview(r.path))
+const canonicalPath = computed(() => {
+  const path = r.path || '/'
+  return path.length > 1 ? path.replace(/\/+$/, '') : path
+})
+const socialPreview = computed(() => getSocialPreview(canonicalPath.value))
 const socialImage = computed(() => getSocialImage(socialPreview.value))
 const isElevateArticle = computed(() => r.path.startsWith('/elevate/') && r.path !== '/elevate/')
 
@@ -70,7 +74,7 @@ useSeoMeta({
   ogType: () => socialPreview.value.type ?? 'website',
   ogTitle: () => socialPreview.value.title,
   ogDescription: () => socialPreview.value.description,
-  ogUrl: () => `${SITE_URL}${r.path}`,
+  ogUrl: () => `${SITE_URL}${canonicalPath.value}`,
   ogImage: () => socialImage.value,
   ogImageAlt: () => socialPreview.value.imageAlt ?? `Entertrainer preview: ${socialPreview.value.title}`,
   twitterCard: 'summary_large_image',
@@ -81,7 +85,7 @@ useSeoMeta({
 })
 
 useHead({
-  link: () => [{ key: 'canonical', rel: 'canonical', href: `${SITE_URL}${r.path}` }]
+  link: () => [{ key: 'canonical', rel: 'canonical', href: `${SITE_URL}${canonicalPath.value}` }]
 })
 
 // `/lab` itself is an index page and keeps the chrome; `/lab/g07` is an
@@ -96,8 +100,7 @@ const bare = computed(() =>
   r.path.startsWith('/engage/read-my-mind') ||
   r.path.startsWith('/engage/astroclock') ||
   r.path.startsWith('/engage/whatto') ||
-  r.path.startsWith('/engage/stack') ||
-  r.path.startsWith('/engage/squash')
+  r.path.startsWith('/engage/stack')
 )
 
 onMounted(() => {

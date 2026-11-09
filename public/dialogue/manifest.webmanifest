@@ -2,7 +2,7 @@
   "name": "Dialogue",
   "short_name": "Dialogue",
   "description": "Comics from your pocket.",
-  "start_url": "/dialogue/",
+  "start_url": "/dialogue/app.html",
   "scope": "/dialogue/",
   "display": "standalone",
   "orientation": "portrait",

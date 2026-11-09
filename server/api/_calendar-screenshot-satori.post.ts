@@ -1,12 +1,7 @@
 // Export calendar as PNG or PDF using Satori (pure-JS SVG renderer).
-// No Chromium binary — works on Vercel with zero cold-start penalty.
-//
-// Option B (external screenshot API) scaffold lives in
-// server/api/_calendar-screenshot-pw.post.ts — swap the endpoint URL in
-// the client and POST the same JSON body to Screenshotone / Browserless
-// if this approach needs replacing.
+// No Chromium binary. No page calls this route.
 
-import { defineEventHandler, readBody, setResponseHeader } from 'h3'
+import { readBody, setResponseHeader } from 'h3-nitro'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Session {
@@ -33,8 +28,8 @@ async function loadFont(weight: 400 | 700): Promise<ArrayBuffer> {
     `https://fonts.googleapis.com/css2?family=DM+Sans:wght@${weight}&display=swap`,
     { headers: { 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36' } }
   ).then(r => r.text())
-  // Last match = latin subset (no unicode-range restriction)
-  const urls = [...css.matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/g)]
+  // Google serves woff2 to browsers and ttf to other agents. Satori accepts both.
+  const urls = [...css.matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/g)]
   const url  = urls.at(-1)?.[1]
   if (!url) throw new Error(`DM Sans ${weight}: font URL not found`)
   const buf = await fetch(url).then(r => r.arrayBuffer())
@@ -169,7 +164,17 @@ function buildTree(body: {
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
 export default defineEventHandler(async (event) => {
-  const body   = await readBody(event)
+  const parsed = await readBody(event)
+  const raw = parsed && typeof parsed === 'object' ? parsed as Record<string, any> : {}
+  const body = {
+    calTitle: String(raw.calTitle || 'Training calendar'),
+    calOrg: String(raw.calOrg || ''),
+    calDept: String(raw.calDept || ''),
+    selectedMonth: Number(raw.selectedMonth) || 1,
+    selectedYear: Number(raw.selectedYear) || new Date().getFullYear(),
+    calDays: Array.isArray(raw.calDays) ? raw.calDays : [],
+    format: raw.format,
+  }
   const format = body.format === 'pdf' ? 'pdf' : 'png'
   const stem   = `training-calendar-${body.selectedYear}-${String(body.selectedMonth).padStart(2, '0')}`
 

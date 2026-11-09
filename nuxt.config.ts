@@ -177,14 +177,37 @@ export default defineNuxtConfig({
       skipWaiting: true,
       clientsClaim: true,
       cleanupOutdatedCaches: true,
-      globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+      globPatterns: ['**/*.{js,css,html,svg,png,woff2,wasm}'],
       navigateFallback: '/',
-      navigateFallbackDenylist: [/^\/api\//],
+      navigateFallbackDenylist: [/^\/api\//, /^\/empower(?:\/|$)/, /^\/tesseract\//],
+      // Tesseract's English model is 12.8 MB. It is cached on first Snap-to-Text
+      // use (runtime cache below), not in the precache, so the publication's
+      // service worker install does not download it for every visitor.
+      // The wasm core (2.8 MB) is under the precache limit and is included.
       maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       runtimeCaching: [
         {
           urlPattern: /^\/api\/.*/,
           handler: 'NetworkOnly',
+        },
+        {
+          urlPattern: /\/empower(?:\/|$|\?)/,
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'empower-pages',
+            networkTimeoutSeconds: 3,
+            expiration: { maxEntries: 24, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            cacheableResponse: { statuses: [200] },
+          },
+        },
+        {
+          urlPattern: /\/tesseract\//,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'empower-ocr',
+            expiration: { maxEntries: 8, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            cacheableResponse: { statuses: [200] },
+          },
         },
         // The publication's own faces are precached by globPatterns above —
         // they are first-party files now. What is left on a CDN is the Strong

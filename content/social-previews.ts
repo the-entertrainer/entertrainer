@@ -124,8 +124,72 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   '/empower': {
     key: 'empower',
     label: 'Empower',
-    title: 'Empower · Tools by Entertrainer',
-    description: 'Small browser tools for the awkward, repeating work.',
+    title: 'Empower · Everyday tools by Entertrainer',
+    description: 'Everyday tools for clearer thinking and work. They run in your browser — private, and available offline once loaded.',
+    image: `${SITE_URL}/og-engage.jpg`,
+    imageAlt: 'Four quiet tool marks on cream paper.'
+  },
+  '/empower/plain-speak': {
+    key: 'empower-plain-speak',
+    label: 'Plain-Speak Meter',
+    title: 'Plain-Speak Meter · Empower',
+    description: 'Paste a draft. We’ll mark the fog.',
+    image: `${SITE_URL}/og-engage.jpg`,
+    imageAlt: 'Four quiet tool marks on cream paper.'
+  },
+  '/empower/goal-shaper': {
+    key: 'empower-goal-shaper',
+    label: 'Goal Shaper',
+    title: 'Goal Shaper · Empower',
+    description: 'What are you trying to make true?',
+    image: `${SITE_URL}/og-engage.jpg`,
+    imageAlt: 'Four quiet tool marks on cream paper.'
+  },
+  '/empower/talk-track': {
+    key: 'empower-talk-track',
+    label: 'Talk Track',
+    title: 'Talk Track · Empower',
+    description: 'Drop a deck. Get words you’d actually say.',
+    image: `${SITE_URL}/og-engage.jpg`,
+    imageAlt: 'Four quiet tool marks on cream paper.'
+  },
+  '/empower/snap-to-text': {
+    key: 'empower-snap-to-text',
+    label: 'Snap-to-Text',
+    title: 'Snap-to-Text · Empower',
+    description: 'Photo to text. Leaves your device.',
+    image: `${SITE_URL}/og-engage.jpg`,
+    imageAlt: 'Four quiet tool marks on cream paper.'
+  },
+  '/empower/pdf-kit': {
+    key: 'empower-pdf-kit',
+    label: 'PDF Kit',
+    title: 'PDF Kit · Empower',
+    description: 'PDFs that never go to a server.',
+    image: `${SITE_URL}/og-engage.jpg`,
+    imageAlt: 'Four quiet tool marks on cream paper.'
+  },
+  '/empower/access-check': {
+    key: 'empower-access-check',
+    label: 'Access Check',
+    title: 'Access Check · Empower',
+    description: 'A first pass before the formal audit.',
+    image: `${SITE_URL}/og-engage.jpg`,
+    imageAlt: 'Four quiet tool marks on cream paper.'
+  },
+  '/empower/recall-cards': {
+    key: 'empower-recall-cards',
+    label: 'Recall Cards',
+    title: 'Recall Cards · Empower',
+    description: 'Paste notes. Remember them later.',
+    image: `${SITE_URL}/og-engage.jpg`,
+    imageAlt: 'Four quiet tool marks on cream paper.'
+  },
+  '/empower/decision-matrix': {
+    key: 'empower-decision-matrix',
+    label: 'Decision Matrix',
+    title: 'Decision Matrix · Empower',
+    description: 'Name the options. Weight what matters. See what wins.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Four quiet tool marks on cream paper.'
   },

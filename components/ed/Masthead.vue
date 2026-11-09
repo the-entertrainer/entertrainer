@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { WORLD_ZONE_LINKS, type WorldZoneId } from '~/content/zone-links'
+import { WORLD_ZONE_LINKS, type WorldAnchorId } from '~/content/zone-links'
 import { useThemeStore } from '~/stores/theme'
 
-const PRIMARY_ZONE_IDS = ['elevate', 'empower', 'engage', 'learn', 'story'] as const satisfies readonly WorldZoneId[]
+const PRIMARY_ZONE_IDS = ['elevate', 'empower', 'engage', 'learn', 'story'] as const satisfies readonly WorldAnchorId[]
 const NAV = PRIMARY_ZONE_IDS.map((id) => {
   const link = WORLD_ZONE_LINKS.find((item) => item.id === id)
   if (!link) throw new Error(`Missing zone ${id}`)
@@ -75,7 +75,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           type="button"
           class="mh__icon mh__icon--wotd u-icon-btn"
           aria-haspopup="dialog"
-          :aria-label="wotdDot ? 'Word of the Day — new for today' : 'Word of the Day'"
+          :aria-label="wotdDot ? 'WOD — new for today' : 'WOD'"
           @click="openWotd()"
         >
           <span class="mh__wotd" aria-hidden="true">
@@ -128,7 +128,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           class="mh__sheet-link mh__sheet-wotd"
           @click="open = false; openWotd()"
         >
-          <span>{{ wotdDot ? 'Word of the Day · new' : 'Word of the Day' }}</span>
+          <span>{{ wotdDot ? 'WOD · new' : 'WOD' }}</span>
           <EdSignalIcon name="word" />
         </button>
         <button type="button" class="mh__sheet-link mh__sheet-settings" @click="openSettingsFromSheet">

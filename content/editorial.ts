@@ -1,4 +1,4 @@
-import { WORLD_ZONE_LINKS, type WorldZoneId } from './zone-links'
+import { WORLD_ZONE_LINKS, type WorldAnchorId } from './zone-links'
 
 /**
  * The publication's index.
@@ -165,7 +165,7 @@ export function readNext(id: string, count = 3): EditorialItem[] {
 }
 
 /** Primary masthead links. Rows come from WORLD_ZONE_LINKS; this does not copy them. */
-const PRIMARY_ZONE_IDS = ['elevate', 'empower', 'engage', 'learn', 'story'] as const satisfies readonly WorldZoneId[]
+const PRIMARY_ZONE_IDS = ['elevate', 'empower', 'engage', 'learn', 'story'] as const satisfies readonly WorldAnchorId[]
 
 export const NAV = PRIMARY_ZONE_IDS.map((id) => {
   const link = WORLD_ZONE_LINKS.find((item) => item.id === id)

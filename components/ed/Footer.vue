@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { useContentStore } from '~/stores/content'
-import { WORLD_ZONE_LINKS, type WorldZoneId } from '~/content/zone-links'
+import { WORLD_ZONE_LINKS, type WorldAnchorId } from '~/content/zone-links'
 
 const store = useContentStore()
 const year = new Date().getFullYear()
 
-const PRIMARY_ZONE_IDS = ['elevate', 'empower', 'engage', 'learn', 'story'] as const satisfies readonly WorldZoneId[]
-const SECONDARY_ZONE_IDS = ['work', 'dialogue', 'archive'] as const satisfies readonly WorldZoneId[]
+const PRIMARY_ZONE_IDS = ['elevate', 'empower', 'engage', 'learn', 'story'] as const satisfies readonly WorldAnchorId[]
+const SECONDARY_ZONE_IDS = ['work', 'dialogue', 'archive'] as const satisfies readonly WorldAnchorId[]
 
-function linksFor(ids: readonly WorldZoneId[]) {
+function linksFor(ids: readonly WorldAnchorId[]) {
   return ids.map((id) => {
     const link = WORLD_ZONE_LINKS.find((item) => item.id === id)
     if (!link) throw new Error(`Missing zone ${id}`)
@@ -77,8 +77,8 @@ const moreLinks = [
 .ft__col { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-13); }
 .ft__h { color: var(--muted); margin: 0 0 0.125rem; }
 .ft__link { display:inline-flex; align-items:center; min-height:var(--space-34); font-size:var(--type-body); font-weight:500; }
-.ft__fine { font-size: var(--type-meta); line-height: 1.45; color: var(--muted); margin: 0; }
-.ft__fine code { font-family: var(--font-mono); font-size: var(--type-meta); }
+.ft__fine { font-size: 12px; line-height: 1.45; color: var(--muted); margin: 0; }
+.ft__fine code { font-family: var(--font-mono); font-size: 12px; }
 
 .ft__base {
   border-top: var(--stroke) solid var(--line);

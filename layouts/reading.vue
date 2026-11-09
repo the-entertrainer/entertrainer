@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { WORLD_ZONE_LINKS } from '~/content/zone-links'
+import { useThemeStore } from '~/stores/theme'
 
 /**
  * Reading Mode (design spec §6 and §9).
@@ -10,6 +11,8 @@ import { WORLD_ZONE_LINKS } from '~/content/zone-links'
  * Nexus, and any id that is not in WORLD_ZONE_LINKS, returns to `/`.
  */
 const route = useRoute()
+const theme = useThemeStore()
+const { panelOpen, togglePanel } = useSiteSettings()
 
 const anchor = computed(() => route.meta.world?.anchor)
 
@@ -29,12 +32,12 @@ const measure = computed(() => {
   return true
 })
 
-const showFooter = computed(() => {
-  const path = route.path
-  if (path.startsWith('/instructional-design')) return false
-  if (path.startsWith('/courses/')) return false
-  return true
-})
+/** Full-screen players already have an exit bar and size themselves to the viewport. */
+const isPlayer = computed(() =>
+  route.path.startsWith('/instructional-design') || route.path.startsWith('/courses/')
+)
+const showBar = computed(() => !isPlayer.value)
+const showFooter = computed(() => !isPlayer.value)
 
 const showReadingLayer = computed(() =>
   route.path.startsWith('/elevate/') && route.path !== '/elevate/'
@@ -50,8 +53,29 @@ const showReadingLayer = computed(() =>
   >
     <a class="reading__skip" href="#main">Skip to content</a>
 
-    <header class="reading__bar">
+    <header v-if="showBar" class="reading__bar">
       <NuxtLink class="reading__back" :to="returnPath">Back to world</NuxtLink>
+      <div class="reading__tools">
+        <button
+          type="button"
+          class="reading__icon u-icon-btn"
+          :aria-expanded="panelOpen"
+          aria-controls="site-settings-panel"
+          aria-haspopup="dialog"
+          :aria-label="panelOpen ? 'Close settings' : 'Open settings'"
+          @click="togglePanel()"
+        >
+          <EdSignalIcon name="settings" />
+        </button>
+        <button
+          type="button"
+          class="reading__icon u-icon-btn"
+          :aria-label="`Switch to ${theme.theme === 'dark' ? 'light' : 'dark'} mode`"
+          @click="theme.toggle()"
+        >
+          <EdSignalIcon :name="theme.theme === 'dark' ? 'sun' : 'moon'" />
+        </button>
+      </div>
     </header>
 
     <main

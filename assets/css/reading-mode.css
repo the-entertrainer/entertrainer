@@ -49,10 +49,33 @@
 .reading__bar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   min-height: 44px;
   padding: 4px 16px;
   border-bottom: 1px solid var(--line);
   background: var(--paper);
+}
+
+.reading__tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.reading__icon {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
 }
 
 .reading__back {
@@ -111,6 +134,14 @@
 .reading :focus-visible {
   outline: 3px solid var(--ink);
   outline-offset: 3px;
+}
+
+/* Wide margin notes sit on yellow. Light ink on that fill is about 1.27:1 in dark mode. */
+@media (min-width: 1120px) {
+  .reading .margin-note__inner :focus-visible {
+    outline: 3px solid var(--accent-ink);
+    outline-offset: 3px;
+  }
 }
 
 @media (min-width: 768px) {
@@ -176,6 +207,12 @@ html[data-reduce-motion="on"] .reading * {
 .rm-error h1:focus-visible {
   outline: 3px solid var(--ink);
   outline-offset: 3px;
+}
+
+/* Chromium treats the load-time focus() as :focus-visible. Hide that ring only. */
+.rm-error h1[data-programmatic-focus]:focus,
+.rm-error h1[data-programmatic-focus]:focus-visible {
+  outline: none;
 }
 
 .rm-error__body {

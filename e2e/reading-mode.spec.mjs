@@ -22,7 +22,11 @@ test('unknown URL returns 404 with RmError and working zone links', async ({ pag
   const error = page.locator('[data-rm-error]')
   await expect(error).toBeVisible()
   await expect(error).toHaveAttribute('data-status', '404')
-  await expect(page.getByRole('heading', { level: 1, name: 'This dock is empty.' })).toBeVisible()
+  const heading = page.getByRole('heading', { level: 1, name: 'This dock is empty.' })
+  await expect(heading).toBeVisible()
+  await expect(heading).toBeFocused()
+  await expect(heading).toHaveAttribute('tabindex', '-1')
+  expect(await heading.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe('none')
   await expect(page.getByText('That address is not on the map.')).toBeVisible()
   await expect(page.locator('a[href="#main"]')).toHaveCount(1)
   await expect(page.locator('#main')).toBeVisible()
@@ -51,6 +55,55 @@ test('an essay renders in Reading Mode', async ({ page }) => {
   await expect(page.locator('#main')).toBeVisible()
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await expect(page.locator('a[href$="/dialogue/"]')).toHaveCount(0)
+})
+
+test('client-side navigation to an unknown slug shows RmError', async ({ page }) => {
+  await page.goto('/elevate')
+  await page.evaluate(() => { window.__readingBoot = 1 })
+  await page.evaluate(async () => {
+    const root = document.querySelector('#__nuxt')
+    const app = root && root.__vue_app__
+    const router = app?.config.globalProperties.$router
+    if (!router) throw new Error('missing router')
+    try {
+      await router.push('/elevate/nope')
+    } catch {
+      /* Nuxt aborts the navigation into the error page. */
+    }
+  })
+  expect(await page.evaluate(() => window.__readingBoot)).toBe(1)
+  await expect(page).toHaveURL(/\/elevate\/nope$/)
+  const error = page.locator('[data-rm-error]')
+  await expect(error).toBeVisible()
+  await expect(error).toHaveAttribute('data-status', '404')
+  const heading = page.getByRole('heading', { level: 1, name: 'This dock is empty.' })
+  await expect(heading).toBeFocused()
+  await expect(heading).toHaveAttribute('tabindex', '-1')
+  const outline = await heading.evaluate((el) => getComputedStyle(el).outlineStyle)
+  expect(outline).toBe('none')
+  await page.getByRole('link', { name: 'Empower', exact: true }).click()
+  await expect(page).toHaveURL(/\/empower$/)
+  await expect(page.locator('[data-rm-error]')).toHaveCount(0)
+})
+
+test('course players do not wear the reading bar', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 })
+  for (const path of ['/courses/ai-atlas', '/instructional-design']) {
+    await page.goto(path)
+    await expect(page.locator('[data-reading-layout]')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Back to world' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'All lessons' })).toBeVisible()
+    const overflow = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight)
+    expect(overflow, path).toBeLessThanOrEqual(2)
+  }
+})
+
+test('reading bar opens settings and theme', async ({ page }) => {
+  await page.goto('/elevate/tajjalan')
+  await page.getByRole('button', { name: 'Switch to dark mode' }).click()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  await page.getByRole('button', { name: 'Open settings' }).click()
+  await expect(page.locator('#site-settings-panel')).toBeVisible()
 })
 
 test('a tool renders in Reading Mode', async ({ page }) => {

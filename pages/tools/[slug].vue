@@ -18,7 +18,7 @@ const item = computed(() =>
   })
 )
 
-if (!item.value) throw createError({ statusCode: 404 })
+if (!item.value) throw createError({ statusCode: 404, statusMessage: 'Tool not found', fatal: true })
 </script>
 
 <template>

@@ -29,7 +29,18 @@ if (import.meta.server) {
 
 onMounted(() => {
   useThemeStore().init()
-  headingEl.value?.focus()
+  const node = headingEl.value
+  if (!node) return
+  // tabindex=-1 keeps it out of the tab order. The attribute suppresses the
+  // ring Chromium paints for this script focus. The next key clears it, so a
+  // later keyboard focus still matches :focus-visible.
+  node.dataset.programmaticFocus = ''
+  node.focus({ preventScroll: true, focusVisible: false } as FocusOptions)
+  const clear = () => {
+    delete node.dataset.programmaticFocus
+    window.removeEventListener('keydown', clear, true)
+  }
+  window.addEventListener('keydown', clear, true)
 })
 
 function tryAgain() {

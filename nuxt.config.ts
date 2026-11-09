@@ -1,5 +1,8 @@
+import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
+
+const require = createRequire(import.meta.url)
 
 // AstroClock is a React island under /engage/astroclock.
 // Do NOT use @vitejs/plugin-react here: Nuxt 3.17 pins Vite 6, but
@@ -301,6 +304,26 @@ export default defineNuxtConfig({
       compilerOptions: {
         jsx: 'react-jsx',
       },
+    },
+  },
+  hooks: {
+    'nitro:init'() {
+      // The dev server's static handler 301s a directory to add a slash.
+      // public/dialogue is a directory, so /dialogue bounced with the
+      // slashless 301 and never reached the page. A directory falls
+      // through instead, and the slashless plugin still 301s /dialogue/.
+      const send = require('send')
+      const proto = Object.getPrototypeOf(send({ url: '/' }, '/x', { root: '/tmp' }))
+      if (proto.__satyaDirectory) return
+      const emit = proto.emit
+      proto.emit = function (event: string, ...args: unknown[]) {
+        if (event === 'directory') {
+          this.error(404)
+          return true
+        }
+        return emit.call(this, event, ...args)
+      }
+      proto.__satyaDirectory = true
     },
   },
   nitro: {

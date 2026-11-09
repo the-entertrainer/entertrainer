@@ -230,24 +230,6 @@ try {
   console.log('dialogue link ok', map.page.url())
   await map.page.close()
 
-  const direct = await browser.newPage()
-  const directResponse = await direct.goto(`${base}/dialogue`, { waitUntil: 'domcontentloaded', timeout: 60000 })
-  const directPath = new URL(direct.url()).pathname
-  if (directPath !== '/dialogue' || directResponse?.request().redirectedFrom() || directResponse?.status() !== 200) {
-    console.error('GET /dialogue should be 200 with no redirect', directPath, directResponse?.status())
-    process.exit(1)
-  }
-  const slash = await direct.goto(`${base}/dialogue/`, { waitUntil: 'domcontentloaded', timeout: 60000 })
-  const slashPath = new URL(direct.url()).pathname
-  const slashFrom = slash?.request().redirectedFrom()
-  const slashStatus = (await slashFrom?.response())?.status()
-  if (slashPath !== '/dialogue' || slash?.status() !== 200 || slashStatus !== 301 || slashFrom?.redirectedFrom()) {
-    console.error('GET /dialogue/ should be a single 301 to /dialogue', slashPath, slash?.status(), slashStatus, Boolean(slashFrom?.redirectedFrom()))
-    process.exit(1)
-  }
-  console.log('dialogue slash redirects once')
-  await direct.close()
-
   const probe = await flagshipPage('/?measure=1')
   const started = await state(probe.page)
   if (started.tier !== '2') {
@@ -315,6 +297,23 @@ try {
     process.exit(1)
   }
   console.log('quality toggle 2 to 3 rendered', end)
+  await quality.page.close()
+
+  const api = await browser.newContext()
+  const bare = await api.request.get(`${base}/dialogue`, { maxRedirects: 0 })
+  const bareLocation = bare.headers()['location'] || ''
+  if (bare.status() !== 200 || bareLocation) {
+    console.error('GET /dialogue should be 200 with no redirect', bare.status(), bareLocation)
+    process.exit(1)
+  }
+  const slash = await api.request.get(`${base}/dialogue/`, { maxRedirects: 0 })
+  const slashLocation = slash.headers()['location'] || ''
+  if (slash.status() !== 301 || new URL(slashLocation, base).pathname !== '/dialogue') {
+    console.error('GET /dialogue/ should be a single 301 to /dialogue', slash.status(), slashLocation)
+    process.exit(1)
+  }
+  console.log('dialogue document routes ok')
+  await api.close()
 
   if (focused.errors.length || timeout.errors.length || restore.errors.length || map.errors.length) {
     console.error('page errors', restore.errors, timeout.errors, focused.errors, map.errors)

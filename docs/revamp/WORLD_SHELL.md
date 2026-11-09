@@ -33,7 +33,7 @@ A tier change disposes the old renderer, then mounts the next tier on a new canv
 | `scripts/lint-world-copy.mjs` | Flags click, hover, tap, drag, swipe, press, and scroll in `components/world`, `error.vue`, and `pages/index.vue`. Line numbers are source lines. |
 | `scripts/world-context-loss.mjs` | Context-loss, map focus, probe remount, Quality: High remount, and the `/dialogue` link. Non-zero exit on any failure. |
 | `docs/revamp/WORLD_SHELL.md` | This report. |
-| `nuxt.config.ts` | Adds `playwright-core` to `nitro.externals` so the dev-only browser driver stays out of the Vercel function. |
+| `nuxt.config.ts` | Adds `playwright-core` to `nitro.externals` so the dev-only browser driver stays out of the Vercel function. In dev, a public directory no longer 301s to add a slash, so `/dialogue` reaches the page and `/dialogue/` still 301s once. |
 | `assets/css/main.css` | `.t-mono` is 12px. |
 | `components/ed/Footer.vue` | Fine print is 12px. |
 | `components/ed/Masthead.vue` | The word-of-the-day control’s accessible name and sheet label say WOD, matching the visible tiles. |
@@ -49,7 +49,7 @@ Same machine, same flags, before and after the reserved shell height.
 
 The absolute Performance score is this dev server (QA’s earlier run was 35). The layout shift the audit named on `footer.ft` is gone.
 
-No `nuxt.config.ts` edit. The home route is already a dynamic import, and `mountWorld` is a second dynamic import that runs only when the tier is above 0.
+`nuxt.config.ts` only adds `playwright-core` to the Nitro externals and stops the dev static handler from adding a slash to a public directory. The home route is already a dynamic import, and `mountWorld` is a second dynamic import that runs only when the tier is above 0.
 
 ## Bundle
 
@@ -57,16 +57,16 @@ No `nuxt.config.ts` edit. The home route is already a dynamic import, and `mount
 
 | Chunk | Gzip |
 |---|---|
-| Entry `sD0dinvR.js` | 117,067 |
+| Entry `BWiJhIuE.js` | 117,303 |
 | Main entry, earlier measurement | 117,695 |
-| three runtime `oGQMYxLQ.js` (not in the entry) | 128,587 |
-| Home page `CVLeLMne.js` | 1,808 |
-| World UI `BH73zCs3.js` | 8,714 |
-| Engine, shaders, GSAP `BZYvZeyS.js` | 33,523 |
+| three runtime `oGQMYxLQ.js` (not in the entry) | 127,413 |
+| Home page `Clc7Z-cG.js` | 1,429 |
+| World UI `Bz3qDWYi.js` | 8,689 |
+| Engine, shaders, GSAP `DeInf9bu.js` | 33,224 |
 
-The entry does not contain `WebGLRenderer`, the motto, or GSAP. `/` is `import("./D4EY9VvF.js")`. That page chunk dynamically imports the UI chunk. The UI chunk calls `import("./DfGEwA6p.js")` only after the tier check. The engine chunk imports three.
+The entry does not contain `WebGLRenderer`, the motto, or GSAP. The home chunk dynamically imports the UI chunk. The UI chunk calls `import("./DeInf9bu.js")` only after the tier check. The engine chunk imports three.
 
-A visit that starts WebGL therefore downloads about **172.6 KB gzip** beyond the entry (1,808 + 8,714 + 33,523 + 128,587). The world-only files are about **44 KB gzip**. The rest is three, which Stack and Backdrop3d already share. Under the 180 KB incremental budget, with the same caveat as the spike: the library is the budget.
+A visit that starts WebGL therefore downloads about **170.8 KB gzip** beyond the entry (1,429 + 8,689 + 33,224 + 127,413). The world-only files are about **43.3 KB gzip**. The rest is three, which Stack and Backdrop3d already share. Under the 180 KB incremental budget, with the same caveat as the spike: the library is the budget.
 
 ## Frame time
 

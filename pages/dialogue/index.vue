@@ -45,6 +45,9 @@
 </template>
 
 <script setup lang="ts">
+import { loadDialogueHomeLibs } from '~/composables/dialogue/loadDialogueScripts'
+import { useDialogueDb } from '~/composables/dialogue/useDialogueDb'
+
 useSeoMeta({
   title: 'Dialogue — comics from your pocket',
   description: 'Vertical webcomic studio for phones. Snap art, letter, export for WEBTOON.',

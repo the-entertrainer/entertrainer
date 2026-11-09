@@ -35,6 +35,8 @@
 </template>
 
 <script setup lang="ts">
+import { loadDialogueEditorLibs } from '~/composables/dialogue/loadDialogueScripts'
+
 const props = defineProps<{ projectId: string }>()
 const bundle = ref<any>(null)
 const title = ref('Untitled')
@@ -72,10 +74,10 @@ onMounted(() => {
   // bridge for export sheet
   ;(window as any).DialogueAppActions = {
     runExport: async (kind: string) => {
-      const ed = ed()
-      if (!ed) return
-      ed.flushAutosave()
-      const b2 = ed.getBundle()
+      const editor = ed()
+      if (!editor) return
+      editor.flushAutosave()
+      const b2 = editor.getBundle()
       const assetMap: Record<string, any> = {}
       ;(b2.assets || []).forEach((a: any) => { assetMap[a.id] = a })
       const Ex = (window as any).DialogueExport

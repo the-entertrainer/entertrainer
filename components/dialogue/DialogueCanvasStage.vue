@@ -4,9 +4,11 @@
 </template>
 
 <script setup lang="ts">
+import { loadDialogueEditorLibs } from '~/composables/dialogue/loadDialogueScripts'
+
 /**
  * CanvasStage — mounts the static DialogueEditor (Konva) into this host.
- * Konva and Dexie are pinned files under /dialogue/vendor, not a CDN.
+ * Konva, Dexie, JSZip, jsPDF, and FileSaver are pinned files under /dialogue/vendor.
  */
 const props = defineProps<{ bundle: any }>()
 const emit = defineEmits<{ dirty: []; autosave: [bundle: any]; select: [kind: string, id: string] }>()

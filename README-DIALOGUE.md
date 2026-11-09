@@ -13,7 +13,7 @@ Open http://127.0.0.1:4173/
 node scripts/dialogue-smoke.mjs
 
 ## Copy into Nuxt
-Dialogue is already wired into the Nuxt app. Konva 10.9.1 and Dexie 4.4.7 are pinned under `public/dialogue/vendor/`. jsPDF, JSZip, and FileSaver still load from cdnjs. `file-saver` stays an npm dependency for StoryGen.
+Dialogue is already wired into the Nuxt app. Konva 10.9.1, Dexie 4.4.7, JSZip 3.10.1, jsPDF 2.5.1, and FileSaver 2.0.5 are pinned under `public/dialogue/vendor/`. `file-saver` stays an npm dependency for StoryGen.
 
 ## Export presets
 PNG strip | JPG | WEBTOON ZIP (800x<=1280) | PDF | .dialogue archive
@@ -27,8 +27,8 @@ CBZ packaging, script wizard, frames/type polish, cloud sync, full vue-konva rew
 ## Manual tests
 Home demo The Last Bus; new wizard; editor panels/art/balloons; undo; export; settings.
 
-## Stack (CDN pinned)
-konva@10, dexie@4, jspdf umd, jszip 3.10.1, FileSaver 2.0.5; fonts Bangers Comic Neue Anton Kosugi Maru Shippori Mincho Inter (display=swap). SW caches shell+fonts+icons; IndexedDB is SoT for comics.
+## Stack (pinned locally)
+konva@10.9.1, dexie@4.4.7, jspdf@2.5.1, jszip@3.10.1, FileSaver@2.0.5 under `public/dialogue/vendor/`; fonts Bangers Comic Neue Anton Kosugi Maru Shippori Mincho Inter (display=swap). SW caches shell+fonts+icons; IndexedDB is SoT for comics.
 
 ## Data model
 Dexie dialogue-db: Project, Page, Panel, Node, Asset — see types/dialogue.ts

@@ -1,9 +1,12 @@
 /* Dialogue service worker — cache app shell + fonts + icons. Do NOT cache user comic blobs. */
-const CACHE = 'dialogue-shell-v8';
+const CACHE = 'dialogue-shell-v9';
 const SHELL = [
   '/dialogue/app.html',
   '/dialogue/vendor/konva-10.9.1.min.js',
   '/dialogue/vendor/dexie-4.4.7.js',
+  '/dialogue/vendor/jszip-3.10.1.min.js',
+  '/dialogue/vendor/jspdf-2.5.1.umd.min.js',
+  '/dialogue/vendor/filesaver-2.0.5.min.js',
   '/dialogue/manifest.webmanifest',
   '/dialogue/css/dialogue.css',
   '/dialogue/js/utils.js',
@@ -109,16 +112,15 @@ self.addEventListener('fetch', (event) => {
 
   const same = url.origin === self.location.origin;
   const isFont = url.hostname.includes('fonts.g') || url.pathname.includes('font');
-  const isCdn = url.hostname.includes('unpkg.com') || url.hostname.includes('cdnjs.cloudflare.com');
 
-  if (same || isFont || isCdn) {
+  if (same || isFont) {
     event.respondWith(
       caches.open(CACHE).then(async (cache) => {
         const hit = await cache.match(req);
         if (hit) return hit;
         try {
           const res = await fetch(req);
-          if (res && res.ok && (same || isFont || isCdn)) {
+          if (res && res.ok && (same || isFont)) {
             cache.put(req, res.clone());
           }
           return res;

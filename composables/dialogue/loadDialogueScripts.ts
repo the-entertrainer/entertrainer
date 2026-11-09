@@ -1,6 +1,9 @@
-/** Pinned, same-origin copies. Dialogue script tags expect window.Konva and window.Dexie. */
+/** Pinned, same-origin copies. Dialogue script tags expect these on window. */
 export const DIALOGUE_KONVA_SRC = '/dialogue/vendor/konva-10.9.1.min.js'
 export const DIALOGUE_DEXIE_SRC = '/dialogue/vendor/dexie-4.4.7.js'
+export const DIALOGUE_JSZIP_SRC = '/dialogue/vendor/jszip-3.10.1.min.js'
+export const DIALOGUE_JSPDF_SRC = '/dialogue/vendor/jspdf-2.5.1.umd.min.js'
+export const DIALOGUE_FILESAVER_SRC = '/dialogue/vendor/filesaver-2.0.5.min.js'
 
 const EDITOR_SCRIPTS = [
   '/dialogue/js/utils.js',
@@ -83,8 +86,11 @@ export async function loadDialogueEditorLibs() {
   if (!w.Konva) await loadDialogueScript(DIALOGUE_KONVA_SRC)
   await loadDialogueDexie()
   await loadSet(EDITOR_SCRIPTS)
-  if (!w.JSZip) await loadDialogueScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js')
-  if (!w.jspdf && !w.jsPDF) await loadDialogueScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
-  if (!w.saveAs) await loadDialogueScript('https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js')
+  if (!w.JSZip) await loadDialogueScript(DIALOGUE_JSZIP_SRC)
+  if (!w.jspdf?.jsPDF && !w.jsPDF) await loadDialogueScript(DIALOGUE_JSPDF_SRC)
+  if (typeof w.saveAs !== 'function') await loadDialogueScript(DIALOGUE_FILESAVER_SRC)
   if (!w.Konva || !w.Dexie || !w.DialogueEditor) throw new Error('Dialogue editor did not start')
+  if (!w.JSZip || !(w.jspdf?.jsPDF || w.jsPDF) || typeof w.saveAs !== 'function') {
+    throw new Error('Dialogue export tools did not start')
+  }
 }

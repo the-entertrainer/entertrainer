@@ -16,7 +16,8 @@
     "check:paper-signal": "node scripts/check-paper-signal.mjs",
     "check:voice": "node --experimental-strip-types scripts/check-human-not-model.mjs",
     "smoke:dialogue": "node scripts/dialogue-smoke.mjs",
-    "check:social-hooks": "node scripts/check-social-hooks.mjs"
+    "check:social-hooks": "node scripts/check-social-hooks.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",
@@ -44,6 +45,7 @@
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
+    "@playwright/test": "^1.65.0",
     "@tailwindcss/vite": "^4.1.8",
     "@types/matter-js": "^0.20.2",
     "@types/react": "^19",

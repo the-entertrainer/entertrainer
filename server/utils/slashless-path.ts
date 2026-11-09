@@ -32,6 +32,7 @@ const EXACT: Record<string, string> = {
   '/elevate/can-you-reverse-the-spin-of-a-schwarz-surface': '/elevate',
   '/elevate/the-sacred-frequencies-are-not-a-scale': '/elevate/what-each-sacred-frequency-is-for',
   '/games': '/engage',
+  '/dialogue/index.html': '/dialogue',
 }
 
 export function slashlessTarget(path: string): string {

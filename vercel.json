@@ -8,6 +8,16 @@
       "statusCode": 301
     },
     {
+      "source": "/dialogue/index.html",
+      "destination": "/dialogue",
+      "statusCode": 301
+    },
+    {
+      "source": "/dialogue/index.html/",
+      "destination": "/dialogue",
+      "statusCode": 301
+    },
+    {
       "source": "/educate",
       "destination": "/",
       "statusCode": 301

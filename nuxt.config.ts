@@ -204,6 +204,9 @@ export default defineNuxtConfig({
   // first response, so pasted links describe the page being shared.
   ssr: true,
   routeRules: {
+    // The Dialogue shell lives at app.html. Old bookmarks to the directory index
+    // go to the slashless app in one hop.
+    '/dialogue/index.html': { redirect: { to: '/dialogue', statusCode: 301 } },
     // Whatto is unlisted: reachable only by typing the URL, never indexed.
     '/engage/whatto': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
     '/api/whatto/**': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },

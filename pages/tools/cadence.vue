@@ -1,5 +1,9 @@
 <script setup lang="ts">
-definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'empower' },
+  pageTransition: { name: 'fade', mode: 'out-in' },
+})
 useSeoMeta({
   title: 'Cadence — Training Calendar Generator · Entertrainer',
   description: 'Turn a topic list into a ready-to-present monthly training calendar, laid out around holidays, audiences, and time slots. Exports to PowerPoint.',

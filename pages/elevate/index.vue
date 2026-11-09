@@ -1,4 +1,9 @@
 <script setup lang="ts">
+
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'elevate' },
+})
 import { BLOG_POSTS, type BlogPost } from '~/content/blogs'
 import { composedToBlogPost, getPublishedComposedPosts } from '~/content/composed'
 import {
@@ -292,7 +297,7 @@ function clearCategory() {
 }
 :global(html[data-reduce-motion="on"]) .elevate__must-letter { animation: none; }
 .elevate__must-name {
-  font: 700 8rem/1.1 var(--font-mono);
+  font: 700 12rem/1.1 var(--font-mono);
   letter-spacing: .04em;
   text-transform: uppercase;
   color: var(--muted);
@@ -326,15 +331,15 @@ function clearCategory() {
 }
 
 .elevate__must-all {
-  min-height: 32rem;
+  min-height: 44rem;
   margin-left: 2rem;
-  padding: 4rem 10rem;
+  padding: 8rem 12rem;
   border: none;
   border-bottom: var(--stroke) solid var(--line);
   border-radius: 0;
   background: transparent;
   color: var(--ink-soft);
-  font: 600 11rem/1 var(--font-mono);
+  font: 600 12rem/1.2 var(--font-mono);
   letter-spacing: .06em;
   text-transform: uppercase;
   cursor: pointer;
@@ -346,13 +351,13 @@ function clearCategory() {
 }
 
 .elevate__sort-toggle {
-  min-height: 36rem;
-  padding: 6rem 14rem;
+  min-height: 44rem;
+  padding: 8rem 14rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-full);
   background: var(--paper);
   color: var(--ink);
-  font: 600 11rem/1 var(--font-mono);
+  font: 600 12rem/1.2 var(--font-mono);
   letter-spacing: .05em;
   text-transform: uppercase;
   cursor: pointer;
@@ -566,7 +571,7 @@ function clearCategory() {
   .elevate__toolbar { gap: 12rem; }
   .elevate__controls { width: 100%; justify-content: space-between; }
   .elevate__must-tile { min-width: 52rem; min-height: 46rem; padding: 5rem 6rem; }
-  .elevate__must-name { font-size: 7rem; }
+  .elevate__must-name { font-size: 12rem; }
   .elevate__row { grid-template-columns: 88rem minmax(0, 1fr); gap: 12rem; }
   .elevate__thumb { width: 88rem; height: 60rem; }
   .elevate__row-dek { -webkit-line-clamp: 3; }

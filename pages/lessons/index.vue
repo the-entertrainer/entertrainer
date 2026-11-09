@@ -1,4 +1,9 @@
 <script setup lang="ts">
+
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'learn' },
+})
 /**
  * Paper Signal Lessons landing page. This is a calm choice page, not a course
  * catalogue: two course routes, using only the approved illustration system.

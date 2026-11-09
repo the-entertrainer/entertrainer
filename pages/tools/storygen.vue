@@ -14,7 +14,11 @@ import {
 } from '~/composables/useStoryProjects'
 import { aiRewriteField, aiSuggestOptions, aiGenerateMcqCards, type GeneratedStoryboard } from '~/utils/aiStoryboard'
 
-definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'empower' },
+  pageTransition: { name: 'fade', mode: 'out-in' },
+})
 useSeoMeta({
   title: 'StoryGen — Storyboard Studio · Entertrainer',
   description: 'Design instructional storyboards on an infinite canvas. Pick a framework, connect the screens, and export the working plan to Word or Excel.',

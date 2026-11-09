@@ -1,4 +1,9 @@
 <script setup lang="ts">
+
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'elevate' },
+})
 import type { ComposedPost } from '~/types/composed'
 import { getPublishedComposedPost } from '~/content/composed'
 

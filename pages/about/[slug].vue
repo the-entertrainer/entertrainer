@@ -1,4 +1,9 @@
 <script setup lang="ts">
+
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'story' },
+})
 import { useContentStore } from '~/stores/content'
 
 

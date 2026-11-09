@@ -60,8 +60,8 @@ const sectionLinks = [
 .ft__col { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-13); }
 .ft__h { color: var(--muted); margin: 0 0 2rem; }
 .ft__link { display:inline-flex; align-items:center; min-height:var(--space-34); font-size:var(--type-body); font-weight:500; }
-.ft__fine { font-size: var(--type-meta); line-height: 1.45; color: var(--muted); margin: 0; }
-.ft__fine code { font-family: var(--font-mono); font-size: var(--type-meta); }
+.ft__fine { font-size: 12px; line-height: 1.45; color: var(--muted); margin: 0; }
+.ft__fine code { font-family: var(--font-mono); font-size: 12px; }
 
 .ft__base {
   border-top: var(--stroke) solid var(--line);

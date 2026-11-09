@@ -7,7 +7,10 @@ const contentStore = useContentStore()
 const slug         = route.params.slug as string
 
 const item = computed(() =>
-  contentStore.aboutNav.find((n) => n.id === slug)
+  contentStore.myWorkNav.find((n) => {
+    const hrefSlug = n.href?.replace(/^\/work\//, '')
+    return n.id === slug || hrefSlug === slug
+  })
 )
 
 if (!item.value) throw createError({ statusCode: 404 })

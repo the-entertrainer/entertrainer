@@ -97,24 +97,24 @@ onUnmounted(() => {
 
 <style scoped>
 .nvstatus {
-  padding: 16rem 18rem;
+  padding: 1rem 1.125rem;
   display: flex;
   flex-direction: column;
-  gap: 9rem;
+  gap: 0.5625rem;
 }
 .nvstatus__head {
   display: flex;
   align-items: center;
-  gap: 8rem;
-  font-size: 11rem;
+  gap: 0.5rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   opacity: 0.6;
 }
 .nvstatus__dot {
-  width: 7rem;
-  height: 7rem;
+  width: 0.4375rem;
+  height: 0.4375rem;
   border-radius: 999px;
   background: var(--color-text);
   box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-text) 55%, transparent);
@@ -123,7 +123,7 @@ onUnmounted(() => {
 }
 @keyframes nvstatus-pulse {
   0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-text) 50%, transparent); }
-  70%  { box-shadow: 0 0 0 7rem transparent; }
+  70%  { box-shadow: 0 0 0 0.4375rem transparent; }
   100% { box-shadow: 0 0 0 0 transparent; }
 }
 .nvstatus__ago {
@@ -133,7 +133,7 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 .nvstatus__line {
-  font-size: 15rem;
+  font-size: 0.9375rem;
   line-height: 1.5;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -141,8 +141,8 @@ onUnmounted(() => {
 }
 .nvstatus-line-enter-active { transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out); }
 .nvstatus-line-leave-active { transition: opacity var(--dur-tap) var(--ease-in), transform var(--dur-tap) var(--ease-in); }
-.nvstatus-line-enter-from { opacity: 0; transform: translateY(6rem); }
-.nvstatus-line-leave-to { opacity: 0; transform: translateY(-6rem); }
+.nvstatus-line-enter-from { opacity: 0; transform: translateY(0.375rem); }
+.nvstatus-line-leave-to { opacity: 0; transform: translateY(-0.375rem); }
 
 @media (prefers-reduced-motion: reduce) {
   .nvstatus__dot { animation: none; }

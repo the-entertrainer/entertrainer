@@ -133,63 +133,63 @@ async function generate() {
   background: rgba(0, 0, 0, 0.42);
   display: grid;
   place-items: center;
-  padding: 16rem;
+  padding: 1rem;
 }
 .aig {
-  width: min(600rem, 100%);
-  max-height: calc(100dvh - 48rem);
+  width: min(37.5rem, 100%);
+  max-height: calc(100dvh - 3rem);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12rem;
+  gap: 0.75rem;
 }
-.aig__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12rem; }
-.aig__head h2 { font-size: 20rem; letter-spacing: -0.03em; margin-bottom: 6rem; }
-.aig__head-title { display: flex; align-items: center; gap: 8rem; color: var(--accent-text); }
-.aig__head p { font-size: 13rem; opacity: 0.65; line-height: 1.5; }
+.aig__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+.aig__head h2 { font-size: 1.25rem; letter-spacing: -0.03em; margin-bottom: 0.375rem; }
+.aig__head-title { display: flex; align-items: center; gap: 0.5rem; color: var(--accent-text); }
+.aig__head p { font-size: 0.8125rem; opacity: 0.65; line-height: 1.5; }
 .aig__close {
-  width: 28rem; height: 28rem;
+  width: 1.75rem; height: 1.75rem;
   display: grid; place-items: center;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-bg) 55%, transparent);
   border: 1px solid var(--color-glass-border);
-  font-size: 11rem;
+  font-size: 0.75rem;
   flex-shrink: 0;
 }
-.aig__file { position: relative; overflow: hidden; justify-content: center; padding: 12rem; width: 100%; text-align: center; }
+.aig__file { position: relative; overflow: hidden; justify-content: center; padding: 0.75rem; width: 100%; text-align: center; }
 .aig__file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.aig__filelist { font-size: 12rem; opacity: 0.7; line-height: 1.5; }
-.aig__clear { font-size: 11.5rem; text-decoration: underline; opacity: 0.7; color: var(--color-text); margin-left: 4rem; }
-.aig__note { font-size: 12rem; color: #FBBF24; line-height: 1.45; }
-.aig__paste { resize: vertical; min-height: 96rem; }
-.aig__row { display: grid; grid-template-columns: 1fr 130rem; gap: 12rem; }
+.aig__filelist { font-size: 0.75rem; opacity: 0.7; line-height: 1.5; }
+.aig__clear { font-size: 0.75rem; text-decoration: underline; opacity: 0.7; color: var(--color-text); margin-left: 0.25rem; }
+.aig__note { font-size: 0.75rem; color: #FBBF24; line-height: 1.45; }
+.aig__paste { resize: vertical; min-height: 6rem; }
+.aig__row { display: grid; grid-template-columns: 1fr 8.125rem; gap: 0.75rem; }
 .aig__error {
-  font-size: 12.5rem;
+  font-size: 0.78125rem;
   line-height: 1.5;
   color: #ff8d8d;
-  padding: 9rem 12rem;
-  border-radius: 10rem;
+  padding: 0.5625rem 0.75rem;
+  border-radius: 0.625rem;
   background: color-mix(in srgb, #ff6b6b 10%, transparent);
 }
-.aig__actions { display: flex; align-items: center; gap: 12rem; flex-wrap: wrap; }
-.aig__chars { font-size: 11.5rem; opacity: 0.55; }
+.aig__actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.aig__chars { font-size: 0.75rem; opacity: 0.55; }
 
-.aig__busy { min-height: 220rem; display: grid; place-items: center; align-content: center; gap: 12rem; text-align: center; }
+.aig__busy { min-height: 13.75rem; display: grid; place-items: center; align-content: center; gap: 0.75rem; text-align: center; }
 .aig__spinner {
-  width: 38rem; height: 38rem;
+  width: 2.375rem; height: 2.375rem;
   border-radius: 999px;
-  border: 3rem solid var(--color-spinner-track);
+  border: 0.1875rem solid var(--color-spinner-track);
   border-top-color: var(--color-text);
   animation: aig-spin 0.8s linear infinite;
 }
 @keyframes aig-spin { to { transform: rotate(360deg); } }
-.aig__busy-title { font-size: 17rem; font-weight: 700; }
-.aig__busy-sub { font-size: 13rem; opacity: 0.6; }
+.aig__busy-title { font-size: 1.0625rem; font-weight: 700; }
+.aig__busy-sub { font-size: 0.8125rem; opacity: 0.6; }
 
 @media (max-width: 640px) {
-  .aig-overlay { padding: 10rem; align-items: end; display: flex; }
-  .aig { border-radius: 22rem 22rem 0 0; width: 100%; max-height: 86dvh; }
+  .aig-overlay { padding: 0.625rem; align-items: end; display: flex; }
+  .aig { border-radius: 1.375rem 1.375rem 0 0; width: 100%; max-height: 86dvh; }
   .aig__paste, .aig__row .glass-field { font-size: 16px; }
-  .aig__row { grid-template-columns: 1fr 110rem; }
+  .aig__row { grid-template-columns: 1fr 6.875rem; }
 }
 </style>

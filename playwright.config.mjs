@@ -4,6 +4,10 @@ import { defineConfig, devices } from '@playwright/test'
 // NITRO_PRESET=node-server first, so this server can boot locally.
 // The default `npm run build` stays on the Vercel preset.
 // @playwright/test stays a devDependency and is not imported by the app.
+// PLAYWRIGHT_PORT overrides the port. The default stays 3000.
+const port = process.env.PLAYWRIGHT_PORT || '3000'
+const baseURL = `http://127.0.0.1:${port}`
+
 export default defineConfig({
   testDir: 'e2e',
   timeout: 60_000,
@@ -12,18 +16,18 @@ export default defineConfig({
   workers: 1,
   reporter: 'list',
   use: {
-    baseURL: 'http://127.0.0.1:3000',
+    baseURL,
     serviceWorkers: 'block',
     ...devices['Desktop Chrome'],
   },
   webServer: {
     command: 'node .output/server/index.mjs',
-    url: 'http://127.0.0.1:3000/dialogue',
-    reuseExistingServer: !process.env.CI,
+    url: `${baseURL}/dialogue`,
+    reuseExistingServer: !!process.env.CI,
     timeout: 30_000,
     env: {
-      PORT: '3000',
-      NITRO_PORT: '3000',
+      PORT: port,
+      NITRO_PORT: port,
       HOST: '127.0.0.1',
       NITRO_HOST: '127.0.0.1',
     },

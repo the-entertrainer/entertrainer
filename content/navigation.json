@@ -1,51 +1,58 @@
 {
   "home": [
     {
-      "id": "about",
-      "label": "About Me",
-      "description": "The story behind Entertrainer, from hotel floors to learning design.",
-      "href": "/about",
-      "color": "#FFD43B",
-      "img": "/about-me.png",
-      "meta": "Story"
+      "id": "elevate",
+      "label": "Elevate",
+      "description": "Essays that start in a room and refuse the tidy story.",
+      "href": "/elevate",
+      "color": "#2F5BD8",
+      "meta": "Essays"
     },
     {
-      "id": "instructional-design",
-      "label": "Instructional Design",
-      "description": "An interactive demonstration of instructional design principles.",
-      "href": "/instructional-design",
-      "color": "#FFD43B",
-      "img": "/instructional-design.png",
-      "meta": "Practice"
-    },
-    {
-      "id": "my-work",
-      "label": "My Work",
-      "description": "Selected instructional design projects, with the thinking behind each.",
-      "href": "/my-work",
-      "color": "#FFD43B",
-      "img": "/my-work.png",
-      "meta": "Projects"
-    },
-    {
-      "id": "tools",
+      "id": "empower",
       "label": "Empower",
       "description": "Tools for work that keeps repeating.",
       "href": "/empower",
-      "color": "#FFD43B",
+      "color": "#2F5BD8",
       "img": "/web-apps.png",
-      "meta": "Free tools"
+      "meta": "Tools"
+    },
+    {
+      "id": "engage",
+      "label": "Engage",
+      "description": "Short games and little detours.",
+      "href": "/engage",
+      "color": "#2F5BD8",
+      "meta": "Games"
+    },
+    {
+      "id": "learn",
+      "label": "Learn",
+      "description": "A short lesson, a longer course on artificial intelligence, and Strong.",
+      "href": "/learn",
+      "color": "#2F5BD8",
+      "img": "/instructional-design.png",
+      "meta": "Lessons"
+    },
+    {
+      "id": "about",
+      "label": "About",
+      "description": "The story behind Entertrainer, from hotel floors to learning design.",
+      "href": "/about",
+      "color": "#2F5BD8",
+      "img": "/about-me.png",
+      "meta": "Story"
     }
   ],
   "about": [],
   "instructional-design": [],
-  "my-work": [
+  "work": [
     {
       "id": "sewa-chronicles",
       "label": "The SEWA Chronicles",
       "description": "A comic magazine for Club Mahindra, teaching service values through true stories from the resort floor.",
-      "href": "/my-work/sewa-chronicles",
-      "color": "#FFD43B",
+      "href": "/work/sewa-chronicles",
+      "color": "#2F5BD8",
       "img": "/work-01.png",
       "meta": "Comic · Club Mahindra"
     },
@@ -53,8 +60,8 @@
       "id": "strong",
       "label": "Strong",
       "description": "Why the same password can take a second or a century to crack, depending entirely on who is doing the cracking.",
-      "href": "/my-work/strong",
-      "color": "#FFD43B",
+      "href": "/work/strong",
+      "color": "#2F5BD8",
       "img": "/strong.png",
       "meta": "Interactive explainer"
     }
@@ -65,8 +72,8 @@
       "id": "templates",
       "label": "Templates",
       "description": "Ready-to-use L&D templates",
-      "href": "/downloads/templates",
-      "color": "#FFD43B",
+      "href": "/archive/downloads/templates",
+      "color": "#2F5BD8",
       "img": "/templates.png",
       "meta": "Pack"
     },
@@ -74,8 +81,8 @@
       "id": "frameworks",
       "label": "Frameworks",
       "description": "ID frameworks & storyboard guides",
-      "href": "/downloads/frameworks",
-      "color": "#FFD43B",
+      "href": "/archive/downloads/frameworks",
+      "color": "#2F5BD8",
       "img": "/frameworks.png",
       "meta": "Reference"
     },
@@ -83,8 +90,8 @@
       "id": "resources",
       "label": "Resources",
       "description": "Curated L&D resources",
-      "href": "/downloads/resources",
-      "color": "#FFD43B",
+      "href": "/archive/downloads/resources",
+      "color": "#2F5BD8",
       "img": "/resources.png",
       "meta": "Links"
     }

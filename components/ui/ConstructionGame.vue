@@ -730,11 +730,11 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   aspect-ratio: 21 / 6;
-  border-radius: 12rem;
+  border-radius: 0.75rem;
   overflow: hidden;
   background: #07070A;
   border: 1px solid var(--color-glass-border);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 18rem 40rem -24rem rgba(0,0,0,0.6);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 1.125rem 2.5rem -1.5rem rgba(0,0,0,0.6);
 }
 .cgame__canvas {
   width: 100%;
@@ -757,7 +757,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: calc(20rem + var(--safe-top)) calc(20rem + var(--safe-right)) calc(20rem + var(--safe-bottom)) calc(20rem + var(--safe-left));
+  padding: calc(1.25rem + var(--safe-top)) calc(1.25rem + var(--safe-right)) calc(1.25rem + var(--safe-bottom)) calc(1.25rem + var(--safe-left));
 }
 .cgame__scrim {
   position: fixed;
@@ -769,9 +769,9 @@ onUnmounted(() => {
 .cgame--immersive .cgame__bezel {
   position: relative;
   z-index: 1;
-  width: min(92vw, 144dvh, 720rem);
+  width: min(92vw, 144dvh, 45rem);
   aspect-ratio: 2 / 1;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 40rem 90rem -30rem rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.05);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 2.5rem 5.625rem -1.875rem rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.05);
   animation: cgame-materialize 0.5s var(--ease-spring) both, cgame-glow 4s ease-in-out 0.5s infinite;
 }
 .cgame--immersive .cgame__bezel.cgame__bezel--leaving {
@@ -786,8 +786,8 @@ onUnmounted(() => {
   to   { opacity: 0; transform: scale(0.92); }
 }
 @keyframes cgame-glow {
-  0%, 100% { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 40rem 90rem -30rem rgba(0,0,0,0.75), 0 0 60rem -12rem rgba(170,170,164,0.25); }
-  50%      { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 40rem 90rem -30rem rgba(0,0,0,0.75), 0 0 90rem -10rem rgba(242,242,239,0.30); }
+  0%, 100% { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 2.5rem 5.625rem -1.875rem rgba(0,0,0,0.75), 0 0 3.75rem -0.75rem rgba(170,170,164,0.25); }
+  50%      { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 2.5rem 5.625rem -1.875rem rgba(0,0,0,0.75), 0 0 5.625rem -0.625rem rgba(242,242,239,0.30); }
 }
 
 .cgame-scrim-enter-active, .cgame-scrim-leave-active { transition: opacity 0.4s ease; }
@@ -795,40 +795,40 @@ onUnmounted(() => {
 
 .cgame__hud {
   position: absolute;
-  top: 6rem;
-  left: 8rem;
-  right: 66rem;
+  top: 0.375rem;
+  left: 0.5rem;
+  right: 4.125rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-family: 'DeadlineDashPixel', ui-monospace, 'SF Mono', 'Courier New', monospace;
-  font-size: 15rem;
+  font-size: 0.9375rem;
   font-weight: 400;
   letter-spacing: 0.04em;
   pointer-events: none;
-  text-shadow: 0 0 6rem rgba(170,170,164,0.5), 0 1px 2px rgba(0,0,0,0.6);
+  text-shadow: 0 0 0.375rem rgba(170,170,164,0.5), 0 1px 2px rgba(0,0,0,0.6);
 }
-.cgame--immersive .cgame__hud { top: 14rem; left: 16rem; right: 92rem; font-size: 19rem; }
+.cgame--immersive .cgame__hud { top: 0.875rem; left: 1rem; right: 5.75rem; font-size: 1.1875rem; }
 .cgame__hi { color: rgba(170,170,164,0.55); }
 .cgame__score { color: rgba(242,242,239,0.95); }
 
 .cgame__controls {
   position: absolute;
-  top: 6rem;
-  right: 8rem;
+  top: 0.375rem;
+  right: 0.5rem;
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 6rem;
+  gap: 0.375rem;
 }
 .cgame--immersive .cgame__controls {
-  top: calc(14rem + var(--safe-top));
-  right: calc(14rem + var(--safe-right));
-  gap: 8rem;
+  top: calc(0.875rem + var(--safe-top));
+  right: calc(0.875rem + var(--safe-right));
+  gap: 0.5rem;
 }
 .cgame__toggle {
-  width: 24rem;
-  height: 24rem;
+  width: 1.5rem;
+  height: 1.5rem;
   display: grid;
   place-items: center;
   border-radius: 999px;
@@ -839,16 +839,16 @@ onUnmounted(() => {
   touch-action: manipulation;
   transition: background 0.2s ease, transform 0.15s var(--ease-spring), color 0.2s ease;
 }
-.cgame__toggle svg { width: 13rem; height: 13rem; }
+.cgame__toggle svg { width: 0.8125rem; height: 0.8125rem; }
 .cgame__toggle:active { transform: scale(0.9); }
 @media (hover: hover) {
   .cgame__toggle:hover { background: rgba(7,15,6,0.8); color: rgb(242,242,239); }
 }
 .cgame--immersive .cgame__toggle {
-  width: 32rem;
-  height: 32rem;
+  width: 2rem;
+  height: 2rem;
 }
-.cgame--immersive .cgame__toggle svg { width: 15rem; height: 15rem; }
+.cgame--immersive .cgame__toggle svg { width: 0.9375rem; height: 0.9375rem; }
 
 .cgame__overlay {
   position: absolute;
@@ -857,30 +857,30 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4rem;
+  gap: 0.25rem;
   text-align: center;
-  padding: 8rem 16rem;
+  padding: 0.5rem 1rem;
   background: rgba(7, 7, 10, 0.6);
   cursor: pointer;
   font-family: 'DeadlineDashPixel', ui-monospace, 'SF Mono', 'Courier New', monospace;
 }
-.cgame__title { font-size: 20rem; font-weight: 400; color: rgb(242,242,239); letter-spacing: 0.02em; text-shadow: 0 0 10rem rgba(170,170,164,0.55); }
-.cgame__hint { font-size: 15rem; color: rgba(170,170,164,0.75); }
-.cgame__over { font-size: 20rem; font-weight: 400; color: rgb(242,242,239); letter-spacing: 0.02em; text-shadow: 0 0 10rem rgba(170,170,164,0.55); }
-.cgame__epitaph { font-size: 15rem; color: rgba(170,170,164,0.8); font-style: italic; }
-.cgame__score { font-size: 16rem; font-weight: 400; color: rgb(242,242,239); }
+.cgame__title { font-size: 1.25rem; font-weight: 400; color: rgb(242,242,239); letter-spacing: 0.02em; text-shadow: 0 0 0.625rem rgba(170,170,164,0.55); }
+.cgame__hint { font-size: 0.9375rem; color: rgba(170,170,164,0.75); }
+.cgame__over { font-size: 1.25rem; font-weight: 400; color: rgb(242,242,239); letter-spacing: 0.02em; text-shadow: 0 0 0.625rem rgba(170,170,164,0.55); }
+.cgame__epitaph { font-size: 0.9375rem; color: rgba(170,170,164,0.8); font-style: italic; }
+.cgame__score { font-size: 1rem; font-weight: 400; color: rgb(242,242,239); }
 .cgame__cta {
-  margin-top: 4rem;
-  font-size: 14rem;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
   font-weight: 400;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: rgb(242,242,239);
 }
-.cgame--immersive .cgame__title { font-size: 28rem; }
-.cgame--immersive .cgame__hint { font-size: 18rem; }
-.cgame--immersive .cgame__over { font-size: 28rem; }
-.cgame--immersive .cgame__epitaph { font-size: 19rem; }
-.cgame--immersive .cgame__score { font-size: 19rem; }
-.cgame--immersive .cgame__cta { font-size: 16rem; margin-top: 8rem; }
+.cgame--immersive .cgame__title { font-size: 1.75rem; }
+.cgame--immersive .cgame__hint { font-size: 1.125rem; }
+.cgame--immersive .cgame__over { font-size: 1.75rem; }
+.cgame--immersive .cgame__epitaph { font-size: 1.1875rem; }
+.cgame--immersive .cgame__score { font-size: 1.1875rem; }
+.cgame--immersive .cgame__cta { font-size: 1rem; margin-top: 0.5rem; }
 </style>

@@ -37,8 +37,8 @@ const showMedia = computed(() => !!props.media && props.show !== 'category')
 
 <style scoped>
 .cat {
-  display: inline-flex; align-items: center; gap: 6rem;
-  padding: 4rem 10rem;
+  display: inline-flex; align-items: center; gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-full);
   font-family: var(--font-mono);
@@ -49,7 +49,7 @@ const showMedia = computed(() => !!props.media && props.show !== 'category')
 }
 .cat--outline { background: var(--paper); color: var(--ink); }
 .cat--solid { background: var(--accent); color: var(--accent-ink); border-color: var(--ink); }
-.cat__dot { width: 8rem; height: 8rem; border-radius: 50%; background: var(--accent); border: 1px solid var(--ink); flex: none; }
+.cat__dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--accent); border: 1px solid var(--ink); flex: none; }
 .cat__sep { opacity: 0.4; }
 .cat__media { opacity: 0.72; }
 </style>

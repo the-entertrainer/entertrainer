@@ -417,9 +417,9 @@ function onThemeToggle(e: Event) {
 .st__iconbtn {
   position: absolute;
   z-index: 20;
-  top: max(10rem, env(safe-area-inset-top));
-  width: 44rem;
-  height: 44rem;
+  top: max(0.625rem, env(safe-area-inset-top));
+  width: 2.75rem;
+  height: 2.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -445,11 +445,11 @@ function onThemeToggle(e: Event) {
 }
 
 .st__back {
-  left: max(10rem, env(safe-area-inset-left));
+  left: max(0.625rem, env(safe-area-inset-left));
 }
 .st__back svg {
-  width: 20rem;
-  height: 20rem;
+  width: 1.25rem;
+  height: 1.25rem;
   fill: none;
   stroke: currentColor;
   stroke-width: 2.25;
@@ -458,11 +458,11 @@ function onThemeToggle(e: Event) {
 }
 
 .st__theme {
-  right: max(10rem, env(safe-area-inset-right));
+  right: max(0.625rem, env(safe-area-inset-right));
 }
 .st__theme :deep(svg) {
-  width: 18rem;
-  height: 18rem;
+  width: 1.125rem;
+  height: 1.125rem;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.75;
@@ -472,17 +472,17 @@ function onThemeToggle(e: Event) {
 
 .st__hud {
   position: absolute;
-  top: max(64rem, calc(env(safe-area-inset-top) + 56rem));
+  top: max(4rem, calc(env(safe-area-inset-top) + 3.5rem));
   left: 0;
   right: 0;
   z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8rem;
+  gap: 0.5rem;
   pointer-events: none;
   opacity: 0;
-  transform: translateY(-8rem);
+  transform: translateY(-0.5rem);
   transition: opacity 280ms ease, transform 280ms ease;
 }
 .st__hud--on {
@@ -490,16 +490,16 @@ function onThemeToggle(e: Event) {
   transform: none;
 }
 .st__score {
-  font: 700 clamp(56rem, 16vw, 88rem)/0.9 var(--font-display);
+  font: 700 clamp(3.5rem, 16vw, 5.5rem)/0.9 var(--font-display);
   letter-spacing: -0.06em;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 1rem 0 color-mix(in srgb, var(--st-paper) 60%, transparent);
+  text-shadow: 0 0.0625rem 0 color-mix(in srgb, var(--st-paper) 60%, transparent);
 }
 .st__bestpill {
-  font: 700 11rem/1 var(--font-mono);
+  font: 700 0.75rem/1 var(--font-mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 6rem 12rem;
+  padding: 0.375rem 0.75rem;
   border-radius: 999px;
   color: color-mix(in srgb, var(--st-ink) 62%, transparent);
   background: color-mix(in srgb, var(--st-paper) 70%, transparent);
@@ -512,10 +512,10 @@ function onThemeToggle(e: Event) {
   display: grid;
   align-content: center;
   justify-items: center;
-  gap: 12rem;
-  padding: 28rem 24rem;
-  padding-top: max(28rem, env(safe-area-inset-top));
-  padding-bottom: max(28rem, env(safe-area-inset-bottom));
+  gap: 0.75rem;
+  padding: 1.75rem 1.5rem;
+  padding-top: max(1.75rem, env(safe-area-inset-top));
+  padding-bottom: max(1.75rem, env(safe-area-inset-bottom));
   text-align: center;
   background: color-mix(in srgb, var(--st-paper) 55%, transparent);
   backdrop-filter: blur(3px);
@@ -527,7 +527,7 @@ function onThemeToggle(e: Event) {
 
 .st__eyebrow {
   margin: 0;
-  font: 800 11rem/1 var(--font-mono);
+  font: 800 0.75rem/1 var(--font-mono);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   opacity: 0.72;
@@ -535,21 +535,21 @@ function onThemeToggle(e: Event) {
 
 .st__title {
   margin: 0;
-  font: 700 clamp(80rem, 24vw, 128rem)/0.82 var(--font-display);
+  font: 700 clamp(5rem, 24vw, 8rem)/0.82 var(--font-display);
   letter-spacing: -0.07em;
   text-transform: uppercase;
 }
 
 .st__overscore {
   margin: 0;
-  font: 700 clamp(88rem, 26vw, 140rem)/0.82 var(--font-display);
+  font: 700 clamp(5.5rem, 26vw, 8.75rem)/0.82 var(--font-display);
   letter-spacing: -0.07em;
   font-variant-numeric: tabular-nums;
 }
 
 .st__lede {
-  margin: 0 0 6rem;
-  font-size: 15rem;
+  margin: 0 0 0.375rem;
+  font-size: 0.9375rem;
   line-height: 1.4;
   max-width: 24ch;
   letter-spacing: 0.01em;
@@ -558,10 +558,10 @@ function onThemeToggle(e: Event) {
 
 .st__badge {
   margin: 0;
-  font: 800 10rem/1 var(--font-mono);
+  font: 800 0.75rem/1 var(--font-mono);
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  padding: 6rem 10rem;
+  padding: 0.375rem 0.625rem;
   border-radius: 999px;
   background: var(--st-ink);
   color: var(--st-yellow);
@@ -572,22 +572,22 @@ function onThemeToggle(e: Event) {
   border: none;
   background: var(--st-yellow);
   color: #161618;
-  font: 800 15rem/1 var(--font-mono);
+  font: 800 0.9375rem/1 var(--font-mono);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  padding: 18rem 36rem;
+  padding: 1.125rem 2.25rem;
   border-radius: 999px;
   cursor: pointer;
   box-shadow:
-    0 1rem 0 color-mix(in srgb, #161618 12%, transparent),
-    0 8rem 20rem color-mix(in srgb, var(--st-ink) 10%, transparent);
+    0 0.0625rem 0 color-mix(in srgb, #161618 12%, transparent),
+    0 0.5rem 1.25rem color-mix(in srgb, var(--st-ink) 10%, transparent);
   transition: transform 160ms ease, box-shadow 160ms ease;
 }
 .st__cta:active {
-  transform: translateY(2rem) scale(0.98);
+  transform: translateY(0.125rem) scale(0.98);
   box-shadow:
     0 0 0 transparent,
-    0 2rem 8rem color-mix(in srgb, var(--st-ink) 8%, transparent);
+    0 0.125rem 0.5rem color-mix(in srgb, var(--st-ink) 8%, transparent);
 }
 
 .st__anim {
@@ -615,12 +615,12 @@ function onThemeToggle(e: Event) {
   top: 20%;
   transform: translateX(-50%);
   margin: 0;
-  padding: 7rem 14rem;
+  padding: 0.4375rem 0.875rem;
   background: var(--st-ink);
   color: var(--st-yellow);
-  font: 800 12rem/1 var(--font-mono);
+  font: 800 0.75rem/1 var(--font-mono);
   letter-spacing: 0.22em;
-  border-radius: 3rem;
+  border-radius: 0.1875rem;
   pointer-events: none;
   animation: st-pop 0.48s ease-out both;
 }
@@ -630,7 +630,7 @@ function onThemeToggle(e: Event) {
   to { opacity: 1; }
 }
 @keyframes st-rise {
-  from { opacity: 0; transform: translateY(12rem); }
+  from { opacity: 0; transform: translateY(0.75rem); }
   to { opacity: 1; transform: none; }
 }
 @keyframes st-score-pop {
@@ -643,9 +643,9 @@ function onThemeToggle(e: Event) {
   50% { transform: scale(1.025); }
 }
 @keyframes st-pop {
-  0% { opacity: 0; transform: translateX(-50%) translateY(6rem) scale(0.94); }
+  0% { opacity: 0; transform: translateX(-50%) translateY(0.375rem) scale(0.94); }
   22% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateX(-50%) translateY(-10rem) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-0.625rem) scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {

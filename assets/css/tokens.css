@@ -1,0 +1,75 @@
+/* Tailwind v4 theme. The @theme block is spec §6.5.
+   Preflight and utility generation stay out of this file: the publication
+   has its own reset, and AstroClock already owns a scoped utilities entry.
+   `@import "tailwindcss/theme"` registers the tokens without that reset. */
+@import "tailwindcss/theme" layer(theme);
+
+@theme {
+  --color-rm-cream: #F7F1E4;
+  --color-rm-cream-2: #EFE8D8;
+  --color-rm-ink: #0B0B0C;
+  --color-rm-muted: #5C574E;
+  --color-rm-line: #C9C2B4;
+  --color-rm-cobalt: #2F5BD8;
+  --color-rm-cobalt-ink: #1E3F9A;
+  --color-rm-danger: #B33226;
+  --color-rm-paper-dark: #16140F;
+  --color-rm-muted-dark: #A89888;
+  --color-rm-danger-dark: #E9786A;
+  --color-rm-cobalt-dark: #7A9AE8;
+
+  --color-wx-void: #07070A;
+  --color-wx-hull: #12131A;
+  --color-wx-hull-2: #1A1C28;
+  --color-wx-emissive: #3D6AE0;
+  --color-wx-emissive-soft: #7A9AE8;
+  --color-wx-star: #E8E4DC;
+  --color-wx-warning: #E8C547;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-ui: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-reading: "Source Serif 4", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-world: "Syne", "Archivo", sans-serif;
+  --font-world-ui: "IBM Plex Sans", "Archivo", sans-serif;
+
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+
+  --shadow-sticky: 0 1px 0 var(--color-rm-line);
+  --shadow-overlay: 0 24px 60px -24px rgb(0 0 0 / 0.45);
+
+  --animate-dock-in: dock-in 420ms cubic-bezier(0.22, 0.82, 0.32, 1) both;
+}
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@keyframes dock-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Runtime copies of the @theme primitives. Tailwind omits unused theme
+   variables from the built CSS; these keep the dual layer addressable. */
+:root {
+  --color-rm-cream: #F7F1E4;
+  --color-rm-cream-2: #EFE8D8;
+  --color-rm-ink: #0B0B0C;
+  --color-rm-muted: #5C574E;
+  --color-rm-line: #C9C2B4;
+  --color-rm-cobalt: #2F5BD8;
+  --color-rm-cobalt-ink: #1E3F9A;
+  --color-rm-danger: #B33226;
+  --color-rm-paper-dark: #16140F;
+  --color-rm-muted-dark: #A89888;
+  --color-rm-danger-dark: #E9786A;
+  --color-rm-cobalt-dark: #7A9AE8;
+  --color-wx-void: #07070A;
+  --color-wx-hull: #12131A;
+  --color-wx-hull-2: #1A1C28;
+  --color-wx-emissive: #3D6AE0;
+  --color-wx-emissive-soft: #7A9AE8;
+  --color-wx-star: #E8E4DC;
+  --color-wx-warning: #E8C547;
+}

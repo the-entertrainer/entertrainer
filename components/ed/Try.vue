@@ -53,31 +53,31 @@ function onInput(event: Event) {
 
 <style scoped>
 .try {
-  margin: 8rem 0 36rem;
-  padding: 18rem 18rem 16rem;
+  margin: 0.5rem 0 2.25rem;
+  padding: 1.125rem 1.125rem 1rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   background: var(--paper-2);
 }
 .try__kicker {
-  margin: 0 0 12rem;
-  font: 700 11rem/1.2 var(--font-mono);
+  margin: 0 0 0.75rem;
+  font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--ink-soft);
 }
-.try__stage { margin: 0 0 14rem; }
+.try__stage { margin: 0 0 0.875rem; }
 .try__line {
-  margin: 0 0 16rem;
-  font: 500 clamp(18rem, 2vw, 22rem)/1.35 var(--font-display);
+  margin: 0 0 1rem;
+  font: 500 clamp(1.125rem, 2vw, 1.375rem)/1.35 var(--font-display);
   letter-spacing: -.02em;
 }
 .try__label {
   display: flex;
   justify-content: space-between;
-  gap: 12rem;
-  margin: 0 0 8rem;
-  font: 600 13rem/1.3 var(--font-ui);
+  gap: 0.75rem;
+  margin: 0 0 0.5rem;
+  font: 600 0.8125rem/1.3 var(--font-ui);
 }
 .try__readout {
   font-family: var(--font-mono);
@@ -87,13 +87,13 @@ function onInput(event: Event) {
 .try__range {
   display: block;
   width: 100%;
-  height: 28rem;
+  height: 1.75rem;
   margin: 0;
   accent-color: var(--accent-ink, #111);
   cursor: pointer;
 }
 .try__range:focus-visible {
-  outline: 3rem solid var(--focus);
-  outline-offset: 3rem;
+  outline: 0.1875rem solid var(--focus);
+  outline-offset: 0.1875rem;
 }
 </style>

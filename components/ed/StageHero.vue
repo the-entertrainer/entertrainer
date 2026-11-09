@@ -176,12 +176,12 @@ withDefaults(defineProps<{
 .stage__copy {
   position: relative;
   z-index: 1;
-  max-width: 800rem;
+  max-width: 50rem;
 }
 
 .stage__eyebrow {
   margin: 0;
-  font: 700 12rem/1.2 var(--font-mono);
+  font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .08em;
   text-transform: uppercase;
   /* Ink on cream — yellow (--stage-cobalt / accent) fails contrast here. */
@@ -190,8 +190,8 @@ withDefaults(defineProps<{
 
 .stage__copy :deep(h1),
 .stage__copy > h1 {
-  max-width: 800rem;
-  margin: 12rem 0 18rem;
+  max-width: 50rem;
+  margin: 0.75rem 0 1.125rem;
   font: 500 var(--type-h1)/.98 var(--font-display);
   letter-spacing: -.03em;
   color: var(--ink);
@@ -204,7 +204,7 @@ withDefaults(defineProps<{
 
 .stage__deck,
 .stage__copy :deep(.stage__deck) {
-  max-width: 480rem;
+  max-width: 30rem;
   margin: 0;
   font-size: var(--type-dek);
   line-height: 1.35;
@@ -301,8 +301,8 @@ withDefaults(defineProps<{
 
 @media (max-width: 640px) {
   .stage {
-    min-height: min(340rem, calc(100dvh - 280rem));
-    padding: clamp(28rem, 6vw, 48rem);
+    min-height: min(21.25rem, calc(100dvh - 17.5rem));
+    padding: clamp(1.75rem, 6vw, 3rem);
   }
   .stage__art { opacity: .72; }
   .stage__deck { font-size: var(--type-dek); max-width: 36ch; }

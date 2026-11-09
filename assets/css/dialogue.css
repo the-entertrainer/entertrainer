@@ -583,7 +583,7 @@ button {
   border-radius: 6px;
   background: rgba(18, 17, 15, 0.72);
   color: var(--accent-ink);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 700;
   display: grid;
   place-items: center;
@@ -683,7 +683,7 @@ button {
   flex: 1;
   min-width: 64px;
   flex-direction: column;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 650;
   display: flex;
   align-items: center;
@@ -894,7 +894,7 @@ button {
 #splash .splash-tag { font-size: 0.95rem; color: var(--muted); font-weight: 500; }
 
 .tray-section {
-  width: 100%; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em;
+  width: 100%; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
   text-transform: uppercase; color: var(--muted); margin: 6px 0 2px;
 }
 .tray-slider {

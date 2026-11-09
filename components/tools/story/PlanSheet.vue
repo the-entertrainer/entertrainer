@@ -42,45 +42,45 @@ const model = computed(() => modelOf(props.modelId))
   background: rgba(0, 0, 0, 0.42);
   display: grid;
   place-items: center;
-  padding: 16rem;
+  padding: 1rem;
 }
 .plan {
-  width: min(620rem, 100%);
-  max-height: calc(100dvh - 48rem);
+  width: min(38.75rem, 100%);
+  max-height: calc(100dvh - 3rem);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16rem;
+  gap: 1rem;
 }
-.plan__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12rem; }
-.plan__head h2 { font-size: 20rem; letter-spacing: -0.03em; margin-bottom: 6rem; }
-.plan__head p { font-size: 13rem; opacity: 0.65; line-height: 1.5; }
+.plan__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+.plan__head h2 { font-size: 1.25rem; letter-spacing: -0.03em; margin-bottom: 0.375rem; }
+.plan__head p { font-size: 0.8125rem; opacity: 0.65; line-height: 1.5; }
 .plan__close {
-  width: 28rem; height: 28rem;
+  width: 1.75rem; height: 1.75rem;
   display: grid; place-items: center;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-bg) 55%, transparent);
   border: 1px solid var(--color-glass-border);
-  font-size: 11rem;
+  font-size: 0.75rem;
   flex-shrink: 0;
 }
-.plan__phase { display: flex; flex-direction: column; gap: 7rem; }
-.plan__phase-head { display: flex; align-items: center; gap: 9rem; font-size: 14.5rem; }
-.plan__dot { width: 11rem; height: 11rem; border-radius: 999px; background: var(--stage-color); }
+.plan__phase { display: flex; flex-direction: column; gap: 0.4375rem; }
+.plan__phase-head { display: flex; align-items: center; gap: 0.5625rem; font-size: 0.90625rem; }
+.plan__dot { width: 0.6875rem; height: 0.6875rem; border-radius: 999px; background: var(--stage-color); }
 .plan__prompt {
-  font-size: 12.5rem;
+  font-size: 0.78125rem;
   line-height: 1.5;
   opacity: 0.75;
-  padding: 8rem 12rem;
-  border-radius: 10rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.625rem;
   background: color-mix(in srgb, var(--stage-color) 10%, transparent);
-  border-left: 3rem solid var(--stage-color);
+  border-left: 0.1875rem solid var(--stage-color);
 }
-.plan__field { resize: vertical; min-height: 76rem; }
+.plan__field { resize: vertical; min-height: 4.75rem; }
 
 @media (max-width: 640px) {
-  .plan-overlay { padding: 10rem; align-items: end; display: flex; }
-  .plan { border-radius: 22rem 22rem 0 0; width: 100%; max-height: 86dvh; }
+  .plan-overlay { padding: 0.625rem; align-items: end; display: flex; }
+  .plan { border-radius: 1.375rem 1.375rem 0 0; width: 100%; max-height: 86dvh; }
   .plan__field { font-size: 16px; }
 }
 </style>

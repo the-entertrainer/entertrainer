@@ -1140,59 +1140,59 @@ const selectedFigure = computed(() =>
 
 <style scoped>
 .compose {
-  max-width: 1200rem;
+  max-width: 75rem;
   margin: 0 auto;
-  padding: clamp(22rem, 4vw, 48rem) var(--shell-gutter) 90rem;
+  padding: clamp(1.375rem, 4vw, 3rem) var(--shell-gutter) 5.625rem;
 }
 .compose__eyebrow {
-  margin: 0 0 8rem;
-  font: 700 11rem/1.2 var(--font-mono);
+  margin: 0 0 0.5rem;
+  font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--signal-cobalt);
 }
 .compose h1 {
   margin: 0;
-  font: 500 clamp(42rem, 8vw, 84rem)/.92 var(--font-display);
+  font: 500 clamp(2.625rem, 8vw, 5.25rem)/.92 var(--font-display);
   letter-spacing: -.05em;
 }
 .compose__gate {
-  max-width: 420rem;
+  max-width: 26.25rem;
   margin: 12vh auto 0;
-  padding: 28rem;
+  padding: 1.75rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   background: var(--paper-2);
 }
-.compose__gate-copy { margin: 14rem 0 22rem; font-size: 16rem; line-height: 1.45; color: var(--ink-soft); }
-.compose__gate-form { display: grid; gap: 12rem; }
+.compose__gate-copy { margin: 0.875rem 0 1.375rem; font-size: 1rem; line-height: 1.45; color: var(--ink-soft); }
+.compose__gate-form { display: grid; gap: 0.75rem; }
 .compose__input {
   width: 100%;
   box-sizing: border-box;
-  margin-top: 6rem;
-  padding: 12rem 14rem;
+  margin-top: 0.375rem;
+  padding: 0.75rem 0.875rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
   background: var(--paper);
   color: var(--ink);
-  font: 400 16rem/1.4 var(--font-body);
+  font: 400 1rem/1.4 var(--font-body);
 }
 .compose__input--inline {
   margin-top: 0;
-  padding: 8rem 10rem;
-  font-size: 14rem;
+  padding: 0.5rem 0.625rem;
+  font-size: 0.875rem;
 }
-.compose__textarea { resize: vertical; min-height: 72rem; }
+.compose__textarea { resize: vertical; min-height: 4.5rem; }
 .compose__btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 11rem 14rem;
+  padding: 0.6875rem 0.875rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
   background: var(--paper);
   color: var(--ink);
-  font: 700 13rem/1 var(--font-mono);
+  font: 700 0.8125rem/1 var(--font-mono);
   letter-spacing: .04em;
   text-transform: uppercase;
   text-decoration: none;
@@ -1201,24 +1201,24 @@ const selectedFigure = computed(() =>
 .compose__btn:disabled { opacity: .5; cursor: wait; }
 .compose__btn--signal { background: var(--accent); color: var(--accent-ink); border-color: var(--ink); }
 .compose__btn--ghost { background: transparent; }
-.compose__btn--small { padding: 8rem 10rem; font-size: 11rem; }
-.compose__error { margin: 12rem 0 0; color: var(--danger); font: 700 13rem/1.3 var(--font-mono); }
+.compose__btn--small { padding: 0.5rem 0.625rem; font-size: 0.75rem; }
+.compose__error { margin: 0.75rem 0 0; color: var(--danger); font: 700 0.8125rem/1.3 var(--font-mono); }
 .compose__status {
-  margin: 18rem 0;
-  padding: 12rem 14rem;
+  margin: 1.125rem 0;
+  padding: 0.75rem 0.875rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
   background: var(--signal-field);
-  font-size: 14rem;
+  font-size: 0.875rem;
   line-height: 1.4;
 }
 .compose__gh-status {
-  margin: 0 0 18rem;
-  padding: 10rem 14rem;
+  margin: 0 0 1.125rem;
+  padding: 0.625rem 0.875rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
   background: var(--paper-2);
-  font: 700 12rem/1.35 var(--font-mono);
+  font: 700 0.75rem/1.35 var(--font-mono);
   letter-spacing: .03em;
   color: var(--ink-soft);
 }
@@ -1237,11 +1237,11 @@ const selectedFigure = computed(() =>
   overflow: hidden;
 }
 .compose__mode-btn {
-  padding: 10rem 12rem;
+  padding: 0.625rem 0.75rem;
   border: 0;
   border-right: var(--stroke) solid var(--ink);
   background: var(--paper);
-  font: 700 11rem/1 var(--font-mono);
+  font: 700 0.75rem/1 var(--font-mono);
   letter-spacing: .05em;
   text-transform: uppercase;
   cursor: pointer;
@@ -1254,12 +1254,12 @@ const selectedFigure = computed(() =>
 }
 .compose__preview {
   display: grid;
-  gap: 8rem;
-  margin-top: 4rem;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
 }
 .compose__preview-label {
   margin: 0;
-  font: 700 10rem/1.2 var(--font-mono);
+  font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--signal-cobalt);
@@ -1287,26 +1287,26 @@ const selectedFigure = computed(() =>
 .compose__top {
   display: flex;
   flex-wrap: wrap;
-  gap: 16rem;
+  gap: 1rem;
   align-items: flex-end;
   justify-content: space-between;
-  padding-bottom: 18rem;
+  padding-bottom: 1.125rem;
   border-bottom: var(--stroke) solid var(--ink);
 }
 .compose__top-actions, .compose__footer-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8rem;
+  gap: 0.5rem;
   align-items: center;
 }
 .compose__layout {
   display: grid;
-  grid-template-columns: minmax(160rem, 220rem) minmax(0, 1fr);
-  gap: 22rem;
-  margin-top: 22rem;
+  grid-template-columns: minmax(10rem, 13.75rem) minmax(0, 1fr);
+  gap: 1.375rem;
+  margin-top: 1.375rem;
 }
 .compose__library {
-  padding: 14rem;
+  padding: 0.875rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   background: var(--paper-2);
@@ -1316,12 +1316,12 @@ const selectedFigure = computed(() =>
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8rem;
-  margin-bottom: 12rem;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 .compose__library h2 {
   margin: 0;
-  font: 700 12rem/1.2 var(--font-mono);
+  font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .08em;
   text-transform: uppercase;
 }
@@ -1329,131 +1329,131 @@ const selectedFigure = computed(() =>
 .compose__library-list li {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 4rem;
+  gap: 0.25rem;
   align-items: stretch;
-  margin-bottom: 8rem;
+  margin-bottom: 0.5rem;
 }
 .compose__library-item {
   text-align: left;
-  padding: 10rem;
+  padding: 0.625rem;
   border: var(--stroke) solid var(--line);
   border-radius: var(--radius-s);
   background: var(--paper);
   cursor: pointer;
 }
 .compose__library-item.is-active { border-color: var(--ink); background: var(--signal-field); }
-.compose__library-title { display: block; font-size: 14rem; line-height: 1.3; }
+.compose__library-title { display: block; font-size: 0.875rem; line-height: 1.3; }
 .compose__library-meta {
   display: block;
-  margin-top: 4rem;
-  font: 700 10rem/1 var(--font-mono);
+  margin-top: 0.25rem;
+  font: 700 0.75rem/1 var(--font-mono);
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--ink-soft);
 }
-.compose__empty { margin: 0; font-size: 13rem; color: var(--ink-soft); }
+.compose__empty { margin: 0; font-size: 0.8125rem; color: var(--ink-soft); }
 .compose__meta-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12rem;
+  gap: 0.75rem;
 }
 .compose__meta-grid label {
   display: flex;
   flex-direction: column;
-  font: 700 11rem/1.2 var(--font-mono);
+  font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--ink-soft);
 }
 .compose__span-2 { grid-column: 1 / -1; }
-.compose__blocks-toolbar { margin: 28rem 0 12rem; }
-.compose__blocks-toolbar--side { margin: 20rem 0 0; }
-.compose__block-add { display: flex; flex-wrap: wrap; gap: 8rem; }
+.compose__blocks-toolbar { margin: 1.75rem 0 0.75rem; }
+.compose__blocks-toolbar--side { margin: 1.25rem 0 0; }
+.compose__block-add { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .compose__chip {
-  padding: 8rem 10rem;
+  padding: 0.5rem 0.625rem;
   border: var(--stroke) solid var(--ink);
-  border-radius: 999rem;
+  border-radius: 62.4375rem;
   background: var(--paper);
-  font: 700 11rem/1 var(--font-mono);
+  font: 700 0.75rem/1 var(--font-mono);
   letter-spacing: .05em;
   text-transform: uppercase;
   cursor: pointer;
 }
-.compose__blocks { list-style: none; margin: 0; padding: 0; display: grid; gap: 12rem; }
+.compose__blocks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
 .compose__block {
-  padding: 12rem;
+  padding: 0.75rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   background: var(--paper-2);
   display: grid;
-  gap: 8rem;
+  gap: 0.5rem;
 }
 .compose__block-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8rem;
+  gap: 0.5rem;
 }
 .compose__block-type {
-  font: 700 11rem/1 var(--font-mono);
+  font: 700 0.75rem/1 var(--font-mono);
   letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--signal-cobalt);
 }
-.compose__block-moves { display: flex; gap: 4rem; }
+.compose__block-moves { display: flex; gap: 0.25rem; }
 .compose__icon-btn {
-  width: 32rem;
-  height: 32rem;
+  width: 2rem;
+  height: 2rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
   background: var(--paper);
   cursor: pointer;
-  font-size: 16rem;
+  font-size: 1rem;
   line-height: 1;
 }
 .compose__icon-btn:disabled { opacity: .35; cursor: default; }
-.compose__footer-actions { margin-top: 24rem; }
+.compose__footer-actions { margin-top: 1.5rem; }
 .compose__hint {
   flex: 1 1 100%;
-  margin: 4rem 0 0;
-  font-size: 13rem;
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
   line-height: 1.4;
   color: var(--ink-soft);
 }
 
 .compose__ai {
-  margin: 22rem 0 0;
-  padding: 18rem;
+  margin: 1.375rem 0 0;
+  padding: 1.125rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   background: var(--paper-2);
 }
 .compose__ai-title {
   margin: 0;
-  font: 500 clamp(24rem, 4vw, 36rem)/1.05 var(--font-display);
+  font: 500 clamp(1.5rem, 4vw, 2.25rem)/1.05 var(--font-display);
   letter-spacing: -.04em;
 }
 .compose__ai-copy {
-  margin: 10rem 0 0;
+  margin: 0.625rem 0 0;
   max-width: 62ch;
-  font-size: 15rem;
+  font-size: 0.9375rem;
   line-height: 1.45;
   color: var(--ink-soft);
 }
 .compose__ai-copy code {
-  font: 700 12rem/1.2 var(--font-mono);
+  font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .02em;
 }
 .compose__ai-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12rem;
-  margin-top: 16rem;
+  gap: 0.75rem;
+  margin-top: 1rem;
 }
 .compose__ai-form label {
   display: flex;
   flex-direction: column;
-  font: 700 11rem/1.2 var(--font-mono);
+  font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--ink-soft);
@@ -1462,7 +1462,7 @@ const selectedFigure = computed(() =>
   grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
-  gap: 8rem;
+  gap: 0.5rem;
   align-items: center;
 }
 .compose__provider {
@@ -1473,14 +1473,14 @@ const selectedFigure = computed(() =>
 }
 .compose__provider legend {
   padding: 0;
-  font: 700 11rem/1.2 var(--font-mono);
+  font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--ink-soft);
 }
 .compose__provider-seg {
   display: inline-flex;
-  margin-top: 8rem;
+  margin-top: 0.5rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-s);
   overflow: hidden;
@@ -1491,10 +1491,10 @@ const selectedFigure = computed(() =>
   align-items: center;
   justify-content: center;
   margin: 0;
-  padding: 10rem 16rem;
+  padding: 0.625rem 1rem;
   border-right: var(--stroke) solid var(--ink);
   cursor: pointer;
-  font: 700 12rem/1 var(--font-mono);
+  font: 700 0.75rem/1 var(--font-mono);
   letter-spacing: .05em;
   text-transform: uppercase;
   color: var(--ink-soft);
@@ -1518,13 +1518,13 @@ const selectedFigure = computed(() =>
   border-bottom: var(--stroke) solid var(--ink);
 }
 .compose__image-note {
-  margin: 8rem 0 0;
-  font-size: 12rem;
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
   line-height: 1.4;
   color: var(--ink-soft);
 }
 .compose__gen-label {
-  font: 700 10rem/1.2 var(--font-mono);
+  font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--ink-soft);
@@ -1533,27 +1533,27 @@ const selectedFigure = computed(() =>
 /* ── Canvas (WYSIWYG) ───────────────────────────────────────────────────── */
 .compose__canvas {
   min-width: 0;
-  padding-bottom: 40rem;
+  padding-bottom: 2.5rem;
 }
 .compose__canvas-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 10rem;
-  margin-bottom: 14rem;
+  gap: 0.625rem;
+  margin-bottom: 0.875rem;
 }
 .compose__canvas-meta label {
   display: flex;
   flex-direction: column;
-  gap: 4rem;
-  font: 700 10rem/1.2 var(--font-mono);
+  gap: 0.25rem;
+  font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  min-width: 120rem;
-  flex: 1 1 140rem;
+  min-width: 7.5rem;
+  flex: 1 1 8.75rem;
 }
 .compose__hero {
-  margin: 0 0 22rem;
+  margin: 0 0 1.375rem;
 }
 .compose__hero-frame {
   overflow: hidden;
@@ -1572,8 +1572,8 @@ const selectedFigure = computed(() =>
 .compose__hero-empty {
   display: grid;
   place-items: center;
-  min-height: 180rem;
-  padding: 24rem;
+  min-height: 11.25rem;
+  padding: 1.5rem;
   border: var(--stroke) dashed var(--ink);
   border-radius: var(--radius-m);
   background: var(--paper-2);
@@ -1583,19 +1583,19 @@ const selectedFigure = computed(() =>
 .compose__hero-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 8rem;
+  gap: 0.5rem;
   align-items: center;
-  margin-top: 10rem;
+  margin-top: 0.625rem;
 }
-.compose__canvas-head { margin: 0 0 28rem; }
+.compose__canvas-head { margin: 0 0 1.75rem; }
 .compose__title-input {
   width: 100%;
   box-sizing: border-box;
   border: 0;
   border-bottom: var(--stroke) solid transparent;
   background: transparent;
-  padding: 0 0 8rem;
-  font: 500 clamp(32rem, 5.5vw, 64rem)/.95 var(--font-display);
+  padding: 0 0 0.5rem;
+  font: 500 clamp(2rem, 5.5vw, 4rem)/.95 var(--font-display);
   letter-spacing: -.05em;
   color: var(--ink);
 }
@@ -1606,35 +1606,35 @@ const selectedFigure = computed(() =>
 .compose__dek-input {
   width: 100%;
   box-sizing: border-box;
-  margin-top: 16rem;
+  margin-top: 1rem;
   border: 0;
   background: transparent;
   padding: 0;
   resize: vertical;
-  font: 400 clamp(17rem, 2vw, 22rem)/1.4 var(--font-body);
+  font: 400 clamp(1.0625rem, 2vw, 1.375rem)/1.4 var(--font-body);
   color: var(--ink);
 }
 .compose__dek-input:focus { outline: none; }
 .compose__article-grid {
   display: grid;
-  grid-template-columns: minmax(0, 170rem) minmax(0, 1fr);
-  gap: clamp(18rem, 4vw, 48rem);
+  grid-template-columns: minmax(0, 10.625rem) minmax(0, 1fr);
+  gap: clamp(1.125rem, 4vw, 3rem);
 }
 .compose__margin {
   align-self: start;
   position: sticky;
-  top: 88rem;
-  padding: 14rem;
+  top: 5.5rem;
+  padding: 0.875rem;
   background: var(--signal-field);
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   display: grid;
-  gap: 8rem;
+  gap: 0.5rem;
 }
 .compose__margin-label {
   border: 0;
   background: transparent;
-  font: 700 11rem/1.2 var(--font-mono);
+  font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--ink);
@@ -1644,15 +1644,15 @@ const selectedFigure = computed(() =>
   border: 0;
   background: transparent;
   resize: vertical;
-  font: 400 14rem/1.45 var(--font-body);
+  font: 400 0.875rem/1.45 var(--font-body);
   color: var(--ink);
   padding: 0;
-  min-height: 80rem;
+  min-height: 5rem;
 }
-.compose__prose { min-width: 0; display: grid; gap: 18rem; }
+.compose__prose { min-width: 0; display: grid; gap: 1.125rem; }
 .compose__canvas-block {
   position: relative;
-  padding: 8rem 0 4rem;
+  padding: 0.5rem 0 0.25rem;
   border-top: var(--stroke) solid color-mix(in srgb, var(--ink) 12%, transparent);
 }
 .compose__canvas-block.is-figure-selected {
@@ -1664,8 +1664,8 @@ const selectedFigure = computed(() =>
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6rem;
-  font: 700 10rem/1 var(--font-mono);
+  margin-bottom: 0.375rem;
+  font: 700 0.75rem/1 var(--font-mono);
   letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--signal-cobalt);
@@ -1686,51 +1686,51 @@ const selectedFigure = computed(() =>
 }
 .compose__lead-input,
 .compose__body-input {
-  font: 400 clamp(17rem, 1.8vw, 20rem)/1.62 var(--font-body);
-  min-height: 96rem;
+  font: 400 clamp(1.0625rem, 1.8vw, 1.25rem)/1.62 var(--font-body);
+  min-height: 6rem;
 }
 .compose__heading-input {
-  font: 500 clamp(26rem, 3.2vw, 40rem)/1.05 var(--font-display);
+  font: 500 clamp(1.625rem, 3.2vw, 2.5rem)/1.05 var(--font-display);
   letter-spacing: -.04em;
-  min-height: 56rem;
+  min-height: 3.5rem;
 }
 .compose__quote-input {
-  padding: 18rem 20rem;
-  border-left: 8rem solid var(--signal-cobalt);
+  padding: 1.125rem 1.25rem;
+  border-left: 0.5rem solid var(--signal-cobalt);
   background: var(--paper-2);
   border-radius: 0 var(--radius-m) var(--radius-m) 0;
-  font: 500 clamp(20rem, 2.4vw, 28rem)/1.15 var(--font-display);
+  font: 500 clamp(1.25rem, 2.4vw, 1.75rem)/1.15 var(--font-display);
   letter-spacing: -.03em;
-  min-height: 88rem;
+  min-height: 5.5rem;
 }
 .compose__closing-input {
-  margin-top: 8rem;
-  padding-top: 20rem;
+  margin-top: 0.5rem;
+  padding-top: 1.25rem;
   border-top: var(--stroke) solid var(--ink);
-  font: 500 clamp(20rem, 2.4vw, 30rem)/1.15 var(--font-display);
+  font: 500 clamp(1.25rem, 2.4vw, 1.875rem)/1.15 var(--font-display);
   letter-spacing: -.035em;
-  min-height: 72rem;
+  min-height: 4.5rem;
 }
 .compose__list-input {
-  font: 400 17rem/1.55 var(--font-body);
+  font: 400 1.0625rem/1.55 var(--font-body);
   padding-left: 1em;
-  min-height: 88rem;
+  min-height: 5.5rem;
 }
 .compose__callout-edit {
-  padding: 14rem;
+  padding: 0.875rem;
   background: var(--signal-field);
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   display: grid;
-  gap: 8rem;
+  gap: 0.5rem;
 }
 .compose__figure-edit {
-  padding: 12rem;
+  padding: 0.75rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   background: var(--paper-2);
   display: grid;
-  gap: 10rem;
+  gap: 0.625rem;
   cursor: pointer;
 }
 .compose__figure-frame {
@@ -1749,13 +1749,13 @@ const selectedFigure = computed(() =>
 .compose__figure-empty {
   display: grid;
   place-items: center;
-  min-height: 140rem;
-  padding: 16rem;
+  min-height: 8.75rem;
+  padding: 1rem;
   border: var(--stroke) dashed var(--ink);
   border-radius: var(--radius-s);
   color: var(--ink-soft);
   text-align: center;
-  font-size: 14rem;
+  font-size: 0.875rem;
 }
 .compose__caption-input {
   width: 100%;
@@ -1763,24 +1763,24 @@ const selectedFigure = computed(() =>
   border: 0;
   border-bottom: var(--stroke) solid var(--line);
   background: transparent;
-  padding: 4rem 0;
-  font: 400 13rem/1.35 var(--font-mono);
+  padding: 0.25rem 0;
+  font: 400 0.8125rem/1.35 var(--font-mono);
   color: var(--ink-soft);
 }
 .compose__figure-tools {
   display: flex;
   flex-wrap: wrap;
-  gap: 8rem;
+  gap: 0.5rem;
   align-items: center;
 }
 .compose__inspector {
-  margin-top: 22rem;
-  padding: 14rem;
+  margin-top: 1.375rem;
+  padding: 0.875rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   background: var(--paper-2);
   display: grid;
-  gap: 8rem;
+  gap: 0.5rem;
 }
 
 @media (max-width: 760px) {
@@ -1790,6 +1790,6 @@ const selectedFigure = computed(() =>
   .compose__article-grid { grid-template-columns: 1fr; }
   .compose__margin { position: static; }
   .compose__hero-frame { aspect-ratio: 4 / 3; border-radius: 0; }
-  .compose__title-input { font-size: clamp(28rem, 9vw, 42rem); }
+  .compose__title-input { font-size: clamp(1.75rem, 9vw, 2.625rem); }
 }
 </style>

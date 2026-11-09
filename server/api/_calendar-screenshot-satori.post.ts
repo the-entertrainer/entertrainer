@@ -2,6 +2,7 @@
 // No Chromium binary. No page calls this route.
 
 import { readBody, setResponseHeader } from 'h3-nitro'
+import { loadDmSans } from '../utils/dm-sans'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Session {
@@ -18,23 +19,8 @@ const MONTH_NAMES = [
 ]
 const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
 
-// ─── Font loading — cached across warm invocations ────────────────────────────
-const fontCache = new Map<string, ArrayBuffer>()
-
 async function loadFont(weight: 400 | 700): Promise<ArrayBuffer> {
-  const key = `dmsans-${weight}`
-  if (fontCache.has(key)) return fontCache.get(key)!
-  const css = await fetch(
-    `https://fonts.googleapis.com/css2?family=DM+Sans:wght@${weight}&display=swap`,
-    { headers: { 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36' } }
-  ).then(r => r.text())
-  // Google serves woff2 to browsers and ttf to other agents. Satori accepts both.
-  const urls = [...css.matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/g)]
-  const url  = urls.at(-1)?.[1]
-  if (!url) throw new Error(`DM Sans ${weight}: font URL not found`)
-  const buf = await fetch(url).then(r => r.arrayBuffer())
-  fontCache.set(key, buf)
-  return buf
+  return loadDmSans(weight)
 }
 
 // ─── Satori element builder ───────────────────────────────────────────────────

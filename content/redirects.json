@@ -1,0 +1,309 @@
+{
+  "exact": [
+    {
+      "from": "/lessons",
+      "to": "/learn"
+    },
+    {
+      "from": "/my-work",
+      "to": "/work"
+    },
+    {
+      "from": "/my-work/sewa-chronicles",
+      "to": "/work/sewa-chronicles"
+    },
+    {
+      "from": "/my-work/strong",
+      "to": "/work/strong"
+    },
+    {
+      "from": "/tools",
+      "to": "/empower"
+    },
+    {
+      "from": "/tools/easymcq",
+      "to": "/empower"
+    },
+    {
+      "from": "/tools/better-emails",
+      "to": "/empower"
+    },
+    {
+      "from": "/tools/training-cal-gen",
+      "to": "/tools/cadence"
+    },
+    {
+      "from": "/tools/storyforge-id",
+      "to": "/tools/storygen"
+    },
+    {
+      "from": "/blogs",
+      "to": "/elevate"
+    },
+    {
+      "from": "/blogs/you-are-not-lazy-you-are-helping-the-universe-extend-its-life",
+      "to": "/elevate/you-are-not-lazy-you-are-helping-the-universe-extend-its-life"
+    },
+    {
+      "from": "/blogs/why-isnt-the-moon-moonly",
+      "to": "/elevate/why-isnt-the-moon-moonly"
+    },
+    {
+      "from": "/blogs/jamais-vu-why-words-stop-meaning-anything",
+      "to": "/elevate/jamais-vu-why-words-stop-meaning-anything"
+    },
+    {
+      "from": "/blogs/the-midpoint-of-your-life-isnt-40-its-18",
+      "to": "/elevate/the-midpoint-of-your-life-isnt-40-its-18"
+    },
+    {
+      "from": "/blogs/you-only-find-out-when-you-have-to-explain-it",
+      "to": "/elevate/you-only-find-out-when-you-have-to-explain-it"
+    },
+    {
+      "from": "/blogs/tajjalan",
+      "to": "/elevate/tajjalan"
+    },
+    {
+      "from": "/blogs/your-mouth-can-be-sure-for-reasons-your-eyes-never-had",
+      "to": "/elevate/your-mouth-can-be-sure-for-reasons-your-eyes-never-had"
+    },
+    {
+      "from": "/blogs/what-each-sacred-frequency-is-for",
+      "to": "/elevate/what-each-sacred-frequency-is-for"
+    },
+    {
+      "from": "/blogs/one-equals-two-lets-break-maths",
+      "to": "/elevate/one-equals-two-lets-break-maths"
+    },
+    {
+      "from": "/blogs/are-72-432-and-25920-clues-or-just-numbers-we-learned-to-notice",
+      "to": "/elevate/are-72-432-and-25920-clues-or-just-numbers-we-learned-to-notice"
+    },
+    {
+      "from": "/blogs/the-sacred-frequencies-are-not-a-scale",
+      "to": "/elevate/what-each-sacred-frequency-is-for"
+    },
+    {
+      "from": "/elevate/the-sacred-frequencies-are-not-a-scale",
+      "to": "/elevate/what-each-sacred-frequency-is-for"
+    },
+    {
+      "from": "/blogs/if-you-are-intelligent-life-might-not-be-easy",
+      "to": "/elevate"
+    },
+    {
+      "from": "/elevate/if-you-are-intelligent-life-might-not-be-easy",
+      "to": "/elevate"
+    },
+    {
+      "from": "/blogs/does-ai-understand-you",
+      "to": "/elevate"
+    },
+    {
+      "from": "/elevate/does-ai-understand-you",
+      "to": "/elevate"
+    },
+    {
+      "from": "/blogs/how-to-lie-perfectly",
+      "to": "/elevate"
+    },
+    {
+      "from": "/elevate/how-to-lie-perfectly",
+      "to": "/elevate"
+    },
+    {
+      "from": "/blogs/the-voice-in-your-head-is-not-the-whole-of-you",
+      "to": "/elevate"
+    },
+    {
+      "from": "/elevate/the-voice-in-your-head-is-not-the-whole-of-you",
+      "to": "/elevate"
+    },
+    {
+      "from": "/blogs/you-are-the-centre-of-the-universe",
+      "to": "/elevate"
+    },
+    {
+      "from": "/elevate/you-are-the-centre-of-the-universe",
+      "to": "/elevate"
+    },
+    {
+      "from": "/blogs/can-you-reverse-the-spin-of-a-schwarz-surface",
+      "to": "/elevate"
+    },
+    {
+      "from": "/elevate/can-you-reverse-the-spin-of-a-schwarz-surface",
+      "to": "/elevate"
+    },
+    {
+      "from": "/downloads",
+      "to": "/archive/downloads"
+    },
+    {
+      "from": "/downloads/templates",
+      "to": "/archive/downloads/templates"
+    },
+    {
+      "from": "/downloads/frameworks",
+      "to": "/archive/downloads/frameworks"
+    },
+    {
+      "from": "/downloads/resources",
+      "to": "/archive/downloads/resources"
+    },
+    {
+      "from": "/dialogue/index.html",
+      "to": "/dialogue"
+    },
+    {
+      "from": "/educate",
+      "to": "/"
+    },
+    {
+      "from": "/games",
+      "to": "/engage"
+    },
+    {
+      "from": "/games/stack",
+      "to": "/engage/stack"
+    },
+    {
+      "from": "/games/read-my-mind",
+      "to": "/engage/read-my-mind"
+    },
+    {
+      "from": "/games/astroclock",
+      "to": "/engage/astroclock"
+    },
+    {
+      "from": "/games/whatto",
+      "to": "/engage/whatto"
+    },
+    {
+      "from": "/games/pictune",
+      "to": "/engage"
+    },
+    {
+      "from": "/engage/pictune",
+      "to": "/engage"
+    },
+    {
+      "from": "/games/velocity",
+      "to": "/engage"
+    },
+    {
+      "from": "/engage/velocity",
+      "to": "/engage"
+    },
+    {
+      "from": "/games/vilakku",
+      "to": "/engage"
+    },
+    {
+      "from": "/engage/vilakku",
+      "to": "/engage"
+    },
+    {
+      "from": "/games/vybe",
+      "to": "/engage"
+    },
+    {
+      "from": "/engage/vybe",
+      "to": "/engage"
+    },
+    {
+      "from": "/games/squash",
+      "to": "/engage"
+    },
+    {
+      "from": "/engage/squash",
+      "to": "/engage"
+    },
+    {
+      "from": "/games/fever",
+      "to": "/engage"
+    },
+    {
+      "from": "/engage/fever",
+      "to": "/engage"
+    },
+    {
+      "from": "/games/netagiri",
+      "to": "/engage"
+    },
+    {
+      "from": "/engage/netagiri",
+      "to": "/engage"
+    },
+    {
+      "from": "/games/gateway",
+      "to": "/engage"
+    },
+    {
+      "from": "/engage/gateway",
+      "to": "/engage"
+    },
+    {
+      "from": "/games/third-eye",
+      "to": "/engage"
+    },
+    {
+      "from": "/engage/third-eye",
+      "to": "/engage"
+    },
+    {
+      "from": "/games/solfeggio",
+      "to": "/engage"
+    },
+    {
+      "from": "/engage/solfeggio",
+      "to": "/engage"
+    },
+    {
+      "from": "/games/brainwave",
+      "to": "/engage"
+    },
+    {
+      "from": "/engage/brainwave",
+      "to": "/engage"
+    }
+  ],
+  "prefix": [
+    {
+      "from": "/lessons/",
+      "to": "/learn/",
+      "fixed": false
+    },
+    {
+      "from": "/my-work/",
+      "to": "/work/",
+      "fixed": false
+    },
+    {
+      "from": "/downloads/",
+      "to": "/archive/downloads/",
+      "fixed": false
+    },
+    {
+      "from": "/educate/",
+      "to": "/",
+      "fixed": true
+    },
+    {
+      "from": "/tools/easymcq/",
+      "to": "/empower",
+      "fixed": true
+    },
+    {
+      "from": "/tools/better-emails/",
+      "to": "/empower",
+      "fixed": true
+    },
+    {
+      "from": "/about/",
+      "to": "/about",
+      "fixed": true
+    }
+  ]
+}

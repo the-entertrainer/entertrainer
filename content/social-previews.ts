@@ -163,11 +163,29 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     title: 'Introduction to Instructional Design · Entertrainer',
     description: 'A compact beginner e-learning module about planning learning experiences that help people do real work, starting with the task rather than the course.'
   },
-  '/lessons': {
-    key: 'lessons',
-    label: 'Lessons',
-    title: 'Lessons by Naveen Jose · Entertrainer',
-    description: 'A short lesson on clear instructions and a longer course on artificial intelligence.'
+  '/learn': {
+    key: 'learn',
+    label: 'Learn',
+    title: 'Learn · Entertrainer',
+    description: 'A short lesson on clear instructions, a longer course on artificial intelligence, and the Strong module.'
+  },
+  '/work': {
+    key: 'work',
+    label: 'Work',
+    title: 'Work · Entertrainer',
+    description: 'Selected projects: The SEWA Chronicles and Strong.'
+  },
+  '/archive': {
+    key: 'archive',
+    label: 'Archive',
+    title: 'Archive · Entertrainer',
+    description: 'Older downloads, plus quiet links to the lab and the compose desk.'
+  },
+  '/archive/downloads': {
+    key: 'archive-downloads',
+    label: 'Downloads',
+    title: 'Downloads · Archive',
+    description: 'Templates, frameworks, and resources kept in the archive.'
   },
   '/engage': {
     key: 'engage',
@@ -201,7 +219,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     title: 'The Mind Reader · Engage',
     description: 'Example: 42. Add 4 + 2, subtract to get 36, and note the mark beside it.',
   },
-  '/my-work/sewa-chronicles': {
+  '/work/sewa-chronicles': {
     key: 'sewa-chronicles',
     label: 'Comic',
     title: 'The SEWA Chronicles',
@@ -210,7 +228,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     imageAlt: 'The SEWA Chronicles cover, a comic about service, empathy, warmth, and attentiveness.',
     type: 'article'
   },
-  '/my-work/strong': {
+  '/work/strong': {
     key: 'strong',
     label: 'Password game',
     title: 'Strong · How passwords really break',

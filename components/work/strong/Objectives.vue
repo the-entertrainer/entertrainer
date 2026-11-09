@@ -19,11 +19,11 @@ import { OBJECTIVES } from '~/utils/strong/content'
 </template>
 
 <style scoped>
-.st-obj__list { list-style: none; margin: 44rem 0 30rem; padding: 0; }
-.st-obj__item { display: flex; gap: 22rem; align-items: baseline; padding: 26rem 0; border-top: 1px solid var(--st-line); }
+.st-obj__list { list-style: none; margin: 2.75rem 0 1.875rem; padding: 0; }
+.st-obj__item { display: flex; gap: 1.375rem; align-items: baseline; padding: 1.625rem 0; border-top: 1px solid var(--st-line); }
 .st-obj__item:last-child { border-bottom: 1px solid var(--st-line); }
-.st-obj__num { font-size: 15rem; color: var(--st-accent); flex-shrink: 0; }
-.st-obj__text { font-size: clamp(18rem, 2.4vw, 22rem); line-height: 1.4; color: var(--st-text); }
+.st-obj__num { font-size: 0.9375rem; color: var(--st-accent); flex-shrink: 0; }
+.st-obj__text { font-size: clamp(1.125rem, 2.4vw, 1.375rem); line-height: 1.4; color: var(--st-text); }
 .st-obj__text b { font-family: var(--st-display); font-weight: 600; }
-.st-obj__foot { margin-top: 8rem; }
+.st-obj__foot { margin-top: 0.5rem; }
 </style>

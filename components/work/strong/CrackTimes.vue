@@ -26,17 +26,17 @@ const rows = computed(() => ATTACKERS.map(a => ({
 </template>
 
 <style scoped>
-.st-crack__head { font-family: var(--st-mono); font-size: 11.5rem; color: var(--st-muted); margin-bottom: 12rem; }
-.st-crack__rows { display: flex; flex-direction: column; gap: 2rem; }
+.st-crack__head { font-family: var(--st-mono); font-size: 0.75rem; color: var(--st-muted); margin-bottom: 0.75rem; }
+.st-crack__rows { display: flex; flex-direction: column; gap: 0.125rem; }
 .st-crack__row {
-  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12rem;
-  padding: 12rem 0; border-top: 1px solid var(--st-line);
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 0; border-top: 1px solid var(--st-line);
 }
 .st-crack__row:first-child { border-top: none; }
-.st-crack__dot { width: 9rem; height: 9rem; border-radius: 50%; flex-shrink: 0; }
-.st-crack__label { font-size: 14.5rem; font-weight: 500; color: var(--st-text); display: flex; flex-direction: column; gap: 2rem; }
-.st-crack__label small { font-size: 12rem; font-weight: 400; color: var(--st-muted); line-height: 1.4; }
-.st-crack__time { font-size: 15rem; font-weight: 600; text-align: right; }
-.st-crack--compact .st-crack__row { padding: 7rem 0; }
-.st-crack--compact .st-crack__time { font-size: 13.5rem; }
+.st-crack__dot { width: 0.5625rem; height: 0.5625rem; border-radius: 50%; flex-shrink: 0; }
+.st-crack__label { font-size: 0.90625rem; font-weight: 500; color: var(--st-text); display: flex; flex-direction: column; gap: 0.125rem; }
+.st-crack__label small { font-size: 0.75rem; font-weight: 400; color: var(--st-muted); line-height: 1.4; }
+.st-crack__time { font-size: 0.9375rem; font-weight: 600; text-align: right; }
+.st-crack--compact .st-crack__row { padding: 0.4375rem 0; }
+.st-crack--compact .st-crack__time { font-size: 0.84375rem; }
 </style>

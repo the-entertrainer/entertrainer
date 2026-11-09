@@ -54,12 +54,12 @@ function onKeydown(e: KeyboardEvent, i: number) {
 
 <style scoped>
 .fr {
-  display: flex; flex-wrap: wrap; gap: 8rem;
-  padding: 16rem 0;
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  padding: 1rem 0;
 }
 .fr__chip {
-  display: inline-flex; align-items: center; gap: 8rem;
-  min-height: 40rem; padding: 8rem 14rem;
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  min-height: 2.5rem; padding: 0.5rem 0.875rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-full);
   background: var(--paper); color: var(--ink);
@@ -69,7 +69,7 @@ function onKeydown(e: KeyboardEvent, i: number) {
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) { .fr__chip:hover { background: var(--paper-2); } }
-.fr__dot { width: 9rem; height: 9rem; border-radius: 50%; background: var(--accent); border: 1px solid var(--ink); flex: none; }
+.fr__dot { width: 0.5625rem; height: 0.5625rem; border-radius: 50%; background: var(--accent); border: 1px solid var(--ink); flex: none; }
 .fr__n { color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .fr__chip[aria-checked="true"] {

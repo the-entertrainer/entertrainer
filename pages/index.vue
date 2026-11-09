@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { KNOWLEDGE_QUOTES, pickKnowledgeQuote } from '~/content/knowledge-quotes'
+import { WORLD_ZONE_LINKS, type WorldZoneId } from '~/content/zone-links'
 
 useSeoMeta({
   title: 'Entertrainer · Elevate, Empower, Engage',
@@ -15,23 +16,34 @@ type HomeRoute = {
   tip?: string
 }
 
+const zone = (id: WorldZoneId) => {
+  const link = WORLD_ZONE_LINKS.find((item) => item.id === id)
+  if (!link) throw new Error(`Missing zone ${id}`)
+  return link
+}
+
 const routes: HomeRoute[] = [
   {
-    name: 'Elevate',
-    href: '/elevate',
+    name: zone('elevate').label,
+    href: zone('elevate').route,
     tip: 'Essays that start in a room and refuse the tidy story.'
   },
   {
-    name: 'Empower',
-    href: '/empower',
+    name: zone('empower').label,
+    href: zone('empower').route,
     tip: 'Tools for work that keeps repeating.'
   },
   {
-    name: 'Engage',
-    href: '/engage',
+    name: zone('engage').label,
+    href: zone('engage').route,
     tip: 'Short games and little detours.'
   },
-  { name: 'About me', href: '/about' }
+  {
+    name: zone('learn').label,
+    href: zone('learn').route,
+    tip: 'A short lesson, a longer course, and Strong.'
+  },
+  { name: zone('story').label, href: zone('story').route }
 ]
 
 const openTip = ref<string | null>(null)
@@ -146,7 +158,7 @@ onBeforeUnmount(() => {
 /* Home: the quote is the 76px display. Routes are the 29px step. */
 .route-index {
   max-width: calc(var(--column) + (var(--shell-gutter) * 2));
-  min-height: min(720rem, calc(100dvh - var(--nav-h)));
+  min-height: min(45rem, calc(100dvh - var(--nav-h)));
   margin: 0 auto;
   padding: var(--space-55) var(--shell-gutter) var(--space-89);
   display: grid;
@@ -175,7 +187,7 @@ onBeforeUnmount(() => {
 
 .route-index__quote { color: var(--ink); }
 
-.route-index__switchboard { max-width: 420rem; }
+.route-index__switchboard { max-width: 26.25rem; }
 
 .route-index__routes {
   display: block;
@@ -240,12 +252,12 @@ onBeforeUnmount(() => {
 .route-index__info::before {
   content: '';
   position: absolute;
-  inset: -12rem;
+  inset: -0.75rem;
 }
 
 .route-index__info:focus-visible {
-  outline: 2rem solid var(--ink);
-  outline-offset: 3rem;
+  outline: 0.125rem solid var(--ink);
+  outline-offset: 0.1875rem;
 }
 
 .route-index__tip {
@@ -264,7 +276,7 @@ onBeforeUnmount(() => {
 .route-tip-enter-from,
 .route-tip-leave-to {
   opacity: 0;
-  transform: translateY(-4rem);
+  transform: translateY(-0.25rem);
 }
 
 @media (hover: hover) {
@@ -274,8 +286,8 @@ onBeforeUnmount(() => {
 }
 
 .route-index__link:focus-visible {
-  outline: 2rem solid var(--ink);
-  outline-offset: 3rem;
+  outline: 0.125rem solid var(--ink);
+  outline-offset: 0.1875rem;
 }
 
 @media (max-width: 780px) {

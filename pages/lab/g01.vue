@@ -36,32 +36,32 @@ useHead({ link: [{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?f
 </template>
 
 <style scoped>
-.back { position: fixed; top: 18rem; left: 20rem; z-index: 40; color: rgba(244,241,255,0.6); text-decoration: none; font-family: 'Inter', sans-serif; font-size: 12rem; }
-.wrap { position: absolute; inset: 0; display: grid; align-content: center; gap: clamp(26rem, 4vh, 48rem); padding: 70rem clamp(20rem, 5vw, 72rem) 80rem; }
+.back { position: fixed; top: 1.125rem; left: 1.25rem; z-index: 40; color: rgba(244,241,255,0.6); text-decoration: none; font-family: 'Inter', sans-serif; font-size: 0.75rem; }
+.wrap { position: absolute; inset: 0; display: grid; align-content: center; gap: clamp(1.625rem, 4vh, 3rem); padding: 4.375rem clamp(1.25rem, 5vw, 4.5rem) 5rem; }
 
-.eyebrow { margin: 0 0 10rem; font-family: 'Inter', sans-serif; font-size: 11rem; letter-spacing: 0.28em; text-transform: uppercase; opacity: 0.55; }
-.title { margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(46rem, 9vw, 128rem); line-height: 0.88; letter-spacing: -0.03em; }
+.eyebrow { margin: 0 0 0.625rem; font-family: 'Inter', sans-serif; font-size: 0.75rem; letter-spacing: 0.28em; text-transform: uppercase; opacity: 0.55; }
+.title { margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(2.875rem, 9vw, 8rem); line-height: 0.88; letter-spacing: -0.03em; }
 .title em { font-style: italic; opacity: 0.82; }
 
-.deck { display: grid; grid-template-columns: repeat(auto-fit, minmax(200rem, 1fr)); gap: 12rem; }
+.deck { display: grid; grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr)); gap: 0.75rem; }
 /* The visual surface is the shader's; the element only supplies the box,
    the radius and the type that sits inside it. */
-.card { position: relative; display: grid; align-content: end; gap: 5rem; min-height: 168rem;
-  padding: 20rem; border-radius: 24rem; text-decoration: none; color: inherit;
+.card { position: relative; display: grid; align-content: end; gap: 0.3125rem; min-height: 10.5rem;
+  padding: 1.25rem; border-radius: 1.5rem; text-decoration: none; color: inherit;
   transition: transform 420ms cubic-bezier(.2,.9,.2,1); }
-.card:hover { transform: translateY(-8rem); }
+.card:hover { transform: translateY(-0.5rem); }
 .card:focus-visible { outline: 2px solid rgba(255,255,255,0.85); outline-offset: 4px; }
-.card__n { font-family: 'Inter', sans-serif; font-size: 10.5rem; letter-spacing: 0.18em; opacity: 0.6; }
-.card__l { font-family: 'Instrument Serif', serif; font-size: 27rem; line-height: 1.05; }
-.card__d { font-family: 'Inter', sans-serif; font-size: 11.5rem; line-height: 1.45; opacity: 0.66; }
-.card__go { position: absolute; top: 18rem; right: 18rem; font-size: 15rem; opacity: 0.5; transition: transform 320ms cubic-bezier(.2,.9,.2,1); }
+.card__n { font-family: 'Inter', sans-serif; font-size: 0.75rem; letter-spacing: 0.18em; opacity: 0.6; }
+.card__l { font-family: 'Instrument Serif', serif; font-size: 1.6875rem; line-height: 1.05; }
+.card__d { font-family: 'Inter', sans-serif; font-size: 0.75rem; line-height: 1.45; opacity: 0.66; }
+.card__go { position: absolute; top: 1.125rem; right: 1.125rem; font-size: 0.9375rem; opacity: 0.5; transition: transform 320ms cubic-bezier(.2,.9,.2,1); }
 .card:hover .card__go {  opacity: 1; }
 
-.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14rem;
-  padding: 15rem 20rem; border-radius: 999rem; font-family: 'Inter', sans-serif; font-size: 12.5rem; }
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.875rem;
+  padding: 0.9375rem 1.25rem; border-radius: 62.4375rem; font-family: 'Inter', sans-serif; font-size: 0.78125rem; }
 .bar span { opacity: 0.72; }
-.bar__cta { color: inherit; text-decoration: none; font-weight: 700; border-bottom: 1px solid currentColor; padding-bottom: 1rem; }
+.bar__cta { color: inherit; text-decoration: none; font-weight: 700; border-bottom: 1px solid currentColor; padding-bottom: 0.0625rem; }
 
 @media (prefers-reduced-motion: reduce) { .card, .card__go { transition: none; } }
-@media (max-width: 640px) { .deck { grid-template-columns: 1fr 1fr; } .card { min-height: 132rem; } .card__d { display: none; } }
+@media (max-width: 640px) { .deck { grid-template-columns: 1fr 1fr; } .card { min-height: 8.25rem; } .card__d { display: none; } }
 </style>

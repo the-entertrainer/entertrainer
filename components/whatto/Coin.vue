@@ -169,7 +169,7 @@ const lastTrades = computed(() => { void api.tick.value; return (st.value?.trade
 .cd__cbar i.neg { right: 50%; background: linear-gradient(270deg, #FFB6C1, #FF69B4); }
 .cd__mini { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
 .cd__mini div { padding: 8px 10px; border-radius: 14px; background: #FBF5FA; min-width: 0; }
-.cd__mini dt { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--wt-muted); }
+.cd__mini dt { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--wt-muted); }
 .cd__mini dd { margin: 2px 0 0; font-weight: 700; overflow-wrap: anywhere; }
 .cd__mini small { color: var(--wt-muted); font-weight: 600; }
 .cd__ba { font-size: 13px; }

@@ -58,11 +58,11 @@ defineProps<{
 .hero--practice .hero__title { animation: hero-practice-title 640ms var(--ease-out) both; }
 .hero--story .hero__title { animation: hero-story-title 720ms var(--ease-expo-out) both; }
 .hero--projects .hero__deck, .hero--tools .hero__deck, .hero--practice .hero__deck, .hero--story .hero__deck { animation: hero-deck 420ms var(--ease-out) 120ms both; }
-@keyframes hero-projects-title { from { opacity: 0; transform: translateX(-18rem); letter-spacing: .04em; } to { opacity: 1; transform: none; } }
-@keyframes hero-tools-title { from { opacity: 0; transform: translateY(12rem) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes hero-projects-title { from { opacity: 0; transform: translateX(-1.125rem); letter-spacing: .04em; } to { opacity: 1; transform: none; } }
+@keyframes hero-tools-title { from { opacity: 0; transform: translateY(0.75rem) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes hero-practice-title { from { opacity: 0; clip-path: inset(0 100% 0 0); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
-@keyframes hero-story-title { from { opacity: 0; transform: translateY(14rem); filter: blur(5px); } to { opacity: 1; transform: none; filter: none; } }
-@keyframes hero-deck { from { opacity: 0; transform: translateY(8rem); } to { opacity: 1; transform: none; } }
+@keyframes hero-story-title { from { opacity: 0; transform: translateY(0.875rem); filter: blur(5px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes hero-deck { from { opacity: 0; transform: translateY(0.5rem); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
   .hero--projects .hero__title, .hero--tools .hero__title, .hero--practice .hero__title, .hero--story .hero__title,
   .hero--projects .hero__deck, .hero--tools .hero__deck, .hero--practice .hero__deck, .hero--story .hero__deck { animation: none; }

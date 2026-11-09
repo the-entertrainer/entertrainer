@@ -98,7 +98,7 @@ const rel = MODEL.evaluation.reliability
 .hi__clear { margin-top: 12px; }
 .hi__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 10px; }
 .hi__stats div { padding: 8px 10px; border-radius: 14px; background: #FBF5FA; }
-.hi__stats dt { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--wt-muted); }
+.hi__stats dt { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--wt-muted); }
 .hi__stats dd { margin: 2px 0 0; font-weight: 800; font-size: 17px; }
 .hi__folds { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .hi__folds li { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; padding: 8px 10px; border-radius: 12px; background: #FBF5FA; }

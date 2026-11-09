@@ -25,22 +25,22 @@ const S = 'Training people remember three weeks later.'
 </template>
 
 <style scoped>
-.back{position:fixed;top:18rem;left:20rem;z-index:40;color:currentColor;opacity:.55;text-decoration:none;font-family:'Inter',sans-serif;font-size:12rem}
-.wrap{position:absolute;inset:0;display:grid;padding:72rem clamp(20rem,5vw,72rem) 82rem;font-family:'Inter',sans-serif}
+.back{position:fixed;top:1.125rem;left:1.25rem;z-index:40;color:currentColor;opacity:.55;text-decoration:none;font-family:'Inter',sans-serif;font-size:0.75rem}
+.wrap{position:absolute;inset:0;display:grid;padding:4.5rem clamp(1.25rem,5vw,4.5rem) 5.125rem;font-family:'Inter',sans-serif}
 .hero{max-width:60ch}
-.kick{margin:0 0 12rem;font-size:11rem;letter-spacing:.24em;text-transform:uppercase;opacity:.6}
+.kick{margin:0 0 0.75rem;font-size:0.75rem;letter-spacing:.24em;text-transform:uppercase;opacity:.6}
 .title{font-family:'Instrument Serif',serif}
 .title em{font-style:italic;opacity:.82}
-.sub{margin:16rem 0 0;font-size:14rem;line-height:1.55;opacity:.68;max-width:46ch}
-.n{font-size:10.5rem;letter-spacing:.16em;opacity:.6}
+.sub{margin:1rem 0 0;font-size:0.875rem;line-height:1.55;opacity:.68;max-width:46ch}
+.n{font-size:0.75rem;letter-spacing:.16em;opacity:.6}
 .l{font-family:'Instrument Serif',serif}
-.d{font-size:11.5rem;line-height:1.45;opacity:.62}
+.d{font-size:0.75rem;line-height:1.45;opacity:.62}
 *:focus-visible{outline:2px solid currentColor;outline-offset:4px}
 .wrap{align-content:center;justify-items:center}
-.plate{display:grid;justify-items:center;text-align:center;gap:14rem;padding:clamp(34rem,5vw,64rem);border-radius:32rem;width:min(880rem,100%)}
-.title{font-size:clamp(40rem,7.4vw,96rem);line-height:0.94;letter-spacing:-0.03em;margin:0}
-.inline{display:flex;flex-wrap:wrap;gap:8rem;justify-content:center;margin-top:10rem}
-.chip{padding:11rem 20rem;border-radius:999rem;border:1px solid currentColor;text-decoration:none;color:inherit;font-size:13rem;opacity:.8;transition:opacity 240ms,transform 240ms}
-.chip:hover{opacity:1;transform:translateY(-3rem)}
+.plate{display:grid;justify-items:center;text-align:center;gap:0.875rem;padding:clamp(2.125rem,5vw,4rem);border-radius:2rem;width:min(55rem,100%)}
+.title{font-size:clamp(2.5rem,7.4vw,6rem);line-height:0.94;letter-spacing:-0.03em;margin:0}
+.inline{display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;margin-top:0.625rem}
+.chip{padding:0.6875rem 1.25rem;border-radius:62.4375rem;border:1px solid currentColor;text-decoration:none;color:inherit;font-size:0.8125rem;opacity:.8;transition:opacity 240ms,transform 240ms}
+.chip:hover{opacity:1;transform:translateY(-0.1875rem)}
 @media(prefers-reduced-motion:reduce){*{transition:none !important}}
 </style>

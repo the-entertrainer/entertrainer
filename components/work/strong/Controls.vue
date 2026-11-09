@@ -44,16 +44,16 @@ const segments = computed(() => Array.from({ length: props.total }, (_, i) => i)
 
 <style scoped>
 .st-bar {
-  position: relative; z-index: 10; flex-shrink: 0; min-height: 62rem;
-  display: flex; align-items: center; gap: 16rem;
-  padding: 0 22rem; padding-bottom: var(--safe-bottom);
+  position: relative; z-index: 10; flex-shrink: 0; min-height: 3.875rem;
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0 1.375rem; padding-bottom: var(--safe-bottom);
   background: color-mix(in srgb, var(--st-panel) 78%, transparent);
   border-top: 1px solid var(--st-line);
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 }
 .st-bar__nav {
-  width: 42rem; height: 42rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-  border-radius: 999rem; border: 1px solid var(--st-line-strong); color: var(--st-text);
+  width: 2.625rem; height: 2.625rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  border-radius: 62.4375rem; border: 1px solid var(--st-line-strong); color: var(--st-text);
   transition: border-color 0.14s ease, background 0.14s ease, opacity 0.14s ease;
 }
 .st-bar__nav--next { background: var(--st-accent); color: #06222A; border-color: transparent; }
@@ -65,10 +65,10 @@ const segments = computed(() => Array.from({ length: props.total }, (_, i) => i)
 .st-bar__nav--next:disabled { background: var(--st-slot); color: var(--st-muted); border: 1px solid var(--st-line); opacity: 0.7; }
 .st-bar__nav:focus-visible { outline: 2px solid var(--st-text); outline-offset: 2px; }
 
-.st-bar__center { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8rem; }
-.st-seek { display: flex; gap: 5rem; width: 100%; max-width: 520rem; }
+.st-bar__center { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+.st-seek { display: flex; gap: 0.3125rem; width: 100%; max-width: 32.5rem; }
 .st-seek__seg {
-  flex: 1; height: 5rem; border-radius: 999rem; background: var(--st-slot);
+  flex: 1; height: 0.3125rem; border-radius: 62.4375rem; background: var(--st-slot);
   transition: background 0.2s ease, transform 0.15s ease;
 }
 .st-seek__seg.is-done { background: color-mix(in srgb, var(--st-accent) 55%, var(--st-slot)); }
@@ -76,9 +76,9 @@ const segments = computed(() => Array.from({ length: props.total }, (_, i) => i)
 .st-seek__seg.is-locked { cursor: not-allowed; }
 @media (hover: hover) { .st-seek__seg.is-done:not(.is-current):hover { background: var(--st-accent); } }
 .st-seek__seg:focus-visible { outline: 2px solid var(--st-text); outline-offset: 3px; }
-.st-bar__pos { display: flex; align-items: baseline; gap: 10rem; }
-.st-bar__section { font-family: var(--st-display); font-weight: 600; font-size: 12.5rem; color: var(--st-text); }
-.st-bar__count { font-size: 11.5rem; color: var(--st-muted); }
+.st-bar__pos { display: flex; align-items: baseline; gap: 0.625rem; }
+.st-bar__section { font-family: var(--st-display); font-weight: 600; font-size: 0.78125rem; color: var(--st-text); }
+.st-bar__count { font-size: 0.75rem; color: var(--st-muted); }
 
-@media (max-width: 560px) { .st-bar { gap: 10rem; padding: 0 14rem; } }
+@media (max-width: 560px) { .st-bar { gap: 0.625rem; padding: 0 0.875rem; } }
 </style>

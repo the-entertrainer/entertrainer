@@ -27,20 +27,20 @@ const S = 'Hospitality to L&D — the long way round.'
 </template>
 
 <style scoped>
-.back{position:fixed;top:18rem;left:20rem;z-index:40;color:currentColor;opacity:.55;text-decoration:none;font-family:'Inter',sans-serif;font-size:12rem}
-.wrap{position:absolute;inset:0;display:grid;padding:72rem clamp(20rem,5vw,72rem) 82rem;font-family:'Inter',sans-serif}
+.back{position:fixed;top:1.125rem;left:1.25rem;z-index:40;color:currentColor;opacity:.55;text-decoration:none;font-family:'Inter',sans-serif;font-size:0.75rem}
+.wrap{position:absolute;inset:0;display:grid;padding:4.5rem clamp(1.25rem,5vw,4.5rem) 5.125rem;font-family:'Inter',sans-serif}
 .hero{max-width:60ch}
-.kick{margin:0 0 12rem;font-size:11rem;letter-spacing:.24em;text-transform:uppercase;opacity:.6}
+.kick{margin:0 0 0.75rem;font-size:0.75rem;letter-spacing:.24em;text-transform:uppercase;opacity:.6}
 .title{font-family:'Fraunces',serif}
 .title em{font-style:italic;opacity:.82}
-.sub{margin:16rem 0 0;font-size:14rem;line-height:1.55;opacity:.68;max-width:46ch}
-.n{font-size:10.5rem;letter-spacing:.16em;opacity:.6}
+.sub{margin:1rem 0 0;font-size:0.875rem;line-height:1.55;opacity:.68;max-width:46ch}
+.n{font-size:0.75rem;letter-spacing:.16em;opacity:.6}
 .l{font-family:'Fraunces',serif}
-.d{font-size:11.5rem;line-height:1.45;opacity:.62}
+.d{font-size:0.75rem;line-height:1.45;opacity:.62}
 *:focus-visible{outline:2px solid currentColor;outline-offset:4px}
-.wrap{align-content:center;gap:30rem}.title{font-size:clamp(42rem,8vw,100rem);line-height:0.92;letter-spacing:-0.03em;margin:0}
-.stack{display:grid;gap:8rem;max-width:820rem}
-.row{position:relative;display:grid;grid-template-columns:44rem 1fr auto;grid-template-areas:'n l g' '. d .';gap:2rem 14rem;align-items:center;padding:20rem 22rem;border-radius:18rem;text-decoration:none;color:inherit;transition:transform 340ms cubic-bezier(.2,.9,.2,1)}
-.row:hover{transform:translateX(8rem)}.row .n{grid-area:n}.row .l{grid-area:l;font-size:21rem;font-weight:600}.row .d{grid-area:d;opacity:.62}.row .go{grid-area:g}
+.wrap{align-content:center;gap:1.875rem}.title{font-size:clamp(2.625rem,8vw,6.25rem);line-height:0.92;letter-spacing:-0.03em;margin:0}
+.stack{display:grid;gap:0.5rem;max-width:51.25rem}
+.row{position:relative;display:grid;grid-template-columns:2.75rem 1fr auto;grid-template-areas:'n l g' '. d .';gap:0.125rem 0.875rem;align-items:center;padding:1.25rem 1.375rem;border-radius:1.125rem;text-decoration:none;color:inherit;transition:transform 340ms cubic-bezier(.2,.9,.2,1)}
+.row:hover{transform:translateX(0.5rem)}.row .n{grid-area:n}.row .l{grid-area:l;font-size:1.3125rem;font-weight:600}.row .d{grid-area:d;opacity:.62}.row .go{grid-area:g}
 @media(prefers-reduced-motion:reduce){*{transition:none !important}}
 </style>

@@ -578,7 +578,7 @@ onUnmounted(() => resizeObs?.disconnect())
   touch-action: none;
   cursor: grab;
   background:
-    radial-gradient(circle at 1px 1px, var(--color-glass-border) 1.4px, transparent 0) 0 0 / 28rem 28rem,
+    radial-gradient(circle at 1px 1px, var(--color-glass-border) 1.4px, transparent 0) 0 0 / 1.75rem 1.75rem,
     color-mix(in srgb, var(--color-bg) 40%, transparent);
 }
 .node-canvas:active { cursor: grabbing; }
@@ -610,7 +610,7 @@ onUnmounted(() => resizeObs?.disconnect())
 
 .reconnect-handle {
   position: absolute;
-  width: 26rem; height: 26rem;
+  width: 1.625rem; height: 1.625rem;
   border-radius: 999px;
   cursor: grab;
   pointer-events: auto;
@@ -625,34 +625,34 @@ onUnmounted(() => resizeObs?.disconnect())
   transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
-  gap: 5rem;
-  padding: 6rem 12rem;
+  gap: 0.3125rem;
+  padding: 0.375rem 0.75rem;
   border-radius: 999px;
-  font-size: 11rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   color: #fff;
   background: #B42318;
-  box-shadow: 0 8rem 22rem -8rem rgba(0,0,0,0.6);
+  box-shadow: 0 0.5rem 1.375rem -0.5rem rgba(0,0,0,0.6);
   z-index: 5;
   white-space: nowrap;
 }
 @media (hover: none) {
-  .edge-delete-chip { padding: 11rem 18rem; font-size: 13rem; }
+  .edge-delete-chip { padding: 0.6875rem 1.125rem; font-size: 0.8125rem; }
 }
 
 .node-card {
   position: absolute;
-  padding: 16rem 18rem 14rem;
-  border-radius: 18rem;
+  padding: 1rem 1.125rem 0.875rem;
+  border-radius: 1.125rem;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.10), transparent 38%),
     color-mix(in srgb, var(--color-bg) 76%, transparent);
   backdrop-filter: blur(18px) saturate(1.3);
   -webkit-backdrop-filter: blur(18px) saturate(1.3);
   border: 1px solid var(--color-glass-border);
-  border-left: 4rem solid var(--kind-color);
-  box-shadow: 0 18rem 46rem -26rem rgba(0,0,0,0.65);
+  border-left: 0.25rem solid var(--kind-color);
+  box-shadow: 0 1.125rem 2.875rem -1.625rem rgba(0,0,0,0.65);
   cursor: grab;
   touch-action: none;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
@@ -663,42 +663,42 @@ onUnmounted(() => resizeObs?.disconnect())
 .node-card:active { cursor: grabbing; }
 .node-card--active {
   border-color: var(--kind-color);
-  box-shadow: 0 0 0 2rem color-mix(in srgb, var(--kind-color) 55%, transparent), 0 26rem 60rem -30rem rgba(0,0,0,0.65);
+  box-shadow: 0 0 0 0.125rem color-mix(in srgb, var(--kind-color) 55%, transparent), 0 1.625rem 3.75rem -1.875rem rgba(0,0,0,0.65);
 }
 .node-card--reject {
   animation: node-reject 0.45s ease;
-  box-shadow: 0 0 0 2rem color-mix(in srgb, #ff6b6b 70%, transparent), 0 26rem 60rem -30rem rgba(0,0,0,0.65);
+  box-shadow: 0 0 0 0.125rem color-mix(in srgb, #ff6b6b 70%, transparent), 0 1.625rem 3.75rem -1.875rem rgba(0,0,0,0.65);
 }
 @keyframes node-reject {
   0%, 100% { translate: 0 0; }
-  20%, 60% { translate: -6rem 0; }
-  40%, 80% { translate: 6rem 0; }
+  20%, 60% { translate: -0.375rem 0; }
+  40%, 80% { translate: 0.375rem 0; }
 }
 .node-card__start {
   position: absolute;
-  top: -11rem; left: 14rem;
-  font-size: 10rem;
+  top: -0.6875rem; left: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  padding: 3rem 9rem;
+  padding: 0.1875rem 0.5625rem;
   border-radius: 999px;
   background: var(--color-text);
   color: var(--color-bg);
 }
 .node-card__actions {
   position: absolute;
-  top: 8rem; right: 8rem;
+  top: 0.5rem; right: 0.5rem;
   display: flex;
-  gap: 5rem;
+  gap: 0.3125rem;
   z-index: 2;
 }
 .node-card__edit, .node-card__delete {
-  width: 24rem; height: 24rem;
+  width: 1.5rem; height: 1.5rem;
   display: grid; place-items: center;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-bg) 55%, transparent);
   border: 1px solid var(--color-glass-border);
-  font-size: 10rem;
+  font-size: 0.75rem;
   opacity: 0;
   transition: opacity 0.15s ease;
 }
@@ -712,55 +712,55 @@ onUnmounted(() => resizeObs?.disconnect())
   .node-card__edit, .node-card__delete { opacity: 0.7; }
 }
 
-.node-card__kind { display: flex; align-items: center; gap: 7rem; }
+.node-card__kind { display: flex; align-items: center; gap: 0.4375rem; }
 .node-card__glyph {
-  width: 20rem; height: 20rem;
+  width: 1.25rem; height: 1.25rem;
   display: grid; place-items: center;
-  border-radius: 6rem;
-  font-size: 10.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--color-bg);
   background: var(--kind-color);
   flex-shrink: 0;
 }
 .node-card__kind-label {
-  font-size: 10rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--kind-color);
 }
-.node-card__num { margin-left: auto; margin-right: 18rem; font-size: 10rem; font-weight: 600; opacity: 0.5; }
+.node-card__num { margin-left: auto; margin-right: 1.125rem; font-size: 0.75rem; font-weight: 600; opacity: 0.5; }
 
-.node-card h3 { margin: 11rem 0 7rem; font-size: 16.5rem; line-height: 1.2; letter-spacing: -0.02em; }
+.node-card h3 { margin: 0.6875rem 0 0.4375rem; font-size: 1.03125rem; line-height: 1.2; letter-spacing: -0.02em; }
 .node-card p {
-  font-size: 12rem; line-height: 1.45; opacity: 0.62; min-height: 50rem;
+  font-size: 0.75rem; line-height: 1.45; opacity: 0.62; min-height: 3.125rem;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
   white-space: pre-line;
 }
-.node-card__foot { margin-top: auto; padding-top: 8rem; display: flex; align-items: center; justify-content: space-between; }
+.node-card__foot { margin-top: auto; padding-top: 0.5rem; display: flex; align-items: center; justify-content: space-between; }
 .node-card__status {
   display: inline-flex;
-  font-size: 10rem; font-weight: 600; padding: 3rem 9rem; border-radius: 999px;
+  font-size: 0.75rem; font-weight: 600; padding: 0.1875rem 0.5625rem; border-radius: 999px;
   background: color-mix(in srgb, var(--color-bg) 50%, transparent);
   border: 1px solid var(--color-glass-border);
 }
 .node-card__stage {
   display: inline-flex;
-  font-size: 10rem; font-weight: 700; padding: 3rem 9rem; border-radius: 999px;
+  font-size: 0.75rem; font-weight: 700; padding: 0.1875rem 0.5625rem; border-radius: 999px;
   color: var(--stage-color);
   background: color-mix(in srgb, var(--stage-color) 16%, transparent);
   border: 1px solid color-mix(in srgb, var(--stage-color) 45%, transparent);
 }
-.node-card__time { font-size: 10.5rem; font-weight: 600; opacity: 0.5; }
+.node-card__time { font-size: 0.75rem; font-weight: 600; opacity: 0.5; }
 
 .port {
   position: absolute;
   top: 50%;
-  width: 16rem; height: 16rem;
+  width: 1rem; height: 1rem;
   border-radius: 999px;
   background: var(--color-bg);
-  border: 2.5rem solid var(--kind-color);
+  border: 0.15625rem solid var(--kind-color);
   transform-origin: center;
   touch-action: none;
   z-index: 2;
@@ -769,7 +769,7 @@ onUnmounted(() => resizeObs?.disconnect())
 .port::after {
   content: '';
   position: absolute;
-  inset: -12rem;
+  inset: -0.75rem;
   border-radius: 999px;
 }
 .port--in { left: 0; border-color: var(--color-text); }
@@ -780,9 +780,9 @@ onUnmounted(() => resizeObs?.disconnect())
 
 /* MCQ answer branch ports: labelled A–D down the right edge */
 .port--opt {
-  width: 19rem; height: 19rem;
+  width: 1.1875rem; height: 1.1875rem;
   display: grid; place-items: center;
-  font-size: 9.5rem;
+  font-size: 0.75rem;
   font-weight: 800;
   color: var(--kind-color);
   line-height: 1;
@@ -792,14 +792,14 @@ onUnmounted(() => resizeObs?.disconnect())
 
 .edge-letter {
   position: absolute;
-  width: 20rem; height: 20rem;
+  width: 1.25rem; height: 1.25rem;
   display: grid; place-items: center;
   border-radius: 999px;
-  font-size: 10.5rem;
+  font-size: 0.75rem;
   font-weight: 800;
   color: var(--color-bg);
   background: #FB7185;
-  box-shadow: 0 4rem 10rem -4rem rgba(0,0,0,0.5);
+  box-shadow: 0 0.25rem 0.625rem -0.25rem rgba(0,0,0,0.5);
   pointer-events: none;
 }
 
@@ -808,22 +808,22 @@ onUnmounted(() => resizeObs?.disconnect())
   inset: 0;
   display: grid;
   place-items: center;
-  font-size: 14rem;
+  font-size: 0.875rem;
   opacity: 0.5;
   pointer-events: none;
   text-align: center;
-  padding: 0 32rem;
+  padding: 0 2rem;
   line-height: 1.5;
 }
 
 /* ── Minimap ── */
 .minimap {
   position: absolute;
-  right: 14rem;
-  bottom: calc(14rem + var(--safe-bottom));
-  width: 172rem;
-  height: 110rem;
-  border-radius: 12rem;
+  right: 0.875rem;
+  bottom: calc(0.875rem + var(--safe-bottom));
+  width: 10.75rem;
+  height: 6.875rem;
+  border-radius: 0.75rem;
   overflow: hidden;
   background: color-mix(in srgb, var(--color-bg) 72%, transparent);
   border: 1px solid var(--color-glass-border);
@@ -833,11 +833,11 @@ onUnmounted(() => resizeObs?.disconnect())
   touch-action: none;
   z-index: 12;
 }
-.minimap__node { position: absolute; border-radius: 2rem; opacity: 0.75; }
+.minimap__node { position: absolute; border-radius: 0.125rem; opacity: 0.75; }
 .minimap__view {
   position: absolute;
-  border: 1.5rem solid var(--color-text);
-  border-radius: 4rem;
+  border: 0.09375rem solid var(--color-text);
+  border-radius: 0.25rem;
   background: color-mix(in srgb, var(--color-text) 8%, transparent);
 }
 @media (max-width: 899px) { .minimap { display: none; } }

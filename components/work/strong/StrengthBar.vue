@@ -37,23 +37,23 @@ const showGhost = computed(() => naivePct.value != null && props.naive! - props.
 </template>
 
 <style scoped>
-.st-bar__top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 9rem; }
-.st-bar__tier { font-family: var(--st-display); font-weight: 600; font-size: 15rem; }
-.st-bar__bits { font-size: 20rem; font-weight: 600; color: var(--st-text); }
-.st-bar__bits small { font-size: 11rem; color: var(--st-muted); margin-left: 4rem; }
+.st-bar__top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 0.5625rem; }
+.st-bar__tier { font-family: var(--st-display); font-weight: 600; font-size: 0.9375rem; }
+.st-bar__bits { font-size: 1.25rem; font-weight: 600; color: var(--st-text); }
+.st-bar__bits small { font-size: 0.75rem; color: var(--st-muted); margin-left: 0.25rem; }
 .st-bar__track {
-  position: relative; height: 12rem; border-radius: 999rem; overflow: hidden;
+  position: relative; height: 0.75rem; border-radius: 62.4375rem; overflow: hidden;
   background: var(--st-slot);
 }
 .st-bar__zones {
   position: absolute; inset: 0; opacity: 0.16;
   background: linear-gradient(90deg, var(--st-t0), var(--st-t1) 29%, var(--st-t2) 42%, var(--st-t3) 62%, var(--st-t4) 83%);
 }
-.st-bar__fill { position: absolute; top: 0; left: 0; height: 100%; border-radius: 999rem; transition: width 0.28s ease, background 0.28s ease; }
-.st-bar__marker { position: absolute; top: -3rem; width: 3rem; height: 18rem; border-radius: 2rem; transform: translateX(-50%); transition: left 0.28s ease, background 0.28s ease; box-shadow: 0 0 10rem currentColor; }
-.st-bar__ghost { position: absolute; top: -3rem; width: 2rem; height: 18rem; border-radius: 2rem; transform: translateX(-50%); background: var(--st-muted); opacity: 0.6; }
-.st-bar__tick { position: absolute; top: 50%; width: 1px; height: 12rem; transform: translate(-50%, -50%); background: rgba(220, 232, 240, 0.22); }
-.st-bar__ghost-note { margin-top: 10rem; font-size: 12.5rem; line-height: 1.5; color: var(--st-muted); }
+.st-bar__fill { position: absolute; top: 0; left: 0; height: 100%; border-radius: 62.4375rem; transition: width 0.28s ease, background 0.28s ease; }
+.st-bar__marker { position: absolute; top: -0.1875rem; width: 0.1875rem; height: 1.125rem; border-radius: 0.125rem; transform: translateX(-50%); transition: left 0.28s ease, background 0.28s ease; box-shadow: 0 0 0.625rem currentColor; }
+.st-bar__ghost { position: absolute; top: -0.1875rem; width: 0.125rem; height: 1.125rem; border-radius: 0.125rem; transform: translateX(-50%); background: var(--st-muted); opacity: 0.6; }
+.st-bar__tick { position: absolute; top: 50%; width: 1px; height: 0.75rem; transform: translate(-50%, -50%); background: rgba(220, 232, 240, 0.22); }
+.st-bar__ghost-note { margin-top: 0.625rem; font-size: 0.78125rem; line-height: 1.5; color: var(--st-muted); }
 @media (prefers-reduced-motion: reduce) { .st-bar__fill, .st-bar__marker { transition: none; } }
-.st-bar--compact .st-bar__bits { font-size: 17rem; }
+.st-bar--compact .st-bar__bits { font-size: 1.0625rem; }
 </style>

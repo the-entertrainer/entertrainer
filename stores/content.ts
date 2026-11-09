@@ -22,7 +22,8 @@ export const useContentStore = defineStore('content', {
     aboutNav:                (state): NavItem[] => state.nav.about                   ?? [],
     toolsNav:                (state): NavItem[] => state.nav.tools                   ?? [],
     downloadsNav:            (state): NavItem[] => state.nav.downloads               ?? [],
-    myWorkNav:               (state): NavItem[] => state.nav['my-work']              ?? [],
+    workNav:                 (state): NavItem[] => state.nav.work                    ?? state.nav['my-work'] ?? [],
+    myWorkNav:               (state): NavItem[] => state.nav.work                    ?? state.nav['my-work'] ?? [],
     instructionalDesignNav:  (state): NavItem[] => state.nav['instructional-design'] ?? []
   }
 })

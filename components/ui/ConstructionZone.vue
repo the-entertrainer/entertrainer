@@ -35,16 +35,16 @@ function goHome() {
 .czone {
   display: flex;
   flex-direction: column;
-  gap: 16rem;
+  gap: 1rem;
 }
 .czone__note {
-  font-size: 14rem;
+  font-size: 0.875rem;
   line-height: 1.55;
   opacity: 0.7;
-  max-width: 520rem;
+  max-width: 32.5rem;
 }
 .czone__home {
   align-self: flex-start;
 }
-.czone--compact .czone__note { font-size: 13rem; }
+.czone--compact .czone__note { font-size: 0.8125rem; }
 </style>

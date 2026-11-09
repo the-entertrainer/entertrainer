@@ -52,34 +52,34 @@ const groups = computed(() => {
 .st-outline { position: fixed; inset: 0; z-index: 40; }
 .st-outline__scrim { position: absolute; inset: 0; background: rgba(6, 12, 18, 0.55); backdrop-filter: blur(2px); animation: st-fadein 0.2s ease; }
 .st-outline__panel {
-  position: absolute; top: 0; right: 0; bottom: 0; width: min(340rem, 86vw);
+  position: absolute; top: 0; right: 0; bottom: 0; width: min(21.25rem, 86vw);
   background: color-mix(in srgb, var(--st-panel) 96%, #000);
   border-left: 1px solid var(--st-line-strong);
-  padding: calc(20rem + var(--safe-top)) 0 calc(20rem + var(--safe-bottom));
+  padding: calc(1.25rem + var(--safe-top)) 0 calc(1.25rem + var(--safe-bottom));
   display: flex; flex-direction: column;
-  box-shadow: -30rem 0 80rem -40rem #000;
+  box-shadow: -1.875rem 0 5rem -2.5rem #000;
   animation: st-slidein 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 @keyframes st-fadein { from { opacity: 0; } }
 @keyframes st-slidein { from { transform: translateX(100%); } }
-.st-outline__head { display: flex; align-items: center; justify-content: space-between; padding: 0 22rem 16rem; }
-.st-outline__title { font-family: var(--st-display); font-weight: 600; font-size: 17rem; }
-.st-outline__x { width: 34rem; height: 34rem; display: flex; align-items: center; justify-content: center; border-radius: 8rem; color: var(--st-muted); }
+.st-outline__head { display: flex; align-items: center; justify-content: space-between; padding: 0 1.375rem 1rem; }
+.st-outline__title { font-family: var(--st-display); font-weight: 600; font-size: 1.0625rem; }
+.st-outline__x { width: 2.125rem; height: 2.125rem; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem; color: var(--st-muted); }
 @media (hover: hover) { .st-outline__x:hover { color: var(--st-text); background: var(--st-slot-hover); } }
 .st-outline__x:focus-visible { outline: 2px solid var(--st-text); outline-offset: 2px; }
-.st-outline__nav { flex: 1; overflow-y: auto; padding: 4rem 14rem; }
-.st-outline__group { margin-bottom: 14rem; }
-.st-outline__section { font-family: var(--st-mono); font-size: 10.5rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--st-muted); padding: 8rem 10rem 6rem; }
+.st-outline__nav { flex: 1; overflow-y: auto; padding: 0.25rem 0.875rem; }
+.st-outline__group { margin-bottom: 0.875rem; }
+.st-outline__section { font-family: var(--st-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--st-muted); padding: 0.5rem 0.625rem 0.375rem; }
 .st-outline__item {
-  display: flex; align-items: center; gap: 12rem; width: 100%; text-align: left;
-  padding: 11rem 10rem; border-radius: 9rem; color: var(--st-muted-strong); font-size: 14.5rem;
+  display: flex; align-items: center; gap: 0.75rem; width: 100%; text-align: left;
+  padding: 0.6875rem 0.625rem; border-radius: 0.5625rem; color: var(--st-muted-strong); font-size: 0.90625rem;
   transition: background 0.14s ease, color 0.14s ease;
 }
 @media (hover: hover) { .st-outline__item:not(:disabled):hover { background: var(--st-slot-hover); color: var(--st-text); } }
 .st-outline__item.is-current { background: color-mix(in srgb, var(--st-accent) 14%, transparent); color: var(--st-text); }
 .st-outline__item.is-locked { opacity: 0.45; cursor: not-allowed; }
 .st-outline__item:focus-visible { outline: 2px solid var(--st-text); outline-offset: -2px; }
-.st-outline__dot { width: 20rem; height: 20rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1.5px solid var(--st-line-strong); color: var(--st-accent); }
+.st-outline__dot { width: 1.25rem; height: 1.25rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1.5px solid var(--st-line-strong); color: var(--st-accent); }
 .st-outline__item.is-current .st-outline__dot { border-color: var(--st-accent); background: color-mix(in srgb, var(--st-accent) 20%, transparent); }
 .st-outline__item.is-done .st-outline__dot { border-color: var(--st-accent); }
 .st-outline__label { line-height: 1.3; }

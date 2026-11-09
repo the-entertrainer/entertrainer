@@ -179,8 +179,8 @@ function onKey(e: KeyboardEvent) {
 
 <style scoped>
 .photo-stack {
-  width: min(100%, 640rem);
-  margin: clamp(36rem, 6vw, 64rem) 0;
+  width: min(100%, 40rem);
+  margin: clamp(2.25rem, 6vw, 4rem) 0;
   touch-action: pan-y;
   user-select: none;
 }
@@ -189,7 +189,7 @@ function onKey(e: KeyboardEvent) {
   position: relative;
   width: 100%;
   /* Room for the offset peek cards — no clipping, no frames */
-  padding: 0 18rem 30rem 0;
+  padding: 0 1.125rem 1.875rem 0;
   isolation: isolate;
   outline: none;
   cursor: grab;
@@ -207,25 +207,25 @@ function onKey(e: KeyboardEvent) {
 }
 
 .photo-stack__stage:focus-visible {
-  outline: 3rem solid var(--ink);
-  outline-offset: 4rem;
-  border-radius: calc(var(--radius-m) + 2rem);
+  outline: 0.1875rem solid var(--ink);
+  outline-offset: 0.25rem;
+  border-radius: calc(var(--radius-m) + 0.125rem);
 }
 
 .photo-stack__card {
   position: absolute;
   top: 0;
   left: 0;
-  right: 18rem;
-  bottom: 30rem;
+  right: 1.125rem;
+  bottom: 1.875rem;
   margin: 0;
   border-radius: var(--radius-m);
   overflow: hidden;
   background: var(--paper-2);
   transform:
     translate3d(
-      calc(var(--stack-i) * 8rem + var(--drag-x, 0px)),
-      calc(var(--stack-i) * 10rem),
+      calc(var(--stack-i) * 0.5rem + var(--drag-x, 0px)),
+      calc(var(--stack-i) * 0.625rem),
       0
     )
     rotate(calc(var(--stack-i) * 1.8deg + var(--drag-rot, 0deg)))
@@ -275,29 +275,29 @@ function onKey(e: KeyboardEvent) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12rem;
-  margin-top: 4rem;
-  padding: 0 2rem;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+  padding: 0 0.125rem;
 }
 
 .photo-stack__count {
-  font: 700 11rem/1.2 var(--font-mono);
+  font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--ink-soft);
 }
 
 .photo-stack__hint {
-  font: 600 11rem/1.2 var(--font-mono);
+  font: 600 0.75rem/1.2 var(--font-mono);
   letter-spacing: .06em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--ink) 32%, transparent);
 }
 
 .photo-stack__note {
-  margin: 10rem 0 0;
+  margin: 0.625rem 0 0;
   color: var(--ink-soft);
-  font: 600 12rem/1.4 var(--font-mono);
+  font: 600 0.75rem/1.4 var(--font-mono);
   letter-spacing: .04em;
 }
 
@@ -315,8 +315,8 @@ function onKey(e: KeyboardEvent) {
 
 @media (max-width: 700px) {
   .photo-stack { width: 100%; }
-  .photo-stack__stage { padding: 0 14rem 24rem 0; }
-  .photo-stack__card { right: 14rem; bottom: 24rem; }
+  .photo-stack__stage { padding: 0 0.875rem 1.5rem 0; }
+  .photo-stack__card { right: 0.875rem; bottom: 1.5rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

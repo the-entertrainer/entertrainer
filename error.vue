@@ -48,15 +48,15 @@ useHead({ title: isNotFound.value ? 'Page not found â€” Entertrainer' : 'Error â
 #app-root { min-height: 100dvh; background: var(--paper); display: flex; flex-direction: column; }
 #main { flex: 1; }
 
-.err__list { list-style: none; margin: 0 0 30rem; padding: 0; }
+.err__list { list-style: none; margin: 0 0 1.875rem; padding: 0; }
 .err__row {
-  display: grid; grid-template-columns: minmax(0, 1fr) 16rem;
-  align-items: center; gap: 14rem;
-  padding: 14rem 8rem;
+  display: grid; grid-template-columns: minmax(0, 1fr) 1rem;
+  align-items: center; gap: 0.875rem;
+  padding: 0.875rem 0.5rem;
   border-bottom: var(--stroke) solid var(--line);
   transition: background var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) { .err__row:hover { background: var(--yellow); color: var(--on-yellow); } }
-.err__t { font-size: 17rem; font-weight: 600; }
+.err__t { font-size: 1.0625rem; font-weight: 600; }
 .err__home { text-decoration: none; }
 </style>

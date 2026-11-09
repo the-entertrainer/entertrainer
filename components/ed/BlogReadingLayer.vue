@@ -184,27 +184,27 @@ onBeforeUnmount(() => {
 }
 /*
   The rail sits in the free right gutter, pinned to the viewport edge.
-  At 1180rem+ the prose right edge is about 50% + 317rem (shell gutter 225rem + 66ch measure ≈ 681rem),
-  so a 280rem rail 24rem from the edge clears the text with a 24rem gap only from ~1290rem (≈1305 with a scrollbar).
-  1440rem leaves ~90rem of slack for font and measure drift. Below that, only the top progress bar shows.
+  At 73.75rem+ the prose right edge is about 50% + 19.8125rem (shell gutter 14.0625rem + 66ch measure ≈ 42.5625rem),
+  so a 17.5rem rail 1.5rem from the edge clears the text with a 1.5rem gap only from ~80.625rem (≈1305 with a scrollbar).
+  90rem leaves ~5.625rem of slack for font and measure drift. Below that, only the top progress bar shows.
 */
-.reading-layer__rail { display: none; position: fixed; z-index: 81; top: 88rem; right: 24rem; width: 280rem; }
+.reading-layer__rail { display: none; position: fixed; z-index: 81; top: 5.5rem; right: 1.5rem; width: 17.5rem; }
 @media (min-width: 1440px) { .reading-layer__rail { display: block; } }
-.reading-layer__toggle, .reading-layer__panel { border: var(--stroke) solid var(--ink); background: color-mix(in srgb, var(--paper) 93%, transparent); box-shadow: 6rem 6rem 0 var(--ink); }
-.reading-layer__toggle { display: flex; align-items: center; gap: 9rem; width: 100%; padding: 9rem 11rem; color: var(--ink); cursor: pointer; text-align: left; font: 700 10rem/1.2 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
+.reading-layer__toggle, .reading-layer__panel { border: var(--stroke) solid var(--ink); background: color-mix(in srgb, var(--paper) 93%, transparent); box-shadow: 0.375rem 0.375rem 0 var(--ink); }
+.reading-layer__toggle { display: flex; align-items: center; gap: 0.5625rem; width: 100%; padding: 0.5625rem 0.6875rem; color: var(--ink); cursor: pointer; text-align: left; font: 700 0.75rem/1.2 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
 .reading-layer__toggle:hover, .reading-layer__toggle:focus-visible, .reading-layer__action:hover, .reading-layer__action:focus-visible { background: var(--signal-field); }
-.reading-layer__ring { display: grid; place-items: center; width: 18rem; height: 18rem; border: 2px solid var(--ink); border-radius: 50%; }
-.reading-layer__ring span { width: 5rem; height: 5rem; border-radius: 50%; background: var(--signal-cobalt); transform-origin: 9rem 9rem; }
+.reading-layer__ring { display: grid; place-items: center; width: 1.125rem; height: 1.125rem; border: 2px solid var(--ink); border-radius: 50%; }
+.reading-layer__ring span { width: 0.3125rem; height: 0.3125rem; border-radius: 50%; background: var(--signal-cobalt); transform-origin: 0.5625rem 0.5625rem; }
 .reading-layer__percent { margin-left: auto; color: var(--signal-cobalt); }
-.reading-layer__panel { margin-top: 8rem; padding: 15rem; }
-.reading-layer__eyebrow { margin: 0 0 5rem; color: var(--signal-cobalt); font: 700 10rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
-.reading-layer__hint { margin: 0 0 13rem; font: 400 14rem/1.35 var(--font-body); }
-.reading-layer__section { display: flex; align-items: baseline; gap: 9rem; width: 100%; padding: 7rem 0; color: var(--ink-soft); border: 0; border-top: var(--stroke) solid var(--line); background: none; cursor: pointer; text-align: left; font: 600 12rem/1.25 var(--font-body); }
+.reading-layer__panel { margin-top: 0.5rem; padding: 0.9375rem; }
+.reading-layer__eyebrow { margin: 0 0 0.3125rem; color: var(--signal-cobalt); font: 700 0.75rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.reading-layer__hint { margin: 0 0 0.8125rem; font: 400 0.875rem/1.35 var(--font-body); }
+.reading-layer__section { display: flex; align-items: baseline; gap: 0.5625rem; width: 100%; padding: 0.4375rem 0; color: var(--ink-soft); border: 0; border-top: var(--stroke) solid var(--line); background: none; cursor: pointer; text-align: left; font: 600 0.75rem/1.25 var(--font-body); }
 .reading-layer__section--active { color: var(--ink); }
-.reading-layer__dot { flex: 0 0 auto; width: 6rem; height: 6rem; margin-top: 3rem; border: 1px solid currentColor; border-radius: 50%; }
+.reading-layer__dot { flex: 0 0 auto; width: 0.375rem; height: 0.375rem; margin-top: 0.1875rem; border: 1px solid currentColor; border-radius: 50%; }
 .reading-layer__section--active .reading-layer__dot { background: var(--signal-cobalt); border-color: var(--signal-cobalt); }
-.reading-layer__actions { display: grid; gap: 5rem; margin-top: 10rem; padding-top: 10rem; border-top: var(--stroke) solid var(--ink); }
-.reading-layer__action { display: flex; justify-content: space-between; width: 100%; padding: 6rem 0; border: 0; background: none; color: var(--ink); cursor: pointer; text-align: left; font: 700 10rem/1.2 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; }
+.reading-layer__actions { display: grid; gap: 0.3125rem; margin-top: 0.625rem; padding-top: 0.625rem; border-top: var(--stroke) solid var(--ink); }
+.reading-layer__action { display: flex; justify-content: space-between; width: 100%; padding: 0.375rem 0; border: 0; background: none; color: var(--ink); cursor: pointer; text-align: left; font: 700 0.75rem/1.2 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; }
 @media (prefers-reduced-motion: reduce) { .reading-layer__progress span { transition: none; } }
 html[data-reduce-motion="on"] .reading-layer__progress span { transition: none; }
 :global(html[data-reading-focus] .feature__margin-note),
@@ -218,7 +218,7 @@ html[data-reduce-motion="on"] .reading-layer__progress span { transition: none; 
 :global(html[data-reading-focus] .taj__newsletter-wrap) { opacity: .18; transition: opacity 240ms ease; }
 :global(html[data-reading-focus] .feature__prose),
 :global(html[data-reading-focus] .ca__prose),
-:global(html[data-reading-focus] .taj__prose) { max-width: 720rem; margin-inline: auto; }
+:global(html[data-reading-focus] .taj__prose) { max-width: 45rem; margin-inline: auto; }
 @media (prefers-reduced-motion: reduce) {
   :global(html[data-reading-focus] .feature__margin-note),
   :global(html[data-reading-focus] .ca__margin-note),

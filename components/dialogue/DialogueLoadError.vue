@@ -11,23 +11,23 @@ defineEmits<{ retry: [] }>()
 
 <style scoped>
 .dlg-load-error {
-  margin: 24rem;
-  padding: 18rem;
-  border: 2rem solid #12110f;
-  border-radius: 12rem;
+  margin: 1.5rem;
+  padding: 1.125rem;
+  border: 0.125rem solid #12110f;
+  border-radius: 0.75rem;
   background: #f6f1e8;
   color: #12110f;
-  font: 16rem/1.4 Inter, system-ui, sans-serif;
+  font: 1rem/1.4 Inter, system-ui, sans-serif;
 }
-.dlg-load-error p { margin: 0 0 14rem; }
+.dlg-load-error p { margin: 0 0 0.875rem; }
 .dlg-load-error__retry {
-  min-height: 44rem;
-  padding: 0 16rem;
+  min-height: 2.75rem;
+  padding: 0 1rem;
   border: 0;
-  border-radius: 8rem;
+  border-radius: 0.5rem;
   background: #ffd43b;
   color: #12110f;
-  font: 700 15rem/1 Inter, system-ui, sans-serif;
+  font: 700 0.9375rem/1 Inter, system-ui, sans-serif;
   cursor: pointer;
 }
 </style>

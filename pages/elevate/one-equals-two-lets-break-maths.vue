@@ -183,24 +183,24 @@ const references = [
 .taj__article { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-34) auto 0; padding: 0 var(--shell-gutter); display: block; }
 .taj__prose { max-width: var(--measure); font: 400 var(--type-body)/1.55 var(--font-body); }
 .taj__prose p { margin: 0 0 var(--space-21); }
-.taj__prose .taj__lead::first-letter { float: left; margin: 2rem 11rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--signal-cobalt); }
+.taj__prose .taj__lead::first-letter { float: left; margin: 0.125rem 0.6875rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--signal-cobalt); }
 .taj__prose a { color: inherit; text-decoration: underline; text-decoration-color: var(--signal-cobalt); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 .taj__prose h2 { margin: var(--space-34) 0 var(--space-13); font-size: var(--type-h2); line-height: .98; }
-.taj__visual { margin: 50rem 0 45rem; }
+.taj__visual { margin: 3.125rem 0 2.8125rem; }
 .taj__visual :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 1800 / 1173; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; background: var(--signal-field); }
-.taj figure figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
+.taj figure figcaption { margin-top: 0.625rem; color: var(--ink-soft); font: 400 0.8125rem/1.35 var(--font-mono); }
 .taj .taj__prose figure figcaption a { color: inherit; text-decoration: underline; text-decoration-color: var(--line); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .taj__proof { margin: var(--space-34) 0; padding: var(--space-21) 0; list-style: none; border-top: var(--stroke) solid var(--ink); border-bottom: var(--stroke) solid var(--ink); counter-reset: proof; }
-.taj__proof li { counter-increment: proof; display: grid; grid-template-columns: 34rem minmax(0, 1fr) minmax(0, auto); align-items: baseline; gap: 0 var(--space-21); padding: 7rem 0; }
-.taj__proof li::before { content: counter(proof); color: var(--ink-soft); font: 400 13rem/1 var(--font-mono); }
-.taj__proof-eq { font: 500 21rem/1.3 var(--font-mono); letter-spacing: -.01em; white-space: nowrap; }
-.taj__proof-why { color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); text-align: right; }
-.taj__proof li.is-result .taj__proof-eq { color: var(--ink); font-size: 34rem; text-decoration: underline; text-decoration-color: var(--signal-cobalt); text-decoration-thickness: 5px; text-underline-offset: 7px; text-decoration-skip-ink: none; }
+.taj__proof li { counter-increment: proof; display: grid; grid-template-columns: 2.125rem minmax(0, 1fr) minmax(0, auto); align-items: baseline; gap: 0 var(--space-21); padding: 0.4375rem 0; }
+.taj__proof li::before { content: counter(proof); color: var(--ink-soft); font: 400 0.8125rem/1 var(--font-mono); }
+.taj__proof-eq { font: 500 1.3125rem/1.3 var(--font-mono); letter-spacing: -.01em; white-space: nowrap; }
+.taj__proof-why { color: var(--ink-soft); font: 400 0.8125rem/1.35 var(--font-mono); text-align: right; }
+.taj__proof li.is-result .taj__proof-eq { color: var(--ink); font-size: 2.125rem; text-decoration: underline; text-decoration-color: var(--signal-cobalt); text-decoration-thickness: 5px; text-underline-offset: 7px; text-decoration-skip-ink: none; }
 .taj__gasp { margin: 0 0 var(--space-21) !important; font: 500 var(--type-h2)/1 var(--font-display); letter-spacing: -.04em; }
-.taj__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 var(--type-h2)/1.15 var(--font-display); letter-spacing: -.035em; }
+.taj__closing { margin-top: 2.375rem !important; padding-top: 1.75rem; border-top: var(--stroke) solid var(--ink); font: 500 var(--type-h2)/1.15 var(--font-display); letter-spacing: -.035em; }
 .taj__sources { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-55) auto 0; padding: var(--space-34) var(--shell-gutter) 0; border-top: var(--stroke) solid var(--ink); }
 .taj__sources h2 { margin: var(--space-13) 0 var(--space-21); font-size: var(--type-h1); line-height: .95; }
-.taj__sources ol { max-width: 760rem; padding: 0; list-style: none; }
+.taj__sources ol { max-width: 47.5rem; padding: 0; list-style: none; }
 .taj__sources li { padding: var(--space-13) 0; border-top: var(--stroke) solid var(--line); font-size: var(--type-body); line-height: 1.45; }
 .taj__sources a { color: inherit; }
 .taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
@@ -209,10 +209,10 @@ const references = [
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: var(--crop); }
-  .taj__prose h2 { margin-top: 52rem; }
-  .taj__proof li { grid-template-columns: 26rem minmax(0, 1fr); }
-  .taj__proof-eq { font-size: 18rem; white-space: normal; }
-  .taj__proof li.is-result .taj__proof-eq { font-size: 28rem; }
-  .taj__proof-why { grid-column: 2; text-align: left; margin-top: 2rem; }
+  .taj__prose h2 { margin-top: 3.25rem; }
+  .taj__proof li { grid-template-columns: 1.625rem minmax(0, 1fr); }
+  .taj__proof-eq { font-size: 1.125rem; white-space: normal; }
+  .taj__proof li.is-result .taj__proof-eq { font-size: 1.75rem; }
+  .taj__proof-why { grid-column: 2; text-align: left; margin-top: 0.125rem; }
 }
 </style>

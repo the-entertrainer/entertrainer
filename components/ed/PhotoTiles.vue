@@ -125,7 +125,7 @@ function positionOf(photo: PhotoTileItem) {
  * Images scale + clip into equal frames; last odd tile spans the full row.
  */
 .photo-tiles {
-  --tile-gap: 10rem;
+  --tile-gap: 0.625rem;
   --tile-ratio: 4 / 5;
   --tile-ratio-span: 16 / 10;
   display: grid;
@@ -133,15 +133,15 @@ function positionOf(photo: PhotoTileItem) {
   gap: var(--tile-gap);
   align-items: stretch;
   justify-items: stretch;
-  width: min(100%, 720rem);
-  margin: clamp(36rem, 6vw, 64rem) 0;
+  width: min(100%, 45rem);
+  margin: clamp(2.25rem, 6vw, 4rem) 0;
   isolation: isolate;
   background: transparent;
 }
 
 .photo-tiles--solo {
   grid-template-columns: minmax(0, 1fr);
-  width: min(100%, 520rem);
+  width: min(100%, 32.5rem);
   --tile-ratio: 1 / 1;
 }
 
@@ -182,15 +182,15 @@ function positionOf(photo: PhotoTileItem) {
 }
 
 .photo-tiles__tile:focus-visible {
-  outline: 3rem solid var(--ink);
-  outline-offset: 3rem;
+  outline: 0.1875rem solid var(--ink);
+  outline-offset: 0.1875rem;
   z-index: 4;
 }
 
 .photo-tiles__tile:hover {
   z-index: 3;
-  transform: translateY(-2rem);
-  box-shadow: 0 10rem 20rem color-mix(in srgb, var(--ink) 14%, transparent);
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.625rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);
   border-color: var(--accent);
 }
 
@@ -199,11 +199,11 @@ function positionOf(photo: PhotoTileItem) {
   cursor: zoom-out;
   grid-column: 1 / -1;
   aspect-ratio: auto;
-  max-height: min(78vh, 720rem);
+  max-height: min(78vh, 45rem);
   border-color: var(--accent);
   box-shadow:
-    0 0 0 3rem var(--accent),
-    0 14rem 28rem color-mix(in srgb, var(--ink) 18%, transparent);
+    0 0 0 0.1875rem var(--accent),
+    0 0.875rem 1.75rem color-mix(in srgb, var(--ink) 18%, transparent);
 }
 
 .photo-tiles--has-expanded .photo-tiles__tile:not(.is-expanded) {
@@ -226,7 +226,7 @@ function positionOf(photo: PhotoTileItem) {
 
 .photo-tiles__tile.is-expanded img {
   height: 100%;
-  max-height: min(78vh, 720rem);
+  max-height: min(78vh, 45rem);
   width: 100%;
   object-fit: cover;
   object-position: center 28%;
@@ -248,7 +248,7 @@ function positionOf(photo: PhotoTileItem) {
 @media (max-width: 700px) {
   .photo-tiles {
     width: 100%;
-    --tile-gap: 8rem;
+    --tile-gap: 0.5rem;
   }
 }
 

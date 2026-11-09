@@ -497,8 +497,8 @@ const hint = computed(() => {
 <style scoped>
 .ecl {
   position: relative;
-  margin: 48rem 0 58rem;
-  padding: 18rem;
+  margin: 3rem 0 3.625rem;
+  padding: 1.125rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   background: var(--paper-2);
@@ -506,16 +506,16 @@ const hint = computed(() => {
 .ecl__labels {
   display: flex;
   flex-wrap: wrap;
-  gap: 8rem;
-  margin-bottom: 12rem;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 .ecl__tag {
   display: inline-flex;
   align-items: center;
-  min-height: 28rem;
-  padding: 0 12rem;
+  min-height: 1.75rem;
+  padding: 0 0.75rem;
   border-radius: var(--radius-full);
-  font: 700 11rem/1 var(--font-mono);
+  font: 700 0.75rem/1 var(--font-mono);
   letter-spacing: .07em;
   text-transform: uppercase;
 }
@@ -531,7 +531,7 @@ const hint = computed(() => {
 }
 .ecl__stage {
   border: var(--stroke) solid var(--ink);
-  border-radius: calc(var(--radius-m) - 4rem);
+  border-radius: calc(var(--radius-m) - 0.25rem);
   overflow: hidden;
   background: var(--paper);
   touch-action: none;
@@ -546,21 +546,21 @@ const hint = computed(() => {
 .ecl__foot {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 4rem 16rem;
+  gap: 0.25rem 1rem;
   align-items: start;
-  margin-top: 14rem;
+  margin-top: 0.875rem;
 }
 .ecl__caption {
   margin: 0;
   grid-column: 1;
-  font: 500 clamp(18rem, 2vw, 24rem)/1.2 var(--font-display);
+  font: 500 clamp(1.125rem, 2vw, 1.5rem)/1.2 var(--font-display);
   letter-spacing: -.03em;
 }
 .ecl__hint {
   margin: 0;
   grid-column: 1;
   color: var(--ink-soft);
-  font: 400 13rem/1.4 var(--font-mono);
+  font: 400 0.8125rem/1.4 var(--font-mono);
 }
 .ecl__reset {
   grid-column: 2;
@@ -571,11 +571,11 @@ const hint = computed(() => {
   border-radius: var(--radius-full);
   background: var(--accent);
   color: var(--accent-ink);
-  font: 700 11rem/1 var(--font-mono);
+  font: 700 0.75rem/1 var(--font-mono);
   letter-spacing: .06em;
   text-transform: uppercase;
-  min-height: 40rem;
-  padding: 0 16rem;
+  min-height: 2.5rem;
+  padding: 0 1rem;
   cursor: pointer;
 }
 .ecl__reset:focus-visible {
@@ -595,23 +595,23 @@ const hint = computed(() => {
 }
 .ecl__sr-btn:focus {
   position: fixed;
-  left: 12rem;
-  bottom: 12rem;
+  left: 0.75rem;
+  bottom: 0.75rem;
   z-index: 40;
   width: auto;
   height: auto;
   margin: 0;
   clip: auto;
-  padding: 10rem 14rem;
+  padding: 0.625rem 0.875rem;
   background: var(--accent);
   color: var(--accent-ink);
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-full);
-  font: 700 12rem/1 var(--font-mono);
+  font: 700 0.75rem/1 var(--font-mono);
 }
 @media (max-width: 640px) {
-  .ecl { padding: 12rem; margin: 36rem 0 48rem; }
+  .ecl { padding: 0.75rem; margin: 2.25rem 0 3rem; }
   .ecl__foot { grid-template-columns: 1fr; }
-  .ecl__reset { grid-column: 1; grid-row: auto; justify-self: start; margin-top: 8rem; }
+  .ecl__reset { grid-column: 1; grid-row: auto; justify-self: start; margin-top: 0.5rem; }
 }
 </style>

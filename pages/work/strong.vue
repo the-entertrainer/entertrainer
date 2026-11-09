@@ -46,7 +46,7 @@ useSeoMeta({
   description: 'A short interactive module on the real maths of password strength: entropy in bits, why length beats symbols, and why the same password can be instant or eternal depending on the attacker.',
   ogTitle: 'Strong — how passwords really break',
   ogDescription: 'The real maths behind password strength, made playable. Nothing you type ever leaves your device.',
-  ogUrl: 'https://entertrainer.in/my-work/strong'
+  ogUrl: 'https://entertrainer.in/work/strong'
 })
 
 const store = useStrongStore()
@@ -193,18 +193,18 @@ function onKey(e: KeyboardEvent) {
 
 /* Top chrome */
 .st-topbar {
-  position: relative; z-index: 10; flex-shrink: 0; min-height: 56rem;
-  display: flex; align-items: center; justify-content: space-between; gap: 16rem;
-  padding: 0 20rem; padding-top: var(--safe-top);
-  padding-left: calc(20rem + var(--safe-left)); padding-right: calc(18rem + var(--safe-right));
+  position: relative; z-index: 10; flex-shrink: 0; min-height: 3.5rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0 1.25rem; padding-top: var(--safe-top);
+  padding-left: calc(1.25rem + var(--safe-left)); padding-right: calc(1.125rem + var(--safe-right));
 }
-.st-topbar__brand { display: inline-flex; align-items: center; gap: 10rem; }
+.st-topbar__brand { display: inline-flex; align-items: center; gap: 0.625rem; }
 .st-topbar__mark { color: var(--st-accent); display: inline-flex; }
-.st-topbar__word { font-family: var(--st-display); font-weight: 700; font-size: 16rem; letter-spacing: 0.14em; }
-.st-topbar__right { display: flex; align-items: center; gap: 8rem; }
+.st-topbar__word { font-family: var(--st-display); font-weight: 700; font-size: 1rem; letter-spacing: 0.14em; }
+.st-topbar__right { display: flex; align-items: center; gap: 0.5rem; }
 .st-topbtn {
-  display: inline-flex; align-items: center; gap: 7rem; padding: 8rem 13rem; border-radius: 999rem;
-  font-family: var(--st-mono); font-size: 12rem; color: var(--st-muted);
+  display: inline-flex; align-items: center; gap: 0.4375rem; padding: 0.5rem 0.8125rem; border-radius: 62.4375rem;
+  font-family: var(--st-mono); font-size: 0.75rem; color: var(--st-muted);
   border: 1px solid var(--st-line); transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 @media (hover: hover) { .st-topbtn:hover { color: var(--st-text); border-color: var(--st-line-strong); } }
@@ -214,31 +214,31 @@ function onKey(e: KeyboardEvent) {
 /* Stage */
 .st-stage { position: relative; z-index: 5; flex: 1; min-height: 0; display: flex; }
 .st-stage__slide { position: relative; flex: 1; min-height: 0; display: flex; overflow-y: auto; overflow-x: hidden; }
-.st-card { margin: auto; width: 100%; max-width: 680rem; padding: clamp(48rem, 8vh, 96rem) 40rem; }
-.st-card--wide { max-width: 860rem; }
+.st-card { margin: auto; width: 100%; max-width: 42.5rem; padding: clamp(3rem, 8vh, 6rem) 2.5rem; }
+.st-card--wide { max-width: 53.75rem; }
 
 /* Slide transitions */
 .st-fwd-enter-active, .st-fwd-leave-active, .st-back-enter-active, .st-back-leave-active { transition: opacity 0.28s ease, transform 0.28s ease; }
-.st-fwd-enter-from { opacity: 0; transform: translateX(26rem); }
-.st-fwd-leave-to { opacity: 0; transform: translateX(-26rem); }
-.st-back-enter-from { opacity: 0; transform: translateX(-26rem); }
-.st-back-leave-to { opacity: 0; transform: translateX(26rem); }
+.st-fwd-enter-from { opacity: 0; transform: translateX(1.625rem); }
+.st-fwd-leave-to { opacity: 0; transform: translateX(-1.625rem); }
+.st-back-enter-from { opacity: 0; transform: translateX(-1.625rem); }
+.st-back-leave-to { opacity: 0; transform: translateX(1.625rem); }
 .st-fade-enter-active, .st-fade-leave-active { transition: opacity 0.3s ease; }
 .st-fade-enter-from, .st-fade-leave-to { opacity: 0; }
 
 /* Type + primitives */
-.st-eyebrow { font-family: var(--st-mono); font-size: 12rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--st-accent); margin-bottom: 24rem; }
-.st-h1 { font-family: var(--st-display); font-weight: 700; font-size: clamp(46rem, 7.4vw, 92rem); line-height: 0.95; letter-spacing: -0.02em; }
-.st-h2 { font-family: var(--st-display); font-weight: 600; font-size: clamp(30rem, 4.8vw, 48rem); line-height: 1.08; letter-spacing: -0.015em; }
-.st-lead { font-size: clamp(17rem, 2.2vw, 21rem); line-height: 1.6; color: var(--st-muted-strong); }
-.st-body { font-size: 15.5rem; line-height: 1.65; color: var(--st-muted-strong); }
-.st-note { font-size: 13.5rem; line-height: 1.55; color: var(--st-muted); }
+.st-eyebrow { font-family: var(--st-mono); font-size: 0.75rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--st-accent); margin-bottom: 1.5rem; }
+.st-h1 { font-family: var(--st-display); font-weight: 700; font-size: clamp(2.875rem, 7.4vw, 5.75rem); line-height: 0.95; letter-spacing: -0.02em; }
+.st-h2 { font-family: var(--st-display); font-weight: 600; font-size: clamp(1.875rem, 4.8vw, 3rem); line-height: 1.08; letter-spacing: -0.015em; }
+.st-lead { font-size: clamp(1.0625rem, 2.2vw, 1.3125rem); line-height: 1.6; color: var(--st-muted-strong); }
+.st-body { font-size: 0.96875rem; line-height: 1.65; color: var(--st-muted-strong); }
+.st-note { font-size: 0.84375rem; line-height: 1.55; color: var(--st-muted); }
 .st-num { font-family: var(--st-mono); font-variant-numeric: tabular-nums; }
 
 .st-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 9rem;
-  padding: 14rem 26rem; border-radius: 10rem;
-  font-family: var(--st-display); font-weight: 600; font-size: 15rem;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5625rem;
+  padding: 0.875rem 1.625rem; border-radius: 0.625rem;
+  font-family: var(--st-display); font-weight: 600; font-size: 0.9375rem;
   cursor: pointer; border: 1.5px solid transparent;
   transition: transform 0.1s ease, filter 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
@@ -251,14 +251,14 @@ function onKey(e: KeyboardEvent) {
 .st-btn:focus-visible { outline: 2px solid var(--st-text); outline-offset: 3px; }
 
 .st-reveal {
-  display: inline-flex; align-items: center; gap: 7rem; margin-top: 10rem;
-  font-family: var(--st-mono); font-size: 12.5rem; color: var(--st-accent);
-  padding: 6rem 0;
+  display: inline-flex; align-items: center; gap: 0.4375rem; margin-top: 0.625rem;
+  font-family: var(--st-mono); font-size: 0.78125rem; color: var(--st-accent);
+  padding: 0.375rem 0;
 }
 .st-reveal:focus-visible { outline: 2px solid var(--st-text); outline-offset: 2px; }
 .st-reveal svg { transition: transform 0.2s ease; }
 .st-reveal.is-open svg { transform: rotate(180deg); }
-.st-revealbody { margin-top: 18rem; padding: 20rem 22rem; background: color-mix(in srgb, var(--st-panel) 70%, transparent); border: 1px solid var(--st-line); border-radius: 14rem; }
+.st-revealbody { margin-top: 1.125rem; padding: 1.25rem 1.375rem; background: color-mix(in srgb, var(--st-panel) 70%, transparent); border: 1px solid var(--st-line); border-radius: 0.875rem; }
 
 @media (prefers-reduced-motion: reduce) {
   .st-fwd-enter-active, .st-fwd-leave-active, .st-back-enter-active, .st-back-leave-active,
@@ -266,7 +266,7 @@ function onKey(e: KeyboardEvent) {
   .st-reveal svg { transition: none; }
 }
 @media (max-width: 640px) {
-  .st-card { padding: 28rem 20rem 36rem; }
+  .st-card { padding: 1.75rem 1.25rem 2.25rem; }
   .st-topbtn span { display: none; }
 }
 </style>

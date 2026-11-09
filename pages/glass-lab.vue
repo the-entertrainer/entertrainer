@@ -214,7 +214,7 @@ onMounted(() => {
       <canvas ref="canvas" class="cv" role="img" aria-label="Interactive glass visual preview" />
     </div>
 
-    <button class="glass-btn glass-btn--ghost fab" style="position:fixed; bottom:20rem; right:20rem; z-index:100;" aria-controls="lab-settings" :aria-expanded="showPanel" @click="showPanel = !showPanel">Settings</button>
+    <button class="glass-btn glass-btn--ghost fab" style="position:fixed; bottom:1.25rem; right:1.25rem; z-index:100;" aria-controls="lab-settings" :aria-expanded="showPanel" @click="showPanel = !showPanel">Settings</button>
 
     <aside id="lab-settings" class="glass-panel panel" :class="{ open: showPanel }" aria-label="Glass Lab settings">
       <h1>Glass Lab</h1>
@@ -263,8 +263,8 @@ onMounted(() => {
       </div>
 
       <div class="row btns">
-        <button class="glass-btn glass-btn--ghost" style="font-size:12rem;" @click="shuffleColours">Shuffle colours</button>
-        <button class="glass-btn glass-btn--ghost" style="font-size:12rem;" @click="randomizeAll">Randomize all</button>
+        <button class="glass-btn glass-btn--ghost" style="font-size:0.75rem;" @click="shuffleColours">Shuffle colours</button>
+        <button class="glass-btn glass-btn--ghost" style="font-size:0.75rem;" @click="randomizeAll">Randomize all</button>
       </div>
 
       <div class="out">
@@ -304,7 +304,7 @@ input[type=range] { width: 100%; accent-color: #6f9bff; }
 .btns button { flex: 1; padding: 9px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.04); color: #e9e9ee; cursor: pointer; font-size: 12px; }
 .btns button:hover { background: rgba(255,255,255,0.1); }
 .out { margin-top: 4px; display: flex; flex-direction: column; gap: 8px; }
-textarea { width: 100%; box-sizing: border-box; resize: none; font-family: ui-monospace, monospace; font-size: 11px; line-height: 1.5; padding: 10px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.12); background: #0d0d11; color: #b9c6ff; }
+textarea { width: 100%; box-sizing: border-box; resize: none; font-family: ui-monospace, monospace; font-size: 0.75rem; line-height: 1.5; padding: 10px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.12); background: #0d0d11; color: #b9c6ff; }
 .copy { padding: 10px; border-radius: 9px; border: none; background: #6f9bff; color: #08080c; font-weight: 700; cursor: pointer; font-size: 13px; }
 .copy:hover { background: #84acff; }
 

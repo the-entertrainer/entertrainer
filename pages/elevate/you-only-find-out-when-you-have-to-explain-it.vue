@@ -1,4 +1,9 @@
 <script setup lang="ts">
+
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'elevate' },
+})
 import { KNOWING_BLOG } from '~/content/blogs'
 
 useSeoMeta({

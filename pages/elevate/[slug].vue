@@ -1,4 +1,9 @@
 <script setup lang="ts">
+
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'elevate' },
+})
 import type { ComposedPost } from '~/types/composed'
 import { getPublishedComposedPost } from '~/content/composed'
 
@@ -20,7 +25,7 @@ const { data, error } = await useAsyncData(
 )
 
 if (error.value || !data.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Article not found' })
+  throw createError({ statusCode: 404, statusMessage: 'Article not found', fatal: true })
 }
 
 const post = computed(() => data.value as ComposedPost)

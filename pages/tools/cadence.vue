@@ -1,5 +1,9 @@
 <script setup lang="ts">
-definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'empower' },
+  pageTransition: { name: 'fade', mode: 'out-in' },
+})
 useSeoMeta({
   title: 'Cadence — Training Calendar Generator · Entertrainer',
   description: 'Turn a topic list into a ready-to-present monthly training calendar, laid out around holidays, audiences, and time slots. Exports to PowerPoint.',
@@ -1128,7 +1132,8 @@ function backToTable() {
 .glass-chip.active {
   background: color-mix(in srgb, #5B8DEF 24%, transparent);
   border-color: color-mix(in srgb, #5B8DEF 50%, transparent);
-  color: #3D63C4;
+  /* #3D63C4 was 4.34:1 on the mixed chip. #1E3F9A clears AA on that fill. */
+  color: #1E3F9A;
 }
 
 /* Submit */
@@ -1441,7 +1446,7 @@ function backToTable() {
   background: color-mix(in srgb, #5B8DEF 8%, transparent);
   border-color: color-mix(in srgb, #5B8DEF 26%, transparent);
 }
-.tcg-day--training .tcg-date-num { opacity: 0.85; color: #3D63C4; }
+.tcg-day--training .tcg-date-num { opacity: 1; color: #1E3F9A; }
 .tcg-day--holiday {
   background: color-mix(in srgb, #ef4444 7%, transparent);
   border-color: color-mix(in srgb, #ef4444 22%, transparent);

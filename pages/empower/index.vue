@@ -1,4 +1,9 @@
 <script setup lang="ts">
+
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'empower' },
+})
 import { byCategory, type EditorialItem } from '~/content/editorial'
 
 useSeoMeta({
@@ -16,7 +21,7 @@ const tools = computed(() =>
 </script>
 
 <template>
-  <main id="main" class="empower">
+  <div class="empower">
     <EdStageHero
       variant="flow"
       title="Empower"
@@ -53,7 +58,7 @@ const tools = computed(() =>
         </NuxtLink>
       </li>
     </ol>
-  </main>
+  </div>
 </template>
 
 <style scoped>
@@ -162,7 +167,7 @@ const tools = computed(() =>
 }
 
 .empower__card-stamp {
-  font: 700 11rem/1.2 var(--font-mono);
+  font: 700 12rem/1.2 var(--font-mono);
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--ink-soft);

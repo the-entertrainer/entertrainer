@@ -1,4 +1,9 @@
 <script setup lang="ts">
+
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'learn' },
+})
 /**
  * Immersive AI course player
  * Design contract: each screen teaches one idea, shows one visual anchor, or

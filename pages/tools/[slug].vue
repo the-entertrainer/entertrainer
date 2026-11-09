@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { useContentStore } from '~/stores/content'
 
-definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'empower' },
+  pageTransition: { name: 'fade', mode: 'out-in' },
+})
 
 const route        = useRoute()
 const contentStore = useContentStore()
@@ -14,7 +18,7 @@ const item = computed(() =>
   })
 )
 
-if (!item.value) throw createError({ statusCode: 404 })
+if (!item.value) throw createError({ statusCode: 404, statusMessage: 'Tool not found', fatal: true })
 </script>
 
 <template>

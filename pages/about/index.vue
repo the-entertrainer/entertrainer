@@ -1,4 +1,9 @@
 <script setup lang="ts">
+
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'story' },
+})
 import { FEATURED_BLOG } from '~/content/blogs'
 import type { PhotoTileItem } from '~/components/ed/PhotoTiles.vue'
 

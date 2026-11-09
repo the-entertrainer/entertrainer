@@ -1,4 +1,9 @@
 <script setup lang="ts">
+
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'learn' },
+})
 /**
  * Compact instructional-design player
  * Design contract: one short teaching purpose per screen. Each screen carries a

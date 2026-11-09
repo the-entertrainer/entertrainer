@@ -67,6 +67,11 @@ const canonicalPath = computed(() => {
 const socialPreview = computed(() => getSocialPreview(canonicalPath.value))
 const socialImage = computed(() => getSocialImage(socialPreview.value))
 const isElevateArticle = computed(() => r.path.startsWith('/elevate/') && r.path !== '/elevate/')
+/**
+ * Reading Mode owns its sheet (skip link, measure, back to world). The
+ * publication masthead stays on every other route.
+ */
+const reading = computed(() => r.meta.layout === 'reading')
 
 useSeoMeta({
   title: () => socialPreview.value.title,
@@ -116,7 +121,13 @@ onBeforeUnmount(() => theme.dispose())
     <EdDailyWordSplash v-if="!bare" />
     <EdSettingsPanel />
     <div :inert="showPreloader ? '' : undefined">
-      <template v-if="bare">
+      <template v-if="reading">
+        <NuxtLayout>
+          <NuxtPage />
+        </NuxtLayout>
+      </template>
+
+      <template v-else-if="bare">
         <NuxtPage />
       </template>
 

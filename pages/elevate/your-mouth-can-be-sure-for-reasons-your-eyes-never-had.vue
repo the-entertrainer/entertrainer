@@ -1,4 +1,9 @@
 <script setup lang="ts">
+
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'elevate' },
+})
 import { SPLIT_BRAIN_BLOG } from '~/content/blogs'
 
 useSeoMeta({

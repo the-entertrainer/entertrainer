@@ -1,0 +1,310 @@
+/*
+  Reading Mode frame and RmError.
+
+  Sizes are px, not rem. The publication root is still `html { font-size: 1px }`
+  (token migration belongs to another PR). A rem here would be one pixel.
+  Nothing in this file is under 12px.
+
+  Colour comes from existing tokens (`--paper`, `--ink`, `--line`, `--font-*`)
+  so a later token pass restyles the sheet without editing this layout.
+*/
+
+.reading {
+  --reading-measure: 66ch;
+  --reading-shell: var(--shell-max, 1180px);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.reading__skip {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 5;
+  transform: translateY(-200%);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.reading__skip:focus-visible {
+  transform: none;
+}
+
+.reading__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 4px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.reading__tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.reading__icon {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.reading__back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  margin-left: -12px;
+  border-radius: 8px;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.2;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-text, currentColor);
+}
+
+.reading__main {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  outline: none;
+}
+
+.reading__main--measure {
+  font-family: var(--font-reading);
+}
+
+.reading__main--measure h1 {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 24px + 2vw, 56px);
+  font-weight: 560;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.reading__main--measure h2 {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 20px + 1vw, 36px);
+  font-weight: 520;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+}
+
+.reading__main--measure p,
+.reading__main--measure blockquote {
+  font-family: var(--font-reading);
+  font-size: clamp(17px, 16px + 0.25vw, 19px);
+  line-height: 1.55;
+  max-width: var(--reading-measure);
+}
+
+.reading :focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* Wide margin notes sit on yellow. Light ink on that fill is about 1.27:1 in dark mode. */
+@media (min-width: 1120px) {
+  .reading .margin-note__inner :focus-visible {
+    outline: 3px solid var(--accent-ink);
+    outline-offset: 3px;
+  }
+}
+
+@media (min-width: 768px) {
+  .reading__bar {
+    padding-inline: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reading,
+  .reading * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html[data-reduce-motion="on"] .reading,
+html[data-reduce-motion="on"] .reading * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* §9.11 RmError. Mobile sheet is full width. Desktop panel is 66ch. */
+
+.rm-error {
+  position: relative;
+}
+
+.rm-error__sheet {
+  width: 100%;
+  padding: 28px 16px 48px;
+}
+
+.rm-error__eyebrow {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.rm-error h1 {
+  margin: 0;
+  max-width: 16ch;
+  font-family: var(--font-display);
+  font-size: clamp(32px, 24px + 2vw, 56px);
+  font-weight: 560;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.rm-error h1:focus {
+  outline: none;
+}
+
+.rm-error h1:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* Chromium treats the load-time focus() as :focus-visible. Hide that ring only. */
+.rm-error h1[data-programmatic-focus]:focus,
+.rm-error h1[data-programmatic-focus]:focus-visible {
+  outline: none;
+}
+
+.rm-error__body {
+  margin: 16px 0 0;
+  max-width: var(--reading-measure);
+  font-family: var(--font-reading);
+  font-size: clamp(17px, 16px + 0.25vw, 19px);
+  line-height: 1.55;
+}
+
+.rm-error__zones {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rm-error__zone {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rm-error__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.2;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-text, currentColor);
+}
+
+.rm-error__link--primary {
+  justify-content: center;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+}
+
+.rm-error__retry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 8px 16px;
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+@media (min-width: 1024px) {
+  .rm-error {
+    align-items: center;
+    justify-content: center;
+    /* Spec void behind the sheet. World poster is not on this branch. */
+    background: var(--wx-void, #07070A);
+    padding: 48px 24px;
+  }
+
+  .rm-error__sheet {
+    width: min(100%, 66ch);
+    padding: 40px 32px 36px;
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .rm-error__zones {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rm-error__zone--nexus {
+    flex-direction: row;
+    align-items: center;
+  }
+}

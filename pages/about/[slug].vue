@@ -1,4 +1,9 @@
 <script setup lang="ts">
+
+definePageMeta({
+  layout: 'reading',
+  world: { anchor: 'story' },
+})
 import { useContentStore } from '~/stores/content'
 
 
@@ -10,7 +15,7 @@ const item = computed(() =>
   contentStore.aboutNav.find((n) => n.id === slug)
 )
 
-if (!item.value) throw createError({ statusCode: 404 })
+if (!item.value) throw createError({ statusCode: 404, statusMessage: 'Page not found', fatal: true })
 </script>
 
 <template>

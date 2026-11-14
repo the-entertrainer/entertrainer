@@ -83,6 +83,7 @@ const references = [
       <p class="taj__meta">{{ ONE_EQUALS_TWO_BLOG.category }} <span aria-hidden="true">·</span> {{ ONE_EQUALS_TWO_BLOG.minutes }} min read</p>
       <h1>{{ ONE_EQUALS_TWO_BLOG.title }}</h1>
       <p class="taj__dek">{{ ONE_EQUALS_TWO_BLOG.dek }}</p>
+      <p class="taj__lesson-link"><NuxtLink to="/learn/one-equals-two">Start the interactive lesson →</NuxtLink></p>
     </header>
 
     <figure class="taj__hero">
@@ -178,6 +179,8 @@ const references = [
 .taj h1, .taj h2 { font-family: var(--font-display); font-weight: 500; letter-spacing: -.05em; }
 .taj h1 { max-width: var(--column); margin: 0; font-size: var(--type-h1); line-height: .95; text-wrap: balance; }
 .taj__dek { max-width: var(--measure); margin: var(--space-13) 0 0; font: 400 var(--type-dek)/1.3 var(--font-body); }
+.taj__lesson-link { margin: 0.75rem 0 0; }
+.taj__lesson-link a { font-weight: 500; color: var(--signal-cobalt); text-decoration: none; border-bottom: 1px solid var(--signal-cobalt); }
 .taj__hero { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: 0 auto; padding: 0 var(--shell-gutter); }
 .taj__hero :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: var(--crop); object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; background: var(--signal-field); }
 .taj__article { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-34) auto 0; padding: 0 var(--shell-gutter); display: block; }

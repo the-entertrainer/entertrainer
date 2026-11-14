@@ -23,8 +23,8 @@ function themeBg() {
 }
 
 /*
-  Entertrainer's main.css uses `html { font-size: 1px }` (rem == px).
-  Tailwind utilities on this island assume a normal 16px rem.
+  The publication root is the browser default, 16px, so 1rem is 16px.
+  This island still pins that size so a later override cannot shrink Tailwind.
   useHead style for first paint + class-gated CSS + JS important safety net.
   NEVER bare `html { font-size }` in unscoped CSS — Vite keeps chunks linked.
   Backgrounds follow html[data-theme] — do not force dark-only.

@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<{
   returnTo?: string
   returnLabel?: string
 }>(), {
-  returnTo: '/my-work',
+  returnTo: '/work',
   returnLabel: 'All projects',
 })
 
@@ -367,34 +367,34 @@ onBeforeUnmount(() => {
 <style scoped>
 /* SEWA publication: StPageFlip visual pages plus a semantic reading equivalent. */
 .sewa-publication { min-height: 100dvh; color: #171210; background: #f2eadf; display: flex; flex-direction: column; outline: none; }
-.sewa-publication__masthead { min-height: 66rem; padding: 12rem clamp(18rem, 4vw, 62rem); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2b211c; background: rgba(250,247,240,.96); }
+.sewa-publication__masthead { min-height: 4.125rem; padding: 0.75rem clamp(1.125rem, 4vw, 3.875rem); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2b211c; background: rgba(250,247,240,.96); }
 .sewa-publication__brand { justify-self: start; color: #15110f; }
 .sewa-publication__brand :deep(.wm) { color: #15110f; }
-.sewa-publication__brand :deep(.wordmark) { max-width: 185rem; }
-.sewa-publication__exit { min-height: 44rem; display: inline-flex; align-items: center; border-bottom: 1px solid currentColor; font-family: "Libre Baskerville", Georgia, serif; font-size: 13rem; font-weight: 700; }
+.sewa-publication__brand :deep(.wordmark) { max-width: 11.5625rem; }
+.sewa-publication__exit { min-height: 2.75rem; display: inline-flex; align-items: center; border-bottom: 1px solid currentColor; font-family: "Libre Baskerville", Georgia, serif; font-size: 0.8125rem; font-weight: 700; }
 .sewa-publication__reader { flex: 1; display: flex; flex-direction: column; }
-.sewa-publication__stage { position: relative; flex: 1; min-height: calc(100dvh - 66rem); display: grid; place-items: center; padding: clamp(22rem, 5vw, 68rem); overflow: hidden; overscroll-behavior-x: contain; background: radial-gradient(ellipse at 50% 18%, #fffdf8 0, #f6efe4 44%, #dfd0bc 100%); }
-.sewa-publication__stage::before { content: ''; position: absolute; width: min(88vw, 960rem); height: min(78dvh, 820rem); border-radius: 50%; background: rgba(61,35,22,.15); filter: blur(42rem); transform: translateY(34rem) scale(.9); pointer-events: none; }
-.sewa-publication__flipbook { position: relative; z-index: 1; width: min(100%, 1120rem); height: auto; min-height: 0; max-height: none; aspect-ratio: 2240 / 1520; opacity: 0; touch-action: pan-y; -webkit-user-select: none; user-select: none; transition: opacity 260ms ease; }
+.sewa-publication__stage { position: relative; flex: 1; min-height: calc(100dvh - 4.125rem); display: grid; place-items: center; padding: clamp(1.375rem, 5vw, 4.25rem); overflow: hidden; overscroll-behavior-x: contain; background: radial-gradient(ellipse at 50% 18%, #fffdf8 0, #f6efe4 44%, #dfd0bc 100%); }
+.sewa-publication__stage::before { content: ''; position: absolute; width: min(88vw, 60rem); height: min(78dvh, 51.25rem); border-radius: 50%; background: rgba(61,35,22,.15); filter: blur(2.625rem); transform: translateY(2.125rem) scale(.9); pointer-events: none; }
+.sewa-publication__flipbook { position: relative; z-index: 1; width: min(100%, 70rem); height: auto; min-height: 0; max-height: none; aspect-ratio: 2240 / 1520; opacity: 0; touch-action: pan-y; -webkit-user-select: none; user-select: none; transition: opacity 260ms ease; }
 .sewa-publication__stage--ready .sewa-publication__flipbook { opacity: 1; }
 .sewa-publication__flipbook :deep(.stf__parent) { margin: 0 auto; }
-.sewa-publication__flipbook :deep(.stf__wrapper) { box-shadow: 0 30rem 56rem rgba(50,35,23,.26), 0 0 0 1rem rgba(64,43,27,.1); }
+.sewa-publication__flipbook :deep(.stf__wrapper) { box-shadow: 0 1.875rem 3.5rem rgba(50,35,23,.26), 0 0 0 0.0625rem rgba(64,43,27,.1); }
 .sewa-publication__flipbook :deep(.stf__block) { background: #fffdf8; }
-.sewa-publication__corner { position: absolute; z-index: 0; top: 50%; width: 34rem; height: 84rem; opacity: .45; pointer-events: none; }
-.sewa-publication__corner--previous { left: max(14rem, calc(50% - 580rem)); border-left: 1px solid #4b3830; border-top: 1px solid #4b3830; transform: translateY(-50%) rotate(-45deg); }
-.sewa-publication__corner--next { right: max(14rem, calc(50% - 580rem)); border-right: 1px solid #4b3830; border-bottom: 1px solid #4b3830; transform: translateY(-50%) rotate(-45deg); }
-.sewa-publication__still { position: relative; z-index: 1; width: min(100%, 560rem); min-height: min(132vw, 760rem); overflow: hidden; background: #fffdf8; box-shadow: 10rem 16rem 0 rgba(50,35,23,.15); }
+.sewa-publication__corner { position: absolute; z-index: 0; top: 50%; width: 2.125rem; height: 5.25rem; opacity: .45; pointer-events: none; }
+.sewa-publication__corner--previous { left: max(0.875rem, calc(50% - 36.25rem)); border-left: 1px solid #4b3830; border-top: 1px solid #4b3830; transform: translateY(-50%) rotate(-45deg); }
+.sewa-publication__corner--next { right: max(0.875rem, calc(50% - 36.25rem)); border-right: 1px solid #4b3830; border-bottom: 1px solid #4b3830; transform: translateY(-50%) rotate(-45deg); }
+.sewa-publication__still { position: relative; z-index: 1; width: min(100%, 35rem); min-height: min(132vw, 47.5rem); overflow: hidden; background: #fffdf8; box-shadow: 0.625rem 1rem 0 rgba(50,35,23,.15); }
 .sewa-publication__still > img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.sewa-publication__still-copy { min-height: inherit; box-sizing: border-box; padding: clamp(30rem, 7vw, 68rem); font: 400 18rem/1.55 "Libre Baskerville", Georgia, serif; }
-.sewa-publication__still-copy h1 { font: 800 clamp(36rem, 10vw, 58rem)/.94 "Bodoni Moda", Didot, Georgia, serif; letter-spacing: -.055em; }
-.sewa-publication__eyebrow { color: #a23f32; font: 700 10rem/1.2 "IBM Plex Mono", monospace; letter-spacing: .17em; }
-.sewa-publication__credit { margin-top: 32rem; color: #766860; font: 700 10rem/1.2 "IBM Plex Mono", monospace; letter-spacing: .1em; }
+.sewa-publication__still-copy { min-height: inherit; box-sizing: border-box; padding: clamp(1.875rem, 7vw, 4.25rem); font: 400 1.125rem/1.55 "Libre Baskerville", Georgia, serif; }
+.sewa-publication__still-copy h1 { font: 800 clamp(2.25rem, 10vw, 3.625rem)/.94 "Bodoni Moda", Didot, Georgia, serif; letter-spacing: -.055em; }
+.sewa-publication__eyebrow { color: #a23f32; font: 700 0.75rem/1.2 "IBM Plex Mono", monospace; letter-spacing: .17em; }
+.sewa-publication__credit { margin-top: 2rem; color: #766860; font: 700 0.75rem/1.2 "IBM Plex Mono", monospace; letter-spacing: .1em; }
 .sewa-publication__sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-.sewa-publication:focus-visible, .sewa-publication__brand:focus-visible, .sewa-publication__exit:focus-visible { outline: 3px solid #315fc7; outline-offset: 4rem; }
+.sewa-publication:focus-visible, .sewa-publication__brand:focus-visible, .sewa-publication__exit:focus-visible { outline: 3px solid #315fc7; outline-offset: 0.25rem; }
 @media (max-width: 680px) {
-  .sewa-publication__masthead { min-height: 60rem; }
-  .sewa-publication__brand :deep(.wordmark) { max-width: 160rem; }
-  .sewa-publication__stage { min-height: calc(100dvh - 60rem); padding: 18rem 14rem; }
+  .sewa-publication__masthead { min-height: 3.75rem; }
+  .sewa-publication__brand :deep(.wordmark) { max-width: 10rem; }
+  .sewa-publication__stage { min-height: calc(100dvh - 3.75rem); padding: 1.125rem 0.875rem; }
   .sewa-publication__corner { opacity: .3; }
 }
 @media (max-width: 628px) { .sewa-publication__flipbook { width: 100%; aspect-ratio: 1120 / 1520; } }

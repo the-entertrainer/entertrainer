@@ -8,7 +8,7 @@ useSeoMeta({
   description: 'How I made The SEWA Chronicles for Club Mahindra: a hand-drawn comic built from stories gathered on the resort floor.',
   ogTitle: 'The SEWA Chronicles',
   ogDescription: 'A hand-drawn comic built from service stories gathered on the resort floor. The scenes were based on incidents colleagues shared with me.',
-  ogUrl: 'https://entertrainer.in/my-work/sewa-chronicles',
+  ogUrl: 'https://entertrainer.in/work/sewa-chronicles',
   ogImage: 'https://entertrainer.in/work/sewa/cover.webp',
 })
 
@@ -83,5 +83,5 @@ const pages = [
 </script>
 
 <template>
-  <EdBookReader :pages="pages" label="The SEWA Chronicles immersive case-study book" return-to="/my-work" return-label="All projects" />
+  <EdBookReader :pages="pages" label="The SEWA Chronicles immersive case-study book" return-to="/work" return-label="All projects" />
 </template>

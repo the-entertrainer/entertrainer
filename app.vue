@@ -93,8 +93,8 @@ useHead({
 const bare = computed(() =>
   r.path.startsWith('/lab/') ||
   r.path.startsWith('/glass-lab') ||
-  r.path.startsWith('/my-work/strong') ||
-  r.path.startsWith('/my-work/sewa-chronicles') ||
+  r.path.startsWith('/work/strong') ||
+  r.path.startsWith('/work/sewa-chronicles') ||
   r.path.startsWith('/courses/ai-atlas') ||
   r.path.startsWith('/instructional-design') ||
   r.path.startsWith('/engage/read-my-mind') ||

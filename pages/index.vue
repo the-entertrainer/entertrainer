@@ -34,7 +34,7 @@ const WorldShell = defineAsyncComponent({
    client shell replaces this SSR poster. */
 .world-home {
   position: relative;
-  height: calc(100dvh - var(--nav-h, 55rem));
+  height: calc(100dvh - var(--nav-h, 3.4375rem));
   min-height: 560px;
 }
 </style>

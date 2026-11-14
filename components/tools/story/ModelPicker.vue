@@ -57,40 +57,40 @@ const canClose = computed(() => props.switching || props.dismissible)
   background: rgba(0, 0, 0, 0.4);
   display: grid;
   place-items: center;
-  padding: 16rem;
+  padding: 1rem;
 }
 .mp {
-  width: min(720rem, 100%);
-  max-height: calc(100dvh - 48rem);
+  width: min(45rem, 100%);
+  max-height: calc(100dvh - 3rem);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 18rem;
+  gap: 1.125rem;
 }
-.mp__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12rem; }
-.mp__head h2 { font-size: 22rem; letter-spacing: -0.03em; margin-bottom: 6rem; }
-.mp__head p { font-size: 13.5rem; opacity: 0.65; line-height: 1.5; }
+.mp__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+.mp__head h2 { font-size: 1.375rem; letter-spacing: -0.03em; margin-bottom: 0.375rem; }
+.mp__head p { font-size: 0.84375rem; opacity: 0.65; line-height: 1.5; }
 .mp__close {
-  width: 28rem; height: 28rem;
+  width: 1.75rem; height: 1.75rem;
   display: grid; place-items: center;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-bg) 55%, transparent);
   border: 1px solid var(--color-glass-border);
-  font-size: 11rem;
+  font-size: 0.75rem;
   flex-shrink: 0;
 }
 
 .mp__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200rem, 1fr));
-  gap: 10rem;
+  grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+  gap: 0.625rem;
 }
 .mp__card {
   display: flex;
   flex-direction: column;
-  gap: 7rem;
-  padding: 16rem;
-  border-radius: 16rem;
+  gap: 0.4375rem;
+  padding: 1rem;
+  border-radius: 1rem;
   text-align: left;
   border: 1px solid var(--color-glass-border);
   background: color-mix(in srgb, var(--color-bg) 45%, transparent);
@@ -100,32 +100,32 @@ const canClose = computed(() => props.switching || props.dismissible)
   .mp__card:hover {
     border-color: var(--color-glass-border-hover);
     background: color-mix(in srgb, var(--color-bg) 62%, transparent);
-    transform: translateY(-1rem);
+    transform: translateY(-0.0625rem);
   }
 }
 .mp__card:active { transform: scale(0.98); }
 .mp__card--freeform { border-style: dashed; }
-.mp__name { font-size: 15rem; font-weight: 700; letter-spacing: -0.02em; color: var(--color-text); }
+.mp__name { font-size: 0.9375rem; font-weight: 700; letter-spacing: -0.02em; color: var(--color-text); }
 .mp__kind {
   align-self: flex-start;
-  font-size: 9.5rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  padding: 2rem 8rem;
+  padding: 0.125rem 0.5rem;
   border-radius: 999px;
   color: var(--color-text);
   background: color-mix(in srgb, #34D399 16%, transparent);
 }
 .mp__kind--process { background: color-mix(in srgb, #A78BFA 18%, transparent); }
-.mp__tagline { font-size: 12rem; line-height: 1.45; opacity: 0.6; color: var(--color-text); min-height: 34rem; }
-.mp__stages { display: flex; align-items: center; gap: 5rem; flex-wrap: wrap; }
-.mp__stage-dot { width: 9rem; height: 9rem; border-radius: 999px; }
-.mp__stage-free { font-size: 13rem; opacity: 0.5; color: var(--color-text); }
+.mp__tagline { font-size: 0.75rem; line-height: 1.45; opacity: 0.6; color: var(--color-text); min-height: 2.125rem; }
+.mp__stages { display: flex; align-items: center; gap: 0.3125rem; flex-wrap: wrap; }
+.mp__stage-dot { width: 0.5625rem; height: 0.5625rem; border-radius: 999px; }
+.mp__stage-free { font-size: 0.8125rem; opacity: 0.5; color: var(--color-text); }
 
 @media (max-width: 640px) {
-  .mp-overlay { padding: 10rem; align-items: end; display: flex; }
-  .mp { border-radius: 22rem 22rem 0 0; max-height: 86dvh; width: 100%; }
+  .mp-overlay { padding: 0.625rem; align-items: end; display: flex; }
+  .mp { border-radius: 1.375rem 1.375rem 0 0; max-height: 86dvh; width: 100%; }
   .mp__grid { grid-template-columns: 1fr 1fr; }
 }
 </style>

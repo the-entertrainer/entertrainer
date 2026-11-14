@@ -58,7 +58,7 @@ const tools = computed(() =>
 
 <style scoped>
 .empower {
-  min-height: calc(100dvh - 74rem);
+  min-height: calc(100dvh - 4.625rem);
   max-width: var(--shell-max);
   margin: 0 auto;
   padding: var(--space-34) var(--shell-gutter) var(--space-89);
@@ -66,7 +66,7 @@ const tools = computed(() =>
 
 .empower__empty {
   margin: var(--space-21) 0 0;
-  font-size: 17rem;
+  font-size: 1.0625rem;
   line-height: 1.45;
   color: var(--muted);
 }
@@ -81,14 +81,14 @@ const tools = computed(() =>
 
 .empower__card {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) 22rem;
+  grid-template-columns: auto minmax(0, 1fr) 1.375rem;
   align-items: center;
   gap: var(--space-21);
   padding: var(--space-21);
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   background: var(--paper);
-  box-shadow: 4rem 4rem 0 color-mix(in srgb, var(--ink) 12%, transparent);
+  box-shadow: 0.25rem 0.25rem 0 color-mix(in srgb, var(--ink) 12%, transparent);
   transition:
     background var(--dur-fast) var(--ease-out),
     border-color var(--dur-fast) var(--ease-out),
@@ -100,8 +100,8 @@ const tools = computed(() =>
   .empower__card:hover {
     background: var(--accent);
     color: var(--accent-ink);
-    transform: translate(-2rem, -2rem);
-    box-shadow: 6rem 6rem 0 var(--ink);
+    transform: translate(-0.125rem, -0.125rem);
+    box-shadow: 0.375rem 0.375rem 0 var(--ink);
   }
   .empower__card:hover .empower__card-blurb,
   .empower__card:hover .empower__card-stamp,
@@ -109,20 +109,20 @@ const tools = computed(() =>
     color: var(--accent-ink);
   }
   .empower__card:hover .empower__card-arrow {
-    transform: translate(2rem, -2rem);
+    transform: translate(0.125rem, -0.125rem);
   }
 }
 
 .empower__card:focus-visible {
-  outline: 3rem solid var(--focus);
-  outline-offset: 3rem;
+  outline: 0.1875rem solid var(--focus);
+  outline-offset: 0.1875rem;
 }
 
 .empower__icon {
   position: relative;
   flex-shrink: 0;
-  width: 64rem;
-  height: 64rem;
+  width: 4rem;
+  height: 4rem;
   box-sizing: border-box;
   border-radius: var(--radius-s);
   background: var(--paper);
@@ -140,13 +140,13 @@ const tools = computed(() =>
 }
 
 .empower__icon-fallback {
-  font: 700 22rem/1 var(--font-display);
+  font: 700 1.375rem/1 var(--font-display);
   color: var(--ink);
 }
 
 .empower__card-text {
   display: grid;
-  gap: 6rem;
+  gap: 0.375rem;
   min-width: 0;
 }
 
@@ -156,13 +156,13 @@ const tools = computed(() =>
 }
 
 .empower__card-blurb {
-  font-size: 15rem;
+  font-size: 0.9375rem;
   line-height: 1.4;
   color: var(--muted);
 }
 
 .empower__card-stamp {
-  font: 700 11rem/1.2 var(--font-mono);
+  font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--ink-soft);
@@ -176,10 +176,10 @@ const tools = computed(() =>
 @media (max-width: 640px) {
   .empower__card {
     grid-template-columns: auto minmax(0, 1fr);
-    gap: 14rem;
+    gap: 0.875rem;
   }
   .empower__card-arrow { display: none; }
-  .empower__icon { width: 52rem; height: 52rem; }
+  .empower__icon { width: 3.25rem; height: 3.25rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -71,7 +71,7 @@ defineProps<{ size?: number; animated?: boolean }>()
 }
 @keyframes sg-mark-breathe {
   0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(234, 185, 0, 0)); }
-  50%      { transform: scale(1.025); filter: drop-shadow(0 6rem 22rem rgba(234, 185, 0, 0.4)); }
+  50%      { transform: scale(1.025); filter: drop-shadow(0 0.375rem 1.375rem rgba(234, 185, 0, 0.4)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .sg-mark--animated, .sg-mark--animated .sg-mark__card, .sg-mark--animated .sg-mark__curve, .sg-mark--animated .sg-mark__dot {

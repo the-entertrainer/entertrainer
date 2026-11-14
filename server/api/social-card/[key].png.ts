@@ -1,4 +1,5 @@
 import { getSocialPreviewByKey } from '~/content/social-previews'
+import { loadDmSans } from '../../utils/dm-sans'
 
 /**
  * No `import ... from 'h3'` here, and no h3 request/response helpers
@@ -15,22 +16,8 @@ import { getSocialPreviewByKey } from '~/content/social-previews'
  * same on every h3 major version this project could resolve to.
  */
 
-const fontCache = new Map<string, ArrayBuffer>()
-
 async function loadFont(weight: 400 | 700): Promise<ArrayBuffer> {
-  const key = `dm-sans-${weight}`
-  if (fontCache.has(key)) return fontCache.get(key)!
-
-  const css = await fetch(
-    `https://fonts.googleapis.com/css2?family=DM+Sans:wght@${weight}&display=swap`,
-    { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; EntertrainerSocialCard/1.0)' } }
-  ).then((response) => response.text())
-  const url = [...css.matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/g)].at(-1)?.[1]
-  if (!url) throw new Error(`DM Sans ${weight} font URL not found`)
-
-  const font = await fetch(url).then((response) => response.arrayBuffer())
-  fontCache.set(key, font)
-  return font
+  return loadDmSans(weight)
 }
 
 type SocialElement = { type: string; props: Record<string, unknown> }

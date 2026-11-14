@@ -26,17 +26,17 @@ const items = computed(() => readNext(props.from, props.count))
 
 <style scoped>
 .rn {
-  margin-top: clamp(48rem, 8vh, 96rem);
-  padding-top: clamp(22rem, 3vw, 34rem);
+  margin-top: clamp(3rem, 8vh, 6rem);
+  padding-top: clamp(1.375rem, 3vw, 2.125rem);
   border-top: var(--stroke) solid var(--line);
 }
-.rn__head { display: flex; align-items: baseline; justify-content: space-between; gap: 16rem; margin-bottom: 22rem; }
+.rn__head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1.375rem; }
 .rn__title { margin: 0; color: var(--muted); }
 .rn__all { color: var(--muted); font-family: var(--font-mono); font-size: var(--type-meta); letter-spacing: var(--tracking-meta); text-transform: uppercase; }
 .rn__grid {
   list-style: none; margin: 0; padding: 0;
-  display: grid; gap: 16rem;
-  grid-template-columns: repeat(auto-fit, minmax(250rem, 1fr));
+  display: grid; gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(15.625rem, 1fr));
 }
 .rn__grid > li { display: flex; min-width: 0; }
 </style>

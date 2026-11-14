@@ -33,21 +33,21 @@ defineProps<{
 </template>
 
 <style scoped>
-.ts { position: relative; padding: clamp(22rem, 4vw, 40rem) 0 clamp(40rem, 7vh, 80rem); }
-.ts__inner { max-width: 760rem; margin: 0 auto; padding: 0 var(--shell-gutter); }
+.ts { position: relative; padding: clamp(1.375rem, 4vw, 2.5rem) 0 clamp(2.5rem, 7vh, 5rem); }
+.ts__inner { max-width: 47.5rem; margin: 0 auto; padding: 0 var(--shell-gutter); }
 .ts--wide .ts__inner { max-width: var(--shell-max); }
 
 .ts__head {
-  margin-bottom: clamp(22rem, 3vw, 32rem);
-  padding-bottom: clamp(18rem, 2.5vw, 26rem);
+  margin-bottom: clamp(1.375rem, 3vw, 2rem);
+  padding-bottom: clamp(1.125rem, 2.5vw, 1.625rem);
   border-bottom: var(--stroke) solid var(--line);
 }
-.ts__top { display: flex; align-items: center; justify-content: flex-end; gap: 16rem; margin-bottom: 14rem; }
+.ts__top { display: flex; align-items: center; justify-content: flex-end; gap: 1rem; margin-bottom: 0.875rem; }
 .ts__back { color: var(--muted); font-family: var(--font-mono); font-size: var(--type-meta); letter-spacing: var(--tracking-meta); text-transform: uppercase; }
 .ts__title { font-size: var(--type-h1); line-height: 1.02; margin: 0; }
 .ts__deck {
-  margin: 12rem 0 0; max-width: 56ch;
-  font-family: var(--font-reading); font-size: clamp(16rem, 1.5vw, 19rem); line-height: 1.55;
+  margin: 0.75rem 0 0; max-width: 56ch;
+  font-family: var(--font-reading); font-size: clamp(1rem, 1.5vw, 1.1875rem); line-height: 1.55;
   color: var(--muted);
 }
 </style>

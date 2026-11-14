@@ -23,14 +23,14 @@ onMounted(() => {
 
 <style scoped>
 .strip {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 10rem 18rem;
-  padding: 10rem 0;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.625rem 1.125rem;
+  padding: 0.625rem 0;
   border-bottom: var(--stroke) solid var(--line);
 }
-.strip__edition { display: inline-flex; align-items: center; gap: 8rem; color: var(--muted); }
+.strip__edition { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--muted); }
 .strip__dot {
-  width: 8rem; height: 8rem; border-radius: 50%;
+  width: 0.5rem; height: 0.5rem; border-radius: 50%;
   background: var(--red); border: 1px solid var(--ink); flex: none;
 }
-.strip__note { margin: 0; font-size: 16rem; color: var(--ink); }
+.strip__note { margin: 0; font-size: 1rem; color: var(--ink); }
 </style>

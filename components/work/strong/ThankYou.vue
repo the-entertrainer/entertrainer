@@ -59,16 +59,16 @@ const timeLabel = computed(() => {
 </template>
 
 <style scoped>
-.st-ty__stats { display: flex; gap: 40rem; flex-wrap: wrap; margin: 36rem 0 36rem; }
-.st-ty__stat { display: flex; flex-direction: column; gap: 5rem; }
-.st-ty__stat-val { font-family: var(--st-display); font-weight: 700; font-size: 48rem; line-height: 1; }
-.st-ty__stat-val small { font-size: 16rem; color: var(--st-muted); margin-left: 4rem; }
-.st-ty__stat-label { font-size: 13rem; color: var(--st-muted); }
-.st-ty__bar { background: color-mix(in srgb, var(--st-panel) 90%, transparent); border: 1px solid var(--st-line); border-radius: 16rem; padding: 24rem; margin-bottom: 20rem; }
-.st-ty__remark { max-width: 50ch; margin-bottom: 8rem; }
-.st-ty__list { margin: 0; padding-left: 20rem; display: flex; flex-direction: column; gap: 12rem; }
-.st-ty__list li { font-size: 14.5rem; line-height: 1.6; color: var(--st-muted-strong); }
+.st-ty__stats { display: flex; gap: 2.5rem; flex-wrap: wrap; margin: 2.25rem 0 2.25rem; }
+.st-ty__stat { display: flex; flex-direction: column; gap: 0.3125rem; }
+.st-ty__stat-val { font-family: var(--st-display); font-weight: 700; font-size: 3rem; line-height: 1; }
+.st-ty__stat-val small { font-size: 1rem; color: var(--st-muted); margin-left: 0.25rem; }
+.st-ty__stat-label { font-size: 0.8125rem; color: var(--st-muted); }
+.st-ty__bar { background: color-mix(in srgb, var(--st-panel) 90%, transparent); border: 1px solid var(--st-line); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.25rem; }
+.st-ty__remark { max-width: 50ch; margin-bottom: 0.5rem; }
+.st-ty__list { margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.st-ty__list li { font-size: 0.90625rem; line-height: 1.6; color: var(--st-muted-strong); }
 .st-ty__list b { color: var(--st-text); font-weight: 600; }
-.st-ty__actions { margin-top: 44rem; display: flex; gap: 12rem; flex-wrap: wrap; }
+.st-ty__actions { margin-top: 2.75rem; display: flex; gap: 0.75rem; flex-wrap: wrap; }
 .st-ty__actions .st-btn { text-decoration: none; }
 </style>

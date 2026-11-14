@@ -184,7 +184,7 @@ onBeforeUnmount(() => {
 .pl-build { animation: pl-fade 236ms ease-in 1236ms forwards; }
 
 .pl-seal {
-  fill: #FFD43B;
+  fill: var(--pl-cobalt);
   transform-box: fill-box;
   transform-origin: center;
   transform: scale(0);
@@ -203,13 +203,13 @@ onBeforeUnmount(() => {
 .preloader__word {
   position: absolute;
   left: 50%;
-  top: calc(100% * 130 / 160 + 18rem);
+  top: calc(100% * 130 / 160 + 1.125rem);
   font-family: var(--font-ui);
   font-weight: 720;
-  font-size: clamp(18rem, 5vmin, 26rem);
+  font-size: clamp(1.125rem, 5vmin, 1.625rem);
   letter-spacing: -.055em;
   opacity: 0;
-  transform: translate(-50%, 6rem);
+  transform: translate(-50%, 0.375rem);
   animation: pl-word 236ms var(--pl-ease) 1236ms forwards;
 }
 

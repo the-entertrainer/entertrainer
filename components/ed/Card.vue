@@ -65,7 +65,7 @@ const signalVariant = computed(() => itemScene[props.item.id] ?? (props.item.cat
 /* Short travel, a degree of rotation, 160ms — the card behaves like a printed
    thing being nudged rather than a div being animated. */
 @media (hover: hover) {
-  .card__hit:hover { background: var(--paper-2); border-color: var(--accent); transform: translateY(-4rem) rotate(-.22deg); }
+  .card__hit:hover { background: var(--paper-2); border-color: var(--accent); transform: translateY(-0.25rem) rotate(-.22deg); }
   .card__hit:hover .card__title { text-decoration-color: var(--accent); }
 }
 .card__hit:active { transform: translateY(0) scale(.985); transition-duration: var(--dur-tap); }
@@ -92,7 +92,7 @@ const signalVariant = computed(() => itemScene[props.item.id] ?? (props.item.cat
 .card__title {
   font-size: var(--type-card);
   line-height: 1.02;
-  margin: 2rem 0 0;
+  margin: 0.125rem 0 0;
   text-decoration: none;
 }
 .card__dek {
@@ -105,11 +105,11 @@ const signalVariant = computed(() => itemScene[props.item.id] ?? (props.item.cat
 .card--feature .card__hit { flex-direction: row; align-items: stretch; }
 .card--feature .card__hit { flex-wrap: wrap; }
 .card--feature .card__art {
-  flex: 1 1 52%; aspect-ratio: auto; min-height: 340rem;
+  flex: 1 1 52%; aspect-ratio: auto; min-height: 21.25rem;
   border-bottom: 0; border-right: var(--stroke) solid var(--line);
-  padding: clamp(16rem, 2.4vw, 30rem);
+  padding: clamp(1rem, 2.4vw, 1.875rem);
 }
-.card--feature .card__body { flex: 1 1 48%; justify-content: center; gap: 14rem; padding: clamp(22rem, 3vw, 40rem); }
+.card--feature .card__body { flex: 1 1 48%; justify-content: center; gap: 0.875rem; padding: clamp(1.375rem, 3vw, 2.5rem); }
 /* The lead remains a concise proof point; the Paper Signal preview carries the
    shared visual language without making the index depend on a raster cover. */
 .card--feature .card__title {

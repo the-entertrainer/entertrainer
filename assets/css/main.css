@@ -23,10 +23,12 @@
      · The ground is white and the ink is near-black; six saturated accents
        carry the category system and nothing else.
 
-   ── Load-bearing constraint ──────────────────────────────────────────────
-   `html { font-size: 1px }`, so `1rem` means one pixel throughout this
-   repository. Every component sizes in `rem` meaning px. Keeping it is what
-   lets the tool apps and the lab sketches inherit this system untouched.
+   ── Root ─────────────────────────────────────────────────────────────
+   The browser default is the root: 16px, so 1rem is 16px. Do not set
+   `html { font-size: 1px }`. Spacing that used to be written as Nrem
+   (meaning Npx) is now N/16 rem. Text does not go below 12px (0.75rem).
+   Colour tokens are the spec §6.5 primitives, with a semantic layer below
+   that swaps paper, ink, muted, danger, and cobalt text in dark mode.
    ========================================================================== */
 
 /* ============================================================
@@ -48,54 +50,48 @@
   --gray-900:  #161618;
   --gray-1000: #0A0A0B;
 
-  --paper:   #FFFFFF;
-  --paper-2: var(--gray-50);
-  --paper-3: var(--gray-100);
-  --ink:     var(--gray-900);
-  --muted:   var(--gray-600);
-  --line:    var(--gray-300);
-  --line-strong: var(--gray-400);
+  /* Semantic layer (light). Primitives live in tokens.css @theme.
+     Light muted and light danger are for cream only. */
+  --paper:   var(--color-rm-cream, #F7F1E4);
+  --paper-2: var(--color-rm-cream-2, #EFE8D8);
+  --paper-3: #E6DECC;
+  --ink:     var(--color-rm-ink, #0B0B0C);
+  --muted:   var(--color-rm-muted, #5C574E);
+  --line:    var(--color-rm-line, #C9C2B4);
+  --line-strong: #6F685C;
 
-  /* Six accents. Saturated enough to sort a page from across the room, dark
-     enough to carry white text where they need to. Each is paired below with
-     the one text colour that clears 4.5:1 on it — measured, not assumed. */
-  --accent: #FFD43B;
-  --accent-strong: #EAB900;
-  --accent-soft: #FFF3B8;
-  --accent-ink: #161618;
-  --accent-text: #8A6500; /* 5.3:1 on white, 4.7:1 on cream. Bright #FFD43B is a fill only. */
+  --accent: var(--color-rm-cobalt, #2F5BD8);
+  --accent-strong: var(--color-rm-cobalt-ink, #1E3F9A);
+  --accent-soft: #E4EAF8;
+  --accent-ink: var(--color-rm-cream, #F7F1E4); /* cream on cobalt, not ink (3.38:1) */
+  --accent-text: var(--color-rm-cobalt-ink, #1E3F9A);
   --on-danger: #FFFFFF;
   --blue:   var(--accent);
-  --violet: var(--accent); /* Route Atlas companion: navigation traces and path transitions. */
-  --red:    #E02D18;
-  --green:  #1FD07A;
+  --violet: var(--accent);
+  --red:    var(--color-rm-danger, #B33226);
+  --green:  #187A4C;
   --purple: var(--accent);
   --yellow: var(--accent);
-  --cyan:   #22B8D8;
+  --cyan:   #0E5F86;
 
-  /* Paper Signal / Elevate DNA: cream fields, ink rules, yellow signal (never blue). */
-  --cobalt: var(--accent); /* alias kept for legacy selectors; brand accent is yellow */
-  --signal-field: #FFF3B8;
-  --signal-sheet: #F0E08A;
-  --signal-cobalt: var(--accent-text);
-  --signal-rule: #18181A;
+  --cobalt: var(--color-rm-cobalt, #2F5BD8);
+  --signal-field: #E7EDF8;
+  --signal-sheet: var(--color-rm-cream-2, #EFE8D8);
+  --signal-cobalt: var(--color-rm-cobalt, #2F5BD8);
+  --signal-rule: var(--color-rm-ink, #0B0B0C);
   --ink-soft: var(--muted);
 
-  /* Measured, not assumed. The three light accents carry ink and the three
-     dark ones carry white; picking per-accent is what let green and cyan stay
-     genuinely bright instead of being muddied down to hold white text. */
-  /* blue/purple alias to yellow accent — ink on yellow, never white */
-  --on-blue:   var(--accent-ink); /* yellow fill */
-  --on-red:    #FFFFFF;   /* 4.6:1  */
-  --on-green:  #161618;   /* 8.9:1  */
-  --on-purple: var(--accent-ink); /* yellow fill */
-  --on-yellow: var(--accent-ink); /* 13.0:1 */
-  --on-cyan:   #161618;   /* 7.7:1  */
+  --on-blue:   var(--accent-ink);
+  --on-red:    #FFFFFF;
+  --on-green:  #F7F1E4;
+  --on-purple: var(--accent-ink);
+  --on-yellow: var(--accent-ink);
+  --on-cyan:   #F7F1E4;
 
-  --selection: var(--accent);
-  --on-selection: #161618;
-  --focus: #161618;
-  --danger: #C0392B; /* error text on cream/white — ≥4.5:1 */
+  --selection: var(--color-rm-cobalt, #2F5BD8);
+  --on-selection: var(--color-rm-cream, #F7F1E4);
+  --focus: var(--color-rm-ink, #0B0B0C);
+  --danger: var(--color-rm-danger, #B33226);
 
   color-scheme: light;
 }
@@ -115,48 +111,47 @@
   --gray-900:  #F2F2F4;
   --gray-1000: #FFFFFF;
 
-  --paper:   #0B0B0C;
-  --paper-2: var(--gray-100);
-  --paper-3: var(--gray-200);
-  --ink:     var(--gray-900);
-  /* Lifted for WCAG AA body/muted; UI borders need ≥3:1 non-text contrast. */
-  --muted:   #B0B0B8;
-  --line:    #5A5A62;
-  --line-strong: #7E7E87;
+  /* Semantic layer (dark). Light muted and light danger stay off this paper. */
+  --paper:   var(--color-rm-paper-dark, #16140F);
+  --paper-2: #1E1B16;
+  --paper-3: #28241D;
+  --ink:     var(--color-rm-cream, #F7F1E4);
+  --muted:   var(--color-rm-muted-dark, #A89888);
+  --line:    #6E655C;
+  --line-strong: #8C8276;
 
-  --accent: #FFD43B;
-  --accent-strong: #FFE38A;
-  --accent-soft: #4E3C00;
-  --accent-ink: #0B0B0C;
-  --accent-text: #FFD43B; /* 13.8:1 on near-black. The light gold #8A6500 fails here. */
-  --on-danger: #161618;
+  --accent: var(--color-rm-cobalt-dark, #7A9AE8);
+  --accent-strong: #A9BEF0;
+  --accent-soft: #243056;
+  --accent-ink: var(--color-rm-ink, #0B0B0C);
+  --accent-text: var(--color-rm-cobalt-dark, #7A9AE8);
+  --on-danger: #16140F;
   --blue:   var(--accent);
-  --violet: var(--accent); /* Lifted for dark-paper contrast without adding a second palette. */
-  --red:    #FF6B55;
-  --green:  #2AD98A;
+  --violet: var(--accent);
+  --red:    var(--color-rm-danger-dark, #E9786A);
+  --green:  #8FD9B0;
   --purple: var(--accent);
   --yellow: var(--accent);
-  --cyan:   #38C6E8;
+  --cyan:   #8FD4EA;
 
-  /* Same paper signal system on dark stock — yellow signal, no blue field. */
-  --cobalt: var(--accent);
-  --signal-field: #3A3210;
-  --signal-sheet: #5A4A14;
-  --signal-cobalt: var(--accent-text);
-  --signal-rule: #F2F2F4;
+  --cobalt: var(--color-rm-cobalt-dark, #7A9AE8);
+  --signal-field: #243056;
+  --signal-sheet: #1E1B16;
+  --signal-cobalt: var(--color-rm-cobalt-dark, #7A9AE8);
+  --signal-rule: var(--color-rm-cream, #F7F1E4);
   --ink-soft: var(--muted);
 
-  --on-blue:   #0B0B0C;
-  --on-red:    #0B0B0C;
-  --on-green:  #0B0B0C;
-  --on-purple: #0B0B0C;
-  --on-yellow: #0B0B0C;
-  --on-cyan:   #0B0B0C;
+  --on-blue:   var(--color-rm-ink, #0B0B0C);
+  --on-red:    #16140F;
+  --on-green:  #16140F;
+  --on-purple: var(--color-rm-ink, #0B0B0C);
+  --on-yellow: var(--color-rm-ink, #0B0B0C);
+  --on-cyan:   #16140F;
 
-  --selection: var(--accent);
-  --on-selection: #0B0B0C;
-  --focus: var(--accent);
-  --danger: #FF8A7A; /* error text on near-black — ≥4.5:1 */
+  --selection: var(--color-rm-cobalt-dark, #7A9AE8);
+  --on-selection: var(--color-rm-ink, #0B0B0C);
+  --focus: var(--color-rm-cream, #F7F1E4);
+  --danger: var(--color-rm-danger-dark, #E9786A);
 
   color-scheme: dark;
 }
@@ -187,11 +182,23 @@
    ============================================================ */
 
 :root {
-  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-display: "Fraunces", Georgia, serif;
   --font-ui:      "Archivo", "Helvetica Neue", Arial, sans-serif;
   --font-body:   var(--font-ui);
   --font-reading: "Source Serif 4", Georgia, serif;
-  --font-mono:    "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono:    "IBM Plex Mono", ui-monospace, monospace;
+  --font-world:   "Syne", "Archivo", sans-serif;
+  --font-world-ui: "IBM Plex Sans", "Archivo", sans-serif;
+
+  /* World layer aliases. --wx-emissive is fills and large type only, not small text. */
+  --wx-void: var(--color-wx-void, #07070A);
+  --wx-hull: var(--color-wx-hull, #12131A);
+  --wx-hull-2: var(--color-wx-hull-2, #1A1C28);
+  --wx-emissive: var(--color-wx-emissive, #3D6AE0);
+  --wx-emissive-soft: var(--color-wx-emissive-soft, #7A9AE8);
+  --wx-star: var(--color-wx-star, #E8E4DC);
+  --wx-fog: #0B0C12;
+  --wx-warning: var(--color-wx-warning, #E8C547);
 
   /* Fraunces axes. SOFT rounds the terminals; WONK swaps in the splayed
      alternates. Set once here so a headline and the masthead are demonstrably
@@ -203,15 +210,16 @@
      Type: 18 → 29 → 47 → 76. Space walks the Fibonacci steps toward φ.
      The Seed of Life itself lives in utils/sacredGeometry.ts. */
   --phi: 1.6180339;
-  --type-meta:    11px;
-  --type-body:    18px;
-  --type-small:   13px; /* Fibonacci step between meta and body, for controls only */
-  --type-dek:     29px;
-  --type-card:    29px;
-  --type-h2:      29px;
-  --type-h1:      47px;
-  --type-display: 47px;
-  --type-hero:    76px; /* home display only */
+  /* Former px sizes, now true rem at a 16px root. Meta was 11px; text floors at 12px. */
+  --type-meta:    0.75rem;
+  --type-body:    1.125rem;
+  --type-small:   0.8125rem;
+  --type-dek:     1.8125rem;
+  --type-card:    1.8125rem;
+  --type-h2:      1.8125rem;
+  --type-h1:      2.9375rem;
+  --type-display: 2.9375rem;
+  --type-hero:    4.75rem;
 
   --tracking-meta: 0.08em;
   --tracking-display: -0.03em;
@@ -220,7 +228,7 @@
   --measure-body: 66ch;
   --measure:      66ch;
   --measure-note: 34ch;
-  --measure-px:   640rem;
+  --measure-px:   40rem;
 }
 
 /* ============================================================
@@ -229,25 +237,25 @@
 
 :root {
   /* Shell stays 1180. Column is 1180 / φ = 729. Side margins split the rest. */
-  --shell-max:  1180rem;
-  --shell-page: 1180rem;
-  --shell-wide: 1180rem;
-  --column:     729rem;
-  --margin-start: 225rem;
-  --margin-end:   226rem;
-  --shell-gutter: clamp(21rem, calc((min(100vw, 1180rem) - 729rem) / 2), 225rem);
-  --page-top: calc(var(--nav-h, 55rem) + var(--safe-top));
-  --nav-h: 55rem;
+  --shell-max:  73.75rem;
+  --shell-page: 73.75rem;
+  --shell-wide: 73.75rem;
+  --column:     45.5625rem;
+  --margin-start: 14.0625rem;
+  --margin-end:   14.125rem;
+  --shell-gutter: clamp(1.3125rem, calc((min(100vw, 73.75rem) - 45.5625rem) / 2), 14.0625rem);
+  --page-top: calc(var(--nav-h, 3.4375rem) + var(--safe-top));
+  --nav-h: 3.4375rem;
   --crop: 729 / 451;
-  --icon: 34rem;
-  --icon-division: 21rem;
+  --icon: 2.125rem;
+  --icon-division: 1.3125rem;
 
-  --space-8:  8rem;
-  --space-13: 13rem;
-  --space-21: 21rem;
-  --space-34: 34rem;
-  --space-55: 55rem;
-  --space-89: 89rem;
+  --space-8:  0.5rem;
+  --space-13: 0.8125rem;
+  --space-21: 1.3125rem;
+  --space-34: 2.125rem;
+  --space-55: 3.4375rem;
+  --space-89: 5.5625rem;
 
   --safe-top:    env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -255,12 +263,12 @@
   --safe-right:  env(safe-area-inset-right, 0px);
 
   /* Small. A 20px radius on a content card is a 2010 app, not a publication. */
-  --radius-xs: 4rem;
-  --radius-s:  8rem;
-  --radius-m:  11rem;
-  --radius-l:  15rem;
-  --radius-xl: 22rem;
-  --radius-full: 999rem;
+  --radius-xs: 0.25rem;
+  --radius-s:  0.5rem;
+  --radius-m:  0.6875rem;
+  --radius-l:  0.9375rem;
+  --radius-xl: 1.375rem;
+  --radius-full: 62.4375rem;
 
   --stroke: 1px;
   --stroke-hair: 1px;
@@ -268,7 +276,7 @@
   /* Two shadows in the whole system, both for things that genuinely sit above
      the page. Nothing decorative. */
   --shadow-sticky: 0 1px 0 var(--line);
-  --shadow-overlay: 0 24rem 60rem -24rem rgba(0, 0, 0, 0.4);
+  --shadow-overlay: 0 1.5rem 3.75rem -1.5rem rgba(0, 0, 0, 0.4);
 
   --z-page: 1;
   --z-sticky: 20;
@@ -285,11 +293,11 @@
   --ease-spring: cubic-bezier(.22, 1.08, .32, 1);
   --ease-expo-out: cubic-bezier(.19, 1, .22, 1);
 
-  --lift: -1rem;
+  --lift: -0.0625rem;
   --press: 0.99;
   --press-deep: 0.96;
-  --motion-distance-sm: 4rem;
-  --motion-distance-md: 18rem;
+  --motion-distance-sm: 0.25rem;
+  --motion-distance-md: 1.125rem;
 }
 
 /* ============================================================
@@ -355,10 +363,10 @@
   --ease-quad-in-out: var(--ease-in-out);
 
   --lx: 0.5; --ly: 0.42; --lxc: 0; --lyc: -0.16; --lit: 0;
-  --accent-fog: 255, 212, 59;
-  --grad-1: 255, 212, 59;
-  --grad-2: 255, 226, 115;
-  --grad-3: 234, 185, 0;
+  --accent-fog: 47, 91, 216;
+  --grad-1: 47, 91, 216;
+  --grad-2: 122, 154, 232;
+  --grad-3: 30, 63, 154;
 }
 
 /* ============================================================
@@ -366,7 +374,7 @@
    ============================================================ */
 
 html {
-  font-size: 1px;
+  /* Standard 16px root. Do not set font-size: 1px. */
   overscroll-behavior: none;
   -webkit-text-size-adjust: 100%;
 }
@@ -540,10 +548,10 @@ p, li, dd, figcaption { text-wrap: pretty; }
    avoid card gradients, photo treatment, rounded app panels, emoji, and
    visual filler. */
 .ps-field { background: var(--signal-field); }
-.ps-paper { position: relative; background: var(--paper); border: var(--stroke) solid var(--signal-rule); box-shadow: 12rem 12rem 0 var(--signal-sheet); }
-.ps-rule { display: block; height: 2rem; background: var(--signal-rule); }
-.ps-dot { display: block; width: 34rem; height: 34rem; border-radius: 50%; background: var(--signal-cobalt); }
-.ps-offset { position: absolute; inset: 14rem -14rem -14rem 14rem; z-index: -1; background: var(--signal-sheet); }
+.ps-paper { position: relative; background: var(--paper); border: var(--stroke) solid var(--signal-rule); box-shadow: 0.75rem 0.75rem 0 var(--signal-sheet); }
+.ps-rule { display: block; height: 0.125rem; background: var(--signal-rule); }
+.ps-dot { display: block; width: 2.125rem; height: 2.125rem; border-radius: 50%; background: var(--signal-cobalt); }
+.ps-offset { position: absolute; inset: 0.875rem -0.875rem -0.875rem 0.875rem; z-index: -1; background: var(--signal-sheet); }
 .ps-icon { display: inline-flex; width: var(--icon); height: var(--icon); flex: none; align-items: center; justify-content: center; color: currentColor; }
 .ps-icon svg { display: block; width: var(--icon-division); height: var(--icon-division); fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linecap: square; stroke-linejoin: miter; }
 
@@ -569,14 +577,14 @@ p, li, dd, figcaption { text-wrap: pretty; }
 .u-icon-btn::before {
   content: '';
   position: absolute;
-  inset: -4rem;
+  inset: -0.25rem;
 }
 .u-icon-btn:active {
   scale: 0.96;
 }
 @media (hover: hover) {
   .u-icon-btn:hover {
-    translate: 0 -1rem;
+    translate: 0 -0.0625rem;
   }
   .u-icon-btn:hover:active {
     scale: 0.96;
@@ -636,7 +644,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 
 .ticket, .px-btn, .glass-btn {
   position: relative;
-  display: inline-flex; align-items: center; justify-content: center; gap: 8rem;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
   min-height: var(--space-34); padding: var(--space-8) var(--btn-pad-x);
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-full);
@@ -671,8 +679,8 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 
 /* Chip — category labels, filters, small toggles. */
 .chip, .glass-chip {
-  display: inline-flex; align-items: center; gap: 6rem;
-  min-height: 28rem; padding: 4rem 11rem;
+  display: inline-flex; align-items: center; gap: 0.375rem;
+  min-height: 1.75rem; padding: 0.25rem 0.6875rem;
   border: var(--stroke) solid var(--line-strong);
   border-radius: var(--radius-full);
   background: transparent; color: var(--ink);
@@ -683,7 +691,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) { .chip:hover, .glass-chip:hover { background: var(--paper-2); border-color: var(--ink); } }
-.chip__dot { width: 8rem; height: 8rem; border-radius: 50%; background: var(--chip-accent, var(--accent)); flex: none; }
+.chip__dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--chip-accent, var(--accent)); flex: none; }
 .chip[aria-pressed="true"], .chip.is-on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 
 /* ============================================================
@@ -704,7 +712,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
   font-size: var(--type-meta); font-weight: 500;
   letter-spacing: var(--tracking-meta); text-transform: uppercase;
   color: var(--muted);
-  padding-bottom: 6rem;
+  padding-bottom: 0.375rem;
 }
 
 .glass-field {
@@ -714,7 +722,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
   border-radius: var(--radius-m);
   color: var(--ink);
   font-family: inherit; font-size: var(--type-small); line-height: 1.6;
-  padding: 11rem 13rem;
+  padding: 0.6875rem 0.8125rem;
   transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
 .glass-field::placeholder { color: var(--gray-500); }
@@ -726,9 +734,9 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 
 .glass-select {
   appearance: none; -webkit-appearance: none;
-  padding-right: 36rem; cursor: pointer;
+  padding-right: 2.25rem; cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%2355555C' stroke-width='1.6' stroke-linecap='round' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 12rem center;
+  background-repeat: no-repeat; background-position: right 0.75rem center;
 }
 [data-theme="dark"] .glass-select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23A6A6AE' stroke-width='1.6' stroke-linecap='round' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
@@ -738,9 +746,9 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
   font-size: var(--type-small); line-height: 1.55; color: var(--ink);
   background: var(--paper-2);
   border: var(--stroke) solid var(--line);
-  border-left: 3rem solid var(--accent);
+  border-left: 0.1875rem solid var(--accent);
   border-radius: var(--radius-s);
-  padding: 11rem 14rem;
+  padding: 0.6875rem 0.875rem;
 }
 .glass-note--error { border-left-color: var(--red); }
 
@@ -783,7 +791,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 
 @media (max-width: 900px) {
   .ed { display: block; }
-  .ed > .ed-note { margin: 14rem 0 22rem; padding-left: 14rem; }
+  .ed > .ed-note { margin: 0.875rem 0 1.375rem; padding-left: 0.875rem; }
 }
 
 /* ============================================================
@@ -807,7 +815,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
   animation-delay: calc(var(--i, 0) * 55ms + var(--t-delay, 0ms));
 }
 @keyframes t-fade-up {
-  from { opacity: 0; transform: translateY(8rem); }
+  from { opacity: 0; transform: translateY(0.5rem); }
   to { opacity: 1; transform: none; }
 }
 
@@ -829,11 +837,11 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 .u-paper-reveal { clip-path: inset(0 100% 0 0); animation: u-paper-reveal 720ms var(--ease-expo-out) both; }
 @keyframes u-paper-reveal { to { clip-path: inset(0 0 0 0); } }
 .u-artifact-shift { animation: u-artifact-shift 640ms var(--ease-out) both; }
-@keyframes u-artifact-shift { from { opacity: 0; transform: translate3d(-14rem, 12rem, 0) rotate(-1.2deg); } to { opacity: 1; transform: none; } }
+@keyframes u-artifact-shift { from { opacity: 0; transform: translate3d(-0.875rem, 0.75rem, 0) rotate(-1.2deg); } to { opacity: 1; transform: none; } }
 .u-tool-assemble { animation: u-tool-assemble 560ms var(--ease-spring) both; }
-@keyframes u-tool-assemble { from { opacity: 0; transform: translate3d(0, 14rem, 0) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes u-tool-assemble { from { opacity: 0; transform: translate3d(0, 0.875rem, 0) scale(.96); } to { opacity: 1; transform: none; } }
 .u-chapter-path { position: relative; }
-.u-chapter-path::before { content: ''; position: absolute; inset: 0 auto 0 -18rem; width: 2rem; background: var(--accent); transform-origin: top; animation: u-chapter-path 900ms var(--ease-expo-out) both; }
+.u-chapter-path::before { content: ''; position: absolute; inset: 0 auto 0 -1.125rem; width: 0.125rem; background: var(--accent); transform-origin: top; animation: u-chapter-path 900ms var(--ease-expo-out) both; }
 @keyframes u-chapter-path { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 
 /* Directional feedback: movement supports an existing arrow and never
@@ -865,7 +873,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 /* Legacy transition names still referenced by the tool apps and lab pages. */
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 .fade-enter-active, .fade-leave-active { transition: opacity var(--dur-mid) ease; }
-.project-fade-enter-from { opacity: 0; transform: translateY(10rem); }
+.project-fade-enter-from { opacity: 0; transform: translateY(0.625rem); }
 .project-fade-enter-active { transition: opacity var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out); }
 .project-fade-leave-to { opacity: 0; }
 .project-fade-leave-active { transition: opacity var(--dur-fast) var(--ease-in); }

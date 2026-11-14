@@ -93,71 +93,71 @@ function turnOn() {
   background: rgba(0, 0, 0, 0.42);
   display: grid;
   place-items: center;
-  padding: 16rem;
+  padding: 1rem;
 }
 .ai {
-  width: min(560rem, 100%);
-  max-height: calc(100dvh - 48rem);
+  width: min(35rem, 100%);
+  max-height: calc(100dvh - 3rem);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 14rem;
+  gap: 0.875rem;
 }
-.ai__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12rem; }
-.ai__head h2 { font-size: 21rem; letter-spacing: -0.03em; margin-bottom: 6rem; }
-.ai__head-title { display: flex; align-items: center; gap: 8rem; color: var(--accent-text); }
-.ai__head p { font-size: 13rem; opacity: 0.65; line-height: 1.5; }
+.ai__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+.ai__head h2 { font-size: 1.3125rem; letter-spacing: -0.03em; margin-bottom: 0.375rem; }
+.ai__head-title { display: flex; align-items: center; gap: 0.5rem; color: var(--accent-text); }
+.ai__head p { font-size: 0.8125rem; opacity: 0.65; line-height: 1.5; }
 .ai__close {
-  width: 28rem; height: 28rem;
+  width: 1.75rem; height: 1.75rem;
   display: grid; place-items: center;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-bg) 55%, transparent);
   border: 1px solid var(--color-glass-border);
-  font-size: 11rem;
+  font-size: 0.75rem;
   flex-shrink: 0;
 }
-.ai__what { display: flex; flex-direction: column; gap: 8rem; }
-.ai__what p { font-size: 13rem; line-height: 1.55; opacity: 0.8; }
+.ai__what { display: flex; flex-direction: column; gap: 0.5rem; }
+.ai__what p { font-size: 0.8125rem; line-height: 1.55; opacity: 0.8; }
 .ai__privacy {
-  padding: 10rem 13rem;
-  border-radius: 10rem;
+  padding: 0.625rem 0.8125rem;
+  border-radius: 0.625rem;
   background: color-mix(in srgb, #34D399 10%, transparent);
-  border-left: 3rem solid #34D399;
+  border-left: 0.1875rem solid #34D399;
 }
 .ai__steps {
-  padding-left: 20rem;
+  padding-left: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 7rem;
-  font-size: 13.5rem;
+  gap: 0.4375rem;
+  font-size: 0.84375rem;
   line-height: 1.5;
 }
-.ai__steps a { text-decoration: underline; text-underline-offset: 3rem; font-weight: 600; }
+.ai__steps a { text-decoration: underline; text-underline-offset: 0.1875rem; font-weight: 600; }
 .ai__steps code, .ai__status code {
-  font-size: 12rem;
-  padding: 1rem 5rem;
-  border-radius: 5rem;
+  font-size: 0.75rem;
+  padding: 0.0625rem 0.3125rem;
+  border-radius: 0.3125rem;
   background: color-mix(in srgb, var(--color-text) 10%, transparent);
 }
 .ai__key { font-family: ui-monospace, monospace; letter-spacing: 0.04em; }
 .ai__error {
-  font-size: 12.5rem;
+  font-size: 0.78125rem;
   line-height: 1.5;
   color: #ff8d8d;
-  padding: 9rem 12rem;
-  border-radius: 10rem;
+  padding: 0.5625rem 0.75rem;
+  border-radius: 0.625rem;
   background: color-mix(in srgb, #ff6b6b 10%, transparent);
 }
-.ai__status { display: flex; align-items: center; gap: 7rem; font-size: 13.5rem; line-height: 1.5; }
+.ai__status { display: flex; align-items: center; gap: 0.4375rem; font-size: 0.84375rem; line-height: 1.5; }
 .ai__status svg { color: #34D399; flex-shrink: 0; }
-.ai__actions { display: flex; align-items: center; gap: 12rem; flex-wrap: wrap; }
-.ai__ghost { font-size: 12.5rem; font-weight: 600; opacity: 0.65; text-decoration: underline; text-underline-offset: 3rem; color: var(--color-text); }
+.ai__actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.ai__ghost { font-size: 0.78125rem; font-weight: 600; opacity: 0.65; text-decoration: underline; text-underline-offset: 0.1875rem; color: var(--color-text); }
 .ai__ghost:hover { opacity: 0.95; }
 .ai__ghost--danger { color: #ff8d8d; }
 
 @media (max-width: 640px) {
-  .ai-overlay { padding: 10rem; align-items: end; display: flex; }
-  .ai { border-radius: 22rem 22rem 0 0; width: 100%; max-height: 86dvh; }
+  .ai-overlay { padding: 0.625rem; align-items: end; display: flex; }
+  .ai { border-radius: 1.375rem 1.375rem 0 0; width: 100%; max-height: 86dvh; }
   .ai__key { font-size: 16px; }
 }
 </style>

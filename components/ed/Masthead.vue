@@ -1,6 +1,13 @@
 <script setup lang="ts">
-import { NAV } from '~/content/editorial'
+import { WORLD_ZONE_LINKS, type WorldAnchorId } from '~/content/zone-links'
 import { useThemeStore } from '~/stores/theme'
+
+const PRIMARY_ZONE_IDS = ['elevate', 'empower', 'engage', 'learn', 'story'] as const satisfies readonly WorldAnchorId[]
+const NAV = PRIMARY_ZONE_IDS.map((id) => {
+  const link = WORLD_ZONE_LINKS.find((item) => item.id === id)
+  if (!link) throw new Error(`Missing zone ${id}`)
+  return link
+})
 
 /**
  * The masthead.
@@ -58,8 +65,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
       </NuxtLink>
 
       <nav class="mh__nav" aria-label="Main navigation">
-        <NuxtLink v-for="l in NAV" :key="l.href" :to="l.href" class="mh__link"
-                  :aria-current="isCurrent(l.href) ? 'page' : undefined">{{ l.label }}</NuxtLink>
+        <NuxtLink v-for="l in NAV" :key="l.route" :to="l.route" class="mh__link"
+                  :aria-current="isCurrent(l.route) ? 'page' : undefined">{{ l.label }}</NuxtLink>
       </nav>
 
       <div class="mh__end">
@@ -110,8 +117,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
          stayed open on every phone. -->
     <div id="mh-sheet" class="mh__sheet" :class="{ 'is-open': open }" :inert="!open">
       <div class="mh__sheet-inner">
-        <NuxtLink v-for="l in NAV" :key="l.href" :to="l.href" class="mh__sheet-link"
-                  :aria-current="isCurrent(l.href) ? 'page' : undefined">
+        <NuxtLink v-for="l in NAV" :key="l.route" :to="l.route" class="mh__sheet-link"
+                  :aria-current="isCurrent(l.route) ? 'page' : undefined">
           <span>{{ l.label }}</span>
           <EdSignalIcon name="external" />
         </NuxtLink>
@@ -142,11 +149,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 
 .mh__skip {
-  position: absolute; left: 12rem; top: 12rem; z-index: 2;
+  position: absolute; left: 0.75rem; top: 0.75rem; z-index: 2;
   transform: translateY(-200%);
   background: var(--ink); color: var(--paper);
-  padding: 10rem 16rem; border-radius: var(--radius-s);
-  font-size: 14rem; font-weight: 700;
+  padding: 0.625rem 1rem; border-radius: var(--radius-s);
+  font-size: 0.875rem; font-weight: 700;
 }
 .mh__skip:focus-visible { transform: none; }
 
@@ -159,7 +166,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 .mh__brand { display: inline-flex; flex: none; }
 .mh__brand :deep(svg) { transition: transform var(--dur-mid) var(--ease-spring); }
-@media (hover: hover) { .mh__brand:hover :deep(svg) { transform: translateY(-1rem); } }
+@media (hover: hover) { .mh__brand:hover :deep(svg) { transform: translateY(-0.0625rem); } }
 
 .mh__nav { margin-left: auto; display: flex; align-items: center; gap: var(--space-21); }
 .mh__link {
@@ -199,38 +206,39 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .mh__wotd {
   position: relative;
   display: grid;
-  width: 22rem;
-  height: 18rem;
+  width: 2rem;
+  height: 1.625rem;
   place-items: center;
 }
 .mh__wotd-tile {
   position: absolute;
   display: grid;
   place-items: center;
-  width: 11rem;
-  height: 12rem;
-  border: 1.5rem solid var(--ink);
-  border-radius: 2rem;
+  width: 1rem;
+  height: 1.125rem;
+  border: 0.09375rem solid var(--ink);
+  border-radius: 0.125rem;
   background: var(--accent);
   color: var(--accent-ink);
-  font: 900 8rem/1 var(--font-mono);
-  box-shadow: 1rem 1rem 0 color-mix(in srgb, var(--ink) 25%, transparent);
+  font: 900 0.75rem/1 var(--font-mono);
+  letter-spacing: -0.04em;
+  box-shadow: 0.0625rem 0.0625rem 0 color-mix(in srgb, var(--ink) 25%, transparent);
 }
 .mh__wotd-tile--a { left: 0; top: 0; animation: mh-wotd-flip 2.2s ease-in-out infinite; }
-.mh__wotd-tile--b { left: 5rem; top: 3rem; background: var(--paper); animation: mh-wotd-flip 2.2s ease-in-out .2s infinite; }
-.mh__wotd-tile--c { left: 10rem; top: 6rem; animation: mh-wotd-flip 2.2s ease-in-out .4s infinite; }
+.mh__wotd-tile--b { left: 0.5rem; top: 0.25rem; background: var(--paper); animation: mh-wotd-flip 2.2s ease-in-out .2s infinite; }
+.mh__wotd-tile--c { left: 1rem; top: 0.5rem; animation: mh-wotd-flip 2.2s ease-in-out .4s infinite; }
 @keyframes mh-wotd-flip {
   0%, 18% { transform: translateY(0) rotate(0deg); }
-  36% { transform: translateY(-3rem) rotate(-8deg); }
+  36% { transform: translateY(-0.1875rem) rotate(-8deg); }
   52%, 100% { transform: translateY(0) rotate(0deg); }
 }
 
 /* Idle motion lives in the unscoped block below (avoids Vue :deep / Safari bugs). */
 
 .mh__dot {
-  position: absolute; top: 5rem; right: 5rem;
-  width: 8rem; height: 8rem; border-radius: 50%;
-  background: var(--accent); border: 1.5rem solid var(--ink);
+  position: absolute; top: 0.3125rem; right: 0.3125rem;
+  width: 0.5rem; height: 0.5rem; border-radius: 50%;
+  background: var(--accent); border: 0.09375rem solid var(--ink);
   pointer-events: none;
 }
 .mh__sheet-wotd { width: 100%; border: 0; cursor: pointer; font: inherit; text-align: left; color: inherit; background: var(--paper); }
@@ -251,10 +259,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 @media (max-width: 860px) {
   .mh__bar { min-height: var(--nav-h); padding-top: 0; padding-bottom: 0; gap: var(--space-13); }
-  .mh__brand { min-width: 166rem; }
-  .mh__brand :deep(.wm) { gap: 7rem; white-space: nowrap; }
-  .mh__brand :deep(.wm__word) { display: inline-block; opacity: 1 !important; transform: none !important; font-size: 26rem; animation: none !important; }
-  .mh__brand :deep(.wm__mark) { width: 25rem; height: 25rem; }
+  .mh__brand { min-width: 10.375rem; }
+  .mh__brand :deep(.wm) { gap: 0.4375rem; white-space: nowrap; }
+  .mh__brand :deep(.wm__word) { display: inline-block; opacity: 1 !important; transform: none !important; font-size: 1.625rem; animation: none !important; }
+  .mh__brand :deep(.wm__mark) { width: 1.5625rem; height: 1.5625rem; }
   .mh__nav { display: none; }
   .mh__icon--menu { display: inline-flex; }
   .mh__end { margin-left: auto; }
@@ -276,7 +284,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     border-bottom: var(--stroke) solid var(--line);
     background: var(--paper);
   }
-  .mh__sheet-link[aria-current="page"] { background: linear-gradient(90deg, color-mix(in srgb, var(--signal-cobalt) 10%, var(--paper)), var(--paper-2)); box-shadow: inset 4rem 0 0 var(--signal-cobalt); }
+  .mh__sheet-link[aria-current="page"] { background: linear-gradient(90deg, color-mix(in srgb, var(--signal-cobalt) 10%, var(--paper)), var(--paper-2)); box-shadow: inset 0.25rem 0 0 var(--signal-cobalt); }
   .mh__sheet-link svg { opacity: 0.45; }
 }
 

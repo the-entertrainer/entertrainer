@@ -56,8 +56,8 @@ onBeforeUnmount(() => detach())
   display: flex;
   align-items: center;
   width: 100%;
-  gap: 8rem;
-  min-height: 44rem;
+  gap: 0.5rem;
+  min-height: 2.75rem;
   margin: 0;
   padding: 0;
   color: var(--ink-soft);
@@ -91,10 +91,10 @@ onBeforeUnmount(() => detach())
   }
   .margin-note__inner {
     position: sticky;
-    top: calc(var(--nav-h, 55rem) + 16rem);
-    width: min(176rem, calc(var(--shell-gutter) - 28rem));
+    top: calc(var(--nav-h, 3.4375rem) + 1rem);
+    width: min(11rem, calc(var(--shell-gutter) - 1.75rem));
     margin-left: auto;
-    margin-right: 16rem;
+    margin-right: 1rem;
     padding: var(--space-13);
     background: var(--accent);
     color: var(--accent-ink);
@@ -110,7 +110,7 @@ onBeforeUnmount(() => detach())
   .margin-note__details[open] > .margin-note__summary::after { content: none; }
   /* A closed details element hides its body. The wide spine stays readable anyway. */
   .margin-note__details > .margin-note__body { display: block !important; }
-  .margin-note__body { margin: 10rem 0 0; }
+  .margin-note__body { margin: 0.625rem 0 0; }
 }
 </style>
 

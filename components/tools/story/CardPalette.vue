@@ -65,24 +65,24 @@ function fmtTime(total: number) {
 .palette {
   display: flex;
   flex-direction: column;
-  gap: 4rem;
+  gap: 0.25rem;
 }
 .palette__label {
-  font-size: 10rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   opacity: 0.45;
-  padding: 2rem 10rem 6rem;
+  padding: 0.125rem 0.625rem 0.375rem;
   color: var(--color-text);
 }
-.palette__rule { height: 1px; background: var(--color-divider); margin: 8rem 6rem; }
+.palette__rule { height: 1px; background: var(--color-divider); margin: 0.5rem 0.375rem; }
 .palette__item {
   display: flex;
   align-items: center;
-  gap: 10rem;
-  padding: 8rem 10rem;
-  border-radius: 12rem;
+  gap: 0.625rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: 0.75rem;
   text-align: left;
   transition: background 0.15s ease;
 }
@@ -92,47 +92,47 @@ function fmtTime(total: number) {
 }
 .palette__item:active { background: color-mix(in srgb, var(--kind-color) 22%, transparent); }
 .palette__glyph {
-  width: 26rem; height: 26rem;
+  width: 1.625rem; height: 1.625rem;
   display: grid; place-items: center;
-  border-radius: 8rem;
-  font-size: 12rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--color-bg);
   background: var(--kind-color);
   flex-shrink: 0;
 }
 .palette__dot {
-  width: 10rem; height: 10rem;
-  margin: 0 8rem;
+  width: 0.625rem; height: 0.625rem;
+  margin: 0 0.5rem;
   border-radius: 999px;
   background: var(--kind-color);
   flex-shrink: 0;
 }
-.palette__text { display: flex; flex-direction: column; gap: 2rem; min-width: 0; }
-.palette__name { font-size: 12.5rem; font-weight: 600; color: var(--color-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 168rem; }
-.palette__hint { font-size: 11rem; opacity: 0.55; color: var(--color-text); line-height: 1.35; white-space: normal; }
-.palette__plus { margin-left: auto; font-size: 14rem; font-weight: 600; opacity: 0; color: var(--color-text); transition: opacity 0.15s ease; }
+.palette__text { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
+.palette__name { font-size: 0.78125rem; font-weight: 600; color: var(--color-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 10.5rem; }
+.palette__hint { font-size: 0.75rem; opacity: 0.55; color: var(--color-text); line-height: 1.35; white-space: normal; }
+.palette__plus { margin-left: auto; font-size: 0.875rem; font-weight: 600; opacity: 0; color: var(--color-text); transition: opacity 0.15s ease; }
 .palette__time {
   margin-left: auto;
-  font-size: 10.5rem;
+  font-size: 0.75rem;
   font-weight: 700;
   opacity: 0.55;
   color: var(--color-text);
   font-variant-numeric: tabular-nums;
 }
-.palette__time + .palette__plus { margin-left: 6rem; }
+.palette__time + .palette__plus { margin-left: 0.375rem; }
 
 /* Bottom-sheet variant */
 .palette--sheet {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8rem;
+  gap: 0.5rem;
 }
 .palette--sheet .palette__label, .palette--sheet .palette__rule { grid-column: 1 / -1; }
 .palette--sheet .palette__item {
   border: 1px solid var(--color-glass-border);
   background: color-mix(in srgb, var(--color-bg) 45%, transparent);
-  padding: 12rem;
+  padding: 0.75rem;
   align-items: flex-start;
 }
 .palette--sheet .palette__name { white-space: normal; max-width: none; }

@@ -4,8 +4,8 @@ import { CONCEPTS } from '~/utils/labNav'
 /**
  * The lab index.
  *
- * Unlisted and noindex. Kept for direct URL access only — not linked from
- * the public nav or footer.
+ * Unlisted and noindex. Not in the public nav. The archive lists it as a
+ * quiet secondary link.
  *
  * The sketches themselves are untouched by the editorial rebuild — they are
  * self-contained WebGL artifacts with their own art direction, and app.vue
@@ -46,27 +46,27 @@ useSeoMeta({ title: 'Homepage concepts — Lab', robots: 'noindex' })
 <style scoped>
 .lab { min-height: 100dvh; background: var(--paper); color: var(--ink); }
 
-.lab__stage { margin-bottom: clamp(24rem, 4vw, 40rem); min-height: min(280rem, 40vw); }
+.lab__stage { margin-bottom: clamp(1.5rem, 4vw, 2.5rem); min-height: min(17.5rem, 40vw); }
 .lab__stage :deep(h1) { font-size: var(--type-display); line-height: .9; letter-spacing: -.06em; }
-.lab__stage :deep(.stage__deck) { font-family: var(--font-reading); font-size: 17rem; line-height: 1.6; color: var(--muted); max-width: var(--measure-body); }
+.lab__stage :deep(.stage__deck) { font-family: var(--font-reading); font-size: 1.0625rem; line-height: 1.6; color: var(--muted); max-width: var(--measure-body); }
 
-.lab__grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 10rem; }
+.lab__grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.625rem; }
 .lab__card {
-  display: grid; grid-template-columns: minmax(0, 1fr) 20rem;
-  align-items: start; gap: 16rem;
-  padding: 18rem 20rem;
+  display: grid; grid-template-columns: minmax(0, 1fr) 1.25rem;
+  align-items: start; gap: 1rem;
+  padding: 1.125rem 1.25rem;
   border: var(--stroke) solid var(--line);
   border-radius: var(--radius-m);
   background: var(--paper);
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 @media (hover: hover) {
-  .lab__card:hover { background: var(--paper-2); border-color: var(--ink); transform: translateX(3rem); }
+  .lab__card:hover { background: var(--paper-2); border-color: var(--ink); transform: translateX(0.1875rem); }
   .lab__card:hover .lab__arrow {  }
 }
-.lab__body { display: grid; gap: 6rem; min-width: 0; }
-.lab__name { font-size: 18rem; font-weight: 700; }
-.lab__arrow { color: var(--muted); padding-top: 3rem; transition: transform var(--dur-fast) var(--ease-out); }
+.lab__body { display: grid; gap: 0.375rem; min-width: 0; }
+.lab__name { font-size: 1.125rem; font-weight: 700; }
+.lab__arrow { color: var(--muted); padding-top: 0.1875rem; transition: transform var(--dur-fast) var(--ease-out); }
 
 @media (prefers-reduced-motion: reduce) {
   .lab__card, .lab__arrow { transition: none; }

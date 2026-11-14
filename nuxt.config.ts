@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
+import { buildRedirectRules } from './utils/redirect-rules'
 
 const require = createRequire(import.meta.url)
 
@@ -52,7 +53,7 @@ export default defineNuxtConfig({
     },
   },
   // Faces first, then the system that uses them.
-  css: ['~/assets/css/fonts.css', '~/assets/css/main.css'],
+  css: ['~/assets/css/tokens.css', '~/assets/css/fonts.css', '~/assets/css/main.css'],
   runtimeConfig: {
     // Server-only — set via GIPHY_API_KEY env var (Vercel project settings).
     // When absent, /api/giphy serves a curated fallback manifest.
@@ -97,8 +98,8 @@ export default defineNuxtConfig({
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         { name: 'description', content: 'Naveen Jose makes lessons, useful little tools, and clearer ways into complicated things.' },
-        { name: 'theme-color', content: '#0B0B0C', media: '(prefers-color-scheme: dark)' },
-        { name: 'theme-color', content: '#FFFFFF', media: '(prefers-color-scheme: light)' },
+        { name: 'theme-color', content: '#16140F', media: '(prefers-color-scheme: dark)' },
+        { name: 'theme-color', content: '#F7F1E4', media: '(prefers-color-scheme: light)' },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
@@ -115,7 +116,7 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
-		{ rel: 'mask-icon', href: '/safari-pinned-tab.svg', color: '#FFD43B' },
+		{ rel: 'mask-icon', href: '/safari-pinned-tab.svg', color: '#2F5BD8' },
         // Two preloads. Archivo sets every interface string and Fraunces
         // sets the headline, so those two are on the critical path for the
         // first screen; the reading serif, the mono and every latin-ext cut
@@ -144,8 +145,8 @@ export default defineNuxtConfig({
       name: 'Entertrainer',
       short_name: 'Entertrainer',
       description: 'Lessons, useful little tools, and clear explanations by Naveen Jose.',
-      theme_color: '#FFFFFF',
-      background_color: '#FFFFFF',
+      theme_color: '#F7F1E4',
+      background_color: '#F7F1E4',
       display: 'standalone',
       orientation: 'any',
       scope: '/',
@@ -180,7 +181,7 @@ export default defineNuxtConfig({
       skipWaiting: true,
       clientsClaim: true,
       cleanupOutdatedCaches: true,
-      globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+      globPatterns: ['**/*.{js,css,html,svg,png,woff2,ttf}'],
       navigateFallback: '/',
       navigateFallbackDenylist: [/^\/api\//],
       maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
@@ -207,72 +208,11 @@ export default defineNuxtConfig({
   // first response, so pasted links describe the page being shared.
   ssr: true,
   routeRules: {
-    // The Dialogue shell lives at app.html. Old bookmarks to the directory index
-    // go to the slashless app in one hop.
-    '/dialogue/index.html': { redirect: { to: '/dialogue', statusCode: 301 } },
     // Whatto is unlisted: reachable only by typing the URL, never indexed.
     '/engage/whatto': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
     '/api/whatto/**': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
-    '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } },
-    '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } },
-    // EasyMCQ and Draftly removed. Draftly's public route was /tools/better-emails.
-    // Neither page had child routes; the wildcards catch any stray sub-path.
-    '/tools/easymcq': { redirect: { to: '/empower', statusCode: 301 } },
-    '/tools/easymcq/**': { redirect: { to: '/empower', statusCode: 301 } },
-    '/tools/better-emails': { redirect: { to: '/empower', statusCode: 301 } },
-    '/tools/better-emails/**': { redirect: { to: '/empower', statusCode: 301 } },
-    '/tools': { redirect: { to: '/empower', statusCode: 301 } },
-    '/blogs': { redirect: { to: '/elevate', statusCode: 301 } },
-    '/blogs/**': { redirect: { to: '/elevate/**', statusCode: 301 } },
-    // Page-level redirects, lifted here so a trailing slash resolves in one hop.
-    '/downloads': { redirect: { to: '/', statusCode: 301 } },
-    '/my-work': { redirect: { to: '/about#sewa-chronicles', statusCode: 301 } },
-    // Educate section removed — keep old links from 404ing.
-    '/educate': { redirect: { to: '/', statusCode: 301 } },
-    '/educate/**': { redirect: { to: '/', statusCode: 301 } },
-    // PicTune removed — keep old links from 404ing.
-    '/engage/pictune': { redirect: { to: '/engage', statusCode: 301 } },
-    // Velocity + Vilakku removed — keep old links from 404ing.
-    '/engage/velocity': { redirect: { to: '/engage', statusCode: 301 } },
-    '/engage/vilakku': { redirect: { to: '/engage', statusCode: 301 } },
-    // Vybe removed — keep old links from 404ing.
-    '/engage/vybe': { redirect: { to: '/engage', statusCode: 301 } },
-    '/engage/squash': { redirect: { to: '/engage', statusCode: 301 } },
-    '/engage/fever': { redirect: { to: '/engage', statusCode: 301 } },
-    '/engage/netagiri': { redirect: { to: '/engage', statusCode: 301 } },
-    // Gateway, Third Eye, Solfeggio, and Brainwave removed — keep old links from 404ing.
-    '/engage/gateway': { redirect: { to: '/engage', statusCode: 301 } },
-    '/engage/third-eye': { redirect: { to: '/engage', statusCode: 301 } },
-    '/engage/solfeggio': { redirect: { to: '/engage', statusCode: 301 } },
-    '/engage/brainwave': { redirect: { to: '/engage', statusCode: 301 } },
-    '/elevate/if-you-are-intelligent-life-might-not-be-easy': { redirect: { to: '/elevate', statusCode: 301 } },
-    '/elevate/does-ai-understand-you': { redirect: { to: '/elevate', statusCode: 301 } },
-    '/elevate/how-to-lie-perfectly': { redirect: { to: '/elevate', statusCode: 301 } },
-    '/elevate/the-voice-in-your-head-is-not-the-whole-of-you': { redirect: { to: '/elevate', statusCode: 301 } },
-    '/elevate/you-are-the-centre-of-the-universe': { redirect: { to: '/elevate', statusCode: 301 } },
-    '/elevate/can-you-reverse-the-spin-of-a-schwarz-surface': { redirect: { to: '/elevate', statusCode: 301 } },
-    '/elevate/the-sacred-frequencies-are-not-a-scale': { redirect: { to: '/elevate/what-each-sacred-frequency-is-for', statusCode: 301 } },
-    // Games renamed to Engage. Retired slugs skip /engage/<slug>, which is itself a 301.
-    '/games': { redirect: { to: '/engage', statusCode: 301 } },
-    '/games/pictune': { redirect: { to: '/engage', statusCode: 301 } },
-    '/games/velocity': { redirect: { to: '/engage', statusCode: 301 } },
-    '/games/vilakku': { redirect: { to: '/engage', statusCode: 301 } },
-    '/games/vybe': { redirect: { to: '/engage', statusCode: 301 } },
-    '/games/squash': { redirect: { to: '/engage', statusCode: 301 } },
-    '/games/fever': { redirect: { to: '/engage', statusCode: 301 } },
-    '/games/netagiri': { redirect: { to: '/engage', statusCode: 301 } },
-    '/games/gateway': { redirect: { to: '/engage', statusCode: 301 } },
-    '/games/third-eye': { redirect: { to: '/engage', statusCode: 301 } },
-    '/games/solfeggio': { redirect: { to: '/engage', statusCode: 301 } },
-    '/games/brainwave': { redirect: { to: '/engage', statusCode: 301 } },
-    '/games/**': { redirect: { to: '/engage/**', statusCode: 301 } },
-    '/blogs/if-you-are-intelligent-life-might-not-be-easy': { redirect: { to: '/elevate', statusCode: 301 } },
-    '/blogs/does-ai-understand-you': { redirect: { to: '/elevate', statusCode: 301 } },
-    '/blogs/how-to-lie-perfectly': { redirect: { to: '/elevate', statusCode: 301 } },
-    '/blogs/the-voice-in-your-head-is-not-the-whole-of-you': { redirect: { to: '/elevate', statusCode: 301 } },
-    '/blogs/you-are-the-centre-of-the-universe': { redirect: { to: '/elevate', statusCode: 301 } },
-    '/blogs/can-you-reverse-the-spin-of-a-schwarz-surface': { redirect: { to: '/elevate', statusCode: 301 } },
-    '/blogs/the-sacred-frequencies-are-not-a-scale': { redirect: { to: '/elevate/what-each-sacred-frequency-is-for', statusCode: 301 } },
+    // Spec §5.2. Exact rows, then prefix rows. statusCode 301 only — never 308.
+    ...buildRedirectRules(),
   },
   alias: {
     '@astroclock': fileURLToPath(new URL('./astroclock', import.meta.url)),

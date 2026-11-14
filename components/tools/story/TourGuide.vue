@@ -272,7 +272,7 @@ onUnmounted(() => {
 
 .tour__spotlight {
   position: fixed;
-  border-radius: 18rem;
+  border-radius: 1.125rem;
   box-shadow: 0 0 0 200vmax rgba(0, 0, 0, 0.56);
   pointer-events: none;
   transition: all 0.55s cubic-bezier(0.3, 1.2, 0.3, 1);
@@ -280,9 +280,9 @@ onUnmounted(() => {
 .tour__spotlight::after {
   content: '';
   position: absolute;
-  inset: -3rem;
+  inset: -0.1875rem;
   border-radius: inherit;
-  border: 2rem solid rgba(255, 255, 255, 0.85);
+  border: 0.125rem solid rgba(255, 255, 255, 0.85);
   animation: tour-ring 1.8s ease-in-out infinite;
 }
 @keyframes tour-ring {
@@ -292,9 +292,9 @@ onUnmounted(() => {
 
 .tour__card {
   position: fixed;
-  width: 358rem;
-  max-width: calc(100vw - 24rem);
-  padding: 0 0 16rem;
+  width: 22.375rem;
+  max-width: calc(100vw - 1.5rem);
+  padding: 0 0 1rem;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -302,9 +302,9 @@ onUnmounted(() => {
 }
 
 .tour__progress {
-  height: 3rem;
+  height: 0.1875rem;
   background: color-mix(in srgb, var(--color-text) 12%, transparent);
-  margin-bottom: 14rem;
+  margin-bottom: 0.875rem;
 }
 .tour__progress span {
   display: block;
@@ -312,25 +312,25 @@ onUnmounted(() => {
   background: var(--color-text);
   transition: width 0.15s linear;
 }
-.tour__progress-spacer { height: 3rem; margin-bottom: 14rem; }
+.tour__progress-spacer { height: 0.1875rem; margin-bottom: 0.875rem; }
 
 .tour__eyebrow {
-  font-size: 10rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   opacity: 0.45;
-  padding: 0 18rem 8rem;
+  padding: 0 1.125rem 0.5rem;
 }
-.tour__title { font-size: 19rem; letter-spacing: -0.02em; padding: 0 18rem 8rem; }
-.tour__body { font-size: 13.5rem; line-height: 1.55; opacity: 0.78; padding: 0 18rem 4rem; }
+.tour__title { font-size: 1.1875rem; letter-spacing: -0.02em; padding: 0 1.125rem 0.5rem; }
+.tour__body { font-size: 0.84375rem; line-height: 1.55; opacity: 0.78; padding: 0 1.125rem 0.25rem; }
 
 .tour__illo {
-  margin: 10rem 18rem 2rem;
-  border-radius: 12rem;
+  margin: 0.625rem 1.125rem 0.125rem;
+  border-radius: 0.75rem;
   background: color-mix(in srgb, var(--color-text) 5%, transparent);
   border: 1px solid var(--color-divider);
-  padding: 4rem 8rem;
+  padding: 0.25rem 0.5rem;
 }
 .illo-card { fill: color-mix(in srgb, var(--color-text) 9%, transparent); stroke: color-mix(in srgb, var(--color-text) 28%, transparent); stroke-width: 1.2; }
 .illo-curve {
@@ -364,24 +364,24 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10rem;
-  padding: 12rem 18rem 0;
+  gap: 0.625rem;
+  padding: 0.75rem 1.125rem 0;
 }
-.tour__skip { font-size: 12rem; font-weight: 600; opacity: 0.55; }
+.tour__skip { font-size: 0.75rem; font-weight: 600; opacity: 0.55; }
 .tour__skip:hover { opacity: 0.9; }
-.tour__dots { display: flex; gap: 5rem; }
+.tour__dots { display: flex; gap: 0.3125rem; }
 .tour__dot {
-  width: 7rem; height: 7rem;
+  width: 0.4375rem; height: 0.4375rem;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-text) 25%, transparent);
   transition: background 0.2s ease, transform 0.2s ease;
 }
 .tour__dot--on { background: var(--color-text); transform: scale(1.25); }
-.tour__btns { display: flex; gap: 7rem; }
+.tour__btns { display: flex; gap: 0.4375rem; }
 .tour__btn {
-  padding: 8rem 16rem;
+  padding: 0.5rem 1rem;
   border-radius: 999px;
-  font-size: 12.5rem;
+  font-size: 0.78125rem;
   font-weight: 700;
   background: var(--color-text);
   color: var(--color-bg);
@@ -394,16 +394,16 @@ onUnmounted(() => {
 
 @media (max-width: 899px) {
   .tour__card {
-    left: 12rem !important;
-    right: 12rem;
+    left: 0.75rem !important;
+    right: 0.75rem;
     top: auto !important;
-    bottom: calc(14rem + var(--safe-bottom));
+    bottom: calc(0.875rem + var(--safe-bottom));
     width: auto;
     max-width: none;
   }
   /* Flip above when the spotlight target lives at the bottom of the screen */
   .tour__card--top {
-    top: calc(70rem + var(--safe-top)) !important;
+    top: calc(4.375rem + var(--safe-top)) !important;
     bottom: auto;
   }
 }

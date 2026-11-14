@@ -91,9 +91,9 @@ const pct = (x: number) => `${Math.round(x * 100)}%`
 .sc__meter-row { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .sc__facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; }
 .sc__facts div { padding: 10px 12px; border-radius: 16px; background: #FBF5FA; }
-.sc__facts dt { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--wt-muted); }
+.sc__facts dt { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--wt-muted); }
 .sc__facts dd { margin: 2px 0 0; font-weight: 700; font-size: 15px; }
-.sc__facts small { display: block; font-size: 11px; color: var(--wt-muted); font-weight: 600; }
+.sc__facts small { display: block; font-size: 0.75rem; color: var(--wt-muted); font-weight: 600; }
 .sc__foot { border-top: 1px dashed var(--wt-line); padding-top: 10px; }
 .sc__loading { display: grid; gap: 8px; }
 </style>

@@ -3,7 +3,7 @@ import { byCategory, type Category } from '~/content/editorial'
 
 /**
  * A section index: the masthead for one category, then everything filed under
- * it. Used by /my-work and /tools, so those routes are real crawlable
+ * it. Used by /work and /tools, so those routes are real crawlable
  * destinations rather than a filtered view of the front page.
  */
 const props = defineProps<{
@@ -45,16 +45,16 @@ const items = computed(() => byCategory(props.category))
 <style scoped>
 .sec__grid {
   list-style: none; margin: 0; padding: 0;
-  display: grid; gap: clamp(18rem, 2.4vw, 28rem);
-  grid-template-columns: repeat(auto-fit, minmax(300rem, 1fr));
+  display: grid; gap: clamp(1.125rem, 2.4vw, 1.75rem);
+  grid-template-columns: repeat(auto-fit, minmax(18.75rem, 1fr));
 }
 .sec__grid > li { display: flex; min-width: 0; }
-.sec__visual { width: 100%; min-height: 260rem; margin: 0 0 clamp(30rem, 5vw, 56rem); border: 0; }
+.sec__visual { width: 100%; min-height: 16.25rem; margin: 0 0 clamp(1.875rem, 5vw, 3.5rem); border: 0; }
 
-.sec__grid--projects { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(20rem, 3vw, 32rem); }
+.sec__grid--projects { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1.25rem, 3vw, 2rem); }
 .sec__grid--projects .sec__item { grid-column: auto; margin-top: 0; }
 
-.sec__grid--tools { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(20rem, 3vw, 32rem); }
+.sec__grid--tools { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1.25rem, 3vw, 2rem); }
 
 /* The supporting paragraph sits after the work, not before it. On a phone the
    old layout spent 460 of 844 pixels on preamble before the first card. */
@@ -63,14 +63,14 @@ const items = computed(() => byCategory(props.category))
   font-size: var(--type-body); line-height: 1.7;
   color: var(--muted);
   max-width: var(--measure-body);
-  margin: clamp(28rem, 4vw, 44rem) 0 0;
-  padding-top: clamp(20rem, 3vw, 28rem);
+  margin: clamp(1.75rem, 4vw, 2.75rem) 0 0;
+  padding-top: clamp(1.25rem, 3vw, 1.75rem);
   border-top: var(--stroke) solid var(--line);
 }
 
 @media (max-width: 680px) {
   .sec__grid { grid-template-columns: minmax(0, 1fr); }
-  .sec__visual { min-height: 188rem; }
+  .sec__visual { min-height: 11.75rem; }
   .sec__grid--projects, .sec__grid--tools { grid-template-columns: minmax(0, 1fr); }
 }
 </style>

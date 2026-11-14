@@ -39,21 +39,21 @@ function reroll() { demo.value = randomPassphrase(7) }
 </template>
 
 <style scoped>
-.st-cover { text-align: center; max-width: 600rem; }
-.st-cover__line { margin: 28rem auto 0; max-width: 32ch; }
-.st-cover__cta { margin-top: 40rem; }
+.st-cover { text-align: center; max-width: 37.5rem; }
+.st-cover__line { margin: 1.75rem auto 0; max-width: 32ch; }
+.st-cover__cta { margin-top: 2.5rem; }
 .st-cover__demo {
-  margin: 56rem auto 0; max-width: 500rem; text-align: left;
+  margin: 3.5rem auto 0; max-width: 31.25rem; text-align: left;
   background: color-mix(in srgb, var(--st-panel) 88%, transparent);
-  border: 1px solid var(--st-line); border-radius: 18rem; padding: 26rem;
+  border: 1px solid var(--st-line); border-radius: 1.125rem; padding: 1.625rem;
 }
-.st-cover__demo-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16rem; }
-.st-cover__demo-label { font-family: var(--st-mono); font-size: 11rem; color: var(--st-muted); }
-.st-cover__reroll { width: 28rem; height: 28rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 7rem; border: 1px solid var(--st-line); color: var(--st-muted); }
+.st-cover__demo-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.st-cover__demo-label { font-family: var(--st-mono); font-size: 0.75rem; color: var(--st-muted); }
+.st-cover__reroll { width: 1.75rem; height: 1.75rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.4375rem; border: 1px solid var(--st-line); color: var(--st-muted); }
 @media (hover: hover) { .st-cover__reroll:hover { color: var(--st-text); border-color: var(--st-line-strong); } }
 .st-cover__reroll:focus-visible { outline: 2px solid var(--st-text); outline-offset: 2px; }
-.st-cover__phrase { font-size: 16rem; font-weight: 500; color: var(--st-text); overflow-wrap: anywhere; line-height: 1.55; margin-bottom: 20rem; }
-.st-cover__crack { margin-top: 8rem; }
-.st-cover__privacy { display: inline-flex; align-items: center; gap: 7rem; margin-top: 36rem; color: var(--st-muted); }
+.st-cover__phrase { font-size: 1rem; font-weight: 500; color: var(--st-text); overflow-wrap: anywhere; line-height: 1.55; margin-bottom: 1.25rem; }
+.st-cover__crack { margin-top: 0.5rem; }
+.st-cover__privacy { display: inline-flex; align-items: center; gap: 0.4375rem; margin-top: 2.25rem; color: var(--st-muted); }
 .st-cover__privacy svg { color: var(--st-accent); flex-shrink: 0; }
 </style>

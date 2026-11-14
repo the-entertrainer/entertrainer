@@ -185,7 +185,7 @@ const marriottPhotos: PhotoTileItem[] = [
       </figure>
 
       <aside id="sewa-chronicles" class="about-story__sewa" aria-labelledby="sewa-title">
-        <NuxtLink to="/my-work/sewa-chronicles" class="about-story__destination about-story__destination--sewa" aria-labelledby="sewa-title" aria-describedby="sewa-description">
+        <NuxtLink to="/work/sewa-chronicles" class="about-story__destination about-story__destination--sewa" aria-labelledby="sewa-title" aria-describedby="sewa-description">
           <figure class="about-story__destination-visual">
             <EdEditorialImage src="/work/sewa/cover.webp" alt="The SEWA Chronicles comic cover, showing four resort staff around the words Service, Empathy, Warmth and Attentiveness." />
           </figure>
@@ -241,7 +241,7 @@ const marriottPhotos: PhotoTileItem[] = [
 
 <style scoped>
 .about-story { max-width: var(--shell-max); margin: 0 auto; padding: var(--space-55) var(--shell-gutter) var(--space-89); }
-.about-story__hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260rem, .85fr); gap: var(--space-55); align-items: end; padding-bottom: var(--space-55); border-bottom: var(--stroke) solid var(--ink); }
+.about-story__hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(16.25rem, .85fr); gap: var(--space-55); align-items: end; padding-bottom: var(--space-55); border-bottom: var(--stroke) solid var(--ink); }
 .about-story h1 { max-width: 18ch; margin: 0; font: 500 var(--type-h1)/.98 var(--font-display); letter-spacing: -.03em; }
 
 /* Portrait fills its column — cover crop, bias toward face */
@@ -254,7 +254,7 @@ const marriottPhotos: PhotoTileItem[] = [
   line-height: 0;
   aspect-ratio: 1 / 1;
   width: 100%;
-  max-width: 420rem;
+  max-width: 26.25rem;
   justify-self: end;
 }
 .about-story__hero-art :deep(.ed-editorial-image),
@@ -273,12 +273,12 @@ const marriottPhotos: PhotoTileItem[] = [
 .about-story__article > p { max-width: var(--measure); margin: 0 0 var(--space-21); }
 .about-story__article h2 { max-width: 22ch; margin: var(--space-55) 0 var(--space-13); font: 500 var(--type-h2)/1.05 var(--font-display); letter-spacing: -.02em; }
 .about-story__article h2.about-story__break { max-width: 22ch; margin: var(--space-55) 0 var(--space-13); font: 500 var(--type-h2)/1.05 var(--font-display); letter-spacing: -.02em; color: var(--ink); }
-.about-story__article h2.about-story__break::before { content: ''; display: block; width: 36rem; height: var(--stroke); background: var(--ink); margin: 0 0 14rem; opacity: .55; }
+.about-story__article h2.about-story__break::before { content: ''; display: block; width: 2.25rem; height: var(--stroke); background: var(--ink); margin: 0 0 0.875rem; opacity: .55; }
 
 .about-story__figure {
   width: 100%;
-  max-width: 640rem;
-  margin: clamp(42rem, 7vw, 80rem) 0 clamp(50rem, 8vw, 92rem);
+  max-width: 40rem;
+  margin: clamp(2.625rem, 7vw, 5rem) 0 clamp(3.125rem, 8vw, 5.75rem);
   overflow: hidden;
   border-radius: var(--radius-m);
   background: var(--paper-2);
@@ -303,35 +303,35 @@ const marriottPhotos: PhotoTileItem[] = [
 }
 
 .about-story__article :deep(.photo-tiles) {
-  margin-left: calc(clamp(0rem, 6vw, 80rem) * -1);
-  margin-right: calc(clamp(0rem, 6vw, 80rem) * -1);
+  margin-left: calc(clamp(0rem, 6vw, 5rem) * -1);
+  margin-right: calc(clamp(0rem, 6vw, 5rem) * -1);
   width: auto;
   max-width: none;
 }
 
 .about-story__signoff {
-  margin-top: 22rem;
-  font: 500 17rem/1.45 var(--font-reading);
+  margin-top: 1.375rem;
+  font: 500 1.0625rem/1.45 var(--font-reading);
 }
 
 .about-story__article :deep(.note) {
   max-width: 42ch;
-  margin: clamp(48rem, 8vw, 88rem) 0 clamp(24rem, 4vw, 40rem);
+  margin: clamp(3rem, 8vw, 5.5rem) 0 clamp(1.5rem, 4vw, 2.5rem);
 }
 
-.about-story__sewa { margin: clamp(54rem, 9vw, 100rem) calc(clamp(0rem, 5vw, 68rem) * -1); }
-.about-story__destination { display: grid; grid-template-columns: minmax(180rem, .72fr) minmax(0, 1.28fr); color: var(--ink); overflow: hidden; border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); background: var(--signal-field); text-decoration: none; transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring); }
-.about-story__destination-visual { min-height: 260rem; margin: 0; overflow: hidden; border-right: var(--stroke) solid var(--ink); background: var(--paper-2); }
+.about-story__sewa { margin: clamp(3.375rem, 9vw, 6.25rem) calc(clamp(0rem, 5vw, 4.25rem) * -1); }
+.about-story__destination { display: grid; grid-template-columns: minmax(11.25rem, .72fr) minmax(0, 1.28fr); color: var(--ink); overflow: hidden; border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); background: var(--signal-field); text-decoration: none; transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring); }
+.about-story__destination-visual { min-height: 16.25rem; margin: 0; overflow: hidden; border-right: var(--stroke) solid var(--ink); background: var(--paper-2); }
 .about-story__destination-visual :deep(.ed-editorial-image), .about-story__destination-visual :deep(img) { width: 100%; height: 100%; object-fit: cover; object-position: center center; }
-.about-story__destination-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(24rem, 5vw, 48rem); }
+.about-story__destination-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(1.5rem, 5vw, 3rem); }
 .about-story__destination h2 { max-width: 18ch; margin: 0; font: 500 var(--type-h2)/1.05 var(--font-display); letter-spacing: -.02em; }
 .about-story__destination-copy > p { max-width: var(--measure); margin: var(--space-13) 0 0; font: 400 var(--type-body)/1.5 var(--font-reading); }
-.about-story__destination-action { display: inline-flex; margin-top: 24rem; padding: 10rem 14rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-s); font: 800 14rem/1.1 var(--font-body); background: var(--accent); color: var(--accent-ink); }
-.about-story__destination:hover, .about-story__destination:focus-visible { background: var(--paper); transform: translateY(-3rem); }
-.about-story__destination:focus-visible { outline: 3rem solid var(--ink); outline-offset: 5rem; }
-.about-story__close { display: grid; gap: 28rem; max-width: 720rem; margin: clamp(64rem, 10vw, 118rem) auto 0; padding-top: 30rem; border-top: var(--stroke) solid var(--ink); }
-.about-story__destination--elevate { grid-template-columns: minmax(220rem, .86fr) minmax(0, 1.14fr); background: var(--paper); }
-.about-story__destination--elevate .about-story__destination-visual { min-height: 230rem; }
+.about-story__destination-action { display: inline-flex; margin-top: 1.5rem; padding: 0.625rem 0.875rem; border: var(--stroke) solid var(--ink); border-radius: var(--radius-s); font: 800 0.875rem/1.1 var(--font-body); background: var(--accent); color: var(--accent-ink); }
+.about-story__destination:hover, .about-story__destination:focus-visible { background: var(--paper); transform: translateY(-0.1875rem); }
+.about-story__destination:focus-visible { outline: 0.1875rem solid var(--ink); outline-offset: 0.3125rem; }
+.about-story__close { display: grid; gap: 1.75rem; max-width: 45rem; margin: clamp(4rem, 10vw, 7.375rem) auto 0; padding-top: 1.875rem; border-top: var(--stroke) solid var(--ink); }
+.about-story__destination--elevate { grid-template-columns: minmax(13.75rem, .86fr) minmax(0, 1.14fr); background: var(--paper); }
+.about-story__destination--elevate .about-story__destination-visual { min-height: 14.375rem; }
 
 @media (max-width: 700px) {
   .about-story__hero { grid-template-columns: 1fr; }

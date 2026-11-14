@@ -25,21 +25,21 @@ const S = 'Instructional design, built end to end.'
 </template>
 
 <style scoped>
-.back{position:fixed;top:18rem;left:20rem;z-index:40;color:currentColor;opacity:.55;text-decoration:none;font-family:'Inter',sans-serif;font-size:12rem}
-.wrap{position:absolute;inset:0;display:grid;padding:72rem clamp(20rem,5vw,72rem) 82rem;font-family:'Inter',sans-serif}
+.back{position:fixed;top:1.125rem;left:1.25rem;z-index:40;color:currentColor;opacity:.55;text-decoration:none;font-family:'Inter',sans-serif;font-size:0.75rem}
+.wrap{position:absolute;inset:0;display:grid;padding:4.5rem clamp(1.25rem,5vw,4.5rem) 5.125rem;font-family:'Inter',sans-serif}
 .hero{max-width:60ch}
-.kick{margin:0 0 12rem;font-size:11rem;letter-spacing:.24em;text-transform:uppercase;opacity:.6}
+.kick{margin:0 0 0.75rem;font-size:0.75rem;letter-spacing:.24em;text-transform:uppercase;opacity:.6}
 .title{font-family:'Anton', Impact, sans-serif}
 .title em{font-style:italic;opacity:.82}
-.sub{margin:16rem 0 0;font-size:14rem;line-height:1.55;opacity:.68;max-width:46ch}
-.n{font-size:10.5rem;letter-spacing:.16em;opacity:.6}
+.sub{margin:1rem 0 0;font-size:0.875rem;line-height:1.55;opacity:.68;max-width:46ch}
+.n{font-size:0.75rem;letter-spacing:.16em;opacity:.6}
 .l{font-family:'Anton', Impact, sans-serif}
-.d{font-size:11.5rem;line-height:1.45;opacity:.62}
+.d{font-size:0.75rem;line-height:1.45;opacity:.62}
 *:focus-visible{outline:2px solid currentColor;outline-offset:4px}
-.wrap{align-content:center;gap:40rem}.title{font-size:clamp(46rem,11vw,150rem);line-height:0.84;letter-spacing:-0.02em;margin:0}
-.slab{display:grid;grid-template-columns:repeat(4,1fr);border-radius:22rem;overflow:hidden}
-.slabItem{display:grid;gap:4rem;padding:26rem 20rem;text-decoration:none;color:inherit;border-right:1px solid rgba(255,255,255,0.12)}
-.slabItem:last-child{border-right:0}.slabItem .l{font-size:19rem;font-weight:600}
+.wrap{align-content:center;gap:2.5rem}.title{font-size:clamp(2.875rem,11vw,9.375rem);line-height:0.84;letter-spacing:-0.02em;margin:0}
+.slab{display:grid;grid-template-columns:repeat(4,1fr);border-radius:1.375rem;overflow:hidden}
+.slabItem{display:grid;gap:0.25rem;padding:1.625rem 1.25rem;text-decoration:none;color:inherit;border-right:1px solid rgba(255,255,255,0.12)}
+.slabItem:last-child{border-right:0}.slabItem .l{font-size:1.1875rem;font-weight:600}
 @media(max-width:700px){.slab{grid-template-columns:1fr 1fr}}
 @media(prefers-reduced-motion:reduce){*{transition:none !important}}
 </style>

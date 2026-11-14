@@ -38,7 +38,7 @@ const M = eMark(50, 50, 50)
 
 <style scoped>
 .mark { display: block; flex: none; }
-.mark__seal { fill: var(--accent, #FFD43B); }
+.mark__seal { fill: var(--accent, #2F5BD8); }
 .mark__e {
   fill: none;
   stroke: var(--accent-ink, #161618);

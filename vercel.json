@@ -3,8 +3,383 @@
   "framework": "nuxtjs",
   "redirects": [
     {
-      "source": "/dialogue/",
-      "destination": "/dialogue",
+      "source": "/lessons",
+      "destination": "/learn",
+      "statusCode": 301
+    },
+    {
+      "source": "/lessons/",
+      "destination": "/learn",
+      "statusCode": 301
+    },
+    {
+      "source": "/my-work",
+      "destination": "/work",
+      "statusCode": 301
+    },
+    {
+      "source": "/my-work/",
+      "destination": "/work",
+      "statusCode": 301
+    },
+    {
+      "source": "/my-work/sewa-chronicles",
+      "destination": "/work/sewa-chronicles",
+      "statusCode": 301
+    },
+    {
+      "source": "/my-work/sewa-chronicles/",
+      "destination": "/work/sewa-chronicles",
+      "statusCode": 301
+    },
+    {
+      "source": "/my-work/strong",
+      "destination": "/work/strong",
+      "statusCode": 301
+    },
+    {
+      "source": "/my-work/strong/",
+      "destination": "/work/strong",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools",
+      "destination": "/empower",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/",
+      "destination": "/empower",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/easymcq",
+      "destination": "/empower",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/easymcq/",
+      "destination": "/empower",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/better-emails",
+      "destination": "/empower",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/better-emails/",
+      "destination": "/empower",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/training-cal-gen",
+      "destination": "/tools/cadence",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/training-cal-gen/",
+      "destination": "/tools/cadence",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/storyforge-id",
+      "destination": "/tools/storygen",
+      "statusCode": 301
+    },
+    {
+      "source": "/tools/storyforge-id/",
+      "destination": "/tools/storygen",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/you-are-not-lazy-you-are-helping-the-universe-extend-its-life",
+      "destination": "/elevate/you-are-not-lazy-you-are-helping-the-universe-extend-its-life",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/you-are-not-lazy-you-are-helping-the-universe-extend-its-life/",
+      "destination": "/elevate/you-are-not-lazy-you-are-helping-the-universe-extend-its-life",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/why-isnt-the-moon-moonly",
+      "destination": "/elevate/why-isnt-the-moon-moonly",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/why-isnt-the-moon-moonly/",
+      "destination": "/elevate/why-isnt-the-moon-moonly",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/jamais-vu-why-words-stop-meaning-anything",
+      "destination": "/elevate/jamais-vu-why-words-stop-meaning-anything",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/jamais-vu-why-words-stop-meaning-anything/",
+      "destination": "/elevate/jamais-vu-why-words-stop-meaning-anything",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/the-midpoint-of-your-life-isnt-40-its-18",
+      "destination": "/elevate/the-midpoint-of-your-life-isnt-40-its-18",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/the-midpoint-of-your-life-isnt-40-its-18/",
+      "destination": "/elevate/the-midpoint-of-your-life-isnt-40-its-18",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/you-only-find-out-when-you-have-to-explain-it",
+      "destination": "/elevate/you-only-find-out-when-you-have-to-explain-it",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/you-only-find-out-when-you-have-to-explain-it/",
+      "destination": "/elevate/you-only-find-out-when-you-have-to-explain-it",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/tajjalan",
+      "destination": "/elevate/tajjalan",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/tajjalan/",
+      "destination": "/elevate/tajjalan",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/your-mouth-can-be-sure-for-reasons-your-eyes-never-had",
+      "destination": "/elevate/your-mouth-can-be-sure-for-reasons-your-eyes-never-had",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/",
+      "destination": "/elevate/your-mouth-can-be-sure-for-reasons-your-eyes-never-had",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/what-each-sacred-frequency-is-for",
+      "destination": "/elevate/what-each-sacred-frequency-is-for",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/what-each-sacred-frequency-is-for/",
+      "destination": "/elevate/what-each-sacred-frequency-is-for",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/one-equals-two-lets-break-maths",
+      "destination": "/elevate/one-equals-two-lets-break-maths",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/one-equals-two-lets-break-maths/",
+      "destination": "/elevate/one-equals-two-lets-break-maths",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/are-72-432-and-25920-clues-or-just-numbers-we-learned-to-notice",
+      "destination": "/elevate/are-72-432-and-25920-clues-or-just-numbers-we-learned-to-notice",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/are-72-432-and-25920-clues-or-just-numbers-we-learned-to-notice/",
+      "destination": "/elevate/are-72-432-and-25920-clues-or-just-numbers-we-learned-to-notice",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/the-sacred-frequencies-are-not-a-scale",
+      "destination": "/elevate/what-each-sacred-frequency-is-for",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/the-sacred-frequencies-are-not-a-scale/",
+      "destination": "/elevate/what-each-sacred-frequency-is-for",
+      "statusCode": 301
+    },
+    {
+      "source": "/elevate/the-sacred-frequencies-are-not-a-scale",
+      "destination": "/elevate/what-each-sacred-frequency-is-for",
+      "statusCode": 301
+    },
+    {
+      "source": "/elevate/the-sacred-frequencies-are-not-a-scale/",
+      "destination": "/elevate/what-each-sacred-frequency-is-for",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/if-you-are-intelligent-life-might-not-be-easy",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/if-you-are-intelligent-life-might-not-be-easy/",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/elevate/if-you-are-intelligent-life-might-not-be-easy",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/elevate/if-you-are-intelligent-life-might-not-be-easy/",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/does-ai-understand-you",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/does-ai-understand-you/",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/elevate/does-ai-understand-you",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/elevate/does-ai-understand-you/",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/how-to-lie-perfectly",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/how-to-lie-perfectly/",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/elevate/how-to-lie-perfectly",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/elevate/how-to-lie-perfectly/",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/the-voice-in-your-head-is-not-the-whole-of-you",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/the-voice-in-your-head-is-not-the-whole-of-you/",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/elevate/the-voice-in-your-head-is-not-the-whole-of-you",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/elevate/the-voice-in-your-head-is-not-the-whole-of-you/",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/you-are-the-centre-of-the-universe",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/you-are-the-centre-of-the-universe/",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/elevate/you-are-the-centre-of-the-universe",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/elevate/you-are-the-centre-of-the-universe/",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/can-you-reverse-the-spin-of-a-schwarz-surface",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/blogs/can-you-reverse-the-spin-of-a-schwarz-surface/",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/elevate/can-you-reverse-the-spin-of-a-schwarz-surface",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/elevate/can-you-reverse-the-spin-of-a-schwarz-surface/",
+      "destination": "/elevate",
+      "statusCode": 301
+    },
+    {
+      "source": "/downloads",
+      "destination": "/archive/downloads",
+      "statusCode": 301
+    },
+    {
+      "source": "/downloads/",
+      "destination": "/archive/downloads",
+      "statusCode": 301
+    },
+    {
+      "source": "/downloads/templates",
+      "destination": "/archive/downloads/templates",
+      "statusCode": 301
+    },
+    {
+      "source": "/downloads/templates/",
+      "destination": "/archive/downloads/templates",
+      "statusCode": 301
+    },
+    {
+      "source": "/downloads/frameworks",
+      "destination": "/archive/downloads/frameworks",
+      "statusCode": 301
+    },
+    {
+      "source": "/downloads/frameworks/",
+      "destination": "/archive/downloads/frameworks",
+      "statusCode": 301
+    },
+    {
+      "source": "/downloads/resources",
+      "destination": "/archive/downloads/resources",
+      "statusCode": 301
+    },
+    {
+      "source": "/downloads/resources/",
+      "destination": "/archive/downloads/resources",
       "statusCode": 301
     },
     {
@@ -23,13 +398,8 @@
       "statusCode": 301
     },
     {
-      "source": "/educate/:path*",
+      "source": "/educate/",
       "destination": "/",
-      "statusCode": 301
-    },
-    {
-      "source": "/games/",
-      "destination": "/engage",
       "statusCode": 301
     },
     {
@@ -38,273 +408,48 @@
       "statusCode": 301
     },
     {
-      "source": "/engage/pictune",
+      "source": "/games/",
       "destination": "/engage",
       "statusCode": 301
     },
     {
-      "source": "/engage/velocity",
-      "destination": "/engage",
+      "source": "/games/stack",
+      "destination": "/engage/stack",
       "statusCode": 301
     },
     {
-      "source": "/engage/vilakku",
-      "destination": "/engage",
+      "source": "/games/stack/",
+      "destination": "/engage/stack",
       "statusCode": 301
     },
     {
-      "source": "/tools/training-cal-gen",
-      "destination": "/tools/cadence",
+      "source": "/games/read-my-mind",
+      "destination": "/engage/read-my-mind",
       "statusCode": 301
     },
     {
-      "source": "/tools/storyforge-id",
-      "destination": "/tools/storygen",
+      "source": "/games/read-my-mind/",
+      "destination": "/engage/read-my-mind",
       "statusCode": 301
     },
     {
-      "source": "/tools/easymcq",
-      "destination": "/empower",
+      "source": "/games/astroclock",
+      "destination": "/engage/astroclock",
       "statusCode": 301
     },
     {
-      "source": "/tools/easymcq/:path*",
-      "destination": "/empower",
+      "source": "/games/astroclock/",
+      "destination": "/engage/astroclock",
       "statusCode": 301
     },
     {
-      "source": "/tools/better-emails",
-      "destination": "/empower",
+      "source": "/games/whatto",
+      "destination": "/engage/whatto",
       "statusCode": 301
     },
     {
-      "source": "/tools/better-emails/:path*",
-      "destination": "/empower",
-      "statusCode": 301
-    },
-    {
-      "source": "/tools",
-      "destination": "/empower",
-      "statusCode": 301
-    },
-    {
-      "source": "/blogs/",
-      "destination": "/elevate",
-      "statusCode": 301
-    },
-    {
-      "source": "/blogs",
-      "destination": "/elevate",
-      "statusCode": 301
-    },
-    {
-      "source": "/my-work/",
-      "destination": "/about#sewa-chronicles",
-      "statusCode": 301
-    },
-    {
-      "source": "/my-work",
-      "destination": "/about#sewa-chronicles",
-      "statusCode": 301
-    },
-    {
-      "source": "/downloads/",
-      "destination": "/",
-      "statusCode": 301
-    },
-    {
-      "source": "/downloads",
-      "destination": "/",
-      "statusCode": 301
-    },
-    {
-      "source": "/educate/",
-      "destination": "/",
-      "statusCode": 301
-    },
-    {
-      "source": "/tools/",
-      "destination": "/empower",
-      "statusCode": 301
-    },
-    {
-      "source": "/tools/training-cal-gen/",
-      "destination": "/tools/cadence",
-      "statusCode": 301
-    },
-    {
-      "source": "/tools/storyforge-id/",
-      "destination": "/tools/storygen",
-      "statusCode": 301
-    },
-    {
-      "source": "/tools/easymcq/",
-      "destination": "/empower",
-      "statusCode": 301
-    },
-    {
-      "source": "/tools/better-emails/",
-      "destination": "/empower",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/vybe",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/squash",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/fever",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/netagiri",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/gateway",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/third-eye",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/solfeggio",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/brainwave",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/elevate/if-you-are-intelligent-life-might-not-be-easy",
-      "destination": "/elevate",
-      "statusCode": 301
-    },
-    {
-      "source": "/elevate/does-ai-understand-you",
-      "destination": "/elevate",
-      "statusCode": 301
-    },
-    {
-      "source": "/elevate/how-to-lie-perfectly",
-      "destination": "/elevate",
-      "statusCode": 301
-    },
-    {
-      "source": "/elevate/the-voice-in-your-head-is-not-the-whole-of-you",
-      "destination": "/elevate",
-      "statusCode": 301
-    },
-    {
-      "source": "/elevate/you-are-the-centre-of-the-universe",
-      "destination": "/elevate",
-      "statusCode": 301
-    },
-    {
-      "source": "/elevate/can-you-reverse-the-spin-of-a-schwarz-surface",
-      "destination": "/elevate",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/pictune/",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/velocity/",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/vilakku/",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/vybe/",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/squash/",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/fever/",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/netagiri/",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/gateway/",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/third-eye/",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/solfeggio/",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/engage/brainwave/",
-      "destination": "/engage",
-      "statusCode": 301
-    },
-    {
-      "source": "/elevate/if-you-are-intelligent-life-might-not-be-easy/",
-      "destination": "/elevate",
-      "statusCode": 301
-    },
-    {
-      "source": "/elevate/does-ai-understand-you/",
-      "destination": "/elevate",
-      "statusCode": 301
-    },
-    {
-      "source": "/elevate/how-to-lie-perfectly/",
-      "destination": "/elevate",
-      "statusCode": 301
-    },
-    {
-      "source": "/elevate/the-voice-in-your-head-is-not-the-whole-of-you/",
-      "destination": "/elevate",
-      "statusCode": 301
-    },
-    {
-      "source": "/elevate/you-are-the-centre-of-the-universe/",
-      "destination": "/elevate",
-      "statusCode": 301
-    },
-    {
-      "source": "/elevate/can-you-reverse-the-spin-of-a-schwarz-surface/",
-      "destination": "/elevate",
-      "statusCode": 301
-    },
-    {
-      "source": "/elevate/the-sacred-frequencies-are-not-a-scale/",
-      "destination": "/elevate/what-each-sacred-frequency-is-for",
+      "source": "/games/whatto/",
+      "destination": "/engage/whatto",
       "statusCode": 301
     },
     {
@@ -314,6 +459,16 @@
     },
     {
       "source": "/games/pictune/",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/pictune",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/pictune/",
       "destination": "/engage",
       "statusCode": 301
     },
@@ -328,12 +483,32 @@
       "statusCode": 301
     },
     {
+      "source": "/engage/velocity",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/velocity/",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
       "source": "/games/vilakku",
       "destination": "/engage",
       "statusCode": 301
     },
     {
       "source": "/games/vilakku/",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/vilakku",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/vilakku/",
       "destination": "/engage",
       "statusCode": 301
     },
@@ -348,12 +523,32 @@
       "statusCode": 301
     },
     {
+      "source": "/engage/vybe",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/vybe/",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
       "source": "/games/squash",
       "destination": "/engage",
       "statusCode": 301
     },
     {
       "source": "/games/squash/",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/squash",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/squash/",
       "destination": "/engage",
       "statusCode": 301
     },
@@ -368,12 +563,32 @@
       "statusCode": 301
     },
     {
+      "source": "/engage/fever",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/fever/",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
       "source": "/games/netagiri",
       "destination": "/engage",
       "statusCode": 301
     },
     {
       "source": "/games/netagiri/",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/netagiri",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/netagiri/",
       "destination": "/engage",
       "statusCode": 301
     },
@@ -388,12 +603,32 @@
       "statusCode": 301
     },
     {
+      "source": "/engage/gateway",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/gateway/",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
       "source": "/games/third-eye",
       "destination": "/engage",
       "statusCode": 301
     },
     {
       "source": "/games/third-eye/",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/third-eye",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/third-eye/",
       "destination": "/engage",
       "statusCode": 301
     },
@@ -408,6 +643,16 @@
       "statusCode": 301
     },
     {
+      "source": "/engage/solfeggio",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
+      "source": "/engage/solfeggio/",
+      "destination": "/engage",
+      "statusCode": 301
+    },
+    {
       "source": "/games/brainwave",
       "destination": "/engage",
       "statusCode": 301
@@ -418,93 +663,88 @@
       "statusCode": 301
     },
     {
-      "source": "/blogs/if-you-are-intelligent-life-might-not-be-easy",
-      "destination": "/elevate",
+      "source": "/engage/brainwave",
+      "destination": "/engage",
       "statusCode": 301
     },
     {
-      "source": "/blogs/if-you-are-intelligent-life-might-not-be-easy/",
-      "destination": "/elevate",
+      "source": "/engage/brainwave/",
+      "destination": "/engage",
       "statusCode": 301
     },
     {
-      "source": "/blogs/does-ai-understand-you",
-      "destination": "/elevate",
+      "source": "/lessons/:path*",
+      "destination": "/learn/:path*",
       "statusCode": 301
     },
     {
-      "source": "/blogs/does-ai-understand-you/",
-      "destination": "/elevate",
+      "source": "/lessons/:path(.*)/",
+      "destination": "/learn/:path",
       "statusCode": 301
     },
     {
-      "source": "/blogs/how-to-lie-perfectly",
-      "destination": "/elevate",
+      "source": "/my-work/:path*",
+      "destination": "/work/:path*",
       "statusCode": 301
     },
     {
-      "source": "/blogs/how-to-lie-perfectly/",
-      "destination": "/elevate",
+      "source": "/my-work/:path(.*)/",
+      "destination": "/work/:path",
       "statusCode": 301
     },
     {
-      "source": "/blogs/the-voice-in-your-head-is-not-the-whole-of-you",
-      "destination": "/elevate",
+      "source": "/downloads/:path*",
+      "destination": "/archive/downloads/:path*",
       "statusCode": 301
     },
     {
-      "source": "/blogs/the-voice-in-your-head-is-not-the-whole-of-you/",
-      "destination": "/elevate",
+      "source": "/downloads/:path(.*)/",
+      "destination": "/archive/downloads/:path",
       "statusCode": 301
     },
     {
-      "source": "/blogs/you-are-the-centre-of-the-universe",
-      "destination": "/elevate",
+      "source": "/educate/:path*",
+      "destination": "/",
       "statusCode": 301
     },
     {
-      "source": "/blogs/you-are-the-centre-of-the-universe/",
-      "destination": "/elevate",
+      "source": "/educate/:path(.*)/",
+      "destination": "/",
       "statusCode": 301
     },
     {
-      "source": "/blogs/can-you-reverse-the-spin-of-a-schwarz-surface",
-      "destination": "/elevate",
+      "source": "/tools/easymcq/:path*",
+      "destination": "/empower",
       "statusCode": 301
     },
     {
-      "source": "/blogs/can-you-reverse-the-spin-of-a-schwarz-surface/",
-      "destination": "/elevate",
+      "source": "/tools/easymcq/:path(.*)/",
+      "destination": "/empower",
       "statusCode": 301
     },
     {
-      "source": "/blogs/the-sacred-frequencies-are-not-a-scale",
-      "destination": "/elevate/what-each-sacred-frequency-is-for",
+      "source": "/tools/better-emails/:path*",
+      "destination": "/empower",
       "statusCode": 301
     },
     {
-      "source": "/blogs/the-sacred-frequencies-are-not-a-scale/",
-      "destination": "/elevate/what-each-sacred-frequency-is-for",
+      "source": "/tools/better-emails/:path(.*)/",
+      "destination": "/empower",
       "statusCode": 301
     },
     {
-      "source": "/games/:path*",
-      "destination": "/engage/:path*",
+      "source": "/about/:path*",
+      "destination": "/about",
       "statusCode": 301
     },
     {
-      "source": "/games/:path(.*)/",
-      "destination": "/engage/:path",
+      "source": "/about/:path(.*)/",
+      "destination": "/about",
       "statusCode": 301
     },
     {
-      "source": "/blogs/:path*",
-      "destination": "/elevate/:path*",
-      "statusCode": 301
-    },
-    {
-      "source": "/blogs/:path(.*)/",
-      "destination": "/elevate/:path",
+      "source": "/:path(.*)/",
+      "destination": "/:path",
       "statusCode": 301
     }
   ],

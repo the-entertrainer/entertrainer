@@ -74,7 +74,7 @@ defineProps<{ size?: number; animated?: boolean }>()
 }
 @keyframes cg-mark-breathe {
   0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(234, 185, 0, 0)); }
-  50%      { transform: scale(1.025); filter: drop-shadow(0 6rem 22rem rgba(234, 185, 0, 0.4)); }
+  50%      { transform: scale(1.025); filter: drop-shadow(0 0.375rem 1.375rem rgba(234, 185, 0, 0.4)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .cg-mark--animated,

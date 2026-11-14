@@ -79,7 +79,7 @@ onBeforeUnmount(() => {
 .hz__row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8rem;
+  gap: 0.5rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -88,10 +88,10 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6rem;
-  min-width: 44rem;
-  min-height: 44rem;
-  padding: 0 12rem;
+  gap: 0.375rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
   border: var(--stroke) solid var(--ink);
   border-radius: 0;
   background: var(--paper);
@@ -106,7 +106,7 @@ onBeforeUnmount(() => {
   color: var(--accent-ink);
 }
 .hz__hint {
-  margin: 8rem 0 0;
+  margin: 0.5rem 0 0;
   color: var(--ink-soft);
   font: 500 var(--type-meta)/1.3 var(--font-mono);
   letter-spacing: .06em;

@@ -492,9 +492,9 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
 .mr__iconbtn {
   position: absolute;
   z-index: 20;
-  top: max(10rem, env(safe-area-inset-top));
-  width: 44rem;
-  height: 44rem;
+  top: max(0.625rem, env(safe-area-inset-top));
+  width: 2.75rem;
+  height: 2.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -516,19 +516,19 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
   background: color-mix(in srgb, var(--mr-paper) 82%, transparent);
 }
 .mr__iconbtn:focus-visible {
-  outline: 2rem solid var(--mr-yellow);
-  outline-offset: 2rem;
+  outline: 0.125rem solid var(--mr-yellow);
+  outline-offset: 0.125rem;
 }
 .mr__iconbtn:active {
   transform: scale(0.94);
 }
 
 .mr__back {
-  left: max(10rem, env(safe-area-inset-left));
+  left: max(0.625rem, env(safe-area-inset-left));
 }
 .mr__back svg {
-  width: 20rem;
-  height: 20rem;
+  width: 1.25rem;
+  height: 1.25rem;
   fill: none;
   stroke: currentColor;
   stroke-width: 2.25;
@@ -537,11 +537,11 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
 }
 
 .mr__theme {
-  right: max(10rem, env(safe-area-inset-right));
+  right: max(0.625rem, env(safe-area-inset-right));
 }
 .mr__theme :deep(svg) {
-  width: 18rem;
-  height: 18rem;
+  width: 1.125rem;
+  height: 1.125rem;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.75;
@@ -561,10 +561,10 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
   display: grid;
   align-content: center;
   justify-items: center;
-  gap: 12rem;
-  padding: 28rem 24rem;
-  padding-top: max(28rem, env(safe-area-inset-top));
-  padding-bottom: max(28rem, env(safe-area-inset-bottom));
+  gap: 0.75rem;
+  padding: 1.75rem 1.5rem;
+  padding-top: max(1.75rem, env(safe-area-inset-top));
+  padding-bottom: max(1.75rem, env(safe-area-inset-bottom));
   text-align: center;
   background: color-mix(in srgb, var(--mr-paper) 55%, transparent);
   backdrop-filter: blur(3px);
@@ -574,7 +574,7 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
 
 .mr__eyebrow {
   margin: 0;
-  font: 800 11rem/1 var(--font-mono);
+  font: 800 0.75rem/1 var(--font-mono);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   opacity: 0.72;
@@ -582,15 +582,15 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
 
 .mr__title {
   margin: 0;
-  font: 700 clamp(64rem, 18vw, 112rem)/0.82 var(--font-display);
+  font: 700 clamp(4rem, 18vw, 7rem)/0.82 var(--font-display);
   letter-spacing: -0.07em;
   text-transform: uppercase;
 }
 
 .mr__lede,
 .mr__copy {
-  margin: 0 0 6rem;
-  font-size: 15rem;
+  margin: 0 0 0.375rem;
+  font-size: 0.9375rem;
   line-height: 1.4;
   max-width: 28ch;
   letter-spacing: 0.01em;
@@ -602,30 +602,30 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
   border: none;
   background: var(--mr-yellow);
   color: #161618;
-  font: 800 15rem/1 var(--font-mono);
+  font: 800 0.9375rem/1 var(--font-mono);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  padding: 18rem 36rem;
+  padding: 1.125rem 2.25rem;
   border-radius: 999px;
   cursor: pointer;
   box-shadow:
-    0 1rem 0 color-mix(in srgb, #161618 12%, transparent),
-    0 8rem 20rem color-mix(in srgb, var(--mr-ink) 10%, transparent);
+    0 0.0625rem 0 color-mix(in srgb, #161618 12%, transparent),
+    0 0.5rem 1.25rem color-mix(in srgb, var(--mr-ink) 10%, transparent);
   transition: transform 160ms ease, box-shadow 160ms ease;
 }
 .mr__cta:hover,
 .mr__cta:focus-visible {
-  transform: translateY(-1rem);
+  transform: translateY(-0.0625rem);
 }
 .mr__cta:focus-visible {
-  outline: 2rem solid var(--mr-ink);
-  outline-offset: 3rem;
+  outline: 0.125rem solid var(--mr-ink);
+  outline-offset: 0.1875rem;
 }
 .mr__cta:active {
-  transform: translateY(2rem) scale(0.98);
+  transform: translateY(0.125rem) scale(0.98);
   box-shadow:
     0 0 0 transparent,
-    0 2rem 8rem color-mix(in srgb, var(--mr-ink) 8%, transparent);
+    0 0.125rem 0.5rem color-mix(in srgb, var(--mr-ink) 8%, transparent);
 }
 
 .mr__ghost {
@@ -633,10 +633,10 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
   border: none;
   background: color-mix(in srgb, var(--mr-paper) 70%, transparent);
   color: color-mix(in srgb, var(--mr-ink) 72%, transparent);
-  font: 800 12rem/1 var(--font-mono);
+  font: 800 0.75rem/1 var(--font-mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 12rem 18rem;
+  padding: 0.75rem 1.125rem;
   border-radius: 999px;
   cursor: pointer;
   backdrop-filter: blur(4px);
@@ -649,8 +649,8 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
   background: color-mix(in srgb, var(--mr-paper) 90%, transparent);
 }
 .mr__ghost:focus-visible {
-  outline: 2rem solid var(--mr-yellow);
-  outline-offset: 2rem;
+  outline: 0.125rem solid var(--mr-yellow);
+  outline-offset: 0.125rem;
 }
 .mr__ghost:active {
   transform: scale(0.96);
@@ -677,25 +677,25 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
 
 /* —— Guide flow —— */
 .mr__guide {
-  width: min(100%, 920rem);
+  width: min(100%, 57.5rem);
   margin: 0 auto;
   padding:
-    max(64rem, calc(env(safe-area-inset-top) + 56rem))
-    clamp(16rem, 3vw, 28rem)
-    max(40rem, env(safe-area-inset-bottom));
+    max(4rem, calc(env(safe-area-inset-top) + 3.5rem))
+    clamp(1rem, 3vw, 1.75rem)
+    max(2.5rem, env(safe-area-inset-bottom));
 }
 
 .mr__guide-top {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16rem;
-  margin-bottom: 20rem;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .mr__guide-title {
-  margin: 6rem 0 0;
-  font: 700 clamp(36rem, 8vw, 64rem)/0.88 var(--font-display);
+  margin: 0.375rem 0 0;
+  font: 700 clamp(2.25rem, 8vw, 4rem)/0.88 var(--font-display);
   letter-spacing: -0.06em;
   text-transform: uppercase;
 }
@@ -703,14 +703,14 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
 .mr__steps {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6rem;
-  margin-bottom: 18rem;
+  gap: 0.375rem;
+  margin-bottom: 1.125rem;
 }
 .mr__steps button {
   display: flex;
   align-items: center;
-  gap: 8rem;
-  padding: 10rem 12rem;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
   border: none;
   border-radius: 999px;
   background: color-mix(in srgb, var(--mr-ink) 4%, transparent);
@@ -725,8 +725,8 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
   background: color-mix(in srgb, var(--mr-ink) 8%, transparent);
 }
 .mr__steps button:focus-visible {
-  outline: 2rem solid var(--mr-yellow);
-  outline-offset: 2rem;
+  outline: 0.125rem solid var(--mr-yellow);
+  outline-offset: 0.125rem;
 }
 .mr__steps button.active {
   color: #161618;
@@ -741,30 +741,30 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
 .mr__steps span {
   display: grid;
   place-items: center;
-  width: 22rem;
-  height: 22rem;
+  width: 1.375rem;
+  height: 1.375rem;
   border-radius: 50%;
   background: color-mix(in srgb, currentColor 14%, transparent);
-  font: 800 9rem/1 var(--font-mono);
+  font: 800 0.75rem/1 var(--font-mono);
 }
 .mr__steps button.active span {
   background: color-mix(in srgb, #161618 12%, transparent);
 }
 .mr__steps strong {
-  font: 800 10rem/1 var(--font-mono);
+  font: 800 0.75rem/1 var(--font-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .mr__card {
   position: relative;
-  min-height: 380rem;
-  padding: clamp(22rem, 4vw, 40rem);
+  min-height: 23.75rem;
+  padding: clamp(1.375rem, 4vw, 2.5rem);
   background: color-mix(in srgb, var(--mr-paper) 88%, var(--mr-ink));
-  border-radius: 24rem;
+  border-radius: 1.5rem;
   box-shadow:
-    0 1rem 0 color-mix(in srgb, var(--mr-ink) 6%, transparent),
-    0 12rem 32rem color-mix(in srgb, var(--mr-ink) 8%, transparent);
+    0 0.0625rem 0 color-mix(in srgb, var(--mr-ink) 6%, transparent),
+    0 0.75rem 2rem color-mix(in srgb, var(--mr-ink) 8%, transparent);
   overflow: hidden;
 }
 .mr[data-mr-theme='dark'] .mr__card {
@@ -772,20 +772,20 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
 }
 .mr__card--board {
   min-height: 0;
-  padding: clamp(16rem, 3vw, 24rem);
+  padding: clamp(1rem, 3vw, 1.5rem);
 }
 
 .mr__panel {
   display: grid;
-  gap: 18rem;
-  max-width: 520rem;
+  gap: 1.125rem;
+  max-width: 32.5rem;
   align-content: center;
-  min-height: 280rem;
+  min-height: 17.5rem;
 }
 .mr__panel h2,
 .mr__board-head h2 {
   margin: 0;
-  font: 700 clamp(28rem, 5.5vw, 44rem)/0.92 var(--font-display);
+  font: 700 clamp(1.75rem, 5.5vw, 2.75rem)/0.92 var(--font-display);
   letter-spacing: -0.05em;
   text-transform: uppercase;
 }
@@ -803,53 +803,53 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
 .mr__badge {
   display: grid;
   place-items: center;
-  width: 40rem;
-  height: 40rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 999px;
   background: var(--mr-ink);
   color: var(--mr-yellow);
-  font: 800 11rem/1 var(--font-mono);
+  font: 800 0.75rem/1 var(--font-mono);
   letter-spacing: 0.06em;
 }
 
 .mr__actions {
   display: flex;
   align-items: center;
-  gap: 12rem;
+  gap: 0.75rem;
   flex-wrap: wrap;
-  margin-top: 4rem;
+  margin-top: 0.25rem;
 }
 .mr__actions--spread {
   justify-content: space-between;
-  margin-top: 16rem;
+  margin-top: 1rem;
 }
 
 
 .mr__example {
   display: grid;
-  gap: 6rem;
+  gap: 0.375rem;
   margin: 0;
   max-width: 36ch;
-  padding: 14rem 16rem;
-  border-radius: 16rem;
+  padding: 0.875rem 1rem;
+  border-radius: 1rem;
   background: var(--mr-yellow);
   color: #161618;
 }
 .mr__example span {
-  font: 800 10rem/1 var(--font-mono);
+  font: 800 0.75rem/1 var(--font-mono);
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 .mr__example strong {
-  font: 700 clamp(28rem, 5vw, 40rem)/0.95 var(--font-display);
+  font: 700 clamp(1.75rem, 5vw, 2.5rem)/0.95 var(--font-display);
   letter-spacing: -0.04em;
 }
 .mr__example em {
-  font: 500 14rem/1.35 var(--font-reading, inherit);
+  font: 500 0.875rem/1.35 var(--font-reading, inherit);
   font-style: normal;
 }
 .mr__example--board {
-  margin-top: 8rem;
+  margin-top: 0.5rem;
   max-width: none;
 }
 .mr[data-mr-theme='dark'] .mr__example {
@@ -859,31 +859,31 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
 .mr__board-head {
   display: flex;
   align-items: flex-start;
-  gap: 14rem;
-  margin-bottom: 14rem;
+  gap: 0.875rem;
+  margin-bottom: 0.875rem;
 }
 
 .mr__grid {
   display: grid;
   grid-template-columns: repeat(10, minmax(0, 1fr));
-  gap: 3rem;
-  padding: 8rem 0;
+  gap: 0.1875rem;
+  padding: 0.5rem 0;
 }
 .mr__cell {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
-  min-height: 48rem;
-  border-radius: 6rem;
+  gap: 0.125rem;
+  min-height: 3rem;
+  border-radius: 0.375rem;
   background: color-mix(in srgb, var(--mr-paper) 70%, transparent);
-  font: 800 10rem/1 var(--font-mono);
+  font: 800 0.75rem/1 var(--font-mono);
   color: color-mix(in srgb, var(--mr-ink) 55%, transparent);
 }
 .mr__cell svg {
-  width: 18rem;
-  height: 18rem;
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 .mr__grid--reading .mr__cell {
@@ -923,8 +923,8 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
   display: grid;
   place-content: center;
   justify-items: center;
-  gap: 20rem;
-  padding: 28rem 24rem;
+  gap: 1.25rem;
+  padding: 1.75rem 1.5rem;
   background: color-mix(in srgb, var(--mr-paper) 72%, transparent);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -932,18 +932,18 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
 }
 .mr__reveal-label {
   margin: 0;
-  font: 800 10rem/1 var(--font-mono);
+  font: 800 0.75rem/1 var(--font-mono);
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  padding: 6rem 10rem;
+  padding: 0.375rem 0.625rem;
   border-radius: 999px;
   background: var(--mr-ink);
   color: var(--mr-yellow);
 }
 .mr__reveal-symbol {
-  width: min(160rem, 42vw);
-  height: min(160rem, 42vw);
-  filter: drop-shadow(0 8rem 18rem color-mix(in srgb, var(--mr-ink) 14%, transparent));
+  width: min(10rem, 42vw);
+  height: min(10rem, 42vw);
+  filter: drop-shadow(0 0.5rem 1.125rem color-mix(in srgb, var(--mr-ink) 14%, transparent));
 }
 
 @keyframes mr-overlay-in {
@@ -951,7 +951,7 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
   to { opacity: 1; }
 }
 @keyframes mr-rise {
-  from { opacity: 0; transform: translateY(12rem); }
+  from { opacity: 0; transform: translateY(0.75rem); }
   to { opacity: 1; transform: none; }
 }
 @keyframes mr-score-pop {
@@ -966,11 +966,11 @@ watch(step, (next) => { if (next !== 4) { clearReading(); revealed.value = false
 
 @media (max-width: 720px) {
   .mr__steps strong { display: none; }
-  .mr__steps button { justify-content: center; padding: 10rem; }
-  .mr__board-head { flex-direction: column; align-items: flex-start; gap: 10rem; }
-  .mr__grid { gap: 2rem; }
-  .mr__cell { min-height: 38rem; }
-  .mr__cell svg { width: 14rem; height: 14rem; }
+  .mr__steps button { justify-content: center; padding: 0.625rem; }
+  .mr__board-head { flex-direction: column; align-items: flex-start; gap: 0.625rem; }
+  .mr__grid { gap: 0.125rem; }
+  .mr__cell { min-height: 2.375rem; }
+  .mr__cell svg { width: 0.875rem; height: 0.875rem; }
   .mr__guide-top { align-items: flex-start; }
 }
 

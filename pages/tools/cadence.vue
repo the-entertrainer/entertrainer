@@ -421,14 +421,12 @@ async function exportPPTX() {
     pptx.defineLayout({ name: 'CAL', width: SW, height: SH })
     pptx.layout = 'CAL'
 
-    // ── Embed DM Sans (variable TTF from jsDelivr / Google Fonts repo) ───────
-    // Runs in the user's browser so Vercel network restrictions don't apply.
-    // Gracefully skips if the fetch fails — PowerPoint will substitute a similar font.
+    // Self-hosted DM Sans. The service worker precaches the file, so export
+    // still embeds the face when the browser is offline.
     try {
-      const fontResp = await fetch(
-        'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/dmsans/DMSans%5Bopsz%2Cwght%5D.ttf'
-      )
-      if (fontResp.ok) {
+      for (const weight of [400, 700] as const) {
+        const fontResp = await fetch(`/fonts/webfonts/dm-sans-${weight}.ttf`)
+        if (!fontResp.ok) continue
         const bytes = new Uint8Array(await fontResp.arrayBuffer())
         let binary = ''
         for (let i = 0; i < bytes.length; i += 8192)
@@ -601,14 +599,14 @@ function backToTable() {
           <form @submit.prevent="parseTable">
 
             <!-- Calendar metadata -->
-            <div class="glass-label" style="font-weight:700; margin-bottom:4rem;">Calendar Details</div>
+            <div class="glass-label" style="font-weight:700; margin-bottom:0.25rem;">Calendar Details</div>
             <input
               v-model="calTitle"
               class="glass-field"
-              style="font-size:22rem; font-weight:700; letter-spacing:-0.02em;"
+              style="font-size:1.375rem; font-weight:700; letter-spacing:-0.02em;"
               placeholder="Calendar title"
             />
-            <div class="tcg-row" style="display:flex; gap:16rem; margin-top:12rem;">
+            <div class="tcg-row" style="display:flex; gap:1rem; margin-top:0.75rem;">
               <div style="flex:1;">
                 <label class="glass-label" for="tcg-org">Organisation</label>
                 <input id="tcg-org" v-model="calOrg" class="glass-field" placeholder="My Organisation" />
@@ -620,7 +618,7 @@ function backToTable() {
             </div>
 
             <!-- Month / Year -->
-            <div class="tcg-row" style="display:flex; gap:16rem; margin-top:12rem;">
+            <div class="tcg-row" style="display:flex; gap:1rem; margin-top:0.75rem;">
               <div style="flex:1;">
                 <label class="glass-label" for="tcg-month">Month</label>
                 <select id="tcg-month" v-model="selectedMonth" class="glass-field glass-select">
@@ -634,28 +632,28 @@ function backToTable() {
             </div>
 
             <!-- Audiences -->
-            <span class="glass-label" style="margin-top:12rem;">Target Audiences</span>
-            <p style="font-size:12rem; color:var(--muted); margin:-4rem 0 8rem; font-style:italic;">Add all the groups this calendar will cater to</p>
-            <div class="tcg-chips" style="display:flex; flex-wrap:wrap; gap:6rem; margin-bottom:12rem;">
-              <div v-for="(aud, i) in audiences" :key="aud" class="glass-chip" style="display:flex; align-items:center; gap:4rem;">
+            <span class="glass-label" style="margin-top:0.75rem;">Target Audiences</span>
+            <p style="font-size:0.75rem; color:var(--muted); margin:-0.25rem 0 0.5rem; font-style:italic;">Add all the groups this calendar will cater to</p>
+            <div class="tcg-chips" style="display:flex; flex-wrap:wrap; gap:0.375rem; margin-bottom:0.75rem;">
+              <div v-for="(aud, i) in audiences" :key="aud" class="glass-chip" style="display:flex; align-items:center; gap:0.25rem;">
                 {{ aud }}
-                <button type="button" @click="removeAudience(i)" aria-label="Remove" style="background:none; border:none; color:inherit; cursor:pointer; font-size:12rem; opacity:0.6;">×</button>
+                <button type="button" @click="removeAudience(i)" aria-label="Remove" style="background:none; border:none; color:inherit; cursor:pointer; font-size:0.75rem; opacity:0.6;">×</button>
               </div>
-              <div style="display:flex; align-items:center; gap:6rem;">
+              <div style="display:flex; align-items:center; gap:0.375rem;">
                 <input
                   v-model="newAudience"
                   class="glass-field"
-                  style="max-width:160rem; font-size:12rem;"
+                  style="max-width:10rem; font-size:0.75rem;"
                   placeholder="Add audience…"
                   @keydown.enter.prevent="addAudience"
                 />
-                <button type="button" class="glass-btn glass-btn--ghost" style="font-size:12rem; padding:4rem 10rem;" @click="addAudience">Add</button>
+                <button type="button" class="glass-btn glass-btn--ghost" style="font-size:0.75rem; padding:0.25rem 0.625rem;" @click="addAudience">Add</button>
               </div>
             </div>
 
             <!-- Topics -->
             <label class="glass-label" for="tcg-topics">Training Topics</label>
-            <p style="font-size:12rem; color:var(--muted); margin:-4rem 0 8rem; font-style:italic;">One per line. Optional: <em>Topic | Hours</em></p>
+            <p style="font-size:0.75rem; color:var(--muted); margin:-0.25rem 0 0.5rem; font-style:italic;">One per line. Optional: <em>Topic | Hours</em></p>
             <textarea
               id="tcg-topics"
               v-model="topicsText"
@@ -665,28 +663,28 @@ function backToTable() {
             />
 
             <!-- Preferred days -->
-            <span class="glass-label" style="margin-top:12rem;">Preferred Training Days</span>
-            <div style="display:flex; gap:8rem; flex-wrap:wrap; margin:8rem 0 12rem;">
+            <span class="glass-label" style="margin-top:0.75rem;">Preferred Training Days</span>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin:0.5rem 0 0.75rem;">
               <button
                 v-for="(name, wd) in DAY_NAMES" :key="wd"
                 type="button"
                 class="glass-chip"
                 :class="{ active: preferredDays.includes(wd) }"
-                style="font-size:12rem;"
+                style="font-size:0.75rem;"
                 @click="toggleDay(wd)"
               >{{ name }}</button>
             </div>
 
             <!-- Time slots -->
             <span class="glass-label">Time Slots</span>
-            <div style="display:flex; flex-wrap:wrap; gap:6rem; margin:8rem 0 12rem;">
-              <div v-for="(slot, i) in timeSlots" :key="i" class="glass-chip" style="display:flex; align-items:center; gap:4rem; font-size:12rem;">
+            <div style="display:flex; flex-wrap:wrap; gap:0.375rem; margin:0.5rem 0 0.75rem;">
+              <div v-for="(slot, i) in timeSlots" :key="i" class="glass-chip" style="display:flex; align-items:center; gap:0.25rem; font-size:0.75rem;">
                 {{ slot }}
-                <button type="button" @click="removeSlot(i)" aria-label="Remove" style="background:none; border:none; color:inherit; cursor:pointer; font-size:12rem; opacity:0.6;">×</button>
+                <button type="button" @click="removeSlot(i)" aria-label="Remove" style="background:none; border:none; color:inherit; cursor:pointer; font-size:0.75rem; opacity:0.6;">×</button>
               </div>
-              <div style="display:flex; align-items:center; gap:6rem;">
-                <input v-model="newSlot" class="glass-field" style="max-width:160rem; font-size:12rem;" placeholder="e.g. 10:00–13:00" @keydown.enter.prevent="addSlot" />
-                <button type="button" class="glass-btn glass-btn--ghost" style="font-size:12rem; padding:4rem 10rem;" @click="addSlot">Add</button>
+              <div style="display:flex; align-items:center; gap:0.375rem;">
+                <input v-model="newSlot" class="glass-field" style="max-width:10rem; font-size:0.75rem;" placeholder="e.g. 10:00–13:00" @keydown.enter.prevent="addSlot" />
+                <button type="button" class="glass-btn glass-btn--ghost" style="font-size:0.75rem; padding:0.25rem 0.625rem;" @click="addSlot">Add</button>
               </div>
             </div>
 
@@ -694,7 +692,7 @@ function backToTable() {
               <p v-if="error" class="glass-note glass-note--error">{{ error }}</p>
             </Transition>
 
-            <button type="submit" class="glass-btn" :disabled="!canSubmitInput" style="margin-top:8rem;">
+            <button type="submit" class="glass-btn" :disabled="!canSubmitInput" style="margin-top:0.5rem;">
               Build Training Table →
             </button>
 
@@ -704,49 +702,49 @@ function backToTable() {
         <!-- ── Parsing phase ────────────────────────────────────── -->
         <div v-else-if="phase === 'parsing'" key="parsing" class="glass-panel cal-loading">
           <ToolsCalBrandMark :size="60" animated class="cal-loading__mark" />
-          <p style="font-size:var(--text-body); font-weight:600; margin:0 0 8rem;">Building your training table with AI…</p>
+          <p style="font-size:var(--text-body); font-weight:600; margin:0 0 0.5rem;">Building your training table with AI…</p>
           <p style="font-size:var(--text-sm); opacity:0.75; margin:0;">Analyzing topics for optimal pedagogical order.</p>
         </div>
 
         <!-- ── Table phase ──────────────────────────────────────── -->
-        <div v-else-if="phase === 'table'" key="table" class="glass-panel" style="max-width:760rem;">
+        <div v-else-if="phase === 'table'" key="table" class="glass-panel" style="max-width:47.5rem;">
 
-          <div style="margin-bottom:16rem;">
-            <h2 style="font-size:var(--text-body); font-weight:700; margin:0 0 4rem;">Review &amp; Customise</h2>
+          <div style="margin-bottom:1rem;">
+            <h2 style="font-size:var(--text-body); font-weight:700; margin:0 0 0.25rem;">Review &amp; Customise</h2>
             <p style="font-size:var(--text-sm); opacity:0.6; margin:0;">AI suggested these configs. Adjust anything before generating your calendar.</p>
           </div>
 
-          <div style="display:flex; flex-direction:column; gap:12rem;">
-            <div v-for="(mod, i) in modules" :key="mod.id" class="glass-panel" style="padding:16rem;">
+          <div style="display:flex; flex-direction:column; gap:0.75rem;">
+            <div v-for="(mod, i) in modules" :key="mod.id" class="glass-panel" style="padding:1rem;">
 
-              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12rem;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
                 <input
                   v-model="mod.topic"
                   class="glass-field"
                   placeholder="Topic name"
                   style="font-weight:600;"
                 />
-                <button type="button" @click="removeModule(i)" aria-label="Remove module" style="background:none; border:none; font-size:18rem; opacity:0.4; cursor:pointer;">×</button>
+                <button type="button" @click="removeModule(i)" aria-label="Remove module" style="background:none; border:none; font-size:1.125rem; opacity:0.4; cursor:pointer;">×</button>
               </div>
 
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12rem;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
 
                 <div>
-                  <label class="glass-label" style="font-size:11rem;">Duration</label>
+                  <label class="glass-label" style="font-size:0.75rem;">Duration</label>
                   <select v-model="mod.duration" class="glass-field glass-select">
                     <option v-for="d in DURATION_OPTIONS" :key="d" :value="d">{{ d }}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label class="glass-label" style="font-size:11rem;">Method</label>
+                  <label class="glass-label" style="font-size:0.75rem;">Method</label>
                   <select v-model="mod.method" class="glass-field glass-select">
                     <option v-for="m in METHOD_OPTIONS" :key="m" :value="m">{{ m }}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label class="glass-label" style="font-size:11rem;">Time Slot</label>
+                  <label class="glass-label" style="font-size:0.75rem;">Time Slot</label>
                   <select v-model="mod.slot" class="glass-field glass-select">
                     <option value="Any">Any (auto-assign)</option>
                     <option v-for="s in timeSlots" :key="s" :value="s">{{ s }}</option>
@@ -754,26 +752,26 @@ function backToTable() {
                 </div>
 
                 <div>
-                  <label class="glass-label" style="font-size:11rem;">Priority</label>
+                  <label class="glass-label" style="font-size:0.75rem;">Priority</label>
                   <select v-model="mod.priority" class="glass-field glass-select">
                     <option v-for="p in PRIORITY_OPTIONS" :key="p" :value="p">{{ p }}</option>
                   </select>
                 </div>
 
                 <div style="grid-column: 1 / -1;">
-                  <label class="glass-label" style="font-size:11rem;">Facilitator</label>
+                  <label class="glass-label" style="font-size:0.75rem;">Facilitator</label>
                   <input v-model="mod.facilitator" class="glass-field" placeholder="Facilitator name" />
                 </div>
 
                 <div style="grid-column: 1 / -1;">
-                  <label class="glass-label" style="font-size:11rem;">Audiences</label>
-                  <div style="display:flex; flex-wrap:wrap; gap:6rem; margin-top:6rem;">
+                  <label class="glass-label" style="font-size:0.75rem;">Audiences</label>
+                  <div style="display:flex; flex-wrap:wrap; gap:0.375rem; margin-top:0.375rem;">
                     <button
                       v-for="aud in audiences" :key="aud"
                       type="button"
                       class="glass-chip"
                       :class="{ active: mod.audiences.includes(aud) }"
-                      style="font-size:12rem;"
+                      style="font-size:0.75rem;"
                       @click="toggleModuleAudience(mod, aud)"
                     >{{ aud }}</button>
                   </div>
@@ -786,10 +784,10 @@ function backToTable() {
           </div>
 
           <Transition name="fade">
-            <p v-if="error" class="glass-note glass-note--error" style="margin-top:12rem;">{{ error }}</p>
+            <p v-if="error" class="glass-note glass-note--error" style="margin-top:0.75rem;">{{ error }}</p>
           </Transition>
 
-          <div style="display:flex; gap:10rem; margin-top:16rem; flex-wrap:wrap;">
+          <div style="display:flex; gap:0.625rem; margin-top:1rem; flex-wrap:wrap;">
             <button type="button" class="glass-btn glass-btn--ghost" @click="backToInput">← Back</button>
             <button type="button" class="glass-btn" :disabled="!canSubmitTable" @click="generateCalendar">
               Generate Calendar →
@@ -801,7 +799,7 @@ function backToTable() {
         <!-- ── Loading phase ─────────────────────────────────────── -->
         <div v-else-if="phase === 'loading'" key="loading" class="glass-panel cal-loading">
           <ToolsCalBrandMark :size="60" animated class="cal-loading__mark" />
-          <p style="font-size:var(--text-body); font-weight:600; margin:0 0 8rem;">Scheduling your trainings intelligently…</p>
+          <p style="font-size:var(--text-body); font-weight:600; margin:0 0 0.5rem;">Scheduling your trainings intelligently…</p>
           <p style="font-size:var(--text-sm); opacity:0.75; margin:0;">Generating a pedagogically balanced calendar.</p>
         </div>
 
@@ -809,22 +807,22 @@ function backToTable() {
         <div v-else key="calendar" class="tcg-calendar-wrap">
 
           <!-- Toolbar -->
-          <div style="display:flex; align-items:center; gap:12rem; flex-wrap:wrap; margin-bottom:20rem;">
+          <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:1.25rem;">
             <button class="glass-btn glass-btn--ghost" @click="backToInput">← New calendar</button>
             <button class="glass-btn glass-btn--ghost" style="margin-left:0" @click="backToTable">Edit modules</button>
 
-            <div style="display:flex; gap:8rem; align-items:center; margin-left:4rem;">
+            <div style="display:flex; gap:0.5rem; align-items:center; margin-left:0.25rem;">
               <button
                 v-for="(th, i) in THEMES" :key="i"
                 class="glass-chip tcg-theme-btn"
                 :class="{ active: activeTheme === i }"
                 :title="th.name"
-                :style="{ background: th.colors[0], padding: '4rem 4rem' }"
+                :style="{ background: th.colors[0], padding: '0.25rem 0.25rem' }"
                 @click="changeTheme(i)"
               />
             </div>
 
-            <div style="display:flex; align-items:center; gap:8rem; margin-left:auto;">
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-left:auto;">
               <button class="glass-btn" :disabled="exporting" @click="exportPPTX">
                 {{ exporting ? 'Building…' : 'Export PPTX' }}
               </button>
@@ -847,10 +845,10 @@ function backToTable() {
                     placeholder="Calendar title"
                   />
                 </div>
-                <div style="display:flex; align-items:center; gap:8rem; font-size:12rem; opacity:0.6;">
-                  <input v-model="calOrg"  class="glass-field" style="max-width:120rem; font-size:12rem; background:transparent;" placeholder="Organisation" />
+                <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.75rem; opacity:0.6;">
+                  <input v-model="calOrg"  class="glass-field" style="max-width:7.5rem; font-size:0.75rem; background:transparent;" placeholder="Organisation" />
                   <span>·</span>
-                  <input v-model="calDept" class="glass-field" style="max-width:120rem; font-size:12rem; background:transparent;" placeholder="Department" />
+                  <input v-model="calDept" class="glass-field" style="max-width:7.5rem; font-size:0.75rem; background:transparent;" placeholder="Department" />
                   <span>·</span>
                   <span>{{ MONTH_NAMES[selectedMonth - 1] }} {{ selectedYear }}</span>
                 </div>
@@ -907,89 +905,89 @@ function backToTable() {
 
               <!-- Session editor -->
               <Transition name="fade" mode="out-in">
-                <div v-if="selectedSession" key="editor" class="glass-panel" style="padding:12rem;">
-                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8rem;">
+                <div v-if="selectedSession" key="editor" class="glass-panel" style="padding:0.75rem;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
                     <span class="glass-label" style="margin:0;">Edit Session</span>
-                    <button class="glass-chip" style="font-size:14rem; padding:2rem 6rem;" @click="selectedSession = null" aria-label="Close">×</button>
+                    <button class="glass-chip" style="font-size:0.875rem; padding:0.125rem 0.375rem;" @click="selectedSession = null" aria-label="Close">×</button>
                   </div>
 
-                  <div style="display:flex; flex-direction:column; gap:8rem;">
+                  <div style="display:flex; flex-direction:column; gap:0.5rem;">
                     <div>
-                      <label class="glass-label" style="font-size:11rem;">Topic</label>
+                      <label class="glass-label" style="font-size:0.75rem;">Topic</label>
                       <input v-model="selectedSession.session.topic" class="glass-field" placeholder="Topic name" />
                     </div>
                     <div>
-                      <label class="glass-label" style="font-size:11rem;">Time Slot</label>
+                      <label class="glass-label" style="font-size:0.75rem;">Time Slot</label>
                       <select v-model="selectedSession.session.slot" class="glass-field glass-select">
                         <option v-for="s in timeSlots" :key="s" :value="s">{{ s }}</option>
                       </select>
                     </div>
                     <div>
-                      <label class="glass-label" style="font-size:11rem;">Duration</label>
+                      <label class="glass-label" style="font-size:0.75rem;">Duration</label>
                       <select v-model="selectedSession.session.duration" class="glass-field glass-select">
                         <option v-for="d in DURATION_OPTIONS" :key="d" :value="d">{{ d }}</option>
                       </select>
                     </div>
                     <div>
-                      <label class="glass-label" style="font-size:11rem;">Method</label>
+                      <label class="glass-label" style="font-size:0.75rem;">Method</label>
                       <select v-model="selectedSession.session.method" class="glass-field glass-select">
                         <option v-for="m in METHOD_OPTIONS" :key="m" :value="m">{{ m }}</option>
                       </select>
                     </div>
                     <div>
-                      <label class="glass-label" style="font-size:11rem;">Priority</label>
+                      <label class="glass-label" style="font-size:0.75rem;">Priority</label>
                       <select v-model="selectedSession.session.priority" class="glass-field glass-select">
                         <option v-for="p in PRIORITY_OPTIONS" :key="p" :value="p">{{ p }}</option>
                       </select>
                     </div>
                     <div>
-                      <label class="glass-label" style="font-size:11rem;">Facilitator</label>
+                      <label class="glass-label" style="font-size:0.75rem;">Facilitator</label>
                       <input v-model="selectedSession.session.facilitator" class="glass-field" placeholder="Facilitator name" />
                     </div>
                     <div>
-                      <label class="glass-label" style="font-size:11rem;">Audiences</label>
-                      <div style="display:flex; flex-wrap:wrap; gap:6rem; margin-top:4rem;">
+                      <label class="glass-label" style="font-size:0.75rem;">Audiences</label>
+                      <div style="display:flex; flex-wrap:wrap; gap:0.375rem; margin-top:0.25rem;">
                         <button
                           v-for="aud in audiences" :key="aud"
                           type="button"
                           class="glass-chip"
                           :class="{ active: selectedSession.session.audiences.includes(aud) }"
-                          style="font-size:11rem; padding:4rem 8rem;"
+                          style="font-size:0.75rem; padding:0.25rem 0.5rem;"
                           @click="toggleSessionAudience(aud)"
                         >{{ aud }}</button>
                       </div>
                     </div>
                   </div>
 
-                  <button class="glass-btn glass-btn--ghost" style="font-size:12rem; padding:6rem 12rem; margin-top:12rem; color:#ef4444; border-color: rgba(239,68,68,0.3);" @click="removeSelectedSession">
+                  <button class="glass-btn glass-btn--ghost" style="font-size:0.75rem; padding:0.375rem 0.75rem; margin-top:0.75rem; color:#ef4444; border-color: rgba(239,68,68,0.3);" @click="removeSelectedSession">
                     Remove from calendar
                   </button>
-                  <p style="font-size:11rem; opacity:0.35; text-align:center; margin:4rem 0 0; font-style:italic;">Tap any date on the calendar to move this session there</p>
+                  <p style="font-size:0.75rem; opacity:0.35; text-align:center; margin:0.25rem 0 0; font-style:italic;">Tap any date on the calendar to move this session there</p>
                 </div>
 
                 <!-- Stats + legend -->
                 <div v-else key="stats" class="tcg-sidebar-content">
-                  <div class="glass-panel" style="padding:12rem; margin-bottom:8rem;">
-                    <span style="font-size:28rem; font-weight:700;">{{ stats.total }}</span>
+                  <div class="glass-panel" style="padding:0.75rem; margin-bottom:0.5rem;">
+                    <span style="font-size:1.75rem; font-weight:700;">{{ stats.total }}</span>
                     <span class="glass-label" style="margin:0;">Sessions scheduled</span>
                   </div>
-                  <div class="glass-panel" style="padding:12rem;">
-                    <span style="font-size:28rem; font-weight:700;">{{ stats.holidays }}</span>
+                  <div class="glass-panel" style="padding:0.75rem;">
+                    <span style="font-size:1.75rem; font-weight:700;">{{ stats.holidays }}</span>
                     <span class="glass-label" style="margin:0;">Holidays this month</span>
                   </div>
 
-                  <div v-if="stats.unscheduled.length" class="glass-panel" style="padding:8rem; margin:8rem 0;">
-                    <p class="glass-label" style="margin:0 0 4rem;">Unscheduled topics</p>
-                    <ul style="font-size:12rem; margin:0; padding-left:16rem;">
+                  <div v-if="stats.unscheduled.length" class="glass-panel" style="padding:0.5rem; margin:0.5rem 0;">
+                    <p class="glass-label" style="margin:0 0 0.25rem;">Unscheduled topics</p>
+                    <ul style="font-size:0.75rem; margin:0; padding-left:1rem;">
                       <li v-for="t in stats.unscheduled" :key="t">{{ t }}</li>
                     </ul>
                   </div>
 
-                  <div class="glass-panel" style="padding:8rem;">
-                    <p class="glass-label" style="margin:0 0 8rem;">Topics</p>
-                    <div v-for="mod in modules" :key="mod.id" style="display:flex; align-items:center; gap:8rem; margin-bottom:4rem;">
-                      <span style="width:12rem; height:12rem; border-radius:50%; flex-shrink:0;" :style="{ background: topicColor(mod.topic, activeTheme) }" />
-                      <div style="font-size:11rem;">
+                  <div class="glass-panel" style="padding:0.5rem;">
+                    <p class="glass-label" style="margin:0 0 0.5rem;">Topics</p>
+                    <div v-for="mod in modules" :key="mod.id" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                      <span style="width:0.75rem; height:0.75rem; border-radius:50%; flex-shrink:0;" :style="{ background: topicColor(mod.topic, activeTheme) }" />
+                      <div style="font-size:0.75rem;">
                         <div>{{ mod.topic }}</div>
                         <div style="opacity:0.5;">{{ mod.duration }} · {{ mod.method }}</div>
                       </div>
@@ -1014,11 +1012,11 @@ function backToTable() {
 .cal-lockup {
   display: inline-flex;
   align-items: center;
-  gap: 14rem;
+  gap: 0.875rem;
 }
 .cal-lockup__mark {
   flex-shrink: 0;
-  filter: drop-shadow(0 6rem 18rem rgba(91, 141, 239, 0.28));
+  filter: drop-shadow(0 0.375rem 1.125rem rgba(91, 141, 239, 0.28));
 }
 .cal-wordmark {
   font-weight: 700;
@@ -1030,19 +1028,19 @@ function backToTable() {
   color: transparent;
 }
 @media (max-width: 600px) {
-  .cal-lockup { gap: 11rem; }
-  .cal-lockup__mark { width: 38rem; height: 38rem; }
+  .cal-lockup { gap: 0.6875rem; }
+  .cal-lockup__mark { width: 2.375rem; height: 2.375rem; }
 }
 
 /* ── Branded loading / parsing panels ── */
 .cal-loading {
-  padding: 40rem 24rem;
+  padding: 2.5rem 1.5rem;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-.cal-loading__mark { margin-bottom: 20rem; }
+.cal-loading__mark { margin-bottom: 1.25rem; }
 
 /* Input form now uses global glass-panel and glass-field classes for consistency */
 
@@ -1050,12 +1048,12 @@ function backToTable() {
   width: 100%;
   background: color-mix(in srgb, var(--color-bg) 54%, transparent);
   border: 1px solid var(--color-glass-border);
-  border-radius: 12rem;
+  border-radius: 0.75rem;
   color: var(--color-text);
   font-family: inherit;
   font-size: var(--text-sm);
   line-height: 1.6;
-  padding: 14rem 16rem;
+  padding: 0.875rem 1rem;
   resize: vertical;
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
@@ -1073,19 +1071,19 @@ function backToTable() {
 .tcg-chips, .tcg-slots {
   display: flex;
   flex-wrap: wrap;
-  gap: 8rem;
+  gap: 0.5rem;
   align-items: center;
 }
 
 .tcg-chip, .tcg-slot-tag {
   display: inline-flex;
   align-items: center;
-  gap: 6rem;
-  padding: 5rem 12rem;
+  gap: 0.375rem;
+  padding: 0.3125rem 0.75rem;
   border-radius: var(--radius-full);
   background: var(--color-glass-bg);
   border: 1px solid var(--color-glass-border);
-  font-size: 13rem;
+  font-size: 0.8125rem;
   font-weight: 500;
 }
 
@@ -1094,7 +1092,7 @@ function backToTable() {
   border: none;
   color: inherit;
   cursor: pointer;
-  font-size: 15rem;
+  font-size: 0.9375rem;
   line-height: 1;
   opacity: 0.45;
   padding: 0;
@@ -1104,19 +1102,19 @@ function backToTable() {
 
 .tcg-chip-add {
   display: flex;
-  gap: 8rem;
+  gap: 0.5rem;
   align-items: center;
 }
-.tcg-chip-input { max-width: 160rem; }
+.tcg-chip-input { max-width: 10rem; }
 
 .tcg-add-btn {
-  padding: 8rem 14rem;
+  padding: 0.5rem 0.875rem;
   border-radius: var(--radius-full);
   border: 1px solid var(--color-glass-border);
   background: transparent;
   color: var(--color-text);
   font-family: inherit;
-  font-size: 12rem;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -1134,13 +1132,13 @@ function backToTable() {
 /* Submit */
 .tcg-submit {
   align-self: flex-start;
-  margin-top: 8rem;
+  margin-top: 0.5rem;
   padding: var(--btn-pad-y) var(--btn-pad-x);
   border-radius: var(--radius-full);
   background: var(--color-text);
   color: var(--color-bg);
   font-family: inherit;
-  font-size: 14rem;
+  font-size: 0.875rem;
   font-weight: 600;
   border: none;
   cursor: pointer;
@@ -1154,8 +1152,8 @@ function backToTable() {
   font-size: var(--text-sm);
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
   border: 1px solid color-mix(in srgb, var(--color-text) 22%, transparent);
-  border-radius: 10rem;
-  padding: 12rem 16rem;
+  border-radius: 0.625rem;
+  padding: 0.75rem 1rem;
   margin: 0;
   line-height: 1.55;
 }
@@ -1166,16 +1164,16 @@ function backToTable() {
 .tcg-table-wrap {
   display: flex;
   flex-direction: column;
-  gap: 20rem;
-  max-width: 760rem;
+  gap: 1.25rem;
+  max-width: 47.5rem;
 }
 
-.tcg-table-header { margin-bottom: 4rem; }
+.tcg-table-header { margin-bottom: 0.25rem; }
 .tcg-table-title {
-  font-size: 22rem;
+  font-size: 1.375rem;
   font-weight: 700;
   letter-spacing: -0.03em;
-  margin-bottom: 6rem;
+  margin-bottom: 0.375rem;
 }
 .tcg-table-sub {
   font-size: var(--text-sm);
@@ -1186,7 +1184,7 @@ function backToTable() {
 .tcg-modules {
   display: flex;
   flex-direction: column;
-  gap: 12rem;
+  gap: 0.75rem;
 }
 
 .tcg-module-card {
@@ -1196,20 +1194,20 @@ function backToTable() {
   -webkit-backdrop-filter: blur(20px) saturate(1.35);
   backdrop-filter: blur(20px) saturate(1.35);
   border: 1px solid var(--color-glass-border);
-  border-radius: 16rem;
-  padding: 16rem;
+  border-radius: 1rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 14rem;
+  gap: 0.875rem;
   box-shadow:
-    0 24rem 60rem -36rem rgba(0, 0, 0, 0.55),
+    0 1.5rem 3.75rem -2.25rem rgba(0, 0, 0, 0.55),
     inset 0 1px 1px color-mix(in srgb, var(--color-text) 14%, transparent);
 }
 
 .tcg-module-top {
   display: flex;
   align-items: center;
-  gap: 10rem;
+  gap: 0.625rem;
 }
 
 .tcg-module-topic {
@@ -1220,9 +1218,9 @@ function backToTable() {
   border-radius: 0;
   color: var(--color-text);
   font-family: inherit;
-  font-size: 16rem;
+  font-size: 1rem;
   font-weight: 600;
-  padding: 4rem 0 8rem;
+  padding: 0.25rem 0 0.5rem;
   outline: none;
   transition: border-color 0.15s;
 }
@@ -1235,10 +1233,10 @@ function backToTable() {
   border: none;
   color: var(--color-text);
   opacity: 0.3;
-  font-size: 20rem;
+  font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
-  padding: 0 4rem;
+  padding: 0 0.25rem;
   transition: opacity 0.12s;
 }
 .tcg-module-delete:hover { opacity: 0.8; }
@@ -1252,22 +1250,22 @@ function backToTable() {
 .tcg-calendar-wrap {
   display: flex;
   flex-direction: column;
-  gap: 20rem;
+  gap: 1.25rem;
 }
 
 .tcg-toolbar {
   display: flex;
   align-items: center;
-  gap: 12rem;
+  gap: 0.75rem;
   flex-wrap: wrap;
 }
 
 /* back buttons now use glass-btn--ghost */
 
-.tcg-themes { display: flex; gap: 8rem; align-items: center; margin-left: 4rem; }
+.tcg-themes { display: flex; gap: 0.5rem; align-items: center; margin-left: 0.25rem; }
 .tcg-theme-btn {
-  width: 22rem;
-  height: 22rem;
+  width: 1.375rem;
+  height: 1.375rem;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
@@ -1276,15 +1274,15 @@ function backToTable() {
 .tcg-theme-btn.active { border-color: var(--color-text); transform: scale(1.2); }
 .tcg-theme-btn:hover  { transform: scale(1.15); }
 
-.tcg-export-btns { display: flex; align-items: center; gap: 8rem; margin-left: auto; }
+.tcg-export-btns { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
 .tcg-export {
-  padding: 7rem 16rem;
+  padding: 0.4375rem 1rem;
   border-radius: var(--radius-full);
   border: 1px solid var(--color-glass-border);
   background: transparent;
   color: var(--color-text);
   font-family: inherit;
-  font-size: 12rem;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
@@ -1296,8 +1294,8 @@ function backToTable() {
 
 .tcg-layout {
   display: grid;
-  grid-template-columns: 1fr 220rem;
-  gap: 24rem;
+  grid-template-columns: 1fr 13.75rem;
+  gap: 1.5rem;
   align-items: start;
 }
 
@@ -1311,7 +1309,7 @@ function backToTable() {
 .tcg-cal-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border-radius: 16rem;
+  border-radius: 1rem;
 }
 
 /* Calendar grid — fixed light palette, isolated from the site theme */
@@ -1325,24 +1323,24 @@ function backToTable() {
   --color-divider:            rgba(0, 0, 0, 0.12);
   background: #F7F5F1;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 16rem;
-  padding: 20rem;
+  border-radius: 1rem;
+  padding: 1.25rem;
   overflow: hidden;
-  min-width: 560rem;
+  min-width: 35rem;
   color: #1A1916;
 }
 
 /* Editable calendar header */
 .tcg-cal-header {
-  margin-bottom: 18rem;
-  padding-bottom: 16rem;
+  margin-bottom: 1.125rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid color-mix(in srgb, var(--color-divider) 55%, transparent);
 }
 .tcg-cal-titlerow {
   display: flex;
   align-items: center;
-  gap: 10rem;
-  margin-bottom: 5rem;
+  gap: 0.625rem;
+  margin-bottom: 0.3125rem;
 }
 .tcg-cal-mark { flex-shrink: 0; }
 .tcg-cal-titleinput {
@@ -1352,7 +1350,7 @@ function backToTable() {
   border: none;
   outline: none;
   font-family: inherit;
-  font-size: 21rem;
+  font-size: 1.3125rem;
   font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--color-text);
@@ -1366,13 +1364,13 @@ function backToTable() {
   border: none;
   outline: none;
   font-family: inherit;
-  font-size: 20rem;
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--color-text);
   width: 100%;
   padding: 0;
-  margin-bottom: 4rem;
+  margin-bottom: 0.25rem;
   cursor: text;
 }
 .tcg-hdr-title::placeholder { opacity: 0.25; }
@@ -1380,7 +1378,7 @@ function backToTable() {
 .tcg-hdr-meta {
   display: flex;
   align-items: center;
-  gap: 6rem;
+  gap: 0.375rem;
   flex-wrap: wrap;
 }
 .tcg-hdr-meta-input {
@@ -1388,31 +1386,31 @@ function backToTable() {
   border: none;
   outline: none;
   font-family: inherit;
-  font-size: 12rem;
+  font-size: 0.75rem;
   color: var(--color-text);
   opacity: 0.5;
   padding: 0;
-  min-width: 40rem;
+  min-width: 2.5rem;
   cursor: text;
 }
 .tcg-hdr-meta-input::placeholder { opacity: 0.4; }
 .tcg-hdr-meta-input:focus { opacity: 0.9; }
-.tcg-hdr-sep { font-size: 12rem; opacity: 0.3; }
-.tcg-hdr-period { font-size: 12rem; opacity: 0.5; font-weight: 500; }
+.tcg-hdr-sep { font-size: 0.75rem; opacity: 0.3; }
+.tcg-hdr-period { font-size: 0.75rem; opacity: 0.5; font-weight: 500; }
 
 .tcg-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
 }
-.tcg-header-row { margin-bottom: 4rem; }
+.tcg-header-row { margin-bottom: 0.25rem; }
 .tcg-col-head {
-  font-size: 10rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   opacity: 0.35;
   text-align: center;
-  padding-bottom: 8rem;
+  padding-bottom: 0.5rem;
 }
 .tcg-col-head--training {
   opacity: 1;
@@ -1420,13 +1418,13 @@ function backToTable() {
 }
 
 .tcg-day {
-  min-height: 84rem;
+  min-height: 5.25rem;
   border: 1px solid color-mix(in srgb, var(--color-divider) 55%, transparent);
-  border-radius: 8rem;
-  padding: 6rem;
+  border-radius: 0.5rem;
+  padding: 0.375rem;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 0.1875rem;
   position: relative;
   transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
   cursor: default;
@@ -1455,7 +1453,7 @@ function backToTable() {
 .tcg-day--receive:hover { background: color-mix(in srgb, var(--color-text) 11%, transparent); }
 
 .tcg-date-num {
-  font-size: 11rem;
+  font-size: 0.75rem;
   font-weight: 600;
   opacity: 0.5;
   line-height: 1;
@@ -1464,7 +1462,7 @@ function backToTable() {
 }
 
 .tcg-holiday-badge {
-  font-size: 9rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #ef4444;
   line-height: 1.2;
@@ -1476,15 +1474,15 @@ function backToTable() {
 
 .tcg-session {
   position: relative;
-  border-radius: 6rem;
-  padding: 4rem 7rem 5rem;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.4375rem 0.3125rem;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.0625rem;
   user-select: none;
   overflow: hidden;
-  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.14);
+  box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.14);
   transition: opacity 0.12s, transform 0.1s, box-shadow 0.15s;
 }
 /* A soft top-light gives the flat fill a bit of dimension */
@@ -1496,8 +1494,8 @@ function backToTable() {
   pointer-events: none;
 }
 .tcg-session:hover {
-  transform: translateY(-1rem);
-  box-shadow: 0 3rem 8rem rgba(0, 0, 0, 0.2);
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.1875rem 0.5rem rgba(0, 0, 0, 0.2);
 }
 .tcg-session[draggable="true"] { cursor: grab; }
 .tcg-session[draggable="true"]:active { cursor: grabbing; opacity: 0.75; transform: scale(0.97); }
@@ -1506,7 +1504,7 @@ function backToTable() {
 }
 
 .tcg-session-topic {
-  font-size: 9.5rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: inherit;
   line-height: 1.22;
@@ -1517,14 +1515,14 @@ function backToTable() {
   overflow: hidden;
 }
 .tcg-session-slot {
-  font-size: 8rem;
+  font-size: 0.75rem;
   color: inherit;
   opacity: 0.88;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 .tcg-session-dur {
-  font-size: 8rem;
+  font-size: 0.75rem;
   color: inherit;
   opacity: 0.78;
   font-weight: 500;
@@ -1536,7 +1534,7 @@ function backToTable() {
 .tcg-sidebar-content {
   display: flex;
   flex-direction: column;
-  gap: 16rem;
+  gap: 1rem;
 }
 
 .tcg-stat-card {
@@ -1544,21 +1542,21 @@ function backToTable() {
   -webkit-backdrop-filter: blur(20px) saturate(1.35);
   backdrop-filter: blur(20px) saturate(1.35);
   border: 1px solid var(--color-glass-border);
-  border-radius: 12rem;
-  padding: 16rem;
+  border-radius: 0.75rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 4rem;
+  gap: 0.25rem;
   box-shadow: inset 0 1px 1px color-mix(in srgb, var(--color-text) 12%, transparent);
 }
 .tcg-stat-num {
-  font-size: 32rem;
+  font-size: 2rem;
   font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 1;
 }
 .tcg-stat-label {
-  font-size: 11rem;
+  font-size: 0.75rem;
   opacity: 0.45;
   font-weight: 600;
   text-transform: uppercase;
@@ -1571,12 +1569,12 @@ function backToTable() {
   text-transform: uppercase;
   letter-spacing: var(--tracking-label);
   opacity: 0.4;
-  margin-bottom: 8rem;
+  margin-bottom: 0.5rem;
   display: block;
 }
 
 .tcg-sidebar-hint {
-  font-size: 11rem;
+  font-size: 0.75rem;
   opacity: 0.3;
   text-align: center;
   margin: 0;
@@ -1586,49 +1584,49 @@ function backToTable() {
 .tcg-unscheduled {
   background: color-mix(in srgb, #ef4444 8%, transparent);
   border: 1px solid color-mix(in srgb, #ef4444 20%, transparent);
-  border-radius: 12rem;
-  padding: 14rem;
-  font-size: 12rem;
+  border-radius: 0.75rem;
+  padding: 0.875rem;
+  font-size: 0.75rem;
 }
-.tcg-unscheduled ul { margin: 0; padding-left: 16rem; opacity: 0.8; }
-.tcg-unscheduled li { margin-bottom: 3rem; }
+.tcg-unscheduled ul { margin: 0; padding-left: 1rem; opacity: 0.8; }
+.tcg-unscheduled li { margin-bottom: 0.1875rem; }
 
 .tcg-legend {
   background: color-mix(in srgb, var(--color-bg) 60%, transparent);
   -webkit-backdrop-filter: blur(20px) saturate(1.35);
   backdrop-filter: blur(20px) saturate(1.35);
   border: 1px solid var(--color-glass-border);
-  border-radius: 12rem;
-  padding: 14rem;
+  border-radius: 0.75rem;
+  padding: 0.875rem;
   box-shadow: inset 0 1px 1px color-mix(in srgb, var(--color-text) 12%, transparent);
 }
 .tcg-legend-row {
   display: flex;
   align-items: flex-start;
-  gap: 8rem;
-  margin-bottom: 8rem;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 .tcg-legend-row:last-child { margin-bottom: 0; }
 .tcg-legend-dot {
-  width: 10rem;
-  height: 10rem;
+  width: 0.625rem;
+  height: 0.625rem;
   border-radius: 50%;
   flex-shrink: 0;
-  margin-top: 3rem;
+  margin-top: 0.1875rem;
 }
 .tcg-legend-info {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.0625rem;
 }
 .tcg-legend-name {
-  font-size: 11rem;
+  font-size: 0.75rem;
   opacity: 0.75;
   line-height: 1.3;
   font-weight: 500;
 }
 .tcg-legend-meta {
-  font-size: 10rem;
+  font-size: 0.75rem;
   opacity: 0.4;
 }
 

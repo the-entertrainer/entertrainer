@@ -27,21 +27,21 @@ const S = 'Every course, every tool, end to end.'
 </template>
 
 <style scoped>
-.back{position:fixed;top:18rem;left:20rem;z-index:40;color:currentColor;opacity:.55;text-decoration:none;font-family:'Inter',sans-serif;font-size:12rem}
-.wrap{position:absolute;inset:0;display:grid;padding:72rem clamp(20rem,5vw,72rem) 82rem;font-family:'Inter',sans-serif}
+.back{position:fixed;top:1.125rem;left:1.25rem;z-index:40;color:currentColor;opacity:.55;text-decoration:none;font-family:'Inter',sans-serif;font-size:0.75rem}
+.wrap{position:absolute;inset:0;display:grid;padding:4.5rem clamp(1.25rem,5vw,4.5rem) 5.125rem;font-family:'Inter',sans-serif}
 .hero{max-width:60ch}
-.kick{margin:0 0 12rem;font-size:11rem;letter-spacing:.24em;text-transform:uppercase;opacity:.6}
+.kick{margin:0 0 0.75rem;font-size:0.75rem;letter-spacing:.24em;text-transform:uppercase;opacity:.6}
 .title{font-family:'Anton',sans-serif}
 .title em{font-style:italic;opacity:.82}
-.sub{margin:16rem 0 0;font-size:14rem;line-height:1.55;opacity:.68;max-width:46ch}
-.n{font-size:10.5rem;letter-spacing:.16em;opacity:.6}
+.sub{margin:1rem 0 0;font-size:0.875rem;line-height:1.55;opacity:.68;max-width:46ch}
+.n{font-size:0.75rem;letter-spacing:.16em;opacity:.6}
 .l{font-family:'Anton',sans-serif}
-.d{font-size:11.5rem;line-height:1.45;opacity:.62}
+.d{font-size:0.75rem;line-height:1.45;opacity:.62}
 *:focus-visible{outline:2px solid currentColor;outline-offset:4px}
-.wrap{align-content:center;gap:38rem}.title{font-size:clamp(44rem,9.4vw,132rem);line-height:0.85;letter-spacing:-0.02em;margin:0}
-.arc{display:flex;flex-wrap:wrap;gap:12rem;justify-content:center;align-items:flex-end}
-.arcItem{display:grid;gap:4rem;place-content:center;text-align:center;width:172rem;height:132rem;border-radius:20rem;text-decoration:none;color:inherit;transition:transform 400ms cubic-bezier(.2,.9,.2,1)}
-.arcItem:hover{transform:translateY(-12rem)}.arcItem .l{font-size:17rem;font-weight:600}
-@media(max-width:640px){.arcItem{width:44%;height:104rem;transform:none !important}}
+.wrap{align-content:center;gap:2.375rem}.title{font-size:clamp(2.75rem,9.4vw,8.25rem);line-height:0.85;letter-spacing:-0.02em;margin:0}
+.arc{display:flex;flex-wrap:wrap;gap:0.75rem;justify-content:center;align-items:flex-end}
+.arcItem{display:grid;gap:0.25rem;place-content:center;text-align:center;width:10.75rem;height:8.25rem;border-radius:1.25rem;text-decoration:none;color:inherit;transition:transform 400ms cubic-bezier(.2,.9,.2,1)}
+.arcItem:hover{transform:translateY(-0.75rem)}.arcItem .l{font-size:1.0625rem;font-weight:600}
+@media(max-width:640px){.arcItem{width:44%;height:6.5rem;transform:none !important}}
 @media(prefers-reduced-motion:reduce){*{transition:none !important}}
 </style>

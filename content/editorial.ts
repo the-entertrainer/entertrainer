@@ -1,3 +1,5 @@
+import { WORLD_ZONE_LINKS, type WorldAnchorId } from './zone-links'
+
 /**
  * The publication's index.
  *
@@ -83,7 +85,7 @@ export const ITEMS: EditorialItem[] = [
     dek: 'Sixteen true stories from the resort floor, drawn as comic strips and returned to the teams they came from. Real work, now with panels.',
     category: 'projects',
     media: 'case study',
-    href: '/my-work/sewa-chronicles',
+    href: '/work/sewa-chronicles',
     image: '/work-01.png',
     alt: 'The SEWA Chronicles comic cover',
     stamp: 'Club Mahindra · 2023',
@@ -96,7 +98,7 @@ export const ITEMS: EditorialItem[] = [
     dek: 'The same password can take a second or a century to crack, depending entirely on who is doing the cracking. A ten-minute module about that uncomfortable gap.',
     category: 'projects',
     media: 'interactive',
-    href: '/my-work/strong',
+    href: '/work/strong',
     image: '/strong.png',
     alt: 'Title card for the Strong password module',
     stamp: 'Interactive explainer',
@@ -162,10 +164,11 @@ export function readNext(id: string, count = 3): EditorialItem[] {
   return [...near, ...far].slice(0, count)
 }
 
-/** The masthead's primary navigation. */
-export const NAV = [
-  { label: 'Elevate', href: '/elevate' },
-  { label: 'Empower', href: '/empower' },
-  { label: 'Engage', href: '/engage' },
-  { label: 'About me', href: '/about' }
-]
+/** Primary masthead links. Rows come from WORLD_ZONE_LINKS; this does not copy them. */
+const PRIMARY_ZONE_IDS = ['elevate', 'empower', 'engage', 'learn', 'story'] as const satisfies readonly WorldAnchorId[]
+
+export const NAV = PRIMARY_ZONE_IDS.map((id) => {
+  const link = WORLD_ZONE_LINKS.find((item) => item.id === id)
+  if (!link) throw new Error(`Missing zone ${id}`)
+  return { label: link.label, href: link.route }
+})

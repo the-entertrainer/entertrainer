@@ -10,16 +10,26 @@ import { WORLD_ZONE_LINKS } from '~/composables/world/worldRoutes'
  */
 const props = defineProps<{ error: { statusCode?: number; statusMessage?: string; message?: string } }>()
 
-onMounted(() => useThemeStore().init())
-
 const isNotFound = computed(() => props.error?.statusCode === 404)
-const title = computed(() => isNotFound.value ? 'This page has not been built yet' : 'Something went sideways')
+const title = computed(() => isNotFound.value ? 'This dock is empty.' : 'This page did not load.')
 const deck = computed(() => isNotFound.value
-  ? 'You found a corner of the site that does not exist. Nothing is broken — there is simply nothing here. Here is everything that does exist.'
-  : 'That was not supposed to happen. It has been quietly noted by nobody at all — this is a static site — so heading back is the whole recovery plan.'
-)
+  ? 'That address is not on the map.'
+  : 'The link is fine. The page failed. Try again, or pick a zone.')
 
-useHead({ title: isNotFound.value ? 'Page not found — Entertrainer' : 'Error — Entertrainer' })
+useHead({ title: isNotFound.value ? 'This dock is empty. — Entertrainer' : 'This page did not load. — Entertrainer' })
+
+onMounted(() => {
+  useThemeStore().init()
+  const heading = document.querySelector('#main h1')
+  if (heading instanceof HTMLElement) {
+    heading.tabIndex = -1
+    heading.focus()
+  }
+})
+
+function tryAgain() {
+  if (import.meta.client) window.location.reload()
+}
 </script>
 
 <template>
@@ -36,7 +46,10 @@ useHead({ title: isNotFound.value ? 'Page not found — Entertrainer' : 'Error �
             </NuxtLink>
           </li>
         </ul>
-        <NuxtLink to="/" class="ticket err__home">Back to the front page</NuxtLink>
+        <p class="err__actions">
+          <button v-if="!isNotFound" type="button" class="ticket" @click="tryAgain">Try again</button>
+          <NuxtLink to="/" class="ticket">Back to the front page</NuxtLink>
+        </p>
       </UiContentShell>
     </main>
     <EdFooter />
@@ -59,5 +72,6 @@ useHead({ title: isNotFound.value ? 'Page not found — Entertrainer' : 'Error �
 }
 @media (hover: hover) { .err__row:hover { background: var(--yellow); color: var(--on-yellow); } }
 .err__t { font-size: 1.0625rem; font-weight: 600; }
-.err__home { text-decoration: none; }
+.err__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.err__actions .ticket { text-decoration: none; cursor: pointer; }
 </style>

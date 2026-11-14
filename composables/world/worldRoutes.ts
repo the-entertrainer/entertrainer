@@ -7,8 +7,7 @@
  * stays "About".
  *
  * Dialogue's path is `/dialogue` with no trailing slash (spec §4.4 and §9.9).
- * `/learn`, `/work`, and `/archive` are spec routes; this module does not
- * create those pages.
+ * `/learn`, `/work`, and `/archive` are the dock routes.
  */
 
 export type WorldAnchorId =

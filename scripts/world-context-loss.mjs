@@ -331,7 +331,7 @@ try {
     headers: { accept: 'text/html' },
   })
   const missingBody = await missing.text()
-  if (missing.status() !== 404 || !missingBody.includes('This page has not been built yet')) {
+  if (missing.status() !== 404 || !missingBody.includes('This dock is empty.')) {
     console.error('GET /dialogue/zzz should be a 404 error page', missing.status())
     process.exit(1)
   }

@@ -181,14 +181,39 @@ export default defineNuxtConfig({
       skipWaiting: true,
       clientsClaim: true,
       cleanupOutdatedCaches: true,
-      globPatterns: ['**/*.{js,css,html,svg,png,woff2,ttf}'],
+      globPatterns: ['**/*.{js,css,html,svg,png,woff2,ttf,wasm}'],
+      // OCR lives under public/tesseract (~19 MB). Runtime cache below fetches
+      // it on first Snap-to-Text use. Do not precache it for every install.
+      globIgnores: ['**/tesseract/**'],
       navigateFallback: '/',
-      navigateFallbackDenylist: [/^\/api\//],
+      navigateFallbackDenylist: [/^\/api\//, /^\/empower(?:\/|$)/, /^\/tesseract\//],
+      // Tesseract's English model is 12.8 MB and the wasm core is about 2.8 MB.
+      // Both stay out of the precache (globIgnores above) and land in the
+      // runtime cache on first Snap-to-Text use.
       maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       runtimeCaching: [
         {
           urlPattern: /^\/api\/.*/,
           handler: 'NetworkOnly',
+        },
+        {
+          urlPattern: /\/empower(?:\/|$|\?)/,
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'empower-pages',
+            networkTimeoutSeconds: 3,
+            expiration: { maxEntries: 24, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            cacheableResponse: { statuses: [200] },
+          },
+        },
+        {
+          urlPattern: /\/tesseract\//,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'empower-ocr',
+            expiration: { maxEntries: 8, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            cacheableResponse: { statuses: [200] },
+          },
         },
         // The publication's own faces are precached by globPatterns above —
         // they are first-party files now. What is left on a CDN is the Strong

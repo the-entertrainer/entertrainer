@@ -1,13 +1,13 @@
 <script setup lang="ts">
 /**
  * Learn dock. Canonical index for the instructional-design lesson, AI Atlas,
- * and Strong. /lessons redirects here.
+ * Strong, the 1=2 e-learning conversion, and the ID workflow tool.
  */
 useSeoMeta({
   title: 'Learn · Entertrainer',
-  description: 'A short lesson on clear instructions, a longer course on artificial intelligence, and the Strong module.',
+  description: 'Short lessons, a longer course, and the workflow for turning essays into modules.',
   ogTitle: 'Learn',
-  ogDescription: 'One short lesson, one longer course, and a ten-minute module on passwords.',
+  ogDescription: 'Lessons you can try, and the path from source material to a finished module.',
   ogUrl: 'https://entertrainer.in/learn'
 })
 
@@ -16,6 +16,16 @@ const lessons = [
     title: 'How to make instructions people can actually follow',
     description: 'Take an instruction that makes people stop and reread it, then turn it into something another person can use.',
     detail: '4 min', action: 'Try the lesson', href: '/instructional-design', visual: 'lesson'
+  },
+  {
+    title: '1=2: Let’s break maths',
+    description: 'The first Elevate essay turned into a block-by-block lesson. Follow the proof, find the crack, and keep the map’s edges in view.',
+    detail: '8 min', action: 'Open the lesson', href: '/learn/one-equals-two', visual: 'process'
+  },
+  {
+    title: 'Instructional design workflow',
+    description: 'Source, analyse, structure, storyboard, develop assets, build the module, then polish. The path we use to turn material into lessons.',
+    detail: 'Tool', action: 'Open the workflow', href: '/tools/id-workflow', visual: 'evidence'
   },
   {
     title: 'From No AI to Know AI',

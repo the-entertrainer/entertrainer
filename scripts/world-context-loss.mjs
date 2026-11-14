@@ -40,9 +40,9 @@ if (probe.status !== 0) process.exit(probe.status ?? 1)
 
 let chromium
 try {
-  ;({ chromium } = await import('playwright-core'))
+  ;({ chromium } = await import('@playwright/test'))
 } catch (error) {
-  console.error('playwright-core is required. Install it as a devDependency.', error)
+  console.error('@playwright/test is required. It is a devDependency.', error)
   process.exit(1)
 }
 
@@ -213,6 +213,11 @@ try {
   await map.page.getByRole('button', { name: 'Close', exact: true }).click()
   await map.page.waitForFunction(() => document.activeElement?.hasAttribute('data-map-button'))
   console.log('map focus returns to the Map button')
+  await map.page.keyboard.press('m')
+  await map.page.waitForSelector('#satya-map-title')
+  await map.page.keyboard.press('m')
+  await map.page.waitForFunction(() => document.activeElement?.hasAttribute('data-map-button'))
+  console.log('map M shortcut closes and returns focus')
 
   const redirects = []
   map.page.on('response', (res) => {
@@ -296,7 +301,16 @@ try {
     console.error('quality toggle logged errors', quality.errors)
     process.exit(1)
   }
-  console.log('quality toggle 2 to 3 rendered', end)
+  const qualityName = await quality.page.getByRole('button', { name: /^Quality:/ }).evaluate((button) => ({
+    text: button.textContent?.replace(/\s+/g, ' ').trim() || '',
+    label: button.getAttribute('aria-label') || '',
+  }))
+  const expectedQuality = end.tier === '3' ? 'Quality: High' : 'Quality: Standard'
+  if (qualityName.text !== expectedQuality || qualityName.label !== expectedQuality) {
+    console.error('quality label does not match the effective tier', end.tier, qualityName)
+    process.exit(1)
+  }
+  console.log('quality toggle 2 to 3 rendered', end, qualityName)
   await quality.page.close()
 
   const api = await browser.newContext()
@@ -310,6 +324,20 @@ try {
   const slashLocation = slash.headers()['location'] || ''
   if (slash.status() !== 301 || new URL(slashLocation, base).pathname !== '/dialogue') {
     console.error('GET /dialogue/ should be a single 301 to /dialogue', slash.status(), slashLocation)
+    process.exit(1)
+  }
+  const missing = await api.request.get(`${base}/dialogue/zzz`, {
+    maxRedirects: 0,
+    headers: { accept: 'text/html' },
+  })
+  const missingBody = await missing.text()
+  if (missing.status() !== 404 || !missingBody.includes('This page has not been built yet')) {
+    console.error('GET /dialogue/zzz should be a 404 error page', missing.status())
+    process.exit(1)
+  }
+  const known = await api.request.get(`${base}/dialogue/new`, { maxRedirects: 0 })
+  if (known.status() !== 200) {
+    console.error('GET /dialogue/new should stay 200', known.status())
     process.exit(1)
   }
   console.log('dialogue document routes ok')

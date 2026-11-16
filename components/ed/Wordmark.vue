@@ -10,7 +10,10 @@
 withDefaults(defineProps<{
   /** `full` combines the compact mark and clean text word; `mark` is used in tight spaces. */
   variant?: 'full' | 'mark'
-  /** Cap-height target in pixels. The mark scales from the same value. */
+  /**
+   * Cap-height in CSS pixels. The mark scales from the same value.
+   * Apply as px. Appending rem makes 34 into 34rem and the link covers the page.
+   */
   size?: number
   /** Gentle one-time arrival. BookReader passes false. */
   animate?: boolean
@@ -18,7 +21,7 @@ withDefaults(defineProps<{
 </script>
 
 <template>
-  <span class="wm" :class="[`wm--${variant}`, { 'wm--still': !animate }]" :style="{ '--wm-size': size + 'rem' }">
+  <span class="wm" :class="[`wm--${variant}`, { 'wm--still': !animate }]" :style="{ '--wm-size': size + 'px' }">
     <EdMark class="wm__mark" :size="Math.round(size * 0.86)" />
     <span v-if="variant === 'full'" class="wm__word">entertrainer</span>
     <span v-else class="sr-only">Entertrainer</span>
@@ -30,7 +33,9 @@ withDefaults(defineProps<{
   display: inline-flex;
   align-items: center;
   gap: calc(var(--wm-size) * .236);
+  max-height: 100%;
   line-height: 1;
+  white-space: nowrap;
   color: var(--ink);
   text-transform: none;
 }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 /**
  * The SEWA Chronicles is an editorial book journey.
  * Every personal note, project detail, and comic page belongs to the reader.
@@ -8,8 +9,8 @@ useSeoMeta({
   description: 'How I made The SEWA Chronicles for Club Mahindra: a hand-drawn comic built from stories gathered on the resort floor.',
   ogTitle: 'The SEWA Chronicles',
   ogDescription: 'A hand-drawn comic built from service stories gathered on the resort floor. The scenes were based on incidents colleagues shared with me.',
-  ogUrl: 'https://entertrainer.in/work/sewa-chronicles',
-  ogImage: 'https://entertrainer.in/work/sewa/cover.webp',
+  ogUrl: absoluteUrl('/work/sewa-chronicles'),
+  ogImage: absoluteUrl('/work/sewa/cover.webp'),
 })
 
 const pages = [

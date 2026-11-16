@@ -111,25 +111,25 @@ function blockComponent(block: Block): Component {
 }
 .elearn__back { font: 500 0.75rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); text-decoration: none; }
 .elearn__progress { flex: 1; height: 0.375rem; background: var(--line); border-radius: 999px; position: relative; overflow: hidden; }
-.elearn__progress-bar { height: 100%; background: var(--signal-cobalt); transition: width 0.4s ease; }
+.elearn__progress-bar { height: 100%; background: var(--accent); transition: width 0.4s ease; }
 .elearn__progress-label { position: absolute; right: 0; top: -1.25rem; font: 500 0.7rem/1 var(--font-mono); color: var(--ink-soft); }
 .elearn__objective {
-  background: color-mix(in srgb, var(--signal-cobalt) 8%, var(--paper));
-  border-left: 4px solid var(--signal-cobalt);
+  background: color-mix(in srgb, var(--accent) 8%, var(--paper));
+  border-left: 4px solid var(--accent);
   padding: 1rem 1.25rem;
   margin-bottom: 2rem;
   border-radius: 0 0.5rem 0.5rem 0;
 }
-.elearn__objective-label { margin: 0 0 0.25rem; font: 500 0.7rem/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--signal-cobalt); }
+.elearn__objective-label { margin: 0 0 0.25rem; font: 500 0.7rem/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); }
 .elearn__objective-text { margin: 0; font-weight: 500; }
 .elearn__title { font: 500 2.25rem/1.05 var(--font-display); letter-spacing: -0.04em; margin: 0 0 0.75rem; }
 .elearn__dek { font-size: 1.125rem; line-height: 1.4; margin: 0 0 0.5rem; color: var(--ink-soft); }
-.elearn__meta { font: 500 0.75rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--signal-cobalt); margin: 0 0 1.5rem; }
+.elearn__meta { font: 500 0.75rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); margin: 0 0 1.5rem; }
 .elearn__hero { margin: 0 0 2.5rem; }
 .elearn__hero :deep(.ed-editorial-image) { width: 100%; border: 1px solid var(--ink); border-radius: 0.5rem; }
 .elearn__blocks { display: flex; flex-direction: column; gap: 2.25rem; }
 .elearn__footer { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--line); text-align: center; }
-.elearn__done { font-weight: 500; color: var(--signal-cobalt); margin-bottom: 1rem; }
+.elearn__done { font-weight: 500; color: var(--ink); margin-bottom: 1rem; }
 .elearn__next { display: inline-block; padding: 0.75rem 1.5rem; border: 1px solid var(--ink); border-radius: 999px; text-decoration: none; color: var(--ink); font-weight: 500; }
-.elearn__next:hover { background: var(--accent); }
+.elearn__next:hover { background: var(--accent); color: var(--accent-ink); }
 </style>

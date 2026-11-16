@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 useSeoMeta({
   title: 'Instructional Design Workflow · Entertrainer',
   description: 'Source, analyse, structure, storyboard, develop assets, build the module, then polish. The full path from raw material to a finished lesson.',
   ogTitle: 'Instructional Design Workflow',
   ogDescription: 'Seven stages from source material to a polished module.',
-  ogUrl: 'https://entertrainer.in/tools/id-workflow'
+  ogUrl: absoluteUrl('/tools/id-workflow')
 })
 
 const stages = [
@@ -141,13 +142,13 @@ function toggle(id: string) {
 .idw { max-width: 40rem; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; color: var(--ink); background: var(--paper); }
 .idw__head { margin-bottom: 2rem; }
 .idw__back { font: 500 0.75rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); text-decoration: none; }
-.idw__meta { margin: 1rem 0 0.25rem; font: 500 0.75rem/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--signal-cobalt); }
+.idw__meta { margin: 1rem 0 0.25rem; font: 500 0.75rem/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); }
 .idw h1 { margin: 0; font: 500 2.25rem/1.05 var(--font-display); letter-spacing: -0.04em; }
 .idw__dek { margin: 0.75rem 0 0; font-size: 1.0625rem; line-height: 1.45; color: var(--ink-soft); }
 .idw__stages { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); }
 .idw__stage { border-bottom: 1px solid var(--line); }
 .idw__stage-head { width: 100%; display: grid; grid-template-columns: 2rem 1fr auto; gap: 0.75rem; align-items: center; padding: 1rem 0; background: none; border: none; text-align: left; cursor: pointer; font: inherit; color: inherit; }
-.idw__num { font: 500 0.875rem/1 var(--font-mono); color: var(--signal-cobalt); }
+.idw__num { font: 500 0.875rem/1 var(--font-mono); color: var(--ink); }
 .idw__title { font: 500 1.125rem/1.2 var(--font-display); letter-spacing: -0.02em; }
 .idw__toggle { font: 500 1.25rem/1 var(--font-mono); color: var(--ink-soft); }
 .idw__body { padding: 0 0 1.25rem 2.75rem; }
@@ -156,9 +157,9 @@ function toggle(id: string) {
 .idw__check li { margin: 0.375rem 0; font-size: 0.9375rem; line-height: 1.4; color: var(--ink-soft); }
 .idw__tools { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .idw__tool { display: inline-block; padding: 0.375rem 0.75rem; border: 1px solid var(--ink); border-radius: 999px; text-decoration: none; color: var(--ink); font-size: 0.8125rem; font-weight: 500; }
-.idw__tool:hover { background: var(--accent); }
+.idw__tool:hover { background: var(--accent); color: var(--accent-ink); }
 .idw__foot { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--ink); text-align: center; }
 .idw__foot p { margin: 0 0 1rem; color: var(--ink-soft); }
 .idw__cta { display: inline-block; padding: 0.75rem 1.5rem; border: 1px solid var(--ink); border-radius: 999px; text-decoration: none; color: var(--ink); font-weight: 500; }
-.idw__cta:hover { background: var(--accent); }
+.idw__cta:hover { background: var(--accent); color: var(--accent-ink); }
 </style>

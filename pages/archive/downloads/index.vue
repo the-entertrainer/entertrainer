@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import { useContentStore } from '~/stores/content'
 
 useSeoMeta({
@@ -6,7 +7,7 @@ useSeoMeta({
   description: 'Templates, frameworks, and resources.',
   ogTitle: 'Downloads',
   ogDescription: 'Ready-to-use templates, frameworks, and a short resource list.',
-  ogUrl: 'https://entertrainer.in/archive/downloads'
+  ogUrl: absoluteUrl('/archive/downloads')
 })
 
 const packs = useContentStore().downloadsNav

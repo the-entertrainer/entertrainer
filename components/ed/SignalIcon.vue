@@ -1,6 +1,6 @@
 <!-- Paper Signal line icon: use named geometric icons instead of emoji or miscellaneous glyphs. -->
 <script setup lang="ts">
-/** Design reminder — one-weight black line geometry, cobalt colour supplied by the parent when active. */
+/** Design reminder — one-weight black line geometry, yellow supplied by the parent when active. */
 withDefaults(defineProps<{ name: 'arrow' | 'external' | 'check' | 'menu' | 'close' | 'sun' | 'moon' | 'settings' | 'word' }>(), {})
 </script>
 

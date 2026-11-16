@@ -119,7 +119,8 @@ onBeforeUnmount(() => {
 <template>
   <div v-if="isArticle && sections.length" class="reading-layer" :class="{ 'reading-layer--open': isOpen }">
     <div class="reading-layer__progress" aria-hidden="true">
-      <span :style="{ transform: `scaleX(${progress / 100})` }" />
+      <span class="reading-layer__fill" :style="{ transform: `scaleX(${progress / 100})` }" />
+      <span class="reading-layer__seal" :style="{ left: `${progress}%` }" />
     </div>
 
     <div class="reading-layer__rail" aria-label="Reading controls">
@@ -174,13 +175,23 @@ onBeforeUnmount(() => {
   pointer-events: none;
   background: color-mix(in srgb, var(--line) 45%, transparent);
 }
-.reading-layer__progress span {
+.reading-layer__fill {
   display: block;
   width: 100%;
   height: 100%;
   transform-origin: left center;
-  background: var(--signal-cobalt);
+  background: var(--ink);
   transition: transform 180ms linear;
+}
+.reading-layer__seal {
+  position: absolute;
+  top: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1.5px solid var(--ink);
+  transform: translate(-50%, -50%);
 }
 /*
   The rail sits in the free right gutter, pinned to the viewport edge.
@@ -194,19 +205,19 @@ onBeforeUnmount(() => {
 .reading-layer__toggle { display: flex; align-items: center; gap: 0.5625rem; width: 100%; padding: 0.5625rem 0.6875rem; color: var(--ink); cursor: pointer; text-align: left; font: 700 0.75rem/1.2 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
 .reading-layer__toggle:hover, .reading-layer__toggle:focus-visible, .reading-layer__action:hover, .reading-layer__action:focus-visible { background: var(--signal-field); }
 .reading-layer__ring { display: grid; place-items: center; width: 1.125rem; height: 1.125rem; border: 2px solid var(--ink); border-radius: 50%; }
-.reading-layer__ring span { width: 0.3125rem; height: 0.3125rem; border-radius: 50%; background: var(--signal-cobalt); transform-origin: 0.5625rem 0.5625rem; }
-.reading-layer__percent { margin-left: auto; color: var(--signal-cobalt); }
+.reading-layer__ring span { width: 0.3125rem; height: 0.3125rem; border-radius: 50%; background: var(--accent); transform-origin: 0.5625rem 0.5625rem; }
+.reading-layer__percent { margin-left: auto; color: var(--ink); }
 .reading-layer__panel { margin-top: 0.5rem; padding: 0.9375rem; }
-.reading-layer__eyebrow { margin: 0 0 0.3125rem; color: var(--signal-cobalt); font: 700 0.75rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.reading-layer__eyebrow { margin: 0 0 0.3125rem; color: var(--ink); font: 700 0.75rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
 .reading-layer__hint { margin: 0 0 0.8125rem; font: 400 0.875rem/1.35 var(--font-body); }
 .reading-layer__section { display: flex; align-items: baseline; gap: 0.5625rem; width: 100%; padding: 0.4375rem 0; color: var(--ink-soft); border: 0; border-top: var(--stroke) solid var(--line); background: none; cursor: pointer; text-align: left; font: 600 0.75rem/1.25 var(--font-body); }
 .reading-layer__section--active { color: var(--ink); }
 .reading-layer__dot { flex: 0 0 auto; width: 0.375rem; height: 0.375rem; margin-top: 0.1875rem; border: 1px solid currentColor; border-radius: 50%; }
-.reading-layer__section--active .reading-layer__dot { background: var(--signal-cobalt); border-color: var(--signal-cobalt); }
+.reading-layer__section--active .reading-layer__dot { background: var(--accent); border-color: var(--ink); }
 .reading-layer__actions { display: grid; gap: 0.3125rem; margin-top: 0.625rem; padding-top: 0.625rem; border-top: var(--stroke) solid var(--ink); }
 .reading-layer__action { display: flex; justify-content: space-between; width: 100%; padding: 0.375rem 0; border: 0; background: none; color: var(--ink); cursor: pointer; text-align: left; font: 700 0.75rem/1.2 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; }
-@media (prefers-reduced-motion: reduce) { .reading-layer__progress span { transition: none; } }
-html[data-reduce-motion="on"] .reading-layer__progress span { transition: none; }
+@media (prefers-reduced-motion: reduce) { .reading-layer__fill { transition: none; } }
+html[data-reduce-motion="on"] .reading-layer__fill { transition: none; }
 :global(html[data-reading-focus] .feature__margin-note),
 :global(html[data-reading-focus] .ca__margin-note),
 :global(html[data-reading-focus] .taj__margin-note),

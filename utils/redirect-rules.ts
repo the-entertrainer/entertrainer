@@ -14,6 +14,8 @@ export function buildRedirectRules(): Record<string, { redirect: { to: string; s
   for (const row of data.prefix) {
     // `/about/**` also matches `/about` in Nitro and 301s it to itself.
     // Child slugs are redirected by the slashless middleware instead.
+    // vercel.json must not use `/about/:path*` either: Vercel compiles `*`
+    // as zero-or-more, so that source matches `/about` and 301s it to itself.
     if (row.from === '/about/') continue
     const source = `${row.from.replace(/\/$/, '')}/**`
     const destination = row.fixed ? row.to : `${row.to.replace(/\/$/, '')}/**`

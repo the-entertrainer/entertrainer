@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { readFileSync } from 'node:fs'
+import { assertAboutRedirects } from '../scripts/about-redirect.mjs'
 
 const matrix = JSON.parse(readFileSync(new URL('../content/redirects.json', import.meta.url), 'utf8'))
 const vercel = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8'))
@@ -27,6 +28,7 @@ test('vercel.json mirrors the redirect matrix as 301, never 308', () => {
   for (const row of vercel.redirects) {
     expect(row.statusCode).toBe(301)
   }
+  assertAboutRedirects(vercel.redirects)
 })
 
 test('each §5.2 redirect is one 301 hop to the final target', async ({ request }) => {
@@ -40,6 +42,8 @@ test('each §5.2 redirect is one 301 hop to the final target', async ({ request 
   cases.push({ from: '/my-work/missing', to: '/work/missing' })
   cases.push({ from: '/downloads/missing', to: '/archive/downloads/missing' })
   cases.push({ from: '/about/missing', to: '/about' })
+  cases.push({ from: '/about/missing/', to: '/about' })
+  cases.push({ from: '/about/nested/slug', to: '/about' })
   cases.push({ from: '/educate/foo', to: '/' })
   cases.push({ from: '/tools/easymcq/extra', to: '/empower' })
   cases.push({ from: '/dialogue/', to: '/dialogue' })
@@ -57,7 +61,7 @@ test('each §5.2 redirect is one 301 hop to the final target', async ({ request 
 })
 
 test('kept routes answer without a redirect', async ({ request }) => {
-  for (const path of ['/learn', '/work', '/work/sewa-chronicles', '/archive', '/archive/downloads', '/dialogue', '/empower', '/about', '/elevate', '/tools/cadence']) {
+  for (const path of ['/learn', '/work', '/work/sewa-chronicles', '/archive', '/archive/downloads', '/dialogue', '/empower', '/about', '/about/naveen-portrait.jpg', '/elevate', '/tools/cadence']) {
     const res = await request.get(path, { maxRedirects: 0 })
     expect(res.status(), path).toBe(200)
   }

@@ -80,7 +80,7 @@ defineProps<{
 .ca__head { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: 0 auto; padding: var(--space-34) var(--shell-gutter) var(--space-21); }
 .ca__back, .ca__meta { font: 500 var(--type-meta)/1.2 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
 .ca__back { color: var(--ink); }
-.ca__meta { margin: var(--space-21) 0 var(--space-13); color: var(--signal-cobalt); }
+.ca__meta { margin: var(--space-21) 0 var(--space-13); color: var(--ink); }
 .ca h1, .ca h2 { font-family: var(--font-display); font-weight: 500; letter-spacing: -.05em; }
 .ca h1 { max-width: var(--column); margin: 0; font-size: var(--type-h1); line-height: .95; text-wrap: balance; }
 .ca__tags {
@@ -104,7 +104,7 @@ defineProps<{
 .ca__margin-body { white-space: pre-wrap; }
 .ca__prose { max-width: var(--measure); font: 400 var(--type-body)/1.55 var(--font-body); min-width: 0; }
 .ca__prose > p { margin: 0 0 var(--space-21); }
-.ca__lead::first-letter { float: left; margin: 0.125rem 0.6875rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--signal-cobalt); }
+.ca__lead::first-letter { float: left; margin: 0.125rem 0.6875rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--ink); }
 .ca__prose h2 { margin: var(--space-34) 0 var(--space-13); font-size: var(--type-h2); line-height: .98; }
 .ca blockquote { margin: var(--space-34) 0; padding: var(--space-21); border-left: var(--stroke) solid var(--ink); background: var(--paper); border-radius: 0; font: 500 var(--type-h2)/1.15 var(--font-display); letter-spacing: -.03em; }
 .ca blockquote p { margin: 0; }
@@ -121,7 +121,7 @@ defineProps<{
 .ca__sources ol { max-width: 47.5rem; padding: 0; list-style: none; }
 .ca__sources li { padding: var(--space-13) 0; border-top: var(--stroke) solid var(--line); font-size: var(--type-body); line-height: 1.45; }
 .ca__sources a { color: inherit; }
-.ca__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
+.ca__sources span { color: var(--ink); font-family: var(--font-mono); }
 .ca__sources em { color: var(--ink-soft); }
 .ca__newsletter-wrap { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-55) auto 0; padding: 0 var(--shell-gutter); }
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import { KNOWLEDGE_QUOTES, pickKnowledgeQuote } from '~/content/knowledge-quotes'
 
 useSeoMeta({
@@ -6,7 +7,7 @@ useSeoMeta({
   description: 'Stories for questions that keep returning, tools for work that keeps repeating, and small games for short detours.',
   ogTitle: 'Entertrainer · The Three Es',
   ogDescription: 'Elevate, Empower, Engage.',
-  ogUrl: 'https://entertrainer.in/'
+  ogUrl: absoluteUrl('/')
 })
 
 type HomeRoute = {
@@ -35,6 +36,8 @@ const routes: HomeRoute[] = [
 ]
 
 const openTip = ref<string | null>(null)
+const board = ref<HTMLElement | null>(null)
+useCardSheen(board)
 
 const tipId = (name: string) => `home-tip-${name.toLowerCase().replace(/\s+/g, '-')}`
 
@@ -71,11 +74,23 @@ const onVisibility = () => {
   if (document.visibilityState === 'visible') refreshQuote()
 }
 
-onMounted(() => {
+onMounted(async () => {
   refreshQuote()
   document.addEventListener('visibilitychange', onVisibility)
   document.addEventListener('pointerdown', onDocPointer)
   document.addEventListener('keydown', onKeydown)
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    || document.documentElement.dataset.reduceMotion === 'on'
+  if (reduce) return
+  const { default: gsap } = await import('gsap')
+  gsap.from('.route-index__route', {
+    opacity: 0,
+    y: 10,
+    duration: 0.4,
+    stagger: 0.06,
+    ease: 'power2.out',
+    clearProps: 'opacity,transform',
+  })
 })
 
 // Keep-alive return to home: treat as a fresh screen visit.
@@ -92,7 +107,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="route-index">
+  <div ref="board" class="route-index">
     <header class="route-index__intro">
       <h1 class="route-index__headline" :class="{ 'is-ready': quoteReady }">
         <span class="route-index__quote">{{ quote.text }}</span>
@@ -103,13 +118,14 @@ onBeforeUnmount(() => {
     <nav class="route-index__switchboard" aria-label="Entertrainer sections">
       <ol class="route-index__routes">
         <li
-          v-for="route in routes"
+          v-for="(route, index) in routes"
           :key="route.href"
           class="route-index__route"
           :class="{ 'is-open': openTip === route.name }"
         >
-          <div class="route-index__card">
+          <div class="route-index__card craft-card">
             <NuxtLink :to="route.href" class="route-index__link">
+              <span class="route-index__no" aria-hidden="true">{{ String(index + 1).padStart(2, '0') }}</span>
               <strong>{{ route.name }}</strong>
             </NuxtLink>
             <button
@@ -195,10 +211,18 @@ onBeforeUnmount(() => {
   background: transparent;
 }
 
+.route-index__no {
+  font: 500 var(--type-meta)/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.route-index__card:has(.route-index__link:hover) .route-index__no,
+.route-index__link:focus-visible .route-index__no { color: var(--accent-ink); }
+
 .route-index__link {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: var(--space-13);
   min-height: var(--space-55);
   padding: var(--space-13) var(--space-34) var(--space-13) 0;
@@ -235,7 +259,7 @@ onBeforeUnmount(() => {
 }
 
 .route-index__info:hover,
-.route-index__route.is-open .route-index__info { background: var(--accent); }
+.route-index__route.is-open .route-index__info { background: var(--accent); color: var(--accent-ink); }
 
 .route-index__info::before {
   content: '';
@@ -244,8 +268,8 @@ onBeforeUnmount(() => {
 }
 
 .route-index__info:focus-visible {
-  outline: 2rem solid var(--ink);
-  outline-offset: 3rem;
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
 }
 
 .route-index__tip {
@@ -267,15 +291,25 @@ onBeforeUnmount(() => {
   transform: translateY(-4rem);
 }
 
+.route-index__card {
+  transition: background 180ms var(--ease-out), color 180ms var(--ease-out);
+}
+
 @media (hover: hover) {
   .route-index__card:has(.route-index__link:hover) {
-    background: color-mix(in srgb, var(--accent) 35%, var(--paper));
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  .route-index__card:has(.route-index__link:hover) .route-index__info {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
   }
 }
 
 .route-index__link:focus-visible {
-  outline: 2rem solid var(--ink);
-  outline-offset: 3rem;
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
 }
 
 @media (max-width: 780px) {

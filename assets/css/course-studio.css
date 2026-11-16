@@ -1,7 +1,7 @@
-/* Course Studio. Sacred yellow is local: --accent is still cobalt until that token lands. */
+/* Course Studio. Fills use the site accent (sacred yellow) with ink on them. */
 .cs {
-  --cs-yellow: #FFD43B;
-  --cs-on-yellow: #0B0B0C;
+  --cs-yellow: var(--accent, #FFD43B);
+  --cs-on-yellow: var(--accent-ink, #0B0B0C);
   --cs-paper: var(--paper);
   --cs-ink: var(--ink);
   --cs-line: var(--line);
@@ -220,7 +220,7 @@
 }
 .cs-frame[data-device="tablet"] { width: min(100%, 48rem); }
 .cs-frame[data-device="mobile"] { width: min(100%, 24.375rem); }
-/* Preview only: yellow fills, ink text. The published player keeps its own signal color. */
+/* Preview uses the same yellow accent as the published player, with ink text. */
 .cs .cs-frame { --accent: var(--cs-yellow); --accent-ink: var(--cs-on-yellow); }
 .cs .cs-frame .elearn__progress-bar { background: var(--cs-yellow); }
 .cs .cs-frame .elearn__objective {

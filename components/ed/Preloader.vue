@@ -1,60 +1,33 @@
 <!--
-  The opening: the Flower of Life is constructed with a compass, the e-mark
-  resolves out of it, then the page is revealed. 2.0 s total, once per tab
-  session, skippable (tap or any key), static under reduced motion (OS
-  setting or html[data-reduce-motion="on"]). Only opacity, transform and
-  stroke-dashoffset animate. Geometry: utils/sacredGeometry.ts.
-
-  r = the e's bowl radius = R/φ (R = seal radius 50). Every centre sits on the
-  hexagonal lattice at 60° steps, exactly r (or r·√3, 2r) from the still point.
-  Times are 1000ms · φ^-n (618, 382, 236, 146, 90, 56, 34).
-
-  0      the still point; the first circle (the bowl) sweeps out
-  236    Seed of Life: six circles on its rim, 60° apart, 56ms apart
-  382    the vesica piscis (bowl ∩ right circle) is traced in cobalt; its lower
-         tip is exactly where the e's stroke ends
-  618    Flower of Life: the twelve circles of the second ring, 34ms apart
-  854    Metatron's hexagram joins the six 2r centres
-  1000   the yellow seal opens from the centre
-  1146   the e is drawn: crossbar, then the long way round to the vesica tip
-  1236   construction fades; the word arrives
-  1760   the page is revealed (240ms fade)
+  One intro, about 1.6s from mount. The film's order, compressed into a
+  single gesture: still point, straightedge, first circle, vesica, then the
+  yellow seal and the e. The construction fades and the favicon mark stays.
+  GSAP animates transform and opacity only. Tap, Skip, or any key leaves
+  early. Reduced motion holds the finished frame. A 2.2s cap in app.vue
+  clears `inert` if this script never finishes.
 -->
 <script setup lang="ts">
-import { eMark, circlePath } from '~/utils/sacredGeometry'
+import gsap from 'gsap'
+import { eMark } from '~/utils/sacredGeometry'
 import { openingSoundSrc } from '~/composables/useSiteSettings'
 import { playIdentWithGraph, fadeIdentWithEcho, releaseIdentOnUnmount } from '~/utils/identAudioTrail'
 
-const emit = defineEmits<{ complete: [] }>()
+const emit = defineEmits<{ release: []; complete: [] }>()
 const { settings, prefersReducedMotion, hydrate } = useSiteSettings()
 
 const M = eMark(50, 50, 50)
 const r = M.r
 const f = (n: number) => +n.toFixed(3)
-const at = (dist: number, deg: number) => ({ cx: 50 + dist * Math.cos(deg * Math.PI / 180), cy: 50 + dist * Math.sin(deg * Math.PI / 180), r })
 const SQ3 = Math.sqrt(3)
-/** Seed: six centres on the bowl's rim at 0°, 60° … 300° (0° is the e's right vesica partner). */
-const seed = [0, 1, 2, 3, 4, 5].map(k => circlePath(at(r, 60 * k)))
-/** Flower, second ring: 2r on the axes and r·√3 on the bisectors, interleaved around the dial. */
-const outer = [0, 1, 2, 3, 4, 5].flatMap(k => [circlePath(at(2 * r, 60 * k)), circlePath(at(r * SQ3, 60 * k + 30))])
-/** Metatron's hexagram over the six 2r centres: two triangles. */
-const hex = [0, 1, 2, 3, 4, 5].map(k => at(2 * r, 60 * k))
-const tri = (a: number[]) => 'M' + a.map(i => `${f(hex[i]!.cx)} ${f(hex[i]!.cy)}`).join('L') + 'Z'
-const metatron = [tri([0, 2, 4]), tri([1, 3, 5])]
-/** Vesica piscis of the bowl and its right partner; tips at x = 50 + r/2, y = 50 ± r·√3/2. */
-const vx = f(50 + r / 2), vt = f(50 - r * SQ3 / 2), vb = f(50 + r * SQ3 / 2)
+const vx = f(50 + r / 2)
+const vt = f(50 - (r * SQ3) / 2)
+const vb = f(50 + (r * SQ3) / 2)
 const vesica = `M${vx} ${vt}A${f(r)} ${f(r)} 0 0 1 ${vx} ${vb}A${f(r)} ${f(r)} 0 0 1 ${vx} ${vt}Z`
-const construction = { bowl: circlePath(M.bowl), seed, outer, metatron, vesica }
-
-/** Total time on screen, normal motion; the reveal fade is the last 240ms. */
-const TOTAL_MS = 2000
-const REDUCED_MS = 650
-const FADE_MS = 240
 
 const root = ref<HTMLElement | null>(null)
 const leaving = ref(false)
 const reduced = ref(false)
-let leaveTimer: number | undefined
+let tl: gsap.core.Timeline | undefined
 let doneTimer: number | undefined
 let finished = false
 
@@ -66,36 +39,73 @@ function finish() {
 
 function leave(fast = false) {
   if (leaving.value) return
-  if (leaveTimer) window.clearTimeout(leaveTimer)
   leaving.value = true
+  tl?.kill()
   fadeIdentWithEcho()
-  doneTimer = window.setTimeout(finish, fast ? 160 : FADE_MS)
+  emit('release')
+  doneTimer = window.setTimeout(finish, fast ? 140 : 200)
 }
 
 const onKey = () => leave(true)
 
-onMounted(() => {
+onMounted(async () => {
   hydrate()
   reduced.value = prefersReducedMotion()
+    || document.documentElement.dataset.reduceMotion === 'on'
   try { sessionStorage.setItem('entertrainer.preloader-done', '1') } catch { /* ignore */ }
   const src = openingSoundSrc(settings.value.openingSound)
-  // Without a tap the browser usually refuses; that is fine and silent.
   if (src && !reduced.value) { try { playIdentWithGraph(src) } catch { /* ignore */ } }
-  // The CSS timeline starts when the styles first apply (SSR paint), not at
-  // mount: read how far it has already run and only wait for what is left.
-  let elapsed = 0
-  try {
-    const a = root.value?.getAnimations?.().find(x => (x as CSSAnimation).animationName === 'pl-retire')
-    elapsed = Number(a?.currentTime ?? 0)
-  } catch { /* older browsers: start the clock now */ }
-  const left = (reduced.value ? REDUCED_MS : TOTAL_MS) - FADE_MS - elapsed
-  leaveTimer = window.setTimeout(() => leave(), Math.max(reduced.value ? 300 : 120, left))
   window.addEventListener('keydown', onKey, { once: true })
+
+  await nextTick()
+  if (reduced.value) {
+    doneTimer = window.setTimeout(() => leave(false), 420)
+    return
+  }
+
+  const started = Number(document.documentElement.dataset.plT || Date.now())
+  const budget = 1900 - (Date.now() - started)
+  if (budget < 650) {
+    reduced.value = true
+    await nextTick()
+    leave(true)
+    return
+  }
+
+  const svg = root.value?.querySelector('svg')
+  const word = root.value?.querySelector('.preloader__word-in')
+  const point = svg?.querySelector('.pl-point')
+  const edge = svg?.querySelector('.pl-edge')
+  const bowl = svg?.querySelector('.pl-bowl')
+  const partner = svg?.querySelector('.pl-partner')
+  const ves = svg?.querySelector('.pl-vesica')
+  const seal = svg?.querySelector('.pl-seal')
+  const e = svg?.querySelector('.pl-e')
+  const build = svg?.querySelector('.pl-build')
+  if (!word || !point || !edge || !bowl || !partner || !ves || !seal || !e || !build) {
+    leave(true)
+    return
+  }
+
+  tl = gsap.timeline()
+  tl.fromTo(point, { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.16, ease: 'power2.out' }, 0)
+  tl.fromTo(edge, { opacity: 0, scaleX: 0 }, { opacity: 0.8, scaleX: 1, duration: 0.22, ease: 'power2.out' }, 0.08)
+  tl.fromTo(bowl, { opacity: 0, scale: 0.15 }, { opacity: 0.85, scale: 1, duration: 0.32, ease: 'power2.out' }, 0.16)
+  tl.fromTo(partner, { opacity: 0, scale: 0.4 }, { opacity: 0.55, scale: 1, duration: 0.26, ease: 'power2.out' }, 0.32)
+  tl.fromTo(ves, { opacity: 0, scale: 0.72 }, { opacity: 1, scale: 1, duration: 0.2, ease: 'power2.out' }, 0.46)
+  tl.fromTo(seal, { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.4, ease: 'power3.out' }, 0.58)
+  tl.to(build, { opacity: 0, duration: 0.24, ease: 'power2.in' }, 0.86)
+  tl.fromTo(e, { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 0.26, ease: 'power2.out' }, 0.94)
+  tl.fromTo(word, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.24, ease: 'power2.out' }, 1.08)
+  tl.call(() => leave(false), [], 1.38)
+
+  const naturalMs = 1580
+  if (budget < naturalMs) tl.timeScale(naturalMs / budget)
 })
 
 onBeforeUnmount(() => {
-  if (leaveTimer) window.clearTimeout(leaveTimer)
   if (doneTimer) window.clearTimeout(doneTimer)
+  tl?.kill()
   window.removeEventListener('keydown', onKey)
   releaseIdentOnUnmount()
 })
@@ -106,26 +116,23 @@ onBeforeUnmount(() => {
     ref="root"
     class="preloader"
     :class="{ 'preloader--leaving': leaving, 'preloader--still': reduced }"
-    role="presentation"
     @click="leave(true)"
   >
-    <div class="preloader__figure">
-      <svg class="preloader__svg" viewBox="-30 -30 160 160" aria-hidden="true" focusable="false">
-        <!-- The mark (stays) -->
-        <circle class="pl-seal" cx="50" cy="50" r="50" />
-        <path class="pl-e" :d="M.e" :stroke-width="M.stroke" pathLength="1" />
-        <!-- Construction, drawn over the seal so the vesica reads through it; fades away -->
+    <div class="preloader__figure" aria-hidden="true">
+      <svg class="preloader__svg" viewBox="0 0 100 100" focusable="false">
         <g class="pl-build">
-          <path v-for="(d, i) in construction.metatron" :key="'m' + i" class="pl-line pl-line--meta" :style="{ '--t': `${854 + 90 * i}ms` }" :d="d" pathLength="1" />
-          <path v-for="(d, i) in construction.outer" :key="'o' + i" class="pl-line pl-line--outer" :style="{ '--t': `${618 + 34 * i}ms` }" :d="d" pathLength="1" />
-          <path v-for="(d, i) in construction.seed" :key="'s' + i" class="pl-line pl-line--seed" :style="{ '--t': `${236 + 56 * i}ms` }" :d="d" pathLength="1" />
-          <path class="pl-line pl-line--bowl" :d="construction.bowl" pathLength="1" />
-          <path class="pl-line pl-line--vesica" :d="construction.vesica" pathLength="1" />
-          <circle class="pl-point" cx="50" cy="50" r="1.4" />
+          <line class="pl-edge" :x1="f(50 - r)" y1="50" :x2="f(50 + r)" y2="50" />
+          <circle class="pl-bowl" cx="50" cy="50" :r="r" />
+          <circle class="pl-partner" :cx="f(50 + r)" cy="50" :r="r" />
+          <path class="pl-vesica" :d="vesica" />
+          <circle class="pl-point" cx="50" cy="50" r="1.7" />
         </g>
+        <circle class="pl-seal" cx="50" cy="50" r="50" />
+        <path class="pl-e" :d="M.e" :stroke-width="M.stroke" />
       </svg>
-      <span class="preloader__word">entertrainer</span>
+      <p class="preloader__word"><span class="preloader__word-in">entertrainer</span></p>
     </div>
+    <button type="button" class="preloader__skip" @click.stop="leave(true)">Skip</button>
     <span class="sr-only" role="status">Opening Entertrainer</span>
   </div>
 </template>
@@ -134,8 +141,7 @@ onBeforeUnmount(() => {
 .preloader {
   --pl-paper: #F7F1E4;
   --pl-ink: #0B0B0C;
-  --pl-cobalt: #2F5BD8;
-  --pl-ease: cubic-bezier(.65, 0, .35, 1);
+  --pl-yellow: #FFD43B;
   position: fixed;
   inset: 0;
   z-index: 3000;
@@ -144,105 +150,98 @@ onBeforeUnmount(() => {
   background: var(--pl-paper);
   color: var(--pl-ink);
   cursor: pointer;
-  transition: opacity 240ms ease-out;
+  transition: opacity 200ms ease-in;
   contain: strict;
-  /* Never block if scripts fail: the overlay retires itself. */
-  animation: pl-retire 1ms linear 3200ms forwards;
+  animation: pl-retire 1ms linear 2200ms forwards;
 }
 .preloader--leaving { opacity: 0; pointer-events: none; }
 
 .preloader__figure {
   position: relative;
-  width: min(56vmin, 320px);
-  aspect-ratio: 1;
+  width: min(46vmin, 280px);
 }
-.preloader__svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.preloader__svg { display: block; width: 100%; height: auto; overflow: visible; }
 
-/* Construction: hairlines, ~1-1.5px at the drawn size (0.75 of 160 units). */
-.pl-line {
+.pl-edge, .pl-bowl, .pl-partner, .pl-vesica, .pl-point, .pl-seal, .pl-e {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.pl-edge, .pl-bowl, .pl-partner {
   fill: none;
   stroke: var(--pl-ink);
-  stroke-width: .75;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  visibility: hidden;
-  opacity: .7;
-  animation: pl-draw var(--d, 420ms) var(--pl-ease) var(--t, 0ms) forwards;
-}
-.pl-line--bowl   { --t: 0ms;   --d: 382ms; }
-.pl-line--seed   { --d: 382ms; opacity: .55; }
-.pl-line--vesica { --t: 382ms; --d: 382ms; stroke: var(--pl-cobalt); stroke-width: 1; opacity: 1; }
-.pl-line--outer  { --d: 236ms; opacity: .3; }
-.pl-line--meta   { --d: 382ms; opacity: .35; }
-.pl-point {
-  fill: var(--pl-ink);
-  transform-box: fill-box;
-  transform-origin: center;
+  stroke-width: 0.8;
   opacity: 0;
-  animation: pl-pop 146ms var(--pl-ease) 0ms forwards;
 }
-.pl-build { animation: pl-fade 236ms ease-in 1236ms forwards; }
-
-.pl-seal {
-  fill: var(--pl-cobalt);
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: scale(0);
-  animation: pl-seal 382ms cubic-bezier(.2, .8, .2, 1) 1000ms forwards;
-}
+.pl-vesica { fill: var(--pl-yellow); opacity: 0; }
+.pl-point { fill: var(--pl-ink); opacity: 0; }
+.pl-seal { fill: var(--pl-yellow); opacity: 0; }
 .pl-e {
   fill: none;
   stroke: #161618;
   stroke-linejoin: miter;
   stroke-linecap: butt;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  visibility: hidden;
-  animation: pl-draw 382ms var(--pl-ease) 1146ms forwards;
+  opacity: 0;
 }
+
 .preloader__word {
-  position: absolute;
-  left: 50%;
-  top: calc(100% * 130 / 160 + 1.125rem);
+  margin: 0.85rem 0 0;
+  text-align: center;
+}
+.preloader__word-in {
+  display: inline-block;
   font-family: var(--font-ui);
   font-weight: 720;
-  font-size: clamp(1.125rem, 5vmin, 1.625rem);
-  letter-spacing: -.055em;
+  font-size: clamp(1.125rem, 4.5vmin, 1.625rem);
+  letter-spacing: -0.055em;
+  color: var(--pl-ink);
   opacity: 0;
-  transform: translate(-50%, 0.375rem);
-  animation: pl-word 236ms var(--pl-ease) 1236ms forwards;
 }
 
-/* visibility keeps butt-cap slivers from showing before a stroke starts */
-@keyframes pl-draw { from { stroke-dashoffset: 1; visibility: visible; } to { stroke-dashoffset: 0; visibility: visible; } }
-@keyframes pl-pop { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
-@keyframes pl-fade { to { opacity: 0; } }
-@keyframes pl-retire { to { opacity: 0; visibility: hidden; pointer-events: none; } }
-@keyframes pl-seal { to { transform: scale(1); } }
-@keyframes pl-word { to { opacity: 1; transform: translate(-50%, 0); } }
+.preloader__skip {
+  position: absolute;
+  left: 50%;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--pl-ink);
+  background: transparent;
+  font: 500 0.75rem/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+.preloader__skip:focus-visible {
+  outline: 2px solid var(--pl-ink);
+  outline-offset: 3px;
+}
 
-/* Reduced motion: one still frame — the finished mark and word — then a short fade. */
-.preloader--still *, .preloader--still { animation: none !important; }
+@keyframes pl-retire { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+
 .preloader--still .pl-build { opacity: 0; }
-.preloader--still .pl-seal { transform: none; }
-.preloader--still .pl-e { stroke-dashoffset: 0; visibility: visible; }
-.preloader--still .preloader__word { opacity: 1; transform: translate(-50%, 0); }
+.preloader--still .pl-seal,
+.preloader--still .pl-e,
+.preloader--still .preloader__word-in { opacity: 1; transform: none; }
+
 @media (prefers-reduced-motion: reduce) {
-  .preloader *, .preloader { animation: none !important; }
+  .preloader { animation: none; transition: none; }
   .pl-build { opacity: 0; }
-  .pl-seal { transform: none; }
-  .pl-e { stroke-dashoffset: 0; visibility: visible; }
-  .preloader__word { opacity: 1; transform: translate(-50%, 0); }
+  .pl-seal, .pl-e, .preloader__word-in { opacity: 1; transform: none; }
 }
 </style>
 
 <style>
-/* Unscoped on purpose: Vue's :global(a) b drops b. */
-html[data-theme="dark"] .preloader { --pl-paper: #0B0B0C; --pl-ink: #F7F1E4; --pl-cobalt: #5B7FE6; }
+html[data-theme="dark"] .preloader {
+  --pl-paper: #16140F;
+  --pl-ink: #F7F1E4;
+}
 html[data-preloader="done"] .preloader { display: none; }
-html[data-reduce-motion="on"] .preloader, html[data-reduce-motion="on"] .preloader * { animation: none !important; }
+html[data-reduce-motion="on"] .preloader { animation: none; transition: none; }
 html[data-reduce-motion="on"] .preloader .pl-build { opacity: 0; }
-html[data-reduce-motion="on"] .preloader .pl-seal { transform: none; }
-html[data-reduce-motion="on"] .preloader .pl-e { stroke-dashoffset: 0; visibility: visible; }
-html[data-reduce-motion="on"] .preloader .preloader__word { opacity: 1; transform: translate(-50%, 0); }
+html[data-reduce-motion="on"] .preloader .pl-seal,
+html[data-reduce-motion="on"] .preloader .pl-e,
+html[data-reduce-motion="on"] .preloader .preloader__word-in { opacity: 1; transform: none; }
 </style>

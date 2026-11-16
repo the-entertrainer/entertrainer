@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import Studio from '~/components/elearn/author/Studio.vue'
+import { absoluteUrl } from '~/utils/site'
 
 useSeoMeta({
   title: 'Course Studio · Empower',
   description: 'Arrange lesson blocks, preview the lesson, and export the lesson JSON.',
   ogTitle: 'Course Studio · Empower',
   ogDescription: 'Arrange lesson blocks, preview the lesson, and export the lesson JSON.',
-  ogUrl: 'https://entertrainer.in/tools/elearn-author',
+  ogUrl: absoluteUrl('/tools/elearn-author'),
 })
 </script>
 

@@ -202,6 +202,15 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Four quiet tool marks on cream paper.'
   },
+  '/tools/elearn-author': {
+    key: 'course-studio',
+    label: 'Course Studio',
+    // TODO: final name pending. "Course Studio" is a neutral stand-in.
+    title: 'Course Studio · Empower',
+    description: 'Arrange lesson blocks, preview the lesson, and export the lesson JSON.',
+    image: `${SITE_URL}/og-engage.jpg`,
+    imageAlt: 'Four quiet tool marks on cream paper.'
+  },
   '/tools/storygen': {
     key: 'storygen',
     label: 'Storyboard Studio',
@@ -213,13 +222,6 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'Training Calendar Generator',
     title: 'Cadence · Training Calendar Generator',
     description: 'Turn a topic list into a ready-to-present monthly training calendar, laid out around holidays, audiences, and time slots.'
-  },
-  '/tools/elearn-author': {
-    key: 'elearn-author',
-    label: 'Course Studio',
-    // TODO: final name pending. "Course Studio" is a neutral stand-in.
-    title: 'Course Studio · Entertrainer',
-    description: 'Edit a lesson as JSON, preview it, and copy it when you are ready to commit.'
   },
   '/courses/ai-atlas': {
     key: 'ai-atlas',

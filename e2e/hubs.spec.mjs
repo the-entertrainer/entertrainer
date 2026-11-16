@@ -60,7 +60,7 @@ test('Course Studio has its own title and stays indexable', async ({ page }) => 
   const robots = await page.locator('meta[name="robots"]').getAttribute('content')
   expect(robots ?? '').not.toMatch(/noindex/i)
   const description = await page.locator('meta[name="description"]').getAttribute('content')
-  expect(description).toMatch(/lesson as JSON/i)
+  expect(description).toMatch(/lesson blocks/i)
 })
 
 test('unlisted catalog URLs answer and carry noindex', async ({ page, request }) => {

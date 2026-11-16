@@ -113,9 +113,9 @@ export const EMPOWER_TOOLS: EmpowerTool[] = [
     // TODO: final name pending. "Course Studio" is a neutral stand-in.
     title: 'Course Studio',
     group: 'Learn',
-    task: 'Edit a lesson and preview it',
-    blurb: 'Edit the lesson JSON, preview it, and copy it when you are ready to commit.',
-    keywords: 'course lesson author elearn studio json preview',
+    task: 'Arrange lesson blocks and preview them',
+    blurb: 'Arrange lesson blocks, preview them, and export the lesson JSON.',
+    keywords: 'course studio elearn author lesson blocks flashcards knowledge check',
     listed: true,
   },
 ]

@@ -55,7 +55,7 @@ const stages = [
       'Note the visual or interaction for each block',
       'Flag the knowledge check and the reflection'
     ],
-    tools: [{ label: 'Storygen', href: '/tools/storygen' }, { label: 'E-learning author', href: '/tools/elearn-author' }]
+    tools: [{ label: 'Storygen', href: '/tools/storygen' }, { label: 'Course Studio', href: '/tools/elearn-author' }]
   },
   {
     id: 'assets',
@@ -79,7 +79,7 @@ const stages = [
       'Preview it in the author tool',
       'Add the page that mounts LessonPlayer'
     ],
-    tools: [{ label: 'E-learning author', href: '/tools/elearn-author' }, { label: 'Live 1=2 lesson', href: '/learn/one-equals-two' }]
+    tools: [{ label: 'Course Studio', href: '/tools/elearn-author' }, { label: 'Live 1=2 lesson', href: '/learn/one-equals-two' }]
   },
   {
     id: 'polish',

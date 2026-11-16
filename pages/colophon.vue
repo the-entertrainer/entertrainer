@@ -36,7 +36,7 @@ const stack: Entry[] = [
   { k: 'Type', v: 'Four faces, four jobs',
     note: 'Fraunces for display, Archivo for interface, Source Serif 4 for reading, IBM Plex Mono for metadata. All SIL Open Font License, all self-hosted, three of the four variable — so the whole range is eight files. Chosen as the closest open equivalents to a commercial stack I could not license.' },
   { k: 'Colour', v: 'Paper, ink, signal yellow',
-    note: 'The interface accent is signal yellow, paired with near-black text that clears 4.5:1. Essay pictures keep one cobalt. Other hues are for status, not decoration.' },
+    note: 'The accent is sacred yellow #FFD43B: fills, marks, and button grounds, with ink text on them. Yellow type on cream does not clear WCAG AA, so text, links, and focus rings stay ink. Other hues are for status, not decoration.' },
   { k: 'Surfaces', v: 'Hairline first, shadow only when it lifts',
     note: 'Most separation is a hairline and the space around it. A few tactile objects — the home switchboard, the category tiles — still carry a hard offset shadow, because they are meant to feel like pieces you can pick up.' },
   { k: 'Motion', v: 'Four durations, five curves',

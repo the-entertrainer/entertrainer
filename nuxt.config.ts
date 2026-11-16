@@ -121,7 +121,7 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
-		{ rel: 'mask-icon', href: '/safari-pinned-tab.svg', color: '#2F5BD8' },
+		{ rel: 'mask-icon', href: '/safari-pinned-tab.svg', color: '#FFD43B' },
         // Two preloads. Archivo sets every interface string and Fraunces
         // sets the headline, so those two are on the critical path for the
         // first screen; the reading serif, the mono and every latin-ext cut

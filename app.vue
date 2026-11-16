@@ -37,9 +37,16 @@ const siteSettings = useSiteSettings()
  */
 const PRELOADER_DONE_KEY = 'entertrainer.preloader-done'
 const showPreloader = ref(r.path === '/')
+/** Inert only while the intro is actually covering the page. Released when the fade starts. */
+const pageBlocked = ref(showPreloader.value)
+
+function onPreloaderRelease() {
+  pageBlocked.value = false
+}
 
 function onPreloaderComplete() {
   showPreloader.value = false
+  pageBlocked.value = false
   if (!import.meta.client) return
   try {
     sessionStorage.setItem(PRELOADER_DONE_KEY, '1')
@@ -52,13 +59,18 @@ onMounted(() => {
   if (!showPreloader.value) return
   // Only the boot-time flag counts: the preloader itself stamps sessionStorage
   // as it starts (children mount first), so reading storage here would cancel it.
-  if (document.documentElement.dataset.preloader === 'done') showPreloader.value = false
+  if (document.documentElement.dataset.preloader === 'done') {
+    showPreloader.value = false
+    pageBlocked.value = false
+  }
 })
 useHead({
   script: [{
     key: 'preloader-gate',
     tagPosition: 'head',
-    innerHTML: "try{if(sessionStorage.getItem('entertrainer.preloader-done')==='1')document.documentElement.dataset.preloader='done'}catch(e){}"
+    // Stamp the clock, hide a repeat visit before paint, and never leave the
+    // page inert if the intro script does not finish. 2.2s is the cap.
+    innerHTML: "try{document.documentElement.dataset.plT=String(Date.now());if(sessionStorage.getItem('entertrainer.preloader-done')==='1')document.documentElement.dataset.preloader='done'}catch(e){}setTimeout(function(){var n=document.getElementById('app-content');if(n)n.removeAttribute('inert');document.documentElement.dataset.preloader='done'},2200)"
   }]
 })
 const canonicalPath = computed(() => {
@@ -113,10 +125,10 @@ onBeforeUnmount(() => theme.dispose())
 
 <template>
   <div id="app-root">
-    <EdPreloader v-if="showPreloader" @complete="onPreloaderComplete" />
+    <EdPreloader v-if="showPreloader" @release="onPreloaderRelease" @complete="onPreloaderComplete" />
     <EdDailyWordSplash v-if="!bare" />
     <EdSettingsPanel />
-    <div :inert="showPreloader ? '' : undefined">
+    <div id="app-content" :inert="pageBlocked ? '' : undefined">
       <template v-if="bare">
         <NuxtPage />
       </template>

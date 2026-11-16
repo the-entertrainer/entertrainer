@@ -70,8 +70,8 @@ const games = listedEngage()
 @media (hover: hover) {
   .engage__card:hover { background: var(--paper-2); border-color: var(--ink); transform: translateX(0.1875rem); }
   .engage__card:hover .engage__card-arrow { transform: translate(0.125rem, -0.125rem); }
-  .engage__card:hover .engage__icon { transform: translate(-0.1875rem, -0.1875rem); filter: drop-shadow(0.3125rem 0.3125rem 0 #2F5BD8); }
-  .engage__card:hover:active .engage__icon { transform: translate(0.0625rem, 0.0625rem); filter: drop-shadow(0 0 0 #2F5BD8); }
+  .engage__card:hover .engage__icon { transform: translate(-0.1875rem, -0.1875rem); filter: drop-shadow(0.3125rem 0.3125rem 0 var(--ink)); }
+  .engage__card:hover:active .engage__icon { transform: translate(0.0625rem, 0.0625rem); filter: drop-shadow(0 0 0 var(--ink)); }
 }
 
 .engage__card:focus-visible {
@@ -85,15 +85,14 @@ const games = listedEngage()
   display: block;
   width: var(--space-55);
   height: var(--space-55);
-  /* App-icon tile (EngageAppIcon): yellow squircle, ink glyph. Signature: a
-     cobalt misregistration, like a second print plate, slides out under the
-     squircle on hover (drop-shadow follows its shape) and the tile presses
-     flat on tap like a stamp. */
-  filter: drop-shadow(0 0 0 #2F5BD8);
+  /* App-icon tile (EngageAppIcon): yellow squircle, ink glyph. Signature: an
+     ink plate, the same pair as the seal, slides out under the squircle on
+     hover and the tile presses flat on tap like a stamp. */
+  filter: drop-shadow(0 0 0 var(--ink));
   transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), filter 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.engage__card:focus-visible .engage__icon { transform: translate(-0.1875rem, -0.1875rem); filter: drop-shadow(0.3125rem 0.3125rem 0 #2F5BD8); }
-.engage__card:active .engage__icon { transform: translate(0.0625rem, 0.0625rem); filter: drop-shadow(0 0 0 #2F5BD8); transition-duration: 90ms; }
+.engage__card:focus-visible .engage__icon { transform: translate(-0.1875rem, -0.1875rem); filter: drop-shadow(0.3125rem 0.3125rem 0 var(--ink)); }
+.engage__card:active .engage__icon { transform: translate(0.0625rem, 0.0625rem); filter: drop-shadow(0 0 0 var(--ink)); transition-duration: 90ms; }
 
 
 .engage__card-text {

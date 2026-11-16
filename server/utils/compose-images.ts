@@ -34,7 +34,7 @@ export const MAX_AI_IMAGES = 2
 
 const ELEVATE_STYLE =
   'Elevate editorial magazine style matching entertrainer.in/elevate covers: cream paper background #F7F1E4, ' +
-  'black ink linework #0B0B0C, cobalt blue accents #2F5BD8, flat conceptual illustration, spare thoughtful composition, ' +
+  'black ink linework #0B0B0C, sacred yellow accents #FFD43B, flat conceptual illustration, spare thoughtful composition, ' +
   'no text overlays, no logos, no watermarks, no photorealism'
 
 function isLikelyFree(license: string): boolean {
@@ -224,7 +224,7 @@ function buildFigurePrompt(topic: string, role: 'hero' | 'figure', index: number
     return (
       `Wide editorial hero/cover illustration for an Elevate essay about “${subject}”. ` +
       `${ELEVATE_STYLE}. Banner-like 16:9 contemplative cover art on a soft cream #F7F1E4 field, ` +
-      `one strong conceptual idea, black + cobalt #2F5BD8 only, matching existing /public/blog/*/hero.jpg language.`
+      `one strong conceptual idea, black + sacred yellow #FFD43B only, matching existing /public/blog/*/hero.jpg language.`
     )
   }
   return (

@@ -1174,7 +1174,9 @@ onUnmounted(() => {
 /* ── Editor shell ── */
 .sg-app {
   position: fixed;
-  inset: 0;
+  /* Sit under the publication masthead. inset: 0 put the Export control
+     inside the sticky header, which then took the click. */
+  inset: var(--nav-h, 3.4375rem) 0 0 0;
   overflow: hidden;
   z-index: 1;
 }
@@ -1302,7 +1304,7 @@ onUnmounted(() => {
   padding: 0.75rem 0.5rem;
   border-radius: 1.125rem;
   z-index: 15;
-  max-height: calc(100dvh - 4.625rem - 5.25rem - var(--safe-top) - var(--safe-bottom));
+  max-height: calc(100dvh - var(--nav-h, 3.4375rem) - 4.625rem - 5.25rem - var(--safe-top) - var(--safe-bottom));
   overflow-y: auto;
 }
 

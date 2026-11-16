@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import { KNOWING_BLOG } from '~/content/blogs'
 
 useSeoMeta({
@@ -6,12 +7,12 @@ useSeoMeta({
   description: KNOWING_BLOG.socialHook,
   ogTitle: KNOWING_BLOG.socialTitle,
   ogDescription: KNOWING_BLOG.socialHook,
-  ogUrl: `https://entertrainer.in/elevate/${KNOWING_BLOG.slug}`,
-  ogImage: `https://entertrainer.in${KNOWING_BLOG.hero}`,
+  ogUrl: absoluteUrl(`/elevate/${KNOWING_BLOG.slug}`),
+  ogImage: absoluteUrl(KNOWING_BLOG.hero),
   twitterCard: 'summary_large_image',
   twitterTitle: KNOWING_BLOG.socialTitle,
   twitterDescription: KNOWING_BLOG.socialHook,
-  twitterImage: `https://entertrainer.in${KNOWING_BLOG.hero}`
+  twitterImage: absoluteUrl(KNOWING_BLOG.hero)
 })
 
 const references = [

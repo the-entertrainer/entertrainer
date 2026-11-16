@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 /**
  * The colophon.
  *
@@ -20,7 +21,7 @@ useSeoMeta({
   description: 'How entertrainer.in is put together: Nuxt, an editorial design system, five open-source typefaces, and the reasoning behind each decision. Naveen Jose wrote this account.',
   ogTitle: 'Colophon — how this site is built',
   ogDescription: 'Nuxt, an editorial design system, and the reasoning behind the decisions that shape the site.',
-  ogUrl: 'https://entertrainer.in/colophon'
+  ogUrl: absoluteUrl('/colophon')
 })
 
 const email = useContentStore().email

@@ -7,7 +7,7 @@ import { eMark } from '~/utils/sacredGeometry'
  * cx/cy/r — so Vue never tries to set read-only SVG DOM props.
  */
 withDefaults(defineProps<{
-  /** Drawn size in px. This site's rem is a pixel. */
+  /** Drawn size in CSS pixels. Do not treat this number as rem. */
   size?: number
   /** Loading state: the e redraws itself, slowly, on the seal. */
   loading?: boolean

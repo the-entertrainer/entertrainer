@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import { SPLIT_BRAIN_BLOG } from '~/content/blogs'
 
 useSeoMeta({
@@ -6,12 +7,12 @@ useSeoMeta({
   description: SPLIT_BRAIN_BLOG.socialHook,
   ogTitle: SPLIT_BRAIN_BLOG.socialTitle,
   ogDescription: SPLIT_BRAIN_BLOG.socialHook,
-  ogUrl: `https://entertrainer.in/elevate/${SPLIT_BRAIN_BLOG.slug}`,
-  ogImage: `https://entertrainer.in${SPLIT_BRAIN_BLOG.hero}`,
+  ogUrl: absoluteUrl(`/elevate/${SPLIT_BRAIN_BLOG.slug}`),
+  ogImage: absoluteUrl(SPLIT_BRAIN_BLOG.hero),
   twitterCard: 'summary_large_image',
   twitterTitle: SPLIT_BRAIN_BLOG.socialTitle,
   twitterDescription: SPLIT_BRAIN_BLOG.socialHook,
-  twitterImage: `https://entertrainer.in${SPLIT_BRAIN_BLOG.hero}`
+  twitterImage: absoluteUrl(SPLIT_BRAIN_BLOG.hero)
 })
 
 const references = [

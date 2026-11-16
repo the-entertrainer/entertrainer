@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import type { CardKind, Connection, StoryCard, StoryGenProject } from '~/types/story'
 import { createCard, CARD_KINDS } from '~/utils/storyCards'
 import type { ModelId } from '~/utils/idModels'
@@ -20,7 +21,7 @@ useSeoMeta({
   description: 'Design instructional storyboards on an infinite canvas. Pick a framework, connect the screens, and export the working plan to Word or Excel.',
   ogTitle: 'StoryGen — Storyboard Studio',
   ogDescription: 'Design instructional storyboards on an infinite canvas. Put the story somewhere you can actually inspect it.',
-  ogUrl: 'https://entertrainer.in/tools/storygen'
+  ogUrl: absoluteUrl('/tools/storygen')
 })
 
 const TOUR_KEY = 'storygen-tour-seen'
@@ -1174,7 +1175,9 @@ onUnmounted(() => {
 /* ── Editor shell ── */
 .sg-app {
   position: fixed;
-  inset: 0;
+  /* Sit under the publication masthead. inset: 0 put the Export control
+     inside the sticky header, which then took the click. */
+  inset: var(--nav-h, 3.4375rem) 0 0 0;
   overflow: hidden;
   z-index: 1;
 }
@@ -1302,7 +1305,7 @@ onUnmounted(() => {
   padding: 0.75rem 0.5rem;
   border-radius: 1.125rem;
   z-index: 15;
-  max-height: calc(100dvh - 4.625rem - 5.25rem - var(--safe-top) - var(--safe-bottom));
+  max-height: calc(100dvh - var(--nav-h, 3.4375rem) - 4.625rem - 5.25rem - var(--safe-top) - var(--safe-bottom));
   overflow-y: auto;
 }
 

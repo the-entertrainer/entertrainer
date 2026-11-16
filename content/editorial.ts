@@ -1,4 +1,5 @@
 import { WORLD_ZONE_LINKS, type WorldAnchorId } from './zone-links'
+import { isListed } from '~/utils/listed'
 
 /**
  * The publication's index.
@@ -38,6 +39,11 @@ export interface EditorialItem {
   featured?: boolean
   /** Second-tier prominence in the story field. */
   size?: 'wide' | 'tall' | 'standard'
+  /**
+   * Public catalogs default to listed. Set false to drop the card from
+   * section listings and read-next. The URL stays. Re-list: `listed: true`.
+   */
+  listed?: boolean
 }
 
 export interface CategoryMeta {
@@ -144,11 +150,15 @@ export const ITEMS: EditorialItem[] = [
 
 /* ── Derived views ─────────────────────────────────────────────────────── */
 
-export const FEATURED = ITEMS.find(i => i.featured) as EditorialItem
-export const REST = ITEMS.filter(i => !i.featured)
+export function listedItems(items: EditorialItem[] = ITEMS): EditorialItem[] {
+  return items.filter(isListed)
+}
+
+export const FEATURED = (listedItems().find(i => i.featured) ?? listedItems()[0]) as EditorialItem
+export const REST = listedItems().filter(i => i !== FEATURED)
 
 export function byCategory(id: Category): EditorialItem[] {
-  return ITEMS.filter(i => i.category === id)
+  return listedItems().filter(i => i.category === id)
 }
 
 export function categoryMeta(id: Category): CategoryMeta {
@@ -157,10 +167,11 @@ export function categoryMeta(id: Category): CategoryMeta {
 
 /** The two or three things worth reading after this one. Same category first. */
 export function readNext(id: string, count = 3): EditorialItem[] {
-  const self = ITEMS.find(i => i.id === id)
-  if (!self) return ITEMS.slice(0, count)
-  const near = ITEMS.filter(i => i.id !== id && i.category === self.category)
-  const far = ITEMS.filter(i => i.id !== id && i.category !== self.category)
+  const pool = listedItems()
+  const self = pool.find(i => i.id === id) ?? ITEMS.find(i => i.id === id)
+  if (!self) return pool.slice(0, count)
+  const near = pool.filter(i => i.id !== id && i.category === self.category)
+  const far = pool.filter(i => i.id !== id && i.category !== self.category)
   return [...near, ...far].slice(0, count)
 }
 

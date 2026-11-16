@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import { ONE_EQUALS_TWO_BLOG } from '~/content/blogs'
 
 useSeoMeta({
@@ -6,12 +7,12 @@ useSeoMeta({
   description: ONE_EQUALS_TWO_BLOG.socialHook,
   ogTitle: ONE_EQUALS_TWO_BLOG.socialTitle,
   ogDescription: ONE_EQUALS_TWO_BLOG.socialHook,
-  ogUrl: `https://entertrainer.in/elevate/${ONE_EQUALS_TWO_BLOG.slug}`,
-  ogImage: `https://entertrainer.in${ONE_EQUALS_TWO_BLOG.hero}`,
+  ogUrl: absoluteUrl(`/elevate/${ONE_EQUALS_TWO_BLOG.slug}`),
+  ogImage: absoluteUrl(ONE_EQUALS_TWO_BLOG.hero),
   twitterCard: 'summary_large_image',
   twitterTitle: ONE_EQUALS_TWO_BLOG.socialTitle,
   twitterDescription: ONE_EQUALS_TWO_BLOG.socialHook,
-  twitterImage: `https://entertrainer.in${ONE_EQUALS_TWO_BLOG.hero}`
+  twitterImage: absoluteUrl(ONE_EQUALS_TWO_BLOG.hero)
 })
 
 const proof = [

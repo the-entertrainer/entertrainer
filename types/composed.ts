@@ -55,6 +55,11 @@ export interface ComposedPost {
   hero: string
   heroAlt: string
   status: 'draft' | 'published'
+  /**
+   * Public catalogs default to listed. Set false to keep a published post
+   * off Elevate, the sitemap, and RSS. The URL stays. Re-list: `listed: true`.
+   */
+  listed?: boolean
   publishedAt: string
   updatedAt: string
   marginNote?: ComposedMarginNote
@@ -76,6 +81,7 @@ export function emptyComposedPost(partial?: Partial<ComposedPost>): ComposedPost
     hero: '',
     heroAlt: '',
     status: 'draft',
+    listed: true,
     publishedAt: now,
     updatedAt: now,
     marginNote: { label: 'One useful idea.', body: '' },

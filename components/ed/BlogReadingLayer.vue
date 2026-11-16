@@ -119,7 +119,8 @@ onBeforeUnmount(() => {
 <template>
   <div v-if="isArticle && sections.length" class="reading-layer" :class="{ 'reading-layer--open': isOpen }">
     <div class="reading-layer__progress" aria-hidden="true">
-      <span :style="{ transform: `scaleX(${progress / 100})` }" />
+      <span class="reading-layer__fill" :style="{ transform: `scaleX(${progress / 100})` }" />
+      <span class="reading-layer__seal" :style="{ left: `${progress}%` }" />
     </div>
 
     <div class="reading-layer__rail" aria-label="Reading controls">
@@ -174,13 +175,23 @@ onBeforeUnmount(() => {
   pointer-events: none;
   background: color-mix(in srgb, var(--line) 45%, transparent);
 }
-.reading-layer__progress span {
+.reading-layer__fill {
   display: block;
   width: 100%;
   height: 100%;
   transform-origin: left center;
-  background: var(--accent);
+  background: var(--ink);
   transition: transform 180ms linear;
+}
+.reading-layer__seal {
+  position: absolute;
+  top: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1.5px solid var(--ink);
+  transform: translate(-50%, -50%);
 }
 /*
   The rail sits in the free right gutter, pinned to the viewport edge.
@@ -205,8 +216,8 @@ onBeforeUnmount(() => {
 .reading-layer__section--active .reading-layer__dot { background: var(--accent); border-color: var(--ink); }
 .reading-layer__actions { display: grid; gap: 0.3125rem; margin-top: 0.625rem; padding-top: 0.625rem; border-top: var(--stroke) solid var(--ink); }
 .reading-layer__action { display: flex; justify-content: space-between; width: 100%; padding: 0.375rem 0; border: 0; background: none; color: var(--ink); cursor: pointer; text-align: left; font: 700 0.75rem/1.2 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; }
-@media (prefers-reduced-motion: reduce) { .reading-layer__progress span { transition: none; } }
-html[data-reduce-motion="on"] .reading-layer__progress span { transition: none; }
+@media (prefers-reduced-motion: reduce) { .reading-layer__fill { transition: none; } }
+html[data-reduce-motion="on"] .reading-layer__fill { transition: none; }
 :global(html[data-reading-focus] .feature__margin-note),
 :global(html[data-reading-focus] .ca__margin-note),
 :global(html[data-reading-focus] .taj__margin-note),

@@ -887,6 +887,49 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
    12 · Responsive tuning
    ============================================================ */
 
+/* ============================================================
+   Craft. Yellow is a mark behind or beside ink, never the type.
+   ============================================================ */
+
+.u-marker {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-position: 0 0.72em;
+  background-size: 100% 0.38em;
+  color: var(--ink);
+}
+
+.craft-card {
+  position: relative;
+}
+.craft-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(9rem 6rem at var(--mx, 50%) var(--my, 0%), color-mix(in srgb, var(--accent) 42%, transparent), transparent 72%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms var(--ease-out);
+}
+@media (hover: hover) {
+  .craft-card:hover::after { opacity: 1; }
+  .craft-card:hover { border-color: var(--ink); }
+}
+.craft-card:active { transform: translateY(1px) scale(0.985); }
+.craft-card:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .craft-card,
+  .craft-card:active { transform: none; transition: none; }
+  .craft-card::after { display: none; }
+}
+html[data-reduce-motion="on"] .craft-card,
+html[data-reduce-motion="on"] .craft-card:active { transform: none; }
+html[data-reduce-motion="on"] .craft-card::after { display: none; }
+
 @media (max-width: 900px) { :root { --grid-margin: var(--space-21); --grid-gutter: var(--space-13); } }
 @media (max-width: 640px) {
   :root { --page-top: calc(var(--nav-h) + var(--safe-top)); }

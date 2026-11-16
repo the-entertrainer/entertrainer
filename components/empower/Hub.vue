@@ -13,6 +13,8 @@ import { isListed } from '~/utils/listed'
 import { offlineLabel, offlinePhase, type OfflinePhase } from '~/utils/empower/offline'
 
 const DEFAULT_DECK = 'Everyday tools for clearer thinking and work. They run in your browser — private, and available offline once loaded.'
+const board = ref<HTMLElement | null>(null)
+useCardSheen(board)
 
 const query = ref('')
 const recent = ref<RecentTool[]>([])
@@ -116,7 +118,7 @@ function groupId(group: ToolGroup): string {
 </script>
 
 <template>
-  <div class="em-hub">
+  <div ref="board" class="em-hub">
     <p class="sr-only" aria-live="polite" aria-atomic="true">{{ arrival }}</p>
     <EdStageHero
       variant="flow"
@@ -143,12 +145,12 @@ function groupId(group: ToolGroup): string {
       <h2 class="em-h2">Recently used</h2>
       <p v-if="!recent.length" class="em-note">Tools you open will be listed here, on this device only.</p>
       <template v-else-if="featured">
-        <NuxtLink :to="featured.href" class="em-feature">
+        <NuxtLink :to="featured.href" class="em-feature craft-card">
           <strong>{{ featured.title }}</strong>
           <span>{{ blurbFor(featured.href) }}</span>
         </NuxtLink>
         <div v-if="recentRest.length" class="em-links">
-          <NuxtLink v-for="item in recentRest" :key="item.id" :to="item.href" class="em-tool-link">
+          <NuxtLink v-for="item in recentRest" :key="item.id" :to="item.href" class="em-tool-link craft-card">
             <strong>{{ item.title }}</strong>
             <span>{{ blurbFor(item.href) }}</span>
           </NuxtLink>
@@ -157,7 +159,7 @@ function groupId(group: ToolGroup): string {
       <p v-else class="em-note">Nothing you have opened matches that search.</p>
     </section>
 
-    <NuxtLink v-if="soloEntry" :to="soloEntry.href" class="em-feature em-solo">
+    <NuxtLink v-if="soloEntry" :to="soloEntry.href" class="em-feature em-solo craft-card">
       <strong>{{ soloEntry.title }}</strong>
       <span>{{ soloEntry.text }}</span>
     </NuxtLink>
@@ -166,33 +168,33 @@ function groupId(group: ToolGroup): string {
       <section v-for="entry in groups" :key="entry.group" :aria-labelledby="groupId(entry.group)">
         <h2 :id="groupId(entry.group)" class="em-group-label">{{ entry.group }}</h2>
         <div class="em-links">
-          <NuxtLink v-for="tool in entry.tools" :key="tool.slug" :to="tool.href" class="em-tool-link">
+          <NuxtLink v-for="tool in entry.tools" :key="tool.slug" :to="tool.href" class="em-tool-link craft-card">
             <strong>{{ tool.title }}</strong>
             <span>{{ tool.task }}</span>
           </NuxtLink>
           <NuxtLink
             v-if="entry.group === 'Learn' && showLearning"
             :to="LEARNING_MODE_LINK.href"
-            class="em-tool-link"
+            class="em-tool-link craft-card"
           >
             <strong>{{ LEARNING_MODE_LINK.title }}</strong>
             <span>{{ LEARNING_MODE_LINK.task }}</span>
           </NuxtLink>
         </div>
       </section>
-      <p v-if="needle && !groups.length && !more.length" class="em-note" role="status">No tools match that search.</p>
+      <p v-if="needle && !groups.length && !more.length" class="em-note em-empty" role="status"><EdMark :size="21" /> No tools match that search.</p>
     </div>
 
     <section v-if="more.length && !soloEntry" class="em-more" aria-labelledby="empower-more">
       <h2 id="empower-more" class="em-group-label">More</h2>
       <div class="em-links">
-        <NuxtLink v-for="tool in more" :key="tool.href" :to="tool.href" class="em-tool-link">
+        <NuxtLink v-for="tool in more" :key="tool.href" :to="tool.href" class="em-tool-link craft-card">
           <strong>{{ tool.title }}</strong>
           <span>{{ tool.blurb }}</span>
         </NuxtLink>
       </div>
     </section>
 
-    <p v-if="showEmpty" class="em-note" role="status">Nothing on the bench right now.</p>
+    <p v-if="showEmpty" class="em-note em-empty" role="status"><EdMark :size="21" /> Nothing on the bench right now.</p>
   </div>
 </template>

@@ -235,7 +235,7 @@ onBeforeUnmount(() => {
 }
 
 .route-index__info:hover,
-.route-index__route.is-open .route-index__info { background: var(--accent); }
+.route-index__route.is-open .route-index__info { background: var(--accent); color: var(--accent-ink); }
 
 .route-index__info::before {
   content: '';
@@ -244,8 +244,8 @@ onBeforeUnmount(() => {
 }
 
 .route-index__info:focus-visible {
-  outline: 2rem solid var(--ink);
-  outline-offset: 3rem;
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
 }
 
 .route-index__tip {
@@ -267,15 +267,25 @@ onBeforeUnmount(() => {
   transform: translateY(-4rem);
 }
 
+.route-index__card {
+  transition: background 180ms var(--ease-out), color 180ms var(--ease-out);
+}
+
 @media (hover: hover) {
   .route-index__card:has(.route-index__link:hover) {
-    background: color-mix(in srgb, var(--accent) 35%, var(--paper));
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  .route-index__card:has(.route-index__link:hover) .route-index__info {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
   }
 }
 
 .route-index__link:focus-visible {
-  outline: 2rem solid var(--ink);
-  outline-offset: 3rem;
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
 }
 
 @media (max-width: 780px) {

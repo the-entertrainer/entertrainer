@@ -48,5 +48,5 @@ textarea { width: 100%; height: 100%; min-height: 60vh; font: 400 0.8125rem/1.4 
 .preview { border: 1px solid var(--line); border-radius: 0.5rem; overflow: auto; max-height: 80vh; }
 .err { color: #c45c26; padding: 1rem; }
 button { padding: 0.75rem 1.5rem; border: 1px solid var(--ink); border-radius: 999px; background: var(--paper); cursor: pointer; font-weight: 500; }
-button:hover { background: var(--accent); }
+button:hover { background: var(--accent); color: var(--accent-ink); }
 </style>

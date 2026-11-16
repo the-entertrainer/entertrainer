@@ -213,6 +213,13 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     title: 'Cadence · Training Calendar Generator',
     description: 'Turn a topic list into a ready-to-present monthly training calendar, laid out around holidays, audiences, and time slots.'
   },
+  '/tools/elearn-author': {
+    key: 'elearn-author',
+    label: 'Course Studio',
+    // TODO: final name pending. "Course Studio" is a neutral stand-in.
+    title: 'Course Studio · Entertrainer',
+    description: 'Edit a lesson as JSON, preview it, and copy it when you are ready to commit.'
+  },
   '/courses/ai-atlas': {
     key: 'ai-atlas',
     label: 'Course',
@@ -255,7 +262,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
+    description: 'Stack. Tap to drop. Only the overlap stays.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },

@@ -4,6 +4,15 @@ import { oneEqualsTwoLesson } from '~/content/oneEqualsTwoLesson'
 import LessonPlayer from '~/components/elearn/LessonPlayer.vue'
 import type { Lesson } from '~/types/lesson'
 
+// TODO: final name pending. "Course Studio" is a neutral stand-in.
+useSeoMeta({
+  title: 'Course Studio · Entertrainer',
+  description: 'Edit a lesson as JSON, preview it, and copy it when you are ready to commit.',
+  ogTitle: 'Course Studio',
+  ogDescription: 'Edit a lesson as JSON, preview it, and copy it when you are ready to commit.',
+  ogUrl: 'https://entertrainer.in/tools/elearn-author',
+})
+
 const source = ref(JSON.stringify(oneEqualsTwoLesson, null, 2))
 const preview = ref<Lesson>(oneEqualsTwoLesson)
 const error = ref('')
@@ -25,7 +34,7 @@ function copyJson() {
 <template>
   <div class="author">
     <header>
-      <h1>E-learning author</h1>
+      <h1>Course Studio</h1>
       <p>Edit the lesson JSON. Preview updates on blur. Copy when ready to commit.</p>
     </header>
     <div class="split">

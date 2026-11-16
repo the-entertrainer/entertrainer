@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { listedEngage } from '~/content/engage'
+
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
+  description: 'Stack. Tap to drop. Only the overlap stays.',
   ogUrl: 'https://entertrainer.in/engage',
 })
 
+const games = listedEngage()
 </script>
 
 <template>
@@ -15,39 +18,14 @@ useSeoMeta({
       title-id="engage-title"
     />
 
-    <ol class="engage__grid">
-      <li class="engage__step" style="--step: 0">
-        <NuxtLink to="/engage/stack" class="engage__card engage__card--stack">
-          <span class="engage__icon" aria-hidden="true"><EngageAppIcon app="stack" /></span>
+    <ol v-if="games.length" class="engage__grid" :class="{ 'engage__grid--solo': games.length === 1 }">
+      <li v-for="(game, index) in games" :key="game.id" class="engage__step" :style="{ '--step': index }">
+        <NuxtLink :to="game.href" class="engage__card" :class="`engage__card--${game.id}`">
+          <span class="engage__icon" aria-hidden="true"><EngageAppIcon :app="game.icon" /></span>
           <span class="engage__card-text">
-            <span class="engage__step-no">01</span><strong class="engage__card-name">Stack</strong>
-            <span class="engage__card-blurb">Tap to drop. Only the overlap stays.</span>
-          </span>
-          <span class="engage__card-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
-          </span>
-        </NuxtLink>
-      </li>
-      <li class="engage__step" style="--step: 1">
-        <NuxtLink to="/engage/read-my-mind" class="engage__card engage__card--mind-reader">
-          <span class="engage__icon" aria-hidden="true"><EngageAppIcon app="mind-reader" /></span>
-          <span class="engage__card-text">
-            <span class="engage__step-no">02</span><strong class="engage__card-name">The Mind Reader</strong>
-            <span class="engage__card-blurb">Example: 42. Add 4 + 2, subtract, and the mark is on 36.</span>
-          </span>
-          <span class="engage__card-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
-          </span>
-        </NuxtLink>
-      </li>
-      <li class="engage__step" style="--step: 2">
-        <NuxtLink to="/engage/astroclock" class="engage__card engage__card--astroclock">
-          <span class="engage__icon" aria-hidden="true"><EngageAppIcon app="astroclock" /></span>
-          <span class="engage__card-text">
-            <span class="engage__step-no">03</span><strong class="engage__card-name">AstroClock</strong>
-            <span class="engage__card-blurb">Birth place and time. A live dial. What today is doing.</span>
+            <span v-if="games.length > 1" class="engage__step-no">{{ String(index + 1).padStart(2, '0') }}</span>
+            <strong class="engage__card-name">{{ game.title }}</strong>
+            <span class="engage__card-blurb">{{ game.blurb }}</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -56,6 +34,7 @@ useSeoMeta({
         </NuxtLink>
       </li>
     </ol>
+    <p v-else class="engage__empty">Nothing on the table right now.</p>
   </div>
 </template>
 
@@ -155,6 +134,15 @@ useSeoMeta({
     visibility: visible;
     transform: none;
   }
+}
+
+.engage__grid--solo .engage__card {
+  padding: var(--space-34) var(--space-21);
+}
+.engage__empty {
+  margin: var(--space-34) 0 0;
+  color: var(--muted);
+  font-size: var(--type-body);
 }
 
 .engage__step-no {

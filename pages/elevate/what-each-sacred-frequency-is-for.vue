@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import { SACRED_FREQUENCIES_BLOG } from '~/content/blogs'
 
 useSeoMeta({
@@ -6,12 +7,12 @@ useSeoMeta({
   description: SACRED_FREQUENCIES_BLOG.socialHook,
   ogTitle: SACRED_FREQUENCIES_BLOG.socialTitle,
   ogDescription: SACRED_FREQUENCIES_BLOG.socialHook,
-  ogUrl: `https://entertrainer.in/elevate/${SACRED_FREQUENCIES_BLOG.slug}`,
-  ogImage: `https://entertrainer.in${SACRED_FREQUENCIES_BLOG.hero}`,
+  ogUrl: absoluteUrl(`/elevate/${SACRED_FREQUENCIES_BLOG.slug}`),
+  ogImage: absoluteUrl(SACRED_FREQUENCIES_BLOG.hero),
   twitterCard: 'summary_large_image',
   twitterTitle: SACRED_FREQUENCIES_BLOG.socialTitle,
   twitterDescription: SACRED_FREQUENCIES_BLOG.socialHook,
-  twitterImage: `https://entertrainer.in${SACRED_FREQUENCIES_BLOG.hero}`
+  twitterImage: absoluteUrl(SACRED_FREQUENCIES_BLOG.hero)
 })
 
 const tones = [174, 285, 396, 417, 528, 639, 741, 852, 963]

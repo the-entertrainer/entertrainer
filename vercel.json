@@ -733,12 +733,12 @@
       "statusCode": 301
     },
     {
-      "source": "/about/:path*",
+      "source": "/about/:path((?:[^./]+/)*[^./]+)",
       "destination": "/about",
       "statusCode": 301
     },
     {
-      "source": "/about/:path(.*)/",
+      "source": "/about/:path((?:[^./]+/)*[^./]+)/",
       "destination": "/about",
       "statusCode": 301
     },

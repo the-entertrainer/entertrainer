@@ -1,7 +1,8 @@
 <script setup lang="ts">
 // Design reminder — The Learning Atlas course is a self-contained, evidence-led player.
 import { useThemeStore } from '~/stores/theme'
-import { getSocialImage, getSocialPreview, SITE_URL } from '~/content/social-previews'
+import { getSocialImage, getSocialPreview } from '~/content/social-previews'
+import { absoluteUrl } from '~/utils/site'
 
 /**
  * The publication shell.
@@ -74,7 +75,7 @@ useSeoMeta({
   ogType: () => socialPreview.value.type ?? 'website',
   ogTitle: () => socialPreview.value.title,
   ogDescription: () => socialPreview.value.description,
-  ogUrl: () => `${SITE_URL}${canonicalPath.value}`,
+  ogUrl: () => absoluteUrl(canonicalPath.value),
   ogImage: () => socialImage.value,
   ogImageAlt: () => socialPreview.value.imageAlt ?? `Entertrainer preview: ${socialPreview.value.title}`,
   twitterCard: 'summary_large_image',
@@ -85,7 +86,7 @@ useSeoMeta({
 })
 
 useHead({
-  link: () => [{ key: 'canonical', rel: 'canonical', href: `${SITE_URL}${canonicalPath.value}` }]
+  link: () => [{ key: 'canonical', rel: 'canonical', href: absoluteUrl(canonicalPath.value) }]
 })
 
 // `/lab` itself is an index page and keeps the chrome; `/lab/g07` is an

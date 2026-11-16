@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 definePageMeta({ layout: false })
 /**
  * THE MIND READER — Engage parlor trick.
@@ -17,7 +18,7 @@ useHead({
 useSeoMeta({
   title: 'The Mind Reader · Engage',
   description: 'Example: 42. Add 4 + 2, subtract to get 36, and note the mark beside it.',
-  ogUrl: 'https://entertrainer.in/engage/read-my-mind',
+  ogUrl: absoluteUrl('/engage/read-my-mind'),
 })
 
 type SymbolKind =

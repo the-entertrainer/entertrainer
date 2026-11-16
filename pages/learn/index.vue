@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 /**
  * Learn dock. Canonical index for the instructional-design lesson, AI Atlas,
  * Strong, the 1=2 e-learning conversion, and the ID workflow tool.
@@ -8,7 +9,7 @@ useSeoMeta({
   description: 'Short lessons, a longer course, and the workflow for turning essays into modules.',
   ogTitle: 'Learn',
   ogDescription: 'Lessons you can try, and the path from source material to a finished module.',
-  ogUrl: 'https://entertrainer.in/learn'
+  ogUrl: absoluteUrl('/learn')
 })
 
 const lessons = [

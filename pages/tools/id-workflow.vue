@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 useSeoMeta({
   title: 'Instructional Design Workflow · Entertrainer',
   description: 'Source, analyse, structure, storyboard, develop assets, build the module, then polish. The full path from raw material to a finished lesson.',
   ogTitle: 'Instructional Design Workflow',
   ogDescription: 'Seven stages from source material to a polished module.',
-  ogUrl: 'https://entertrainer.in/tools/id-workflow'
+  ogUrl: absoluteUrl('/tools/id-workflow')
 })
 
 const stages = [

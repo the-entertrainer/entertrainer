@@ -2,6 +2,7 @@ import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import { buildRedirectRules } from './utils/redirect-rules'
+import { SITE_URL } from './utils/site'
 
 const require = createRequire(import.meta.url)
 
@@ -55,6 +56,10 @@ export default defineNuxtConfig({
   // Faces first, then the system that uses them.
   css: ['~/assets/css/tokens.css', '~/assets/css/fonts.css', '~/assets/css/main.css'],
   runtimeConfig: {
+    public: {
+      // Same value as utils/site.ts SITE_URL. Apex is not the served host.
+      siteUrl: SITE_URL,
+    },
     // Server-only — set via GIPHY_API_KEY env var (Vercel project settings).
     // When absent, /api/giphy serves a curated fallback manifest.
     giphyApiKey: process.env.GIPHY_API_KEY || '',

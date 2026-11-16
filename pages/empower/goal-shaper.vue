@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 useSeoMeta({
   title: 'Goal Shaper · Empower',
   description: 'What are you trying to make true?',
-  ogUrl: 'https://entertrainer.in/empower/goal-shaper',
+  ogUrl: absoluteUrl('/empower/goal-shaper'),
 })
 </script>
 

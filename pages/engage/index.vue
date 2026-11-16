@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 useSeoMeta({
   title: 'Engage · Entertrainer',
   description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
-  ogUrl: 'https://entertrainer.in/engage',
+  ogUrl: absoluteUrl('/engage'),
 })
 
 </script>

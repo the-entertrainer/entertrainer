@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import type { CardKind, Connection, StoryCard, StoryGenProject } from '~/types/story'
 import { createCard, CARD_KINDS } from '~/utils/storyCards'
 import type { ModelId } from '~/utils/idModels'
@@ -20,7 +21,7 @@ useSeoMeta({
   description: 'Design instructional storyboards on an infinite canvas. Pick a framework, connect the screens, and export the working plan to Word or Excel.',
   ogTitle: 'StoryGen — Storyboard Studio',
   ogDescription: 'Design instructional storyboards on an infinite canvas. Put the story somewhere you can actually inspect it.',
-  ogUrl: 'https://entertrainer.in/tools/storygen'
+  ogUrl: absoluteUrl('/tools/storygen')
 })
 
 const TOUR_KEY = 'storygen-tour-seen'

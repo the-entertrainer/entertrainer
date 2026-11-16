@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import { BLOG_POSTS, type BlogPost } from '~/content/blogs'
 import { composedToBlogPost, getPublishedComposedPosts } from '~/content/composed'
 import {
@@ -13,12 +14,12 @@ useSeoMeta({
   description: 'Mind, Universe, Science, Technology — pieces that start in a room and refuse the tidy story.',
   ogTitle: 'Elevate · MUST',
   ogDescription: 'Mind · Universe · Science · Technology.',
-  ogUrl: 'https://entertrainer.in/elevate',
-  ogImage: 'https://entertrainer.in/og-card-2026e.png'
+  ogUrl: absoluteUrl('/elevate'),
+  ogImage: absoluteUrl('/og-card-2026e.png')
 })
 
 useHead({
-  link: [{ rel: 'alternate', type: 'application/rss+xml', title: 'Elevate · The Entertrainer Blogs', href: 'https://entertrainer.in/elevate.xml' }]
+  link: [{ rel: 'alternate', type: 'application/rss+xml', title: 'Elevate · The Entertrainer Blogs', href: absoluteUrl('/elevate.xml') }]
 })
 
 const { data: liveComposed } = await useAsyncData('elevate-composed-listing', async () => {

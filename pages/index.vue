@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import { KNOWLEDGE_QUOTES, pickKnowledgeQuote } from '~/content/knowledge-quotes'
 
 useSeoMeta({
@@ -6,7 +7,7 @@ useSeoMeta({
   description: 'Stories for questions that keep returning, tools for work that keeps repeating, and small games for short detours.',
   ogTitle: 'Entertrainer · The Three Es',
   ogDescription: 'Elevate, Empower, Engage.',
-  ogUrl: 'https://entertrainer.in/'
+  ogUrl: absoluteUrl('/')
 })
 
 type HomeRoute = {

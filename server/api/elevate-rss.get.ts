@@ -1,7 +1,6 @@
 import { BLOG_POSTS } from '~/content/blogs'
 import { composedToBlogPost, getPublishedComposedPosts } from '~/content/composed'
-
-const SITE_URL = 'https://entertrainer.in'
+import { SITE_URL } from '~/utils/site'
 
 function escapeXml(value: string) {
   return String(value ?? '')

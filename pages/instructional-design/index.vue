@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 /**
  * Compact instructional-design player
  * Design contract: one short teaching purpose per screen. Each screen carries a
@@ -10,7 +11,7 @@ useSeoMeta({
   description: 'A compact beginner e-learning module about planning learning experiences that help people do real work, starting with the task rather than the course.',
   ogTitle: 'Introduction to Instructional Design · Entertrainer',
   ogDescription: 'A beginner e-learning module for planning learning experiences that help people do real work. Start with the need, then work out the support.',
-  ogUrl: 'https://entertrainer.in/instructional-design'
+  ogUrl: absoluteUrl('/instructional-design')
 })
 
 type SortBucket = 'learning' | 'environment'

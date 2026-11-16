@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 useSeoMeta({
   title: 'Recall Cards · Empower',
   description: 'Paste notes. Remember them later.',
-  ogUrl: 'https://entertrainer.in/empower/recall-cards',
+  ogUrl: absoluteUrl('/empower/recall-cards'),
 })
 </script>
 

@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 /**
  * Canonical host is https://www.entertrainer.in (utils/site.ts).
- * robots.txt and sitemap.xml are generated from that module.
+ * robots.txt is generated from that module.
+ * /sitemap.xml is generated from the catalogs (content/visibility.ts) and
+ * must use absoluteUrl() so it cannot drift onto the apex host.
  * SEO surfaces must not publish the apex host.
  */
-import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { SITE_URL, renderRobotsTxt, renderSitemapXml } from '../utils/site.ts'
+import { SITE_URL, renderRobotsTxt } from '../utils/site.ts'
 import { assertAboutRedirects } from './about-redirect.mjs'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
@@ -37,19 +39,30 @@ if (SITE_URL !== 'https://www.entertrainer.in') {
 }
 
 const robots = read('public/robots.txt')
-const sitemap = read('public/sitemap.xml')
 if (robots !== renderRobotsTxt()) fail('public/robots.txt drifted from renderRobotsTxt()')
-if (sitemap !== renderSitemapXml()) fail('public/sitemap.xml drifted from renderSitemapXml()')
 if (!robots.includes(`Sitemap: ${SITE_URL}/sitemap.xml`)) fail('robots sitemap line')
-if (!sitemap.includes(`<loc>${SITE_URL}/</loc>`)) fail('sitemap root')
-if (!sitemap.includes(`<loc>${SITE_URL}/about</loc>`)) fail('sitemap about')
+
+if (existsSync(join(root, 'public/sitemap.xml'))) {
+  fail('public/sitemap.xml must not exist; /sitemap.xml comes from the catalog route')
+}
+const visibility = read('content/visibility.ts')
+const sitemapRoute = read('server/routes/sitemap.xml.ts')
+if (!visibility.includes("import { absoluteUrl } from '~/utils/site'")) {
+  fail('content/visibility.ts must build sitemap locs with absoluteUrl()')
+}
+if (!visibility.includes('absoluteUrl(page.loc)')) fail('sitemapXml must call absoluteUrl(page.loc)')
+if (!sitemapRoute.includes('sitemapXml()')) fail('server/routes/sitemap.xml.ts must return sitemapXml()')
+if (read('utils/site.ts').includes('renderSitemapXml')) {
+  fail('utils/site.ts must not keep a second sitemap generator')
+}
 
 const seoFiles = [
   'app.vue',
   'content/social-previews.ts',
+  'content/visibility.ts',
   'server/api/elevate-rss.get.ts',
+  'server/routes/sitemap.xml.ts',
   'public/robots.txt',
-  'public/sitemap.xml',
   'public/elevate.xml',
   'nuxt.config.ts',
   ...walk(join(root, 'pages')).filter((path) => path.endsWith('.vue')),

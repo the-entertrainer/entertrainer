@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { absoluteUrl } from '~/utils/site'
 import { FEATURED_BLOG } from '~/content/blogs'
+import { isListed } from '~/utils/listed'
 import type { PhotoTileItem } from '~/components/ed/PhotoTiles.vue'
 
 useSeoMeta({
@@ -225,7 +226,7 @@ const marriottPhotos: PhotoTileItem[] = [
       </p>
         </article>
 
-    <footer class="about-story__close">
+    <footer v-if="isListed(FEATURED_BLOG)" class="about-story__close">
       <NuxtLink :to="`/elevate/${FEATURED_BLOG.slug}`" class="about-story__destination about-story__destination--elevate" aria-labelledby="elevate-preview-title" aria-describedby="elevate-preview-description">
         <figure class="about-story__destination-visual">
           <EdEditorialImage :src="FEATURED_BLOG.hero" :alt="FEATURED_BLOG.heroAlt" />

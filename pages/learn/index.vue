@@ -1,44 +1,19 @@
 <script setup lang="ts">
+import { listedLearn } from '~/content/learn'
 import { absoluteUrl } from '~/utils/site'
 /**
- * Learn dock. Canonical index for the instructional-design lesson, AI Atlas,
- * Strong, the 1=2 e-learning conversion, and the ID workflow tool.
+ * Learn dock. Rows come from content/learn.ts so `listed` can hide one
+ * without deleting its route.
  */
 useSeoMeta({
   title: 'Learn · Entertrainer',
-  description: 'Short lessons, a longer course, and the workflow for turning essays into modules.',
+  description: 'A short lesson on clear instructions, a longer course on artificial intelligence, and the Strong module.',
   ogTitle: 'Learn',
-  ogDescription: 'Lessons you can try, and the path from source material to a finished module.',
+  ogDescription: 'Lessons you can try, and a module you can open.',
   ogUrl: absoluteUrl('/learn')
 })
 
-const lessons = [
-  {
-    title: 'How to make instructions people can actually follow',
-    description: 'Take an instruction that makes people stop and reread it, then turn it into something another person can use.',
-    detail: '4 min', action: 'Try the lesson', href: '/instructional-design', visual: 'lesson'
-  },
-  {
-    title: '1=2: Let’s break maths',
-    description: 'The first Elevate essay turned into a block-by-block lesson. Follow the proof, find the crack, and keep the map’s edges in view.',
-    detail: '8 min', action: 'Open the lesson', href: '/learn/one-equals-two', visual: 'process'
-  },
-  {
-    title: 'Instructional design workflow',
-    description: 'Source, analyse, structure, storyboard, develop assets, build the module, then polish. The path we use to turn material into lessons.',
-    detail: 'Tool', action: 'Open the workflow', href: '/tools/id-workflow', visual: 'evidence'
-  },
-  {
-    title: 'From No AI to Know AI',
-    description: 'See where AI came from, how prediction works, and why its use matters. The machinery is less mysterious once you look at the moving parts.',
-    detail: '95 min', action: 'Start the course', href: '/courses/ai-atlas', visual: 'process'
-  },
-  {
-    title: 'Strong',
-    description: 'The same password can take a second or a century to crack, depending entirely on who is doing the cracking.',
-    detail: '10 min', action: 'Open the module', href: '/work/strong', visual: 'evidence'
-  }
-]
+const lessons = listedLearn()
 </script>
 
 <template>

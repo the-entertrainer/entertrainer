@@ -33,27 +33,21 @@ test.beforeEach(async ({ page }) => {
   await blockExternal(page)
 })
 
-test('hub lists all 8 tools, groups, search, and offline state', async ({ page }) => {
+test('hub lists only Course Studio while the other tools stay off the index', async ({ page }) => {
   await page.goto('/empower')
   await ready(page, 'hub')
   await expect(page.getByRole('heading', { level: 1, name: 'Empower' })).toBeVisible()
-  await expect(page.getByText('Everyday tools for clearer thinking and work.')).toBeVisible()
-  await expect(page.locator('.em-pill')).toHaveText(/Needs download|Ready offline|Offline — limited/)
+  await expect(page.getByRole('link', { name: /Course Studio/ })).toBeVisible()
+  await expect(page.locator('a[href="/tools/elearn-author"]')).toBeVisible()
   for (const [href] of TOOLS) {
-    await expect(page.locator(`a[href="${href}"]`).first()).toBeVisible()
+    await expect(page.locator(`a[href="${href}"]`)).toHaveCount(0)
   }
-  for (const group of ['Write', 'Read', 'Decide', 'Learn']) {
-    await expect(page.getByRole('heading', { name: group })).toBeVisible()
-  }
-  await expect(page.locator('a[href="/empower/goal-shaper?mode=learning"]')).toBeVisible()
-  await expect(page.locator('a[href="/tools/cadence"]')).toBeVisible()
-  await expect(page.locator('a[href="/tools/storygen"]')).toBeVisible()
-
-  await page.getByLabel('Search tools').fill('matrix')
-  await expect(page.locator('a[href="/empower/decision-matrix"]')).toBeVisible()
-  await expect(page.locator('a[href="/empower/plain-speak"]')).toHaveCount(0)
-  await page.getByLabel('Search tools').fill('no-such-tool')
-  await expect(page.getByText('No tools match that search.')).toBeVisible()
+  await expect(page.locator('a[href="/empower/goal-shaper?mode=learning"]')).toHaveCount(0)
+  await expect(page.locator('a[href="/tools/cadence"]')).toHaveCount(0)
+  await expect(page.locator('a[href="/tools/storygen"]')).toHaveCount(0)
+  await expect(page.locator('a[href="/tools/id-workflow"]')).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Write' })).toHaveCount(0)
+  await expect(page.getByLabel('Search tools')).toHaveCount(0)
 })
 
 test('plain-speak scores a draft with the network off', async ({ page }) => {
@@ -203,10 +197,12 @@ test('decision matrix names a winner offline', async ({ page }) => {
   await expect(page.locator('.em-winner')).toContainText('Bus wins with 60 points.')
 })
 
-test('recently used records a tool on this device', async ({ page }) => {
+test('an unlisted tool does not return to the hub after a visit', async ({ page }) => {
   await page.goto('/empower/plain-speak')
   await ready(page, 'plain-speak')
   await page.goto('/empower')
   await ready(page, 'hub')
-  await expect(page.getByRole('region', { name: 'Recently used' })).toContainText('Plain-Speak Meter')
+  await expect(page.getByRole('region', { name: 'Recently used' })).toHaveCount(0)
+  await expect(page.locator('a[href="/empower/plain-speak"]')).toHaveCount(0)
+  await expect(page.getByRole('link', { name: /Course Studio/ })).toBeVisible()
 })

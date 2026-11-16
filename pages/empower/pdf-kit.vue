@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 useSeoMeta({
   title: 'PDF Kit · Empower',
   description: 'PDFs that never go to a server.',
-  ogUrl: 'https://entertrainer.in/empower/pdf-kit',
+  ogUrl: absoluteUrl('/empower/pdf-kit'),
 })
 </script>
 

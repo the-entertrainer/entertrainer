@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import { MOONLY_BLOG } from '~/content/blogs'
 
 useSeoMeta({
@@ -6,12 +7,12 @@ useSeoMeta({
   description: MOONLY_BLOG.socialHook,
   ogTitle: MOONLY_BLOG.socialTitle,
   ogDescription: MOONLY_BLOG.socialHook,
-  ogUrl: `https://entertrainer.in/elevate/${MOONLY_BLOG.slug}`,
-  ogImage: `https://entertrainer.in${MOONLY_BLOG.hero}`,
+  ogUrl: absoluteUrl(`/elevate/${MOONLY_BLOG.slug}`),
+  ogImage: absoluteUrl(MOONLY_BLOG.hero),
   twitterCard: 'summary_large_image',
   twitterTitle: MOONLY_BLOG.socialTitle,
   twitterDescription: MOONLY_BLOG.socialHook,
-  twitterImage: `https://entertrainer.in${MOONLY_BLOG.hero}`
+  twitterImage: absoluteUrl(MOONLY_BLOG.hero)
 })
 
 const references = [

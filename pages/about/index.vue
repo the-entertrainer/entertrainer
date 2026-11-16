@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import { FEATURED_BLOG } from '~/content/blogs'
 import type { PhotoTileItem } from '~/components/ed/PhotoTiles.vue'
 
@@ -7,8 +8,8 @@ useSeoMeta({
   description: 'Naveen Jose — central Kerala, Club Mahindra housekeeping, The SEWA Chronicles, Marriott L&D, Concentrix, Entertrainer.',
   ogTitle: 'About Me · Naveen Jose',
   ogDescription: 'Housekeeping floors, SEWA stories checked by phone, then instructional design.',
-  ogUrl: 'https://entertrainer.in/about',
-  ogImage: 'https://entertrainer.in/about/naveen-portrait.jpg'
+  ogUrl: absoluteUrl('/about'),
+  ogImage: absoluteUrl('/about/naveen-portrait.jpg')
 })
 
 const clubMahindraPhotos: PhotoTileItem[] = [

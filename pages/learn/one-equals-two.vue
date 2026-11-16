@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import { oneEqualsTwoLesson } from '~/content/oneEqualsTwoLesson'
 import LessonPlayer from '~/components/elearn/LessonPlayer.vue'
 
@@ -7,7 +8,7 @@ useSeoMeta({
   description: oneEqualsTwoLesson.objective,
   ogTitle: oneEqualsTwoLesson.title,
   ogDescription: oneEqualsTwoLesson.dek,
-  ogUrl: 'https://entertrainer.in/learn/one-equals-two'
+  ogUrl: absoluteUrl('/learn/one-equals-two')
 })
 </script>
 

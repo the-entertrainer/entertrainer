@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import { useContentStore } from '~/stores/content'
 
 useSeoMeta({
@@ -6,7 +7,7 @@ useSeoMeta({
   description: 'Selected projects: The SEWA Chronicles and Strong.',
   ogTitle: 'Work',
   ogDescription: 'The SEWA Chronicles, and a short module on how passwords actually break.',
-  ogUrl: 'https://entertrainer.in/work'
+  ogUrl: absoluteUrl('/work')
 })
 
 const projects = useContentStore().workNav

@@ -201,6 +201,14 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Four quiet tool marks on cream paper.'
   },
+  '/tools/elearn-author': {
+    key: 'course-studio',
+    label: 'Course Studio',
+    title: 'Course Studio · Empower',
+    description: 'Arrange lesson blocks, preview the lesson, and export the lesson JSON.',
+    image: `${SITE_URL}/og-engage.jpg`,
+    imageAlt: 'Four quiet tool marks on cream paper.'
+  },
   '/tools/storygen': {
     key: 'storygen',
     label: 'Storyboard Studio',

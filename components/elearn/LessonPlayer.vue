@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Component } from 'vue'
 import type { Lesson, Block } from '~/types/lesson'
 import TextBlock from './blocks/TextBlock.vue'
 import HeadingBlock from './blocks/HeadingBlock.vue'
@@ -7,17 +8,17 @@ import QuoteBlock from './blocks/QuoteBlock.vue'
 import ImageBlock from './blocks/ImageBlock.vue'
 import ProcessBlock from './blocks/ProcessBlock.vue'
 import KnowledgeCheckBlock from './blocks/KnowledgeCheckBlock.vue'
+import FlashcardsBlock from './blocks/FlashcardsBlock.vue'
 import AccordionBlock from './blocks/AccordionBlock.vue'
 import ReflectionBlock from './blocks/ReflectionBlock.vue'
 import SourcesBlock from './blocks/SourcesBlock.vue'
 
-const props = defineProps<{ lesson: Lesson }>()
+const props = defineProps<{ lesson: Lesson; embedded?: boolean }>()
 const completed = ref(new Set<string>())
+const interactiveTypes = new Set(['knowledgeCheck', 'process', 'reflection', 'accordion', 'flashcards'])
 
 const progress = computed(() => {
-  const interactive = props.lesson.blocks.filter(b =>
-    ['knowledgeCheck', 'process', 'reflection', 'accordion'].includes(b.type)
-  )
+  const interactive = props.lesson.blocks.filter(block => interactiveTypes.has(block.type))
   if (!interactive.length) return 100
   return Math.round((completed.value.size / interactive.length) * 100)
 })
@@ -26,8 +27,8 @@ function markComplete(id: string) {
   completed.value = new Set([...completed.value, id])
 }
 
-function blockComponent(block: Block) {
-  const map: Record<string, any> = {
+function blockComponent(block: Block): Component {
+  const map: Record<Block['type'], Component> = {
     text: TextBlock,
     heading: HeadingBlock,
     statement: StatementBlock,
@@ -35,18 +36,20 @@ function blockComponent(block: Block) {
     image: ImageBlock,
     process: ProcessBlock,
     knowledgeCheck: KnowledgeCheckBlock,
+    flashcards: FlashcardsBlock,
     accordion: AccordionBlock,
     reflection: ReflectionBlock,
-    sources: SourcesBlock
+    sources: SourcesBlock,
   }
-  return map[block.type] || TextBlock
+  return map[block.type]
 }
 </script>
 
 <template>
   <div class="elearn">
     <header class="elearn__header">
-      <NuxtLink to="/elevate" class="elearn__back">← Elevate</NuxtLink>
+      <NuxtLink v-if="!embedded" to="/elevate" class="elearn__back">← Elevate</NuxtLink>
+      <span v-else class="elearn__back">Preview</span>
       <div class="elearn__progress">
         <div class="elearn__progress-bar" :style="{ width: progress + '%' }" />
         <span class="elearn__progress-label">{{ progress }}%</span>
@@ -78,7 +81,8 @@ function blockComponent(block: Block) {
 
     <footer class="elearn__footer">
       <p v-if="progress === 100" class="elearn__done">Lesson complete. The map has edges.</p>
-      <NuxtLink to="/elevate" class="elearn__next">Back to Elevate</NuxtLink>
+      <NuxtLink v-if="!embedded" to="/elevate" class="elearn__next">Back to Elevate</NuxtLink>
+      <span v-else class="elearn__next">Back to Elevate</span>
     </footer>
   </div>
 </template>

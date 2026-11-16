@@ -96,6 +96,12 @@ export const LEARNING_MODE_LINK = {
 
 export const MORE_TOOLS = [
   {
+    href: '/tools/elearn-author',
+    title: 'Course Studio',
+    blurb: 'Arrange lesson blocks, preview them, and export the lesson JSON.',
+    keywords: 'course studio elearn author lesson blocks flashcards knowledge check',
+  },
+  {
     href: '/tools/cadence',
     title: 'Cadence',
     blurb: 'A monthly training calendar from a topic list.',

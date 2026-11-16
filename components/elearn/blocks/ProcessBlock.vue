@@ -1,21 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 const props = defineProps<{ block: { title?: string; steps: { label: string; detail?: string; bad?: boolean; note?: string }[] } }>()
 const emit = defineEmits<{ complete: [] }>()
 const revealed = ref(0)
 
-function next() {
-  if (revealed.value < props.block.steps.length - 1) {
-    revealed.value++
-  } else {
-    emit('complete')
-  }
+function finish() {
+  if (!props.block.steps.length || revealed.value >= props.block.steps.length - 1) emit('complete')
 }
+
+function next() {
+  if (revealed.value < props.block.steps.length - 1) revealed.value++
+  finish()
+}
+
+onMounted(finish)
 </script>
 <template>
   <div class="elearn-process">
     <h3 v-if="block.title" class="elearn-process__title">{{ block.title }}</h3>
-    <ol class="elearn-process__steps">
+    <p v-if="!block.steps.length" class="done">No steps yet.</p>
+    <ol v-else class="elearn-process__steps">
       <li
         v-for="(step, i) in block.steps"
         :key="i"
@@ -30,10 +34,10 @@ function next() {
         </div>
       </li>
     </ol>
-    <button v-if="revealed < block.steps.length - 1" type="button" class="elearn-btn" @click="next">
+    <button v-if="block.steps.length && revealed < block.steps.length - 1" type="button" class="elearn-btn" @click="next">
       Next step
     </button>
-    <p v-else class="done">You found the crack.</p>
+    <p v-else-if="block.steps.length" class="done">{{ block.steps.some(step => step.bad) ? 'You found the crack.' : 'All steps shown.' }}</p>
   </div>
 </template>
 <style scoped>

@@ -2,6 +2,10 @@
 import { listedEngage } from '~/content/engage'
 import { absoluteUrl } from '~/utils/site'
 
+const board = ref<HTMLElement | null>(null)
+useCraftReveal(board, '.engage__step')
+useCardSheen(board)
+
 useSeoMeta({
   title: 'Engage · Entertrainer',
   description: 'Stack. Tap to drop. Only the overlap stays.',
@@ -12,7 +16,7 @@ const games = listedEngage()
 </script>
 
 <template>
-  <div class="engage">
+  <div ref="board" class="engage">
     <EdStageHero
       variant="orbits"
       title="Engage"
@@ -21,7 +25,7 @@ const games = listedEngage()
 
     <ol v-if="games.length" class="engage__grid" :class="{ 'engage__grid--solo': games.length === 1 }">
       <li v-for="(game, index) in games" :key="game.id" class="engage__step" :style="{ '--step': index }">
-        <NuxtLink :to="game.href" class="engage__card" :class="`engage__card--${game.id}`">
+        <NuxtLink :to="game.href" class="engage__card craft-card" :class="`engage__card--${game.id}`">
           <span class="engage__icon" aria-hidden="true"><EngageAppIcon :app="game.icon" /></span>
           <span class="engage__card-text">
             <span v-if="games.length > 1" class="engage__step-no">{{ String(index + 1).padStart(2, '0') }}</span>
@@ -35,7 +39,7 @@ const games = listedEngage()
         </NuxtLink>
       </li>
     </ol>
-    <p v-else class="engage__empty">Nothing on the table right now.</p>
+    <p v-else class="engage__empty"><EdMark :size="21" /> Nothing on the table right now.</p>
   </div>
 </template>
 
@@ -51,11 +55,16 @@ const games = listedEngage()
   list-style: none;
   margin: var(--space-21) 0 0;
   padding: 0;
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-13);
 }
+.engage__step { flex: 1 1 18rem; max-width: 36rem; min-width: 0; }
+.engage__grid:has(> :only-child) .engage__step { flex-basis: 22rem; }
 
 .engage__card {
+  width: 100%;
+  height: 100%;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) 1.25rem;
   align-items: center;
@@ -140,8 +149,14 @@ const games = listedEngage()
   padding: var(--space-34) var(--space-21);
 }
 .engage__empty {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 28rem;
   margin: var(--space-34) 0 0;
-  color: var(--muted);
+  padding: 1rem 1.05rem;
+  border: var(--stroke) solid var(--ink);
+  color: var(--ink);
   font-size: var(--type-body);
 }
 

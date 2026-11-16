@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { listedLearn } from '~/content/learn'
-
+import { absoluteUrl } from '~/utils/site'
 /**
  * Learn dock. Rows come from content/learn.ts so `listed` can hide one
  * without deleting its route.
@@ -10,7 +10,7 @@ useSeoMeta({
   description: 'A short lesson on clear instructions, a longer course on artificial intelligence, and the Strong module.',
   ogTitle: 'Learn',
   ogDescription: 'Lessons you can try, and a module you can open.',
-  ogUrl: 'https://entertrainer.in/learn'
+  ogUrl: absoluteUrl('/learn')
 })
 
 const lessons = listedLearn()

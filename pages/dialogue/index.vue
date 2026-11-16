@@ -45,6 +45,7 @@
 </template>
 
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import { loadDialogueHomeLibs } from '~/composables/dialogue/loadDialogueScripts'
 import { useDialogueDb } from '~/composables/dialogue/useDialogueDb'
 
@@ -52,7 +53,7 @@ useSeoMeta({
   title: 'Dialogue — comics from your pocket',
   description: 'Vertical webcomic studio for phones. Snap art, letter, export for WEBTOON.',
   ogTitle: 'Dialogue — comics from your pocket',
-  ogUrl: 'https://entertrainer.in/dialogue',
+  ogUrl: absoluteUrl('/dialogue'),
 })
 
 definePageMeta({ layout: 'dialogue' })

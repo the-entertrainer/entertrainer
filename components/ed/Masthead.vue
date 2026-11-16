@@ -159,12 +159,19 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 .mh__bar {
   max-width: var(--shell-max); margin: 0 auto;
-  min-height: var(--nav-h);
+  height: var(--nav-h);
+  max-height: var(--nav-h);
   padding: 0 var(--shell-gutter);
   display: flex; align-items: center; gap: var(--space-21);
 }
 
-.mh__brand { display: inline-flex; flex: none; }
+/* The lockup is a home link. Hold it to the bar so an oversized word
+   cannot spill down the page and take clicks meant for tool controls. */
+.mh__brand {
+  display: inline-flex; flex: none; min-width: 0;
+  max-height: 100%;
+  overflow: clip;
+}
 .mh__brand :deep(svg) { transition: transform var(--dur-mid) var(--ease-spring); }
 @media (hover: hover) { .mh__brand:hover :deep(svg) { transform: translateY(-0.0625rem); } }
 

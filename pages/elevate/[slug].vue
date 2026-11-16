@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import type { ComposedPost } from '~/types/composed'
 import { getPublishedComposedPost } from '~/content/composed'
 
@@ -30,12 +31,12 @@ useSeoMeta({
   description: () => post.value.socialHook || post.value.dek,
   ogTitle: () => post.value.socialTitle || post.value.title,
   ogDescription: () => post.value.socialHook || post.value.dek,
-  ogUrl: () => `https://entertrainer.in/elevate/${post.value.slug}`,
-  ogImage: () => post.value.hero ? `https://entertrainer.in${post.value.hero}` : undefined,
+  ogUrl: () => absoluteUrl(`/elevate/${post.value.slug}`),
+  ogImage: () => post.value.hero ? absoluteUrl(post.value.hero) : undefined,
   twitterCard: 'summary_large_image',
   twitterTitle: () => post.value.socialTitle || post.value.title,
   twitterDescription: () => post.value.socialHook || post.value.dek,
-  twitterImage: () => post.value.hero ? `https://entertrainer.in${post.value.hero}` : undefined
+  twitterImage: () => post.value.hero ? absoluteUrl(post.value.hero) : undefined
 })
 </script>
 

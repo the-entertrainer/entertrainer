@@ -4,8 +4,7 @@ import { LEARN_ITEMS } from '~/content/learn'
 import { getPublishedComposedPosts } from '~/content/composed'
 import { EMPOWER_TOOLS, MORE_TOOLS } from '~/utils/empower/catalog'
 import { isListed } from '~/utils/listed'
-
-const SITE = 'https://entertrainer.in'
+import { absoluteUrl } from '~/utils/site'
 
 /** Hub and other pages that are not themselves catalog rows. */
 const SITEMAP_PAGES: { loc: string; priority: string }[] = [
@@ -116,7 +115,7 @@ function escapeXml(value: string) {
 
 export function sitemapXml(): string {
   const urls = sitemapEntries()
-    .map((page) => `  <url><loc>${escapeXml(SITE + page.loc)}</loc><priority>${page.priority}</priority></url>`)
+    .map((page) => `  <url><loc>${escapeXml(absoluteUrl(page.loc))}</loc><priority>${page.priority}</priority></url>`)
     .join('\n')
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
 }

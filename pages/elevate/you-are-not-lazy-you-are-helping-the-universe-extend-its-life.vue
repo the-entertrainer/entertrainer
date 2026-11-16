@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import { ENTROPY_BLOG } from '~/content/blogs'
 
 useSeoMeta({
@@ -6,12 +7,12 @@ useSeoMeta({
   description: ENTROPY_BLOG.socialHook,
   ogTitle: ENTROPY_BLOG.socialTitle,
   ogDescription: ENTROPY_BLOG.socialHook,
-  ogUrl: `https://entertrainer.in/elevate/${ENTROPY_BLOG.slug}`,
-  ogImage: `https://entertrainer.in${ENTROPY_BLOG.hero}`,
+  ogUrl: absoluteUrl(`/elevate/${ENTROPY_BLOG.slug}`),
+  ogImage: absoluteUrl(ENTROPY_BLOG.hero),
   twitterCard: 'summary_large_image',
   twitterTitle: ENTROPY_BLOG.socialTitle,
   twitterDescription: ENTROPY_BLOG.socialHook,
-  twitterImage: `https://entertrainer.in${ENTROPY_BLOG.hero}`
+  twitterImage: absoluteUrl(ENTROPY_BLOG.hero)
 })
 
 const references = [

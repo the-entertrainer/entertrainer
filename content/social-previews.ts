@@ -1,6 +1,7 @@
 import { ENTROPY_BLOG, MOONLY_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, KNOWING_BLOG, TAJJALAN_BLOG, SPLIT_BRAIN_BLOG, SACRED_FREQUENCIES_BLOG, ONE_EQUALS_TWO_BLOG } from './blogs'
+import { SITE_URL } from '~/utils/site'
 
-export const SITE_URL = 'https://entertrainer.in'
+export { SITE_URL }
 
 export type SocialPreview = {
   key: string

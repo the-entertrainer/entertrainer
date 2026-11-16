@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { oneEqualsTwoLesson } from '~/content/oneEqualsTwoLesson'
 import LessonPlayer from '~/components/elearn/LessonPlayer.vue'
 import type { Lesson } from '~/types/lesson'
+import { absoluteUrl } from '~/utils/site'
 
 // TODO: final name pending. "Course Studio" is a neutral stand-in.
 useSeoMeta({
@@ -10,7 +11,7 @@ useSeoMeta({
   description: 'Edit a lesson as JSON, preview it, and copy it when you are ready to commit.',
   ogTitle: 'Course Studio',
   ogDescription: 'Edit a lesson as JSON, preview it, and copy it when you are ready to commit.',
-  ogUrl: 'https://entertrainer.in/tools/elearn-author',
+  ogUrl: absoluteUrl('/tools/elearn-author'),
 })
 
 const source = ref(JSON.stringify(oneEqualsTwoLesson, null, 2))

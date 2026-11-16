@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { listedEngage } from '~/content/engage'
+import { absoluteUrl } from '~/utils/site'
 
 useSeoMeta({
   title: 'Engage · Entertrainer',
   description: 'Stack. Tap to drop. Only the overlap stays.',
-  ogUrl: 'https://entertrainer.in/engage',
+  ogUrl: absoluteUrl('/engage'),
 })
 
 const games = listedEngage()

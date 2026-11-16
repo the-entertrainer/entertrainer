@@ -81,6 +81,8 @@ test('sitemap and RSS follow the listed flag', async ({ request }) => {
   const sitemapRes = await request.get('/sitemap.xml')
   expect(sitemapRes.status()).toBe(200)
   const sitemap = await sitemapRes.text()
+  expect(sitemap).toContain('https://www.entertrainer.in/')
+  expect(sitemap).not.toContain('https://entertrainer.in/')
   expect(sitemap).toContain('/tools/elearn-author')
   expect(sitemap).toContain('/engage/stack')
   expect(sitemap).toContain('/elevate/one-equals-two-lets-break-maths')

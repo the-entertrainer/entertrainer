@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 import type { Root } from 'react-dom/client'
 import '@astroclock/styles/astroclock.css'
 
@@ -7,7 +8,7 @@ definePageMeta({ layout: false })
 useSeoMeta({
   title: 'AstroClock · Engage',
   description: 'Birth place and time. A live dial. What today is doing.',
-  ogUrl: 'https://entertrainer.in/engage/astroclock',
+  ogUrl: absoluteUrl('/engage/astroclock'),
 })
 
 const THEME_BG = { dark: '#0B0C10', light: '#F4F1EA' } as const

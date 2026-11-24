@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { absoluteUrl } from '~/utils/site'
 /**
  * WHATTO: live crypto rebound signals for Engage.
  * Client-only app (live websockets + localStorage). See docs/whatto/ARCHITECTURE.md.
@@ -11,7 +10,7 @@ definePageMeta({ layout: false })
 useSeoMeta({
   title: 'Whatto · Engage',
   description: 'Live crypto rebound signals with the odds shown. Real Binance data, a backtested model, and plain words.',
-  ogUrl: absoluteUrl('/engage/whatto'),
+  ogUrl: 'https://entertrainer.in/engage/whatto',
   // Unlisted page: shareable by direct link, never indexed or followed.
   robots: 'noindex, nofollow',
 })

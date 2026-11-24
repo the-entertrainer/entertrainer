@@ -1,7 +1,6 @@
 import { ENTROPY_BLOG, MOONLY_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, KNOWING_BLOG, TAJJALAN_BLOG, SPLIT_BRAIN_BLOG, SACRED_FREQUENCIES_BLOG, ONE_EQUALS_TWO_BLOG } from './blogs'
-import { SITE_URL } from '~/utils/site'
 
-export { SITE_URL }
+export const SITE_URL = 'https://entertrainer.in'
 
 export type SocialPreview = {
   key: string
@@ -202,15 +201,6 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Four quiet tool marks on cream paper.'
   },
-  '/tools/elearn-author': {
-    key: 'course-studio',
-    label: 'Course Studio',
-    // TODO: final name pending. "Course Studio" is a neutral stand-in.
-    title: 'Course Studio · Empower',
-    description: 'Arrange lesson blocks, preview the lesson, and export the lesson JSON.',
-    image: `${SITE_URL}/og-engage.jpg`,
-    imageAlt: 'Four quiet tool marks on cream paper.'
-  },
   '/tools/storygen': {
     key: 'storygen',
     label: 'Storyboard Studio',
@@ -265,7 +255,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Stack. Tap to drop. Only the overlap stays.',
+    description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },

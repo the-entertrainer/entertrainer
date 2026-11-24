@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { absoluteUrl } from '~/utils/site'
 import { FEATURED_BLOG } from '~/content/blogs'
-import { isListed } from '~/utils/listed'
 import type { PhotoTileItem } from '~/components/ed/PhotoTiles.vue'
 
 useSeoMeta({
@@ -9,8 +7,8 @@ useSeoMeta({
   description: 'Naveen Jose — central Kerala, Club Mahindra housekeeping, The SEWA Chronicles, Marriott L&D, Concentrix, Entertrainer.',
   ogTitle: 'About Me · Naveen Jose',
   ogDescription: 'Housekeeping floors, SEWA stories checked by phone, then instructional design.',
-  ogUrl: absoluteUrl('/about'),
-  ogImage: absoluteUrl('/about/naveen-portrait.jpg')
+  ogUrl: 'https://entertrainer.in/about',
+  ogImage: 'https://entertrainer.in/about/naveen-portrait.jpg'
 })
 
 const clubMahindraPhotos: PhotoTileItem[] = [
@@ -226,7 +224,7 @@ const marriottPhotos: PhotoTileItem[] = [
       </p>
         </article>
 
-    <footer v-if="isListed(FEATURED_BLOG)" class="about-story__close">
+    <footer class="about-story__close">
       <NuxtLink :to="`/elevate/${FEATURED_BLOG.slug}`" class="about-story__destination about-story__destination--elevate" aria-labelledby="elevate-preview-title" aria-describedby="elevate-preview-description">
         <figure class="about-story__destination-visual">
           <EdEditorialImage :src="FEATURED_BLOG.hero" :alt="FEATURED_BLOG.heroAlt" />

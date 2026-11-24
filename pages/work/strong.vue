@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { absoluteUrl } from '~/utils/site'
 import Backdrop3d from '~/components/work/Backdrop3d.vue'
 import StCover from '~/components/work/strong/Title.vue'
 import StObjectives from '~/components/work/strong/Objectives.vue'
@@ -47,7 +46,7 @@ useSeoMeta({
   description: 'A short interactive module on the real maths of password strength: entropy in bits, why length beats symbols, and why the same password can be instant or eternal depending on the attacker.',
   ogTitle: 'Strong — how passwords really break',
   ogDescription: 'The real maths behind password strength, made playable. Nothing you type ever leaves your device.',
-  ogUrl: absoluteUrl('/work/strong')
+  ogUrl: 'https://entertrainer.in/work/strong'
 })
 
 const store = useStrongStore()

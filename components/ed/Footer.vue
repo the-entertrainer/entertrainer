@@ -52,7 +52,7 @@ const moreLinks = [
     </div>
 
     <div class="ft__base">
-      <p class="t-mono ft__sign"><EdMark :size="16" /><span>© {{ year }} {{ store.name }} · Entertrainer</span></p>
+      <p class="t-mono">© {{ year }} {{ store.name }} · Entertrainer</p>
     </div>
   </footer>
 </template>
@@ -88,5 +88,4 @@ const moreLinks = [
   color: var(--muted);
 }
 .ft__base p { margin: 0; }
-.ft__sign { display: inline-flex; align-items: center; gap: 0.55rem; }
 </style>

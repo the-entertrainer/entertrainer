@@ -2,7 +2,6 @@ import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import { buildRedirectRules } from './utils/redirect-rules'
-import { SITE_URL } from './utils/site'
 
 const require = createRequire(import.meta.url)
 
@@ -56,10 +55,6 @@ export default defineNuxtConfig({
   // Faces first, then the system that uses them.
   css: ['~/assets/css/tokens.css', '~/assets/css/fonts.css', '~/assets/css/main.css'],
   runtimeConfig: {
-    public: {
-      // Same value as utils/site.ts SITE_URL. Apex is not the served host.
-      siteUrl: SITE_URL,
-    },
     // Server-only — set via GIPHY_API_KEY env var (Vercel project settings).
     // When absent, /api/giphy serves a curated fallback manifest.
     giphyApiKey: process.env.GIPHY_API_KEY || '',
@@ -121,7 +116,7 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
-		{ rel: 'mask-icon', href: '/safari-pinned-tab.svg', color: '#FFD43B' },
+		{ rel: 'mask-icon', href: '/safari-pinned-tab.svg', color: '#2F5BD8' },
         // Two preloads. Archivo sets every interface string and Fraunces
         // sets the headline, so those two are on the critical path for the
         // first screen; the reading serif, the mono and every latin-ext cut

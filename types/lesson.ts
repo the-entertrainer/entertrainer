@@ -6,6 +6,7 @@ export type BlockType =
   | 'image'
   | 'process'
   | 'knowledgeCheck'
+  | 'flashcards'
   | 'accordion'
   | 'reflection'
   | 'sources'
@@ -73,6 +74,18 @@ export interface KnowledgeCheckBlock extends BaseBlock {
   feedback: { correct: string; incorrect: string }
 }
 
+export interface Flashcard {
+  id: string
+  front: string
+  back: string
+}
+
+export interface FlashcardsBlock extends BaseBlock {
+  type: 'flashcards'
+  title?: string
+  cards: Flashcard[]
+}
+
 export interface AccordionItem {
   title: string
   content: string
@@ -103,6 +116,7 @@ export type Block =
   | ImageBlock
   | ProcessBlock
   | KnowledgeCheckBlock
+  | FlashcardsBlock
   | AccordionBlock
   | ReflectionBlock
   | SourcesBlock
@@ -118,4 +132,32 @@ export interface Lesson {
   hero?: string
   heroAlt?: string
   blocks: Block[]
+}
+
+/** Course Studio document contract. Bump when the lesson shape changes. */
+export const LESSON_SCHEMA_VERSION = 1 as const
+
+export type LessonSchemaVersion = typeof LESSON_SCHEMA_VERSION
+
+/**
+ * Versioned lesson file. Export always writes this shape.
+ * Import also accepts a bare Lesson (no wrapper) from earlier hand-written files.
+ */
+export interface LessonDocument {
+  schemaVersion: LessonSchemaVersion
+  lesson: Lesson
+}
+
+export const LESSON_PACKAGE_FORMATS = ['scorm12', 'scorm2004', 'xapi'] as const
+
+export type LessonPackageFormat = (typeof LESSON_PACKAGE_FORMATS)[number]
+
+/**
+ * TODO: SCORM 1.2, SCORM 2004, and xAPI (Tin Can) packaging.
+ * An exporter reads a LessonDocument and returns a package blob.
+ * Do not scrape the lesson player DOM — this document is the contract.
+ */
+export interface LessonPackageExporter {
+  readonly format: LessonPackageFormat
+  exportPackage(document: LessonDocument): Promise<Blob>
 }

@@ -16,6 +16,7 @@
     "hero": "/blog/hidden-matrix/earth-apollo17.jpg",
     "heroAlt": "The Earth, fully lit, photographed by the Apollo 17 crew on the way to the Moon in December 1972.",
     "status": "published",
+    "listed": false,
     "publishedAt": "2026-09-25T00:00:00+00:00",
     "updatedAt": "2026-10-06T04:30:00+00:00",
     "marginNote": {

@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { absoluteUrl } from '~/utils/site'
 definePageMeta({ pageTransition: { name: 'fade', mode: 'out-in' } })
 useSeoMeta({
   title: 'Cadence — Training Calendar Generator · Entertrainer',
   description: 'Turn a topic list into a ready-to-present monthly training calendar, laid out around holidays, audiences, and time slots. Exports to PowerPoint.',
   ogTitle: 'Cadence — Training Calendar Generator',
   ogDescription: 'Turn a topic list into a ready-to-present monthly training calendar. The blank month does not have to stay blank.',
-  ogUrl: 'https://entertrainer.in/tools/cadence'
+  ogUrl: absoluteUrl('/tools/cadence')
 })
 
 // ─── Types ───────────────────────────────────────────────────────────────────

@@ -5,7 +5,7 @@
       "label": "Elevate",
       "description": "Essays that start in a room and refuse the tidy story.",
       "href": "/elevate",
-      "color": "#2F5BD8",
+      "color": "#FFD43B",
       "meta": "Essays"
     },
     {
@@ -13,7 +13,7 @@
       "label": "Empower",
       "description": "Tools for work that keeps repeating.",
       "href": "/empower",
-      "color": "#2F5BD8",
+      "color": "#FFD43B",
       "img": "/web-apps.png",
       "meta": "Tools"
     },
@@ -22,7 +22,7 @@
       "label": "Engage",
       "description": "Short games and little detours.",
       "href": "/engage",
-      "color": "#2F5BD8",
+      "color": "#FFD43B",
       "meta": "Games"
     },
     {
@@ -30,7 +30,7 @@
       "label": "Learn",
       "description": "A short lesson, a longer course on artificial intelligence, and Strong.",
       "href": "/learn",
-      "color": "#2F5BD8",
+      "color": "#FFD43B",
       "img": "/instructional-design.png",
       "meta": "Lessons"
     },
@@ -39,7 +39,7 @@
       "label": "About",
       "description": "The story behind Entertrainer, from hotel floors to learning design.",
       "href": "/about",
-      "color": "#2F5BD8",
+      "color": "#FFD43B",
       "img": "/about-me.png",
       "meta": "Story"
     }
@@ -52,7 +52,7 @@
       "label": "The SEWA Chronicles",
       "description": "A comic magazine for Club Mahindra, teaching service values through true stories from the resort floor.",
       "href": "/work/sewa-chronicles",
-      "color": "#2F5BD8",
+      "color": "#FFD43B",
       "img": "/work-01.png",
       "meta": "Comic · Club Mahindra"
     },
@@ -61,7 +61,7 @@
       "label": "Strong",
       "description": "Why the same password can take a second or a century to crack, depending entirely on who is doing the cracking.",
       "href": "/work/strong",
-      "color": "#2F5BD8",
+      "color": "#FFD43B",
       "img": "/strong.png",
       "meta": "Interactive explainer"
     }
@@ -73,7 +73,7 @@
       "label": "Templates",
       "description": "Ready-to-use L&D templates",
       "href": "/archive/downloads/templates",
-      "color": "#2F5BD8",
+      "color": "#FFD43B",
       "img": "/templates.png",
       "meta": "Pack"
     },
@@ -82,7 +82,7 @@
       "label": "Frameworks",
       "description": "ID frameworks & storyboard guides",
       "href": "/archive/downloads/frameworks",
-      "color": "#2F5BD8",
+      "color": "#FFD43B",
       "img": "/frameworks.png",
       "meta": "Reference"
     },
@@ -91,7 +91,7 @@
       "label": "Resources",
       "description": "Curated L&D resources",
       "href": "/archive/downloads/resources",
-      "color": "#2F5BD8",
+      "color": "#FFD43B",
       "img": "/resources.png",
       "meta": "Links"
     }

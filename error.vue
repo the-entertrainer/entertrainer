@@ -27,6 +27,7 @@ useHead({ title: isNotFound.value ? 'Page not found â€” Entertrainer' : 'Error â
     <EdMasthead />
     <main id="main">
       <UiContentShell :eyebrow="`Error ${error?.statusCode ?? ''}`" :title="title" :deck="deck">
+        <p class="err__mark"><EdMark :size="34" /></p>
         <ul class="err__list">
           <li v-for="it in NAV" :key="it.href">
             <NuxtLink :to="it.href" class="err__row">
@@ -48,15 +49,18 @@ useHead({ title: isNotFound.value ? 'Page not found â€” Entertrainer' : 'Error â
 #app-root { min-height: 100dvh; background: var(--paper); display: flex; flex-direction: column; }
 #main { flex: 1; }
 
-.err__list { list-style: none; margin: 0 0 30rem; padding: 0; }
+.err__mark { margin: 0 0 1rem; }
+.err__list { list-style: none; margin: 0 0 1.5rem; padding: 0; max-width: 36rem; }
 .err__row {
-  display: grid; grid-template-columns: minmax(0, 1fr) 16rem;
-  align-items: center; gap: 14rem;
-  padding: 14rem 8rem;
-  border-bottom: var(--stroke) solid var(--line);
+  display: grid; grid-template-columns: minmax(0, 1fr) 1rem;
+  align-items: center; gap: 0.75rem;
+  padding: 0.85rem 0.5rem;
+  border-bottom: var(--stroke) solid var(--ink);
+  color: var(--ink);
   transition: background var(--dur-fast) var(--ease-out);
 }
-@media (hover: hover) { .err__row:hover { background: var(--yellow); color: var(--on-yellow); } }
-.err__t { font-size: 17rem; font-weight: 600; }
+@media (hover: hover) { .err__row:hover { background: var(--accent); color: var(--accent-ink); } }
+.err__row:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.err__t { font: 500 1.125rem/1.2 var(--font-display); }
 .err__home { text-decoration: none; }
 </style>

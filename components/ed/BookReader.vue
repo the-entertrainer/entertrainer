@@ -390,7 +390,7 @@ onBeforeUnmount(() => {
 .sewa-publication__eyebrow { color: #a23f32; font: 700 0.75rem/1.2 "IBM Plex Mono", monospace; letter-spacing: .17em; }
 .sewa-publication__credit { margin-top: 2rem; color: #766860; font: 700 0.75rem/1.2 "IBM Plex Mono", monospace; letter-spacing: .1em; }
 .sewa-publication__sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-.sewa-publication:focus-visible, .sewa-publication__brand:focus-visible, .sewa-publication__exit:focus-visible { outline: 3px solid #315fc7; outline-offset: 0.25rem; }
+.sewa-publication:focus-visible, .sewa-publication__brand:focus-visible, .sewa-publication__exit:focus-visible { outline: 3px solid #0B0B0C; outline-offset: 0.25rem; }
 @media (max-width: 680px) {
   .sewa-publication__masthead { min-height: 3.75rem; }
   .sewa-publication__brand :deep(.wordmark) { max-width: 10rem; }

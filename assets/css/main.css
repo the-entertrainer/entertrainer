@@ -28,7 +28,7 @@
    `html { font-size: 1px }`. Spacing that used to be written as Nrem
    (meaning Npx) is now N/16 rem. Text does not go below 12px (0.75rem).
    Colour tokens are the spec §6.5 primitives, with a semantic layer below
-   that swaps paper, ink, muted, danger, and cobalt text in dark mode.
+   that swaps paper, ink, muted, and danger in dark mode. Yellow is a fill.
    ========================================================================== */
 
 /* ============================================================
@@ -60,24 +60,26 @@
   --line:    var(--color-rm-line, #C9C2B4);
   --line-strong: #6F685C;
 
-  --accent: var(--color-rm-cobalt, #2F5BD8);
-  --accent-strong: var(--color-rm-cobalt-ink, #1E3F9A);
-  --accent-soft: #E4EAF8;
-  --accent-ink: var(--color-rm-cream, #F7F1E4); /* cream on cobalt, not ink (3.38:1) */
-  --accent-text: var(--color-rm-cobalt-ink, #1E3F9A);
+  /* Sacred yellow is the only accent. It is a fill, a mark, a highlight,
+     or a button ground. Ink sits on it (about 13:1). Yellow type on cream
+     is about 1.3:1, so --accent-text stays ink. */
+  --accent: var(--color-rm-yellow, #FFD43B);
+  --accent-strong: #E6B400;
+  --accent-soft: #FFF3C2;
+  --accent-ink: var(--color-rm-ink, #0B0B0C);
+  --accent-text: var(--ink);
   --on-danger: #FFFFFF;
   --blue:   var(--accent);
   --violet: var(--accent);
   --red:    var(--color-rm-danger, #B33226);
   --green:  #187A4C;
   --purple: var(--accent);
-  --yellow: var(--accent);
+  --yellow: var(--color-rm-yellow, #FFD43B);
   --cyan:   #0E5F86;
 
-  --cobalt: var(--color-rm-cobalt, #2F5BD8);
-  --signal-field: #E7EDF8;
+  --signal-field: #F3EBD4;
   --signal-sheet: var(--color-rm-cream-2, #EFE8D8);
-  --signal-cobalt: var(--color-rm-cobalt, #2F5BD8);
+  --signal-mark: var(--accent);
   --signal-rule: var(--color-rm-ink, #0B0B0C);
   --ink-soft: var(--muted);
 
@@ -88,8 +90,8 @@
   --on-yellow: var(--accent-ink);
   --on-cyan:   #F7F1E4;
 
-  --selection: var(--color-rm-cobalt, #2F5BD8);
-  --on-selection: var(--color-rm-cream, #F7F1E4);
+  --selection: var(--accent);
+  --on-selection: var(--accent-ink);
   --focus: var(--color-rm-ink, #0B0B0C);
   --danger: var(--color-rm-danger, #B33226);
 
@@ -120,24 +122,23 @@
   --line:    #6E655C;
   --line-strong: #8C8276;
 
-  --accent: var(--color-rm-cobalt-dark, #7A9AE8);
-  --accent-strong: #A9BEF0;
-  --accent-soft: #243056;
+  --accent: var(--color-rm-yellow, #FFD43B);
+  --accent-strong: #E6B400;
+  --accent-soft: #3A3114;
   --accent-ink: var(--color-rm-ink, #0B0B0C);
-  --accent-text: var(--color-rm-cobalt-dark, #7A9AE8);
+  --accent-text: var(--ink);
   --on-danger: #16140F;
   --blue:   var(--accent);
   --violet: var(--accent);
   --red:    var(--color-rm-danger-dark, #E9786A);
   --green:  #8FD9B0;
   --purple: var(--accent);
-  --yellow: var(--accent);
+  --yellow: var(--color-rm-yellow, #FFD43B);
   --cyan:   #8FD4EA;
 
-  --cobalt: var(--color-rm-cobalt-dark, #7A9AE8);
-  --signal-field: #243056;
+  --signal-field: #2A2418;
   --signal-sheet: #1E1B16;
-  --signal-cobalt: var(--color-rm-cobalt-dark, #7A9AE8);
+  --signal-mark: var(--accent);
   --signal-rule: var(--color-rm-cream, #F7F1E4);
   --ink-soft: var(--muted);
 
@@ -148,8 +149,8 @@
   --on-yellow: var(--color-rm-ink, #0B0B0C);
   --on-cyan:   #16140F;
 
-  --selection: var(--color-rm-cobalt-dark, #7A9AE8);
-  --on-selection: var(--color-rm-ink, #0B0B0C);
+  --selection: var(--accent);
+  --on-selection: var(--accent-ink);
   --focus: var(--color-rm-cream, #F7F1E4);
   --danger: var(--color-rm-danger-dark, #E9786A);
 
@@ -190,12 +191,12 @@
   --font-world:   "Syne", "Archivo", sans-serif;
   --font-world-ui: "IBM Plex Sans", "Archivo", sans-serif;
 
-  /* World layer aliases. --wx-emissive is fills and large type only, not small text. */
+  /* World layer aliases. --wx-emissive is fills only, the same sacred yellow. */
   --wx-void: var(--color-wx-void, #07070A);
   --wx-hull: var(--color-wx-hull, #12131A);
   --wx-hull-2: var(--color-wx-hull-2, #1A1C28);
-  --wx-emissive: var(--color-wx-emissive, #3D6AE0);
-  --wx-emissive-soft: var(--color-wx-emissive-soft, #7A9AE8);
+  --wx-emissive: var(--color-wx-emissive, #FFD43B);
+  --wx-emissive-soft: var(--color-wx-emissive-soft, #F0C84A);
   --wx-star: var(--color-wx-star, #E8E4DC);
   --wx-fog: #0B0C12;
   --wx-warning: var(--color-wx-warning, #E8C547);
@@ -363,10 +364,10 @@
   --ease-quad-in-out: var(--ease-in-out);
 
   --lx: 0.5; --ly: 0.42; --lxc: 0; --lyc: -0.16; --lit: 0;
-  --accent-fog: 47, 91, 216;
-  --grad-1: 47, 91, 216;
-  --grad-2: 122, 154, 232;
-  --grad-3: 30, 63, 154;
+  --accent-fog: 255, 212, 59;
+  --grad-1: 255, 212, 59;
+  --grad-2: 240, 200, 74;
+  --grad-3: 230, 180, 0;
 }
 
 /* ============================================================
@@ -550,7 +551,7 @@ p, li, dd, figcaption { text-wrap: pretty; }
 .ps-field { background: var(--signal-field); }
 .ps-paper { position: relative; background: var(--paper); border: var(--stroke) solid var(--signal-rule); box-shadow: 0.75rem 0.75rem 0 var(--signal-sheet); }
 .ps-rule { display: block; height: 0.125rem; background: var(--signal-rule); }
-.ps-dot { display: block; width: 2.125rem; height: 2.125rem; border-radius: 50%; background: var(--signal-cobalt); }
+.ps-dot { display: block; width: 2.125rem; height: 2.125rem; border-radius: 50%; background: var(--signal-mark); box-shadow: inset 0 0 0 1.5px var(--ink); }
 .ps-offset { position: absolute; inset: 0.875rem -0.875rem -0.875rem 0.875rem; z-index: -1; background: var(--signal-sheet); }
 .ps-icon { display: inline-flex; width: var(--icon); height: var(--icon); flex: none; align-items: center; justify-content: center; color: currentColor; }
 .ps-icon svg { display: block; width: var(--icon-division); height: var(--icon-division); fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linecap: square; stroke-linejoin: miter; }
@@ -660,7 +661,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 }
 @media (hover: hover) {
   .ticket:not(:disabled):hover, .px-btn:not(:disabled):hover, .glass-btn:not(:disabled):hover {
-    background: var(--accent-strong); border-color: var(--accent-strong);
+    background: var(--accent-strong); border-color: var(--ink); color: var(--accent-ink);
   }
 }
 .ticket:not(:disabled):active, .px-btn:not(:disabled):active, .glass-btn:not(:disabled):active { opacity: 0.85; }
@@ -672,7 +673,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 }
 @media (hover: hover) {
   .ticket--ghost:not(:disabled):hover, .glass-btn--ghost:not(:disabled):hover, .px-btn--ghost:not(:disabled):hover {
-    background: var(--accent-soft); border-color: var(--accent); color: var(--ink);
+    background: var(--accent-soft); border-color: var(--ink); color: var(--ink);
   }
 }
 .ticket--sm { min-height: var(--space-34); padding: var(--space-8) var(--space-13); font-size: var(--type-meta); }
@@ -692,7 +693,7 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 }
 @media (hover: hover) { .chip:hover, .glass-chip:hover { background: var(--paper-2); border-color: var(--ink); } }
 .chip__dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--chip-accent, var(--accent)); flex: none; }
-.chip[aria-pressed="true"], .chip.is-on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.chip[aria-pressed="true"], .chip.is-on { background: var(--accent); color: var(--accent-ink); border-color: var(--ink); }
 
 /* ============================================================
    9 · Panels, fields, notes — the tool-app surface
@@ -885,6 +886,49 @@ html[data-reduce-motion="on"] .u-icon-btn--idle:not(:has(.ps-icon)):not(:has(svg
 /* ============================================================
    12 · Responsive tuning
    ============================================================ */
+
+/* ============================================================
+   Craft. Yellow is a mark behind or beside ink, never the type.
+   ============================================================ */
+
+.u-marker {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-position: 0 0.72em;
+  background-size: 100% 0.38em;
+  color: var(--ink);
+}
+
+.craft-card {
+  position: relative;
+}
+.craft-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(9rem 6rem at var(--mx, 50%) var(--my, 0%), color-mix(in srgb, var(--accent) 42%, transparent), transparent 72%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms var(--ease-out);
+}
+@media (hover: hover) {
+  .craft-card:hover::after { opacity: 1; }
+  .craft-card:hover { border-color: var(--ink); }
+}
+.craft-card:active { transform: translateY(1px) scale(0.985); }
+.craft-card:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .craft-card,
+  .craft-card:active { transform: none; transition: none; }
+  .craft-card::after { display: none; }
+}
+html[data-reduce-motion="on"] .craft-card,
+html[data-reduce-motion="on"] .craft-card:active { transform: none; }
+html[data-reduce-motion="on"] .craft-card::after { display: none; }
 
 @media (max-width: 900px) { :root { --grid-margin: var(--space-21); --grid-gutter: var(--space-13); } }
 @media (max-width: 640px) {

@@ -659,7 +659,7 @@ const selectedFigure = computed(() =>
           <p class="compose__eyebrow">AI draft</p>
           <h2 class="compose__ai-title">One-click Elevate draft</h2>
           <p class="compose__ai-copy">
-            Topic → structured blocks + <strong>conceptual hero</strong> (cream/ink/cobalt metaphor) + figure images.
+            Topic → structured blocks + <strong>conceptual hero</strong> (cream/ink/yellow metaphor) + figure images.
             Canvas mode shows the article as readers will see it. Publish commits JSON + images to <code>public/blog/&lt;slug&gt;/</code>.
           </p>
         </div>
@@ -1149,7 +1149,7 @@ const selectedFigure = computed(() =>
   font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .08em;
   text-transform: uppercase;
-  color: var(--signal-cobalt);
+  color: var(--ink);
 }
 .compose h1 {
   margin: 0;
@@ -1223,7 +1223,7 @@ const selectedFigure = computed(() =>
   color: var(--ink-soft);
 }
 .compose__gh-status.is-good {
-  background: color-mix(in srgb, var(--signal-cobalt) 12%, var(--paper));
+  background: color-mix(in srgb, var(--accent) 12%, var(--paper));
   color: var(--ink);
 }
 .compose__gh-status.is-bad {
@@ -1262,7 +1262,7 @@ const selectedFigure = computed(() =>
   font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .07em;
   text-transform: uppercase;
-  color: var(--signal-cobalt);
+  color: var(--ink);
 }
 .compose__preview-frame {
   overflow: hidden;
@@ -1398,7 +1398,7 @@ const selectedFigure = computed(() =>
   font: 700 0.75rem/1 var(--font-mono);
   letter-spacing: .07em;
   text-transform: uppercase;
-  color: var(--signal-cobalt);
+  color: var(--ink);
 }
 .compose__block-moves { display: flex; gap: 0.25rem; }
 .compose__icon-btn {
@@ -1601,7 +1601,7 @@ const selectedFigure = computed(() =>
 }
 .compose__title-input:focus {
   outline: none;
-  border-bottom-color: var(--signal-cobalt);
+  border-bottom-color: var(--ink);
 }
 .compose__dek-input {
   width: 100%;
@@ -1656,7 +1656,7 @@ const selectedFigure = computed(() =>
   border-top: var(--stroke) solid color-mix(in srgb, var(--ink) 12%, transparent);
 }
 .compose__canvas-block.is-figure-selected {
-  outline: 2px solid var(--signal-cobalt);
+  outline: 2px solid var(--focus);
   outline-offset: 4px;
   border-radius: var(--radius-s);
 }
@@ -1668,7 +1668,7 @@ const selectedFigure = computed(() =>
   font: 700 0.75rem/1 var(--font-mono);
   letter-spacing: .07em;
   text-transform: uppercase;
-  color: var(--signal-cobalt);
+  color: var(--ink);
 }
 .compose__lead-input,
 .compose__body-input,
@@ -1696,7 +1696,7 @@ const selectedFigure = computed(() =>
 }
 .compose__quote-input {
   padding: 1.125rem 1.25rem;
-  border-left: 0.5rem solid var(--signal-cobalt);
+  border-left: 0.5rem solid var(--accent);
   background: var(--paper-2);
   border-radius: 0 var(--radius-m) var(--radius-m) 0;
   font: 500 clamp(1.25rem, 2.4vw, 1.75rem)/1.15 var(--font-display);

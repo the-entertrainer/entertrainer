@@ -231,10 +231,10 @@ When you explain a figure, use three beats only: how to draw it, what the film s
 
 ## Drawing for this site
 
-Cover look, same as `public/blog/tajjalan/hero.jpg`. Cream `#F7F1E4`, ink `#0B0B0C`, one sacred yellow `#FFD43B`.
+Cover look, same as `public/blog/tajjalan/hero.jpg`. Cream `#F7F1E4`, ink `#0B0B0C`, one cobalt `#2F5BD8`.
 
 - Ink does the circles, the hatching, the vesica, the petals.
-- Yellow marks one thing only: the vesica, or the straight lines of Metatron, or the phi mark on the rod. Not all three. Yellow is a fill or a mark. It is not type on cream.
+- Cobalt marks one thing only: the vesica, or the straight lines of Metatron, or the phi mark on the rod. Not all three.
 - Flat, empty paper, one metaphor. A compass rose of circles is enough.
 - No neon mandala, no rainbow chakras, no glossy crystal, no starfield, no 3D chrome solid.
 - No words baked into the picture. The caption says it is a drawing of the construction, and names the figure.

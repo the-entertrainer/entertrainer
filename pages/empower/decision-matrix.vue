@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { absoluteUrl } from '~/utils/site'
 useSeoMeta({
   title: 'Decision Matrix · Empower',
   description: 'Name the options. Weight what matters. See what wins.',
-  ogUrl: absoluteUrl('/empower/decision-matrix'),
+  ogUrl: 'https://entertrainer.in/empower/decision-matrix',
 })
 </script>
 

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // Design reminder — The Learning Atlas course is a self-contained, evidence-led player.
 import { useThemeStore } from '~/stores/theme'
-import { getSocialImage, getSocialPreview } from '~/content/social-previews'
-import { absoluteUrl } from '~/utils/site'
+import { getSocialImage, getSocialPreview, SITE_URL } from '~/content/social-previews'
 
 /**
  * The publication shell.
@@ -37,16 +36,9 @@ const siteSettings = useSiteSettings()
  */
 const PRELOADER_DONE_KEY = 'entertrainer.preloader-done'
 const showPreloader = ref(r.path === '/')
-/** Inert only while the intro is actually covering the page. Released when the fade starts. */
-const pageBlocked = ref(showPreloader.value)
-
-function onPreloaderRelease() {
-  pageBlocked.value = false
-}
 
 function onPreloaderComplete() {
   showPreloader.value = false
-  pageBlocked.value = false
   if (!import.meta.client) return
   try {
     sessionStorage.setItem(PRELOADER_DONE_KEY, '1')
@@ -59,18 +51,13 @@ onMounted(() => {
   if (!showPreloader.value) return
   // Only the boot-time flag counts: the preloader itself stamps sessionStorage
   // as it starts (children mount first), so reading storage here would cancel it.
-  if (document.documentElement.dataset.preloader === 'done') {
-    showPreloader.value = false
-    pageBlocked.value = false
-  }
+  if (document.documentElement.dataset.preloader === 'done') showPreloader.value = false
 })
 useHead({
   script: [{
     key: 'preloader-gate',
     tagPosition: 'head',
-    // Stamp the clock, hide a repeat visit before paint, and never leave the
-    // page inert if the intro script does not finish. 2.2s is the cap.
-    innerHTML: "try{document.documentElement.dataset.plT=String(Date.now());if(sessionStorage.getItem('entertrainer.preloader-done')==='1')document.documentElement.dataset.preloader='done'}catch(e){}setTimeout(function(){var n=document.getElementById('app-content');if(n)n.removeAttribute('inert');document.documentElement.dataset.preloader='done'},2200)"
+    innerHTML: "try{if(sessionStorage.getItem('entertrainer.preloader-done')==='1')document.documentElement.dataset.preloader='done'}catch(e){}"
   }]
 })
 const canonicalPath = computed(() => {
@@ -87,7 +74,7 @@ useSeoMeta({
   ogType: () => socialPreview.value.type ?? 'website',
   ogTitle: () => socialPreview.value.title,
   ogDescription: () => socialPreview.value.description,
-  ogUrl: () => absoluteUrl(canonicalPath.value),
+  ogUrl: () => `${SITE_URL}${canonicalPath.value}`,
   ogImage: () => socialImage.value,
   ogImageAlt: () => socialPreview.value.imageAlt ?? `Entertrainer preview: ${socialPreview.value.title}`,
   twitterCard: 'summary_large_image',
@@ -98,7 +85,7 @@ useSeoMeta({
 })
 
 useHead({
-  link: () => [{ key: 'canonical', rel: 'canonical', href: absoluteUrl(canonicalPath.value) }]
+  link: () => [{ key: 'canonical', rel: 'canonical', href: `${SITE_URL}${canonicalPath.value}` }]
 })
 
 // `/lab` itself is an index page and keeps the chrome; `/lab/g07` is an
@@ -113,8 +100,7 @@ const bare = computed(() =>
   r.path.startsWith('/engage/read-my-mind') ||
   r.path.startsWith('/engage/astroclock') ||
   r.path.startsWith('/engage/whatto') ||
-  r.path.startsWith('/engage/stack') ||
-  r.path.startsWith('/tools/elearn-author')
+  r.path.startsWith('/engage/stack')
 )
 
 onMounted(() => {
@@ -126,10 +112,10 @@ onBeforeUnmount(() => theme.dispose())
 
 <template>
   <div id="app-root">
-    <EdPreloader v-if="showPreloader" @release="onPreloaderRelease" @complete="onPreloaderComplete" />
+    <EdPreloader v-if="showPreloader" @complete="onPreloaderComplete" />
     <EdDailyWordSplash v-if="!bare" />
     <EdSettingsPanel />
-    <div id="app-content" :inert="pageBlocked ? '' : undefined">
+    <div :inert="showPreloader ? '' : undefined">
       <template v-if="bare">
         <NuxtPage />
       </template>

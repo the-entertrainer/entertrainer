@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { absoluteUrl } from '~/utils/site'
 import { BLOG_POSTS, type BlogPost } from '~/content/blogs'
-import { getPublishedComposedPosts, mergeElevateListing } from '~/content/composed'
+import { composedToBlogPost, getPublishedComposedPosts } from '~/content/composed'
 import {
   MUST_LETTERS,
   normalizeElevateCategory,
@@ -14,12 +13,12 @@ useSeoMeta({
   description: 'Mind, Universe, Science, Technology — pieces that start in a room and refuse the tidy story.',
   ogTitle: 'Elevate · MUST',
   ogDescription: 'Mind · Universe · Science · Technology.',
-  ogUrl: absoluteUrl('/elevate'),
-  ogImage: absoluteUrl('/og-card-2026e.png')
+  ogUrl: 'https://entertrainer.in/elevate',
+  ogImage: 'https://entertrainer.in/og-card-2026e.png'
 })
 
 useHead({
-  link: [{ rel: 'alternate', type: 'application/rss+xml', title: 'Elevate · The Entertrainer Blogs', href: absoluteUrl('/elevate.xml') }]
+  link: [{ rel: 'alternate', type: 'application/rss+xml', title: 'Elevate · The Entertrainer Blogs', href: 'https://entertrainer.in/elevate.xml' }]
 })
 
 const { data: liveComposed } = await useAsyncData('elevate-composed-listing', async () => {
@@ -36,7 +35,12 @@ function withMustCategory(post: BlogPost): BlogPost {
 }
 
 const posts = computed<BlogPost[]>(() => {
-  return mergeElevateListing(BLOG_POSTS, liveComposed.value ?? []).map(withMustCategory)
+  const seen = new Set(BLOG_POSTS.map((post) => post.slug))
+  const extras = (liveComposed.value ?? [])
+    .filter((post) => post.status === 'published' && !seen.has(post.slug))
+    .map(composedToBlogPost)
+    .map(withMustCategory)
+  return [...BLOG_POSTS.map(withMustCategory), ...extras]
 })
 
 type SortMode = 'newest' | 'oldest'
@@ -162,10 +166,7 @@ function clearCategory() {
 
       <ul
         class="elevate__list"
-        :class="{
-          'elevate__list--compact': hydrated && settings.hideElevateExcerpts,
-          'elevate__list--solo': filteredPosts.length === 1
-        }"
+        :class="{ 'elevate__list--compact': hydrated && settings.hideElevateExcerpts }"
         aria-live="polite"
       >
         <li v-for="post in filteredPosts" :key="post.slug">
@@ -371,17 +372,6 @@ function clearCategory() {
   margin: 0.5rem 0 0;
   padding: 0;
 }
-.elevate__list--solo .elevate__row {
-  grid-template-columns: minmax(8.5rem, 11rem) minmax(0, 1fr);
-  gap: 1.5rem;
-  padding: 1.75rem 0.25rem 2rem;
-  border-bottom: 0;
-}
-.elevate__list--solo .elevate__thumb { width: 100%; }
-.elevate__list--solo .elevate__row-title {
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
-  line-height: 1.05;
-}
 .elevate__row {
   display: grid;
   grid-template-columns: 7rem minmax(0, 1fr);
@@ -578,8 +568,6 @@ function clearCategory() {
   .elevate__must-tile { min-width: 3.25rem; min-height: 2.875rem; padding: 0.3125rem 0.375rem; }
   .elevate__must-name { font-size: 0.75rem; }
   .elevate__row { grid-template-columns: 5.5rem minmax(0, 1fr); gap: 0.75rem; }
-  .elevate__list--solo .elevate__row { grid-template-columns: 6.5rem minmax(0, 1fr); gap: 0.875rem; }
-  .elevate__list--solo .elevate__row-title { font-size: 1.375rem; }
   .elevate__thumb { width: 5.5rem; height: 3.75rem; }
   .elevate__row-dek { -webkit-line-clamp: 3; }
 }

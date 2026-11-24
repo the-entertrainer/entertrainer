@@ -22,7 +22,7 @@ const store = useContentStore()
 
 <style scoped>
 .by { display: inline-flex; align-items: center; gap: 0.6875rem; }
-.by__face { position: relative; display: inline-flex; align-items: end; gap: 0.1875rem; width: 2.5rem; height: 2.5rem; padding: 0.5rem; background: var(--signal-field); border: var(--stroke) solid var(--signal-rule); box-shadow: 0.25rem 0.25rem 0 var(--signal-sheet); flex: none; }.by__face i { width: 0.3125rem; background: var(--accent); }.by__face i:nth-child(1) { height: 0.875rem; }.by__face i:nth-child(2) { height: 1.25rem; }.by__face i:nth-child(3) { height: 0.6875rem; }
+.by__face { position: relative; display: inline-flex; align-items: end; gap: 0.1875rem; width: 2.5rem; height: 2.5rem; padding: 0.5rem; background: var(--signal-field); border: var(--stroke) solid var(--signal-rule); box-shadow: 0.25rem 0.25rem 0 var(--signal-sheet); flex: none; }.by__face i { width: 0.3125rem; background: var(--signal-cobalt); }.by__face i:nth-child(1) { height: 0.875rem; }.by__face i:nth-child(2) { height: 1.25rem; }.by__face i:nth-child(3) { height: 0.6875rem; }
 .by__text { display: flex; flex-direction: column; gap: 0.1875rem; }
 .by__name { margin: 0; font-size: 0.96875rem; font-weight: 700; line-height: 1; }
 .by__role { margin: 0; color: var(--muted); }

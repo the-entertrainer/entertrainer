@@ -7,7 +7,7 @@ import { eMark } from '~/utils/sacredGeometry'
  * cx/cy/r — so Vue never tries to set read-only SVG DOM props.
  */
 withDefaults(defineProps<{
-  /** Drawn size in CSS pixels. Do not treat this number as rem. */
+  /** Drawn size in px. This site's rem is a pixel. */
   size?: number
   /** Loading state: the e redraws itself, slowly, on the seal. */
   loading?: boolean
@@ -38,7 +38,7 @@ const M = eMark(50, 50, 50)
 
 <style scoped>
 .mark { display: block; flex: none; }
-.mark__seal { fill: var(--accent, #FFD43B); }
+.mark__seal { fill: var(--accent, #2F5BD8); }
 .mark__e {
   fill: none;
   stroke: var(--accent-ink, #161618);

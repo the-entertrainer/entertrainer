@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { absoluteUrl } from '~/utils/site'
 useSeoMeta({
   title: 'Archive · Entertrainer',
   description: 'Downloads kept off the main path, plus quiet links to the lab and the compose desk.',
   ogTitle: 'Archive',
   ogDescription: 'Templates, frameworks, and resources. Lab and Compose stay unlisted.',
-  ogUrl: absoluteUrl('/archive')
+  ogUrl: 'https://entertrainer.in/archive'
 })
 </script>
 

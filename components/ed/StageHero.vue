@@ -27,24 +27,24 @@ withDefaults(defineProps<{
     <div class="stage__art" aria-hidden="true">
       <!-- ribbons: dashed Bézier roads drifting on cream -->
       <svg v-if="variant === 'ribbons'" class="stage__svg" viewBox="0 0 800 420" preserveAspectRatio="xMidYMid slice">
-        <g class="stage__ribbon stage__ribbon--a stage-mark" fill="none" stroke="currentColor" stroke-width="2.25" stroke-dasharray="10 8" stroke-linecap="round">
+        <g class="stage__ribbon stage__ribbon--a stage-cobalt" fill="none" stroke="currentColor" stroke-width="2.25" stroke-dasharray="10 8" stroke-linecap="round">
           <path d="M-40 90 C120 40, 220 160, 380 110 S620 40, 860 130" />
         </g>
         <g class="stage__ribbon stage__ribbon--b stage-ink" fill="none" stroke="currentColor" stroke-width="1.75" stroke-dasharray="6 10" stroke-linecap="round" opacity=".72">
           <path d="M-60 210 C80 280, 240 140, 400 220 S640 300, 860 180" />
         </g>
-        <g class="stage__ribbon stage__ribbon--c stage-mark" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 9" stroke-linecap="round" opacity=".55">
+        <g class="stage__ribbon stage__ribbon--c stage-cobalt" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 9" stroke-linecap="round" opacity=".55">
           <path d="M-20 320 C160 260, 300 380, 480 300 S700 240, 860 340" />
         </g>
         <g class="stage__ribbon stage__ribbon--d stage-ink" fill="none" stroke="currentColor" stroke-width="1.25" stroke-dasharray="3 11" opacity=".35">
           <path d="M40 -10 C180 80, 260 -20, 420 60 S620 -30, 780 80" />
         </g>
-        <circle class="stage__node stage-mark" cx="380" cy="110" r="5" fill="currentColor" />
+        <circle class="stage__node stage-cobalt" cx="380" cy="110" r="5" fill="currentColor" />
         <circle class="stage__node stage__node--ink stage-ink" cx="400" cy="220" r="4" fill="currentColor" />
-        <circle class="stage__node stage-mark" cx="480" cy="300" r="3.5" fill="currentColor" opacity=".7" />
+        <circle class="stage__node stage-cobalt" cx="480" cy="300" r="3.5" fill="currentColor" opacity=".7" />
       </svg>
 
-      <!-- orbits: soft grain + yellow orbital ellipses -->
+      <!-- orbits: soft grain + cobalt orbital ellipses -->
       <svg v-else-if="variant === 'orbits'" class="stage__svg" viewBox="0 0 800 420" preserveAspectRatio="xMidYMid slice">
         <defs>
           <filter id="stage-grain" x="-20%" y="-20%" width="140%" height="140%">
@@ -54,30 +54,30 @@ withDefaults(defineProps<{
         </defs>
         <rect class="stage__grain" width="800" height="420" filter="url(#stage-grain)" />
         <g transform="translate(520 210)">
-          <g class="stage__orbit-spin stage__orbit-spin--slow stage-mark" fill="none" stroke="currentColor" stroke-width="1.35" opacity=".42">
+          <g class="stage__orbit-spin stage__orbit-spin--slow stage-cobalt" fill="none" stroke="currentColor" stroke-width="1.35" opacity=".42">
             <ellipse cx="0" cy="0" rx="210" ry="128" />
           </g>
-          <g class="stage__orbit-spin stage__orbit-spin--mid stage-mark" fill="none" stroke="currentColor" stroke-width="1.35" opacity=".58">
+          <g class="stage__orbit-spin stage__orbit-spin--mid stage-cobalt" fill="none" stroke="currentColor" stroke-width="1.35" opacity=".58">
             <ellipse cx="0" cy="0" rx="150" ry="88" />
           </g>
-          <g class="stage__orbit-spin stage__orbit-spin--fast stage-mark" fill="none" stroke="currentColor" stroke-width="1.35" opacity=".78">
+          <g class="stage__orbit-spin stage__orbit-spin--fast stage-cobalt" fill="none" stroke="currentColor" stroke-width="1.35" opacity=".78">
             <ellipse cx="0" cy="0" rx="92" ry="52" />
           </g>
           <g class="stage__orbit-spin stage__orbit-spin--mid">
-            <circle cx="150" cy="0" r="4" class="stage-mark" fill="currentColor" />
+            <circle cx="150" cy="0" r="4" class="stage-cobalt" fill="currentColor" />
           </g>
           <g class="stage__orbit-spin stage__orbit-spin--fast stage__orbit-spin--rev">
-            <circle cx="0" cy="-52" r="3.5" class="stage-mark" fill="currentColor" />
+            <circle cx="0" cy="-52" r="3.5" class="stage-cobalt" fill="currentColor" />
           </g>
           <g class="stage__orbit-spin stage__orbit-spin--slow">
-            <circle cx="-105" cy="64" r="3" class="stage-mark" fill="currentColor" opacity=".85" />
+            <circle cx="-105" cy="64" r="3" class="stage-cobalt" fill="currentColor" opacity=".85" />
           </g>
           <circle class="stage-ink" cx="0" cy="0" r="7" fill="currentColor" />
           <circle class="stage-cream-fill" cx="0" cy="0" r="3" fill="currentColor" />
         </g>
       </svg>
 
-      <!-- ripples: expanding ink rings from a yellow focus -->
+      <!-- ripples: expanding ink rings from cobalt focus -->
       <svg v-else-if="variant === 'ripples'" class="stage__svg" viewBox="0 0 800 420" preserveAspectRatio="xMidYMid slice">
         <g class="stage-ink" transform="translate(280 220)" fill="none" stroke="currentColor" stroke-width="1.4">
           <circle class="stage__ripple stage__ripple--1" cx="0" cy="0" r="36" />
@@ -86,28 +86,28 @@ withDefaults(defineProps<{
           <circle class="stage__ripple stage__ripple--4" cx="0" cy="0" r="172" />
           <circle class="stage__ripple stage__ripple--5" cx="0" cy="0" r="236" />
         </g>
-        <circle cx="280" cy="220" r="9" class="stage-mark" fill="currentColor" />
-        <circle class="stage__focus-halo stage-mark" cx="280" cy="220" r="18" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <circle cx="280" cy="220" r="9" class="stage-cobalt" fill="currentColor" />
+        <circle class="stage__focus-halo stage-cobalt" cx="280" cy="220" r="18" fill="none" stroke="currentColor" stroke-width="1.5" />
       </svg>
 
-      <!-- lattice: fine vector grid + one anomalous yellow cell -->
+      <!-- lattice: fine vector grid + one anomalous pulsing cobalt cell -->
       <svg v-else-if="variant === 'lattice'" class="stage__svg" viewBox="0 0 800 420" preserveAspectRatio="xMidYMid slice">
         <g class="stage__lattice stage-ink" stroke="currentColor" stroke-width="0.75" fill="none" opacity=".22">
           <path v-for="i in 17" :key="`v${i}`" :d="`M${(i - 1) * 50} 0 V420`" />
           <path v-for="j in 9" :key="`h${j}`" :d="`M0 ${(j - 1) * 52.5} H800`" />
         </g>
-        <rect class="stage__anomaly stage-mark" x="350" y="157.5" width="50" height="52.5" fill="currentColor" />
+        <rect class="stage__anomaly stage-cobalt" x="350" y="157.5" width="50" height="52.5" fill="currentColor" />
       </svg>
 
-      <!-- flow: a few flowing yellow and ink strokes -->
+      <!-- flow: a few flowing cobalt/ink strokes -->
       <svg v-else class="stage__svg" viewBox="0 0 800 420" preserveAspectRatio="xMidYMid slice">
         <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path class="stage__stroke stage__stroke--1 stage-mark" d="M-30 340 C120 280, 200 380, 360 300 S560 200, 820 260" stroke="currentColor" stroke-width="18" opacity=".18" />
+          <path class="stage__stroke stage__stroke--1 stage-cobalt" d="M-30 340 C120 280, 200 380, 360 300 S560 200, 820 260" stroke="currentColor" stroke-width="18" opacity=".18" />
           <path class="stage__stroke stage__stroke--2 stage-ink" d="M-40 180 C140 120, 260 240, 420 160 S640 80, 860 140" stroke="currentColor" stroke-width="3.5" opacity=".55" />
-          <path class="stage__stroke stage__stroke--3 stage-mark" d="M-20 100 C180 160, 300 40, 480 120 S700 200, 860 90" stroke="currentColor" stroke-width="2.25" opacity=".85" />
+          <path class="stage__stroke stage__stroke--3 stage-cobalt" d="M-20 100 C180 160, 300 40, 480 120 S700 200, 860 90" stroke="currentColor" stroke-width="2.25" opacity=".85" />
           <path class="stage__stroke stage__stroke--4 stage-ink" d="M60 400 C220 340, 340 420, 520 360 S720 300, 800 340" stroke="currentColor" stroke-width="1.5" opacity=".35" />
         </g>
-        <circle class="stage__flow-dot stage-mark" cx="420" cy="160" r="4.5" fill="currentColor" />
+        <circle class="stage__flow-dot stage-cobalt" cx="420" cy="160" r="4.5" fill="currentColor" />
       </svg>
     </div>
 
@@ -128,7 +128,7 @@ withDefaults(defineProps<{
 .stage {
   --stage-cream: color-mix(in srgb, var(--signal-field) 35%, var(--paper));
   --stage-ink: var(--ink);
-  --stage-mark: var(--accent);
+  --stage-cobalt: var(--accent);
   position: relative;
   display: grid;
   min-height: 0;
@@ -171,7 +171,7 @@ withDefaults(defineProps<{
 }
 .stage-ink { color: var(--stage-ink); }
 .stage-cream-fill { color: var(--stage-cream); }
-.stage-mark { color: var(--stage-mark); }
+.stage-cobalt { color: var(--stage-cobalt); }
 
 .stage__copy {
   position: relative;
@@ -184,7 +184,7 @@ withDefaults(defineProps<{
   font: 700 0.75rem/1.2 var(--font-mono);
   letter-spacing: .08em;
   text-transform: uppercase;
-  /* Ink on cream — yellow (--stage-mark / accent) fails contrast here. */
+  /* Ink on cream — yellow (--stage-cobalt / accent) fails contrast here. */
   color: var(--ink-soft, var(--muted));
 }
 

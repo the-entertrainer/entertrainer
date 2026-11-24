@@ -26,12 +26,6 @@ export interface BlogPost {
   heroAlt: string
   status: 'published' | 'upcoming'
   publishedAt: string
-  /**
-   * Public catalogs default to listed. Set false to drop the essay from
-   * the Elevate index, featured slot, sitemap, and RSS. The URL stays.
-   * Re-list with one line: `listed: true`.
-   */
-  listed?: boolean
 }
 
 export const BLOG_POSTS: BlogPost[] = [
@@ -47,7 +41,6 @@ export const BLOG_POSTS: BlogPost[] = [
     hero: '/blog/entropy-laziness/hero.jpg',
     heroAlt: 'A steaming teacup at the center of concentric black and cobalt-blue rings, dissolving outward into scattered dots and dashes as the warmth spreads and fades.',
     status: 'published',
-    listed: false,
     publishedAt: '2026-08-23T22:14:08+00:00'
   },
   {
@@ -62,7 +55,6 @@ export const BLOG_POSTS: BlogPost[] = [
     hero: '/blog/moonly/hero.jpg',
     heroAlt: 'Cream-paper ink drawing: a cobalt crescent moon above a hatched horizon of low hills, with an old quill pen lying on the ground below.',
     status: 'published',
-    listed: false,
     publishedAt: '2026-08-28T12:54:49+00:00'
   },
   {
@@ -77,7 +69,6 @@ export const BLOG_POSTS: BlogPost[] = [
     hero: '/blog/jamais-vu/hero-word-fade.jpg',
     heroAlt: 'The word DOOR repeated five times, each repetition fragmenting further into loose black and cobalt-blue shapes, as if the word is dissolving.',
     status: 'published',
-    listed: false,
     publishedAt: '2026-08-29T22:10:40+00:00'
   },
   {
@@ -92,7 +83,6 @@ export const BLOG_POSTS: BlogPost[] = [
     hero: '/blog/life-midpoint/hero.jpg',
     heroAlt: 'The number 40 struck through in black, with the number 18 in bold cobalt blue beneath it and a small hourglass icon with unevenly pooled sand.',
     status: 'published',
-    listed: false,
     publishedAt: '2026-08-31T20:00:14+00:00'
   },
   {
@@ -107,7 +97,6 @@ export const BLOG_POSTS: BlogPost[] = [
     hero: '/blog/feeling-of-knowing/hero.jpg',
     heroAlt: 'A black ink silhouette of a head in profile on cream paper; a zipper opens across the mind and reveals only empty dashed lines, with one cobalt-blue pull-tab.',
     status: 'published',
-    listed: false,
     publishedAt: '2026-09-13T10:15:00+00:00'
   },
   {
@@ -122,7 +111,6 @@ export const BLOG_POSTS: BlogPost[] = [
     hero: '/blog/tajjalan/hero.jpg',
     heroAlt: 'A cream editorial drawing of a simple cup with a cobalt stream flowing into a dark textured ground, appearance rising, living, and returning in one field.',
     status: 'published',
-    listed: false,
     publishedAt: '2026-09-22T08:24:00+00:00'
   },
   {
@@ -137,7 +125,6 @@ export const BLOG_POSTS: BlogPost[] = [
     hero: '/blog/your-mouth-can-be-sure-for-reasons-your-eyes-never-had/hero.jpg',
     heroAlt: 'Cream-paper ink drawing of a head in profile split by a cobalt seam: on one side a hatched brain whose hand holds a cobalt key, on the other a face speaking with confidence.',
     status: 'published',
-    listed: false,
     publishedAt: '2026-09-22T15:45:00+00:00'
   },
   {
@@ -152,7 +139,6 @@ export const BLOG_POSTS: BlogPost[] = [
     hero: '/blog/sacred-frequencies/hero.jpg',
     heroAlt: 'Cream-paper ink drawing of a hatched singing bowl with one cobalt sound wave rising from its rim and drifting across empty paper.',
     status: 'published',
-    listed: false,
     publishedAt: '2026-10-04T19:40:00+00:00'
   },
   {
@@ -167,7 +153,6 @@ export const BLOG_POSTS: BlogPost[] = [
     hero: '/blog/one-equals-two/hero.jpg',
     heroAlt: 'Cream-paper ink drawing of an old balance scale holding one stone on one pan and two on the other, sitting level, with a thin cobalt crack running down its post.',
     status: 'published',
-    listed: true,
     publishedAt: '2026-10-06T16:45:00+00:00'
   },
 ]
@@ -181,5 +166,4 @@ export const TAJJALAN_BLOG = BLOG_POSTS[5]
 export const SPLIT_BRAIN_BLOG = BLOG_POSTS[6]
 export const SACRED_FREQUENCIES_BLOG = BLOG_POSTS[7]
 export const ONE_EQUALS_TWO_BLOG = BLOG_POSTS[8]
-/** Featured slot. Keep this pointed at a listed post. */
-export const FEATURED_BLOG = ONE_EQUALS_TWO_BLOG
+export const FEATURED_BLOG = ENTROPY_BLOG

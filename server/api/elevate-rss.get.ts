@@ -1,6 +1,7 @@
 import { BLOG_POSTS } from '~/content/blogs'
-import { getElevateListing } from '~/content/composed'
-import { SITE_URL } from '~/utils/site'
+import { composedToBlogPost, getPublishedComposedPosts } from '~/content/composed'
+
+const SITE_URL = 'https://entertrainer.in'
 
 function escapeXml(value: string) {
   return String(value ?? '')
@@ -26,7 +27,12 @@ function safePubDate(value: string) {
 }
 
 function buildRss() {
-  const listing = getElevateListing(BLOG_POSTS).filter((post) => post.status === 'published')
+  const seen = new Set(BLOG_POSTS.map((post) => post.slug))
+  const composedPublished = getPublishedComposedPosts()
+  const listing = [
+    ...BLOG_POSTS.filter((post) => post.status === 'published'),
+    ...composedPublished.filter((post) => !seen.has(post.slug)).map(composedToBlogPost)
+  ]
 
   const items = listing
     .map((post) => {
@@ -64,10 +70,8 @@ function buildRss() {
 }
 
 export default defineEventHandler((event) => {
-  // event.node.res, not the auto-imported h3 helper: that helper resolves the
-  // wrong h3 major in this repo and 500s the feed.
-  event.node.res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8')
-  event.node.res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300')
+  setHeader(event, 'Content-Type', 'application/rss+xml; charset=utf-8')
+  setHeader(event, 'Cache-Control', 'public, max-age=300, s-maxage=300')
   try {
     return buildRss()
   } catch {

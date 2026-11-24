@@ -1,7 +1,7 @@
 /**
  * Elevate hero/cover generator — topic-driven conceptual illustrations.
  *
- * Cream #F7F1E4 · ink #0B0B0C · sacred yellow #FFD43B.
+ * Cream #F7F1E4 · ink #0B0B0C · cobalt #2F5BD8.
  * Flat editorial DNA matching public/blog/.../hero.jpg:
  * ONE clear metaphor (head → tangled roads vs clear path, cup + ripples, orbits…).
  *
@@ -73,7 +73,7 @@ export type ElevateHeroResult = {
 
 const CREAM = '#F7F1E4'
 const INK = '#0B0B0C'
-const YELLOW = '#FFD43B'
+const COBALT = '#2F5BD8'
 
 const MOTIFS: MotifFamily[] = [
   'tangled-paths',
@@ -348,7 +348,7 @@ export function resolveHeroBrief(
 
 function briefAlt(brief: HeroBrief, topic: string): string {
   const subject = topic.trim() || 'the essay idea'
-  return `Flat editorial illustration on cream paper: ${brief.metaphor} (${brief.motif}; ${brief.focal}; sacred yellow #FFD43B = ${brief.cobaltRole}). About ${subject}.`
+  return `Flat editorial illustration on cream paper: ${brief.metaphor} (${brief.motif}; ${brief.focal}; cobalt = ${brief.cobaltRole}). About ${subject}.`
 }
 
 /* ─── SVG helpers ────────────────────────────────────────────────────────── */
@@ -509,14 +509,14 @@ function renderTangledPaths(ctx: Ctx): string {
       cobaltPts.push([cx, cy])
     }
   }
-  parts.push(roadStroke(cubicThrough(cobaltPts), YELLOW, 15 + rand() * 3))
+  parts.push(roadStroke(cubicThrough(cobaltPts), COBALT, 15 + rand() * 3))
 
   // Optional crossed-fingers / marker on the cobalt road (lie DNA)
   if (straight && rand() > 0.25) {
     const mx = mouthX + (w * 0.22)
     const my = cobaltPts[0][1] - 18
     parts.push(
-      `<g transform="translate(${esc(mx)} ${esc(my)})" fill="${YELLOW}">`,
+      `<g transform="translate(${esc(mx)} ${esc(my)})" fill="${COBALT}">`,
       `<path d="M -8,12 C -10,-2 -2,-14 2,-8 C 4,-18 14,-10 10,4 Z" />`,
       `<path d="M 4,10 C 2,-4 10,-16 14,-8 C 16,-18 24,-8 18,8 Z" />`,
       `</g>`
@@ -559,7 +559,7 @@ function renderRipples(ctx: Ctx): string {
     const t = i / rings
     const r = maxR * (0.2 + t * 0.8)
     const cobalt = i % 3 === 0
-    const color = cobalt ? YELLOW : INK
+    const color = cobalt ? COBALT : INK
     const segs = 16 + Math.floor(rand() * 10)
     const gapBias = 0.12 + t * 0.32
     for (let s = 0; s < segs; s++) {
@@ -602,7 +602,7 @@ function renderOrbits(ctx: Ctx): string {
     const ry = h * (0.11 + i * 0.06)
     const rot = (rand() - 0.5) * 24
     const cobalt = i === orbits - 2
-    const color = cobalt ? YELLOW : INK
+    const color = cobalt ? COBALT : INK
     const dash = cobalt ? '0' : `${10 + rand() * 10} ${7 + rand() * 8}`
     parts.push(
       `<ellipse cx="${esc(cx)}" cy="${esc(cy)}" rx="${esc(rx)}" ry="${esc(ry)}" fill="none" stroke="${color}" stroke-width="${esc(cobalt ? 3.4 : 2.2, 2)}" stroke-dasharray="${dash}" transform="rotate(${esc(rot, 1)} ${esc(cx)} ${esc(cy)})" />`
@@ -667,7 +667,7 @@ function renderDualMinds(ctx: Ctx): string {
   const ry = cy - s * 0.12
   const crx = s * 0.36
   const cry = s * 0.4
-  parts.push(`<ellipse cx="${esc(rx)}" cy="${esc(ry)}" rx="${esc(crx)}" ry="${esc(cry)}" fill="${YELLOW}" />`)
+  parts.push(`<ellipse cx="${esc(rx)}" cy="${esc(ry)}" rx="${esc(crx)}" ry="${esc(cry)}" fill="${COBALT}" />`)
   const lines: string[] = []
   for (let i = 0; i < 5; i++) {
     const yy = ry - cry * 0.7 + (i / 4) * cry * 1.4
@@ -692,7 +692,7 @@ function renderDualMinds(ctx: Ctx): string {
   const startX = w * 0.5 - (n * bw + (n - 1) * 4) / 2
   for (let i = 0; i < n; i++) {
     parts.push(
-      `<rect x="${esc(startX + i * (bw + 4))}" y="${esc(cy - s * 0.85)}" width="${bw}" height="${bw}" fill="${i % 2 === 0 ? INK : YELLOW}" />`
+      `<rect x="${esc(startX + i * (bw + 4))}" y="${esc(cy - s * 0.85)}" width="${bw}" height="${bw}" fill="${i % 2 === 0 ? INK : COBALT}" />`
     )
   }
   return parts.join('\n')
@@ -729,7 +729,7 @@ function renderBalance(ctx: Ctx): string {
     `<path d="M ${esc(lx - panR)} ${esc(ly + 8)} Q ${esc(lx)} ${esc(ly + 38)} ${esc(lx + panR)} ${esc(ly + 8)}" fill="none" stroke="${INK}" stroke-width="3.5" />`
   )
   parts.push(
-    `<path d="M ${esc(rx - panR)} ${esc(ry + 8)} Q ${esc(rx)} ${esc(ry + 38)} ${esc(rx + panR)} ${esc(ry + 8)}" fill="none" stroke="${YELLOW}" stroke-width="4" />`
+    `<path d="M ${esc(rx - panR)} ${esc(ry + 8)} Q ${esc(rx)} ${esc(ry + 38)} ${esc(rx + panR)} ${esc(ry + 8)}" fill="none" stroke="${COBALT}" stroke-width="4" />`
   )
   // Weights: many ink dots left, one cobalt right
   for (let i = 0; i < 5; i++) {
@@ -737,7 +737,7 @@ function renderBalance(ctx: Ctx): string {
       `<circle cx="${esc(lx - 16 + i * 8)}" cy="${esc(ly + 18)}" r="6" fill="${INK}" />`
     )
   }
-  parts.push(`<circle cx="${esc(rx)}" cy="${esc(ry + 18)}" r="10" fill="${YELLOW}" />`)
+  parts.push(`<circle cx="${esc(rx)}" cy="${esc(ry + 18)}" r="10" fill="${COBALT}" />`)
 
   return parts.join('\n')
 }
@@ -759,7 +759,7 @@ function renderShatter(ctx: Ctx): string {
     wave.push(`L ${pt(x, y)}`)
   }
   parts.push(
-    `<path d="${wave.join(' ')}" fill="none" stroke="${YELLOW}" stroke-width="11" stroke-linecap="round" />`
+    `<path d="${wave.join(' ')}" fill="none" stroke="${COBALT}" stroke-width="11" stroke-linecap="round" />`
   )
 
   for (let row = 0; row < rows; row++) {
@@ -776,7 +776,7 @@ function renderShatter(ctx: Ctx): string {
       const dy = shatter * shatter * (16 + rand() * 40)
       const cobalt = shatter > 0.5 && rand() > 0.6
       parts.push(
-        `<rect x="${esc(x + dx)}" y="${esc(y + dy)}" width="${esc(Math.max(6, bw - 5))}" height="${esc(bh)}" fill="${cobalt ? YELLOW : INK}" transform="rotate(${esc(rot, 1)} ${esc(x + bw / 2)} ${esc(y + bh / 2)})" />`
+        `<rect x="${esc(x + dx)}" y="${esc(y + dy)}" width="${esc(Math.max(6, bw - 5))}" height="${esc(bh)}" fill="${cobalt ? COBALT : INK}" transform="rotate(${esc(rot, 1)} ${esc(x + bw / 2)} ${esc(y + bh / 2)})" />`
       )
       x += bw
     }
@@ -830,7 +830,7 @@ function renderGridAnomaly(ctx: Ctx): string {
   }
   const d = pathPts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${pt(p[0], p[1])}`).join(' ')
   parts.push(
-    `<path d="${d}" fill="none" stroke="${YELLOW}" stroke-width="7" stroke-linecap="square" stroke-linejoin="miter" />`
+    `<path d="${d}" fill="none" stroke="${COBALT}" stroke-width="7" stroke-linecap="square" stroke-linejoin="miter" />`
   )
   return parts.join('\n')
 }
@@ -854,7 +854,7 @@ function renderFlowThread(ctx: Ctx): string {
     }
     const cobalt = i === cobaltIndex
     if (cobalt) {
-      parts.push(roadStroke(cubicThrough(pts), YELLOW, 16))
+      parts.push(roadStroke(cubicThrough(pts), COBALT, 16))
     } else {
       parts.push(
         `<path d="${cubicThrough(pts)}" fill="none" stroke="${INK}" stroke-width="${esc(2.5 + (i % 3), 1)}" stroke-linecap="round" opacity="${esc(0.55 + (i % 4) * 0.1, 2)}" />`

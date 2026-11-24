@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { absoluteUrl } from '~/utils/site'
 definePageMeta({ layout: false })
 /**
  * STACK — portrait WebGL arcade for Engage.
@@ -25,7 +24,7 @@ useHead({
 useSeoMeta({
   title: 'Stack · Engage',
   description: 'Tap to drop. Only the overlap stays. A stacking arcade on Entertrainer.',
-  ogUrl: absoluteUrl('/engage/stack'),
+  ogUrl: 'https://entertrainer.in/engage/stack',
 })
 
 const BEST_KEY = 'entertrainer-stack-best'

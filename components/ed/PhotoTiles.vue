@@ -191,7 +191,7 @@ function positionOf(photo: PhotoTileItem) {
   z-index: 3;
   transform: translateY(-0.125rem);
   box-shadow: 0 0.625rem 1.25rem color-mix(in srgb, var(--ink) 14%, transparent);
-  border-color: var(--ink);
+  border-color: var(--accent);
 }
 
 .photo-tiles__tile.is-expanded {
@@ -200,9 +200,9 @@ function positionOf(photo: PhotoTileItem) {
   grid-column: 1 / -1;
   aspect-ratio: auto;
   max-height: min(78vh, 45rem);
-  border-color: var(--ink);
+  border-color: var(--accent);
   box-shadow:
-    0 0 0 0.1875rem var(--ink),
+    0 0 0 0.1875rem var(--accent),
     0 0.875rem 1.75rem color-mix(in srgb, var(--ink) 18%, transparent);
 }
 

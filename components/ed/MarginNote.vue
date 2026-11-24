@@ -68,14 +68,6 @@ onBeforeUnmount(() => detach())
   text-transform: uppercase;
 }
 .margin-note__summary::-webkit-details-marker { display: none; }
-.margin-note__summary::before {
-  content: '';
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: var(--ink);
-  flex: none;
-}
 .margin-note__summary::after {
   content: "+";
   margin-left: auto;

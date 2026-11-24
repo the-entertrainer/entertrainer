@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { absoluteUrl } from '~/utils/site'
 /**
  * Immersive AI course player
  * Design contract: each screen teaches one idea, shows one visual anchor, or
@@ -10,7 +9,7 @@ useSeoMeta({
   description: 'A short, visual, beginner course tracing AI from early ideas to responsible modern use. No magic fog, just the machinery underneath.',
   ogTitle: 'From No AI to Know AI · Entertrainer',
   ogDescription: 'A short, visual beginner course from AI’s early ideas to responsible modern use. No magic fog, just the machinery underneath.',
-  ogUrl: absoluteUrl('/courses/ai-atlas')
+  ogUrl: 'https://entertrainer.in/courses/ai-atlas'
 })
 
 type ScreenKind = 'cover' | 'objectives' | 'explain' | 'media' | 'video' | 'timeline' | 'prediction' | 'input' | 'evidence' | 'safeguards' | 'plan' | 'quiz' | 'summary'

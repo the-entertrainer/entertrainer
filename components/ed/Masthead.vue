@@ -159,19 +159,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 .mh__bar {
   max-width: var(--shell-max); margin: 0 auto;
-  height: var(--nav-h);
-  max-height: var(--nav-h);
+  min-height: var(--nav-h);
   padding: 0 var(--shell-gutter);
   display: flex; align-items: center; gap: var(--space-21);
 }
 
-/* The lockup is a home link. Hold it to the bar so an oversized word
-   cannot spill down the page and take clicks meant for tool controls. */
-.mh__brand {
-  display: inline-flex; flex: none; min-width: 0;
-  max-height: 100%;
-  overflow: clip;
-}
+.mh__brand { display: inline-flex; flex: none; }
 .mh__brand :deep(svg) { transition: transform var(--dur-mid) var(--ease-spring); }
 @media (hover: hover) { .mh__brand:hover :deep(svg) { transform: translateY(-0.0625rem); } }
 
@@ -291,7 +284,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     border-bottom: var(--stroke) solid var(--line);
     background: var(--paper);
   }
-  .mh__sheet-link[aria-current="page"] { background: var(--accent); color: var(--accent-ink); box-shadow: inset 0.25rem 0 0 var(--ink); }
+  .mh__sheet-link[aria-current="page"] { background: linear-gradient(90deg, color-mix(in srgb, var(--signal-cobalt) 10%, var(--paper)), var(--paper-2)); box-shadow: inset 0.25rem 0 0 var(--signal-cobalt); }
   .mh__sheet-link svg { opacity: 0.45; }
 }
 

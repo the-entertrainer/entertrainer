@@ -966,7 +966,12 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   margin: 0;
-  padding: 0;
+  padding:
+    max(24px, env(safe-area-inset-top))
+    max(20px, env(safe-area-inset-right))
+    max(24px, env(safe-area-inset-bottom))
+    max(20px, env(safe-area-inset-left));
+  box-sizing: border-box;
   border: 0;
   /* Opaque paper veil — covers dawn stage until circle wipe reveals it. */
   background: var(--paper);
@@ -1040,7 +1045,7 @@ onBeforeUnmount(() => {
   text-align: center;
 }
 .preloader__entry-skip-hint {
-  max-width: 34ch;
+  max-width: min(34ch, 100%);
   margin: 2rem 0 0;
   color: color-mix(in oklab, var(--ink) 42%, transparent);
   font-family: var(--font-ui), Arial, sans-serif;
@@ -1127,7 +1132,8 @@ onBeforeUnmount(() => {
   z-index: 1;
   display: grid;
   place-items: center;
-  width: min(860rem, 92vw);
+  width: min(860px, 86vw, calc(58dvh * 1.52));
+  max-height: 58dvh;
   aspect-ratio: 1.52;
   isolation: isolate;
   overflow: visible;
@@ -1244,7 +1250,7 @@ onBeforeUnmount(() => {
 .preloader__word {
   color: var(--ink);
   font-family: var(--font-ui), Arial, sans-serif;
-  font-size: var(--type-hero);
+  font-size: min(var(--type-hero), 12.2vw, 8.5dvh);
   font-weight: 900;
   letter-spacing: -.082em;
   line-height: .82;
@@ -1349,9 +1355,9 @@ onBeforeUnmount(() => {
   position: absolute;
   z-index: 2;
   left: 50%;
-  bottom: clamp(72rem, 15vh, 132rem);
-  width: min(520rem, 88vw);
-  padding: 0 12rem;
+  bottom: max(88px, calc(env(safe-area-inset-bottom) + 72px));
+  width: min(520px, calc(100% - 32px));
+  padding: 0 16px;
   text-align: center;
   pointer-events: none;
   opacity: 0;
@@ -1373,6 +1379,7 @@ onBeforeUnmount(() => {
   font-weight: 500;
   letter-spacing: .06em;
   line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 .preloader__quote-en {
   margin: 6rem 0 0;
@@ -1389,10 +1396,14 @@ onBeforeUnmount(() => {
 .preloader__skip {
   position: absolute;
   z-index: 7;
-  bottom: max(28rem, 4vh);
+  bottom: max(12px, env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
-  padding: 8rem 16rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
   border: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
   border-radius: 999px;
   background: color-mix(in oklab, var(--paper) 35%, transparent);

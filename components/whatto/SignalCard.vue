@@ -2,16 +2,15 @@
 import { signalSentence, type WhattoApi } from '~/composables/whatto/useWhatto'
 import type { CoinState } from '~/composables/whatto/marketFeed'
 import { MODEL } from '~/utils/whatto/model'
-import { coinName, fmtPct, fmtPrice, fmtTime } from '~/utils/whatto/coins'
+import { COIN_BY_ID, fmtPct, fmtPrice, fmtTime } from '~/utils/whatto/coins'
 
 const props = defineProps<{ state: CoinState; tick: number; compact?: boolean }>()
 const api = inject<WhattoApi>('whatto')!
 
 const r = computed(() => { void props.tick; return props.state.reading })
 const chip = computed(() => {
-  void props.tick
   const x = r.value
-  if (!x) return props.state.elig && !props.state.elig.eligible && props.state.elig.why.indexOf('Waiting') !== 0 ? { label: 'No odds', cls: '' } : { label: 'Warming up', cls: '' }
+  if (!x) return { label: 'Warming up', cls: '' }
   return {
     signal: { label: 'Rebound signal', cls: 'wt-chip--blue' },
     'below-threshold': { label: 'Falling · watching', cls: 'wt-chip--pink' },
@@ -32,8 +31,8 @@ const pct = (x: number) => `${Math.round(x * 100)}%`
   <article class="wt-card sc" :class="{ 'sc--signal': r?.isSignal, 'sc--compact': compact }" :aria-label="`${state.coin} reading`">
     <header class="sc__head">
       <div>
-        <h3 class="sc__coin">{{ state.coin }} <span class="wt-muted sc__name">{{ coinName(state.coin) ?? '' }}</span></h3>
-        <p class="num sc__price"><WhattoTicker :text="fmtPrice(state.coin, state.lastPrice)" :value="state.lastPrice" /> <span class="wt-muted wt-tiny">USDT</span></p>
+        <h3 class="sc__coin">{{ state.coin }} <span class="wt-muted sc__name">{{ COIN_BY_ID[state.coin].name }}</span></h3>
+        <p class="num sc__price">{{ fmtPrice(state.coin, state.lastPrice) }} <span class="wt-muted wt-tiny">USDT</span></p>
       </div>
       <span class="wt-chip" :class="chip.cls">{{ chip.label }}</span>
     </header>
@@ -72,7 +71,6 @@ const pct = (x: number) => `${Math.round(x * 100)}%`
     </template>
     <div v-else-if="state.error" class="wt-small" role="alert">{{ state.error }}</div>
     <div v-else-if="api.source.value === 'coinbase'" class="wt-small wt-muted">Model paused on the Coinbase fallback feed.</div>
-    <p v-else-if="state.elig && !state.elig.eligible && state.historyLoaded && state.elig.why.indexOf('Waiting') !== 0" class="wt-small wt-muted">Live prices only: not enough history or liquidity for odds.</p>
     <div v-else class="sc__loading"><div class="wt-skeleton" style="height: 16px" /><div class="wt-skeleton" style="height: 16px; width: 70%" /></div>
   </article>
 </template>
@@ -91,9 +89,9 @@ const pct = (x: number) => `${Math.round(x * 100)}%`
 .sc__meter-row { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .sc__facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; }
 .sc__facts div { padding: 10px 12px; border-radius: 16px; background: #FBF5FA; }
-.sc__facts dt { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--wt-muted); }
+.sc__facts dt { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--wt-muted); }
 .sc__facts dd { margin: 2px 0 0; font-weight: 700; font-size: 15px; }
-.sc__facts small { display: block; font-size: 0.75rem; color: var(--wt-muted); font-weight: 600; }
+.sc__facts small { display: block; font-size: 11px; color: var(--wt-muted); font-weight: 600; }
 .sc__foot { border-top: 1px dashed var(--wt-line); padding-top: 10px; }
 .sc__loading { display: grid; gap: 8px; }
 </style>

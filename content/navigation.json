@@ -1,57 +1,50 @@
 {
   "home": [
     {
-      "id": "elevate",
-      "label": "Elevate",
-      "description": "Essays that start in a room and refuse the tidy story.",
-      "href": "/elevate",
-      "color": "#FFD43B",
-      "meta": "Essays"
-    },
-    {
-      "id": "empower",
-      "label": "Empower",
-      "description": "Tools for work that keeps repeating.",
-      "href": "/empower",
-      "color": "#FFD43B",
-      "img": "/web-apps.png",
-      "meta": "Tools"
-    },
-    {
-      "id": "engage",
-      "label": "Engage",
-      "description": "Short games and little detours.",
-      "href": "/engage",
-      "color": "#FFD43B",
-      "meta": "Games"
-    },
-    {
-      "id": "learn",
-      "label": "Learn",
-      "description": "A short lesson, a longer course on artificial intelligence, and Strong.",
-      "href": "/learn",
-      "color": "#FFD43B",
-      "img": "/instructional-design.png",
-      "meta": "Lessons"
-    },
-    {
       "id": "about",
-      "label": "About",
+      "label": "About Me",
       "description": "The story behind Entertrainer, from hotel floors to learning design.",
       "href": "/about",
       "color": "#FFD43B",
       "img": "/about-me.png",
       "meta": "Story"
+    },
+    {
+      "id": "instructional-design",
+      "label": "Instructional Design",
+      "description": "An interactive demonstration of instructional design principles.",
+      "href": "/instructional-design",
+      "color": "#FFD43B",
+      "img": "/instructional-design.png",
+      "meta": "Practice"
+    },
+    {
+      "id": "my-work",
+      "label": "My Work",
+      "description": "Selected instructional design projects, with the thinking behind each.",
+      "href": "/my-work",
+      "color": "#FFD43B",
+      "img": "/my-work.png",
+      "meta": "Projects"
+    },
+    {
+      "id": "tools",
+      "label": "Empower",
+      "description": "Two free tools that earn their keep.",
+      "href": "/empower",
+      "color": "#FFD43B",
+      "img": "/web-apps.png",
+      "meta": "Free tools"
     }
   ],
   "about": [],
   "instructional-design": [],
-  "work": [
+  "my-work": [
     {
       "id": "sewa-chronicles",
       "label": "The SEWA Chronicles",
       "description": "A comic magazine for Club Mahindra, teaching service values through true stories from the resort floor.",
-      "href": "/work/sewa-chronicles",
+      "href": "/my-work/sewa-chronicles",
       "color": "#FFD43B",
       "img": "/work-01.png",
       "meta": "Comic · Club Mahindra"
@@ -60,19 +53,38 @@
       "id": "strong",
       "label": "Strong",
       "description": "Why the same password can take a second or a century to crack, depending entirely on who is doing the cracking.",
-      "href": "/work/strong",
+      "href": "/my-work/strong",
       "color": "#FFD43B",
       "img": "/strong.png",
       "meta": "Interactive explainer"
     }
   ],
-  "tools": [],
+  "tools": [
+    {
+      "id": "easymcq",
+      "label": "EasyMCQ",
+      "description": "Write the question and the right answer; get three plausible wrong ones.",
+      "href": "/tools/easymcq",
+      "color": "#FFD43B",
+      "img": "/easymcq.png",
+      "meta": "Assessment"
+    },
+    {
+      "id": "better-emails",
+      "label": "Draftly",
+      "description": "Paste a messy draft and get a send-ready email.",
+      "href": "/tools/better-emails",
+      "color": "#FFD43B",
+      "img": "/better-emails.png",
+      "meta": "Writing"
+    }
+  ],
   "downloads": [
     {
       "id": "templates",
       "label": "Templates",
       "description": "Ready-to-use L&D templates",
-      "href": "/archive/downloads/templates",
+      "href": "/downloads/templates",
       "color": "#FFD43B",
       "img": "/templates.png",
       "meta": "Pack"
@@ -81,7 +93,7 @@
       "id": "frameworks",
       "label": "Frameworks",
       "description": "ID frameworks & storyboard guides",
-      "href": "/archive/downloads/frameworks",
+      "href": "/downloads/frameworks",
       "color": "#FFD43B",
       "img": "/frameworks.png",
       "meta": "Reference"
@@ -90,7 +102,7 @@
       "id": "resources",
       "label": "Resources",
       "description": "Curated L&D resources",
-      "href": "/archive/downloads/resources",
+      "href": "/downloads/resources",
       "color": "#FFD43B",
       "img": "/resources.png",
       "meta": "Links"

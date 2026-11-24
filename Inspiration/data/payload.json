@@ -1,0 +1,59 @@
+{
+  "description": "Nuxt 3 hydration payload from pacomepertant.com",
+  "note": "This is the structured data that powers the portfolio. Contains project metadata, video references, and social links.",
+  "structure": {
+    "email": "pertantpacome@gmail.com",
+    "projects": [
+      {
+        "title": "Paths of Life",
+        "slug": "paths-of-life",
+        "year": 2024,
+        "shortDescription": "Short film about different life paths with graphic forms",
+        "behanceUrl": "https://www.behance.net/gallery/201777435/Paths-Of-Life",
+        "styleframes": ["3-4 preview images"],
+        "video": {
+          "assetId": "fR2100A00tio2N9VQ4g9ro5BB1tyU77lgHM003hFdb6kq4",
+          "playbackId": "79CoZbPvtdGp00mUU3pkRZujFUDwR02LHciDlc9Gl7G7k",
+          "filename": "Path of life"
+        }
+      },
+      {
+        "title": "The disease spread on Tiktok",
+        "slug": "the-disease-spread-on-tiktok",
+        "year": 2024,
+        "shortDescription": "Animation explaining ADD for Leo Duff YouTube video",
+        "behanceUrl": "https://www.behance.net/gallery/221358177/The-disease-spread-on-Tiktok",
+        "styleframes": ["3-4 preview images"],
+        "video": {
+          "assetId": "wc1DF6O02UFDvtSe6ZKA3E927IGjIWzxnOsJ4HCA3b2Q",
+          "playbackId": "tl4p3L4FYyKx6S4j2Vo1ONIsUu1q5QR3YoTvb76f0202o",
+          "filename": "Leo Duff"
+        }
+      },
+      {
+        "title": "Ah, Psychedelics",
+        "slug": "ah-psychedelics",
+        "year": 2025,
+        "shortDescription": "Motion design exploring therapeutic potential of psychedelics",
+        "behanceUrl": "https://www.behance.net/gallery/223730619/Ah-PsychedelicsExplainer",
+        "styleframes": ["3-4 preview images"],
+        "video": {
+          "assetId": "Iexzz31cQ9b1IrBH0202mBqPWB01hm00EPcCVINUTPFSFEA",
+          "playbackId": "4T5ePLKwMgGBHjNGk018tJ198RPD5qEaIIc6HQ02MjF5c",
+          "filename": "Ah, psychedelics"
+        }
+      }
+    ],
+    "socialLinks": [
+      { "platform": "Instagram", "url": "https://www.instagram.com" },
+      { "platform": "X/Twitter", "url": "https://www.x.com/pacomepertant" },
+      { "platform": "Behance", "url": "https://www.behance.net/pacomepertant" },
+      { "platform": "LinkedIn", "url": "https://www.linkedin.com/in/pacôme-pertant-b4437126b/" }
+    ],
+    "metadata": {
+      "title": "Pacôme Pertant",
+      "description": "Motion and sound designer based in Paris",
+      "keywords": "motion designer, sound designer, freelance, Paris, France, after effects, cinema 4d"
+    }
+  }
+}

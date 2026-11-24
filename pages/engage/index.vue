@@ -1,36 +1,98 @@
 <script setup lang="ts">
-import { listedEngage } from '~/content/engage'
-import { absoluteUrl } from '~/utils/site'
-
-const board = ref<HTMLElement | null>(null)
-useCraftReveal(board, '.engage__step')
-useCardSheen(board)
-
 useSeoMeta({
   title: 'Engage · Entertrainer',
-  description: 'Stack. Tap to drop. Only the overlap stays.',
-  ogUrl: absoluteUrl('/engage'),
+  description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
+  ogUrl: 'https://entertrainer.in/engage',
 })
 
-const games = listedEngage()
+const MIND_READER_SYMBOLS = [
+  '<circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="7" r="2.2" fill="currentColor"/>',
+  '<path d="m12 2 8 4.7v9.6L12 21l-8-4.7V6.7L12 2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+  '<path d="M4 18a11 11 0 0 1 16 0M7 14a7 7 0 0 1 10 0M10 10a3 3 0 0 1 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  '<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2" fill="currentColor"/>',
+  '<path d="m12 2 1.8 7.2L21 11l-7.2 1.8L12 20l-1.8-7.2L3 11l7.2-1.8L12 2Z" fill="currentColor"/>'
+]
 </script>
 
 <template>
-  <div ref="board" class="engage">
+  <div class="engage">
     <EdStageHero
       variant="orbits"
       title="Engage"
       title-id="engage-title"
     />
 
-    <ol v-if="games.length" class="engage__grid" :class="{ 'engage__grid--solo': games.length === 1 }">
-      <li v-for="(game, index) in games" :key="game.id" class="engage__step" :style="{ '--step': index }">
-        <NuxtLink :to="game.href" class="engage__card craft-card" :class="`engage__card--${game.id}`">
-          <span class="engage__icon" aria-hidden="true"><EngageAppIcon :app="game.icon" /></span>
+    <ol class="engage__grid">
+      <li class="engage__step" style="--step: 0">
+        <NuxtLink to="/engage/stack" class="engage__card engage__card--stack">
+          <span class="engage__icon engage__icon--stack" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
+              <rect x="8" y="30" width="32" height="8" fill="currentColor"/>
+              <rect x="12" y="20" width="24" height="8" fill="currentColor"/>
+              <rect x="16" y="10" width="16" height="8" fill="var(--accent)" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </span>
           <span class="engage__card-text">
-            <span v-if="games.length > 1" class="engage__step-no">{{ String(index + 1).padStart(2, '0') }}</span>
-            <strong class="engage__card-name">{{ game.title }}</strong>
-            <span class="engage__card-blurb">{{ game.blurb }}</span>
+            <span class="engage__step-no">01</span><strong class="engage__card-name">Stack</strong>
+            <span class="engage__card-blurb">Tap to drop. Only the overlap stays.</span>
+          </span>
+          <span class="engage__card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </span>
+        </NuxtLink>
+      </li>
+      <li class="engage__step" style="--step: 1">
+        <NuxtLink to="/engage/read-my-mind" class="engage__card engage__card--mind-reader">
+          <span class="engage__icon engage__icon--mind-reader" aria-hidden="true">
+            <i v-for="(symbol, i) in MIND_READER_SYMBOLS" :key="i"><svg viewBox="0 0 24 24" aria-hidden="true" v-html="symbol"></svg></i>
+          </span>
+          <span class="engage__card-text">
+            <span class="engage__step-no">02</span><strong class="engage__card-name">The Mind Reader</strong>
+            <span class="engage__card-blurb">Example: 42. Add 4 + 2, subtract, and the mark is on 36.</span>
+          </span>
+          <span class="engage__card-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+          </span>
+        </NuxtLink>
+      </li>
+      <li class="engage__step" style="--step: 2">
+        <NuxtLink to="/engage/astroclock" class="engage__card engage__card--astroclock">
+          <span class="engage__icon engage__icon--astroclock" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
+              <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="1.6" opacity="0.35"/>
+              <circle cx="24" cy="24" r="15.5" stroke="currentColor" stroke-width="2.2"/>
+              <circle cx="24" cy="24" r="10.5" stroke="currentColor" stroke-width="1.3" opacity="0.85"/>
+              <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <line x1="24" y1="5.5" x2="24" y2="9.2"/>
+                <line x1="24" y1="38.8" x2="24" y2="42.5"/>
+                <line x1="5.5" y1="24" x2="9.2" y2="24"/>
+                <line x1="38.8" y1="24" x2="42.5" y2="24"/>
+                <line x1="11.2" y1="11.2" x2="13.8" y2="13.8"/>
+                <line x1="34.2" y1="34.2" x2="36.8" y2="36.8"/>
+                <line x1="36.8" y1="11.2" x2="34.2" y2="13.8"/>
+                <line x1="13.8" y1="34.2" x2="11.2" y2="36.8"/>
+              </g>
+              <g fill="currentColor" opacity="0.9">
+                <circle cx="24" cy="13.5" r="1.1"/>
+                <circle cx="31.5" cy="16.8" r="0.95"/>
+                <circle cx="34.5" cy="24" r="1.1"/>
+                <circle cx="31.5" cy="31.2" r="0.95"/>
+                <circle cx="24" cy="34.5" r="1.1"/>
+                <circle cx="16.5" cy="31.2" r="0.95"/>
+                <circle cx="13.5" cy="24" r="1.1"/>
+                <circle cx="16.5" cy="16.8" r="0.95"/>
+              </g>
+              <line x1="24" y1="24" x2="24" y2="12.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+              <circle cx="24" cy="12.5" r="1.8" fill="currentColor"/>
+              <circle cx="24" cy="24" r="3.2" fill="currentColor"/>
+              <circle cx="24" cy="24" r="1.35" fill="var(--accent)"/>
+            </svg>
+          </span>
+          <span class="engage__card-text">
+            <span class="engage__step-no">03</span><strong class="engage__card-name">AstroClock</strong>
+            <span class="engage__card-blurb">Birth place and time. A live dial. What today is doing.</span>
           </span>
           <span class="engage__card-arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
@@ -39,7 +101,6 @@ const games = listedEngage()
         </NuxtLink>
       </li>
     </ol>
-    <p v-else class="engage__empty"><EdMark :size="21" /> Nothing on the table right now.</p>
   </div>
 </template>
 
@@ -55,18 +116,13 @@ const games = listedEngage()
   list-style: none;
   margin: var(--space-21) 0 0;
   padding: 0;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: var(--space-13);
 }
-.engage__step { flex: 1 1 18rem; max-width: 36rem; min-width: 0; }
-.engage__grid:has(> :only-child) .engage__step { flex-basis: 22rem; }
 
 .engage__card {
-  width: 100%;
-  height: 100%;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) 1.25rem;
+  grid-template-columns: auto minmax(0, 1fr) 20rem;
   align-items: center;
   gap: var(--space-21);
   padding: var(--space-21);
@@ -77,43 +133,83 @@ const games = listedEngage()
 }
 
 @media (hover: hover) {
-  .engage__card:hover { background: var(--paper-2); border-color: var(--ink); transform: translateX(0.1875rem); }
-  .engage__card:hover .engage__card-arrow { transform: translate(0.125rem, -0.125rem); }
-  .engage__card:hover .engage__icon { transform: translate(-0.1875rem, -0.1875rem); filter: drop-shadow(0.3125rem 0.3125rem 0 var(--ink)); }
-  .engage__card:hover:active .engage__icon { transform: translate(0.0625rem, 0.0625rem); filter: drop-shadow(0 0 0 var(--ink)); }
+  .engage__card:hover { background: var(--paper-2); border-color: var(--ink); transform: translateX(3rem); }
+  .engage__card:hover .engage__card-arrow { transform: translate(2rem, -2rem); }
 }
 
 .engage__card:focus-visible {
-  outline: 0.1875rem solid var(--focus);
-  outline-offset: 0.1875rem;
+  outline: 3rem solid var(--focus);
+  outline-offset: 3rem;
 }
 
 .engage__icon {
   position: relative;
   flex-shrink: 0;
-  display: block;
   width: var(--space-55);
   height: var(--space-55);
-  /* App-icon tile (EngageAppIcon): yellow squircle, ink glyph. Signature: an
-     ink plate, the same pair as the seal, slides out under the squircle on
-     hover and the tile presses flat on tap like a stamp. */
-  filter: drop-shadow(0 0 0 var(--ink));
-  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), filter 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  padding: var(--space-8);
+  box-sizing: border-box;
+  border-radius: var(--radius-s);
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: var(--stroke) solid var(--ink);
 }
-.engage__card:focus-visible .engage__icon { transform: translate(-0.1875rem, -0.1875rem); filter: drop-shadow(0.3125rem 0.3125rem 0 var(--ink)); }
-.engage__card:active .engage__icon { transform: translate(0.0625rem, 0.0625rem); filter: drop-shadow(0 0 0 var(--ink)); transition-duration: 90ms; }
+
+.engage__icon--mind-reader {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 1rem;
+  padding: 7rem;
+  color: #FFD43B;
+  background: #161618;
+}
+
+.engage__icon--mind-reader i { display: grid; place-items: center; color: #FFD43B; }
+.engage__icon--mind-reader i:nth-child(2n) { color: var(--accent); }
+.engage__icon--mind-reader i:nth-child(3n) { color: var(--accent); }
+.engage__icon--mind-reader svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.engage__icon--astroclock {
+  display: grid;
+  place-items: center;
+  padding: 7rem;
+  color: var(--accent-ink);
+  background: var(--accent);
+}
+.engage__icon--astroclock svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.engage__icon--stack {
+  display: grid;
+  place-items: center;
+  padding: 7rem;
+  color: #FFD43B;
+  background: #161618;
+}
+.engage__icon--stack svg { display: block; width: 100%; height: 100%; }
 
 
 .engage__card-text {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.25rem 0.75rem;
+  gap: 4rem 12rem;
   min-width: 0;
 }
 
 .engage__card-name { font: 500 var(--type-body)/1.2 var(--font-display); flex-shrink: 0; }
-.engage__card-blurb { flex: 1 1 16.25rem; min-width: 0; font-size: var(--type-small); line-height: 1.4; color: var(--muted); }
+.engage__card-blurb { flex: 1 1 260rem; min-width: 0; font-size: var(--type-small); line-height: 1.4; color: var(--muted); }
 .engage__card-arrow { color: var(--muted); transition: transform var(--dur-fast) var(--ease-out); }
 
 @media (max-width: 640px) {
@@ -145,37 +241,22 @@ const games = listedEngage()
   }
 }
 
-.engage__grid--solo .engage__card {
-  padding: var(--space-34) var(--space-21);
-}
-.engage__empty {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  max-width: 28rem;
-  margin: var(--space-34) 0 0;
-  padding: 1rem 1.05rem;
-  border: var(--stroke) solid var(--ink);
-  color: var(--ink);
-  font-size: var(--type-body);
-}
-
 .engage__step-no {
   display: inline-grid;
   place-items: center;
-  min-width: 1.75rem;
-  height: 1.375rem;
-  padding: 0 0.375rem;
+  min-width: 28rem;
+  height: 22rem;
+  padding: 0 6rem;
   border-radius: 999px;
   background: #161618;
   color: #FFD43B;
-  font: 700 0.75rem/1 var(--font-mono);
+  font: 700 11rem/1 var(--font-mono);
   letter-spacing: 0.08em;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .engage__step { animation: none; opacity: 1; transform: none; visibility: visible; }
-  .engage__card, .engage__card-arrow, .engage__icon { transition: none; }
+  .engage__card, .engage__card-arrow { transition: none; }
   .engage__card:hover { transform: none; }
 }
 

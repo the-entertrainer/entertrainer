@@ -1,10 +1,5 @@
-import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
-import { buildRedirectRules } from './utils/redirect-rules'
-import { SITE_URL } from './utils/site'
-
-const require = createRequire(import.meta.url)
 
 // AstroClock is a React island under /engage/astroclock.
 // Do NOT use @vitejs/plugin-react here: Nuxt 3.17 pins Vite 6, but
@@ -46,20 +41,9 @@ export default defineNuxtConfig({
   // which cannot leave content invisible when JavaScript is slow or an
   // observer never fires.
   modules: ['@pinia/nuxt', '@vite-pwa/nuxt'],
-  experimental: {
-    defaults: {
-      nuxtLink: {
-        trailingSlash: 'remove',
-      },
-    },
-  },
   // Faces first, then the system that uses them.
-  css: ['~/assets/css/tokens.css', '~/assets/css/fonts.css', '~/assets/css/main.css'],
+  css: ['~/assets/css/fonts.css', '~/assets/css/main.css'],
   runtimeConfig: {
-    public: {
-      // Same value as utils/site.ts SITE_URL. Apex is not the served host.
-      siteUrl: SITE_URL,
-    },
     // Server-only — set via GIPHY_API_KEY env var (Vercel project settings).
     // When absent, /api/giphy serves a curated fallback manifest.
     giphyApiKey: process.env.GIPHY_API_KEY || '',
@@ -103,13 +87,13 @@ export default defineNuxtConfig({
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         { name: 'description', content: 'Naveen Jose makes lessons, useful little tools, and clearer ways into complicated things.' },
-        { name: 'theme-color', content: '#16140F', media: '(prefers-color-scheme: dark)' },
-        { name: 'theme-color', content: '#F7F1E4', media: '(prefers-color-scheme: light)' },
+        { name: 'theme-color', content: '#0B0B0C', media: '(prefers-color-scheme: dark)' },
+        { name: 'theme-color', content: '#FFFFFF', media: '(prefers-color-scheme: light)' },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'Entertrainer' },
-        { name: 'msapplication-TileColor', content: '#F7F1E4' },
+        { name: 'msapplication-TileColor', content: '#161618' },
 		{ name: 'msapplication-TileImage', content: '/mstile-150x150.png' },
         // Site identity only. Route-specific previews are declared by each
         // page through useSeoMeta so pasted links never inherit the home card.
@@ -150,8 +134,8 @@ export default defineNuxtConfig({
       name: 'Entertrainer',
       short_name: 'Entertrainer',
       description: 'Lessons, useful little tools, and clear explanations by Naveen Jose.',
-      theme_color: '#F7F1E4',
-      background_color: '#F7F1E4',
+      theme_color: '#FFFFFF',
+      background_color: '#FFFFFF',
       display: 'standalone',
       orientation: 'any',
       scope: '/',
@@ -163,10 +147,24 @@ export default defineNuxtConfig({
 		],
       shortcuts: [
         {
+          name: 'EasyMCQ — Distractor Generator',
+          short_name: 'EasyMCQ',
+          description: 'Give the question and answer; get three plausible wrong options',
+          url: '/tools/easymcq',
+          icons: [{ src: '/easymcq-icon-192.png', sizes: '192x192', type: 'image/png' }]
+        },
+        {
+          name: 'Draftly — Email Polisher',
+          short_name: 'Draftly',
+          description: 'Turn messy drafts into clear, professional emails',
+          url: '/tools/better-emails',
+          icons: [{ src: '/draftly-icon-192.png', sizes: '192x192', type: 'image/png' }]
+        },
+        {
           name: 'Dialogue — Comics from your pocket',
           short_name: 'Dialogue',
           description: 'Vertical webcomic studio for phones',
-          url: '/dialogue',
+          url: '/dialogue/',
           icons: [{ src: '/dialogue/icons/icon-192.png', sizes: '192x192', type: 'image/png' }]
         },
         {
@@ -186,39 +184,14 @@ export default defineNuxtConfig({
       skipWaiting: true,
       clientsClaim: true,
       cleanupOutdatedCaches: true,
-      globPatterns: ['**/*.{js,css,html,svg,png,woff2,ttf,wasm}'],
-      // OCR lives under public/tesseract (~19 MB). Runtime cache below fetches
-      // it on first Snap-to-Text use. Do not precache it for every install.
-      globIgnores: ['**/tesseract/**'],
+      globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
       navigateFallback: '/',
-      navigateFallbackDenylist: [/^\/api\//, /^\/empower(?:\/|$)/, /^\/tesseract\//],
-      // Tesseract's English model is 12.8 MB and the wasm core is about 2.8 MB.
-      // Both stay out of the precache (globIgnores above) and land in the
-      // runtime cache on first Snap-to-Text use.
+      navigateFallbackDenylist: [/^\/api\//],
       maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       runtimeCaching: [
         {
           urlPattern: /^\/api\/.*/,
           handler: 'NetworkOnly',
-        },
-        {
-          urlPattern: /\/empower(?:\/|$|\?)/,
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'empower-pages',
-            networkTimeoutSeconds: 3,
-            expiration: { maxEntries: 24, maxAgeSeconds: 60 * 60 * 24 * 30 },
-            cacheableResponse: { statuses: [200] },
-          },
-        },
-        {
-          urlPattern: /\/tesseract\//,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'empower-ocr',
-            expiration: { maxEntries: 8, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            cacheableResponse: { statuses: [200] },
-          },
         },
         // The publication's own faces are precached by globPatterns above —
         // they are first-party files now. What is left on a CDN is the Strong
@@ -240,9 +213,41 @@ export default defineNuxtConfig({
   routeRules: {
     // Whatto is unlisted: reachable only by typing the URL, never indexed.
     '/engage/whatto': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
-    '/api/whatto/**': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
-    // Spec §5.2. Exact rows, then prefix rows. statusCode 301 only — never 308.
-    ...buildRedirectRules(),
+    '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } },
+    '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } },
+    '/tools': { redirect: { to: '/empower', statusCode: 301 } },
+    '/blogs': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/blogs/**': { redirect: { to: '/elevate/**', statusCode: 301 } },
+    // Trailing slash required so static /dialogue/index.html assets resolve under /dialogue/.
+    '/dialogue': { redirect: { to: '/dialogue/', statusCode: 308 } },
+    // Educate section removed — keep old links from 404ing.
+    '/educate': { redirect: { to: '/', statusCode: 301 } },
+    '/educate/**': { redirect: { to: '/', statusCode: 301 } },
+    // PicTune removed — keep old links from 404ing.
+    '/engage/pictune': { redirect: { to: '/engage', statusCode: 301 } },
+    // Velocity + Vilakku removed — keep old links from 404ing.
+    '/engage/velocity': { redirect: { to: '/engage', statusCode: 301 } },
+    '/engage/vilakku': { redirect: { to: '/engage', statusCode: 301 } },
+    // Vybe removed — keep old links from 404ing.
+    '/engage/vybe': { redirect: { to: '/engage', statusCode: 301 } },
+    '/engage/squash': { redirect: { to: '/engage', statusCode: 301 } },
+    '/engage/fever': { redirect: { to: '/engage', statusCode: 301 } },
+    '/engage/netagiri': { redirect: { to: '/engage', statusCode: 301 } },
+    // Gateway, Third Eye, Solfeggio, and Brainwave removed — keep old links from 404ing.
+    '/engage/gateway': { redirect: { to: '/engage', statusCode: 301 } },
+    '/engage/third-eye': { redirect: { to: '/engage', statusCode: 301 } },
+    '/engage/solfeggio': { redirect: { to: '/engage', statusCode: 301 } },
+    '/engage/brainwave': { redirect: { to: '/engage', statusCode: 301 } },
+    '/elevate/if-you-are-intelligent-life-might-not-be-easy': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/elevate/does-ai-understand-you': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/elevate/how-to-lie-perfectly': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/elevate/the-voice-in-your-head-is-not-the-whole-of-you': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/elevate/you-are-the-centre-of-the-universe': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/elevate/can-you-reverse-the-spin-of-a-schwarz-surface': { redirect: { to: '/elevate', statusCode: 301 } },
+    '/elevate/the-sacred-frequencies-are-not-a-scale': { redirect: { to: '/elevate/what-each-sacred-frequency-is-for', statusCode: 301 } },
+    // Games renamed to Engage.
+    '/games': { redirect: { to: '/engage', statusCode: 301 } },
+    '/games/**': { redirect: { to: '/engage/**', statusCode: 301 } },
   },
   alias: {
     '@astroclock': fileURLToPath(new URL('./astroclock', import.meta.url)),
@@ -276,39 +281,15 @@ export default defineNuxtConfig({
       },
     },
   },
-  hooks: {
-    'nitro:init'() {
-      // The dev server's static handler 301s a directory to add a slash.
-      // public/dialogue is a directory, so /dialogue bounced with the
-      // slashless 301 and never reached the page. A directory falls
-      // through instead, and the slashless plugin still 301s /dialogue/.
-      const send = require('send')
-      const proto = Object.getPrototypeOf(send({ url: '/' }, '/x', { root: '/tmp' }))
-      if (proto.__satyaDirectory) return
-      const emit = proto.emit
-      proto.emit = function (event: string, ...args: unknown[]) {
-        if (event === 'directory') {
-          this.error(404)
-          return true
-        }
-        return emit.call(this, event, ...args)
-      }
-      proto.__satyaDirectory = true
-    },
-  },
   nitro: {
     // Netlify preview builds set NETLIFY=true. A hardcoded Vercel preset
     // publishes to .vercel/output, so Netlify's dist publish step fails and
     // the Header rules / Pages changed / Redirect rules checks all report
     // "Deploy failed" for the same deploy.
-    preset: process.env.NITRO_PRESET || (process.env.NETLIFY ? 'netlify' : 'vercel'),
-    alias: {
-      // Hoisted h3@2 (from @nuxt/devtools) breaks readBody on Nitro's h3@1 events.
-      'h3-nitro': fileURLToPath(new URL('./node_modules/nitropack/node_modules/h3/dist/index.mjs', import.meta.url)),
-    },
+    preset: process.env.NETLIFY ? 'netlify' : 'vercel',
     externals: {
-      // Native and heavy render deps stay outside the server bundle.
-      external: ['satori', '@resvg/resvg-js', 'pdf-lib', 'playwright-core'],
+      // Keep Playwright deps external in case the pw backup is ever re-enabled
+      external: ['playwright-core', '@sparticuz/chromium', 'satori', '@resvg/resvg-js', 'pdf-lib'],
     },
     vercel: {
       functions: {

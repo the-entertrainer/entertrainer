@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { absoluteUrl } from '~/utils/site'
 import { KNOWLEDGE_QUOTES, pickKnowledgeQuote } from '~/content/knowledge-quotes'
 
 useSeoMeta({
@@ -7,7 +6,7 @@ useSeoMeta({
   description: 'Stories for questions that keep returning, tools for work that keeps repeating, and small games for short detours.',
   ogTitle: 'Entertrainer · The Three Es',
   ogDescription: 'Elevate, Empower, Engage.',
-  ogUrl: absoluteUrl('/')
+  ogUrl: 'https://entertrainer.in/'
 })
 
 type HomeRoute = {
@@ -25,7 +24,7 @@ const routes: HomeRoute[] = [
   {
     name: 'Empower',
     href: '/empower',
-    tip: 'Tools for work that keeps repeating.'
+    tip: 'Two free tools that earn their keep.'
   },
   {
     name: 'Engage',
@@ -36,8 +35,6 @@ const routes: HomeRoute[] = [
 ]
 
 const openTip = ref<string | null>(null)
-const board = ref<HTMLElement | null>(null)
-useCardSheen(board)
 
 const tipId = (name: string) => `home-tip-${name.toLowerCase().replace(/\s+/g, '-')}`
 
@@ -74,23 +71,11 @@ const onVisibility = () => {
   if (document.visibilityState === 'visible') refreshQuote()
 }
 
-onMounted(async () => {
+onMounted(() => {
   refreshQuote()
   document.addEventListener('visibilitychange', onVisibility)
   document.addEventListener('pointerdown', onDocPointer)
   document.addEventListener('keydown', onKeydown)
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    || document.documentElement.dataset.reduceMotion === 'on'
-  if (reduce) return
-  const { default: gsap } = await import('gsap')
-  gsap.from('.route-index__route', {
-    opacity: 0,
-    y: 10,
-    duration: 0.4,
-    stagger: 0.06,
-    ease: 'power2.out',
-    clearProps: 'opacity,transform',
-  })
 })
 
 // Keep-alive return to home: treat as a fresh screen visit.
@@ -107,7 +92,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="board" class="route-index">
+  <div class="route-index">
     <header class="route-index__intro">
       <h1 class="route-index__headline" :class="{ 'is-ready': quoteReady }">
         <span class="route-index__quote">{{ quote.text }}</span>
@@ -118,14 +103,13 @@ onBeforeUnmount(() => {
     <nav class="route-index__switchboard" aria-label="Entertrainer sections">
       <ol class="route-index__routes">
         <li
-          v-for="(route, index) in routes"
+          v-for="route in routes"
           :key="route.href"
           class="route-index__route"
           :class="{ 'is-open': openTip === route.name }"
         >
-          <div class="route-index__card craft-card">
+          <div class="route-index__card">
             <NuxtLink :to="route.href" class="route-index__link">
-              <span class="route-index__no" aria-hidden="true">{{ String(index + 1).padStart(2, '0') }}</span>
               <strong>{{ route.name }}</strong>
             </NuxtLink>
             <button
@@ -162,7 +146,7 @@ onBeforeUnmount(() => {
 /* Home: the quote is the 76px display. Routes are the 29px step. */
 .route-index {
   max-width: calc(var(--column) + (var(--shell-gutter) * 2));
-  min-height: min(45rem, calc(100dvh - var(--nav-h)));
+  min-height: min(720rem, calc(100dvh - var(--nav-h)));
   margin: 0 auto;
   padding: var(--space-55) var(--shell-gutter) var(--space-89);
   display: grid;
@@ -191,7 +175,7 @@ onBeforeUnmount(() => {
 
 .route-index__quote { color: var(--ink); }
 
-.route-index__switchboard { max-width: 26.25rem; }
+.route-index__switchboard { max-width: 420rem; }
 
 .route-index__routes {
   display: block;
@@ -211,18 +195,10 @@ onBeforeUnmount(() => {
   background: transparent;
 }
 
-.route-index__no {
-  font: 500 var(--type-meta)/1 var(--font-mono);
-  letter-spacing: 0.08em;
-  color: var(--muted);
-}
-.route-index__card:has(.route-index__link:hover) .route-index__no,
-.route-index__link:focus-visible .route-index__no { color: var(--accent-ink); }
-
 .route-index__link {
   display: flex;
   align-items: baseline;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: var(--space-13);
   min-height: var(--space-55);
   padding: var(--space-13) var(--space-34) var(--space-13) 0;
@@ -259,17 +235,17 @@ onBeforeUnmount(() => {
 }
 
 .route-index__info:hover,
-.route-index__route.is-open .route-index__info { background: var(--accent); color: var(--accent-ink); }
+.route-index__route.is-open .route-index__info { background: var(--accent); }
 
 .route-index__info::before {
   content: '';
   position: absolute;
-  inset: -0.75rem;
+  inset: -12rem;
 }
 
 .route-index__info:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 3px;
+  outline: 2rem solid var(--ink);
+  outline-offset: 3rem;
 }
 
 .route-index__tip {
@@ -288,28 +264,18 @@ onBeforeUnmount(() => {
 .route-tip-enter-from,
 .route-tip-leave-to {
   opacity: 0;
-  transform: translateY(-0.25rem);
-}
-
-.route-index__card {
-  transition: background 180ms var(--ease-out), color 180ms var(--ease-out);
+  transform: translateY(-4rem);
 }
 
 @media (hover: hover) {
   .route-index__card:has(.route-index__link:hover) {
-    background: var(--accent);
-    color: var(--accent-ink);
-  }
-  .route-index__card:has(.route-index__link:hover) .route-index__info {
-    background: var(--ink);
-    color: var(--paper);
-    border-color: var(--ink);
+    background: color-mix(in srgb, var(--accent) 35%, var(--paper));
   }
 }
 
 .route-index__link:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 3px;
+  outline: 2rem solid var(--ink);
+  outline-offset: 3rem;
 }
 
 @media (max-width: 780px) {

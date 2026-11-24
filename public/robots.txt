@@ -7,4 +7,4 @@ Disallow: /api/test-groq
 Disallow: /api/test-error
 Disallow: /api/ping
 
-Sitemap: https://www.entertrainer.in/sitemap.xml
+Sitemap: https://entertrainer.in/sitemap.xml

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { absoluteUrl } from '~/utils/site'
 import type { Root } from 'react-dom/client'
 import '@astroclock/styles/astroclock.css'
 
@@ -8,7 +7,7 @@ definePageMeta({ layout: false })
 useSeoMeta({
   title: 'AstroClock · Engage',
   description: 'Birth place and time. A live dial. What today is doing.',
-  ogUrl: absoluteUrl('/engage/astroclock'),
+  ogUrl: 'https://entertrainer.in/engage/astroclock',
 })
 
 const THEME_BG = { dark: '#0B0C10', light: '#F4F1EA' } as const
@@ -24,8 +23,8 @@ function themeBg() {
 }
 
 /*
-  The publication root is the browser default, 16px, so 1rem is 16px.
-  This island still pins that size so a later override cannot shrink Tailwind.
+  Entertrainer's main.css uses `html { font-size: 1px }` (rem == px).
+  Tailwind utilities on this island assume a normal 16px rem.
   useHead style for first paint + class-gated CSS + JS important safety net.
   NEVER bare `html { font-size }` in unscoped CSS — Vite keeps chunks linked.
   Backgrounds follow html[data-theme] — do not force dark-only.

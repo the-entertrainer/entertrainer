@@ -42,7 +42,7 @@ export function buildComposeSystemPrompt(): string {
     '    "metaphor": string (one clear essay idea the cover must communicate),',
     '    "motif": "tangled-paths" | "ripples" | "orbits" | "dual-minds" | "balance" | "shatter" | "grid-anomaly" | "flow-thread",',
     '    "focal": "head-profile" | "head-open" | "vessel" | "crescent" | "dual-profiles" | "scales" | "bars" | "grid" | "streams",',
-    '    "cobaltRole": string (what the sacred yellow #FFD43B highlights — the punch line of the metaphor)',
+    '    "cobaltRole": string (what cobalt highlights — the punch line of the metaphor)',
     '  },',
     '  "marginNote": { "label": string, "body": string },',
     '  "blocks": [',
@@ -80,7 +80,7 @@ export function buildComposeSystemPrompt(): string {
     '- Do not auto-publish language; this is a draft for human polish.',
     '- When a topic could be read as harm/deception how-to, write the science of cognition / psychology / why perfect performance is a myth — never instructional harm.',
     '- Prefer scientific curiosity framing over how-to framing.',
-    '- heroBrief is REQUIRED: pick ONE conceptual metaphor matching Elevate covers (cream/ink/sacred yellow #FFD43B). Examples: tangled roads from a head vs one clear yellow path (intelligence/choice); coffee cup + concentric ripples (entropy/energy); dual profiles organic vs circuit (AI/dialogue); scales tipped unexpectedly (midpoint/trade-offs). No decorative noise, no text overlays, no logos.',
+    '- heroBrief is REQUIRED: pick ONE conceptual metaphor matching Elevate covers (cream/ink/cobalt). Examples: tangled roads from a head vs one clear cobalt path (intelligence/choice); coffee cup + concentric ripples (entropy/energy); dual profiles organic vs circuit (AI/dialogue); scales tipped unexpectedly (midpoint/trade-offs). No decorative noise, no text overlays, no logos.',
     '- Return ONLY the JSON object.'
   ].join('\n')
 }

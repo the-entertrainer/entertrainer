@@ -1,0 +1,20 @@
+<script setup lang="ts">
+import { useContentStore } from '~/stores/content'
+
+
+const route        = useRoute()
+const contentStore = useContentStore()
+const slug         = route.params.slug as string
+
+const item = computed(() =>
+  contentStore.aboutNav.find((n) => n.id === slug)
+)
+
+if (!item.value) throw createError({ statusCode: 404 })
+</script>
+
+<template>
+  <UiContentShell v-if="item" :title="item.label" :deck="item.description">
+    <UiConstructionZone />
+  </UiContentShell>
+</template>

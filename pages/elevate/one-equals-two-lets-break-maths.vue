@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { absoluteUrl } from '~/utils/site'
 import { ONE_EQUALS_TWO_BLOG } from '~/content/blogs'
 
 useSeoMeta({
@@ -7,12 +6,12 @@ useSeoMeta({
   description: ONE_EQUALS_TWO_BLOG.socialHook,
   ogTitle: ONE_EQUALS_TWO_BLOG.socialTitle,
   ogDescription: ONE_EQUALS_TWO_BLOG.socialHook,
-  ogUrl: absoluteUrl(`/elevate/${ONE_EQUALS_TWO_BLOG.slug}`),
-  ogImage: absoluteUrl(ONE_EQUALS_TWO_BLOG.hero),
+  ogUrl: `https://entertrainer.in/elevate/${ONE_EQUALS_TWO_BLOG.slug}`,
+  ogImage: `https://entertrainer.in${ONE_EQUALS_TWO_BLOG.hero}`,
   twitterCard: 'summary_large_image',
   twitterTitle: ONE_EQUALS_TWO_BLOG.socialTitle,
   twitterDescription: ONE_EQUALS_TWO_BLOG.socialHook,
-  twitterImage: absoluteUrl(ONE_EQUALS_TWO_BLOG.hero)
+  twitterImage: `https://entertrainer.in${ONE_EQUALS_TWO_BLOG.hero}`
 })
 
 const proof = [
@@ -84,7 +83,6 @@ const references = [
       <p class="taj__meta">{{ ONE_EQUALS_TWO_BLOG.category }} <span aria-hidden="true">·</span> {{ ONE_EQUALS_TWO_BLOG.minutes }} min read</p>
       <h1>{{ ONE_EQUALS_TWO_BLOG.title }}</h1>
       <p class="taj__dek">{{ ONE_EQUALS_TWO_BLOG.dek }}</p>
-      <p class="taj__lesson-link"><NuxtLink to="/learn/one-equals-two">Start the interactive lesson →</NuxtLink></p>
     </header>
 
     <figure class="taj__hero">
@@ -142,7 +140,7 @@ const references = [
           </li>
         </ol>
 
-        <p class="taj__gasp u-marker">WTF?!</p>
+        <p class="taj__gasp">WTF?!</p>
         <p>That was my honest reaction, and I am not proud of the language. I went through it the way you pat your pockets for keys. Multiply, fine. Subtract the same thing from both sides, fine. Factorise, exactly the way our teacher did it on the board. Then the fifth line, where (a − b) slips away from both sides at once, like two guests leaving a party together so nobody notices either of them go.</p>
         <p>Look at that guest again. We began by saying a = b. So a − b is a number minus itself. It is zero. Crossing it out from both sides means dividing both sides by zero, and that is the one door arithmetic refuses to walk through.<a href="#ref-8" aria-label="Reference 8">[8]</a></p>
         <p>Think about what division even asks. Six divided by two asks: what number, times two, gives six? Three, happily. Now ask what, times zero, gives six. Nothing answers. Zero swallows whatever you multiply by it. Ask instead what, times zero, gives zero, and every number on earth raises its hand. Line four of the trick was secretly 0 = 0, true and completely empty. Divide by zero, and you can walk out of it holding 2 = 1, or anything you please.</p>
@@ -153,7 +151,7 @@ const references = [
         <p>The schoolboy in me still wants a world where you can point at anything and say there, exactly. But the closer I look, the more little places I find where the rules stop answering, as if the mapmaker had written in the margin: beyond this point, ask someone else.</p>
         <p>My mother never studied pi. She never needed to. When she told me the only truth there is, is God himself, I thought she was arguing with my maths. Maybe she was only pointing at its edges.</p>
 
-        <p class="taj__closing taj__pull">Perhaps the truth was never on the map at all, only waiting at its edges, where pi keeps walking and zero will not open the door.</p>
+        <p class="taj__closing">Perhaps the truth was never on the map at all, only waiting at its edges, where pi keeps walking and zero will not open the door.</p>
       </div>
     </article>
 
@@ -176,105 +174,45 @@ const references = [
 .taj__head { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: 0 auto; padding: var(--space-34) var(--shell-gutter) var(--space-21); }
 .taj__back, .taj__meta { font: 500 var(--type-meta)/1.2 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
 .taj__back { color: var(--ink); }
-.taj__meta { margin: var(--space-21) 0 var(--space-13); color: var(--ink); }
+.taj__meta { margin: var(--space-21) 0 var(--space-13); color: var(--signal-cobalt); }
 .taj h1, .taj h2 { font-family: var(--font-display); font-weight: 500; letter-spacing: -.05em; }
 .taj h1 { max-width: var(--column); margin: 0; font-size: var(--type-h1); line-height: .95; text-wrap: balance; }
 .taj__dek { max-width: var(--measure); margin: var(--space-13) 0 0; font: 400 var(--type-dek)/1.3 var(--font-body); }
-.taj__lesson-link { margin: 0.75rem 0 0; }
-.taj__lesson-link a { font-weight: 500; color: var(--ink); text-decoration: none; border-bottom: 1px solid currentColor; }
 .taj__hero { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: 0 auto; padding: 0 var(--shell-gutter); }
 .taj__hero :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: var(--crop); object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; background: var(--signal-field); }
 .taj__article { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-34) auto 0; padding: 0 var(--shell-gutter); display: block; }
 .taj__prose { max-width: var(--measure); font: 400 var(--type-body)/1.55 var(--font-body); }
 .taj__prose p { margin: 0 0 var(--space-21); }
-.taj__prose .taj__lead::first-letter { float: left; margin: 0.125rem 0.6875rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--ink); }
-.taj__prose a { color: inherit; text-decoration: underline; text-decoration-color: var(--ink); text-decoration-thickness: 2px; text-underline-offset: 3px; }
-.taj__prose { counter-reset: lesson; }
-.taj__prose h2 { margin: var(--space-34) 0 var(--space-13); font-size: var(--type-h2); line-height: .98; counter-increment: lesson; }
-.taj__prose h2::before {
-  content: counter(lesson, decimal-leading-zero);
-  display: block;
-  margin-bottom: 0.45rem;
-  color: var(--ink);
-  font: 500 0.75rem/1 var(--font-mono);
-  letter-spacing: 0.12em;
-}
-.taj__prose h2::after {
-  content: '';
-  display: block;
-  width: 1.75rem;
-  height: 0.28rem;
-  margin-top: 0.45rem;
-  background: var(--accent);
-  border: 1px solid var(--ink);
-}
-.taj__prose a {
-  background-image: linear-gradient(var(--accent), var(--accent));
-  background-repeat: no-repeat;
-  background-position: 0 0.85em;
-  background-size: 0 0.35em;
-  transition: background-size 180ms var(--ease-out);
-}
-@media (hover: hover) {
-  .taj__prose a:hover { background-size: 100% 0.35em; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .taj__prose a { transition: none; }
-}
-.taj__prose .taj__lead::first-letter {
-  background: var(--accent);
-  color: var(--ink);
-  padding: 0.06em 0.1em 0;
-}
-.taj__visual { margin: 3.125rem 0 2.8125rem; }
+.taj__prose .taj__lead::first-letter { float: left; margin: 2rem 11rem 0 0; font: 500 5.1em/.72 var(--font-display); color: var(--signal-cobalt); }
+.taj__prose a { color: inherit; text-decoration: underline; text-decoration-color: var(--signal-cobalt); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.taj__prose h2 { margin: var(--space-34) 0 var(--space-13); font-size: var(--type-h2); line-height: .98; }
+.taj__visual { margin: 50rem 0 45rem; }
 .taj__visual :deep(.ed-editorial-image) { display: block; width: 100%; aspect-ratio: 1800 / 1173; object-fit: cover; border: var(--stroke) solid var(--ink); border-radius: var(--radius-m); overflow: hidden; background: var(--signal-field); }
-.taj figure figcaption { margin-top: 0.625rem; color: var(--ink-soft); font: 400 0.8125rem/1.35 var(--font-mono); }
+.taj figure figcaption { margin-top: 10rem; color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); }
 .taj .taj__prose figure figcaption a { color: inherit; text-decoration: underline; text-decoration-color: var(--line); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .taj__proof { margin: var(--space-34) 0; padding: var(--space-21) 0; list-style: none; border-top: var(--stroke) solid var(--ink); border-bottom: var(--stroke) solid var(--ink); counter-reset: proof; }
-.taj__proof li { counter-increment: proof; display: grid; grid-template-columns: 2.125rem minmax(0, 1fr) minmax(0, auto); align-items: baseline; gap: 0 var(--space-21); padding: 0.4375rem 0; }
-.taj__proof li::before { content: counter(proof); color: var(--ink-soft); font: 400 0.8125rem/1 var(--font-mono); }
-.taj__proof-eq { font: 500 1.3125rem/1.3 var(--font-mono); letter-spacing: -.01em; white-space: nowrap; }
-.taj__proof-why { color: var(--ink-soft); font: 400 0.8125rem/1.35 var(--font-mono); text-align: right; }
-.taj__proof li.is-result .taj__proof-eq {
-  display: inline-block;
-  padding: 0.12em 0.28em 0.05em;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-size: 2.125rem;
-  border: 1px solid var(--ink);
-}
-.taj__pull {
-  position: relative;
-  padding-left: 1.35rem;
-}
-.taj__pull::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.35em;
-  width: 0.7rem;
-  height: 0.7rem;
-  border-radius: 50%;
-  background: var(--accent);
-  border: 1.5px solid var(--ink);
-}
+.taj__proof li { counter-increment: proof; display: grid; grid-template-columns: 34rem minmax(0, 1fr) minmax(0, auto); align-items: baseline; gap: 0 var(--space-21); padding: 7rem 0; }
+.taj__proof li::before { content: counter(proof); color: var(--ink-soft); font: 400 13rem/1 var(--font-mono); }
+.taj__proof-eq { font: 500 21rem/1.3 var(--font-mono); letter-spacing: -.01em; white-space: nowrap; }
+.taj__proof-why { color: var(--ink-soft); font: 400 13rem/1.35 var(--font-mono); text-align: right; }
+.taj__proof li.is-result .taj__proof-eq { color: var(--ink); font-size: 34rem; text-decoration: underline; text-decoration-color: var(--signal-cobalt); text-decoration-thickness: 5px; text-underline-offset: 7px; text-decoration-skip-ink: none; }
 .taj__gasp { margin: 0 0 var(--space-21) !important; font: 500 var(--type-h2)/1 var(--font-display); letter-spacing: -.04em; }
-.taj__closing { margin-top: 2.375rem !important; padding-top: 1.75rem; border-top: var(--stroke) solid var(--ink); font: 500 var(--type-h2)/1.15 var(--font-display); letter-spacing: -.035em; }
+.taj__closing { margin-top: 38rem !important; padding-top: 28rem; border-top: var(--stroke) solid var(--ink); font: 500 var(--type-h2)/1.15 var(--font-display); letter-spacing: -.035em; }
 .taj__sources { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-55) auto 0; padding: var(--space-34) var(--shell-gutter) 0; border-top: var(--stroke) solid var(--ink); }
 .taj__sources h2 { margin: var(--space-13) 0 var(--space-21); font-size: var(--type-h1); line-height: .95; }
-.taj__sources ol { max-width: 47.5rem; padding: 0; list-style: none; }
+.taj__sources ol { max-width: 760rem; padding: 0; list-style: none; }
 .taj__sources li { padding: var(--space-13) 0; border-top: var(--stroke) solid var(--line); font-size: var(--type-body); line-height: 1.45; }
 .taj__sources a { color: inherit; }
-.taj__sources span { color: var(--ink); font-family: var(--font-mono); }
+.taj__sources span { color: var(--signal-cobalt); font-family: var(--font-mono); }
 .taj__sources em { color: var(--ink-soft); }
 .taj__newsletter-wrap { max-width: calc(var(--column) + (var(--shell-gutter) * 2)); margin: var(--space-55) auto 0; padding: 0 var(--shell-gutter); }
 @media (max-width: 760px) {
   .taj__hero { padding: 0; }
   .taj__hero :deep(.ed-editorial-image) { border-left: 0; border-right: 0; border-radius: 0; aspect-ratio: var(--crop); }
-  .taj__prose h2 { margin-top: 3.25rem; }
-  .taj__proof li { grid-template-columns: 1.625rem minmax(0, 1fr); }
-  .taj__proof-eq { font-size: 1.125rem; white-space: normal; }
-  .taj__proof li.is-result .taj__proof-eq { font-size: 1.75rem; }
-  .taj__proof-why { grid-column: 2; text-align: left; margin-top: 0.125rem; }
+  .taj__prose h2 { margin-top: 52rem; }
+  .taj__proof li { grid-template-columns: 26rem minmax(0, 1fr); }
+  .taj__proof-eq { font-size: 18rem; white-space: normal; }
+  .taj__proof li.is-result .taj__proof-eq { font-size: 28rem; }
+  .taj__proof-why { grid-column: 2; text-align: left; margin-top: 2rem; }
 }
 </style>

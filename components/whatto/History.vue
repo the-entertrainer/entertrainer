@@ -47,12 +47,7 @@ const rel = MODEL.evaluation.reliability
         <div><dt>Brier</dt><dd class="num">{{ pooled.brier.toFixed(4) }}</dd></div>
         <div><dt>Brier, base only</dt><dd class="num">{{ pooled.brierBase.toFixed(4) }}</dd></div>
       </dl>
-      <p class="wt-tiny wt-muted">{{ MODEL.symbols.length }} USDT pairs (one pooled model), {{ MODEL.months[0] }} to {{ MODEL.months[MODEL.months.length - 1] }} 1-minute Binance data. Each month was predicted by a model that never saw it. A hit means the high touched +{{ MODEL.reboundK }}σ within {{ MODEL.horizonMin }} minutes; {{ fmtPct(pooled.stopFirstRate, 0) }} of signals touched the stop first, and the mean 30-minute return after a signal was {{ fmtSignedPct(pooled.meanFwdReturnSignals) }}, before fees.</p>
-
-      <h3 class="hi__h3">By liquidity tier (24h volume at the time)</h3>
-      <ul class="hi__folds num wt-small">
-        <li v-for="t in MODEL.tiers" :key="t.id"><strong>{{ t.id }} <span class="wt-tiny wt-muted">{{ t.label }}</span></strong><span>AUC {{ MODEL.evaluation.perTier[t.id].auc.toFixed(3) }}</span><span>{{ MODEL.evaluation.perTier[t.id].signals }} signals, {{ fmtPct(MODEL.evaluation.perTier[t.id].hitRate, 0) }} hit</span><span class="wt-muted">base {{ fmtPct(MODEL.evaluation.perTier[t.id].baseRateDeclustered, 0) }} · {{ MODEL.evaluation.perTier[t.id].edge ? 'odds on' : 'no odds' }}</span></li>
-      </ul>
+      <p class="wt-tiny wt-muted">Six coins, {{ MODEL.months[0] }} to {{ MODEL.months[MODEL.months.length - 1] }} 1-minute Binance data. Each month was predicted by a model that never saw it. A hit means the high touched +{{ MODEL.reboundK }}σ within {{ MODEL.horizonMin }} minutes; {{ fmtPct(pooled.stopFirstRate, 0) }} of signals touched the stop first, and the mean 30-minute return after a signal was {{ fmtSignedPct(pooled.meanFwdReturnSignals) }}, before fees.</p>
 
       <h3 class="hi__h3">By month</h3>
       <ul class="hi__folds num wt-small">
@@ -98,7 +93,7 @@ const rel = MODEL.evaluation.reliability
 .hi__clear { margin-top: 12px; }
 .hi__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 10px; }
 .hi__stats div { padding: 8px 10px; border-radius: 14px; background: #FBF5FA; }
-.hi__stats dt { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--wt-muted); }
+.hi__stats dt { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--wt-muted); }
 .hi__stats dd { margin: 2px 0 0; font-weight: 800; font-size: 17px; }
 .hi__folds { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .hi__folds li { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; padding: 8px 10px; border-radius: 12px; background: #FBF5FA; }

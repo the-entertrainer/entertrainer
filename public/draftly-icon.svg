@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Draftly</title>
+  <rect width="512" height="512" rx="116" fill="#F7F1E4"/>
+  <rect x="36" y="36" width="440" height="440" rx="96" fill="#FFFBF3" stroke="#0B0B0C" stroke-width="3"/>
+  <!-- Envelope body -->
+  <rect x="96" y="168" width="320" height="220" rx="28" fill="#FFFFFF" stroke="#0B0B0C" stroke-width="10"/>
+  <!-- Flap -->
+  <path d="M106 178 L256 292 L406 178" fill="none" stroke="#0B0B0C" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Letter peek -->
+  <rect x="148" y="128" width="216" height="86" rx="14" fill="#F7F1E4" stroke="#0B0B0C" stroke-width="8"/>
+  <rect x="176" y="152" width="120" height="10" rx="5" fill="#0B0B0C" opacity="0.28"/>
+  <rect x="176" y="174" width="88" height="10" rx="5" fill="#0B0B0C" opacity="0.18"/>
+  <!-- Polish stroke -->
+  <path d="M318 318 C352 292 392 286 424 304" fill="none" stroke="#2F5BD8" stroke-width="14" stroke-linecap="round"/>
+  <path d="M404 288 l28 8 -18 24" fill="none" stroke="#2F5BD8" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

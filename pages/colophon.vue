@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { absoluteUrl } from '~/utils/site'
 /**
  * The colophon.
  *
@@ -21,7 +20,7 @@ useSeoMeta({
   description: 'How entertrainer.in is put together: Nuxt, an editorial design system, five open-source typefaces, and the reasoning behind each decision. Naveen Jose wrote this account.',
   ogTitle: 'Colophon — how this site is built',
   ogDescription: 'Nuxt, an editorial design system, and the reasoning behind the decisions that shape the site.',
-  ogUrl: absoluteUrl('/colophon')
+  ogUrl: 'https://entertrainer.in/colophon'
 })
 
 const email = useContentStore().email
@@ -36,7 +35,7 @@ const stack: Entry[] = [
   { k: 'Type', v: 'Four faces, four jobs',
     note: 'Fraunces for display, Archivo for interface, Source Serif 4 for reading, IBM Plex Mono for metadata. All SIL Open Font License, all self-hosted, three of the four variable — so the whole range is eight files. Chosen as the closest open equivalents to a commercial stack I could not license.' },
   { k: 'Colour', v: 'Paper, ink, signal yellow',
-    note: 'The accent is sacred yellow #FFD43B: fills, marks, and button grounds, with ink text on them. Yellow type on cream does not clear WCAG AA, so text, links, and focus rings stay ink. Other hues are for status, not decoration.' },
+    note: 'The interface accent is signal yellow, paired with near-black text that clears 4.5:1. Essay pictures keep one cobalt. Other hues are for status, not decoration.' },
   { k: 'Surfaces', v: 'Hairline first, shadow only when it lifts',
     note: 'Most separation is a hairline and the space around it. A few tactile objects — the home switchboard, the category tiles — still carry a hard offset shadow, because they are meant to feel like pieces you can pick up.' },
   { k: 'Motion', v: 'Four durations, five curves',
@@ -46,7 +45,7 @@ const stack: Entry[] = [
   { k: 'Hosting', v: 'Vercel',
     note: 'Pages are server-rendered. There is no analytics database. A tool sends only the request you make. StoryGen projects stay in the browser.' },
   { k: 'Opening sound', v: 'Pixabay ident by Diamond_Tunes',
-    note: 'One short welcome tone with the opening, when the browser allows sound before a tap: “Digital Vibe (Podcast Intro Ident)” by Diamond_Tunes on Pixabay (Content License). Attribution is appreciated; the license does not require it. Device silent mode is respected — playback uses ordinary HTML audio and fails quietly if muted or blocked.' }
+    note: 'One short welcome tone on tap-to-enter: “Digital Vibe (Podcast Intro Ident)” by Diamond_Tunes on Pixabay (Content License). Trimmed to the preloader window. Attribution is appreciated; the license does not require it. Device silent mode is respected — playback uses ordinary HTML audio inside the tap gesture and fails quietly if muted or blocked.' }
 ]
 
 const choices = [
@@ -100,41 +99,41 @@ const choices = [
 </template>
 
 <style scoped>
-.co__sec { margin-top: clamp(2.125rem, 6vh, 4rem); }
+.co__sec { margin-top: clamp(34rem, 6vh, 64rem); }
 .co__label {
-  margin: 0 0 1.25rem; padding-bottom: 0.75rem;
+  margin: 0 0 20rem; padding-bottom: 12rem;
   border-bottom: var(--stroke) solid var(--line);
   color: var(--muted);
 }
 
 .co__list { margin: 0; }
 .co__row {
-  display: grid; grid-template-columns: 10.625rem minmax(0, 1fr);
-  gap: 1.375rem; align-items: baseline; align-self: stretch;
-  padding: 1rem 0;
+  display: grid; grid-template-columns: 170rem minmax(0, 1fr);
+  gap: 22rem; align-items: baseline; align-self: stretch;
+  padding: 16rem 0;
   border-bottom: var(--stroke) solid var(--line);
 }
 .co__k { margin: 0; color: var(--muted); }
-.co__v { margin: 0; font-size: 1.03125rem; font-weight: 600; }
-.co__note { align-self: stretch; margin: 0; padding: 1rem 0 1rem 0.875rem; border-bottom: var(--stroke) solid var(--line); }
+.co__v { margin: 0; font-size: 16.5rem; font-weight: 600; }
+.co__note { align-self: stretch; margin: 0; padding: 16rem 0 16rem 14rem; border-bottom: var(--stroke) solid var(--line); }
 
 @media (max-width: 900px) {
-  .co__note { padding: 0.625rem 0 0 0.875rem; margin: 0 0 1.125rem; border-bottom: 0; }
+  .co__note { padding: 10rem 0 0 14rem; margin: 0 0 18rem; border-bottom: 0; }
 }
-@media (max-width: 560px) { .co__row { grid-template-columns: minmax(0, 1fr); gap: 0.25rem; } }
+@media (max-width: 560px) { .co__row { grid-template-columns: minmax(0, 1fr); gap: 4rem; } }
 
-.co__choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(17.5rem, 1fr)); gap: clamp(1rem, 2vw, 1.375rem); }
+.co__choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(280rem, 1fr)); gap: clamp(16rem, 2vw, 22rem); }
 .co__choice {
   background: var(--paper); border: var(--stroke) solid var(--line);
-  border-radius: var(--radius-l); padding: clamp(1.25rem, 2.4vw, 1.75rem);
+  border-radius: var(--radius-l); padding: clamp(20rem, 2.4vw, 28rem);
 }
-.co__choice-h { font-size: var(--type-card); line-height: 1.1; margin: 0 0 0.75rem; }
-.co__choice-b { margin: 0; font-size: 0.96875rem; color: var(--muted); }
+.co__choice-h { font-size: var(--type-card); line-height: 1.1; margin: 0 0 12rem; }
+.co__choice-b { margin: 0; font-size: 15.5rem; color: var(--muted); }
 
 .co__foot {
-  margin-top: clamp(2.375rem, 6vh, 4.5rem); padding-top: 1.625rem;
+  margin-top: clamp(38rem, 6vh, 72rem); padding-top: 26rem;
   border-top: var(--stroke) solid var(--line);
-  display: flex; flex-wrap: wrap; align-items: center; gap: 1.125rem; justify-content: space-between;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 18rem; justify-content: space-between;
 }
 .co__foot p { margin: 0; font-family: var(--font-reading); color: var(--muted); max-width: 46ch; }
 </style>

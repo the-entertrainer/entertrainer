@@ -1,0 +1,16 @@
+import { chromium } from 'playwright-core'
+const OUT='/tmp/claude-0/-home-user-entertrainer/4fa45bf8-958c-5f57-bd54-f20b962b076a/scratchpad/shots'
+const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'})
+const ctx=await b.newContext({viewport:{width:1440,height:1000}})
+await ctx.addInitScript(()=>{try{localStorage.setItem('et-theme','dark')}catch{}})
+const p=await ctx.newPage()
+await p.goto('http://localhost:3000/',{waitUntil:'networkidle'})
+await p.waitForTimeout(1200)
+await p.screenshot({path:`${OUT}/r-dark.png`})
+await p.close()
+const c=await ctx.newPage()
+await c.goto('http://localhost:3000/my-work/ai-origins-to-frontier',{waitUntil:'networkidle'})
+await c.waitForTimeout(1200)
+await c.screenshot({path:`${OUT}/r-course-dark.png`})
+await c.close()
+await b.close(); console.log('ok')

@@ -14,8 +14,6 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogueExport } from '~/composables/dialogue/useDialogueExport'
-
 defineProps<{ open: boolean }>()
 defineEmits(['close'])
 const progress = ref(0)

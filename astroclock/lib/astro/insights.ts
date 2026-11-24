@@ -6,7 +6,6 @@ import {
   type PlanetMap,
   type SpeedMap,
 } from './constants';
-import { birthInstant } from './time';
 import { absShortest, ascendant, julianDay, lst, norm360 } from './math';
 import {
   computePlanets,
@@ -610,7 +609,16 @@ export function computeTodayInsights(
 
   let dasha = { maha: '—', antar: '—', tone: '' };
   try {
-    const birthDt = birthInstant(birth);
+    const birthDt = new Date(
+      Date.UTC(
+        +birth.date.slice(0, 4),
+        +birth.date.slice(5, 7) - 1,
+        +birth.date.slice(8, 10),
+        +birth.h,
+        +birth.m,
+        +birth.s,
+      ),
+    );
     const d = vimshottari(birthDt, simDate);
     const pair = dashaPairRule(d.maha, d.antar);
     dasha = {
@@ -695,7 +703,7 @@ export function computeTodayInsights(
 
   let gocharaList: { graha: GrahaId; house: number }[] = [];
   if (natalLons && !birth.isDemo) {
-    const birthDtG = birthInstant(birth);
+    const birthDtG = new Date(Date.UTC(+birth.date.slice(0, 4), +birth.date.slice(5, 7) - 1, +birth.date.slice(8, 10), +birth.h, +birth.m, +birth.s));
     const natalJd = julianDay(birthDtG);
     const natalAsc = ascendant(lst(natalJd, lon), lat, natalJd);
     for (const g of PERSONAL) {

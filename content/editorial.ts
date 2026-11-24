@@ -1,6 +1,3 @@
-import { WORLD_ZONE_LINKS, type WorldAnchorId } from './zone-links'
-import { isListed } from '~/utils/listed'
-
 /**
  * The publication's index.
  *
@@ -39,11 +36,6 @@ export interface EditorialItem {
   featured?: boolean
   /** Second-tier prominence in the story field. */
   size?: 'wide' | 'tall' | 'standard'
-  /**
-   * Public catalogs default to listed. Set false to drop the card from
-   * section listings and read-next. The URL stays. Re-list: `listed: true`.
-   */
-  listed?: boolean
 }
 
 export interface CategoryMeta {
@@ -91,7 +83,7 @@ export const ITEMS: EditorialItem[] = [
     dek: 'Sixteen true stories from the resort floor, drawn as comic strips and returned to the teams they came from. Real work, now with panels.',
     category: 'projects',
     media: 'case study',
-    href: '/work/sewa-chronicles',
+    href: '/my-work/sewa-chronicles',
     image: '/work-01.png',
     alt: 'The SEWA Chronicles comic cover',
     stamp: 'Club Mahindra · 2023',
@@ -104,7 +96,7 @@ export const ITEMS: EditorialItem[] = [
     dek: 'The same password can take a second or a century to crack, depending entirely on who is doing the cracking. A ten-minute module about that uncomfortable gap.',
     category: 'projects',
     media: 'interactive',
-    href: '/work/strong',
+    href: '/my-work/strong',
     image: '/strong.png',
     alt: 'Title card for the Strong password module',
     stamp: 'Interactive explainer',
@@ -122,6 +114,28 @@ export const ITEMS: EditorialItem[] = [
     alt: 'From No AI to Know AI course cover',
     minutes: 95,
     size: 'wide'
+  },
+  {
+    id: 'easymcq',
+    title: 'EasyMCQ',
+    dek: 'Give the question and the right answer. Get three wrong options that still sound believable.',
+    category: 'tools',
+    media: 'web app',
+    href: '/tools/easymcq',
+    image: '/easymcq.png',
+    alt: 'EasyMCQ icon — checklist with one correct mark',
+    stamp: 'Free · Quiz distractors'
+  },
+  {
+    id: 'better-emails',
+    title: 'Draftly',
+    dek: 'Paste a rough email. Get a clearer one back, with a plain note on what changed.',
+    category: 'tools',
+    media: 'web app',
+    href: '/tools/better-emails',
+    image: '/better-emails.png',
+    alt: 'Draftly icon — envelope with polish stroke',
+    stamp: 'Free · Email polish'
   },
   {
     id: 'about',
@@ -150,15 +164,11 @@ export const ITEMS: EditorialItem[] = [
 
 /* ── Derived views ─────────────────────────────────────────────────────── */
 
-export function listedItems(items: EditorialItem[] = ITEMS): EditorialItem[] {
-  return items.filter(isListed)
-}
-
-export const FEATURED = (listedItems().find(i => i.featured) ?? listedItems()[0]) as EditorialItem
-export const REST = listedItems().filter(i => i !== FEATURED)
+export const FEATURED = ITEMS.find(i => i.featured) as EditorialItem
+export const REST = ITEMS.filter(i => !i.featured)
 
 export function byCategory(id: Category): EditorialItem[] {
-  return listedItems().filter(i => i.category === id)
+  return ITEMS.filter(i => i.category === id)
 }
 
 export function categoryMeta(id: Category): CategoryMeta {
@@ -167,19 +177,17 @@ export function categoryMeta(id: Category): CategoryMeta {
 
 /** The two or three things worth reading after this one. Same category first. */
 export function readNext(id: string, count = 3): EditorialItem[] {
-  const pool = listedItems()
-  const self = pool.find(i => i.id === id) ?? ITEMS.find(i => i.id === id)
-  if (!self) return pool.slice(0, count)
-  const near = pool.filter(i => i.id !== id && i.category === self.category)
-  const far = pool.filter(i => i.id !== id && i.category !== self.category)
+  const self = ITEMS.find(i => i.id === id)
+  if (!self) return ITEMS.slice(0, count)
+  const near = ITEMS.filter(i => i.id !== id && i.category === self.category)
+  const far = ITEMS.filter(i => i.id !== id && i.category !== self.category)
   return [...near, ...far].slice(0, count)
 }
 
-/** Primary masthead links. Rows come from WORLD_ZONE_LINKS; this does not copy them. */
-const PRIMARY_ZONE_IDS = ['elevate', 'empower', 'engage', 'learn', 'story'] as const satisfies readonly WorldAnchorId[]
-
-export const NAV = PRIMARY_ZONE_IDS.map((id) => {
-  const link = WORLD_ZONE_LINKS.find((item) => item.id === id)
-  if (!link) throw new Error(`Missing zone ${id}`)
-  return { label: link.label, href: link.route }
-})
+/** The masthead's primary navigation. */
+export const NAV = [
+  { label: 'Elevate', href: '/elevate' },
+  { label: 'Empower', href: '/empower' },
+  { label: 'Engage', href: '/engage' },
+  { label: 'About me', href: '/about' }
+]

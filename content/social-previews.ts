@@ -1,7 +1,6 @@
 import { ENTROPY_BLOG, MOONLY_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, KNOWING_BLOG, TAJJALAN_BLOG, SPLIT_BRAIN_BLOG, SACRED_FREQUENCIES_BLOG, ONE_EQUALS_TWO_BLOG } from './blogs'
-import { SITE_URL } from '~/utils/site'
 
-export { SITE_URL }
+export const SITE_URL = 'https://entertrainer.in'
 
 export type SocialPreview = {
   key: string
@@ -19,7 +18,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'Entertrainer',
     title: 'Entertrainer · Elevate, Empower, Engage',
     description: 'Essays, tools, and games from Naveen Jose.',
-    image: `${SITE_URL}/og-card-2026e.png`,
+    image: `${SITE_URL}/og-card-2026d.png`,
     imageAlt: 'Entertrainer e-mark with Elevate, Empower, Engage.'
   },
   '/about': {
@@ -35,7 +34,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'The Entertrainer Blogs',
     title: 'Elevate · The Entertrainer Blogs',
     description: 'Articles about work, learning, technology, and the questions that stay with you.',
-    image: `${SITE_URL}/og-card-2026e.png`,
+    image: `${SITE_URL}/og-card-2026d.png`,
     imageAlt: 'Entertrainer Elevate — essays and articles.'
   },
   [`/elevate/${ENTROPY_BLOG.slug}`]: {
@@ -125,72 +124,8 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   '/empower': {
     key: 'empower',
     label: 'Empower',
-    title: 'Empower · Everyday tools by Entertrainer',
-    description: 'Everyday tools for clearer thinking and work. They run in your browser — private, and available offline once loaded.',
-    image: `${SITE_URL}/og-engage.jpg`,
-    imageAlt: 'Four quiet tool marks on cream paper.'
-  },
-  '/empower/plain-speak': {
-    key: 'empower-plain-speak',
-    label: 'Plain-Speak Meter',
-    title: 'Plain-Speak Meter · Empower',
-    description: 'Paste a draft. We’ll mark the fog.',
-    image: `${SITE_URL}/og-engage.jpg`,
-    imageAlt: 'Four quiet tool marks on cream paper.'
-  },
-  '/empower/goal-shaper': {
-    key: 'empower-goal-shaper',
-    label: 'Goal Shaper',
-    title: 'Goal Shaper · Empower',
-    description: 'What are you trying to make true?',
-    image: `${SITE_URL}/og-engage.jpg`,
-    imageAlt: 'Four quiet tool marks on cream paper.'
-  },
-  '/empower/talk-track': {
-    key: 'empower-talk-track',
-    label: 'Talk Track',
-    title: 'Talk Track · Empower',
-    description: 'Drop a deck. Get words you’d actually say.',
-    image: `${SITE_URL}/og-engage.jpg`,
-    imageAlt: 'Four quiet tool marks on cream paper.'
-  },
-  '/empower/snap-to-text': {
-    key: 'empower-snap-to-text',
-    label: 'Snap-to-Text',
-    title: 'Snap-to-Text · Empower',
-    description: 'Photo to text. Leaves your device.',
-    image: `${SITE_URL}/og-engage.jpg`,
-    imageAlt: 'Four quiet tool marks on cream paper.'
-  },
-  '/empower/pdf-kit': {
-    key: 'empower-pdf-kit',
-    label: 'PDF Kit',
-    title: 'PDF Kit · Empower',
-    description: 'PDFs that never go to a server.',
-    image: `${SITE_URL}/og-engage.jpg`,
-    imageAlt: 'Four quiet tool marks on cream paper.'
-  },
-  '/empower/access-check': {
-    key: 'empower-access-check',
-    label: 'Access Check',
-    title: 'Access Check · Empower',
-    description: 'A first pass before the formal audit.',
-    image: `${SITE_URL}/og-engage.jpg`,
-    imageAlt: 'Four quiet tool marks on cream paper.'
-  },
-  '/empower/recall-cards': {
-    key: 'empower-recall-cards',
-    label: 'Recall Cards',
-    title: 'Recall Cards · Empower',
-    description: 'Paste notes. Remember them later.',
-    image: `${SITE_URL}/og-engage.jpg`,
-    imageAlt: 'Four quiet tool marks on cream paper.'
-  },
-  '/empower/decision-matrix': {
-    key: 'empower-decision-matrix',
-    label: 'Decision Matrix',
-    title: 'Decision Matrix · Empower',
-    description: 'Name the options. Weight what matters. See what wins.',
+    title: 'Empower · Tools by Entertrainer',
+    description: 'Small browser tools for the awkward, repeating work.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Four quiet tool marks on cream paper.'
   },
@@ -202,26 +137,29 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Four quiet tool marks on cream paper.'
   },
-  '/tools/elearn-author': {
-    key: 'course-studio',
-    label: 'Course Studio',
-    // TODO: final name pending. "Course Studio" is a neutral stand-in.
-    title: 'Course Studio · Empower',
-    description: 'Arrange lesson blocks, preview the lesson, and export the lesson JSON.',
-    image: `${SITE_URL}/og-engage.jpg`,
-    imageAlt: 'Four quiet tool marks on cream paper.'
-  },
   '/tools/storygen': {
     key: 'storygen',
     label: 'Storyboard Studio',
     title: 'StoryGen · Storyboard Studio',
     description: 'Design instructional storyboards on an infinite canvas. Pick a framework, connect the screens, and export the working plan to Word or Excel.'
   },
+  '/tools/easymcq': {
+    key: 'easymcq',
+    label: 'Distractor Generator',
+    title: 'EasyMCQ · Distractor Generator',
+    description: 'Give a question and its correct answer, and EasyMCQ writes three plausible wrong options that test real understanding.'
+  },
   '/tools/cadence': {
     key: 'cadence',
     label: 'Training Calendar Generator',
     title: 'Cadence · Training Calendar Generator',
     description: 'Turn a topic list into a ready-to-present monthly training calendar, laid out around holidays, audiences, and time slots.'
+  },
+  '/tools/better-emails': {
+    key: 'draftly',
+    label: 'Email Polisher',
+    title: 'Draftly · Email Polisher',
+    description: 'Turn messy drafts into clear, professional emails, with a plain-language note on what changed and why.'
   },
   '/courses/ai-atlas': {
     key: 'ai-atlas',
@@ -237,35 +175,17 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     title: 'Introduction to Instructional Design · Entertrainer',
     description: 'A compact beginner e-learning module about planning learning experiences that help people do real work, starting with the task rather than the course.'
   },
-  '/learn': {
-    key: 'learn',
-    label: 'Learn',
-    title: 'Learn · Entertrainer',
-    description: 'A short lesson on clear instructions, a longer course on artificial intelligence, and the Strong module.'
-  },
-  '/work': {
-    key: 'work',
-    label: 'Work',
-    title: 'Work · Entertrainer',
-    description: 'Selected projects: The SEWA Chronicles and Strong.'
-  },
-  '/archive': {
-    key: 'archive',
-    label: 'Archive',
-    title: 'Archive · Entertrainer',
-    description: 'Older downloads, plus quiet links to the lab and the compose desk.'
-  },
-  '/archive/downloads': {
-    key: 'archive-downloads',
-    label: 'Downloads',
-    title: 'Downloads · Archive',
-    description: 'Templates, frameworks, and resources kept in the archive.'
+  '/lessons': {
+    key: 'lessons',
+    label: 'Lessons',
+    title: 'Lessons by Naveen Jose · Entertrainer',
+    description: 'A short lesson on clear instructions and a longer course on artificial intelligence.'
   },
   '/engage': {
     key: 'engage',
     label: 'Engage',
     title: 'Engage · Entertrainer',
-    description: 'Stack. Tap to drop. Only the overlap stays.',
+    description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
     image: `${SITE_URL}/og-engage.jpg`,
     imageAlt: 'Engage marks on cream paper: an eye and a clock.'
   },
@@ -293,7 +213,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     title: 'The Mind Reader · Engage',
     description: 'Example: 42. Add 4 + 2, subtract to get 36, and note the mark beside it.',
   },
-  '/work/sewa-chronicles': {
+  '/my-work/sewa-chronicles': {
     key: 'sewa-chronicles',
     label: 'Comic',
     title: 'The SEWA Chronicles',
@@ -302,7 +222,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     imageAlt: 'The SEWA Chronicles cover, a comic about service, empathy, warmth, and attentiveness.',
     type: 'article'
   },
-  '/work/strong': {
+  '/my-work/strong': {
     key: 'strong',
     label: 'Password game',
     title: 'Strong · How passwords really break',

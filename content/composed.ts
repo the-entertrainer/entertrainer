@@ -2,7 +2,6 @@ import { normalizeElevateCategory } from '~/content/elevate-categories'
 import type { BlogPost } from '~/content/blogs'
 import type { ComposedPost } from '~/types/composed'
 import composedPosts from '~/content/composed-posts.json'
-import { isListed } from '~/utils/listed'
 
 /** All composed posts committed to the repo (drafts + published). */
 export function getComposedPosts(): ComposedPost[] {
@@ -32,23 +31,18 @@ export function composedToBlogPost(post: ComposedPost): BlogPost {
     hero: post.hero,
     heroAlt: post.heroAlt,
     status: 'published',
-    publishedAt: post.publishedAt,
-    listed: post.listed
+    publishedAt: post.publishedAt
   }
 }
 
 /**
- * Elevate index + RSS: listed hand-authored posts, then listed published
- * composed posts that are not already a static page slug.
+ * Elevate index + RSS feed: hand-authored catalog first, then any published
+ * composed posts that are not already represented by a static page slug.
  */
-export function mergeElevateListing(handAuthored: BlogPost[], composed: ComposedPost[]): BlogPost[] {
-  const seen = new Set(handAuthored.map((post) => post.slug))
-  const extras = composed
-    .filter((post) => post.status === 'published' && !seen.has(post.slug) && isListed(post))
-    .map(composedToBlogPost)
-  return [...handAuthored.filter((post) => isListed(post)), ...extras]
-}
-
 export function getElevateListing(handAuthored: BlogPost[]): BlogPost[] {
-  return mergeElevateListing(handAuthored, getPublishedComposedPosts())
+  const seen = new Set(handAuthored.map((post) => post.slug))
+  const extras = getPublishedComposedPosts()
+    .filter((post) => !seen.has(post.slug))
+    .map(composedToBlogPost)
+  return [...handAuthored, ...extras]
 }

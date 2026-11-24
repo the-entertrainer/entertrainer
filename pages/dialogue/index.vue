@@ -1,6 +1,5 @@
 <template>
-  <DialogueLoadError v-if="loadError" @retry="boot" />
-  <div v-else>
+  <div>
     <button type="button" class="icon-btn fab-settings u-icon-btn u-icon-btn--idle" aria-label="Settings" @click="navigateTo('/dialogue/settings')">⚙</button>
     <div class="brand">
       <span class="brand-mark" aria-hidden="true">
@@ -45,46 +44,30 @@
 </template>
 
 <script setup lang="ts">
-import { absoluteUrl } from '~/utils/site'
-import { loadDialogueHomeLibs } from '~/composables/dialogue/loadDialogueScripts'
-import { useDialogueDb } from '~/composables/dialogue/useDialogueDb'
-
 useSeoMeta({
   title: 'Dialogue — comics from your pocket',
   description: 'Vertical webcomic studio for phones. Snap art, letter, export for WEBTOON.',
   ogTitle: 'Dialogue — comics from your pocket',
-  ogUrl: absoluteUrl('/dialogue'),
+  ogUrl: 'https://entertrainer.in/dialogue',
 })
 
 definePageMeta({ layout: 'dialogue' })
 const store = useDialogueProjectsStore()
 const menuId = ref<string | null>(null)
 const covers = ref<Record<string, string>>({})
-const loadError = ref(false)
 
-async function boot() {
-  loadError.value = false
-  try {
-    await loadDialogueHomeLibs()
-    await (window as any).DialogueDemo.ensureDemo()
-    await store.hydrate()
-    await fillCovers()
-  } catch (error) {
-    console.error(error)
-    loadError.value = true
-  }
-}
-
-onMounted(boot)
-
-async function fillCovers() {
+onMounted(async () => {
+  await loadStaticBridge()
+  await store.hydrate()
+  const { useDialogueDb } = await import('../../composables/dialogue/useDialogueDb')
+  const db = useDialogueDb()
   for (const p of store.projects) {
     if (p.coverAssetId) {
       const a = await (window as any).DialogueDB.getAsset(p.coverAssetId)
       if (a?.dataURL) covers.value[p.id] = a.dataURL
     }
   }
-}
+})
 
 function openMenu(id: string) { menuId.value = id }
 async function onDup() {
@@ -117,4 +100,24 @@ function onExport() {
   navigateTo(`/dialogue/c/${id}?export=1`)
 }
 
+async function loadStaticBridge() {
+  if ((window as any).DialogueDB) return
+  const scripts = [
+    'https://unpkg.com/dexie@4/dist/dexie.js',
+    '/dialogue/js/utils.js',
+    '/dialogue/js/formats.js',
+    '/dialogue/js/db.js',
+    '/dialogue/js/demo.js',
+  ]
+  for (const src of scripts) {
+    await new Promise<void>((res, rej) => {
+      const s = document.createElement('script')
+      s.src = src
+      s.onload = () => res()
+      s.onerror = () => rej(new Error(src))
+      document.head.appendChild(s)
+    })
+  }
+  await (window as any).DialogueDemo.ensureDemo()
+}
 </script>

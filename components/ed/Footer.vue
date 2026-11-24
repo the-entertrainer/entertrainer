@@ -1,25 +1,13 @@
 <script setup lang="ts">
 import { useContentStore } from '~/stores/content'
-import { WORLD_ZONE_LINKS, type WorldAnchorId } from '~/content/zone-links'
 
 const store = useContentStore()
 const year = new Date().getFullYear()
-
-const PRIMARY_ZONE_IDS = ['elevate', 'empower', 'engage', 'learn', 'story'] as const satisfies readonly WorldAnchorId[]
-const SECONDARY_ZONE_IDS = ['work', 'dialogue', 'archive'] as const satisfies readonly WorldAnchorId[]
-
-function linksFor(ids: readonly WorldAnchorId[]) {
-  return ids.map((id) => {
-    const link = WORLD_ZONE_LINKS.find((item) => item.id === id)
-    if (!link) throw new Error(`Missing zone ${id}`)
-    return link
-  })
-}
-
-const sectionLinks = linksFor(PRIMARY_ZONE_IDS)
-const moreLinks = [
-  ...linksFor(SECONDARY_ZONE_IDS),
-  { id: 'colophon', label: 'Colophon', route: '/colophon' },
+const sectionLinks = [
+  { label: 'Elevate', href: '/elevate' },
+  { label: 'Empower', href: '/empower' },
+  { label: 'Engage', href: '/engage' },
+  { label: 'About me', href: '/about' }
 ]
 </script>
 
@@ -33,12 +21,7 @@ const moreLinks = [
 
       <nav class="ft__col" aria-labelledby="ft-sections">
         <h2 id="ft-sections" class="t-mono ft__h">On this site</h2>
-        <NuxtLink v-for="link in sectionLinks" :key="link.route" class="ft__link u-underline" :to="link.route">{{ link.label }}</NuxtLink>
-      </nav>
-
-      <nav class="ft__col" aria-labelledby="ft-more">
-        <h2 id="ft-more" class="t-mono ft__h">Also</h2>
-        <NuxtLink v-for="link in moreLinks" :key="link.route" class="ft__link u-underline" :to="link.route">{{ link.label }}</NuxtLink>
+        <NuxtLink v-for="link in sectionLinks" :key="link.href" class="ft__link u-underline" :to="link.href">{{ link.label }}</NuxtLink>
       </nav>
 
       <div class="ft__col">
@@ -52,7 +35,7 @@ const moreLinks = [
     </div>
 
     <div class="ft__base">
-      <p class="t-mono ft__sign"><EdMark :size="16" /><span>© {{ year }} {{ store.name }} · Entertrainer</span></p>
+      <p class="t-mono">© {{ year }} {{ store.name }} · Entertrainer</p>
     </div>
   </footer>
 </template>
@@ -67,7 +50,7 @@ const moreLinks = [
   max-width: var(--shell-max); margin: 0 auto;
   padding: var(--space-55) var(--shell-gutter);
   display: grid; gap: var(--space-34);
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.2fr);
 }
 @media (max-width: 900px) { .ft__inner { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .ft__inner { grid-template-columns: minmax(0, 1fr); } }
@@ -75,10 +58,10 @@ const moreLinks = [
 .ft__brand { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-21); }
 
 .ft__col { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-13); }
-.ft__h { color: var(--muted); margin: 0 0 0.125rem; }
+.ft__h { color: var(--muted); margin: 0 0 2rem; }
 .ft__link { display:inline-flex; align-items:center; min-height:var(--space-34); font-size:var(--type-body); font-weight:500; }
-.ft__fine { font-size: 12px; line-height: 1.45; color: var(--muted); margin: 0; }
-.ft__fine code { font-family: var(--font-mono); font-size: 12px; }
+.ft__fine { font-size: var(--type-meta); line-height: 1.45; color: var(--muted); margin: 0; }
+.ft__fine code { font-family: var(--font-mono); font-size: var(--type-meta); }
 
 .ft__base {
   border-top: var(--stroke) solid var(--line);
@@ -88,5 +71,4 @@ const moreLinks = [
   color: var(--muted);
 }
 .ft__base p { margin: 0; }
-.ft__sign { display: inline-flex; align-items: center; gap: 0.55rem; }
 </style>

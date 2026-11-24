@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // Design reminder — The Learning Atlas course is a self-contained, evidence-led player.
 import { useThemeStore } from '~/stores/theme'
-import { getSocialImage, getSocialPreview } from '~/content/social-previews'
-import { absoluteUrl } from '~/utils/site'
+import { getSocialImage, getSocialPreview, SITE_URL } from '~/content/social-previews'
 
 /**
  * The publication shell.
@@ -27,57 +26,31 @@ import { absoluteUrl } from '~/utils/site'
 const r = useRoute()
 const theme = useThemeStore()
 const siteSettings = useSiteSettings()
-/**
- * Preloader: home `/` only, once per tab session.
- * Server and client agree on the first render (no hydration mismatch); an
- * inline head script marks `html[data-preloader=done]` before paint when this
- * tab has already seen it, CSS hides it, and onMounted drops it. Setup runs
- * once per app instance, so client-side navigation can never bring it back,
- * and a remount (AstroClock restore, PWA reload) finds the session flag.
- */
+/** Preloader: home `/` only, once per tab session after dismiss. */
 const PRELOADER_DONE_KEY = 'entertrainer.preloader-done'
-const showPreloader = ref(r.path === '/')
-/** Inert only while the intro is actually covering the page. Released when the fade starts. */
-const pageBlocked = ref(showPreloader.value)
-
-function onPreloaderRelease() {
-  pageBlocked.value = false
+function shouldRunPreloader(path: string) {
+  if (path !== '/') return false
+  if (import.meta.client) {
+    try {
+      if (sessionStorage.getItem(PRELOADER_DONE_KEY) === '1') return false
+    } catch {
+      /* private mode / blocked storage */
+    }
+  }
+  return true
 }
+const showPreloader = ref(shouldRunPreloader(r.path))
 
 function onPreloaderComplete() {
   showPreloader.value = false
-  pageBlocked.value = false
   if (!import.meta.client) return
   try {
     sessionStorage.setItem(PRELOADER_DONE_KEY, '1')
   } catch {
     /* ignore */
   }
-  document.documentElement.dataset.preloader = 'done'
 }
-onMounted(() => {
-  if (!showPreloader.value) return
-  // Only the boot-time flag counts: the preloader itself stamps sessionStorage
-  // as it starts (children mount first), so reading storage here would cancel it.
-  if (document.documentElement.dataset.preloader === 'done') {
-    showPreloader.value = false
-    pageBlocked.value = false
-  }
-})
-useHead({
-  script: [{
-    key: 'preloader-gate',
-    tagPosition: 'head',
-    // Stamp the clock, hide a repeat visit before paint, and never leave the
-    // page inert if the intro script does not finish. 2.2s is the cap.
-    innerHTML: "try{document.documentElement.dataset.plT=String(Date.now());if(sessionStorage.getItem('entertrainer.preloader-done')==='1')document.documentElement.dataset.preloader='done'}catch(e){}setTimeout(function(){var n=document.getElementById('app-content');if(n)n.removeAttribute('inert');document.documentElement.dataset.preloader='done'},2200)"
-  }]
-})
-const canonicalPath = computed(() => {
-  const path = r.path || '/'
-  return path.length > 1 ? path.replace(/\/+$/, '') : path
-})
-const socialPreview = computed(() => getSocialPreview(canonicalPath.value))
+const socialPreview = computed(() => getSocialPreview(r.path))
 const socialImage = computed(() => getSocialImage(socialPreview.value))
 const isElevateArticle = computed(() => r.path.startsWith('/elevate/') && r.path !== '/elevate/')
 
@@ -87,7 +60,7 @@ useSeoMeta({
   ogType: () => socialPreview.value.type ?? 'website',
   ogTitle: () => socialPreview.value.title,
   ogDescription: () => socialPreview.value.description,
-  ogUrl: () => absoluteUrl(canonicalPath.value),
+  ogUrl: () => `${SITE_URL}${r.path}`,
   ogImage: () => socialImage.value,
   ogImageAlt: () => socialPreview.value.imageAlt ?? `Entertrainer preview: ${socialPreview.value.title}`,
   twitterCard: 'summary_large_image',
@@ -98,7 +71,7 @@ useSeoMeta({
 })
 
 useHead({
-  link: () => [{ key: 'canonical', rel: 'canonical', href: absoluteUrl(canonicalPath.value) }]
+  link: () => [{ key: 'canonical', rel: 'canonical', href: `${SITE_URL}${r.path}` }]
 })
 
 // `/lab` itself is an index page and keeps the chrome; `/lab/g07` is an
@@ -106,15 +79,15 @@ useHead({
 const bare = computed(() =>
   r.path.startsWith('/lab/') ||
   r.path.startsWith('/glass-lab') ||
-  r.path.startsWith('/work/strong') ||
-  r.path.startsWith('/work/sewa-chronicles') ||
+  r.path.startsWith('/my-work/strong') ||
+  r.path.startsWith('/my-work/sewa-chronicles') ||
   r.path.startsWith('/courses/ai-atlas') ||
   r.path.startsWith('/instructional-design') ||
   r.path.startsWith('/engage/read-my-mind') ||
   r.path.startsWith('/engage/astroclock') ||
   r.path.startsWith('/engage/whatto') ||
   r.path.startsWith('/engage/stack') ||
-  r.path.startsWith('/tools/elearn-author')
+  r.path.startsWith('/engage/squash')
 )
 
 onMounted(() => {
@@ -126,11 +99,12 @@ onBeforeUnmount(() => theme.dispose())
 
 <template>
   <div id="app-root">
-    <EdPreloader v-if="showPreloader" @release="onPreloaderRelease" @complete="onPreloaderComplete" />
+    <EdPreloader v-if="showPreloader" @complete="onPreloaderComplete" />
     <EdDailyWordSplash v-if="!bare" />
     <EdSettingsPanel />
-    <div id="app-content" :inert="pageBlocked ? '' : undefined">
+    <div v-show="!showPreloader" :inert="showPreloader ? '' : undefined">
       <template v-if="bare">
+        <EdSeedMark class="bare-seed" :size="28" />
         <NuxtPage />
       </template>
 
@@ -151,6 +125,14 @@ onBeforeUnmount(() => theme.dispose())
 <style>
 #app-root { min-height: 100dvh; background: var(--paper); display: flex; flex-direction: column; }
 #main { flex: 1; }
+.bare-seed {
+  position: fixed;
+  z-index: 40;
+  top: max(12rem, env(safe-area-inset-top, 0px));
+  left: max(12rem, env(safe-area-inset-left, 0px));
+  opacity: 0.7;
+  pointer-events: none;
+}
 
 /* One page transition, and it is nearly nothing: a short fade with a few
    pixels of travel. A publication should feel like turning to a page, not like

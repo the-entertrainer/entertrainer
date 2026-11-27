@@ -303,8 +303,9 @@ const marriottPhotos: PhotoTileItem[] = [
 }
 
 .about-story__article :deep(.photo-tiles) {
-  margin-left: calc(clamp(0rem, 6vw, 80rem) * -1);
-  margin-right: calc(clamp(0rem, 6vw, 80rem) * -1);
+  /* Bleed into the shell gutter, but never past the viewport. Between ~700 and ~830 the old 6vw pull was wider than the gutter and the page scrolled sideways. */
+  margin-left: calc(min(clamp(0rem, 6vw, 80rem), var(--shell-gutter)) * -1);
+  margin-right: calc(min(clamp(0rem, 6vw, 80rem), var(--shell-gutter)) * -1);
   width: auto;
   max-width: none;
 }
@@ -319,7 +320,7 @@ const marriottPhotos: PhotoTileItem[] = [
   margin: clamp(48rem, 8vw, 88rem) 0 clamp(24rem, 4vw, 40rem);
 }
 
-.about-story__sewa { margin: clamp(54rem, 9vw, 100rem) calc(clamp(0rem, 5vw, 68rem) * -1); }
+.about-story__sewa { margin: clamp(54rem, 9vw, 100rem) calc(min(clamp(0rem, 5vw, 68rem), var(--shell-gutter)) * -1); }
 .about-story__destination { display: grid; grid-template-columns: minmax(180rem, .72fr) minmax(0, 1.28fr); color: var(--ink); overflow: hidden; border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); background: var(--signal-field); text-decoration: none; transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring); }
 .about-story__destination-visual { min-height: 260rem; margin: 0; overflow: hidden; border-right: var(--stroke) solid var(--ink); background: var(--paper-2); }
 .about-story__destination-visual :deep(.ed-editorial-image), .about-story__destination-visual :deep(img) { width: 100%; height: 100%; object-fit: cover; object-position: center center; }

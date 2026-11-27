@@ -168,12 +168,13 @@ function toggleOpeningSound() {
   justify-content: flex-end;
   background: color-mix(in srgb, var(--ink) 28%, transparent);
   padding: 0;
+  overscroll-behavior: contain;
 }
 
 .sp__panel {
   display: flex;
   flex-direction: column;
-  width: min(400rem, 100vw);
+  width: min(400rem, 100%);
   height: 100%;
   max-height: 100dvh;
   background: var(--paper);
@@ -335,7 +336,7 @@ function toggleOpeningSound() {
 
 @media (max-width: 480px) {
   .sp__panel {
-    width: 100vw;
+    width: 100%;
     border-left: 0;
     border-top: var(--stroke) solid var(--ink);
     height: auto;

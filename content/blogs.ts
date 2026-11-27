@@ -155,6 +155,20 @@ export const BLOG_POSTS: BlogPost[] = [
     status: 'published',
     publishedAt: '2026-10-06T16:45:00+00:00'
   },
+  {
+    slug: 'you-are-absolutely-right',
+    title: 'You are absolutely right',
+    dek: 'You send a half-formed plan from a bus stop. The chat says you are absolutely right, and the plan starts to feel finished.',
+    socialHook: 'A line going around says a chatbot is telling the least careful person you know that they are absolutely right. The habit has a lab name, and one company took a version back.',
+    socialTitle: 'The least careful person you know just got a yes.',
+    category: 'Mind',
+    tags: ['ai', 'thinking', 'habits'],
+    minutes: 5,
+    hero: '/blog/you-are-absolutely-right/hero.jpg',
+    heroAlt: 'Cream paper, black ink: a small figure at a bus stop holds a phone, and a hatched mirror-head above it nods, with one cobalt check.',
+    status: 'published',
+    publishedAt: '2026-11-28T04:30:00+00:00'
+  },
 ]
 
 export const ENTROPY_BLOG = BLOG_POSTS[0]
@@ -166,4 +180,5 @@ export const TAJJALAN_BLOG = BLOG_POSTS[5]
 export const SPLIT_BRAIN_BLOG = BLOG_POSTS[6]
 export const SACRED_FREQUENCIES_BLOG = BLOG_POSTS[7]
 export const ONE_EQUALS_TWO_BLOG = BLOG_POSTS[8]
+export const ABSOLUTELY_RIGHT_BLOG = BLOG_POSTS[9]
 export const FEATURED_BLOG = ENTROPY_BLOG

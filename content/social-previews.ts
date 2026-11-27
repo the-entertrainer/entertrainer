@@ -1,4 +1,4 @@
-import { ENTROPY_BLOG, MOONLY_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, KNOWING_BLOG, TAJJALAN_BLOG, SPLIT_BRAIN_BLOG, SACRED_FREQUENCIES_BLOG, ONE_EQUALS_TWO_BLOG } from './blogs'
+import { ENTROPY_BLOG, MOONLY_BLOG, JAMAIS_VU_BLOG, LIFE_MIDPOINT_BLOG, KNOWING_BLOG, TAJJALAN_BLOG, SPLIT_BRAIN_BLOG, SACRED_FREQUENCIES_BLOG, ONE_EQUALS_TWO_BLOG, ABSOLUTELY_RIGHT_BLOG } from './blogs'
 
 export const SITE_URL = 'https://entertrainer.in'
 
@@ -119,6 +119,15 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     description: ONE_EQUALS_TWO_BLOG.socialHook,
     image: `${SITE_URL}${ONE_EQUALS_TWO_BLOG.hero}`,
     imageAlt: ONE_EQUALS_TWO_BLOG.heroAlt,
+    type: 'article'
+  },
+  [`/elevate/${ABSOLUTELY_RIGHT_BLOG.slug}`]: {
+    key: 'absolutely-right',
+    label: ABSOLUTELY_RIGHT_BLOG.category,
+    title: ABSOLUTELY_RIGHT_BLOG.socialTitle,
+    description: ABSOLUTELY_RIGHT_BLOG.socialHook,
+    image: `${SITE_URL}${ABSOLUTELY_RIGHT_BLOG.hero}`,
+    imageAlt: ABSOLUTELY_RIGHT_BLOG.heroAlt,
     type: 'article'
   },
   '/empower': {

@@ -100,5 +100,15 @@
       <media:content url="https://entertrainer.in/blog/one-equals-two/hero.jpg" medium="image" />
       <media:thumbnail url="https://entertrainer.in/blog/one-equals-two/hero.jpg" />
     </item>
+    <item>
+      <title>The least careful person you know just got a yes.</title>
+      <link>https://entertrainer.in/elevate/you-are-absolutely-right</link>
+      <guid isPermaLink="true">https://entertrainer.in/elevate/you-are-absolutely-right</guid>
+      <pubDate>Sat, 28 Nov 2026 04:30:00 +0000</pubDate>
+      <category>Mind</category>
+      <description>A line going around says a chatbot is telling the least careful person you know that they are absolutely right. The habit has a lab name, and one company took a version back. Read time: 5 minutes.</description>
+      <media:content url="https://entertrainer.in/blog/you-are-absolutely-right/hero.jpg" medium="image" />
+      <media:thumbnail url="https://entertrainer.in/blog/you-are-absolutely-right/hero.jpg" />
+    </item>
   </channel>
 </rss>

@@ -966,12 +966,7 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   margin: 0;
-  padding:
-    max(24px, env(safe-area-inset-top))
-    max(20px, env(safe-area-inset-right))
-    max(24px, env(safe-area-inset-bottom))
-    max(20px, env(safe-area-inset-left));
-  box-sizing: border-box;
+  padding: 0;
   border: 0;
   /* Opaque paper veil — covers dawn stage until circle wipe reveals it. */
   background: var(--paper);
@@ -1045,7 +1040,7 @@ onBeforeUnmount(() => {
   text-align: center;
 }
 .preloader__entry-skip-hint {
-  max-width: min(34ch, 100%);
+  max-width: 34ch;
   margin: 2rem 0 0;
   color: color-mix(in oklab, var(--ink) 42%, transparent);
   font-family: var(--font-ui), Arial, sans-serif;
@@ -1132,8 +1127,7 @@ onBeforeUnmount(() => {
   z-index: 1;
   display: grid;
   place-items: center;
-  width: min(860px, 86vw, calc(58dvh * 1.52));
-  max-height: 58dvh;
+  width: min(860rem, 92vw);
   aspect-ratio: 1.52;
   isolation: isolate;
   overflow: visible;
@@ -1250,7 +1244,7 @@ onBeforeUnmount(() => {
 .preloader__word {
   color: var(--ink);
   font-family: var(--font-ui), Arial, sans-serif;
-  font-size: min(var(--type-hero), 12.2vw, 8.5dvh);
+  font-size: var(--type-hero);
   font-weight: 900;
   letter-spacing: -.082em;
   line-height: .82;
@@ -1355,9 +1349,9 @@ onBeforeUnmount(() => {
   position: absolute;
   z-index: 2;
   left: 50%;
-  bottom: max(88px, calc(env(safe-area-inset-bottom) + 72px));
-  width: min(520px, calc(100% - 32px));
-  padding: 0 16px;
+  bottom: clamp(72rem, 15vh, 132rem);
+  width: min(520rem, 88vw);
+  padding: 0 12rem;
   text-align: center;
   pointer-events: none;
   opacity: 0;
@@ -1379,7 +1373,6 @@ onBeforeUnmount(() => {
   font-weight: 500;
   letter-spacing: .06em;
   line-height: 1.35;
-  overflow-wrap: anywhere;
 }
 .preloader__quote-en {
   margin: 6rem 0 0;
@@ -1396,14 +1389,10 @@ onBeforeUnmount(() => {
 .preloader__skip {
   position: absolute;
   z-index: 7;
-  bottom: max(12px, env(safe-area-inset-bottom));
+  bottom: max(28rem, 4vh);
   left: 50%;
   transform: translateX(-50%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 16px;
+  padding: 8rem 16rem;
   border: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
   border-radius: 999px;
   background: color-mix(in oklab, var(--paper) 35%, transparent);
@@ -1574,6 +1563,22 @@ onBeforeUnmount(() => {
   100% { opacity: .72; transform: translateX(-50%) translateY(0); }
 }
 @keyframes pl-shadow-arrive { to { opacity: .78; transform: scaleX(1); } }
+
+/* Phone only. At 76px the grown wordmark is 526px wide, so it leaves the screen under 560. Larger screens stay at the original size. */
+@media (max-width: 560px) {
+  .preloader__word {
+    font-size: min(76px, 12.2vw);
+  }
+  .preloader__stage {
+    width: min(860rem, 86vw);
+  }
+  .preloader__quote {
+    width: min(520rem, calc(100% - 32px));
+  }
+  .preloader__skip {
+    bottom: max(28rem, 4vh, env(safe-area-inset-bottom));
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .preloader { transition-duration: 80ms; }

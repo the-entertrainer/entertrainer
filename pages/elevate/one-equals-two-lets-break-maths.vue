@@ -90,22 +90,23 @@ const references = [
     </figure>
 
     <article class="taj__article">
-      <EdMarginNote label="Hold this.">
-        <p>Every ruler starts at a zero somebody chose.</p>
+      <EdMarginNote label="A hidden division by zero">
+        <p>The school lines that turn 2 into 1 divide by zero. Arithmetic does not allow that step.</p>
       </EdMarginNote>
 
       <div class="taj__prose">
-        <p class="taj__lead">I was still in school, sitting on the kitchen floor one evening with a notebook full of long division, when my mother said the thing she always said. She was stirring a pot and not really looking at me. “The only thing that exists,” she said, “the only truth there is, is God himself.”</p>
-        <p>I put my pencil down like a lawyer about to win the case. “No ma. Maths exists. It’s the truth.”</p>
-        <p>I had evidence, too. Two plus two had been four on Monday and it was still four on Thursday. It was four in our kitchen and, I assumed, four on the Moon. God was harder to check.</p>
-        <p>For years I carried that argument like a lucky coin. Maths was the universal language, the one thing that never changed its mind. And it is universal, in its way. What I understood only very recently is that the way we read it and lean on it has more to do with our own convenience than I ever wanted to admit.</p>
-        <p>Today, while writing this post, I still cannot fully accept that it isn’t the truth. I am losing the argument anyway.</p>
+        <p class="taj__lead">I was still in school, sitting on the kitchen floor with a notebook of long division, when my mother said what she always said.</p>
+        <p>She was stirring a pot. "The only thing that exists," she said, "the only truth there is, is God himself."</p>
+        <p>I put the pencil down. "No ma. Maths exists. It's the truth."</p>
+        <p>My evidence was that two plus two was four on Monday and still four on Thursday, in our kitchen and, I assumed, on the Moon. God was harder to check.</p>
+        <p>For years I treated that answer as settled. Maths looked like the system that never changed its mind. Maths is widely usable. The way we count, and the way we lean on the results, also depends on choices we made because they were convenient.</p>
+        <p>While writing this, I still want maths to be the whole truth. The examples below are why that want does not hold.</p>
 
-        <h2>Ten fingers</h2>
-        <p>Here is how I think of maths now. It is a way of giving names to geometry, so that we can pinpoint exactly where things sit in space. This cup is here. The Moon is roughly 384,000 kilometres over there. Because the world feels so solid, pinning down its coordinates sounds like an easy job.</p>
-        <p>Start with the numbers themselves. We count in tens, and the reason is sitting at the ends of your arms. Ten fingers. Nobody carried that down from a mountain; it is just what we had on us when we started counting goats.</p>
-        <p>Other people had other conveniences. The Babylonians counted in sixties, a habit they inherited from the Sumerians, which is why, some four thousand years later, your hour still breaks into sixty minutes and every minute into sixty seconds.<a href="#ref-1" aria-label="Reference 1">[1]</a> The Maya counted in twenties, probably fingers and toes together.<a href="#ref-2" aria-label="Reference 2">[2]</a> Three civilisations, three rulers, and each felt like the natural way to cut up the world to the people holding it. Think about this for a minute. Raised on sixties, you would find our tens a quaint local habit.</p>
-        <p>In 1491 an Italian arithmetic book by Filippo Calandri spent two whole pages just showing readers how to hold numbers on their hands: a little alphabet of bent fingers that runs from one all the way to nine thousand.</p>
+        <h2>We count in tens because we have ten fingers</h2>
+        <p>One way to describe maths is that it gives names to positions and shapes, so we can say where something is. A cup is here. The Moon is about 384,000 kilometres away. A solid-looking world makes that naming job sound easy.</p>
+        <p>We count in tens because we have ten fingers. The choice was not handed down as a law of nature. It was the count we already had when people counted goats.</p>
+        <p>Other people used other counts. The Babylonians counted in sixties, a habit they inherited from the Sumerians, which is why an hour still breaks into sixty minutes and a minute into sixty seconds, about four thousand years later.<a href="#ref-1" aria-label="Reference 1">[1]</a> The Maya counted in twenties, probably using fingers and toes.<a href="#ref-2" aria-label="Reference 2">[2]</a> Three societies used three counts, and each count felt natural to the people who used it. A person raised on sixties would treat tens as a local habit.</p>
+        <p>In 1491 an Italian arithmetic book by Filippo Calandri used two pages to show readers how to hold numbers on their hands, with bent fingers standing for values from 1 to 9,000.</p>
 
         <figure class="taj__visual taj__visual--book">
           <EdEditorialImage
@@ -119,19 +120,18 @@ const references = [
           </figcaption>
         </figure>
 
-        <p>So the grammar of our numbers is a choice. Fine. Surely the things we measure with it are solid. That is what I thought, until pi.</p>
+        <p>The grouping of our numbers is a choice. The things we measure with those numbers are a separate question. Pi is the example that broke my confidence.</p>
 
-        <h2>The point that will not be pinned</h2>
-        <p>Pi is probably the most famous number on the planet. Personally, I am connected to this number in more ways than one, so forgive me if I get a little sentimental here.</p>
-        <p>Take any circle: a bangle, a chapati, the rim of a steel tumbler. Measure all the way round it, divide by the distance straight across, and you always get the same answer, whatever the size. A little more than three. Roll a wheel exactly one metre wide along the floor for one full turn and mark where it stops. The mark lands just past three metres. Not three. Not three and a quarter. Somewhere in between, at a spot no ruler can name exactly.</p>
-        <p>3.14159265358979323846264338327950, and on, and on. The digits never fall into a repeating pattern. In the 1760s Johann Heinrich Lambert proved that pi can never be written as one whole number divided by another, and in 1882 Ferdinand von Lindemann went further and showed that it is transcendental: no polynomial equation with whole-number coefficients will ever have pi as its answer.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a> Here is the part I love: switch to Babylonian sixties or Maya twenties and nothing changes. In any whole-number base, the digits still refuse to settle down. It is a point that refuses to be located, a place we cannot fully map from inside our own system of names.</p>
-        <p>And yet it turns up wherever something goes round. In wheels and orbits. In the swing of a pendulum, the ripple from a stone in a pond, every wave of sound. We lean on it all day, and we have never finished writing it down.</p>
-        <p>We do know ways to get there. In November 2025 a single server, running for about 110 days without a break, worked pi out to 314 trillion digits.<a href="#ref-5" aria-label="Reference 5">[5]</a> For scale, NASA’s Jet Propulsion Laboratory has pointed out that about 37 decimal places are enough to measure the circumference of the observable universe to within the width of a hydrogen atom.<a href="#ref-6" aria-label="Reference 6">[6]</a> We are trillions of digits past any possible use, and no closer to the end. There isn’t one. That much, at least, is proved.</p>
-        <p>Now the thought that kept me up. According to Guinness World Records, every possible string of thirteen digits has been found somewhere inside those 314 trillion.<a href="#ref-5" aria-label="Reference 5">[5]</a> My mobile number has ten digits. So does yours. It is already in there, sitting quietly between strangers.</p>
-        <p>And if pi is what most mathematicians suspect it is, a so-called normal number, the list never stops: your date of birth, your credit card, your entire contacts list, your name if you turn letters into numbers, everything that has ever been written. Nobody has proved it. Nobody has even proved that every digit keeps turning up forever.<a href="#ref-7" aria-label="Reference 7">[7]</a> But it is the kind of unproven idea that makes you look at a bangle differently.</p>
+        <h2>Pi does not end in a repeating decimal</h2>
+        <p>Pi is the ratio of the distance around a circle to the distance straight across it. Take a bangle, a chapati, or the rim of a steel tumbler. Measure around it, divide by the distance across, and the result is the same for every size. The result is a little more than three. Roll a wheel 1 metre across along the floor for one full turn, and the mark lands a little past 3 metres. The mark is not at 3, and it is not at 3.25. No ordinary ruler names the spot exactly.</p>
+        <p>The decimal begins 3.14159265358979323846264338327950 and does not fall into a repeating pattern. In the 1760s Johann Heinrich Lambert proved that pi cannot be written as one whole number divided by another. In 1882 Ferdinand von Lindemann showed that pi is transcendental, meaning no polynomial equation with whole-number coefficients has pi as a root.<a href="#ref-3" aria-label="Reference 3">[3]</a><a href="#ref-4" aria-label="Reference 4">[4]</a> Changing from tens to Babylonian sixties or Maya twenties does not finish the expansion. In any whole-number base, the digits do not settle into a finite or repeating form.</p>
+        <p>Pi appears wherever something turns or waves, including wheels, orbits, a pendulum, a ripple, and a sound wave. We use it every day, and we do not have a finished decimal for it.</p>
+        <p>There are ways to compute more digits. In November 2025 a single server, running for about 110 days, computed pi to 314 trillion digits.<a href="#ref-5" aria-label="Reference 5">[5]</a> NASA's Jet Propulsion Laboratory has said that about 37 decimal places are enough to measure the circumference of the observable universe to within the width of a hydrogen atom.<a href="#ref-6" aria-label="Reference 6">[6]</a> The extra trillions of digits do not reach an end. The proofs say there is no end of that kind.</p>
+        <p>Guinness World Records notes that every possible string of thirteen digits has been found somewhere in those 314 trillion digits.<a href="#ref-5" aria-label="Reference 5">[5]</a> A ten-digit phone number is shorter than that string, so a ten-digit number of that kind can appear in the expansion.</p>
+        <p>If pi is what many mathematicians suspect, a normal number, then longer strings would keep appearing, including dates and names written as digits. Nobody has proved that pi is normal. Nobody has even proved that every digit appears forever.<a href="#ref-7" aria-label="Reference 7">[7]</a> The suspicion is not a proof.</p>
 
-        <h2>The night 2 became 1</h2>
-        <p>That rabbit hole sent me looking for the beautiful flaws in the maths they teach us at school. And I found this, older than any forum it is scribbled on.</p>
+        <h2>The school lines that get 2 equals 1</h2>
+        <p>The proof is older than the forums that still copy it.</p>
 
         <ol class="taj__proof" aria-label="A five-line proof that 2 equals 1">
           <li v-for="(line, i) in proof" :key="i" :class="{ 'is-result': line.result }">
@@ -140,18 +140,17 @@ const references = [
           </li>
         </ol>
 
-        <p class="taj__gasp">WTF?!</p>
-        <p>That was my honest reaction, and I am not proud of the language. I went through it the way you pat your pockets for keys. Multiply, fine. Subtract the same thing from both sides, fine. Factorise, exactly the way our teacher did it on the board. Then the fifth line, where (a − b) slips away from both sides at once, like two guests leaving a party together so nobody notices either of them go.</p>
-        <p>Look at that guest again. We began by saying a = b. So a − b is a number minus itself. It is zero. Crossing it out from both sides means dividing both sides by zero, and that is the one door arithmetic refuses to walk through.<a href="#ref-8" aria-label="Reference 8">[8]</a></p>
-        <p>Think about what division even asks. Six divided by two asks: what number, times two, gives six? Three, happily. Now ask what, times zero, gives six. Nothing answers. Zero swallows whatever you multiply by it. Ask instead what, times zero, gives zero, and every number on earth raises its hand. Line four of the trick was secretly 0 = 0, true and completely empty. Divide by zero, and you can walk out of it holding 2 = 1, or anything you please.</p>
-        <p>And here is the bit that undid my kitchen argument. None of this is the fault of base ten. Write the same lines in Babylonian sixties or Maya twenties and they break at exactly the same step. The Babylonians, for a long stretch, had no symbol for zero at all; an empty gap in a row of wedges had to do the job.<a href="#ref-1" aria-label="Reference 1">[1]</a> Even after we gave nothing a name, it kept one room locked.</p>
+        <p>My first reaction was disbelief. I checked each line. Multiplying both sides is allowed. Subtracting the same amount from both sides is allowed. Factoring is the same move a teacher writes on a board. On the fifth line, (a - b) is removed from both sides at once.</p>
+        <p>We began by saying a = b. So a - b is a number minus itself, which is zero. Removing that factor from both sides means dividing both sides by zero, and arithmetic does not allow that step.<a href="#ref-8" aria-label="Reference 8">[8]</a></p>
+        <p>Division asks a multiplication question. Six divided by two asks which number, times two, gives six. The answer is three. Six divided by zero asks which number, times zero, gives six. No number does, because zero times any number is zero. Zero divided by zero asks which number, times zero, gives zero, and every number does. Line four of the trick was 0 = 0, which is true and does not pick a number. After you divide by zero, you can reach 2 = 1, or many other false results.</p>
+        <p>The break is not a fault of base ten. The same lines fail at the same step in Babylonian sixties or Maya twenties. For a long period the Babylonians had no symbol for zero, and an empty gap in a row of wedges had to do that job.<a href="#ref-1" aria-label="Reference 1">[1]</a> After zero received a name, division by zero stayed forbidden.</p>
 
-        <h2>What my mother meant</h2>
-        <p>So here is where I have landed, and I do not love it. Maths is real the way a map is real. A good map gets you across the city and home in time for dinner, and you would be a fool to throw it away. But somebody drew it. Somebody chose the ten fingers. And at the edges, the map simply stops: a circle we can never finish measuring, a number we are not allowed to divide by, a mark on the floor that no ruler can name.</p>
-        <p>The schoolboy in me still wants a world where you can point at anything and say there, exactly. But the closer I look, the more little places I find where the rules stop answering, as if the mapmaker had written in the margin: beyond this point, ask someone else.</p>
-        <p>My mother never studied pi. She never needed to. When she told me the only truth there is, is God himself, I thought she was arguing with my maths. Maybe she was only pointing at its edges.</p>
+        <h2>What the kitchen argument can still say</h2>
+        <p>Maths is a system of names and rules that measures many real things, and you should not throw the system away because it has edges. Someone chose the ten fingers. At the edges, the rules stop giving the finished answer a school exercise expects. A circle's ratio does not end as a finished decimal, and division by zero is not allowed.</p>
+        <p>I still want a world where every question has an exact mark. The closer look finds places where the rules do not answer, including the unfinished decimal and the forbidden division.</p>
+        <p>My mother never studied pi. When she said the only truth is God, I heard an argument against my maths. She may have been pointing at the questions the rules do not close.</p>
 
-        <p class="taj__closing">Perhaps the truth was never on the map at all, only waiting at its edges, where pi keeps walking and zero will not open the door.</p>
+        <p class="taj__closing">Pi does not finish, and division by zero is not a legal step, so a tidy school proof can still print 2 = 1.</p>
       </div>
     </article>
 

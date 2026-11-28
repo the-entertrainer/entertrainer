@@ -39,18 +39,18 @@ const references = [
       <EdEditorialImage :src="JAMAIS_VU_BLOG.hero" :alt="JAMAIS_VU_BLOG.heroAlt" />
     </figure>
     <article class="taj__article">
-      <EdMarginNote label="The letters stay.">
-        <p>For a minute, the feeling that they mean something packs a bag and leaves.</p>
+      <EdMarginNote label="The letters stay">
+        <p>You can still spell the word and define it. For a short time, it stops feeling like a word.</p>
       </EdMarginNote>
       <div class="taj__prose">
-        <p class="taj__lead">One evening at work I stared at the word “door” until it stopped looking like English.</p>
-        <p>Same four letters, sitting on the screen the way they always had. Suddenly they were just shapes: two round things trapped between a stick and a hook. I still knew it was a word. I could have spelled it, defined it, walked through one. I simply could no longer <em>feel</em> that it meant anything. It was like shaking hands with an old friend and realising, for one awful second, that you have no idea who this person is.</p>
-        <p>Naturally I assumed I was tired. Au contraire. The wall I had walked into already had a research literature, a proper name, and, as of 2023, an Ig Nobel Prize.</p>
+        <p class="taj__lead">One evening at work I stared at the word "door" until it stopped feeling like English.</p>
+        <p>The four letters stayed on the screen. I could still spell the word, define it, and use a door. For a short time I could not feel that the letters meant anything.</p>
+        <p>The effect already has a research record, a name, and, as of 2023, an Ig Nobel Prize.</p>
 
-        <h2>Semantic satiation</h2>
-        <p>The staring trick is called semantic satiation. Repeat a word, or look at it long enough, and the meaning drains out of it like colour from a shirt washed too many times. What is left feels like noise, or ink, with nothing attached.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>Edward Titchener described the feeling informally in the late 1800s. For decades it went by working names, verbal satiation, lapse of meaning, plain mental fatigue, until Leon Jakobovits James gave it its current name in a 1962 dissertation.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a> So the wall I hit over “door” had been mapped long before I was born. I was just the latest tourist to bump into it.</p>
-        <p>Its stranger cousin is jamais vu, French for “never seen”: something you know perfectly well suddenly feels unfamiliar, as if you are meeting it for the first time. Akira O’Connor, one of the people who studies it, describes it as the strange feeling of finding something peculiar when we know it should be familiar.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <h2>Repeating a word can drain the meaning</h2>
+        <p>The name for the staring effect is semantic satiation. Semantic means "about meaning," and satiation means "filled up." If you repeat a word, or look at it for long enough, the meaning feels weaker, and the marks can feel like shapes with nothing attached.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>Edward Titchener described the feeling informally in the late 1800s. For decades the notes used names such as verbal satiation, lapse of meaning, and mental fatigue. Leon Jakobovits James gave it the current name in a 1962 dissertation.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <p>A related effect is jamais vu, French for "never seen." Something you know well suddenly feels unfamiliar. Akira O'Connor, who studies it, describes the feeling as finding something peculiar when you know it should be familiar.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
 
         <figure class="taj__visual taj__visual--archive" style="--fig-ratio: 1800 / 1582">
           <EdEditorialImage
@@ -64,23 +64,22 @@ const references = [
           </figcaption>
         </figure>
 
-        <h2>Copying a word in the lab</h2>
-        <p>In 2023 Chris Moulin, Nicole Bell and Akira O’Connor, at the University of St Andrews, won the Ig Nobel Prize in Literature for doing something gloriously simple: they made the glitch happen on purpose, with pens and a stopwatch.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>Ninety-four undergraduates copied a word by hand, over and over, and stopped the moment it began to feel wrong. Some words were ordinary, like “door.” Some were obscure, like “sward.” Across two experiments, roughly two-thirds of the students reported the word turning strange, typically after about thirty repetitions, inside a single minute.<a href="#ref-1" aria-label="Reference 1">[1]</a> The paper’s title tells the joke before you can: “The The The The Induction of Jamais Vu in the Laboratory.”</p>
-        <p>Think about that for a minute. Sixty seconds of honest attention is enough to make a word you have used every day of your life feel like a stranger at the door. You have not forgotten it. You still know “door” is English. For a stretch, the knowing and the feeling simply come apart, like the sound and the picture of a film drifting out of sync.</p>
+        <h2>A lab made the feeling happen on purpose</h2>
+        <p>In 2023 Chris Moulin, Nicole Bell, and Akira O'Connor, at the University of St Andrews, won the Ig Nobel Prize in Literature for producing the effect with pens and a stopwatch.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>Ninety-four undergraduates copied a word by hand, over and over, and stopped when the word began to feel wrong. Some words were ordinary, such as "door." Some words were rare, such as "sward." Across two experiments, about two-thirds of the students reported the word turning strange, usually after about thirty repetitions, inside a single minute.<a href="#ref-1" aria-label="Reference 1">[1]</a> The paper's title is "The The The The Induction of Jamais Vu in the Laboratory."</p>
+        <p>About sixty seconds of copying was enough to make a daily word feel unfamiliar. The students had not forgotten the word. They still knew that "door" is English. For a short time, knowing the word and feeling that it was familiar came apart.</p>
 
-        <h2>Déjà vu and its relatives</h2>
-        <p>The family is bigger than one glitch. Déjà vu is the mirror image: a brand-new moment feels like a rerun. On one popular reading, that is the brain’s fact-checker catching a false alarm of familiarity before it hardens into a false memory.<a href="#ref-4" aria-label="Reference 4">[4]</a> That is an interpretation rather than a settled law, and everyday déjà vu does not line up neatly with the standard lab tests of memory.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>
-        <p>Tip of the tongue is another cousin. You know you know the word. You can feel its shape, its first letter, how many syllables it has. It simply refuses to arrive, like a guest who rang the bell and then wandered off down the street.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
-        <p>In 2024 one team used deep-learning models to guess at how satiation might work.<a href="#ref-7" aria-label="Reference 7">[7]</a> It is a single study built on artificial networks, and the mechanism is still being argued over; the wilder memory theories tangle very quickly.<a href="#ref-8" aria-label="Reference 8">[8]</a><a href="#ref-9" aria-label="Reference 9">[9]</a> The feeling itself is not in dispute. Copy a word thirty times and a good many people will tell you it went strange.</p>
-        <p>Here is what stays with me. We tend to think of familiar as a property of things: the door is familiar, my street is familiar, my mother’s handwriting is familiar. The copying experiment hints at something less flattering. Familiar may be a light the mind leaves on so that we do not have to keep looking. Stare long enough and you catch it flickering.</p>
+        <h2>Related memory feelings</h2>
+        <p>Deja vu is a related feeling in the other direction. A new moment feels as if it has happened before. One reading says the brain's familiarity check raises a false alarm before the moment becomes a false memory.<a href="#ref-4" aria-label="Reference 4">[4]</a> The false-alarm reading is an interpretation, not a settled result, and everyday deja vu does not match the usual lab tests of memory.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>
+        <p>Tip of the tongue is another related feeling. You know that you know the word. You may know its first letter and how many syllables it has. The word still does not come to mind.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
+        <p>In 2024 one team used deep-learning models to propose how satiation might work.<a href="#ref-7" aria-label="Reference 7">[7]</a> The study used artificial networks, and the mechanism is still argued.<a href="#ref-8" aria-label="Reference 8">[8]</a><a href="#ref-9" aria-label="Reference 9">[9]</a> The reported feeling is clearer than the mechanism. If people copy a word about thirty times, many of them say the word went strange.</p>
+        <p>Familiar often seems to belong to the object itself. The copying experiment suggests a narrower claim. The feeling of familiarity can drop while the knowledge stays, if you keep looking at the same word.</p>
 
         <blockquote>
-          <p>You still know the word. For a minute, it refuses to feel like one.</p>
+          <p>You still know the word. For a short time, it does not feel like one.</p>
         </blockquote>
 
-        <p class="taj__closing">If thirty honest repetitions can turn “door” into a stranger, how many familiar things in your day are familiar only because you stopped looking at them?</p>
-        <p>Look a little longer than habit wants. Then let the word come home.</p>
+        <p class="taj__closing">About thirty repetitions can make "door" feel unfamiliar, even though you still know what the word means.</p>
       </div>
     </article>
     <section class="taj__sources" aria-labelledby="sources-title">

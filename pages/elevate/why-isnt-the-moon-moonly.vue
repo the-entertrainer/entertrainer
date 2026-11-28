@@ -39,23 +39,23 @@ const references = [
       <EdEditorialImage :src="MOONLY_BLOG.hero" :alt="MOONLY_BLOG.heroAlt" />
     </figure>
     <article class="taj__article">
-      <EdMarginNote label="The ending works.">
-        <p>English just refuses to spend it on this one rock.</p>
+      <EdMarginNote label="Two words, one rock">
+        <p>English builds friendly from friend. It does not build the Moon's adjective from moon. The usual adjective is lunar, from Latin.</p>
       </EdMarginNote>
       <div class="taj__prose">
-        <p class="taj__lead">A seven-year-old at a crowded dinner table announces that the Moon has moonly mountains, and four adults correct him at once.</p>
-        <p>Lunar, they say. Lunar mountains. He asks why, which is the only question seven-year-olds truly know, and the table goes quiet. Somebody mutters something about Latin. Somebody else reaches for the rice. Nobody actually knows.</p>
-        <p>The boy has a point, and it is a good one. English hands out that ending like sweets. Friend becomes friendly. Love becomes lovely. Cost becomes costly. Then it arrives at the Moon, stops dead, and passes you a word that seems to have wandered in from another family altogether. The Sun gets the same treatment (solar). So do teeth (dental). So does your cat (feline).</p>
+        <p class="taj__lead">A seven-year-old says the Moon has moonly mountains, and four adults correct him at once.</p>
+        <p>The adults say the phrase is lunar mountains. The child asks why. Someone mentions Latin, and nobody at the table gives a clear answer.</p>
+        <p>The child's pattern is the usual English pattern. Friend becomes friendly, love becomes lovely, and cost becomes costly. Moon does not become moonly in ordinary use. The Sun's adjective is solar, the adjective for teeth is dental, and the adjective for a cat is feline.</p>
 
-        <h2>Collateral adjectives</h2>
-        <p>These mismatched pairs have a name that sounds like a bank product: collateral adjectives. An adjective tied to a noun by meaning but not by descent.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a> Collateral, in the family-tree sense, means the same stock but not in a straight line. A cousin, not a child. Moon and lunar share a job, not a bloodline.</p>
-        <p>Try a small experiment. Suppose a stern committee passed a law that every adjective must grow from its own noun, and every borrowed one is sent home. By Monday, astronomers are studying the moonly surface, engineers are fitting sunly panels, you are booking a toothly surgeon, and your cat has excellent catly reflexes. Nothing here is broken. Every word obeys the exact rule you already use for friendly. It just sounds like one nine-year-old explaining space to another.</p>
+        <h2>The adjective does not come from the noun</h2>
+        <p>The name for a pair like moon and lunar is collateral adjective. The adjective matches the noun in meaning, but the adjective was not built from that noun.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a> Collateral, in a family tree, means a relative who is not a parent or a child. Moon and lunar share a job, and they do not share a direct word history.</p>
+        <p>If every adjective had to be built from its own English noun, astronomers would write moonly surface, engineers would write sunly panels, a dentist would be a toothly surgeon, and a cat would have catly reflexes. Each of those words follows the same rule as friendly. They sound wrong only because English did not adopt them for formal use.</p>
 
-        <h2>Moony, lunar, and the staffing decision</h2>
-        <p>Here is the twist. English did grow its own adjective. Moony has been around since about 1586, and one of its listed meanings is, plainly, relating to the Moon.<a href="#ref-6" aria-label="Reference 6">[6]</a> Try writing “a moony eclipse” in a science report, though, and watch your editor’s eyebrows climb. Moony drifted. These days it mostly means dreamy and a little absent: the face of someone newly in love who keeps missing their bus stop.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
-        <p>So line up three ways to describe the grey plains up there. The lunar surface. The moony surface. The moonly surface. Moony is the decoy. It is so obviously soft and swoony that it makes lunar look sober and grown-up by comparison, and it quietly shuts the door on moonly before moonly ever gets a hearing.</p>
-        <p>Why lunar, though? Because English is less a language than a very old guesthouse. Old English checked in first. Norman French arrived in 1066 and took the best rooms. Then, for centuries, Latin kept pouring in, often by way of French, for the law, the church, the dinner table and the new sciences.<a href="#ref-3" aria-label="Reference 3">[3]</a> When educated speakers wanted a serious word for the Moon, they reached for Latin. Lunar entered English in the early 1400s, first meaning crescent-shaped, and slowly settled into the observatory job.<a href="#ref-8" aria-label="Reference 8">[8]</a></p>
-        <p>Linguists call the doorman blocking. When a word already holds a slot, a perfectly well-built rival often fails to get in. Mark Aronoff described the idea in 1976,<a href="#ref-4" aria-label="Reference 4">[4]</a> and people have argued ever since about how strict the doorman really is.<a href="#ref-5" aria-label="Reference 5">[5]</a> You can feel him working every time “moonly” makes you wince.</p>
+        <h2>Moony exists, and lunar took the formal job</h2>
+        <p>English did grow an adjective from moon. Moony has been recorded since about 1586, and one listed meaning is "relating to the Moon."<a href="#ref-6" aria-label="Reference 6">[6]</a> A science report does not say "a moony eclipse." Moony now mostly means dreamy or absent-minded.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
+        <p>You can line up lunar surface, moony surface, and moonly surface. Moony sounds informal, so lunar sounds like the formal choice, and moonly rarely gets a formal use.</p>
+        <p>Lunar won the formal job because of how English took in other languages. Old English was already in use. Norman French arrived in 1066. For centuries after that, Latin words kept entering English, often through French, in law, the church, and the sciences.<a href="#ref-3" aria-label="Reference 3">[3]</a> Speakers who wanted a formal word for the Moon used the Latin word. Lunar entered English in the early 1400s, first with the meaning "crescent-shaped," and later it became the usual word in astronomy.<a href="#ref-8" aria-label="Reference 8">[8]</a></p>
+        <p>Linguists call one part of this blocking. When a word already fills a meaning, a well-formed rival often fails to enter that meaning. Mark Aronoff described the idea in 1976.<a href="#ref-4" aria-label="Reference 4">[4]</a> Later work has argued about how strict the block is.<a href="#ref-5" aria-label="Reference 5">[5]</a> Moonly is a case where the rival did not take the formal slot.</p>
 
         <figure class="taj__visual taj__visual--archive" style="--fig-ratio: 1800 / 894">
           <EdEditorialImage
@@ -69,16 +69,16 @@ const references = [
           </figcaption>
         </figure>
 
-        <h2>A clock and a lamp</h2>
-        <p>The best part is that the two words were never describing the same thing. Moon comes from an old root meaning to measure. The Moon was the thing that counted out the months: a clock hung in the sky.<a href="#ref-7" aria-label="Reference 7">[7]</a> Lunar comes through Latin <em>luna</em>, from a root meaning light. A lamp.<a href="#ref-8" aria-label="Reference 8">[8]</a> One set of ancestors looked up at night and saw a calendar. Another looked up at the same rock and saw a lantern. English kept both, filed them in different drawers, and never mentioned it to anyone.</p>
-        <p>Even the humble ending has a secret. That <em>-ly</em> comes from Old English <em>-lic</em>, from a root meaning body, form or appearance.<a href="#ref-9" aria-label="Reference 9">[9]</a> Friendly did not begin as “full of friendship.” It meant something closer to friend-shaped. When the boy said moonly, he was reaching for moon-shaped, which, if you think about it, was the most accurate adjective on the table.</p>
-        <p>None of this was ever only about the Moon. We raise a cow and eat beef. We keep a pig and serve pork. One word from the field, one from the banquet hall, still doing the jobs they were handed centuries ago.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <h2>One word meant a measure, and one word meant light</h2>
+        <p>The two words did not start as names for the same idea. Moon comes from an old root meaning "to measure." The Moon was used to count months.<a href="#ref-7" aria-label="Reference 7">[7]</a> Lunar comes through Latin luna, from a root meaning "light."<a href="#ref-8" aria-label="Reference 8">[8]</a> One history treated the Moon as a calendar. The other history treated the Moon as a light. English kept both words.</p>
+        <p>The ending -ly has a history too. It comes from Old English -lic, from a root meaning body, form, or appearance.<a href="#ref-9" aria-label="Reference 9">[9]</a> Friendly did not begin as "full of friendship." It was closer to "having the form of a friend." Moonly, on that older reading, is closer to "having the form of the Moon."</p>
+        <p>The same split shows up with animals and food. English raises a cow and serves beef, and it keeps a pig and serves pork. One word stayed with the animal in the field, and the other word came from the Norman French dining table.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
 
         <blockquote>
-          <p>Same rock. One word for a clock, one word for a lamp.</p>
+          <p>Moon comes from a word for measuring, and lunar comes from a word for light.</p>
         </blockquote>
 
-        <p class="taj__closing">Every language is a house where the old guests still sleep in the rooms they claimed first. The boy at the table was not wrong. He was just several centuries late.</p>
+        <p class="taj__closing">The child used the regular English pattern, and the formal adjective had already been taken from Latin several centuries earlier.</p>
       </div>
     </article>
     <section class="taj__sources" aria-labelledby="sources-title">

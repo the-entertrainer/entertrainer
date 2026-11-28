@@ -38,18 +38,17 @@ const references = [
       <EdEditorialImage :src="LIFE_MIDPOINT_BLOG.hero" :alt="LIFE_MIDPOINT_BLOG.heroAlt" />
     </figure>
     <article class="taj__article">
-      <EdMarginNote label="Forty feels like the middle.">
-        <p>A clock year and a felt year are not the same object.</p>
+      <EdMarginNote label="Three different middles">
+        <p>A calendar middle, a picture's middle, and a felt middle are three different numbers.</p>
       </EdMarginNote>
       <div class="taj__prose">
-        <p class="taj__lead">In 1877 a French philosopher named Paul Janet looked back over his years and accused them of getting shorter.</p>
-        <p>He was not being dramatic, or not only. He was noticing what everyone over thirty eventually notices, usually somewhere around the second week of December: the year that just ended seems to have lasted about a fortnight, while the summer you were nine lasted roughly a century. Janet offered a simple explanation. The felt length of a year, he suggested, is proportional to how much life you have already lived.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>To a ten-year-old, one year is a tenth of everything they have ever known. To a fifty-year-old, the same 365 days is a fiftieth. Same calendar. A very different slice of the cake.</p>
+        <p class="taj__lead">In 1877 the French philosopher Paul Janet wrote that his years seemed to be getting shorter.</p>
+        <p>He offered a simple ratio. The felt length of a year, he suggested, is proportional to how much life you have already lived.<a href="#ref-1" aria-label="Reference 1">[1]</a> For a ten-year-old, one year is one tenth of the life so far. For a fifty-year-old, the same 365 days are one fiftieth. The calendar year is the same length. The fraction of a life is not.</p>
 
-        <h2>Paul Janet and felt time</h2>
-        <p>Run Janet’s idea forward and something odd happens to the middle of your life. If every year is weighed against all the years before it, the early ones count for an enormous amount and the later ones for less and less. The felt middle slides backwards, away from forty and towards your teens.</p>
-        <p>A viral video took this idea for a spin and announced, with tremendous confidence, that the middle of your life is not forty. It is eighteen. The sum behind that is real. The video started counting at age four, roughly where lasting memories are often said to begin, and assumed a life of eighty-one years. Under Janet’s rule, those two numbers meet in the felt middle at exactly eighteen.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
-        <p>Even the eighteen has a lovely backstory. It traces to an engineer named James Main Kenney, who built what he called a Logtime model in the 1960s and only later discovered that a French philosopher had beaten him to the idea by nearly a century.<a href="#ref-2" aria-label="Reference 2">[2]</a> I like to imagine the face he made.</p>
+        <h2>Janet's ratio moves the felt middle</h2>
+        <p>If each year is weighed against the years already lived, the early years count for more of the felt total, and the later years count for less. The felt middle then sits earlier than the calendar middle.</p>
+        <p>A widely shared video said the middle is not 40. The video said the middle is 18. The sum is real under its own assumptions. The video started counting at age four, where lasting memories are often said to begin, and it assumed a life of 81 years. Under Janet's rule, those two numbers meet at a felt middle of 18.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <p>The number 18 in that modern telling comes from an engineer, James Main Kenney. He built a Logtime model in the 1960s, and he later found that Janet had stated a related idea nearly a century earlier.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
 
         <figure class="taj__visual taj__visual--archive" style="--fig-ratio: 1800 / 1309">
           <EdEditorialImage
@@ -63,22 +62,19 @@ const references = [
           </figcaption>
         </figure>
 
-        <h2>Three middles</h2>
-        <p>Now look at that old print. Seventeenth-century printmakers loved drawing a life as a staircase. You climb from the cradle, step by step, stand on the top landing at fifty, and then walk carefully down the other side. The banner across the top reads, in old German, rise and decline. So we have three candidates for the middle of a life. The clock says forty. The staircase says fifty. Janet’s rule says eighteen.</p>
-        <p>Notice what the three do to you. Forty feels sensible and a little dull, like the middle seat on a long flight. Fifty, at the top of the stairs, flatters you with a view. Eighteen is the shock option, and it works on us precisely because the other two make it look outrageous. Put it beside forty and fifty and it lands like a slap. Put it on its own and it is just a number someone chose.</p>
-        <p>Because it was chosen. Eighteen falls out of two decisions: when memory starts, and how long you expect to live. Move either one and the middle moves with it. Four is a common figure for the start of memory, and it is argued over. Many estimates of a first memory sit nearer three and a half, and some newer work puts it younger still.<a href="#ref-3" aria-label="Reference 3">[3]</a> When researchers asked the same children again years later, the children kept pushing their earliest memory later as they grew up.<a href="#ref-4" aria-label="Reference 4">[4]</a> Eighty-one is a fair figure for several wealthy countries; U.S. life expectancy sits nearer eighty.<a href="#ref-8" aria-label="Reference 8">[8]</a> Change the country and your personal eighteen quietly becomes a seventeen or a nineteen. The middle is not a fact about you. It is a fact about the ruler you picked up.</p>
+        <h2>The calendar, the staircase, and the ratio disagree</h2>
+        <p>Seventeenth-century prints often drew a life as a staircase. The figures climb from infancy, stand at the top at 50, and then descend. The banner on the Altzenbach print says, in older German, rise and decline. The calendar middle of an 80-year life is about 40. The staircase picture puts the high point at 50. Janet's ratio, with a start at 4 and a life of 81, puts the felt middle at 18.</p>
+        <p>Eighteen is not a fact about every person. Eighteen falls out of two choices, the age when memory starts and the length of the life you assume. Move either choice and the middle moves. Four is a common figure for the start of lasting memory, and researchers argue about it. Many estimates of a first memory sit nearer three and a half, and some newer work puts the start younger.<a href="#ref-3" aria-label="Reference 3">[3]</a> When researchers asked the same children again years later, the children placed their earliest memory later as they grew.<a href="#ref-4" aria-label="Reference 4">[4]</a> Eighty-one is a fair figure for several wealthy countries. U.S. life expectancy sits nearer 80.<a href="#ref-8" aria-label="Reference 8">[8]</a> Change the country, or the start age, and 18 can become 17 or 19.</p>
 
-        <h2>Why the years speed up</h2>
-        <p>The feeling underneath the punchline is older than any video, and it is real. William Friedman and Steve Janssen asked nearly 1,900 adults, aged sixteen to eighty, how fast the past week, month, year and decade seemed to have gone. People do report the longer stretches flying past faster as they age.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>
-        <p>Why, though, nobody has nailed down. In 2019 Adrian Bejan suggested that the mind takes in fewer fresh images per hour as we get older, so the days look shorter in hindsight.<a href="#ref-6" aria-label="Reference 6">[6]</a> A 2023 review lined up several competing explanations and declined to crown a winner.<a href="#ref-7" aria-label="Reference 7">[7]</a> I find that oddly reassuring. The years really do seem to speed up. We just do not know exactly why, which leaves a little room to push back.</p>
-        <p>And perhaps that is the real gift of Janet’s small idea. It turns a gloomy question, how many years do I have left, into a better one: which of them will I actually notice?</p>
+        <h2>People do report that longer stretches speed up</h2>
+        <p>The feeling behind the ratio is older than the video, and surveys do find it. William Friedman and Steve Janssen asked nearly 1,900 adults, aged 16 to 80, how fast the past week, month, year, and decade seemed to have gone. People report that the longer stretches seem to pass faster as they age.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>
+        <p>The cause is not settled. In 2019 Adrian Bejan suggested that the mind takes in fewer new images per hour with age, so days look shorter in memory.<a href="#ref-6" aria-label="Reference 6">[6]</a> A 2023 review lined up several explanations and did not pick a winner.<a href="#ref-7" aria-label="Reference 7">[7]</a> The reports of speeding time are real. The explanation is not agreed.</p>
 
         <blockquote>
-          <p>Eighteen is what falls out when you choose four and eighty-one. The middle moves when you do.</p>
+          <p>Eighteen is the result when the count starts at four and the life is 81 years. Change either number and the middle changes.</p>
         </blockquote>
 
-        <p class="taj__closing">Maybe the middle of a life is not a point on a ruler at all, but whichever stretch you end up remembering most clearly, and you are still allowed to move it.</p>
-        <p>The sand keeps falling either way. You get to decide where to look.</p>
+        <p class="taj__closing">The calendar middle, the staircase high point, and Janet's felt middle are three different calculations, and only the inputs make 18 come out.</p>
       </div>
     </article>
     <section class="taj__sources" aria-labelledby="sources-title">

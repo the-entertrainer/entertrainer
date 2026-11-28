@@ -37,19 +37,17 @@ const references = [
     </figure>
 
     <article class="taj__article">
-      <EdMarginNote label="The heat did not vanish.">
-        <p>It went somewhere it can no longer do much. That is the whole story, at every size.</p>
+      <EdMarginNote label="Where the heat goes">
+        <p>The heat leaves the hot tea and spreads into the cooler room. After the temperatures match, the tea cannot heat itself again.</p>
       </EdMarginNote>
 
       <div class="taj__prose">
-        <p class="taj__lead">You pour the tea at 9:02, answer one message, and at 9:31 you are holding a cup of warm brown disappointment.</p>
-        <p>Nobody stole anything. The heat did not leak out of the universe or slip into your phone. It went where heat always goes: into the cooler room, the table, the air around your hand, a little at a time, until the cup and the kitchen agreed on a temperature and stopped talking to each other.<a href="#ref-1" aria-label="Reference 1">[1]</a> The room barely noticed. You noticed. Right?</p>
-        <p>That small betrayal is one of the oldest stories in physics. I want to tell it the way it actually feels, as a story about differences, and about what happens to them when nobody is spending them.</p>
+        <p class="taj__lead">You pour the tea, answer one message, and the tea is no longer hot.</p>
+        <p>The heat did not leave the universe, and it did not move into your phone. The heat moved into the cooler air, the table, and your hand, until the cup and the room were close to the same temperature.<a href="#ref-1" aria-label="Reference 1">[1]</a> You notice the change because the drink is no longer hot. The room is large, so the room's temperature barely changes.</p>
+        <p>A hot cup is useful because the tea is hotter than the things around it, and that difference can warm your hands. A charged phone is useful because its battery is not in the same state as an empty battery. When the difference is gone, the energy is still in the room, but you cannot use it to heat the tea again.</p>
 
-        <h2>Heat flow and useful differences</h2>
-        <p>Think about what a hot cup really is. It is not just hot. It is hotter <em>than something</em>, and that gap is the whole point. A gap is something you can spend. Water sitting at the top of a hill is a gap. A charged phone is a gap. A kettle of boiling water beside a cold window is a gap. Each one can make something happen: turn a wheel, light a screen, warm a pair of cold hands.</p>
-        <p>Then the gap thins out. The water reaches the bottom. The battery goes flat. The tea settles at room temperature. Nothing disappeared. All the energy is still there, smeared across the kitchen like butter scraped over too much toast. There is plenty of it. It just no longer does anything.</p>
-        <p>In 1865 a German physicist named Rudolf Clausius wanted a word for that smearing, and he reached for Greek, the way professors do when English runs out. He built <em>entropy</em> from a Greek word for turning, or transformation, and shaped it on purpose to sound like a cousin of energy.<a href="#ref-5" aria-label="Reference 5">[5]</a> Energy is how much you have. Entropy, roughly, is how spread out and unspendable it has become.<a href="#ref-1" aria-label="Reference 1">[1]</a> The second law of thermodynamics says that, left alone, the spreading only runs one way. Tea does not reheat itself out of the goodness of its heart.</p>
+        <h2>Heat moves until the temperatures match</h2>
+        <p>In 1865 Rudolf Clausius gave the spread a name, entropy. He built the word from a Greek word for transformation, and he chose a form that would sit beside the word energy.<a href="#ref-5" aria-label="Reference 5">[5]</a> Energy is the amount. Entropy is a measure of how spread out, and how unavailable for work, that energy has become.<a href="#ref-1" aria-label="Reference 1">[1]</a> The second law of thermodynamics says that, if you leave the cup alone, the spread goes one way. The tea does not become hot again by itself.</p>
 
         <figure class="taj__visual taj__visual--archive taj__visual--portrait" style="--fig-ratio: 1099 / 1500">
           <EdEditorialImage
@@ -63,14 +61,13 @@ const references = [
           </figcaption>
         </figure>
 
-        <h2>Rest and the cosmic excuse</h2>
-        <p>Here is the joke the internet loves: if everything is running down anyway, then lying in bed is practically a public service. You are slowing the decline of the cosmos. You are not lazy. You are conservation.</p>
-        <p>I adore this joke. It is also wrong in a charming way. A slow day does burn less of the obvious stuff, fewer lights, less cooking, fewer trips to the shop. But you are not a phone on airplane mode. Lying perfectly still, you are still breathing, still digesting, still keeping a warm body at a steady temperature in a cooler room, which makes you a small furnace quietly heating the bedroom. The phone resting on your chest is warming up too.</p>
-        <p>Now watch what we actually do with the guilt. Picture three Sundays. On the first you work, properly, for four hours, and then stop. On the second you take a long nap. On the third you sit at the laptop with fourteen tabs open, answering nothing, scrolling a little, half working and half not, all afternoon. The third Sunday is worse than both of the others. It gets less done than the first and rests you less than the second. Yet ask people which one felt more respectable, and the busy-looking afternoon beats the nap almost every time. The tabs are a decoy. Their main job is to make the nap look shameful.</p>
-        <p>Mess, by the way, is a different thing altogether. Physics does not care where your socks are. You can tidy a room whenever you like. A fridge keeps its inside cold by pushing heat out of the back, and folding a shirt costs you a little energy that leaves as warmth.<a href="#ref-2" aria-label="Reference 2">[2]</a> Local order is allowed. You just pay for it somewhere else. So clean the room. Entropy will not do it for you, and it will not be offended if you do.</p>
+        <h2>Rest does not stop the spread</h2>
+        <p>A common joke says that if everything is running down, then lying in bed helps the universe. The joke is not correct. A day with fewer trips and less cooking uses less fuel. A person lying still is still breathing, digesting food, and keeping a warm body in a cooler room, so the body still sends heat into the room. A phone resting on the chest warms up too.</p>
+        <p>A block of real work, a nap, and an afternoon of many open browser tabs are three different uses of time. The afternoon of tabs often finishes less work than the work block, and it gives less rest than the nap. People still often treat the busy-looking afternoon as more acceptable than the nap. The open tabs do not change the physics. The open tabs change the social judgment.</p>
+        <p>Tidying a room is a separate question. Physics does not score where the socks are. A fridge stays cold by moving heat out of the back of the machine, and folding a shirt uses a little energy that leaves as warmth.<a href="#ref-2" aria-label="Reference 2">[2]</a> You can make one place more ordered. The heat cost is paid somewhere else.</p>
 
-        <h2>Information, heat, and the far future</h2>
-        <p>Even things that feel weightless pay this bill. Your photos, your messages, the voice note your aunt sent at 6 a.m.: all of it lives in matter, in tiny shuffles of electricity that warm the phone in your hand. Erasing a single bit of information has a minimum energy cost set by physics, and real machines pay far more than that floor.<a href="#ref-3" aria-label="Reference 3">[3]</a> Memory is not a cloud. It is a slightly warm brick.</p>
+        <h2>Stored information also makes heat</h2>
+        <p>Photos and messages are stored as physical states in a device, and changing those states warms the device. Erasing one bit of information has a minimum energy cost in physics, and real machines use more than that minimum.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
 
         <figure class="taj__visual taj__visual--wide">
           <EdEditorialImage
@@ -80,15 +77,14 @@ const references = [
           <figcaption>Image: NASA, ESA, S. Beckwith and the HUDF Team, and B. Mobasher</figcaption>
         </figure>
 
-        <p>Follow the same idea far enough, past every star and every sun-warmed cup, and the picture grows very quiet. No big gaps left anywhere. No easy fuel. Nothing hotter than anything else. Astronomers have a name for that possible ending: heat death.<a href="#ref-4" aria-label="Reference 4">[4]</a> It is your tea, drawn at the largest size there is.</p>
-        <p>Oddly, I find that comforting rather than bleak. Every interesting thing that has ever happened, a heartbeat, a sunrise, a long talk over a cup that was hot at the start, happened inside one of those gaps while it was still open. The thinning is not the enemy of life. It is the slope that life rides down.</p>
+        <p>If the same spread continues until no large temperature differences remain, astronomers call one possible ending heat death.<a href="#ref-4" aria-label="Reference 4">[4]</a> The tea is a small example of the same one-way spread. A heartbeat, a sunrise, and a hot drink all happen while a temperature difference, or some other usable difference, is still there.</p>
 
         <blockquote>
-          <p>A useful difference slowly becomes ordinary. Everything interesting happens on the way.</p>
+          <p>A usable difference becomes an even state, and the useful work happens while the difference is still there.</p>
         </blockquote>
 
-        <p class="taj__closing">The tea was never failing you. It was finishing a sentence the universe began long before you put the kettle on.</p>
-        <p>Take the nap. Then make a fresh cup, and drink it while the gap is still open.</p>
+        <p class="taj__closing">The tea did not fail. The heat moved from the cup into the room, which is what heat does when one thing is hotter than another.</p>
+        <p>You can rest, and you can pour a fresh cup while the new cup is still hotter than the room.</p>
       </div>
     </article>
 

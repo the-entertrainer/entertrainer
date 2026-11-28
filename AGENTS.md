@@ -1,15 +1,16 @@
 # Entertrainer — Elevate explain posts
 
-**Two writing skills only, in this order:**
+**Writing order for every Elevate post:**
 
-1. [Naveen curiosity science blog](.agents/skills/naveen-curiosity-science-blog/SKILL.md) — research, structure, titles, and fact-checking. Research the topic before drafting. Do not write from memory.
-2. [Say it like Naveen](.agents/skills/say-it-like-naveen/SKILL.md) — the voice, after the facts are stable.
+1. [Naveen curiosity science blog](.agents/skills/naveen-curiosity-science-blog/SKILL.md) for the question, the sources, and the limits. Do not invent studies.
+2. [Plain writing](.agents/skills/plain-writing/SKILL.md) for the sentences. Use everyday words. Define a technical term once. No idioms, no jargon left unexplained, no slogans, no stacked metaphors.
+3. [Say it like Naveen](.agents/skills/say-it-like-naveen/SKILL.md) only for a caption or a note the user asks to sound like a personal message. It does not override plain writing on the essays.
 
-Do not use Humanize Elevate, the Tajjalan heading recipe, or any other writing pack for a new Elevate post. Those are retired for new prose. Sacred geometry still applies when the user asks for that subject. Art direction below still applies to pictures.
+Humanize Elevate is retired for new prose.
 
 ## Sacred geometry
 
-When the user asks to explain, draw, or design from sacred geometry, the Flower of Life, or *The Sacred Geometry Movie*, use [Sacred geometry](.agents/skills/sacred-geometry/SKILL.md). The two Naveen skills still own the prose.
+When the user asks to explain, draw, or design from sacred geometry, the Flower of Life, or *The Sacred Geometry Movie*, use [Sacred geometry](.agents/skills/sacred-geometry/SKILL.md). Plain writing still owns the sentences.
 
 ## Art direction (sitewide)
 

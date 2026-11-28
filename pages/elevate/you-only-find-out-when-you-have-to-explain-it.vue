@@ -38,17 +38,17 @@ const references = [
       <EdEditorialImage :src="KNOWING_BLOG.hero" :alt="KNOWING_BLOG.heroAlt" />
     </figure>
     <article class="taj__article">
-      <EdMarginNote label="A receipt, not a model.">
-        <p>Feeling that you understand something is not the same as being able to rebuild it.</p>
+      <EdMarginNote label="A feeling is not the steps">
+        <p>Feeling that you understand an object is not the same as being able to write the steps that make it work.</p>
       </EdMarginNote>
       <div class="taj__prose">
-        <p class="taj__lead">Around the turn of the millennium, in a psychology lab at Yale, volunteers were handed a list of ordinary objects, a zip, a flush toilet, a cylinder lock, a speedometer, and asked how well they understood each one.</p>
-        <p>Most rated themselves pretty well. Why not? They had used zips all their lives. They could work one in the dark, half asleep, in a hurry, wearing gloves. Then came the cruel part. The researchers, Leonid Rozenblit and Frank Keil, asked them to write out, step by step, exactly how the thing works. Then they asked for the rating again.</p>
-        <p>The scores dropped. Not a little. And the fall was much steeper for how-things-work questions than for facts, stories or procedures.<a href="#ref-1" aria-label="Reference 1">[1]</a> Rozenblit and Keil called it the illusion of explanatory depth. I prefer to think of it as the moment the lights go out in a room you were certain you knew.</p>
+        <p class="taj__lead">Around the year 2000, in a psychology lab at Yale, volunteers were given a list of ordinary objects, including a zip, a flush toilet, a cylinder lock, and a speedometer, and they were asked how well they understood each one.</p>
+        <p>Most people rated their understanding as fairly good. They had used zips for years, including in the dark. Leonid Rozenblit and Frank Keil then asked them to write, step by step, how the object works. After that writing, the researchers asked for the rating again.</p>
+        <p>The scores fell. The fall was much larger for questions about how a thing works than for facts, stories, or procedures.<a href="#ref-1" aria-label="Reference 1">[1]</a> Rozenblit and Keil called the gap the illusion of explanatory depth. The name means that people feel they understand a mechanism more deeply than they can explain it.</p>
 
-        <h2>The illusion of explanatory depth</h2>
-        <p>Try it yourself, out loud. Explain a zip to someone who has never seen one. No diagram, no waving of hands, no “it just sort of meshes.” The slider moves. The teeth… do something. There is a wedge, probably. The two sides get pushed together, or pulled apart, by, well. Now draw the part that actually does the work. Most of us stall around step two, wearing the confident face of someone who has just realised they are lost but would rather not say so in front of the children.</p>
-        <p>This is not because we are foolish. The mind stored a name, a rough gist and a habit of the hands, and then issued a feeling that those three things added up to understanding. It is a very convincing receipt. It just is not the item.</p>
+        <h2>Most explanations of a zip stop early</h2>
+        <p>You can test the claim on a zip. Explain it to someone who has never seen one, without a diagram and without hand gestures. The slider moves, and the teeth meet or separate. Most explanations stall when they have to name the part inside the slider that pushes the teeth together or apart.</p>
+        <p>The mind can store a name, a rough outline, and a habit of the hands, and those three can produce a feeling of understanding. The feeling is not the written sequence of steps.</p>
 
         <figure class="taj__visual taj__visual--archive taj__visual--portrait" style="--fig-ratio: 1143 / 1400">
           <EdEditorialImage
@@ -62,23 +62,22 @@ const references = [
           </figcaption>
         </figure>
 
-        <h2>Familiarity and fluency</h2>
-        <p>Why would the mind hand out fake receipts? One plausible reading is that daily life almost never asks for the full model. The zip works. The fridge hums. The clock on the wall tells the time without once showing you its insides. Gadgets with visible moving parts are where the illusion is strongest, because watching the parts move feels like watching how they work.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>What we usually have is proximity. We have stood near the mechanism. We know the vocabulary. We can point at it with confidence. That is not nothing. It is also not the same as being able to rebuild the thing if it vanished. You can say “it’s encrypted” at dinner parties for a decade. Ask what a key is, who holds it, and what end-to-end actually forbids, and watch the word quietly turn into decoration.</p>
-        <p>Search makes the receipt cheaper still. In nine experiments with more than a thousand people, Matthew Fisher, Mariel Goddu and Frank Keil found that simply searching online made people believe more knowledge was stored inside their own heads.<a href="#ref-4" aria-label="Reference 4">[4]</a> A 2024 set of studies found that feeling powerful made people more confident in general but barely touched the drop that arrives once they have to explain the gadget.<a href="#ref-8" aria-label="Reference 8">[8]</a> The illusion does not care about your job title.</p>
+        <h2>Use is not the same as a full account</h2>
+        <p>One plausible reading is that daily life rarely asks for the full account. The zip works, the fridge runs, and a clock shows the time without showing its parts. The illusion is strongest for devices with visible moving parts, because watching the parts move can feel like seeing how they work.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>People often have a name and a place near the object, and they can point at it. Pointing is not the same as being able to rebuild the object. A person can say "it is encrypted" for years and still be unable to say what a key is, who holds it, and what end-to-end encryption forbids.</p>
+        <p>Search can increase the feeling without adding the steps. In nine experiments with more than a thousand people, Matthew Fisher, Mariel Goddu, and Frank Keil found that searching online made people believe more knowledge was stored in their own heads.<a href="#ref-4" aria-label="Reference 4">[4]</a> A 2024 set of studies found that feeling powerful raised general confidence, and it barely changed the drop that arrives once people have to explain a device.<a href="#ref-8" aria-label="Reference 8">[8]</a></p>
 
-        <h2>Explanations and confidence</h2>
-        <p>My favourite version involves politics, the one subject on which everyone is an expert. In 2013 Philip Fernbach and colleagues asked people about complicated policies. Some listed their reasons for loving or hating a policy. Others had to explain, step by step, how the policy would actually produce the result it promised. The mechanism group softened.<a href="#ref-3" aria-label="Reference 3">[3]</a> Reasons feel like knowledge. A mechanism leaves nowhere to hide.</p>
-        <p>Now imagine three people at a table, each holding forth on the same new tax. The first lists five reasons it is terrible. The second explains, haltingly, how it would change what a corner shop actually pays. The third has read one headline and is louder than both. The headline reader is the decoy. Next to him, the reasons person sounds thoughtful and the slow, honest mechanism explainer sounds unsure, which is exactly backwards.</p>
-        <p>You have probably met the Dunning–Kruger effect, from a 1999 paper about people who are unskilled and unaware of it.<a href="#ref-2" aria-label="Reference 2">[2]</a> Researchers have argued ever since about how much of that famous picture is about people and how much is about the way the data was drawn.<a href="#ref-5" aria-label="Reference 5">[5]</a><a href="#ref-6" aria-label="Reference 6">[6]</a><a href="#ref-7" aria-label="Reference 7">[7]</a> What survives every version is smaller and more useful: all of us misjudge what we know, and the feeling of knowing is cheapest exactly where a mechanism is hiding.</p>
-        <p>So the test is not whether you feel sure. Feeling sure is the factory setting of a mind that has seen something before. The test is whether you can say the next three steps without reaching for “basically” as a skip button. If you can’t, that is not a crisis. It is a map with a blank on it, and blanks are where the interesting walks begin.</p>
+        <h2>Reasons and mechanisms do different work</h2>
+        <p>In 2013 Philip Fernbach and colleagues asked people about complicated policies. Some people listed reasons for liking or disliking a policy. Other people had to explain, step by step, how the policy would produce the result it promised. The group that had to explain the mechanism became less extreme.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <p>A list of reasons, a step-by-step account of a shop's tax bill, and a repeated headline are three different kinds of talk. The headline can be the loudest, and the step-by-step account can sound less sure, even when it contains more of the mechanism.</p>
+        <p>The Dunning-Kruger effect comes from a 1999 paper about people who were unskilled and did not know it.<a href="#ref-2" aria-label="Reference 2">[2]</a> Later researchers have argued about how much of that picture comes from the people and how much comes from the way the scores were plotted.<a href="#ref-5" aria-label="Reference 5">[5]</a><a href="#ref-6" aria-label="Reference 6">[6]</a><a href="#ref-7" aria-label="Reference 7">[7]</a> A smaller claim survives the argument. People misjudge what they know, and the feeling of knowing is easiest to have where a mechanism has not been written down.</p>
+        <p>The useful test is not whether you feel sure. The useful test is whether you can state the next three steps. If you cannot, the account has a gap.</p>
 
         <blockquote>
-          <p>The feeling of knowing is cheap. The explanation is the invoice.</p>
+          <p>The feeling of knowing is not the written explanation.</p>
         </blockquote>
 
-        <p class="taj__closing">Maybe knowing is not something we have, like a coin in a pocket, but something we do, out loud, for exactly as long as someone keeps asking why.</p>
-        <p>Ask for the next step. Then enjoy the blank.</p>
+        <p class="taj__closing">You find the gap when you have to say the next step, not when you rate how well you already know the object.</p>
       </div>
     </article>
     <section class="taj__sources" aria-labelledby="sources-title">

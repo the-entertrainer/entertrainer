@@ -64,19 +64,19 @@ const references = [
     </figure>
 
     <article class="taj__article">
-      <EdMarginNote label="Hold this.">
-        <p>The tone you need is usually the one you would rather not name.</p>
+      <EdMarginNote label="Claims, not test results">
+        <p>Each tone below is a use that sound-healing practice assigns. The list is not a clinical trial.</p>
       </EdMarginNote>
 
       <div class="taj__prose">
-        <p class="taj__lead">The woman at the counter held a tuning fork in each hand, one stamped 396 and the other 528, and she looked like someone choosing between two doctors. The shopkeeper, a patient man in a linen kurta, had just told her that the first was for fear and guilt, and the second was for love. She lifted the 528. She put it down. She turned the 396 over, as if the answer might be engraved on the back.</p>
-        <p>Think about this for a minute. Most shopping lets us buy the person we would like to be: the running shoes, the cookbook, the plant we will definitely remember to water. Her choice was stranger. Each fork named a problem, and to buy one she had to admit which problem was hers.</p>
-        <p>Strike a fork like that on your knee and you get one clean pitch that hangs in the air like a held breath. You can try all nine right here. These are the tones people call the sacred, or Solfeggio, frequencies. Each button is a pure sine, one at a time.</p>
+        <p class="taj__lead">A woman at a counter held two tuning forks, one marked 396 and one marked 528.</p>
+        <p>The shopkeeper had said that 396 was for fear and guilt, and that 528 was for love. She had to choose which problem the fork was naming.</p>
+        <p>A struck fork gives one pitch. You can play the nine pitches on this page. People call them the sacred frequencies, or the Solfeggio frequencies. Each control plays one pure sine tone.</p>
         <EdHzRow :hertz="tones" />
 
-        <h2>The nine tones</h2>
-        <p>Nine numbers, then: 174, 285, 396, 417, 528, 639, 741, 852 and 963 hertz. In sound-healing practice each one has a job, the way each key on a caretaker’s ring opens one particular door.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a> Healers hold them as forks near the chest, play them as long humming tracks for sleep, or tune whole songs around them.</p>
-        <p>The names reach back further than the numbers. The middle six borrow the old singing syllables ut, re, mi, fa, sol and la, which a Benedictine monk named Guido of Arezzo lifted, around the year 1000, from the first word of each line of a hymn to John the Baptist.<a href="#ref-3" aria-label="Reference 3">[3]</a> The hymn is a small plea from singers who want their voices set free. One line asks for the guilt of stained lips to be washed away. Keep that line in your pocket. It comes back.</p>
+        <h2>The nine numbers and where the names come from</h2>
+        <p>The nine numbers are 174, 285, 396, 417, 528, 639, 741, 852, and 963 hertz. In sound-healing practice, each number is given a job.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a> Practitioners hold forks near the chest, play long tracks for sleep, or tune songs to these pitches.</p>
+        <p>The middle six borrow the old singing syllables ut, re, mi, fa, sol, and la. Around the year 1000, a Benedictine monk named Guido of Arezzo took those syllables from the first word of each line of a hymn to John the Baptist.<a href="#ref-3" aria-label="Reference 3">[3]</a> The hymn asks for singers' voices to be freed. One line asks for guilt to be washed from stained lips.</p>
 
         <figure class="taj__visual taj__visual--manuscript">
           <EdEditorialImage
@@ -90,30 +90,29 @@ const references = [
           </figcaption>
         </figure>
 
-        <p>The numbers themselves turned up in the 1970s. As the story is usually told, a man named Joseph Puleo sat with the Book of Numbers and came away certain that six healing tones were tucked inside its verses.<a href="#ref-4" aria-label="Reference 4">[4]</a> Leonard Horowitz carried them into a 1999 book, and later teachers added three more at the edges: 174 at the bottom, 285 just above it, and 963 at the very top.<a href="#ref-4" aria-label="Reference 4">[4]</a><a href="#ref-5" aria-label="Reference 5">[5]</a> Nine tones. Nine jobs. A chart small enough to stick on a fridge.</p>
+        <p>The numbers, as the usual story tells it, appeared in the 1970s. Joseph Puleo worked with the Book of Numbers and concluded that six healing tones were in its verses.<a href="#ref-4" aria-label="Reference 4">[4]</a> Leonard Horowitz carried the six into a 1999 book. Later teachers added 174, 285, and 963.<a href="#ref-4" aria-label="Reference 4">[4]</a><a href="#ref-5" aria-label="Reference 5">[5]</a> The story is a history of the list. It is not a measurement that the verses contain those pitches.</p>
 
-        <h2>The low tones</h2>
-        <p>Start at the floor. <strong>174 Hz</strong> is the lowest note on the list, and the practice treats it like a heavy blanket: comfort, safety, the easing of pain and tension. When the body is clenched like a fist around a bad week, this is the one people reach for.</p>
-        <p><strong>285 Hz</strong> sits just above it and is the tone of healing and renewal, said to restore tissue and what healers call the energy field. If 174 says you are safe, 285 says now you can mend.</p>
-        <p><strong>396 Hz</strong> is where the hymn walks back in. In the tradition it carries ut, the very first syllable of Guido’s hymn, and its job is liberating fear and guilt.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a> It is tied to the root, the base of the spine, the cellar where old fears like to keep their boxes. Right after it comes <strong>417 Hz</strong>, re, the tone of change: undoing stuck situations and clearing old patterns so something new has room to land. Think of it as the tone for moving house inside your own head.</p>
+        <h2>What the low tones are said to be for</h2>
+        <p>174 Hz is the lowest note on the list. The practice assigns it comfort, safety, and the easing of pain and tension.</p>
+        <p>285 Hz is assigned to healing and renewal. Practitioners say it restores tissue and what they call the energy field. 174 is the "you are safe" claim, and 285 is the "you can mend" claim.</p>
+        <p>396 Hz carries ut, the first syllable of Guido's hymn, and the assigned job is releasing fear and guilt.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a> Practitioners tie it to the base of the spine. 417 Hz, re, is assigned to change, including leaving a stuck situation and clearing an old pattern.</p>
 
-        <h2>The heart tones</h2>
-        <p><strong>528 Hz</strong> is the celebrity of the nine. Mi. The love frequency. In the tradition it stands for love and transformation, and in its most devoted circles it is even credited with repairing DNA, which is why it shows up on more playlists than the other eight put together.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a> People press it when they want warmth, a lift, the sense that something good is quietly rearranging the furniture.</p>
-        <p>Its neighbour, <strong>639 Hz</strong>, fa, is gentler and more sociable. This is the tone for relationships and connection: reconciliation, honest conversation, the slow work of being near other people without armour. If 528 is falling in love, 639 is the long Sunday afternoon of staying there.</p>
+        <h2>What the middle tones are said to be for</h2>
+        <p>528 Hz is the best known of the nine. Its syllable is mi. The tradition assigns it love and transformation. Some circles also credit it with repairing DNA, which is why it appears on more playlists than the other eight.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-2" aria-label="Reference 2">[2]</a> The DNA claim is a claim inside that tradition. It is not a result shown in the sources used here.</p>
+        <p>639 Hz, fa, is assigned to relationships and connection, including reconciliation and honest conversation.</p>
 
-        <h2>The high tones</h2>
-        <p>Above the heart, the jobs get airier. <strong>741 Hz</strong>, sol, belongs to the throat. It is the tone of expression and clarity, of cleansing and solving problems. It is for the sentence you have been rehearsing in the shower for three weeks.</p>
-        <p><strong>852 Hz</strong>, la, belongs to the third eye. The practice gives it intuition and a return to spiritual order, the quiet knowing that shows up once the mental chatter finally sits down and takes its coat off.</p>
-        <p>And at the top, <strong>963 Hz</strong>. The crown. Some call it the frequency of the gods. Its job is oneness: the feeling of belonging to something larger than your to-do list, of being one wave in a very big sea.</p>
+        <h2>What the high tones are said to be for</h2>
+        <p>741 Hz, sol, is assigned to the throat, and to expression, clarity, and solving problems.</p>
+        <p>852 Hz, la, is assigned to intuition and to what the practice calls a return to spiritual order.</p>
+        <p>963 Hz is assigned to the crown of the head, and to a feeling of oneness or belonging to something larger than a task list.</p>
 
-        <h2>Choosing a tone</h2>
-        <p>Here is the funny part. Lay all nine on a counter and almost everyone reaches for 528 first. Of course they do. Love is a flattering thing to shop for. Nobody walks in and says, I will take the guilt one, please.</p>
-        <p>Now imagine the shopkeeper sets out only three forks. A shiny 528 for love. A 396 for fear and guilt. And a third, another 528, with a dent in the stem and a sticker that says seconds. Suddenly the shiny 528 looks like the sensible, grown-up choice, and the 396 slips quietly out of the conversation. The dented fork did nothing except make one option feel safer to pick. We do this with restaurants, with flats, with partners. Why would our insides be any different?</p>
-        <p>The tradition seems to know this about us. It puts fear and guilt low on the ladder, below love, as if the road up has to pass through the thing we would rather skip. Guido’s singers asked for the same release a thousand years ago: wash the guilt from our lips first, and then we will sing.</p>
-        <p>So if you press one, press the one that names your actual week. 174 when the body is tight. 285 when you are worn thin. 396 when fear is running the room. 417 when you are stuck. 528 when you want warmth. 639 when someone you love feels far away. 741 when the words will not come. 852 when you want to hear yourself think. 963 when you simply want to sit open. Keep the volume low, give it fifteen quiet minutes, and notice what answers.</p>
-        <p>In the version of the shop story I like best, the woman bought the 396. She said love could wait until she had put something else down. I think she understood the chart better than most of us do. A list of nine tones is also a list of nine honest sentences, and the hard part was never the hertz.</p>
+        <h2>How to read the list</h2>
+        <p>Put all nine forks on a counter and many people pick 528 first, because love is an easier label to buy than fear or guilt. If the counter shows a clean 528, a 396, and a damaged second 528, the clean 528 can look like the safe choice, and the 396 can drop out of the choice. The damaged fork changes the comparison. It does not change the pitches.</p>
+        <p>The tradition places fear and guilt below love on the list. Guido's singers asked, about a thousand years earlier, for guilt to be washed away before the singing.</p>
+        <p>If you play one, the tradition's own instruction is to pick the tone that names the week you are actually in. Use 174 when the body is tight, 285 when you are worn out, 396 when fear is the main problem, 417 when you are stuck, 528 when you want warmth, 639 when a relationship feels distant, 741 when the words will not come, 852 when you want a quieter mind, and 963 when you want a wider sense of belonging. Keep the volume low, give the tone about fifteen quiet minutes, and notice what changes. The effect is a personal report, not a measured cure.</p>
+        <p>In one version of the shop story, the woman bought the 396 and said love could wait. A list of nine tones is also a list of nine named problems. The hard step is naming the problem, not reading the number of hertz.</p>
 
-        <p class="taj__closing">Perhaps every tone on the list is the same quiet instruction, sung at a different height: first, name what you are carrying.</p>
+        <p class="taj__closing">Each tone is a different name for a problem or a hope, and the list does not prove that the pitch produces the result.</p>
       </div>
     </article>
 

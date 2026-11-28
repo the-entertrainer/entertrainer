@@ -50,18 +50,18 @@ const references = [
     </figure>
 
     <article class="taj__article">
-      <EdMarginNote label="The cup stays.">
-        <p>What you watched was the visit: it showed up, it sat, it went.</p>
+      <EdMarginNote label="Arrival, staying, and leaving">
+        <p>The cup stays on the step. The tea arrives, stays, and goes. Tajjalan names this way of watching.</p>
       </EdMarginNote>
 
       <div class="taj__prose">
-        <p class="taj__lead">On a cold morning in Varanasi, an old man sits on the steps of a ghat with a clay cup of chai going lukewarm in his hands, and he watches the steam leave as if it owes him money.</p>
-        <p>The tea will not be there in half an hour. First the heat goes, then the tea, and then the little clay cup gets tossed onto a heap of others, to crumble back into the riverbank it was dug from. The cup simply takes longer. Stay with that look for a moment: the visit, rather than the visitor. A very old line has a very short word for exactly this kind of looking.</p>
+        <p class="taj__lead">On a cold morning in Varanasi, an old man sits on the steps of a ghat with a clay cup of chai, and he watches the steam leave.</p>
+        <p>The tea will not be in the cup in half an hour. First the heat goes, then the tea, and then the clay cup can be thrown onto a heap of other cups and return to the riverbank it was made from. The cup lasts longer than the tea. The look worth naming is the visit of the tea, not only the cup that holds it.</p>
 
-        <h2>The word tajjalan</h2>
-        <p>The word is <em>tajjalan</em>. It comes from a short line in the Chāndogya Upaniṣad: all this is Brahman; let a person sit with it calmly as tajjalan.<a href="#ref-1" aria-label="Reference 1">[1]</a> It looks like one word. It is actually four, folded together like a letter that has been riding in someone’s pocket for well over two thousand years.</p>
-        <p><strong>Tat</strong> means That, the ground of everything. <strong>Ja</strong> means born from. <strong>La</strong> means dissolving back into. <strong>An</strong> means breathing, living in. Read through Śaṅkara’s commentary, the word says: whatever shows up is born from That, lives and breathes in That, and goes back into That.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>So tajjalan is not a grand name for God that you are meant to bow to. It is a way of looking at anything you can point at. The tea. The cup. The old man. The river. You. Where did this come from? What is it living in while it is here? Where does it go when it is done? Three questions, folded into one small word.</p>
+        <h2>Four parts inside one word</h2>
+        <p>The word is tajjalan. It comes from a short line in the Chandogya Upanishad. The line says that all this is Brahman, and that a person should sit with it calmly as tajjalan.<a href="#ref-1" aria-label="Reference 1">[1]</a> The word looks single. In Shankara's reading it folds four parts together.</p>
+        <p>Tat means "that," the ground of everything. Ja means "born from." La means "dissolving back into." An means "living in" or "breathing in." Read through Shankara's commentary, the word says that whatever shows up is born from that ground, lives in that ground, and goes back into that ground.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
+        <p>Tajjalan is a way of looking at anything you can point at, including the tea, the cup, the man, the river, and yourself. The three questions are where it came from, what it is in while it is here, and where it goes when it is done.</p>
 
         <figure class="taj__visual taj__visual--wide">
           <EdEditorialImage
@@ -75,11 +75,9 @@ const references = [
           </figcaption>
         </figure>
 
-        <h2>Holy and ordinary</h2>
-        <p>Here is where the old line gets mischievous. Most of us run our lives on a quiet sorting system. Over here, the holy things: the temple lamp, the wedding garland, a grandmother’s prayer book. Over there, the ordinary things: the office mug, the bus ticket, the Tuesday. We would never dream of mixing them up.</p>
-        <p>Picture three cups on a shelf. A silver cup that comes out once a year for a festival. A plain steel tumbler from your kitchen. And the same steel tumbler with a crack down its side. Ask which one is sacred and everyone points at the silver. Ask which one is ordinary and the cracked tumbler makes the plain one look positively respectable, while quietly confirming that the silver cup belongs to another world entirely. The cracked cup is doing all the work. It is there only to make the sorting feel natural.</p>
-        <p>Tajjalan politely declines to sort. If every one of those cups was born from the same ground, lives in it and goes back into it, then the line between the festival and the Tuesday starts to look less like a fact about the world and more like a habit of the eye. The silver cup is not made less holy. The steel tumbler is simply not less.</p>
-        <p>It sounds grown-up to say that mind is one thing and matter another, and that the two never quite meet. It also misses something you already know from living. Everything you have ever known reached you as experience: a sound, a colour, a weight, a fear, a love, a stretch of time. You have never once met a world outside that. On this teaching, your living is not a small side story glued onto a dead outside. It is the main stage.</p>
+        <h2>The teaching does not sort objects into holy and ordinary</h2>
+        <p>People often sort objects into two groups. One group holds a temple lamp, a wedding garland, or a prayer book. The other group holds an office mug, a bus ticket, or an ordinary Tuesday. Tajjalan does not make that sort. If each object is born from the same ground, lives in it, and returns to it, the line between a festival object and a Tuesday object is a habit of attention. The teaching does not make the festival object less important. It also does not make the ordinary object a different kind of thing.</p>
+        <p>A common sentence says that mind is one thing and matter is another, and that the two do not meet. Everything a person has known arrived as experience, including a sound, a colour, a weight, a fear, a love, and a stretch of time. On this teaching, that living experience is not a side note added to a world outside it.</p>
 
         <figure class="taj__visual taj__visual--palm">
           <EdEditorialImage
@@ -93,10 +91,10 @@ const references = [
           </figcaption>
         </figure>
 
-        <h2>Śāṇḍilya’s teaching</h2>
-        <p>The line belongs to Chāndogya Upaniṣad 3.14.1, in the teaching of a sage called Śāṇḍilya.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-3" aria-label="Reference 3">[3]</a> The four-part reading is how Śaṅkara opens the word; other teachers read it differently. The text is old. The look it asks for is available on any ordinary morning.</p>
-        <p>The instruction is calm on purpose. It does not say shout, or perform, or prove. It says be peaceful, and look. Then, a breath later, the same verse turns sharp. A person, it says, is made of their resolve: as someone sets their will in this world, so they become.<a href="#ref-1" aria-label="Reference 1">[1]</a> What you keep treating as true slowly becomes the shape of your life. Your picture of reality is not decoration. It is training.</p>
-        <p>Treat the world as dead stuff you are passing through, and you will live like a passer-by. Treat what appears as belonging to one living ground, and you start watching differently. You can try it on a single breath. There was a waiting before it. There is a moving while it lasts. There is a going when it ends. Ask what the breath is appearing in. Stay a little longer than habit wants.</p>
+        <h2>The line is Chandogya Upanishad 3.14.1</h2>
+        <p>The line belongs to Chandogya Upanishad 3.14.1, in the teaching of a sage called Shandilya.<a href="#ref-1" aria-label="Reference 1">[1]</a><a href="#ref-3" aria-label="Reference 3">[3]</a> The four-part reading is how Shankara opens the word. Other teachers read the word differently. The text is old. The look it asks for can be tried on an ordinary morning.</p>
+        <p>The instruction is calm on purpose. It does not say to shout, perform, or prove. It says to be peaceful, and to look. The same verse then says that a person is made of their resolve. As someone sets their will in this world, so they become.<a href="#ref-1" aria-label="Reference 1">[1]</a> What you keep treating as true becomes the shape of how you live.</p>
+        <p>You can try the look on one breath. There is a wait before the breath, a movement while it lasts, and an end when it stops. The question is what the breath is appearing in.</p>
 
         <figure class="taj__visual taj__visual--wide">
           <EdEditorialImage
@@ -110,14 +108,14 @@ const references = [
           </figcaption>
         </figure>
 
-        <p>One small fact before the chai goes completely cold: tajjalan does not ask anyone to leave ordinary life. The cup stays a cup. The Tuesday stays a Tuesday. The claim is only that the wall between holy and ordinary may be much thinner than it feels.</p>
+        <p>Tajjalan does not ask anyone to leave ordinary life. The cup stays a cup, and a Tuesday stays a Tuesday. The claim is that the wall between holy and ordinary may be thinner than it feels.</p>
 
         <blockquote>
-          <p>Whatever shows up is born from That, lives and breathes in That, and goes back into That.</p>
+          <p>Whatever shows up is born from that ground, lives in that ground, and goes back into that ground.</p>
         </blockquote>
 
-        <p class="taj__closing">The old man finishes his chai and sets the cup down on the step, and for a moment it is hard to say which of them is visiting which.</p>
-        <p>Sit with that. Do not force an answer. See what the morning does with it.</p>
+        <p class="taj__closing">The man finishes the chai and sets the cup down, and the tea has already started to leave.</p>
+        <p>The verse asks for a calm look at that leaving. It does not ask for a forced conclusion.</p>
       </div>
     </article>
 

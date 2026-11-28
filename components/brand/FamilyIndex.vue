@@ -22,9 +22,9 @@ const verb = computed(() => props.members[0]?.kind === 'game' ? 'Play' : 'Open')
 <template>
   <ol ref="root" class="fi" :class="`fi--${tone}`">
     <li v-for="(m, i) in members" :key="m.id" class="fi__row">
-      <NuxtLink :to="m.href" class="fi__link" :data-cursor="verb">
+      <NuxtLink :to="m.href" class="fi__link" :data-cursor="verb" @click="haptic(8)">
         <span class="fi__no br-meta">0{{ i + 1 }}</span>
-        <BrandMark :id="m.id" :size="88" :tone="tone === 'sun' ? 'ink' : 'sun'" class="fi__mark" />
+        <BrandMark :id="m.id" :size="88" :tone="tone === 'sun' ? 'ink' : 'sun'" class="fi__mark vt-mark" :style="{ '--vt': `mark-${m.id}` }" />
         <span class="fi__name br-display">{{ m.name }}</span>
         <span class="fi__copy">
           <span class="fi__line">{{ m.line }}</span>
@@ -65,8 +65,11 @@ const verb = computed(() => props.members[0]?.kind === 'game' ? 'Play' : 'Open')
   .fi__copy { grid-column: 2 / -1; }
   .fi__meta { grid-column: 2 / -1; justify-items: start; grid-auto-flow: column; justify-content: space-between; }
 }
+@media (hover: none) { .fi__link:active::before { transform: scaleY(1); } .fi--ink .fi__link:active { color: var(--br-paper); } }
 @media (max-width: 560px) {
-  .fi__link { grid-template-columns: auto 1fr; }
+  .fi__link { grid-template-columns: auto 1fr; gap: 10px 16px; padding: 18px 4px; }
+  .fi__name { font-size: clamp(48px, 15vw, 72px); }
+  .fi__dek { display: none; }
   .fi__no { display: none; }
   .fi__copy, .fi__meta { grid-column: 1 / -1; }
 }

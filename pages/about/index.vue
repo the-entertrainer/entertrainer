@@ -62,6 +62,15 @@ const marriottPhotos: PhotoTileItem[] = [
   }
 ]
 
+/* From the first About page (June 2026), in Naveen's words. */
+const TIMELINE = [
+  { when: '2026 · now', role: 'Asst Manager, Training & Quality', where: 'Concentrix' },
+  { when: '2024 · 2026', role: 'Asst Manager, Learning & Development', where: 'Courtyard by Marriott' },
+  { when: '2022 · 2024', role: 'CMET, Learning & Development', where: 'Club Mahindra · created The SEWA Chronicles' },
+  { when: 'Foundation', role: 'BSc Hotel Management', where: 'IHM Chennai' }
+]
+const TOOLKIT = ['Articulate Storyline 360', 'Adobe Suite', 'After Effects', 'Vyond', 'Canva', 'Storyboarding', 'Bloom’s Taxonomy', 'Andragogy', 'SCORM']
+
 /* The journey, as stations along an ink line. Facts only, from the story below. */
 const STATIONS = ['Kerala village', 'Club Mahindra', 'The SEWA Chronicles', 'Marriott', 'Concentrix', 'Entertrainer']
 
@@ -70,8 +79,16 @@ const { run } = useMotion(root)
 onMounted(() => {
   void run((m) => {
     const tl = m.gsap.timeline()
-    tl.add(m.inkReveal(root.value!.querySelectorAll('.about-story__kicker, .about-story h1'), { y: 21 * m.d }), 0)
-    tl.add(m.develop(root.value!.querySelector('.about-story__hero-art')!), 0.1)
+    if (!m.late) {
+      tl.from(root.value!.querySelectorAll('.ab-hero__name .br-mask > span'), { yPercent: 105 * m.d, duration: 1.1 * m.k, ease: 'ink', stagger: 0.1 * m.k, clearProps: 'transform' }, 0)
+      tl.from(root.value!.querySelector('.ab-hero__sun'), { scale: 0.4, autoAlpha: 0, duration: 1.4 * m.k, ease: 'sun', clearProps: 'all' }, 0.15)
+    }
+    tl.add(m.inkReveal(root.value!.querySelectorAll('.ab-hero__k > *, .ab-hero__foot > *'), { y: 21 * m.d }), 0.3)
+    if (m.level === 'full') {
+      m.gsap.to(root.value!.querySelector('.ab-hero__name-2'), { xPercent: -12, ease: 'none', scrollTrigger: { trigger: '.ab-hero', start: 'top top', end: 'bottom top', scrub: true } })
+      m.gsap.to(root.value!.querySelector('.ab-hero__sun'), { yPercent: 18, rotate: 6, ease: 'none', scrollTrigger: { trigger: '.ab-hero', start: 'top top', end: 'bottom top', scrub: true } })
+    }
+    m.ScrollTrigger.batch(root.value!.querySelectorAll('.ab-time li, .ab-kit li'), { start: 'top 90%', once: true, onEnter: els => { m.inkReveal(els, { y: 20 * m.d, stagger: 0.06 * m.k }) } })
     tl.add(m.drawRule(root.value!.querySelectorAll('.about-route__line')), 0.3)
     tl.add(m.stampIn(root.value!.querySelectorAll('.about-route__stop i')), 0.5)
     const line = root.value!.querySelector('.about-story__thread')
@@ -95,17 +112,24 @@ onMounted(() => {
 
 <template>
   <div ref="root" class="about-story">
-    <header class="about-story__hero">
-      <div class="about-story__intro">
-        <p class="about-story__kicker dp-kicker">About me · Naveen Jose</p>
-        <h1>I am Naveen. I’m an instructional designer.</h1>
+    <header class="ab-hero">
+      <p class="ab-hero__k br-meta"><span>About me</span><span>Naveen Jose · CIDS certified</span></p>
+      <div class="ab-hero__stage">
+        <p class="ab-hero__name br-display" aria-hidden="true">
+          <span class="br-mask"><span>Naveen</span></span>
+          <span class="br-mask ab-hero__name-2"><span>Jose</span></span>
+        </p>
+        <figure class="ab-hero__sun about-story__hero-art">
+          <EdEditorialImage
+            src="/about/naveen-portrait.jpg"
+            alt="Illustrated portrait of Naveen Jose in ink on cream paper, adjusting sunglasses."
+          />
+        </figure>
       </div>
-      <figure class="about-story__hero-art">
-        <EdEditorialImage
-          src="/about/naveen-portrait.jpg"
-          alt="Illustrated portrait of Naveen Jose in ink on cream paper, adjusting sunglasses."
-        />
-      </figure>
+      <div class="ab-hero__foot">
+        <h1>I am Naveen. I’m an instructional designer.</h1>
+        <p class="ab-hero__lede">Born in hospitality. Hardwired for storytelling. Certified in instructional design. I build learning that doesn’t feel like training at all.</p>
+      </div>
     </header>
 
     <ol class="about-route" aria-label="The route so far">
@@ -261,6 +285,24 @@ onMounted(() => {
       </p>
         </article>
 
+    <section class="ab-notes" aria-labelledby="ab-notes-t">
+      <p class="br-meta ab-notes__k">From the first version of this page</p>
+      <h2 id="ab-notes-t" class="ab-notes__t br-display">“Entertrainer” is not a typo. It’s a manifesto.</h2>
+      <div class="ab-notes__grid">
+        <div class="ab-notes__col">
+          <p class="ab-notes__p">Entertain + Train. If it doesn’t hold attention, it can’t transfer knowledge. I design every piece of learning with the questions a filmmaker asks: does this moment matter? Will they remember this scene? What does the learner feel here?</p>
+          <p class="ab-notes__p">Anchored in Bloom’s taxonomy and adult learning principles, but dressed in storytelling, motion and craft. The method is rigorous. The experience is anything but dry.</p>
+        </div>
+        <ol class="ab-time">
+          <li v-for="t in TIMELINE" :key="t.when"><span class="br-meta">{{ t.when }}</span><b>{{ t.role }}</b><span>{{ t.where }}</span></li>
+        </ol>
+      </div>
+      <div class="ab-kit">
+        <p class="br-meta">The toolkit</p>
+        <ul><li v-for="k in TOOLKIT" :key="k">{{ k }}</li></ul>
+      </div>
+    </section>
+
     <footer class="about-story__close">
       <NuxtLink :to="`/elevate/${FEATURED_BLOG.slug}`" class="about-story__destination about-story__destination--elevate" aria-labelledby="elevate-preview-title" aria-describedby="elevate-preview-description">
         <figure class="about-story__destination-visual">
@@ -277,6 +319,40 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.ab-hero { margin-inline: calc(50% - 50vw); padding: 0 var(--hub-gutter) clamp(40px, 6vw, 80px); border-bottom: 3px solid var(--ink); }
+.ab-hero__k { display: flex; justify-content: space-between; gap: 16px; border-top: 3px solid var(--ink); padding-top: 10px; margin: 0; }
+.ab-hero__stage { position: relative; margin-top: clamp(20px, 4vw, 48px); }
+.ab-hero__name { margin: 0; font-size: clamp(88px, 23vw, 420px); line-height: .8; letter-spacing: -.06em; position: relative; z-index: 2; mix-blend-mode: multiply; }
+.ab-hero__name-2 { text-align: right; }
+.ab-hero__sun.about-story__hero-art { position: absolute; z-index: 1; right: 22%; top: 50%; translate: 0 -50%; width: clamp(180px, 30vw, 520px); max-width: none; aspect-ratio: 1; border-radius: 50%; background: var(--br-sun); box-shadow: 0 0 0 clamp(8px, 1.2vw, 18px) var(--br-sun); margin: 0; }
+.ab-hero__sun.about-story__hero-art :deep(img), .ab-hero__sun.about-story__hero-art :deep(.ed-editorial-image) { border-radius: 50%; filter: grayscale(1) contrast(1.1); mix-blend-mode: multiply; }
+.ab-hero__foot { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: end; margin-top: clamp(24px, 4vw, 56px); }
+.about-story .ab-hero__foot h1 { margin: 0; max-width: 14ch; font-size: clamp(36px, 4.4vw, 72px); }
+.ab-hero__lede { margin: 0; font: 400 clamp(19px, 1.6vw, 24px)/1.4 var(--font-ui); max-width: 38ch; justify-self: end; }
+@media (max-width: 760px) {
+  .ab-hero__sun.about-story__hero-art { position: relative; right: auto; top: auto; translate: none; width: 64vw; margin: 6vw auto 0; }
+  .ab-hero__foot { grid-template-columns: 1fr; }
+  .ab-hero__lede { justify-self: start; }
+}
+html[data-theme="dark"] .ab-hero__name { mix-blend-mode: normal; }
+
+.ab-notes { margin: clamp(64px, 10vw, 140px) calc(50% - 50vw) 0; padding: clamp(64px, 9vw, 130px) var(--hub-gutter); background: var(--br-ink); color: var(--br-paper); }
+.ab-notes__k { color: var(--br-sun); margin: 0 0 20px; }
+.ab-notes__t { font-size: clamp(44px, 7vw, 128px); margin: 0; max-width: 12ch; }
+.ab-notes__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 6vw, 96px); margin-top: clamp(36px, 5vw, 72px); }
+@media (max-width: 860px) { .ab-notes__grid { grid-template-columns: 1fr; } }
+.ab-notes__p { font: 400 clamp(19px, 1.6vw, 24px)/1.5 var(--font-reading); margin: 0 0 20px; max-width: 46ch; opacity: .9; }
+.ab-time { list-style: none; margin: 0; padding: 0; border-top: 1px solid color-mix(in srgb, var(--br-paper) 30%, transparent); }
+.ab-time li { display: grid; grid-template-columns: 120px 1fr; gap: 4px 20px; padding: 18px 0; border-bottom: 1px solid color-mix(in srgb, var(--br-paper) 30%, transparent); }
+.ab-time li .br-meta { grid-row: span 2; color: var(--br-sun); padding-top: 6px; }
+.ab-time b { font: 400 clamp(22px, 2vw, 30px)/1.1 var(--font-display); letter-spacing: -.015em; }
+.ab-time li > span:last-child { opacity: .65; }
+.ab-kit { margin-top: clamp(40px, 6vw, 80px); }
+.ab-kit .br-meta { opacity: .6; margin: 0 0 14px; }
+.ab-kit ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.ab-kit li { border: 1px solid color-mix(in srgb, var(--br-paper) 35%, transparent); border-radius: 999px; padding: 10px 16px; font-size: 15px; }
+.ab-kit li:hover { background: var(--br-sun); color: var(--br-ink); border-color: var(--br-sun); }
+
 .about-story { max-width: var(--shell-max); margin: 0 auto; padding: var(--space-55) var(--shell-gutter) var(--space-89); }
 .about-story__hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260rem, .85fr); gap: var(--space-55); align-items: end; padding-bottom: var(--space-55); border-bottom: var(--stroke) solid var(--ink); }
 .about-story h1 { max-width: 15ch; margin: var(--space-13) 0 0; font: 400 clamp(44px, 5.6vw, 88px)/.92 var(--font-display); font-variation-settings: "opsz" 144, "SOFT" 40, "WONK" 1; letter-spacing: -.04em; }

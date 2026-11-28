@@ -21,25 +21,25 @@ export interface IndexEntry {
 const PAGES: IndexEntry[] = [
   { id: 'p-home', kind: 'Page', title: 'Front page', hint: 'Elevate, Empower, Engage', href: '/' },
   { id: 'p-elevate', kind: 'Page', title: 'Elevate', hint: 'Plain-language essays: Mind, Universe, Science, Technology', href: '/elevate', keywords: 'blog essays reading must' },
-  { id: 'p-empower', kind: 'Page', title: 'Empower', hint: 'Free tools for L&D work', href: '/empower', keywords: 'tools ai' },
-  { id: 'p-engage', kind: 'Page', title: 'Engage', hint: 'Small games and detours', href: '/engage', keywords: 'games play' },
+  { id: 'p-empower', kind: 'Page', title: 'Empower', hint: 'Free apps for people who train people', href: '/empower', keywords: 'tools ai' },
+  { id: 'p-engage', kind: 'Page', title: 'Engage', hint: 'Games about how we learn', href: '/engage', keywords: 'games play' },
   { id: 'p-about', kind: 'Page', title: 'About me', hint: 'Naveen Jose: the longer route behind Entertrainer', href: '/about', keywords: 'naveen story kerala marriott club mahindra concentrix' },
   { id: 'p-colophon', kind: 'Page', title: 'Colophon', hint: 'How this site is built: type, colour, motion', href: '/colophon', keywords: 'design system fonts tokens' },
   { id: 'p-lessons', kind: 'Page', title: 'Lessons', hint: 'Short lessons', href: '/lessons' }
 ]
 
+// The current family (content/family.ts). Older tools and games stay at their
+// URLs but are unlisted, so they are not offered here.
 const TOOLS: IndexEntry[] = [
-  { id: 't-easymcq', kind: 'Tool', title: 'EasyMCQ', hint: 'Three believable wrong options for a quiz question', href: '/tools/easymcq', keywords: 'mcq quiz distractor question moodle gift aiken' },
-  { id: 't-draftly', kind: 'Tool', title: 'Draftly', hint: 'Turn a rough email into a clear one', href: '/tools/better-emails', keywords: 'email polish rewrite better emails' },
-  { id: 't-cadence', kind: 'Studio', title: 'Cadence', hint: 'Plan a month of training sessions', href: '/tools/cadence', keywords: 'calendar training schedule pptx ics' },
-  { id: 't-storygen', kind: 'Studio', title: 'StoryGen', hint: 'Storyboard a course on an open canvas', href: '/tools/storygen', keywords: 'storyboard canvas course design word excel' },
-  { id: 't-dialogue', kind: 'Studio', title: 'Dialogue', hint: 'Make a vertical comic in the browser', href: '/dialogue/', keywords: 'comic webtoon panels' }
+  { id: 't-aim', kind: 'Tool', title: 'Aim', hint: 'Write a learning objective you can measure', href: '/empower/aim', keywords: 'objective bloom verb abcd outcome' },
+  { id: 't-plain', kind: 'Tool', title: 'Plain', hint: 'See where an instruction will trip people', href: '/empower/plain', keywords: 'clarity readability plain language sop' },
+  { id: 't-cue', kind: 'Tool', title: 'Cue', hint: 'Plan a session minute by minute', href: '/empower/cue', keywords: 'session plan gagne agenda run of show' }
 ]
 
 const GAMES: IndexEntry[] = [
-  { id: 'g-stack', kind: 'Game', title: 'Stack', hint: 'Tap to drop. Only the overlap stays.', href: '/engage/stack', keywords: 'game tower blocks' },
-  { id: 'g-mind', kind: 'Game', title: 'The Mind Reader', hint: 'A digit-sum trick, and how it works', href: '/engage/read-my-mind', keywords: 'magic trick maths number' },
-  { id: 'g-astro', kind: 'Game', title: 'AstroClock', hint: 'Birth place and time. A live dial.', href: '/engage/astroclock', keywords: 'astrology sky clock zodiac' }
+  { id: 'g-ladder', kind: 'Game', title: 'Ladder', hint: 'Put each verb on the right rung of Bloom’s ladder', href: '/engage/ladder', keywords: 'bloom game verbs' },
+  { id: 'g-pairs', kind: 'Game', title: 'Pairs', hint: 'A memory game where the cards are ideas', href: '/engage/pairs', keywords: 'memory match learning science' },
+  { id: 'g-steps', kind: 'Game', title: 'Steps', hint: 'Shuffled steps. Put them back in order.', href: '/engage/steps', keywords: 'sequence order procedure puzzle' }
 ]
 
 const COURSES: IndexEntry[] = [

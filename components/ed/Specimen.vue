@@ -168,5 +168,5 @@ onBeforeUnmount(() => { mo?.disconnect(); clearTimeout(t) })
 .sp__c-name { font: 600 var(--type-card, 20rem)/1.1 var(--font-display); }
 .sp__c-use { font-size: 14rem; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .sp__curve.is-on .sp__track i { transition: none; } }
-:global(html[data-reduce-motion="on"]) .sp__curve.is-on .sp__track i { transition: none; }
+html[data-reduce-motion="on"] .sp__curve.is-on .sp__track i { transition: none; }
 </style>

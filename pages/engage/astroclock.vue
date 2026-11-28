@@ -159,7 +159,7 @@ onUnmounted(() => {
   background: #0b0c10;
   overflow: hidden;
 }
-:global(html[data-theme='light']) .astroclock-host {
+html[data-theme='light'] .astroclock-host {
   background: #f4f1ea;
 }
 </style>

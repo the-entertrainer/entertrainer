@@ -119,6 +119,7 @@ onMounted(() => nextTick(play))
         </h1>
         <div class="hx__foot">
           <p class="hx__lede">Learning people actually remember. Built by a hotel kid who found out training works better when it feels like a story.</p>
+          <BrandSunQuote class="hx__quote" />
           <span class="br-meta hx__scroll" aria-hidden="true">Scroll <i /></span>
         </div>
       </div>
@@ -221,7 +222,11 @@ onMounted(() => nextTick(play))
 .hx__word--b { justify-self: end; }
 .hx__word--b > span { display: inline-flex; align-items: baseline; }
 .hx__plus { font-style: normal; font-size: .5em; margin-right: .12em; display: inline-block; color: var(--ink); transform-origin: 50% 60%; }
-.hx__foot { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
+.hx__foot { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, min(540px, 42vw)) minmax(0, 1fr); align-items: end; gap: 24px; }
+.hx__scroll { justify-self: end; }
+.hx__quote { grid-column: 2; grid-row: 1; }
+.hx__lede { grid-column: 1; grid-row: 1; }
+.hx__scroll { grid-column: 3; grid-row: 1; }
 .hx__lede { max-width: 34ch; margin: 0; font: 400 clamp(17px, 1.4vw, 21px)/1.4 var(--font-ui); }
 .hx__scroll { display: inline-flex; align-items: center; gap: 10px; }
 .hx__scroll i { width: 1px; height: 44px; background: var(--ink); transform-origin: top; animation: hx-drip 2.2s var(--br-ease-io) infinite; }
@@ -230,7 +235,8 @@ onMounted(() => nextTick(play))
   .hx__stick { height: auto; min-height: calc(100svh - 52px - 84px); padding-top: 20px; padding-bottom: 20px; gap: 18px; }
   .hx__sun-track { width: 92vw; top: 44%; }
   .hx__title { font-size: clamp(64px, 21vw, 140px); }
-  .hx__foot { flex-direction: column; align-items: flex-start; }
+  .hx__foot { display: flex; flex-direction: column; align-items: stretch; gap: 16px; }
+  .hx__quote { order: -1; }
   .hx__scroll { display: none; }
 }
 

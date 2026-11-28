@@ -39,9 +39,29 @@ function shouldRunPreloader(path: string) {
   }
   return true
 }
-const showPreloader = ref(shouldRunPreloader(r.path))
+// SSR-stable first value: the server cannot read sessionStorage, so both
+// sides start from the path alone and the client corrects it on mount. An
+// inline head script adds html.pl-skip before paint for returning visitors,
+// so the gate never flashes (see nuxt.config.ts and the style block below).
+const showPreloader = useState<boolean>('dp-preloader', () => r.path === '/')
+/** Where the ident's rings and wordmark sat when it ended: the home hero
+ *  Flips its own rings and the masthead wordmark from these rects. */
+const handoff = useState<{ rings: DOMRectLike | null; word: DOMRectLike | null } | null>('dp-handoff', () => null)
+type DOMRectLike = { x: number; y: number; width: number; height: number }
+
+function rectOf(sel: string): DOMRectLike | null {
+  const el = document.querySelector(sel)
+  if (!el) return null
+  const b = el.getBoundingClientRect()
+  if (!b.width || !b.height) return null
+  return { x: b.x, y: b.y, width: b.width, height: b.height }
+}
 
 function onPreloaderComplete() {
+  markFreshStage()
+  if (import.meta.client) {
+    handoff.value = { rings: rectOf('.preloader__rings'), word: rectOf('.preloader__brand-shell') }
+  }
   showPreloader.value = false
   if (!import.meta.client) return
   try {
@@ -93,6 +113,7 @@ const bare = computed(() =>
 onMounted(() => {
   theme.init()
   siteSettings.hydrate()
+  if (showPreloader.value && !shouldRunPreloader(r.path)) showPreloader.value = false
 })
 onBeforeUnmount(() => theme.dispose())
 </script>
@@ -102,7 +123,7 @@ onBeforeUnmount(() => theme.dispose())
     <EdPreloader v-if="showPreloader" @complete="onPreloaderComplete" />
     <EdDailyWordSplash v-if="!bare" />
     <EdSettingsPanel />
-    <div v-show="!showPreloader" :inert="showPreloader ? '' : undefined">
+    <div v-show="!showPreloader" class="dp-site" :inert="showPreloader ? '' : undefined">
       <template v-if="bare">
         <EdSeedMark class="bare-seed" :size="28" />
         <NuxtPage />
@@ -119,10 +140,14 @@ onBeforeUnmount(() => theme.dispose())
 
       <div class="u-grain" aria-hidden="true" />
     </div>
+    <div class="dp-wipe" aria-hidden="true" />
+    <EdIndexPalette />
   </div>
 </template>
 
 <style>
+html.pl-skip .preloader { display: none !important; }
+html.pl-skip .dp-site { display: block !important; }
 #app-root { min-height: 100dvh; background: var(--paper); display: flex; flex-direction: column; }
 #main { flex: 1; }
 .bare-seed {

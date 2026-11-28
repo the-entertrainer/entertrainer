@@ -241,7 +241,12 @@ function playAgain() {
   buildRound()
   step.value = 1
   revealed.value = false
+  howOpen.value = false
 }
+
+/* The honest bit: after the reveal, show the trick. */
+const howOpen = ref(false)
+const isForced = (n: number) => n > 0 && n % 9 === 0 && n <= 81
 
 function onThemeToggle(e: Event) {
   e.stopPropagation()
@@ -375,6 +380,7 @@ onMounted(() => {
                 v-for="card in cards"
                 :key="`${roundNumber}-${card.number}`"
                 class="mr__cell"
+                :class="{ 'mr__cell--forced': howOpen && isForced(card.number) }"
                 role="gridcell"
                 :aria-label="`Number ${card.number}, ${card.symbol.label}`"
               >
@@ -403,6 +409,11 @@ onMounted(() => {
               <button class="mr__cta mr__anim" style="--i:2" type="button" @click="playAgain">
                 Again
               </button>
+              <details class="mr__how mr__anim" style="--i:3" @toggle="howOpen = ($event.target as HTMLDetailsElement).open">
+                <summary>How did that work?</summary>
+                <p>Write any two-digit number as tens and ones: 42 is 4 tens and 2 ones. Taking away 4 + 2 leaves 4 × 9 = 36. That happens for every number from 10 to 99, so the answer is always 9, 18, 27, 36, 45, 54, 63, 72 or 81.</p>
+                <p>Every one of those squares carries the same mark. They are outlined on the board now. The other marks are decoration.</p>
+              </details>
             </div>
           </div>
         </article>
@@ -412,6 +423,11 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.mr__how { margin-top: 18rem; max-width: 46ch; text-align: left; font: 400 15rem/1.55 var(--font-reading, Georgia, serif); }
+.mr__how summary { cursor: pointer; font: 700 13rem/1.2 var(--font-mono, monospace); letter-spacing: .06em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3rem; }
+.mr__how p { margin: 10rem 0 0; }
+.mr__cell--forced { outline: 2.5px solid var(--mr-ink); outline-offset: -3px; background: color-mix(in srgb, var(--mr-yellow) 45%, transparent) !important; }
+
 .mr {
   --mr-paper: #fbf8ef;
   --mr-ink: #161618;

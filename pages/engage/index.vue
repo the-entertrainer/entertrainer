@@ -12,54 +12,117 @@ const MIND_READER_SYMBOLS = [
   '<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2" fill="currentColor"/>',
   '<path d="m12 2 1.8 7.2L21 11l-7.2 1.8L12 20l-1.8-7.2L3 11l7.2-1.8L12 2Z" fill="currentColor"/>'
 ]
+
+const GAMES = [
+  { no: '01', id: 'stack', name: 'Stack', href: '/engage/stack', blurb: 'Tap to drop. Only the overlap stays.', orbit: 0 },
+  { no: '02', id: 'mind-reader', name: 'The Mind Reader', href: '/engage/read-my-mind', blurb: 'Example: 42. Add 4 + 2, subtract, and the mark is on 36.', orbit: 1 },
+  { no: '03', id: 'astroclock', name: 'AstroClock', href: '/engage/astroclock', blurb: 'Birth place and time. A live dial. What today is doing.', orbit: 2 }
+] as const
+
+/* The orrery: three orbits around the sun, one body per game. Pointing at a
+   card lights its body and draws its orbit. */
+const lit = ref<number | null>(null)
+const ORBITS = [
+  { rx: 96, ry: 40, dur: 14, start: 20 },
+  { rx: 156, ry: 66, dur: 22, start: 200 },
+  { rx: 214, ry: 92, dur: 34, start: 110 }
+]
+const r1 = (n: number) => Math.round(n * 10) / 10
+const pos = (o: typeof ORBITS[number], deg: number) => ({ x: r1(Math.cos(deg * Math.PI / 180) * o.rx), y: r1(Math.sin(deg * Math.PI / 180) * o.ry) })
+const bodies = ref(ORBITS.map(o => pos(o, o.start)))
+let raf = 0
+let t0 = 0
+function tick(t: number) {
+  if (!t0) t0 = t
+  const s = (t - t0) / 1000
+  bodies.value = ORBITS.map(o => pos(o, o.start + (s / o.dur) * 360))
+  raf = requestAnimationFrame(tick)
+}
+function onVis() {
+  cancelAnimationFrame(raf)
+  if (document.visibilityState === 'visible' && motionLevel() !== 'off') raf = requestAnimationFrame(tick)
+}
+onMounted(() => {
+  onVis()
+  document.addEventListener('visibilitychange', onVis)
+})
+onBeforeUnmount(() => {
+  cancelAnimationFrame(raf)
+  document.removeEventListener('visibilitychange', onVis)
+})
+
+const root = ref<HTMLElement | null>(null)
+const { run } = useMotion(root)
+onMounted(() => {
+  void run((m) => {
+    m.drawPath(root.value!.querySelectorAll('.orrery__orbit'), { duration: 1.6 * m.k, stagger: 0.18 * m.k })
+    m.stampIn(root.value!.querySelectorAll('.orrery__sun, .orrery__body'), { delay: 0.6 * m.k, stagger: 0.12 * m.k, transformOrigin: '50% 50%' })
+    m.ScrollTrigger.batch(root.value!.querySelectorAll('.engage__step'), {
+      start: 'top 92%', once: true,
+      onEnter: els => { m.inkReveal(els, { y: 34 * m.d, stagger: 0.1 * m.k }) }
+    })
+  })
+})
 </script>
 
 <template>
-  <div class="engage">
-    <EdStageHero
-      variant="orbits"
+  <div ref="root" class="engage">
+    <EdHubHero
       title="Engage"
       title-id="engage-title"
-    />
+      no="03"
+      kicker="3 games · Short detours"
+      deck="Short games and little detours."
+    >
+      <template #art>
+        <svg class="orrery" viewBox="-240 -120 480 240" :class="{ 'has-lit': lit !== null }">
+          <g v-for="(o, i) in ORBITS" :key="i" class="orrery__system" :class="{ 'is-lit': lit === i }">
+            <ellipse class="orrery__orbit" cx="0" cy="0" :rx="o.rx" :ry="o.ry" />
+            <ellipse class="orrery__trace" cx="0" cy="0" :rx="o.rx" :ry="o.ry" pathLength="100" />
+            <circle class="orrery__body" :cx="bodies[i]!.x" :cy="bodies[i]!.y" :r="i === 2 ? 11 : i === 1 ? 9 : 7" />
+          </g>
+          <circle class="orrery__sun" cx="0" cy="0" r="30" />
+          <circle class="orrery__core" cx="0" cy="0" r="4" />
+        </svg>
+      </template>
+    </EdHubHero>
 
+    <h2 class="dp-sr">Games</h2>
     <ol class="engage__grid">
-      <li class="engage__step" style="--step: 0">
-        <NuxtLink to="/engage/stack" class="engage__card engage__card--stack">
-          <span class="engage__icon engage__icon--stack" aria-hidden="true">
+      <li class="engage__step">
+        <NuxtLink :to="GAMES[0].href" class="engage__card engage__card--stack" @pointerenter="lit = 0" @pointerleave="lit = null" @focus="lit = 0" @blur="lit = null">
+          <span class="engage__stage" aria-hidden="true">
+            <span class="engage__icon engage__icon--stack" aria-hidden="true">
             <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
               <rect x="8" y="30" width="32" height="8" fill="currentColor"/>
               <rect x="12" y="20" width="24" height="8" fill="currentColor"/>
               <rect x="16" y="10" width="16" height="8" fill="var(--accent)" stroke="currentColor" stroke-width="2"/>
             </svg>
           </span>
-          <span class="engage__card-text">
-            <span class="engage__step-no">01</span><strong class="engage__card-name">Stack</strong>
-            <span class="engage__card-blurb">Tap to drop. Only the overlap stays.</span>
           </span>
-          <span class="engage__card-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
-          </span>
+          <span class="engage__step-no">{{ GAMES[0].no }}</span>
+          <strong class="engage__card-name">{{ GAMES[0].name }}</strong>
+          <span class="engage__card-blurb">{{ GAMES[0].blurb }}</span>
+          <span class="engage__play">Play <span aria-hidden="true">→</span></span>
         </NuxtLink>
       </li>
-      <li class="engage__step" style="--step: 1">
-        <NuxtLink to="/engage/read-my-mind" class="engage__card engage__card--mind-reader">
-          <span class="engage__icon engage__icon--mind-reader" aria-hidden="true">
+      <li class="engage__step">
+        <NuxtLink :to="GAMES[1].href" class="engage__card engage__card--mind-reader" @pointerenter="lit = 1" @pointerleave="lit = null" @focus="lit = 1" @blur="lit = null">
+          <span class="engage__stage" aria-hidden="true">
+            <span class="engage__icon engage__icon--mind-reader" aria-hidden="true">
             <i v-for="(symbol, i) in MIND_READER_SYMBOLS" :key="i"><svg viewBox="0 0 24 24" aria-hidden="true" v-html="symbol"></svg></i>
           </span>
-          <span class="engage__card-text">
-            <span class="engage__step-no">02</span><strong class="engage__card-name">The Mind Reader</strong>
-            <span class="engage__card-blurb">Example: 42. Add 4 + 2, subtract, and the mark is on 36.</span>
           </span>
-          <span class="engage__card-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
-          </span>
+          <span class="engage__step-no">{{ GAMES[1].no }}</span>
+          <strong class="engage__card-name">{{ GAMES[1].name }}</strong>
+          <span class="engage__card-blurb">{{ GAMES[1].blurb }}</span>
+          <span class="engage__play">Play <span aria-hidden="true">→</span></span>
         </NuxtLink>
       </li>
-      <li class="engage__step" style="--step: 2">
-        <NuxtLink to="/engage/astroclock" class="engage__card engage__card--astroclock">
-          <span class="engage__icon engage__icon--astroclock" aria-hidden="true">
+      <li class="engage__step">
+        <NuxtLink :to="GAMES[2].href" class="engage__card engage__card--astroclock" @pointerenter="lit = 2" @pointerleave="lit = null" @focus="lit = 2" @blur="lit = null">
+          <span class="engage__stage" aria-hidden="true">
+            <span class="engage__icon engage__icon--astroclock" aria-hidden="true">
             <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden="true">
               <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="1.6" opacity="0.35"/>
               <circle cx="24" cy="24" r="15.5" stroke="currentColor" stroke-width="2.2"/>
@@ -90,14 +153,11 @@ const MIND_READER_SYMBOLS = [
               <circle cx="24" cy="24" r="1.35" fill="var(--accent)"/>
             </svg>
           </span>
-          <span class="engage__card-text">
-            <span class="engage__step-no">03</span><strong class="engage__card-name">AstroClock</strong>
-            <span class="engage__card-blurb">Birth place and time. A live dial. What today is doing.</span>
           </span>
-          <span class="engage__card-arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
-          </span>
+          <span class="engage__step-no">{{ GAMES[2].no }}</span>
+          <strong class="engage__card-name">{{ GAMES[2].name }}</strong>
+          <span class="engage__card-blurb">{{ GAMES[2].blurb }}</span>
+          <span class="engage__play">Play <span aria-hidden="true">→</span></span>
         </NuxtLink>
       </li>
     </ol>
@@ -106,165 +166,100 @@ const MIND_READER_SYMBOLS = [
 
 <style scoped>
 .engage {
-  min-height: calc(100dvh - var(--nav-h));
   max-width: var(--shell-max);
   margin: 0 auto;
-  padding: var(--space-34) var(--shell-gutter) var(--space-89);
+  padding: var(--space-13) var(--hub-gutter) var(--space-89);
 }
 
-.engage__grid {
-  list-style: none;
-  margin: var(--space-21) 0 0;
-  padding: 0;
-  display: grid;
-  gap: var(--space-13);
-}
+/* ── Orrery ── */
+.orrery { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--ink); overflow: visible; }
+.orrery__orbit { fill: none; stroke: currentColor; stroke-width: 1; opacity: .5; }
+.orrery__trace { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset var(--dur-stage) var(--ease-ink); }
+.orrery__system.is-lit .orrery__trace { stroke-dashoffset: 0; }
+.orrery__sun { fill: var(--accent); stroke: var(--ink); stroke-width: 1.5; }
+.orrery__core { fill: var(--ink); }
+.orrery__body { fill: var(--paper); stroke: var(--ink); stroke-width: 2; transition: fill var(--dur-mid) var(--ease-ink); }
+.orrery__system.is-lit .orrery__body { fill: var(--accent); }
+.orrery.has-lit .orrery__system:not(.is-lit) { opacity: .45; }
+.orrery__system { transition: opacity var(--dur-mid) var(--ease-ink); }
+@media (max-width: 899px) { .orrery { inset: 0 10%; width: 80%; } }
+
+/* ── Cards ── */
+.engage__grid { list-style: none; margin: var(--space-34) 0 0; padding: 0; display: grid; gap: var(--space-21); }
+@media (min-width: 900px) { .engage__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
 .engage__card {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) 20rem;
-  align-items: center;
-  gap: var(--space-21);
+  position: relative;
+  display: flex; flex-direction: column; gap: var(--space-8);
+  height: 100%;
   padding: var(--space-21);
-  border: var(--stroke) solid var(--line);
+  border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-m);
   background: var(--paper);
-  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  box-shadow: 6rem 6rem 0 color-mix(in srgb, var(--ink) 14%, transparent);
+  transition: transform var(--dur-mid) var(--ease-ink), box-shadow var(--dur-mid) var(--ease-ink);
 }
-
 @media (hover: hover) {
-  .engage__card:hover { background: var(--paper-2); border-color: var(--ink); transform: translateX(3rem); }
-  .engage__card:hover .engage__card-arrow { transform: translate(2rem, -2rem); }
+  .engage__card:hover { transform: translate(-3rem, -3rem); box-shadow: 10rem 10rem 0 var(--accent), 10rem 10rem 0 1px var(--ink); }
 }
+.engage__card:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 
-.engage__card:focus-visible {
-  outline: 3rem solid var(--focus);
-  outline-offset: 3rem;
+.engage__stage {
+  display: grid; place-items: center;
+  height: 150rem; margin-bottom: var(--space-8);
+  border-radius: var(--radius-s);
+  background: #161618;
+  overflow: hidden;
 }
-
+.engage__card--astroclock .engage__stage { background: var(--accent); }
 .engage__icon {
   position: relative;
-  flex-shrink: 0;
-  width: var(--space-55);
-  height: var(--space-55);
-  padding: var(--space-8);
+  width: 96rem; height: 96rem;
+  padding: 10rem;
   box-sizing: border-box;
-  border-radius: var(--radius-s);
-  background: var(--accent);
-  color: var(--accent-ink);
-  border: var(--stroke) solid var(--ink);
-}
-
-.engage__icon--mind-reader {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: 1rem;
-  padding: 7rem;
   color: #FFD43B;
-  background: #161618;
 }
-
+.engage__icon svg { display: block; width: 100%; height: 100%; }
+.engage__icon--astroclock { color: var(--accent-ink); }
+.engage__icon--mind-reader { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 6rem; width: 132rem; }
 .engage__icon--mind-reader i { display: grid; place-items: center; color: #FFD43B; }
-.engage__icon--mind-reader i:nth-child(2n) { color: var(--accent); }
-.engage__icon--mind-reader i:nth-child(3n) { color: var(--accent); }
-.engage__icon--mind-reader svg {
-  width: 100%;
-  height: 100%;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
+.engage__icon--mind-reader svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
 
-.engage__icon--astroclock {
-  display: grid;
-  place-items: center;
-  padding: 7rem;
-  color: var(--accent-ink);
-  background: var(--accent);
-}
-.engage__icon--astroclock svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.engage__icon--stack {
-  display: grid;
-  place-items: center;
-  padding: 7rem;
-  color: #FFD43B;
-  background: #161618;
-}
-.engage__icon--stack svg { display: block; width: 100%; height: 100%; }
-
-
-.engage__card-text {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4rem 12rem;
-  min-width: 0;
-}
-
-.engage__card-name { font: 500 var(--type-body)/1.2 var(--font-display); flex-shrink: 0; }
-.engage__card-blurb { flex: 1 1 260rem; min-width: 0; font-size: var(--type-small); line-height: 1.4; color: var(--muted); }
-.engage__card-arrow { color: var(--muted); transition: transform var(--dur-fast) var(--ease-out); }
-
-@media (max-width: 640px) {
-  .engage__card { align-items: start; gap: var(--space-13); }
-  .engage__card-arrow { align-self: center; }
-}
-
-/* One card settles before the next starts. 520ms move, 640ms gap. */
-.engage__step {
-  min-height: 0;
-  animation: engage-card-step 520ms var(--ease-out) backwards;
-  animation-delay: calc(var(--step) * 640ms);
-}
-@keyframes engage-card-step {
-  0% {
-    opacity: 0;
-    max-height: 0;
-    overflow: hidden;
-    visibility: hidden;
-    transform: translateY(10px);
-  }
-  16% { visibility: visible; }
-  100% {
-    opacity: 1;
-    max-height: 320px;
-    overflow: visible;
-    visibility: visible;
-    transform: none;
-  }
-}
+/* Attract loops, on hover or focus only. */
+.engage__icon--stack rect { transform-box: fill-box; transform-origin: 50% 100%; }
+.engage__card:is(:hover, :focus-visible) .engage__icon--stack rect:nth-of-type(3) { animation: eng-drop 1.4s var(--ease-stamp) infinite; }
+.engage__card:is(:hover, :focus-visible) .engage__icon--stack rect:nth-of-type(2) { animation: eng-slide 1.4s var(--ease-ink) infinite; }
+@keyframes eng-drop { 0% { transform: translate(-60%, -140%); } 35%, 100% { transform: none; } }
+@keyframes eng-slide { 0%, 30% { transform: none; } 45% { transform: translateY(6%); } 60%, 100% { transform: none; } }
+.engage__card:is(:hover, :focus-visible) .engage__icon--mind-reader i { animation: eng-flicker 1.8s var(--ease-sun) infinite; }
+.engage__icon--mind-reader i:nth-child(2) { animation-delay: .15s !important; }
+.engage__icon--mind-reader i:nth-child(3) { animation-delay: .3s !important; }
+.engage__icon--mind-reader i:nth-child(4) { animation-delay: .45s !important; }
+.engage__icon--mind-reader i:nth-child(5) { animation-delay: .6s !important; }
+@keyframes eng-flicker { 0%, 100% { opacity: 1; transform: none; } 50% { opacity: .35; transform: scale(.82) rotate(-12deg); } }
+.engage__icon--astroclock line:last-of-type { transform-box: view-box; transform-origin: 24px 24px; }
+.engage__card:is(:hover, :focus-visible) .engage__icon--astroclock > svg > line { animation: eng-hand 4s linear infinite; transform-box: view-box; transform-origin: 24px 24px; }
+@keyframes eng-hand { to { transform: rotate(360deg); } }
 
 .engage__step-no {
-  display: inline-grid;
-  place-items: center;
-  min-width: 28rem;
-  height: 22rem;
-  padding: 0 6rem;
+  align-self: flex-start;
+  display: inline-grid; place-items: center;
+  min-width: 30rem; height: 22rem; padding: 0 6rem;
   border-radius: 999px;
-  background: #161618;
-  color: #FFD43B;
-  font: 700 11rem/1 var(--font-mono);
-  letter-spacing: 0.08em;
+  background: #161618; color: #FFD43B;
+  font: 700 11rem/1 var(--font-mono); letter-spacing: .08em;
 }
+.engage__card-name { font: 400 clamp(30px, 2.8vw, 40px)/1 var(--font-display); font-variation-settings: "opsz" 144, "SOFT" 40, "WONK" 1; letter-spacing: -.03em; }
+.engage__card-blurb { font: 400 16px/1.45 var(--font-reading); color: var(--muted); }
+.engage__play { margin-top: auto; padding-top: var(--space-8); font: 600 var(--type-meta)/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
+.engage__play span { display: inline-block; transition: transform var(--dur-mid) var(--ease-ink); }
+@media (hover: hover) { .engage__card:hover .engage__play span { transform: translateX(6rem); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .engage__step { animation: none; opacity: 1; transform: none; visibility: visible; }
-  .engage__card, .engage__card-arrow { transition: none; }
-  .engage__card:hover { transform: none; }
+  .engage__icon *, .engage__icon { animation: none !important; }
+  .engage__card, .orrery__trace, .orrery__body, .orrery__system { transition: none; }
 }
-
-:global(html[data-reduce-motion="on"]) .engage__step {
-  animation: none !important;
-  opacity: 1 !important;
-  transform: none !important;
-  visibility: visible !important;
-}
-
+:global(html[data-reduce-motion="on"]) .engage__icon,
+:global(html[data-reduce-motion="on"]) .engage__icon * { animation: none !important; }
+:global(html[data-reduce-motion="on"]) .orrery__trace { transition: none; }
 </style>

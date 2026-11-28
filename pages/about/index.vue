@@ -61,12 +61,43 @@ const marriottPhotos: PhotoTileItem[] = [
     objectPosition: 'center 45%'
   }
 ]
+
+/* The journey, as stations along an ink line. Facts only, from the story below. */
+const STATIONS = ['Kerala village', 'Club Mahindra', 'The SEWA Chronicles', 'Marriott', 'Concentrix', 'Entertrainer']
+
+const root = ref<HTMLElement | null>(null)
+const { run } = useMotion(root)
+onMounted(() => {
+  void run((m) => {
+    const tl = m.gsap.timeline()
+    tl.add(m.inkReveal(root.value!.querySelectorAll('.about-story__kicker, .about-story h1'), { y: 21 * m.d }), 0)
+    tl.add(m.develop(root.value!.querySelector('.about-story__hero-art')!), 0.1)
+    tl.add(m.drawRule(root.value!.querySelectorAll('.about-route__line')), 0.3)
+    tl.add(m.stampIn(root.value!.querySelectorAll('.about-route__stop i')), 0.5)
+    const line = root.value!.querySelector('.about-story__thread')
+    if (line && window.matchMedia('(min-width: 1000px)').matches) {
+      m.gsap.fromTo(line, { scaleY: 0 }, {
+        scaleY: 1, ease: 'none', transformOrigin: '50% 0%',
+        scrollTrigger: { trigger: root.value!.querySelector('.about-story__article'), start: 'top 70%', end: 'bottom 70%', scrub: 0.6 }
+      })
+    }
+    m.ScrollTrigger.batch(root.value!.querySelectorAll('.about-story__article figure, .about-story__article :is(.photo-tiles) > *'), {
+      start: 'top 85%', once: true,
+      onEnter: els => { m.develop(els, { stagger: 0.1 * m.k }) }
+    })
+    m.ScrollTrigger.batch(root.value!.querySelectorAll('.about-story__break'), {
+      start: 'top 80%', once: true,
+      onEnter: els => { els.forEach(e => e.classList.add('is-reached')) }
+    })
+  })
+})
 </script>
 
 <template>
-  <div class="about-story">
+  <div ref="root" class="about-story">
     <header class="about-story__hero">
       <div class="about-story__intro">
+        <p class="about-story__kicker dp-kicker">About me · Naveen Jose</p>
         <h1>I am Naveen. I’m an instructional designer.</h1>
       </div>
       <figure class="about-story__hero-art">
@@ -77,7 +108,13 @@ const marriottPhotos: PhotoTileItem[] = [
       </figure>
     </header>
 
+    <ol class="about-route" aria-label="The route so far">
+      <span class="about-route__line dp-rule" aria-hidden="true" />
+      <li v-for="(st, i) in STATIONS" :key="st" class="about-route__stop"><i aria-hidden="true" />{{ st }}<span v-if="i < STATIONS.length - 1" class="dp-sr">, then</span></li>
+    </ol>
+
     <article class="about-story__article">
+      <span class="about-story__thread" aria-hidden="true" />
       <p>
         I grew up in a farming family in a village in central Kerala.
         As a kid I didn’t have a clear dream of what I’d become.
@@ -242,7 +279,40 @@ const marriottPhotos: PhotoTileItem[] = [
 <style scoped>
 .about-story { max-width: var(--shell-max); margin: 0 auto; padding: var(--space-55) var(--shell-gutter) var(--space-89); }
 .about-story__hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260rem, .85fr); gap: var(--space-55); align-items: end; padding-bottom: var(--space-55); border-bottom: var(--stroke) solid var(--ink); }
-.about-story h1 { max-width: 18ch; margin: 0; font: 500 var(--type-h1)/.98 var(--font-display); letter-spacing: -.03em; }
+.about-story h1 { max-width: 15ch; margin: var(--space-13) 0 0; font: 400 clamp(44px, 5.6vw, 88px)/.92 var(--font-display); font-variation-settings: "opsz" 144, "SOFT" 40, "WONK" 1; letter-spacing: -.04em; }
+
+/* Station strip: the route in one line, drawn once. */
+.about-route {
+  position: relative;
+  list-style: none;
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-13) var(--space-21);
+  margin: var(--space-34) 0 0; padding: var(--space-21) 0 0;
+}
+.about-route__line { position: absolute; left: 0; right: 0; top: calc(var(--space-21) + 6rem); border-top-width: 2px; }
+.about-route__stop { position: relative; display: grid; justify-items: start; gap: var(--space-8); padding-top: 22rem; font: 500 var(--type-meta)/1.3 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.about-route__stop i { position: absolute; top: 0; left: 0; width: 13rem; height: 13rem; border-radius: 50%; background: var(--paper); box-shadow: 0 0 0 2px var(--ink); }
+.about-route__stop:last-child i { background: var(--accent); }
+@media (max-width: 700px) {
+  .about-route { flex-direction: column; padding: 0 0 0 var(--space-34); }
+  .about-route__line { left: 6rem; right: auto; top: 0; bottom: 0; width: 0; border-top: 0; border-left: 2px solid var(--ink); }
+  .about-route__stop { padding-top: 0; }
+  .about-route__stop i { left: calc(var(--space-34) * -1); }
+}
+
+/* The ink thread beside the prose (desktop), and a station dot at each chapter. */
+.about-story__article { position: relative; }
+.about-story__thread { display: none; }
+@media (min-width: 1000px) {
+  .about-story__thread { display: block; position: absolute; left: -56rem; top: 0; bottom: 0; width: 2px; background: var(--ink); transform-origin: 50% 0; }
+  .about-story__article h2.about-story__break { position: relative; }
+  .about-story__article h2.about-story__break::after {
+    content: ''; position: absolute; left: -63rem; top: 20rem;
+    width: 16rem; height: 16rem; border-radius: 50%;
+    background: var(--paper); box-shadow: 0 0 0 2px var(--ink);
+    transition: background var(--dur-slow) var(--ease-ink), transform var(--dur-slow) var(--ease-stamp);
+  }
+  .about-story__article h2.about-story__break.is-reached::after { background: var(--accent); transform: scale(1.15); }
+}
 
 /* Portrait fills its column — cover crop, bias toward face */
 .about-story__hero-art {

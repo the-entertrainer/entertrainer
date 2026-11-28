@@ -35,11 +35,11 @@ const stack: Entry[] = [
   { k: 'Type', v: 'Four faces, four jobs',
     note: 'Fraunces for display, Archivo for interface, Source Serif 4 for reading, IBM Plex Mono for metadata. All SIL Open Font License, all self-hosted, three of the four variable — so the whole range is eight files. Chosen as the closest open equivalents to a commercial stack I could not license.' },
   { k: 'Colour', v: 'Paper, ink, signal yellow',
-    note: 'The interface accent is signal yellow, paired with near-black text that clears 4.5:1. Essay pictures keep one cobalt. Other hues are for status, not decoration.' },
+    note: 'The paper is a warm cream, the ink near-black. Signal yellow is a fill, paired with near-black text that clears 4.5:1; on paper, the same signal is a darker gold. Essay pictures keep one cobalt. Other hues are for status, not decoration.' },
   { k: 'Surfaces', v: 'Hairline first, shadow only when it lifts',
-    note: 'Most separation is a hairline and the space around it. A few tactile objects — the home switchboard, the category tiles — still carry a hard offset shadow, because they are meant to feel like pieces you can pick up.' },
+    note: 'Most separation is a hairline and the space around it. A few tactile objects — tool cards, game cards — still carry a hard offset shadow, because they are meant to feel like pieces you can pick up.' },
   { k: 'Motion', v: 'Four durations, five curves',
-    note: 'Every transition picks from the same short list, and things leave faster than they arrive. Scroll reveals are CSS scroll-driven animations, so the failure mode is "no animation" rather than "no content". If motion fails, the content is still there.' },
+    note: 'Every transition picks from the same short list, and things leave faster than they arrive. The bigger moments (the hand-off from the opening animation, section titles, essay figures) use GSAP, loaded after the page is already readable. Everything is visible before a script runs, so the failure mode is "no animation" rather than "no content". Settings has a Motion switch: Full, Calm or Off.' },
   { k: 'Images', v: 'WebP and PNG, drawn or generated, then composited',
     note: 'Card artwork was generated and the titles set on top afterwards, because type rendered by an image model is type nobody proofread. Images can improvise; headlines need proofreading.' },
   { k: 'Hosting', v: 'Vercel',
@@ -66,6 +66,11 @@ const choices = [
       title="How this site actually works"
       deck="A plain look at the technology, artwork, privacy choices, and decisions behind Entertrainer. No mystery tour; just the working parts."
     />
+
+    <section class="co__sec" aria-labelledby="co-system">
+      <h2 id="co-system" class="t-mono co__label">The system, live</h2>
+      <EdSpecimen />
+    </section>
 
     <section class="co__sec" aria-labelledby="co-stack">
       <h2 id="co-stack" class="t-mono co__label">The technology, in plain terms</h2>
@@ -107,6 +112,12 @@ const choices = [
 }
 
 .co__list { margin: 0; }
+/* The page column is too narrow for a side margin, so each note sits under its row, aligned to the value. */
+.co__list.ed { display: block; }
+.co__list .co__row { border-bottom: 0; padding-bottom: 6rem; }
+.co__list .co__note { max-width: 62ch; margin: 0 0 0 192rem; padding: 0 0 16rem 14rem; border-bottom: 0; box-shadow: 0 1px 0 var(--line); }
+.co__list .co__note b { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+@media (max-width: 560px) { .co__list .co__note { margin-left: 0; } }
 .co__row {
   display: grid; grid-template-columns: 170rem minmax(0, 1fr);
   gap: 22rem; align-items: baseline; align-self: stretch;

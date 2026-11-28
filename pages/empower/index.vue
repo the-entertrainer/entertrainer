@@ -34,7 +34,7 @@ useSeoMeta({
 .hp__m--2 { left: 26%; bottom: 0; animation-delay: -6s; }
 @keyframes hp-float { 50% { transform: translateY(-14px) rotate(6deg); } }
 @media (prefers-reduced-motion: reduce) { .hp__m { animation: none; } }
-:global(html[data-reduce-motion="on"]) .hp__m { animation: none; }
+html[data-reduce-motion="on"] .hp__m { animation: none; }
 .hp__list { margin-top: clamp(40px, 6vw, 96px); }
 .hp__note { margin: 28px 0 80px; color: var(--gray-500); }
 @media (max-width: 760px) { .hp__marks { width: 220px; } }

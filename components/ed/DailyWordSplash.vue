@@ -683,10 +683,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .wotd__slot,
   .wotd__done { transition: none; }
 }
-:global(html[data-reduce-motion="on"]) .wotd__panel,
-:global(html[data-reduce-motion="on"]) .wotd__slots--shake,
-:global(html[data-reduce-motion="on"]) .wotd__slots--ok .wotd__slot { animation: none; }
-:global(html[data-reduce-motion="on"]) .wotd__tile,
-:global(html[data-reduce-motion="on"]) .wotd__slot,
-:global(html[data-reduce-motion="on"]) .wotd__done { transition: none; }
+html[data-reduce-motion="on"] .wotd__panel,
+html[data-reduce-motion="on"] .wotd__slots--shake,
+html[data-reduce-motion="on"] .wotd__slots--ok .wotd__slot { animation: none; }
+html[data-reduce-motion="on"] .wotd__tile,
+html[data-reduce-motion="on"] .wotd__slot,
+html[data-reduce-motion="on"] .wotd__done { transition: none; }
 </style>

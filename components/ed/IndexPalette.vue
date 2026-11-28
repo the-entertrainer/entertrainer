@@ -258,5 +258,5 @@ const optId = (e: IndexEntry) => `dp-index-opt-${e.id}`
   .dp-index-enter-active, .dp-index-enter-active .dpx__panel, .dp-index-leave-active { transition: opacity 100ms linear; }
   .dp-index-enter-from .dpx__panel { transform: none; }
 }
-:global(html[data-reduce-motion="on"]) .dp-index-enter-from .dpx__panel { transform: none; }
+html[data-reduce-motion="on"] .dp-index-enter-from .dpx__panel { transform: none; }
 </style>

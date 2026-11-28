@@ -48,7 +48,8 @@ const LINES = [
   'Naveen briefly considered giving up. Then he made chai instead.'
 ]
 
-const index = ref(Math.floor(Math.random() * LINES.length))
+// Start on the first line so server and client agree; pick a random one after mount.
+const index = ref(0)
 const line = computed(() => LINES[index.value])
 const changedAt = ref(Date.now())
 const now = ref(Date.now())
@@ -73,6 +74,7 @@ const ago = computed(() => {
 let rotateTimer: ReturnType<typeof setInterval> | null = null
 let clockTimer: ReturnType<typeof setInterval> | null = null
 onMounted(() => {
+  index.value = Math.floor(Math.random() * LINES.length)
   rotateTimer = setInterval(nextLine, 4800 + Math.random() * 1600)
   clockTimer = setInterval(() => { now.value = Date.now() }, 1000)
 })

@@ -4,7 +4,8 @@ import CrackTimes from './CrackTimes.vue'
 import { randomPassphrase, type Passphrase } from '~/utils/strong/crypto'
 
 const emit = defineEmits<{ start: [] }>()
-const demo = ref<Passphrase>(randomPassphrase(7))
+// Shared between server and client render so hydration matches; Reroll makes a fresh one locally.
+const demo = useState<Passphrase>('strong-cover-demo', () => randomPassphrase(7))
 function reroll() { demo.value = randomPassphrase(7) }
 </script>
 

@@ -142,6 +142,7 @@ onBeforeUnmount(() => theme.dispose())
     </div>
     <div class="dp-wipe" aria-hidden="true" />
     <EdIndexPalette />
+    <BrandSunCursor />
   </div>
 </template>
 

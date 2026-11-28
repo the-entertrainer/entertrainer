@@ -16,10 +16,9 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   '/': {
     key: 'home',
     label: 'Entertrainer',
-    title: 'Entertrainer · Elevate, Empower, Engage',
-    description: 'Essays, tools, and games from Naveen Jose.',
-    image: `${SITE_URL}/og-card-2026d.png`,
-    imageAlt: 'Entertrainer e-mark with Elevate, Empower, Engage.'
+    title: 'Learning people actually remember',
+    description: 'If it doesn’t hold attention, it can’t transfer knowledge. Essays, free apps for trainers, and small games by Naveen Jose.',
+    imageAlt: 'Entertrainer card: Entertain + Train, a yellow sun on cream paper.'
   },
   '/about': {
     key: 'about',
@@ -133,10 +132,9 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
   '/empower': {
     key: 'empower',
     label: 'Empower',
-    title: 'Empower · Tools by Entertrainer',
-    description: 'Small browser tools for the awkward, repeating work.',
-    image: `${SITE_URL}/og-engage.jpg`,
-    imageAlt: 'Four quiet tool marks on cream paper.'
+    title: 'Apps for people who train people',
+    description: 'Aim writes measurable objectives, Plain finds where instructions trip people, Cue plans a session minute by minute. Free.',
+    imageAlt: 'Entertrainer Empower card on cream paper with a yellow sun.'
   },
   '/tools': {
     key: 'tools',
@@ -190,13 +188,54 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     title: 'Lessons by Naveen Jose · Entertrainer',
     description: 'A short lesson on clear instructions and a longer course on artificial intelligence.'
   },
+  '/empower/aim': {
+    key: 'aim',
+    label: 'Aim · Empower',
+    title: 'Write a learning objective you can measure',
+    description: 'Pick who, the verb, the condition and the bar. Aim checks the verb against Bloom’s levels.',
+    imageAlt: 'Entertrainer card for Aim on cream paper with a yellow sun.'
+  },
+  '/empower/plain': {
+    key: 'plain',
+    label: 'Plain · Empower',
+    title: 'Paste an instruction. See where people trip.',
+    description: 'Long sentences, passive voice, office words and hidden steps, flagged in your browser.',
+    imageAlt: 'Entertrainer card for Plain on cream paper with a yellow sun.'
+  },
+  '/empower/cue': {
+    key: 'cue',
+    label: 'Cue · Empower',
+    title: 'Plan a training session minute by minute',
+    description: 'Gagné’s nine events as a run of show you can stretch, trim, reorder and print.',
+    imageAlt: 'Entertrainer card for Cue on cream paper with a yellow sun.'
+  },
+  '/engage/ladder': {
+    key: 'ladder',
+    label: 'Ladder · Engage',
+    title: 'Put each verb on the right rung',
+    description: 'Sixty seconds, six rungs of Bloom’s ladder. How long can your streak go?',
+    imageAlt: 'Entertrainer card for Ladder on cream paper with a yellow sun.'
+  },
+  '/engage/pairs': {
+    key: 'pairs',
+    label: 'Pairs · Engage',
+    title: 'A memory game where the cards are ideas',
+    description: 'Match learning-science terms to what they mean. Retrieval practice, wearing a game.',
+    imageAlt: 'Entertrainer card for Pairs on cream paper with a yellow sun.'
+  },
+  '/engage/steps': {
+    key: 'steps',
+    label: 'Steps · Engage',
+    title: 'Shuffled steps. Put them back in order.',
+    description: 'Chai, a fire drill, ADDIE. Drag each procedure back into place in as few checks as you can.',
+    imageAlt: 'Entertrainer card for Steps on cream paper with a yellow sun.'
+  },
   '/engage': {
     key: 'engage',
     label: 'Engage',
-    title: 'Engage · Entertrainer',
-    description: 'Short games and little detours — Stack, The Mind Reader, and AstroClock.',
-    image: `${SITE_URL}/og-engage.jpg`,
-    imageAlt: 'Engage marks on cream paper: an eye and a clock.'
+    title: 'Games about how we learn',
+    description: 'Climb Bloom’s ladder, match learning-science pairs, put shuffled steps back in order. A minute or two each.',
+    imageAlt: 'Entertrainer Engage card on cream paper with a yellow sun.'
   },
   '/engage/astroclock': {
     key: 'astroclock',

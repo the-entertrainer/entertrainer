@@ -102,3 +102,19 @@ Cut on 28 Nov 2026 at the owner's request (usage budget), not for technical reas
 
 Known: first-load JS adds GSAP as idle `prefetch` chunks (~70 KB gz) that execute only on pages
 that animate; Lighthouse perf on this box was below 90 before and after.
+
+## Brand relaunch: "Entertain + Train" (28 Nov 2026)
+Owner feedback: the Dawn Press pass looked mediocre; wanted award-level design and a real
+brand system. Inspiration survey notes kept outside the repo (nothing copied).
+
+- Brand guide rewritten in DESIGN.md (idea, sun protagonist, palette, type, motion, voice).
+- New: brand.css, BrandSun (WebGL sun), BrandSunCursor, sun page curtain, BrandMark family
+  marks, BrandAppShell, BrandFamilyIndex, footer finale.
+- Home rebuilt: Entertain + train hero, manifesto, pinned horizontal Three Es, the person.
+- Empower and Engage rebuilt around the new family; HubHero title now full-width.
+- About: giant name with portrait in a sun; added the manifesto, timeline and toolkit from
+  the first About page (git 13519f6); Naveen's long story is unchanged.
+- New apps: Aim, Plain, Cue. New games: Ladder, Pairs, Steps.
+- Old tools/games unlisted (nav, hubs, index palette, sitemap, PWA shortcuts) and noindexed;
+  files and routes untouched.
+- Social card renderer restyled; favicon.svg redrawn. PNG icons left as-is (binary).

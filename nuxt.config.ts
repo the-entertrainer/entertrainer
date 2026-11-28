@@ -42,7 +42,7 @@ export default defineNuxtConfig({
   // observer never fires.
   modules: ['@pinia/nuxt', '@vite-pwa/nuxt'],
   // Faces first, then the system that uses them.
-  css: ['~/assets/css/fonts.css', '~/assets/css/main.css', '~/assets/css/dawn.css'],
+  css: ['~/assets/css/fonts.css', '~/assets/css/main.css', '~/assets/css/dawn.css', '~/assets/css/brand.css'],
   runtimeConfig: {
     // Server-only — set via GIPHY_API_KEY env var (Vercel project settings).
     // When absent, /api/giphy serves a curated fallback manifest.
@@ -140,7 +140,7 @@ export default defineNuxtConfig({
     manifest: {
       name: 'Entertrainer',
       short_name: 'Entertrainer',
-      description: 'Lessons, useful little tools, and clear explanations by Naveen Jose.',
+      description: 'Entertain + Train. Essays, free apps for trainers, and small games about learning, by Naveen Jose.',
       theme_color: '#F7F1E4',
       background_color: '#F7F1E4',
       display: 'standalone',
@@ -153,34 +153,10 @@ export default defineNuxtConfig({
 		  { src: '/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
 		],
       shortcuts: [
-        {
-          name: 'EasyMCQ — Distractor Generator',
-          short_name: 'EasyMCQ',
-          description: 'Give the question and answer; get three plausible wrong options',
-          url: '/tools/easymcq',
-          icons: [{ src: '/easymcq-icon-192.png', sizes: '192x192', type: 'image/png' }]
-        },
-        {
-          name: 'Draftly — Email Polisher',
-          short_name: 'Draftly',
-          description: 'Turn messy drafts into clear, professional emails',
-          url: '/tools/better-emails',
-          icons: [{ src: '/draftly-icon-192.png', sizes: '192x192', type: 'image/png' }]
-        },
-        {
-          name: 'Dialogue — Comics from your pocket',
-          short_name: 'Dialogue',
-          description: 'Vertical webcomic studio for phones',
-          url: '/dialogue/',
-          icons: [{ src: '/dialogue/icons/icon-192.png', sizes: '192x192', type: 'image/png' }]
-        },
-        {
-          name: 'AstroClock — Sidereal Dial',
-          short_name: 'AstroClock',
-          description: 'Birth place and time. A live dial. What today is doing.',
-          url: '/engage/astroclock',
-          icons: [{ src: '/astroclock-icon-192.png', sizes: '192x192', type: 'image/png' }]
-        }
+        { name: 'Aim · Learning objectives', short_name: 'Aim', description: 'Write a learning objective you can measure', url: '/empower/aim', icons: [{ src: '/brand/aim.svg', sizes: 'any', type: 'image/svg+xml' }] },
+        { name: 'Plain · Clarity check', short_name: 'Plain', description: 'See where an instruction will trip people', url: '/empower/plain', icons: [{ src: '/brand/plain.svg', sizes: 'any', type: 'image/svg+xml' }] },
+        { name: 'Cue · Session planner', short_name: 'Cue', description: 'Plan a training session minute by minute', url: '/empower/cue', icons: [{ src: '/brand/cue.svg', sizes: 'any', type: 'image/svg+xml' }] },
+        { name: 'Ladder · Bloom game', short_name: 'Ladder', description: 'Put each verb on the right rung', url: '/engage/ladder', icons: [{ src: '/brand/ladder.svg', sizes: 'any', type: 'image/svg+xml' }] }
       ]
     },
     workbox: {
@@ -220,6 +196,16 @@ export default defineNuxtConfig({
   routeRules: {
     // Whatto is unlisted: reachable only by typing the URL, never indexed.
     '/engage/whatto': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
+    // Retired from the listings in the brand relaunch (Nov 2026). Still
+    // reachable for anyone with a link; kept out of search.
+    '/tools/easymcq': { headers: { 'X-Robots-Tag': 'noindex' } },
+    '/tools/better-emails': { headers: { 'X-Robots-Tag': 'noindex' } },
+    '/tools/cadence': { headers: { 'X-Robots-Tag': 'noindex' } },
+    '/tools/storygen': { headers: { 'X-Robots-Tag': 'noindex' } },
+    '/tools/compose': { headers: { 'X-Robots-Tag': 'noindex' } },
+    '/engage/stack': { headers: { 'X-Robots-Tag': 'noindex' } },
+    '/engage/read-my-mind': { headers: { 'X-Robots-Tag': 'noindex' } },
+    '/engage/astroclock': { headers: { 'X-Robots-Tag': 'noindex' } },
     '/tools/training-cal-gen': { redirect: { to: '/tools/cadence', statusCode: 301 } },
     '/tools/storyforge-id': { redirect: { to: '/tools/storygen', statusCode: 301 } },
     '/tools': { redirect: { to: '/empower', statusCode: 301 } },

@@ -4,17 +4,10 @@
   <url><loc>https://entertrainer.in/elevate</loc><priority>0.9</priority></url>
   <url><loc>https://entertrainer.in/empower</loc><priority>0.9</priority></url>
   <url><loc>https://entertrainer.in/engage</loc><priority>0.8</priority></url>
-  <url><loc>https://entertrainer.in/engage/stack</loc><priority>0.7</priority></url>
-  <url><loc>https://entertrainer.in/engage/read-my-mind</loc><priority>0.7</priority></url>
-  <url><loc>https://entertrainer.in/engage/astroclock</loc><priority>0.7</priority></url>
   <url><loc>https://entertrainer.in/about</loc><priority>0.8</priority></url>
   <url><loc>https://entertrainer.in/instructional-design</loc><priority>0.8</priority></url>
   <url><loc>https://entertrainer.in/my-work/sewa-chronicles</loc><priority>0.8</priority></url>
   <url><loc>https://entertrainer.in/my-work/strong</loc><priority>0.8</priority></url>
-  <url><loc>https://entertrainer.in/tools/storygen</loc><priority>0.7</priority></url>
-  <url><loc>https://entertrainer.in/tools/cadence</loc><priority>0.7</priority></url>
-  <url><loc>https://entertrainer.in/tools/easymcq</loc><priority>0.7</priority></url>
-  <url><loc>https://entertrainer.in/tools/better-emails</loc><priority>0.7</priority></url>
   <url><loc>https://entertrainer.in/colophon</loc><priority>0.5</priority></url>
   <url><loc>https://entertrainer.in/elevate/you-are-not-lazy-you-are-helping-the-universe-extend-its-life</loc><priority>0.7</priority></url>
   <url><loc>https://entertrainer.in/elevate/why-isnt-the-moon-moonly</loc><priority>0.7</priority></url>
@@ -26,4 +19,16 @@
   <url><loc>https://entertrainer.in/elevate/what-each-sacred-frequency-is-for</loc><priority>0.7</priority></url>
   <url><loc>https://entertrainer.in/elevate/one-equals-two-lets-break-maths</loc><priority>0.7</priority></url>
   <url><loc>https://entertrainer.in/elevate/you-are-absolutely-right</loc><priority>0.7</priority></url>
+
+  <url><loc>https://entertrainer.in/empower/aim</loc><priority>0.7</priority></url>
+
+  <url><loc>https://entertrainer.in/empower/plain</loc><priority>0.7</priority></url>
+
+  <url><loc>https://entertrainer.in/empower/cue</loc><priority>0.7</priority></url>
+
+  <url><loc>https://entertrainer.in/engage/ladder</loc><priority>0.7</priority></url>
+
+  <url><loc>https://entertrainer.in/engage/pairs</loc><priority>0.7</priority></url>
+
+  <url><loc>https://entertrainer.in/engage/steps</loc><priority>0.7</priority></url>
 </urlset>

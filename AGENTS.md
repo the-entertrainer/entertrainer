@@ -1,17 +1,15 @@
 # Entertrainer — Elevate explain posts
 
-**One writing skill only:** [Humanize Elevate](.agents/skills/humanize-elevate/SKILL.md)
+**Two writing skills only, in this order:**
 
-- Every Elevate post uses the Tajjalan page shape: margin note, drop-cap lead, two or three headings that name the section, one blockquote, a closing question, then sources.
-- Titles stay short and plain. Do not reuse “What is it? / Why is it significant? / Interesting facts and thoughts” as the headings.
-- Proofread and rewrite through that skill. Grade 6–8. No invented studies.
-- Refresh an illustration only when it breaks the cover style. Keep real photographs.
+1. [Naveen curiosity science blog](.agents/skills/naveen-curiosity-science-blog/SKILL.md) — research, structure, titles, and fact-checking. Research the topic before drafting. Do not write from memory.
+2. [Say it like Naveen](.agents/skills/say-it-like-naveen/SKILL.md) — the voice, after the facts are stable.
 
-Retired: other writing and voice packs, including the old sand-workflow explain post. Do not reload them.
+Do not use Humanize Elevate, the Tajjalan heading recipe, or any other writing pack for a new Elevate post. Those are retired for new prose. Sacred geometry still applies when the user asks for that subject. Art direction below still applies to pictures.
 
 ## Sacred geometry
 
-When the user asks to explain, draw, or design from sacred geometry, the Flower of Life, or *The Sacred Geometry Movie*, use [Sacred geometry](.agents/skills/sacred-geometry/SKILL.md). Humanize Elevate still owns Elevate prose.
+When the user asks to explain, draw, or design from sacred geometry, the Flower of Life, or *The Sacred Geometry Movie*, use [Sacred geometry](.agents/skills/sacred-geometry/SKILL.md). The two Naveen skills still own the prose.
 
 ## Art direction (sitewide)
 

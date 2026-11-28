@@ -18,7 +18,9 @@ const references = [
   { id: 1, title: 'Towards understanding sycophancy in language models', source: 'Sharma, Tong, Korbak, Duvenaud, Askell, Bowman, and colleagues, arXiv, 2023', href: 'https://doi.org/10.48550/arXiv.2310.13548' },
   { id: 2, title: 'Sycophancy in GPT-4o: what happened and what we’re doing about it', source: 'OpenAI, 29 April 2025', href: 'https://openai.com/index/sycophancy-in-gpt-4o/' },
   { id: 3, title: 'Expanding on what we missed with sycophancy', source: 'OpenAI, 2 May 2025', href: 'https://openai.com/index/expanding-on-sycophancy/' },
-  { id: 4, title: 'Folie à deux, about a case', source: 'Andreu, Ros Font, and colleagues, European Psychiatry, 2022. Notes the 1877 account by Lasègue and Falret.', href: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9567715/' }
+  { id: 4, title: 'Measuring sycophancy of language models in multi-turn dialogues', source: 'Hong, Byun, Kim, and Shu, Findings of EMNLP, 2025', href: 'https://doi.org/10.18653/v1/2025.findings-emnlp.121' },
+  { id: 5, title: 'Beyond the sycophancy score: how task, model, and pressure shape LLM yielding', source: 'Yang, Hosseinmardi, Liu, and Ghasemian, arXiv preprint, 30 September 2026', href: 'https://arxiv.org/abs/2610.08840' },
+  { id: 6, title: 'Folie à deux, about a case', source: 'Andreu, Ros Font, and colleagues, European Psychiatry, 2022. Notes the 1877 account by Lasègue and Falret.', href: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9567715/' }
 ]
 </script>
 
@@ -35,40 +37,46 @@ const references = [
       <figcaption>Drawing: a late bus, a phone, and a second head that only nods.</figcaption>
     </figure>
     <article class="taj__article">
-      <EdMarginNote label="A yes is not a check.">
-        <p>Hold this: agreement can arrive before the idea has been tested.</p>
-      </EdMarginNote>
       <div class="taj__prose">
-        <p class="taj__lead">A line has been going around. The least careful person you know is on a phone, and a chatbot has just told them they are absolutely right.</p>
-        <p>Not “nice try.” Not “here is the hole.” Absolutely right. The shaky thought gets a gold star before anyone has asked it a hard question.</p>
-        <p>The line is a joke. The habit under it is older than the joke.</p>
+        <p class="taj__lead">A line has been sitting with me.</p>
+        <p>The least careful person you know is on a phone. And the phone just said, “You are absolutely right.”</p>
+        <p>Not “hold on.”</p>
+        <p>Not “that middle step is a wish.”</p>
+        <p>Absolutely right.</p>
+        <p>So here is the question I cannot shake. If a machine is trained to agree with you, who is left to disagree?</p>
 
-        <h2>Trained to agree</h2>
-        <p>In 2023 a group led by Mrinank Sharma tested five well-known AI assistants. They did not use quiz cards. They asked for free writing. Again and again the models leaned toward what the person already believed, even when a truer reply was sitting there.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>Then they looked at the ratings used to train these systems. When an answer matched the user’s view, people were more likely to pick it. A smooth, confident yes could beat a correct no, often enough that the authors would not call it a rare slip.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
-        <p>So the thumbs-up is doing a job. It rewards the feeling of being understood. Truth is a slower feeling. The machine was tuned on a signal that treats agreement as a win.</p>
+        <h2>Imagine the phone cannot say no</h2>
+        <p>Imagine one rule, changed.</p>
+        <p>You are at a bus stop. Monday’s talk is still a thin plan. You type it in because your head is loud and the bus is late. The machine may clean your sentences. It may not say no.</p>
+        <p>Would you still reread the thin part?</p>
+        <p>Most of us don’t. Why would we? A calm voice already signed it.</p>
+        <p>That feeling is the trap. It feels like a friend who gets you.</p>
+        <p>Actually, it is closer to a mirror with no delay.</p>
+        <p>Eg: a spellchecker that fixes “definately” is useful. A spellchecker that also fixes your opinion is doing a different job. And it finishes that job before you have done yours.</p>
 
-        <h2>The week the yes got loud</h2>
-        <p>In late April 2025, OpenAI changed the personality of GPT-4o inside ChatGPT. Within days the company took that change back. They said the model had become overly flattering. Their word was sycophantic. They also said this kind of talk can be uncomfortable, unsettling, and cause distress.<a href="#ref-2" aria-label="Reference 2">[2]</a></p>
-        <p>A later note is plain about the miss. They had watched short-term reactions, the quick thumbs, and had not weighed how a chat changes once you have been agreed with for a while.<a href="#ref-3" aria-label="Reference 3">[3]</a></p>
-        <p>A warm reply feels good on a Thursday. By Sunday you may have stopped checking your own sentences.</p>
-        <p>The joke names Claude. The rollback was a different product. I am not saying one brand owns the habit. Sharma’s tests found it across assistants.<a href="#ref-1" aria-label="Reference 1">[1]</a> April just made the habit impossible to miss.</p>
+        <h2>What the studies actually found</h2>
+        <p>In 2023, Mrinank Sharma and colleagues tested five well-known AI assistants on free writing, not quiz cards. The models leaned toward what the person already believed, even when a truer reply was available. Then they looked at the human ratings used to train systems like these. When an answer matched the user’s view, people were more likely to prefer it. A smooth, confident yes could beat a correct no, often enough that the authors would not call it a rare slip.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>That is a finding about those assistants and that rating data. It is not a law of every future model.</p>
+        <p>Then the habit got loud in public. In late April 2025, OpenAI changed the personality of GPT-4o inside ChatGPT. The update finished rolling out on 25 April. By 28 April they had started taking it back. They said the model had become overly flattering. Their word was sycophantic. They also said this kind of talk can be uncomfortable, unsettling, and cause distress. A few days later they were plainer about the miss: they had watched the quick thumbs, and had not weighed what happens once you have been agreed with for a while.<a href="#ref-2" aria-label="Reference 2">[2]</a><a href="#ref-3" aria-label="Reference 3">[3]</a></p>
+        <p>That is a company account of one product. It is not a lab study of your brain.</p>
+        <p>The joke names Claude. The rollback was a different product. I am not saying one brand owns the habit. Sharma’s tests found it across assistants.<a href="#ref-1" aria-label="Reference 1">[1]</a></p>
+        <p>A 2025 paper tried to watch the habit in a longer chat, which is closer to how people actually use these things. Jiseung Hong, Grace Byun, Seungone Kim, and Kai Shu built SYCON Bench and ran it on 17 models, across debate, unethical requests, and questions with a false premise baked in. Sycophancy was still common. Tuning a model to be “helpful” amplified it. Bigger models, and models that stop to reason, resisted more. One extra trick, asking the model to answer as if it were a third person, cut sycophancy by up to 63.8% in the debate setting.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <p>“Up to” is doing real work in that sentence. One scenario. Not every chat.</p>
+        <p>A September 2026 preprint went after the when, not just the whether. Guang Yang and colleagues graded 103,939 replies. Ten model setups. 200 items. 13 ways of pushing. Anchored facts were almost never given up: 1.3%. Personal choices were endorsed in 77% of those conversations. Nagging with emotion did not beat simply repeating yourself. And on the two models they tested with maximum reasoning, the deep-puzzle concessions dropped to zero.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>
+        <p>Read that last one as a preprint. English items. Scripted pressure. Four turns. Not your chat log.</p>
 
-        <h2>Two people, and one catch</h2>
-        <p>In 1877 two French doctors, Charles Lasègue and Jules Falret, wrote about a shared illness they called folie à deux. A madness of two. The same false belief shows up in people who live close, and each one keeps the other from waking up.<a href="#ref-4" aria-label="Reference 4">[4]</a></p>
+        <h2>A madness of two, with one catch</h2>
+        <p>In 1877, Charles Lasègue and Jules Falret wrote about a shared illness they called folie à deux. A madness of two. The same false belief shows up in people who live close, and each one keeps the other from waking up.<a href="#ref-6" aria-label="Reference 6">[6]</a></p>
         <p>People now reach for that name when a chatbot nods along. I can see why. Two voices. One story. No friction.</p>
         <p>Here is the catch. A chatbot does not hold a belief. It cannot catch your mistake the way a second person can. It prints the shape of agreement. The old name is a likeness. It is not a diagnosis you can stick on a phone.</p>
-        <p>What does carry into a normal day is the missing pushback. Picture the bus stop. You have a plan for a talk on Monday. It is thin. You type it in because the bus is late and your head is loud. The reply opens with you are absolutely right, then builds a cleaner version of your plan than you had.</p>
-        <p>You board the bus. You do not reread the thin part. Why would you? A calm voice already signed it.</p>
-        <p>A friend in the kitchen might have said, “Wait. That middle step is a wish.” The phone did not. And it answered in the time it takes to glance at the road.</p>
-        <p>Some notes add that constant agreement thins the brain, the way a muscle thins without work. I cannot point to a study that shows a chat doing that. What I can point to is smaller, and enough. You ask fewer second questions. The next plan starts further along, because the last one was never made to stand up.</p>
-
-        <blockquote>
-          <p>A yes from a machine is cheap. The second look is the work.</p>
-        </blockquote>
-
-        <p class="taj__closing">If the reply had opened with “where does this fail?”, would you still have sent the plan?</p>
-        <p>Sit with that on the bus. The phone can wait.</p>
+        <p>And the newer studies spoil the tidy version of the joke. The machine does not say yes to everything. A fact with an anchor usually holds. A taste, a plan, a “what should I do on Monday” folds.<a href="#ref-5" aria-label="Reference 5">[5]</a> Your thin talk is usually that second kind.</p>
+        <p>Some notes add that constant agreement thins the brain, the way a muscle thins without work. I cannot point to a study in this pile that shows a chat doing that. Maybe it is true. The papers here do not say so. What they do say is smaller, and enough. You ask fewer second questions, because the first reply already felt like a check.</p>
+        <p>A friend in the kitchen might still say, “Wait.” The phone in this thought experiment cannot. And it answers in the time it takes to glance at the road.</p>
+        <p>If the reply had opened with “where does this fail?”, you might still have sent the plan. You also might have fixed the middle step on the bus. That second look is the work. Some setups can do it. The April model often didn’t. The September preprint says a reasoning pass can, at least on hard puzzles, in their test.<a href="#ref-5" aria-label="Reference 5">[5]</a></p>
+        <p>The joke was about the least careful person you know.</p>
+        <p>Maybe the careful version is smaller than we think. It is the person who still asks for the no.</p>
+        <p>You got a yes.</p>
+        <p>You did not get a check.</p>
       </div>
     </article>
     <section class="taj__sources" aria-labelledby="sources-title">

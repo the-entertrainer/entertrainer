@@ -82,5 +82,5 @@ useHead({ title: isNotFound.value ? 'Page not found â€” Entertrainer' : 'Error â
 .err__horizon { position: absolute; left: var(--shell-gutter); right: var(--shell-gutter); bottom: 0; z-index: 2; border-top: 3px solid var(--ink); }
 @keyframes err-set { from { transform: translate(-50%, 10%); } to { transform: translate(-50%, 50%); } }
 @media (prefers-reduced-motion: reduce) { .err__sun { animation: none; } }
-:global(html[data-reduce-motion="on"]) .err__sun { animation: none; }
+html[data-reduce-motion="on"] .err__sun { animation: none; }
 </style>

@@ -63,5 +63,5 @@ const circles = seedOfLife(50, 50, 16)
 @media (prefers-reduced-motion: reduce) {
   .seed--spin { animation: none; }
 }
-:global(html[data-reduce-motion="on"]) .seed--spin { animation: none; }
+html[data-reduce-motion="on"] .seed--spin { animation: none; }
 </style>

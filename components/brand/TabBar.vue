@@ -82,6 +82,6 @@ function tap(i: number) {
 }
 .tb__sun.off { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .tb__sun, .tb__ico { transition: none; } }
-:global(html[data-reduce-motion="on"]) .tb__sun { transition: none; }
-:global(html[data-theme="dark"]) .tb { background: color-mix(in srgb, #2a2823 92%, transparent); }
+html[data-reduce-motion="on"] .tb__sun { transition: none; }
+html[data-theme="dark"] .tb { background: color-mix(in srgb, #2a2823 92%, transparent); }
 </style>

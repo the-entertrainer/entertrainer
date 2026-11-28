@@ -457,6 +457,6 @@ onMounted(() => {
 @media (prefers-reduced-motion: reduce) {
   .elevate__thumb, .elevate__thumb :deep(img), .elevate__no, .elevate__must-tile { transition: none; }
 }
-:global(html[data-reduce-motion="on"]) .elevate__thumb,
-:global(html[data-reduce-motion="on"]) .elevate__thumb img { transition: none !important; }
+html[data-reduce-motion="on"] .elevate__thumb,
+html[data-reduce-motion="on"] .elevate__thumb img { transition: none !important; }
 </style>

@@ -882,6 +882,11 @@ onBeforeUnmount(() => {
           }"
           @animationend="onRingAnimEnd($event, i)"
         />
+        <!-- The sun-e logo sits in the still point: the brand mark, ringed by the six movements. -->
+        <g class="preloader__logo" :class="{ 'logo--in': ringsIn[0] }" aria-hidden="true">
+          <circle cx="50" cy="50" r="15.2" fill="#FFD43B" />
+          <path d="M43.6 51.2 H56.4 c0 -3.9 -2.8 -7 -6.3 -7 s-6.6 3.1 -6.6 7 3 7 6.6 7 c2.2 0 4.1 -.9 5.3 -2.6" fill="none" stroke="#12110F" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round" />
+        </g>
       </svg>
 
       <div
@@ -1224,6 +1229,8 @@ onBeforeUnmount(() => {
   stroke-dashoffset: var(--ring-len);
 }
 .preloader__ring.ring--center { stroke: var(--ink); }
+.preloader__logo { opacity: 0; transform: scale(.55); transform-origin: 50px 50px; transition: opacity .6s ease, transform .9s cubic-bezier(.19, 1, .22, 1); }
+.preloader__logo.logo--in { opacity: 1; transform: none; }
 
 /* Music-off short path: staggered CSS draw + overshoot settle. */
 .preloader:not(.preloader--beat) .preloader__ring {
@@ -1602,24 +1609,24 @@ onBeforeUnmount(() => {
   }
   .preloader__beat-canvas { display: none; }
 }
-:global(html[data-reduce-motion="on"]) .preloader { transition-duration: 80ms; }
-:global(html[data-reduce-motion="on"]) .preloader__entry.entry--wipe,
-:global(html[data-reduce-motion="on"]) .preloader__entry.entry--flip { animation: none !important; opacity: 0 !important; }
-:global(html[data-reduce-motion="on"]) .preloader *,
-:global(html[data-reduce-motion="on"]) .preloader *::before,
-:global(html[data-reduce-motion="on"]) .preloader *::after { animation: none !important; }
-:global(html[data-reduce-motion="on"]) .preloader__ring {
+html[data-reduce-motion="on"] .preloader { transition-duration: 80ms; }
+html[data-reduce-motion="on"] .preloader__entry.entry--wipe,
+html[data-reduce-motion="on"] .preloader__entry.entry--flip { animation: none !important; opacity: 0 !important; }
+html[data-reduce-motion="on"] .preloader *,
+html[data-reduce-motion="on"] .preloader *::before,
+html[data-reduce-motion="on"] .preloader *::after { animation: none !important; }
+html[data-reduce-motion="on"] .preloader__ring {
   opacity: 1;
   stroke-dashoffset: 0;
   transform: rotate(-90deg);
 }
-:global(html[data-reduce-motion="on"]) .preloader__seed { opacity: 0; }
-:global(html[data-reduce-motion="on"]) .preloader__brand-shell { opacity: 1; transform: none; filter: none; }
-:global(html[data-reduce-motion="on"]) .preloader__brand-shell::after { opacity: .55; transform: scaleX(1); }
-:global(html[data-reduce-motion="on"]) .preloader__word-part { opacity: 1; transform: none; filter: none; clip-path: none; }
-:global(html[data-reduce-motion="on"]) .preloader__quote.quote--in {
+html[data-reduce-motion="on"] .preloader__seed { opacity: 0; }
+html[data-reduce-motion="on"] .preloader__brand-shell { opacity: 1; transform: none; filter: none; }
+html[data-reduce-motion="on"] .preloader__brand-shell::after { opacity: .55; transform: scaleX(1); }
+html[data-reduce-motion="on"] .preloader__word-part { opacity: 1; transform: none; filter: none; clip-path: none; }
+html[data-reduce-motion="on"] .preloader__quote.quote--in {
   opacity: .72;
   transform: translateX(-50%) translateY(0);
 }
-:global(html[data-reduce-motion="on"]) .preloader__beat-canvas { display: none; }
+html[data-reduce-motion="on"] .preloader__beat-canvas { display: none; }
 </style>

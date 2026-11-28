@@ -141,6 +141,7 @@ onBeforeUnmount(() => theme.dispose())
 
       <div class="u-grain" aria-hidden="true" />
     </div>
+    <div class="br-progress" aria-hidden="true" />
     <div class="dp-wipe" aria-hidden="true" />
     <EdIndexPalette />
     <BrandSunCursor />

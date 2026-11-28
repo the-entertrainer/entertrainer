@@ -309,7 +309,7 @@ onBeforeUnmount(() => {
 @media (prefers-reduced-motion: reduce) {
   .nl-inline__panel { animation: none; }
 }
-:global(html[data-reduce-motion="on"]) .nl-inline__panel { animation: none; }
+html[data-reduce-motion="on"] .nl-inline__panel { animation: none; }
 
 /* —— Full panel (article footers) —— */
 .newsletter { position: relative; display: grid; grid-template-columns: auto minmax(0, .8fr) minmax(0, 1.05fr); gap: var(--space-34); align-items: center; padding: var(--space-34); overflow: hidden; color: var(--ink); background: var(--paper); border: var(--stroke) solid var(--ink); border-radius: var(--radius-l); }

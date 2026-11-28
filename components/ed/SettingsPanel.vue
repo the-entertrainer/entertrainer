@@ -436,8 +436,8 @@ function toggleOpeningSound() {
   .sp__panel { animation: none; }
   .sp__switch, .sp__switch-knob, .sp__reset { transition: none; }
 }
-:global(html[data-reduce-motion="on"]) .sp__panel { animation: none; }
-:global(html[data-reduce-motion="on"]) .sp__switch,
-:global(html[data-reduce-motion="on"]) .sp__switch-knob,
-:global(html[data-reduce-motion="on"]) .sp__reset { transition: none; }
+html[data-reduce-motion="on"] .sp__panel { animation: none; }
+html[data-reduce-motion="on"] .sp__switch,
+html[data-reduce-motion="on"] .sp__switch-knob,
+html[data-reduce-motion="on"] .sp__reset { transition: none; }
 </style>

@@ -103,6 +103,23 @@ Below 861px the site behaves like an installed app:
 - **Install**: standalone display, paper splash and theme colour, icons rendered from the
   sun-e vector at `/brand/icon-<size>.png` and `/brand/maskable-512.png`.
 
+## Motion on scroll, and the hero verse
+- **Scroll layer** (`plugins/scrollfx.client.ts`): after every route paints, shared things
+  (headings, cards, rows, pull quotes, rules, photos) are tied to scroll: batched staggered
+  rises, rules that draw in, and a slow photo drift (`img[data-px]`, `--py`, via CSS
+  `translate`). Transform and opacity only. It skips anything a page already animates, never
+  touches body prose, only hides what is still below the fold, and does nothing under
+  reduced motion. A scroll-linked yellow progress hairline runs at the top (CSS only).
+- **Smooth scroll**: Lenis (vendored in `vendor/lenis.mjs`) on desktop with a mouse or
+  trackpad only, driven from the GSAP ticker so ScrollTrigger stays in step. Phones and touch
+  keep native scrolling.
+- **Hero verse** (`components/brand/SunQuote.vue`, `utils/vedicQuotes.ts`): 28 verses from
+  the Vedas, Upanishads and Gita, shuffled (never the same twice in a row), changing every 5s.
+  Out: lifts and dissolves into heat haze. In: rises through the haze into focus. The haze is
+  one SVG feTurbulence + feDisplacementMap filter, desktop only and only while a change
+  plays; phones use rise + blur. Pauses when the tab or hero is hidden, and has a pause
+  button. Reduced motion: cross-fade. First paint always shows verse 0.
+
 ## Social and PWA
 Social cards render on demand at `/api/social-card/<key>.png` in the brand layout
 (paper, Fraunces title, sun). PWA shortcuts point to the family. App icons are rasterised

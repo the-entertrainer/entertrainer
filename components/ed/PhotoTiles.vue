@@ -258,7 +258,7 @@ function positionOf(photo: PhotoTileItem) {
   .photo-tiles__tile.is-expanded { transform: none; }
 }
 
-:global(html[data-reduce-motion="on"]) .photo-tiles__tile {
+html[data-reduce-motion="on"] .photo-tiles__tile {
   transition: none;
 }
 </style>

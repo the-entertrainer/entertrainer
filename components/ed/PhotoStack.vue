@@ -322,5 +322,5 @@ function onKey(e: KeyboardEvent) {
 @media (prefers-reduced-motion: reduce) {
   .photo-stack__card { transition: none; }
 }
-:global(html[data-reduce-motion="on"]) .photo-stack__card { transition: none; }
+html[data-reduce-motion="on"] .photo-stack__card { transition: none; }
 </style>

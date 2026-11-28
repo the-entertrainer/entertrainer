@@ -125,3 +125,8 @@ brand system. Inspiration survey notes kept outside the repo (nothing copied).
 - View-transition push/pop on phones with shared app/game marks; curtain stays on desktop.
 - App shell: swipe header or pager between siblings; 44px targets; haptics in games/apps.
 - App icons served as PNG from the vector (`/brand/icon-*.png`), manifest + apple-touch updated.
+
+## Scroll motion + hero verses (28 Nov 2026)
+- Site-wide scroll layer, desktop smooth scroll (Lenis, vendored), scroll progress hairline.
+- Hero verse rotator with heat-haze transition (28 verses, every 5s).
+- Preloader: sun-e logo now sits inside the rings.

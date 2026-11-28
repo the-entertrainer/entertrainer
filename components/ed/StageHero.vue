@@ -320,14 +320,14 @@ withDefaults(defineProps<{
     animation: none !important;
   }
 }
-:global(html[data-reduce-motion="on"]) .stage__ribbon,
-:global(html[data-reduce-motion="on"]) .stage__node,
-:global(html[data-reduce-motion="on"]) .stage__orbit-spin,
-:global(html[data-reduce-motion="on"]) .stage__ripple,
-:global(html[data-reduce-motion="on"]) .stage__focus-halo,
-:global(html[data-reduce-motion="on"]) .stage__anomaly,
-:global(html[data-reduce-motion="on"]) .stage__stroke,
-:global(html[data-reduce-motion="on"]) .stage__flow-dot {
+html[data-reduce-motion="on"] .stage__ribbon,
+html[data-reduce-motion="on"] .stage__node,
+html[data-reduce-motion="on"] .stage__orbit-spin,
+html[data-reduce-motion="on"] .stage__ripple,
+html[data-reduce-motion="on"] .stage__focus-halo,
+html[data-reduce-motion="on"] .stage__anomaly,
+html[data-reduce-motion="on"] .stage__stroke,
+html[data-reduce-motion="on"] .stage__flow-dot {
   animation: none !important;
 }
 </style>

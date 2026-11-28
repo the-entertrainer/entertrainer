@@ -17,11 +17,23 @@ export default defineNuxtPlugin((nuxtApp) => {
     html.style.setProperty('--wipe-y', `${Math.round(e.clientY)}px`)
   }, { passive: true })
 
+  // Phone navigation direction for the app-style slide (brand.css, view transitions).
+  const TAB = ['/', '/elevate', '/empower', '/engage', '/about']
+  const tabOf = (p: string) => p === '/' ? 0 : TAB.findIndex((t, i) => i > 0 && p.startsWith(t))
+  const depth = (p: string) => p.split('/').filter(Boolean).length
+  const phone = () => window.matchMedia('(max-width: 860px)').matches
+
   router.beforeEach((to, from) => {
     if (!from.name || to.path === from.path) return
     markFreshStage()
     const html = document.documentElement
+    const dt = depth(to.path) - depth(from.path)
+    const ta = tabOf(to.path), fa = tabOf(from.path)
+    const root = (p: string) => TAB.includes(p.replace(/\/$/, '') || '/')
+    html.dataset.navDir = root(to.path) && root(from.path) && ta !== fa ? (ta > fa ? 'right' : 'left') : dt > 0 ? 'forward' : dt < 0 ? 'back' : (ta >= 0 && fa >= 0 && ta !== fa ? (ta > fa ? 'right' : 'left') : (history.state?.forward === from.fullPath ? 'back' : 'forward'))
     if (motionLevel() === 'off') return
+    // Phones get native-style slides from the View Transitions API instead of the curtain.
+    if (phone() && 'startViewTransition' in document) return
     html.classList.remove('dp-turning')
     // Force a reflow so the animation restarts on quick successive clicks.
     void html.offsetWidth

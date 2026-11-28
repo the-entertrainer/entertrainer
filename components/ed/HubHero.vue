@@ -71,11 +71,16 @@ const chars = computed(() => [...props.title])
 }
 @media (min-width: 900px) {
   .hub__body { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: end; min-height: 340rem; }
+  /* Brand relaunch: the section name runs the full width, deck and art share the row below. */
+  .hub__copy { display: contents; }
+  .hub__title { grid-column: 1 / -1; grid-row: 1; }
+  .hub__deck, .hub__extra { grid-column: 1; }
+  .hub__art { grid-column: 2; grid-row: 2 / span 2; justify-self: end; align-self: start; }
 }
 .hub__copy { position: relative; z-index: 1; min-width: 0; }
 .hub__title {
   margin: 0;
-  font: 400 min(var(--type-hub), 15cqi)/.82 var(--font-display);
+  font: 400 min(var(--br-mega), 19.5cqi)/.8 var(--font-display);
   font-variation-settings: "opsz" 144, "SOFT" 50, "WONK" 1;
   letter-spacing: -.05em;
   color: var(--ink);
@@ -86,13 +91,14 @@ const chars = computed(() => [...props.title])
 .hub__deck {
   max-width: 30ch;
   margin: var(--space-21) 0 0;
-  font: 400 clamp(19px, 1.8vw, 24px)/1.4 var(--font-reading);
+  font: 400 clamp(22px, 2.2vw, 32px)/1.2 var(--font-display);
+  letter-spacing: -.01em;
   color: var(--ink);
 }
 .hub__extra { margin-top: var(--space-21); }
 .hub__art { position: relative; min-width: 0; align-self: stretch; }
 @media (max-width: 899px) {
   .hub__art { order: -1; height: 200rem; }
-  .hub__title { font-size: clamp(64px, 19vw, 120px); }
+  .hub__title { font-size: min(clamp(64px, 21vw, 140px), 19.5cqi); }
 }
 </style>

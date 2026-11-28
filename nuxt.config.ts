@@ -140,7 +140,7 @@ export default defineNuxtConfig({
     manifest: {
       name: 'Entertrainer',
       short_name: 'Entertrainer',
-      description: 'Entertain + Train. Essays, free apps for trainers, and small games about learning, by Naveen Jose.',
+      description: 'Essays, free apps for trainers, and small games about learning, by Naveen Jose.',
       theme_color: '#F7F1E4',
       background_color: '#F7F1E4',
       display: 'standalone',

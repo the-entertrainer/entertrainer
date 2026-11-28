@@ -290,7 +290,7 @@ onMounted(() => {
       <h2 id="ab-notes-t" class="ab-notes__t br-display">“Entertrainer” is not a typo. It’s a manifesto.</h2>
       <div class="ab-notes__grid">
         <div class="ab-notes__col">
-          <p class="ab-notes__p">Entertain + Train. If it doesn’t hold attention, it can’t transfer knowledge. I design every piece of learning with the questions a filmmaker asks: does this moment matter? Will they remember this scene? What does the learner feel here?</p>
+          <p class="ab-notes__p">If it doesn’t hold attention, it can’t transfer knowledge. I design every piece of learning with the questions a filmmaker asks: does this moment matter? Will they remember this scene? What does the learner feel here?</p>
           <p class="ab-notes__p">Anchored in Bloom’s taxonomy and adult learning principles, but dressed in storytelling, motion and craft. The method is rigorous. The experience is anything but dry.</p>
         </div>
         <ol class="ab-time">

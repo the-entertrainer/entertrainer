@@ -57,7 +57,6 @@ const letters = [...'entertrainer']
 
     <div class="ft__base br-meta">
       <span>© {{ year }} {{ store.name }}</span>
-      <span>Entertain + Train</span>
       <a :href="linkedin" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
       <NuxtLink to="/colophon">How this site works</NuxtLink>
       <span>No tracking. Your work in the apps stays in your browser.</span>

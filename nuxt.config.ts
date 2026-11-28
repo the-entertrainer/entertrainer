@@ -98,9 +98,9 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#F7F1E4', media: '(prefers-color-scheme: light)' },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
-        { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
         { name: 'apple-mobile-web-app-title', content: 'Entertrainer' },
-        { name: 'msapplication-TileColor', content: '#161618' },
+        { name: 'msapplication-TileColor', content: '#12110F' },
 		{ name: 'msapplication-TileImage', content: '/mstile-150x150.png' },
         // Site identity only. Route-specific previews are declared by each
         // page through useSeoMeta so pasted links never inherit the home card.
@@ -111,7 +111,7 @@ export default defineNuxtConfig({
         { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/brand/icon-180.png' },
 		{ rel: 'mask-icon', href: '/safari-pinned-tab.svg', color: '#FFD43B' },
         // Two preloads. Archivo sets every interface string and Fraunces
         // sets the headline, so those two are on the critical path for the
@@ -149,8 +149,9 @@ export default defineNuxtConfig({
       start_url: '/',
 		icons: [
 		  { src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
-		  { src: '/pwa-192.png', sizes: '192x192', type: 'image/png' },
-		  { src: '/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+		  { src: '/brand/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+		  { src: '/brand/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+		  { src: '/brand/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
 		],
       shortcuts: [
         { name: 'Aim · Learning objectives', short_name: 'Aim', description: 'Write a learning objective you can measure', url: '/empower/aim', icons: [{ src: '/brand/aim.svg', sizes: 'any', type: 'image/svg+xml' }] },
@@ -193,6 +194,8 @@ export default defineNuxtConfig({
   // bundle. Route rendering makes each page's useSeoMeta values visible in the
   // first response, so pasted links describe the page being shared.
   ssr: true,
+  // Phones get native-style route slides (see brand.css → View transitions).
+  experimental: { viewTransition: true },
   routeRules: {
     // Whatto is unlisted: reachable only by typing the URL, never indexed.
     '/engage/whatto': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },

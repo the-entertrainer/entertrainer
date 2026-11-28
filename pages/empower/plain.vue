@@ -33,7 +33,7 @@ watch(text, (v) => sessionStorage.setItem('et-plain', v))
         <label class="fx-label" for="plain-in">Your instruction</label>
         <textarea id="plain-in" v-model="text" class="fx-text plain__in" placeholder="Paste an SOP step, an email to the team, a slide of instructions..." spellcheck="true" />
         <div class="fx-row plain__acts">
-          <button type="button" class="fx-btn fx-btn--ghost" @click="text = SAMPLE">Try a messy one</button>
+          <button type="button" class="fx-btn fx-btn--ghost" @click="text = SAMPLE; haptic(8)">Try a messy one</button>
           <button type="button" class="fx-btn fx-btn--ghost" :disabled="!text" @click="text = ''">Clear</button>
         </div>
         <p class="fx-note">Nothing is sent anywhere. Plain runs in this tab.</p>

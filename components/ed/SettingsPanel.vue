@@ -10,8 +10,36 @@ const {
   setOpeningSound,
   setAstroclockGearSound,
   setWordOfTheDay,
+  setMotion,
+  setUiSound,
   reset
 } = useSiteSettings()
+
+const MOTION_OPTIONS = [
+  { id: 'full', label: 'Full', note: 'Every animation, as designed.' },
+  { id: 'calm', label: 'Calm', note: 'Half the distance and half the time.' },
+  { id: 'off', label: 'Off', note: 'Nothing moves. Everything is still there.' }
+] as const
+const osReduce = ref(false)
+onMounted(() => {
+  try { osReduce.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches } catch { /* ignore */ }
+})
+function pickMotion(id: 'full' | 'calm' | 'off') {
+  setMotion(id)
+  playPress('toggle')
+}
+function onMotionKey(e: KeyboardEvent) {
+  const ids = MOTION_OPTIONS.map(o => o.id)
+  const i = ids.indexOf(settings.value.motion)
+  let next = -1
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1) % ids.length
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (i - 1 + ids.length) % ids.length
+  if (next < 0) return
+  e.preventDefault()
+  pickMotion(ids[next]!)
+  nextTick(() => (e.currentTarget as HTMLElement | null)?.querySelector<HTMLElement>('[aria-checked="true"]')?.focus())
+}
+const motionNote = computed(() => MOTION_OPTIONS.find(o => o.id === settings.value.motion)?.note ?? '')
 
 const dialog = ref<HTMLElement | null>(null)
 const closeBtn = ref<HTMLButtonElement | null>(null)
@@ -99,6 +127,43 @@ function toggleOpeningSound() {
         </header>
 
         <div class="sp__body">
+          <div class="sp__row sp__row--stack">
+            <span class="sp__row-copy">
+              <span id="sp-motion-label" class="sp__row-label">Motion</span>
+              <span class="sp__row-note">{{ osReduce ? 'Your device asks for reduced motion, so the site stays still.' : motionNote }}</span>
+            </span>
+            <div class="sp__seg" role="radiogroup" aria-labelledby="sp-motion-label" @keydown="onMotionKey">
+              <button
+                v-for="o in MOTION_OPTIONS"
+                :key="o.id"
+                type="button"
+                role="radio"
+                class="sp__seg-btn"
+                :aria-checked="settings.motion === o.id"
+                :tabindex="settings.motion === o.id ? 0 : -1"
+                @click="pickMotion(o.id)"
+              >{{ o.label }}</button>
+            </div>
+          </div>
+
+          <label class="sp__row">
+            <span class="sp__row-copy">
+              <span class="sp__row-label">Sound</span>
+              <span class="sp__row-note">Soft paper and press sounds on taps.</span>
+            </span>
+            <button
+              type="button"
+              class="sp__switch"
+              role="switch"
+              :aria-checked="settings.uiSound"
+              :aria-label="`Sound ${settings.uiSound ? 'on' : 'off'}`"
+              @click="setUiSound(!settings.uiSound); playPress('toggle')"
+            >
+              <span class="sp__switch-knob" aria-hidden="true" />
+              <span class="sp__switch-state" aria-hidden="true">{{ settings.uiSound ? 'On' : 'Off' }}</span>
+            </button>
+          </label>
+
           <label class="sp__row">
             <span class="sp__row-copy">
               <span class="sp__row-label">Opening sound</span>
@@ -160,6 +225,22 @@ function toggleOpeningSound() {
 </template>
 
 <style scoped>
+.sp__row--stack { flex-direction: column; align-items: stretch !important; gap: 10rem; }
+.sp__row-note { display: block; margin-top: 3rem; font-size: 13px; line-height: 1.35; color: var(--muted); }
+.sp__seg {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border: var(--stroke) solid var(--ink); border-radius: var(--radius-s); overflow: hidden;
+}
+.sp__seg-btn {
+  min-height: 44rem;
+  font: 600 var(--type-meta)/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink); background: var(--paper);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.sp__seg-btn + .sp__seg-btn { border-left: var(--stroke) solid var(--ink); }
+.sp__seg-btn[aria-checked="true"] { background: var(--accent); color: var(--accent-ink); }
+.sp__seg-btn:focus-visible { outline-offset: -4px; }
+@media (hover: hover) { .sp__seg-btn:not([aria-checked="true"]):hover { background: var(--signal-field); } }
 .sp {
   position: fixed;
   inset: 0;

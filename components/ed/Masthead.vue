@@ -24,6 +24,8 @@ const {
   refresh: refreshWotd
 } = useDailyWord()
 const open = ref(false)
+const indexOpen = useState<boolean>('dp-index-open', () => false)
+const isMac = ref(false)
 
 const isCurrent = (href: string) =>
   href === '/' ? route.path === '/' : route.path.startsWith(href)
@@ -42,6 +44,7 @@ function openSettingsFromSheet() {
 }
 
 onMounted(() => {
+  isMac.value = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
   refreshWotd()
   window.addEventListener('keydown', onKey)
 })
@@ -63,6 +66,19 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
       </nav>
 
       <div class="mh__end">
+        <button
+          type="button"
+          class="mh__search u-icon-btn"
+          aria-haspopup="dialog"
+          :aria-expanded="indexOpen"
+          aria-label="Search the site"
+          aria-keyshortcuts="Control+K Meta+K /"
+          @click="indexOpen = true"
+        >
+          <EdSignalIcon name="search" />
+          <span class="mh__search-label" aria-hidden="true">Index</span>
+          <kbd class="mh__kbd" aria-hidden="true">{{ isMac ? '⌘' : 'Ctrl' }} K</kbd>
+        </button>
         <button
           v-if="wotdEnabled"
           type="button"
@@ -124,6 +140,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           <span>{{ wotdDot ? 'WOTD · new' : 'WOTD' }}</span>
           <EdSignalIcon name="word" />
         </button>
+        <button type="button" class="mh__sheet-link mh__sheet-settings mh__sheet-search" @click="open = false; indexOpen = true">
+          <span>Search</span>
+          <EdSignalIcon name="search" />
+        </button>
         <button type="button" class="mh__sheet-link mh__sheet-settings" @click="openSettingsFromSheet">
           <span>Settings</span>
           <EdSignalIcon name="settings" />
@@ -136,10 +156,42 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 <style scoped>
 .mh {
   position: sticky; top: 0; z-index: var(--z-chrome);
-  background: var(--paper);
-  border-bottom: var(--stroke) solid var(--line);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: saturate(1.2) blur(8px);
+  -webkit-backdrop-filter: saturate(1.2) blur(8px);
+  border-bottom: var(--stroke) solid var(--ink);
+  box-shadow: 0 3px 0 -2px var(--paper), 0 4px 0 -2px color-mix(in srgb, var(--ink) 35%, transparent);
   padding-top: var(--safe-top);
 }
+
+/* Search: an "Index" button that names its shortcut. */
+.mh__search {
+  display: inline-flex; align-items: center; gap: 8rem;
+  height: var(--icon); padding: 0 10rem 0 9rem;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-s);
+  background: var(--paper); color: var(--ink);
+  font: 500 var(--type-meta)/1 var(--font-mono);
+  letter-spacing: .1em; text-transform: uppercase;
+  transition: background var(--dur-fast) var(--ease-out), transform var(--dur-tap) var(--ease-out);
+}
+.mh__search :deep(.ps-icon) { width: 16rem; height: 16rem; }
+.mh__kbd {
+  font: 500 10px/1 var(--font-mono); letter-spacing: .04em;
+  padding: 3rem 5rem; border: var(--stroke) solid var(--line-strong); border-radius: 3rem;
+  color: var(--muted); text-transform: none;
+}
+@media (hover: hover) { .mh__search:hover { background: var(--signal-field); } }
+.mh__search:active { transform: scale(.97); }
+@media (max-width: 1279px) { .mh__kbd { display: none; } }
+.mh__kbd { white-space: nowrap; }
+@media (max-width: 860px) {
+  .mh__search { width: var(--icon); padding: 0; justify-content: center; }
+  .mh__search-label { display: none; }
+}
+@media (max-width: 430px) { .mh__search { display: none; } }
+.mh__sheet-search { display: none; }
+@media (max-width: 430px) { .mh__sheet-search { display: flex; } }
 
 .mh__skip {
   position: absolute; left: 12rem; top: 12rem; z-index: 2;
@@ -169,6 +221,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font-size: var(--type-meta); font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  white-space: nowrap;
   color: var(--ink);
   border-radius: 0;
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
@@ -179,8 +232,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .mh__link[aria-current="page"]::after {
   content: ''; position: absolute; left: 0; right: 0; bottom: 0;
   height: 2px; background: var(--ink);
-  animation: nav-route 220ms var(--ease-out) both;
+  animation: nav-route 420ms var(--ease-ink) both;
 }
+/* The sun sits on the current section, like a dot on a printed contents line. */
+.mh__link[aria-current="page"]::before {
+  content: ''; position: absolute; left: 50%; top: -3rem;
+  width: 7rem; height: 7rem; margin-left: -3.5rem; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 0 1px var(--ink);
+  animation: nav-sun 520ms var(--ease-stamp) both;
+}
+@keyframes nav-sun { from { transform: translateY(6rem) scale(0); } to { transform: none; } }
 @keyframes nav-route { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 .mh__end { display: flex; align-items: center; gap: var(--space-8); margin-left: var(--space-13); }
@@ -280,9 +341,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .mh__sheet-link svg { opacity: 0.45; }
 }
 
+@media (max-width: 380px) {
+  .mh__bar { gap: var(--space-8); }
+  .mh__brand { min-width: 0; }
+  .mh__brand :deep(.wm__word) { font-size: 22rem; }
+  .mh__end { gap: 6rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mh__sheet { transition-duration: 1ms; }
-  .mh__link[aria-current="page"]::after { animation: none; }
+  .mh__link[aria-current="page"]::after, .mh__link[aria-current="page"]::before { animation: none; }
   .mh__brand :deep(svg), .mh__icon, .mh__icon svg { transition: none; }
 }
 </style>
@@ -337,6 +405,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   55% { transform: translateY(1px) rotate(6deg); }
 }
 
+
+html[data-reduce-motion="on"] .mh__icon--settings .ps-icon,
+html[data-reduce-motion="on"] .mh__icon--theme .ps-icon,
+html[data-reduce-motion="on"] .mh__icon--menu .ps-icon,
+html[data-reduce-motion="on"] .mh__wotd-tile--a,
+html[data-reduce-motion="on"] .mh__wotd-tile--b,
+html[data-reduce-motion="on"] .mh__wotd-tile--c,
+html[data-reduce-motion="on"] .mh__link[aria-current="page"]::before,
+html[data-reduce-motion="on"] .mh__link[aria-current="page"]::after { animation: none !important; }
 
 @media (prefers-reduced-motion: reduce) {
   .mh__icon--settings .ps-icon,

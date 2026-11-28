@@ -1,10 +1,11 @@
 <script setup lang="ts">
 /**
- * The hero line. Beside the sun, a Vedic verse; every 5 seconds it lifts off
- * the page in heat haze and the next one rises up out of the sun's glow.
+ * The hero title: a Vedic verse, headline-size, sitting on the sun. Every
+ * 5 seconds it lifts off in heat haze and the next one rises through the glow.
  *
- * - Two stacked layers, so old and new overlap during the change. Height is
- *   reserved up front: nothing below ever moves.
+ * - Two stacked layers, so old and new overlap during the change. A hidden
+ *   sizer holds every verse, so the box is always as tall as the longest and
+ *   nothing below ever moves.
  * - The haze is one SVG feTurbulence + feDisplacementMap filter, switched on
  *   only while a change plays (desktop). Phones get rise + blur instead.
  * - Server and first paint always show quote 0. Order is randomised after
@@ -150,6 +151,13 @@ onBeforeUnmount(() => {
       </filter>
     </svg>
     <div ref="stage" class="sq__stage" :style="{ '--sq-haze': `url(#${filterId})` }">
+      <div class="sq__sizer" aria-hidden="true">
+        <div v-for="q in VEDIC_QUOTES" :key="q.src" class="sq__layer is-measure">
+          <p class="sq__t">{{ q.en }}</p>
+          <p class="sq__sa">{{ q.sa }}</p>
+          <p class="sq__src br-meta">{{ q.src }}</p>
+        </div>
+      </div>
       <div
         v-for="(l, i) in layers"
         :key="i"
@@ -176,38 +184,56 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.sq { position: relative; margin: 0; min-width: 0; text-align: center; }
+.sq { position: relative; margin: 0; min-width: 0; width: 100%; text-align: center; color: var(--br-ink); padding-bottom: 36px; }
 .sq__defs { position: absolute; width: 0; height: 0; overflow: hidden; }
-.sq__stage { position: relative; display: grid; min-height: var(--sq-h, 132px); align-content: start; }
+.sq__stage { position: relative; display: grid; justify-items: stretch; align-items: center; }
+.sq__sizer { grid-area: 1 / 1; display: grid; visibility: hidden; pointer-events: none; align-self: stretch; }
+.sq__sizer .sq__layer { position: relative; grid-area: 1 / 1; opacity: 1; visibility: hidden; }
 .sq__stage.is-haze { filter: var(--sq-haze); }
-.sq__stage::before {
-  content: ''; position: absolute; inset: -40% -14% -30%; z-index: -1; pointer-events: none;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--br-sun, #FFD43B) 55%, transparent), transparent);
-  opacity: 0; transition: opacity .7s var(--br-ease, ease);
-}
-.sq__stage.is-anim::before { opacity: .7; }
 .sq__layer { grid-area: 1 / 1; opacity: 0; transition: opacity .8s ease; pointer-events: none; }
 .sq__layer.is-on { opacity: 1; pointer-events: auto; }
 .sq__stage.is-anim .sq__layer { transition: none; }
 .sq__stage.is-anim .sq__w, .sq__stage.is-anim .sq__aux { will-change: transform, opacity, filter; }
-.sq__t { margin: 0; font: 400 clamp(19px, 1.75vw, 26px)/1.2 var(--font-display); font-variation-settings: "opsz" 48, "SOFT" 40; letter-spacing: -.012em; text-wrap: balance; }
-.sq__w { display: inline-block; margin-right: .24em; }
+/* Headline type, tight, balanced. A paper halo keeps ink letters sharp on the sun. */
+.sq__t {
+  margin: 0;
+  font: 400 clamp(30px, 4.6vw, 68px)/1.05 var(--font-display);
+  font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 1;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+  color: var(--br-ink);
+  text-shadow:
+    0 0 16px var(--br-paper),
+    0 0 36px var(--br-paper),
+    0 0 64px color-mix(in srgb, var(--br-paper) 80%, transparent);
+}
+.sq__w { display: inline-block; margin-right: .22em; }
 .sq__w:last-child { margin-right: 0; }
-.sq__sa { margin: 10px 0 0; font: italic 400 13px/1.35 var(--font-ui); opacity: .72; }
-.sq__src { margin: 6px 0 0; color: var(--br-sun-deep, #8A6500); }
+.sq__sa {
+  margin: 14px 0 0;
+  font: italic 400 clamp(13px, 1.15vw, 16px)/1.4 var(--font-ui);
+  color: var(--br-ink);
+  opacity: .78;
+  text-shadow: 0 0 16px var(--br-paper), 0 0 28px var(--br-paper);
+}
+.sq__src {
+  margin: 8px 0 0;
+  color: var(--br-ink);
+  opacity: .72;
+  text-shadow: 0 0 16px var(--br-paper);
+}
 .sq__pause {
-  position: absolute; right: -8px; bottom: -6px; width: 44px; height: 44px; border: 0; background: none; padding: 0;
-  display: grid; place-items: center; cursor: pointer; color: var(--ink); opacity: .55; transition: opacity .2s;
+  position: absolute; left: 50%; bottom: 0; width: 44px; height: 44px; border: 0; background: none; padding: 0;
+  display: grid; place-items: center; cursor: pointer; color: var(--br-ink); opacity: .5; transition: opacity .2s;
+  translate: -50% 0;
 }
 .sq__pause:hover, .sq__pause:focus-visible { opacity: 1; }
 .sq__pause i { width: 10px; height: 12px; display: block; }
 .sq__pause .is-pause { border-inline: 3px solid currentColor; }
 .sq__pause .is-play { width: 0; height: 0; border-block: 6px solid transparent; border-left: 10px solid currentColor; }
 @media (max-width: 760px) {
-  .sq { text-align: left; --sq-h: 168px; }
-  .sq__t { font-size: clamp(19px, 5.4vw, 23px); }
-  .sq__pause { right: 0; bottom: 0; }
+  .sq__t { font-size: clamp(28px, 8.2vw, 36px); letter-spacing: -.03em; line-height: 1.08; }
+  .sq__sa { font-size: 13px; margin-top: 12px; }
 }
-@media (min-width: 761px) { .sq { --sq-h: 138px; } }
 @media (prefers-reduced-motion: reduce) { .sq__layer { transition: opacity .6s ease; } }
 </style>

@@ -18,7 +18,7 @@ export const SOCIAL_PREVIEWS: Record<string, SocialPreview> = {
     label: 'Entertrainer',
     title: 'Learning people actually remember',
     description: 'If it doesn’t hold attention, it can’t transfer knowledge. Essays, free apps for trainers, and small games by Naveen Jose.',
-    imageAlt: 'Entertrainer card: Entertain + Train, a yellow sun on cream paper.'
+    imageAlt: 'Entertrainer card: a yellow sun on cream paper.'
   },
   '/about': {
     key: 'about',

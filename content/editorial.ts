@@ -162,6 +162,41 @@ export const ITEMS: EditorialItem[] = [
   }
 ]
 
+/**
+ * The Studio shelf on /empower: bigger tools that already have routes.
+ * Set `listed: false` to hide one from the shelf (the route keeps working).
+ */
+export interface StudioItem {
+  id: string
+  title: string
+  dek: string
+  href: string
+  icon: string
+  stamp: string
+  listed: boolean
+}
+
+export const STUDIO: StudioItem[] = [
+  {
+    id: 'cadence',
+    title: 'Cadence',
+    dek: 'Turn a topic list into a monthly training calendar, laid out around holidays, audiences and time slots.',
+    href: '/tools/cadence',
+    icon: '/cadence-icon.svg',
+    stamp: 'Studio · Training calendar',
+    listed: true
+  },
+  {
+    id: 'storygen',
+    title: 'StoryGen',
+    dek: 'Design a course storyboard on an open canvas. Pick a framework, connect the screens, export to Word or Excel.',
+    href: '/tools/storygen',
+    icon: '/storygen-icon.svg',
+    stamp: 'Studio · Storyboards',
+    listed: true
+  }
+]
+
 /* ── Derived views ─────────────────────────────────────────────────────── */
 
 export const FEATURED = ITEMS.find(i => i.featured) as EditorialItem

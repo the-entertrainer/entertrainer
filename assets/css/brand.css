@@ -262,3 +262,22 @@ html[data-reduce-motion="on"]::view-transition-new(root) { animation: none !impo
   :root .mh .mh__end { gap: 4px; }
   :root .mh .mh__bar { gap: 8px; padding-inline: 14px; }
 }
+
+/* ── Scroll motion ─────────────────────────────────────────────── */
+html.has-lenis, html.has-lenis body { height: auto; }
+html.has-lenis { scroll-behavior: auto !important; }
+.lenis-stopped { overflow: clip; }
+/* Photo drift: GSAP tweens --py; translate/scale are separate properties, so hover transforms still compose. */
+img[data-px] { translate: 0 calc(var(--py, 0) * 1%); scale: 1.12; will-change: translate; }
+/* Reading progress, scroll-linked in browsers that support it (no JS). */
+.br-progress { display: none; }
+@supports (animation-timeline: scroll()) {
+  .br-progress {
+    display: block; position: fixed; z-index: 9000; left: 0; right: 0; top: 0; height: 3px; pointer-events: none;
+    background: var(--br-sun, #FFD43B); transform-origin: 0 50%; transform: scaleX(0);
+    animation: br-progress linear both; animation-timeline: scroll(root block);
+  }
+  @keyframes br-progress { to { transform: scaleX(1); } }
+}
+@media (prefers-reduced-motion: reduce) { .br-progress { display: none !important; } img[data-px] { translate: none; scale: none; } }
+html[data-reduce-motion="on"] .br-progress { display: none !important; }

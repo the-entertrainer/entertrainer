@@ -25,19 +25,75 @@ const copiedSubject = ref(false)
 const copiedBody    = ref(false)
 const copiedFull    = ref(false)
 
+const subjects      = ref<string[]>([])
+const sentDraft     = ref('')
+const view          = ref<'clean' | 'diff'>('clean')
+const status        = ref('')
+const diffParts     = computed(() => sentDraft.value && body.value ? wordDiff(sentDraft.value, body.value) : [])
+const diffStats     = computed(() => {
+  let add = 0, del = 0
+  for (const p of diffParts.value) {
+    const n = p.text.trim() ? p.text.trim().split(/\s+/).length : 0
+    if (p.kind === 'add') add += n
+    if (p.kind === 'del') del += n
+  }
+  return { add, del }
+})
+
+/* Recent results, kept only in this browser. */
+interface DraftHistory { id: string; at: number; draft: string; subject: string; body: string; tone: string }
+const HISTORY_KEY = 'entertrainer.draftly.history'
+const history = ref<DraftHistory[]>([])
+function loadHistory() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]')
+    history.value = Array.isArray(raw) ? raw.filter(h => h && typeof h.body === 'string').slice(0, 10) : []
+  } catch { history.value = [] }
+}
+function pushHistory() {
+  const entry: DraftHistory = { id: Date.now().toString(36), at: Date.now(), draft: sentDraft.value, subject: subject.value, body: body.value, tone: tone.value }
+  history.value = [entry, ...history.value].slice(0, 10)
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history.value)) } catch { /* private mode */ }
+}
+function restoreHistory(h: DraftHistory) {
+  draft.value = h.draft
+  originalDraft.value = h.draft
+  sentDraft.value = h.draft
+  subject.value = h.subject
+  subjects.value = [h.subject]
+  body.value = h.body
+  improvements.value = []
+  tone.value = (['casual', 'semi-formal', 'formal'].includes(h.tone) ? h.tone : 'semi-formal') as typeof tone.value
+  view.value = 'clean'
+  phase.value = 'results'
+}
+function clearHistory() {
+  history.value = []
+  try { localStorage.removeItem(HISTORY_KEY) } catch { /* ignore */ }
+}
+onMounted(loadHistory)
+
+function onKey(e: KeyboardEvent) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); void optimize() }
+}
+function announce(msg: string) {
+  status.value = ''
+  requestAnimationFrame(() => { status.value = msg })
+}
+
 const editingResult = ref(false)
 const editedSubject = ref('')
 const editedBody    = ref('')
 
 const canSubmit = computed(() => draft.value.trim().length > 0)
 
+// Paragraphs render as text with white-space: pre-line, never as HTML.
 const formattedBody = computed(() => {
   if (!body.value) return []
   return body.value
     .split(/\n{2,}/)
     .map(p => p.trim())
     .filter(p => p.length > 0)
-    .map(p => p.replace(/\n/g, '<br>'))
 })
 
 const TONE_OPTIONS = [
@@ -120,19 +176,26 @@ async function optimize(refineInstruction = '') {
       audience: audience.value,
     }
     if (refineInstruction) payload.refineInstruction = refineInstruction
+    playPress('tap')
 
-    const data = await $fetch<{ subject: string; body: string; improvements?: string[] }>('/api/better-emails', {
+    const data = await $fetch<{ subject: string; subjects?: string[]; body: string; improvements?: string[] }>('/api/better-emails', {
       method: 'POST',
       body: payload
     })
 
     subject.value       = data.subject
+    subjects.value      = data.subjects?.length ? data.subjects : [data.subject]
+    sentDraft.value     = payload.draft
     body.value          = data.body
     improvements.value  = data.improvements || []
     editedSubject.value = data.subject
     editedBody.value    = data.body
     editingResult.value = false
     phase.value         = 'results'
+    view.value          = 'clean'
+    pushHistory()
+    playPress('success')
+    announce('Your clearer email is ready.')
   } catch (e: any) {
     phase.value = 'compose'
     if (e?.response?.status === 429 || e?.data?.statusCode === 429) {
@@ -147,6 +210,7 @@ async function copySubject() {
   try {
     await navigator.clipboard.writeText(subject.value)
     copiedSubject.value = true
+    announce('Subject copied.')
     setTimeout(() => { copiedSubject.value = false }, 1600)
   } catch {}
 }
@@ -155,6 +219,7 @@ async function copyBody() {
   try {
     await navigator.clipboard.writeText(body.value)
     copiedBody.value = true
+    announce('Body copied.')
     setTimeout(() => { copiedBody.value = false }, 1600)
   } catch {}
 }
@@ -164,6 +229,7 @@ async function copyFull() {
   try {
     await navigator.clipboard.writeText(full)
     copiedFull.value = true
+    announce('Full email copied.')
     setTimeout(() => { copiedFull.value = false }, 1600)
   } catch {}
 }
@@ -243,7 +309,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
         </div>
 
         <!-- Normal compose form -->
-        <form v-else @submit.prevent="optimize">
+        <form v-else @submit.prevent="optimize()" @keydown="onKey">
 
           <div class="be-examples">
             <span class="glass-label">Examples</span>
@@ -288,21 +354,15 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
         </div>
 
         <div class="be-controls">
-          <div class="be-tone-wrap">
-            <label class="glass-label" for="be-tone">Tone</label>
-            <select
-              id="be-tone"
-              v-model="tone"
-              class="glass-field glass-select be-tone-select"
-              :disabled="phase === 'loading'"
-            >
-              <option
-                v-for="opt in TONE_OPTIONS"
-                :key="opt.value"
-                :value="opt.value"
-              >{{ opt.label }}</option>
-            </select>
-          </div>
+          <fieldset class="be-tone-wrap be-tone">
+            <legend class="glass-label">Tone</legend>
+            <div class="be-tone__track">
+              <label v-for="opt in TONE_OPTIONS" :key="opt.value" class="be-tone__opt">
+                <input v-model="tone" type="radio" name="be-tone" :value="opt.value" :disabled="phase === 'loading'">
+                <span>{{ opt.label }}</span>
+              </label>
+            </div>
+          </fieldset>
 
           <div class="be-audience-wrap" role="group" aria-labelledby="be-audience-label">
             <span id="be-audience-label" class="glass-label">Audience</span>
@@ -329,6 +389,7 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
           >
             <span>Optimize Email</span>
           </button>
+          <span class="be-kbd t-mono" aria-hidden="true"><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span>
         </div>
 
         <!-- Error -->
@@ -358,6 +419,13 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
             </button>
           </div>
           <p class="be-card-text be-subject">{{ subject }}</p>
+          <div v-if="subjects.length > 1" class="be-subjects" role="group" aria-label="Other subject lines">
+            <span class="be-subjects__label t-mono">Or try</span>
+            <button
+              v-for="alt in subjects.filter(x => x !== subject)" :key="alt" type="button" class="be-subjects__alt"
+              @click="subject = alt; announce('Subject line swapped.')"
+            >{{ alt }}</button>
+          </div>
         </div>
 
         <div class="glass-panel be-card">
@@ -372,8 +440,16 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
               </button>
             </div>
           </div>
-          <div class="be-body">
-            <p v-for="(para, i) in formattedBody" :key="i" class="be-body-para" v-html="para"></p>
+          <div v-if="sentDraft" class="be-view" role="radiogroup" aria-label="Show">
+            <label class="be-view__opt"><input v-model="view" type="radio" name="be-view" value="clean"><span>Clean copy</span></label>
+            <label class="be-view__opt"><input v-model="view" type="radio" name="be-view" value="diff"><span>What changed</span></label>
+            <span v-if="view === 'diff'" class="be-view__stats t-mono">+{{ diffStats.add }} words · −{{ diffStats.del }} words</span>
+          </div>
+          <div v-if="view === 'clean' || !sentDraft" class="be-body">
+            <p v-for="(para, i) in formattedBody" :key="i" class="be-body-para">{{ para }}</p>
+          </div>
+          <div v-else class="be-body be-diff" aria-label="Changes from your draft. Removed words are struck through, added words are highlighted.">
+            <template v-for="(part, i) in diffParts" :key="i"><del v-if="part.kind === 'del'">{{ part.text }}</del><ins v-else-if="part.kind === 'add'">{{ part.text }}</ins><span v-else>{{ part.text }}</span></template>
           </div>
 
           <!-- Inline edit + re-optimize -->
@@ -434,6 +510,21 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
       </div>
     </Transition>
 
+    <section v-if="history.length && phase !== 'loading'" class="be-history" aria-labelledby="be-history-title">
+      <div class="be-history__head">
+        <h2 id="be-history-title" class="be-history__title t-mono">Recent emails <span>kept in this browser</span></h2>
+        <button type="button" class="be-history__clear" @click="clearHistory">Clear</button>
+      </div>
+      <ol class="be-history__list">
+        <li v-for="h in history" :key="h.id">
+          <button type="button" class="be-history__open" @click="restoreHistory(h)">
+            <span class="be-history__subj">{{ h.subject }}</span>
+            <span class="be-history__when t-mono">{{ new Date(h.at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) }}</span>
+          </button>
+        </li>
+      </ol>
+    </section>
+    <p class="dp-sr" role="status" aria-live="polite">{{ status }}</p>
   </UiToolShell>
 </template>
 
@@ -444,18 +535,14 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
   align-items: center;
   gap: 14rem;
 }
-.draftly-lockup__mark {
-  flex-shrink: 0;
-  filter: drop-shadow(0 6rem 18rem rgba(91, 141, 239, 0.28));
-}
+.draftly-lockup__mark { flex-shrink: 0; }
 .draftly-wordmark {
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 1;
+  letter-spacing: -0.035em;
   line-height: 1;
-  background: linear-gradient(100deg, #8B7CF6, #5B8DEF 55%, #2DD4BF);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--ink);
 }
 @media (max-width: 600px) {
   .draftly-lockup { gap: 11rem; }
@@ -504,9 +591,50 @@ function loadExample(ex: typeof EXAMPLE_DRAFTS[number]) {
   padding: 6rem 12rem;
 }
 .be-audience-chips .glass-chip.active {
-  background: color-mix(in srgb, rgb(var(--accent-fog, 150,140,255)) 30%, transparent);
-  border-color: var(--color-glass-border-hover);
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
 }
+
+.be-tone { margin: 0; padding: 0; border: 0; min-width: 0; }
+.be-tone legend { padding: 0; margin-bottom: 4rem; }
+.be-tone__track { display: inline-flex; padding: 3rem; border: var(--stroke) solid var(--ink); border-radius: 999rem; background: var(--paper); }
+.be-tone__opt { position: relative; }
+.be-tone__opt input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.be-tone__opt span { display: block; padding: 8rem 13rem; border-radius: 999rem; font: 600 13rem/1 var(--font-body); white-space: nowrap; transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+.be-tone__opt input:checked + span { background: var(--ink); color: var(--paper); }
+.be-tone__opt input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+.be-kbd { flex-basis: 100%; text-align: right; font-size: 12rem; color: var(--muted); }
+.be-kbd kbd { font: inherit; padding: 2rem 6rem; border: 1px solid var(--line-strong); border-radius: 4rem; }
+
+.be-subjects { display: flex; flex-wrap: wrap; align-items: center; gap: 6rem 8rem; }
+.be-subjects__label { font-size: 11.5rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.be-subjects__alt { max-width: 100%; padding: 6rem 11rem; border: 1px dashed var(--line-strong); border-radius: var(--radius-s); background: none; color: var(--ink); font: 500 14rem/1.3 var(--font-body); text-align: left; cursor: pointer; }
+.be-subjects__alt:hover { border-style: solid; border-color: var(--ink); background: var(--paper-2); }
+
+.be-view { display: flex; flex-wrap: wrap; align-items: center; gap: 6rem 10rem; }
+.be-view__opt { position: relative; }
+.be-view__opt input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.be-view__opt span { display: block; padding: 6rem 12rem; border: 1px solid var(--line-strong); border-radius: 999rem; font: 600 12.5rem/1 var(--font-body); }
+.be-view__opt input:checked + span { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.be-view__opt input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+.be-view__stats { margin-left: auto; font-size: 12rem; color: var(--muted); }
+.be-diff { white-space: pre-wrap; font: 400 16rem/1.65 var(--font-reading); }
+.be-diff del { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.be-diff ins { text-decoration: none; background: color-mix(in srgb, var(--accent) 55%, transparent); box-shadow: 0 1.5px 0 var(--ink); }
+.be-body-para { white-space: pre-line; }
+
+.be-history { margin-top: clamp(34rem, 5vw, 55rem); padding-top: 16rem; border-top: var(--stroke) solid var(--ink); }
+.be-history__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12rem; }
+.be-history__title { margin: 0 0 8rem; font-size: var(--type-meta); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.be-history__title span { text-transform: none; letter-spacing: 0; margin-left: 8rem; }
+.be-history__clear { border: 0; background: none; color: var(--ink); font: 600 13rem/1 var(--font-body); text-decoration: underline; cursor: pointer; }
+.be-history__list { list-style: none; margin: 0; padding: 0; }
+.be-history__list li { border-bottom: 1px solid var(--line); }
+.be-history__open { width: 100%; display: flex; justify-content: space-between; gap: 16rem; padding: 11rem 2rem; border: 0; background: none; color: var(--ink); text-align: left; cursor: pointer; }
+.be-history__open:hover .be-history__subj { text-decoration: underline; }
+.be-history__subj { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 15rem/1.35 var(--font-reading); }
+.be-history__when { flex: 0 0 auto; font-size: 11.5rem; color: var(--muted); }
 
 .be-submit { padding-top: 12rem; padding-bottom: 12rem; margin-left: auto; }
 

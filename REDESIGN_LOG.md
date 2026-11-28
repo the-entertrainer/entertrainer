@@ -130,3 +130,8 @@ brand system. Inspiration survey notes kept outside the repo (nothing copied).
 - Site-wide scroll layer, desktop smooth scroll (Lenis, vendored), scroll progress hairline.
 - Hero verse rotator with heat-haze transition (28 verses, every 5s).
 - Preloader: sun-e logo now sits inside the rings.
+
+## Hero verse takes the title (28 Nov 2026)
+- Removed the visible "Entertain + Train" / "Entertain +train" wording (hero title, meta and
+  OG titles, manifest description, footer, About notes, social-card kicker, DESIGN.md).
+- The rotating Vedic verse is now the homepage hero title: headline-size, centred on the sun.

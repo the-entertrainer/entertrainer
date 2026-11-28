@@ -5,7 +5,7 @@ This replaces the older "do not replace it" note: the roots are kept (name, the 
 sacred yellow, cream paper, Fraunces, the preloader), the dial is turned up.
 
 ## The idea
-**Entertain + Train.** "Entertrainer is not a typo. It's a manifesto. If it doesn't hold
+"Entertrainer is not a typo. It's a manifesto. If it doesn't hold
 attention, it can't transfer knowledge." (Naveen, first About page, June 2026.)
 
 Positioning: Naveen Jose, instructional designer from hospitality, makes learning people
@@ -113,12 +113,13 @@ Below 861px the site behaves like an installed app:
 - **Smooth scroll**: Lenis (vendored in `vendor/lenis.mjs`) on desktop with a mouse or
   trackpad only, driven from the GSAP ticker so ScrollTrigger stays in step. Phones and touch
   keep native scrolling.
-- **Hero verse** (`components/brand/SunQuote.vue`, `utils/vedicQuotes.ts`): 28 verses from
-  the Vedas, Upanishads and Gita, shuffled (never the same twice in a row), changing every 5s.
-  Out: lifts and dissolves into heat haze. In: rises through the haze into focus. The haze is
-  one SVG feTurbulence + feDisplacementMap filter, desktop only and only while a change
-  plays; phones use rise + blur. Pauses when the tab or hero is hidden, and has a pause
-  button. Reduced motion: cross-fade. First paint always shows verse 0.
+- **Hero verse** (`components/brand/SunQuote.vue`, `utils/vedicQuotes.ts`): the homepage
+  title. 28 verses from the Vedas, Upanishads and Gita, shuffled (never the same twice in a
+  row), changing every 5s, set at headline size over the sun. Out: lifts and dissolves into
+  heat haze. In: rises through the haze into focus. The haze is one SVG feTurbulence +
+  feDisplacementMap filter, desktop only and only while a change plays; phones use rise +
+  blur. A hidden sizer reserves height for the longest verse. Pauses when the tab or hero is
+  hidden, and has a pause button. Reduced motion: cross-fade. First paint always shows verse 0.
 
 ## Social and PWA
 Social cards render on demand at `/api/social-card/<key>.png` in the brand layout

@@ -17,16 +17,16 @@ import { getSocialPreviewByKey } from '~/content/social-previews'
 
 const fontCache = new Map<string, ArrayBuffer>()
 
-async function loadFont(weight: 400 | 700): Promise<ArrayBuffer> {
-  const key = `dm-sans-${weight}`
+async function loadFont(family: 'Archivo' | 'Fraunces', weight: 400 | 700): Promise<ArrayBuffer> {
+  const key = `${family}-${weight}`
   if (fontCache.has(key)) return fontCache.get(key)!
 
   const css = await fetch(
-    `https://fonts.googleapis.com/css2?family=DM+Sans:wght@${weight}&display=swap`,
+    `https://fonts.googleapis.com/css2?family=${family}:wght@${weight}&display=swap`,
     { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; EntertrainerSocialCard/1.0)' } }
   ).then((response) => response.text())
   const url = [...css.matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/g)].at(-1)?.[1]
-  if (!url) throw new Error(`DM Sans ${weight} font URL not found`)
+  if (!url) throw new Error(`${family} ${weight} font URL not found`)
 
   const font = await fetch(url).then((response) => response.arrayBuffer())
   fontCache.set(key, font)
@@ -56,36 +56,43 @@ export default defineEventHandler(async (event) => {
   const preview = getSocialPreviewByKey(key)
   if (!preview) throw createError({ statusCode: 404, statusMessage: 'Social preview not found' })
 
-  const [{ default: satori }, { Resvg }, regular, bold] = await Promise.all([
+  const [{ default: satori }, { Resvg }, regular, bold, display] = await Promise.all([
     import('satori'),
     import('@resvg/resvg-js'),
-    loadFont(400),
-    loadFont(700)
+    loadFont('Archivo', 400),
+    loadFont('Archivo', 700),
+    loadFont('Fraunces', 400)
   ])
 
-  const title = trim(preview.title, 110)
-  const description = trim(preview.description, 175)
-  const titleSize = title.length > 74 ? 52 : title.length > 45 ? 61 : 70
+  // Brand card: paper, ink, one sun. See DESIGN.md → Brand guide.
+  const title = trim(preview.title, 90)
+  const description = trim(preview.description, 150)
+  const titleSize = title.length > 60 ? 60 : title.length > 36 ? 72 : 88
   const tree = element('div', {
     width: 1200,
     height: 630,
-    padding: '48px 58px',
-    backgroundColor: '#fffaf0',
-    color: '#15120f',
-    fontFamily: 'DM Sans',
+    padding: '52px 60px',
+    backgroundColor: '#F7F1E4',
+    color: '#12110F',
+    fontFamily: 'Archivo',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    position: 'relative'
   },
-    element('div', { width: '100%', height: 14, backgroundColor: '#ffd43b', borderRadius: 99 }),
-    element('div', { flexDirection: 'column', maxWidth: 1010, gap: 18 },
-      element('div', { fontSize: 18, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#625c52' }, preview.label),
-      element('div', { fontSize: titleSize, fontWeight: 700, lineHeight: 1.02, letterSpacing: '-0.05em' }, title),
-      element('div', { fontSize: 25, lineHeight: 1.35, color: '#49433b', maxWidth: 900 }, description)
+    element('div', { position: 'absolute', right: -170, bottom: -230, width: 620, height: 620, borderRadius: 999, backgroundColor: '#FFD43B' }),
+    element('div', { width: '100%', justifyContent: 'space-between', borderTop: '5px solid #12110F', paddingTop: 14, fontSize: 17, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' },
+      element('div', {}, preview.label),
+      element('div', { color: '#5E584D' }, 'Entertain + Train')
     ),
-    element('div', { width: '100%', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px solid #15120f', paddingTop: 20 },
-      element('div', { fontSize: 24, fontWeight: 700, letterSpacing: '-0.03em' }, 'entertrainer'),
-      element('div', { fontSize: 16, fontWeight: 700, letterSpacing: '0.08em', color: '#625c52' }, 'ENTERTAINER.IN')
+    element('div', { flexDirection: 'column', maxWidth: 900, gap: 22 },
+      element('div', { fontFamily: 'Fraunces', fontSize: titleSize, fontWeight: 400, lineHeight: 0.98, letterSpacing: '-0.04em' }, title),
+      element('div', { fontSize: 25, lineHeight: 1.35, color: '#3F3A33', maxWidth: 760 }, description)
+    ),
+    element('div', { width: '100%', alignItems: 'center', gap: 14 },
+      element('div', { width: 34, height: 34, borderRadius: 99, backgroundColor: '#12110F', alignItems: 'center', justifyContent: 'center', color: '#FFD43B', fontFamily: 'Fraunces', fontSize: 26, lineHeight: 1, paddingBottom: 4 }, 'e'),
+      element('div', { fontFamily: 'Fraunces', fontSize: 34, letterSpacing: '-0.03em' }, 'entertrainer'),
+      element('div', { fontSize: 16, fontWeight: 700, letterSpacing: '0.12em', color: '#12110F', marginLeft: 'auto' }, 'ENTERTRAINER.IN')
     )
   )
 
@@ -93,8 +100,9 @@ export default defineEventHandler(async (event) => {
     width: 1200,
     height: 630,
     fonts: [
-      { name: 'DM Sans', data: regular, weight: 400, style: 'normal' },
-      { name: 'DM Sans', data: bold, weight: 700, style: 'normal' }
+      { name: 'Archivo', data: regular, weight: 400, style: 'normal' },
+      { name: 'Archivo', data: bold, weight: 700, style: 'normal' },
+      { name: 'Fraunces', data: display, weight: 400, style: 'normal' }
     ]
   })
   const png = Buffer.from(new Resvg(svg).render().asPng())

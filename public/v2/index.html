@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en" data-type="service" data-radius="soft" data-buttons="arrow" data-motion>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Entertrainer: instructional design by Naveen Jose</title>
+<meta name="description" content="Naveen Jose designs onboarding, e-learning and train-the-trainer programmes for hotel and service teams, and makes free apps and games for trainers.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Entertrainer: instructional design by Naveen Jose">
+<meta property="og:description" content="Naveen Jose designs onboarding, e-learning and train-the-trainer programmes for hotel and service teams, and makes free apps and games for trainers.">
+<meta property="og:image" content="/about/naveen-speaking-close.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#dfdedb">
+<meta name="robots" content="noindex">
+<!-- <link rel="canonical" href="https://entertrainer.in/"> once this build replaces the live site -->
+<meta name="site-kind" content="other">
+<meta name="page-type" content="service">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/system.css">
+<link rel="stylesheet" href="assets/ui/cards.css">
+<link rel="stylesheet" href="assets/motion/motion.css">
+<link rel="stylesheet" href="assets/layout/layout.css">
+<style>
+:root {
+  --p-bg: #dfdedb; --p-surface: #d3d2ce; --p-ink: #26251e; --p-muted: #5a5850;
+  --p-accent: #2456d6; --p-accent-ink: #ffffff; --p-action: #2456d6; --p-action-ink: #ffffff;
+  --p-inv-bg: #26251e; --p-inv-surface: #313029; --p-inv-ink: #dfdedb; --p-inv-muted: #9e9d99;
+  --p-inv-accent: #dfdedb; --p-inv-accent-ink: #26251e; --p-inv-action: #dfdedb; --p-inv-action-ink: #26251e;
+  --font-display: "Hanken Grotesk", system-ui, sans-serif;
+  --font-text: "Hanken Grotesk", system-ui, sans-serif;
+  --display-weight: 400;
+  --display-tracking: -0.03em;
+  --display-tracking-xl: -0.038em;
+}
+.rows .rows__name small { display: block; font-weight: 400; color: var(--muted); font-size: var(--t-small); }
+
+.app { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; }
+.app__win { width: min(100%, 380px); background: var(--p-bg); color: var(--p-ink); border-radius: 14px; border: 1px solid color-mix(in oklab, var(--p-ink) 12%, transparent); padding: 16px; font-size: 14px; line-height: 1.4; display: grid; gap: 10px; }
+.app__bar { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--p-muted); }
+.app__name { font-weight: 600; color: var(--p-ink); font-size: 13px; }
+.app__chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 99px; background: var(--p-surface); font-size: 12px; }
+.app__chip--on { background: var(--p-accent); color: var(--p-accent-ink); }
+.app__chip--warn { background: #f3d9b8; color: #5b3a12; }
+.app__row { display: flex; gap: 6px; flex-wrap: wrap; }
+.app__line { background: #fff; border-radius: 8px; padding: 10px 12px; }
+.app__line mark { background: #f3d9b8; color: inherit; border-radius: 3px; padding: 0 2px; }
+.app__meter { height: 6px; border-radius: 99px; background: var(--p-surface); overflow: hidden; }
+.app__meter i { display: block; height: 100%; width: 72%; background: var(--p-accent); border-radius: inherit; }
+.app__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.app__list li { display: grid; grid-template-columns: 44px 1fr auto; gap: 8px; align-items: center; background: #fff; border-radius: 8px; padding: 8px 10px; }
+.app__list b { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--p-accent); }
+.app__list span:last-child { color: var(--p-muted); font-size: 12px; }
+.rungs { display: grid; gap: 5px; }
+.rungs span { display: flex; justify-content: space-between; background: #fff; border-radius: 8px; padding: 5px 12px; font-size: 13px; }
+.rungs span.is-hit { background: var(--p-accent); color: var(--p-accent-ink); }
+.pairs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.pairs span { aspect-ratio: 3 / 4; border-radius: 8px; background: var(--p-ink); display: grid; place-items: center; text-align: center; font-size: 11px; line-height: 1.2; padding: 4px; color: var(--p-bg); }
+.pairs span.is-up { background: #fff; color: var(--p-ink); }
+.pairs span.is-match { background: var(--p-accent); color: var(--p-accent-ink); }
+.app__verb { text-align: center; font-size: 20px; font-weight: 600; letter-spacing: -0.02em; padding: 0; }
+#free .panel { --p-h: 300px; background: var(--p-bg); position: relative; } @media (max-width: 639px) { #free .panel { --p-h: 240px; } }
+@media (min-width: 1024px) { #services .frame { min-height: 600px; } }
+/* pinned-chapters rests unpinned on a phone: hold it to its two phone screens so no neighbour shows */
+@media (max-width: 639px) { main > #work[data-moment]:not(.is-live) { min-height: calc(2 * 100lvh); } #work .mo-pc__visual > img { aspect-ratio: 4 / 3; max-height: 34svh; } }
+</style>
+<script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
+<script>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
+<link rel="modulepreload" href="assets/moments/moments.js">
+<link rel="modulepreload" href="assets/moments/lib.js">
+<link rel="modulepreload" href="assets/moments/pinned-chapters/moment.js">
+</head><body>
+<!-- type: service (Naveen Jose, instructional designer; brand Entertrainer)
+     deal: hero split, moment pinned-chapters (#work)
+     site: nav nav-split, close close-photo, footer footer-dark, rhythm surface-pairs, buttons arrow, mark wordmark,
+     palette stone-blueprint (warm stone paper and a cobalt ink accent: the same paper and blue ink as the essay drawings),
+     type hanken (Hanken Grotesk), radius soft, grounds none (kind other) -->
+<header class="nav nav--split">
+  <div class="wrap nav__bar">
+    <a class="skip-link" href="#top">Skip to content</a>
+    <nav class="nav__links" aria-label="Main">
+      <div class="nav__item">
+        <a class="nav__link" href="elevate.html">Elevate <svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <div class="nav__menu">
+          <div class="wrap grid">
+            <a class="menu-card span-3" href="/elevate/you-are-not-lazy-you-are-helping-the-universe-extend-its-life">
+              <div class="panel"><img class="frame__img" src="/blog/entropy-laziness/hero.jpg" alt="Ink drawing of a teacup with blue arrows carrying the heat up and out of the cup" loading="lazy"></div>
+              <span class="t-card">Why hot tea goes cold</span>
+              <span class="t-small muted">Physics, 6 minutes</span>
+            </a>
+            <a class="menu-card span-3" href="/elevate/why-isnt-the-moon-moonly">
+              <div class="panel"><img class="frame__img" src="/blog/moonly/hero.jpg" alt="Ink drawing of a crescent moon joined by a line to a blue oil lamp" loading="lazy"></div>
+              <span class="t-card">Why isn’t the Moon moonly?</span>
+              <span class="t-small muted">Language, 5 minutes</span>
+            </a>
+            <a class="menu-card span-3" href="/elevate/tajjalan">
+              <div class="panel"><img class="frame__img" src="/blog/tajjalan/hero.jpg" alt="Ink drawing of three clay cups, one being filled with blue tea, one full and one empty" loading="lazy"></div>
+              <span class="t-card">The cup stays. The tea does not.</span>
+              <span class="t-small muted">Upanishads, 6 minutes</span>
+            </a>
+            <a class="menu-card span-3" href="/elevate/the-midpoint-of-your-life-isnt-40-its-18">
+              <div class="panel"><img class="frame__img" src="/blog/life-midpoint/hero.jpg" alt="Ink drawing of a time line with a young man at one end, an old man at the other and a blue mark near the start" loading="lazy"></div>
+              <span class="t-card">The middle of your life is not 40</span>
+              <span class="t-small muted">Mind, 5 minutes</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="nav__item"><a class="nav__link" href="empower.html">Empower</a></div>
+      <div class="nav__item"><a class="nav__link" href="engage.html">Engage</a></div>
+      <div class="nav__item"><a class="nav__link" href="about.html">About</a></div>
+    </nav>
+    <a class="nav__logo" href="index.html">Entertrainer</a>
+    <div class="nav__actions">
+      <a class="btn btn--primary" href="mailto:mail@entertrainer.in?subject=Training%20project">Email Naveen</a>
+    </div>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-label="Menu"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero hero--split" data-enter aria-labelledby="hero-h">
+    <div class="wrap"><div class="hero-text grid hero__grid">
+      <div class="hero__text span-5">
+        <p class="hero__kicker"><span class="dot" aria-hidden="true"></span>Ten essays, three apps and three games, all free</p>
+        <h1 id="hero-h">Instructional design for service teams</h1>
+        <p class="hero__lead">I’m Naveen Jose. I design onboarding, e-learning and trainer programmes in Storyline 360 and Vyond, after years on hotel floors at Club Mahindra and Marriott.</p>
+        <div class="btn-row"><a class="btn btn--primary" href="mailto:mail@entertrainer.in?subject=Training%20project">Email Naveen<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a><a class="btn btn--secondary" href="empower.html">See the free apps</a></div>
+      </div>
+      <div class="hero__media span-6 start-7">
+        <img src="/about/naveen-speaking-close.jpg" alt="Naveen Jose speaking into a microphone during a training session at Courtyard by Marriott, Mahabaleshwar" style="--ly-pos: 50% 22%" fetchpriority="high" data-source="client" data-subject="Naveen Jose training">
+        <div class="ly-float">
+          <div class="ly-float__row"><span class="ly-live">Latest essay</span><span>6 minutes</span></div>
+          <div class="ly-float__title">Why hot tea goes cold</div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="section" id="work" style="--h: 2; --hm: 2" data-moment="pinned-chapters" aria-labelledby="work-h">
+    <div class="wrap mo-pc__grid">
+      <div class="mo-pc__text">
+        <h2 id="work-h">Training programmes from Marriott and Club Mahindra</h2>
+        <ol class="mo-pc__steps">
+          <li class="mo-pc__step">
+            <h3>Onboarding training for new hotel staff</h3>
+            <p>Heroes on Board, a Gurukul workshop at Courtyard by Marriott, Mahabaleshwar, built around the first weeks on the job.</p>
+            <figure class="mo-pc__visual"><img src="/about/about-onboarding.webp" alt="Collage of the Heroes on Board onboarding workshop, with new staff in a training room" width="1131" height="1600"></figure>
+          </li>
+          <li class="mo-pc__step">
+            <h3>Masterclass training for departmental trainers</h3>
+            <p>The CDT Masterclass taught department trainers to plan and run their own sessions, with a certificate at the end.</p>
+            <figure class="mo-pc__visual"><img src="/about/about-cdt.webp" alt="Collage of the CDT Masterclass, trainers holding their certificates" width="1024" height="1280"></figure>
+          </li>
+          <li class="mo-pc__step">
+            <h3>A training comic for resort housekeeping</h3>
+            <p>The SEWA Chronicles told service, empathy, warmth and attentiveness as a printed comic for the team in Coorg.</p>
+            <figure class="mo-pc__visual"><img src="/about/about-sewa-1.webp" alt="Printed SEWA Chronicles booklet and comic pages on a white table" width="1600" height="900"></figure>
+          </li>
+        </ol>
+      </div>
+      <div class="mo-pc__visuals frame"></div>
+    </div>
+  </section>
+
+  <section class="section ground-surface" id="services" style="--hm: 2" aria-labelledby="services-h">
+    <div class="wrap grid grid--top fill">
+      <div class="span-6">
+        <div class="section-head">
+          <h2 id="services-h">Training services and formats</h2>
+          <p>Each one quoted per project, for your LMS, your trainers or the floor.</p>
+        </div>
+        <ul class="rows">
+          <li><span class="rows__name">E-learning modules<small>Built in Storyline 360, delivered as SCORM</small></span><span class="rows__value">SCORM</span></li>
+          <li><span class="rows__name">Explainer videos<small>Animated in Vyond and After Effects</small></span><span class="rows__value">MP4</span></li>
+          <li><span class="rows__name">Session plans<small>Minute-by-minute plans and trainer guides</small></span><span class="rows__value">PDF</span></li>
+          <li><span class="rows__name">Learning games<small>Quizzes and card games for a team</small></span><span class="rows__value">Web</span></li>
+          <li><span class="rows__name">Printed stories<small>Comics and booklets for staff who learn on the floor</small></span><span class="rows__value">Print</span></li>
+        </ul>
+      </div>
+      <div class="frame frame--photo frame--fill span-6 start-7">
+        <img class="frame__img" src="/about/naveen-speaking-projector.jpg" alt="Naveen Jose presenting to a room of trainees, a projector in the foreground" loading="lazy" style="object-position: 50% 30%" data-source="client" data-subject="Naveen Jose presenting">
+      </div>
+    </div>
+  </section>
+
+  <section class="section ground-surface" id="free" style="--hm: 2" aria-labelledby="free-h">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="free-h">Free training tools</h2>
+        <p>Essays, apps and games you can use today, with no account.</p>
+      </div>
+      <div class="grid">
+        <a class="card card--open span-4" href="elevate.html">
+          <div class="panel"><img class="frame__img" src="/blog/feeling-of-knowing/hero.jpg" alt="Ink drawing of a zip pulled apart, its slider and teeth labelled" loading="lazy"></div>
+          <h3>10 essays on learning</h3>
+          <p class="t-small muted">Learning, language and the mind, five to eight minutes each.</p>
+        </a>
+        <a class="card card--open span-4" href="empower.html">
+          <div class="panel"><div class="app" role="img" aria-label="The Aim app building the objective: new joiners will greet a guest by name within 30 seconds of arrival"><div class="app__win">
+  <div class="app__bar"><span class="app__name">Aim</span><span>Bloom level: apply</span></div>
+  <div class="app__row"><span class="app__chip">Who: new joiners</span><span class="app__chip app__chip--on">Verb: greet</span><span class="app__chip">Bar: 30 seconds</span></div>
+  <div class="app__line">New joiners will <b>greet</b> a guest by name within 30 seconds of arrival.</div>
+  <div class="app__row"><span class="app__chip app__chip--warn">“Understand” cannot be seen. Try “explain”.</span></div>
+</div></div></div>
+          <h3>3 apps for course writers</h3>
+          <p class="t-small muted">Aim, Plain and Cue run in the browser. Nothing to install.</p>
+        </a>
+        <a class="card card--open span-4" href="engage.html">
+          <div class="panel"><div class="app" role="img" aria-label="The Ladder game: the verb design waits to be placed on one of the six rungs of Bloom's ladder"><div class="app__win">
+  <div class="app__bar"><span class="app__name">Ladder</span><span>0:42 left · streak 6</span></div>
+  <div class="app__verb">design</div>
+  <div class="rungs"><span class="is-hit">Create <small>tap</small></span><span>Evaluate</span><span>Analyse</span><span>Apply</span><span>Understand</span><span>Remember</span></div>
+</div></div></div>
+          <h3>3 games for a team huddle</h3>
+          <p class="t-small muted">Ladder, Pairs and Steps, about a minute a round.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer closing footer--dark ground-inverse g2m" id="contact" aria-labelledby="close-h">
+  <div class="wrap">
+    <div class="closing__cta close--photo">
+      <div class="section-head--split">
+        <div><h2 id="close-h">Email Naveen about your training</h2><p class="t-lead">Send the team, the topic and the date you need it by.</p></div>
+        <a class="btn btn--primary" href="mailto:mail@entertrainer.in?subject=Training%20project">Email Naveen<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a>
+      </div>
+      <div class="close__media"><img src="/about/club-mahindra-resort.jpg" alt="The pool and tiered front of Courtyard by Marriott, Mahabaleshwar" loading="lazy" style="object-position: 50% 60%" data-source="client" data-subject="The pool and tiered front of Courtyard by Marriott, Mahabaleshwar"></div>
+    </div>
+    <div class="closing__links">
+      <div class="grid">
+        <div class="span-4 stack-4">
+          <a class="nav__logo" href="index.html">Entertrainer</a>
+          <p class="footer__lede">Training design, free apps for trainers, essays and learning games by Naveen Jose.</p>
+        </div>
+        <div class="span-2 footer__col"><h3>Writing</h3><ul><li><a href="elevate.html">Elevate</a></li><li><a href="/elevate/you-are-not-lazy-you-are-helping-the-universe-extend-its-life">Latest essay</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>Apps</h3><ul><li><a href="/empower/aim">Aim</a></li><li><a href="/empower/plain">Plain</a></li><li><a href="/empower/cue">Cue</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>Games</h3><ul><li><a href="/engage/ladder">Ladder</a></li><li><a href="/engage/pairs">Pairs</a></li><li><a href="/engage/steps">Steps</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>Naveen</h3><ul><li><a href="about.html">About</a></li><li><a href="https://www.linkedin.com/in/entertrainer">LinkedIn</a></li></ul></div>
+      </div>
+      <div class="footer__legal">
+        <span>&copy; 2026 Entertrainer</span>
+        <div class="socials"></div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<nav class="actionbar" aria-label="Quick actions">
+  <a class="btn btn--primary" href="mailto:mail@entertrainer.in?subject=Training%20project">Email Naveen</a>
+</nav>
+
+<script type="module" src="assets/system.js"></script>
+<script type="module" src="assets/motion/motion.js"></script>
+<script type="module" src="assets/layout/layout.js"></script>
+</body>
+</html>

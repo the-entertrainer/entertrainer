@@ -83,7 +83,7 @@ export default defineEventHandler(async (event) => {
     element('div', { position: 'absolute', right: -170, bottom: -230, width: 620, height: 620, borderRadius: 999, backgroundColor: '#FFD43B' }),
     element('div', { width: '100%', justifyContent: 'space-between', borderTop: '5px solid #12110F', paddingTop: 14, fontSize: 17, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' },
       element('div', {}, preview.label),
-      element('div', { color: '#5E584D' }, 'Entertain + Train')
+      element('div', { color: '#5E584D' }, 'Naveen Jose')
     ),
     element('div', { flexDirection: 'column', maxWidth: 900, gap: 22 },
       element('div', { fontFamily: 'Fraunces', fontSize: titleSize, fontWeight: 400, lineHeight: 0.98, letterSpacing: '-0.04em' }, title),

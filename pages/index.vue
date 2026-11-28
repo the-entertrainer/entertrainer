@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
- * The front page. Entertrainer = Entertain + Train.
+ * The front page.
  *
- * 1. Hero: the two words that make the name, split around a rising sun.
- *    On scroll they part and the sun climbs (desktop, motion on).
+ * 1. Hero: a Vedic verse, headline-size, over a rising sun.
+ *    On scroll the sun climbs (desktop, motion on).
  * 2. Manifesto: Naveen's line from the very first About page, lit word by word.
  * 3. The Three Es: a pinned horizontal run on desktop: Elevate (paper),
  *    Empower (ink), Engage (sun). Stacked on small screens.
@@ -13,16 +13,16 @@ import { BLOG_POSTS } from '~/content/blogs'
 import { APPS, GAMES } from '~/content/family'
 
 useSeoMeta({
-  title: 'Entertrainer · Entertain + Train',
+  title: 'Entertrainer',
   description: 'Naveen Jose designs learning people actually remember. Essays, free apps for trainers, and small games about how we learn.',
-  ogTitle: 'Entertrainer · Entertain + Train',
+  ogTitle: 'Entertrainer',
   ogDescription: 'If it does not hold attention, it cannot teach. Essays, apps and games by Naveen Jose.',
   ogUrl: 'https://entertrainer.in/'
 })
 
 const published = BLOG_POSTS.filter(p => p.status === 'published')
 const essays = [...published].sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt)).slice(0, 3)
-const MANIFESTO = 'Entertrainer is not a typo. It’s a manifesto. Entertain + Train. If it doesn’t hold attention, it can’t transfer knowledge.'
+const MANIFESTO = 'Entertrainer is not a typo. It’s a manifesto. If it doesn’t hold attention, it can’t transfer knowledge.'
 const words = MANIFESTO.split(' ')
 
 const root = ref<HTMLElement | null>(null)
@@ -43,9 +43,8 @@ function play() {
     /* Entrance */
     if (!m.late) {
       const tl = gsap.timeline({ defaults: { ease: 'ink' } })
-      tl.from('.hx__word > span', { yPercent: 110 * d, duration: 1.1 * k, stagger: 0.12 * k, clearProps: 'transform' }, 0.05)
-      tl.from('.hx__plus', { scale: 0, rotate: -180 * d, duration: 0.9 * k, ease: 'stamp', clearProps: 'transform' }, 0.35 * k)
-      tl.from('.hx__meta > *, .hx__foot > *', { autoAlpha: 0, y: 12 * d, duration: 0.7 * k, stagger: 0.05 * k, clearProps: 'all' }, 0.5 * k)
+      tl.from('.hx__quote', { autoAlpha: 0, y: 24 * d, duration: 1.2 * k, clearProps: 'all' }, 0.15)
+      tl.from('.hx__meta > *, .hx__foot > *', { autoAlpha: 0, y: 12 * d, duration: 0.7 * k, stagger: 0.05 * k, clearProps: 'all' }, 0.45 * k)
       const sun = root.value?.querySelector('.hx__sun')
       if (h?.rings && sun) {
         const to = sun.getBoundingClientRect()
@@ -57,11 +56,9 @@ function play() {
 
     if (m.level !== 'full') return
 
-    /* 1. Hero scrub: words part, sun climbs and grows. */
+    /* 1. Hero scrub: the sun climbs and grows behind the verse. */
     if (desk) {
       gsap.timeline({ scrollTrigger: { trigger: '.hx', start: 'top top', end: 'bottom top', scrub: 0.6 } })
-        .to('.hx__word--a', { xPercent: -18, ease: 'none' }, 0)
-        .to('.hx__word--b', { xPercent: 18, ease: 'none' }, 0)
         .to('.hx__sun-track', { yPercent: -28, scale: 1.25, ease: 'none' }, 0)
         .to('.hx__meta, .hx__foot', { autoAlpha: 0, ease: 'none', duration: 0.3 }, 0)
     }
@@ -104,7 +101,7 @@ onMounted(() => nextTick(play))
 
 <template>
   <div ref="root" class="home">
-    <!-- 1 · Entertain + Train -->
+    <!-- 1 · The sun, and a verse -->
     <section class="hx br-stage" aria-labelledby="hx-title">
       <div class="hx__stick">
         <div class="hx__meta br-meta">
@@ -113,13 +110,10 @@ onMounted(() => nextTick(play))
           <span class="hx__meta-r">Essays · Apps · Games</span>
         </div>
         <div class="hx__sun-track"><BrandSun class="hx__sun" /></div>
-        <h1 id="hx-title" class="hx__title br-display" aria-label="Entertain plus train: Entertrainer">
-          <span class="hx__word hx__word--a br-mask" aria-hidden="true"><span>Entertain</span></span>
-          <span class="hx__word hx__word--b br-mask" aria-hidden="true"><span><i class="hx__plus">+</i>train</span></span>
-        </h1>
+        <h1 id="hx-title" class="sr-only">Entertrainer</h1>
+        <BrandSunQuote class="hx__quote" />
         <div class="hx__foot">
           <p class="hx__lede">Learning people actually remember. Built by a hotel kid who found out training works better when it feels like a story.</p>
-          <BrandSunQuote class="hx__quote" />
           <span class="br-meta hx__scroll" aria-hidden="true">Scroll <i /></span>
         </div>
       </div>
@@ -216,27 +210,18 @@ onMounted(() => nextTick(play))
 .hx__meta { display: flex; gap: 24px; justify-content: space-between; position: relative; z-index: 2; border-top: 3px solid var(--ink); padding-top: 10px; }
 .hx__meta-r { margin-left: auto; }
 @media (max-width: 640px) { .hx__meta span:nth-child(2) { display: none; } }
-.hx__sun-track { position: absolute; left: 50%; top: 56%; width: min(64vw, 68vh); translate: -50% -50%; z-index: 0; will-change: transform; }
-.hx__title { position: relative; z-index: 1; align-self: center; margin: 0; font-size: var(--br-mega); display: grid; gap: .02em; }
-.hx__word { white-space: nowrap; }
-.hx__word--b { justify-self: end; }
-.hx__word--b > span { display: inline-flex; align-items: baseline; }
-.hx__plus { font-style: normal; font-size: .5em; margin-right: .12em; display: inline-block; color: var(--ink); transform-origin: 50% 60%; }
-.hx__foot { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, min(540px, 42vw)) minmax(0, 1fr); align-items: end; gap: 24px; }
-.hx__scroll { justify-self: end; }
-.hx__quote { grid-column: 2; grid-row: 1; }
-.hx__lede { grid-column: 1; grid-row: 1; }
-.hx__scroll { grid-column: 3; grid-row: 1; }
+.hx__sun-track { position: absolute; left: 50%; top: 52%; width: min(64vw, 68vh); translate: -50% -50%; z-index: 0; will-change: transform; }
+.hx__quote { position: relative; z-index: 1; align-self: center; justify-self: center; width: min(640px, 86vw); margin: 0; }
+.hx__foot { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
 .hx__lede { max-width: 34ch; margin: 0; font: 400 clamp(17px, 1.4vw, 21px)/1.4 var(--font-ui); }
-.hx__scroll { display: inline-flex; align-items: center; gap: 10px; }
+.hx__scroll { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .hx__scroll i { width: 1px; height: 44px; background: var(--ink); transform-origin: top; animation: hx-drip 2.2s var(--br-ease-io) infinite; }
 @keyframes hx-drip { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); transform-origin: top; } 51% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
 @media (max-width: 760px) {
   .hx__stick { height: auto; min-height: calc(100svh - 52px - 84px); padding-top: 20px; padding-bottom: 20px; gap: 18px; }
-  .hx__sun-track { width: 92vw; top: 44%; }
-  .hx__title { font-size: clamp(64px, 21vw, 140px); }
-  .hx__foot { display: flex; flex-direction: column; align-items: stretch; gap: 16px; }
-  .hx__quote { order: -1; }
+  .hx__sun-track { width: min(92vw, 70vh); top: 46%; }
+  .hx__quote { width: min(100%, 86vw); }
+  .hx__foot { flex-direction: column; align-items: stretch; }
   .hx__scroll { display: none; }
 }
 

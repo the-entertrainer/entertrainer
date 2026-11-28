@@ -16,7 +16,8 @@
     "check:paper-signal": "node scripts/check-paper-signal.mjs",
     "check:voice": "node --experimental-strip-types scripts/check-human-not-model.mjs",
     "smoke:dialogue": "node scripts/dialogue-smoke.mjs",
-    "check:social-hooks": "node scripts/check-social-hooks.mjs"
+    "check:social-hooks": "node scripts/check-social-hooks.mjs",
+    "smoke:routes": "node scripts/route-smoke.mjs"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",

@@ -35,6 +35,23 @@ export default defineEventHandler(async (event) => {
     if (!question || !answer) {
       throw createError({ statusCode: 400, message: 'Question and answer are required.' })
     }
+    if (question.length > 4000 || answer.length > 2000) {
+      throw createError({ statusCode: 400, message: 'Keep the question under 4000 characters and the answer under 2000.' })
+    }
+
+    // Optional, all back-compatible: old clients send only question + answer
+    // and still get { distractors: [3 strings] }.
+    const difficulty = ['easy', 'medium', 'hard'].includes(body?.difficulty) ? String(body.difficulty) : ''
+    const withRationale = body?.rationale === true
+    const keep: string[] = Array.isArray(body?.keep)
+      ? body.keep.map((k: unknown) => String(k ?? '').trim().slice(0, 500)).filter(Boolean).slice(0, 2)
+      : []
+    const count = keep.length ? 3 - keep.length : 3
+    const DIFFICULTY_HINT: Record<string, string> = {
+      easy: 'Make them easy to rule out for someone who studied: clearly wrong on a second look, but still on topic.',
+      medium: 'Make them moderately hard: each reflects a common misconception.',
+      hard: 'Make them hard: each is close to the correct answer and differs by one precise detail an expert would catch.'
+    }
 
     const apiKey = process.env.GROQ_API_KEY
     if (!apiKey) {
@@ -56,19 +73,25 @@ export default defineEventHandler(async (event) => {
               role: 'system',
               content:
                 'You are an expert instructional designer specialising in multiple-choice question design. ' +
-                'Given a question and its correct answer, generate exactly 3 plausible but clearly incorrect distractors. ' +
+                `Given a question and its correct answer, generate exactly ${count} plausible but clearly incorrect distractor${count === 1 ? '' : 's'}. ` +
                 'Each distractor must be distinct, grammatically parallel to the correct answer, and believable to ' +
                 'someone who has not fully mastered the topic. ' +
-                'Return only valid JSON in this exact format: {"distractors": ["...", "...", "..."]}'
+                (difficulty ? DIFFICULTY_HINT[difficulty] + ' ' : '') +
+                (keep.length ? 'Do not repeat or paraphrase the distractors the user is keeping. ' : '') +
+                (withRationale
+                  ? 'For each distractor, add a one-sentence rationale saying which misconception it tests. ' +
+                    'Return only valid JSON in this exact format: {"distractors": ["..."], "rationales": ["..."]}'
+                  : 'Return only valid JSON in this exact format: {"distractors": ["...", "...", "..."]}')
             },
             {
               role: 'user',
-              content: `Question: ${question}\nCorrect answer: ${answer}`
+              content: `Question: ${question}\nCorrect answer: ${answer}` +
+                (keep.length ? `\nDistractors being kept: ${keep.map(k => `"${k}"`).join('; ')}` : '')
             }
           ],
           response_format: { type: 'json_object' },
           temperature: 0.8,
-          max_tokens: 400
+          max_tokens: withRationale ? 700 : 400
         })
       })
     } catch (e: any) {
@@ -99,11 +122,16 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 422, message: 'AI response was not valid JSON. Try again.' })
     }
 
-    if (!Array.isArray(parsed.distractors) || parsed.distractors.length < 3) {
+    if (!Array.isArray(parsed.distractors) || parsed.distractors.length < count) {
       throw createError({ statusCode: 422, message: 'Unexpected AI response shape. Try again.' })
     }
 
-    return { distractors: parsed.distractors.slice(0, 3) as string[] }
+    const distractors = parsed.distractors.slice(0, count).map((d: unknown) => String(d))
+    if (withRationale) {
+      const r = Array.isArray(parsed.rationales) ? parsed.rationales : []
+      return { distractors, rationales: distractors.map((_: string, i: number) => String(r[i] ?? '')) }
+    }
+    return { distractors }
   } catch (err: any) {
     if (err?.statusCode) throw err
     throw createError({ statusCode: 422, message: `Unexpected error: ${err?.message ?? String(err)}` })

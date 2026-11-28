@@ -35,7 +35,7 @@ defineProps<{
 <style scoped>
 .ts { position: relative; padding: clamp(22rem, 4vw, 40rem) 0 clamp(40rem, 7vh, 80rem); }
 .ts__inner { max-width: 760rem; margin: 0 auto; padding: 0 var(--shell-gutter); }
-.ts--wide .ts__inner { max-width: var(--shell-max); }
+.ts--wide .ts__inner { max-width: 1280rem; padding: 0 var(--hub-gutter); }
 
 .ts__head {
   margin-bottom: clamp(22rem, 3vw, 32rem);

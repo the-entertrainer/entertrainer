@@ -81,7 +81,9 @@ const filteredPosts = computed(() => {
 function formatDate(iso: string) {
   const d = new Date(iso)
   if (Number.isNaN(+d)) return ''
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  // Fixed zone so the server and the browser print the same day (a hydration
+  // mismatch otherwise appears for readers west or east of the server).
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' })
 }
 
 function setQuery(next: { category?: string; sort?: SortMode }) {
@@ -101,30 +103,109 @@ function cycleSort() {
   setQuery({ sort: next })
 }
 
+/* Sunrise rays, rounded so server and browser print identical attributes. */
+const r2 = (n: number) => Math.round(n * 100) / 100
+const RAYS = Array.from({ length: 13 }, (_, i) => {
+  const a = Math.PI + (i * Math.PI) / 12
+  const len = i % 2 ? 186 : 228
+  return { k: i, x1: r2(240 + Math.cos(a) * 118), y1: r2(240 + Math.sin(a) * 118), x2: r2(240 + Math.cos(a) * len), y2: r2(240 + Math.sin(a) * len) }
+})
+
+/* Issue numbers: No. 01 is the first essay ever published, so a number
+   never changes when a new piece lands. */
+const issueNo = computed(() => {
+  const order = posts.value.slice().sort((a, b) => +new Date(a.publishedAt) - +new Date(b.publishedAt))
+  return new Map(order.map((p, i) => [p.slug, String(i + 1).padStart(2, '0')]))
+})
+const countFor = (cat: ElevateCategory) => posts.value.filter(p => normalizeElevateCategory(p.category) === cat).length
+
+/* Filters reorder with Flip: capture the rows, change the query, animate. */
+const listEl = ref<HTMLElement | null>(null)
+const pageRoot = ref<HTMLElement | null>(null)
+const { run } = useMotion(pageRoot)
+let flipKit: Awaited<ReturnType<typeof loadGsap>> | null = null
+async function withFlip(change: () => void) {
+  if (motionLevel() === 'off' || !listEl.value) { change(); return }
+  flipKit = flipKit ?? await loadGsap()
+  const rows = listEl.value.querySelectorAll('.elevate__item')
+  const state = flipKit.Flip.getState(rows)
+  change()
+  await nextTick(); await nextTick()
+  if (!listEl.value) return
+  flipKit.Flip.from(state, {
+    targets: listEl.value.querySelectorAll('.elevate__item'),
+    duration: motionLevel() === 'calm' ? 0.3 : 0.6,
+    ease: 'ink',
+    absolute: true,
+    stagger: 0.03,
+    onEnter: els => flipKit!.gsap.fromTo(els, { autoAlpha: 0, y: 13 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'ink' }),
+    onLeave: els => flipKit!.gsap.to(els, { autoAlpha: 0, duration: 0.2, ease: 'exit' })
+  })
+}
+
 function toggleLetter(cat: ElevateCategory) {
-  if (category.value === cat) setQuery({ category: 'all' })
-  else setQuery({ category: cat })
+  void withFlip(() => {
+    if (category.value === cat) setQuery({ category: 'all' })
+    else setQuery({ category: cat })
+  })
 }
 
 function clearCategory() {
-  setQuery({ category: 'all' })
+  void withFlip(() => setQuery({ category: 'all' }))
 }
+
+onMounted(() => {
+  void run((m) => {
+    m.ScrollTrigger.batch('.elevate__item', {
+      start: 'top 88%',
+      once: true,
+      onEnter: (els) => {
+        m.inkReveal(els, { y: 21 * m.d, stagger: 0.06 * m.k })
+        m.drawRule(els.map(e => e.querySelector('.elevate__item-rule')).filter(Boolean) as Element[], { stagger: 0.06 * m.k })
+      }
+    })
+    if (!m.late) m.gsap.from('.elevate__sun', { yPercent: 70 * m.d, duration: 1.8 * m.k, ease: 'sun', clearProps: 'transform' })
+    m.drawPath('.elevate__ray', { duration: 1.1 * m.k, stagger: 0.05 * m.k, delay: 0.5 * m.k })
+  })
+})
 
 </script>
 
 <template>
-  <div class="elevate">
-    <EdStageHero
-      variant="ribbons"
+  <div ref="pageRoot" class="elevate">
+    <EdHubHero
       title="Elevate"
       title-id="elevate-title"
+      no="01"
+      :kicker="`${posts.length} essays · Mind, Universe, Science, Technology`"
+      deck="Essays that start in a room and refuse the tidy story."
     >
       <EdNewsletter variant="inline" />
-    </EdStageHero>
+      <template #art>
+        <svg class="elevate__sunrise" viewBox="0 0 480 300" preserveAspectRatio="xMidYMax meet">
+          <defs>
+            <clipPath id="elevate-horizon"><rect x="0" y="0" width="480" height="240" /></clipPath>
+          </defs>
+          <g class="elevate__rays" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+            <line v-for="r in RAYS" :key="r.k" class="elevate__ray" :x1="r.x1" :y1="r.y1" :x2="r.x2" :y2="r.y2" />
+          </g>
+          <g clip-path="url(#elevate-horizon)">
+            <g class="elevate__sun">
+              <circle cx="240" cy="240" r="96" class="elevate__sun-disc" />
+              <circle cx="240" cy="240" r="96" fill="none" stroke="currentColor" stroke-width="1.5" />
+            </g>
+          </g>
+          <line x1="0" y1="240" x2="480" y2="240" stroke="currentColor" stroke-width="2" />
+          <g stroke="currentColor" stroke-width="1" opacity=".55">
+            <line v-for="n in 5" :key="n" :x1="24 + n * 6" :y1="250 + n * 9" :x2="456 - n * 6" :y2="250 + n * 9" :stroke-dasharray="`${30 - n * 4} ${8 + n * 3}`" />
+          </g>
+        </svg>
+      </template>
+    </EdHubHero>
 
     <section class="elevate__entry" aria-labelledby="articles-title">
       <div class="elevate__toolbar">
-        <h2 id="articles-title" class="elevate__section-label">Reading</h2>
+        <h2 id="articles-title" class="dp-kicker">Contents</h2>
 
         <div class="elevate__controls">
           <div class="elevate__must" role="group" aria-label="Filter by MUST: Mind, Universe, Science, Technology">
@@ -132,14 +213,14 @@ function clearCategory() {
               v-for="item in MUST_LETTERS"
               :key="item.letter"
               type="button"
-              class="elevate__must-tile u-icon-btn"
+              class="elevate__must-tile"
               :aria-pressed="category === item.category"
-              :aria-label="`${item.letter} — ${item.category}${category === item.category ? ', selected. Tap again to show all' : ''}`"
-              :title="`${item.letter} · ${item.category}`"
+              :aria-label="`${item.category}, ${countFor(item.category)} essays${category === item.category ? ', selected. Press again to show all' : ''}`"
               @click="toggleLetter(item.category)"
             >
-              <span class="elevate__must-letter">{{ item.letter }}</span>
-              <span class="elevate__must-name">{{ item.category }}</span>
+              <span class="elevate__must-letter" aria-hidden="true">{{ item.letter }}</span>
+              <span class="elevate__must-name" aria-hidden="true">{{ item.category }}</span>
+              <span class="elevate__must-count" aria-hidden="true">{{ countFor(item.category) }}</span>
             </button>
             <button
               v-if="category !== 'all'"
@@ -154,7 +235,7 @@ function clearCategory() {
 
           <button
             type="button"
-            class="elevate__sort-toggle u-icon-btn"
+            class="elevate__sort-toggle"
             :aria-pressed="sort === 'oldest'"
             :aria-label="`Sort order: ${sortLabel}. Activate to switch`"
             @click="cycleSort"
@@ -164,16 +245,16 @@ function clearCategory() {
         </div>
       </div>
 
+      <p class="dp-sr" role="status" aria-live="polite">{{ filteredPosts.length }} {{ filteredPosts.length === 1 ? 'essay' : 'essays' }}{{ category !== 'all' ? ` in ${category}` : '' }}</p>
+
       <ul
+        ref="listEl"
         class="elevate__list"
         :class="{ 'elevate__list--compact': hydrated && settings.hideElevateExcerpts }"
-        aria-live="polite"
       >
-        <li v-for="post in filteredPosts" :key="post.slug">
+        <li v-for="post in filteredPosts" :key="post.slug" class="elevate__item" :data-flip-id="post.slug">
           <NuxtLink :to="`/elevate/${post.slug}`" class="elevate__row" :aria-labelledby="`article-${post.slug}`">
-            <figure class="elevate__thumb">
-              <EdEditorialImage :src="post.hero" :alt="post.heroAlt" />
-            </figure>
+            <span class="elevate__no" aria-hidden="true">{{ issueNo.get(post.slug) }}</span>
             <div class="elevate__row-copy">
               <div class="elevate__row-meta">
                 <span class="elevate__cat">{{ post.category }}</span>
@@ -183,19 +264,22 @@ function clearCategory() {
               <h3 :id="`article-${post.slug}`" class="elevate__row-title">{{ post.title }}</h3>
               <p v-if="!(hydrated && settings.hideElevateExcerpts)" class="elevate__row-dek">{{ post.dek }}</p>
             </div>
+            <figure class="elevate__thumb">
+              <EdEditorialImage :src="post.hero" :alt="post.heroAlt" />
+            </figure>
           </NuxtLink>
+          <span class="elevate__item-rule dp-rule" aria-hidden="true" />
         </li>
       </ul>
 
       <div v-if="!filteredPosts.length" class="elevate__empty" role="status">
-        <div class="elevate__empty-graphic" aria-hidden="true">
-          <span class="elevate__empty-orb"></span>
-          <span class="elevate__empty-orb elevate__empty-orb--b"></span>
-          <span class="elevate__empty-orb elevate__empty-orb--c"></span>
-          <span class="elevate__empty-spark">✦</span>
-        </div>
+        <svg class="elevate__empty-art" viewBox="0 0 120 70" aria-hidden="true">
+          <line x1="4" y1="56" x2="116" y2="56" stroke="currentColor" stroke-width="1.5" />
+          <path d="M34 56a26 26 0 0 1 52 0" fill="var(--accent)" stroke="currentColor" stroke-width="1.5" />
+        </svg>
         <p class="elevate__empty-line">Nothing in this filter yet.</p>
-        <p class="elevate__empty-soon">Try another letter, or wait. New pieces land here.</p>
+        <p class="elevate__empty-soon">Try another letter, or show all essays.</p>
+        <button type="button" class="ticket ticket--sm" @click="clearCategory">Show all essays</button>
       </div>
     </section>
   </div>
@@ -205,381 +289,174 @@ function clearCategory() {
 .elevate {
   max-width: var(--shell-max);
   margin: 0 auto;
-  padding: var(--space-34) var(--shell-gutter) var(--space-89);
+  padding: var(--space-13) var(--hub-gutter) var(--space-89);
 }
+
+/* Sunrise over the section name. */
+.elevate__sunrise { position: absolute; right: 0; bottom: 0; width: 100%; max-width: 520rem; height: 100%; color: var(--ink); overflow: visible; }
+.elevate__sun-disc { fill: var(--accent); }
+.elevate__rays { opacity: .6; }
+@media (max-width: 899px) { .elevate__sunrise { left: 50%; right: auto; transform: translateX(-50%); } }
 
 .elevate__entry { padding: var(--space-34) 0 0; }
 
 .elevate__toolbar {
+  position: sticky;
+  top: calc(var(--nav-h) + var(--safe-top));
+  z-index: 5;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 14rem 20rem;
-  margin-bottom: 0;
-  padding: 0 0 16rem;
-  border-bottom: var(--stroke) solid var(--line);
+  padding: var(--space-13) 0;
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
+  border-bottom: 2px solid var(--ink);
 }
 
-.elevate__section-label {
-  margin: 0;
-  color: var(--ink);
-  font: 500 var(--type-meta)/1.2 var(--font-mono);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-.elevate__section-label::before {
-  content: '';
-  display: inline-block;
-  width: 8rem;
-  height: 8rem;
-  margin-right: 8rem;
-  border-radius: 50%;
-  background: var(--accent);
-  border: 1px solid var(--ink);
-  vertical-align: 0;
-}
-
-.elevate__controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10rem 14rem;
-  min-width: 0;
-}
-
-.elevate__must {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6rem;
-}
+.elevate__controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10rem 14rem; min-width: 0; }
+.elevate__must { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6rem; }
 
 .elevate__must-tile {
-  display: grid;
-  grid-template-rows: auto auto;
-  align-content: center;
-  justify-items: center;
-  gap: 2rem;
-  min-width: 58rem;
-  min-height: 48rem;
-  padding: 6rem 8rem;
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 2rem 8rem;
+  min-height: 44rem;
+  padding: 6rem 12rem 6rem 10rem;
   border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-s);
+  border-radius: var(--radius-full);
   background: var(--paper);
   color: var(--ink);
   cursor: pointer;
-  box-shadow: 2rem 2rem 0 color-mix(in srgb, var(--ink) 12%, transparent);
-  transition:
-    background var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out);
+  transition: background var(--dur-fast) var(--ease-out), transform var(--dur-tap) var(--ease-out);
 }
 .elevate__must-letter {
-  font: 700 15rem/1 var(--font-display);
-  letter-spacing: -.02em;
-  display: inline-block;
-  transform-origin: center;
-  animation: u-icon-idle-nudge 5.8s ease-in-out infinite;
+  grid-row: span 2;
+  display: grid; place-items: center;
+  width: 26rem; height: 26rem; border-radius: 50%;
+  border: var(--stroke) solid var(--ink);
+  font: 600 14px/1 var(--font-display);
 }
-.elevate__must-tile:nth-child(1) .elevate__must-letter { animation-delay: 0s; }
-.elevate__must-tile:nth-child(2) .elevate__must-letter { animation-delay: .18s; }
-.elevate__must-tile:nth-child(3) .elevate__must-letter { animation-delay: .36s; }
-.elevate__must-tile:nth-child(4) .elevate__must-letter { animation-delay: .54s; }
-.elevate__must-tile[aria-pressed="true"] .elevate__must-letter { animation: none; }
-@media (prefers-reduced-motion: reduce) {
-  .elevate__must-letter { animation: none; }
-}
-:global(html[data-reduce-motion="on"]) .elevate__must-letter { animation: none; }
-.elevate__must-name {
-  font: 700 8rem/1.1 var(--font-mono);
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.elevate__must-tile[aria-pressed="true"] .elevate__must-name {
-  color: var(--accent-ink);
-}
-.elevate__must-tile[aria-pressed="true"] {
-  background: var(--accent);
-  color: var(--accent-ink, #161618);
-  box-shadow: 2rem 2rem 0 var(--ink);
-}
-@media (hover: hover) {
-  .elevate__must-tile:hover {
-    transform: translate(-1rem, -1rem);
-    translate: none;
-    box-shadow: 3rem 3rem 0 color-mix(in srgb, var(--ink) 18%, transparent);
-  }
-  .elevate__must-tile[aria-pressed="true"]:hover {
-    box-shadow: 3rem 3rem 0 var(--ink);
-  }
-}
-.elevate__must-tile:active,
-.elevate__must-tile:hover:active {
-  translate: none;
-  scale: none;
-}
-.elevate__must-tile:focus-visible {
-  outline: 3rem solid var(--ink);
-  outline-offset: 3rem;
-}
+.elevate__must-name { font: 600 10px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.elevate__must-count { font: 500 10px/1 var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.elevate__must-tile[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.elevate__must-tile[aria-pressed="true"] .elevate__must-letter { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.elevate__must-tile[aria-pressed="true"] .elevate__must-count { color: color-mix(in srgb, var(--paper) 75%, transparent); }
+@media (hover: hover) { .elevate__must-tile:not([aria-pressed="true"]):hover { background: var(--signal-field); } }
+.elevate__must-tile:active { transform: scale(.97); }
 
-.elevate__must-all {
-  min-height: 32rem;
-  margin-left: 2rem;
-  padding: 4rem 10rem;
-  border: none;
-  border-bottom: var(--stroke) solid var(--line);
-  border-radius: 0;
-  background: transparent;
-  color: var(--ink-soft);
-  font: 600 11rem/1 var(--font-mono);
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-.elevate__must-all:hover { color: var(--ink); border-bottom-color: var(--ink); }
-.elevate__must-all:focus-visible {
-  outline: 3rem solid var(--ink);
-  outline-offset: 3rem;
-}
-
-.elevate__sort-toggle {
-  min-height: 36rem;
+.elevate__must-all, .elevate__sort-toggle {
+  min-height: 44rem;
   padding: 6rem 14rem;
   border: var(--stroke) solid var(--ink);
   border-radius: var(--radius-full);
-  background: var(--paper);
+  background: transparent;
   color: var(--ink);
-  font: 600 11rem/1 var(--font-mono);
-  letter-spacing: .05em;
+  font: 600 11px/1 var(--font-mono);
+  letter-spacing: .06em;
   text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;
 }
-.elevate__sort-toggle[aria-pressed="true"] {
-  background: var(--accent);
-  color: var(--accent-ink, #161618);
-}
-.elevate__sort-toggle:focus-visible {
-  outline: 3rem solid var(--ink);
-  outline-offset: 3rem;
-}
+.elevate__must-all { border-style: dashed; }
+.elevate__sort-toggle[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
 
-.elevate__list {
-  list-style: none;
-  margin: 8rem 0 0;
-  padding: 0;
-}
+.elevate__list { position: relative; list-style: none; margin: 0; padding: 0; }
+.elevate__item { position: relative; }
+.elevate__item-rule { position: absolute; left: 0; right: 0; bottom: 0; border-top-color: var(--ink); }
+
 .elevate__row {
   display: grid;
-  grid-template-columns: 112rem minmax(0, 1fr);
-  gap: 18rem;
-  padding: 18rem 4rem;
-  border-bottom: var(--stroke) solid var(--line);
+  grid-template-columns: 120rem minmax(0, 1fr) 260rem;
+  align-items: center;
+  gap: var(--space-21) var(--space-34);
+  padding: var(--space-21) 0;
   color: var(--ink);
-  transition: background var(--dur-fast) var(--ease-out);
 }
-@media (hover: hover) {
-  .elevate__row:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
-  .elevate__row:hover .elevate__thumb :deep(.ed-editorial-image) { transform: scale(1.04); }
+.elevate__no {
+  align-self: start;
+  font: 400 clamp(48px, 5.4vw, 84px)/.85 var(--font-mono);
+  letter-spacing: -.06em;
+  color: color-mix(in srgb, var(--ink) 22%, transparent);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--dur-mid) var(--ease-ink);
 }
-.elevate__row:focus-visible {
-  outline: 3rem solid var(--ink);
-  outline-offset: 3rem;
-}
-.elevate__thumb {
-  margin: 0;
-  width: 112rem;
-  aspect-ratio: var(--crop);
-  height: auto;
-  overflow: hidden;
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-s);
-  background: var(--paper-2);
-}
-.elevate__thumb :deep(.ed-editorial-image) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 500ms var(--ease-out);
-}
-.elevate__row-copy { min-width: 0; padding-top: 2rem; }
+.elevate__row-copy { min-width: 0; }
 .elevate__row-meta {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 6rem 10rem;
-  align-items: center;
-  margin: 0 0 6rem;
+  display: flex; flex-wrap: wrap; gap: 6rem 14rem; align-items: center;
+  margin: 0 0 var(--space-8);
   font: 500 var(--type-meta)/1.2 var(--font-mono);
-  letter-spacing: .05em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  min-width: 0;
+  letter-spacing: .08em; text-transform: uppercase;
 }
-.elevate__date,
-.elevate__mins {
-  flex: none;
-  white-space: nowrap;
-}
-.elevate__cat {
-  display: inline-flex;
-  align-items: center;
-  gap: 6rem;
-  padding: 3rem 8rem;
-  border: var(--stroke) solid var(--ink);
-  border-radius: var(--radius-full);
-  background: var(--paper);
-  color: var(--ink);
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-}
-.elevate__cat::before {
-  content: '';
-  width: 7rem;
-  height: 7rem;
-  border-radius: 50%;
-  background: var(--accent);
-  border: 1px solid var(--ink);
-}
+.elevate__cat { display: inline-flex; align-items: center; gap: 6rem; color: var(--ink); }
+.elevate__cat::before { content: ''; width: 8rem; height: 8rem; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 1px var(--ink); }
 .elevate__date, .elevate__mins { color: var(--muted); }
+.elevate__mins { font-variant-numeric: tabular-nums; }
 .elevate__row-title {
   margin: 0;
-  max-width: 52ch;
-  font: 500 var(--type-card)/1.15 var(--font-display);
-  letter-spacing: -.03em;
+  font: 400 clamp(28px, 3vw, 44px)/1.02 var(--font-display);
+  font-variation-settings: "opsz" 96, "SOFT" 30;
+  letter-spacing: -.025em;
+  text-wrap: balance;
 }
-.elevate__row-dek {
-  margin: var(--space-8) 0 0;
-  max-width: var(--measure);
-  font-size: var(--type-body);
-  line-height: 1.45;
-  color: var(--ink-soft);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+.elevate__row-dek { margin: var(--space-8) 0 0; max-width: 56ch; font: 400 17px/1.5 var(--font-reading); color: var(--muted); }
+
+/* The hero illustration waits inside a sun-shaped mask and opens on hover or
+   focus, like ink spreading. Fully open on touch and narrow screens. */
+.elevate__thumb {
+  margin: 0;
+  aspect-ratio: var(--crop);
   overflow: hidden;
+  border-radius: var(--radius-s);
+  background: var(--paper-2);
+  clip-path: circle(32% at 50% 50%);
+  transition: clip-path var(--dur-slow) var(--ease-ink);
 }
-.elevate__empty {
-  margin: 36rem 0 8rem;
-  display: grid;
-  justify-items: center;
-  gap: 10rem;
-  text-align: center;
+.elevate__thumb :deep(.ed-editorial-image) { width: 100%; height: 100%; }
+.elevate__thumb :deep(img) { object-fit: cover; transform: scale(1.12); transition: transform var(--dur-slow) var(--ease-ink); }
+@media (hover: hover) {
+  .elevate__row:hover .elevate__thumb { clip-path: circle(75% at 50% 50%); }
+  .elevate__row:hover .elevate__thumb :deep(img) { transform: scale(1); }
+  .elevate__row:hover .elevate__no { color: var(--ink); }
+  .elevate__row:hover .elevate__row-title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .12em; }
 }
-.elevate__empty-graphic {
-  position: relative;
-  width: 88rem;
-  height: 88rem;
-  margin-bottom: 4rem;
-}
-.elevate__empty-orb {
-  position: absolute;
-  inset: 18rem;
-  border-radius: 50%;
-  background: var(--accent);
-  opacity: .9;
-  animation: elevate-empty-pulse 1.8s ease-in-out infinite;
-}
-.elevate__empty-orb--b {
-  inset: 8rem;
-  background: transparent;
-  border: 2rem solid color-mix(in srgb, var(--accent) 70%, var(--ink));
-  opacity: .7;
-  animation: elevate-empty-spin 3.2s linear infinite;
-}
-.elevate__empty-orb--c {
-  inset: 0;
-  background: transparent;
-  border: 1.5rem dashed color-mix(in srgb, var(--ink) 28%, transparent);
-  opacity: .55;
-  animation: elevate-empty-spin 5.5s linear infinite reverse;
-}
-.elevate__empty-spark {
-  position: absolute;
-  top: 6rem;
-  right: 10rem;
-  font-size: 18rem;
-  color: var(--accent-ink);
-  background: var(--accent);
-  width: 22rem;
-  height: 22rem;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  line-height: 1;
-  animation: elevate-empty-spark 1.6s ease-in-out infinite;
-}
-.elevate__empty-line {
-  margin: 0;
-  font: 600 17rem/1.25 var(--font-ui);
-  letter-spacing: -.02em;
-  color: var(--ink);
-}
-.elevate__empty-soon {
-  margin: 0;
-  font: 800 22rem/1 var(--font-display);
-  letter-spacing: -.03em;
-  color: var(--accent-ink);
-  background: var(--accent);
-  padding: 6rem 12rem;
-  border-radius: 999rem;
-  border: var(--stroke) solid var(--ink);
-  animation: elevate-empty-bob 1.4s ease-in-out infinite;
-}
-@keyframes elevate-empty-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-}
-@keyframes elevate-empty-spin {
-  to { transform: rotate(360deg); }
-}
-@keyframes elevate-empty-spark {
-  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-  50% { transform: translateY(-4rem) rotate(12deg) scale(1.08); }
-}
-@keyframes elevate-empty-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3rem); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .elevate__empty-orb,
-  .elevate__empty-orb--b,
-  .elevate__empty-orb--c,
-  .elevate__empty-spark,
-  .elevate__empty-soon { animation: none; }
-}
+.elevate__row:focus-visible .elevate__thumb { clip-path: circle(75% at 50% 50%); }
+.elevate__row:focus-visible .elevate__thumb :deep(img) { transform: none; }
+.elevate__row:focus-visible .elevate__no { color: var(--ink); }
+.elevate__row:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
+@media (hover: none) { .elevate__thumb { clip-path: none; } .elevate__thumb :deep(img) { transform: none; } }
 
-.elevate__list--compact .elevate__row {
-  padding-top: 14rem;
-  padding-bottom: 14rem;
-  align-items: center;
-}
-.elevate__list--compact .elevate__thumb { width: 72rem; height: 48rem; }
-.elevate__list--compact .elevate__row-title { font-size: var(--type-body); }
+.elevate__list--compact .elevate__row { grid-template-columns: 72rem minmax(0, 1fr) 120rem; padding: var(--space-13) 0; }
+.elevate__list--compact .elevate__no { font-size: 34px; }
+.elevate__list--compact .elevate__row-title { font-size: 24px; }
 
-@media (max-width: 640px) {
-  .elevate { padding-top: 18rem; }
-  .elevate__hero h1 { font-size: var(--type-h1); }
-  .elevate__toolbar { gap: 12rem; }
-  .elevate__controls { width: 100%; justify-content: space-between; }
-  .elevate__must-tile { min-width: 52rem; min-height: 46rem; padding: 5rem 6rem; }
-  .elevate__must-name { font-size: 7rem; }
-  .elevate__row { grid-template-columns: 88rem minmax(0, 1fr); gap: 12rem; }
-  .elevate__thumb { width: 88rem; height: 60rem; }
-  .elevate__row-dek { -webkit-line-clamp: 3; }
+.elevate__empty { display: grid; justify-items: center; gap: var(--space-8); padding: var(--space-55) 0; text-align: center; }
+.elevate__empty-art { width: 140rem; color: var(--ink); }
+.elevate__empty-line { margin: 0; font: 500 26px/1.2 var(--font-display); }
+.elevate__empty-soon { margin: 0 0 var(--space-8); color: var(--muted); }
+
+@media (max-width: 899px) {
+  .elevate__row { grid-template-columns: 56rem minmax(0, 1fr); gap: var(--space-13); }
+  .elevate__no { font-size: 34px; }
+  .elevate__thumb { grid-column: 2; grid-row: 1; clip-path: none; }
+  .elevate__thumb :deep(img) { transform: none; }
+  .elevate__row-copy { grid-column: 2; }
+  .elevate__toolbar { position: static; }
+}
+@media (max-width: 520px) {
+  .elevate__row { grid-template-columns: minmax(0, 1fr); }
+  .elevate__no { display: none; }
+  .elevate__thumb, .elevate__row-copy { grid-column: 1; }
+  .elevate__must-name { display: none; }
+  .elevate__must-tile { grid-template-columns: auto auto; padding: 6rem 10rem 6rem 6rem; }
+  .elevate__must-letter { grid-row: auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .elevate__thumb :deep(.ed-editorial-image),
-  .elevate__row,
-  .elevate__must-tile { transition: none; }
-  .elevate__row:hover .elevate__thumb :deep(.ed-editorial-image) { transform: none; }
-  .elevate__must-tile:hover { transform: none; }
+  .elevate__thumb, .elevate__thumb :deep(img), .elevate__no, .elevate__must-tile { transition: none; }
 }
-:global(html[data-reduce-motion="on"]) .elevate__thumb :deep(.ed-editorial-image),
-:global(html[data-reduce-motion="on"]) .elevate__row,
-:global(html[data-reduce-motion="on"]) .elevate__must-tile { transition: none; }
+:global(html[data-reduce-motion="on"]) .elevate__thumb,
+:global(html[data-reduce-motion="on"]) .elevate__thumb img { transition: none !important; }
 </style>

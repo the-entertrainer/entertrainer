@@ -377,6 +377,31 @@ const stats = computed(() => {
 })
 
 // ─── Export ───────────────────────────────────────────────────────────────────
+function exportICS() {
+  const y = selectedYear.value, m = selectedMonth.value - 1
+  const events: IcsEvent[] = []
+  for (const day of calDays.value) {
+    if (!day.inMonth) continue
+    for (const s of day.sessions) {
+      events.push({
+        uid: s.id,
+        title: s.topic,
+        date: new Date(y, m, day.date),
+        slot: s.slot,
+        description: [s.method, s.duration, s.audiences?.length ? `For: ${s.audiences.join(', ')}` : '', `${calOrg.value} · ${calDept.value}`].filter(Boolean).join('\n')
+      })
+    }
+  }
+  const blob = new Blob([toIcs(calTitle.value || 'Training calendar', events)], { type: 'text/calendar;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `training-calendar-${y}-${String(m + 1).padStart(2, '0')}.ics`
+  document.body.appendChild(a); a.click(); a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+function printCalendar() { window.print() }
+
 const exporting = ref(false)
 
 async function exportPPTX() {
@@ -809,7 +834,7 @@ function backToTable() {
         <div v-else key="calendar" class="tcg-calendar-wrap">
 
           <!-- Toolbar -->
-          <div style="display:flex; align-items:center; gap:12rem; flex-wrap:wrap; margin-bottom:20rem;">
+          <div class="tcg-toolbar" style="display:flex; align-items:center; gap:12rem; flex-wrap:wrap; margin-bottom:20rem;">
             <button class="glass-btn glass-btn--ghost" @click="backToInput">← New calendar</button>
             <button class="glass-btn glass-btn--ghost" style="margin-left:0" @click="backToTable">Edit modules</button>
 
@@ -825,6 +850,8 @@ function backToTable() {
             </div>
 
             <div style="display:flex; align-items:center; gap:8rem; margin-left:auto;">
+              <button class="glass-btn glass-btn--ghost" type="button" @click="printCalendar">Print</button>
+              <button class="glass-btn glass-btn--ghost" type="button" @click="exportICS">Add to calendar (.ics)</button>
               <button class="glass-btn" :disabled="exporting" @click="exportPPTX">
                 {{ exporting ? 'Building…' : 'Export PPTX' }}
               </button>
@@ -1009,6 +1036,19 @@ function backToTable() {
   </UiToolShell>
 </template>
 
+<style>
+/* Print: just the calendar, on white, full width. */
+@media print {
+  @page { size: A4 landscape; margin: 10mm; }
+  html, body { background: #fff !important; }
+  .mh, .ft, .ts__head, .dp-index, .tcg-toolbar, .tcg-sidebar, .u-grain, .dp-wipe, .skip-link, .reading-layer { display: none !important; }
+  .tcg-layout { display: block !important; }
+  .tcg-cal-scroll { overflow: visible !important; }
+  .tcg-cal { box-shadow: none !important; border: 1px solid #000 !important; }
+  .tcg-cal * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+
 <style scoped>
 /* ── Cadence brand lockup (page header) ── */
 .cal-lockup {
@@ -1016,18 +1056,14 @@ function backToTable() {
   align-items: center;
   gap: 14rem;
 }
-.cal-lockup__mark {
-  flex-shrink: 0;
-  filter: drop-shadow(0 6rem 18rem rgba(91, 141, 239, 0.28));
-}
+.cal-lockup__mark { flex-shrink: 0; }
 .cal-wordmark {
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 1;
+  letter-spacing: -0.035em;
   line-height: 1;
-  background: linear-gradient(100deg, #8B7CF6, #5B8DEF 55%, #2DD4BF);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--ink);
 }
 @media (max-width: 600px) {
   .cal-lockup { gap: 11rem; }
@@ -1126,8 +1162,9 @@ function backToTable() {
 
 /* Selectable chips — preferred days, module/session audiences */
 .glass-chip.active {
-  background: color-mix(in srgb, #5B8DEF 24%, transparent);
-  border-color: color-mix(in srgb, #5B8DEF 50%, transparent);
+  background: #161618;
+  color: #F7F1E4;
+  border-color: #161618;
   color: #3D63C4;
 }
 
@@ -1323,7 +1360,7 @@ function backToTable() {
   --color-text:               #1A1916;
   --color-bg:                 #FFFFFF;
   --color-divider:            rgba(0, 0, 0, 0.12);
-  background: #F7F5F1;
+  background: #F7F1E4;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 16rem;
   padding: 20rem;
@@ -1438,10 +1475,10 @@ function backToTable() {
 /* Preferred training days — highlighted in the brand blue so the schedule's
    working days read at a glance (wins over weekend styling) */
 .tcg-day--training {
-  background: color-mix(in srgb, #5B8DEF 8%, transparent);
-  border-color: color-mix(in srgb, #5B8DEF 26%, transparent);
+  background: #FFFDF7;
+  border-color: rgba(22, 22, 24, 0.22);
 }
-.tcg-day--training .tcg-date-num { opacity: 0.85; color: #3D63C4; }
+.tcg-day--training .tcg-date-num { opacity: 1; color: #161618; font-weight: 700; }
 .tcg-day--holiday {
   background: color-mix(in srgb, #ef4444 7%, transparent);
   border-color: color-mix(in srgb, #ef4444 22%, transparent);

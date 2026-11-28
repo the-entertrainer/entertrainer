@@ -41,20 +41,22 @@
   --gray-200:  #EAEAEC;
   --gray-300:  #DCDCE0;
   --gray-400:  #A9A9B1;
-  --gray-500:  #737379;   /* the lightest grey that still clears 4.5:1 as text */
+  --gray-500:  #69696F;   /* the lightest grey that still clears 4.5:1 as text on cream */
   --gray-600:  #55555C;
   --gray-700:  #3A3A40;
   --gray-800:  #26262A;
   --gray-900:  #161618;
   --gray-1000: #0A0A0B;
 
-  --paper:   #FFFFFF;
-  --paper-2: var(--gray-50);
-  --paper-3: var(--gray-100);
+  /* Dawn Press: the documented cream stock (DESIGN.md), with two warmer
+     folds for wells and panels. */
+  --paper:   #F7F1E4;
+  --paper-2: #F1E9D8;
+  --paper-3: #E9DFCA;
   --ink:     var(--gray-900);
   --muted:   var(--gray-600);
-  --line:    var(--gray-300);
-  --line-strong: var(--gray-400);
+  --line:    #D9CFBB;
+  --line-strong: #8C8373;
 
   /* Six accents. Saturated enough to sort a page from across the room, dark
      enough to carry white text where they need to. Each is paired below with

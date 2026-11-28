@@ -61,6 +61,7 @@ export default defineEventHandler(async (event) => {
       `RETURN ONLY this exact JSON shape (no markdown, no extra text):\n` +
       `{\n` +
       `  "subject": "concise, specific subject line (ideally 6-10 words)",\n` +
+      `  "subjectOptions": ["two more distinct subject lines with a different angle, same rules"],\n` +
       `  "body": "the full polished email body as plain text with natural paragraph breaks",\n` +
       `  "improvements": ["3 to 5 short, specific bullets explaining the key improvements and why they matter"]\n` +
       `}\n\n` +
@@ -140,8 +141,16 @@ export default defineEventHandler(async (event) => {
       ? parsed.improvements.map((s: any) => String(s).trim()).filter(Boolean)
       : []
 
+    const subject = parsed.subject.trim()
+    // Optional extra subject lines. Old clients ignore the field.
+    const subjects = [subject, ...(Array.isArray(parsed.subjectOptions) ? parsed.subjectOptions : [])]
+      .map((s: any) => String(s ?? '').trim())
+      .filter((s: string, i: number, all: string[]) => s && all.indexOf(s) === i)
+      .slice(0, 3)
+
     return {
-      subject: parsed.subject.trim(),
+      subject,
+      subjects,
       body:    parsed.body.trim(),
       improvements
     }

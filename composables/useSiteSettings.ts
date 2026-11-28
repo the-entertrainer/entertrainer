@@ -1,8 +1,12 @@
 /**
  * Site-wide visitor preferences (opening sound, article list, word puzzle).
  * Persists under one localStorage key; SSR-safe defaults until client hydrate.
- * Reduced motion follows the OS preference only (no site setting).
+ * Motion: Full / Calm / Off. Off (or the OS reduce preference) sets
+ * html[data-reduce-motion="on"]; Calm sets html[data-motion="calm"], which
+ * halves distances and durations. The preloader keeps reading the OS only.
  */
+
+export type MotionPref = 'full' | 'calm' | 'off'
 
 export type ElevateSortPref = 'newest' | 'oldest' | 'title'
 
@@ -32,6 +36,10 @@ export interface SiteSettings {
   wordOfTheDay: boolean
   hideElevateExcerpts: boolean
   elevateSort: ElevateSortPref
+  /** Site motion level. Default full; the OS reduce preference still wins. */
+  motion: MotionPref
+  /** Soft paper and press sounds for taps and toggles. Off by default. */
+  uiSound: boolean
 }
 
 export const SITE_SETTINGS_KEY = 'entertrainer.settings'
@@ -43,7 +51,9 @@ const defaults = (): SiteSettings => ({
   astroclockGearSound: true,
   wordOfTheDay: true,
   hideElevateExcerpts: false,
-  elevateSort: 'newest'
+  elevateSort: 'newest',
+  motion: 'full',
+  uiSound: false
 })
 
 function isOpeningSoundId(value: unknown): value is OpeningSoundId {
@@ -70,7 +80,9 @@ function parseStored(raw: string | null): SiteSettings {
       astroclockGearSound: parsed.astroclockGearSound !== false,
       wordOfTheDay: parsed.wordOfTheDay !== false,
       hideElevateExcerpts: parsed.hideElevateExcerpts === true,
-      elevateSort: sort === 'oldest' || sort === 'title' || sort === 'newest' ? sort : 'newest'
+      elevateSort: sort === 'oldest' || sort === 'title' || sort === 'newest' ? sort : 'newest',
+      motion: parsed.motion === 'calm' || parsed.motion === 'off' ? parsed.motion : 'full',
+      uiSound: parsed.uiSound === true
     }
   } catch {
     return defaults()
@@ -103,8 +115,12 @@ export function useSiteSettings() {
     try {
       reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     } catch { /* ignore */ }
-    if (reduce) el.setAttribute('data-reduce-motion', 'on')
+    const pref = settings.value.motion
+    if (reduce || pref === 'off') el.setAttribute('data-reduce-motion', 'on')
     else el.removeAttribute('data-reduce-motion')
+    if (!reduce && pref === 'calm') el.setAttribute('data-motion', 'calm')
+    else el.removeAttribute('data-motion')
+    el.setAttribute('data-ui-sound', settings.value.uiSound ? 'on' : 'off')
   }
 
   function bindOsReduceMotion() {
@@ -162,6 +178,8 @@ export function useSiteSettings() {
   function setWordOfTheDay(on: boolean) { patch({ wordOfTheDay: on }) }
   function setHideElevateExcerpts(on: boolean) { patch({ hideElevateExcerpts: on }) }
   function setElevateSort(sort: ElevateSortPref) { patch({ elevateSort: sort }) }
+  function setMotion(motion: MotionPref) { patch({ motion }) }
+  function setUiSound(on: boolean) { patch({ uiSound: on }) }
 
   function reset() {
     settings.value = defaults()
@@ -205,6 +223,8 @@ export function useSiteSettings() {
     setWordOfTheDay,
     setHideElevateExcerpts,
     setElevateSort,
+    setMotion,
+    setUiSound,
     reset,
     openPanel,
     closePanel,

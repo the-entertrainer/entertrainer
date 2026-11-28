@@ -42,7 +42,7 @@ export default defineNuxtConfig({
   // observer never fires.
   modules: ['@pinia/nuxt', '@vite-pwa/nuxt'],
   // Faces first, then the system that uses them.
-  css: ['~/assets/css/fonts.css', '~/assets/css/main.css'],
+  css: ['~/assets/css/fonts.css', '~/assets/css/main.css', '~/assets/css/dawn.css'],
   runtimeConfig: {
     // Server-only — set via GIPHY_API_KEY env var (Vercel project settings).
     // When absent, /api/giphy serves a curated fallback manifest.
@@ -82,13 +82,20 @@ export default defineNuxtConfig({
           // Never localStorage — reopen always follows prefers-color-scheme.
           // stores/theme.ts owns it from mount onwards.
           innerHTML: `(function(){try{var s=sessionStorage.getItem('et-theme-session');if(s==='dark'||s==='light'){document.documentElement.dataset.theme=s;return}}catch(e){}try{localStorage.removeItem('et-theme')}catch(e){}document.documentElement.dataset.theme=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';})();`
+        },
+        {
+          // Before first paint: skip the preloader gate for a visitor who has
+          // already seen it this session, and apply Settings > Motion so no
+          // animation starts at the wrong level. useSiteSettings owns both
+          // from mount onwards.
+          innerHTML: `(function(){var h=document.documentElement;try{if(sessionStorage.getItem('entertrainer.preloader-done')==='1')h.classList.add('pl-skip')}catch(e){}try{var s=JSON.parse(localStorage.getItem('entertrainer.settings')||'{}');if(s.motion==='off')h.setAttribute('data-reduce-motion','on');else if(s.motion==='calm')h.setAttribute('data-motion','calm');if(s.uiSound===true)h.setAttribute('data-ui-sound','on')}catch(e){}})();`
         }
       ],
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         { name: 'description', content: 'Naveen Jose makes lessons, useful little tools, and clearer ways into complicated things.' },
         { name: 'theme-color', content: '#0B0B0C', media: '(prefers-color-scheme: dark)' },
-        { name: 'theme-color', content: '#FFFFFF', media: '(prefers-color-scheme: light)' },
+        { name: 'theme-color', content: '#F7F1E4', media: '(prefers-color-scheme: light)' },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
@@ -134,8 +141,8 @@ export default defineNuxtConfig({
       name: 'Entertrainer',
       short_name: 'Entertrainer',
       description: 'Lessons, useful little tools, and clear explanations by Naveen Jose.',
-      theme_color: '#FFFFFF',
-      background_color: '#FFFFFF',
+      theme_color: '#F7F1E4',
+      background_color: '#F7F1E4',
       display: 'standalone',
       orientation: 'any',
       scope: '/',

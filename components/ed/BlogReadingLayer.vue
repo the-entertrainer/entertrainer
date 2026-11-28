@@ -12,6 +12,30 @@ const isArticle = computed(() => route.path.startsWith('/elevate/') && route.pat
 let observer: IntersectionObserver | null = null
 let raf = 0
 
+/* Dawn Press essay entrance: the headline sets line by line, the hero and
+   figures develop like a print as they arrive. One context per article. */
+let essayCtx: gsap.Context | null = null
+let playedFor = ''
+async function playEssay() {
+  if (!isArticle.value || playedFor === route.path) return
+  playedFor = route.path
+  essayCtx?.revert()
+  essayCtx = null
+  const m = await getMotionKit()
+  if (!m || playedFor !== route.path) return
+  const head = document.querySelector<HTMLElement>('.taj__head, .ca__head, .feature__head')
+  essayCtx = m.gsap.context(() => {
+    const h1 = head?.querySelector('h1')
+    if (h1 && h1.getBoundingClientRect().top < window.innerHeight) m.splitLines(h1)
+    const hero = document.querySelector('.taj__hero, .ca__hero, .feature__hero')
+    if (hero && hero.getBoundingClientRect().top < window.innerHeight) m.develop(hero, { delay: 0.2 * m.k })
+    const figs = document.querySelectorAll('.taj__prose figure, .ca__prose figure, .feature__prose figure')
+    if (figs.length) {
+      m.ScrollTrigger.batch(figs, { start: 'top 88%', once: true, onEnter: els => { m.develop(els, { stagger: 0.1 * m.k }) } })
+    }
+  })
+}
+
 function slugify(value: string) {
   return value
     .toLowerCase()
@@ -96,6 +120,7 @@ onMounted(() => {
   window.addEventListener('scroll', updateProgress, { passive: true })
   nextTick(() => {
     collectSections()
+    void playEssay()
     window.setTimeout(collectSections, 360)
   })
 })
@@ -104,11 +129,13 @@ watch(() => route.path, async () => {
   focusMode.value = false
   document.documentElement.removeAttribute('data-reading-focus')
   await nextTick()
+  window.setTimeout(() => { void playEssay() }, 80)
   window.setTimeout(collectSections, 80)
   window.setTimeout(collectSections, 360)
 })
 
 onBeforeUnmount(() => {
+  essayCtx?.revert()
   observer?.disconnect()
   cancelAnimationFrame(raf)
   window.removeEventListener('scroll', updateProgress)
@@ -120,6 +147,7 @@ onBeforeUnmount(() => {
   <div v-if="isArticle && sections.length" class="reading-layer" :class="{ 'reading-layer--open': isOpen }">
     <div class="reading-layer__progress" aria-hidden="true">
       <span :style="{ transform: `scaleX(${progress / 100})` }" />
+      <i :style="{ left: `${progress}%` }" />
     </div>
 
     <div class="reading-layer__rail" aria-label="Reading controls">
@@ -179,8 +207,13 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   transform-origin: left center;
-  background: var(--signal-cobalt);
+  background: var(--ink);
   transition: transform 180ms linear;
+}
+.reading-layer__progress i {
+  position: absolute; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 1.5px var(--ink);
+  transition: left 180ms linear;
 }
 /*
   The rail sits in the free right gutter, pinned to the viewport edge.
@@ -206,7 +239,7 @@ onBeforeUnmount(() => {
 .reading-layer__actions { display: grid; gap: 5rem; margin-top: 10rem; padding-top: 10rem; border-top: var(--stroke) solid var(--ink); }
 .reading-layer__action { display: flex; justify-content: space-between; width: 100%; padding: 6rem 0; border: 0; background: none; color: var(--ink); cursor: pointer; text-align: left; font: 700 10rem/1.2 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; }
 @media (prefers-reduced-motion: reduce) { .reading-layer__progress span { transition: none; } }
-html[data-reduce-motion="on"] .reading-layer__progress span { transition: none; }
+html[data-reduce-motion="on"] .reading-layer__progress span, html[data-reduce-motion="on"] .reading-layer__progress i { transition: none; }
 :global(html[data-reading-focus] .feature__margin-note),
 :global(html[data-reading-focus] .ca__margin-note),
 :global(html[data-reading-focus] .taj__margin-note),

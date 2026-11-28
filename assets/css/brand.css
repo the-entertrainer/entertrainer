@@ -185,3 +185,80 @@ html[data-reduce-motion="on"] .br-marquee__track { animation: none; }
 .fx-empty { border: 1px dashed var(--line-strong); border-radius: 14px; padding: 28px; text-align: center; color: var(--gray-500); }
 .fx-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 html[data-theme="dark"] .fx-input, html[data-theme="dark"] .fx-text { background: color-mix(in srgb, var(--paper) 85%, black); }
+
+/* ==========================================================================
+   Phone: the site behaves like an app below 861px.
+   Tab bar (components/brand/TabBar.vue), compact top bar, native-style
+   route slides via the View Transitions API, sheets from the bottom.
+   ========================================================================== */
+@media (max-width: 860px) {
+  :root .ft { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  html { -webkit-tap-highlight-color: transparent; }
+  a, button, [role="button"], input, select, textarea, label { touch-action: manipulation; }
+
+  /* Compact top bar: the tabs carry navigation, so the menu button goes. */
+  :root .mh { view-transition-name: topbar; }
+  :root .mh .mh__bar { min-height: 52px; }
+  :root .mh .mh__icon--menu, :root .mh .mh__sheet { display: none; }
+  :root .mh .mh__search { display: inline-flex; }
+  :root .mh .mh__icon, :root .mh .mh__search { width: 40px; height: 40px; }
+
+  /* Settings: a bottom sheet with a grab handle. */
+  :root .sp { align-items: flex-end; justify-content: stretch; }
+  :root .sp .sp__panel {
+    width: 100%; height: auto; max-height: 86dvh;
+    border-left: 0; border-top: 1px solid var(--ink);
+    border-radius: 22px 22px 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    animation: br-sheet-up .42s var(--br-ease) both;
+    position: relative;
+  }
+  :root .sp .sp__panel::before { content: ''; display: block; width: 40px; height: 5px; border-radius: 3px; background: var(--line-strong); margin: 8px auto 0; }
+  /* Index: a full-width search sheet from the top, clear of the keyboard. */
+  :root .dpx { padding: calc(8px + env(safe-area-inset-top, 0px)) 8px 0; }
+  :root .dpx .dpx__panel { width: 100%; max-height: 70dvh; border-radius: 0 0 20px 20px; box-shadow: 0 20px 40px -20px rgba(0,0,0,.4); }
+
+  /* Touch targets: 44px minimum everywhere in the family. */
+  .fx-chip, .fx-chip--s { min-height: 44px; padding-inline: 14px; }
+  .fx-btn, .fx-btn--sm { min-height: 48px; }
+  .fx-row { gap: 8px; }
+  .fx-row > .fx-btn { flex: 1 1 auto; }
+}
+@keyframes br-sheet-up { from { transform: translateY(100%); } }
+
+/* No hover on touch: show the colour that desktop reveals on hover. */
+@media (hover: none) {
+  .es__thumb img { filter: none !important; }
+}
+
+/* ── View transitions (phones push and pop; desktop keeps the sun curtain) ── */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+::view-transition-group(*) { animation-duration: .42s; animation-timing-function: cubic-bezier(.2, .8, .2, 1); }
+@media (max-width: 860px) {
+  ::view-transition-old(root) { animation: br-vt-out .36s cubic-bezier(.3, .7, .2, 1) both; }
+  ::view-transition-new(root) { animation: br-vt-in .36s cubic-bezier(.3, .7, .2, 1) both; }
+  html[data-nav-dir="back"]::view-transition-old(root) { animation-name: br-vt-out-back; z-index: 2; }
+  html[data-nav-dir="back"]::view-transition-new(root) { animation-name: br-vt-in-back; }
+  html[data-nav-dir="left"]::view-transition-old(root), html[data-nav-dir="right"]::view-transition-old(root) { animation-name: br-vt-fade-out; }
+  html[data-nav-dir="right"]::view-transition-new(root) { animation-name: br-vt-tab-r; }
+  html[data-nav-dir="left"]::view-transition-new(root) { animation-name: br-vt-tab-l; }
+  .vt-mark { view-transition-name: var(--vt); }
+}
+@keyframes br-vt-in { from { transform: translateX(100%); box-shadow: -20px 0 40px rgba(0,0,0,.18); } }
+@keyframes br-vt-out { to { transform: translateX(-28%); filter: brightness(.88); } }
+@keyframes br-vt-in-back { from { transform: translateX(-28%); filter: brightness(.88); } }
+@keyframes br-vt-out-back { to { transform: translateX(100%); } }
+@keyframes br-vt-fade-out { to { opacity: 0; } }
+@keyframes br-vt-tab-r { from { opacity: 0; transform: translateX(24px); } }
+@keyframes br-vt-tab-l { from { opacity: 0; transform: translateX(-24px); } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+html[data-reduce-motion="on"]::view-transition-old(root),
+html[data-reduce-motion="on"]::view-transition-new(root) { animation: none !important; }
+@media (max-width: 400px) {
+  :root .mh .mh__brand { min-width: 0; }
+  :root .mh .mh__brand .wm__word { font-size: 23px !important; }
+  :root .mh .mh__end { gap: 4px; }
+  :root .mh .mh__bar { gap: 8px; padding-inline: 14px; }
+}

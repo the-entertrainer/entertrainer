@@ -136,6 +136,7 @@ onBeforeUnmount(() => theme.dispose())
         </main>
         <EdBlogReadingLayer v-if="isElevateArticle" />
         <EdFooter />
+        <BrandTabBar />
       </template>
 
       <div class="u-grain" aria-hidden="true" />

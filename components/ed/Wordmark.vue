@@ -1,41 +1,23 @@
 <script setup lang="ts">
-import { seedOfLife } from '~/utils/sacredGeometry'
-
 /**
- * Entertrainer identity system.
- * The mark is the Seed of Life: one still circle, six movements, the lowercase e
- * in the middle. Same construction as the preloader. The lower-case word remains
- * live text. The mark enters once and does not loop while a reader is navigating.
- *
- * The mark "e" is an SVG path (not <text>) so parent `text-transform: uppercase`
- * cannot force a capital E — a hard brand requirement.
+ * Entertrainer identity (brand relaunch, Nov 2026).
+ * The mark is the sun with a hand-drawn lowercase e: one sacred-yellow disc,
+ * one ink stroke. The word is live lowercase Fraunces. The e is a path so a
+ * parent `text-transform: uppercase` can never force a capital E.
  */
-const seed = seedOfLife(120, 120, 46)
 withDefaults(defineProps<{
-  /** `full` combines the compact mark and clean text word; `mark` is used in tight spaces. */
+  /** `full` combines the mark and the word; `mark` is used in tight spaces. */
   variant?: 'full' | 'mark'
-  /** Cap-height target in pixels. The signal scales from the same value. */
+  /** Cap-height target in pixels. */
   size?: number
 }>(), { variant: 'full', size: 34 })
 </script>
 
 <template>
   <span class="wm" :class="`wm--${variant}`" :style="{ '--wm-size': size + 'rem' }">
-    <svg class="wm__mark" viewBox="0 0 240 240" aria-hidden="true">
-      <circle
-        v-for="(c, i) in seed"
-        :key="i"
-        class="wm__ring"
-        :class="{ 'wm__ring--center': i === 0 }"
-        :cx="c.cx"
-        :cy="c.cy"
-        :r="c.r"
-      />
-      <!-- Bold grotesque lowercase e as path — immune to CSS text-transform -->
-      <path
-        class="wm__e"
-        d="M169.3 115.82L169.3 124.18L100.64 124.18Q101.71 134.52 108.11 139.69Q114.5 144.86 125.99 144.86Q135.26 144.86 144.98 142.11Q154.7 139.36 164.95 133.78L164.95 156.42Q154.54 160.36 144.12 162.37Q133.7 164.38 123.28 164.38Q98.34 164.38 84.52 151.71Q70.7 139.03 70.7 116.14Q70.7 93.67 84.28 80.79Q97.85 67.91 121.64 67.91Q143.3 67.91 156.3 80.95Q169.3 94 169.3 115.82ZM139.11 106.05Q139.11 97.69 134.23 92.56Q129.35 87.43 121.48 87.43Q112.95 87.43 107.61 92.23Q102.28 97.03 100.97 106.05Z"
-      />
+    <svg class="wm__mark" viewBox="0 0 48 48" aria-hidden="true">
+      <circle class="wm__sun" cx="24" cy="24" r="23" />
+      <path class="wm__e" d="M14.5 24.6 H33.4 c0 -5.7 -4.1 -10.3 -9.3 -10.3 s-9.7 4.6 -9.7 10.3 4.4 10.3 9.7 10.3 c3.3 0 6 -1.4 7.8 -3.8" />
     </svg>
     <span v-if="variant === 'full'" class="wm__word">entertrainer</span>
     <span v-else class="sr-only">Entertrainer</span>
@@ -60,18 +42,14 @@ withDefaults(defineProps<{
   animation: wm-mark-arrive 520ms var(--ease-spring) both;
   text-transform: none;
 }
-.wm__ring { fill: none; stroke: var(--accent); stroke-width: 7; }
-.wm__ring--center { stroke: var(--ink); }
-.wm__e {
-  fill: currentColor;
-  text-transform: lowercase !important;
-  font-variant: normal;
-}
+.wm__sun { fill: var(--br-sun, #FFD43B); }
+.wm__e { fill: none; stroke: #12110F; stroke-width: 4.2; stroke-linecap: round; stroke-linejoin: round; }
 .wm__word {
-  font-family: var(--font-ui);
-  font-size: var(--wm-size);
-  font-weight: 720;
-  letter-spacing: -.055em;
+  font-family: var(--font-display);
+  font-size: calc(var(--wm-size) * 1.06);
+  font-weight: 400;
+  font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 1;
+  letter-spacing: -.045em;
   text-transform: lowercase;
   animation: wm-word-arrive 520ms var(--ease-out) 180ms both;
 }

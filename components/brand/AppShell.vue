@@ -4,6 +4,30 @@ import { FAMILY, type FamilyMember } from '~/content/family'
 const props = defineProps<{ id: string }>()
 const me = computed(() => FAMILY.find((m) => m.id === props.id) as FamilyMember)
 const kin = computed(() => FAMILY.filter((m) => m.kind === me.value.kind && m.id !== props.id))
+const siblings = computed(() => FAMILY.filter((m) => m.kind === me.value.kind))
+const idx = computed(() => siblings.value.findIndex((m) => m.id === props.id))
+const prev = computed(() => siblings.value[(idx.value - 1 + siblings.value.length) % siblings.value.length])
+const next = computed(() => siblings.value[(idx.value + 1) % siblings.value.length])
+
+/* Swipe the header sideways to move through the family. Touches that start
+   near a screen edge are left alone for the browser's own back gesture. */
+let sx = 0, sy = 0, live = false
+function ts(e: TouchEvent) {
+  const t = e.touches[0]
+  if (!t) return
+  live = t.clientX > 28 && t.clientX < window.innerWidth - 28
+  sx = t.clientX; sy = t.clientY
+}
+function te(e: TouchEvent) {
+  if (!live) return
+  const t = e.changedTouches[0]
+  if (!t) return
+  const dx = t.clientX - sx, dy = t.clientY - sy
+  if (Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * 0.6) return
+  haptic(8)
+  document.documentElement.dataset.navDir = dx < 0 ? 'right' : 'left'
+  navigateTo(dx < 0 ? next.value.href : prev.value.href)
+}
 const hub = computed(() => me.value.kind === 'app' ? { label: 'Empower', href: '/empower' } : { label: 'Engage', href: '/engage' })
 
 useSeoMeta({
@@ -26,13 +50,13 @@ onMounted(() => {
 
 <template>
   <div ref="root" class="as" :class="`as--${me.kind}`">
-    <header class="as__head">
+    <header class="as__head" @touchstart.passive="ts" @touchend.passive="te">
       <div class="as__top br-meta">
         <NuxtLink :to="hub.href" class="as__back">← {{ hub.label }}</NuxtLink>
         <span>Entertrainer {{ me.kind === 'app' ? 'app' : 'game' }} · {{ me.meta }}</span>
       </div>
       <div class="as__title">
-        <BrandMark :id="me.id" :size="112" class="as__sun" />
+        <BrandMark :id="me.id" :size="112" class="as__sun vt-mark" :style="{ '--vt': `mark-${me.id}` }" />
         <h1 class="br-display as__name"><span class="br-mask as__rise"><span>{{ me.name }}</span></span></h1>
       </div>
       <p class="as__line">{{ me.line }}</p>
@@ -44,6 +68,12 @@ onMounted(() => {
     <section class="as__body" :aria-label="me.name">
       <slot />
     </section>
+
+    <nav class="as__pager" :aria-label="`More ${me.kind === 'app' ? 'apps' : 'games'}`">
+      <NuxtLink :to="prev.href" class="as__pg" @click="haptic(6)"><span class="br-meta">Previous</span><span class="as__pg-n"><BrandMark :id="prev.id" :size="28" />{{ prev.name }}</span></NuxtLink>
+      <span class="as__dots" aria-hidden="true"><i v-for="(s, i) in siblings" :key="s.id" :class="{ on: i === idx }" /></span>
+      <NuxtLink :to="next.href" class="as__pg as__pg--next" @click="haptic(6)"><span class="br-meta">Next</span><span class="as__pg-n">{{ next.name }}<BrandMark :id="next.id" :size="28" /></span></NuxtLink>
+    </nav>
 
     <aside class="as__kin" aria-labelledby="as-kin">
       <h2 id="as-kin" class="br-meta">More from the family</h2>
@@ -76,6 +106,27 @@ onMounted(() => {
 .as__kin-line { color: var(--gray-500); max-width: 40ch; }
 .as__kin-arrow { font-size: 28px; transition: transform .4s var(--br-ease); }
 .as__kin-row:hover .as__kin-arrow { transform: translateX(8px); }
+.as__pager { display: none; }
+@media (max-width: 860px) {
+  .as { padding-top: 16px; }
+  .as__top { font-size: 10px; }
+  .as__back { min-height: 44px; display: inline-flex; align-items: center; margin: -12px 0; }
+  .as__title { margin-top: 18px; gap: 14px; }
+  .as__sun { width: 64px; }
+  .as__name { font-size: clamp(60px, 18vw, 96px); }
+  .as__line { font-size: 20px; margin-top: 12px; }
+  .as__steps { gap: 6px 16px; margin-top: 14px; font-size: 10px; }
+  .as__body { margin-top: 24px; }
+  .as__kin { display: none; }
+  .as__pager { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; margin-top: 36px; border-top: 1px solid var(--ink); padding-top: 8px; }
+  .as__pg { display: grid; gap: 4px; min-height: 56px; align-content: center; color: var(--ink); text-decoration: none; }
+  .as__pg--next { justify-items: end; text-align: right; }
+  .as__pg-n { display: inline-flex; align-items: center; gap: 8px; font: 400 22px/1 var(--font-display); }
+  .as__pg .br-meta { color: var(--gray-500); font-size: 10px; }
+  .as__dots { display: flex; gap: 6px; }
+  .as__dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--line-strong); transition: width .3s; }
+  .as__dots i.on { width: 18px; border-radius: 3px; background: var(--ink); }
+}
 @media (max-width: 640px) {
   .as__kin-row { grid-template-columns: auto 1fr auto; }
   .as__kin-line { grid-column: 2 / 4; grid-row: 2; }

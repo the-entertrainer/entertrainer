@@ -20,8 +20,12 @@ pointer as the cursor (`components/brand/SunCursor.vue`), holds every app and ga
 frames the portrait on About, and sets behind the horizon in the footer.
 
 ## Wordmark and marks
-- Wordmark: lowercase `entertrainer` in Fraunces, live text, never capitalised.
-  The Seed-of-Life "e" mark (`EdWordmark`) stays in the masthead and preloader.
+- Logo (full rebrand, Nov 2026): the **sun-e**. A sacred-yellow disc with one hand-drawn ink
+  lowercase "e" stroke, the same drawing as the favicon and app icon. It replaces the
+  Seed-of-Life rings in the masthead (`EdWordmark`); the opening preloader keeps its rings
+  as a ceremonial moment only.
+- Wordmark: lowercase `entertrainer` in Fraunces (opsz 144, SOFT 30, WONK 1, -0.045em),
+  live text, never capitalised.
 - Footer and social cards set the word edge to edge as a sign-off.
 - Favicon: ink tile, sun disc, ink "e" stroke (`public/favicon.svg`).
 - Family marks (`components/brand/Mark.vue`, SVG copies in `public/brand/`): one sun,
@@ -81,8 +85,26 @@ All run in the browser with no account; anything saved stays in localStorage. Sh
 Retired from listings (still at their URLs, `X-Robots-Tag: noindex`): EasyMCQ, Draftly,
 Cadence, StoryGen, Compose, Stack, The Mind Reader, AstroClock (Whatto was already unlisted).
 
+## On phones: an app, not a shrunk page
+Below 861px the site behaves like an installed app:
+- **Tab bar** (`components/brand/TabBar.vue`): Home, Elevate, Empower, Engage, About; floating
+  ink pill above the home indicator, the sun slides to the active tab, tapping the active
+  tab scrolls to top. Haptic tick via `utils/haptic.ts` (Android; silent elsewhere).
+- **Top bar**: 52px, sticky, wordmark + search, word of the day, settings, theme. No menu.
+- **Screen transitions**: View Transitions API (`experimental.viewTransition`). Deeper route
+  = push from the right, shallower = pop, tab to tab = short lateral fade. App and game
+  marks morph between the hub row and the app header (`.vt-mark`). Desktop keeps the sun
+  curtain. Reduced motion: no animation.
+- **Sheets**: settings rises from the bottom with a grab handle; search drops from the top,
+  clear of the keyboard.
+- **Family on a phone**: compact header, swipe the header sideways (not from the screen edge,
+  so system back-swipe still works) or use the Previous / Next pager to move between
+  siblings. Every control is 44px or more. Aim keeps a score dock above the tab bar.
+- **Install**: standalone display, paper splash and theme colour, icons rendered from the
+  sun-e vector at `/brand/icon-<size>.png` and `/brand/maskable-512.png`.
+
 ## Social and PWA
 Social cards render on demand at `/api/social-card/<key>.png` in the brand layout
-(paper, Fraunces title, sun). PWA shortcuts point to the family. The PNG app icons
-(`pwa-192/512.png`, `apple-touch-icon.png`) are still the earlier ring mark and should be
-re-exported from `public/favicon.svg` with a binary-capable push.
+(paper, Fraunces title, sun). PWA shortcuts point to the family. App icons are rasterised
+on request from the sun-e vector by `server/routes/brand/[file].ts` (the old
+`pwa-192/512.png` files remain in `public/` but are no longer referenced).

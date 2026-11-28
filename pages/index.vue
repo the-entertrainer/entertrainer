@@ -227,7 +227,7 @@ onMounted(() => nextTick(play))
 .hx__scroll i { width: 1px; height: 44px; background: var(--ink); transform-origin: top; animation: hx-drip 2.2s var(--br-ease-io) infinite; }
 @keyframes hx-drip { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); transform-origin: top; } 51% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
 @media (max-width: 760px) {
-  .hx__stick { height: auto; min-height: 100svh; padding-top: 84px; gap: 24px; }
+  .hx__stick { height: auto; min-height: calc(100svh - 52px - 84px); padding-top: 20px; padding-bottom: 20px; gap: 18px; }
   .hx__sun-track { width: 92vw; top: 44%; }
   .hx__title { font-size: clamp(64px, 21vw, 140px); }
   .hx__foot { flex-direction: column; align-items: flex-start; }

@@ -118,3 +118,10 @@ brand system. Inspiration survey notes kept outside the repo (nothing copied).
 - Old tools/games unlisted (nav, hubs, index palette, sitemap, PWA shortcuts) and noindexed;
   files and routes untouched.
 - Social card renderer restyled; favicon.svg redrawn. PNG icons left as-is (binary).
+
+## Phone-as-app + logo rebrand (28 Nov 2026)
+- New sun-e logo in the masthead (Fraunces wordmark); preloader unchanged.
+- Bottom tab bar, compact top bar, bottom-sheet settings, top search sheet.
+- View-transition push/pop on phones with shared app/game marks; curtain stays on desktop.
+- App shell: swipe header or pager between siblings; 44px targets; haptics in games/apps.
+- App icons served as PNG from the vector (`/brand/icon-*.png`), manifest + apple-touch updated.

@@ -45,6 +45,7 @@ function tickOn() {
 function end() {
   clearInterval(timer)
   phase.value = 'over'
+  haptic([20, 60, 20, 60, 40])
   if (score.value > best.value) { best.value = score.value; localStorage.setItem('et-ladder-best', String(best.value)) }
 }
 function pick(l: Level) {
@@ -60,6 +61,7 @@ function pick(l: Level) {
     streak.value = 0
     misses.value.push({ verb: current.value.verb, level: current.value.level, picked: l })
   }
+  haptic(ok ? 10 : [30, 40, 30])
   flash.value = { rung: ok ? l : current.value.level, ok }
   setTimeout(() => (flash.value = null), 380)
   deal()

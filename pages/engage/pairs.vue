@@ -47,6 +47,7 @@ function flip(c: Card) {
   moves.value++
   const [a, b] = open.value.map((id) => cards.value.find((x) => x.id === id)!)
   if (a.pair === b.pair) {
+    haptic(14)
     done.value = new Set([...done.value, a.pair])
     open.value = []
     if (done.value.size === 6) {
@@ -54,6 +55,7 @@ function flip(c: Card) {
       if (best.value === null || moves.value < best.value) { best.value = moves.value; localStorage.setItem('et-pairs-best', String(moves.value)) }
     }
   } else {
+    haptic(4)
     lock.value = true
     setTimeout(() => { open.value = []; lock.value = false }, 1100)
   }

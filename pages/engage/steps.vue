@@ -44,6 +44,7 @@ function swap(i: number, j: number) {
 function check() {
   checks.value++
   marks.value = order.value.map((v, i) => v === i)
+  haptic(marks.value.every(Boolean) ? [12, 50, 12, 50, 30] : 20)
   if (marks.value.every(Boolean)) {
     solved.value = true
     const s = Math.max(20, 100 - (checks.value - 1) * 20)
@@ -132,7 +133,7 @@ onMounted(() => {
 .st__tab.on.done .br-meta { color: var(--br-sun); }
 .st__head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; border-top: 3px solid var(--ink); padding-top: 12px; }
 .st__title { font: 400 clamp(32px, 4vw, 60px)/1 var(--font-display); letter-spacing: -.03em; margin: 0; }
-.st__list { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 8px; touch-action: none; }
+.st__list { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 8px; }
 .st__item { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; min-height: 64px; padding: 6px 8px 6px 16px; border-radius: 14px; background: color-mix(in srgb, var(--paper) 50%, white); border: 1px solid var(--line-strong); transition: background-color .3s, border-color .3s, transform .2s, box-shadow .2s; }
 .st__item.drag { transform: scale(1.02); box-shadow: 0 12px 30px -12px rgba(0,0,0,.35); border-color: var(--ink); z-index: 1; }
 .st__item.ok { background: var(--br-sun); border-color: var(--br-sun); }
